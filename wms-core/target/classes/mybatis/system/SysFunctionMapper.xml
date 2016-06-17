@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.system.SysFunctionDao">
+
+    <resultMap id="sysFunctionResultMap" type="SysFunction">
+        <id property="id" column="ID"/>
+        <result property="funcName" column="FUNC_NAME"/>
+        <result property="parentFuncId" column="PARENT_FUNC_ID"/>
+        <result property="isLeaf" column="IS_LEAF"/>
+        <result property="actionUrl" column="ACTION_URL"/>
+        <result property="iconUrl" column="ICON_URL"/>
+        <result property="funcOrder" column="FUNC_ORDER"/>
+        <result property="isEffective" column="IS_EFFECTIVE"/>
+        <result property="createdTime" column="CREATED_TIME"/>
+        <result property="updatedTime" column="UPDATED_TIME"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="SysFunction">
+		insert into SYS_FUNCTION (
+			FUNC_NAME,PARENT_FUNC_ID,IS_LEAF,ACTION_URL,ICON_URL
+			,FUNC_ORDER,IS_EFFECTIVE,CREATED_TIME,UPDATED_TIME
+    	) values (
+			#{funcName},#{parentFuncId},#{isLeaf},#{actionUrl},#{iconUrl}
+			,#{funcOrder},#{isEffective},#{createdTime},#{updatedTime}
+    	)
+	</insert>
+
+    <update id="update" parameterType="SysFunction">
+        update SYS_FUNCTION
+        <set>
+            <if test="funcName != null">FUNC_NAME=#{funcName},</if>
+            <if test="parentFuncId != null">PARENT_FUNC_ID=#{parentFuncId},</if>
+            <if test="isLeaf != null">IS_LEAF=#{isLeaf},</if>
+            <if test="actionUrl != null">ACTION_URL=#{actionUrl},</if>
+            <if test="iconUrl != null">ICON_URL=#{iconUrl},</if>
+            <if test="funcOrder != null">FUNC_ORDER=#{funcOrder},</if>
+            <if test="isEffective != null">IS_EFFECTIVE=#{isEffective},</if>
+            <if test="createdTime != null">CREATED_TIME=#{createdTime},</if>
+            <if test="updatedTime != null">UPDATED_TIME=#{updatedTime}</if>
+        </set>
+        where ID=#{id}
+    </update>
+
+    <select id="getSysFunctionById" parameterType="int" resultMap="sysFunctionResultMap">
+		select * from SYS_FUNCTION
+		where ID=#{id} 
+	</select>
+
+    <select id="countSysFunction" parameterType="map" resultType="int">
+        select count(*) from SYS_FUNCTION
+        <include refid="queryCondition"/>
+    </select>
+
+    <select id="getSysFunctionList" parameterType="map" resultMap="sysFunctionResultMap">
+        select * from SYS_FUNCTION
+        <include refid="queryCondition"/>
+        order by PARENT_FUNC_ID,FUNC_ORDER
+        <if test="start != null and limit != null">
+            limit #{start},#{limit}
+        </if>
+    </select>
+
+    <sql id="queryCondition">
+        <where>
+            <if test="id != null">ID=#{id}</if>
+            <if test="funcName != null">and FUNC_NAME=#{funcName}</if>
+            <if test="parentFuncId != null">and PARENT_FUNC_ID=#{parentFuncId}</if>
+            <if test="isLeaf != null">and IS_LEAF=#{isLeaf}</if>
+            <if test="actionUrl != null">and ACTION_URL=#{actionUrl}</if>
+            <if test="iconUrl != null">and ICON_URL=#{iconUrl}</if>
+            <if test="funcOrder != null">and FUNC_ORDER=#{funcOrder}</if>
+            <if test="isEffective != null">and IS_EFFECTIVE=#{isEffective}</if>
+            <if test="createdTime != null">and CREATED_TIME=#{createdTime}</if>
+            <if test="updatedTime != null">and UPDATED_TIME=#{updatedTime}</if>
+        </where>
+    </sql>
+
+    <select id="getUserSysFunctionList" parameterType="map" resultMap="sysFunctionResultMap">
+        select a.*
+        from SYS_FUNCTION a
+        where a.ID in (
+            select b.FUNC_ID
+            from SYS_ROLE_FUNCTION_RELATION b
+            where b.ROLE_ID in (
+                select c.ROLE_ID
+                from SYS_USER_ROLE_RELATION c
+                where c.USER_ID = #{userId}
+            )
+            group by b.FUNC_ID
+        )
+        and a.IS_EFFECTIVE=1
+        and a.PARENT_FUNC_ID=#{parentFuncId}
+        order by a.FUNC_ORDER
+    </select>
+
+</mapper>

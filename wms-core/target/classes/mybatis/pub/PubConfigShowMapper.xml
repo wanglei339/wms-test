@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.pub.PubConfigShowDao" >
+
+	<resultMap id="pubConfigShowResultMap" type="PubConfigShow">
+		<id property="id" column="ID"/>
+		<result property="pageCode" column="PAGE_CODE"/>
+		<result property="conTypeRequired" column="CON_TYPE_REQUIRED"/>
+		<result property="conTypeShow" column="CON_TYPE_SHOW"/>
+		<result property="conTypeName" column="CON_TYPE_NAME"/>
+		<result property="conTitleRequired" column="CON_TITLE_REQUIRED"/>
+		<result property="conTitleShow" column="CON_TITLE_SHOW"/>
+		<result property="conTitleName" column="CON_TITLE_NAME"/>
+		<result property="conDescRequired" column="CON_DESC_REQUIRED"/>
+		<result property="conDescShow" column="CON_DESC_SHOW"/>
+		<result property="conDescName" column="CON_DESC_NAME"/>
+		<result property="conUrlRequired" column="CON_URL_REQUIRED"/>
+		<result property="conUrlShow" column="CON_URL_SHOW"/>
+		<result property="conUrlName" column="CON_URL_NAME"/>
+		<result property="conIdRequired" column="CON_ID_REQUIRED"/>
+		<result property="conIdShow" column="CON_ID_SHOW"/>
+		<result property="conIdName" column="CON_ID_NAME"/>
+		<result property="conP1Required" column="CON_P1_REQUIRED"/>
+		<result property="conP1Show" column="CON_P1_SHOW"/>
+		<result property="conP1Name" column="CON_P1_NAME"/>
+		<result property="conP2Required" column="CON_P2_REQUIRED"/>
+		<result property="conP2Show" column="CON_P2_SHOW"/>
+		<result property="conP2Name" column="CON_P2_NAME"/>
+		<result property="conP3Required" column="CON_P3_REQUIRED"/>
+		<result property="conP3Show" column="CON_P3_SHOW"/>
+		<result property="conP3Name" column="CON_P3_NAME"/>
+		<result property="conP4Required" column="CON_P4_REQUIRED"/>
+		<result property="conP4Show" column="CON_P4_SHOW"/>
+		<result property="conP4Name" column="CON_P4_NAME"/>
+		<result property="conP5Required" column="CON_P5_REQUIRED"/>
+		<result property="conP5Show" column="CON_P5_SHOW"/>
+		<result property="conP5Name" column="CON_P5_NAME"/>
+		<result property="conOrderRequired" column="CON_ORDER_REQUIRED"/>
+		<result property="conOrderShow" column="CON_ORDER_SHOW"/>
+		<result property="conOrderName" column="CON_ORDER_NAME"/>
+		<result property="picShow" column="PIC_SHOW"/>
+		<result property="createdTime" column="CREATED_TIME"/>
+		<result property="updatedTime" column="UPDATED_TIME"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PubConfigShow">
+		insert into PUB_CONFIG_SHOW (
+			PAGE_CODE,CON_TYPE_REQUIRED,CON_TYPE_SHOW,CON_TYPE_NAME,CON_TITLE_REQUIRED,CON_TITLE_SHOW,
+			CON_TITLE_NAME,CON_DESC_REQUIRED,CON_DESC_SHOW,CON_DESC_NAME,CON_URL_REQUIRED,CON_URL_SHOW,
+			CON_URL_NAME,CON_ID_REQUIRED,CON_ID_SHOW,CON_ID_NAME,CON_P1_REQUIRED,CON_P1_SHOW,
+			CON_P1_NAME,CON_P2_REQUIRED,CON_P2_SHOW,CON_P2_NAME,CON_P3_REQUIRED,CON_P3_SHOW,
+			CON_P3_NAME,CON_P4_REQUIRED,CON_P4_SHOW,CON_P4_NAME,CON_P5_REQUIRED,CON_P5_SHOW,
+			CON_P5_NAME,CON_ORDER_REQUIRED,CON_ORDER_SHOW,CON_ORDER_NAME,PIC_SHOW,CREATED_TIME,
+			UPDATED_TIME
+    	) values (
+			#{pageCode},#{conTypeRequired},#{conTypeShow},#{conTypeName},#{conTitleRequired},#{conTitleShow},
+			#{conTitleName},#{conDescRequired},#{conDescShow},#{conDescName},#{conUrlRequired},#{conUrlShow},
+			#{conUrlName},#{conIdRequired},#{conIdShow},#{conIdName},#{conP1Required},#{conP1Show},
+			#{conP1Name},#{conP2Required},#{conP2Show},#{conP2Name},#{conP3Required},#{conP3Show},
+			#{conP3Name},#{conP4Required},#{conP4Show},#{conP4Name},#{conP5Required},#{conP5Show},
+			#{conP5Name},#{conOrderRequired},#{conOrderShow},#{conOrderName},#{picShow},#{createdTime},
+			#{updatedTime}
+    	)
+	</insert>
+
+	<update id="update" parameterType="PubConfigShow">
+		update PUB_CONFIG_SHOW
+    	<set>
+  			<if test="pageCode != null">PAGE_CODE=#{pageCode},</if>
+  			<if test="conTypeRequired != null">CON_TYPE_REQUIRED=#{conTypeRequired},</if>
+  			<if test="conTypeShow != null">CON_TYPE_SHOW=#{conTypeShow},</if>
+  			<if test="conTypeName != null">CON_TYPE_NAME=#{conTypeName},</if>
+  			<if test="conTitleRequired != null">CON_TITLE_REQUIRED=#{conTitleRequired},</if>
+  			<if test="conTitleShow != null">CON_TITLE_SHOW=#{conTitleShow},</if>
+  			<if test="conTitleName != null">CON_TITLE_NAME=#{conTitleName},</if>
+  			<if test="conDescRequired != null">CON_DESC_REQUIRED=#{conDescRequired},</if>
+  			<if test="conDescShow != null">CON_DESC_SHOW=#{conDescShow},</if>
+  			<if test="conDescName != null">CON_DESC_NAME=#{conDescName},</if>
+  			<if test="conUrlRequired != null">CON_URL_REQUIRED=#{conUrlRequired},</if>
+  			<if test="conUrlShow != null">CON_URL_SHOW=#{conUrlShow},</if>
+  			<if test="conUrlName != null">CON_URL_NAME=#{conUrlName},</if>
+  			<if test="conIdRequired != null">CON_ID_REQUIRED=#{conIdRequired},</if>
+  			<if test="conIdShow != null">CON_ID_SHOW=#{conIdShow},</if>
+  			<if test="conIdName != null">CON_ID_NAME=#{conIdName},</if>
+  			<if test="conP1Required != null">CON_P1_REQUIRED=#{conP1Required},</if>
+  			<if test="conP1Show != null">CON_P1_SHOW=#{conP1Show},</if>
+  			<if test="conP1Name != null">CON_P1_NAME=#{conP1Name},</if>
+  			<if test="conP2Required != null">CON_P2_REQUIRED=#{conP2Required},</if>
+  			<if test="conP2Show != null">CON_P2_SHOW=#{conP2Show},</if>
+  			<if test="conP2Name != null">CON_P2_NAME=#{conP2Name},</if>
+  			<if test="conP3Required != null">CON_P3_REQUIRED=#{conP3Required},</if>
+  			<if test="conP3Show != null">CON_P3_SHOW=#{conP3Show},</if>
+  			<if test="conP3Name != null">CON_P3_NAME=#{conP3Name},</if>
+  			<if test="conP4Required != null">CON_P4_REQUIRED=#{conP4Required},</if>
+  			<if test="conP4Show != null">CON_P4_SHOW=#{conP4Show},</if>
+  			<if test="conP4Name != null">CON_P4_NAME=#{conP4Name},</if>
+  			<if test="conP5Required != null">CON_P5_REQUIRED=#{conP5Required},</if>
+  			<if test="conP5Show != null">CON_P5_SHOW=#{conP5Show},</if>
+  			<if test="conP5Name != null">CON_P5_NAME=#{conP5Name},</if>
+  			<if test="conOrderRequired != null">CON_ORDER_REQUIRED=#{conOrderRequired},</if>
+  			<if test="conOrderShow != null">CON_ORDER_SHOW=#{conOrderShow},</if>
+  			<if test="conOrderName != null">CON_ORDER_NAME=#{conOrderName},</if>
+  			<if test="picShow != null">PIC_SHOW=#{picShow},</if>
+  			<if test="createdTime != null">CREATED_TIME=#{createdTime},</if>
+  			<if test="updatedTime != null">UPDATED_TIME=#{updatedTime}</if>
+		</set>
+		where ID=#{id}
+	</update>
+  
+	<select id="getPubConfigShowById" parameterType="int" resultMap="pubConfigShowResultMap">
+		select * from PUB_CONFIG_SHOW
+		where ID=#{id} 
+	</select>
+
+	<select id="getPubConfigShowByCode" parameterType="string" resultMap="pubConfigShowResultMap">
+		select * from PUB_CONFIG_SHOW
+		where PAGE_CODE=#{code} limit 1
+	</select>
+  
+</mapper>

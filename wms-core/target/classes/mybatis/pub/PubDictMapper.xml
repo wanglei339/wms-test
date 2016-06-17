@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.pub.PubDictDao">
+
+    <resultMap id="pubDictResultMap" type="PubDict">
+        <id property="id" column="ID"/>
+        <result property="dictType" column="DICT_TYPE"/>
+        <result property="dictCode" column="DICT_CODE"/>
+        <result property="dictName" column="DICT_NAME"/>
+        <result property="status" column="STATUS"/>
+        <result property="createdTime" column="CREATED_TIME"/>
+        <result property="updatedTime" column="UPDATED_TIME"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PubDict">
+		insert into PUB_DICT (
+			DICT_TYPE,DICT_CODE,DICT_NAME,STATUS,CREATED_TIME,UPDATED_TIME
+    	) values (
+			#{dictType},#{dictCode},#{dictName},#{status},#{createdTime},#{updatedTime}
+    	)
+	</insert>
+
+    <update id="update" parameterType="PubDict">
+        update PUB_DICT
+        <set>
+            <if test="dictType != null">DICT_TYPE=#{dictType},</if>
+            <if test="dictCode != null">DICT_CODE=#{dictCode},</if>
+            <if test="dictName != null">DICT_NAME=#{dictName},</if>
+            <if test="status != null">STATUS=#{status},</if>
+            <if test="createdTime != null">CREATED_TIME=#{createdTime},</if>
+            <if test="updatedTime != null">UPDATED_TIME=#{updatedTime}</if>
+        </set>
+        where ID=#{id}
+    </update>
+
+    <select id="getPubDictById" parameterType="int" resultMap="pubDictResultMap">
+		select * from PUB_DICT
+		where ID=#{id} 
+	</select>
+
+    <select id="countPubDict" parameterType="map" resultType="int">
+        select count(*) from PUB_DICT
+        <include refid="queryCondition"/>
+    </select>
+
+    <select id="getPubDictList" parameterType="map" resultMap="pubDictResultMap">
+        select * from PUB_DICT
+        <include refid="queryCondition"/>
+        order by ID desc
+        <if test="start != null and limit != null">
+            limit #{start},#{limit}
+        </if>
+    </select>
+
+    <sql id="queryCondition">
+        <where>
+            <if test="id != null">ID=#{id}</if>
+            <if test="dictType != null">and DICT_TYPE=#{dictType}</if>
+            <if test="dictCode != null">and DICT_CODE=#{dictCode}</if>
+            <if test="dictName != null">and DICT_NAME=#{dictName}</if>
+            <if test="status != null">and STATUS=#{status}</if>
+            <if test="createdTime != null">and CREATED_TIME=#{createdTime}</if>
+            <if test="updatedTime != null">and UPDATED_TIME=#{updatedTime}</if>
+            <if test="keyword != null">
+                and (
+                DICT_CODE like concat('%',#{keyword},'%') or DICT_NAME like concat('%',#{keyword},'%')
+                )
+            </if>
+        </where>
+    </sql>
+
+</mapper>

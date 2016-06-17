@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+      <!--
+       <bean id="startQuertz" lazy-init="false" autowire="no"
+             class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+              <property name="triggers">
+                     <list>
+                            <ref bean="piliLiveTrigger"/>
+                     </list>
+              </property>
+       </bean>
+        -->
+
+       <!--七牛直播记录状态监测  cron表达式 10分钟
+       <bean id="piliLiveTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+              <property name="jobDetail">
+                     <ref bean="piliLiveTask"/>
+              </property>
+
+              <property name="cronExpression">
+
+                     <value>0 0/1 * * * ?</value>
+              </property>
+       </bean>
+       -->
+       <!--
+       <bean id="piliLiveTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+              <property name="targetObject">
+                     <ref bean="piliLiveTaskService"/>
+              </property>
+              <property name="targetMethod">
+                     <value>process</value>
+              </property>
+              <property name="concurrent">
+                     <value>false</value>
+              </property>
+       </bean>
+       -->
+
+       <!--  腾讯直播频道状态监测任务 cron表达式 10分钟
+       <bean id="chnStatusCheckTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+              <property name="jobDetail">
+                     <ref bean="chnStatusCheckTask"/>
+              </property>
+
+              <property name="cronExpression">
+
+                     <value>0 0/1 * * * ?</value>
+              </property>
+       </bean>
+        -->
+       <!--
+       <bean id="chnStatusCheckTask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+              <property name="targetObject">
+                     <ref bean="liveChnTaskService"/>
+              </property>
+              <property name="targetMethod">
+                     <value>chnStatusCheck</value>
+              </property>
+              <property name="concurrent">
+                     <value>false</value>
+              </property>
+       </bean>
+       -->
+
+</beans>

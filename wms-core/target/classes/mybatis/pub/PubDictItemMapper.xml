@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.pub.PubDictItemDao" >
+
+	<resultMap id="pubDictItemResultMap" type="PubDictItem">
+		<id property="id" column="ID"/>
+		<result property="did" column="DID"/>
+		<result property="itemName" column="ITEM_NAME"/>
+		<result property="itemValue" column="ITEM_VALUE"/>
+		<result property="pid" column="PID"/>
+		<result property="itemOrder" column="ITEM_ORDER"/>
+		<result property="ext1" column="EXT1"/>
+		<result property="ext2" column="EXT2"/>
+		<result property="ext3" column="EXT3"/>
+		<result property="ext4" column="EXT4"/>
+		<result property="ext5" column="EXT5"/>
+		<result property="status" column="STATUS"/>
+		<result property="createdTime" column="CREATED_TIME"/>
+		<result property="updatedTime" column="UPDATED_TIME"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PubDictItem">
+		insert into PUB_DICT_ITEM (
+			DID,ITEM_NAME,ITEM_VALUE,PID,ITEM_ORDER,
+			EXT1,EXT2,EXT3,EXT4,EXT5,STATUS,
+			CREATED_TIME,UPDATED_TIME
+    	) values (
+			#{did},#{itemName},#{itemValue},#{pid},#{itemOrder},
+			#{ext1},#{ext2},#{ext3},#{ext4},#{ext5},#{status},
+			#{createdTime},#{updatedTime}
+    	)
+	</insert>
+
+	<update id="update" parameterType="PubDictItem">
+		update PUB_DICT_ITEM
+    	<set>
+  			<if test="did != null">DID=#{did},</if>
+  			<if test="itemName != null">ITEM_NAME=#{itemName},</if>
+  			<if test="itemValue != null">ITEM_VALUE=#{itemValue},</if>
+  			<if test="pid != null">PID=#{pid},</if>
+  			<if test="itemOrder != null">ITEM_ORDER=#{itemOrder},</if>
+  			<if test="ext1 != null">EXT1=#{ext1},</if>
+  			<if test="ext2 != null">EXT2=#{ext2},</if>
+  			<if test="ext3 != null">EXT3=#{ext3},</if>
+  			<if test="ext4 != null">EXT4=#{ext4},</if>
+  			<if test="ext5 != null">EXT5=#{ext5},</if>
+  			<if test="status != null">STATUS=#{status},</if>
+  			<if test="createdTime != null">CREATED_TIME=#{createdTime},</if>
+  			<if test="updatedTime != null">UPDATED_TIME=#{updatedTime}</if>
+		</set>
+		where ID=#{id}
+	</update>
+  
+	<select id="getPubDictItemById" parameterType="int" resultMap="pubDictItemResultMap">
+		select * from PUB_DICT_ITEM
+		where ID=#{id} 
+	</select>
+  
+	<select id="countPubDictItem" parameterType="map" resultType="int">
+		select count(item.ID) from PUB_DICT_ITEM item
+		inner join PUB_DICT dict on item.DID = dict.ID
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getPubDictItemList" parameterType="map" resultMap="pubDictItemResultMap">
+		select item.* from PUB_DICT_ITEM item
+		inner join PUB_DICT dict on item.DID = dict.ID
+		<include refid="queryCondition"/>
+		order by item.DID,item.PID,item.ITEM_ORDER
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">item.ID=#{id}</if>
+			<if test="did != null">and item.DID=#{did}</if>
+			<if test="dictCode != null">and dict.DICT_CODE=#{dictCode}</if>
+			<if test="itemName != null">and item.ITEM_NAME=#{itemName}</if>
+			<if test="itemValue != null">and item.ITEM_VALUE=#{itemValue}</if>
+			<if test="pid != null">and item.PID=#{pid}</if>
+			<if test="itemOrder != null">and item.ITEM_ORDER=#{itemOrder}</if>
+			<if test="ext1 != null">and item.EXT1=#{ext1}</if>
+			<if test="ext2 != null">and item.EXT2=#{ext2}</if>
+			<if test="ext3 != null">and item.EXT3=#{ext3}</if>
+			<if test="ext4 != null">and item.EXT4=#{ext4}</if>
+			<if test="ext5 != null">and item.EXT5=#{ext5}</if>
+			<if test="status != null">and item.STATUS=#{status}</if>
+			<if test="createdTime != null">and item.CREATED_TIME=#{createdTime}</if>
+			<if test="updatedTime != null">and item.UPDATED_TIME=#{updatedTime}</if>
+		</where>
+	</sql>
+   
+</mapper>

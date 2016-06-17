@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.up.UpVersionRulesDao" >
+
+	<resultMap id="versionRulesResultMap" type="UpVersionRules">
+		<id property="id" column="ID"/>
+		<result property="verId" column="VER_ID"/>
+		<result property="ruleId" column="RULE_ID"/>
+		<result property="ruleType" column="RULE_TYPE"/>
+		<result property="judgeWay" column="JUDGE_WAY"/>
+		<result property="status" column="STATUS"/>
+		<result property="createdTime" column="CREATED_TIME"/>
+		<result property="updatedTime" column="UPDATED_TIME"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="UpVersionRules">
+		insert into UP_VERSION_RULES (
+			VER_ID,RULE_ID,RULE_TYPE,JUDGE_WAY,STATUS,CREATED_TIME,UPDATED_TIME
+    	) values (
+			#{verId},#{ruleId},#{ruleType},#{judgeWay},#{status},#{createdTime},#{updatedTime}
+    	)
+	</insert>
+
+	<update id="update" parameterType="UpVersionRules">
+		update UP_VERSION_RULES
+    	<set>
+  			<if test="verId != null">VER_ID=#{verId},</if>
+  			<if test="ruleId != null">RULE_ID=#{ruleId},</if>
+  			<if test="ruleType != null">RULE_TYPE=#{ruleType},</if>
+  			<if test="judgeWay != null">JUDGE_WAY=#{judgeWay},</if>
+  			<if test="status != null">STATUS=#{status},</if>
+  			<if test="createdTime != null">CREATED_TIME=#{createdTime},</if>
+  			<if test="updatedTime != null">UPDATED_TIME=#{updatedTime}</if>
+		</set>
+		where ID=#{id}
+	</update>
+  
+	<select id="getVersionRulesById" parameterType="long" resultMap="versionRulesResultMap">
+		select * from UP_VERSION_RULES
+		where ID=#{id} 
+	</select>
+  
+	<select id="countVersionRules" parameterType="map" resultType="int">
+		select count(*) from UP_VERSION_RULES
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getVersionRulesList" parameterType="map" resultMap="versionRulesResultMap">
+		select * from UP_VERSION_RULES
+		<include refid="queryCondition"/>
+		<if test="orderBy != null">
+			${orderBy}
+		</if>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">ID=#{id}</if>
+			<if test="verId != null">and VER_ID=#{verId}</if>
+			<if test="ruleId != null">and RULE_ID=#{ruleId}</if>
+			<if test="ruleType != null">and RULE_TYPE=#{ruleType}</if>
+			<if test="judgeWay != null">and JUDGE_WAY=#{judgeWay}</if>
+			<if test="status != null">and STATUS=#{status}</if>
+			<if test="createdTime != null">and CREATED_TIME=#{createdTime}</if>
+			<if test="updatedTime != null">and UPDATED_TIME=#{updatedTime}</if>
+		</where>
+	</sql>
+   
+</mapper>

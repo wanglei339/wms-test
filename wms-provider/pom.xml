@@ -19,7 +19,7 @@
         <dependency>
             <groupId>com.baidu.yun</groupId>
             <artifactId>bccs-api</artifactId>
-            <version>3.0.1</version>
+            <version>0.10.4</version>
         </dependency>
     </dependencies>
 
@@ -79,22 +79,25 @@
     <profiles>
         <profile>
             <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <properties>
                 <profile.name>dev</profile.name>
                 <log.file>/data/logs/pub-provider/provider.log</log.file>
-                <db.url>jdbc:mysql://192.168.6048:5201/lsh-wms?useUnicode=true&amp;autoReconnect=true&amp;characterEncoding=UTF8&amp;allowMultiQueries=true</db.url>
+                <db.url>jdbc:mysql://192.168.60.48:5201/lsh-wms?useUnicode=true&amp;autoReconnect=true&amp;characterEncoding=UTF8&amp;allowMultiQueries=true</db.url>
                 <db.username>root</db.username>
-                <db.password>lsh2015</db.password>
-                <redis.host.w>10.1.1.2</redis.host.w>
-                <redis.port.w>6380</redis.port.w>
-                <redis.passwd.w>lsh@2015</redis.passwd.w>
-                <redis.host.r>10.1.1.2</redis.host.r>
-                <redis.port.r>6380</redis.port.r>
-                <redis.passwd.r>lsh@2015</redis.passwd.r>
+                <db.password>root123</db.password>
+                <redis.host.w>192.168.60.48</redis.host.w>
+                <redis.port.w>6379</redis.port.w>
+                <redis.passwd.w>lsh@2016</redis.passwd.w>
+                <redis.host.r>192.168.60.48</redis.host.r>
+                <redis.port.r>6379</redis.port.r>
+                <redis.passwd.r>lsh@2016</redis.passwd.r>
                 <upload.path.root>/data/upload/staticfile</upload.path.root>
                 <oss.file.endpoint>oss-cn-beijing.aliyuncs.com</oss.file.endpoint>
                 <oss.image.endpoint>oss-cn-beijing.aliyuncs.com</oss.image.endpoint>
-                <zookeeper.ip>10.1.1.2</zookeeper.ip>
+                <zookeeper.ip>127.0.0.1</zookeeper.ip>
                 <dubbo.ip>127.0.0.1</dubbo.ip>
                 <live.rest.host>127.0.0.1:8890</live.rest.host>
                 <pili.live.hubname>lsh-test</pili.live.hubname>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.pub.PubConfigDataDao" >
+
+	<resultMap id="pubConfigDataResultMap" type="PubConfigData">
+		<id property="id" column="ID"/>
+		<result property="pageId" column="PAGE_ID"/>
+		<result property="conType" column="CON_TYPE"/>
+		<result property="conTitle" column="CON_TITLE"/>
+		<result property="conDesc" column="CON_DESC"/>
+		<result property="conUrl" column="CON_URL"/>
+		<result property="conId" column="CON_ID"/>
+		<result property="conP1" column="CON_P1"/>
+		<result property="conP2" column="CON_P2"/>
+		<result property="conP3" column="CON_P3"/>
+		<result property="conP4" column="CON_P4"/>
+		<result property="conP5" column="CON_P5"/>
+		<result property="conOrder" column="CON_ORDER"/>
+		<result property="status" column="STATUS"/>
+		<result property="createdTime" column="CREATED_TIME"/>
+		<result property="updatedTime" column="UPDATED_TIME"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PubConfigData">
+		insert into PUB_CONFIG_DATA (
+			PAGE_ID,CON_TYPE,CON_TITLE,CON_DESC,CON_URL,CON_ID,
+			CON_P1,CON_P2,CON_P3,CON_P4,CON_P5,CON_ORDER,
+			STATUS,CREATED_TIME,UPDATED_TIME
+    	) values (
+			#{pageId},#{conType},#{conTitle},#{conDesc},#{conUrl},#{conId},
+			#{conP1},#{conP2},#{conP3},#{conP4},#{conP5},#{conOrder},
+			#{status},#{createdTime},#{updatedTime}
+    	)
+	</insert>
+
+	<update id="update" parameterType="PubConfigData">
+		update PUB_CONFIG_DATA
+    	<set>
+  			<if test="pageId != null">PAGE_ID=#{pageId},</if>
+  			<if test="conType != null">CON_TYPE=#{conType},</if>
+  			<if test="conTitle != null">CON_TITLE=#{conTitle},</if>
+  			<if test="conDesc != null">CON_DESC=#{conDesc},</if>
+  			<if test="conUrl != null">CON_URL=#{conUrl},</if>
+  			<if test="conId != null">CON_ID=#{conId},</if>
+  			<if test="conP1 != null">CON_P1=#{conP1},</if>
+  			<if test="conP2 != null">CON_P2=#{conP2},</if>
+  			<if test="conP3 != null">CON_P3=#{conP3},</if>
+  			<if test="conP4 != null">CON_P4=#{conP4},</if>
+  			<if test="conP5 != null">CON_P5=#{conP5},</if>
+  			<if test="conOrder != null">CON_ORDER=#{conOrder},</if>
+  			<if test="status != null">STATUS=#{status},</if>
+  			<if test="createdTime != null">CREATED_TIME=#{createdTime},</if>
+  			<if test="updatedTime != null">UPDATED_TIME=#{updatedTime}</if>
+		</set>
+		where ID=#{id}
+	</update>
+  
+	<select id="getPubConfigDataById" parameterType="int" resultMap="pubConfigDataResultMap">
+		select * from PUB_CONFIG_DATA
+		where ID=#{id} 
+	</select>
+  
+	<select id="countPubConfigData" parameterType="map" resultType="int">
+		select count(*) from PUB_CONFIG_DATA
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getPubConfigDataList" parameterType="map" resultMap="pubConfigDataResultMap">
+		select * from PUB_CONFIG_DATA
+		<include refid="queryCondition"/>
+		order by CON_TYPE,CON_ORDER
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">ID=#{id}</if>
+			<if test="pageId != null">and PAGE_ID=#{pageId}</if>
+			<if test="conType != null">and CON_TYPE=#{conType}</if>
+			<if test="conTitle != null">and CON_TITLE=#{conTitle}</if>
+			<if test="conDesc != null">and CON_DESC=#{conDesc}</if>
+			<if test="conUrl != null">and CON_URL=#{conUrl}</if>
+			<if test="conId != null">and CON_ID=#{conId}</if>
+			<if test="conP1 != null">and CON_P1=#{conP1}</if>
+			<if test="conP2 != null">and CON_P2=#{conP2}</if>
+			<if test="conP3 != null">and CON_P3=#{conP3}</if>
+			<if test="conP4 != null">and CON_P4=#{conP4}</if>
+			<if test="conP5 != null">and CON_P5=#{conP5}</if>
+			<if test="conOrder != null">and CON_ORDER=#{conOrder}</if>
+			<if test="status != null">and STATUS=#{status}</if>
+			<if test="createdTime != null">and CREATED_TIME=#{createdTime}</if>
+			<if test="updatedTime != null">and UPDATED_TIME=#{updatedTime}</if>
+			<if test="keyword != null">
+				and (
+				CON_TITLE like concat('%',#{keyword},'%') or CON_DESC like concat('%',#{keyword},'%')
+				)
+			</if>
+		</where>
+	</sql>
+   
+</mapper>
