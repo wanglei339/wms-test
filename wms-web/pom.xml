@@ -42,6 +42,25 @@
             <artifactId>quartz</artifactId>
             <version>1.5.2</version>
         </dependency>
+        <!-- for test -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.10.19</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -74,15 +93,15 @@
             <properties>
                 <profile.name>dev</profile.name>
                 <log.file>/data/logs/wms-web/web.log</log.file>
-                <db.url>jdbc:mysql://10.1.1.2:5201/lsh-wms?useUnicode=true&amp;autoReconnect=true&amp;characterEncoding=UTF8</db.url>
+                <db.url>jdbc:mysql://192.168.60.48:5201/lsh-wms?useUnicode=true&amp;autoReconnect=true&amp;characterEncoding=UTF8&amp;allowMultiQueries=true</db.url>
                 <db.username>root</db.username>
-                <db.password>lsh2015</db.password>
-                <redis.host.w>10.1.1.2</redis.host.w>
-                <redis.port.w>6380</redis.port.w>
-                <redis.passwd.w>lsh@2015</redis.passwd.w>
-                <redis.host.r>10.1.1.2</redis.host.r>
-                <redis.port.r>6380</redis.port.r>
-                <redis.passwd.r>lsh@2015</redis.passwd.r>
+                <db.password>root123</db.password>
+                <redis.host.w>192.168.60.48</redis.host.w>
+                <redis.port.w>6379</redis.port.w>
+                <redis.passwd.w>lsh@2016</redis.passwd.w>
+                <redis.host.r>192.168.60.48</redis.host.r>
+                <redis.port.r>6379</redis.port.r>
+                <redis.passwd.r>lsh@2016</redis.passwd.r>
                 <upload.server.host>http://127.0.0.1:8021/staticfile</upload.server.host>
                 <upload.path.root>/Users/yay/Documents/upload/staticfile/</upload.path.root>
                 <oss.file.endpoint>oss-cn-beijing.aliyuncs.com</oss.file.endpoint>
