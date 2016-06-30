@@ -8,6 +8,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class Bootstrap {
 
     public static void main(String[] args) {
-        new ClassPathXmlApplicationContext("classpath:spring/applicationContext-worker.xml");
+        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("classpath:spring/applicationContext-worker.xml");
+        context.start();
     }
 }
