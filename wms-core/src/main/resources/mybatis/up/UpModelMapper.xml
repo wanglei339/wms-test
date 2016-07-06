@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.up.UpModelDao" >
+
+	<resultMap id="modelResultMap" type="UpModel">
+		<id property="id" column="ID"/>
+		<result property="modCode" column="MOD_CODE"/>
+		<result property="modName" column="MOD_NAME"/>
+		<result property="status" column="STATUS"/>
+		<result property="createdTime" column="CREATED_TIME"/>
+		<result property="updatedTime" column="UPDATED_TIME"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="UpModel">
+		insert into UP_MODEL (
+			MOD_CODE,MOD_NAME,STATUS,CREATED_TIME,UPDATED_TIME
+    	) values (
+			#{modCode},#{modName},#{status},#{createdTime},#{updatedTime}
+    	)
+	</insert>
+
+	<update id="update" parameterType="UpModel">
+		update UP_MODEL
+    	<set>
+  			<if test="modCode != null">MOD_CODE=#{modCode},</if>
+  			<if test="modName != null">MOD_NAME=#{modName},</if>
+  			<if test="status != null">STATUS=#{status},</if>
+  			<if test="createdTime != null">CREATED_TIME=#{createdTime},</if>
+  			<if test="updatedTime != null">UPDATED_TIME=#{updatedTime}</if>
+		</set>
+		where ID=#{id}
+	</update>
+  
+	<select id="getModelById" parameterType="int" resultMap="modelResultMap">
+		select * from UP_MODEL
+		where ID=#{id} 
+	</select>
+  
+	<select id="countModel" parameterType="map" resultType="int">
+		select count(*) from UP_MODEL
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getModelList" parameterType="map" resultMap="modelResultMap">
+		select * from UP_MODEL
+		<include refid="queryCondition"/>
+		<if test="orderBy != null">
+			${orderBy}
+		</if>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">ID=#{id}</if>
+			<if test="modCode != null">and MOD_CODE=#{modCode}</if>
+			<if test="modName != null">and MOD_NAME=#{modName}</if>
+			<if test="status != null">and STATUS=#{status}</if>
+			<if test="createdTime != null">and CREATED_TIME=#{createdTime}</if>
+			<if test="updatedTime != null">and UPDATED_TIME=#{updatedTime}</if>
+			<if test="keyword != null">
+				and (
+				MOD_CODE like concat('%',#{keyword},'%') or MOD_NAME like concat('%',#{keyword},'%')
+				)
+			</if>
+		</where>
+	</sql>
+   
+</mapper>

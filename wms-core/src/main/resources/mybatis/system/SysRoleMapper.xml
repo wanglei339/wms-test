@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.system.SysRoleDao">
+
+    <resultMap id="sysRoleResultMap" type="SysRole">
+        <id property="id" column="ID"/>
+        <result property="roleName" column="ROLE_NAME"/>
+        <result property="createdTime" column="CREATED_TIME"/>
+        <result property="updatedTime" column="UPDATED_TIME"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="SysRole">
+		insert into SYS_ROLE (
+			ROLE_NAME,CREATED_TIME,UPDATED_TIME
+    	) values (
+			#{roleName},#{createdTime},#{updatedTime}
+    	)
+	</insert>
+
+    <update id="update" parameterType="SysRole">
+        update SYS_ROLE
+        <set>
+            <if test="roleName != null">ROLE_NAME=#{roleName},</if>
+            <if test="createdTime != null">CREATED_TIME=#{createdTime},</if>
+            <if test="updatedTime != null">UPDATED_TIME=#{updatedTime}</if>
+        </set>
+        where ID=#{id}
+    </update>
+
+    <select id="getSysRoleById" parameterType="int" resultMap="sysRoleResultMap">
+		select * from SYS_ROLE
+		where ID=#{id} 
+	</select>
+
+    <select id="countSysRole" parameterType="map" resultType="int">
+        select count(*) from SYS_ROLE
+        <include refid="queryCondition"/>
+    </select>
+
+    <select id="getSysRoleList" parameterType="map" resultMap="sysRoleResultMap">
+        select * from SYS_ROLE
+        <include refid="queryCondition"/>
+        order by ID desc
+        <if test="start != null and limit != null">
+            limit #{start},#{limit}
+        </if>
+    </select>
+
+    <sql id="queryCondition">
+        <where>
+            <if test="id != null">ID=#{id}</if>
+            <if test="roleName != null">and ROLE_NAME=#{roleName}</if>
+            <if test="createdTime != null">and CREATED_TIME=#{createdTime}</if>
+            <if test="updatedTime != null">and UPDATED_TIME=#{updatedTime}</if>
+            <if test="keyword != null">and (ROLE_NAME like concat('%',#{keyword},'%'))</if>
+        </where>
+    </sql>
+
+</mapper>

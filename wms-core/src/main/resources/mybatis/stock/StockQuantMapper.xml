@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.stock.StockQuantDao" >
+
+	<resultMap id="stockQuantResultMap" type="StockQuant">
+		<id property="id" column="ID"/>
+		<result property="skuId" column="SKU_ID"/>
+		<result property="locationId" column="LOCATION_ID"/>
+		<result property="containerId" column="CONTAINER_ID"/>
+		<result property="qty" column="QTY"/>
+		<result property="skuUomId" column="SKU_UOM_ID"/>
+		<result property="value" column="VALUE"/>
+		<result property="cost" column="COST"/>
+		<result property="reserveMoveId" column="RESERVE_MOVE_ID"/>
+		<result property="isFrozen" column="IS_FROZEN"/>
+		<result property="supplierId" column="SUPPLIER_ID"/>
+		<result property="ownerId" column="OWNER_ID"/>
+		<result property="lotId" column="LOT_ID"/>
+		<result property="inDate" column="IN_DATE"/>
+		<result property="expireDate" column="EXPIRE_DATE"/>
+		<result property="createdAt" column="CREATED_AT"/>
+		<result property="updatedAt" column="UPDATED_AT"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockQuant">
+		insert into stock_quant (
+			SKU_ID,LOCATION_ID,CONTAINER_ID,QTY,SKU_UOM_ID,VALUE,
+			COST,RESERVE_MOVE_ID,IS_FROZEN,SUPPLIER_ID,OWNER_ID,LOT_ID,
+			IN_DATE,EXPIRE_DATE,CREATED_AT,UPDATED_AT
+    	) values (
+			#{skuId},#{locationId},#{containerId},#{qty},#{skuUomId},#{value},
+			#{cost},#{reserveMoveId},#{isFrozen},#{supplierId},#{ownerId},#{lotId},
+			#{inDate},#{expireDate},#{createdAt},#{updatedAt}
+    	)
+	</insert>
+
+	<update id="update" parameterType="StockQuant">
+		update stock_quant
+    	<set>
+  			<if test="skuId != null">SKU_ID=#{skuId},</if>
+  			<if test="locationId != null">LOCATION_ID=#{locationId},</if>
+  			<if test="containerId != null">CONTAINER_ID=#{containerId},</if>
+  			<if test="qty != null">QTY=#{qty},</if>
+  			<if test="skuUomId != null">SKU_UOM_ID=#{skuUomId},</if>
+  			<if test="value != null">VALUE=#{value},</if>
+  			<if test="cost != null">COST=#{cost},</if>
+  			<if test="reserveMoveId != null">RESERVE_MOVE_ID=#{reserveMoveId},</if>
+  			<if test="isFrozen != null">IS_FROZEN=#{isFrozen},</if>
+  			<if test="supplierId != null">SUPPLIER_ID=#{supplierId},</if>
+  			<if test="ownerId != null">OWNER_ID=#{ownerId},</if>
+  			<if test="lotId != null">LOT_ID=#{lotId},</if>
+  			<if test="inDate != null">IN_DATE=#{inDate},</if>
+  			<if test="expireDate != null">EXPIRE_DATE=#{expireDate},</if>
+  			<if test="createdAt != null">CREATED_AT=#{createdAt},</if>
+  			<if test="updatedAt != null">UPDATED_AT=#{updatedAt}</if>
+		</set>
+		where ID=#{id}
+	</update>
+  
+	<select id="getStockQuantById" parameterType="int" resultMap="stockQuantResultMap">
+		select * from stock_quant
+		where ID=#{id} 
+	</select>
+  
+	<select id="countStockQuant" parameterType="map" resultType="int">
+		select count(*) from stock_quant
+		<include refid="queryCondition"/>
+	</select>
+
+	<select id="getQuants" parameterType="map" resultMap="stockQuantResultMap">
+		select * from STOCK_QUANT
+		where SKU_ID = #{skuId}
+        <if test="locationId != null">AND LOCATION_ID = #{locationId}</if>
+		<if test="containerId != null">AND CONTAINER_ID = #{containerId}</if>
+	</select>
+
+	<select id="getStockQuantList" parameterType="map" resultMap="stockQuantResultMap">
+		select * from stock_quant
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">ID=#{id}</if>
+			<if test="skuId != null">and SKU_ID=#{skuId}</if>
+			<if test="locationId != null">and LOCATION_ID=#{locationId}</if>
+			<if test="containerId != null">and CONTAINER_ID=#{containerId}</if>
+			<if test="qty != null">and QTY=#{qty}</if>
+			<if test="skuUomId != null">and SKU_UOM_ID=#{skuUomId}</if>
+			<if test="value != null">and VALUE=#{value}</if>
+			<if test="cost != null">and COST=#{cost}</if>
+			<if test="reserveMoveId != null">and RESERVE_MOVE_ID=#{reserveMoveId}</if>
+			<if test="isFrozen != null">and IS_FROZEN=#{isFrozen}</if>
+			<if test="supplierId != null">and SUPPLIER_ID=#{supplierId}</if>
+			<if test="ownerId != null">and OWNER_ID=#{ownerId}</if>
+			<if test="lotId != null">and LOT_ID=#{lotId}</if>
+			<if test="inDate != null">and IN_DATE=#{inDate}</if>
+			<if test="expireDate != null">and EXPIRE_DATE=#{expireDate}</if>
+			<if test="createdAt != null">and CREATED_AT=#{createdAt}</if>
+			<if test="updatedAt != null">and UPDATED_AT=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>

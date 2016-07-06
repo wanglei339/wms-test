@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.system.SysRoleFunctionRelationDao">
+
+    <resultMap id="sysRoleFunctionRelationResultMap" type="SysRoleFunctionRelation">
+        <id property="id" column="ID"/>
+        <result property="roleId" column="ROLE_ID"/>
+        <result property="funcId" column="FUNC_ID"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="SysRoleFunctionRelation">
+		insert into SYS_ROLE_FUNCTION_RELATION (
+			ROLE_ID,FUNC_ID
+    	) values (
+			#{roleId},#{funcId}
+    	)
+	</insert>
+
+    <update id="update" parameterType="SysRoleFunctionRelation">
+        update SYS_ROLE_FUNCTION_RELATION
+        <set>
+            <if test="roleId != null">ROLE_ID=#{roleId},</if>
+            <if test="funcId != null">FUNC_ID=#{funcId}</if>
+        </set>
+        where ID=#{id}
+    </update>
+    
+	<delete id="deleteById" parameterType="SysRoleFunctionRelation">
+			delete from SYS_ROLE_FUNCTION_RELATION where ID = #{id}
+	</delete>
+    
+
+    <select id="getSysRoleFunctionRelationById" parameterType="int" resultMap="sysRoleFunctionRelationResultMap">
+		select * from SYS_ROLE_FUNCTION_RELATION
+		where ID=#{id} 
+	</select>
+
+    <select id="countSysRoleFunctionRelation" parameterType="map" resultType="int">
+        select count(*) from SYS_ROLE_FUNCTION_RELATION
+        <include refid="queryCondition"/>
+    </select>
+
+    <select id="getSysRoleFunctionRelationList" parameterType="map" resultMap="sysRoleFunctionRelationResultMap">
+        select * from SYS_ROLE_FUNCTION_RELATION
+        <include refid="queryCondition"/>
+        <if test="start != null and limit != null">
+            limit #{start},#{limit}
+        </if>
+    </select>
+
+    <sql id="queryCondition">
+        <where>
+            <if test="id != null">ID=#{id}</if>
+            <if test="roleId != null">and ROLE_ID=#{roleId}</if>
+            <if test="funcId != null">and FUNC_ID=#{funcId}</if>
+        </where>
+    </sql>
+
+</mapper>
