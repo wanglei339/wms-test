@@ -1,7 +1,7 @@
 package com.lsh.wms.core.dao.stock;
 
 import com.lsh.wms.core.dao.MyBatisRepository;
-import com.lsh.wms.api.model.stock.StockQuantMoveRel;
+import com.lsh.wms.model.stock.StockQuantMoveRel;
 
 import java.util.List;
 import java.util.Map;

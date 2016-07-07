@@ -1,7 +1,6 @@
-package com.lsh.wms.api.model.stock;
+package com.lsh.wms.model.stock;
 
 import java.io.Serializable;
-import java.util.Date;
 
 public class StockQuantMoveRel implements Serializable {
 

@@ -1,8 +1,7 @@
-package com.lsh.wms.api.model.stock;
+package com.lsh.wms.model.stock;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
 
 public class StockQuant implements Serializable {
 
