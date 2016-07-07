@@ -16,6 +16,7 @@
         <module>wms-consumer</module>
         <module>wms-worker</module>
         <module>wms-rpc</module>
+        <module>wms-model</module>
     </modules>
     <properties>
         <spring.version>3.2.9.RELEASE</spring.version>
