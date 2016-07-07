@@ -1,7 +1,7 @@
 package com.lsh.wms.core.dao.pub;
 
 
-import com.lsh.wms.core.model.pub.PubArea;
+import com.lsh.wms.model.pub.PubArea;
 import com.lsh.wms.core.dao.MyBatisRepository;
 
 import java.util.List;

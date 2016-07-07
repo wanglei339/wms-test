@@ -5,7 +5,7 @@ import com.alibaba.dubbo.rpc.RpcContext;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
-import com.lsh.wms.api.model.upload.UploadForm;
+import com.lsh.wms.model.upload.UploadForm;
 import com.lsh.wms.api.service.upload.IUploadRestService;
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;

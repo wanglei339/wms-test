@@ -1,7 +1,7 @@
 package com.lsh.wms.core.dao.system;
 
 
-import com.lsh.wms.core.model.system.SysRole;
+import com.lsh.wms.model.system.SysRole;
 import com.lsh.wms.core.dao.MyBatisRepository;
 
 import java.util.List;

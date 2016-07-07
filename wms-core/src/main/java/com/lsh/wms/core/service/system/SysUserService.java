@@ -1,8 +1,8 @@
 package com.lsh.wms.core.service.system;
 
 import com.google.common.collect.Maps;
-import com.lsh.wms.core.model.system.SysUser;
-import com.lsh.wms.core.model.system.SysUserRoleRelation;
+import com.lsh.wms.model.system.SysUser;
+import com.lsh.wms.model.system.SysUserRoleRelation;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.dao.system.SysUserDao;
 import com.lsh.wms.core.dao.system.SysUserRoleRelationDao;

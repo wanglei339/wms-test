@@ -1,6 +1,6 @@
 package com.lsh.wms.core.service.pub;
 
-import com.lsh.wms.core.model.pub.PubArea;
+import com.lsh.wms.model.pub.PubArea;
 import com.lsh.wms.core.dao.pub.PubAreaDao;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

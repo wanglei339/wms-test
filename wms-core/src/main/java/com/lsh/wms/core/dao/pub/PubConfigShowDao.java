@@ -1,7 +1,7 @@
 package com.lsh.wms.core.dao.pub;
 
 
-import com.lsh.wms.core.model.pub.PubConfigShow;
+import com.lsh.wms.model.pub.PubConfigShow;
 import com.lsh.wms.core.dao.MyBatisRepository;
 
 @MyBatisRepository

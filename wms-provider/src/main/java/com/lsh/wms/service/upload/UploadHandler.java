@@ -2,7 +2,7 @@ package com.lsh.wms.service.upload;
 
 import com.lsh.base.common.net.HttpClientUtils;
 import com.lsh.base.common.utils.EncodeUtils;
-import com.lsh.wms.api.model.upload.UploadForm;
+import com.lsh.wms.model.upload.UploadForm;
 import com.lsh.wms.core.constant.UploadConstant;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;

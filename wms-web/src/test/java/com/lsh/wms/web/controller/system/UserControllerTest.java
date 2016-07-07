@@ -1,7 +1,7 @@
 package com.lsh.wms.web.controller.system;
 
 import com.google.common.collect.Maps;
-import com.lsh.wms.core.model.system.SysUser;
+import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.web.common.BaseMvcTest;
 import com.lsh.wms.web.common.MockitoDependencyInjectionTestExecutionListener;

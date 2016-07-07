@@ -1,6 +1,6 @@
 package com.lsh.wms.core.service.image;
 
-import com.lsh.wms.core.model.image.PubImage;
+import com.lsh.wms.model.image.PubImage;
 import com.lsh.wms.core.dao.image.PubImageDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

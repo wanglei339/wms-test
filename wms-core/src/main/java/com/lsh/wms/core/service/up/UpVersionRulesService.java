@@ -4,9 +4,9 @@ import com.google.common.collect.Maps;
 
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.StrUtils;
-import com.lsh.wms.core.model.up.UpRule;
-import com.lsh.wms.core.model.up.UpVersionRules;
-import com.lsh.wms.core.model.up.UpVersionRulesCons;
+import com.lsh.wms.model.up.UpRule;
+import com.lsh.wms.model.up.UpVersionRules;
+import com.lsh.wms.model.up.UpVersionRulesCons;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.constant.UpgradeConstant;

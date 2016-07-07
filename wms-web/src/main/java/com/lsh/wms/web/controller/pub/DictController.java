@@ -1,8 +1,8 @@
 package com.lsh.wms.web.controller.pub;
 
 
-import com.lsh.wms.core.model.pub.PubDict;
-import com.lsh.wms.core.model.pub.PubDictItem;
+import com.lsh.wms.model.pub.PubDict;
+import com.lsh.wms.model.pub.PubDictItem;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.service.pub.PubDictService;
 import com.lsh.wms.web.constant.MediaTypes;

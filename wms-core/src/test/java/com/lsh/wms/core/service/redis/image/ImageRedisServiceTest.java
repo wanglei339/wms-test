@@ -1,6 +1,6 @@
 package com.lsh.wms.core.service.redis.image;
 
-import com.lsh.wms.core.model.image.PubImage;
+import com.lsh.wms.model.image.PubImage;
 import com.lsh.wms.core.common.BaseSpringTest;
 import com.lsh.wms.core.common.MockitoDependencyInjectionTestExecutionListener;
 import com.lsh.wms.core.dao.redis.RedisHashDao;

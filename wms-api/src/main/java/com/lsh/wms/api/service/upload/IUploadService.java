@@ -1,6 +1,6 @@
 package com.lsh.wms.api.service.upload;
 
-import com.lsh.wms.api.model.upload.UploadForm;
+import com.lsh.wms.model.upload.UploadForm;
 
 /**
  * Created by xiaoma on 16/1/29.

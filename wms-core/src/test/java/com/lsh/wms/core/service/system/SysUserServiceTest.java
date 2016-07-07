@@ -1,6 +1,6 @@
 package com.lsh.wms.core.service.system;
 
-import com.lsh.wms.core.model.system.SysUser;
+import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.core.common.BaseSpringTest;
 import org.junit.Assert;
 import org.junit.Test;
