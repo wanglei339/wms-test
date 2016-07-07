@@ -1,7 +1,7 @@
 package com.lsh.wms.core.service.up;
 
 import com.google.common.collect.Maps;
-import com.lsh.wms.api.model.up.UpModel;
+import com.lsh.wms.core.model.up.UpModel;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.dao.up.UpModelDao;
 import org.apache.commons.lang3.StringUtils;

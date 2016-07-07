@@ -3,7 +3,7 @@
 <%@ page import="org.apache.commons.lang3.StringUtils" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ArrayList" %>
-<%@ page import="com.lsh.wms.api.model.system.SysFunction" %>
+<%@ page import="com.lsh.wms.core.model.system.SysFunction" %>
 <%@ include file="/WEB-INF/views/common/taglibs.jsp" %>
 <!-- BEGIN SIDEBAR -->
 <div class="page-sidebar-wrapper">

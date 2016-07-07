@@ -2,7 +2,7 @@ package com.lsh.wms.web.controller.up;
 
 
 import com.lsh.base.common.utils.RandomUtils;
-import com.lsh.wms.api.model.up.*;
+import com.lsh.wms.core.model.up.*;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.service.up.*;
 import com.lsh.wms.web.constant.MediaTypes;

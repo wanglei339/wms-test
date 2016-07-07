@@ -2,7 +2,7 @@ package com.lsh.wms.core.service.up;
 
 import com.google.common.collect.Maps;
 import com.lsh.base.common.utils.StrUtils;
-import com.lsh.wms.api.model.up.UpPackage;
+import com.lsh.wms.core.model.up.UpPackage;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;

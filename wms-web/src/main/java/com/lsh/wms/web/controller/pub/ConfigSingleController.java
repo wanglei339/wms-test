@@ -2,10 +2,10 @@ package com.lsh.wms.web.controller.pub;
 
 import com.google.common.collect.Lists;
 import com.lsh.base.common.utils.ObjUtils;
-import com.lsh.wms.api.model.pub.PubConfigData;
-import com.lsh.wms.api.model.pub.PubConfigDataFile;
-import com.lsh.wms.api.model.pub.PubConfigPage;
-import com.lsh.wms.api.model.pub.PubConfigShow;
+import com.lsh.wms.core.model.pub.PubConfigData;
+import com.lsh.wms.core.model.pub.PubConfigDataFile;
+import com.lsh.wms.core.model.pub.PubConfigPage;
+import com.lsh.wms.core.model.pub.PubConfigShow;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.constant.UploadConstant;
 import com.lsh.wms.core.service.pub.PubConfigService;

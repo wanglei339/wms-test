@@ -2,9 +2,9 @@ package com.lsh.wms.web.controller.up;
 
 
 import com.google.common.collect.Lists;
-import com.lsh.wms.api.model.up.UpVersion;
-import com.lsh.wms.api.model.up.UpVersionRules;
-import com.lsh.wms.api.model.up.UpVersionRulesCons;
+import com.lsh.wms.core.model.up.UpVersion;
+import com.lsh.wms.core.model.up.UpVersionRules;
+import com.lsh.wms.core.model.up.UpVersionRulesCons;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.constant.UpgradeConstant;
 import com.lsh.wms.core.service.up.UpVersionRulesService;

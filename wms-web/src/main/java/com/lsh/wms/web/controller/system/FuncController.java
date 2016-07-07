@@ -1,7 +1,7 @@
 package com.lsh.wms.web.controller.system;
 
 
-import com.lsh.wms.api.model.system.SysFunction;
+import com.lsh.wms.core.model.system.SysFunction;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.service.system.SysFunctionService;
 import com.lsh.wms.web.constant.MediaTypes;

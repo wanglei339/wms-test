@@ -1,31 +1,16 @@
 package com.lsh.wms.web.controller;
 
 
-import com.google.common.collect.Lists;
-import com.lsh.base.ali.OssClientUtils;
-import com.lsh.base.common.utils.EncodeUtils;
-import com.lsh.base.common.utils.ObjUtils;
-import com.lsh.base.common.utils.StrUtils;
-import com.lsh.wms.api.model.up.*;
-import com.lsh.wms.core.constant.BusiConstant;
-import com.lsh.wms.core.constant.UpgradeConstant;
 import com.lsh.wms.core.constant.UploadConstant;
-import com.lsh.wms.core.service.up.*;
-import com.lsh.wms.web.constant.MediaTypes;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.util.List;
 import java.util.Map;
 
 @Controller
