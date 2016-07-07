@@ -11,8 +11,6 @@
 
     <artifactId>wms-model</artifactId>
     <packaging>jar</packaging>
-    <name>${project.artifactId}</name>
-    <description>The wms-model module of dubbox-wms project</description>
     <properties>
         <skip_maven_deploy>true</skip_maven_deploy>
     </properties>
