@@ -1,7 +1,7 @@
 package com.lsh.wms.web.controller.up;
 
 
-import com.lsh.wms.api.model.up.UpChannel;
+import com.lsh.wms.core.model.up.UpChannel;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.service.up.UpChannelService;
 import com.lsh.wms.web.constant.MediaTypes;

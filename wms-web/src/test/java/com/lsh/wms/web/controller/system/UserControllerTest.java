@@ -1,9 +1,7 @@
 package com.lsh.wms.web.controller.system;
 
-import com.alibaba.dubbo.common.json.JSON;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
-import com.lsh.wms.api.model.system.SysUser;
+import com.lsh.wms.core.model.system.SysUser;
 import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.web.common.BaseMvcTest;
 import com.lsh.wms.web.common.MockitoDependencyInjectionTestExecutionListener;

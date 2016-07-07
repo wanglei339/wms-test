@@ -3,7 +3,7 @@ package com.lsh.wms.core.service.system;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.lsh.wms.api.model.system.SysFunction;
+import com.lsh.wms.core.model.system.SysFunction;
 import com.lsh.wms.core.dao.system.SysFunctionDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

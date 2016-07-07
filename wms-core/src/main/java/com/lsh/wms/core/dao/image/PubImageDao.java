@@ -2,7 +2,7 @@ package com.lsh.wms.core.dao.image;
 
 
 
-import com.lsh.wms.api.model.image.PubImage;
+import com.lsh.wms.core.model.image.PubImage;
 import com.lsh.wms.core.dao.MyBatisRepository;
 
 import java.util.List;

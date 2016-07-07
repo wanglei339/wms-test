@@ -1,6 +1,6 @@
 package com.lsh.wms.core.dao.up;
 
-import com.lsh.wms.api.model.up.UpPackage;
+import com.lsh.wms.core.model.up.UpPackage;
 import com.lsh.wms.core.dao.MyBatisRepository;
 
 import java.util.List;

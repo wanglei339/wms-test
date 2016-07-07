@@ -2,7 +2,7 @@ package com.lsh.wms.core.dao.system;
 
 
 
-import com.lsh.wms.api.model.system.SysUserRoleRelation;
+import com.lsh.wms.core.model.system.SysUserRoleRelation;
 import com.lsh.wms.core.dao.MyBatisRepository;
 
 import java.util.List;

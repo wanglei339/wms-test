@@ -1,7 +1,7 @@
 package com.lsh.wms.web.controller.system;
 
 import com.lsh.base.common.utils.EncodeUtils;
-import com.lsh.wms.api.model.system.SysUser;
+import com.lsh.wms.core.model.system.SysUser;
 import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.web.constant.WebConstant;
 import com.lsh.wms.web.controller.BaseController;

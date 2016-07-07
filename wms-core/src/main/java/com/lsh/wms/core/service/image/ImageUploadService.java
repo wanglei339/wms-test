@@ -2,28 +2,18 @@ package com.lsh.wms.core.service.image;
 
 import com.lsh.base.ali.OssClientUtils;
 import com.lsh.base.ali.StsServiceUtils;
-import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
-import com.lsh.wms.api.model.image.PubImage;
-import com.lsh.wms.core.constant.UploadConstant;
+import com.lsh.wms.core.model.image.PubImage;
 import com.lsh.wms.core.service.redis.image.ImageRedisService;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 
