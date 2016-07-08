@@ -15,6 +15,10 @@ public class CsiSupplier implements Serializable {
     private Long ownerId;
 	/** 货主对供商的编号 */
     private String supplierCode;
+	/** 电话号码 */
+    private String phone;
+	/** 传真 */
+    private String fax;
 	/**  */
     private Long createdAt;
 	/**  */
@@ -58,6 +62,22 @@ public class CsiSupplier implements Serializable {
 	
 	public void setSupplierCode(String supplierCode){
 		this.supplierCode = supplierCode;
+	}
+	
+	public String getPhone(){
+		return this.phone;
+	}
+	
+	public void setPhone(String phone){
+		this.phone = phone;
+	}
+	
+	public String getFax(){
+		return this.fax;
+	}
+	
+	public void setFax(String fax){
+		this.fax = fax;
 	}
 	
 	public Long getCreatedAt(){
