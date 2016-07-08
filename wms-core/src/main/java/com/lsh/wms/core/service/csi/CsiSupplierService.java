@@ -22,17 +22,17 @@ import java.util.concurrent.ConcurrentMap;
 
 @Component
 @Transactional(readOnly = true)
-public class SupplierService {
-    private static final Logger logger = LoggerFactory.getLogger(SupplierService.class);
+public class CsiSupplierService {
+    private static final Logger logger = LoggerFactory.getLogger(CsiSupplierService.class);
     private static final ConcurrentMap<Integer, CsiSupplier> m_SupplierCache = new ConcurrentHashMap<Integer, CsiSupplier>();
     @Autowired
     private CsiSupplierDao supplierDao;
 
-    public CsiSupplier getOwner(int iSupplierId){
+    public CsiSupplier getSupplier(int iSupplierId){
         CsiSupplier cat = m_SupplierCache.get(iSupplierId);
         if(cat == null){
             Map<String, Object> mapQuery = new HashMap<String, Object>();
-            mapQuery.put("supplier_id", iSupplierId);
+            mapQuery.put("supplierId", iSupplierId);
             List<CsiSupplier> items = supplierDao.getCsiSupplierList(mapQuery);
             if(items.size() == 1){
                 cat = items.get(0);

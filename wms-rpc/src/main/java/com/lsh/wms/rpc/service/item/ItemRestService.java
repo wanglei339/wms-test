@@ -7,6 +7,7 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.item.IItemRestService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.csi.CsiSku;
+import net.sf.json.util.JSONUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,28 +33,29 @@ public class ItemRestService implements IItemRestService {
 
     @GET
     @Path("getItem")
-    public String getItem(@QueryParam("iOwnerId") long iOwnerId, @QueryParam("iSkuId") long iSkuId) {
+    public String getItem(@QueryParam("ownerId") long iOwnerId, @QueryParam("skuId") long iSkuId) {
+        logger.info("caonima"+iOwnerId+iSkuId);
         BaseinfoItem baseinfoItem = itemRpcService.getItem(iOwnerId,iSkuId);
         return JsonUtils.SUCCESS(baseinfoItem);
     }
 
     @GET
     @Path("getBaseInfo")
-    public String getBaseInfo(@QueryParam("iSkuId") long iSkuId) {
-        CsiSku csiSku = itemRpcService.getBaseInfo(iSkuId);
+    public String getSku(@QueryParam("skuId") long iSkuId) {
+        CsiSku csiSku = itemRpcService.getSku(iSkuId);
         return JsonUtils.SUCCESS(csiSku);
     }
 
     @GET
     @Path("getSkuByCode")
-    public String getSkuByCode(@QueryParam("iCodeType") int iCodeType,@QueryParam("sCode")  String sCode) {
+    public String getSkuByCode(@QueryParam("codeType") int iCodeType,@QueryParam("code")  String sCode) {
         CsiSku csiSku = itemRpcService.getSkuByCode(iCodeType,sCode);
         return JsonUtils.SUCCESS(csiSku);
     }
 
     @GET
     @Path("getItemsBySkuCode")
-    public String getItemsBySkuCode(@QueryParam("iOwnerId") long iOwnerId,@QueryParam("sSkuCode")  String sSkuCode) {
+    public String getItemsBySkuCode(@QueryParam("ownerId") long iOwnerId,@QueryParam("skuCode")  String sSkuCode) {
         List<BaseinfoItem>   baseinfoItemList = itemRpcService.getItemsBySkuCode(iOwnerId,sSkuCode);
         return  JsonUtils.SUCCESS(baseinfoItemList);
     }
@@ -64,4 +66,13 @@ public class ItemRestService implements IItemRestService {
         List<BaseinfoItem>  baseinfoItemList = itemRpcService.searchItem(mapQuery);
         return  JsonUtils.SUCCESS(baseinfoItemList);
     }
+
+
+    @POST
+    @Path("insertItem")
+    public String insertItem(BaseinfoItem item) {
+        BaseinfoItem item_new = itemRpcService.insertItem(item);
+        return JsonUtils.SUCCESS(item_new);
+    }
+
 }

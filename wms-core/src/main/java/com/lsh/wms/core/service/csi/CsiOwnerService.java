@@ -21,8 +21,8 @@ import java.util.concurrent.ConcurrentMap;
 
 @Component
 @Transactional(readOnly = true)
-public class OwnerService {
-    private static final Logger logger = LoggerFactory.getLogger(OwnerService.class);
+public class CsiOwnerService {
+    private static final Logger logger = LoggerFactory.getLogger(CsiOwnerService.class);
     private static final ConcurrentMap<Integer, CsiOwner> m_OwnerCache = new ConcurrentHashMap<Integer, CsiOwner>();
 
     @Autowired
@@ -32,7 +32,7 @@ public class OwnerService {
         CsiOwner cat = m_OwnerCache.get(iOwnerId);
         if(cat == null){
             Map<String, Object> mapQuery = new HashMap<String, Object>();
-            mapQuery.put("owner_id", iOwnerId);
+            mapQuery.put("ownerId", iOwnerId);
             List<CsiOwner> items = ownerDao.getCsiOwnerList(mapQuery);
             if(items.size() == 1){
                 cat = items.get(0);

@@ -44,6 +44,8 @@ public class BaseinfoItem implements Serializable {
     private BigDecimal l2Height;
 	/** 2级包装－重量 */
     private BigDecimal l2Weight;
+	/** 2级包装单位－含有基本单位个数 */
+    private BigDecimal l2Unit;
 	/** 外包装－长 */
     private BigDecimal packLength;
 	/** 外包装－宽 */
@@ -52,6 +54,8 @@ public class BaseinfoItem implements Serializable {
     private BigDecimal packHeight;
 	/** 外包装－重量 */
     private BigDecimal packWeight;
+	/** 外包装单位-含有基本单位个数 */
+    private BigDecimal packUnit;
 	/** 售卖单位 */
     private BigDecimal saleUnit;
 	/** 商品等级，对应A,B,C */
@@ -213,6 +217,14 @@ public class BaseinfoItem implements Serializable {
 		this.l2Weight = l2Weight;
 	}
 	
+	public BigDecimal getL2Unit(){
+		return this.l2Unit;
+	}
+	
+	public void setL2Unit(BigDecimal l2Unit){
+		this.l2Unit = l2Unit;
+	}
+	
 	public BigDecimal getPackLength(){
 		return this.packLength;
 	}
@@ -243,6 +255,14 @@ public class BaseinfoItem implements Serializable {
 	
 	public void setPackWeight(BigDecimal packWeight){
 		this.packWeight = packWeight;
+	}
+	
+	public BigDecimal getPackUnit(){
+		return this.packUnit;
+	}
+	
+	public void setPackUnit(BigDecimal packUnit){
+		this.packUnit = packUnit;
 	}
 	
 	public BigDecimal getSaleUnit(){

@@ -22,10 +22,12 @@
 		<result property="l2Width" column="l2_width"/>
 		<result property="l2Height" column="l2_height"/>
 		<result property="l2Weight" column="l2_weight"/>
+		<result property="l2Unit" column="l2_unit"/>
 		<result property="packLength" column="pack_length"/>
 		<result property="packWidth" column="pack_width"/>
 		<result property="packHeight" column="pack_height"/>
 		<result property="packWeight" column="pack_weight"/>
+		<result property="packUnit" column="pack_unit"/>
 		<result property="saleUnit" column="sale_unit"/>
 		<result property="itemLevel" column="item_level"/>
 		<result property="createdAt" column="created_at"/>
@@ -37,14 +39,14 @@
 			sku_id,owner_id,sku_code,sku_name,code_type,code,
 			top_cat,second_cat,third_cat,shelf_life,length,width,
 			height,weight,l2_length,l2_width,l2_height,l2_weight,
-			pack_length,pack_width,pack_height,pack_weight,sale_unit,item_level,
-			created_at,updated_at
+			l2_unit,pack_length,pack_width,pack_height,pack_weight,pack_unit,
+			sale_unit,item_level,created_at,updated_at
     	) values (
 			#{skuId},#{ownerId},#{skuCode},#{skuName},#{codeType},#{code},
 			#{topCat},#{secondCat},#{thirdCat},#{shelfLife},#{length},#{width},
 			#{height},#{weight},#{l2Length},#{l2Width},#{l2Height},#{l2Weight},
-			#{packLength},#{packWidth},#{packHeight},#{packWeight},#{saleUnit},#{itemLevel},
-			#{createdAt},#{updatedAt}
+			#{l2Unit},#{packLength},#{packWidth},#{packHeight},#{packWeight},#{packUnit},
+			#{saleUnit},#{itemLevel},#{createdAt},#{updatedAt}
     	)
 	</insert>
 
@@ -69,10 +71,12 @@
   			<if test="l2Width != null">l2_width=#{l2Width},</if>
   			<if test="l2Height != null">l2_height=#{l2Height},</if>
   			<if test="l2Weight != null">l2_weight=#{l2Weight},</if>
+  			<if test="l2Unit != null">l2_unit=#{l2Unit},</if>
   			<if test="packLength != null">pack_length=#{packLength},</if>
   			<if test="packWidth != null">pack_width=#{packWidth},</if>
   			<if test="packHeight != null">pack_height=#{packHeight},</if>
   			<if test="packWeight != null">pack_weight=#{packWeight},</if>
+  			<if test="packUnit != null">pack_unit=#{packUnit},</if>
   			<if test="saleUnit != null">sale_unit=#{saleUnit},</if>
   			<if test="itemLevel != null">item_level=#{itemLevel},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
@@ -120,10 +124,12 @@
 			<if test="l2Width != null">and l2_width=#{l2Width}</if>
 			<if test="l2Height != null">and l2_height=#{l2Height}</if>
 			<if test="l2Weight != null">and l2_weight=#{l2Weight}</if>
+			<if test="l2Unit != null">and l2_unit=#{l2Unit}</if>
 			<if test="packLength != null">and pack_length=#{packLength}</if>
 			<if test="packWidth != null">and pack_width=#{packWidth}</if>
 			<if test="packHeight != null">and pack_height=#{packHeight}</if>
 			<if test="packWeight != null">and pack_weight=#{packWeight}</if>
+			<if test="packUnit != null">and pack_unit=#{packUnit}</if>
 			<if test="saleUnit != null">and sale_unit=#{saleUnit}</if>
 			<if test="itemLevel != null">and item_level=#{itemLevel}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
