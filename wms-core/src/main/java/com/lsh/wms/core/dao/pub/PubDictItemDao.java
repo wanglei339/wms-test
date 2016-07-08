@@ -1,6 +1,6 @@
 package com.lsh.wms.core.dao.pub;
 
-import com.lsh.wms.core.model.pub.PubDictItem;
+import com.lsh.wms.model.pub.PubDictItem;
 import com.lsh.wms.core.dao.MyBatisRepository;
 
 import java.util.List;

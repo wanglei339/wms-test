@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.baseinfo.BaseinfoItemDao" >
+
+	<resultMap id="baseinfoItemResultMap" type="BaseinfoItem">
+		<id property="id" column="id"/>
+		<result property="skuId" column="sku_id"/>
+		<result property="ownerId" column="owner_id"/>
+		<result property="skuCode" column="sku_code"/>
+		<result property="skuName" column="sku_name"/>
+		<result property="codeType" column="code_type"/>
+		<result property="code" column="code"/>
+		<result property="topCat" column="top_cat"/>
+		<result property="secondCat" column="second_cat"/>
+		<result property="thirdCat" column="third_cat"/>
+		<result property="shelfLife" column="shelf_life"/>
+		<result property="length" column="length"/>
+		<result property="width" column="width"/>
+		<result property="height" column="height"/>
+		<result property="weight" column="weight"/>
+		<result property="l2Length" column="l2_length"/>
+		<result property="l2Width" column="l2_width"/>
+		<result property="l2Height" column="l2_height"/>
+		<result property="l2Weight" column="l2_weight"/>
+		<result property="packLength" column="pack_length"/>
+		<result property="packWidth" column="pack_width"/>
+		<result property="packHeight" column="pack_height"/>
+		<result property="packWeight" column="pack_weight"/>
+		<result property="saleUnit" column="sale_unit"/>
+		<result property="itemLevel" column="item_level"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoItem">
+		insert into baseinfo_item (
+			sku_id,owner_id,sku_code,sku_name,code_type,code,
+			top_cat,second_cat,third_cat,shelf_life,length,width,
+			height,weight,l2_length,l2_width,l2_height,l2_weight,
+			pack_length,pack_width,pack_height,pack_weight,sale_unit,item_level,
+			created_at,updated_at
+    	) values (
+			#{skuId},#{ownerId},#{skuCode},#{skuName},#{codeType},#{code},
+			#{topCat},#{secondCat},#{thirdCat},#{shelfLife},#{length},#{width},
+			#{height},#{weight},#{l2Length},#{l2Width},#{l2Height},#{l2Weight},
+			#{packLength},#{packWidth},#{packHeight},#{packWeight},#{saleUnit},#{itemLevel},
+			#{createdAt},#{updatedAt}
+    	)
+	</insert>
+
+	<update id="update" parameterType="BaseinfoItem">
+		update baseinfo_item
+    	<set>
+  			<if test="skuId != null">sku_id=#{skuId},</if>
+  			<if test="ownerId != null">owner_id=#{ownerId},</if>
+  			<if test="skuCode != null">sku_code=#{skuCode},</if>
+  			<if test="skuName != null">sku_name=#{skuName},</if>
+  			<if test="codeType != null">code_type=#{codeType},</if>
+  			<if test="code != null">code=#{code},</if>
+  			<if test="topCat != null">top_cat=#{topCat},</if>
+  			<if test="secondCat != null">second_cat=#{secondCat},</if>
+  			<if test="thirdCat != null">third_cat=#{thirdCat},</if>
+  			<if test="shelfLife != null">shelf_life=#{shelfLife},</if>
+  			<if test="length != null">length=#{length},</if>
+  			<if test="width != null">width=#{width},</if>
+  			<if test="height != null">height=#{height},</if>
+  			<if test="weight != null">weight=#{weight},</if>
+  			<if test="l2Length != null">l2_length=#{l2Length},</if>
+  			<if test="l2Width != null">l2_width=#{l2Width},</if>
+  			<if test="l2Height != null">l2_height=#{l2Height},</if>
+  			<if test="l2Weight != null">l2_weight=#{l2Weight},</if>
+  			<if test="packLength != null">pack_length=#{packLength},</if>
+  			<if test="packWidth != null">pack_width=#{packWidth},</if>
+  			<if test="packHeight != null">pack_height=#{packHeight},</if>
+  			<if test="packWeight != null">pack_weight=#{packWeight},</if>
+  			<if test="saleUnit != null">sale_unit=#{saleUnit},</if>
+  			<if test="itemLevel != null">item_level=#{itemLevel},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getBaseinfoItemById" parameterType="int" resultMap="baseinfoItemResultMap">
+		select * from baseinfo_item
+		where ID=#{id} 
+	</select>
+  
+	<select id="countBaseinfoItem" parameterType="map" resultType="int">
+		select count(*) from baseinfo_item
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getBaseinfoItemList" parameterType="map" resultMap="baseinfoItemResultMap">
+		select * from baseinfo_item
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="skuId != null">and sku_id=#{skuId}</if>
+			<if test="ownerId != null">and owner_id=#{ownerId}</if>
+			<if test="skuCode != null">and sku_code=#{skuCode}</if>
+			<if test="skuName != null">and sku_name=#{skuName}</if>
+			<if test="codeType != null">and code_type=#{codeType}</if>
+			<if test="code != null">and code=#{code}</if>
+			<if test="topCat != null">and top_cat=#{topCat}</if>
+			<if test="secondCat != null">and second_cat=#{secondCat}</if>
+			<if test="thirdCat != null">and third_cat=#{thirdCat}</if>
+			<if test="shelfLife != null">and shelf_life=#{shelfLife}</if>
+			<if test="length != null">and length=#{length}</if>
+			<if test="width != null">and width=#{width}</if>
+			<if test="height != null">and height=#{height}</if>
+			<if test="weight != null">and weight=#{weight}</if>
+			<if test="l2Length != null">and l2_length=#{l2Length}</if>
+			<if test="l2Width != null">and l2_width=#{l2Width}</if>
+			<if test="l2Height != null">and l2_height=#{l2Height}</if>
+			<if test="l2Weight != null">and l2_weight=#{l2Weight}</if>
+			<if test="packLength != null">and pack_length=#{packLength}</if>
+			<if test="packWidth != null">and pack_width=#{packWidth}</if>
+			<if test="packHeight != null">and pack_height=#{packHeight}</if>
+			<if test="packWeight != null">and pack_weight=#{packWeight}</if>
+			<if test="saleUnit != null">and sale_unit=#{saleUnit}</if>
+			<if test="itemLevel != null">and item_level=#{itemLevel}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>

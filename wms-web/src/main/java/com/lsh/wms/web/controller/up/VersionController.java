@@ -6,7 +6,7 @@ import com.lsh.base.ali.OssClientUtils;
 import com.lsh.base.common.utils.EncodeUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.StrUtils;
-import com.lsh.wms.core.model.up.*;
+import com.lsh.wms.model.up.*;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.constant.UpgradeConstant;
 import com.lsh.wms.core.constant.UploadConstant;

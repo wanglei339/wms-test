@@ -1,8 +1,8 @@
 package com.lsh.wms.web.controller.system;
 
 import com.lsh.base.common.utils.ObjUtils;
-import com.lsh.wms.core.model.system.SysRole;
-import com.lsh.wms.core.model.system.SysRoleFunctionRelation;
+import com.lsh.wms.model.system.SysRole;
+import com.lsh.wms.model.system.SysRoleFunctionRelation;
 import com.lsh.wms.core.service.system.SysRoleService;
 import com.lsh.wms.web.constant.MediaTypes;
 import com.lsh.wms.web.controller.BaseController;

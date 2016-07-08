@@ -2,9 +2,8 @@ package com.lsh.wms.service.stock;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
-import com.lsh.wms.api.model.stock.StockQuant;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.api.service.stock.IStockQuantRestService;
-import com.lsh.wms.api.service.stock.IStockQuantService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import org.springframework.beans.factory.annotation.Autowired;
 

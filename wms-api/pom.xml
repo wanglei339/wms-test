@@ -10,9 +10,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>wms-api</artifactId>
-    <packaging>jar</packaging>
-    <name>${project.artifactId}</name>
-    <description>The wms-api module of dubbox-pub project</description>
     <properties>
         <skip_maven_deploy>true</skip_maven_deploy>
     </properties>

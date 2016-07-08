@@ -1,7 +1,7 @@
 package com.lsh.wms.core.service.stock;
 
 import com.google.common.collect.Maps;
-import com.lsh.wms.api.model.stock.StockQuant;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.core.dao.stock.StockQuantDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -4,7 +4,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.ali.OssClientUtils;
 import com.lsh.base.common.json.JsonUtils2;
 import com.lsh.base.common.utils.ObjUtils;
-import com.lsh.wms.api.model.upload.UploadForm;
+import com.lsh.wms.model.upload.UploadForm;
 import com.lsh.wms.api.service.upload.IUploadService;
 import com.lsh.wms.core.constant.UploadConstant;
 import org.apache.commons.io.FileUtils;

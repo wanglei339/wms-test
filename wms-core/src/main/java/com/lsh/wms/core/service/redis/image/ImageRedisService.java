@@ -2,7 +2,7 @@ package com.lsh.wms.core.service.redis.image;
 
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.StrUtils;
-import com.lsh.wms.core.model.image.PubImage;
+import com.lsh.wms.model.image.PubImage;
 import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.dao.redis.RedisHashDao;
 import org.slf4j.Logger;

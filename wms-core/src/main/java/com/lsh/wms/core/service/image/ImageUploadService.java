@@ -3,7 +3,7 @@ package com.lsh.wms.core.service.image;
 import com.lsh.base.ali.OssClientUtils;
 import com.lsh.base.ali.StsServiceUtils;
 import com.lsh.base.common.utils.RandomUtils;
-import com.lsh.wms.core.model.image.PubImage;
+import com.lsh.wms.model.image.PubImage;
 import com.lsh.wms.core.service.redis.image.ImageRedisService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
