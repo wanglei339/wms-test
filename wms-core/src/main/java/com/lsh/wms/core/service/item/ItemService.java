@@ -57,7 +57,7 @@ public class ItemService {
         return new_sku;
     }
 
-    protected CsiSku getSkuByCode(int iCodeType, String sCode){
+    public CsiSku getSkuByCode(int iCodeType, String sCode){
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("code_type", iCodeType);
         mapQuery.put("code", sCode);
@@ -92,7 +92,7 @@ public class ItemService {
         return new_item;
     }
 
-    public List<BaseinfoItem> getItemBySkuCode(long iOwnerId, String sSkuCode){
+    public List<BaseinfoItem> getItemsBySkuCode(long iOwnerId, String sSkuCode){
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("owner_id", iOwnerId);
         mapQuery.put("sku_code", sSkuCode);
