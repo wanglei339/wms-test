@@ -13,8 +13,9 @@ import java.util.Map;
 @Service(protocol = "dubbo")
 public interface IItemRpcService {
     public BaseinfoItem getItem(long iOwnerId, long iSkuId);
-    public CsiSku getBaseInfo(long iSkuId);
+    public CsiSku getSku(long iSkuId);
     public CsiSku getSkuByCode(int iCodeType, String sCode);
     public List<BaseinfoItem> getItemsBySkuCode(long iOwnerId, String sSkuCode);
     public List<BaseinfoItem> searchItem(Map<String, Object> mapQuery);
+    public BaseinfoItem insertItem(BaseinfoItem item);
 }

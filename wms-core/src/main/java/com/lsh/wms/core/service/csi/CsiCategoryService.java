@@ -21,8 +21,8 @@ import java.util.concurrent.ConcurrentMap;
 
 @Component
 @Transactional(readOnly = true)
-public class CategoryService {
-    private static final Logger logger = LoggerFactory.getLogger(CategoryService.class);
+public class CsiCategoryService {
+    private static final Logger logger = LoggerFactory.getLogger(CsiCategoryService.class);
     private static final ConcurrentMap<Long, CsiCategory> m_CatCache = new ConcurrentHashMap<Long, CsiCategory>();
     private static final ConcurrentMap<Long, List<CsiCategory>> m_CatChildCache = new ConcurrentHashMap<Long, List<CsiCategory>>();
 
@@ -33,7 +33,7 @@ public class CategoryService {
         CsiCategory cat = m_CatCache.get(iCatId);
         if(cat == null){
             Map<String, Object> mapQuery = new HashMap<String, Object>();
-            mapQuery.put("cat_id", iCatId);
+            mapQuery.put("catId", iCatId);
             List<CsiCategory> items = catDao.getCsiCategoryList(mapQuery);
             if(items.size() == 1){
                 cat = items.get(0);
@@ -78,7 +78,7 @@ public class CategoryService {
         List<CsiCategory> cats = m_CatChildCache.get(iCatId);
         if(cats == null){
             Map<String, Object> mapQuery = new HashMap<String, Object>();
-            mapQuery.put("f_cat_id", iCatId);
+            mapQuery.put("fCatId", iCatId);
             List<CsiCategory> items = catDao.getCsiCategoryList(mapQuery);
             if(items.size() > 0){
                 cats = items;
