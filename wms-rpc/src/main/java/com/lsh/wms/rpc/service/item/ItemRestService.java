@@ -33,7 +33,7 @@ public class ItemRestService implements IItemRestService {
 
     @GET
     @Path("getItem")
-    public String getItem(@QueryParam("owner_id") long iOwnerId, @QueryParam("sku_id") long iSkuId) {
+    public String getItem(@QueryParam("ownerId") long iOwnerId, @QueryParam("skuId") long iSkuId) {
         logger.info("caonima"+iOwnerId+iSkuId);
         BaseinfoItem baseinfoItem = itemRpcService.getItem(iOwnerId,iSkuId);
         return JsonUtils.SUCCESS(baseinfoItem);
@@ -41,21 +41,21 @@ public class ItemRestService implements IItemRestService {
 
     @GET
     @Path("getBaseInfo")
-    public String getSku(@QueryParam("sku_id") long iSkuId) {
+    public String getSku(@QueryParam("skuId") long iSkuId) {
         CsiSku csiSku = itemRpcService.getSku(iSkuId);
         return JsonUtils.SUCCESS(csiSku);
     }
 
     @GET
     @Path("getSkuByCode")
-    public String getSkuByCode(@QueryParam("code_type") int iCodeType,@QueryParam("code")  String sCode) {
+    public String getSkuByCode(@QueryParam("codeType") int iCodeType,@QueryParam("code")  String sCode) {
         CsiSku csiSku = itemRpcService.getSkuByCode(iCodeType,sCode);
         return JsonUtils.SUCCESS(csiSku);
     }
 
     @GET
     @Path("getItemsBySkuCode")
-    public String getItemsBySkuCode(@QueryParam("owner_id") long iOwnerId,@QueryParam("sku_code")  String sSkuCode) {
+    public String getItemsBySkuCode(@QueryParam("ownerId") long iOwnerId,@QueryParam("skuCode")  String sSkuCode) {
         List<BaseinfoItem>   baseinfoItemList = itemRpcService.getItemsBySkuCode(iOwnerId,sSkuCode);
         return  JsonUtils.SUCCESS(baseinfoItemList);
     }

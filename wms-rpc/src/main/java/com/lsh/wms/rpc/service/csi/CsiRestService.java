@@ -30,43 +30,43 @@ public class CsiRestService implements ICsiRestService {
 
     @GET
     @Path("getCatInfo")
-    public String getCatInfo(@QueryParam("cat_id") int iCatId) {
+    public String getCatInfo(@QueryParam("catId") int iCatId) {
         return JsonUtils.SUCCESS(csiRpcService.getCatInfo(iCatId));
     }
 
     @GET
     @Path("getCatFull")
-    public String getCatFull(@QueryParam("cat_id") int iCatId) {
+    public String getCatFull(@QueryParam("catId") int iCatId) {
         return JsonUtils.SUCCESS(csiRpcService.getCatFull(iCatId));
     }
 
     @GET
     @Path("getCatChilds")
-    public String getCatChilds(@QueryParam("cat_id") int iCatId) {
+    public String getCatChilds(@QueryParam("catId") int iCatId) {
         return JsonUtils.SUCCESS(csiRpcService.getCatChilds(iCatId));
     }
 
     @GET
     @Path("getOwner")
-    public String getOwner(@QueryParam("owner_id") int iOwnerId) {
+    public String getOwner(@QueryParam("ownerId") int iOwnerId) {
         return JsonUtils.SUCCESS(csiRpcService.getOwner(iOwnerId));
     }
 
     @GET
     @Path("getSku")
-    public String getSku(@QueryParam("sku_id") long iSkuId) {
+    public String getSku(@QueryParam("skuId") long iSkuId) {
         return JsonUtils.SUCCESS(csiRpcService.getSku(iSkuId));
     }
 
     @GET
     @Path("getSkuByCode")
-    public String getSkuByCode(@QueryParam("code_type") int iCodeType, @QueryParam("code") String sCode) {
+    public String getSkuByCode(@QueryParam("codeType") int iCodeType, @QueryParam("code") String sCode) {
         return JsonUtils.SUCCESS(csiRpcService.getSkuByCode(iCodeType, sCode));
     }
 
     @GET
     @Path("getSupplier")
-    public String getSupplier(@QueryParam("supplier_id") int iSupplierId) {
+    public String getSupplier(@QueryParam("supplierId") int iSupplierId) {
         return JsonUtils.SUCCESS(csiRpcService.getSupplier(iSupplierId));
     }
 }
