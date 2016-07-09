@@ -27,52 +27,18 @@ import java.util.concurrent.ConcurrentMap;
 public class ItemService {
     private static final Logger logger = LoggerFactory.getLogger(ItemService.class);
     private static final ConcurrentMap<Long, BaseinfoItem> m_ItemCache = new ConcurrentHashMap<Long, BaseinfoItem>();
-    private static final ConcurrentMap<Long, CsiSku> m_SkuCache = new ConcurrentHashMap<Long, CsiSku>();
     @Autowired
     private BaseinfoItemDao itemDao;
-    @Autowired
-    private CsiSkuDao skuDao;
 
-    public CsiSku getSkuBaseInfo(long iSkuId){
-        CsiSku sku = m_SkuCache.get(iSkuId);
-        if(sku == null){
-            Map<String, Object> mapQuery = new HashMap<String, Object>();
-            mapQuery.put("sku_id", iSkuId);
-            List<CsiSku> items = skuDao.getCsiSkuList(mapQuery);
-            if(items.size() == 1){
-                sku = items.get(0);
-                m_SkuCache.put(iSkuId, sku);
-            } else {
-                return null;
-            }
-        }
-        CsiSku new_sku = new CsiSku();
-        try {
-            org.apache.commons.beanutils.BeanUtils.copyProperties(new_sku, sku);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return new_sku;
-    }
-
-    public CsiSku getSkuByCode(int iCodeType, String sCode){
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("code_type", iCodeType);
-        mapQuery.put("code", sCode);
-        List<CsiSku> items = skuDao.getCsiSkuList(mapQuery);
-        return items.size() == 1 ? items.get(0) : null;
-    }
 
     public BaseinfoItem getItem(long iOwnerId, long iSkuId){
-        Long key = ((long)iOwnerId)<<32 + (iSkuId);
+        Long key = (((long)iOwnerId)<<32) + (iSkuId);
         BaseinfoItem item = m_ItemCache.get(key);
         if(item == null){
             //cache中不存在,穿透查询mysql
             Map<String, Object> mapQuery = new HashMap<String, Object>();
-            mapQuery.put("owner_id", iOwnerId);
-            mapQuery.put("sku_id", iSkuId);
+            mapQuery.put("ownerId", iOwnerId);
+            mapQuery.put("skuId", iSkuId);
             List<BaseinfoItem> items = itemDao.getBaseinfoItemList(mapQuery);
             if(items.size() == 1){
                 item = items.get(0);
@@ -94,37 +60,19 @@ public class ItemService {
 
     public List<BaseinfoItem> getItemsBySkuCode(long iOwnerId, String sSkuCode){
         Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("owner_id", iOwnerId);
-        mapQuery.put("sku_code", sSkuCode);
+        mapQuery.put("ownerId", iOwnerId);
+        mapQuery.put("skuCode", sSkuCode);
         List<BaseinfoItem> items = itemDao.getBaseinfoItemList(mapQuery);
         return items;
     }
 
     @Transactional(readOnly = false)
     public int insertItem(BaseinfoItem item){
-        //查询是否有相应的sku_id分配出来(code_type, code)
-        CsiSku sku = this.getSkuByCode(Integer.valueOf(item.getCodeType()), item.getCode());
-        if(sku == null){
-            //need to create
-            CsiSku new_sku = new CsiSku();
-            //gen sku_id
-            int iSkuId = 0;
-            int count = skuDao.countCsiSku(null);
-            if(count==0){
-                iSkuId = 100001;
-            }else{
-                iSkuId = 100001 + count;
-            }
-            new_sku.setSkuId((long)iSkuId);
-            skuDao.insert(new_sku);
-            sku = new_sku;
-        }
         //判断是否存在
         if(this.getItem(item.getOwnerId(), item.getSkuId())!=null){
             return -1;
         }
         //创建商品
-        item.setSkuId(sku.getSkuId());
         itemDao.insert(item);
         return 0;
     }
