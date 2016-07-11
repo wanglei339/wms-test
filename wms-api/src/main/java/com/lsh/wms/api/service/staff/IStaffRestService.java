@@ -10,7 +10,6 @@ import java.util.Map;
  * Created by wulin on 16/7/9.
  */
 
-@Service(protocol = "rest")
 public interface IStaffRestService {
     public String getDepartmentList();
 }
