@@ -18,4 +18,6 @@ public interface IItemRpcService {
     public List<BaseinfoItem> getItemsBySkuCode(long iOwnerId, String sSkuCode);
     public List<BaseinfoItem> searchItem(Map<String, Object> mapQuery);
     public BaseinfoItem insertItem(BaseinfoItem item);
+
+    int updateItem(BaseinfoItem item);
 }

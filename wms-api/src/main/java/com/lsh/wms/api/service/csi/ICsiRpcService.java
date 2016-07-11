@@ -24,4 +24,16 @@ public interface ICsiRpcService {
     public CsiSku insertSku(CsiSku sku);
 
     public CsiSupplier getSupplier(int iSupplierId);
+
+    public int updateSku(CsiSku sku);
+
+    public CsiSupplier insertSupplier(CsiSupplier supplier);
+    int updateSupplier(CsiSupplier supplier);
+
+    CsiCategory insertCategory(CsiCategory category);
+    int updateCategory(CsiCategory category);
+
+    CsiOwner insertOwner(CsiOwner owner);
+    int updateOwner(CsiOwner owner);
+
 }
