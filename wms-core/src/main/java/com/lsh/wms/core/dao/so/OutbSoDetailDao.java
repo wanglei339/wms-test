@@ -10,7 +10,7 @@ import java.util.Map;
 public interface OutbSoDetailDao {
 
 	void insert(OutbSoDetail outbSoDetail);
-	
+	void batchInsert(List<OutbSoDetail> list);
 	void update(OutbSoDetail outbSoDetail);
 	
 	OutbSoDetail getOutbSoDetailById(Long id);

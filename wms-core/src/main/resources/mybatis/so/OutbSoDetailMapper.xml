@@ -28,6 +28,17 @@
     	)
 	</insert>
 
+	<insert id="batchInsert" parameterType="java.util.List">
+		insert into OUTB_SO_DETAIL (
+		ORDER_ID,ITEM_ID,SKU_ID,SKU_NAME,BAR_CODE,ORDER_QTY,
+		PACK_UNIT,LOT_NUM,INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME
+		) values (
+		<foreach collection="list" item="item" index="index" separator="," >
+			(#{orderId},#{itemId},#{skuId},#{skuName},#{barCode},#{orderQty},
+			#{packUnit},#{lotNum},#{insertby},#{updateby},now(),#{updatetime})
+		</foreach>
+	</insert>
+
 	<update id="update" parameterType="OutbSoDetail">
 		update OUTB_SO_DETAIL
     	<set>
