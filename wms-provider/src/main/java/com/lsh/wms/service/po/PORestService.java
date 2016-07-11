@@ -1,8 +1,8 @@
 package com.lsh.wms.service.po;
 
+import com.alibaba.dubbo.common.json.JSON;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
-import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.po.IPORestService;
 import com.lsh.wms.core.service.po.PoOrderService;
@@ -37,9 +37,9 @@ public class PORestService implements IPORestService{
     @POST
     @Path("init")
     public String init(String poOrderInfo) {
-        InbPoHeader inbPoHeader = JSON.parseObject(poOrderInfo,InbPoHeader.class);
+/*        InbPoHeader inbPoHeader = JSON.parseObject(poOrderInfo,InbPoHeader.class);
         List<InbPoDetail> inbPoDetailList = JSON.parseArray(inbPoHeader.getOrderDetails(),InbPoDetail.class);
-        poOrderService.orderInit(inbPoHeader,inbPoDetailList);
+        poOrderService.orderInit(inbPoHeader,inbPoDetailList);*/
         return JsonUtils.SUCCESS();
     }
 

@@ -1,26 +1,30 @@
 package com.lsh.wms.rpc.service.staff;
 
+
 import com.alibaba.dubbo.config.annotation.Service;
-import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.lsh.wms.api.service.staff.IStaffRpcService;
+import com.lsh.wms.model.baseinfo.BaseinfoDepartment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.lsh.wms.core.service.staff.StaffService;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by wulin on 16/7/9.
  */
 
+@Service(protocol = "dubbo")
+public class StaffRpcService implements IStaffRpcService {
 
-@Service(protocol = "rest")
-@Path("staff")
-@Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
-@Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-public class StaffRpcService {
-    private static Logger logger = LoggerFactory.getLogger(StaffRpcService.class);
+    private static final Logger logger = LoggerFactory.getLogger(StaffRpcService.class);
 
+    @Autowired
+    private StaffService staffService;
 
+    public List<BaseinfoDepartment> getDepartmentList(Map<String, Object> mapQuery) {
+        return this.staffService.getDepartmentList(mapQuery);
+    }
 }
