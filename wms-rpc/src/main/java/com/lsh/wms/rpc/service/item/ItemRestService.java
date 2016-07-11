@@ -60,7 +60,7 @@ public class ItemRestService implements IItemRestService {
         return  JsonUtils.SUCCESS(baseinfoItemList);
     }
 
-    @GET
+    @POST
     @Path("searchItem")
     public String searchItem(Map<String, Object> mapQuery) {
         List<BaseinfoItem>  baseinfoItemList = itemRpcService.searchItem(mapQuery);
@@ -73,6 +73,15 @@ public class ItemRestService implements IItemRestService {
     public String insertItem(BaseinfoItem item) {
         BaseinfoItem item_new = itemRpcService.insertItem(item);
         return JsonUtils.SUCCESS(item_new);
+    }
+
+    public String updateItem(BaseinfoItem item) {
+        int result = itemRpcService.updateItem(item);
+        if (result == 0)
+            return "更新成功!!";
+        else
+            return "更新失败!!!";
+
     }
 
 }

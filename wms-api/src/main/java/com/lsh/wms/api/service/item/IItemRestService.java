@@ -14,4 +14,5 @@ public interface IItemRestService {
     public String getItemsBySkuCode(long iOwnerId, String sSkuCode);
     public String searchItem(Map<String, Object> mapQuery);
     public String insertItem(BaseinfoItem item);
+    String updateItem(BaseinfoItem item);
 }

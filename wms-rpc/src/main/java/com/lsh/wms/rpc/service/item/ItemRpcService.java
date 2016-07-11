@@ -70,4 +70,9 @@ public class ItemRpcService implements IItemRpcService {
         return item;
     }
 
+    public int updateItem(BaseinfoItem item) {
+        return itemService.updateItem(item);
+    }
+
+
 }

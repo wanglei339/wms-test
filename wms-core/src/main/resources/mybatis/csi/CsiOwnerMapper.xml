@@ -40,7 +40,7 @@
 		</set>
 		where id=#{id}
 	</update>
-  
+
 	<select id="getCsiOwnerById" parameterType="int" resultMap="csiOwnerResultMap">
 		select * from csi_owner
 		where ID=#{id} 
