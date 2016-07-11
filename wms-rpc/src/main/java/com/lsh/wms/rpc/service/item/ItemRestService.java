@@ -75,4 +75,13 @@ public class ItemRestService implements IItemRestService {
         return JsonUtils.SUCCESS(item_new);
     }
 
+    public String updateItem(BaseinfoItem item) {
+        int result = itemRpcService.updateItem(item);
+        if (result == 0)
+            return "更新成功!!";
+        else
+            return "更新失败!!!";
+
+    }
+
 }
