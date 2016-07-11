@@ -99,4 +99,22 @@ public class CsiSkuService {
         this.skuDao.insert(sku);
         return sku;
     }
+
+    @Transactional(readOnly = false)
+    public int updateSku(CsiSku sku){
+        //判断是否存在
+        if(this.getSku(sku.getSkuId()) == null){
+            return -1;
+        }
+        //更新商品
+        skuDao.update(sku);
+
+        //更新缓存
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("skuId", sku.getSkuId());
+        CsiSku newSku = skuDao.getCsiSkuList(mapQuery).get(0);
+        m_SkuCache.put(sku.getSkuId(),newSku);
+
+        return 0;
+    }
 }

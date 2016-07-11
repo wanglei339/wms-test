@@ -44,7 +44,7 @@
 		</set>
 		where id=#{id}
 	</update>
-  
+
 	<select id="getCsiSkuById" parameterType="int" resultMap="csiSkuResultMap">
 		select * from csi_sku
 		where ID=#{id} 

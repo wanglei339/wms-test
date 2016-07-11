@@ -30,7 +30,7 @@
 		</set>
 		where cat_id=#{catId}
 	</update>
-  
+
 	<select id="getCsiCategoryById" parameterType="int" resultMap="csiCategoryResultMap">
 		select * from csi_category
 		where ID=#{id} 
