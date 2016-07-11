@@ -77,7 +77,7 @@ public class CsiSkuService {
         }
         return new_sku;
     }
-
+    @Transactional(readOnly = false)
     public CsiSku insertSku(CsiSku sku){
         if(sku.getSkuId()==0){
             CsiSku o_sku = this.getSkuByCode(Integer.valueOf(sku.getCodeType()), sku.getCode());

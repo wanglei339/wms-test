@@ -40,6 +40,8 @@
         <property name="statementsCacheSize" value="${statementsCacheSize}"/>
         <!--每个分区释放链接助理进程的数量，默认值：3 -->
         <property name="defaultAutoCommit" value="true"/>
+        <!--链接超时，默认值：Long.MAX_VALUE;单位：毫秒 -->
+        <property name="connectionTimeout " value="6000"/>
     </bean>
 
     <!-- MyBatis配置 -->
