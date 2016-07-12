@@ -19,7 +19,7 @@ import java.util.Map;
 @Service
 @Transactional(readOnly = true)
 public class LocationService {
-    private static final Logger logger = LoggerFactory.getLogger(ContainerService.class);
+    private static final Logger logger = LoggerFactory.getLogger(LocationService.class);
     @Autowired
     private BaseinfoLocationDao locationDao;
 

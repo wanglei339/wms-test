@@ -2,9 +2,8 @@ package com.lsh.wms.rpc.service.location;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.wms.api.service.location.ILocationRpcService;
-import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.location.LocationService;
-import com.lsh.wms.model.baseinfo.BaseinfoContainer;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -32,7 +32,7 @@ public class ContainerRestService implements IContainerRestService {
     @GET
     @Path("getContainer")
     public String getContainer(@QueryParam("containerId") long containerId) {
-        BaseinfoContainer containerInfo = containerRpcService.getContainer((containerId));
+        BaseinfoContainer containerInfo = containerRpcService.getContainer(containerId);
         return JsonUtils.SUCCESS(containerInfo);
     }
 }

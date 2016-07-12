@@ -32,7 +32,7 @@ public class LocationRestService implements ILocationRestService {
     @GET
     @Path("getLocation")
     public String getLocation(@QueryParam("locationId") long locationId) {
-        BaseinfoLocation locationInfo = locationRpcService.getLocation((locationId));
+        BaseinfoLocation locationInfo = locationRpcService.getLocation(locationId);
         return JsonUtils.SUCCESS(locationInfo);
     }
 }
