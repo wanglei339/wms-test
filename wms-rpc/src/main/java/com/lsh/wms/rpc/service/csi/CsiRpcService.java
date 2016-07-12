@@ -59,4 +59,35 @@ public class CsiRpcService implements ICsiRpcService {
     public CsiSupplier getSupplier(int iSupplierId) {
         return supplierService.getSupplier(iSupplierId);
     }
+
+    public int updateSku(CsiSku sku){
+        return skuService.updateSku(sku);
+    }
+
+
+    public CsiSupplier insertSupplier(CsiSupplier supplier){
+        return supplierService.insertSupplier(supplier);
+
+    }
+    public int updateSupplier(CsiSupplier supplier){
+        return supplierService.updateSupplier(supplier);
+    }
+
+    public CsiCategory insertCategory(CsiCategory category) {
+        return categoryService.insertCategory(category);
+    }
+
+    public int updateCategory(CsiCategory category) {
+        return categoryService.updateCategory(category);
+    }
+
+    public CsiOwner insertOwner(CsiOwner owner) {
+        return ownerService.insertOwner(owner);
+    }
+
+    public int updateOwner(CsiOwner owner) {
+        return ownerService.updateOwner(owner);
+    }
+
+
 }

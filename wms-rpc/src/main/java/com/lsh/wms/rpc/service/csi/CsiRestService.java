@@ -8,6 +8,7 @@ import com.lsh.wms.model.csi.CsiCategory;
 import com.lsh.wms.model.csi.CsiOwner;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.csi.CsiSupplier;
+import net.sf.json.util.JSONUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,4 +70,60 @@ public class CsiRestService implements ICsiRestService {
     public String getSupplier(@QueryParam("supplierId") int iSupplierId) {
         return JsonUtils.SUCCESS(csiRpcService.getSupplier(iSupplierId));
     }
+
+    @POST
+    @Path("updateSku")
+    public String updateSku(CsiSku sku){
+        int result = csiRpcService.updateSku(sku);
+        if (result == 0)
+            return "更新成功!!";
+        else return "更新失败!!!";
+
+    }
+
+    @POST
+    @Path("insertSupplier")
+    public String insertSupplier(CsiSupplier supplier){
+        return JsonUtils.SUCCESS(csiRpcService.insertSupplier(supplier));
+    }
+
+    @POST
+    @Path("updateSupplier")
+    public String updateSupplier(CsiSupplier supplier){
+        int result = csiRpcService.updateSupplier(supplier);
+        if (result == 0)
+            return "更新成功!!";
+        else
+            return "更新失败!!!";
+    }
+
+    @POST
+    @Path("insertOwner")
+    public String insertOwner(CsiOwner owner) {
+        return JsonUtils.SUCCESS(csiRpcService.insertOwner(owner));
+    }
+    @POST
+    @Path("updateOwner")
+    public String updateOwner(CsiOwner owner) {
+        int result = csiRpcService.updateOwner(owner);
+        if (result == 0)
+            return "更新成功!!";
+        else
+            return "更新失败!!!";
+    }
+    @POST
+    @Path("insertCategory")
+    public String insertCategory(CsiCategory category) {
+        return JsonUtils.SUCCESS(csiRpcService.insertCategory(category));
+    }
+    @POST
+    @Path("updateCategory")
+    public String updateCategory(CsiCategory category) {
+        int result = csiRpcService.updateCategory(category);
+        if (result == 0)
+            return "更新成功!!";
+        else
+            return "更新失败!!!";
+    }
+
 }
