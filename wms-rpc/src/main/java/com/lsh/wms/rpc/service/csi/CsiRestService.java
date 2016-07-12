@@ -72,6 +72,12 @@ public class CsiRestService implements ICsiRestService {
     }
 
     @POST
+    @Path("insertSku")
+    public String insertSku(CsiSku sku){
+        return JsonUtils.SUCCESS(csiRpcService.insertSku(sku));
+    }
+
+    @POST
     @Path("updateSku")
     public String updateSku(CsiSku sku){
         int result = csiRpcService.updateSku(sku);
