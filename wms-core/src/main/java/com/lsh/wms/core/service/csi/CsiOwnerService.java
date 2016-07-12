@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,12 @@ public class CsiOwnerService {
             }
             owner.setOwnerId((long)iOwnerid);
         }
+        //增加新增时间
+        long createdAt = new Date().getTime()/1000;
+        owner.setCreatedAt(createdAt);
         ownerDao.insert(owner);
+        //更新缓存
+        m_OwnerCache.put(owner.getOwnerId(),owner);
 
         return owner;
     }
@@ -67,10 +73,14 @@ public class CsiOwnerService {
         if(this.getOwner(owner.getOwnerId()) == null){
             return -1;
         }
+        //增加更新时间
+        long updatedAt = new Date().getTime()/1000;
+        owner.setUpdatedAt(updatedAt);
         ownerDao.update(owner);
 
         //更新缓存中的数据
         Map<String, Object> mapQuery = new HashMap<String, Object>();
+
         mapQuery.put("ownerId", owner.getOwnerId());
         CsiOwner newOwner = ownerDao.getCsiOwnerList(mapQuery).get(0);
         m_OwnerCache.put(owner.getOwnerId(),newOwner);
