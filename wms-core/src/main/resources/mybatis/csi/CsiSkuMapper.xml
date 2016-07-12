@@ -30,7 +30,6 @@
 	<update id="update" parameterType="CsiSku">
 		update csi_sku
     	<set>
-  			<if test="skuId != null">sku_id=#{skuId},</if>
   			<if test="skuName != null">sku_name=#{skuName},</if>
   			<if test="codeType != null">code_type=#{codeType},</if>
   			<if test="code != null">code=#{code},</if>
@@ -42,7 +41,7 @@
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
-		where id=#{id}
+		where sku_id=#{skuId}
 	</update>
 
 	<select id="getCsiSkuById" parameterType="int" resultMap="csiSkuResultMap">
