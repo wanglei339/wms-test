@@ -35,6 +35,9 @@ public class PoReceiptService {
     public void orderInit(InbReceiptHeader inbReceiptHeader, List<InbReceiptDetail> inbReceiptDetailList){
         inbReceiptHeader.setInserttime(new Date());
         inbReceiptHeaderDao.insert(inbReceiptHeader);
+        for (InbReceiptDetail inbReceiptDetail:inbReceiptDetailList) {
+            inbReceiptDetail.setReceiptId(inbReceiptHeader.getId());
+        }
         inbReceiptDetailDao.batchInsert(inbReceiptDetailList);
     }
 
