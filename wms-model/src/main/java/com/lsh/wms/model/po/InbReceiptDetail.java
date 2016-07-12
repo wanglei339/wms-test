@@ -7,6 +7,8 @@ public class InbReceiptDetail implements Serializable {
 
 	/**  */
     private Long id;
+	/** 收货单ID */
+    private Long receiptId;
 	/** 订单ID */
     private Long orderId;
 	/** 批次号 */
@@ -44,6 +46,14 @@ public class InbReceiptDetail implements Serializable {
 	
 	public void setId(Long id){
 		this.id = id;
+	}
+	
+	public Long getReceiptId(){
+		return this.receiptId;
+	}
+	
+	public void setReceiptId(Long receiptId){
+		this.receiptId = receiptId;
 	}
 	
 	public Long getOrderId(){
