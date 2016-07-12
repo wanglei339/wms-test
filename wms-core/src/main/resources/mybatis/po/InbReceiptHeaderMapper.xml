@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.po.InbReceiptHeaderDao" >
+
+	<resultMap id="inbReceiptHeaderResultMap" type="InbReceiptHeader">
+		<id property="id" column="ID"/>
+		<result property="warehouseId" column="WAREHOUSE_ID"/>
+		<result property="bookingNum" column="BOOKING_NUM"/>
+		<result property="receiptCode" column="RECEIPT_CODE"/>
+		<result property="receiptUser" column="RECEIPT_USER"/>
+		<result property="receiptTime" column="RECEIPT_TIME"/>
+		<result property="receiptStatus" column="RECEIPT_STATUS"/>
+		<result property="insertby" column="INSERTBY"/>
+		<result property="updateby" column="UPDATEBY"/>
+		<result property="inserttime" column="INSERTTIME"/>
+		<result property="updatetime" column="UPDATETIME"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="InbReceiptHeader">
+		insert into inb_receipt_header (
+			WAREHOUSE_ID,BOOKING_NUM,RECEIPT_CODE,RECEIPT_USER,RECEIPT_TIME,RECEIPT_STATUS,
+			INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME
+    	) values (
+			#{warehouseId},#{bookingNum},#{receiptCode},#{receiptUser},#{receiptTime},#{receiptStatus},
+			#{insertby},#{updateby},#{inserttime},#{updatetime}
+    	)
+	</insert>
+
+	<update id="update" parameterType="InbReceiptHeader">
+		update inb_receipt_header
+    	<set>
+  			<if test="warehouseId != null">WAREHOUSE_ID=#{warehouseId},</if>
+  			<if test="bookingNum != null">BOOKING_NUM=#{bookingNum},</if>
+  			<if test="receiptCode != null">RECEIPT_CODE=#{receiptCode},</if>
+  			<if test="receiptUser != null">RECEIPT_USER=#{receiptUser},</if>
+  			<if test="receiptTime != null">RECEIPT_TIME=#{receiptTime},</if>
+  			<if test="receiptStatus != null">RECEIPT_STATUS=#{receiptStatus},</if>
+  			<if test="insertby != null">INSERTBY=#{insertby},</if>
+  			<if test="updateby != null">UPDATEBY=#{updateby},</if>
+  			<if test="inserttime != null">INSERTTIME=#{inserttime},</if>
+  			<if test="updatetime != null">UPDATETIME=#{updatetime}</if>
+		</set>
+		where ID=#{id}
+	</update>
+  
+	<select id="getInbReceiptHeaderById" parameterType="int" resultMap="inbReceiptHeaderResultMap">
+		select * from inb_receipt_header
+		where ID=#{id} 
+	</select>
+  
+	<select id="countInbReceiptHeader" parameterType="map" resultType="int">
+		select count(*) from inb_receipt_header
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getInbReceiptHeaderList" parameterType="map" resultMap="inbReceiptHeaderResultMap">
+		select * from inb_receipt_header
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">ID=#{id}</if>
+			<if test="warehouseId != null">and WAREHOUSE_ID=#{warehouseId}</if>
+			<if test="bookingNum != null">and BOOKING_NUM=#{bookingNum}</if>
+			<if test="receiptCode != null">and RECEIPT_CODE=#{receiptCode}</if>
+			<if test="receiptUser != null">and RECEIPT_USER=#{receiptUser}</if>
+			<if test="receiptTime != null">and RECEIPT_TIME=#{receiptTime}</if>
+			<if test="receiptStatus != null">and RECEIPT_STATUS=#{receiptStatus}</if>
+			<if test="insertby != null">and INSERTBY=#{insertby}</if>
+			<if test="updateby != null">and UPDATEBY=#{updateby}</if>
+			<if test="inserttime != null">and INSERTTIME=#{inserttime}</if>
+			<if test="updatetime != null">and UPDATETIME=#{updatetime}</if>
+		</where>
+	</sql>
+   
+</mapper>
