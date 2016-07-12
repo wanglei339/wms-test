@@ -8,7 +8,7 @@ public class CsiSupplier implements Serializable {
 	/**  */
     private Long id;
 	/** 供应商id */
-    private Long supplierId;
+    private Long supplierId = 0L;
 	/** 供应商名称 */
     private Long supplierName;
 	/** 货主id */
@@ -20,9 +20,9 @@ public class CsiSupplier implements Serializable {
 	/** 传真 */
     private String fax;
 	/**  */
-    private Long createdAt;
+    private Long createdAt = 0L;
 	/**  */
-    private Long updatedAt;
+    private Long updatedAt = 0L;
 	
 	public Long getId(){
 		return this.id;

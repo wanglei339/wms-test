@@ -8,7 +8,7 @@ public class CsiOwner implements Serializable {
 	/**  */
     private Long id;
 	/** 货主id */
-    private Long ownerId;
+    private Long ownerId = 0L;
 	/** 货主名称 */
     private Long ownerName;
 	/** 货主描述 */
@@ -22,9 +22,9 @@ public class CsiOwner implements Serializable {
 	/** 地址 */
     private String address;
 	/**  */
-    private Long createdAt;
+    private Long createdAt = 0L;
 	/**  */
-    private Long updatedAt;
+    private Long updatedAt = 0L;
 	
 	public Long getId(){
 		return this.id;

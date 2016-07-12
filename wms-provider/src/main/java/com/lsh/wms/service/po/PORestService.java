@@ -26,7 +26,7 @@ import java.util.Map;
  * desc:类功能描述
  */
 @Service(protocol = "rest")
-@Path("order")
+@Path("order/po")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class PORestService implements IPORestService{

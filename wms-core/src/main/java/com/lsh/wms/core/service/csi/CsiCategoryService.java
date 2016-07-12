@@ -106,6 +106,9 @@ public class CsiCategoryService {
         }
 
         catDao.insert(category);
+        //更新缓存
+        m_CatCache.put(category.getCatId(),category);
+
         return category;
     }
 
