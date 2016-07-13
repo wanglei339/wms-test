@@ -8,15 +8,15 @@ public class BaseinfoDepartment implements Serializable {
 	/**  */
     private Long id;
 	/** 部门id */
-    private Long departmentId;
+    private Long departmentId = 0L;
 	/** 部门名称 */
     private String departmentName;
 	/** 1-正常 2-异常 */
     private Integer status;
 	/**  */
-    private Long createdAt;
+    private Long createdAt = 0L;
 	/**  */
-    private Long updatedAt;
+    private Long updatedAt = 0L;
 	
 	public Long getId(){
 		return this.id;
