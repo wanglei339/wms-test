@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,12 +24,13 @@ import java.util.concurrent.ConcurrentMap;
 @Transactional(readOnly = true)
 public class CsiOwnerService {
     private static final Logger logger = LoggerFactory.getLogger(CsiOwnerService.class);
-    private static final ConcurrentMap<Integer, CsiOwner> m_OwnerCache = new ConcurrentHashMap<Integer, CsiOwner>();
+    //将Integer改为long modify by lixin
+    private static final ConcurrentMap<Long, CsiOwner> m_OwnerCache = new ConcurrentHashMap<Long, CsiOwner>();
 
     @Autowired
     private CsiOwnerDao ownerDao;
-
-    public CsiOwner getOwner(int iOwnerId){
+    //将int改为long modify by lixin
+    public CsiOwner getOwner(long iOwnerId){
         CsiOwner cat = m_OwnerCache.get(iOwnerId);
         if(cat == null){
             Map<String, Object> mapQuery = new HashMap<String, Object>();
@@ -42,5 +44,46 @@ public class CsiOwnerService {
             }
         }
         return cat;
+    }
+
+    @Transactional(readOnly = false)
+    public CsiOwner insertOwner(CsiOwner owner){
+        if(owner.getOwnerId() == 0){
+            int iOwnerid = 0;
+            int count = ownerDao.countCsiOwner(null);
+            if(count == 0){
+                iOwnerid = 1;
+            }else{
+                iOwnerid = count+1;
+            }
+            owner.setOwnerId((long)iOwnerid);
+        }
+        //增加新增时间
+        long createdAt = new Date().getTime()/1000;
+        owner.setCreatedAt(createdAt);
+        ownerDao.insert(owner);
+        //更新缓存
+        m_OwnerCache.put(owner.getOwnerId(),owner);
+
+        return owner;
+    }
+
+    @Transactional(readOnly = false)
+    public int updateOwner(CsiOwner owner){
+        if(this.getOwner(owner.getOwnerId()) == null){
+            return -1;
+        }
+        //增加更新时间
+        long updatedAt = new Date().getTime()/1000;
+        owner.setUpdatedAt(updatedAt);
+        ownerDao.update(owner);
+
+        //更新缓存中的数据
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+
+        mapQuery.put("ownerId", owner.getOwnerId());
+        CsiOwner newOwner = ownerDao.getCsiOwnerList(mapQuery).get(0);
+        m_OwnerCache.put(owner.getOwnerId(),newOwner);
+        return 0;
     }
 }

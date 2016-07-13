@@ -24,11 +24,10 @@
 			#{address},#{createdAt},#{updatedAt}
     	)
 	</insert>
-
+	<!--修改where条件为ownerId-->
 	<update id="update" parameterType="CsiOwner">
 		update csi_owner
     	<set>
-  			<if test="ownerId != null">owner_id=#{ownerId},</if>
   			<if test="ownerName != null">owner_name=#{ownerName},</if>
   			<if test="ownerDesc != null">owner_desc=#{ownerDesc},</if>
   			<if test="contry != null">contry=#{contry},</if>
@@ -38,9 +37,9 @@
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
-		where id=#{id}
+		where owner_id=#{ownerId}
 	</update>
-  
+
 	<select id="getCsiOwnerById" parameterType="int" resultMap="csiOwnerResultMap">
 		select * from csi_owner
 		where ID=#{id} 

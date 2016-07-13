@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,7 +97,33 @@ public class CsiSkuService {
                 return sku;
             }
         }
+        //增加新增时间
+        long createdAt = new Date().getTime()/1000;
+        sku.setCreatedAt(createdAt);
         this.skuDao.insert(sku);
+        //更新缓存
+        m_SkuCache.put(sku.getSkuId(),sku);
         return sku;
+    }
+
+    @Transactional(readOnly = false)
+    public int updateSku(CsiSku sku){
+        //判断是否存在
+        if(this.getSku(sku.getSkuId()) == null){
+            return -1;
+        }
+        //增加更新时间
+        long updatedAt = new Date().getTime()/1000;
+        sku.setUpdatedAt(updatedAt);
+        //更新商品
+        skuDao.update(sku);
+
+        //更新缓存
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("skuId", sku.getSkuId());
+        CsiSku newSku = skuDao.getCsiSkuList(mapQuery).get(0);
+        m_SkuCache.put(sku.getSkuId(),newSku);
+
+        return 0;
     }
 }

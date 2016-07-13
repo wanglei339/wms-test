@@ -6,7 +6,6 @@ import com.lsh.wms.model.baseinfo.BaseinfoDepartment;
 import java.util.List;
 import java.util.Map;
 
-
 @MyBatisRepository
 public interface BaseinfoDepartmentDao {
 
@@ -14,7 +13,7 @@ public interface BaseinfoDepartmentDao {
 	
 	void update(BaseinfoDepartment baseinfoDepartment);
 	
-	BaseinfoDepartment getBaseinfoDepartmentById(Integer id);
+	BaseinfoDepartment getBaseinfoDepartmentById(Long id);
 
     Integer countBaseinfoDepartment(Map<String, Object> params);
 

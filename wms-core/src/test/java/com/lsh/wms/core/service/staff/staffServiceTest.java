@@ -18,15 +18,15 @@ import java.util.Map;
 
 public class staffServiceTest extends BaseSpringTest {
 
-    @Autowired
-    private StaffService service;
+   /* @Autowired
+    private StaffService service;*/
 
     @Test
     public void test() throws Exception {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("status", 1);
-        service.countBaseinfoDepartment(params);
+       /* service.countBaseinfoDepartment(params);
         Integer ret = service.countBaseinfoDepartment(params);
-        System.out.println(ret);
+        System.out.println(ret);*/
     }
 }

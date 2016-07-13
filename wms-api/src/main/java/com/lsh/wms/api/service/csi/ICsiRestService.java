@@ -21,4 +21,16 @@ public interface ICsiRestService {
     public String getSkuByCode(int iCodeType, String sCode);
 
     public String getSupplier(int iSupplierId);
+
+    public String updateSku(CsiSku sku);
+
+    public String insertSupplier(CsiSupplier supplier);
+    String updateSupplier(CsiSupplier supplier);
+
+    String insertOwner(CsiOwner owner);
+    String updateOwner(CsiOwner owner);
+
+    String insertCategory(CsiCategory category);
+    String updateCategory(CsiCategory category);
+    String insertSku(CsiSku sku);
 }

@@ -9,7 +9,7 @@ public class CsiSku implements Serializable {
 	/**  */
     private Long id;
 	/** 仓库系统商品唯一码 */
-    private Long skuId;
+    private Long skuId = 0L;
 	/** 商品名称 */
     private String skuName;
 	/** 标准码类型, 1 - 国条, 2 - ISBN */
@@ -27,9 +27,9 @@ public class CsiSku implements Serializable {
 	/** 基本单位-重量 */
     private BigDecimal weight;
 	/**  */
-    private Long createdAt;
+    private Long createdAt = 0L;
 	/**  */
-    private Long updatedAt;
+    private Long updatedAt = 0L;
 	
 	public Long getId(){
 		return this.id;

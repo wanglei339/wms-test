@@ -90,4 +90,40 @@ public class CsiCategoryService {
         return cats;
 
     }
+
+    @Transactional(readOnly = false)
+    public CsiCategory insertCategory(CsiCategory category){
+        if(category.getCatId() == 0){
+            //gen iCatId
+            int iCatId = 0;
+            int count = catDao.countCsiCategory(null);
+            if(count == 0){
+                iCatId = 1;
+            }else{
+                iCatId = count + 1;
+            }
+            category.setCatId((long)iCatId);
+        }
+
+        catDao.insert(category);
+        //更新缓存
+        m_CatCache.put(category.getCatId(),category);
+
+        return category;
+    }
+
+    @Transactional(readOnly = false)
+    public int updateCategory(CsiCategory csiCategory){
+        if(this.getCatInfo(csiCategory.getCatId()) == null){
+            return -1;
+        }
+        catDao.update(csiCategory);
+        //更新缓存
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("catId", csiCategory.getCatId());
+        CsiCategory newCategory = catDao.getCsiCategoryList(mapQuery).get(0);
+        m_CatCache.put(csiCategory.getCatId(),newCategory);
+
+        return 0;
+    }
 }
