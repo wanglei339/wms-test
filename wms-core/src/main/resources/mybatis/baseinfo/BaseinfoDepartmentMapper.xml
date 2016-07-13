@@ -22,13 +22,12 @@
 	<update id="update" parameterType="BaseinfoDepartment">
 		update baseinfo_department
     	<set>
-  			<if test="departmentId != null">department_id=#{departmentId},</if>
   			<if test="departmentName != null">department_name=#{departmentName},</if>
   			<if test="status != null">status=#{status},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
-		where id=#{id}
+		where department_id=#{departmentId}
 	</update>
   
 	<select id="getBaseinfoDepartmentById" parameterType="int" resultMap="baseinfoDepartmentResultMap">

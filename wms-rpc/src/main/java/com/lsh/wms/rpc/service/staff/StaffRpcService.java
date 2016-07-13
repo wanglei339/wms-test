@@ -2,6 +2,7 @@ package com.lsh.wms.rpc.service.staff;
 
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.lsh.base.q.Module.Base;
 import com.lsh.wms.api.service.staff.IStaffRpcService;
 import com.lsh.wms.model.baseinfo.BaseinfoDepartment;
 import org.slf4j.Logger;
@@ -26,5 +27,13 @@ public class StaffRpcService implements IStaffRpcService {
 
     public List<BaseinfoDepartment> getDepartmentList(Map<String, Object> mapQuery) {
         return this.staffService.getDepartmentList(mapQuery);
+    }
+
+    public void addDepartment(BaseinfoDepartment department) {
+        staffService.addDepartment(department);
+    }
+
+    public void updateDepartment(BaseinfoDepartment department) {
+        staffService.updateDepartment(department);
     }
 }

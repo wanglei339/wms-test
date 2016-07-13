@@ -13,4 +13,10 @@ import java.util.Map;
 @Service(protocol = "rest")
 public interface IStaffRestService {
     public String getDepartmentList();
+
+    public String addDepartment(String sDepartmentName);
+
+    public String updateDepartment(String sDepartmentName);
+
+    public String deleteDepartment(long iDepartmentId);
 }

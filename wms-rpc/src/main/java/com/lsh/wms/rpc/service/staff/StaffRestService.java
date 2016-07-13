@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.google.common.collect.Maps;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.staff.IStaffRestService;
 import com.lsh.wms.model.baseinfo.BaseinfoDepartment;
 import org.slf4j.Logger;
@@ -37,5 +38,28 @@ public class StaffRestService implements IStaffRestService{
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         List<BaseinfoDepartment> departmentList = this.staffRpcService.getDepartmentList(mapQuery);
         return JsonUtils.SUCCESS(departmentList);
+    }
+
+    @POST
+    @Path("addDepartment")
+    public String addDepartment(String sDepartmentName) {
+        long now = System.currentTimeMillis();
+        long iDepartmentId = Long.parseLong(RandomUtils.uuid2());
+        BaseinfoDepartment department = new BaseinfoDepartment();
+        department.setDepartmentId(iDepartmentId);
+        department.setDepartmentName(sDepartmentName);
+        department.setStatus(1);
+        department.setCreatedAt(now);
+        department.setUpdatedAt(now);
+        staffRpcService.addDepartment(department);
+        return JsonUtils.SUCCESS(department);
+    }
+
+    public String updateDepartment(String sDepartmentName) {
+        return null;
+    }
+
+    public String deleteDepartment(long iDepartmentId) {
+        return null;
     }
 }
