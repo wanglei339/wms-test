@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.po.InbReceiptDetailDao" >
+
+	<resultMap id="inbReceiptDetailResultMap" type="InbReceiptDetail">
+		<id property="id" column="ID"/>
+		<result property="receiptId" column="RECEIPT_ID"/>
+		<result property="orderId" column="ORDER_ID"/>
+		<result property="lotNum" column="LOT_NUM"/>
+		<result property="skuId" column="SKU_ID"/>
+		<result property="skuName" column="SKU_NAME"/>
+		<result property="barCode" column="BAR_CODE"/>
+		<result property="orderQty" column="ORDER_QTY"/>
+		<result property="packUnit" column="PACK_UNIT"/>
+		<result property="madein" column="MADEIN"/>
+		<result property="inboundQty" column="INBOUND_QTY"/>
+		<result property="arriveNum" column="ARRIVE_NUM"/>
+		<result property="defectNum" column="DEFECT_NUM"/>
+		<result property="insertby" column="INSERTBY"/>
+		<result property="updateby" column="UPDATEBY"/>
+		<result property="inserttime" column="INSERTTIME"/>
+		<result property="updatetime" column="UPDATETIME"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="InbReceiptDetail">
+		insert into inb_receipt_detail (
+			RECEIPT_ID,ORDER_ID,LOT_NUM,SKU_ID,SKU_NAME,BAR_CODE,
+			ORDER_QTY,PACK_UNIT,MADEIN,INBOUND_QTY,ARRIVE_NUM,DEFECT_NUM,
+			INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME
+    	) values (
+			#{receiptId},#{orderId},#{lotNum},#{skuId},#{skuName},#{barCode},
+			#{orderQty},#{packUnit},#{madein},#{inboundQty},#{arriveNum},#{defectNum},
+			#{insertby},#{updateby},#{inserttime},#{updatetime}
+    	)
+	</insert>
+
+
+
+	<insert id="batchInsert" parameterType="java.util.List">
+		insert into inb_receipt_detail (
+		RECEIPT_ID,ORDER_ID,LOT_NUM,SKU_ID,SKU_NAME,BAR_CODE,ORDER_QTY,
+		PACK_UNIT,MADEIN,INBOUND_QTY,ARRIVE_NUM,DEFECT_NUM,INSERTBY,
+		UPDATEBY,INSERTTIME,UPDATETIME
+		) values
+		<foreach collection="list" item="item" index="index" separator="," >
+			(#{item.receiptId},#{item.orderId},#{item.lotNum},#{item.skuId},#{item.skuName},#{item.barCode},#{item.orderQty},
+			#{item.packUnit},#{item.madein},#{item.inboundQty},#{item.arriveNum},#{item.defectNum},#{item.insertby},
+			#{item.updateby},now(),#{item.updatetime})
+		</foreach>
+	</insert>
+
+
+
+	<update id="update" parameterType="InbReceiptDetail">
+		update inb_receipt_detail
+    	<set>
+  			<if test="receiptId != null">RECEIPT_ID=#{receiptId},</if>
+  			<if test="orderId != null">ORDER_ID=#{orderId},</if>
+  			<if test="lotNum != null">LOT_NUM=#{lotNum},</if>
+  			<if test="skuId != null">SKU_ID=#{skuId},</if>
+  			<if test="skuName != null">SKU_NAME=#{skuName},</if>
+  			<if test="barCode != null">BAR_CODE=#{barCode},</if>
+  			<if test="orderQty != null">ORDER_QTY=#{orderQty},</if>
+  			<if test="packUnit != null">PACK_UNIT=#{packUnit},</if>
+  			<if test="madein != null">MADEIN=#{madein},</if>
+  			<if test="inboundQty != null">INBOUND_QTY=#{inboundQty},</if>
+  			<if test="arriveNum != null">ARRIVE_NUM=#{arriveNum},</if>
+  			<if test="defectNum != null">DEFECT_NUM=#{defectNum},</if>
+  			<if test="insertby != null">INSERTBY=#{insertby},</if>
+  			<if test="updateby != null">UPDATEBY=#{updateby},</if>
+  			<if test="inserttime != null">INSERTTIME=#{inserttime},</if>
+  			<if test="updatetime != null">UPDATETIME=#{updatetime}</if>
+		</set>
+		where ID=#{id}
+	</update>
+  
+	<select id="getInbReceiptDetailById" parameterType="int" resultMap="inbReceiptDetailResultMap">
+		select * from inb_receipt_detail
+		where ID=#{id} 
+	</select>
+  
+	<select id="countInbReceiptDetail" parameterType="map" resultType="int">
+		select count(*) from inb_receipt_detail
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getInbReceiptDetailList" parameterType="map" resultMap="inbReceiptDetailResultMap">
+		select * from inb_receipt_detail
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">ID=#{id}</if>
+			<if test="receiptId != null">and RECEIPT_ID=#{receiptId}</if>
+			<if test="orderId != null">and ORDER_ID=#{orderId}</if>
+			<if test="lotNum != null">and LOT_NUM=#{lotNum}</if>
+			<if test="skuId != null">and SKU_ID=#{skuId}</if>
+			<if test="skuName != null">and SKU_NAME=#{skuName}</if>
+			<if test="barCode != null">and BAR_CODE=#{barCode}</if>
+			<if test="orderQty != null">and ORDER_QTY=#{orderQty}</if>
+			<if test="packUnit != null">and PACK_UNIT=#{packUnit}</if>
+			<if test="madein != null">and MADEIN=#{madein}</if>
+			<if test="inboundQty != null">and INBOUND_QTY=#{inboundQty}</if>
+			<if test="arriveNum != null">and ARRIVE_NUM=#{arriveNum}</if>
+			<if test="defectNum != null">and DEFECT_NUM=#{defectNum}</if>
+			<if test="insertby != null">and INSERTBY=#{insertby}</if>
+			<if test="updateby != null">and UPDATEBY=#{updateby}</if>
+			<if test="inserttime != null">and INSERTTIME=#{inserttime}</if>
+			<if test="updatetime != null">and UPDATETIME=#{updatetime}</if>
+		</where>
+	</sql>
+   
+</mapper>

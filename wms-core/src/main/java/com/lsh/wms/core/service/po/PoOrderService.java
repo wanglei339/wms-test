@@ -34,6 +34,9 @@ public class PoOrderService {
     public void orderInit(InbPoHeader inbPoHeader, List<InbPoDetail> inbPoDetailList){
         inbPoHeader.setInserttime(new Date());
         inbPoHeaderDao.insert(inbPoHeader);
+        for (InbPoDetail inbPoDetai: inbPoDetailList) {
+            inbPoDetai.setOrderId(inbPoHeader.getId());
+        }
         inbPoDetailDao.batchInsert(inbPoDetailList);
     }
 

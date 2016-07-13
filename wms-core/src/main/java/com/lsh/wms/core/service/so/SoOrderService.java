@@ -34,6 +34,9 @@ public class SoOrderService {
     public void insert(OutbSoHeader outbSoHeader, List<OutbSoDetail> outbSoDetailList){
         outbSoHeader.setInserttime(new Date());
         outbSoHeaderDao.insert(outbSoHeader);
+        for (OutbSoDetail outbSoDetail :outbSoDetailList) {
+            outbSoDetail.setOrderId(outbSoHeader.getId());
+        }
         outbSoDetailDao.batchInsert(outbSoDetailList);
     }
 
