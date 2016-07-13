@@ -10,7 +10,8 @@ public class CsiOwner implements Serializable {
 	/** 货主id */
     private Long ownerId = 0L;
 	/** 货主名称 */
-    private Long ownerName;
+	//long改为String
+    private String ownerName;
 	/** 货主描述 */
     private String ownerDesc;
 	/** 国家名称 */
@@ -42,11 +43,11 @@ public class CsiOwner implements Serializable {
 		this.ownerId = ownerId;
 	}
 	
-	public Long getOwnerName(){
+	public String getOwnerName(){
 		return this.ownerName;
 	}
 	
-	public void setOwnerName(Long ownerName){
+	public void setOwnerName(String ownerName){
 		this.ownerName = ownerName;
 	}
 	
