@@ -10,7 +10,8 @@ public class CsiSupplier implements Serializable {
 	/** 供应商id */
     private Long supplierId = 0L;
 	/** 供应商名称 */
-    private Long supplierName;
+	//long改为String
+    private String supplierName;
 	/** 货主id */
     private Long ownerId;
 	/** 货主对供商的编号 */
@@ -40,11 +41,11 @@ public class CsiSupplier implements Serializable {
 		this.supplierId = supplierId;
 	}
 	
-	public Long getSupplierName(){
+	public String getSupplierName(){
 		return this.supplierName;
 	}
 	
-	public void setSupplierName(Long supplierName){
+	public void setSupplierName(String supplierName){
 		this.supplierName = supplierName;
 	}
 	

@@ -61,9 +61,9 @@ public class BaseinfoItem implements Serializable {
 	/** 商品等级，对应A,B,C */
     private String itemLevel;
 	/**  */
-    private Long createdAt;
+    private Long createdAt = 0L;
 	/**  */
-    private Long updatedAt;
+    private Long updatedAt = 0L;
 	
 	public Long getId(){
 		return this.id;

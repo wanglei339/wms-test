@@ -53,7 +53,6 @@ public class ItemRpcService implements IItemRpcService {
         return itemService.searchItem(mapQuery);
     }
 
-
     public BaseinfoItem insertItem(BaseinfoItem item) {
         CsiSku sku = this.getSkuByCode(Integer.valueOf(item.getCodeType()), item.getCode());
         if(sku == null){
@@ -73,6 +72,5 @@ public class ItemRpcService implements IItemRpcService {
     public int updateItem(BaseinfoItem item) {
         return itemService.updateItem(item);
     }
-
 
 }

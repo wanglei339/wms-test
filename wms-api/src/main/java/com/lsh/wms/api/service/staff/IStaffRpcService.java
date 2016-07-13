@@ -12,4 +12,8 @@ import java.util.Map;
 
 public interface IStaffRpcService {
     public List<BaseinfoDepartment> getDepartmentList(Map<String, Object> mapQuery);
+
+    public void addDepartment(BaseinfoDepartment department);
+
+    public void updateDepartment(BaseinfoDepartment department);
 }
