@@ -25,4 +25,8 @@ public class ContainerRpcService implements IContainerRpcService {
     public BaseinfoContainer getContainer(long containerId) {
         return containerService.getContainer(containerId);
     }
+
+    public BaseinfoContainer insertContainer(BaseinfoContainer container) {
+        return container;
+    }
 }

@@ -35,4 +35,11 @@ public class ContainerRestService implements IContainerRestService {
         BaseinfoContainer containerInfo = containerRpcService.getContainer(containerId);
         return JsonUtils.SUCCESS(containerInfo);
     }
+
+    @POST
+    @Path("insertContainer")
+    public String insertContainer(BaseinfoContainer container) {
+        BaseinfoContainer containerInfo = containerRpcService.insertContainer(container);
+        return JsonUtils.SUCCESS(containerInfo);
+    }
 }

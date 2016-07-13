@@ -31,8 +31,30 @@ public class LocationRestService implements ILocationRestService {
 
     @GET
     @Path("getLocation")
-    public String getLocation(@QueryParam("locationId") long locationId) {
+    public String getLocation(@QueryParam("locationId") Long locationId) {
         BaseinfoLocation locationInfo = locationRpcService.getLocation(locationId);
         return JsonUtils.SUCCESS(locationInfo);
+    }
+
+    @GET
+    @Path("getStoreLocationIds")
+    public String getStoreLocationIds(@QueryParam("locationId") Long locationId) {
+        List<BaseinfoLocation> locations = locationRpcService.getStoreLocations(locationId);
+        List<Long> locationIds = locationRpcService.getLocationIds(locations);
+        return JsonUtils.SUCCESS(locationIds);
+    }
+
+    @GET
+    @Path("getFatherByType")
+    public String getFatherByType(@QueryParam("locationId") Long locationId, @QueryParam("type") String type) {
+        BaseinfoLocation location = locationRpcService.getFatherByType(locationId, type);
+        return JsonUtils.SUCCESS(location);
+    }
+
+    @GET
+    @Path("getFatherArea")
+    public String getFatherArea(@QueryParam("locationId") Long locationId) {
+        BaseinfoLocation location = locationRpcService.getFatherByType(locationId, "area");
+        return JsonUtils.SUCCESS(location);
     }
 }

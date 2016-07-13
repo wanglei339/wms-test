@@ -26,7 +26,8 @@ public class LocationService {
     public BaseinfoLocation getLocation (long locationId) {
         Map<String, Object> params = new HashMap<String, Object>();
         BaseinfoLocation location;
-        params.put("location_id", locationId);
+        params.put("locationId", locationId);
+        params.put("isValid", 1);
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
         if (locations.size() == 1) {
             location = locations.get(0);
@@ -34,5 +35,28 @@ public class LocationService {
             return null;
         }
         return location;
+    }
+
+    public List<BaseinfoLocation> getChildrenLocations (long locationId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        Map<Long, BaseinfoLocation> childrenLocations = new HashMap<Long, BaseinfoLocation>();
+        // 判断是否已为子节点
+        BaseinfoLocation curLocation = this.getLocation(locationId);
+        if (curLocation.getIsLeaf() == 1) {
+            return null;
+        }
+        params.put("fatherId", locationId);
+        params.put("isValid", 1);
+        List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
+        return locations;
+    }
+
+    public BaseinfoLocation getFatherLocation (long locationId) {
+        BaseinfoLocation curLocation = this.getLocation(locationId);
+        Long fatherId = curLocation.getFatherId();
+        if (fatherId == 0) {
+            return null;
+        }
+        return this.getLocation(fatherId);
     }
 }

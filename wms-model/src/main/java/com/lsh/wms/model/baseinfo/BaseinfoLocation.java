@@ -18,7 +18,7 @@ public class BaseinfoLocation implements Serializable {
 	/** 类型名 */
     private String typeName;
 	/** 是否为叶子位置节点 */
-    private String isLeaf;
+    private Integer isLeaf;
 	/** 是否可用 */
     private Integer isValid;
 	/** 是否是存储用位置 */
@@ -80,11 +80,11 @@ public class BaseinfoLocation implements Serializable {
 		this.typeName = typeName;
 	}
 	
-	public String getIsLeaf(){
+	public Integer getIsLeaf(){
 		return this.isLeaf;
 	}
 	
-	public void setIsLeaf(String isLeaf){
+	public void setIsLeaf(Integer isLeaf){
 		this.isLeaf = isLeaf;
 	}
 	

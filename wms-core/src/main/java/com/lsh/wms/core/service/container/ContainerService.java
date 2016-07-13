@@ -26,7 +26,7 @@ public class ContainerService {
     public BaseinfoContainer getContainer (long containerId) {
         Map<String, Object> params = new HashMap<String, Object>();
         BaseinfoContainer container;
-        params.put("container_id", containerId);
+        params.put("containerId", containerId);
         List<BaseinfoContainer> containers = containerDao.getBaseinfoContainerList(params);
         if (containers.size() == 1) {
             container = containers.get(0);
@@ -34,6 +34,16 @@ public class ContainerService {
             return null;
         }
         return container;
+    }
+
+    @Transactional(readOnly = false)
+    public void insertContainer (BaseinfoContainer container) {
+        containerDao.insert(container);
+    }
+
+    @Transactional(readOnly = false)
+    public void updateContainer (BaseinfoContainer container) {
+        containerDao.update(container);
     }
 }
 
