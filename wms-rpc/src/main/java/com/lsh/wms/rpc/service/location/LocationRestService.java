@@ -60,4 +60,18 @@ public class LocationRestService implements ILocationRestService {
         BaseinfoLocation location = locationRpcService.getFatherByType(locationId, "area");
         return JsonUtils.SUCCESS(location);
     }
+
+    @GET
+    @Path("getWarehouseLocationId")
+    public String getWarehouseLocationId() {
+        Long locationId = locationService.getWarehouseLocationId();
+        return JsonUtils.SUCCESS(locationId);
+    }
+
+    @GET
+    @Path("getinventoryLostLocationId")
+    public String getinventoryLostLocationId() {
+        Long locationId = locationService.getinventoryLostLocationId();
+        return JsonUtils.SUCCESS(locationId);
+    }
 }

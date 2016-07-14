@@ -8,4 +8,6 @@ public interface ILocationRestService {
     public String getStoreLocationIds(Long locationId);
     public String getFatherByType(Long locationId, String type);
     public String getFatherArea(Long locationId);
+    public String getWarehouseLocationId();
+    public String getinventoryLostLocationId();
 }
