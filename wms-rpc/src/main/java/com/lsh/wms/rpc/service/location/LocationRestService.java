@@ -70,7 +70,7 @@ public class LocationRestService implements ILocationRestService {
 
     @GET
     @Path("getinventoryLostLocationId")
-    public String getinventoryLostLocationId() {
+    public String getInventoryLostLocationId() {
         Long locationId = locationService.getInventoryLostLocationId();
         return JsonUtils.SUCCESS(locationId);
     }
