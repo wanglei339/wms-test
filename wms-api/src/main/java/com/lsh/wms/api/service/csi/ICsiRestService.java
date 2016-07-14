@@ -32,4 +32,5 @@ public interface ICsiRestService {
 
     String insertCategory(CsiCategory category);
     String updateCategory(CsiCategory category);
+    String insertSku(CsiSku sku);
 }

@@ -53,7 +53,6 @@
 	<update id="update" parameterType="BaseinfoItem">
 		update baseinfo_item
     	<set>
-  			<if test="skuId != null">sku_id=#{skuId},</if>
   			<if test="ownerId != null">owner_id=#{ownerId},</if>
   			<if test="skuCode != null">sku_code=#{skuCode},</if>
   			<if test="skuName != null">sku_name=#{skuName},</if>
@@ -82,7 +81,7 @@
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
-		where id=#{id}
+		where sku_id=#{skuId}
 	</update>
   
 	<select id="getBaseinfoItemById" parameterType="int" resultMap="baseinfoItemResultMap">

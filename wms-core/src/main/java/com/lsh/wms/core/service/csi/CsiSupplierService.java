@@ -62,6 +62,8 @@ public class CsiSupplierService {
             }
         }
         supplierDao.insert(supplier);
+        //更新缓存
+        m_SupplierCache.put(supplier.getSupplierId(),supplier);
         return supplier;
     }
 

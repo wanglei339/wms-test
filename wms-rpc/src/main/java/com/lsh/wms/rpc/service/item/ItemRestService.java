@@ -25,6 +25,7 @@ import java.util.Map;
 @Path("item")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+
 public class ItemRestService implements IItemRestService {
     private static Logger logger = LoggerFactory.getLogger(ItemRestService.class);
 
@@ -67,22 +68,21 @@ public class ItemRestService implements IItemRestService {
         return  JsonUtils.SUCCESS(baseinfoItemList);
     }
 
-
     @POST
     @Path("insertItem")
     public String insertItem(BaseinfoItem item) {
         BaseinfoItem item_new = itemRpcService.insertItem(item);
         return JsonUtils.SUCCESS(item_new);
     }
+
     @POST
     @Path("updateItem")
     public String updateItem(BaseinfoItem item) {
         int result = itemRpcService.updateItem(item);
         if (result == 0)
-            return "更新成功!!";
+            return "update success!";
         else
-            return "更新失败!!!";
-
+            return "update failed";
     }
 
 }

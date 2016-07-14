@@ -12,4 +12,10 @@ import java.util.Map;
 
 public interface IStaffRestService {
     public String getDepartmentList();
+
+    public String addDepartment(String sDepartmentName);
+
+    public String updateDepartment(String sDepartmentName);
+
+    public String deleteDepartment(long iDepartmentId);
 }

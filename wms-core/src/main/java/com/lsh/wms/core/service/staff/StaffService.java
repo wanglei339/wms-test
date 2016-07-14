@@ -24,23 +24,19 @@ public class StaffService {
     @Autowired
     private BaseinfoDepartmentDao departmentDao;
 
-    public BaseinfoDepartment getDepartment(long iDepartmentId) {
-        Map<String, Object> mapQuery = new HashMap();
-        mapQuery.put("department_id", iDepartmentId);
-        List<BaseinfoDepartment> ret = this.departmentDao.getBaseinfoDepartmentList(mapQuery);
-        if (!ret.isEmpty()) {
-            return ret.get(0);
-        } else {
-            return null;
-        }
-    }
-
     public List<BaseinfoDepartment> getDepartmentList(Map<String, Object> mapQuery) {
-        logger.debug(mapQuery.toString());
-        return this.departmentDao.getBaseinfoDepartmentList(mapQuery);
+        return departmentDao.getBaseinfoDepartmentList(mapQuery);
     }
 
     public Integer countBaseinfoDepartment(Map<String, Object> params) {
         return departmentDao.countBaseinfoDepartment(params);
+    }
+
+    public void addDepartment(BaseinfoDepartment department) {
+        departmentDao.insert(department);
+    }
+
+    public void updateDepartment(BaseinfoDepartment department) {
+        departmentDao.update(department);
     }
 }

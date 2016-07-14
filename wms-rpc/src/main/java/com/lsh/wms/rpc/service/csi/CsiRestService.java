@@ -72,12 +72,19 @@ public class CsiRestService implements ICsiRestService {
     }
 
     @POST
+    @Path("insertSku")
+    public String insertSku(CsiSku sku){
+        return JsonUtils.SUCCESS(csiRpcService.insertSku(sku));
+    }
+
+    @POST
     @Path("updateSku")
     public String updateSku(CsiSku sku){
         int result = csiRpcService.updateSku(sku);
         if (result == 0)
-            return "更新成功!!";
-        else return "更新失败!!!";
+            return "update success!";
+        else
+            return "update failed";
 
     }
 
@@ -92,9 +99,9 @@ public class CsiRestService implements ICsiRestService {
     public String updateSupplier(CsiSupplier supplier){
         int result = csiRpcService.updateSupplier(supplier);
         if (result == 0)
-            return "更新成功!!";
+            return "update success!";
         else
-            return "更新失败!!!";
+            return "update failed";
     }
 
     @POST
@@ -107,9 +114,9 @@ public class CsiRestService implements ICsiRestService {
     public String updateOwner(CsiOwner owner) {
         int result = csiRpcService.updateOwner(owner);
         if (result == 0)
-            return "更新成功!!";
+            return "update success!";
         else
-            return "更新失败!!!";
+            return "update failed";
     }
     @POST
     @Path("insertCategory")
@@ -121,9 +128,9 @@ public class CsiRestService implements ICsiRestService {
     public String updateCategory(CsiCategory category) {
         int result = csiRpcService.updateCategory(category);
         if (result == 0)
-            return "更新成功!!";
+            return "update success!";
         else
-            return "更新失败!!!";
+            return "update failed";
     }
 
 }

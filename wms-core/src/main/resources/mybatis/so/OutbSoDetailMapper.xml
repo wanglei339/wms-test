@@ -32,10 +32,10 @@
 		insert into OUTB_SO_DETAIL (
 		ORDER_ID,ITEM_ID,SKU_ID,SKU_NAME,BAR_CODE,ORDER_QTY,
 		PACK_UNIT,LOT_NUM,INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME
-		) values (
+		) values
 		<foreach collection="list" item="item" index="index" separator="," >
-			(#{orderId},#{itemId},#{skuId},#{skuName},#{barCode},#{orderQty},
-			#{packUnit},#{lotNum},#{insertby},#{updateby},now(),#{updatetime})
+			(#{item.orderId},#{item.itemId},#{item.skuId},#{item.skuName},#{item.barCode},#{item.orderQty},
+			#{item.packUnit},#{item.lotNum},#{item.insertby},#{item.updateby},now(),#{item.updatetime})
 		</foreach>
 	</insert>
 
