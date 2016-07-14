@@ -4,10 +4,8 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.wms.api.service.so.ISORestService;
+import com.lsh.wms.api.service.so.ISoRestService;
 import com.lsh.wms.core.service.so.SoOrderService;
-import com.lsh.wms.model.po.InbPoDetail;
-import com.lsh.wms.model.po.InbPoHeader;
 import com.lsh.wms.model.so.OutbSoDetail;
 import com.lsh.wms.model.so.OutbSoHeader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +30,7 @@ import java.util.List;
 @Path("order/so")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-public class SORestService  implements ISORestService{
+public class SORestService  implements ISoRestService {
 
     @Autowired
     private SoOrderService soOrderService;

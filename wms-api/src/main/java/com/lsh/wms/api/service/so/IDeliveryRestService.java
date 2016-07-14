@@ -9,6 +9,6 @@ package com.lsh.wms.api.service.so;
  * Package name:com.lsh.wms.api.service.so.
  * desc:类功能描述
  */
-public interface ISODeliveryRestService {
+public interface IDeliveryRestService {
     public String init(String soDeliveryInfo);
 }

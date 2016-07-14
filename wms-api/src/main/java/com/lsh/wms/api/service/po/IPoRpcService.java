@@ -15,7 +15,7 @@ import java.util.Map;
  * Package name:com.lsh.wms.api.service.po.
  * desc:类功能描述
  */
-public interface IPORpcService {
+public interface IPoRpcService {
 
     public void orderInit(InbPoHeader inbPoHeader);
 

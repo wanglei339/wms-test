@@ -1,50 +1,55 @@
 package com.lsh.wms.model.stock;
 
+//import com.lsh.base.common.utils.ClockUtils;
+//import com.lsh.base.common.utils.DateUtils;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class StockQuant implements Serializable {
+public class StockQuant implements Serializable,Cloneable {
 
 	/**  */
-    private String id;
-	/** 商品ID */
+    private Long id;
+	/** 商品id */
     private Long skuId;
-	/** 存储库位ID */
+	/** 存储库位id */
     private Long locationId;
-	/** 容器设备ID */
-    private Long containerId;
+	/** 容器设备id */
+    private Long containerId = 0L;
 	/** 数量 */
-    private BigDecimal qty;
-	/** 商品单位转换ID */
-    private Long skuUomId;
+    private BigDecimal qty = BigDecimal.ZERO;
+	/** 商品单位转换id */
+    private Long skuUomId = 0L;
 	/** 库存价值 */
-    private BigDecimal value;
+    private BigDecimal value = BigDecimal.ZERO;
 	/** 库存成本 */
-    private BigDecimal cost;
-	/** 占位STOCK_MOVE ID */
-    private Long reserveMoveId;
+    private BigDecimal cost = BigDecimal.ZERO;
+	/** 占位stock_move id */
+    private Long reserveMoveId = 0L;
 	/** 0-可用，1-被冻结 */
-    private Long isFrozen;
-	/** 货物供应商ID */
-    private Long supplierId;
-	/** 货物所属公司ID */
-    private Long ownerId;
+    private Long isFrozen = 0L;
+	/** 货物供应商id */
+    private Long supplierId = 0L;
+	/** 货物所属公司id */
+    private Long ownerId = 0L;
 	/** 批次号 */
-    private Long lotId;
+    private Long lotId = 0L;
 	/** 入库时间 */
-    private String inDate;
+    private Long inDate = 0L;
 	/** 保质期失效时间 */
-    private String expireDate;
+    private Long expireDate = 0L;
 	/**  */
-    private String createdAt;
+    private Long createdAt;
 	/**  */
-    private String updatedAt;
-	
-	public String getId(){
+    private Long updatedAt;
+
+
+    public Long getId(){
+
 		return this.id;
 	}
 	
-	public void setId(String id){
+	public void setId(Long id){
 		this.id = id;
 	}
 	
@@ -144,37 +149,49 @@ public class StockQuant implements Serializable {
 		this.lotId = lotId;
 	}
 	
-	public String getInDate(){
+	public Long getInDate(){
 		return this.inDate;
 	}
 	
-	public void setInDate(String inDate){
+	public void setInDate(Long inDate){
 		this.inDate = inDate;
 	}
 	
-	public String getExpireDate(){
+	public Long getExpireDate(){
 		return this.expireDate;
 	}
 	
-	public void setExpireDate(String expireDate){
+	public void setExpireDate(Long expireDate){
 		this.expireDate = expireDate;
 	}
 	
-	public String getCreatedAt(){
+	public Long getCreatedAt(){
 		return this.createdAt;
 	}
 	
-	public void setCreatedAt(String createdAt){
+	public void setCreatedAt(Long createdAt){
 		this.createdAt = createdAt;
 	}
 	
-	public String getUpdatedAt(){
+	public Long getUpdatedAt(){
 		return this.updatedAt;
 	}
 	
-	public void setUpdatedAt(String updatedAt){
+	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
-	
-	
+
+
+    @Override
+    public Object clone() {
+        StockQuant stockQuant = null;
+        try{
+            stockQuant = (StockQuant)super.clone();
+            stockQuant.setId(null);
+            stockQuant.setQty(null);
+        }catch ( CloneNotSupportedException ex){
+            ex.printStackTrace();
+        }
+        return stockQuant;
+    }
 }
