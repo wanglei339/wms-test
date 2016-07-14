@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.lot;
 
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.model.baseinfo.BaseinfoLot;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLotDao;
 import org.slf4j.Logger;
@@ -64,10 +65,8 @@ public class LotService {
             return -1;
         }
         //create
-        Date now = new Date();
-        long timestamp = now.getTime()/1000;
-        lot.setCreatedAt(timestamp);
-        lot.setUpdatedAt(timestamp); //?
+        lot.setCreatedAt(DateUtils.getCurrentSeconds());
+        lot.setUpdatedAt(DateUtils.getCurrentSeconds());
         lotDao.insert(lot);
         return 0;
     }
@@ -81,9 +80,7 @@ public class LotService {
         }
         //update
         lot.setCreatedAt(getLot.getCreatedAt());
-        Date now = new Date();
-        long timestamp = now.getTime()/1000;
-        lot.setUpdatedAt(timestamp);
+        lot.setUpdatedAt(DateUtils.getCurrentSeconds());
         lotDao.update(lot);
         return 0;
     }
