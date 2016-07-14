@@ -38,7 +38,8 @@ public class DepartmentRestService implements IDepartmentRestService {
     public String updateDepartment(BaseinfoDepartment department) {
         int result = departmentRpcService.updateDepartment(department);
         if (result == 0)
-            return "更新成功!!";
-        else return "更新失败!!!";
+            return "update success!";
+        else
+            return "update failed";
     }
 }
