@@ -1,8 +1,8 @@
-package com.lsh.wms.core.service.lot;
+package com.lsh.wms.core.service.stock;
 
 import com.lsh.base.common.utils.DateUtils;
-import com.lsh.wms.model.baseinfo.BaseinfoLot;
-import com.lsh.wms.core.dao.baseinfo.BaseinfoLotDao;
+import com.lsh.wms.core.dao.stock.StockLotDao;
+import com.lsh.wms.model.stock.StockLot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,27 +17,27 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Created by Ming on 7/11/16.
+ * Created by Ming on 7/14/16.
  */
 
 @Component
 @Transactional(readOnly = true)
 
-public class LotService {
-    private static final Logger logger = LoggerFactory.getLogger(LotService.class);
-    private static final ConcurrentMap<Long, BaseinfoLot> m_LotCache = new
-            ConcurrentHashMap<Long, BaseinfoLot>();
+public class StockLotService {
+    private static final Logger logger = LoggerFactory.getLogger(StockLotService.class);
+    private static final ConcurrentMap<Long, StockLot> m_LotCache = new
+            ConcurrentHashMap<Long, StockLot>();
     @Autowired
-    private BaseinfoLotDao lotDao;
+    private StockLotDao lotDao;
 
-    public BaseinfoLot getLotByLotId(long iLotId){
+    public StockLot getStockLotByLotId(long iLotId){
         Long key = iLotId;
-        BaseinfoLot lot = m_LotCache.get(key);
+        StockLot lot = m_LotCache.get(key);
         if(lot == null){
             //not exist in cache, search in mysql
             Map<String, Object> mapQuery = new HashMap<String, Object>();
             mapQuery.put("lotId", iLotId);
-            List<BaseinfoLot> lots = lotDao.getBaseinfoLotList(mapQuery);
+            List<StockLot> lots = lotDao.getStockLotList(mapQuery);
 
             if(lots.size() == 1){
                 lot = lots.get(0);
@@ -47,7 +46,7 @@ public class LotService {
                 return null;
             }
         }
-        BaseinfoLot new_lot = new BaseinfoLot();
+        StockLot new_lot = new StockLot();
         try {
             org.apache.commons.beanutils.BeanUtils.copyProperties(new_lot, lot);
         } catch (IllegalAccessException e) {
@@ -59,9 +58,9 @@ public class LotService {
     }
 
     @Transactional(readOnly = false)
-    public int insertLot(BaseinfoLot lot){
+    public int insertLot(StockLot lot){
         // if exist
-        if(this.getLotByLotId(lot.getLotId())!=null){
+        if(this.getStockLotByLotId(lot.getLotId())!=null){
             return -1;
         }
         //create
@@ -72,8 +71,8 @@ public class LotService {
     }
 
     @Transactional(readOnly = false)
-    public int updateLot(BaseinfoLot lot){
-        BaseinfoLot getLot = this.getLotByLotId(lot.getLotId());
+    public int updateLot(StockLot lot){
+        StockLot getLot = this.getStockLotByLotId(lot.getLotId());
         //if exist
         if(getLot == null){
             return -1;
@@ -85,8 +84,8 @@ public class LotService {
         return 0;
     }
 
-    public List<BaseinfoLot> searchLot(Map<String, Object> mapQuery){
-        return lotDao.getBaseinfoLotList(mapQuery);
+    public List<StockLot> searchLot(Map<String, Object> mapQuery){
+        return lotDao.getStockLotList(mapQuery);
     }
 
 }
