@@ -16,6 +16,6 @@ import java.util.Map;
  * Package name:com.lsh.wms.api.service.so.
  * desc:类功能描述
  */
-public interface ISORestService {
+public interface ISoRestService {
     public String init(String soOrderInfo);
 }

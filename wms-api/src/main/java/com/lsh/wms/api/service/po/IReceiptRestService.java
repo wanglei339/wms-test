@@ -9,6 +9,6 @@ package com.lsh.wms.api.service.po;
  * Package name:com.lsh.wms.api.service.po.
  * desc:类功能描述
  */
-public interface IPoReceiptRestService {
+public interface IReceiptRestService {
     public String init(String poReceiptInfo);
 }
