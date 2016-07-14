@@ -48,4 +48,12 @@ public class LocationRpcService implements ILocationRpcService {
     public BaseinfoLocation getFatherByType(Long locationId, String type) {
         return locationService.getFatherByType(locationId, type);
     }
+
+    public BaseinfoLocation insertLocation(BaseinfoLocation location) {
+        return locationService.insertLocation(location);
+    }
+
+    public BaseinfoLocation updateLocation(BaseinfoLocation location) {
+        return locationService.updateLocation(location);
+    }
 }

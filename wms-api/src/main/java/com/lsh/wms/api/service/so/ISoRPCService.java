@@ -9,5 +9,5 @@ package com.lsh.wms.api.service.so;
  * Package name:com.lsh.wms.api.service.so.
  * desc:类功能描述
  */
-public interface ISORPCService {
+public interface ISoRPCService {
 }

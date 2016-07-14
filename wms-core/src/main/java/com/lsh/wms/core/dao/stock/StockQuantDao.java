@@ -13,7 +13,7 @@ public interface StockQuantDao {
 	
 	void update(StockQuant stockQuant);
 	
-	StockQuant getStockQuantById(Integer id);
+	StockQuant getStockQuantById(Long id);
 
     Integer countStockQuant(Map<String, Object> params);
 

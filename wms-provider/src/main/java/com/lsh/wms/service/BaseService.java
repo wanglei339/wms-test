@@ -27,6 +27,7 @@ public class BaseService {
     private static Logger logger = LoggerFactory.getLogger(BaseService.class);
 
 
+
     /**
      * 获取request数据
      * @param request

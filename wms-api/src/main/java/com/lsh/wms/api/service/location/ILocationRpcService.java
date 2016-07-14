@@ -15,4 +15,7 @@ public interface ILocationRpcService {
     public List<BaseinfoLocation> getChildrenLocations(Long locationId);
     public BaseinfoLocation getFatherLocation(Long locationId);
     public BaseinfoLocation getFatherByType(Long locationId, String type);
+
+    BaseinfoLocation insertLocation(BaseinfoLocation location);
+    BaseinfoLocation updateLocation(BaseinfoLocation location);
 }

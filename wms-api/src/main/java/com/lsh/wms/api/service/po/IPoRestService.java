@@ -15,7 +15,7 @@ import java.util.Map;
  * Package name:com.lsh.wms.api.service.po.
  * desc:类功能描述
  */
-public interface IPORestService {
+public interface IPoRestService {
     public String init(String poOrderInfo);
 
     public void editOrder(InbPoHeader inbPoHeader);

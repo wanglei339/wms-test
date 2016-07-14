@@ -8,10 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by fengkun on 16/7/11.
@@ -182,5 +179,30 @@ public class LocationService {
     public Long getinventoryLostLocationId() {
         BaseinfoLocation location = this.getinventoryLostLocation();
         return location.getLocationId();
+    }
+
+    @Transactional(readOnly = false)
+    public BaseinfoLocation insertLocation(BaseinfoLocation location){
+        if(location.getLocationId() == 0){
+            //添加locationId
+            int iLocationId = 0 ;
+            location.setLocationId((long)iLocationId);
+        }
+        //添加新增时间
+        long createdAt = new Date().getTime()/1000;
+        location.setCreatedAt(createdAt);
+        locationDao.insert(location);
+        return location;
+    }
+
+    @Transactional(readOnly = false)
+    public BaseinfoLocation updateLocation(BaseinfoLocation location){
+        if(this.getLocation(location.getLocationId()) == null){
+            return null;
+        }
+        long updatedAt = new Date().getTime()/1000;
+        location.setUpdatedAt(updatedAt);
+        locationDao.update(location);
+        return location;
     }
 }

@@ -31,7 +31,6 @@
 	<update id="update" parameterType="BaseinfoLocation">
 		update baseinfo_location
     	<set>
-  			<if test="locationId != null">location_id=#{locationId},</if>
   			<if test="locationCode != null">location_code=#{locationCode},</if>
   			<if test="fatherId != null">father_id=#{fatherId},</if>
   			<if test="type != null">type=#{type},</if>
@@ -44,7 +43,7 @@
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
-		where id=#{id}
+		where location_id=#{locationId}
 	</update>
   
 	<select id="getBaseinfoLocationById" parameterType="int" resultMap="baseinfoLocationResultMap">
