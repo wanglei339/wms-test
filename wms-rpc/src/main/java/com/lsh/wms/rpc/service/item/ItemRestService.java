@@ -80,9 +80,9 @@ public class ItemRestService implements IItemRestService {
     public String updateItem(BaseinfoItem item) {
         int result = itemRpcService.updateItem(item);
         if (result == 0)
-            return "更新成功!!";
+            return "update success!";
         else
-            return "更新失败!!!";
+            return "update failed";
     }
 
 }
