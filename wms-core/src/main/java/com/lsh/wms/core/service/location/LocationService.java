@@ -166,7 +166,7 @@ public class LocationService {
     }
 
     // 获取盘亏盘盈节点
-    public BaseinfoLocation getinventoryLostLocation() {
+    public BaseinfoLocation getInventoryLostLocation() {
         List<BaseinfoLocation> locations = this.getLocationsByType("inventoryLost");
         if (locations.size() > 0) {
             return locations.get(0);
@@ -176,8 +176,8 @@ public class LocationService {
     }
 
     // 获取盘亏盘盈节点id
-    public Long getinventoryLostLocationId() {
-        BaseinfoLocation location = this.getinventoryLostLocation();
+    public Long getInventoryLostLocationId() {
+        BaseinfoLocation location = this.getInventoryLostLocation();
         return location.getLocationId();
     }
 

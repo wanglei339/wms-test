@@ -11,7 +11,7 @@ public interface ILocationRestService {
     public String getFatherByType(Long locationId, String type);
     public String getFatherArea(Long locationId);
     public String getWarehouseLocationId();
-    public String getinventoryLostLocationId();
+    public String getInventoryLostLocationId();
     public String insertLocation(BaseinfoLocation location);
     public String updateLocation(BaseinfoLocation location);
 }
