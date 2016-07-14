@@ -23,7 +23,9 @@ public class LocationService {
     // location类型定义
     public static final Map<String, Long> locationType = new HashMap<String, Long>() {
         {
+            put("warehouse", new Long(1)); // 仓库
             put("area", new Long(2)); // 区域
+            put("inventoryLost", new Long(3)); // 盘亏盘盈
         }
     };
 
@@ -106,7 +108,7 @@ public class LocationService {
         return this.getLocation(fatherId);
     }
 
-    // 获取父级区域location节点
+    // 根据类型获取父级location节点
     public BaseinfoLocation getFatherByType(Long locationId, String type) {
         BaseinfoLocation curLocation = this.getLocation(locationId);
         Long fatherId = curLocation.getFatherId();
@@ -124,6 +126,61 @@ public class LocationService {
         BaseinfoLocation fatherLocation = this.getFatherByType(locationId, type);
         return fatherLocation.getLocationId();
     }
+
+    // 获取父级区域节点
+    public BaseinfoLocation getAreaFather(Long locationId) {
+        BaseinfoLocation areaFather = this.getFatherByType(locationId, "area");
+        return areaFather;
+    }
+
+    // 获取父级区域节点id
+    public Long getAreaFatherId(Long locationId) {
+        BaseinfoLocation areaFatherId = this.getAreaFather(locationId);
+        return areaFatherId.getLocationId();
+    }
+
+    // 按类型获取location节点
+    public List<BaseinfoLocation> getLocationsByType(String type) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        Long locationType = this.locationType.get(type);
+        params.put("type", locationType);
+        params.put("isValid", 1);
+        List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
+        return locations;
+    }
+
+    // 获取仓库根节点
+    public BaseinfoLocation getWarehouseLocation() {
+        List<BaseinfoLocation> locations = this.getLocationsByType("warehouse");
+        if (locations.size() > 0) {
+            return locations.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    // 获取仓库根节点id
+    public Long getWarehouseLocationId() {
+        BaseinfoLocation location = this.getWarehouseLocation();
+        return location.getLocationId();
+    }
+
+    // 获取盘亏盘盈节点
+    public BaseinfoLocation getInventoryLostLocation() {
+        List<BaseinfoLocation> locations = this.getLocationsByType("inventoryLost");
+        if (locations.size() > 0) {
+            return locations.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    // 获取盘亏盘盈节点id
+    public Long getInventoryLostLocationId() {
+        BaseinfoLocation location = this.getInventoryLostLocation();
+        return location.getLocationId();
+    }
+
     @Transactional(readOnly = false)
     public BaseinfoLocation insertLocation(BaseinfoLocation location){
         if(location.getLocationId() == 0){
@@ -147,6 +204,5 @@ public class LocationService {
         location.setUpdatedAt(updatedAt);
         locationDao.update(location);
         return location;
-
     }
 }
