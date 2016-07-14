@@ -109,6 +109,9 @@
 				ORDER BY ID
 			</otherwise>
 		</choose>
+		<if test="start != null and limit != null">
+			limit #{start},#{limit}
+		</if>
 
 	</select>
   

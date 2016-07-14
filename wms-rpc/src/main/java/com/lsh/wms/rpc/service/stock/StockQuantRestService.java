@@ -8,6 +8,7 @@ import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.api.service.stock.IStockQuantRestService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.model.stock.StockQuantMoveRel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,6 +97,12 @@ public class StockQuantRestService implements IStockQuantRestService {
             stockQuantService.unFreeze(quant);
         }
         return JsonUtils.SUCCESS();
+    }
+    @GET
+    @Path("getHistory")
+    public String getHistory(@QueryParam("quant_id") Long quant_id) {
+        List<StockQuantMoveRel> moveRels=stockQuantService.getHistoryById(quant_id);
+        return JsonUtils.SUCCESS(moveRels);
     }
 
 }

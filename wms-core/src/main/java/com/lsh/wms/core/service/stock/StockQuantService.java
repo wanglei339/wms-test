@@ -36,6 +36,7 @@ public class StockQuantService {
     @Autowired
     private StockQuantMoveRelDao relDao;
 
+
     public List<StockQuant> getQuants(Map<String, Object> params) {
         return stockQuantDao.getQuants(params);
     }
@@ -44,11 +45,27 @@ public class StockQuantService {
         return stockQuantDao.getStockQuantById(quantId);
     }
 
+    public List<StockQuantMoveRel> getHistoryById(Long quantId) {
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("quantId",quantId);
+        return relDao.getStockQuantMoveRelList(mapQuery);
+    }
     @Transactional(readOnly =  false)
     public void create(StockQuant quant) {
         quant.setCreatedAt(DateUtils.getCurrentSeconds());
         quant.setUpdatedAt(DateUtils.getCurrentSeconds());
         stockQuantDao.insert(quant);
+    }
+
+    @Transactional(readOnly =  false)
+    public void createByMove(StockQuant quant,Long moveId) {
+        StockQuantMoveRel moveRel=new StockQuantMoveRel();
+        moveRel.setMoveId(moveId);
+        moveRel.setQuantId(quant.getId());
+        quant.setCreatedAt(DateUtils.getCurrentSeconds());
+        quant.setUpdatedAt(DateUtils.getCurrentSeconds());
+        stockQuantDao.insert(quant);
+        relDao.insert(moveRel);
     }
 
     @Transactional(readOnly =  false)
@@ -60,10 +77,12 @@ public class StockQuantService {
     @Transactional(readOnly = false)
     public void move(Long moveId) {
         StockMove move = moveDao.getStockMoveById(moveId);
+        StockQuantMoveRel moveRel =new StockQuantMoveRel();
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("reserveMoveId", moveId);
         List<StockQuant> quantList = stockQuantDao.getQuants(mapQuery);
         BigDecimal qtyDone = move.getQtyDone();
+        moveRel.setMoveId(moveId);
         for (StockQuant quant : quantList) {
             this.unReserve(quant);
             this.split(quant, qtyDone);
@@ -71,7 +90,10 @@ public class StockQuantService {
             quant.setLocationId(move.getToLocationId());
             this.update(quant);
             qtyDone = qtyDone.subtract(quant.getQty());
+            moveRel.setQuantId(quant.getId());
+            relDao.insert(moveRel);
         }
+
     }
 
     @Transactional(readOnly = false)
