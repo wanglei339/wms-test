@@ -5,5 +5,5 @@ package com.lsh.wms.api.service.stock;
  */
 public interface IStockQuantService {
 
-    public String getOnhandQty(Integer skuId, Integer locationId, Integer containerId);
+    public String getOnhandQty(Long skuId, Long locationId, Long containerId, Long ownerId, Long supplierId);
 }

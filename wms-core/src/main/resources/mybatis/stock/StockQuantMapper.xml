@@ -3,30 +3,37 @@
 <mapper namespace="com.lsh.wms.core.dao.stock.StockQuantDao" >
 
 	<resultMap id="stockQuantResultMap" type="StockQuant">
-		<id property="id" column="ID"/>
-		<result property="skuId" column="SKU_ID"/>
-		<result property="locationId" column="LOCATION_ID"/>
-		<result property="containerId" column="CONTAINER_ID"/>
-		<result property="qty" column="QTY"/>
-		<result property="skuUomId" column="SKU_UOM_ID"/>
-		<result property="value" column="VALUE"/>
-		<result property="cost" column="COST"/>
-		<result property="reserveMoveId" column="RESERVE_MOVE_ID"/>
-		<result property="isFrozen" column="IS_FROZEN"/>
-		<result property="supplierId" column="SUPPLIER_ID"/>
-		<result property="ownerId" column="OWNER_ID"/>
-		<result property="lotId" column="LOT_ID"/>
-		<result property="inDate" column="IN_DATE"/>
-		<result property="expireDate" column="EXPIRE_DATE"/>
-		<result property="createdAt" column="CREATED_AT"/>
-		<result property="updatedAt" column="UPDATED_AT"/>
+		<id property="id" column="id"/>
+		<result property="skuId" column="sku_id"/>
+		<result property="locationId" column="location_id"/>
+		<result property="containerId" column="container_id"/>
+		<result property="qty" column="qty"/>
+		<result property="skuUomId" column="sku_uom_id"/>
+		<result property="value" column="value"/>
+		<result property="cost" column="cost"/>
+		<result property="reserveMoveId" column="reserve_move_id"/>
+		<result property="isFrozen" column="is_frozen"/>
+		<result property="supplierId" column="supplier_id"/>
+		<result property="ownerId" column="owner_id"/>
+		<result property="lotId" column="lot_id"/>
+		<result property="inDate" column="in_date"/>
+		<result property="expireDate" column="expire_date"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockQuant">
 		insert into stock_quant (
-			SKU_ID,LOCATION_ID,CONTAINER_ID,QTY,SKU_UOM_ID,VALUE,
-			COST,RESERVE_MOVE_ID,IS_FROZEN,SUPPLIER_ID,OWNER_ID,LOT_ID,
-			IN_DATE,EXPIRE_DATE,CREATED_AT,UPDATED_AT
+			sku_id,
+			location_id,
+			container_id,
+			qty,
+			sku_uom_id,
+			value,
+			cost,
+			reserve_move_id,
+			is_frozen,supplier_id,owner_id,lot_id,
+			in_date,expire_date,created_at,updated_at
     	) values (
 			#{skuId},#{locationId},#{containerId},#{qty},#{skuUomId},#{value},
 			#{cost},#{reserveMoveId},#{isFrozen},#{supplierId},#{ownerId},#{lotId},
@@ -37,27 +44,27 @@
 	<update id="update" parameterType="StockQuant">
 		update stock_quant
     	<set>
-  			<if test="skuId != null">SKU_ID=#{skuId},</if>
-  			<if test="locationId != null">LOCATION_ID=#{locationId},</if>
-  			<if test="containerId != null">CONTAINER_ID=#{containerId},</if>
-  			<if test="qty != null">QTY=#{qty},</if>
-  			<if test="skuUomId != null">SKU_UOM_ID=#{skuUomId},</if>
-  			<if test="value != null">VALUE=#{value},</if>
-  			<if test="cost != null">COST=#{cost},</if>
-  			<if test="reserveMoveId != null">RESERVE_MOVE_ID=#{reserveMoveId},</if>
-  			<if test="isFrozen != null">IS_FROZEN=#{isFrozen},</if>
-  			<if test="supplierId != null">SUPPLIER_ID=#{supplierId},</if>
-  			<if test="ownerId != null">OWNER_ID=#{ownerId},</if>
-  			<if test="lotId != null">LOT_ID=#{lotId},</if>
-  			<if test="inDate != null">IN_DATE=#{inDate},</if>
-  			<if test="expireDate != null">EXPIRE_DATE=#{expireDate},</if>
-  			<if test="createdAt != null">CREATED_AT=#{createdAt},</if>
-  			<if test="updatedAt != null">UPDATED_AT=#{updatedAt}</if>
+  			<if test="skuId != null">sku_id=#{skuId},</if>
+  			<if test="locationId != null">location_id=#{locationId},</if>
+  			<if test="containerId != null">container_id=#{containerId},</if>
+  			<if test="qty != null">qty=#{qty},</if>
+  			<if test="skuUomId != null">sku_uom_id=#{skuUomId},</if>
+  			<if test="value != null">value=#{value},</if>
+  			<if test="cost != null">cost=#{cost},</if>
+  			<if test="reserveMoveId != null">reserve_move_id=#{reserveMoveId},</if>
+  			<if test="isFrozen != null">is_frozen=#{isFrozen},</if>
+  			<if test="supplierId != null">supplier_id=#{supplierId},</if>
+  			<if test="ownerId != null">owner_id=#{ownerId},</if>
+  			<if test="lotId != null">lot_id=#{lotId},</if>
+  			<if test="inDate != null">in_date=#{inDate},</if>
+  			<if test="expireDate != null">expire_date=#{expireDate},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
-		where ID=#{id}
+		where id=#{id}
 	</update>
   
-	<select id="getStockQuantById" parameterType="int" resultMap="stockQuantResultMap">
+	<select id="getStockQuantById" parameterType="long" resultMap="stockQuantResultMap">
 		select * from stock_quant
 		where ID=#{id} 
 	</select>
@@ -66,14 +73,7 @@
 		select count(*) from stock_quant
 		<include refid="queryCondition"/>
 	</select>
-
-	<select id="getQuants" parameterType="map" resultMap="stockQuantResultMap">
-		select * from STOCK_QUANT
-		where SKU_ID = #{skuId}
-        <if test="locationId != null">AND LOCATION_ID = #{locationId}</if>
-		<if test="containerId != null">AND CONTAINER_ID = #{containerId}</if>
-	</select>
-
+  
 	<select id="getStockQuantList" parameterType="map" resultMap="stockQuantResultMap">
 		select * from stock_quant
 		<include refid="queryCondition"/>
@@ -81,26 +81,56 @@
 		limit #{start},#{limit}
 		</if>
 	</select>
+
+	<select id="getQuants" parameterType="map" resultMap="stockQuantResultMap">
+		select * from stock_quant
+		<where>
+			<if test="skuId != null">sku_id=#{skuId}</if>
+			<if test="locationId != null">and location_id=#{locationId}</if>
+			<if test="locationList != null">
+				and location_id in
+				<foreach collection="locationList"  item="item" index="index" open="(" separator=","  close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="containerId != null">and container_id=#{containerId}</if>
+			<if test="reserveMoveId != null">and reserve_move_id=#{reserveMoveId}</if>
+			<if test="isFrozen != null">and is_frozen=#{isFrozen}</if>
+			<if test="supplierId != null">and supplier_id=#{supplierId}</if>
+			<if test="ownerId != null">and owner_id=#{ownerId}</if>
+			<if test="lotId != null">and lot_id=#{lotId}</if>
+			<if test="inDate != null">and in_date=#{inDate}</if>
+			<if test="expireDate != null">and expire_date=#{expireDate}</if>
+		</where>
+		<choose>
+			<when test=" strategy == 'FIFO' ">ORDER BY IN_DATE</when>
+			<when test=" strategy == 'FEFO' ">ORDER BY EXPIRE_DATE</when>
+			<otherwise>
+				ORDER BY ID
+			</otherwise>
+		</choose>
+
+	</select>
   
 	<sql id="queryCondition">
 		<where>
-			<if test="id != null">ID=#{id}</if>
-			<if test="skuId != null">and SKU_ID=#{skuId}</if>
-			<if test="locationId != null">and LOCATION_ID=#{locationId}</if>
-			<if test="containerId != null">and CONTAINER_ID=#{containerId}</if>
-			<if test="qty != null">and QTY=#{qty}</if>
-			<if test="skuUomId != null">and SKU_UOM_ID=#{skuUomId}</if>
-			<if test="value != null">and VALUE=#{value}</if>
-			<if test="cost != null">and COST=#{cost}</if>
-			<if test="reserveMoveId != null">and RESERVE_MOVE_ID=#{reserveMoveId}</if>
-			<if test="isFrozen != null">and IS_FROZEN=#{isFrozen}</if>
-			<if test="supplierId != null">and SUPPLIER_ID=#{supplierId}</if>
-			<if test="ownerId != null">and OWNER_ID=#{ownerId}</if>
-			<if test="lotId != null">and LOT_ID=#{lotId}</if>
-			<if test="inDate != null">and IN_DATE=#{inDate}</if>
-			<if test="expireDate != null">and EXPIRE_DATE=#{expireDate}</if>
-			<if test="createdAt != null">and CREATED_AT=#{createdAt}</if>
-			<if test="updatedAt != null">and UPDATED_AT=#{updatedAt}</if>
+			<if test="id != null">id=#{id}</if>
+			<if test="skuId != null">and sku_id=#{skuId}</if>
+			<if test="locationId != null">and location_id=#{locationId}</if>
+			<if test="containerId != null">and container_id=#{containerId}</if>
+			<if test="qty != null">and qty=#{qty}</if>
+			<if test="skuUomId != null">and sku_uom_id=#{skuUomId}</if>
+			<if test="value != null">and value=#{value}</if>
+			<if test="cost != null">and cost=#{cost}</if>
+			<if test="reserveMoveId != null">and reserve_move_id=#{reserveMoveId}</if>
+			<if test="isFrozen != null">and is_frozen=#{isFrozen}</if>
+			<if test="supplierId != null">and supplier_id=#{supplierId}</if>
+			<if test="ownerId != null">and owner_id=#{ownerId}</if>
+			<if test="lotId != null">and lot_id=#{lotId}</if>
+			<if test="inDate != null">and in_date=#{inDate}</if>
+			<if test="expireDate != null">and expire_date=#{expireDate}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 		</where>
 	</sql>
    
