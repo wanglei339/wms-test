@@ -9,6 +9,7 @@ import com.lsh.wms.api.service.stock.IStockMoveRestService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.model.stock.StockMove;
+import com.lsh.wms.model.stock.StockQuantMoveRel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,6 +118,13 @@ public class StockMoveRestService implements IStockMoveRestService {
             return JsonUtils.EXCEPTION_ERROR("create failed");
         }
         return JsonUtils.SUCCESS();
+    }
+
+    @GET
+    @Path("getHistory")
+    public String getHistory(@QueryParam("move_id") Long move_id) {
+        List<StockQuantMoveRel> moveRels=stockMoveService.getHistoryById(move_id);
+        return JsonUtils.SUCCESS(moveRels);
     }
 
 }

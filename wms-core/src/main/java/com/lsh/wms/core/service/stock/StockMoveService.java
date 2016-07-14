@@ -4,8 +4,10 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
 import com.lsh.wms.core.dao.stock.StockQuantDao;
+import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.stock.StockQuantMoveRel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,9 @@ public class StockMoveService {
 
     @Autowired
     private StockQuantService quantService;
+
+    @Autowired
+    private StockQuantMoveRelDao relDao;
 
     public StockMove getMoveById(Long moveId) {
         return moveDao.getStockMoveById(moveId);
@@ -88,5 +93,11 @@ public class StockMoveService {
 
     public List<StockMove> getMoveList(Map<String, Object> mapQuery) {
         return moveDao.getStockMoveList(mapQuery);
+    }
+
+    public List<StockQuantMoveRel> getHistoryById(Long moveId) {
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("moveId",moveId);
+        return relDao.getStockQuantMoveRelList(mapQuery);
     }
 }
