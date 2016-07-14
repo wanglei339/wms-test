@@ -60,4 +60,15 @@ public class LocationRestService implements ILocationRestService {
         BaseinfoLocation location = locationRpcService.getFatherByType(locationId, "area");
         return JsonUtils.SUCCESS(location);
     }
+
+    @POST
+    @Path("insertLocation")
+    public String insertLocation(BaseinfoLocation location) {
+        return JsonUtils.SUCCESS(locationRpcService.insertLocation(location));
+    }
+    @POST
+    @Path("updateLocation")
+    public String updateLocation(BaseinfoLocation location) {
+        return JsonUtils.SUCCESS(locationRpcService.updateLocation(location));
+    }
 }
