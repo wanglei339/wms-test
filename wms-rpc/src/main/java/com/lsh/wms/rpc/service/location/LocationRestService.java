@@ -5,6 +5,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.location.ILocationRestService;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,8 @@ public class LocationRestService implements ILocationRestService {
 
     @Autowired
     private LocationRpcService locationRpcService;
+    @Autowired
+    private LocationService locationService;
 
     @GET
     @Path("getLocation")
@@ -40,7 +43,7 @@ public class LocationRestService implements ILocationRestService {
     @Path("getStoreLocationIds")
     public String getStoreLocationIds(@QueryParam("locationId") Long locationId) {
         List<BaseinfoLocation> locations = locationRpcService.getStoreLocations(locationId);
-        List<Long> locationIds = locationRpcService.getLocationIds(locations);
+        List<Long> locationIds = locationService.getLocationIds(locations);
         return JsonUtils.SUCCESS(locationIds);
     }
 
