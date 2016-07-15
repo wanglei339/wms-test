@@ -32,7 +32,6 @@ public class StockLotRestService implements IStockLotRestService{
     @GET
     @Path("getStockLotByLotId")
     public String getStockLotByLotId(@QueryParam("lotId") long iLotId) {
-        logger.info("lotId = " + iLotId);
         StockLot StockLot = stockLotService.getStockLotByLotId(iLotId);
         return JsonUtils.SUCCESS(StockLot);
     }
@@ -40,17 +39,31 @@ public class StockLotRestService implements IStockLotRestService{
     @POST
     @Path("insertLot")
     public String insertLot(StockLot lot) {
-        int result = stockLotService.insertLot(lot);
-        if(result == 0) return "Success!";
-        return "Failure!";
+        if(stockLotService.getStockLotByLotId(lot.getLotId()) != null) {
+            return JsonUtils.EXCEPTION_ERROR("Exist!");
+        }
+        try {
+            stockLotService.insertLot(lot);
+        } catch (Exception e) {
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("Insert Failed!");
+        }
+        return JsonUtils.SUCCESS();
     }
 
     @POST
     @Path("updateLot")
     public String updateLot(StockLot lot) {
-        int result = stockLotService.updateLot(lot);
-        if(result == 0) return "Success!";
-        return "Failure!";
+        if(stockLotService.getStockLotByLotId(lot.getLotId()) == null) {
+            return JsonUtils.EXCEPTION_ERROR("Not Exist!");
+        }
+        try {
+            stockLotService.updateLot(lot);
+        } catch (Exception e) {
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("Update Failed!");
+        }
+        return JsonUtils.SUCCESS();
     }
 
     @POST
