@@ -1,5 +1,7 @@
 package com.lsh.wms.core.service.csi;
 
+import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.csi.CsiSkuDao;
 import com.lsh.wms.model.csi.CsiSku;
 import org.slf4j.Logger;
@@ -84,22 +86,15 @@ public class CsiSkuService {
             CsiSku o_sku = this.getSkuByCode(Integer.valueOf(sku.getCodeType()), sku.getCode());
             if(o_sku == null){
                 //gen sku_id
-                int iSkuId = 0;
-                int count = skuDao.countCsiSku(null);
-                if(count==0){
-                    iSkuId = 100001;
-                }else{
-                    iSkuId = 100001 + count;
-                }
-                sku.setSkuId((long)iSkuId);
+                long iSkuId = RandomUtils.genId();
+                sku.setSkuId(iSkuId);
             }else{
                 sku.setSkuId(o_sku.getSkuId());
                 return sku;
             }
         }
         //增加新增时间
-        long createdAt = new Date().getTime()/1000;
-        sku.setCreatedAt(createdAt);
+        sku.setCreatedAt(DateUtils.getCurrentSeconds());
         this.skuDao.insert(sku);
         //更新缓存
         m_SkuCache.put(sku.getSkuId(),sku);
@@ -113,8 +108,7 @@ public class CsiSkuService {
             return -1;
         }
         //增加更新时间
-        long updatedAt = new Date().getTime()/1000;
-        sku.setUpdatedAt(updatedAt);
+        sku.setUpdatedAt(DateUtils.getCurrentSeconds());
         //更新商品
         skuDao.update(sku);
 

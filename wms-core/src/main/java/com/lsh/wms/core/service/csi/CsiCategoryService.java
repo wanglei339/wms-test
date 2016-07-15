@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.csi;
 
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.csi.CsiCategoryDao;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
@@ -95,14 +96,8 @@ public class CsiCategoryService {
     public CsiCategory insertCategory(CsiCategory category){
         if(category.getCatId() == 0){
             //gen iCatId
-            int iCatId = 0;
-            int count = catDao.countCsiCategory(null);
-            if(count == 0){
-                iCatId = 1;
-            }else{
-                iCatId = count + 1;
-            }
-            category.setCatId((long)iCatId);
+            long iCatId = RandomUtils.genId();
+            category.setCatId(iCatId);
         }
 
         catDao.insert(category);
