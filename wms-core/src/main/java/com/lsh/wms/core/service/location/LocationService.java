@@ -44,6 +44,31 @@ public class LocationService {
         return location;
     }
 
+    @Transactional(readOnly = false)
+    public BaseinfoLocation insertLocation(BaseinfoLocation location){
+        if(location.getLocationId() == 0){
+            //添加locationId
+            int iLocationId = 0 ;
+            location.setLocationId((long)iLocationId);
+        }
+        //添加新增时间
+        long createdAt = new Date().getTime()/1000;
+        location.setCreatedAt(createdAt);
+        locationDao.insert(location);
+        return location;
+    }
+
+    @Transactional(readOnly = false)
+    public BaseinfoLocation updateLocation(BaseinfoLocation location){
+        if(this.getLocation(location.getLocationId()) == null){
+            return null;
+        }
+        long updatedAt = new Date().getTime()/1000;
+        location.setUpdatedAt(updatedAt);
+        locationDao.update(location);
+        return location;
+    }
+
     // 获取location_id
     public List<Long> getLocationIds(List<BaseinfoLocation> locations) {
         List<Long> locationIds = new ArrayList<Long>();
@@ -181,28 +206,4 @@ public class LocationService {
         return location.getLocationId();
     }
 
-    @Transactional(readOnly = false)
-    public BaseinfoLocation insertLocation(BaseinfoLocation location){
-        if(location.getLocationId() == 0){
-            //添加locationId
-            int iLocationId = 0 ;
-            location.setLocationId((long)iLocationId);
-        }
-        //添加新增时间
-        long createdAt = new Date().getTime()/1000;
-        location.setCreatedAt(createdAt);
-        locationDao.insert(location);
-        return location;
-    }
-
-    @Transactional(readOnly = false)
-    public BaseinfoLocation updateLocation(BaseinfoLocation location){
-        if(this.getLocation(location.getLocationId()) == null){
-            return null;
-        }
-        long updatedAt = new Date().getTime()/1000;
-        location.setUpdatedAt(updatedAt);
-        locationDao.update(location);
-        return location;
-    }
 }
