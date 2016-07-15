@@ -49,20 +49,15 @@ public class DepartmentService {
     }
 
     @Transactional(readOnly = false)
-    public BaseinfoDepartment isnertDepartment(BaseinfoDepartment department){
-        if(department.getDepartmentId() == 0){
-            //gen departmentId
-            long iDepartmentId = RandomUtils.genId();
-            department.setDepartmentId(iDepartmentId);
-        }
+    public void isnertDepartment(BaseinfoDepartment department){
+        long iDepartmentId = RandomUtils.genId();
+        department.setDepartmentId(iDepartmentId);
         //增加新增时间
         department.setCreatedAt(DateUtils.getCurrentSeconds());
-
         departmentDao.insert(department);
         //增加缓存
         m_DepartmentCache.put(department.getDepartmentId(),department);
 
-        return department;
     }
 
     @Transactional(readOnly = false)
