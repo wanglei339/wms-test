@@ -6,6 +6,7 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.item.IItemRestService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.csi.CsiSku;
 import net.sf.json.util.JSONUtils;
 import org.slf4j.Logger;
@@ -71,18 +72,71 @@ public class ItemRestService implements IItemRestService {
     @POST
     @Path("insertItem")
     public String insertItem(BaseinfoItem item) {
-        BaseinfoItem item_new = itemRpcService.insertItem(item);
+        BaseinfoItem item_new = null;
+        try{
+            item_new = itemRpcService.insertItem(item);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("failed");
+        }
+
         return JsonUtils.SUCCESS(item_new);
     }
 
     @POST
     @Path("updateItem")
     public String updateItem(BaseinfoItem item) {
-        int result = itemRpcService.updateItem(item);
-        if (result == 0)
-            return "update success!";
-        else
-            return "update failed";
+        BaseinfoItem  newItem = null;
+        try{
+           newItem =  itemRpcService.updateItem(item);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("failed");
+        }
+        if(newItem == null){
+            return JsonUtils.EXCEPTION_ERROR("The record does not exist");
+        }
+        return JsonUtils.SUCCESS(newItem);
+    }
+
+
+
+    @GET
+    @Path("getItemLocation")
+    public String getItemLocation(@QueryParam("skuId") long iSkuId,@QueryParam("ownerId") long iOwnerId) {
+        return JsonUtils.SUCCESS(itemRpcService.getItemLocationList(iSkuId,iOwnerId));
+    }
+    @GET
+    @Path("getItemLocationByLocationID")
+    public String getItemLocationByLocationID(@QueryParam("locationId") long iLocationId) {
+        return JsonUtils.SUCCESS(itemRpcService.getItemLocationByLocationID(iLocationId));
+    }
+    @POST
+    @Path("insertItemLocation")
+    public String insertItemLocation(BaseinfoItemLocation itemLocation) {
+        try{
+            itemRpcService.insertItemLocation(itemLocation);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("failed");
+        }
+        return JsonUtils.SUCCESS();
+    }
+    @POST
+    @Path("updateItemLocation")
+    public String updateItemLocation(BaseinfoItemLocation itemLocation) {
+
+        BaseinfoItemLocation  newItemLocation = null;
+        try{
+            newItemLocation =  itemRpcService.updateItemLocation(itemLocation);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("failed");
+        }
+        if(newItemLocation == null){
+            return JsonUtils.EXCEPTION_ERROR("The record does not exist");
+        }
+        return JsonUtils.SUCCESS(itemLocation);
     }
 
 }
