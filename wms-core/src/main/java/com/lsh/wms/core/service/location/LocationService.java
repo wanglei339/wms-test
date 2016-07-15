@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.location;
 
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import org.slf4j.Logger;
@@ -52,7 +53,7 @@ public class LocationService {
             location.setLocationId((long)iLocationId);
         }
         //添加新增时间
-        long createdAt = new Date().getTime()/1000;
+        long createdAt = DateUtils.getCurrentSeconds();
         location.setCreatedAt(createdAt);
         locationDao.insert(location);
         return location;
@@ -63,7 +64,7 @@ public class LocationService {
         if(this.getLocation(location.getLocationId()) == null){
             return null;
         }
-        long updatedAt = new Date().getTime()/1000;
+        long updatedAt = DateUtils.getCurrentSeconds();
         location.setUpdatedAt(updatedAt);
         locationDao.update(location);
         return location;
@@ -205,5 +206,4 @@ public class LocationService {
         BaseinfoLocation location = this.getInventoryLostLocation();
         return location.getLocationId();
     }
-
 }

@@ -5,6 +5,8 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.baseinfo.IDepartmentRestService;
 import com.lsh.wms.model.baseinfo.BaseinfoDepartment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
@@ -19,6 +21,8 @@ import javax.ws.rs.core.MediaType;
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class DepartmentRestService implements IDepartmentRestService {
+
+    private static Logger logger = LoggerFactory.getLogger(DepartmentRestService.class);
 
     @Autowired
     private DepartmentRpcService departmentRpcService;

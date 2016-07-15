@@ -10,6 +10,8 @@ import com.lsh.wms.model.csi.CsiCategory;
 import com.lsh.wms.model.csi.CsiOwner;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.csi.CsiSupplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -19,6 +21,8 @@ import java.util.List;
  */
 @Service(protocol = "dubbo")
 public class CsiRpcService implements ICsiRpcService {
+    private static Logger logger = LoggerFactory.getLogger(CsiRpcService.class);
+
     @Autowired
     private CsiCategoryService categoryService;
     @Autowired

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.lsh.wms.core.dao.baseinfo.BaseinfoLotDao" >
+<mapper namespace="com.lsh.wms.core.dao.stock.StockLotDao" >
 
-	<resultMap id="baseinfoLotResultMap" type="BaseinfoLot">
+	<resultMap id="stockLotResultMap" type="StockLot">
 		<id property="id" column="id"/>
 		<result property="lotId" column="lot_id"/>
 		<result property="skuId" column="sku_id"/>
@@ -14,8 +14,8 @@
 		<result property="updatedAt" column="updated_at"/>
 	</resultMap>
   
-	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLot">
-		insert into baseinfo_lot (
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockLot">
+		insert into stock_lot (
 			lot_id,sku_id,serial_no,in_date,product_date,expire_date,
 			created_at,updated_at
     	) values (
@@ -24,8 +24,8 @@
     	)
 	</insert>
 
-	<update id="update" parameterType="BaseinfoLot">
-		update baseinfo_lot
+	<update id="update" parameterType="StockLot">
+		update stock_lot
     	<set>
   			<if test="lotId != null">lot_id=#{lotId},</if>
   			<if test="skuId != null">sku_id=#{skuId},</if>
@@ -39,23 +39,23 @@
 		where id=#{id}
 	</update>
 
-	<select id="getLotByLotId" parameterType="long" resultMap="baseinfoLotResultMap">
-		select * from baseinfo_lot
+	<select id="getStockLotByLotId" parameterType="long" resultMap="stockLotResultMap">
+		select * from stock_lot
 		where lot_id=#{lotId}
 	</select>
 
-	<select id="getBaseinfoLotById" parameterType="int" resultMap="baseinfoLotResultMap">
-		select * from baseinfo_lot
+	<select id="getStockLotById" parameterType="int" resultMap="stockLotResultMap">
+		select * from stock_lot
 		where ID=#{id} 
 	</select>
   
-	<select id="countBaseinfoLot" parameterType="map" resultType="int">
-		select count(*) from baseinfo_lot
+	<select id="countStockLot" parameterType="map" resultType="int">
+		select count(*) from stock_lot
 		<include refid="queryCondition"/>
 	</select>
   
-	<select id="getBaseinfoLotList" parameterType="map" resultMap="baseinfoLotResultMap">
-		select * from baseinfo_lot
+	<select id="getStockLotList" parameterType="map" resultMap="stockLotResultMap">
+		select * from stock_lot
 		<include refid="queryCondition"/>
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
