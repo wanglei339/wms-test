@@ -136,5 +136,4 @@ public class InbPoDetail implements Serializable {
 		this.updatetime = updatetime;
 	}
 	
-	
 }

@@ -1,4 +1,4 @@
-package com.lsh.wms.model.so;
+package com.lsh.wms.api.model.so;
 
 /**
  * Created by panxudong on 16/7/14.

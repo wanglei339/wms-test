@@ -10,7 +10,9 @@ import java.util.Map;
 public interface InbPoDetailDao {
 
 	void insert(InbPoDetail inbPoDetail);
+
 	void batchInsert(List<InbPoDetail> list);
+
 	void update(InbPoDetail inbPoDetail);
 	
 	InbPoDetail getInbPoDetailById(Integer id);
