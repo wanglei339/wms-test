@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.item;
 
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoItemDao;
 import com.lsh.wms.core.dao.csi.CsiSkuDao;
 import com.lsh.wms.core.dao.stock.StockQuantDao;
@@ -72,6 +73,7 @@ public class ItemService {
         if(this.getItem(item.getOwnerId(), item.getSkuId())!=null){
             return -1;
         }
+        item.setCreatedAt(DateUtils.getCurrentSeconds());
         //创建商品
         itemDao.insert(item);
         return 0;
@@ -83,6 +85,7 @@ public class ItemService {
         if(this.getItem(item.getOwnerId(), item.getSkuId())==null){
             return -1;
         }
+        item.setUpdatedAt(DateUtils.getCurrentSeconds());
         //更新商品
         itemDao.update(item);
         return 0;
