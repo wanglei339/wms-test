@@ -81,32 +81,18 @@ public class CsiSkuService {
         return new_sku;
     }
     @Transactional(readOnly = false)
-    public CsiSku insertSku(CsiSku sku){
-        if(sku.getSkuId()==0){
-            CsiSku o_sku = this.getSkuByCode(Integer.valueOf(sku.getCodeType()), sku.getCode());
-            if(o_sku == null){
-                //gen sku_id
-                long iSkuId = RandomUtils.genId();
-                sku.setSkuId(iSkuId);
-            }else{
-                sku.setSkuId(o_sku.getSkuId());
-                return sku;
-            }
-        }
+    public void insertSku(CsiSku sku){
+        long iSkuId = RandomUtils.genId();
+        sku.setSkuId(iSkuId);
         //增加新增时间
         sku.setCreatedAt(DateUtils.getCurrentSeconds());
         this.skuDao.insert(sku);
         //更新缓存
         m_SkuCache.put(sku.getSkuId(),sku);
-        return sku;
     }
 
     @Transactional(readOnly = false)
-    public int updateSku(CsiSku sku){
-        //判断是否存在
-        if(this.getSku(sku.getSkuId()) == null){
-            return -1;
-        }
+    public void updateSku(CsiSku sku){
         //增加更新时间
         sku.setUpdatedAt(DateUtils.getCurrentSeconds());
         //更新商品
@@ -117,7 +103,5 @@ public class CsiSkuService {
         mapQuery.put("skuId", sku.getSkuId());
         CsiSku newSku = skuDao.getCsiSkuList(mapQuery).get(0);
         m_SkuCache.put(sku.getSkuId(),newSku);
-
-        return 0;
     }
 }

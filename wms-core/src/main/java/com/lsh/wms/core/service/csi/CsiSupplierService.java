@@ -49,39 +49,28 @@ public class CsiSupplierService {
     }
 
     @Transactional(readOnly = false)
-    public CsiSupplier insertSupplier(CsiSupplier supplier){
-        if(supplier.getSupplierId()==0){
-            {
-                //gen supplier_id
-                long iSupplierId = RandomUtils.genId();
-                supplier.setSupplierId(iSupplierId);
-            }
-        }
+    public void insertSupplier(CsiSupplier supplier){
+        //gen supplier_id
+        long iSupplierId = RandomUtils.genId();
+        supplier.setSupplierId(iSupplierId);
         //新增时间
         supplier.setCreatedAt(DateUtils.getCurrentSeconds());
         supplierDao.insert(supplier);
         //更新缓存
         m_SupplierCache.put(supplier.getSupplierId(),supplier);
-        return supplier;
     }
 
     @Transactional(readOnly = false)
-    public int updateSupplier(CsiSupplier supplier){
-        //判断是否存在
-        if(this.getSupplier(supplier.getSupplierId()) == null){
-            return -1;
-        }
+    public void updateSupplier(CsiSupplier supplier){
         //更新时间
         supplier.setUpdatedAt(DateUtils.getCurrentSeconds());
         //更新供应商信息
         supplierDao.update(supplier);
-
         //更新缓存中的数据
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("supplierId", supplier.getSupplierId());
         CsiSupplier newSupplier = supplierDao.getCsiSupplierList(mapQuery).get(0);
         m_SupplierCache.put(supplier.getSupplierId(),newSupplier);
-        return 0;
     }
 
 }

@@ -93,32 +93,23 @@ public class CsiCategoryService {
     }
 
     @Transactional(readOnly = false)
-    public CsiCategory insertCategory(CsiCategory category){
-        if(category.getCatId() == 0){
-            //gen iCatId
-            long iCatId = RandomUtils.genId();
-            category.setCatId(iCatId);
-        }
-
+    public void insertCategory(CsiCategory category){
+        //gen iCatId
+        long iCatId = RandomUtils.genId();
+        category.setCatId(iCatId);
         catDao.insert(category);
         //更新缓存
         m_CatCache.put(category.getCatId(),category);
 
-        return category;
     }
 
     @Transactional(readOnly = false)
-    public int updateCategory(CsiCategory csiCategory){
-        if(this.getCatInfo(csiCategory.getCatId()) == null){
-            return -1;
-        }
+    public void updateCategory(CsiCategory csiCategory){
         catDao.update(csiCategory);
         //更新缓存
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("catId", csiCategory.getCatId());
         CsiCategory newCategory = catDao.getCsiCategoryList(mapQuery).get(0);
         m_CatCache.put(csiCategory.getCatId(),newCategory);
-
-        return 0;
     }
 }
