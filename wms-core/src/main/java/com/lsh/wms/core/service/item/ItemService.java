@@ -91,13 +91,13 @@ public class ItemService {
         return 0;
     }
 
-    public int deleteItem(BaseinfoItem item){
-        return -1;
-    }
+        public int deleteItem(BaseinfoItem item){
+            return -1;
+        }
 
-    //按品类,sku_id,owner等查询
-    public List<BaseinfoItem> searchItem(Map<String, Object> mapQuery){
-        return itemDao.getBaseinfoItemList(mapQuery);
-    }
+        //按品类,sku_id,owner等查询
+        public List<BaseinfoItem> searchItem(Map<String, Object> mapQuery){
+            return itemDao.getBaseinfoItemList(mapQuery);
+        }
 
 }
