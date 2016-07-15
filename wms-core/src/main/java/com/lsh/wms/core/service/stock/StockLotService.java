@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.stock;
 
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.stock.StockLotDao;
 import com.lsh.wms.model.stock.StockLot;
@@ -46,42 +47,22 @@ public class StockLotService {
                 return null;
             }
         }
-        StockLot new_lot = new StockLot();
-        try {
-            org.apache.commons.beanutils.BeanUtils.copyProperties(new_lot, lot);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return new_lot;
+        return lot;
     }
 
     @Transactional(readOnly = false)
-    public int insertLot(StockLot lot){
-        // if exist
-        if(this.getStockLotByLotId(lot.getLotId())!=null){
-            return -1;
-        }
-        //create
+    public void insertLot(StockLot lot){
         lot.setCreatedAt(DateUtils.getCurrentSeconds());
         lot.setUpdatedAt(DateUtils.getCurrentSeconds());
         lotDao.insert(lot);
-        return 0;
     }
 
     @Transactional(readOnly = false)
-    public int updateLot(StockLot lot){
-        StockLot getLot = this.getStockLotByLotId(lot.getLotId());
-        //if exist
-        if(getLot == null){
-            return -1;
-        }
-        //update
+    public void updateLot(StockLot lot){
+        StockLot getLot = getStockLotByLotId(lot.getLotId());
         lot.setCreatedAt(getLot.getCreatedAt());
         lot.setUpdatedAt(DateUtils.getCurrentSeconds());
         lotDao.update(lot);
-        return 0;
     }
 
     public List<StockLot> searchLot(Map<String, Object> mapQuery){

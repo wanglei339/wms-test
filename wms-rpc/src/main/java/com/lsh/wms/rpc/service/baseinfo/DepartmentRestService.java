@@ -5,6 +5,8 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.baseinfo.IDepartmentRestService;
 import com.lsh.wms.model.baseinfo.BaseinfoDepartment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
@@ -20,6 +22,8 @@ import javax.ws.rs.core.MediaType;
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class DepartmentRestService implements IDepartmentRestService {
 
+    private static Logger logger = LoggerFactory.getLogger(DepartmentRestService.class);
+
     @Autowired
     private DepartmentRpcService departmentRpcService;
     @GET
@@ -31,15 +35,27 @@ public class DepartmentRestService implements IDepartmentRestService {
     @POST
     @Path("insertDepartment")
     public String insertDepartment(BaseinfoDepartment department) {
-        return JsonUtils.SUCCESS(departmentRpcService.insertDepartment(department));
+        try{
+            departmentRpcService.insertDepartment(department);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("failed");
+        }
+        return JsonUtils.SUCCESS();
     }
     @POST
     @Path("updateDepartment")
     public String updateDepartment(BaseinfoDepartment department) {
-        int result = departmentRpcService.updateDepartment(department);
-        if (result == 0)
-            return "update success!";
-        else
-            return "update failed";
+        //查询该记录是否存在
+        if(departmentRpcService.getDepartment(department.getDepartmentId()) == null){
+            return JsonUtils.EXCEPTION_ERROR("The record does not exist");
+        }
+        try{
+            departmentRpcService.updateDepartment(department);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            JsonUtils.EXCEPTION_ERROR("update failed");
+        }
+        return JsonUtils.SUCCESS();
     }
 }

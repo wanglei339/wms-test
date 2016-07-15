@@ -4,6 +4,9 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.wms.api.service.baseinfo.IDepartmentRpcService;
 import com.lsh.wms.core.service.baseinfo.DepartmentService;
 import com.lsh.wms.model.baseinfo.BaseinfoDepartment;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -12,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 @Service(protocol = "dubbo")
 public class DepartmentRpcService implements IDepartmentRpcService{
+
+    private static Logger logger = LoggerFactory.getLogger(DepartmentRpcService.class);
     @Autowired
     private DepartmentService departmentService;
 
@@ -19,11 +24,11 @@ public class DepartmentRpcService implements IDepartmentRpcService{
         return departmentService.getDepartment(departmentId);
     }
 
-    public BaseinfoDepartment insertDepartment(BaseinfoDepartment department) {
-        return departmentService.isnertDepartment(department);
+    public void insertDepartment(BaseinfoDepartment department) {
+        departmentService.isnertDepartment(department);
     }
 
-    public int updateDepartment(BaseinfoDepartment department) {
-        return departmentService.updateDepartment(department);
+    public void updateDepartment(BaseinfoDepartment department) {
+        departmentService.updateDepartment(department);
     }
 }
