@@ -1,9 +1,9 @@
-package com.lsh.wms.model.baseinfo;
+package com.lsh.wms.model.stock;
 
 import java.io.Serializable;
 import java.util.Date;
 
-public class BaseinfoLot implements Serializable {
+public class StockLot implements Serializable {
 
 	/**  */
     private Long id;
