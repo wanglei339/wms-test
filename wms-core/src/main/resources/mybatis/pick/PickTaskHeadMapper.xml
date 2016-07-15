@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.pick.PickTaskHeadDao" >
+
+	<resultMap id="pickTaskHeadResultMap" type="PickTaskHead">
+		<id property="id" column="id"/>
+		<result property="waveId" column="wave_id"/>
+		<result property="pickTaskId" column="pick_task_id"/>
+		<result property="pickTaskName" column="pick_task_name"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PickTaskHead">
+		insert into pick_task_head (
+			wave_id,pick_task_id,pick_task_name
+    	) values (
+			#{waveId},#{pickTaskId},#{pickTaskName}
+    	)
+	</insert>
+
+	<update id="update" parameterType="PickTaskHead">
+		update pick_task_head
+    	<set>
+  			<if test="waveId != null">wave_id=#{waveId},</if>
+  			<if test="pickTaskId != null">pick_task_id=#{pickTaskId},</if>
+  			<if test="pickTaskName != null">pick_task_name=#{pickTaskName}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getPickTaskHeadById" parameterType="int" resultMap="pickTaskHeadResultMap">
+		select * from pick_task_head
+		where ID=#{id} 
+	</select>
+  
+	<select id="countPickTaskHead" parameterType="map" resultType="int">
+		select count(*) from pick_task_head
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getPickTaskHeadList" parameterType="map" resultMap="pickTaskHeadResultMap">
+		select * from pick_task_head
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="waveId != null">and wave_id=#{waveId}</if>
+			<if test="pickTaskId != null">and pick_task_id=#{pickTaskId}</if>
+			<if test="pickTaskName != null">and pick_task_name=#{pickTaskName}</if>
+		</where>
+	</sql>
+   
+</mapper>

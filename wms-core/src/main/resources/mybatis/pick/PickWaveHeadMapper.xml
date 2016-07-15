@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.pick.PickWaveHeadDao" >
+
+	<resultMap id="pickWaveHeadResultMap" type="PickWaveHead">
+		<id property="id" column="id"/>
+		<result property="waveId" column="wave_id"/>
+		<result property="waveName" column="wave_name"/>
+		<result property="status" column="status"/>
+		<result property="waveType" column="wave_type"/>
+		<result property="waveTemplateId" column="wave_template_id"/>
+		<result property="waveSource" column="wave_source"/>
+		<result property="waveDest" column="wave_dest"/>
+		<result property="pickModelTemplateId" column="pick_model_template_id"/>
+		<result property="releaseUid" column="release_uid"/>
+		<result property="releaseUname" column="release_uname"/>
+		<result property="releaseAt" column="release_at"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PickWaveHead">
+		insert into pick_wave_head (
+			wave_id,wave_name,status,wave_type,wave_template_id,wave_source,
+			wave_dest,pick_model_template_id,release_uid,release_uname,release_at,created_at,
+			updated_at
+    	) values (
+			#{waveId},#{waveName},#{status},#{waveType},#{waveTemplateId},#{waveSource},
+			#{waveDest},#{pickModelTemplateId},#{releaseUid},#{releaseUname},#{releaseAt},#{createdAt},
+			#{updatedAt}
+    	)
+	</insert>
+
+	<update id="update" parameterType="PickWaveHead">
+		update pick_wave_head
+    	<set>
+  			<if test="waveId != null">wave_id=#{waveId},</if>
+  			<if test="waveName != null">wave_name=#{waveName},</if>
+  			<if test="status != null">status=#{status},</if>
+  			<if test="waveType != null">wave_type=#{waveType},</if>
+  			<if test="waveTemplateId != null">wave_template_id=#{waveTemplateId},</if>
+  			<if test="waveSource != null">wave_source=#{waveSource},</if>
+  			<if test="waveDest != null">wave_dest=#{waveDest},</if>
+  			<if test="pickModelTemplateId != null">pick_model_template_id=#{pickModelTemplateId},</if>
+  			<if test="releaseUid != null">release_uid=#{releaseUid},</if>
+  			<if test="releaseUname != null">release_uname=#{releaseUname},</if>
+  			<if test="releaseAt != null">release_at=#{releaseAt},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getPickWaveHeadById" parameterType="int" resultMap="pickWaveHeadResultMap">
+		select * from pick_wave_head
+		where ID=#{id} 
+	</select>
+  
+	<select id="countPickWaveHead" parameterType="map" resultType="int">
+		select count(*) from pick_wave_head
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getPickWaveHeadList" parameterType="map" resultMap="pickWaveHeadResultMap">
+		select * from pick_wave_head
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="waveId != null">and wave_id=#{waveId}</if>
+			<if test="waveName != null">and wave_name=#{waveName}</if>
+			<if test="status != null">and status=#{status}</if>
+			<if test="waveType != null">and wave_type=#{waveType}</if>
+			<if test="waveTemplateId != null">and wave_template_id=#{waveTemplateId}</if>
+			<if test="waveSource != null">and wave_source=#{waveSource}</if>
+			<if test="waveDest != null">and wave_dest=#{waveDest}</if>
+			<if test="pickModelTemplateId != null">and pick_model_template_id=#{pickModelTemplateId}</if>
+			<if test="releaseUid != null">and release_uid=#{releaseUid}</if>
+			<if test="releaseUname != null">and release_uname=#{releaseUname}</if>
+			<if test="releaseAt != null">and release_at=#{releaseAt}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>
