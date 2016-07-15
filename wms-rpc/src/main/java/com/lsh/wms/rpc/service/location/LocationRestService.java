@@ -61,11 +61,26 @@ public class LocationRestService implements ILocationRestService {
         return JsonUtils.SUCCESS(location);
     }
 
+    @GET
+    @Path("getWarehouseLocationId")
+    public String getWarehouseLocationId() {
+        Long locationId = locationService.getWarehouseLocationId();
+        return JsonUtils.SUCCESS(locationId);
+    }
+
+    @GET
+    @Path("getinventoryLostLocationId")
+    public String getInventoryLostLocationId() {
+        Long locationId = locationService.getInventoryLostLocationId();
+        return JsonUtils.SUCCESS(locationId);
+    }
+
     @POST
     @Path("insertLocation")
     public String insertLocation(BaseinfoLocation location) {
         return JsonUtils.SUCCESS(locationRpcService.insertLocation(location));
     }
+    
     @POST
     @Path("updateLocation")
     public String updateLocation(BaseinfoLocation location) {
