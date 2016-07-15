@@ -1,8 +1,8 @@
-package com.lsh.wms.rpc.service.baseinfo;
+package com.lsh.wms.rpc.service.item;
 
 import com.alibaba.dubbo.config.annotation.Service;
-import com.lsh.wms.api.service.baseinfo.IItemLocationRpcService;
-import com.lsh.wms.core.service.baseinfo.ItemLocationService;
+import com.lsh.wms.api.service.item.IItemLocationRpcService;
+import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
