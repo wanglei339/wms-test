@@ -1,5 +1,7 @@
 package com.lsh.wms.core.service.csi;
 
+import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.csi.CsiOwnerDao;
 import com.lsh.wms.core.dao.csi.CsiSupplierDao;
 import com.lsh.wms.model.csi.CsiOwner;
@@ -51,16 +53,12 @@ public class CsiSupplierService {
         if(supplier.getSupplierId()==0){
             {
                 //gen supplier_id
-                int iSupplierId = 0;
-                int count = supplierDao.countCsiSupplier(null);
-                if(count==0){
-                    iSupplierId = 1;
-                }else{
-                    iSupplierId = 1 + count;
-                }
-                supplier.setSupplierId((long)iSupplierId);
+                long iSupplierId = RandomUtils.genId();
+                supplier.setSupplierId(iSupplierId);
             }
         }
+        //新增时间
+        supplier.setCreatedAt(DateUtils.getCurrentSeconds());
         supplierDao.insert(supplier);
         //更新缓存
         m_SupplierCache.put(supplier.getSupplierId(),supplier);
@@ -73,6 +71,8 @@ public class CsiSupplierService {
         if(this.getSupplier(supplier.getSupplierId()) == null){
             return -1;
         }
+        //更新时间
+        supplier.setUpdatedAt(DateUtils.getCurrentSeconds());
         //更新供应商信息
         supplierDao.update(supplier);
 

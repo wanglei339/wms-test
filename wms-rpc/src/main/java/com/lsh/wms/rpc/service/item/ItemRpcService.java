@@ -58,7 +58,6 @@ public class ItemRpcService implements IItemRpcService {
         if(sku == null){
             item.setSkuId(sku.getSkuId());
             CsiSku new_sku = new CsiSku();
-
             sku = remoteCsiRpcService.insertSku(new_sku);
             if(sku == null){
                 return null;

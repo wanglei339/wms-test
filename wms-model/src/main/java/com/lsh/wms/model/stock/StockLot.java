@@ -15,7 +15,7 @@ public class StockLot implements Serializable {
     private String serialNo;
 	/** 入库时间 */
     private Long inDate;
-	/**  */
+	/** 生产时间 */
     private Long productDate;
 	/** 保质期失效时间 */
     private Long expireDate;

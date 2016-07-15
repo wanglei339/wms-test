@@ -10,7 +10,7 @@ import com.lsh.wms.model.baseinfo.BaseinfoDepartment;
 @Service(protocol = "dubbo")
 public interface IDepartmentRpcService {
     BaseinfoDepartment getDepartment(long departmentId);
-    BaseinfoDepartment insertDepartment(BaseinfoDepartment department);
-    int updateDepartment(BaseinfoDepartment department);
+    void insertDepartment(BaseinfoDepartment department);
+    void updateDepartment(BaseinfoDepartment department);
 
 }

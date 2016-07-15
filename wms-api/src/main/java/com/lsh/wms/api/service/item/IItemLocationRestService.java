@@ -1,4 +1,4 @@
-package com.lsh.wms.api.service.baseinfo;
+package com.lsh.wms.api.service.item;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
