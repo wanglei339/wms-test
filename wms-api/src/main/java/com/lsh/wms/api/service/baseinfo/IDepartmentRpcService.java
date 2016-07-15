@@ -11,6 +11,6 @@ import com.lsh.wms.model.baseinfo.BaseinfoDepartment;
 public interface IDepartmentRpcService {
     BaseinfoDepartment getDepartment(long departmentId);
     BaseinfoDepartment insertDepartment(BaseinfoDepartment department);
-    int updateDepartment(BaseinfoDepartment department);
+    void updateDepartment(BaseinfoDepartment department);
 
 }
