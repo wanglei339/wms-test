@@ -1,4 +1,4 @@
-package com.lsh.wms.core.service.baseinfo;
+package com.lsh.wms.core.service.item;
 
 import com.lsh.wms.core.dao.baseinfo.BaseinfoItemLocationDao;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;

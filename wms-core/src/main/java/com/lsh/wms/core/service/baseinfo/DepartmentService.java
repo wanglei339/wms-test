@@ -1,5 +1,7 @@
 package com.lsh.wms.core.service.baseinfo;
 
+import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoDepartmentDao;
 import com.lsh.wms.model.baseinfo.BaseinfoDepartment;
 import org.slf4j.Logger;
@@ -50,18 +52,11 @@ public class DepartmentService {
     public BaseinfoDepartment isnertDepartment(BaseinfoDepartment department){
         if(department.getDepartmentId() == 0){
             //gen departmentId
-            int iDepartmentId = 0;
-            int count = departmentDao.countBaseinfoDepartment(null);
-            if(count == 0){
-                iDepartmentId = 1;
-            }else{
-                iDepartmentId = count + 1;
-            }
-            department.setDepartmentId((long)iDepartmentId);
+            long iDepartmentId = RandomUtils.genId();
+            department.setDepartmentId(iDepartmentId);
         }
         //增加新增时间
-        long createdAt = new Date().getTime()/1000;
-        department.setCreatedAt(createdAt);
+        department.setCreatedAt(DateUtils.getCurrentSeconds());
 
         departmentDao.insert(department);
         //增加缓存
@@ -71,18 +66,12 @@ public class DepartmentService {
     }
 
     @Transactional(readOnly = false)
-    public int updateDepartment(BaseinfoDepartment department){
-        if(this.getDepartment(department.getDepartmentId()) == null){
-            return -1;
-        }
+    public void updateDepartment(BaseinfoDepartment department){
         //增加更新时间
-        long updatedAt = new Date().getTime()/1000;
-        department.setUpdatedAt(updatedAt);
+        department.setUpdatedAt(DateUtils.getCurrentSeconds());
         departmentDao.update(department);
-
         //更新缓存
         m_DepartmentCache.put(department.getDepartmentId(),department);
-        return 0;
 
     }
 
