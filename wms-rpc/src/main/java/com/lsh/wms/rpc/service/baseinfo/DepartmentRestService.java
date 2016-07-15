@@ -35,15 +35,27 @@ public class DepartmentRestService implements IDepartmentRestService {
     @POST
     @Path("insertDepartment")
     public String insertDepartment(BaseinfoDepartment department) {
-        return JsonUtils.SUCCESS(departmentRpcService.insertDepartment(department));
+        try{
+            departmentRpcService.insertDepartment(department);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("failed");
+        }
+        return JsonUtils.SUCCESS();
     }
     @POST
     @Path("updateDepartment")
     public String updateDepartment(BaseinfoDepartment department) {
-        int result = departmentRpcService.updateDepartment(department);
-        if (result == 0)
-            return "update success!";
-        else
-            return "update failed";
+        //查询该记录是否存在
+        if(departmentRpcService.getDepartment(department.getDepartmentId()) == null){
+            return JsonUtils.EXCEPTION_ERROR("The record does not exist");
+        }
+        try{
+            departmentRpcService.updateDepartment(department);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            JsonUtils.EXCEPTION_ERROR("update failed");
+        }
+        return JsonUtils.SUCCESS();
     }
 }
