@@ -84,13 +84,12 @@ public class ItemLocationService {
     }
 
     @Transactional(readOnly = false)
-    public int updateItemLocation(BaseinfoItemLocation itemLocation){
-        //使用ID定位一条
-        if(itemLocationDao.getBaseinfoItemLocationById(itemLocation.getId()) == null){
-            return -1;
-        }
+    public void updateItemLocation(BaseinfoItemLocation itemLocation){
         itemLocationDao.update(itemLocation);
-        return 0;
+    }
+
+    public BaseinfoItemLocation getItemLocation(long id){
+        return itemLocationDao.getBaseinfoItemLocationById(id);
     }
 
 
