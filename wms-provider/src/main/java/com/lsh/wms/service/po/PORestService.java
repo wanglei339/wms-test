@@ -3,6 +3,7 @@ package com.lsh.wms.service.po;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.model.base.BaseResponse;
@@ -70,11 +71,11 @@ public class PoRestService implements IPoRestService {
             poOrderService.insertOrder(inbPoHeader, inbPoDetailList);
 
             response.setStatus(0);
-            response.setMeg("ok");
+            response.setMsg("ok");
             response.setDataKey(new Date());
         } catch (Exception ex) {
             response.setStatus(1);
-            response.setMeg(ex.getMessage());
+            response.setMsg(ex.getMessage());
             response.setDataKey(new Date());
         }
 
