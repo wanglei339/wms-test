@@ -32,7 +32,7 @@ public class StaffService {
 
     @Transactional(readOnly = false)
     public void addDepartment(BaseinfoStaffDepartment department) {
-        long now = System.currentTimeMillis();
+        long now = (System.currentTimeMillis() / 1000);
         department.setCreatedAt(now);
         department.setUpdatedAt(now);
         departmentDao.insert(department);
@@ -40,7 +40,7 @@ public class StaffService {
 
     @Transactional(readOnly = false)
     public void updateDepartment(BaseinfoStaffDepartment department) {
-        long now = System.currentTimeMillis();
+        long now = (System.currentTimeMillis() / 1000);
         department.setUpdatedAt(now);
         departmentDao.update(department);
     }

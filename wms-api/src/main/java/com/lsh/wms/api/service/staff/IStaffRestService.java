@@ -1,8 +1,11 @@
 package com.lsh.wms.api.service.staff;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.model.baseinfo.BaseinfoDepartment;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 
@@ -13,9 +16,9 @@ import java.util.Map;
 public interface IStaffRestService {
     public String getDepartmentList();
 
-    public String addDepartment(String sDepartmentName);
+    public String addDepartment();
 
-    public String updateDepartment(Long iDepartmentId, String sDepartmentName);
+    public String updateDepartment(Map<String, Object> params) throws BizCheckedException;
 
-    public String deleteDepartment(long iDepartmentId);
+    public String deleteDepartment(Map<String, Object> params);
 }
