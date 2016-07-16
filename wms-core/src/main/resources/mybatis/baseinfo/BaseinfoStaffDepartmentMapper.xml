@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.baseinfo.BaseinfoStaffDepartmentDao" >
+
+	<resultMap id="baseinfoStaffDepartmentResultMap" type="BaseinfoStaffDepartment">
+		<id property="id" column="id"/>
+		<result property="departmentId" column="department_id"/>
+		<result property="departmentName" column="department_name"/>
+		<result property="recordStatus" column="record_status"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoStaffDepartment">
+		insert into baseinfo_staff_department (
+			department_id,department_name,record_status,created_at,updated_at
+    	) values (
+			#{departmentId},#{departmentName},#{recordStatus},#{createdAt},#{updatedAt}
+    	)
+	</insert>
+
+	<update id="update" parameterType="BaseinfoStaffDepartment">
+		update baseinfo_staff_department
+    	<set>
+  			<if test="departmentId != null">department_id=#{departmentId},</if>
+  			<if test="departmentName != null">department_name=#{departmentName},</if>
+  			<if test="recordStatus != null">record_status=#{recordStatus},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getBaseinfoStaffDepartmentById" parameterType="int" resultMap="baseinfoStaffDepartmentResultMap">
+		select * from baseinfo_staff_department
+		where ID=#{id} 
+	</select>
+  
+	<select id="countBaseinfoStaffDepartment" parameterType="map" resultType="int">
+		select count(*) from baseinfo_staff_department
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getBaseinfoStaffDepartmentList" parameterType="map" resultMap="baseinfoStaffDepartmentResultMap">
+		select * from baseinfo_staff_department
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="departmentId != null">and department_id=#{departmentId}</if>
+			<if test="departmentName != null">and department_name=#{departmentName}</if>
+			<if test="recordStatus != null">and record_status=#{recordStatus}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>

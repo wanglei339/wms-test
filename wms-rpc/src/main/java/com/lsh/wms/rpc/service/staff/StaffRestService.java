@@ -2,11 +2,11 @@ package com.lsh.wms.rpc.service.staff;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
-import com.google.common.collect.Maps;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.staff.IStaffRestService;
-import com.lsh.wms.model.baseinfo.BaseinfoDepartment;
+import com.lsh.wms.core.constant.StaffConstant;
+import com.lsh.wms.model.baseinfo.BaseinfoStaffDepartment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,30 +36,49 @@ public class StaffRestService implements IStaffRestService{
     @Path("getDepartmentList")
     public String getDepartmentList() {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
-        List<BaseinfoDepartment> departmentList = this.staffRpcService.getDepartmentList(mapQuery);
+        List<BaseinfoStaffDepartment> departmentList = staffRpcService.getDepartmentList(mapQuery);
         return JsonUtils.SUCCESS(departmentList);
     }
 
     @POST
     @Path("addDepartment")
     public String addDepartment(String sDepartmentName) {
-        long now = System.currentTimeMillis();
         long iDepartmentId = Long.parseLong(RandomUtils.uuid2());
-        BaseinfoDepartment department = new BaseinfoDepartment();
+        BaseinfoStaffDepartment department = new BaseinfoStaffDepartment();
         department.setDepartmentId(iDepartmentId);
         department.setDepartmentName(sDepartmentName);
-        department.setStatus(1);
-        department.setCreatedAt(now);
-        department.setUpdatedAt(now);
+        department.setRecordStatus(StaffConstant.RECORD_STATUS_NORMAL);
         staffRpcService.addDepartment(department);
         return JsonUtils.SUCCESS(department);
     }
 
-    public String updateDepartment(String sDepartmentName) {
-        return null;
+    @POST
+    @Path("updateDepartment")
+    public String updateDepartment(@QueryParam("departmentId") Long iDepartmentId, @QueryParam("departmentName") String sDepartmentName) {
+        BaseinfoStaffDepartment department = staffRpcService.getDepartmentById(iDepartmentId);
+        department.setDepartmentName(sDepartmentName);
+        try {
+            staffRpcService.updateDepartment(department);
+        } catch (RuntimeException e){
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+        } catch (Exception e) {
+            return JsonUtils.BIZ_ERROR(e.getMessage());
+        }
+        return JsonUtils.SUCCESS(department);
     }
 
-    public String deleteDepartment(long iDepartmentId) {
-        return null;
+    @POST
+    @Path("delDepartment")
+    public String deleteDepartment(@QueryParam("departmentId") long iDepartmentId) {
+        BaseinfoStaffDepartment department = staffRpcService.getDepartmentById(iDepartmentId);
+        department.setRecordStatus(StaffConstant.RECORD_STATUS_DELETED);
+        try {
+            staffRpcService.updateDepartment(department);
+        } catch (RuntimeException e){
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+        } catch (Exception e) {
+            return JsonUtils.BIZ_ERROR(e.getMessage());
+        }
+        return JsonUtils.SUCCESS(department);
     }
 }
