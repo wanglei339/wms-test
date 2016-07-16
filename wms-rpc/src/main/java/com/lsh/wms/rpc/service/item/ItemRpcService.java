@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -60,8 +61,11 @@ public class ItemRpcService implements IItemRpcService {
 
 
     public BaseinfoItem insertItem(BaseinfoItem item){
-        //检查是否存在该Item
-        if(this.getSkuByCode(item.getCodeType(),item.getCode()) != null){
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("codeType",item.getCodeType());
+        mapQuery.put("code",item.getCode());
+        List<BaseinfoItem> itemList = this.searchItem(mapQuery);
+        if(itemList.size() > 0){
             return null;
         }
         CsiSku sku = this.getSkuByCode(Integer.valueOf(item.getCodeType()), item.getCode());

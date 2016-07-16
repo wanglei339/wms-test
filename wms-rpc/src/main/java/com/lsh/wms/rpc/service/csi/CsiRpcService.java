@@ -64,14 +64,7 @@ public class CsiRpcService implements ICsiRpcService {
         }else{
             return newSku;
         }
-        try {
-            org.apache.commons.beanutils.BeanUtils.copyProperties(newSku, sku);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return newSku;
+        return sku;
     }
 
     public CsiSupplier getSupplier(long iSupplierId) {
