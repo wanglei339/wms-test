@@ -44,7 +44,7 @@ public class PoRestService implements IPoRestService {
     public String init(String poOrderInfo) {
         InbPoHeader inbPoHeader = JSON.parseObject(poOrderInfo,InbPoHeader.class);
         List<InbPoDetail> inbPoDetailList = JSON.parseArray(inbPoHeader.getOrderDetails(),InbPoDetail.class);
-        poOrderService.orderInit(inbPoHeader,inbPoDetailList);
+        poOrderService.insertOrder(inbPoHeader,inbPoDetailList);
         return JsonUtils.SUCCESS();
     }
 
@@ -57,10 +57,9 @@ public class PoRestService implements IPoRestService {
         ObjUtils.bean2bean(request, inbPoHeader);
 
         List<InbPoDetail> inbPoDetailList = new ArrayList<InbPoDetail>();
-        InbPoDetail inbPoDetail = null;
 
         for(PoItem poItem : request.getItems()) {
-            inbPoDetail = new InbPoDetail();
+            InbPoDetail inbPoDetail = new InbPoDetail();
 
             ObjUtils.bean2bean(poItem, inbPoDetail);
 
