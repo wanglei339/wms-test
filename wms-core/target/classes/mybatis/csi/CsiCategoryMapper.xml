@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.csi.CsiCategoryDao" >
+
+	<resultMap id="csiCategoryResultMap" type="CsiCategory">
+		<id property="catId" column="cat_id"/>
+		<result property="fCatId" column="f_cat_id"/>
+		<result property="name" column="name"/>
+		<result property="level" column="level"/>
+		<result property="status" column="status"/>
+		<result property="isLeaf" column="is_leaf"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="CsiCategory">
+		insert into csi_category (
+			f_cat_id,name,level,status,is_leaf
+    	) values (
+			#{fCatId},#{name},#{level},#{status},#{isLeaf}
+    	)
+	</insert>
+
+	<update id="update" parameterType="CsiCategory">
+		update csi_category
+    	<set>
+  			<if test="fCatId != null">f_cat_id=#{fCatId},</if>
+  			<if test="name != null">name=#{name},</if>
+  			<if test="level != null">level=#{level},</if>
+  			<if test="status != null">status=#{status},</if>
+  			<if test="isLeaf != null">is_leaf=#{isLeaf}</if>
+		</set>
+		where cat_id=#{catId}
+	</update>
+
+	<select id="getCsiCategoryById" parameterType="int" resultMap="csiCategoryResultMap">
+		select * from csi_category
+		where ID=#{id} 
+	</select>
+  
+	<select id="countCsiCategory" parameterType="map" resultType="int">
+		select count(*) from csi_category
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getCsiCategoryList" parameterType="map" resultMap="csiCategoryResultMap">
+		select * from csi_category
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="catId != null">cat_id=#{catId}</if>
+			<if test="fCatId != null">and f_cat_id=#{fCatId}</if>
+			<if test="name != null">and name=#{name}</if>
+			<if test="level != null">and level=#{level}</if>
+			<if test="status != null">and status=#{status}</if>
+			<if test="isLeaf != null">and is_leaf=#{isLeaf}</if>
+		</where>
+	</sql>
+   
+</mapper>

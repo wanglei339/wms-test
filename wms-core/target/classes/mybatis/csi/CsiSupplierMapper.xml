@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.csi.CsiSupplierDao" >
+
+	<resultMap id="csiSupplierResultMap" type="CsiSupplier">
+		<id property="id" column="id"/>
+		<result property="supplierId" column="supplier_id"/>
+		<result property="supplierName" column="supplier_name"/>
+		<result property="ownerId" column="owner_id"/>
+		<result property="supplierCode" column="supplier_code"/>
+		<result property="phone" column="phone"/>
+		<result property="fax" column="fax"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="CsiSupplier">
+		insert into csi_supplier (
+			supplier_id,supplier_name,owner_id,supplier_code,phone,fax,
+			created_at,updated_at
+    	) values (
+			#{supplierId},#{supplierName},#{ownerId},#{supplierCode},#{phone},#{fax},
+			#{createdAt},#{updatedAt}
+    	)
+	</insert>
+
+	<update id="update" parameterType="CsiSupplier">
+		update csi_supplier
+    	<set>
+  			<if test="supplierName != null">supplier_name=#{supplierName},</if>
+  			<if test="ownerId != null">owner_id=#{ownerId},</if>
+  			<if test="supplierCode != null">supplier_code=#{supplierCode},</if>
+  			<if test="phone != null">phone=#{phone},</if>
+  			<if test="fax != null">fax=#{fax},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where supplier_id=#{supplierId}
+	</update>
+
+	<select id="getCsiSupplierById" parameterType="int" resultMap="csiSupplierResultMap">
+		select * from csi_supplier
+		where ID=#{id} 
+	</select>
+  
+	<select id="countCsiSupplier" parameterType="map" resultType="int">
+		select count(*) from csi_supplier
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getCsiSupplierList" parameterType="map" resultMap="csiSupplierResultMap">
+		select * from csi_supplier
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="supplierId != null">and supplier_id=#{supplierId}</if>
+			<if test="supplierName != null">and supplier_name=#{supplierName}</if>
+			<if test="ownerId != null">and owner_id=#{ownerId}</if>
+			<if test="supplierCode != null">and supplier_code=#{supplierCode}</if>
+			<if test="phone != null">and phone=#{phone}</if>
+			<if test="fax != null">and fax=#{fax}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>

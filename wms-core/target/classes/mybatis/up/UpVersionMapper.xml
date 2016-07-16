@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.up.UpVersionDao">
+
+    <resultMap id="versionResultMap" type="UpVersion">
+        <id property="id" column="ID"/>
+        <result property="pkgId" column="PKG_ID"/>
+        <result property="verStr" column="VER_STR"/>
+        <result property="verInt" column="VER_INT"/>
+        <result property="verName" column="VER_NAME"/>
+        <result property="verTitle" column="VER_TITLE"/>
+        <result property="verTitleForce" column="VER_TITLE_FORCE"/>
+        <result property="verDesc" column="VER_DESC"/>
+        <result property="verDescForce" column="VER_DESC_FORCE"/>
+        <result property="upType" column="UP_TYPE"/>
+        <result property="silentDownload" column="SILENT_DOWNLOAD"/>
+        <result property="silentInstall" column="SILENT_INSTALL"/>
+        <result property="promptUp" column="PROMPT_UP"/>
+        <result property="promptAlways" column="PROMPT_ALWAYS"/>
+        <result property="promptInterval" column="PROMPT_INTERVAL"/>
+        <result property="fileMd5" column="FILE_MD5"/>
+        <result property="fileUrl" column="FILE_URL"/>
+        <result property="filePath" column="FILE_PATH"/>
+        <result property="fileStatus" column="FILE_STATUS"/>
+        <result property="status" column="STATUS"/>
+        <result property="createdTime" column="CREATED_TIME"/>
+        <result property="updatedTime" column="UPDATED_TIME"/>
+        <!-- 显示属性 -->
+        <result property="appId" column="APP_ID"/>
+        <result property="osId" column="OS_ID"/>
+        <result property="chnId" column="CHN_ID"/>
+        <result property="modId" column="MOD_ID"/>
+        <result property="appKey" column="APP_KEY"/>
+        <result property="pkgName" column="PKG_NAME"/>
+        <result property="appName" column="APP_NAME"/>
+        <result property="osName" column="OS_NAME"/>
+        <result property="chnName" column="CHN_NAME"/>
+        <result property="modName" column="MOD_NAME"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="UpVersion">
+		insert into UP_VERSION (
+			PKG_ID,VER_STR,VER_INT,VER_NAME,VER_TITLE,VER_TITLE_FORCE,
+			VER_DESC,VER_DESC_FORCE,UP_TYPE,SILENT_DOWNLOAD,SILENT_INSTALL,PROMPT_UP,
+			PROMPT_ALWAYS,PROMPT_INTERVAL,FILE_MD5,FILE_URL,FILE_PATH,FILE_STATUS,
+			STATUS,CREATED_TIME,UPDATED_TIME
+    	) values (
+			#{pkgId},#{verStr},#{verInt},#{verName},#{verTitle},#{verTitleForce},
+			#{verDesc},#{verDescForce},#{upType},#{silentDownload},#{silentInstall},#{promptUp},
+			#{promptAlways},#{promptInterval},#{fileMd5},#{fileUrl},#{filePath},#{fileStatus},
+			#{status},#{createdTime},#{updatedTime}
+    	)
+	</insert>
+
+    <update id="update" parameterType="UpVersion">
+        update UP_VERSION
+        <set>
+            <if test="pkgId != null">PKG_ID=#{pkgId},</if>
+            <if test="verStr != null">VER_STR=#{verStr},</if>
+            <if test="verInt != null">VER_INT=#{verInt},</if>
+            <if test="verName != null">VER_NAME=#{verName},</if>
+            <if test="verTitle != null">VER_TITLE=#{verTitle},</if>
+            <if test="verTitleForce != null">VER_TITLE_FORCE=#{verTitleForce},</if>
+            <if test="verDesc != null">VER_DESC=#{verDesc},</if>
+            <if test="verDescForce != null">VER_DESC_FORCE=#{verDescForce},</if>
+            <if test="upType != null">UP_TYPE=#{upType},</if>
+            <if test="silentDownload != null">SILENT_DOWNLOAD=#{silentDownload},</if>
+            <if test="silentInstall != null">SILENT_INSTALL=#{silentInstall},</if>
+            <if test="promptUp != null">PROMPT_UP=#{promptUp},</if>
+            <if test="promptAlways != null">PROMPT_ALWAYS=#{promptAlways},</if>
+            <if test="promptInterval != null">PROMPT_INTERVAL=#{promptInterval},</if>
+            <if test="fileMd5 != null">FILE_MD5=#{fileMd5},</if>
+            <if test="fileUrl != null">FILE_URL=#{fileUrl},</if>
+            <if test="filePath != null">FILE_PATH=#{filePath},</if>
+            <if test="fileStatus != null">FILE_STATUS=#{fileStatus},</if>
+            <if test="status != null">STATUS=#{status},</if>
+            <if test="createdTime != null">CREATED_TIME=#{createdTime},</if>
+            <if test="updatedTime != null">UPDATED_TIME=#{updatedTime}</if>
+        </set>
+        where ID=#{id}
+    </update>
+
+    <select id="getVersionById" parameterType="long" resultMap="versionResultMap">
+        select ver.*,pkg.APP_ID,pkg.OS_ID,pkg.CHN_ID,pkg.MOD_ID,pkg.APP_KEY,pkg.PKG_NAME,app.APP_NAME,os.OS_NAME,chn.CHN_NAME, md.MOD_NAME
+        from UP_VERSION ver
+        inner join UP_PACKAGE pkg on ver.PKG_ID=pkg.ID
+        left join UP_APP app on pkg.APP_ID=app.ID
+        left join UP_OPSYSTEM os on pkg.OS_ID=os.ID
+        left join UP_CHANNEL chn on pkg.CHN_ID= chn.ID
+        left join UP_MODEL md on pkg.MOD_ID = md.ID
+        where ver.ID=#{id}
+	</select>
+
+    <select id="countVersion" parameterType="map" resultType="int">
+        select count(ver.ID)
+        from UP_VERSION ver
+        inner join UP_PACKAGE pkg on ver.PKG_ID=pkg.ID
+        left join UP_APP app on pkg.APP_ID=app.ID
+        left join UP_OPSYSTEM os on pkg.OS_ID=os.ID
+        left join UP_CHANNEL chn on pkg.CHN_ID= chn.ID
+        left join UP_MODEL md on pkg.MOD_ID = md.ID
+        <include refid="queryCondition"/>
+    </select>
+
+    <select id="getVersionList" parameterType="map" resultMap="versionResultMap">
+        select
+        ver.*,pkg.APP_ID,pkg.OS_ID,pkg.CHN_ID,pkg.MOD_ID,pkg.APP_KEY,pkg.PKG_NAME,app.APP_NAME,os.OS_NAME,chn.CHN_NAME,
+        md.MOD_NAME
+        from UP_VERSION ver
+        inner join UP_PACKAGE pkg on ver.PKG_ID=pkg.ID
+        left join UP_APP app on pkg.APP_ID=app.ID
+        left join UP_OPSYSTEM os on pkg.OS_ID=os.ID
+        left join UP_CHANNEL chn on pkg.CHN_ID= chn.ID
+        left join UP_MODEL md on pkg.MOD_ID = md.ID
+        <include refid="queryCondition"/>
+        order by ver.VER_INT,ver.ID desc
+        <if test="start != null and limit != null">
+            limit #{start},#{limit}
+        </if>
+    </select>
+
+    <select id="countVersionNo" parameterType="map" resultType="int">
+        select count(1) from (
+            select ver.VER_STR
+            from UP_VERSION ver
+            inner join UP_PACKAGE pkg on ver.PKG_ID=pkg.ID
+            where pkg.APP_ID=#{appId}
+            and pkg.OS_ID=#{osId}
+            group by ver.VER_STR
+        ) c
+    </select>
+
+    <select id="getVersionNoList" parameterType="map" resultMap="versionResultMap">
+        select ver.VER_STR
+        from UP_VERSION ver
+        inner join UP_PACKAGE pkg on ver.PKG_ID=pkg.ID
+        where pkg.APP_ID=#{appId}
+        and pkg.OS_ID=#{osId}
+        group by ver.VER_STR
+        order by ver.VER_INT desc
+        <if test="start != null and limit != null">
+            limit #{start},#{limit}
+        </if>
+    </select>
+
+    <sql id="queryCondition">
+        <where>
+            <if test="id != null">ver.ID=#{id}</if>
+            <if test="pkgId != null">and ver.PKG_ID=#{pkgId}</if>
+            <if test="verStr != null">and ver.VER_STR=#{verStr}</if>
+            <if test="verInt != null">and ver.VER_INT=#{verInt}</if>
+            <if test="verName != null">and ver.VER_NAME=#{verName}</if>
+            <if test="verTitle != null">and ver.VER_TITLE=#{verTitle}</if>
+            <if test="verTitleForce != null">and ver.VER_TITLE_FORCE=#{verTitleForce}</if>
+            <if test="verDesc != null">and ver.VER_DESC=#{verDesc}</if>
+            <if test="verDescForce != null">and ver.VER_DESC_FORCE=#{verDescForce}</if>
+            <if test="upType != null">and ver.UP_TYPE=#{upType}</if>
+            <if test="silentDownload != null">and ver.SILENT_DOWNLOAD=#{silentDownload}</if>
+            <if test="silentInstall != null">and ver.SILENT_INSTALL=#{silentInstall}</if>
+            <if test="promptUp != null">and ver.PROMPT_UP=#{promptUp}</if>
+            <if test="promptAlways != null">and ver.PROMPT_ALWAYS=#{promptAlways}</if>
+            <if test="promptInterval != null">and ver.PROMPT_INTERVAL=#{promptInterval}</if>
+            <if test="fileMd5 != null">and ver.FILE_MD5=#{fileMd5}</if>
+            <if test="fileUrl != null">and ver.FILE_URL=#{fileUrl}</if>
+            <if test="filePath != null">and ver.FILE_PATH=#{filePath}</if>
+            <if test="fileStatus != null">and ver.FILE_STATUS=#{fileStatus}</if>
+            <if test="status != null">and ver.STATUS=#{status}</if>
+            <if test="createdTime != null">and ver.CREATED_TIME=#{createdTime}</if>
+            <if test="updatedTime != null">and ver.UPDATED_TIME=#{updatedTime}</if>
+            <if test="appId != null">and pkg.APP_ID=#{appId}</if>
+            <if test="osId != null">and pkg.OS_ID=#{osId}</if>
+            <if test="chnId != null">and pkg.CHN_ID=#{chnId}</if>
+            <if test="modId != null">and pkg.MOD_ID=#{modId}</if>
+            <if test="pkgType != null">and pkg.PKG_TYPE=#{pkgType}</if>
+            <if test="keyword != null">
+                and (
+                ver.VER_NAME like concat('%',#{keyword},'%')
+                or pkg.APP_KEY like concat('%',#{keyword},'%')
+                or pkg.PKG_NAME like concat('%',#{keyword},'%')
+                )
+            </if>
+        </where>
+    </sql>
+
+</mapper>

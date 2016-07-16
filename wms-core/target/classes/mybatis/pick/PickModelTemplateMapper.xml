@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.pick.PickModelTemplateDao" >
+
+	<resultMap id="pickModelTemplateResultMap" type="PickModelTemplate">
+		<id property="id" column="id"/>
+		<result property="pickModelTemplateId" column="pick_model_template_id"/>
+		<result property="pickModelTemplateName" column="pick_model_template_name"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PickModelTemplate">
+		insert into pick_model_template (
+			pick_model_template_id,pick_model_template_name,created_at,updated_at
+    	) values (
+			#{pickModelTemplateId},#{pickModelTemplateName},#{createdAt},#{updatedAt}
+    	)
+	</insert>
+
+	<update id="update" parameterType="PickModelTemplate">
+		update pick_model_template
+    	<set>
+  			<if test="pickModelTemplateId != null">pick_model_template_id=#{pickModelTemplateId},</if>
+  			<if test="pickModelTemplateName != null">pick_model_template_name=#{pickModelTemplateName},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getPickModelTemplateById" parameterType="int" resultMap="pickModelTemplateResultMap">
+		select * from pick_model_template
+		where ID=#{id} 
+	</select>
+  
+	<select id="countPickModelTemplate" parameterType="map" resultType="int">
+		select count(*) from pick_model_template
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getPickModelTemplateList" parameterType="map" resultMap="pickModelTemplateResultMap">
+		select * from pick_model_template
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="pickModelTemplateId != null">and pick_model_template_id=#{pickModelTemplateId}</if>
+			<if test="pickModelTemplateName != null">and pick_model_template_name=#{pickModelTemplateName}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.stock.StockLotDao" >
+
+	<resultMap id="stockLotResultMap" type="StockLot">
+		<id property="id" column="id"/>
+		<result property="lotId" column="lot_id"/>
+		<result property="skuId" column="sku_id"/>
+		<result property="serialNo" column="serial_no"/>
+		<result property="inDate" column="in_date"/>
+		<result property="productDate" column="product_date"/>
+		<result property="expireDate" column="expire_date"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockLot">
+		insert into stock_lot (
+			lot_id,sku_id,serial_no,in_date,product_date,expire_date,
+			created_at,updated_at
+    	) values (
+			#{lotId},#{skuId},#{serialNo},#{inDate},#{productDate},#{expireDate},
+			#{createdAt},#{updatedAt}
+    	)
+	</insert>
+
+	<update id="update" parameterType="StockLot">
+		update stock_lot
+    	<set>
+  			<if test="lotId != null">lot_id=#{lotId},</if>
+  			<if test="skuId != null">sku_id=#{skuId},</if>
+  			<if test="serialNo != null">serial_no=#{serialNo},</if>
+  			<if test="inDate != null">in_date=#{inDate},</if>
+  			<if test="productDate != null">product_date=#{productDate},</if>
+  			<if test="expireDate != null">expire_date=#{expireDate},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<select id="getStockLotByLotId" parameterType="long" resultMap="stockLotResultMap">
+		select * from stock_lot
+		where lot_id=#{lotId}
+	</select>
+
+	<select id="getStockLotById" parameterType="int" resultMap="stockLotResultMap">
+		select * from stock_lot
+		where ID=#{id} 
+	</select>
+  
+	<select id="countStockLot" parameterType="map" resultType="int">
+		select count(*) from stock_lot
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getStockLotList" parameterType="map" resultMap="stockLotResultMap">
+		select * from stock_lot
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="lotId != null">and lot_id=#{lotId}</if>
+			<if test="skuId != null">and sku_id=#{skuId}</if>
+			<if test="serialNo != null">and serial_no=#{serialNo}</if>
+			<if test="inDate != null">and in_date=#{inDate}</if>
+			<if test="productDate != null">and product_date=#{productDate}</if>
+			<if test="expireDate != null">and expire_date=#{expireDate}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>

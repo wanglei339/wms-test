@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.pub.PubConfigDataFileDao" >
+
+	<resultMap id="pubConfigDataFileResultMap" type="PubConfigDataFile">
+		<id property="id" column="ID"/>
+		<result property="dataId" column="DATA_ID"/>
+		<result property="fileType" column="FILE_TYPE"/>
+		<result property="fileCode" column="FILE_CODE"/>
+		<result property="fileName" column="FILE_NAME"/>
+		<result property="fileDesc" column="FILE_DESC"/>
+		<result property="fileUrl" column="FILE_URL"/>
+		<result property="filePath" column="FILE_PATH"/>
+		<result property="fileMd5" column="FILE_MD5"/>
+		<result property="fileOrder" column="FILE_ORDER"/>
+		<result property="fileStatus" column="FILE_STATUS"/>
+		<result property="status" column="STATUS"/>
+		<result property="createTime" column="CREATE_TIME"/>
+		<result property="updateTime" column="UPDATE_TIME"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PubConfigDataFile">
+		insert into PUB_CONFIG_DATA_FILE (
+			DATA_ID,FILE_TYPE,FILE_CODE,FILE_NAME,FILE_DESC,FILE_URL,
+			FILE_PATH,FILE_MD5,FILE_ORDER,FILE_STATUS,STATUS,CREATE_TIME,
+			UPDATE_TIME
+    	) values (
+			#{dataId},#{fileType},#{fileCode},#{fileName},#{fileDesc},#{fileUrl},
+			#{filePath},#{fileMd5},#{fileOrder},#{fileStatus},#{status},#{createTime},
+			#{updateTime}
+    	)
+	</insert>
+
+	<update id="update" parameterType="PubConfigDataFile">
+		update PUB_CONFIG_DATA_FILE
+    	<set>
+  			<if test="dataId != null">DATA_ID=#{dataId},</if>
+  			<if test="fileType != null">FILE_TYPE=#{fileType},</if>
+  			<if test="fileCode != null">FILE_CODE=#{fileCode},</if>
+  			<if test="fileName != null">FILE_NAME=#{fileName},</if>
+  			<if test="fileDesc != null">FILE_DESC=#{fileDesc},</if>
+  			<if test="fileUrl != null">FILE_URL=#{fileUrl},</if>
+  			<if test="filePath != null">FILE_PATH=#{filePath},</if>
+  			<if test="fileMd5 != null">FILE_MD5=#{fileMd5},</if>
+  			<if test="fileOrder != null">FILE_ORDER=#{fileOrder},</if>
+  			<if test="fileStatus != null">FILE_STATUS=#{fileStatus},</if>
+  			<if test="status != null">STATUS=#{status},</if>
+  			<if test="createTime != null">CREATE_TIME=#{createTime},</if>
+  			<if test="updateTime != null">UPDATE_TIME=#{updateTime}</if>
+		</set>
+		where ID=#{id}
+	</update>
+
+	<delete id="delete" parameterType="int">
+		delete from PUB_CONFIG_DATA_FILE where ID=#{id}
+	</delete>
+
+	<delete id="deleteByDataId" parameterType="int">
+		delete from PUB_CONFIG_DATA_FILE where DATA_ID=#{id}
+	</delete>
+  
+	<select id="getPubConfigDataFileById" parameterType="int" resultMap="pubConfigDataFileResultMap">
+		select * from PUB_CONFIG_DATA_FILE
+		where ID=#{id} 
+	</select>
+  
+	<select id="countPubConfigDataFile" parameterType="map" resultType="int">
+		select count(*) from PUB_CONFIG_DATA_FILE
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getPubConfigDataFileList" parameterType="map" resultMap="pubConfigDataFileResultMap">
+		select * from PUB_CONFIG_DATA_FILE
+		<include refid="queryCondition"/>
+		order by DATA_ID,FILE_ORDER
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">ID=#{id}</if>
+			<if test="dataId != null">and DATA_ID=#{dataId}</if>
+			<if test="fileType != null">and FILE_TYPE=#{fileType}</if>
+			<if test="fileCode != null">and FILE_CODE=#{fileCode}</if>
+			<if test="fileName != null">and FILE_NAME=#{fileName}</if>
+			<if test="fileDesc != null">and FILE_DESC=#{fileDesc}</if>
+			<if test="fileUrl != null">and FILE_URL=#{fileUrl}</if>
+			<if test="filePath != null">and FILE_PATH=#{filePath}</if>
+			<if test="fileMd5 != null">and FILE_MD5=#{fileMd5}</if>
+			<if test="fileOrder != null">and FILE_ORDER=#{fileOrder}</if>
+			<if test="fileStatus != null">and FILE_STATUS=#{fileStatus}</if>
+			<if test="status != null">and STATUS=#{status}</if>
+			<if test="createTime != null">and CREATE_TIME=#{createTime}</if>
+			<if test="updateTime != null">and UPDATE_TIME=#{updateTime}</if>
+		</where>
+	</sql>
+   
+</mapper>

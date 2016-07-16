@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.stock.StockQuantMoveRelDao" >
+
+	<resultMap id="stockQuantMoveRelResultMap" type="StockQuantMoveRel">
+		<id property="id" column="id"/>
+		<result property="moveId" column="move_id"/>
+		<result property="quantId" column="quant_id"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockQuantMoveRel">
+		insert into stock_quant_move_rel (
+			move_id,quant_id,created_at,updated_at
+    	) values (
+			#{moveId},#{quantId},#{createdAt},#{updatedAt}
+    	)
+	</insert>
+
+	<update id="update" parameterType="StockQuantMoveRel">
+		update stock_quant_move_rel
+    	<set>
+  			<if test="moveId != null">move_id=#{moveId},</if>
+  			<if test="quantId != null">quant_id=#{quantId},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getStockQuantMoveRelById" parameterType="long" resultMap="stockQuantMoveRelResultMap">
+		select * from stock_quant_move_rel
+		where ID=#{id} 
+	</select>
+  
+	<select id="countStockQuantMoveRel" parameterType="map" resultType="int">
+		select count(*) from stock_quant_move_rel
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getStockQuantMoveRelList" parameterType="map" resultMap="stockQuantMoveRelResultMap">
+		select * from stock_quant_move_rel
+		<include refid="queryCondition"/>
+		ORDER BY ID DESC
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="moveId != null">and move_id=#{moveId}</if>
+			<if test="quantId != null">and quant_id=#{quantId}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>

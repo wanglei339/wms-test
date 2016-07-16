@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.system.SysUserDao">
+
+    <resultMap id="sysUserResultMap" type="SysUser">
+        <id property="id" column="ID"/>
+        <result property="loginName" column="LOGIN_NAME"/>
+        <result property="pazzword" column="PAZZWORD"/>
+        <result property="userName" column="USER_NAME"/>
+        <result property="isEffective" column="IS_EFFECTIVE"/>
+        <result property="createdTime" column="CREATED_TIME"/>
+        <result property="updatedTime" column="UPDATED_TIME"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="SysUser">
+		insert into SYS_USER (
+			LOGIN_NAME,PAZZWORD,USER_NAME,IS_EFFECTIVE,CREATED_TIME,UPDATED_TIME
+    	) values (
+			#{loginName},#{pazzword},#{userName},#{isEffective},#{createdTime},#{updatedTime}
+    	)
+	</insert>
+
+    <update id="update" parameterType="SysUser">
+        update SYS_USER
+        <set>
+            <if test="loginName != null">LOGIN_NAME=#{loginName},</if>
+            <if test="pazzword != null">PAZZWORD=#{pazzword},</if>
+            <if test="userName != null">USER_NAME=#{userName},</if>
+            <if test="isEffective != null">IS_EFFECTIVE=#{isEffective},</if>
+            <if test="createdTime != null">CREATED_TIME=#{createdTime},</if>
+            <if test="updatedTime != null">UPDATED_TIME=#{updatedTime}</if>
+        </set>
+        where ID=#{id}
+    </update>
+
+    <select id="getSysUser" parameterType="map" resultMap="sysUserResultMap">
+        select * from SYS_USER
+        <where>
+            <if test="id != null">ID=#{id}</if>
+            <if test="loginName != null">and LOGIN_NAME=#{loginName}</if>
+            <if test="isEffective != null">and IS_EFFECTIVE=#{isEffective}</if>
+        </where>
+        limit 1
+    </select>
+
+    <select id="countSysUser" parameterType="map" resultType="int">
+        select count(*) from SYS_USER
+        <include refid="queryCondition"/>
+    </select>
+
+    <select id="getSysUserList" parameterType="map" resultMap="sysUserResultMap">
+        select * from SYS_USER
+        <include refid="queryCondition"/>
+        order by ID desc
+        <if test="start != null and limit != null">
+            limit #{start},#{limit}
+        </if>
+    </select>
+
+    <select id="getSysUserById" parameterType="int" resultMap="sysUserResultMap">
+        SELECT * from SYS_USER
+        where ID=#{id}
+    </select>
+
+    <sql id="queryCondition">
+        <where>
+            <if test="id != null">ID=#{id}</if>
+            <if test="loginName != null">and LOGIN_NAME=#{loginName}</if>
+            <if test="pazzword != null">and PAZZWORD=#{pazzword}</if>
+            <if test="userName != null">and USER_NAME=#{userName}</if>
+            <if test="isEffective != null">and IS_EFFECTIVE=#{isEffective}</if>
+            <if test="createdTime != null">and CREATED_TIME=#{createdTime}</if>
+            <if test="updatedTime != null">and UPDATED_TIME=#{updatedTime}</if>
+            <if test="keyword != null">
+                and (
+                LOGIN_NAME like concat('%',#{keyword},'%') or USER_NAME like concat('%',#{keyword},'%')
+                )
+            </if>
+        </where>
+    </sql>
+
+</mapper>

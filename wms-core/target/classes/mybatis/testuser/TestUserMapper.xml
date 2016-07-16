@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.testuser.TestUserDao" >
+
+	<resultMap id="testUserResultMap" type="TestUser">
+		<id property="id" column="ID"/>
+		<result property="userCode" column="USER_CODE"/>
+		<result property="userName" column="USER_NAME"/>
+		<result property="status" column="STATUS"/>
+		<result property="createdTime" column="CREATED_TIME"/>
+		<result property="updatedTime" column="UPDATED_TIME"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TestUser">
+		insert into TEST_USER (
+			USER_CODE,USER_NAME,STATUS,CREATED_TIME,UPDATED_TIME
+    	) values (
+			#{userCode},#{userName},#{status},#{createdTime},#{updatedTime}
+    	)
+	</insert>
+
+	<update id="update" parameterType="TestUser">
+		update TEST_USER
+    	<set>
+  			<if test="userCode != null">USER_CODE=#{userCode},</if>
+  			<if test="userName != null">USER_NAME=#{userName},</if>
+  			<if test="status != null">STATUS=#{status},</if>
+  			<if test="createdTime != null">CREATED_TIME=#{createdTime},</if>
+  			<if test="updatedTime != null">UPDATED_TIME=#{updatedTime}</if>
+		</set>
+		where ID=#{id}
+	</update>
+  
+	<select id="getTestUserById" parameterType="int" resultMap="testUserResultMap">
+		select * from TEST_USER
+		where ID=#{id} 
+	</select>
+  
+	<select id="countTestUser" parameterType="map" resultType="int">
+		select count(*) from TEST_USER
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getTestUserList" parameterType="map" resultMap="testUserResultMap">
+		select * from TEST_USER
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">ID=#{id}</if>
+			<if test="userCode != null">and USER_CODE=#{userCode}</if>
+			<if test="userName != null">and USER_NAME=#{userName}</if>
+			<if test="status != null">and STATUS=#{status}</if>
+			<if test="createdTime != null">and CREATED_TIME=#{createdTime}</if>
+			<if test="updatedTime != null">and UPDATED_TIME=#{updatedTime}</if>
+		</where>
+	</sql>
+   
+</mapper>

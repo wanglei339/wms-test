@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.pick.PickAllocDetailDao" >
+
+	<resultMap id="pickAllocDetailResultMap" type="PickAllocDetail">
+		<id property="id" column="id"/>
+		<result property="waveId" column="wave_id"/>
+		<result property="orderId" column="order_id"/>
+		<result property="skuId" column="sku_id"/>
+		<result property="ownerId" column="owner_id"/>
+		<result property="locId" column="loc_id"/>
+		<result property="supplierId" column="supplier_id"/>
+		<result property="reqQty" column="req_qty"/>
+		<result property="allocQty" column="alloc_qty"/>
+		<result property="pickZoneId" column="pick_zone_id"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PickAllocDetail">
+		insert into pick_alloc_detail (
+			wave_id,order_id,sku_id,owner_id,loc_id,supplier_id,
+			req_qty,alloc_qty,pick_zone_id
+    	) values (
+			#{waveId},#{orderId},#{skuId},#{ownerId},#{locId},#{supplierId},
+			#{reqQty},#{allocQty},#{pickZoneId}
+    	)
+	</insert>
+
+	<update id="update" parameterType="PickAllocDetail">
+		update pick_alloc_detail
+    	<set>
+  			<if test="waveId != null">wave_id=#{waveId},</if>
+  			<if test="orderId != null">order_id=#{orderId},</if>
+  			<if test="skuId != null">sku_id=#{skuId},</if>
+  			<if test="ownerId != null">owner_id=#{ownerId},</if>
+  			<if test="locId != null">loc_id=#{locId},</if>
+  			<if test="supplierId != null">supplier_id=#{supplierId},</if>
+  			<if test="reqQty != null">req_qty=#{reqQty},</if>
+  			<if test="allocQty != null">alloc_qty=#{allocQty},</if>
+  			<if test="pickZoneId != null">pick_zone_id=#{pickZoneId}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getPickAllocDetailById" parameterType="int" resultMap="pickAllocDetailResultMap">
+		select * from pick_alloc_detail
+		where ID=#{id} 
+	</select>
+  
+	<select id="countPickAllocDetail" parameterType="map" resultType="int">
+		select count(*) from pick_alloc_detail
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getPickAllocDetailList" parameterType="map" resultMap="pickAllocDetailResultMap">
+		select * from pick_alloc_detail
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="waveId != null">and wave_id=#{waveId}</if>
+			<if test="orderId != null">and order_id=#{orderId}</if>
+			<if test="skuId != null">and sku_id=#{skuId}</if>
+			<if test="ownerId != null">and owner_id=#{ownerId}</if>
+			<if test="locId != null">and loc_id=#{locId}</if>
+			<if test="supplierId != null">and supplier_id=#{supplierId}</if>
+			<if test="reqQty != null">and req_qty=#{reqQty}</if>
+			<if test="allocQty != null">and alloc_qty=#{allocQty}</if>
+			<if test="pickZoneId != null">and pick_zone_id=#{pickZoneId}</if>
+		</where>
+	</sql>
+   
+</mapper>

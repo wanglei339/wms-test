@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.pub.PubConfigPageDao">
+
+    <resultMap id="pubConfigPageResultMap" type="PubConfigPage">
+        <id property="id" column="ID"/>
+        <result property="pageType" column="PAGE_TYPE"/>
+        <result property="pageCode" column="PAGE_CODE"/>
+        <result property="pageName" column="PAGE_NAME"/>
+        <result property="pageDesc" column="PAGE_DESC"/>
+        <result property="conTypeCode" column="CON_TYPE_CODE"/>
+        <result property="cacheType" column="CACHE_TYPE"/>
+        <result property="status" column="STATUS"/>
+        <result property="createdTime" column="CREATED_TIME"/>
+        <result property="updatedTime" column="UPDATED_TIME"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PubConfigPage">
+		insert into PUB_CONFIG_PAGE (
+			PAGE_TYPE,PAGE_CODE,PAGE_NAME,PAGE_DESC,CON_TYPE_CODE,CACHE_TYPE,
+			STATUS,CREATED_TIME,UPDATED_TIME
+    	) values (
+			#{pageType},#{pageCode},#{pageName},#{pageDesc},#{conTypeCode},#{cacheType},
+			#{status},#{createdTime},#{updatedTime}
+    	)
+	</insert>
+
+    <update id="update" parameterType="PubConfigPage">
+        update PUB_CONFIG_PAGE
+        <set>
+            <if test="pageType != null">PAGE_TYPE=#{pageType},</if>
+            <if test="pageCode != null">PAGE_CODE=#{pageCode},</if>
+            <if test="pageName != null">PAGE_NAME=#{pageName},</if>
+            <if test="pageDesc != null">PAGE_DESC=#{pageDesc},</if>
+            <if test="conTypeCode != null">CON_TYPE_CODE=#{conTypeCode},</if>
+            <if test="cacheType != null">CACHE_TYPE=#{cacheType},</if>
+            <if test="status != null">STATUS=#{status},</if>
+            <if test="createdTime != null">CREATED_TIME=#{createdTime},</if>
+            <if test="updatedTime != null">UPDATED_TIME=#{updatedTime}</if>
+        </set>
+        where ID=#{id}
+    </update>
+
+    <select id="getPubConfigPageById" parameterType="int" resultMap="pubConfigPageResultMap">
+		select * from PUB_CONFIG_PAGE
+		where ID=#{id} 
+	</select>
+
+    <select id="countPubConfigPage" parameterType="map" resultType="int">
+        select count(*) from PUB_CONFIG_PAGE
+        <include refid="queryCondition"/>
+    </select>
+
+    <select id="getPubConfigPageList" parameterType="map" resultMap="pubConfigPageResultMap">
+        select * from PUB_CONFIG_PAGE
+        <include refid="queryCondition"/>
+        order by ID desc
+        <if test="start != null and limit != null">
+            limit #{start},#{limit}
+        </if>
+    </select>
+
+    <sql id="queryCondition">
+        <where>
+            <if test="id != null">ID=#{id}</if>
+            <if test="pageType != null">and PAGE_TYPE=#{pageType}</if>
+            <if test="pageCode != null">and PAGE_CODE=#{pageCode}</if>
+            <if test="pageName != null">and PAGE_NAME=#{pageName}</if>
+            <if test="pageDesc != null">and PAGE_DESC=#{pageDesc}</if>
+            <if test="conTypeCode != null">and CON_TYPE_CODE=#{conTypeCode}</if>
+            <if test="cacheType != null">and CACHE_TYPE=#{cacheType}</if>
+            <if test="status != null">and STATUS=#{status}</if>
+            <if test="createdTime != null">and CREATED_TIME=#{createdTime}</if>
+            <if test="updatedTime != null">and UPDATED_TIME=#{updatedTime}</if>
+            <if test="keyword != null">
+                and (
+                PAGE_CODE like concat('%',#{keyword},'%') or PAGE_NAME like concat('%',#{keyword},'%')
+                )
+            </if>
+        </where>
+    </sql>
+
+</mapper>
