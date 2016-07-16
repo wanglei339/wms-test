@@ -58,19 +58,36 @@ public class ItemRpcService implements IItemRpcService {
         return itemService.searchItem(mapQuery);
     }
 
-    public BaseinfoItem insertItem(BaseinfoItem item) {
+
+    public BaseinfoItem insertItem(BaseinfoItem item){
         CsiSku sku = this.getSkuByCode(Integer.valueOf(item.getCodeType()), item.getCode());
-        if(sku == null){
+        if(sku != null){
             item.setSkuId(sku.getSkuId());
-            CsiSku new_sku = new CsiSku();
-            sku = remoteCsiRpcService.insertSku(new_sku);
-            if(sku == null){
-                return null;
-            }
+            itemService.insertItem(item);
+
+        }else{
+            sku = new CsiSku();
+            String code = item.getCode();
+            sku.setCode(code);
+            sku.setCodeType(item.getCodeType().toString());
+            sku.setShelfLife(item.getShelfLife());
+            sku.setSkuName(item.getSkuName());
+            sku.setHeight(item.getHeight());
+            sku.setLength(item.getLength());
+            sku.setWidth(item.getWidth());
+            sku.setWeight(item.getWeight());
+            //生成csi_sku表
+            CsiSku newSku = remoteCsiRpcService.insertSku(sku);
+
+            long skuId = newSku.getSkuId();
+            item.setSkuId(skuId);
+            //生成baseinfoItem表
+            itemService.insertItem(item);
+
         }
-        item.setSkuId(sku.getSkuId());
-        itemService.insertItem(item);
+
         return item;
+
     }
 
     public BaseinfoItem updateItem(BaseinfoItem item) {
