@@ -35,14 +35,14 @@ import java.util.Map;
 @Path("order/po")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-public class PoRestService implements IPoRestService {
+public class PORestService implements IPoRestService {
 
     @Autowired
     private PoOrderService poOrderService;
 
     @POST
     @Path("init")
-    public String init(String poOrderInfo) {
+    public String init(String poOrderInfo) { // test
         InbPoHeader inbPoHeader = JSON.parseObject(poOrderInfo,InbPoHeader.class);
         List<InbPoDetail> inbPoDetailList = JSON.parseArray(inbPoHeader.getOrderDetails(),InbPoDetail.class);
         poOrderService.insertOrder(inbPoHeader,inbPoDetailList);
