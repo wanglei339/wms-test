@@ -80,6 +80,10 @@ public class ItemRestService implements IItemRestService {
             return JsonUtils.EXCEPTION_ERROR("failed");
         }
 
+        if(item_new == null){
+            return JsonUtils.EXCEPTION_ERROR("The record already exists");
+        }
+
         return JsonUtils.SUCCESS(item_new);
     }
 
