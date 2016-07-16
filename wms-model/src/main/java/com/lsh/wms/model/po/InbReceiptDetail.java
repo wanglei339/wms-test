@@ -5,7 +5,7 @@ import java.util.Date;
 
 public class InbReceiptDetail implements Serializable {
 
-	/**  */
+	/** ID */
     private Long id;
 	/** 收货单ID */
     private Long receiptId;
@@ -31,6 +31,10 @@ public class InbReceiptDetail implements Serializable {
     private Long arriveNum;
 	/** 残次数 */
     private Long defectNum;
+	/** 生产日期 */
+	private Date proTime;
+	/** 拒收原因 */
+	private String refuseReason;
 	/**  */
     private String insertby;
 	/**  */
@@ -143,7 +147,15 @@ public class InbReceiptDetail implements Serializable {
 	public void setDefectNum(Long defectNum){
 		this.defectNum = defectNum;
 	}
-	
+
+	public Date getProTime() { return proTime; }
+
+	public void setProTime(Date proTime) { this.proTime = proTime; }
+
+	public String getRefuseReason() { return refuseReason; }
+
+	public void setRefuseReason(String refuseReason) { this.refuseReason = refuseReason; }
+
 	public String getInsertby(){
 		return this.insertby;
 	}

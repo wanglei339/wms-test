@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.item;
 
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoItemDao;
 import com.lsh.wms.core.dao.csi.CsiSkuDao;
 import com.lsh.wms.core.dao.stock.StockQuantDao;
@@ -67,34 +68,27 @@ public class ItemService {
     }
 
     @Transactional(readOnly = false)
-    public int insertItem(BaseinfoItem item){
-        //判断是否存在
-        if(this.getItem(item.getOwnerId(), item.getSkuId())!=null){
-            return -1;
-        }
+    public BaseinfoItem insertItem(BaseinfoItem item){
+        item.setCreatedAt(DateUtils.getCurrentSeconds());
         //创建商品
         itemDao.insert(item);
-        return 0;
+        return item;
     }
 
     @Transactional(readOnly = false)
-    public int updateItem(BaseinfoItem item){
-        //判断是否存在
-        if(this.getItem(item.getOwnerId(), item.getSkuId())==null){
-            return -1;
-        }
+    public void updateItem(BaseinfoItem item){
+        item.setUpdatedAt(DateUtils.getCurrentSeconds());
         //更新商品
         itemDao.update(item);
-        return 0;
     }
 
-    public int deleteItem(BaseinfoItem item){
-        return -1;
-    }
+        public int deleteItem(BaseinfoItem item){
+            return -1;
+        }
 
-    //按品类,sku_id,owner等查询
-    public List<BaseinfoItem> searchItem(Map<String, Object> mapQuery){
-        return itemDao.getBaseinfoItemList(mapQuery);
-    }
+        //按品类,sku_id,owner等查询
+        public List<BaseinfoItem> searchItem(Map<String, Object> mapQuery){
+            return itemDao.getBaseinfoItemList(mapQuery);
+        }
 
 }

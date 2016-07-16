@@ -89,7 +89,7 @@
             </activation>
             <properties>
                 <profile.name>dev</profile.name>
-                <log.file>/Users/fuhao/workspace/logs/provider.log</log.file>
+                <log.file>/data/logs/pub-provider/provider.log</log.file>
                 <db.url>jdbc:mysql://192.168.60.59:5200/lsh_wms?useUnicode=true&amp;autoReconnect=true&amp;characterEncoding=UTF8&amp;allowMultiQueries=true</db.url>
                 <db.username>root</db.username>
                 <db.password></db.password>

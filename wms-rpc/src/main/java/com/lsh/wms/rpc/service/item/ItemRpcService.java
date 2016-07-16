@@ -8,8 +8,10 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.wms.api.service.csi.ICsiRpcService;
 import com.lsh.wms.api.service.item.IItemRpcService;
+import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.rpc.service.csi.CsiRpcService;
 import org.slf4j.Logger;
@@ -30,6 +32,9 @@ public class ItemRpcService implements IItemRpcService {
 
     @Autowired
     private ItemService itemService;
+    @Autowired
+    private ItemLocationService itemLocationService;
+
     @Reference
     private ICsiRpcService remoteCsiRpcService;
 
@@ -53,13 +58,11 @@ public class ItemRpcService implements IItemRpcService {
         return itemService.searchItem(mapQuery);
     }
 
-
     public BaseinfoItem insertItem(BaseinfoItem item) {
         CsiSku sku = this.getSkuByCode(Integer.valueOf(item.getCodeType()), item.getCode());
         if(sku == null){
             item.setSkuId(sku.getSkuId());
             CsiSku new_sku = new CsiSku();
-
             sku = remoteCsiRpcService.insertSku(new_sku);
             if(sku == null){
                 return null;
@@ -70,9 +73,40 @@ public class ItemRpcService implements IItemRpcService {
         return item;
     }
 
-    public int updateItem(BaseinfoItem item) {
-        return itemService.updateItem(item);
+    public BaseinfoItem updateItem(BaseinfoItem item) {
+        if(itemService.getItem(item.getOwnerId(),item.getSkuId()) == null){
+            return null;
+        }
+        itemService.updateItem(item);
+        return item;
     }
 
+    public List<BaseinfoItemLocation> getItemLocationList(long iSkuId, long iOwnerId) {
+        return itemLocationService.getItemLocationList(iSkuId,iOwnerId);
+    }
+
+    public List<BaseinfoItemLocation> getItemLocationByLocationID(long iLocationId) {
+        return itemLocationService.getItemLocationByLocationID(iLocationId);
+    }
+
+    public BaseinfoItemLocation insertItemLocation(BaseinfoItemLocation itemLocation) {
+        //查询是否存在该Item
+        long skuId = itemLocation.getSkuId();
+        long ownerId = itemLocation.getOwnerId();
+        BaseinfoItem item = itemService.getItem(ownerId,skuId);
+        if(item == null){
+            return null;
+        }
+        return itemLocationService.insertItemLocation(itemLocation);
+    }
+
+    public BaseinfoItemLocation updateItemLocation(BaseinfoItemLocation itemLocation) {
+        //查询是否存在该记录
+        if(itemLocationService.getItemLocation(itemLocation.getId()) == null){
+            return null;
+        }
+        itemLocationService.updateItemLocation(itemLocation);
+        return itemLocation;
+    }
 
 }

@@ -16,6 +16,8 @@
 		<result property="inboundQty" column="INBOUND_QTY"/>
 		<result property="arriveNum" column="ARRIVE_NUM"/>
 		<result property="defectNum" column="DEFECT_NUM"/>
+        <result property="proTime" column="PRO_TIME"/>
+        <result property="refuseReason" column="REFUSE_REASON"/>
 		<result property="insertby" column="INSERTBY"/>
 		<result property="updateby" column="UPDATEBY"/>
 		<result property="inserttime" column="INSERTTIME"/>
@@ -25,11 +27,11 @@
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="InbReceiptDetail">
 		insert into inb_receipt_detail (
 			RECEIPT_ID,ORDER_ID,LOT_NUM,SKU_ID,SKU_NAME,BAR_CODE,
-			ORDER_QTY,PACK_UNIT,MADEIN,INBOUND_QTY,ARRIVE_NUM,DEFECT_NUM,
+			ORDER_QTY,PACK_UNIT,MADEIN,INBOUND_QTY,ARRIVE_NUM,DEFECT_NUM,PRO_TIME,REFUSE_REASON,
 			INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME
     	) values (
 			#{receiptId},#{orderId},#{lotNum},#{skuId},#{skuName},#{barCode},
-			#{orderQty},#{packUnit},#{madein},#{inboundQty},#{arriveNum},#{defectNum},
+			#{orderQty},#{packUnit},#{madein},#{inboundQty},#{arriveNum},#{defectNum},#{proTime},#{refuseReason},
 			#{insertby},#{updateby},#{inserttime},#{updatetime}
     	)
 	</insert>
@@ -39,12 +41,12 @@
 	<insert id="batchInsert" parameterType="java.util.List">
 		insert into inb_receipt_detail (
 		RECEIPT_ID,ORDER_ID,LOT_NUM,SKU_ID,SKU_NAME,BAR_CODE,ORDER_QTY,
-		PACK_UNIT,MADEIN,INBOUND_QTY,ARRIVE_NUM,DEFECT_NUM,INSERTBY,
+		PACK_UNIT,MADEIN,INBOUND_QTY,ARRIVE_NUM,DEFECT_NUM,PRO_TIME,REFUSE_REASON,INSERTBY,
 		UPDATEBY,INSERTTIME,UPDATETIME
 		) values
 		<foreach collection="list" item="item" index="index" separator="," >
 			(#{item.receiptId},#{item.orderId},#{item.lotNum},#{item.skuId},#{item.skuName},#{item.barCode},#{item.orderQty},
-			#{item.packUnit},#{item.madein},#{item.inboundQty},#{item.arriveNum},#{item.defectNum},#{item.insertby},
+			#{item.packUnit},#{item.madein},#{item.inboundQty},#{item.arriveNum},#{item.defectNum},#{item.proTime},#{item.refuseReason},#{item.insertby},
 			#{item.updateby},now(),#{item.updatetime})
 		</foreach>
 	</insert>
@@ -66,6 +68,8 @@
   			<if test="inboundQty != null">INBOUND_QTY=#{inboundQty},</if>
   			<if test="arriveNum != null">ARRIVE_NUM=#{arriveNum},</if>
   			<if test="defectNum != null">DEFECT_NUM=#{defectNum},</if>
+            <if test="proTime != null">PRO_TIME=#{proTime},</if>
+            <if test="refuseReason != null">REFUSE_REASON=#{refuseReason},</if>
   			<if test="insertby != null">INSERTBY=#{insertby},</if>
   			<if test="updateby != null">UPDATEBY=#{updateby},</if>
   			<if test="inserttime != null">INSERTTIME=#{inserttime},</if>
@@ -107,6 +111,8 @@
 			<if test="inboundQty != null">and INBOUND_QTY=#{inboundQty}</if>
 			<if test="arriveNum != null">and ARRIVE_NUM=#{arriveNum}</if>
 			<if test="defectNum != null">and DEFECT_NUM=#{defectNum}</if>
+            <if test="proTime != null">and PRO_TIME=#{proTime}</if>
+            <if test="refuseReason != null">and REFUSE_REASON=#{refuseReason}</if>
 			<if test="insertby != null">and INSERTBY=#{insertby}</if>
 			<if test="updateby != null">and UPDATEBY=#{updateby}</if>
 			<if test="inserttime != null">and INSERTTIME=#{inserttime}</if>

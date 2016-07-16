@@ -24,6 +24,7 @@ import java.util.Map;
 @Component
 @Transactional(readOnly = true)
 public class PoOrderService {
+
     @Autowired
     private InbPoHeaderDao inbPoHeaderDao;
 
@@ -31,10 +32,11 @@ public class PoOrderService {
     private InbPoDetailDao inbPoDetailDao;
 
     @Transactional(readOnly = false)
-    public void orderInit(InbPoHeader inbPoHeader, List<InbPoDetail> inbPoDetailList){
+    public void insertOrder(InbPoHeader inbPoHeader, List<InbPoDetail> inbPoDetailList) {
         inbPoHeader.setInserttime(new Date());
+        inbPoHeader.setOrderStatus(1);
         inbPoHeaderDao.insert(inbPoHeader);
-        for (InbPoDetail inbPoDetai: inbPoDetailList) {
+        for (InbPoDetail inbPoDetai : inbPoDetailList) {
             inbPoDetai.setOrderId(inbPoHeader.getId());
         }
         inbPoDetailDao.batchInsert(inbPoDetailList);

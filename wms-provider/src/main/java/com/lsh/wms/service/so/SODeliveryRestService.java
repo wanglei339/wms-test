@@ -4,13 +4,10 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.wms.api.service.so.ISODeliveryRestService;
+import com.lsh.wms.api.service.so.IDeliveryRestService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
-import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
-import com.lsh.wms.model.so.OutbSoDetail;
-import com.lsh.wms.model.so.OutbSoHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.Consumes;
@@ -33,7 +30,7 @@ import java.util.List;
 @Path("order/so/delivery")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-public class SODeliveryRestService implements ISODeliveryRestService {
+public class SODeliveryRestService implements IDeliveryRestService {
     @Autowired
     private SoDeliveryService soDeliveryService;
 

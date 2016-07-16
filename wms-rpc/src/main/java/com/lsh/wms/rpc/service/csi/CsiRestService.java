@@ -1,6 +1,7 @@
 package com.lsh.wms.rpc.service.csi;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.dubbo.remoting.ExecutionException;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.csi.ICsiRestService;
@@ -9,6 +10,7 @@ import com.lsh.wms.model.csi.CsiOwner;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.csi.CsiSupplier;
 import net.sf.json.util.JSONUtils;
+import org.apache.log4j.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,62 +76,109 @@ public class CsiRestService implements ICsiRestService {
     @POST
     @Path("insertSku")
     public String insertSku(CsiSku sku){
-        return JsonUtils.SUCCESS(csiRpcService.insertSku(sku));
+        CsiSku newSku;
+        try{
+            newSku = csiRpcService.insertSku(sku);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("failed");
+        }
+        return JsonUtils.SUCCESS(newSku);
     }
 
     @POST
     @Path("updateSku")
     public String updateSku(CsiSku sku){
-        int result = csiRpcService.updateSku(sku);
-        if (result == 0)
-            return "更新成功!!";
-        else return "更新失败!!!";
+        if(csiRpcService.getSku(sku.getSkuId()) == null){
+            return JsonUtils.EXCEPTION_ERROR("The record does not exist");
+        }
 
+        try{
+            csiRpcService.updateSku(sku);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("failed");
+        }
+        return JsonUtils.SUCCESS();
     }
 
     @POST
     @Path("insertSupplier")
     public String insertSupplier(CsiSupplier supplier){
-        return JsonUtils.SUCCESS(csiRpcService.insertSupplier(supplier));
+        try{
+            csiRpcService.insertSupplier(supplier);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("failed");
+        }
+        return JsonUtils.SUCCESS();
     }
 
     @POST
     @Path("updateSupplier")
     public String updateSupplier(CsiSupplier supplier){
-        int result = csiRpcService.updateSupplier(supplier);
-        if (result == 0)
-            return "更新成功!!";
-        else
-            return "更新失败!!!";
+        try{
+            csiRpcService.updateSupplier(supplier);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("failed");
+        }
+        return JsonUtils.SUCCESS();
     }
 
     @POST
     @Path("insertOwner")
     public String insertOwner(CsiOwner owner) {
-        return JsonUtils.SUCCESS(csiRpcService.insertOwner(owner));
+        try{
+            csiRpcService.insertOwner(owner);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("failed");
+        }
+        return JsonUtils.SUCCESS();
     }
     @POST
     @Path("updateOwner")
     public String updateOwner(CsiOwner owner) {
-        int result = csiRpcService.updateOwner(owner);
-        if (result == 0)
-            return "更新成功!!";
-        else
-            return "更新失败!!!";
+        if(csiRpcService.getOwner(owner.getOwnerId()) == null){
+            return JsonUtils.EXCEPTION_ERROR("The record does not exist");
+        }
+        try{
+            csiRpcService.updateOwner(owner);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("failed");
+        }
+        return JsonUtils.SUCCESS();
     }
     @POST
     @Path("insertCategory")
     public String insertCategory(CsiCategory category) {
-        return JsonUtils.SUCCESS(csiRpcService.insertCategory(category));
+        try{
+            csiRpcService.insertCategory(category);
+        }catch(Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("failed");
+        }
+
+        return JsonUtils.SUCCESS();
     }
     @POST
     @Path("updateCategory")
     public String updateCategory(CsiCategory category) {
-        int result = csiRpcService.updateCategory(category);
-        if (result == 0)
-            return "更新成功!!";
-        else
-            return "更新失败!!!";
+        if(csiRpcService.getCatChilds(category.getCatId()) == null){
+            return JsonUtils.EXCEPTION_ERROR("The record does not exist");
+        }
+        try{
+            csiRpcService.updateCategory(category);
+        }catch(Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("failed");
+        }
+        return JsonUtils.SUCCESS();
+
+
+
     }
 
 }

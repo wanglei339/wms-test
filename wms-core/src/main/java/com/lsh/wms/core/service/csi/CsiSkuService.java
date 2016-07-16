@@ -1,5 +1,7 @@
 package com.lsh.wms.core.service.csi;
 
+import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.csi.CsiSkuDao;
 import com.lsh.wms.model.csi.CsiSku;
 import org.slf4j.Logger;
@@ -79,42 +81,20 @@ public class CsiSkuService {
         return new_sku;
     }
     @Transactional(readOnly = false)
-    public CsiSku insertSku(CsiSku sku){
-        if(sku.getSkuId()==0){
-            CsiSku o_sku = this.getSkuByCode(Integer.valueOf(sku.getCodeType()), sku.getCode());
-            if(o_sku == null){
-                //gen sku_id
-                int iSkuId = 0;
-                int count = skuDao.countCsiSku(null);
-                if(count==0){
-                    iSkuId = 100001;
-                }else{
-                    iSkuId = 100001 + count;
-                }
-                sku.setSkuId((long)iSkuId);
-            }else{
-                sku.setSkuId(o_sku.getSkuId());
-                return sku;
-            }
-        }
+    public void insertSku(CsiSku sku){
+        long iSkuId = RandomUtils.genId();
+        sku.setSkuId(iSkuId);
         //增加新增时间
-        long createdAt = new Date().getTime()/1000;
-        sku.setCreatedAt(createdAt);
+        sku.setCreatedAt(DateUtils.getCurrentSeconds());
         this.skuDao.insert(sku);
         //更新缓存
         m_SkuCache.put(sku.getSkuId(),sku);
-        return sku;
     }
 
     @Transactional(readOnly = false)
-    public int updateSku(CsiSku sku){
-        //判断是否存在
-        if(this.getSku(sku.getSkuId()) == null){
-            return -1;
-        }
+    public void updateSku(CsiSku sku){
         //增加更新时间
-        long updatedAt = new Date().getTime()/1000;
-        sku.setUpdatedAt(updatedAt);
+        sku.setUpdatedAt(DateUtils.getCurrentSeconds());
         //更新商品
         skuDao.update(sku);
 
@@ -123,7 +103,5 @@ public class CsiSkuService {
         mapQuery.put("skuId", sku.getSkuId());
         CsiSku newSku = skuDao.getCsiSkuList(mapQuery).get(0);
         m_SkuCache.put(sku.getSkuId(),newSku);
-
-        return 0;
     }
 }

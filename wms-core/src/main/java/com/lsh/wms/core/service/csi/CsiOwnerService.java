@@ -1,5 +1,7 @@
 package com.lsh.wms.core.service.csi;
 
+import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.csi.CsiOwnerDao;
 import com.lsh.wms.model.csi.CsiCategory;
 import com.lsh.wms.model.csi.CsiOwner;
@@ -47,35 +49,20 @@ public class CsiOwnerService {
     }
 
     @Transactional(readOnly = false)
-    public CsiOwner insertOwner(CsiOwner owner){
-        if(owner.getOwnerId() == 0){
-            int iOwnerid = 0;
-            int count = ownerDao.countCsiOwner(null);
-            if(count == 0){
-                iOwnerid = 1;
-            }else{
-                iOwnerid = count+1;
-            }
-            owner.setOwnerId((long)iOwnerid);
-        }
+    public void insertOwner(CsiOwner owner){
+        long iOwnerid = RandomUtils.genId();
+        owner.setOwnerId(iOwnerid);
         //增加新增时间
-        long createdAt = new Date().getTime()/1000;
-        owner.setCreatedAt(createdAt);
+        owner.setCreatedAt(DateUtils.getCurrentSeconds());
         ownerDao.insert(owner);
         //更新缓存
         m_OwnerCache.put(owner.getOwnerId(),owner);
-
-        return owner;
     }
 
     @Transactional(readOnly = false)
-    public int updateOwner(CsiOwner owner){
-        if(this.getOwner(owner.getOwnerId()) == null){
-            return -1;
-        }
+    public void updateOwner(CsiOwner owner){
         //增加更新时间
-        long updatedAt = new Date().getTime()/1000;
-        owner.setUpdatedAt(updatedAt);
+        owner.setUpdatedAt(DateUtils.getCurrentSeconds());
         ownerDao.update(owner);
 
         //更新缓存中的数据
@@ -84,6 +71,5 @@ public class CsiOwnerService {
         mapQuery.put("ownerId", owner.getOwnerId());
         CsiOwner newOwner = ownerDao.getCsiOwnerList(mapQuery).get(0);
         m_OwnerCache.put(owner.getOwnerId(),newOwner);
-        return 0;
     }
 }

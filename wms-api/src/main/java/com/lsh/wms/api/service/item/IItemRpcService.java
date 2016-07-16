@@ -2,6 +2,7 @@ package com.lsh.wms.api.service.item;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.csi.CsiSku;
 
 import java.util.List;
@@ -19,5 +20,11 @@ public interface IItemRpcService {
     public List<BaseinfoItem> searchItem(Map<String, Object> mapQuery);
     public BaseinfoItem insertItem(BaseinfoItem item);
 
-    int updateItem(BaseinfoItem item);
+    BaseinfoItem updateItem(BaseinfoItem item);
+
+    List<BaseinfoItemLocation> getItemLocationList(long iSkuId, long iOwnerId);
+    List<BaseinfoItemLocation> getItemLocationByLocationID(long iLocationId);
+
+    BaseinfoItemLocation insertItemLocation(BaseinfoItemLocation itemLocation);
+    BaseinfoItemLocation updateItemLocation(BaseinfoItemLocation itemLocation);
 }

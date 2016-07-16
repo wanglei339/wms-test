@@ -10,7 +10,9 @@ import java.util.Map;
 public interface InbReceiptDetailDao {
 
 	void insert(InbReceiptDetail inbReceiptDetail);
+
 	void batchInsert(List<InbReceiptDetail> list);
+
 	void update(InbReceiptDetail inbReceiptDetail);
 	
 	InbReceiptDetail getInbReceiptDetailById(Long id);
