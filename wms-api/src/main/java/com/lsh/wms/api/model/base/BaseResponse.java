@@ -14,7 +14,7 @@ public class BaseResponse implements Serializable{
     /**
      * 返回信息
      */
-    private String meg;
+    private String msg;
     /**
      * 返回时间
      */
@@ -28,12 +28,12 @@ public class BaseResponse implements Serializable{
         this.status = status;
     }
 
-    public String getMeg() {
-        return meg;
+    public String getMsg() {
+        return msg;
     }
 
-    public void setMeg(String meg) {
-        this.meg = meg;
+    public void setMsg(String msg) {
+        this.msg = msg;
     }
 
     public Date getDataKey() {

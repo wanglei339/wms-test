@@ -66,8 +66,9 @@ public class ItemRpcService implements IItemRpcService {
             itemService.insertItem(item);
 
         }else{
-
-            sku.setCode(item.getCode());
+            sku = new CsiSku();
+            String code = item.getCode();
+            sku.setCode(code);
             sku.setCodeType(item.getCodeType().toString());
             sku.setShelfLife(item.getShelfLife());
             sku.setSkuName(item.getSkuName());
