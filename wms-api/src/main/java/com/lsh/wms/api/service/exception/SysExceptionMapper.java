@@ -24,7 +24,7 @@ public class SysExceptionMapper implements ExceptionMapper<Throwable> {
         StringBuffer msg = new StringBuffer();
         msg.append(throwable.getMessage());
         msg.append(" case by :");
-        msg.append(throwable.getCause().getMessage());
+        msg.append(throwable.getCause()!=null?throwable.getCause().getMessage():"");
         responseBaseVo.setMsg(msg.toString());
         Response response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(responseBaseVo).type(ContentType.APPLICATION_JSON_UTF_8).build();
         return  response;

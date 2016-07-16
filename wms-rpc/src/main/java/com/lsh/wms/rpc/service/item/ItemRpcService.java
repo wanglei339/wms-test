@@ -60,6 +60,10 @@ public class ItemRpcService implements IItemRpcService {
 
 
     public BaseinfoItem insertItem(BaseinfoItem item){
+        //检查是否存在该Item
+        if(this.getSkuByCode(item.getCodeType(),item.getCode()) != null){
+            return null;
+        }
         CsiSku sku = this.getSkuByCode(Integer.valueOf(item.getCodeType()), item.getCode());
         if(sku != null){
             item.setSkuId(sku.getSkuId());
