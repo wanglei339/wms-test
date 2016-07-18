@@ -18,9 +18,9 @@ public class OutbSoHeader implements Serializable {
 	/** 订单类型 1进货单，2退货单 */
     private Integer orderType;
 	/** TMS线路号 */
-    private Long tmsLine;
+    private Long waveId;
 	/** TMS顺序号 */
-    private Integer tmsIndex;
+    private Integer waveIndex;
 	/** 交货时间 */
     private Date transTime;
 	/** 订单状态，0取消，1正常，2拣货，3QC,4出库 */
@@ -35,17 +35,7 @@ public class OutbSoHeader implements Serializable {
     private Date inserttime;
 	/**  */
     private Date updatetime;
-
-	private String orderDetails;
-
-	public String getOrderDetails() {
-		return orderDetails;
-	}
-
-	public void setOrderDetails(String orderDetails) {
-		this.orderDetails = orderDetails;
-	}
-
+	
 	public Long getId(){
 		return this.id;
 	}
@@ -94,20 +84,20 @@ public class OutbSoHeader implements Serializable {
 		this.orderType = orderType;
 	}
 	
-	public Long getTmsLine(){
-		return this.tmsLine;
+	public Long getWaveId(){
+		return this.waveId;
 	}
 	
-	public void setTmsLine(Long tmsLine){
-		this.tmsLine = tmsLine;
+	public void setWaveId(Long waveId){
+		this.waveId = waveId;
 	}
 	
-	public Integer getTmsIndex(){
-		return this.tmsIndex;
+	public Integer getWaveIndex(){
+		return this.waveIndex;
 	}
 	
-	public void setTmsIndex(Integer tmsIndex){
-		this.tmsIndex = tmsIndex;
+	public void setWaveIndex(Integer waveIndex){
+		this.waveIndex = waveIndex;
 	}
 	
 	public Date getTransTime(){

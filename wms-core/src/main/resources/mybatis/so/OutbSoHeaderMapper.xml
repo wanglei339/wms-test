@@ -9,8 +9,8 @@
 		<result property="soUser" column="SO_USER"/>
 		<result property="ownerUid" column="OWNER_UID"/>
 		<result property="orderType" column="ORDER_TYPE"/>
-		<result property="tmsLine" column="TMS_LINE"/>
-		<result property="tmsIndex" column="TMS_INDEX"/>
+		<result property="waveId" column="WAVE_ID"/>
+		<result property="waveIndex" column="WAVE_INDEX"/>
 		<result property="transTime" column="TRANS_TIME"/>
 		<result property="orderStatus" column="ORDER_STATUS"/>
 		<result property="deliveryAddrs" column="DELIVERY_ADDRS"/>
@@ -22,12 +22,12 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="OutbSoHeader">
 		insert into OUTB_SO_HEADER (
-			WAREHOUSE_ID,SO_CODE,SO_USER,OWNER_UID,ORDER_TYPE,TMS_LINE,
-			TMS_INDEX,TRANS_TIME,ORDER_STATUS,DELIVERY_ADDRS,INSERTBY,UPDATEBY,
+			WAREHOUSE_ID,SO_CODE,SO_USER,OWNER_UID,ORDER_TYPE,WAVE_ID,
+			WAVE_INDEX,TRANS_TIME,ORDER_STATUS,DELIVERY_ADDRS,INSERTBY,UPDATEBY,
 			INSERTTIME,UPDATETIME
     	) values (
-			#{warehouseId},#{soCode},#{soUser},#{ownerUid},#{orderType},#{tmsLine},
-			#{tmsIndex},#{transTime},#{orderStatus},#{deliveryAddrs},#{insertby},#{updateby},
+			#{warehouseId},#{soCode},#{soUser},#{ownerUid},#{orderType},#{waveId},
+			#{waveIndex},#{transTime},#{orderStatus},#{deliveryAddrs},#{insertby},#{updateby},
 			#{inserttime},#{updatetime}
     	)
 	</insert>
@@ -40,8 +40,8 @@
   			<if test="soUser != null">SO_USER=#{soUser},</if>
   			<if test="ownerUid != null">OWNER_UID=#{ownerUid},</if>
   			<if test="orderType != null">ORDER_TYPE=#{orderType},</if>
-  			<if test="tmsLine != null">TMS_LINE=#{tmsLine},</if>
-  			<if test="tmsIndex != null">TMS_INDEX=#{tmsIndex},</if>
+  			<if test="waveId != null">WAVE_ID=#{waveId},</if>
+  			<if test="waveIndex != null">WAVE_INDEX=#{waveIndex},</if>
   			<if test="transTime != null">TRANS_TIME=#{transTime},</if>
   			<if test="orderStatus != null">ORDER_STATUS=#{orderStatus},</if>
   			<if test="deliveryAddrs != null">DELIVERY_ADDRS=#{deliveryAddrs},</if>
@@ -79,8 +79,8 @@
 			<if test="soUser != null">and SO_USER=#{soUser}</if>
 			<if test="ownerUid != null">and OWNER_UID=#{ownerUid}</if>
 			<if test="orderType != null">and ORDER_TYPE=#{orderType}</if>
-			<if test="tmsLine != null">and TMS_LINE=#{tmsLine}</if>
-			<if test="tmsIndex != null">and TMS_INDEX=#{tmsIndex}</if>
+			<if test="waveId != null">and WAVE_ID=#{waveId}</if>
+			<if test="waveIndex != null">and WAVE_INDEX=#{waveIndex}</if>
 			<if test="transTime != null">and TRANS_TIME=#{transTime}</if>
 			<if test="orderStatus != null">and ORDER_STATUS=#{orderStatus}</if>
 			<if test="deliveryAddrs != null">and DELIVERY_ADDRS=#{deliveryAddrs}</if>
