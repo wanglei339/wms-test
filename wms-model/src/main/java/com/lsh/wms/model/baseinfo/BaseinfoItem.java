@@ -37,35 +37,35 @@ public class BaseinfoItem implements Serializable {
 	/** 基本单位-重量 */
 	private BigDecimal weight;
 	/** 2级包装－长 */
-	private BigDecimal l2Length;
+	private BigDecimal l2Length = new BigDecimal(0);
 	/** 2级包装－宽 */
-	private BigDecimal l2Width;
+	private BigDecimal l2Width= new BigDecimal(0);
 	/** 2级包装－高 */
-	private BigDecimal l2Height;
+	private BigDecimal l2Height= new BigDecimal(0);
 	/** 2级包装－重量 */
-	private BigDecimal l2Weight;
+	private BigDecimal l2Weight= new BigDecimal(0);
 	/** 2级包装单位－含有基本单位个数 */
-	private BigDecimal l2Unit;
+	private BigDecimal l2Unit= new BigDecimal(0);
 	/** 外包装－长 */
-	private BigDecimal packLength;
+	private BigDecimal packLength= new BigDecimal(0);
 	/** 外包装－宽 */
-	private BigDecimal packWidth;
+	private BigDecimal packWidth= new BigDecimal(0);
 	/** 外包装－高 */
-	private BigDecimal packHeight;
+	private BigDecimal packHeight= new BigDecimal(0);
 	/** 外包装－重量 */
-	private BigDecimal packWeight;
+	private BigDecimal packWeight= new BigDecimal(0);
 	/** 外包装单位-含有基本单位个数 */
-	private BigDecimal packUnit;
+	private BigDecimal packUnit= new BigDecimal(0);
 	/** 售卖单位 */
-	private BigDecimal saleUnit;
+	private BigDecimal saleUnit= new BigDecimal(0);
 	/** 商品等级，对应A,B,C */
-	private Integer itemLevel;
+	private Integer itemLevel =0;
 	/**  */
 	private Long createdAt = 0L;
 	/**  */
 	private Long updatedAt = 0L;
 	/** 产地 */
-	private String producePlace;
+	private String producePlace = "";
 	/** 批次号要求 */
 	private Integer batchNeeded;
 	/** 是否可放置地堆 */
@@ -75,11 +75,11 @@ public class BaseinfoItem implements Serializable {
 	/** 安全库存 */
 	private BigDecimal safetyQty;
 	/** 码盘规则 */
-	private Long pileX;
+	private Long pileX = 0l;
 	/** 码盘规则 */
-	private Long pileY;
+	private Long pileY =0l;
 	/** 码盘规则 */
-	private Long pileZ;
+	private Long pileZ =0l;
 
 	public Long getId(){
 		return this.id;

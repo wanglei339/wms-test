@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.baseinfo.BaseinfoStaffJobRelationDao" >
+
+	<resultMap id="baseinfoStaffJobRelationResultMap" type="BaseinfoStaffJobRelation">
+		<id property="id" column="id"/>
+		<result property="staffId" column="staff_id"/>
+		<result property="jobId" column="job_id"/>
+		<result property="recordStatus" column="record_status"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoStaffJobRelation">
+		insert into baseinfo_staff_job_relation (
+			staff_id,job_id,record_status,created_at,updated_at
+    	) values (
+			#{staffId},#{jobId},#{recordStatus},#{createdAt},#{updatedAt}
+    	)
+	</insert>
+
+	<update id="update" parameterType="BaseinfoStaffJobRelation">
+		update baseinfo_staff_job_relation
+    	<set>
+  			<if test="staffId != null">staff_id=#{staffId},</if>
+  			<if test="jobId != null">job_id=#{jobId},</if>
+  			<if test="recordStatus != null">record_status=#{recordStatus},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getBaseinfoStaffJobRelationById" parameterType="int" resultMap="baseinfoStaffJobRelationResultMap">
+		select * from baseinfo_staff_job_relation
+		where ID=#{id} 
+	</select>
+  
+	<select id="countBaseinfoStaffJobRelation" parameterType="map" resultType="int">
+		select count(*) from baseinfo_staff_job_relation
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getBaseinfoStaffJobRelationList" parameterType="map" resultMap="baseinfoStaffJobRelationResultMap">
+		select * from baseinfo_staff_job_relation
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="staffId != null">and staff_id=#{staffId}</if>
+			<if test="jobId != null">and job_id=#{jobId}</if>
+			<if test="recordStatus != null">and record_status=#{recordStatus}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>

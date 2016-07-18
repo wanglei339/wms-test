@@ -32,25 +32,12 @@ public class PoOrderService {
     private InbPoDetailDao inbPoDetailDao;
 
     @Transactional(readOnly = false)
-    public void orderInit(InbPoHeader inbPoHeader, List<InbPoDetail> inbPoDetailList){
-        inbPoHeader.setInserttime(new Date());
-        inbPoHeaderDao.insert(inbPoHeader);
-        for (InbPoDetail inbPoDetai: inbPoDetailList) {
-            inbPoDetai.setOrderId(inbPoHeader.getId());
-        }
-        inbPoDetailDao.batchInsert(inbPoDetailList);
-    }
-
-    @Transactional(readOnly = false)
     public void insertOrder(InbPoHeader inbPoHeader, List<InbPoDetail> inbPoDetailList) {
-        //插入订单
         inbPoHeader.setInserttime(new Date());
         inbPoHeader.setOrderStatus(1);
         inbPoHeaderDao.insert(inbPoHeader);
-
-        //插入订单子项
-        for(InbPoDetail inbPoDetail : inbPoDetailList) {
-            inbPoDetail.setOrderId(inbPoHeader.getId());
+        for (InbPoDetail inbPoDetai : inbPoDetailList) {
+            inbPoDetai.setOrderId(inbPoHeader.getId());
         }
         inbPoDetailDao.batchInsert(inbPoDetailList);
     }

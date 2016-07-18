@@ -1,7 +1,6 @@
 package com.lsh.wms.api.service.staff;
 
-import com.alibaba.dubbo.config.annotation.Service;
-import com.lsh.wms.model.baseinfo.BaseinfoDepartment;
+import com.lsh.wms.model.baseinfo.BaseinfoStaffDepartment;
 
 import java.util.List;
 import java.util.Map;
@@ -11,9 +10,9 @@ import java.util.Map;
  */
 
 public interface IStaffRpcService {
-    public List<BaseinfoDepartment> getDepartmentList(Map<String, Object> mapQuery);
+    public List<BaseinfoStaffDepartment> getDepartmentList(Map<String, Object> mapQuery);
 
-    public void addDepartment(BaseinfoDepartment department);
+    public void addDepartment(BaseinfoStaffDepartment department);
 
-    public void updateDepartment(BaseinfoDepartment department);
+    public void updateDepartment(BaseinfoStaffDepartment department);
 }

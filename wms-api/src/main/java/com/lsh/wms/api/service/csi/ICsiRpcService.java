@@ -13,27 +13,27 @@ import java.util.List;
  */
 @Service(protocol = "dubbo")
 public interface ICsiRpcService {
-    public CsiCategory getCatInfo(int iCatId);
-    public List<CsiCategory> getCatFull(int iCatId);
-    public List<CsiCategory> getCatChilds(int iCatId);
+    public CsiCategory getCatInfo(long iCatId);
+    public List<CsiCategory> getCatFull(long iCatId);
+    public List<CsiCategory> getCatChilds(long iCatId);
 
-    public CsiOwner getOwner(int iOwnerId);
+    public CsiOwner getOwner(long iOwnerId);
 
     public CsiSku getSku(long iSkuId);
     public CsiSku getSkuByCode(int iCodeType, String sCode);
-    public CsiSku insertSku(CsiSku sku);
+    CsiSku insertSku(CsiSku sku);
 
-    public CsiSupplier getSupplier(int iSupplierId);
+    public CsiSupplier getSupplier(long iSupplierId);
 
-    public int updateSku(CsiSku sku);
+    void updateSku(CsiSku sku);
 
-    public CsiSupplier insertSupplier(CsiSupplier supplier);
-    int updateSupplier(CsiSupplier supplier);
+    void insertSupplier(CsiSupplier supplier);
+    void updateSupplier(CsiSupplier supplier);
 
-    CsiCategory insertCategory(CsiCategory category);
-    int updateCategory(CsiCategory category);
+    void insertCategory(CsiCategory category);
+    void updateCategory(CsiCategory category);
 
-    CsiOwner insertOwner(CsiOwner owner);
-    int updateOwner(CsiOwner owner);
+    void insertOwner(CsiOwner owner);
+    void updateOwner(CsiOwner owner);
 
 }

@@ -1,16 +1,19 @@
 package com.lsh.wms.rpc.service.staff;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.dubbo.rpc.RpcContext;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
-import com.google.common.collect.Maps;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.staff.IStaffRestService;
-import com.lsh.wms.model.baseinfo.BaseinfoDepartment;
+import com.lsh.wms.core.constant.StaffConstant;
+import com.lsh.wms.model.baseinfo.BaseinfoStaffDepartment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
@@ -36,30 +39,45 @@ public class StaffRestService implements IStaffRestService{
     @Path("getDepartmentList")
     public String getDepartmentList() {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
-        List<BaseinfoDepartment> departmentList = this.staffRpcService.getDepartmentList(mapQuery);
+        List<BaseinfoStaffDepartment> departmentList = staffRpcService.getDepartmentList(mapQuery);
         return JsonUtils.SUCCESS(departmentList);
     }
 
     @POST
     @Path("addDepartment")
-    public String addDepartment(String sDepartmentName) {
-        long now = System.currentTimeMillis();
-        long iDepartmentId = Long.parseLong(RandomUtils.uuid2());
-        BaseinfoDepartment department = new BaseinfoDepartment();
+    public String addDepartment() {
+        HttpServletRequest  request = (HttpServletRequest)RpcContext .getContext().getRequest();
+        String sDepartmentName = request.getParameter("departmentName");
+        long iDepartmentId = RandomUtils.genId();
+        BaseinfoStaffDepartment department = new BaseinfoStaffDepartment();
         department.setDepartmentId(iDepartmentId);
         department.setDepartmentName(sDepartmentName);
-        department.setStatus(1);
-        department.setCreatedAt(now);
-        department.setUpdatedAt(now);
+        department.setRecordStatus(StaffConstant.RECORD_STATUS_NORMAL);
         staffRpcService.addDepartment(department);
         return JsonUtils.SUCCESS(department);
     }
 
-    public String updateDepartment(String sDepartmentName) {
-        return null;
+    @POST
+    @Path("updateDepartment")
+    public String updateDepartment(Map<String, Object> params) throws BizCheckedException {
+        Long iDepartmentId = Long.parseLong((String)params.get("departmentId"));
+        String sDepartmentName = (String)params.get("departmentName");
+        BaseinfoStaffDepartment department = staffRpcService.getDepartmentById(iDepartmentId);
+        if (department == null) {
+            throw new BizCheckedException("部门不存在");
+        }
+        department.setDepartmentName(sDepartmentName);
+        staffRpcService.updateDepartment(department);
+        return JsonUtils.SUCCESS(department);
     }
 
-    public String deleteDepartment(long iDepartmentId) {
-        return null;
+    @POST
+    @Path("delDepartment")
+    public String deleteDepartment(Map<String, Object> params) {
+        Long iDepartmentId = Long.parseLong((String)params.get("departmentId"));
+        BaseinfoStaffDepartment department = staffRpcService.getDepartmentById(iDepartmentId);
+        department.setRecordStatus(StaffConstant.RECORD_STATUS_DELETED);
+        staffRpcService.updateDepartment(department);
+        return JsonUtils.SUCCESS(department);
     }
 }

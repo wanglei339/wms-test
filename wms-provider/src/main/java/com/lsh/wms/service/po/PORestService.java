@@ -3,6 +3,7 @@ package com.lsh.wms.service.po;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.model.base.BaseResponse;
@@ -34,17 +35,17 @@ import java.util.Map;
 @Path("order/po")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-public class PoRestService implements IPoRestService {
+public class PORestService implements IPoRestService {
 
     @Autowired
     private PoOrderService poOrderService;
 
     @POST
     @Path("init")
-    public String init(String poOrderInfo) {
+    public String init(String poOrderInfo) { // test
         InbPoHeader inbPoHeader = JSON.parseObject(poOrderInfo,InbPoHeader.class);
         List<InbPoDetail> inbPoDetailList = JSON.parseArray(inbPoHeader.getOrderDetails(),InbPoDetail.class);
-        poOrderService.orderInit(inbPoHeader,inbPoDetailList);
+        poOrderService.insertOrder(inbPoHeader,inbPoDetailList);
         return JsonUtils.SUCCESS();
     }
 
@@ -57,10 +58,9 @@ public class PoRestService implements IPoRestService {
         ObjUtils.bean2bean(request, inbPoHeader);
 
         List<InbPoDetail> inbPoDetailList = new ArrayList<InbPoDetail>();
-        InbPoDetail inbPoDetail = null;
 
         for(PoItem poItem : request.getItems()) {
-            inbPoDetail = new InbPoDetail();
+            InbPoDetail inbPoDetail = new InbPoDetail();
 
             ObjUtils.bean2bean(poItem, inbPoDetail);
 
@@ -71,11 +71,11 @@ public class PoRestService implements IPoRestService {
             poOrderService.insertOrder(inbPoHeader, inbPoDetailList);
 
             response.setStatus(0);
-            response.setMeg("ok");
+            response.setMsg("ok");
             response.setDataKey(new Date());
         } catch (Exception ex) {
             response.setStatus(1);
-            response.setMeg(ex.getMessage());
+            response.setMsg(ex.getMessage());
             response.setDataKey(new Date());
         }
 
