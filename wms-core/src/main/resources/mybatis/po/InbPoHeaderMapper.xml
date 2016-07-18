@@ -28,7 +28,7 @@
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="InbPoHeader">
-		insert into inb_po_header (
+		insert into INB_PO_HEADER (
 			WAREHOUSE_ID,PO_CODE,PO_USER,OWNER_UID,ORDER_TYPE,SUPPLIER_CODE,
 			SUPPLIER_NAME,SKU_VOUCHER_NO,SUPPLIER_PHONE,SUPPLIER_FAX,ORDER_TIME,ORDER_STATUS,
 			STOCK_CODE,DELIVERY_PLACE,DELIVERY_ADDRS,DELIVERY_DATE,END_DELIVERY_DATE,INSERTBY,
@@ -42,7 +42,7 @@
 	</insert>
 
 	<update id="update" parameterType="InbPoHeader">
-		update inb_po_header
+		update INB_PO_HEADER
     	<set>
   			<if test="warehouseId != null">WAREHOUSE_ID=#{warehouseId},</if>
   			<if test="poCode != null">PO_CODE=#{poCode},</if>
@@ -70,17 +70,17 @@
 	</update>
   
 	<select id="getInbPoHeaderById" parameterType="int" resultMap="inbPoHeaderResultMap">
-		select * from inb_po_header
+		select * from INB_PO_HEADER
 		where ID=#{id} 
 	</select>
   
 	<select id="countInbPoHeader" parameterType="map" resultType="int">
-		select count(*) from inb_po_header
+		select count(*) from INB_PO_HEADER
 		<include refid="queryCondition"/>
 	</select>
   
 	<select id="getInbPoHeaderList" parameterType="map" resultMap="inbPoHeaderResultMap">
-		select * from inb_po_header
+		select * from INB_PO_HEADER
 		<include refid="queryCondition"/>
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}

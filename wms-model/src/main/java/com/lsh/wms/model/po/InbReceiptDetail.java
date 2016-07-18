@@ -187,6 +187,5 @@ public class InbReceiptDetail implements Serializable {
 	public void setUpdatetime(Date updatetime){
 		this.updatetime = updatetime;
 	}
-	
-	
+
 }
