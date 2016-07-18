@@ -74,11 +74,11 @@ public class ReceiptRestService implements IReceiptRestService {
             poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList);
 
             response.setStatus(0);
-            response.setMeg("ok");
+            response.setMsg("ok");
             response.setDataKey(new Date());
         } catch (Exception ex) {
             response.setStatus(1);
-            response.setMeg(ex.getMessage());
+            response.setMsg(ex.getMessage());
             response.setDataKey(new Date());
         }
 
