@@ -9,10 +9,12 @@ public class InbPoHeader implements Serializable {
     private Long id;
 	/** 仓库ID */
     private Long warehouseId;
+	/**  */
+    private String orderOtherId;
 	/** 采购单号 */
-    private String poCode;
+    private Long orderId;
 	/** 采购组 */
-    private String poUser;
+    private String orderUser;
 	/** 货主 */
     private Long ownerUid;
 	/** 1收货单，2退货单，3调货单 */
@@ -29,7 +31,7 @@ public class InbPoHeader implements Serializable {
     private String supplierFax;
 	/** 订单日期 */
     private Date orderTime;
-	/** 订单状态，0取消，1正常，2已发货，3已收货 */
+	/** 订单状态，0取消，1正常，2已发货 3，部分收货，4已收货 */
     private Integer orderStatus;
 	/** 库存地 */
     private String stockCode;
@@ -49,9 +51,9 @@ public class InbPoHeader implements Serializable {
     private Date inserttime;
 	/**  */
     private Date updatetime;
-	/**  */
-	private String orderDetails;
 
+	private String orderDetails;
+	
 	public Long getId(){
 		return this.id;
 	}
@@ -68,20 +70,28 @@ public class InbPoHeader implements Serializable {
 		this.warehouseId = warehouseId;
 	}
 	
-	public String getPoCode(){
-		return this.poCode;
+	public String getOrderOtherId(){
+		return this.orderOtherId;
 	}
 	
-	public void setPoCode(String poCode){
-		this.poCode = poCode;
+	public void setOrderOtherId(String orderOtherId){
+		this.orderOtherId = orderOtherId;
 	}
 	
-	public String getPoUser(){
-		return this.poUser;
+	public Long getOrderId(){
+		return this.orderId;
 	}
 	
-	public void setPoUser(String poUser){
-		this.poUser = poUser;
+	public void setOrderId(Long orderId){
+		this.orderId = orderId;
+	}
+	
+	public String getOrderUser(){
+		return this.orderUser;
+	}
+	
+	public void setOrderUser(String orderUser){
+		this.orderUser = orderUser;
 	}
 	
 	public Long getOwnerUid(){

@@ -12,15 +12,18 @@
 		<result property="expireDate" column="expire_date"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
+		<result property="itemId" column="item_id"/>
+		<result property="poId" column="po_id"/>
+		<result property="receiptId" column="receipt_id"/>
 	</resultMap>
-  
+
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockLot">
 		insert into stock_lot (
 			lot_id,sku_id,serial_no,in_date,product_date,expire_date,
-			created_at,updated_at
+			created_at,updated_at,po_id,item_id,receipt_id
     	) values (
 			#{lotId},#{skuId},#{serialNo},#{inDate},#{productDate},#{expireDate},
-			#{createdAt},#{updatedAt}
+			#{createdAt},#{updatedAt},#{item_id},#{po_id},#{receipt_id}
     	)
 	</insert>
 
@@ -35,6 +38,9 @@
   			<if test="expireDate != null">expire_date=#{expireDate},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+			<if test="itemId != null">item_id=#{itemId}</if>
+			<if test="poId != null">po_id=#{poId}</if>
+			<if test="receiptId != null">receipt_id=#{receiptId}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -46,14 +52,14 @@
 
 	<select id="getStockLotById" parameterType="int" resultMap="stockLotResultMap">
 		select * from stock_lot
-		where ID=#{id} 
+		where ID=#{id}
 	</select>
-  
+
 	<select id="countStockLot" parameterType="map" resultType="int">
 		select count(*) from stock_lot
 		<include refid="queryCondition"/>
 	</select>
-  
+
 	<select id="getStockLotList" parameterType="map" resultMap="stockLotResultMap">
 		select * from stock_lot
 		<include refid="queryCondition"/>
@@ -61,7 +67,7 @@
 		limit #{start},#{limit}
 		</if>
 	</select>
-  
+
 	<sql id="queryCondition">
 		<where>
 			<if test="id != null">id=#{id}</if>
@@ -73,7 +79,10 @@
 			<if test="expireDate != null">and expire_date=#{expireDate}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="itemId != null">item_id=#{itemId}</if>
+			<if test="poId != null">po_id=#{poId}</if>
+			<if test="receiptId != null">receipt_id=#{receiptId}</if>
 		</where>
 	</sql>
-   
+
 </mapper>
