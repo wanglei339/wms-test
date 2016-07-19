@@ -18,4 +18,5 @@ public interface ILocationRpcService {
 
     BaseinfoLocation insertLocation(BaseinfoLocation location);
     BaseinfoLocation updateLocation(BaseinfoLocation location);
+    BaseinfoLocation assignTemporary();
 }

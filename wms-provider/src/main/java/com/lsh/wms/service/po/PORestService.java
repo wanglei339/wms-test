@@ -8,6 +8,8 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.model.base.BaseResponse;
+import com.lsh.wms.api.model.base.ResUtils;
+import com.lsh.wms.api.model.base.ResponseConstant;
 import com.lsh.wms.api.model.po.PoItem;
 import com.lsh.wms.api.model.po.PoRequest;
 import com.lsh.wms.api.service.po.IPoRestService;
@@ -54,8 +56,6 @@ public class PORestService implements IPoRestService {
     @POST
     @Path("insert")
     public BaseResponse insertOrder(PoRequest request) {
-        BaseResponse response = new BaseResponse();
-
         //初始化InbPoHeader
         InbPoHeader inbPoHeader = new InbPoHeader();
         ObjUtils.bean2bean(request, inbPoHeader);
@@ -84,11 +84,8 @@ public class PORestService implements IPoRestService {
         poOrderService.insertOrder(inbPoHeader, inbPoDetailList);
 
         //打包返回数据
-        response.setStatus(0);
-        response.setMsg("ok");
-        response.setDataKey(new Date());
 
-        return response;
+        return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
     }
 
     public void editOrder(InbPoHeader inbPoHeader){

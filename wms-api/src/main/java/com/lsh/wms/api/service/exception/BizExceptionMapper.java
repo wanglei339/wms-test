@@ -3,6 +3,8 @@ package com.lsh.wms.api.service.exception;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.model.base.BaseResponse;
+import com.lsh.wms.api.model.base.Head;
+import com.lsh.wms.api.model.base.ResUtils;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -19,15 +21,13 @@ import java.util.Date;
  */
 public class BizExceptionMapper implements ExceptionMapper<BizCheckedException> {
     public Response toResponse(BizCheckedException ex) {
-        BaseResponse responseBaseVo = new BaseResponse();
-        responseBaseVo.setDataKey(new Date());
-        responseBaseVo.setStatus(ex.getCode()!=null?Integer.parseInt(ex.getCode()):ExceptionConstant.RES_CODE_500);
         /* StringBuffer msg = new StringBuffer();
          msg.append(ex.getMessage());
          msg.append(" case by :");
          msg.append(ex.getExceptionStackInfo());
          responseBaseVo.setMsg(msg.toString());*/ //todo 业务异常不抛出异常堆栈
-        responseBaseVo.setMsg(ex.getMessage());
+        Integer status = ex.getCode()!=null?Integer.parseInt(ex.getCode()):ExceptionConstant.RES_CODE_500;
+        BaseResponse responseBaseVo = ResUtils.getResponse(status,ex.getMessage(),null);
         Response response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(responseBaseVo).type(ContentType.APPLICATION_JSON_UTF_8).build();
         return  response;
     }

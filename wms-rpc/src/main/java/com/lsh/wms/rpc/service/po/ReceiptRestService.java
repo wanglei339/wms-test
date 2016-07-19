@@ -8,6 +8,8 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.model.base.BaseResponse;
+import com.lsh.wms.api.model.base.ResUtils;
+import com.lsh.wms.api.model.base.ResponseConstant;
 import com.lsh.wms.api.model.po.ReceiptItem;
 import com.lsh.wms.api.model.po.ReceiptRequest;
 import com.lsh.wms.api.service.po.IReceiptRestService;
@@ -65,8 +67,6 @@ public class ReceiptRestService implements IReceiptRestService {
     @POST
     @Path("insert")
     public BaseResponse insertOrder(ReceiptRequest request) {
-        BaseResponse response = new BaseResponse();
-
         //初始化InbReceiptHeader
         InbReceiptHeader inbReceiptHeader = new InbReceiptHeader();
         ObjUtils.bean2bean(request, inbReceiptHeader);
@@ -117,11 +117,6 @@ public class ReceiptRestService implements IReceiptRestService {
         //插入订单
         poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList);
 
-        //打包返回数据
-        response.setStatus(0);
-        response.setMsg("ok");
-        response.setDataKey(new Date());
-
-        return response;
+        return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
     }
 }

@@ -11,4 +11,5 @@ package com.lsh.wms.api.service.exception;
  */
 public interface ExceptionConstant {
     public final static Integer RES_CODE_500 = 500;
+    public final static Integer RES_CODE_300 = 300;
 }

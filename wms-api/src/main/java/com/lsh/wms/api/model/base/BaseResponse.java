@@ -1,46 +1,41 @@
 package com.lsh.wms.api.model.base;
 
+import com.lsh.base.common.json.JsonUtils;
+
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
 
 /**
  * Created by peter on 16/7/6.
  */
 public class BaseResponse implements Serializable{
-    /**
-     * 返回信息状态码
-     */
-    private Integer status;
-    /**
-     * 返回信息
-     */
-    private String msg;
-    /**
-     * 返回时间
-     */
-    private Date dataKey;
+    private Head head;
+    private Object body = new HashMap<String,Object>();
 
-    public Integer getStatus() {
-        return status;
+    public Head getHead() {
+        return head;
     }
 
-    public void setStatus(Integer status) {
-        this.status = status;
+    public void setHead(Head head) {
+        this.head = head;
     }
 
-    public String getMsg() {
-        return msg;
+    public Object getBody() {
+        return body;
     }
 
-    public void setMsg(String msg) {
-        this.msg = msg;
+    public void setBody(Object body) {
+        this.body = body;
     }
 
-    public Date getDataKey() {
-        return dataKey;
-    }
-
-    public void setDataKey(Date dataKey) {
-        this.dataKey = dataKey;
+    public static void  main(String args[]){
+        Head head = new Head();
+        head.setStatus(0);
+        head.setMessage("1212");
+        BaseResponse baseResponse = new BaseResponse();
+        baseResponse.setHead(head);
+        System.out.println(JsonUtils.obj2Json(baseResponse));
+        System.out.println(JsonUtils.obj2Json(ResUtils.getResponse(ResponseConstant.RES_CODE_0,"ok",null)));
     }
 }

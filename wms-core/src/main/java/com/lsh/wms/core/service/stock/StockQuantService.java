@@ -48,6 +48,12 @@ public class StockQuantService {
         return this.getQuants(mapQuery);
     }
 
+    public List<StockQuant> getQuantsByLocationId(Long locationId) {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("locationId", locationId);
+        return this.getQuants(mapQuery);
+    }
+
     public StockQuant getQuantById(Long quantId) {
         return stockQuantDao.getStockQuantById(quantId);
     }
@@ -152,6 +158,12 @@ public class StockQuantService {
     }
     public List<Long> getContainerIdByLocationId(Long locationId) {
         return stockQuantDao.getContainerIdByLocationId(locationId);
+    }
+
+    public  List<StockQuant> getQuantByLotId(Long lotId) {
+        Map queryMap=new HashMap();
+        queryMap.put("lotId",lotId);
+        return stockQuantDao.getQuants(queryMap);
     }
 
 }

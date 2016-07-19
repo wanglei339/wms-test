@@ -25,6 +25,8 @@ public class BaseinfoLocation implements Serializable {
     private Integer canStore;
 	/** 是否被占用，0-未使用，1-已占用 */
     private Integer inUse;
+	/** 可容纳容器数量 */
+    private Long containerVol;
 	/** 描述 */
     private String description;
 	/**  */
@@ -110,6 +112,14 @@ public class BaseinfoLocation implements Serializable {
 	
 	public void setInUse(Integer inUse){
 		this.inUse = inUse;
+	}
+	
+	public Long getContainerVol(){
+		return this.containerVol;
+	}
+	
+	public void setContainerVol(Long containerVol){
+		this.containerVol = containerVol;
 	}
 	
 	public String getDescription(){
