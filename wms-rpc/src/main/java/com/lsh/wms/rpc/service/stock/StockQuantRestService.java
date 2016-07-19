@@ -74,6 +74,18 @@ public class StockQuantRestService implements IStockQuantRestService {
 
     @POST
     @Path("create")
+    /***
+     * skuId 商品码
+     * locationId 存储位id
+     * containerId 容器设备id
+     * qty 商品数量
+     * supplierId 货物供应商id
+     * ownerId 货物所属公司id
+     * inDate 入库时间
+     * expireDate 保质期失效时间
+     * itemId
+     *
+     */
     public String create(Map<String, Object> mapInput) {
         StockQuant quant = BeanMapTransUtils.map2Bean(mapInput, StockQuant.class);
         try {
