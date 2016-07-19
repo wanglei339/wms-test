@@ -19,10 +19,10 @@ import java.util.Map;
  */
 public class RequestUtils {
     private static final Logger logger = LoggerFactory.getLogger(RequestUtils.class);
-    public static Map<String,String> getRequest(){
+    public static Map<String,Object> getRequest(){
         HttpServletRequest request = (HttpServletRequest) RpcContext.getContext().getRequest();
         Map<String, String[]> paramMap = request.getParameterMap();
-        Map<String,String> requestMap = new HashMap<String, String>();
+        Map<String,Object> requestMap = new HashMap<String, Object>();
         for (Map.Entry<String, String[]> entry : paramMap.entrySet()) {
             logger.debug("key= " + entry.getKey() + " and value= " + entry.getValue());
 
