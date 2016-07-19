@@ -72,8 +72,6 @@ public class StockQuantRestService implements IStockQuantRestService {
         return JsonUtils.SUCCESS(quantList);
     }
 
-    @POST
-    @Path("create")
     /***
      * skuId 商品码
      * locationId 存储位id
@@ -86,6 +84,8 @@ public class StockQuantRestService implements IStockQuantRestService {
      * itemId
      *
      */
+    @POST
+    @Path("create")
     public String create(Map<String, Object> mapInput) {
         StockQuant quant = BeanMapTransUtils.map2Bean(mapInput, StockQuant.class);
         try {
