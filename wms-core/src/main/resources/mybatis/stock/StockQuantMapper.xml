@@ -20,6 +20,7 @@
 		<result property="expireDate" column="expire_date"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
+		<result property="itemId" column="item_id"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockQuant">
@@ -33,11 +34,11 @@
 			cost,
 			reserve_move_id,
 			is_frozen,supplier_id,owner_id,lot_id,
-			in_date,expire_date,created_at,updated_at
+			in_date,expire_date,created_at,updated_at,item_id
     	) values (
 			#{skuId},#{locationId},#{containerId},#{qty},#{skuUomId},#{value},
 			#{cost},#{reserveMoveId},#{isFrozen},#{supplierId},#{ownerId},#{lotId},
-			#{inDate},#{expireDate},#{createdAt},#{updatedAt}
+			#{inDate},#{expireDate},#{createdAt},#{updatedAt},#{item_id}
     	)
 	</insert>
 
@@ -60,6 +61,7 @@
   			<if test="expireDate != null">expire_date=#{expireDate},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+			<if test="itemId != null">item_id=#{itemId}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -101,6 +103,7 @@
 			<if test="lotId != null and lotId != 0">and lot_id=#{lotId}</if>
 			<if test="inDate != null">and in_date=#{inDate}</if>
 			<if test="expireDate != null">and expire_date=#{expireDate}</if>
+			<if test="itemId != null">and item_id=#{itemId}</if>
 		</where>
 		<choose>
 			<when test=" strategy == 'FIFO' ">ORDER BY IN_DATE</when>
@@ -134,6 +137,7 @@
 			<if test="expireDate != null">and expire_date=#{expireDate}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="itemId != null">and item_id=#{itemId}</if>
 		</where>
 	</sql>
    

@@ -3,6 +3,7 @@ package com.lsh.wms.rpc.service.po;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
@@ -10,8 +11,10 @@ import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.po.ReceiptItem;
 import com.lsh.wms.api.model.po.ReceiptRequest;
 import com.lsh.wms.api.service.po.IReceiptRestService;
+import com.lsh.wms.core.constant.BusiConstant;
+import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.po.PoReceiptService;
-import com.lsh.wms.model.po.InbPoDetail;
+import com.lsh.wms.model.po.InbPoHeader;
 import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.InbReceiptHeader;
 import com.lsh.wms.rpc.service.item.ItemRestService;
@@ -47,6 +50,9 @@ public class ReceiptRestService implements IReceiptRestService {
     @Autowired
     private ItemRestService itemRestService;
 
+    @Autowired
+    private PoOrderService poOrderService;
+
     @POST
     @Path("init")
     public String init(String poReceiptInfo) {
@@ -66,30 +72,32 @@ public class ReceiptRestService implements IReceiptRestService {
         ObjUtils.bean2bean(request, inbReceiptHeader);
 
         //设置receiptOrderId
-        Long receiptOrderId = RandomUtils.genId();
-        inbReceiptHeader.setReceiptOrderId(receiptOrderId);
+        inbReceiptHeader.setReceiptOrderId(RandomUtils.genId());
 
         //设置托盘码,暂存区,分配库位;实际库位由他人写入
 
         //设置InbReceiptHeader状态
-        inbReceiptHeader.setReceiptStatus(1);
+        inbReceiptHeader.setReceiptStatus(BusiConstant.EFFECTIVE_YES);
 
         //设置InbReceiptHeader插入时间
         inbReceiptHeader.setInserttime(new Date());
 
         //初始化List<InbReceiptDetail>
         List<InbReceiptDetail> inbReceiptDetailList = new ArrayList<InbReceiptDetail>();
-        InbReceiptDetail inbReceiptDetail = null;
 
         for(ReceiptItem receiptItem : request.getItems()) {
-            inbReceiptDetail = new InbReceiptDetail();
+            InbReceiptDetail inbReceiptDetail = new InbReceiptDetail();
 
             ObjUtils.bean2bean(receiptItem, inbReceiptDetail);
 
             //设置receiptOrderId
-            inbReceiptDetail.setReceiptOrderId(receiptOrderId);
+            inbReceiptDetail.setReceiptOrderId(inbReceiptHeader.getReceiptOrderId());
 
             //根据request中的orderOtherId查询InbPoHeader
+            InbPoHeader inbPoHeader = poOrderService.getInbPoHeaderByOrderOtherId(request.getOrderOtherId());
+            if(inbPoHeader == null) {
+//                throw new BizCheckedException("2", "abc");
+            }
 
             //写入InbReceiptDetail中的OrderId
 

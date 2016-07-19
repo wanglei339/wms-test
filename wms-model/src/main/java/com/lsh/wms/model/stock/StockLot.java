@@ -1,6 +1,7 @@
 package com.lsh.wms.model.stock;
 
 import java.io.Serializable;
+import java.security.acl.LastOwnerException;
 import java.util.Date;
 
 public class StockLot implements Serializable {
@@ -23,6 +24,13 @@ public class StockLot implements Serializable {
     private Long createdAt;
 	/**  */
     private Long updatedAt;
+
+	private Long itemId;
+
+	private Long poId;
+
+	private Long receiptId;
+
 	
 	public Long getId(){
 		return this.id;
@@ -95,6 +103,28 @@ public class StockLot implements Serializable {
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
-	
-	
+
+	public Long getPoId() {
+		return poId;
+	}
+
+	public void setPoId(Long poId) {
+		this.poId = poId;
+	}
+
+	public Long getReceiptId() {
+		return receiptId;
+	}
+
+	public void setReceiptId(Long receiptId) {
+		this.receiptId = receiptId;
+	}
+
+	public Long getItemId() {
+		return itemId;
+	}
+
+	public void setItemId(Long itemId) {
+		this.itemId = itemId;
+	}
 }
