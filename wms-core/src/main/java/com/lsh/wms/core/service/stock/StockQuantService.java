@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by mali on 16/6/29.
@@ -84,7 +85,7 @@ public class StockQuantService {
             this.unReserve(quant);
             this.split(quant, qtyDone);
             quant.setContainerId(move.getToContainerId());
-            quant.setLocationId(move.getToLocationId());
+            quant.setLocationId(move.getRelToLocationId());
             this.update(quant);
             qtyDone = qtyDone.subtract(quant.getQty());
             moveRel.setQuantId(quant.getId());
@@ -101,6 +102,13 @@ public class StockQuantService {
         StockQuant newQuant = (StockQuant) quant.clone();
         newQuant.setQty(quant.getQty().subtract(requiredQty));
         this.create(newQuant);
+        Map<String,Object> queryMap=new HashMap<String, Object>();
+        queryMap.put("quantId", quant.getId());
+        List<StockQuantMoveRel> relList= relDao.getStockQuantMoveRelList(queryMap);
+        for(StockQuantMoveRel rel:relList){
+            rel.setQuantId(newQuant.getId());
+            relDao.insert(rel);
+        }
         quant.setQty(requiredQty);
     }
 
@@ -141,6 +149,9 @@ public class StockQuantService {
         for (StockQuant quant : quantList) {
             this.unReserve(quant);
         }
+    }
+    public List<Long> getContainerIdByLocationId(Long locationId) {
+        return stockQuantDao.getContainerIdByLocationId(locationId);
     }
 
 }
