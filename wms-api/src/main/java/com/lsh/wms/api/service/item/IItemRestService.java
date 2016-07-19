@@ -24,5 +24,6 @@ public interface IItemRestService {
     String getItemLocationByLocationID(long iLocationId);
     String insertItemLocation(BaseinfoItemLocation itemLocation);
     String updateItemLocation(BaseinfoItemLocation itemLocation);
+    String setStatus(long iItemId,long iStatus);
 
 }
