@@ -36,7 +36,7 @@ public class PoReceiptService {
         inbReceiptHeader.setInserttime(new Date());
         inbReceiptHeaderDao.insert(inbReceiptHeader);
         for (InbReceiptDetail inbReceiptDetail:inbReceiptDetailList) {
-            inbReceiptDetail.setReceiptId(inbReceiptHeader.getId());
+            inbReceiptDetail.setReceiptOrderId(inbReceiptHeader.getReceiptOrderId());
         }
         inbReceiptDetailDao.batchInsert(inbReceiptDetailList);
     }
@@ -49,7 +49,7 @@ public class PoReceiptService {
 
         //插入订单子项
         for(InbReceiptDetail inbReceiptDetail : inbReceiptDetailList) {
-            inbReceiptDetail.setReceiptId(inbReceiptHeader.getId());
+            inbReceiptDetail.setReceiptOrderId(inbReceiptHeader.getReceiptOrderId());
         }
         inbReceiptDetailDao.batchInsert(inbReceiptDetailList);
     }
