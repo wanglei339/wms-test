@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zengwenjun on 16/7/15.
@@ -43,6 +44,14 @@ public class PickModelService {
         mapQuery.put("pickModelTemplateId", iPickTemplateId);
         List<PickModelTemplate> pickModelTemplateList = modelTemplateDao.getPickModelTemplateList(mapQuery);
         return pickModelTemplateList.size() == 0 ? null : pickModelTemplateList.get(0);
+    }
+
+    public List<PickModelTemplate> getPickModelTemplateList(Map<String, Object> mapQuery){
+        return modelTemplateDao.getPickModelTemplateList(mapQuery);
+    }
+
+    public int getPickModelTemplateCount(Map<String, Object> mapQuery){
+        return modelTemplateDao.countPickModelTemplate(mapQuery);
     }
 
     public List<PickModel> getPickModelsByTplId(long iPickTemplateId){
