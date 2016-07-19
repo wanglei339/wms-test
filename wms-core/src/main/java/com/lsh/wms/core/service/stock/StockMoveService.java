@@ -51,6 +51,13 @@ public class StockMoveService {
     }
 
     @Transactional(readOnly = false)
+    public void create(List<StockMove> moveList) {
+        for (StockMove move : moveList) {
+            this.create(move);
+        }
+    }
+
+    @Transactional(readOnly = false)
     private void update(StockMove move) {
         move.setUpdatedAt(DateUtils.getCurrentSeconds());
         moveDao.update(move);

@@ -73,4 +73,5 @@ public class StockLotRestService implements IStockLotRestService{
         return JsonUtils.SUCCESS(StockLotlist);
     }
 
+
 }
