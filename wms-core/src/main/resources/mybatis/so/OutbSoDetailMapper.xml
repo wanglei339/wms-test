@@ -39,6 +39,7 @@
 		</foreach>
 	</insert>
 
+
 	<update id="update" parameterType="OutbSoDetail">
 		update OUTB_SO_DETAIL
     	<set>

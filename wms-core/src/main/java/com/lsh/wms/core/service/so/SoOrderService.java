@@ -1,5 +1,7 @@
 package com.lsh.wms.core.service.so;
 
+import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.dao.so.OutbSoDetailDao;
 import com.lsh.wms.core.dao.so.OutbSoHeaderDao;
 import com.lsh.wms.model.so.OutbSoDetail;
@@ -33,15 +35,18 @@ public class SoOrderService {
     @Transactional(readOnly = false)
     public void insert(OutbSoHeader outbSoHeader, List<OutbSoDetail> outbSoDetailList){
         outbSoHeader.setInserttime(new Date());
+        outbSoHeader.setOrderId(RandomUtils.genId());
+        outbSoHeader.setOrderStatus(BusiConstant.EFFECTIVE_YES);
         outbSoHeaderDao.insert(outbSoHeader);
         for (OutbSoDetail outbSoDetail :outbSoDetailList) {
-            outbSoDetail.setOrderId(outbSoHeader.getId());
+            outbSoDetail.setOrderId(outbSoHeader.getOrderId());
         }
         outbSoDetailDao.batchInsert(outbSoDetailList);
     }
 
+    @Transactional(readOnly = false)
     public void update(OutbSoHeader outbSoHeader){
-
+        outbSoHeaderDao.update(outbSoHeader);
     }
 
     public OutbSoHeader getOutbSoHeaderById(Long id){
@@ -54,5 +59,16 @@ public class SoOrderService {
 
     public List<OutbSoHeader> getOutbSoHeaderList(Map<String, Object> params){
         return null;
+    }
+
+
+    /**
+     *
+     * @param params
+     * @return
+     * desc 根据order_id 获取so订单商品详情
+     */
+    List<OutbSoDetail> getOutbSoDetailList(Map<String, Object> params){
+        return  outbSoDetailDao.getOutbSoDetailList(params);
     }
 }

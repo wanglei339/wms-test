@@ -11,6 +11,12 @@ public class OutbDeliveryHeader implements Serializable {
     private Long warehouseId;
 	/** 集货区编码 */
     private String shippingAreaCode;
+	/** 波次号 */
+    private Long waveId;
+	/** TMS线路 */
+    private String transPlan;
+	/** 最迟出库实际 */
+    private Date transTime;
 	/** 出库单号 */
     private String deliveryCode;
 	/** 出库人员 */
@@ -18,7 +24,7 @@ public class OutbDeliveryHeader implements Serializable {
 	/** 出库状态 0 未出库 ，1已出库 */
     private Integer deliveryType;
 	/** 出库时间 */
-    private Date transTime;
+    private Date deliveryTime;
 	/**  */
     private String insertby;
 	/**  */
@@ -27,16 +33,7 @@ public class OutbDeliveryHeader implements Serializable {
     private Date inserttime;
 	/**  */
     private Date updatetime;
-	private String deliveryDetails;
-
-	public String getDeliveryDetails() {
-		return deliveryDetails;
-	}
-
-	public void setDeliveryDetails(String deliveryDetails) {
-		this.deliveryDetails = deliveryDetails;
-	}
-
+	
 	public Long getId(){
 		return this.id;
 	}
@@ -59,6 +56,30 @@ public class OutbDeliveryHeader implements Serializable {
 	
 	public void setShippingAreaCode(String shippingAreaCode){
 		this.shippingAreaCode = shippingAreaCode;
+	}
+	
+	public Long getWaveId(){
+		return this.waveId;
+	}
+	
+	public void setWaveId(Long waveId){
+		this.waveId = waveId;
+	}
+	
+	public String getTransPlan(){
+		return this.transPlan;
+	}
+	
+	public void setTransPlan(String transPlan){
+		this.transPlan = transPlan;
+	}
+	
+	public Date getTransTime(){
+		return this.transTime;
+	}
+	
+	public void setTransTime(Date transTime){
+		this.transTime = transTime;
 	}
 	
 	public String getDeliveryCode(){
@@ -85,12 +106,12 @@ public class OutbDeliveryHeader implements Serializable {
 		this.deliveryType = deliveryType;
 	}
 	
-	public Date getTransTime(){
-		return this.transTime;
+	public Date getDeliveryTime(){
+		return this.deliveryTime;
 	}
 	
-	public void setTransTime(Date transTime){
-		this.transTime = transTime;
+	public void setDeliveryTime(Date deliveryTime){
+		this.deliveryTime = deliveryTime;
 	}
 	
 	public String getInsertby(){

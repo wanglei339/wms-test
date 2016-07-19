@@ -26,7 +26,7 @@ public class OutbDeliveryDetail implements Serializable {
 	/** 批次号 */
     private String lotNum;
 	/** 出货数 */
-    private Long deviveryMum;
+    private Long deliveryNum;
 	/**  */
     private String insertby;
 	/**  */
@@ -116,12 +116,12 @@ public class OutbDeliveryDetail implements Serializable {
 		this.lotNum = lotNum;
 	}
 	
-	public Long getDeviveryMum(){
-		return this.deviveryMum;
+	public Long getDeliveryNum(){
+		return this.deliveryNum;
 	}
 	
-	public void setDeviveryMum(Long deviveryMum){
-		this.deviveryMum = deviveryMum;
+	public void setDeliveryNum(Long deliveryNum){
+		this.deliveryNum = deliveryNum;
 	}
 	
 	public String getInsertby(){

@@ -9,16 +9,20 @@ public class OutbSoHeader implements Serializable {
     private Long id;
 	/** 仓库ID */
     private Long warehouseId;
+	/** SO订单ID */
+    private Long orderId;
 	/** 出库订单号 */
-    private String soCode;
+    private String orderOtherId;
 	/** 下单用户 */
-    private String soUser;
+    private String orderUser;
 	/** 货主 */
     private Long ownerUid;
 	/** 订单类型 1进货单，2退货单 */
     private Integer orderType;
-	/** TMS线路号 */
+	/** 波次号 */
     private Long waveId;
+	/** TMS线路 */
+    private String transPlan;
 	/** TMS顺序号 */
     private Integer waveIndex;
 	/** 交货时间 */
@@ -35,7 +39,16 @@ public class OutbSoHeader implements Serializable {
     private Date inserttime;
 	/**  */
     private Date updatetime;
-	
+	private String orderDetails;
+
+	public String getOrderDetails() {
+		return orderDetails;
+	}
+
+	public void setOrderDetails(String orderDetails) {
+		this.orderDetails = orderDetails;
+	}
+
 	public Long getId(){
 		return this.id;
 	}
@@ -52,20 +65,28 @@ public class OutbSoHeader implements Serializable {
 		this.warehouseId = warehouseId;
 	}
 	
-	public String getSoCode(){
-		return this.soCode;
+	public Long getOrderId(){
+		return this.orderId;
 	}
 	
-	public void setSoCode(String soCode){
-		this.soCode = soCode;
+	public void setOrderId(Long orderId){
+		this.orderId = orderId;
 	}
 	
-	public String getSoUser(){
-		return this.soUser;
+	public String getOrderOtherId(){
+		return this.orderOtherId;
 	}
 	
-	public void setSoUser(String soUser){
-		this.soUser = soUser;
+	public void setOrderOtherId(String orderOtherId){
+		this.orderOtherId = orderOtherId;
+	}
+	
+	public String getOrderUser(){
+		return this.orderUser;
+	}
+	
+	public void setOrderUser(String orderUser){
+		this.orderUser = orderUser;
 	}
 	
 	public Long getOwnerUid(){
@@ -90,6 +111,14 @@ public class OutbSoHeader implements Serializable {
 	
 	public void setWaveId(Long waveId){
 		this.waveId = waveId;
+	}
+	
+	public String getTransPlan(){
+		return this.transPlan;
+	}
+	
+	public void setTransPlan(String transPlan){
+		this.transPlan = transPlan;
 	}
 	
 	public Integer getWaveIndex(){

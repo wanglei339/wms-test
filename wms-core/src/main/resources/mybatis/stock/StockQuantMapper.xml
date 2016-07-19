@@ -85,20 +85,20 @@
 	<select id="getQuants" parameterType="map" resultMap="stockQuantResultMap">
 		select * from stock_quant
 		<where>
-			<if test="skuId != null">sku_id=#{skuId}</if>
-			<if test="locationId != null">and location_id=#{locationId}</if>
+			<if test="skuId != null and skuId != 0">sku_id=#{skuId}</if>
+			<if test="locationId != null and locationId != 0">and location_id=#{locationId}</if>
 			<if test="locationList != null">
 				and location_id in
 				<foreach collection="locationList"  item="item" index="index" open="(" separator=","  close=")">
 					#{item}
 				</foreach>
 			</if>
-			<if test="containerId != null">and container_id=#{containerId}</if>
-			<if test="reserveMoveId != null">and reserve_move_id=#{reserveMoveId}</if>
+			<if test="containerId != null and containerId != 0">and container_id=#{containerId}</if>
+			<if test="reserveMoveId != null and reserveMoveId != 0">and reserve_move_id=#{reserveMoveId}</if>
 			<if test="isFrozen != null">and is_frozen=#{isFrozen}</if>
-			<if test="supplierId != null">and supplier_id=#{supplierId}</if>
-			<if test="ownerId != null">and owner_id=#{ownerId}</if>
-			<if test="lotId != null">and lot_id=#{lotId}</if>
+			<if test="supplierId != null and supplierId != 0">and supplier_id=#{supplierId}</if>
+			<if test="ownerId != null and ownerId != 0">and owner_id=#{ownerId}</if>
+			<if test="lotId != null and lotId != 0">and lot_id=#{lotId}</if>
 			<if test="inDate != null">and in_date=#{inDate}</if>
 			<if test="expireDate != null">and expire_date=#{expireDate}</if>
 		</where>
