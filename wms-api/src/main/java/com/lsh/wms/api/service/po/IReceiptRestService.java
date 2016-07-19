@@ -1,5 +1,8 @@
 package com.lsh.wms.api.service.po;
 
+import com.lsh.wms.api.model.base.BaseResponse;
+import com.lsh.wms.api.model.po.ReceiptRequest;
+
 /**
  * Project Name: lsh-wms
  * Created by fuhao
@@ -11,4 +14,6 @@ package com.lsh.wms.api.service.po;
  */
 public interface IReceiptRestService {
     public String init(String poReceiptInfo);
+
+    public BaseResponse insertOrder(ReceiptRequest request);
 }

@@ -41,4 +41,16 @@ public class PoReceiptService {
         inbReceiptDetailDao.batchInsert(inbReceiptDetailList);
     }
 
+    @Transactional(readOnly = false)
+    public void insertOrder(InbReceiptHeader inbReceiptHeader, List<InbReceiptDetail> inbReceiptDetailList) {
+        //插入订单
+        inbReceiptHeader.setInserttime(new Date());
+        inbReceiptHeaderDao.insert(inbReceiptHeader);
+
+        //插入订单子项
+        for(InbReceiptDetail inbReceiptDetail : inbReceiptDetailList) {
+            inbReceiptDetail.setReceiptId(inbReceiptHeader.getId());
+        }
+        inbReceiptDetailDao.batchInsert(inbReceiptDetailList);
+    }
 }

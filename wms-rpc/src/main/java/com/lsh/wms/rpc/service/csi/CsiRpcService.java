@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 /**
@@ -32,19 +33,19 @@ public class CsiRpcService implements ICsiRpcService {
     @Autowired
     private CsiSupplierService supplierService;
 
-    public CsiCategory getCatInfo(int iCatId) {
+    public CsiCategory getCatInfo(long iCatId) {
         return categoryService.getCatInfo(iCatId);
     }
 
-    public List<CsiCategory> getCatFull(int iCatId) {
+    public List<CsiCategory> getCatFull(long iCatId) {
         return categoryService.getFullCatInfo(iCatId);
     }
 
-    public List<CsiCategory> getCatChilds(int iCatId) {
+    public List<CsiCategory> getCatChilds(long iCatId) {
         return categoryService.getChilds(iCatId);
     }
 
-    public CsiOwner getOwner(int iOwnerId) {
+    public CsiOwner getOwner(long iOwnerId) {
         return ownerService.getOwner(iOwnerId);
     }
 
@@ -57,40 +58,46 @@ public class CsiRpcService implements ICsiRpcService {
     }
 
     public CsiSku insertSku(CsiSku sku) {
-        return skuService.insertSku(sku);
+        CsiSku newSku = this.getSkuByCode(Integer.parseInt(sku.getCodeType()),sku.getCode());
+        if(newSku == null){
+            skuService.insertSku(sku);
+        }else{
+            return newSku;
+        }
+        return sku;
     }
 
-    public CsiSupplier getSupplier(int iSupplierId) {
+    public CsiSupplier getSupplier(long iSupplierId) {
         return supplierService.getSupplier(iSupplierId);
     }
 
-    public int updateSku(CsiSku sku){
-        return skuService.updateSku(sku);
+    public void updateSku(CsiSku sku){
+        skuService.updateSku(sku);
     }
 
 
-    public CsiSupplier insertSupplier(CsiSupplier supplier){
-        return supplierService.insertSupplier(supplier);
+    public void insertSupplier(CsiSupplier supplier){
+        supplierService.insertSupplier(supplier);
 
     }
-    public int updateSupplier(CsiSupplier supplier){
-        return supplierService.updateSupplier(supplier);
+    public void updateSupplier(CsiSupplier supplier){
+        supplierService.updateSupplier(supplier);
     }
 
-    public CsiCategory insertCategory(CsiCategory category) {
-        return categoryService.insertCategory(category);
+    public void insertCategory(CsiCategory category) {
+        categoryService.insertCategory(category);
     }
 
-    public int updateCategory(CsiCategory category) {
-        return categoryService.updateCategory(category);
+    public void updateCategory(CsiCategory category) {
+        categoryService.updateCategory(category);
     }
 
-    public CsiOwner insertOwner(CsiOwner owner) {
-        return ownerService.insertOwner(owner);
+    public void insertOwner(CsiOwner owner) {
+        ownerService.insertOwner(owner);
     }
 
-    public int updateOwner(CsiOwner owner) {
-        return ownerService.updateOwner(owner);
+    public void updateOwner(CsiOwner owner) {
+        ownerService.updateOwner(owner);
     }
 
 

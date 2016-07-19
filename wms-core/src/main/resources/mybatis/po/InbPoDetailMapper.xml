@@ -19,7 +19,7 @@
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="InbPoDetail">
-		insert into inb_po_detail (
+		insert into INB_PO_DETAIL (
 			ORDER_ID,SKU_ID,SKU_NAME,BAR_CODE,ORDER_QTY,PACK_UNIT,
 			MADEIN,INBOUND_QTY,INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME
     	) values (
@@ -29,7 +29,7 @@
 	</insert>
 
 	<insert id="batchInsert" parameterType="java.util.List">
-		insert into inb_po_detail (
+		insert into INB_PO_DETAIL (
 		ORDER_ID,SKU_ID,SKU_NAME,BAR_CODE,ORDER_QTY,PACK_UNIT,
 		MADEIN,INBOUND_QTY,INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME
 		) values
@@ -40,7 +40,7 @@
 	</insert>
 
 	<update id="update" parameterType="InbPoDetail">
-		update inb_po_detail
+		update INB_PO_DETAIL
     	<set>
   			<if test="orderId != null">ORDER_ID=#{orderId},</if>
   			<if test="skuId != null">SKU_ID=#{skuId},</if>
@@ -59,17 +59,17 @@
 	</update>
   
 	<select id="getInbPoDetailById" parameterType="int" resultMap="inbPoDetailResultMap">
-		select * from inb_po_detail
+		select * from INB_PO_DETAIL
 		where ID=#{id} 
 	</select>
   
 	<select id="countInbPoDetail" parameterType="map" resultType="int">
-		select count(*) from inb_po_detail
+		select count(*) from INB_PO_DETAIL
 		<include refid="queryCondition"/>
 	</select>
   
 	<select id="getInbPoDetailList" parameterType="map" resultMap="inbPoDetailResultMap">
-		select * from inb_po_detail
+		select * from INB_PO_DETAIL
 		<include refid="queryCondition"/>
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}

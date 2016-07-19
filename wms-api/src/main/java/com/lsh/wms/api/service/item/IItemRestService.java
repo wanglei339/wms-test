@@ -1,6 +1,7 @@
 package com.lsh.wms.api.service.item;
 
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 
 import java.util.Map;
 
@@ -15,4 +16,10 @@ public interface IItemRestService {
     public String searchItem(Map<String, Object> mapQuery);
     public String insertItem(BaseinfoItem item);
     String updateItem(BaseinfoItem item);
+
+
+    String getItemLocation(long iSkuId,long iOwnerId);
+    String getItemLocationByLocationID(long iLocationId);
+    String insertItemLocation(BaseinfoItemLocation itemLocation);
+    String updateItemLocation(BaseinfoItemLocation itemLocation);
 }

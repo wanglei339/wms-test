@@ -10,6 +10,11 @@
 		<result property="receiptUser" column="RECEIPT_USER"/>
 		<result property="receiptTime" column="RECEIPT_TIME"/>
 		<result property="receiptStatus" column="RECEIPT_STATUS"/>
+		<result property="receiptWharf" column="RECEIPT_WHARF"/>
+		<result property="tempStoreArea" column="TEMP_STORE_AREA"/>
+		<result property="containerId" column="CONTAINER_ID"/>
+		<result property="location" column="LOCATION"/>
+		<result property="realLocation" column="REAL_LOCATION"/>
 		<result property="insertby" column="INSERTBY"/>
 		<result property="updateby" column="UPDATEBY"/>
 		<result property="inserttime" column="INSERTTIME"/>
@@ -17,17 +22,19 @@
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="InbReceiptHeader">
-		insert into inb_receipt_header (
+		insert into INB_RECEIPT_HEADER (
 			WAREHOUSE_ID,BOOKING_NUM,RECEIPT_CODE,RECEIPT_USER,RECEIPT_TIME,RECEIPT_STATUS,
+			RECEIPT_WHARF,TEMP_STORE_AREA,CONTAINER_ID,LOCATION,REAL_LOCATION,
 			INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME
     	) values (
 			#{warehouseId},#{bookingNum},#{receiptCode},#{receiptUser},#{receiptTime},#{receiptStatus},
+			#{receiptWharf},#{tempStoreArea},#{containerId},#{location},#{realLocation},
 			#{insertby},#{updateby},#{inserttime},#{updatetime}
     	)
 	</insert>
 
 	<update id="update" parameterType="InbReceiptHeader">
-		update inb_receipt_header
+		update INB_RECEIPT_HEADER
     	<set>
   			<if test="warehouseId != null">WAREHOUSE_ID=#{warehouseId},</if>
   			<if test="bookingNum != null">BOOKING_NUM=#{bookingNum},</if>
@@ -35,6 +42,11 @@
   			<if test="receiptUser != null">RECEIPT_USER=#{receiptUser},</if>
   			<if test="receiptTime != null">RECEIPT_TIME=#{receiptTime},</if>
   			<if test="receiptStatus != null">RECEIPT_STATUS=#{receiptStatus},</if>
+			<if test="receiptWharf != null">RECEIPT_WHARF=#{receiptWharf},</if>
+			<if test="tempStoreArea != null">TEMP_STORE_AREA=#{tempStoreArea},</if>
+			<if test="containerId != null">CONTAINER_ID=#{containerId},</if>
+			<if test="location != null">LOCATION=#{location},</if>
+			<if test="realLocation != null">REAL_LOCATION=#{realLocation},</if>
   			<if test="insertby != null">INSERTBY=#{insertby},</if>
   			<if test="updateby != null">UPDATEBY=#{updateby},</if>
   			<if test="inserttime != null">INSERTTIME=#{inserttime},</if>
@@ -44,17 +56,17 @@
 	</update>
   
 	<select id="getInbReceiptHeaderById" parameterType="int" resultMap="inbReceiptHeaderResultMap">
-		select * from inb_receipt_header
+		select * from INB_RECEIPT_HEADER
 		where ID=#{id} 
 	</select>
   
 	<select id="countInbReceiptHeader" parameterType="map" resultType="int">
-		select count(*) from inb_receipt_header
+		select count(*) from INB_RECEIPT_HEADER
 		<include refid="queryCondition"/>
 	</select>
   
 	<select id="getInbReceiptHeaderList" parameterType="map" resultMap="inbReceiptHeaderResultMap">
-		select * from inb_receipt_header
+		select * from INB_RECEIPT_HEADER
 		<include refid="queryCondition"/>
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
@@ -70,6 +82,11 @@
 			<if test="receiptUser != null">and RECEIPT_USER=#{receiptUser}</if>
 			<if test="receiptTime != null">and RECEIPT_TIME=#{receiptTime}</if>
 			<if test="receiptStatus != null">and RECEIPT_STATUS=#{receiptStatus}</if>
+			<if test="receiptWharf != null">and RECEIPT_WHARF=#{receiptWharf}</if>
+			<if test="tempStoreArea != null">and TEMP_STORE_AREA=#{tempStoreArea}</if>
+			<if test="containerId != null">and CONTAINER_ID=#{containerId}</if>
+			<if test="location != null">and LOCATION=#{location}</if>
+			<if test="realLocation != null">and REAL_LOCATION=#{realLocation}</if>
 			<if test="insertby != null">and INSERTBY=#{insertby}</if>
 			<if test="updateby != null">and UPDATEBY=#{updateby}</if>
 			<if test="inserttime != null">and INSERTTIME=#{inserttime}</if>

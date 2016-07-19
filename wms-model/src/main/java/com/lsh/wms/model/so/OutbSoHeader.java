@@ -9,18 +9,22 @@ public class OutbSoHeader implements Serializable {
     private Long id;
 	/** 仓库ID */
     private Long warehouseId;
+	/** SO订单ID */
+    private Long orderId;
 	/** 出库订单号 */
-    private String soCode;
+    private String orderOtherId;
 	/** 下单用户 */
-    private String soUser;
+    private String orderUser;
 	/** 货主 */
     private Long ownerUid;
 	/** 订单类型 1进货单，2退货单 */
     private Integer orderType;
-	/** TMS线路号 */
-    private Long tmsLine;
+	/** 波次号 */
+    private Long waveId;
+	/** TMS线路 */
+    private String transPlan;
 	/** TMS顺序号 */
-    private Integer tmsIndex;
+    private Integer waveIndex;
 	/** 交货时间 */
     private Date transTime;
 	/** 订单状态，0取消，1正常，2拣货，3QC,4出库 */
@@ -35,7 +39,6 @@ public class OutbSoHeader implements Serializable {
     private Date inserttime;
 	/**  */
     private Date updatetime;
-
 	private String orderDetails;
 
 	public String getOrderDetails() {
@@ -62,20 +65,28 @@ public class OutbSoHeader implements Serializable {
 		this.warehouseId = warehouseId;
 	}
 	
-	public String getSoCode(){
-		return this.soCode;
+	public Long getOrderId(){
+		return this.orderId;
 	}
 	
-	public void setSoCode(String soCode){
-		this.soCode = soCode;
+	public void setOrderId(Long orderId){
+		this.orderId = orderId;
 	}
 	
-	public String getSoUser(){
-		return this.soUser;
+	public String getOrderOtherId(){
+		return this.orderOtherId;
 	}
 	
-	public void setSoUser(String soUser){
-		this.soUser = soUser;
+	public void setOrderOtherId(String orderOtherId){
+		this.orderOtherId = orderOtherId;
+	}
+	
+	public String getOrderUser(){
+		return this.orderUser;
+	}
+	
+	public void setOrderUser(String orderUser){
+		this.orderUser = orderUser;
 	}
 	
 	public Long getOwnerUid(){
@@ -94,20 +105,28 @@ public class OutbSoHeader implements Serializable {
 		this.orderType = orderType;
 	}
 	
-	public Long getTmsLine(){
-		return this.tmsLine;
+	public Long getWaveId(){
+		return this.waveId;
 	}
 	
-	public void setTmsLine(Long tmsLine){
-		this.tmsLine = tmsLine;
+	public void setWaveId(Long waveId){
+		this.waveId = waveId;
 	}
 	
-	public Integer getTmsIndex(){
-		return this.tmsIndex;
+	public String getTransPlan(){
+		return this.transPlan;
 	}
 	
-	public void setTmsIndex(Integer tmsIndex){
-		this.tmsIndex = tmsIndex;
+	public void setTransPlan(String transPlan){
+		this.transPlan = transPlan;
+	}
+	
+	public Integer getWaveIndex(){
+		return this.waveIndex;
+	}
+	
+	public void setWaveIndex(Integer waveIndex){
+		this.waveIndex = waveIndex;
 	}
 	
 	public Date getTransTime(){

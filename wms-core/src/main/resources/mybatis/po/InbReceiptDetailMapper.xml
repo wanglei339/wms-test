@@ -25,7 +25,7 @@
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="InbReceiptDetail">
-		insert into inb_receipt_detail (
+		insert into INB_RECEIPT_DETAIL (
 			RECEIPT_ID,ORDER_ID,LOT_NUM,SKU_ID,SKU_NAME,BAR_CODE,
 			ORDER_QTY,PACK_UNIT,MADEIN,INBOUND_QTY,ARRIVE_NUM,DEFECT_NUM,PRO_TIME,REFUSE_REASON,
 			INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME
@@ -39,7 +39,7 @@
 
 
 	<insert id="batchInsert" parameterType="java.util.List">
-		insert into inb_receipt_detail (
+		insert into INB_RECEIPT_DETAIL (
 		RECEIPT_ID,ORDER_ID,LOT_NUM,SKU_ID,SKU_NAME,BAR_CODE,ORDER_QTY,
 		PACK_UNIT,MADEIN,INBOUND_QTY,ARRIVE_NUM,DEFECT_NUM,PRO_TIME,REFUSE_REASON,INSERTBY,
 		UPDATEBY,INSERTTIME,UPDATETIME
@@ -54,7 +54,7 @@
 
 
 	<update id="update" parameterType="InbReceiptDetail">
-		update inb_receipt_detail
+		update INB_RECEIPT_DETAIL
     	<set>
   			<if test="receiptId != null">RECEIPT_ID=#{receiptId},</if>
   			<if test="orderId != null">ORDER_ID=#{orderId},</if>
@@ -79,17 +79,17 @@
 	</update>
   
 	<select id="getInbReceiptDetailById" parameterType="int" resultMap="inbReceiptDetailResultMap">
-		select * from inb_receipt_detail
+		select * from INB_RECEIPT_DETAIL
 		where ID=#{id} 
 	</select>
   
 	<select id="countInbReceiptDetail" parameterType="map" resultType="int">
-		select count(*) from inb_receipt_detail
+		select count(*) from INB_RECEIPT_DETAIL
 		<include refid="queryCondition"/>
 	</select>
   
 	<select id="getInbReceiptDetailList" parameterType="map" resultMap="inbReceiptDetailResultMap">
-		select * from inb_receipt_detail
+		select * from INB_RECEIPT_DETAIL
 		<include refid="queryCondition"/>
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
