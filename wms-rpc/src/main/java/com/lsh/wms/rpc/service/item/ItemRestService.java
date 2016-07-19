@@ -5,6 +5,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.item.IItemRestService;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.csi.CsiSku;
@@ -32,12 +33,13 @@ public class ItemRestService implements IItemRestService {
 
     @Autowired
     private ItemRpcService itemRpcService;
+    @Autowired
+    private ItemService itemService;
 
     @GET
     @Path("getItem")
-    public String getItem(@QueryParam("ownerId") long iOwnerId, @QueryParam("skuId") long iSkuId) {
-        logger.info("caonima"+iOwnerId+iSkuId);
-        BaseinfoItem baseinfoItem = itemRpcService.getItem(iOwnerId,iSkuId);
+    public String getItem(@QueryParam("itemId") long itemId) {
+        BaseinfoItem baseinfoItem = itemRpcService.getItem(itemId);
         return JsonUtils.SUCCESS(baseinfoItem);
     }
 
@@ -63,11 +65,17 @@ public class ItemRestService implements IItemRestService {
     }
 
     @POST
-    @Path("searchItem")
+    @Path("getItemList")
     public String searchItem(Map<String, Object> mapQuery) {
         List<BaseinfoItem>  baseinfoItemList = itemRpcService.searchItem(mapQuery);
         return  JsonUtils.SUCCESS(baseinfoItemList);
     }
+    @POST
+    @Path("getItemCount")
+    public String countItem(Map<String, Object> mapQuery) {
+        return JsonUtils.SUCCESS(itemService.countItem(mapQuery));
+    }
+
 
     @POST
     @Path("insertItem")
@@ -142,5 +150,6 @@ public class ItemRestService implements IItemRestService {
         }
         return JsonUtils.SUCCESS(itemLocation);
     }
+
 
 }
