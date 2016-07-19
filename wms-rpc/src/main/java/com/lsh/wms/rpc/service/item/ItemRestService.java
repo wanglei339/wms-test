@@ -150,6 +150,15 @@ public class ItemRestService implements IItemRestService {
         }
         return JsonUtils.SUCCESS(itemLocation);
     }
+    @GET
+    @Path("setStatus")
+    public String setStatus(@QueryParam("itemId") long iItemId,@QueryParam("status") long iStatus) {
+        if(itemService.getItem(iItemId) == null){
+            return JsonUtils.EXCEPTION_ERROR("The record does not exist");
+        }
+        itemService.setStatus(iItemId,iStatus);
+        return JsonUtils.SUCCESS();
+    }
 
 
 }
