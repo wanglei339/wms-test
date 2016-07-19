@@ -23,6 +23,8 @@ public class BaseinfoItem implements Serializable {
 	private Integer codeType;
 	/** 标准唯一码 */
 	private String code;
+	/**商品状态*/
+	private Long status;
 	/** 1级品类id */
 	private Long topCat;
 	/** 2级品类id */
@@ -83,6 +85,7 @@ public class BaseinfoItem implements Serializable {
 	private Long pileY =0l;
 	/** 码盘规则 */
 	private Long pileZ =0l;
+
 
 	public Long getId(){
 		return this.id;
@@ -146,6 +149,15 @@ public class BaseinfoItem implements Serializable {
 
 	public void setCode(String code){
 		this.code = code;
+	}
+
+
+	public Long getStatus() {
+		return status;
+	}
+
+	public void setStatus(Long status) {
+		this.status = status;
 	}
 
 	public Long getTopCat(){
