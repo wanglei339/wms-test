@@ -6,10 +6,13 @@
 		<id property="id" column="ID"/>
 		<result property="warehouseId" column="WAREHOUSE_ID"/>
 		<result property="shippingAreaCode" column="SHIPPING_AREA_CODE"/>
+		<result property="waveId" column="WAVE_ID"/>
+		<result property="transPlan" column="TRANS_PLAN"/>
+		<result property="transTime" column="TRANS_TIME"/>
 		<result property="deliveryCode" column="DELIVERY_CODE"/>
 		<result property="deliveryUser" column="DELIVERY_USER"/>
 		<result property="deliveryType" column="DELIVERY_TYPE"/>
-		<result property="transTime" column="TRANS_TIME"/>
+		<result property="deliveryTime" column="DELIVERY_TIME"/>
 		<result property="insertby" column="INSERTBY"/>
 		<result property="updateby" column="UPDATEBY"/>
 		<result property="inserttime" column="INSERTTIME"/>
@@ -17,24 +20,29 @@
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="OutbDeliveryHeader">
-		insert into outb_delivery_header (
-			WAREHOUSE_ID,SHIPPING_AREA_CODE,DELIVERY_CODE,DELIVERY_USER,DELIVERY_TYPE,TRANS_TIME,
-			INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME
+		insert into OUTB_DELIVERY_HEADER (
+			WAREHOUSE_ID,SHIPPING_AREA_CODE,WAVE_ID,TRANS_PLAN,TRANS_TIME,DELIVERY_CODE,
+			DELIVERY_USER,DELIVERY_TYPE,DELIVERY_TIME,INSERTBY,UPDATEBY,INSERTTIME,
+			UPDATETIME
     	) values (
-			#{warehouseId},#{shippingAreaCode},#{deliveryCode},#{deliveryUser},#{deliveryType},#{transTime},
-			#{insertby},#{updateby},#{inserttime},#{updatetime}
+			#{warehouseId},#{shippingAreaCode},#{waveId},#{transPlan},#{transTime},#{deliveryCode},
+			#{deliveryUser},#{deliveryType},#{deliveryTime},#{insertby},#{updateby},#{inserttime},
+			#{updatetime}
     	)
 	</insert>
 
 	<update id="update" parameterType="OutbDeliveryHeader">
-		update outb_delivery_header
+		update OUTB_DELIVERY_HEADER
     	<set>
   			<if test="warehouseId != null">WAREHOUSE_ID=#{warehouseId},</if>
   			<if test="shippingAreaCode != null">SHIPPING_AREA_CODE=#{shippingAreaCode},</if>
+  			<if test="waveId != null">WAVE_ID=#{waveId},</if>
+  			<if test="transPlan != null">TRANS_PLAN=#{transPlan},</if>
+  			<if test="transTime != null">TRANS_TIME=#{transTime},</if>
   			<if test="deliveryCode != null">DELIVERY_CODE=#{deliveryCode},</if>
   			<if test="deliveryUser != null">DELIVERY_USER=#{deliveryUser},</if>
   			<if test="deliveryType != null">DELIVERY_TYPE=#{deliveryType},</if>
-  			<if test="transTime != null">TRANS_TIME=#{transTime},</if>
+  			<if test="deliveryTime != null">DELIVERY_TIME=#{deliveryTime},</if>
   			<if test="insertby != null">INSERTBY=#{insertby},</if>
   			<if test="updateby != null">UPDATEBY=#{updateby},</if>
   			<if test="inserttime != null">INSERTTIME=#{inserttime},</if>
@@ -44,17 +52,17 @@
 	</update>
   
 	<select id="getOutbDeliveryHeaderById" parameterType="int" resultMap="outbDeliveryHeaderResultMap">
-		select * from outb_delivery_header
+		select * from OUTB_DELIVERY_HEADER
 		where ID=#{id} 
 	</select>
   
 	<select id="countOutbDeliveryHeader" parameterType="map" resultType="int">
-		select count(*) from outb_delivery_header
+		select count(*) from OUTB_DELIVERY_HEADER
 		<include refid="queryCondition"/>
 	</select>
   
 	<select id="getOutbDeliveryHeaderList" parameterType="map" resultMap="outbDeliveryHeaderResultMap">
-		select * from outb_delivery_header
+		select * from OUTB_DELIVERY_HEADER
 		<include refid="queryCondition"/>
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
@@ -66,10 +74,13 @@
 			<if test="id != null">ID=#{id}</if>
 			<if test="warehouseId != null">and WAREHOUSE_ID=#{warehouseId}</if>
 			<if test="shippingAreaCode != null">and SHIPPING_AREA_CODE=#{shippingAreaCode}</if>
+			<if test="waveId != null">and WAVE_ID=#{waveId}</if>
+			<if test="transPlan != null">and TRANS_PLAN=#{transPlan}</if>
+			<if test="transTime != null">and TRANS_TIME=#{transTime}</if>
 			<if test="deliveryCode != null">and DELIVERY_CODE=#{deliveryCode}</if>
 			<if test="deliveryUser != null">and DELIVERY_USER=#{deliveryUser}</if>
 			<if test="deliveryType != null">and DELIVERY_TYPE=#{deliveryType}</if>
-			<if test="transTime != null">and TRANS_TIME=#{transTime}</if>
+			<if test="deliveryTime != null">and DELIVERY_TIME=#{deliveryTime}</if>
 			<if test="insertby != null">and INSERTBY=#{insertby}</if>
 			<if test="updateby != null">and UPDATEBY=#{updateby}</if>
 			<if test="inserttime != null">and INSERTTIME=#{inserttime}</if>
