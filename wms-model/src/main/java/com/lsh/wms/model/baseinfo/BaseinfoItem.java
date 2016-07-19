@@ -6,8 +6,11 @@ import java.util.Date;
 
 public class BaseinfoItem implements Serializable {
 
+
 	/**  */
 	private Long id;
+	/**  */
+	private Long itemId;
 	/** 商品id */
 	private Long skuId;
 	/** 货主id */
@@ -87,6 +90,14 @@ public class BaseinfoItem implements Serializable {
 
 	public void setId(Long id){
 		this.id = id;
+	}
+
+	public Long getItemId() {
+		return itemId;
+	}
+
+	public void setItemId(Long itemId) {
+		this.itemId = itemId;
 	}
 
 	public Long getSkuId(){
