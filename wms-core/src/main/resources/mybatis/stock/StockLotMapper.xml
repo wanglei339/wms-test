@@ -16,7 +16,7 @@
 		<result property="poId" column="po_id"/>
 		<result property="receiptId" column="receipt_id"/>
 	</resultMap>
-  
+
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockLot">
 		insert into stock_lot (
 			lot_id,sku_id,serial_no,in_date,product_date,expire_date,
@@ -52,14 +52,14 @@
 
 	<select id="getStockLotById" parameterType="int" resultMap="stockLotResultMap">
 		select * from stock_lot
-		where ID=#{id} 
+		where ID=#{id}
 	</select>
-  
+
 	<select id="countStockLot" parameterType="map" resultType="int">
 		select count(*) from stock_lot
 		<include refid="queryCondition"/>
 	</select>
-  
+
 	<select id="getStockLotList" parameterType="map" resultMap="stockLotResultMap">
 		select * from stock_lot
 		<include refid="queryCondition"/>
@@ -67,7 +67,7 @@
 		limit #{start},#{limit}
 		</if>
 	</select>
-  
+
 	<sql id="queryCondition">
 		<where>
 			<if test="id != null">id=#{id}</if>
@@ -84,5 +84,5 @@
 			<if test="receiptId != null">receipt_id=#{receiptId}</if>
 		</where>
 	</sql>
-   
+
 </mapper>
