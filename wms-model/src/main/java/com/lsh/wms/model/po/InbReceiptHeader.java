@@ -13,6 +13,8 @@ public class InbReceiptHeader implements Serializable {
     private String bookingNum;
 	/** 收货单号 */
     private Long receiptOrderId;
+	/** 上架批次流水号 */
+    private Long lotSeqId;
 	/** 收货码头 */
     private String receiptWharf;
 	/** 暂存区 */
@@ -37,8 +39,6 @@ public class InbReceiptHeader implements Serializable {
     private Date inserttime;
 	/**  */
     private Date updatetime;
-
-	private String receiptDetails;
 	
 	public Long getId(){
 		return this.id;
@@ -70,6 +70,14 @@ public class InbReceiptHeader implements Serializable {
 	
 	public void setReceiptOrderId(Long receiptOrderId){
 		this.receiptOrderId = receiptOrderId;
+	}
+	
+	public Long getLotSeqId(){
+		return this.lotSeqId;
+	}
+	
+	public void setLotSeqId(Long lotSeqId){
+		this.lotSeqId = lotSeqId;
 	}
 	
 	public String getReceiptWharf(){
@@ -167,12 +175,6 @@ public class InbReceiptHeader implements Serializable {
 	public void setUpdatetime(Date updatetime){
 		this.updatetime = updatetime;
 	}
-
-	public String getReceiptDetails() {
-		return receiptDetails;
-	}
-
-	public void setReceiptDetails(String receiptDetails) {
-		this.receiptDetails = receiptDetails;
-	}
+	
+	
 }

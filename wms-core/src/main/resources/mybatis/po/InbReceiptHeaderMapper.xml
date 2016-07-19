@@ -7,6 +7,7 @@
 		<result property="warehouseId" column="WAREHOUSE_ID"/>
 		<result property="bookingNum" column="BOOKING_NUM"/>
 		<result property="receiptOrderId" column="RECEIPT_ORDER_ID"/>
+		<result property="lotSeqId" column="LOT_SEQ_ID"/>
 		<result property="receiptWharf" column="RECEIPT_WHARF"/>
 		<result property="tempStoreArea" column="TEMP_STORE_AREA"/>
 		<result property="containerId" column="CONTAINER_ID"/>
@@ -23,13 +24,13 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="InbReceiptHeader">
 		insert into INB_RECEIPT_HEADER (
-			WAREHOUSE_ID,BOOKING_NUM,RECEIPT_ORDER_ID,RECEIPT_WHARF,TEMP_STORE_AREA,CONTAINER_ID,
-			LOCATION,REAL_LOCATION,RECEIPT_USER,RECEIPT_TIME,RECEIPT_STATUS,INSERTBY,
-			UPDATEBY,INSERTTIME,UPDATETIME
+			WAREHOUSE_ID,BOOKING_NUM,RECEIPT_ORDER_ID,LOT_SEQ_ID,RECEIPT_WHARF,TEMP_STORE_AREA,
+			CONTAINER_ID,LOCATION,REAL_LOCATION,RECEIPT_USER,RECEIPT_TIME,RECEIPT_STATUS,
+			INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME
     	) values (
-			#{warehouseId},#{bookingNum},#{receiptOrderId},#{receiptWharf},#{tempStoreArea},#{containerId},
-			#{location},#{realLocation},#{receiptUser},#{receiptTime},#{receiptStatus},#{insertby},
-			#{updateby},#{inserttime},#{updatetime}
+			#{warehouseId},#{bookingNum},#{receiptOrderId},#{lotSeqId},#{receiptWharf},#{tempStoreArea},
+			#{containerId},#{location},#{realLocation},#{receiptUser},#{receiptTime},#{receiptStatus},
+			#{insertby},#{updateby},#{inserttime},#{updatetime}
     	)
 	</insert>
 
@@ -39,6 +40,7 @@
   			<if test="warehouseId != null">WAREHOUSE_ID=#{warehouseId},</if>
   			<if test="bookingNum != null">BOOKING_NUM=#{bookingNum},</if>
   			<if test="receiptOrderId != null">RECEIPT_ORDER_ID=#{receiptOrderId},</if>
+  			<if test="lotSeqId != null">LOT_SEQ_ID=#{lotSeqId},</if>
   			<if test="receiptWharf != null">RECEIPT_WHARF=#{receiptWharf},</if>
   			<if test="tempStoreArea != null">TEMP_STORE_AREA=#{tempStoreArea},</if>
   			<if test="containerId != null">CONTAINER_ID=#{containerId},</if>
@@ -79,6 +81,7 @@
 			<if test="warehouseId != null">and WAREHOUSE_ID=#{warehouseId}</if>
 			<if test="bookingNum != null">and BOOKING_NUM=#{bookingNum}</if>
 			<if test="receiptOrderId != null">and RECEIPT_ORDER_ID=#{receiptOrderId}</if>
+			<if test="lotSeqId != null">and LOT_SEQ_ID=#{lotSeqId}</if>
 			<if test="receiptWharf != null">and RECEIPT_WHARF=#{receiptWharf}</if>
 			<if test="tempStoreArea != null">and TEMP_STORE_AREA=#{tempStoreArea}</if>
 			<if test="containerId != null">and CONTAINER_ID=#{containerId}</if>
