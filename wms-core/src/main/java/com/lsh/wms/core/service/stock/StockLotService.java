@@ -59,8 +59,6 @@ public class StockLotService {
 
     @Transactional(readOnly = false)
     public void updateLot(StockLot lot){
-        StockLot getLot = getStockLotByLotId(lot.getLotId());
-        lot.setCreatedAt(getLot.getCreatedAt());
         lot.setUpdatedAt(DateUtils.getCurrentSeconds());
         lotDao.update(lot);
     }

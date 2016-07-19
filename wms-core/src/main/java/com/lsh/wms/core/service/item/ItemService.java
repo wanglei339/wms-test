@@ -106,6 +106,14 @@ public class ItemService {
         return items.size() == 0 ? null : items.get(0);
     }
 
+    @Transactional(readOnly = false)
+    public void setStatus(long iItemId,long iStatus){
+        BaseinfoItem item = new BaseinfoItem();
+        item.setItemId(iItemId);
+        item.setStatus(iStatus);
+        this.updateItem(item);
+    }
+
 
 
 }

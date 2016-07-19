@@ -14,4 +14,5 @@ public interface IStockMoveRestService {
     String allocate(Long moveId, Long operator);
     String create(Map<String, Object> mapInput);
     String cancel(Long moveId);
+    public String getHistory(Long move_id);
 }

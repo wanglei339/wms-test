@@ -6,8 +6,11 @@ import java.util.Date;
 
 public class BaseinfoItem implements Serializable {
 
+
 	/**  */
 	private Long id;
+	/**  */
+	private Long itemId;
 	/** 商品id */
 	private Long skuId;
 	/** 货主id */
@@ -20,6 +23,8 @@ public class BaseinfoItem implements Serializable {
 	private Integer codeType;
 	/** 标准唯一码 */
 	private String code;
+	/**商品状态*/
+	private Long status;
 	/** 1级品类id */
 	private Long topCat;
 	/** 2级品类id */
@@ -81,12 +86,21 @@ public class BaseinfoItem implements Serializable {
 	/** 码盘规则 */
 	private Long pileZ =0l;
 
+
 	public Long getId(){
 		return this.id;
 	}
 
 	public void setId(Long id){
 		this.id = id;
+	}
+
+	public Long getItemId() {
+		return itemId;
+	}
+
+	public void setItemId(Long itemId) {
+		this.itemId = itemId;
 	}
 
 	public Long getSkuId(){
@@ -135,6 +149,15 @@ public class BaseinfoItem implements Serializable {
 
 	public void setCode(String code){
 		this.code = code;
+	}
+
+
+	public Long getStatus() {
+		return status;
+	}
+
+	public void setStatus(Long status) {
+		this.status = status;
 	}
 
 	public Long getTopCat(){

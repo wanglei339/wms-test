@@ -13,4 +13,5 @@ public interface IStockQuantRestService {
     String create(Map<String, Object> mapInput);
     String freeze(Map<String, Object> mapCondition);
     String unFreeze(Map<String, Object> mapCondition);
+    public String getHistory(Long quant_id);
 }

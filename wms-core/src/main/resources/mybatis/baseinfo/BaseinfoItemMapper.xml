@@ -10,6 +10,7 @@
 		<result property="skuName" column="sku_name"/>
 		<result property="codeType" column="code_type"/>
 		<result property="code" column="code"/>
+		<result property="status" column="status"/>
 		<result property="topCat" column="top_cat"/>
 		<result property="secondCat" column="second_cat"/>
 		<result property="thirdCat" column="third_cat"/>
@@ -51,7 +52,7 @@
 		l2_unit,pack_length,pack_width,pack_height,pack_weight,pack_unit,
 		sale_unit,item_level,created_at,updated_at,produce_place,batch_needed,
 		floor_available,storage_temperature,safety_qty,pile_x,pile_y,pile_z,
-		item_id
+		item_id,status
 		) values (
 		#{skuId},#{ownerId},#{skuCode},#{skuName},#{codeType},#{code},
 		#{topCat},#{secondCat},#{thirdCat},#{shelfLife},#{length},#{width},
@@ -59,7 +60,7 @@
 		#{l2Unit},#{packLength},#{packWidth},#{packHeight},#{packWeight},#{packUnit},
 		#{saleUnit},#{itemLevel},#{createdAt},#{updatedAt},#{producePlace},#{batchNeeded},
 		#{floorAvailable},#{storageTemperature},#{safetyQty},#{pileX},#{pileY},#{pileZ},
-		#{itemId}
+		#{itemId},#{status}
 		)
 	</insert>
 
@@ -102,6 +103,7 @@
 			<if test="pileX != null">pile_x=#{pileX},</if>
 			<if test="pileY != null">pile_y=#{pileY},</if>
 			<if test="pileZ != null">pile_z=#{pileZ},</if>
+			<if test="status != null">status=#{status},</if>
 		</set>
 		where item_id=#{itemId}
 	</update>
@@ -164,6 +166,7 @@
 			<if test="pileY != null">and pile_y=#{pileY}</if>
 			<if test="pileZ != null">and pile_z=#{pileZ}</if>
 			<if test="itemId != null">and item_id=#{itemId}</if>
+			<if test="status != null">and status=#{status}</if>
 		</where>
 	</sql>
 
