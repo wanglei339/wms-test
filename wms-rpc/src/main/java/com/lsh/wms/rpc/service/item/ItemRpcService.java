@@ -134,4 +134,8 @@ public class ItemRpcService implements IItemRpcService {
         return itemLocation;
     }
 
+    public BaseinfoItem getItem(long itemId) {
+        return itemService.getItem(itemId);
+    }
+
 }
