@@ -56,4 +56,15 @@ public class SoOrderService {
     public List<OutbSoHeader> getOutbSoHeaderList(Map<String, Object> params){
         return null;
     }
+
+
+    /**
+     *
+     * @param params
+     * @return
+     * desc 根据order_id 获取so订单商品详情
+     */
+    List<OutbSoDetail> getOutbSoDetailList(Map<String, Object> params){
+        return  outbSoDetailDao.getOutbSoDetailList(params);
+    }
 }
