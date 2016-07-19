@@ -40,8 +40,9 @@ public class SoOrderService {
         outbSoDetailDao.batchInsert(outbSoDetailList);
     }
 
+    @Transactional(readOnly = false)
     public void update(OutbSoHeader outbSoHeader){
-
+        outbSoHeaderDao.update(outbSoHeader);
     }
 
     public OutbSoHeader getOutbSoHeaderById(Long id){
