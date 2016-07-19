@@ -9,11 +9,13 @@ import java.util.Map;
  * Created by zengwenjun on 16/7/8.
  */
 public interface IItemRestService {
-    public String getItem(long iOwnerId, long iSkuId);
+    public String getItem(long itemId);
     public String getSku(long iSkuId);
     public String getSkuByCode(int iCodeType, String sCode);
     public String getItemsBySkuCode(long iOwnerId, String sSkuCode);
     public String searchItem(Map<String, Object> mapQuery);
+    String countItem(Map<String, Object> mapQuery);
+
     public String insertItem(BaseinfoItem item);
     String updateItem(BaseinfoItem item);
 
@@ -22,4 +24,5 @@ public interface IItemRestService {
     String getItemLocationByLocationID(long iLocationId);
     String insertItemLocation(BaseinfoItemLocation itemLocation);
     String updateItemLocation(BaseinfoItemLocation itemLocation);
+
 }
