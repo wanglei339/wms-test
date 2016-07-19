@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zengwenjun on 16/7/15.
@@ -32,6 +33,14 @@ public class PickZoneService {
         mapQuery.put("pickZoneId", iPickZoneId);
         final List<PickZone> pickZoneList = zoneDao.getPickZoneList(mapQuery);
         return pickZoneList.size() == 0 ? null : pickZoneList.get(0);
+    }
+
+    public List<PickZone> getPickZoneList(Map<String, Object> mapQuery){
+        return zoneDao.getPickZoneList(mapQuery);
+    }
+
+    public int getPickZoneCount(Map<String, Object> mapQuery){
+        return zoneDao.countPickZone(mapQuery);
     }
 
 }

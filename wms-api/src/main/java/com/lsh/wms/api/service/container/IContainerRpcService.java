@@ -12,4 +12,5 @@ import java.util.Map;
 public interface IContainerRpcService {
     public BaseinfoContainer getContainer(long containerId);
     public BaseinfoContainer insertContainer(BaseinfoContainer container);
+    public BaseinfoContainer createTray();
 }

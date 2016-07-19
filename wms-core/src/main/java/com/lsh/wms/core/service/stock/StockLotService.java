@@ -3,7 +3,9 @@ package com.lsh.wms.core.service.stock;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.stock.StockLotDao;
+import com.lsh.wms.core.dao.stock.StockQuantDao;
 import com.lsh.wms.model.stock.StockLot;
+import com.lsh.wms.model.stock.StockQuant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,9 @@ public class StockLotService {
             ConcurrentHashMap<Long, StockLot>();
     @Autowired
     private StockLotDao lotDao;
+
+    @Autowired
+    private StockQuantDao quantDao;
 
     public StockLot getStockLotByLotId(long iLotId){
         Long key = iLotId;
@@ -66,5 +71,6 @@ public class StockLotService {
     public List<StockLot> searchLot(Map<String, Object> mapQuery){
         return lotDao.getStockLotList(mapQuery);
     }
+
 
 }

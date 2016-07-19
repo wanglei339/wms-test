@@ -3,7 +3,9 @@ package com.lsh.wms.rpc.service.location;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.stock.StockQuant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,8 @@ public class LocationRpcService implements ILocationRpcService {
 
     @Autowired
     private LocationService locationService;
+    @Autowired
+    private StockQuantService stockQuantService;
 
     public BaseinfoLocation getLocation(Long locationId) {
         return locationService.getLocation(locationId);
@@ -55,5 +59,18 @@ public class LocationRpcService implements ILocationRpcService {
 
     public BaseinfoLocation updateLocation(BaseinfoLocation location) {
         return locationService.updateLocation(location);
+    }
+
+    // 分配暂存区location
+    public BaseinfoLocation assignTemporary() {
+        List<BaseinfoLocation> tempLocations = locationService.getLocationsByType("temporary");
+        for (BaseinfoLocation tempLocation : tempLocations) {
+            Long tempLocationId = tempLocation.getLocationId();
+            List<Long> containerIds = stockQuantService.getContainerIdByLocationId(tempLocationId);
+            if (tempLocation.getContainerVol() - containerIds.size() > 0) {
+                return tempLocation;
+            }
+        }
+        return null;
     }
 }

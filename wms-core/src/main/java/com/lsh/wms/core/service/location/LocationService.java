@@ -27,6 +27,8 @@ public class LocationService {
             put("warehouse", new Long(1)); // 仓库
             put("area", new Long(2)); // 区域
             put("inventoryLost", new Long(3)); // 盘亏盘盈
+            put("temporary", new Long(4)); // 暂存区
+            put("floor", new Long(5)); // 地堆
         }
     };
 

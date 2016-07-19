@@ -39,9 +39,13 @@ public class ItemRpcService implements IItemRpcService {
     @Reference
     private ICsiRpcService remoteCsiRpcService;
 
+
+
     public BaseinfoItem getItem(long iOwnerId, long iSkuId) {
         return itemService.getItem(iOwnerId, iSkuId);
     }
+
+
 
     public CsiSku getSku(long iSkuId) {
         return remoteCsiRpcService.getSku(iSkuId);

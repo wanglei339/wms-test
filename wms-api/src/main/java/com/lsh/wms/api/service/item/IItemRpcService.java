@@ -7,7 +7,6 @@ import com.lsh.wms.model.csi.CsiSku;
 
 import java.util.List;
 import java.util.Map;
-
 /**
  * Created by zengwenjun on 16/7/8.
  */

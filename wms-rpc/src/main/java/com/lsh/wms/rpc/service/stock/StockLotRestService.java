@@ -41,9 +41,9 @@ public class StockLotRestService implements IStockLotRestService{
     @Path("insertLot")
     /***
      * skuId         商品id
-     * serialNo     生产批次号
+     * serialNo      生产批次号
      * inDate        入库时间
-     * product_date  生产时间
+     * productDate   生产时间
      * expireDate    保质期失效时间
      * itemId
      * poId          采购订单

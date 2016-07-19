@@ -28,4 +28,8 @@ public abstract class SplitModel {
     public List<SplitNode> getSplitedNodes(){
         return this.dstNodes;
     }
+
+    protected void skipSplit(){
+        this.dstNodes = this.oriNodes;
+    }
 }

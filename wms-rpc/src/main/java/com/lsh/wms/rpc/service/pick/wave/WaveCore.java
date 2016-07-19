@@ -1,10 +1,8 @@
 package com.lsh.wms.rpc.service.pick.wave;
 
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.service.item.ItemService;
-import com.lsh.wms.core.service.pick.PickModelService;
-import com.lsh.wms.core.service.pick.PickTaskService;
-import com.lsh.wms.core.service.pick.PickWaveService;
-import com.lsh.wms.core.service.pick.PickZoneService;
+import com.lsh.wms.core.service.pick.*;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.pick.*;
@@ -37,7 +35,7 @@ public class WaveCore {
     @Autowired
     PickWaveService waveService;
     @Autowired
-    PickAllocDetail allocService;
+    PickAllocService allocService;
     @Autowired
     PickTaskService taskService;
     @Autowired
@@ -56,7 +54,7 @@ public class WaveCore {
             return -1;
         }
         List<OutbSoDetail> order_details = new LinkedList<OutbSoDetail>();
-        Map<Long, Long> mapOrder2Owner = new HashMap<Long, Long>();
+        Map<Long, OutbSoHeader> mapOrder2Head = new HashMap<Long, OutbSoHeader>();
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("waveId", iWaveId);
         List<OutbSoHeader> orders = orderService.getOutbSoHeaderList(mapQuery);
@@ -67,7 +65,7 @@ public class WaveCore {
             }
         });
         for(int i = 0;i  < orders.size(); ++i){
-            mapOrder2Owner.put(orders.get(i).getId(), orders.get(i).getOwnerUid());
+            mapOrder2Head.put(orders.get(i).getOrderId(), orders.get(i));
             List<OutbSoDetail> details = null;
             order_details.addAll(details);
         }
@@ -93,6 +91,7 @@ public class WaveCore {
             mapZone.put(zone.getPickZoneId(), zone);
         }
         //执行配货
+        List<PickAllocDetail> pickAllocDetailList = new ArrayList<PickAllocDetail>();
         for(int i = 0; i < order_details.size(); ++i){
             OutbSoDetail detail = order_details.get(i);
             int zone_idx = 0;
@@ -103,23 +102,45 @@ public class WaveCore {
                 }
                 //判断此区域是否有对应的捡货位
                 //获取商品的基本信息
-                BaseinfoItem item = itemService.getItem(mapOrder2Owner.get(detail.getOrderId()), detail.getSkuId());
+                BaseinfoItem item = itemService.getItem(mapOrder2Head.get(detail.getOrderId()).getOwnerUid(), detail.getSkuId());
                 if(item == null){
                     return -1;
                 }
                 long pick_unit = zone.getPickUnit();
+                BigDecimal pick_ea_num = null;
                 if(pick_unit == 1){
                     //ea
+                    pick_ea_num = BigDecimal.valueOf(1L);
                 }else if (pick_unit == 2){
                     //整箱
+                    pick_ea_num =  item.getPackUnit();
                 }else if (pick_unit == 3){
-                    //整托盘,卧槽托盘上的商品数怎么求啊.
+                    //整托盘,卧槽托盘上的商品数怎么求啊,这里是有风险的,因为实际的码盘数量可能和实际的不一样.
+                    pick_ea_num = item.getPackUnit().multiply(BigDecimal.valueOf(item.getPileX() * item.getPileY() * item.getPileZ()));
                 }
-                //锁库存.
+                //获取分拣分区下的可分配库存数量,怎么获取?
+                long zone_qty = 0;
+                int alloc_x = leftAllocQty.divide(pick_ea_num).intValue();
+                int zone_alloc_x = BigDecimal.valueOf(zone_qty).divide(pick_ea_num).intValue();
+                alloc_x = alloc_x > zone_alloc_x ? zone_alloc_x : alloc_x;
+                BigDecimal alloc_qty = pick_ea_num.multiply(BigDecimal.valueOf(alloc_x));
+                //锁库存.怎么锁??
+                PickAllocDetail allocDetail = new PickAllocDetail();
+                allocDetail.setId(RandomUtils.genId());
+                allocDetail.setSkuId(detail.getSkuId());
+                allocDetail.setAllocQty(alloc_qty);
+                //allocDetail.setLocId(detail.getLotNum()); ??
+                allocDetail.setOrderId(detail.getOrderId());
+                allocDetail.setOwnerId(mapOrder2Head.get(detail.getOrderId()).getOwnerUid());
+                allocDetail.setPickZoneId(zone.getPickZoneId());
+                //allocDetail.setReqQty(""); ??
+                //allocDetail.setSupplierId(mapOrder2Head.get(detail.getOrderId()).get); ??
+                allocDetail.setWaveId(iWaveId);
+                pickAllocDetailList.add(allocDetail);
             }
         }
         //存储配货结果
-
+        allocService.addAllocDetails(pickAllocDetailList);
         //执行捡货模型,输出最小捡货单元
         List<PickTaskHead> taskHeads = new LinkedList<PickTaskHead>();
         List<PickTaskDetail> taskDetails = new LinkedList<PickTaskDetail>();
