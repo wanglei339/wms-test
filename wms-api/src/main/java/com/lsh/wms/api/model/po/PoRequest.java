@@ -18,15 +18,14 @@ public class PoRequest implements Serializable {
     @NotNull
     private Long warehouseId;
 
-    /** 采购单号 */
     @NotBlank
     @Size(max=100)
-    private String poCode;
+    private String orderOtherId;
 
     /** 采购组 */
     @NotBlank
     @Size(max=64)
-    private String poUser;
+    private String orderUser;
 
     /** 货主 */
     @NotNull
@@ -87,13 +86,13 @@ public class PoRequest implements Serializable {
 
     }
 
-    public PoRequest(Long warehouseId, String poCode, String poUser, Long ownerUid, Integer orderType,
+    public PoRequest(Long warehouseId, String orderOtherId, String orderUser, Long ownerUid, Integer orderType,
                      Long supplierCode, String supplierName, String skuVoucherNo, String supplierPhone,
                      String supplierFax, Date orderTime, String stockCode, String deliveryPlace, String deliveryAddrs,
                      Date deliveryDate, Date endDeliveryDate, List<PoItem> items) {
         this.warehouseId = warehouseId;
-        this.poCode = poCode;
-        this.poUser = poUser;
+        this.orderOtherId = orderOtherId;
+        this.orderUser = orderUser;
         this.ownerUid = ownerUid;
         this.orderType = orderType;
         this.supplierCode = supplierCode;
@@ -118,20 +117,20 @@ public class PoRequest implements Serializable {
         this.warehouseId = warehouseId;
     }
 
-    public String getPoCode(){
-        return this.poCode;
+    public String getOrderOtherId() {
+        return orderOtherId;
     }
 
-    public void setPoCode(String poCode){
-        this.poCode = poCode;
+    public void setOrderOtherId(String orderOtherId) {
+        this.orderOtherId = orderOtherId;
     }
 
-    public String getPoUser(){
-        return this.poUser;
+    public String getOrderUser() {
+        return orderUser;
     }
 
-    public void setPoUser(String poUser){
-        this.poUser = poUser;
+    public void setOrderUser(String orderUser) {
+        this.orderUser = orderUser;
     }
 
     public Long getOwnerUid(){

@@ -5,10 +5,10 @@ import java.util.Date;
 
 public class InbReceiptDetail implements Serializable {
 
-	/** ID */
+	/**  */
     private Long id;
 	/** 收货单ID */
-    private Long receiptId;
+    private Long receiptOrderId;
 	/** 订单ID */
     private Long orderId;
 	/** 批次号 */
@@ -32,9 +32,9 @@ public class InbReceiptDetail implements Serializable {
 	/** 残次数 */
     private Long defectNum;
 	/** 生产日期 */
-	private Date proTime;
+    private Date proTime;
 	/** 拒收原因 */
-	private String refuseReason;
+    private String refuseReason;
 	/**  */
     private String insertby;
 	/**  */
@@ -52,12 +52,12 @@ public class InbReceiptDetail implements Serializable {
 		this.id = id;
 	}
 	
-	public Long getReceiptId(){
-		return this.receiptId;
+	public Long getReceiptOrderId(){
+		return this.receiptOrderId;
 	}
 	
-	public void setReceiptId(Long receiptId){
-		this.receiptId = receiptId;
+	public void setReceiptOrderId(Long receiptOrderId){
+		this.receiptOrderId = receiptOrderId;
 	}
 	
 	public Long getOrderId(){
@@ -147,15 +147,23 @@ public class InbReceiptDetail implements Serializable {
 	public void setDefectNum(Long defectNum){
 		this.defectNum = defectNum;
 	}
-
-	public Date getProTime() { return proTime; }
-
-	public void setProTime(Date proTime) { this.proTime = proTime; }
-
-	public String getRefuseReason() { return refuseReason; }
-
-	public void setRefuseReason(String refuseReason) { this.refuseReason = refuseReason; }
-
+	
+	public Date getProTime(){
+		return this.proTime;
+	}
+	
+	public void setProTime(Date proTime){
+		this.proTime = proTime;
+	}
+	
+	public String getRefuseReason(){
+		return this.refuseReason;
+	}
+	
+	public void setRefuseReason(String refuseReason){
+		this.refuseReason = refuseReason;
+	}
+	
 	public String getInsertby(){
 		return this.insertby;
 	}
@@ -187,5 +195,6 @@ public class InbReceiptDetail implements Serializable {
 	public void setUpdatetime(Date updatetime){
 		this.updatetime = updatetime;
 	}
-
+	
+	
 }

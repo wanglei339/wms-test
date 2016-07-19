@@ -12,10 +12,6 @@ import java.util.Date;
  */
 public class ReceiptItem implements Serializable {
 
-    /** 订单ID */
-    @NotNull
-    private Long orderId;
-
     /** 批次号 */
     @NotBlank
     @Size(max=64)
@@ -33,10 +29,6 @@ public class ReceiptItem implements Serializable {
     @NotBlank
     @Size(max=64)
     private String barCode;
-
-    /** 进货数 */
-    @NotNull
-    private Long orderQty;
 
     /** 包装单位 */
     private Long packUnit;
@@ -69,14 +61,12 @@ public class ReceiptItem implements Serializable {
 
     }
 
-    public ReceiptItem(Long orderId, String lotNum, Long skuId, String skuName, String barCode, Long orderQty, Long packUnit,
+    public ReceiptItem(String lotNum, Long skuId, String skuName, String barCode, Long packUnit,
                        String madein, Long inboundQty, Long arriveNum, Long defectNum, Date proTime, String refuseReason) {
-        this.orderId = orderId;
         this.lotNum = lotNum;
         this.skuId = skuId;
         this.skuName = skuName;
         this.barCode = barCode;
-        this.orderQty = orderQty;
         this.packUnit = packUnit;
         this.madein = madein;
         this.inboundQty = inboundQty;
@@ -84,14 +74,6 @@ public class ReceiptItem implements Serializable {
         this.defectNum = defectNum;
         this.proTime = proTime;
         this.refuseReason = refuseReason;
-    }
-
-    public Long getOrderId(){
-        return this.orderId;
-    }
-
-    public void setOrderId(Long orderId){
-        this.orderId = orderId;
     }
 
     public String getLotNum(){
@@ -124,14 +106,6 @@ public class ReceiptItem implements Serializable {
 
     public void setBarCode(String barCode){
         this.barCode = barCode;
-    }
-
-    public Long getOrderQty(){
-        return this.orderQty;
-    }
-
-    public void setOrderQty(Long orderQty){
-        this.orderQty = orderQty;
     }
 
     public Long getPackUnit(){

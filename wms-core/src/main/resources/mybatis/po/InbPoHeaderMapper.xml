@@ -5,8 +5,9 @@
 	<resultMap id="inbPoHeaderResultMap" type="InbPoHeader">
 		<id property="id" column="ID"/>
 		<result property="warehouseId" column="WAREHOUSE_ID"/>
-		<result property="poCode" column="PO_CODE"/>
-		<result property="poUser" column="PO_USER"/>
+		<result property="orderOtherId" column="ORDER_OTHER_ID"/>
+		<result property="orderId" column="ORDER_ID"/>
+		<result property="orderUser" column="ORDER_USER"/>
 		<result property="ownerUid" column="OWNER_UID"/>
 		<result property="orderType" column="ORDER_TYPE"/>
 		<result property="supplierCode" column="SUPPLIER_CODE"/>
@@ -29,15 +30,15 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="InbPoHeader">
 		insert into INB_PO_HEADER (
-			WAREHOUSE_ID,PO_CODE,PO_USER,OWNER_UID,ORDER_TYPE,SUPPLIER_CODE,
-			SUPPLIER_NAME,SKU_VOUCHER_NO,SUPPLIER_PHONE,SUPPLIER_FAX,ORDER_TIME,ORDER_STATUS,
-			STOCK_CODE,DELIVERY_PLACE,DELIVERY_ADDRS,DELIVERY_DATE,END_DELIVERY_DATE,INSERTBY,
-			UPDATEBY,INSERTTIME,UPDATETIME
+			WAREHOUSE_ID,ORDER_OTHER_ID,ORDER_ID,ORDER_USER,OWNER_UID,ORDER_TYPE,
+			SUPPLIER_CODE,SUPPLIER_NAME,SKU_VOUCHER_NO,SUPPLIER_PHONE,SUPPLIER_FAX,ORDER_TIME,
+			ORDER_STATUS,STOCK_CODE,DELIVERY_PLACE,DELIVERY_ADDRS,DELIVERY_DATE,END_DELIVERY_DATE,
+			INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME
     	) values (
-			#{warehouseId},#{poCode},#{poUser},#{ownerUid},#{orderType},#{supplierCode},
-			#{supplierName},#{skuVoucherNo},#{supplierPhone},#{supplierFax},#{orderTime},#{orderStatus},
-			#{stockCode},#{deliveryPlace},#{deliveryAddrs},#{deliveryDate},#{endDeliveryDate},#{insertby},
-			#{updateby},#{inserttime},#{updatetime}
+			#{warehouseId},#{orderOtherId},#{orderId},#{orderUser},#{ownerUid},#{orderType},
+			#{supplierCode},#{supplierName},#{skuVoucherNo},#{supplierPhone},#{supplierFax},#{orderTime},
+			#{orderStatus},#{stockCode},#{deliveryPlace},#{deliveryAddrs},#{deliveryDate},#{endDeliveryDate},
+			#{insertby},#{updateby},#{inserttime},#{updatetime}
     	)
 	</insert>
 
@@ -45,8 +46,9 @@
 		update INB_PO_HEADER
     	<set>
   			<if test="warehouseId != null">WAREHOUSE_ID=#{warehouseId},</if>
-  			<if test="poCode != null">PO_CODE=#{poCode},</if>
-  			<if test="poUser != null">PO_USER=#{poUser},</if>
+  			<if test="orderOtherId != null">ORDER_OTHER_ID=#{orderOtherId},</if>
+  			<if test="orderId != null">ORDER_ID=#{orderId},</if>
+  			<if test="orderUser != null">ORDER_USER=#{orderUser},</if>
   			<if test="ownerUid != null">OWNER_UID=#{ownerUid},</if>
   			<if test="orderType != null">ORDER_TYPE=#{orderType},</if>
   			<if test="supplierCode != null">SUPPLIER_CODE=#{supplierCode},</if>
@@ -67,6 +69,35 @@
   			<if test="updatetime != null">UPDATETIME=#{updatetime}</if>
 		</set>
 		where ID=#{id}
+	</update>
+
+	<update id="updateByOrderId" parameterType="InbPoHeader">
+		update INB_PO_HEADER
+		<set>
+			<if test="warehouseId != null">WAREHOUSE_ID=#{warehouseId},</if>
+			<if test="orderOtherId != null">ORDER_OTHER_ID=#{orderOtherId},</if>
+			<if test="orderId != null">ORDER_ID=#{orderId},</if>
+			<if test="orderUser != null">ORDER_USER=#{orderUser},</if>
+			<if test="ownerUid != null">OWNER_UID=#{ownerUid},</if>
+			<if test="orderType != null">ORDER_TYPE=#{orderType},</if>
+			<if test="supplierCode != null">SUPPLIER_CODE=#{supplierCode},</if>
+			<if test="supplierName != null">SUPPLIER_NAME=#{supplierName},</if>
+			<if test="skuVoucherNo != null">SKU_VOUCHER_NO=#{skuVoucherNo},</if>
+			<if test="supplierPhone != null">SUPPLIER_PHONE=#{supplierPhone},</if>
+			<if test="supplierFax != null">SUPPLIER_FAX=#{supplierFax},</if>
+			<if test="orderTime != null">ORDER_TIME=#{orderTime},</if>
+			<if test="orderStatus != null">ORDER_STATUS=#{orderStatus},</if>
+			<if test="stockCode != null">STOCK_CODE=#{stockCode},</if>
+			<if test="deliveryPlace != null">DELIVERY_PLACE=#{deliveryPlace},</if>
+			<if test="deliveryAddrs != null">DELIVERY_ADDRS=#{deliveryAddrs},</if>
+			<if test="deliveryDate != null">DELIVERY_DATE=#{deliveryDate},</if>
+			<if test="endDeliveryDate != null">END_DELIVERY_DATE=#{endDeliveryDate},</if>
+			<if test="insertby != null">INSERTBY=#{insertby},</if>
+			<if test="updateby != null">UPDATEBY=#{updateby},</if>
+			<if test="inserttime != null">INSERTTIME=#{inserttime},</if>
+			<if test="updatetime != null">UPDATETIME=#{updatetime}</if>
+		</set>
+		where ORDER_ID=#{orderId}
 	</update>
   
 	<select id="getInbPoHeaderById" parameterType="int" resultMap="inbPoHeaderResultMap">
@@ -91,8 +122,9 @@
 		<where>
 			<if test="id != null">ID=#{id}</if>
 			<if test="warehouseId != null">and WAREHOUSE_ID=#{warehouseId}</if>
-			<if test="poCode != null">and PO_CODE=#{poCode}</if>
-			<if test="poUser != null">and PO_USER=#{poUser}</if>
+			<if test="orderOtherId != null">and ORDER_OTHER_ID=#{orderOtherId}</if>
+			<if test="orderId != null">and ORDER_ID=#{orderId}</if>
+			<if test="orderUser != null">and ORDER_USER=#{orderUser}</if>
 			<if test="ownerUid != null">and OWNER_UID=#{ownerUid}</if>
 			<if test="orderType != null">and ORDER_TYPE=#{orderType}</if>
 			<if test="supplierCode != null">and SUPPLIER_CODE=#{supplierCode}</if>
