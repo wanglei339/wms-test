@@ -98,6 +98,7 @@ public class StockQuantRestService implements IStockQuantRestService {
         }
         return JsonUtils.SUCCESS();
     }
+
     @GET
     @Path("getHistory")
     public String getHistory(@QueryParam("quant_id") Long quant_id) {

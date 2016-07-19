@@ -30,6 +30,6 @@ public class StockTakingDetailService {
             detail.setUpdatedAt(DateUtils.getCurrentSeconds());
             detail.setCreatedAt(DateUtils.getCurrentSeconds());
         }
-        detailDao.batchInsesrt(detailList);
+        detailDao.batchInsert(detailList);
     }
 }

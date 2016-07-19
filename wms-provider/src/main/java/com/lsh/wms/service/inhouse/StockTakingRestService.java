@@ -4,10 +4,14 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.inhouse.IStockTakingRestService;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.taking.StockTakingService;
+import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
@@ -42,19 +46,24 @@ public class StockTakingRestService implements IStockTakingRestService {
     @Autowired
     private StockQuantService quantService;
 
+    @Autowired
+    private StockMoveService moveService;
+
     @POST
     @Path("create")
     public String create(String stockTakingInfo) {
         StockTakingHead head = JSON.parseObject(stockTakingInfo,StockTakingHead.class);
         List<StockTakingDetail> detailList = JSON.parseArray(head.getDetails(), StockTakingDetail.class);
-        if (detailList.isEmpty()) {
-            detailList = this.prepare(head);
+        // TODO 随机ID生成器
+        head.setTakingId(RandomUtils.genId());
+        if (detailList == null || detailList.isEmpty()) {
+            detailList = this.prepareDetailList(head);
         }
         stockTakingService.create(head, detailList);
         return JsonUtils.SUCCESS();
     }
 
-    private List<StockTakingDetail> prepareByLocation(StockTakingHead head, List<Long> locationList, List<StockQuant> quantList){
+    private List<StockTakingDetail> prepareDetailListByLocation(StockTakingHead head, List<Long> locationList, List<StockQuant> quantList){
         Map<Long, StockQuant> mapLoc2Quant = new HashMap<Long, StockQuant>();
         for (StockQuant quant : quantList) {
             mapLoc2Quant.put(quant.getLocationId(), quant);
@@ -80,7 +89,7 @@ public class StockTakingRestService implements IStockTakingRestService {
         return detailList;
     }
 
-    private List<StockTakingDetail> prepareBySku(StockTakingHead head, List<StockQuant> quantList) {
+    private List<StockTakingDetail> prepareDetailListBySku(StockTakingHead head, List<StockQuant> quantList) {
         Long idx = 0L;
         List<StockTakingDetail> detailList = new ArrayList<StockTakingDetail>();
         for (StockQuant quant : quantList) {
@@ -97,8 +106,9 @@ public class StockTakingRestService implements IStockTakingRestService {
         return detailList;
     }
 
-    private List<StockTakingDetail> prepare(StockTakingHead head) {
-        List<Long> locationList = locationService.getStoreLocationIds(head.getLocationId());
+    private List<StockTakingDetail> prepareDetailList(StockTakingHead head) {
+        Long locationId = head.getLocationId();
+        List<Long> locationList = locationService.getStoreLocationIds(locationId);
 
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("locationList", locationList);
@@ -109,10 +119,58 @@ public class StockTakingRestService implements IStockTakingRestService {
         List<StockQuant> quantList = quantService.getQuants(mapQuery);
 
         if (head.getTakingType().equals(0L)) {
-            return this.prepareBySku(head, quantList);
+            return this.prepareDetailListBySku(head, quantList);
         }
         else {
-            return this.prepareByLocation(head, locationList, quantList);
+            return this.prepareDetailListByLocation(head, locationList, quantList);
         }
+    }
+
+    public void confirmDifference(Long stockTakingId) {
+        StockTakingHead head = stockTakingService.getHeadById(stockTakingId);
+        List<StockTakingDetail> detailList = stockTakingService.getFinalDetailList(stockTakingId);
+        List<StockMove> moveList = new ArrayList<StockMove>();
+
+        for (StockTakingDetail detail : detailList) {
+            if (detail.getSkuId().equals(detail.getRealSkuId())) {
+                StockMove move = new StockMove();
+                move.setTaskId(detail.getTakingId());
+                move.setSkuId(detail.getSkuId());
+                move.setStatus(TaskConstant.Done);
+                if (detail.getTheoreticalQty().compareTo(detail.getRealQty()) < 0) {
+                    move.setQty(detail.getRealQty().subtract(detail.getTheoreticalQty()));
+                    move.setQtyDone(move.getQty());
+                    move.setFromLocationId(detail.getLocationId());
+                    move.setToLocationId(locationService.getInventoryLostLocationId());
+                }
+                else {
+                    move.setQty(detail.getTheoreticalQty().subtract(detail.getRealQty()));
+                    move.setQtyDone(move.getQty());
+                    move.setFromLocationId(locationService.getInventoryLostLocationId());
+                    move.setToLocationId(detail.getLocationId());
+                }
+                moveList.add(move);
+            }
+            else {
+                StockMove moveWin= new StockMove();
+                moveWin.setTaskId(detail.getTakingId());
+                moveWin.setSkuId(detail.getSkuId());
+                moveWin.setToLocationId(locationService.getInventoryLostLocationId());
+                moveWin.setFromLocationId(detail.getLocationId());
+                moveWin.setQty(detail.getRealQty());
+                moveWin.setQtyDone(detail.getRealQty());
+                moveList.add(moveWin);
+
+                StockMove moveLoss= new StockMove();
+                moveLoss.setTaskId(detail.getTakingId());
+                moveLoss.setSkuId(detail.getSkuId());
+                moveLoss.setFromLocationId(locationService.getInventoryLostLocationId());
+                moveLoss.setToLocationId(detail.getLocationId());
+                moveLoss.setQty(detail.getRealQty());
+                moveLoss.setQtyDone(detail.getRealQty());
+                moveList.add(moveLoss);
+            }
+        }
+        moveService.create(moveList);
     }
 }

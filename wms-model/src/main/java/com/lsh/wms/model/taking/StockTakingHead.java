@@ -12,29 +12,29 @@ public class StockTakingHead implements Serializable {
 	/** 盘点名字 */
     private String name;
 	/** 发起者id */
-    private Long planner;
+    private Long planner = 0L;
 	/** 盘点类型, 1-库存盘点， 2-库位盘点 */
-    private Long takingType;
+    private Long takingType = 1L;
 	/** 1-明盘, 2-暗盘 */
-    private Long viewType;
+    private Long viewType = 1L;
 	/** 任务汇总方法，0-按照商品id, 1-按照location */
-    private Long clusterMethod;
+    private Long clusterMethod = 0L;
 	/** 默认差异盘点轮数 */
-    private Long maxChkRnd;
+    private Long maxChkRnd = 1L;
 	/** 盘点日期 */
-    private Long date;
+    private Long date = 0L;
 	/** 盘点任务状态， 1-draft， 2-assinged, 3-done, 4-confirmed, 4-cancel */
-    private Long status;
+    private Long status = 1L;
 	/** 盘哪个供应商的货 */
-    private Long supplierId;
+    private Long supplierId = 0L;
 	/** 货主id */
-    private Long ownerId;
+    private Long ownerId = 0L;
 	/** 存储库位id */
-    private Long locationId;
+    private Long locationId = 0L;
 	/** 批次id */
-    private Long lotId;
+    private Long lotId = 0L;
 	/** 商品id */
-    private Long skuId;
+    private Long skuId = 0L;
 	/**  */
     private Long createdAt;
 	/**  */
