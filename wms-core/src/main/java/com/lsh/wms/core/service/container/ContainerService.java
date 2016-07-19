@@ -1,5 +1,7 @@
 package com.lsh.wms.core.service.container;
 
+import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoContainerDao;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import org.slf4j.Logger;
@@ -23,7 +25,18 @@ public class ContainerService {
     @Autowired
     private BaseinfoContainerDao containerDao;
 
-    public BaseinfoContainer getContainer (long containerId) {
+    // container类型定义
+    public static final Map<Long, Map<String, Object>> containerConfigs = new HashMap<Long, Map<String, Object>>() {
+        {
+            put(1L, new HashMap<String, Object>() { // 托盘
+                {
+                    put("type_name", "123");
+                }
+            });
+        }
+    };
+
+    public BaseinfoContainer getContainer (Long containerId) {
         Map<String, Object> params = new HashMap<String, Object>();
         BaseinfoContainer container;
         params.put("containerId", containerId);
@@ -44,6 +57,18 @@ public class ContainerService {
     @Transactional(readOnly = false)
     public void updateContainer (BaseinfoContainer container) {
         containerDao.update(container);
+    }
+
+    public BaseinfoContainer createContainerByType(Long type) {
+        BaseinfoContainer container = new BaseinfoContainer();
+        container.setContainerId(RandomUtils.genId());
+        container.setCreatedAt(DateUtils.getCurrentSeconds());
+        Map<String, Object> config = this.containerConfigs.get(type);
+        /*if (config != null && !config.isEmpty()) {
+            container.setContainerCode(config.get("container_code").isEmpty() ? );
+        }*/
+        this.insertContainer(container);
+        return container;
     }
 }
 

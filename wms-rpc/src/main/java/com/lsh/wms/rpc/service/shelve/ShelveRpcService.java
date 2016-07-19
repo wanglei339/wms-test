@@ -34,7 +34,7 @@ public class ShelveRpcService implements IShelveRpcService {
     // 分配上架容器
     public BaseinfoLocation assginShelveLocation(BaseinfoContainer container) {
         BaseinfoLocation targetLocation = new BaseinfoLocation();
-        Long containerId = container.getContainerId();
+        /*Long containerId = container.getContainerId();
         // 获取托盘上stockQuant信息
         List<StockQuant> quants = stockQuantService.getQuantsByContainerId(containerId);
         if (quants.size() < 1) {
@@ -51,7 +51,7 @@ public class ShelveRpcService implements IShelveRpcService {
         } else { // 不允许地堆
 
 
-        }
+        }*/
         return targetLocation;
     }
 }

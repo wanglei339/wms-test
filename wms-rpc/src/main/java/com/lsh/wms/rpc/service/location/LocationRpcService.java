@@ -66,7 +66,11 @@ public class LocationRpcService implements ILocationRpcService {
         List<BaseinfoLocation> tempLocations = locationService.getLocationsByType("temporary");
         for (BaseinfoLocation tempLocation : tempLocations) {
             Long tempLocationId = tempLocation.getLocationId();
-            List<StockQuant> quants = stockQuantService.getQuantsByLocationId(tempLocationId);
+            List<Long> containerIds = stockQuantService.getContainerIdByLocationId(tempLocationId);
+            if (tempLocation.getContainerVol() - containerIds.size() > 0) {
+                return tempLocation;
+            }
         }
+        return null;
     }
 }

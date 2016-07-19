@@ -1,6 +1,7 @@
 package com.lsh.wms.rpc.service.container;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.container.IContainerRpcService;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
@@ -28,5 +29,9 @@ public class ContainerRpcService implements IContainerRpcService {
 
     public BaseinfoContainer insertContainer(BaseinfoContainer container) {
         return container;
+    }
+
+    public BaseinfoContainer createTray() {
+        return containerService.createContainerByType(1L);
     }
 }
