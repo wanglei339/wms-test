@@ -64,7 +64,7 @@ public class PORestService implements IPoRestService {
         inbPoHeader.setInserttime(new Date());
 
         //设置orderId
-        inbPoHeader.setOrderId( RandomUtils.genId());
+        inbPoHeader.setOrderId(RandomUtils.genId());
 
         //初始化List<InbPoDetail>
         List<InbPoDetail> inbPoDetailList = new ArrayList<InbPoDetail>();
