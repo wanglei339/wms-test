@@ -35,22 +35,18 @@ public class PoItem {
     @Size(max=100)
     private String madein;
 
-    /** 实际收货数 */
-    private Long inboundQty;
-
     public PoItem() {
 
     }
 
     public PoItem(Long skuId, String skuName, String barCode, Long orderQty,
-                  Long packUnit, String madein, Long inboundQty) {
+                  Long packUnit, String madein) {
         this.skuId = skuId;
         this.skuName = skuName;
         this.barCode = barCode;
         this.orderQty = orderQty;
         this.packUnit = packUnit;
         this.madein = madein;
-        this.inboundQty = inboundQty;
     }
 
     public Long getSkuId(){
@@ -99,14 +95,6 @@ public class PoItem {
 
     public void setMadein(String madein){
         this.madein = madein;
-    }
-
-    public Long getInboundQty(){
-        return this.inboundQty;
-    }
-
-    public void setInboundQty(Long inboundQty){
-        this.inboundQty = inboundQty;
     }
 
 }

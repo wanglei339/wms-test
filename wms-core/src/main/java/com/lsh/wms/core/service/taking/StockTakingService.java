@@ -1,11 +1,8 @@
 package com.lsh.wms.core.service.taking;
 
-import com.google.common.collect.Lists;
 import com.lsh.base.common.utils.DateUtils;
-import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.taking.StockTakingDetailDao;
 import com.lsh.wms.core.dao.taking.StockTakingHeadDao;
-import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
 import org.slf4j.Logger;
@@ -37,16 +34,36 @@ public class StockTakingService {
             detail.setCreatedAt(DateUtils.getCurrentSeconds());
             detail.setUpdatedAt(DateUtils.getCurrentSeconds());
         }
-        detailDao.batchInsesrt(detailList);
+        detailDao.batchInsert(detailList);
     }
 
     @Transactional(readOnly = false)
     public void create(StockTakingHead head, List<StockTakingDetail> detailList) {
-        // TODO 随机ID生成器
-        head.setTakingId(RandomUtils.randomLong());
+        head.setCreatedAt(DateUtils.getCurrentSeconds());
+        head.setUpdatedAt(DateUtils.getCurrentSeconds());
         headDao.insert(head);
 
         this.createDetailList(detailList);
+    }
+
+    public List<StockTakingDetail> getFinalDetailList(Long stockTakingId) {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("takingId", stockTakingId);
+        List<StockTakingDetail> detailList = detailDao.getStockTakingDetailList(mapQuery);
+
+        List<StockTakingDetail> finalDetailList = new ArrayList<StockTakingDetail>();
+        Long lastDetailId = 0L;
+        for (StockTakingDetail detail : detailList) {
+            if (detail.getDetailId().equals(lastDetailId)) {
+                continue;
+            }
+            finalDetailList.add(detail);
+        }
+        return finalDetailList;
+    }
+
+    public StockTakingHead getHeadById(Long takingId) {
+        return headDao.getStockTakingHeadById(takingId);
     }
 }
 

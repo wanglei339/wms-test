@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.po.PoItem;
 import com.lsh.wms.api.model.po.PoRequest;
@@ -54,9 +55,18 @@ public class PORestService implements IPoRestService {
     public BaseResponse insertOrder(PoRequest request) {
         BaseResponse response = new BaseResponse();
 
+        //初始化InbPoHeader
         InbPoHeader inbPoHeader = new InbPoHeader();
         ObjUtils.bean2bean(request, inbPoHeader);
 
+        inbPoHeader.setOrderStatus(1);
+        inbPoHeader.setInserttime(new Date());
+
+        //设置orderId
+        Long orderId = RandomUtils.genId();
+        inbPoHeader.setOrderId(orderId);
+
+        //初始化List<InbPoDetail>
         List<InbPoDetail> inbPoDetailList = new ArrayList<InbPoDetail>();
 
         for(PoItem poItem : request.getItems()) {
@@ -64,20 +74,19 @@ public class PORestService implements IPoRestService {
 
             ObjUtils.bean2bean(poItem, inbPoDetail);
 
+            //设置orderId
+            inbPoDetail.setOrderId(orderId);
+
             inbPoDetailList.add(inbPoDetail);
         }
 
-        try {
-            poOrderService.insertOrder(inbPoHeader, inbPoDetailList);
+        //插入订单
+        poOrderService.insertOrder(inbPoHeader, inbPoDetailList);
 
-            response.setStatus(0);
-            response.setMsg("ok");
-            response.setDataKey(new Date());
-        } catch (Exception ex) {
-            response.setStatus(1);
-            response.setMsg(ex.getMessage());
-            response.setDataKey(new Date());
-        }
+        //打包返回数据
+        response.setStatus(0);
+        response.setMsg("ok");
+        response.setDataKey(new Date());
 
         return response;
     }

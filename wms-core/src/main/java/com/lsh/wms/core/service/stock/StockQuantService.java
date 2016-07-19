@@ -41,6 +41,12 @@ public class StockQuantService {
         return stockQuantDao.getQuants(params);
     }
 
+    public List<StockQuant> getQuantsByContainerId(Long containerId) {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("containerId", containerId);
+        return this.getQuants(mapQuery);
+    }
+
     public StockQuant getQuantById(Long quantId) {
         return stockQuantDao.getStockQuantById(quantId);
     }
@@ -50,6 +56,7 @@ public class StockQuantService {
         mapQuery.put("quantId",quantId);
         return relDao.getStockQuantMoveRelList(mapQuery);
     }
+
     @Transactional(readOnly =  false)
     public void create(StockQuant quant) {
         quant.setCreatedAt(DateUtils.getCurrentSeconds());
@@ -57,16 +64,6 @@ public class StockQuantService {
         stockQuantDao.insert(quant);
     }
 
-    @Transactional(readOnly =  false)
-    public void createByMove(StockQuant quant,Long moveId) {
-        StockQuantMoveRel moveRel=new StockQuantMoveRel();
-        moveRel.setMoveId(moveId);
-        moveRel.setQuantId(quant.getId());
-        quant.setCreatedAt(DateUtils.getCurrentSeconds());
-        quant.setUpdatedAt(DateUtils.getCurrentSeconds());
-        stockQuantDao.insert(quant);
-        relDao.insert(moveRel);
-    }
 
     @Transactional(readOnly =  false)
     public void update(StockQuant quant) {
@@ -93,7 +90,6 @@ public class StockQuantService {
             moveRel.setQuantId(quant.getId());
             relDao.insert(moveRel);
         }
-
     }
 
     @Transactional(readOnly = false)
