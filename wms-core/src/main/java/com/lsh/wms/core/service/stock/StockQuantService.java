@@ -160,4 +160,10 @@ public class StockQuantService {
         return stockQuantDao.getContainerIdByLocationId(locationId);
     }
 
+    public  List<StockQuant> getQuantByLotId(Long lotId) {
+        Map queryMap=new HashMap();
+        queryMap.put("lotId",lotId);
+        return stockQuantDao.getQuants(queryMap);
+    }
+
 }

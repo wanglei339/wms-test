@@ -4,6 +4,8 @@ package com.lsh.wms.api.service.exception;
 import com.alibaba.dubbo.rpc.protocol.rest.RpcExceptionMapper;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.wms.api.model.base.BaseResponse;
+import com.lsh.wms.api.model.base.Head;
+import com.lsh.wms.api.model.base.ResUtils;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -21,9 +23,6 @@ import java.util.Date;
  */
 public class ValidateExceptionMapper extends RpcExceptionMapper {
     protected Response handleConstraintViolationException(ConstraintViolationException cve) {
-        BaseResponse responseBaseVo = new BaseResponse();
-        responseBaseVo.setDataKey(new Date());
-        responseBaseVo.setStatus(500);
         StringBuffer msg = new StringBuffer();
 
         for (ConstraintViolation cv : cve.getConstraintViolations()) {
@@ -35,7 +34,7 @@ public class ValidateExceptionMapper extends RpcExceptionMapper {
                     .append(";");
 
         }
-        responseBaseVo.setMsg(msg.toString());
+        BaseResponse responseBaseVo = ResUtils.getResponse(ExceptionConstant.RES_CODE_300,msg.toString(),null);
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(responseBaseVo).type(ContentType.APPLICATION_JSON_UTF_8).build();
     }
 }
