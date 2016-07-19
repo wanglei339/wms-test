@@ -33,7 +33,16 @@ public class OutbDeliveryHeader implements Serializable {
     private Date inserttime;
 	/**  */
     private Date updatetime;
-	
+	private String deliveryDetails;
+
+	public String getDeliveryDetails() {
+		return deliveryDetails;
+	}
+
+	public void setDeliveryDetails(String deliveryDetails) {
+		this.deliveryDetails = deliveryDetails;
+	}
+
 	public Long getId(){
 		return this.id;
 	}
