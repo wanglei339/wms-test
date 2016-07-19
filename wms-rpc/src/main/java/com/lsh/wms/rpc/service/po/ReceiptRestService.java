@@ -1,4 +1,4 @@
-package com.lsh.wms.service.po;
+package com.lsh.wms.rpc.service.po;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
@@ -13,6 +13,7 @@ import com.lsh.wms.core.service.po.PoReceiptService;
 import com.lsh.wms.model.po.InbPoDetail;
 import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.InbReceiptHeader;
+import com.lsh.wms.rpc.service.item.ItemRestService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.Consumes;
@@ -41,6 +42,9 @@ public class ReceiptRestService implements IReceiptRestService {
 
     @Autowired
     private PoReceiptService poReceiptService;
+
+    @Autowired
+    private ItemRestService itemRestService;
 
     @POST
     @Path("init")
