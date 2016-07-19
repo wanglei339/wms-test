@@ -1,5 +1,6 @@
 package com.lsh.wms.api.service.po;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.po.ReceiptRequest;
 
@@ -15,5 +16,5 @@ import com.lsh.wms.api.model.po.ReceiptRequest;
 public interface IReceiptRestService {
     public String init(String poReceiptInfo);
 
-    public BaseResponse insertOrder(ReceiptRequest request);
+    public BaseResponse insertOrder(ReceiptRequest request) throws BizCheckedException;
 }

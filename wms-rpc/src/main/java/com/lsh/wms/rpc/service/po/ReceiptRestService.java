@@ -66,7 +66,7 @@ public class ReceiptRestService implements IReceiptRestService {
 
     @POST
     @Path("insert")
-    public BaseResponse insertOrder(ReceiptRequest request) {
+    public BaseResponse insertOrder(ReceiptRequest request) throws BizCheckedException{
         //初始化InbReceiptHeader
         InbReceiptHeader inbReceiptHeader = new InbReceiptHeader();
         ObjUtils.bean2bean(request, inbReceiptHeader);
@@ -96,10 +96,11 @@ public class ReceiptRestService implements IReceiptRestService {
             //根据request中的orderOtherId查询InbPoHeader
             InbPoHeader inbPoHeader = poOrderService.getInbPoHeaderByOrderOtherId(request.getOrderOtherId());
             if(inbPoHeader == null) {
-//                throw new BizCheckedException("2", "abc");
+                throw  new BizCheckedException("30001","订单不存在");
             }
 
             //写入InbReceiptDetail中的OrderId
+            inbReceiptDetail.setOrderId(inbPoHeader.getOrderId());
 
             //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
 
