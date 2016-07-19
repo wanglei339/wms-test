@@ -12,23 +12,23 @@ public class InbReceiptHeader implements Serializable {
 	/** 预约单号 */
     private String bookingNum;
 	/** 收货单号 */
-    private String receiptCode;
+    private Long receiptOrderId;
+	/** 收货码头 */
+    private String receiptWharf;
+	/** 暂存区 */
+    private String tempStoreArea;
+	/** 托盘码 */
+    private Long containerId;
+	/** 分配库位 */
+    private Long location;
+	/** 实际库位 */
+    private Long realLocation;
 	/** 收货员 */
     private String receiptUser;
 	/** 收货时间 */
     private Date receiptTime;
 	/** 收货状态，1已收货，2已上架 */
     private Integer receiptStatus;
-	/** 收货码头 */
-	private String receiptWharf;
-	/** 暂存区 */
-	private String tempStoreArea;
-	/** 托盘码 */
-	private Long containerId;
-	/** 分配库位 */
-	private Long location;
-	/** 实际库位 */
-	private Long realLocation;
 	/**  */
     private String insertby;
 	/**  */
@@ -37,10 +37,9 @@ public class InbReceiptHeader implements Serializable {
     private Date inserttime;
 	/**  */
     private Date updatetime;
-	/** 商品 */
+
 	private String receiptDetails;
-
-
+	
 	public Long getId(){
 		return this.id;
 	}
@@ -65,12 +64,52 @@ public class InbReceiptHeader implements Serializable {
 		this.bookingNum = bookingNum;
 	}
 	
-	public String getReceiptCode(){
-		return this.receiptCode;
+	public Long getReceiptOrderId(){
+		return this.receiptOrderId;
 	}
 	
-	public void setReceiptCode(String receiptCode){
-		this.receiptCode = receiptCode;
+	public void setReceiptOrderId(Long receiptOrderId){
+		this.receiptOrderId = receiptOrderId;
+	}
+	
+	public String getReceiptWharf(){
+		return this.receiptWharf;
+	}
+	
+	public void setReceiptWharf(String receiptWharf){
+		this.receiptWharf = receiptWharf;
+	}
+	
+	public String getTempStoreArea(){
+		return this.tempStoreArea;
+	}
+	
+	public void setTempStoreArea(String tempStoreArea){
+		this.tempStoreArea = tempStoreArea;
+	}
+	
+	public Long getContainerId(){
+		return this.containerId;
+	}
+	
+	public void setContainerId(Long containerId){
+		this.containerId = containerId;
+	}
+	
+	public Long getLocation(){
+		return this.location;
+	}
+	
+	public void setLocation(Long location){
+		this.location = location;
+	}
+	
+	public Long getRealLocation(){
+		return this.realLocation;
+	}
+	
+	public void setRealLocation(Long realLocation){
+		this.realLocation = realLocation;
 	}
 	
 	public String getReceiptUser(){
@@ -129,46 +168,6 @@ public class InbReceiptHeader implements Serializable {
 		this.updatetime = updatetime;
 	}
 
-	public String getReceiptWharf() {
-		return receiptWharf;
-	}
-
-	public void setReceiptWharf(String receiptWharf) {
-		this.receiptWharf = receiptWharf;
-	}
-
-	public String getTempStoreArea() {
-		return tempStoreArea;
-	}
-
-	public void setTempStoreArea(String tempStoreArea) {
-		this.tempStoreArea = tempStoreArea;
-	}
-
-	public Long getContainerId() {
-		return containerId;
-	}
-
-	public void setContainerId(Long containerId) {
-		this.containerId = containerId;
-	}
-
-	public Long getLocation() {
-		return location;
-	}
-
-	public void setLocation(Long location) {
-		this.location = location;
-	}
-
-	public Long getRealLocation() {
-		return realLocation;
-	}
-
-	public void setRealLocation(Long realLocation) {
-		this.realLocation = realLocation;
-	}
-
 	public String getReceiptDetails() {
 		return receiptDetails;
 	}
@@ -176,5 +175,4 @@ public class InbReceiptHeader implements Serializable {
 	public void setReceiptDetails(String receiptDetails) {
 		this.receiptDetails = receiptDetails;
 	}
-
 }

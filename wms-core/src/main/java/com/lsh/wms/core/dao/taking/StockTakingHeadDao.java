@@ -13,7 +13,7 @@ public interface StockTakingHeadDao {
 	
 	void update(StockTakingHead stockTakingHead);
 	
-	StockTakingHead getStockTakingHeadById(Integer id);
+	StockTakingHead getStockTakingHeadById(Long id);
 
     Integer countStockTakingHead(Map<String, Object> params);
 

@@ -27,4 +27,6 @@ public interface IItemRpcService {
 
     BaseinfoItemLocation insertItemLocation(BaseinfoItemLocation itemLocation);
     BaseinfoItemLocation updateItemLocation(BaseinfoItemLocation itemLocation);
+
+    BaseinfoItem getItem(long itemId);
 }

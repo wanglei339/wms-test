@@ -40,6 +40,7 @@
 		<result property="pileX" column="pile_x"/>
 		<result property="pileY" column="pile_y"/>
 		<result property="pileZ" column="pile_z"/>
+		<result property="itemId" column="item_id"/>
 	</resultMap>
 
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoItem">
@@ -49,20 +50,24 @@
 		height,weight,l2_length,l2_width,l2_height,l2_weight,
 		l2_unit,pack_length,pack_width,pack_height,pack_weight,pack_unit,
 		sale_unit,item_level,created_at,updated_at,produce_place,batch_needed,
-		floor_available,storage_temperature,safety_qty,pile_x,pile_y,pile_z
+		floor_available,storage_temperature,safety_qty,pile_x,pile_y,pile_z,
+		item_id
 		) values (
 		#{skuId},#{ownerId},#{skuCode},#{skuName},#{codeType},#{code},
 		#{topCat},#{secondCat},#{thirdCat},#{shelfLife},#{length},#{width},
 		#{height},#{weight},#{l2Length},#{l2Width},#{l2Height},#{l2Weight},
 		#{l2Unit},#{packLength},#{packWidth},#{packHeight},#{packWeight},#{packUnit},
 		#{saleUnit},#{itemLevel},#{createdAt},#{updatedAt},#{producePlace},#{batchNeeded},
-		#{floorAvailable},#{storageTemperature},#{safetyQty},#{pileX},#{pileY},#{pileZ}
+		#{floorAvailable},#{storageTemperature},#{safetyQty},#{pileX},#{pileY},#{pileZ},
+		#{itemId}
 		)
 	</insert>
 
 	<update id="update" parameterType="BaseinfoItem">
 		update baseinfo_item
 		<set>
+			<if test="skuId != null">sku_id=#{skuId},</if>
+			<if test="ownerId != null">owner_id=#{ownerId},</if>
 			<if test="skuCode != null">sku_code=#{skuCode},</if>
 			<if test="skuName != null">sku_name=#{skuName},</if>
 			<if test="codeType != null">code_type=#{codeType},</if>
@@ -96,9 +101,9 @@
 			<if test="safetyQty != null">safety_qty=#{safetyQty},</if>
 			<if test="pileX != null">pile_x=#{pileX},</if>
 			<if test="pileY != null">pile_y=#{pileY},</if>
-			<if test="pileZ != null">pile_z=#{pileZ}</if>
+			<if test="pileZ != null">pile_z=#{pileZ},</if>
 		</set>
-		where sku_id=#{skuId} and owner_id=#{ownerId}
+		where item_id=#{itemId}
 	</update>
 
 	<select id="getBaseinfoItemById" parameterType="int" resultMap="baseinfoItemResultMap">
@@ -158,6 +163,7 @@
 			<if test="pileX != null">and pile_x=#{pileX}</if>
 			<if test="pileY != null">and pile_y=#{pileY}</if>
 			<if test="pileZ != null">and pile_z=#{pileZ}</if>
+			<if test="itemId != null">and item_id=#{itemId}</if>
 		</where>
 	</sql>
 

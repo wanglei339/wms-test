@@ -1,6 +1,7 @@
 package com.lsh.wms.core.service.item;
 
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoItemDao;
 import com.lsh.wms.core.dao.csi.CsiSkuDao;
 import com.lsh.wms.core.dao.stock.StockQuantDao;
@@ -69,6 +70,8 @@ public class ItemService {
 
     @Transactional(readOnly = false)
     public BaseinfoItem insertItem(BaseinfoItem item){
+        //gen itemId
+        item.setItemId(RandomUtils.genId());
         item.setCreatedAt(DateUtils.getCurrentSeconds());
         //创建商品
         itemDao.insert(item);
@@ -82,13 +85,27 @@ public class ItemService {
         itemDao.update(item);
     }
 
-        public int deleteItem(BaseinfoItem item){
-            return -1;
-        }
+    public int deleteItem(BaseinfoItem item){
+        return -1;
+    }
 
-        //按品类,sku_id,owner等查询
-        public List<BaseinfoItem> searchItem(Map<String, Object> mapQuery){
-            return itemDao.getBaseinfoItemList(mapQuery);
-        }
+    //按品类,sku_id,owner等查询
+    public List<BaseinfoItem> searchItem(Map<String, Object> mapQuery){
+        return itemDao.getBaseinfoItemList(mapQuery);
+    }
+
+    //按获取count
+    public int countItem(Map<String, Object> mapQuery){
+        return itemDao.countBaseinfoItem(mapQuery);
+    }
+
+    public BaseinfoItem getItem(long itemId){
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("itemId", itemId);
+        List<BaseinfoItem> items = itemDao.getBaseinfoItemList(mapQuery);
+        return items.size() == 0 ? null : items.get(0);
+    }
+
+
 
 }

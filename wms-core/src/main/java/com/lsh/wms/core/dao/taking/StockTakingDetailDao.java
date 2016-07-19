@@ -11,7 +11,7 @@ public interface StockTakingDetailDao {
 
 	void insert(StockTakingDetail stockTakingDetail);
 
-	void batchInsesrt(List<StockTakingDetail> detailList);
+	void batchInsert(List<StockTakingDetail> list);
 	
 	void update(StockTakingDetail stockTakingDetail);
 	

@@ -17,7 +17,7 @@
 		<result property="inserttime" column="INSERTTIME"/>
 		<result property="updatetime" column="UPDATETIME"/>
 	</resultMap>
-  
+
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="InbPoDetail">
 		insert into INB_PO_DETAIL (
 			ORDER_ID,SKU_ID,SKU_NAME,BAR_CODE,ORDER_QTY,PACK_UNIT,
@@ -57,17 +57,23 @@
 		</set>
 		where ID=#{id}
 	</update>
-  
+
+	<update id="updateInboundQtyByOrderIdAndSkuId">
+		update INB_PO_DETAIL
+		SET INBOUND_QTY=INBOUND_QTY + #{inboundQty}
+		where ORDER_ID=#{orderId} AND SKU_ID=#{skuId} AND ORDER_QTY >= INBOUND_QTY + #{inboundQty}
+	</update>
+
 	<select id="getInbPoDetailById" parameterType="int" resultMap="inbPoDetailResultMap">
 		select * from INB_PO_DETAIL
-		where ID=#{id} 
+		where ID=#{id}
 	</select>
-  
+
 	<select id="countInbPoDetail" parameterType="map" resultType="int">
 		select count(*) from INB_PO_DETAIL
 		<include refid="queryCondition"/>
 	</select>
-  
+
 	<select id="getInbPoDetailList" parameterType="map" resultMap="inbPoDetailResultMap">
 		select * from INB_PO_DETAIL
 		<include refid="queryCondition"/>
@@ -75,7 +81,7 @@
 		limit #{start},#{limit}
 		</if>
 	</select>
-  
+
 	<sql id="queryCondition">
 		<where>
 			<if test="id != null">ID=#{id}</if>
@@ -93,5 +99,5 @@
 			<if test="updatetime != null">and UPDATETIME=#{updatetime}</if>
 		</where>
 	</sql>
-   
+
 </mapper>
