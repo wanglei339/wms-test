@@ -2,9 +2,12 @@ package com.lsh.wms.rpc.service.stock;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.stock.StockLotService;
+import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.api.service.stock.IStockQuantRestService;
 import com.lsh.wms.core.service.stock.StockQuantService;
@@ -36,6 +39,9 @@ public class StockQuantRestService implements IStockQuantRestService {
 
     @Autowired
     private LocationService locationService;
+
+    @Autowired
+    private StockLotService stockLotService;
 
     @GET
     @Path("getOnhandQty")

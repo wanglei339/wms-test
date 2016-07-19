@@ -43,6 +43,10 @@ public class StockQuant implements Serializable,Cloneable {
 	/**  */
     private Long updatedAt;
 
+	private Long itemId;
+
+	private String stockLot;
+
 
     public Long getId(){
 
@@ -181,8 +185,23 @@ public class StockQuant implements Serializable,Cloneable {
 		this.updatedAt = updatedAt;
 	}
 
+	public String getStockLot() {
+		return stockLot;
+	}
 
-    @Override
+	public void setStockLot(String stockLot) {
+		this.stockLot = stockLot;
+	}
+
+	public Long getItemId() {
+		return itemId;
+	}
+
+	public void setItemId(Long itemId) {
+		this.itemId = itemId;
+	}
+
+	@Override
     public Object clone() {
         StockQuant stockQuant = null;
         try{
