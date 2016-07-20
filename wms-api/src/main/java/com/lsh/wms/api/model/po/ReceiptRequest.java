@@ -26,6 +26,9 @@ public class ReceiptRequest implements Serializable {
     @Size(max=64)
     private String bookingNum;
 
+    /** 托盘码 */
+    private Long containerId;
+
     /** 收货员 */
     @NotBlank
     @Size(max=64)
@@ -48,15 +51,24 @@ public class ReceiptRequest implements Serializable {
 
     }
 
-    public ReceiptRequest(String orderOtherId, Long warehouseId, String bookingNum, String receiptUser, Date receiptTime,
+    public ReceiptRequest(String orderOtherId, Long warehouseId, String bookingNum,Long containerId, String receiptUser, Date receiptTime,
                           String receiptWharf, List<ReceiptItem> items) {
         this.orderOtherId = orderOtherId;
         this.warehouseId = warehouseId;
         this.bookingNum = bookingNum;
+        this.containerId = containerId;
         this.receiptUser = receiptUser;
         this.receiptTime = receiptTime;
         this.receiptWharf = receiptWharf;
         this.items = items;
+    }
+
+    public Long getContainerId() {
+        return containerId;
+    }
+
+    public void setContainerId(Long containerId) {
+        this.containerId = containerId;
     }
 
     public String getOrderOtherId() {

@@ -13,8 +13,10 @@ public class InbReceiptDetail implements Serializable {
     private Long orderId;
 	/** 批次号 */
     private String lotNum;
-	/** 商品ID */
+	/** 仓库商品ID */
     private Long skuId;
+	/** 商品ID */
+    private Long itemId;
 	/** 商品名称 */
     private String skuName;
 	/** 国条码 */
@@ -82,6 +84,14 @@ public class InbReceiptDetail implements Serializable {
 	
 	public void setSkuId(Long skuId){
 		this.skuId = skuId;
+	}
+	
+	public Long getItemId(){
+		return this.itemId;
+	}
+	
+	public void setItemId(Long itemId){
+		this.itemId = itemId;
 	}
 	
 	public String getSkuName(){
