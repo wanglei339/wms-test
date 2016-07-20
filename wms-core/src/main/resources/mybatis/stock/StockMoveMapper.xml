@@ -7,8 +7,8 @@
 		<result property="skuId" column="sku_id"/>
 		<result property="fromLocationId" column="from_location_id"/>
 		<result property="toLocationId" column="to_location_id"/>
-		<result property="relFromLocationId" column="rel_from_location_id"/>
-		<result property="relToLocationId" column="rel_to_location_id"/>
+		<result property="realFromLocationId" column="real_from_location_id"/>
+		<result property="realToLocationId" column="real_to_location_id"/>
 		<result property="fromContainerId" column="from_container_id"/>
 		<result property="toContainerId" column="to_container_id"/>
 		<result property="qty" column="qty"/>
@@ -28,11 +28,11 @@
 		insert into stock_move (
 			sku_id,from_location_id,to_location_id,from_container_id,to_container_id,qty,
 			qty_done,move_dest_id,ori_move_id,task_id,seq_no,operator,
-			status,move_type,created_at,updated_at,rel_from_location_id,rel_to_location_id
+			status,move_type,created_at,updated_at,real_from_location_id,real_to_location_id
     	) values (
 			#{skuId},#{fromLocationId},#{toLocationId},#{fromContainerId},#{toContainerId},#{qty},
 			#{qtyDone},#{moveDestId},#{oriMoveId},#{taskId},#{seqNo},#{operator},
-			#{status},#{moveType},#{createdAt},#{updatedAt},#{relFromLocationId},#{relToLocationId}
+			#{status},#{moveType},#{createdAt},#{updatedAt},#{realFromLocationId},#{realToLocationId}
     	)
 	</insert>
 
@@ -55,8 +55,8 @@
   			<if test="moveType != null">move_type=#{moveType},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
-			<if test="relFromLocationId != null">created_at=#{relFromLocationId},</if>
-			<if test="relToLocationId != null">updated_at=#{relToLocationId}</if>
+			<if test="realFromLocationId != null">real_from_location_id=#{realFromLocationId},</if>
+			<if test="realToLocationId != null">real_to_location_id=#{realToLocationId}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -97,17 +97,17 @@
 					#{item}
 				</foreach>
 			</if>
-			<if test="relFromLocationId != null">and rel_from_location_id=#{relFromLocationId}</if>
-			<if test="relFromLocationList != null">
-				and rel_from_location_id in
-				<foreach collection="relFromLocationList"   item="item" index="index" open="(" separator=","  close=")">
+			<if test="realFromLocationId != null">and real_from_location_id=#{realFromLocationId}</if>
+			<if test="realFromLocationList != null">
+				and real_from_location_id in
+				<foreach collection="realFromLocationList"   item="item" index="index" open="(" separator=","  close=")">
 					#{item}
 				</foreach>
 			</if>
-			<if test="relToLocationId != null">and relTo_location_id=#{relToLocationId}</if>
-			<if test="relToLocationList != null">
-				and rel_to_location_id in
-				<foreach collection="relToLocationList"   item="item" index="index" open="(" separator=","  close=")">
+			<if test="realToLocationId != null">and realTo_location_id=#{realToLocationId}</if>
+			<if test="realToLocationList != null">
+				and real_to_location_id in
+				<foreach collection="realToLocationList"   item="item" index="index" open="(" separator=","  close=")">
 					#{item}
 				</foreach>
 			</if>
