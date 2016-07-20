@@ -34,7 +34,7 @@ public class SoOrderService {
     private OutbSoDetailDao outbSoDetailDao;
 
     /**
-     * 插入InbPoHeader及InbPoDetail
+     * 插入OutbSoHeader及OutbSoDetail
      * @param outbSoHeader
      * @param outbSoDetailList
      */
@@ -51,7 +51,7 @@ public class SoOrderService {
     }
 
     /**
-     * 插入InbPoHeader及InbPoDetail
+     * 插入OutbSoHeader及OutbSoDetail
      * @param outbSoHeader
      * @param outbSoDetailList
      */
@@ -67,18 +67,32 @@ public class SoOrderService {
         outbSoHeaderDao.update(outbSoHeader);
     }
 
+    /**
+     * 根据ID获取OutbSoHeader
+     * @param id
+     * @return
+     */
     public OutbSoHeader getOutbSoHeaderById(Long id){
-        return null;
+        return outbSoHeaderDao.getOutbSoHeaderById(id);
     }
 
+    /**
+     * 自定义参数获取OutbSoHeader数量
+     * @param params
+     * @return
+     */
     public Integer countOutbSoHeader(Map<String, Object> params){
-        return null;
+        return outbSoHeaderDao.countOutbSoHeader(params);
     }
 
+    /**
+     * 根据参数获取List<OutbSoHeader>
+     * @param params
+     * @return
+     */
     public List<OutbSoHeader> getOutbSoHeaderList(Map<String, Object> params){
-        return null;
+        return outbSoHeaderDao.getOutbSoHeaderList(params);
     }
-
 
     /**
      *
