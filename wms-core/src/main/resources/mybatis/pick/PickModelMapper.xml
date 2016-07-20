@@ -34,7 +34,6 @@
 	<update id="update" parameterType="PickModel">
 		update pick_model
     	<set>
-  			<if test="pickModelId != null">pick_model_id=#{pickModelId},</if>
   			<if test="pickModelTemplate != null">pick_model_template=#{pickModelTemplate},</if>
   			<if test="pickZoneId != null">pick_zone_id=#{pickZoneId},</if>
   			<if test="pickModel != null">pick_model=#{pickModel},</if>
@@ -48,7 +47,7 @@
   			<if test="fpmrSmallItemThreshold != null">fpmr_small_item_threshold=#{fpmrSmallItemThreshold},</if>
   			<if test="fpmrSowMethod != null">fpmr_sow_method=#{fpmrSowMethod}</if>
 		</set>
-		where id=#{id}
+		where pick_model_id=#{pickModelId}
 	</update>
   
 	<select id="getPickModelById" parameterType="int" resultMap="pickModelResultMap">
