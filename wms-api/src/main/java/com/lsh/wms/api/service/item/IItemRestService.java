@@ -20,7 +20,7 @@ public interface IItemRestService {
     String updateItem(BaseinfoItem item);
 
 
-    String getItemLocation(long iSkuId,long iOwnerId);
+    String getItemLocation(long iItemId);
     String getItemLocationByLocationID(long iLocationId);
     String insertItemLocation(BaseinfoItemLocation itemLocation);
     String updateItemLocation(BaseinfoItemLocation itemLocation);
