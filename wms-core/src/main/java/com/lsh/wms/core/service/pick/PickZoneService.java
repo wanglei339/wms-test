@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.pick;
 
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.pick.PickZoneDao;
 import com.lsh.wms.model.pick.PickZone;
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ public class PickZoneService {
     PickZoneDao zoneDao;
 
     public int insertPickZone(PickZone zone){
+        zone.setPickZoneId(RandomUtils.genId());
         zoneDao.insert(zone);
         return 0;
     }
@@ -41,6 +43,10 @@ public class PickZoneService {
 
     public int getPickZoneCount(Map<String, Object> mapQuery){
         return zoneDao.countPickZone(mapQuery);
+    }
+
+    public void updatePickZone(PickZone zone){
+        zoneDao.update(zone);
     }
 
 }
