@@ -5,6 +5,7 @@
 	<resultMap id="outbDeliveryHeaderResultMap" type="OutbDeliveryHeader">
 		<id property="id" column="ID"/>
 		<result property="warehouseId" column="WAREHOUSE_ID"/>
+		<result property="deliveryId" column="DELIVERY_ID"/>
 		<result property="shippingAreaCode" column="SHIPPING_AREA_CODE"/>
 		<result property="waveId" column="WAVE_ID"/>
 		<result property="transPlan" column="TRANS_PLAN"/>
@@ -21,11 +22,11 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="OutbDeliveryHeader">
 		insert into OUTB_DELIVERY_HEADER (
-			WAREHOUSE_ID,SHIPPING_AREA_CODE,WAVE_ID,TRANS_PLAN,TRANS_TIME,DELIVERY_CODE,
+			WAREHOUSE_ID,DELIVERY_ID,SHIPPING_AREA_CODE,WAVE_ID,TRANS_PLAN,TRANS_TIME,DELIVERY_CODE,
 			DELIVERY_USER,DELIVERY_TYPE,DELIVERY_TIME,INSERTBY,UPDATEBY,INSERTTIME,
 			UPDATETIME
     	) values (
-			#{warehouseId},#{shippingAreaCode},#{waveId},#{transPlan},#{transTime},#{deliveryCode},
+			#{warehouseId},#{deliveryId},#{shippingAreaCode},#{waveId},#{transPlan},#{transTime},#{deliveryCode},
 			#{deliveryUser},#{deliveryType},#{deliveryTime},#{insertby},#{updateby},#{inserttime},
 			#{updatetime}
     	)
@@ -35,6 +36,7 @@
 		update OUTB_DELIVERY_HEADER
     	<set>
   			<if test="warehouseId != null">WAREHOUSE_ID=#{warehouseId},</if>
+			<if test="deliveryId != null">DELIVERY_ID=#{deliveryId},</if>
   			<if test="shippingAreaCode != null">SHIPPING_AREA_CODE=#{shippingAreaCode},</if>
   			<if test="waveId != null">WAVE_ID=#{waveId},</if>
   			<if test="transPlan != null">TRANS_PLAN=#{transPlan},</if>
@@ -73,6 +75,7 @@
 		<where>
 			<if test="id != null">ID=#{id}</if>
 			<if test="warehouseId != null">and WAREHOUSE_ID=#{warehouseId}</if>
+			<if test="deliveryId != null">and DELIVERY_ID=#{deliveryId}</if>
 			<if test="shippingAreaCode != null">and SHIPPING_AREA_CODE=#{shippingAreaCode}</if>
 			<if test="waveId != null">and WAVE_ID=#{waveId}</if>
 			<if test="transPlan != null">and TRANS_PLAN=#{transPlan}</if>
