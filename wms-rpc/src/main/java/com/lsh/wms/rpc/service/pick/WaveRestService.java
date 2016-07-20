@@ -3,15 +3,18 @@ package com.lsh.wms.rpc.service.pick;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.remoting.ExecutionException;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.pick.IWaveRestService;
+import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.service.pick.PickModelService;
 import com.lsh.wms.core.service.pick.PickWaveService;
 import com.lsh.wms.core.service.pick.PickZoneService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.pick.*;
+import com.lsh.wms.rpc.service.pick.wave.WaveCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +46,8 @@ public class WaveRestService implements IWaveRestService {
     @Autowired
     private PickModelService modelService;
     @Autowired
+    private WaveCore core;
+
 
     @POST
     @Path("getList")
@@ -78,17 +83,41 @@ public class WaveRestService implements IWaveRestService {
     @Path("releaseWave")
     public String releaseWave(@QueryParam("waveId") long iWaveId,
                               @QueryParam("uid") long iUid,
-                              @QueryParam("uname") String iUName) {
-        PickWaveHead head = new PickWaveHead();
-        head.setWaveId(iWaveId);
+                              @QueryParam("uname") String iUName) throws BizCheckedException {
+        PickWaveHead head = pickWaveService.getWave(iWaveId);
+        if(head==null){
+            System.out.println(iWaveId+"fuck");
+            throw new BizCheckedException("2040001");
+        }
+        if(head.getStatus() == WaveConstant.STATUS_NEW
+                || head.getStatus() != WaveConstant.STATUS_RELEASE_FAIL
+                || (head.getStatus() == WaveConstant.STATUS_RELEASE_START && DateUtils.getCurrentSeconds()-head.getReleaseAt() > 300))
+        {
+
+        } else {
+            throw new BizCheckedException("2040002");
+        }
         head.setReleaseUid(iUid);
         head.setReleaseUname(iUName);
         head.setReleaseAt(DateUtils.getCurrentSeconds());
+        head.setStatus((long) WaveConstant.STATUS_RELEASE_START);
         try{
             pickWaveService.update(head);
         }catch (Exception e){
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR("Release failed");
+            throw  new BizCheckedException("2040003");
+        }
+        boolean bNeedRollBack = true;
+        try {
+            core.release(iWaveId);
+            bNeedRollBack = false;
+        }catch (BizCheckedException e){
+            logger.error("Wave release fail, wave id %d msg %s", iWaveId, e.getMessage());
+            throw e;
+        } finally {
+            if(bNeedRollBack) {
+                head.setStatus((long) WaveConstant.STATUS_RELEASE_FAIL);
+                pickWaveService.update(head);
+            }
         }
         return JsonUtils.SUCCESS();
     }
