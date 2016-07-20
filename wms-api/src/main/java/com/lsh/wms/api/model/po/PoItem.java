@@ -11,9 +11,9 @@ import java.util.Date;
  */
 public class PoItem {
 
-    /** 商品ID */
+    /** 物美码 */
     @NotNull
-    private Long skuId;
+    private String skuCode;
 
     /** 商品名称 */
     @Size(max=50)
@@ -39,9 +39,9 @@ public class PoItem {
 
     }
 
-    public PoItem(Long skuId, String skuName, String barCode, Long orderQty,
+    public PoItem(String skuCode, String skuName, String barCode, Long orderQty,
                   Long packUnit, String madein) {
-        this.skuId = skuId;
+        this.skuCode = skuCode;
         this.skuName = skuName;
         this.barCode = barCode;
         this.orderQty = orderQty;
@@ -49,12 +49,12 @@ public class PoItem {
         this.madein = madein;
     }
 
-    public Long getSkuId(){
-        return this.skuId;
+    public String getSkuCode() {
+        return skuCode;
     }
 
-    public void setSkuId(Long skuId){
-        this.skuId = skuId;
+    public void setSkuCode(String skuCode) {
+        this.skuCode = skuCode;
     }
 
     public String getSkuName(){
