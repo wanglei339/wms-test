@@ -11,6 +11,8 @@ public class InbPoDetail implements Serializable {
     private Long orderId;
 	/** 商品ID */
     private Long skuId;
+	/** 物美码 */
+    private String skuCode;
 	/** 商品名称 */
     private String skuName;
 	/** 国条码 */
@@ -54,6 +56,14 @@ public class InbPoDetail implements Serializable {
 	
 	public void setSkuId(Long skuId){
 		this.skuId = skuId;
+	}
+	
+	public String getSkuCode(){
+		return this.skuCode;
+	}
+	
+	public void setSkuCode(String skuCode){
+		this.skuCode = skuCode;
 	}
 	
 	public String getSkuName(){

@@ -17,11 +17,11 @@ public interface InbPoDetailDao {
 	void update(InbPoDetail inbPoDetail);
 
 	void updateInboundQtyByOrderIdAndSkuId(@Param(value="inboundQty") Long inboundQty, @Param(value="orderId") Long orderId, @Param(value="skuId") Long skuId);
-	
+
 	InbPoDetail getInbPoDetailById(Long id);
 
-    Integer countInbPoDetail(Map<String, Object> params);
+	Integer countInbPoDetail(Map<String, Object> params);
 
-    List<InbPoDetail> getInbPoDetailList(Map<String, Object> params);
+	List<InbPoDetail> getInbPoDetailList(Map<String, Object> params);
 	
 }
