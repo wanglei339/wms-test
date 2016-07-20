@@ -29,9 +29,15 @@ public class SoOrderService {
 
     @Autowired
     private OutbSoHeaderDao outbSoHeaderDao;
+
     @Autowired
     private OutbSoDetailDao outbSoDetailDao;
 
+    /**
+     * 插入InbPoHeader及InbPoDetail
+     * @param outbSoHeader
+     * @param outbSoDetailList
+     */
     @Transactional(readOnly = false)
     public void insert(OutbSoHeader outbSoHeader, List<OutbSoDetail> outbSoDetailList){
         outbSoHeader.setInserttime(new Date());
@@ -41,6 +47,18 @@ public class SoOrderService {
         for (OutbSoDetail outbSoDetail :outbSoDetailList) {
             outbSoDetail.setOrderId(outbSoHeader.getOrderId());
         }
+        outbSoDetailDao.batchInsert(outbSoDetailList);
+    }
+
+    /**
+     * 插入InbPoHeader及InbPoDetail
+     * @param outbSoHeader
+     * @param outbSoDetailList
+     */
+    @Transactional
+    public void insertOrder(OutbSoHeader outbSoHeader, List<OutbSoDetail> outbSoDetailList) {
+        outbSoHeaderDao.insert(outbSoHeader);
+
         outbSoDetailDao.batchInsert(outbSoDetailList);
     }
 
@@ -69,6 +87,6 @@ public class SoOrderService {
      * desc 根据order_id 获取so订单商品详情
      */
     List<OutbSoDetail> getOutbSoDetailList(Map<String, Object> params){
-        return  outbSoDetailDao.getOutbSoDetailList(params);
+        return outbSoDetailDao.getOutbSoDetailList(params);
     }
 }

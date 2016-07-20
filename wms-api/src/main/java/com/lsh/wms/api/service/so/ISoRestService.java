@@ -1,5 +1,8 @@
 package com.lsh.wms.api.service.so;
 
+import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.wms.api.model.base.BaseResponse;
+import com.lsh.wms.api.model.so.SoRequest;
 import com.lsh.wms.model.so.OutbSoDetail;
 import com.lsh.wms.model.so.OutbSoHeader;
 
@@ -18,4 +21,6 @@ import java.util.Map;
  */
 public interface ISoRestService {
     public String init(String soOrderInfo);
+
+    public BaseResponse insertOrder(SoRequest request) throws BizCheckedException;
 }

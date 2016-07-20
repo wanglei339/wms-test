@@ -12,6 +12,7 @@ public interface OutbSoHeaderDao {
 	void insert(OutbSoHeader outbSoHeader);
 	
 	void update(OutbSoHeader outbSoHeader);
+
 	void updateByOrderId(OutbSoHeader outbSoHeader);
 
 	OutbSoHeader getOutbSoHeaderById(Long id);
