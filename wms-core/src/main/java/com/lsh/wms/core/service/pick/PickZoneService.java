@@ -23,7 +23,7 @@ public class PickZoneService {
 
     @Autowired
     PickZoneDao zoneDao;
-
+    @Transactional(readOnly = false)
     public int insertPickZone(PickZone zone){
         zone.setPickZoneId(RandomUtils.genId());
         zoneDao.insert(zone);
@@ -44,7 +44,7 @@ public class PickZoneService {
     public int getPickZoneCount(Map<String, Object> mapQuery){
         return zoneDao.countPickZone(mapQuery);
     }
-
+    @Transactional(readOnly = false)
     public void updatePickZone(PickZone zone){
         zoneDao.update(zone);
     }
