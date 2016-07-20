@@ -34,7 +34,7 @@ public class SoOrderService {
     private OutbSoDetailDao outbSoDetailDao;
 
     /**
-     * 插入InbPoHeader及InbPoDetail
+     * 插入OutbSoHeader及OutbSoDetail
      * @param outbSoHeader
      * @param outbSoDetailList
      */
@@ -51,7 +51,7 @@ public class SoOrderService {
     }
 
     /**
-     * 插入InbPoHeader及InbPoDetail
+     * 插入OutbSoHeader及OutbSoDetail
      * @param outbSoHeader
      * @param outbSoDetailList
      */
@@ -62,26 +62,62 @@ public class SoOrderService {
         outbSoDetailDao.batchInsert(outbSoDetailList);
     }
 
+    /**
+     * 更新OutbSoHeader
+     * @param outbSoHeader
+     */
     @Transactional(readOnly = false)
     public void update(OutbSoHeader outbSoHeader){
         outbSoHeaderDao.update(outbSoHeader);
     }
 
+    /**
+     * 根据ID获取OutbSoHeader
+     * @param id
+     * @return
+     */
     public OutbSoHeader getOutbSoHeaderById(Long id){
-        return null;
+        return outbSoHeaderDao.getOutbSoHeaderById(id);
     }
-
-    public Integer countOutbSoHeader(Map<String, Object> params){
-        return null;
-    }
-
-    public List<OutbSoHeader> getOutbSoHeaderList(Map<String, Object> params){
-        return null;
-    }
-
 
     /**
-     *
+     * 自定义参数获取OutbSoHeader数量
+     * @param params
+     * @return
+     */
+    public Integer countOutbSoHeader(Map<String, Object> params){
+        return outbSoHeaderDao.countOutbSoHeader(params);
+    }
+
+    /**
+     * 根据参数获取List<OutbSoHeader>
+     * @param params
+     * @return
+     */
+    public List<OutbSoHeader> getOutbSoHeaderList(Map<String, Object> params){
+        return outbSoHeaderDao.getOutbSoHeaderList(params);
+    }
+
+    /**
+     * 根据ID获取OutbSoDetail
+     * @param id
+     * @return
+     */
+    public OutbSoDetail getOutbSoDetailById(Long id) {
+        return outbSoDetailDao.getOutbSoDetailById(id);
+    }
+
+    /**
+     * 自定义参数获取OutbSoDetail数量
+     * @param params
+     * @return
+     */
+    public Integer countOutbSoDetail(Map<String, Object> params) {
+        return outbSoDetailDao.countOutbSoDetail(params);
+    }
+
+    /**
+     * 根据参数获取List<OutbSoDetail>
      * @param params
      * @return
      * desc 根据order_id 获取so订单商品详情

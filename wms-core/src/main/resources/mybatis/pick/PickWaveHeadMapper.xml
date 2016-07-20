@@ -34,7 +34,6 @@
 	<update id="update" parameterType="PickWaveHead">
 		update pick_wave_head
     	<set>
-  			<if test="waveId != null">wave_id=#{waveId},</if>
   			<if test="waveName != null">wave_name=#{waveName},</if>
   			<if test="status != null">status=#{status},</if>
   			<if test="waveType != null">wave_type=#{waveType},</if>
@@ -48,7 +47,7 @@
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
-		where id=#{id}
+		where wave_id=#{waveId}
 	</update>
   
 	<select id="getPickWaveHeadById" parameterType="int" resultMap="pickWaveHeadResultMap">

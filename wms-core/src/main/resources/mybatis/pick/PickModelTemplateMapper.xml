@@ -21,12 +21,11 @@
 	<update id="update" parameterType="PickModelTemplate">
 		update pick_model_template
     	<set>
-  			<if test="pickModelTemplateId != null">pick_model_template_id=#{pickModelTemplateId},</if>
   			<if test="pickModelTemplateName != null">pick_model_template_name=#{pickModelTemplateName},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
-		where id=#{id}
+		where pick_model_template_id=#{pickModelTemplateId}
 	</update>
   
 	<select id="getPickModelTemplateById" parameterType="int" resultMap="pickModelTemplateResultMap">

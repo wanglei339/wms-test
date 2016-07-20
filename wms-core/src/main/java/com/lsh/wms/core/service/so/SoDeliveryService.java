@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Project Name: lsh-wms
@@ -30,6 +31,11 @@ public class SoDeliveryService {
     @Autowired
     private OutbDeliveryDetailDao outbDeliveryDetailDao;
 
+    /**
+     * 插入OutbDeliveryHeader及List<OutbDeliveryDetail>
+     * @param outbDeliveryHeader
+     * @param outbDeliveryDetailList
+     */
     @Transactional(readOnly = false)
     public void insert(OutbDeliveryHeader outbDeliveryHeader, List<OutbDeliveryDetail> outbDeliveryDetailList){
         outbDeliveryHeader.setInserttime(new Date());
@@ -38,5 +44,80 @@ public class SoDeliveryService {
             outbDeliveryDetail.setDeliveryId(outbDeliveryHeader.getId());
         }
         outbDeliveryDetailDao.batchInsert(outbDeliveryDetailList);
+    }
+
+    /**
+     * 插入OutbDeliveryHeader及List<OutbDeliveryDetail>
+     * @param outbDeliveryHeader
+     * @param outbDeliveryDetailList
+     */
+    @Transactional(readOnly = false)
+    public void insertOrder(OutbDeliveryHeader outbDeliveryHeader, List<OutbDeliveryDetail> outbDeliveryDetailList) {
+        outbDeliveryHeaderDao.insert(outbDeliveryHeader);
+
+        outbDeliveryDetailDao.batchInsert(outbDeliveryDetailList);
+    }
+
+    /**
+     * 更新OutbDeliveryHeader
+     * @param outbDeliveryHeader
+     */
+    @Transactional(readOnly = false)
+    public void update(OutbDeliveryHeader outbDeliveryHeader) {
+        outbDeliveryHeaderDao.update(outbDeliveryHeader);
+    }
+
+    /**
+     * 通过ID获取OutbDeliveryHeader
+     * @param id
+     * @return
+     */
+    public OutbDeliveryHeader getOutbDeliveryHeaderById(Long id) {
+        return outbDeliveryHeaderDao.getOutbDeliveryHeaderById(id);
+    }
+
+    /**
+     * 根据参数获取OutbDeliveryHeader数量
+     * @param params
+     * @return
+     */
+    public Integer countOutbDeliveryHeader(Map<String, Object> params) {
+        return outbDeliveryHeaderDao.countOutbDeliveryHeader(params);
+    }
+
+    /**
+     * 自定义参数获取List<OutbDeliveryHeader>
+     * @param params
+     * @return
+     */
+    public List<OutbDeliveryHeader> getOutbDeliveryHeaderList(Map<String, Object> params){
+        return outbDeliveryHeaderDao.getOutbDeliveryHeaderList(params);
+    }
+
+    /**
+     * 通过ID获取OutbDeliveryDetail
+     * @param id
+     * @return
+     */
+    public OutbDeliveryDetail getOutbDeliveryDetailById(Long id) {
+        return outbDeliveryDetailDao.getOutbDeliveryDetailById(id);
+    }
+
+    /**
+     * 根据参数获取OutbDeliveryDetail数量
+     * @param params
+     * @return
+     */
+    public Integer countOutbDeliveryDetail(Map<String, Object> params) {
+        return outbDeliveryDetailDao.countOutbDeliveryDetail(params);
+    }
+
+    /**
+     * 自定义参数获取List<OutbDeliveryDetail>
+     * @param params
+     * @return
+     */
+    public List<OutbDeliveryDetail> getOutbDeliveryDetailList(Map<String, Object> params) {
+        return outbDeliveryDetailDao.getOutbDeliveryDetailList(params);
     }
 }
