@@ -91,7 +91,7 @@ public class StockQuantService {
             this.unReserve(quant);
             this.split(quant, qtyDone);
             quant.setContainerId(move.getToContainerId());
-            quant.setLocationId(move.getRelToLocationId());
+            quant.setLocationId(move.getRealToLocationId());
             this.update(quant);
             qtyDone = qtyDone.subtract(quant.getQty());
             moveRel.setQuantId(quant.getId());
