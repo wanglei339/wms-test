@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.ext.InterceptorContext;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,9 +43,16 @@ public class StaffRestService implements IStaffRestService {
     @GET
     @Path("getDepartmentList")
     public String getDepartmentList() {
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-        List<BaseinfoStaffDepartment> departmentList = staffRpcService.getDepartmentList(mapQuery);
+        Map<String, Object> params = RequestUtils.getRequest();
+        List<BaseinfoStaffDepartment> departmentList = staffRpcService.getDepartmentList(params);
         return JsonUtils.SUCCESS(departmentList);
+    }
+
+    @GET
+    @Path("getDepartmentListCount")
+    public String getDepartmentListCount() {
+        Map<String, Object> params = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(staffRpcService.getDepartmentListCount(params));
     }
 
     @POST
@@ -87,9 +95,16 @@ public class StaffRestService implements IStaffRestService {
     @GET
     @Path("getGroupList")
     public String getGroupList() {
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-        List<BaseinfoStaffGroup> groupList = staffRpcService.getGroupList(mapQuery);
+        Map<String, Object> params = RequestUtils.getRequest();
+        List<BaseinfoStaffGroup> groupList = staffRpcService.getGroupList(params);
         return JsonUtils.SUCCESS(groupList);
+    }
+
+    @GET
+    @Path("getGroupListCount")
+    public String getGroupListCount() {
+        Map<String, Object> params = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(staffRpcService.getGroupListCount(params));
     }
 
     @POST
@@ -139,9 +154,16 @@ public class StaffRestService implements IStaffRestService {
     @GET
     @Path("getLevelList")
     public String getLevelList() {
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-        List<BaseinfoStaffLevel> levelList = staffRpcService.getLevelList(mapQuery);
+        Map<String, Object> params = RequestUtils.getRequest();
+        List<BaseinfoStaffLevel> levelList = staffRpcService.getLevelList(params);
         return JsonUtils.SUCCESS(levelList);
+    }
+
+    @GET
+    @Path("getLevelListCount")
+    public String getLevelListCount() {
+        Map<String, Object> params = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(staffRpcService.getLevelListCount(params));
     }
 
     @POST
@@ -185,9 +207,16 @@ public class StaffRestService implements IStaffRestService {
     @GET
     @Path("getJobList")
     public String getJobList() {
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-        List<BaseinfoStaffJob> jobList = staffRpcService.getJobList(mapQuery);
+        Map<String, Object> params = RequestUtils.getRequest();
+        List<BaseinfoStaffJob> jobList = staffRpcService.getJobList(params);
         return JsonUtils.SUCCESS(jobList);
+    }
+
+    @GET
+    @Path("getJobListCount")
+    public String getJobListCount() {
+        Map<String, Object> params = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(staffRpcService.getJobListCount(params));
     }
 
     @POST
@@ -233,6 +262,13 @@ public class StaffRestService implements IStaffRestService {
         Map<String, Object> params = RequestUtils.getRequest();
         List<BaseinfoStaffInfo> staffList = staffRpcService.getStaffList(params);
         return JsonUtils.SUCCESS(staffList);
+    }
+
+    @GET
+    @Path("getStaffListCount")
+    public String getStaffListCount() {
+        Map<String, Object> params = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(staffRpcService.getStaffListCount(params));
     }
 
     @POST

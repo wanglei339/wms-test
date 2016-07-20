@@ -30,6 +30,10 @@ public class StaffRpcService implements IStaffRpcService {
         return staffService.getDepartmentList(mapQuery);
     }
 
+    public Integer getDepartmentListCount(Map<String, Object> mapQuery) {
+        return staffService.countBaseinfoStaffDepartment(mapQuery);
+    }
+
     public void addDepartment(BaseinfoStaffDepartment department) {
         staffService.addDepartment(department);
     }
@@ -51,6 +55,10 @@ public class StaffRpcService implements IStaffRpcService {
 
     public List<BaseinfoStaffGroup> getGroupList(Map<String, Object> mapQuery) {
         return staffService.getGroupList(mapQuery);
+    }
+
+    public Integer getGroupListCount(Map<String, Object> mapQuery) {
+        return staffService.countBaseinfoStaffGroup(mapQuery);
     }
 
     public void addGroup(BaseinfoStaffGroup group) {
@@ -76,6 +84,10 @@ public class StaffRpcService implements IStaffRpcService {
         return staffService.getLevelList(mapQuery);
     }
 
+    public Integer getLevelListCount(Map<String, Object> mapQuery) {
+        return staffService.countBaseinfoStaffLevel(mapQuery);
+    }
+
     public void addLevel(BaseinfoStaffLevel level) {
         staffService.addLevel(level);
     }
@@ -97,6 +109,10 @@ public class StaffRpcService implements IStaffRpcService {
 
     public List<BaseinfoStaffJob> getJobList(Map<String, Object> mapQuery) {
         return staffService.getJobList(mapQuery);
+    }
+
+    public Integer getJobListCount(Map<String, Object> mapQuery) {
+        return staffService.countBaseinfoStaffJob(mapQuery);
     }
 
     public void addJob(BaseinfoStaffJob job) {
@@ -122,12 +138,12 @@ public class StaffRpcService implements IStaffRpcService {
         return staffService.getStaffList(mapQuery);
     }
 
-    public void addStaff(BaseinfoStaffInfo staffInfo) {
-        staffService.addStaff(staffInfo);
+    public Integer getStaffListCount(Map<String, Object> mapQuery) {
+        return staffService.countBaseinfoStaffInfo(mapQuery);
     }
 
-    public void assignJobToStaff(Long iStaffId, ArrayList<Object> jobIds) {
-        staffService.assignJobToStaff(iStaffId, jobIds);
+    public void addStaff(BaseinfoStaffInfo staffInfo) {
+        staffService.addStaff(staffInfo);
     }
 
     public void updateStaff(BaseinfoStaffInfo staffInfo) {
