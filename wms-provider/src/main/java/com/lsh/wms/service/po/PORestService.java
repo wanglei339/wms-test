@@ -14,7 +14,9 @@ import com.lsh.wms.api.model.po.PoItem;
 import com.lsh.wms.api.model.po.PoRequest;
 import com.lsh.wms.api.service.po.IPoRestService;
 import com.lsh.wms.core.constant.BusiConstant;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.po.InbPoDetail;
 import com.lsh.wms.model.po.InbPoHeader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,9 @@ public class PORestService implements IPoRestService {
 
     @Autowired
     private PoOrderService poOrderService;
+
+    @Autowired
+    private ItemService itemService;
 
     @POST
     @Path("init")
@@ -76,6 +81,12 @@ public class PORestService implements IPoRestService {
 
             //设置orderId
             inbPoDetail.setOrderId(inbPoHeader.getOrderId());
+            // 获取skuId
+            List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(inbPoHeader.getOwnerUid(),inbPoDetail.getSkuCode());
+            if(null != baseinfoItemList && baseinfoItemList.size()>=1){
+                BaseinfoItem baseinfoItem = baseinfoItemList.get(baseinfoItemList.size()-1);
+                inbPoDetail.setSkuId(baseinfoItem.getSkuId());
+            }
 
             inbPoDetailList.add(inbPoDetail);
         }
