@@ -5,6 +5,7 @@ import com.alibaba.dubbo.remoting.ExecutionException;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.csi.ICsiRestService;
+import com.lsh.wms.core.service.csi.CsiOwnerService;
 import com.lsh.wms.model.csi.CsiCategory;
 import com.lsh.wms.model.csi.CsiOwner;
 import com.lsh.wms.model.csi.CsiSku;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zengwenjun on 16/7/8.
@@ -30,6 +32,8 @@ public class CsiRestService implements ICsiRestService {
     private static Logger logger = LoggerFactory.getLogger(ICsiRestService.class);
     @Autowired
     private CsiRpcService csiRpcService;
+    @Autowired
+    private CsiOwnerService ownerService;
 
     @GET
     @Path("getCatInfo")
@@ -85,6 +89,8 @@ public class CsiRestService implements ICsiRestService {
         }
         return JsonUtils.SUCCESS(newSku);
     }
+
+
 
     @POST
     @Path("updateSku")
@@ -176,9 +182,16 @@ public class CsiRestService implements ICsiRestService {
             return JsonUtils.EXCEPTION_ERROR("failed");
         }
         return JsonUtils.SUCCESS();
-
-
-
+    }
+    @POST
+    @Path("getOwnerList")
+    public String getOwnerList(Map<String, Object> mapQuery) {
+        return JsonUtils.SUCCESS(ownerService.getOwnerList(mapQuery));
+    }
+    @POST
+    @Path("getOwnerCount")
+    public String getOwnerCount(Map<String, Object> mapQuery) {
+        return JsonUtils.SUCCESS(ownerService.getOwnerCount(mapQuery));
     }
 
 }
