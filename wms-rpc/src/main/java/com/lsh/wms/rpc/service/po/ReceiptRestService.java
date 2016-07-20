@@ -96,7 +96,8 @@ public class ReceiptRestService implements IReceiptRestService {
             //根据request中的orderOtherId查询InbPoHeader
             InbPoHeader inbPoHeader = poOrderService.getInbPoHeaderByOrderOtherId(request.getOrderOtherId());
             if(inbPoHeader == null) {
-                throw  new BizCheckedException("30001","订单不存在");
+                throw  new BizCheckedException("3020001");
+                // throw  new BizCheckedException("3020001","订单不存在");
             }
 
             //写入InbReceiptDetail中的OrderId

@@ -3,9 +3,20 @@ package com.lsh.wms.service.so;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.wms.api.model.base.BaseResponse;
+import com.lsh.wms.api.model.base.ResUtils;
+import com.lsh.wms.api.model.base.ResponseConstant;
+import com.lsh.wms.api.model.so.SoItem;
+import com.lsh.wms.api.model.so.SoRequest;
 import com.lsh.wms.api.service.so.ISoRestService;
+import com.lsh.wms.core.constant.BusiConstant;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.so.SoOrderService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.so.OutbSoDetail;
 import com.lsh.wms.model.so.OutbSoHeader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +26,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -35,6 +48,9 @@ public class SORestService  implements ISoRestService {
     @Autowired
     private SoOrderService soOrderService;
 
+    @Autowired
+    private ItemService itemService;
+
     @POST
     @Path("init")
     public String init(String soOrderInfo) {
@@ -42,5 +58,55 @@ public class SORestService  implements ISoRestService {
         List<OutbSoDetail> outbSoDetailList = JSON.parseArray(outbSoHeader.getOrderDetails(),OutbSoDetail.class);
         soOrderService.insert(outbSoHeader,outbSoDetailList);
         return JsonUtils.SUCCESS();
+    }
+
+    @POST
+    @Path("insert")
+    public BaseResponse insertOrder(SoRequest request) throws BizCheckedException {
+        BaseResponse response = new BaseResponse();
+
+        //OutbSoHeader
+        OutbSoHeader outbSoHeader = new OutbSoHeader();
+        ObjUtils.bean2bean(request, outbSoHeader);
+
+        //设置订单状态
+        outbSoHeader.setOrderStatus(BusiConstant.EFFECTIVE_YES);
+
+        //设置订单插入时间
+        outbSoHeader.setInserttime(new Date());
+
+        //设置orderId
+        outbSoHeader.setOrderId(RandomUtils.genId());
+
+        //初始化List<OutbSoDetail>
+        List<OutbSoDetail> outbSoDetailList = new ArrayList<OutbSoDetail>();
+
+        for(SoItem soItem : request.getItems()) {
+            OutbSoDetail outbSoDetail = new OutbSoDetail();
+
+            ObjUtils.bean2bean(soItem, outbSoDetail);
+
+            //设置orderId
+            outbSoDetail.setOrderId(outbSoHeader.getOrderId());
+
+            //根据ItemId及OwnerUid获取List<BaseinfoItem>
+            // TODO: 根据ItemId,OwnerUid获取BaseinfoItem,现在是取List第一个元素,待改进
+            List<BaseinfoItem> baseinfoItemList = itemService.getItemsBySkuCode(outbSoHeader.getOwnerUid(),
+                    String.valueOf(outbSoDetail.getItemId()));
+
+            if(baseinfoItemList.size() <=0) {
+                throw new BizCheckedException("2900001", "货主商品不存在");
+            }
+
+            //设置skuId
+            outbSoDetail.setSkuId(baseinfoItemList.get(0).getSkuId());
+
+            outbSoDetailList.add(outbSoDetail);
+        }
+
+        //插入订单
+        soOrderService.insertOrder(outbSoHeader, outbSoDetailList);
+
+        return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
     }
 }

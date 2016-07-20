@@ -15,9 +15,9 @@ public class StockMove implements Serializable {
 	/** 目标库存位id */
     private Long toLocationId = 0L;
 	/** 真实起始库存位id */
-	private Long relFromLocationId = 0L;
+	private Long realFromLocationId = 0L;
 	/** 真实目标库存位id */
-	private Long relToLocationId = 0L;
+	private Long realToLocationId = 0L;
 	/** 起始容器id */
     private Long fromContainerId = 0L;
 	/** 目标容器id */
@@ -180,19 +180,19 @@ public class StockMove implements Serializable {
 		this.updatedAt = updatedAt;
 	}
 
-	public Long getRelToLocationId() {
-		return relToLocationId;
+	public Long getRealToLocationId() {
+		return realToLocationId;
 	}
 
-	public void setRelToLocationId(Long relToLocationId) {
-		this.relToLocationId = relToLocationId;
+	public void setRealToLocationId(Long realToLocationId) {
+		this.realToLocationId = realToLocationId;
 	}
 
-	public Long getRelFromLocationId() {
-		return relFromLocationId;
+	public Long getRealFromLocationId() {
+		return realFromLocationId;
 	}
 
-	public void setRelFromLocationId(Long relFromLocationId) {
-		this.relFromLocationId = relFromLocationId;
+	public void setRealFromLocationId(Long realFromLocationId) {
+		this.realFromLocationId = realFromLocationId;
 	}
 }
