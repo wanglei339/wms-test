@@ -110,8 +110,8 @@ public class ItemRpcService implements IItemRpcService {
         return item;
     }
 
-    public List<BaseinfoItemLocation> getItemLocationList(long iSkuId, long iOwnerId) {
-        return itemLocationService.getItemLocationList(iSkuId,iOwnerId);
+    public List<BaseinfoItemLocation> getItemLocationList(long iItemId) {
+        return itemLocationService.getItemLocationList(iItemId);
     }
 
     public List<BaseinfoItemLocation> getItemLocationByLocationID(long iLocationId) {

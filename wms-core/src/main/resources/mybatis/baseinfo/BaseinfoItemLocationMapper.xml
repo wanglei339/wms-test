@@ -8,13 +8,14 @@
 		<result property="ownerId" column="owner_id"/>
 		<result property="pickLocationid" column="pick_locationid"/>
 		<result property="userstatus" column="userstatus"/>
+		<result property="itemId" column="item_id"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoItemLocation">
 		insert into baseinfo_item_location (
-			sku_id,owner_id,pick_locationid,userstatus
+			sku_id,owner_id,pick_locationid,userstatus,item_id
     	) values (
-			#{skuId},#{ownerId},#{pickLocationid},#{userstatus}
+			#{skuId},#{ownerId},#{pickLocationid},#{userstatus},#{itemId}
     	)
 	</insert>
 
@@ -25,6 +26,7 @@
   			<if test="ownerId != null">owner_id=#{ownerId},</if>
   			<if test="pickLocationid != null">pick_locationid=#{pickLocationid},</if>
   			<if test="userstatus != null">userstatus=#{userstatus}</if>
+			<if test="itemId != null">item_id=#{itemId}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -54,6 +56,7 @@
 			<if test="ownerId != null">and owner_id=#{ownerId}</if>
 			<if test="pickLocationid != null">and pick_locationid=#{pickLocationid}</if>
 			<if test="userstatus != null">and userstatus=#{userstatus}</if>
+			<if test="itemId != null">and item_id=#{itemId}</if>
 		</where>
 	</sql>
    
