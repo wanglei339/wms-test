@@ -35,7 +35,6 @@
 	<update id="update" parameterType="BaseinfoStaffInfo">
 		update baseinfo_staff_info
     	<set>
-  			<if test="staffId != null">staff_id=#{staffId},</if>
   			<if test="staffNo != null">staff_no=#{staffNo},</if>
   			<if test="name != null">name=#{name},</if>
   			<if test="sex != null">sex=#{sex},</if>
@@ -50,12 +49,12 @@
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
-		where id=#{id}
+		where staff_id=#{staffId}
 	</update>
   
 	<select id="getBaseinfoStaffInfoById" parameterType="int" resultMap="baseinfoStaffInfoResultMap">
 		select * from baseinfo_staff_info
-		where ID=#{id} 
+		where staff_id=#{staffId}
 	</select>
   
 	<select id="countBaseinfoStaffInfo" parameterType="map" resultType="int">
