@@ -115,7 +115,7 @@ public class ItemRestService implements IItemRestService {
 
     @GET
     @Path("getItemLocation")
-    public String getItemLocation(@QueryParam("skuId") long iItemId) {
+    public String getItemLocation(@QueryParam("itemId") long iItemId) {
         return JsonUtils.SUCCESS(itemRpcService.getItemLocationList(iItemId));
     }
     @GET
