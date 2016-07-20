@@ -42,6 +42,9 @@
 		<result property="pileY" column="pile_y"/>
 		<result property="pileZ" column="pile_z"/>
 		<result property="itemId" column="item_id"/>
+		<result property="unitName" column="unit_name"/>
+		<result property="l2Name" column="l2_name"/>
+		<result property="packName" column="pack_name"/>
 	</resultMap>
 
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoItem">
@@ -52,7 +55,7 @@
 		l2_unit,pack_length,pack_width,pack_height,pack_weight,pack_unit,
 		sale_unit,item_level,created_at,updated_at,produce_place,batch_needed,
 		floor_available,storage_temperature,safety_qty,pile_x,pile_y,pile_z,
-		item_id,status
+		item_id,status,unit_name,l2_name,pack_name
 		) values (
 		#{skuId},#{ownerId},#{skuCode},#{skuName},#{codeType},#{code},
 		#{topCat},#{secondCat},#{thirdCat},#{shelfLife},#{length},#{width},
@@ -60,7 +63,7 @@
 		#{l2Unit},#{packLength},#{packWidth},#{packHeight},#{packWeight},#{packUnit},
 		#{saleUnit},#{itemLevel},#{createdAt},#{updatedAt},#{producePlace},#{batchNeeded},
 		#{floorAvailable},#{storageTemperature},#{safetyQty},#{pileX},#{pileY},#{pileZ},
-		#{itemId},#{status}
+		#{itemId},#{status},#{unitName},#{l2Name},#{packName}
 		)
 	</insert>
 
@@ -104,6 +107,9 @@
 			<if test="pileY != null">pile_y=#{pileY},</if>
 			<if test="pileZ != null">pile_z=#{pileZ},</if>
 			<if test="status != null">status=#{status},</if>
+			<if test="unitName != null">unit_name=#{unitName},</if>
+			<if test="l2Name != null">l2_name=#{l2Name},</if>
+			<if test="packName != null">pack_name=#{packName},</if>
 		</set>
 		where item_id=#{itemId}
 	</update>
@@ -167,6 +173,9 @@
 			<if test="pileZ != null">and pile_z=#{pileZ}</if>
 			<if test="itemId != null">and item_id=#{itemId}</if>
 			<if test="status != null">and status=#{status}</if>
+			<if test="unitName != null">and unit_name=#{unitName}</if>
+			<if test="l2Name != null">and l2_name=#{l2Name}</if>
+			<if test="packName != null">and pack_name=#{packName}</if>
 		</where>
 	</sql>
 
