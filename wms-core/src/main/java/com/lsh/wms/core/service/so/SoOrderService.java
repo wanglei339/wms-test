@@ -62,6 +62,10 @@ public class SoOrderService {
         outbSoDetailDao.batchInsert(outbSoDetailList);
     }
 
+    /**
+     * 更新OutbSoHeader
+     * @param outbSoHeader
+     */
     @Transactional(readOnly = false)
     public void update(OutbSoHeader outbSoHeader){
         outbSoHeaderDao.update(outbSoHeader);
@@ -95,7 +99,25 @@ public class SoOrderService {
     }
 
     /**
-     *
+     * 根据ID获取OutbSoDetail
+     * @param id
+     * @return
+     */
+    public OutbSoDetail getOutbSoDetailById(Long id) {
+        return outbSoDetailDao.getOutbSoDetailById(id);
+    }
+
+    /**
+     * 自定义参数获取OutbSoDetail数量
+     * @param params
+     * @return
+     */
+    public Integer countOutbSoDetail(Map<String, Object> params) {
+        return outbSoDetailDao.countOutbSoDetail(params);
+    }
+
+    /**
+     * 根据参数获取List<OutbSoDetail>
      * @param params
      * @return
      * desc 根据order_id 获取so订单商品详情

@@ -23,14 +23,13 @@
 	<update id="update" parameterType="PickZone">
 		update pick_zone
     	<set>
-  			<if test="pickZoneId != null">pick_zone_id=#{pickZoneId},</if>
   			<if test="pickZoneCode != null">pick_zone_code=#{pickZoneCode},</if>
   			<if test="pickZoneName != null">pick_zone_name=#{pickZoneName},</if>
   			<if test="locations != null">locations=#{locations},</if>
   			<if test="pickUnit != null">pick_unit=#{pickUnit},</if>
   			<if test="pickModelSupport != null">pick_model_support=#{pickModelSupport}</if>
 		</set>
-		where id=#{id}
+		where pick_zone_id=#{pickZoneId}
 	</update>
   
 	<select id="getPickZoneById" parameterType="int" resultMap="pickZoneResultMap">
