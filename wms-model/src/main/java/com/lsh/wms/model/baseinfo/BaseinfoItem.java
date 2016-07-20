@@ -85,6 +85,15 @@ public class BaseinfoItem implements Serializable {
 	private Long pileY =0l;
 	/** 码盘规则 */
 	private Long pileZ =0l;
+	/** 基本单位名称 */
+	private String unitName = "";
+	/** 二级单位名称 */
+	private String l2Name = "";
+	/** 外包装名称 */
+	private String packName = "";
+
+
+
 
 
 	public Long getId(){
@@ -400,5 +409,27 @@ public class BaseinfoItem implements Serializable {
 		this.pileZ = pileZ;
 	}
 
+	public String getL2Name() {
+		return l2Name;
+	}
 
+	public void setL2Name(String l2Name) {
+		this.l2Name = l2Name;
+	}
+
+	public String getPackName() {
+		return packName;
+	}
+
+	public void setPackName(String packName) {
+		this.packName = packName;
+	}
+
+	public String getUnitName() {
+		return unitName;
+	}
+
+	public void setUnitName(String unitName) {
+		this.unitName = unitName;
+	}
 }
