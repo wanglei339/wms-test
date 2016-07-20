@@ -6,6 +6,7 @@ import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.csi.CsiSupplier;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zengwenjun on 16/7/8.
@@ -33,4 +34,7 @@ public interface ICsiRestService {
     String insertCategory(CsiCategory category);
     String updateCategory(CsiCategory category);
     String insertSku(CsiSku sku);
+
+    String getOwnerList(Map<String,Object> mapQuery);
+    String getOwnerCount(Map<String,Object> mapQuery);
 }

@@ -39,15 +39,8 @@ public class OutbSoHeader implements Serializable {
     private Date inserttime;
 	/**  */
     private Date updatetime;
+
 	private String orderDetails;
-
-	public String getOrderDetails() {
-		return orderDetails;
-	}
-
-	public void setOrderDetails(String orderDetails) {
-		this.orderDetails = orderDetails;
-	}
 
 	public Long getId(){
 		return this.id;
@@ -184,6 +177,13 @@ public class OutbSoHeader implements Serializable {
 	public void setUpdatetime(Date updatetime){
 		this.updatetime = updatetime;
 	}
-	
+
+	public String getOrderDetails() {
+		return orderDetails;
+	}
+
+	public void setOrderDetails(String orderDetails) {
+		this.orderDetails = orderDetails;
+	}
 	
 }
