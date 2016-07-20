@@ -12,6 +12,8 @@ import java.util.Map;
 public interface IStaffRpcService {
     public List<BaseinfoStaffDepartment> getDepartmentList(Map<String, Object> mapQuery);
 
+    public Integer getDepartmentListCount(Map<String, Object> mapQuery);
+
     public void addDepartment(BaseinfoStaffDepartment department);
 
     public void updateDepartment(BaseinfoStaffDepartment department);
@@ -20,6 +22,8 @@ public interface IStaffRpcService {
 
 
     public List<BaseinfoStaffGroup> getGroupList(Map<String, Object> mapQuery);
+
+    public Integer getGroupListCount(Map<String, Object> mapQuery);
 
     public void addGroup(BaseinfoStaffGroup group);
 
@@ -30,6 +34,8 @@ public interface IStaffRpcService {
 
     public List<BaseinfoStaffLevel> getLevelList(Map<String, Object> mapQuery);
 
+    public Integer getLevelListCount(Map<String, Object> mapQuery);
+
     public void addLevel(BaseinfoStaffLevel level);
 
     public void updateLevel(BaseinfoStaffLevel level);
@@ -39,6 +45,8 @@ public interface IStaffRpcService {
 
     public List<BaseinfoStaffJob> getJobList(Map<String, Object> mapQuery);
 
+    public Integer getJobListCount(Map<String, Object> mapQuery);
+
     public void addJob(BaseinfoStaffJob job);
 
     public void updateJob(BaseinfoStaffJob job);
@@ -47,6 +55,8 @@ public interface IStaffRpcService {
 
 
     public List<BaseinfoStaffInfo> getStaffList(Map<String, Object> mapQuery);
+
+    public Integer getStaffListCount(Map<String, Object> mapQuery);
 
     public void addStaff(BaseinfoStaffInfo staffInfo);
 

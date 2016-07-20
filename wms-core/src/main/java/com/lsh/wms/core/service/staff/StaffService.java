@@ -142,6 +142,10 @@ public class StaffService {
         return staffInfoDao.getBaseinfoStaffInfoList(mapQuery);
     }
 
+    public Integer countBaseinfoStaffInfo(Map<String, Object> params) {
+        return staffInfoDao.countBaseinfoStaffInfo(params);
+    }
+
     @Transactional(readOnly = false)
     public void addStaff(BaseinfoStaffInfo staffInfo) {
         long now = (System.currentTimeMillis() / 1000);

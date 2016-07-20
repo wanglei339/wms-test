@@ -18,6 +18,8 @@ import java.util.Map;
 public interface IStaffRestService {
     public String getDepartmentList();
 
+    public String getDepartmentListCount();
+
     public String addDepartment(Map<String, Object> params);
 
     public String updateDepartment(Map<String, Object> params) throws BizCheckedException;
@@ -26,6 +28,8 @@ public interface IStaffRestService {
 
 
     public String getGroupList();
+
+    public String getGroupListCount();
 
     public String addGroup(Map<String, Object> params) throws BizCheckedException;
 
@@ -36,6 +40,8 @@ public interface IStaffRestService {
 
     public String getLevelList();
 
+    public String getLevelListCount();
+
     public String addLevel(Map<String, Object> params);
 
     public String updateLevel(Map<String, Object> params) throws BizCheckedException;
@@ -45,6 +51,8 @@ public interface IStaffRestService {
 
     public String getJobList();
 
+    public String getJobListCount();
+
     public String addJob(Map<String, Object> params);
 
     public String updateJob(Map<String, Object> params) throws BizCheckedException;
@@ -53,6 +61,8 @@ public interface IStaffRestService {
 
 
     public String getStaffList();
+
+    public String getStaffListCount();
 
     public String addStaff(Map<String, Object> params);
 
