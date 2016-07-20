@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -237,18 +238,14 @@ public class StaffRestService implements IStaffRestService {
     @POST
     @Path("addStaff")
     public String addStaff(Map<String, Object> params) {
-        BaseinfoStaffInfo staffInfo = BeanMapTransUtils.map2Bean(params, BaseinfoStaffInfo.class);
-        staffInfo.setStaffId(RandomUtils.genId());
-        staffInfo.setRecordStatus(StaffConstant.RECORD_STATUS_NORMAL);
-        staffRpcService.addStaff(staffInfo);
+        BaseinfoStaffInfo staffInfo = staffRpcService.createStaff(params);
         return JsonUtils.SUCCESS(staffInfo);
     }
 
     @POST
     @Path("updateStaff")
-    public String updateStaff(Map<String, Object> params) throws BizCheckedException {
-        BaseinfoStaffInfo staffInfo = BeanMapTransUtils.map2Bean(params, BaseinfoStaffInfo.class);
-        staffRpcService.updateStaff(staffInfo);
+    public String updateStaff(Map<String, Object> params) {
+        BaseinfoStaffInfo staffInfo = staffRpcService.saveStaff(params);
         return JsonUtils.SUCCESS(staffInfo);
     }
 

@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.lsh.wms.core.service.staff.StaffService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -125,6 +126,10 @@ public class StaffRpcService implements IStaffRpcService {
         staffService.addStaff(staffInfo);
     }
 
+    public void assignJobToStaff(Long iStaffId, ArrayList<Object> jobIds) {
+        staffService.assignJobToStaff(iStaffId, jobIds);
+    }
+
     public void updateStaff(BaseinfoStaffInfo staffInfo) {
         staffService.updateStaff(staffInfo);
     }
@@ -138,5 +143,13 @@ public class StaffRpcService implements IStaffRpcService {
             staffInfo = dList.get(0);
         }
         return staffInfo;
+    }
+
+    public BaseinfoStaffInfo createStaff(Map<String, Object> params) {
+        return staffService.createStaff(params);
+    }
+
+    public BaseinfoStaffInfo saveStaff(Map<String, Object> params) {
+        return staffService.saveStaff(params);
     }
 }

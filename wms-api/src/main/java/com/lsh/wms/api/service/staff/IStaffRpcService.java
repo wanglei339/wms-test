@@ -54,4 +54,9 @@ public interface IStaffRpcService {
 
     public BaseinfoStaffInfo getStaffById(Long staffId);
 
+
+    public BaseinfoStaffInfo createStaff(Map<String, Object> params);
+
+    public BaseinfoStaffInfo saveStaff(Map<String, Object> params);
+
 }
