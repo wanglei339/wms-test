@@ -1,5 +1,8 @@
 package com.lsh.wms.api.service.so;
 
+import com.lsh.wms.api.model.base.BaseResponse;
+import com.lsh.wms.api.model.so.DeliveryRequest;
+
 /**
  * Project Name: lsh-wms
  * Created by fuhao
@@ -11,4 +14,6 @@ package com.lsh.wms.api.service.so;
  */
 public interface IDeliveryRestService {
     public String init(String soDeliveryInfo);
+
+    public BaseResponse insertOrder(DeliveryRequest request);
 }
