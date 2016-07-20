@@ -1,6 +1,7 @@
 package com.lsh.wms.rpc.service.pick;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.dubbo.remoting.ExecutionException;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
@@ -142,22 +143,28 @@ public class WaveRestService implements IWaveRestService {
     @POST
     @Path("createPickzone")
     public String createPickzone(PickZone zone) {
-        return null;
+        return JsonUtils.SUCCESS(zoneService.insertPickZone(zone));
     }
 
     @POST
     @Path("updatePickzone")
     public String updatePickzone(PickZone zone) {
-        return null;
+        try{
+            zoneService.updatePickZone(zone);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("Update failed");
+        }
+        return JsonUtils.SUCCESS();
     }
 
-    @GET
+    @POST
     @Path("getPickModelTplList")
     public String getPickModelTplList(Map<String, Object> mapQuery) {
         return JsonUtils.SUCCESS(modelService.getPickModelTemplateList(mapQuery));
     }
 
-    @GET
+    @POST
     @Path("getPickModelTplCount")
     public String getPickModelTplCount(Map<String, Object> mapQuery) {
         return JsonUtils.SUCCESS(modelService.getPickModelTemplateCount(mapQuery));
@@ -172,13 +179,25 @@ public class WaveRestService implements IWaveRestService {
     @POST
     @Path("createPickModelTpl")
     public String createPickModelTpl(PickModelTemplate tpl) {
-        return null;
+        try{
+            modelService.createPickModelTemplate(tpl);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("create failed");
+        }
+        return JsonUtils.SUCCESS();
     }
 
     @POST
     @Path("updatePickModelTpl")
     public String updatePickModelTpl(PickModelTemplate tpl) {
-        return null;
+        try{
+            modelService.updatePickModelTpl(tpl);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("update failed");
+        }
+        return JsonUtils.SUCCESS();
     }
 
     @GET
@@ -196,13 +215,25 @@ public class WaveRestService implements IWaveRestService {
     @POST
     @Path("createPickModel")
     public String createPickModel(PickModel model) {
-        return null;
+        try{
+            modelService.createPickModel(model);
+        }catch (Exception e ){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("create failed");
+        }
+        return JsonUtils.SUCCESS();
     }
 
     @POST
     @Path("updatePickModel")
     public String updatePickModel(PickModel model) {
-        return null;
+        try{
+            modelService.updatePickModel(model);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            JsonUtils.EXCEPTION_ERROR("update failed");
+        }
+        return JsonUtils.SUCCESS();
     }
 
     @POST
