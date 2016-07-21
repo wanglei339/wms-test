@@ -43,10 +43,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.math.BigDecimal.ROUND_HALF_EVEN;
 
@@ -73,7 +70,6 @@ public class ReceiptRestService implements IReceiptRestService {
 
     @Autowired
     private PoOrderService poOrderService;
-
 
     @Autowired
     private LocationRpcService locationRpcService;
@@ -277,20 +273,31 @@ public class ReceiptRestService implements IReceiptRestService {
         return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
     }
 
-
+    @POST
+    @Path("getPoReceiptDetailByReceiptId")
     public String getPoReceiptDetailByReceiptId(Long receiptId) {
-        return null;
+        return JsonUtils.obj2Json(poReceiptService.getInbReceiptDetailListByReceiptId(receiptId));
     }
 
+    @POST
+    @Path("getPoReceiptDetailByOrderId")
     public String getPoReceiptDetailByOrderId(Long orderId) {
-        return null;
+        return JsonUtils.obj2Json(poReceiptService.getInbReceiptDetailListByOrderId(orderId));
     }
 
+    @POST
+    @Path("countInbPoReceiptHeader")
     public String countInbPoReceiptHeader(Map<String, Object> params) {
-        return null;
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("count", poReceiptService.countInbReceiptHeader(params));
+
+        return JsonUtils.obj2Json(map);
     }
 
+    @POST
+    @Path("getPoReceiptDetailList")
     public String getPoReceiptDetailList(Map<String, Object> params) {
-        return null;
+        return JsonUtils.obj2Json(poReceiptService.getInbReceiptDetailList(params));
     }
+
 }
