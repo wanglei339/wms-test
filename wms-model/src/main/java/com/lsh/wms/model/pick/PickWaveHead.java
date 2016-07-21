@@ -27,8 +27,6 @@ public class PickWaveHead implements Serializable {
     private Long pickModelTemplateId;
 	/** 释放人 */
     private Long releaseUid =0L;
-	/** 释放人名称 */
-    private String releaseUname = "";
 	/** 释放时间 */
     private Long releaseAt = 0L;
 	/**  */
@@ -114,14 +112,6 @@ public class PickWaveHead implements Serializable {
 	
 	public void setReleaseUid(Long releaseUid){
 		this.releaseUid = releaseUid;
-	}
-	
-	public String getReleaseUname(){
-		return this.releaseUname;
-	}
-	
-	public void setReleaseUname(String releaseUname){
-		this.releaseUname = releaseUname;
 	}
 	
 	public Long getReleaseAt(){

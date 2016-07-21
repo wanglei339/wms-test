@@ -82,8 +82,7 @@ public class WaveRestService implements IWaveRestService {
     @GET
     @Path("releaseWave")
     public String releaseWave(@QueryParam("waveId") long iWaveId,
-                              @QueryParam("uid") long iUid,
-                              @QueryParam("uname") String iUName) throws BizCheckedException {
+                              @QueryParam("uid") long iUid) throws BizCheckedException {
         PickWaveHead head = pickWaveService.getWave(iWaveId);
         if(head==null){
             System.out.println(iWaveId+"fuck");
@@ -98,7 +97,6 @@ public class WaveRestService implements IWaveRestService {
             throw new BizCheckedException("2040002");
         }
         head.setReleaseUid(iUid);
-        head.setReleaseUname(iUName);
         head.setReleaseAt(DateUtils.getCurrentSeconds());
         head.setStatus((long) WaveConstant.STATUS_RELEASE_START);
         try{
