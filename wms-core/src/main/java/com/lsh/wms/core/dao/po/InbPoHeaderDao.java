@@ -12,6 +12,7 @@ public interface InbPoHeaderDao {
 	void insert(InbPoHeader inbPoHeader);
 	
 	void update(InbPoHeader inbPoHeader);
+	void updateByOrderOtherId(InbPoHeader inbPoHeader);
 
 	void updateByOrderId(InbPoHeader inbPoHeader);
 	

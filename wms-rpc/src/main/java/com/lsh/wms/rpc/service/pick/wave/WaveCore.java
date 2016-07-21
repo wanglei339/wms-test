@@ -1,6 +1,8 @@
 package com.lsh.wms.rpc.service.pick.wave;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.pick.*;
 import com.lsh.wms.core.service.so.SoOrderService;
@@ -13,6 +15,7 @@ import com.lsh.wms.rpc.service.pick.wave.split.SplitNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
@@ -22,14 +25,8 @@ import java.util.*;
 /**
  * Created by zengwenjun on 16/7/15.
  */
+@Component
 public class WaveCore {
-    /** 波次状态，10-新建，20-确定释放，30-释放完成，40-释放失败，50-已完成[完全出库], 100－取消 */
-    public static int STATUS_NEW = 10;
-    public static int STATUS_RELEASE_START = 20;
-    public static int STATUS_RELEASE_SUCC = 30;
-    public static int STATUS_RELEASE_FAIL = 40;
-    public static int STATUS_SUCC = 50;
-    public static int STATUS_CANCEL = 100;
     private static Logger logger = LoggerFactory.getLogger(WaveCore.class);
 
     @Autowired
@@ -47,7 +44,7 @@ public class WaveCore {
     @Autowired
     ItemService itemService;
 
-    public int release(long iWaveId){
+    public int release(long iWaveId) throws BizCheckedException{
         //获取波次信息
         PickWaveHead waveHead = waveService.getWave(iWaveId);
         if(waveHead==null){
@@ -193,7 +190,7 @@ public class WaveCore {
         //存储捡货任务
         taskService.createPickTasks(taskHeads, taskDetails);
         //设置释放成功状态
-        waveService.setStatus(iWaveId, STATUS_SUCC);
+        waveService.setStatus(iWaveId, WaveConstant.STATUS_RELEASE_SUCC);
         return 0;
     }
 

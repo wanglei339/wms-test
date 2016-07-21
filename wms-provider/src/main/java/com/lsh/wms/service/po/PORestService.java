@@ -14,6 +14,7 @@ import com.lsh.wms.api.model.po.PoItem;
 import com.lsh.wms.api.model.po.PoRequest;
 import com.lsh.wms.api.service.po.IPoRestService;
 import com.lsh.wms.core.constant.BusiConstant;
+import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
@@ -65,7 +66,7 @@ public class PORestService implements IPoRestService {
         InbPoHeader inbPoHeader = new InbPoHeader();
         ObjUtils.bean2bean(request, inbPoHeader);
 
-        inbPoHeader.setOrderStatus(BusiConstant.EFFECTIVE_YES);
+        inbPoHeader.setOrderStatus(PoConstant.ORDER_YES);
         inbPoHeader.setInserttime(new Date());
 
         //设置orderId

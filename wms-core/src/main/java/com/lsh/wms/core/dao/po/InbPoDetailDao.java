@@ -16,7 +16,8 @@ public interface InbPoDetailDao {
 
 	void update(InbPoDetail inbPoDetail);
 
-	void updateInboundQtyByOrderIdAndSkuId(@Param(value="inboundQty") Long inboundQty, @Param(value="orderId") Long orderId, @Param(value="skuId") Long skuId);
+	void updateInboundQtyByOrderIdAndSkuId(Long inboundQty, Long orderId,Long skuId);
+	void batchUpdateInboundQtyByOrderIdAndSkuId(List<InbPoDetail> list);
 
 	InbPoDetail getInbPoDetailById(Long id);
 
