@@ -38,9 +38,9 @@ public class OrderRestService implements IOrderRestService{
         return JsonUtils.SUCCESS(poOrderService.getInbPoHeaderList(params));
     }
 
-    @POST
+    @GET
     @Path("getPoDetailByOrderId")
-    public String getPoDetailByOrderId(Long orderId) {
+    public String getPoDetailByOrderId(@QueryParam("orderId") Long orderId) {
         return JsonUtils.obj2Json(poOrderService.getInbPoDetailListByOrderId(orderId));
     }
 
