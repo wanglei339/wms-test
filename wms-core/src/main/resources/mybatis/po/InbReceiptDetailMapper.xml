@@ -6,8 +6,10 @@
 		<id property="id" column="ID"/>
 		<result property="receiptOrderId" column="RECEIPT_ORDER_ID"/>
 		<result property="orderId" column="ORDER_ID"/>
+		<result property="orderOtherId" column="ORDER_OTHER_ID"/>
 		<result property="lotNum" column="LOT_NUM"/>
 		<result property="skuId" column="SKU_ID"/>
+		<result property="itemId" column="ITEM_ID"/>
 		<result property="skuName" column="SKU_NAME"/>
 		<result property="barCode" column="BAR_CODE"/>
 		<result property="orderQty" column="ORDER_QTY"/>
@@ -23,39 +25,43 @@
 		<result property="inserttime" column="INSERTTIME"/>
 		<result property="updatetime" column="UPDATETIME"/>
 	</resultMap>
-
+  
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="InbReceiptDetail">
 		insert into INB_RECEIPT_DETAIL (
-			RECEIPT_ORDER_ID,ORDER_ID,LOT_NUM,SKU_ID,SKU_NAME,BAR_CODE,
-			ORDER_QTY,PACK_UNIT,MADEIN,INBOUND_QTY,ARRIVE_NUM,DEFECT_NUM,
-			PRO_TIME,REFUSE_REASON,INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME
+			RECEIPT_ORDER_ID,ORDER_ID,ORDER_OTHER_ID,LOT_NUM,SKU_ID,ITEM_ID,SKU_NAME,
+			BAR_CODE,ORDER_QTY,PACK_UNIT,MADEIN,INBOUND_QTY,ARRIVE_NUM,
+			DEFECT_NUM,PRO_TIME,REFUSE_REASON,INSERTBY,UPDATEBY,INSERTTIME,
+			UPDATETIME
     	) values (
-			#{receiptOrderId},#{orderId},#{lotNum},#{skuId},#{skuName},#{barCode},
-			#{orderQty},#{packUnit},#{madein},#{inboundQty},#{arriveNum},#{defectNum},
-			#{proTime},#{refuseReason},#{insertby},#{updateby},#{inserttime},#{updatetime}
+			#{receiptOrderId},#{orderId},#{orderOtherId},#{lotNum},#{skuId},#{itemId},#{skuName},
+			#{barCode},#{orderQty},#{packUnit},#{madein},#{inboundQty},#{arriveNum},
+			#{defectNum},#{proTime},#{refuseReason},#{insertby},#{updateby},#{inserttime},
+			#{updatetime}
     	)
 	</insert>
 
 	<insert id="batchInsert" parameterType="java.util.List">
-	insert into INB_RECEIPT_DETAIL (
-		RECEIPT_ORDER_ID,ORDER_ID,LOT_NUM,SKU_ID,SKU_NAME,BAR_CODE,
+		insert into INB_RECEIPT_DETAIL (
+		RECEIPT_ORDER_ID,ORDER_ID,ORDER_OTHER_ID,LOT_NUM,SKU_ID,ITEM_ID,SKU_NAME,BAR_CODE,
 		ORDER_QTY,PACK_UNIT,MADEIN,INBOUND_QTY,ARRIVE_NUM,DEFECT_NUM,
 		PRO_TIME,REFUSE_REASON,INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME
 		) values
-	<foreach collection="list" item="item" index="index" separator="," >
-		(#{item.receiptOrderId},#{item.orderId},#{item.lotNum},#{item.skuId},#{item.skuName},#{item.barCode},
-		#{item.orderQty},#{item.packUnit},#{item.madein},#{item.inboundQty},#{item.arriveNum},#{item.defectNum},
-		#{item.proTime},#{item.refuseReason},#{item.insertby},#{item.updateby},now(),#{item.updatetime})
-	</foreach>
-</insert>
+		<foreach collection="list" item="item" index="index" separator="," >
+			(#{item.receiptOrderId},#{item.orderId},#{item.orderOtherId},#{item.itemId},#{item.lotNum},#{item.skuId},#{item.skuName},#{item.barCode},
+			#{item.orderQty},#{item.packUnit},#{item.madein},#{item.inboundQty},#{item.arriveNum},#{item.defectNum},
+			#{item.proTime},#{item.refuseReason},#{item.insertby},#{item.updateby},now(),#{item.updatetime})
+		</foreach>
+	</insert>
 
 	<update id="update" parameterType="InbReceiptDetail">
 		update INB_RECEIPT_DETAIL
     	<set>
   			<if test="receiptOrderId != null">RECEIPT_ORDER_ID=#{receiptOrderId},</if>
   			<if test="orderId != null">ORDER_ID=#{orderId},</if>
+  			<if test="orderOtherId != null">ORDER_OTHER_ID=#{orderOtherId},</if>
   			<if test="lotNum != null">LOT_NUM=#{lotNum},</if>
   			<if test="skuId != null">SKU_ID=#{skuId},</if>
+  			<if test="itemId != null">ITEM_ID=#{itemId},</if>
   			<if test="skuName != null">SKU_NAME=#{skuName},</if>
   			<if test="barCode != null">BAR_CODE=#{barCode},</if>
   			<if test="orderQty != null">ORDER_QTY=#{orderQty},</if>
@@ -73,17 +79,17 @@
 		</set>
 		where ID=#{id}
 	</update>
-
+  
 	<select id="getInbReceiptDetailById" parameterType="int" resultMap="inbReceiptDetailResultMap">
 		select * from INB_RECEIPT_DETAIL
-		where ID=#{id}
+		where ID=#{id} 
 	</select>
-
+  
 	<select id="countInbReceiptDetail" parameterType="map" resultType="int">
 		select count(*) from INB_RECEIPT_DETAIL
 		<include refid="queryCondition"/>
 	</select>
-
+  
 	<select id="getInbReceiptDetailList" parameterType="map" resultMap="inbReceiptDetailResultMap">
 		select * from INB_RECEIPT_DETAIL
 		<include refid="queryCondition"/>
@@ -91,14 +97,16 @@
 		limit #{start},#{limit}
 		</if>
 	</select>
-
+  
 	<sql id="queryCondition">
 		<where>
 			<if test="id != null">ID=#{id}</if>
 			<if test="receiptOrderId != null">and RECEIPT_ORDER_ID=#{receiptOrderId}</if>
 			<if test="orderId != null">and ORDER_ID=#{orderId}</if>
+			<if test="orderOtherId != null">and ORDER_OTHER_ID=#{orderOtherId}</if>
 			<if test="lotNum != null">and LOT_NUM=#{lotNum}</if>
 			<if test="skuId != null">and SKU_ID=#{skuId}</if>
+			<if test="itemId != null">and ITEM_ID=#{itemId}</if>
 			<if test="skuName != null">and SKU_NAME=#{skuName}</if>
 			<if test="barCode != null">and BAR_CODE=#{barCode}</if>
 			<if test="orderQty != null">and ORDER_QTY=#{orderQty}</if>
@@ -115,5 +123,5 @@
 			<if test="updatetime != null">and UPDATETIME=#{updatetime}</if>
 		</where>
 	</sql>
-
+   
 </mapper>

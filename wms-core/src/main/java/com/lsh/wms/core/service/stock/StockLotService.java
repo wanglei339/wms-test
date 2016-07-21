@@ -2,6 +2,7 @@ package com.lsh.wms.core.service.stock;
 
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.stock.StockLotDao;
 import com.lsh.wms.core.dao.stock.StockQuantDao;
 import com.lsh.wms.model.stock.StockLot;
@@ -57,6 +58,9 @@ public class StockLotService {
 
     @Transactional(readOnly = false)
     public void insertLot(StockLot lot){
+        if (lot.getLotId()==null || lot.getLotId()==0){
+            lot.setLotId(RandomUtils.genId());
+        }
         lot.setCreatedAt(DateUtils.getCurrentSeconds());
         lot.setUpdatedAt(DateUtils.getCurrentSeconds());
         lotDao.insert(lot);

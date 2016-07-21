@@ -9,9 +9,9 @@ public class InbPoHeader implements Serializable {
     private Long id;
 	/** 仓库ID */
     private Long warehouseId;
-	/**  */
+	/**采购订单号  */
     private String orderOtherId;
-	/** 采购单号 */
+	/** 入库订单单号 */
     private Long orderId;
 	/** 采购组 */
     private String orderUser;
@@ -31,7 +31,7 @@ public class InbPoHeader implements Serializable {
     private String supplierFax;
 	/** 订单日期 */
     private Date orderTime;
-	/** 订单状态，0取消，1正常，2已发货 3，部分收货，4已收货 */
+	/** 订单状态，0取消，1正常，2已发货,3,已投单 4，部分收货，5已收货 */
     private Integer orderStatus;
 	/** 库存地 */
     private String stockCode;
