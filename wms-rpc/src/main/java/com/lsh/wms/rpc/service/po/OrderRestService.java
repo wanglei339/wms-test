@@ -18,7 +18,7 @@ public class OrderRestService implements IOrderRestService{
         return null;
     }
 
-    public Integer countInbPoHeader(Map<String, Object> params) {
+    public String countInbPoHeader(Map<String, Object> params) {
         return null;
     }
 
