@@ -122,7 +122,7 @@ public class SoOrderService {
      * @return
      * desc 根据order_id 获取so订单商品详情
      */
-    List<OutbSoDetail> getOutbSoDetailList(Map<String, Object> params){
+    public List<OutbSoDetail> getOutbSoDetailList(Map<String, Object> params){
         return outbSoDetailDao.getOutbSoDetailList(params);
     }
 }

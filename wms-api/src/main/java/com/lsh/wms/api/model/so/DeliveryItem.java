@@ -32,10 +32,6 @@ public class DeliveryItem implements Serializable {
     @Size(max=64)
     private String barCode;
 
-    /** 订货数 */
-    @NotNull
-    private Long orderQty;
-
     /** 包装单位 */
     private Long packUnit;
 
@@ -51,14 +47,13 @@ public class DeliveryItem implements Serializable {
 
     }
 
-    public DeliveryItem(Long orderId, Long itemId, Long skuId, String skuName, String barCode, Long orderQty,
+    public DeliveryItem(Long orderId, Long itemId, Long skuId, String skuName, String barCode,
                         Long packUnit, String lotNum, Long deliveryNum) {
         this.orderId = orderId;
         this.itemId = itemId;
         this.skuId = skuId;
         this.skuName = skuName;
         this.barCode = barCode;
-        this.orderQty = orderQty;
         this.packUnit = packUnit;
         this.lotNum = lotNum;
         this.deliveryNum = deliveryNum;
@@ -102,14 +97,6 @@ public class DeliveryItem implements Serializable {
 
     public void setBarCode(String barCode) {
         this.barCode = barCode;
-    }
-
-    public Long getOrderQty() {
-        return orderQty;
-    }
-
-    public void setOrderQty(Long orderQty) {
-        this.orderQty = orderQty;
     }
 
     public Long getPackUnit() {
