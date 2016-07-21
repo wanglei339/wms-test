@@ -44,8 +44,8 @@
 	<select id="getBaseinfoStaffLevelList" parameterType="map" resultMap="baseinfoStaffLevelResultMap">
 		select * from baseinfo_staff_level
 		<include refid="queryCondition"/>
-		<if test="pn != null and rn != null">
-		limit #{pn},#{rn}
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
 		</if>
 	</select>
   
