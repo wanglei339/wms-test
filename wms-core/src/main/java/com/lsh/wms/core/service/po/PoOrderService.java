@@ -7,6 +7,7 @@ import com.lsh.wms.model.po.InbPoHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.HandlerAdapter;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -95,6 +96,30 @@ public class PoOrderService {
     }
 
     /**
+     * 自定义参数获取List<InbPoHeader>
+     * @param params
+     * @return
+     */
+    public List<InbPoHeader> getInbPoHeaderList(Map<String, Object> params){
+        return inbPoHeaderDao.getInbPoHeaderList(params);
+    }
+
+    /**
+     * 自定义参数获取InbPoHeader
+     * @param params
+     * @return
+     */
+    public InbPoHeader getInbPoHeaderByParams(Map<String, Object> params) {
+        List<InbPoHeader> inbPoHeaderList = getInbPoHeaderList(params);
+
+        if(inbPoHeaderList.size() <= 0 || inbPoHeaderList.size() > 1) {
+            return  null;
+        }
+
+        return inbPoHeaderList.get(0);
+    }
+
+    /**
      * 根据OrderId获取InbPoHeader
      * @param orderId
      * @return
@@ -116,30 +141,6 @@ public class PoOrderService {
         params.put("orderOtherId", orderOtherId);
 
         return getInbPoHeaderByParams(params);
-    }
-
-    /**
-     * 自定义参数获取InbPoHeader
-     * @param params
-     * @return
-     */
-    public InbPoHeader getInbPoHeaderByParams(Map<String, Object> params) {
-        List<InbPoHeader> inbPoHeaderList = getInbPoHeaderList(params);
-
-        if(inbPoHeaderList.size() <= 0 || inbPoHeaderList.size() > 1) {
-            return  null;
-        }
-
-        return inbPoHeaderList.get(0);
-    }
-
-    /**
-     * 自定义参数获取List<InbPoHeader>
-     * @param params
-     * @return
-     */
-    public List<InbPoHeader> getInbPoHeaderList(Map<String, Object> params){
-        return inbPoHeaderDao.getInbPoHeaderList(params);
     }
 
     /**
@@ -170,18 +171,21 @@ public class PoOrderService {
     }
 
     /**
-     * 根据OrderId及SkuId获取InbPoDetail
-     * @param orderId
-     * @param skuId
+     * 根据参数获取InbPoDetail数量
+     * @param params
      * @return
      */
-    public InbPoDetail getInbPoDetailByOrderIdAndSkuId(Long orderId, Long skuId) {
-        Map<String, Object> params = new HashMap<String, Object>();
+    public Integer countInbPoDetail(Map<String, Object> params) {
+        return inbPoDetailDao.countInbPoDetail(params);
+    }
 
-        params.put("orderId", orderId);
-        params.put("skuId", skuId);
-
-        return getInbPoDetailByParams(params);
+    /**
+     * 自定义参数获取List<InbPoDetail>
+     * @param params
+     * @return
+     */
+    public List<InbPoDetail> getInbPoDetailList(Map<String, Object> params) {
+        return inbPoDetailDao.getInbPoDetailList(params);
     }
 
     /**
@@ -200,20 +204,30 @@ public class PoOrderService {
     }
 
     /**
-     * 根据参数获取InbPoDetail数量
-     * @param params
+     * 根据OrderId及SkuId获取InbPoDetail
+     * @param orderId
+     * @param skuId
      * @return
      */
-    public Integer countInbPoDetail(Map<String, Object> params) {
-        return inbPoDetailDao.countInbPoDetail(params);
+    public InbPoDetail getInbPoDetailByOrderIdAndSkuId(Long orderId, Long skuId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+
+        params.put("orderId", orderId);
+        params.put("skuId", skuId);
+
+        return getInbPoDetailByParams(params);
     }
 
     /**
-     * 自定义参数获取List<InbPoDetail>
-     * @param params
+     * 根据OrderId获取List<InbPoDetail>
+     * @param orderId
      * @return
      */
-    public List<InbPoDetail> getInbPoDetailList(Map<String, Object> params) {
-        return inbPoDetailDao.getInbPoDetailList(params);
+    public List<InbPoDetail> getInbPoDetailListByOrderId(Long orderId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("orderId", orderId);
+
+        return getInbPoDetailList(params);
     }
+
 }
