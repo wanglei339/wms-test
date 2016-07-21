@@ -31,7 +31,7 @@ public class OrderRestService implements IOrderRestService{
     @Autowired
     private PoOrderService poOrderService;
 
-    @GET
+    @POST
     @Path("getPoHeaderList")
     public String getPoHeaderList() {
         Map<String, Object> params = RequestUtils.getRequest();
@@ -44,7 +44,7 @@ public class OrderRestService implements IOrderRestService{
         return JsonUtils.SUCCESS(poOrderService.getInbPoDetailListByOrderId(orderId));
     }
 
-    @GET
+    @POST
     @Path("countInbPoHeader")
     public String countInbPoHeader() {
         Map<String, Object> params = RequestUtils.getRequest();
@@ -54,7 +54,7 @@ public class OrderRestService implements IOrderRestService{
         return JsonUtils.SUCCESS(map);
     }
 
-    @GET
+    @POST
     @Path("getPoDetailList")
     public String getPoDetailList() {
         Map<String, Object> params = RequestUtils.getRequest();
