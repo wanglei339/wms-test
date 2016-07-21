@@ -2,6 +2,7 @@ package com.lsh.wms.core.service.location;
 
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,9 @@ public class LocationService {
     private static final Logger logger = LoggerFactory.getLogger(LocationService.class);
     @Autowired
     private BaseinfoLocationDao locationDao;
+    @Autowired
+    private StockQuantService stockQuantService;
+
     // location类型定义
     public static final Map<String, Long> locationType = new HashMap<String, Long>() {
         {
@@ -207,5 +211,20 @@ public class LocationService {
     public Long getInventoryLostLocationId() {
         BaseinfoLocation location = this.getInventoryLostLocation();
         return location.getLocationId();
+    }
+
+    // 分配暂存区location
+    public BaseinfoLocation getAvailableLocationByType(String type) {
+        List<BaseinfoLocation> locations = this.getLocationsByType(type);
+        if (locations.size() > 0) {
+            for (BaseinfoLocation location : locations) {
+                Long locationId = location.getLocationId();
+                List<Long> containerIds = stockQuantService.getContainerIdByLocationId(locationId);
+                if (location.getContainerVol() - containerIds.size() > 0) {
+                    return location;
+                }
+            }
+        }
+        return null;
     }
 }
