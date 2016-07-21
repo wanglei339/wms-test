@@ -137,18 +137,13 @@ public class ItemRestService implements IItemRestService {
     @POST
     @Path("updateItemLocation")
     public String updateItemLocation(BaseinfoItemLocation itemLocation) {
-
-        BaseinfoItemLocation  newItemLocation = null;
         try{
-            newItemLocation =  itemRpcService.updateItemLocation(itemLocation);
+            itemRpcService.updateItemLocation(itemLocation);
         }catch (Exception e){
             logger.error(e.getCause().getMessage());
             return JsonUtils.EXCEPTION_ERROR("failed");
         }
-        if(newItemLocation == null){
-            return JsonUtils.EXCEPTION_ERROR("The record does not exist");
-        }
-        return JsonUtils.SUCCESS(itemLocation);
+        return JsonUtils.SUCCESS();
     }
     @GET
     @Path("setStatus")
