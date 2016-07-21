@@ -206,7 +206,7 @@ public class ReceiptRestService implements IReceiptRestService {
              * itemId
              *
              */
-            // TODO: 16/7/21  如何形成上架任务 
+            // TODO: 16/7/21  如何形成上架任务
             StockQuant quant = new StockQuant();
             quant.setSkuId(inbReceiptDetail.getSkuId());
             quant.setItemId(inbReceiptDetail.getItemId());
