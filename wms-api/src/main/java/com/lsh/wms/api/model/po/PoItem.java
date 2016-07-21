@@ -4,6 +4,7 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -30,6 +31,8 @@ public class PoItem {
 
     /** 包装单位 */
     private Long packUnit;
+    /** 价格 */
+    private BigDecimal price;
 
     /** 产地 */
     @Size(max=100)
@@ -40,13 +43,22 @@ public class PoItem {
     }
 
     public PoItem(String skuCode, String skuName, String barCode, Long orderQty,
-                  Long packUnit, String madein) {
+                  Long packUnit,BigDecimal price, String madein) {
         this.skuCode = skuCode;
         this.skuName = skuName;
         this.barCode = barCode;
         this.orderQty = orderQty;
         this.packUnit = packUnit;
+        this.price = price;
         this.madein = madein;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 
     public String getSkuCode() {
