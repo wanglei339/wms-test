@@ -6,6 +6,7 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.csi.ICsiRestService;
 import com.lsh.wms.core.service.csi.CsiOwnerService;
+import com.lsh.wms.core.service.csi.CsiSupplierService;
 import com.lsh.wms.model.csi.CsiCategory;
 import com.lsh.wms.model.csi.CsiOwner;
 import com.lsh.wms.model.csi.CsiSku;
@@ -34,6 +35,8 @@ public class CsiRestService implements ICsiRestService {
     private CsiRpcService csiRpcService;
     @Autowired
     private CsiOwnerService ownerService;
+    @Autowired
+    private CsiSupplierService supplierService;
 
     @GET
     @Path("getCatInfo")
@@ -53,10 +56,31 @@ public class CsiRestService implements ICsiRestService {
         return JsonUtils.SUCCESS(csiRpcService.getCatChilds(iCatId));
     }
 
-    @GET
-    @Path("getOwner")
-    public String getOwner(@QueryParam("ownerId") int iOwnerId) {
-        return JsonUtils.SUCCESS(csiRpcService.getOwner(iOwnerId));
+    @POST
+    @Path("insertCategory")
+    public String insertCategory(CsiCategory category) {
+        try{
+            csiRpcService.insertCategory(category);
+        }catch(Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("failed");
+        }
+
+        return JsonUtils.SUCCESS();
+    }
+    @POST
+    @Path("updateCategory")
+    public String updateCategory(CsiCategory category) {
+        if(csiRpcService.getCatChilds(category.getCatId()) == null){
+            return JsonUtils.EXCEPTION_ERROR("The record does not exist");
+        }
+        try{
+            csiRpcService.updateCategory(category);
+        }catch(Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("failed");
+        }
+        return JsonUtils.SUCCESS();
     }
 
     @GET
@@ -65,18 +89,12 @@ public class CsiRestService implements ICsiRestService {
         return JsonUtils.SUCCESS(csiRpcService.getSku(iSkuId));
     }
 
+
     @GET
     @Path("getSkuByCode")
     public String getSkuByCode(@QueryParam("codeType") int iCodeType, @QueryParam("code") String sCode) {
         return JsonUtils.SUCCESS(csiRpcService.getSkuByCode(iCodeType, sCode));
     }
-
-    @GET
-    @Path("getSupplier")
-    public String getSupplier(@QueryParam("supplierId") int iSupplierId) {
-        return JsonUtils.SUCCESS(csiRpcService.getSupplier(iSupplierId));
-    }
-
     @POST
     @Path("insertSku")
     public String insertSku(CsiSku sku){
@@ -108,28 +126,22 @@ public class CsiRestService implements ICsiRestService {
         return JsonUtils.SUCCESS();
     }
 
-    @POST
-    @Path("insertSupplier")
-    public String insertSupplier(CsiSupplier supplier){
-        try{
-            csiRpcService.insertSupplier(supplier);
-        }catch (Exception e){
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR("failed");
-        }
-        return JsonUtils.SUCCESS();
+    @GET
+    @Path("getOwner")
+    public String getOwner(@QueryParam("ownerId") int iOwnerId) {
+        return JsonUtils.SUCCESS(csiRpcService.getOwner(iOwnerId));
     }
 
+
     @POST
-    @Path("updateSupplier")
-    public String updateSupplier(CsiSupplier supplier){
-        try{
-            csiRpcService.updateSupplier(supplier);
-        }catch (Exception e){
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR("failed");
-        }
-        return JsonUtils.SUCCESS();
+    @Path("getOwnerList")
+    public String getOwnerList(Map<String, Object> mapQuery) {
+        return JsonUtils.SUCCESS(ownerService.getOwnerList(mapQuery));
+    }
+    @POST
+    @Path("getOwnerCount")
+    public String getOwnerCount(Map<String, Object> mapQuery) {
+        return JsonUtils.SUCCESS(ownerService.getOwnerCount(mapQuery));
     }
 
     @POST
@@ -157,41 +169,48 @@ public class CsiRestService implements ICsiRestService {
         }
         return JsonUtils.SUCCESS();
     }
-    @POST
-    @Path("insertCategory")
-    public String insertCategory(CsiCategory category) {
-        try{
-            csiRpcService.insertCategory(category);
-        }catch(Exception e){
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR("failed");
-        }
 
-        return JsonUtils.SUCCESS();
+    @GET
+    @Path("getSupplier")
+    public String getSupplier(@QueryParam("supplierId") int iSupplierId) {
+        return JsonUtils.SUCCESS(csiRpcService.getSupplier(iSupplierId));
     }
+
+
     @POST
-    @Path("updateCategory")
-    public String updateCategory(CsiCategory category) {
-        if(csiRpcService.getCatChilds(category.getCatId()) == null){
-            return JsonUtils.EXCEPTION_ERROR("The record does not exist");
-        }
+    @Path("insertSupplier")
+    public String insertSupplier(CsiSupplier supplier){
         try{
-            csiRpcService.updateCategory(category);
-        }catch(Exception e){
+            csiRpcService.insertSupplier(supplier);
+        }catch (Exception e){
             logger.error(e.getCause().getMessage());
             return JsonUtils.EXCEPTION_ERROR("failed");
         }
         return JsonUtils.SUCCESS();
     }
+
     @POST
-    @Path("getOwnerList")
-    public String getOwnerList(Map<String, Object> mapQuery) {
-        return JsonUtils.SUCCESS(ownerService.getOwnerList(mapQuery));
+    @Path("updateSupplier")
+    public String updateSupplier(CsiSupplier supplier){
+        try{
+            csiRpcService.updateSupplier(supplier);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("failed");
+        }
+        return JsonUtils.SUCCESS();
     }
+
     @POST
-    @Path("getOwnerCount")
-    public String getOwnerCount(Map<String, Object> mapQuery) {
-        return JsonUtils.SUCCESS(ownerService.getOwnerCount(mapQuery));
+    @Path("getSupplierList")
+    public String getSupplierList(Map<String, Object> mapQuery){
+        return JsonUtils.SUCCESS(supplierService.getSupplerList(mapQuery));
+    }
+
+    @POST
+    @Path("getSupplierCount")
+    public String getSupplierCount(Map<String, Object> mapQuery){
+        return JsonUtils.SUCCESS(supplierService.getSupplerCount(mapQuery));
     }
 
 }

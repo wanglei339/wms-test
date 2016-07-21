@@ -73,4 +73,13 @@ public class CsiSupplierService {
         m_SupplierCache.put(supplier.getSupplierId(),newSupplier);
     }
 
+    public List<CsiSupplier> getSupplerList(Map<String,Object> mapQuery){
+        return supplierDao.getCsiSupplierList(mapQuery);
+
+    }
+    public int getSupplerCount(Map<String,Object> mapQuery){
+        return supplierDao.countCsiSupplier(mapQuery);
+
+    }
+
 }

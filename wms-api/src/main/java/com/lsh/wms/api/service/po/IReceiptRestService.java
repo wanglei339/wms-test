@@ -4,6 +4,8 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.po.ReceiptRequest;
 
+import java.util.Map;
+
 /**
  * Project Name: lsh-wms
  * Created by fuhao
@@ -20,5 +22,13 @@ public interface IReceiptRestService {
 
     /* 投单接口 */
     public String throwOrder(String orderOtherId) throws BizCheckedException;
+
+    public String getPoReceiptDetailByReceiptId(Long receiptId);
+
+    public String getPoReceiptDetailByOrderId(Long orderId);
+
+    public String countInbPoReceiptHeader(Map<String, Object> params);
+
+    public String getPoReceiptDetailList(Map<String, Object> params);
 
 }
