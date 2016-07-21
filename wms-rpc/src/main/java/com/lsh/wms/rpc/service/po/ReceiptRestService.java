@@ -22,6 +22,7 @@ import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.po.PoReceiptService;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
@@ -29,6 +30,7 @@ import com.lsh.wms.model.po.InbPoDetail;
 import com.lsh.wms.model.po.InbPoHeader;
 import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.InbReceiptHeader;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.rpc.service.item.ItemRestService;
 import com.lsh.wms.rpc.service.location.LocationRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +74,9 @@ public class ReceiptRestService implements IReceiptRestService {
 
     @Autowired
     private LocationRpcService locationRpcService;
+
+    @Autowired
+    private StockQuantService stockQuantService;
 
 
     @Autowired
@@ -168,6 +173,7 @@ public class ReceiptRestService implements IReceiptRestService {
             Double shelLife_CN= Double.parseDouble(PropertyUtils.getString("shelLife_CN"));
             Double shelLife_Not_CN=Double.parseDouble(PropertyUtils.getString("shelLife_Not_CN"));
             String produceChina=PropertyUtils.getString("produceChina");
+
             if(producePlace.contains(produceChina)){ // TODO: 16/7/20  产地是否存的是CN
                 BigDecimal left_day = new BigDecimal(DateUtils.getYearMonthDay(new Date()) - DateUtils.getYearMonthDay(inbReceiptDetail.getProTime()));
                 if(left_day.divide(shelLife,2,ROUND_HALF_EVEN).doubleValue() < shelLife_CN){
@@ -186,10 +192,39 @@ public class ReceiptRestService implements IReceiptRestService {
             updateInbPoDetail.setSkuId(inbReceiptDetail.getSkuId());
             updateInbPoDetailList.add(updateInbPoDetail);
             inbReceiptDetailList.add(inbReceiptDetail);
+
+
+            /***
+             * skuId 商品码
+             * locationId 存储位id
+             * containerId 容器设备id
+             * qty 商品数量
+             * supplierId 货物供应商id
+             * ownerId 货物所属公司id
+             * inDate 入库时间
+             * expireDate 保质期失效时间
+             * itemId
+             *
+             */
+            // TODO: 16/7/21  如何形成上架任务 
+            StockQuant quant = new StockQuant();
+            quant.setSkuId(inbReceiptDetail.getSkuId());
+            quant.setItemId(inbReceiptDetail.getItemId());
+            quant.setLocationId(inbReceiptHeader.getLocation());
+            quant.setContainerId(inbReceiptHeader.getContainerId());
+            quant.setSupplierId(inbPoHeader.getSupplierCode());
+            quant.setOwnerId(inbPoHeader.getOwnerUid());
+            Date receiptTime = inbReceiptHeader.getReceiptTime();
+            quant.setInDate(receiptTime.getTime());
+            Long expireDate =  inbReceiptDetail.getProTime().getTime()+shelLife.longValue(); // 生产日期+保质期=保质期失效时间
+            quant.setExpireDate(expireDate);
+
+            stockQuantService.create(quant);
         }
 
         //插入订单
         poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList,updateInbPoDetailList );
+
 
         return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
     }
