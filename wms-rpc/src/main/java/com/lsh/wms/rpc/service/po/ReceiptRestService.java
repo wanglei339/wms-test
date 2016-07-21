@@ -46,6 +46,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static java.math.BigDecimal.ROUND_HALF_EVEN;
 
@@ -274,5 +275,22 @@ public class ReceiptRestService implements IReceiptRestService {
 
 
         return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
+    }
+
+
+    public String getPoReceiptDetailByReceiptId(Long receiptId) {
+        return null;
+    }
+
+    public String getPoReceiptDetailByOrderId(Long orderId) {
+        return null;
+    }
+
+    public String countInbPoReceiptHeader(Map<String, Object> params) {
+        return null;
+    }
+
+    public String getPoReceiptDetailList(Map<String, Object> params) {
+        return null;
     }
 }
