@@ -4,13 +4,11 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.po.IOrderRestService;
+import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.service.po.PoOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,8 +31,11 @@ public class OrderRestService implements IOrderRestService{
     @Autowired
     private PoOrderService poOrderService;
 
-    public String getPoHeaderList(Map<String, Object> params) {
-        return JsonUtils.obj2Json(poOrderService.getInbPoHeaderList(params));
+    @GET
+    @Path("getPoHeaderList")
+    public String getPoHeaderList() {
+        Map<String, Object> params = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(poOrderService.getInbPoHeaderList(params));
     }
 
     @POST
@@ -52,10 +53,11 @@ public class OrderRestService implements IOrderRestService{
         return JsonUtils.obj2Json(map);
     }
 
-    @POST
+    @GET
     @Path("getPoDetailList")
-    public String getPoDetailList(Map<String, Object> params) {
-        return JsonUtils.obj2Json(poOrderService.getInbPoDetailList(params));
+    public String getPoDetailList() {
+        Map<String, Object> params = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(poOrderService.getInbPoDetailList(params));
     }
 
 }
