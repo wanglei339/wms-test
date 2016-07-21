@@ -34,12 +34,12 @@
 
 	<insert id="batchInsert" parameterType="java.util.List">
 		insert into INB_PO_DETAIL (
-		ORDER_ID,SKU_ID,SKU_CODE,SKU_NAME,BAR_CODE,ORDER_QTY,PACK_UNIT,
+		ORDER_ID,SKU_ID,SKU_CODE,SKU_NAME,BAR_CODE,ORDER_QTY,PACK_UNIT,PRICE,
 		MADEIN,INBOUND_QTY,INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME
 		) values
 		<foreach collection="list" item="item" index="index" separator="," >
-			(#{item.orderId},#{item.skuId},,#{item.skuCode},#{item.skuName},#{item.barCode},#{item.orderQty},#{item.packUnit},
-			,#{item.price}#{item.madein},#{item.inboundQty},#{item.insertby},#{item.updateby},now(),#{item.updatetime})
+			(#{item.orderId},#{item.skuId},#{item.skuCode},#{item.skuName},#{item.barCode},#{item.orderQty},#{item.packUnit},
+			#{item.price},#{item.madein},#{item.inboundQty},#{item.insertby},#{item.updateby},now(),#{item.updatetime})
 		</foreach>
 	</insert>
 
