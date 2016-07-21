@@ -23,14 +23,13 @@
 	<update id="update" parameterType="BaseinfoStaffGroup">
 		update baseinfo_staff_group
     	<set>
-  			<if test="groupId != null">group_id=#{groupId},</if>
   			<if test="groupName != null">group_name=#{groupName},</if>
   			<if test="departmentId != null">department_id=#{departmentId},</if>
   			<if test="recordStatus != null">record_status=#{recordStatus},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
-		where id=#{id}
+		where group_id=#{groupId}
 	</update>
   
 	<select id="getBaseinfoStaffGroupById" parameterType="int" resultMap="baseinfoStaffGroupResultMap">

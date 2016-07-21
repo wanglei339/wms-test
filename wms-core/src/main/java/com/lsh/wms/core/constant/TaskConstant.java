@@ -14,4 +14,7 @@ public class TaskConstant {
     public static final Long Done = 4L;
 
     public static final Long Cancel = 5L;
+
+    public static final Long TYPE_STOCK_TAKING = 100L;
+
 }

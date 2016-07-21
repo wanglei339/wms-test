@@ -22,13 +22,12 @@
 	<update id="update" parameterType="BaseinfoStaffJob">
 		update baseinfo_staff_job
     	<set>
-  			<if test="jobId != null">job_id=#{jobId},</if>
   			<if test="jobName != null">job_name=#{jobName},</if>
   			<if test="recordStatus != null">record_status=#{recordStatus},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
-		where id=#{id}
+		where job_id=#{jobId}
 	</update>
   
 	<select id="getBaseinfoStaffJobById" parameterType="int" resultMap="baseinfoStaffJobResultMap">

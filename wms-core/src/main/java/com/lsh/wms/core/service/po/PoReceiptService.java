@@ -1,7 +1,9 @@
 package com.lsh.wms.core.service.po;
 
+import com.lsh.wms.core.dao.po.InbPoDetailDao;
 import com.lsh.wms.core.dao.po.InbReceiptDetailDao;
 import com.lsh.wms.core.dao.po.InbReceiptHeaderDao;
+import com.lsh.wms.model.po.InbPoDetail;
 import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.InbReceiptHeader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,9 @@ public class PoReceiptService {
     @Autowired
     private InbReceiptHeaderDao inbReceiptHeaderDao;
 
+    @Autowired
+    private InbPoDetailDao inbPoDetailDao;
+
     /**
      * 插入InbReceiptHeader及List<InbReceiptDetail>
      * @param inbReceiptHeader
@@ -52,11 +57,13 @@ public class PoReceiptService {
      * @param inbReceiptDetailList
      */
     @Transactional(readOnly = false)
-    public void insertOrder(InbReceiptHeader inbReceiptHeader, List<InbReceiptDetail> inbReceiptDetailList) {
+    public void insertOrder(InbReceiptHeader inbReceiptHeader, List<InbReceiptDetail> inbReceiptDetailList,List<InbPoDetail> updateInbPoDetailList ) {
         //插入订单
         inbReceiptHeader.setInserttime(new Date());
         inbReceiptHeaderDao.insert(inbReceiptHeader);
         inbReceiptDetailDao.batchInsert(inbReceiptDetailList);
+        inbPoDetailDao.batchUpdateInboundQtyByOrderIdAndSkuId(updateInbPoDetailList);
+
     }
 
     /**

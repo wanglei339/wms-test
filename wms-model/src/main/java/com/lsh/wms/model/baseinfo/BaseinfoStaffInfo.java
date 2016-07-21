@@ -30,7 +30,7 @@ public class BaseinfoStaffInfo implements Serializable {
 	/** 1-在职 2-离职 */
     private String status;
 	/** 1-正常 2-删除 */
-    private String recordStatus;
+    private Integer recordStatus;
 	/**  */
     private Long createdAt;
 	/**  */
@@ -132,11 +132,11 @@ public class BaseinfoStaffInfo implements Serializable {
 		this.status = status;
 	}
 	
-	public String getRecordStatus(){
+	public Integer getRecordStatus(){
 		return this.recordStatus;
 	}
 	
-	public void setRecordStatus(String recordStatus){
+	public void setRecordStatus(Integer recordStatus){
 		this.recordStatus = recordStatus;
 	}
 	

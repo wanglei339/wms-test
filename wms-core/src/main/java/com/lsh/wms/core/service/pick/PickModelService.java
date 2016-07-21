@@ -1,5 +1,7 @@
 package com.lsh.wms.core.service.pick;
 
+import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.pick.PickModelDao;
 import com.lsh.wms.core.dao.pick.PickModelTemplateDao;
 import com.lsh.wms.model.pick.PickModel;
@@ -26,12 +28,15 @@ public class PickModelService {
     PickModelDao modelDao;
     @Autowired
     PickModelTemplateDao modelTemplateDao;
-
+    @Transactional(readOnly = false)
     public void createPickModelTemplate(PickModelTemplate tpl){
+        tpl.setPickModelTemplateId(RandomUtils.genId());
+        tpl.setCreatedAt(DateUtils.getCurrentSeconds());
         modelTemplateDao.insert(tpl);
     }
-
+    @Transactional(readOnly = false)
     public void createPickModel(PickModel model){
+        model.setPickModelId(RandomUtils.genId());
         modelDao.insert(model);
     }
 
@@ -65,6 +70,15 @@ public class PickModelService {
         mapQuery.put("pickModelId", iPickModelId);
         List<PickModel> pickModels = modelDao.getPickModelList(mapQuery);
         return pickModels.size() == 0 ? null : pickModels.get(0);
+    }
+    @Transactional(readOnly = false)
+    public void updatePickModelTpl(PickModelTemplate tpl){
+        tpl.setUpdatedAt(DateUtils.getCurrentSeconds());
+        modelTemplateDao.update(tpl);
+    }
+    @Transactional(readOnly = false)
+    public void updatePickModel(PickModel model){
+        modelDao.update(model);
     }
 
 }

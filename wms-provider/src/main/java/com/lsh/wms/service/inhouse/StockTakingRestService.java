@@ -63,6 +63,13 @@ public class StockTakingRestService implements IStockTakingRestService {
         return JsonUtils.SUCCESS();
     }
 
+    @POST
+    @Path("review")
+    public String review(Long stockTakingId) {
+        
+        return JsonUtils.SUCCESS();
+    }
+
     private List<StockTakingDetail> prepareDetailListByLocation(StockTakingHead head, List<Long> locationList, List<StockQuant> quantList){
         Map<Long, StockQuant> mapLoc2Quant = new HashMap<Long, StockQuant>();
         for (StockQuant quant : quantList) {

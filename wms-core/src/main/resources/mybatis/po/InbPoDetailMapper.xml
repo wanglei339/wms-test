@@ -67,6 +67,21 @@
 		SET INBOUND_QTY=INBOUND_QTY + #{inboundQty}
 		where ORDER_ID=#{orderId} AND SKU_ID=#{skuId} AND ORDER_QTY >= INBOUND_QTY + #{inboundQty}
 	</update>
+
+
+	<update id="batchUpdateInboundQtyByOrderIdAndSkuId" parameterType="java.util.List">
+
+		<foreach collection="list" item="item" index="index"  open="" close=""  separator=";">
+			update INB_PO_DETAIL
+			<set>
+			INBOUND_QTY=INBOUND_QTY + #{item.inboundQty}
+			</set>
+			where ORDER_ID=#{item.orderId} AND SKU_ID=#{item.skuId} AND ORDER_QTY >= INBOUND_QTY + #{item.inboundQty}
+		</foreach>
+	</update>
+
+
+
   
 	<select id="getInbPoDetailById" parameterType="int" resultMap="inbPoDetailResultMap">
 		select * from INB_PO_DETAIL

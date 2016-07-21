@@ -110,8 +110,8 @@ public class ItemRpcService implements IItemRpcService {
         return item;
     }
 
-    public List<BaseinfoItemLocation> getItemLocationList(long iSkuId, long iOwnerId) {
-        return itemLocationService.getItemLocationList(iSkuId,iOwnerId);
+    public List<BaseinfoItemLocation> getItemLocationList(long iItemId) {
+        return itemLocationService.getItemLocationList(iItemId);
     }
 
     public List<BaseinfoItemLocation> getItemLocationByLocationID(long iLocationId) {
@@ -129,13 +129,8 @@ public class ItemRpcService implements IItemRpcService {
         return itemLocationService.insertItemLocation(itemLocation);
     }
 
-    public BaseinfoItemLocation updateItemLocation(BaseinfoItemLocation itemLocation) {
-        //查询是否存在该记录
-        if(itemLocationService.getItemLocation(itemLocation.getId()) == null){
-            return null;
-        }
+    public void updateItemLocation(BaseinfoItemLocation itemLocation) {
         itemLocationService.updateItemLocation(itemLocation);
-        return itemLocation;
     }
 
     public BaseinfoItem getItem(long itemId) {

@@ -1,16 +1,20 @@
 package com.lsh.wms.rpc.service.pick;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.dubbo.remoting.ExecutionException;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.pick.IWaveRestService;
+import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.service.pick.PickModelService;
 import com.lsh.wms.core.service.pick.PickWaveService;
 import com.lsh.wms.core.service.pick.PickZoneService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.pick.*;
+import com.lsh.wms.rpc.service.pick.wave.WaveCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +46,8 @@ public class WaveRestService implements IWaveRestService {
     @Autowired
     private PickModelService modelService;
     @Autowired
+    private WaveCore core;
+
 
     @POST
     @Path("getList")
@@ -77,17 +83,41 @@ public class WaveRestService implements IWaveRestService {
     @Path("releaseWave")
     public String releaseWave(@QueryParam("waveId") long iWaveId,
                               @QueryParam("uid") long iUid,
-                              @QueryParam("uname") String iUName) {
-        PickWaveHead head = new PickWaveHead();
-        head.setWaveId(iWaveId);
+                              @QueryParam("uname") String iUName) throws BizCheckedException {
+        PickWaveHead head = pickWaveService.getWave(iWaveId);
+        if(head==null){
+            System.out.println(iWaveId+"fuck");
+            throw new BizCheckedException("2040001");
+        }
+        if(head.getStatus() == WaveConstant.STATUS_NEW
+                || head.getStatus() != WaveConstant.STATUS_RELEASE_FAIL
+                || (head.getStatus() == WaveConstant.STATUS_RELEASE_START && DateUtils.getCurrentSeconds()-head.getReleaseAt() > 300))
+        {
+
+        } else {
+            throw new BizCheckedException("2040002");
+        }
         head.setReleaseUid(iUid);
         head.setReleaseUname(iUName);
         head.setReleaseAt(DateUtils.getCurrentSeconds());
+        head.setStatus((long) WaveConstant.STATUS_RELEASE_START);
         try{
             pickWaveService.update(head);
         }catch (Exception e){
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR("Release failed");
+            throw  new BizCheckedException("2040003");
+        }
+        boolean bNeedRollBack = true;
+        try {
+            core.release(iWaveId);
+            bNeedRollBack = false;
+        }catch (BizCheckedException e){
+            logger.error("Wave release fail, wave id %d msg %s", iWaveId, e.getMessage());
+            throw e;
+        } finally {
+            if(bNeedRollBack) {
+                head.setStatus((long) WaveConstant.STATUS_RELEASE_FAIL);
+                pickWaveService.update(head);
+            }
         }
         return JsonUtils.SUCCESS();
     }
@@ -142,22 +172,28 @@ public class WaveRestService implements IWaveRestService {
     @POST
     @Path("createPickzone")
     public String createPickzone(PickZone zone) {
-        return null;
+        return JsonUtils.SUCCESS(zoneService.insertPickZone(zone));
     }
 
     @POST
     @Path("updatePickzone")
     public String updatePickzone(PickZone zone) {
-        return null;
+        try{
+            zoneService.updatePickZone(zone);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("Update failed");
+        }
+        return JsonUtils.SUCCESS();
     }
 
-    @GET
+    @POST
     @Path("getPickModelTplList")
     public String getPickModelTplList(Map<String, Object> mapQuery) {
         return JsonUtils.SUCCESS(modelService.getPickModelTemplateList(mapQuery));
     }
 
-    @GET
+    @POST
     @Path("getPickModelTplCount")
     public String getPickModelTplCount(Map<String, Object> mapQuery) {
         return JsonUtils.SUCCESS(modelService.getPickModelTemplateCount(mapQuery));
@@ -172,13 +208,25 @@ public class WaveRestService implements IWaveRestService {
     @POST
     @Path("createPickModelTpl")
     public String createPickModelTpl(PickModelTemplate tpl) {
-        return null;
+        try{
+            modelService.createPickModelTemplate(tpl);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("create failed");
+        }
+        return JsonUtils.SUCCESS();
     }
 
     @POST
     @Path("updatePickModelTpl")
     public String updatePickModelTpl(PickModelTemplate tpl) {
-        return null;
+        try{
+            modelService.updatePickModelTpl(tpl);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("update failed");
+        }
+        return JsonUtils.SUCCESS();
     }
 
     @GET
@@ -196,13 +244,25 @@ public class WaveRestService implements IWaveRestService {
     @POST
     @Path("createPickModel")
     public String createPickModel(PickModel model) {
-        return null;
+        try{
+            modelService.createPickModel(model);
+        }catch (Exception e ){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("create failed");
+        }
+        return JsonUtils.SUCCESS();
     }
 
     @POST
     @Path("updatePickModel")
     public String updatePickModel(PickModel model) {
-        return null;
+        try{
+            modelService.updatePickModel(model);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            JsonUtils.EXCEPTION_ERROR("update failed");
+        }
+        return JsonUtils.SUCCESS();
     }
 
     @POST
