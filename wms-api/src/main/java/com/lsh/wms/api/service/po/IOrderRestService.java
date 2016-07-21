@@ -17,7 +17,7 @@ public interface IOrderRestService {
 
     public String getPoDetailByOrderId(Long orderId);
 
-    public String countInbPoHeader(Map<String, Object> params);
+    public String countInbPoHeader();
 
     public String getPoDetailList();
 

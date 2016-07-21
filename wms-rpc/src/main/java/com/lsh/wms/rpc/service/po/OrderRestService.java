@@ -41,16 +41,17 @@ public class OrderRestService implements IOrderRestService{
     @GET
     @Path("getPoDetailByOrderId")
     public String getPoDetailByOrderId(@QueryParam("orderId") Long orderId) {
-        return JsonUtils.obj2Json(poOrderService.getInbPoDetailListByOrderId(orderId));
+        return JsonUtils.SUCCESS(poOrderService.getInbPoDetailListByOrderId(orderId));
     }
 
-    @POST
+    @GET
     @Path("countInbPoHeader")
-    public String countInbPoHeader(Map<String, Object> params) {
+    public String countInbPoHeader() {
+        Map<String, Object> params = RequestUtils.getRequest();
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("count", poOrderService.countInbPoHeader(params));
 
-        return JsonUtils.obj2Json(map);
+        return JsonUtils.SUCCESS(map);
     }
 
     @GET
