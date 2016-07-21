@@ -45,8 +45,8 @@
 	<select id="getBaseinfoStaffGroupList" parameterType="map" resultMap="baseinfoStaffGroupResultMap">
 		select * from baseinfo_staff_group
 		<include refid="queryCondition"/>
-		<if test="start != null and limit != null">
-		limit #{start},#{limit}
+		<if test="pn != null and rn != null">
+		limit #{pn},#{rn}
 		</if>
 	</select>
   
