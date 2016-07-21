@@ -3,11 +3,15 @@ package com.lsh.wms.model.stock;
 //import com.lsh.base.common.utils.ClockUtils;
 //import com.lsh.base.common.utils.DateUtils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 
 public class StockQuant implements Serializable,Cloneable {
 
+	private static final Logger logger = LoggerFactory.getLogger(StockQuant.class);
 	/**  */
     private Long id;
 	/** 商品id */
@@ -209,7 +213,7 @@ public class StockQuant implements Serializable,Cloneable {
             stockQuant.setId(null);
             stockQuant.setQty(null);
         }catch ( CloneNotSupportedException ex){
-            ex.printStackTrace();
+            logger.error(ex.toString());
         }
         return stockQuant;
     }
