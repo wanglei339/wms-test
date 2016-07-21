@@ -33,6 +33,10 @@ public class OrderRestService implements IOrderRestService{
     @Autowired
     private PoOrderService poOrderService;
 
+    public String getPoHeaderList(Map<String, Object> params) {
+        return JsonUtils.obj2Json(poOrderService.getInbPoHeaderList(params));
+    }
+
     @POST
     @Path("getPoDetailByOrderId")
     public String getPoDetailByOrderId(Long orderId) {
