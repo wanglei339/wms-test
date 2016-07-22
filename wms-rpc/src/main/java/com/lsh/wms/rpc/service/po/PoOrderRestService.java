@@ -3,16 +3,13 @@ package com.lsh.wms.rpc.service.po;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.wms.api.service.po.IOrderRestService;
-import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.api.service.po.IPoOrderRestService;
 import com.lsh.wms.core.service.po.PoOrderService;
-import com.lsh.wms.model.po.InbPoDetail;
 import com.lsh.wms.model.po.InbPoHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +26,7 @@ import java.util.Map;
 @Path("order/po")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-public class OrderRestService implements IOrderRestService{
+public class PoOrderRestService implements IPoOrderRestService {
 
     @Autowired
     private PoOrderService poOrderService;

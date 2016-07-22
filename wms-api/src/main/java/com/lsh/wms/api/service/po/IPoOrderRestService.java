@@ -11,7 +11,7 @@ import java.util.Map;
  * Package name:com.lsh.wms.api.service.po.
  * desc:类功能描述
  */
-public interface IOrderRestService {
+public interface IPoOrderRestService {
 
     public String getPoHeaderList(Map<String, Object> params);
 

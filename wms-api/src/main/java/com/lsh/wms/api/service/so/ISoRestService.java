@@ -22,9 +22,4 @@ public interface ISoRestService {
 
     public BaseResponse insertOrder(SoRequest request) throws BizCheckedException;
 
-    public String getOutbSoHeaderDetailByOrderId(Long orderId);
-
-    public String countOutbSoHeader(Map<String, Object> params);
-
-    public String getOutbSoHeaderList(Map<String, Object> params);
 }
