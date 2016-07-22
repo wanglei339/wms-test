@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.po;
 
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.core.dao.po.InbPoDetailDao;
 import com.lsh.wms.core.dao.po.InbPoHeaderDao;
 import com.lsh.wms.model.po.InbPoDetail;
@@ -7,7 +8,6 @@ import com.lsh.wms.model.po.InbPoHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.HandlerAdapter;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -105,45 +105,6 @@ public class PoOrderService {
     }
 
     /**
-     * 自定义参数获取InbPoHeader
-     * @param params
-     * @return
-     */
-    public InbPoHeader getInbPoHeaderByParams(Map<String, Object> params) {
-        List<InbPoHeader> inbPoHeaderList = getInbPoHeaderList(params);
-
-        if(inbPoHeaderList.size() <= 0 || inbPoHeaderList.size() > 1) {
-            return  null;
-        }
-
-        return inbPoHeaderList.get(0);
-    }
-
-    /**
-     * 根据OrderId获取InbPoHeader
-     * @param orderId
-     * @return
-     */
-    public InbPoHeader getInbPoHeaderByOrderId(Long orderId) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("orderId", orderId);
-
-        return getInbPoHeaderByParams(params);
-    }
-
-    /**
-     * 根据OrderOtherId获取InbPoHeader
-     * @param orderOtherId
-     * @return
-     */
-    public InbPoHeader getInbPoHeaderByOrderOtherId(String orderOtherId) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("orderOtherId", orderOtherId);
-
-        return getInbPoHeaderByParams(params);
-    }
-
-    /**
      * 根据ID编辑InbPoDetail
      * @param inbPoDetail
      */
@@ -189,6 +150,45 @@ public class PoOrderService {
     }
 
     /**
+     * 自定义参数获取InbPoHeader
+     * @param params
+     * @return
+     */
+    public InbPoHeader getInbPoHeaderByParams(Map<String, Object> params) {
+        List<InbPoHeader> inbPoHeaderList = getInbPoHeaderList(params);
+
+        if(inbPoHeaderList.size() <= 0 || inbPoHeaderList.size() > 1) {
+            return  null;
+        }
+
+        return inbPoHeaderList.get(0);
+    }
+
+    /**
+     * 根据OrderId获取InbPoHeader
+     * @param orderId
+     * @return
+     */
+    public InbPoHeader getInbPoHeaderByOrderId(Long orderId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("orderId", orderId);
+
+        return getInbPoHeaderByParams(params);
+    }
+
+    /**
+     * 根据OrderOtherId获取InbPoHeader
+     * @param orderOtherId
+     * @return
+     */
+    public InbPoHeader getInbPoHeaderByOrderOtherId(String orderOtherId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("orderOtherId", orderOtherId);
+
+        return getInbPoHeaderByParams(params);
+    }
+
+    /**
      * 自定义参数获取InbPoDetail
      * @param params
      * @return
@@ -228,6 +228,30 @@ public class PoOrderService {
         params.put("orderId", orderId);
 
         return getInbPoDetailList(params);
+    }
+
+    /**
+     * List<InbPoHeader>填充InbPoDetail
+     * @param inbPoHeaderList
+     */
+    public void fillDetailToHeaderList(List<InbPoHeader> inbPoHeaderList) {
+        for(InbPoHeader inbPoHeader : inbPoHeaderList) {
+            fillDetailToHeader(inbPoHeader);
+        }
+    }
+
+    /**
+     * InbPoHeader填充InbPoDetail
+     * @param inbPoHeader
+     */
+    public void fillDetailToHeader(InbPoHeader inbPoHeader) {
+        if (inbPoHeader == null) {
+            return;
+        }
+
+        List<InbPoDetail> inbPoDetailList = getInbPoDetailListByOrderId(inbPoHeader.getOrderId());
+
+        inbPoHeader.setOrderDetails(JsonUtils.obj2Json(inbPoDetailList));
     }
 
 }
