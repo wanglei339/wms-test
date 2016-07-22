@@ -307,11 +307,7 @@ public class ReceiptRestService implements IReceiptRestService {
     @POST
     @Path("getPoReceiptDetailList")
     public String getPoReceiptDetailList(Map<String, Object> params) {
-        List<InbReceiptHeader> inbReceiptHeaderList = poReceiptService.getInbReceiptHeaderList(params);
-
-        poReceiptService.fillDetailToHeaderList(inbReceiptHeaderList);
-
-        return JsonUtils.SUCCESS(inbReceiptHeaderList);
+        return JsonUtils.SUCCESS(poReceiptService.getInbReceiptHeaderList(params));
     }
 
 }

@@ -63,14 +63,11 @@ public class LocationRpcService implements ILocationRpcService {
 
     // 分配暂存区location
     public BaseinfoLocation assignTemporary() {
-        List<BaseinfoLocation> tempLocations = locationService.getLocationsByType("temporary");
-        for (BaseinfoLocation tempLocation : tempLocations) {
-            Long tempLocationId = tempLocation.getLocationId();
-            List<Long> containerIds = stockQuantService.getContainerIdByLocationId(tempLocationId);
-            if (tempLocation.getContainerVol() - containerIds.size() > 0) {
-                return tempLocation;
-            }
-        }
-        return null;
+        return locationService.getAvailableLocationByType("temporary");
+    }
+
+    // 分配地堆区location
+    public BaseinfoLocation assignFloor() {
+        return locationService.getAvailableLocationByType("floor");
     }
 }

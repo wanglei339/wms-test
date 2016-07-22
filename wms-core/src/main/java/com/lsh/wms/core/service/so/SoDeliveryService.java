@@ -124,6 +124,33 @@ public class SoDeliveryService {
     }
 
     /**
+     * 自定义参数获取OutbDeliveryHeader
+     * @param params
+     * @return
+     */
+    public OutbDeliveryHeader getOutbDeliveryHeaderByParams(Map<String, Object> params) {
+        List<OutbDeliveryHeader> outbDeliveryHeaderList = getOutbDeliveryHeaderList(params);
+
+        if(outbDeliveryHeaderList.size() <=0 || outbDeliveryHeaderList.size() > 1) {
+            return null;
+        }
+
+        return outbDeliveryHeaderList.get(0);
+    }
+
+    /**
+     * 根据DeliveryId获取OutbDeliveryHeader
+     * @param deliveryId
+     * @return
+     */
+    public OutbDeliveryHeader getOutbDeliveryHeaderByDeliveryId(Long deliveryId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("deliveryId", deliveryId);
+
+        return getOutbDeliveryHeaderByParams(params);
+    }
+
+    /**
      * 根据DeliveryId获取List<OutbDeliveryDetail>
      * @param deliveryId
      * @return
