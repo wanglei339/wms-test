@@ -25,7 +25,7 @@ import java.util.Map;
  * desc:类功能描述
  */
 @Service(protocol = "rest")
-@Path("order/po")
+@Path("order/so")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class SoOrderRestService implements ISoOrderRestService {
