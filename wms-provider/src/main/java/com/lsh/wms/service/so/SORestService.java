@@ -95,7 +95,7 @@ public class SORestService  implements ISoRestService {
                     String.valueOf(outbSoDetail.getItemId()));
 
             if(baseinfoItemList.size() <=0) {
-                throw new BizCheckedException("2900001", "货主商品不存在");
+                throw new BizCheckedException("2900001");
             }
 
             //设置skuId

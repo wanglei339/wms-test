@@ -34,7 +34,9 @@ public class StockTakingHead implements Serializable {
 	/** 批次id */
     private Long lotId = 0L;
 	/** 商品id */
-    private Long skuId = 0L;
+    private Long  skuId= 0L;
+	/** 盘点计划类型 */
+	private Long planType = 0L;
 	/**  */
     private Long createdAt;
 	/**  */
@@ -185,6 +187,12 @@ public class StockTakingHead implements Serializable {
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
-	
-	
+
+	public Long getPlanType() {
+		return planType;
+	}
+
+	public void setPlanType(Long planType) {
+		this.planType = planType;
+	}
 }
