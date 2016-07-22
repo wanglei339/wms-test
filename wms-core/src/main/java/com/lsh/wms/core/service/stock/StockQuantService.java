@@ -159,5 +159,14 @@ public class StockQuantService {
     public List<Long> getContainerIdByLocationId(Long locationId) {
         return stockQuantDao.getContainerIdByLocationId(locationId);
     }
-
+    public StockQuant getQuantBycontainerIdAndSkuId(Long containerId,Long skuId) {
+        Map queryMap=new HashMap();
+        queryMap.put("containerId",containerId);
+        queryMap.put("skuId", skuId);
+        List<StockQuant> stockQuants=stockQuantDao.getQuants(queryMap);
+        if (stockQuants==null ||stockQuants.size()==0){
+            return null;
+        }
+        return  stockQuants.get(0);
+    }
 }

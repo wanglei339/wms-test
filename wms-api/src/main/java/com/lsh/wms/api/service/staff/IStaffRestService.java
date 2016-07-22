@@ -16,9 +16,9 @@ import java.util.Map;
  */
 
 public interface IStaffRestService {
-    public String getDepartmentList();
+    public String getDepartmentList(Map<String, Object> params);
 
-    public String getDepartmentListCount();
+    public String getDepartmentListCount(Map<String, Object> params);
 
     public String addDepartment(Map<String, Object> params);
 
@@ -27,9 +27,9 @@ public interface IStaffRestService {
     public String deleteDepartment(Map<String, Object> params);
 
 
-    public String getGroupList();
+    public String getGroupList(Map<String, Object> params);
 
-    public String getGroupListCount();
+    public String getGroupListCount(Map<String, Object> params);
 
     public String addGroup(Map<String, Object> params) throws BizCheckedException;
 
@@ -38,9 +38,9 @@ public interface IStaffRestService {
     public String deleteGroup(Map<String, Object> params) throws BizCheckedException;
 
 
-    public String getLevelList();
+    public String getLevelList(Map<String, Object> params);
 
-    public String getLevelListCount();
+    public String getLevelListCount(Map<String, Object> params);
 
     public String addLevel(Map<String, Object> params);
 
@@ -49,9 +49,9 @@ public interface IStaffRestService {
     public String deleteLevel(Map<String, Object> params) throws BizCheckedException;
 
 
-    public String getJobList();
+    public String getJobList(Map<String, Object> params);
 
-    public String getJobListCount();
+    public String getJobListCount(Map<String, Object> params);
 
     public String addJob(Map<String, Object> params);
 
@@ -60,9 +60,9 @@ public interface IStaffRestService {
     public String deleteJob(Map<String, Object> params) throws BizCheckedException;
 
 
-    public String getStaffList();
+    public String getStaffList(Map<String, Object> params);
 
-    public String getStaffListCount();
+    public String getStaffListCount(Map<String, Object> params);
 
     public String addStaff(Map<String, Object> params);
 
