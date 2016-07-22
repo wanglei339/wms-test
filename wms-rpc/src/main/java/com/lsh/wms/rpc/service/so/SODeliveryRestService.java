@@ -12,6 +12,7 @@ import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
 import com.lsh.wms.api.model.so.DeliveryItem;
 import com.lsh.wms.api.model.so.DeliveryRequest;
+import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.so.IDeliveryRestService;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.service.so.SoDeliveryService;
@@ -121,13 +122,15 @@ public class SODeliveryRestService implements IDeliveryRestService {
 
     @POST
     @Path("countOutbDeliveryHeader")
-    public String countOutbDeliveryHeader(Map<String, Object> params) {
+    public String countOutbDeliveryHeader() {
+        Map<String, Object> params = RequestUtils.getRequest();
         return JsonUtils.SUCCESS(soDeliveryService.countOutbDeliveryHeader(params));
     }
 
     @POST
     @Path("getOutbDeliveryHeaderList")
-    public String getOutbDeliveryHeaderList(Map<String, Object> params) {
+    public String getOutbDeliveryHeaderList() {
+        Map<String, Object> params = RequestUtils.getRequest();
         return JsonUtils.SUCCESS(soDeliveryService.getOutbDeliveryHeaderList(params));
     }
 

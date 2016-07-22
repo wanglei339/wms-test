@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.po.IPoOrderRestService;
+import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.model.po.InbPoHeader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,8 @@ public class PoOrderRestService implements IPoOrderRestService {
 
     @POST
     @Path("getPoHeaderList")
-    public String getPoHeaderList(Map<String, Object> params) {
+    public String getPoHeaderList() {
+        Map<String, Object> params = RequestUtils.getRequest();
         return JsonUtils.SUCCESS(poOrderService.getInbPoHeaderList(params));
     }
 
@@ -49,13 +51,16 @@ public class PoOrderRestService implements IPoOrderRestService {
 
     @POST
     @Path("countInbPoHeader")
-    public String countInbPoHeader(Map<String, Object> params) {
+    public String countInbPoHeader() {
+        Map<String, Object> params = RequestUtils.getRequest();
         return JsonUtils.SUCCESS(poOrderService.countInbPoHeader(params));
     }
 
     @POST
     @Path("getPoDetailList")
-    public String getPoDetailList(Map<String, Object> params) {
+    public String getPoDetailList() {
+        Map<String, Object> params = RequestUtils.getRequest();
+
         List<InbPoHeader> inbPoHeaderList = poOrderService.getInbPoHeaderList(params);
 
         poOrderService.fillDetailToHeaderList(inbPoHeaderList);

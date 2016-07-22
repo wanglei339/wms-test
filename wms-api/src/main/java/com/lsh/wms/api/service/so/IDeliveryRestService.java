@@ -24,7 +24,7 @@ public interface IDeliveryRestService {
 
     public String getOutbDeliveryHeaderDetailByDeliveryId(Long deliveryId);
 
-    public String countOutbDeliveryHeader(Map<String, Object> params);
+    public String countOutbDeliveryHeader();
 
-    public String getOutbDeliveryHeaderList(Map<String, Object> params);
+    public String getOutbDeliveryHeaderList();
 }

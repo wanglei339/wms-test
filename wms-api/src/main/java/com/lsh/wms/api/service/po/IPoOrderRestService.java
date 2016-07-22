@@ -13,12 +13,12 @@ import java.util.Map;
  */
 public interface IPoOrderRestService {
 
-    public String getPoHeaderList(Map<String, Object> params);
+    public String getPoHeaderList();
 
     public String getPoDetailByOrderId(Long orderId);
 
-    public String countInbPoHeader(Map<String, Object> params);
+    public String countInbPoHeader();
 
-    public String getPoDetailList(Map<String, Object> params);
+    public String getPoDetailList();
 
 }

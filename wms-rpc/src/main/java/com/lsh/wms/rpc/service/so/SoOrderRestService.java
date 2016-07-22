@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.po.IPoOrderRestService;
+import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.so.ISoOrderRestService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
@@ -41,13 +42,15 @@ public class SoOrderRestService implements ISoOrderRestService {
 
     @POST
     @Path("countOutbSoHeader")
-    public String countOutbSoHeader(Map<String, Object> params) {
+    public String countOutbSoHeader() {
+        Map<String, Object> params = RequestUtils.getRequest();
         return JsonUtils.SUCCESS(soOrderService.countOutbSoHeader(params));
     }
 
     @POST
     @Path("getOutbSoHeaderList")
-    public String getOutbSoHeaderList(Map<String, Object> params) {
+    public String getOutbSoHeaderList() {
+        Map<String, Object> params = RequestUtils.getRequest();
         return JsonUtils.SUCCESS(soOrderService.getOutbSoHeaderList(params));
     }
 }

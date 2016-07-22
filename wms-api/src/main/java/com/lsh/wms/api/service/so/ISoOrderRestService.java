@@ -15,8 +15,8 @@ public interface ISoOrderRestService {
 
     public String getOutbSoHeaderDetailByOrderId(Long orderId);
 
-    public String countOutbSoHeader(Map<String, Object> params);
+    public String countOutbSoHeader();
 
-    public String getOutbSoHeaderList(Map<String, Object> params);
+    public String getOutbSoHeaderList();
 
 }
