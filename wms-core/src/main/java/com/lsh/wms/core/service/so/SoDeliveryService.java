@@ -97,28 +97,6 @@ public class SoDeliveryService {
     }
 
     /**
-     * 根据集货道编码获取List<OutbDeliveryHeader>
-     * @param shippingAreaCode
-     * @return
-     */
-    public List<OutbDeliveryHeader> getOutbDeliveryHeaderListByShippingAreaCode(String shippingAreaCode) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("shippingAreaCode", shippingAreaCode);
-
-        //获取OutbDeliveryHeader
-        List<OutbDeliveryHeader> outbDeliveryHeaderList = getOutbDeliveryHeaderList(params);
-
-        //获取OutbDeliveryDetail
-        for(OutbDeliveryHeader outbDeliveryHeader : outbDeliveryHeaderList) {
-            List<OutbDeliveryDetail> outbDeliveryDetailList = getOutbDeliveryDetailListByDeliveryId(outbDeliveryHeader.getDeliveryId());
-
-            outbDeliveryHeader.setDeliveryDetails(JsonUtils.obj2Json(outbDeliveryDetailList));
-        }
-
-        return outbDeliveryHeaderList;
-    }
-
-    /**
      * 通过ID获取OutbDeliveryDetail
      * @param id
      * @return
@@ -156,4 +134,47 @@ public class SoDeliveryService {
 
         return getOutbDeliveryDetailList(params);
     }
+
+    /**
+     * List<OutbDeliveryHeader>填充OutbDeliveryDetail
+     * @param outbDeliveryHeaderList
+     */
+    public void fillDetailToHeaderList(List<OutbDeliveryHeader> outbDeliveryHeaderList) {
+       for(OutbDeliveryHeader outbDeliveryHeader : outbDeliveryHeaderList) {
+           fillDetailToHeader(outbDeliveryHeader);
+       }
+    }
+
+    /**
+     * OutbDeliveryHeader填充OutbDeliveryDetail
+     * @param outbDeliveryHeader
+     */
+    public void fillDetailToHeader(OutbDeliveryHeader outbDeliveryHeader) {
+        if(outbDeliveryHeader == null) {
+            return;
+        }
+
+        List<OutbDeliveryDetail> outbDeliveryDetailList = getOutbDeliveryDetailListByDeliveryId(outbDeliveryHeader.getDeliveryId());
+
+        outbDeliveryHeader.setDeliveryDetails(JsonUtils.obj2Json(outbDeliveryDetailList));
+    }
+
+    /**
+     * 根据集货道编码获取List<OutbDeliveryHeader>
+     * @param shippingAreaCode
+     * @return
+     */
+    public List<OutbDeliveryHeader> getOutbDeliveryHeaderListByShippingAreaCode(String shippingAreaCode) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("shippingAreaCode", shippingAreaCode);
+
+        //获取OutbDeliveryHeader
+        List<OutbDeliveryHeader> outbDeliveryHeaderList = getOutbDeliveryHeaderList(params);
+
+        //获取OutbDeliveryDetail
+        fillDetailToHeaderList(outbDeliveryHeaderList);
+
+        return outbDeliveryHeaderList;
+    }
+
 }

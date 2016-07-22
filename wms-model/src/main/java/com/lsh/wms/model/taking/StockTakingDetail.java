@@ -1,10 +1,12 @@
 package com.lsh.wms.model.taking;
 
+import com.lsh.wms.model.task.Operation;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class StockTakingDetail implements Serializable {
+public class StockTakingDetail extends Operation implements Serializable {
 
 	/**  */
     private Long id;

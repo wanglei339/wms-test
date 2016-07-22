@@ -12,9 +12,13 @@ import java.util.Map;
  * desc:类功能描述
  */
 public interface IOrderRestService {
+
+    public String getPoHeaderList(Map<String, Object> params);
+
     public String getPoDetailByOrderId(Long orderId);
 
     public String countInbPoHeader(Map<String, Object> params);
 
     public String getPoDetailList(Map<String, Object> params);
+
 }

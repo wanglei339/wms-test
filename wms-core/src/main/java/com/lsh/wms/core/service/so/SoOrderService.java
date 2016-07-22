@@ -1,7 +1,6 @@
 package com.lsh.wms.core.service.so;
 
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.base.common.json.JsonUtils2;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.dao.so.OutbSoDetailDao;
@@ -102,54 +101,6 @@ public class SoOrderService {
     }
 
     /**
-     * 根据波次号查询List<OutbSoHeader>
-     * @param waveId
-     * @return
-     */
-    public List<OutbSoHeader> getOutSoHeaderListByWaveId(Long waveId) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("waveId", waveId);
-
-        List<OutbSoHeader> outbSoHeaderList = outbSoHeaderDao.getOutbSoHeaderList(params);
-
-        for(OutbSoHeader outbSoHeader : outbSoHeaderList) {
-            List<OutbSoDetail> outbSoDetailList = getOutbSoDetailListByOrderId(outbSoHeader.getOrderId());
-
-            outbSoHeader.setOrderDetails(JsonUtils.obj2Json(outbSoDetailList));
-        }
-
-        return outbSoHeaderList;
-    }
-
-    /**
-     * 根据OrderId获取OutbSoHeader
-     * @param orderId
-     * @return
-     */
-    public OutbSoHeader getOutSoHeaderByOrderId(Long orderId) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("orderId", orderId);
-
-        //获取OutbSoHeader
-        List<OutbSoHeader> outbSoHeaderList = getOutbSoHeaderList(params);
-        if(outbSoHeaderList.size() > 1 || outbSoHeaderList.size() <= 0) {
-            return null;
-        }
-
-        OutbSoHeader outbSoHeader = outbSoHeaderList.get(0);
-
-        //获取OutbSoDetail
-        List<OutbSoDetail> outbSoDetailList = getOutbSoDetailListByOrderId(orderId);
-        if(outbSoDetailList.size() <= 0) {
-            return outbSoHeader;
-        }
-
-        outbSoHeader.setOrderDetails(JsonUtils.obj2Json(outbSoDetailList));
-
-        return outbSoHeader;
-    }
-
-    /**
      * 根据ID获取OutbSoDetail
      * @param id
      * @return
@@ -186,6 +137,69 @@ public class SoOrderService {
         params.put("orderId", orderId);
 
         return getOutbSoDetailList(params);
+    }
+
+    /**
+     * List<OutbSoHeader>填充OutbSoDetail
+     * @param outbSoHeaderList
+     */
+    public void fillDetailToHeaderList(List<OutbSoHeader> outbSoHeaderList) {
+        for(OutbSoHeader outbSoHeader : outbSoHeaderList) {
+            fillDetailToHeader(outbSoHeader);
+        }
+    }
+
+    /**
+     * OutbSoHeader填充OutbSoDetail
+     * @param outbSoHeader
+     */
+    public void fillDetailToHeader(OutbSoHeader outbSoHeader) {
+        if(outbSoHeader == null) {
+            return;
+        }
+
+        List<OutbSoDetail> outbSoDetailList = getOutbSoDetailListByOrderId(outbSoHeader.getOrderId());
+
+        outbSoHeader.setOrderDetails(JsonUtils.obj2Json(outbSoDetailList));
+    }
+
+    /**
+     * 根据波次号查询List<OutbSoHeader>
+     * @param waveId
+     * @return
+     */
+    public List<OutbSoHeader> getOutSoHeaderListByWaveId(Long waveId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("waveId", waveId);
+
+        List<OutbSoHeader> outbSoHeaderList = outbSoHeaderDao.getOutbSoHeaderList(params);
+
+        fillDetailToHeaderList(outbSoHeaderList);
+
+        return outbSoHeaderList;
+    }
+
+    /**
+     * 根据OrderId获取OutbSoHeader
+     * @param orderId
+     * @return
+     */
+    public OutbSoHeader getOutSoHeaderByOrderId(Long orderId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("orderId", orderId);
+
+        //获取OutbSoHeader
+        List<OutbSoHeader> outbSoHeaderList = getOutbSoHeaderList(params);
+        if(outbSoHeaderList.size() > 1 || outbSoHeaderList.size() <= 0) {
+            return null;
+        }
+
+        OutbSoHeader outbSoHeader = outbSoHeaderList.get(0);
+
+        //获取OutbSoDetail
+        fillDetailToHeader(outbSoHeader);
+
+        return outbSoHeader;
     }
 
 }

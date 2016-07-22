@@ -1,42 +1,23 @@
 package com.lsh.wms.core.service.task;
 
-import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.constant.TaskConstant;
-import com.lsh.wms.core.dao.taking.StockTakingDetailDao;
 import com.lsh.wms.core.dao.task.StockTakingTaskDao;
-import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.task.Operation;
 import com.lsh.wms.model.task.StockTakingTask;
-import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.model.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
 /**
- * Created by mali on 16/7/20.
+ * Created by mali on 16/7/22.
  */
-
-@Component
-@Transactional(readOnly = true)
-public class StockTakingTaskHandler extends BaseTaskHandler {
+public class StockTakingTaskService extends BaseTaskService {
     @Autowired
     private StockTakingTaskDao stockTakingTaskDao;
-
-    @Autowired
-    private StockTakingDetailDao detailDao;
-
-    @Autowired
-    private TaskHandlerFactory handlerFactory;
-
-    @PostConstruct
-    public void postConstruct() {
-        handlerFactory.register(TaskConstant.TYPE_STOCK_TAKING, this);
-    }
 
     @Transactional(readOnly =  false)
     private void update(StockTakingTask task) {
@@ -45,8 +26,9 @@ public class StockTakingTaskHandler extends BaseTaskHandler {
     }
 
     @Transactional(readOnly = false)
-    public void create(TaskInfo task, List<Operation > operationList) {
+    public void create(Task task, List<Operation > operationList) {
         task.setTaskId(RandomUtils.genId());
+        task.setStatus(TaskConstant.Draft);
         task.setCreatedAt(DateUtils.getCurrentSeconds());
         task.setUpdatedAt(DateUtils.getCurrentSeconds());
         stockTakingTaskDao.insert((StockTakingTask) task);
@@ -56,24 +38,28 @@ public class StockTakingTaskHandler extends BaseTaskHandler {
     }
 
     @Transactional(readOnly = false)
-    public void allocate(Long taskId, Long staffId) {
+    public void assigned(Long taskId, Long staffId) {
         StockTakingTask task = stockTakingTaskDao.getStockTakingTaskById(taskId);
         task.setOperator(staffId);
+        task.setStatus(TaskConstant.Assigned);
         this.update(task);
-        super.allocate(taskId, staffId);
+        super.assigned(taskId, staffId);
     }
 
     @Transactional(readOnly = false)
-    public void done(Long taskId, String data){
-        List<StockTakingDetail> detailList = JSON.parseArray(data, StockTakingDetail.class);
-        for (StockTakingDetail detail : detailList) {
-            detail.setUpdatedAt(DateUtils.getCurrentSeconds());
-            detailDao.update(detail);
-        }
+    public void allocate(Long taskId) {
+        StockTakingTask task = stockTakingTaskDao.getStockTakingTaskById(taskId);
+        task.setStatus(TaskConstant.Allocated);
+        this.update(task);
+        super.allocate(taskId);
+    }
+
+    @Transactional(readOnly = false)
+    public void done(Long taskId){
         StockTakingTask task = stockTakingTaskDao.getStockTakingTaskById(taskId);
         task.setStatus(TaskConstant.Done);
         this.update(task);
-        super.done(taskId, data);
+        super.done(taskId);
     }
 
     @Transactional(readOnly = false)
