@@ -46,9 +46,10 @@ public class StockTakingService {
         this.createDetailList(detailList);
     }
 
-    public List<StockTakingDetail> getFinalDetailList(Long stockTakingId) {
+    public List<StockTakingDetail> getFinalDetailList(Long stockTakingId,Long roundTime) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("takingId", stockTakingId);
+        mapQuery.put("round",roundTime);
         List<StockTakingDetail> detailList = detailDao.getStockTakingDetailList(mapQuery);
 
         List<StockTakingDetail> finalDetailList = new ArrayList<StockTakingDetail>();
@@ -64,6 +65,22 @@ public class StockTakingService {
 
     public StockTakingHead getHeadById(Long takingId) {
         return headDao.getStockTakingHeadById(takingId);
+    }
+    public Long chargeTime(Long stockTakingId) {
+        Map queryMap = new HashMap();
+        queryMap.put("stockTakingId",stockTakingId);
+        queryMap.put("round", 3L);
+        int i = detailDao.countStockTakingDetail(queryMap);
+        if (i!=0){
+            return 3L;
+        }else {
+            queryMap.put("round",2L);
+            i=detailDao.countStockTakingDetail(queryMap);
+            if (i!=0){
+                return 2L;
+            }
+            return 1L;
+        }
     }
 }
 

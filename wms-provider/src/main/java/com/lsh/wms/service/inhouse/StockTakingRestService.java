@@ -66,10 +66,50 @@ public class StockTakingRestService implements IStockTakingRestService {
     @POST
     @Path("review")
     public String review(Long stockTakingId) {
-        
+        StockTakingHead head=stockTakingService.getHeadById(stockTakingId);
+        if (head.getPlanType()==1) {
+           this.confirmDifference(stockTakingId,1L);
+        }else {
+            Long times = stockTakingService.chargeTime(stockTakingId);
+            if (times == 1) {
+                this.createNextDetail(stockTakingId,times);
+            } else {
+                if (times == 2) {
+                    List<StockTakingDetail> details = stockTakingService.getFinalDetailList(stockTakingId, times);
+                    boolean isTrue = true;
+                    for (StockTakingDetail detail : details) {
+                        if (detail.getRealQty().compareTo(detail.getTheoreticalQty()) != 0) {
+                            isTrue = false;
+                        }
+                    }
+                    if (isTrue) {
+                        this.confirmDifference(stockTakingId, times);
+                    } else {
+                        this.createNextDetail(stockTakingId, times);
+                    }
+                } else {
+                    this.confirmDifference(stockTakingId, times);
+                }
+            }
+        }
         return JsonUtils.SUCCESS();
     }
+    public void createNextDetail(Long stockTakingId,long roundTime) {
+        Map queryMap = new HashMap();
+        List<StockTakingDetail> detailList = new ArrayList<StockTakingDetail>();
+        queryMap.put("stockTakingId",stockTakingId);
+        queryMap.put("round",roundTime);
 
+        List<StockTakingDetail> details=stockTakingService.getFinalDetailList(stockTakingId,roundTime);
+        for (StockTakingDetail stockTakingDetail:details){
+            stockTakingDetail.setId(0L);
+            StockQuant quant=quantService.getQuantBycontainerIdAndSkuId(stockTakingDetail.getContainerId(),stockTakingDetail.getRealSkuId());
+            stockTakingDetail.setTheoreticalQty(quant.getQty());
+            stockTakingDetail.setRound(roundTime+1);
+            detailList.add(stockTakingDetail);
+        }
+        stockTakingService.createDetailList(detailList);
+    }
     private List<StockTakingDetail> prepareDetailListByLocation(StockTakingHead head, List<Long> locationList, List<StockQuant> quantList){
         Map<Long, StockQuant> mapLoc2Quant = new HashMap<Long, StockQuant>();
         for (StockQuant quant : quantList) {
@@ -133,9 +173,8 @@ public class StockTakingRestService implements IStockTakingRestService {
         }
     }
 
-    public void confirmDifference(Long stockTakingId) {
-        StockTakingHead head = stockTakingService.getHeadById(stockTakingId);
-        List<StockTakingDetail> detailList = stockTakingService.getFinalDetailList(stockTakingId);
+    public void confirmDifference(Long stockTakingId ,long roundTime) {
+        List<StockTakingDetail> detailList = stockTakingService.getFinalDetailList(stockTakingId,roundTime);
         List<StockMove> moveList = new ArrayList<StockMove>();
 
         for (StockTakingDetail detail : detailList) {
