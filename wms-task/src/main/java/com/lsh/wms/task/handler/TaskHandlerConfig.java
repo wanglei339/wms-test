@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Created by mali on 16/7/21.
  */
-public class TaskHanderConfig {
+public class TaskHandlerConfig {
     @Autowired
     private StockTakingTaskHandler stockTakingTaskHandler;
 }

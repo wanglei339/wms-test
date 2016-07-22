@@ -190,7 +190,7 @@ public class StockTakingRestService implements IStockTakingRestService {
 
     public void createTask(StockTakingHead head, List<StockTakingDetail> detailList) {
         StockTakingTask task = new StockTakingTask();
-        dispather.create(TaskConstant.TYPE_STOCK_TAKING, task, detailList);
+        dispather.create(TaskConstant.TYPE_STOCK_TAKING, task, (List<Operation>) (List<?>)detailList);
     }
 
     @POST
