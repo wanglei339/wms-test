@@ -22,5 +22,6 @@ public interface StockQuantDao {
     List<StockQuant> getQuants(Map<String, Object> params);
 
     List<Long> getContainerIdByLocationId(Long locationId);
-	
+
+
 }

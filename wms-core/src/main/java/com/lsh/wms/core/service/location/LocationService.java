@@ -3,6 +3,7 @@ package com.lsh.wms.core.service.location;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -227,5 +228,9 @@ public class LocationService {
             }
         }
         return null;
+    }
+
+    public List<BaseinfoLocation> getBaseinfoLocationList(Map<String, Object> mapQuery) {
+        return locationDao.getBaseinfoLocationList(mapQuery);
     }
 }
