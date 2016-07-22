@@ -62,6 +62,37 @@ public class StockQuantRestService implements IStockQuantRestService {
         return JsonUtils.SUCCESS(total);
     }
 
+
+    @GET
+    @Path("skuOverview")
+    public String overviewBySku(@QueryParam("pn") Long pn,
+                                @QueryParam("rn") Long rn) {
+        //TODO
+        // 获取仓库根Id locatonService.getWarehouseLocationId
+        // 获取根节点下所有能够储存货物的库位 locationService.getStoreLocationIds
+        // 查询商品维度的总库存数据
+        // 查询盘库盘盈区的id下库存总数，从上面的库存总数中减去
+        // 查询残损区库存
+        // 查询退货区库存
+
+        return JsonUtils.SUCCESS();
+    }
+
+    @GET
+    @Path("skuOverview")
+    public String overviewByLocation(@QueryParam("pn") Long pn,
+                                    @QueryParam("rn") Long rn) {
+        //TODO
+        // 获取仓库根Id locationService.getWarehouseLocationId
+        // 获取根节点下所有能够储存货物的库位 locationService.getStoreLocation
+        // 根据pn, rn 找到相应的locationIdList
+        // 根据location查寻对应的quant
+
+        return JsonUtils.SUCCESS();
+    }
+
+
+
     @POST
     @Path("getList")
     public String getList(Map<String, Object> mapQuery) {
