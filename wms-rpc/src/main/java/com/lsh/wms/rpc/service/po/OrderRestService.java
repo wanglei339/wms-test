@@ -4,15 +4,13 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.po.IOrderRestService;
+import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.model.po.InbPoDetail;
 import com.lsh.wms.model.po.InbPoHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
 import java.util.List;
@@ -42,9 +40,9 @@ public class OrderRestService implements IOrderRestService{
         return JsonUtils.SUCCESS(poOrderService.getInbPoHeaderList(params));
     }
 
-    @POST
+    @GET
     @Path("getPoDetailByOrderId")
-    public String getPoDetailByOrderId(Long orderId) {
+    public String getPoDetailByOrderId(@QueryParam("orderId") Long orderId) {
         InbPoHeader inbPoHeader = poOrderService.getInbPoHeaderByOrderId(orderId);
 
         poOrderService.fillDetailToHeader(inbPoHeader);
