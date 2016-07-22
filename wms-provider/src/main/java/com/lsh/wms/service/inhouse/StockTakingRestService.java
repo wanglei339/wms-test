@@ -1,10 +1,10 @@
 package com.lsh.wms.service.inhouse;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.inhouse.IStockTakingRestService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.location.LocationService;
@@ -15,12 +15,13 @@ import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
+import com.lsh.wms.model.task.Operation;
+import com.lsh.wms.model.task.StockTakingTask;
+import com.lsh.wms.model.task.Task;
+import com.lsh.wms.task.service.DispatcherRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,16 +50,14 @@ public class StockTakingRestService implements IStockTakingRestService {
     @Autowired
     private StockMoveService moveService;
 
+    @Reference
+    private DispatcherRpcService dispather;
+
     @POST
     @Path("create")
     public String create(String stockTakingInfo) {
         StockTakingHead head = JSON.parseObject(stockTakingInfo,StockTakingHead.class);
-        List<StockTakingDetail> detailList = JSON.parseArray(head.getDetails(), StockTakingDetail.class);
-        // TODO 随机ID生成器
-        head.setTakingId(RandomUtils.genId());
-        if (detailList == null || detailList.isEmpty()) {
-            detailList = this.prepareDetailList(head);
-        }
+        List<StockTakingDetail> detailList = prepareDetailList(head);
         stockTakingService.create(head, detailList);
         return JsonUtils.SUCCESS();
     }
@@ -75,7 +74,7 @@ public class StockTakingRestService implements IStockTakingRestService {
                 this.createNextDetail(stockTakingId,times);
             } else {
                 if (times == 2) {
-                    List<StockTakingDetail> details = stockTakingService.getFinalDetailList(stockTakingId, times);
+                    List<StockTakingDetail> details = stockTakingService.getDetailListByRound(stockTakingId, times);
                     boolean isTrue = true;
                     for (StockTakingDetail detail : details) {
                         if (detail.getRealQty().compareTo(detail.getTheoreticalQty()) != 0) {
@@ -94,13 +93,14 @@ public class StockTakingRestService implements IStockTakingRestService {
         }
         return JsonUtils.SUCCESS();
     }
+
     public void createNextDetail(Long stockTakingId,long roundTime) {
         Map queryMap = new HashMap();
         List<StockTakingDetail> detailList = new ArrayList<StockTakingDetail>();
         queryMap.put("stockTakingId",stockTakingId);
         queryMap.put("round",roundTime);
 
-        List<StockTakingDetail> details=stockTakingService.getFinalDetailList(stockTakingId,roundTime);
+        List<StockTakingDetail> details=stockTakingService.getDetailListByRound(stockTakingId,roundTime);
         for (StockTakingDetail stockTakingDetail:details){
             stockTakingDetail.setId(0L);
             StockQuant quant=quantService.getQuantBycontainerIdAndSkuId(stockTakingDetail.getContainerId(),stockTakingDetail.getRealSkuId());
@@ -108,9 +108,10 @@ public class StockTakingRestService implements IStockTakingRestService {
             stockTakingDetail.setRound(roundTime+1);
             detailList.add(stockTakingDetail);
         }
-        stockTakingService.createDetailList(detailList);
+        stockTakingService.insertDetailList(detailList);
     }
-    private List<StockTakingDetail> prepareDetailListByLocation(StockTakingHead head, List<Long> locationList, List<StockQuant> quantList){
+
+    private List<StockTakingDetail> prepareDetailListByLocation(List<Long> locationList, List<StockQuant> quantList){
         Map<Long, StockQuant> mapLoc2Quant = new HashMap<Long, StockQuant>();
         for (StockQuant quant : quantList) {
             mapLoc2Quant.put(quant.getLocationId(), quant);
@@ -121,7 +122,6 @@ public class StockTakingRestService implements IStockTakingRestService {
         for (Long locationId : locationList) {
             StockTakingDetail detail = new StockTakingDetail();
             detail.setLocationId(locationId);
-            detail.setTakingId(head.getTakingId());
             detail.setDetailId(idx);
 
             StockQuant quant = mapLoc2Quant.get(locationId);
@@ -136,12 +136,11 @@ public class StockTakingRestService implements IStockTakingRestService {
         return detailList;
     }
 
-    private List<StockTakingDetail> prepareDetailListBySku(StockTakingHead head, List<StockQuant> quantList) {
+    private List<StockTakingDetail> prepareDetailListBySku(List<StockQuant> quantList) {
         Long idx = 0L;
         List<StockTakingDetail> detailList = new ArrayList<StockTakingDetail>();
         for (StockQuant quant : quantList) {
             StockTakingDetail detail = new StockTakingDetail();
-            detail.setTakingId(head.getTakingId());
             detail.setDetailId(idx);
             detail.setLocationId(quant.getLocationId());
             detail.setSkuId(quant.getSkuId());
@@ -155,6 +154,9 @@ public class StockTakingRestService implements IStockTakingRestService {
 
     private List<StockTakingDetail> prepareDetailList(StockTakingHead head) {
         Long locationId = head.getLocationId();
+        if (locationId == null) {
+            locationId = locationService.getWarehouseLocationId();
+        }
         List<Long> locationList = locationService.getStoreLocationIds(locationId);
 
         Map<String, Object> mapQuery = new HashMap<String, Object>();
@@ -166,15 +168,55 @@ public class StockTakingRestService implements IStockTakingRestService {
         List<StockQuant> quantList = quantService.getQuants(mapQuery);
 
         if (head.getTakingType().equals(0L)) {
-            return this.prepareDetailListBySku(head, quantList);
+            return this.prepareDetailListBySku(quantList);
         }
         else {
-            return this.prepareDetailListByLocation(head, locationList, quantList);
+            return this.prepareDetailListByLocation(locationList, quantList);
         }
     }
 
+    public void doOne(String detailInfo) {
+        StockTakingDetail detail = JSON.parseObject(detailInfo, StockTakingDetail.class);
+        stockTakingService.updateDetail(detail);
+    }
+
+    private List<StockTakingDetail> getDifference(Long stockTakingId, Long round) {
+        List<StockTakingDetail> differenceList = new ArrayList<StockTakingDetail>();
+        // TODO
+        // 找出本轮有差异的detail插入列表中
+        return differenceList;
+    }
+
+
+    public void createTask(StockTakingHead head, List<StockTakingDetail> detailList) {
+        StockTakingTask task = new StockTakingTask();
+        dispather.create(TaskConstant.TYPE_STOCK_TAKING, task, (List<Operation>) (List<?>)detailList);
+    }
+
+    @POST
+    @Path("cancel")
+    public void cancel(@QueryParam("stockTakingId") Long stockTakingId) {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("takingId", stockTakingId);
+        List<Task> taskList =  dispather.getTaskList(TaskConstant.TYPE_STOCK_TAKING, mapQuery);
+        for (Task task : taskList) {
+            dispather.cancel(TaskConstant.TYPE_STOCK_TAKING, task.getTaskId());
+        }
+    }
+
+    public void confirm(Long stockTakingId) {
+        // TODO
+        // 获取stockingHead
+        // 如果是临时盘点, 直接调用confirmDifference
+        // 计划盘点,
+        //      如果ruund == 1, 发起新一轮盘点
+        //      如果round == 2, 获取第一轮,第二轮的差异明细列表, 如果非空, 发起第三轮盘点
+        //      如果round == 3, 直接调用confirmDiffence
+    }
+
+
     public void confirmDifference(Long stockTakingId ,long roundTime) {
-        List<StockTakingDetail> detailList = stockTakingService.getFinalDetailList(stockTakingId,roundTime);
+        List<StockTakingDetail> detailList = stockTakingService.getDetailListByRound(stockTakingId,roundTime);
         List<StockMove> moveList = new ArrayList<StockMove>();
 
         for (StockTakingDetail detail : detailList) {
