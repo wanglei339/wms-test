@@ -85,11 +85,10 @@ public class WaveRestService implements IWaveRestService {
                               @QueryParam("uid") long iUid) throws BizCheckedException {
         PickWaveHead head = pickWaveService.getWave(iWaveId);
         if(head==null){
-            System.out.println(iWaveId+"fuck");
             throw new BizCheckedException("2040001");
         }
         if(head.getStatus() == WaveConstant.STATUS_NEW
-                || head.getStatus() != WaveConstant.STATUS_RELEASE_FAIL
+                || head.getStatus() == WaveConstant.STATUS_RELEASE_FAIL
                 || (head.getStatus() == WaveConstant.STATUS_RELEASE_START && DateUtils.getCurrentSeconds()-head.getReleaseAt() > 300))
         {
 
@@ -106,8 +105,12 @@ public class WaveRestService implements IWaveRestService {
         }
         boolean bNeedRollBack = true;
         try {
-            core.release(iWaveId);
-            bNeedRollBack = false;
+            int ret = core.release(iWaveId);
+            if ( ret == 0 ) {
+                bNeedRollBack = false;
+            }else{
+                logger.error("wave release fail, ret %d", ret);
+            }
         }catch (BizCheckedException e){
             logger.error("Wave release fail, wave id %d msg %s", iWaveId, e.getMessage());
             throw e;
@@ -119,6 +122,7 @@ public class WaveRestService implements IWaveRestService {
         }
         return JsonUtils.SUCCESS();
     }
+
     @POST
     @Path("createWave")
     public String createWave(WaveRequest request) {
