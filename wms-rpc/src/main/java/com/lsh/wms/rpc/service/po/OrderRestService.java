@@ -48,10 +48,7 @@ public class OrderRestService implements IOrderRestService{
     @Path("countInbPoHeader")
     public String countInbPoHeader() {
         Map<String, Object> params = RequestUtils.getRequest();
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put("count", poOrderService.countInbPoHeader(params));
-
-        return JsonUtils.SUCCESS(map);
+        return JsonUtils.SUCCESS( poOrderService.countInbPoHeader(params));
     }
 
     @POST

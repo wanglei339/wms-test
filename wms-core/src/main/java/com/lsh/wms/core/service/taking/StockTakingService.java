@@ -43,7 +43,7 @@ public class StockTakingService {
     }
 
     @Transactional (readOnly = false)
-    private void insertDetailList(List<StockTakingDetail> detailList) {
+    public void insertDetailList(List<StockTakingDetail> detailList) {
         for (StockTakingDetail detail : detailList) {
             detail.setCreatedAt(DateUtils.getCurrentSeconds());
             detail.setUpdatedAt(DateUtils.getCurrentSeconds());
@@ -67,7 +67,7 @@ public class StockTakingService {
         }
         this.insertDetailList(detailList);
     }
-
+    
     public List<StockTakingDetail> getDetailListByRound(Long stockTakingId, Long round) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("takingId", stockTakingId);
@@ -78,6 +78,22 @@ public class StockTakingService {
 
     public StockTakingHead getHeadById(Long takingId) {
         return headDao.getStockTakingHeadById(takingId);
+    }
+    public Long chargeTime(Long stockTakingId) {
+        Map queryMap = new HashMap();
+        queryMap.put("stockTakingId",stockTakingId);
+        queryMap.put("round", 3L);
+        int i = detailDao.countStockTakingDetail(queryMap);
+        if (i!=0){
+            return 3L;
+        }else {
+            queryMap.put("round",2L);
+            i=detailDao.countStockTakingDetail(queryMap);
+            if (i!=0){
+                return 2L;
+            }
+            return 1L;
+        }
     }
 }
 

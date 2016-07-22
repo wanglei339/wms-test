@@ -20,17 +20,18 @@
 		<result property="skuId" column="sku_id"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
+		<result property="planType" column="plan_type"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockTakingHead">
 		insert into stock_taking_head (
 			taking_id,name,planner,taking_type,view_type,cluster_method,
 			max_chk_rnd,date,status,supplier_id,owner_id,location_id,
-			lot_id,sku_id,created_at,updated_at
+			lot_id,sku_id,created_at,updated_at,plan_type
     	) values (
 			#{takingId},#{name},#{planner},#{takingType},#{viewType},#{clusterMethod},
 			#{maxChkRnd},#{date},#{status},#{supplierId},#{ownerId},#{locationId},
-			#{lotId},#{skuId},#{createdAt},#{updatedAt}
+			#{lotId},#{skuId},#{createdAt},#{updatedAt},#{planType}
     	)
 	</insert>
 
@@ -53,6 +54,7 @@
   			<if test="skuId != null">sku_id=#{skuId},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+			<if test="planType != null">plan_type=#{planType}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -94,6 +96,7 @@
 			<if test="skuId != null">and sku_id=#{skuId}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="planType != null">plan_type=#{planType}</if>
 		</where>
 	</sql>
    
