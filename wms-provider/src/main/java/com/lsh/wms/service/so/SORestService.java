@@ -17,18 +17,17 @@ import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.po.InbPoHeader;
 import com.lsh.wms.model.so.OutbSoDetail;
 import com.lsh.wms.model.so.OutbSoHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Project Name: lsh-wms
@@ -109,4 +108,23 @@ public class SORestService  implements ISoRestService {
 
         return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
     }
+
+    @GET
+    @Path("getOutbSoHeaderDetailByOrderId")
+    public String getOutbSoHeaderDetailByOrderId(@QueryParam("orderId") Long orderId) {
+        return JsonUtils.SUCCESS(soOrderService.getOutbSoHeaderByOrderId(orderId));
+    }
+
+    @POST
+    @Path("countOutbSoHeader")
+    public String countOutbSoHeader(Map<String, Object> params) {
+        return JsonUtils.SUCCESS(soOrderService.countOutbSoHeader(params));
+    }
+
+    @POST
+    @Path("getOutbSoHeaderList")
+    public String getOutbSoHeaderList(Map<String, Object> params) {
+        return JsonUtils.SUCCESS(soOrderService.getOutbSoHeaderList(params));
+    }
+
 }

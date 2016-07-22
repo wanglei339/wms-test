@@ -184,7 +184,7 @@ public class SoOrderService {
      * @param orderId
      * @return
      */
-    public OutbSoHeader getOutSoHeaderByOrderId(Long orderId) {
+    public OutbSoHeader getOutbSoHeaderByOrderId(Long orderId) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("orderId", orderId);
 
