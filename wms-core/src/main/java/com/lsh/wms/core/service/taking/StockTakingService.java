@@ -1,6 +1,7 @@
 package com.lsh.wms.core.service.taking;
 
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.taking.StockTakingDetailDao;
 import com.lsh.wms.core.dao.taking.StockTakingHeadDao;
 import com.lsh.wms.model.taking.StockTakingDetail;
@@ -29,7 +30,20 @@ public class StockTakingService {
     private StockTakingDetailDao detailDao;
 
     @Transactional (readOnly = false)
-    public void createDetailList(List<StockTakingDetail> detailList) {
+    private void insertHead(StockTakingHead head) {
+        head.setCreatedAt(DateUtils.getCurrentSeconds());
+        head.setUpdatedAt(DateUtils.getCurrentSeconds());
+        headDao.insert(head);
+    }
+
+    @Transactional (readOnly = false)
+    private void updateHead(StockTakingHead head) {
+        head.setUpdatedAt(DateUtils.getCurrentSeconds());
+        headDao.update(head);
+    }
+
+    @Transactional (readOnly = false)
+    private void insertDetailList(List<StockTakingDetail> detailList) {
         for (StockTakingDetail detail : detailList) {
             detail.setCreatedAt(DateUtils.getCurrentSeconds());
             detail.setUpdatedAt(DateUtils.getCurrentSeconds());
@@ -38,28 +52,28 @@ public class StockTakingService {
     }
 
     @Transactional(readOnly = false)
-    public void create(StockTakingHead head, List<StockTakingDetail> detailList) {
-        head.setCreatedAt(DateUtils.getCurrentSeconds());
-        head.setUpdatedAt(DateUtils.getCurrentSeconds());
-        headDao.insert(head);
-
-        this.createDetailList(detailList);
+    public void updateDetail(StockTakingDetail detail) {
+        detail.setUpdatedAt(DateUtils.getCurrentSeconds());
+        detailDao.update(detail);
     }
 
-    public List<StockTakingDetail> getFinalDetailList(Long stockTakingId) {
+    @Transactional(readOnly = false)
+    public void create(StockTakingHead head, List<StockTakingDetail> detailList) {
+        Long takingId = RandomUtils.genId();
+        head.setTakingId(takingId);
+        this.insertHead(head);
+        for (StockTakingDetail detail : detailList) {
+            detail.setTakingId(takingId);
+        }
+        this.insertDetailList(detailList);
+    }
+
+    public List<StockTakingDetail> getDetailListByRound(Long stockTakingId, Long round) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("takingId", stockTakingId);
+        mapQuery.put("round", round);
         List<StockTakingDetail> detailList = detailDao.getStockTakingDetailList(mapQuery);
-
-        List<StockTakingDetail> finalDetailList = new ArrayList<StockTakingDetail>();
-        Long lastDetailId = 0L;
-        for (StockTakingDetail detail : detailList) {
-            if (detail.getDetailId().equals(lastDetailId)) {
-                continue;
-            }
-            finalDetailList.add(detail);
-        }
-        return finalDetailList;
+        return detailList;
     }
 
     public StockTakingHead getHeadById(Long takingId) {

@@ -3,7 +3,7 @@ package com.lsh.wms.model.task;
 import java.io.Serializable;
 import java.util.Date;
 
-public class TaskInfo implements Serializable {
+public class Task implements Serializable {
 
 	/**  */
     private Long id;
@@ -12,19 +12,29 @@ public class TaskInfo implements Serializable {
 	/** 计划id */
     private Long planId;
 	/** 当前LocationId, 分配查找使用 */
-    private Long locationId = 0L;
+    private Long locationId;
 	/** 商品id，分配查找用 */
-    private Long skuId = 0L;
+    private Long skuId;
 	/** 容器id，分配查找用 */
-    private Long containerId = 0L;
-	/** 任务类型，1-拣货，2-上架，3-盘点，4-移库，5-补货, 6-QC */
-    private Long type = 0L;
-	/** 操作员 */
-    private Long operator = 0L;
+    private Long containerId;
+	/** 任务类型，100-盘点， 101-拣货，102-上架，103-移库，104-补货, 105-QC */
+    private Long type;
 	/** 任务状态，1-draft, 2-waiting, 3-assigned, 4-allocated, 5-done, 6-cancel */
-    private Long status = 0L;
-	/** 下一个任务id */
-    private Long nextTaskId = 0L;
+    private Long status;
+	/** 优先级 */
+    private Long priority;
+	/** 操作人员id */
+    private Long operator;
+	/** 创建时间 */
+    private Long draftTime;
+	/** 分配时间 */
+    private Long allocTime;
+	/** 最晚完成时间 */
+    private Long dueTime;
+	/** 实际完成时间 */
+    private Long finishTime;
+	/** 取消时间 */
+    private Long cancelTime;
 	/**  */
     private Long createdAt;
 	/**  */
@@ -86,14 +96,6 @@ public class TaskInfo implements Serializable {
 		this.type = type;
 	}
 	
-	public Long getOperator(){
-		return this.operator;
-	}
-	
-	public void setOperator(Long operator){
-		this.operator = operator;
-	}
-	
 	public Long getStatus(){
 		return this.status;
 	}
@@ -102,12 +104,60 @@ public class TaskInfo implements Serializable {
 		this.status = status;
 	}
 	
-	public Long getNextTaskId(){
-		return this.nextTaskId;
+	public Long getPriority(){
+		return this.priority;
 	}
 	
-	public void setNextTaskId(Long nextTaskId){
-		this.nextTaskId = nextTaskId;
+	public void setPriority(Long priority){
+		this.priority = priority;
+	}
+	
+	public Long getOperator(){
+		return this.operator;
+	}
+	
+	public void setOperator(Long operator){
+		this.operator = operator;
+	}
+	
+	public Long getDraftTime(){
+		return this.draftTime;
+	}
+	
+	public void setDraftTime(Long draftTime){
+		this.draftTime = draftTime;
+	}
+	
+	public Long getAllocTime(){
+		return this.allocTime;
+	}
+	
+	public void setAllocTime(Long allocTime){
+		this.allocTime = allocTime;
+	}
+	
+	public Long getDueTime(){
+		return this.dueTime;
+	}
+	
+	public void setDueTime(Long dueTime){
+		this.dueTime = dueTime;
+	}
+	
+	public Long getFinishTime(){
+		return this.finishTime;
+	}
+	
+	public void setFinishTime(Long finishTime){
+		this.finishTime = finishTime;
+	}
+	
+	public Long getCancelTime(){
+		return this.cancelTime;
+	}
+	
+	public void setCancelTime(Long cancelTime){
+		this.cancelTime = cancelTime;
 	}
 	
 	public Long getCreatedAt(){
