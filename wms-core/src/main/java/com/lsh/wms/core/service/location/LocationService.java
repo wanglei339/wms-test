@@ -26,13 +26,14 @@ public class LocationService {
     private StockQuantService stockQuantService;
 
     // location类型定义
-    public static final Map<String, Long> locationType = new HashMap<String, Long>() {
+    public static final Map<String, Long> LOCATION_TYPE = new HashMap<String, Long>() {
         {
             put("warehouse", new Long(1)); // 仓库
             put("area", new Long(2)); // 区域
             put("inventoryLost", new Long(3)); // 盘亏盘盈
             put("temporary", new Long(4)); // 暂存区
             put("floor", new Long(5)); // 地堆
+            put("picking", new Long(6)); // 拣货位
         }
     };
 
@@ -144,7 +145,7 @@ public class LocationService {
     public BaseinfoLocation getFatherByType(Long locationId, String type) {
         BaseinfoLocation curLocation = this.getLocation(locationId);
         Long fatherId = curLocation.getFatherId();
-        if (curLocation.getType().equals(this.locationType.get(type))) {
+        if (curLocation.getType().equals(this.LOCATION_TYPE.get(type))) {
             return curLocation;
         }
         if (fatherId == 0) {
@@ -174,8 +175,8 @@ public class LocationService {
     // 按类型获取location节点
     public List<BaseinfoLocation> getLocationsByType(String type) {
         Map<String, Object> params = new HashMap<String, Object>();
-        Long locationType = this.locationType.get(type);
-        params.put("type", locationType);
+        Long LOCATION_TYPE = this.LOCATION_TYPE.get(type);
+        params.put("type", LOCATION_TYPE);
         params.put("isValid", 1);
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
         return locations;
