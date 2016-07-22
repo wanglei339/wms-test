@@ -6,6 +6,7 @@
 		<id property="id" column="ID"/>
 		<result property="receiptOrderId" column="RECEIPT_ORDER_ID"/>
 		<result property="orderId" column="ORDER_ID"/>
+		<result property="orderOtherId" column="ORDER_OTHER_ID"/>
 		<result property="lotNum" column="LOT_NUM"/>
 		<result property="skuId" column="SKU_ID"/>
 		<result property="itemId" column="ITEM_ID"/>
@@ -27,12 +28,12 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="InbReceiptDetail">
 		insert into INB_RECEIPT_DETAIL (
-			RECEIPT_ORDER_ID,ORDER_ID,LOT_NUM,SKU_ID,ITEM_ID,SKU_NAME,
+			RECEIPT_ORDER_ID,ORDER_ID,ORDER_OTHER_ID,LOT_NUM,SKU_ID,ITEM_ID,SKU_NAME,
 			BAR_CODE,ORDER_QTY,PACK_UNIT,MADEIN,INBOUND_QTY,ARRIVE_NUM,
 			DEFECT_NUM,PRO_TIME,REFUSE_REASON,INSERTBY,UPDATEBY,INSERTTIME,
 			UPDATETIME
     	) values (
-			#{receiptOrderId},#{orderId},#{lotNum},#{skuId},#{itemId},#{skuName},
+			#{receiptOrderId},#{orderId},#{orderOtherId},#{lotNum},#{skuId},#{itemId},#{skuName},
 			#{barCode},#{orderQty},#{packUnit},#{madein},#{inboundQty},#{arriveNum},
 			#{defectNum},#{proTime},#{refuseReason},#{insertby},#{updateby},#{inserttime},
 			#{updatetime}
@@ -41,12 +42,12 @@
 
 	<insert id="batchInsert" parameterType="java.util.List">
 		insert into INB_RECEIPT_DETAIL (
-		RECEIPT_ORDER_ID,ORDER_ID,LOT_NUM,SKU_ID,ITEM_ID,SKU_NAME,BAR_CODE,
+		RECEIPT_ORDER_ID,ORDER_ID,ORDER_OTHER_ID,LOT_NUM,SKU_ID,ITEM_ID,SKU_NAME,BAR_CODE,
 		ORDER_QTY,PACK_UNIT,MADEIN,INBOUND_QTY,ARRIVE_NUM,DEFECT_NUM,
 		PRO_TIME,REFUSE_REASON,INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME
 		) values
 		<foreach collection="list" item="item" index="index" separator="," >
-			(#{item.receiptOrderId},#{item.orderId},#{item.itemId},#{item.lotNum},#{item.skuId},#{item.skuName},#{item.barCode},
+			(#{item.receiptOrderId},#{item.orderId},#{item.orderOtherId},#{item.itemId},#{item.lotNum},#{item.skuId},#{item.skuName},#{item.barCode},
 			#{item.orderQty},#{item.packUnit},#{item.madein},#{item.inboundQty},#{item.arriveNum},#{item.defectNum},
 			#{item.proTime},#{item.refuseReason},#{item.insertby},#{item.updateby},now(),#{item.updatetime})
 		</foreach>
@@ -57,6 +58,7 @@
     	<set>
   			<if test="receiptOrderId != null">RECEIPT_ORDER_ID=#{receiptOrderId},</if>
   			<if test="orderId != null">ORDER_ID=#{orderId},</if>
+  			<if test="orderOtherId != null">ORDER_OTHER_ID=#{orderOtherId},</if>
   			<if test="lotNum != null">LOT_NUM=#{lotNum},</if>
   			<if test="skuId != null">SKU_ID=#{skuId},</if>
   			<if test="itemId != null">ITEM_ID=#{itemId},</if>
@@ -101,6 +103,7 @@
 			<if test="id != null">ID=#{id}</if>
 			<if test="receiptOrderId != null">and RECEIPT_ORDER_ID=#{receiptOrderId}</if>
 			<if test="orderId != null">and ORDER_ID=#{orderId}</if>
+			<if test="orderOtherId != null">and ORDER_OTHER_ID=#{orderOtherId}</if>
 			<if test="lotNum != null">and LOT_NUM=#{lotNum}</if>
 			<if test="skuId != null">and SKU_ID=#{skuId}</if>
 			<if test="itemId != null">and ITEM_ID=#{itemId}</if>

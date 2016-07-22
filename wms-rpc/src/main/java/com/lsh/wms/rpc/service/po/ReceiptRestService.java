@@ -30,9 +30,11 @@ import com.lsh.wms.model.po.InbPoDetail;
 import com.lsh.wms.model.po.InbPoHeader;
 import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.InbReceiptHeader;
+import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.rpc.service.item.ItemRestService;
 import com.lsh.wms.rpc.service.location.LocationRpcService;
+import com.lsh.wms.rpc.service.stock.StockLotRestService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.Consumes;
@@ -41,9 +43,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static java.math.BigDecimal.ROUND_HALF_EVEN;
 
@@ -71,12 +71,14 @@ public class ReceiptRestService implements IReceiptRestService {
     @Autowired
     private PoOrderService poOrderService;
 
-
     @Autowired
     private LocationRpcService locationRpcService;
 
     @Autowired
     private StockQuantService stockQuantService;
+
+    @Autowired
+    private StockLotRestService stockLotRestService;
 
 
     @Autowired
@@ -125,6 +127,8 @@ public class ReceiptRestService implements IReceiptRestService {
         //初始化List<InbReceiptDetail>
         List<InbReceiptDetail> inbReceiptDetailList = new ArrayList<InbReceiptDetail>();
         List<InbPoDetail> updateInbPoDetailList = new ArrayList<InbPoDetail>();
+        List<StockQuant> stockQuantList = new ArrayList<StockQuant>();
+        List<StockLot> stockLotList = new ArrayList<StockLot>();
 
         for(ReceiptItem receiptItem : request.getItems()) {
             InbReceiptDetail inbReceiptDetail = new InbReceiptDetail();
@@ -133,7 +137,7 @@ public class ReceiptRestService implements IReceiptRestService {
 
             //设置receiptOrderId
             inbReceiptDetail.setReceiptOrderId(inbReceiptHeader.getReceiptOrderId());
-
+            inbReceiptDetail.setOrderOtherId(request.getOrderOtherId());
             //根据request中的orderOtherId查询InbPoHeader
             InbPoHeader inbPoHeader = poOrderService.getInbPoHeaderByOrderOtherId(request.getOrderOtherId());
             if(inbPoHeader == null) {
@@ -206,7 +210,7 @@ public class ReceiptRestService implements IReceiptRestService {
              * itemId
              *
              */
-            // TODO: 16/7/21  如何形成上架任务 
+            // TODO: 16/7/21  如何形成上架任务
             StockQuant quant = new StockQuant();
             quant.setSkuId(inbReceiptDetail.getSkuId());
             quant.setItemId(inbReceiptDetail.getItemId());
@@ -218,14 +222,82 @@ public class ReceiptRestService implements IReceiptRestService {
             quant.setInDate(receiptTime.getTime());
             Long expireDate =  inbReceiptDetail.getProTime().getTime()+shelLife.longValue(); // 生产日期+保质期=保质期失效时间
             quant.setExpireDate(expireDate);
+            quant.setCost(inbPoDetail.getPrice());
+            BigDecimal inboundQty = BigDecimal.valueOf(inbReceiptDetail.getInboundQty());
+            BigDecimal value = inbPoDetail.getPrice().multiply(inboundQty) ;
+            quant.setValue(value);
+            stockQuantList.add(quant);
+            // stockQuantService.create(quant);
 
-            stockQuantService.create(quant);
+
+            /***
+             * skuId         商品id
+             * serialNo      生产批次号
+             * inDate        入库时间
+             * productDate   生产时间
+             * expireDate    保质期失效时间
+             * itemId
+             * poId          采购订单
+             * receiptId     收货单
+             */
+            StockLot stockLot = new StockLot();
+            stockLot.setSkuId(inbReceiptDetail.getSkuId());
+            stockLot.setSerialNo(inbReceiptDetail.getLotNum());
+            stockLot.setItemId(inbReceiptDetail.getItemId());
+            stockLot.setInDate(receiptTime.getTime());
+            stockLot.setProductDate(inbReceiptDetail.getProTime().getTime());
+            stockLot.setExpireDate(expireDate);
+            stockLot.setReceiptId(inbReceiptHeader.getReceiptOrderId());
+            stockLot.setPoId(inbReceiptDetail.getOrderId());
+            stockLotList.add(stockLot);
+            // stockLotRestService.insertLot(stockLot);
+
+
+
         }
 
         //插入订单
         poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList,updateInbPoDetailList );
+        for (StockQuant stockQuant: stockQuantList) {
+            stockQuantService.create(stockQuant);
+        }
+
+        for (StockLot stockLot: stockLotList) {
+            stockLotRestService.insertLot(stockLot);
+        }
+
+
+
 
 
         return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
     }
+
+    @POST
+    @Path("getPoReceiptDetailByReceiptId")
+    public String getPoReceiptDetailByReceiptId(Long receiptId) {
+        return JsonUtils.obj2Json(poReceiptService.getInbReceiptDetailListByReceiptId(receiptId));
+    }
+
+    @POST
+    @Path("getPoReceiptDetailByOrderId")
+    public String getPoReceiptDetailByOrderId(Long orderId) {
+        return JsonUtils.obj2Json(poReceiptService.getInbReceiptDetailListByOrderId(orderId));
+    }
+
+    @POST
+    @Path("countInbPoReceiptHeader")
+    public String countInbPoReceiptHeader(Map<String, Object> params) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("count", poReceiptService.countInbReceiptHeader(params));
+
+        return JsonUtils.obj2Json(map);
+    }
+
+    @POST
+    @Path("getPoReceiptDetailList")
+    public String getPoReceiptDetailList(Map<String, Object> params) {
+        return JsonUtils.obj2Json(poReceiptService.getInbReceiptDetailList(params));
+    }
+
 }

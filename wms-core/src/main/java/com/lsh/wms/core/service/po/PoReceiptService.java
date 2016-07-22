@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -118,5 +119,29 @@ public class PoReceiptService {
      */
     public List<InbReceiptDetail> getInbReceiptDetailList(Map<String, Object> params) {
         return inbReceiptDetailDao.getInbReceiptDetailList(params);
+    }
+
+    /**
+     * 根据ReceiptId获取List<InbReceiptDetail>
+     * @param receiptId
+     * @return
+     */
+    public List<InbReceiptDetail> getInbReceiptDetailListByReceiptId(Long receiptId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("receiptId", receiptId);
+
+        return getInbReceiptDetailList(params);
+    }
+
+    /**
+     * 根据OrderId获取List<InbReceiptDetail>
+     * @param orderId
+     * @return
+     */
+    public List<InbReceiptDetail> getInbReceiptDetailListByOrderId(Long orderId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("orderId", orderId);
+
+        return getInbReceiptDetailList(params);
     }
 }

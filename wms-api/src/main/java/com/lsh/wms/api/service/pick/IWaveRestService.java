@@ -14,7 +14,7 @@ public interface IWaveRestService {
     public String  getListCount(Map<String, Object> mapQuery);
     public String getWave(long iWaveId);
     public String getWaveOrders(long iWaveId);
-    public String releaseWave(long iWaveId, long iUid, String iUName) throws BizCheckedException;
+    public String releaseWave(long iWaveId, long iUid) throws BizCheckedException;
     String createWave(WaveRequest request);
     String setStatus(long iWaveId, int iStatus);
 

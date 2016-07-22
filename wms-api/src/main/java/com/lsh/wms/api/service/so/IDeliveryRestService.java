@@ -1,5 +1,6 @@
 package com.lsh.wms.api.service.so;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.so.DeliveryRequest;
 
@@ -15,5 +16,5 @@ import com.lsh.wms.api.model.so.DeliveryRequest;
 public interface IDeliveryRestService {
     public String init(String soDeliveryInfo);
 
-    public BaseResponse insertOrder(DeliveryRequest request);
+    public BaseResponse insertOrder(DeliveryRequest request) throws BizCheckedException;
 }

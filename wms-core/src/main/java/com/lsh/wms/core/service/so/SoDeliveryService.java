@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.so;
 
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.core.dao.so.OutbDeliveryDetailDao;
 import com.lsh.wms.core.dao.so.OutbDeliveryHeaderDao;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -95,6 +97,28 @@ public class SoDeliveryService {
     }
 
     /**
+     * 根据集货道编码获取List<OutbDeliveryHeader>
+     * @param shippingAreaCode
+     * @return
+     */
+    public List<OutbDeliveryHeader> getOutbDeliveryHeaderListByShippingAreaCode(String shippingAreaCode) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("shippingAreaCode", shippingAreaCode);
+
+        //获取OutbDeliveryHeader
+        List<OutbDeliveryHeader> outbDeliveryHeaderList = getOutbDeliveryHeaderList(params);
+
+        //获取OutbDeliveryDetail
+        for(OutbDeliveryHeader outbDeliveryHeader : outbDeliveryHeaderList) {
+            List<OutbDeliveryDetail> outbDeliveryDetailList = getOutbDeliveryDetailListByDeliveryId(outbDeliveryHeader.getDeliveryId());
+
+            outbDeliveryHeader.setDeliveryDetails(JsonUtils.obj2Json(outbDeliveryDetailList));
+        }
+
+        return outbDeliveryHeaderList;
+    }
+
+    /**
      * 通过ID获取OutbDeliveryDetail
      * @param id
      * @return
@@ -119,5 +143,17 @@ public class SoDeliveryService {
      */
     public List<OutbDeliveryDetail> getOutbDeliveryDetailList(Map<String, Object> params) {
         return outbDeliveryDetailDao.getOutbDeliveryDetailList(params);
+    }
+
+    /**
+     * 根据DeliveryId获取List<OutbDeliveryDetail>
+     * @param deliveryId
+     * @return
+     */
+    public List<OutbDeliveryDetail> getOutbDeliveryDetailListByDeliveryId(Long deliveryId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("deliveryId", deliveryId);
+
+        return getOutbDeliveryDetailList(params);
     }
 }

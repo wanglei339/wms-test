@@ -3,6 +3,7 @@ package com.lsh.wms.rpc.service.so;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
@@ -14,8 +15,10 @@ import com.lsh.wms.api.model.so.DeliveryRequest;
 import com.lsh.wms.api.service.so.IDeliveryRestService;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.service.so.SoDeliveryService;
+import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
+import com.lsh.wms.model.so.OutbSoDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.Consumes;
@@ -23,9 +26,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Project Name: lsh-wms
@@ -45,6 +46,9 @@ public class SODeliveryRestService implements IDeliveryRestService {
     @Autowired
     private SoDeliveryService soDeliveryService;
 
+    @Autowired
+    private SoOrderService soOrderService;
+
     @POST
     @Path("init")
     public String init(String soDeliveryInfo) {
@@ -56,7 +60,7 @@ public class SODeliveryRestService implements IDeliveryRestService {
 
     @POST
     @Path("insert")
-    public BaseResponse insertOrder(DeliveryRequest request) {
+    public BaseResponse insertOrder(DeliveryRequest request) throws BizCheckedException {
         BaseResponse response = new BaseResponse();
 
         //OutbDeliveryHeader
@@ -82,6 +86,21 @@ public class SODeliveryRestService implements IDeliveryRestService {
 
             //设置deliveryId
             outbDeliveryDetail.setDeliveryId(outbDeliveryHeader.getDeliveryId());
+
+            //查询订货数
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("orderId", deliveryItem.getOrderId());
+            params.put("itemId", deliveryItem.getItemId());
+            params.put("start", 0);
+            params.put("limit", 1);
+            List<OutbSoDetail> outbSoDetailList = soOrderService.getOutbSoDetailList(params);
+
+            if(outbSoDetailList.size() <= 0) {
+                throw new BizCheckedException("2900002", "出库订单明细数据异常");
+            }
+
+            //设置订货数
+            outbDeliveryDetail.setOrderQty(outbSoDetailList.get(0).getOrderQty());
 
             outbDeliveryDetailList.add(outbDeliveryDetail);
         }
