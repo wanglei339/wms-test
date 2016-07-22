@@ -276,13 +276,29 @@ public class ReceiptRestService implements IReceiptRestService {
     @POST
     @Path("getPoReceiptDetailByReceiptId")
     public String getPoReceiptDetailByReceiptId(Long receiptId) {
-        return JsonUtils.obj2Json(poReceiptService.getInbReceiptDetailListByReceiptId(receiptId));
+        InbReceiptHeader inbReceiptHeader = poReceiptService.getInbReceiptHeaderByReceiptId(receiptId);
+
+        poReceiptService.fillDetailToHeader(inbReceiptHeader);
+
+        return JsonUtils.SUCCESS(inbReceiptHeader);
     }
 
     @POST
     @Path("getPoReceiptDetailByOrderId")
     public String getPoReceiptDetailByOrderId(Long orderId) {
-        return JsonUtils.obj2Json(poReceiptService.getInbReceiptDetailListByOrderId(orderId));
+        List<InbReceiptDetail> inbReceiptDetailList = poReceiptService.getInbReceiptDetailListByOrderId(orderId);
+
+        List<InbReceiptHeader> inbReceiptHeaderList = new ArrayList<InbReceiptHeader>();
+
+        for(InbReceiptDetail inbReceiptDetail : inbReceiptDetailList) {
+            InbReceiptHeader inbReceiptHeader = poReceiptService.getInbReceiptHeaderByReceiptId(inbReceiptDetail.getReceiptOrderId());
+
+            poReceiptService.fillDetailToHeader(inbReceiptHeader);
+
+            inbReceiptHeaderList.add(inbReceiptHeader);
+        }
+
+        return JsonUtils.SUCCESS(inbReceiptHeaderList);
     }
 
     @POST
@@ -291,13 +307,17 @@ public class ReceiptRestService implements IReceiptRestService {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("count", poReceiptService.countInbReceiptHeader(params));
 
-        return JsonUtils.obj2Json(map);
+        return JsonUtils.SUCCESS(map);
     }
 
     @POST
     @Path("getPoReceiptDetailList")
     public String getPoReceiptDetailList(Map<String, Object> params) {
-        return JsonUtils.obj2Json(poReceiptService.getInbReceiptDetailList(params));
+        List<InbReceiptHeader> inbReceiptHeaderList = poReceiptService.getInbReceiptHeaderList(params);
+
+        poReceiptService.fillDetailToHeaderList(inbReceiptHeaderList);
+
+        return JsonUtils.SUCCESS(inbReceiptHeaderList);
     }
 
 }

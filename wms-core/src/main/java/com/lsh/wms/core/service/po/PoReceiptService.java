@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.po;
 
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.core.dao.po.InbPoDetailDao;
 import com.lsh.wms.core.dao.po.InbReceiptDetailDao;
 import com.lsh.wms.core.dao.po.InbReceiptHeaderDao;
@@ -122,6 +123,33 @@ public class PoReceiptService {
     }
 
     /**
+     * 自定义参数获取InbReceiptHeader
+     * @param params
+     * @return
+     */
+    public InbReceiptHeader getInbReceiptHeaderByParams(Map<String, Object> params) {
+        List<InbReceiptHeader> inbReceiptHeaderList = getInbReceiptHeaderList(params);
+
+        if(inbReceiptHeaderList.size() <= 0 || inbReceiptHeaderList.size() > 1) {
+            return  null;
+        }
+
+        return inbReceiptHeaderList.get(0);
+    }
+
+    /**
+     * 根据ReceiptId获取InbReceiptHeader
+     * @param receiptId
+     * @return
+     */
+    public InbReceiptHeader getInbReceiptHeaderByReceiptId(Long receiptId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("receiptId", receiptId);
+
+        return getInbReceiptHeaderByParams(params);
+    }
+
+    /**
      * 根据ReceiptId获取List<InbReceiptDetail>
      * @param receiptId
      * @return
@@ -143,5 +171,29 @@ public class PoReceiptService {
         params.put("orderId", orderId);
 
         return getInbReceiptDetailList(params);
+    }
+
+    /**
+     * List<InbReceiptHeader>填充InbReceiptDetail
+     * @param inbReceiptHeaderList
+     */
+    public void fillDetailToHeaderList(List<InbReceiptHeader> inbReceiptHeaderList) {
+        for(InbReceiptHeader inbReceiptHeader : inbReceiptHeaderList) {
+            fillDetailToHeader(inbReceiptHeader);
+        }
+    }
+
+    /**
+     * InbReceiptHeader填充InbReceiptDetail
+     * @param inbReceiptHeader
+     */
+    public void fillDetailToHeader(InbReceiptHeader inbReceiptHeader) {
+        if(inbReceiptHeader == null) {
+            return;
+        }
+
+        List<InbReceiptDetail> inbReceiptDetailList = getInbReceiptDetailListByReceiptId(inbReceiptHeader.getReceiptOrderId());
+
+        inbReceiptHeader.setReceiptDetails(JsonUtils.obj2Json(inbReceiptDetailList));
     }
 }
