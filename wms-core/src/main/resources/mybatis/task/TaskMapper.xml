@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.lsh.wms.core.dao.task.TaskInfoDao" >
+<mapper namespace="com.lsh.wms.core.dao.task.TaskDao" >
 
-	<resultMap id="taskInfoResultMap" type="TaskInfo">
+	<resultMap id="taskResultMap" type="Task">
 		<id property="id" column="id"/>
 		<result property="taskId" column="task_id"/>
 		<result property="planId" column="plan_id"/>
@@ -22,7 +22,7 @@
 		<result property="updatedAt" column="updated_at"/>
 	</resultMap>
   
-	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TaskInfo">
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="Task">
 		insert into TASK_INFO (
 			task_id,plan_id,location_id,sku_id,container_id,type,
 			status,priority,operator,draft_time,alloc_time,due_time,
@@ -34,7 +34,7 @@
     	)
 	</insert>
 
-	<update id="update" parameterType="TaskInfo">
+	<update id="update" parameterType="Task">
 		update TASK_INFO
     	<set>
   			<if test="taskId != null">task_id=#{taskId},</if>
@@ -57,17 +57,17 @@
 		where id=#{id}
 	</update>
   
-	<select id="getTaskInfoById" parameterType="int" resultMap="taskInfoResultMap">
+	<select id="getTaskById" parameterType="int" resultMap="taskResultMap">
 		select * from TASK_INFO
 		where ID=#{id} 
 	</select>
   
-	<select id="countTaskInfo" parameterType="map" resultType="int">
+	<select id="countTask" parameterType="map" resultType="int">
 		select count(*) from TASK_INFO
 		<include refid="queryCondition"/>
 	</select>
   
-	<select id="getTaskInfoList" parameterType="map" resultMap="taskInfoResultMap">
+	<select id="getTaskList" parameterType="map" resultMap="taskResultMap">
 		select * from TASK_INFO
 		<include refid="queryCondition"/>
 		<if test="start != null and limit != null">
