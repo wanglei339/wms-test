@@ -37,10 +37,7 @@ import com.lsh.wms.rpc.service.location.LocationRpcService;
 import com.lsh.wms.rpc.service.stock.StockLotRestService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.math.BigDecimal;
 import java.util.*;
@@ -273,9 +270,9 @@ public class ReceiptRestService implements IReceiptRestService {
         return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
     }
 
-    @POST
+    @GET
     @Path("getPoReceiptDetailByReceiptId")
-    public String getPoReceiptDetailByReceiptId(Long receiptId) {
+    public String getPoReceiptDetailByReceiptId(@QueryParam("receiptId") Long receiptId) {
         InbReceiptHeader inbReceiptHeader = poReceiptService.getInbReceiptHeaderByReceiptId(receiptId);
 
         poReceiptService.fillDetailToHeader(inbReceiptHeader);
@@ -283,9 +280,9 @@ public class ReceiptRestService implements IReceiptRestService {
         return JsonUtils.SUCCESS(inbReceiptHeader);
     }
 
-    @POST
+    @GET
     @Path("getPoReceiptDetailByOrderId")
-    public String getPoReceiptDetailByOrderId(Long orderId) {
+    public String getPoReceiptDetailByOrderId(@QueryParam("orderId") Long orderId) {
         List<InbReceiptDetail> inbReceiptDetailList = poReceiptService.getInbReceiptDetailListByOrderId(orderId);
 
         List<InbReceiptHeader> inbReceiptHeaderList = new ArrayList<InbReceiptHeader>();
@@ -304,10 +301,7 @@ public class ReceiptRestService implements IReceiptRestService {
     @POST
     @Path("countInbPoReceiptHeader")
     public String countInbPoReceiptHeader(Map<String, Object> params) {
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put("count", poReceiptService.countInbReceiptHeader(params));
-
-        return JsonUtils.SUCCESS(map);
+        return JsonUtils.SUCCESS(poReceiptService.countInbReceiptHeader(params));
     }
 
     @POST
