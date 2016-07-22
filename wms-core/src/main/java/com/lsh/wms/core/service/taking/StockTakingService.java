@@ -67,7 +67,7 @@ public class StockTakingService {
         }
         this.insertDetailList(detailList);
     }
-    
+
     public List<StockTakingDetail> getDetailListByRound(Long stockTakingId, Long round) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("takingId", stockTakingId);
