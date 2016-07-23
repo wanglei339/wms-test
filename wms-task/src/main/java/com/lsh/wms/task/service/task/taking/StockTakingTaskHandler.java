@@ -9,6 +9,8 @@ import com.lsh.wms.task.service.handler.TaskHandlerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+
 /**
  * Created by mali on 16/7/20.
  */
@@ -20,7 +22,7 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
     @Autowired
     private TaskHandlerFactory handlerFactory;
 
-
+    @PostConstruct
     public void postConstruct() {
         handlerFactory.register(TaskConstant.TYPE_STOCK_TAKING, this);
     }
