@@ -1,13 +1,13 @@
-package com.lsh.wms.task.handler;
+package com.lsh.wms.task.service.handler;
 
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.beans.Transient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +15,8 @@ import java.util.Map;
 /**
  * Created by mali on 16/7/23.
  */
-public abstract class  AbsTaskHandler implements TaskHandler {
+@Component
+public  class  AbsTaskHandler implements TaskHandler {
     @Autowired
     private BaseTaskService baseTaskService;
 
@@ -29,7 +30,7 @@ public abstract class  AbsTaskHandler implements TaskHandler {
         this.createConcrete(taskEntry);
     }
 
-    protected void createConcrete(TaskEntry<?,?> taskEntry) {
+    protected void createConcrete(TaskEntry taskEntry) {
     }
 
 

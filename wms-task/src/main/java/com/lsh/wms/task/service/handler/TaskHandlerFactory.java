@@ -1,7 +1,5 @@
-package com.lsh.wms.task.handler;
+package com.lsh.wms.task.service.handler;
 
-import org.codehaus.jackson.map.deser.ValueInstantiators;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;

@@ -16,7 +16,6 @@ import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
-import com.lsh.wms.model.task.StockTakingTask;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;

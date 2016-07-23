@@ -7,30 +7,13 @@ import java.util.List;
 /**
  * Created by mali on 16/7/23.
  */
-public class TaskEntry<E, T> {
+public class TaskEntry {
 
-    private Long taskId;
-    private Long taskType;
     private TaskInfo taskInfo;
-    private E taskHead;
-    private List<T> taskDetailList;
+    private Object taskHead;
+    private List<Object> taskDetailList;
     private List<StockMove> stockMoveList;
 
-    public Long getTaskId() {
-        return taskId;
-    }
-
-    public void setTaskId(Long taskId) {
-        this.taskId = taskId;
-    }
-
-    public Long getTaskType() {
-        return taskType;
-    }
-
-    public void setTaskType(Long taskType) {
-        this.taskType = taskType;
-    }
 
     public TaskInfo getTaskInfo() {
         return taskInfo;
@@ -40,19 +23,19 @@ public class TaskEntry<E, T> {
         this.taskInfo = taskInfo;
     }
 
-    public E getTaskHead() {
+    public Object getTaskHead() {
         return taskHead;
     }
 
-    public void setTaskHead(E taskHead) {
+    public void setTaskHead(Object taskHead) {
         this.taskHead = taskHead;
     }
 
-    public List<T> getTaskDetailList() {
+    public List<Object> getTaskDetailList() {
         return taskDetailList;
     }
 
-    public void setTaskDetailList(List<T> taskDetailList) {
+    public void setTaskDetailList(List<Object> taskDetailList) {
         this.taskDetailList = taskDetailList;
     }
 
