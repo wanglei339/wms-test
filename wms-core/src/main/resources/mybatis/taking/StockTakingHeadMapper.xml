@@ -32,7 +32,7 @@
     	) values (
 			#{takingId},#{name},#{planner},#{takingType},#{viewType},#{clusterMethod},
 			#{maxChkRnd},#{date},#{status},#{supplierId},#{ownerId},#{locationList},
-			#{lotId},#{skuId},#{createdAt},#{updatedAt},#{planType},#{due_time}
+			#{lotId},#{skuId},#{createdAt},#{updatedAt},#{planType},#{dueTime}
     	)
 	</insert>
 
