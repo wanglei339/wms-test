@@ -35,7 +35,7 @@ public class LocationService {
             put("goods_area", new Long(4)); //4货区(下级是 拣货区和存货区)
             put("floor", new Long(5)); // 5 地堆区
             put("temporary", new Long(6)); // 6 暂存区
-            put("floor_area", new Long(7)); // 7 集货区
+            put("collection_area", new Long(7)); // 7 集货区
             put("back_area", new Long(8)); // 8 退货区
             put("defective_area", new Long(9)); // 9 残次区
             put("dock_area", new Long(10)); // 10 码头区
@@ -95,7 +95,7 @@ public class LocationService {
         return location;
     }
 
-    // 获取location_id
+    // 获取节点location_id
     public List<Long> getLocationIds(List<BaseinfoLocation> locations) {
         List<Long> locationIds = new ArrayList<Long>();
         for (BaseinfoLocation location : locations) {
@@ -200,7 +200,7 @@ public class LocationService {
         return locations;
     }
 
-    // 获取仓库根节点
+    // 获取可用仓库根节点
     public BaseinfoLocation getWarehouseLocation() {
         List<BaseinfoLocation> locations = this.getLocationsByType("warehouse");
         if (locations.size() > 0) {
@@ -210,13 +210,13 @@ public class LocationService {
         }
     }
 
-    // 获取仓库根节点id
+    // 获取可用仓库根节点id
     public Long getWarehouseLocationId() {
         BaseinfoLocation location = this.getWarehouseLocation();
         return location.getLocationId();
     }
 
-    // 获取盘亏盘盈节点
+    // 获取可用盘亏盘盈节点
     public BaseinfoLocation getInventoryLostLocation() {
         List<BaseinfoLocation> locations = this.getLocationsByType("inventoryLost_area");
         if (locations.size() > 0) {
@@ -226,13 +226,43 @@ public class LocationService {
         }
     }
 
-    // 获取盘亏盘盈节点id
+    // 获取可用盘亏盘盈节点id
     public Long getInventoryLostLocationId() {
         BaseinfoLocation location = this.getInventoryLostLocation();
         return location.getLocationId();
     }
 
-    // 分配暂存区location
+    //获取可用残次区的节点
+    public BaseinfoLocation getDefectiveLocation() {
+        List<BaseinfoLocation> locations = this.getLocationsByType("inventoryLost_area");
+        if (locations.size() > 0) {
+            return locations.get(0);
+        } else {
+            return null;
+        }
+    }
+    // 获取可用残次区节点id
+    public Long getDefectiveLocationId() {
+        BaseinfoLocation location = this.getDefectiveLocation();
+        return location.getLocationId();
+    }
+
+    //获取可用退货区节点
+    public BaseinfoLocation getBackLocation() {
+        List<BaseinfoLocation> locations = this.getLocationsByType("back_area");
+        if (locations.size() > 0) {
+            return locations.get(0);
+        } else {
+            return null;
+        }
+    }
+    //获取可用退货区节点id
+    public Long getBackLocationId() {
+        BaseinfoLocation location = this.getBackLocation();
+        return location.getLocationId();
+    }
+
+    // 分配可用暂存区location
     public BaseinfoLocation getAvailableLocationByType(String type) {
         List<BaseinfoLocation> locations = this.getLocationsByType(type);
         if (locations.size() > 0) {
@@ -246,6 +276,54 @@ public class LocationService {
         }
         return null;
     }
+    // 获取可用暂存区节点id
+    public Long getAvailableLocationId(String type) {
+        BaseinfoLocation location = this.getAvailableLocationByType(type);
+        return location.getLocationId();
+    }
+
+
+    //分配可用集货区节点
+    public BaseinfoLocation getCollectionLocation(){
+        List<BaseinfoLocation> locations = this.getLocationsByType("collection_area");
+        if (locations.size() > 0) {
+            for (BaseinfoLocation location : locations) {
+                Long locationId = location.getLocationId();
+                List<Long> containerIds = stockQuantService.getContainerIdByLocationId(locationId);
+                if (location.getContainerVol() - containerIds.size() > 0) {
+                    return location;
+                }
+            }
+        }
+        return null;
+    }
+    //获取可用的集货节点id
+    public Long getCollectionLocationId() {
+        BaseinfoLocation location = this.getCollectionLocation();
+        return location.getLocationId();
+    }
+
+    //分配码头dock
+    // TODO 分配节点以后在调整怎么分配
+    public BaseinfoLocation getDockLocation() {
+        List<BaseinfoLocation> locations = this.getLocationsByType("dock_area");
+        if (locations.size() > 0) {
+            return locations.get(0);
+        } else {
+            return null;
+        }
+    }
+    //获取码头节点id
+    public Long getDockLocationId() {
+        BaseinfoLocation location = this.getDockLocation();
+        return location.getLocationId();
+    }
+    //获取货位bin节点的type
+
+// TODO    public BaseinfoLocation getAvailableBinLocationByType(String type)
+    //获取货位节点的id
+
+
 
     public List<BaseinfoLocation> getBaseinfoLocationList(Map<String, Object> mapQuery) {
         return locationDao.getBaseinfoLocationList(mapQuery);
