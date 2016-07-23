@@ -1,13 +1,17 @@
 package com.lsh.wms.service.inhouse;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.model.taking.StockTakingHead;
+import com.lsh.wms.model.task.StockTakingTask;
 import com.lsh.wms.model.task.TaskEntry;
+import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.task.service.TaskRpcService;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -25,14 +29,20 @@ import javax.ws.rs.core.MediaType;
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class TestRestService {
-    @Autowired
-    private TaskRpcService taskRpcService;
+    @Reference
+    private ITaskRpcService iTaskRpcService;
 
     @POST
-    @Path("create")
-    public String create(String stockTakingInfo) {
-        StockTakingHead head = JSON.parseObject(stockTakingInfo, StockTakingHead.class);
+    @Path("init")
+    public String init(StockTakingTask stockTakingInfo) {
+
         TaskEntry taskEntry = new TaskEntry();
+        TaskInfo taskInfo = new TaskInfo();
+        taskInfo.setType(TaskConstant.TYPE_STOCK_TAKING);
+        taskInfo.setOperator(101L);
+        taskEntry.setTaskInfo(taskInfo);
+        iTaskRpcService.create(TaskConstant.TYPE_STOCK_TAKING, taskEntry);
+
         return JsonUtils.SUCCESS();
     }
 
