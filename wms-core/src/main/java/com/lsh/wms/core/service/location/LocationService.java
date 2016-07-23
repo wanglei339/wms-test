@@ -32,8 +32,6 @@ public class LocationService {
     private BaseinfoLocationShelfDao shelfDao;
 
 
-    @Autowired
-    private LocationFactory locationFactory;
 
     // location类型定义
     public static final Map<String, Long> LOCATION_TYPE = new HashMap<String, Long>() {
@@ -81,6 +79,10 @@ public class LocationService {
      */
     @Transactional(readOnly = false)
     public BaseinfoLocation insertLocation(BaseinfoLocation location) {
+
+        LocationFactory locationFactory = new LocationFactory(new BaseinfoLocationService());
+        locationFactory.insert(location);
+
         if (location.getLocationId() == 0) {
             //添加locationId
             int iLocationId = 0;
