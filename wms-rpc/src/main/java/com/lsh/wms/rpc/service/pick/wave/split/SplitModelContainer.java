@@ -19,5 +19,8 @@ public class SplitModelContainer extends SplitModel{
         // 2. 相同商品尽量放在同一个里面
         // 3. 尽量均匀的分布
         // 4. 和最后的合并算法一起考虑,对路径优化有一定的提升
+        for(SplitNode node : this.oriNodes){
+            stopNodes.add(node);
+        }
     }
 }

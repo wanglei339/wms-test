@@ -8,11 +8,11 @@ public class PickTaskHead implements Serializable {
 	/**  */
     private Long id;
 	/** 波次id */
-    private Long waveId;
+    private Long waveId = 0L;
 	/** 任务id */
-    private Long pickTaskId;
+    private Long pickTaskId = 0L;
 	/** 任务名称 */
-    private String pickTaskName;
+    private String pickTaskName = "";
 	
 	public Long getId(){
 		return this.id;

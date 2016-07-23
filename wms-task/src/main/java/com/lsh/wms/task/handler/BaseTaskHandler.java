@@ -36,8 +36,7 @@ public class BaseTaskHandler {
     }
 
     /* 分配资源 */
-    public void allocate(Long taskId)
-    {
+    public void allocate(Long taskId) {
         baseTaskService.allocate(taskId);
     }
 

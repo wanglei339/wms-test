@@ -5,8 +5,11 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockLotService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.api.service.stock.IStockQuantRestService;
@@ -15,9 +18,11 @@ import com.lsh.wms.model.stock.StockQuantMoveRel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.parsing.Location;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
@@ -43,6 +48,9 @@ public class StockQuantRestService implements IStockQuantRestService {
     @Autowired
     private StockLotService stockLotService;
 
+    @Autowired
+    private ItemService itemService;
+
     @GET
     @Path("getOnhandQty")
     public String getOnhandQty(@QueryParam("skuId") Long skuId,
@@ -61,6 +69,83 @@ public class StockQuantRestService implements IStockQuantRestService {
         }
         return JsonUtils.SUCCESS(total);
     }
+
+
+    @GET
+    @Path("skuOverview")
+    public String overviewBySku(@QueryParam("pn") Long pn,
+                                @QueryParam("rn") Long rn) {
+        //TODO
+        // 获取仓库根Id locatonService.getWarehouseLocationId
+        // 获取根节点下所有能够储存货物的库位 locationService.getStoreLocationIds
+        // 查询商品维度的总库存数据
+        // 查询盘库盘盈区的id下库存总数，从上面的库存总数中减去
+        // 查询残损区库存
+        // 查询退货区库存
+
+        Map<Long, Map<String, BigDecimal>> skuQuant = new HashMap<Long, Map<String, BigDecimal>>();
+
+        HashMap<String, Object> condition = new HashMap<String, Object>();
+        condition.put("start", pn);
+        condition.put("limit", rn);
+        List<BaseinfoItem> itemList= itemService.searchItem(condition);
+
+        List<Long> locationList = locationService.getStoreLocationIds(locationService.getWarehouseLocationId());
+        List<Long> locationListLoss = locationService.getStoreLocationIds(locationService.getInventoryLostLocationId());
+        //TODO
+        //defect
+        //refund
+
+        Map<Long, BigDecimal> total = new HashMap<Long, BigDecimal>();
+        Map<Long, BigDecimal> freeze = new HashMap<Long, BigDecimal>();
+        Map<Long, BigDecimal> loss = new HashMap<Long, BigDecimal>();
+        Map<Long, BigDecimal> defect = new HashMap<Long, BigDecimal>();
+        Map<Long, BigDecimal> refund = new HashMap<Long, BigDecimal>();
+
+        for (BaseinfoItem item : itemList) {
+
+            total = stockQuantService.getSkuCount(item.getSkuId(),locationList,false);
+            freeze = stockQuantService.getSkuCount(item.getSkuId(),locationList,true);
+            loss = stockQuantService.getSkuCount(item.getSkuId(),locationListLoss,false);
+
+            Map<String, BigDecimal> result = new HashMap<String, BigDecimal>();
+            result.put("total", total.get(item.getSkuId()).subtract(loss.get(item.getSkuId())));
+            result.put("freeze", freeze.get(item.getSkuId()));
+            //TODO
+            //loss
+            //defect
+            //refund
+            skuQuant.put(item.getSkuId(),result);
+        }
+
+        return JsonUtils.SUCCESS(skuQuant);
+    }
+
+    @GET
+    @Path("locationOverview")
+    public String overviewByLocation(@QueryParam("pn") Long pn,
+                                     @QueryParam("rn") Long rn) {
+        //TODO
+        // 获取仓库根Id locationService.getWarehouseLocationId
+        // 获取根节点下所有能够储存货物的库位 locationService.getStoreLocation
+        // 根据pn, rn 找到相应的locationIdList
+        // 根据location查寻对应的quant
+
+        Map<Long, List<StockQuant>> locationview = new HashMap<Long, List<StockQuant>>();
+
+        HashMap<String, Object> condition = new HashMap<String, Object>();
+        condition.put("start", pn);
+        condition.put("limit", rn);
+        List<BaseinfoLocation> locationList= locationService.getBaseinfoLocationList(condition);
+
+        for (BaseinfoLocation location : locationList) {
+            locationview.put(location.getLocationId(), stockQuantService.getQuantsByLocationId(location.getLocationId()));
+        }
+
+        return JsonUtils.SUCCESS(locationview);
+    }
+
+
 
     @POST
     @Path("getList")

@@ -15,6 +15,7 @@ import com.lsh.wms.api.model.base.ResponseConstant;
 import com.lsh.wms.api.model.po.ReceiptItem;
 import com.lsh.wms.api.model.po.ReceiptRequest;
 import com.lsh.wms.api.service.po.IReceiptRestService;
+import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.PoConstant;
@@ -300,13 +301,15 @@ public class ReceiptRestService implements IReceiptRestService {
 
     @POST
     @Path("countInbPoReceiptHeader")
-    public String countInbPoReceiptHeader(Map<String, Object> params) {
+    public String countInbPoReceiptHeader() {
+        Map<String, Object> params = RequestUtils.getRequest();
         return JsonUtils.SUCCESS(poReceiptService.countInbReceiptHeader(params));
     }
 
     @POST
     @Path("getPoReceiptDetailList")
-    public String getPoReceiptDetailList(Map<String, Object> params) {
+    public String getPoReceiptDetailList() {
+        Map<String, Object> params = RequestUtils.getRequest();
         return JsonUtils.SUCCESS(poReceiptService.getInbReceiptHeaderList(params));
     }
 

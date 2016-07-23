@@ -27,8 +27,8 @@ public interface IReceiptRestService {
 
     public String getPoReceiptDetailByOrderId(Long orderId);
 
-    public String countInbPoReceiptHeader(Map<String, Object> params);
+    public String countInbPoReceiptHeader();
 
-    public String getPoReceiptDetailList(Map<String, Object> params);
+    public String getPoReceiptDetailList();
 
 }

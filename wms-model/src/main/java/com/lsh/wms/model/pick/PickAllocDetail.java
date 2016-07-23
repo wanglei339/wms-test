@@ -18,9 +18,9 @@ public class PickAllocDetail implements Serializable {
 	/** 货主id */
     private Long ownerId;
 	/** 批次id */
-    private Long locId;
+    private Long locId = 0L;
 	/** 供商id */
-    private Long supplierId;
+    private Long supplierId = 0L;
 	/** 订单需求量 */
     private BigDecimal reqQty;
 	/** 配货库存量 */
