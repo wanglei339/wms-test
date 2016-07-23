@@ -23,7 +23,7 @@
 			created_at,updated_at,po_id,item_id,receipt_id
     	) values (
 			#{lotId},#{skuId},#{serialNo},#{inDate},#{productDate},#{expireDate},
-			#{createdAt},#{updatedAt},#{itemId},#{po_id},#{receipt_id}
+			#{createdAt},#{updatedAt},#{itemId},#{poId},#{receiptId}
     	)
 	</insert>
 
