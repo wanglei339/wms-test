@@ -24,23 +24,23 @@ public class BaseinfoItem implements Serializable {
 	/** 标准唯一码 */
 	private String code;
 	/**商品状态*/
-	private Long status;
+	private Long status = 1L;
 	/** 1级品类id */
-	private Long topCat;
+	private Long topCat = 0L;
 	/** 2级品类id */
-	private Long secondCat;
+	private Long secondCat = 0L;
 	/** 3级品类id */
-	private Long thirdCat;
+	private Long thirdCat = 0L;
 	/** 保质期天数 */
 	private BigDecimal shelfLife;
 	/** 基本单位-长 */
-	private BigDecimal length;
+	private BigDecimal length = new BigDecimal(0);
 	/** 基本单位-宽 */
-	private BigDecimal width;
+	private BigDecimal width = new BigDecimal(0);
 	/** 基本单位-高 */
-	private BigDecimal height;
+	private BigDecimal height = new BigDecimal(0);
 	/** 基本单位-重量 */
-	private BigDecimal weight;
+	private BigDecimal weight = new BigDecimal(0);
 	/** 2级包装－长 */
 	private BigDecimal l2Length = new BigDecimal(0);
 	/** 2级包装－宽 */
@@ -72,9 +72,9 @@ public class BaseinfoItem implements Serializable {
 	/** 产地 */
 	private String producePlace = "";
 	/** 批次号要求 */
-	private Integer batchNeeded;
+	private Integer batchNeeded = 0;
 	/** 是否可放置地堆 */
-	private Integer floorAvailable;
+	private Integer floorAvailable = 0;
 	/** 存储温度 */
 	private Integer storageTemperature;
 	/** 安全库存 */

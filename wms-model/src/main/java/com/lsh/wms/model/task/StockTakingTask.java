@@ -1,13 +1,17 @@
 package com.lsh.wms.model.task;
 
+import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.RandomUtils;
+
 import java.io.Serializable;
+import java.util.Date;
 
 public class StockTakingTask extends Task implements Serializable  {
 
 	/**  */
     private Long id;
 	/** 盘点任务id */
-    private Long taskId;
+    private Long taskId= RandomUtils.genId();
 	/** 盘点计划id */
     private Long takingId ;
 	/** 发起人员 */
@@ -17,15 +21,19 @@ public class StockTakingTask extends Task implements Serializable  {
 	/** 第几轮盘点 */
     private Long round = 0L;
 	/** 创建时间 */
-    private Long draftTime = 0L;
+    private Long draftTime = DateUtils.getCurrentSeconds();
 	/** 要求结束时间 */
     private Long dueTime = 0L;
 	/** 完成时间 */
     private Long doneTime = 0L;
+	/** 当前LocationId, 分配查找使用 */
+	private Long locationId;
+	/** 商品id，分配查找用 */
+	private Long skuId;
 	/**  */
-    private Long createdAt;
+    private Long createdAt = DateUtils.getCurrentSeconds();
 	/**  */
-    private Long updatedAt;
+    private Long updatedAt = DateUtils.getCurrentSeconds();
 	
 	public Long getId(){
 		return this.id;
@@ -114,6 +122,24 @@ public class StockTakingTask extends Task implements Serializable  {
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
-	
-	
+
+	@Override
+	public Long getLocationId() {
+		return locationId;
+	}
+
+	@Override
+	public void setLocationId(Long locationId) {
+		this.locationId = locationId;
+	}
+
+	@Override
+	public Long getSkuId() {
+		return skuId;
+	}
+
+	@Override
+	public void setSkuId(Long skuId) {
+		this.skuId = skuId;
+	}
 }

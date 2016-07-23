@@ -2,12 +2,15 @@ package com.lsh.wms.core.service.location;
 
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
+import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationShelfDao;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoLocationShelf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.parsing.Location;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +28,12 @@ public class LocationService {
     private BaseinfoLocationDao locationDao;
     @Autowired
     private StockQuantService stockQuantService;
+    @Autowired
+    private BaseinfoLocationShelfDao shelfDao;
+
+
+    @Autowired
+    private LocationFactory locationFactory;
 
     // location类型定义
     public static final Map<String, Long> LOCATION_TYPE = new HashMap<String, Long>() {
@@ -327,5 +336,45 @@ public class LocationService {
 
     public List<BaseinfoLocation> getBaseinfoLocationList(Map<String, Object> mapQuery) {
         return locationDao.getBaseinfoLocationList(mapQuery);
+    }
+
+
+
+    /*
+        接下来的内容是对各个子信心进行的封装
+     */
+
+    //新增,前提是有了基础location
+    public void insertImpLocation(String type, Object impLocation){
+        int LOCATION_TYPE = this.LOCATION_TYPE.get(type).intValue();
+        /*
+        put("warehouse", new Long(1)); // 仓库
+        put("area", new Long(2)); // 区域
+        put("inventoryLost", new Long(3)); // 盘亏盘盈
+        put("temporary", new Long(4)); // 暂存区
+        put("floor", new Long(5)); // 地堆
+        put("picking", new Long(6)); // 拣货位
+        */
+
+        switch (LOCATION_TYPE) {
+            case 1:
+                BaseinfoLocationShelf x = (BaseinfoLocationShelf)impLocation;
+                shelfDao.insert(x);
+                break;
+        }
+    }
+
+    public void insertPureImpLocation(BaseinfoLocation baseLocation, Object impLocation){
+        DateUtils.getCurrentSeconds();
+        this.insertLocation(baseLocation);
+        this.insertImpLocation(baseLocation.getTypeName(), impLocation);
+    }
+
+    public void getImpLocation(long iType, long locationId){
+        Map<String, Object> params = new HashMap<String, Object>();
+        BaseinfoLocation location;
+        params.put("locationId", locationId);
+        List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
+        //return locations.size() == 1 ? locations.get(0) : null;
     }
 }

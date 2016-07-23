@@ -58,12 +58,7 @@ public class CsiRpcService implements ICsiRpcService {
     }
 
     public CsiSku insertSku(CsiSku sku) {
-        CsiSku newSku = this.getSkuByCode(Integer.parseInt(sku.getCodeType()),sku.getCode());
-        if(newSku == null){
-            skuService.insertSku(sku);
-        }else{
-            return newSku;
-        }
+        skuService.insertSku(sku);
         return sku;
     }
 
