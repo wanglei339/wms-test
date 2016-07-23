@@ -245,7 +245,12 @@ public class WaveRestService implements IWaveRestService {
 
     @POST
     @Path("createPickModel")
-    public String createPickModel(PickModel model) {
+    public String createPickModel(PickModel model) throws BizCheckedException {
+        //检查该PickZone是否存在
+        long zoneId = model.getPickZoneId();
+        if(zoneService.getPickZone(zoneId) == null){
+            throw new BizCheckedException("2040004");
+        }
         try{
             modelService.createPickModel(model);
         }catch (Exception e ){

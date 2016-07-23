@@ -32,6 +32,7 @@ public class PickModelService {
     public void createPickModelTemplate(PickModelTemplate tpl){
         tpl.setPickModelTemplateId(RandomUtils.genId());
         tpl.setCreatedAt(DateUtils.getCurrentSeconds());
+        tpl.setUpdatedAt(DateUtils.getCurrentSeconds());
         modelTemplateDao.insert(tpl);
     }
     @Transactional(readOnly = false)

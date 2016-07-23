@@ -3,6 +3,7 @@ package com.lsh.wms.rpc.service.csi;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.remoting.ExecutionException;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.csi.ICsiRestService;
 import com.lsh.wms.core.service.csi.CsiOwnerService;
@@ -71,9 +72,6 @@ public class CsiRestService implements ICsiRestService {
     @POST
     @Path("updateCategory")
     public String updateCategory(CsiCategory category) {
-        if(csiRpcService.getCatChilds(category.getCatId()) == null){
-            return JsonUtils.EXCEPTION_ERROR("The record does not exist");
-        }
         try{
             csiRpcService.updateCategory(category);
         }catch(Exception e){
@@ -97,15 +95,18 @@ public class CsiRestService implements ICsiRestService {
     }
     @POST
     @Path("insertSku")
-    public String insertSku(CsiSku sku){
-        CsiSku newSku;
+    public String insertSku(CsiSku sku) throws BizCheckedException {
+        CsiSku newSku = csiRpcService.getSkuByCode(Integer.parseInt(sku.getCodeType()),sku.getCode());
+        if(newSku != null){
+            throw new BizCheckedException("2050004");
+        }
         try{
-            newSku = csiRpcService.insertSku(sku);
+             csiRpcService.insertSku(sku);
         }catch (Exception e){
             logger.error(e.getCause().getMessage());
             return JsonUtils.EXCEPTION_ERROR("failed");
         }
-        return JsonUtils.SUCCESS(newSku);
+        return JsonUtils.SUCCESS();
     }
 
 
@@ -113,10 +114,6 @@ public class CsiRestService implements ICsiRestService {
     @POST
     @Path("updateSku")
     public String updateSku(CsiSku sku){
-        if(csiRpcService.getSku(sku.getSkuId()) == null){
-            return JsonUtils.EXCEPTION_ERROR("The record does not exist");
-        }
-
         try{
             csiRpcService.updateSku(sku);
         }catch (Exception e){
@@ -158,9 +155,6 @@ public class CsiRestService implements ICsiRestService {
     @POST
     @Path("updateOwner")
     public String updateOwner(CsiOwner owner) {
-        if(csiRpcService.getOwner(owner.getOwnerId()) == null){
-            return JsonUtils.EXCEPTION_ERROR("The record does not exist");
-        }
         try{
             csiRpcService.updateOwner(owner);
         }catch (Exception e){

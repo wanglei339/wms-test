@@ -67,18 +67,18 @@ public class ItemLocationService {
 
     @Transactional(readOnly = false)
     public BaseinfoItemLocation insertItemLocation(BaseinfoItemLocation itemLocation){
-        //检查是否有重复记录
-        long skuID = itemLocation.getSkuId();
-        long ownerId = itemLocation.getOwnerId();
-        long locationId = itemLocation.getPickLocationid();
-        Map<String,Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("skuId",skuID);
-        mapQuery.put("ownerId",ownerId);
-        mapQuery.put("pickLocationid",locationId);
-        List<BaseinfoItemLocation> list = itemLocationDao.getBaseinfoItemLocationList(mapQuery);
-        if(list.size()>0){
-            return null;
-        }
+//        //检查是否有重复记录
+//        long skuID = itemLocation.getSkuId();
+//        long ownerId = itemLocation.getOwnerId();
+//        long locationId = itemLocation.getPickLocationid();
+//        Map<String,Object> mapQuery = new HashMap<String, Object>();
+//        mapQuery.put("skuId",skuID);
+//        mapQuery.put("ownerId",ownerId);
+//        mapQuery.put("pickLocationid",locationId);
+//        List<BaseinfoItemLocation> list = itemLocationDao.getBaseinfoItemLocationList(mapQuery);
+//        if(list.size()>0){
+//            return null;
+//        }
         itemLocationDao.insert(itemLocation);
         return itemLocation;
     }
