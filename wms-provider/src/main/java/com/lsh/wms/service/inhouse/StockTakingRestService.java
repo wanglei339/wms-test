@@ -16,6 +16,7 @@ import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
+import com.lsh.wms.model.task.StockTakingTask;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
@@ -44,6 +45,7 @@ public class StockTakingRestService implements IStockTakingRestService {
 
     @Autowired
     private StockMoveService moveService;
+
 
 //    @Autowired
 //    private StockTakingTaskService takingTaskService;
@@ -228,6 +230,7 @@ public class StockTakingRestService implements IStockTakingRestService {
         }
        return true;
     }
+
 
 
 //    public void createTask(StockTakingHead head, List<StockTakingDetail> detailList,Long round,Long dueTime) {
