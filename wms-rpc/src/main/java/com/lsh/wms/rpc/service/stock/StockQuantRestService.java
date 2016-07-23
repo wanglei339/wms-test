@@ -206,4 +206,85 @@ public class StockQuantRestService implements IStockQuantRestService {
         return JsonUtils.SUCCESS(moveRels);
     }
 
+    @POST
+    @Path("getItemStockCount")
+    public String getItemStockCount(Map<String, Object> mapQuery) {
+        return JsonUtils.SUCCESS(itemService.countItem(mapQuery));
+    }
+
+    @POST
+    @Path("getItemStockList")
+    public String getItemStockList(Map<String, Object> mapQuery) {
+        //TODO
+        // 获取仓库根Id locatonService.getWarehouseLocationId
+        // 获取根节点下所有能够储存货物的库位 locationService.getStoreLocationIds
+        // 查询商品维度的总库存数据
+        // 查询盘库盘盈区的id下库存总数，从上面的库存总数中减去
+        // 查询残损区库存
+        // 查询退货区库存
+
+        Map<Long, Map<String, BigDecimal>> itemQuant = new HashMap<Long, Map<String, BigDecimal>>();
+
+        List<BaseinfoItem> itemList= itemService.searchItem(mapQuery);
+
+        List<Long> locationList = locationService.getStoreLocationIds(locationService.getWarehouseLocationId());
+        List<Long> locationListLoss = locationService.getStoreLocationIds(locationService.getInventoryLostLocationId());
+        List<Long> locationListDefect = locationService.getStoreLocationIds(locationService.getDefectiveLocationId());
+        List<Long> locationListRefund = locationService.getStoreLocationIds(locationService.getBackLocationId());
+
+        Map<Long, BigDecimal> total = new HashMap<Long, BigDecimal>();
+        Map<Long, BigDecimal> freeze = new HashMap<Long, BigDecimal>();
+        Map<Long, BigDecimal> loss = new HashMap<Long, BigDecimal>();
+        Map<Long, BigDecimal> defect = new HashMap<Long, BigDecimal>();
+        Map<Long, BigDecimal> refund = new HashMap<Long, BigDecimal>();
+
+        for (BaseinfoItem item : itemList) {
+
+            Long itemId = item.getItemId();
+
+            total = stockQuantService.getItemCount(itemId, locationList, false);
+            freeze = stockQuantService.getItemCount(itemId, locationList, true);
+            loss = stockQuantService.getItemCount(itemId, locationListLoss, false);
+            defect = stockQuantService.getItemCount(itemId, locationListDefect, true);
+            refund = stockQuantService.getItemCount(itemId, locationListRefund, true);
+
+            Map<String, BigDecimal> result = new HashMap<String, BigDecimal>();
+            result.put("total", total.get(itemId).subtract(loss.get(itemId)));
+            result.put("freeze", freeze.get(itemId));
+            result.put("loss", loss.get(itemId));
+            result.put("defect", defect.get(itemId));
+            result.put("refund", refund.get(itemId));
+
+            itemQuant.put(itemId,result);
+        }
+
+        return JsonUtils.SUCCESS(itemQuant);
+    }
+
+    @POST
+    @Path("getLocationStockCount")
+    public String getLocationStockCount(Map<String, Object> mapQuery) {
+        return JsonUtils.SUCCESS(locationService.getStoreLocationIds(locationService.getWarehouseLocationId()).size());
+    }
+
+    @POST
+    @Path("getLocationStockList")
+    public String getLocationStockList(Map<String, Object> mapQuery) {
+        //TODO
+        // 获取仓库根Id locationService.getWarehouseLocationId
+        // 获取根节点下所有能够储存货物的库位 locationService.getStoreLocation
+        // 根据pn, rn 找到相应的locationIdList
+        // 根据location查寻对应的quant
+
+        int pn = Integer.valueOf((String)mapQuery.get("pn"));
+        int rn = Integer.valueOf((String)mapQuery.get("rn"));
+        Map<Long, List<StockQuant>> locationDetail = new HashMap<Long, List<StockQuant>>();
+        List<Long> locationList = locationService.getStoreLocationIds(locationService.getWarehouseLocationId());
+        List<Long> selectedLocationList = locationList.subList(pn, Math.min(rn, (locationList.size() - pn)));
+        for (Long location : selectedLocationList) {
+            locationDetail.put(location,stockQuantService.getQuantsByLocationId(location));
+        }
+        return JsonUtils.SUCCESS(locationDetail);
+    }
+
 }
