@@ -12,6 +12,8 @@ public interface InbReceiptHeaderDao {
 	void insert(InbReceiptHeader inbReceiptHeader);
 	
 	void update(InbReceiptHeader inbReceiptHeader);
+
+	void updateByReceiptId(InbReceiptHeader inbReceiptHeader);
 	
 	InbReceiptHeader getInbReceiptHeaderById(Long id);
 

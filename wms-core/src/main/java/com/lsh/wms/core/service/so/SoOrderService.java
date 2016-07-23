@@ -74,6 +74,28 @@ public class SoOrderService {
     }
 
     /**
+     * 根据OrderOtherId更新OutbSoHeader
+     * @param outbSoHeader
+     */
+    @Transactional(readOnly = false)
+    public void updateOutbSoHeaderByOrderOtherId(OutbSoHeader outbSoHeader) {
+        outbSoHeader.setUpdatetime(new Date());
+
+        outbSoHeaderDao.updateByOrderOtherId(outbSoHeader);
+    }
+
+    /**
+     * 根据OrderId更新OutbSoHeader
+     * @param outbSoHeader
+     */
+    @Transactional(readOnly = false)
+    public void updateOutbSoHeaderByOrderId(OutbSoHeader outbSoHeader) {
+        outbSoHeader.setUpdatetime(new Date());
+
+        outbSoHeaderDao.updateByOrderId(outbSoHeader);
+    }
+
+    /**
      * 根据ID获取OutbSoHeader
      * @param id
      * @return

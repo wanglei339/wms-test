@@ -52,6 +52,27 @@
 		</set>
 		where ID=#{id}
 	</update>
+
+	<update id="updateByDeliveryId" parameterType="OutbDeliveryHeader">
+		update OUTB_DELIVERY_HEADER
+		<set>
+			<if test="warehouseId != null">WAREHOUSE_ID=#{warehouseId},</if>
+			<if test="deliveryId != null">DELIVERY_ID=#{deliveryId},</if>
+			<if test="shippingAreaCode != null">SHIPPING_AREA_CODE=#{shippingAreaCode},</if>
+			<if test="waveId != null">WAVE_ID=#{waveId},</if>
+			<if test="transPlan != null">TRANS_PLAN=#{transPlan},</if>
+			<if test="transTime != null">TRANS_TIME=#{transTime},</if>
+			<if test="deliveryCode != null">DELIVERY_CODE=#{deliveryCode},</if>
+			<if test="deliveryUser != null">DELIVERY_USER=#{deliveryUser},</if>
+			<if test="deliveryType != null">DELIVERY_TYPE=#{deliveryType},</if>
+			<if test="deliveryTime != null">DELIVERY_TIME=#{deliveryTime},</if>
+			<if test="insertby != null">INSERTBY=#{insertby},</if>
+			<if test="updateby != null">UPDATEBY=#{updateby},</if>
+			<if test="inserttime != null">INSERTTIME=#{inserttime},</if>
+			<if test="updatetime != null">UPDATETIME=#{updatetime}</if>
+		</set>
+		where DELIVERY_ID=#{deliveryId}
+	</update>
   
 	<select id="getOutbDeliveryHeaderById" parameterType="int" resultMap="outbDeliveryHeaderResultMap">
 		select * from OUTB_DELIVERY_HEADER

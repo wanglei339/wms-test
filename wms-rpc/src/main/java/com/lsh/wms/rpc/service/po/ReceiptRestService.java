@@ -1,5 +1,6 @@
 package com.lsh.wms.rpc.service.po;
 
+import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
@@ -101,7 +102,7 @@ public class ReceiptRestService implements IReceiptRestService {
         InbPoHeader inbPoHeader = new InbPoHeader();
         inbPoHeader.setOrderOtherId(orderOtherId);
         inbPoHeader.setOrderStatus(PoConstant.ORDER_THROW);
-        poOrderService.updateByOrderOtherId(inbPoHeader);
+        poOrderService.updateInbPoHeaderByOrderOtherId(inbPoHeader);
         return JsonUtils.SUCCESS();
     }
 
@@ -277,6 +278,24 @@ public class ReceiptRestService implements IReceiptRestService {
 
 
         return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
+    }
+
+    @POST
+    @Path("updateReceiptStatusByReceiptId")
+    public String updateReceiptStatusByReceiptId() throws BizCheckedException {
+        Map<String, Object> map = RequestUtils.getRequest();
+
+        if(StringUtils.isBlank((String) map.get("receiptId")) || StringUtils.isBlank((String) map.get("receiptStatus"))) {
+            throw new BizCheckedException("1020001", "参数不能为空");
+        }
+
+        InbReceiptHeader inbReceiptHeader = new InbReceiptHeader();
+        inbReceiptHeader.setReceiptOrderId((Long) map.get("receiptId"));
+        inbReceiptHeader.setReceiptStatus((Integer) map.get("receiptStatus"));
+
+        poReceiptService.updateInbReceiptHeaderByReceiptId(inbReceiptHeader);
+
+        return JsonUtils.SUCCESS();
     }
 
     @GET

@@ -70,6 +70,17 @@ public class SoDeliveryService {
     }
 
     /**
+     * 根据DeliveryId更新OutbDeliveryHeader
+     * @param outbDeliveryHeader
+     */
+    @Transactional(readOnly = false)
+    public void updateOutbDeliveryHeaderByDeliveryId(OutbDeliveryHeader outbDeliveryHeader) {
+        outbDeliveryHeader.setUpdatetime(new Date());
+
+        outbDeliveryHeaderDao.updateByDeliveryId(outbDeliveryHeader);
+    }
+
+    /**
      * 通过ID获取OutbDeliveryHeader
      * @param id
      * @return

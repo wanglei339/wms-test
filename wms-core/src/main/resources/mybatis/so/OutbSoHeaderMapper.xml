@@ -82,6 +82,29 @@
 		</set>
 		where ORDER_ID=#{orderId}
 	</update>
+
+	<update id="updateByOrderOtherId" parameterType="OutbSoHeader">
+		update OUTB_SO_HEADER
+		<set>
+			<if test="warehouseId != null">WAREHOUSE_ID=#{warehouseId},</if>
+			<if test="orderId != null">ORDER_ID=#{orderId},</if>
+			<if test="orderOtherId != null">ORDER_OTHER_ID=#{orderOtherId},</if>
+			<if test="orderUser != null">ORDER_USER=#{orderUser},</if>
+			<if test="ownerUid != null">OWNER_UID=#{ownerUid},</if>
+			<if test="orderType != null">ORDER_TYPE=#{orderType},</if>
+			<if test="waveId != null">WAVE_ID=#{waveId},</if>
+			<if test="transPlan != null">TRANS_PLAN=#{transPlan},</if>
+			<if test="waveIndex != null">WAVE_INDEX=#{waveIndex},</if>
+			<if test="transTime != null">TRANS_TIME=#{transTime},</if>
+			<if test="orderStatus != null">ORDER_STATUS=#{orderStatus},</if>
+			<if test="deliveryAddrs != null">DELIVERY_ADDRS=#{deliveryAddrs},</if>
+			<if test="insertby != null">INSERTBY=#{insertby},</if>
+			<if test="updateby != null">UPDATEBY=#{updateby},</if>
+			<if test="inserttime != null">INSERTTIME=#{inserttime},</if>
+			<if test="updatetime != null">UPDATETIME=#{updatetime}</if>
+		</set>
+		where ORDER_OTHER_ID=#{orderOtherId}
+	</update>
   
 	<select id="getOutbSoHeaderById" parameterType="int" resultMap="outbSoHeaderResultMap">
 		select * from OUTB_SO_HEADER

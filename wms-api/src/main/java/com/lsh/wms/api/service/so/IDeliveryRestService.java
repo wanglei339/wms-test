@@ -22,6 +22,8 @@ public interface IDeliveryRestService {
 
     public BaseResponse insertOrder(DeliveryRequest request) throws BizCheckedException;
 
+//    public String updateDeliveryTypeByOrderOtherId() throws BizCheckedException;
+
     public String getOutbDeliveryHeaderDetailByDeliveryId(Long deliveryId);
 
     public String countOutbDeliveryHeader();

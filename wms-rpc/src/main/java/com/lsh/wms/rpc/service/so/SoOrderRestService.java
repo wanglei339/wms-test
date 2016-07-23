@@ -1,19 +1,18 @@
 package com.lsh.wms.rpc.service.so;
 
+import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.wms.api.service.po.IPoOrderRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.so.ISoOrderRestService;
-import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
-import com.lsh.wms.model.po.InbPoHeader;
+import com.lsh.wms.model.so.OutbSoHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,6 +32,42 @@ public class SoOrderRestService implements ISoOrderRestService {
 
     @Autowired
     private SoOrderService soOrderService;
+
+    @POST
+    @Path("updateOrderStatusByOrderOtherId")
+    public String updateOrderStatusByOrderOtherId() throws BizCheckedException {
+        Map<String, Object> map = RequestUtils.getRequest();
+
+        if(StringUtils.isBlank((String) map.get("orderOtherId")) || StringUtils.isBlank((String) map.get("orderStatus"))) {
+            throw new BizCheckedException("1030001", "参数不能为空");
+        }
+
+        OutbSoHeader outbSoHeader = new OutbSoHeader();
+        outbSoHeader.setOrderOtherId((String) map.get("orderOtherId"));
+        outbSoHeader.setOrderStatus((Integer) map.get("orderStatus"));
+
+        soOrderService.updateOutbSoHeaderByOrderOtherId(outbSoHeader);
+
+        return JsonUtils.SUCCESS();
+    }
+
+    @POST
+    @Path("updateOrderStatusByOrderId")
+    public String updateOrderStatusByOrderId() throws BizCheckedException {
+        Map<String, Object> map = RequestUtils.getRequest();
+
+        if(StringUtils.isBlank((String) map.get("orderId")) || StringUtils.isBlank((String) map.get("orderStatus"))) {
+            throw new BizCheckedException("1030001", "参数不能为空");
+        }
+
+        OutbSoHeader outbSoHeader = new OutbSoHeader();
+        outbSoHeader.setOrderId((Long) map.get("orderId"));
+        outbSoHeader.setOrderStatus((Integer) map.get("orderStatus"));
+
+        soOrderService.updateOutbSoHeaderByOrderId(outbSoHeader);
+
+        return JsonUtils.SUCCESS();
+    }
 
     @GET
     @Path("getOutbSoHeaderDetailByOrderId")

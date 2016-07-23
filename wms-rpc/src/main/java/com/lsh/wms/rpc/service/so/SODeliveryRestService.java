@@ -1,5 +1,6 @@
 package com.lsh.wms.rpc.service.so;
 
+import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
@@ -109,6 +110,24 @@ public class SODeliveryRestService implements IDeliveryRestService {
         return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
 
     }
+
+//    @POST
+//    @Path("updateDeliveryTypeByOrderOtherId")
+//    public String updateDeliveryTypeByOrderOtherId() throws BizCheckedException {
+//        Map<String, Object> map = RequestUtils.getRequest();
+//
+//        if(StringUtils.isBlank((String) map.get("deliveryId")) || StringUtils.isBlank((String) map.get("deliveryType"))) {
+//            throw new BizCheckedException("1040001", "参数不能为空");
+//        }
+//
+//        OutbDeliveryHeader outbDeliveryHeader = new OutbDeliveryHeader();
+//        outbDeliveryHeader.setDeliveryId((Long) map.get("deliveryId"));
+//        outbDeliveryHeader.setDeliveryType((Integer) map.get("deliveryType"));
+//
+//        soDeliveryService.updateOutbDeliveryHeaderByDeliveryId(outbDeliveryHeader);
+//
+//        return JsonUtils.SUCCESS();
+//    }
 
     @GET
     @Path("getOutbDeliveryHeaderDetailByDeliveryId")
