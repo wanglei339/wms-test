@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.pick;
 
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.pick.PickTaskDetailDao;
 import com.lsh.wms.core.dao.pick.PickTaskHeadDao;
 import com.lsh.wms.model.pick.PickTaskDetail;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -22,27 +25,29 @@ import java.util.List;
 public class PickTaskService {
     private static final Logger logger = LoggerFactory.getLogger(PickTaskService.class);
 
-    @Resource(name = "pickTaskHeadDao")
+    @Autowired
     private PickTaskHeadDao taskHeadDao;
     @Autowired
     private PickTaskDetailDao taskDetailDao;
 
     @Transactional(readOnly = false)
     public int createPickTask(PickTaskHead head, List<PickTaskDetail> details){
-        taskHeadDao.insert(head);
-        for(int i = 0; i < details.size(); ++i){
-            taskDetailDao.insert(details.get(i));
-        }
-        return 0;
+        List<PickTaskHead> heads = new ArrayList<PickTaskHead>();
+        heads.add(head);
+        return this.createPickTasks(heads, details);
     }
 
     @Transactional(readOnly = false)
     public int createPickTasks(List<PickTaskHead> heads, List<PickTaskDetail> details){
-        for(int i = 0; i < heads.size(); i++){
-            taskHeadDao.insert(heads.get(i));
+        for(PickTaskHead head : heads){
+            head.setCreatedAt(DateUtils.getCurrentSeconds());
+            head.setUpdatedAt(DateUtils.getCurrentSeconds());
+            taskHeadDao.insert(head);
         }
-        for(int i = 0; i < details.size(); ++i){
-            taskDetailDao.insert(details.get(i));
+        for(PickTaskDetail detail : details){
+            detail.setCreatedAt(DateUtils.getCurrentSeconds());
+            detail.setUpdatedAt(DateUtils.getCurrentSeconds());
+            taskDetailDao.insert(detail);
         }
         return 0;
     }

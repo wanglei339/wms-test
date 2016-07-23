@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.pick;
 
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.pick.PickZoneDao;
 import com.lsh.wms.model.pick.PickZone;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,8 @@ public class PickZoneService {
     @Transactional(readOnly = false)
     public int insertPickZone(PickZone zone){
         zone.setPickZoneId(RandomUtils.genId());
+        zone.setCreatedAt(DateUtils.getCurrentSeconds());
+        zone.setUpdatedAt(DateUtils.getCurrentSeconds());
         zoneDao.insert(zone);
         return 0;
     }
