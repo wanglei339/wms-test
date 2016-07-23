@@ -142,7 +142,7 @@ public class ReceiptRestService implements IReceiptRestService {
                 throw  new BizCheckedException("2020001");
             }
 
-            if(inbPoHeader.getOrderStatus() == PoConstant.ORDER_THROW){
+            if(inbPoHeader.getOrderStatus() != PoConstant.ORDER_THROW){
                 throw  new BizCheckedException("2020002");
             }
 
@@ -164,7 +164,9 @@ public class ReceiptRestService implements IReceiptRestService {
             //写入InbReceiptDetail中的OrderQty
             inbReceiptDetail.setOrderQty(inbPoDetail.getOrderQty());
             // 判断是否超过订单总数
-            if(inbPoDetail.getInboundQty()+ inbPoDetail.getInboundQty() > inbPoDetail.getOrderQty()){
+            Long poInboundQty = null != inbPoDetail.getInboundQty() ? inbPoDetail.getInboundQty(): 0L;
+
+            if(poInboundQty+ inbReceiptDetail.getInboundQty() > inbPoDetail.getOrderQty()){
                 throw  new BizCheckedException("2020005");
             }
 
@@ -177,11 +179,15 @@ public class ReceiptRestService implements IReceiptRestService {
             String produceChina=PropertyUtils.getString("produceChina");
 
             if(producePlace.contains(produceChina)){ // TODO: 16/7/20  产地是否存的是CN
+                int nowInt = DateUtils.getYearMonthDay(new Date());
+                int proInt =DateUtils.getYearMonthDay(inbReceiptDetail.getProTime());
                 BigDecimal left_day = new BigDecimal(DateUtils.getYearMonthDay(new Date()) - DateUtils.getYearMonthDay(inbReceiptDetail.getProTime()));
                 if(left_day.divide(shelLife,2,ROUND_HALF_EVEN).doubleValue() < shelLife_CN){
                     throw new BizCheckedException("2020003");
                 }
             }else {
+                int nowInt = DateUtils.getYearMonthDay(new Date());
+                int proInt =DateUtils.getYearMonthDay(inbReceiptDetail.getProTime());
                 BigDecimal left_day = new BigDecimal(DateUtils.getYearMonthDay(new Date()) - DateUtils.getYearMonthDay(inbReceiptDetail.getProTime()));
                 if(left_day.divide(shelLife,2,ROUND_HALF_EVEN).doubleValue() < shelLife_Not_CN){
                     throw new BizCheckedException("2020003");

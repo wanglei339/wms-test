@@ -30,17 +30,29 @@ public class LocationService {
     // location类型定义
     public static final Map<String, Long> LOCATION_TYPE = new HashMap<String, Long>() {
         {
-            put("warehouse", new Long(1)); // 仓库
-            put("area", new Long(2)); // 区域
-            put("inventoryLost", new Long(3)); // 盘亏盘盈
-            put("temporary", new Long(4)); // 暂存区
-            put("floor", new Long(5)); // 地堆
-            put("picking", new Long(6)); // 拣货位
+            put("warehouse", new Long(1)); // 1仓库
+            put("area", new Long(2)); // 2区域
+            put("inventoryLost", new Long (3));    //3盘盈盘亏
+            put("goods_area", new Long(4)); //4货区(下级是 拣货区和存货区)
+            put("floor", new Long(5)); // 5 地堆区
+            put("temporary", new Long(6)); // 6 暂存区
+            put("floor_area", new Long(7)); // 7 集货区
+            put("back_area", new Long(8)); // 8 退货区
+            put("defective_area", new Long(9)); // 9 残次区
+            put("dock_area", new Long(10)); // 10 码头区
+            put("packing_bin", new Long(11)); // 11 拣货位
+            put("stock_bin", new Long(12)); // 12 存货位
+            put("floor_bin", new Long(13)); // 13 地堆货位
+            put("temporary_bin", new Long(14)); // 14 暂存货位
+            put("collection_bin", new Long(15)); // 15 集货货位
+            put("back_bin", new Long(16)); // 16 退货货位
+            put("defective_bin", new Long(17));// 17 残次货位
+
         }
     };
 
     // 获取location
-    public BaseinfoLocation getLocation (long locationId) {
+    public BaseinfoLocation getLocation(long locationId) {
         Map<String, Object> params = new HashMap<String, Object>();
         BaseinfoLocation location;
         params.put("locationId", locationId);
@@ -54,12 +66,17 @@ public class LocationService {
         return location;
     }
 
+    /**
+     * 插入location方法,TODO 需要插入商品的四维坐标
+     * @param location
+     * @return
+     */
     @Transactional(readOnly = false)
-    public BaseinfoLocation insertLocation(BaseinfoLocation location){
-        if(location.getLocationId() == 0){
+    public BaseinfoLocation insertLocation(BaseinfoLocation location) {
+        if (location.getLocationId() == 0) {
             //添加locationId
-            int iLocationId = 0 ;
-            location.setLocationId((long)iLocationId);
+            int iLocationId = 0;
+            location.setLocationId((long) iLocationId);
         }
         //添加新增时间
         long createdAt = DateUtils.getCurrentSeconds();
@@ -69,8 +86,8 @@ public class LocationService {
     }
 
     @Transactional(readOnly = false)
-    public BaseinfoLocation updateLocation(BaseinfoLocation location){
-        if(this.getLocation(location.getLocationId()) == null){
+    public BaseinfoLocation updateLocation(BaseinfoLocation location) {
+        if (this.getLocation(location.getLocationId()) == null) {
             return null;
         }
         long updatedAt = DateUtils.getCurrentSeconds();
@@ -89,7 +106,7 @@ public class LocationService {
     }
 
     // 获取一个location下一层的子节点
-    public List<BaseinfoLocation> getChildrenLocations (Long locationId) {
+    public List<BaseinfoLocation> getChildrenLocations(Long locationId) {
         Map<String, Object> params = new HashMap<String, Object>();
         Map<Long, BaseinfoLocation> childrenLocations = new HashMap<Long, BaseinfoLocation>();
         // 判断是否已为子节点
@@ -104,7 +121,7 @@ public class LocationService {
     }
 
     // 获取一个location下一层的子节点id
-    public List<Long> getChildrenLocationIds (Long locationId) {
+    public List<Long> getChildrenLocationIds(Long locationId) {
         List<BaseinfoLocation> locations = this.getChildrenLocations(locationId);
         return this.getLocationIds(locations);
     }
@@ -134,7 +151,7 @@ public class LocationService {
     }
 
     // 获取父级节点
-    public BaseinfoLocation getFatherLocation (Long locationId) {
+    public BaseinfoLocation getFatherLocation(Long locationId) {
         BaseinfoLocation curLocation = this.getLocation(locationId);
         Long fatherId = curLocation.getFatherId();
         if (fatherId == 0) {
@@ -164,7 +181,7 @@ public class LocationService {
 
     // 获取父级区域节点
     public BaseinfoLocation getAreaFather(Long locationId) {
-        BaseinfoLocation areaFather = this.getFatherByType(locationId, "area");
+        BaseinfoLocation areaFather = this.getFatherByType(locationId, "areas");
         return areaFather;
     }
 
@@ -202,7 +219,7 @@ public class LocationService {
 
     // 获取盘亏盘盈节点
     public BaseinfoLocation getInventoryLostLocation() {
-        List<BaseinfoLocation> locations = this.getLocationsByType("inventoryLost");
+        List<BaseinfoLocation> locations = this.getLocationsByType("inventoryLost_area");
         if (locations.size() > 0) {
             return locations.get(0);
         } else {
