@@ -12,6 +12,8 @@ public interface OutbDeliveryHeaderDao {
 	void insert(OutbDeliveryHeader outbDeliveryHeader);
 	
 	void update(OutbDeliveryHeader outbDeliveryHeader);
+
+	void updateByDeliveryId(OutbDeliveryHeader outbDeliveryHeader);
 	
 	OutbDeliveryHeader getOutbDeliveryHeaderById(Long id);
 

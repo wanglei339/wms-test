@@ -15,6 +15,8 @@ public interface OutbSoHeaderDao {
 
 	void updateByOrderId(OutbSoHeader outbSoHeader);
 
+	void updateByOrderOtherId(OutbSoHeader outbSoHeader);
+
 	OutbSoHeader getOutbSoHeaderById(Long id);
 
     Integer countOutbSoHeader(Map<String, Object> params);

@@ -1,7 +1,9 @@
 package com.lsh.wms.rpc.service.po;
 
+import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.po.IPoOrderRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
@@ -31,6 +33,42 @@ public class PoOrderRestService implements IPoOrderRestService {
 
     @Autowired
     private PoOrderService poOrderService;
+
+    @POST
+    @Path("updateOrderStatusByOrderOtherId")
+    public String updateOrderStatusByOrderOtherId() throws BizCheckedException {
+        Map<String, Object> map = RequestUtils.getRequest();
+
+        if(StringUtils.isBlank((String) map.get("orderOtherId")) || StringUtils.isBlank((String) map.get("orderStatus"))) {
+            throw new BizCheckedException("1010001", "参数不能为空");
+        }
+
+        InbPoHeader inbPoHeader = new InbPoHeader();
+        inbPoHeader.setOrderOtherId((String) map.get("orderOtherId"));
+        inbPoHeader.setOrderStatus((Integer) map.get("orderStatus"));
+
+        poOrderService.updateInbPoHeaderByOrderOtherId(inbPoHeader);
+
+        return JsonUtils.SUCCESS();
+    }
+
+    @POST
+    @Path("updateOrderStatusByOrderId")
+    public String updateOrderStatusByOrderId() throws BizCheckedException {
+        Map<String, Object> map = RequestUtils.getRequest();
+
+        if(StringUtils.isBlank((String) map.get("orderId")) || StringUtils.isBlank((String) map.get("orderStatus"))) {
+            throw new BizCheckedException("1010001", "参数不能为空");
+        }
+
+        InbPoHeader inbPoHeader = new InbPoHeader();
+        inbPoHeader.setOrderId((Long) map.get("orderId"));
+        inbPoHeader.setOrderStatus((Integer) map.get("orderStatus"));
+
+        poOrderService.updateInbPoHeaderByOrderId(inbPoHeader);
+
+        return JsonUtils.SUCCESS();
+    }
 
     @POST
     @Path("getPoHeaderList")
