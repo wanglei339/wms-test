@@ -6,12 +6,12 @@ import com.lsh.base.common.utils.RandomUtils;
 import java.io.Serializable;
 import java.util.Date;
 
-public class StockTakingTask extends Task implements Serializable  {
+public class StockTakingTask implements Serializable  {
 
 	/**  */
     private Long id;
 	/** 盘点任务id */
-    private Long taskId= RandomUtils.genId();
+    private Long taskId;
 	/** 盘点计划id */
     private Long takingId ;
 	/** 发起人员 */
@@ -27,13 +27,13 @@ public class StockTakingTask extends Task implements Serializable  {
 	/** 完成时间 */
     private Long doneTime = 0L;
 	/** 当前LocationId, 分配查找使用 */
-	private Long locationId;
+	private Long locationId = 0L;
 	/** 商品id，分配查找用 */
-	private Long skuId;
+	private Long skuId = 0L ;
 	/**  */
-    private Long createdAt = DateUtils.getCurrentSeconds();
+    private Long createdAt;
 	/**  */
-    private Long updatedAt = DateUtils.getCurrentSeconds();
+    private Long updatedAt;
 	
 	public Long getId(){
 		return this.id;
@@ -123,22 +123,18 @@ public class StockTakingTask extends Task implements Serializable  {
 		this.updatedAt = updatedAt;
 	}
 
-	@Override
 	public Long getLocationId() {
 		return locationId;
 	}
 
-	@Override
 	public void setLocationId(Long locationId) {
 		this.locationId = locationId;
 	}
 
-	@Override
 	public Long getSkuId() {
 		return skuId;
 	}
 
-	@Override
 	public void setSkuId(Long skuId) {
 		this.skuId = skuId;
 	}

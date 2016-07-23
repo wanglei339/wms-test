@@ -179,9 +179,9 @@ public class StockQuantService {
         return new ArrayList<Long>(suppliers);
     }
 
-    public Map<Long, BigDecimal> getSkuCount(Long skuId, List<Long> locationIdList, boolean isNormal) {
+    public Map<Long, BigDecimal> getItemCount(Long itemId, List<Long> locationIdList, boolean isNormal) {
         Map queryMap = new HashMap();
-        queryMap.put("skuId",skuId);
+        queryMap.put("itemId",itemId);
         queryMap.put("locationIdList",locationIdList);
         queryMap.put("isNormal",isNormal);
         List<StockQuant> stockQuants = stockQuantDao.getQuants(queryMap);
@@ -190,7 +190,7 @@ public class StockQuantService {
             count.add(quant.getQty());
         }
         Map<Long, BigDecimal> result = new HashMap<Long, BigDecimal>();
-        result.put(skuId,count);
+        result.put(itemId,count);
         return result;
     }
 }

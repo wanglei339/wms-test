@@ -45,6 +45,7 @@ public class StockTakingRestService implements IStockTakingRestService {
     @Autowired
     private StockMoveService moveService;
 
+
 //    @Autowired
 //    private StockTakingTaskService takingTaskService;
 
@@ -228,6 +229,7 @@ public class StockTakingRestService implements IStockTakingRestService {
         }
        return true;
     }
+
 
 
 //    public void createTask(StockTakingHead head, List<StockTakingDetail> detailList,Long round,Long dueTime) {

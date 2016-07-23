@@ -14,4 +14,13 @@ public interface IStockQuantRestService {
     String freeze(Map<String, Object> mapCondition);
     String unFreeze(Map<String, Object> mapCondition);
     public String getHistory(Long quant_id);
+
+    String overviewByItem(Long qn, Long rn);
+    String overviewByLocation(Long qn, Long rn);
+
+    String getItemStockCount(Map<String, Object> mapQuery);
+    String getItemStockList(Map<String, Object> mapQuery);
+
+    String getLocationStockCount(Map<String, Object> mapQuery);
+    String getLocationStockList(Map<String, Object> mapQuery);
 }
