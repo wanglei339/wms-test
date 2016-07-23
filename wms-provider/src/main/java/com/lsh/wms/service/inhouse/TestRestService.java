@@ -11,7 +11,6 @@ import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.StockTakingTask;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
-import com.lsh.wms.task.service.TaskRpcService;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
