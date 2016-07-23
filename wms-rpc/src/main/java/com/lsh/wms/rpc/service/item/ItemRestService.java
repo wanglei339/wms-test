@@ -75,9 +75,6 @@ public class ItemRestService implements IItemRestService {
     @Path("getItemList")
     public String searchItem(Map<String, Object> mapQuery) throws BizCheckedException {
         List<BaseinfoItem>  baseinfoItemList = itemRpcService.searchItem(mapQuery);
-        if(baseinfoItemList.size() <= 0){
-            throw new BizCheckedException("2050001");
-        }
         return  JsonUtils.SUCCESS(baseinfoItemList);
     }
     @POST
