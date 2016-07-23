@@ -17,47 +17,47 @@ public class PickTaskDetail implements Serializable {
 	/** 货主id */
     private Long ownerId;
 	/** 批次id */
-    private Long locId;
+    private Long locId = 0L;
 	/** 供商id */
-    private Long supplierId;
+    private Long supplierId = 0L;
 	/** 订单需求量 */
-    private BigDecimal reqQty;
+    private BigDecimal reqQty = new BigDecimal("0.0000");
 	/** 配货库存量 */
     private BigDecimal allocQty;
 	/** 分配的捡货分区 */
-    private BigDecimal pickZoneId;
+    private BigDecimal pickZoneId = new BigDecimal("0.00");
 	/** 实际捡货量 */
-    private BigDecimal pickQty;
+    private BigDecimal pickQty = new BigDecimal("0.0000");
 	/** qc确认数量 */
-    private BigDecimal qcQty;
+    private BigDecimal qcQty = new BigDecimal("0.0000");
 	/** 最终出库量 */
-    private BigDecimal deliveryQty;
+    private BigDecimal deliveryQty = new BigDecimal("0.0000");
 	/** 分配的捡货位 */
-    private Long srcLocationId;
+    private Long srcLocationId = 0L;
 	/** 分配的集货位 */
-    private Long dstLocationId;
+    private Long dstLocationId = 0L;
 	/** 任务id */
     private Long pickTaskId;
 	/** 容器id */
-    private Long containerId;
+    private Long containerId = 0L;
 	/** 拣货员id */
-    private Long pickUid;
+    private Long pickUid = 0L;
 	/** 拣货员名称 */
-    private String pickUname;
+    private String pickUname = "";
 	/** 捡货时间 */
-    private Long pickAt;
+    private Long pickAt = 0L;
 	/** 分配分拣位 */
-    private Long allocPickLocation;
+    private Long allocPickLocation = 0L;
 	/** 实际分拣位 */
-    private Long realPickLocation;
+    private Long realPickLocation = 0L;
 	/** QC员id */
-    private Long qcUid;
+    private Long qcUid = 0L;
 	/** QC员名称 */
-    private String qcUname;
+    private String qcUname = "";
 	/** QC时间 */
-    private Long qcAt;
+    private Long qcAt = 0L;
 	/** 播种任务id */
-    private Long sowTaskId;
+    private Long sowTaskId = 0L;
 	
 	public Long getId(){
 		return this.id;

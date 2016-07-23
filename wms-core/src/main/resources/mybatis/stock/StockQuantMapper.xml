@@ -75,7 +75,7 @@
 		select distinct container_id from stock_quant
 		where location_id=#{locationId}
 	</select>
-  
+
 	<select id="countStockQuant" parameterType="map" resultType="int">
 		select count(*) from stock_quant
 		<include refid="queryCondition"/>
@@ -109,6 +109,7 @@
 			<if test="inDate != null">and in_date=#{inDate}</if>
 			<if test="expireDate != null">and expire_date=#{expireDate}</if>
 			<if test="itemId != null">and item_id=#{itemId}</if>
+			<if test="isNormal != true">and {is_frozen = 1 or reserveMoveId != 0}</if>
 		</where>
 		<choose>
 			<when test=" strategy == 'FIFO' ">ORDER BY IN_DATE</when>

@@ -12,6 +12,7 @@ import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
 import com.lsh.wms.api.model.so.DeliveryItem;
 import com.lsh.wms.api.model.so.DeliveryRequest;
+import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.so.IDeliveryRestService;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.service.so.SoDeliveryService;
@@ -21,10 +22,7 @@ import com.lsh.wms.model.so.OutbDeliveryHeader;
 import com.lsh.wms.model.so.OutbSoDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.*;
 
@@ -111,4 +109,29 @@ public class SODeliveryRestService implements IDeliveryRestService {
         return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
 
     }
+
+    @GET
+    @Path("getOutbDeliveryHeaderDetailByDeliveryId")
+    public String getOutbDeliveryHeaderDetailByDeliveryId(@QueryParam("orderId") Long deliveryId) {
+        OutbDeliveryHeader outbDeliveryHeader = soDeliveryService.getOutbDeliveryHeaderByDeliveryId(deliveryId);
+
+        soDeliveryService.fillDetailToHeader(outbDeliveryHeader);
+
+        return JsonUtils.SUCCESS(outbDeliveryHeader);
+    }
+
+    @POST
+    @Path("countOutbDeliveryHeader")
+    public String countOutbDeliveryHeader() {
+        Map<String, Object> params = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(soDeliveryService.countOutbDeliveryHeader(params));
+    }
+
+    @POST
+    @Path("getOutbDeliveryHeaderList")
+    public String getOutbDeliveryHeaderList() {
+        Map<String, Object> params = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(soDeliveryService.getOutbDeliveryHeaderList(params));
+    }
+
 }
