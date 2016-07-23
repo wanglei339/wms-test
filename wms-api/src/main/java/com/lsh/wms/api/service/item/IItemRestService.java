@@ -1,5 +1,6 @@
 package com.lsh.wms.api.service.item;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 
@@ -13,16 +14,16 @@ public interface IItemRestService {
     public String getSku(long iSkuId);
     public String getSkuByCode(int iCodeType, String sCode);
     public String getItemsBySkuCode(long iOwnerId, String sSkuCode);
-    public String searchItem(Map<String, Object> mapQuery);
+    public String searchItem(Map<String, Object> mapQuery) throws BizCheckedException;
     String countItem(Map<String, Object> mapQuery);
 
-    public String insertItem(BaseinfoItem item);
-    String updateItem(BaseinfoItem item);
+    public String insertItem(BaseinfoItem item) throws BizCheckedException;
+    String updateItem(BaseinfoItem item) throws BizCheckedException;
 
 
     String getItemLocation(long iItemId);
     String getItemLocationByLocationID(long iLocationId);
-    String insertItemLocation(BaseinfoItemLocation itemLocation);
+    String insertItemLocation(BaseinfoItemLocation itemLocation) throws BizCheckedException;
     String updateItemLocation(BaseinfoItemLocation itemLocation);
     String setStatus(long iItemId,long iStatus);
 

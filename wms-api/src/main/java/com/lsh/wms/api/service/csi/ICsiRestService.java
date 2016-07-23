@@ -1,5 +1,6 @@
 package com.lsh.wms.api.service.csi;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.model.csi.CsiCategory;
 import com.lsh.wms.model.csi.CsiOwner;
 import com.lsh.wms.model.csi.CsiSku;
@@ -33,7 +34,7 @@ public interface ICsiRestService {
 
     String insertCategory(CsiCategory category);
     String updateCategory(CsiCategory category);
-    String insertSku(CsiSku sku);
+    String insertSku(CsiSku sku) throws BizCheckedException;
 
     String getOwnerList(Map<String,Object> mapQuery);
     String getOwnerCount(Map<String,Object> mapQuery);
