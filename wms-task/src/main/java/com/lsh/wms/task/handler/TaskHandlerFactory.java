@@ -13,14 +13,14 @@ import java.util.Map;
 
 @Component
 public class TaskHandlerFactory {
-    private Map<Long, BaseTaskHandler> handlerMap = new HashMap<Long, BaseTaskHandler>();
+    private Map<Long, TaskHandler> handlerMap = new HashMap<Long, TaskHandler>();
 
-    public void register(Long taskType, BaseTaskHandler handler) {
+    public void register(Long taskType, TaskHandler handler) {
         handlerMap.put(taskType, handler);
     }
 
-    public BaseTaskHandler getTaskHandler(Long taskType) {
-        return (BaseTaskHandler)  handlerMap.get(taskType);
+    public TaskHandler getTaskHandler(Long taskType) {
+        return (TaskHandler)  handlerMap.get(taskType);
     }
 
 }

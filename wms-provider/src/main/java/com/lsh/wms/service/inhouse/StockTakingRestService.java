@@ -15,10 +15,8 @@ import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
-import com.lsh.wms.model.task.Operation;
 import com.lsh.wms.model.task.StockTakingTask;
-import com.lsh.wms.model.task.Task;
-import com.lsh.wms.task.service.DispatcherRpcService;
+import com.lsh.wms.task.service.TaskRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
@@ -51,7 +49,7 @@ public class StockTakingRestService implements IStockTakingRestService {
     private StockMoveService moveService;
 
     @Reference
-    private DispatcherRpcService dispather;
+    private TaskRpcService dispather;
 
     @POST
     @Path("create")
@@ -190,7 +188,6 @@ public class StockTakingRestService implements IStockTakingRestService {
 
     public void createTask(StockTakingHead head, List<StockTakingDetail> detailList) {
         StockTakingTask task = new StockTakingTask();
-        dispather.create(TaskConstant.TYPE_STOCK_TAKING, task, (List<Operation>) (List<?>)detailList);
     }
 
     @POST
@@ -198,10 +195,6 @@ public class StockTakingRestService implements IStockTakingRestService {
     public void cancel(@QueryParam("stockTakingId") Long stockTakingId) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("takingId", stockTakingId);
-        List<Task> taskList =  dispather.getTaskList(TaskConstant.TYPE_STOCK_TAKING, mapQuery);
-        for (Task task : taskList) {
-            dispather.cancel(TaskConstant.TYPE_STOCK_TAKING, task.getTaskId());
-        }
     }
 
     public void confirm(Long stockTakingId) {

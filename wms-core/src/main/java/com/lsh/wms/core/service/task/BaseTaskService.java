@@ -2,9 +2,8 @@ package com.lsh.wms.core.service.task;
 
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.TaskConstant;
-import com.lsh.wms.core.dao.task.TaskDao;
-import com.lsh.wms.model.task.Operation;
-import com.lsh.wms.model.task.Task;
+import com.lsh.wms.core.dao.task.TaskInfoDao;
+import com.lsh.wms.model.task.TaskInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,54 +16,58 @@ import java.util.Map;
 public class BaseTaskService {
 
     @Autowired
-    private TaskDao taskDao;
+    private TaskInfoDao taskInfoDao;
 
     @Transactional(readOnly = false)
-    public void create(Task task, List<Operation> operationList) {
-        task.setCreatedAt(DateUtils.getCurrentSeconds());
-        task.setUpdatedAt(DateUtils.getCurrentSeconds());
-        taskDao.insert(task);
+    public void create(TaskInfo taskInfo) {
+        taskInfo.setCreatedAt(DateUtils.getCurrentSeconds());
+        taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+        taskInfoDao.insert(taskInfo);
     }
 
-    public Task getTaskById(Long taskId) {
-        return taskDao.getTaskById(taskId);
+    public TaskInfo getTaskInfoById(Long taskId) {
+        return taskInfoDao.getTaskInfoById(taskId);
     }
 
-    public List<Task> getTaskList(Map<String, Object> mapQuery) {
-        return taskDao.getTaskList(mapQuery);
+    public List<TaskInfo> getTaskInfoList(Map<String, Object> mapQuery) {
+        return taskInfoDao.getTaskList(mapQuery);
+    }
+
+    public Long getTaskTypeById(Long taskId) {
+        return taskInfoDao.getTaskInfoById(taskId).getType();
     }
 
     @Transactional(readOnly = false)
     public void allocate(Long taskId)
     {
-        Task task = taskDao.getTaskById(taskId);
-        task.setStatus(TaskConstant.Allocated);
-        task.setUpdatedAt(DateUtils.getCurrentSeconds());
-        taskDao.update(task);
+        TaskInfo taskInfo = getTaskInfoById(taskId);
+        taskInfo.setStatus(TaskConstant.Allocated);
+        taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+        taskInfoDao.update(taskInfo);
     }
 
     @Transactional(readOnly = false)
-    public void assigned(Long taskId,  Long staffId) {
-        Task task = taskDao.getTaskById(taskId);
-        task.setOperator(staffId);
-        task.setStatus(TaskConstant.Assigned);
-        task.setUpdatedAt(DateUtils.getCurrentSeconds());
-        taskDao.update(task);
+    public void assign(Long taskId,  Long staffId) {
+        TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
+        taskInfo.setOperator(staffId);
+        taskInfo.setStatus(TaskConstant.Assigned);
+        taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+        taskInfoDao.update(taskInfo);
     }
 
     @Transactional(readOnly = false)
     public void done(Long taskId) {
-        Task task = taskDao.getTaskById(taskId);
-        task.setStatus(TaskConstant.Done);
-        task.setUpdatedAt(DateUtils.getCurrentSeconds());
-        taskDao.update(task);
+        TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
+        taskInfo.setStatus(TaskConstant.Done);
+        taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+        taskInfoDao.update(taskInfo);
     }
 
     @Transactional(readOnly = false)
     public void cancel(Long taskId) {
-        Task task = taskDao.getTaskById(taskId);
-        task.setStatus(TaskConstant.Cancel);
-        task.setUpdatedAt(DateUtils.getCurrentSeconds());
-        taskDao.update(task);
+        TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
+        taskInfo.setStatus(TaskConstant.Cancel);
+        taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+        taskInfoDao.update(taskInfo);
     }
 }

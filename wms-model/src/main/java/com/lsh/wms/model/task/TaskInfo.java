@@ -1,9 +1,8 @@
 package com.lsh.wms.model.task;
 
 import java.io.Serializable;
-import java.util.Date;
 
-public class Task implements Serializable {
+public class TaskInfo implements Serializable {
 
 	/**  */
     private Long id;
