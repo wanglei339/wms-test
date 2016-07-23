@@ -7,6 +7,7 @@
 		<result property="waveId" column="wave_id"/>
 		<result property="waveName" column="wave_name"/>
 		<result property="status" column="status"/>
+		<result property="isResAlloc" column="is_res_alloc"/>
 		<result property="waveType" column="wave_type"/>
 		<result property="waveTemplateId" column="wave_template_id"/>
 		<result property="waveSource" column="wave_source"/>
@@ -20,12 +21,12 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PickWaveHead">
 		insert into pick_wave_head (
-			wave_id,wave_name,status,wave_type,wave_template_id,wave_source,
-			wave_dest,pick_model_template_id,release_uid,release_at,created_at,
+			wave_id,wave_name,status,is_res_alloc,wave_type,wave_template_id,
+			wave_source,wave_dest,pick_model_template_id,release_uid,release_at,created_at,
 			updated_at
     	) values (
-			#{waveId},#{waveName},#{status},#{waveType},#{waveTemplateId},#{waveSource},
-			#{waveDest},#{pickModelTemplateId},#{releaseUid},#{releaseAt},#{createdAt},
+			#{waveId},#{waveName},#{status},#{isResAlloc},#{waveType},#{waveTemplateId},
+			#{waveSource},#{waveDest},#{pickModelTemplateId},#{releaseUid},#{releaseAt},#{createdAt},
 			#{updatedAt}
     	)
 	</insert>
@@ -33,8 +34,10 @@
 	<update id="update" parameterType="PickWaveHead">
 		update pick_wave_head
     	<set>
+  			<if test="waveId != null">wave_id=#{waveId},</if>
   			<if test="waveName != null">wave_name=#{waveName},</if>
   			<if test="status != null">status=#{status},</if>
+  			<if test="isResAlloc != null">is_res_alloc=#{isResAlloc},</if>
   			<if test="waveType != null">wave_type=#{waveType},</if>
   			<if test="waveTemplateId != null">wave_template_id=#{waveTemplateId},</if>
   			<if test="waveSource != null">wave_source=#{waveSource},</if>
@@ -45,7 +48,7 @@
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
-		where wave_id=#{waveId}
+		where id=#{id}
 	</update>
   
 	<select id="getPickWaveHeadById" parameterType="int" resultMap="pickWaveHeadResultMap">
@@ -72,6 +75,7 @@
 			<if test="waveId != null">and wave_id=#{waveId}</if>
 			<if test="waveName != null">and wave_name=#{waveName}</if>
 			<if test="status != null">and status=#{status}</if>
+			<if test="isResAlloc != null">and is_res_alloc=#{isResAlloc}</if>
 			<if test="waveType != null">and wave_type=#{waveType}</if>
 			<if test="waveTemplateId != null">and wave_template_id=#{waveTemplateId}</if>
 			<if test="waveSource != null">and wave_source=#{waveSource}</if>
