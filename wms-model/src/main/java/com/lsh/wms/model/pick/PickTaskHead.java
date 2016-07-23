@@ -8,11 +8,15 @@ public class PickTaskHead implements Serializable {
 	/**  */
     private Long id;
 	/** 波次id */
-    private Long waveId = 0L;
+    private Long waveId;
 	/** 任务id */
-    private Long pickTaskId = 0L;
+    private Long pickTaskId;
 	/** 任务名称 */
-    private String pickTaskName = "";
+    private String pickTaskName;
+	/**  */
+    private Long createdAt;
+	/**  */
+    private Long updatedAt;
 	
 	public Long getId(){
 		return this.id;
@@ -44,6 +48,22 @@ public class PickTaskHead implements Serializable {
 	
 	public void setPickTaskName(String pickTaskName){
 		this.pickTaskName = pickTaskName;
+	}
+	
+	public Long getCreatedAt(){
+		return this.createdAt;
+	}
+	
+	public void setCreatedAt(Long createdAt){
+		this.createdAt = createdAt;
+	}
+	
+	public Long getUpdatedAt(){
+		return this.updatedAt;
+	}
+	
+	public void setUpdatedAt(Long updatedAt){
+		this.updatedAt = updatedAt;
 	}
 	
 	

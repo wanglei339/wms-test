@@ -2,6 +2,7 @@ package com.lsh.wms.model.baseinfo;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.math.BigDecimal;
 
 public class BaseinfoLocationPassage implements Serializable {
 

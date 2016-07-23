@@ -29,6 +29,8 @@
 		<result property="qcUname" column="qc_uname"/>
 		<result property="qcAt" column="qc_at"/>
 		<result property="sowTaskId" column="sow_task_id"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PickTaskDetail">
@@ -37,13 +39,13 @@
 			req_qty,alloc_qty,pick_zone_id,pick_qty,qc_qty,delivery_qty,
 			src_location_id,dst_location_id,pick_task_id,container_id,pick_uid,pick_uname,
 			pick_at,alloc_pick_location,real_pick_location,qc_uid,qc_uname,qc_at,
-			sow_task_id
+			sow_task_id,created_at,updated_at
     	) values (
 			#{waveId},#{orderId},#{skuId},#{ownerId},#{locId},#{supplierId},
 			#{reqQty},#{allocQty},#{pickZoneId},#{pickQty},#{qcQty},#{deliveryQty},
 			#{srcLocationId},#{dstLocationId},#{pickTaskId},#{containerId},#{pickUid},#{pickUname},
 			#{pickAt},#{allocPickLocation},#{realPickLocation},#{qcUid},#{qcUname},#{qcAt},
-			#{sowTaskId}
+			#{sowTaskId},#{createdAt},#{updatedAt}
     	)
 	</insert>
 
@@ -74,7 +76,9 @@
   			<if test="qcUid != null">qc_uid=#{qcUid},</if>
   			<if test="qcUname != null">qc_uname=#{qcUname},</if>
   			<if test="qcAt != null">qc_at=#{qcAt},</if>
-  			<if test="sowTaskId != null">sow_task_id=#{sowTaskId}</if>
+  			<if test="sowTaskId != null">sow_task_id=#{sowTaskId},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -125,6 +129,8 @@
 			<if test="qcUname != null">and qc_uname=#{qcUname}</if>
 			<if test="qcAt != null">and qc_at=#{qcAt}</if>
 			<if test="sowTaskId != null">and sow_task_id=#{sowTaskId}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 		</where>
 	</sql>
    

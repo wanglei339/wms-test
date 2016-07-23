@@ -2,7 +2,6 @@ package com.lsh.wms.model.pick;
 
 import java.io.Serializable;
 import java.util.Date;
-
 import java.math.BigDecimal;
 
 public class PickAllocDetail implements Serializable {
@@ -22,11 +21,15 @@ public class PickAllocDetail implements Serializable {
 	/** 供商id */
     private Long supplierId = 0L;
 	/** 订单需求量 */
-    private BigDecimal reqQty;
+    private BigDecimal reqQty = new BigDecimal("0.0000");
 	/** 配货库存量 */
     private BigDecimal allocQty;
 	/** 分配的捡货分区 */
     private Long pickZoneId;
+	/**  */
+    private Long createdAt = 0L;
+	/**  */
+    private Long updatedAt = 0L;
 	
 	public Long getId(){
 		return this.id;
@@ -106,6 +109,22 @@ public class PickAllocDetail implements Serializable {
 	
 	public void setPickZoneId(Long pickZoneId){
 		this.pickZoneId = pickZoneId;
+	}
+	
+	public Long getCreatedAt(){
+		return this.createdAt;
+	}
+	
+	public void setCreatedAt(Long createdAt){
+		this.createdAt = createdAt;
+	}
+	
+	public Long getUpdatedAt(){
+		return this.updatedAt;
+	}
+	
+	public void setUpdatedAt(Long updatedAt){
+		this.updatedAt = updatedAt;
 	}
 	
 	

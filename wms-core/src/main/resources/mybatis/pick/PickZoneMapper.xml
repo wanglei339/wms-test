@@ -10,26 +10,33 @@
 		<result property="locations" column="locations"/>
 		<result property="pickUnit" column="pick_unit"/>
 		<result property="pickModelSupport" column="pick_model_support"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PickZone">
 		insert into pick_zone (
-			pick_zone_id,pick_zone_code,pick_zone_name,locations,pick_unit,pick_model_support
+			pick_zone_id,pick_zone_code,pick_zone_name,locations,pick_unit,pick_model_support,
+			created_at,updated_at
     	) values (
-			#{pickZoneId},#{pickZoneCode},#{pickZoneName},#{locations},#{pickUnit},#{pickModelSupport}
+			#{pickZoneId},#{pickZoneCode},#{pickZoneName},#{locations},#{pickUnit},#{pickModelSupport},
+			#{createdAt},#{updatedAt}
     	)
 	</insert>
 
 	<update id="update" parameterType="PickZone">
 		update pick_zone
     	<set>
+  			<if test="pickZoneId != null">pick_zone_id=#{pickZoneId},</if>
   			<if test="pickZoneCode != null">pick_zone_code=#{pickZoneCode},</if>
   			<if test="pickZoneName != null">pick_zone_name=#{pickZoneName},</if>
   			<if test="locations != null">locations=#{locations},</if>
   			<if test="pickUnit != null">pick_unit=#{pickUnit},</if>
-  			<if test="pickModelSupport != null">pick_model_support=#{pickModelSupport}</if>
+  			<if test="pickModelSupport != null">pick_model_support=#{pickModelSupport},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
-		where pick_zone_id=#{pickZoneId}
+		where id=#{id}
 	</update>
   
 	<select id="getPickZoneById" parameterType="int" resultMap="pickZoneResultMap">
@@ -59,6 +66,8 @@
 			<if test="locations != null">and locations=#{locations}</if>
 			<if test="pickUnit != null">and pick_unit=#{pickUnit}</if>
 			<if test="pickModelSupport != null">and pick_model_support=#{pickModelSupport}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 		</where>
 	</sql>
    
