@@ -1,4 +1,4 @@
-package com.lsh.wms.task.service.handler;
+package com.lsh.wms.task.handler;
 
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.task.StockTakingTaskService;
@@ -6,8 +6,6 @@ import com.lsh.wms.model.task.StockTakingTask;
 import com.lsh.wms.model.task.TaskEntry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 
 /**
  * Created by mali on 16/7/20.
@@ -20,7 +18,7 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
     @Autowired
     private TaskHandlerFactory handlerFactory;
 
-    
+
     public void postConstruct() {
         handlerFactory.register(TaskConstant.TYPE_STOCK_TAKING, this);
     }

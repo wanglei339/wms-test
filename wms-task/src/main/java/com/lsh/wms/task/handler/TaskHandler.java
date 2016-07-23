@@ -1,4 +1,4 @@
-package com.lsh.wms.task.service.handler;
+package com.lsh.wms.task.handler;
 
 import com.lsh.wms.model.task.TaskEntry;
 
