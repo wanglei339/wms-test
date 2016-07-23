@@ -64,48 +64,12 @@ public class ItemRpcService implements IItemRpcService {
     }
 
 
-    public BaseinfoItem insertItem(BaseinfoItem item){
-        Map<String,Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("codeType",item.getCodeType());
-        mapQuery.put("code",item.getCode());
-        List<BaseinfoItem> itemList = this.searchItem(mapQuery);
-        if(itemList.size() > 0){
-            return null;
-        }
-        CsiSku sku = this.getSkuByCode(Integer.valueOf(item.getCodeType()), item.getCode());
-        if(sku != null){
-            item.setSkuId(sku.getSkuId());
-            itemService.insertItem(item);
-
-        }else{
-            sku = new CsiSku();
-            String code = item.getCode();
-            sku.setCode(code);
-            sku.setCodeType(item.getCodeType().toString());
-            sku.setShelfLife(item.getShelfLife());
-            sku.setSkuName(item.getSkuName());
-            sku.setHeight(item.getHeight());
-            sku.setLength(item.getLength());
-            sku.setWidth(item.getWidth());
-            sku.setWeight(item.getWeight());
-            //生成csi_sku表
-            CsiSku newSku = remoteCsiRpcService.insertSku(sku);
-
-            long skuId = newSku.getSkuId();
-            item.setSkuId(skuId);
-            //生成baseinfoItem表
-            itemService.insertItem(item);
-
-        }
-
-        return item;
-
+    public void insertItem(BaseinfoItem item){
+        //生成baseinfoItem表
+        itemService.insertItem(item);
     }
 
     public BaseinfoItem updateItem(BaseinfoItem item) {
-        if(itemService.getItem(item.getOwnerId(),item.getSkuId()) == null){
-            return null;
-        }
         itemService.updateItem(item);
         return item;
     }
@@ -119,13 +83,6 @@ public class ItemRpcService implements IItemRpcService {
     }
 
     public BaseinfoItemLocation insertItemLocation(BaseinfoItemLocation itemLocation) {
-        //查询是否存在该Item
-        long skuId = itemLocation.getSkuId();
-        long ownerId = itemLocation.getOwnerId();
-        BaseinfoItem item = itemService.getItem(ownerId,skuId);
-        if(item == null){
-            return null;
-        }
         return itemLocationService.insertItemLocation(itemLocation);
     }
 
