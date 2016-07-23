@@ -32,7 +32,7 @@ public interface IWaveRestService {
 
     String getPickModelList(long iPickModelTplId);
     String getPickModel(long iPickModelId);
-    String createPickModel(PickModel model);
+    String createPickModel(PickModel model) throws BizCheckedException;
     String updatePickModel(PickModel model);
     String deletePickModel(long iPickModelId);
 }

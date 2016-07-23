@@ -60,7 +60,9 @@ import static java.math.BigDecimal.ROUND_HALF_EVEN;
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class ReceiptRestService implements IReceiptRestService {
+
     private static Logger logger = LoggerFactory.getLogger(ReceiptRestService.class);
+
     @Autowired
     private PoReceiptService poReceiptService;
 
@@ -297,6 +299,8 @@ public class ReceiptRestService implements IReceiptRestService {
 
         for(InbReceiptDetail inbReceiptDetail : inbReceiptDetailList) {
             InbReceiptHeader inbReceiptHeader = poReceiptService.getInbReceiptHeaderByReceiptId(inbReceiptDetail.getReceiptOrderId());
+
+            // TODO:InbReceiptHeader与当前时间比较
 
             poReceiptService.fillDetailToHeader(inbReceiptHeader);
 

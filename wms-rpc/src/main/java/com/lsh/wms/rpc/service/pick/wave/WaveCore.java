@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
@@ -91,61 +92,69 @@ public class WaveCore {
         }
         //执行配货
         List<PickAllocDetail> pickAllocDetailList = new ArrayList<PickAllocDetail>();
-        for(int i = 0; i < order_details.size(); ++i){
-            OutbSoDetail detail = order_details.get(i);
-            int zone_idx = 0;
-            //获取商品的基本信息
-            BaseinfoItem item = itemService.getItem(mapOrder2Head.get(detail.getOrderId()).getOwnerUid(), detail.getSkuId());
-            if(item == null){
-                logger.error("item get fail %s", item.getItemId());
-                return -1;
-            }
-            BigDecimal leftAllocQty = new BigDecimal(detail.getOrderQty());
-            for(PickZone zone:zoneList) {
-                if (leftAllocQty.compareTo(BigDecimal.ZERO) <= 0) {
-                    break;
+        if(waveHead.getIsResAlloc() == 0) {
+            logger.info("begin to run alloc waveId[%d]", iWaveId);
+            for (int i = 0; i < order_details.size(); ++i) {
+                OutbSoDetail detail = order_details.get(i);
+                int zone_idx = 0;
+                //获取商品的基本信息
+                BaseinfoItem item = itemService.getItem(mapOrder2Head.get(detail.getOrderId()).getOwnerUid(), detail.getSkuId());
+                if (item == null) {
+                    logger.error("item get fail %s", item.getItemId());
+                    return -1;
                 }
-                //判断此区域是否有对应的捡货位
-                long pick_unit = zone.getPickUnit();
-                BigDecimal pick_ea_num = null;
-                if(pick_unit == 1){
-                    //ea
-                    pick_ea_num = BigDecimal.valueOf(1L);
-                }else if (pick_unit == 2){
-                    //整箱
-                    pick_ea_num =  item.getPackUnit();
-                }else if (pick_unit == 3){
-                    //整托盘,卧槽托盘上的商品数怎么求啊,这里是有风险的,因为实际的码盘数量可能和实际的不一样.
-                    pick_ea_num = item.getPackUnit().multiply(BigDecimal.valueOf(item.getPileX() * item.getPileY() * item.getPileZ()));
-                    if(pick_ea_num.compareTo(BigDecimal.ZERO)==0){
+                BigDecimal leftAllocQty = new BigDecimal(detail.getOrderQty());
+                for (PickZone zone : zoneList) {
+                    if (leftAllocQty.compareTo(BigDecimal.ZERO) <= 0) {
+                        break;
                     }
-                }
-                //获取分拣分区下的可分配库存数量,怎么获取?
-                long zone_qty = 10000;
-                int alloc_x = leftAllocQty.divide(pick_ea_num).intValue();
-                int zone_alloc_x = BigDecimal.valueOf(zone_qty).divide(pick_ea_num).intValue();
-                alloc_x = alloc_x > zone_alloc_x ? zone_alloc_x : alloc_x;
-                BigDecimal alloc_qty = pick_ea_num.multiply(BigDecimal.valueOf(alloc_x));
-                //锁库存.怎么锁??
-                PickAllocDetail allocDetail = new PickAllocDetail();
-                allocDetail.setId(RandomUtils.genId());
-                allocDetail.setSkuId(detail.getSkuId());
-                allocDetail.setAllocQty(alloc_qty);
-                //allocDetail.setLocId(detail.getLotNum()); ??
-                allocDetail.setOrderId(detail.getOrderId());
-                allocDetail.setOwnerId(mapOrder2Head.get(detail.getOrderId()).getOwnerUid());
-                allocDetail.setPickZoneId(zone.getPickZoneId());
-                allocDetail.setReqQty(new BigDecimal(0));
-                //allocDetail.setSupplierId(mapOrder2Head.get(detail.getOrderId()).get); ??
-                allocDetail.setWaveId(iWaveId);
-                pickAllocDetailList.add(allocDetail);
+                    //判断此区域是否有对应的捡货位
+                    long pick_unit = zone.getPickUnit();
+                    BigDecimal pick_ea_num = null;
+                    if (pick_unit == 1) {
+                        //ea
+                        pick_ea_num = BigDecimal.valueOf(1L);
+                    } else if (pick_unit == 2) {
+                        //整箱
+                        pick_ea_num = item.getPackUnit();
+                    } else if (pick_unit == 3) {
+                        //整托盘,卧槽托盘上的商品数怎么求啊,这里是有风险的,因为实际的码盘数量可能和实际的不一样.
+                        pick_ea_num = item.getPackUnit().multiply(BigDecimal.valueOf(item.getPileX() * item.getPileY() * item.getPileZ()));
+                        if (pick_ea_num.compareTo(BigDecimal.ZERO) == 0) {
+                        }
+                    }
+                    //获取分拣分区下的可分配库存数量,怎么获取?
+                    long zone_qty = 10000;
+                    int alloc_x = leftAllocQty.divide(pick_ea_num).intValue();
+                    int zone_alloc_x = BigDecimal.valueOf(zone_qty).divide(pick_ea_num).intValue();
+                    alloc_x = alloc_x > zone_alloc_x ? zone_alloc_x : alloc_x;
+                    BigDecimal alloc_qty = pick_ea_num.multiply(BigDecimal.valueOf(alloc_x));
+                    //锁库存.怎么锁??
+                    PickAllocDetail allocDetail = new PickAllocDetail();
+                    allocDetail.setId(RandomUtils.genId());
+                    allocDetail.setSkuId(detail.getSkuId());
+                    allocDetail.setAllocQty(alloc_qty);
+                    //allocDetail.setLocId(detail.getLotNum()); ??
+                    allocDetail.setOrderId(detail.getOrderId());
+                    allocDetail.setOwnerId(mapOrder2Head.get(detail.getOrderId()).getOwnerUid());
+                    allocDetail.setPickZoneId(zone.getPickZoneId());
+                    allocDetail.setReqQty(new BigDecimal(0));
+                    //allocDetail.setSupplierId(mapOrder2Head.get(detail.getOrderId()).get); ??
+                    allocDetail.setWaveId(iWaveId);
+                    pickAllocDetailList.add(allocDetail);
 
-                leftAllocQty = leftAllocQty.subtract(alloc_qty);
+                    leftAllocQty = leftAllocQty.subtract(alloc_qty);
+                }
             }
+            //存储配货结果
+            waveService.storeAlloc(waveHead, pickAllocDetailList);
+            //allocService.addAllocDetails(pickAllocDetailList);
+        }else{
+            logger.info("skip to run alloc waveId[%d], load from db", iWaveId);
+            pickAllocDetailList = allocService.getAllocDetailsByWaveId(iWaveId);
         }
 
-        //存储配货结果
-        allocService.addAllocDetails(pickAllocDetailList);
+        logger.info("begin to run pick model");
         //执行捡货模型,输出最小捡货单元
         List<PickTaskHead> taskHeads = new LinkedList<PickTaskHead>();
         List<PickTaskDetail> taskDetails = new LinkedList<PickTaskDetail>();
@@ -212,10 +221,7 @@ public class WaveCore {
                 taskHeads.add(head);
             }
         }
-        //存储捡货任务
-        taskService.createPickTasks(taskHeads, taskDetails);
-        //设置释放成功状态
-        waveService.setStatus(iWaveId, WaveConstant.STATUS_RELEASE_SUCC);
+        waveService.storePickTask(iWaveId, taskHeads, taskDetails);
         return 0;
     }
 
@@ -238,5 +244,6 @@ public class WaveCore {
         }
         return bestCutPlan;
     }
+
 
 }
