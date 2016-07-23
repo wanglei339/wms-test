@@ -3,9 +3,11 @@ package com.lsh.wms.rpc.service.item;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.item.IItemRestService;
 import com.lsh.wms.core.service.item.ItemService;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.csi.CsiSku;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,8 +36,12 @@ public class ItemRestService implements IItemRestService {
 
     @Autowired
     private ItemRpcService itemRpcService;
+
     @Autowired
     private ItemService itemService;
+
+    @Autowired
+    private LocationService locationService;
 
     @GET
     @Path("getItem")
@@ -66,8 +73,11 @@ public class ItemRestService implements IItemRestService {
 
     @POST
     @Path("getItemList")
-    public String searchItem(Map<String, Object> mapQuery) {
+    public String searchItem(Map<String, Object> mapQuery) throws BizCheckedException {
         List<BaseinfoItem>  baseinfoItemList = itemRpcService.searchItem(mapQuery);
+        if(baseinfoItemList.size() <= 0){
+            throw new BizCheckedException("2050001");
+        }
         return  JsonUtils.SUCCESS(baseinfoItemList);
     }
     @POST
@@ -79,36 +89,37 @@ public class ItemRestService implements IItemRestService {
 
     @POST
     @Path("insertItem")
-    public String insertItem(BaseinfoItem item) {
-        BaseinfoItem item_new = null;
+    public String insertItem(BaseinfoItem item) throws BizCheckedException {
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("codeType",item.getCodeType());
+        mapQuery.put("code",item.getCode());
+        mapQuery.put("ownerId",item.getOwnerId());
+        List<BaseinfoItem> items = itemService.searchItem(mapQuery);
+        if(items.size() > 0){
+            long status = items.get(0).getStatus();
+            //是否存在正常状态的item
+            if(status == 1)
+                throw new BizCheckedException("2050002");
+        }
         try{
-            item_new = itemRpcService.insertItem(item);
+            itemRpcService.insertItem(item);
         }catch (Exception e){
             logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR("failed");
+            return JsonUtils.EXCEPTION_ERROR("Create failed");
         }
-
-        if(item_new == null){
-            return JsonUtils.EXCEPTION_ERROR("The record already exists");
-        }
-
-        return JsonUtils.SUCCESS(item_new);
+        return JsonUtils.SUCCESS();
     }
 
     @POST
     @Path("updateItem")
-    public String updateItem(BaseinfoItem item) {
-        BaseinfoItem  newItem = null;
+    public String updateItem(BaseinfoItem item) throws BizCheckedException {
         try{
-           newItem =  itemRpcService.updateItem(item);
+            itemRpcService.updateItem(item);
         }catch (Exception e){
             logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR("failed");
+            return JsonUtils.EXCEPTION_ERROR("Update failed");
         }
-        if(newItem == null){
-            return JsonUtils.EXCEPTION_ERROR("The record does not exist");
-        }
-        return JsonUtils.SUCCESS(newItem);
+        return JsonUtils.SUCCESS();
     }
 
 
@@ -125,7 +136,12 @@ public class ItemRestService implements IItemRestService {
     }
     @POST
     @Path("insertItemLocation")
-    public String insertItemLocation(BaseinfoItemLocation itemLocation) {
+    public String insertItemLocation(BaseinfoItemLocation itemLocation) throws BizCheckedException {
+        long locationId = itemLocation.getPickLocationid();
+        //检查该location是否存在
+        if(locationService.getLocation(locationId) == null){
+            throw new BizCheckedException("2050003");
+        }
         try{
             itemRpcService.insertItemLocation(itemLocation);
         }catch (Exception e){
@@ -148,9 +164,6 @@ public class ItemRestService implements IItemRestService {
     @GET
     @Path("setStatus")
     public String setStatus(@QueryParam("itemId") long iItemId,@QueryParam("status") long iStatus) {
-        if(itemService.getItem(iItemId) == null){
-            return JsonUtils.EXCEPTION_ERROR("The record does not exist");
-        }
         itemService.setStatus(iItemId,iStatus);
         return JsonUtils.SUCCESS();
     }
