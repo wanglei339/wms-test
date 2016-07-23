@@ -143,7 +143,8 @@ public class ReceiptRestService implements IReceiptRestService {
                 throw  new BizCheckedException("2020001");
             }
 
-            if(inbPoHeader.getOrderStatus() != PoConstant.ORDER_THROW || inbPoHeader.getOrderStatus() != PoConstant.ORDER_RECTIPT_PART){
+            boolean isCanReceipt = inbPoHeader.getOrderStatus() == PoConstant.ORDER_THROW || inbPoHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART;
+            if(!isCanReceipt){
                 throw  new BizCheckedException("2020002");
             }
 
@@ -218,9 +219,9 @@ public class ReceiptRestService implements IReceiptRestService {
             quant.setSupplierId(inbPoHeader.getSupplierCode());
             quant.setOwnerId(inbPoHeader.getOwnerUid());
             Date receiptTime = inbReceiptHeader.getReceiptTime();
-            quant.setInDate(receiptTime.getTime());
+            quant.setInDate(receiptTime.getTime()/1000);
             Long expireDate =  inbReceiptDetail.getProTime().getTime()+shelLife.longValue(); // 生产日期+保质期=保质期失效时间
-            quant.setExpireDate(expireDate);
+            quant.setExpireDate(expireDate/1000);
             quant.setCost(inbPoDetail.getPrice());
             BigDecimal inboundQty = BigDecimal.valueOf(inbReceiptDetail.getInboundQty());
             BigDecimal value = inbPoDetail.getPrice().multiply(inboundQty) ;
@@ -243,9 +244,9 @@ public class ReceiptRestService implements IReceiptRestService {
             stockLot.setSkuId(inbReceiptDetail.getSkuId());
             stockLot.setSerialNo(inbReceiptDetail.getLotNum());
             stockLot.setItemId(inbReceiptDetail.getItemId());
-            stockLot.setInDate(receiptTime.getTime());
-            stockLot.setProductDate(inbReceiptDetail.getProTime().getTime());
-            stockLot.setExpireDate(expireDate);
+            stockLot.setInDate(receiptTime.getTime()/1000);
+            stockLot.setProductDate(inbReceiptDetail.getProTime().getTime()/1000);
+            stockLot.setExpireDate(expireDate/1000);
             stockLot.setReceiptId(inbReceiptHeader.getReceiptOrderId());
             stockLot.setPoId(inbReceiptDetail.getOrderId());
             stockLotList.add(stockLot);
