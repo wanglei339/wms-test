@@ -143,7 +143,7 @@ public class ReceiptRestService implements IReceiptRestService {
                 throw  new BizCheckedException("2020001");
             }
 
-            if(inbPoHeader.getOrderStatus() != PoConstant.ORDER_THROW){
+            if(inbPoHeader.getOrderStatus() != PoConstant.ORDER_THROW || inbPoHeader.getOrderStatus() != PoConstant.ORDER_RECTIPT_PART){
                 throw  new BizCheckedException("2020002");
             }
 
