@@ -38,7 +38,7 @@
     	) values (
 			#{skuId},#{locationId},#{containerId},#{qty},#{skuUomId},#{value},
 			#{cost},#{reserveMoveId},#{isFrozen},#{supplierId},#{ownerId},#{lotId},
-			#{inDate},#{expireDate},#{createdAt},#{updatedAt},#{item_id}
+			#{inDate},#{expireDate},#{createdAt},#{updatedAt},#{itemId}
     	)
 	</insert>
 

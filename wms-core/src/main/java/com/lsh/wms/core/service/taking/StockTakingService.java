@@ -95,5 +95,18 @@ public class StockTakingService {
             return 1L;
         }
     }
+    public List<StockTakingHead> queryTakingHead(Map queryMap) {
+        return headDao.getStockTakingHeadList(queryMap);
+    }
+    public StockTakingDetail getDetailByTaskId(Long taskId){
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("taskId", taskId);
+        List<StockTakingDetail>details = detailDao.getStockTakingDetailList(queryMap);
+        if(details!=null && details.size()!=0) {
+            return details.get(0);
+        }
+        return null;
+
+    }
 }
 

@@ -14,15 +14,17 @@
 		<result property="doneTime" column="done_time"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
+		<result property="locationId" column="location_id"/>
+		<result property="skuId" column="sku_id"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockTakingTask">
 		insert into stock_taking_task (
 			task_id,taking_id,planner,operator,round,draft_time,
-			due_time,done_time,created_at,updated_at
+			due_time,done_time,created_at,updated_at,location_id,sku_id
     	) values (
 			#{taskId},#{takingId},#{planner},#{operator},#{round},#{draftTime},
-			#{dueTime},#{doneTime},#{createdAt},#{updatedAt}
+			#{dueTime},#{doneTime},#{createdAt},#{updatedAt},#{locationId},#{skuId}
     	)
 	</insert>
 
@@ -39,6 +41,8 @@
   			<if test="doneTime != null">done_time=#{doneTime},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+			<if test="locationId !=null">location_id=#{locationId}</if>
+			<if test="skuId !=null">sku_id=#{skuId}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -74,6 +78,8 @@
 			<if test="doneTime != null">and done_time=#{doneTime}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="locationId !=null">location_id=#{locationId}</if>
+			<if test="skuId !=null">sku_id=#{skuId}</if>
 		</where>
 	</sql>
    

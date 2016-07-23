@@ -7,6 +7,8 @@ import com.lsh.wms.model.task.Task;
 import com.lsh.wms.task.handler.BaseTaskHandler;
 import com.lsh.wms.task.handler.TaskHandlerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -14,6 +16,7 @@ import java.util.Map;
 /**
  * Created by mali on 16/7/20.
  */
+@Component
 public class DispatcherRpcService implements ITaskRpcService {
     @Autowired
     private TaskHandlerFactory handlerFactory;
