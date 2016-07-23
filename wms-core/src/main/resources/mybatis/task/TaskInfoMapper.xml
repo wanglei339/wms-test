@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.lsh.wms.core.dao.task.TaskInfoDao" >
 
-	<resultMap id="taskResultMap" type="Task">
+	<resultMap id="taskResultMap" type="TaskInfo">
 		<id property="id" column="id"/>
 		<result property="taskId" column="task_id"/>
 		<result property="planId" column="plan_id"/>
@@ -22,7 +22,7 @@
 		<result property="updatedAt" column="updated_at"/>
 	</resultMap>
   
-	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="Task">
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TaskInfo">
 		insert into TASK_INFO (
 			task_id,plan_id,location_id,sku_id,container_id,type,
 			status,priority,operator,draft_time,alloc_time,due_time,
@@ -34,7 +34,7 @@
     	)
 	</insert>
 
-	<update id="update" parameterType="Task">
+	<update id="update" parameterType="TaskInfo">
 		update TASK_INFO
     	<set>
   			<if test="taskId != null">task_id=#{taskId},</if>
