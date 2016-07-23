@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDockDao" >
+
+	<resultMap id="baseinfoLocationDockResultMap" type="BaseinfoLocationDock">
+		<id property="id" column="id"/>
+		<result property="locationId" column="location_id"/>
+		<result property="dockType" column="dock_type"/>
+		<result property="dockName" column="dock_name"/>
+		<result property="haveScales" column="have_scales"/>
+		<result property="dockApplication" column="dock_application"/>
+		<result property="direction" column="direction"/>
+		<result property="width" column="width"/>
+		<result property="height" column="height"/>
+		<result property="description" column="description"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLocationDock">
+		insert into baseinfo_location_dock (
+			location_id,dock_type,dock_name,have_scales,dock_application,direction,
+			width,height,description,created_at,updated_at
+    	) values (
+			#{locationId},#{dockType},#{dockName},#{haveScales},#{dockApplication},#{direction},
+			#{width},#{height},#{description},#{createdAt},#{updatedAt}
+    	)
+	</insert>
+
+	<update id="update" parameterType="BaseinfoLocationDock">
+		update baseinfo_location_dock
+    	<set>
+  			<if test="locationId != null">location_id=#{locationId},</if>
+  			<if test="dockType != null">dock_type=#{dockType},</if>
+  			<if test="dockName != null">dock_name=#{dockName},</if>
+  			<if test="haveScales != null">have_scales=#{haveScales},</if>
+  			<if test="dockApplication != null">dock_application=#{dockApplication},</if>
+  			<if test="direction != null">direction=#{direction},</if>
+  			<if test="width != null">width=#{width},</if>
+  			<if test="height != null">height=#{height},</if>
+  			<if test="description != null">description=#{description},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where location_id=#{locationId}
+	</update>
+  
+	<select id="getBaseinfoLocationDockById" parameterType="int" resultMap="baseinfoLocationDockResultMap">
+		select * from baseinfo_location_dock
+		where location_id=#{locationId}
+	</select>
+  
+	<select id="countBaseinfoLocationDock" parameterType="map" resultType="int">
+		select count(*) from baseinfo_location_dock
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getBaseinfoLocationDockList" parameterType="map" resultMap="baseinfoLocationDockResultMap">
+		select * from baseinfo_location_dock
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="locationId != null">and location_id=#{locationId}</if>
+			<if test="dockType != null">and dock_type=#{dockType}</if>
+			<if test="dockName != null">and dock_name=#{dockName}</if>
+			<if test="haveScales != null">and have_scales=#{haveScales}</if>
+			<if test="dockApplication != null">and dock_application=#{dockApplication}</if>
+			<if test="direction != null">and direction=#{direction}</if>
+			<if test="width != null">and width=#{width}</if>
+			<if test="height != null">and height=#{height}</if>
+			<if test="description != null">and description=#{description}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>

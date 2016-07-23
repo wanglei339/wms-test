@@ -25,7 +25,7 @@ public class PickTaskDetail implements Serializable {
 	/** 配货库存量 */
     private BigDecimal allocQty;
 	/** 分配的捡货分区 */
-    private BigDecimal pickZoneId = new BigDecimal("0.00");
+    private BigDecimal pickZoneId;
 	/** 实际捡货量 */
     private BigDecimal pickQty = new BigDecimal("0.0000");
 	/** qc确认数量 */
@@ -58,6 +58,10 @@ public class PickTaskDetail implements Serializable {
     private Long qcAt = 0L;
 	/** 播种任务id */
     private Long sowTaskId = 0L;
+	/**  */
+    private Long createdAt = 0L;
+	/**  */
+    private Long updatedAt = 0L;
 	
 	public Long getId(){
 		return this.id;
@@ -265,6 +269,22 @@ public class PickTaskDetail implements Serializable {
 	
 	public void setSowTaskId(Long sowTaskId){
 		this.sowTaskId = sowTaskId;
+	}
+	
+	public Long getCreatedAt(){
+		return this.createdAt;
+	}
+	
+	public void setCreatedAt(Long createdAt){
+		this.createdAt = createdAt;
+	}
+	
+	public Long getUpdatedAt(){
+		return this.updatedAt;
+	}
+	
+	public void setUpdatedAt(Long updatedAt){
+		this.updatedAt = updatedAt;
 	}
 	
 	

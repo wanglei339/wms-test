@@ -144,7 +144,7 @@ public class PoReceiptService {
      */
     public InbReceiptHeader getInbReceiptHeaderByReceiptId(Long receiptId) {
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("receiptId", receiptId);
+        params.put("receiptOrderId", receiptId);
 
         return getInbReceiptHeaderByParams(params);
     }
@@ -156,7 +156,7 @@ public class PoReceiptService {
      */
     public List<InbReceiptDetail> getInbReceiptDetailListByReceiptId(Long receiptId) {
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("receiptId", receiptId);
+        params.put("receiptOrderId", receiptId);
 
         return getInbReceiptDetailList(params);
     }

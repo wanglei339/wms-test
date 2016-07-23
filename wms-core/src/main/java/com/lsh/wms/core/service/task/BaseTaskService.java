@@ -5,6 +5,7 @@ import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.model.task.TaskInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -13,6 +14,8 @@ import java.util.Map;
 /**
  * Created by mali on 16/7/22.
  */
+@Component
+@Transactional(readOnly = true)
 public class BaseTaskService {
 
     @Autowired

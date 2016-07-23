@@ -2,8 +2,13 @@ package com.lsh.wms.core.service.pick;
 
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.wms.core.constant.WaveConstant;
+import com.lsh.wms.core.dao.pick.PickAllocDetailDao;
 import com.lsh.wms.core.dao.pick.PickWaveHeadDao;
 import com.lsh.wms.core.dao.so.OutbSoHeaderDao;
+import com.lsh.wms.model.pick.PickAllocDetail;
+import com.lsh.wms.model.pick.PickTaskDetail;
+import com.lsh.wms.model.pick.PickTaskHead;
 import com.lsh.wms.model.pick.PickWaveHead;
 import com.lsh.wms.model.so.OutbSoHeader;
 import org.apache.tomcat.jni.Time;
@@ -30,6 +35,10 @@ public class PickWaveService {
     private PickWaveHeadDao waveHeadDao;
     @Autowired
     private OutbSoHeaderDao soHeaderDao;
+    @Autowired
+    private PickAllocService allocService;
+    @Autowired
+    private PickTaskService taskService;
 
     @Transactional(readOnly = false)
     public void createWave(PickWaveHead head, List<Long> vOrders){
@@ -77,4 +86,23 @@ public class PickWaveService {
         head.setStatus((long)iStatus);
         this.update(head);
     }
+
+    @Transactional(readOnly = false)
+    public void storeAlloc(PickWaveHead head, List<PickAllocDetail> details){
+        head.setIsResAlloc(1L);
+        this.update(head);
+        allocService.addAllocDetails(details);
+    }
+
+    @Transactional(readOnly = false)
+    public void storePickTask(long iWaveId, List<PickTaskHead> taskHeads, List<PickTaskDetail> taskDetails){
+        logger.info("end to run pick model, task size[%d]", taskHeads.size());
+        //存储捡货任务
+        taskService.createPickTasks(taskHeads, taskDetails);
+        logger.info("store task success");
+        //设置释放成功状态
+        this.setStatus(iWaveId, WaveConstant.STATUS_RELEASE_SUCC);
+        logger.info("run wave success");
+    }
+
 }
