@@ -9,6 +9,8 @@ public class OutbDeliveryHeader implements Serializable {
     private Long id;
 	/** 仓库ID */
     private Long warehouseId;
+	/** 出货单ID */
+	private Long deliveryId;
 	/** 集货区编码 */
     private String shippingAreaCode;
 	/** 波次号 */
@@ -33,15 +35,8 @@ public class OutbDeliveryHeader implements Serializable {
     private Date inserttime;
 	/**  */
     private Date updatetime;
+
 	private String deliveryDetails;
-
-	public String getDeliveryDetails() {
-		return deliveryDetails;
-	}
-
-	public void setDeliveryDetails(String deliveryDetails) {
-		this.deliveryDetails = deliveryDetails;
-	}
 
 	public Long getId(){
 		return this.id;
@@ -54,7 +49,15 @@ public class OutbDeliveryHeader implements Serializable {
 	public Long getWarehouseId(){
 		return this.warehouseId;
 	}
-	
+
+	public Long getDeliveryId() {
+		return deliveryId;
+	}
+
+	public void setDeliveryId(Long deliveryId) {
+		this.deliveryId = deliveryId;
+	}
+
 	public void setWarehouseId(Long warehouseId){
 		this.warehouseId = warehouseId;
 	}
@@ -154,6 +157,14 @@ public class OutbDeliveryHeader implements Serializable {
 	public void setUpdatetime(Date updatetime){
 		this.updatetime = updatetime;
 	}
-	
-	
+
+	public String getDeliveryDetails() {
+		return deliveryDetails;
+	}
+
+	public void setDeliveryDetails(String deliveryDetails) {
+		this.deliveryDetails = deliveryDetails;
+	}
+
+
 }

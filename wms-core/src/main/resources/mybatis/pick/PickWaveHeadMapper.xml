@@ -13,7 +13,6 @@
 		<result property="waveDest" column="wave_dest"/>
 		<result property="pickModelTemplateId" column="pick_model_template_id"/>
 		<result property="releaseUid" column="release_uid"/>
-		<result property="releaseUname" column="release_uname"/>
 		<result property="releaseAt" column="release_at"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
@@ -22,11 +21,11 @@
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PickWaveHead">
 		insert into pick_wave_head (
 			wave_id,wave_name,status,wave_type,wave_template_id,wave_source,
-			wave_dest,pick_model_template_id,release_uid,release_uname,release_at,created_at,
+			wave_dest,pick_model_template_id,release_uid,release_at,created_at,
 			updated_at
     	) values (
 			#{waveId},#{waveName},#{status},#{waveType},#{waveTemplateId},#{waveSource},
-			#{waveDest},#{pickModelTemplateId},#{releaseUid},#{releaseUname},#{releaseAt},#{createdAt},
+			#{waveDest},#{pickModelTemplateId},#{releaseUid},#{releaseAt},#{createdAt},
 			#{updatedAt}
     	)
 	</insert>
@@ -34,7 +33,6 @@
 	<update id="update" parameterType="PickWaveHead">
 		update pick_wave_head
     	<set>
-  			<if test="waveId != null">wave_id=#{waveId},</if>
   			<if test="waveName != null">wave_name=#{waveName},</if>
   			<if test="status != null">status=#{status},</if>
   			<if test="waveType != null">wave_type=#{waveType},</if>
@@ -43,12 +41,11 @@
   			<if test="waveDest != null">wave_dest=#{waveDest},</if>
   			<if test="pickModelTemplateId != null">pick_model_template_id=#{pickModelTemplateId},</if>
   			<if test="releaseUid != null">release_uid=#{releaseUid},</if>
-  			<if test="releaseUname != null">release_uname=#{releaseUname},</if>
   			<if test="releaseAt != null">release_at=#{releaseAt},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
-		where id=#{id}
+		where wave_id=#{waveId}
 	</update>
   
 	<select id="getPickWaveHeadById" parameterType="int" resultMap="pickWaveHeadResultMap">
@@ -81,7 +78,6 @@
 			<if test="waveDest != null">and wave_dest=#{waveDest}</if>
 			<if test="pickModelTemplateId != null">and pick_model_template_id=#{pickModelTemplateId}</if>
 			<if test="releaseUid != null">and release_uid=#{releaseUid}</if>
-			<if test="releaseUname != null">and release_uname=#{releaseUname}</if>
 			<if test="releaseAt != null">and release_at=#{releaseAt}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>

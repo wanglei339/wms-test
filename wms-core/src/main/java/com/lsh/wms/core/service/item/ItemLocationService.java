@@ -92,6 +92,13 @@ public class ItemLocationService {
         return itemLocationDao.getBaseinfoItemLocationById(id);
     }
 
+    public List<BaseinfoItemLocation> getItemLocationList(long itemId){
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("itemId",itemId);
+        List<BaseinfoItemLocation> list =
+                itemLocationDao.getBaseinfoItemLocationList(mapQuery);
+        return list;
+    }
 
 
 }

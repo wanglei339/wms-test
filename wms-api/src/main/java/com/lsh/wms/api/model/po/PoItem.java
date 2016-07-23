@@ -4,6 +4,7 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -11,9 +12,9 @@ import java.util.Date;
  */
 public class PoItem {
 
-    /** 商品ID */
+    /** 物美码 */
     @NotNull
-    private Long skuId;
+    private String skuCode;
 
     /** 商品名称 */
     @Size(max=50)
@@ -30,6 +31,8 @@ public class PoItem {
 
     /** 包装单位 */
     private Long packUnit;
+    /** 价格 */
+    private BigDecimal price;
 
     /** 产地 */
     @Size(max=100)
@@ -39,22 +42,31 @@ public class PoItem {
 
     }
 
-    public PoItem(Long skuId, String skuName, String barCode, Long orderQty,
-                  Long packUnit, String madein) {
-        this.skuId = skuId;
+    public PoItem(String skuCode, String skuName, String barCode, Long orderQty,
+                  Long packUnit,BigDecimal price, String madein) {
+        this.skuCode = skuCode;
         this.skuName = skuName;
         this.barCode = barCode;
         this.orderQty = orderQty;
         this.packUnit = packUnit;
+        this.price = price;
         this.madein = madein;
     }
 
-    public Long getSkuId(){
-        return this.skuId;
+    public BigDecimal getPrice() {
+        return price;
     }
 
-    public void setSkuId(Long skuId){
-        this.skuId = skuId;
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public String getSkuCode() {
+        return skuCode;
+    }
+
+    public void setSkuCode(String skuCode) {
+        this.skuCode = skuCode;
     }
 
     public String getSkuName(){

@@ -27,6 +27,7 @@ public class PickTaskService {
     @Autowired
     private PickTaskDetailDao taskDetailDao;
 
+    @Transactional(readOnly = false)
     public int createPickTask(PickTaskHead head, List<PickTaskDetail> details){
         taskHeadDao.insert(head);
         for(int i = 0; i < details.size(); ++i){
@@ -35,6 +36,7 @@ public class PickTaskService {
         return 0;
     }
 
+    @Transactional(readOnly = false)
     public int createPickTasks(List<PickTaskHead> heads, List<PickTaskDetail> details){
         for(int i = 0; i < heads.size(); i++){
             taskHeadDao.insert(heads.get(i));

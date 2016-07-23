@@ -34,7 +34,7 @@ public class ValidateExceptionMapper extends RpcExceptionMapper {
                     .append(";");
 
         }
-        BaseResponse responseBaseVo = ResUtils.getResponse(ExceptionConstant.RES_CODE_300,msg.toString(),null);
+        BaseResponse responseBaseVo = ResUtils.getResponse(ExceptionConstant.RES_CODE_100,msg.toString(),null);
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(responseBaseVo).type(ContentType.APPLICATION_JSON_UTF_8).build();
     }
 }

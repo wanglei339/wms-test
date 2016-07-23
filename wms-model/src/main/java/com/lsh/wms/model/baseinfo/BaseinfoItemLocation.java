@@ -11,11 +11,21 @@ public class BaseinfoItemLocation implements Serializable {
     private Long skuId;
 	/** 货主ID */
     private Long ownerId;
+	/** 内部商品ID */
+	private Long itemId;
 	/** 拣货位ID */
     private Long pickLocationid;
 	/** 使用状态 */
     private Integer userstatus;
-	
+
+	public Long getItemId() {
+		return itemId;
+	}
+
+	public void setItemId(Long itemId) {
+		this.itemId = itemId;
+	}
+
 	public Long getId(){
 		return this.id;
 	}

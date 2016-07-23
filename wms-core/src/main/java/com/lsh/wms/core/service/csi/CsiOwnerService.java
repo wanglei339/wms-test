@@ -71,4 +71,13 @@ public class CsiOwnerService {
         CsiOwner newOwner = ownerDao.getCsiOwnerList(mapQuery).get(0);
         m_OwnerCache.put(owner.getOwnerId(),newOwner);
     }
+
+    public List<CsiOwner> getOwnerList(Map<String,Object> mapQuery){
+        return ownerDao.getCsiOwnerList(mapQuery);
+
+    }
+    public int getOwnerCount(Map<String,Object> mapQuery){
+        return ownerDao.countCsiOwner(mapQuery);
+
+    }
 }

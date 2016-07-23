@@ -9,12 +9,16 @@ public class InbReceiptDetail implements Serializable {
     private Long id;
 	/** 收货单ID */
     private Long receiptOrderId;
+	/**采购订单号  */
+	private String orderOtherId;
 	/** 订单ID */
     private Long orderId;
 	/** 批次号 */
     private String lotNum;
-	/** 商品ID */
+	/** 仓库商品ID */
     private Long skuId;
+	/** 商品ID */
+    private Long itemId;
 	/** 商品名称 */
     private String skuName;
 	/** 国条码 */
@@ -43,7 +47,15 @@ public class InbReceiptDetail implements Serializable {
     private Date inserttime;
 	/**  */
     private Date updatetime;
-	
+
+	public String getOrderOtherId() {
+		return orderOtherId;
+	}
+
+	public void setOrderOtherId(String orderOtherId) {
+		this.orderOtherId = orderOtherId;
+	}
+
 	public Long getId(){
 		return this.id;
 	}
@@ -82,6 +94,14 @@ public class InbReceiptDetail implements Serializable {
 	
 	public void setSkuId(Long skuId){
 		this.skuId = skuId;
+	}
+	
+	public Long getItemId(){
+		return this.itemId;
+	}
+	
+	public void setItemId(Long itemId){
+		this.itemId = itemId;
 	}
 	
 	public String getSkuName(){

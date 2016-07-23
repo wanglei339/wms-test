@@ -1,6 +1,9 @@
 package com.lsh.wms.rpc.service.pick.wave;
 
+import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.pick.*;
 import com.lsh.wms.core.service.so.SoOrderService;
@@ -13,6 +16,7 @@ import com.lsh.wms.rpc.service.pick.wave.split.SplitNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
@@ -22,14 +26,8 @@ import java.util.*;
 /**
  * Created by zengwenjun on 16/7/15.
  */
+@Component
 public class WaveCore {
-    /** 波次状态，10-新建，20-确定释放，30-释放完成，40-释放失败，50-已完成[完全出库], 100－取消 */
-    public static int STATUS_NEW = 10;
-    public static int STATUS_RELEASE_START = 20;
-    public static int STATUS_RELEASE_SUCC = 30;
-    public static int STATUS_RELEASE_FAIL = 40;
-    public static int STATUS_SUCC = 50;
-    public static int STATUS_CANCEL = 100;
     private static Logger logger = LoggerFactory.getLogger(WaveCore.class);
 
     @Autowired
@@ -47,7 +45,7 @@ public class WaveCore {
     @Autowired
     ItemService itemService;
 
-    public int release(long iWaveId){
+    public int release(long iWaveId) throws BizCheckedException{
         //获取波次信息
         PickWaveHead waveHead = waveService.getWave(iWaveId);
         if(waveHead==null){
@@ -66,7 +64,7 @@ public class WaveCore {
         });
         for(int i = 0;i  < orders.size(); ++i){
             mapOrder2Head.put(orders.get(i).getOrderId(), orders.get(i));
-            List<OutbSoDetail> details = null;
+            List<OutbSoDetail> details = orderService.getOutbSoDetailListByOrderId(orders.get(i).getOrderId());
             order_details.addAll(details);
         }
         //设置释放中状态
@@ -85,6 +83,7 @@ public class WaveCore {
         for(int i = 0; i < modelList.size(); ++i){
             PickZone zone = zoneService.getPickZone(modelList.get(i).getPickZoneId());
             if(zone == null){
+                logger.error("get pick zone fail %d", modelList.get(i).getPickZoneId());
                 return -1;
             }
             zoneList.add(zone);
@@ -95,17 +94,18 @@ public class WaveCore {
         for(int i = 0; i < order_details.size(); ++i){
             OutbSoDetail detail = order_details.get(i);
             int zone_idx = 0;
+            //获取商品的基本信息
+            BaseinfoItem item = itemService.getItem(mapOrder2Head.get(detail.getOrderId()).getOwnerUid(), detail.getSkuId());
+            if(item == null){
+                logger.error("item get fail %s", item.getItemId());
+                return -1;
+            }
             BigDecimal leftAllocQty = new BigDecimal(detail.getOrderQty());
             for(PickZone zone:zoneList) {
                 if (leftAllocQty.compareTo(BigDecimal.ZERO) <= 0) {
                     break;
                 }
                 //判断此区域是否有对应的捡货位
-                //获取商品的基本信息
-                BaseinfoItem item = itemService.getItem(mapOrder2Head.get(detail.getOrderId()).getOwnerUid(), detail.getSkuId());
-                if(item == null){
-                    return -1;
-                }
                 long pick_unit = zone.getPickUnit();
                 BigDecimal pick_ea_num = null;
                 if(pick_unit == 1){
@@ -117,9 +117,11 @@ public class WaveCore {
                 }else if (pick_unit == 3){
                     //整托盘,卧槽托盘上的商品数怎么求啊,这里是有风险的,因为实际的码盘数量可能和实际的不一样.
                     pick_ea_num = item.getPackUnit().multiply(BigDecimal.valueOf(item.getPileX() * item.getPileY() * item.getPileZ()));
+                    if(pick_ea_num.compareTo(BigDecimal.ZERO)==0){
+                    }
                 }
                 //获取分拣分区下的可分配库存数量,怎么获取?
-                long zone_qty = 0;
+                long zone_qty = 10000;
                 int alloc_x = leftAllocQty.divide(pick_ea_num).intValue();
                 int zone_alloc_x = BigDecimal.valueOf(zone_qty).divide(pick_ea_num).intValue();
                 alloc_x = alloc_x > zone_alloc_x ? zone_alloc_x : alloc_x;
@@ -133,19 +135,34 @@ public class WaveCore {
                 allocDetail.setOrderId(detail.getOrderId());
                 allocDetail.setOwnerId(mapOrder2Head.get(detail.getOrderId()).getOwnerUid());
                 allocDetail.setPickZoneId(zone.getPickZoneId());
-                //allocDetail.setReqQty(""); ??
+                allocDetail.setReqQty(new BigDecimal(0));
                 //allocDetail.setSupplierId(mapOrder2Head.get(detail.getOrderId()).get); ??
                 allocDetail.setWaveId(iWaveId);
                 pickAllocDetailList.add(allocDetail);
+
+                leftAllocQty = leftAllocQty.subtract(alloc_qty);
             }
         }
+
         //存储配货结果
         allocService.addAllocDetails(pickAllocDetailList);
         //执行捡货模型,输出最小捡货单元
         List<PickTaskHead> taskHeads = new LinkedList<PickTaskHead>();
         List<PickTaskDetail> taskDetails = new LinkedList<PickTaskDetail>();
         for(int zidx = 0; zidx < zoneList.size(); ++zidx){
-            List<SplitNode> splitNodes = null;
+            PickZone zone = zoneList.get(zidx);
+            List<SplitNode> splitNodes = new LinkedList<SplitNode>();
+            {
+                //初始化分裂数据
+                SplitNode node = new SplitNode();
+                node.details = new ArrayList<PickTaskDetail>();
+                for (PickAllocDetail ad : pickAllocDetailList) {
+                    PickTaskDetail detail = new PickTaskDetail();
+                    ObjUtils.bean2bean(ad, detail);
+                    node.details.add(detail);
+                }
+                splitNodes.add(node);
+            }
             List<SplitNode> stopNodes = new LinkedList<SplitNode>();
             PickModel model = modelList.get(zidx);
             String splitModelNames[] = {
@@ -159,8 +176,9 @@ public class WaveCore {
             for(String modelName : splitModelNames){
                 SplitModel splitModel = null;
                 try {
-                    splitModel = (SplitModel) Class.forName(modelName).newInstance();
+                    splitModel = (SplitModel) Class.forName("com.lsh.wms.rpc.service.pick.wave.split."+modelName).newInstance();
                 } catch (Exception e){
+                    logger.error("class init fail "+modelName);
                     return -1;
                 }
                 splitModel.init(model, splitNodes);
@@ -174,15 +192,19 @@ public class WaveCore {
             //多zone的捡货单元不可混合,所用分开执行
             long iContainerTake = model.getContainerNumPerTask();
             //计算最佳划分组合
-            long [] bestCutPlan = this.getBestCutPlan(splitNodes.size(), iContainerTake);
+            long [] bestCutPlan = this.getBestCutPlan(stopNodes.size(), iContainerTake);
             int iChooseIdx = 0;
             for(int i = 0; i < bestCutPlan.length; ++i){
                 PickTaskHead head = new PickTaskHead();
+                head.setWaveId(iWaveId);
+                head.setPickTaskId(RandomUtils.genId());
+                head.setPickTaskName(String.format("波次[%d]-捡货任务[%d]", iWaveId, taskHeads.size()+1));
                 for(int j = 0; j < bestCutPlan[i]; j++){
-                    SplitNode node = splitNodes.get(iChooseIdx+j);
+                    SplitNode node = stopNodes.get(iChooseIdx+j);
                     for(int k = 0; k < node.details.size(); ++k){
                         PickTaskDetail detail = node.details.get(k);
                         detail.setPickTaskId(head.getPickTaskId());
+                        detail.setPickZoneId(BigDecimal.valueOf(zone.getPickZoneId()));
                         taskDetails.add(detail);
                     }
                 }
@@ -193,7 +215,7 @@ public class WaveCore {
         //存储捡货任务
         taskService.createPickTasks(taskHeads, taskDetails);
         //设置释放成功状态
-        waveService.setStatus(iWaveId, STATUS_SUCC);
+        waveService.setStatus(iWaveId, WaveConstant.STATUS_RELEASE_SUCC);
         return 0;
     }
 

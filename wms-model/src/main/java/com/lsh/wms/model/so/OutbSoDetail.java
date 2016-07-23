@@ -136,5 +136,4 @@ public class OutbSoDetail implements Serializable {
 		this.updatetime = updatetime;
 	}
 	
-	
 }

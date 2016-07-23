@@ -1,6 +1,7 @@
 package com.lsh.wms.model.po;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class InbPoDetail implements Serializable {
@@ -11,6 +12,8 @@ public class InbPoDetail implements Serializable {
     private Long orderId;
 	/** 商品ID */
     private Long skuId;
+	/** 物美码 */
+    private String skuCode;
 	/** 商品名称 */
     private String skuName;
 	/** 国条码 */
@@ -19,6 +22,8 @@ public class InbPoDetail implements Serializable {
     private Long orderQty;
 	/** 包装单位 */
     private Long packUnit;
+	/** 价格 */
+	private BigDecimal price;
 	/** 产地 */
     private String madein;
 	/** 实际收货数 */
@@ -31,7 +36,15 @@ public class InbPoDetail implements Serializable {
     private Date inserttime;
 	/**  */
     private Date updatetime;
-	
+
+	public BigDecimal getPrice() {
+		return price;
+	}
+
+	public void setPrice(BigDecimal price) {
+		this.price = price;
+	}
+
 	public Long getId(){
 		return this.id;
 	}
@@ -54,6 +67,14 @@ public class InbPoDetail implements Serializable {
 	
 	public void setSkuId(Long skuId){
 		this.skuId = skuId;
+	}
+	
+	public String getSkuCode(){
+		return this.skuCode;
+	}
+	
+	public void setSkuCode(String skuCode){
+		this.skuCode = skuCode;
 	}
 	
 	public String getSkuName(){
