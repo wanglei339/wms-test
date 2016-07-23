@@ -33,9 +33,10 @@ import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.InbReceiptHeader;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
-import com.lsh.wms.rpc.service.item.ItemRestService;
 import com.lsh.wms.rpc.service.location.LocationRpcService;
 import com.lsh.wms.rpc.service.stock.StockLotRestService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
@@ -59,7 +60,7 @@ import static java.math.BigDecimal.ROUND_HALF_EVEN;
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class ReceiptRestService implements IReceiptRestService {
-
+    private static Logger logger = LoggerFactory.getLogger(ReceiptRestService.class);
     @Autowired
     private PoReceiptService poReceiptService;
 
@@ -177,19 +178,13 @@ public class ReceiptRestService implements IReceiptRestService {
             Double shelLife_CN= Double.parseDouble(PropertyUtils.getString("shelLife_CN"));
             Double shelLife_Not_CN=Double.parseDouble(PropertyUtils.getString("shelLife_Not_CN"));
             String produceChina=PropertyUtils.getString("produceChina");
-
+            BigDecimal left_day = new BigDecimal(DateUtils.daysBetween(inbReceiptDetail.getProTime(),new Date()));
             if(producePlace.contains(produceChina)){ // TODO: 16/7/20  产地是否存的是CN
-                int nowInt = DateUtils.getYearMonthDay(new Date());
-                int proInt =DateUtils.getYearMonthDay(inbReceiptDetail.getProTime());
-                BigDecimal left_day = new BigDecimal(DateUtils.getYearMonthDay(new Date()) - DateUtils.getYearMonthDay(inbReceiptDetail.getProTime()));
-                if(left_day.divide(shelLife,2,ROUND_HALF_EVEN).doubleValue() < shelLife_CN){
+                if(left_day.divide(shelLife,2,ROUND_HALF_EVEN).doubleValue() >= shelLife_CN){
                     throw new BizCheckedException("2020003");
                 }
             }else {
-                int nowInt = DateUtils.getYearMonthDay(new Date());
-                int proInt =DateUtils.getYearMonthDay(inbReceiptDetail.getProTime());
-                BigDecimal left_day = new BigDecimal(DateUtils.getYearMonthDay(new Date()) - DateUtils.getYearMonthDay(inbReceiptDetail.getProTime()));
-                if(left_day.divide(shelLife,2,ROUND_HALF_EVEN).doubleValue() < shelLife_Not_CN){
+                if(left_day.divide(shelLife,2,ROUND_HALF_EVEN).doubleValue() > shelLife_Not_CN){
                     throw new BizCheckedException("2020003");
                 }
             }
@@ -262,12 +257,17 @@ public class ReceiptRestService implements IReceiptRestService {
 
         //插入订单
         poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList,updateInbPoDetailList );
-        for (StockQuant stockQuant: stockQuantList) {
-            stockQuantService.create(stockQuant);
-        }
+        try{
+            for (StockQuant stockQuant: stockQuantList) {
+                stockQuantService.create(stockQuant);
+            }
 
-        for (StockLot stockLot: stockLotList) {
-            stockLotRestService.insertLot(stockLot);
+            for (StockLot stockLot: stockLotList) {
+                stockLotRestService.insertLot(stockLot);
+            }
+        }catch (Throwable ex){
+            // ex.printStackTrace();
+            logger.error(ex.getMessage());
         }
 
 
