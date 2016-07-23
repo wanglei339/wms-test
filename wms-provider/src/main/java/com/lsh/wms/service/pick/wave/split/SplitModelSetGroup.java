@@ -1,4 +1,4 @@
-package com.lsh.wms.rpc.service.pick.wave.split;
+package com.lsh.wms.service.pick.wave.split;
 
 import java.util.List;
 

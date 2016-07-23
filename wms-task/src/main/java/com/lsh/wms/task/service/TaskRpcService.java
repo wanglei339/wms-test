@@ -8,6 +8,7 @@ import com.lsh.wms.task.service.handler.TaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +30,16 @@ public class TaskRpcService implements ITaskRpcService {
         TaskHandler handler = handlerFactory.getTaskHandler(taskType);
         handler.create(taskEntry);
         return taskEntry.getTaskInfo().getTaskId();
+    }
+
+    public List<Long> batchCreate(Long taskType, List<TaskEntry> taskEntries) {
+        TaskHandler handler = handlerFactory.getTaskHandler(taskType);
+        handler.batchCreate(taskEntries);
+        List<Long> idList = new LinkedList<Long>();
+        for(TaskEntry entry : taskEntries) {
+            idList.add(entry.getTaskInfo().getTaskId());
+        }
+        return idList;
     }
 
     public TaskEntry getTaskEntryById(Long taskId) {
