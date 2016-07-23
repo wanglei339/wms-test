@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * Created by zengwenjun on 16/7/8.
  */
-
 @Component
 @Transactional(readOnly = true)
 public class CsiOwnerService {

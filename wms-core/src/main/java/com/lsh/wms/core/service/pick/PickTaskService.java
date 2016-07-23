@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
 
@@ -21,7 +22,7 @@ import java.util.List;
 public class PickTaskService {
     private static final Logger logger = LoggerFactory.getLogger(PickTaskService.class);
 
-    @Autowired
+    @Resource(name = "pickTaskHeadDao")
     private PickTaskHeadDao taskHeadDao;
     @Autowired
     private PickTaskDetailDao taskDetailDao;
