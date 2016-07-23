@@ -6,6 +6,7 @@ import com.lsh.wms.core.dao.task.TaskDao;
 import com.lsh.wms.model.task.Operation;
 import com.lsh.wms.model.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -14,6 +15,8 @@ import java.util.Map;
 /**
  * Created by mali on 16/7/22.
  */
+@Component
+@Transactional(readOnly = true)
 public class BaseTaskService {
 
     @Autowired
