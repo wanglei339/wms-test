@@ -34,6 +34,7 @@ public class LocationService {
             put("temporary", new Long(4)); // 暂存区
             put("floor", new Long(5)); // 地堆
             put("picking", new Long(6)); // 拣货位
+            put("storage", new Long(7)); // 存储位
         }
     };
 
@@ -226,6 +227,11 @@ public class LocationService {
                 }
             }
         }
+        return null;
+    }
+
+    // 获取拣货位最近的存储位
+    public BaseinfoLocation getNearestStorageByPicking(BaseinfoLocation pickingLocation) {
         return null;
     }
 }
