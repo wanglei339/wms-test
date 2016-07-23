@@ -1,4 +1,4 @@
-package com.lsh.wms.task.handler;
+package com.lsh.wms.task.service.handler;
 
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.service.task.BaseTaskService;

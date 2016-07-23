@@ -1,9 +1,11 @@
-package com.lsh.wms.task.handler;
+package com.lsh.wms.task.service.task.taking;
 
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.task.StockTakingTaskService;
 import com.lsh.wms.model.task.StockTakingTask;
 import com.lsh.wms.model.task.TaskEntry;
+import com.lsh.wms.task.service.handler.AbsTaskHandler;
+import com.lsh.wms.task.service.handler.TaskHandlerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

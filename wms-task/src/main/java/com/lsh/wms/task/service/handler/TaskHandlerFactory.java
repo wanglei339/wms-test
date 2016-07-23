@@ -1,4 +1,4 @@
-package com.lsh.wms.task.handler;
+package com.lsh.wms.task.service.handler;
 
 import org.springframework.stereotype.Component;
 
