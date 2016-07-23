@@ -13,15 +13,17 @@
 		<result property="reqQty" column="req_qty"/>
 		<result property="allocQty" column="alloc_qty"/>
 		<result property="pickZoneId" column="pick_zone_id"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PickAllocDetail">
 		insert into pick_alloc_detail (
 			wave_id,order_id,sku_id,owner_id,loc_id,supplier_id,
-			req_qty,alloc_qty,pick_zone_id
+			req_qty,alloc_qty,pick_zone_id,created_at,updated_at
     	) values (
 			#{waveId},#{orderId},#{skuId},#{ownerId},#{locId},#{supplierId},
-			#{reqQty},#{allocQty},#{pickZoneId}
+			#{reqQty},#{allocQty},#{pickZoneId},#{createdAt},#{updatedAt}
     	)
 	</insert>
 
@@ -36,7 +38,9 @@
   			<if test="supplierId != null">supplier_id=#{supplierId},</if>
   			<if test="reqQty != null">req_qty=#{reqQty},</if>
   			<if test="allocQty != null">alloc_qty=#{allocQty},</if>
-  			<if test="pickZoneId != null">pick_zone_id=#{pickZoneId}</if>
+  			<if test="pickZoneId != null">pick_zone_id=#{pickZoneId},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -71,6 +75,8 @@
 			<if test="reqQty != null">and req_qty=#{reqQty}</if>
 			<if test="allocQty != null">and alloc_qty=#{allocQty}</if>
 			<if test="pickZoneId != null">and pick_zone_id=#{pickZoneId}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 		</where>
 	</sql>
    

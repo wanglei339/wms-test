@@ -30,17 +30,20 @@ public class StockTakingHead implements Serializable {
 	/** 货主id */
     private Long ownerId = 0L;
 	/** 存储库位id */
-    private Long locationId = 0L;
+    private String locationList = "";
 	/** 批次id */
     private Long lotId = 0L;
 	/** 商品id */
     private Long  skuId= 0L;
 	/** 盘点计划类型 */
 	private Long planType = 0L;
+	/**  任务要求时间 */
+	private Long dueTime = 0L;
 	/**  */
     private Long createdAt;
 	/**  */
     private Long updatedAt;
+
 
 	public String getDetails() {
 		return details;
@@ -147,15 +150,15 @@ public class StockTakingHead implements Serializable {
 	public void setOwnerId(Long ownerId){
 		this.ownerId = ownerId;
 	}
-	
-	public Long getLocationId(){
-		return this.locationId;
+
+	public String getLocationList() {
+		return locationList;
 	}
-	
-	public void setLocationId(Long locationId){
-		this.locationId = locationId;
+
+	public void setLocationList(String locationList) {
+		this.locationList = locationList;
 	}
-	
+
 	public Long getLotId(){
 		return this.lotId;
 	}
@@ -194,5 +197,13 @@ public class StockTakingHead implements Serializable {
 
 	public void setPlanType(Long planType) {
 		this.planType = planType;
+	}
+
+	public Long getDueTime() {
+		return dueTime;
+	}
+
+	public void setDueTime(Long dueTime) {
+		this.dueTime = dueTime;
 	}
 }

@@ -19,6 +19,10 @@ public class PickZone implements Serializable {
     private Long pickUnit;
 	/** 支持的分拣模式, 可以是多种，逗号分离 */
     private String pickModelSupport;
+	/**  */
+    private Long createdAt;
+	/**  */
+    private Long updatedAt;
 	
 	public Long getId(){
 		return this.id;
@@ -74,6 +78,22 @@ public class PickZone implements Serializable {
 	
 	public void setPickModelSupport(String pickModelSupport){
 		this.pickModelSupport = pickModelSupport;
+	}
+	
+	public Long getCreatedAt(){
+		return this.createdAt;
+	}
+	
+	public void setCreatedAt(Long createdAt){
+		this.createdAt = createdAt;
+	}
+	
+	public Long getUpdatedAt(){
+		return this.updatedAt;
+	}
+	
+	public void setUpdatedAt(Long updatedAt){
+		this.updatedAt = updatedAt;
 	}
 	
 	

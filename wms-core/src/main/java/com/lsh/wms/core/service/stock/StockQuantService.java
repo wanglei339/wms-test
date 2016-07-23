@@ -15,10 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by mali on 16/6/29.
@@ -60,7 +57,7 @@ public class StockQuantService {
 
     public List<StockQuantMoveRel> getHistoryById(Long quantId) {
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("quantId",quantId);
+        mapQuery.put("quantId", quantId);
         return relDao.getStockQuantMoveRelList(mapQuery);
     }
 
@@ -159,15 +156,27 @@ public class StockQuantService {
     public List<Long> getContainerIdByLocationId(Long locationId) {
         return stockQuantDao.getContainerIdByLocationId(locationId);
     }
-    public StockQuant getQuantBycontainerIdAndSkuId(Long containerId,Long skuId) {
+    public BigDecimal getQuantQtyByLocationIdAndSkuId(Long locationId,Long skuId) {
         Map queryMap=new HashMap();
-        queryMap.put("containerId",containerId);
+        queryMap.put("locationId",locationId);
         queryMap.put("skuId", skuId);
         List<StockQuant> stockQuants=stockQuantDao.getQuants(queryMap);
-        if (stockQuants==null ||stockQuants.size()==0){
-            return null;
+        BigDecimal qty=new BigDecimal(0L);
+        for (StockQuant quant:stockQuants){
+            qty.add(quant.getQty());
         }
-        return  stockQuants.get(0);
+        return qty;
+    }
+    public List<Long> getSupplierByLocationAndSkuId(Long locationId,Long skuId) {
+        Set<Long> suppliers=new HashSet<Long>();
+        Map<String,Object> queryMap =new HashMap<String, Object>();
+        queryMap.put("locationId",locationId);
+        queryMap.put("SkuId",skuId);
+        List<StockQuant> quants=stockQuantDao.getQuants(queryMap);
+        for(StockQuant quant:quants){
+            suppliers.add(quant.getSupplierId());
+        }
+        return new ArrayList<Long>(suppliers);
     }
 
     public Map<Long, BigDecimal> getSkuCount(Long skuId, List<Long> locationIdList, boolean isNormal) {
