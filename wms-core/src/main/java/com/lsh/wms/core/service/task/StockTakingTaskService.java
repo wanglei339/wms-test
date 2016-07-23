@@ -4,17 +4,22 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.StockTakingTaskDao;
+import com.lsh.wms.model.po.InbPoDetail;
 import com.lsh.wms.model.task.Operation;
 import com.lsh.wms.model.task.StockTakingTask;
 import com.lsh.wms.model.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mali on 16/7/22.
  */
+@Component
+@Transactional(readOnly = true)
 public class StockTakingTaskService extends BaseTaskService {
     @Autowired
     private StockTakingTaskDao stockTakingTaskDao;
@@ -68,5 +73,12 @@ public class StockTakingTaskService extends BaseTaskService {
         task.setStatus(TaskConstant.Cancel);
         this.update(task);
         super.cancel(taskId);
+    }
+
+    public List<StockTakingTask> getTakingTask(Map queryMap) {
+        return stockTakingTaskDao.getStockTakingTaskList(queryMap);
+    }
+    public Integer count(Map queryMap) {
+        return stockTakingTaskDao.countStockTakingTask(queryMap);
     }
 }
