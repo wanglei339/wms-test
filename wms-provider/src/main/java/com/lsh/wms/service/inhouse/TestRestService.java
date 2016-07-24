@@ -34,13 +34,18 @@ public class TestRestService implements ITestRestService {
 
     @POST
     @Path("init")
-    public String init(StockTakingTask stockTakingInfo) {
+    public String init(TaskInfo taskInfo) {
 
         TaskEntry taskEntry = new TaskEntry();
-        TaskInfo taskInfo = new TaskInfo();
         taskInfo.setType(TaskConstant.TYPE_STOCK_TAKING);
         taskInfo.setOperator(101L);
         taskEntry.setTaskInfo(taskInfo);
+
+        StockTakingTask taskHead = new StockTakingTask();
+        taskHead.setRound(8L);
+        taskHead.setTakingId(taskInfo.getPlanId());
+        taskEntry.setTaskHead(taskHead);
+
         iTaskRpcService.create(TaskConstant.TYPE_STOCK_TAKING, taskEntry);
 
         return JsonUtils.SUCCESS();
