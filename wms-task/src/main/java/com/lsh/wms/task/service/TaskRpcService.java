@@ -84,7 +84,7 @@ public class TaskRpcService implements ITaskRpcService {
 
     public List<TaskEntry> getTaskHeadList(Long taskType, Map<String, Object> mapQuery){
         TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
-        return taskHandler.getTaskList(mapQuery);
+        return taskHandler.getTaskHeadList(mapQuery);
     }
 
     public void done(Long taskId) throws BizCheckedException {

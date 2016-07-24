@@ -27,10 +27,10 @@ public class TaskRestService implements ITaskRestService {
     @POST
     @Path("getTaskList")
     public String getTaskList(Map<String, Object> mapQuery) {
-        if(mapQuery.get("taskType")==null){
+        if(mapQuery.get("type")==null){
             JsonUtils.EXCEPTION_ERROR();
         }
-        Long taskType = Long.valueOf(mapQuery.get("taskType").toString());
+        Long taskType = Long.valueOf(mapQuery.get("type").toString());
         List<TaskEntry> taskEntries = taskRpcService.getTaskList(taskType, mapQuery);
         return JsonUtils.SUCCESS(taskEntries);
     }
@@ -38,10 +38,10 @@ public class TaskRestService implements ITaskRestService {
     @POST
     @Path("getTaskCount")
     public String getTaskCount(Map<String, Object> mapQuery) {
-        if(mapQuery.get("taskType")==null){
+        if(mapQuery.get("type")==null){
             JsonUtils.EXCEPTION_ERROR();
         }
-        Long taskType =  Long.valueOf(mapQuery.get("taskType").toString());
+        Long taskType =  Long.valueOf(mapQuery.get("type").toString());
         int num = taskRpcService.getTaskCount(taskType, mapQuery);
         return JsonUtils.SUCCESS(num);
     }
@@ -49,10 +49,10 @@ public class TaskRestService implements ITaskRestService {
     @POST
     @Path("getTaskHeadList")
     public String getTaskHeadList(Map<String, Object> mapQuery) {
-        if(mapQuery.get("taskType")==null){
+        if(mapQuery.get("type")==null){
             JsonUtils.EXCEPTION_ERROR();
         }
-        Long taskType = Long.valueOf(mapQuery.get("taskType").toString());
+        Long taskType = Long.valueOf(mapQuery.get("type").toString());
         List<TaskEntry> taskEntries = taskRpcService.getTaskHeadList(taskType, mapQuery);
         return JsonUtils.SUCCESS(taskEntries);
     }
