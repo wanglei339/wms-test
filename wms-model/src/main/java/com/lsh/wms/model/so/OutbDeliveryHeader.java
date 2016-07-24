@@ -2,6 +2,7 @@ package com.lsh.wms.model.so;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 public class OutbDeliveryHeader implements Serializable {
 
@@ -37,6 +38,16 @@ public class OutbDeliveryHeader implements Serializable {
     private Date updatetime;
 
 	private String deliveryDetails;
+
+	List<OutbDeliveryDetail> outbDeliveryDetailLis;
+
+	public List<OutbDeliveryDetail> getOutbDeliveryDetailLis() {
+		return outbDeliveryDetailLis;
+	}
+
+	public void setOutbDeliveryDetailLis(List<OutbDeliveryDetail> outbDeliveryDetailLis) {
+		this.outbDeliveryDetailLis = outbDeliveryDetailLis;
+	}
 
 	public Long getId(){
 		return this.id;

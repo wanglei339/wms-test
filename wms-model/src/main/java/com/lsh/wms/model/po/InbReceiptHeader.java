@@ -2,6 +2,7 @@ package com.lsh.wms.model.po;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 public class InbReceiptHeader implements Serializable {
 
@@ -41,6 +42,16 @@ public class InbReceiptHeader implements Serializable {
     private Date updatetime;
 
 	private String receiptDetails;
+
+	List<InbReceiptDetail> inbReceiptDetailList;
+
+	public List<InbReceiptDetail> getInbReceiptDetailList() {
+		return inbReceiptDetailList;
+	}
+
+	public void setInbReceiptDetailList(List<InbReceiptDetail> inbReceiptDetailList) {
+		this.inbReceiptDetailList = inbReceiptDetailList;
+	}
 
 	public String getReceiptDetails() {
 		return receiptDetails;
