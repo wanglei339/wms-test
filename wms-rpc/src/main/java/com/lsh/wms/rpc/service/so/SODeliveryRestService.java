@@ -94,7 +94,7 @@ public class SODeliveryRestService implements IDeliveryRestService {
             List<OutbSoDetail> outbSoDetailList = soOrderService.getOutbSoDetailList(params);
 
             if(outbSoDetailList.size() <= 0) {
-                throw new BizCheckedException("2900002", "出库订单明细数据异常");
+//                throw new BizCheckedException("2900002", "出库订单明细数据异常");
             }
 
             //设置订货数
