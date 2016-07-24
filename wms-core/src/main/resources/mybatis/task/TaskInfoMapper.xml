@@ -2,73 +2,103 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.lsh.wms.core.dao.task.TaskInfoDao" >
 
-	<resultMap id="taskResultMap" type="TaskInfo">
+	<resultMap id="taskInfoResultMap" type="TaskInfo">
 		<id property="id" column="id"/>
 		<result property="taskId" column="task_id"/>
+		<result property="taskName" column="task_name"/>
 		<result property="planId" column="plan_id"/>
+		<result property="waveId" column="wave_id"/>
+		<result property="orderId" column="order_id"/>
 		<result property="locationId" column="location_id"/>
 		<result property="skuId" column="sku_id"/>
 		<result property="containerId" column="container_id"/>
+		<result property="operator" column="operator"/>
+		<result property="planner" column="planner"/>
 		<result property="type" column="type"/>
 		<result property="status" column="status"/>
 		<result property="priority" column="priority"/>
-		<result property="operator" column="operator"/>
 		<result property="draftTime" column="draft_time"/>
-		<result property="allocTime" column="alloc_time"/>
+		<result property="assignTime" column="assign_time"/>
 		<result property="dueTime" column="due_time"/>
 		<result property="finishTime" column="finish_time"/>
 		<result property="cancelTime" column="cancel_time"/>
+		<result property="ext1" column="ext1"/>
+		<result property="ext2" column="ext2"/>
+		<result property="ext3" column="ext3"/>
+		<result property="ext4" column="ext4"/>
+		<result property="ext5" column="ext5"/>
+		<result property="ext6" column="ext6"/>
+		<result property="ext7" column="ext7"/>
+		<result property="ext8" column="ext8"/>
+		<result property="ext9" column="ext9"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TaskInfo">
-		insert into TASK_INFO (
-			task_id,plan_id,location_id,sku_id,container_id,type,
-			status,priority,operator,draft_time,alloc_time,due_time,
-			finish_time,cancel_time,created_at,updated_at
+		insert into task_info (
+			task_id,task_name,plan_id,wave_id,order_id,location_id,
+			sku_id,container_id,operator,planner,type,status,
+			priority,draft_time,assign_time,due_time,finish_time,cancel_time,
+			ext1,ext2,ext3,ext4,ext5,ext6,
+			ext7,ext8,ext9,created_at,updated_at
     	) values (
-			#{taskId},#{planId},#{locationId},#{skuId},#{containerId},#{type},
-			#{status},#{priority},#{operator},#{draftTime},#{allocTime},#{dueTime},
-			#{finishTime},#{cancelTime},#{createdAt},#{updatedAt}
+			#{taskId},#{taskName},#{planId},#{waveId},#{orderId},#{locationId},
+			#{skuId},#{containerId},#{operator},#{planner},#{type},#{status},
+			#{priority},#{draftTime},#{assignTime},#{dueTime},#{finishTime},#{cancelTime},
+			#{ext1},#{ext2},#{ext3},#{ext4},#{ext5},#{ext6},
+			#{ext7},#{ext8},#{ext9},#{createdAt},#{updatedAt}
     	)
 	</insert>
 
 	<update id="update" parameterType="TaskInfo">
-		update TASK_INFO
+		update task_info
     	<set>
   			<if test="taskId != null">task_id=#{taskId},</if>
+  			<if test="taskName != null">task_name=#{taskName},</if>
   			<if test="planId != null">plan_id=#{planId},</if>
+  			<if test="waveId != null">wave_id=#{waveId},</if>
+  			<if test="orderId != null">order_id=#{orderId},</if>
   			<if test="locationId != null">location_id=#{locationId},</if>
   			<if test="skuId != null">sku_id=#{skuId},</if>
   			<if test="containerId != null">container_id=#{containerId},</if>
+  			<if test="operator != null">operator=#{operator},</if>
+  			<if test="planner != null">planner=#{planner},</if>
   			<if test="type != null">type=#{type},</if>
   			<if test="status != null">status=#{status},</if>
   			<if test="priority != null">priority=#{priority},</if>
-  			<if test="operator != null">operator=#{operator},</if>
   			<if test="draftTime != null">draft_time=#{draftTime},</if>
-  			<if test="allocTime != null">alloc_time=#{allocTime},</if>
+  			<if test="assignTime != null">assign_time=#{assignTime},</if>
   			<if test="dueTime != null">due_time=#{dueTime},</if>
   			<if test="finishTime != null">finish_time=#{finishTime},</if>
   			<if test="cancelTime != null">cancel_time=#{cancelTime},</if>
+  			<if test="ext1 != null">ext1=#{ext1},</if>
+  			<if test="ext2 != null">ext2=#{ext2},</if>
+  			<if test="ext3 != null">ext3=#{ext3},</if>
+  			<if test="ext4 != null">ext4=#{ext4},</if>
+  			<if test="ext5 != null">ext5=#{ext5},</if>
+  			<if test="ext6 != null">ext6=#{ext6},</if>
+  			<if test="ext7 != null">ext7=#{ext7},</if>
+  			<if test="ext8 != null">ext8=#{ext8},</if>
+  			<if test="ext9 != null">ext9=#{ext9},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
 		where id=#{id}
 	</update>
   
-	<select id="getTaskById" parameterType="int" resultMap="taskResultMap">
-		select * from TASK_INFO
+	<select id="getTaskInfoById" parameterType="int" resultMap="taskInfoResultMap">
+		select * from task_info
 		where ID=#{id} 
 	</select>
   
-	<select id="countTask" parameterType="map" resultType="int">
-		select count(*) from TASK_INFO
+	<select id="countTaskInfo" parameterType="map" resultType="int">
+		select count(*) from task_info
 		<include refid="queryCondition"/>
 	</select>
   
-	<select id="getTaskList" parameterType="map" resultMap="taskResultMap">
-		select * from TASK_INFO
+	<select id="getTaskInfoList" parameterType="map" resultMap="taskInfoResultMap">
+		select * from task_info
 		<include refid="queryCondition"/>
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
@@ -79,19 +109,32 @@
 		<where>
 			<if test="id != null">id=#{id}</if>
 			<if test="taskId != null">and task_id=#{taskId}</if>
+			<if test="taskName != null">and task_name=#{taskName}</if>
 			<if test="planId != null">and plan_id=#{planId}</if>
+			<if test="waveId != null">and wave_id=#{waveId}</if>
+			<if test="orderId != null">and order_id=#{orderId}</if>
 			<if test="locationId != null">and location_id=#{locationId}</if>
 			<if test="skuId != null">and sku_id=#{skuId}</if>
 			<if test="containerId != null">and container_id=#{containerId}</if>
+			<if test="operator != null">and operator=#{operator}</if>
+			<if test="planner != null">and planner=#{planner}</if>
 			<if test="type != null">and type=#{type}</if>
 			<if test="status != null">and status=#{status}</if>
 			<if test="priority != null">and priority=#{priority}</if>
-			<if test="operator != null">and operator=#{operator}</if>
 			<if test="draftTime != null">and draft_time=#{draftTime}</if>
-			<if test="allocTime != null">and alloc_time=#{allocTime}</if>
+			<if test="assignTime != null">and assign_time=#{assignTime}</if>
 			<if test="dueTime != null">and due_time=#{dueTime}</if>
 			<if test="finishTime != null">and finish_time=#{finishTime}</if>
 			<if test="cancelTime != null">and cancel_time=#{cancelTime}</if>
+			<if test="ext1 != null">and ext1=#{ext1}</if>
+			<if test="ext2 != null">and ext2=#{ext2}</if>
+			<if test="ext3 != null">and ext3=#{ext3}</if>
+			<if test="ext4 != null">and ext4=#{ext4}</if>
+			<if test="ext5 != null">and ext5=#{ext5}</if>
+			<if test="ext6 != null">and ext6=#{ext6}</if>
+			<if test="ext7 != null">and ext7=#{ext7}</if>
+			<if test="ext8 != null">and ext8=#{ext8}</if>
+			<if test="ext9 != null">and ext9=#{ext9}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 		</where>
