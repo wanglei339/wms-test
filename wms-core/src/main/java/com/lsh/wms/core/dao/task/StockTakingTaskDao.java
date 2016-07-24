@@ -13,7 +13,7 @@ public interface StockTakingTaskDao {
 	
 	void update(StockTakingTask stockTakingTask);
 	
-	StockTakingTask getStockTakingTaskById(Long id);
+	StockTakingTask getStockTakingTaskById(Long taskId);
 
     Integer countStockTakingTask(Map<String, Object> params);
 

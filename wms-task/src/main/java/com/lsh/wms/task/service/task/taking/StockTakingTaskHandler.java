@@ -29,6 +29,7 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
 
     protected void createConcrete(TaskEntry taskEntry) {
         StockTakingTask task = (StockTakingTask) taskEntry.getTaskHead();
+        task.setTaskId(taskEntry.getTaskInfo().getTaskId());
         stockTakingTaskService.create(task);
     }
 

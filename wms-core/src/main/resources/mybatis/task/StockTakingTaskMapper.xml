@@ -6,25 +6,16 @@
 		<id property="id" column="id"/>
 		<result property="taskId" column="task_id"/>
 		<result property="takingId" column="taking_id"/>
-		<result property="planner" column="planner"/>
-		<result property="operator" column="operator"/>
 		<result property="round" column="round"/>
-		<result property="draftTime" column="draft_time"/>
-		<result property="dueTime" column="due_time"/>
-		<result property="doneTime" column="done_time"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
-		<result property="locationId" column="location_id"/>
-		<result property="skuId" column="sku_id"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockTakingTask">
 		insert into stock_taking_task (
-			task_id,taking_id,planner,operator,round,draft_time,
-			due_time,done_time,created_at,updated_at,location_id,sku_id
+			task_id,taking_id,round,created_at,updated_at
     	) values (
-			#{taskId},#{takingId},#{planner},#{operator},#{round},#{draftTime},
-			#{dueTime},#{doneTime},#{createdAt},#{updatedAt},#{locationId},#{skuId}
+			#{taskId},#{takingId},#{round},#{createdAt},#{updatedAt}
     	)
 	</insert>
 
@@ -33,23 +24,16 @@
     	<set>
   			<if test="taskId != null">task_id=#{taskId},</if>
   			<if test="takingId != null">taking_id=#{takingId},</if>
-  			<if test="planner != null">planner=#{planner},</if>
-  			<if test="operator != null">operator=#{operator},</if>
   			<if test="round != null">round=#{round},</if>
-  			<if test="draftTime != null">draft_time=#{draftTime},</if>
-  			<if test="dueTime != null">due_time=#{dueTime},</if>
-  			<if test="doneTime != null">done_time=#{doneTime},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
-			<if test="locationId !=null">location_id=#{locationId}</if>
-			<if test="skuId !=null">sku_id=#{skuId}</if>
 		</set>
 		where id=#{id}
 	</update>
   
-	<select id="getStockTakingTaskById" parameterType="int" resultMap="stockTakingTaskResultMap">
+	<select id="getStockTakingTaskById" parameterType="Long" resultMap="stockTakingTaskResultMap">
 		select * from stock_taking_task
-		where ID=#{id} 
+		where task_id=#{taskId}
 	</select>
   
 	<select id="countStockTakingTask" parameterType="map" resultType="int">
@@ -70,16 +54,9 @@
 			<if test="id != null">id=#{id}</if>
 			<if test="taskId != null">and task_id=#{taskId}</if>
 			<if test="takingId != null">and taking_id=#{takingId}</if>
-			<if test="planner != null">and planner=#{planner}</if>
-			<if test="operator != null">and operator=#{operator}</if>
 			<if test="round != null">and round=#{round}</if>
-			<if test="draftTime != null">and draft_time=#{draftTime}</if>
-			<if test="dueTime != null">and due_time=#{dueTime}</if>
-			<if test="doneTime != null">and done_time=#{doneTime}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
-			<if test="locationId !=null">location_id=#{locationId}</if>
-			<if test="skuId !=null">sku_id=#{skuId}</if>
 		</where>
 	</sql>
    
