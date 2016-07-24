@@ -182,7 +182,7 @@ public class SoOrderService {
 
         List<OutbSoDetail> outbSoDetailList = getOutbSoDetailListByOrderId(outbSoHeader.getOrderId());
 
-        outbSoHeader.setOrderDetails(JsonUtils.obj2Json(outbSoDetailList));
+        outbSoHeader.setOrderDetails(outbSoDetailList);
     }
 
     /**

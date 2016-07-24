@@ -52,8 +52,8 @@ public class SODeliveryRestService implements IDeliveryRestService {
     @Path("init")
     public String init(String soDeliveryInfo) {
         OutbDeliveryHeader outbDeliveryHeader = JSON.parseObject(soDeliveryInfo,OutbDeliveryHeader.class);
-        //List<OutbDeliveryDetail> outbDeliveryDetailList = JSON.parseArray(outbDeliveryHeader.getDeliveryDetails(),OutbDeliveryDetail.class);
-        //soDeliveryService.insert(outbDeliveryHeader,outbDeliveryDetailList);
+        List<OutbDeliveryDetail> outbDeliveryDetailList = JSON.parseArray((String) outbDeliveryHeader.getDeliveryDetails(),OutbDeliveryDetail.class);
+        soDeliveryService.insert(outbDeliveryHeader,outbDeliveryDetailList);
         return JsonUtils.SUCCESS();
     }
 
@@ -131,7 +131,7 @@ public class SODeliveryRestService implements IDeliveryRestService {
 
     @GET
     @Path("getOutbDeliveryHeaderDetailByDeliveryId")
-    public String getOutbDeliveryHeaderDetailByDeliveryId(@QueryParam("orderId") Long deliveryId) {
+    public String getOutbDeliveryHeaderDetailByDeliveryId(@QueryParam("deliveryId") Long deliveryId) {
         OutbDeliveryHeader outbDeliveryHeader = soDeliveryService.getOutbDeliveryHeaderByDeliveryId(deliveryId);
 
         soDeliveryService.fillDetailToHeader(outbDeliveryHeader);
