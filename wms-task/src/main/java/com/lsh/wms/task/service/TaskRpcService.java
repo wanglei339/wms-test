@@ -43,7 +43,7 @@ public class TaskRpcService implements ITaskRpcService {
         return idList;
     }
 
-    private Long getTaskTypeById(Long taskId) throws BizCheckedException{
+    public Long getTaskTypeById(Long taskId) throws BizCheckedException{
         Long taskType = baseTaskService.getTaskTypeById(taskId);
         if(taskType == -1){
             throw new BizCheckedException("2000001");
@@ -52,11 +52,13 @@ public class TaskRpcService implements ITaskRpcService {
         }
     }
 
+
     public TaskEntry getTaskEntryById(Long taskId) throws BizCheckedException{
         Long taskType = this.getTaskTypeById(taskId);
         TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
         return taskHandler.getTask(taskId);
     }
+
 
     public void assign(Long taskId, Long staffId) throws BizCheckedException{
         Long taskType = this.getTaskTypeById(taskId);

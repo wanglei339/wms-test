@@ -30,7 +30,7 @@ public class TaskRestService implements ITaskRestService {
         if(mapQuery.get("taskType")==null){
             JsonUtils.EXCEPTION_ERROR();
         }
-        Long taskType = (Long) mapQuery.get("taskType");
+        Long taskType = Long.valueOf(mapQuery.get("taskType").toString());
         List<TaskEntry> taskEntries = taskRpcService.getTaskList(taskType, mapQuery);
         return JsonUtils.SUCCESS(taskEntries);
     }
@@ -41,7 +41,7 @@ public class TaskRestService implements ITaskRestService {
         if(mapQuery.get("taskType")==null){
             JsonUtils.EXCEPTION_ERROR();
         }
-        Long taskType = (Long) mapQuery.get("taskType");
+        Long taskType =  Long.valueOf(mapQuery.get("taskType").toString());
         int num = taskRpcService.getTaskCount(taskType, mapQuery);
         return JsonUtils.SUCCESS(num);
     }
