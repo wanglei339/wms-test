@@ -16,6 +16,7 @@ import java.util.List;
 /**
  * Created by zengwenjun on 16/7/23.
  */
+
 public class PickTaskHandler extends AbsTaskHandler {
     @Autowired
     private TaskHandlerFactory handlerFactory;

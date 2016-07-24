@@ -27,7 +27,7 @@ public  class  AbsTaskHandler implements TaskHandler {
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         taskInfo.setTaskId(taskId);
         baseTaskService.create(taskInfo);
-        this.createConcrete(taskEntry);
+        //this.createConcrete(taskEntry);
     }
 
     @Transactional (readOnly = false)
