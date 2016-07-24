@@ -33,4 +33,5 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
         stockTakingTaskService.create(task);
     }
 
+
 }

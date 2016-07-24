@@ -46,6 +46,17 @@ public class TaskRestService implements ITaskRestService {
         return JsonUtils.SUCCESS(num);
     }
 
+    @POST
+    @Path("getTaskHeadList")
+    public String getTaskHeadList(Map<String, Object> mapQuery) {
+        if(mapQuery.get("taskType")==null){
+            JsonUtils.EXCEPTION_ERROR();
+        }
+        Long taskType = Long.valueOf(mapQuery.get("taskType").toString());
+        List<TaskEntry> taskEntries = taskRpcService.getTaskHeadList(taskType, mapQuery);
+        return JsonUtils.SUCCESS(taskEntries);
+    }
+
     @GET
     @Path("getTask")
     public String getTask(@QueryParam("taskId") long taskId) throws BizCheckedException{

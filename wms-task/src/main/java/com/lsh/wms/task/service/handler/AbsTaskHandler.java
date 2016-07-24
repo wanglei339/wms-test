@@ -60,12 +60,30 @@ public  class  AbsTaskHandler implements TaskHandler {
         return taskEntryList;
     }
 
+    public List<TaskEntry> getTaskHeadList(Map<String, Object> condition) {
+        List<TaskInfo> taskInfoList = baseTaskService.getTaskInfoList(condition);
+        List<TaskEntry> taskEntryList = new ArrayList<TaskEntry>();
+        for (TaskInfo taskInfo : taskInfoList) {
+            TaskEntry taskEntry = new TaskEntry();
+            taskEntry.setTaskInfo(taskInfo);
+            this.getHeadConcrete(taskEntry);
+            taskEntryList.add(taskEntry);
+        }
+        return taskEntryList;
+    }
+
+
     public int getTaskCount(Map<String, Object> condition) {
         return baseTaskService.getTaskInfoCount(condition);
     }
 
     protected void getConcrete(TaskEntry taskEntry) {
     }
+
+    protected void getHeadConcrete(TaskEntry taskEntry) {
+
+    }
+
 
     public void assign(Long taskId, Long staffId) {
         baseTaskService.assign(taskId, staffId);

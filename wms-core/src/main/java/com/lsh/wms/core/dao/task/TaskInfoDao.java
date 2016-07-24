@@ -15,8 +15,8 @@ public interface TaskInfoDao {
 	
 	TaskInfo getTaskInfoById(Long taskId);
 
-    Integer countTask(Map<String, Object> params);
+    Integer countTaskInfo(Map<String, Object> params);
 
-    List<TaskInfo> getTaskList(Map<String, Object> params);
+    List<TaskInfo> getTaskInfoList(Map<String, Object> params);
 	
 }

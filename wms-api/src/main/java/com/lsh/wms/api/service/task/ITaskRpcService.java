@@ -18,5 +18,6 @@ public interface ITaskRpcService {
     void cancel(Long taskId) throws BizCheckedException;
     List<TaskEntry> getTaskList(Long taskType, Map<String, Object> mapQuery);
     int getTaskCount(Long taskType, Map<String, Object> mapQuery);
+    List<TaskEntry> getTaskHeadList(Long taskType, Map<String, Object> mapQuery);
     void done(Long taskId) throws BizCheckedException;
 }

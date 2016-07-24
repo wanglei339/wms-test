@@ -33,11 +33,11 @@ public class BaseTaskService {
     }
 
     public List<TaskInfo> getTaskInfoList(Map<String, Object> mapQuery) {
-        return taskInfoDao.getTaskList(mapQuery);
+        return taskInfoDao.getTaskInfoList(mapQuery);
     }
 
     public int getTaskInfoCount(Map<String, Object> mapQuery) {
-        return taskInfoDao.countTask(mapQuery);
+        return taskInfoDao.countTaskInfo(mapQuery);
     }
 
     public Long getTaskTypeById(Long taskId) {
