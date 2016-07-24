@@ -7,33 +7,33 @@ public class TaskInfo implements Serializable {
 	/**  */
     private Long id;
 	/** 任务id */
-    private Long taskId;
+    private Long taskId = 0L;
 	/** 计划id */
-    private Long planId;
+    private Long planId = 0L ;
 	/** 当前LocationId, 分配查找使用 */
-    private Long locationId;
+    private Long locationId = 0L;
 	/** 商品id，分配查找用 */
-    private Long skuId;
+    private Long skuId = 0L;
 	/** 容器id，分配查找用 */
-    private Long containerId;
+    private Long containerId = 0L;
 	/** 任务类型，100-盘点， 101-拣货，102-上架，103-移库，104-补货, 105-QC */
-    private Long type;
+    private Long type = 0L;
 	/** 任务状态，1-draft, 2-waiting, 3-assigned, 4-allocated, 5-done, 6-cancel */
-    private Long status;
+    private Long status = 0L;
 	/** 优先级 */
-    private Long priority;
+    private Long priority = 0L;
 	/** 操作人员id */
-    private Long operator;
+    private Long operator = 0L;
 	/** 创建时间 */
-    private Long draftTime;
+    private Long draftTime = 0L;
 	/** 分配时间 */
-    private Long allocTime;
+    private Long allocTime = 0L;
 	/** 最晚完成时间 */
-    private Long dueTime;
+    private Long dueTime = 0L;
 	/** 实际完成时间 */
-    private Long finishTime;
+    private Long finishTime = 0L;
 	/** 取消时间 */
-    private Long cancelTime;
+    private Long cancelTime = 0L;
 	/**  */
     private Long createdAt;
 	/**  */
