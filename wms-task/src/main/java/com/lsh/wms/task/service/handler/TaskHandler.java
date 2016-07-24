@@ -14,6 +14,7 @@ public interface TaskHandler {
     void batchCreate(List<TaskEntry> taskEntries);
     TaskEntry getTask(Long taskId);
     List<TaskEntry> getTaskList(Map<String, Object> condition);
+    int getTaskCount(Map<String, Object> condition);
     void assign(Long taskId, Long staffId);
     void allocate(Long taskId);
     void release(Long taskId);

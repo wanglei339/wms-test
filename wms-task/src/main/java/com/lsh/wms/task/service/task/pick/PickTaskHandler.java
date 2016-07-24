@@ -9,6 +9,7 @@ import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.task.service.handler.AbsTaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -16,11 +17,12 @@ import java.util.List;
 /**
  * Created by zengwenjun on 16/7/23.
  */
+@Component
 public class PickTaskHandler extends AbsTaskHandler {
     @Autowired
     private TaskHandlerFactory handlerFactory;
     @Autowired
-    private PickTaskService taskService;
+    private PickTaskService pickTaskService;
 
     @PostConstruct
     public void postConstruct() {
@@ -28,7 +30,12 @@ public class PickTaskHandler extends AbsTaskHandler {
     }
 
     protected void createConcrete(TaskEntry taskEntry) {
-        taskService.createPickTask((PickTaskHead)taskEntry.getTaskHead(),
-                (List<PickTaskDetail>)(List<?>)taskEntry.getTaskDetailList());
+        PickTaskHead head = (PickTaskHead)taskEntry.getTaskHead();
+        head.setPickTaskId(taskEntry.getTaskInfo().getTaskId());
+        List<PickTaskDetail> details = (List<PickTaskDetail>)(List<?>)taskEntry.getTaskDetailList();
+        for(PickTaskDetail detail : details){
+            detail.setPickTaskId(taskEntry.getTaskInfo().getTaskId());
+        }
+        pickTaskService.createPickTask(head, details);
     }
 }

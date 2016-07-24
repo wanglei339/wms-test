@@ -60,6 +60,10 @@ public  class  AbsTaskHandler implements TaskHandler {
         return taskEntryList;
     }
 
+    public int getTaskCount(Map<String, Object> condition) {
+        return baseTaskService.getTaskInfoCount(condition);
+    }
+
     protected void getConcrete(TaskEntry taskEntry) {
     }
 
