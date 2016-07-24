@@ -16,12 +16,15 @@ import java.util.Map;
  * desc:类功能描述
  */
 public interface IReceiptRestService {
+
     public String init(String poReceiptInfo);
 
     public BaseResponse insertOrder(ReceiptRequest request) throws BizCheckedException;
 
     /* 投单接口 */
     public String throwOrder(String orderOtherId) throws BizCheckedException;
+
+    public String updateReceiptStatusByReceiptId() throws BizCheckedException;
 
     public String getPoReceiptDetailByReceiptId(Long receiptId);
 

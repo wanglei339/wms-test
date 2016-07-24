@@ -50,7 +50,7 @@ public class PoOrderService {
      * @param inbPoHeader
      */
     @Transactional(readOnly = false)
-    public void editInbPoHeader(InbPoHeader inbPoHeader){
+    public void updateInbPoHeader(InbPoHeader inbPoHeader){
         inbPoHeader.setUpdatetime(new Date());
 
         inbPoHeaderDao.update(inbPoHeader);
@@ -61,9 +61,10 @@ public class PoOrderService {
      * @param inbPoHeader
      */
     @Transactional(readOnly = false)
-    public void updateByOrderOtherId(InbPoHeader inbPoHeader){
+    public void updateInbPoHeaderByOrderOtherId(InbPoHeader inbPoHeader){
         inbPoHeader.setUpdatetime(new Date());
-        inbPoHeaderDao.update(inbPoHeader);
+
+        inbPoHeaderDao.updateByOrderOtherId(inbPoHeader);
     }
 
     /**
@@ -71,7 +72,7 @@ public class PoOrderService {
      * @param inbPoHeader
      */
     @Transactional(readOnly =  false)
-    public void editInbPoHeaderByOrderId(InbPoHeader inbPoHeader) {
+    public void updateInbPoHeaderByOrderId(InbPoHeader inbPoHeader) {
         inbPoHeader.setUpdatetime(new Date());
 
         inbPoHeaderDao.updateByOrderId(inbPoHeader);
@@ -108,7 +109,8 @@ public class PoOrderService {
      * 根据ID编辑InbPoDetail
      * @param inbPoDetail
      */
-    public void editInbPoDetail(InbPoDetail inbPoDetail) {
+    @Transactional(readOnly = false)
+    public void updateInbPoDetail(InbPoDetail inbPoDetail) {
         inbPoDetailDao.update(inbPoDetail);
     }
 
@@ -118,7 +120,8 @@ public class PoOrderService {
      * @param orderId
      * @param skuId
      */
-    public void editInbPoDetailInboundQtyByOrderIdAndSkuId(Long inboundQty, Long orderId, Long skuId) {
+    @Transactional(readOnly = false)
+    public void updateInbPoDetailInboundQtyByOrderIdAndSkuId(Long inboundQty, Long orderId, Long skuId) {
         inbPoDetailDao.updateInboundQtyByOrderIdAndSkuId(inboundQty, orderId, skuId);
     }
 
@@ -251,7 +254,7 @@ public class PoOrderService {
 
         List<InbPoDetail> inbPoDetailList = getInbPoDetailListByOrderId(inbPoHeader.getOrderId());
 
-        inbPoHeader.setOrderDetails(JsonUtils.obj2Json(inbPoDetailList));
+        inbPoHeader.setOrderDetails(inbPoDetailList);
     }
 
 }

@@ -1,5 +1,7 @@
 package com.lsh.wms.api.service.po;
 
+import com.lsh.base.common.exception.BizCheckedException;
+
 import java.util.Map;
 
 /**
@@ -12,6 +14,10 @@ import java.util.Map;
  * desc:类功能描述
  */
 public interface IPoOrderRestService {
+
+    public String updateOrderStatusByOrderOtherId() throws BizCheckedException;
+
+    public String updateOrderStatusByOrderId() throws BizCheckedException;
 
     public String getPoHeaderList();
 

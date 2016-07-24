@@ -19,7 +19,6 @@ import java.util.*;
  */
 @Component
 @Transactional(readOnly = true)
-
 public class StockTakingService {
     private static final Logger logger = LoggerFactory.getLogger(StockTakingDetail.class);
 

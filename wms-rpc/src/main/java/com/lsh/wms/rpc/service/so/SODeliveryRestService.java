@@ -1,5 +1,6 @@
 package com.lsh.wms.rpc.service.so;
 
+import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
@@ -51,8 +52,8 @@ public class SODeliveryRestService implements IDeliveryRestService {
     @Path("init")
     public String init(String soDeliveryInfo) {
         OutbDeliveryHeader outbDeliveryHeader = JSON.parseObject(soDeliveryInfo,OutbDeliveryHeader.class);
-        //List<OutbDeliveryDetail> outbDeliveryDetailList = JSON.parseArray(outbDeliveryHeader.getDeliveryDetails(),OutbDeliveryDetail.class);
-        //soDeliveryService.insert(outbDeliveryHeader,outbDeliveryDetailList);
+        List<OutbDeliveryDetail> outbDeliveryDetailList = JSON.parseArray((String) outbDeliveryHeader.getDeliveryDetails(),OutbDeliveryDetail.class);
+        soDeliveryService.insert(outbDeliveryHeader,outbDeliveryDetailList);
         return JsonUtils.SUCCESS();
     }
 
@@ -110,9 +111,27 @@ public class SODeliveryRestService implements IDeliveryRestService {
 
     }
 
+//    @POST
+//    @Path("updateDeliveryTypeByOrderOtherId")
+//    public String updateDeliveryTypeByOrderOtherId() throws BizCheckedException {
+//        Map<String, Object> map = RequestUtils.getRequest();
+//
+//        if(StringUtils.isBlank((String) map.get("deliveryId")) || StringUtils.isBlank((String) map.get("deliveryType"))) {
+//            throw new BizCheckedException("1040001", "参数不能为空");
+//        }
+//
+//        OutbDeliveryHeader outbDeliveryHeader = new OutbDeliveryHeader();
+//        outbDeliveryHeader.setDeliveryId((Long) map.get("deliveryId"));
+//        outbDeliveryHeader.setDeliveryType((Integer) map.get("deliveryType"));
+//
+//        soDeliveryService.updateOutbDeliveryHeaderByDeliveryId(outbDeliveryHeader);
+//
+//        return JsonUtils.SUCCESS();
+//    }
+
     @GET
     @Path("getOutbDeliveryHeaderDetailByDeliveryId")
-    public String getOutbDeliveryHeaderDetailByDeliveryId(@QueryParam("orderId") Long deliveryId) {
+    public String getOutbDeliveryHeaderDetailByDeliveryId(@QueryParam("deliveryId") Long deliveryId) {
         OutbDeliveryHeader outbDeliveryHeader = soDeliveryService.getOutbDeliveryHeaderByDeliveryId(deliveryId);
 
         soDeliveryService.fillDetailToHeader(outbDeliveryHeader);

@@ -1,8 +1,15 @@
 package com.lsh.wms.api.service.task;
 
+import com.lsh.base.common.exception.BizCheckedException;
+
+import java.util.Map;
+
 /**
- * Created by mali on 16/7/20.
+ * Created by zengwenjun on 16/7/24.
  */
 public interface ITaskRestService {
-    String create(Long TaskType, String msg);
+    String getTaskList(Map<String, Object> mapQuery);
+    String getTaskCount(Map<String, Object> mapQuery);
+    String getTask(long taskId) throws BizCheckedException;
+    String getTaskMove(long taskId) throws BizCheckedException;
 }
