@@ -1,9 +1,11 @@
-package com.lsh.wms.rpc.service.pick.wave;
+package com.lsh.wms.service.pick.wave;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
-import com.lsh.wms.core.constant.WaveConstant;
+import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.pick.*;
 import com.lsh.wms.core.service.so.SoOrderService;
@@ -11,15 +13,15 @@ import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.pick.*;
 import com.lsh.wms.model.so.OutbSoDetail;
 import com.lsh.wms.model.so.OutbSoHeader;
-import com.lsh.wms.rpc.service.pick.wave.split.SplitModel;
-import com.lsh.wms.rpc.service.pick.wave.split.SplitNode;
+import com.lsh.wms.model.task.TaskEntry;
+import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.service.pick.wave.split.SplitModel;
+import com.lsh.wms.service.pick.wave.split.SplitNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 
 import java.util.*;
@@ -45,6 +47,8 @@ public class WaveCore {
     SoOrderService orderService;
     @Autowired
     ItemService itemService;
+    @Reference
+    private ITaskRpcService iTaskRpcService;
 
     public int release(long iWaveId) throws BizCheckedException{
         //获取波次信息
@@ -158,6 +162,7 @@ public class WaveCore {
         //执行捡货模型,输出最小捡货单元
         List<PickTaskHead> taskHeads = new LinkedList<PickTaskHead>();
         List<PickTaskDetail> taskDetails = new LinkedList<PickTaskDetail>();
+        List<TaskEntry> entryList = new LinkedList<TaskEntry>();
         for(int zidx = 0; zidx < zoneList.size(); ++zidx){
             PickZone zone = zoneList.get(zidx);
             List<SplitNode> splitNodes = new LinkedList<SplitNode>();
@@ -185,7 +190,7 @@ public class WaveCore {
             for(String modelName : splitModelNames){
                 SplitModel splitModel = null;
                 try {
-                    splitModel = (SplitModel) Class.forName("com.lsh.wms.rpc.service.pick.wave.split."+modelName).newInstance();
+                    splitModel = (SplitModel) Class.forName("com.lsh.wms.service.pick.wave.split."+modelName).newInstance();
                 } catch (Exception e){
                     logger.error("class init fail "+modelName);
                     return -1;
@@ -204,6 +209,10 @@ public class WaveCore {
             long [] bestCutPlan = this.getBestCutPlan(stopNodes.size(), iContainerTake);
             int iChooseIdx = 0;
             for(int i = 0; i < bestCutPlan.length; ++i){
+                TaskEntry entry = new TaskEntry();
+                TaskInfo info = new TaskInfo();
+                List<Object> pickTaskDetails = new LinkedList<Object>();
+                info.setType(TaskConstant.TYPE_PICK);
                 PickTaskHead head = new PickTaskHead();
                 head.setWaveId(iWaveId);
                 head.setPickTaskId(RandomUtils.genId());
@@ -215,13 +224,23 @@ public class WaveCore {
                         detail.setPickTaskId(head.getPickTaskId());
                         detail.setPickZoneId(BigDecimal.valueOf(zone.getPickZoneId()));
                         taskDetails.add(detail);
+                        pickTaskDetails.add(detail);
                     }
                 }
                 iChooseIdx += bestCutPlan[i];
                 taskHeads.add(head);
+                entry.setTaskInfo(info);
+                entry.setTaskHead(head);
+                entry.setTaskDetailList(pickTaskDetails);
+                entryList.add(entry);
             }
         }
-        waveService.storePickTask(iWaveId, taskHeads, taskDetails);
+
+        //iTaskRpcService.batchCreate(entryList);
+        //TaskEntry entry = new TaskEntry();
+        //entry.set
+        //iTaskRpcService.create(TaskConstant.TYPE_PICK, entry);
+        //waveService.storePickTask(iWaveId, taskHeads, taskDetails);
         return 0;
     }
 

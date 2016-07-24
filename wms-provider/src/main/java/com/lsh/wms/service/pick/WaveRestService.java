@@ -1,7 +1,6 @@
-package com.lsh.wms.rpc.service.pick;
+package com.lsh.wms.service.pick;
 
 import com.alibaba.dubbo.config.annotation.Service;
-import com.alibaba.dubbo.remoting.ExecutionException;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
@@ -14,7 +13,7 @@ import com.lsh.wms.core.service.pick.PickWaveService;
 import com.lsh.wms.core.service.pick.PickZoneService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.pick.*;
-import com.lsh.wms.rpc.service.pick.wave.WaveCore;
+import com.lsh.wms.service.pick.wave.WaveCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

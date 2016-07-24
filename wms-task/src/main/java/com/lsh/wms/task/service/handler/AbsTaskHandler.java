@@ -30,6 +30,13 @@ public  class  AbsTaskHandler implements TaskHandler {
         this.createConcrete(taskEntry);
     }
 
+    @Transactional (readOnly = false)
+    public void batchCreate(List<TaskEntry> taskEntries) {
+        for(TaskEntry entry : taskEntries){
+            this.create(entry);
+        }
+    }
+
     protected void createConcrete(TaskEntry taskEntry) {
     }
 

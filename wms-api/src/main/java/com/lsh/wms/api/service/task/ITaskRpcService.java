@@ -9,4 +9,5 @@ import java.util.List;
  */
 public interface ITaskRpcService {
     Long create(Long taskType, TaskEntry taskEntry);
+    List<Long> batchCreate(Long taskType, List<TaskEntry> taskEntries);
 }

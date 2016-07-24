@@ -1,8 +1,8 @@
-package com.lsh.wms.rpc.service.pick.wave.split;
+package com.lsh.wms.service.pick.wave.split;
 
 import com.lsh.wms.model.pick.PickTaskDetail;
-import java.math.BigDecimal;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,10 +10,10 @@ import java.util.Map;
 /**
  * Created by zengwenjun on 16/7/15.
  */
-public class SplitModelBigItem extends SplitModelItem{
+public class SplitModelSmallItem extends SplitModelItem{
     @Override
     public void split(List<SplitNode> stopNodes) {
-        if(this.model.getFpmrBigItemThreshold()<0){
+        if(this.model.getFpmrSmallItemThreshold()<0){
             this.skipSplit();
             return;
         }
@@ -27,7 +27,7 @@ public class SplitModelBigItem extends SplitModelItem{
             Map<Long, SplitNode> mapNewStop = new HashMap<Long, SplitNode>();
             SplitNode newNode = new SplitNode();
             for(PickTaskDetail detail : node.details){
-                if(mapQty.get(detail.getSkuId()).compareTo(BigDecimal.valueOf(this.model.getFpmrBigItemThreshold()))>0){
+                if(mapQty.get(detail.getSkuId()).compareTo(BigDecimal.valueOf(this.model.getFpmrSmallItemThreshold()))>0){
                     if(mapNewStop.get(detail.getSkuId())==null){
                         mapNewStop.put(detail.getSkuId(), new SplitNode());
                     }
