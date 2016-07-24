@@ -89,7 +89,7 @@
   
 	<select id="getTaskInfoById" parameterType="int" resultMap="taskInfoResultMap">
 		select * from task_info
-		where ID=#{id} 
+		where task_id=#{taskId}
 	</select>
   
 	<select id="countTaskInfo" parameterType="map" resultType="int">
