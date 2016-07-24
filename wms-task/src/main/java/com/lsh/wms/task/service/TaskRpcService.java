@@ -65,6 +65,11 @@ public class TaskRpcService implements ITaskRpcService {
         return taskHandler.getTaskList(mapQuery);
     }
 
+    public int getTaskCount(Long taskType, Map<String, Object> mapQuery){
+        TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
+        return taskHandler.getTaskCount(mapQuery);
+    }
+
     public void done(Long taskId) {
         Long taskType = baseTaskService.getTaskTypeById(taskId);
         TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
