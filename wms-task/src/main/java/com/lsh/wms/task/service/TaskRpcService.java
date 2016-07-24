@@ -1,6 +1,7 @@
 package com.lsh.wms.task.service;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.task.TaskEntry;
@@ -42,20 +43,29 @@ public class TaskRpcService implements ITaskRpcService {
         return idList;
     }
 
-    public TaskEntry getTaskEntryById(Long taskId) {
+    private Long getTaskTypeById(Long taskId) throws BizCheckedException{
         Long taskType = baseTaskService.getTaskTypeById(taskId);
+        if(taskType == -1){
+            throw new BizCheckedException("2000001");
+        }else{
+            return taskType;
+        }
+    }
+
+    public TaskEntry getTaskEntryById(Long taskId) throws BizCheckedException{
+        Long taskType = this.getTaskTypeById(taskId);
         TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
         return taskHandler.getTask(taskId);
     }
 
-    public void assign(Long taskId, Long staffId) {
-        Long taskType = baseTaskService.getTaskTypeById(taskId);
+    public void assign(Long taskId, Long staffId) throws BizCheckedException{
+        Long taskType = this.getTaskTypeById(taskId);
         TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
         taskHandler.assign(taskId, staffId);
     }
 
-    public void cancel(Long taskId) {
-        Long taskType = baseTaskService.getTaskTypeById(taskId);
+    public void cancel(Long taskId) throws BizCheckedException{
+        Long taskType = this.getTaskTypeById(taskId);
         TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
         taskHandler.cancel(taskId);
     }
@@ -70,8 +80,8 @@ public class TaskRpcService implements ITaskRpcService {
         return taskHandler.getTaskCount(mapQuery);
     }
 
-    public void done(Long taskId) {
-        Long taskType = baseTaskService.getTaskTypeById(taskId);
+    public void done(Long taskId) throws BizCheckedException {
+        Long taskType = this.getTaskTypeById(taskId);
         TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
         taskHandler.done(taskId);
     }

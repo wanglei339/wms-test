@@ -41,7 +41,12 @@ public class BaseTaskService {
     }
 
     public Long getTaskTypeById(Long taskId) {
-        return taskInfoDao.getTaskInfoById(taskId).getType();
+        TaskInfo info = taskInfoDao.getTaskInfoById(taskId);
+        if(info == null){
+            return -1L;
+        }else{
+            return info.getType();
+        }
     }
 
     @Transactional(readOnly = false)

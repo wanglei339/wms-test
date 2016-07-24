@@ -13,7 +13,7 @@ public interface TaskInfoDao {
 	
 	void update(TaskInfo task);
 	
-	TaskInfo getTaskInfoById(Long id);
+	TaskInfo getTaskInfoById(Long taskId);
 
     Integer countTask(Map<String, Object> params);
 

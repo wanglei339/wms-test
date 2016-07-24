@@ -87,7 +87,7 @@
 		where id=#{id}
 	</update>
   
-	<select id="getTaskInfoById" parameterType="int" resultMap="taskInfoResultMap">
+	<select id="getTaskInfoById" parameterType="Long" resultMap="taskInfoResultMap">
 		select * from task_info
 		where task_id=#{taskId}
 	</select>

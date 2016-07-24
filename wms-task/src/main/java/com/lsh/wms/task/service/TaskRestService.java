@@ -2,6 +2,7 @@ package com.lsh.wms.task.service;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.task.ITaskRestService;
 import com.lsh.wms.model.task.TaskEntry;
@@ -47,14 +48,14 @@ public class TaskRestService implements ITaskRestService {
 
     @GET
     @Path("getTask")
-    public String getTask(@QueryParam("taskId") long taskId) {
+    public String getTask(@QueryParam("taskId") long taskId) throws BizCheckedException{
         TaskEntry entry = taskRpcService.getTaskEntryById(taskId);
         return JsonUtils.SUCCESS(entry);
     }
 
     @GET
     @Path("getTaskMove")
-    public String getTaskMove(@QueryParam("taskId") long taskId) {
+    public String getTaskMove(@QueryParam("taskId") long taskId) throws BizCheckedException {
         TaskEntry entry = taskRpcService.getTaskEntryById(taskId);
         if(entry == null){
             return JsonUtils.EXCEPTION_ERROR();
