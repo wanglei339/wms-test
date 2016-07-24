@@ -39,4 +39,9 @@ public class PickTaskHandler extends AbsTaskHandler {
         }
         pickTaskService.createPickTask(head, details);
     }
+
+    protected void getConcrete(TaskEntry taskEntry) {
+        taskEntry.setTaskHead(pickTaskService.getPickTaskHead(taskEntry.getTaskInfo().getTaskId()));
+        taskEntry.setTaskDetailList((List<Object>)(List<?>)pickTaskService.getPickTaskDetails(taskEntry.getTaskInfo().getTaskId()));
+    }
 }
