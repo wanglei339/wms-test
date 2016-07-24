@@ -41,23 +41,13 @@ public class InbReceiptHeader implements Serializable {
 	/**  */
     private Date updatetime;
 
-	private String receiptDetails;
+	private Object receiptDetails;
 
-	List<InbReceiptDetail> inbReceiptDetailList;
-
-	public List<InbReceiptDetail> getInbReceiptDetailList() {
-		return inbReceiptDetailList;
-	}
-
-	public void setInbReceiptDetailList(List<InbReceiptDetail> inbReceiptDetailList) {
-		this.inbReceiptDetailList = inbReceiptDetailList;
-	}
-
-	public String getReceiptDetails() {
+	public Object getReceiptDetails() {
 		return receiptDetails;
 	}
 
-	public void setReceiptDetails(String receiptDetails) {
+	public void setReceiptDetails(Object receiptDetails) {
 		this.receiptDetails = receiptDetails;
 	}
 

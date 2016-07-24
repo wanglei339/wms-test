@@ -37,17 +37,7 @@ public class OutbDeliveryHeader implements Serializable {
 	/**  */
     private Date updatetime;
 
-	private String deliveryDetails;
-
-	List<OutbDeliveryDetail> outbDeliveryDetailLis;
-
-	public List<OutbDeliveryDetail> getOutbDeliveryDetailLis() {
-		return outbDeliveryDetailLis;
-	}
-
-	public void setOutbDeliveryDetailLis(List<OutbDeliveryDetail> outbDeliveryDetailLis) {
-		this.outbDeliveryDetailLis = outbDeliveryDetailLis;
-	}
+	private Object deliveryDetails;
 
 	public Long getId(){
 		return this.id;
@@ -169,11 +159,11 @@ public class OutbDeliveryHeader implements Serializable {
 		this.updatetime = updatetime;
 	}
 
-	public String getDeliveryDetails() {
+	public Object getDeliveryDetails() {
 		return deliveryDetails;
 	}
 
-	public void setDeliveryDetails(String deliveryDetails) {
+	public void setDeliveryDetails(Object deliveryDetails) {
 		this.deliveryDetails = deliveryDetails;
 	}
 

@@ -194,8 +194,7 @@ public class SoDeliveryService {
 
         List<OutbDeliveryDetail> outbDeliveryDetailList = getOutbDeliveryDetailListByDeliveryId(outbDeliveryHeader.getDeliveryId());
 
-        // outbDeliveryHeader.setDeliveryDetails(JsonUtils.obj2Json(outbDeliveryDetailList));
-        outbDeliveryHeader.setOutbDeliveryDetailLis(outbDeliveryDetailList);
+        outbDeliveryHeader.setDeliveryDetails(outbDeliveryDetailList);
     }
 
     /**

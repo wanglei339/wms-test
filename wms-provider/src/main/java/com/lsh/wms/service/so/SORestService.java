@@ -54,7 +54,7 @@ public class SORestService  implements ISoRestService {
     @Path("init")
     public String init(String soOrderInfo) {
         OutbSoHeader outbSoHeader = JSON.parseObject(soOrderInfo,OutbSoHeader.class);
-        List<OutbSoDetail> outbSoDetailList = JSON.parseArray(outbSoHeader.getOrderDetails(),OutbSoDetail.class);
+        List<OutbSoDetail> outbSoDetailList = JSON.parseArray((String)outbSoHeader.getOrderDetails(),OutbSoDetail.class);
         soOrderService.insert(outbSoHeader,outbSoDetailList);
         return JsonUtils.SUCCESS();
     }

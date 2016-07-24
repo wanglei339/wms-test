@@ -205,7 +205,6 @@ public class PoReceiptService {
 
         List<InbReceiptDetail> inbReceiptDetailList = getInbReceiptDetailListByReceiptId(inbReceiptHeader.getReceiptOrderId());
 
-        // inbReceiptHeader.setReceiptDetails(JsonUtils.obj2Json(inbReceiptDetailList));
-        inbReceiptHeader.setInbReceiptDetailList(inbReceiptDetailList);
+        inbReceiptHeader.setReceiptDetails(inbReceiptDetailList);
     }
 }
