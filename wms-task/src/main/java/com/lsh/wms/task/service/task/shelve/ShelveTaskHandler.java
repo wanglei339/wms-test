@@ -25,6 +25,6 @@ public class ShelveTaskHandler extends AbsTaskHandler {
     }
 
     protected void createConcrete(TaskEntry taskEntry) {
-        //ShelveTaskHead taskHead = (ShelveTaskDe)taskEntry.getTaskDetailList()
+        ShelveTaskHead taskHead = (ShelveTaskHead) taskEntry.getTaskHead();
     }
 }

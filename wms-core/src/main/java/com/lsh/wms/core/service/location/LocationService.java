@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.location;
 
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationShelfDao;
@@ -144,6 +145,9 @@ public class LocationService {
     public List<BaseinfoLocation> getStoreLocations(Long locationId) {
         List<BaseinfoLocation> locations = new ArrayList();
         BaseinfoLocation curLocation = this.getLocation(locationId);
+        if (curLocation == null) {
+            return null;
+        }
         if (curLocation.getCanStore() == 1) {
             locations.add(curLocation);
         }
