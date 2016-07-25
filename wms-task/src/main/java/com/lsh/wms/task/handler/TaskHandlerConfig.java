@@ -8,4 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class TaskHandlerConfig {
     @Autowired
     private StockTakingTaskHandler stockTakingTaskHandler;
+    @Autowired
+    private ShelveTaskHandler shelveTaskHandler;
 }
