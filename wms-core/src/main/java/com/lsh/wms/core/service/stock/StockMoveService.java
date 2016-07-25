@@ -107,4 +107,5 @@ public class StockMoveService {
         mapQuery.put("moveId",moveId);
         return relDao.getStockQuantMoveRelList(mapQuery);
     }
+
 }

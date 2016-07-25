@@ -18,5 +18,8 @@ public class TaskConstant {
     public static final Long TYPE_STOCK_TAKING = 100L;
     public static final Long TYPE_PO = 101L;
     public static final Long TYPE_PICK = 102L; //测试一下
+    public static final Long TYPE_SHELF = 103L;
+    public static final Long TYPE_PROCUREMENT = 104L;
+    public static final Long TYPE_STOCK_TRANSFER = 105L;
 
 }
