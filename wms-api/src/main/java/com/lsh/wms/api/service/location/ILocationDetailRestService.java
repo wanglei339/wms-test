@@ -10,6 +10,6 @@ public interface ILocationDetailRestService {
     //前端页面带着固定的type进来,进行相应的额查找,增加,更新,获取list
     public String getLocationDetailByIdAndType(Long locationId,Integer type);
     public String getLocationDetailListByType(Integer type);
-    public String insertLocationDetailByType(IBaseinfoLocaltionModel baseinfoLocaltionModel, Integer type);
+    public String insertLocationDetailByType(IBaseinfoLocaltionModel baseinfoLocaltionModel, Integer type) throws ClassNotFoundException;
     public String updateLocationDetailByType(IBaseinfoLocaltionModel baseinfoLocaltionModel, Integer type);
 }

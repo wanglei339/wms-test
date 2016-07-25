@@ -15,15 +15,16 @@
 		<result property="description" column="description"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
+		<result property="type" column="type"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLocationDock">
 		insert into baseinfo_location_dock (
 			location_id,dock_type,dock_name,have_scales,dock_application,direction,
-			width,height,description,created_at,updated_at
+			width,height,description,created_at,updated_at,type
     	) values (
 			#{locationId},#{dockType},#{dockName},#{haveScales},#{dockApplication},#{direction},
-			#{width},#{height},#{description},#{createdAt},#{updatedAt}
+			#{width},#{height},#{description},#{createdAt},#{updatedAt},#{type}
     	)
 	</insert>
 
@@ -40,7 +41,8 @@
   			<if test="height != null">height=#{height},</if>
   			<if test="description != null">description=#{description},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
-  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+  			<if test="type != null">type=#{type}</if>
 		</set>
 		where location_id=#{locationId}
 	</update>
@@ -77,6 +79,7 @@
 			<if test="description != null">and description=#{description}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="type != null">and type=#{type}</if>
 		</where>
 	</sql>
    

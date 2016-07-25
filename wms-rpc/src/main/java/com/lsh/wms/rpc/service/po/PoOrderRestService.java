@@ -79,7 +79,11 @@ public class PoOrderRestService implements IPoOrderRestService {
 
     @GET
     @Path("getPoDetailByOrderId")
-    public String getPoDetailByOrderId(@QueryParam("orderId") Long orderId) {
+    public String getPoDetailByOrderId(@QueryParam("orderId") Long orderId) throws BizCheckedException {
+        if(orderId == null) {
+            throw new BizCheckedException("1010001", "参数不能为空");
+        }
+
         InbPoHeader inbPoHeader = poOrderService.getInbPoHeaderByOrderId(orderId);
 
         poOrderService.fillDetailToHeader(inbPoHeader);

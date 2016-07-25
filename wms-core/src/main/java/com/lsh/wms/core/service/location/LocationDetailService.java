@@ -3,6 +3,7 @@ package com.lsh.wms.core.service.location;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,9 +21,10 @@ import java.util.Map;
 @Transactional(readOnly = true)
 public class LocationDetailService {
     private static final Logger logger = LoggerFactory.getLogger(LocationService.class);
-    @Transactional(readOnly = false)
+    @Autowired
+    private LocationDetailServiceFactory locationDetailServiceFactory;
+
     public void insert(IBaseinfoLocaltionModel baseinfoLocaltionModel) {
-        LocationDetailServiceFactory locationDetailServiceFactory = new LocationDetailServiceFactory();
         //校验
         if (null == baseinfoLocaltionModel) {
             //TODO 抛异常
@@ -32,9 +34,8 @@ public class LocationDetailService {
         IStrategy iStrategy = locationDetailServiceFactory.createDetailServiceByModel(baseinfoLocaltionModel);
         iStrategy.insert(baseinfoLocaltionModel);
     }
-    @Transactional(readOnly = false)
+
     public void update(IBaseinfoLocaltionModel baseinfoLocaltionModel) {
-        LocationDetailServiceFactory locationDetailServiceFactory = new LocationDetailServiceFactory();
         //校验
         if (null == baseinfoLocaltionModel) {
             //TODO 抛异常
@@ -46,19 +47,18 @@ public class LocationDetailService {
 
     //前端id怎么去哪个detail表查,前端的id带来type类型
     public IBaseinfoLocaltionModel getIBaseinfoLocaltionModelByIdAndType(Long id, Integer type) {
-        LocationDetailServiceFactory locationDetailServiceFactory = new LocationDetailServiceFactory();
         IStrategy iStrategy = locationDetailServiceFactory.createDetailServiceByType(type);
         IBaseinfoLocaltionModel iBaseinfoLocaltionModel = iStrategy.getBaseinfoItemLocationModelById(id);
         return iBaseinfoLocaltionModel;
     }
 
-    //根据map获取list
     public List<IBaseinfoLocaltionModel> getIBaseinfoLocaltionModelListByType(Map<String, Object> params, Integer type) {
-        LocationDetailServiceFactory locationDetailServiceFactory = new LocationDetailServiceFactory();
         IStrategy strategy = locationDetailServiceFactory.createDetailServiceByType(type);
+        params.put("type",type);
+        //TODO 如果是region的话,需要具体设置相应的type,无所谓,params中设置type的类型就行
         return strategy.getBaseinfoLocaltionModelList(params);
-    }
 
+    }
 
 
 }
