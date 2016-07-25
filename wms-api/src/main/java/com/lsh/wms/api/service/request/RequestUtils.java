@@ -1,6 +1,7 @@
 package com.lsh.wms.api.service.request;
 
 import com.alibaba.dubbo.rpc.RpcContext;
+import com.google.common.io.CharStreams;
 import com.lsh.base.common.json.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 /**
  * Project Name: lsh-wms
@@ -27,15 +27,15 @@ public class RequestUtils {
         HttpServletRequest request = (HttpServletRequest) RpcContext.getContext().getRequest();
         Map<String, Object> requestMap = new HashMap<String, Object>();
         if ("POST".equalsIgnoreCase(request.getMethod())) {
-            Scanner scanner = null;
-            try {
-                scanner = new Scanner(request.getInputStream(), "UTF-8").useDelimiter("\\A");
-            } catch (IOException e) {
-                e.printStackTrace();
+            String req = null;
+            try{
+                req = CharStreams.toString(request.getReader());
+                logger.debug(req);
+                requestMap = JsonUtils.json2Obj(req, Map.class);
+            }catch (IOException ex){
+                ex.printStackTrace();
             }
-            String reqStr = scanner.hasNext() ? scanner.next() : "";
-            logger.debug(reqStr);
-            requestMap = JsonUtils.json2Obj(reqStr, Map.class);
+
         } else {
             Map<String, String[]> paramMap = request.getParameterMap();
             for (Map.Entry<String, String[]> entry : paramMap.entrySet()) {
