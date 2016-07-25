@@ -1,17 +1,16 @@
 package com.lsh.wms.model.taking;
 
-import com.lsh.wms.model.task.Operation;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
 
-public class StockTakingDetail extends Operation implements Serializable {
+public class StockTakingDetail implements Serializable {
 
 	/**  */
     private Long id;
 	/** 哪次盘点的明细 */
     private Long takingId;
+	/** 任务Id */
+	private Long taskId = 0L;
 	/** 盘点行项目编号 */
     private Long detailId;
 	/** 第几轮盘点的结果 */
@@ -148,6 +147,12 @@ public class StockTakingDetail extends Operation implements Serializable {
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
-	
-	
+
+	public Long getTaskId() {
+		return taskId;
+	}
+
+	public void setTaskId(Long taskId) {
+		this.taskId = taskId;
+	}
 }

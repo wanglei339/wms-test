@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.pick;
 
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.pick.PickAllocDetailDao;
 import com.lsh.wms.model.pick.PickAllocDetail;
 import org.slf4j.Logger;
@@ -30,7 +31,10 @@ public class PickAllocService {
     @Transactional(readOnly = false)
     public void addAllocDetails(List<PickAllocDetail> details){
         for(int i = 0; i < details.size(); ++i) {
-            allocDetailDao.insert(details.get(i));
+            PickAllocDetail detail = details.get(i);
+            detail.setUpdatedAt(DateUtils.getCurrentSeconds());
+            detail.setCreatedAt(DateUtils.getCurrentSeconds());
+            allocDetailDao.insert(detail);
         }
     }
 

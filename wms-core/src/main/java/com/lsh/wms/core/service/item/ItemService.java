@@ -32,6 +32,9 @@ public class ItemService {
     @Autowired
     private BaseinfoItemDao itemDao;
 
+    @Autowired
+    private CsiSkuDao skuDao;
+
 
     public BaseinfoItem getItem(long iOwnerId, long iSkuId){
         Long key = (((long)iOwnerId)<<32) + (iSkuId);
@@ -70,6 +73,31 @@ public class ItemService {
 
     @Transactional(readOnly = false)
     public BaseinfoItem insertItem(BaseinfoItem item){
+        //如果sku表中不存在,更新sku表
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("code",item.getCode());
+        mapQuery.put("codeType",item.getCodeType());
+        List<CsiSku> skus = skuDao.getCsiSkuList(mapQuery);
+        if(skus.size() > 0){
+            item.setSkuId(skus.get(0).getSkuId());
+        }else{
+            CsiSku sku = new CsiSku();
+            long skuId = RandomUtils.genId();
+            sku.setSkuId(skuId);
+            String code = item.getCode();
+            sku.setCode(code);
+            sku.setCodeType(item.getCodeType().toString());
+            sku.setShelfLife(item.getShelfLife());
+            sku.setSkuName(item.getSkuName());
+            sku.setHeight(item.getHeight());
+            sku.setLength(item.getLength());
+            sku.setWidth(item.getWidth());
+            sku.setWeight(item.getWeight());
+            sku.setCreatedAt(DateUtils.getCurrentSeconds());
+            //生成csi_sku表
+            skuDao.insert(sku);
+            item.setSkuId(skuId);
+        }
         //gen itemId
         item.setItemId(RandomUtils.genId());
         item.setCreatedAt(DateUtils.getCurrentSeconds());
@@ -91,6 +119,13 @@ public class ItemService {
 
     //按品类,sku_id,owner等查询
     public List<BaseinfoItem> searchItem(Map<String, Object> mapQuery){
+        //增加skuName模糊查询
+        String skuName = (String) mapQuery.get("skuName");
+        if(skuName != null){
+            skuName = "%"+skuName+"%";
+            mapQuery.put("skuName",skuName);
+        }
+
         return itemDao.getBaseinfoItemList(mapQuery);
     }
 

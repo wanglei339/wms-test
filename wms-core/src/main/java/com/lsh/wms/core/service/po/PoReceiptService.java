@@ -69,6 +69,17 @@ public class PoReceiptService {
     }
 
     /**
+     * 根据ReceiptId更新InbReceiptHeader
+     * @param inbReceiptHeader
+     */
+    @Transactional(readOnly = false)
+    public void updateInbReceiptHeaderByReceiptId(InbReceiptHeader inbReceiptHeader) {
+        inbReceiptHeader.setUpdatetime(new Date());
+
+        inbReceiptHeaderDao.updateByReceiptId(inbReceiptHeader);
+    }
+
+    /**
      * 通过ID获取InbReceiptHeader
      * @param id
      * @return
@@ -144,7 +155,7 @@ public class PoReceiptService {
      */
     public InbReceiptHeader getInbReceiptHeaderByReceiptId(Long receiptId) {
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("receiptId", receiptId);
+        params.put("receiptOrderId", receiptId);
 
         return getInbReceiptHeaderByParams(params);
     }
@@ -156,7 +167,7 @@ public class PoReceiptService {
      */
     public List<InbReceiptDetail> getInbReceiptDetailListByReceiptId(Long receiptId) {
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("receiptId", receiptId);
+        params.put("receiptOrderId", receiptId);
 
         return getInbReceiptDetailList(params);
     }
@@ -194,6 +205,6 @@ public class PoReceiptService {
 
         List<InbReceiptDetail> inbReceiptDetailList = getInbReceiptDetailListByReceiptId(inbReceiptHeader.getReceiptOrderId());
 
-        inbReceiptHeader.setReceiptDetails(JsonUtils.obj2Json(inbReceiptDetailList));
+        inbReceiptHeader.setReceiptDetails(inbReceiptDetailList);
     }
 }

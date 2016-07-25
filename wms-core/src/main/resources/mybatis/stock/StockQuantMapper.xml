@@ -38,7 +38,7 @@
     	) values (
 			#{skuId},#{locationId},#{containerId},#{qty},#{skuUomId},#{value},
 			#{cost},#{reserveMoveId},#{isFrozen},#{supplierId},#{ownerId},#{lotId},
-			#{inDate},#{expireDate},#{createdAt},#{updatedAt},#{item_id}
+			#{inDate},#{expireDate},#{createdAt},#{updatedAt},#{itemId}
     	)
 	</insert>
 
@@ -109,7 +109,7 @@
 			<if test="inDate != null">and in_date=#{inDate}</if>
 			<if test="expireDate != null">and expire_date=#{expireDate}</if>
 			<if test="itemId != null">and item_id=#{itemId}</if>
-			<if test="isNormal != true">and {is_frozen = 1 or reserveMoveId != 0}</if>
+			<if test="isNormal != true">and (is_frozen = 1 or reserve_move_id != 0)</if>
 		</where>
 		<choose>
 			<when test=" strategy == 'FIFO' ">ORDER BY IN_DATE</when>

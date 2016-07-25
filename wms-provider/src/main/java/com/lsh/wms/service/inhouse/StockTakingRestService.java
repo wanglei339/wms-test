@@ -1,32 +1,27 @@
 package com.lsh.wms.service.inhouse;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.inhouse.IStockTakingRestService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.taking.StockTakingService;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
-import com.lsh.wms.model.task.Operation;
-import com.lsh.wms.model.task.StockTakingTask;
-import com.lsh.wms.model.task.Task;
-import com.lsh.wms.task.service.DispatcherRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  * Created by mali on 16/7/14.
@@ -50,65 +45,108 @@ public class StockTakingRestService implements IStockTakingRestService {
     @Autowired
     private StockMoveService moveService;
 
-    @Reference
-    private DispatcherRpcService dispather;
+
+//    @Autowired
+//    private StockTakingTaskService takingTaskService;
+
+//    @Autowired
+//    private DispatcherRpcService dispather;
 
     @POST
     @Path("create")
     public String create(String stockTakingInfo) {
-        StockTakingHead head = JSON.parseObject(stockTakingInfo,StockTakingHead.class);
+        StockTakingHead head = JSON.parseObject(stockTakingInfo, StockTakingHead.class);
         List<StockTakingDetail> detailList = prepareDetailList(head);
         stockTakingService.create(head, detailList);
+       // this.createTask(head,detailList,1L,head.getDueTime());
         return JsonUtils.SUCCESS();
     }
+    @GET
+    @Path("genId")
+    public String genId(){
+        Long takingId=RandomUtils.genId();
+        Map result=new HashMap();
+        result.put("takingId",takingId);
+        return JsonUtils.SUCCESS(result);
+    }
 
-    @POST
-    @Path("review")
-    public String review(Long stockTakingId) {
-        StockTakingHead head=stockTakingService.getHeadById(stockTakingId);
-        if (head.getPlanType()==1) {
-           this.confirmDifference(stockTakingId,1L);
-        }else {
-            Long times = stockTakingService.chargeTime(stockTakingId);
-            if (times == 1) {
-                this.createNextDetail(stockTakingId,times);
-            } else {
-                if (times == 2) {
-                    List<StockTakingDetail> details = stockTakingService.getDetailListByRound(stockTakingId, times);
-                    boolean isTrue = true;
-                    for (StockTakingDetail detail : details) {
-                        if (detail.getRealQty().compareTo(detail.getTheoreticalQty()) != 0) {
-                            isTrue = false;
-                        }
-                    }
-                    if (isTrue) {
-                        this.confirmDifference(stockTakingId, times);
-                    } else {
-                        this.createNextDetail(stockTakingId, times);
-                    }
-                } else {
-                    this.confirmDifference(stockTakingId, times);
-                }
-            }
+    @GET
+    @Path("getLocationList")
+    public String getLocationList(int locationNum) {
+        //Long skuId,Long AreaId,Long supplierId,int locationNum
+        BaseinfoLocation location = locationService.getWarehouseLocation();
+        List<Long> locationList = locationService.getStoreLocationIds(location.getLocationId());
+
+        if(locationList.size()<=locationNum){
+            locationNum = locationList.size();
         }
+        long[] locations=new long[locationNum];
+        for (int i = 0; i < locations.length; i++) {
+
+            // 取出一个随机数
+            int r = (int) (Math.random() * locationList.size());
+
+            locations[i] = locationList.get(r);
+
+            // 排除已经取过的值
+            locationList.remove(r);
+        }
+        return JsonUtils.SUCCESS(JSON.toJSON(locations).toString());
+    }
+
+//    @GET
+//    @Path("getList")
+//    public String getList(Map<String, Object> mapQuery) {
+//        List<StockTakingInfo> infos=new ArrayList<StockTakingInfo>();
+//
+//        List<StockTakingTask> takingTasks= takingTaskService.getTakingTask(mapQuery);
+//        for(StockTakingTask task:takingTasks){
+//            StockTakingHead head = stockTakingService.getHeadById(task.getTakingId());
+//            StockTakingInfo info = new StockTakingInfo();
+//            info.setTaskId(task.getTaskId());
+//            info.setPlanType(head.getPlanType());
+//            info.setViewType(head.getViewType());
+//            info.setSupplierList(quantService.getSupplierByLocationAndSkuId(task.getLocationId(), task.getSkuId()));
+//            info.setLocationCode(locationService.getLocation(task.getLocationId()).getLocationCode());
+//            info.setAreaCode(locationService.getAreaFather(task.getLocationId()).getLocationCode());
+//            info.setSkuId(task.getSkuId());
+//            info.setOperator(task.getOperator());
+//            info.setCreateAt(task.getCreatedAt());
+//            info.setDueTime(task.getDueTime());
+//            info.setStatus(task.getStatus());
+//            infos.add(info);
+//        }
+//        return JsonUtils.SUCCESS(infos);
+//    }
+//    @GET
+//    @Path("getCount")
+//    public String getCount(Map<String, Object> mapQuery) {
+//
+//        Integer conut= takingTaskService.count(mapQuery);
+//        return JsonUtils.SUCCESS(conut);
+//    }
+    @POST
+    @Path("view")
+    public String view(Long stockTakingId) {
         return JsonUtils.SUCCESS();
     }
 
     public void createNextDetail(Long stockTakingId,long roundTime) {
         Map queryMap = new HashMap();
+        StockTakingHead head = stockTakingService.getHeadById(stockTakingId);
         List<StockTakingDetail> detailList = new ArrayList<StockTakingDetail>();
         queryMap.put("stockTakingId",stockTakingId);
         queryMap.put("round",roundTime);
-
         List<StockTakingDetail> details=stockTakingService.getDetailListByRound(stockTakingId,roundTime);
         for (StockTakingDetail stockTakingDetail:details){
             stockTakingDetail.setId(0L);
-            StockQuant quant=quantService.getQuantBycontainerIdAndSkuId(stockTakingDetail.getContainerId(),stockTakingDetail.getRealSkuId());
-            stockTakingDetail.setTheoreticalQty(quant.getQty());
+            BigDecimal qty=quantService.getQuantQtyByLocationIdAndSkuId(stockTakingDetail.getLocationId(), stockTakingDetail.getLotId());
+            stockTakingDetail.setTheoreticalQty(qty);
             stockTakingDetail.setRound(roundTime+1);
             detailList.add(stockTakingDetail);
         }
         stockTakingService.insertDetailList(detailList);
+        //this.createTask(head, detailList, 1L, head.getDueTime());
     }
 
     private List<StockTakingDetail> prepareDetailListByLocation(List<Long> locationList, List<StockQuant> quantList){
@@ -153,19 +191,23 @@ public class StockTakingRestService implements IStockTakingRestService {
     }
 
     private List<StockTakingDetail> prepareDetailList(StockTakingHead head) {
-        Long locationId = head.getLocationId();
-        if (locationId == null) {
-            locationId = locationService.getWarehouseLocationId();
+        List<Long> locationList= JSON.parseArray(head.getLocationList(), Long.class);
+        List<Long> locations=new ArrayList<Long>();
+        for(Long locationId:locationList) {
+            if (locationId == null) {
+                locationId = locationService.getWarehouseLocationId();
+            }
+            locations.addAll(locationService.getStoreLocationIds(locationId));
         }
-        List<Long> locationList = locationService.getStoreLocationIds(locationId);
 
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("locationList", locationList);
-        mapQuery.put("skuId", head.getSkuId());
-        mapQuery.put("lotId", head.getLotId());
-        mapQuery.put("ownerId", head.getOwnerId());
-        mapQuery.put("supplierId", head.getSupplierId());
-        List<StockQuant> quantList = quantService.getQuants(mapQuery);
+            Map<String, Object> mapQuery = new HashMap<String, Object>();
+            mapQuery.put("locationList", locations);
+            mapQuery.put("skuId", head.getSkuId());
+            mapQuery.put("lotId", head.getLotId());
+            mapQuery.put("ownerId", head.getOwnerId());
+            mapQuery.put("supplierId", head.getSupplierId());
+            List<StockQuant> quantList = quantService.getQuants(mapQuery);
+
 
         if (head.getTakingType().equals(0L)) {
             return this.prepareDetailListBySku(quantList);
@@ -180,38 +222,66 @@ public class StockTakingRestService implements IStockTakingRestService {
         stockTakingService.updateDetail(detail);
     }
 
-    private List<StockTakingDetail> getDifference(Long stockTakingId, Long round) {
-        List<StockTakingDetail> differenceList = new ArrayList<StockTakingDetail>();
-        // TODO
-        // 找出本轮有差异的detail插入列表中
-        return differenceList;
-    }
-
-
-    public void createTask(StockTakingHead head, List<StockTakingDetail> detailList) {
-        StockTakingTask task = new StockTakingTask();
-        dispather.create(TaskConstant.TYPE_STOCK_TAKING, task, (List<Operation>) (List<?>)detailList);
-    }
-
-    @POST
-    @Path("cancel")
-    public void cancel(@QueryParam("stockTakingId") Long stockTakingId) {
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("takingId", stockTakingId);
-        List<Task> taskList =  dispather.getTaskList(TaskConstant.TYPE_STOCK_TAKING, mapQuery);
-        for (Task task : taskList) {
-            dispather.cancel(TaskConstant.TYPE_STOCK_TAKING, task.getTaskId());
+    private boolean chargeDifference(Long stockTakingId, Long round) {
+        List<StockTakingDetail> details = stockTakingService.getDetailListByRound(stockTakingId, round);
+        for (StockTakingDetail detail : details) {
+            if (detail.getRealQty().compareTo(detail.getTheoreticalQty()) != 0) {
+                return false;
+            }
         }
+       return true;
     }
+
+
+
+//    public void createTask(StockTakingHead head, List<StockTakingDetail> detailList,Long round,Long dueTime) {
+//        StockTakingTask task = new StockTakingTask();
+//        task.setRound(round);
+//        task.setTakingId(head.getTakingId());
+//        task.setPlanner(head.getPlanner());
+//        task.setDueTime(dueTime);
+//        dispather.create(TaskConstant.TYPE_STOCK_TAKING, task, (List<Operation>) (List<?>)detailList);
+//    }
+
+//    @POST
+//    @Path("cancel")
+//    public void cancel(@QueryParam("stockTakingId") Long stockTakingId) {
+//        Map<String, Object> mapQuery = new HashMap<String, Object>();
+//        mapQuery.put("takingId", stockTakingId);
+//        List<Task> taskList =  dispather.getTaskList(TaskConstant.TYPE_STOCK_TAKING, mapQuery);
+//        for (Task task : taskList) {
+//            dispather.cancel(TaskConstant.TYPE_STOCK_TAKING, task.getTaskId());
+//        }
+//    }
 
     public void confirm(Long stockTakingId) {
-        // TODO
         // 获取stockingHead
         // 如果是临时盘点, 直接调用confirmDifference
         // 计划盘点,
         //      如果ruund == 1, 发起新一轮盘点
         //      如果round == 2, 获取第一轮,第二轮的差异明细列表, 如果非空, 发起第三轮盘点
         //      如果round == 3, 直接调用confirmDiffence
+
+        StockTakingHead head=stockTakingService.getHeadById(stockTakingId);
+        if (head.getPlanType()==1) {
+            this.confirmDifference(stockTakingId,1L);
+        }else {
+            Long times = stockTakingService.chargeTime(stockTakingId);
+            if (times == 1) {
+                this.createNextDetail(stockTakingId,times);
+            } else {
+                if (times == 2) {
+                    boolean isSame=this.chargeDifference(stockTakingId,times);
+                    if (isSame) {
+                        this.confirmDifference(stockTakingId, times);
+                    } else {
+                        this.createNextDetail(stockTakingId, times);
+                    }
+                } else {
+                    this.confirmDifference(stockTakingId, times);
+                }
+            }
+        }
     }
 
 
@@ -261,4 +331,6 @@ public class StockTakingRestService implements IStockTakingRestService {
         }
         moveService.create(moveList);
     }
+
+
 }

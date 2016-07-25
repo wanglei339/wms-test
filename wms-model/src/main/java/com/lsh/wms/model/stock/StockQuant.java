@@ -205,6 +205,8 @@ public class StockQuant implements Serializable,Cloneable {
 		this.itemId = itemId;
 	}
 
+
+
 	@Override
     public Object clone() {
         StockQuant stockQuant = null;

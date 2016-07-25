@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <properties resource="classpath:props/oss.properties"/>
+    <properties resource="classpath:props/baidu.properties"/>
+    <properties resource="classpath:props/provider.properties"/>
+    <properties resource="classpath:props/msg.properties"/>
+    <properties resource="classpath:props/wms.properties"/>
+    <properties resource="classpath:props/exception.properties"/>
+</configuration>

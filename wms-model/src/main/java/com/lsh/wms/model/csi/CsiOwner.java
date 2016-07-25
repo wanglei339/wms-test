@@ -15,7 +15,7 @@ public class CsiOwner implements Serializable {
 	/** 货主描述 */
     private String ownerDesc;
 	/** 国家名称 */
-    private String contry;
+    private String country;
 	/** 省份名称 */
     private String province;
 	/** 城市名称 */
@@ -59,12 +59,12 @@ public class CsiOwner implements Serializable {
 		this.ownerDesc = ownerDesc;
 	}
 	
-	public String getContry(){
-		return this.contry;
+	public String getCountry(){
+		return this.country;
 	}
 	
-	public void setContry(String contry){
-		this.contry = contry;
+	public void setCountry(String country){
+		this.country = country;
 	}
 	
 	public String getProvince(){

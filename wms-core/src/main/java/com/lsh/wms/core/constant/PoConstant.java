@@ -21,5 +21,7 @@ public class PoConstant {
 
     /** 订单状态，0取消，1正常，2已发货,3,已投单 4，部分收货，5已收货 */
     public static final int ORDER_THROW = 3;
+    public static final int ORDER_RECTIPT_PART = 4;
+    public static final int ORDER_RECTIPT_ALL = 5;
 
 }

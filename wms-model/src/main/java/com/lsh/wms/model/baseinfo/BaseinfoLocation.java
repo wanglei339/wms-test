@@ -3,7 +3,7 @@ package com.lsh.wms.model.baseinfo;
 import java.io.Serializable;
 import java.util.Date;
 
-public class BaseinfoLocation implements Serializable {
+public class BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel  {
 
 	/**  */
     private Long id;
@@ -27,11 +27,19 @@ public class BaseinfoLocation implements Serializable {
     private Integer inUse;
 	/** 可容纳容器数量 */
     private Long containerVol;
+	/** 区域坐标，四维坐标-区位坐标 */
+    private Long regionNo;
+	/** 通道坐标，四维坐标-通道坐标 */
+    private Long passageNo;
+	/** 货架层坐标，四维坐标-层数坐标 */
+    private Long shelfLevelNo;
+	/** 货位同层坐标，四维坐标-同层 */
+    private Long binPositionNo;
 	/** 描述 */
     private String description;
-	/**  */
+	/** 创建日期 */
     private Long createdAt;
-	/**  */
+	/** 更新日期 */
     private Long updatedAt;
 	
 	public Long getId(){
@@ -120,6 +128,38 @@ public class BaseinfoLocation implements Serializable {
 	
 	public void setContainerVol(Long containerVol){
 		this.containerVol = containerVol;
+	}
+	
+	public Long getRegionNo(){
+		return this.regionNo;
+	}
+	
+	public void setRegionNo(Long regionNo){
+		this.regionNo = regionNo;
+	}
+	
+	public Long getPassageNo(){
+		return this.passageNo;
+	}
+	
+	public void setPassageNo(Long passageNo){
+		this.passageNo = passageNo;
+	}
+	
+	public Long getShelfLevelNo(){
+		return this.shelfLevelNo;
+	}
+	
+	public void setShelfLevelNo(Long shelfLevelNo){
+		this.shelfLevelNo = shelfLevelNo;
+	}
+	
+	public Long getBinPositionNo(){
+		return this.binPositionNo;
+	}
+	
+	public void setBinPositionNo(Long binPositionNo){
+		this.binPositionNo = binPositionNo;
 	}
 	
 	public String getDescription(){
