@@ -13,16 +13,16 @@ import java.util.Map;
  * Created by zengwenjun on 16/7/8.
  */
 public interface ICsiRestService {
-    public String getCatInfo(int iCatId);
-    public String  getCatFull(int iCatId);
-    public String getCatChilds(int iCatId);
+    public String getCatInfo(long iCatId);
+    public String  getCatFull(long iCatId);
+    public String getCatChilds(long iCatId);
 
-    public String getOwner(int iOwnerId);
+    public String getOwner(long iOwnerId);
 
     public String getSku(long iSkuId);
     public String getSkuByCode(int iCodeType, String sCode);
 
-    public String getSupplier(int iSupplierId);
+    public String getSupplier(long iSupplierId);
 
     public String updateSku(CsiSku sku);
 
