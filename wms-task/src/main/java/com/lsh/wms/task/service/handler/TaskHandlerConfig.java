@@ -11,6 +11,4 @@ import org.springframework.stereotype.Component;
 public class TaskHandlerConfig {
     @Autowired
     private StockTakingTaskHandler stockTakingTaskHandler;
-    @Autowired
-    private ShelveTaskHandler shelveTaskHandler;
 }
