@@ -21,6 +21,8 @@
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
 		<result property="itemId" column="item_id"/>
+		<result property="isDefect" column="is_defect"/>
+		<result property="isRefund" column="is_refund"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockQuant">
@@ -34,11 +36,11 @@
 			cost,
 			reserve_move_id,
 			is_frozen,supplier_id,owner_id,lot_id,
-			in_date,expire_date,created_at,updated_at,item_id
+			in_date,expire_date,created_at,updated_at,item_id,is_defect,is_refund
     	) values (
 			#{skuId},#{locationId},#{containerId},#{qty},#{skuUomId},#{value},
 			#{cost},#{reserveMoveId},#{isFrozen},#{supplierId},#{ownerId},#{lotId},
-			#{inDate},#{expireDate},#{createdAt},#{updatedAt},#{itemId}
+			#{inDate},#{expireDate},#{createdAt},#{updatedAt},#{itemId},#{isDefect},#{isRefund}
     	)
 	</insert>
 
@@ -60,8 +62,10 @@
   			<if test="inDate != null">in_date=#{inDate},</if>
   			<if test="expireDate != null">expire_date=#{expireDate},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
-  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
-			<if test="itemId != null">item_id=#{itemId}</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+			<if test="itemId != null">item_id=#{itemId},</if>
+			<if test="isDefect != null">is_defect=#{isDefect},</if>
+			<if test="isRefund != null">is_refund=#{isRefund}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -109,7 +113,9 @@
 			<if test="inDate != null">and in_date=#{inDate}</if>
 			<if test="expireDate != null">and expire_date=#{expireDate}</if>
 			<if test="itemId != null">and item_id=#{itemId}</if>
-			<if test="isNormal != true">and (is_frozen = 1 or reserve_move_id != 0)</if>
+			<if test="isNormal != null and isNormal != true">and (is_frozen = 1 or reserve_move_id != 0)</if>
+			<if test="isDefect != null">and is_defect=#{isDefect}</if>
+			<if test="isRefund != null">and is_refund=#{isRefund}</if>
 		</where>
 		<choose>
 			<when test=" strategy == 'FIFO' ">ORDER BY IN_DATE</when>
@@ -144,6 +150,8 @@
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 			<if test="itemId != null">and item_id=#{itemId}</if>
+			<if test="isDefect != null">and is_defect=#{isDefect}</if>
+			<if test="isRefund != null">and is_refund=#{isRefund}</if>
 		</where>
 	</sql>
    

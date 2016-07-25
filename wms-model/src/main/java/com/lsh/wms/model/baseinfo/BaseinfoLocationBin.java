@@ -1,10 +1,10 @@
 package com.lsh.wms.model.baseinfo;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.math.BigDecimal;
+import java.util.Date;
 
-public class BaseinfoLocationBin  implements Serializable,IBaseinfoLocaltionModel{
+public class BaseinfoLocationBin implements Serializable,IBaseinfoLocaltionModel {
 
 	/**  */
     private Long id;
@@ -24,6 +24,8 @@ public class BaseinfoLocationBin  implements Serializable,IBaseinfoLocaltionMode
     private Long createdAt;
 	/** 更新日期 */
     private Long updatedAt;
+	/** 主表类型 */
+    private Integer type;
 	
 	public Long getId(){
 		return this.id;
@@ -95,6 +97,14 @@ public class BaseinfoLocationBin  implements Serializable,IBaseinfoLocaltionMode
 	
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
+	}
+	
+	public Integer getType(){
+		return this.type;
+	}
+	
+	public void setType(Integer type){
+		this.type = type;
 	}
 	
 	

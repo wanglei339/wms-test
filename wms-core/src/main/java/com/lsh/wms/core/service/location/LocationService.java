@@ -49,7 +49,7 @@ public class LocationService {
             put("dock_area", new Long(10)); // 10 码头区
             put("bin", new Long(11)); // 11 货位
             put("packing_bin", new Long(12)); // 12 拣货位
-            put("stock_bin", new Long(13)); // 14 存货位
+            put("stock_bin", new Long(13)); // 13 存货位
             put("floor_bin", new Long(14)); // 14 地堆货位
             put("temporary_bin", new Long(15)); // 15 暂存货位
             put("collection_bin", new Long(16)); // 16 集货货位

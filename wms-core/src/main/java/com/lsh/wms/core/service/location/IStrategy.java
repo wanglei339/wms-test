@@ -1,6 +1,7 @@
 package com.lsh.wms.core.service.location;
 
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import java.util.Map;
  * Package name:com.lsh.wms.core.service.location.
  * desc:类功能描述
  */
+@Component
 public interface IStrategy {
     public void insert(IBaseinfoLocaltionModel  baseinfoLocaltionModel);
     public void update(IBaseinfoLocaltionModel  baseinfoLocaltionModel);

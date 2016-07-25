@@ -68,7 +68,6 @@ public class StockQuantService {
         stockQuantDao.insert(quant);
     }
 
-
     @Transactional(readOnly =  false)
     public void update(StockQuant quant) {
         quant.setUpdatedAt(DateUtils.getCurrentSeconds());
@@ -145,6 +144,20 @@ public class StockQuantService {
     }
 
     @Transactional(readOnly = false)
+    public void toDefect(StockQuant quant) {
+        quant.setIsFrozen(1L);
+        quant.setIsDefect(1L);
+        stockQuantDao.update(quant);
+    }
+
+    @Transactional(readOnly = false)
+    public void toRefund(StockQuant quant) {
+        quant.setIsFrozen(1L);
+        quant.setIsRefund(1L);
+        stockQuantDao.update(quant);
+    }
+
+    @Transactional(readOnly = false)
     public void unReserveByMoveId(Long moveId) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("reserveMoveId", moveId);
@@ -171,7 +184,7 @@ public class StockQuantService {
         Set<Long> suppliers=new HashSet<Long>();
         Map<String,Object> queryMap =new HashMap<String, Object>();
         queryMap.put("locationId",locationId);
-        queryMap.put("SkuId",skuId);
+        queryMap.put("skuId",skuId);
         List<StockQuant> quants=stockQuantDao.getQuants(queryMap);
         for(StockQuant quant:quants){
             suppliers.add(quant.getSupplierId());
@@ -179,18 +192,17 @@ public class StockQuantService {
         return new ArrayList<Long>(suppliers);
     }
 
-    public Map<Long, BigDecimal> getItemCount(Long itemId, List<Long> locationIdList, boolean isNormal) {
-        Map queryMap = new HashMap();
+    public BigDecimal getItemCount(Long itemId, List<Long> locationIdList, boolean isNormal) {
+        Map<String, Object> queryMap = new HashMap<String, Object>();
         queryMap.put("itemId",itemId);
         queryMap.put("locationIdList",locationIdList);
         queryMap.put("isNormal",isNormal);
         List<StockQuant> stockQuants = stockQuantDao.getQuants(queryMap);
-        BigDecimal count = new BigDecimal(0);
+
+        BigDecimal count = BigDecimal.ZERO;
         for(StockQuant quant : stockQuants) {
-            count.add(quant.getQty());
+            count = count.add(quant.getQty());
         }
-        Map<Long, BigDecimal> result = new HashMap<Long, BigDecimal>();
-        result.put(itemId,count);
-        return result;
+        return count;
     }
 }
