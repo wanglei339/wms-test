@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 @MyBatisRepository
-public interface BaseinfoLocationDockDao extends IBaseinfoLocationDao {
+public interface BaseinfoLocationDockDao{
 
 	void insert(BaseinfoLocationDock baseinfoLocationDock);
 	

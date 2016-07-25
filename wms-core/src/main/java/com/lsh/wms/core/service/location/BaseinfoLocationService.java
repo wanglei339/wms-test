@@ -3,8 +3,11 @@ package com.lsh.wms.core.service.location;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,15 +23,19 @@ import java.util.Map;
  * desc:类功能描述
  */
 @Component
+@Transactional(readOnly = true)
 public class BaseinfoLocationService implements IStrategy{
+    private static final Logger logger = LoggerFactory.getLogger(LocationService.class);
 
     @Autowired
     private BaseinfoLocationDao baseinfoLocationDao;
 
+    @Transactional(readOnly = false)
     public void insert(IBaseinfoLocaltionModel baseinfoLocaltionModel) {
         baseinfoLocationDao.insert((BaseinfoLocation) baseinfoLocaltionModel);
     }
 
+    @Transactional(readOnly = false)
     public void update(IBaseinfoLocaltionModel baseinfoLocaltionModel) {
         baseinfoLocationDao.update((BaseinfoLocation) baseinfoLocaltionModel);
     }

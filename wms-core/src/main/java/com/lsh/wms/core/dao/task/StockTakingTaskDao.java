@@ -12,8 +12,13 @@ public interface StockTakingTaskDao {
 	void insert(StockTakingTask stockTakingTask);
 
 	void update(StockTakingTask stockTakingTask);
+<<<<<<< HEAD
 
 	StockTakingTask getStockTakingTaskById(Long id);
+=======
+	
+	StockTakingTask getStockTakingTaskById(Long taskId);
+>>>>>>> 0551e56db4e61b5300856a6a6ff127e6c3796cf0
 
     Integer countStockTakingTask(Map<String, Object> params);
 

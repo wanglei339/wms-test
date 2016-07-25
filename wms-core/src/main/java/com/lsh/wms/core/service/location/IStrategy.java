@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 工厂方法的产品类,产品具体的功能规范,不是不同方法的策略(方法相同,只是名字不同)
  * Project Name: lsh-wms
  * Created by fuhao
  * Date: 16/7/23

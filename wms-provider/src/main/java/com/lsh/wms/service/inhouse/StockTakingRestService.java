@@ -69,6 +69,7 @@ public class StockTakingRestService implements IStockTakingRestService {
         result.put("takingId",takingId);
         return JsonUtils.SUCCESS(result);
     }
+
     @GET
     @Path("getLocationList")
     public String getLocationList(int locationNum) {
@@ -92,6 +93,7 @@ public class StockTakingRestService implements IStockTakingRestService {
         }
         return JsonUtils.SUCCESS(JSON.toJSON(locations).toString());
     }
+
 //    @GET
 //    @Path("getList")
 //    public String getList(Map<String, Object> mapQuery) {

@@ -1,5 +1,6 @@
 package com.lsh.wms.service.po;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
@@ -13,13 +14,17 @@ import com.lsh.wms.api.model.base.ResponseConstant;
 import com.lsh.wms.api.model.po.PoItem;
 import com.lsh.wms.api.model.po.PoRequest;
 import com.lsh.wms.api.service.po.IPoRestService;
+import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.constant.PoConstant;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.po.InbPoDetail;
 import com.lsh.wms.model.po.InbPoHeader;
+import com.lsh.wms.model.task.TaskEntry;
+import com.lsh.wms.model.task.TaskInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
@@ -50,11 +55,14 @@ public class PORestService implements IPoRestService {
     @Autowired
     private ItemService itemService;
 
+    @Reference
+    private ITaskRpcService iTaskRpcService;
+
     @POST
     @Path("init")
     public String init(String poOrderInfo) { // test
         InbPoHeader inbPoHeader = JSON.parseObject(poOrderInfo,InbPoHeader.class);
-        List<InbPoDetail> inbPoDetailList = JSON.parseArray(inbPoHeader.getOrderDetails(),InbPoDetail.class);
+        List<InbPoDetail> inbPoDetailList = JSON.parseArray((String)inbPoHeader.getOrderDetails(),InbPoDetail.class);
         poOrderService.insertOrder(inbPoHeader,inbPoDetailList);
         return JsonUtils.SUCCESS();
     }
@@ -94,6 +102,14 @@ public class PORestService implements IPoRestService {
 
         //插入订单
         poOrderService.insertOrder(inbPoHeader, inbPoDetailList);
+
+        TaskEntry taskEntry = new TaskEntry();
+        TaskInfo taskInfo = new TaskInfo();
+        taskInfo.setType(TaskConstant.TYPE_PO);
+        taskEntry.setTaskInfo(taskInfo);
+        iTaskRpcService.create(TaskConstant.TYPE_PO,taskEntry);
+
+
 
         //打包返回数据
 
