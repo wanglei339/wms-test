@@ -26,9 +26,9 @@ public interface IReceiptRestService {
 
     public String updateReceiptStatusByReceiptId() throws BizCheckedException;
 
-    public String getPoReceiptDetailByReceiptId(Long receiptId);
+    public String getPoReceiptDetailByReceiptId(Long receiptId) throws BizCheckedException;
 
-    public String getPoReceiptDetailByOrderId(Long orderId);
+    public String getPoReceiptDetailByOrderId(Long orderId) throws BizCheckedException;
 
     public String countInbPoReceiptHeader();
 

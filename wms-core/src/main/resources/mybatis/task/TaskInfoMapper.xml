@@ -15,6 +15,7 @@
 		<result property="operator" column="operator"/>
 		<result property="planner" column="planner"/>
 		<result property="type" column="type"/>
+		<result property="subType" column="sub_type"/>
 		<result property="status" column="status"/>
 		<result property="priority" column="priority"/>
 		<result property="draftTime" column="draft_time"/>
@@ -38,13 +39,13 @@
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TaskInfo">
 		insert into task_info (
 			task_id,task_name,plan_id,wave_id,order_id,location_id,
-			sku_id,container_id,operator,planner,type,status,
+			sku_id,container_id,operator,planner,type,sub_type,status,
 			priority,draft_time,assign_time,due_time,finish_time,cancel_time,
 			ext1,ext2,ext3,ext4,ext5,ext6,
 			ext7,ext8,ext9,created_at,updated_at
     	) values (
 			#{taskId},#{taskName},#{planId},#{waveId},#{orderId},#{locationId},
-			#{skuId},#{containerId},#{operator},#{planner},#{type},#{status},
+			#{skuId},#{containerId},#{operator},#{planner},#{type},#{subType},#{status},
 			#{priority},#{draftTime},#{assignTime},#{dueTime},#{finishTime},#{cancelTime},
 			#{ext1},#{ext2},#{ext3},#{ext4},#{ext5},#{ext6},
 			#{ext7},#{ext8},#{ext9},#{createdAt},#{updatedAt}
@@ -65,6 +66,7 @@
   			<if test="operator != null">operator=#{operator},</if>
   			<if test="planner != null">planner=#{planner},</if>
   			<if test="type != null">type=#{type},</if>
+			<if test="subType != null">sub_type=#{subType},</if>
   			<if test="status != null">status=#{status},</if>
   			<if test="priority != null">priority=#{priority},</if>
   			<if test="draftTime != null">draft_time=#{draftTime},</if>
@@ -119,6 +121,7 @@
 			<if test="operator != null">and operator=#{operator}</if>
 			<if test="planner != null">and planner=#{planner}</if>
 			<if test="type != null">and type=#{type}</if>
+			<if test="subType != null">and sub_type=#{subType}</if>
 			<if test="status != null">and status=#{status}</if>
 			<if test="priority != null">and priority=#{priority}</if>
 			<if test="draftTime != null">and draft_time=#{draftTime}</if>
