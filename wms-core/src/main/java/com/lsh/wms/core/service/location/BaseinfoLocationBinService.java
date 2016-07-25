@@ -2,6 +2,7 @@ package com.lsh.wms.core.service.location;
 
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationBinDao;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationBin;
+import com.lsh.wms.model.baseinfo.BaseinfoLocationDock;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,9 +38,16 @@ public class BaseinfoLocationBinService implements IStrategy {
     }
 
 
-    public IBaseinfoLocaltionModel getBaseinfoItemLocationModelById(Long id) {
+    public IBaseinfoLocaltionModel getBaseinfoItemLocationModelById(Long locationId) {
+        Map<String,Object> mapQuery = new HashMap<String,Object>();
+        mapQuery.put("locationId",locationId);
+        List<BaseinfoLocationBin> lists = baseinfoLocationBinDao.getBaseinfoLocationBinList(mapQuery);
+        BaseinfoLocationBin  baseinfoLocationBin = null;
+        if(lists.size()>0){
+            baseinfoLocationBin = lists.get(0);
+        }
 
-        return baseinfoLocationBinDao.getBaseinfoLocationBinById(id);
+        return baseinfoLocationBin;
     }
 
     public Integer countBaseinfoLocaltionModel(Map<String, Object> params) {

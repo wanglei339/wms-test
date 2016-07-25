@@ -10,13 +10,17 @@
 		<result property="width" column="width"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
+		<result property="description" column="description"/>
+		<result property="type" column="type"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLocationPassage">
 		insert into baseinfo_location_passage (
-			location_id,direction,length,width,created_at,updated_at
+			location_id,direction,length,width,created_at,updated_at,
+			description,type
     	) values (
-			#{locationId},#{direction},#{length},#{width},#{createdAt},#{updatedAt}
+			#{locationId},#{direction},#{length},#{width},#{createdAt},#{updatedAt},
+			#{description},#{type}
     	)
 	</insert>
 
@@ -28,7 +32,9 @@
   			<if test="length != null">length=#{length},</if>
   			<if test="width != null">width=#{width},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
-  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+  			<if test="description != null">description=#{description},</if>
+  			<if test="type != null">type=#{type}</if>
 		</set>
 		where location_id=#{locationId}
 	</update>
@@ -60,6 +66,8 @@
 			<if test="width != null">and width=#{width}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="description != null">and description=#{description}</if>
+			<if test="type != null">and type=#{type}</if>
 		</where>
 	</sql>
    
