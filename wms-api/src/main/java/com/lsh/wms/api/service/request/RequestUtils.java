@@ -1,12 +1,15 @@
 package com.lsh.wms.api.service.request;
 
 import com.alibaba.dubbo.rpc.RpcContext;
+import com.lsh.base.common.json.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 
 /**
  * Project Name: lsh-wms
@@ -19,18 +22,31 @@ import java.util.Map;
  */
 public class RequestUtils {
     private static final Logger logger = LoggerFactory.getLogger(RequestUtils.class);
-    public static Map<String,Object> getRequest(){
-        HttpServletRequest request = (HttpServletRequest) RpcContext.getContext().getRequest();
-        Map<String, String[]> paramMap = request.getParameterMap();
-        Map<String,Object> requestMap = new HashMap<String, Object>();
-        for (Map.Entry<String, String[]> entry : paramMap.entrySet()) {
-            logger.debug("key= " + entry.getKey() + " and value= " + entry.getValue());
 
-            String[] parameterValues = entry.getValue();
-            if (parameterValues != null && parameterValues.length > 0) {
-                requestMap.put(entry.getKey(),entry.getValue()[0]);
+    public static Map<String, Object> getRequest() {
+        HttpServletRequest request = (HttpServletRequest) RpcContext.getContext().getRequest();
+        Map<String, Object> requestMap = new HashMap<String, Object>();
+        if ("POST".equalsIgnoreCase(request.getMethod())) {
+            Scanner scanner = null;
+            try {
+                scanner = new Scanner(request.getInputStream(), "UTF-8").useDelimiter("\\A");
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+            String reqStr = scanner.hasNext() ? scanner.next() : "";
+            logger.debug(reqStr);
+            requestMap = JsonUtils.json2Obj(reqStr, Map.class);
+        } else {
+            Map<String, String[]> paramMap = request.getParameterMap();
+            for (Map.Entry<String, String[]> entry : paramMap.entrySet()) {
+                logger.debug("key= " + entry.getKey() + " and value= " + entry.getValue());
+                String[] parameterValues = entry.getValue();
+                if (parameterValues != null && parameterValues.length > 0) {
+                    requestMap.put(entry.getKey(), entry.getValue()[0]);
+                }
+            }
+
         }
-        return  requestMap;
+        return requestMap;
     }
 }
