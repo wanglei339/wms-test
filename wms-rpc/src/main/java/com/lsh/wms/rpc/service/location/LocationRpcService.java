@@ -79,4 +79,15 @@ public class LocationRpcService implements ILocationRpcService {
     public BaseinfoLocation assignFloor() {
         return locationService.getAvailableLocationByType("floor");
     }
+
+
+    //分配退货区
+    public BaseinfoLocation getBackLocation() {
+        return locationService.getBackLocation();
+    }
+
+    //分配残次区
+    public BaseinfoLocation getDefectiveLocation() {
+        return locationService.getDefectiveLocation();
+    }
 }

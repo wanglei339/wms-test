@@ -60,5 +60,11 @@ public class LocationDetailService {
 
     }
 
+    //计数
+    public int countLocationDetail(Map<String,Object> params,Integer type){
+        IStrategy iStrategy = locationDetailServiceFactory.createDetailServiceByType(type);
+        return iStrategy.countBaseinfoLocaltionModel(params);
+    }
+
 
 }

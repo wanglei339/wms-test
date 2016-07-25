@@ -38,7 +38,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
 
     @GET
     @Path("getLocationDetail")
-    public String getLocationDetailByIdAndType(@QueryParam("locationId") Long locationId,@QueryParam("type") Integer type) {
+    public String getLocationDetailByIdAndType(@QueryParam("locationId") Long locationId, @QueryParam("type") Integer type) {
         IBaseinfoLocaltionModel iBaseinfoLocaltionModel;
         iBaseinfoLocaltionModel = locationDetailService.getIBaseinfoLocaltionModelByIdAndType(locationId, type);
         return JsonUtils.SUCCESS(iBaseinfoLocaltionModel);
@@ -72,6 +72,11 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationModelFactory.creatLocationModelByType(type);
         locationDetailService.update(baseinfoLocaltionModel);
         return null;
+    }
+
+    public String countLocationDetailByType(Map<String, Object> params,Integer type) {
+
+        return JsonUtils.SUCCESS(locationDetailService.countLocationDetail(params,type));
     }
 
 

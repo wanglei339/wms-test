@@ -37,7 +37,6 @@ public class BaseinfoLocationDockService implements IStrategy {
     }
 
     public IBaseinfoLocaltionModel getBaseinfoItemLocationModelById(Long locationId) {
-        System.out.println("id~~~~~~~~~~~~~~~~"+locationId);
         Map<String,Object> mapQuery = new HashMap<String,Object>();
         mapQuery.put("locationId",locationId);
         List<BaseinfoLocationDock> lists =
@@ -47,7 +46,6 @@ public class BaseinfoLocationDockService implements IStrategy {
             baseinfoLocationDock = lists.get(0);
         }
         return baseinfoLocationDock;
-//        return baseinfoLocationDockDao.getBaseinfoLocationDockById(locationId);
     }
 
     public Integer countBaseinfoLocaltionModel(Map<String, Object> params) {
