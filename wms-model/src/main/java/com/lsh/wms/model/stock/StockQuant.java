@@ -50,11 +50,13 @@ public class StockQuant implements Serializable,Cloneable {
 	private Long itemId;
 
 	private String stockLot;
-
+	/** 0-非残次，1-残次 */
+	private Long isDefect = 0L;
+	/** 0-非退货，1-退货 */
+	private Long isRefund = 0L;
 
     public Long getId(){
-
-		return this.id;
+    	return this.id;
 	}
 	
 	public void setId(Long id){
@@ -205,7 +207,21 @@ public class StockQuant implements Serializable,Cloneable {
 		this.itemId = itemId;
 	}
 
+	public Long getIsDefect(){
+		return isDefect;
+	}
 
+	public void setIsDefect(Long isDefect){
+		this.isDefect = isDefect;
+	}
+
+	public Long getIsRefund(){
+		return isRefund;
+	}
+
+	public void setIsRefund(Long isRefund){
+		this.isRefund = isRefund;
+	}
 
 	@Override
     public Object clone() {

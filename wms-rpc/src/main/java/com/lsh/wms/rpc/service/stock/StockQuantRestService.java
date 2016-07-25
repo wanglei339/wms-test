@@ -24,10 +24,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by mali on 16/6/29.
@@ -126,6 +123,26 @@ public class StockQuantRestService implements IStockQuantRestService {
         return JsonUtils.SUCCESS();
     }
 
+    @POST
+    @Path("toDefect")
+    public  String toDefect(Map<String, Object> mapCondition) {
+        List<StockQuant> quantList = stockQuantService.getQuants(mapCondition);
+        for (StockQuant quant : quantList) {
+            stockQuantService.toDefect(quant);
+        }
+        return JsonUtils.SUCCESS();
+    }
+
+    @POST
+    @Path("toRefund")
+    public String toRefund(Map<String, Object> mapCondition) {
+        List<StockQuant> quantList = stockQuantService.getQuants(mapCondition);
+        for (StockQuant quant : quantList) {
+            stockQuantService.toRefund(quant);
+        }
+        return JsonUtils.SUCCESS();
+    }
+
     @GET
     @Path("getHistory")
     public String getHistory(@QueryParam("quant_id") Long quant_id) {
@@ -151,32 +168,28 @@ public class StockQuantRestService implements IStockQuantRestService {
         List<Long> locationListDefect = locationService.getStoreLocationIds(locationService.getDefectiveLocationId());
         List<Long> locationListRefund = locationService.getStoreLocationIds(locationService.getBackLocationId());
 
-        Map<Long, BigDecimal> total = new HashMap<Long, BigDecimal>();
-        Map<Long, BigDecimal> freeze = new HashMap<Long, BigDecimal>();
-        Map<Long, BigDecimal> loss = new HashMap<Long, BigDecimal>();
-        Map<Long, BigDecimal> defect = new HashMap<Long, BigDecimal>();
-        Map<Long, BigDecimal> refund = new HashMap<Long, BigDecimal>();
+        BigDecimal total, freeze, loss, defect, refund;
 
         for (BaseinfoItem item : itemList) {
-
             Long itemId = item.getItemId();
-
-            total = stockQuantService.getItemCount(itemId, locationList, false);
-            freeze = stockQuantService.getItemCount(itemId, locationList, true);
+            total = stockQuantService.getItemCount(itemId, locationList, true);
+            freeze = stockQuantService.getItemCount(itemId, locationList, false);
             loss = stockQuantService.getItemCount(itemId, locationListLoss, false);
-            defect = stockQuantService.getItemCount(itemId, locationListDefect, true);
-            refund = stockQuantService.getItemCount(itemId, locationListRefund, true);
+            defect = stockQuantService.getItemCount(itemId, locationListDefect, false);
+            refund = stockQuantService.getItemCount(itemId, locationListRefund, false);
+
+            BigDecimal reTotal = total.subtract(loss);
+            BigDecimal normal = reTotal.subtract(defect.add(refund));
+            BigDecimal available = normal.subtract(freeze);
 
             Map<String, BigDecimal> result = new HashMap<String, BigDecimal>();
-            result.put("total", total.get(itemId).subtract(loss.get(itemId)));
-            result.put("freeze", freeze.get(itemId));
-            result.put("loss", loss.get(itemId));
-            result.put("defect", defect.get(itemId));
-            result.put("refund", refund.get(itemId));
-
+            result.put("total", reTotal);
+            result.put("available",available);
+            result.put("freeze", freeze);
+            result.put("defect", defect);
+            result.put("refund", refund);
             itemQuant.put(itemId,result);
         }
-
         return JsonUtils.SUCCESS(itemQuant);
     }
 
@@ -189,7 +202,6 @@ public class StockQuantRestService implements IStockQuantRestService {
     @POST
     @Path("getLocationStockList")
     public String getLocationStockList(Map<String, Object> mapQuery) {
-
         int pn = Integer.valueOf((mapQuery.get("start")).toString());
         int rn = Integer.valueOf((mapQuery.get("limit")).toString());
         Map<Long, List<StockQuant>> locationDetail = new HashMap<Long, List<StockQuant>>();
