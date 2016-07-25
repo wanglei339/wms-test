@@ -102,7 +102,7 @@
                 <upload.path.root>/data/upload/staticfile</upload.path.root>
                 <oss.file.endpoint>oss-cn-beijing.aliyuncs.com</oss.file.endpoint>
                 <oss.image.endpoint>oss-cn-beijing.aliyuncs.com</oss.image.endpoint>
-                <zookeeper.ip>192.168.60.48</zookeeper.ip>
+                <zookeeper.ip>127.0.0.1</zookeeper.ip>
                 <dubbo.ip>127.0.0.1</dubbo.ip>
                 <live.rest.host>127.0.0.1:8890</live.rest.host>
                 <pili.live.hubname>lsh-test</pili.live.hubname>

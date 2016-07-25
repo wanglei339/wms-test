@@ -1,11 +1,6 @@
-package com.lsh.wms.rpc.service.pick.wave.split;
+package com.lsh.wms.service.pick.wave.split;
 
-import com.lsh.wms.model.pick.PickTaskDetail;
-
-import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by zengwenjun on 16/7/15.

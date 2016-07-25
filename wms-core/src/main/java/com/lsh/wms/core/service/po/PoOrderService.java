@@ -254,7 +254,7 @@ public class PoOrderService {
 
         List<InbPoDetail> inbPoDetailList = getInbPoDetailListByOrderId(inbPoHeader.getOrderId());
 
-        inbPoHeader.setOrderDetails(JsonUtils.obj2Json(inbPoDetailList));
+        inbPoHeader.setOrderDetails(inbPoDetailList);
     }
 
 }

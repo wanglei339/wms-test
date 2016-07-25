@@ -3,7 +3,7 @@ package com.lsh.wms.model.baseinfo;
 import java.io.Serializable;
 import java.util.Date;
 
-public class BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel {
+public class BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel  {
 
 	/**  */
     private Long id;

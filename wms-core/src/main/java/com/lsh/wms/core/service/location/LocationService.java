@@ -30,7 +30,8 @@ public class LocationService {
     private StockQuantService stockQuantService;
     @Autowired
     private BaseinfoLocationShelfDao shelfDao;
-
+    @Autowired
+    private BaseinfoLocationService baseinfoLocationService;
 
 
     // location类型定义
@@ -46,13 +47,15 @@ public class LocationService {
             put("back_area", new Long(8)); // 8 退货区
             put("defective_area", new Long(9)); // 9 残次区
             put("dock_area", new Long(10)); // 10 码头区
-            put("packing_bin", new Long(11)); // 11 拣货位
-            put("stock_bin", new Long(12)); // 12 存货位
-            put("floor_bin", new Long(13)); // 13 地堆货位
-            put("temporary_bin", new Long(14)); // 14 暂存货位
-            put("collection_bin", new Long(15)); // 15 集货货位
-            put("back_bin", new Long(16)); // 16 退货货位
-            put("defective_bin", new Long(17));// 17 残次货位
+            put("bin", new Long(11)); // 11 货位
+            put("packing_bin", new Long(12)); // 12 拣货位
+            put("stock_bin", new Long(13)); // 14 存货位
+            put("floor_bin", new Long(14)); // 14 地堆货位
+            put("temporary_bin", new Long(15)); // 15 暂存货位
+            put("collection_bin", new Long(16)); // 16 集货货位
+            put("back_bin", new Long(17)); // 17 退货货位
+            put("defective_bin", new Long(18));// 18 残次货位
+            put("passage", new Long(19));   //19通道
 
         }
     };
@@ -80,9 +83,8 @@ public class LocationService {
     @Transactional(readOnly = false)
     public BaseinfoLocation insertLocation(BaseinfoLocation location) {
 
-        LocationFactory locationFactory = new LocationFactory(new BaseinfoLocationService());
-        locationFactory.insert(location);
-
+//        LocationModelFactory locationFactory = new LocationModelFactory(new BaseinfoLocationService());
+//        locationFactory.insert(location);
         if (location.getLocationId() == 0) {
             //添加locationId
             int iLocationId = 0;
@@ -92,11 +94,14 @@ public class LocationService {
         long createdAt = DateUtils.getCurrentSeconds();
         location.setCreatedAt(createdAt);
         locationDao.insert(location);
+//        locationFactory.insert(location);
         return location;
     }
 
     @Transactional(readOnly = false)
     public BaseinfoLocation updateLocation(BaseinfoLocation location) {
+        LocationFactory locationFactory = new LocationFactory(new BaseinfoLocationService());
+        locationFactory.insert(location);
         if (this.getLocation(location.getLocationId()) == null) {
             return null;
         }

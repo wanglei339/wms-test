@@ -62,7 +62,7 @@ public class PORestService implements IPoRestService {
     @Path("init")
     public String init(String poOrderInfo) { // test
         InbPoHeader inbPoHeader = JSON.parseObject(poOrderInfo,InbPoHeader.class);
-        List<InbPoDetail> inbPoDetailList = JSON.parseArray(inbPoHeader.getOrderDetails(),InbPoDetail.class);
+        List<InbPoDetail> inbPoDetailList = JSON.parseArray((String)inbPoHeader.getOrderDetails(),InbPoDetail.class);
         poOrderService.insertOrder(inbPoHeader,inbPoDetailList);
         return JsonUtils.SUCCESS();
     }

@@ -10,13 +10,13 @@ import java.util.Map;
 public interface StockTakingTaskDao {
 
 	void insert(StockTakingTask stockTakingTask);
-	
+
 	void update(StockTakingTask stockTakingTask);
-	
+
 	StockTakingTask getStockTakingTaskById(Long id);
 
     Integer countStockTakingTask(Map<String, Object> params);
 
     List<StockTakingTask> getStockTakingTaskList(Map<String, Object> params);
-	
+
 }

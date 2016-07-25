@@ -2,12 +2,13 @@ package com.lsh.wms.model.task;
 
 import com.lsh.wms.model.stock.StockMove;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by mali on 16/7/23.
  */
-public class TaskEntry {
+public class TaskEntry implements Serializable {
 
     private TaskInfo taskInfo;
     private Object taskHead;

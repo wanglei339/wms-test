@@ -91,7 +91,7 @@ public class ReceiptRestService implements IReceiptRestService {
     @Path("init")
     public String init(String poReceiptInfo) {
         InbReceiptHeader inbReceiptHeader = JSON.parseObject(poReceiptInfo,InbReceiptHeader.class);
-        List<InbReceiptDetail> inbReceiptDetailList = JSON.parseArray(inbReceiptHeader.getReceiptDetails(),InbReceiptDetail.class);
+        List<InbReceiptDetail> inbReceiptDetailList = JSON.parseArray((String)inbReceiptHeader.getReceiptDetails(),InbReceiptDetail.class);
         poReceiptService.orderInit(inbReceiptHeader,inbReceiptDetailList);
         return JsonUtils.SUCCESS();
     }

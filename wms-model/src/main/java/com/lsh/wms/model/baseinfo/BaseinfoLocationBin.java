@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.math.BigDecimal;
 
-public class BaseinfoLocationBin implements Serializable {
+public class BaseinfoLocationBin  implements Serializable,IBaseinfoLocaltionModel{
 
 	/**  */
     private Long id;
