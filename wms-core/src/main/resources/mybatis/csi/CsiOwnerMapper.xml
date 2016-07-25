@@ -7,7 +7,7 @@
 		<result property="ownerId" column="owner_id"/>
 		<result property="ownerName" column="owner_name"/>
 		<result property="ownerDesc" column="owner_desc"/>
-		<result property="contry" column="contry"/>
+		<result property="country" column="country"/>
 		<result property="province" column="province"/>
 		<result property="city" column="city"/>
 		<result property="address" column="address"/>
@@ -17,10 +17,10 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="CsiOwner">
 		insert into csi_owner (
-			owner_id,owner_name,owner_desc,contry,province,city,
+			owner_id,owner_name,owner_desc,country,province,city,
 			address,created_at,updated_at
     	) values (
-			#{ownerId},#{ownerName},#{ownerDesc},#{contry},#{province},#{city},
+			#{ownerId},#{ownerName},#{ownerDesc},#{country},#{province},#{city},
 			#{address},#{createdAt},#{updatedAt}
     	)
 	</insert>
@@ -30,7 +30,7 @@
     	<set>
   			<if test="ownerName != null">owner_name=#{ownerName},</if>
   			<if test="ownerDesc != null">owner_desc=#{ownerDesc},</if>
-  			<if test="contry != null">contry=#{contry},</if>
+  			<if test="country != null">country=#{country},</if>
   			<if test="province != null">province=#{province},</if>
   			<if test="city != null">city=#{city},</if>
   			<if test="address != null">address=#{address},</if>
@@ -64,7 +64,7 @@
 			<if test="ownerId != null">and owner_id=#{ownerId}</if>
 			<if test="ownerName != null">and owner_name=#{ownerName}</if>
 			<if test="ownerDesc != null">and owner_desc=#{ownerDesc}</if>
-			<if test="contry != null">and contry=#{contry}</if>
+			<if test="country != null">and country=#{country}</if>
 			<if test="province != null">and province=#{province}</if>
 			<if test="city != null">and city=#{city}</if>
 			<if test="address != null">and address=#{address}</if>

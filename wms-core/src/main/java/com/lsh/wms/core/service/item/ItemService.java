@@ -119,6 +119,13 @@ public class ItemService {
 
     //按品类,sku_id,owner等查询
     public List<BaseinfoItem> searchItem(Map<String, Object> mapQuery){
+        //增加skuName模糊查询
+        String skuName = (String) mapQuery.get("skuName");
+        if(skuName != null){
+            skuName = "%"+skuName+"%";
+            mapQuery.put("skuName",skuName);
+        }
+
         return itemDao.getBaseinfoItemList(mapQuery);
     }
 
