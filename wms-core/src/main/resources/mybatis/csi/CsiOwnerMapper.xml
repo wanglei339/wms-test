@@ -30,7 +30,7 @@
     	<set>
   			<if test="ownerName != null">owner_name=#{ownerName},</if>
   			<if test="ownerDesc != null">owner_desc=#{ownerDesc},</if>
-  			<if test="contry != null">country=#{country},</if>
+  			<if test="country != null">country=#{country},</if>
   			<if test="province != null">province=#{province},</if>
   			<if test="city != null">city=#{city},</if>
   			<if test="address != null">address=#{address},</if>
@@ -64,7 +64,7 @@
 			<if test="ownerId != null">and owner_id=#{ownerId}</if>
 			<if test="ownerName != null">and owner_name=#{ownerName}</if>
 			<if test="ownerDesc != null">and owner_desc=#{ownerDesc}</if>
-			<if test="contry != null">and country=#{country}</if>
+			<if test="country != null">and country=#{country}</if>
 			<if test="province != null">and province=#{province}</if>
 			<if test="city != null">and city=#{city}</if>
 			<if test="address != null">and address=#{address}</if>
