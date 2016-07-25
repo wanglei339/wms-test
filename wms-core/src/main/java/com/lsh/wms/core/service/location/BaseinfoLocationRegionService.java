@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,8 +36,18 @@ public class BaseinfoLocationRegionService implements IStrategy {
         baseinfoLocationRegionDao.update((BaseinfoLocationRegion) baseinfoLocaltionModel);
     }
 
-    public IBaseinfoLocaltionModel getBaseinfoItemLocationModelById(Long id) {
-        return baseinfoLocationRegionDao.getBaseinfoLocationRegionById(id);
+    public IBaseinfoLocaltionModel getBaseinfoItemLocationModelById(Long locationId) {
+        Map<String,Object> mapQuery = new HashMap<String,Object>();
+        mapQuery.put("locationId",locationId);
+        List<BaseinfoLocationRegion> lists =
+                baseinfoLocationRegionDao.getBaseinfoLocationRegionList(mapQuery);
+        BaseinfoLocationRegion baseinfoLocationRegion = null;
+        if(lists.size()>0){
+            baseinfoLocationRegion = lists.get(0);
+        }
+        return baseinfoLocationRegion;
+
+//        return baseinfoLocationRegionDao.getBaseinfoLocationRegionById(locationId);
     }
 
     public Integer countBaseinfoLocaltionModel(Map<String, Object> params) {

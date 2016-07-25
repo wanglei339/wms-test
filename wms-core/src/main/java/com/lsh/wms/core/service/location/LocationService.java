@@ -60,6 +60,11 @@ public class LocationService {
         }
     };
 
+    //计数
+    public int countLocation(Map<String,Object> params){
+        return locationDao.countBaseinfoLocation(params);
+    }
+
     // 获取location
     public BaseinfoLocation getLocation(long locationId) {
         Map<String, Object> params = new HashMap<String, Object>();
@@ -341,18 +346,14 @@ public class LocationService {
 
 // TODO    public BaseinfoLocation getAvailableBinLocationByType(String type)
     //获取货位节点的id
-
-
+    public List<BaseinfoLocation> getBaseinfoLocationList(Map<String, Object> mapQuery) {
+        return locationDao.getBaseinfoLocationList(mapQuery);
+    }
 
     // 获取拣货位最近的存储位
     public BaseinfoLocation getNearestStorageByPicking(BaseinfoLocation pickingLocation) {
         return null;
     }
-
-    public List<BaseinfoLocation> getBaseinfoLocationList(Map<String, Object> mapQuery) {
-        return locationDao.getBaseinfoLocationList(mapQuery);
-    }
-
 
 
     /*

@@ -108,4 +108,8 @@ public class LocationRestService implements ILocationRestService {
     public String updateLocation(BaseinfoLocation location) {
         return JsonUtils.SUCCESS(locationRpcService.updateLocation(location));
     }
+
+    public String countBaseinfoLocation(Map<String, Object> params) {
+        return JsonUtils.SUCCESS(locationService);
+    }
 }

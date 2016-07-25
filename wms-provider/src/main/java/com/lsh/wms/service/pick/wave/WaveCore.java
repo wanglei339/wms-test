@@ -5,6 +5,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.PickConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.service.item.ItemService;
@@ -215,6 +216,7 @@ public class WaveCore {
                 info.setPlanId(iWaveId);
                 List<Object> pickTaskDetails = new LinkedList<Object>();
                 info.setType(TaskConstant.TYPE_PICK);
+                info.setSubType(PickConstant.SHELF_TASK_TYPE);
                 PickTaskHead head = new PickTaskHead();
                 head.setWaveId(iWaveId);
                 //head.setPickTaskId(RandomUtils.genId());

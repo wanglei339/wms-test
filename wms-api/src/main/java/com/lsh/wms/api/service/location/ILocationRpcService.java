@@ -22,4 +22,11 @@ public interface ILocationRpcService {
     public BaseinfoLocation updateLocation(BaseinfoLocation location);
     public BaseinfoLocation assignTemporary();
     public BaseinfoLocation assignFloor();
+
+    //分配退货
+    public BaseinfoLocation getBackLocation();
+    //分配残次
+    public BaseinfoLocation getDefectiveLocation();
+
+
 }
