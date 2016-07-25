@@ -106,6 +106,7 @@ public class PORestService implements IPoRestService {
         TaskEntry taskEntry = new TaskEntry();
         TaskInfo taskInfo = new TaskInfo();
         taskInfo.setType(TaskConstant.TYPE_PO);
+        taskInfo.setOrderId(inbPoHeader.getOrderId());
         taskEntry.setTaskInfo(taskInfo);
         iTaskRpcService.create(TaskConstant.TYPE_PO,taskEntry);
 
