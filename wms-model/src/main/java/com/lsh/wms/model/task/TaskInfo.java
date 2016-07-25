@@ -163,6 +163,14 @@ public class TaskInfo implements Serializable {
 	public void setType(Long type){
 		this.type = type;
 	}
+
+	public Long getSubType(){
+		return this.subType;
+	}
+
+	public void setSubType(Long subType){
+		this.subType = subType;
+	}
 	
 	public Long getStatus(){
 		return this.status;

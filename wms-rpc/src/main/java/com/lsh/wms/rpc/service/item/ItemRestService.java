@@ -7,9 +7,11 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.item.IItemRestService;
 import com.lsh.wms.core.service.item.ItemService;
+import com.lsh.wms.core.service.location.BaseinfoLocationDockService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoLocationDock;
 import com.lsh.wms.model.csi.CsiSku;
 import net.sf.json.util.JSONUtils;
 import org.slf4j.Logger;
@@ -42,6 +44,7 @@ public class ItemRestService implements IItemRestService {
 
     @Autowired
     private LocationService locationService;
+
 
     @GET
     @Path("getItem")

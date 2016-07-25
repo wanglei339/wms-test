@@ -12,15 +12,16 @@
 		<result property="description" column="description"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
+		<result property="type" column="type"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLocationBin">
 		insert into baseinfo_location_bin (
 			location_id,item_id,volume,bin_type,weigh,description,
-			created_at,updated_at
+			created_at,updated_at,type
     	) values (
 			#{locationId},#{itemId},#{volume},#{binType},#{weigh},#{description},
-			#{createdAt},#{updatedAt}
+			#{createdAt},#{updatedAt},#{type}
     	)
 	</insert>
 
@@ -34,7 +35,8 @@
   			<if test="weigh != null">weigh=#{weigh},</if>
   			<if test="description != null">description=#{description},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
-  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+  			<if test="type != null">type=#{type}</if>
 		</set>
 		where location_id=#{locationId}
 	</update>
@@ -68,6 +70,7 @@
 			<if test="description != null">and description=#{description}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="type != null">and type=#{type}</if>
 		</where>
 	</sql>
    

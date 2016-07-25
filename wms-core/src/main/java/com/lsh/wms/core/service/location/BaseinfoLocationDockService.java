@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,8 +36,16 @@ public class BaseinfoLocationDockService implements IStrategy {
         baseinfoLocationDockDao.update((BaseinfoLocationDock) baseinfoLocaltionModel);
     }
 
-    public IBaseinfoLocaltionModel getBaseinfoItemLocationModelById(Long id) {
-        return baseinfoLocationDockDao.getBaseinfoLocationDockById(id);
+    public IBaseinfoLocaltionModel getBaseinfoItemLocationModelById(Long locationId) {
+        Map<String,Object> mapQuery = new HashMap<String,Object>();
+        mapQuery.put("locationId",locationId);
+        List<BaseinfoLocationDock> lists =
+                baseinfoLocationDockDao.getBaseinfoLocationDockList(mapQuery);
+        BaseinfoLocationDock baseinfoLocationDock = null;
+        if(lists.size()>0){
+            baseinfoLocationDock = lists.get(0);
+        }
+        return baseinfoLocationDock;
     }
 
     public Integer countBaseinfoLocaltionModel(Map<String, Object> params) {

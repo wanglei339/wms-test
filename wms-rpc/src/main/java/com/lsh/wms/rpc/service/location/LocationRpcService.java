@@ -53,6 +53,15 @@ public class LocationRpcService implements ILocationRpcService {
         return locationService.getFatherByType(locationId, type);
     }
 
+    //提供位置能否存储存
+    public boolean canStore(Long locationId) {
+        BaseinfoLocation baseinfoLocation = locationService.getLocation(locationId);
+        if (baseinfoLocation.getCanStore()!=0){
+            return true;
+        }
+        return false;
+    }
+
     public BaseinfoLocation insertLocation(BaseinfoLocation location) {
         return locationService.insertLocation(location);
     }
@@ -69,5 +78,16 @@ public class LocationRpcService implements ILocationRpcService {
     // 分配地堆区location
     public BaseinfoLocation assignFloor() {
         return locationService.getAvailableLocationByType("floor");
+    }
+
+
+    //分配退货区
+    public BaseinfoLocation getBackLocation() {
+        return locationService.getBackLocation();
+    }
+
+    //分配残次区
+    public BaseinfoLocation getDefectiveLocation() {
+        return locationService.getDefectiveLocation();
     }
 }

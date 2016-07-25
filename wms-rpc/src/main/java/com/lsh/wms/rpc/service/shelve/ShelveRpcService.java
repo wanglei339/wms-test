@@ -131,6 +131,10 @@ public class ShelveRpcService implements IShelveRpcService {
      * @throws BizCheckedException
      */
     public BaseinfoLocation assignShelfLocation(BaseinfoContainer container, BaseinfoLocation pickingLocation) throws BizCheckedException {
-        return null;
+        BaseinfoLocation targetLocation = locationService.getNearestStorageByPicking(pickingLocation);
+        if (targetLocation == null) {
+            throw new BizCheckedException("2030003");
+        }
+        return targetLocation;
     }
 }

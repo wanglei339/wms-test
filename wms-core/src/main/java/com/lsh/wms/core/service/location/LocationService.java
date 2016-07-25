@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.location;
 
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationShelfDao;
@@ -49,16 +50,20 @@ public class LocationService {
             put("dock_area", new Long(10)); // 10 码头区
             put("bin", new Long(11)); // 11 货位
             put("packing_bin", new Long(12)); // 12 拣货位
-            put("stock_bin", new Long(13)); // 14 存货位
+            put("stock_bin", new Long(13)); // 13 存货位
             put("floor_bin", new Long(14)); // 14 地堆货位
             put("temporary_bin", new Long(15)); // 15 暂存货位
             put("collection_bin", new Long(16)); // 16 集货货位
             put("back_bin", new Long(17)); // 17 退货货位
             put("defective_bin", new Long(18));// 18 残次货位
             put("passage", new Long(19));   //19通道
-
         }
     };
+
+    //计数
+    public int countLocation(Map<String,Object> params){
+        return locationDao.countBaseinfoLocation(params);
+    }
 
     // 获取location
     public BaseinfoLocation getLocation(long locationId) {
@@ -145,6 +150,9 @@ public class LocationService {
     public List<BaseinfoLocation> getStoreLocations(Long locationId) {
         List<BaseinfoLocation> locations = new ArrayList();
         BaseinfoLocation curLocation = this.getLocation(locationId);
+        if (curLocation == null) {
+            return null;
+        }
         if (curLocation.getCanStore() == 1) {
             locations.add(curLocation);
         }
@@ -338,13 +346,14 @@ public class LocationService {
 
 // TODO    public BaseinfoLocation getAvailableBinLocationByType(String type)
     //获取货位节点的id
-
-
-
     public List<BaseinfoLocation> getBaseinfoLocationList(Map<String, Object> mapQuery) {
         return locationDao.getBaseinfoLocationList(mapQuery);
     }
 
+    // 获取拣货位最近的存储位
+    public BaseinfoLocation getNearestStorageByPicking(BaseinfoLocation pickingLocation) {
+        return null;
+    }
 
 
     /*
