@@ -24,7 +24,7 @@ public interface IDeliveryRestService {
 
 //    public String updateDeliveryTypeByOrderOtherId() throws BizCheckedException;
 
-    public String getOutbDeliveryHeaderDetailByDeliveryId(Long deliveryId);
+    public String getOutbDeliveryHeaderDetailByDeliveryId(Long deliveryId) throws BizCheckedException;
 
     public String countOutbDeliveryHeader();
 

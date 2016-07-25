@@ -19,7 +19,7 @@ public interface ISoOrderRestService {
 
     public String updateOrderStatusByOrderId() throws BizCheckedException;
 
-    public String getOutbSoHeaderDetailByOrderId(Long orderId);
+    public String getOutbSoHeaderDetailByOrderId(Long orderId) throws BizCheckedException;
 
     public String countOutbSoHeader();
 
