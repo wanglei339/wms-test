@@ -137,6 +137,12 @@ public class StockQuantRestService implements IStockQuantRestService {
 
         Map<Long, List<StockQuant>> locationDetail = new HashMap<Long, List<StockQuant>>();
         List<Long> locationList = locationService.getStoreLocationIds(locationService.getWarehouseLocationId());
+
+        for(Long location : locationList) {
+            System.out.println("locationId: " + location);
+        }
+
+
         List<Long> selectedLocationList = locationList.subList(pn.intValue(), Math.min(rn.intValue(), (locationList.size() - pn.intValue())));
         for (Long location : selectedLocationList) {
             locationDetail.put(location,stockQuantService.getQuantsByLocationId(location));
@@ -215,14 +221,6 @@ public class StockQuantRestService implements IStockQuantRestService {
     @POST
     @Path("getItemStockList")
     public String getItemStockList(Map<String, Object> mapQuery) {
-        //TODO
-        // 获取仓库根Id locatonService.getWarehouseLocationId
-        // 获取根节点下所有能够储存货物的库位 locationService.getStoreLocationIds
-        // 查询商品维度的总库存数据
-        // 查询盘库盘盈区的id下库存总数，从上面的库存总数中减去
-        // 查询残损区库存
-        // 查询退货区库存
-
         Map<Long, Map<String, BigDecimal>> itemQuant = new HashMap<Long, Map<String, BigDecimal>>();
 
         List<BaseinfoItem> itemList= itemService.searchItem(mapQuery);
@@ -270,15 +268,11 @@ public class StockQuantRestService implements IStockQuantRestService {
     @POST
     @Path("getLocationStockList")
     public String getLocationStockList(Map<String, Object> mapQuery) {
-        //TODO
-        // 获取仓库根Id locationService.getWarehouseLocationId
-        // 获取根节点下所有能够储存货物的库位 locationService.getStoreLocation
-        // 根据pn, rn 找到相应的locationIdList
-        // 根据location查寻对应的quant
 
-        int pn = Integer.valueOf((String)mapQuery.get("pn"));
-        int rn = Integer.valueOf((String)mapQuery.get("rn"));
+        int pn = Integer.valueOf((mapQuery.get("start")).toString());
+        int rn = Integer.valueOf((mapQuery.get("limit")).toString());
         Map<Long, List<StockQuant>> locationDetail = new HashMap<Long, List<StockQuant>>();
+
         List<Long> locationList = locationService.getStoreLocationIds(locationService.getWarehouseLocationId());
         List<Long> selectedLocationList = locationList.subList(pn, Math.min(rn, (locationList.size() - pn)));
         for (Long location : selectedLocationList) {
