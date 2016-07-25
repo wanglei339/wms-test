@@ -301,7 +301,11 @@ public class ReceiptRestService implements IReceiptRestService {
 
     @GET
     @Path("getPoReceiptDetailByReceiptId")
-    public String getPoReceiptDetailByReceiptId(@QueryParam("receiptId") Long receiptId) {
+    public String getPoReceiptDetailByReceiptId(@QueryParam("receiptId") Long receiptId) throws BizCheckedException {
+        if(receiptId == null) {
+            throw new BizCheckedException("1020001", "参数不能为空");
+        }
+
         InbReceiptHeader inbReceiptHeader = poReceiptService.getInbReceiptHeaderByReceiptId(receiptId);
 
         poReceiptService.fillDetailToHeader(inbReceiptHeader);
@@ -311,7 +315,10 @@ public class ReceiptRestService implements IReceiptRestService {
 
     @GET
     @Path("getPoReceiptDetailByOrderId")
-    public String getPoReceiptDetailByOrderId(@QueryParam("orderId") Long orderId) {
+    public String getPoReceiptDetailByOrderId(@QueryParam("orderId") Long orderId) throws BizCheckedException {
+        if(orderId == null) {
+            throw new BizCheckedException("1020001", "参数不能为空");
+        }
         List<InbReceiptDetail> inbReceiptDetailList = poReceiptService.getInbReceiptDetailListByOrderId(orderId);
 
         List<InbReceiptHeader> inbReceiptHeaderList = new ArrayList<InbReceiptHeader>();

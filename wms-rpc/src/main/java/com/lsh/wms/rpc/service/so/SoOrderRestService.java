@@ -71,7 +71,11 @@ public class SoOrderRestService implements ISoOrderRestService {
 
     @GET
     @Path("getOutbSoHeaderDetailByOrderId")
-    public String getOutbSoHeaderDetailByOrderId(@QueryParam("orderId") Long orderId) {
+    public String getOutbSoHeaderDetailByOrderId(@QueryParam("orderId") Long orderId) throws BizCheckedException {
+        if(orderId == null) {
+            throw new BizCheckedException("1030001", "参数不能为空");
+        }
+
         return JsonUtils.SUCCESS(soOrderService.getOutbSoHeaderByOrderId(orderId));
     }
 

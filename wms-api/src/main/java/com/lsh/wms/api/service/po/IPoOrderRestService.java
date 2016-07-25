@@ -2,8 +2,6 @@ package com.lsh.wms.api.service.po;
 
 import com.lsh.base.common.exception.BizCheckedException;
 
-import java.util.Map;
-
 /**
  * Project Name: lsh-wms
  * Created by fuhao
@@ -21,7 +19,7 @@ public interface IPoOrderRestService {
 
     public String getPoHeaderList();
 
-    public String getPoDetailByOrderId(Long orderId);
+    public String getPoDetailByOrderId(Long orderId) throws BizCheckedException;
 
     public String countInbPoHeader();
 

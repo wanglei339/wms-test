@@ -131,7 +131,11 @@ public class SODeliveryRestService implements IDeliveryRestService {
 
     @GET
     @Path("getOutbDeliveryHeaderDetailByDeliveryId")
-    public String getOutbDeliveryHeaderDetailByDeliveryId(@QueryParam("deliveryId") Long deliveryId) {
+    public String getOutbDeliveryHeaderDetailByDeliveryId(@QueryParam("deliveryId") Long deliveryId) throws BizCheckedException {
+        if(deliveryId == null) {
+            throw new BizCheckedException("1040001", "参数不能为空");
+        }
+
         OutbDeliveryHeader outbDeliveryHeader = soDeliveryService.getOutbDeliveryHeaderByDeliveryId(deliveryId);
 
         soDeliveryService.fillDetailToHeader(outbDeliveryHeader);
