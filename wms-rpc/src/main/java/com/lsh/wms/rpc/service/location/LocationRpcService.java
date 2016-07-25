@@ -53,6 +53,15 @@ public class LocationRpcService implements ILocationRpcService {
         return locationService.getFatherByType(locationId, type);
     }
 
+    //提供位置能否存储存
+    public boolean canStore(Long locationId) {
+        BaseinfoLocation baseinfoLocation = locationService.getLocation(locationId);
+        if (baseinfoLocation.getCanStore()!=0){
+            return true;
+        }
+        return false;
+    }
+
     public BaseinfoLocation insertLocation(BaseinfoLocation location) {
         return locationService.insertLocation(location);
     }
