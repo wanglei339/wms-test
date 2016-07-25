@@ -29,6 +29,8 @@ public class TaskInfo implements Serializable {
     private Long planner = 0L;
 	/** 任务类型，100-盘点， 101-收货，102-波次， 103-上架，104-补货, 105-移库 */
     private Long type = 0L;
+	/** 任务子类型, 由个任务类型自解释,可以不需要 **/
+	private Long subType = 0L;
 	/** 任务状态，1-draft, 2-waiting, 3-assigned, 4-allocated, 5-done, 6-cancel */
     private Long status = 0L;
 	/** 优先级 */
