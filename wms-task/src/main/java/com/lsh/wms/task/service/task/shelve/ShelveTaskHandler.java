@@ -28,6 +28,8 @@ public class ShelveTaskHandler extends AbsTaskHandler {
 
     protected void createConcrete(TaskEntry taskEntry) {
         ShelveTaskHead taskHead = (ShelveTaskHead) taskEntry.getTaskHead();
+        taskHead.setTaskId(taskEntry.getTaskInfo().getTaskId());
+        taskService.create(taskHead);
     }
 
     protected void getConcrete(TaskEntry taskEntry) {
