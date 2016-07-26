@@ -9,7 +9,7 @@ import com.lsh.wms.core.service.location.LocationDetailService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
-import com.lsh.wms.model.baseinfo.ModelFactory;
+import com.lsh.wms.model.baseinfo.LocationModelFactory;
 import com.lsh.wms.model.stock.StockQuant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,9 +115,9 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @POST
     @Path("insertLocation")
     public String insertLocationDetailByType(IBaseinfoLocaltionModel baseinfoLocaltionModel, @QueryParam("type") Integer type) throws ClassNotFoundException {
-        ModelFactory modelFactory = new ModelFactory();
-        IBaseinfoLocaltionModel iBaseinfoLocaltionModel = modelFactory.creatLocationModelByType(type);
-        String modelName = modelFactory.getLocationClassByType(type);
+        LocationModelFactory locationModelFactory = new LocationModelFactory();
+        IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationModelFactory.creatLocationModelByType(type);
+        String modelName = locationModelFactory.getLocationClassByType(type);
         locationDetailService.insert(iBaseinfoLocaltionModel);
         return JsonUtils.SUCCESS();
     }
@@ -126,8 +126,8 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @POST
     @Path("updateLocation")
     public String updateLocationDetailByType(IBaseinfoLocaltionModel baseinfoLocaltionModel, @QueryParam("type") Integer type) {
-        ModelFactory modelFactory = new ModelFactory();
-        IBaseinfoLocaltionModel iBaseinfoLocaltionModel = modelFactory.creatLocationModelByType(type);
+        LocationModelFactory locationModelFactory = new LocationModelFactory();
+        IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationModelFactory.creatLocationModelByType(type);
         locationDetailService.update(baseinfoLocaltionModel);
         return null;
     }

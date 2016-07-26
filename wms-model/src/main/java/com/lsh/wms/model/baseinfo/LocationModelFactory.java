@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * @Date 16/7/24 下午5:29
  */
 @Component
-public class ModelFactory {
+public class LocationModelFactory {
     private static IBaseinfoLocaltionModel iBaseinfoLocaltionModel;
     //做class的类型
     private static String modelName;
@@ -28,7 +28,7 @@ public class ModelFactory {
     @Autowired
     private BaseinfoLocationDock baseinfoLocationDock;
 
-    //TODO 实例化的选择
+    //TODO sh
 
     //进行实例
     public IBaseinfoLocaltionModel creatLocationModelByType(Integer type){

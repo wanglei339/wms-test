@@ -1,7 +1,6 @@
 package com.lsh.wms.core.service.location;
 
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
-import com.lsh.wms.model.baseinfo.ModelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
