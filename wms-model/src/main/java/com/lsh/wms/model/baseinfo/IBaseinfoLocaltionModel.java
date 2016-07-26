@@ -9,7 +9,10 @@ import java.math.BigDecimal;
 public class IBaseinfoLocaltionModel {
 
     /** 位置id */
-    private Long locationId;
+    protected Long locationId;
+
+    /**位置的code*/
+    protected String code;
 
     /**
      * 是否可用
@@ -43,5 +46,13 @@ public class IBaseinfoLocaltionModel {
 
     public Long getLocationId() {
         return locationId;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

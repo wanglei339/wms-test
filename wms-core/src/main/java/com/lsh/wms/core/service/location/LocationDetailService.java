@@ -55,8 +55,7 @@ public class LocationDetailService {
     }
 
     public List<IBaseinfoLocaltionModel> getIBaseinfoLocaltionModelListByType(Map<String, Object> params) {
-        String typeStr = (String) params.get("type");
-        Integer type = Integer.parseInt(typeStr);
+        Integer type = (Integer) params.get("type");
         IStrategy strategy = locationDetailServiceFactory.createDetailServiceByType(type);
         params.put("type",type);
         //TODO 如果是region的话,需要具体设置相应的type,无所谓,params中设置type的类型就行
@@ -67,7 +66,7 @@ public class LocationDetailService {
     //计数
     public Integer countLocationDetail(Map<String,Object> params){
         Integer type = (Integer) params.get("type");
-        System.out.println("type~~~~~~~~~~~~~~~~~~"+type);
+//        System.out.println("type~~~~~~~~~~~~~~~~~~"+type);
         IStrategy iStrategy = locationDetailServiceFactory.createDetailServiceByType(type);
 
         return iStrategy.countBaseinfoLocaltionModel(params);
