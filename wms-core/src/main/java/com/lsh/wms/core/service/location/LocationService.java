@@ -393,4 +393,21 @@ public class LocationService {
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
         //return locations.size() == 1 ? locations.get(0) : null;
     }
+
+    //获取现在inUse是否可用
+    //0没占用,1占用
+    public boolean isUsed(Long locationId){
+        Map<String,Object> params = new HashMap<String, Object>();
+        params.put("locationId",locationId);
+        List<BaseinfoLocation> list = this.locationDao.getBaseinfoLocationList(params);
+        //查询的id肯定有
+        BaseinfoLocation location = list.get(0);
+        Integer in_use = location.getInUse();
+        if (0==in_use){
+            return false;
+        }else {
+            return true;
+        }
+
+    }
 }

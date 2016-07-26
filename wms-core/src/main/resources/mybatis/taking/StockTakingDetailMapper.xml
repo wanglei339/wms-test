@@ -35,7 +35,7 @@
 		insert into stock_taking_detail (
 		taking_id,detail_id,round,real_qty,theoretical_qty,container_id,
 		lot_id,sku_id,real_sku_id,location_id,operator,created_at,
-		updated_at,#{task_id}
+		updated_at,task_id
 		) values
 		<foreach collection="list" item="item" index="index" separator="," >
 			(#{item.takingId},#{item.detailId},#{item.round},#{item.realQty},#{item.theoreticalQty},#{item.containerId},

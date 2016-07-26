@@ -1,10 +1,12 @@
 package com.lsh.wms.model.baseinfo;
 
+import org.springframework.stereotype.Component;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
-
-public class BaseinfoLocationRegion implements Serializable,IBaseinfoLocaltionModel {
+@Component
+public class BaseinfoLocationRegion extends IBaseinfoLocaltionModel implements Serializable {
 
 	/**  */
     private Long id;
@@ -24,6 +26,8 @@ public class BaseinfoLocationRegion implements Serializable,IBaseinfoLocaltionMo
     private Integer type;
 	/** 区域名字 */
     private String regionName;
+	/** 是否可用 */
+    private String isUsed;
 	
 	public Long getId(){
 		return this.id;
@@ -95,6 +99,14 @@ public class BaseinfoLocationRegion implements Serializable,IBaseinfoLocaltionMo
 	
 	public void setRegionName(String regionName){
 		this.regionName = regionName;
+	}
+	
+	public String getIsUsed(){
+		return this.isUsed;
+	}
+	
+	public void setIsUsed(String isUsed){
+		this.isUsed = isUsed;
 	}
 	
 	

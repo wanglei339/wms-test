@@ -1,10 +1,12 @@
 package com.lsh.wms.model.baseinfo;
 
+import org.springframework.stereotype.Component;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
-
-public class BaseinfoLocationDock implements Serializable,IBaseinfoLocaltionModel {
+@Component
+public class BaseinfoLocationDock extends IBaseinfoLocaltionModel implements Serializable {
 
 	/**  */
     private Long id;
@@ -32,6 +34,8 @@ public class BaseinfoLocationDock implements Serializable,IBaseinfoLocaltionMode
     private Long updatedAt;
 	/** 主表类型 */
     private Integer type;
+	/** 是否可用 */
+    private String isUsed;
 	
 	public Long getId(){
 		return this.id;
@@ -135,6 +139,14 @@ public class BaseinfoLocationDock implements Serializable,IBaseinfoLocaltionMode
 	
 	public void setType(Integer type){
 		this.type = type;
+	}
+	
+	public String getIsUsed(){
+		return this.isUsed;
+	}
+	
+	public void setIsUsed(String isUsed){
+		this.isUsed = isUsed;
 	}
 	
 	
