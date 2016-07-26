@@ -105,10 +105,10 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @POST
     @Path("getList")
     public String searchList(Map<String, Object> params) {
-        String typeStr = params.get("type").toString();
-        Integer type = Integer.parseInt(typeStr);
-        params.remove("type");
-        params.put("type",type);
+//        String typeStr = params.get("type").toString();
+//        Integer type = Integer.parseInt(typeStr);
+//        params.remove("type");
+//        params.put("type",type);
         List<IBaseinfoLocaltionModel> iBaseinfoLocaltionModelsList = locationDetailService.getIBaseinfoLocaltionModelListByType(params);
         //设置可用和数量
         return JsonUtils.SUCCESS(iBaseinfoLocaltionModelsList);
