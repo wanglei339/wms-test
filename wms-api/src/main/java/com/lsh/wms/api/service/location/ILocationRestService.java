@@ -17,4 +17,5 @@ public interface ILocationRestService {
     public String insertLocation();
     public String updateLocation(BaseinfoLocation location);
     public String countBaseinfoLocation(Map<String, Object> params);
+    public String searchList(Map<String, Object> params);
 }

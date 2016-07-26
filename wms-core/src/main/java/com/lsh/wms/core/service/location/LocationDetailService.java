@@ -1,6 +1,7 @@
 package com.lsh.wms.core.service.location;
 
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
+import com.lsh.wms.model.baseinfo.ModelFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ public class LocationDetailService {
     private static final Logger logger = LoggerFactory.getLogger(LocationService.class);
     @Autowired
     private LocationDetailServiceFactory locationDetailServiceFactory;
+    @Autowired
+    private LocationService locationService;
 
     public void insert(IBaseinfoLocaltionModel baseinfoLocaltionModel) {
         //校验
@@ -45,14 +48,16 @@ public class LocationDetailService {
         iStrategy.update(baseinfoLocaltionModel);
     }
 
-    //前端id怎么去哪个detail表查,前端的id带来type类型
+    //前端id怎么去哪个detail表查,前端的id带来type类型`
     public IBaseinfoLocaltionModel getIBaseinfoLocaltionModelByIdAndType(Long id, Integer type) {
         IStrategy iStrategy = locationDetailServiceFactory.createDetailServiceByType(type);
         IBaseinfoLocaltionModel iBaseinfoLocaltionModel = iStrategy.getBaseinfoItemLocationModelById(id);
         return iBaseinfoLocaltionModel;
     }
 
-    public List<IBaseinfoLocaltionModel> getIBaseinfoLocaltionModelListByType(Map<String, Object> params, Integer type) {
+    public List<IBaseinfoLocaltionModel> getIBaseinfoLocaltionModelListByType(Map<String, Object> params) {
+        String typeStr = (String) params.get("type");
+        Integer type = Integer.parseInt(typeStr);
         IStrategy strategy = locationDetailServiceFactory.createDetailServiceByType(type);
         params.put("type",type);
         //TODO 如果是region的话,需要具体设置相应的type,无所谓,params中设置type的类型就行
@@ -61,10 +66,15 @@ public class LocationDetailService {
     }
 
     //计数
-    public int countLocationDetail(Map<String,Object> params,Integer type){
+    public Integer countLocationDetail(Map<String,Object> params){
+        Integer type = (Integer) params.get("type");
+        System.out.println("type~~~~~~~~~~~~~~~~~~"+type);
         IStrategy iStrategy = locationDetailServiceFactory.createDetailServiceByType(type);
+
         return iStrategy.countBaseinfoLocaltionModel(params);
     }
+
+
 
 
 }
