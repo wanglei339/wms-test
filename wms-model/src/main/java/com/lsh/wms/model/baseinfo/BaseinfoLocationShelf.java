@@ -1,9 +1,11 @@
 package com.lsh.wms.model.baseinfo;
 
+import org.springframework.stereotype.Component;
+
 import java.io.Serializable;
 import java.util.Date;
-
-public class BaseinfoLocationShelf implements Serializable,IBaseinfoLocaltionModel {
+@Component
+public class BaseinfoLocationShelf extends IBaseinfoLocaltionModel implements Serializable {
 
 	/**  */
     private Long id;
@@ -23,6 +25,8 @@ public class BaseinfoLocationShelf implements Serializable,IBaseinfoLocaltionMod
     private Long updatedAt;
 	/** 主表的type */
     private Integer type;
+	/** 是否可用 */
+    private String isUsed;
 	
 	public Long getId(){
 		return this.id;
@@ -94,6 +98,14 @@ public class BaseinfoLocationShelf implements Serializable,IBaseinfoLocaltionMod
 	
 	public void setType(Integer type){
 		this.type = type;
+	}
+	
+	public String getIsUsed(){
+		return this.isUsed;
+	}
+	
+	public void setIsUsed(String isUsed){
+		this.isUsed = isUsed;
 	}
 	
 	

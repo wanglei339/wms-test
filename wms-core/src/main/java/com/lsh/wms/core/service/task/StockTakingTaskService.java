@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,9 @@ public class StockTakingTaskService {
 
     public Integer count(Map queryMap) {
         return stockTakingTaskDao.countStockTakingTask(queryMap);
+    }
+    public StockTakingTask getTakingTaskByTaskId(Long taskId) {
+        return stockTakingTaskDao.getStockTakingTaskById(taskId);
     }
 
 }

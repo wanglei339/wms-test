@@ -22,8 +22,10 @@ public class StockQuant implements Serializable,Cloneable {
     private Long containerId = 0L;
 	/** 数量 */
     private BigDecimal qty = BigDecimal.ZERO;
-	/** 商品单位转换id */
-    private Long skuUomId = 0L;
+	/** 包装单位*/
+	private BigDecimal packUnit= new BigDecimal(0);
+	/** 包装名称 */
+	private String packName = "";
 	/** 库存价值 */
     private BigDecimal value = BigDecimal.ZERO;
 	/** 库存成本 */
@@ -94,15 +96,7 @@ public class StockQuant implements Serializable,Cloneable {
 	public void setQty(BigDecimal qty){
 		this.qty = qty;
 	}
-	
-	public Long getSkuUomId(){
-		return this.skuUomId;
-	}
-	
-	public void setSkuUomId(Long skuUomId){
-		this.skuUomId = skuUomId;
-	}
-	
+
 	public BigDecimal getValue(){
 		return this.value;
 	}
@@ -221,6 +215,22 @@ public class StockQuant implements Serializable,Cloneable {
 
 	public void setIsRefund(Long isRefund){
 		this.isRefund = isRefund;
+	}
+
+	public BigDecimal getPackUnit(){
+		return packUnit;
+	}
+
+	public void setPackUnit(BigDecimal packUnit){
+		this.packUnit = packUnit;
+	}
+
+	public String getPackName(){
+		return packName;
+	}
+
+	public void  setPackName(String packName){
+		this.packName = packName;
 	}
 
 	@Override

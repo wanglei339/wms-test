@@ -1,6 +1,7 @@
 package com.lsh.wms.model.stock;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.security.acl.LastOwnerException;
 import java.util.Date;
 
@@ -30,7 +31,10 @@ public class StockLot implements Serializable {
 	private Long poId;
 
 	private Long receiptId;
-
+	/** 包装单位*/
+	private BigDecimal packUnit= new BigDecimal(0);
+	/** 包装名称 */
+	private String packName = "";
 
 	public Long getId(){
 		return this.id;
@@ -127,4 +131,21 @@ public class StockLot implements Serializable {
 	public void setItemId(Long itemId) {
 		this.itemId = itemId;
 	}
+
+	public BigDecimal getPackUnit(){
+		return packUnit;
+	}
+
+	public void setPackUnit(BigDecimal packUnit){
+		this.packUnit = packUnit;
+	}
+
+	public String getPackName(){
+		return packName;
+	}
+
+	public void  setPackName(String packName){
+		this.packName = packName;
+	}
+
 }
