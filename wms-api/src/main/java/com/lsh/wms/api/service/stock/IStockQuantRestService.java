@@ -1,5 +1,7 @@
 package com.lsh.wms.api.service.stock;
 
+import com.lsh.base.common.exception.BizCheckedException;
+
 import java.math.BigDecimal;
 import java.util.Map;
 
@@ -11,10 +13,10 @@ public interface IStockQuantRestService {
     String getOnhandQty(Long skuId, Long locationId, Long ownerId);
     String getList(Map<String, Object> mapQuery);
     String create(Map<String, Object> mapInput);
-    String freeze(Map<String, Object> mapCondition);
-    String unFreeze(Map<String, Object> mapCondition);
-    String toDefect(Map<String, Object> mapCondition);
-    String toRefund(Map<String, Object> mapCondition);
+    String freeze(Map<String, Object> mapCondition) throws BizCheckedException;
+    String unFreeze(Map<String, Object> mapCondition) throws BizCheckedException;
+    String toDefect(Map<String, Object> mapCondition) throws BizCheckedException;
+    String toRefund(Map<String, Object> mapCondition) throws BizCheckedException;
     public String getHistory(Long quant_id);
 
     String getItemStockCount(Map<String, Object> mapQuery);
