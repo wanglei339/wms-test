@@ -108,6 +108,7 @@
 				</foreach>
 			</if>
 			<if test="containerId != null and containerId != 0">and container_id=#{containerId}</if>
+			<if test="reserveMoveId != null and reserveMoveId != 0">and reserve_move_id=#{reserveMoveId}</if>
 			<if test="packUnit != null and packUnit != 0">and pack_unit=#{packUnit}</if>
 			<if test="packName != null">and pack_name=#{packName}</if>
 			<if test="isFrozen != null">and is_frozen=#{isFrozen}</if>
