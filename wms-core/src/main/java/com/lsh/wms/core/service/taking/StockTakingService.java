@@ -48,7 +48,6 @@ public class StockTakingService {
             detail.setCreatedAt(DateUtils.getCurrentSeconds());
             detail.setUpdatedAt(DateUtils.getCurrentSeconds());
         }
-        logger.info("881123123121241412:" + JSON.toJSONString(detailList));
         detailDao.batchInsert(detailList);
     }
 
