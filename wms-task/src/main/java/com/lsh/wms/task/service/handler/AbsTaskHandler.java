@@ -16,7 +16,7 @@ import java.util.Map;
  * Created by mali on 16/7/23.
  */
 @Component
-public  class  AbsTaskHandler implements TaskHandler {
+public class AbsTaskHandler implements TaskHandler {
     @Autowired
     private BaseTaskService baseTaskService;
 

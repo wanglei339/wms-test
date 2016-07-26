@@ -88,7 +88,8 @@ public class StockQuantRestService implements IStockQuantRestService {
      * inDate 入库时间
      * expireDate 保质期失效时间
      * itemId
-     *
+     * packUnit 包装单位
+     * packName 包装名称
      */
     @POST
     @Path("create")
@@ -107,8 +108,26 @@ public class StockQuantRestService implements IStockQuantRestService {
     @Path("freeze")
     public String freeze(Map<String, Object> mapCondition) {
         List<StockQuant> quantList = stockQuantService.getQuants(mapCondition);
+        BigDecimal requiredQty = new BigDecimal(mapCondition.get("qty").toString());
+
         for (StockQuant quant : quantList) {
-            stockQuantService.freeze(quant);
+            if(requiredQty.compareTo(BigDecimal.ZERO) == 0) break;
+            // need > have
+            if (requiredQty.compareTo(quant.getQty()) == 1) {
+                stockQuantService.freeze(quant);
+                requiredQty = requiredQty.subtract(quant.getQty());
+            }
+            else {
+                // need < have
+                if (requiredQty.compareTo(quant.getQty()) == -1) {
+                    stockQuantService.split(quant, requiredQty);
+                }
+                stockQuantService.freeze(quant);
+                requiredQty = BigDecimal.ZERO;
+            }
+        }
+        if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
+            return JsonUtils.EXCEPTION_ERROR("Item Not Enough");
         }
         return JsonUtils.SUCCESS();
     }
@@ -117,8 +136,26 @@ public class StockQuantRestService implements IStockQuantRestService {
     @Path("unfreeze")
     public String unFreeze(Map<String, Object> mapCondition) {
         List<StockQuant> quantList = stockQuantService.getQuants(mapCondition);
+        BigDecimal requiredQty = new BigDecimal(mapCondition.get("qty").toString());
+
         for (StockQuant quant : quantList) {
-            stockQuantService.unFreeze(quant);
+            if(requiredQty.compareTo(BigDecimal.ZERO) == 0) break;
+            // need > have
+            if (requiredQty.compareTo(quant.getQty()) == 1) {
+                stockQuantService.unFreeze(quant);
+                requiredQty = requiredQty.subtract(quant.getQty());
+            }
+            else {
+                // need < have
+                if (requiredQty.compareTo(quant.getQty()) == -1) {
+                    stockQuantService.split(quant, requiredQty);
+                }
+                stockQuantService.unFreeze(quant);
+                requiredQty = BigDecimal.ZERO;
+            }
+        }
+        if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
+            return JsonUtils.EXCEPTION_ERROR("Item Not Enough");
         }
         return JsonUtils.SUCCESS();
     }
@@ -127,8 +164,26 @@ public class StockQuantRestService implements IStockQuantRestService {
     @Path("toDefect")
     public  String toDefect(Map<String, Object> mapCondition) {
         List<StockQuant> quantList = stockQuantService.getQuants(mapCondition);
+        BigDecimal requiredQty = new BigDecimal(mapCondition.get("qty").toString());
+
         for (StockQuant quant : quantList) {
-            stockQuantService.toDefect(quant);
+            if(requiredQty.compareTo(BigDecimal.ZERO) == 0) break;
+            // need > have
+            if (requiredQty.compareTo(quant.getQty()) == 1) {
+                stockQuantService.toDefect(quant);
+                requiredQty = requiredQty.subtract(quant.getQty());
+            }
+            else {
+                // need < have
+                if (requiredQty.compareTo(quant.getQty()) == -1) {
+                    stockQuantService.split(quant, requiredQty);
+                }
+                stockQuantService.toDefect(quant);
+                requiredQty = BigDecimal.ZERO;
+            }
+        }
+        if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
+            return JsonUtils.EXCEPTION_ERROR("Item Not Enough");
         }
         return JsonUtils.SUCCESS();
     }
@@ -137,8 +192,26 @@ public class StockQuantRestService implements IStockQuantRestService {
     @Path("toRefund")
     public String toRefund(Map<String, Object> mapCondition) {
         List<StockQuant> quantList = stockQuantService.getQuants(mapCondition);
+        BigDecimal requiredQty = new BigDecimal(mapCondition.get("qty").toString());
+
         for (StockQuant quant : quantList) {
-            stockQuantService.toRefund(quant);
+            if(requiredQty.compareTo(BigDecimal.ZERO) == 0) break;
+            // need > have
+            if (requiredQty.compareTo(quant.getQty()) == 1) {
+                stockQuantService.toRefund(quant);
+                requiredQty = requiredQty.subtract(quant.getQty());
+            }
+            else {
+                // need < have
+                if (requiredQty.compareTo(quant.getQty()) == -1) {
+                    stockQuantService.split(quant, requiredQty);
+                }
+                stockQuantService.toRefund(quant);
+                requiredQty = BigDecimal.ZERO;
+            }
+        }
+        if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
+            return JsonUtils.EXCEPTION_ERROR("Item Not Enough");
         }
         return JsonUtils.SUCCESS();
     }

@@ -41,19 +41,19 @@ public class CsiRestService implements ICsiRestService {
 
     @GET
     @Path("getCatInfo")
-    public String getCatInfo(@QueryParam("catId") int iCatId) {
+    public String getCatInfo(@QueryParam("catId") long iCatId) {
         return JsonUtils.SUCCESS(csiRpcService.getCatInfo(iCatId));
     }
 
     @GET
     @Path("getCatFull")
-    public String getCatFull(@QueryParam("catId") int iCatId) {
+    public String getCatFull(@QueryParam("catId") long iCatId) {
         return JsonUtils.SUCCESS(csiRpcService.getCatFull(iCatId));
     }
 
     @GET
     @Path("getCatChilds")
-    public String getCatChilds(@QueryParam("catId") int iCatId) {
+    public String getCatChilds(@QueryParam("catId") long iCatId) {
         return JsonUtils.SUCCESS(csiRpcService.getCatChilds(iCatId));
     }
 
@@ -125,7 +125,7 @@ public class CsiRestService implements ICsiRestService {
 
     @GET
     @Path("getOwner")
-    public String getOwner(@QueryParam("ownerId") int iOwnerId) {
+    public String getOwner(@QueryParam("ownerId") long iOwnerId) {
         return JsonUtils.SUCCESS(csiRpcService.getOwner(iOwnerId));
     }
 
@@ -166,7 +166,7 @@ public class CsiRestService implements ICsiRestService {
 
     @GET
     @Path("getSupplier")
-    public String getSupplier(@QueryParam("supplierId") int iSupplierId) {
+    public String getSupplier(@QueryParam("supplierId") long iSupplierId) {
         return JsonUtils.SUCCESS(csiRpcService.getSupplier(iSupplierId));
     }
 

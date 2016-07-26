@@ -8,7 +8,8 @@
 		<result property="locationId" column="location_id"/>
 		<result property="containerId" column="container_id"/>
 		<result property="qty" column="qty"/>
-		<result property="skuUomId" column="sku_uom_id"/>
+		<result property="packUnit" column="pack_unit"/>
+		<result property="packName" column="pack_name"/>
 		<result property="value" column="value"/>
 		<result property="cost" column="cost"/>
 		<result property="reserveMoveId" column="reserve_move_id"/>
@@ -31,15 +32,16 @@
 			location_id,
 			container_id,
 			qty,
-			sku_uom_id,
+			reserve_move_id,
 			value,
 			cost,
-			reserve_move_id,
+			pack_unit,
+			pack_name,
 			is_frozen,supplier_id,owner_id,lot_id,
 			in_date,expire_date,created_at,updated_at,item_id,is_defect,is_refund
     	) values (
-			#{skuId},#{locationId},#{containerId},#{qty},#{skuUomId},#{value},
-			#{cost},#{reserveMoveId},#{isFrozen},#{supplierId},#{ownerId},#{lotId},
+			#{skuId},#{locationId},#{containerId},#{qty},#{reserveMoveId},#{value},
+			#{cost},#{packUnit},#{packName},#{isFrozen},#{supplierId},#{ownerId},#{lotId},
 			#{inDate},#{expireDate},#{createdAt},#{updatedAt},#{itemId},#{isDefect},#{isRefund}
     	)
 	</insert>
@@ -51,10 +53,11 @@
   			<if test="locationId != null">location_id=#{locationId},</if>
   			<if test="containerId != null">container_id=#{containerId},</if>
   			<if test="qty != null">qty=#{qty},</if>
-  			<if test="skuUomId != null">sku_uom_id=#{skuUomId},</if>
+			<if test="reserveMoveId != null">reserve_move_id=#{reserveMoveId},</if>
   			<if test="value != null">value=#{value},</if>
   			<if test="cost != null">cost=#{cost},</if>
-  			<if test="reserveMoveId != null">reserve_move_id=#{reserveMoveId},</if>
+  			<if test="packUnit != null">pack_unit=#{packUnit},</if>
+			<if test="packName != null">pack_name=#{packName},</if>
   			<if test="isFrozen != null">is_frozen=#{isFrozen},</if>
   			<if test="supplierId != null">supplier_id=#{supplierId},</if>
   			<if test="ownerId != null">owner_id=#{ownerId},</if>
@@ -106,6 +109,8 @@
 			</if>
 			<if test="containerId != null and containerId != 0">and container_id=#{containerId}</if>
 			<if test="reserveMoveId != null and reserveMoveId != 0">and reserve_move_id=#{reserveMoveId}</if>
+			<if test="packUnit != null and packUnit != 0">and pack_unit=#{packUnit}</if>
+			<if test="packName != null">and pack_name=#{packName}</if>
 			<if test="isFrozen != null">and is_frozen=#{isFrozen}</if>
 			<if test="supplierId != null and supplierId != 0">and supplier_id=#{supplierId}</if>
 			<if test="ownerId != null and ownerId != 0">and owner_id=#{ownerId}</if>
@@ -137,7 +142,8 @@
 			<if test="locationId != null">and location_id=#{locationId}</if>
 			<if test="containerId != null">and container_id=#{containerId}</if>
 			<if test="qty != null">and qty=#{qty}</if>
-			<if test="skuUomId != null">and sku_uom_id=#{skuUomId}</if>
+			<if test="packUnit != null">and pack_unit=#{packUnit}</if>
+			<if test="packName != null">and pack_name=#{packName}</if>
 			<if test="value != null">and value=#{value}</if>
 			<if test="cost != null">and cost=#{cost}</if>
 			<if test="reserveMoveId != null">and reserve_move_id=#{reserveMoveId}</if>
