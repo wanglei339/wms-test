@@ -88,7 +88,8 @@ public class StockQuantRestService implements IStockQuantRestService {
      * inDate 入库时间
      * expireDate 保质期失效时间
      * itemId
-     *
+     * packUnit 包装单位
+     * packName 包装名称
      */
     @POST
     @Path("create")
