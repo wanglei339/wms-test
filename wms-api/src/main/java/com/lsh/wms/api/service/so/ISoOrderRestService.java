@@ -15,9 +15,7 @@ import java.util.Map;
  */
 public interface ISoOrderRestService {
 
-    public String updateOrderStatusByOrderOtherId() throws BizCheckedException;
-
-    public String updateOrderStatusByOrderId() throws BizCheckedException;
+    public String updateOrderStatus() throws BizCheckedException;
 
     public String getOutbSoHeaderDetailByOrderId(Long orderId) throws BizCheckedException;
 

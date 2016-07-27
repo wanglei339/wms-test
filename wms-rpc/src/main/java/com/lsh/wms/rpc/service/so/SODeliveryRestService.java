@@ -112,19 +112,24 @@ public class SODeliveryRestService implements IDeliveryRestService {
     }
 
 //    @POST
-//    @Path("updateDeliveryTypeByOrderOtherId")
-//    public String updateDeliveryTypeByOrderOtherId() throws BizCheckedException {
+//    @Path("updateDeliveryType")
+//    public String updateDeliveryType() throws BizCheckedException {
 //        Map<String, Object> map = RequestUtils.getRequest();
 //
-//        if(StringUtils.isBlank((String) map.get("deliveryId")) || StringUtils.isBlank((String) map.get("deliveryType"))) {
+//        if(map.get("deliveryId") == null || map.get("deliveryType") == null) {
 //            throw new BizCheckedException("1040001", "参数不能为空");
 //        }
 //
-//        OutbDeliveryHeader outbDeliveryHeader = new OutbDeliveryHeader();
-//        outbDeliveryHeader.setDeliveryId((Long) map.get("deliveryId"));
-//        outbDeliveryHeader.setDeliveryType((Integer) map.get("deliveryType"));
+//        if(!StringUtils.isInteger(String.valueOf(map.get("deliveryId")))
+//                || !StringUtils.isInteger(String.valueOf(map.get("deliveryType")))) {
+//            throw new BizCheckedException("1040002", "参数类型不正确");
+//        }
 //
-//        soDeliveryService.updateOutbDeliveryHeaderByDeliveryId(outbDeliveryHeader);
+//        OutbDeliveryHeader outbDeliveryHeader = new OutbDeliveryHeader();
+//        outbDeliveryHeader.setDeliveryId(Long.valueOf(String.valueOf(map.get("deliveryId"))));
+//        outbDeliveryHeader.setDeliveryType(Integer.valueOf(String.valueOf(map.get("deliveryType"))));
+//
+//        soDeliveryService.updateOutbDeliveryHeaderByAnyCondition(outbDeliveryHeader);
 //
 //        return JsonUtils.SUCCESS();
 //    }
