@@ -16,6 +16,9 @@
 		<result property="fromLocationId" column="from_location_id"/>
 		<result property="toLocationId" column="to_location_id"/>
 		<result property="qty" column="qty"/>
+		<result property="realFromLocationId" column="real_from_location_id"/>
+		<result property="realToLocationId" column="real_to_location_id"/>
+		<result property="qtyDone" column="qty_done"/>
 		<result property="packUnit" column="pack_unit"/>
 		<result property="packName" column="pack_name"/>
 		<result property="containerId" column="container_id"/>
@@ -48,6 +51,7 @@
 		insert into task_info (
 			task_id,task_name,plan_id,wave_id,order_id,location_id,
 			sku_id,owner_id,item_id,from_location_id,to_location_id,qty,
+			real_from_location_id, real_to_location_id, qty_done,
 			pack_unit,pack_name,container_id,operator,planner,type,
 			sub_type,status,is_allocated,priority,draft_time,assign_time,
 			due_time,finish_time,cancel_time,ext1,ext2,ext3,
@@ -56,6 +60,7 @@
     	) values (
 			#{taskId},#{taskName},#{planId},#{waveId},#{orderId},#{locationId},
 			#{skuId},#{ownerId},#{itemId},#{fromLocationId},#{toLocationId},#{qty},
+			#{realFromLocationId}, #{realToLocationId}, #{qtyDone},
 			#{packUnit},#{packName},#{containerId},#{operator},#{planner},#{type},
 			#{subType},#{status},#{isAllocated},#{priority},#{draftTime},#{assignTime},
 			#{dueTime},#{finishTime},#{cancelTime},#{ext1},#{ext2},#{ext3},
@@ -79,6 +84,9 @@
   			<if test="fromLocationId != null">from_location_id=#{fromLocationId},</if>
   			<if test="toLocationId != null">to_location_id=#{toLocationId},</if>
   			<if test="qty != null">qty=#{qty},</if>
+			<if test="realFromLocationId != null">real_from_location_id=#{realFromLocationId},</if>
+			<if test="realToLocationId != null">real_to_location_id=#{realToLocationId},</if>
+			<if test="qtyDone != null">qty_done=#{qtyDone},</if>
   			<if test="packUnit != null">pack_unit=#{packUnit},</if>
   			<if test="packName != null">pack_name=#{packName},</if>
   			<if test="containerId != null">container_id=#{containerId},</if>
@@ -142,6 +150,9 @@
 			<if test="fromLocationId != null">and from_location_id=#{fromLocationId}</if>
 			<if test="toLocationId != null">and to_location_id=#{toLocationId}</if>
 			<if test="qty != null">and qty=#{qty}</if>
+			<if test="realFromLocationId != null">and real_from_location_id=#{realFromLocationId}</if>
+			<if test="realToLocationId != null">and real_to_location_id=#{realToLocationId}</if>
+			<if test="qtyDone != null">and qty_done=#{qtyDone}</if>
 			<if test="packUnit != null">and pack_unit=#{packUnit}</if>
 			<if test="packName != null">and pack_name=#{packName}</if>
 			<if test="containerId != null">and container_id=#{containerId}</if>

@@ -72,6 +72,7 @@ public class StockMoveService {
 
     @Transactional(readOnly = false)
     public void assign(Long moveId) {
+        List<StockQuant> quant = quantService.getQuants();
         this.updateStatus(moveId, TaskConstant.Assigned);
     }
 
@@ -106,6 +107,12 @@ public class StockMoveService {
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("moveId",moveId);
         return relDao.getStockQuantMoveRelList(mapQuery);
+    }
+
+    @Transactional
+        public boolean reserveQuants(List<StockQuant>Long moveId) {
+
+        return true;
     }
 
 }

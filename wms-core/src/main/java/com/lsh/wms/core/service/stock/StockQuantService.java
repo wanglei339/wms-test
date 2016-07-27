@@ -34,6 +34,14 @@ public class StockQuantService {
     @Autowired
     private StockQuantMoveRelDao relDao;
 
+    public BigDecimal getQty(Map<String, Object> mapQuery) {
+        List<StockQuant> quantList = this.getQuants(mapQuery);
+        BigDecimal total = BigDecimal.ZERO;
+        for (StockQuant quant : quantList) {
+            total = total.add(quant.getQty());
+        }
+        return total;
+    }
 
     public List<StockQuant> getQuants(Map<String, Object> params) {
         return stockQuantDao.getQuants(params);

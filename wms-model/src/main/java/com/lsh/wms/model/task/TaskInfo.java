@@ -29,6 +29,9 @@ public class TaskInfo implements Serializable {
     private Long fromLocationId = 0L;
 	/** 移入库位id */
     private Long toLocationId = 0L;
+    private Long realFromLocationId = 0L;
+    private Long readToLocationId = 0L;
+    private BigDecimal qtyDone = BigDecimal.ZERO;
 	/** 数量 */
     private BigDecimal qty = BigDecimal.ZERO;
 	/** 包装单位 */
@@ -395,6 +398,28 @@ public class TaskInfo implements Serializable {
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
-	
-	
+
+    public Long getRealFromLocationId() {
+        return realFromLocationId;
+    }
+
+    public void setRealFromLocationId(Long realFromLocationId) {
+        this.realFromLocationId = realFromLocationId;
+    }
+
+    public Long getReadToLocationId() {
+        return readToLocationId;
+    }
+
+    public void setReadToLocationId(Long readToLocationId) {
+        this.readToLocationId = readToLocationId;
+    }
+
+    public BigDecimal getQtyDone() {
+        return qtyDone;
+    }
+
+    public void setQtyDone(BigDecimal qtyDone) {
+        this.qtyDone = qtyDone;
+    }
 }
