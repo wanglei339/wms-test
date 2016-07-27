@@ -57,7 +57,7 @@
 		where ID=#{id}
 	</update>
 
-	<update id="updateByReceiptId" parameterType="InbReceiptHeader">
+	<update id="updateByAnyCondition" parameterType="InbReceiptHeader">
 		update INB_RECEIPT_HEADER
 		<set>
 			<if test="warehouseId != null">WAREHOUSE_ID=#{warehouseId},</if>
@@ -77,7 +77,8 @@
 			<if test="inserttime != null">INSERTTIME=#{inserttime},</if>
 			<if test="updatetime != null">UPDATETIME=#{updatetime}</if>
 		</set>
-		where RECEIPT_ORDER_ID=#{receiptOrderId}
+		where
+		<include refid="queryCondition"/>
 	</update>
   
 	<select id="getInbReceiptHeaderById" parameterType="int" resultMap="inbReceiptHeaderResultMap">

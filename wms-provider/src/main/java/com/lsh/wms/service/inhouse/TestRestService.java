@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.api.service.task.ITestRestService;
@@ -34,7 +35,7 @@ public class TestRestService implements ITestRestService {
 
     @POST
     @Path("init")
-    public String init(TaskInfo taskInfo) {
+    public String init(TaskInfo taskInfo) throws BizCheckedException{
 
         TaskEntry taskEntry = new TaskEntry();
         taskInfo.setType(TaskConstant.TYPE_STOCK_TAKING);

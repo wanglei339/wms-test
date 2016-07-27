@@ -10,7 +10,7 @@ import java.util.Map;
  * Created by mali on 16/7/14.
  */
 public interface IStockTakingRestService {
-    String create(StockTakingRequest request);
+    String create(StockTakingRequest request) throws BizCheckedException;
     String genId();
     String getLocationList(Map<String,Object> mapQuery);
     String getDetail() throws BizCheckedException;

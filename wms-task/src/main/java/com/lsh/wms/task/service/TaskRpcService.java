@@ -27,13 +27,13 @@ public class TaskRpcService implements ITaskRpcService {
     private BaseTaskService baseTaskService;
 
 
-    public Long create(Long taskType, TaskEntry taskEntry) {
+    public Long create(Long taskType, TaskEntry taskEntry) throws BizCheckedException{
         TaskHandler handler = handlerFactory.getTaskHandler(taskType);
         handler.create(taskEntry);
         return taskEntry.getTaskInfo().getTaskId();
     }
 
-    public List<Long> batchCreate(Long taskType, List<TaskEntry> taskEntries) {
+    public List<Long> batchCreate(Long taskType, List<TaskEntry> taskEntries) throws BizCheckedException{
         TaskHandler handler = handlerFactory.getTaskHandler(taskType);
         handler.batchCreate(taskEntries);
         List<Long> idList = new LinkedList<Long>();
@@ -91,5 +91,11 @@ public class TaskRpcService implements ITaskRpcService {
         Long taskType = this.getTaskTypeById(taskId);
         TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
         taskHandler.done(taskId);
+    }
+
+    public void done(Long taskId, Long locationId) throws BizCheckedException {
+        Long taskType = this.getTaskTypeById(taskId);
+        TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
+        taskHandler.done(taskId, locationId);
     }
 }

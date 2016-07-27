@@ -8,9 +8,11 @@ import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.service.location.LocationDetailService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.model.baseinfo.BaseinfoLocationDock;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 import com.lsh.wms.model.baseinfo.LocationModelFactory;
 import com.lsh.wms.model.stock.StockQuant;
+import org.apache.commons.collections.map.HashedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +47,6 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @Autowired
     private StockQuantService stockQuantService;
 
-
     @GET
     @Path("getLocationDetail")
     public String getLocationDetailByIdAndType(@QueryParam("locationId") Long locationId, @QueryParam("type") Integer type) {
@@ -68,7 +69,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @GET
     @Path("getlocationDetailList")
     public String getLocationDetailListByType(@QueryParam("type") Integer type) {
-        Map<String, Object> params = RequestUtils.getRequest();
+        Map<String,Object> params = new HashedMap();
         params.put("type", type);
         List<IBaseinfoLocaltionModel> list = locationDetailService.getIBaseinfoLocaltionModelListByType(params);
         for (IBaseinfoLocaltionModel iBaseinfoLocaltionModel : list) {
@@ -79,13 +80,12 @@ public class LocationDetailRestService implements ILocationDetailRestService {
             } else {
                 iBaseinfoLocaltionModel.setIsUsed("未占用");
             }
-
-            System.out.println(iBaseinfoLocaltionModel.getIsUsed());
+            //设置编码
+            String code = locationService.getCodeById(locationId);
+            iBaseinfoLocaltionModel.setCode(code);
             //设置数量
             List<StockQuant> quants = stockQuantService.getQuantsByLocationId(locationId);
             BigDecimal qty = quants.get(0).getQty();
-
-            System.out.println(qty);
             iBaseinfoLocaltionModel.setQty(qty);
         }
         //设置可用和数量
@@ -105,10 +105,6 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @POST
     @Path("getList")
     public String searchList(Map<String, Object> params) {
-        String typeStr = params.get("type").toString();
-        Integer type = Integer.parseInt(typeStr);
-        params.remove("type");
-        params.put("type",type);
         List<IBaseinfoLocaltionModel> iBaseinfoLocaltionModelsList = locationDetailService.getIBaseinfoLocaltionModelListByType(params);
         //设置可用和数量
         return JsonUtils.SUCCESS(iBaseinfoLocaltionModelsList);

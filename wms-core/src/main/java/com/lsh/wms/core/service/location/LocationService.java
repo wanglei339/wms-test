@@ -1,17 +1,14 @@
 package com.lsh.wms.core.service.location;
 
-import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationShelfDao;
 import com.lsh.wms.core.service.stock.StockQuantService;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationShelf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.parsing.Location;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -409,5 +406,14 @@ public class LocationService {
             return true;
         }
 
+    }
+
+    //获取code
+    public String getCodeById(Long locationId){
+        Map<String ,Object> params = new HashMap<String, Object>();
+        params.put("locationId",locationId);
+        List<BaseinfoLocation> baseinfoLocationList = locationDao.getBaseinfoLocationList(params);
+        String code = baseinfoLocationList.get(0).getLocationCode();
+        return code;
     }
 }
