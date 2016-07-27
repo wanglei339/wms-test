@@ -1,5 +1,6 @@
 package com.lsh.wms.api.model.po;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
@@ -10,6 +11,7 @@ import java.util.Date;
 /**
  * Created by panxudong on 16/7/15.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PoItem {
 
     /** 物美码 */
