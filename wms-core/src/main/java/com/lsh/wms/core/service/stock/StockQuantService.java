@@ -169,10 +169,10 @@ public class StockQuantService {
     public List<Long> getContainerIdByLocationId(Long locationId) {
         return stockQuantDao.getContainerIdByLocationId(locationId);
     }
-    public BigDecimal getQuantQtyByLocationIdAndSkuId(Long locationId,Long skuId) {
-        Map queryMap=new HashMap();
+    public BigDecimal getQuantQtyByLocationIdAndItemId(Long locationId,Long itemId) {
+        Map<String,Object> queryMap=new HashMap();
         queryMap.put("locationId",locationId);
-        queryMap.put("skuId", skuId);
+        queryMap.put("itemId", itemId);
         List<StockQuant> stockQuants=stockQuantDao.getQuants(queryMap);
         BigDecimal qty=new BigDecimal(0L);
         for (StockQuant quant:stockQuants){
@@ -180,22 +180,23 @@ public class StockQuantService {
         }
         return qty;
     }
-    public List<Long> getSupplierByLocationAndSkuId(Long locationId,Long skuId) {
+    public Long getSupplierByLocationAndItemId(Long locationId,Long itemId) {
         Set<Long> suppliers=new HashSet<Long>();
         Map<String,Object> queryMap =new HashMap<String, Object>();
         queryMap.put("locationId",locationId);
-        queryMap.put("skuId",skuId);
+        queryMap.put("itemId",itemId);
         List<StockQuant> quants=stockQuantDao.getQuants(queryMap);
-        for(StockQuant quant:quants){
-            suppliers.add(quant.getSupplierId());
+        if(quants!=null && quants.size()!=0){
+            return quants.get(0).getSupplierId();
+        }else {
+            return null;
         }
-        return new ArrayList<Long>(suppliers);
     }
 
-    public BigDecimal getItemCount(Long itemId, List<Long> locationIdList, boolean isNormal) {
+    public BigDecimal getItemCount(Long itemId, List<Long> locationList, boolean isNormal) {
         Map<String, Object> queryMap = new HashMap<String, Object>();
         queryMap.put("itemId",itemId);
-        queryMap.put("locationIdList",locationIdList);
+        queryMap.put("locationList",locationList);
         queryMap.put("isNormal",isNormal);
         List<StockQuant> stockQuants = stockQuantDao.getQuants(queryMap);
 
@@ -204,5 +205,9 @@ public class StockQuantService {
             count = count.add(quant.getQty());
         }
         return count;
+    }
+
+    public int countStockQuant(Map<String, Object> mapQuery){
+        return stockQuantDao.countStockQuant(mapQuery);
     }
 }

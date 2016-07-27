@@ -4,14 +4,10 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.location.ILocationDetailRestService;
-import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.service.location.LocationDetailService;
 import com.lsh.wms.core.service.location.LocationService;
-import com.lsh.wms.core.service.stock.StockQuantService;
-import com.lsh.wms.model.baseinfo.BaseinfoLocationDock;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 import com.lsh.wms.model.baseinfo.LocationModelFactory;
-import com.lsh.wms.model.stock.StockQuant;
 import org.apache.commons.collections.map.HashedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -44,8 +39,6 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     private LocationDetailService locationDetailService;
     @Autowired
     private LocationService locationService;
-    @Autowired
-    private StockQuantService stockQuantService;
 
     @GET
     @Path("getLocationDetail")
@@ -58,12 +51,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         } else {
             iBaseinfoLocaltionModel.setIsUsed("未占用");
         }
-        //设置数量
-        List<StockQuant> quants = stockQuantService.getQuantsByLocationId(locationId);
-        BigDecimal qty = quants.get(0).getQty();
-        iBaseinfoLocaltionModel.setQty(qty);
         return JsonUtils.SUCCESS(iBaseinfoLocaltionModel);
-
     }
 
     @GET
@@ -74,21 +62,16 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         List<IBaseinfoLocaltionModel> list = locationDetailService.getIBaseinfoLocaltionModelListByType(params);
         for (IBaseinfoLocaltionModel iBaseinfoLocaltionModel : list) {
             Long locationId = iBaseinfoLocaltionModel.getLocationId();
+            //设置编码
+            String code = locationService.getCodeById(locationId);
+            iBaseinfoLocaltionModel.setCode(code);
             //设置可用
             if (!locationService.isUsed(locationId)) {
                 iBaseinfoLocaltionModel.setIsUsed("可用");
             } else {
                 iBaseinfoLocaltionModel.setIsUsed("未占用");
             }
-            //设置编码
-            String code = locationService.getCodeById(locationId);
-            iBaseinfoLocaltionModel.setCode(code);
-            //设置数量
-            List<StockQuant> quants = stockQuantService.getQuantsByLocationId(locationId);
-            BigDecimal qty = quants.get(0).getQty();
-            iBaseinfoLocaltionModel.setQty(qty);
         }
-        //设置可用和数量
         return JsonUtils.SUCCESS(list);
     }
 
