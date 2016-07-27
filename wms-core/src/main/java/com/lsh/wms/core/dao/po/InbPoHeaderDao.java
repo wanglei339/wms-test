@@ -13,10 +13,8 @@ public interface InbPoHeaderDao {
 	
 	void update(InbPoHeader inbPoHeader);
 
-	void updateByOrderOtherId(InbPoHeader inbPoHeader);
+	void updateByAnyCondition(InbPoHeader inbPoHeader);
 
-	void updateByOrderId(InbPoHeader inbPoHeader);
-	
 	InbPoHeader getInbPoHeaderById(Long id);
 
     Integer countInbPoHeader(Map<String, Object> params);

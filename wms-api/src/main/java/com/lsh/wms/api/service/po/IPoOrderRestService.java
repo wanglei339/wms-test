@@ -13,9 +13,7 @@ import com.lsh.base.common.exception.BizCheckedException;
  */
 public interface IPoOrderRestService {
 
-    public String updateOrderStatusByOrderOtherId() throws BizCheckedException;
-
-    public String updateOrderStatusByOrderId() throws BizCheckedException;
+    public String updateOrderStatus() throws BizCheckedException;
 
     public String getPoHeaderList();
 
