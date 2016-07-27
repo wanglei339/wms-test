@@ -69,7 +69,7 @@ public class PORestService implements IPoRestService {
 
     @POST
     @Path("insert")
-    public BaseResponse insertOrder(PoRequest request) {
+    public BaseResponse insertOrder(PoRequest request) throws BizCheckedException{
         //初始化InbPoHeader
         InbPoHeader inbPoHeader = new InbPoHeader();
         ObjUtils.bean2bean(request, inbPoHeader);

@@ -28,8 +28,6 @@ public class BaseinfoLocationBin extends IBaseinfoLocaltionModel implements Seri
     private Long updatedAt;
 	/** 主表类型 */
     private Integer type;
-	/** 数量 */
-    private BigDecimal qty;
 	/** 0可用1不可用 */
     private String isUsed;
 	
@@ -112,15 +110,7 @@ public class BaseinfoLocationBin extends IBaseinfoLocaltionModel implements Seri
 	public void setType(Integer type){
 		this.type = type;
 	}
-	
-	public BigDecimal getQty(){
-		return this.qty;
-	}
-	
-	public void setQty(BigDecimal qty){
-		this.qty = qty;
-	}
-	
+
 	public String getIsUsed(){
 		return this.isUsed;
 	}

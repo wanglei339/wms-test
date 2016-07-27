@@ -102,7 +102,7 @@ public class ReceiptRestService implements IReceiptRestService {
         InbPoHeader inbPoHeader = new InbPoHeader();
         inbPoHeader.setOrderOtherId(orderOtherId);
         inbPoHeader.setOrderStatus(PoConstant.ORDER_THROW);
-        poOrderService.updateInbPoHeaderByOrderOtherId(inbPoHeader);
+        poOrderService.updateInbPoHeaderByAnyCondition(inbPoHeader);
         return JsonUtils.SUCCESS();
     }
 
@@ -282,19 +282,24 @@ public class ReceiptRestService implements IReceiptRestService {
     }
 
     @POST
-    @Path("updateReceiptStatusByReceiptId")
-    public String updateReceiptStatusByReceiptId() throws BizCheckedException {
+    @Path("updateReceiptStatus")
+    public String updateReceiptStatus() throws BizCheckedException {
         Map<String, Object> map = RequestUtils.getRequest();
 
-        if(StringUtils.isBlank((String) map.get("receiptId")) || StringUtils.isBlank((String) map.get("receiptStatus"))) {
+        if(map.get("receiptId") == null || map.get("receiptStatus") == null) {
             throw new BizCheckedException("1020001", "参数不能为空");
         }
 
-        InbReceiptHeader inbReceiptHeader = new InbReceiptHeader();
-        inbReceiptHeader.setReceiptOrderId((Long) map.get("receiptId"));
-        inbReceiptHeader.setReceiptStatus((Integer) map.get("receiptStatus"));
+        if(!StringUtils.isInteger(String.valueOf(map.get("receiptId")))
+                || !StringUtils.isInteger(String.valueOf(map.get("receiptStatus")))) {
+            throw new BizCheckedException("1020002", "参数类型不正确");
+        }
 
-        poReceiptService.updateInbReceiptHeaderByReceiptId(inbReceiptHeader);
+        InbReceiptHeader inbReceiptHeader = new InbReceiptHeader();
+        inbReceiptHeader.setReceiptOrderId(Long.valueOf(String.valueOf(map.get("receiptId"))));
+        inbReceiptHeader.setReceiptStatus(Integer.valueOf(String.valueOf(map.get("receiptStatus"))));
+
+        poReceiptService.updateInbReceiptHeaderByAnyCondition(inbReceiptHeader);
 
         return JsonUtils.SUCCESS();
     }

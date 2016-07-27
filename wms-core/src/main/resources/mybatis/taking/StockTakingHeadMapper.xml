@@ -22,17 +22,19 @@
 		<result property="updatedAt" column="updated_at"/>
 		<result property="planType" column="plan_type"/>
 		<result property="dueTime" column="due_time"/>
+		<result property="areaId" column="area_id"/>
+		<result property="itemId" column="item_id"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockTakingHead">
 		insert into stock_taking_head (
 			taking_id,name,planner,taking_type,view_type,cluster_method,
 			max_chk_rnd,date,status,supplier_id,owner_id,location_list,
-			lot_id,sku_id,created_at,updated_at,plan_type,due_time
+			lot_id,sku_id,created_at,updated_at,plan_type,due_time,area_id,item_id
     	) values (
 			#{takingId},#{name},#{planner},#{takingType},#{viewType},#{clusterMethod},
 			#{maxChkRnd},#{date},#{status},#{supplierId},#{ownerId},#{locationList},
-			#{lotId},#{skuId},#{createdAt},#{updatedAt},#{planType},#{dueTime}
+			#{lotId},#{skuId},#{createdAt},#{updatedAt},#{planType},#{dueTime},#{areaId},#{itemId}
     	)
 	</insert>
 
@@ -57,13 +59,15 @@
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 			<if test="planType != null">plan_type=#{planType}</if>
 			<if test="dueTime != null">due_time=#{dueTime}</if>
+			<if test="areaId != null">area_id=#{areaId}</if>
+			<if test="itemId != null">item_id=#{itemId}</if>
 		</set>
 		where id=#{id}
 	</update>
   
-	<select id="getStockTakingHeadById" parameterType="int" resultMap="stockTakingHeadResultMap">
+	<select id="getStockTakingHeadById" parameterType="long" resultMap="stockTakingHeadResultMap">
 		select * from stock_taking_head
-		where ID=#{id} 
+		where taking_id=#{takingId}
 	</select>
   
 	<select id="countStockTakingHead" parameterType="map" resultType="int">
@@ -100,6 +104,8 @@
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 			<if test="planType != null">plan_type=#{planType}</if>
 			<if test="dueTime != null">due_time=#{dueTime}</if>
+			<if test="areaId != null">area_id=#{areaId}</if>
+			<if test="itemId != null">item_id=#{itemId}</if>
 		</where>
 	</sql>
    

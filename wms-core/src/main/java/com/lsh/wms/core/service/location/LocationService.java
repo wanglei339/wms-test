@@ -1,17 +1,14 @@
 package com.lsh.wms.core.service.location;
 
-import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationShelfDao;
 import com.lsh.wms.core.service.stock.StockQuantService;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationShelf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.parsing.Location;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,8 +37,8 @@ public class LocationService {
         {
             put("warehouse", new Long(1)); // 1仓库
             put("area", new Long(2)); // 2区域
-            put("inventoryLost", new Long (3));    //3盘盈盘亏
-            put("goods_area", new Long(4)); //4货区(下级是 拣货区和存货区)
+            put("inventoryLost", new Long(3));    //3盘盈盘亏
+            put("goods_area", new Long(4)); //4货区(下级是 货架或者阁楼)
             put("floor", new Long(5)); // 5 地堆区
             put("temporary", new Long(6)); // 6 暂存区
             put("collection_area", new Long(7)); // 7 集货区
@@ -61,7 +58,7 @@ public class LocationService {
     };
 
     //计数
-    public int countLocation(Map<String,Object> params){
+    public int countLocation(Map<String, Object> params) {
         return locationDao.countBaseinfoLocation(params);
     }
 
@@ -82,6 +79,7 @@ public class LocationService {
 
     /**
      * 插入location方法,TODO 需要插入商品的四维坐标
+     *
      * @param location
      * @return
      */
@@ -242,7 +240,7 @@ public class LocationService {
 
     // 获取可用盘亏盘盈节点
     public BaseinfoLocation getInventoryLostLocation() {
-        List<BaseinfoLocation> locations = this.getLocationsByType("inventoryLost_area");
+        List<BaseinfoLocation> locations = this.getLocationsByType("inventoryLost");
         if (locations.size() > 0) {
             return locations.get(0);
         } else {
@@ -258,13 +256,14 @@ public class LocationService {
 
     //获取可用残次区的节点
     public BaseinfoLocation getDefectiveLocation() {
-        List<BaseinfoLocation> locations = this.getLocationsByType("inventoryLost_area");
+        List<BaseinfoLocation> locations = this.getLocationsByType("defective_area");
         if (locations.size() > 0) {
             return locations.get(0);
         } else {
             return null;
         }
     }
+
     // 获取可用残次区节点id
     public Long getDefectiveLocationId() {
         BaseinfoLocation location = this.getDefectiveLocation();
@@ -280,6 +279,7 @@ public class LocationService {
             return null;
         }
     }
+
     //获取可用退货区节点id
     public Long getBackLocationId() {
         BaseinfoLocation location = this.getBackLocation();
@@ -300,6 +300,7 @@ public class LocationService {
         }
         return null;
     }
+
     // 获取可用暂存区节点id
     public Long getAvailableLocationId(String type) {
         BaseinfoLocation location = this.getAvailableLocationByType(type);
@@ -308,7 +309,7 @@ public class LocationService {
 
 
     //分配可用集货区节点
-    public BaseinfoLocation getCollectionLocation(){
+    public BaseinfoLocation getCollectionLocation() {
         List<BaseinfoLocation> locations = this.getLocationsByType("collection_area");
         if (locations.size() > 0) {
             for (BaseinfoLocation location : locations) {
@@ -321,6 +322,7 @@ public class LocationService {
         }
         return null;
     }
+
     //获取可用的集货节点id
     public Long getCollectionLocationId() {
         BaseinfoLocation location = this.getCollectionLocation();
@@ -337,6 +339,7 @@ public class LocationService {
             return null;
         }
     }
+
     //获取码头节点id
     public Long getDockLocationId() {
         BaseinfoLocation location = this.getDockLocation();
@@ -344,7 +347,7 @@ public class LocationService {
     }
     //获取货位bin节点的type
 
-// TODO    public BaseinfoLocation getAvailableBinLocationByType(String type)
+    // TODO    public BaseinfoLocation getAvailableBinLocationByType(String type)
     //获取货位节点的id
     public List<BaseinfoLocation> getBaseinfoLocationList(Map<String, Object> mapQuery) {
         return locationDao.getBaseinfoLocationList(mapQuery);
@@ -361,7 +364,7 @@ public class LocationService {
      */
 
     //新增,前提是有了基础location
-    public void insertImpLocation(String type, Object impLocation){
+    public void insertImpLocation(String type, Object impLocation) {
         int LOCATION_TYPE = this.LOCATION_TYPE.get(type).intValue();
         /*
         put("warehouse", new Long(1)); // 仓库
@@ -374,19 +377,19 @@ public class LocationService {
 
         switch (LOCATION_TYPE) {
             case 1:
-                BaseinfoLocationShelf x = (BaseinfoLocationShelf)impLocation;
+                BaseinfoLocationShelf x = (BaseinfoLocationShelf) impLocation;
                 shelfDao.insert(x);
                 break;
         }
     }
 
-    public void insertPureImpLocation(BaseinfoLocation baseLocation, Object impLocation){
+    public void insertPureImpLocation(BaseinfoLocation baseLocation, Object impLocation) {
         DateUtils.getCurrentSeconds();
         this.insertLocation(baseLocation);
         this.insertImpLocation(baseLocation.getTypeName(), impLocation);
     }
 
-    public void getImpLocation(long iType, long locationId){
+    public void getImpLocation(long iType, long locationId) {
         Map<String, Object> params = new HashMap<String, Object>();
         BaseinfoLocation location;
         params.put("locationId", locationId);
@@ -396,18 +399,30 @@ public class LocationService {
 
     //获取现在inUse是否可用
     //0没占用,1占用
-    public boolean isUsed(Long locationId){
-        Map<String,Object> params = new HashMap<String, Object>();
-        params.put("locationId",locationId);
+    public boolean isUsed(Long locationId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("locationId", locationId);
         List<BaseinfoLocation> list = this.locationDao.getBaseinfoLocationList(params);
         //查询的id肯定有
         BaseinfoLocation location = list.get(0);
         Integer in_use = location.getInUse();
-        if (0==in_use){
+        if (0 == in_use) {
             return false;
-        }else {
+        } else {
             return true;
         }
 
+    }
+
+    //获取code
+    public String getCodeById(Long locationId) {
+        String code = null;
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("locationId", locationId);
+        List<BaseinfoLocation> baseinfoLocationList = locationDao.getBaseinfoLocationList(params);
+        if (baseinfoLocationList.size() > 0) {
+            code = baseinfoLocationList.get(0).getLocationCode();
+        }
+        return code;
     }
 }

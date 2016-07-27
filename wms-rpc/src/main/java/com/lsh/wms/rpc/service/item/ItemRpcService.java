@@ -94,4 +94,21 @@ public class ItemRpcService implements IItemRpcService {
         return itemService.getItem(itemId);
     }
 
+    /**
+     * 转换包装
+     * h60-->60
+     */
+    public static int getPackUnit(String str){
+        String newStr = str.replace(" ", "");
+        int packUnit = 0;
+        boolean result=newStr.substring(1).matches("[0-9]+");
+        if(result){
+            packUnit = Integer.valueOf(newStr.substring(1));
+        }else{
+            return -1;
+        }
+        return packUnit;
+
+    }
+
 }

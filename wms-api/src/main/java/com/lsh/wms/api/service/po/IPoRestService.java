@@ -1,6 +1,7 @@
 package com.lsh.wms.api.service.po;
 
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.po.PoRequest;
 import com.lsh.wms.model.po.InbPoHeader;
@@ -20,7 +21,7 @@ import java.util.Map;
 public interface IPoRestService {
     public String init(String poOrderInfo);
 
-    public BaseResponse insertOrder(PoRequest request);
+    public BaseResponse insertOrder(PoRequest request) throws BizCheckedException;
 
     public void editOrder(InbPoHeader inbPoHeader);
 

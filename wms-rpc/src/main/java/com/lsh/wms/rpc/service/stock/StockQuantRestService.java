@@ -128,7 +128,7 @@ public class StockQuantRestService implements IStockQuantRestService {
             }
         }
         if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
-            throw new BizCheckedException("2040001", "商品数量不足");
+            throw new BizCheckedException("2050001", "商品数量不足");
         }
         return JsonUtils.SUCCESS();
     }
@@ -156,7 +156,7 @@ public class StockQuantRestService implements IStockQuantRestService {
             }
         }
         if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
-            throw new BizCheckedException("2040001", "商品数量不足");
+            throw new BizCheckedException("2050001", "商品数量不足");
         }
         return JsonUtils.SUCCESS();
     }
@@ -184,7 +184,7 @@ public class StockQuantRestService implements IStockQuantRestService {
             }
         }
         if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
-            throw new BizCheckedException("2040001", "商品数量不足");
+            throw new BizCheckedException("2050001", "商品数量不足");
         }
         return JsonUtils.SUCCESS();
     }
@@ -212,7 +212,7 @@ public class StockQuantRestService implements IStockQuantRestService {
             }
         }
         if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
-            throw new BizCheckedException("2040001", "商品数量不足");
+            throw new BizCheckedException("2050001", "商品数量不足");
         }
         return JsonUtils.SUCCESS();
     }
@@ -248,9 +248,9 @@ public class StockQuantRestService implements IStockQuantRestService {
             Long itemId = item.getItemId();
             total = stockQuantService.getItemCount(itemId, locationList, true);
             freeze = stockQuantService.getItemCount(itemId, locationList, false);
-            loss = stockQuantService.getItemCount(itemId, locationListLoss, false);
-            defect = stockQuantService.getItemCount(itemId, locationListDefect, false);
-            refund = stockQuantService.getItemCount(itemId, locationListRefund, false);
+            loss = stockQuantService.getItemCount(itemId, locationListLoss, true);
+            defect = stockQuantService.getItemCount(itemId, locationListDefect, true);
+            refund = stockQuantService.getItemCount(itemId, locationListRefund, true);
 
             BigDecimal reTotal = total.subtract(loss);
             BigDecimal normal = reTotal.subtract(defect.add(refund));
@@ -270,22 +270,13 @@ public class StockQuantRestService implements IStockQuantRestService {
     @POST
     @Path("getLocationStockCount")
     public String getLocationStockCount(Map<String, Object> mapQuery) {
-        return JsonUtils.SUCCESS(locationService.getStoreLocationIds(locationService.getWarehouseLocationId()).size());
+        return JsonUtils.SUCCESS(stockQuantService.countStockQuant(mapQuery));
     }
 
     @POST
     @Path("getLocationStockList")
     public String getLocationStockList(Map<String, Object> mapQuery) {
-        int pn = Integer.valueOf((mapQuery.get("start")).toString());
-        int rn = Integer.valueOf((mapQuery.get("limit")).toString());
-        Map<Long, List<StockQuant>> locationDetail = new HashMap<Long, List<StockQuant>>();
-
-        List<Long> locationList = locationService.getStoreLocationIds(locationService.getWarehouseLocationId());
-        List<Long> selectedLocationList = locationList.subList(pn, Math.min(rn, (locationList.size() - pn)));
-        for (Long location : selectedLocationList) {
-            locationDetail.put(location,stockQuantService.getQuantsByLocationId(location));
-        }
-        return JsonUtils.SUCCESS(locationDetail);
+        return JsonUtils.SUCCESS(stockQuantService.getQuants(mapQuery));
     }
 
 }
