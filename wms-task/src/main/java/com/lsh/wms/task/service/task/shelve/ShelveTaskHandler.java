@@ -1,7 +1,9 @@
 package com.lsh.wms.task.service.task.shelve;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.api.service.shelve.IShelveRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.location.LocationService;
@@ -12,7 +14,6 @@ import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.task.service.handler.AbsTaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
 import com.lsh.wms.core.service.shelve.ShelveTaskService;
-import com.lsh.wms.rpc.service.shelve.ShelveRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,8 +30,8 @@ public class ShelveTaskHandler extends AbsTaskHandler {
     private ShelveTaskService taskService;
     @Autowired
     private ContainerService containerService;
-    @Autowired
-    private ShelveRpcService shelveRpcService;
+    @Reference
+    private IShelveRpcService iShelveRpcService;
     @Autowired
     private LocationService locationService;
 
@@ -48,7 +49,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
             throw new BizCheckedException("2030003");
         }
         // 获取目标location
-        BaseinfoLocation targetLocation = shelveRpcService.assginShelveLocation(container);
+        BaseinfoLocation targetLocation = iShelveRpcService.assginShelveLocation(container);
         if (targetLocation == null) {
             throw new BizCheckedException("2030004");
         }

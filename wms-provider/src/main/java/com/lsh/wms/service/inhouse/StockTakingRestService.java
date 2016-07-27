@@ -65,7 +65,7 @@ public class StockTakingRestService implements IStockTakingRestService {
 
     @POST
     @Path("create")
-    public String create(String stockTakingInfo) {
+    public String create(String stockTakingInfo) throws BizCheckedException{
         StockTakingHead head = JSON.parseObject(stockTakingInfo, StockTakingHead.class);
         List<StockTakingDetail> detailList = prepareDetailList(head);
         stockTakingService.create(head, detailList);
@@ -160,7 +160,7 @@ public class StockTakingRestService implements IStockTakingRestService {
         return JsonUtils.SUCCESS(result);
     }
 
-    public void createNextDetail(Long stockTakingId,Long roundTime) {
+    public void createNextDetail(Long stockTakingId,Long roundTime) throws BizCheckedException{
         Map queryMap = new HashMap();
         StockTakingHead head = stockTakingService.getHeadById(stockTakingId);
         List<StockTakingDetail> detailList = new ArrayList<StockTakingDetail>();
@@ -266,7 +266,7 @@ public class StockTakingRestService implements IStockTakingRestService {
 
 
 
-    public void createTask(StockTakingHead head, List<StockTakingDetail> detailList,Long round,Long dueTime) {
+    public void createTask(StockTakingHead head, List<StockTakingDetail> detailList,Long round,Long dueTime) throws BizCheckedException{
         List<TaskEntry> taskEntryList=new ArrayList<TaskEntry>();
         for(StockTakingDetail detail:detailList) {
             TaskInfo taskInfo = new TaskInfo();
@@ -300,7 +300,7 @@ public class StockTakingRestService implements IStockTakingRestService {
     }
 
 
-    public void confirm(Long stockTakingId) {
+    public void confirm(Long stockTakingId) throws BizCheckedException{
         // 获取stockingHead
         // 如果是临时盘点, 直接调用confirmDifference
         // 计划盘点,
@@ -377,7 +377,7 @@ public class StockTakingRestService implements IStockTakingRestService {
         moveService.create(moveList);
 
     }
-    public String create(StockTakingHead head) {
+    public String create(StockTakingHead head) throws BizCheckedException{
         List<StockTakingDetail> detailList = prepareDetailList(head);
         logger.info("detail:"+JSON.toJSONString(detailList));
         stockTakingService.create(head, detailList);

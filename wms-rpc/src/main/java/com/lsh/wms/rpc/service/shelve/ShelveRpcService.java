@@ -25,6 +25,8 @@ import java.util.Map;
 /**
  * Created by fengkun on 16/7/15.
  */
+
+@Service(protocol = "dubbo")
 public class ShelveRpcService implements IShelveRpcService {
     private static Logger logger = LoggerFactory.getLogger(ShelveRpcService.class);
 

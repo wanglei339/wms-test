@@ -9,7 +9,7 @@ import java.util.Map;
  * Created by mali on 16/7/14.
  */
 public interface IStockTakingRestService {
-    String create(String stockTakingInfo);
+    String create(String stockTakingInfo) throws BizCheckedException;
     String genId();
     String getLocationList(int locationNum);
     String getDetail(long takingId) throws BizCheckedException;
