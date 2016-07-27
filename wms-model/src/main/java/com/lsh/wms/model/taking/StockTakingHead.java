@@ -41,6 +41,10 @@ public class StockTakingHead implements Serializable {
 	private Long planType = 0L;
 	/**  任务要求时间 */
 	private Long dueTime = 0L;
+	/** 库区id*/
+	private Long areaId = 0L;
+	/** */
+	private Long itemId = 0L;
 	/**  */
     private Long createdAt = DateUtils.getCurrentSeconds();
 	/**  */
@@ -207,5 +211,21 @@ public class StockTakingHead implements Serializable {
 
 	public void setDueTime(Long dueTime) {
 		this.dueTime = dueTime;
+	}
+
+	public Long getAreaId() {
+		return areaId;
+	}
+
+	public void setAreaId(Long areaId) {
+		this.areaId = areaId;
+	}
+
+	public Long getItemId() {
+		return itemId;
+	}
+
+	public void setItemId(Long itemId) {
+		this.itemId = itemId;
 	}
 }
