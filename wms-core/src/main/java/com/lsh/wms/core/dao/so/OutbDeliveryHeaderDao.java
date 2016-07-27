@@ -13,7 +13,7 @@ public interface OutbDeliveryHeaderDao {
 	
 	void update(OutbDeliveryHeader outbDeliveryHeader);
 
-	void updateByDeliveryId(OutbDeliveryHeader outbDeliveryHeader);
+	void updateByAnyCondition(OutbDeliveryHeader outbDeliveryHeader);
 	
 	OutbDeliveryHeader getOutbDeliveryHeaderById(Long id);
 

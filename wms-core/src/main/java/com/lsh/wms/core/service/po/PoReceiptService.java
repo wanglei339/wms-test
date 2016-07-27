@@ -69,14 +69,14 @@ public class PoReceiptService {
     }
 
     /**
-     * 根据ReceiptId更新InbReceiptHeader
+     * 自定义条件更新InbReceiptHeader
      * @param inbReceiptHeader
      */
     @Transactional(readOnly = false)
-    public void updateInbReceiptHeaderByReceiptId(InbReceiptHeader inbReceiptHeader) {
+    public void updateInbReceiptHeaderByAnyCondition(InbReceiptHeader inbReceiptHeader) {
         inbReceiptHeader.setUpdatetime(new Date());
 
-        inbReceiptHeaderDao.updateByReceiptId(inbReceiptHeader);
+        inbReceiptHeaderDao.updateByAnyCondition(inbReceiptHeader);
     }
 
     /**
