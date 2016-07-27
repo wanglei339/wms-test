@@ -180,16 +180,17 @@ public class StockQuantService {
         }
         return qty;
     }
-    public List<Long> getSupplierByLocationAndSkuId(Long locationId,Long skuId) {
+    public Long getSupplierByLocationAndItemId(Long locationId,Long itemId) {
         Set<Long> suppliers=new HashSet<Long>();
         Map<String,Object> queryMap =new HashMap<String, Object>();
         queryMap.put("locationId",locationId);
-        queryMap.put("skuId",skuId);
+        queryMap.put("itemId",itemId);
         List<StockQuant> quants=stockQuantDao.getQuants(queryMap);
-        for(StockQuant quant:quants){
-            suppliers.add(quant.getSupplierId());
+        if(quants!=null && quants.size()!=0){
+            return quants.get(0).getSupplierId();
+        }else {
+            return null;
         }
-        return new ArrayList<Long>(suppliers);
     }
 
     public BigDecimal getItemCount(Long itemId, List<Long> locationIdList, boolean isNormal) {

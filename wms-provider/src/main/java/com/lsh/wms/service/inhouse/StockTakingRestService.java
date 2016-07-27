@@ -134,8 +134,17 @@ public class StockTakingRestService implements IStockTakingRestService {
                 Map <String,Object> one = new HashMap<String, Object>();
                 TaskEntry entry = iTaskRpcService.getTaskEntryById(takingTask.getTaskId());
                 StockTakingDetail detail =(StockTakingDetail)(entry.getTaskDetailList().get(0));
+                Long supplierId=quantService.getSupplierByLocationAndItemId(detail.getLocationId(),detail.getItemId());
                 one.put("operator",entry.getTaskInfo().getOperator());
-                one.put("detail",detail);
+                one.put("supplierId",supplierId);
+                one.put("itemId",detail.getItemId());
+                one.put("theoreticalQty",detail.getTheoreticalQty());
+                one.put("areaId",locationService.getAreaFather(detail.getLocationId()));
+                one.put("locationId",detail.getLocationId());
+                one.put("realQty",detail.getRealQty());
+                one.put("difference",detail.getRealQty().subtract(detail.getTheoreticalQty()));
+                one.put("reason","哈哈哈");
+                one.put("updatedAt",detail.getUpdatedAt());
                 details.add(one);
             }
             result.add(details);
