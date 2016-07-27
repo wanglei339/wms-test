@@ -128,7 +128,7 @@ public class StockQuantRestService implements IStockQuantRestService {
             }
         }
         if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
-            throw new BizCheckedException("2050001", "商品数量不足");
+            throw new BizCheckedException("2550001", "商品数量不足");
         }
         return JsonUtils.SUCCESS();
     }
@@ -156,7 +156,7 @@ public class StockQuantRestService implements IStockQuantRestService {
             }
         }
         if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
-            throw new BizCheckedException("2050001", "商品数量不足");
+            throw new BizCheckedException("2550001", "商品数量不足");
         }
         return JsonUtils.SUCCESS();
     }
@@ -184,7 +184,7 @@ public class StockQuantRestService implements IStockQuantRestService {
             }
         }
         if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
-            throw new BizCheckedException("2050001", "商品数量不足");
+            throw new BizCheckedException("2550001", "商品数量不足");
         }
         return JsonUtils.SUCCESS();
     }
@@ -212,7 +212,7 @@ public class StockQuantRestService implements IStockQuantRestService {
             }
         }
         if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
-            throw new BizCheckedException("2050001", "商品数量不足");
+            throw new BizCheckedException("2550001", "商品数量不足");
         }
         return JsonUtils.SUCCESS();
     }
