@@ -117,8 +117,7 @@ public class StockTakingRestService implements IStockTakingRestService {
     }
     @GET
     @Path("getDetail")
-    public String getDetail() throws BizCheckedException{
-        Long takingId=8113193244701L;
+    public String getDetail(@QueryParam("takingId") long takingId) throws BizCheckedException{
         Long round =stockTakingService.chargeTime(takingId);
         Map<String,Object> queryMap =new HashMap<String, Object>();
         Long time =1L;

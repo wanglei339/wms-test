@@ -13,7 +13,7 @@ public interface IStockTakingRestService {
     String create(StockTakingRequest request) throws BizCheckedException;
     String genId();
     String getLocationList(Map<String,Object> mapQuery);
-    String getDetail() throws BizCheckedException;
+    String getDetail(long takingId) throws BizCheckedException;
     String getCount(Map<String,Object> mapQuery);
     String getList(Map<String,Object> mapQuery) throws BizCheckedException;
 }
