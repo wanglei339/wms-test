@@ -1,7 +1,12 @@
 package com.lsh.wms.model.task;
 
+import com.lsh.base.common.utils.BeanMapTransUtils;
+import com.lsh.base.common.utils.ObjUtils;
+import com.sun.javafx.tk.Toolkit;
+
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Map;
 
 public class TaskInfo implements Serializable {
 

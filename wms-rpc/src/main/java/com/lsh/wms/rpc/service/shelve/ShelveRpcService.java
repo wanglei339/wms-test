@@ -41,7 +41,7 @@ public class ShelveRpcService implements IShelveRpcService {
     @Autowired
     private LocationRpcService locationRpcService;
 
-    private static final Float SHELF_LIFE_THRESHOLD = 0.3f;
+    private static final Float SHELF_LIFE_THRESHOLD = 0.3f; // 保质期差额阈值
 
     /**
      * 分配上架容器
