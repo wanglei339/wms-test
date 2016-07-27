@@ -169,10 +169,10 @@ public class StockQuantService {
     public List<Long> getContainerIdByLocationId(Long locationId) {
         return stockQuantDao.getContainerIdByLocationId(locationId);
     }
-    public BigDecimal getQuantQtyByLocationIdAndSkuId(Long locationId,Long skuId) {
-        Map queryMap=new HashMap();
+    public BigDecimal getQuantQtyByLocationIdAndItemId(Long locationId,Long itemId) {
+        Map<String,Object> queryMap=new HashMap();
         queryMap.put("locationId",locationId);
-        queryMap.put("skuId", skuId);
+        queryMap.put("itemId", itemId);
         List<StockQuant> stockQuants=stockQuantDao.getQuants(queryMap);
         BigDecimal qty=new BigDecimal(0L);
         for (StockQuant quant:stockQuants){

@@ -79,10 +79,7 @@ public class StockTakingRestService implements IStockTakingRestService {
     @Path("genId")
     public String genId(){
         Long takingId=RandomUtils.genId();
-        Map result=new HashMap();
-        result.put("takingId", takingId);
-
-        return JsonUtils.SUCCESS(result);
+        return JsonUtils.SUCCESS(takingId);
     }
     @POST
     @Path("getList")
@@ -189,7 +186,7 @@ public class StockTakingRestService implements IStockTakingRestService {
         List<StockTakingDetail> details=stockTakingService.getDetailListByRound(stockTakingId,roundTime);
         for (StockTakingDetail stockTakingDetail:details){
             stockTakingDetail.setId(0L);
-            BigDecimal qty=quantService.getQuantQtyByLocationIdAndSkuId(stockTakingDetail.getLocationId(), stockTakingDetail.getLotId());
+            BigDecimal qty=quantService.getQuantQtyByLocationIdAndItemId(stockTakingDetail.getLocationId(), stockTakingDetail.getItemId());
             stockTakingDetail.setTheoreticalQty(qty);
             stockTakingDetail.setRound(roundTime+1);
             detailList.add(stockTakingDetail);
