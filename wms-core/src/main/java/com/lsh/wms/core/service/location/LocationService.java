@@ -1,17 +1,14 @@
 package com.lsh.wms.core.service.location;
 
-import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationShelfDao;
 import com.lsh.wms.core.service.stock.StockQuantService;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationShelf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.parsing.Location;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -392,5 +389,31 @@ public class LocationService {
         params.put("locationId", locationId);
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
         //return locations.size() == 1 ? locations.get(0) : null;
+    }
+
+    //获取现在inUse是否可用
+    //0没占用,1占用
+    public boolean isUsed(Long locationId){
+        Map<String,Object> params = new HashMap<String, Object>();
+        params.put("locationId",locationId);
+        List<BaseinfoLocation> list = this.locationDao.getBaseinfoLocationList(params);
+        //查询的id肯定有
+        BaseinfoLocation location = list.get(0);
+        Integer in_use = location.getInUse();
+        if (0==in_use){
+            return false;
+        }else {
+            return true;
+        }
+
+    }
+
+    //获取code
+    public String getCodeById(Long locationId){
+        Map<String ,Object> params = new HashMap<String, Object>();
+        params.put("locationId",locationId);
+        List<BaseinfoLocation> baseinfoLocationList = locationDao.getBaseinfoLocationList(params);
+        String code = baseinfoLocationList.get(0).getLocationCode();
+        return code;
     }
 }

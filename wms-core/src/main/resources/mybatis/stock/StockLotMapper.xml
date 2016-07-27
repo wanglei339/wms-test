@@ -15,15 +15,17 @@
 		<result property="itemId" column="item_id"/>
 		<result property="poId" column="po_id"/>
 		<result property="receiptId" column="receipt_id"/>
+		<result property="packUnit" column="pack_unit"/>
+		<result property="packName" column="pack_name"/>
 	</resultMap>
 
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockLot">
 		insert into stock_lot (
 			lot_id,sku_id,serial_no,in_date,product_date,expire_date,
-			created_at,updated_at,po_id,item_id,receipt_id
+			created_at,updated_at,po_id,item_id,receipt_id,pack_unit,pack_name
     	) values (
 			#{lotId},#{skuId},#{serialNo},#{inDate},#{productDate},#{expireDate},
-			#{createdAt},#{updatedAt},#{itemId},#{poId},#{receiptId}
+			#{createdAt},#{updatedAt},#{itemId},#{poId},#{receiptId},#{packUnit},#{packName}
     	)
 	</insert>
 
@@ -37,10 +39,12 @@
   			<if test="productDate != null">product_date=#{productDate},</if>
   			<if test="expireDate != null">expire_date=#{expireDate},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
-  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
-			<if test="itemId != null">item_id=#{itemId}</if>
-			<if test="poId != null">po_id=#{poId}</if>
-			<if test="receiptId != null">receipt_id=#{receiptId}</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+			<if test="itemId != null">item_id=#{itemId},</if>
+			<if test="poId != null">po_id=#{poId},</if>
+			<if test="receiptId != null">receipt_id=#{receiptId},</if>
+			<if test="packUnit != null">pack_unit=#{packUnit},</if>
+			<if test="packName != null">pack_name=#{packName}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -79,9 +83,11 @@
 			<if test="expireDate != null">and expire_date=#{expireDate}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
-			<if test="itemId != null">item_id=#{itemId}</if>
-			<if test="poId != null">po_id=#{poId}</if>
-			<if test="receiptId != null">receipt_id=#{receiptId}</if>
+			<if test="itemId != null">and item_id=#{itemId}</if>
+			<if test="poId != null">and po_id=#{poId}</if>
+			<if test="receiptId != null">and receipt_id=#{receiptId}</if>
+			<if test="packUnit != null">and pack_unit=#{packUnit}</if>
+			<if test="packName != null">and pack_name=#{packName}</if>
 		</where>
 	</sql>
 

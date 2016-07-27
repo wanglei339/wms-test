@@ -48,6 +48,8 @@ public class StockLotRestService implements IStockLotRestService{
      * itemId
      * poId          采购订单
      * receiptId     收货单
+     * packUnit      包装单位
+     * packName      包装名称
      */
     public String insertLot(StockLot lot) {
         lot.setLotId(RandomUtils.genId());

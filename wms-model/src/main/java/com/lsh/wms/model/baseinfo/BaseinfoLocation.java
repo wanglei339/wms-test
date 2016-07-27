@@ -1,9 +1,12 @@
 package com.lsh.wms.model.baseinfo;
 
+import org.springframework.stereotype.Component;
+
 import java.io.Serializable;
 import java.util.Date;
 
-public class BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel  {
+@Component
+public class BaseinfoLocation extends IBaseinfoLocaltionModel implements Serializable  {
 
 	/**  */
     private Long id;

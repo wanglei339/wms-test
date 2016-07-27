@@ -69,6 +69,7 @@ public class LocationDetailServiceFactory {
     }
     //创建service通过前端传过来的type类型
     public IStrategy createDetailServiceByType(Integer type){
+
         //1.货位 货位
         if (type==11||type==12||type==13||type==14||type==15||type==16||type==17) {
             iStrategy = baseinfoLocationBinService;
