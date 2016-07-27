@@ -3,6 +3,8 @@ package com.lsh.wms.rpc.service.stock;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
+
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.wms.core.service.item.ItemService;
@@ -19,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.parsing.Location;
-
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.lang.reflect.Array;
@@ -88,7 +89,8 @@ public class StockQuantRestService implements IStockQuantRestService {
      * inDate 入库时间
      * expireDate 保质期失效时间
      * itemId
-     *
+     * packUnit 包装单位
+     * packName 包装名称
      */
     @POST
     @Path("create")
@@ -105,7 +107,7 @@ public class StockQuantRestService implements IStockQuantRestService {
 
     @POST
     @Path("freeze")
-    public String freeze(Map<String, Object> mapCondition) {
+    public String freeze(Map<String, Object> mapCondition) throws BizCheckedException {
         List<StockQuant> quantList = stockQuantService.getQuants(mapCondition);
         BigDecimal requiredQty = new BigDecimal(mapCondition.get("qty").toString());
 
@@ -126,14 +128,14 @@ public class StockQuantRestService implements IStockQuantRestService {
             }
         }
         if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
-            return JsonUtils.EXCEPTION_ERROR("Item Not Enough");
+            throw new BizCheckedException("2040001", "商品数量不足");
         }
         return JsonUtils.SUCCESS();
     }
 
     @POST
     @Path("unfreeze")
-    public String unFreeze(Map<String, Object> mapCondition) {
+    public String unFreeze(Map<String, Object> mapCondition) throws BizCheckedException {
         List<StockQuant> quantList = stockQuantService.getQuants(mapCondition);
         BigDecimal requiredQty = new BigDecimal(mapCondition.get("qty").toString());
 
@@ -154,14 +156,14 @@ public class StockQuantRestService implements IStockQuantRestService {
             }
         }
         if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
-            return JsonUtils.EXCEPTION_ERROR("Item Not Enough");
+            throw new BizCheckedException("2040001", "商品数量不足");
         }
         return JsonUtils.SUCCESS();
     }
 
     @POST
     @Path("toDefect")
-    public  String toDefect(Map<String, Object> mapCondition) {
+    public  String toDefect(Map<String, Object> mapCondition) throws BizCheckedException {
         List<StockQuant> quantList = stockQuantService.getQuants(mapCondition);
         BigDecimal requiredQty = new BigDecimal(mapCondition.get("qty").toString());
 
@@ -182,14 +184,14 @@ public class StockQuantRestService implements IStockQuantRestService {
             }
         }
         if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
-            return JsonUtils.EXCEPTION_ERROR("Item Not Enough");
+            throw new BizCheckedException("2040001", "商品数量不足");
         }
         return JsonUtils.SUCCESS();
     }
 
     @POST
     @Path("toRefund")
-    public String toRefund(Map<String, Object> mapCondition) {
+    public String toRefund(Map<String, Object> mapCondition) throws BizCheckedException {
         List<StockQuant> quantList = stockQuantService.getQuants(mapCondition);
         BigDecimal requiredQty = new BigDecimal(mapCondition.get("qty").toString());
 
@@ -210,7 +212,7 @@ public class StockQuantRestService implements IStockQuantRestService {
             }
         }
         if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
-            return JsonUtils.EXCEPTION_ERROR("Item Not Enough");
+            throw new BizCheckedException("2040001", "商品数量不足");
         }
         return JsonUtils.SUCCESS();
     }

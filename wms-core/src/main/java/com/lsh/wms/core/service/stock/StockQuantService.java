@@ -145,14 +145,14 @@ public class StockQuantService {
 
     @Transactional(readOnly = false)
     public void toDefect(StockQuant quant) {
-        quant.setIsFrozen(1L);
+        quant.setIsFrozen(0L);
         quant.setIsDefect(1L);
         stockQuantDao.update(quant);
     }
 
     @Transactional(readOnly = false)
     public void toRefund(StockQuant quant) {
-        quant.setIsFrozen(1L);
+        quant.setIsFrozen(0L);
         quant.setIsRefund(1L);
         stockQuantDao.update(quant);
     }

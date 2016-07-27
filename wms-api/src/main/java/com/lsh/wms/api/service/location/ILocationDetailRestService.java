@@ -14,5 +14,6 @@ public interface ILocationDetailRestService {
     public java.lang.String getLocationDetailListByType(Integer type);
     public java.lang.String insertLocationDetailByType(IBaseinfoLocaltionModel baseinfoLocaltionModel, Integer type) throws ClassNotFoundException;
     public java.lang.String updateLocationDetailByType(IBaseinfoLocaltionModel baseinfoLocaltionModel, Integer type);
-    public String countLocationDetailByType(Map<String, Object> params,Integer type);
+    public String countLocationDetailByType(Map<String, Object> params);
+    public String searchList(Map<String, Object> params);
 }

@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.taking;
 
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.taking.StockTakingDetailDao;
@@ -80,7 +81,7 @@ public class StockTakingService {
     }
     public Long chargeTime(Long stockTakingId) {
         Map queryMap = new HashMap();
-        queryMap.put("stockTakingId",stockTakingId);
+        queryMap.put("takingId",stockTakingId);
         queryMap.put("round", 3L);
         int i = detailDao.countStockTakingDetail(queryMap);
         if (i!=0){
@@ -97,14 +98,14 @@ public class StockTakingService {
     public List<StockTakingHead> queryTakingHead(Map queryMap) {
         return headDao.getStockTakingHeadList(queryMap);
     }
-    public StockTakingDetail getDetailByTaskId(Long taskId){
+    public List<StockTakingDetail> getDetailByTaskId(Long taskId){
         Map<String,Object> queryMap = new HashMap<String, Object>();
         queryMap.put("taskId", taskId);
-        List<StockTakingDetail>details = detailDao.getStockTakingDetailList(queryMap);
-        if(details!=null && details.size()!=0) {
-            return details.get(0);
-        }
-        return null;
+        return detailDao.getStockTakingDetailList(queryMap);
+
+    }
+    public Integer countHead(Map queryMap) {
+        return headDao.countStockTakingHead(queryMap);
 
     }
 }

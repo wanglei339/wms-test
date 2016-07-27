@@ -27,7 +27,6 @@
 	<update id="update" parameterType="PickZone">
 		update pick_zone
     	<set>
-  			<if test="pickZoneId != null">pick_zone_id=#{pickZoneId},</if>
   			<if test="pickZoneCode != null">pick_zone_code=#{pickZoneCode},</if>
   			<if test="pickZoneName != null">pick_zone_name=#{pickZoneName},</if>
   			<if test="locations != null">locations=#{locations},</if>
@@ -36,7 +35,7 @@
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
-		where id=#{id}
+		where pick_zone_id=#{pickZoneId}
 	</update>
   
 	<select id="getPickZoneById" parameterType="int" resultMap="pickZoneResultMap">

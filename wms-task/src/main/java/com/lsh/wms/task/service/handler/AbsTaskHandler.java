@@ -1,5 +1,6 @@
 package com.lsh.wms.task.service.handler;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.task.TaskEntry;
@@ -16,12 +17,12 @@ import java.util.Map;
  * Created by mali on 16/7/23.
  */
 @Component
-public  class  AbsTaskHandler implements TaskHandler {
+public class AbsTaskHandler implements TaskHandler {
     @Autowired
     private BaseTaskService baseTaskService;
 
     @Transactional (readOnly = false)
-    public void create(TaskEntry taskEntry) {
+    public void create(TaskEntry taskEntry) throws BizCheckedException{
         // 插入标准任务信息
         Long taskId = RandomUtils.genId();
         TaskInfo taskInfo = taskEntry.getTaskInfo();
@@ -31,13 +32,13 @@ public  class  AbsTaskHandler implements TaskHandler {
     }
 
     @Transactional (readOnly = false)
-    public void batchCreate(List<TaskEntry> taskEntries) {
+    public void batchCreate(List<TaskEntry> taskEntries) throws BizCheckedException{
         for(TaskEntry entry : taskEntries){
             this.create(entry);
         }
     }
 
-    protected void createConcrete(TaskEntry taskEntry) {
+    protected void createConcrete(TaskEntry taskEntry) throws BizCheckedException{
     }
 
 
@@ -99,7 +100,15 @@ public  class  AbsTaskHandler implements TaskHandler {
         this.doneConcrete(taskId);
     }
 
+    public void done(Long taskId, Long locationId) throws BizCheckedException {
+        baseTaskService.done(taskId);
+        this.doneConcrete(taskId, locationId);
+    }
+
     protected void doneConcrete(Long taskId) {
+    }
+
+    protected void doneConcrete(Long taskId, Long locationId) throws BizCheckedException{
     }
 
     public void cancel(Long taskId) {

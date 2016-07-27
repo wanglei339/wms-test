@@ -1,5 +1,7 @@
 package com.lsh.wms.model.taking;
 
+import com.lsh.base.common.utils.DateUtils;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -10,7 +12,7 @@ public class StockTakingHead implements Serializable {
 	/** 盘点计划id */
     private Long takingId;
 	/** 盘点名字 */
-    private String name;
+    private String name = "";
 	/** 发起者id */
     private Long planner = 0L;
 	/** 盘点类型, 1-库存盘点， 2-库位盘点 */
@@ -40,9 +42,9 @@ public class StockTakingHead implements Serializable {
 	/**  任务要求时间 */
 	private Long dueTime = 0L;
 	/**  */
-    private Long createdAt;
+    private Long createdAt = DateUtils.getCurrentSeconds();
 	/**  */
-    private Long updatedAt;
+    private Long updatedAt = DateUtils.getCurrentSeconds();
 
 
 	public String getDetails() {
