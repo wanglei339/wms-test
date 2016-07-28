@@ -20,7 +20,7 @@ public class ShelveTaskHead implements Serializable {
 	/** 货主id */
     private Long ownerId;
 	/** 批次id */
-    private Long locId;
+    private Long lotId;
 	/** 供商id */
     private Long supplierId;
 	/** 分配库位 */
@@ -96,12 +96,12 @@ public class ShelveTaskHead implements Serializable {
 		this.ownerId = ownerId;
 	}
 	
-	public Long getLocId(){
-		return this.locId;
+	public Long getLotId(){
+		return this.lotId;
 	}
 	
-	public void setLocId(Long locId){
-		this.locId = locId;
+	public void setLotId(Long loTId){
+		this.lotId = lotId;
 	}
 	
 	public Long getSupplierId(){

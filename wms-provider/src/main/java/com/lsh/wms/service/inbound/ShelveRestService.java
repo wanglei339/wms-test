@@ -25,7 +25,7 @@ import java.util.Map;
  */
 
 @Service(protocol = "rest")
-@Path("task")
+@Path("inbound/shelve")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class ShelveRestService implements IShelveRestService {
@@ -51,13 +51,15 @@ public class ShelveRestService implements IShelveRestService {
         TaskEntry entry = new TaskEntry();
         entry.setTaskInfo(taskInfo);
         entry.setTaskHead(taskHead);
+//        return JsonUtils.SUCCESS(entry);
         final Long taskId = iTaskRpcService.create(taskType, entry);
-        iTaskRpcService.assign(taskId, staffId);
+        return JsonUtils.SUCCESS(taskId);
+        /*iTaskRpcService.assign(taskId, staffId);
         return JsonUtils.SUCCESS(new HashMap<String, Long>() {
             {
                 put("taskId", taskId);
             }
-        });
+        });*/
     }
 
     /**

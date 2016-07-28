@@ -2,6 +2,7 @@ package com.lsh.wms.task.service.task.shelve;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.shelve.IShelveRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
@@ -46,14 +47,16 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         Long containerId = taskHead.getContainerId();
         BaseinfoContainer container = containerService.getContainer(containerId);
         if (container == null) {
-            throw new BizCheckedException("2030003");
+            throw new BizCheckedException("2030004");
         }
         // 获取目标location
         BaseinfoLocation targetLocation = iShelveRpcService.assginShelveLocation(container);
+        System.out.println(JsonUtils.SUCCESS(targetLocation));
         if (targetLocation == null) {
-            throw new BizCheckedException("2030004");
+            throw new BizCheckedException("2030005");
         }
         taskHead.setAllocLocationId(targetLocation.getLocationId());
+        System.out.println(JsonUtils.SUCCESS(taskHead));
         taskService.create(taskHead);
     }
 
@@ -67,10 +70,10 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         if (!locationId.equals(taskHead.getAllocLocationId())) {
             BaseinfoLocation realLocation = locationService.getLocation(locationId);
             if (realLocation == null) {
-                throw new BizCheckedException("2030005");
+                throw new BizCheckedException("2030006");
             }
             if (locationService.isLocationInUse(locationId)) {
-                throw new BizCheckedException("2030006");
+                throw new BizCheckedException("2030007");
             }
         }
         taskService.done(taskId, locationId);

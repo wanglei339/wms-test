@@ -10,7 +10,7 @@
 		<result property="orderId" column="order_id"/>
 		<result property="skuId" column="sku_id"/>
 		<result property="ownerId" column="owner_id"/>
-		<result property="locId" column="loc_id"/>
+		<result property="lotId" column="lot_id"/>
 		<result property="supplierId" column="supplier_id"/>
 		<result property="allocLocationId" column="alloc_location_id"/>
 		<result property="realLocationId" column="real_location_id"/>
@@ -25,11 +25,11 @@
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="ShelveTaskHead">
 		insert into shelve_task_head (
 			task_id,receive_id,receive_code,order_id,sku_id,owner_id,
-			loc_id,supplier_id,alloc_location_id,real_location_id,container_id,shelve_uid,
+			lot_id,supplier_id,alloc_location_id,real_location_id,container_id,shelve_uid,
 			shelve_uname,shelve_at,created_at,updated_at
     	) values (
 			#{taskId},#{receiveId},#{receiveCode},#{orderId},#{skuId},#{ownerId},
-			#{locId},#{supplierId},#{allocLocationId},#{realLocationId},#{containerId},#{shelveUid},
+			#{lotId},#{supplierId},#{allocLocationId},#{realLocationId},#{containerId},#{shelveUid},
 			#{shelveUname},#{shelveAt},#{createdAt},#{updatedAt}
     	)
 	</insert>
@@ -43,7 +43,7 @@
   			<if test="orderId != null">order_id=#{orderId},</if>
   			<if test="skuId != null">sku_id=#{skuId},</if>
   			<if test="ownerId != null">owner_id=#{ownerId},</if>
-  			<if test="locId != null">loc_id=#{locId},</if>
+  			<if test="lotId != null">lot_id=#{lotId},</if>
   			<if test="supplierId != null">supplier_id=#{supplierId},</if>
   			<if test="allocLocationId != null">alloc_location_id=#{allocLocationId},</if>
   			<if test="realLocationId != null">real_location_id=#{realLocationId},</if>
@@ -84,7 +84,7 @@
 			<if test="orderId != null">and order_id=#{orderId}</if>
 			<if test="skuId != null">and sku_id=#{skuId}</if>
 			<if test="ownerId != null">and owner_id=#{ownerId}</if>
-			<if test="locId != null">and loc_id=#{locId}</if>
+			<if test="lotId != null">and lot_id=#{lotId}</if>
 			<if test="supplierId != null">and supplier_id=#{supplierId}</if>
 			<if test="allocLocationId != null">and alloc_location_id=#{allocLocationId}</if>
 			<if test="realLocationId != null">and real_location_id=#{realLocationId}</if>
