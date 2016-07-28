@@ -11,8 +11,6 @@ public class BaseinfoContainer implements Serializable {
     private Long containerId;
 	/** 容器编码 */
     private String containerCode = "";
-	/** 容器id */
-    private Long locationId = 0L;
 	/** 容器类型 */
     private Long type;
 	/** 类型名 */
@@ -54,14 +52,6 @@ public class BaseinfoContainer implements Serializable {
 	
 	public void setContainerCode(String containerCode){
 		this.containerCode = containerCode;
-	}
-	
-	public Long getLocationId(){
-		return this.locationId;
-	}
-	
-	public void setLocationId(Long locationId){
-		this.locationId = locationId;
 	}
 	
 	public Long getType(){

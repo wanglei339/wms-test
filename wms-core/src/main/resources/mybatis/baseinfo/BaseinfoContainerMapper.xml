@@ -6,7 +6,6 @@
 		<id property="id" column="id"/>
 		<result property="containerId" column="container_id"/>
 		<result property="containerCode" column="container_code"/>
-		<result property="locationId" column="location_id"/>
 		<result property="type" column="type"/>
 		<result property="typeName" column="type_name"/>
 		<result property="model" column="model"/>
@@ -20,11 +19,11 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoContainer">
 		insert into baseinfo_container (
-			container_id,container_code,location_id,type,type_name,model,
+			container_id,container_code,type,type_name,model,
 			capacity,load_capacity,status,description,created_at,
 			updated_at
     	) values (
-			#{containerId},#{containerCode},#{locationId},#{type},#{typeName},#{model},
+			#{containerId},#{containerCode},#{type},#{typeName},#{model},
 			#{capacity},#{loadCapacity},#{status},#{description},#{createdAt},
 			#{updatedAt}
     	)
@@ -35,7 +34,6 @@
     	<set>
   			<if test="containerId != null">container_id=#{containerId},</if>
   			<if test="containerCode != null">container_code=#{containerCode},</if>
-  			<if test="locationId != null">location_id=#{locationId},</if>
   			<if test="type != null">type=#{type},</if>
   			<if test="typeName != null">type_name=#{typeName},</if>
   			<if test="model != null">model=#{model},</if>
@@ -72,7 +70,6 @@
 			<if test="id != null">id=#{id}</if>
 			<if test="containerId != null">and container_id=#{containerId}</if>
 			<if test="containerCode != null">and container_code=#{containerCode}</if>
-			<if test="locationId != null">and location_id=#{locationId}</if>
 			<if test="type != null">and type=#{type}</if>
 			<if test="typeName != null">and type_name=#{typeName}</if>
 			<if test="model != null">and model=#{model}</if>
