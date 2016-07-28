@@ -39,26 +39,45 @@ public class PoOrderRestService implements IPoOrderRestService {
     public String updateOrderStatus() throws BizCheckedException {
         Map<String, Object> map = RequestUtils.getRequest();
 
+        //OrderOtherId与OrderId都为NULL 或者 OrderStatus为NULL
         if((map.get("orderOtherId") == null && map.get("orderId") == null)
                 || map.get("orderStatus") == null) {
             throw new BizCheckedException("1010001", "参数不能为空");
         }
 
-        if((map.get("orderId") != null && !StringUtils.isInteger(String.valueOf(map.get("orderId"))))
-                || !StringUtils.isInteger(String.valueOf(map.get("orderStatus")))) {
+        if(map.get("orderOtherId") == null && map.get("orderId") != null) {
+            if(!StringUtils.isInteger(String.valueOf(map.get("orderId")))) {
+                throw new BizCheckedException("1010002", "参数类型不正确");
+            }
+        }
+
+        if(map.get("orderOtherId") != null && map.get("orderId") == null) {
+            if(StringUtils.isBlank(String.valueOf(map.get("orderOtherId")))) {
+                throw new BizCheckedException("1010002", "参数类型不正确");
+            }
+        }
+
+        if(map.get("orderOtherId") != null && map.get("orderId") != null) {
+            if(StringUtils.isBlank(String.valueOf(map.get("orderOtherId")))
+                    && !StringUtils.isInteger(String.valueOf(map.get("orderId")))) {
+                throw new BizCheckedException("1010002", "参数类型不正确");
+            }
+        }
+
+        if(!StringUtils.isInteger(String.valueOf(map.get("orderStatus")))) {
             throw new BizCheckedException("1010002", "参数类型不正确");
         }
 
         InbPoHeader inbPoHeader = new InbPoHeader();
-        if(map.get("orderOtherId") != null) {
+        if(map.get("orderOtherId") != null && !StringUtils.isBlank(String.valueOf(map.get("orderOtherId")))) {
             inbPoHeader.setOrderOtherId(String.valueOf(map.get("orderOtherId")));
         }
-        if(map.get("orderId") != null) {
+        if(map.get("orderId") != null && StringUtils.isInteger(String.valueOf(map.get("orderId")))) {
             inbPoHeader.setOrderId(Long.valueOf(String.valueOf(map.get("orderId"))));
         }
         inbPoHeader.setOrderStatus(Integer.valueOf(String.valueOf(map.get("orderStatus"))));
 
-        poOrderService.updateInbPoHeaderByAnyCondition(inbPoHeader);
+        poOrderService.updateInbPoHeaderByOrderOtherIdOrOrderId(inbPoHeader);
 
         return JsonUtils.SUCCESS();
     }

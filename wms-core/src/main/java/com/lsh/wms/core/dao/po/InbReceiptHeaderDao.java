@@ -13,7 +13,7 @@ public interface InbReceiptHeaderDao {
 	
 	void update(InbReceiptHeader inbReceiptHeader);
 
-	void updateByAnyCondition(InbReceiptHeader inbReceiptHeader);
+	void updateByReceiptId(InbReceiptHeader inbReceiptHeader);
 	
 	InbReceiptHeader getInbReceiptHeaderById(Long id);
 

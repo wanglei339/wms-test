@@ -13,7 +13,7 @@ public interface InbPoHeaderDao {
 	
 	void update(InbPoHeader inbPoHeader);
 
-	void updateByAnyCondition(InbPoHeader inbPoHeader);
+	void updateByOrderOtherIdOrOrderId(InbPoHeader inbPoHeader);
 
 	InbPoHeader getInbPoHeaderById(Long id);
 
