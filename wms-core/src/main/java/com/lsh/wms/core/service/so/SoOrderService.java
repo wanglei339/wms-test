@@ -74,14 +74,14 @@ public class SoOrderService {
     }
 
     /**
-     * 自定义条件更新OutbSoHeader
+     * 根据OrderOtherId或OrderId更新OutbSoHeader
      * @param outbSoHeader
      */
     @Transactional(readOnly = false)
-    public void updateOutbSoHeaderByAnyCondition(OutbSoHeader outbSoHeader) {
+    public void updateOutbSoHeaderByOrderOtherIdOrOrderId(OutbSoHeader outbSoHeader) {
         outbSoHeader.setUpdatetime(new Date());
 
-        outbSoHeaderDao.updateByAnyCondition(outbSoHeader);
+        outbSoHeaderDao.updateByOrderOtherIdOrOrderId(outbSoHeader);
     }
 
     /**
