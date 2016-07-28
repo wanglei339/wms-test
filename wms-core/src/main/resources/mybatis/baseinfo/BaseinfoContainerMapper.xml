@@ -13,7 +13,6 @@
 		<result property="capacity" column="capacity"/>
 		<result property="loadCapacity" column="load_capacity"/>
 		<result property="status" column="status"/>
-		<result property="inUse" column="in_use"/>
 		<result property="description" column="description"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
@@ -22,11 +21,11 @@
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoContainer">
 		insert into baseinfo_container (
 			container_id,container_code,location_id,type,type_name,model,
-			capacity,load_capacity,status,in_use,description,created_at,
+			capacity,load_capacity,status,description,created_at,
 			updated_at
     	) values (
 			#{containerId},#{containerCode},#{locationId},#{type},#{typeName},#{model},
-			#{capacity},#{loadCapacity},#{status},#{inUse},#{description},#{createdAt},
+			#{capacity},#{loadCapacity},#{status},#{description},#{createdAt},
 			#{updatedAt}
     	)
 	</insert>
@@ -43,7 +42,6 @@
   			<if test="capacity != null">capacity=#{capacity},</if>
   			<if test="loadCapacity != null">load_capacity=#{loadCapacity},</if>
   			<if test="status != null">status=#{status},</if>
-  			<if test="inUse != null">in_use=#{inUse},</if>
   			<if test="description != null">description=#{description},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
@@ -81,7 +79,6 @@
 			<if test="capacity != null">and capacity=#{capacity}</if>
 			<if test="loadCapacity != null">and load_capacity=#{loadCapacity}</if>
 			<if test="status != null">and status=#{status}</if>
-			<if test="inUse != null">and in_use=#{inUse}</if>
 			<if test="description != null">and description=#{description}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>

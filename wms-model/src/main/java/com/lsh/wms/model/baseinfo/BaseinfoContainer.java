@@ -25,8 +25,6 @@ public class BaseinfoContainer implements Serializable {
     private Long loadCapacity = 0L;
 	/** 状态，1-正常，2-禁用，3-维修 */
     private String status = "1";
-	/** 是否被占用，0-未使用，1-已占用 */
-    private String inUse = "0";
 	/** 描述 */
     private String description = "";
 	/**  */
@@ -112,14 +110,6 @@ public class BaseinfoContainer implements Serializable {
 	
 	public void setStatus(String status){
 		this.status = status;
-	}
-	
-	public String getInUse(){
-		return this.inUse;
-	}
-	
-	public void setInUse(String inUse){
-		this.inUse = inUse;
 	}
 	
 	public String getDescription(){
