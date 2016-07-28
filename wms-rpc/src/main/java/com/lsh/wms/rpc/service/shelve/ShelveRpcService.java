@@ -75,7 +75,6 @@ public class ShelveRpcService implements IShelveRpcService {
             // 上拣货位
             targetLocation = assignPickingLocation(container);
         }
-        System.out.println(JsonUtils.SUCCESS(targetLocation));
         return targetLocation;
     }
 

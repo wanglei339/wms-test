@@ -10,6 +10,8 @@ import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.shelve.IShelveRestService;
 import com.lsh.wms.api.service.task.ITaskRestService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.service.shelve.ShelveTaskService;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.shelve.ShelveTaskHead;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -31,6 +33,41 @@ import java.util.Map;
 public class ShelveRestService implements IShelveRestService {
     @Reference
     private ITaskRpcService iTaskRpcService;
+    @Autowired
+    private BaseTaskService baseTaskService;
+    @Autowired
+    private ShelveTaskService shelveTaskService;
+
+    /**
+     * 创建上架任务
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("createTask")
+    public String createTask() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        if(mapQuery.get("type")==null) {
+            JsonUtils.EXCEPTION_ERROR();
+        }
+        Long taskType = Long.valueOf(mapQuery.get("type").toString());
+        Long containerId = Long.valueOf(mapQuery.get("containerId").toString());
+        // 检查该容器是否已创建过任务
+        if (baseTaskService.checkTaskByContainerId(containerId)) {
+            throw new BizCheckedException("2030008");
+        }
+        TaskInfo taskInfo = BeanMapTransUtils.map2Bean(mapQuery, TaskInfo.class);
+        ShelveTaskHead taskHead = BeanMapTransUtils.map2Bean(mapQuery, ShelveTaskHead.class);
+        TaskEntry entry = new TaskEntry();
+        entry.setTaskInfo(taskInfo);
+        entry.setTaskHead(taskHead);
+        final Long taskId = iTaskRpcService.create(taskType, entry);
+        return JsonUtils.SUCCESS(new HashMap<String, Long>() {
+            {
+                put("taskId", taskId);
+            }
+        });
+    }
 
     /**
      * 扫描需上架的容器id
@@ -46,20 +83,11 @@ public class ShelveRestService implements IShelveRestService {
         }
         Long taskType = Long.valueOf(mapQuery.get("type").toString());
         Long staffId = Long.valueOf(mapQuery.get("operator").toString());
-        TaskInfo taskInfo = BeanMapTransUtils.map2Bean(mapQuery, TaskInfo.class);
-        ShelveTaskHead taskHead = BeanMapTransUtils.map2Bean(mapQuery, ShelveTaskHead.class);
-        TaskEntry entry = new TaskEntry();
-        entry.setTaskInfo(taskInfo);
-        entry.setTaskHead(taskHead);
-//        return JsonUtils.SUCCESS(entry);
-        final Long taskId = iTaskRpcService.create(taskType, entry);
-        return JsonUtils.SUCCESS(taskId);
-        /*iTaskRpcService.assign(taskId, staffId);
-        return JsonUtils.SUCCESS(new HashMap<String, Long>() {
-            {
-                put("taskId", taskId);
-            }
-        });*/
+        Long containerId = Long.valueOf(mapQuery.get("containerId").toString());
+        Long taskId = baseTaskService.getDraftTaskIdByContainerId(containerId);
+        iTaskRpcService.assign(taskId, staffId);
+        ShelveTaskHead taskHead = shelveTaskService.getShelveTaskHead(taskId);
+        return JsonUtils.SUCCESS(taskHead);
     }
 
     /**
@@ -77,6 +105,6 @@ public class ShelveRestService implements IShelveRestService {
             return JsonUtils.EXCEPTION_ERROR();
         }
         iTaskRpcService.done(taskId, locationId);
-        return "true";
+        return JsonUtils.SUCCESS(true);
     }
 }

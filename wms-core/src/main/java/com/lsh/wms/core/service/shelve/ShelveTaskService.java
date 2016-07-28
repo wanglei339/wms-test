@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.shelve;
 
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.shelve.ShelveTaskHeadDao;
@@ -35,15 +36,17 @@ public class ShelveTaskService extends BaseTaskService {
 
     @Transactional(readOnly = false)
     public void assign(Long taskId, Long staffId) {
-        ShelveTaskHead taskHead = taskHeadDao.getShelveTaskHeadById(taskId);
-        taskHead.setShelveUid(staffId);
+        System.out.println(JsonUtils.SUCCESS(123));
+        ShelveTaskHead taskHead = taskHeadDao.getShelveTaskHeadByTaskId(taskId);
+        System.out.println(JsonUtils.SUCCESS(taskHead));
+        /*taskHead.setOperator(staffId);
         taskHead.setUpdatedAt(DateUtils.getCurrentSeconds());
-        taskHeadDao.update(taskHead);
+        taskHeadDao.update(taskHead);*/
     }
 
     @Transactional(readOnly = false)
     public void done(Long taskId, Long locationId) {
-        ShelveTaskHead taskHead = taskHeadDao.getShelveTaskHeadById(taskId);
+        ShelveTaskHead taskHead = taskHeadDao.getShelveTaskHeadByTaskId(taskId);
         taskHead.setRealLocationId(locationId);
         taskHead.setShelveAt(DateUtils.getCurrentSeconds());
         taskHeadDao.update(taskHead);
