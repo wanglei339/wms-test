@@ -44,8 +44,7 @@ public class SoOrderRestService implements ISoOrderRestService {
         }
 
         if(map.get("orderOtherId") == null && map.get("orderId") != null) {
-            if(StringUtils.isBlank(String.valueOf(map.get("orderId"))) ||
-                    !StringUtils.isInteger(String.valueOf(map.get("orderId")))) {
+            if(!StringUtils.isInteger(String.valueOf(map.get("orderId")))) {
                 throw new BizCheckedException("1030002", "参数类型不正确");
             }
         }
@@ -58,8 +57,7 @@ public class SoOrderRestService implements ISoOrderRestService {
 
         if(map.get("orderOtherId") != null && map.get("orderId") != null) {
             if(StringUtils.isBlank(String.valueOf(map.get("orderOtherId")))
-                    || StringUtils.isBlank(String.valueOf(map.get("orderId")))
-                    || !StringUtils.isInteger(String.valueOf(map.get("orderId")))) {
+                    && !StringUtils.isInteger(String.valueOf(map.get("orderId")))) {
                 throw new BizCheckedException("1030002", "参数类型不正确");
             }
         }
@@ -72,8 +70,7 @@ public class SoOrderRestService implements ISoOrderRestService {
         if(map.get("orderOtherId") != null && !StringUtils.isBlank(String.valueOf(map.get("orderOtherId")))) {
             outbSoHeader.setOrderOtherId(String.valueOf(map.get("orderOtherId")));
         }
-        if(map.get("orderId") != null && !StringUtils.isBlank(String.valueOf(map.get("orderId")))
-                && !StringUtils.isInteger(String.valueOf(map.get("orderId")))) {
+        if(map.get("orderId") != null && StringUtils.isInteger(String.valueOf(map.get("orderId")))) {
             outbSoHeader.setOrderId(Long.valueOf(String.valueOf(map.get("orderId"))));
         }
         outbSoHeader.setOrderStatus(Integer.valueOf(String.valueOf(map.get("orderStatus"))));

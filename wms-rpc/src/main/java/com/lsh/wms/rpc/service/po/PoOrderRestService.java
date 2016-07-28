@@ -45,13 +45,8 @@ public class PoOrderRestService implements IPoOrderRestService {
             throw new BizCheckedException("1010001", "参数不能为空");
         }
 
-        if(map.get("orderOtherId") != null || map.get("orderId") != null) {
-
-        }
-
         if(map.get("orderOtherId") == null && map.get("orderId") != null) {
-            if(StringUtils.isBlank(String.valueOf(map.get("orderId"))) ||
-                    !StringUtils.isInteger(String.valueOf(map.get("orderId")))) {
+            if(!StringUtils.isInteger(String.valueOf(map.get("orderId")))) {
                 throw new BizCheckedException("1010002", "参数类型不正确");
             }
         }
@@ -64,8 +59,7 @@ public class PoOrderRestService implements IPoOrderRestService {
 
         if(map.get("orderOtherId") != null && map.get("orderId") != null) {
             if(StringUtils.isBlank(String.valueOf(map.get("orderOtherId")))
-                    || StringUtils.isBlank(String.valueOf(map.get("orderId")))
-                    || !StringUtils.isInteger(String.valueOf(map.get("orderId")))) {
+                    && !StringUtils.isInteger(String.valueOf(map.get("orderId")))) {
                 throw new BizCheckedException("1010002", "参数类型不正确");
             }
         }
@@ -78,8 +72,7 @@ public class PoOrderRestService implements IPoOrderRestService {
         if(map.get("orderOtherId") != null && !StringUtils.isBlank(String.valueOf(map.get("orderOtherId")))) {
             inbPoHeader.setOrderOtherId(String.valueOf(map.get("orderOtherId")));
         }
-        if(map.get("orderId") != null && !StringUtils.isBlank(String.valueOf(map.get("orderId")))
-                && !StringUtils.isInteger(String.valueOf(map.get("orderId")))) {
+        if(map.get("orderId") != null && StringUtils.isInteger(String.valueOf(map.get("orderId")))) {
             inbPoHeader.setOrderId(Long.valueOf(String.valueOf(map.get("orderId"))));
         }
         inbPoHeader.setOrderStatus(Integer.valueOf(String.valueOf(map.get("orderStatus"))));
