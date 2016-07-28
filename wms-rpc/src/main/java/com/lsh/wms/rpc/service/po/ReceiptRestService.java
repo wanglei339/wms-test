@@ -18,7 +18,6 @@ import com.lsh.wms.api.model.po.ReceiptItem;
 import com.lsh.wms.api.model.po.ReceiptRequest;
 import com.lsh.wms.api.service.po.IReceiptRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
-import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.PoConstant;
@@ -285,7 +284,7 @@ public class ReceiptRestService implements IReceiptRestService {
 
         TaskEntry taskEntry = new TaskEntry();
         TaskInfo taskInfo = new TaskInfo();
-        taskInfo.setType(TaskConstant.TYPE_RECEIPT);
+        taskInfo.setType(TaskConstant.TYPE_SHELVE);
         taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
         taskEntry.setTaskInfo(taskInfo);
         //iTaskRpcService.create(TaskConstant.TYPE_RECEIPT,taskEntry);

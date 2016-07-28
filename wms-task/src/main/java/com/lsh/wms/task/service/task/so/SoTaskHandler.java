@@ -1,7 +1,8 @@
-package com.lsh.wms.task.service.task.po;
+package com.lsh.wms.task.service.task.so;
 
 import com.lsh.wms.core.constant.TaskConstant;
-import com.lsh.wms.core.service.po.PoReceiptService;
+import com.lsh.wms.core.service.po.PoOrderService;
+import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.task.service.handler.AbsTaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
@@ -21,25 +22,23 @@ import java.util.List;
  * desc:类功能描述
  */
 @Component
-public class ReceiptTaskHandler extends AbsTaskHandler {
-
+public class SoTaskHandler extends AbsTaskHandler {
     @Autowired
     private TaskHandlerFactory handlerFactory;
-
     @Autowired
-    private PoReceiptService poReceiptService;
+    private SoOrderService soOrderService;
 
     @PostConstruct
     public void postConstruct() {
-        handlerFactory.register(TaskConstant.TYPE_SHELVE, this);
+        handlerFactory.register(TaskConstant.TYPE_PICK, this);
     }
 
     protected void getConcrete(TaskEntry taskEntry) {
-        taskEntry.setTaskHead(poReceiptService.getInbReceiptHeaderByReceiptId(taskEntry.getTaskInfo().getReceiptId()));
-        taskEntry.setTaskDetailList((List<Object>)(List<?>)poReceiptService.getInbReceiptDetailListByReceiptId(taskEntry.getTaskInfo().getReceiptId()));
+        taskEntry.setTaskHead(soOrderService.getOutbSoHeaderByOrderId(taskEntry.getTaskInfo().getOrderId()));
+        taskEntry.setTaskDetailList((List<Object>)(List<?>)soOrderService.getOutbSoDetailListByOrderId(taskEntry.getTaskInfo().getOrderId()));
     }
 
     protected void getHeadConcrete(TaskEntry taskEntry) {
-        taskEntry.setTaskHead(poReceiptService.getInbReceiptHeaderByReceiptId(taskEntry.getTaskInfo().getReceiptId()));
+        taskEntry.setTaskHead(soOrderService.getOutbSoHeaderByOrderId(taskEntry.getTaskInfo().getOrderId()));
     }
 }
