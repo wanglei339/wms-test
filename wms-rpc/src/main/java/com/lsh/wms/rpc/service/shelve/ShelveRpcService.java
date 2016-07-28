@@ -25,6 +25,8 @@ import java.util.Map;
 /**
  * Created by fengkun on 16/7/15.
  */
+
+@Service(protocol = "dubbo")
 public class ShelveRpcService implements IShelveRpcService {
     private static Logger logger = LoggerFactory.getLogger(ShelveRpcService.class);
 
@@ -39,7 +41,7 @@ public class ShelveRpcService implements IShelveRpcService {
     @Autowired
     private LocationRpcService locationRpcService;
 
-    private static final Float SHELF_LIFE_THRESHOLD = 0.3f;
+    private static final Float SHELF_LIFE_THRESHOLD = 0.3f; // 保质期差额阈值
 
     /**
      * 分配上架容器
@@ -95,7 +97,7 @@ public class ShelveRpcService implements IShelveRpcService {
             Long pickingLocationId = itemLocation.getPickLocationid();
             BaseinfoLocation pickingLocation = locationService.getLocation(pickingLocationId);
             // 是否是拣货位
-            if (pickingLocation.getType().equals(locationService.LOCATION_TYPE.get("picking"))) {
+            if (!pickingLocation.getType().equals(locationService.LOCATION_TYPE.get("picking"))) {
                 throw new BizCheckedException("2030002");
             }
             // TODO: 判断该拣货位是否符合拣货标准

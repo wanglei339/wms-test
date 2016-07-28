@@ -1,5 +1,7 @@
 package com.lsh.wms.core.service.container;
 
+import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoContainerDao;
@@ -30,7 +32,7 @@ public class ContainerService {
         {
             put(1L, new HashMap<String, Object>() { // 托盘
                 {
-                    put("type_name", "123");
+                    put("typeName", "托盘");
                 }
             });
         }
@@ -59,14 +61,17 @@ public class ContainerService {
         containerDao.update(container);
     }
 
+    @Transactional(readOnly = false)
     public BaseinfoContainer createContainerByType(Long type) {
-        BaseinfoContainer container = new BaseinfoContainer();
+        Map<String, Object> config = this.containerConfigs.get(type);
+        if (config == null || config.isEmpty()) {
+            return null;
+        }
+        BaseinfoContainer container = BeanMapTransUtils.map2Bean(config, BaseinfoContainer.class);
         container.setContainerId(RandomUtils.genId());
         container.setCreatedAt(DateUtils.getCurrentSeconds());
-        Map<String, Object> config = this.containerConfigs.get(type);
-        /*if (config != null && !config.isEmpty()) {
-            container.setContainerCode(config.get("container_code").isEmpty() ? );
-        }*/
+        container.setUpdatedAt(DateUtils.getCurrentSeconds());
+        container.setType(type);
         this.insertContainer(container);
         return container;
     }

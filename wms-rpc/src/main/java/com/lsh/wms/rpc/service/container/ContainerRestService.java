@@ -5,6 +5,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.container.IContainerRestService;
+import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,8 @@ public class ContainerRestService implements IContainerRestService {
 
     @Autowired
     private ContainerRpcService containerRpcService;
+    @Autowired
+    private ContainerService containerService;
 
     @GET
     @Path("getContainer")
@@ -41,5 +44,12 @@ public class ContainerRestService implements IContainerRestService {
     public String insertContainer(BaseinfoContainer container) {
         BaseinfoContainer containerInfo = containerRpcService.insertContainer(container);
         return JsonUtils.SUCCESS(containerInfo);
+    }
+
+    @GET
+    @Path("createContainerByType")
+    public String createContainerByType(@QueryParam("type") Long type) {
+        BaseinfoContainer container = containerService.createContainerByType(type);
+        return JsonUtils.SUCCESS(container);
     }
 }

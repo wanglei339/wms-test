@@ -1,7 +1,7 @@
 package com.lsh.wms.core.service.stock;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
-import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
 import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
 import com.lsh.wms.model.stock.StockMove;
@@ -35,11 +35,7 @@ public class StockQuantService {
     private StockQuantMoveRelDao relDao;
 
     public BigDecimal getQty(Map<String, Object> mapQuery) {
-        List<StockQuant> quantList = this.getQuants(mapQuery);
-        BigDecimal total = BigDecimal.ZERO;
-        for (StockQuant quant : quantList) {
-            total = total.add(quant.getQty());
-        }
+        BigDecimal total = stockQuantDao.getQty(mapQuery);
         return total;
     }
 
@@ -89,13 +85,13 @@ public class StockQuantService {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("reserveMoveId", moveId);
         List<StockQuant> quantList = stockQuantDao.getQuants(mapQuery);
-        BigDecimal qtyDone = move.getQtyDone();
+        BigDecimal qtyDone = move.getQty();
         moveRel.setMoveId(moveId);
         for (StockQuant quant : quantList) {
             this.unReserve(quant);
             this.split(quant, qtyDone);
             quant.setContainerId(move.getToContainerId());
-            quant.setLocationId(move.getRealToLocationId());
+            quant.setLocationId(move.getToLocationId());
             this.update(quant);
             qtyDone = qtyDone.subtract(quant.getQty());
             moveRel.setQuantId(quant.getId());
@@ -123,19 +119,27 @@ public class StockQuantService {
     }
 
     @Transactional(readOnly = false)
-    public void reserve(Long quantId, Long moveId, BigDecimal requiredQty) {
-        StockQuant quant =  this.getQuantById(quantId);
-        if (quant.getReserveMoveId() > 0 || quant.getIsFrozen() != 0) {
-            return;
+    public List<StockQuant> reserve(Map<String, Object> mapQuery, Long taskId, BigDecimal requiredQty) throws BizCheckedException {
+        List<StockQuant> quantList = this.getQuants(mapQuery);
+        for (StockQuant quant : quantList) {
+            if (! quant.isAvailable()) {
+               continue;
+            }
+            this.split(quant, requiredQty);
+            quant.setReserveTaskId(taskId);
+            quantList.add(quant);
+            stockQuantDao.update(quant);
+            requiredQty.subtract(quant.getQty());
         }
-        this.split(quant, requiredQty);
-        quant.setReserveMoveId(moveId);
-        stockQuantDao.update(quant);
+        if (requiredQty.compareTo(BigDecimal.ZERO) > 0) {
+            throw new BizCheckedException("2550001");
+        }
+        return quantList;
     }
 
     @Transactional(readOnly = false)
     public void unReserve(StockQuant quant) {
-        quant.setReserveMoveId(0L);
+        quant.setReserveTaskId(0L);
         stockQuantDao.update(quant);
     }
 
@@ -177,10 +181,10 @@ public class StockQuantService {
     public List<Long> getContainerIdByLocationId(Long locationId) {
         return stockQuantDao.getContainerIdByLocationId(locationId);
     }
-    public BigDecimal getQuantQtyByLocationIdAndSkuId(Long locationId,Long skuId) {
-        Map queryMap=new HashMap();
+    public BigDecimal getQuantQtyByLocationIdAndItemId(Long locationId,Long itemId) {
+        Map<String,Object> queryMap=new HashMap();
         queryMap.put("locationId",locationId);
-        queryMap.put("skuId", skuId);
+        queryMap.put("itemId", itemId);
         List<StockQuant> stockQuants=stockQuantDao.getQuants(queryMap);
         BigDecimal qty=new BigDecimal(0L);
         for (StockQuant quant:stockQuants){
@@ -188,22 +192,23 @@ public class StockQuantService {
         }
         return qty;
     }
-    public List<Long> getSupplierByLocationAndSkuId(Long locationId,Long skuId) {
+    public Long getSupplierByLocationAndItemId(Long locationId,Long itemId) {
         Set<Long> suppliers=new HashSet<Long>();
         Map<String,Object> queryMap =new HashMap<String, Object>();
         queryMap.put("locationId",locationId);
-        queryMap.put("skuId",skuId);
+        queryMap.put("itemId",itemId);
         List<StockQuant> quants=stockQuantDao.getQuants(queryMap);
-        for(StockQuant quant:quants){
-            suppliers.add(quant.getSupplierId());
+        if(quants!=null && quants.size()!=0){
+            return quants.get(0).getSupplierId();
+        }else {
+            return null;
         }
-        return new ArrayList<Long>(suppliers);
     }
 
-    public BigDecimal getItemCount(Long itemId, List<Long> locationIdList, boolean isNormal) {
+    public BigDecimal getItemCount(Long itemId, List<Long> locationList, boolean isNormal) {
         Map<String, Object> queryMap = new HashMap<String, Object>();
         queryMap.put("itemId",itemId);
-        queryMap.put("locationIdList",locationIdList);
+        queryMap.put("locationList",locationList);
         queryMap.put("isNormal",isNormal);
         List<StockQuant> stockQuants = stockQuantDao.getQuants(queryMap);
 
@@ -212,5 +217,9 @@ public class StockQuantService {
             count = count.add(quant.getQty());
         }
         return count;
+    }
+
+    public int countStockQuant(Map<String, Object> mapQuery){
+        return stockQuantDao.countStockQuant(mapQuery);
     }
 }

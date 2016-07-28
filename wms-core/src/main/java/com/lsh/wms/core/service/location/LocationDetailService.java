@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +23,12 @@ import java.util.Map;
 @Transactional(readOnly = true)
 public class LocationDetailService {
     private static final Logger logger = LoggerFactory.getLogger(LocationService.class);
+    //建立货位的枚举,因为货位的类型有多样的,如果需要查询所有的bin,需要分别按现有的bin类型查找,然后将查到的list追加在一起仅用于(list页面)
+    public static final List<Integer> BINTYPELIST = Arrays.asList(12, 13, 14, 15, 16, 17, 18);
+    //货区
+    public static final List<Integer> REGIONTYPELIST = Arrays.asList(3, 4, 5, 6, 7, 8, 9);
+
+
     @Autowired
     private LocationDetailServiceFactory locationDetailServiceFactory;
     @Autowired
@@ -57,22 +65,36 @@ public class LocationDetailService {
     public List<IBaseinfoLocaltionModel> getIBaseinfoLocaltionModelListByType(Map<String, Object> params) {
         Integer type = (Integer) params.get("type");
         IStrategy strategy = locationDetailServiceFactory.createDetailServiceByType(type);
-        params.put("type",type);
-        //TODO 如果是region的话,需要具体设置相应的type,无所谓,params中设置type的类型就行
-        return strategy.getBaseinfoLocaltionModelList(params);
-
+        List<IBaseinfoLocaltionModel> locationList = new ArrayList<IBaseinfoLocaltionModel>();
+        //如果是传过来的type是11显示所有的货位,则需要将按type的结果集list不断追加所有按各货位的type查出来的list
+        if (11 == type) {
+            for (Integer binType : BINTYPELIST) {
+                params.put("type", binType);
+                List<IBaseinfoLocaltionModel> tempList = strategy.getBaseinfoLocaltionModelList(params);
+                locationList.addAll(tempList);
+            }
+            return locationList;
+        }else if (2 == type){
+            for (Integer regionType : REGIONTYPELIST) {
+                params.put("type", regionType);
+                List<IBaseinfoLocaltionModel> tempList = strategy.getBaseinfoLocaltionModelList(params);
+                locationList.addAll(tempList);
+            }
+            return locationList;
+        } else {
+            params.put("type", type);
+            return strategy.getBaseinfoLocaltionModelList(params);
+        }
     }
 
     //计数
-    public Integer countLocationDetail(Map<String,Object> params){
+    public Integer countLocationDetail(Map<String, Object> params) {
         Integer type = (Integer) params.get("type");
 //        System.out.println("type~~~~~~~~~~~~~~~~~~"+type);
         IStrategy iStrategy = locationDetailServiceFactory.createDetailServiceByType(type);
 
         return iStrategy.countBaseinfoLocaltionModel(params);
     }
-
-
 
 
 }

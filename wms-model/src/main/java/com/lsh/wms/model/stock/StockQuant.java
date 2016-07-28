@@ -30,8 +30,8 @@ public class StockQuant implements Serializable,Cloneable {
     private BigDecimal value = BigDecimal.ZERO;
 	/** 库存成本 */
     private BigDecimal cost = BigDecimal.ZERO;
-	/** 占位stock_move id */
-    private Long reserveMoveId = 0L;
+	/** 占位 task_id */
+    private Long reserveTaskId = 0L;
 	/** 0-可用，1-被冻结 */
     private Long isFrozen = 0L;
 	/** 货物供应商id */
@@ -113,12 +113,12 @@ public class StockQuant implements Serializable,Cloneable {
 		this.cost = cost;
 	}
 	
-	public Long getReserveMoveId(){
-		return this.reserveMoveId;
+	public Long getReserveTaskId(){
+		return this.reserveTaskId;
 	}
 	
-	public void setReserveMoveId(Long reserveMoveId){
-		this.reserveMoveId = reserveMoveId;
+	public void setReserveTaskId(Long reserveTaskId){
+		this.reserveTaskId = reserveTaskId;
 	}
 	
 	public Long getIsFrozen(){
@@ -245,4 +245,16 @@ public class StockQuant implements Serializable,Cloneable {
         }
         return stockQuant;
     }
+
+	public boolean isAvailable() {
+		if (this.getReserveTaskId() ==0
+				&& this.getIsDefect() == 0
+				&& this.getIsFrozen() == 0
+				&& this.getIsRefund() == 0 ) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
 }

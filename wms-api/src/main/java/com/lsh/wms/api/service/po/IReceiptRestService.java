@@ -24,7 +24,7 @@ public interface IReceiptRestService {
     /* 投单接口 */
     public String throwOrder(String orderOtherId) throws BizCheckedException;
 
-    public String updateReceiptStatusByReceiptId() throws BizCheckedException;
+    public String updateReceiptStatus() throws BizCheckedException;
 
     public String getPoReceiptDetailByReceiptId(Long receiptId) throws BizCheckedException;
 

@@ -10,29 +10,29 @@ public class BaseinfoContainer implements Serializable {
 	/** 容器id */
     private Long containerId;
 	/** 容器编码 */
-    private String containerCode;
+    private String containerCode = "";
 	/** 容器id */
-    private Long locationId;
+    private Long locationId = 0L;
 	/** 容器类型 */
     private Long type;
 	/** 类型名 */
-    private String typeName;
+    private String typeName = "";
 	/** 型号 */
-    private String model;
+    private String model = "";
 	/** 容积，单位L */
-    private Long capacity;
+    private Long capacity = 0L;
 	/** 载重量，单位KG */
-    private Long loadCapacity;
+    private Long loadCapacity = 0L;
 	/** 状态，1-正常，2-禁用，3-维修 */
-    private String status;
+    private String status = "1";
 	/** 是否被占用，0-未使用，1-已占用 */
-    private String inUse;
+    private String inUse = "0";
 	/** 描述 */
-    private String description;
+    private String description = "";
 	/**  */
-    private Long createdAt;
+    private Long createdAt = 0L;
 	/**  */
-    private Long updatedAt;
+    private Long updatedAt = 0L;
 	
 	public Long getId(){
 		return this.id;

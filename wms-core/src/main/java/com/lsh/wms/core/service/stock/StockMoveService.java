@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.stock;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
@@ -44,7 +45,6 @@ public class StockMoveService {
 
     @Transactional(readOnly = false)
     public void create(StockMove move){
-
         move.setCreatedAt(DateUtils.getCurrentSeconds());
         move.setUpdatedAt(DateUtils.getCurrentSeconds());
         moveDao.insert(move);
@@ -64,39 +64,10 @@ public class StockMoveService {
     }
 
     @Transactional(readOnly = false)
-    public void updateStatus(Long moveId, Long newStatus){
+    public void done(Long moveId) {
         StockMove move = moveDao.getStockMoveById(moveId);
-        move.setStatus(newStatus);
-        this.update(move);
-    }
-
-    @Transactional(readOnly = false)
-    public void assign(Long moveId) {
-        List<StockQuant> quant = quantService.getQuants();
-        this.updateStatus(moveId, TaskConstant.Assigned);
-    }
-
-    @Transactional(readOnly = false)
-    public void allocate(Long moveId, Long operator) {
-        StockMove move = moveDao.getStockMoveById(moveId);
-        move.setOperator(operator);
-        move.setStatus(TaskConstant.Allocated);
-        this.update(move);
-    }
-
-    @Transactional(readOnly = false)
-    public void done(Long moveId, BigDecimal qtyDone) {
-        StockMove move = moveDao.getStockMoveById(moveId);
-        move.setQtyDone(qtyDone);
         move.setStatus(TaskConstant.Done);
-        quantService.move(moveId);
         this.update(move);
-    }
-
-    @Transactional(readOnly = false)
-    public void cancel(Long moveId) {
-        quantService.unReserveByMoveId(moveId);
-        this.updateStatus(moveId, TaskConstant.Cancel);
     }
 
     public List<StockMove> getMoveList(Map<String, Object> mapQuery) {
@@ -108,11 +79,4 @@ public class StockMoveService {
         mapQuery.put("moveId",moveId);
         return relDao.getStockQuantMoveRelList(mapQuery);
     }
-
-    @Transactional
-        public boolean reserveQuants(List<StockQuant>Long moveId) {
-
-        return true;
-    }
-
 }

@@ -18,10 +18,6 @@ public class IBaseinfoLocaltionModel {
      * 是否可用
      */
     protected String isUsed;
-    /**
-     * 数量
-     */
-    protected BigDecimal qty;
 
     public String getIsUsed() {
         return isUsed;
@@ -29,15 +25,6 @@ public class IBaseinfoLocaltionModel {
 
     public void setIsUsed(String isUsed) {
         this.isUsed = isUsed;
-    }
-
-    public BigDecimal getQty() {
-        return qty;
-    }
-
-
-    public void setQty(BigDecimal qty) {
-        this.qty = qty;
     }
 
     public void setLocationId(Long locationId) {

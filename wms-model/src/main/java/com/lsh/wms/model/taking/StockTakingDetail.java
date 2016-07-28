@@ -31,6 +31,12 @@ public class StockTakingDetail implements Serializable {
     private Long locationId = 0L;
 	/** 盘点人员 */
     private Long operator = 0L;
+	/** */
+	private Long itemId = 0L;
+	/** */
+	private Long realItemId = 0L;
+	/**货主id */
+	private Long ownerId;
 	/**  */
     private Long createdAt;
 	/**  */
@@ -154,5 +160,29 @@ public class StockTakingDetail implements Serializable {
 
 	public void setTaskId(Long taskId) {
 		this.taskId = taskId;
+	}
+
+	public Long getItemId() {
+		return itemId;
+	}
+
+	public void setItemId(Long itemId) {
+		this.itemId = itemId;
+	}
+
+	public Long getRealItemId() {
+		return realItemId;
+	}
+
+	public void setRealItemId(Long realItemId) {
+		this.realItemId = realItemId;
+	}
+
+	public Long getOwnerId() {
+		return ownerId;
+	}
+
+	public void setOwnerId(Long ownerId) {
+		this.ownerId = ownerId;
 	}
 }

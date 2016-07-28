@@ -57,25 +57,14 @@ public class PoOrderService {
     }
 
     /**
-     * 根据orderOtherId编辑InbPoHeader
+     * 自定义条件更新InbPoHeader
      * @param inbPoHeader
      */
     @Transactional(readOnly = false)
-    public void updateInbPoHeaderByOrderOtherId(InbPoHeader inbPoHeader){
+    public void updateInbPoHeaderByAnyCondition(InbPoHeader inbPoHeader){
         inbPoHeader.setUpdatetime(new Date());
 
-        inbPoHeaderDao.updateByOrderOtherId(inbPoHeader);
-    }
-
-    /**
-     * 根据OrderId编辑InbPoHeader
-     * @param inbPoHeader
-     */
-    @Transactional(readOnly =  false)
-    public void updateInbPoHeaderByOrderId(InbPoHeader inbPoHeader) {
-        inbPoHeader.setUpdatetime(new Date());
-
-        inbPoHeaderDao.updateByOrderId(inbPoHeader);
+        inbPoHeaderDao.updateByAnyCondition(inbPoHeader);
     }
 
     /**

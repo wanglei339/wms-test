@@ -15,4 +15,6 @@ public interface ITaskRestService {
     String getTaskHeadList(Map<String, Object> mapQuery);
     String getTask(long taskId) throws BizCheckedException;
     String getTaskMove(long taskId) throws BizCheckedException;
+    String scanContainer() throws BizCheckedException;
+    String scanTargetLocation(Long taskId, Long locationId) throws BizCheckedException;
 }

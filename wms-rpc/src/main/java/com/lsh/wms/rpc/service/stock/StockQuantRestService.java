@@ -16,6 +16,7 @@ import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.api.service.stock.IStockQuantRestService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.stock.StockQuantMoveRel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,43 +40,35 @@ public class StockQuantRestService implements IStockQuantRestService {
     private static Logger logger = LoggerFactory.getLogger(StockQuantRestService.class);
 
     @Autowired
+    private StockQuantRpcService stockQuantRpcService;
+
+    @Autowired
     private StockQuantService stockQuantService;
 
     @Autowired
     private LocationService locationService;
 
     @Autowired
-    private StockLotService stockLotService;
-
-    @Autowired
     private ItemService itemService;
 
-    @GET
-    @Path("getOnhandQty")
-    public String getOnhandQty(@QueryParam("skuId") Long skuId,
-                               @QueryParam("locationId") Long locationId,
-                               @QueryParam("ownerId") Long ownerId) {
-        HashMap<String, Object> condition = new HashMap<String, Object>();
-        condition.put("skuId", skuId);
-        condition.put("ownerId", ownerId);
-        List<Long> locationList = locationService.getStoreLocationIds(locationId);
-        condition.put("locationList", locationList);
-        List<StockQuant> quantList = stockQuantService.getQuants(condition);
-
-        BigDecimal total = BigDecimal.ZERO;
-        for (StockQuant quant : quantList) {
-            total = total.add(quant.getQty());
-        }
+    @POST
+         @Path("getOnhandQty")
+         public String getOnhandQty(StockQuantCondition condition) throws BizCheckedException {
+        BigDecimal total =  stockQuantRpcService.getQty(condition);
         return JsonUtils.SUCCESS(total);
     }
 
     @POST
     @Path("getList")
-    public String getList(Map<String, Object> mapQuery) {
-        List<Long> locationList = locationService.getStoreLocationIds(Long.parseLong(mapQuery.get("locationId").toString()));
-        mapQuery.put("locationList", locationList);
-        mapQuery.remove("locationId");
-        List<StockQuant> quantList = stockQuantService.getQuants(mapQuery);
+    public String getList(StockQuantCondition condition) throws BizCheckedException {
+        List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
+        return JsonUtils.SUCCESS(quantList);
+    }
+
+    @POST
+    @Path("reserve")
+    public String reserve(StockQuantCondition condition, Long taskId, BigDecimal requiredQty) throws BizCheckedException {
+        List<StockQuant> quantList = stockQuantRpcService.reserve(condition, taskId, requiredQty);
         return JsonUtils.SUCCESS(quantList);
     }
 
@@ -128,7 +121,7 @@ public class StockQuantRestService implements IStockQuantRestService {
             }
         }
         if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
-            throw new BizCheckedException("2040001", "商品数量不足");
+            throw new BizCheckedException("2550001", "商品数量不足");
         }
         return JsonUtils.SUCCESS();
     }
@@ -156,7 +149,7 @@ public class StockQuantRestService implements IStockQuantRestService {
             }
         }
         if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
-            throw new BizCheckedException("2040001", "商品数量不足");
+            throw new BizCheckedException("2550001", "商品数量不足");
         }
         return JsonUtils.SUCCESS();
     }
@@ -184,7 +177,7 @@ public class StockQuantRestService implements IStockQuantRestService {
             }
         }
         if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
-            throw new BizCheckedException("2040001", "商品数量不足");
+            throw new BizCheckedException("2550001", "商品数量不足");
         }
         return JsonUtils.SUCCESS();
     }
@@ -212,7 +205,7 @@ public class StockQuantRestService implements IStockQuantRestService {
             }
         }
         if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
-            throw new BizCheckedException("2040001", "商品数量不足");
+            throw new BizCheckedException("2550001", "商品数量不足");
         }
         return JsonUtils.SUCCESS();
     }
@@ -248,9 +241,9 @@ public class StockQuantRestService implements IStockQuantRestService {
             Long itemId = item.getItemId();
             total = stockQuantService.getItemCount(itemId, locationList, true);
             freeze = stockQuantService.getItemCount(itemId, locationList, false);
-            loss = stockQuantService.getItemCount(itemId, locationListLoss, false);
-            defect = stockQuantService.getItemCount(itemId, locationListDefect, false);
-            refund = stockQuantService.getItemCount(itemId, locationListRefund, false);
+            loss = stockQuantService.getItemCount(itemId, locationListLoss, true);
+            defect = stockQuantService.getItemCount(itemId, locationListDefect, true);
+            refund = stockQuantService.getItemCount(itemId, locationListRefund, true);
 
             BigDecimal reTotal = total.subtract(loss);
             BigDecimal normal = reTotal.subtract(defect.add(refund));
@@ -270,22 +263,13 @@ public class StockQuantRestService implements IStockQuantRestService {
     @POST
     @Path("getLocationStockCount")
     public String getLocationStockCount(Map<String, Object> mapQuery) {
-        return JsonUtils.SUCCESS(locationService.getStoreLocationIds(locationService.getWarehouseLocationId()).size());
+        return JsonUtils.SUCCESS(stockQuantService.countStockQuant(mapQuery));
     }
 
     @POST
     @Path("getLocationStockList")
     public String getLocationStockList(Map<String, Object> mapQuery) {
-        int pn = Integer.valueOf((mapQuery.get("start")).toString());
-        int rn = Integer.valueOf((mapQuery.get("limit")).toString());
-        Map<Long, List<StockQuant>> locationDetail = new HashMap<Long, List<StockQuant>>();
-
-        List<Long> locationList = locationService.getStoreLocationIds(locationService.getWarehouseLocationId());
-        List<Long> selectedLocationList = locationList.subList(pn, Math.min(rn, (locationList.size() - pn)));
-        for (Long location : selectedLocationList) {
-            locationDetail.put(location,stockQuantService.getQuantsByLocationId(location));
-        }
-        return JsonUtils.SUCCESS(locationDetail);
+        return JsonUtils.SUCCESS(stockQuantService.getQuants(mapQuery));
     }
 
 }

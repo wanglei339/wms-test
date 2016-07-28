@@ -1,9 +1,11 @@
 package com.lsh.wms.core.service.shelve;
 
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.shelve.ShelveTaskHeadDao;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.shelve.ShelveTaskHead;
+import com.lsh.wms.model.task.TaskInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,22 @@ public class ShelveTaskService extends BaseTaskService {
         taskHead.setCreatedAt(DateUtils.getCurrentSeconds());
         taskHead.setUpdatedAt(DateUtils.getCurrentSeconds());
         taskHeadDao.insert(taskHead);
+    }
+
+    @Transactional(readOnly = false)
+    public void assign(Long taskId, Long staffId) {
+        ShelveTaskHead taskHead = taskHeadDao.getShelveTaskHeadById(taskId);
+        taskHead.setShelveUid(staffId);
+        taskHead.setUpdatedAt(DateUtils.getCurrentSeconds());
+        taskHeadDao.update(taskHead);
+    }
+
+    @Transactional(readOnly = false)
+    public void done(Long taskId, Long locationId) {
+        ShelveTaskHead taskHead = taskHeadDao.getShelveTaskHeadById(taskId);
+        taskHead.setRealLocationId(locationId);
+        taskHead.setShelveAt(DateUtils.getCurrentSeconds());
+        taskHeadDao.update(taskHead);
     }
 
     public ShelveTaskHead getShelveTaskHead(Long taskId) {
