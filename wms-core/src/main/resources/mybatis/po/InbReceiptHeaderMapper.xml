@@ -57,12 +57,11 @@
 		where ID=#{id}
 	</update>
 
-	<update id="updateByAnyCondition" parameterType="InbReceiptHeader">
+	<update id="updateByReceiptId" parameterType="InbReceiptHeader">
 		update INB_RECEIPT_HEADER
 		<set>
 			<if test="warehouseId != null">WAREHOUSE_ID=#{warehouseId},</if>
 			<if test="bookingNum != null">BOOKING_NUM=#{bookingNum},</if>
-			<if test="receiptOrderId != null">RECEIPT_ORDER_ID=#{receiptOrderId},</if>
 			<if test="lotSeqId != null">LOT_SEQ_ID=#{lotSeqId},</if>
 			<if test="receiptWharf != null">RECEIPT_WHARF=#{receiptWharf},</if>
 			<if test="tempStoreArea != null">TEMP_STORE_AREA=#{tempStoreArea},</if>
@@ -77,8 +76,7 @@
 			<if test="inserttime != null">INSERTTIME=#{inserttime},</if>
 			<if test="updatetime != null">UPDATETIME=#{updatetime}</if>
 		</set>
-		where
-		<include refid="queryCondition"/>
+		where RECEIPT_ORDER_ID=#{receiptOrderId}
 	</update>
   
 	<select id="getInbReceiptHeaderById" parameterType="int" resultMap="inbReceiptHeaderResultMap">

@@ -129,7 +129,7 @@ public class SODeliveryRestService implements IDeliveryRestService {
 //        outbDeliveryHeader.setDeliveryId(Long.valueOf(String.valueOf(map.get("deliveryId"))));
 //        outbDeliveryHeader.setDeliveryType(Integer.valueOf(String.valueOf(map.get("deliveryType"))));
 //
-//        soDeliveryService.updateOutbDeliveryHeaderByAnyCondition(outbDeliveryHeader);
+//        soDeliveryService.updateOutbDeliveryHeaderByDeliveryId(outbDeliveryHeader);
 //
 //        return JsonUtils.SUCCESS();
 //    }

@@ -43,21 +43,42 @@ public class SoOrderRestService implements ISoOrderRestService {
             throw new BizCheckedException("1030001", "参数不能为空");
         }
 
-        if((map.get("orderId") != null && !StringUtils.isInteger(String.valueOf(map.get("orderId"))))
-                || !StringUtils.isInteger(String.valueOf(map.get("orderStatus")))) {
+        if(map.get("orderOtherId") == null && map.get("orderId") != null) {
+            if(StringUtils.isBlank(String.valueOf(map.get("orderId"))) ||
+                    !StringUtils.isInteger(String.valueOf(map.get("orderId")))) {
+                throw new BizCheckedException("1030002", "参数类型不正确");
+            }
+        }
+
+        if(map.get("orderOtherId") != null && map.get("orderId") == null) {
+            if(StringUtils.isBlank(String.valueOf(map.get("orderOtherId")))) {
+                throw new BizCheckedException("1030002", "参数类型不正确");
+            }
+        }
+
+        if(map.get("orderOtherId") != null && map.get("orderId") != null) {
+            if(StringUtils.isBlank(String.valueOf(map.get("orderOtherId")))
+                    || StringUtils.isBlank(String.valueOf(map.get("orderId")))
+                    || !StringUtils.isInteger(String.valueOf(map.get("orderId")))) {
+                throw new BizCheckedException("1030002", "参数类型不正确");
+            }
+        }
+
+        if(!StringUtils.isInteger(String.valueOf(map.get("orderStatus")))) {
             throw new BizCheckedException("1030002", "参数类型不正确");
         }
 
         OutbSoHeader outbSoHeader = new OutbSoHeader();
-        if(map.get("orderOtherId") != null) {
+        if(map.get("orderOtherId") != null && !StringUtils.isBlank(String.valueOf(map.get("orderOtherId")))) {
             outbSoHeader.setOrderOtherId(String.valueOf(map.get("orderOtherId")));
         }
-        if(map.get("orderId") != null) {
+        if(map.get("orderId") != null && !StringUtils.isBlank(String.valueOf(map.get("orderId")))
+                && !StringUtils.isInteger(String.valueOf(map.get("orderId")))) {
             outbSoHeader.setOrderId(Long.valueOf(String.valueOf(map.get("orderId"))));
         }
         outbSoHeader.setOrderStatus(Integer.valueOf(String.valueOf(map.get("orderStatus"))));
 
-        soOrderService.updateOutbSoHeaderByAnyCondition(outbSoHeader);
+        soOrderService.updateOutbSoHeaderByOrderOtherIdOrOrderId(outbSoHeader);
 
         return JsonUtils.SUCCESS();
     }

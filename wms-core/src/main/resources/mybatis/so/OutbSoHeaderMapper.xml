@@ -60,12 +60,10 @@
 
 
 
-	<update id="updateByAnyCondition" parameterType="OutbSoHeader">
+	<update id="updateByOrderOtherIdOrOrderId" parameterType="OutbSoHeader">
 		update OUTB_SO_HEADER
 		<set>
 			<if test="warehouseId != null">WAREHOUSE_ID=#{warehouseId},</if>
-			<if test="orderId != null">ORDER_ID=#{orderId},</if>
-			<if test="orderOtherId != null">ORDER_OTHER_ID=#{orderOtherId},</if>
 			<if test="orderUser != null">ORDER_USER=#{orderUser},</if>
 			<if test="ownerUid != null">OWNER_UID=#{ownerUid},</if>
 			<if test="orderType != null">ORDER_TYPE=#{orderType},</if>
@@ -80,8 +78,7 @@
 			<if test="inserttime != null">INSERTTIME=#{inserttime},</if>
 			<if test="updatetime != null">UPDATETIME=#{updatetime}</if>
 		</set>
-		where
-		<include refid="queryCondition"/>
+		where ORDER_OTHER_ID=#{orderOtherId} OR ORDER_ID=#{orderId}
 	</update>
   
 	<select id="getOutbSoHeaderById" parameterType="int" resultMap="outbSoHeaderResultMap">
