@@ -1,5 +1,6 @@
 package com.lsh.wms.service.so;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
@@ -13,13 +14,17 @@ import com.lsh.wms.api.model.base.ResponseConstant;
 import com.lsh.wms.api.model.so.SoItem;
 import com.lsh.wms.api.model.so.SoRequest;
 import com.lsh.wms.api.service.so.ISoRestService;
+import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.BusiConstant;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.po.InbPoHeader;
 import com.lsh.wms.model.so.OutbSoDetail;
 import com.lsh.wms.model.so.OutbSoHeader;
+import com.lsh.wms.model.task.TaskEntry;
+import com.lsh.wms.model.task.TaskInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
@@ -49,6 +54,9 @@ public class SORestService  implements ISoRestService {
 
     @Autowired
     private ItemService itemService;
+
+    @Reference
+    private ITaskRpcService iTaskRpcService;
 
     @POST
     @Path("init")
@@ -105,6 +113,13 @@ public class SORestService  implements ISoRestService {
 
         //插入订单
         soOrderService.insertOrder(outbSoHeader, outbSoDetailList);
+
+        TaskEntry taskEntry = new TaskEntry();
+        TaskInfo taskInfo = new TaskInfo();
+        taskInfo.setType(TaskConstant.TYPE_PICK);
+        taskInfo.setOrderId(outbSoHeader.getOrderId());
+        taskEntry.setTaskInfo(taskInfo);
+        iTaskRpcService.create(TaskConstant.TYPE_PICK,taskEntry);
 
         return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
     }

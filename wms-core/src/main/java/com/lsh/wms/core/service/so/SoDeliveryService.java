@@ -70,14 +70,14 @@ public class SoDeliveryService {
     }
 
     /**
-     * 自定义条件更新OutbDeliveryHeader
+     * 根据DeliveryId更新OutbDeliveryHeader
      * @param outbDeliveryHeader
      */
     @Transactional(readOnly = false)
-    public void updateOutbDeliveryHeaderByAnyCondition(OutbDeliveryHeader outbDeliveryHeader) {
+    public void updateOutbDeliveryHeaderByDeliveryId(OutbDeliveryHeader outbDeliveryHeader) {
         outbDeliveryHeader.setUpdatetime(new Date());
 
-        outbDeliveryHeaderDao.updateByAnyCondition(outbDeliveryHeader);
+        outbDeliveryHeaderDao.updateByDeliveryId(outbDeliveryHeader);
     }
 
     /**

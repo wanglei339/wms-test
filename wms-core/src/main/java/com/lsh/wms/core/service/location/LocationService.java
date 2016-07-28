@@ -6,6 +6,7 @@ import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationShelfDao;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationShelf;
+import com.lsh.wms.model.stock.StockQuant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -424,5 +425,18 @@ public class LocationService {
             code = baseinfoLocationList.get(0).getLocationCode();
         }
         return code;
+    }
+
+    /**
+     * 位置是否已占用
+     * @param locationId
+     * @return
+     */
+    public Boolean isLocationInUse(Long locationId) {
+        List<StockQuant> quants = stockQuantService.getQuantsByLocationId(locationId);
+        if (quants.size() > 0) {
+            return true;
+        }
+        return false;
     }
 }

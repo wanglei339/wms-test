@@ -139,15 +139,15 @@
             <properties>
                 <profile.name>pro</profile.name>
                 <log.file>/data/logs/wms-web/web.log</log.file>
-                <db.url>jdbc:mysql://rm-2ze93441r0jlmzriti.mysql.rds.aliyuncs.com:3306/lsh-wms?useUnicode=true&amp;autoReconnect=true&amp;characterEncoding=UTF8&amp;allowMultiQueries=true</db.url>
+                <db.url>jdbc:mysql://localhost:3306/lsh-wms?useUnicode=true&amp;autoReconnect=true&amp;characterEncoding=UTF8&amp;allowMultiQueries=true</db.url>
                 <db.username>lsh</db.username>
-                <db.password>mPi4m8ETENDKPQ</db.password>
-                <redis.host.w>7ee43bfa97cc48d6.m.cnbja.kvstore.aliyuncs.com</redis.host.w>
+                <db.password>s</db.password>
+                <redis.host.w>s</redis.host.w>
                 <redis.port.w>6379</redis.port.w>
                 <redis.passwd.w>7ee43bfa97cc48d6:ktueZyw2yk3VkB</redis.passwd.w>
-                <redis.host.r>7ee43bfa97cc48d6.m.cnbja.kvstore.aliyuncs.com</redis.host.r>
+                <redis.host.r>localhost</redis.host.r>
                 <redis.port.r>6379</redis.port.r>
-                <redis.passwd.r>7ee43bfa97cc48d6:ktueZyw2yk3VkB</redis.passwd.r>
+                <redis.passwd.r>Zyw2yk3VkB</redis.passwd.r>
                 <upload.server.host>http://101.200.219.23/staticfile</upload.server.host>
                 <upload.path.root>/data/upload/staticfile</upload.path.root>
                 <oss.file.endpoint>oss-cn-beijing-internal.aliyuncs.com</oss.file.endpoint>

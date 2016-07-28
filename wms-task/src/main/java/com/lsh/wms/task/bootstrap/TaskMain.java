@@ -19,11 +19,7 @@ public class TaskMain {
             System.arraycopy(args, 1, argAry, 0, args.length - 1);
         }
         // http://127.0.0.1:8889/api/wms/java/v1/sms/sendMsg
-        try{
-            com.alibaba.dubbo.container.Main.main(argAry);
-        }catch (Throwable ex){
-            ex.fillInStackTrace();
-        }
+        com.alibaba.dubbo.container.Main.main(argAry);
 
     }
 }

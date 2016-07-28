@@ -1,6 +1,7 @@
 package com.lsh.wms.rpc.service.po;
 
 import com.alibaba.dubbo.common.utils.StringUtils;
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
@@ -17,9 +18,11 @@ import com.lsh.wms.api.model.po.ReceiptItem;
 import com.lsh.wms.api.model.po.ReceiptRequest;
 import com.lsh.wms.api.service.po.IReceiptRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.PoConstant;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
@@ -34,6 +37,8 @@ import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.InbReceiptHeader;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.task.TaskEntry;
+import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.rpc.service.location.LocationRpcService;
 import com.lsh.wms.rpc.service.stock.StockLotRestService;
 import org.slf4j.Logger;
@@ -86,6 +91,9 @@ public class ReceiptRestService implements IReceiptRestService {
     @Autowired
     private CsiSkuService csiSkuService;
 
+    @Reference
+    private ITaskRpcService iTaskRpcService;
+
 
     @POST
     @Path("init")
@@ -102,7 +110,7 @@ public class ReceiptRestService implements IReceiptRestService {
         InbPoHeader inbPoHeader = new InbPoHeader();
         inbPoHeader.setOrderOtherId(orderOtherId);
         inbPoHeader.setOrderStatus(PoConstant.ORDER_THROW);
-        poOrderService.updateInbPoHeaderByAnyCondition(inbPoHeader);
+        poOrderService.updateInbPoHeaderByOrderOtherIdOrOrderId(inbPoHeader);
         return JsonUtils.SUCCESS();
     }
 
@@ -275,6 +283,12 @@ public class ReceiptRestService implements IReceiptRestService {
         }
 
 
+        TaskEntry taskEntry = new TaskEntry();
+        TaskInfo taskInfo = new TaskInfo();
+        taskInfo.setType(TaskConstant.TYPE_SHELVE);
+        taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
+        taskEntry.setTaskInfo(taskInfo);
+        iTaskRpcService.create(TaskConstant.TYPE_SHELVE,taskEntry);
 
 
 
@@ -299,7 +313,7 @@ public class ReceiptRestService implements IReceiptRestService {
         inbReceiptHeader.setReceiptOrderId(Long.valueOf(String.valueOf(map.get("receiptId"))));
         inbReceiptHeader.setReceiptStatus(Integer.valueOf(String.valueOf(map.get("receiptStatus"))));
 
-        poReceiptService.updateInbReceiptHeaderByAnyCondition(inbReceiptHeader);
+        poReceiptService.updateInbReceiptHeaderByReceiptId(inbReceiptHeader);
 
         return JsonUtils.SUCCESS();
     }

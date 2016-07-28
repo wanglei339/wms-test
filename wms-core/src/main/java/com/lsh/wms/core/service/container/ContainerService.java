@@ -5,7 +5,9 @@ import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoContainerDao;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
+import com.lsh.wms.model.stock.StockQuant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,8 @@ public class ContainerService {
     private static final Logger logger = LoggerFactory.getLogger(ContainerService.class);
     @Autowired
     private BaseinfoContainerDao containerDao;
+    @Autowired
+    private StockQuantService stockQuantService;
 
     // container类型定义
     public static final Map<Long, Map<String, Object>> containerConfigs = new HashMap<Long, Map<String, Object>>() {
@@ -74,6 +78,14 @@ public class ContainerService {
         container.setType(type);
         this.insertContainer(container);
         return container;
+    }
+
+    public Boolean isContainerInUse(Long containerId) {
+        List<StockQuant> quants = stockQuantService.getQuantsByLocationId(containerId);
+        if (quants.size() > 0) {
+            return true;
+        }
+        return false;
     }
 }
 

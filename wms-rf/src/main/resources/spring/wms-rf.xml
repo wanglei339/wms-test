@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:props/db.properties</value>
+                <value>classpath:props/redis.properties</value>
+                <value>classpath:props/baidu.properties</value>
+                <value>classpath:props/provider.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <import resource="classpath*:spring/applicationContext-core.xml"/>
+    <import resource="classpath*:spring/applicationContext-redis.xml"/>
+
+    <!-- 应用信息配置，也可以用dubbo.properties配置 -->
+    <!-- http://dubbo.io/User+Guide-zh.htm#UserGuide-zh-%3Cdubbo%3Aapplication%2F%3E -->
+    <dubbo:application name="wms-rf" owner="lsh-wms" organization="lsh"/>
+
+    <!-- 注册中心配置 -->
+    <!-- http://dubbo.io/User+Guide-zh.htm#UserGuide-zh-%3Cdubbo%3Aregistry%2F%3E -->
+    <dubbo:registry address="zookeeper://${zookeeper.ip}:2181"/>
+
+    <!-- 监控中心配置 -->
+    <!-- http://dubbo.io/User+Guide-zh.htm#UserGuide-zh-%3Cdubbo%3Amonitor%2F%3E -->
+    <dubbo:monitor protocol="registry"/>
+
+    <dubbo:protocol host="${dubbo.ip}" name="dubbo" port="20885" />
+
+    <!-- 服务提供者缺省值配置  -->
+    <!-- http://dubbo.io/User+Guide-zh.htm#UserGuide-zh-%3Cdubbo%3Aprovider%2F%3E -->
+    <dubbo:provider threads="500" accepts="500" payload="104857600" timeout="6000"/>
+
+    <!-- 服务提供者协议配置 -->
+    <!-- http://dubbo.io/User+Guide-zh.htm#UserGuide-zh-%3Cdubbo%3Aprotocol%2F%3E -->
+    <dubbo:protocol name="dubbo" serialization="kryo" optimizer="com.lsh.wms.api.SerializationOptimizerImpl"/>
+    <dubbo:protocol name="rest" port="9005" contextpath="api/wms/java/v1" server="tomcat"
+                    extension="com.alibaba.dubbo.rpc.protocol.rest.support.LoggingFilter,com.lsh.wms.api.service.exception.ValidateExceptionMapper,com.lsh.wms.api.service.exception.BizExceptionMapper,com.lsh.wms.api.service.exception.BaseExceptionMapper,com.lsh.wms.api.service.exception.SysExceptionMapper"/>
+
+    <!-- 扫描注解包路径，多个包用逗号分隔，不填pacakge表示扫描当前ApplicationContext中所有的类 -->
+    <dubbo:annotation package="com.lsh.wms.rf.service"/>
+
+    <!-- 服务提供者暴露服务配置 -->
+    <!-- http://dubbo.io/User+Guide-zh.htm#UserGuide-zh-%3Cdubbo%3Aservice%2F%3E -->
+    <!--
+    <dubbo:service interface="com.lsh.wms.api.service.sms.ISmsService" ref="smsService"/>
+    <dubbo:service interface="com.lsh.wms.api.service.sms.ISmsRestService" ref="smsRestService"/>
+    <bean id="smsService" class="com.lsh.wms.service.sms.SmsService"/>
+    <bean id="smsRestService" class="com.lsh.wms.service.sms.SmsRestService">
+        <property name="smsService" ref="smsService"/>
+    </bean>
+    -->
+
+    <!-- 直播服务RPC接口
+    <dubbo:service protocol="dubbo" interface="com.lsh.wms.api.service.live.ILiveRpcService" ref="liveRpcService"/>
+    <bean id="liveRpcService" class="com.lsh.wms.service.live.LiveRpcService">
+        <property name="liveRpcService" ref="${live.service.impl}"></property>
+    </bean>
+    <bean id="qcloudRpcService" class="com.lsh.wms.service.live.QcloudRpcService"/>
+    <bean id="piliRpcService" class="com.lsh.wms.service.live.PiliRpcService"/>
+    -->
+</beans>

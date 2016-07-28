@@ -13,7 +13,7 @@ public interface OutbSoHeaderDao {
 	
 	void update(OutbSoHeader outbSoHeader);
 
-	void updateByAnyCondition(OutbSoHeader outbSoHeader);
+	void updateByOrderOtherIdOrOrderId(OutbSoHeader outbSoHeader);
 
 	OutbSoHeader getOutbSoHeaderById(Long id);
 

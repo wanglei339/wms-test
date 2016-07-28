@@ -17,6 +17,8 @@ public class TaskInfo implements Serializable {
     private Long waveId = 0L;
 	/** 订单id */
     private Long orderId = 0L;
+	/** 收货id */
+	private Long receiptId = 0L;
 	/** 当前LocationId, 分配查找使用 */
     private Long locationId = 0L;
 	/** 商品id，分配查找用 */
@@ -134,7 +136,15 @@ public class TaskInfo implements Serializable {
 	public void setOrderId(Long orderId){
 		this.orderId = orderId;
 	}
-	
+
+	public Long getReceiptId() {
+		return receiptId;
+	}
+
+	public void setReceiptId(Long receiptId) {
+		this.receiptId = receiptId;
+	}
+
 	public Long getLocationId(){
 		return this.locationId;
 	}
