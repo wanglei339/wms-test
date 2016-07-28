@@ -69,7 +69,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
             if (realLocation == null) {
                 throw new BizCheckedException("2030005");
             }
-            if (realLocation.getInUse().equals(1)) {
+            if (locationService.isLocationInUse(locationId)) {
                 throw new BizCheckedException("2030006");
             }
         }
