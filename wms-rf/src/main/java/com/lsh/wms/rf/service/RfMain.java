@@ -1,16 +1,15 @@
-package com.lsh.wms.task.bootstrap;
+package com.lsh.wms.rf.service;
 
 /**
  * Project Name: lsh-wms
  * Created by fuhao
- * Date: 16/7/7
- * Time: 16/7/7.
+ * Date: 16/7/28
+ * Time: 16/7/28.
  * 北京链商电子商务有限公司
- * Package name:com.lsh.wms.rpc.bootstrap.
+ * Package name:com.lsh.wms.rf.service.
  * desc:类功能描述
  */
-public class TaskMain {
-
+public class RfMain {
     public static void main(String[] args) {
         // 第一个参数用来标记程序名称
         String[] argAry = null;

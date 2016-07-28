@@ -8,8 +8,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>wms-provider</artifactId>
+    <artifactId>wms-rf</artifactId>
     <dependencies>
         <dependency>
             <groupId>com.lsh</groupId>
@@ -20,11 +19,6 @@
             <groupId>com.lsh</groupId>
             <artifactId>wms-core</artifactId>
             <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.baidu.yun</groupId>
-            <artifactId>bccs-api</artifactId>
-            <version>0.10.4</version>
         </dependency>
     </dependencies>
 
@@ -89,7 +83,7 @@
             </activation>
             <properties>
                 <profile.name>dev</profile.name>
-                <log.file>/data/logs/pub-provider/provider.log</log.file>
+                <log.file>/Users/fuhao/workspace/logs/provider.log</log.file>
                 <db.url>jdbc:mysql://192.168.60.48:5201/lsh_wms?useUnicode=true&amp;autoReconnect=true&amp;characterEncoding=UTF8&amp;allowMultiQueries=true</db.url>
                 <db.username>root</db.username>
                 <db.password>root123</db.password>
@@ -104,7 +98,7 @@
                 <oss.image.endpoint>oss-cn-beijing.aliyuncs.com</oss.image.endpoint>
                 <zookeeper.ip>127.0.0.1</zookeeper.ip>
                 <dubbo.ip>127.0.0.1</dubbo.ip>
-                <live.rest.host>127.0.0.1:8890</live.rest.host>
+                <live.rest.host>127.0.0.1:8877</live.rest.host>
                 <pili.live.hubname>lsh-test</pili.live.hubname>
                 <pili.live.save.callback>http://test.api.pub.lsh.com/api/pub/java/v1/pili/tcCallback</pili.live.save.callback>
             </properties>
@@ -128,7 +122,7 @@
                 <oss.image.endpoint>oss-cn-beijing.aliyuncs.com</oss.image.endpoint>
                 <zookeeper.ip>10.1.1.4</zookeeper.ip>
                 <dubbo.ip>127.0.0.1</dubbo.ip>
-                <live.rest.host>127.0.0.1:8890</live.rest.host>
+                <live.rest.host>127.0.0.1:8877</live.rest.host>
                 <pili.live.hubname>lsh-test</pili.live.hubname>
                 <pili.live.save.callback>http://test.api.pub.lsh.com/api/pub/java/v1/pili/tcCallback</pili.live.save.callback>
             </properties>
@@ -142,18 +136,18 @@
                 <db.url>jdbc:mysql://localhost:3306/lsh-pub?useUnicode=true&amp;autoReconnect=true&amp;characterEncoding=UTF8&amp;allowMultiQueries=true</db.url>
                 <db.username>lsh</db.username>
                 <db.password></db.password>
-                <redis.host.w>ss</redis.host.w>
+                <redis.host.w></redis.host.w>
                 <redis.port.w>6379</redis.port.w>
-                <redis.passwd.w>7</redis.passwd.w>
-                <redis.host.r>7sss</redis.host.r>
+                <redis.passwd.w>7ee43bfa97cc48d6:ktueZyw2yk3VkB</redis.passwd.w>
+                <redis.host.r></redis.host.r>
                 <redis.port.r>6379</redis.port.r>
-                <redis.passwd.r></redis.passwd.r>
+                <redis.passwd.r>7ee43bfa97cc48d6:ktueZyw2yk3VkB</redis.passwd.r>
                 <upload.path.root>/data/upload/staticfile</upload.path.root>
                 <oss.file.endpoint>oss-cn-beijing-internal.aliyuncs.com</oss.file.endpoint>
                 <oss.image.endpoint>oss-cn-beijing-internal.aliyuncs.com</oss.image.endpoint>
                 <zookeeper.ip>10.44.138.32</zookeeper.ip>
                 <dubbo.ip>127.0.0.1</dubbo.ip>
-                <live.rest.host>127.0.0.1:8890</live.rest.host>
+                <live.rest.host>127.0.0.1:8877</live.rest.host>
                 <pili.live.hubname>lsh</pili.live.hubname>
                 <pili.live.save.callback>http://api.wms.lsh.com/api/wms/java/v1/pili/tcCallback</pili.live.save.callback>
             </properties>
