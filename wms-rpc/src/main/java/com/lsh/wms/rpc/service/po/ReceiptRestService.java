@@ -91,8 +91,8 @@ public class ReceiptRestService implements IReceiptRestService {
     @Autowired
     private CsiSkuService csiSkuService;
 
-//    @Reference
-//    private ITaskRpcService iTaskRpcService;
+    @Reference
+    private ITaskRpcService iTaskRpcService;
 
 
     @POST
@@ -283,12 +283,12 @@ public class ReceiptRestService implements IReceiptRestService {
         }
 
 
-//        TaskEntry taskEntry = new TaskEntry();
-//        TaskInfo taskInfo = new TaskInfo();
-//        taskInfo.setType(TaskConstant.TYPE_RECEIPT);
-//        taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
-//        taskEntry.setTaskInfo(taskInfo);
-//        iTaskRpcService.create(TaskConstant.TYPE_RECEIPT,taskEntry);
+        TaskEntry taskEntry = new TaskEntry();
+        TaskInfo taskInfo = new TaskInfo();
+        taskInfo.setType(TaskConstant.TYPE_SHELVE);
+        taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
+        taskEntry.setTaskInfo(taskInfo);
+        iTaskRpcService.create(TaskConstant.TYPE_SHELVE,taskEntry);
 
 
 
