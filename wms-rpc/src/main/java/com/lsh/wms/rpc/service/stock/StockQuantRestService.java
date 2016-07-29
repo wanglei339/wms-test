@@ -272,10 +272,4 @@ public class StockQuantRestService implements IStockQuantRestService {
         return JsonUtils.SUCCESS(stockQuantService.getQuants(mapQuery));
     }
 
-    @POST
-    @Path("move")
-    public String move(Long moveId) throws BizCheckedException {
-        stockQuantRpcService.move(moveId);
-        return JsonUtils.SUCCESS();
-    }
 }

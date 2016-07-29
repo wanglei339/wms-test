@@ -82,6 +82,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("containerId", containerId);
         List<StockQuant> quantList = quantService.getQuants(mapQuery);
+
     }
 
 }

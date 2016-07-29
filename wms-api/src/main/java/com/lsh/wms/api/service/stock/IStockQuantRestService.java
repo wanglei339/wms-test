@@ -12,7 +12,6 @@ import java.util.Map;
  */
 public interface IStockQuantRestService {
 
-    String move(Long moveId) throws BizCheckedException;
     String getOnhandQty(StockQuantCondition condition) throws BizCheckedException;
     String getList(StockQuantCondition condition) throws BizCheckedException;
     String reserve(StockQuantCondition condition) throws BizCheckedException;
