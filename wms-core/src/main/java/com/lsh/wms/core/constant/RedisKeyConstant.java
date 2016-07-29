@@ -35,6 +35,10 @@ public class RedisKeyConstant {
      * 升级-版本规则条件明细
      */
     public static final String UP_VER_RULE_CONINFO = "up:ver:rule:coninfo:{0}";
+    /**
+     * 用户登陆缓存token
+     */
+    public static final String USER_UID_TOKEN = "user:{0}:token";
 
     /********媒资相关********/
     public static final String MD_VIDEO_INFO = "md:video:info:{0}";
