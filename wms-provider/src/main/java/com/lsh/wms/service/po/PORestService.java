@@ -36,9 +36,9 @@ import java.util.Map;
 @Path("order/po")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-public class PORestService implements IPoRestService {
+public class PoRestService implements IPoRestService {
 
-    private static Logger logger = LoggerFactory.getLogger(PORestService.class);
+    private static Logger logger = LoggerFactory.getLogger(PoRestService.class);
 
     @Autowired
     private PoRpcService poRpcService;
