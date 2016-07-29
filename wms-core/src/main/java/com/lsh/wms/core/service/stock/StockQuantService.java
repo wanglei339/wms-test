@@ -36,7 +36,7 @@ public class StockQuantService {
 
     public BigDecimal getQty(Map<String, Object> mapQuery) {
         BigDecimal total = stockQuantDao.getQty(mapQuery);
-        return total;
+        return total == null ? BigDecimal.ZERO : total;
     }
 
     public List<StockQuant> getQuants(Map<String, Object> params) {
