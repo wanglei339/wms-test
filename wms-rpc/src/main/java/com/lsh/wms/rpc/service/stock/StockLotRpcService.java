@@ -27,7 +27,7 @@ public class StockLotRpcService implements IStockLotRpcService{
     private StockLotService stockLotService;
 
 
-    public StockLot getStockLotByLotId(@QueryParam("lotId") long iLotId) {
+    public StockLot getLotByLotId(long iLotId) {
         StockLot stockLot = stockLotService.getStockLotByLotId(iLotId);
         return stockLot;
     }
@@ -45,7 +45,7 @@ public class StockLotRpcService implements IStockLotRpcService{
      * packName      包装名称
      * supplierId    供应商Id
      */
-    public Boolean insertLot(StockLot lot) {
+    public boolean insert(StockLot lot) {
         lot.setLotId(RandomUtils.genId());
         if(stockLotService.getStockLotByLotId(lot.getLotId()) != null) {
             return false;
@@ -59,7 +59,7 @@ public class StockLotRpcService implements IStockLotRpcService{
         return true;
     }
 
-    public boolean updateLot(StockLot lot) {
+    public boolean update(StockLot lot) {
         if(stockLotService.getStockLotByLotId(lot.getLotId()) == null) {
             return false;
         }
@@ -72,7 +72,7 @@ public class StockLotRpcService implements IStockLotRpcService{
         return true;
     }
 
-    public List searchLot(Map<String, Object> mapQuery) {
+    public List search(Map<String, Object> mapQuery) {
         return stockLotService.searchLot(mapQuery);
     }
 

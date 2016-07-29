@@ -33,7 +33,7 @@ public class StockLotRestService implements IStockLotRestService{
     @GET
     @Path("getStockLotByLotId")
     public String getStockLotByLotId(@QueryParam("lotId") long iLotId) {
-        StockLot stockLot = stockLotRpcService.getStockLotByLotId(iLotId);
+        StockLot stockLot = stockLotRpcService.getLotByLotId(iLotId);
         return JsonUtils.SUCCESS(stockLot);
     }
 
@@ -53,7 +53,7 @@ public class StockLotRestService implements IStockLotRestService{
      *
      */
     public String insertLot(StockLot lot) {
-        boolean isTrue =stockLotRpcService.insertLot(lot);
+        boolean isTrue =stockLotRpcService.insert(lot);
         if(isTrue) {
             return JsonUtils.SUCCESS();
         }else {
@@ -64,7 +64,7 @@ public class StockLotRestService implements IStockLotRestService{
     @POST
     @Path("updateLot")
     public String updateLot(StockLot lot) {
-        boolean isTrue =stockLotRpcService.updateLot(lot);
+        boolean isTrue =stockLotRpcService.update(lot);
         if(isTrue) {
             return JsonUtils.SUCCESS();
         }else {
@@ -76,7 +76,7 @@ public class StockLotRestService implements IStockLotRestService{
     @Path("searchLot")
     public String searchLot(Map<String, Object> mapQuery) {
 
-        List<StockLot> StockLotlist = stockLotRpcService.searchLot(mapQuery);
+        List<StockLot> StockLotlist = stockLotRpcService.search(mapQuery);
         return JsonUtils.SUCCESS(StockLotlist);
     }
 
