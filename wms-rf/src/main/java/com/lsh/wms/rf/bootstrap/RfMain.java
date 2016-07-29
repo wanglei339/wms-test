@@ -1,4 +1,4 @@
-package com.lsh.wms.rf.service;
+package com.lsh.wms.rf.bootstrap;
 
 /**
  * Project Name: lsh-wms
