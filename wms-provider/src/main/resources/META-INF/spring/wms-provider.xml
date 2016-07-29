@@ -31,7 +31,7 @@
     <!-- http://dubbo.io/User+Guide-zh.htm#UserGuide-zh-%3Cdubbo%3Amonitor%2F%3E -->
     <dubbo:monitor protocol="registry"/>
 
-    <dubbo:protocol host="${dubbo.ip}" name="dubbo" port="20885" />
+    <dubbo:protocol host="${dubbo.ip}" name="dubbo" port="20883" />
 
     <!-- 服务提供者缺省值配置  -->
     <!-- http://dubbo.io/User+Guide-zh.htm#UserGuide-zh-%3Cdubbo%3Aprovider%2F%3E -->

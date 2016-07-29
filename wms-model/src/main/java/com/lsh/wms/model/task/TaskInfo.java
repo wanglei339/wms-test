@@ -32,7 +32,7 @@ public class TaskInfo implements Serializable {
 	/** 移入库位id */
     private Long toLocationId = 0L;
     private Long realFromLocationId = 0L;
-    private Long readToLocationId = 0L;
+    private Long realToLocationId = 0L;
     private BigDecimal qtyDone = BigDecimal.ZERO;
 	/** 数量 */
     private BigDecimal qty = BigDecimal.ZERO;
@@ -419,12 +419,12 @@ public class TaskInfo implements Serializable {
         this.realFromLocationId = realFromLocationId;
     }
 
-    public Long getReadToLocationId() {
-        return readToLocationId;
+    public Long getRealToLocationId() {
+        return realToLocationId;
     }
 
-    public void setReadToLocationId(Long readToLocationId) {
-        this.readToLocationId = readToLocationId;
+    public void setRealToLocationId(Long readToLocationId) {
+        this.realToLocationId = readToLocationId;
     }
 
     public BigDecimal getQtyDone() {

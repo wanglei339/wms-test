@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.task;
 
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +27,7 @@ public class BaseTaskService {
     @Transactional(readOnly = false)
     public void create(TaskInfo taskInfo) {
         taskInfo.setDraftTime(DateUtils.getCurrentSeconds());
+        taskInfo.setStatus(TaskConstant.Draft);
         taskInfo.setCreatedAt(DateUtils.getCurrentSeconds());
         taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
         taskInfoDao.insert(taskInfo);
@@ -88,5 +91,38 @@ public class BaseTaskService {
         taskInfo.setCancelTime(DateUtils.getCurrentSeconds());
         taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
         taskInfoDao.update(taskInfo);
+    }
+
+    /**
+     * 根据container_id判断是否有运行中的任务
+     * @param containerId
+     * @return
+     */
+    public Boolean checkTaskByContainerId (Long containerId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("containerId", containerId);
+        List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
+        for (TaskInfo taskInfo : taskInfos) {
+            if (!taskInfo.getStatus().equals(TaskConstant.Done) && !taskInfo.getStatus().equals(TaskConstant.Cancel)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 根据container_id获取未分配的任务id
+     * @param containerId
+     * @return
+     */
+    public Long getDraftTaskIdByContainerId (Long containerId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("containerId", containerId);
+        params.put("status", TaskConstant.Draft);
+        List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
+        if (taskInfos.size() == 0) {
+            return null;
+        }
+        return taskInfos.get(0).getTaskId();
     }
 }
