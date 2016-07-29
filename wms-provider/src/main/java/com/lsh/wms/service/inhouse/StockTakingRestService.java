@@ -24,6 +24,7 @@ import com.lsh.wms.model.stock.ItemAndSupplierRelation;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.taking.LocationListRequest;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.taking.StockTakingRequest;
@@ -156,26 +157,59 @@ public class StockTakingRestService implements IStockTakingRestService {
     }
     @POST
     @Path("getLocationList")
-    public String getLocationList(Map<String,Object> mapQuery) {
-        int locationNum = Integer.parseInt(mapQuery.get("locationNum").toString());
+    public String getLocationList(LocationListRequest request) {
+        List<Long> locationList =null;
+        int locationNum= Integer.MAX_VALUE;
         //Long itemId,Long AreaId,Long supplierId,Long storageId int locationNum
-        BaseinfoLocation location = locationService.getWarehouseLocation();
-        List<Long> locationList = locationService.getStoreLocationIds(location.getLocationId());
+        if(request.getLocationNum()!=0) {
+            locationNum = request.getLocationNum();
+        }
+        if (request.getItemId() == 0 && request.getSupplierId() == 0 && request.getAreaId() == 0 && request.getStorageId() == 0) {
+            BaseinfoLocation location = locationService.getWarehouseLocation();
+            locationList = locationService.getStoreLocationIds(location.getLocationId());
+        } else {
 
-        if(locationList.size()<=locationNum){
+            //库区，货架得到库位
+            if (request.getAreaId() != 0 && request.getStorageId() == 0) {
+                //locationList=
+                //根据库区得出库位
+            } else if (request.getStorageId() != 0) {
+                //locationList=
+                //根据货架得出库位
+            }
+
+            //商品,供应商得到库位
+            Map<String,Object> queryMap =new HashMap<String, Object>();
+            queryMap.put("supplierId",request.getSupplierId());
+            queryMap.put("itemId",request.getItemId());
+            List<StockQuant>quantList = quantService.getQuants(queryMap);
+            Set<Long> locationSet =new HashSet<Long>();
+            for(StockQuant quant:quantList){
+                locationSet.add(quant.getLocationId());
+            }
+            if(locationList!=null && locationList.size()!=0){
+                locationList.retainAll(new ArrayList<Long>(locationSet));
+            }else {
+                locationList =new ArrayList<Long>(locationSet);
+            }
+
+
+        }
+
+        if (locationList.size() < locationNum ) {
             locationNum = locationList.size();
         }
-        long[] locations=new long[locationNum];
+        long[] locations = new long[locationNum];
         for (int i = 0; i < locations.length; i++) {
 
             // 取出一个随机数
             int r = (int) (Math.random() * locationList.size());
-
             locations[i] = locationList.get(r);
 
             // 排除已经取过的值
             locationList.remove(r);
         }
+
         return JsonUtils.SUCCESS(locations);
     }
     @GET

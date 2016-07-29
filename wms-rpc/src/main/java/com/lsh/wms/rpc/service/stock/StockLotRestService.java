@@ -3,12 +3,8 @@ package com.lsh.wms.rpc.service.stock;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.stock.IStockLotRestService;
-import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.model.stock.StockLot;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
@@ -25,20 +21,18 @@ import java.util.Map;
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 
 public class StockLotRestService implements IStockLotRestService{
-    private static Logger logger = LoggerFactory.getLogger(StockLotRestService.class);
 
     @Autowired
     private StockLotRpcService stockLotRpcService;
 
     @GET
-    @Path("getStockLotByLotId")
-    public String getStockLotByLotId(@QueryParam("lotId") long iLotId) {
-        StockLot stockLot = stockLotRpcService.getLotByLotId(iLotId);
+    @Path("getStockLotById")
+    public String getLotById(@QueryParam("lotId") long lotId) {
+        StockLot stockLot = stockLotRpcService.getLotByLotId(lotId);
         return JsonUtils.SUCCESS(stockLot);
     }
 
-    @POST
-    @Path("insertLot")
+
     /***
      * skuId         商品id
      * serialNo      生产批次号
@@ -52,6 +46,8 @@ public class StockLotRestService implements IStockLotRestService{
      * packName      包装名称
      *
      */
+    @POST
+    @Path("insertLot")
     public String insertLot(StockLot lot) {
         boolean isTrue =stockLotRpcService.insert(lot);
         if(isTrue) {

@@ -12,7 +12,7 @@ import com.lsh.wms.api.model.po.ReceiptItem;
 import com.lsh.wms.api.model.po.ReceiptRequest;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.po.IReceiptRpcService;
-import com.lsh.wms.api.service.stock.IStockLotRestService;
+import com.lsh.wms.api.service.stock.IStockLotRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.constant.CsiConstan;
@@ -76,7 +76,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
     private StockQuantService stockQuantService;
 
     @Reference
-    private IStockLotRestService stockLotRestService;
+    private IStockLotRpcService stockLotRpcService;
 
     @Autowired
     private CsiSkuService csiSkuService;
@@ -252,7 +252,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             }
 
             for (StockLot stockLot : stockLotList) {
-                stockLotRestService.insertLot(stockLot);
+                stockLotRpcService.insert(stockLot);
             }
         } catch (Throwable ex) {
             // ex.printStackTrace();
