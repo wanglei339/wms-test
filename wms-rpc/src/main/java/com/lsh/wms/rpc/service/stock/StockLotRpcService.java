@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  * Created by wuhao on 16/7/29.
  */
-
+@Service(protocol = "dubbo")
 public class StockLotRpcService implements IStockLotRpcService{
     private static Logger logger = LoggerFactory.getLogger(StockLotRpcService.class);
 

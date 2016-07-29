@@ -28,9 +28,6 @@ public class StockLotRestService implements IStockLotRestService{
     private static Logger logger = LoggerFactory.getLogger(StockLotRestService.class);
 
     @Autowired
-    private StockLotService stockLotService;
-
-    @Autowired
     private StockLotRpcService stockLotRpcService;
 
     @GET
