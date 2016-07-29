@@ -36,9 +36,9 @@ import java.util.Map;
 @Path("order/so")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-public class SORestService implements ISoRestService {
+public class SoRestService implements ISoRestService {
 
-    private static Logger logger = LoggerFactory.getLogger(SORestService.class);
+    private static Logger logger = LoggerFactory.getLogger(SoRestService.class);
 
     @Autowired
     private SoRpcService soRpcService;
