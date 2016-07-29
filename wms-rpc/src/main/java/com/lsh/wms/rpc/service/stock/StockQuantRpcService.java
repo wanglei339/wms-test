@@ -84,7 +84,4 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         List<StockQuant> quantList = quantService.getQuants(mapQuery);
     }
 
-    public void move(Long moveId) throws BizCheckedException {
-
-    }
 }
