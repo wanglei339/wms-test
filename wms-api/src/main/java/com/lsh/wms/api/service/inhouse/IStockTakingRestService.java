@@ -4,6 +4,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.model.taking.StockTakingRequest;
 
 import javax.ws.rs.QueryParam;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,4 +17,6 @@ public interface IStockTakingRestService {
     String getDetail(long takingId) throws BizCheckedException;
     String getCount(Map<String,Object> mapQuery);
     String getList(Map<String,Object> mapQuery) throws BizCheckedException;
+    String getItemList(Long supplierId);
+    String getSupplierList(Long itemId);
 }

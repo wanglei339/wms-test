@@ -1,6 +1,7 @@
 package com.lsh.wms.core.dao.stock;
 
 import com.lsh.wms.core.dao.MyBatisRepository;
+import com.lsh.wms.model.stock.ItemAndSupplierRelation;
 import com.lsh.wms.model.stock.StockLot;
 
 import java.util.List;
@@ -20,5 +21,7 @@ public interface StockLotDao {
     Integer countStockLot(Map<String, Object> params);
 
     List<StockLot> getStockLotList(Map<String, Object> params);
+
+	List<ItemAndSupplierRelation> getSupplierIdOrItemId(Map<String, Object> params);
 	
 }

@@ -35,6 +35,16 @@ public class StockLot implements Serializable {
 	private BigDecimal packUnit= new BigDecimal(0);
 	/** 包装名称 */
 	private String packName = "";
+	/** 供应商信息 */
+	private Long supplierId;
+
+	public Long getSupplierId() {
+		return supplierId;
+	}
+
+	public void setSupplierId(Long supplierId) {
+		this.supplierId = supplierId;
+	}
 
 	public Long getId(){
 		return this.id;
@@ -147,5 +157,7 @@ public class StockLot implements Serializable {
 	public void  setPackName(String packName){
 		this.packName = packName;
 	}
+
+
 
 }

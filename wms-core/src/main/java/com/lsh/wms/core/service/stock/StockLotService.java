@@ -5,6 +5,7 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.stock.StockLotDao;
 import com.lsh.wms.core.dao.stock.StockQuantDao;
+import com.lsh.wms.model.stock.ItemAndSupplierRelation;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
 import org.slf4j.Logger;
@@ -74,6 +75,9 @@ public class StockLotService {
 
     public List<StockLot> searchLot(Map<String, Object> mapQuery){
         return lotDao.getStockLotList(mapQuery);
+    }
+    public List<ItemAndSupplierRelation> getSupplierIdOrItemId(Map<String, Object> mapQuery){
+        return lotDao.getSupplierIdOrItemId(mapQuery);
     }
 
 
