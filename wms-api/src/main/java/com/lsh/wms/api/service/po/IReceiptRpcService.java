@@ -22,7 +22,7 @@ public interface IReceiptRpcService {
     /* 投单接口 */
     public Boolean throwOrder(String orderOtherId) throws BizCheckedException;
 
-    public Boolean updateReceiptStatus(Long receiptId, Integer receiptStatus) throws BizCheckedException;
+    public Boolean updateReceiptStatus(Map<String, Object> map) throws BizCheckedException;
 
     public InbReceiptHeader getPoReceiptDetailByReceiptId(Long receiptId) throws BizCheckedException;
 
