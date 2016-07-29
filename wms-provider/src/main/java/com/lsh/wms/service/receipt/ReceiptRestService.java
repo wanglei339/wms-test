@@ -70,31 +70,11 @@ public class ReceiptRestService implements IReceiptRestService {
 
     private static Logger logger = LoggerFactory.getLogger(ReceiptRestService.class);
 
+   @Autowired
+   private ReceiptRpcService receiptRpcService;
+
     @Autowired
     private PoReceiptService poReceiptService;
-
-    @Autowired
-    private ItemService itemService;
-
-    @Autowired
-    private PoOrderService poOrderService;
-
-    @Reference
-    private ILocationRpcService locationRpcService;
-
-    @Autowired
-    private StockQuantService stockQuantService;
-
-    @Reference
-    private IStockLotRestService stockLotRestService;
-
-
-    @Autowired
-    private CsiSkuService csiSkuService;
-
-    @Reference
-    private ITaskRpcService iTaskRpcService;
-
 
     @POST
     @Path("init")
@@ -108,191 +88,18 @@ public class ReceiptRestService implements IReceiptRestService {
     @POST
     @Path("throw")
     public String throwOrder(String orderOtherId) throws BizCheckedException {
-        InbPoHeader inbPoHeader = new InbPoHeader();
-        inbPoHeader.setOrderOtherId(orderOtherId);
-        inbPoHeader.setOrderStatus(PoConstant.ORDER_THROW);
-        poOrderService.updateInbPoHeaderByOrderOtherIdOrOrderId(inbPoHeader);
-        return JsonUtils.SUCCESS();
+        if(receiptRpcService.throwOrder(orderOtherId)){
+            return JsonUtils.SUCCESS();
+        }else {
+            return JsonUtils.FAIL("2020002");
+        }
+
     }
 
     @POST
     @Path("insert")
     public BaseResponse insertOrder(ReceiptRequest request) throws BizCheckedException{
-        //初始化InbReceiptHeader
-        InbReceiptHeader inbReceiptHeader = new InbReceiptHeader();
-        ObjUtils.bean2bean(request, inbReceiptHeader);
-
-        //设置receiptOrderId
-        inbReceiptHeader.setReceiptOrderId(RandomUtils.genId());
-
-        //设置托盘码,暂存区,分配库位;实际库位由他人写入
-        BaseinfoLocation baseinfoLocation = locationRpcService.assignTemporary();
-        inbReceiptHeader.setLocation(baseinfoLocation.getLocationId());// TODO: 16/7/20  暂存区信息
-
-        //设置InbReceiptHeader状态
-        inbReceiptHeader.setReceiptStatus(BusiConstant.EFFECTIVE_YES);
-
-        //设置InbReceiptHeader插入时间
-        inbReceiptHeader.setInserttime(new Date());
-
-        //初始化List<InbReceiptDetail>
-        List<InbReceiptDetail> inbReceiptDetailList = new ArrayList<InbReceiptDetail>();
-        List<InbPoDetail> updateInbPoDetailList = new ArrayList<InbPoDetail>();
-        List<StockQuant> stockQuantList = new ArrayList<StockQuant>();
-        List<StockLot> stockLotList = new ArrayList<StockLot>();
-
-        for(ReceiptItem receiptItem : request.getItems()) {
-            InbReceiptDetail inbReceiptDetail = new InbReceiptDetail();
-
-            ObjUtils.bean2bean(receiptItem, inbReceiptDetail);
-
-            //设置receiptOrderId
-            inbReceiptDetail.setReceiptOrderId(inbReceiptHeader.getReceiptOrderId());
-            inbReceiptDetail.setOrderOtherId(request.getOrderOtherId());
-            //根据request中的orderOtherId查询InbPoHeader
-            InbPoHeader inbPoHeader = poOrderService.getInbPoHeaderByOrderOtherId(request.getOrderOtherId());
-            if(inbPoHeader == null) {
-                throw  new BizCheckedException("2020001");
-            }
-
-            boolean isCanReceipt = inbPoHeader.getOrderStatus() == PoConstant.ORDER_THROW || inbPoHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART;
-            if(!isCanReceipt){
-                throw  new BizCheckedException("2020002");
-            }
-
-            //写入InbReceiptDetail中的OrderId
-            inbReceiptDetail.setOrderId(inbPoHeader.getOrderId());
-
-
-            //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
-            CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE,inbReceiptDetail.getBarCode());
-            if(null == csiSku || csiSku.getSkuId() ==null){
-                throw  new BizCheckedException("2020004");
-            }
-            inbReceiptDetail.setSkuId(csiSku.getSkuId());
-            BaseinfoItem baseinfoItem = itemService.getItem(inbPoHeader.getOwnerUid(), csiSku.getSkuId());
-            inbReceiptDetail.setItemId(baseinfoItem.getItemId());
-
-            //根据OrderId及SkuId获取InbPoDetail
-            InbPoDetail inbPoDetail = poOrderService.getInbPoDetailByOrderIdAndSkuId(inbReceiptDetail.getOrderId(),inbReceiptDetail.getSkuId());
-            //写入InbReceiptDetail中的OrderQty
-            inbReceiptDetail.setOrderQty(inbPoDetail.getOrderQty());
-            // 判断是否超过订单总数
-            Long poInboundQty = null != inbPoDetail.getInboundQty() ? inbPoDetail.getInboundQty(): 0L;
-
-            if(poInboundQty+ inbReceiptDetail.getInboundQty() > inbPoDetail.getOrderQty()){
-                throw  new BizCheckedException("2020005");
-            }
-
-            // TODO: 16/7/20   商品信息是否完善,怎么排查.2,保质期例外怎么验证?
-            //保质期判断,如果失败抛出异常
-            BigDecimal shelLife = baseinfoItem.getShelfLife();
-            String producePlace = baseinfoItem.getProducePlace();
-            Double shelLife_CN= Double.parseDouble(PropertyUtils.getString("shelLife_CN"));
-            Double shelLife_Not_CN=Double.parseDouble(PropertyUtils.getString("shelLife_Not_CN"));
-            String produceChina=PropertyUtils.getString("produceChina");
-            BigDecimal left_day = new BigDecimal(DateUtils.daysBetween(inbReceiptDetail.getProTime(),new Date()));
-            if(producePlace.contains(produceChina)){ // TODO: 16/7/20  产地是否存的是CN
-                if(left_day.divide(shelLife,2,ROUND_HALF_EVEN).doubleValue() >= shelLife_CN){
-                    throw new BizCheckedException("2020003");
-                }
-            }else {
-                if(left_day.divide(shelLife,2,ROUND_HALF_EVEN).doubleValue() > shelLife_Not_CN){
-                    throw new BizCheckedException("2020003");
-                }
-            }
-
-            InbPoDetail updateInbPoDetail = new InbPoDetail();
-            updateInbPoDetail.setInboundQty(inbPoDetail.getInboundQty());
-            updateInbPoDetail.setOrderId(inbReceiptDetail.getOrderId());
-            updateInbPoDetail.setSkuId(inbReceiptDetail.getSkuId());
-            updateInbPoDetailList.add(updateInbPoDetail);
-            inbReceiptDetailList.add(inbReceiptDetail);
-
-
-            /***
-             * skuId 商品码
-             * locationId 存储位id
-             * containerId 容器设备id
-             * qty 商品数量
-             * supplierId 货物供应商id
-             * ownerId 货物所属公司id
-             * inDate 入库时间
-             * expireDate 保质期失效时间
-             * itemId
-             *
-             */
-            // TODO: 16/7/21  如何形成上架任务
-            StockQuant quant = new StockQuant();
-            quant.setSkuId(inbReceiptDetail.getSkuId());
-            quant.setItemId(inbReceiptDetail.getItemId());
-            quant.setLocationId(inbReceiptHeader.getLocation());
-            quant.setContainerId(inbReceiptHeader.getContainerId());
-            quant.setSupplierId(inbPoHeader.getSupplierCode());
-            quant.setOwnerId(inbPoHeader.getOwnerUid());
-            Date receiptTime = inbReceiptHeader.getReceiptTime();
-            quant.setInDate(receiptTime.getTime()/1000);
-            Long expireDate =  inbReceiptDetail.getProTime().getTime()+shelLife.longValue(); // 生产日期+保质期=保质期失效时间
-            quant.setExpireDate(expireDate/1000);
-            quant.setCost(inbPoDetail.getPrice());
-            BigDecimal inboundQty = BigDecimal.valueOf(inbReceiptDetail.getInboundQty());
-            BigDecimal value = inbPoDetail.getPrice().multiply(inboundQty) ;
-            quant.setValue(value);
-            stockQuantList.add(quant);
-            // stockQuantService.create(quant);
-
-
-            /***
-             * skuId         商品id
-             * serialNo      生产批次号
-             * inDate        入库时间
-             * productDate   生产时间
-             * expireDate    保质期失效时间
-             * itemId
-             * poId          采购订单
-             * receiptId     收货单
-             */
-            StockLot stockLot = new StockLot();
-            stockLot.setSkuId(inbReceiptDetail.getSkuId());
-            stockLot.setSerialNo(inbReceiptDetail.getLotNum());
-            stockLot.setItemId(inbReceiptDetail.getItemId());
-            stockLot.setInDate(receiptTime.getTime()/1000);
-            stockLot.setProductDate(inbReceiptDetail.getProTime().getTime()/1000);
-            stockLot.setExpireDate(expireDate/1000);
-            stockLot.setReceiptId(inbReceiptHeader.getReceiptOrderId());
-            stockLot.setPoId(inbReceiptDetail.getOrderId());
-            stockLotList.add(stockLot);
-            // stockLotRestService.insertLot(stockLot);
-
-
-
-        }
-
-        //插入订单
-        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList,updateInbPoDetailList );
-        try{
-            for (StockQuant stockQuant: stockQuantList) {
-                stockQuantService.create(stockQuant);
-            }
-
-            for (StockLot stockLot: stockLotList) {
-                stockLotRestService.insertLot(stockLot);
-            }
-        }catch (Throwable ex){
-            // ex.printStackTrace();
-            logger.error(ex.getMessage());
-        }
-
-
-        TaskEntry taskEntry = new TaskEntry();
-        TaskInfo taskInfo = new TaskInfo();
-        taskInfo.setType(TaskConstant.TYPE_SHELVE);
-        taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
-        taskEntry.setTaskInfo(taskInfo);
-        //iTaskRpcService.create(TaskConstant.TYPE_RECEIPT,taskEntry);
-
-
-
+        receiptRpcService.insertOrder(request);
         return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
     }
 
@@ -310,11 +117,7 @@ public class ReceiptRestService implements IReceiptRestService {
             throw new BizCheckedException("1020002", "参数类型不正确");
         }
 
-        InbReceiptHeader inbReceiptHeader = new InbReceiptHeader();
-        inbReceiptHeader.setReceiptOrderId(Long.valueOf(String.valueOf(map.get("receiptId"))));
-        inbReceiptHeader.setReceiptStatus(Integer.valueOf(String.valueOf(map.get("receiptStatus"))));
-
-        poReceiptService.updateInbReceiptHeaderByReceiptId(inbReceiptHeader);
+        receiptRpcService.updateReceiptStatus((Long)map.get("receiptId"),(Integer)map.get("receiptStatus"));
 
         return JsonUtils.SUCCESS();
     }
@@ -325,11 +128,7 @@ public class ReceiptRestService implements IReceiptRestService {
         if(receiptId == null) {
             throw new BizCheckedException("1020001", "参数不能为空");
         }
-
-        InbReceiptHeader inbReceiptHeader = poReceiptService.getInbReceiptHeaderByReceiptId(receiptId);
-
-        poReceiptService.fillDetailToHeader(inbReceiptHeader);
-
+        InbReceiptHeader inbReceiptHeader = receiptRpcService.getPoReceiptDetailByReceiptId(receiptId);
         return JsonUtils.SUCCESS(inbReceiptHeader);
     }
 
@@ -339,19 +138,7 @@ public class ReceiptRestService implements IReceiptRestService {
         if(orderId == null) {
             throw new BizCheckedException("1020001", "参数不能为空");
         }
-        List<InbReceiptDetail> inbReceiptDetailList = poReceiptService.getInbReceiptDetailListByOrderId(orderId);
-
-        List<InbReceiptHeader> inbReceiptHeaderList = new ArrayList<InbReceiptHeader>();
-
-        for(InbReceiptDetail inbReceiptDetail : inbReceiptDetailList) {
-            InbReceiptHeader inbReceiptHeader = poReceiptService.getInbReceiptHeaderByReceiptId(inbReceiptDetail.getReceiptOrderId());
-
-            // TODO:InbReceiptHeader与当前时间比较
-
-            poReceiptService.fillDetailToHeader(inbReceiptHeader);
-
-            inbReceiptHeaderList.add(inbReceiptHeader);
-        }
+        List<InbReceiptHeader> inbReceiptHeaderList = receiptRpcService.getPoReceiptDetailByOrderId(orderId);
 
         return JsonUtils.SUCCESS(inbReceiptHeaderList);
     }
@@ -360,7 +147,7 @@ public class ReceiptRestService implements IReceiptRestService {
     @Path("countInbPoReceiptHeader")
     public String countInbPoReceiptHeader() {
         Map<String, Object> params = RequestUtils.getRequest();
-        return JsonUtils.SUCCESS(poReceiptService.countInbReceiptHeader(params));
+        return JsonUtils.SUCCESS(receiptRpcService.countInbPoReceiptHeader(params));
     }
 
     @POST
