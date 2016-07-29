@@ -1,10 +1,12 @@
 package com.lsh.wms.api.service.item;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.csi.CsiSku;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 /**
@@ -28,4 +30,5 @@ public interface IItemRpcService {
     void updateItemLocation(BaseinfoItemLocation itemLocation);
 
     BaseinfoItem getItem(long itemId);
+    BigDecimal getPackUnit(String str) throws BizCheckedException;
 }
