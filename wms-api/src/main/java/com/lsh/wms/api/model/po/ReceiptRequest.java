@@ -14,6 +14,7 @@ import java.util.List;
  */
 public class ReceiptRequest implements Serializable {
 
+    /** 采购订单号 */
     @NotBlank
     @Size(max=100)
     private String orderOtherId;
