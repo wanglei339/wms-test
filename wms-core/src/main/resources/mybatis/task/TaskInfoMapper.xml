@@ -11,12 +11,23 @@
 		<result property="orderId" column="order_id"/>
 		<result property="locationId" column="location_id"/>
 		<result property="skuId" column="sku_id"/>
+		<result property="ownerId" column="owner_id"/>
+		<result property="itemId" column="item_id"/>
+		<result property="fromLocationId" column="from_location_id"/>
+		<result property="toLocationId" column="to_location_id"/>
+		<result property="qty" column="qty"/>
+		<result property="realFromLocationId" column="real_from_location_id"/>
+		<result property="realToLocationId" column="real_to_location_id"/>
+		<result property="qtyDone" column="qty_done"/>
+		<result property="packUnit" column="pack_unit"/>
+		<result property="packName" column="pack_name"/>
 		<result property="containerId" column="container_id"/>
 		<result property="operator" column="operator"/>
 		<result property="planner" column="planner"/>
 		<result property="type" column="type"/>
 		<result property="subType" column="sub_type"/>
 		<result property="status" column="status"/>
+		<result property="isAllocated" column="is_allocated"/>
 		<result property="priority" column="priority"/>
 		<result property="draftTime" column="draft_time"/>
 		<result property="assignTime" column="assign_time"/>
@@ -39,16 +50,22 @@
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TaskInfo">
 		insert into task_info (
 			task_id,task_name,plan_id,wave_id,order_id,location_id,
-			sku_id,container_id,operator,planner,type,sub_type,status,
-			priority,draft_time,assign_time,due_time,finish_time,cancel_time,
-			ext1,ext2,ext3,ext4,ext5,ext6,
-			ext7,ext8,ext9,created_at,updated_at
+			sku_id,owner_id,item_id,from_location_id,to_location_id,qty,
+			real_from_location_id, real_to_location_id, qty_done,
+			pack_unit,pack_name,container_id,operator,planner,type,
+			sub_type,status,is_allocated,priority,draft_time,assign_time,
+			due_time,finish_time,cancel_time,ext1,ext2,ext3,
+			ext4,ext5,ext6,ext7,ext8,ext9,
+			created_at,updated_at
     	) values (
 			#{taskId},#{taskName},#{planId},#{waveId},#{orderId},#{locationId},
-			#{skuId},#{containerId},#{operator},#{planner},#{type},#{subType},#{status},
-			#{priority},#{draftTime},#{assignTime},#{dueTime},#{finishTime},#{cancelTime},
-			#{ext1},#{ext2},#{ext3},#{ext4},#{ext5},#{ext6},
-			#{ext7},#{ext8},#{ext9},#{createdAt},#{updatedAt}
+			#{skuId},#{ownerId},#{itemId},#{fromLocationId},#{toLocationId},#{qty},
+			#{realFromLocationId}, #{realToLocationId}, #{qtyDone},
+			#{packUnit},#{packName},#{containerId},#{operator},#{planner},#{type},
+			#{subType},#{status},#{isAllocated},#{priority},#{draftTime},#{assignTime},
+			#{dueTime},#{finishTime},#{cancelTime},#{ext1},#{ext2},#{ext3},
+			#{ext4},#{ext5},#{ext6},#{ext7},#{ext8},#{ext9},
+			#{createdAt},#{updatedAt}
     	)
 	</insert>
 
@@ -62,12 +79,23 @@
   			<if test="orderId != null">order_id=#{orderId},</if>
   			<if test="locationId != null">location_id=#{locationId},</if>
   			<if test="skuId != null">sku_id=#{skuId},</if>
+  			<if test="ownerId != null">owner_id=#{ownerId},</if>
+  			<if test="itemId != null">item_id=#{itemId},</if>
+  			<if test="fromLocationId != null">from_location_id=#{fromLocationId},</if>
+  			<if test="toLocationId != null">to_location_id=#{toLocationId},</if>
+  			<if test="qty != null">qty=#{qty},</if>
+			<if test="realFromLocationId != null">real_from_location_id=#{realFromLocationId},</if>
+			<if test="realToLocationId != null">real_to_location_id=#{realToLocationId},</if>
+			<if test="qtyDone != null">qty_done=#{qtyDone},</if>
+  			<if test="packUnit != null">pack_unit=#{packUnit},</if>
+  			<if test="packName != null">pack_name=#{packName},</if>
   			<if test="containerId != null">container_id=#{containerId},</if>
   			<if test="operator != null">operator=#{operator},</if>
   			<if test="planner != null">planner=#{planner},</if>
   			<if test="type != null">type=#{type},</if>
-			<if test="subType != null">sub_type=#{subType},</if>
+  			<if test="subType != null">sub_type=#{subType},</if>
   			<if test="status != null">status=#{status},</if>
+  			<if test="isAllocated != null">is_allocated=#{isAllocated},</if>
   			<if test="priority != null">priority=#{priority},</if>
   			<if test="draftTime != null">draft_time=#{draftTime},</if>
   			<if test="assignTime != null">assign_time=#{assignTime},</if>
@@ -117,12 +145,23 @@
 			<if test="orderId != null">and order_id=#{orderId}</if>
 			<if test="locationId != null">and location_id=#{locationId}</if>
 			<if test="skuId != null">and sku_id=#{skuId}</if>
+			<if test="ownerId != null">and owner_id=#{ownerId}</if>
+			<if test="itemId != null">and item_id=#{itemId}</if>
+			<if test="fromLocationId != null">and from_location_id=#{fromLocationId}</if>
+			<if test="toLocationId != null">and to_location_id=#{toLocationId}</if>
+			<if test="qty != null">and qty=#{qty}</if>
+			<if test="realFromLocationId != null">and real_from_location_id=#{realFromLocationId}</if>
+			<if test="realToLocationId != null">and real_to_location_id=#{realToLocationId}</if>
+			<if test="qtyDone != null">and qty_done=#{qtyDone}</if>
+			<if test="packUnit != null">and pack_unit=#{packUnit}</if>
+			<if test="packName != null">and pack_name=#{packName}</if>
 			<if test="containerId != null">and container_id=#{containerId}</if>
 			<if test="operator != null">and operator=#{operator}</if>
 			<if test="planner != null">and planner=#{planner}</if>
 			<if test="type != null">and type=#{type}</if>
 			<if test="subType != null">and sub_type=#{subType}</if>
 			<if test="status != null">and status=#{status}</if>
+			<if test="isAllocated != null">and is_allocated=#{isAllocated}</if>
 			<if test="priority != null">and priority=#{priority}</if>
 			<if test="draftTime != null">and draft_time=#{draftTime}</if>
 			<if test="assignTime != null">and assign_time=#{assignTime}</if>

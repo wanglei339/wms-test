@@ -3,6 +3,7 @@ package com.lsh.wms.core.dao.stock;
 import com.lsh.wms.core.dao.MyBatisRepository;
 import com.lsh.wms.model.stock.StockQuant;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -23,5 +24,5 @@ public interface StockQuantDao {
 
     List<Long> getContainerIdByLocationId(Long locationId);
 
-
+    BigDecimal getQty(Map<String, Object> mapQuery);
 }

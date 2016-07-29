@@ -12,7 +12,7 @@
 		<result property="packName" column="pack_name"/>
 		<result property="value" column="value"/>
 		<result property="cost" column="cost"/>
-		<result property="reserveMoveId" column="reserve_move_id"/>
+		<result property="reserveTaskId" column="reserve_task_id"/>
 		<result property="isFrozen" column="is_frozen"/>
 		<result property="supplierId" column="supplier_id"/>
 		<result property="ownerId" column="owner_id"/>
@@ -32,7 +32,7 @@
 			location_id,
 			container_id,
 			qty,
-			reserve_move_id,
+			reserve_task_id,
 			value,
 			cost,
 			pack_unit,
@@ -40,7 +40,7 @@
 			is_frozen,supplier_id,owner_id,lot_id,
 			in_date,expire_date,created_at,updated_at,item_id,is_defect,is_refund
     	) values (
-			#{skuId},#{locationId},#{containerId},#{qty},#{reserveMoveId},#{value},
+			#{skuId},#{locationId},#{containerId},#{qty},#{reserveTaskId},#{value},
 			#{cost},#{packUnit},#{packName},#{isFrozen},#{supplierId},#{ownerId},#{lotId},
 			#{inDate},#{expireDate},#{createdAt},#{updatedAt},#{itemId},#{isDefect},#{isRefund}
     	)
@@ -53,7 +53,7 @@
   			<if test="locationId != null">location_id=#{locationId},</if>
   			<if test="containerId != null">container_id=#{containerId},</if>
   			<if test="qty != null">qty=#{qty},</if>
-			<if test="reserveMoveId != null">reserve_move_id=#{reserveMoveId},</if>
+			<if test="reserveTaskId != null">reserve_task_id=#{reserveTaskId},</if>
   			<if test="value != null">value=#{value},</if>
   			<if test="cost != null">cost=#{cost},</if>
   			<if test="packUnit != null">pack_unit=#{packUnit},</if>
@@ -96,37 +96,19 @@
 		</if>
 	</select>
 
+	<select id="getQty" parameterType="map" resultType="java.math.BigDecimal">
+		select sum(qty) from stock_quant
+		<include refid="queryCondition"/>
+	</select>
+
 	<select id="getQuants" parameterType="map" resultMap="stockQuantResultMap">
 		select * from stock_quant
-		<where>
-			<if test="skuId != null and skuId != 0">sku_id=#{skuId}</if>
-			<if test="locationId != null and locationId != 0">and location_id=#{locationId}</if>
-			<if test="locationList != null">
-				and location_id in
-				<foreach collection="locationList"  item="item" index="index" open="(" separator=","  close=")">
-					#{item}
-				</foreach>
-			</if>
-			<if test="containerId != null and containerId != 0">and container_id=#{containerId}</if>
-			<if test="reserveMoveId != null and reserveMoveId != 0">and reserve_move_id=#{reserveMoveId}</if>
-			<if test="packUnit != null and packUnit != 0">and pack_unit=#{packUnit}</if>
-			<if test="packName != null">and pack_name=#{packName}</if>
-			<if test="isFrozen != null">and is_frozen=#{isFrozen}</if>
-			<if test="supplierId != null and supplierId != 0">and supplier_id=#{supplierId}</if>
-			<if test="ownerId != null and ownerId != 0">and owner_id=#{ownerId}</if>
-			<if test="lotId != null and lotId != 0">and lot_id=#{lotId}</if>
-			<if test="inDate != null">and in_date=#{inDate}</if>
-			<if test="expireDate != null">and expire_date=#{expireDate}</if>
-			<if test="itemId != null">and item_id=#{itemId}</if>
-			<if test="isNormal != null and isNormal != true">and (is_frozen = 1 or reserve_move_id != 0)</if>
-			<if test="isDefect != null">and is_defect=#{isDefect}</if>
-			<if test="isRefund != null">and is_refund=#{isRefund}</if>
-		</where>
+		<include refid="queryCondition"/>
 		<choose>
 			<when test=" strategy == 'FIFO' ">ORDER BY IN_DATE</when>
 			<when test=" strategy == 'FEFO' ">ORDER BY EXPIRE_DATE</when>
 			<otherwise>
-				ORDER BY ID
+				ORDER BY EXPIRE_DATE
 			</otherwise>
 		</choose>
 		<if test="start != null and limit != null">
@@ -137,25 +119,26 @@
   
 	<sql id="queryCondition">
 		<where>
-			<if test="id != null">id=#{id}</if>
-			<if test="skuId != null">and sku_id=#{skuId}</if>
-			<if test="locationId != null">and location_id=#{locationId}</if>
-			<if test="containerId != null">and container_id=#{containerId}</if>
-			<if test="qty != null">and qty=#{qty}</if>
-			<if test="packUnit != null">and pack_unit=#{packUnit}</if>
+			<if test="skuId != null and skuId != 0">sku_id=#{skuId}</if>
+			<if test="locationId != null and locationId != 0">and location_id=#{locationId}</if>
+			<if test="locationList != null">
+				and location_id in
+				<foreach collection="locationList"  item="item" index="index" open="(" separator=","  close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="containerId != null and containerId != 0">and container_id=#{containerId}</if>
+			<if test="reserveTaskId != null and reserveTaskId != 0">and reserve_task_id=#{reserveTaskId}</if>
+			<if test="packUnit != null and packUnit != 0">and pack_unit=#{packUnit}</if>
 			<if test="packName != null">and pack_name=#{packName}</if>
-			<if test="value != null">and value=#{value}</if>
-			<if test="cost != null">and cost=#{cost}</if>
-			<if test="reserveMoveId != null">and reserve_move_id=#{reserveMoveId}</if>
 			<if test="isFrozen != null">and is_frozen=#{isFrozen}</if>
-			<if test="supplierId != null">and supplier_id=#{supplierId}</if>
-			<if test="ownerId != null">and owner_id=#{ownerId}</if>
-			<if test="lotId != null">and lot_id=#{lotId}</if>
+			<if test="supplierId != null and supplierId != 0">and supplier_id=#{supplierId}</if>
+			<if test="ownerId != null and ownerId != 0">and owner_id=#{ownerId}</if>
+			<if test="lotId != null and lotId != 0">and lot_id=#{lotId}</if>
 			<if test="inDate != null">and in_date=#{inDate}</if>
 			<if test="expireDate != null">and expire_date=#{expireDate}</if>
-			<if test="createdAt != null">and created_at=#{createdAt}</if>
-			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 			<if test="itemId != null">and item_id=#{itemId}</if>
+			<if test="isNormal != null and isNormal != true">and (is_frozen = 1 or reserve_task_id != 0)</if>
 			<if test="isDefect != null">and is_defect=#{isDefect}</if>
 			<if test="isRefund != null">and is_refund=#{isRefund}</if>
 		</where>

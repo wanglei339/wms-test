@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ public class BaseTaskService {
 
     @Transactional(readOnly = false)
     public void create(TaskInfo taskInfo) {
+        taskInfo.setDraftTime(DateUtils.getCurrentSeconds());
         taskInfo.setStatus(TaskConstant.Draft);
         taskInfo.setCreatedAt(DateUtils.getCurrentSeconds());
         taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
@@ -38,6 +40,7 @@ public class BaseTaskService {
     public List<TaskInfo> getTaskInfoList(Map<String, Object> mapQuery) {
         return taskInfoDao.getTaskInfoList(mapQuery);
     }
+
 
     public int getTaskInfoCount(Map<String, Object> mapQuery) {
         return taskInfoDao.countTaskInfo(mapQuery);
@@ -66,6 +69,8 @@ public class BaseTaskService {
         TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
         taskInfo.setOperator(staffId);
         taskInfo.setStatus(TaskConstant.Assigned);
+        taskInfo.setAssignTime(DateUtils.getCurrentSeconds());
+        taskInfo.setAssignTime(DateUtils.getCurrentSeconds());
         taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
         taskInfoDao.update(taskInfo);
     }
@@ -74,6 +79,7 @@ public class BaseTaskService {
     public void done(Long taskId) {
         TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
         taskInfo.setStatus(TaskConstant.Done);
+        taskInfo.setFinishTime(DateUtils.getCurrentSeconds());
         taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
         taskInfoDao.update(taskInfo);
     }
@@ -82,6 +88,7 @@ public class BaseTaskService {
     public void cancel(Long taskId) {
         TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
         taskInfo.setStatus(TaskConstant.Cancel);
+        taskInfo.setCancelTime(DateUtils.getCurrentSeconds());
         taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
         taskInfoDao.update(taskInfo);
     }

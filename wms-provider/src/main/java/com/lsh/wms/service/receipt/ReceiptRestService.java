@@ -1,4 +1,5 @@
-package com.lsh.wms.rpc.service.po;
+package com.lsh.wms.service.receipt;
+
 
 import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Reference;
@@ -16,8 +17,11 @@ import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
 import com.lsh.wms.api.model.po.ReceiptItem;
 import com.lsh.wms.api.model.po.ReceiptRequest;
+import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.po.IReceiptRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.api.service.stock.IStockLotRestService;
+import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.PoConstant;
@@ -38,8 +42,6 @@ import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
-import com.lsh.wms.rpc.service.location.LocationRpcService;
-import com.lsh.wms.rpc.service.stock.StockLotRestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,21 +79,21 @@ public class ReceiptRestService implements IReceiptRestService {
     @Autowired
     private PoOrderService poOrderService;
 
-    @Autowired
-    private LocationRpcService locationRpcService;
+    @Reference
+    private ILocationRpcService locationRpcService;
 
     @Autowired
     private StockQuantService stockQuantService;
 
-    @Autowired
-    private StockLotRestService stockLotRestService;
+    @Reference
+    private IStockLotRestService stockLotRestService;
 
 
     @Autowired
     private CsiSkuService csiSkuService;
 
-    //@Reference
-    //private ITaskRpcService iTaskRpcService;
+    @Reference
+    private ITaskRpcService iTaskRpcService;
 
 
     @POST

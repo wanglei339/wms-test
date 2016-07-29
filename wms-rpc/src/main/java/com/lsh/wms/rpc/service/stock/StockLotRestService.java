@@ -28,13 +28,13 @@ public class StockLotRestService implements IStockLotRestService{
     private static Logger logger = LoggerFactory.getLogger(StockLotRestService.class);
 
     @Autowired
-    private StockLotService stockLotService;
+    private StockLotRpcService stockLotRpcService;
 
     @GET
     @Path("getStockLotByLotId")
     public String getStockLotByLotId(@QueryParam("lotId") long iLotId) {
-        StockLot StockLot = stockLotService.getStockLotByLotId(iLotId);
-        return JsonUtils.SUCCESS(StockLot);
+        StockLot stockLot = stockLotRpcService.getStockLotByLotId(iLotId);
+        return JsonUtils.SUCCESS(stockLot);
     }
 
     @POST
@@ -50,40 +50,33 @@ public class StockLotRestService implements IStockLotRestService{
      * receiptId     收货单
      * packUnit      包装单位
      * packName      包装名称
+     *
      */
     public String insertLot(StockLot lot) {
-        lot.setLotId(RandomUtils.genId());
-        if(stockLotService.getStockLotByLotId(lot.getLotId()) != null) {
-            return JsonUtils.EXCEPTION_ERROR("Exist!");
+        boolean isTrue =stockLotRpcService.insertLot(lot);
+        if(isTrue) {
+            return JsonUtils.SUCCESS();
+        }else {
+            return JsonUtils.EXCEPTION_ERROR("insertFail");
         }
-        try {
-            stockLotService.insertLot(lot);
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR("Insert Failed!");
-        }
-        return JsonUtils.SUCCESS();
     }
 
     @POST
     @Path("updateLot")
     public String updateLot(StockLot lot) {
-        if(stockLotService.getStockLotByLotId(lot.getLotId()) == null) {
-            return JsonUtils.EXCEPTION_ERROR("Not Exist!");
+        boolean isTrue =stockLotRpcService.updateLot(lot);
+        if(isTrue) {
+            return JsonUtils.SUCCESS();
+        }else {
+            return JsonUtils.EXCEPTION_ERROR("updateFail");
         }
-        try {
-            stockLotService.updateLot(lot);
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR("Update Failed!");
-        }
-        return JsonUtils.SUCCESS();
     }
 
     @POST
     @Path("searchLot")
     public String searchLot(Map<String, Object> mapQuery) {
-        List<StockLot> StockLotlist = stockLotService.searchLot(mapQuery);
+
+        List<StockLot> StockLotlist = stockLotRpcService.searchLot(mapQuery);
         return JsonUtils.SUCCESS(StockLotlist);
     }
 

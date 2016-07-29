@@ -1,7 +1,7 @@
 package com.lsh.wms.core.service.stock;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
-import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
 import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
 import com.lsh.wms.model.stock.StockMove;
@@ -34,6 +34,10 @@ public class StockQuantService {
     @Autowired
     private StockQuantMoveRelDao relDao;
 
+    public BigDecimal getQty(Map<String, Object> mapQuery) {
+        BigDecimal total = stockQuantDao.getQty(mapQuery);
+        return total;
+    }
 
     public List<StockQuant> getQuants(Map<String, Object> params) {
         return stockQuantDao.getQuants(params);
@@ -75,19 +79,20 @@ public class StockQuantService {
     }
 
     @Transactional(readOnly = false)
-    public void move(Long moveId) {
-        StockMove move = moveDao.getStockMoveById(moveId);
-        StockQuantMoveRel moveRel =new StockQuantMoveRel();
+    public void move(StockMove move) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("reserveMoveId", moveId);
+        mapQuery.put("reserveTaskId", move.getTaskId());
+        mapQuery.put("itemId", move.getItemId());
+        mapQuery.put("locationId", move.getFromLocationId());
+        mapQuery.put("containerId", move.getFromContainerId());
         List<StockQuant> quantList = stockQuantDao.getQuants(mapQuery);
-        BigDecimal qtyDone = move.getQtyDone();
-        moveRel.setMoveId(moveId);
+        BigDecimal qtyDone = move.getQty();
         for (StockQuant quant : quantList) {
-            this.unReserve(quant);
+            StockQuantMoveRel moveRel =new StockQuantMoveRel();
+            moveRel.setMoveId(move.getId());
             this.split(quant, qtyDone);
+            quant.setLocationId(move.getToLocationId());
             quant.setContainerId(move.getToContainerId());
-            quant.setLocationId(move.getRealToLocationId());
             this.update(quant);
             qtyDone = qtyDone.subtract(quant.getQty());
             moveRel.setQuantId(quant.getId());
@@ -115,20 +120,37 @@ public class StockQuantService {
     }
 
     @Transactional(readOnly = false)
-    public void reserve(Long quantId, Long moveId, BigDecimal requiredQty) {
-        StockQuant quant =  this.getQuantById(quantId);
-        if (quant.getReserveMoveId() > 0 || quant.getIsFrozen() != 0) {
-            return;
+    public List<StockQuant> reserve(Map<String, Object> mapQuery, Long taskId, BigDecimal requiredQty) throws BizCheckedException {
+        List<StockQuant> quantList = this.getQuants(mapQuery);
+        List<StockQuant> resultList = new ArrayList<StockQuant>();
+        for (StockQuant quant : quantList) {
+            if (! quant.isAvailable()) {
+               continue;
+            }
+            this.split(quant, requiredQty);
+            quant.setReserveTaskId(taskId);
+            resultList.add(quant);
+            stockQuantDao.update(quant);
+            requiredQty = requiredQty.subtract(quant.getQty());
+            if (requiredQty.compareTo(BigDecimal.ZERO) == 0){
+                break;
+            }
         }
-        this.split(quant, requiredQty);
-        quant.setReserveMoveId(moveId);
-        stockQuantDao.update(quant);
+        if (requiredQty.compareTo(BigDecimal.ZERO) > 0) {
+            throw new BizCheckedException("2550001");
+        }
+        return resultList;
     }
 
     @Transactional(readOnly = false)
-    public void unReserve(StockQuant quant) {
-        quant.setReserveMoveId(0L);
-        stockQuantDao.update(quant);
+    public void unReserve(Long taskId) {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("reserveTaskId", taskId);
+        List<StockQuant> quantList = this.getQuants(mapQuery);
+        for (StockQuant quant : quantList) {
+            quant.setReserveTaskId(0L);
+            stockQuantDao.update(quant);
+        }
     }
 
     @Transactional(readOnly = false)
@@ -157,15 +179,6 @@ public class StockQuantService {
         stockQuantDao.update(quant);
     }
 
-    @Transactional(readOnly = false)
-    public void unReserveByMoveId(Long moveId) {
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("reserveMoveId", moveId);
-        List<StockQuant> quantList = this.getQuants(mapQuery);
-        for (StockQuant quant : quantList) {
-            this.unReserve(quant);
-        }
-    }
     public List<Long> getContainerIdByLocationId(Long locationId) {
         return stockQuantDao.getContainerIdByLocationId(locationId);
     }

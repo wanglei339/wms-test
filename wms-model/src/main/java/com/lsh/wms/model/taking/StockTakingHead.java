@@ -45,6 +45,8 @@ public class StockTakingHead implements Serializable {
 	private Long areaId = 0L;
 	/** */
 	private Long itemId = 0L;
+	/** 货架id*/
+	private Long  storageId =0L;
 	/**  */
     private Long createdAt = DateUtils.getCurrentSeconds();
 	/**  */
@@ -227,5 +229,13 @@ public class StockTakingHead implements Serializable {
 
 	public void setItemId(Long itemId) {
 		this.itemId = itemId;
+	}
+
+	public Long getStorageId() {
+		return storageId;
+	}
+
+	public void setStorageId(Long storageId) {
+		this.storageId = storageId;
 	}
 }
