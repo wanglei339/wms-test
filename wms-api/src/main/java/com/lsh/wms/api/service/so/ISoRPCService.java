@@ -1,5 +1,12 @@
 package com.lsh.wms.api.service.so;
 
+import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.wms.api.model.so.SoRequest;
+import com.lsh.wms.model.so.OutbSoHeader;
+
+import java.util.List;
+import java.util.Map;
+
 /**
  * Project Name: lsh-wms
  * Created by fuhao
@@ -9,5 +16,16 @@ package com.lsh.wms.api.service.so;
  * Package name:com.lsh.wms.api.service.so.
  * desc:类功能描述
  */
-public interface ISoRPCService {
+public interface ISoRpcService {
+
+    public void insertOrder(SoRequest request) throws BizCheckedException;
+
+    public Boolean updateOrderStatus(Map<String, Object> map) throws BizCheckedException;
+
+    public OutbSoHeader getOutbSoHeaderDetailByOrderId(Long orderId) throws BizCheckedException;
+
+    public Integer countOutbSoHeader(Map<String, Object> params);
+
+    public List<OutbSoHeader> getOutbSoHeaderList(Map<String, Object> params);
+
 }
