@@ -1,5 +1,6 @@
 package com.lsh.wms.service.receipt;
 
+import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.config.PropertyUtils;
@@ -56,6 +57,7 @@ import static java.math.BigDecimal.ROUND_HALF_EVEN;
  */
 @Service
 public class ReceiptRpcService implements IReceiptRpcService {
+
     private static Logger logger = LoggerFactory.getLogger(ReceiptRpcService.class);
 
     @Autowired
@@ -75,7 +77,6 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
     @Reference
     private IStockLotRpcService stockLotRpcService;
-
 
     @Autowired
     private CsiSkuService csiSkuService;
@@ -269,14 +270,19 @@ public class ReceiptRpcService implements IReceiptRpcService {
     }
 
 
-    public Boolean updateReceiptStatus(Long receiptId, Integer receiptStatus) throws BizCheckedException {
-
-        if (null == receiptId || receiptStatus == null) {
+    public Boolean updateReceiptStatus(Map<String, Object> map) throws BizCheckedException {
+        if(map.get("receiptId") == null || map.get("receiptStatus") == null) {
             throw new BizCheckedException("1020001", "参数不能为空");
         }
+
+        if(!StringUtils.isInteger(String.valueOf(map.get("receiptId")))
+                || !StringUtils.isInteger(String.valueOf(map.get("receiptStatus")))) {
+            throw new BizCheckedException("1020002", "参数类型不正确");
+        }
+
         InbReceiptHeader inbReceiptHeader = new InbReceiptHeader();
-        inbReceiptHeader.setReceiptOrderId(receiptId);
-        inbReceiptHeader.setReceiptStatus(receiptStatus);
+        inbReceiptHeader.setReceiptOrderId(Long.valueOf(String.valueOf(map.get("receiptId"))));
+        inbReceiptHeader.setReceiptStatus(Integer.valueOf(String.valueOf(map.get("receiptStatus"))));
 
         poReceiptService.updateInbReceiptHeaderByReceiptId(inbReceiptHeader);
 

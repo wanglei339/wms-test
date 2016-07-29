@@ -1,4 +1,4 @@
-package com.lsh.wms.rpc.service.so;
+package com.lsh.wms.service.delivery;
 
 import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Service;
