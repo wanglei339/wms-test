@@ -15,6 +15,8 @@ public interface ShelveTaskHeadDao {
 	
 	ShelveTaskHead getShelveTaskHeadById(Long id);
 
+	ShelveTaskHead getShelveTaskHeadByTaskId(Long taskId);
+
     Integer countShelveTaskHead(Map<String, Object> params);
 
     List<ShelveTaskHead> getShelveTaskHeadList(Map<String, Object> params);

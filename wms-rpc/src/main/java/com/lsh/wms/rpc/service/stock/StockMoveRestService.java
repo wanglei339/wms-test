@@ -77,33 +77,12 @@ public class StockMoveRestService implements IStockMoveRestService {
         return JsonUtils.SUCCESS(total);
     }
 
-    @GET
-    @Path("assign")
-    public String assign(@QueryParam("moveId") Long moveId) {
-        stockMoveService.assign(moveId);
-        return JsonUtils.SUCCESS();
-    }
-
-    @GET
-    @Path("allocate")
-    public String allocate(@QueryParam("moveId") Long moveId,
-                           @QueryParam("operator") Long operator) {
-        stockMoveService.allocate(moveId, operator);
-        return JsonUtils.SUCCESS();
-    }
 
     @GET
     @Path("done")
     public String done(@QueryParam("moveId") Long moveId,
                        @QueryParam("qtyDone") BigDecimal qtyDone) {
-        stockMoveService.done(moveId, qtyDone);
-        return JsonUtils.SUCCESS();
-    }
-
-    @GET
-    @Path("cancel")
-    public String cancel(@QueryParam("moveId") Long moveId) {
-        stockMoveService.cancel(moveId);
+        stockMoveService.done(moveId);
         return JsonUtils.SUCCESS();
     }
 

@@ -1,11 +1,7 @@
 package com.lsh.wms.model.task;
 
-import com.lsh.base.common.utils.BeanMapTransUtils;
-import com.lsh.base.common.utils.ObjUtils;
-
 import java.io.Serializable;
-import java.util.Date;
-import java.util.Map;
+import java.math.BigDecimal;
 
 public class TaskInfo implements Serializable {
 
@@ -27,6 +23,25 @@ public class TaskInfo implements Serializable {
     private Long locationId = 0L;
 	/** 商品id，分配查找用 */
     private Long skuId = 0L;
+	/** 货主id，分配查找用 */
+    private Long ownerId = 0L;
+	/** itemid，分配查找用 */
+    private Long itemId = 0L;
+	/** 移入库位id */
+    private Long fromLocationId = 0L;
+	/** 移入库位id */
+    private Long toLocationId = 0L;
+    private Long realFromLocationId = 0L;
+    private Long realToLocationId = 0L;
+    private BigDecimal qtyDone = BigDecimal.ZERO;
+	/** 数量 */
+    private BigDecimal qty = BigDecimal.ZERO;
+    private BigDecimal qtyUom = BigDecimal.ZERO;
+    private BigDecimal qtyDoneUom = BigDecimal.ZERO;
+	/** 包装单位 */
+    private BigDecimal packUnit = BigDecimal.ZERO;
+	/** 包装名称 */
+    private String packName = "";
 	/** 容器id，分配查找用 */
     private Long containerId = 0L;
 	/** 操作人员id */
@@ -35,10 +50,12 @@ public class TaskInfo implements Serializable {
     private Long planner = 0L;
 	/** 任务类型，100-盘点， 101-收货，102-波次， 103-上架，104-补货, 105-移库 */
     private Long type = 0L;
-	/** 任务子类型, 由个任务类型自解释,可以不需要 **/
-	private Long subType = 0L;
-	/** 任务状态，1-draft, 2-waiting, 3-assigned, 4-allocated, 5-done, 6-cancel */
+	/** 任务子类型, 由个任务类型自解释,可以不需要 */
+    private Long subType = 0L;
+	/** 任务状态，1-draft,2-assigned, 3-done, 4-cancel */
     private Long status = 0L;
+	/** 资源分配状态, 1-未分配， 2-已分配 */
+    private Long isAllocated = 0L;
 	/** 优先级 */
     private Long priority = 0L;
 	/** 创建时间 */
@@ -50,7 +67,7 @@ public class TaskInfo implements Serializable {
 	/** 实际完成时间 */
     private Long finishTime = 0L;
 	/** 取消时间 */
-    private Long cancelTime = 0L ;
+    private Long cancelTime = 0L;
 	/** 扩展字段 */
     private Long ext1 = 0L;
 	/** 扩展字段 */
@@ -146,6 +163,62 @@ public class TaskInfo implements Serializable {
 		this.skuId = skuId;
 	}
 	
+	public Long getOwnerId(){
+		return this.ownerId;
+	}
+	
+	public void setOwnerId(Long ownerId){
+		this.ownerId = ownerId;
+	}
+	
+	public Long getItemId(){
+		return this.itemId;
+	}
+	
+	public void setItemId(Long itemId){
+		this.itemId = itemId;
+	}
+	
+	public Long getFromLocationId(){
+		return this.fromLocationId;
+	}
+	
+	public void setFromLocationId(Long fromLocationId){
+		this.fromLocationId = fromLocationId;
+	}
+	
+	public Long getToLocationId(){
+		return this.toLocationId;
+	}
+	
+	public void setToLocationId(Long toLocationId){
+		this.toLocationId = toLocationId;
+	}
+	
+	public BigDecimal getQty(){
+		return this.qty;
+	}
+	
+	public void setQty(BigDecimal qty){
+		this.qty = qty;
+	}
+	
+	public BigDecimal getPackUnit(){
+		return this.packUnit;
+	}
+	
+	public void setPackUnit(BigDecimal packUnit){
+		this.packUnit = packUnit;
+	}
+	
+	public String getPackName(){
+		return this.packName;
+	}
+	
+	public void setPackName(String packName){
+		this.packName = packName;
+	}
+	
 	public Long getContainerId(){
 		return this.containerId;
 	}
@@ -177,11 +250,11 @@ public class TaskInfo implements Serializable {
 	public void setType(Long type){
 		this.type = type;
 	}
-
+	
 	public Long getSubType(){
 		return this.subType;
 	}
-
+	
 	public void setSubType(Long subType){
 		this.subType = subType;
 	}
@@ -192,6 +265,14 @@ public class TaskInfo implements Serializable {
 	
 	public void setStatus(Long status){
 		this.status = status;
+	}
+	
+	public Long getIsAllocated(){
+		return this.isAllocated;
+	}
+	
+	public void setIsAllocated(Long isAllocated){
+		this.isAllocated = isAllocated;
 	}
 	
 	public Long getPriority(){
@@ -329,6 +410,46 @@ public class TaskInfo implements Serializable {
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
-	
-	
+
+    public Long getRealFromLocationId() {
+        return realFromLocationId;
+    }
+
+    public void setRealFromLocationId(Long realFromLocationId) {
+        this.realFromLocationId = realFromLocationId;
+    }
+
+    public Long getRealToLocationId() {
+        return realToLocationId;
+    }
+
+    public void setRealToLocationId(Long readToLocationId) {
+        this.realToLocationId = readToLocationId;
+    }
+
+    public BigDecimal getQtyDone() {
+        return qtyDone;
+    }
+
+    public void setQtyDone(BigDecimal qtyDone) {
+        this.qtyDone = qtyDone;
+    }
+
+
+    public BigDecimal getQtyUom() {
+        return qtyUom;
+    }
+
+    public void setQtyUom(BigDecimal qtyUom) {
+        this.qtyUom = qtyUom;
+    }
+
+    public BigDecimal getQtyDoneUom() {
+        return qtyDoneUom;
+    }
+
+    public void setQtyDoneUom(BigDecimal qtyDoneUom) {
+        this.qtyDoneUom = qtyDoneUom;
+    }
+
 }

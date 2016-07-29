@@ -9,11 +9,11 @@ import java.util.Map;
 @MyBatisRepository
 public interface TaskInfoDao {
 
-	void insert(TaskInfo task);
+	void insert(TaskInfo taskInfo);
 	
-	void update(TaskInfo task);
+	void update(TaskInfo taskInfo);
 	
-	TaskInfo getTaskInfoById(Long taskId);
+	TaskInfo getTaskInfoById(Long id);
 
     Integer countTaskInfo(Map<String, Object> params);
 

@@ -16,6 +16,7 @@ import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.api.service.stock.IStockQuantRestService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.stock.StockQuantMoveRel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,43 +40,35 @@ public class StockQuantRestService implements IStockQuantRestService {
     private static Logger logger = LoggerFactory.getLogger(StockQuantRestService.class);
 
     @Autowired
+    private StockQuantRpcService stockQuantRpcService;
+
+    @Autowired
     private StockQuantService stockQuantService;
 
     @Autowired
     private LocationService locationService;
 
     @Autowired
-    private StockLotService stockLotService;
-
-    @Autowired
     private ItemService itemService;
 
-    @GET
+    @POST
     @Path("getOnhandQty")
-    public String getOnhandQty(@QueryParam("skuId") Long skuId,
-                               @QueryParam("locationId") Long locationId,
-                               @QueryParam("ownerId") Long ownerId) {
-        HashMap<String, Object> condition = new HashMap<String, Object>();
-        condition.put("skuId", skuId);
-        condition.put("ownerId", ownerId);
-        List<Long> locationList = locationService.getStoreLocationIds(locationId);
-        condition.put("locationList", locationList);
-        List<StockQuant> quantList = stockQuantService.getQuants(condition);
-
-        BigDecimal total = BigDecimal.ZERO;
-        for (StockQuant quant : quantList) {
-            total = total.add(quant.getQty());
-        }
+         public String getOnhandQty(StockQuantCondition condition) throws BizCheckedException {
+        BigDecimal total =  stockQuantRpcService.getQty(condition);
         return JsonUtils.SUCCESS(total);
     }
 
     @POST
     @Path("getList")
-    public String getList(Map<String, Object> mapQuery) {
-        List<Long> locationList = locationService.getStoreLocationIds(Long.parseLong(mapQuery.get("locationId").toString()));
-        mapQuery.put("locationList", locationList);
-        mapQuery.remove("locationId");
-        List<StockQuant> quantList = stockQuantService.getQuants(mapQuery);
+    public String getList(StockQuantCondition condition) throws BizCheckedException {
+        List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
+        return JsonUtils.SUCCESS(quantList);
+    }
+
+    @POST
+    @Path("reserve")
+    public String reserve(StockQuantCondition condition) throws BizCheckedException {
+        List<StockQuant> quantList = stockQuantRpcService.reserve(condition, condition.getTaskId(), condition.getRequiredQty());
         return JsonUtils.SUCCESS(quantList);
     }
 

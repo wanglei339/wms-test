@@ -6,6 +6,7 @@ import com.lsh.base.common.exception.BizCheckedException;
  * Created by fengkun on 16/7/15.
  */
 public interface IShelveRestService {
+    String createTask() throws BizCheckedException;
     String scanContainer() throws BizCheckedException;
     String scanTargetLocation(Long taskId, Long locationId) throws BizCheckedException;
 }

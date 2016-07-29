@@ -11,7 +11,7 @@ public class BaseinfoLocation extends IBaseinfoLocaltionModel implements Seriali
 	/**  */
     private Long id;
 	/** 位置id */
-    private Long locationId;
+//    private Long locationId;
 	/** 位置编码 */
     private String locationCode;
 	/** 父级位置id */
@@ -48,19 +48,19 @@ public class BaseinfoLocation extends IBaseinfoLocaltionModel implements Seriali
 	public Long getId(){
 		return this.id;
 	}
-	
+
 	public void setId(Long id){
 		this.id = id;
 	}
-	
-	public Long getLocationId(){
-		return this.locationId;
-	}
-	
-	public void setLocationId(Long locationId){
-		this.locationId = locationId;
-	}
-	
+
+//	public Long getLocationId(){
+//		return this.locationId;
+//	}
+//
+//	public void setLocationId(Long locationId){
+//		this.locationId = locationId;
+//	}
+
 	public String getLocationCode(){
 		return this.locationCode;
 	}
