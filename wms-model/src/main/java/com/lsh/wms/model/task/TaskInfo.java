@@ -36,6 +36,8 @@ public class TaskInfo implements Serializable {
     private BigDecimal qtyDone = BigDecimal.ZERO;
 	/** 数量 */
     private BigDecimal qty = BigDecimal.ZERO;
+    private BigDecimal qtyUom = BigDecimal.ZERO;
+    private BigDecimal qtyDoneUom = BigDecimal.ZERO;
 	/** 包装单位 */
     private BigDecimal packUnit = BigDecimal.ZERO;
 	/** 包装名称 */
@@ -432,4 +434,22 @@ public class TaskInfo implements Serializable {
     public void setQtyDone(BigDecimal qtyDone) {
         this.qtyDone = qtyDone;
     }
+
+
+    public BigDecimal getQtyUom() {
+        return qtyUom;
+    }
+
+    public void setQtyUom(BigDecimal qtyUom) {
+        this.qtyUom = qtyUom;
+    }
+
+    public BigDecimal getQtyDoneUom() {
+        return qtyDoneUom;
+    }
+
+    public void setQtyDoneUom(BigDecimal qtyDoneUom) {
+        this.qtyDoneUom = qtyDoneUom;
+    }
+
 }

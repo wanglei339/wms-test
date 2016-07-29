@@ -14,5 +14,5 @@ import java.util.Map;
 public interface IStockMoveRpcService {
     void create(StockMove move);
     void create(List<StockMove> moveList);
-    void done(Long moveId);
+    void done(Long moveId) throws BizCheckedException;
 }

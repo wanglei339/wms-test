@@ -155,4 +155,14 @@ public class StockMove implements Serializable {
 	public void setUpdatedAt(Long updatedAt) {
 		this.updatedAt = updatedAt;
 	}
+
+	public boolean isValid() {
+		if (this.getFromLocationId() == 0L || this.getToLocationId() == 0L) {
+			return false;
+		}
+		if (this.getFromContainerId() == 0L && this.getToContainerId() == 0L) {
+			return false;
+		}
+		return true;
+	}
 }

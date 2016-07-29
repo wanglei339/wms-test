@@ -52,7 +52,7 @@ public class StockQuantRestService implements IStockQuantRestService {
     private ItemService itemService;
 
     @POST
-         @Path("getOnhandQty")
+    @Path("getOnhandQty")
          public String getOnhandQty(StockQuantCondition condition) throws BizCheckedException {
         BigDecimal total =  stockQuantRpcService.getQty(condition);
         return JsonUtils.SUCCESS(total);
@@ -67,8 +67,8 @@ public class StockQuantRestService implements IStockQuantRestService {
 
     @POST
     @Path("reserve")
-    public String reserve(StockQuantCondition condition, Long taskId, BigDecimal requiredQty) throws BizCheckedException {
-        List<StockQuant> quantList = stockQuantRpcService.reserve(condition, taskId, requiredQty);
+    public String reserve(StockQuantCondition condition) throws BizCheckedException {
+        List<StockQuant> quantList = stockQuantRpcService.reserve(condition, condition.getTaskId(), condition.getRequiredQty());
         return JsonUtils.SUCCESS(quantList);
     }
 
@@ -272,4 +272,10 @@ public class StockQuantRestService implements IStockQuantRestService {
         return JsonUtils.SUCCESS(stockQuantService.getQuants(mapQuery));
     }
 
+    @POST
+    @Path("move")
+    public String move(Long moveId) throws BizCheckedException {
+        stockQuantRpcService.move(moveId);
+        return JsonUtils.SUCCESS();
+    }
 }

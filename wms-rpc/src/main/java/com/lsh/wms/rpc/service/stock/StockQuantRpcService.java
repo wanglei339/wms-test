@@ -2,10 +2,11 @@ package com.lsh.wms.rpc.service.stock;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.wms.api.service.stock.IStockMoveRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -28,6 +29,9 @@ public class StockQuantRpcService implements IStockQuantRpcService {
 
     @Autowired
     private StockQuantService quantService;
+
+    @Autowired
+    private StockMoveService moveService;
 
     @Autowired
     private LocationService locationService;
@@ -54,10 +58,6 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         return total;
     }
 
-    public BigDecimal getAvailabeQty(StockQuant condition){
-        condition.
-    }
-
 
     public List<StockQuant> getQuantList(StockQuantCondition condition) throws BizCheckedException {
         Map<String, Object> mapQuery = this.getQueryCondtion(condition);
@@ -69,8 +69,22 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         Map<String, Object> mapQuery = this.getQueryCondtion(condition);
         BigDecimal total = this.getQty(condition);
         if (total.compareTo(requiredQty) < 0) {
-            throw new BizCheckedException("2040001");
+            throw new BizCheckedException("2550001");
         }
         return quantService.reserve(mapQuery, taskId, requiredQty);
+    }
+
+    public void unReserve(Long taskId) {
+        quantService.unReserve(taskId);
+    }
+
+    public void reserveByContainer(Long containerId) {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("containerId", containerId);
+        List<StockQuant> quantList = quantService.getQuants(mapQuery);
+    }
+
+    public void move(Long moveId) throws BizCheckedException {
+
     }
 }

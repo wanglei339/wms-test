@@ -1,12 +1,13 @@
 package com.lsh.wms.model.stock;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
 /**
  * Created by mali on 16/7/28.
  */
-public class StockQuantCondition {
+public class StockQuantCondition implements Serializable {
 
     /**  */
     private Long id;
@@ -37,6 +38,28 @@ public class StockQuantCondition {
     /** 0-非退货，1-退货 */
     private Long isRefund;
 
+    private boolean isNormal;
+
+    private Long taskId;
+    private BigDecimal requiredQty;
+
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
+    }
+
+    public BigDecimal getRequiredQty() {
+        return requiredQty;
+    }
+
+    public void setRequiredQty(BigDecimal requiredQty) {
+        this.requiredQty = requiredQty;
+    }
+
+
     public boolean isNormal() {
         return isNormal;
     }
@@ -44,8 +67,6 @@ public class StockQuantCondition {
     public void setIsNormal(boolean isNormal) {
         this.isNormal = isNormal;
     }
-
-    private boolean isNormal;
 
     private List<Long> locationList;
 

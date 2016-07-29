@@ -33,8 +33,15 @@ public class StockMoveRpcService implements IStockMoveRpcService {
     }
 
     @Transactional(readOnly = false)
-    public void done(Long moveId) {
-        quantService.move(moveId);
+    public void done(Long moveId) throws BizCheckedException{
+        StockMove move = moveService.getMoveById(moveId);
+        if (move == null) {
+            throw new BizCheckedException("1550001");
+        }
+        if ( ! move.isValid() ) {
+            throw new BizCheckedException("1550002");
+        }
+        quantService.move(move);
         moveService.done(moveId);
     }
 

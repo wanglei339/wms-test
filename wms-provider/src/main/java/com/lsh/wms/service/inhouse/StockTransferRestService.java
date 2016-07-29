@@ -6,12 +6,16 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.wms.api.service.inhouse.IStockTransferRestService;
+import com.lsh.wms.api.service.item.IItemRpcService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRestService;
+import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
@@ -36,29 +40,28 @@ import java.util.Map;
 @Path("inhouse/stock_transfer")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-public class StockTransferRestService {
+public class StockTransferRestService implements IStockTransferRestService {
     private static final Logger logger = LoggerFactory.getLogger(StockTransferRestService.class);
     @Reference
     private ITaskRpcService taskRpcService;
 
-    @Autowired
-    private StockQuantService stockQuantService;
+    @Reference
+    private IStockQuantRpcService stockQuantService;
 
-    @Autowired
+    @Reference
     private ILocationRpcService locationRpcService;
-
-
 
     @POST
     @Path("add")
     public String addPlan(StockTransferPlan plan)  throws BizCheckedException {
         try{
-            Map<String, Object> mapQuery = new HashMap<String, Object>();
-            mapQuery.put("locationId", plan.getFromLocationId());
-            mapQuery.put("itemId", plan.getItemId());
-            BigDecimal total = stockQuantService.getQty(mapQuery);
+            StockQuantCondition condition = new StockQuantCondition();
+            condition.setLocationId(plan.getFromLocationId());
+            condition.setItemId(plan.getItemId());
+            BigDecimal total = stockQuantService.getQty(condition);
 
-            BigDecimal requiredQty = plan.getUomQty();
+            BigDecimal packUnit = BigDecimal.ONE;
+            BigDecimal requiredQty = plan.getUomQty().multiply(packUnit);
             if (requiredQty.equals(BigDecimal.ZERO)) {
                 requiredQty =  total;
                 plan.setQty(requiredQty);
@@ -70,12 +73,18 @@ public class StockTransferRestService {
             TaskEntry taskEntry = new TaskEntry();
             TaskInfo taskInfo = new TaskInfo();
             ObjUtils.bean2bean(plan, taskInfo);
+            taskInfo.setTaskName("移库任[ " + taskInfo.getFromLocationId() + " => " + taskInfo.getToLocationId() + "]");
+            taskInfo.setPackUnit(packUnit);
+            taskInfo.setQty(requiredQty);
             taskInfo.setType(TaskConstant.TYPE_STOCK_TRANSFER);
             taskEntry.setTaskInfo(taskInfo);
             taskRpcService.create(TaskConstant.TYPE_STOCK_TRANSFER, taskEntry);
-        }catch (Exception e){
+        } catch (BizCheckedException e) {
+            throw e;
+        }
+        catch (Exception e) {
             logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR("Create failed");
+            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
         }
         return JsonUtils.SUCCESS();
     }

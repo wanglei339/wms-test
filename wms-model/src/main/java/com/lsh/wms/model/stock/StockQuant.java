@@ -51,7 +51,6 @@ public class StockQuant implements Serializable,Cloneable {
 
 	private Long itemId;
 
-	private String stockLot;
 	/** 0-非残次，1-残次 */
 	private Long isDefect = 0L;
 	/** 0-非退货，1-退货 */
@@ -185,13 +184,6 @@ public class StockQuant implements Serializable,Cloneable {
 		this.updatedAt = updatedAt;
 	}
 
-	public String getStockLot() {
-		return stockLot;
-	}
-
-	public void setStockLot(String stockLot) {
-		this.stockLot = stockLot;
-	}
 
 	public Long getItemId() {
 		return itemId;

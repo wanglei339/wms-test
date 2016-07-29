@@ -2,7 +2,6 @@ package com.lsh.wms.model.transfer;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
 
 public class StockTransferPlan implements Serializable {
 
@@ -23,7 +22,7 @@ public class StockTransferPlan implements Serializable {
 	/** 数量 */
     private BigDecimal qty = BigDecimal.ZERO;
 	/** 商品单位转换id */
-    private Long uomId = 0L;
+    private String packName = "";
 	/** 以包装单位计量的库移数量 */
     private BigDecimal uomQty = BigDecimal.ZERO;
 	/**  */
@@ -95,12 +94,12 @@ public class StockTransferPlan implements Serializable {
 		this.qty = qty;
 	}
 	
-	public Long getUomId(){
-		return this.uomId;
+	public String getPackName(){
+		return this.packName;
 	}
 	
-	public void setUomId(Long uomId){
-		this.uomId = uomId;
+	public void setPackName(String packName){
+		this.packName = packName;
 	}
 	
 	public BigDecimal getUomQty(){

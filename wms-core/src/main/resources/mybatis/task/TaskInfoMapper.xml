@@ -48,7 +48,7 @@
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TaskInfo">
-		insert into task_info (
+		insert into task_info1 (
 			task_id,task_name,plan_id,wave_id,order_id,location_id,
 			sku_id,owner_id,item_id,from_location_id,to_location_id,qty,
 			real_from_location_id, real_to_location_id, qty_done,

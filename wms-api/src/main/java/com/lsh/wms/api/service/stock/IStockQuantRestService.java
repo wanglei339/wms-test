@@ -12,9 +12,10 @@ import java.util.Map;
  */
 public interface IStockQuantRestService {
 
+    String move(Long moveId) throws BizCheckedException;
     String getOnhandQty(StockQuantCondition condition) throws BizCheckedException;
     String getList(StockQuantCondition condition) throws BizCheckedException;
-    String reserve(StockQuantCondition condition, Long taskId, BigDecimal requiredQty) throws BizCheckedException;
+    String reserve(StockQuantCondition condition) throws BizCheckedException;
     String create(Map<String, Object> mapInput) throws BizCheckedException;
     String freeze(Map<String, Object> mapCondition) throws BizCheckedException;
     String unFreeze(Map<String, Object> mapCondition) throws BizCheckedException;
