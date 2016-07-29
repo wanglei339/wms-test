@@ -1,65 +1,38 @@
-package com.lsh.wms.service.receipt;
-
+package com.lsh.wms.rf.service.receipt;
 
 import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
-import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.base.common.utils.DateUtils;
-import com.lsh.base.common.utils.ObjUtils;
-import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
-import com.lsh.wms.api.model.po.ReceiptItem;
 import com.lsh.wms.api.model.po.ReceiptRequest;
-import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.po.IReceiptRestService;
+import com.lsh.wms.api.service.po.IReceiptRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
-import com.lsh.wms.api.service.stock.IStockLotRestService;
-import com.lsh.wms.api.service.task.ITaskRpcService;
-import com.lsh.wms.core.constant.BusiConstant;
-import com.lsh.wms.core.constant.CsiConstan;
-import com.lsh.wms.core.constant.PoConstant;
-import com.lsh.wms.core.constant.TaskConstant;
-import com.lsh.wms.core.service.csi.CsiSkuService;
-import com.lsh.wms.core.service.item.ItemService;
-import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.po.PoReceiptService;
-import com.lsh.wms.core.service.stock.StockQuantService;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
-import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.csi.CsiSku;
-import com.lsh.wms.model.po.InbPoDetail;
-import com.lsh.wms.model.po.InbPoHeader;
 import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.InbReceiptHeader;
-import com.lsh.wms.model.stock.StockLot;
-import com.lsh.wms.model.stock.StockQuant;
-import com.lsh.wms.model.task.TaskEntry;
-import com.lsh.wms.model.task.TaskInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.math.BigDecimal;
-import java.util.*;
-
-import static java.math.BigDecimal.ROUND_HALF_EVEN;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Project Name: lsh-wms
  * Created by fuhao
- * Date: 16/7/12
- * Time: 16/7/12.
+ * Date: 16/7/29
+ * Time: 16/7/29.
  * 北京链商电子商务有限公司
- * Package name:com.lsh.wms.service.po.
+ * Package name:com.lsh.wms.rf.service.receipt.
  * desc:类功能描述
  */
 @Service(protocol = "rest")
@@ -67,11 +40,10 @@ import static java.math.BigDecimal.ROUND_HALF_EVEN;
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class ReceiptRestService implements IReceiptRestService {
-
     private static Logger logger = LoggerFactory.getLogger(ReceiptRestService.class);
 
-   @Autowired
-   private ReceiptRpcService receiptRpcService;
+    @Reference
+    private IReceiptRpcService iReceiptRpcService;
 
     @Autowired
     private PoReceiptService poReceiptService;
@@ -88,7 +60,7 @@ public class ReceiptRestService implements IReceiptRestService {
     @POST
     @Path("throw")
     public String throwOrder(String orderOtherId) throws BizCheckedException {
-        if(receiptRpcService.throwOrder(orderOtherId)){
+        if(iReceiptRpcService.throwOrder(orderOtherId)){
             return JsonUtils.SUCCESS();
         }else {
             return JsonUtils.FAIL("2020002");
@@ -99,7 +71,7 @@ public class ReceiptRestService implements IReceiptRestService {
     @POST
     @Path("insert")
     public BaseResponse insertOrder(ReceiptRequest request) throws BizCheckedException{
-        receiptRpcService.insertOrder(request);
+        iReceiptRpcService.insertOrder(request);
         return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
     }
 
@@ -117,7 +89,7 @@ public class ReceiptRestService implements IReceiptRestService {
             throw new BizCheckedException("1020002", "参数类型不正确");
         }
 
-        receiptRpcService.updateReceiptStatus((Long)map.get("receiptId"),(Integer)map.get("receiptStatus"));
+        iReceiptRpcService.updateReceiptStatus((Long)map.get("receiptId"),(Integer)map.get("receiptStatus"));
 
         return JsonUtils.SUCCESS();
     }
@@ -128,7 +100,7 @@ public class ReceiptRestService implements IReceiptRestService {
         if(receiptId == null) {
             throw new BizCheckedException("1020001", "参数不能为空");
         }
-        InbReceiptHeader inbReceiptHeader = receiptRpcService.getPoReceiptDetailByReceiptId(receiptId);
+        InbReceiptHeader inbReceiptHeader = iReceiptRpcService.getPoReceiptDetailByReceiptId(receiptId);
         return JsonUtils.SUCCESS(inbReceiptHeader);
     }
 
@@ -138,7 +110,7 @@ public class ReceiptRestService implements IReceiptRestService {
         if(orderId == null) {
             throw new BizCheckedException("1020001", "参数不能为空");
         }
-        List<InbReceiptHeader> inbReceiptHeaderList = receiptRpcService.getPoReceiptDetailByOrderId(orderId);
+        List<InbReceiptHeader> inbReceiptHeaderList = iReceiptRpcService.getPoReceiptDetailByOrderId(orderId);
 
         return JsonUtils.SUCCESS(inbReceiptHeaderList);
     }
@@ -147,14 +119,13 @@ public class ReceiptRestService implements IReceiptRestService {
     @Path("countInbPoReceiptHeader")
     public String countInbPoReceiptHeader() {
         Map<String, Object> params = RequestUtils.getRequest();
-        return JsonUtils.SUCCESS(receiptRpcService.countInbPoReceiptHeader(params));
+        return JsonUtils.SUCCESS(iReceiptRpcService.countInbPoReceiptHeader(params));
     }
 
     @POST
     @Path("getPoReceiptDetailList")
     public String getPoReceiptDetailList() {
         Map<String, Object> params = RequestUtils.getRequest();
-        return JsonUtils.SUCCESS(receiptRpcService.getPoReceiptDetailList(params));
+        return JsonUtils.SUCCESS(iReceiptRpcService.getPoReceiptDetailList(params));
     }
-
 }
