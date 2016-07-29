@@ -2,6 +2,7 @@ package com.lsh.wms.rpc.service.shelve;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.shelve.IShelveRpcService;
 import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
@@ -63,7 +64,7 @@ public class ShelveRpcService implements IShelveRpcService {
         // 是否允许地堆堆放
         Integer floorAvailable = item.getFloorAvailable();
         // 允许地堆
-        if (floorAvailable == 1) {
+        if (floorAvailable.equals(1)) {
             BaseinfoLocation floorLocation = locationRpcService.assignFloor();
             // 地堆无空间,上拣货位
             if (floorLocation == null) {

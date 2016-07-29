@@ -415,13 +415,11 @@ public class StockTakingRestService implements IStockTakingRestService {
                 move.setStatus(TaskConstant.Done);
                 if (detail.getTheoreticalQty().compareTo(detail.getRealQty()) < 0) {
                     move.setQty(detail.getRealQty().subtract(detail.getTheoreticalQty()));
-                    move.setQtyDone(move.getQty());
                     move.setFromLocationId(detail.getLocationId());
                     move.setToLocationId(locationService.getInventoryLostLocationId());
                 }
                 else {
                     move.setQty(detail.getTheoreticalQty().subtract(detail.getRealQty()));
-                    move.setQtyDone(move.getQty());
                     move.setFromLocationId(locationService.getInventoryLostLocationId());
                     move.setToLocationId(detail.getLocationId());
                 }
@@ -434,7 +432,6 @@ public class StockTakingRestService implements IStockTakingRestService {
                 moveWin.setToLocationId(locationService.getInventoryLostLocationId());
                 moveWin.setFromLocationId(detail.getLocationId());
                 moveWin.setQty(detail.getRealQty());
-                moveWin.setQtyDone(detail.getRealQty());
                 moveList.add(moveWin);
 
                 StockMove moveLoss= new StockMove();
@@ -443,7 +440,6 @@ public class StockTakingRestService implements IStockTakingRestService {
                 moveLoss.setFromLocationId(locationService.getInventoryLostLocationId());
                 moveLoss.setToLocationId(detail.getLocationId());
                 moveLoss.setQty(detail.getRealQty());
-                moveLoss.setQtyDone(detail.getRealQty());
                 moveList.add(moveLoss);
             }
         }

@@ -8,37 +8,33 @@ public class ShelveTaskHead implements Serializable {
 	/**  */
     private Long id;
 	/** 任务id */
-    private Long taskId;
+    private Long taskId = 0L;
 	/** 收货单id */
-    private Long receiveId;
-	/** 收货码 */
-    private Long receiveCode;
+    private Long receiptId = 0L;
 	/** 订单id */
-    private Long orderId;
+    private Long orderId = 0L;
 	/** 商品id */
-    private Long skuId;
+    private Long skuId = 0L;
 	/** 货主id */
-    private Long ownerId;
+    private Long ownerId = 0L;
 	/** 批次id */
-    private Long locId;
+    private Long lotId = 0L;
 	/** 供商id */
-    private Long supplierId;
+    private Long supplierId = 0L;
 	/** 分配库位 */
-    private Long allocLocationId;
+    private Long allocLocationId = 0L;
 	/** 实际库位 */
-    private Long realLocationId;
+    private Long realLocationId = 0L;
 	/** 容器id */
-    private Long containerId;
+    private Long containerId = 0L;
 	/** 上架人员id */
-    private Long shelveUid;
-	/** 上架人员名称 */
-    private String shelveUname;
+    private Long operator = 0L;
 	/** 上架时间 */
-    private Long shelveAt;
+    private Long shelveAt = 0L;
 	/**  */
-    private Long createdAt;
+    private Long createdAt = 0L;
 	/**  */
-    private Long updatedAt;
+    private Long updatedAt = 0L;
 	
 	public Long getId(){
 		return this.id;
@@ -56,20 +52,12 @@ public class ShelveTaskHead implements Serializable {
 		this.taskId = taskId;
 	}
 	
-	public Long getReceiveId(){
-		return this.receiveId;
+	public Long getReceiptId(){
+		return this.receiptId;
 	}
 	
-	public void setReceiveId(Long receiveId){
-		this.receiveId = receiveId;
-	}
-	
-	public Long getReceiveCode(){
-		return this.receiveCode;
-	}
-	
-	public void setReceiveCode(Long receiveCode){
-		this.receiveCode = receiveCode;
+	public void setReceiptId(Long receiptId){
+		this.receiptId = receiptId;
 	}
 	
 	public Long getOrderId(){
@@ -96,12 +84,12 @@ public class ShelveTaskHead implements Serializable {
 		this.ownerId = ownerId;
 	}
 	
-	public Long getLocId(){
-		return this.locId;
+	public Long getLotId(){
+		return this.lotId;
 	}
 	
-	public void setLocId(Long locId){
-		this.locId = locId;
+	public void setLotId(Long lotId){
+		this.lotId = lotId;
 	}
 	
 	public Long getSupplierId(){
@@ -136,20 +124,12 @@ public class ShelveTaskHead implements Serializable {
 		this.containerId = containerId;
 	}
 	
-	public Long getShelveUid(){
-		return this.shelveUid;
+	public Long getOperator(){
+		return this.operator;
 	}
 	
-	public void setShelveUid(Long shelveUid){
-		this.shelveUid = shelveUid;
-	}
-	
-	public String getShelveUname(){
-		return this.shelveUname;
-	}
-	
-	public void setShelveUname(String shelveUname){
-		this.shelveUname = shelveUname;
+	public void setOperator(Long operator){
+		this.operator = operator;
 	}
 	
 	public Long getShelveAt(){
