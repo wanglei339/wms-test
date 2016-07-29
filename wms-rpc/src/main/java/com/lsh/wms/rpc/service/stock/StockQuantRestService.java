@@ -101,113 +101,25 @@ public class StockQuantRestService implements IStockQuantRestService {
     @POST
     @Path("freeze")
     public String freeze(Map<String, Object> mapCondition) throws BizCheckedException {
-        List<StockQuant> quantList = stockQuantService.getQuants(mapCondition);
-        BigDecimal requiredQty = new BigDecimal(mapCondition.get("qty").toString());
-
-        for (StockQuant quant : quantList) {
-            if(requiredQty.compareTo(BigDecimal.ZERO) == 0) break;
-            // need > have
-            if (requiredQty.compareTo(quant.getQty()) == 1) {
-                stockQuantService.freeze(quant);
-                requiredQty = requiredQty.subtract(quant.getQty());
-            }
-            else {
-                // need < have
-                if (requiredQty.compareTo(quant.getQty()) == -1) {
-                    stockQuantService.split(quant, requiredQty);
-                }
-                stockQuantService.freeze(quant);
-                requiredQty = BigDecimal.ZERO;
-            }
-        }
-        if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
-            throw new BizCheckedException("2550001", "商品数量不足");
-        }
-        return JsonUtils.SUCCESS();
+        return JsonUtils.SUCCESS(stockQuantRpcService.freeze(mapCondition));
     }
 
     @POST
     @Path("unfreeze")
     public String unFreeze(Map<String, Object> mapCondition) throws BizCheckedException {
-        List<StockQuant> quantList = stockQuantService.getQuants(mapCondition);
-        BigDecimal requiredQty = new BigDecimal(mapCondition.get("qty").toString());
-
-        for (StockQuant quant : quantList) {
-            if(requiredQty.compareTo(BigDecimal.ZERO) == 0) break;
-            // need > have
-            if (requiredQty.compareTo(quant.getQty()) == 1) {
-                stockQuantService.unFreeze(quant);
-                requiredQty = requiredQty.subtract(quant.getQty());
-            }
-            else {
-                // need < have
-                if (requiredQty.compareTo(quant.getQty()) == -1) {
-                    stockQuantService.split(quant, requiredQty);
-                }
-                stockQuantService.unFreeze(quant);
-                requiredQty = BigDecimal.ZERO;
-            }
-        }
-        if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
-            throw new BizCheckedException("2550001", "商品数量不足");
-        }
-        return JsonUtils.SUCCESS();
+        return JsonUtils.SUCCESS(stockQuantRpcService.unfreeze(mapCondition));
     }
 
     @POST
     @Path("toDefect")
     public  String toDefect(Map<String, Object> mapCondition) throws BizCheckedException {
-        List<StockQuant> quantList = stockQuantService.getQuants(mapCondition);
-        BigDecimal requiredQty = new BigDecimal(mapCondition.get("qty").toString());
-
-        for (StockQuant quant : quantList) {
-            if(requiredQty.compareTo(BigDecimal.ZERO) == 0) break;
-            // need > have
-            if (requiredQty.compareTo(quant.getQty()) == 1) {
-                stockQuantService.toDefect(quant);
-                requiredQty = requiredQty.subtract(quant.getQty());
-            }
-            else {
-                // need < have
-                if (requiredQty.compareTo(quant.getQty()) == -1) {
-                    stockQuantService.split(quant, requiredQty);
-                }
-                stockQuantService.toDefect(quant);
-                requiredQty = BigDecimal.ZERO;
-            }
-        }
-        if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
-            throw new BizCheckedException("2550001", "商品数量不足");
-        }
-        return JsonUtils.SUCCESS();
+        return JsonUtils.SUCCESS(stockQuantRpcService.toDefect(mapCondition));
     }
 
     @POST
     @Path("toRefund")
     public String toRefund(Map<String, Object> mapCondition) throws BizCheckedException {
-        List<StockQuant> quantList = stockQuantService.getQuants(mapCondition);
-        BigDecimal requiredQty = new BigDecimal(mapCondition.get("qty").toString());
-
-        for (StockQuant quant : quantList) {
-            if(requiredQty.compareTo(BigDecimal.ZERO) == 0) break;
-            // need > have
-            if (requiredQty.compareTo(quant.getQty()) == 1) {
-                stockQuantService.toRefund(quant);
-                requiredQty = requiredQty.subtract(quant.getQty());
-            }
-            else {
-                // need < have
-                if (requiredQty.compareTo(quant.getQty()) == -1) {
-                    stockQuantService.split(quant, requiredQty);
-                }
-                stockQuantService.toRefund(quant);
-                requiredQty = BigDecimal.ZERO;
-            }
-        }
-        if (requiredQty.compareTo(BigDecimal.ZERO) == 1) {
-            throw new BizCheckedException("2550001", "商品数量不足");
-        }
-        return JsonUtils.SUCCESS();
+        return JsonUtils.SUCCESS(stockQuantRpcService.toRefund(mapCondition));
     }
 
     @GET
@@ -220,56 +132,25 @@ public class StockQuantRestService implements IStockQuantRestService {
     @POST
     @Path("getItemStockCount")
     public String getItemStockCount(Map<String, Object> mapQuery) {
-        return JsonUtils.SUCCESS(itemService.countItem(mapQuery));
+        return JsonUtils.SUCCESS(stockQuantRpcService.getItemStockCount(mapQuery));
     }
 
     @POST
     @Path("getItemStockList")
     public String getItemStockList(Map<String, Object> mapQuery) {
-        Map<Long, Map<String, BigDecimal>> itemQuant = new HashMap<Long, Map<String, BigDecimal>>();
-
-        List<BaseinfoItem> itemList= itemService.searchItem(mapQuery);
-
-        List<Long> locationList = locationService.getStoreLocationIds(locationService.getWarehouseLocationId());
-        List<Long> locationListLoss = locationService.getStoreLocationIds(locationService.getInventoryLostLocationId());
-        List<Long> locationListDefect = locationService.getStoreLocationIds(locationService.getDefectiveLocationId());
-        List<Long> locationListRefund = locationService.getStoreLocationIds(locationService.getBackLocationId());
-
-        BigDecimal total, freeze, loss, defect, refund;
-
-        for (BaseinfoItem item : itemList) {
-            Long itemId = item.getItemId();
-            total = stockQuantService.getItemCount(itemId, locationList, true);
-            freeze = stockQuantService.getItemCount(itemId, locationList, false);
-            loss = stockQuantService.getItemCount(itemId, locationListLoss, true);
-            defect = stockQuantService.getItemCount(itemId, locationListDefect, true);
-            refund = stockQuantService.getItemCount(itemId, locationListRefund, true);
-
-            BigDecimal reTotal = total.subtract(loss);
-            BigDecimal normal = reTotal.subtract(defect.add(refund));
-            BigDecimal available = normal.subtract(freeze);
-
-            Map<String, BigDecimal> result = new HashMap<String, BigDecimal>();
-            result.put("total", reTotal);
-            result.put("available",available);
-            result.put("freeze", freeze);
-            result.put("defect", defect);
-            result.put("refund", refund);
-            itemQuant.put(itemId,result);
-        }
-        return JsonUtils.SUCCESS(itemQuant);
+        return JsonUtils.SUCCESS(stockQuantRpcService.getItemStockList(mapQuery));
     }
 
     @POST
     @Path("getLocationStockCount")
     public String getLocationStockCount(Map<String, Object> mapQuery) {
-        return JsonUtils.SUCCESS(stockQuantService.countStockQuant(mapQuery));
+        return JsonUtils.SUCCESS(stockQuantRpcService.getLocationStockCount(mapQuery));
     }
 
     @POST
     @Path("getLocationStockList")
     public String getLocationStockList(Map<String, Object> mapQuery) {
-        return JsonUtils.SUCCESS(stockQuantService.getQuants(mapQuery));
+        return JsonUtils.SUCCESS(stockQuantRpcService.getLocationStockList(mapQuery));
     }
 
 }
