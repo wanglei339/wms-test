@@ -1,6 +1,5 @@
 package com.lsh.wms.rf.service.receipt;
 
-import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
@@ -40,6 +39,7 @@ import java.util.Map;
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class ReceiptRestService implements IReceiptRestService {
+
     private static Logger logger = LoggerFactory.getLogger(ReceiptRestService.class);
 
     @Reference
@@ -80,16 +80,7 @@ public class ReceiptRestService implements IReceiptRestService {
     public String updateReceiptStatus() throws BizCheckedException {
         Map<String, Object> map = RequestUtils.getRequest();
 
-        if(map.get("receiptId") == null || map.get("receiptStatus") == null) {
-            throw new BizCheckedException("1020001", "参数不能为空");
-        }
-
-        if(!StringUtils.isInteger(String.valueOf(map.get("receiptId")))
-                || !StringUtils.isInteger(String.valueOf(map.get("receiptStatus")))) {
-            throw new BizCheckedException("1020002", "参数类型不正确");
-        }
-
-        iReceiptRpcService.updateReceiptStatus((Long)map.get("receiptId"),(Integer)map.get("receiptStatus"));
+        iReceiptRpcService.updateReceiptStatus(map);
 
         return JsonUtils.SUCCESS();
     }
@@ -97,9 +88,6 @@ public class ReceiptRestService implements IReceiptRestService {
     @GET
     @Path("getPoReceiptDetailByReceiptId")
     public String getPoReceiptDetailByReceiptId(@QueryParam("receiptId") Long receiptId) throws BizCheckedException {
-        if(receiptId == null) {
-            throw new BizCheckedException("1020001", "参数不能为空");
-        }
         InbReceiptHeader inbReceiptHeader = iReceiptRpcService.getPoReceiptDetailByReceiptId(receiptId);
         return JsonUtils.SUCCESS(inbReceiptHeader);
     }
@@ -107,11 +95,7 @@ public class ReceiptRestService implements IReceiptRestService {
     @GET
     @Path("getPoReceiptDetailByOrderId")
     public String getPoReceiptDetailByOrderId(@QueryParam("orderId") Long orderId) throws BizCheckedException {
-        if(orderId == null) {
-            throw new BizCheckedException("1020001", "参数不能为空");
-        }
         List<InbReceiptHeader> inbReceiptHeaderList = iReceiptRpcService.getPoReceiptDetailByOrderId(orderId);
-
         return JsonUtils.SUCCESS(inbReceiptHeaderList);
     }
 

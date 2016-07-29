@@ -1,5 +1,6 @@
-package com.lsh.wms.service.po;
+package com.lsh.wms.rf.service.po;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
@@ -10,6 +11,7 @@ import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
 import com.lsh.wms.api.model.po.PoRequest;
 import com.lsh.wms.api.service.po.IPoRestService;
+import com.lsh.wms.api.service.po.IPoRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.model.po.InbPoDetail;
@@ -40,8 +42,8 @@ public class PoRestService implements IPoRestService {
 
     private static Logger logger = LoggerFactory.getLogger(PoRestService.class);
 
-    @Autowired
-    private PoRpcService poRpcService;
+    @Reference
+    private IPoRpcService iPoRpcService;
 
     @Autowired
     private PoOrderService poOrderService;
@@ -58,7 +60,7 @@ public class PoRestService implements IPoRestService {
     @POST
     @Path("insert")
     public BaseResponse insertOrder(PoRequest request) throws BizCheckedException{
-        poRpcService.insertOrder(request);
+        iPoRpcService.insertOrder(request);
         return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
     }
 
@@ -67,7 +69,7 @@ public class PoRestService implements IPoRestService {
     public String updateOrderStatus() throws BizCheckedException {
         Map<String, Object> map = RequestUtils.getRequest();
 
-        poRpcService.updateOrderStatus(map);
+        iPoRpcService.updateOrderStatus(map);
 
         return JsonUtils.SUCCESS();
     }
@@ -76,26 +78,26 @@ public class PoRestService implements IPoRestService {
     @Path("getPoHeaderList")
     public String getPoHeaderList() {
         Map<String, Object> params = RequestUtils.getRequest();
-        return JsonUtils.SUCCESS(poRpcService.getPoHeaderList(params));
+        return JsonUtils.SUCCESS(iPoRpcService.getPoHeaderList(params));
     }
 
     @GET
     @Path("getPoDetailByOrderId")
     public String getPoDetailByOrderId(@QueryParam("orderId") Long orderId) throws BizCheckedException {
-        return JsonUtils.SUCCESS(poRpcService.getPoDetailByOrderId(orderId));
+        return JsonUtils.SUCCESS(iPoRpcService.getPoDetailByOrderId(orderId));
     }
 
     @POST
     @Path("countInbPoHeader")
     public String countInbPoHeader() {
         Map<String, Object> params = RequestUtils.getRequest();
-        return JsonUtils.SUCCESS(poRpcService.countInbPoHeader(params));
+        return JsonUtils.SUCCESS(iPoRpcService.countInbPoHeader(params));
     }
 
     @POST
     @Path("getPoDetailList")
     public String getPoDetailList() {
         Map<String, Object> params = RequestUtils.getRequest();
-        return JsonUtils.SUCCESS(poRpcService.getPoDetailList(params));
+        return JsonUtils.SUCCESS(iPoRpcService.getPoDetailList(params));
     }
 }

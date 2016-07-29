@@ -1,57 +1,28 @@
 package com.lsh.wms.service.receipt;
 
 
-import com.alibaba.dubbo.common.utils.StringUtils;
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
-import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.base.common.utils.DateUtils;
-import com.lsh.base.common.utils.ObjUtils;
-import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
-import com.lsh.wms.api.model.po.ReceiptItem;
 import com.lsh.wms.api.model.po.ReceiptRequest;
-import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.po.IReceiptRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
-import com.lsh.wms.api.service.stock.IStockLotRestService;
-import com.lsh.wms.api.service.task.ITaskRpcService;
-import com.lsh.wms.core.constant.BusiConstant;
-import com.lsh.wms.core.constant.CsiConstan;
-import com.lsh.wms.core.constant.PoConstant;
-import com.lsh.wms.core.constant.TaskConstant;
-import com.lsh.wms.core.service.csi.CsiSkuService;
-import com.lsh.wms.core.service.item.ItemService;
-import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.po.PoReceiptService;
-import com.lsh.wms.core.service.stock.StockQuantService;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
-import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.csi.CsiSku;
-import com.lsh.wms.model.po.InbPoDetail;
-import com.lsh.wms.model.po.InbPoHeader;
 import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.InbReceiptHeader;
-import com.lsh.wms.model.stock.StockLot;
-import com.lsh.wms.model.stock.StockQuant;
-import com.lsh.wms.model.task.TaskEntry;
-import com.lsh.wms.model.task.TaskInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.math.BigDecimal;
 import java.util.*;
 
-import static java.math.BigDecimal.ROUND_HALF_EVEN;
 
 /**
  * Project Name: lsh-wms
@@ -70,8 +41,8 @@ public class ReceiptRestService implements IReceiptRestService {
 
     private static Logger logger = LoggerFactory.getLogger(ReceiptRestService.class);
 
-   @Autowired
-   private ReceiptRpcService receiptRpcService;
+    @Autowired
+    private ReceiptRpcService receiptRpcService;
 
     @Autowired
     private PoReceiptService poReceiptService;
@@ -93,7 +64,6 @@ public class ReceiptRestService implements IReceiptRestService {
         }else {
             return JsonUtils.FAIL("2020002");
         }
-
     }
 
     @POST
@@ -108,16 +78,7 @@ public class ReceiptRestService implements IReceiptRestService {
     public String updateReceiptStatus() throws BizCheckedException {
         Map<String, Object> map = RequestUtils.getRequest();
 
-        if(map.get("receiptId") == null || map.get("receiptStatus") == null) {
-            throw new BizCheckedException("1020001", "参数不能为空");
-        }
-
-        if(!StringUtils.isInteger(String.valueOf(map.get("receiptId")))
-                || !StringUtils.isInteger(String.valueOf(map.get("receiptStatus")))) {
-            throw new BizCheckedException("1020002", "参数类型不正确");
-        }
-
-        receiptRpcService.updateReceiptStatus((Long)map.get("receiptId"),(Integer)map.get("receiptStatus"));
+        receiptRpcService.updateReceiptStatus(map);
 
         return JsonUtils.SUCCESS();
     }
@@ -125,9 +86,6 @@ public class ReceiptRestService implements IReceiptRestService {
     @GET
     @Path("getPoReceiptDetailByReceiptId")
     public String getPoReceiptDetailByReceiptId(@QueryParam("receiptId") Long receiptId) throws BizCheckedException {
-        if(receiptId == null) {
-            throw new BizCheckedException("1020001", "参数不能为空");
-        }
         InbReceiptHeader inbReceiptHeader = receiptRpcService.getPoReceiptDetailByReceiptId(receiptId);
         return JsonUtils.SUCCESS(inbReceiptHeader);
     }
@@ -135,11 +93,7 @@ public class ReceiptRestService implements IReceiptRestService {
     @GET
     @Path("getPoReceiptDetailByOrderId")
     public String getPoReceiptDetailByOrderId(@QueryParam("orderId") Long orderId) throws BizCheckedException {
-        if(orderId == null) {
-            throw new BizCheckedException("1020001", "参数不能为空");
-        }
         List<InbReceiptHeader> inbReceiptHeaderList = receiptRpcService.getPoReceiptDetailByOrderId(orderId);
-
         return JsonUtils.SUCCESS(inbReceiptHeaderList);
     }
 
