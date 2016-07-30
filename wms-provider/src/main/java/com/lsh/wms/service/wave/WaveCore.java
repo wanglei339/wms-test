@@ -84,7 +84,7 @@ public class WaveCore {
         PickModelTemplate modelTpl = modelService.getPickModelTemplate(waveHead.getPickModelTemplateId());
         List<PickModel> modelList = modelService.getPickModelsByTplId(waveHead.getPickModelTemplateId());
         if(modelList.size()==0){
-            throw new BizCheckedException("2040005");
+            throw new BizCheckedException("2040006");
         }
         Collections.sort(modelList,new Comparator<PickModel> (){
             //按捡货区权重排序
