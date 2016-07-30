@@ -88,7 +88,7 @@ public class StockQuantService {
         BigDecimal qtyDone = move.getQty();
         BigDecimal total = BigDecimal.ZERO;
         for (StockQuant quant : quantList) {
-            if (quant.getReserveTaskId() != 0 && quant.getReserveTaskId() != move.getTaskId()) {
+            if (quant.getReserveTaskId() != 0 && quant.getReserveTaskId().compareTo(move.getTaskId()) != 0) {
                 continue;
             }
 
@@ -157,7 +157,7 @@ public class StockQuantService {
         mapQuery.put("containerId", containerId);
         List<StockQuant> quantList = this.getQuants(mapQuery);
         for (StockQuant quant : quantList) {
-            if (quant.getReserveTaskId() != 0) {
+            if (quant.getReserveTaskId() != 0 && quant.getReserveTaskId().compareTo(taskId) != 0) {
                 throw new BizCheckedException("3550002");
             }
             this.reserve(quant, taskId);

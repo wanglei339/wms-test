@@ -4,15 +4,10 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 public class StockTransferPlan implements Serializable {
-
-	/**  */
-    private Long id;
 	/** 移库计划id */
     private Long planId = 0L;
 	/** 移库任务id */
     private Long taskId = 0L;
-	/** 商品id */
-    private Long skuId = 0L;
 	/** 商品id */
     private Long itemId = 0L;
 	/** 移入库位id */
@@ -25,18 +20,6 @@ public class StockTransferPlan implements Serializable {
     private String packName = "";
 	/** 以包装单位计量的库移数量 */
     private BigDecimal uomQty = BigDecimal.ZERO;
-	/**  */
-    private Long createdAt;
-	/**  */
-    private Long updatedAt;
-	
-	public Long getId(){
-		return this.id;
-	}
-	
-	public void setId(Long id){
-		this.id = id;
-	}
 	
 	public Long getPlanId(){
 		return this.planId;
@@ -52,14 +35,6 @@ public class StockTransferPlan implements Serializable {
 	
 	public void setTaskId(Long taskId){
 		this.taskId = taskId;
-	}
-	
-	public Long getSkuId(){
-		return this.skuId;
-	}
-	
-	public void setSkuId(Long skuId){
-		this.skuId = skuId;
 	}
 	
 	public Long getItemId(){
@@ -109,22 +84,5 @@ public class StockTransferPlan implements Serializable {
 	public void setUomQty(BigDecimal uomQty){
 		this.uomQty = uomQty;
 	}
-	
-	public Long getCreatedAt(){
-		return this.createdAt;
-	}
-	
-	public void setCreatedAt(Long createdAt){
-		this.createdAt = createdAt;
-	}
-	
-	public Long getUpdatedAt(){
-		return this.updatedAt;
-	}
-	
-	public void setUpdatedAt(Long updatedAt){
-		this.updatedAt = updatedAt;
-	}
-	
 	
 }
