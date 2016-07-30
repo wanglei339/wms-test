@@ -235,6 +235,7 @@ public class WaveCore {
                 info.setSubType(PickConstant.SHELF_TASK_TYPE);
                 PickTaskHead head = new PickTaskHead();
                 head.setWaveId(iWaveId);
+                head.setPickType(1L);
                 //head.setPickTaskId(RandomUtils.genId());
                 head.setPickTaskName(String.format("波次[%d]-捡货任务[%d]", iWaveId, taskHeads.size()+1));
                 for(int j = 0; j < bestCutPlan[i]; j++){

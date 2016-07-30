@@ -4,79 +4,103 @@
 
 	<resultMap id="waveDetailResultMap" type="WaveDetail">
 		<id property="id" column="id"/>
+		<result property="isAlive" column="is_alive"/>
+		<result property="isValid" column="is_valid"/>
 		<result property="waveId" column="wave_id"/>
 		<result property="orderId" column="order_id"/>
 		<result property="skuId" column="sku_id"/>
 		<result property="ownerId" column="owner_id"/>
 		<result property="locId" column="loc_id"/>
 		<result property="supplierId" column="supplier_id"/>
+		<result property="status" column="status"/>
 		<result property="reqQty" column="req_qty"/>
 		<result property="allocQty" column="alloc_qty"/>
-		<result property="pickZoneId" column="pick_zone_id"/>
 		<result property="pickQty" column="pick_qty"/>
 		<result property="qcQty" column="qc_qty"/>
 		<result property="deliveryQty" column="delivery_qty"/>
-		<result property="srcLocationId" column="src_location_id"/>
-		<result property="dstLocationId" column="dst_location_id"/>
 		<result property="pickTaskId" column="pick_task_id"/>
-		<result property="containerId" column="container_id"/>
-		<result property="pickUid" column="pick_uid"/>
-		<result property="pickUname" column="pick_uname"/>
-		<result property="pickAt" column="pick_at"/>
+		<result property="pickZoneId" column="pick_zone_id"/>
 		<result property="allocPickLocation" column="alloc_pick_location"/>
 		<result property="realPickLocation" column="real_pick_location"/>
-		<result property="qcUid" column="qc_uid"/>
-		<result property="qcUname" column="qc_uname"/>
-		<result property="qcAt" column="qc_at"/>
+		<result property="allocCollectLocation" column="alloc_collect_location"/>
+		<result property="realCollectLocation" column="real_collect_location"/>
+		<result property="containerId" column="container_id"/>
+		<result property="pickUid" column="pick_uid"/>
+		<result property="pickAt" column="pick_at"/>
 		<result property="sowTaskId" column="sow_task_id"/>
+		<result property="sowUid" column="sow_uid"/>
+		<result property="sowAt" column="sow_at"/>
+		<result property="qcTaskId" column="qc_task_id"/>
+		<result property="qcUid" column="qc_uid"/>
+		<result property="qcAt" column="qc_at"/>
+		<result property="qcException" column="qc_exception"/>
+		<result property="qcExceptionQty" column="qc_exception_qty"/>
+		<result property="qcExceptionDone" column="qc_exception_done"/>
+		<result property="shipTaskId" column="ship_task_id"/>
+		<result property="shipUid" column="ship_uid"/>
+		<result property="shipAt" column="ship_at"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="WaveDetail">
 		insert into wave_detail (
-			wave_id,order_id,sku_id,owner_id,loc_id,supplier_id,
-			req_qty,alloc_qty,pick_zone_id,pick_qty,qc_qty,delivery_qty,
-			src_location_id,dst_location_id,pick_task_id,container_id,pick_uid,pick_uname,
-			pick_at,alloc_pick_location,real_pick_location,qc_uid,qc_uname,qc_at,
-			sow_task_id,created_at,updated_at
+			is_alive,is_valid,wave_id,order_id,sku_id,owner_id,
+			loc_id,supplier_id,status,req_qty,alloc_qty,pick_qty,
+			qc_qty,delivery_qty,pick_task_id,pick_zone_id,alloc_pick_location,real_pick_location,
+			alloc_collect_location,real_collect_location,container_id,pick_uid,pick_at,sow_task_id,
+			sow_uid,sow_at,qc_task_id,qc_uid,qc_at,qc_exception,
+			qc_exception_qty,qc_exception_done,ship_task_id,ship_uid,ship_at,created_at,
+			updated_at
     	) values (
-			#{waveId},#{orderId},#{skuId},#{ownerId},#{locId},#{supplierId},
-			#{reqQty},#{allocQty},#{pickZoneId},#{pickQty},#{qcQty},#{deliveryQty},
-			#{srcLocationId},#{dstLocationId},#{pickTaskId},#{containerId},#{pickUid},#{pickUname},
-			#{pickAt},#{allocPickLocation},#{realPickLocation},#{qcUid},#{qcUname},#{qcAt},
-			#{sowTaskId},#{createdAt},#{updatedAt}
+			#{isAlive},#{isValid},#{waveId},#{orderId},#{skuId},#{ownerId},
+			#{locId},#{supplierId},#{status},#{reqQty},#{allocQty},#{pickQty},
+			#{qcQty},#{deliveryQty},#{pickTaskId},#{pickZoneId},#{allocPickLocation},#{realPickLocation},
+			#{allocCollectLocation},#{realCollectLocation},#{containerId},#{pickUid},#{pickAt},#{sowTaskId},
+			#{sowUid},#{sowAt},#{qcTaskId},#{qcUid},#{qcAt},#{qcException},
+			#{qcExceptionQty},#{qcExceptionDone},#{shipTaskId},#{shipUid},#{shipAt},#{createdAt},
+			#{updatedAt}
     	)
 	</insert>
 
 	<update id="update" parameterType="WaveDetail">
 		update wave_detail
     	<set>
+  			<if test="isAlive != null">is_alive=#{isAlive},</if>
+  			<if test="isValid != null">is_valid=#{isValid},</if>
   			<if test="waveId != null">wave_id=#{waveId},</if>
   			<if test="orderId != null">order_id=#{orderId},</if>
   			<if test="skuId != null">sku_id=#{skuId},</if>
   			<if test="ownerId != null">owner_id=#{ownerId},</if>
   			<if test="locId != null">loc_id=#{locId},</if>
   			<if test="supplierId != null">supplier_id=#{supplierId},</if>
+  			<if test="status != null">status=#{status},</if>
   			<if test="reqQty != null">req_qty=#{reqQty},</if>
   			<if test="allocQty != null">alloc_qty=#{allocQty},</if>
-  			<if test="pickZoneId != null">pick_zone_id=#{pickZoneId},</if>
   			<if test="pickQty != null">pick_qty=#{pickQty},</if>
   			<if test="qcQty != null">qc_qty=#{qcQty},</if>
   			<if test="deliveryQty != null">delivery_qty=#{deliveryQty},</if>
-  			<if test="srcLocationId != null">src_location_id=#{srcLocationId},</if>
-  			<if test="dstLocationId != null">dst_location_id=#{dstLocationId},</if>
   			<if test="pickTaskId != null">pick_task_id=#{pickTaskId},</if>
-  			<if test="containerId != null">container_id=#{containerId},</if>
-  			<if test="pickUid != null">pick_uid=#{pickUid},</if>
-  			<if test="pickUname != null">pick_uname=#{pickUname},</if>
-  			<if test="pickAt != null">pick_at=#{pickAt},</if>
+  			<if test="pickZoneId != null">pick_zone_id=#{pickZoneId},</if>
   			<if test="allocPickLocation != null">alloc_pick_location=#{allocPickLocation},</if>
   			<if test="realPickLocation != null">real_pick_location=#{realPickLocation},</if>
-  			<if test="qcUid != null">qc_uid=#{qcUid},</if>
-  			<if test="qcUname != null">qc_uname=#{qcUname},</if>
-  			<if test="qcAt != null">qc_at=#{qcAt},</if>
+  			<if test="allocCollectLocation != null">alloc_collect_location=#{allocCollectLocation},</if>
+  			<if test="realCollectLocation != null">real_collect_location=#{realCollectLocation},</if>
+  			<if test="containerId != null">container_id=#{containerId},</if>
+  			<if test="pickUid != null">pick_uid=#{pickUid},</if>
+  			<if test="pickAt != null">pick_at=#{pickAt},</if>
   			<if test="sowTaskId != null">sow_task_id=#{sowTaskId},</if>
+  			<if test="sowUid != null">sow_uid=#{sowUid},</if>
+  			<if test="sowAt != null">sow_at=#{sowAt},</if>
+  			<if test="qcTaskId != null">qc_task_id=#{qcTaskId},</if>
+  			<if test="qcUid != null">qc_uid=#{qcUid},</if>
+  			<if test="qcAt != null">qc_at=#{qcAt},</if>
+  			<if test="qcException != null">qc_exception=#{qcException},</if>
+  			<if test="qcExceptionQty != null">qc_exception_qty=#{qcExceptionQty},</if>
+  			<if test="qcExceptionDone != null">qc_exception_done=#{qcExceptionDone},</if>
+  			<if test="shipTaskId != null">ship_task_id=#{shipTaskId},</if>
+  			<if test="shipUid != null">ship_uid=#{shipUid},</if>
+  			<if test="shipAt != null">ship_at=#{shipAt},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
@@ -104,31 +128,41 @@
 	<sql id="queryCondition">
 		<where>
 			<if test="id != null">id=#{id}</if>
+			<if test="isAlive != null">and is_alive=#{isAlive}</if>
+			<if test="isValid != null">and is_valid=#{isValid}</if>
 			<if test="waveId != null">and wave_id=#{waveId}</if>
 			<if test="orderId != null">and order_id=#{orderId}</if>
 			<if test="skuId != null">and sku_id=#{skuId}</if>
 			<if test="ownerId != null">and owner_id=#{ownerId}</if>
 			<if test="locId != null">and loc_id=#{locId}</if>
 			<if test="supplierId != null">and supplier_id=#{supplierId}</if>
+			<if test="status != null">and status=#{status}</if>
 			<if test="reqQty != null">and req_qty=#{reqQty}</if>
 			<if test="allocQty != null">and alloc_qty=#{allocQty}</if>
-			<if test="pickZoneId != null">and pick_zone_id=#{pickZoneId}</if>
 			<if test="pickQty != null">and pick_qty=#{pickQty}</if>
 			<if test="qcQty != null">and qc_qty=#{qcQty}</if>
 			<if test="deliveryQty != null">and delivery_qty=#{deliveryQty}</if>
-			<if test="srcLocationId != null">and src_location_id=#{srcLocationId}</if>
-			<if test="dstLocationId != null">and dst_location_id=#{dstLocationId}</if>
 			<if test="pickTaskId != null">and pick_task_id=#{pickTaskId}</if>
-			<if test="containerId != null">and container_id=#{containerId}</if>
-			<if test="pickUid != null">and pick_uid=#{pickUid}</if>
-			<if test="pickUname != null">and pick_uname=#{pickUname}</if>
-			<if test="pickAt != null">and pick_at=#{pickAt}</if>
+			<if test="pickZoneId != null">and pick_zone_id=#{pickZoneId}</if>
 			<if test="allocPickLocation != null">and alloc_pick_location=#{allocPickLocation}</if>
 			<if test="realPickLocation != null">and real_pick_location=#{realPickLocation}</if>
-			<if test="qcUid != null">and qc_uid=#{qcUid}</if>
-			<if test="qcUname != null">and qc_uname=#{qcUname}</if>
-			<if test="qcAt != null">and qc_at=#{qcAt}</if>
+			<if test="allocCollectLocation != null">and alloc_collect_location=#{allocCollectLocation}</if>
+			<if test="realCollectLocation != null">and real_collect_location=#{realCollectLocation}</if>
+			<if test="containerId != null">and container_id=#{containerId}</if>
+			<if test="pickUid != null">and pick_uid=#{pickUid}</if>
+			<if test="pickAt != null">and pick_at=#{pickAt}</if>
 			<if test="sowTaskId != null">and sow_task_id=#{sowTaskId}</if>
+			<if test="sowUid != null">and sow_uid=#{sowUid}</if>
+			<if test="sowAt != null">and sow_at=#{sowAt}</if>
+			<if test="qcTaskId != null">and qc_task_id=#{qcTaskId}</if>
+			<if test="qcUid != null">and qc_uid=#{qcUid}</if>
+			<if test="qcAt != null">and qc_at=#{qcAt}</if>
+			<if test="qcException != null">and qc_exception=#{qcException}</if>
+			<if test="qcExceptionQty != null">and qc_exception_qty=#{qcExceptionQty}</if>
+			<if test="qcExceptionDone != null">and qc_exception_done=#{qcExceptionDone}</if>
+			<if test="shipTaskId != null">and ship_task_id=#{shipTaskId}</if>
+			<if test="shipUid != null">and ship_uid=#{shipUid}</if>
+			<if test="shipAt != null">and ship_at=#{shipAt}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 		</where>

@@ -9,10 +9,10 @@ import java.util.Map;
 @MyBatisRepository
 public interface WaveDetailDao {
 
-	void insert(WaveDetail pickTaskDetail);
+	void insert(WaveDetail waveDetail);
 	
-	void update(WaveDetail pickTaskDetail);
-
+	void update(WaveDetail waveDetail);
+	
 	WaveDetail getWaveDetailById(Long id);
 
     Integer countWaveDetail(Map<String, Object> params);

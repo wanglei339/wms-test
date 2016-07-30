@@ -8,6 +8,10 @@ public class WaveDetail implements Serializable {
 
 	/**  */
     private Long id;
+	/** 0代表生命周期结束了,也即是否在一个有效的波次周期内，波次完成或者取消这个值要标记为无效,否则会有问题 */
+    private Long isAlive = 1L;
+	/** 是否有效，比如被合盘的情况下，原记录被标记为无效 */
+    private Long isValid = 1L;
 	/** 波次id */
     private Long waveId;
 	/** 订单id */
@@ -17,47 +21,63 @@ public class WaveDetail implements Serializable {
 	/** 货主id */
     private Long ownerId;
 	/** 批次id */
-    private Long locId = 0L;
+	private Long locId = 0L;
 	/** 供商id */
-    private Long supplierId = 0L;
+	private Long supplierId = 0L;
+	/** 0-新建，呵呵，冗余一下，以后看用不用吧 */
+	private Long status = 1L;
 	/** 订单需求量 */
-    private BigDecimal reqQty = new BigDecimal("0.0000");
+	private BigDecimal reqQty = new BigDecimal("0.0000");
 	/** 配货库存量 */
-    private BigDecimal allocQty;
-	/** 分配的捡货分区 */
-    private BigDecimal pickZoneId;
+	private BigDecimal allocQty;
 	/** 实际捡货量 */
-    private BigDecimal pickQty = new BigDecimal("0.0000");
+	private BigDecimal pickQty = new BigDecimal("0.0000");
 	/** qc确认数量 */
-    private BigDecimal qcQty = new BigDecimal("0.0000");
+	private BigDecimal qcQty = new BigDecimal("0.0000");
 	/** 最终出库量 */
-    private BigDecimal deliveryQty = new BigDecimal("0.0000");
-	/** 分配的捡货位 */
-    private Long srcLocationId = 0L;
-	/** 分配的集货位 */
-    private Long dstLocationId = 0L;
-	/** 任务id */
-    private Long pickTaskId;
-	/** 容器id */
-    private Long containerId = 0L;
-	/** 拣货员id */
-    private Long pickUid = 0L;
-	/** 拣货员名称 */
-    private String pickUname = "";
-	/** 捡货时间 */
-    private Long pickAt = 0L;
+	private BigDecimal deliveryQty = new BigDecimal("0.0000");
+	/** 捡货任务id */
+	private Long pickTaskId;
+	/** 分配的捡货分区,通过分区信息取获取对应的区域路径，可获取到虾面的捡货位 */
+    private BigDecimal pickZoneId;
 	/** 分配分拣位 */
     private Long allocPickLocation = 0L;
 	/** 实际分拣位 */
     private Long realPickLocation = 0L;
-	/** QC员id */
-    private Long qcUid = 0L;
-	/** QC员名称 */
-    private String qcUname = "";
-	/** QC时间 */
-    private Long qcAt = 0L;
+	/** 分配的集货位 */
+    private Long allocCollectLocation = 0L;
+	/** 实际的集货位 */
+    private Long realCollectLocation = 0L;
+	/** 容器id,非常重要的字断，务必维护好当前真实的商品所在的container信息，否则就惨了 */
+    private Long containerId = 0L;
+	/** 拣货员id */
+    private Long pickUid = 0L;
+	/** 捡货时间 */
+    private Long pickAt = 0L;
 	/** 播种任务id */
     private Long sowTaskId = 0L;
+	/** 播种员id */
+    private Long sowUid = 0L;
+	/** 播种时间 */
+    private Long sowAt = 0L;
+	/** QC任务id */
+    private Long qcTaskId = 0L;
+	/** QC员id */
+    private Long qcUid = 0L;
+	/** QC时间 */
+    private Long qcAt = 0L;
+	/** 0-正常，1-少货，2-多货，3-错货，4-残次，5-日期不好，6-其他异常 */
+    private Long qcException = 0L;
+	/** qc异常数量 */
+    private BigDecimal qcExceptionQty = new BigDecimal("0.0000");
+	/** 异常是否已处理，0-未处理，1-正常不需要处理，2-已处理，3-忽略异常 */
+    private Long qcExceptionDone = 0L;
+	/** 发货任务id */
+    private Long shipTaskId = 0L;
+	/** 发货员id */
+    private Long shipUid = 0L;
+	/** 发货时间 */
+    private Long shipAt = 0L;
 	/**  */
     private Long createdAt = 0L;
 	/**  */
@@ -69,6 +89,22 @@ public class WaveDetail implements Serializable {
 	
 	public void setId(Long id){
 		this.id = id;
+	}
+	
+	public Long getIsAlive(){
+		return this.isAlive;
+	}
+	
+	public void setIsAlive(Long isAlive){
+		this.isAlive = isAlive;
+	}
+	
+	public Long getIsValid(){
+		return this.isValid;
+	}
+	
+	public void setIsValid(Long isValid){
+		this.isValid = isValid;
 	}
 	
 	public Long getWaveId(){
@@ -119,6 +155,14 @@ public class WaveDetail implements Serializable {
 		this.supplierId = supplierId;
 	}
 	
+	public Long getStatus(){
+		return this.status;
+	}
+	
+	public void setStatus(Long status){
+		this.status = status;
+	}
+	
 	public BigDecimal getReqQty(){
 		return this.reqQty;
 	}
@@ -133,14 +177,6 @@ public class WaveDetail implements Serializable {
 	
 	public void setAllocQty(BigDecimal allocQty){
 		this.allocQty = allocQty;
-	}
-	
-	public BigDecimal getPickZoneId(){
-		return this.pickZoneId;
-	}
-	
-	public void setPickZoneId(BigDecimal pickZoneId){
-		this.pickZoneId = pickZoneId;
 	}
 	
 	public BigDecimal getPickQty(){
@@ -166,61 +202,21 @@ public class WaveDetail implements Serializable {
 	public void setDeliveryQty(BigDecimal deliveryQty){
 		this.deliveryQty = deliveryQty;
 	}
-	
-	public Long getSrcLocationId(){
-		return this.srcLocationId;
-	}
-	
-	public void setSrcLocationId(Long srcLocationId){
-		this.srcLocationId = srcLocationId;
-	}
-	
-	public Long getDstLocationId(){
-		return this.dstLocationId;
-	}
-	
-	public void setDstLocationId(Long dstLocationId){
-		this.dstLocationId = dstLocationId;
-	}
-	
+
 	public Long getPickTaskId(){
 		return this.pickTaskId;
 	}
-	
+
 	public void setPickTaskId(Long pickTaskId){
 		this.pickTaskId = pickTaskId;
 	}
 	
-	public Long getContainerId(){
-		return this.containerId;
+	public BigDecimal getPickZoneId(){
+		return this.pickZoneId;
 	}
 	
-	public void setContainerId(Long containerId){
-		this.containerId = containerId;
-	}
-	
-	public Long getPickUid(){
-		return this.pickUid;
-	}
-	
-	public void setPickUid(Long pickUid){
-		this.pickUid = pickUid;
-	}
-	
-	public String getPickUname(){
-		return this.pickUname;
-	}
-	
-	public void setPickUname(String pickUname){
-		this.pickUname = pickUname;
-	}
-	
-	public Long getPickAt(){
-		return this.pickAt;
-	}
-	
-	public void setPickAt(Long pickAt){
-		this.pickAt = pickAt;
+	public void setPickZoneId(BigDecimal pickZoneId){
+		this.pickZoneId = pickZoneId;
 	}
 	
 	public Long getAllocPickLocation(){
@@ -239,20 +235,84 @@ public class WaveDetail implements Serializable {
 		this.realPickLocation = realPickLocation;
 	}
 	
+	public Long getAllocCollectLocation(){
+		return this.allocCollectLocation;
+	}
+	
+	public void setAllocCollectLocation(Long allocCollectLocation){
+		this.allocCollectLocation = allocCollectLocation;
+	}
+	
+	public Long getRealCollectLocation(){
+		return this.realCollectLocation;
+	}
+	
+	public void setRealCollectLocation(Long realCollectLocation){
+		this.realCollectLocation = realCollectLocation;
+	}
+	
+	public Long getContainerId(){
+		return this.containerId;
+	}
+	
+	public void setContainerId(Long containerId){
+		this.containerId = containerId;
+	}
+	
+	public Long getPickUid(){
+		return this.pickUid;
+	}
+	
+	public void setPickUid(Long pickUid){
+		this.pickUid = pickUid;
+	}
+	
+	public Long getPickAt(){
+		return this.pickAt;
+	}
+	
+	public void setPickAt(Long pickAt){
+		this.pickAt = pickAt;
+	}
+	
+	public Long getSowTaskId(){
+		return this.sowTaskId;
+	}
+	
+	public void setSowTaskId(Long sowTaskId){
+		this.sowTaskId = sowTaskId;
+	}
+	
+	public Long getSowUid(){
+		return this.sowUid;
+	}
+	
+	public void setSowUid(Long sowUid){
+		this.sowUid = sowUid;
+	}
+	
+	public Long getSowAt(){
+		return this.sowAt;
+	}
+	
+	public void setSowAt(Long sowAt){
+		this.sowAt = sowAt;
+	}
+	
+	public Long getQcTaskId(){
+		return this.qcTaskId;
+	}
+	
+	public void setQcTaskId(Long qcTaskId){
+		this.qcTaskId = qcTaskId;
+	}
+	
 	public Long getQcUid(){
 		return this.qcUid;
 	}
 	
 	public void setQcUid(Long qcUid){
 		this.qcUid = qcUid;
-	}
-	
-	public String getQcUname(){
-		return this.qcUname;
-	}
-	
-	public void setQcUname(String qcUname){
-		this.qcUname = qcUname;
 	}
 	
 	public Long getQcAt(){
@@ -263,12 +323,52 @@ public class WaveDetail implements Serializable {
 		this.qcAt = qcAt;
 	}
 	
-	public Long getSowTaskId(){
-		return this.sowTaskId;
+	public Long getQcException(){
+		return this.qcException;
 	}
 	
-	public void setSowTaskId(Long sowTaskId){
-		this.sowTaskId = sowTaskId;
+	public void setQcException(Long qcException){
+		this.qcException = qcException;
+	}
+	
+	public BigDecimal getQcExceptionQty(){
+		return this.qcExceptionQty;
+	}
+	
+	public void setQcExceptionQty(BigDecimal qcExceptionQty){
+		this.qcExceptionQty = qcExceptionQty;
+	}
+	
+	public Long getQcExceptionDone(){
+		return this.qcExceptionDone;
+	}
+	
+	public void setQcExceptionDone(Long qcExceptionDone){
+		this.qcExceptionDone = qcExceptionDone;
+	}
+	
+	public Long getShipTaskId(){
+		return this.shipTaskId;
+	}
+	
+	public void setShipTaskId(Long shipTaskId){
+		this.shipTaskId = shipTaskId;
+	}
+	
+	public Long getShipUid(){
+		return this.shipUid;
+	}
+	
+	public void setShipUid(Long shipUid){
+		this.shipUid = shipUid;
+	}
+	
+	public Long getShipAt(){
+		return this.shipAt;
+	}
+	
+	public void setShipAt(Long shipAt){
+		this.shipAt = shipAt;
 	}
 	
 	public Long getCreatedAt(){
