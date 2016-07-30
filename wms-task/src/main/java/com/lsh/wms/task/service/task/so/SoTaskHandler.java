@@ -30,7 +30,7 @@ public class SoTaskHandler extends AbsTaskHandler {
 
     @PostConstruct
     public void postConstruct() {
-        handlerFactory.register(TaskConstant.TYPE_PICK, this);
+        //handlerFactory.register(TaskConstant.TYPE_PICK, this);
     }
 
     protected void getConcrete(TaskEntry taskEntry) {
