@@ -121,5 +121,9 @@ public class LocationRestService implements ILocationRestService {
         return JsonUtils.SUCCESS(locationService.countLocation(params));
     }
 
-
+    @GET
+    @Path("getTemp")
+    public String getTemp(@QueryParam("type") String type) {
+        return JsonUtils.SUCCESS(locationService.getAvailableLocationByType(type));
+    }
 }

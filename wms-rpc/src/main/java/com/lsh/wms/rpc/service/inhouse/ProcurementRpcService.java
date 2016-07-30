@@ -2,6 +2,7 @@ package com.lsh.wms.rpc.service.inhouse;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.wms.api.service.inhouse.IProcurementRpcService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
@@ -15,7 +16,7 @@ import java.math.BigDecimal;
  * Created by mali on 16/7/30.
  */
 @Service(protocol = "dubbo")
-public class ProcurementRpcService {
+public class ProcurementRpcService implements IProcurementRpcService{
     @Autowired
     private StockQuantRpcService quantService;
 
