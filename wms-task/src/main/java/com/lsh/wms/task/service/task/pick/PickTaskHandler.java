@@ -2,7 +2,7 @@ package com.lsh.wms.task.service.task.pick;
 
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.pick.PickTaskService;
-import com.lsh.wms.model.pick.PickTaskDetail;
+import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.pick.PickTaskHead;
 import com.lsh.wms.model.task.StockTakingTask;
 import com.lsh.wms.model.task.TaskEntry;
@@ -33,8 +33,8 @@ public class PickTaskHandler extends AbsTaskHandler {
     protected void createConcrete(TaskEntry taskEntry) {
         PickTaskHead head = (PickTaskHead)taskEntry.getTaskHead();
         head.setPickTaskId(taskEntry.getTaskInfo().getTaskId());
-        List<PickTaskDetail> details = (List<PickTaskDetail>)(List<?>)taskEntry.getTaskDetailList();
-        for(PickTaskDetail detail : details){
+        List<WaveDetail> details = (List<WaveDetail>)(List<?>)taskEntry.getTaskDetailList();
+        for(WaveDetail detail : details){
             detail.setPickTaskId(taskEntry.getTaskInfo().getTaskId());
         }
         pickTaskService.createPickTask(head, details);
