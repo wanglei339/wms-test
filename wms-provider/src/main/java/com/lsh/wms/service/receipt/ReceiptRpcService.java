@@ -55,7 +55,7 @@ import static java.math.BigDecimal.ROUND_HALF_EVEN;
  * Package name:com.lsh.wms.service.receipt.
  * desc:类功能描述
  */
-@Service
+@Service(protocol = "dubbo")
 public class ReceiptRpcService implements IReceiptRpcService {
 
     private static Logger logger = LoggerFactory.getLogger(ReceiptRpcService.class);
