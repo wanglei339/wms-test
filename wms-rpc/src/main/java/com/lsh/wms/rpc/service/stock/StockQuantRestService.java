@@ -65,13 +65,6 @@ public class StockQuantRestService implements IStockQuantRestService {
         return JsonUtils.SUCCESS(quantList);
     }
 
-    @POST
-    @Path("reserve")
-    public String reserve(StockQuantCondition condition) throws BizCheckedException {
-        List<StockQuant> quantList = stockQuantRpcService.reserve(condition, condition.getTaskId(), condition.getRequiredQty());
-        return JsonUtils.SUCCESS(quantList);
-    }
-
     /***
      * skuId 商品码
      * locationId 存储位id

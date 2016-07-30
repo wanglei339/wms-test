@@ -1,9 +1,10 @@
 package com.lsh.wms.core.service.pick;
 
 import com.lsh.base.common.utils.DateUtils;
-import com.lsh.wms.core.dao.pick.PickTaskDetailDao;
+import com.lsh.wms.core.dao.wave.WaveDetailDao;
 import com.lsh.wms.core.dao.pick.PickTaskHeadDao;
-import com.lsh.wms.model.pick.PickTaskDetail;
+import com.lsh.wms.core.dao.wave.WaveDetailDao;
+import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.pick.PickTaskHead;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,23 +27,23 @@ public class PickTaskService {
     @Autowired
     private PickTaskHeadDao taskHeadDao;
     @Autowired
-    private PickTaskDetailDao taskDetailDao;
+    private WaveDetailDao taskDetailDao;
 
     @Transactional(readOnly = false)
-    public int createPickTask(PickTaskHead head, List<PickTaskDetail> details){
+    public int createPickTask(PickTaskHead head, List<WaveDetail> details){
         List<PickTaskHead> heads = new ArrayList<PickTaskHead>();
         heads.add(head);
         return this.createPickTasks(heads, details);
     }
 
     @Transactional(readOnly = false)
-    public int createPickTasks(List<PickTaskHead> heads, List<PickTaskDetail> details){
+    public int createPickTasks(List<PickTaskHead> heads, List<WaveDetail> details){
         for(PickTaskHead head : heads){
             head.setCreatedAt(DateUtils.getCurrentSeconds());
             head.setUpdatedAt(DateUtils.getCurrentSeconds());
             taskHeadDao.insert(head);
         }
-        for(PickTaskDetail detail : details){
+        for(WaveDetail detail : details){
             detail.setCreatedAt(DateUtils.getCurrentSeconds());
             detail.setUpdatedAt(DateUtils.getCurrentSeconds());
             taskDetailDao.insert(detail);
@@ -59,9 +58,9 @@ public class PickTaskService {
         return pickTaskHeadList.size() == 0 ? null : pickTaskHeadList.get(0);
     }
 
-    public List<PickTaskDetail> getPickTaskDetails(long iPickTaskId){
+    public List<WaveDetail> getPickTaskDetails(long iPickTaskId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("pickTaskId", iPickTaskId);
-        return taskDetailDao.getPickTaskDetailList(mapQuery);
+        return taskDetailDao.getWaveDetailList(mapQuery);
     }
 }

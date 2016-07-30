@@ -2,8 +2,6 @@ package com.lsh.wms.task.service.task.po;
 
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.po.PoOrderService;
-import com.lsh.wms.model.pick.PickTaskDetail;
-import com.lsh.wms.model.pick.PickTaskHead;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.task.service.handler.AbsTaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;

@@ -31,7 +31,7 @@ public class ReceiptTaskHandler extends AbsTaskHandler {
 
     @PostConstruct
     public void postConstruct() {
-        handlerFactory.register(TaskConstant.TYPE_SHELVE, this);
+        //handlerFactory.register(TaskConstant.TYPE_SHELVE, this);
     }
 
     protected void getConcrete(TaskEntry taskEntry) {

@@ -12,6 +12,7 @@ import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
+import com.lsh.wms.model.task.TaskInfo;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.slf4j.Logger;
@@ -72,17 +73,27 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         return quantList;
     }
 
-    public List<StockQuant> reserve(StockQuantCondition condition, Long taskId, BigDecimal requiredQty) throws BizCheckedException {
+    public List<StockQuant> reserveByTask(TaskInfo taskInfo) throws BizCheckedException {
+        BigDecimal requiredQty =taskInfo.getQty();
+
+        StockQuantCondition condition = new StockQuantCondition();
+        condition.setLocationId(taskInfo.getFromLocationId());
+        condition.setItemId(taskInfo.getItemId());
         Map<String, Object> mapQuery = this.getQueryCondition(condition);
         BigDecimal total = this.getQty(condition);
         if (total.compareTo(requiredQty) < 0) {
             throw new BizCheckedException("2550001");
         }
-        return quantService.reserve(mapQuery, taskId, requiredQty);
+        return quantService.reserve(mapQuery, taskInfo.getTaskId(), requiredQty);
     }
 
     public void unReserve(Long taskId) {
         quantService.unReserve(taskId);
+    }
+
+
+    public List<StockQuant> reserveByContainer(Long containerId, Long taskId) throws BizCheckedException {
+        return quantService.reserveByContainer(containerId, taskId);
     }
 
     public void reserveByContainer(Long containerId) {
