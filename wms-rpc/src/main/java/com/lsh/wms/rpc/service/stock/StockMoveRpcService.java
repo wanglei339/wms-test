@@ -45,4 +45,23 @@ public class StockMoveRpcService implements IStockMoveRpcService {
         moveService.done(moveId);
     }
 
+    @Transactional(readOnly = false)
+    public void moveWholeContainer(Long containerId, Long taskId, Long staffId, Long fromLocationId, Long toLocationId) throws BizCheckedException {
+        List<StockQuant> quantList = quantService.reserveByContainer(containerId, taskId);
+
+        for (StockQuant quant : quantList) {
+            StockMove move = new StockMove();
+            move.setTaskId(taskId);
+            move.setFromLocationId(fromLocationId);
+            move.setToLocationId(toLocationId);
+            move.setFromContainerId(containerId);
+            move.setToContainerId(containerId);
+            move.setItemId(quant.getItemId());
+            move.setQty(quant.getQty());
+            move.setOperator(staffId);
+            moveService.create(move);
+            this.done(move.getId());
+            quantService.unReserveById(quant.getId());
+        }
+    }
 }

@@ -79,24 +79,33 @@ public class StockQuantService {
     }
 
     @Transactional(readOnly = false)
-    public void move(StockMove move) {
+    public void move(StockMove move) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("reserveTaskId", move.getTaskId());
         mapQuery.put("itemId", move.getItemId());
         mapQuery.put("locationId", move.getFromLocationId());
         mapQuery.put("containerId", move.getFromContainerId());
         List<StockQuant> quantList = stockQuantDao.getQuants(mapQuery);
         BigDecimal qtyDone = move.getQty();
+        BigDecimal total = BigDecimal.ZERO;
         for (StockQuant quant : quantList) {
-            StockQuantMoveRel moveRel =new StockQuantMoveRel();
-            moveRel.setMoveId(move.getId());
+            if (quant.getReserveTaskId() != 0 && quant.getReserveTaskId() != move.getTaskId()) {
+                continue;
+            }
+
             this.split(quant, qtyDone);
             quant.setLocationId(move.getToLocationId());
             quant.setContainerId(move.getToContainerId());
             this.update(quant);
             qtyDone = qtyDone.subtract(quant.getQty());
+            total = total.add(quant.getQty());
+            // 新建 quant move历史记录
+            StockQuantMoveRel moveRel =new StockQuantMoveRel();
+            moveRel.setMoveId(move.getId());
             moveRel.setQuantId(quant.getId());
             relDao.insert(moveRel);
+        }
+        if (total.compareTo(qtyDone) < 0) {
+            throw new BizCheckedException("3040001");
         }
     }
 
@@ -140,6 +149,33 @@ public class StockQuantService {
             throw new BizCheckedException("2550001");
         }
         return resultList;
+    }
+
+    @Transactional(readOnly = false)
+    public List<StockQuant> reserveByContainer(Long containerId, Long taskId) throws BizCheckedException {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("containerId", containerId);
+        List<StockQuant> quantList = this.getQuants(mapQuery);
+        for (StockQuant quant : quantList) {
+            if (quant.getReserveTaskId() != 0) {
+                throw new BizCheckedException("3550002");
+            }
+            this.reserve(quant, taskId);
+        }
+        return quantList;
+    }
+
+    @Transactional(readOnly = false)
+    public void reserve(StockQuant quant, Long taskId) {
+        quant.setReserveTaskId(taskId);
+        stockQuantDao.update(quant);
+    }
+
+    @Transactional(readOnly = false)
+    public void unReserveById(Long quantId) {
+        StockQuant quant = stockQuantDao.getStockQuantById(quantId);
+        quant.setReserveTaskId(0L);
+        this.update(quant);
     }
 
     @Transactional(readOnly = false)

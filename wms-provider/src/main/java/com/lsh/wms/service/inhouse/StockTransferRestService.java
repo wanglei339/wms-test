@@ -6,14 +6,22 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.wms.api.service.container.IContainerRestService;
+import com.lsh.wms.api.service.container.IContainerRpcService;
 import com.lsh.wms.api.service.inhouse.IStockTransferRestService;
 import com.lsh.wms.api.service.item.IItemRpcService;
+import com.lsh.wms.api.service.location.ILocationRestService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
+import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.api.service.stock.IStockMoveRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRestService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.service.container.ContainerService;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
@@ -49,7 +57,23 @@ public class StockTransferRestService implements IStockTransferRestService {
     private IStockQuantRpcService stockQuantService;
 
     @Reference
+    private IItemRpcService itemRpcService;
+
+    @Autowired
+    private LocationService locationService;
+
+    @Reference
+    private IStockMoveRpcService moveRpcService;
+
+    @Autowired
+    private ContainerService containerService;
+
+    @Autowired
+    private StockTransferCore core;
+
+    @Reference
     private ILocationRpcService locationRpcService;
+
 
     @POST
     @Path("add")
@@ -59,24 +83,24 @@ public class StockTransferRestService implements IStockTransferRestService {
             condition.setLocationId(plan.getFromLocationId());
             condition.setItemId(plan.getItemId());
             BigDecimal total = stockQuantService.getQty(condition);
+            core.fillTransferPlan(plan);
 
-            BigDecimal packUnit = BigDecimal.ONE;
-            BigDecimal requiredQty = plan.getUomQty().multiply(packUnit);
-            if (requiredQty.equals(BigDecimal.ZERO)) {
-                requiredQty =  total;
-                plan.setQty(requiredQty);
-            }
-            if ( requiredQty.compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
+            if ( plan.getQty().compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
                 throw new BizCheckedException("2040001");
+            }
+
+            List<StockQuant> quantList = stockQuantService.getQuantList(condition);
+            Long containerId = quantList.get(0).getContainerId();
+            if (containerService.getContainer(containerId).getType() != 1L) {
+                containerId = containerService.createContainerByType(2L).getId();
             }
 
             TaskEntry taskEntry = new TaskEntry();
             TaskInfo taskInfo = new TaskInfo();
             ObjUtils.bean2bean(plan, taskInfo);
-            taskInfo.setTaskName("移库任[ " + taskInfo.getFromLocationId() + " => " + taskInfo.getToLocationId() + "]");
-            taskInfo.setPackUnit(packUnit);
-            taskInfo.setQty(requiredQty);
+            taskInfo.setTaskName("移库任务[ " + taskInfo.getFromLocationId() + " => " + taskInfo.getToLocationId() + "]");
             taskInfo.setType(TaskConstant.TYPE_STOCK_TRANSFER);
+            taskInfo.setContainerId(containerId);
             taskEntry.setTaskInfo(taskInfo);
             taskRpcService.create(TaskConstant.TYPE_STOCK_TRANSFER, taskEntry);
         } catch (BizCheckedException e) {
@@ -90,16 +114,50 @@ public class StockTransferRestService implements IStockTransferRestService {
     }
 
     @POST
-    @Path("confirm")
-    public String confirmTransfer(StockTransferPlan plan) throws BizCheckedException {
-        try{
-            Long taskId = plan.getTaskId();
+    @Path("scanFromLocation")
+    public String scanFromLocation() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
+        Long fromLocationId = Long.valueOf(mapQuery.get("fromLocationId").toString());
 
-            taskRpcService.done(taskId);
-        }catch (Exception e){
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR("Create failed");
+        TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
+        if (taskEntry == null) {
+            throw new BizCheckedException("3040001");
         }
-        return JsonUtils.SUCCESS();
+        if (fromLocationId != taskEntry.getTaskInfo().getFromLocationId()) {
+            throw new BizCheckedException("2040005");
+        }
+
+        StockMove move = new StockMove();
+        ObjUtils.bean2bean(taskEntry.getTaskInfo(), move);
+        move.setToLocationId(locationService.getAreaFatherId(fromLocationId));
+        moveRpcService.create(move);
+        moveRpcService.done(move.getId());
+
+        return JsonUtils.SUCCESS(true);
     }
+
+    @POST
+    @Path("scanFromLocation")
+    public String scanToLocation() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
+        Long toLocationId = Long.valueOf(mapQuery.get("LocationId").toString());
+
+        TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
+        if (taskEntry == null) {
+            throw new BizCheckedException("3040001");
+        }
+
+        StockMove move = new StockMove();
+        ObjUtils.bean2bean(taskEntry.getTaskInfo(), move);
+        move.setFromLocationId(locationService.getAreaFatherId(taskEntry.getTaskInfo().getFromLocationId()));
+        move.setToLocationId(toLocationId);
+        moveRpcService.create(move);
+        moveRpcService.done(move.getId());
+
+        taskRpcService.done(taskId);
+        return JsonUtils.SUCCESS(true);
+    }
+
 }

@@ -28,11 +28,4 @@ public class StockTransferTaskHandler extends AbsTaskHandler {
     public void postConstruct() {
         handlerFactory.register(TaskConstant.TYPE_STOCK_TRANSFER, this);
     }
-
-    protected void createConcrete(TaskEntry taskEntry) {
-    }
-
-    protected void getConcrete(TaskEntry taskEntry) {
-    }
-
 }

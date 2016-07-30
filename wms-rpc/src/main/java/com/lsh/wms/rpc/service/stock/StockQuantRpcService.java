@@ -9,12 +9,14 @@ import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
+import com.lsh.wms.model.task.TaskInfo;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,24 +67,26 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         return quantList;
     }
 
-    public List<StockQuant> reserve(StockQuantCondition condition, Long taskId, BigDecimal requiredQty) throws BizCheckedException {
+    public List<StockQuant> reserveByTask(TaskInfo taskInfo) throws BizCheckedException {
+        BigDecimal requiredQty =taskInfo.getQty();
+
+        StockQuantCondition condition = new StockQuantCondition();
+        condition.setLocationId(taskInfo.getFromLocationId());
+        condition.setItemId(taskInfo.getItemId());
         Map<String, Object> mapQuery = this.getQueryCondtion(condition);
+
         BigDecimal total = this.getQty(condition);
         if (total.compareTo(requiredQty) < 0) {
             throw new BizCheckedException("2550001");
         }
-        return quantService.reserve(mapQuery, taskId, requiredQty);
+        return quantService.reserve(mapQuery, taskInfo.getTaskId(), requiredQty);
     }
 
     public void unReserve(Long taskId) {
         quantService.unReserve(taskId);
     }
 
-    public void reserveByContainer(Long containerId) {
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("containerId", containerId);
-        List<StockQuant> quantList = quantService.getQuants(mapQuery);
-
+    public List<StockQuant> reserveByContainer(Long containerId, Long taskId) throws BizCheckedException {
+        return quantService.reserveByContainer(containerId, taskId);
     }
-
 }

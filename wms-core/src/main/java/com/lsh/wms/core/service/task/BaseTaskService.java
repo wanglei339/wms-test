@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.task;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.TaskConstant;
@@ -25,7 +26,7 @@ public class BaseTaskService {
     private TaskInfoDao taskInfoDao;
 
     @Transactional(readOnly = false)
-    public void create(TaskInfo taskInfo) {
+    public void create(TaskInfo taskInfo) throws BizCheckedException {
         taskInfo.setDraftTime(DateUtils.getCurrentSeconds());
         taskInfo.setStatus(TaskConstant.Draft);
         taskInfo.setCreatedAt(DateUtils.getCurrentSeconds());
@@ -69,7 +70,6 @@ public class BaseTaskService {
         TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
         taskInfo.setOperator(staffId);
         taskInfo.setStatus(TaskConstant.Assigned);
-        taskInfo.setAssignTime(DateUtils.getCurrentSeconds());
         taskInfo.setAssignTime(DateUtils.getCurrentSeconds());
         taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
         taskInfoDao.update(taskInfo);
