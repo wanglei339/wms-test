@@ -13,6 +13,8 @@ public class PickTaskHead implements Serializable {
     private Long pickTaskId;
 	/** 任务名称 */
     private String pickTaskName;
+	/** 1-摘果，2-边摘边播,3---- */
+    private Long pickType;
 	/**  */
     private Long createdAt;
 	/**  */
@@ -48,6 +50,14 @@ public class PickTaskHead implements Serializable {
 	
 	public void setPickTaskName(String pickTaskName){
 		this.pickTaskName = pickTaskName;
+	}
+	
+	public Long getPickType(){
+		return this.pickType;
+	}
+	
+	public void setPickType(Long pickType){
+		this.pickType = pickType;
 	}
 	
 	public Long getCreatedAt(){

@@ -4,6 +4,7 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.dao.so.OutbSoHeaderDao;
+import com.lsh.wms.core.dao.wave.WaveDetailDao;
 import com.lsh.wms.core.dao.wave.WaveHeadDao;
 import com.lsh.wms.core.service.pick.PickTaskService;
 import com.lsh.wms.model.pick.PickTaskHead;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by zengwenjun on 16/7/15.
@@ -38,6 +40,8 @@ public class WaveService {
     private WaveAllocService allocService;
     @Autowired
     private PickTaskService taskService;
+    @Autowired
+    private WaveDetailDao detailDao;
 
     @Transactional(readOnly = false)
     public void createWave(WaveHead head, List<Long> vOrders){
@@ -94,14 +98,41 @@ public class WaveService {
     }
 
     @Transactional(readOnly = false)
-    public void storePickTask(long iWaveId, List<PickTaskHead> taskHeads, List<WaveDetail> taskDetails){
-        logger.info("end to run pick model, task size[%d]", taskHeads.size());
-        //存储捡货任务
-        taskService.createPickTasks(taskHeads, taskDetails);
-        logger.info("store task success");
-        //设置释放成功状态
-        this.setStatus(iWaveId, WaveConstant.STATUS_RELEASE_SUCC);
-        logger.info("run wave success");
+    public List<WaveDetail> getDetailsByPickTaskId(long pickTaskId){
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("pickTaskId", pickTaskId);
+        return detailDao.getWaveDetailList(mapQuery);
     }
+
+    @Transactional(readOnly = false)
+    public List<WaveDetail> getDetailsByQCTaskId(long qcTaskId){
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("qcTaskId", qcTaskId);
+        return detailDao.getWaveDetailList(mapQuery);
+    }
+
+    @Transactional(readOnly = false)
+    public List<WaveDetail> getDetailsByContainerId(long containerId){
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("containerId", containerId);
+        mapQuery.put("is_alive", 1);
+        return detailDao.getWaveDetailList(mapQuery);
+    }
+
+    @Transactional(readOnly = false)
+    public List<WaveDetail> getDetailsByShipTaskId(long shipTaskId){
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("shipTaskId", shipTaskId);
+        return detailDao.getWaveDetailList(mapQuery);
+    }
+
+    @Transactional(readOnly = false)
+    public void updateDetail(WaveDetail detail){
+        detail.setUpdatedAt(DateUtils.getCurrentSeconds());
+        detailDao.update(detail);
+    }
+
+
+
 
 }

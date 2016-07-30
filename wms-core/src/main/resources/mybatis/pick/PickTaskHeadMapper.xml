@@ -7,15 +7,16 @@
 		<result property="waveId" column="wave_id"/>
 		<result property="pickTaskId" column="pick_task_id"/>
 		<result property="pickTaskName" column="pick_task_name"/>
+		<result property="pickType" column="pick_type"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PickTaskHead">
 		insert into pick_task_head (
-			wave_id,pick_task_id,pick_task_name,created_at,updated_at
+			wave_id,pick_task_id,pick_task_name,pick_type,created_at,updated_at
     	) values (
-			#{waveId},#{pickTaskId},#{pickTaskName},#{createdAt},#{updatedAt}
+			#{waveId},#{pickTaskId},#{pickTaskName},#{pickType},#{createdAt},#{updatedAt}
     	)
 	</insert>
 
@@ -25,6 +26,7 @@
   			<if test="waveId != null">wave_id=#{waveId},</if>
   			<if test="pickTaskId != null">pick_task_id=#{pickTaskId},</if>
   			<if test="pickTaskName != null">pick_task_name=#{pickTaskName},</if>
+  			<if test="pickType != null">pick_type=#{pickType},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
@@ -55,6 +57,7 @@
 			<if test="waveId != null">and wave_id=#{waveId}</if>
 			<if test="pickTaskId != null">and pick_task_id=#{pickTaskId}</if>
 			<if test="pickTaskName != null">and pick_task_name=#{pickTaskName}</if>
+			<if test="pickType != null">and pick_type=#{pickType}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 		</where>
