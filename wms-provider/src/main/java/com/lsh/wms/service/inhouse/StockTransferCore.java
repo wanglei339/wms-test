@@ -26,7 +26,7 @@ public class StockTransferCore {
     @Reference
     private IStockQuantRpcService stockQuantRpcService;
 
-    public void fillTransferPlan(StockTransferPlan plan) throws BizCheckedException  {
+    public void fillTransferPlan(StockTransferPlan plan) throws BizCheckedException {
         BigDecimal packUnit = itemRpcService.getPackUnit(plan.getPackName());
         BigDecimal requiredQty = plan.getUomQty().multiply(packUnit);
         if (requiredQty.equals(BigDecimal.ZERO)) {
@@ -36,6 +36,14 @@ public class StockTransferCore {
             BigDecimal total = stockQuantRpcService.getQty(condition);
             plan.setQty(total);
         }
+    }
+
+    public void outbound(StockTransferPlan plan) throws BizCheckedException {
+
+    }
+
+    public void inbound(StockTransferPlan plan) throws BizCheckedException {
+
     }
 
 }
