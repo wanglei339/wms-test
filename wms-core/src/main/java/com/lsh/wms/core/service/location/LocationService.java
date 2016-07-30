@@ -475,4 +475,50 @@ public class LocationService {
         }
         return false;
     }
+
+    /**
+     * 获取级别的type,包含货架区20、阁楼区21、地堆区5、残存区6、集货区7、退货区8、残次区9
+     */
+    private static final long[] REGIONTYPE = {5, 6, 7, 8, 9, 20, 21};
+
+    private static boolean flag = true;
+    private static String RegionName = null;
+
+    /**
+     * 根据现有的位置,获取区域的位置,一直找到区的一层
+     * TODO 返回父亲的type类型,然后,根据类型在外面拼写
+     *
+     * @param baseinfoLocation
+     * @return
+     */
+    //获取区域的name,拼接字符串
+    public String getRegionName(BaseinfoLocation baseinfoLocation) {
+        if (flag == false) {
+            return null;
+        }
+        //先排序
+        Arrays.sort(REGIONTYPE);
+        //获取父亲对象
+        BaseinfoLocation fatherLocation = this.getFatherLocation(baseinfoLocation.getLocationId());
+        Long fatherLocationType = fatherLocation.getType();
+        //向上查找直到type属于货架区、阁楼区、暂存区、地堆区、退货区
+        if (Arrays.binarySearch(REGIONTYPE, fatherLocationType) > 0) {
+            String regionCode = fatherLocation.getLocationCode();
+            String regionTypeName = fatherLocation.getTypeName();
+            RegionName = regionTypeName;
+            flag = false;
+            return RegionName;
+        } else {
+            this.getRegionName(fatherLocation);
+            return RegionName;
+        }
+    }
+
+    /**
+     * 全局变量,开关使用完置为原来的值
+     * @param flag
+     */
+    public static void setFlag(boolean flag) {
+        LocationService.flag = flag;
+    }
 }

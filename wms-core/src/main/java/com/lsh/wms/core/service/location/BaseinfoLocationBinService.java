@@ -21,10 +21,7 @@ import java.util.*;
 public class BaseinfoLocationBinService implements IStrategy {
     private static final Logger logger = LoggerFactory.getLogger(LocationService.class);
 
-    /**
-     * 获取级别的type,包含货架区20、阁楼区21、地堆区5、残存区6、集货区7、退货区8、残次区9
-     */
-    private static final long[] REGIONTYPE = {5, 6, 7, 8, 9, 20, 21};
+
 
 
     @Autowired
@@ -115,7 +112,7 @@ public class BaseinfoLocationBinService implements IStrategy {
             } else {
                 baseinfoLocationBin.setIsUsed("未占用");
             }
-            String regionName = this.getRegionName(baseinfoLocationBin);
+            String regionName = locationService.getRegionName(baseinfoLocationBin);
             baseinfoLocationBin.setRegionName(regionName);
             return baseinfoLocationBin;
         }
@@ -143,7 +140,7 @@ public class BaseinfoLocationBinService implements IStrategy {
             for (BaseinfoLocation baseinfoLocation : baseinfoLocationList) {
                 //根据父类id获取子类bin
                 Long locationId = baseinfoLocation.getLocationId();
-                params.put("locationId",locationId);
+                params.put("locationId", locationId);
                 binList = baseinfoLocationBinDao.getBaseinfoLocationBinList(params);
                 baseinfoLocationBin = binList.get(0);
                 //设置子类信息
@@ -165,8 +162,10 @@ public class BaseinfoLocationBinService implements IStrategy {
                 } else {
                     baseinfoLocationBin.setIsUsed("未占用");
                 }
-                String regionName = this.getRegionName(baseinfoLocationBin);
+                String regionName = locationService.getRegionName(baseinfoLocationBin);
                 baseinfoLocationBin.setRegionName(regionName);
+                //locationService中的全局变量置为true
+                locationService.setFlag(true);
                 baseinfoLocationBins.add(baseinfoLocationBin);
             }
             return (List<BaseinfoLocation>) (List<?>) baseinfoLocationBins;
@@ -174,28 +173,6 @@ public class BaseinfoLocationBinService implements IStrategy {
         return null;
     }
 
-    /**
-     * 根据现有的位置,获取区域的位置,一直找到区的一层
-     * @param baseinfoLocation
-     * @return
-     */
-    //获取区域的name,拼接字符串
-    public String getRegionName(BaseinfoLocation baseinfoLocation) {
-        //先排序
-        Arrays.sort(REGIONTYPE);
-        String regionName = "";
-        //获取父亲对象
-        BaseinfoLocation fatherLocation = locationService.getFatherLocation(baseinfoLocation.getLocationId());
-        Long fatherLocationType = fatherLocation.getType();
-        //向上查找直到type属于货架区、阁楼区、暂存区、地堆区、退货区
-        if (Arrays.binarySearch(REGIONTYPE, fatherLocationType) > 0) {
-            String regionCode = fatherLocation.getLocationCode();
-            String regionTypeName = fatherLocation.getTypeName();
-            regionName = regionTypeName + " " + regionTypeName;
-            return regionName;
-        } else {
-            this.getRegionName(fatherLocation);
-        }
-        return null;
-    }
+
+
 }
