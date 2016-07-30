@@ -17,6 +17,7 @@ import java.util.Map;
  * Created by mali on 16/7/23.
  */
 @Component
+@Transactional (readOnly = true)
 public class AbsTaskHandler implements TaskHandler {
     @Autowired
     private BaseTaskService baseTaskService;
@@ -38,7 +39,9 @@ public class AbsTaskHandler implements TaskHandler {
         }
     }
 
-    protected void createConcrete(TaskEntry taskEntry) throws BizCheckedException{
+    @Transactional (readOnly = false)
+    protected void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
+        // throw new BizCheckedException("1234567890");
     }
 
 

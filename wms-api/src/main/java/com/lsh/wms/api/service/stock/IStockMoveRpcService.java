@@ -15,4 +15,5 @@ public interface IStockMoveRpcService {
     void create(StockMove move);
     void create(List<StockMove> moveList);
     void done(Long moveId) throws BizCheckedException;
+    void moveWholeContainer(Long containerId, Long taskId, Long staffId, Long fromLocationId, Long toLocationId) throws BizCheckedException;
 }

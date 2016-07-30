@@ -1,8 +1,9 @@
 package com.lsh.wms.task.service.task.pick;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.pick.PickTaskService;
-import com.lsh.wms.model.pick.PickTaskDetail;
+import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.pick.PickTaskHead;
 import com.lsh.wms.model.task.StockTakingTask;
 import com.lsh.wms.model.task.TaskEntry;
@@ -30,11 +31,11 @@ public class PickTaskHandler extends AbsTaskHandler {
         handlerFactory.register(TaskConstant.TYPE_PICK, this);
     }
 
-    protected void createConcrete(TaskEntry taskEntry) {
+    protected void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
         PickTaskHead head = (PickTaskHead)taskEntry.getTaskHead();
         head.setPickTaskId(taskEntry.getTaskInfo().getTaskId());
-        List<PickTaskDetail> details = (List<PickTaskDetail>)(List<?>)taskEntry.getTaskDetailList();
-        for(PickTaskDetail detail : details){
+        List<WaveDetail> details = (List<WaveDetail>)(List<?>)taskEntry.getTaskDetailList();
+        for(WaveDetail detail : details){
             detail.setPickTaskId(taskEntry.getTaskInfo().getTaskId());
         }
         pickTaskService.createPickTask(head, details);

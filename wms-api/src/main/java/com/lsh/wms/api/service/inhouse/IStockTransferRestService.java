@@ -8,4 +8,6 @@ import com.lsh.wms.model.transfer.StockTransferPlan;
  */
 public interface IStockTransferRestService {
     String addPlan(StockTransferPlan plan)  throws BizCheckedException;
+    String scanToLocation() throws BizCheckedException;
+    String scanFromLocation() throws BizCheckedException;
 }
