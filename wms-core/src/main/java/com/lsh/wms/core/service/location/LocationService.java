@@ -33,6 +33,7 @@ public class LocationService {
     // location类型定义
     public static final Map<String, Long> LOCATION_TYPE = new HashMap<String, Long>() {
         {
+
             put("warehouse", new Long(1)); // 1仓库
             put("area", new Long(2)); // 2区域
             put("inventoryLost", new Long(3));    //3盘盈盘亏
@@ -43,7 +44,10 @@ public class LocationService {
             put("shelf",new Long(22));  //22货架(个体)
             put("loft",new Long(23));   //23阁楼(个体)
 
-            put("",new Long(24)); //货架拣货
+            //增加货架的货位和阁楼的货位
+            put("shelf_collection_bin",new Long(24)); //货架拣货位
+            put("loft_collection_bin",new Long(25)); //阁楼拣货位
+
 
             put("floor", new Long(5)); // 5 地堆区
             put("temporary", new Long(6)); // 6 暂存区
@@ -62,6 +66,7 @@ public class LocationService {
             put("back_bin", new Long(17)); // 17 退货货位
             put("defective_bin", new Long(18));// 18 残次货位
             put("passage", new Long(19));   //19通道
+
         }
     };
 
@@ -284,6 +289,9 @@ public class LocationService {
 
     // 按类型获取location节点
     public List<BaseinfoLocation> getLocationsByType(String type) {
+        if (type == null || type.equals("")) {
+            return null;
+        }
         Map<String, Object> params = new HashMap<String, Object>();
         Long LOCATION_TYPE = this.LOCATION_TYPE.get(type);
         params.put("type", LOCATION_TYPE);
@@ -380,17 +388,7 @@ public class LocationService {
 
     //分配可用集货区节点
     public BaseinfoLocation getCollectionLocation() {
-        List<BaseinfoLocation> locations = this.getLocationsByType("collection_area");
-        if (locations.size() > 0) {
-            for (BaseinfoLocation location : locations) {
-                Long locationId = location.getLocationId();
-                List<Long> containerIds = stockQuantService.getContainerIdByLocationId(locationId);
-                if (location.getContainerVol() - containerIds.size() > 0) {
-                    return location;
-                }
-            }
-        }
-        return null;
+        return this.getAvailableLocationByType("collection_area");
     }
 
     //获取可用的集货节点id

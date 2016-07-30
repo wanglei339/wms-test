@@ -6,13 +6,16 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
+import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.shelve.IShelveRestService;
 import com.lsh.wms.api.service.task.ITaskRestService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.service.shelve.ShelveTaskService;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.shelve.ShelveTaskHead;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,6 +39,8 @@ public class ShelveRestService implements IShelveRestService {
     private ITaskRpcService iTaskRpcService;
     @Autowired
     private BaseTaskService baseTaskService;
+    @Autowired
+    private StockQuantService stockQuantService;
     @Autowired
     private ShelveTaskService shelveTaskService;
 
@@ -52,15 +58,34 @@ public class ShelveRestService implements IShelveRestService {
         }
         Long taskType = Long.valueOf(mapQuery.get("type").toString());
         Long containerId = Long.valueOf(mapQuery.get("containerId").toString());
+        // 检查容器信息
+        if (containerId == null || containerId.equals("")) {
+            throw new BizCheckedException("2030003");
+        }
         // 检查该容器是否已创建过任务
         if (baseTaskService.checkTaskByContainerId(containerId)) {
             throw new BizCheckedException("2030008");
         }
-        TaskInfo taskInfo = BeanMapTransUtils.map2Bean(mapQuery, TaskInfo.class);
-        ShelveTaskHead taskHead = BeanMapTransUtils.map2Bean(mapQuery, ShelveTaskHead.class);
+        // 获取quant
+        List<StockQuant> quants = stockQuantService.getQuantsByContainerId(containerId);
+        if (quants.size() < 1) {
+            throw new BizCheckedException("2030001");
+        }
+        StockQuant quant = quants.get(0);
+
+        TaskInfo taskInfo = new TaskInfo();
+        ShelveTaskHead taskHead = new ShelveTaskHead();
         TaskEntry entry = new TaskEntry();
+
+        ObjUtils.bean2bean(quant, taskInfo);
+        ObjUtils.bean2bean(quant, taskHead);
+
+        taskInfo.setType(taskType);
+        taskInfo.setFromLocationId(quant.getLocationId());
+
         entry.setTaskInfo(taskInfo);
         entry.setTaskHead(taskHead);
+
         final Long taskId = iTaskRpcService.create(taskType, entry);
         return JsonUtils.SUCCESS(new HashMap<String, Long>() {
             {
