@@ -37,7 +37,7 @@ import java.util.Map;
  * Package name:com.lsh.wms.service.po.
  * desc:类功能描述
  */
-@Service
+@Service(protocol = "dubbo")
 public class PoRpcService implements IPoRpcService {
 
     private static Logger logger = LoggerFactory.getLogger(PoRpcService.class);

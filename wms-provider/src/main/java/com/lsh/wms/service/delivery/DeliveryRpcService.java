@@ -28,7 +28,7 @@ import java.util.*;
  * Package name:com.lsh.wms.service.so.
  * desc:类功能描述
  */
-@Service
+@Service(protocol = "dubbo")
 public class DeliveryRpcService implements IDeliveryRpcService {
 
     private static Logger logger = LoggerFactory.getLogger(DeliveryRpcService.class);

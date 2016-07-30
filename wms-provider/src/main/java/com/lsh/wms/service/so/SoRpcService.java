@@ -37,7 +37,7 @@ import java.util.Map;
  * Package name:com.lsh.wms.service.so.
  * desc:类功能描述
  */
-@Service
+@Service(protocol = "dubbo")
 public class SoRpcService implements ISoRpcService {
 
     private static Logger logger = LoggerFactory.getLogger(SoRpcService.class);
