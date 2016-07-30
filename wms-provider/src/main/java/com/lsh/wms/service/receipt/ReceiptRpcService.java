@@ -260,12 +260,12 @@ public class ReceiptRpcService implements IReceiptRpcService {
         }
 
 
-        TaskEntry taskEntry = new TaskEntry();
+       /* TaskEntry taskEntry = new TaskEntry();
         TaskInfo taskInfo = new TaskInfo();
         taskInfo.setType(TaskConstant.TYPE_SHELVE);
         taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
         taskEntry.setTaskInfo(taskInfo);
-        iTaskRpcService.create(TaskConstant.TYPE_SHELVE, taskEntry);
+        iTaskRpcService.create(TaskConstant.TYPE_SHELVE, taskEntry);*/
 
     }
 
