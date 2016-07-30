@@ -13,14 +13,18 @@ import com.lsh.wms.api.service.inhouse.IStockTakingRestService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.core.service.task.StockTakingTaskService;
 import com.lsh.wms.model.StockTakingInfo;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.stock.ItemAndSupplierRelation;
+import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.taking.LocationListRequest;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.taking.StockTakingRequest;
@@ -58,6 +62,9 @@ public class StockTakingRestService implements IStockTakingRestService {
 
     @Autowired
     private StockMoveService moveService;
+
+    @Autowired
+    private StockLotService lotService;
 
     @Reference
     private ITaskRpcService iTaskRpcService;
@@ -108,9 +115,7 @@ public class StockTakingRestService implements IStockTakingRestService {
     @Path("getCount")
     public String getCount(Map<String,Object> mapQuery) {
         Integer count = stockTakingService.countHead(mapQuery);
-        Map<String,Object> result =new HashMap<String, Object>();
-        result.put("count",count);
-        return JsonUtils.SUCCESS(result);
+        return JsonUtils.SUCCESS(count);
     }
     @GET
     @Path("getDetail")
@@ -152,31 +157,95 @@ public class StockTakingRestService implements IStockTakingRestService {
     }
     @POST
     @Path("getLocationList")
-    public String getLocationList(Map<String,Object> mapQuery) {
-        int locationNum = Integer.parseInt(mapQuery.get("locationNum").toString());
-        //Long itemId,Long AreaId,Long supplierId,int locationNum
-        BaseinfoLocation location = locationService.getWarehouseLocation();
-        List<Long> locationList = locationService.getStoreLocationIds(location.getLocationId());
+    public String getLocationList(LocationListRequest request) {
+        List<Long> locationList =null;
+        int locationNum= Integer.MAX_VALUE;
+        //Long itemId,Long AreaId,Long supplierId,Long storageId int locationNum
+        if(request.getLocationNum()!=0) {
+            locationNum = request.getLocationNum();
+        }
+        if (request.getItemId() == 0 && request.getSupplierId() == 0 && request.getAreaId() == 0 && request.getStorageId() == 0) {
+            BaseinfoLocation location = locationService.getWarehouseLocation();
+            locationList = locationService.getStoreLocationIds(location.getLocationId());
+        } else {
 
-        if(locationList.size()<=locationNum){
+            //库区，货架得到库位
+            if (request.getAreaId() != 0 && request.getStorageId() == 0) {
+                //locationList=
+                //根据库区得出库位
+            } else if (request.getStorageId() != 0) {
+                //locationList=
+                //根据货架得出库位
+            }
+
+            //商品,供应商得到库位
+            Map<String,Object> queryMap =new HashMap<String, Object>();
+            queryMap.put("supplierId",request.getSupplierId());
+            queryMap.put("itemId",request.getItemId());
+            List<StockQuant>quantList = quantService.getQuants(queryMap);
+            Set<Long> locationSet =new HashSet<Long>();
+            for(StockQuant quant:quantList){
+                locationSet.add(quant.getLocationId());
+            }
+            if(locationList!=null && locationList.size()!=0){
+                locationList.retainAll(new ArrayList<Long>(locationSet));
+            }else {
+                locationList =new ArrayList<Long>(locationSet);
+            }
+
+
+        }
+
+        if (locationList.size() < locationNum ) {
             locationNum = locationList.size();
         }
-        long[] locations=new long[locationNum];
+        long[] locations = new long[locationNum];
         for (int i = 0; i < locations.length; i++) {
 
             // 取出一个随机数
             int r = (int) (Math.random() * locationList.size());
-
             locations[i] = locationList.get(r);
 
             // 排除已经取过的值
             locationList.remove(r);
         }
-        Map<String,Object> result =new HashMap<String, Object>();
-        result.put("locationList",locations);
-        return JsonUtils.SUCCESS(result);
-    }
 
+        return JsonUtils.SUCCESS(locations);
+    }
+    @GET
+    @Path("getItemList")
+    public String getItemList(@QueryParam("supplierId") Long supplierId) {
+        List<Long> supplierList =null;
+        if(supplierId!=null){
+            supplierList=new ArrayList<Long>();
+            supplierList.add(supplierId);
+        }
+        Set<Long> itemSet =new HashSet<Long>();
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("supplierList", supplierList);
+        List<ItemAndSupplierRelation> relationList = lotService.getSupplierIdOrItemId(queryMap);
+        for(ItemAndSupplierRelation relation:relationList){
+            itemSet.add(relation.getItemId());
+        }
+        return JsonUtils.SUCCESS(itemSet);
+    }
+    @GET
+    @Path("getSupplierList")
+    public String getSupplierList(@QueryParam("itemId") Long itemId) {
+        List<Long> itemList=null;
+        if(itemId!=null){
+            itemList=new ArrayList<Long>();
+            itemList.add(itemId);
+        }
+        Set<Long> supplierSet =new HashSet<Long>();
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("itemList",itemList);
+        List<ItemAndSupplierRelation> relationList = lotService.getSupplierIdOrItemId(queryMap);
+        for(ItemAndSupplierRelation relation:relationList){
+            supplierSet.add(relation.getSupplierId());
+        }
+        return JsonUtils.SUCCESS(supplierSet);
+    }
     public void createNextDetail(Long stockTakingId,Long roundTime) throws BizCheckedException{
         Map queryMap = new HashMap();
         StockTakingHead head = stockTakingService.getHeadById(stockTakingId);
@@ -188,7 +257,7 @@ public class StockTakingRestService implements IStockTakingRestService {
             stockTakingDetail.setId(0L);
             BigDecimal qty=quantService.getQuantQtyByLocationIdAndItemId(stockTakingDetail.getLocationId(), stockTakingDetail.getItemId());
             stockTakingDetail.setTheoreticalQty(qty);
-            stockTakingDetail.setRound(roundTime+1);
+            stockTakingDetail.setRound(roundTime + 1);
             detailList.add(stockTakingDetail);
         }
         stockTakingService.insertDetailList(detailList);
@@ -285,9 +354,17 @@ public class StockTakingRestService implements IStockTakingRestService {
     }
 
     private boolean chargeDifference(Long stockTakingId, Long round) {
+        List<StockTakingDetail> oldDetails =stockTakingService.getDetailListByRound(stockTakingId, round - 1);
         List<StockTakingDetail> details = stockTakingService.getDetailListByRound(stockTakingId, round);
+        Map<String,BigDecimal> compareMap = new HashMap<String, BigDecimal>();
+        for(StockTakingDetail detail:oldDetails){
+            String key = "l:"+detail.getLocationId()+"i:"+detail.getItemId();
+            compareMap.put(key,detail.getRealQty().subtract(detail.getTheoreticalQty()));
+        }
         for (StockTakingDetail detail : details) {
-            if (detail.getRealQty().compareTo(detail.getTheoreticalQty()) != 0) {
+            String key = "l:"+detail.getLocationId()+"i:"+detail.getItemId();
+            BigDecimal differQty = detail.getRealQty().subtract(detail.getTheoreticalQty());
+            if(!compareMap.containsKey(key) || compareMap.get(key).compareTo(differQty)!=0) {
                 return false;
             }
         }
@@ -408,7 +485,7 @@ public class StockTakingRestService implements IStockTakingRestService {
         logger.info("detail:"+JSON.toJSONString(detailList));
         stockTakingService.create(head, detailList);
         logger.info("end create taking");
-        logger.info("head:"+JSON.toJSONString(head));
+        logger.info("head:" + JSON.toJSONString(head));
         this.createTask(head, detailList, 1L, head.getDueTime());
         return JsonUtils.SUCCESS();
     }

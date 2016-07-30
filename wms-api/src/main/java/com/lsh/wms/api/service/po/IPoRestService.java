@@ -23,11 +23,13 @@ public interface IPoRestService {
 
     public BaseResponse insertOrder(PoRequest request) throws BizCheckedException;
 
-    public void editOrder(InbPoHeader inbPoHeader);
+    public String updateOrderStatus() throws BizCheckedException;
 
-    public InbPoHeader getInbPoHeaderById(Integer id);
+    public String getPoHeaderList();
 
-    public Integer countInbPoHeader(Map<String, Object> params);
+    public String getPoDetailByOrderId(Long orderId) throws BizCheckedException;
 
-    public List<InbPoHeader> getInbPoHeaderList(Map<String, Object> params);
+    public String countInbPoHeader();
+
+    public String getPoDetailList();
 }

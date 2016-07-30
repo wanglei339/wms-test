@@ -17,15 +17,20 @@
 		<result property="receiptId" column="receipt_id"/>
 		<result property="packUnit" column="pack_unit"/>
 		<result property="packName" column="pack_name"/>
+		<result property="supplierId" column="supplier_id"/>
+	</resultMap>
+	<resultMap id="ItemAndSupplierMap" type="ItemAndSupplierRelation">
+		<result property="itemId" column="item_id"/>
+		<result property="supplierId" column="supplier_id"/>
 	</resultMap>
 
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockLot">
 		insert into stock_lot (
 			lot_id,sku_id,serial_no,in_date,product_date,expire_date,
-			created_at,updated_at,po_id,item_id,receipt_id,pack_unit,pack_name
+			created_at,updated_at,po_id,item_id,receipt_id,pack_unit,pack_name,supplier_id
     	) values (
 			#{lotId},#{skuId},#{serialNo},#{inDate},#{productDate},#{expireDate},
-			#{createdAt},#{updatedAt},#{itemId},#{poId},#{receiptId},#{packUnit},#{packName}
+			#{createdAt},#{updatedAt},#{itemId},#{poId},#{receiptId},#{packUnit},#{packName},#{supplierId}
     	)
 	</insert>
 
@@ -45,6 +50,7 @@
 			<if test="receiptId != null">receipt_id=#{receiptId},</if>
 			<if test="packUnit != null">pack_unit=#{packUnit},</if>
 			<if test="packName != null">pack_name=#{packName}</if>
+			<if test="supplierId !=null">supplier_id=#{supplierId}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -72,6 +78,24 @@
 		</if>
 	</select>
 
+	<select id="getSupplierIdOrItemId" parameterType="map" resultMap="ItemAndSupplierMap">
+		select DISTINCT item_id,supplier_id from stock_lot
+		<where>
+			<if test="supplierList != null">
+				supplier_id in
+				<foreach collection="supplierList"  item="item" index="index" open="(" separator=","  close=")">
+					#{item}
+				</foreach>
+			</if>
+			<if test="itemList != null">
+				item_id in
+				<foreach collection="itemList"  item="item" index="index" open="(" separator=","  close=")">
+					#{item}
+				</foreach>
+			</if>
+		</where>
+	</select>
+
 	<sql id="queryCondition">
 		<where>
 			<if test="id != null">id=#{id}</if>
@@ -88,6 +112,7 @@
 			<if test="receiptId != null">and receipt_id=#{receiptId}</if>
 			<if test="packUnit != null">and pack_unit=#{packUnit}</if>
 			<if test="packName != null">and pack_name=#{packName}</if>
+			<if test="supplierId !=null">supplier_id=#{supplierId}</if>
 		</where>
 	</sql>
 

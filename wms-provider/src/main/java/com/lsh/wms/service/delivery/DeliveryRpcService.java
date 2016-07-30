@@ -1,30 +1,22 @@
-package com.lsh.wms.rpc.service.so;
+package com.lsh.wms.service.delivery;
 
-import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Service;
-import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
-import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
-import com.lsh.wms.api.model.base.BaseResponse;
-import com.lsh.wms.api.model.base.ResUtils;
-import com.lsh.wms.api.model.base.ResponseConstant;
 import com.lsh.wms.api.model.so.DeliveryItem;
 import com.lsh.wms.api.model.so.DeliveryRequest;
-import com.lsh.wms.api.service.request.RequestUtils;
-import com.lsh.wms.api.service.so.IDeliveryRestService;
+import com.lsh.wms.api.service.so.IDeliveryRpcService;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
 import com.lsh.wms.model.so.OutbSoDetail;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
 import java.util.*;
 
 /**
@@ -36,11 +28,10 @@ import java.util.*;
  * Package name:com.lsh.wms.service.so.
  * desc:类功能描述
  */
-@Service(protocol = "rest")
-@Path("order/so/delivery")
-@Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
-@Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-public class SODeliveryRestService implements IDeliveryRestService {
+@Service(protocol = "dubbo")
+public class DeliveryRpcService implements IDeliveryRpcService {
+
+    private static Logger logger = LoggerFactory.getLogger(DeliveryRpcService.class);
 
     @Autowired
     private SoDeliveryService soDeliveryService;
@@ -48,20 +39,7 @@ public class SODeliveryRestService implements IDeliveryRestService {
     @Autowired
     private SoOrderService soOrderService;
 
-    @POST
-    @Path("init")
-    public String init(String soDeliveryInfo) {
-        OutbDeliveryHeader outbDeliveryHeader = JSON.parseObject(soDeliveryInfo,OutbDeliveryHeader.class);
-        List<OutbDeliveryDetail> outbDeliveryDetailList = JSON.parseArray((String) outbDeliveryHeader.getDeliveryDetails(),OutbDeliveryDetail.class);
-        soDeliveryService.insert(outbDeliveryHeader,outbDeliveryDetailList);
-        return JsonUtils.SUCCESS();
-    }
-
-    @POST
-    @Path("insert")
-    public BaseResponse insertOrder(DeliveryRequest request) throws BizCheckedException {
-        BaseResponse response = new BaseResponse();
-
+    public void insertOrder(DeliveryRequest request) throws BizCheckedException {
         //OutbDeliveryHeader
         OutbDeliveryHeader outbDeliveryHeader = new OutbDeliveryHeader();
         ObjUtils.bean2bean(request, outbDeliveryHeader);
@@ -107,15 +85,9 @@ public class SODeliveryRestService implements IDeliveryRestService {
         //插入订单
         soDeliveryService.insertOrder(outbDeliveryHeader, outbDeliveryDetailList);
 
-        return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
-
     }
 
-//    @POST
-//    @Path("updateDeliveryType")
-//    public String updateDeliveryType() throws BizCheckedException {
-//        Map<String, Object> map = RequestUtils.getRequest();
-//
+//    public Boolean updateDeliveryType(Map<String, Object> map) throws BizCheckedException {
 //        if(map.get("deliveryId") == null || map.get("deliveryType") == null) {
 //            throw new BizCheckedException("1040001", "参数不能为空");
 //        }
@@ -131,12 +103,10 @@ public class SODeliveryRestService implements IDeliveryRestService {
 //
 //        soDeliveryService.updateOutbDeliveryHeaderByDeliveryId(outbDeliveryHeader);
 //
-//        return JsonUtils.SUCCESS();
+//        return true;
 //    }
 
-    @GET
-    @Path("getOutbDeliveryHeaderDetailByDeliveryId")
-    public String getOutbDeliveryHeaderDetailByDeliveryId(@QueryParam("deliveryId") Long deliveryId) throws BizCheckedException {
+    public OutbDeliveryHeader getOutbDeliveryHeaderDetailByDeliveryId(Long deliveryId) throws BizCheckedException {
         if(deliveryId == null) {
             throw new BizCheckedException("1040001", "参数不能为空");
         }
@@ -145,21 +115,15 @@ public class SODeliveryRestService implements IDeliveryRestService {
 
         soDeliveryService.fillDetailToHeader(outbDeliveryHeader);
 
-        return JsonUtils.SUCCESS(outbDeliveryHeader);
+        return outbDeliveryHeader;
     }
 
-    @POST
-    @Path("countOutbDeliveryHeader")
-    public String countOutbDeliveryHeader() {
-        Map<String, Object> params = RequestUtils.getRequest();
-        return JsonUtils.SUCCESS(soDeliveryService.countOutbDeliveryHeader(params));
+    public Integer countOutbDeliveryHeader(Map<String, Object> params) {
+        return soDeliveryService.countOutbDeliveryHeader(params);
     }
 
-    @POST
-    @Path("getOutbDeliveryHeaderList")
-    public String getOutbDeliveryHeaderList() {
-        Map<String, Object> params = RequestUtils.getRequest();
-        return JsonUtils.SUCCESS(soDeliveryService.getOutbDeliveryHeaderList(params));
+    public List<OutbDeliveryHeader> getOutbDeliveryHeaderList(Map<String, Object> params) {
+        return soDeliveryService.getOutbDeliveryHeaderList(params);
     }
 
 }

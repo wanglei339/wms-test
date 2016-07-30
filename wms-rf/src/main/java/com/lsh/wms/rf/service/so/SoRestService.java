@@ -1,5 +1,6 @@
-package com.lsh.wms.service.so;
+package com.lsh.wms.rf.service.so;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
@@ -11,6 +12,7 @@ import com.lsh.wms.api.model.base.ResponseConstant;
 import com.lsh.wms.api.model.so.SoRequest;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.so.ISoRestService;
+import com.lsh.wms.api.service.so.ISoRpcService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.so.OutbSoDetail;
 import com.lsh.wms.model.so.OutbSoHeader;
@@ -40,8 +42,8 @@ public class SoRestService implements ISoRestService {
 
     private static Logger logger = LoggerFactory.getLogger(SoRestService.class);
 
-    @Autowired
-    private SoRpcService soRpcService;
+    @Reference
+    private ISoRpcService iSoRpcService;
 
     @Autowired
     private SoOrderService soOrderService;
@@ -58,7 +60,7 @@ public class SoRestService implements ISoRestService {
     @POST
     @Path("insert")
     public BaseResponse insertOrder(SoRequest request) throws BizCheckedException {
-        soRpcService.insertOrder(request);
+        iSoRpcService.insertOrder(request);
         return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
     }
 
@@ -67,7 +69,7 @@ public class SoRestService implements ISoRestService {
     public String updateOrderStatus() throws BizCheckedException {
         Map<String, Object> map = RequestUtils.getRequest();
 
-        soRpcService.updateOrderStatus(map);
+        iSoRpcService.updateOrderStatus(map);
 
         return JsonUtils.SUCCESS();
     }
@@ -75,21 +77,20 @@ public class SoRestService implements ISoRestService {
     @GET
     @Path("getOutbSoHeaderDetailByOrderId")
     public String getOutbSoHeaderDetailByOrderId(@QueryParam("orderId") Long orderId) throws BizCheckedException {
-        return JsonUtils.SUCCESS(soRpcService.getOutbSoHeaderDetailByOrderId(orderId));
+        return JsonUtils.SUCCESS(iSoRpcService.getOutbSoHeaderDetailByOrderId(orderId));
     }
 
     @POST
     @Path("countOutbSoHeader")
     public String countOutbSoHeader() {
         Map<String, Object> params = RequestUtils.getRequest();
-        return JsonUtils.SUCCESS(soRpcService.countOutbSoHeader(params));
+        return JsonUtils.SUCCESS(iSoRpcService.countOutbSoHeader(params));
     }
 
     @POST
     @Path("getOutbSoHeaderList")
     public String getOutbSoHeaderList() {
         Map<String, Object> params = RequestUtils.getRequest();
-        return JsonUtils.SUCCESS(soRpcService.getOutbSoHeaderList(params));
+        return JsonUtils.SUCCESS(iSoRpcService.getOutbSoHeaderList(params));
     }
-
 }

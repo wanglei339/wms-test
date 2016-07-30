@@ -24,17 +24,18 @@
 		<result property="dueTime" column="due_time"/>
 		<result property="areaId" column="area_id"/>
 		<result property="itemId" column="item_id"/>
+		<result property="storageId" column="storage_id"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockTakingHead">
 		insert into stock_taking_head (
 			taking_id,name,planner,taking_type,view_type,cluster_method,
 			max_chk_rnd,date,status,supplier_id,owner_id,location_list,
-			lot_id,sku_id,created_at,updated_at,plan_type,due_time,area_id,item_id
+			lot_id,sku_id,created_at,updated_at,plan_type,due_time,area_id,item_id,storage_id
     	) values (
 			#{takingId},#{name},#{planner},#{takingType},#{viewType},#{clusterMethod},
 			#{maxChkRnd},#{date},#{status},#{supplierId},#{ownerId},#{locationList},
-			#{lotId},#{skuId},#{createdAt},#{updatedAt},#{planType},#{dueTime},#{areaId},#{itemId}
+			#{lotId},#{skuId},#{createdAt},#{updatedAt},#{planType},#{dueTime},#{areaId},#{itemId},#{storageId}
     	)
 	</insert>
 
@@ -61,6 +62,7 @@
 			<if test="dueTime != null">due_time=#{dueTime}</if>
 			<if test="areaId != null">area_id=#{areaId}</if>
 			<if test="itemId != null">item_id=#{itemId}</if>
+			<if test="storageId !=null">storage_id=#{storageId}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -106,6 +108,7 @@
 			<if test="dueTime != null">due_time=#{dueTime}</if>
 			<if test="areaId != null">area_id=#{areaId}</if>
 			<if test="itemId != null">item_id=#{itemId}</if>
+			<if test="storageId !=null">storage_id=#{storageId}</if>
 		</where>
 	</sql>
    

@@ -1,6 +1,8 @@
 package com.lsh.wms.api.service.po;
 
 
+import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.wms.api.model.po.PoRequest;
 import com.lsh.wms.model.po.InbPoHeader;
 
 import java.util.List;
@@ -17,13 +19,16 @@ import java.util.Map;
  */
 public interface IPoRpcService {
 
-    public void orderInit(InbPoHeader inbPoHeader);
+    public void insertOrder(PoRequest request) throws BizCheckedException;
 
-    public void editOrder(InbPoHeader inbPoHeader);
+    public Boolean updateOrderStatus(Map<String, Object> map) throws BizCheckedException;
 
-    public InbPoHeader getInbPoHeaderById(Integer id);
+    public List<InbPoHeader> getPoHeaderList(Map<String, Object> params);
+
+    public InbPoHeader getPoDetailByOrderId(Long orderId) throws BizCheckedException;
 
     public Integer countInbPoHeader(Map<String, Object> params);
 
-    public List<InbPoHeader> getInbPoHeaderList(Map<String, Object> params);
+    public List<InbPoHeader> getPoDetailList(Map<String, Object> params);
+
 }

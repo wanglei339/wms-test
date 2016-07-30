@@ -9,7 +9,7 @@ public class WmsProviderMain {
             argAry = new String[args.length - 1];
             System.arraycopy(args, 1, argAry, 0, args.length - 1);
         }
-        // http://127.0.0.1:8888/api/wms/java/v1/sms/sendMsg
+        // http://127.0.0.1:9003/api/wms/java/v1/sms/sendMsg
         com.alibaba.dubbo.container.Main.main(argAry);
     }
 
