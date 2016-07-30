@@ -1,6 +1,7 @@
 package com.lsh.wms.task.service.handler;
 
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.task.TaskEntry;
@@ -89,12 +90,12 @@ public class AbsTaskHandler implements TaskHandler {
     }
 
 
-    public void assign(Long taskId, Long staffId) {
+    public void assign(Long taskId, Long staffId) throws BizCheckedException {
         baseTaskService.assign(taskId, staffId);
         this.assignConcrete(taskId, staffId);
     }
 
-    protected void assignConcrete(Long taskId, Long staffId) {
+    protected void assignConcrete(Long taskId, Long staffId) throws BizCheckedException {
     }
 
 
