@@ -83,6 +83,9 @@ public class WaveCore {
         //获取捡货模版
         PickModelTemplate modelTpl = modelService.getPickModelTemplate(waveHead.getPickModelTemplateId());
         List<PickModel> modelList = modelService.getPickModelsByTplId(waveHead.getPickModelTemplateId());
+        if(modelList.size()==0){
+            throw new BizCheckedException("2040005");
+        }
         Collections.sort(modelList,new Comparator<PickModel> (){
             //按捡货区权重排序
             public int compare(PickModel arg0, PickModel arg1) {
@@ -135,7 +138,7 @@ public class WaveCore {
                         }
                     }
                     //获取分拣分区下的可分配库存数量,怎么获取?
-                    long zone_qty = 10000;
+                    long zone_qty = 100000;
                     int alloc_x = leftAllocQty.divide(pick_ea_num).intValue();
                     int zone_alloc_x = BigDecimal.valueOf(zone_qty).divide(pick_ea_num).intValue();
                     alloc_x = alloc_x > zone_alloc_x ? zone_alloc_x : alloc_x;
@@ -178,11 +181,19 @@ public class WaveCore {
                 SplitNode node = new SplitNode();
                 node.details = new ArrayList<WaveDetail>();
                 for (WaveAllocDetail ad : pickAllocDetailList) {
+                    if(ad.getPickZoneId() != zone.getPickZoneId()){
+                        continue;
+                    }
                     WaveDetail detail = new WaveDetail();
                     ObjUtils.bean2bean(ad, detail);
                     node.details.add(detail);
                 }
-                splitNodes.add(node);
+                if(node.details.size()>0) {
+                    splitNodes.add(node);
+                }
+            }
+            if(splitNodes.size()==0){
+                continue;
             }
             List<SplitNode> stopNodes = new LinkedList<SplitNode>();
             PickModel model = modelList.get(zidx);

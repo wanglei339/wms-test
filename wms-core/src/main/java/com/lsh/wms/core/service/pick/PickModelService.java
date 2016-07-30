@@ -62,7 +62,7 @@ public class PickModelService {
 
     public List<PickModel> getPickModelsByTplId(long iPickTemplateId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("pickModelTemplateId", iPickTemplateId);
+        mapQuery.put("pickModelTemplate", iPickTemplateId);
         return modelDao.getPickModelList(mapQuery);
     }
 
