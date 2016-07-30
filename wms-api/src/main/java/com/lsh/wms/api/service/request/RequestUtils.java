@@ -31,7 +31,7 @@ public class RequestUtils {
     public static Map<String, Object> getRequest() {
         HttpServletRequest request = (HttpServletRequest) RpcContext.getContext().getRequest();
         Map<String, Object> requestMap = new HashMap<String, Object>();
-        Map<String, String[]> paramMap = request.getParameterMap();
+        Map<String, String[]> paramMap = new HashMap<String, String[]>();
 
         String contentType = request.getContentType();
         if ("POST".equalsIgnoreCase(request.getMethod())) {
