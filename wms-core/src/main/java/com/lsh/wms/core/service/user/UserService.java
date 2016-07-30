@@ -1,4 +1,4 @@
-package com.lsh.wms.core.service.login;
+package com.lsh.wms.core.service.user;
 
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.base.common.utils.StrUtils;
@@ -14,7 +14,7 @@ import java.util.Map;
  * Created by lixin-mac on 16/7/28.
  */
 @Component
-public class LoginService {
+public class UserService {
     @Autowired
     private RedisStringDao redisStringDao;
     //TODO 账号bean注入
