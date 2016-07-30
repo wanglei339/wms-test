@@ -25,7 +25,7 @@ public class WaveDetail implements Serializable {
 	/** 供商id */
 	private Long supplierId = 0L;
 	/** 0-新建，呵呵，冗余一下，以后看用不用吧 */
-	private Long status;
+	private Long status = 1L;
 	/** 订单需求量 */
 	private BigDecimal reqQty = new BigDecimal("0.0000");
 	/** 配货库存量 */
