@@ -36,25 +36,25 @@ public class LocationService {
     // location类型定义
     public static final Map<String, Long> LOCATION_TYPE = new HashMap<String, Long>() {
         {
-            put("warehouse", new Long(1)); // 1仓库
-            put("area", new Long(2)); // 2区域
-            put("inventoryLost", new Long(3));    //3盘盈盘亏
-            put("goods_area", new Long(4)); //4货区(下级是 货架或者阁楼)
-            put("floor", new Long(5)); // 5 地堆区
-            put("temporary", new Long(6)); // 6 暂存区
-            put("collection_area", new Long(7)); // 7 集货区
-            put("back_area", new Long(8)); // 8 退货区
-            put("defective_area", new Long(9)); // 9 残次区
-            put("dock_area", new Long(10)); // 10 码头区
-            put("bin", new Long(11)); // 11 货位
-            put("packing_bin", new Long(12)); // 12 拣货位
-            put("stock_bin", new Long(13)); // 13 存货位
-            put("floor_bin", new Long(14)); // 14 地堆货位
-            put("temporary_bin", new Long(15)); // 15 暂存货位
-            put("collection_bin", new Long(16)); // 16 集货货位
-            put("back_bin", new Long(17)); // 17 退货货位
-            put("defective_bin", new Long(18));// 18 残次货位
-            put("passage", new Long(19));   //19通道
+            put("warehouse",1L); // 1仓库
+            put("area",2L); // 2区域
+            put("inventoryLost",3L);    //3盘盈盘亏
+            put("goods_area",4L); //4货区(下级是 货架或者阁楼)
+            put("floor",5L); // 5 地堆区
+            put("temporary",6L); // 6 暂存区
+            put("collection_area",7L); // 7 集货区
+            put("back_area",8L); // 8 退货区
+            put("defective_area",9L); // 9 残次区
+            put("dock_area",10L); // 10 码头区
+            put("bin",11L); // 11 货位
+            put("packing_bin",12L); // 12 拣货位
+            put("stock_bin",13L); // 13 存货位
+            put("floor_bin",14L); // 14 地堆货位
+            put("temporary_bin",15L); // 15 暂存货位
+            put("collection_bin",16L); // 16 集货货位
+            put("back_bin",17L); // 17 退货货位
+            put("defective_bin",18L);// 18 残次货位
+            put("passage",19L);   //19通道
         }
     };
 
@@ -215,6 +215,9 @@ public class LocationService {
 
     // 按类型获取location节点
     public List<BaseinfoLocation> getLocationsByType(String type) {
+        if (type == null || type.equals("")) {
+            return null;
+        }
         Map<String, Object> params = new HashMap<String, Object>();
         Long LOCATION_TYPE = this.LOCATION_TYPE.get(type);
         params.put("type", LOCATION_TYPE);
@@ -311,17 +314,7 @@ public class LocationService {
 
     //分配可用集货区节点
     public BaseinfoLocation getCollectionLocation() {
-        List<BaseinfoLocation> locations = this.getLocationsByType("collection_area");
-        if (locations.size() > 0) {
-            for (BaseinfoLocation location : locations) {
-                Long locationId = location.getLocationId();
-                List<Long> containerIds = stockQuantService.getContainerIdByLocationId(locationId);
-                if (location.getContainerVol() - containerIds.size() > 0) {
-                    return location;
-                }
-            }
-        }
-        return null;
+        return this.getAvailableLocationByType("collection_area");
     }
 
     //获取可用的集货节点id
