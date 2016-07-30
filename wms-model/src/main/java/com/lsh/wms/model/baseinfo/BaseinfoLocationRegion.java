@@ -5,8 +5,7 @@ import org.springframework.stereotype.Component;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
-@Component
-public class BaseinfoLocationRegion extends IBaseinfoLocaltionModel implements Serializable {
+public class BaseinfoLocationRegion extends BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel {
 
 	/**  */
     private Long id;
@@ -23,7 +22,7 @@ public class BaseinfoLocationRegion extends IBaseinfoLocaltionModel implements S
 	/** 描述 */
     private String description;
 	/** 区域类型同主表type */
-    private Integer type;
+    private Long type;
 	/** 区域名字 */
     private String regionName;
 	/** 是否可用 */
@@ -84,15 +83,7 @@ public class BaseinfoLocationRegion extends IBaseinfoLocaltionModel implements S
 	public void setDescription(String description){
 		this.description = description;
 	}
-	
-	public Integer getType(){
-		return this.type;
-	}
-	
-	public void setType(Integer type){
-		this.type = type;
-	}
-	
+
 	public String getRegionName(){
 		return this.regionName;
 	}

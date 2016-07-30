@@ -7,21 +7,21 @@
 		<result property="locationId" column="location_id"/>
 		<result property="itemId" column="item_id"/>
 		<result property="volume" column="volume"/>
-		<result property="binType" column="bin_type"/>
 		<result property="weigh" column="weigh"/>
 		<result property="description" column="description"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
 		<result property="type" column="type"/>
+		<result property="isValid" column="is_valid"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLocationBin">
 		insert into baseinfo_location_bin (
-			location_id,item_id,volume,bin_type,weigh,description,
-			created_at,updated_at,type
+			location_id,item_id,volume,weigh,description,created_at,
+			updated_at,type,is_valid
     	) values (
-			#{locationId},#{itemId},#{volume},#{binType},#{weigh},#{description},
-			#{createdAt},#{updatedAt},#{type}
+			#{locationId},#{itemId},#{volume},#{weigh},#{description},#{createdAt},
+			#{updatedAt},#{type},#{isValid}
     	)
 	</insert>
 
@@ -31,19 +31,19 @@
   			<if test="locationId != null">location_id=#{locationId},</if>
   			<if test="itemId != null">item_id=#{itemId},</if>
   			<if test="volume != null">volume=#{volume},</if>
-  			<if test="binType != null">bin_type=#{binType},</if>
   			<if test="weigh != null">weigh=#{weigh},</if>
   			<if test="description != null">description=#{description},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
-  			<if test="type != null">type=#{type}</if>
+  			<if test="type != null">type=#{type},</if>
+  			<if test="isValid != null">is_valid=#{isValid}</if>
 		</set>
-		where location_id=#{locationId}
+		where locationId=#{locationId}
 	</update>
   
 	<select id="getBaseinfoLocationBinById" parameterType="int" resultMap="baseinfoLocationBinResultMap">
 		select * from baseinfo_location_bin
-		where location_id=#{locationId}
+		where locationId=#{locationId}
 	</select>
   
 	<select id="countBaseinfoLocationBin" parameterType="map" resultType="int">
@@ -65,12 +65,12 @@
 			<if test="locationId != null">and location_id=#{locationId}</if>
 			<if test="itemId != null">and item_id=#{itemId}</if>
 			<if test="volume != null">and volume=#{volume}</if>
-			<if test="binType != null">and bin_type=#{binType}</if>
 			<if test="weigh != null">and weigh=#{weigh}</if>
 			<if test="description != null">and description=#{description}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 			<if test="type != null">and type=#{type}</if>
+			<if test="isValid != null">and is_valid=#{isValid}</if>
 		</where>
 	</sql>
    

@@ -1,6 +1,8 @@
 package com.lsh.wms.core.service.location;
 
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationRegionDao;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoLocationRegion;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationRegion;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 import org.slf4j.Logger;
@@ -9,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,42 +29,126 @@ public class BaseinfoLocationRegionService implements IStrategy {
     //增删改查
     @Autowired
     private BaseinfoLocationRegionDao baseinfoLocationRegionDao;
+    @Autowired
+    private LocationService locationService;
+    @Autowired
+    private FatherToChildUtil fatherToChildUtil;
+//    @Autowired
+//    private LocationDetailModelFactory locationDetailModelFactory;
+//    @Autowired
+//    private LocationDetailServiceFactory locationDetailServiceFactory;
+//
+//    @PostConstruct
+//    public void postConstruct(){
+//        //注册model
+//        locationDetailModelFactory.register(LocationConstant.Region_area,new BaseinfoLocationRegion());
+//        locationDetailModelFactory.register(LocationConstant.InventoryLost,new BaseinfoLocationRegion());
+//        locationDetailModelFactory.register(LocationConstant.Goods_area,new BaseinfoLocationRegion());
+//        locationDetailModelFactory.register(LocationConstant.Floor,new BaseinfoLocationRegion());
+//        locationDetailModelFactory.register(LocationConstant.Temporary,new BaseinfoLocationRegion());
+//        locationDetailModelFactory.register(LocationConstant.Collection_area,new BaseinfoLocationRegion());
+//        locationDetailModelFactory.register(LocationConstant.Back_area,new BaseinfoLocationRegion());
+//        locationDetailModelFactory.register(LocationConstant.Defective_area,new BaseinfoLocationRegion());
+//        //注册service
+//        locationDetailServiceFactory.register(LocationConstant.Region_area,this);
+//        locationDetailServiceFactory.register(LocationConstant.InventoryLost,this);
+//        locationDetailServiceFactory.register(LocationConstant.Goods_area,this);
+//        locationDetailServiceFactory.register(LocationConstant.Floor,this);
+//        locationDetailServiceFactory.register(LocationConstant.Temporary,this);
+//        locationDetailServiceFactory.register(LocationConstant.Collection_area,this);
+//        locationDetailServiceFactory.register(LocationConstant.Back_area,this);
+//        locationDetailServiceFactory.register(LocationConstant.Defective_area,this);
+//
+//    }
 
     @Transactional(readOnly = false)
-    public void insert(IBaseinfoLocaltionModel baseinfoLocaltionModel) {
-        baseinfoLocationRegionDao.insert((BaseinfoLocationRegion) baseinfoLocaltionModel);
+    public void insert(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
+         baseinfoLocationRegionDao.insert((BaseinfoLocationRegion) iBaseinfoLocaltionModel);
     }
 
     @Transactional(readOnly = false)
-    public void update(IBaseinfoLocaltionModel baseinfoLocaltionModel) {
-        baseinfoLocationRegionDao.update((BaseinfoLocationRegion) baseinfoLocaltionModel);
+    public void update(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
+        baseinfoLocationRegionDao.update((BaseinfoLocationRegion) iBaseinfoLocaltionModel);
     }
 
-    public IBaseinfoLocaltionModel getBaseinfoItemLocationModelById(Long locationId) {
-        Map<String,Object> mapQuery = new HashMap<String,Object>();
-        mapQuery.put("locationId",locationId);
-        List<BaseinfoLocationRegion> lists =
-                baseinfoLocationRegionDao.getBaseinfoLocationRegionList(mapQuery);
+    
+    public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("locationId", id);
+        BaseinfoLocation baseinfoLocation = locationService.getLocationListByType(mapQuery);
         BaseinfoLocationRegion baseinfoLocationRegion = null;
-        if(lists.size()>0){
-            baseinfoLocationRegion = lists.get(0);
+        List<BaseinfoLocationRegion> regionList = new ArrayList<BaseinfoLocationRegion>();
+        //
+        if (baseinfoLocation != null) {
+            regionList = baseinfoLocationRegionDao.getBaseinfoLocationRegionList(mapQuery);
+            baseinfoLocationRegion = regionList.get(0);
+            //将父亲location的属性值拷贝给BaseinfoLocationRegion
+            //设置子类信息
+            baseinfoLocationRegion.setLocationCode(baseinfoLocation.getLocationCode());
+            baseinfoLocationRegion.setFatherId(baseinfoLocation.getFatherId());
+            baseinfoLocationRegion.setType(baseinfoLocation.getType());
+            baseinfoLocationRegion.setTypeName(baseinfoLocation.getTypeName());
+            baseinfoLocationRegion.setIsLeaf(baseinfoLocation.getIsLeaf());
+            baseinfoLocationRegion.setIsValid(baseinfoLocation.getIsValid());
+            baseinfoLocationRegion.setCanStore(baseinfoLocation.getCanStore());
+            baseinfoLocationRegion.setContainerVol(baseinfoLocation.getContainerVol());
+            baseinfoLocationRegion.setRegionNo(baseinfoLocation.getRegionNo());
+            baseinfoLocationRegion.setPassageNo(baseinfoLocation.getPassageNo());
+            baseinfoLocationRegion.setShelfLevelNo(baseinfoLocation.getShelfLevelNo());
+            baseinfoLocationRegion.setBinPositionNo(baseinfoLocation.getBinPositionNo());
+            //设置占用与否
+            if (locationService.isLocationInUse(id)) {
+                baseinfoLocationRegion.setIsUsed("已占用");
+            } else {
+                baseinfoLocationRegion.setIsUsed("未占用");
+            }
+            return baseinfoLocationRegion;
         }
-        return baseinfoLocationRegion;
-
-//        return baseinfoLocationRegionDao.getBaseinfoLocationRegionById(locationId);
+        return null;
     }
 
     public Integer countBaseinfoLocaltionModel(Map<String, Object> params) {
-        return baseinfoLocationRegionDao.countBaseinfoLocationRegion(params);
+        return locationService.countLocation(params);
     }
 
-    public List<IBaseinfoLocaltionModel> getBaseinfoLocaltionModelList(Map<String, Object> params) {
-        List<BaseinfoLocationRegion> list = baseinfoLocationRegionDao.getBaseinfoLocationRegionList(params);
-        List<IBaseinfoLocaltionModel> resList = new ArrayList<IBaseinfoLocaltionModel>();
-        for (BaseinfoLocationRegion baseinfoLocationRegion : list) {
-            IBaseinfoLocaltionModel iBaseinfoLocaltionModel = baseinfoLocationRegion;
-            resList.add(iBaseinfoLocaltionModel);
+    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        List<BaseinfoLocation> baseinfoLocationList = locationService.getBaseinfoLocationList(params);
+        List<BaseinfoLocationRegion> baseinfoLocationRegions = new ArrayList<BaseinfoLocationRegion>();
+        BaseinfoLocationRegion baseinfoLocationRegion = null;
+        List<BaseinfoLocationRegion> regionList = null;
+        //循环父类list逐个拷贝到子类,并添加到子类list中
+        if (baseinfoLocationList.size() > 0) {
+            for (BaseinfoLocation baseinfoLocation:baseinfoLocationList){
+                //根据父类id获取子类bin
+                Long locationId = baseinfoLocation.getLocationId();
+                //设置id
+                params.put("locationId",locationId);
+                regionList = baseinfoLocationRegionDao.getBaseinfoLocationRegionList(params);
+                baseinfoLocationRegion = regionList.get(0);
+                //设置子类信息
+                baseinfoLocationRegion.setLocationCode(baseinfoLocation.getLocationCode());
+                baseinfoLocationRegion.setFatherId(baseinfoLocation.getFatherId());
+                baseinfoLocationRegion.setType(baseinfoLocation.getType());
+                baseinfoLocationRegion.setTypeName(baseinfoLocation.getTypeName());
+                baseinfoLocationRegion.setIsLeaf(baseinfoLocation.getIsLeaf());
+                baseinfoLocationRegion.setIsValid(baseinfoLocation.getIsValid());
+                baseinfoLocationRegion.setCanStore(baseinfoLocation.getCanStore());
+                baseinfoLocationRegion.setContainerVol(baseinfoLocation.getContainerVol());
+                baseinfoLocationRegion.setRegionNo(baseinfoLocation.getRegionNo());
+                baseinfoLocationRegion.setPassageNo(baseinfoLocation.getPassageNo());
+                baseinfoLocationRegion.setShelfLevelNo(baseinfoLocation.getShelfLevelNo());
+                baseinfoLocationRegion.setBinPositionNo(baseinfoLocation.getBinPositionNo());
+
+                //设置占用与否
+                if (locationService.isLocationInUse(locationId)) {
+                    baseinfoLocationRegion.setIsUsed("已占用");
+                } else {
+                    baseinfoLocationRegion.setIsUsed("未占用");
+                }
+                baseinfoLocationRegions.add(baseinfoLocationRegion);
+            }
+            return (List<BaseinfoLocation>) (List<?>) baseinfoLocationRegions;
         }
-        return resList;
+        return null;
     }
 }

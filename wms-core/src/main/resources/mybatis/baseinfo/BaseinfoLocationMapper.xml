@@ -12,7 +12,6 @@
 		<result property="isLeaf" column="is_leaf"/>
 		<result property="isValid" column="is_valid"/>
 		<result property="canStore" column="can_store"/>
-		<result property="inUse" column="in_use"/>
 		<result property="containerVol" column="container_vol"/>
 		<result property="regionNo" column="region_no"/>
 		<result property="passageNo" column="passage_no"/>
@@ -26,11 +25,11 @@
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLocation">
 		insert into baseinfo_location (
 			location_id,location_code,father_id,type,type_name,is_leaf,
-			is_valid,can_store,in_use,container_vol,region_no,passage_no,
+			is_valid,can_store,container_vol,region_no,passage_no,
 			shelf_level_no,bin_position_no,description,created_at,updated_at
     	) values (
 			#{locationId},#{locationCode},#{fatherId},#{type},#{typeName},#{isLeaf},
-			#{isValid},#{canStore},#{inUse},#{containerVol},#{regionNo},#{passageNo},
+			#{isValid},#{canStore},#{containerVol},#{regionNo},#{passageNo},
 			#{shelfLevelNo},#{binPositionNo},#{description},#{createdAt},#{updatedAt}
     	)
 	</insert>
@@ -46,7 +45,6 @@
   			<if test="isLeaf != null">is_leaf=#{isLeaf},</if>
   			<if test="isValid != null">is_valid=#{isValid},</if>
   			<if test="canStore != null">can_store=#{canStore},</if>
-  			<if test="inUse != null">in_use=#{inUse},</if>
   			<if test="containerVol != null">container_vol=#{containerVol},</if>
   			<if test="regionNo != null">region_no=#{regionNo},</if>
   			<if test="passageNo != null">passage_no=#{passageNo},</if>
@@ -56,12 +54,12 @@
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
-		where location_id=#{locationId}
+		where locationId=#{locationId}
 	</update>
   
 	<select id="getBaseinfoLocationById" parameterType="int" resultMap="baseinfoLocationResultMap">
 		select * from baseinfo_location
-		where location_id=#{locationId}
+		where ID=#{id} 
 	</select>
   
 	<select id="countBaseinfoLocation" parameterType="map" resultType="int">
@@ -88,7 +86,6 @@
 			<if test="isLeaf != null">and is_leaf=#{isLeaf}</if>
 			<if test="isValid != null">and is_valid=#{isValid}</if>
 			<if test="canStore != null">and can_store=#{canStore}</if>
-			<if test="inUse != null">and in_use=#{inUse}</if>
 			<if test="containerVol != null">and container_vol=#{containerVol}</if>
 			<if test="regionNo != null">and region_no=#{regionNo}</if>
 			<if test="passageNo != null">and passage_no=#{passageNo}</if>

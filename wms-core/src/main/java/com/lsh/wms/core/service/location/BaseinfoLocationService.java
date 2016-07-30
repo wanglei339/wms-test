@@ -9,7 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,37 +25,39 @@ import java.util.Map;
  */
 @Component
 @Transactional(readOnly = true)
-public class BaseinfoLocationService implements IStrategy{
+public class BaseinfoLocationService implements IStrategy {
     private static final Logger logger = LoggerFactory.getLogger(LocationService.class);
 
     @Autowired
     private BaseinfoLocationDao baseinfoLocationDao;
+    @Autowired
+    private LocationService locationService;
+
 
     @Transactional(readOnly = false)
-    public void insert(IBaseinfoLocaltionModel baseinfoLocaltionModel) {
-        baseinfoLocationDao.insert((BaseinfoLocation) baseinfoLocaltionModel);
+    public void insert(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
+        baseinfoLocationDao.insert((BaseinfoLocation) iBaseinfoLocaltionModel);
     }
 
     @Transactional(readOnly = false)
-    public void update(IBaseinfoLocaltionModel baseinfoLocaltionModel) {
-        baseinfoLocationDao.update((BaseinfoLocation) baseinfoLocaltionModel);
+    public void update(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
+        baseinfoLocationDao.update((BaseinfoLocation) iBaseinfoLocaltionModel);
     }
 
-    public IBaseinfoLocaltionModel getBaseinfoItemLocationModelById(Long id) {
-        return baseinfoLocationDao.getBaseinfoLocationById(id);
+    public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        Map<String,Object> mapQuery = new HashMap<String,Object>();
+        mapQuery.put("locationId",id);
+        List<BaseinfoLocation> baseinfoLocationList = baseinfoLocationDao.getBaseinfoLocationList(mapQuery);
+        BaseinfoLocation baseinfoLocation = baseinfoLocationList.get(0);
+        return baseinfoLocation;
     }
 
     public Integer countBaseinfoLocaltionModel(Map<String, Object> params) {
         return baseinfoLocationDao.countBaseinfoLocation(params);
     }
 
-    public List<IBaseinfoLocaltionModel> getBaseinfoLocaltionModelList(Map<String, Object> params) {
-        List<BaseinfoLocation> list  = baseinfoLocationDao.getBaseinfoLocationList(params);
-        List<IBaseinfoLocaltionModel> resList = new ArrayList<IBaseinfoLocaltionModel>();
-        for (BaseinfoLocation baseinfoLocation :list ) {
-            IBaseinfoLocaltionModel iBaseinfoLocaltionModel = baseinfoLocation;
-            resList.add(iBaseinfoLocaltionModel);
-        }
-        return resList;
+    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        List<BaseinfoLocation> baseinfoLocationList = locationService.getBaseinfoLocationList(params);
+        return baseinfoLocationList;
     }
 }

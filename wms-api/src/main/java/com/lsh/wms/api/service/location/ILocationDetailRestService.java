@@ -1,7 +1,11 @@
 package com.lsh.wms.api.service.location;
 
+import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.wms.api.model.location.LocationDetailRequest;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 /**
@@ -10,10 +14,10 @@ import java.util.Map;
  */
 public interface ILocationDetailRestService {
     //前端页面带着固定的type进来,进行相应的额查找,增加,更新,获取list
-    public java.lang.String getLocationDetailByIdAndType(Long locationId, Integer type);
-    public java.lang.String getLocationDetailListByType(Integer type);
-    public java.lang.String insertLocationDetailByType(IBaseinfoLocaltionModel baseinfoLocaltionModel, Integer type) throws ClassNotFoundException;
-    public java.lang.String updateLocationDetailByType(IBaseinfoLocaltionModel baseinfoLocaltionModel, Integer type);
-    public String countLocationDetailByType(Map<String, Object> params);
-    public String searchList(Map<String, Object> params);
+    public java.lang.String getLocationDetailByIdAndType(Long locationId, Integer type) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException;
+    public java.lang.String getLocationDetailListByType(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException;
+    public java.lang.String insertLocationDetailByType(LocationDetailRequest request) throws BizCheckedException;
+    public java.lang.String updateLocationDetailByType(LocationDetailRequest request) throws BizCheckedException;
+    public String countLocationDetailByType();
+    public String searchList() throws BizCheckedException, NoSuchMethodException, IllegalAccessException, InvocationTargetException;
 }

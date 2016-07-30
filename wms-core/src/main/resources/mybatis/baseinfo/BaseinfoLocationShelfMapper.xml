@@ -5,7 +5,6 @@
 	<resultMap id="baseinfoLocationShelfResultMap" type="BaseinfoLocationShelf">
 		<id property="id" column="id"/>
 		<result property="locationId" column="location_id"/>
-		<result property="shelfType" column="shelf_type"/>
 		<result property="level" column="level"/>
 		<result property="depth" column="depth"/>
 		<result property="description" column="description"/>
@@ -16,11 +15,11 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLocationShelf">
 		insert into baseinfo_location_shelf (
-			location_id,shelf_type,level,depth,description,created_at,
-			updated_at,type
+			location_id,level,depth,description,created_at,updated_at,
+			type
     	) values (
-			#{locationId},#{shelfType},#{level},#{depth},#{description},#{createdAt},
-			#{updatedAt},#{type}
+			#{locationId},#{level},#{depth},#{description},#{createdAt},#{updatedAt},
+			#{type}
     	)
 	</insert>
 
@@ -28,7 +27,6 @@
 		update baseinfo_location_shelf
     	<set>
   			<if test="locationId != null">location_id=#{locationId},</if>
-  			<if test="shelfType != null">shelf_type=#{shelfType},</if>
   			<if test="level != null">level=#{level},</if>
   			<if test="depth != null">depth=#{depth},</if>
   			<if test="description != null">description=#{description},</if>
@@ -36,12 +34,12 @@
   			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
   			<if test="type != null">type=#{type}</if>
 		</set>
-		where location_id=#{locationId}
+		where locationId=#{locationId}
 	</update>
   
 	<select id="getBaseinfoLocationShelfById" parameterType="int" resultMap="baseinfoLocationShelfResultMap">
 		select * from baseinfo_location_shelf
-		where location_id=#{locationId}
+		where locationId=#{locationId}
 	</select>
   
 	<select id="countBaseinfoLocationShelf" parameterType="map" resultType="int">
@@ -61,7 +59,6 @@
 		<where>
 			<if test="id != null">id=#{id}</if>
 			<if test="locationId != null">and location_id=#{locationId}</if>
-			<if test="shelfType != null">and shelf_type=#{shelfType}</if>
 			<if test="level != null">and level=#{level}</if>
 			<if test="depth != null">and depth=#{depth}</if>
 			<if test="description != null">and description=#{description}</if>

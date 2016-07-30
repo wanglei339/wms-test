@@ -1,8 +1,11 @@
 package com.lsh.wms.core.service.location;
 
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoLocationBin;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 
@@ -18,11 +21,11 @@ import java.util.Map;
  */
 @Component
 public interface IStrategy {
-    public void insert(IBaseinfoLocaltionModel  baseinfoLocaltionModel);
-    public void update(IBaseinfoLocaltionModel  baseinfoLocaltionModel);
-    IBaseinfoLocaltionModel getBaseinfoItemLocationModelById(Long id);
+    public void insert(IBaseinfoLocaltionModel iBaseinfoLocaltionModel);
+    public void update(IBaseinfoLocaltionModel iBaseinfoLocaltionModel);
+    BaseinfoLocation getBaseinfoItemLocationModelById(Long id) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException;
 
     Integer countBaseinfoLocaltionModel(Map<String, Object> params);
 
-    List<IBaseinfoLocaltionModel> getBaseinfoLocaltionModelList(Map<String, Object> params);
+    List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException;
 }

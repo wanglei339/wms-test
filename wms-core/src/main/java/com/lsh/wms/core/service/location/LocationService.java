@@ -6,6 +6,7 @@ import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationShelfDao;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationShelf;
+import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 import com.lsh.wms.model.stock.StockQuant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,10 +28,6 @@ public class LocationService {
     private BaseinfoLocationDao locationDao;
     @Autowired
     private StockQuantService stockQuantService;
-    @Autowired
-    private BaseinfoLocationShelfDao shelfDao;
-    @Autowired
-    private BaseinfoLocationService baseinfoLocationService;
 
 
     // location类型定义
@@ -40,13 +37,23 @@ public class LocationService {
             put("area", new Long(2)); // 2区域
             put("inventoryLost", new Long(3));    //3盘盈盘亏
             put("goods_area", new Long(4)); //4货区(下级是 货架或者阁楼)
+
+            put("shelf_area",new Long(20)); //20货架区
+            put("loft_area",new Long(21)); //21阁楼区
+            put("shelf",new Long(22));  //22货架(个体)
+            put("loft",new Long(23));   //23阁楼(个体)
+
+            put("",new Long(24)); //货架拣货
+
             put("floor", new Long(5)); // 5 地堆区
             put("temporary", new Long(6)); // 6 暂存区
             put("collection_area", new Long(7)); // 7 集货区
             put("back_area", new Long(8)); // 8 退货区
             put("defective_area", new Long(9)); // 9 残次区
             put("dock_area", new Long(10)); // 10 码头区
+
             put("bin", new Long(11)); // 11 货位
+            /*货位的父亲可能是具体的货架、阁楼;也可能是地堆、暂存区等等*/
             put("packing_bin", new Long(12)); // 12 拣货位
             put("stock_bin", new Long(13)); // 13 存货位
             put("floor_bin", new Long(14)); // 14 地堆货位
@@ -59,7 +66,9 @@ public class LocationService {
     };
 
     //计数
+    //valid一定是1 未删除的
     public int countLocation(Map<String, Object> params) {
+        params.put("isValid", 1);
         return locationDao.countBaseinfoLocation(params);
     }
 
@@ -87,8 +96,6 @@ public class LocationService {
     @Transactional(readOnly = false)
     public BaseinfoLocation insertLocation(BaseinfoLocation location) {
 
-//        LocationModelFactory locationFactory = new LocationModelFactory(new BaseinfoLocationService());
-//        locationFactory.insert(location);
         if (location.getLocationId() == 0) {
             //添加locationId
             int iLocationId = 0;
@@ -98,21 +105,31 @@ public class LocationService {
         long createdAt = DateUtils.getCurrentSeconds();
         location.setCreatedAt(createdAt);
         locationDao.insert(location);
-//        locationFactory.insert(location);
         return location;
     }
 
     @Transactional(readOnly = false)
-    public BaseinfoLocation updateLocation(BaseinfoLocation location) {
-        LocationFactory locationFactory = new LocationFactory(new BaseinfoLocationService());
-        locationFactory.insert(location);
-        if (this.getLocation(location.getLocationId()) == null) {
+    public BaseinfoLocation updateLocation(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
+        BaseinfoLocation baseinfoLocation = (BaseinfoLocation) iBaseinfoLocaltionModel;
+        if (this.getLocation(baseinfoLocation.getLocationId()) == null) {
             return null;
         }
         long updatedAt = DateUtils.getCurrentSeconds();
-        location.setUpdatedAt(updatedAt);
-        locationDao.update(location);
-        return location;
+        baseinfoLocation.setUpdatedAt(updatedAt);
+        locationDao.update(baseinfoLocation);
+        return baseinfoLocation;
+    }
+
+    @Transactional(readOnly = false)
+    public BaseinfoLocation insertLocation(IBaseinfoLocaltionModel iBaseinfoLocaltionModel){
+        BaseinfoLocation baseinfoLocation = (BaseinfoLocation) iBaseinfoLocaltionModel;
+        if (this.getLocation(baseinfoLocation.getLocationId()) == null) {
+            return null;
+        }
+        long updatedAt = DateUtils.getCurrentSeconds();
+        baseinfoLocation.setUpdatedAt(updatedAt);
+        locationDao.update(baseinfoLocation);
+        return baseinfoLocation;
     }
 
     // 获取节点location_id
@@ -166,23 +183,66 @@ public class LocationService {
         return locations;
     }
 
-    // 获取一个location下所有是存储位的子节点id
+    /**
+     * 根据节点locationid获取该节点下所有可储存位置
+     * @param locationId
+     * @return
+     */
     public List<Long> getStoreLocationIds(Long locationId) {
         List<BaseinfoLocation> locations = this.getStoreLocations(locationId);
         return this.getLocationIds(locations);
     }
 
-    // 获取父级节点
+    /**
+     * 查找父级节点
+     * @param locationId
+     * @return 位置
+     */
     public BaseinfoLocation getFatherLocation(Long locationId) {
         BaseinfoLocation curLocation = this.getLocation(locationId);
         Long fatherId = curLocation.getFatherId();
-        if (fatherId == 0) {
+        if (fatherId.equals(0)) {
             return null;
         }
         return this.getLocation(fatherId);
     }
 
-    // 根据类型获取父级location节点
+    /**
+     * 获取父亲的type
+     * @param locationId
+     * @return
+     */
+    public Long getFatherLocationType(Long locationId){
+        BaseinfoLocation curLocation = this.getLocation(locationId);
+        Long fatherId = curLocation.getFatherId();
+        if (fatherId == 0) {
+            return null;
+        }
+        return this.getLocation(fatherId).getType();
+    }
+
+    /**
+     * 获取父亲的编码
+     * @param locationId
+     * @return
+     */
+    public String getFatherLocationCode(Long locationId){
+        BaseinfoLocation curLocation = this.getLocation(locationId);
+        Long fatherId = curLocation.getFatherId();
+        if (fatherId == 0) {
+            return null;
+        }
+        return this.getLocation(fatherId).getLocationCode();
+    }
+
+
+    /**
+     * 根据所在位置的locationId
+     * 获取指定type祖先级(包含上一级)的location节点
+     * @param locationId 所在位置id
+     * @param type  位置类型
+     * @return
+     */
     public BaseinfoLocation getFatherByType(Long locationId, String type) {
         BaseinfoLocation curLocation = this.getLocation(locationId);
         Long fatherId = curLocation.getFatherId();
@@ -195,13 +255,22 @@ public class LocationService {
         return this.getFatherByType(fatherId, type);
     }
 
-    // 获取父级区域location节点id
+    /**
+     * 获取祖先级别的区域location节点id
+     * 根据指定的祖先级别的type
+     * @param locationId
+     * @param type
+     * @return
+     */
     public Long getFatherIdByType(Long locationId, String type) {
         BaseinfoLocation fatherLocation = this.getFatherByType(locationId, type);
         return fatherLocation.getLocationId();
     }
-
-    // 获取父级区域节点
+    /**
+     * 获取父级区域所有大区的节点
+     * @param locationId
+     * @return
+     */
     public BaseinfoLocation getAreaFather(Long locationId) {
         BaseinfoLocation areaFather = this.getFatherByType(locationId, "areas");
         return areaFather;
@@ -347,7 +416,6 @@ public class LocationService {
         return location.getLocationId();
     }
     //获取货位bin节点的type
-
     // TODO    public BaseinfoLocation getAvailableBinLocationByType(String type)
     //获取货位节点的id
     public List<BaseinfoLocation> getBaseinfoLocationList(Map<String, Object> mapQuery) {
@@ -360,35 +428,8 @@ public class LocationService {
     }
 
 
-    /*
-        接下来的内容是对各个子信心进行的封装
-     */
 
-    //新增,前提是有了基础location
-    public void insertImpLocation(String type, Object impLocation) {
-        int LOCATION_TYPE = this.LOCATION_TYPE.get(type).intValue();
-        /*
-        put("warehouse", new Long(1)); // 仓库
-        put("area", new Long(2)); // 区域
-        put("inventoryLost", new Long(3)); // 盘亏盘盈
-        put("temporary", new Long(4)); // 暂存区
-        put("floor", new Long(5)); // 地堆
-        put("picking", new Long(6)); // 拣货位
-        */
 
-        switch (LOCATION_TYPE) {
-            case 1:
-                BaseinfoLocationShelf x = (BaseinfoLocationShelf) impLocation;
-                shelfDao.insert(x);
-                break;
-        }
-    }
-
-    public void insertPureImpLocation(BaseinfoLocation baseLocation, Object impLocation) {
-        DateUtils.getCurrentSeconds();
-        this.insertLocation(baseLocation);
-        this.insertImpLocation(baseLocation.getTypeName(), impLocation);
-    }
 
     public void getImpLocation(long iType, long locationId) {
         Map<String, Object> params = new HashMap<String, Object>();
@@ -396,23 +437,6 @@ public class LocationService {
         params.put("locationId", locationId);
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
         //return locations.size() == 1 ? locations.get(0) : null;
-    }
-
-    //获取现在inUse是否可用
-    //0没占用,1占用
-    public boolean isUsed(Long locationId) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("locationId", locationId);
-        List<BaseinfoLocation> list = this.locationDao.getBaseinfoLocationList(params);
-        //查询的id肯定有
-        BaseinfoLocation location = list.get(0);
-        Integer in_use = location.getInUse();
-        if (0 == in_use) {
-            return false;
-        } else {
-            return true;
-        }
-
     }
 
     //获取code
@@ -425,6 +449,20 @@ public class LocationService {
             code = baseinfoLocationList.get(0).getLocationCode();
         }
         return code;
+    }
+
+    /**
+     * 根据type,isvalid和或者code获取location的集合,主要和查询有关
+     * @param mapQuery 前端传过来的map参数
+     * @return
+     */
+    public BaseinfoLocation getLocationListByType(Map<String,Object> mapQuery) {
+        mapQuery.put("isValid", 1);
+        List<BaseinfoLocation> list = locationDao.getBaseinfoLocationList(mapQuery);
+        if (list.size()>0){
+            return list.get(0);
+        }
+        return null;
     }
 
     /**

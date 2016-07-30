@@ -2,19 +2,24 @@ package com.lsh.wms.rpc.service.location;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.wms.api.model.location.LocationDetailRequest;
 import com.lsh.wms.api.service.location.ILocationDetailRestService;
+import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.core.service.location.LocationConstant;
+import com.lsh.wms.core.service.location.LocationDetailModelFactory;
 import com.lsh.wms.core.service.location.LocationDetailService;
-import com.lsh.wms.core.service.location.LocationService;
-import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
-import com.lsh.wms.model.baseinfo.LocationModelFactory;
-import org.apache.commons.collections.map.HashedMap;
+import com.lsh.wms.model.baseinfo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.PostConstruct;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 
@@ -38,81 +43,103 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @Autowired
     private LocationDetailService locationDetailService;
     @Autowired
-    private LocationService locationService;
+    private LocationDetailModelFactory locationDetailModelFactory;
 
-    @GET
-    @Path("getLocationDetail")
-    public String getLocationDetailByIdAndType(@QueryParam("locationId") Long locationId, @QueryParam("type") Integer type) {
-        IBaseinfoLocaltionModel iBaseinfoLocaltionModel;
-        iBaseinfoLocaltionModel = locationDetailService.getIBaseinfoLocaltionModelByIdAndType(locationId, type);
-        //设置可用
-        if (!locationService.isUsed(locationId)) {
-            iBaseinfoLocaltionModel.setIsUsed("可用");
-        } else {
-            iBaseinfoLocaltionModel.setIsUsed("未占用");
-        }
-        return JsonUtils.SUCCESS(iBaseinfoLocaltionModel);
+
+    //构造之后,实例化之前,注入各种model
+    /**
+     * 将所有的bin的type注册到工厂中
+     */
+    @PostConstruct
+    public void postConstruct(){
+        //添加其他bin的type
+        locationDetailModelFactory.register(LocationConstant.Bin, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.Pinking,new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.Stock_bin,new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.Floor_bin, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.Temporary_bin,new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.Collection_bin,new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.Back_bin,new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.Defective_bin,new BaseinfoLocationBin());
+        //注入dock
+        locationDetailModelFactory.register(LocationConstant.Dock_area,new BaseinfoLocationDock());
+        //注入过道
+        locationDetailModelFactory.register(LocationConstant.Passage,new BaseinfoLocationPassage());
+        //注入区域
+        locationDetailModelFactory.register(LocationConstant.Region_area,new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.InventoryLost,new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.Goods_area,new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.Floor,new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.Temporary,new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.Collection_area,new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.Back_area,new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.Defective_area,new BaseinfoLocationRegion());
+        //注入阁楼和货架
+        locationDetailModelFactory.register(LocationConstant.Shelf,new BaseinfoLocationShelf());
+        locationDetailModelFactory.register(LocationConstant.Loft,new BaseinfoLocationShelf());
+        //仓库
+        locationDetailModelFactory.register(LocationConstant.Warehouse,new BaseinfoLocationWarehouse());
     }
 
-    @GET
+
+    /**
+     * 根据id查找细节表
+     * 先查找主表
+     * 在查找细节表
+     *
+     * @param locationId 地址id
+     * @param type       地址类型
+     * @return 位置对象
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
+    @POST
+    @Path("getLocationDetail")
+    public String getLocationDetailByIdAndType(Long locationId, Integer type) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        BaseinfoLocation baseinfoLocation = locationDetailService.getIBaseinfoLocaltionModelByIdAndType(locationId, type);
+        return JsonUtils.SUCCESS(baseinfoLocation);
+    }
+
+    @POST
     @Path("getlocationDetailList")
-    public String getLocationDetailListByType(@QueryParam("type") Integer type) {
-        Map<String,Object> params = new HashedMap();
-        params.put("type", type);
-        List<IBaseinfoLocaltionModel> list = locationDetailService.getIBaseinfoLocaltionModelListByType(params);
-        for (IBaseinfoLocaltionModel iBaseinfoLocaltionModel : list) {
-            Long locationId = iBaseinfoLocaltionModel.getLocationId();
-            //设置编码
-            String code = locationService.getCodeById(locationId);
-            iBaseinfoLocaltionModel.setCode(code);
-            //设置可用
-            if (!locationService.isUsed(locationId)) {
-                iBaseinfoLocaltionModel.setIsUsed("可用");
-            } else {
-                iBaseinfoLocaltionModel.setIsUsed("未占用");
-            }
-        }
-        return JsonUtils.SUCCESS(list);
+    public String getLocationDetailListByType(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        List<BaseinfoLocation> baseinfoLocationList = locationDetailService.getIBaseinfoLocaltionModelListByType(params);
+        return JsonUtils.SUCCESS(baseinfoLocationList);
+    }
+
+    @POST
+    @Path("insertLocation")
+    public String insertLocationDetailByType(LocationDetailRequest request) throws BizCheckedException {
+        //根据type类型,将父类转为子类
+        IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationDetailModelFactory.getLocationModel(Long.valueOf(request.getType().toString()));
+        ObjUtils.bean2bean(request, iBaseinfoLocaltionModel);
+        locationDetailService.insert((BaseinfoLocation) iBaseinfoLocaltionModel);
+        return JsonUtils.SUCCESS();
+    }
+
+
+    @POST
+    @Path("updateLocation")
+    public String updateLocationDetailByType(LocationDetailRequest request) throws BizCheckedException {
+        IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationDetailModelFactory.getLocationModel(Long.valueOf(request.getType().toString()));
+        ObjUtils.bean2bean(request, iBaseinfoLocaltionModel);
+        locationDetailService.update((BaseinfoLocation) iBaseinfoLocaltionModel);
+        return JsonUtils.SUCCESS();
     }
 
 
     @POST
     @Path("countLocation")
-    public String countLocationDetailByType(Map<String, Object> params) {
-
-        Integer type = (Integer) params.get("type");
-        int count = locationDetailService.countLocationDetail(params);
-        return JsonUtils.SUCCESS(count);
+    public String countLocationDetailByType() {
+        Map<String, Object> params = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(locationDetailService.countLocationDetail(params));
     }
 
     @POST
     @Path("getList")
-    public String searchList(Map<String, Object> params) {
-        List<IBaseinfoLocaltionModel> iBaseinfoLocaltionModelsList = locationDetailService.getIBaseinfoLocaltionModelListByType(params);
-        //设置可用和数量
-        return JsonUtils.SUCCESS(iBaseinfoLocaltionModelsList);
+    public String searchList() throws BizCheckedException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        Map<String, Object> params = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(locationDetailService.getIBaseinfoLocaltionModelListByType(params));
     }
-
-    //TODO 此处要判断type的类型才能实例化不同的detail 和location一起 update
-    @POST
-    @Path("insertLocation")
-    public String insertLocationDetailByType(IBaseinfoLocaltionModel baseinfoLocaltionModel, @QueryParam("type") Integer type) throws ClassNotFoundException {
-        LocationModelFactory locationModelFactory = new LocationModelFactory();
-        IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationModelFactory.creatLocationModelByType(type);
-        String modelName = locationModelFactory.getLocationClassByType(type);
-        locationDetailService.insert(iBaseinfoLocaltionModel);
-        return JsonUtils.SUCCESS();
-    }
-
-    //TODO 此处需要和location一起update
-    @POST
-    @Path("updateLocation")
-    public String updateLocationDetailByType(IBaseinfoLocaltionModel baseinfoLocaltionModel, @QueryParam("type") Integer type) {
-        LocationModelFactory locationModelFactory = new LocationModelFactory();
-        IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationModelFactory.creatLocationModelByType(type);
-        locationDetailService.update(baseinfoLocaltionModel);
-        return null;
-    }
-
-
 }

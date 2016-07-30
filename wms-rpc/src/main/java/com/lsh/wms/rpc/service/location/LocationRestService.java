@@ -93,7 +93,6 @@ public class LocationRestService implements ILocationRestService {
         location.setFatherId((long) 1);
         location.setIsLeaf(1);
         location.setContainerVol((long) 5);
-        location.setInUse(1);
         location.setLocationCode("2313");
         location.setDescription("13233");
 //        location.setUpdatedAt(new Data);
@@ -108,7 +107,7 @@ public class LocationRestService implements ILocationRestService {
     public String updateLocation(BaseinfoLocation location) {
         return JsonUtils.SUCCESS(locationRpcService.updateLocation(location));
     }
-
+    @POST
     @Path("getLocationList")
     public String searchList(Map<String, Object> params) {
         List<BaseinfoLocation> baseinfoLocationList = locationService.getBaseinfoLocationList(params);
