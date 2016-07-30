@@ -9,6 +9,7 @@ import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.model.baseinfo.BaseinfoStaffDepartment;
 import com.lsh.wms.model.system.SysUser;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.Map;
 @Service(protocol = "dubbo")
 public class SysUserRpcService implements ISysUserRpcService {
 
+    @Autowired
     private SysUserService sysUserService;
 
     public List<SysUser> getSysUserList(Map<String, Object> params) {
@@ -35,6 +37,7 @@ public class SysUserRpcService implements ISysUserRpcService {
         String salt = RandomUtils.randomStr(10);
         sysUser.setSalt(salt);
         sysUser.setPassword(genPwd(sysUser.getPassword(),salt));
+        //sysUser.setScreenname(sysUser.getUsername());
         sysUserService.addSysUser(sysUser);
     }
 
@@ -79,7 +82,7 @@ public class SysUserRpcService implements ISysUserRpcService {
         if (user != null) {
             String salt = user.getSalt();
             String signPwd = genPwd(password, salt);
-            if (signPwd == user.getPassword()) {
+            if (signPwd.equals(user.getPassword())) {
                 return true;
             }
         }

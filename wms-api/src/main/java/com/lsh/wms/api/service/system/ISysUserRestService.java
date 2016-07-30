@@ -17,5 +17,7 @@ public interface ISysUserRestService {
 
     public String updateSysUser(SysUser sysUser);
 
-    public String checkLogin(String username, String password);
+    public String checkLogin(Map<String, Object> params);
+
+    public String getSysUserByUsername(Map<String, Object> params);
 }

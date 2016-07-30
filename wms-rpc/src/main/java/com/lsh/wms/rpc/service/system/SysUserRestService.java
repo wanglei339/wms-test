@@ -10,6 +10,7 @@ import com.lsh.wms.model.system.SysUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.StringArrayPropertyEditor;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -35,27 +36,43 @@ public class SysUserRestService implements ISysUserRestService {
     private SysUserRpcService sysUserRpcService;
 
     @POST
-    @Path("getSysUserList")
+    @Path("getUserList")
     public String getSysUserList(Map<String, Object> params) {
         List<SysUser> userList = sysUserRpcService.getSysUserList(params);
         return JsonUtils.SUCCESS(userList);
     }
 
+    @POST
+    @Path("getUserListCount")
     public String getSysUserListCount(Map<String, Object> params) {
         return JsonUtils.SUCCESS(sysUserRpcService.getSysUserListCount(params));
     }
 
+    @POST
+    @Path("addUser")
     public String addSysUser(SysUser sysUser) {
         sysUserRpcService.addSysUser(sysUser);
         return JsonUtils.SUCCESS(sysUser);
     }
 
+    @POST
+    @Path("updateUser")
     public String updateSysUser(SysUser sysUser) {
         sysUserRpcService.updateSysUser(sysUser);
         return JsonUtils.SUCCESS(sysUser);
     }
 
-    public String checkLogin(String username, String password) {
+    @POST
+    @Path("checkUserLogin")
+    public String checkLogin(Map<String, Object> params) {
+        String username = (String) params.get("username");
+        String password = (String) params.get("password");
         return JsonUtils.SUCCESS(sysUserRpcService.checkLogin(username, password));
+    }
+
+    @POST
+    @Path("getUserByUsername")
+    public String getSysUserByUsername(Map<String, Object> params) {
+        return JsonUtils.SUCCESS(sysUserRpcService.getSysUserByUsername((String)params.get("username")));
     }
 }
