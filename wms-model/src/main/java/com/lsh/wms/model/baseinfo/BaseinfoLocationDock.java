@@ -5,8 +5,7 @@ import org.springframework.stereotype.Component;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
-@Component
-public class BaseinfoLocationDock extends IBaseinfoLocaltionModel implements Serializable {
+public class BaseinfoLocationDock extends BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel {
 
 	/**  */
     private Long id;
@@ -33,9 +32,11 @@ public class BaseinfoLocationDock extends IBaseinfoLocaltionModel implements Ser
 	/** 更新日期 */
     private Long updatedAt;
 	/** 主表类型 */
-    private Integer type;
+    private Long type;
 	/** 是否可用 */
-    private String isUsed;
+	private String isUsed;
+	/** 使用用途,进库/出库 */
+	private String applicationName;
 	
 	public Long getId(){
 		return this.id;
@@ -132,15 +133,7 @@ public class BaseinfoLocationDock extends IBaseinfoLocaltionModel implements Ser
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
-	
-	public Integer getType(){
-		return this.type;
-	}
-	
-	public void setType(Integer type){
-		this.type = type;
-	}
-	
+
 	public String getIsUsed(){
 		return this.isUsed;
 	}
@@ -148,6 +141,12 @@ public class BaseinfoLocationDock extends IBaseinfoLocaltionModel implements Ser
 	public void setIsUsed(String isUsed){
 		this.isUsed = isUsed;
 	}
-	
-	
+
+	public String getApplicationName() {
+		return applicationName;
+	}
+
+	public void setApplicationName(String applicationName) {
+		this.applicationName = applicationName;
+	}
 }

@@ -4,15 +4,12 @@ import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.util.Date;
-@Component
-public class BaseinfoLocationShelf extends IBaseinfoLocaltionModel implements Serializable {
+public class BaseinfoLocationShelf extends BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel {
 
 	/**  */
     private Long id;
 	/** 位置id */
     private Long locationId;
-	/** 货架种类(货架/阁楼) */
-    private Integer shelfType;
 	/** 货架层数 */
     private Long level;
 	/** 货架进深 */
@@ -24,7 +21,7 @@ public class BaseinfoLocationShelf extends IBaseinfoLocaltionModel implements Se
 	/** 更新日期 */
     private Long updatedAt;
 	/** 主表的type */
-    private Integer type;
+    private Long type;
 	/** 是否可用 */
     private String isUsed;
 	
@@ -43,15 +40,7 @@ public class BaseinfoLocationShelf extends IBaseinfoLocaltionModel implements Se
 	public void setLocationId(Long locationId){
 		this.locationId = locationId;
 	}
-	
-	public Integer getShelfType(){
-		return this.shelfType;
-	}
-	
-	public void setShelfType(Integer shelfType){
-		this.shelfType = shelfType;
-	}
-	
+
 	public Long getLevel(){
 		return this.level;
 	}
@@ -91,15 +80,7 @@ public class BaseinfoLocationShelf extends IBaseinfoLocaltionModel implements Se
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
-	
-	public Integer getType(){
-		return this.type;
-	}
-	
-	public void setType(Integer type){
-		this.type = type;
-	}
-	
+
 	public String getIsUsed(){
 		return this.isUsed;
 	}

@@ -5,39 +5,36 @@ import org.springframework.stereotype.Component;
 import java.io.Serializable;
 import java.util.Date;
 
-@Component
-public class BaseinfoLocation extends IBaseinfoLocaltionModel implements Serializable  {
+public class BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel  {
 
 	/**  */
     private Long id;
 	/** 位置id */
-//    private Long locationId;
+    protected Long locationId;
 	/** 位置编码 */
-    private String locationCode;
+	protected String locationCode;
 	/** 父级位置id */
-    private Long fatherId;
+	protected Long fatherId;
 	/** 存储位类型 */
-    private Long type;
+	protected Long type;
 	/** 类型名 */
-    private String typeName;
+	protected String typeName;
 	/** 是否为叶子位置节点 */
-    private Integer isLeaf;
+	protected Integer isLeaf;
 	/** 是否可用 */
-    private Integer isValid;
+	protected Integer isValid;
 	/** 是否是存储用位置 */
-    private Integer canStore;
-	/** 是否被占用，0-未使用，1-已占用 */
-    private Integer inUse;
+	protected Integer canStore;
 	/** 可容纳容器数量 */
-    private Long containerVol;
+	protected Long containerVol;
 	/** 区域坐标，四维坐标-区位坐标 */
-    private Long regionNo;
+	protected Long regionNo;
 	/** 通道坐标，四维坐标-通道坐标 */
-    private Long passageNo;
+	protected Long passageNo;
 	/** 货架层坐标，四维坐标-层数坐标 */
-    private Long shelfLevelNo;
+	protected Long shelfLevelNo;
 	/** 货位同层坐标，四维坐标-同层 */
-    private Long binPositionNo;
+	protected Long binPositionNo;
 	/** 描述 */
     private String description;
 	/** 创建日期 */
@@ -53,13 +50,13 @@ public class BaseinfoLocation extends IBaseinfoLocaltionModel implements Seriali
 		this.id = id;
 	}
 
-//	public Long getLocationId(){
-//		return this.locationId;
-//	}
-//
-//	public void setLocationId(Long locationId){
-//		this.locationId = locationId;
-//	}
+	public Long getLocationId(){
+		return this.locationId;
+	}
+
+	public void setLocationId(Long locationId){
+		this.locationId = locationId;
+	}
 
 	public String getLocationCode(){
 		return this.locationCode;
@@ -116,15 +113,7 @@ public class BaseinfoLocation extends IBaseinfoLocaltionModel implements Seriali
 	public void setCanStore(Integer canStore){
 		this.canStore = canStore;
 	}
-	
-	public Integer getInUse(){
-		return this.inUse;
-	}
-	
-	public void setInUse(Integer inUse){
-		this.inUse = inUse;
-	}
-	
+
 	public Long getContainerVol(){
 		return this.containerVol;
 	}

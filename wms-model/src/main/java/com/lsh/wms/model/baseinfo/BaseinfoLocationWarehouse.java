@@ -4,8 +4,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.util.Date;
-@Component
-public class BaseinfoLocationWarehouse extends IBaseinfoLocaltionModel implements Serializable {
+public class BaseinfoLocationWarehouse extends BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel {
 
 	/**  */
     private Long id;
@@ -24,7 +23,7 @@ public class BaseinfoLocationWarehouse extends IBaseinfoLocaltionModel implement
 	/** 更新日期 */
     private Long updatedAt;
 	/** 主表的type */
-    private Integer type;
+    private Long type;
 	/** 是否可用 */
     private String isUsed;
 	
@@ -91,15 +90,7 @@ public class BaseinfoLocationWarehouse extends IBaseinfoLocaltionModel implement
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
-	
-	public Integer getType(){
-		return this.type;
-	}
-	
-	public void setType(Integer type){
-		this.type = type;
-	}
-	
+
 	public String getIsUsed(){
 		return this.isUsed;
 	}

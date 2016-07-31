@@ -58,7 +58,7 @@ public class RequestUtils {
                     logger.error("--获取参数异常--",e);
                     return  requestMap;
                 }
-            }else if("application/json".equals(contentType)){
+            }else if(contentType.contains("application/json")){
                 String req = null;
                 try{
                     req = CharStreams.toString(request.getReader());

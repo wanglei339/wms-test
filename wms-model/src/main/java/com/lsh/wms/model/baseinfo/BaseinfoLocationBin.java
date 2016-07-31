@@ -5,8 +5,7 @@ import org.springframework.stereotype.Component;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
-@Component
-public class BaseinfoLocationBin extends IBaseinfoLocaltionModel implements Serializable {
+public class BaseinfoLocationBin extends BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel {
 
 	/**  */
     private Long id;
@@ -16,8 +15,6 @@ public class BaseinfoLocationBin extends IBaseinfoLocaltionModel implements Seri
     private Long itemId;
 	/** 仓位体积 */
     private BigDecimal volume;
-	/** 仓位类型，0-拣货位，1-仓储位，2-地堆区(stacking)，3—暂存区，4-集货区，5-退货区，6-残次区 */
-    private Integer binType;
 	/** 承重，默认单位kg，默认0，能承受东西很轻 */
     private BigDecimal weigh;
 	/** 描述 */
@@ -27,10 +24,31 @@ public class BaseinfoLocationBin extends IBaseinfoLocaltionModel implements Seri
 	/** 更新日期 */
     private Long updatedAt;
 	/** 主表类型 */
-    private Integer type;
+    private Long type;
 	/** 0可用1不可用 */
     private String isUsed;
-	
+	/** 常温或者非常温 */
+	private String zoonType;
+	/** 所属仓库 */
+	private String regionName;
+
+
+	public String getRegionName() {
+		return regionName;
+	}
+
+	public void setRegionName(String regionName) {
+		this.regionName = regionName;
+	}
+
+	public String getZoonType() {
+		return zoonType;
+	}
+
+	public void setZoonType(String zoonType) {
+		this.zoonType = zoonType;
+	}
+
 	public Long getId(){
 		return this.id;
 	}
@@ -62,15 +80,7 @@ public class BaseinfoLocationBin extends IBaseinfoLocaltionModel implements Seri
 	public void setVolume(BigDecimal volume){
 		this.volume = volume;
 	}
-	
-	public Integer getBinType(){
-		return this.binType;
-	}
-	
-	public void setBinType(Integer binType){
-		this.binType = binType;
-	}
-	
+
 	public BigDecimal getWeigh(){
 		return this.weigh;
 	}
@@ -102,14 +112,7 @@ public class BaseinfoLocationBin extends IBaseinfoLocaltionModel implements Seri
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
-	
-	public Integer getType(){
-		return this.type;
-	}
-	
-	public void setType(Integer type){
-		this.type = type;
-	}
+
 
 	public String getIsUsed(){
 		return this.isUsed;
@@ -118,6 +121,7 @@ public class BaseinfoLocationBin extends IBaseinfoLocaltionModel implements Seri
 	public void setIsUsed(String isUsed){
 		this.isUsed = isUsed;
 	}
+
 	
 	
 }
