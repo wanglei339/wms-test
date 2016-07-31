@@ -83,7 +83,7 @@ public class StockTransferRestService implements IStockTransferRestService {
 
             List<StockQuant> quantList = stockQuantService.getQuantList(condition);
             Long containerId = quantList.get(0).getContainerId();
-            if (containerService.getContainer(containerId).getType() != 1L) {
+            if (plan.getPackName() == "pallet") {
                 containerId = containerService.createContainerByType(2L).getId();
             }
 
@@ -109,47 +109,18 @@ public class StockTransferRestService implements IStockTransferRestService {
     @Path("scanFromLocation")
     public String scanFromLocation() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
-        Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
-        Long fromLocationId = Long.valueOf(mapQuery.get("fromLocationId").toString());
-
-        TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
-        if (taskEntry == null) {
-            throw new BizCheckedException("3040001");
-        }
-        if (fromLocationId != taskEntry.getTaskInfo().getFromLocationId()) {
-            throw new BizCheckedException("2040005");
-        }
-
-        StockMove move = new StockMove();
-        ObjUtils.bean2bean(taskEntry.getTaskInfo(), move);
-        move.setToLocationId(locationService.getAreaFatherId(fromLocationId));
-        moveRpcService.create(move);
-        moveRpcService.done(move.getId());
-
+        core.outbound(mapQuery);
         return JsonUtils.SUCCESS(true);
     }
 
     @POST
-    @Path("scanFromLocation")
+    @Path("scanToLocation")
     public String scanToLocation() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
+        core.inbound(mapQuery);
+
         Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
-        Long toLocationId = Long.valueOf(mapQuery.get("LocationId").toString());
-
-        TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
-        if (taskEntry == null) {
-            throw new BizCheckedException("3040001");
-        }
-
-        StockMove move = new StockMove();
-        ObjUtils.bean2bean(taskEntry.getTaskInfo(), move);
-        move.setFromLocationId(locationService.getAreaFatherId(taskEntry.getTaskInfo().getFromLocationId()));
-        move.setToLocationId(toLocationId);
-        moveRpcService.create(move);
-        moveRpcService.done(move.getId());
-
         taskRpcService.done(taskId);
         return JsonUtils.SUCCESS(true);
     }
-
 }
