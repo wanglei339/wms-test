@@ -12,5 +12,4 @@ public class WmsProviderMain {
         // http://127.0.0.1:9003/api/wms/java/v1/sms/sendMsg
         com.alibaba.dubbo.container.Main.main(argAry);
     }
-
 }

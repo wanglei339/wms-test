@@ -277,7 +277,7 @@ public class LocationService {
      * @return
      */
     public BaseinfoLocation getAreaFather(Long locationId) {
-        BaseinfoLocation areaFather = this.getFatherByType(locationId, "areas");
+        BaseinfoLocation areaFather = this.getFatherByType(locationId, "area");
         return areaFather;
     }
 

@@ -8,7 +8,7 @@ public class StockTransferPlan implements Serializable {
     private Long planId = 0L;
 	/** 移库任务id */
     private Long taskId = 0L;
-	/** 商品id */
+	/** 商品国条 */
     private Long itemId = 0L;
 	/** 移入库位id */
     private Long fromLocationId = 0L;
@@ -18,9 +18,14 @@ public class StockTransferPlan implements Serializable {
     private BigDecimal qty = BigDecimal.ZERO;
 	/** 商品单位转换id */
     private String packName = "";
+    /** 商品包装单位 */
+    private BigDecimal packUnit = BigDecimal.ONE;
 	/** 以包装单位计量的库移数量 */
     private BigDecimal uomQty = BigDecimal.ZERO;
-	
+
+	/** 发起者 */
+	private Long planner = 0L;
+
 	public Long getPlanId(){
 		return this.planId;
 	}
@@ -84,5 +89,20 @@ public class StockTransferPlan implements Serializable {
 	public void setUomQty(BigDecimal uomQty){
 		this.uomQty = uomQty;
 	}
-	
+
+    public BigDecimal getPackUnit() {
+        return packUnit;
+    }
+
+    public void setPackUnit(BigDecimal packUnit) {
+        this.packUnit = packUnit;
+    }
+
+	public Long getPlanner() {
+		return planner;
+	}
+
+	public void setPlanner(Long planner) {
+		this.planner = planner;
+	}
 }
