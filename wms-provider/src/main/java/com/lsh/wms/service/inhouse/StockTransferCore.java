@@ -46,7 +46,9 @@ public class StockTransferCore {
 
     public void fillTransferPlan(StockTransferPlan plan) throws BizCheckedException {
         BigDecimal packUnit = itemRpcService.getPackUnit(plan.getPackName());
+        plan.setPackUnit(packUnit);
         BigDecimal requiredQty = plan.getUomQty().multiply(packUnit);
+        plan.setQty(requiredQty);
         if (packUnit.equals("pallet")) {
             StockQuantCondition condition = new StockQuantCondition();
             condition.setLocationId(plan.getFromLocationId());
