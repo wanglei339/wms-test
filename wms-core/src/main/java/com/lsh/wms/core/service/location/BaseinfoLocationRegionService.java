@@ -31,35 +31,6 @@ public class BaseinfoLocationRegionService implements IStrategy {
     private BaseinfoLocationRegionDao baseinfoLocationRegionDao;
     @Autowired
     private LocationService locationService;
-    @Autowired
-    private FatherToChildUtil fatherToChildUtil;
-//    @Autowired
-//    private LocationDetailModelFactory locationDetailModelFactory;
-//    @Autowired
-//    private LocationDetailServiceFactory locationDetailServiceFactory;
-//
-//    @PostConstruct
-//    public void postConstruct(){
-//        //注册model
-//        locationDetailModelFactory.register(LocationConstant.Region_area,new BaseinfoLocationRegion());
-//        locationDetailModelFactory.register(LocationConstant.InventoryLost,new BaseinfoLocationRegion());
-//        locationDetailModelFactory.register(LocationConstant.Goods_area,new BaseinfoLocationRegion());
-//        locationDetailModelFactory.register(LocationConstant.Floor,new BaseinfoLocationRegion());
-//        locationDetailModelFactory.register(LocationConstant.Temporary,new BaseinfoLocationRegion());
-//        locationDetailModelFactory.register(LocationConstant.Collection_area,new BaseinfoLocationRegion());
-//        locationDetailModelFactory.register(LocationConstant.Back_area,new BaseinfoLocationRegion());
-//        locationDetailModelFactory.register(LocationConstant.Defective_area,new BaseinfoLocationRegion());
-//        //注册service
-//        locationDetailServiceFactory.register(LocationConstant.Region_area,this);
-//        locationDetailServiceFactory.register(LocationConstant.InventoryLost,this);
-//        locationDetailServiceFactory.register(LocationConstant.Goods_area,this);
-//        locationDetailServiceFactory.register(LocationConstant.Floor,this);
-//        locationDetailServiceFactory.register(LocationConstant.Temporary,this);
-//        locationDetailServiceFactory.register(LocationConstant.Collection_area,this);
-//        locationDetailServiceFactory.register(LocationConstant.Back_area,this);
-//        locationDetailServiceFactory.register(LocationConstant.Defective_area,this);
-//
-//    }
 
     @Transactional(readOnly = false)
     public void insert(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {

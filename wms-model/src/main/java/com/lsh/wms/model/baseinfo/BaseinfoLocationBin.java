@@ -32,6 +32,15 @@ public class BaseinfoLocationBin extends BaseinfoLocation implements Serializabl
 	/** 所属仓库 */
 	private String regionName;
 
+	@Override
+	public Long getType() {
+		return type;
+	}
+
+	@Override
+	public void setType(Long type) {
+		this.type = type;
+	}
 
 	public String getRegionName() {
 		return regionName;

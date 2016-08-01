@@ -30,19 +30,6 @@ public class BaseinfoLocationPassageService implements IStrategy {
     private BaseinfoLocationPassageDao baseinfoLocationPassageDao;
     @Autowired
     private LocationService locationService;
-    @Autowired
-    private FatherToChildUtil fatherToChildUtil;
-//    @Autowired
-//    private LocationDetailModelFactory locationDetailModelFactory;
-//    @Autowired
-//    private LocationDetailServiceFactory locationDetailServiceFactory;
-//
-//
-//    @PostConstruct
-//    public void postConstruct(){
-//        locationDetailModelFactory.register(LocationConstant.Passage,new BaseinfoLocationPassage());
-//        locationDetailServiceFactory.register(LocationConstant.Passage,this);
-//    }
 
 
     @Transactional(readOnly = false)
