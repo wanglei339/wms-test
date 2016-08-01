@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -60,7 +62,7 @@ public class StockTransferCore {
 
     public void outbound(Map<String, Object> params) throws BizCheckedException {
         Long taskId = Long.valueOf(params.get("taskId").toString());
-        Long fromLocationId = Long.valueOf(params.get("fromLocationId").toString());
+        Long fromLocationId = Long.valueOf(params.get("locationId").toString());
         Long staffId = Long.valueOf(params.get("staffId").toString());
 
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
@@ -73,23 +75,24 @@ public class StockTransferCore {
 
         Long containerId = taskEntry.getTaskInfo().getContainerId();
         Long toLocationId = locationService.getAreaFatherId(fromLocationId);
-        if (taskEntry.getTaskInfo().getPackName() == "pallet") {
+        if (taskEntry.getTaskInfo().getPackName().equals("pallet")) {
             moveRpcService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
 
         } else {
-            BigDecimal qtyDone = (BigDecimal) params.get("qty");
+            BigDecimal qtyDone = new BigDecimal(params.get("qty").toString());
             StockMove move = new StockMove();
             ObjUtils.bean2bean(taskEntry.getTaskInfo(), move);
             move.setQty(qtyDone);
             move.setToLocationId(toLocationId);
-            moveRpcService.create(move);
-            moveRpcService.done(move.getId());
+            List<StockMove> moveList = new ArrayList<StockMove>();
+            moveList.add(move);
+            moveRpcService.move(moveList);
         }
     }
 
     public void inbound(Map<String,Object> params) throws BizCheckedException {
         Long taskId = Long.valueOf(params.get("taskId").toString());
-        Long toLocationId = Long.valueOf(params.get("LocationId").toString());
+        Long toLocationId = Long.valueOf(params.get("locationId").toString());
         Long staffId = Long.valueOf(params.get("staffId").toString());
 
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
@@ -106,8 +109,9 @@ public class StockTransferCore {
             ObjUtils.bean2bean(taskEntry.getTaskInfo(), move);
             move.setFromLocationId(fromLocationId);
             move.setToLocationId(toLocationId);
-            moveRpcService.create(move);
-            moveRpcService.done(move.getId());
+            List<StockMove> moveList = new ArrayList<StockMove>();
+            moveList.add(move);
+            moveRpcService.move(moveList);
         }
         taskRpcService.done(taskId);
     }

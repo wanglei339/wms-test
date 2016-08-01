@@ -22,7 +22,10 @@ public class StockTransferPlan implements Serializable {
     private BigDecimal packUnit = BigDecimal.ONE;
 	/** 以包装单位计量的库移数量 */
     private BigDecimal uomQty = BigDecimal.ZERO;
-	
+
+	/** 发起者 */
+	private Long planner = 0L;
+
 	public Long getPlanId(){
 		return this.planId;
 	}
@@ -94,5 +97,12 @@ public class StockTransferPlan implements Serializable {
     public void setPackUnit(BigDecimal packUnit) {
         this.packUnit = packUnit;
     }
-	
+
+	public Long getPlanner() {
+		return planner;
+	}
+
+	public void setPlanner(Long planner) {
+		this.planner = planner;
+	}
 }

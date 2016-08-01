@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,16 +34,11 @@ public class StockMoveRpcService implements IStockMoveRpcService {
     }
 
     @Transactional(readOnly = false)
-    public void done(Long moveId) throws BizCheckedException{
-        StockMove move = moveService.getMoveById(moveId);
-        if (move == null) {
-            throw new BizCheckedException("1550001");
+    public void move(List<StockMove> moveList) throws BizCheckedException{
+        for (StockMove move : moveList) {
+            moveService.create(move);
+            quantService.move(move);
         }
-        if ( ! move.isValid() ) {
-            throw new BizCheckedException("1550002");
-        }
-        quantService.move(move);
-        moveService.done(moveId);
     }
 
     @Transactional(readOnly = false)
@@ -59,8 +55,9 @@ public class StockMoveRpcService implements IStockMoveRpcService {
             move.setItemId(quant.getItemId());
             move.setQty(quant.getQty());
             move.setOperator(staffId);
-            moveService.create(move);
-            this.done(move.getId());
+            List<StockMove> moveList = new ArrayList<StockMove>();
+            moveList.add(move);
+            this.move(moveList);
             quantService.unReserveById(quant.getId());
         }
     }

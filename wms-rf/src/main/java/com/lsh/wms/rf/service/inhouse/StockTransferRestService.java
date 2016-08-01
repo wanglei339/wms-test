@@ -45,6 +45,8 @@ public class StockTransferRestService implements IStockTransferRestService {
     public String addPlan(StockTransferPlan plan)  throws BizCheckedException {
         try{
             rpcService.addPlan(plan);
+        } catch (BizCheckedException e) {
+            throw e;
         } catch (Exception e) {
             logger.error(e.getCause().getMessage());
             return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
@@ -56,7 +58,14 @@ public class StockTransferRestService implements IStockTransferRestService {
     @Path("scanFromLocation")
     public String scanFromLocation() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
-        rpcService.scanFromLocation(mapQuery);
+        try {
+            rpcService.scanFromLocation(mapQuery);
+        } catch (BizCheckedException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+        }
         return JsonUtils.SUCCESS(true);
     }
 
@@ -64,7 +73,14 @@ public class StockTransferRestService implements IStockTransferRestService {
     @Path("scanToLocation")
     public String scanToLocation() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
-        rpcService.scanToLocation(mapQuery);
+        try {
+            rpcService.scanToLocation(mapQuery);
+        } catch (BizCheckedException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+        }
         return JsonUtils.SUCCESS(true);
     }
 }

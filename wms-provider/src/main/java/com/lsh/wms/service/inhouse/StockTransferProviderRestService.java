@@ -36,6 +36,8 @@ public class StockTransferProviderRestService implements IStockTransferProviderR
     public String addPlan(StockTransferPlan plan)  throws BizCheckedException {
         try{
             rpcService.addPlan(plan);
+        } catch (BizCheckedException e) {
+            throw e;
         } catch (Exception e) {
             logger.error(e.getCause().getMessage());
             return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());

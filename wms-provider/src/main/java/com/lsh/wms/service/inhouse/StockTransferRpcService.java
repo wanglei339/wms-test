@@ -68,7 +68,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         core.fillTransferPlan(plan);
 
         if ( plan.getQty().compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
-            throw new BizCheckedException("2040001");
+            throw new BizCheckedException(plan.getQty().toString() + "====" + total.toString());
         }
 
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
