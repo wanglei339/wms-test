@@ -27,25 +27,25 @@ public class ItemLocationService {
     @Autowired
     private BaseinfoItemLocationDao itemLocationDao;
 
-    public List<BaseinfoItemLocation> getItemLocationList(long iSkuId,long iOwnerId){
-        Long key = (((long)iOwnerId)<<32) + (iSkuId);
-        List<BaseinfoItemLocation> list = m_ItemLocationCache.get(key);
-        if(list == null){
-            Map<String,Object> mapQuery = new HashMap<String, Object>();
-            mapQuery.put("skuId",iSkuId);
-            mapQuery.put("ownerId",iOwnerId);
-            list = itemLocationDao.getBaseinfoItemLocationList(mapQuery);
-
-            if(list.size()>0){
-                m_ItemLocationCache.put(key,list);
-
-            }else{
-                return null;
-            }
-        }
-
-        return list;
-    }
+//    public List<BaseinfoItemLocation> getItemLocationList(long iSkuId,long iOwnerId){
+//        Long key = (((long)iOwnerId)<<32) + (iSkuId);
+//        List<BaseinfoItemLocation> list = m_ItemLocationCache.get(key);
+//        if(list == null){
+//            Map<String,Object> mapQuery = new HashMap<String, Object>();
+//            mapQuery.put("skuId",iSkuId);
+//            mapQuery.put("ownerId",iOwnerId);
+//            list = itemLocationDao.getBaseinfoItemLocationList(mapQuery);
+//
+//            if(list.size()>0){
+//                m_ItemLocationCache.put(key,list);
+//
+//            }else{
+//                return null;
+//            }
+//        }
+//
+//        return list;
+//    }
 
     public List<BaseinfoItemLocation> getItemLocationByLocationID(long iLocationId){
         List<BaseinfoItemLocation> list = m_LocationCache.get(iLocationId);
