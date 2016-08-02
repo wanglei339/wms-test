@@ -58,7 +58,7 @@ public class ReceiptRestService implements IReceiptRfService {
     private PoOrderService poOrderService;
 
     @POST
-    @Path("insert")
+    @Path("add")
     public BaseResponse insertOrder() throws BizCheckedException{
         Map<String, Object> request = RequestUtils.getRequest();
 
