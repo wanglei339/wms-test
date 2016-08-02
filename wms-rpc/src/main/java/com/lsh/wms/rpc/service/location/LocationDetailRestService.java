@@ -154,8 +154,6 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @Path("getList")
     public String searchList() throws BizCheckedException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Map<String, Object> params = RequestUtils.getRequest();
-        List<BaseinfoLocation> list = locationService.getSubLocationList(13L,17L);
-//        return JsonUtils.SUCCESS(locationDetailService.getIBaseinfoLocaltionModelListByType(params));
-        return JsonUtils.SUCCESS(list);
+        return JsonUtils.SUCCESS(locationDetailService.getIBaseinfoLocaltionModelListByType(params));
     }
 }
