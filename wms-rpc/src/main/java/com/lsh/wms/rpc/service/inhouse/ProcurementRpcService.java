@@ -24,15 +24,15 @@ public class ProcurementRpcService implements IProcurementRpcService{
     @Autowired
     private ItemService itemService;
 
-    public boolean needProcurement(BaseinfoItemLocation itemLocation) throws BizCheckedException {
-        Long locationId = itemLocation.getPickLocationid();
-        Long itemId = itemLocation.getItemId();
+    public boolean needProcurement(Long locationId, Long itemId) throws BizCheckedException {
         StockQuantCondition condition = new StockQuantCondition();
         condition.setItemId(itemId);
         condition.setLocationId(locationId);
         BigDecimal qty = quantService.getQty(condition);
+        qty = qty.divide(itemService.getItem(itemId).getPackUnit());
 
         BaseinfoItem itemInfo = itemService.getItem(itemId);
+        qty = qty.divide(itemInfo.getPackUnit());
         if (itemInfo.getItemLevel() == 1) {
             return qty.compareTo(new BigDecimal(5.0)) < 0 ? false : true;
         } else if (itemInfo.getItemLevel() == 2) {

@@ -7,5 +7,5 @@ import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
  * Created by mali on 16/7/30.
  */
 public interface IProcurementRpcService {
-    boolean needProcurement(BaseinfoItemLocation itemLocation) throws BizCheckedException;
+    boolean needProcurement(Long locationId, Long itemId) throws BizCheckedException;
 }
