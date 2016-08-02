@@ -8,5 +8,5 @@ import com.lsh.base.common.exception.BizCheckedException;
 public interface IShelveRestService {
     String createTask() throws BizCheckedException;
     String scanContainer() throws BizCheckedException;
-    String scanTargetLocation(Long taskId, Long locationId) throws BizCheckedException;
+    String scanTargetLocation() throws BizCheckedException;
 }

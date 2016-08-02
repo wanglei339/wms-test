@@ -211,6 +211,21 @@ public class PoOrderService {
     }
 
     /**
+     * 根据OrderId及BarCode获取InbPoDetail
+     * @param orderId
+     * @param barCode
+     * @return
+     */
+    public InbPoDetail getInbPoDetailByOrderIdAndBarCode(Long orderId, String barCode) {
+        Map<String, Object> params = new HashMap<String, Object>();
+
+        params.put("orderId", orderId);
+        params.put("barCode", barCode);
+
+        return getInbPoDetailByParams(params);
+    }
+
+    /**
      * 根据OrderId获取List<InbPoDetail>
      * @param orderId
      * @return

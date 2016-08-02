@@ -10,7 +10,9 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -82,6 +84,16 @@ public class RequestUtils {
             }
         }
         return requestMap;
+    }
+
+    public static HttpSession getSession() {
+        HttpServletRequest request = (HttpServletRequest) RpcContext.getContext().getRequest();
+        return request.getSession();
+    }
+
+    public static Cookie[] getCookie() {
+        HttpServletRequest request = (HttpServletRequest) RpcContext.getContext().getRequest();
+        return request.getCookies();
     }
 
     protected static boolean isMultipart(HttpServletRequest request){
