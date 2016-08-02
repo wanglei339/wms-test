@@ -46,7 +46,7 @@ public class UserRestService implements IUserRestService {
         Map<String,Long> map = userService.login(userName,passwd);
         HttpServletResponse response = (HttpServletResponse)RpcContext.getContext().getResponse();
         response.addHeader("uid",map.get("uid").toString());
-        response.addHeader("token",map.get("token").toString());
+        response.addHeader("utoken",map.get("utoken").toString());
         // TODO: 16/8/1 cookie的路径
         //创建两个cookie对象
         Cookie idCookie = new Cookie("uid", map.get("uid").toString());
@@ -55,12 +55,12 @@ public class UserRestService implements IUserRestService {
         tokenCookie.setMaxAge(PropertyUtils.getInt("maxAge"));
         response.addCookie(idCookie);
         response.addCookie(tokenCookie);
-        // TODO: 16/8/1 剩余基本信息放在session 所属库区等。
-        HttpServletRequest sessionRequest = (HttpServletRequest) RpcContext.getContext().getRequest();
-        HttpSession session = sessionRequest.getSession();
-        session.setAttribute("","");
-        session.setAttribute("","");
-        session.setAttribute("","");
+//        // TODO: 16/8/1 剩余基本信息放在session 所属库区等。
+//        HttpServletRequest sessionRequest = (HttpServletRequest) RpcContext.getContext().getRequest();
+//        HttpSession session = sessionRequest.getSession();
+//        session.setAttribute("","");
+//        session.setAttribute("","");
+//        session.setAttribute("","");
         return JsonUtils.SUCCESS();
     }
 }
