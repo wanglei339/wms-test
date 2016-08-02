@@ -52,6 +52,8 @@ public class ShelveRestService implements IShelveRestService {
      */
     @POST
     @Path("createTask")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String createTask() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         if(mapQuery.get("type")==null) {
@@ -101,6 +103,8 @@ public class ShelveRestService implements IShelveRestService {
      */
     @POST
     @Path("scanContainer")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String scanContainer() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         if(mapQuery.get("type")==null) {
@@ -117,14 +121,17 @@ public class ShelveRestService implements IShelveRestService {
 
     /**
      * 扫描上架目标location_id
-     * @param taskId
-     * @param locationId
      * @return
      * @throws BizCheckedException
      */
-    @GET
+    @POST
     @Path("scanTargetLocation")
-    public String scanTargetLocation(@QueryParam("taskId") Long taskId, @QueryParam("locationId") Long locationId) throws BizCheckedException {
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String scanTargetLocation() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
+        Long locationId = Long.valueOf(mapQuery.get("locationId").toString());
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
         if(entry == null){
             return JsonUtils.EXCEPTION_ERROR();

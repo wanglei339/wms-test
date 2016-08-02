@@ -52,7 +52,7 @@
 		where staff_id=#{staffId}
 	</update>
   
-	<select id="getBaseinfoStaffInfoById" parameterType="int" resultMap="baseinfoStaffInfoResultMap">
+	<select id="getBaseinfoStaffInfoById" parameterType="Long" resultMap="baseinfoStaffInfoResultMap">
 		select * from baseinfo_staff_info
 		where staff_id=#{staffId}
 	</select>

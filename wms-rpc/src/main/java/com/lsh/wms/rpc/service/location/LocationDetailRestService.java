@@ -11,6 +11,7 @@ import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.service.location.LocationConstant;
 import com.lsh.wms.core.service.location.LocationDetailModelFactory;
 import com.lsh.wms.core.service.location.LocationDetailService;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.baseinfo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,38 +48,47 @@ public class LocationDetailRestService implements ILocationDetailRestService {
 
 
     //构造之后,实例化之前,注入各种model
+
     /**
      * 将所有的bin的type注册到工厂中
      */
     @PostConstruct
-    public void postConstruct(){
-        //添加其他bin的type
-        locationDetailModelFactory.register(LocationConstant.Bin, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.Pinking,new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.Stock_bin,new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.Floor_bin, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.Temporary_bin,new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.Collection_bin,new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.Back_bin,new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.Defective_bin,new BaseinfoLocationBin());
-        //注入dock
-        locationDetailModelFactory.register(LocationConstant.Dock_area,new BaseinfoLocationDock());
-        //注入过道
-        locationDetailModelFactory.register(LocationConstant.Passage,new BaseinfoLocationPassage());
-        //注入区域
-        locationDetailModelFactory.register(LocationConstant.Region_area,new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.InventoryLost,new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.Goods_area,new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.Floor,new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.Temporary,new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.Collection_area,new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.Back_area,new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.Defective_area,new BaseinfoLocationRegion());
-        //注入阁楼和货架
-        locationDetailModelFactory.register(LocationConstant.Shelf,new BaseinfoLocationShelf());
-        locationDetailModelFactory.register(LocationConstant.Loft,new BaseinfoLocationShelf());
+    public void postConstruct() {
         //仓库
-        locationDetailModelFactory.register(LocationConstant.Warehouse,new BaseinfoLocationWarehouse());
+        locationDetailModelFactory.register(LocationConstant.Warehouse, new BaseinfoLocationWarehouse());
+        //区域
+        locationDetailModelFactory.register(LocationConstant.Region_area, new BaseinfoLocationRegion());
+        //注入过道
+        locationDetailModelFactory.register(LocationConstant.Passage, new BaseinfoLocationPassage());
+
+        //注入阁楼区和货架区
+        locationDetailModelFactory.register(LocationConstant.Shelfs, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.Lofts, new BaseinfoLocationRegion());
+        //注入区域
+        locationDetailModelFactory.register(LocationConstant.InventoryLost, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.Floor, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.Temporary, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.Collection_area, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.Back_area, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.Defective_area, new BaseinfoLocationRegion());
+        //货架和阁楼
+        locationDetailModelFactory.register(LocationConstant.Shelf, new BaseinfoLocationShelf());
+        locationDetailModelFactory.register(LocationConstant.Loft, new BaseinfoLocationShelf());
+        //注入码头
+        locationDetailModelFactory.register(LocationConstant.Dock_area, new BaseinfoLocationDock());
+        //货位
+        locationDetailModelFactory.register(LocationConstant.Bin, new BaseinfoLocationBin());
+        //货架和阁楼的货位
+        locationDetailModelFactory.register(LocationConstant.Shelf_collection_bin, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.Shelf_store_bin, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.Loft_collection_bin, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.Loft_store_bin, new BaseinfoLocationBin());
+        //功能bin
+        locationDetailModelFactory.register(LocationConstant.Floor_bin, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.Temporary_bin, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.Collection_bin, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.Back_bin, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.Defective_bin, new BaseinfoLocationBin());
     }
 
 
@@ -135,6 +145,10 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         Map<String, Object> params = RequestUtils.getRequest();
         return JsonUtils.SUCCESS(locationDetailService.countLocationDetail(params));
     }
+
+
+    @Autowired
+    private LocationService locationService;
 
     @POST
     @Path("getList")

@@ -80,6 +80,7 @@ public class StockTransferCore {
 
         } else {
             BigDecimal qtyDone = new BigDecimal(params.get("qty").toString());
+            qtyDone = qtyDone.multiply(itemRpcService.getPackUnit(params.get("packName").toString()));
             StockMove move = new StockMove();
             ObjUtils.bean2bean(taskEntry.getTaskInfo(), move);
             move.setQty(qtyDone);
@@ -102,9 +103,12 @@ public class StockTransferCore {
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         Long containerId = taskEntry.getTaskInfo().getContainerId();
         Long fromLocationId = locationService.getAreaFatherId(taskInfo.getFromLocationId());
+
         if (taskEntry.getTaskInfo().getPackName() == "pallet") {
             moveRpcService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
         } else {
+            BigDecimal qtyDone = new BigDecimal(params.get("qty").toString());
+            qtyDone = qtyDone.multiply(itemRpcService.getPackUnit(params.get("packName").toString()));
             StockMove move = new StockMove();
             ObjUtils.bean2bean(taskEntry.getTaskInfo(), move);
             move.setFromLocationId(fromLocationId);

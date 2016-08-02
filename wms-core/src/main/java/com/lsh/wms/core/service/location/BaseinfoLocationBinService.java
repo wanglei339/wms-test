@@ -28,37 +28,6 @@ public class BaseinfoLocationBinService implements IStrategy {
     private BaseinfoLocationBinDao baseinfoLocationBinDao;
     @Autowired
     private LocationService locationService;
-    @Autowired
-    private FatherToChildUtil fatherToChildUtil;
-//    @Autowired
-//    private LocationDetailModelFactory locationDetailModelFactory;
-//    @Autowired
-//    private LocationDetailServiceFactory locationDetailServiceFactory;
-//
-//    /**
-//     * 将所有的bin的type注册到工厂中
-//     */
-//    @PostConstruct
-//    public void postConstruct(){
-//        //添加其他bin的type
-//        locationDetailModelFactory.register(LocationConstant.Bin, new BaseinfoLocationBin());
-//        locationDetailModelFactory.register(LocationConstant.Pinking,new BaseinfoLocationBin());
-//        locationDetailModelFactory.register(LocationConstant.Stock_bin,new BaseinfoLocationBin());
-//        locationDetailModelFactory.register(LocationConstant.Floor_bin, new BaseinfoLocationBin());
-//        locationDetailModelFactory.register(LocationConstant.Temporary_bin,new BaseinfoLocationBin());
-//        locationDetailModelFactory.register(LocationConstant.Collection_bin,new BaseinfoLocationBin());
-//        locationDetailModelFactory.register(LocationConstant.Back_bin,new BaseinfoLocationBin());
-//        locationDetailModelFactory.register(LocationConstant.Defective_bin,new BaseinfoLocationBin());
-//        //添加各种type的service服务
-//        locationDetailServiceFactory.register(LocationConstant.Bin,this);
-//        locationDetailServiceFactory.register(LocationConstant.Pinking,this);
-//        locationDetailServiceFactory.register(LocationConstant.Stock_bin,this);
-//        locationDetailServiceFactory.register(LocationConstant.Floor_bin,this);
-//        locationDetailServiceFactory.register(LocationConstant.Temporary_bin,this);
-//        locationDetailServiceFactory.register(LocationConstant.Collection_bin,this);
-//        locationDetailServiceFactory.register(LocationConstant.Back_bin,this);
-//        locationDetailServiceFactory.register(LocationConstant.Defective_bin,this);
-//    }
 
     /**
      * 传入BaseinfoLocationBin然后插入到主表中,并且插入到细节表中
@@ -138,7 +107,7 @@ public class BaseinfoLocationBinService implements IStrategy {
         //循环父类list逐个拷贝到子类,并添加到子类list中
         if (baseinfoLocationList.size() > 0) {
             for (BaseinfoLocation baseinfoLocation : baseinfoLocationList) {
-                //根据父类id获取子类bin
+                //根据主表id获取细节表bin
                 Long locationId = baseinfoLocation.getLocationId();
                 params.put("locationId", locationId);
                 binList = baseinfoLocationBinDao.getBaseinfoLocationBinList(params);

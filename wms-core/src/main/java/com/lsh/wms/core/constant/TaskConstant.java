@@ -24,6 +24,4 @@ public class TaskConstant {
 
     public static final Long TYPE_QC = 110L;
     public static final Long TYPE_SHIP = 111L;
-
-
 }

@@ -87,14 +87,10 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         taskRpcService.create(TaskConstant.TYPE_STOCK_TRANSFER, taskEntry);
     }
 
-    @POST
-    @Path("scanFromLocation")
     public void scanFromLocation(Map<String, Object> params) throws BizCheckedException {
         core.outbound(params);
     }
 
-    @POST
-    @Path("scanToLocation")
     public void scanToLocation(Map<String, Object> params) throws BizCheckedException {
         core.inbound(params);
         Long taskId = Long.valueOf(params.get("taskId").toString());

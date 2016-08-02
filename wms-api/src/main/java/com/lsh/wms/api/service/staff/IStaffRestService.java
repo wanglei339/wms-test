@@ -62,6 +62,8 @@ public interface IStaffRestService {
 
     public String getStaffList(Map<String, Object> params);
 
+    public String getStaffById(Long staffId);
+
     public String getStaffListCount(Map<String, Object> params);
 
     public String addStaff(Map<String, Object> params);

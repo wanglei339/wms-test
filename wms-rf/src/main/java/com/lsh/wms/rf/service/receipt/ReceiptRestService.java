@@ -4,24 +4,33 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
+import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
+import com.lsh.wms.api.model.po.ReceiptItem;
 import com.lsh.wms.api.model.po.ReceiptRequest;
-import com.lsh.wms.api.service.po.IReceiptRestService;
+import com.lsh.wms.api.service.po.IReceiptRfService;
 import com.lsh.wms.api.service.po.IReceiptRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.po.PoReceiptService;
+import com.lsh.wms.model.po.InbPoDetail;
+import com.lsh.wms.model.po.InbPoHeader;
 import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.InbReceiptHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,9 +45,9 @@ import java.util.Map;
  */
 @Service(protocol = "rest")
 @Path("order/po/receipt")
-@Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
+@Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-public class ReceiptRestService implements IReceiptRestService {
+public class ReceiptRestService implements IReceiptRfService {
 
     private static Logger logger = LoggerFactory.getLogger(ReceiptRestService.class);
 
@@ -46,70 +55,62 @@ public class ReceiptRestService implements IReceiptRestService {
     private IReceiptRpcService iReceiptRpcService;
 
     @Autowired
-    private PoReceiptService poReceiptService;
+    private PoOrderService poOrderService;
 
     @POST
-    @Path("init")
-    public String init(String poReceiptInfo) {
-        InbReceiptHeader inbReceiptHeader = JSON.parseObject(poReceiptInfo,InbReceiptHeader.class);
-        List<InbReceiptDetail> inbReceiptDetailList = JSON.parseArray((String)inbReceiptHeader.getReceiptDetails(),InbReceiptDetail.class);
-        poReceiptService.orderInit(inbReceiptHeader,inbReceiptDetailList);
-        return JsonUtils.SUCCESS();
-    }
+    @Path("add")
+    public BaseResponse insertOrder() throws BizCheckedException{
+        Map<String, Object> request = RequestUtils.getRequest();
 
-    @POST
-    @Path("throw")
-    public String throwOrder(String orderOtherId) throws BizCheckedException {
-        if(iReceiptRpcService.throwOrder(orderOtherId)){
-            return JsonUtils.SUCCESS();
-        }else {
-            return JsonUtils.FAIL("2020002");
+        List<ReceiptItem> receiptItemList = JSON.parseArray((String)request.get("items"), ReceiptItem.class);
+        request.put("items", receiptItemList);
+
+        ReceiptRequest receiptRequest = BeanMapTransUtils.map2Bean(request, ReceiptRequest.class);
+
+        HttpSession session = RequestUtils.getSession();
+        if(session.getAttribute("wareHouseId") == null) {
+            receiptRequest.setWarehouseId(PropertyUtils.getLong("wareHouseId", 1L));
+        } else {
+            receiptRequest.setWarehouseId((Long) session.getAttribute("wareHouseId"));
         }
 
-    }
+        receiptRequest.setReceiptUser((String) session.getAttribute("uid"));
 
-    @POST
-    @Path("insert")
-    public BaseResponse insertOrder(ReceiptRequest request) throws BizCheckedException{
-        iReceiptRpcService.insertOrder(request);
+        receiptRequest.setReceiptTime(new Date());
+
+        InbPoHeader inbPoHeader = poOrderService.getInbPoHeaderByOrderOtherId(receiptRequest.getOrderOtherId());
+        if(inbPoHeader == null) {
+            throw new BizCheckedException("2010001", "订单不存在");
+        }
+
+        for(ReceiptItem receiptItem : receiptRequest.getItems()) {
+            InbPoDetail inbPoDetail = poOrderService.getInbPoDetailByOrderIdAndBarCode(inbPoHeader.getOrderId(), receiptItem.getBarCode());
+
+            receiptItem.setSkuName(inbPoDetail.getSkuName());
+            receiptItem.setPackUnit(inbPoDetail.getPackUnit());
+            receiptItem.setMadein(inbPoDetail.getMadein());
+        }
+
+        receiptRequest.setItems(receiptItemList);
+
+        iReceiptRpcService.insertOrder(receiptRequest);
         return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
     }
 
     @POST
-    @Path("updateReceiptStatus")
-    public String updateReceiptStatus() throws BizCheckedException {
-        Map<String, Object> map = RequestUtils.getRequest();
+    @Path("getorderinfo")
+    public String getPoDetailByOrderIdAndBarCode(@FormParam("orderId") Long orderId, @FormParam("barCode") String barCode) throws BizCheckedException {
+        if(orderId == null || barCode == null) {
+            throw new BizCheckedException("1020001", "参数不能为空");
+        }
 
-        iReceiptRpcService.updateReceiptStatus(map);
+        InbPoDetail inbPoDetail = poOrderService.getInbPoDetailByOrderIdAndBarCode(orderId, barCode);
 
-        return JsonUtils.SUCCESS();
-    }
+        Map<String, Object> orderInfoMap = new HashMap<String, Object>();
+        orderInfoMap.put("skuName", inbPoDetail.getSkuName());
+        orderInfoMap.put("packUnit", inbPoDetail.getPackUnit());
+        orderInfoMap.put("orderQty", inbPoDetail.getOrderQty());
 
-    @GET
-    @Path("getPoReceiptDetailByReceiptId")
-    public String getPoReceiptDetailByReceiptId(@QueryParam("receiptId") Long receiptId) throws BizCheckedException {
-        InbReceiptHeader inbReceiptHeader = iReceiptRpcService.getPoReceiptDetailByReceiptId(receiptId);
-        return JsonUtils.SUCCESS(inbReceiptHeader);
-    }
-
-    @GET
-    @Path("getPoReceiptDetailByOrderId")
-    public String getPoReceiptDetailByOrderId(@QueryParam("orderId") Long orderId) throws BizCheckedException {
-        List<InbReceiptHeader> inbReceiptHeaderList = iReceiptRpcService.getPoReceiptDetailByOrderId(orderId);
-        return JsonUtils.SUCCESS(inbReceiptHeaderList);
-    }
-
-    @POST
-    @Path("countInbPoReceiptHeader")
-    public String countInbPoReceiptHeader() {
-        Map<String, Object> params = RequestUtils.getRequest();
-        return JsonUtils.SUCCESS(iReceiptRpcService.countInbPoReceiptHeader(params));
-    }
-
-    @POST
-    @Path("getPoReceiptDetailList")
-    public String getPoReceiptDetailList() {
-        Map<String, Object> params = RequestUtils.getRequest();
-        return JsonUtils.SUCCESS(iReceiptRpcService.getPoReceiptDetailList(params));
+        return JsonUtils.SUCCESS(orderInfoMap);
     }
 }
