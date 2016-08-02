@@ -7,7 +7,7 @@ VERSION="1.0-SNAPSHOT"
 #远程路径
 REMOTE="work@192.168.60.59"
 #本地路径
-ROOT=`pwd`
+ROOT=$(cd `dirname $0`; pwd)
 
 #Maven打包
 echo "是否要Maven打包[y/n]: "
