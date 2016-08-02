@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -87,17 +88,25 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         taskRpcService.create(TaskConstant.TYPE_STOCK_TRANSFER, taskEntry);
     }
 
-    @POST
-    @Path("scanFromLocation")
     public void scanFromLocation(Map<String, Object> params) throws BizCheckedException {
         core.outbound(params);
     }
 
-    @POST
-    @Path("scanToLocation")
     public void scanToLocation(Map<String, Object> params) throws BizCheckedException {
         core.inbound(params);
         Long taskId = Long.valueOf(params.get("taskId").toString());
         taskRpcService.done(taskId);
+    }
+
+    public Long assign(Long staffId) throws BizCheckedException {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("status", TaskConstant.Draft);
+        List<TaskEntry> list = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQuery);
+        if (list.isEmpty()) {
+            return 0L;
+        } else {
+            taskRpcService.assign(list.get(0).getTaskInfo().getTaskId(), staffId);
+            return list.get(0).getTaskInfo().getTaskId();
+        }
     }
 }

@@ -30,17 +30,18 @@ public class StockTakingService {
     private StockTakingDetailDao detailDao;
 
     @Transactional (readOnly = false)
-    private void insertHead(StockTakingHead head) {
+    public void insertHead(StockTakingHead head) {
         head.setCreatedAt(DateUtils.getCurrentSeconds());
         head.setUpdatedAt(DateUtils.getCurrentSeconds());
         headDao.insert(head);
     }
 
     @Transactional (readOnly = false)
-    private void updateHead(StockTakingHead head) {
+    public void updateHead(StockTakingHead head) {
         head.setUpdatedAt(DateUtils.getCurrentSeconds());
         headDao.update(head);
     }
+
 
     @Transactional (readOnly = false)
     public void insertDetailList(List<StockTakingDetail> detailList) {
@@ -49,6 +50,11 @@ public class StockTakingService {
             detail.setUpdatedAt(DateUtils.getCurrentSeconds());
         }
         detailDao.batchInsert(detailList);
+    }@Transactional (readOnly = false)
+     public void insertDetail(StockTakingDetail detail) {
+        detail.setCreatedAt(DateUtils.getCurrentSeconds());
+        detail.setUpdatedAt(DateUtils.getCurrentSeconds());
+        detailDao.insert(detail);
     }
 
     @Transactional(readOnly = false)
@@ -106,6 +112,10 @@ public class StockTakingService {
     }
     public Integer countHead(Map queryMap) {
         return headDao.countStockTakingHead(queryMap);
+
+    }
+    public List queryTakingDetail(Map queryMap) {
+        return detailDao.getStockTakingDetailList(queryMap);
 
     }
 }

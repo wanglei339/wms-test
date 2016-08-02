@@ -1,12 +1,12 @@
 package com.lsh.wms.model.taking;
 
-
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * Created by wuhao on 16/7/26.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class StockTakingRequest implements Serializable {
     /** 库区Id*/
     private Long areaId = 0L;
@@ -99,6 +99,18 @@ public class StockTakingRequest implements Serializable {
     }
 
     public void setPlanner(Long planner) {
+        this.planner = planner;
+    }
+
+    public StockTakingRequest(Long areaId, Long itemId, String locationList, Long supplierId, Long viewType, Long planType, Long dueTime, Long takingId, Long planner) {
+        this.areaId = areaId;
+        this.itemId = itemId;
+        this.locationList = locationList;
+        this.supplierId = supplierId;
+        this.viewType = viewType;
+        this.planType = planType;
+        this.dueTime = dueTime;
+        this.takingId = takingId;
         this.planner = planner;
     }
 }

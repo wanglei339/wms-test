@@ -13,7 +13,7 @@ public interface BaseinfoStaffInfoDao {
 	
 	void update(BaseinfoStaffInfo baseinfoStaffInfo);
 	
-	BaseinfoStaffInfo getBaseinfoStaffInfoById(Long id);
+	BaseinfoStaffInfo getBaseinfoStaffInfoById(Long staffId);
 
     Integer countBaseinfoStaffInfo(Map<String, Object> params);
 

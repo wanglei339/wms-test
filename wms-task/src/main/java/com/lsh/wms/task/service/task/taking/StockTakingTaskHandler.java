@@ -2,17 +2,22 @@ package com.lsh.wms.task.service.task.taking;
 
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.taking.StockTakingService;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.task.StockTakingTaskService;
 import com.lsh.wms.model.taking.StockTakingDetail;
+import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.StockTakingTask;
 import com.lsh.wms.model.task.TaskEntry;
+import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.task.service.handler.AbsTaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mali on 16/7/20.
@@ -23,6 +28,8 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
     private StockTakingTaskService stockTakingTaskService;
     @Autowired
     private StockTakingService stockTakingService;
+    @Autowired
+    private BaseTaskService baseTaskService;
 
     @Autowired
     private TaskHandlerFactory handlerFactory;
@@ -50,6 +57,31 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
     }
     protected void getHeadConcrete(TaskEntry taskEntry) {
         taskEntry.setTaskHead(stockTakingTaskService.getTakingTaskByTaskId(taskEntry.getTaskInfo().getTaskId()));
+    }
+    protected void assignConcrete(Long taskId, Long staffId) {
+        StockTakingTask task = stockTakingTaskService.getTakingTaskByTaskId(taskId);
+        StockTakingHead head = stockTakingService.getHeadById(task.getTakingId());
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("takingId",task.getTakingId());
+        List<StockTakingTask> takingTasks = stockTakingTaskService.getTakingTask(queryMap);
+        for(StockTakingTask takingTask:takingTasks) {
+           baseTaskService.assign(takingTask.getTaskId(),staffId);
+        }
+        head.setStatus(2L);
+        stockTakingService.updateHead(head);
+    }
+    public void cancel(Long taskId) {
+        StockTakingTask task = stockTakingTaskService.getTakingTaskByTaskId(taskId);
+        task.setIsValid(0);
+        stockTakingTaskService.updateTakingTask(task);
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("takingId",task.getTakingId());
+        List<StockTakingDetail> details= stockTakingService.queryTakingDetail(queryMap);
+        for(StockTakingDetail detail:details){
+            detail.setIsValid(0);
+            baseTaskService.cancel(taskId);
+            stockTakingService.updateDetail(detail);
+        }
     }
 
 

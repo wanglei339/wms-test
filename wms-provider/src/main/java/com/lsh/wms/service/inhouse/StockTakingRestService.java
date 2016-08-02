@@ -14,15 +14,12 @@ import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockLotService;
-import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.core.service.task.StockTakingTaskService;
 import com.lsh.wms.model.StockTakingInfo;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.ItemAndSupplierRelation;
-import com.lsh.wms.model.stock.StockLot;
-import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.taking.LocationListRequest;
 import com.lsh.wms.model.taking.StockTakingDetail;
@@ -37,7 +34,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -61,9 +57,6 @@ public class StockTakingRestService implements IStockTakingRestService {
     private StockQuantService quantService;
 
     @Autowired
-    private StockMoveService moveService;
-
-    @Autowired
     private StockLotService lotService;
 
     @Reference
@@ -82,6 +75,24 @@ public class StockTakingRestService implements IStockTakingRestService {
         this.createTask(head, detailList, 1L, head.getDueTime());
         return JsonUtils.SUCCESS();
     }
+    @POST
+    @Path("update")
+    public String update(StockTakingRequest request) throws BizCheckedException{
+        StockTakingHead head = new StockTakingHead();
+        ObjUtils.bean2bean(request, head);
+        this.cancel(head.getTakingId());
+        this.create(head);
+        return JsonUtils.SUCCESS();
+    }
+    @GET
+    @Path("cancel")
+    public String cancel(Long takingId) throws BizCheckedException{
+        StockTakingHead head = stockTakingService.getHeadById(takingId);
+        head.setStatus(5L);
+        stockTakingService.updateHead(head);
+        this.cancelTask(takingId);
+        return JsonUtils.SUCCESS();
+    }
     @GET
     @Path("genId")
     public String genId(){
@@ -91,6 +102,10 @@ public class StockTakingRestService implements IStockTakingRestService {
     @POST
     @Path("getList")
     public String getList(Map<String,Object> mapQuery) throws BizCheckedException{
+        List<Integer> statusList = new ArrayList<Integer>();
+        statusList.add(1);statusList.add(2);
+        statusList.add(3);statusList.add(4);
+        mapQuery.put("statusList",statusList);
         List<StockTakingHead> heads = stockTakingService.queryTakingHead(mapQuery);
         List<StockTakingInfo> infos =new ArrayList<StockTakingInfo>();
         for (StockTakingHead head:heads) {
@@ -131,6 +146,7 @@ public class StockTakingRestService implements IStockTakingRestService {
             List details =new ArrayList();
             queryMap.put("round", time);
             queryMap.put("takingId", takingId);
+            queryMap.put("IsValid",1);
             List<StockTakingTask> stockTakingTaskList = stockTakingTaskService.getTakingTask(queryMap);
             for(StockTakingTask takingTask:stockTakingTaskList) {
                 Map <String,Object> one = new HashMap<String, Object>();
@@ -158,6 +174,7 @@ public class StockTakingRestService implements IStockTakingRestService {
     @POST
     @Path("getLocationList")
     public String getLocationList(LocationListRequest request) {
+        logger.info("get param:"+JsonUtils.SUCCESS(request));
         List<Long> locationList =null;
         int locationNum= Integer.MAX_VALUE;
         //Long itemId,Long AreaId,Long supplierId,Long storageId int locationNum
@@ -185,7 +202,9 @@ public class StockTakingRestService implements IStockTakingRestService {
             List<StockQuant>quantList = quantService.getQuants(queryMap);
             Set<Long> locationSet =new HashSet<Long>();
             for(StockQuant quant:quantList){
-                locationSet.add(quant.getLocationId());
+                if(quant.getLocationId()!=null) {
+                    locationSet.add(quant.getLocationId());
+                }
             }
             if(locationList!=null && locationList.size()!=0){
                 locationList.retainAll(new ArrayList<Long>(locationSet));
@@ -246,23 +265,6 @@ public class StockTakingRestService implements IStockTakingRestService {
         }
         return JsonUtils.SUCCESS(supplierSet);
     }
-    public void createNextDetail(Long stockTakingId,Long roundTime) throws BizCheckedException{
-        Map queryMap = new HashMap();
-        StockTakingHead head = stockTakingService.getHeadById(stockTakingId);
-        List<StockTakingDetail> detailList = new ArrayList<StockTakingDetail>();
-        queryMap.put("stockTakingId",stockTakingId);
-        queryMap.put("round",roundTime);
-        List<StockTakingDetail> details=stockTakingService.getDetailListByRound(stockTakingId,roundTime);
-        for (StockTakingDetail stockTakingDetail:details){
-            stockTakingDetail.setId(0L);
-            BigDecimal qty=quantService.getQuantQtyByLocationIdAndItemId(stockTakingDetail.getLocationId(), stockTakingDetail.getItemId());
-            stockTakingDetail.setTheoreticalQty(qty);
-            stockTakingDetail.setRound(roundTime + 1);
-            detailList.add(stockTakingDetail);
-        }
-        stockTakingService.insertDetailList(detailList);
-        this.createTask(head, detailList, roundTime + 1, head.getDueTime());
-    }
 
     private List<StockTakingDetail> prepareDetailListByLocation(List<Long> locationList, List<StockQuant> quantList){
         Map<Long, StockQuant> mapLoc2Quant = new HashMap<Long, StockQuant>();
@@ -302,6 +304,7 @@ public class StockTakingRestService implements IStockTakingRestService {
                 mergeQuantMap.put(key,quant);
             }
         }
+        logger.info("Map123 : "+JsonUtils.SUCCESS(mergeQuantMap));
         for (String key : mergeQuantMap.keySet()) {
             StockQuant quant=mergeQuantMap.get(key);
             StockTakingDetail detail = new StockTakingDetail();
@@ -315,6 +318,7 @@ public class StockTakingRestService implements IStockTakingRestService {
             detailList.add(detail);
             idx++;
         }
+        logger.info(JsonUtils.SUCCESS(quantList));
         return detailList;
     }
 
@@ -347,31 +351,6 @@ public class StockTakingRestService implements IStockTakingRestService {
             return this.prepareDetailListByLocation(locationList, quantList);
         }
     }
-
-    public void doOne(String detailInfo) {
-        StockTakingDetail detail = JSON.parseObject(detailInfo, StockTakingDetail.class);
-        stockTakingService.updateDetail(detail);
-    }
-
-    private boolean chargeDifference(Long stockTakingId, Long round) {
-        List<StockTakingDetail> oldDetails =stockTakingService.getDetailListByRound(stockTakingId, round - 1);
-        List<StockTakingDetail> details = stockTakingService.getDetailListByRound(stockTakingId, round);
-        Map<String,BigDecimal> compareMap = new HashMap<String, BigDecimal>();
-        for(StockTakingDetail detail:oldDetails){
-            String key = "l:"+detail.getLocationId()+"i:"+detail.getItemId();
-            compareMap.put(key,detail.getRealQty().subtract(detail.getTheoreticalQty()));
-        }
-        for (StockTakingDetail detail : details) {
-            String key = "l:"+detail.getLocationId()+"i:"+detail.getItemId();
-            BigDecimal differQty = detail.getRealQty().subtract(detail.getTheoreticalQty());
-            if(!compareMap.containsKey(key) || compareMap.get(key).compareTo(differQty)!=0) {
-                return false;
-            }
-        }
-       return true;
-    }
-
-
 
     public void createTask(StockTakingHead head, List<StockTakingDetail> detailList,Long round,Long dueTime) throws BizCheckedException{
         List<TaskEntry> taskEntryList=new ArrayList<TaskEntry>();
@@ -406,87 +385,19 @@ public class StockTakingRestService implements IStockTakingRestService {
         }
     }
 
-
-    public void confirm(Long stockTakingId) throws BizCheckedException{
-        // 获取stockingHead
-        // 如果是临时盘点, 直接调用confirmDifference
-        // 计划盘点,
-        //      如果ruund == 1, 发起新一轮盘点
-        //      如果round == 2, 获取第一轮,第二轮的差异明细列表, 如果非空, 发起第三轮盘点
-        //      如果round == 3, 直接调用confirmDiffence
-
-        StockTakingHead head=stockTakingService.getHeadById(stockTakingId);
-        if (head.getPlanType()==1) {
-            this.confirmDifference(stockTakingId,1L);
-        }else {
-            Long times = stockTakingService.chargeTime(stockTakingId);
-            if (times == 1) {
-                this.createNextDetail(stockTakingId,times);
-            } else {
-                if (times == 2) {
-                    boolean isSame=this.chargeDifference(stockTakingId,times);
-                    if (isSame) {
-                        this.confirmDifference(stockTakingId, times);
-                    } else {
-                        this.createNextDetail(stockTakingId, times);
-                    }
-                } else {
-                    this.confirmDifference(stockTakingId, times);
-                }
-            }
-        }
-    }
-
-
-    public void confirmDifference(Long stockTakingId ,long roundTime) {
-        List<StockTakingDetail> detailList = stockTakingService.getDetailListByRound(stockTakingId, roundTime);
-        List<StockMove> moveList = new ArrayList<StockMove>();
-        for (StockTakingDetail detail : detailList) {
-            if (detail.getSkuId().equals(detail.getRealSkuId())) {
-                StockMove move = new StockMove();
-                move.setTaskId(detail.getTakingId());
-                move.setSkuId(detail.getSkuId());
-                move.setStatus(TaskConstant.Done);
-                if (detail.getTheoreticalQty().compareTo(detail.getRealQty()) < 0) {
-                    move.setQty(detail.getRealQty().subtract(detail.getTheoreticalQty()));
-                    move.setFromLocationId(detail.getLocationId());
-                    move.setToLocationId(locationService.getInventoryLostLocationId());
-                }
-                else {
-                    move.setQty(detail.getTheoreticalQty().subtract(detail.getRealQty()));
-                    move.setFromLocationId(locationService.getInventoryLostLocationId());
-                    move.setToLocationId(detail.getLocationId());
-                }
-                moveList.add(move);
-            }
-            else {
-                StockMove moveWin= new StockMove();
-                moveWin.setTaskId(detail.getTakingId());
-                moveWin.setSkuId(detail.getSkuId());
-                moveWin.setToLocationId(locationService.getInventoryLostLocationId());
-                moveWin.setFromLocationId(detail.getLocationId());
-                moveWin.setQty(detail.getRealQty());
-                moveList.add(moveWin);
-
-                StockMove moveLoss= new StockMove();
-                moveLoss.setTaskId(detail.getTakingId());
-                moveLoss.setSkuId(detail.getSkuId());
-                moveLoss.setFromLocationId(locationService.getInventoryLostLocationId());
-                moveLoss.setToLocationId(detail.getLocationId());
-                moveLoss.setQty(detail.getRealQty());
-                moveList.add(moveLoss);
-            }
-        }
-        moveService.create(moveList);
-
-    }
     public String create(StockTakingHead head) throws BizCheckedException{
         List<StockTakingDetail> detailList = prepareDetailList(head);
-        logger.info("detail:"+JSON.toJSONString(detailList));
         stockTakingService.create(head, detailList);
-        logger.info("end create taking");
-        logger.info("head:" + JSON.toJSONString(head));
         this.createTask(head, detailList, 1L, head.getDueTime());
+        return JsonUtils.SUCCESS();
+    }
+    public String cancelTask(Long takingId) throws BizCheckedException {
+        Map<String,Object> queryMap =new HashMap();
+        queryMap.put("takingId", takingId);
+        List<StockTakingTask> takingTasks = stockTakingTaskService.getTakingTask(queryMap);
+        for(StockTakingTask task :takingTasks){
+            iTaskRpcService.cancel(task.getTaskId());
+        }
         return JsonUtils.SUCCESS();
     }
 

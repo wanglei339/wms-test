@@ -261,6 +261,12 @@ public class StaffRestService implements IStaffRestService {
         return JsonUtils.SUCCESS(staffRpcService.getStaffListCount(params));
     }
 
+    @GET
+    @Path("getStaff")
+    public String getStaffById(@QueryParam("staffId")Long staffId) {
+        return JsonUtils.SUCCESS(staffRpcService.getStaffById(staffId));
+    }
+
     @POST
     @Path("addStaff")
     public String addStaff(Map<String, Object> params) {

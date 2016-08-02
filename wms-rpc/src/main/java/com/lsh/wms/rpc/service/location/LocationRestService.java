@@ -140,7 +140,8 @@ public class LocationRestService implements ILocationRestService {
      */
     @GET
     @Path("getRegionByWareHouseId")
-    public String getRegionByWareHouseId(Long locationId) {
+    public String getRegionByWareHouseId(@QueryParam("locationId") Long locationId) {
+
         List<Long> regionType = Arrays.asList(LocationConstant.Shelfs, LocationConstant.Lofts, LocationConstant.Floor, LocationConstant.Temporary, LocationConstant.Collection_area, LocationConstant.Back_area, LocationConstant.Defective_area);
         List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
         for (Long oneType : regionType) {
@@ -159,7 +160,7 @@ public class LocationRestService implements ILocationRestService {
      */
     @GET
     @Path("getShelfByRegionId")
-    public String getShelfByRegionId(Long locationId) {
+    public String getShelfByRegionId(@QueryParam("locationId") Long locationId) {
         List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
         List<Long> regionType = Arrays.asList(LocationConstant.Shelf, LocationConstant.Loft);
         for (Long oneType : regionType) {
@@ -177,7 +178,7 @@ public class LocationRestService implements ILocationRestService {
      */
     @GET
     @Path("getBinByShelf")
-    public String getBinByShelf(Long locationId) {
+    public String getBinByShelf(@QueryParam("locationId") Long locationId) {
         List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
         List<Long> regionType = Arrays.asList(LocationConstant.Shelf_collection_bin, LocationConstant.Shelf_store_bin, LocationConstant.Loft_collection_bin, LocationConstant.Loft_store_bin);
         for (Long oneType : regionType) {
@@ -195,7 +196,7 @@ public class LocationRestService implements ILocationRestService {
      */
     @GET
     @Path("getBinByWarehouseId")
-    public String getBinByWarehouseId(Long locationId) {
+    public String getBinByWarehouseId(@QueryParam("locationId") Long locationId) {
         List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
         List<Long> regionType = Arrays.asList(LocationConstant.Shelf_collection_bin, LocationConstant.Shelf_store_bin, LocationConstant.Loft_collection_bin, LocationConstant.Loft_store_bin, LocationConstant.Floor_bin, LocationConstant.Temporary_bin, LocationConstant.Collection_bin,LocationConstant.Back_bin,LocationConstant.Defective_bin);
         for (Long oneType : regionType) {

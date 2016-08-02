@@ -49,7 +49,7 @@
 			<if test="poId != null">po_id=#{poId},</if>
 			<if test="receiptId != null">receipt_id=#{receiptId},</if>
 			<if test="packUnit != null">pack_unit=#{packUnit},</if>
-			<if test="packName != null">pack_name=#{packName}</if>
+			<if test="packName != null">pack_name=#{packName},</if>
 			<if test="supplierId !=null">supplier_id=#{supplierId}</if>
 		</set>
 		where id=#{id}
@@ -112,7 +112,7 @@
 			<if test="receiptId != null">and receipt_id=#{receiptId}</if>
 			<if test="packUnit != null">and pack_unit=#{packUnit}</if>
 			<if test="packName != null">and pack_name=#{packName}</if>
-			<if test="supplierId !=null">supplier_id=#{supplierId}</if>
+			<if test="supplierId !=null"> and supplier_id=#{supplierId}</if>
 		</where>
 	</sql>
 
