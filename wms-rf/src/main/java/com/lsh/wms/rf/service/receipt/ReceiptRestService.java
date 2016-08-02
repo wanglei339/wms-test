@@ -115,7 +115,7 @@ public class ReceiptRestService implements IReceiptRfService {
     @POST
     @Path("getorderinfo")
     public String getPoDetailByOrderIdAndBarCode(@FormParam("orderOtherId") String orderOtherId,@FormParam("containerId") Long containerId, @FormParam("barCode") String barCode) throws BizCheckedException {
-        if(StringUtils.isBlank(orderOtherId) || StringUtils.isBlank(barCode)|| containerService ==null) {
+        if(StringUtils.isBlank(orderOtherId) || StringUtils.isBlank(barCode)|| containerId ==null) {
             throw new BizCheckedException("1020001", "参数不能为空");
         }
 
