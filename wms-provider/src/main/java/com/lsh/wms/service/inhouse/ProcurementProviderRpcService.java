@@ -4,9 +4,8 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.ObjUtils;
-import com.lsh.wms.api.service.inhouse.IProcurementProveiderPpcService;
+import com.lsh.wms.api.service.inhouse.IProcurementProveiderRpcService;
 import com.lsh.wms.api.service.inhouse.IProcurementRpcService;
-import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
@@ -32,7 +31,7 @@ import java.util.Map;
  * Created by mali on 16/8/2.
  */
 @Service(protocol = "dubbo")
-public class ProcurementProviderRpcService implements IProcurementProveiderPpcService {
+public class ProcurementProviderRpcService implements IProcurementProveiderRpcService {
     private static final Logger logger = LoggerFactory.getLogger(ProcurementProviderRpcService.class);
 
     @Autowired
@@ -88,7 +87,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderPpcSe
         for (BaseinfoLocation shelf : shelfLocationList) {
             List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationByLocationID(shelf.getLocationId());
             for (BaseinfoItemLocation itemLocation : itemLocationList) {
-                if (rpcService.needProcurement(itemLocation.getPickLocationid(), itemLocation.getItemId())) {
+                if ( rpcService.needProcurement(itemLocation.getPickLocationid(), itemLocation.getItemId())) {
                     // 找合适的quant
                     StockQuantCondition condition = new StockQuantCondition();
                     List<BaseinfoLocation> shelfList = locationService.getLocationsByType("shelf");
