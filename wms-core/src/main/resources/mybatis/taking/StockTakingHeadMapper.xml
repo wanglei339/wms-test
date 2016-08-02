@@ -104,11 +104,17 @@
 			<if test="skuId != null">and sku_id=#{skuId}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
-			<if test="planType != null">plan_type=#{planType}</if>
-			<if test="dueTime != null">due_time=#{dueTime}</if>
-			<if test="areaId != null">area_id=#{areaId}</if>
-			<if test="itemId != null">item_id=#{itemId}</if>
-			<if test="storageId !=null">storage_id=#{storageId}</if>
+			<if test="planType != null"> and plan_type=#{planType}</if>
+			<if test="dueTime != null"> and due_time=#{dueTime}</if>
+			<if test="areaId != null"> and area_id=#{areaId}</if>
+			<if test="itemId != null"> and item_id=#{itemId}</if>
+			<if test="storageId !=null"> and storage_id=#{storageId}</if>
+			<if test="statusList != null">
+				and status in
+				<foreach collection="statusList"  item="item" index="index" open="(" separator=","  close=")">
+					#{item}
+				</foreach>
+			</if>
 		</where>
 	</sql>
    

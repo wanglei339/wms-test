@@ -110,6 +110,10 @@ public class ShelveRestService implements IShelveRestService {
         Long staffId = Long.valueOf(mapQuery.get("operator").toString());
         Long containerId = Long.valueOf(mapQuery.get("containerId").toString());
         Long taskId = baseTaskService.getDraftTaskIdByContainerId(containerId);
+        // 检查是否有已分配的任务
+        if (taskId == null && baseTaskService.checkTaskByContainerId(containerId)) {
+            throw new BizCheckedException("2030008");
+        }
         iTaskRpcService.assign(taskId, staffId);
         ShelveTaskHead taskHead = shelveTaskService.getShelveTaskHead(taskId);
         return JsonUtils.SUCCESS(taskHead);

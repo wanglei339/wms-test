@@ -38,5 +38,8 @@ public class StockTakingTaskService {
     public StockTakingTask getTakingTaskByTaskId(Long taskId) {
         return stockTakingTaskDao.getStockTakingTaskById(taskId);
     }
+    public void updateTakingTask (StockTakingTask takingTask) {
+        stockTakingTaskDao.update(takingTask);
+    }
 
 }
