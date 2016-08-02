@@ -6,6 +6,7 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.item.IItemRestService;
+import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.BaseinfoLocationDockService;
 import com.lsh.wms.core.service.location.LocationService;
@@ -41,6 +42,9 @@ public class ItemRestService implements IItemRestService {
 
     @Autowired
     private ItemService itemService;
+
+    @Autowired
+    private ItemLocationService itemLocationService;
 
     @Autowired
     private LocationService locationService;
@@ -165,6 +169,18 @@ public class ItemRestService implements IItemRestService {
     @Path("setStatus")
     public String setStatus(@QueryParam("itemId") long iItemId,@QueryParam("status") long iStatus) {
         itemService.setStatus(iItemId,iStatus);
+        return JsonUtils.SUCCESS();
+    }
+
+    @POST
+    @Path("deleteItemLocation")
+    public String deleteItemLocation(BaseinfoItemLocation itemLocation) {
+        try{
+            itemLocationService.deleteItemLocation(itemLocation);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("failed");
+        }
         return JsonUtils.SUCCESS();
     }
 

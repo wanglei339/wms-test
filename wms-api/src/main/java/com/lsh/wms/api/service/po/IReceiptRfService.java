@@ -19,6 +19,6 @@ public interface IReceiptRfService {
 
     public BaseResponse insertOrder() throws  BizCheckedException;
 
-    public String getPoDetailByOrderIdAndBarCode(Long orderId, String barCode) throws BizCheckedException;
+    public String getPoDetailByOrderIdAndBarCode(String orderOtherId,Long containerId, String barCode) throws BizCheckedException;
 
 }

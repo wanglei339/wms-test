@@ -31,6 +31,11 @@
 		select * from baseinfo_item_location
 		where ID=#{id} 
 	</select>
+
+	<delete id="deleteItemLocation" parameterType="BaseinfoItemLocation">
+		delete from baseinfo_item_location
+		where item_id=#{itemId} and pick_locationid=#{pickLocationid}
+	</delete>
   
 	<select id="countBaseinfoItemLocation" parameterType="map" resultType="int">
 		select count(*) from baseinfo_item_location
