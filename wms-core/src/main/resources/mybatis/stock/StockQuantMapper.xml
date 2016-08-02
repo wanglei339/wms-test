@@ -137,7 +137,7 @@
 			<if test="lotId != null and lotId != 0">and lot_id=#{lotId}</if>
 			<if test="inDate != null">and in_date=#{inDate}</if>
 			<if test="expireDate != null">and expire_date=#{expireDate}</if>
-			<if test="itemId != null">and item_id=#{itemId}</if>
+			<if test="itemId != null and itemId !=0">and item_id=#{itemId}</if>
 			<if test="isNormal != null and isNormal != true">and (is_frozen = 1 or reserve_task_id != 0)</if>
 			<if test="isDefect != null">and is_defect=#{isDefect}</if>
 			<if test="isRefund != null">and is_refund=#{isRefund}</if>

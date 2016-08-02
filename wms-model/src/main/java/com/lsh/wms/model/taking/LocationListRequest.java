@@ -1,9 +1,14 @@
 package com.lsh.wms.model.taking;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
+import java.io.Serializable;
+
 /**
  * Created by wuhao on 16/7/29.
  */
-public class LocationListRequest {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class LocationListRequest implements Serializable {
     /** 商品id */
     private Long itemId = 0L;
     /** 库区id */
@@ -54,4 +59,16 @@ public class LocationListRequest {
     public void setLocationNum(int locationNum) {
         this.locationNum = locationNum;
     }
+
+    public LocationListRequest() {
+    }
+
+    public LocationListRequest(Long itemId, Long supplierId, Long areaId, Long storageId, int locationNum) {
+        this.itemId = itemId;
+        this.supplierId = supplierId;
+        AreaId = areaId;
+        this.storageId = storageId;
+        this.locationNum = locationNum;
+    }
+
 }
