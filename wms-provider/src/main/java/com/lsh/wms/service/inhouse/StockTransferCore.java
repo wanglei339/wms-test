@@ -9,6 +9,7 @@ import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.stock.StockMove;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -47,16 +48,22 @@ public class StockTransferCore {
     private LocationService locationService;
 
     public void fillTransferPlan(StockTransferPlan plan) throws BizCheckedException {
-        BigDecimal packUnit = itemRpcService.getPackUnit(plan.getPackName());
-        plan.setPackUnit(packUnit);
-        BigDecimal requiredQty = plan.getUomQty().multiply(packUnit);
-        plan.setQty(requiredQty);
-        if (packUnit.equals("pallet")) {
+
+        if (plan.getPackName().equals("pallet")) {
+            plan.setPackName(itemRpcService.getItem(plan.getItemId()).getPackName());
             StockQuantCondition condition = new StockQuantCondition();
             condition.setLocationId(plan.getFromLocationId());
             condition.setItemId(plan.getItemId());
             BigDecimal total = stockQuantRpcService.getQty(condition);
+            StockQuant quant = stockQuantRpcService.getQuantList(condition).get(0);
             plan.setQty(total);
+            plan.setPackUnit(quant.getPackUnit());
+            plan.setPackName(quant.getPackName());
+        } else {
+            BigDecimal packUnit = itemRpcService.getPackUnit(plan.getPackName());
+            plan.setPackUnit(packUnit);
+            BigDecimal requiredQty = plan.getUomQty().multiply(packUnit);
+            plan.setQty(requiredQty);
         }
     }
 
@@ -79,7 +86,7 @@ public class StockTransferCore {
             moveRpcService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
 
         } else {
-            BigDecimal qtyDone = new BigDecimal(params.get("qty").toString());
+            BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString());
             qtyDone = qtyDone.multiply(itemRpcService.getPackUnit(params.get("packName").toString()));
             StockMove move = new StockMove();
             ObjUtils.bean2bean(taskEntry.getTaskInfo(), move);
@@ -107,7 +114,7 @@ public class StockTransferCore {
         if (taskEntry.getTaskInfo().getPackName() == "pallet") {
             moveRpcService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
         } else {
-            BigDecimal qtyDone = new BigDecimal(params.get("qty").toString());
+            BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString());
             qtyDone = qtyDone.multiply(itemRpcService.getPackUnit(params.get("packName").toString()));
             StockMove move = new StockMove();
             ObjUtils.bean2bean(taskEntry.getTaskInfo(), move);

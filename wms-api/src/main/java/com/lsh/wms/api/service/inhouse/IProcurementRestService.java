@@ -10,4 +10,6 @@ import java.util.Map;
 public interface IProcurementRestService {
     String scanFromLocation() throws BizCheckedException;
     String scanToLocation() throws  BizCheckedException;
+    String taskView() throws BizCheckedException;
+    String fetchTask() throws BizCheckedException;
 }

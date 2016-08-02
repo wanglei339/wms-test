@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -95,5 +96,17 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         core.inbound(params);
         Long taskId = Long.valueOf(params.get("taskId").toString());
         taskRpcService.done(taskId);
+    }
+
+    public Long assign(Long staffId) throws BizCheckedException {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("status", TaskConstant.Draft);
+        List<TaskEntry> list = taskRpcService.getTaskList(TaskConstant.TYPE_PROCUREMENT, mapQuery);
+        if (list.isEmpty()) {
+            return 0L;
+        } else {
+            taskRpcService.assign(list.get(0).getTaskInfo().getTaskId(), staffId);
+            return list.get(0).getTaskInfo().getTaskId();
+        }
     }
 }
