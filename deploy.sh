@@ -7,7 +7,7 @@ VERSION="1.0-SNAPSHOT"
 #远程路径
 REMOTE="work@192.168.60.59"
 #本地路径
-ROOT="/Users/fengkun/Projects/wms/wms"
+ROOT=`pwd`
 
 #Maven打包
 echo "是否要Maven打包[y/n]: "
