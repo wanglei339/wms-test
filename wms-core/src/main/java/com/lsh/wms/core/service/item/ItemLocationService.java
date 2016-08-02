@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +22,8 @@ import java.util.concurrent.ConcurrentMap;
 @Transactional(readOnly = true)
 public class ItemLocationService {
     private static final Logger logger = LoggerFactory.getLogger(ItemLocationService.class);
-    private static final ConcurrentMap<Long,List<BaseinfoItemLocation>> m_ItemLocationCache = new ConcurrentHashMap<Long,List<BaseinfoItemLocation>>();
-    private static final ConcurrentMap<Long,List<BaseinfoItemLocation>> m_LocationCache = new ConcurrentHashMap<Long,List<BaseinfoItemLocation>>();
+//    private static final ConcurrentMap<Long,List<BaseinfoItemLocation>> m_ItemLocationCache = new ConcurrentHashMap<Long,List<BaseinfoItemLocation>>();
+//    private static final ConcurrentMap<Long,List<BaseinfoItemLocation>> m_LocationCache = new ConcurrentHashMap<Long,List<BaseinfoItemLocation>>();
 
     @Autowired
     private BaseinfoItemLocationDao itemLocationDao;
@@ -48,19 +49,14 @@ public class ItemLocationService {
 //    }
 
     public List<BaseinfoItemLocation> getItemLocationByLocationID(long iLocationId){
-        List<BaseinfoItemLocation> list = m_LocationCache.get(iLocationId);
-        if(list == null){
-            Map<String,Object> mapQuery = new HashMap<String, Object>();
-            mapQuery.put("pickLocationid",iLocationId);
-            list = itemLocationDao.getBaseinfoItemLocationList(mapQuery);
-            if(list.size()>0){
-                m_LocationCache.put(iLocationId,list);
-            }else{
-                return null;
-            }
-
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("pickLocationid",iLocationId);
+        List<BaseinfoItemLocation> list  = itemLocationDao.getBaseinfoItemLocationList(mapQuery);
+        if (list == null) {
+            return new ArrayList<BaseinfoItemLocation>();
+        } else {
+            return list;
         }
-        return list;
     }
 
 
