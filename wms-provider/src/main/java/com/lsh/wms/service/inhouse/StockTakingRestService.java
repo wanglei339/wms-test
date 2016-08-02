@@ -80,13 +80,17 @@ public class StockTakingRestService implements IStockTakingRestService {
     public String update(StockTakingRequest request) throws BizCheckedException{
         StockTakingHead head = new StockTakingHead();
         ObjUtils.bean2bean(request, head);
-        Map<String,Object> queryMap =new HashMap();
-        queryMap.put("takingId",head.getTakingId());
-        List<StockTakingTask> takingTasks = stockTakingTaskService.getTakingTask(queryMap);
-        for(StockTakingTask task :takingTasks){
-            iTaskRpcService.cancel(task.getTaskId());
-        }
+        this.cancel(head.getTakingId());
         this.create(head);
+        return JsonUtils.SUCCESS();
+    }
+    @GET
+    @Path("cancel")
+    public String cancel(Long takingId) throws BizCheckedException{
+        StockTakingHead head = stockTakingService.getHeadById(takingId);
+        head.setStatus(5L);
+        stockTakingService.updateHead(head);
+        this.cancelTask(takingId);
         return JsonUtils.SUCCESS();
     }
     @GET
@@ -98,6 +102,10 @@ public class StockTakingRestService implements IStockTakingRestService {
     @POST
     @Path("getList")
     public String getList(Map<String,Object> mapQuery) throws BizCheckedException{
+        List<Integer> statusList = new ArrayList<Integer>();
+        statusList.add(1);statusList.add(2);
+        statusList.add(3);statusList.add(4);
+        mapQuery.put("statusList",statusList);
         List<StockTakingHead> heads = stockTakingService.queryTakingHead(mapQuery);
         List<StockTakingInfo> infos =new ArrayList<StockTakingInfo>();
         for (StockTakingHead head:heads) {
@@ -381,6 +389,15 @@ public class StockTakingRestService implements IStockTakingRestService {
         List<StockTakingDetail> detailList = prepareDetailList(head);
         stockTakingService.create(head, detailList);
         this.createTask(head, detailList, 1L, head.getDueTime());
+        return JsonUtils.SUCCESS();
+    }
+    public String cancelTask(Long takingId) throws BizCheckedException {
+        Map<String,Object> queryMap =new HashMap();
+        queryMap.put("takingId", takingId);
+        List<StockTakingTask> takingTasks = stockTakingTaskService.getTakingTask(queryMap);
+        for(StockTakingTask task :takingTasks){
+            iTaskRpcService.cancel(task.getTaskId());
+        }
         return JsonUtils.SUCCESS();
     }
 

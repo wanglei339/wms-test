@@ -44,7 +44,7 @@
 		<foreach collection="list" item="item" index="index" separator="," >
 			(#{item.takingId},#{item.detailId},#{item.round},#{item.realQty},#{item.theoreticalQty},#{item.containerId},
 			#{item.lotId},#{item.skuId},#{item.realSkuId},#{item.locationId},#{item.operator},#{item.createdAt},
-			#{item.updatedAt},#{item.taskId},#{item.itemId},#{item.realItemId},#{item.ownerId}),#{item.isValid}
+			#{item.updatedAt},#{item.taskId},#{item.itemId},#{item.realItemId},#{item.ownerId},#{item.isValid})
 		</foreach>
 	</insert>
 

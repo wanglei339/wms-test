@@ -539,14 +539,14 @@ public class LocationService {
         LocationFlag = locationFlag;
     }
 
-    public static List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
+//    public static List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
 
     /**
      * 根据当前的locationId获取,指定type的子集
      * 如果fatherId不是locationId,那就是祖先的id
      */
     public List<BaseinfoLocation> getSubLocationList(Long locationId, Long type) {
-//        List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
+        List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
         //遍历整棵树
         List<BaseinfoLocation> subList = this.getStoreLocations(locationId);
         //然后然后遍历这颗子树,找出指定的type的list
