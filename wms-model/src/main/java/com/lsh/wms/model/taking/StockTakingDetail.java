@@ -1,8 +1,6 @@
 package com.lsh.wms.model.taking;
 
-import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -40,6 +38,8 @@ public class StockTakingDetail implements Serializable {
 	private Long realItemId = 0L;
 	/**货主id */
 	private Long ownerId = 0L;
+	/** */
+	private int isValid = 1;
 	/**  */
     private Long createdAt = DateUtils.getCurrentSeconds();
 	/**  */
@@ -187,5 +187,13 @@ public class StockTakingDetail implements Serializable {
 
 	public void setOwnerId(Long ownerId) {
 		this.ownerId = ownerId;
+	}
+
+	public int getIsValid() {
+		return isValid;
+	}
+
+	public void setIsValid(int isValid) {
+		this.isValid = isValid;
 	}
 }

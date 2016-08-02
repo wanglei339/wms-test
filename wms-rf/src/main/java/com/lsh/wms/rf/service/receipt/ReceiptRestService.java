@@ -18,6 +18,7 @@ import com.lsh.wms.api.service.po.IReceiptRfService;
 import com.lsh.wms.api.service.po.IReceiptRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.constant.CsiConstan;
+import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
@@ -114,7 +115,7 @@ public class ReceiptRestService implements IReceiptRfService {
     @POST
     @Path("getorderinfo")
     public String getPoDetailByOrderIdAndBarCode(@FormParam("orderOtherId") String orderOtherId,@FormParam("containerId") Long containerId, @FormParam("barCode") String barCode) throws BizCheckedException {
-        if(StringUtils.isBlank(orderOtherId) || StringUtils.isBlank(barCode)|| containerService ==null) {
+        if(StringUtils.isBlank(orderOtherId) || StringUtils.isBlank(barCode)|| containerId ==null) {
             throw new BizCheckedException("1020001", "参数不能为空");
         }
 
@@ -124,7 +125,22 @@ public class ReceiptRestService implements IReceiptRfService {
 
 
         InbPoHeader  inbPoHeader  = poOrderService.getInbPoHeaderByOrderOtherId(orderOtherId);
+
+        if (inbPoHeader == null) {
+            throw new BizCheckedException("2020001");
+        }
+
+        boolean isCanReceipt = inbPoHeader.getOrderStatus() == PoConstant.ORDER_THROW || inbPoHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART;
+        if (!isCanReceipt) {
+            throw new BizCheckedException("2020002");
+        }
+
         InbPoDetail inbPoDetail = poOrderService.getInbPoDetailByOrderIdAndBarCode(inbPoHeader.getOrderId(), barCode);
+
+        if (inbPoDetail == null) {
+            throw new BizCheckedException("2020001");
+        }
+
 
         //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
         CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barCode);

@@ -75,6 +75,24 @@ public class StockTakingRestService implements IStockTakingRestService {
         this.createTask(head, detailList, 1L, head.getDueTime());
         return JsonUtils.SUCCESS();
     }
+    @POST
+    @Path("update")
+    public String update(StockTakingRequest request) throws BizCheckedException{
+        StockTakingHead head = new StockTakingHead();
+        ObjUtils.bean2bean(request, head);
+        this.cancel(head.getTakingId());
+        this.create(head);
+        return JsonUtils.SUCCESS();
+    }
+    @GET
+    @Path("cancel")
+    public String cancel(Long takingId) throws BizCheckedException{
+        StockTakingHead head = stockTakingService.getHeadById(takingId);
+        head.setStatus(5L);
+        stockTakingService.updateHead(head);
+        this.cancelTask(takingId);
+        return JsonUtils.SUCCESS();
+    }
     @GET
     @Path("genId")
     public String genId(){
@@ -84,6 +102,10 @@ public class StockTakingRestService implements IStockTakingRestService {
     @POST
     @Path("getList")
     public String getList(Map<String,Object> mapQuery) throws BizCheckedException{
+        List<Integer> statusList = new ArrayList<Integer>();
+        statusList.add(1);statusList.add(2);
+        statusList.add(3);statusList.add(4);
+        mapQuery.put("statusList",statusList);
         List<StockTakingHead> heads = stockTakingService.queryTakingHead(mapQuery);
         List<StockTakingInfo> infos =new ArrayList<StockTakingInfo>();
         for (StockTakingHead head:heads) {
@@ -124,6 +146,7 @@ public class StockTakingRestService implements IStockTakingRestService {
             List details =new ArrayList();
             queryMap.put("round", time);
             queryMap.put("takingId", takingId);
+            queryMap.put("IsValid",1);
             List<StockTakingTask> stockTakingTaskList = stockTakingTaskService.getTakingTask(queryMap);
             for(StockTakingTask takingTask:stockTakingTaskList) {
                 Map <String,Object> one = new HashMap<String, Object>();
@@ -281,7 +304,7 @@ public class StockTakingRestService implements IStockTakingRestService {
                 mergeQuantMap.put(key,quant);
             }
         }
-        logger.info("Map : "+JsonUtils.SUCCESS(mergeQuantMap));
+        logger.info("Map123 : "+JsonUtils.SUCCESS(mergeQuantMap));
         for (String key : mergeQuantMap.keySet()) {
             StockQuant quant=mergeQuantMap.get(key);
             StockTakingDetail detail = new StockTakingDetail();
@@ -364,11 +387,17 @@ public class StockTakingRestService implements IStockTakingRestService {
 
     public String create(StockTakingHead head) throws BizCheckedException{
         List<StockTakingDetail> detailList = prepareDetailList(head);
-        logger.info("detail:"+JSON.toJSONString(detailList));
         stockTakingService.create(head, detailList);
-        logger.info("end create taking");
-        logger.info("head:" + JSON.toJSONString(head));
         this.createTask(head, detailList, 1L, head.getDueTime());
+        return JsonUtils.SUCCESS();
+    }
+    public String cancelTask(Long takingId) throws BizCheckedException {
+        Map<String,Object> queryMap =new HashMap();
+        queryMap.put("takingId", takingId);
+        List<StockTakingTask> takingTasks = stockTakingTaskService.getTakingTask(queryMap);
+        for(StockTakingTask task :takingTasks){
+            iTaskRpcService.cancel(task.getTaskId());
+        }
         return JsonUtils.SUCCESS();
     }
 

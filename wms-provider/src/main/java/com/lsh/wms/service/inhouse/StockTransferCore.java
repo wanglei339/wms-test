@@ -7,6 +7,7 @@ import com.lsh.wms.api.service.item.IItemRpcService;
 import com.lsh.wms.api.service.stock.IStockMoveRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
@@ -46,6 +47,9 @@ public class StockTransferCore {
 
     @Autowired
     private LocationService locationService;
+
+    @Autowired
+    private TaskInfoDao taskInfoDao;
 
     public void fillTransferPlan(StockTransferPlan plan) throws BizCheckedException {
 
@@ -95,7 +99,16 @@ public class StockTransferCore {
             List<StockMove> moveList = new ArrayList<StockMove>();
             moveList.add(move);
             moveRpcService.move(moveList);
+
+            if(taskEntry.getTaskInfo().getQty() != qtyDone) {
+                taskEntry.getTaskInfo().setQtyDone(qtyDone);
+            }
         }
+
+        if(taskEntry.getTaskInfo().getFromLocationId() != fromLocationId) {
+            taskEntry.getTaskInfo().setRealFromLocationId(fromLocationId);
+        }
+        taskInfoDao.update(taskEntry.getTaskInfo());
     }
 
     public void inbound(Map<String,Object> params) throws BizCheckedException {
@@ -123,8 +136,17 @@ public class StockTransferCore {
             List<StockMove> moveList = new ArrayList<StockMove>();
             moveList.add(move);
             moveRpcService.move(moveList);
+
+            if(taskEntry.getTaskInfo().getQty() != qtyDone) {
+                taskEntry.getTaskInfo().setQtyDone(qtyDone);
+            }
         }
         taskRpcService.done(taskId);
+
+        if(taskEntry.getTaskInfo().getToLocationId() != toLocationId) {
+            taskEntry.getTaskInfo().setRealToLocationId(toLocationId);
+        }
+        taskInfoDao.update(taskEntry.getTaskInfo());
     }
 
 }

@@ -47,7 +47,7 @@
 		PRO_TIME,REFUSE_REASON,INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME
 		) values
 		<foreach collection="list" item="item" index="index" separator="," >
-			(#{item.receiptOrderId},#{item.orderId},#{item.orderOtherId},#{item.itemId},#{item.lotNum},#{item.skuId},#{item.skuName},#{item.barCode},
+			(#{item.receiptOrderId},#{item.orderId},#{item.orderOtherId},#{item.lotNum},#{item.skuId},#{item.itemId},#{item.skuName},#{item.barCode},
 			#{item.orderQty},#{item.packUnit},#{item.madein},#{item.inboundQty},#{item.arriveNum},#{item.defectNum},
 			#{item.proTime},#{item.refuseReason},#{item.insertby},#{item.updateby},now(),#{item.updatetime})
 		</foreach>
