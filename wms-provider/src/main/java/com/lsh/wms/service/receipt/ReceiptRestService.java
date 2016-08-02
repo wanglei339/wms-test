@@ -62,7 +62,7 @@ public class ReceiptRestService implements IReceiptRestService {
         if(receiptRpcService.throwOrder(orderOtherId)){
             return JsonUtils.SUCCESS();
         }else {
-            return JsonUtils.FAIL("2020002");
+            return JsonUtils.FAIL("2020006");
         }
     }
 
