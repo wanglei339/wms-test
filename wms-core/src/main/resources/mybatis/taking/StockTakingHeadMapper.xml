@@ -57,11 +57,11 @@
   			<if test="lotId != null">lot_id=#{lotId},</if>
   			<if test="skuId != null">sku_id=#{skuId},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
-  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
-			<if test="planType != null">plan_type=#{planType}</if>
-			<if test="dueTime != null">due_time=#{dueTime}</if>
-			<if test="areaId != null">area_id=#{areaId}</if>
-			<if test="itemId != null">item_id=#{itemId}</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+			<if test="planType != null">plan_type=#{planType},</if>
+			<if test="dueTime != null">due_time=#{dueTime},</if>
+			<if test="areaId != null">area_id=#{areaId},</if>
+			<if test="itemId != null">item_id=#{itemId},</if>
 			<if test="storageId !=null">storage_id=#{storageId}</if>
 		</set>
 		where id=#{id}

@@ -100,5 +100,10 @@ public class ItemLocationService {
         return list;
     }
 
+    @Transactional(readOnly = false)
+    public void deleteItemLocation(BaseinfoItemLocation itemLocation){
+        itemLocationDao.deleteItemLocation(itemLocation);
+    }
+
 
 }

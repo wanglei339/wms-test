@@ -11,6 +11,7 @@ import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.shelve.IShelveRestService;
 import com.lsh.wms.api.service.task.ITaskRestService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.shelve.ShelveTaskService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
@@ -45,6 +46,8 @@ public class ShelveRestService implements IShelveRestService {
     @Autowired
     private ShelveTaskService shelveTaskService;
 
+    private Long taskType = TaskConstant.TYPE_SHELVE;
+
     /**
      * 创建上架任务
      * @return
@@ -56,10 +59,6 @@ public class ShelveRestService implements IShelveRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String createTask() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
-        if(mapQuery.get("type")==null) {
-            JsonUtils.EXCEPTION_ERROR();
-        }
-        Long taskType = Long.valueOf(mapQuery.get("type").toString());
         Long containerId = Long.valueOf(mapQuery.get("containerId").toString());
         // 检查容器信息
         if (containerId == null || containerId.equals("")) {
@@ -83,6 +82,7 @@ public class ShelveRestService implements IShelveRestService {
         ObjUtils.bean2bean(quant, taskInfo);
         ObjUtils.bean2bean(quant, taskHead);
 
+        taskInfo.setType(taskType);
         taskInfo.setFromLocationId(quant.getLocationId());
 
         entry.setTaskInfo(taskInfo);
@@ -107,10 +107,6 @@ public class ShelveRestService implements IShelveRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String scanContainer() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
-        if(mapQuery.get("type")==null) {
-            JsonUtils.EXCEPTION_ERROR();
-        }
-        Long taskType = Long.valueOf(mapQuery.get("type").toString());
         Long staffId = Long.valueOf(mapQuery.get("operator").toString());
         Long containerId = Long.valueOf(mapQuery.get("containerId").toString());
         Long taskId = baseTaskService.getDraftTaskIdByContainerId(containerId);
