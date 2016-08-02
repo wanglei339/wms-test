@@ -1,5 +1,6 @@
 package com.lsh.wms.rf.service.receipt;
 
+import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
@@ -16,8 +17,14 @@ import com.lsh.wms.api.model.po.ReceiptRequest;
 import com.lsh.wms.api.service.po.IReceiptRfService;
 import com.lsh.wms.api.service.po.IReceiptRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.core.constant.CsiConstan;
+import com.lsh.wms.core.service.container.ContainerService;
+import com.lsh.wms.core.service.csi.CsiSkuService;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.po.PoReceiptService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.po.InbPoDetail;
 import com.lsh.wms.model.po.InbPoHeader;
 import com.lsh.wms.model.po.InbReceiptDetail;
@@ -56,6 +63,13 @@ public class ReceiptRestService implements IReceiptRfService {
 
     @Autowired
     private PoOrderService poOrderService;
+
+    @Autowired
+    private CsiSkuService csiSkuService;
+    @Autowired
+    private ItemService itemService;
+    @Autowired
+    private ContainerService containerService;
 
     @POST
     @Path("add")
@@ -99,17 +113,31 @@ public class ReceiptRestService implements IReceiptRfService {
 
     @POST
     @Path("getorderinfo")
-    public String getPoDetailByOrderIdAndBarCode(@FormParam("orderId") Long orderId, @FormParam("barCode") String barCode) throws BizCheckedException {
-        if(orderId == null || barCode == null) {
+    public String getPoDetailByOrderIdAndBarCode(@FormParam("orderOtherId") String orderOtherId,@FormParam("containerId") Long containerId, @FormParam("barCode") String barCode) throws BizCheckedException {
+        if(StringUtils.isBlank(orderOtherId) || StringUtils.isBlank(barCode)|| containerService ==null) {
             throw new BizCheckedException("1020001", "参数不能为空");
         }
 
-        InbPoDetail inbPoDetail = poOrderService.getInbPoDetailByOrderIdAndBarCode(orderId, barCode);
+        if(containerService.isContainerInUse(containerId)){
+            throw new BizCheckedException("2000002");
+        }
+
+
+        InbPoHeader  inbPoHeader  = poOrderService.getInbPoHeaderByOrderOtherId(orderOtherId);
+        InbPoDetail inbPoDetail = poOrderService.getInbPoDetailByOrderIdAndBarCode(inbPoHeader.getOrderId(), barCode);
+
+        //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
+        CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barCode);
+        if (null == csiSku || csiSku.getSkuId() == null) {
+            throw new BizCheckedException("2020004");
+        }
+        BaseinfoItem baseinfoItem = itemService.getItem(inbPoHeader.getOwnerUid(), csiSku.getSkuId());
 
         Map<String, Object> orderInfoMap = new HashMap<String, Object>();
         orderInfoMap.put("skuName", inbPoDetail.getSkuName());
         orderInfoMap.put("packUnit", inbPoDetail.getPackUnit());
         orderInfoMap.put("orderQty", inbPoDetail.getOrderQty());
+        orderInfoMap.put("batchNeeded", baseinfoItem.getBatchNeeded());
 
         return JsonUtils.SUCCESS(orderInfoMap);
     }
