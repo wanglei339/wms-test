@@ -36,37 +36,36 @@ public class LocationService {
 
             put("warehouse", new Long(1)); // 1仓库
             put("area", new Long(2)); // 2区域
-            put("inventoryLost", new Long(3));    //3盘盈盘亏
-            put("goods_area", new Long(4)); //4货区(下级是 货架或者阁楼)
+            put("passage", new Long(3));   //3通道
+            //各区域
+            put("inventoryLost", new Long(4));    //4盘盈盘亏
+            put("shelf_area", new Long(5)); //5货架区
+            put("loft_area", new Long(6)); //6阁楼区
+            put("floor", new Long(7)); // 7 地堆区
+            put("temporary", new Long(8)); // 8 暂存区
+            put("collection_area", new Long(9)); // 9 集货区
+            put("back_area", new Long(10)); // 10 退货区
+            put("defective_area", new Long(11)); // 11残次区
+            put("dock_area", new Long(12)); // 12 码头区
 
-            put("shelf_area",new Long(20)); //20货架区
-            put("loft_area",new Long(21)); //21阁楼区
-            put("shelf",new Long(22));  //22货架(个体)
-            put("loft",new Long(23));   //23阁楼(个体)
+            //货架和阁楼隶属货架区,阁楼区
+            put("shelf", new Long(13));  //13货架(个体)
+            put("loft", new Long(14));   //14阁楼(个体)
 
-            //增加货架的货位和阁楼的货位
-            put("shelf_collection_bin",new Long(24)); //货架拣货位
-            put("loft_collection_bin",new Long(25)); //阁楼拣货位
+            //所有的货位
+            put("bin", new Long(15)); // 15 所有的货位(存有货架|阁楼|区域的id)
+            //所有的货位
+            put("shelf_collection_bin", new Long(16)); //16货架拣货位
+            put("shelf_store_bin", new Long(17));   //19 货架存货位货位
+            put("loft_collection_bin", new Long(18)); //17阁楼拣货位
+            put("loft_store_bin", new Long(19));   //18阁楼存货位
 
-
-            put("floor", new Long(5)); // 5 地堆区
-            put("temporary", new Long(6)); // 6 暂存区
-            put("collection_area", new Long(7)); // 7 集货区
-            put("back_area", new Long(8)); // 8 退货区
-            put("defective_area", new Long(9)); // 9 残次区
-            put("dock_area", new Long(10)); // 10 码头区
-
-            put("bin", new Long(11)); // 11 货位
-            /*货位的父亲可能是具体的货架、阁楼;也可能是地堆、暂存区等等*/
-            put("packing_bin", new Long(12)); // 12 拣货位
-            put("stock_bin", new Long(13)); // 13 存货位
-            put("floor_bin", new Long(14)); // 14 地堆货位
-            put("temporary_bin", new Long(15)); // 15 暂存货位
-            put("collection_bin", new Long(16)); // 16 集货货位
-            put("back_bin", new Long(17)); // 17 退货货位
-            put("defective_bin", new Long(18));// 18 残次货位
-            put("passage", new Long(19));   //19通道
-
+            /*其他功能区的货位*/
+            put("floor_bin", new Long(20)); // 20 地堆货位
+            put("temporary_bin", new Long(21)); // 21 暂存货位
+            put("collection_bin", new Long(22)); // 22 集货货位
+            put("back_bin", new Long(23)); // 23 退货货位
+            put("defective_bin", new Long(24));// 24 残次货位
         }
     };
 
@@ -126,7 +125,7 @@ public class LocationService {
     }
 
     @Transactional(readOnly = false)
-    public BaseinfoLocation insertLocation(IBaseinfoLocaltionModel iBaseinfoLocaltionModel){
+    public BaseinfoLocation insertLocation(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
         BaseinfoLocation baseinfoLocation = (BaseinfoLocation) iBaseinfoLocaltionModel;
         if (this.getLocation(baseinfoLocation.getLocationId()) == null) {
             return null;
@@ -190,6 +189,7 @@ public class LocationService {
 
     /**
      * 根据节点locationid获取该节点下所有可储存位置
+     *
      * @param locationId
      * @return
      */
@@ -200,6 +200,7 @@ public class LocationService {
 
     /**
      * 查找父级节点
+     *
      * @param locationId
      * @return 位置
      */
@@ -214,10 +215,11 @@ public class LocationService {
 
     /**
      * 获取父亲的type
+     *
      * @param locationId
      * @return
      */
-    public Long getFatherLocationType(Long locationId){
+    public Long getFatherLocationType(Long locationId) {
         BaseinfoLocation curLocation = this.getLocation(locationId);
         Long fatherId = curLocation.getFatherId();
         if (fatherId == 0) {
@@ -228,10 +230,11 @@ public class LocationService {
 
     /**
      * 获取父亲的编码
+     *
      * @param locationId
      * @return
      */
-    public String getFatherLocationCode(Long locationId){
+    public String getFatherLocationCode(Long locationId) {
         BaseinfoLocation curLocation = this.getLocation(locationId);
         Long fatherId = curLocation.getFatherId();
         if (fatherId == 0) {
@@ -244,8 +247,9 @@ public class LocationService {
     /**
      * 根据所在位置的locationId
      * 获取指定type祖先级(包含上一级)的location节点
+     *
      * @param locationId 所在位置id
-     * @param type  位置类型
+     * @param type       位置类型
      * @return
      */
     public BaseinfoLocation getFatherByType(Long locationId, String type) {
@@ -263,6 +267,7 @@ public class LocationService {
     /**
      * 获取祖先级别的区域location节点id
      * 根据指定的祖先级别的type
+     *
      * @param locationId
      * @param type
      * @return
@@ -271,8 +276,10 @@ public class LocationService {
         BaseinfoLocation fatherLocation = this.getFatherByType(locationId, type);
         return fatherLocation.getLocationId();
     }
+
     /**
      * 获取父级区域所有大区的节点
+     *
      * @param locationId
      * @return
      */
@@ -413,6 +420,7 @@ public class LocationService {
         BaseinfoLocation location = this.getDockLocation();
         return location.getLocationId();
     }
+
     //获取货位bin节点的type
     // TODO    public BaseinfoLocation getAvailableBinLocationByType(String type)
     //获取货位节点的id
@@ -424,9 +432,6 @@ public class LocationService {
     public BaseinfoLocation getNearestStorageByPicking(BaseinfoLocation pickingLocation) {
         return null;
     }
-
-
-
 
 
     public void getImpLocation(long iType, long locationId) {
@@ -451,13 +456,14 @@ public class LocationService {
 
     /**
      * 根据type,isvalid和或者code获取location的集合,主要和查询有关
+     *
      * @param mapQuery 前端传过来的map参数
      * @return
      */
-    public BaseinfoLocation getLocationListByType(Map<String,Object> mapQuery) {
+    public BaseinfoLocation getLocationListByType(Map<String, Object> mapQuery) {
         mapQuery.put("isValid", 1);
         List<BaseinfoLocation> list = locationDao.getBaseinfoLocationList(mapQuery);
-        if (list.size()>0){
+        if (list.size() > 0) {
             return list.get(0);
         }
         return null;
@@ -465,6 +471,7 @@ public class LocationService {
 
     /**
      * 位置是否已占用
+     *
      * @param locationId
      * @return
      */
@@ -477,9 +484,9 @@ public class LocationService {
     }
 
     /**
-     * 获取级别的type,包含货架区20、阁楼区21、地堆区5、残存区6、集货区7、退货区8、残次区9
+     * 获取级别的type,包含货架区5、阁楼区6、地堆区7、残存区8、集货区9、退货区10、残次区11
      */
-    private static final long[] REGIONTYPE = {5, 6, 7, 8, 9, 20, 21};
+    private static final long[] REGIONTYPE = {5, 6, 7, 8, 9, 10, 11};
 
     private static boolean flag = true;
     private static String RegionName = null;
@@ -502,10 +509,10 @@ public class LocationService {
         BaseinfoLocation fatherLocation = this.getFatherLocation(baseinfoLocation.getLocationId());
         Long fatherLocationType = fatherLocation.getType();
         //向上查找直到type属于货架区、阁楼区、暂存区、地堆区、退货区
-        if (Arrays.binarySearch(REGIONTYPE, fatherLocationType) > 0) {
+        if (!(Arrays.binarySearch(REGIONTYPE, fatherLocationType) < 0)) {
             String regionCode = fatherLocation.getLocationCode();
             String regionTypeName = fatherLocation.getTypeName();
-            RegionName = regionTypeName;
+            RegionName = regionTypeName + regionCode + "区";
             flag = false;
             return RegionName;
         } else {
@@ -516,9 +523,39 @@ public class LocationService {
 
     /**
      * 全局变量,开关使用完置为原来的值
+     *
      * @param flag
      */
     public static void setFlag(boolean flag) {
         LocationService.flag = flag;
     }
+
+    /**
+     * 获取location子代集合的开关
+     */
+    public static boolean LocationFlag = true;
+
+    public static void setLocationFlag(boolean locationFlag) {
+        LocationFlag = locationFlag;
+    }
+
+    public static List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
+
+    /**
+     * 根据当前的locationId获取,指定type的子集
+     * 如果fatherId不是locationId,那就是祖先的id
+     */
+    public List<BaseinfoLocation> getSubLocationList(Long locationId, Long type) {
+//        List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
+        //遍历整棵树
+        List<BaseinfoLocation> subList = this.getStoreLocations(locationId);
+        //然后然后遍历这颗子树,找出指定的type的list
+        for (BaseinfoLocation baseinfoLocation : subList) {
+            if (baseinfoLocation.getType() == type) {
+                targetList.add(baseinfoLocation);
+            }
+        }
+        return targetList;
+    }
+
 }

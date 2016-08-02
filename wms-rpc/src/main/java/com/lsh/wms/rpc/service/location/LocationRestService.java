@@ -8,6 +8,7 @@ import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.location.ILocationRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.core.service.location.LocationConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import org.slf4j.Logger;
@@ -16,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -83,8 +86,8 @@ public class LocationRestService implements ILocationRestService {
     @POST
     @Path("insertLocation")
     public String insertLocation() {
-        Map<String,Object> param = RequestUtils.getRequest();
-        BaseinfoLocation location = BeanMapTransUtils.map2Bean(param,BaseinfoLocation.class);
+        Map<String, Object> param = RequestUtils.getRequest();
+        BaseinfoLocation location = BeanMapTransUtils.map2Bean(param, BaseinfoLocation.class);
         location.setLocationId((long) 20);
 
         location.setCanStore(1);
@@ -107,6 +110,7 @@ public class LocationRestService implements ILocationRestService {
     public String updateLocation(BaseinfoLocation location) {
         return JsonUtils.SUCCESS(locationRpcService.updateLocation(location));
     }
+
     @POST
     @Path("getLocationList")
     public String searchList(Map<String, Object> params) {
@@ -124,5 +128,70 @@ public class LocationRestService implements ILocationRestService {
     @Path("getTemp")
     public String getTemp(@QueryParam("type") String type) {
         return JsonUtils.SUCCESS(locationService.getAvailableLocationByType(type));
+    }
+
+    /**
+     * 根据仓库id获取下面的区域
+     *
+     * @param locationId
+     * @return
+     */
+    public String getRegionByWareHouseId(Long locationId) {
+        List<Long> regionType = Arrays.asList(LocationConstant.Shelfs, LocationConstant.Lofts, LocationConstant.Floor, LocationConstant.Temporary, LocationConstant.Collection_area, LocationConstant.Back_area, LocationConstant.Defective_area);
+        List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
+        for (Long oneType : regionType) {
+            List<BaseinfoLocation> locationList = locationService.getSubLocationList(locationId, oneType);
+            targetList.addAll(locationList);
+        }
+
+        return JsonUtils.SUCCESS(targetList);
+    }
+
+    /**
+     * 根据区域id选择货架
+     * @param locationId
+     * @return
+     */
+    public String getShelfByRegionId(Long locationId) {
+        List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
+        List<Long> regionType = Arrays.asList(LocationConstant.Shelf, LocationConstant.Loft);
+        for (Long oneType : regionType) {
+            List<BaseinfoLocation> locationList = locationService.getSubLocationList(locationId, oneType);
+            targetList.addAll(locationList);
+        }
+
+        return JsonUtils.SUCCESS(targetList);
+    }
+
+    /**
+     * 根据货架或者阁楼找bin
+     * @param locationId
+     * @return
+     */
+    public String getBinByShelf(Long locationId) {
+        List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
+        List<Long> regionType = Arrays.asList(LocationConstant.Shelf_collection_bin, LocationConstant.Shelf_store_bin, LocationConstant.Loft_collection_bin, LocationConstant.Loft_store_bin);
+        for (Long oneType : regionType) {
+            List<BaseinfoLocation> locationList = locationService.getSubLocationList(locationId, oneType);
+            targetList.addAll(locationList);
+        }
+
+        return JsonUtils.SUCCESS(targetList);
+    }
+
+    /**
+     * 根据仓库id查找所有货位
+     * @param locationId
+     * @return
+     */
+    public String getBinByWarehouseId(Long locationId) {
+        List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
+        List<Long> regionType = Arrays.asList(LocationConstant.Shelf_collection_bin, LocationConstant.Shelf_store_bin, LocationConstant.Loft_collection_bin, LocationConstant.Loft_store_bin, LocationConstant.Floor_bin, LocationConstant.Temporary_bin, LocationConstant.Collection_bin,LocationConstant.Back_bin,LocationConstant.Defective_bin);
+        for (Long oneType : regionType) {
+            List<BaseinfoLocation> locationList = locationService.getSubLocationList(locationId, oneType);
+            targetList.addAll(locationList);
+        }
+
+        return JsonUtils.SUCCESS(targetList);
     }
 }

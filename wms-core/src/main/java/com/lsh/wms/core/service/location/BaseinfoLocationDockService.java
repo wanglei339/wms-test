@@ -32,18 +32,6 @@ public class BaseinfoLocationDockService implements IStrategy {
     private BaseinfoLocationDockDao baseinfoLocationDockDao;
     @Autowired
     private LocationService locationService;
-//    @Autowired
-//    private FatherToChildUtil fatherToChildUtil;
-//    @Autowired
-//    private LocationDetailModelFactory locationDetailModelFactory;
-//    @Autowired
-//    private LocationDetailServiceFactory locationDetailServiceFactory;
-//
-//    @PostConstruct
-//    public void postConstruct(){
-//        locationDetailModelFactory.register(LocationConstant.Dock_area,new BaseinfoLocationDock());
-//        locationDetailServiceFactory.register(LocationConstant.Dock_area,this);
-//    }
 
     /**
      * 只完成插入服务

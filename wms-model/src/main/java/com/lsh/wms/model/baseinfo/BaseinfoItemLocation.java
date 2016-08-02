@@ -7,10 +7,10 @@ public class BaseinfoItemLocation implements Serializable {
 
 	/**  */
     private Long id;
-	/** 货品ID */
-    private Long skuId;
-	/** 货主ID */
-    private Long ownerId;
+//	/** 货品ID */
+//    private Long skuId;
+//	/** 货主ID */
+//    private Long ownerId;
 	/** 内部商品ID */
 	private Long itemId;
 	/** 拣货位ID */
@@ -33,22 +33,22 @@ public class BaseinfoItemLocation implements Serializable {
 	public void setId(Long id){
 		this.id = id;
 	}
-	
-	public Long getSkuId(){
-		return this.skuId;
-	}
-	
-	public void setSkuId(Long skuId){
-		this.skuId = skuId;
-	}
-	
-	public Long getOwnerId(){
-		return this.ownerId;
-	}
-	
-	public void setOwnerId(Long ownerId){
-		this.ownerId = ownerId;
-	}
+//
+//	public Long getSkuId(){
+//		return this.skuId;
+//	}
+//
+//	public void setSkuId(Long skuId){
+//		this.skuId = skuId;
+//	}
+//
+//	public Long getOwnerId(){
+//		return this.ownerId;
+//	}
+//
+//	public void setOwnerId(Long ownerId){
+//		this.ownerId = ownerId;
+//	}
 	
 	public Long getPickLocationid(){
 		return this.pickLocationid;

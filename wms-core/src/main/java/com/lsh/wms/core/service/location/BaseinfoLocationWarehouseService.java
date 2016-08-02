@@ -30,17 +30,6 @@ public class BaseinfoLocationWarehouseService implements IStrategy {
     private  LocationService locationService;
     @Autowired
     private  FatherToChildUtil fatherToChildUtil;
-//    @Autowired
-//    private LocationDetailModelFactory locationDetailModelFactory;
-//    @Autowired
-//    private LocationDetailServiceFactory locationDetailServiceFactory;
-//
-//    @PostConstruct
-//    public void postConstruct(){
-//        locationDetailModelFactory.register(LocationConstant.Warehouse,new BaseinfoLocationWarehouse());
-//        //注册service
-//        locationDetailServiceFactory.register(LocationConstant.Warehouse,this);
-//    }
 
 
     @Transactional(readOnly = false)

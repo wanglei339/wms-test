@@ -2,6 +2,8 @@ package com.lsh.wms.core.service.location;
 
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationShelfDao;
 import com.lsh.wms.model.baseinfo.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,27 +22,11 @@ import java.util.Map;
 @Component
 @Transactional(readOnly = true)
 public class BaseinfoLocationShelfService implements IStrategy{
-
+    private static final Logger logger = LoggerFactory.getLogger(BaseinfoLocationShelfService.class);
     @Autowired
     private BaseinfoLocationShelfDao baseinfoLocationShelfDao;
     @Autowired
     private LocationService locationService;
-    @Autowired
-    private FatherToChildUtil fatherToChildUtil;
-//    @Autowired
-//    private LocationDetailModelFactory locationDetailModelFactory;
-//    @Autowired
-//    private LocationDetailServiceFactory locationDetailServiceFactory;
-//
-//    @PostConstruct
-//    public void postConstruct(){
-//        locationDetailModelFactory.register(LocationConstant.Shelf,new BaseinfoLocationShelf());
-//        locationDetailModelFactory.register(LocationConstant.Loft,new BaseinfoLocationShelf());
-//        //注册service
-//        locationDetailServiceFactory.register(LocationConstant.Shelf,this);
-//        locationDetailServiceFactory.register(LocationConstant.Loft,this);
-//
-//    }
 
     @Transactional(readOnly = false)
     public void insert(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
@@ -92,6 +78,7 @@ public class BaseinfoLocationShelfService implements IStrategy{
     }
 
     public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        System.out.println(params.get("type"));
         List<BaseinfoLocation> baseinfoLocationList = locationService.getBaseinfoLocationList(params);
         List<BaseinfoLocationShelf> baseinfoLocationShelfs = new ArrayList<BaseinfoLocationShelf>();
         BaseinfoLocationShelf baseinfoLocationShelf = null;
