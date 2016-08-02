@@ -75,6 +75,20 @@ public class StockTakingRestService implements IStockTakingRestService {
         this.createTask(head, detailList, 1L, head.getDueTime());
         return JsonUtils.SUCCESS();
     }
+    @POST
+    @Path("update")
+    public String update(StockTakingRequest request) throws BizCheckedException{
+        StockTakingHead head = new StockTakingHead();
+        ObjUtils.bean2bean(request, head);
+        Map<String,Object> queryMap =new HashMap();
+        queryMap.put("takingId",head.getTakingId());
+        List<StockTakingTask> takingTasks = stockTakingTaskService.getTakingTask(queryMap);
+        for(StockTakingTask task :takingTasks){
+            iTaskRpcService.cancel(task.getTaskId());
+        }
+        this.create(head);
+        return JsonUtils.SUCCESS();
+    }
     @GET
     @Path("genId")
     public String genId(){
@@ -124,6 +138,7 @@ public class StockTakingRestService implements IStockTakingRestService {
             List details =new ArrayList();
             queryMap.put("round", time);
             queryMap.put("takingId", takingId);
+            queryMap.put("IsValid",1);
             List<StockTakingTask> stockTakingTaskList = stockTakingTaskService.getTakingTask(queryMap);
             for(StockTakingTask takingTask:stockTakingTaskList) {
                 Map <String,Object> one = new HashMap<String, Object>();
@@ -281,7 +296,7 @@ public class StockTakingRestService implements IStockTakingRestService {
                 mergeQuantMap.put(key,quant);
             }
         }
-        logger.info("Map : "+JsonUtils.SUCCESS(mergeQuantMap));
+        logger.info("Map123 : "+JsonUtils.SUCCESS(mergeQuantMap));
         for (String key : mergeQuantMap.keySet()) {
             StockQuant quant=mergeQuantMap.get(key);
             StockTakingDetail detail = new StockTakingDetail();
@@ -364,10 +379,7 @@ public class StockTakingRestService implements IStockTakingRestService {
 
     public String create(StockTakingHead head) throws BizCheckedException{
         List<StockTakingDetail> detailList = prepareDetailList(head);
-        logger.info("detail:"+JSON.toJSONString(detailList));
         stockTakingService.create(head, detailList);
-        logger.info("end create taking");
-        logger.info("head:" + JSON.toJSONString(head));
         this.createTask(head, detailList, 1L, head.getDueTime());
         return JsonUtils.SUCCESS();
     }

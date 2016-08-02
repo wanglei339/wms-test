@@ -114,5 +114,9 @@ public class StockTakingService {
         return headDao.countStockTakingHead(queryMap);
 
     }
+    public List queryTakingDetail(Map queryMap) {
+        return detailDao.getStockTakingDetailList(queryMap);
+
+    }
 }
 

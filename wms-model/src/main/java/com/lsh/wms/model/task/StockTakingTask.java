@@ -13,11 +13,21 @@ public class StockTakingTask implements Serializable {
     private Long takingId;
 	/** 第几轮盘点 */
     private Long round;
+	/** */
+	private int isValid = 1;
 	/**  */
     private Long createdAt;
 	/**  */
     private Long updatedAt;
-	
+
+	public int getIsValid() {
+		return isValid;
+	}
+
+	public void setIsValid(int isValid) {
+		this.isValid = isValid;
+	}
+
 	public Long getId(){
 		return this.id;
 	}
