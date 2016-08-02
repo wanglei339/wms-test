@@ -34,12 +34,12 @@
   			<if test="description != null">description=#{description},</if>
   			<if test="type != null">type=#{type}</if>
 		</set>
-		where locationId=#{locationId}
+		where location_id=#{locationId}
 	</update>
   
 	<select id="getBaseinfoLocationRegionById" parameterType="int" resultMap="baseinfoLocationRegionResultMap">
 		select * from baseinfo_location_region
-		where locationId=#{locationId}
+		where location_id=#{locationId}
 	</select>
   
 	<select id="countBaseinfoLocationRegion" parameterType="map" resultType="int">

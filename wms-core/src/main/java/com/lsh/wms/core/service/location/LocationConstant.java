@@ -39,5 +39,10 @@ public class LocationConstant {
     public static final Long Defective_bin = 24L;
 
 
+    //温区设置
+    public static final Integer RoomTemperature = 1;
+    public static final Integer LowTemperature = 2;
+
+
 
 }

@@ -106,8 +106,9 @@ public class LocationService {
             location.setLocationId((long) iLocationId);
         }
         //添加新增时间
-        long createdAt = DateUtils.getCurrentSeconds();
-        location.setCreatedAt(createdAt);
+//        long createdAt = DateUtils.getCurrentSeconds();
+//        location.setCreatedAt(createdAt);
+//        location.setUpdatedAt(createdAt);
         locationDao.insert(location);
         return location;
     }
@@ -118,8 +119,6 @@ public class LocationService {
         if (this.getLocation(baseinfoLocation.getLocationId()) == null) {
             return null;
         }
-        long updatedAt = DateUtils.getCurrentSeconds();
-        baseinfoLocation.setUpdatedAt(updatedAt);
         locationDao.update(baseinfoLocation);
         return baseinfoLocation;
     }
@@ -421,8 +420,6 @@ public class LocationService {
         return location.getLocationId();
     }
 
-    //获取货位bin节点的type
-    // TODO    public BaseinfoLocation getAvailableBinLocationByType(String type)
     //获取货位节点的id
     public List<BaseinfoLocation> getBaseinfoLocationList(Map<String, Object> mapQuery) {
         return locationDao.getBaseinfoLocationList(mapQuery);
@@ -489,7 +486,7 @@ public class LocationService {
     private static final long[] REGIONTYPE = {5, 6, 7, 8, 9, 10, 11};
 
     private static boolean flag = true;
-    private static String RegionName = null;
+    private static String RegionName = "";
 
     /**
      * 根据现有的位置,获取区域的位置,一直找到区的一层
@@ -501,13 +498,21 @@ public class LocationService {
     //获取区域的name,拼接字符串
     public String getRegionName(BaseinfoLocation baseinfoLocation) {
         if (flag == false) {
-            return null;
+            return RegionName;
         }
         //先排序
         Arrays.sort(REGIONTYPE);
         //获取父亲对象
         BaseinfoLocation fatherLocation = this.getFatherLocation(baseinfoLocation.getLocationId());
+        //没有父亲
+        if (null == fatherLocation) {
+            return RegionName;
+        }
         Long fatherLocationType = fatherLocation.getType();
+        //找到区域的一层不找了
+        if (fatherLocationType < 5L) {
+            return RegionName;
+        }
         //向上查找直到type属于货架区、阁楼区、暂存区、地堆区、退货区
         if (!(Arrays.binarySearch(REGIONTYPE, fatherLocationType) < 0)) {
             String regionCode = fatherLocation.getLocationCode();
@@ -517,8 +522,8 @@ public class LocationService {
             return RegionName;
         } else {
             this.getRegionName(fatherLocation);
-            return RegionName;
         }
+        return RegionName;
     }
 
     /**
@@ -539,14 +544,14 @@ public class LocationService {
         LocationFlag = locationFlag;
     }
 
-    public static List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
+//    public static List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
 
     /**
      * 根据当前的locationId获取,指定type的子集
      * 如果fatherId不是locationId,那就是祖先的id
      */
     public List<BaseinfoLocation> getSubLocationList(Long locationId, Long type) {
-//        List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
+        List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
         //遍历整棵树
         List<BaseinfoLocation> subList = this.getStoreLocations(locationId);
         //然后然后遍历这颗子树,找出指定的type的list
