@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.location;
 
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDockDao;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationDock;
@@ -46,42 +47,16 @@ public class BaseinfoLocationDockService implements IStrategy {
 
     @Transactional(readOnly = false)
     public void update(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
-        baseinfoLocationDockDao.insert((BaseinfoLocationDock) iBaseinfoLocaltionModel);
+        baseinfoLocationDockDao.update((BaseinfoLocationDock) iBaseinfoLocaltionModel);
 
     }
 
     public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("locationId", id);
-        BaseinfoLocation baseinfoLocation = locationService.getLocationListByType(mapQuery);
-        BaseinfoLocationDock baseinfoLocationDock = null;
-        List<BaseinfoLocationDock> dockList = null;
-        //
-        if (baseinfoLocation != null) {
-            dockList = baseinfoLocationDockDao.getBaseinfoLocationDockList(mapQuery);
-            baseinfoLocationDock = dockList.get(0);
-            //设置子类信息
-            baseinfoLocationDock.setLocationCode(baseinfoLocation.getLocationCode());
-            baseinfoLocationDock.setFatherId(baseinfoLocation.getFatherId());
-            baseinfoLocationDock.setType(baseinfoLocation.getType());
-            baseinfoLocationDock.setTypeName(baseinfoLocation.getTypeName());
-            baseinfoLocationDock.setIsLeaf(baseinfoLocation.getIsLeaf());
-            baseinfoLocationDock.setIsValid(baseinfoLocation.getIsValid());
-            baseinfoLocationDock.setCanStore(baseinfoLocation.getCanStore());
-            baseinfoLocationDock.setContainerVol(baseinfoLocation.getContainerVol());
-            baseinfoLocationDock.setRegionNo(baseinfoLocation.getRegionNo());
-            baseinfoLocationDock.setPassageNo(baseinfoLocation.getPassageNo());
-            baseinfoLocationDock.setShelfLevelNo(baseinfoLocation.getShelfLevelNo());
-            baseinfoLocationDock.setBinPositionNo(baseinfoLocation.getBinPositionNo());
-            //设置占用与否
-            if (locationService.isLocationInUse(id)) {
-                baseinfoLocationDock.setIsUsed("已占用");
-            } else {
-                baseinfoLocationDock.setIsUsed("未占用");
-            }
-            return baseinfoLocationDock;
-        }
-        return null;
+        List<BaseinfoLocationDock> dockList =  baseinfoLocationDockDao.getBaseinfoLocationDockList(mapQuery);
+        BaseinfoLocationDock dock =  dockList.get(0);
+        return dock;
     }
 
     /**
@@ -93,9 +68,6 @@ public class BaseinfoLocationDockService implements IStrategy {
      * @return
      */
     public Integer countBaseinfoLocaltionModel(Map<String, Object> params) {
-        if ((params.get("dock_type") == null)) {
-            return locationService.countLocation(params);
-        }
         return baseinfoLocationDockDao.countBaseinfoLocationDock(params);
     }
 
@@ -109,44 +81,7 @@ public class BaseinfoLocationDockService implements IStrategy {
      * @throws InvocationTargetException
      */
     public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        List<BaseinfoLocation> baseinfoLocationList = locationService.getBaseinfoLocationList(params);
-        List<BaseinfoLocationDock> baseinfoLocationDocks = new ArrayList<BaseinfoLocationDock>();
-        BaseinfoLocationDock baseinfoLocationDock = null;
-        List<BaseinfoLocationDock> dockList = null;
-        //循环父类list逐个拷贝到子类,并添加到子类list中
-        if (baseinfoLocationList.size() > 0) {
-            for (BaseinfoLocation baseinfoLocation : baseinfoLocationList) {
-                //根据父类id获取子类bin
-                Long locationId = baseinfoLocation.getLocationId();
-                params.put("locationId",locationId);
-                dockList = baseinfoLocationDockDao.getBaseinfoLocationDockList(params);
-                baseinfoLocationDock = dockList.get(0);
-                //设置子类信息
-                baseinfoLocationDock.setLocationCode(baseinfoLocation.getLocationCode());
-                baseinfoLocationDock.setFatherId(baseinfoLocation.getFatherId());
-                baseinfoLocationDock.setType(baseinfoLocation.getType());
-                baseinfoLocationDock.setTypeName(baseinfoLocation.getTypeName());
-                baseinfoLocationDock.setIsLeaf(baseinfoLocation.getIsLeaf());
-                baseinfoLocationDock.setIsValid(baseinfoLocation.getIsValid());
-                baseinfoLocationDock.setCanStore(baseinfoLocation.getCanStore());
-                baseinfoLocationDock.setContainerVol(baseinfoLocation.getContainerVol());
-                baseinfoLocationDock.setRegionNo(baseinfoLocation.getRegionNo());
-                baseinfoLocationDock.setPassageNo(baseinfoLocation.getPassageNo());
-                baseinfoLocationDock.setShelfLevelNo(baseinfoLocation.getShelfLevelNo());
-                baseinfoLocationDock.setBinPositionNo(baseinfoLocation.getBinPositionNo());
-
-                //设置占用与否
-                if (locationService.isLocationInUse(locationId)) {
-                    baseinfoLocationDock.setIsUsed("已占用");
-                } else {
-                    baseinfoLocationDock.setIsUsed("未占用");
-                }
-                baseinfoLocationDocks.add(baseinfoLocationDock);
-            }
-            System.out.println(baseinfoLocationDocks.size());
-            return (List<BaseinfoLocation>) (List<?>) baseinfoLocationDocks;
-        }
-        return null;
+        return (List<BaseinfoLocation>)(List<?>)baseinfoLocationDockDao.getBaseinfoLocationDockList(params);
     }
 
 }

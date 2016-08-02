@@ -8,4 +8,10 @@ import java.math.BigDecimal;
  */
 public interface IBaseinfoLocaltionModel {
     public Long getType();
+    public void setLocationId(Long locationId);
+    public void setCreatedAt(Long createdAt);
+    public Long getCreatedAt();
+    public void setUpdatedAt(Long updatedAt);
+    public Long getUpdatedAt();
+
 }

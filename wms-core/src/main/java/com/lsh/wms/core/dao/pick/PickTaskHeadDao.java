@@ -1,7 +1,7 @@
-package com.lsh.wms.core.dao.pick;
+package com.lsh.wms.core.dao.shelve;
 
 import com.lsh.wms.core.dao.MyBatisRepository;
-import com.lsh.wms.model.pick.PickTaskHead;
+import com.lsh.wms.model.shelve.PickTaskHead;
 
 import java.util.List;
 import java.util.Map;

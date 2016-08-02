@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.shelve.PickTaskDetailDao" >
+
+	<resultMap id="pickTaskDetailResultMap" type="PickTaskDetail">
+		<id property="id" column="id"/>
+		<result property="taskId" column="task_id"/>
+		<result property="orderId" column="order_id"/>
+		<result property="waveId" column="wave_id"/>
+		<result property="skuId" column="sku_id"/>
+		<result property="ownerId" column="owner_id"/>
+		<result property="lotId" column="lot_id"/>
+		<result property="supplierId" column="supplier_id"/>
+		<result property="allocQty" column="alloc_qty"/>
+		<result property="realQty" column="real_qty"/>
+		<result property="allocLocationId" column="alloc_location_id"/>
+		<result property="realLocationId" column="real_location_id"/>
+		<result property="allocCollectLocation" column="alloc_collect_location"/>
+		<result property="pickAt" column="pick_at"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PickTaskDetail">
+		insert into pick_task_detail (
+			task_id,order_id,wave_id,sku_id,owner_id,lot_id,
+			supplier_id,alloc_qty,real_qty,alloc_location_id,real_location_id,alloc_collect_location,
+			pick_at,created_at,updated_at
+    	) values (
+			#{taskId},#{orderId},#{waveId},#{skuId},#{ownerId},#{lotId},
+			#{supplierId},#{allocQty},#{realQty},#{allocLocationId},#{realLocationId},#{allocCollectLocation},
+			#{pickAt},#{createdAt},#{updatedAt}
+    	)
+	</insert>
+
+	<update id="update" parameterType="PickTaskDetail">
+		update pick_task_detail
+    	<set>
+  			<if test="taskId != null">task_id=#{taskId},</if>
+  			<if test="orderId != null">order_id=#{orderId},</if>
+  			<if test="waveId != null">wave_id=#{waveId},</if>
+  			<if test="skuId != null">sku_id=#{skuId},</if>
+  			<if test="ownerId != null">owner_id=#{ownerId},</if>
+  			<if test="lotId != null">lot_id=#{lotId},</if>
+  			<if test="supplierId != null">supplier_id=#{supplierId},</if>
+  			<if test="allocQty != null">alloc_qty=#{allocQty},</if>
+  			<if test="realQty != null">real_qty=#{realQty},</if>
+  			<if test="allocLocationId != null">alloc_location_id=#{allocLocationId},</if>
+  			<if test="realLocationId != null">real_location_id=#{realLocationId},</if>
+  			<if test="allocCollectLocation != null">alloc_collect_location=#{allocCollectLocation},</if>
+  			<if test="pickAt != null">pick_at=#{pickAt},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getPickTaskDetailById" parameterType="int" resultMap="pickTaskDetailResultMap">
+		select * from pick_task_detail
+		where ID=#{id} 
+	</select>
+  
+	<select id="countPickTaskDetail" parameterType="map" resultType="int">
+		select count(*) from pick_task_detail
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getPickTaskDetailList" parameterType="map" resultMap="pickTaskDetailResultMap">
+		select * from pick_task_detail
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="taskId != null">and task_id=#{taskId}</if>
+			<if test="orderId != null">and order_id=#{orderId}</if>
+			<if test="waveId != null">and wave_id=#{waveId}</if>
+			<if test="skuId != null">and sku_id=#{skuId}</if>
+			<if test="ownerId != null">and owner_id=#{ownerId}</if>
+			<if test="lotId != null">and lot_id=#{lotId}</if>
+			<if test="supplierId != null">and supplier_id=#{supplierId}</if>
+			<if test="allocQty != null">and alloc_qty=#{allocQty}</if>
+			<if test="realQty != null">and real_qty=#{realQty}</if>
+			<if test="allocLocationId != null">and alloc_location_id=#{allocLocationId}</if>
+			<if test="realLocationId != null">and real_location_id=#{realLocationId}</if>
+			<if test="allocCollectLocation != null">and alloc_collect_location=#{allocCollectLocation}</if>
+			<if test="pickAt != null">and pick_at=#{pickAt}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>

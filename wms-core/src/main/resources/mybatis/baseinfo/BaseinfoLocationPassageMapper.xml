@@ -36,7 +36,7 @@
   			<if test="description != null">description=#{description},</if>
   			<if test="type != null">type=#{type}</if>
 		</set>
-		where locationId=#{locationId}
+		where location_id=#{locationId}
 	</update>
   
 	<select id="getBaseinfoLocationPassageById" parameterType="int" resultMap="baseinfoLocationPassageResultMap">
