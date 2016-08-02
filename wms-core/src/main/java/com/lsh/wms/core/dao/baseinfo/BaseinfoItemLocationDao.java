@@ -12,6 +12,8 @@ public interface BaseinfoItemLocationDao {
 	void insert(BaseinfoItemLocation baseinfoItemLocation);
 	
 	void update(BaseinfoItemLocation baseinfoItemLocation);
+
+	void deleteItemLocation(BaseinfoItemLocation baseinfoItemLocation);
 	
 	BaseinfoItemLocation getBaseinfoItemLocationById(Long id);
 
