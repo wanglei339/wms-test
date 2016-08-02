@@ -11,4 +11,5 @@ public interface IStockTransferRestService {
     String scanFromLocation() throws BizCheckedException;
     String createScrap() throws BizCheckedException;
     String createReturn() throws BizCheckedException;
+    String fetchTask() throws BizCheckedException;
 }
