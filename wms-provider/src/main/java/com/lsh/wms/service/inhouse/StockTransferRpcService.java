@@ -101,7 +101,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     public Long assign(Long staffId) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("status", TaskConstant.Draft);
-        List<TaskEntry> list = taskRpcService.getTaskList(TaskConstant.TYPE_PROCUREMENT, mapQuery);
+        List<TaskEntry> list = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQuery);
         if (list.isEmpty()) {
             return 0L;
         } else {
