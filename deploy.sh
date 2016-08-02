@@ -1,24 +1,40 @@
 #!/bin/bash
 
 #发布的APP
-#APP="wms-rpc"
-#APP="wms-task"
-#APP="wms-provider"
-APP="wms-rf"
-#本地路径
-ROOT="/Users/fengkun/Projects/wms/wms/${APP}/target"
+APPS=( "wms-rpc" "wms-task" "wms-provider" "wms-rf" )
 #版本号
 VERSION="1.0-SNAPSHOT"
 #远程路径
 REMOTE="work@192.168.60.59"
+#本地路径
+ROOT="/Users/fengkun/Projects/wms/wms"
 
-tar -zxvf $ROOT/$APP-$VERSION-dev.tar.gz -C $ROOT/
-echo "========== BACKUP ${APP} BEGIN... ============"
-ssh $REMOTE "rsync -avzP --exclude=log --exclude=out.log /home/work/lsh-wms/${APP}/* /home/work/lsh-wms/${APP}.bak"
-ssh $REMOTE "rm -f /home/work/lsh-wms/$APP/lib/wms-*.jar && rm -rf /home/work/lsh-wms/$APP/conf/com"
-echo "========== BACKUP ${APP} DONE. ==============="
+#Maven打包
+echo "是否要Maven打包[y/n]: "
+read mvn
+if [ "$mvn" = "y" -o "$mvn" = "Y" ]
+then
+  cd $ROOT
+  mvn clean compile package
+fi
 
-scp $ROOT/$APP-$VERSION-dev/lib/wms-*.jar $REMOTE:/home/work/lsh-wms/$APP/lib
-scp -r $ROOT/$APP-$VERSION-dev/conf/com $REMOTE:/home/work/lsh-wms/$APP/conf
-ssh $REMOTE "sh /home/work/lsh-wms/$APP/bin/run.sh"
-rm -rf $ROOT/$APP-$VERSION-dev
+#循环部署代码
+for APP in ${APPS[@]}
+do
+  echo "是否部署${APP}模块代码[y/n]: "
+  read deploy 
+  if [ "$deploy" = "y" -o  "$deploy" = "Y" ]
+  then
+    APPROOT="${ROOT}/${APP}/target"
+    tar -zxvf $APPROOT/$APP-$VERSION-dev.tar.gz -C $APPROOT/
+    echo "========== BACKUP ${APP} BEGIN... ============"
+    ssh $REMOTE "rsync -avzP --exclude=log --exclude=out.log /home/work/lsh-wms/${APP}/* /home/work/lsh-wms/${APP}.bak"
+    ssh $REMOTE "rm -f /home/work/lsh-wms/$APP/lib/wms-*.jar && rm -rf /home/work/lsh-wms/$APP/conf/com"
+    echo "========== BACKUP ${APP} DONE. ==============="
+
+    scp $APPROOT/$APP-$VERSION-dev/lib/wms-*.jar $REMOTE:/home/work/lsh-wms/$APP/lib
+    scp -r $APPROOT/$APP-$VERSION-dev/conf/com $REMOTE:/home/work/lsh-wms/$APP/conf
+    ssh $REMOTE "sh /home/work/lsh-wms/$APP/bin/run.sh"
+    rm -rf $APPROOT/$APP-$VERSION-dev
+  fi
+done
