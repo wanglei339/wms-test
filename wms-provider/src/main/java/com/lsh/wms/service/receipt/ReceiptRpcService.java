@@ -206,6 +206,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
              */
             // TODO: 16/7/21  如何形成上架任务
             StockQuant quant = new StockQuant();
+            quant.setLotId(Long.parseLong(inbReceiptDetail.getLotNum()));
             quant.setSkuId(inbReceiptDetail.getSkuId());
             quant.setItemId(inbReceiptDetail.getItemId());
             quant.setLocationId(inbReceiptHeader.getLocation());
