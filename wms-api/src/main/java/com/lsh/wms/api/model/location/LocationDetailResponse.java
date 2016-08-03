@@ -140,15 +140,16 @@ public class LocationDetailResponse {
     /**
      * 码头的方位
      */
-    private String dockdockDirection;
+    private String dockDirection;
 
-    public String getDockdockDirection() {
-        return dockdockDirection;
+    public String getDockDirection() {
+        return dockDirection;
     }
 
-    public void setDockdockDirection(String dockdockDirection) {
-        this.dockdockDirection = dockdockDirection;
+    public void setDockDirection(String dockDirection) {
+        this.dockDirection = dockDirection;
     }
+
     //通道的方位
     private String PassageDirection;
 

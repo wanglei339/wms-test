@@ -8,6 +8,7 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.inhouse.IStockTakingRfRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.TaskConstant;
@@ -60,6 +61,8 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
     private StockTakingTaskService stockTakingTaskService;
     @Autowired
     private ItemService itemService;
+    @Reference
+    private ISysUserRpcService iSysUserRpcService;
 
 
     @POST
@@ -116,7 +119,8 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
     @Path("assign")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-    public String assign(@QueryParam("staffId") Long staffId) throws BizCheckedException {
+    public String assign(@QueryParam("uId") Long uId) throws BizCheckedException {
+        Long staffId = iSysUserRpcService.getSysUserById(uId).getStaffId();
         Map<String,Object> queryMap =new HashMap<String, Object>();
         queryMap.put("status",1);
         List<TaskEntry> entries =iTaskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TAKING, queryMap);

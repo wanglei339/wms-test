@@ -6,12 +6,14 @@ import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.item.IItemRpcService;
 import com.lsh.wms.api.service.stock.IStockMoveRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
+import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
+import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
@@ -51,6 +53,9 @@ public class StockTransferCore {
     @Autowired
     private TaskInfoDao taskInfoDao;
 
+    @Reference
+    private ISysUserRpcService iSysUserRpcService;
+
     public void fillTransferPlan(StockTransferPlan plan) throws BizCheckedException {
 
         if (plan.getPackName().equals("pallet")) {
@@ -74,7 +79,9 @@ public class StockTransferCore {
     public void outbound(Map<String, Object> params) throws BizCheckedException {
         Long taskId = Long.valueOf(params.get("taskId").toString());
         Long fromLocationId = Long.valueOf(params.get("locationId").toString());
-        Long staffId = Long.valueOf(params.get("staffId").toString());
+        Long uId = Long.valueOf(params.get("uId").toString());
+        SysUser sysUser = iSysUserRpcService.getSysUserById(uId);
+        Long staffId = sysUser.getStaffId();
 
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
         if (taskEntry == null) {
@@ -114,7 +121,9 @@ public class StockTransferCore {
     public void inbound(Map<String,Object> params) throws BizCheckedException {
         Long taskId = Long.valueOf(params.get("taskId").toString());
         Long toLocationId = Long.valueOf(params.get("locationId").toString());
-        Long staffId = Long.valueOf(params.get("staffId").toString());
+        Long uId = Long.valueOf(params.get("uId").toString());
+        SysUser sysUser = iSysUserRpcService.getSysUserById(uId);
+        Long staffId = sysUser.getStaffId();
 
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
         if (taskEntry == null) {

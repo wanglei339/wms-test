@@ -259,6 +259,10 @@ public class LocationDetailRestService implements ILocationDetailRestService {
                 ObjUtils.bean2bean(baseinfoLocation, locationDetailResponse);
                 //设置库位信息
                 this.setBinParameter(locationDetailResponse);
+                //码头
+                this.setDockParameter(locationDetailResponse);
+                //设置通道
+                this.setPassageParameter(locationDetailResponse);
                 responses.add(locationDetailResponse);
             }
             return JsonUtils.SUCCESS(responses);
@@ -317,16 +321,16 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         if (LocationConstant.Dock_area == locationDetailResponse.getType()) {
             //设置方位
             if (LocationConstant.DockEast == locationDetailResponse.getDirection()) {
-                locationDetailResponse.setDockdockDirection("东");
+                locationDetailResponse.setDockDirection("东");
             }
             if (LocationConstant.DockSouth == locationDetailResponse.getDirection()) {
-                locationDetailResponse.setDockdockDirection("南");
+                locationDetailResponse.setDockDirection("南");
             }
             if (LocationConstant.DockWest == locationDetailResponse.getDirection()) {
-                locationDetailResponse.setDockdockDirection("西");
+                locationDetailResponse.setDockDirection("西");
             }
             if (LocationConstant.DockNorth == locationDetailResponse.getDirection()) {
-                locationDetailResponse.setDockdockDirection("北");
+                locationDetailResponse.setDockDirection("北");
             }
             //设置地秤的有无
             if (locationDetailResponse.getHaveScales() > 0) {
