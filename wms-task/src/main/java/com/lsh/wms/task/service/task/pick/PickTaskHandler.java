@@ -33,7 +33,7 @@ public class PickTaskHandler extends AbsTaskHandler {
 
     protected void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
         PickTaskHead head = (PickTaskHead)taskEntry.getTaskHead();
-        head.setPickTaskId(taskEntry.getTaskInfo().getTaskId());
+//        head.setPickTaskId(taskEntry.getTaskInfo().getTaskId());
         List<WaveDetail> details = (List<WaveDetail>)(List<?>)taskEntry.getTaskDetailList();
         for(WaveDetail detail : details){
             detail.setPickTaskId(taskEntry.getTaskInfo().getTaskId());

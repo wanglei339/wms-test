@@ -63,17 +63,6 @@ public class StockTakingService {
         detailDao.update(detail);
     }
 
-    @Transactional(readOnly = false)
-    public void create(StockTakingHead head, List<StockTakingDetail> detailList) {
-        Long takingId = RandomUtils.genId();
-        head.setTakingId(takingId);
-        this.insertHead(head);
-        for (StockTakingDetail detail : detailList) {
-            detail.setTakingId(takingId);
-        }
-        this.insertDetailList(detailList);
-    }
-
     public List<StockTakingDetail> getDetailListByRound(Long stockTakingId, Long round) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("takingId", stockTakingId);

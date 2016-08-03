@@ -1,27 +1,37 @@
 package com.lsh.wms.model.pick;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.math.BigDecimal;
 
-public class PickTaskHead implements Serializable {
+public class PickTaskDetail implements Serializable {
 
 	/**  */
     private Long id;
 	/** 任务id */
     private Long taskId;
 	/** 订单id */
-    private Long deliveryId;
+    private Long orderId;
 	/** 波次id */
     private Long waveId;
 	/** 商品id */
     private Long skuId;
 	/** 货主id */
     private Long ownerId;
+	/** 批次id */
+    private Long lotId;
 	/** 供商id */
     private Long supplierId;
-	/** 容器id */
-    private Long containerId;
-	/** 拣货完成时间 */
+	/** 分配捡货量 */
+    private BigDecimal allocQty;
+	/** 实际捡货量 */
+    private BigDecimal realQty;
+	/** 分配拣货位 */
+    private Long allocLocationId;
+	/** 实际拣货位 */
+    private Long realLocationId;
+	/** 分配的集货位 */
+    private Long allocCollectLocation;
+	/** 拣货时间 */
     private Long pickAt;
 	/**  */
     private Long createdAt;
@@ -44,12 +54,12 @@ public class PickTaskHead implements Serializable {
 		this.taskId = taskId;
 	}
 	
-	public Long getDeliveryId(){
-		return this.deliveryId;
+	public Long getOrderId(){
+		return this.orderId;
 	}
 	
-	public void setDeliveryId(Long deliveryId){
-		this.deliveryId = deliveryId;
+	public void setOrderId(Long orderId){
+		this.orderId = orderId;
 	}
 	
 	public Long getWaveId(){
@@ -76,6 +86,14 @@ public class PickTaskHead implements Serializable {
 		this.ownerId = ownerId;
 	}
 	
+	public Long getLotId(){
+		return this.lotId;
+	}
+	
+	public void setLotId(Long lotId){
+		this.lotId = lotId;
+	}
+	
 	public Long getSupplierId(){
 		return this.supplierId;
 	}
@@ -83,13 +101,45 @@ public class PickTaskHead implements Serializable {
 	public void setSupplierId(Long supplierId){
 		this.supplierId = supplierId;
 	}
-	
-	public Long getContainerId(){
-		return this.containerId;
+
+	public BigDecimal getAllocQty(){
+		return this.allocQty;
+	}
+
+	public void setAllocQty(BigDecimal allocQty){
+		this.allocQty = allocQty;
+	}
+
+	public BigDecimal getRealQty(){
+		return this.realQty;
+	}
+
+	public void setRealQty(BigDecimal realQty){
+		this.realQty = realQty;
+	}
+
+	public Long getAllocLocationId(){
+		return this.allocLocationId;
 	}
 	
-	public void setContainerId(Long containerId){
-		this.containerId = containerId;
+	public void setAllocLocationId(Long allocLocationId){
+		this.allocLocationId = allocLocationId;
+	}
+	
+	public Long getRealLocationId(){
+		return this.realLocationId;
+	}
+	
+	public void setRealLocationId(Long realLocationId){
+		this.realLocationId = realLocationId;
+	}
+	
+	public Long getAllocCollectLocation(){
+		return this.allocCollectLocation;
+	}
+	
+	public void setAllocCollectLocation(Long allocCollectLocation){
+		this.allocCollectLocation = allocCollectLocation;
 	}
 	
 	public Long getPickAt(){

@@ -35,13 +35,34 @@ public class BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel  {
 	protected Long shelfLevelNo;
 	/** 货位同层坐标，四维坐标-同层 */
 	protected Long binPositionNo;
+	/** 所有的位置能够可用*/
+	protected String isUsed;
+	/** 区域名称,显示时候使用*/
+	protected String regionName;
+
 	/** 描述 */
-    private String description;
+	protected String description;
 	/** 创建日期 */
-    private Long createdAt;
+	protected Long createdAt;
 	/** 更新日期 */
-    private Long updatedAt;
-	
+	protected Long updatedAt;
+
+	public String getRegionName() {
+		return regionName;
+	}
+
+	public void setRegionName(String regionName) {
+		this.regionName = regionName;
+	}
+
+	public String getIsUsed() {
+		return isUsed;
+	}
+
+	public void setIsUsed(String isUsed) {
+		this.isUsed = isUsed;
+	}
+
 	public Long getId(){
 		return this.id;
 	}

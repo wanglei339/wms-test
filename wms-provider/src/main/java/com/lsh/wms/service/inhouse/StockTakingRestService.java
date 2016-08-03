@@ -10,8 +10,10 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.inhouse.IStockTakingRestService;
+import com.lsh.wms.api.service.location.ILocationRestService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.service.location.LocationConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
@@ -71,7 +73,7 @@ public class StockTakingRestService implements IStockTakingRestService {
         StockTakingHead head = new StockTakingHead();
         ObjUtils.bean2bean(request, head);
         List<StockTakingDetail> detailList = prepareDetailList(head);
-        stockTakingService.create(head, detailList);
+        stockTakingService.insertHead(head);
         this.createTask(head, detailList, 1L, head.getDueTime());
         return JsonUtils.SUCCESS();
     }
@@ -80,18 +82,27 @@ public class StockTakingRestService implements IStockTakingRestService {
     public String update(StockTakingRequest request) throws BizCheckedException{
         StockTakingHead head = new StockTakingHead();
         ObjUtils.bean2bean(request, head);
-        this.cancel(head.getTakingId());
-        this.create(head);
+        this.cancelTask(head.getTakingId());
+        this.update(head);
         return JsonUtils.SUCCESS();
     }
     @GET
     @Path("cancel")
-    public String cancel(Long takingId) throws BizCheckedException{
+    public String cancel(@QueryParam("takingId") Long takingId) throws BizCheckedException{
         StockTakingHead head = stockTakingService.getHeadById(takingId);
+        if(head==null){
+            return JsonUtils.BIZ_ERROR("2550001");
+        }
         head.setStatus(5L);
         stockTakingService.updateHead(head);
         this.cancelTask(takingId);
         return JsonUtils.SUCCESS();
+    }
+    @GET
+    @Path("getHead")
+    public String getHead(@QueryParam("takingId") Long takingId) throws BizCheckedException{
+        StockTakingHead head = stockTakingService.getHeadById(takingId);
+        return JsonUtils.SUCCESS(head);
     }
     @GET
     @Path("genId")
@@ -188,7 +199,7 @@ public class StockTakingRestService implements IStockTakingRestService {
 
             //库区，货架得到库位
             if (request.getAreaId() != 0 && request.getStorageId() == 0) {
-                //locationList=
+//                locationList=
                 //根据库区得出库位
             } else if (request.getStorageId() != 0) {
                 //locationList=
@@ -304,7 +315,7 @@ public class StockTakingRestService implements IStockTakingRestService {
                 mergeQuantMap.put(key,quant);
             }
         }
-        logger.info("Map123 : "+JsonUtils.SUCCESS(mergeQuantMap));
+        logger.info("Map123 : " + JsonUtils.SUCCESS(mergeQuantMap));
         for (String key : mergeQuantMap.keySet()) {
             StockQuant quant=mergeQuantMap.get(key);
             StockTakingDetail detail = new StockTakingDetail();
@@ -344,7 +355,7 @@ public class StockTakingRestService implements IStockTakingRestService {
             mapQuery.put("supplierId", head.getSupplierId());
             List<StockQuant> quantList = quantService.getQuants(mapQuery);
 
-        if (head.getTakingType().equals(0L)) {
+        if (head.getTakingType().equals(1L)) {
             return this.prepareDetailListByItem(quantList);
         }
         else {
@@ -385,11 +396,15 @@ public class StockTakingRestService implements IStockTakingRestService {
         }
     }
 
-    public String create(StockTakingHead head) throws BizCheckedException{
+    public void update(StockTakingHead head) throws BizCheckedException{
+        StockTakingHead oldHead = stockTakingService.getHeadById(head.getTakingId());
+        if(oldHead==null){
+            return ;
+        }
+        head.setId(oldHead.getId());
+        stockTakingService.updateHead(head);
         List<StockTakingDetail> detailList = prepareDetailList(head);
-        stockTakingService.create(head, detailList);
         this.createTask(head, detailList, 1L, head.getDueTime());
-        return JsonUtils.SUCCESS();
     }
     public String cancelTask(Long takingId) throws BizCheckedException {
         Map<String,Object> queryMap =new HashMap();

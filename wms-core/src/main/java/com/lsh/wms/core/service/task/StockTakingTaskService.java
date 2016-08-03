@@ -38,6 +38,7 @@ public class StockTakingTaskService {
     public StockTakingTask getTakingTaskByTaskId(Long taskId) {
         return stockTakingTaskDao.getStockTakingTaskById(taskId);
     }
+    @Transactional(readOnly = false)
     public void updateTakingTask (StockTakingTask takingTask) {
         stockTakingTaskDao.update(takingTask);
     }

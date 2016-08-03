@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +71,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
     public List<StockQuant> getQuantList(StockQuantCondition condition) throws BizCheckedException {
         Map<String, Object> mapQuery = this.getQueryCondition(condition);
         List<StockQuant> quantList =  quantService.getQuants(mapQuery);
-        return quantList;
+        return quantList == null ? new ArrayList<StockQuant>() : quantList;
     }
 
     public List<StockQuant> reserveByTask(TaskInfo taskInfo) throws BizCheckedException {

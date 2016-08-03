@@ -110,6 +110,19 @@ public class BaseTaskService {
         return false;
     }
 
+    public boolean checkTaskByToLocation(Long toLocationId, Long taskType) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("toLocationId", toLocationId);
+        params.put("taskType", taskType);
+        List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
+        for (TaskInfo taskInfo : taskInfos) {
+            if (!taskInfo.getStatus().equals(TaskConstant.Done) && !taskInfo.getStatus().equals(TaskConstant.Cancel)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * 根据container_id获取未分配的任务id
      * @param containerId

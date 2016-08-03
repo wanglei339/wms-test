@@ -25,12 +25,12 @@
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLocation">
 		insert into baseinfo_location (
 			location_id,location_code,father_id,type,type_name,is_leaf,
-			is_valid,can_store,container_vol,region_no,passage_no,
-			shelf_level_no,bin_position_no,description,created_at,updated_at
+			is_valid,can_store,container_vol,region_no,passage_no,shelf_level_no,
+			bin_position_no,description,created_at,updated_at
     	) values (
 			#{locationId},#{locationCode},#{fatherId},#{type},#{typeName},#{isLeaf},
-			#{isValid},#{canStore},#{containerVol},#{regionNo},#{passageNo},
-			#{shelfLevelNo},#{binPositionNo},#{description},#{createdAt},#{updatedAt}
+			#{isValid},#{canStore},#{containerVol},#{regionNo},#{passageNo},#{shelfLevelNo},
+			#{binPositionNo},#{description},#{createdAt},#{updatedAt}
     	)
 	</insert>
 
@@ -54,12 +54,12 @@
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
-		where locationId=#{locationId}
+		where id=#{id}
 	</update>
   
 	<select id="getBaseinfoLocationById" parameterType="int" resultMap="baseinfoLocationResultMap">
 		select * from baseinfo_location
-		where ID=#{id} 
+		where location_id=#{locationId}
 	</select>
   
 	<select id="countBaseinfoLocation" parameterType="map" resultType="int">

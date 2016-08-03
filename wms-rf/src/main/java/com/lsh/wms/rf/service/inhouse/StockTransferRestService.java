@@ -147,8 +147,24 @@ public class StockTransferRestService implements IStockTransferRestService {
         return JsonUtils.SUCCESS(true);
     }
 
-
-
+    @POST
+    @Path("fetchTask")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String fetchTask() throws BizCheckedException {
+        Map<String, Object> params = RequestUtils.getRequest();
+        Long locationId = Long.valueOf(params.get("locationId").toString());
+        Long staffId = Long.valueOf(params.get("staffId").toString());
+        try {
+            Long taskId = rpcService.assign(staffId);
+            return JsonUtils.SUCCESS(taskId);
+        } catch (BizCheckedException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+        }
+    }
 
     @POST
     @Path("scanToLocation")
@@ -166,4 +182,6 @@ public class StockTransferRestService implements IStockTransferRestService {
         }
         return JsonUtils.SUCCESS(true);
     }
+
+
 }

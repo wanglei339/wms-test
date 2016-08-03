@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.location;
 
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationBinDao;
 import com.lsh.wms.model.baseinfo.*;
 import org.slf4j.Logger;
@@ -41,7 +42,7 @@ public class BaseinfoLocationBinService implements IStrategy {
 
     @Transactional(readOnly = false)
     public void update(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
-        baseinfoLocationBinDao.insert((BaseinfoLocationBin) iBaseinfoLocaltionModel);
+        baseinfoLocationBinDao.update((BaseinfoLocationBin) iBaseinfoLocaltionModel);
     }
 
     /**
@@ -56,36 +57,9 @@ public class BaseinfoLocationBinService implements IStrategy {
     public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("locationId", id);
-        BaseinfoLocation baseinfoLocation = locationService.getLocationListByType(mapQuery);
-        BaseinfoLocationBin baseinfoLocationBin = null;
-        List<BaseinfoLocationBin> binList = null;
-        if (baseinfoLocation != null) {
-            binList = baseinfoLocationBinDao.getBaseinfoLocationBinList(mapQuery);
-            baseinfoLocationBin = binList.get(0);
-            //设置子类信息
-            baseinfoLocationBin.setLocationCode(baseinfoLocation.getLocationCode());
-            baseinfoLocationBin.setFatherId(baseinfoLocation.getFatherId());
-            baseinfoLocationBin.setType(baseinfoLocation.getType());
-            baseinfoLocationBin.setTypeName(baseinfoLocation.getTypeName());
-            baseinfoLocationBin.setIsLeaf(baseinfoLocation.getIsLeaf());
-            baseinfoLocationBin.setIsValid(baseinfoLocation.getIsValid());
-            baseinfoLocationBin.setCanStore(baseinfoLocation.getCanStore());
-            baseinfoLocationBin.setContainerVol(baseinfoLocation.getContainerVol());
-            baseinfoLocationBin.setRegionNo(baseinfoLocation.getRegionNo());
-            baseinfoLocationBin.setPassageNo(baseinfoLocation.getPassageNo());
-            baseinfoLocationBin.setShelfLevelNo(baseinfoLocation.getShelfLevelNo());
-            baseinfoLocationBin.setBinPositionNo(baseinfoLocation.getBinPositionNo());
-            //设置占用与否
-            if (locationService.isLocationInUse(id)) {
-                baseinfoLocationBin.setIsUsed("已占用");
-            } else {
-                baseinfoLocationBin.setIsUsed("未占用");
-            }
-            String regionName = locationService.getRegionName(baseinfoLocationBin);
-            baseinfoLocationBin.setRegionName(regionName);
-            return baseinfoLocationBin;
-        }
-        return null;
+        List<BaseinfoLocationBin> bins =  baseinfoLocationBinDao.getBaseinfoLocationBinList(mapQuery);
+        BaseinfoLocationBin bin =  bins.get(0);
+        return bin;
     }
 
     /**
@@ -96,50 +70,11 @@ public class BaseinfoLocationBinService implements IStrategy {
      * @return
      */
     public Integer countBaseinfoLocaltionModel(Map<String, Object> params) {
-        return locationService.countLocation(params);
+        return baseinfoLocationBinDao.countBaseinfoLocationBin(params);
     }
 
     public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        List<BaseinfoLocation> baseinfoLocationList = locationService.getBaseinfoLocationList(params);
-        List<BaseinfoLocationBin> baseinfoLocationBins = new ArrayList<BaseinfoLocationBin>();
-        BaseinfoLocationBin baseinfoLocationBin = null;
-        List<BaseinfoLocationBin> binList = null;
-        //循环父类list逐个拷贝到子类,并添加到子类list中
-        if (baseinfoLocationList.size() > 0) {
-            for (BaseinfoLocation baseinfoLocation : baseinfoLocationList) {
-                //根据主表id获取细节表bin
-                Long locationId = baseinfoLocation.getLocationId();
-                params.put("locationId", locationId);
-                binList = baseinfoLocationBinDao.getBaseinfoLocationBinList(params);
-                baseinfoLocationBin = binList.get(0);
-                //设置子类信息
-                baseinfoLocationBin.setLocationCode(baseinfoLocation.getLocationCode());
-                baseinfoLocationBin.setFatherId(baseinfoLocation.getFatherId());
-                baseinfoLocationBin.setType(baseinfoLocation.getType());
-                baseinfoLocationBin.setTypeName(baseinfoLocation.getTypeName());
-                baseinfoLocationBin.setIsLeaf(baseinfoLocation.getIsLeaf());
-                baseinfoLocationBin.setIsValid(baseinfoLocation.getIsValid());
-                baseinfoLocationBin.setCanStore(baseinfoLocation.getCanStore());
-                baseinfoLocationBin.setContainerVol(baseinfoLocation.getContainerVol());
-                baseinfoLocationBin.setRegionNo(baseinfoLocation.getRegionNo());
-                baseinfoLocationBin.setPassageNo(baseinfoLocation.getPassageNo());
-                baseinfoLocationBin.setShelfLevelNo(baseinfoLocation.getShelfLevelNo());
-                baseinfoLocationBin.setBinPositionNo(baseinfoLocation.getBinPositionNo());
-                //设置占用与否
-                if (locationService.isLocationInUse(locationId)) {
-                    baseinfoLocationBin.setIsUsed("已占用");
-                } else {
-                    baseinfoLocationBin.setIsUsed("未占用");
-                }
-                String regionName = locationService.getRegionName(baseinfoLocationBin);
-                baseinfoLocationBin.setRegionName(regionName);
-                //locationService中的全局变量置为true
-                locationService.setFlag(true);
-                baseinfoLocationBins.add(baseinfoLocationBin);
-            }
-            return (List<BaseinfoLocation>) (List<?>) baseinfoLocationBins;
-        }
-        return null;
+       return  (List<BaseinfoLocation>)(List<?>) baseinfoLocationBinDao.getBaseinfoLocationBinList(params);
     }
 
 

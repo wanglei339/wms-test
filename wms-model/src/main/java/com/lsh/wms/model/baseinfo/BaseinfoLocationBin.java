@@ -1,10 +1,9 @@
 package com.lsh.wms.model.baseinfo;
 
-import org.springframework.stereotype.Component;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
+
 public class BaseinfoLocationBin extends BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel {
 
 	/**  */
@@ -25,33 +24,39 @@ public class BaseinfoLocationBin extends BaseinfoLocation implements Serializabl
     private Long updatedAt;
 	/** 主表类型 */
     private Long type;
-	/** 0可用1不可用 */
-    private String isUsed;
-	/** 常温或者非常温 */
-	private String zoonType;
-	/** 所属仓库 */
+	/** 温区1常温2冷藏 */
+    private Integer temperature;
+	/**
+	 * 是否可用(显示用)
+	 */
+	private String isUsed;
+	/**
+	 * 所属区域名称(显示用)
+	 */
 	private String regionName;
+	/**
+	 * 温区的类型(显示用)
+	 */
+	private String zoonType;
 
-	@Override
-	public Long getType() {
-		return type;
-	}
-
-	@Override
-	public void setType(Long type) {
-		this.type = type;
+	public String getIsUsed() {
+		return isUsed;
 	}
 
 	public String getRegionName() {
 		return regionName;
 	}
 
-	public void setRegionName(String regionName) {
-		this.regionName = regionName;
-	}
-
 	public String getZoonType() {
 		return zoonType;
+	}
+
+	public void setIsUsed(String isUsed) {
+		this.isUsed = isUsed;
+	}
+
+	public void setRegionName(String regionName) {
+		this.regionName = regionName;
 	}
 
 	public void setZoonType(String zoonType) {
@@ -89,7 +94,7 @@ public class BaseinfoLocationBin extends BaseinfoLocation implements Serializabl
 	public void setVolume(BigDecimal volume){
 		this.volume = volume;
 	}
-
+	
 	public BigDecimal getWeigh(){
 		return this.weigh;
 	}
@@ -121,16 +126,22 @@ public class BaseinfoLocationBin extends BaseinfoLocation implements Serializabl
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
-
-
-	public String getIsUsed(){
-		return this.isUsed;
+	
+	public Long getType(){
+		return this.type;
 	}
 	
-	public void setIsUsed(String isUsed){
-		this.isUsed = isUsed;
+	public void setType(Long type){
+		this.type = type;
 	}
-
+	
+	public Integer getTemperature(){
+		return this.temperature;
+	}
+	
+	public void setTemperature(Integer temperature){
+		this.temperature = temperature;
+	}
 	
 	
 }
