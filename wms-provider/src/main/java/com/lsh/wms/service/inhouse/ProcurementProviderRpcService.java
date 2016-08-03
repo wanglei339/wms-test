@@ -97,32 +97,34 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         for (BaseinfoLocation shelfCollectionBin : shelfLocationList) {
             List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationByLocationID(shelfCollectionBin.getLocationId());
             for (BaseinfoItemLocation itemLocation : itemLocationList) {
-                if (baseTaskService.checkTaskByToLocation(itemLocation.getPickLocationid(), TaskConstant.TYPE_PROCUREMENT)) {
-                    continue;
+                if (rpcService.needProcurement(itemLocation.getPickLocationid(), itemLocation.getItemId())) {
+                    if (baseTaskService.checkTaskByToLocation(itemLocation.getPickLocationid(), TaskConstant.TYPE_PROCUREMENT)) {
+                        continue;
+                    }
+                    // 找合适的quant
+                    StockQuantCondition condition = new StockQuantCondition();
+                    List<BaseinfoLocation> shelfList = locationService.getLocationsByType("shelf");
+                    List<Long> shelfBinList = new ArrayList<Long>();
+                    for (BaseinfoLocation shelf : shelfList) {
+                        shelfBinList.addAll(locationService.getStoreLocationIds(shelf.getLocationId()));
+                    }
+                    condition.setLocationList(shelfBinList);
+                    condition.setItemId(itemLocation.getItemId());
+                    List<StockQuant> quantList = stockQuantService.getQuantList(condition);
+                    if (quantList.isEmpty()) {
+                        logger.warn("ItemId:" + itemLocation.getItemId() + "缺货异常");
+                        continue;
+                    }
+                    StockQuant quant = quantList.get(0);
+                    // 创建任务
+                    StockTransferPlan plan = new StockTransferPlan();
+                    plan.setItemId(itemLocation.getItemId());
+                    plan.setFromLocationId(quant.getLocationId());
+                    plan.setToLocationId(itemLocation.getPickLocationid());
+                    plan.setPackName("pallet");
+                    plan.setUomQty(BigDecimal.ONE);
+                    this.addProcurementPlan(plan);
                 }
-                // 找合适的quant
-                StockQuantCondition condition = new StockQuantCondition();
-                List<BaseinfoLocation> shelfList = locationService.getLocationsByType("shelf");
-                List<Long> shelfBinList = new ArrayList<Long>();
-                for (BaseinfoLocation shelf : shelfList ) {
-                    shelfBinList.addAll(locationService.getStoreLocationIds(shelf.getLocationId()));
-                }
-                condition.setLocationList(shelfBinList);
-                condition.setItemId(itemLocation.getItemId());
-                List<StockQuant> quantList = stockQuantService.getQuantList(condition);
-                if (quantList.isEmpty()) {
-                    logger.warn("ItemId:" + itemLocation.getItemId() + "缺货异常");
-                    continue;
-                }
-                StockQuant quant = quantList.get(0);
-                // 创建任务
-                StockTransferPlan plan = new StockTransferPlan();
-                plan.setItemId(itemLocation.getItemId());
-                plan.setFromLocationId(quant.getLocationId());
-                plan.setToLocationId(itemLocation.getPickLocationid());
-                plan.setPackName("pallet");
-                plan.setUomQty(BigDecimal.ONE);
-                this.addProcurementPlan(plan);
             }
         }
     }
