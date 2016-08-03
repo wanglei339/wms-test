@@ -46,7 +46,7 @@ public class TaskRpcService implements ITaskRpcService {
 
     public Long getTaskTypeById(Long taskId) throws BizCheckedException{
         Long taskType = baseTaskService.getTaskTypeById(taskId);
-        if(taskType == -1){
+        if(taskType.equals(-1L)){
             throw new BizCheckedException("2000001");
         }else{
             return taskType;
