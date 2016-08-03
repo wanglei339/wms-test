@@ -91,6 +91,11 @@ public class RequestUtils {
         return request.getSession();
     }
 
+    public static String getHeader(String key) {
+        HttpServletRequest request = (HttpServletRequest) RpcContext.getContext().getRequest();
+        return request.getHeader(key);
+    }
+
     public static Cookie[] getCookie() {
         HttpServletRequest request = (HttpServletRequest) RpcContext.getContext().getRequest();
         return request.getCookies();
