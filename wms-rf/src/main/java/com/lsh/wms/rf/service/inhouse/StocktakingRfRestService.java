@@ -16,6 +16,7 @@ import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.taking.StockTakingService;
+import com.lsh.wms.core.service.task.StockTakingTaskService;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.taking.StockTakingDetail;
@@ -53,16 +54,20 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
     private StockMoveService moveService;
     @Autowired
     private CsiSkuService skuService;
+    @Autowired
+    private StockTakingTaskService stockTakingTaskService;
 
 
-    @GET
+    @POST
     @Path("doOne")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String doOne() throws BizCheckedException {
         //Long taskId,int qty,String barcode
         Map request = RequestUtils.getRequest();
         List<Map> resultList = (List)(request.get("resultList"));
         if (resultList == null || resultList.size() == 0) {
-            return JsonUtils.EXCEPTION_ERROR("参数错误");
+            return JsonUtils.BIZ_ERROR("2550001");
         }
         Long taskId = Long.parseLong(resultList.get(0).get("taskId").toString());
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
@@ -75,6 +80,7 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
                 BigDecimal qty = quantService.getQuantQtyByLocationIdAndItemId(detail.getLocationId(), detail.getItemId());
                 detail.setTheoreticalQty(qty);
                 detail.setRealQty(realQty);
+                detail.setUpdatedAt(DateUtils.getCurrentSeconds());
                 stockTakingService.updateDetail(detail);
                 iTaskRpcService.done(taskId);
             }else {
@@ -101,14 +107,38 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
         return JsonUtils.SUCCESS();
     }
 
-    @GET
+    @POST
+    @Path("assign")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String assign(@QueryParam("staffId") Long staffId) throws BizCheckedException {
+        Map<String,Object> queryMap =new HashMap<String, Object>();
+        queryMap.put("status",1);
+        List<TaskEntry> entries =iTaskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TAKING, queryMap);
+        if(entries==null ||entries.size()==0){
+            return JsonUtils.TOKEN_ERROR("无盘点任务可领");
+        }
+        TaskInfo info=entries.get(0).getTaskInfo();
+        queryMap.put("takingId", info.getPlanId());
+        List<StockTakingTask> takingTasks =stockTakingTaskService.getTakingTask(queryMap);
+        iTaskRpcService.assign(info.getTaskId(),staffId);
+        List<Long> taskList =  new ArrayList<Long>();
+        for(StockTakingTask task:takingTasks){
+            taskList.add(task.getTaskId());
+        }
+        return JsonUtils.SUCCESS(taskList);
+    }
+
+    @POST
     @Path("getTask")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String getTaskInfo(@QueryParam("taskId") Long taskId) throws BizCheckedException{
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
         StockTakingDetail detail = (StockTakingDetail)(entry.getTaskDetailList().get(0));
         StockTakingTask task = (StockTakingTask)(entry.getTaskHead());
         StockTakingHead head = stockTakingService.getHeadById(task.getTakingId());
-        BigDecimal qty = quantService.getQuantQtyByLocationIdAndItemId(detail.getLocationId(),detail.getItemId());
+        BigDecimal qty = quantService.getQuantQtyByLocationIdAndItemId(detail.getLocationId(), detail.getItemId());
         detail.setTheoreticalQty(qty);
         stockTakingService.updateDetail(detail);
         Map<String,Object> result = new HashMap<String, Object>();

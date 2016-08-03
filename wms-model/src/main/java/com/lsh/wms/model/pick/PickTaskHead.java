@@ -1,4 +1,4 @@
-package com.lsh.wms.model.shelve;
+package com.lsh.wms.model.pick;
 
 import java.io.Serializable;
 import java.util.Date;

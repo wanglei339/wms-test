@@ -8,4 +8,5 @@ import com.lsh.base.common.exception.BizCheckedException;
 public interface IStockTakingRfRestService {
     String doOne() throws BizCheckedException;
     String getTaskInfo(Long taskId) throws BizCheckedException;
+    String assign(Long staffId) throws BizCheckedException;
 }

@@ -75,6 +75,8 @@ public class StockTakingTask implements Serializable {
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
+
+
 	
 	
 }

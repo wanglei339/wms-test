@@ -1,7 +1,7 @@
-package com.lsh.wms.model.shelve;
+package com.lsh.wms.model.pick;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.math.BigDecimal;
 
 public class PickTaskDetail implements Serializable {
 
@@ -101,23 +101,23 @@ public class PickTaskDetail implements Serializable {
 	public void setSupplierId(Long supplierId){
 		this.supplierId = supplierId;
 	}
-	
+
 	public BigDecimal getAllocQty(){
 		return this.allocQty;
 	}
-	
+
 	public void setAllocQty(BigDecimal allocQty){
 		this.allocQty = allocQty;
 	}
-	
+
 	public BigDecimal getRealQty(){
 		return this.realQty;
 	}
-	
+
 	public void setRealQty(BigDecimal realQty){
 		this.realQty = realQty;
 	}
-	
+
 	public Long getAllocLocationId(){
 		return this.allocLocationId;
 	}
