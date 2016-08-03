@@ -58,7 +58,7 @@ public class FilterInterceptor{
         //redis中获取key
         String value = redisStringDao.get(key);
         if (value == null || !value.equals(utoken)) {
-            throw new BizCheckedException("");
+            throw new BizCheckedException("2660003");
         }else{
             //如果验证成功，说明此用户进行了一次有效操作，延长token的过期时间
             redisStringDao.expire(key, PropertyUtils.getLong("tokenExpire"));
