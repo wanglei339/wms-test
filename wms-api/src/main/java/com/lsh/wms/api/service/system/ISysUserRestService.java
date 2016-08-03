@@ -1,5 +1,6 @@
 package com.lsh.wms.api.service.system;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.model.system.SysUser;
 
 import java.util.Map;
@@ -17,7 +18,7 @@ public interface ISysUserRestService {
 
     public String updateSysUser(SysUser sysUser);
 
-    public String checkLogin(Map<String, Object> params);
+    public String checkLogin (Map<String, Object> params)throws BizCheckedException;
 
     public String getSysUserByUsername(Map<String, Object> params);
 }
