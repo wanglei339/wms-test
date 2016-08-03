@@ -59,7 +59,7 @@ public class SORestService implements ISoRestService {
     @Path("insert")
     public BaseResponse insertOrder(SoRequest request) throws BizCheckedException {
         soRpcService.insertOrder(request);
-        return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
+        return ResUtils.getResponse(ResponseConstant.RES_CODE_1,ResponseConstant.RES_MSG_OK,null);
     }
 
     @POST

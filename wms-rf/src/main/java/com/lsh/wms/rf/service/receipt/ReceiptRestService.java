@@ -109,7 +109,7 @@ public class ReceiptRestService implements IReceiptRfService {
         receiptRequest.setItems(receiptItemList);
 
         iReceiptRpcService.insertOrder(receiptRequest);
-        return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
+        return ResUtils.getResponse(ResponseConstant.RES_CODE_1,ResponseConstant.RES_MSG_OK,null);
     }
 
     @POST

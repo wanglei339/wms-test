@@ -61,7 +61,7 @@ public class DeliveryRestService implements IDeliveryRestService {
     @Path("insert")
     public BaseResponse insertOrder(DeliveryRequest request) throws BizCheckedException {
         iDeliveryRpcService.insertOrder(request);
-        return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
+        return ResUtils.getResponse(ResponseConstant.RES_CODE_1,ResponseConstant.RES_MSG_OK,null);
 
     }
 
