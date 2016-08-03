@@ -1,4 +1,4 @@
-package com.lsh.wms.worker;
+package com.lsh.wms.worker.bootstrap;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
