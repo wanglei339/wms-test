@@ -8,6 +8,7 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.model.location.LocationDetailRequest;
+import com.lsh.wms.api.model.location.LocationDetailResponse;
 import com.lsh.wms.api.service.location.ILocationDetailRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.service.location.LocationConstant;
@@ -48,7 +49,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     private LocationDetailService locationDetailService;
     @Autowired
     private LocationDetailModelFactory locationDetailModelFactory;
-
+    //设置bin的Type集合,用于判断type是否是bin,然后设置
 
 
     //构造之后,实例化之前,注入各种model
@@ -196,23 +197,73 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @Path("getList")
     public String searchList() throws BizCheckedException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Map<String, Object> params = RequestUtils.getRequest();
-//        return JsonUtils.SUCCESS(locationDetailService.getIBaseinfoLocaltionModelListByType(params));
-        if (LocationConstant.Region_area == Long.parseLong(params.get("type").toString())) {
+        if (LocationConstant.Bin == Long.parseLong(params.get("type").toString())) {
             //定义bin集合
             List<Long> binTypes = Arrays.asList(LocationConstant.Shelf_store_bin, LocationConstant.Shelf_collection_bin, LocationConstant.Loft_collection_bin, LocationConstant.Loft_store_bin, LocationConstant.Floor_bin, LocationConstant.Temporary_bin, LocationConstant.Collection_bin, LocationConstant.Back_bin, LocationConstant.Defective_bin);
             List<IBaseinfoLocaltionModel> targetList = new ArrayList<IBaseinfoLocaltionModel>();
             //追加子集
             traverseList(binTypes, targetList);
 
-            return JsonUtils.SUCCESS(targetList);
-        } else if (LocationConstant.Bin == Integer.parseInt(params.get("type").toString())) {
+
+            ///
+            List<LocationDetailResponse> responses = new ArrayList<LocationDetailResponse>();
+            //设置返回页面的字段,特殊处理,码头,通道和库位的温区
+            for (IBaseinfoLocaltionModel iBaseinfoLocaltionModel : targetList) {
+                LocationDetailResponse locationDetailResponse = new LocationDetailResponse();
+                ObjUtils.bean2bean(iBaseinfoLocaltionModel, locationDetailResponse);
+                //设置库位信息
+                this.setBinParameter(locationDetailResponse);
+                responses.add(locationDetailResponse);
+            }
+            return JsonUtils.SUCCESS(responses);
+
+//            return JsonUtils.SUCCESS(targetList);
+
+        } else if (LocationConstant.Region_area == Integer.parseInt(params.get("type").toString())) {
             List<Long> regionTypes = Arrays.asList(LocationConstant.Shelfs, LocationConstant.Lofts, LocationConstant.Floor, LocationConstant.Temporary, LocationConstant.Collection_area, LocationConstant.Back_area, LocationConstant.Defective_area, LocationConstant.Dock_area);
             List<IBaseinfoLocaltionModel> targetList = new ArrayList<IBaseinfoLocaltionModel>();
             //追加子集
             traverseList(regionTypes, targetList);
-            return JsonUtils.SUCCESS(targetList);
+
+
+            //将父亲的结果拷贝给子类
+            //设置是否能用
+
+
+//            ////////////////////////////////
+            //前端响应
+            List<LocationDetailResponse> responses = new ArrayList<LocationDetailResponse>();
+            //设置返回页面的字段,特殊处理,码头,通道和库位的温区
+            for (IBaseinfoLocaltionModel iBaseinfoLocaltionModel : targetList) {
+                LocationDetailResponse locationDetailResponse = new LocationDetailResponse();
+                ObjUtils.bean2bean(iBaseinfoLocaltionModel, locationDetailResponse);
+                //码头设置
+                Long type = locationDetailResponse.getType();
+                Integer direction = locationDetailResponse.getDirection();
+                //码头
+                this.setDockParameter(locationDetailResponse);
+
+                responses.add(locationDetailResponse);
+            }
+            //
+            return JsonUtils.SUCCESS(responses);
+
+            //////////////////
+//            return JsonUtils.SUCCESS(targetList);
         } else {
-            return JsonUtils.SUCCESS(locationDetailService.getIBaseinfoLocaltionModelListByType(params));
+            //码头,通道,库位
+            List<BaseinfoLocation> localtions = locationDetailService.getIBaseinfoLocaltionModelListByType(params);
+            List<LocationDetailResponse> responses = new ArrayList<LocationDetailResponse>();
+            for (BaseinfoLocation baseinfoLocation : localtions) {
+                LocationDetailResponse locationDetailResponse = new LocationDetailResponse();
+                ObjUtils.bean2bean(baseinfoLocation, locationDetailResponse);
+                //设置库位信息
+                this.setBinParameter(locationDetailResponse);
+                responses.add(locationDetailResponse);
+            }
+            return JsonUtils.SUCCESS(responses);
+
+//            return JsonUtils.SUCCESS();
         }
 
     }
@@ -237,4 +288,80 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         }
         return targetList;
     }
+
+    /**
+     * 设置通道页面显示参数
+     *
+     * @param locationDetailResponse
+     * @return
+     */
+    private LocationDetailResponse setPassageParameter(LocationDetailResponse locationDetailResponse) {
+        if (LocationConstant.Passage == locationDetailResponse.getType()) {
+            if (LocationConstant.PassageEastWest == locationDetailResponse.getDirection()) {
+                locationDetailResponse.setPassageDirection("东西");
+            }
+            if (LocationConstant.PassageNorthSouth == locationDetailResponse.getDirection()) {
+                locationDetailResponse.setPassageDirection("南北");
+            }
+        }
+        return locationDetailResponse;
+    }
+
+    /**
+     * 设置码头页面显示参数
+     *
+     * @param locationDetailResponse
+     * @return
+     */
+    private LocationDetailResponse setDockParameter(LocationDetailResponse locationDetailResponse) {
+        if (LocationConstant.Dock_area == locationDetailResponse.getType()) {
+            //设置方位
+            if (LocationConstant.DockEast == locationDetailResponse.getDirection()) {
+                locationDetailResponse.setDockdockDirection("东");
+            }
+            if (LocationConstant.DockSouth == locationDetailResponse.getDirection()) {
+                locationDetailResponse.setDockdockDirection("南");
+            }
+            if (LocationConstant.DockWest == locationDetailResponse.getDirection()) {
+                locationDetailResponse.setDockdockDirection("西");
+            }
+            if (LocationConstant.DockNorth == locationDetailResponse.getDirection()) {
+                locationDetailResponse.setDockdockDirection("北");
+            }
+            //设置地秤的有无
+            if (locationDetailResponse.getHaveScales() > 0) {
+                locationDetailResponse.setSureHaveScale("有");
+            } else {
+                locationDetailResponse.setSureHaveScale("无");
+            }
+            //设置出库入库
+            if (LocationConstant.DockIn == locationDetailResponse.getDockApplication()) {
+                locationDetailResponse.setApplicationName("入库");
+            } else {
+                locationDetailResponse.setApplicationName("出库");
+            }
+        }
+        return locationDetailResponse;
+    }
+
+    /**
+     * 库位的页面显示设置
+     *
+     * @param locationDetailResponse
+     * @return
+     */
+    private LocationDetailResponse setBinParameter(LocationDetailResponse locationDetailResponse) {
+        //设置库位的温区
+        if (locationDetailResponse.getZoneType() != null) {
+            if (LocationConstant.RoomTemperature == locationDetailResponse.getZoneType()) {
+                locationDetailResponse.setZoneName("常温库");
+            }
+            if (LocationConstant.LowTemperature == locationDetailResponse.getZoneType()) {
+                locationDetailResponse.setZoneName("低温库");
+            }
+        }
+        return locationDetailResponse;
+    }
+
+
 }
