@@ -8,15 +8,18 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.inhouse.IStockTakingRfRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.csi.CsiSkuService;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.core.service.task.StockTakingTaskService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.taking.StockTakingDetail;
@@ -56,6 +59,10 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
     private CsiSkuService skuService;
     @Autowired
     private StockTakingTaskService stockTakingTaskService;
+    @Autowired
+    private ItemService itemService;
+    @Reference
+    private ISysUserRpcService iSysUserRpcService;
 
 
     @POST
@@ -73,10 +80,11 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
         StockTakingHead head = (StockTakingHead)(entry.getTaskHead());
         StockTakingDetail detail = (StockTakingDetail) (entry.getTaskDetailList().get(0));
+        BaseinfoItem item = itemService.getItem(detail.getItemId());
         for(Map<String,Object> beanMap:resultList){
             Object barcode = beanMap.get("barcode");
             BigDecimal realQty = new BigDecimal(beanMap.get("qty").toString());
-            if(barcode==null ||barcode =="") {
+            if(item.getCode().equals(barcode.toString())) {
                 BigDecimal qty = quantService.getQuantQtyByLocationIdAndItemId(detail.getLocationId(), detail.getItemId());
                 detail.setTheoreticalQty(qty);
                 detail.setRealQty(realQty);
@@ -111,7 +119,8 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
     @Path("assign")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-    public String assign(@QueryParam("staffId") Long staffId) throws BizCheckedException {
+    public String assign(@QueryParam("uId") Long uId) throws BizCheckedException {
+        Long staffId = iSysUserRpcService.getSysUserById(uId).getStaffId();
         Map<String,Object> queryMap =new HashMap<String, Object>();
         queryMap.put("status",1);
         List<TaskEntry> entries =iTaskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TAKING, queryMap);

@@ -37,12 +37,27 @@ public class LocationConstant {
     public static final Long Collection_bin = 22L;
     public static final Long Back_bin = 23L;
     public static final Long Defective_bin = 24L;
+    //虚拟货区
+    public static final Long Consume_area = 25L;
+    public static final Long Supplier_area = 25L;
 
 
     //温区设置
     public static final Integer RoomTemperature = 1;
     public static final Integer LowTemperature = 2;
 
+    //通道的位置设置
+    public static final Integer PassageEastWest = 1;//东西走向
+    public static final Integer PassageNorthSouth = 2;//南北走向
+
+    //码头的位置设置
+    public static final Integer DockEast = 1;//东
+    public static final Integer DockSouth = 2;//南
+    public static final Integer DockWest = 3;//西
+    public static final Integer DockNorth = 4;//北
+    //码头出库入库设置
+    public static final Integer DockIn = 1; //入库码头
+    public static final Integer DockOut = 2; //出库码头
 
 
 }

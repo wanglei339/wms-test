@@ -96,7 +96,11 @@ public class StockTransferRestService implements IStockTransferRestService {
             plan.setItemId(Long.valueOf(params.get("itemId").toString()));
 
             rpcService.addPlan(plan);
-            return JsonUtils.SUCCESS(true);
+            return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+                {
+                    put("response", true);
+                }
+            });
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -121,7 +125,11 @@ public class StockTransferRestService implements IStockTransferRestService {
             plan.setItemId(Long.valueOf(params.get("itemId").toString()));
 
             rpcService.addPlan(plan);
-            return JsonUtils.SUCCESS(true);
+            return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+                {
+                    put("response", true);
+                }
+            });
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -144,7 +152,11 @@ public class StockTransferRestService implements IStockTransferRestService {
             logger.error(e.getCause().getMessage());
             return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
         }
-        return JsonUtils.SUCCESS(true);
+        return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+            {
+                put("response", true);
+            }
+        });
     }
 
     @POST
@@ -156,8 +168,12 @@ public class StockTransferRestService implements IStockTransferRestService {
         Long locationId = Long.valueOf(params.get("locationId").toString());
         Long staffId = Long.valueOf(params.get("staffId").toString());
         try {
-            Long taskId = rpcService.assign(staffId);
-            return JsonUtils.SUCCESS(taskId);
+            final Long taskId = rpcService.assign(staffId);
+            return JsonUtils.SUCCESS(new HashMap<String, Long>() {
+                {
+                    put("taskId", taskId);
+                }
+            });
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
@@ -180,7 +196,11 @@ public class StockTransferRestService implements IStockTransferRestService {
             logger.error(e.getCause().getMessage());
             return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
         }
-        return JsonUtils.SUCCESS(true);
+        return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+            {
+                put("response", true);
+            }
+        });
     }
 
 

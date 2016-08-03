@@ -66,6 +66,8 @@ public class LocationService {
             put("collection_bin", new Long(22)); // 22 集货货位
             put("back_bin", new Long(23)); // 23 退货货位
             put("defective_bin", new Long(24));// 24 残次货位
+            put("Consume_area", new Long(25));// 24 残次货位
+            put("Supplier_area", new Long(26));// 24 残次货位
         }
     };
 

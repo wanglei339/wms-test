@@ -24,8 +24,8 @@ public class BaseinfoLocationBin extends BaseinfoLocation implements Serializabl
     private Long updatedAt;
 	/** 主表类型 */
     private Long type;
-	/** 温区1常温2冷藏 */
-    private Integer temperature;
+    /** 温区1常温2冷藏 */
+    private Integer zoneType;
 	/**
 	 * 是否可用(显示用)
 	 */
@@ -34,10 +34,7 @@ public class BaseinfoLocationBin extends BaseinfoLocation implements Serializabl
 	 * 所属区域名称(显示用)
 	 */
 	private String regionName;
-	/**
-	 * 温区的类型(显示用)
-	 */
-	private String zoonType;
+
 
 	public String getIsUsed() {
 		return isUsed;
@@ -47,9 +44,6 @@ public class BaseinfoLocationBin extends BaseinfoLocation implements Serializabl
 		return regionName;
 	}
 
-	public String getZoonType() {
-		return zoonType;
-	}
 
 	public void setIsUsed(String isUsed) {
 		this.isUsed = isUsed;
@@ -59,9 +53,6 @@ public class BaseinfoLocationBin extends BaseinfoLocation implements Serializabl
 		this.regionName = regionName;
 	}
 
-	public void setZoonType(String zoonType) {
-		this.zoonType = zoonType;
-	}
 
 	public Long getId(){
 		return this.id;
@@ -134,14 +125,12 @@ public class BaseinfoLocationBin extends BaseinfoLocation implements Serializabl
 	public void setType(Long type){
 		this.type = type;
 	}
-	
-	public Integer getTemperature(){
-		return this.temperature;
+
+	public Integer getZoneType() {
+		return zoneType;
 	}
-	
-	public void setTemperature(Integer temperature){
-		this.temperature = temperature;
+
+	public void setZoneType(Integer zoneType) {
+		this.zoneType = zoneType;
 	}
-	
-	
 }

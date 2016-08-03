@@ -13,12 +13,10 @@ public class PickTaskHead implements Serializable {
     private Long deliveryId;
 	/** 波次id */
     private Long waveId;
-	/** 商品id */
-    private Long skuId;
-	/** 货主id */
-    private Long ownerId;
-	/** 供商id */
-    private Long supplierId;
+	/** 线路id */
+    private Long waybillId;
+	/** 拣货任务类型，1-摘果，2-播种，3-边摘边播 */
+    private Integer pickType;
 	/** 容器id */
     private Long containerId;
 	/** 拣货完成时间 */
@@ -60,28 +58,20 @@ public class PickTaskHead implements Serializable {
 		this.waveId = waveId;
 	}
 	
-	public Long getSkuId(){
-		return this.skuId;
+	public Long getWaybillId(){
+		return this.waybillId;
 	}
 	
-	public void setSkuId(Long skuId){
-		this.skuId = skuId;
+	public void setWaybillId(Long waybillId){
+		this.waybillId = waybillId;
 	}
 	
-	public Long getOwnerId(){
-		return this.ownerId;
+	public Integer getPickType(){
+		return this.pickType;
 	}
 	
-	public void setOwnerId(Long ownerId){
-		this.ownerId = ownerId;
-	}
-	
-	public Long getSupplierId(){
-		return this.supplierId;
-	}
-	
-	public void setSupplierId(Long supplierId){
-		this.supplierId = supplierId;
+	public void setPickType(Integer pickType){
+		this.pickType = pickType;
 	}
 	
 	public Long getContainerId(){
