@@ -141,6 +141,10 @@ public class ShelveRestService implements IShelveRestService {
             return JsonUtils.EXCEPTION_ERROR();
         }
         iTaskRpcService.done(taskId, locationId);
-        return JsonUtils.SUCCESS(true);
+        return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+            {
+                put("response", true);
+            }
+        });
     }
 }

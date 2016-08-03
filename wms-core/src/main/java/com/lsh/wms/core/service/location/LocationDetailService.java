@@ -1,12 +1,14 @@
 package com.lsh.wms.core.service.location;
 
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.model.baseinfo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.InvocationTargetException;
@@ -166,11 +168,8 @@ public class LocationDetailService {
             throw new RuntimeException("插入和Location对象为空");
         }
         //根据model选择service
-        //先插detail表,后插主表
         IStrategy iStrategy = locationDetailServiceFactory.getIstrategy(iBaseinfoLocaltionModel.getType());
         iStrategy.insert(iBaseinfoLocaltionModel);
-        //主表插入
-//        locationService.insertLocation(iBaseinfoLocaltionModel);
     }
 
     /**
@@ -223,18 +222,20 @@ public class LocationDetailService {
                 //就是子
                 BaseinfoLocation son = istrategy.getBaseinfoItemLocationModelById(location.getLocationId());
                 //设置子类信息
-                son.setLocationCode(location.getLocationCode());
-                son.setFatherId(location.getFatherId());
-                son.setType(location.getType());
-                son.setTypeName(location.getTypeName());
-                son.setIsLeaf(location.getIsLeaf());
-                son.setIsValid(location.getIsValid());
-                son.setCanStore(location.getCanStore());
-                son.setContainerVol(location.getContainerVol());
-                son.setRegionNo(location.getRegionNo());
-                son.setPassageNo(location.getPassageNo());
-                son.setShelfLevelNo(location.getShelfLevelNo());
-                son.setBinPositionNo(location.getBinPositionNo());
+                ObjUtils.bean2bean(location, son);
+
+//                son.setLocationCode(location.getLocationCode());
+//                son.setFatherId(location.getFatherId());
+//                son.setType(location.getType());
+//                son.setTypeName(location.getTypeName());
+//                son.setIsLeaf(location.getIsLeaf());
+//                son.setIsValid(location.getIsValid());
+//                son.setCanStore(location.getCanStore());
+//                son.setContainerVol(location.getContainerVol());
+//                son.setRegionNo(location.getRegionNo());
+//                son.setPassageNo(location.getPassageNo());
+//                son.setShelfLevelNo(location.getShelfLevelNo());
+//                son.setBinPositionNo(location.getBinPositionNo());
                 //设置占用与否
                 if (locationService.isLocationInUse(location.getId())) {
                     son.setIsUsed("已占用");
@@ -250,7 +251,6 @@ public class LocationDetailService {
             return subList;
         }
         return null;
-
     }
 
     /**

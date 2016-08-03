@@ -168,11 +168,11 @@ public class StockTakingRestService implements IStockTakingRestService {
                 one.put("supplierId",supplierId);
                 one.put("itemId",detail.getItemId());
                 one.put("theoreticalQty",detail.getTheoreticalQty());
-                one.put("areaId",locationService.getAreaFather(detail.getLocationId()));
-                one.put("locationId",detail.getLocationId());
+                one.put("areaCode",locationService.getAreaFather(detail.getLocationId()).getLocationCode());
+                one.put("locationCode",locationService.getLocation(detail.getLocationId()).getLocationCode());
                 one.put("realQty",detail.getRealQty());
                 one.put("difference",detail.getRealQty().subtract(detail.getTheoreticalQty()));
-                one.put("reason","哈哈哈");
+                one.put("reason","");
                 one.put("updatedAt",detail.getUpdatedAt());
                 details.add(one);
             }
@@ -199,11 +199,11 @@ public class StockTakingRestService implements IStockTakingRestService {
 
             //库区，货架得到库位
             if (request.getAreaId() != 0 && request.getStorageId() == 0) {
-//                locationList=
                 //根据库区得出库位
+                locationList = this.getBinByWarehouseId(request.getAreaId());
             } else if (request.getStorageId() != 0) {
-                //locationList=
                 //根据货架得出库位
+                locationList = this.getBinByShelf(request.getStorageId());
             }
 
             //商品,供应商得到库位
@@ -414,6 +414,30 @@ public class StockTakingRestService implements IStockTakingRestService {
             iTaskRpcService.cancel(task.getTaskId());
         }
         return JsonUtils.SUCCESS();
+    }
+    //根据仓库id查找所有货位
+    public List<Long> getBinByWarehouseId(Long locationId) {
+        List<Long> targetList = new ArrayList<Long>();
+        List<Long> regionType = Arrays.asList(LocationConstant.Shelf_collection_bin, LocationConstant.Shelf_store_bin, LocationConstant.Loft_collection_bin, LocationConstant.Loft_store_bin, LocationConstant.Floor_bin, LocationConstant.Temporary_bin, LocationConstant.Collection_bin, LocationConstant.Back_bin, LocationConstant.Defective_bin);
+        for (Long oneType : regionType) {
+            List<BaseinfoLocation> locationList = locationService.getSubLocationList(locationId, oneType);
+            for(BaseinfoLocation location:locationList){
+                targetList.add(location.getLocationId());
+            }
+        }
+        return targetList;
+    }
+    //根据货架或者阁楼找bin
+    public List<Long> getBinByShelf(Long locationId) {
+        List<Long> targetList = new ArrayList<Long>();
+        List<Long> regionType = Arrays.asList(LocationConstant.Shelf_collection_bin, LocationConstant.Shelf_store_bin, LocationConstant.Loft_collection_bin, LocationConstant.Loft_store_bin);
+        for (Long oneType : regionType) {
+            List<BaseinfoLocation> locationList = locationService.getSubLocationList(locationId, oneType);
+            for(BaseinfoLocation location:locationList){
+                targetList.add(location.getLocationId());
+            }
+        }
+        return targetList;
     }
 
 }

@@ -12,16 +12,16 @@
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
 		<result property="type" column="type"/>
-		<result property="temperature" column="temperature"/>
+		<result property="zoneType" column="zone_type"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLocationBin">
 		insert into baseinfo_location_bin (
 			location_id,item_id,volume,weigh,description,created_at,
-			updated_at,type,temperature
+			updated_at,type,zone_type
     	) values (
 			#{locationId},#{itemId},#{volume},#{weigh},#{description},#{createdAt},
-			#{updatedAt},#{type},#{temperature}
+			#{updatedAt},#{type},#{zoneType}
     	)
 	</insert>
 
@@ -36,14 +36,14 @@
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
   			<if test="type != null">type=#{type},</if>
-  			<if test="temperature != null">temperature=#{temperature}</if>
+  			<if test="zoneType != null">zone_type=#{zoneType}</if>
 		</set>
 		where location_id=#{locationId}
 	</update>
   
 	<select id="getBaseinfoLocationBinById" parameterType="int" resultMap="baseinfoLocationBinResultMap">
 		select * from baseinfo_location_bin
-		where locationId=#{locationId}
+		where location_id=#{locationId}
 	</select>
   
 	<select id="countBaseinfoLocationBin" parameterType="map" resultType="int">
@@ -70,7 +70,7 @@
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 			<if test="type != null">and type=#{type}</if>
-			<if test="temperature != null">and temperature=#{temperature}</if>
+			<if test="zoneType != null">and zone_type=#{zoneType}</if>
 		</where>
 	</sql>
    
