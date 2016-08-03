@@ -82,40 +82,42 @@ public class LocationRestService implements ILocationRestService {
     }
 
 
-    //insert与detail相关,需要同时插入detail的信息
-    @POST
-    @Path("insertLocation")
-    public String insertLocation() {
-        Map<String, Object> param = RequestUtils.getRequest();
-        BaseinfoLocation location = BeanMapTransUtils.map2Bean(param, BaseinfoLocation.class);
-        location.setLocationId((long) 20);
+//    //insert与detail相关,需要同时插入detail的信息
+//    @POST
+//    @Path("insertLocation")
+//    public String insertLocation() {
+//        Map<String, Object> param = RequestUtils.getRequest();
+//        BaseinfoLocation location = BeanMapTransUtils.map2Bean(param, BaseinfoLocation.class);
+//        location.setLocationId((long) 20);
+//
+//        location.setCanStore(1);
+//        location.setDescription("1");
+//        location.setBinPositionNo((long) 1);
+//        location.setFatherId((long) 1);
+//        location.setIsLeaf(1);
+//        location.setContainerVol((long) 5);
+//        location.setLocationCode("2313");
+//        location.setDescription("13233");
+////        location.setUpdatedAt(new Data);
+//        locationService.insertLocation(location);
+//
+//        return JsonUtils.SUCCESS(locationRpcService.insertLocation(location));
+//    }
 
-        location.setCanStore(1);
-        location.setDescription("1");
-        location.setBinPositionNo((long) 1);
-        location.setFatherId((long) 1);
-        location.setIsLeaf(1);
-        location.setContainerVol((long) 5);
-        location.setLocationCode("2313");
-        location.setDescription("13233");
-//        location.setUpdatedAt(new Data);
-        locationService.insertLocation(location);
-
-        return JsonUtils.SUCCESS(locationRpcService.insertLocation(location));
-    }
-
-    //update与detail相关,需要跟新detail的信息
-    @POST
-    @Path("updateLocation")
-    public String updateLocation(BaseinfoLocation location) {
-        return JsonUtils.SUCCESS(locationRpcService.updateLocation(location));
-    }
+//    //update与detail相关,需要跟新detail的信息
+//    @POST
+//    @Path("updateLocation")
+//    public String updateLocation(BaseinfoLocation location) {
+//        return JsonUtils.SUCCESS(locationRpcService.updateLocation(location));
+//    }
 
     @POST
     @Path("getLocationList")
     public String searchList(Map<String, Object> params) {
         List<BaseinfoLocation> baseinfoLocationList = locationService.getBaseinfoLocationList(params);
         return JsonUtils.SUCCESS(baseinfoLocationList);
+//        return JsonUtils.SUCCESS(this.getBinByShelf(13L));
+
     }
 
     @POST
@@ -139,12 +141,14 @@ public class LocationRestService implements ILocationRestService {
     @GET
     @Path("getRegionByWareHouseId")
     public String getRegionByWareHouseId(@QueryParam("locationId") Long locationId) {
+
         List<Long> regionType = Arrays.asList(LocationConstant.Shelfs, LocationConstant.Lofts, LocationConstant.Floor, LocationConstant.Temporary, LocationConstant.Collection_area, LocationConstant.Back_area, LocationConstant.Defective_area);
         List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
         for (Long oneType : regionType) {
             List<BaseinfoLocation> locationList = locationService.getSubLocationList(locationId, oneType);
             targetList.addAll(locationList);
         }
+
 
         return JsonUtils.SUCCESS(targetList);
     }

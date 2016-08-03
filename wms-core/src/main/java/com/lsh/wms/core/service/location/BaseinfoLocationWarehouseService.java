@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.location;
 
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationWarehouseDao;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationBin;
@@ -45,80 +46,16 @@ public class BaseinfoLocationWarehouseService implements IStrategy {
     public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("locationId", id);
-        BaseinfoLocation baseinfoLocation = locationService.getLocationListByType(mapQuery);
-        BaseinfoLocationWarehouse baseinfoLocationWarehouse = null;
-        List<BaseinfoLocationWarehouse> warehouseList = new ArrayList<BaseinfoLocationWarehouse>();
-        //
-        if (baseinfoLocation != null) {
-            warehouseList = baseinfoLocationWarehouseDao.getBaseinfoLocationWarehouseList(mapQuery);
-            baseinfoLocationWarehouse = warehouseList.get(0);
-            //将父亲location的属性值拷贝给baseinfoLocationWarehouse
-            //设置子类信息
-            baseinfoLocationWarehouse.setLocationCode(baseinfoLocation.getLocationCode());
-            baseinfoLocationWarehouse.setFatherId(baseinfoLocation.getFatherId());
-            baseinfoLocationWarehouse.setType(baseinfoLocation.getType());
-            baseinfoLocationWarehouse.setTypeName(baseinfoLocation.getTypeName());
-            baseinfoLocationWarehouse.setIsLeaf(baseinfoLocation.getIsLeaf());
-            baseinfoLocationWarehouse.setIsValid(baseinfoLocation.getIsValid());
-            baseinfoLocationWarehouse.setCanStore(baseinfoLocation.getCanStore());
-            baseinfoLocationWarehouse.setContainerVol(baseinfoLocation.getContainerVol());
-            baseinfoLocationWarehouse.setRegionNo(baseinfoLocation.getRegionNo());
-            baseinfoLocationWarehouse.setPassageNo(baseinfoLocation.getPassageNo());
-            baseinfoLocationWarehouse.setShelfLevelNo(baseinfoLocation.getShelfLevelNo());
-            baseinfoLocationWarehouse.setBinPositionNo(baseinfoLocation.getBinPositionNo());
-
-            //设置占用与否
-            if (locationService.isLocationInUse(id)) {
-                baseinfoLocationWarehouse.setIsUsed("已占用");
-            } else {
-                baseinfoLocationWarehouse.setIsUsed("未占用");
-            }
-            return baseinfoLocationWarehouse;
-        }
-        return null;
+        List<BaseinfoLocationWarehouse> warehouseList =  baseinfoLocationWarehouseDao.getBaseinfoLocationWarehouseList(mapQuery);
+        BaseinfoLocationWarehouse warehouse =  warehouseList.get(0);
+        return warehouse;
     }
 
     public Integer countBaseinfoLocaltionModel(Map<String, Object> params) {
-        return locationService.countLocation(params);
+        return baseinfoLocationWarehouseDao.countBaseinfoLocationWarehouse(params);
     }
 
     public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        List<BaseinfoLocation> baseinfoLocationList = locationService.getBaseinfoLocationList(params);
-        List<BaseinfoLocationWarehouse> baseinfoLocationWarehouses = new ArrayList<BaseinfoLocationWarehouse>();
-        BaseinfoLocationWarehouse baseinfoLocationWarehouse = null;
-        List<BaseinfoLocationWarehouse> warehouseList = null;
-        //循环父类list逐个拷贝到子类,并添加到子类list中
-        if (baseinfoLocationList.size() > 0) {
-            for (BaseinfoLocation baseinfoLocation:baseinfoLocationList){
-                //根据父类id获取子类bin
-                Long locationId = baseinfoLocation.getLocationId();
-                //设置位置id
-                params.put("locationId",locationId);
-                warehouseList = baseinfoLocationWarehouseDao.getBaseinfoLocationWarehouseList(params);
-                baseinfoLocationWarehouse = warehouseList.get(0);
-                //设置子类信息
-                baseinfoLocationWarehouse.setLocationCode(baseinfoLocation.getLocationCode());
-                baseinfoLocationWarehouse.setFatherId(baseinfoLocation.getFatherId());
-                baseinfoLocationWarehouse.setType(baseinfoLocation.getType());
-                baseinfoLocationWarehouse.setTypeName(baseinfoLocation.getTypeName());
-                baseinfoLocationWarehouse.setIsLeaf(baseinfoLocation.getIsLeaf());
-                baseinfoLocationWarehouse.setIsValid(baseinfoLocation.getIsValid());
-                baseinfoLocationWarehouse.setCanStore(baseinfoLocation.getCanStore());
-                baseinfoLocationWarehouse.setContainerVol(baseinfoLocation.getContainerVol());
-                baseinfoLocationWarehouse.setRegionNo(baseinfoLocation.getRegionNo());
-                baseinfoLocationWarehouse.setPassageNo(baseinfoLocation.getPassageNo());
-                baseinfoLocationWarehouse.setShelfLevelNo(baseinfoLocation.getShelfLevelNo());
-                baseinfoLocationWarehouse.setBinPositionNo(baseinfoLocation.getBinPositionNo());
-                //设置占用与否
-                if (locationService.isLocationInUse(locationId)) {
-                    baseinfoLocationWarehouse.setIsUsed("已占用");
-                } else {
-                    baseinfoLocationWarehouse.setIsUsed("未占用");
-                }
-                baseinfoLocationWarehouses.add(baseinfoLocationWarehouse);
-            }
-            return (List<BaseinfoLocation>) (List<?>) baseinfoLocationWarehouses;
-        }
-        return null;
+        return  (List<BaseinfoLocation>)(List<?>) baseinfoLocationWarehouseDao.getBaseinfoLocationWarehouseList(params);
     }
 }

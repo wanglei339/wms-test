@@ -1,6 +1,7 @@
 package com.lsh.wms.api.service.system;
 
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.model.system.SysUser;
 
 import java.util.List;
@@ -20,4 +21,6 @@ public interface ISysUserRpcService {
     public void updateSysUser(SysUser sysUser);
 
     public SysUser getSysUserById(Long iUid);
+
+    Boolean checkLogin(String username, String password) throws BizCheckedException;
 }

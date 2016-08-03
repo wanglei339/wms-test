@@ -1,7 +1,7 @@
 package com.lsh.wms.core.service.location;
 
-import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
+import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.model.baseinfo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 封装所有的底层增删改查的底层service服务
@@ -64,6 +61,8 @@ public class LocationDetailService {
     private BaseinfoLocationWarehouseService baseinfoLocationWarehouseService;
     @Autowired
     private BaseinfoLocationShelfService baseinfoLocationShelfService;
+    @Autowired
+    private LocationDetailModelFactory locationDetailModelFactory;
 
 
     //构造之后实例化之前,完成service注册
@@ -111,6 +110,48 @@ public class LocationDetailService {
         locationDetailServiceFactory.register(LocationConstant.Defective_bin, baseinfoLocationBinService);
     }
 
+    /**
+     * 将所有的bin的type注册到工厂中
+     */
+    @PostConstruct
+    public void postBinConstruct() {
+        //仓库
+        locationDetailModelFactory.register(LocationConstant.Warehouse, new BaseinfoLocationWarehouse());
+        //区域
+        locationDetailModelFactory.register(LocationConstant.Region_area, new BaseinfoLocationRegion());
+        //注入过道
+        locationDetailModelFactory.register(LocationConstant.Passage, new BaseinfoLocationPassage());
+
+        //注入阁楼区和货架区
+        locationDetailModelFactory.register(LocationConstant.Shelfs, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.Lofts, new BaseinfoLocationRegion());
+        //注入区域
+        locationDetailModelFactory.register(LocationConstant.InventoryLost, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.Floor, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.Temporary, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.Collection_area, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.Back_area, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.Defective_area, new BaseinfoLocationRegion());
+        //货架和阁楼
+        locationDetailModelFactory.register(LocationConstant.Shelf, new BaseinfoLocationShelf());
+        locationDetailModelFactory.register(LocationConstant.Loft, new BaseinfoLocationShelf());
+        //注入码头
+        locationDetailModelFactory.register(LocationConstant.Dock_area, new BaseinfoLocationDock());
+        //货位
+        locationDetailModelFactory.register(LocationConstant.Bin, new BaseinfoLocationBin());
+        //货架和阁楼的货位
+        locationDetailModelFactory.register(LocationConstant.Shelf_collection_bin, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.Shelf_store_bin, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.Loft_collection_bin, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.Loft_store_bin, new BaseinfoLocationBin());
+        //功能bin
+        locationDetailModelFactory.register(LocationConstant.Floor_bin, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.Temporary_bin, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.Collection_bin, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.Back_bin, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.Defective_bin, new BaseinfoLocationBin());
+    }
+
 
     /**
      * Location的细节表插入
@@ -125,10 +166,11 @@ public class LocationDetailService {
             throw new RuntimeException("插入和Location对象为空");
         }
         //根据model选择service
+        //先插detail表,后插主表
         IStrategy iStrategy = locationDetailServiceFactory.getIstrategy(iBaseinfoLocaltionModel.getType());
         iStrategy.insert(iBaseinfoLocaltionModel);
         //主表插入
-        locationService.insertLocation(iBaseinfoLocaltionModel);
+//        locationService.insertLocation(iBaseinfoLocaltionModel);
     }
 
     /**
@@ -144,8 +186,6 @@ public class LocationDetailService {
         }
         IStrategy iStrategy = locationDetailServiceFactory.getIstrategy(iBaseinfoLocaltionModel.getType());
         iStrategy.update(iBaseinfoLocaltionModel);
-        //主表更新
-        locationService.updateLocation(iBaseinfoLocaltionModel);
     }
 
     /**
@@ -155,7 +195,7 @@ public class LocationDetailService {
      * @param type       位置类型Integer
      * @return
      */
-    public BaseinfoLocation getIBaseinfoLocaltionModelByIdAndType(Long locationId, Integer type) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public BaseinfoLocation getIBaseinfoLocaltionModelByIdAndType(Long locationId, Long type) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         IStrategy iStrategy = locationDetailServiceFactory.getIstrategy(Long.valueOf(type.toString()));
         BaseinfoLocation baseinfoLocation = iStrategy.getBaseinfoItemLocationModelById(locationId);
         return baseinfoLocation;
@@ -171,32 +211,46 @@ public class LocationDetailService {
      * @throws InvocationTargetException 源自本包内的FatherToChildUtil类
      */
     public List<BaseinfoLocation> getIBaseinfoLocaltionModelListByType(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        Integer typeImp = (Integer) params.get("type");
-        Long type = Long.valueOf(typeImp.toString());
-
-        IStrategy strategy = locationDetailServiceFactory.getIstrategy(type);
-        List<BaseinfoLocation> locationList = new ArrayList<BaseinfoLocation>();
-        //如果是传过来的type是11显示所有的货位,则需要将按type的结果集list不断追加所有按各货位的type查出来的list
-        if (BINTYPE == type) {
-            for (Integer binType : BINTYPELIST) {
-                params.put("type", binType);
-                List<BaseinfoLocation> tempList = strategy.getBaseinfoLocaltionModelList(params);
-                locationList.addAll(tempList);
-                //清楚locationId
-                params.remove("locationId");
+        ///////////////////////////////////////////
+        //如果传入的参数只有locationId,那么,先查主表,再查子表,此处先查主表
+        //1.先查主表
+        List<BaseinfoLocation> baseinfoLocationList = locationService.getBaseinfoLocationList(params);
+        if (baseinfoLocationList.size() > 0) {
+            List<BaseinfoLocation> subList = new ArrayList<BaseinfoLocation>();
+            //从结果集中去子类的表中去查,并处理结果集
+            for (BaseinfoLocation location : baseinfoLocationList) {
+                IStrategy istrategy = locationDetailServiceFactory.getIstrategy(location.getType());
+                //就是子
+                BaseinfoLocation son = istrategy.getBaseinfoItemLocationModelById(location.getLocationId());
+                //设置子类信息
+                son.setLocationCode(location.getLocationCode());
+                son.setFatherId(location.getFatherId());
+                son.setType(location.getType());
+                son.setTypeName(location.getTypeName());
+                son.setIsLeaf(location.getIsLeaf());
+                son.setIsValid(location.getIsValid());
+                son.setCanStore(location.getCanStore());
+                son.setContainerVol(location.getContainerVol());
+                son.setRegionNo(location.getRegionNo());
+                son.setPassageNo(location.getPassageNo());
+                son.setShelfLevelNo(location.getShelfLevelNo());
+                son.setBinPositionNo(location.getBinPositionNo());
+                //设置占用与否
+                if (locationService.isLocationInUse(location.getId())) {
+                    son.setIsUsed("已占用");
+                } else {
+                    son.setIsUsed("未占用");
+                }
+                //设置区域名称
+                String regionName = locationService.getRegionName(location);
+                son.setRegionName(regionName);
+                locationService.setFlag(true);
+                subList.add(son);
             }
-            return locationList;
-        } else if (REGIONTYPE == type) {
-            for (Integer regionType : REGIONTYPELIST) {
-                params.put("type", regionType);
-                List<BaseinfoLocation> tempList = strategy.getBaseinfoLocaltionModelList(params);
-                locationList.addAll(tempList);
-            }
-            return locationList;
-        } else {
-            params.put("type", type);
-            return strategy.getBaseinfoLocaltionModelList(params);
+            return subList;
         }
+        return null;
+
     }
 
     /**

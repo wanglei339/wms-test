@@ -28,7 +28,7 @@ public class BaseExceptionMapper implements ExceptionMapper<BaseCheckedException
         msg.append(ex.getExceptionStackInfo());
         Integer status = ex.getCode()!=null?Integer.parseInt(ex.getCode()):ExceptionConstant.RES_CODE_500;
         BaseResponse responseBaseVo = ResUtils.getResponse(status,msg.toString(),null);
-        Response response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(responseBaseVo).type(ContentType.APPLICATION_JSON_UTF_8).build();
+        Response response = Response.status(Response.Status.OK).entity(responseBaseVo).type(ContentType.APPLICATION_JSON_UTF_8).build();
         return  response;
     }
 }

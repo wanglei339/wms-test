@@ -1,6 +1,7 @@
 package com.lsh.wms.rpc.service.system;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.EncodeUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.base.q.Utilities.MD5;
@@ -77,15 +78,19 @@ public class SysUserRpcService implements ISysUserRpcService {
         return EncodeUtils.md5(pwd);
     }
 
-    public Boolean checkLogin(String username, String password) {
+    public Boolean checkLogin(String username, String password) throws BizCheckedException {
         SysUser user = getSysUserByUsername(username);
         if (user != null) {
             String salt = user.getSalt();
             String signPwd = genPwd(password, salt);
             if (signPwd.equals(user.getPassword())) {
                 return true;
+            }else{
+                throw new BizCheckedException("2660002");
             }
+        }else{
+            throw new BizCheckedException("2660001");
         }
-        return false;
+
     }
 }

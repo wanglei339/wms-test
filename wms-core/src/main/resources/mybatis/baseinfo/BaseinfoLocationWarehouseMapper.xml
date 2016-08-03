@@ -36,12 +36,12 @@
   			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
   			<if test="type != null">type=#{type}</if>
 		</set>
-		where locationId=#{locationId}
+		where location_id=#{locationId}
 	</update>
   
 	<select id="getBaseinfoLocationWarehouseById" parameterType="int" resultMap="baseinfoLocationWarehouseResultMap">
 		select * from baseinfo_location_warehouse
-		where locationId=#{locationId}
+		where location_id=#{locationId}
 	</select>
   
 	<select id="countBaseinfoLocationWarehouse" parameterType="map" resultType="int">

@@ -44,7 +44,7 @@
   			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
   			<if test="type != null">type=#{type}</if>
 		</set>
-		where locationId=#{locationId}
+		where location_id=#{locationId}
 	</update>
   
 	<select id="getBaseinfoLocationDockById" parameterType="int" resultMap="baseinfoLocationDockResultMap">

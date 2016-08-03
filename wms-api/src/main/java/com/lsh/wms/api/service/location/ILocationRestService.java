@@ -14,8 +14,8 @@ public interface ILocationRestService {
     public String getFatherArea(Long locationId);
     public String getWarehouseLocationId();
     public String getInventoryLostLocationId();
-    public String insertLocation();
-    public String updateLocation(BaseinfoLocation location);
+//    public String insertLocation();  细节表和主表强绑定,由细节服务提供联动的增加和更新
+//    public String updateLocation(BaseinfoLocation location);
     public String countBaseinfoLocation(Map<String, Object> params);
     public String searchList(Map<String, Object> params);
     public String getTemp(String type);

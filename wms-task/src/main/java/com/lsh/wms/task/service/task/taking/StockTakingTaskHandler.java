@@ -47,7 +47,8 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
         for(Object detail:stockTakingDetails){
             StockTakingDetail stockTakingDetail =(StockTakingDetail)detail;
             stockTakingDetail.setTaskId(taskId);
-            stockTakingService.updateDetail(stockTakingDetail);
+            stockTakingDetail.setTakingId(task.getTakingId());
+            stockTakingService.insertDetail(stockTakingDetail);
         }
         stockTakingTaskService.create(task);
     }
