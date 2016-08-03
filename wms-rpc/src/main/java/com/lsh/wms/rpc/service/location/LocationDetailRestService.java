@@ -50,6 +50,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     private LocationDetailModelFactory locationDetailModelFactory;
 
 
+
     //构造之后,实例化之前,注入各种model
 
     /**
@@ -137,7 +138,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         Long locationId = RandomUtils.genId();
         iBaseinfoLocaltionModel.setLocationId(locationId);
         baseinfoLocation.setLocationId(locationId);
-                //生成时间
+        //生成时间
         Long createAt = DateUtils.getCurrentSeconds();
         iBaseinfoLocaltionModel.setCreatedAt(createAt);
         iBaseinfoLocaltionModel.setUpdatedAt(createAt);
@@ -160,9 +161,9 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         if (null == location) {
             throw new BizCheckedException("位置不存在");
         }
-        IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationDetailService.getIBaseinfoLocaltionModelByIdAndType(locationId,location.getType());
+        IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationDetailService.getIBaseinfoLocaltionModelByIdAndType(locationId, location.getType());
         //转成父类
-        ObjUtils.bean2bean(request,location);
+        ObjUtils.bean2bean(request, location);
         //转成子类
         ObjUtils.bean2bean(request, iBaseinfoLocaltionModel);
         //
@@ -196,7 +197,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     public String searchList() throws BizCheckedException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Map<String, Object> params = RequestUtils.getRequest();
 //        return JsonUtils.SUCCESS(locationDetailService.getIBaseinfoLocaltionModelListByType(params));
-        if (15 == params.get("type")) {
+        if (LocationConstant.Region_area == Long.parseLong(params.get("type").toString())) {
             //定义bin集合
             List<Long> binTypes = Arrays.asList(LocationConstant.Shelf_store_bin, LocationConstant.Shelf_collection_bin, LocationConstant.Loft_collection_bin, LocationConstant.Loft_store_bin, LocationConstant.Floor_bin, LocationConstant.Temporary_bin, LocationConstant.Collection_bin, LocationConstant.Back_bin, LocationConstant.Defective_bin);
             List<IBaseinfoLocaltionModel> targetList = new ArrayList<IBaseinfoLocaltionModel>();
@@ -204,7 +205,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
             traverseList(binTypes, targetList);
 
             return JsonUtils.SUCCESS(targetList);
-        } else if (2 == params.get("type")) {
+        } else if (LocationConstant.Bin == Integer.parseInt(params.get("type").toString())) {
             List<Long> regionTypes = Arrays.asList(LocationConstant.Shelfs, LocationConstant.Lofts, LocationConstant.Floor, LocationConstant.Temporary, LocationConstant.Collection_area, LocationConstant.Back_area, LocationConstant.Defective_area, LocationConstant.Dock_area);
             List<IBaseinfoLocaltionModel> targetList = new ArrayList<IBaseinfoLocaltionModel>();
             //追加子集
