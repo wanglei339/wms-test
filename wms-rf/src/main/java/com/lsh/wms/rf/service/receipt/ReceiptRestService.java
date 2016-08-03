@@ -89,7 +89,7 @@ public class ReceiptRestService implements IReceiptRfService {
             receiptRequest.setWarehouseId((Long) session.getAttribute("wareHouseId"));
         }
 
-        receiptRequest.setReceiptUser(String.valueOf(request.get("uid")));
+        receiptRequest.setReceiptUser(RequestUtils.getHeader("uid"));
 
         receiptRequest.setReceiptTime(new Date());
 

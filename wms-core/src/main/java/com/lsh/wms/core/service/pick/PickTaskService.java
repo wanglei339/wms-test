@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.pick;
 
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.wave.WaveDetailDao;
 import com.lsh.wms.core.dao.pick.PickTaskHeadDao;
@@ -51,16 +52,16 @@ public class PickTaskService {
         return 0;
     }
 
-    public PickTaskHead getPickTaskHead(long iPickTaskId){
+    public PickTaskHead getPickTaskHead(Long taskId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("pickTaskId", iPickTaskId);
+        mapQuery.put("taskId", taskId);
         List<PickTaskHead> pickTaskHeadList = taskHeadDao.getPickTaskHeadList(mapQuery);
         return pickTaskHeadList.size() == 0 ? null : pickTaskHeadList.get(0);
     }
 
-    public List<WaveDetail> getPickTaskDetails(long iPickTaskId){
+    public List<WaveDetail> getPickTaskDetails(Long taskId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("pickTaskId", iPickTaskId);
+        mapQuery.put("pickTaskId", taskId);
         return taskDetailDao.getWaveDetailList(mapQuery);
     }
 }

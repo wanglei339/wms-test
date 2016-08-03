@@ -17,6 +17,7 @@ import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.PoConstant;
+import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
@@ -81,6 +82,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
     @Reference
     private ITaskRpcService iTaskRpcService;
 
+    @Autowired
+    private ContainerService containerService;
+
 
     public Boolean throwOrder(String orderOtherId) throws BizCheckedException {
         InbPoHeader inbPoHeader = new InbPoHeader();
@@ -115,6 +119,11 @@ public class ReceiptRpcService implements IReceiptRpcService {
         List<StockLot> stockLotList = new ArrayList<StockLot>();
 
         for(ReceiptItem receiptItem : request.getItems()){
+
+            if(containerService.isContainerInUse(inbReceiptHeader.getContainerId())){
+                throw new BizCheckedException("2000002");
+            }
+
             InbReceiptDetail inbReceiptDetail = new InbReceiptDetail();
 
             ObjUtils.bean2bean(receiptItem, inbReceiptDetail);
@@ -209,6 +218,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             quant.setExpireDate(expireDate / 1000);
             quant.setCost(inbPoDetail.getPrice());
             BigDecimal inboundQty = BigDecimal.valueOf(inbReceiptDetail.getInboundQty());
+            quant.setQty(inboundQty);
             BigDecimal value = inbPoDetail.getPrice().multiply(inboundQty);
             quant.setValue(value);
             stockQuantList.add(quant);

@@ -61,6 +61,8 @@ public class StockQuantRfRestService implements IStockQuantRfRestService {
             m.put("packName", quant.getPackName());
             resultList.add(m);
         }
-        return JsonUtils.SUCCESS(resultList);
+        Map<String, List<Object>> result = new HashMap<String, List<Object>>();
+        result.put("list",resultList);
+        return JsonUtils.SUCCESS(result);
     }
 }
