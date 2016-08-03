@@ -218,6 +218,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             quant.setExpireDate(expireDate / 1000);
             quant.setCost(inbPoDetail.getPrice());
             BigDecimal inboundQty = BigDecimal.valueOf(inbReceiptDetail.getInboundQty());
+            quant.setQty(inboundQty);
             BigDecimal value = inbPoDetail.getPrice().multiply(inboundQty);
             quant.setValue(value);
             stockQuantList.add(quant);
