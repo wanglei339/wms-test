@@ -28,8 +28,19 @@ public class QCTaskHandler extends AbsTaskHandler {
         handlerFactory.register(TaskConstant.TYPE_QC, this);
     }
 
+    protected void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
+        List<WaveDetail> details = (List<WaveDetail>)(List<?>)taskEntry.getTaskDetailList();
+        for(WaveDetail detail : details){
+            detail.setQcTaskId(taskEntry.getTaskInfo().getTaskId());
+        }
+        waveService.updateDetails(details);
+    }
 
     protected void getConcrete(TaskEntry taskEntry) {
         taskEntry.setTaskDetailList((List<Object>)(List<?>)waveService.getDetailsByQCTaskId(taskEntry.getTaskInfo().getTaskId()));
+    }
+
+    protected void doneConcrete(Long taskId){
+        //这里做一些处理,做些啥呢?
     }
 }

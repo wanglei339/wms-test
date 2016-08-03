@@ -97,21 +97,21 @@ public class WaveService {
         allocService.addAllocDetails(details);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional(readOnly = true)
     public List<WaveDetail> getDetailsByPickTaskId(long pickTaskId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("pickTaskId", pickTaskId);
         return detailDao.getWaveDetailList(mapQuery);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional(readOnly = true)
     public List<WaveDetail> getDetailsByQCTaskId(long qcTaskId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("qcTaskId", qcTaskId);
         return detailDao.getWaveDetailList(mapQuery);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional(readOnly = true)
     public List<WaveDetail> getDetailsByContainerId(long containerId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("containerId", containerId);
@@ -119,10 +119,18 @@ public class WaveService {
         return detailDao.getWaveDetailList(mapQuery);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional(readOnly = true)
     public List<WaveDetail> getDetailsByShipTaskId(long shipTaskId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("shipTaskId", shipTaskId);
+        return detailDao.getWaveDetailList(mapQuery);
+    }
+
+    @Transactional(readOnly = true)
+    public List<WaveDetail> getDetailsByLocationId(long locationId){
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("locationId", locationId);
+        mapQuery.put("is_alive", 1);
         return detailDao.getWaveDetailList(mapQuery);
     }
 
@@ -130,6 +138,13 @@ public class WaveService {
     public void updateDetail(WaveDetail detail){
         detail.setUpdatedAt(DateUtils.getCurrentSeconds());
         detailDao.update(detail);
+    }
+
+    @Transactional(readOnly = false)
+    public void updateDetails(List<WaveDetail> details){
+        for(WaveDetail detail : details) {
+            this.updateDetail(detail);
+        }
     }
 
 
