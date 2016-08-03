@@ -1,4 +1,4 @@
-package com.lsh.wms.worker.task;
+package com.lsh.wms.worker.service.task;
 
 import com.taobao.pamirs.schedule.IScheduleTaskDealSingle;
 import com.taobao.pamirs.schedule.TaskItemDefine;
