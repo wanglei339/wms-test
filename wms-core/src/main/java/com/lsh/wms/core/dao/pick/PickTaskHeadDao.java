@@ -15,6 +15,8 @@ public interface PickTaskHeadDao {
 	
 	PickTaskHead getPickTaskHeadById(Long id);
 
+	PickTaskHead getPickTaskHeadByTaskId(Long taskId);
+
     Integer countPickTaskHead(Map<String, Object> params);
 
     List<PickTaskHead> getPickTaskHeadList(Map<String, Object> params);
