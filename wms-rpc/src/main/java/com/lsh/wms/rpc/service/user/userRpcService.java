@@ -1,11 +1,13 @@
 package com.lsh.wms.rpc.service.user;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.service.user.IUserRpcService;
 import com.lsh.wms.core.constant.RedisKeyConstant;
+import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.rpc.service.system.SysUserRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,8 @@ import java.util.Map;
 public class userRpcService implements IUserRpcService{
     @Autowired
     private SysUserRpcService sysUserRpcService;
+    @Autowired
+    RedisStringDao redisStringDao;
 
 
     public Map<String, Object> login(String userName, String passwd) throws BizCheckedException {
@@ -38,9 +42,9 @@ public class userRpcService implements IUserRpcService{
             long uid = sysUser.getUid();
             //userid token 加入缓存
             String key = StrUtils.formatString(RedisKeyConstant.USER_UID_TOKEN,uid);
-//            redisStringDao.set(key,token);
-//            //设置token失效时间 8小时
-//            redisStringDao.expire(key, PropertyUtils.getLong("tokenExpire"));
+            redisStringDao.set(key,token);
+            //设置token失效时间 8小时
+            redisStringDao.expire(key, PropertyUtils.getLong("tokenExpire"));
             Map<String,Object> map = new HashMap<String, Object>();
             map.put("uid",uid);
             map.put("utoken",token);

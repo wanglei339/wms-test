@@ -56,22 +56,22 @@ public class UserRestService implements IUserRestService {
         String passwd = (String) request.get("passwd");
         System.out.println("userName : " + userName + "passwd : "+passwd);
         Map<String,Object> map = userRpcService.login(userName,passwd);
-        HttpServletResponse response = (HttpServletResponse)RpcContext.getContext().getResponse();
-        response.addHeader("uid",map.get("uid").toString());
-        response.addHeader("utoken",map.get("utoken").toString());
-        //创建两个cookie对象
-        Cookie idCookie = new Cookie("uid", map.get("uid").toString());
-        Cookie tokenCookie = new Cookie("utoken", map.get("utoken").toString());
-        idCookie.setMaxAge(PropertyUtils.getInt("maxAge"));
-        tokenCookie.setMaxAge(PropertyUtils.getInt("maxAge"));
-        response.addCookie(idCookie);
-        response.addCookie(tokenCookie);
-//        // TODO: 16/8/1 剩余基本信息放在session 所属库区等。
+//        HttpServletResponse response = (HttpServletResponse)RpcContext.getContext().getResponse();
+//        response.addHeader("uid",map.get("uid").toString());
+//        response.addHeader("utoken",map.get("utoken").toString());
+//        //创建两个cookie对象
+//        Cookie idCookie = new Cookie("uid", map.get("uid").toString());
+//        Cookie tokenCookie = new Cookie("utoken", map.get("utoken").toString());
+//        idCookie.setMaxAge(PropertyUtils.getInt("maxAge"));
+//        tokenCookie.setMaxAge(PropertyUtils.getInt("maxAge"));
+//        response.addCookie(idCookie);
+//        response.addCookie(tokenCookie);
+////        // TODO: 16/8/1 剩余基本信息放在session 所属库区等。
 //        HttpServletRequest sessionRequest = (HttpServletRequest) RpcContext.getContext().getRequest();
 //        HttpSession session = sessionRequest.getSession();
 //        session.setAttribute("","");
 //        session.setAttribute("","");
 //        session.setAttribute("","");
-        return JsonUtils.SUCCESS();
+        return JsonUtils.SUCCESS(map);
     }
 }
