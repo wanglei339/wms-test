@@ -89,6 +89,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             Map<String, Object> params = RequestUtils.getRequest();
             StockTransferPlan plan = new StockTransferPlan();
             plan.setFromLocationId(Long.valueOf(params.get("locationId").toString()));
+
             plan.setToLocationId(locationRpcService.getBackLocation().getLocationId());
             plan.setUomQty(new BigDecimal(params.get("uomQty").toString()));
             plan.setPackName(params.get("packName").toString());
@@ -96,6 +97,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             plan.setItemId(Long.valueOf(params.get("itemId").toString()));
 
             rpcService.addPlan(plan);
+
             return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
                 {
                     put("response", true);
@@ -104,8 +106,7 @@ public class StockTransferRestService implements IStockTransferRestService {
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
     }
 
@@ -133,8 +134,7 @@ public class StockTransferRestService implements IStockTransferRestService {
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
     }
 
