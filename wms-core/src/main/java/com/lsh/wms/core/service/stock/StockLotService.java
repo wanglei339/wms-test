@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.stock;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
@@ -58,9 +59,12 @@ public class StockLotService {
     }
 
     @Transactional(readOnly = false)
-    public void insertLot(StockLot lot){
+    public void insertLot(StockLot lot) throws BizCheckedException {
         if (lot.getLotId()==null || lot.getLotId()==0){
             lot.setLotId(RandomUtils.genId());
+        }
+        if (this.getStockLotByLotId(lot.getLotId()) != null) {
+            throw new BizCheckedException("1550003");
         }
         lot.setCreatedAt(DateUtils.getCurrentSeconds());
         lot.setUpdatedAt(DateUtils.getCurrentSeconds());
