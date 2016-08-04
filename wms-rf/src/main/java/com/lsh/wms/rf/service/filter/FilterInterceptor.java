@@ -56,26 +56,29 @@ public class FilterInterceptor{
                 } catch (Throwable ex) {
                     throw ex;
                 }
-            }
-            HttpServletRequest request = (HttpServletRequest) RpcContext.getContext().getRequest();
-            Map<String, String> map = new HashMap<String, String>();
-            String utoken = request.getHeader("utoken");
-            String uid =request.getHeader("uid");
-            String key = StrUtils.formatString(RedisKeyConstant.USER_UID_TOKEN,uid);
-            //redis中获取key
-            String value = redisStringDao.get(key);
-            if (value == null || !value.equals(utoken)) {
-                throw new BizCheckedException("2660003");
             }else{
-                //如果验证成功，说明此用户进行了一次有效操作，延长token的过期时间
-                redisStringDao.expire(key, PropertyUtils.getLong("tokenExpire"));
-                try {
-                    pjp.proceed();
-                } catch (Throwable ex) {
-                    throw ex;
+                HttpServletRequest request = (HttpServletRequest) RpcContext.getContext().getRequest();
+                Map<String, String> map = new HashMap<String, String>();
+                String utoken = request.getHeader("utoken");
+                String uid =request.getHeader("uid");
+                String key = StrUtils.formatString(RedisKeyConstant.USER_UID_TOKEN,uid);
+                //redis中获取key
+                String value = redisStringDao.get(key);
+                if (value == null || !value.equals(utoken)) {
+                    throw new BizCheckedException("2660003");
+                }else{
+                    //如果验证成功，说明此用户进行了一次有效操作，延长token的过期时间
+                    redisStringDao.expire(key, PropertyUtils.getLong("tokenExpire"));
+                    try {
+                        pjp.proceed();
+                    } catch (Throwable ex) {
+                        throw ex;
 
+                    }
                 }
+
             }
+
         }
 
     }
