@@ -1,12 +1,17 @@
 package com.lsh.wms.core.service.po;
 
-import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.core.dao.po.InbPoDetailDao;
 import com.lsh.wms.core.dao.po.InbReceiptDetailDao;
 import com.lsh.wms.core.dao.po.InbReceiptHeaderDao;
+import com.lsh.wms.core.service.stock.StockLotService;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.po.InbPoDetail;
 import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.InbReceiptHeader;
+import com.lsh.wms.model.stock.StockLot;
+import com.lsh.wms.model.stock.StockQuant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +34,8 @@ import java.util.Map;
 @Transactional(readOnly = true)
 public class PoReceiptService {
 
+    private static Logger logger = LoggerFactory.getLogger(PoReceiptService.class);
+
     @Autowired
     private InbReceiptDetailDao inbReceiptDetailDao;
 
@@ -37,6 +44,12 @@ public class PoReceiptService {
 
     @Autowired
     private InbPoDetailDao inbPoDetailDao;
+
+    @Autowired
+    private StockQuantService stockQuantService;
+
+    @Autowired
+    private StockLotService stockLotService;
 
     /**
      * 插入InbReceiptHeader及List<InbReceiptDetail>
@@ -59,12 +72,19 @@ public class PoReceiptService {
      * @param inbReceiptDetailList
      */
     @Transactional(readOnly = false)
-    public void insertOrder(InbReceiptHeader inbReceiptHeader, List<InbReceiptDetail> inbReceiptDetailList,List<InbPoDetail> updateInbPoDetailList ) {
+    public void insertOrder(InbReceiptHeader inbReceiptHeader, List<InbReceiptDetail> inbReceiptDetailList,List<InbPoDetail> updateInbPoDetailList,List<StockQuant> stockQuantList ,List<StockLot> stockLotList) {
         //插入订单
         inbReceiptHeader.setInserttime(new Date());
         inbReceiptHeaderDao.insert(inbReceiptHeader);
         inbReceiptDetailDao.batchInsert(inbReceiptDetailList);
         inbPoDetailDao.batchUpdateInboundQtyByOrderIdAndSkuId(updateInbPoDetailList);
+        for (StockQuant stockQuant : stockQuantList) {
+            stockQuantService.create(stockQuant);
+        }
+
+        for (StockLot stockLot : stockLotList) {
+            stockLotService.insertLot(stockLot);
+        }
 
     }
 

@@ -5,6 +5,9 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.RandomUtils;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.inhouse.IStockTakingRfRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
@@ -20,6 +23,7 @@ import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.core.service.task.StockTakingTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.taking.StockTakingDetail;
@@ -27,6 +31,9 @@ import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.StockTakingTask;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
+import net.sf.json.JSON;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
@@ -45,6 +52,9 @@ import java.util.Map;
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class StocktakingRfRestService implements IStockTakingRfRestService {
+
+    private static Logger logger = LoggerFactory.getLogger(StocktakingRfRestService.class);
+
     @Reference
     private ITaskRpcService iTaskRpcService;
     @Autowired
@@ -72,13 +82,14 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
     public String doOne() throws BizCheckedException {
         //Long taskId,int qty,String barcode
         Map request = RequestUtils.getRequest();
-        List<Map> resultList = (List)(request.get("resultList"));
+        JSONArray jsonObject = JSONArray.fromObject(request.get("resultList"));
+        List<Map> resultList = (List<Map>)JSONArray.toCollection(jsonObject, HashMap.class);
         if (resultList == null || resultList.size() == 0) {
             return JsonUtils.BIZ_ERROR("2550001");
         }
         Long taskId = Long.parseLong(resultList.get(0).get("taskId").toString());
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
-        StockTakingHead head = (StockTakingHead)(entry.getTaskHead());
+        StockTakingTask task = (StockTakingTask)(entry.getTaskHead());
         StockTakingDetail detail = (StockTakingDetail) (entry.getTaskDetailList().get(0));
         BaseinfoItem item = itemService.getItem(detail.getItemId());
         for(Map<String,Object> beanMap:resultList){
@@ -95,7 +106,8 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
                 StockTakingDetail newDetail = new StockTakingDetail();
                 CsiSku csiSku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE,barcode.toString());
                 newDetail.setRealQty(realQty);
-                newDetail.setTakingId(head.getTakingId());
+                newDetail.setDetailId(RandomUtils.genId());
+                newDetail.setTakingId(task.getTakingId());
                 newDetail.setTaskId(taskId);
                 newDetail.setRealSkuId(csiSku.getSkuId());
                 newDetail.setLocationId(detail.getLocationId());
@@ -104,23 +116,39 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
                 stockTakingService.insertDetail(newDetail);
             }
             Map<String,Object> queryMap = new HashMap<String, Object>();
-            queryMap.put("planId",head.getTakingId());
-            queryMap.put("status",1L);
+            queryMap.put("planId",task.getTakingId());
+            queryMap.put("status",2L);
             List<TaskEntry> entries = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_STOCK_TAKING,queryMap);
             if(entries==null || entries.size()==0){
-                this.confirm(head.getTakingId());
+                this.confirm(task.getTakingId());
             }
         }
-
-        return JsonUtils.SUCCESS();
+        return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+            {
+                put("response", true);
+            }
+        });
     }
 
     @POST
     @Path("assign")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-    public String assign(@QueryParam("uId") Long uId) throws BizCheckedException {
+    public String assign() throws BizCheckedException {
+        Map<String, Object> params =RequestUtils.getRequest();
+        Long uId = Long.valueOf(params.get("uId").toString());
+        List<Long> taskList =  new ArrayList<Long>();
         Long staffId = iSysUserRpcService.getSysUserById(uId).getStaffId();
+        Map<String,Object> statusQueryMap = new HashMap();
+        statusQueryMap.put("status",2L);
+        statusQueryMap.put("planner",staffId);
+        List<TaskEntry> list = iTaskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TAKING, statusQueryMap);
+        if(list!=null && list.size()!=0){
+            for(TaskEntry taskEntry:list){
+                taskList.add(taskEntry.getTaskInfo().getTaskId());
+            }
+            return JsonUtils.SUCCESS(taskList);
+        }
         Map<String,Object> queryMap =new HashMap<String, Object>();
         queryMap.put("status",1);
         List<TaskEntry> entries =iTaskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TAKING, queryMap);
@@ -131,7 +159,6 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
         queryMap.put("takingId", info.getPlanId());
         List<StockTakingTask> takingTasks =stockTakingTaskService.getTakingTask(queryMap);
         iTaskRpcService.assign(info.getTaskId(),staffId);
-        List<Long> taskList =  new ArrayList<Long>();
         for(StockTakingTask task:takingTasks){
             taskList.add(task.getTaskId());
         }
@@ -142,7 +169,9 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
     @Path("getTask")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-    public String getTaskInfo(@QueryParam("taskId") Long taskId) throws BizCheckedException{
+    public String getTaskInfo() throws BizCheckedException{
+        Map<String, Object> params =RequestUtils.getRequest();
+        Long taskId = Long.valueOf(params.get("taskId").toString());
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
         StockTakingDetail detail = (StockTakingDetail)(entry.getTaskDetailList().get(0));
         StockTakingTask task = (StockTakingTask)(entry.getTaskHead());
@@ -154,8 +183,10 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
         //TODO 返回rf枪所需的字段值。
         result.put("viewType",head.getViewType());
         result.put("taskId",taskId);
-        result.put("locationId",detail.getLocationId());
-        result.put("itemId",detail.getItemId());
+        BaseinfoLocation location = locationService.getLocation(detail.getLocationId());
+        BaseinfoItem item =itemService.getItem(detail.getItemId());
+        result.put("locationCode",location==null ? "":location.getLocationCode());
+        result.put("itemName", item==null ? "" :item.getSkuName());
         result.put("qty",qty);
         return JsonUtils.SUCCESS(result);
 
@@ -255,11 +286,12 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
         return true;
     }
     public void createNextDetail(Long stockTakingId,Long roundTime) throws BizCheckedException{
-        Map queryMap = new HashMap();
+        Map<String,Object> queryMap = new HashMap();
         StockTakingHead head = stockTakingService.getHeadById(stockTakingId);
         List<StockTakingDetail> detailList = new ArrayList<StockTakingDetail>();
         queryMap.put("stockTakingId",stockTakingId);
         queryMap.put("round",roundTime);
+        queryMap.put("isValid",1);
         List<StockTakingDetail> details=stockTakingService.getDetailListByRound(stockTakingId,roundTime);
         for (StockTakingDetail stockTakingDetail:details){
             stockTakingDetail.setId(0L);
