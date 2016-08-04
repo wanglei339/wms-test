@@ -45,4 +45,18 @@ public class StockTransferProviderRestService implements IStockTransferProviderR
         return JsonUtils.SUCCESS();
     }
 
+    @POST
+    @Path("update")
+    public String updatePlan(StockTransferPlan plan)  throws BizCheckedException {
+        try{
+            rpcService.updatePlan(plan);
+        } catch (BizCheckedException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+        }
+        return JsonUtils.SUCCESS();
+    }
+
 }

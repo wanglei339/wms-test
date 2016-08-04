@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.swing.*;
 import javax.ws.rs.*;
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -69,7 +70,8 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         core.fillTransferPlan(plan);
 
         if ( plan.getQty().compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
-            throw new BizCheckedException(plan.getQty().toString() + "====" + total.toString());
+            System.out.println(plan.getQty()+ "  ---  "+ total);
+            throw new BizCheckedException("2550002","商品数量不足");
         }
 
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
@@ -87,6 +89,12 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         taskEntry.setTaskInfo(taskInfo);
         taskRpcService.create(TaskConstant.TYPE_STOCK_TRANSFER, taskEntry);
     }
+
+    public void updatePlan(StockTransferPlan plan)  throws BizCheckedException {
+        Long taskId = plan.getTaskId();
+
+    }
+
 
     public void scanFromLocation(Map<String, Object> params) throws BizCheckedException {
         core.outbound(params);

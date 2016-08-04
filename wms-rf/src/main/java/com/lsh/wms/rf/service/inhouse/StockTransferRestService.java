@@ -12,10 +12,13 @@ import com.lsh.wms.api.service.inhouse.IStockTransferRpcService;
 import com.lsh.wms.api.service.item.IItemRpcService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
+import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
@@ -50,6 +53,9 @@ public class StockTransferRestService implements IStockTransferRestService {
 
     @Reference
     private ILocationRpcService locationRpcService;
+
+    @Reference
+    private ISysUserRpcService iSysUserRpcService;
 
     @POST
     @Path("view")
@@ -89,6 +95,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             Map<String, Object> params = RequestUtils.getRequest();
             StockTransferPlan plan = new StockTransferPlan();
             plan.setFromLocationId(Long.valueOf(params.get("locationId").toString()));
+
             plan.setToLocationId(locationRpcService.getBackLocation().getLocationId());
             plan.setUomQty(new BigDecimal(params.get("uomQty").toString()));
             plan.setPackName(params.get("packName").toString());
@@ -96,6 +103,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             plan.setItemId(Long.valueOf(params.get("itemId").toString()));
 
             rpcService.addPlan(plan);
+
             return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
                 {
                     put("response", true);
@@ -104,8 +112,7 @@ public class StockTransferRestService implements IStockTransferRestService {
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
     }
 
@@ -133,8 +140,7 @@ public class StockTransferRestService implements IStockTransferRestService {
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
     }
 
@@ -166,7 +172,9 @@ public class StockTransferRestService implements IStockTransferRestService {
     public String fetchTask() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
         Long locationId = Long.valueOf(params.get("locationId").toString());
-        Long staffId = Long.valueOf(params.get("staffId").toString());
+        Long uId = Long.valueOf(params.get("uId").toString());
+        SysUser sysUser = iSysUserRpcService.getSysUserById(uId);
+        Long staffId = sysUser.getStaffId();
         try {
             final Long taskId = rpcService.assign(staffId);
             return JsonUtils.SUCCESS(new HashMap<String, Long>() {
