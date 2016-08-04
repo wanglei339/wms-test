@@ -204,7 +204,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
             StockQuant quant = new StockQuant();
             quant.setLotId(lotId);
-            quant.setPackUnit(BigDecimal.valueOf(inbReceiptDetail.getPackUnit()));
+            quant.setPackUnit(BigDecimal.valueOf(inbPoDetail.getPackUnit()));
             quant.setSkuId(inbReceiptDetail.getSkuId());
             quant.setItemId(inbReceiptDetail.getItemId());
             quant.setLocationId(inbReceiptHeader.getLocation());
@@ -236,6 +236,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
              */
             StockLot stockLot = new StockLot();
             stockLot.setLotId(lotId);
+            stockLot.setPackUnit(BigDecimal.valueOf(inbPoDetail.getPackUnit()));
             stockLot.setSkuId(inbReceiptDetail.getSkuId());
             stockLot.setSerialNo(inbReceiptDetail.getLotNum());
             stockLot.setItemId(inbReceiptDetail.getItemId());
