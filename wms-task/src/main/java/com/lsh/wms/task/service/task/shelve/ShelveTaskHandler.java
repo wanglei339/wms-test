@@ -104,7 +104,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, taskInfo.getFromLocationId(), locationService.getWarehouseLocationId());
     }
 
-    protected void doneConcrete(Long taskId, Long locationId) throws BizCheckedException{
+    public void doneConcrete(Long taskId, Long locationId) throws BizCheckedException{
         ShelveTaskHead taskHead = taskService.getShelveTaskHead(taskId);
         if (taskHead == null) {
             throw new BizCheckedException("2030009");
@@ -126,11 +126,11 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         // TODO: 释放location
     }
 
-    protected void getConcrete(TaskEntry taskEntry) {
+    public void getConcrete(TaskEntry taskEntry) {
         taskEntry.setTaskHead(taskService.getShelveTaskHead(taskEntry.getTaskInfo().getTaskId()));
     }
 
-    protected void getHeadConcrete(TaskEntry taskEntry) {
+    public void getHeadConcrete(TaskEntry taskEntry) {
         taskEntry.setTaskHead(taskService.getShelveTaskHead(taskEntry.getTaskInfo().getTaskId()));
     }
 }

@@ -26,4 +26,9 @@ public interface TaskHandler {
     void done(Long taskId);
     void done(Long taskId, Long locationId) throws BizCheckedException;
     void cancel(Long taskId);
+
+    void doneConcrete(Long taskId);
+    void doneConcrete(Long taskId, Long locationId);
+    void cancelConcrete(Long taskId);
+    void allocateConcrete(Long taskId);
 }

@@ -52,11 +52,11 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
         }
         stockTakingTaskService.create(task);
     }
-    protected void getConcrete(TaskEntry taskEntry) {
+    public void getConcrete(TaskEntry taskEntry) {
         taskEntry.setTaskHead(stockTakingTaskService.getTakingTaskByTaskId(taskEntry.getTaskInfo().getTaskId()));
         taskEntry.setTaskDetailList((List<Object>) (List<?>) stockTakingService.getDetailByTaskId(taskEntry.getTaskInfo().getTaskId()));
     }
-    protected void getHeadConcrete(TaskEntry taskEntry) {
+    public void getHeadConcrete(TaskEntry taskEntry) {
         taskEntry.setTaskHead(stockTakingTaskService.getTakingTaskByTaskId(taskEntry.getTaskInfo().getTaskId()));
     }
     public void assignConcrete(Long taskId, Long staffId) {
@@ -74,7 +74,7 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
         List<StockTakingDetail> details= stockTakingService.queryTakingDetail(queryMap);
         for(StockTakingDetail detail:details){
             detail.setIsValid(0);
-            baseTaskService.cancel(taskId);
+            baseTaskService.cancel(taskId,this);
             stockTakingService.updateDetail(detail);
         }
     }

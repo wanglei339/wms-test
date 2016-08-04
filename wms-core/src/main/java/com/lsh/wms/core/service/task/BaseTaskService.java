@@ -27,7 +27,8 @@ public class BaseTaskService {
     private TaskInfoDao taskInfoDao;
 
     @Transactional(readOnly = false)
-    public void create(TaskInfo taskInfo,TaskHandler taskHandler,TaskEntry taskEntry) throws BizCheckedException {
+    public void create(TaskEntry taskEntry, TaskHandler taskHandler) throws BizCheckedException {
+        TaskInfo taskInfo = taskEntry.getTaskInfo();
         taskInfo.setDraftTime(DateUtils.getCurrentSeconds());
         taskInfo.setStatus(TaskConstant.Draft);
         taskInfo.setCreatedAt(DateUtils.getCurrentSeconds());
@@ -59,12 +60,13 @@ public class BaseTaskService {
     }
 
     @Transactional(readOnly = false)
-    public void allocate(Long taskId)
+    public void allocate(Long taskId,TaskHandler taskHandler)
     {
         TaskInfo taskInfo = getTaskInfoById(taskId);
         taskInfo.setStatus(TaskConstant.Allocated);
         taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
         taskInfoDao.update(taskInfo);
+        taskHandler.allocateConcrete(taskId);
     }
 
     @Transactional(readOnly = false)
@@ -79,21 +81,33 @@ public class BaseTaskService {
     }
 
     @Transactional(readOnly = false)
-    public void done(Long taskId) {
+    public void done(Long taskId ,TaskHandler taskHandler) {
         TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
         taskInfo.setStatus(TaskConstant.Done);
         taskInfo.setFinishTime(DateUtils.getCurrentSeconds());
         taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
         taskInfoDao.update(taskInfo);
+        taskHandler.doneConcrete(taskId);
     }
 
     @Transactional(readOnly = false)
-    public void cancel(Long taskId) {
+    public void done(Long taskId ,TaskHandler taskHandler,Long locationId) {
+        TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
+        taskInfo.setStatus(TaskConstant.Done);
+        taskInfo.setFinishTime(DateUtils.getCurrentSeconds());
+        taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+        taskInfoDao.update(taskInfo);
+        taskHandler.doneConcrete(taskId,locationId);
+    }
+
+    @Transactional(readOnly = false)
+    public void cancel(Long taskId,TaskHandler taskHandler) {
         TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
         taskInfo.setStatus(TaskConstant.Cancel);
         taskInfo.setCancelTime(DateUtils.getCurrentSeconds());
         taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
         taskInfoDao.update(taskInfo);
+        taskHandler.cancelConcrete(taskId);
     }
 
     /**

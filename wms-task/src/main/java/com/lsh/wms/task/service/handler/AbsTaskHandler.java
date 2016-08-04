@@ -28,16 +28,14 @@ public class AbsTaskHandler implements TaskHandler {
         Long taskId = RandomUtils.genId();
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         taskInfo.setTaskId(taskId);
-        baseTaskService.create(taskInfo,this,taskEntry);
+        taskEntry.setTaskInfo(taskInfo);
+        baseTaskService.create(taskEntry, this);
         // this.createConcrete(taskEntry);
     }
 
     public void batchCreate(List<TaskEntry> taskEntries) throws BizCheckedException{
         for(TaskEntry entry : taskEntries){
-            Long taskId = RandomUtils.genId();
-            TaskInfo taskInfo = entry.getTaskInfo();
-            taskInfo.setTaskId(taskId);
-            baseTaskService.create(taskInfo,this,entry);
+            this.create(entry);
         }
     }
     public void batchAssign(List<Long> tasks,Long staffId) throws BizCheckedException {
@@ -106,35 +104,35 @@ public class AbsTaskHandler implements TaskHandler {
 
 
     public void done(Long taskId) {
-        baseTaskService.done(taskId);
-        this.doneConcrete(taskId);
+        baseTaskService.done(taskId,this);
+        //this.doneConcrete(taskId);
     }
 
     public void done(Long taskId, Long locationId) throws BizCheckedException {
-        baseTaskService.done(taskId);
-        this.doneConcrete(taskId, locationId);
+        baseTaskService.done(taskId,this,locationId);
+        //this.doneConcrete(taskId, locationId);
     }
 
-    protected void doneConcrete(Long taskId) {
+    public void doneConcrete(Long taskId) {
     }
 
-    protected void doneConcrete(Long taskId, Long locationId) throws BizCheckedException{
+    public void doneConcrete(Long taskId, Long locationId) throws BizCheckedException{
     }
 
     public void cancel(Long taskId) {
-        baseTaskService.cancel(taskId);
-        this.cancelConcrete(taskId);
+        baseTaskService.cancel(taskId,this);
+        //this.cancelConcrete(taskId);
     }
 
-    protected void cancelConcrete(Long taskId) {
+    public void cancelConcrete(Long taskId) {
     }
 
     public void allocate(Long taskId) {
-        baseTaskService.allocate(taskId);
-        this.allocateConcrete(taskId);
+        baseTaskService.allocate(taskId,this);
+        //this.allocateConcrete(taskId);
     }
 
-    protected void allocateConcrete(Long taskId) {
+    public void allocateConcrete(Long taskId) {
     }
 
     public void release(Long taskId) {
