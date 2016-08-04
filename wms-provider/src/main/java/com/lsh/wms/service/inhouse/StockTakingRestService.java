@@ -428,10 +428,12 @@ public class StockTakingRestService implements IStockTakingRestService {
     public String cancelTask(Long takingId) throws BizCheckedException {
         Map<String,Object> queryMap =new HashMap();
         queryMap.put("takingId", takingId);
+        List<Long> taskList = new ArrayList<Long>();
         List<StockTakingTask> takingTasks = stockTakingTaskService.getTakingTask(queryMap);
         for(StockTakingTask task :takingTasks){
-            iTaskRpcService.cancel(task.getTaskId());
+           taskList.add(task.getTaskId());
         }
+        iTaskRpcService.batchCancel(TaskConstant.TYPE_STOCK_TAKING, taskList);
         return JsonUtils.SUCCESS();
     }
     //根据仓库id查找所有货位

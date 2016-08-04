@@ -71,10 +71,10 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
         stockTakingTaskService.updateTakingTask(task);
         Map<String,Object> queryMap = new HashMap<String, Object>();
         queryMap.put("takingId", task.getTakingId());
+        queryMap.put("taskId" , task.getTaskId());
         List<StockTakingDetail> details= stockTakingService.queryTakingDetail(queryMap);
         for(StockTakingDetail detail:details){
             detail.setIsValid(0);
-            baseTaskService.cancel(taskId,this);
             stockTakingService.updateDetail(detail);
         }
     }

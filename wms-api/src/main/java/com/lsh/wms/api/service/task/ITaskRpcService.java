@@ -22,4 +22,5 @@ public interface ITaskRpcService {
     void done(Long taskId) throws BizCheckedException;
     void done(Long taskId, Long locationId) throws BizCheckedException;
     void batchAssign(Long taskType,List<Long> tasks,Long staffId) throws BizCheckedException;
+    void batchCancel(Long taskType,List<Long> tasks) throws BizCheckedException;
 }

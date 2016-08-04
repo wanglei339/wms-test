@@ -40,7 +40,7 @@ public class QCTaskHandler extends AbsTaskHandler {
         taskEntry.setTaskDetailList((List<Object>)(List<?>)waveService.getDetailsByQCTaskId(taskEntry.getTaskInfo().getTaskId()));
     }
 
-    protected void doneConcrete(Long taskId){
+    public void doneConcrete(Long taskId){
         //这里做一些处理,做些啥呢?
     }
 }
