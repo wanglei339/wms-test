@@ -230,22 +230,25 @@ public class WaveCore {
                 TaskEntry entry = new TaskEntry();
                 TaskInfo info = new TaskInfo();
                 info.setPlanId(iWaveId);
+                info.setWaveId(iWaveId);
                 List<Object> pickTaskDetails = new LinkedList<Object>();
                 info.setType(TaskConstant.TYPE_PICK);
                 info.setSubType(PickConstant.SHELF_TASK_TYPE);
                 PickTaskHead head = new PickTaskHead();
                 head.setWaveId(iWaveId);
                 head.setPickType(1);
-                //head.setPickTaskId(RandomUtils.genId());
-//                head.setPickTaskName(String.format("波次[%d]-捡货任务[%d]", iWaveId, taskHeads.size()+1));
+                //head.setTransPlan("");
+                //head.setDeliveryId(1L);
+                info.setTaskName(String.format("波次[%d]-捡货任务[%d]", iWaveId, taskHeads.size()+1));
                 for(int j = 0; j < bestCutPlan[i]; j++){
                     SplitNode node = stopNodes.get(iChooseIdx+j);
                     for(int k = 0; k < node.details.size(); ++k){
                         WaveDetail detail = node.details.get(k);
-                        //detail.setPickTaskId(head.getPickTaskId());
                         detail.setPickZoneId(BigDecimal.valueOf(zone.getPickZoneId()));
                         taskDetails.add(detail);
                         pickTaskDetails.add(detail);
+                        head.setDeliveryId(detail.getOrderId());
+                        head.setTransPlan(mapOrder2Head.get(detail.getOrderId()).getTransPlan());
                     }
                 }
                 iChooseIdx += bestCutPlan[i];
