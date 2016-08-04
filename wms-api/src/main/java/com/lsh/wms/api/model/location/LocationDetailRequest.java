@@ -190,9 +190,21 @@ public class LocationDetailRequest implements Serializable {
      * 货位所在温区
      */
     private Integer temperature;
+    /**
+     * 货位所在温区
+     */
+    private Integer zoneType;
 
     /** 长度默认单位 米 */
     private BigDecimal length;
+
+    public Integer getZoneType() {
+        return zoneType;
+    }
+
+    public void setZoneType(Integer zoneType) {
+        this.zoneType = zoneType;
+    }
 
     public BigDecimal getLength() {
         return length;

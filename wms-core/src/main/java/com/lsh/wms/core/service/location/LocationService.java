@@ -66,8 +66,6 @@ public class LocationService {
             put("collection_bin", new Long(22)); // 22 集货货位
             put("back_bin", new Long(23)); // 23 退货货位
             put("defective_bin", new Long(24));// 24 残次货位
-            put("Consume_area", new Long(25));// 24 残次货位
-            put("Supplier_area", new Long(26));// 24 残次货位
         }
     };
 
@@ -108,9 +106,8 @@ public class LocationService {
             location.setLocationId((long) iLocationId);
         }
         //添加新增时间
-//        long createdAt = DateUtils.getCurrentSeconds();
-//        location.setCreatedAt(createdAt);
-//        location.setUpdatedAt(createdAt);
+        long createdAt = DateUtils.getCurrentSeconds();
+        location.setCreatedAt(createdAt);
         locationDao.insert(location);
         return location;
     }
@@ -121,6 +118,8 @@ public class LocationService {
         if (this.getLocation(baseinfoLocation.getLocationId()) == null) {
             return null;
         }
+        long updatedAt = DateUtils.getCurrentSeconds();
+        baseinfoLocation.setUpdatedAt(updatedAt);
         locationDao.update(baseinfoLocation);
         return baseinfoLocation;
     }
@@ -264,6 +263,27 @@ public class LocationService {
         }
         return this.getFatherByType(fatherId, type);
     }
+
+    /**
+     * 找全路径
+     * @param locationId
+     * @return
+     */
+    public List<BaseinfoLocation> getFatherList(Long locationId) {
+        List<BaseinfoLocation> baseinfoLocationList = new ArrayList<BaseinfoLocation>();
+        BaseinfoLocation curLocation = this.getLocation(locationId);
+        Long fatherId = curLocation.getFatherId();
+        if (curLocation.getType().equals(this.LOCATION_TYPE.get(LocationConstant.Warehouse))) {
+            baseinfoLocationList.add(curLocation);
+            return baseinfoLocationList;
+        }
+        if (fatherId == 0) {
+            return null;
+        }
+        return this.getFatherList(fatherId);
+    }
+
+
 
     /**
      * 获取祖先级别的区域location节点id
