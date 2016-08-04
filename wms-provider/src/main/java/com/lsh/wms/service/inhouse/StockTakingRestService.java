@@ -157,7 +157,7 @@ public class StockTakingRestService implements IStockTakingRestService {
             List details =new ArrayList();
             queryMap.put("round", time);
             queryMap.put("takingId", takingId);
-            queryMap.put("IsValid",1);
+            queryMap.put("isValid",1);
             List<StockTakingTask> stockTakingTaskList = stockTakingTaskService.getTakingTask(queryMap);
             for(StockTakingTask takingTask:stockTakingTaskList) {
                 Map <String,Object> one = new HashMap<String, Object>();
@@ -168,8 +168,10 @@ public class StockTakingRestService implements IStockTakingRestService {
                 one.put("supplierId",supplierId);
                 one.put("itemId",detail.getItemId());
                 one.put("theoreticalQty",detail.getTheoreticalQty());
-                one.put("areaCode",locationService.getAreaFather(detail.getLocationId()).getLocationCode());
-                one.put("locationCode",locationService.getLocation(detail.getLocationId()).getLocationCode());
+                BaseinfoLocation areaFather = locationService.getAreaFather(detail.getLocationId());
+                BaseinfoLocation location = locationService.getLocation(detail.getLocationId());
+                one.put("areaCode", areaFather == null ? " " : areaFather.getLocationCode());
+                one.put("locationCode",location == null ? " " :location.getLocationCode());
                 one.put("realQty",detail.getRealQty());
                 one.put("difference",detail.getRealQty().subtract(detail.getTheoreticalQty()));
                 one.put("reason","");
