@@ -171,15 +171,21 @@ public class StockTransferRestService implements IStockTransferRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String fetchTask() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
-        Long locationId = Long.valueOf(params.get("locationId").toString());
+        //Long locationId = Long.valueOf(params.get("locationId").toString());
         Long uId = Long.valueOf(params.get("uId").toString());
         SysUser sysUser = iSysUserRpcService.getSysUserById(uId);
         Long staffId = sysUser.getStaffId();
         try {
             final Long taskId = rpcService.assign(staffId);
+            TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
+            if (taskEntry == null) {
+                throw new BizCheckedException("2040001");
+            }
+            final TaskInfo taskInfo = taskEntry.getTaskInfo();
             return JsonUtils.SUCCESS(new HashMap<String, Long>() {
                 {
                     put("taskId", taskId);
+                    put("fromLocationId", taskInfo.getFromLocationId());
                 }
             });
         } catch (BizCheckedException e) {
