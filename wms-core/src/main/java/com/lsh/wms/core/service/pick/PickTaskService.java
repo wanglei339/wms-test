@@ -31,25 +31,24 @@ public class PickTaskService {
     private WaveDetailDao taskDetailDao;
 
     @Transactional(readOnly = false)
-    public int createPickTask(PickTaskHead head, List<WaveDetail> details){
+    public Boolean createPickTask(PickTaskHead head, List<WaveDetail> details){
         List<PickTaskHead> heads = new ArrayList<PickTaskHead>();
         heads.add(head);
         return this.createPickTasks(heads, details);
     }
 
     @Transactional(readOnly = false)
-    public int createPickTasks(List<PickTaskHead> heads, List<WaveDetail> details){
+    public Boolean createPickTasks(List<PickTaskHead> heads, List<WaveDetail> details){
         for(PickTaskHead head : heads){
             head.setCreatedAt(DateUtils.getCurrentSeconds());
             head.setUpdatedAt(DateUtils.getCurrentSeconds());
             taskHeadDao.insert(head);
         }
         for(WaveDetail detail : details){
-            detail.setCreatedAt(DateUtils.getCurrentSeconds());
             detail.setUpdatedAt(DateUtils.getCurrentSeconds());
-            taskDetailDao.insert(detail);
+            taskDetailDao.update(detail);
         }
-        return 0;
+        return true;
     }
 
     public PickTaskHead getPickTaskHead(Long taskId){

@@ -12,10 +12,13 @@ import com.lsh.wms.api.service.inhouse.IStockTransferRpcService;
 import com.lsh.wms.api.service.item.IItemRpcService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
+import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
@@ -50,6 +53,9 @@ public class StockTransferRestService implements IStockTransferRestService {
 
     @Reference
     private ILocationRpcService locationRpcService;
+
+    @Reference
+    private ISysUserRpcService iSysUserRpcService;
 
     @POST
     @Path("view")
@@ -165,13 +171,21 @@ public class StockTransferRestService implements IStockTransferRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String fetchTask() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
-        Long locationId = Long.valueOf(params.get("locationId").toString());
-        Long staffId = Long.valueOf(params.get("staffId").toString());
+        //Long locationId = Long.valueOf(params.get("locationId").toString());
+        Long uId = Long.valueOf(params.get("uId").toString());
+        SysUser sysUser = iSysUserRpcService.getSysUserById(uId);
+        Long staffId = sysUser.getStaffId();
         try {
             final Long taskId = rpcService.assign(staffId);
+            TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
+            if (taskEntry == null) {
+                throw new BizCheckedException("2040001");
+            }
+            final TaskInfo taskInfo = taskEntry.getTaskInfo();
             return JsonUtils.SUCCESS(new HashMap<String, Long>() {
                 {
                     put("taskId", taskId);
+                    put("fromLocationId", taskInfo.getFromLocationId());
                 }
             });
         } catch (BizCheckedException e) {
