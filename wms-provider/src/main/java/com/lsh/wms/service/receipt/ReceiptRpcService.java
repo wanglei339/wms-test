@@ -70,11 +70,6 @@ public class ReceiptRpcService implements IReceiptRpcService {
     @Reference
     private ILocationRpcService locationRpcService;
 
-    @Autowired
-    private StockQuantService stockQuantService;
-
-    @Reference
-    private IStockLotRpcService stockLotRpcService;
 
     @Autowired
     private CsiSkuService csiSkuService;
@@ -205,8 +200,10 @@ public class ReceiptRpcService implements IReceiptRpcService {
              *
              */
             // TODO: 16/7/21  如何形成上架任务
+            Long lotId = RandomUtils.genId();
+
             StockQuant quant = new StockQuant();
-            quant.setLotId(Long.parseLong(inbReceiptDetail.getLotNum()));
+            quant.setLotId(lotId);
             quant.setSkuId(inbReceiptDetail.getSkuId());
             quant.setItemId(inbReceiptDetail.getItemId());
             quant.setLocationId(inbReceiptHeader.getLocation());
@@ -237,6 +234,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
              * receiptId     收货单
              */
             StockLot stockLot = new StockLot();
+            stockLot.setLotId(lotId);
             stockLot.setSkuId(inbReceiptDetail.getSkuId());
             stockLot.setSerialNo(inbReceiptDetail.getLotNum());
             stockLot.setItemId(inbReceiptDetail.getItemId());
@@ -253,19 +251,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
         }
 
         //插入订单
-        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList);
-        try {
-            for (StockQuant stockQuant : stockQuantList) {
-                stockQuantService.create(stockQuant);
-            }
+        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList,stockQuantList,stockLotList);
 
-            for (StockLot stockLot : stockLotList) {
-                stockLotRpcService.insert(stockLot);
-            }
-        } catch (Throwable ex) {
-            // ex.printStackTrace();
-            logger.error(ex.getMessage());
-        }
 
 
        /* TaskEntry taskEntry = new TaskEntry();
