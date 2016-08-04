@@ -27,7 +27,8 @@ public class BaseTaskService {
     private TaskInfoDao taskInfoDao;
 
     @Transactional(readOnly = false)
-    public void create(TaskInfo taskInfo,TaskHandler taskHandler,TaskEntry taskEntry) throws BizCheckedException {
+    public void create(TaskEntry taskEntry, TaskHandler taskHandler) throws BizCheckedException {
+        TaskInfo taskInfo = taskEntry.getTaskInfo();
         taskInfo.setDraftTime(DateUtils.getCurrentSeconds());
         taskInfo.setStatus(TaskConstant.Draft);
         taskInfo.setCreatedAt(DateUtils.getCurrentSeconds());
