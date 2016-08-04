@@ -3,6 +3,7 @@ package com.lsh.wms.rf.service.receipt;
 import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.dubbo.rpc.cluster.merger.BooleanArrayMerger;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.config.PropertyUtils;
@@ -89,7 +90,7 @@ public class ReceiptRestService implements IReceiptRfService {
             receiptRequest.setWarehouseId((Long) session.getAttribute("wareHouseId"));
         }
 
-        receiptRequest.setReceiptUser(String.valueOf(request.get("uid")));
+        receiptRequest.setReceiptUser(RequestUtils.getHeader("uid"));
 
         receiptRequest.setReceiptTime(new Date());
 
@@ -109,7 +110,9 @@ public class ReceiptRestService implements IReceiptRfService {
         receiptRequest.setItems(receiptItemList);
 
         iReceiptRpcService.insertOrder(receiptRequest);
-        return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
+        Map<String,Boolean> body = new HashMap<String, Boolean>();
+        body.put("response",true);
+        return ResUtils.getResponse(ResponseConstant.RES_CODE_1,ResponseConstant.RES_MSG_OK,body);
     }
 
     @POST

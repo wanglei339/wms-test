@@ -59,7 +59,7 @@ public class PORestService implements IPoRestService {
     @Path("insert")
     public BaseResponse insertOrder(PoRequest request) throws BizCheckedException{
         poRpcService.insertOrder(request);
-        return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
+        return ResUtils.getResponse(ResponseConstant.RES_CODE_1,ResponseConstant.RES_MSG_OK,null);
     }
 
     @POST

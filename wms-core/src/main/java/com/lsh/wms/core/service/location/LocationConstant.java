@@ -37,6 +37,9 @@ public class LocationConstant {
     public static final Long Collection_bin = 22L;
     public static final Long Back_bin = 23L;
     public static final Long Defective_bin = 24L;
+    //虚拟货区
+    public static final Long Consume_area = 25L;
+    public static final Long Supplier_area = 25L;
 
 
     //温区设置

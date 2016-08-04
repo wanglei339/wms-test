@@ -70,7 +70,7 @@ public class ReceiptRestService implements IReceiptRestService {
     @Path("insert")
     public BaseResponse insertOrder(ReceiptRequest request) throws BizCheckedException{
         receiptRpcService.insertOrder(request);
-        return ResUtils.getResponse(ResponseConstant.RES_CODE_0,ResponseConstant.RES_MSG_OK,null);
+        return ResUtils.getResponse(ResponseConstant.RES_CODE_1,ResponseConstant.RES_MSG_OK,null);
     }
 
     @POST

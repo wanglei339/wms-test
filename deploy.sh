@@ -29,10 +29,11 @@ do
     tar -zxvf $APPROOT/$APP-$VERSION-dev.tar.gz -C $APPROOT/
     echo "========== BACKUP ${APP} BEGIN... ============"
     ssh $REMOTE "rsync -avzP --exclude=log --exclude=logs --exclude=out.log /home/work/lsh-wms/${APP}/* /home/work/lsh-wms/${APP}.bak"
-    ssh $REMOTE "rm -f /home/work/lsh-wms/$APP/lib/wms-*.jar && rm -rf /home/work/lsh-wms/$APP/conf/com"
+    ssh $REMOTE "rm -f /home/work/lsh-wms/$APP/lib/wms-*.jar && rm -f /home/work/lsh-wms/$APP/lib/base-common-1.0-SNAPSHOT.jar && rm -rf /home/work/lsh-wms/$APP/conf/com"
     echo "========== BACKUP ${APP} DONE. ==============="
 
     scp $APPROOT/$APP-$VERSION-dev/lib/wms-*.jar $REMOTE:/home/work/lsh-wms/$APP/lib
+    scp $APPROOT/$APP-$VERSION-dev/lib/base-common-1.0-SNAPSHOT.jar $REMOTE:/home/work/lsh-wms/$APP/lib
     scp -r $APPROOT/$APP-$VERSION-dev/conf/com $REMOTE:/home/work/lsh-wms/$APP/conf
     ssh $REMOTE "sh /home/work/lsh-wms/$APP/bin/run.sh"
     rm -rf $APPROOT/$APP-$VERSION-dev

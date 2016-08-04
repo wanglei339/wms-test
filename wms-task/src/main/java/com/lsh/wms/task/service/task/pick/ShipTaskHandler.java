@@ -29,7 +29,19 @@ public class ShipTaskHandler extends AbsTaskHandler {
     }
 
 
+    protected void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
+        List<WaveDetail> details = (List<WaveDetail>)(List<?>)taskEntry.getTaskDetailList();
+        for(WaveDetail detail : details){
+            detail.setShipTaskId(taskEntry.getTaskInfo().getTaskId());
+        }
+        waveService.updateDetails(details);
+    }
+
     protected void getConcrete(TaskEntry taskEntry) {
         taskEntry.setTaskDetailList((List<Object>)(List<?>)waveService.getDetailsByShipTaskId(taskEntry.getTaskInfo().getTaskId()));
+    }
+
+    protected void doneConcrete(Long taskId){
+        //这里做一些处理,如集货区释放等,但这个怎么才能具有一定的通用性呢?
     }
 }
