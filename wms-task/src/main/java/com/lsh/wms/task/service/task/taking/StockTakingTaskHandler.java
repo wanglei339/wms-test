@@ -62,12 +62,6 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
     public void assignConcrete(Long taskId, Long staffId) {
         StockTakingTask task = stockTakingTaskService.getTakingTaskByTaskId(taskId);
         StockTakingHead head = stockTakingService.getHeadById(task.getTakingId());
-        Map<String,Object> queryMap = new HashMap<String, Object>();
-        queryMap.put("takingId",task.getTakingId());
-        List<StockTakingTask> takingTasks = stockTakingTaskService.getTakingTask(queryMap);
-        for(StockTakingTask takingTask:takingTasks) {
-           baseTaskService.assign(takingTask.getTaskId(),staffId);
-        }
         head.setStatus(2L);
         stockTakingService.updateHead(head);
     }

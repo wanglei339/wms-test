@@ -40,6 +40,11 @@ public class AbsTaskHandler implements TaskHandler {
             baseTaskService.create(taskInfo,this,entry);
         }
     }
+    public void batchAssign(List<Long> tasks,Long staffId) throws BizCheckedException {
+        for( Long taskId:tasks){
+            baseTaskService.assign(taskId, staffId,this);
+        }
+    }
 
     public void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
         // throw new BizCheckedException("1234567890");
@@ -52,6 +57,7 @@ public class AbsTaskHandler implements TaskHandler {
         this.getConcrete(taskEntry);
         return taskEntry;
     }
+
 
     public List<TaskEntry> getTaskList(Map<String, Object> condition) {
         List<TaskInfo> taskInfoList = baseTaskService.getTaskInfoList(condition);

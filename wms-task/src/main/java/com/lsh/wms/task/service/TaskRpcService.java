@@ -42,6 +42,10 @@ public class TaskRpcService implements ITaskRpcService {
         }
         return idList;
     }
+    public void batchAssign(Long taskType,List<Long> tasks,Long staffId) throws BizCheckedException {
+        TaskHandler handler = handlerFactory.getTaskHandler(taskType);
+        handler.batchAssign(tasks,staffId);
+    }
 
     public Long getTaskTypeById(Long taskId) throws BizCheckedException{
         Long taskType = baseTaskService.getTaskTypeById(taskId);
@@ -99,4 +103,5 @@ public class TaskRpcService implements ITaskRpcService {
         TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
         taskHandler.done(taskId, locationId);
     }
+
 }

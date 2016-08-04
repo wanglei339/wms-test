@@ -13,6 +13,8 @@ import com.lsh.wms.api.service.inhouse.IStockTakingRestService;
 import com.lsh.wms.api.service.location.ILocationRestService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.service.csi.CsiSkuService;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockLotService;
@@ -20,7 +22,9 @@ import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.core.service.task.StockTakingTaskService;
 import com.lsh.wms.model.StockTakingInfo;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.stock.ItemAndSupplierRelation;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.taking.LocationListRequest;
@@ -66,6 +70,12 @@ public class StockTakingRestService implements IStockTakingRestService {
 
     @Autowired
     private StockTakingTaskService stockTakingTaskService;
+
+    @Autowired
+    private ItemService itemService;
+
+    @Autowired
+    private CsiSkuService skuService;
 
     @POST
     @Path("create")
@@ -162,26 +172,31 @@ public class StockTakingRestService implements IStockTakingRestService {
             for(StockTakingTask takingTask:stockTakingTaskList) {
                 Map <String,Object> one = new HashMap<String, Object>();
                 TaskEntry entry = iTaskRpcService.getTaskEntryById(takingTask.getTaskId());
-                StockTakingDetail detail =(StockTakingDetail)(entry.getTaskDetailList().get(0));
-                Long supplierId=quantService.getSupplierByLocationAndItemId(detail.getLocationId(),detail.getItemId());
-                one.put("operator",entry.getTaskInfo().getOperator());
-                one.put("supplierId",supplierId);
-                one.put("itemId",detail.getItemId());
-                one.put("theoreticalQty",detail.getTheoreticalQty());
-                BaseinfoLocation areaFather = locationService.getAreaFather(detail.getLocationId());
-                BaseinfoLocation location = locationService.getLocation(detail.getLocationId());
-                one.put("areaCode", areaFather == null ? " " : areaFather.getLocationCode());
-                one.put("locationCode",location == null ? " " :location.getLocationCode());
-                one.put("realQty",detail.getRealQty());
-                one.put("difference",detail.getRealQty().subtract(detail.getTheoreticalQty()));
-                one.put("reason","");
-                one.put("updatedAt",detail.getUpdatedAt());
-                details.add(one);
+                List detailList = entry.getTaskDetailList();
+                for(Object tmp:detailList) {
+                    StockTakingDetail detail = (StockTakingDetail) tmp;
+                    BaseinfoLocation areaFather = locationService.getAreaFather(detail.getLocationId());
+                    BaseinfoLocation location = locationService.getLocation(detail.getLocationId());
+                    CsiSku csiSku = skuService.getSku(detail.getSkuId());
+                    Long supplierId = quantService.getSupplierByLocationAndItemId(detail.getLocationId(), detail.getItemId());
+                    one.put("operator", entry.getTaskInfo().getOperator());
+                    one.put("supplierId", supplierId);
+                    one.put("itemId", detail.getItemId());
+                    one.put("theoreticalQty", detail.getTheoreticalQty());
+                    one.put("areaCode", areaFather == null ? " " : areaFather.getLocationCode());
+                    one.put("locationCode", location == null ? " " : location.getLocationCode());
+                    one.put("realQty", detail.getRealQty());
+                    one.put("difference", detail.getRealQty().subtract(detail.getTheoreticalQty()));
+                    one.put("reason", "");
+                    one.put("itemName", csiSku == null ? " " : csiSku.getSkuName());
+                    one.put("updatedAt", detail.getUpdatedAt());
+                    details.add(one);
+                }
             }
             result.add(details);
             time++;
         }
-        resultMap.put("result",result);
+        resultMap.put("result", result);
         return JsonUtils.SUCCESS(resultMap);
     }
     @POST
@@ -317,7 +332,6 @@ public class StockTakingRestService implements IStockTakingRestService {
                 mergeQuantMap.put(key,quant);
             }
         }
-        logger.info("Map123 : " + JsonUtils.SUCCESS(mergeQuantMap));
         for (String key : mergeQuantMap.keySet()) {
             StockQuant quant=mergeQuantMap.get(key);
             StockTakingDetail detail = new StockTakingDetail();
@@ -328,6 +342,9 @@ public class StockTakingRestService implements IStockTakingRestService {
             detail.setRealItemId(quant.getItemId());
             detail.setRealSkuId(detail.getSkuId());
             detail.setTheoreticalQty(quant.getQty());
+            detail.setPackName(quant.getPackName());
+            detail.setPackUnit(quant.getPackUnit());
+            detail.setLotId(quant.getLotId());
             detailList.add(detail);
             idx++;
         }

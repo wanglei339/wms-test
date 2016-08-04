@@ -14,6 +14,7 @@ public interface TaskHandler {
     void create(TaskEntry taskEntry) throws BizCheckedException;
     public void createConcrete(TaskEntry taskEntry) throws BizCheckedException;
     void batchCreate(List<TaskEntry> taskEntries) throws BizCheckedException;
+    void batchAssign(List<Long> tasks,Long staffId) throws BizCheckedException;
     TaskEntry getTask(Long taskId);
     List<TaskEntry> getTaskList(Map<String, Object> condition);
     int getTaskCount(Map<String, Object> condition);
