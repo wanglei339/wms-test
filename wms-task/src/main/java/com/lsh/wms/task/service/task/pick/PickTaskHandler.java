@@ -31,7 +31,7 @@ public class PickTaskHandler extends AbsTaskHandler {
         handlerFactory.register(TaskConstant.TYPE_PICK, this);
     }
 
-    protected void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
+    public void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
         PickTaskHead head = (PickTaskHead)taskEntry.getTaskHead();
         Long taskId = taskEntry.getTaskInfo().getTaskId();
         head.setTaskId(taskId);
@@ -40,16 +40,16 @@ public class PickTaskHandler extends AbsTaskHandler {
             throw new BizCheckedException("2060002");
         }
         // 通过波次详情设置拣货头信息
-        WaveDetail tmpDetail = details.get(0);
-        head.setDeliveryId(tmpDetail.getOrderId());
-        head.setWaveId(tmpDetail.getWaveId());
-        head.setPickType(1); // TODO
-        head.setContainerId(tmpDetail.getContainerId());
 
+        //WaveDetail tmpDetail = details.get(0);
+        //head.setDeliveryId(tmpDetail.getOrderId());
+        //head.setWaveId(tmpDetail.getWaveId());
+        //head.setPickType(1); // TODO
+        //head.setContainerId(tmpDetail.getContainerId());
         for(WaveDetail detail : details){
-            if (!detail.getPickTaskId().equals("") || detail.getPickTaskId() != null) {
-                throw new BizCheckedException("2060001");
-            }
+            //if (!detail.getPickTaskId().equals("") || detail.getPickTaskId() != null) {
+            //    throw new BizCheckedException("2060001");
+            //}
             detail.setPickTaskId(taskId);
         }
         pickTaskService.createPickTask(head, details);

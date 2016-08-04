@@ -46,7 +46,7 @@ public class PickTaskService {
         }
         for(WaveDetail detail : details){
             detail.setUpdatedAt(DateUtils.getCurrentSeconds());
-            taskDetailDao.update(detail);
+            taskDetailDao.insert(detail);
         }
         return true;
     }

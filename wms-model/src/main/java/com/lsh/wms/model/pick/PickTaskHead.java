@@ -10,21 +10,21 @@ public class PickTaskHead implements Serializable {
 	/** 任务id */
     private Long taskId;
 	/** 订单id */
-    private Long deliveryId;
+    private Long deliveryId = 0L;
 	/** 波次id */
-    private Long waveId;
+    private Long waveId = 0L;
 	/** TMS线路 */
-    private String transPlan;
+    private String transPlan = "";
 	/** 拣货任务类型，1-摘果，2-播种，3-边摘边播 */
-    private Integer pickType;
+    private Integer pickType = 1;
 	/** 容器id */
-    private Long containerId;
+    private Long containerId = 0L;
 	/** 拣货完成时间 */
-    private Long pickAt;
+    private Long pickAt = 0L;
 	/**  */
-    private Long createdAt;
+    private Long createdAt = 0L;
 	/**  */
-    private Long updatedAt;
+    private Long updatedAt = 0L;
 	
 	public Long getId(){
 		return this.id;
