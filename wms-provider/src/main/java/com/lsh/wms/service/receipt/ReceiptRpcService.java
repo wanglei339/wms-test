@@ -204,6 +204,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
             StockQuant quant = new StockQuant();
             quant.setLotId(lotId);
+            quant.setPackUnit(BigDecimal.valueOf(inbReceiptDetail.getPackUnit()));
             quant.setSkuId(inbReceiptDetail.getSkuId());
             quant.setItemId(inbReceiptDetail.getItemId());
             quant.setLocationId(inbReceiptHeader.getLocation());
