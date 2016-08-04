@@ -46,7 +46,6 @@ public class StockLotRpcService implements IStockLotRpcService{
      * supplierId    供应商Id
      */
     public boolean insert(StockLot lot) {
-        lot.setLotId(RandomUtils.genId());
         if(stockLotService.getStockLotByLotId(lot.getLotId()) != null) {
             return false;
         }
