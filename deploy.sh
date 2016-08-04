@@ -32,9 +32,9 @@ do
     ssh $REMOTE "rm -f /home/work/lsh-wms/$APP/lib/wms-*.jar && rm -f /home/work/lsh-wms/$APP/lib/base-common-1.0-SNAPSHOT.jar && rm -rf /home/work/lsh-wms/$APP/conf/com"
     echo "========== BACKUP ${APP} DONE. ==============="
 
-    scp $APPROOT/$APP-$VERSION-dev/lib/wms-*.jar $REMOTE:/home/work/lsh-wms/$APP/lib
-    scp $APPROOT/$APP-$VERSION-dev/lib/base-common-1.0-SNAPSHOT.jar $REMOTE:/home/work/lsh-wms/$APP/lib
-    scp -r $APPROOT/$APP-$VERSION-dev/conf/com $REMOTE:/home/work/lsh-wms/$APP/conf
+    rsync -avzP $APPROOT/$APP-$VERSION-dev/lib/wms-*.jar $REMOTE:/home/work/lsh-wms/$APP/lib
+    rsync -avzP $APPROOT/$APP-$VERSION-dev/lib/base-common-*.jar $REMOTE:/home/work/lsh-wms/$APP/lib
+    rsync -avzP $APPROOT/$APP-$VERSION-dev/conf/com $REMOTE:/home/work/lsh-wms/$APP/conf
     ssh $REMOTE "sh /home/work/lsh-wms/$APP/bin/run.sh"
     rm -rf $APPROOT/$APP-$VERSION-dev
   fi
