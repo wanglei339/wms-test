@@ -11,6 +11,8 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -28,6 +30,8 @@ import java.util.Map;
 @Aspect
 @Component
 public class FilterInterceptor{
+    private static Logger logger = LoggerFactory.getLogger(FilterInterceptor.class);
+
     @Autowired
     private RedisStringDao redisStringDao;
 
@@ -41,7 +45,7 @@ public class FilterInterceptor{
     @Around("declareJointPointExpression()")
     public void around(ProceedingJoinPoint pjp) throws Throwable {
 
-        if("0".equals(PropertyUtils.getInt("variable"))) {
+        if("0".equals(PropertyUtils.getString("variable"))) {
             try {
                 pjp.proceed();
             } catch (Throwable ex) {
@@ -50,6 +54,7 @@ public class FilterInterceptor{
         }else{
 //        String mname = pjp.getSignature().getName();
 //        String cname = pjp.getTarget().getClass().getName();
+            logger.info("method name ~~~~~~~~~~"+pjp.getSignature().getName() +"~~~~~~~~~~~~~~~~");
             if("userLogin".equals(pjp.getSignature().getName())){
                 try {
                     pjp.proceed();
@@ -57,6 +62,7 @@ public class FilterInterceptor{
                     throw ex;
                 }
             }else{
+                logger.info("~~~~~~~~~~~~~~~~~~~~~~~~");
                 HttpServletRequest request = (HttpServletRequest) RpcContext.getContext().getRequest();
                 Map<String, String> map = new HashMap<String, String>();
                 String utoken = request.getHeader("utoken");
