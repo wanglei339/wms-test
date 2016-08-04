@@ -43,11 +43,11 @@ public class FilterInterceptor{
 
 
     @Around("declareJointPointExpression()")
-    public void around(ProceedingJoinPoint pjp) throws Throwable {
+    public Object around(ProceedingJoinPoint pjp) throws Throwable {
 
         if("0".equals(PropertyUtils.getString("variable"))) {
             try {
-                pjp.proceed();
+               return pjp.proceed();
             } catch (Throwable ex) {
                 throw ex;
             }
@@ -57,7 +57,7 @@ public class FilterInterceptor{
             logger.info("method name ~~~~~~~~~~"+pjp.getSignature().getName() +"~~~~~~~~~~~~~~~~");
             if("userLogin".equals(pjp.getSignature().getName())){
                 try {
-                    pjp.proceed();
+                  return pjp.proceed();
                 } catch (Throwable ex) {
                     throw ex;
                 }
@@ -76,7 +76,7 @@ public class FilterInterceptor{
                     //如果验证成功，说明此用户进行了一次有效操作，延长token的过期时间
                     redisStringDao.expire(key, PropertyUtils.getLong("tokenExpire"));
                     try {
-                        pjp.proceed();
+                      return pjp.proceed();
                     } catch (Throwable ex) {
                         throw ex;
 

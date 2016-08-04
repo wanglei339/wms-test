@@ -39,7 +39,7 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
         handlerFactory.register(TaskConstant.TYPE_STOCK_TAKING, this);
     }
 
-    protected void createConcrete(TaskEntry taskEntry) {
+    public void createConcrete(TaskEntry taskEntry) {
         StockTakingTask task = (StockTakingTask) taskEntry.getTaskHead();
         Long taskId=taskEntry.getTaskInfo().getTaskId();
         task.setTaskId(taskId);
@@ -59,7 +59,7 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
     protected void getHeadConcrete(TaskEntry taskEntry) {
         taskEntry.setTaskHead(stockTakingTaskService.getTakingTaskByTaskId(taskEntry.getTaskInfo().getTaskId()));
     }
-    protected void assignConcrete(Long taskId, Long staffId) {
+    public void assignConcrete(Long taskId, Long staffId) {
         StockTakingTask task = stockTakingTaskService.getTakingTaskByTaskId(taskId);
         StockTakingHead head = stockTakingService.getHeadById(task.getTakingId());
         Map<String,Object> queryMap = new HashMap<String, Object>();

@@ -5,6 +5,7 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
+import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,12 +27,13 @@ public class BaseTaskService {
     private TaskInfoDao taskInfoDao;
 
     @Transactional(readOnly = false)
-    public void create(TaskInfo taskInfo) throws BizCheckedException {
+    public void create(TaskInfo taskInfo,TaskHandler taskHandler,TaskEntry taskEntry) throws BizCheckedException {
         taskInfo.setDraftTime(DateUtils.getCurrentSeconds());
         taskInfo.setStatus(TaskConstant.Draft);
         taskInfo.setCreatedAt(DateUtils.getCurrentSeconds());
         taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
         taskInfoDao.insert(taskInfo);
+        taskHandler.createConcrete(taskEntry);
     }
 
     public TaskInfo getTaskInfoById(Long taskId) {
@@ -66,13 +68,14 @@ public class BaseTaskService {
     }
 
     @Transactional(readOnly = false)
-    public void assign(Long taskId,  Long staffId) {
+    public void assign(Long taskId,  Long staffId,TaskHandler taskHandler) {
         TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
         taskInfo.setOperator(staffId);
         taskInfo.setStatus(TaskConstant.Assigned);
         taskInfo.setAssignTime(DateUtils.getCurrentSeconds());
         taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
         taskInfoDao.update(taskInfo);
+        taskHandler.assignConcrete(taskId, staffId);
     }
 
     @Transactional(readOnly = false)

@@ -1,9 +1,9 @@
 package com.lsh.wms.task.service.handler;
 
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.task.TaskHandler;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,30 +18,30 @@ import java.util.Map;
  * Created by mali on 16/7/23.
  */
 @Component
-@Transactional (readOnly = true)
 public class AbsTaskHandler implements TaskHandler {
     @Autowired
     private BaseTaskService baseTaskService;
 
-    @Transactional (readOnly = false)
+
     public void create(TaskEntry taskEntry) throws BizCheckedException{
         // 插入标准任务信息
         Long taskId = RandomUtils.genId();
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         taskInfo.setTaskId(taskId);
-        baseTaskService.create(taskInfo);
-        this.createConcrete(taskEntry);
+        baseTaskService.create(taskInfo,this,taskEntry);
+        // this.createConcrete(taskEntry);
     }
 
-    @Transactional (readOnly = false)
     public void batchCreate(List<TaskEntry> taskEntries) throws BizCheckedException{
         for(TaskEntry entry : taskEntries){
-            this.create(entry);
+            Long taskId = RandomUtils.genId();
+            TaskInfo taskInfo = entry.getTaskInfo();
+            taskInfo.setTaskId(taskId);
+            baseTaskService.create(taskInfo,this,entry);
         }
     }
 
-    @Transactional (readOnly = false)
-    protected void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
+    public void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
         // throw new BizCheckedException("1234567890");
     }
 
@@ -91,11 +91,11 @@ public class AbsTaskHandler implements TaskHandler {
 
 
     public void assign(Long taskId, Long staffId) throws BizCheckedException {
-        baseTaskService.assign(taskId, staffId);
-        this.assignConcrete(taskId, staffId);
+        baseTaskService.assign(taskId, staffId,this);
+        // this.assignConcrete(taskId, staffId);
     }
 
-    protected void assignConcrete(Long taskId, Long staffId) throws BizCheckedException {
+    public void assignConcrete(Long taskId, Long staffId) throws BizCheckedException {
     }
 
 
