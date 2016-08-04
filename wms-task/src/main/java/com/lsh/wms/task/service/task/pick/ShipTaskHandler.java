@@ -29,7 +29,7 @@ public class ShipTaskHandler extends AbsTaskHandler {
     }
 
 
-    protected void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
+    public void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
         List<WaveDetail> details = (List<WaveDetail>)(List<?>)taskEntry.getTaskDetailList();
         for(WaveDetail detail : details){
             detail.setShipTaskId(taskEntry.getTaskInfo().getTaskId());

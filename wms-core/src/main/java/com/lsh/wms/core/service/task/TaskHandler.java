@@ -1,4 +1,4 @@
-package com.lsh.wms.task.service.handler;
+package com.lsh.wms.core.service.task;
 
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.model.task.TaskEntry;
@@ -12,12 +12,14 @@ import java.util.Map;
  */
 public interface TaskHandler {
     void create(TaskEntry taskEntry) throws BizCheckedException;
+    public void createConcrete(TaskEntry taskEntry) throws BizCheckedException;
     void batchCreate(List<TaskEntry> taskEntries) throws BizCheckedException;
     TaskEntry getTask(Long taskId);
     List<TaskEntry> getTaskList(Map<String, Object> condition);
     int getTaskCount(Map<String, Object> condition);
     List<TaskEntry> getTaskHeadList(Map<String, Object> condition);
     void assign(Long taskId, Long staffId) throws BizCheckedException;
+    public void assignConcrete(Long taskId, Long staffId) throws BizCheckedException;
     void allocate(Long taskId);
     void release(Long taskId);
     void done(Long taskId);

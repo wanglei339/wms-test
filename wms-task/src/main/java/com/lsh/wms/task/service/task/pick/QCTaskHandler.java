@@ -28,7 +28,7 @@ public class QCTaskHandler extends AbsTaskHandler {
         handlerFactory.register(TaskConstant.TYPE_QC, this);
     }
 
-    protected void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
+    public void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
         List<WaveDetail> details = (List<WaveDetail>)(List<?>)taskEntry.getTaskDetailList();
         for(WaveDetail detail : details){
             detail.setQcTaskId(taskEntry.getTaskInfo().getTaskId());
