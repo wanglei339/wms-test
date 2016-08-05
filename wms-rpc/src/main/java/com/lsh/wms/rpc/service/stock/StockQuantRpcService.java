@@ -14,7 +14,6 @@ import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.core.service.location.LocationConstant;
 import com.lsh.wms.model.task.TaskInfo;
-import com.sun.jdi.LongValue;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.SystemUtils;
