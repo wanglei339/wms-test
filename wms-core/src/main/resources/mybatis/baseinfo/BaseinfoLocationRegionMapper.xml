@@ -32,7 +32,7 @@
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
   			<if test="description != null">description=#{description},</if>
-  			<if test="type != null">type=#{type}</if>
+  			<if test="type != null">type=#{type},</if>
 		</set>
 		where location_id=#{locationId}
 	</update>

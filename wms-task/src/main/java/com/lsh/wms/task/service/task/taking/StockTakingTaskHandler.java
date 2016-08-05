@@ -39,7 +39,7 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
         handlerFactory.register(TaskConstant.TYPE_STOCK_TAKING, this);
     }
 
-    protected void createConcrete(TaskEntry taskEntry) {
+    public void createConcrete(TaskEntry taskEntry) {
         StockTakingTask task = (StockTakingTask) taskEntry.getTaskHead();
         Long taskId=taskEntry.getTaskInfo().getTaskId();
         task.setTaskId(taskId);
@@ -52,22 +52,16 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
         }
         stockTakingTaskService.create(task);
     }
-    protected void getConcrete(TaskEntry taskEntry) {
+    public void getConcrete(TaskEntry taskEntry) {
         taskEntry.setTaskHead(stockTakingTaskService.getTakingTaskByTaskId(taskEntry.getTaskInfo().getTaskId()));
         taskEntry.setTaskDetailList((List<Object>) (List<?>) stockTakingService.getDetailByTaskId(taskEntry.getTaskInfo().getTaskId()));
     }
-    protected void getHeadConcrete(TaskEntry taskEntry) {
+    public void getHeadConcrete(TaskEntry taskEntry) {
         taskEntry.setTaskHead(stockTakingTaskService.getTakingTaskByTaskId(taskEntry.getTaskInfo().getTaskId()));
     }
-    protected void assignConcrete(Long taskId, Long staffId) {
+    public void assignConcrete(Long taskId, Long staffId) {
         StockTakingTask task = stockTakingTaskService.getTakingTaskByTaskId(taskId);
         StockTakingHead head = stockTakingService.getHeadById(task.getTakingId());
-        Map<String,Object> queryMap = new HashMap<String, Object>();
-        queryMap.put("takingId",task.getTakingId());
-        List<StockTakingTask> takingTasks = stockTakingTaskService.getTakingTask(queryMap);
-        for(StockTakingTask takingTask:takingTasks) {
-           baseTaskService.assign(takingTask.getTaskId(),staffId);
-        }
         head.setStatus(2L);
         stockTakingService.updateHead(head);
     }
@@ -77,10 +71,10 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
         stockTakingTaskService.updateTakingTask(task);
         Map<String,Object> queryMap = new HashMap<String, Object>();
         queryMap.put("takingId", task.getTakingId());
+        queryMap.put("taskId" , task.getTaskId());
         List<StockTakingDetail> details= stockTakingService.queryTakingDetail(queryMap);
         for(StockTakingDetail detail:details){
             detail.setIsValid(0);
-            baseTaskService.cancel(taskId);
             stockTakingService.updateDetail(detail);
         }
     }

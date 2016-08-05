@@ -22,16 +22,19 @@
 		<result property="realItemId" column="real_item_id"/>
 		<result property="ownerId" column="owner_id"/>
 		<result property="isValid" column="is_valid"/>
+		<result property="packUnit" column="pack_unit"/>
+		<result property="packName" column="pack_name"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockTakingDetail">
 		insert into stock_taking_detail (
 			taking_id,detail_id,round,real_qty,theoretical_qty,container_id,
-			lot_id,sku_id,real_sku_id,location_id,operator,created_at,updated_at,task_id,item_id,real_item_id,owner_id,is_valid
+			lot_id,sku_id,real_sku_id,location_id,operator,created_at,updated_at,task_id,item_id,real_item_id,owner_id,is_valid,
+			pack_unit,pack_name
     	) values (
 			#{takingId},#{detailId},#{round},#{realQty},#{theoreticalQty},#{containerId},
 			#{lotId},#{skuId},#{realSkuId},#{locationId},#{operator},#{createdAt},
-			#{updatedAt},#{taskId},#{itemId},#{realItemId},#{ownerId},#{isValid}
+			#{updatedAt},#{taskId},#{itemId},#{realItemId},#{ownerId},#{isValid},#{packUnit},#{packName}
     	)
 	</insert>
 
@@ -39,12 +42,12 @@
 		insert into stock_taking_detail (
 		taking_id,detail_id,round,real_qty,theoretical_qty,container_id,
 		lot_id,sku_id,real_sku_id,location_id,operator,created_at,
-		updated_at,task_id,item_id,real_item_id,owner_id,is_valid
+		updated_at,task_id,item_id,real_item_id,owner_id,is_valid,pack_unit,pack_name
 		) values
 		<foreach collection="list" item="item" index="index" separator="," >
 			(#{item.takingId},#{item.detailId},#{item.round},#{item.realQty},#{item.theoreticalQty},#{item.containerId},
 			#{item.lotId},#{item.skuId},#{item.realSkuId},#{item.locationId},#{item.operator},#{item.createdAt},
-			#{item.updatedAt},#{item.taskId},#{item.itemId},#{item.realItemId},#{item.ownerId},#{item.isValid})
+			#{item.updatedAt},#{item.taskId},#{item.itemId},#{item.realItemId},#{item.ownerId},#{item.isValid},#{item.packUnit},#{item.packName})
 		</foreach>
 	</insert>
 
@@ -69,6 +72,8 @@
 			<if test="realItemId !=null">real_item_id=#{realItemId},</if>
 			<if test="ownerId !=null">owner_id=#{ownerId},</if>
 			<if test="isValid !=null">is_valid=#{isValid}</if>
+			<if test="packUnit !=null">pack_unit=#{packUnit}</if>
+			<if test="packName !=null">pack_name=#{packName}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -112,6 +117,8 @@
 			<if test="realItemId !=null"> and real_item_id=#{realItemId}</if>
 			<if test="ownerId !=null"> and owner_id=#{ownerId}</if>
 			<if test="isValid !=null"> and is_valid=#{isValid}</if>
+			<if test="packUnit !=null"> and pack_unit=#{packUnit}</if>
+			<if test="packName !=null"> and pack_name=#{packName}</if>
 		</where>
 	</sql>
    

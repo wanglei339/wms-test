@@ -1,9 +1,9 @@
 package com.lsh.wms.task.service.handler;
 
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.task.TaskHandler;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,30 +18,38 @@ import java.util.Map;
  * Created by mali on 16/7/23.
  */
 @Component
-@Transactional (readOnly = true)
 public class AbsTaskHandler implements TaskHandler {
     @Autowired
     private BaseTaskService baseTaskService;
 
-    @Transactional (readOnly = false)
+
     public void create(TaskEntry taskEntry) throws BizCheckedException{
         // 插入标准任务信息
         Long taskId = RandomUtils.genId();
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         taskInfo.setTaskId(taskId);
-        baseTaskService.create(taskInfo);
-        this.createConcrete(taskEntry);
+        taskEntry.setTaskInfo(taskInfo);
+        baseTaskService.create(taskEntry, this);
+        // this.createConcrete(taskEntry);
     }
 
-    @Transactional (readOnly = false)
     public void batchCreate(List<TaskEntry> taskEntries) throws BizCheckedException{
         for(TaskEntry entry : taskEntries){
             this.create(entry);
         }
     }
+    public void batchAssign(List<Long> tasks,Long staffId) throws BizCheckedException {
+        for( Long taskId:tasks){
+            baseTaskService.assign(taskId, staffId, this);
+        }
+    }
+    public void batchCancel(List<Long> tasks) throws BizCheckedException {
+        for( Long taskId:tasks){
+            baseTaskService.cancel(taskId, this);
+        }
+    }
 
-    @Transactional (readOnly = false)
-    protected void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
+    public void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
         // throw new BizCheckedException("1234567890");
     }
 
@@ -52,6 +60,7 @@ public class AbsTaskHandler implements TaskHandler {
         this.getConcrete(taskEntry);
         return taskEntry;
     }
+
 
     public List<TaskEntry> getTaskList(Map<String, Object> condition) {
         List<TaskInfo> taskInfoList = baseTaskService.getTaskInfoList(condition);
@@ -91,44 +100,44 @@ public class AbsTaskHandler implements TaskHandler {
 
 
     public void assign(Long taskId, Long staffId) throws BizCheckedException {
-        baseTaskService.assign(taskId, staffId);
-        this.assignConcrete(taskId, staffId);
+        baseTaskService.assign(taskId, staffId,this);
+        // this.assignConcrete(taskId, staffId);
     }
 
-    protected void assignConcrete(Long taskId, Long staffId) throws BizCheckedException {
+    public void assignConcrete(Long taskId, Long staffId) throws BizCheckedException {
     }
 
 
     public void done(Long taskId) {
-        baseTaskService.done(taskId);
-        this.doneConcrete(taskId);
+        baseTaskService.done(taskId, this);
+        //this.doneConcrete(taskId);
     }
 
     public void done(Long taskId, Long locationId) throws BizCheckedException {
-        baseTaskService.done(taskId);
-        this.doneConcrete(taskId, locationId);
+        baseTaskService.done(taskId, this, locationId);
+        //this.doneConcrete(taskId, locationId);
     }
 
-    protected void doneConcrete(Long taskId) {
+    public void doneConcrete(Long taskId) {
     }
 
-    protected void doneConcrete(Long taskId, Long locationId) throws BizCheckedException{
+    public void doneConcrete(Long taskId, Long locationId) throws BizCheckedException{
     }
 
     public void cancel(Long taskId) {
-        baseTaskService.cancel(taskId);
-        this.cancelConcrete(taskId);
+        baseTaskService.cancel(taskId, this);
+        //this.cancelConcrete(taskId);
     }
 
-    protected void cancelConcrete(Long taskId) {
+    public void cancelConcrete(Long taskId) {
     }
 
     public void allocate(Long taskId) {
-        baseTaskService.allocate(taskId);
-        this.allocateConcrete(taskId);
+        baseTaskService.allocate(taskId, this);
+        //this.allocateConcrete(taskId);
     }
 
-    protected void allocateConcrete(Long taskId) {
+    public void allocateConcrete(Long taskId) {
     }
 
     public void release(Long taskId) {

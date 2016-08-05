@@ -16,11 +16,9 @@ import com.lsh.wms.core.service.location.LocationDetailModelFactory;
 import com.lsh.wms.core.service.location.LocationDetailService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.baseinfo.*;
-import org.apache.commons.collections.map.HashedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.ObjectUtils;
 
 import javax.annotation.PostConstruct;
 import javax.ws.rs.*;
@@ -103,17 +101,27 @@ public class LocationDetailRestService implements ILocationDetailRestService {
      * 在查找细节表
      *
      * @param locationId 地址id
-     * @param type       地址类型
      * @return 位置对象
      * @throws NoSuchMethodException
      * @throws IllegalAccessException
      * @throws InvocationTargetException
      */
-    @POST
+    @GET
     @Path("getLocationDetail")
-    public String getLocationDetailByIdAndType(Long locationId, Long type) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        BaseinfoLocation baseinfoLocation = locationDetailService.getIBaseinfoLocaltionModelByIdAndType(locationId, type);
-        return JsonUtils.SUCCESS(baseinfoLocation);
+    public String getLocationDetailById(@QueryParam("locationId") Integer locationId) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        Long id = Long.parseLong(locationId.toString());
+        BaseinfoLocation baseinfoLocation = locationService.getLocation(Long.parseLong(locationId.toString()));
+        BaseinfoLocation subLocation = locationDetailService.getIBaseinfoLocaltionModelByIdAndType(id, baseinfoLocation.getType());
+        //性质复制
+        ObjUtils.bean2bean(baseinfoLocation, subLocation);
+        //结果展示
+        LocationDetailResponse locationDetailResponse = new LocationDetailResponse();
+        ObjUtils.bean2bean(subLocation, locationDetailResponse);
+        //不同的位置具体显示参数转化
+        this.setPassageParameter(locationDetailResponse);
+        this.setDockParameter(locationDetailResponse);
+        this.setBinParameter(locationDetailResponse);
+        return JsonUtils.SUCCESS(locationDetailResponse);
     }
 
     @POST
@@ -156,7 +164,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @POST
     @Path("updateLocation")
     public String updateLocationDetailByType(LocationDetailRequest request) throws BizCheckedException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        Long locationId = request.getLocationId();
+        Long locationId = Long.parseLong(request.getLocationId().toString());
         //先查找,先主表
         BaseinfoLocation location = locationService.getLocation(locationId);
         if (null == location) {
@@ -193,6 +201,9 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @Autowired
     private LocationService locationService;
 
+
+    // TODO 需要修改只放入id然后查询的问题
+    // TODO 需要修改码头的查询逻辑,然后加入leftJoin查询
     @POST
     @Path("getList")
     public String searchList() throws BizCheckedException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
@@ -271,6 +282,36 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         }
 
     }
+
+    /**
+     * location的删除操作
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("removeLocation")
+    public String removeLocation()throws BizCheckedException {
+        //先找到location,然后将location的is——valid置为1
+        Map<String, Object> params = RequestUtils.getRequest();
+        Long locationId = Long.parseLong(params.get("locationId").toString());
+        BaseinfoLocation location = locationService.getLocation(locationId);
+        if (location != null) {
+            location.setIsValid(1);
+            return JsonUtils.SUCCESS("删除成功");
+        } else {
+            throw new BizCheckedException("查无此数据,删除失败");
+        }
+    }
+
+//    public String removeLocation(Integer locationId) {
+//        //先找到location,然后将location的is——valid置为1
+//        BaseinfoLocation location = locationService.getLocation(Long.parseLong(locationId.toString()));
+//        if (){
+//
+//        }else {
+//
+//        }
+//    }
 
     /**
      * 遍历LocationList的集合,根据将type的固定代号 bin type=15 和 region_area= 2 拆分type集合

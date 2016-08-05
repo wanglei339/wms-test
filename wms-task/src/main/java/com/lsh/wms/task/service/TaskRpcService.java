@@ -2,11 +2,10 @@ package com.lsh.wms.task.service;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.task.TaskEntry;
-import com.lsh.wms.task.service.handler.TaskHandler;
+import com.lsh.wms.core.service.task.TaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -42,6 +41,14 @@ public class TaskRpcService implements ITaskRpcService {
             idList.add(entry.getTaskInfo().getTaskId());
         }
         return idList;
+    }
+    public void batchAssign(Long taskType,List<Long> tasks,Long staffId) throws BizCheckedException {
+        TaskHandler handler = handlerFactory.getTaskHandler(taskType);
+        handler.batchAssign(tasks, staffId);
+    }
+    public void batchCancel(Long taskType,List<Long> tasks) throws BizCheckedException {
+        TaskHandler handler = handlerFactory.getTaskHandler(taskType);
+        handler.batchCancel(tasks);
     }
 
     public Long getTaskTypeById(Long taskId) throws BizCheckedException{
@@ -100,4 +107,5 @@ public class TaskRpcService implements ITaskRpcService {
         TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
         taskHandler.done(taskId, locationId);
     }
+
 }

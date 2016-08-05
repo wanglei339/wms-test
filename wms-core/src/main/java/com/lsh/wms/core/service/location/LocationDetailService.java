@@ -236,7 +236,7 @@ public class LocationDetailService {
 //                son.setPassageNo(location.getPassageNo());
 //                son.setShelfLevelNo(location.getShelfLevelNo());
 //                son.setBinPositionNo(location.getBinPositionNo());
-                //设置占用与否
+//                //设置占用与否
                 if (locationService.isLocationInUse(location.getId())) {
                     son.setIsUsed("已占用");
                 } else {

@@ -21,4 +21,6 @@ public interface ITaskRpcService {
     List<TaskEntry> getTaskHeadList(Long taskType, Map<String, Object> mapQuery);
     void done(Long taskId) throws BizCheckedException;
     void done(Long taskId, Long locationId) throws BizCheckedException;
+    void batchAssign(Long taskType,List<Long> tasks,Long staffId) throws BizCheckedException;
+    void batchCancel(Long taskType,List<Long> tasks) throws BizCheckedException;
 }

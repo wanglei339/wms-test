@@ -247,11 +247,10 @@ public class StockQuantRpcService implements IStockQuantRpcService {
                 }
                 isDefect = quant.getIsDefect();
                 isRefund = quant.getIsRefund();
-                locationId = quant.getLocationId();
                 BigDecimal qty = quant.getQty();
                 if(isNormal == 0) {
                     freeze.add(qty);
-                } else if () {
+                } else if (locationService.) {
 
                 }
 

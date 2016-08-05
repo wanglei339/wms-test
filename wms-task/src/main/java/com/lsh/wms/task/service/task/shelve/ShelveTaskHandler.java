@@ -59,8 +59,8 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         handlerFactory.register(TaskConstant.TYPE_SHELVE, this);
     }
 
-    @Transactional (readOnly = false)
-    protected void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
+
+    public void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
         ShelveTaskHead taskHead = (ShelveTaskHead) taskEntry.getTaskHead();
         Long taskId = taskEntry.getTaskInfo().getTaskId();
         taskHead.setTaskId(taskId);
@@ -93,8 +93,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         // TODO: 锁location
     }
 
-    @Transactional (readOnly = false)
-    protected void assignConcrete(Long taskId, Long staffId) throws BizCheckedException{
+    public void assignConcrete(Long taskId, Long staffId) throws BizCheckedException{
         TaskInfo taskInfo = baseTaskService.getTaskInfoById(taskId);
         ShelveTaskHead taskHead = taskService.getShelveTaskHead(taskId);
         if (taskHead == null) {
@@ -105,8 +104,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, taskInfo.getFromLocationId(), locationService.getWarehouseLocationId());
     }
 
-    @Transactional (readOnly = false)
-    protected void doneConcrete(Long taskId, Long locationId) throws BizCheckedException{
+    public void doneConcrete(Long taskId, Long locationId) throws BizCheckedException{
         ShelveTaskHead taskHead = taskService.getShelveTaskHead(taskId);
         if (taskHead == null) {
             throw new BizCheckedException("2030009");
@@ -128,11 +126,11 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         // TODO: 释放location
     }
 
-    protected void getConcrete(TaskEntry taskEntry) {
+    public void getConcrete(TaskEntry taskEntry) {
         taskEntry.setTaskHead(taskService.getShelveTaskHead(taskEntry.getTaskInfo().getTaskId()));
     }
 
-    protected void getHeadConcrete(TaskEntry taskEntry) {
+    public void getHeadConcrete(TaskEntry taskEntry) {
         taskEntry.setTaskHead(taskService.getShelveTaskHead(taskEntry.getTaskInfo().getTaskId()));
     }
 }

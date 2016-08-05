@@ -1,5 +1,6 @@
 package com.lsh.wms.task.service.handler;
 
+import com.lsh.wms.core.service.task.TaskHandler;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
