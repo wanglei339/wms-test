@@ -11,7 +11,7 @@ import com.lsh.wms.api.model.location.LocationDetailRequest;
 import com.lsh.wms.api.model.location.LocationDetailResponse;
 import com.lsh.wms.api.service.location.ILocationDetailRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
-import com.lsh.wms.core.service.location.LocationConstant;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.LocationDetailModelFactory;
 import com.lsh.wms.core.service.location.LocationDetailService;
 import com.lsh.wms.core.service.location.LocationService;
@@ -110,10 +110,10 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @Path("getLocationDetail")
     public String getLocationDetailById(@QueryParam("locationId") Integer locationId) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Long id = Long.parseLong(locationId.toString());
-        BaseinfoLocation baseinfoLocation = locationService.getLocation(Long.parseLong(locationId.toString()));
-        BaseinfoLocation subLocation = locationDetailService.getIBaseinfoLocaltionModelByIdAndType(id, baseinfoLocation.getType());
+//        BaseinfoLocation baseinfoLocation = locationService.getLocation(Long.parseLong(locationId.toString()));
+        BaseinfoLocation subLocation = (BaseinfoLocation) locationDetailService.getIBaseinfoLocaltionModelById(id);
         //性质复制
-        ObjUtils.bean2bean(baseinfoLocation, subLocation);
+//        ObjUtils.bean2bean(baseinfoLocation, subLocation);
         //结果展示
         LocationDetailResponse locationDetailResponse = new LocationDetailResponse();
         ObjUtils.bean2bean(subLocation, locationDetailResponse);
@@ -137,26 +137,26 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         //根据type类型,将父类转为子类
 
         IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationDetailModelFactory.getLocationModel(Long.valueOf(request.getType().toString()));
-        BaseinfoLocation baseinfoLocation = new BaseinfoLocation();
+//        BaseinfoLocation baseinfoLocation = new BaseinfoLocation();
         //转成子类
 
         ObjUtils.bean2bean(request, iBaseinfoLocaltionModel);
-        //转成父类
-        ObjUtils.bean2bean(request, baseinfoLocation);
+//        //转成父类
+//        ObjUtils.bean2bean(request, baseinfoLocation);
         //设置id
         Long locationId = RandomUtils.genId();
         iBaseinfoLocaltionModel.setLocationId(locationId);
-        baseinfoLocation.setLocationId(locationId);
+//        baseinfoLocation.setLocationId(locationId);
         //生成时间
         Long createAt = DateUtils.getCurrentSeconds();
         iBaseinfoLocaltionModel.setCreatedAt(createAt);
         iBaseinfoLocaltionModel.setUpdatedAt(createAt);
-        baseinfoLocation.setCreatedAt(createAt);
-        baseinfoLocation.setUpdatedAt(createAt);
+//        baseinfoLocation.setCreatedAt(createAt);
+//        baseinfoLocation.setUpdatedAt(createAt);
         //所在哪个区?
-        IBaseinfoLocaltionModel location = locationDetailModelFactory.getLocationModel(request.getType());
-        locationDetailService.insert((BaseinfoLocation) iBaseinfoLocaltionModel);
-        locationService.insertLocation(baseinfoLocation);
+//        IBaseinfoLocaltionModel location = locationDetailModelFactory.getLocationModel(request.getType());
+        locationDetailService.insert(iBaseinfoLocaltionModel);
+//        locationService.insertLocation(baseinfoLocation);
         return JsonUtils.SUCCESS();
     }
 
@@ -165,26 +165,23 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @Path("updateLocation")
     public String updateLocationDetailByType(LocationDetailRequest request) throws BizCheckedException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Long locationId = Long.parseLong(request.getLocationId().toString());
-        //先查找,先主表
-        BaseinfoLocation location = locationService.getLocation(locationId);
-        if (null == location) {
-            throw new BizCheckedException("位置不存在");
-        }
-        IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationDetailService.getIBaseinfoLocaltionModelByIdAndType(locationId, location.getType());
-        //转成父类
-        ObjUtils.bean2bean(request, location);
+//        //先查找,先主表
+//        BaseinfoLocation location = locationService.getLocation(locationId);
+//        if (null == location) {
+//            throw new BizCheckedException("位置不存在");
+//        }
+        IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationDetailService.getIBaseinfoLocaltionModelById(locationId);
+//        //转成父类
+//        ObjUtils.bean2bean(request, location);
         //转成子类
         ObjUtils.bean2bean(request, iBaseinfoLocaltionModel);
-        //
-        //插入
-//        ObjUtils.bean2bean(request, iBaseinfoLocaltionModel);
-//        locationDetailService.update((BaseinfoLocation) iBaseinfoLocaltionModel);
+
         //添加更新时间
         long updatedAt = DateUtils.getCurrentSeconds();
-        location.setUpdatedAt(updatedAt);
+//        location.setUpdatedAt(updatedAt);
         iBaseinfoLocaltionModel.setUpdatedAt(updatedAt);
 
-        locationService.updateLocation(location);
+//        locationService.updateLocation(location);
         locationDetailService.update(iBaseinfoLocaltionModel);
         return JsonUtils.SUCCESS();
     }
@@ -193,8 +190,11 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @POST
     @Path("countLocation")
     public String countLocationDetailByType() {
-        Map<String, Object> params = RequestUtils.getRequest();
-        return JsonUtils.SUCCESS(locationDetailService.countLocationDetail(params));
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        if(mapQuery.get("type")==null){
+            JsonUtils.EXCEPTION_ERROR();
+        }
+        return JsonUtils.SUCCESS(locationDetailService.countLocationDetail(mapQuery));
     }
 
 
@@ -207,79 +207,81 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @POST
     @Path("getList")
     public String searchList() throws BizCheckedException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+//        Map<String, Object> params = RequestUtils.getRequest();
+//        if (LocationConstant.Bin == Long.parseLong(params.get("type").toString())) {
+//            //定义bin集合
+//            List<Long> binTypes = Arrays.asList(LocationConstant.Shelf_store_bin, LocationConstant.Shelf_collection_bin, LocationConstant.Loft_collection_bin, LocationConstant.Loft_store_bin, LocationConstant.Floor_bin, LocationConstant.Temporary_bin, LocationConstant.Collection_bin, LocationConstant.Back_bin, LocationConstant.Defective_bin);
+//            List<IBaseinfoLocaltionModel> targetList = new ArrayList<IBaseinfoLocaltionModel>();
+//            //追加子集
+//            traverseList(binTypes, targetList);
+//
+//
+//            ///
+//            List<LocationDetailResponse> responses = new ArrayList<LocationDetailResponse>();
+//            //设置返回页面的字段,特殊处理,码头,通道和库位的温区
+//            for (IBaseinfoLocaltionModel iBaseinfoLocaltionModel : targetList) {
+//                LocationDetailResponse locationDetailResponse = new LocationDetailResponse();
+//                ObjUtils.bean2bean(iBaseinfoLocaltionModel, locationDetailResponse);
+//                //设置库位信息
+//                this.setBinParameter(locationDetailResponse);
+//                responses.add(locationDetailResponse);
+//            }
+//            return JsonUtils.SUCCESS(responses);
+//
+////            return JsonUtils.SUCCESS(targetList);
+//
+//        } else if (LocationConstant.Region_area == Integer.parseInt(params.get("type").toString())) {
+//            List<Long> regionTypes = Arrays.asList(LocationConstant.Shelfs, LocationConstant.Lofts, LocationConstant.Floor, LocationConstant.Temporary, LocationConstant.Collection_area, LocationConstant.Back_area, LocationConstant.Defective_area, LocationConstant.Dock_area);
+//            List<IBaseinfoLocaltionModel> targetList = new ArrayList<IBaseinfoLocaltionModel>();
+//            //追加子集
+//            traverseList(regionTypes, targetList);
+//
+//
+//            //将父亲的结果拷贝给子类
+//            //设置是否能用
+//
+//
+////            ////////////////////////////////
+//            //前端响应
+//            List<LocationDetailResponse> responses = new ArrayList<LocationDetailResponse>();
+//            //设置返回页面的字段,特殊处理,码头,通道和库位的温区
+//            for (IBaseinfoLocaltionModel iBaseinfoLocaltionModel : targetList) {
+//                LocationDetailResponse locationDetailResponse = new LocationDetailResponse();
+//                ObjUtils.bean2bean(iBaseinfoLocaltionModel, locationDetailResponse);
+//                //码头设置
+//                Long type = locationDetailResponse.getType();
+//                Integer direction = locationDetailResponse.getDirection();
+//                //码头
+//                this.setDockParameter(locationDetailResponse);
+//
+//                responses.add(locationDetailResponse);
+//            }
+//            //
+//            return JsonUtils.SUCCESS(responses);
+//
+//            //////////////////
+////            return JsonUtils.SUCCESS(targetList);
+//        } else {
+//            //码头,通道,库位
+//            List<BaseinfoLocation> localtions = locationDetailService.getIBaseinfoLocaltionModelListByType(params);
+//            List<LocationDetailResponse> responses = new ArrayList<LocationDetailResponse>();
+//            for (BaseinfoLocation baseinfoLocation : localtions) {
+//                LocationDetailResponse locationDetailResponse = new LocationDetailResponse();
+//                ObjUtils.bean2bean(baseinfoLocation, locationDetailResponse);
+//                //设置库位信息
+//                this.setBinParameter(locationDetailResponse);
+//                //码头
+//                this.setDockParameter(locationDetailResponse);
+//                //设置通道
+//                this.setPassageParameter(locationDetailResponse);
+//                responses.add(locationDetailResponse);
+//            }
+//            return JsonUtils.SUCCESS(responses);
+//
+////            return JsonUtils.SUCCESS();
+//        }
         Map<String, Object> params = RequestUtils.getRequest();
-        if (LocationConstant.Bin == Long.parseLong(params.get("type").toString())) {
-            //定义bin集合
-            List<Long> binTypes = Arrays.asList(LocationConstant.Shelf_store_bin, LocationConstant.Shelf_collection_bin, LocationConstant.Loft_collection_bin, LocationConstant.Loft_store_bin, LocationConstant.Floor_bin, LocationConstant.Temporary_bin, LocationConstant.Collection_bin, LocationConstant.Back_bin, LocationConstant.Defective_bin);
-            List<IBaseinfoLocaltionModel> targetList = new ArrayList<IBaseinfoLocaltionModel>();
-            //追加子集
-            traverseList(binTypes, targetList);
-
-
-            ///
-            List<LocationDetailResponse> responses = new ArrayList<LocationDetailResponse>();
-            //设置返回页面的字段,特殊处理,码头,通道和库位的温区
-            for (IBaseinfoLocaltionModel iBaseinfoLocaltionModel : targetList) {
-                LocationDetailResponse locationDetailResponse = new LocationDetailResponse();
-                ObjUtils.bean2bean(iBaseinfoLocaltionModel, locationDetailResponse);
-                //设置库位信息
-                this.setBinParameter(locationDetailResponse);
-                responses.add(locationDetailResponse);
-            }
-            return JsonUtils.SUCCESS(responses);
-
-//            return JsonUtils.SUCCESS(targetList);
-
-        } else if (LocationConstant.Region_area == Integer.parseInt(params.get("type").toString())) {
-            List<Long> regionTypes = Arrays.asList(LocationConstant.Shelfs, LocationConstant.Lofts, LocationConstant.Floor, LocationConstant.Temporary, LocationConstant.Collection_area, LocationConstant.Back_area, LocationConstant.Defective_area, LocationConstant.Dock_area);
-            List<IBaseinfoLocaltionModel> targetList = new ArrayList<IBaseinfoLocaltionModel>();
-            //追加子集
-            traverseList(regionTypes, targetList);
-
-
-            //将父亲的结果拷贝给子类
-            //设置是否能用
-
-
-//            ////////////////////////////////
-            //前端响应
-            List<LocationDetailResponse> responses = new ArrayList<LocationDetailResponse>();
-            //设置返回页面的字段,特殊处理,码头,通道和库位的温区
-            for (IBaseinfoLocaltionModel iBaseinfoLocaltionModel : targetList) {
-                LocationDetailResponse locationDetailResponse = new LocationDetailResponse();
-                ObjUtils.bean2bean(iBaseinfoLocaltionModel, locationDetailResponse);
-                //码头设置
-                Long type = locationDetailResponse.getType();
-                Integer direction = locationDetailResponse.getDirection();
-                //码头
-                this.setDockParameter(locationDetailResponse);
-
-                responses.add(locationDetailResponse);
-            }
-            //
-            return JsonUtils.SUCCESS(responses);
-
-            //////////////////
-//            return JsonUtils.SUCCESS(targetList);
-        } else {
-            //码头,通道,库位
-            List<BaseinfoLocation> localtions = locationDetailService.getIBaseinfoLocaltionModelListByType(params);
-            List<LocationDetailResponse> responses = new ArrayList<LocationDetailResponse>();
-            for (BaseinfoLocation baseinfoLocation : localtions) {
-                LocationDetailResponse locationDetailResponse = new LocationDetailResponse();
-                ObjUtils.bean2bean(baseinfoLocation, locationDetailResponse);
-                //设置库位信息
-                this.setBinParameter(locationDetailResponse);
-                //码头
-                this.setDockParameter(locationDetailResponse);
-                //设置通道
-                this.setPassageParameter(locationDetailResponse);
-                responses.add(locationDetailResponse);
-            }
-            return JsonUtils.SUCCESS(responses);
-
-//            return JsonUtils.SUCCESS();
-        }
+        return JsonUtils.SUCCESS(locationDetailService.getIBaseinfoLocaltionModelListByType(params));
 
     }
 
@@ -296,7 +298,8 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         Long locationId = Long.parseLong(params.get("locationId").toString());
         BaseinfoLocation location = locationService.getLocation(locationId);
         if (location != null) {
-            location.setIsValid(1);
+            location.setIsValid(0);
+            // TODO 删除
             return JsonUtils.SUCCESS("删除成功");
         } else {
             throw new BizCheckedException("查无此数据,删除失败");

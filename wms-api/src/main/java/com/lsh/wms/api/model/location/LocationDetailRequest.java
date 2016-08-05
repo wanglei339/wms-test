@@ -14,74 +14,63 @@ import java.math.BigDecimal;
  */
 public class LocationDetailRequest implements Serializable {
 
-    /**
-     * 位置id
-     */
+    /**  */
+    private Long id;
+    /** 位置id */
     @NotNull
     private Long locationId;
-    /**
-     * 位置编码
-     */
+    /** 位置编码 */
     @NotBlank
     private String locationCode;
-    /**
-     * 父级位置id
-     */
+    /** 父级位置id */
     @NotNull
     private Long fatherId;
-    /**
-     * 存储位类型
-     */
+    /** 位置类型 */
     @NotNull
     private Long type;
-    /**
-     * 类型名
-     */
-    // TODO 不是表的数据(前端传type即可)
-    private String typeName;  //自己带过来type(选择哪个type,传type的值)
-    /**
-     * 是否为叶子位置节点
-     */
+    /** 类型名 */
+    @NotBlank
+    private String typeName;
+    /** 是否为叶子位置节点 */
     @NotNull
     private Integer isLeaf;
-    /**
-     * 是否可用
-     */
+    /** 是否可用 */
     @NotNull
-    private Integer isValid;   // TODO 必须是未删除的,自己带过来
-    /**
-     * 是否是存储用位置
-     */
+    private Integer isValid;
+    /** 是否是存储用位置 */
     @NotNull
-    private Integer canStore;   // TODO 需要标出
-    /**
-     * 是否被占用，0-未使用，1-已占用
-     */
+    private Integer canStore;
+    /** 可容纳容器数量 */
     @NotNull
-    private Integer inUse;  // TODO  需要填写
-    /**
-     * 可容纳容器数量
-     */
-    @NotNull
-    private Long containerVol;  //TODO  需要填写
-    /**
-     * 区域坐标，四维坐标-区位坐标
-     */
+    private Long containerVol;
+    /** 区域坐标，四维坐标-区位坐标 */
     @NotNull
     private Long regionNo;
-    /**
-     * 通道坐标，四维坐标-通道坐标
-     */   // TODO 需要填写
+    /** 通道坐标，四维坐标-通道坐标 */
     @NotNull
     private Long passageNo;
-    /**
-     * 货架层坐标，四维坐标-层数坐标
-     */ // TODO 需要填写
+    /** 货架层坐标，四维坐标-层数坐标 */
+    @NotNull
     private Long shelfLevelNo;
-    /**
-     * 货位同层坐标，四维坐标-同层
-     */   // TODO 需要填写
+    /** 货位同层坐标，四维坐标-同层 */
+    @NotNull
     private Long binPositionNo;
+    /** 描述 */
+    private String description;
+    /** 创建日期 */
+    private Long createdAt;
+    /** 更新日期 */
+    private Long updatedAt;
+    /** 区别库区库位-0为其他1-为库区-2为库位 */
+    @NotNull
+    private Integer classification;
+    /** 是否现在可用0-不可用1-可用 */
+    @NotNull
+    private Integer canUse;
+    /** 0-未上锁1-上锁 */
+    @NotNull
+    private Integer isLocked;
+
 
     //...........................bin独有的...........................
     /**
@@ -97,30 +86,9 @@ public class LocationDetailRequest implements Serializable {
      */
     private BigDecimal weigh;
     /**
-     * 描述
+     * 货位所在温区
      */
-    private String description;
-    /**
-     * 创建日期
-     */
-    private Long createdAt;
-    /**
-     * 更新日期
-     */
-    private Long updatedAt;
-    /**
-     * 0可用1不可用
-     */
-    private String isUsed;
-    /**
-     * 常温或者非常温
-     */
-    private String zoonType;
-    /**
-     * 所属仓库
-     */
-    private String regionName;
-
+    private Integer zoneType;
     //..................................Dock独有的
     /**
      * 位置类型/码头区域 0-A区
@@ -152,11 +120,6 @@ public class LocationDetailRequest implements Serializable {
      * 高度默认单位 米
      */
     private BigDecimal height;
-    /**
-     * 使用用途,进库/出库
-     */
-    private String applicationName;
-
     //.................................通道独有的.................
     //方位，0-南北，1-东西  同码头
 
@@ -186,180 +149,12 @@ public class LocationDetailRequest implements Serializable {
      * 电话
      */
     private String phoneNo;
-    /**
-     * 货位所在温区
-     */
-    private Integer temperature;
-    /**
-     * 货位所在温区
-     */
-    private Integer zoneType;
 
     /** 长度默认单位 米 */
     private BigDecimal length;
 
-    public Integer getZoneType() {
-        return zoneType;
-    }
-
-    public void setZoneType(Integer zoneType) {
-        this.zoneType = zoneType;
-    }
-
-    public BigDecimal getLength() {
-        return length;
-    }
-
-    public void setLength(BigDecimal length) {
-        this.length = length;
-    }
-
-    public void setLocationId(Long locationId) {
-        this.locationId = locationId;
-    }
-
-    public void setLocationCode(String locationCode) {
-        this.locationCode = locationCode;
-    }
-
-    public void setFatherId(Long fatherId) {
-        this.fatherId = fatherId;
-    }
-
-    public void setType(Long type) {
-        this.type = type;
-    }
-
-    public void setTypeName(String typeName) {
-        this.typeName = typeName;
-    }
-
-    public void setIsLeaf(Integer isLeaf) {
-        this.isLeaf = isLeaf;
-    }
-
-    public void setIsValid(Integer isValid) {
-        this.isValid = isValid;
-    }
-
-    public void setCanStore(Integer canStore) {
-        this.canStore = canStore;
-    }
-
-    public void setInUse(Integer inUse) {
-        this.inUse = inUse;
-    }
-
-    public void setContainerVol(Long containerVol) {
-        this.containerVol = containerVol;
-    }
-
-    public void setRegionNo(Long regionNo) {
-        this.regionNo = regionNo;
-    }
-
-    public void setPassageNo(Long passageNo) {
-        this.passageNo = passageNo;
-    }
-
-    public void setShelfLevelNo(Long shelfLevelNo) {
-        this.shelfLevelNo = shelfLevelNo;
-    }
-
-    public void setBinPositionNo(Long binPositionNo) {
-        this.binPositionNo = binPositionNo;
-    }
-
-    public void setItemId(Long itemId) {
-        this.itemId = itemId;
-    }
-
-    public void setVolume(BigDecimal volume) {
-        this.volume = volume;
-    }
-
-    public void setWeigh(BigDecimal weigh) {
-        this.weigh = weigh;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setCreatedAt(Long createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public void setUpdatedAt(Long updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public void setIsUsed(String isUsed) {
-        this.isUsed = isUsed;
-    }
-
-    public void setZoonType(String zoonType) {
-        this.zoonType = zoonType;
-    }
-
-    public void setRegionName(String regionName) {
-        this.regionName = regionName;
-    }
-
-    public void setDockType(Long dockType) {
-        this.dockType = dockType;
-    }
-
-    public void setDockName(String dockName) {
-        this.dockName = dockName;
-    }
-
-    public void setHaveScales(Integer haveScales) {
-        this.haveScales = haveScales;
-    }
-
-    public void setDockApplication(Integer dockApplication) {
-        this.dockApplication = dockApplication;
-    }
-
-    public void setDirection(Integer direction) {
-        this.direction = direction;
-    }
-
-    public void setWidth(BigDecimal width) {
-        this.width = width;
-    }
-
-    public void setHeight(BigDecimal height) {
-        this.height = height;
-    }
-
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
-    }
-
-    public void setLevel(Long level) {
-        this.level = level;
-    }
-
-    public void setDepth(Long depth) {
-        this.depth = depth;
-    }
-
-    public void setWarehouseName(String warehouseName) {
-        this.warehouseName = warehouseName;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public void setPhoneNo(String phoneNo) {
-        this.phoneNo = phoneNo;
-    }
-
-    public void setTemperature(Integer temperature) {
-        this.temperature = temperature;
+    public Long getId() {
+        return id;
     }
 
     public Long getLocationId() {
@@ -394,10 +189,6 @@ public class LocationDetailRequest implements Serializable {
         return canStore;
     }
 
-    public Integer getInUse() {
-        return inUse;
-    }
-
     public Long getContainerVol() {
         return containerVol;
     }
@@ -418,40 +209,12 @@ public class LocationDetailRequest implements Serializable {
         return binPositionNo;
     }
 
-    public Long getItemId() {
-        return itemId;
-    }
-
-    public BigDecimal getVolume() {
-        return volume;
-    }
-
-    public BigDecimal getWeigh() {
-        return weigh;
-    }
-
     public String getDescription() {
         return description;
     }
 
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public String getIsUsed() {
-        return isUsed;
-    }
-
-    public String getZoonType() {
-        return zoonType;
-    }
-
-    public String getRegionName() {
-        return regionName;
+    public Integer getZoneType() {
+        return zoneType;
     }
 
     public Long getDockType() {
@@ -482,10 +245,6 @@ public class LocationDetailRequest implements Serializable {
         return height;
     }
 
-    public String getApplicationName() {
-        return applicationName;
-    }
-
     public Long getLevel() {
         return level;
     }
@@ -506,7 +265,187 @@ public class LocationDetailRequest implements Serializable {
         return phoneNo;
     }
 
-    public Integer getTemperature() {
-        return temperature;
+    public BigDecimal getLength() {
+        return length;
+    }
+
+    public Long getCreatedAt() {
+        return createdAt;
+    }
+
+    public Long getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public Integer getClassification() {
+        return classification;
+    }
+
+    public Integer getCanUse() {
+        return canUse;
+    }
+
+    public Integer getIsLocked() {
+        return isLocked;
+    }
+
+    public Long getItemId() {
+        return itemId;
+    }
+
+    public BigDecimal getVolume() {
+        return volume;
+    }
+
+    public BigDecimal getWeigh() {
+        return weigh;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setLocationId(Long locationId) {
+        this.locationId = locationId;
+    }
+
+    public void setLocationCode(String locationCode) {
+        this.locationCode = locationCode;
+    }
+
+    public void setFatherId(Long fatherId) {
+        this.fatherId = fatherId;
+    }
+
+    public void setType(Long type) {
+        this.type = type;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
+
+    public void setIsLeaf(Integer isLeaf) {
+        this.isLeaf = isLeaf;
+    }
+
+    public void setIsValid(Integer isValid) {
+        this.isValid = isValid;
+    }
+
+    public void setCanStore(Integer canStore) {
+        this.canStore = canStore;
+    }
+
+    public void setContainerVol(Long containerVol) {
+        this.containerVol = containerVol;
+    }
+
+    public void setRegionNo(Long regionNo) {
+        this.regionNo = regionNo;
+    }
+
+    public void setPassageNo(Long passageNo) {
+        this.passageNo = passageNo;
+    }
+
+    public void setShelfLevelNo(Long shelfLevelNo) {
+        this.shelfLevelNo = shelfLevelNo;
+    }
+
+    public void setBinPositionNo(Long binPositionNo) {
+        this.binPositionNo = binPositionNo;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setZoneType(Integer zoneType) {
+        this.zoneType = zoneType;
+    }
+
+    public void setDockType(Long dockType) {
+        this.dockType = dockType;
+    }
+
+    public void setDockName(String dockName) {
+        this.dockName = dockName;
+    }
+
+    public void setHaveScales(Integer haveScales) {
+        this.haveScales = haveScales;
+    }
+
+    public void setDockApplication(Integer dockApplication) {
+        this.dockApplication = dockApplication;
+    }
+
+    public void setDirection(Integer direction) {
+        this.direction = direction;
+    }
+
+    public void setWidth(BigDecimal width) {
+        this.width = width;
+    }
+
+    public void setHeight(BigDecimal height) {
+        this.height = height;
+    }
+
+    public void setLevel(Long level) {
+        this.level = level;
+    }
+
+    public void setDepth(Long depth) {
+        this.depth = depth;
+    }
+
+    public void setWarehouseName(String warehouseName) {
+        this.warehouseName = warehouseName;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setPhoneNo(String phoneNo) {
+        this.phoneNo = phoneNo;
+    }
+
+    public void setLength(BigDecimal length) {
+        this.length = length;
+    }
+
+    public void setCreatedAt(Long createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(Long updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public void setClassification(Integer classification) {
+        this.classification = classification;
+    }
+
+    public void setCanUse(Integer canUse) {
+        this.canUse = canUse;
+    }
+
+    public void setIsLocked(Integer isLocked) {
+        this.isLocked = isLocked;
+    }
+
+    public void setItemId(Long itemId) {
+        this.itemId = itemId;
+    }
+
+    public void setVolume(BigDecimal volume) {
+        this.volume = volume;
+    }
+
+    public void setWeigh(BigDecimal weigh) {
+        this.weigh = weigh;
     }
 }

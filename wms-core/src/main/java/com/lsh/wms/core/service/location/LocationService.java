@@ -1,11 +1,10 @@
 package com.lsh.wms.core.service.location;
 
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
-import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationShelfDao;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.baseinfo.BaseinfoLocationShelf;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 import com.lsh.wms.model.stock.StockQuant;
 import org.slf4j.Logger;
@@ -77,7 +76,7 @@ public class LocationService {
     }
 
     // 获取location
-    public BaseinfoLocation getLocation(long locationId) {
+    public BaseinfoLocation getLocation(Long locationId) {
         Map<String, Object> params = new HashMap<String, Object>();
         BaseinfoLocation location;
         params.put("locationId", locationId);
@@ -505,47 +504,52 @@ public class LocationService {
     /**
      * 获取级别的type,包含货架区5、阁楼区6、地堆区7、残存区8、集货区9、退货区10、残次区11
      */
-    private static final long[] REGIONTYPE = {5, 6, 7, 8, 9, 10, 11};
-
+//    private static final long[] REGIONTYPE = {5, 6, 7, 8, 9, 10, 11};
+//
     private static boolean flag = true;
-    private static String RegionName = "";
+//    private static String RegionName = "";
 
     /**
      * 根据现有的位置,获取区域的位置,一直找到区的一层
      * TODO 返回父亲的type类型,然后,根据类型在外面拼写
+     * 获取库位的库位
      *
      * @param baseinfoLocation
      * @return
      */
     //获取区域的name,拼接字符串
-    public String getRegionName(BaseinfoLocation baseinfoLocation) {
+    public BaseinfoLocation getRegionLocation(BaseinfoLocation baseinfoLocation) {
+        BaseinfoLocation subLocation = new BaseinfoLocation();
         if (flag == false) {
-            return RegionName;
+            return subLocation;
         }
         //先排序
-        Arrays.sort(REGIONTYPE);
+//        Arrays.sort(REGIONTYPE);
         //获取父亲对象
         BaseinfoLocation fatherLocation = this.getFatherLocation(baseinfoLocation.getLocationId());
         //没有父亲
         if (null == fatherLocation) {
-            return RegionName;
+            return subLocation;
         }
-        Long fatherLocationType = fatherLocation.getType();
+//        Long fatherLocationType = fatherLocation.getType();
         //找到区域的一层不找了
-        if (fatherLocationType < 5L) {
-            return RegionName;
-        }
-        //向上查找直到type属于货架区、阁楼区、暂存区、地堆区、退货区
-        if (!(Arrays.binarySearch(REGIONTYPE, fatherLocationType) < 0)) {
-            String regionCode = fatherLocation.getLocationCode();
-            String regionTypeName = fatherLocation.getTypeName();
-            RegionName = regionTypeName + regionCode + "区";
+        if (fatherLocation.getClassification() == LocationConstant.RegionType) {
             flag = false;
-            return RegionName;
-        } else {
-            this.getRegionName(fatherLocation);
+            return fatherLocation;
         }
-        return RegionName;
+//        //向上查找直到type属于货架区、阁楼区、暂存区、地堆区、退货区
+//        if (!(Arrays.binarySearch(REGIONTYPE, fatherLocationType) < 0)) {
+//            String regionCode = fatherLocation.getLocationCode();
+//            String regionTypeName = fatherLocation.getTypeName();
+//            RegionName = regionTypeName + regionCode + "区";
+//            flag = false;
+//            return RegionName;
+//        } else {
+        else {
+            this.getRegionLocation(fatherLocation);
+            return fatherLocation;
+        }
+//        return RegionName;
     }
 
     /**

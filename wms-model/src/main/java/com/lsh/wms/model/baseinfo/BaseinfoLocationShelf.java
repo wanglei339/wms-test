@@ -22,9 +22,17 @@ public class BaseinfoLocationShelf extends BaseinfoLocation implements Serializa
     private Long updatedAt;
 	/** 主表的type */
     private Long type;
-	/** 是否可用 */
-    private String isUsed;
-	
+
+	@Override
+	public Long getType() {
+		return type;
+	}
+
+	@Override
+	public void setType(Long type) {
+		this.type = type;
+	}
+
 	public Long getId(){
 		return this.id;
 	}
@@ -81,13 +89,5 @@ public class BaseinfoLocationShelf extends BaseinfoLocation implements Serializa
 		this.updatedAt = updatedAt;
 	}
 
-	public String getIsUsed(){
-		return this.isUsed;
-	}
-	
-	public void setIsUsed(String isUsed){
-		this.isUsed = isUsed;
-	}
-	
 	
 }

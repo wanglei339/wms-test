@@ -1,4 +1,4 @@
-package com.lsh.wms.core.service.location;
+package com.lsh.wms.core.constant;
 
 /**
  * @Author 马启迪 maqidi@lsh123.com
@@ -58,6 +58,11 @@ public class LocationConstant {
     //码头出库入库设置
     public static final Integer DockIn = 1; //入库码头
     public static final Integer DockOut = 2; //出库码头
+
+    //设置库位和库区的区别项
+    public static final Integer OtherType = 0; //其他项
+    public static final Integer RegionType = 1; //库区
+    public static final Integer BinType = 2;    //库位
 
 
 }

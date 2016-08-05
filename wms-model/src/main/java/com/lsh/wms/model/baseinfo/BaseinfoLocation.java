@@ -1,11 +1,9 @@
 package com.lsh.wms.model.baseinfo;
 
-import org.springframework.stereotype.Component;
-
 import java.io.Serializable;
 import java.util.Date;
 
-public class BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel  {
+public class BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel {
 
 	/**  */
     private Long id;
@@ -15,7 +13,7 @@ public class BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel  {
 	protected String locationCode;
 	/** 父级位置id */
 	protected Long fatherId;
-	/** 存储位类型 */
+	/** 位置类型 */
 	protected Long type;
 	/** 类型名 */
 	protected String typeName;
@@ -35,50 +33,35 @@ public class BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel  {
 	protected Long shelfLevelNo;
 	/** 货位同层坐标，四维坐标-同层 */
 	protected Long binPositionNo;
-	/** 所有的位置能够可用*/
-	protected String isUsed;
-	/** 区域名称,显示时候使用*/
-	protected String regionName;
-
 	/** 描述 */
 	protected String description;
 	/** 创建日期 */
 	protected Long createdAt;
 	/** 更新日期 */
 	protected Long updatedAt;
-
-	public String getRegionName() {
-		return regionName;
-	}
-
-	public void setRegionName(String regionName) {
-		this.regionName = regionName;
-	}
-
-	public String getIsUsed() {
-		return isUsed;
-	}
-
-	public void setIsUsed(String isUsed) {
-		this.isUsed = isUsed;
-	}
-
+	/** 区别库区库位-0为其他1-为库区-2为库位 */
+	protected Integer classification;
+	/** 是否现在可用0-不可用1-可用 */
+	protected Integer canUse;
+	/** 0-未上锁1-上锁 */
+	protected Integer isLocked;
+	
 	public Long getId(){
 		return this.id;
 	}
-
+	
 	public void setId(Long id){
 		this.id = id;
 	}
-
+	
 	public Long getLocationId(){
 		return this.locationId;
 	}
-
+	
 	public void setLocationId(Long locationId){
 		this.locationId = locationId;
 	}
-
+	
 	public String getLocationCode(){
 		return this.locationCode;
 	}
@@ -134,7 +117,7 @@ public class BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel  {
 	public void setCanStore(Integer canStore){
 		this.canStore = canStore;
 	}
-
+	
 	public Long getContainerVol(){
 		return this.containerVol;
 	}
@@ -197,6 +180,30 @@ public class BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel  {
 	
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
+	}
+	
+	public Integer getClassification(){
+		return this.classification;
+	}
+	
+	public void setClassification(Integer classification){
+		this.classification = classification;
+	}
+	
+	public Integer getCanUse(){
+		return this.canUse;
+	}
+	
+	public void setCanUse(Integer canUse){
+		this.canUse = canUse;
+	}
+	
+	public Integer getIsLocked(){
+		return this.isLocked;
+	}
+	
+	public void setIsLocked(Integer isLocked){
+		this.isLocked = isLocked;
 	}
 	
 	
