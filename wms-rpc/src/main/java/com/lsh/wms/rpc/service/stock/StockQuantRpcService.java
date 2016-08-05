@@ -14,6 +14,7 @@ import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.core.service.location.LocationConstant;
 import com.lsh.wms.model.task.TaskInfo;
+import com.sun.jdi.LongValue;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.SystemUtils;
@@ -213,6 +214,8 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         Map<Long, Map<String, BigDecimal>> itemQuant = new HashMap<Long, Map<String, BigDecimal>>();
         HashMap<String, Object> mapCondition = new HashMap<String, Object>();
 
+        int pn = Integer.valueOf(mapQuery.get("start").toString()), rn = Integer.valueOf(mapQuery.get("limit").toString());
+
         List<BaseinfoItem> itemList= itemService.searchItem(mapQuery);
         List<Long> itemIdList = new ArrayList<Long>();
         for (BaseinfoItem item : itemList) {
@@ -240,8 +243,8 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         lossDefect = BigDecimal.ZERO;
         lossRefund = BigDecimal.ZERO;
 
+        Long isFrozen,reserveTaskId,isNormal,isDefect,isRefund,locationId;
         for (StockQuant quant : quantList) {
-            Long isFrozen,reserveTaskId,isNormal,isDefect,isRefund,locationId;
             isFrozen = quant.getIsFrozen();
             reserveTaskId = quant.getReserveTaskId();
             isNormal = 1L;
@@ -287,6 +290,21 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             result.put("refund", reRefund);
             itemQuant.put(quant.getItemId(),result);
         }
+
+        int size = itemIdList.size();
+        for (int i = pn; i < pn+rn && i < size; i++){
+            Long itemId = itemIdList.get(i);
+            if(itemQuant.get(itemId) == null) {
+                Map<String, BigDecimal> result = new HashMap<String, BigDecimal>();
+                result.put("total", BigDecimal.ZERO);
+                result.put("available",BigDecimal.ZERO);
+                result.put("freeze", BigDecimal.ZERO);
+                result.put("defect", BigDecimal.ZERO);
+                result.put("refund", BigDecimal.ZERO);
+                itemQuant.put(itemId,result);
+            }
+        }
+
         endTime = System.currentTimeMillis();
         logger.info("" + (endTime-startTime));
         return itemQuant;
