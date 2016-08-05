@@ -38,6 +38,10 @@ public class StockTakingDetail implements Serializable {
 	private Long realItemId = 0L;
 	/**货主id */
 	private Long ownerId = 0L;
+	/**包装名称 */
+	private String packName = "";
+	/** 包装单位*/
+	private BigDecimal packUnit = new BigDecimal(1);
 	/** */
 	private int isValid = 1;
 	/**  */
@@ -195,5 +199,21 @@ public class StockTakingDetail implements Serializable {
 
 	public void setIsValid(int isValid) {
 		this.isValid = isValid;
+	}
+
+	public String getPackName() {
+		return packName;
+	}
+
+	public void setPackName(String packName) {
+		this.packName = packName;
+	}
+
+	public BigDecimal getPackUnit() {
+		return packUnit;
+	}
+
+	public void setPackUnit(BigDecimal packUnit) {
+		this.packUnit = packUnit;
 	}
 }

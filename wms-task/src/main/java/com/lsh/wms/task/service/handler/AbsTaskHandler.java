@@ -38,6 +38,16 @@ public class AbsTaskHandler implements TaskHandler {
             this.create(entry);
         }
     }
+    public void batchAssign(List<Long> tasks,Long staffId) throws BizCheckedException {
+        for( Long taskId:tasks){
+            baseTaskService.assign(taskId, staffId, this);
+        }
+    }
+    public void batchCancel(List<Long> tasks) throws BizCheckedException {
+        for( Long taskId:tasks){
+            baseTaskService.cancel(taskId, this);
+        }
+    }
 
     public void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
         // throw new BizCheckedException("1234567890");
@@ -50,6 +60,7 @@ public class AbsTaskHandler implements TaskHandler {
         this.getConcrete(taskEntry);
         return taskEntry;
     }
+
 
     public List<TaskEntry> getTaskList(Map<String, Object> condition) {
         List<TaskInfo> taskInfoList = baseTaskService.getTaskInfoList(condition);
@@ -98,12 +109,12 @@ public class AbsTaskHandler implements TaskHandler {
 
 
     public void done(Long taskId) {
-        baseTaskService.done(taskId,this);
+        baseTaskService.done(taskId, this);
         //this.doneConcrete(taskId);
     }
 
     public void done(Long taskId, Long locationId) throws BizCheckedException {
-        baseTaskService.done(taskId,this,locationId);
+        baseTaskService.done(taskId, this, locationId);
         //this.doneConcrete(taskId, locationId);
     }
 
@@ -114,7 +125,7 @@ public class AbsTaskHandler implements TaskHandler {
     }
 
     public void cancel(Long taskId) {
-        baseTaskService.cancel(taskId,this);
+        baseTaskService.cancel(taskId, this);
         //this.cancelConcrete(taskId);
     }
 
@@ -122,7 +133,7 @@ public class AbsTaskHandler implements TaskHandler {
     }
 
     public void allocate(Long taskId) {
-        baseTaskService.allocate(taskId,this);
+        baseTaskService.allocate(taskId, this);
         //this.allocateConcrete(taskId);
     }
 

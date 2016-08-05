@@ -13,5 +13,6 @@ public interface IBaseinfoLocaltionModel {
     public Long getCreatedAt();
     public void setUpdatedAt(Long updatedAt);
     public Long getUpdatedAt();
+    public Long getLocationId();
 
 }
