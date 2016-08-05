@@ -1,5 +1,7 @@
 package com.lsh.wms.task.service.task.taking;
 
+import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.core.service.task.BaseTaskService;
@@ -59,13 +61,16 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
     public void getHeadConcrete(TaskEntry taskEntry) {
         taskEntry.setTaskHead(stockTakingTaskService.getTakingTaskByTaskId(taskEntry.getTaskInfo().getTaskId()));
     }
-    public void assignConcrete(Long taskId, Long staffId) {
-        StockTakingTask task = stockTakingTaskService.getTakingTaskByTaskId(taskId);
-        StockTakingHead head = stockTakingService.getHeadById(task.getTakingId());
-        head.setStatus(2L);
-        stockTakingService.updateHead(head);
+    public void assignConcrete(Long taskId, Long staffId) throws BizCheckedException {
+        StockTakingTask stockTakingTask = stockTakingTaskService.getTakingTaskByTaskId(taskId);
+        if(stockTakingTask!=null) {
+            StockTakingHead head = stockTakingService.getHeadById(stockTakingTask.getTakingId());
+            head.setStatus(2L);
+            head.setUpdatedAt(DateUtils.getCurrentSeconds());
+            stockTakingService.updateHead(head);
+        }
     }
-    public void cancel(Long taskId) {
+    public void cancelConcrete(Long taskId) {
         StockTakingTask task = stockTakingTaskService.getTakingTaskByTaskId(taskId);
         task.setIsValid(0);
         stockTakingTaskService.updateTakingTask(task);

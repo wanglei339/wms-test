@@ -30,7 +30,7 @@
 			created_at,updated_at,po_id,item_id,receipt_id,pack_unit,pack_name,supplier_id
     	) values (
 			#{lotId},#{skuId},#{serialNo},#{inDate},#{productDate},#{expireDate},
-			#{createdAt},#{updatedAt},#{itemId},#{poId},#{receiptId},#{packUnit},#{packName},#{supplierId}
+			#{createdAt},#{updatedAt},#{poId},#{itemId},#{receiptId},#{packUnit},#{packName},#{supplierId}
     	)
 	</insert>
 
