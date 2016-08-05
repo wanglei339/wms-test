@@ -7,6 +7,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.inhouse.IStockTransferProviderRestService;
 import com.lsh.wms.api.service.inhouse.IStockTransferRpcService;
+import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.model.transfer.StockTransferPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.Map;
 
 /**
  * Created by mali on 16/8/1.
@@ -50,6 +52,27 @@ public class StockTransferProviderRestService implements IStockTransferProviderR
     public String updatePlan(StockTransferPlan plan)  throws BizCheckedException {
         try{
             rpcService.updatePlan(plan);
+        } catch (BizCheckedException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+        }
+        return JsonUtils.SUCCESS();
+    }
+
+    @POST
+    @Path("cancel")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String cancelPlan() throws BizCheckedException {
+        Map<String, Object> params = RequestUtils.getRequest();
+        Long taskId = Long.valueOf(params.get("taskId").toString());
+        if(taskId == null) {
+            throw new BizCheckedException("2040001");
+        }
+        try{
+            rpcService.cancelPlan(taskId);
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {

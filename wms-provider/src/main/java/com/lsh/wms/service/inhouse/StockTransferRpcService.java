@@ -91,9 +91,13 @@ public class StockTransferRpcService implements IStockTransferRpcService {
 
     public void updatePlan(StockTransferPlan plan)  throws BizCheckedException {
         Long taskId = plan.getTaskId();
-
+        taskRpcService.cancel(taskId);
+        taskRpcService.assign(taskId,taskRpcService.getTaskEntryById(taskId).getTaskInfo().getOperator());
     }
 
+    public void cancelPlan(Long taskId){
+        taskRpcService.cancel(taskId);
+    }
 
     public void scanFromLocation(Map<String, Object> params) throws BizCheckedException {
         core.outbound(params);
