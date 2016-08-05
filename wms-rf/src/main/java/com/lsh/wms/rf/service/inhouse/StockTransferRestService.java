@@ -154,8 +154,6 @@ public class StockTransferRestService implements IStockTransferRestService {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         try {
             rpcService.scanFromLocation(mapQuery);
-        } catch (BizCheckedException e) {
-            throw e;
         } catch (Exception e) {
             return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
@@ -207,11 +205,9 @@ public class StockTransferRestService implements IStockTransferRestService {
         Map<String, Object> params = RequestUtils.getRequest();
         try {
             rpcService.scanToLocation(params);
-        } catch (BizCheckedException e) {
-            throw e;
         } catch (Exception e) {
             logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {
