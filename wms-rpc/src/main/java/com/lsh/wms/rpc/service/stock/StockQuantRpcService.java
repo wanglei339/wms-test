@@ -213,10 +213,12 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         Map<Long, Map<String, BigDecimal>> itemQuant = new HashMap<Long, Map<String, BigDecimal>>();
         HashMap<String, Object> mapCondition = new HashMap<String, Object>();
 
+
         int pn = Integer.valueOf(mapQuery.get("start").toString()), rn = Integer.valueOf(mapQuery.get("limit").toString());
 
         List<BaseinfoItem> itemList= itemService.searchItem(mapQuery);
         List<Long> itemIdList = new ArrayList<Long>();
+
         for (BaseinfoItem item : itemList) {
             itemIdList.add(item.getItemId());
         }
@@ -290,8 +292,8 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             itemQuant.put(quant.getItemId(),result);
         }
 
-        int size = itemIdList.size();
-        for (int i = pn; i < pn+rn && i < size; i++){
+        int size = itemList.size();
+        for (int i = 0; i < size; i++){
             Long itemId = itemIdList.get(i);
             if(itemQuant.get(itemId) == null) {
                 Map<String, BigDecimal> result = new HashMap<String, BigDecimal>();
