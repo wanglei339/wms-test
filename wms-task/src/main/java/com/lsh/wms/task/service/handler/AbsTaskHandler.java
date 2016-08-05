@@ -34,19 +34,19 @@ public class AbsTaskHandler implements TaskHandler {
     }
 
     public void batchCreate(List<TaskEntry> taskEntries) throws BizCheckedException{
-        for(TaskEntry entry : taskEntries){
-            this.create(entry);
+        for(TaskEntry taskEntry:taskEntries){
+            Long taskId = RandomUtils.genId();
+            TaskInfo taskInfo = taskEntry.getTaskInfo();
+            taskInfo.setTaskId(taskId);
+            taskEntry.setTaskInfo(taskInfo);
         }
+       baseTaskService.batchCreate(taskEntries,this);
     }
     public void batchAssign(List<Long> tasks,Long staffId) throws BizCheckedException {
-        for( Long taskId:tasks){
-            baseTaskService.assign(taskId, staffId, this);
-        }
+        baseTaskService.batchAssign(tasks,staffId,this);
     }
     public void batchCancel(List<Long> tasks) throws BizCheckedException {
-        for( Long taskId:tasks){
-            baseTaskService.cancel(taskId, this);
-        }
+        baseTaskService.batchCancel(tasks,this);
     }
 
     public void createConcrete(TaskEntry taskEntry) throws BizCheckedException {

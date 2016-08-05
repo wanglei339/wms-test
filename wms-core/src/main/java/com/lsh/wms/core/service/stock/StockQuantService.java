@@ -225,7 +225,7 @@ public class StockQuantService {
         List<StockQuant> stockQuants=stockQuantDao.getQuants(queryMap);
         BigDecimal qty=new BigDecimal(0L);
         for (StockQuant quant:stockQuants){
-            qty.add(quant.getQty());
+            qty = qty.add(quant.getQty());
         }
         return qty;
     }

@@ -364,8 +364,6 @@ public class StockTakingRestService implements IStockTakingRestService {
             Long locationId = locationService.getWarehouseLocationId();
             locations.addAll(locationService.getStoreLocationIds(locationId));
         }
-
-
             Map<String, Object> mapQuery = new HashMap<String, Object>();
             mapQuery.put("locationList", locations);
             mapQuery.put("itemId", head.getItemId());

@@ -9,6 +9,9 @@ import com.lsh.wms.api.service.item.IItemRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.stock.IStockQuantRfRestService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.core.constant.CsiConstan;
+import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import org.slf4j.Logger;
@@ -45,26 +48,31 @@ public class StockQuantRfRestService implements IStockQuantRfRestService {
     public String getItemByLocation() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
         Long locationId = Long.valueOf(params.get("locationId").toString());
+        String barCode =params.get("barCode").toString();
+
+        CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE,barCode);
+        if(csiSku == null) {
+            throw new BizCheckedException("2550003");
+        }
         StockQuantCondition condition = new StockQuantCondition();
         condition.setLocationId(locationId);
+        condition.setSkuId(csiSku.getSkuId());
         List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
-        Set<Long> itemSet = new HashSet<Long>();
-        List<Object> resultList = new ArrayList<Object>();
-        for (StockQuant quant : quantList) {
-            if (itemSet.contains(quant.getItemId())) {
-                continue;
-            }
-            itemSet.add(quant.getItemId());
-            Map<String, Object> m = new HashMap<String, Object>();
-            m.put("itemId", quant.getItemId());
-            m.put("name", itemRpcService.getItem(quant.getItemId()).getSkuName());
-            List <String> packNameList = new ArrayList<String>();
-            packNameList.add(quant.getPackName());
-            packNameList.add("ea");
-            packNameList.add("pallet");
-            m.put("packName", packNameList);
-            resultList.add(m);
+        if(quantList.isEmpty()) {
+            throw new BizCheckedException("2550003");
         }
+        List<Object> resultList = new ArrayList<Object>();
+        StockQuant quant = quantList.get(0);
+        Map<String, Object> m = new HashMap<String, Object>();
+        m.put("itemId", quant.getItemId());
+        m.put("name", itemRpcService.getItem(quant.getItemId()).getSkuName());
+        List <String> packNameList = new ArrayList<String>();
+        packNameList.add(quant.getPackName());
+        packNameList.add("ea");
+        packNameList.add("pallet");
+        m.put("packName", packNameList);
+        resultList.add(m);
+
         Map<String, List<Object>> result = new HashMap<String, List<Object>>();
         result.put("list",resultList);
         return JsonUtils.SUCCESS(result);
