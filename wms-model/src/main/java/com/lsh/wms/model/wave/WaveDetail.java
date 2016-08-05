@@ -40,6 +40,8 @@ public class WaveDetail implements Serializable {
 	private Long pickTaskId;
 	/** 分配的捡货分区,通过分区信息取获取对应的区域路径，可获取到虾面的捡货位 */
     private BigDecimal pickZoneId;
+	/** 拣货顺序 */
+	private Long pickOrder;
 	/** 分配分拣位 */
     private Long allocPickLocation = 0L;
 	/** 实际分拣位 */
@@ -217,6 +219,14 @@ public class WaveDetail implements Serializable {
 	
 	public void setPickZoneId(BigDecimal pickZoneId){
 		this.pickZoneId = pickZoneId;
+	}
+
+	public Long getPickOrder(){
+		return this.pickOrder;
+	}
+
+	public void setPickOrder(Long pickOrder){
+		this.pickOrder = pickOrder;
 	}
 	
 	public Long getAllocPickLocation(){

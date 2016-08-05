@@ -18,5 +18,7 @@ public interface WaveDetailDao {
     Integer countWaveDetail(Map<String, Object> params);
 
     List<WaveDetail> getWaveDetailList(Map<String, Object> params);
-	
+
+    List<WaveDetail> getOrderedWaveDetailList(Map<String, Object> params);
+
 }

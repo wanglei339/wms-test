@@ -21,7 +21,9 @@ public interface TaskHandler {
     int getTaskCount(Map<String, Object> condition);
     List<TaskEntry> getTaskHeadList(Map<String, Object> condition);
     void assign(Long taskId, Long staffId) throws BizCheckedException;
-    public void assignConcrete(Long taskId, Long staffId) throws BizCheckedException;
+    void assign(Long taskId, Long staffId, Long containerId) throws BizCheckedException;
+    void assignConcrete(Long taskId, Long staffId) throws BizCheckedException;
+    void assignConcrete(Long taskId, Long staffId, Long containerId) throws BizCheckedException;
     void allocate(Long taskId);
     void release(Long taskId);
     void done(Long taskId);

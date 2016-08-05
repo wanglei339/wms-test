@@ -60,7 +60,7 @@ public class BaseTaskService {
     }
 
     @Transactional(readOnly = false)
-    public void allocate(Long taskId,TaskHandler taskHandler)
+    public void allocate(Long taskId, TaskHandler taskHandler)
     {
         TaskInfo taskInfo = getTaskInfoById(taskId);
         taskInfo.setStatus(TaskConstant.Allocated);
@@ -70,7 +70,7 @@ public class BaseTaskService {
     }
 
     @Transactional(readOnly = false)
-    public void assign(Long taskId,  Long staffId,TaskHandler taskHandler) {
+    public void assign(Long taskId, Long staffId, TaskHandler taskHandler) {
         TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
         taskInfo.setOperator(staffId);
         taskInfo.setStatus(TaskConstant.Assigned);
@@ -81,7 +81,19 @@ public class BaseTaskService {
     }
 
     @Transactional(readOnly = false)
-    public void done(Long taskId ,TaskHandler taskHandler) {
+    public void assign(Long taskId, Long staffId, Long containerId, TaskHandler taskHandler) {
+        TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
+        taskInfo.setOperator(staffId);
+        taskInfo.setStatus(TaskConstant.Assigned);
+        taskInfo.setAssignTime(DateUtils.getCurrentSeconds());
+        taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+        taskInfo.setContainerId(containerId);
+        taskInfoDao.update(taskInfo);
+        taskHandler.assignConcrete(taskId, staffId, containerId);
+    }
+
+    @Transactional(readOnly = false)
+    public void done(Long taskId, TaskHandler taskHandler) {
         TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
         taskInfo.setStatus(TaskConstant.Done);
         taskInfo.setFinishTime(DateUtils.getCurrentSeconds());
@@ -91,7 +103,7 @@ public class BaseTaskService {
     }
 
     @Transactional(readOnly = false)
-    public void done(Long taskId ,TaskHandler taskHandler,Long locationId) {
+    public void done(Long taskId, TaskHandler taskHandler,Long locationId) {
         TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
         taskInfo.setStatus(TaskConstant.Done);
         taskInfo.setFinishTime(DateUtils.getCurrentSeconds());
@@ -101,7 +113,7 @@ public class BaseTaskService {
     }
 
     @Transactional(readOnly = false)
-    public void cancel(Long taskId,TaskHandler taskHandler) {
+    public void cancel(Long taskId, TaskHandler taskHandler) {
         TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
         taskInfo.setStatus(TaskConstant.Cancel);
         taskInfo.setCancelTime(DateUtils.getCurrentSeconds());

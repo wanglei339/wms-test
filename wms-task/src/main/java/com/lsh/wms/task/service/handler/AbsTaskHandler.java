@@ -100,11 +100,19 @@ public class AbsTaskHandler implements TaskHandler {
 
 
     public void assign(Long taskId, Long staffId) throws BizCheckedException {
-        baseTaskService.assign(taskId, staffId,this);
+        baseTaskService.assign(taskId, staffId, this);
         // this.assignConcrete(taskId, staffId);
     }
 
     public void assignConcrete(Long taskId, Long staffId) throws BizCheckedException {
+    }
+
+    public void assign(Long taskId, Long staffId, Long containerId) throws BizCheckedException {
+        baseTaskService.assign(taskId, staffId, containerId, this);
+        // this.assignConcrete(taskId, staffId);
+    }
+
+    public void assignConcrete(Long taskId, Long staffId, Long containerId) throws BizCheckedException {
     }
 
 
