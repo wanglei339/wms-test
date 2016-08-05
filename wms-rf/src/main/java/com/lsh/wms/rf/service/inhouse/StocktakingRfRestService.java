@@ -177,6 +177,8 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
         }
         TaskInfo info=entries.get(0).getTaskInfo();
         queryMap.put("takingId", info.getPlanId());
+        Long round = stockTakingService.chargeTime(info.getPlanId());
+        queryMap.put("round", round);
         List<StockTakingTask> takingTasks =stockTakingTaskService.getTakingTask(queryMap);
         List<Long> taskIdList = new ArrayList<Long>();
         for(StockTakingTask takingtask:takingTasks){
