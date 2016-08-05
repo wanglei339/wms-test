@@ -12,6 +12,7 @@ import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
+import com.lsh.wms.core.service.location.LocationConstant;
 import com.lsh.wms.model.task.TaskInfo;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.map.HashedMap;
@@ -213,85 +214,64 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         HashMap<String, Object> mapCondition = new HashMap<String, Object>();
 
         List<BaseinfoItem> itemList= itemService.searchItem(mapQuery);
-        endTime = System.currentTimeMillis();
-        logger.info("getItemList :" + (endTime-startTime));
-
-        //List<Long> locationList = locationService.getStoreLocationIds(locationService.getWarehouseLocationId());
-        List<Long> locationListLoss = locationService.getStoreLocationIds(locationService.getInventoryLostLocationId());
-        endTime = System.currentTimeMillis();
-        logger.info("getLocationList :" + (endTime-startTime));
-        BigDecimal total, freeze, loss, lossDefect, lossRefund, defect, refund;
-
+        List<Long> itemIdList = new ArrayList<Long>();
         for (BaseinfoItem item : itemList) {
-            Long itemId = item.getItemId();
-            mapCondition.clear();
-            mapCondition.put("itemId",itemId);
-            List<StockQuant> quantList = quantService.getQuants(mapCondition);
-            mapCondition.clear();
-            mapCondition.put("itemId", itemId);
-            total = quantService.getQty(mapCondition);
-            loss = BigDecimal.ZERO;
-            freeze = BigDecimal.ZERO;
-            defect = BigDecimal.ZERO;
-            refund = BigDecimal.ZERO;
-            lossDefect = BigDecimal.ZERO;
-            lossRefund = BigDecimal.ZERO;
+            itemIdList.add(item.getItemId());
+        }
+        logger.info(itemIdList.size() + "");
+        endTime = System.currentTimeMillis();
+        logger.info("getItemIdList :" + (endTime-startTime));
 
-            for (StockQuant quant : quantList) {
-                Long isFrozen,reserveTaskId,isNormal,isDefect,isRefund,locationId;
-                isFrozen = quant.getIsFrozen();
-                reserveTaskId = quant.getReserveTaskId();
-                isNormal = 1L;
-                if(isFrozen == 1 || reserveTaskId == 0) {
-                    isNormal = 0L;
-                }
-                isDefect = quant.getIsDefect();
-                isRefund = quant.getIsRefund();
-                BigDecimal qty = quant.getQty();
-                if(isNormal == 0) {
-                    freeze.add(qty);
-                } else if (locationService.) {
+//        List<Long> locationList = locationService.getStoreLocationIds(locationService.getWarehouseLocationId());
+//        List<Long> locationListLoss = locationService.getStoreLocationIds(locationService.getInventoryLostLocationId());
 
-                }
+        BigDecimal total, freeze, loss, lossDefect, lossRefund, defect, refund;
+        mapCondition.put("itemList", itemIdList);
+        List<StockQuant> quantList = quantService.getQuants(mapCondition);
 
+        endTime = System.currentTimeMillis();
+        logger.info("getQuantList :" + (endTime-startTime));
+
+        total = BigDecimal.ZERO;
+        loss = BigDecimal.ZERO;
+        freeze = BigDecimal.ZERO;
+        defect = BigDecimal.ZERO;
+        refund = BigDecimal.ZERO;
+        lossDefect = BigDecimal.ZERO;
+        lossRefund = BigDecimal.ZERO;
+
+        for (StockQuant quant : quantList) {
+            Long isFrozen,reserveTaskId,isNormal,isDefect,isRefund,locationId;
+            isFrozen = quant.getIsFrozen();
+            reserveTaskId = quant.getReserveTaskId();
+            isNormal = 1L;
+            if(isFrozen == 1 || reserveTaskId != 0) {
+                isNormal = 0L;
             }
+            isDefect = quant.getIsDefect();
+            isRefund = quant.getIsRefund();
+            locationId = quant.getLocationId();
+            BigDecimal qty = quant.getQty();
 
+            total = total.add(qty);
 
-
-//            mapCondition.clear();
-//            mapCondition.put("itemId", itemId);
-//            //mapCondition.put("locationList",locationList);
-//            mapCondition.put("isNormal",false);
-//            freeze = quantService.getQty(mapCondition);
-//
-//            mapCondition.clear();
-//            mapCondition.put("itemId", itemId);
-//            mapCondition.put("locationList", locationListLoss);
-//            loss = quantService.getQty(mapCondition);
-//
-//            mapCondition.clear();
-//            mapCondition.put("itemId", itemId);
-//            mapCondition.put("locationList", locationListLoss);
-//            mapCondition.put("isDefect", 1);
-//            lossDefect = quantService.getQty(mapCondition);
-//
-//            mapCondition.clear();
-//            mapCondition.put("itemId", itemId);
-//            mapCondition.put("locationList", locationListLoss);
-//            mapCondition.put("isRefund", 1);
-//            lossRefund = quantService.getQty(mapCondition);
-//
-//            mapCondition.clear();
-//            mapCondition.put("itemId", itemId);
-//            //mapCondition.put("locationList",locationList);
-//            mapCondition.put("isDefect", 1);
-//            defect = quantService.getQty(mapCondition);
-//
-//            mapCondition.clear();
-//            mapCondition.put("itemId", itemId);
-//            //mapCondition.put("locationList",locationList);
-//            mapCondition.put("isRefund", 1);
-//            refund = quantService.getQty(mapCondition);
+            if(isNormal == 0) {
+                freeze = freeze.add(qty);
+            }
+            if (locationService.getLocation(locationId).getType().equals( LocationConstant.InventoryLost) ) {
+                loss = loss.add(qty);
+                if (isDefect == 1) {
+                    lossDefect = lossDefect.add(qty);
+                } else if(isRefund == 1) {
+                    lossRefund = lossRefund.add(qty);
+                }
+            }
+            if (isDefect == 1) {
+                defect = defect.add(qty);
+            }
+            if (isRefund == 1) {
+                refund = refund.add(qty);
+            }
 
             BigDecimal reTotal = total.subtract(loss);
             BigDecimal reDefect = defect.subtract(lossDefect);
@@ -305,7 +285,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             result.put("freeze", freeze);
             result.put("defect", reDefect);
             result.put("refund", reRefund);
-            itemQuant.put(itemId,result);
+            itemQuant.put(quant.getItemId(),result);
         }
         endTime = System.currentTimeMillis();
         logger.info("" + (endTime-startTime));
