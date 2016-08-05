@@ -105,9 +105,6 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
             }else {
                 Map<String,Object> detailMap =new HashMap<String, Object>();
                 CsiSku csiSku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE,barcode.toString());
-                detailMap.put("skuId",csiSku.getSkuId());
-                detailMap.put("takingId",detail.getTakingId());
-                List<StockTakingDetail> tmpDetail = stockTakingService.queryTakingDetail(detailMap);
                 StockTakingDetail newDetail = new StockTakingDetail();
                 newDetail.setRealQty(realQty);
                 newDetail.setDetailId(RandomUtils.genId());
@@ -117,8 +114,6 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
                 newDetail.setLocationId(detail.getLocationId());
                 newDetail.setContainerId(detail.getContainerId());
                 newDetail.setRound(detail.getRound());
-                newDetail.setPackName(beanMap.get("packName").toString());
-                newDetail.setPackUnit(new BigDecimal(beanMap.get("packUnit").toString()));
                 stockTakingService.insertDetail(newDetail);
             }
             Map<String,Object> queryMap = new HashMap<String, Object>();
