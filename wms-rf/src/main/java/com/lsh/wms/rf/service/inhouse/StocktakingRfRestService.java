@@ -148,7 +148,7 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
         Long staffId = iSysUserRpcService.getSysUserById(uId).getStaffId();
         Map<String,Object> statusQueryMap = new HashMap();
         statusQueryMap.put("status",2);
-        statusQueryMap.put("planner", staffId);
+        statusQueryMap.put("operator", staffId);
         List<TaskEntry> list = iTaskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TAKING, statusQueryMap);
         if(list!=null && list.size()!=0){
             for(TaskEntry taskEntry:list){
@@ -159,8 +159,8 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
                 List<Object> objectList = taskEntry.getTaskDetailList();
                 if(objectList!=null && objectList.size()!=0){
                     StockTakingDetail detail =(StockTakingDetail)(objectList.get(0));
-                    BaseinfoLocation location = locationService.getLocation(detail.getLocationId());
                     locationId = detail.getLocationId();
+                    BaseinfoLocation location = locationService.getLocation(detail.getLocationId());
                     if(location!=null){
                         locationCode = location.getLocationCode();
                     }
@@ -169,8 +169,8 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
                 task.put("locationCode",locationCode);
                 taskList.add(task);
             }
-            result.put("taskList",taskList);
-            JsonUtils.SUCCESS(result);
+            result.put("taskList", taskList);
+            return JsonUtils.SUCCESS(result);
         }
         Map<String,Object> queryMap =new HashMap<String, Object>();
         queryMap.put("status",1L);
@@ -191,7 +191,9 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
             List<StockTakingDetail> details =stockTakingService.getDetailByTaskId(takingtask.getTaskId());
             if(details==null || details.size()==0){
                 task.put("locationCode","");
+                task.put("locationId",0L);
             }else {
+                task.put("locationId",details.get(0).getLocationId());
                 BaseinfoLocation location = locationService.getLocation(details.get(0).getLocationId());
                 if(location==null){
                     task.put("locationCode","");
