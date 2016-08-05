@@ -70,7 +70,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         core.fillTransferPlan(plan);
 
         if ( plan.getQty().compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
-            System.out.println(plan.getQty()+ "  ---  "+ total);
             throw new BizCheckedException("2550002","商品数量不足");
         }
 
@@ -108,13 +107,19 @@ public class StockTransferRpcService implements IStockTransferRpcService {
 
     public Long assign(Long staffId) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("status", TaskConstant.Draft);
-        List<TaskEntry> list = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQuery);
+        mapQuery.put("status", TaskConstant.Assigned);
+        mapQuery.put("operator", staffId);
+        List<TaskEntry> list = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER,mapQuery);
         if (list.isEmpty()) {
-            return 0L;
-        } else {
-            taskRpcService.assign(list.get(0).getTaskInfo().getTaskId(), staffId);
-            return list.get(0).getTaskInfo().getTaskId();
+            mapQuery.clear();
+            mapQuery.put("status", TaskConstant.Draft);
+            list = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQuery);
+            if(list.isEmpty()) {
+                return 0L;
+            }
         }
+        taskRpcService.assign(list.get(0).getTaskInfo().getTaskId(), staffId);
+        return list.get(0).getTaskInfo().getTaskId();
+
     }
 }
