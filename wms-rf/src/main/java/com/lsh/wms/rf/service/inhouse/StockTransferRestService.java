@@ -157,8 +157,7 @@ public class StockTransferRestService implements IStockTransferRestService {
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {
@@ -179,10 +178,7 @@ public class StockTransferRestService implements IStockTransferRestService {
         try {
             final Long taskId = rpcService.assign(staffId);
             if(taskId == 0) {
-                return JsonUtils.SUCCESS(new HashMap<String, Object>(){
-                    {
-                    }
-                });
+                throw new BizCheckedException("2040001");
             }
             TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
             if (taskEntry == null) {
