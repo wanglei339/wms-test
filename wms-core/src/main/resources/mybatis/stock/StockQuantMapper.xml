@@ -127,6 +127,12 @@
 					#{item}
 				</foreach>
 			</if>
+			<if test="itemList != null">
+				and item_id in
+				<foreach collection="itemList"  item="item" index="index" open="(" separator=","  close=")">
+					#{item}
+				</foreach>
+			</if>
 			<if test="containerId != null and containerId != 0">and container_id=#{containerId}</if>
 			<if test="reserveTaskId != null and reserveTaskId != 0">and reserve_task_id=#{reserveTaskId}</if>
 			<if test="packUnit != null and packUnit != 0">and pack_unit=#{packUnit}</if>
