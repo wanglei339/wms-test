@@ -264,17 +264,17 @@ public class StockQuantService {
     }
 
     @Transactional(readOnly = false)
-    public boolean moveToContainer(Long itemId, Long operator,Long fromContainer,Long toContainer,Long locationId,BigDecimal qty ) {
+    public void moveToContainer(Long itemId, Long operator,Long fromContainer,Long toContainer,Long locationId,BigDecimal qty ) {
         Map<String, Object> queryMap = new HashMap<String, Object>();
         queryMap.put("itemId",itemId);
         queryMap.put("containerId",fromContainer);
         List<StockQuant> stockQuants = stockQuantDao.getQuants(queryMap);
         if(stockQuants==null || stockQuants.size()==0){
-            return false;
+            throw new BizCheckedException("根据containerId和商品id查不到库存信息");
         }
         StockQuant quant = stockQuants.get(0);
         if(quant.getQty().subtract(qty).floatValue() < 0){
-            return false;
+            throw new BizCheckedException("库存不足");
         }
         queryMap.put("containerId", toContainer);
         queryMap.remove("itemId");
@@ -322,7 +322,6 @@ public class StockQuantService {
         moveToRel.setQuantId(quant.getId());
         relDao.insert(moveToRel);
 
-        return true;
     }
 
     public int countStockQuant(Map<String, Object> mapQuery){
