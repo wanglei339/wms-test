@@ -8,6 +8,7 @@
 		<result property="isValid" column="is_valid"/>
 		<result property="waveId" column="wave_id"/>
 		<result property="orderId" column="order_id"/>
+		<result property="itemId" column="item_id"/>
 		<result property="skuId" column="sku_id"/>
 		<result property="ownerId" column="owner_id"/>
 		<result property="locId" column="loc_id"/>
@@ -45,7 +46,7 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="WaveDetail">
 		insert into wave_detail (
-			is_alive,is_valid,wave_id,order_id,sku_id,owner_id,
+			is_alive,is_valid,wave_id,order_id,item_id,sku_id,owner_id,
 			loc_id,supplier_id,status,req_qty,alloc_qty,pick_qty,
 			qc_qty,delivery_qty,pick_task_id,pick_zone_id,alloc_pick_location,real_pick_location,
 			alloc_collect_location,real_collect_location,container_id,pick_uid,pick_at,sow_task_id,
@@ -53,7 +54,7 @@
 			qc_exception_qty,qc_exception_done,ship_task_id,ship_uid,ship_at,created_at,
 			updated_at
     	) values (
-			#{isAlive},#{isValid},#{waveId},#{orderId},#{skuId},#{ownerId},
+			#{isAlive},#{isValid},#{waveId},#{orderId},#{itemId},#{skuId},#{ownerId},
 			#{locId},#{supplierId},#{status},#{reqQty},#{allocQty},#{pickQty},
 			#{qcQty},#{deliveryQty},#{pickTaskId},#{pickZoneId},#{allocPickLocation},#{realPickLocation},
 			#{allocCollectLocation},#{realCollectLocation},#{containerId},#{pickUid},#{pickAt},#{sowTaskId},
@@ -70,6 +71,7 @@
   			<if test="isValid != null">is_valid=#{isValid},</if>
   			<if test="waveId != null">wave_id=#{waveId},</if>
   			<if test="orderId != null">order_id=#{orderId},</if>
+			<if test="itemId != null">item_id=#{itemId},</if>
   			<if test="skuId != null">sku_id=#{skuId},</if>
   			<if test="ownerId != null">owner_id=#{ownerId},</if>
   			<if test="locId != null">loc_id=#{locId},</if>
@@ -137,6 +139,7 @@
 			<if test="isValid != null">and is_valid=#{isValid}</if>
 			<if test="waveId != null">and wave_id=#{waveId}</if>
 			<if test="orderId != null">and order_id=#{orderId}</if>
+			<if test="itemId != null">and item_id=#{itemId}</if>
 			<if test="skuId != null">and sku_id=#{skuId}</if>
 			<if test="ownerId != null">and owner_id=#{ownerId}</if>
 			<if test="locId != null">and loc_id=#{locId}</if>

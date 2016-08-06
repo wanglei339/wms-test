@@ -247,6 +247,7 @@ public class WaveCore {
                     allocDetail.setPickZoneId(zone.getPickZoneId());
                     allocDetail.setReqQty(new BigDecimal(0));
                     allocDetail.setAllocPickLocation(pickLocationId);
+                    allocDetail.setItemId(item.getItemId());
                     //allocDetail.setSupplierId(mapOrder2Head.get(detail.getOrderId()).get); ??
                     allocDetail.setWaveId(waveId);
                     pickAllocDetailList.add(allocDetail);

@@ -6,6 +6,7 @@
 		<id property="id" column="id"/>
 		<result property="waveId" column="wave_id"/>
 		<result property="orderId" column="order_id"/>
+		<result property="itemId" column="item_id"/>
 		<result property="skuId" column="sku_id"/>
 		<result property="ownerId" column="owner_id"/>
 		<result property="locId" column="loc_id"/>
@@ -20,10 +21,10 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="WaveAllocDetail">
 		insert into wave_alloc_detail (
-			wave_id,order_id,sku_id,owner_id,loc_id,supplier_id,
+			wave_id,order_id,item_id,sku_id,owner_id,loc_id,supplier_id,
 			req_qty,alloc_qty,pick_zone_id,alloc_pick_location,created_at,updated_at
     	) values (
-			#{waveId},#{orderId},#{skuId},#{ownerId},#{locId},#{supplierId},
+			#{waveId},#{orderId},#{itemId},#{skuId},#{ownerId},#{locId},#{supplierId},
 			#{reqQty},#{allocQty},#{pickZoneId},#{allocPickLocation},#{createdAt},#{updatedAt}
     	)
 	</insert>
@@ -33,6 +34,7 @@
     	<set>
   			<if test="waveId != null">wave_id=#{waveId},</if>
   			<if test="orderId != null">order_id=#{orderId},</if>
+			<if test="itemId != null">item_id=#{itemId},</if>
   			<if test="skuId != null">sku_id=#{skuId},</if>
   			<if test="ownerId != null">owner_id=#{ownerId},</if>
   			<if test="locId != null">loc_id=#{locId},</if>
@@ -70,6 +72,7 @@
 			<if test="id != null">id=#{id}</if>
 			<if test="waveId != null">and wave_id=#{waveId}</if>
 			<if test="orderId != null">and order_id=#{orderId}</if>
+			<if test="itemId != null">and item_id=#{itemId}</if>
 			<if test="skuId != null">and sku_id=#{skuId}</if>
 			<if test="ownerId != null">and owner_id=#{ownerId}</if>
 			<if test="locId != null">and loc_id=#{locId}</if>
