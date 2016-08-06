@@ -13,7 +13,7 @@ public class StockTakingDetail implements Serializable {
 	/** 任务Id */
 	private Long taskId = 0L;
 	/** 盘点行项目编号 */
-    private Long detailId;
+    private Long detailId = 0L;
 	/** 第几轮盘点的结果 */
     private Long round = 1L ;
 	/** 实际值 */
