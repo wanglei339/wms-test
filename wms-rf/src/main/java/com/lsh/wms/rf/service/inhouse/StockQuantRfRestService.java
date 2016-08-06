@@ -48,7 +48,7 @@ public class StockQuantRfRestService implements IStockQuantRfRestService {
     public String getItemByLocation() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
         Long locationId = Long.valueOf(params.get("locationId").toString());
-        String barCode =params.get("barCode").toString();
+        String barCode =params.get("barcode").toString();
 
         CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE,barCode);
         if(csiSku == null) {
