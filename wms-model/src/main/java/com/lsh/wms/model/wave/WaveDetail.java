@@ -127,8 +127,8 @@ public class WaveDetail implements Serializable {
 		this.orderId = orderId;
 	}
 
-	public Long getItemId(){
-		return this.itemId;
+	public Long getItemId() {
+		return itemId;
 	}
 
 	public void setItemId(Long itemId){

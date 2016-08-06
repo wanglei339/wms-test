@@ -113,7 +113,12 @@
   
 	<select id="getWaveDetailById" parameterType="int" resultMap="waveDetailResultMap">
 		select * from wave_detail
-		where ID=#{id} 
+		where ID=#{id}
+	</select>
+
+	<select id="getUnPickedQty" parameterType="map" resultType="java.math.BigDecimal">
+		select sum(alloc_qty-pick_qty) from wave_detail
+		<include refid="queryCondition"/>
 	</select>
   
 	<select id="countWaveDetail" parameterType="map" resultType="int">
