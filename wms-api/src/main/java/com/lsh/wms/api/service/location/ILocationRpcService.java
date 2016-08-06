@@ -1,9 +1,9 @@
 package com.lsh.wms.api.service.location;
 
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -27,6 +27,10 @@ public interface ILocationRpcService {
     public BaseinfoLocation getBackLocation();
     //分配残次
     public BaseinfoLocation getDefectiveLocation();
+    //获取仓库下所有的库区
+    public List<BaseinfoLocation> getAllRegion();
+    //获取所有仓库下的所有货位
+    public  List<BaseinfoLocation> getAllBin();
 
 
 }

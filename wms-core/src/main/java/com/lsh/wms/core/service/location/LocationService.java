@@ -476,19 +476,11 @@ public class LocationService {
         return locationDao.getBaseinfoLocationList(mapQuery);
     }
 
-    // 获取拣货位最近的存储位
+    // TODO 获取拣货位最近的存储位
     public BaseinfoLocation getNearestStorageByPicking(BaseinfoLocation pickingLocation) {
         return null;
     }
 
-
-    public void getImpLocation(long iType, long locationId) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        BaseinfoLocation location;
-        params.put("locationId", locationId);
-        List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
-        //return locations.size() == 1 ? locations.get(0) : null;
-    }
 
     //获取code
     public String getCodeById(Long locationId) {

@@ -46,6 +46,8 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     private LocationDetailService locationDetailService;
     @Autowired
     private LocationDetailModelFactory locationDetailModelFactory;
+    @Autowired
+    private LocationDetailRpcService locationDetailRpcService;
     //设置bin的Type集合,用于判断type是否是bin,然后设置
 
 
@@ -109,15 +111,8 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @Path("getLocationDetail")
     public String getLocationDetailById(@QueryParam("locationId") Integer locationId) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Long id = Long.parseLong(locationId.toString());
-        BaseinfoLocation subLocation = (BaseinfoLocation) locationDetailService.getIBaseinfoLocaltionModelById(id);
-        return JsonUtils.SUCCESS(subLocation);
-    }
-
-    @POST
-    @Path("getlocationDetailList")
-    public String getLocationDetailListByType(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        List<BaseinfoLocation> baseinfoLocationList = locationDetailService.getIBaseinfoLocaltionModelListByType(params);
-        return JsonUtils.SUCCESS(baseinfoLocationList);
+//        BaseinfoLocation subLocation = (BaseinfoLocation) locationDetailService.getIBaseinfoLocaltionModelById(id);
+        return JsonUtils.SUCCESS(locationDetailRpcService.getLocationDetailById(id));
     }
 
     @POST
@@ -135,8 +130,9 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         Long createAt = DateUtils.getCurrentSeconds();
         iBaseinfoLocaltionModel.setCreatedAt(createAt);
         iBaseinfoLocaltionModel.setUpdatedAt(createAt);
-        locationDetailService.insert(iBaseinfoLocaltionModel);
-        return JsonUtils.SUCCESS();
+//        locationDetailService.insert(iBaseinfoLocaltionModel);
+
+        return JsonUtils.SUCCESS(locationDetailRpcService.insertLocationDetailByType(iBaseinfoLocaltionModel));
     }
 
 
@@ -150,8 +146,8 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         //添加更新时间
         long updatedAt = DateUtils.getCurrentSeconds();
         iBaseinfoLocaltionModel.setUpdatedAt(updatedAt);
-        locationDetailService.update(iBaseinfoLocaltionModel);
-        return JsonUtils.SUCCESS();
+//        locationDetailService.update(iBaseinfoLocaltionModel);
+        return JsonUtils.SUCCESS(locationDetailRpcService.updateLocationDetailByType(iBaseinfoLocaltionModel));
     }
 
 
@@ -159,7 +155,8 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @Path("countLocation")
     public String countLocationDetailByType() {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
-        return JsonUtils.SUCCESS(locationDetailService.countLocationDetail(mapQuery));
+//        return JsonUtils.SUCCESS(locationDetailService.countLocationDetail(mapQuery));
+        return JsonUtils.SUCCESS(locationDetailRpcService.countLocationDetailByType(mapQuery));
     }
 
 
@@ -173,7 +170,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @Path("getList")
     public String searchList() throws BizCheckedException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Map<String, Object> params = RequestUtils.getRequest();
-       List <BaseinfoLocation> locations = locationDetailService.getIBaseinfoLocaltionModelListByType(params);
+        List<BaseinfoLocation> locations = locationDetailService.getIBaseinfoLocaltionModelListByType(params);
         //如果是货位就加上regionName
         return JsonUtils.SUCCESS(locations);
     }
@@ -190,10 +187,15 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         //先找到location,然后将location的is——valid置为1
         Map<String, Object> params = RequestUtils.getRequest();
         Long locationId = Long.parseLong(params.get("locationId").toString());
-        BaseinfoLocation location = locationService.getLocation(locationId);
-        if (location != null) {
-            location.setIsValid(0);
-            // TODO 删除
+//        BaseinfoLocation location = locationService.getLocation(locationId);
+//        if (location != null) {
+//            location.setIsValid(0);
+//            // TODO 删除
+//            return JsonUtils.SUCCESS("删除成功");
+//        } else {
+//            throw new BizCheckedException("查无此数据,删除失败");
+//        }
+        if (locationDetailRpcService.removeLocation(locationId)) {
             return JsonUtils.SUCCESS("删除成功");
         } else {
             throw new BizCheckedException("查无此数据,删除失败");
