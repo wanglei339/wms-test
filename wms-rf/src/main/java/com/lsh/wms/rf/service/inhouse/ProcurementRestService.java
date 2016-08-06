@@ -97,37 +97,24 @@ public class ProcurementRestService implements IProcurementRestService {
         Map<String, Object> params = RequestUtils.getRequest();
         Long uid = Long.valueOf(params.get("uId").toString());
         Long staffId = iSysUserRpcService.getSysUserById(uid).getStaffId();
-        try {
-<<<<<<< HEAD
-            Map<String,Object> result =new HashMap<String, Object>();
-            Long taskId = rpcService.assign(staffId);
-            result.put("taskId",taskId);
-            return JsonUtils.SUCCESS(result);
-        } catch (BizCheckedException e) {
-            throw e;
-=======
-            final Long taskId = rpcService.assign(staffId);
-            if(taskId == 0) {
-                throw new BizCheckedException("2040001");
-            }
-            TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
-            if (taskEntry == null) {
-                throw new BizCheckedException("2040001");
-            }
-            final TaskInfo taskInfo = taskEntry.getTaskInfo();
-            final Long fromLocationId = taskInfo.getFromLocationId();
-            final String fromLocationCode =  locationRpcService.getLocation(fromLocationId).getLocationCode();
-            return JsonUtils.SUCCESS(new HashMap<String, Object>() {
-                {
-                    put("taskId", taskId);
-                    put("fromLocationId", fromLocationId);
-                    put("fromLocationCode",fromLocationCode);
-                }
-            });
->>>>>>> bb3c4cdc2c0f1010856c2d646f4379bd3f38292e
-        } catch (Exception e) {
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+        final Long taskId = rpcService.assign(staffId);
+        if(taskId == 0) {
+            throw new BizCheckedException("2040001");
         }
+        TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
+        if (taskEntry == null) {
+            throw new BizCheckedException("2040001");
+        }
+        final TaskInfo taskInfo = taskEntry.getTaskInfo();
+        final Long fromLocationId = taskInfo.getFromLocationId();
+        final String fromLocationCode =  locationRpcService.getLocation(fromLocationId).getLocationCode();
+        return JsonUtils.SUCCESS(new HashMap<String, Object>() {
+            {
+                put("taskId", taskId);
+                put("fromLocationId", fromLocationId);
+                put("fromLocationCode",fromLocationCode);
+            }
+        });
     }
 
     @POST
