@@ -20,17 +20,22 @@
 		<result property="description" column="description"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
+		<result property="classification" column="classification"/>
+		<result property="canUse" column="can_use"/>
+		<result property="isLocked" column="is_locked"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLocation">
 		insert into baseinfo_location (
 			location_id,location_code,father_id,type,type_name,is_leaf,
 			is_valid,can_store,container_vol,region_no,passage_no,shelf_level_no,
-			bin_position_no,description,created_at,updated_at
+			bin_position_no,description,created_at,updated_at,classification,can_use,
+			is_locked
     	) values (
 			#{locationId},#{locationCode},#{fatherId},#{type},#{typeName},#{isLeaf},
 			#{isValid},#{canStore},#{containerVol},#{regionNo},#{passageNo},#{shelfLevelNo},
-			#{binPositionNo},#{description},#{createdAt},#{updatedAt}
+			#{binPositionNo},#{description},#{createdAt},#{updatedAt},#{classification},#{canUse},
+			#{isLocked}
     	)
 	</insert>
 
@@ -52,7 +57,10 @@
   			<if test="binPositionNo != null">bin_position_no=#{binPositionNo},</if>
   			<if test="description != null">description=#{description},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
-  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+  			<if test="classification != null">classification=#{classification},</if>
+  			<if test="canUse != null">can_use=#{canUse},</if>
+  			<if test="isLocked != null">is_locked=#{isLocked}</if>
 		</set>
 		where location_id=#{locationId}
 	</update>
@@ -94,6 +102,9 @@
 			<if test="description != null">and description=#{description}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="classification != null">and classification=#{classification}</if>
+			<if test="canUse != null">and can_use=#{canUse}</if>
+			<if test="isLocked != null">and is_locked=#{isLocked}</if>
 		</where>
 	</sql>
    

@@ -23,11 +23,17 @@ public class BaseinfoLocationRegion extends BaseinfoLocation implements Serializ
     private String description;
 	/** 区域类型同主表type */
     private Long type;
-	/** 区域名字 */
-    private String regionName;
-	/** 是否可用 */
-    private String isUsed;
-	
+
+	@Override
+	public Long getType() {
+		return type;
+	}
+
+	@Override
+	public void setType(Long type) {
+		this.type = type;
+	}
+
 	public Long getId(){
 		return this.id;
 	}
@@ -84,21 +90,6 @@ public class BaseinfoLocationRegion extends BaseinfoLocation implements Serializ
 		this.description = description;
 	}
 
-	public String getRegionName(){
-		return this.regionName;
-	}
-	
-	public void setRegionName(String regionName){
-		this.regionName = regionName;
-	}
-	
-	public String getIsUsed(){
-		return this.isUsed;
-	}
-	
-	public void setIsUsed(String isUsed){
-		this.isUsed = isUsed;
-	}
-	
+
 	
 }

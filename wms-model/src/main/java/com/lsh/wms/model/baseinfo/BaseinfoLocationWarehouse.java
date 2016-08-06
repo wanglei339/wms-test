@@ -24,9 +24,17 @@ public class BaseinfoLocationWarehouse extends BaseinfoLocation implements Seria
     private Long updatedAt;
 	/** 主表的type */
     private Long type;
-	/** 是否可用 */
-    private String isUsed;
-	
+
+	@Override
+	public Long getType() {
+		return type;
+	}
+
+	@Override
+	public void setType(Long type) {
+		this.type = type;
+	}
+
 	public Long getId(){
 		return this.id;
 	}
@@ -90,14 +98,5 @@ public class BaseinfoLocationWarehouse extends BaseinfoLocation implements Seria
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
-
-	public String getIsUsed(){
-		return this.isUsed;
-	}
-	
-	public void setIsUsed(String isUsed){
-		this.isUsed = isUsed;
-	}
-	
 	
 }

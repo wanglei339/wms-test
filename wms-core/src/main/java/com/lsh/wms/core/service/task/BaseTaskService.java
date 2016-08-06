@@ -82,7 +82,7 @@ public class BaseTaskService {
     }
 
     @Transactional(readOnly = false)
-    public void assign(Long taskId, Long staffId, TaskHandler taskHandler) {
+    public void assign(Long taskId, Long staffId, TaskHandler taskHandler) throws BizCheckedException {
         TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
         taskInfo.setOperator(staffId);
         taskInfo.setStatus(TaskConstant.Assigned);
