@@ -12,6 +12,8 @@ public class WaveAllocDetail implements Serializable {
     private Long waveId;
 	/** 订单id */
     private Long orderId;
+	/** 商品码 */
+	private Long itemId;
 	/** 商品id */
     private Long skuId;
 	/** 货主id */
@@ -26,6 +28,8 @@ public class WaveAllocDetail implements Serializable {
     private BigDecimal allocQty;
 	/** 分配的捡货分区 */
     private Long pickZoneId;
+	/** 分配分拣位 */
+	private Long allocPickLocation = 0L;
 	/**  */
     private Long createdAt = 0L;
 	/**  */
@@ -53,6 +57,14 @@ public class WaveAllocDetail implements Serializable {
 	
 	public void setOrderId(Long orderId){
 		this.orderId = orderId;
+	}
+
+	public Long getItemId() {
+		return itemId;
+	}
+
+	public void setItemId(Long itemId) {
+		this.itemId = itemId;
 	}
 	
 	public Long getSkuId(){
@@ -109,6 +121,14 @@ public class WaveAllocDetail implements Serializable {
 	
 	public void setPickZoneId(Long pickZoneId){
 		this.pickZoneId = pickZoneId;
+	}
+
+	public Long getAllocPickLocation(){
+		return this.allocPickLocation;
+	}
+
+	public void setAllocPickLocation(Long allocPickLocation){
+		this.allocPickLocation = allocPickLocation;
 	}
 	
 	public Long getCreatedAt(){

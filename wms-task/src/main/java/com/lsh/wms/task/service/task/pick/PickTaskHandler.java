@@ -1,8 +1,12 @@
 package com.lsh.wms.task.service.task.pick;
 
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.pick.PickTaskService;
+import com.lsh.wms.core.service.stock.StockMoveService;
+import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.pick.PickTaskHead;
 import com.lsh.wms.model.task.StockTakingTask;
@@ -25,6 +29,12 @@ public class PickTaskHandler extends AbsTaskHandler {
     private TaskHandlerFactory handlerFactory;
     @Autowired
     private PickTaskService pickTaskService;
+    @Autowired
+    private StockMoveService stockMoveService;
+    @Autowired
+    private LocationService locationService;
+    @Autowired
+    private WaveService waveService;
 
     @PostConstruct
     public void postConstruct() {
@@ -39,20 +49,31 @@ public class PickTaskHandler extends AbsTaskHandler {
         if (details.size() < 1) {
             throw new BizCheckedException("2060002");
         }
-        // 通过波次详情设置拣货头信息
-
-        //WaveDetail tmpDetail = details.get(0);
-        //head.setDeliveryId(tmpDetail.getOrderId());
-        //head.setWaveId(tmpDetail.getWaveId());
-        //head.setPickType(1); // TODO
-        //head.setContainerId(tmpDetail.getContainerId());
         for(WaveDetail detail : details){
-            //if (!detail.getPickTaskId().equals("") || detail.getPickTaskId() != null) {
-            //    throw new BizCheckedException("2060001");
-            //}
             detail.setPickTaskId(taskId);
         }
         pickTaskService.createPickTask(head, details);
+    }
+
+    public void doneConcrete(Long taskId, Long locationId, Long staffId) throws BizCheckedException{
+        PickTaskHead taskHead = pickTaskService.getPickTaskHead(taskId);
+        taskHead.setPickAt(DateUtils.getCurrentSeconds());
+        taskHead.setRealCollectLocation(locationId);
+        pickTaskService.update(taskHead);
+        // 更新wave_detail
+        /*List<WaveDetail> pickDetails = waveService.getDetailsByPickTaskId(taskId);
+        for (WaveDetail pickDetail : pickDetails) {
+            pickDetail.setRealCollectLocation(locationId);
+            waveService.updateDetail(pickDetail);
+        }*/
+        // 移动库存
+        //stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, locationService.getWarehouseLocationId(), locationId);
+    }
+
+    public void assignConcrete(Long taskId, Long staffId, Long containerId) throws BizCheckedException {
+        PickTaskHead head = pickTaskService.getPickTaskHead(taskId);
+        head.setContainerId(containerId);
+        pickTaskService.update(head);
     }
 
     public void getConcrete(TaskEntry taskEntry) {

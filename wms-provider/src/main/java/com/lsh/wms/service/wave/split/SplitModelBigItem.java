@@ -13,6 +13,10 @@ import java.util.Map;
 public class SplitModelBigItem extends SplitModelItem{
     @Override
     public void split(List<SplitNode> stopNodes) {
+        if(this.model.getPickModel()!=3){
+            this.skipSplit();
+            return;
+        }
         if(this.model.getFpmrBigItemThreshold()<0){
             this.skipSplit();
             return;

@@ -19,6 +19,10 @@ public class PickTaskHead implements Serializable {
     private Integer pickType = 1;
 	/** 容器id */
     private Long containerId = 0L;
+	/** 分配的集货位 */
+	private Long allocCollectLocation;
+	/** 实际的集货位 */
+	private Long realCollectLocation;
 	/** 拣货完成时间 */
     private Long pickAt = 0L;
 	/**  */
@@ -80,6 +84,22 @@ public class PickTaskHead implements Serializable {
 	
 	public void setContainerId(Long containerId){
 		this.containerId = containerId;
+	}
+
+	public Long getAllocCollectLocation(){
+		return this.allocCollectLocation;
+	}
+
+	public void setAllocCollectLocation(Long allocCollectLocation){
+		this.allocCollectLocation = allocCollectLocation;
+	}
+
+	public Long getRealCollectLocation(){
+		return this.realCollectLocation;
+	}
+
+	public void setRealCollectLocation(Long realCollectLocation){
+		this.realCollectLocation = realCollectLocation;
 	}
 	
 	public Long getPickAt(){

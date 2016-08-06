@@ -52,7 +52,7 @@ public class QCRestService implements IRFQCRestService{
     private ITaskRpcService iTaskRpcService;
 
 
-    @POST
+    @GET
     @Path("scan")
     public String scan(@QueryParam("containerId") Long containerId){
         HttpSession session = RequestUtils.getSession();
@@ -65,15 +65,15 @@ public class QCRestService implements IRFQCRestService{
             throw new BizCheckedException("");
         }
         TaskInfo info = tasks.get(0).getTaskInfo();
-        //if(info.)
-        iTaskRpcService.assign(info.getTaskId(), Long.valueOf((String) session.getAttribute("uid")));
+        iTaskRpcService.assign(info.getTaskId(), 123123L);
+        //iTaskRpcService.assign(info.getTaskId(), Long.valueOf((String) session.getAttribute("uid")));
         return JsonUtils.SUCCESS();
     }
-    @POST
+    @GET
     @Path("setResult")
     public String setResult() throws BizCheckedException{
         Map<String,Object> request = RequestUtils.getRequest();
-        long containerId = (Long) request.get("containerId");
+        long containerId =  Long.valueOf((String)request.get("containerId"));
         String code = (String) request.get("code");
         CsiSku skuInfo = csiRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, code);
         if(skuInfo == null){
@@ -103,13 +103,13 @@ public class QCRestService implements IRFQCRestService{
         HttpSession session = RequestUtils.getSession();
         detail.setQcQty(qty);
         detail.setQcAt(DateUtils.getCurrentSeconds());
-        detail.setQcUid(Long.valueOf((String) session.getAttribute("uid")));
+        detail.setQcUid(1L);//Long.valueOf((String) session.getAttribute("uid")));
         detail.setQcException(exceptionType);
         if(exceptionType!=0) {
             detail.setQcExceptionQty(BigDecimal.ZERO);
             detail.setQcExceptionDone(0L);
         }else{
-            detail.setQcUid(Long.valueOf((String) session.getAttribute("uid")));
+            detail.setQcUid(1L);//Long.valueOf((String) session.getAttribute("uid")));
             detail.setQcExceptionQty(BigDecimal.ZERO);
             detail.setQcExceptionDone(1L);
         }
@@ -137,7 +137,7 @@ public class QCRestService implements IRFQCRestService{
         return JsonUtils.SUCCESS(undoDetails);
     }
 
-    @POST
+    @GET
     @Path("confirm")
     public String confirm(@QueryParam("containerId") long containerId) throws BizCheckedException {
         List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
@@ -160,7 +160,9 @@ public class QCRestService implements IRFQCRestService{
         return JsonUtils.SUCCESS();
     }
 
-    public String createTask(long containerId) throws BizCheckedException {
+    @GET
+    @Path("createTask")
+    public String createTask(@QueryParam("containerId") long containerId) throws BizCheckedException {
         List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
         if(details.size()==0){
             throw new BizCheckedException("2120005");

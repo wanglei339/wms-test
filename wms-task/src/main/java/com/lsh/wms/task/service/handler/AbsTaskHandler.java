@@ -100,11 +100,19 @@ public class AbsTaskHandler implements TaskHandler {
 
 
     public void assign(Long taskId, Long staffId) throws BizCheckedException {
-        baseTaskService.assign(taskId, staffId,this);
+        baseTaskService.assign(taskId, staffId, this);
         // this.assignConcrete(taskId, staffId);
     }
 
     public void assignConcrete(Long taskId, Long staffId) throws BizCheckedException {
+    }
+
+    public void assign(Long taskId, Long staffId, Long containerId) throws BizCheckedException {
+        baseTaskService.assign(taskId, staffId, containerId, this);
+        // this.assignConcrete(taskId, staffId);
+    }
+
+    public void assignConcrete(Long taskId, Long staffId, Long containerId) throws BizCheckedException {
     }
 
 
@@ -114,14 +122,20 @@ public class AbsTaskHandler implements TaskHandler {
     }
 
     public void done(Long taskId, Long locationId) throws BizCheckedException {
-        baseTaskService.done(taskId, this, locationId);
-        //this.doneConcrete(taskId, locationId);
+        baseTaskService.done(taskId, locationId, this);
+    }
+
+    public void done(Long taskId, Long locationId, Long staffId) throws BizCheckedException {
+        baseTaskService.done(taskId, locationId, staffId, this);
     }
 
     public void doneConcrete(Long taskId) {
     }
 
     public void doneConcrete(Long taskId, Long locationId) throws BizCheckedException{
+    }
+
+    public void doneConcrete(Long taskId, Long locationId, Long staffId) throws BizCheckedException{
     }
 
     public void cancel(Long taskId) {
