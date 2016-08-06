@@ -20,7 +20,6 @@ import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.core.service.task.StockTakingTaskService;
-import com.lsh.wms.model.StockTakingInfo;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.stock.ItemAndSupplierRelation;
@@ -126,24 +125,7 @@ public class StockTakingRestService implements IStockTakingRestService {
         statusList.add(3);statusList.add(4);
         mapQuery.put("statusList",statusList);
         List<StockTakingHead> heads = stockTakingService.queryTakingHead(mapQuery);
-        List<StockTakingInfo> infos =new ArrayList<StockTakingInfo>();
-        for (StockTakingHead head:heads) {
-            StockTakingInfo info =new StockTakingInfo();
-            info.setHead(head);
-            Set<Long> operatorSet =new HashSet<Long>();
-            Map<String,Object> taskMap =new HashMap<String, Object>();
-            taskMap.put("takingId",head.getTakingId());
-            List<StockTakingTask> takingTasks =stockTakingTaskService.getTakingTask(taskMap);
-            for(StockTakingTask task:takingTasks){
-                TaskEntry entry =iTaskRpcService.getTaskEntryById(task.getTaskId());
-                if(entry.getTaskInfo().getOperator()!=0) {
-                    operatorSet.add(entry.getTaskInfo().getOperator());
-                }
-            }
-            info.setOperatorSet(operatorSet);
-            infos.add(info);
-        }
-        return JsonUtils.SUCCESS(infos);
+        return JsonUtils.SUCCESS(heads);
     }
     @POST
     @Path("getCount")
