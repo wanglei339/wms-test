@@ -26,6 +26,8 @@ public class WaveAllocDetail implements Serializable {
     private BigDecimal allocQty;
 	/** 分配的捡货分区 */
     private Long pickZoneId;
+	/** 分配分拣位 */
+	private Long allocPickLocation = 0L;
 	/**  */
     private Long createdAt = 0L;
 	/**  */
@@ -109,6 +111,14 @@ public class WaveAllocDetail implements Serializable {
 	
 	public void setPickZoneId(Long pickZoneId){
 		this.pickZoneId = pickZoneId;
+	}
+
+	public Long getAllocPickLocation(){
+		return this.allocPickLocation;
+	}
+
+	public void setAllocPickLocation(Long allocPickLocation){
+		this.allocPickLocation = allocPickLocation;
 	}
 	
 	public Long getCreatedAt(){

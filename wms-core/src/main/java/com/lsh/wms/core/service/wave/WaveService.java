@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -147,6 +148,11 @@ public class WaveService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public BigDecimal getUnPickedQty(Map<String, Object> mapQuery)
+    {
+        return detailDao.getUnPickedQty(mapQuery);
+    }
 
 
 

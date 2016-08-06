@@ -10,6 +10,7 @@ import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.task.service.handler.AbsTaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
 /**
  * Created by zengwenjun on 16/7/30.
  */
+@Component
 public class QCTaskHandler extends AbsTaskHandler {
     @Autowired
     private TaskHandlerFactory handlerFactory;
