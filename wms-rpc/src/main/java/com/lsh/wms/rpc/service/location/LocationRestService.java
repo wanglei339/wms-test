@@ -1,14 +1,10 @@
 package com.lsh.wms.rpc.service.location;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.base.common.utils.BeanMapTransUtils;
-import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.location.ILocationRestService;
-import com.lsh.wms.api.service.request.RequestUtils;
-import com.lsh.wms.core.service.location.LocationConstant;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import org.slf4j.Logger;

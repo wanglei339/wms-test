@@ -21,5 +21,7 @@ public interface WaveDetailDao {
     List<WaveDetail> getWaveDetailList(Map<String, Object> params);
 
 	BigDecimal getUnPickedQty(Map<String, Object> params);
-	
+
+    List<WaveDetail> getOrderedWaveDetailList(Map<String, Object> params);
+
 }

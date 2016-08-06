@@ -106,6 +106,13 @@ public class WaveService {
     }
 
     @Transactional(readOnly = true)
+    public List<WaveDetail> getOrderedDetailsByPickTaskId(long pickTaskId){
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("pickTaskId", pickTaskId);
+        return detailDao.getOrderedWaveDetailList(mapQuery);
+    }
+
+    @Transactional(readOnly = true)
     public List<WaveDetail> getDetailsByQCTaskId(long qcTaskId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("qcTaskId", qcTaskId);

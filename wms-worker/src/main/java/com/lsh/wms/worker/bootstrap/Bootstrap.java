@@ -9,7 +9,13 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class Bootstrap {
 
     public static void main(String[] args) {
-        ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("classpath:META-INF/spring/applicationContext-worker.xml");
-        context.start();
+        // 第一个参数用来标记程序名称
+        String[] argAry = null;
+        if (args != null && args.length > 1) {
+            argAry = new String[args.length - 1];
+            System.arraycopy(args, 1, argAry, 0, args.length - 1);
+        }
+        // http://127.0.0.1:9003/api/wms/java/v1/sms/sendMsg
+        com.alibaba.dubbo.container.Main.main(argAry);
     }
 }

@@ -33,11 +33,17 @@ public class BaseinfoLocationDock extends BaseinfoLocation implements Serializab
     private Long updatedAt;
 	/** 主表类型 */
     private Long type;
-	/** 是否可用 */
-	private String isUsed;
-	/** 使用用途,进库/出库 */
-	private String applicationName;
-	
+
+	@Override
+	public Long getType() {
+		return type;
+	}
+
+	@Override
+	public void setType(Long type) {
+		this.type = type;
+	}
+
 	public Long getId(){
 		return this.id;
 	}
@@ -132,21 +138,5 @@ public class BaseinfoLocationDock extends BaseinfoLocation implements Serializab
 	
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
-	}
-
-	public String getIsUsed(){
-		return this.isUsed;
-	}
-	
-	public void setIsUsed(String isUsed){
-		this.isUsed = isUsed;
-	}
-
-	public String getApplicationName() {
-		return applicationName;
-	}
-
-	public void setApplicationName(String applicationName) {
-		this.applicationName = applicationName;
 	}
 }

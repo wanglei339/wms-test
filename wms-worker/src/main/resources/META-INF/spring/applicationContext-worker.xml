@@ -35,7 +35,7 @@
 
     <!-- 服务提供者缺省值配置  -->
     <!-- http://dubbo.io/User+Guide-zh.htm#UserGuide-zh-%3Cdubbo%3Aprovider%2F%3E -->
-    <dubbo:provider threads="500" accepts="500" payload="104857600" timeout="6000" delay="-1" retries="0" />
+    <dubbo:provider threads="500" accepts="500" payload="104857600" timeout="6000"/>
 
     <!-- 服务提供者协议配置 -->
     <!-- http://dubbo.io/User+Guide-zh.htm#UserGuide-zh-%3Cdubbo%3Aprotocol%2F%3E -->

@@ -5,6 +5,9 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.wave.WaveDetailDao;
 import com.lsh.wms.core.dao.pick.PickTaskHeadDao;
 import com.lsh.wms.core.dao.wave.WaveDetailDao;
+import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.stock.StockMoveService;
+import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.pick.PickTaskHead;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
@@ -13,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +33,12 @@ public class PickTaskService {
     private PickTaskHeadDao taskHeadDao;
     @Autowired
     private WaveDetailDao taskDetailDao;
+    @Autowired
+    private StockMoveService stockMoveService;
+    @Autowired
+    private WaveService waveService;
+    @Autowired
+    private LocationService locationService;
 
     @Transactional(readOnly = false)
     public Boolean createPickTask(PickTaskHead head, List<WaveDetail> details){
@@ -51,6 +61,13 @@ public class PickTaskService {
         return true;
     }
 
+    @Transactional(readOnly = false)
+    public void update(PickTaskHead taskHead) {
+        taskHead.setUpdatedAt(DateUtils.getCurrentSeconds());
+        taskHeadDao.update(taskHead);
+    }
+
+
     public PickTaskHead getPickTaskHead(Long taskId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("taskId", taskId);
@@ -62,5 +79,28 @@ public class PickTaskService {
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("pickTaskId", taskId);
         return taskDetailDao.getWaveDetailList(mapQuery);
+    }
+
+    /**
+     * 更新拣货详情并移动库存
+     * @param pickDetail
+     * @param locationId
+     * @param containerId
+     * @param qty
+     * @param staffId
+     */
+    @Transactional(readOnly = false)
+    public void pickOne(WaveDetail pickDetail, Long locationId, Long containerId, BigDecimal qty, Long staffId) {
+        Long taskId = pickDetail.getPickTaskId();
+        Long fromContainerId = pickDetail.getContainerId();
+        // 更新wave_detail
+        pickDetail.setContainerId(containerId);
+        pickDetail.setRealPickLocation(locationId);
+        pickDetail.setPickQty(qty);
+        pickDetail.setPickUid(staffId);
+        pickDetail.setPickAt(DateUtils.getCurrentSeconds());
+        waveService.updateDetail(pickDetail);
+        // 移动库存
+        stockMoveService.moveWholeContainer(fromContainerId, containerId, taskId, staffId, locationId, locationService.getWarehouseLocationId());
     }
 }

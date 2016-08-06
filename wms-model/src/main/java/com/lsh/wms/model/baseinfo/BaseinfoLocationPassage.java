@@ -25,10 +25,17 @@ public class BaseinfoLocationPassage extends BaseinfoLocation implements Seriali
     private String description;
 	/** 主表类型 */
     private Long type;
-	/** 是否可用 */
-    private String isUsed;
 
-	
+	@Override
+	public Long getType() {
+		return type;
+	}
+
+	@Override
+	public void setType(Long type) {
+		this.type = type;
+	}
+
 	public Long getId(){
 		return this.id;
 	}
@@ -93,13 +100,6 @@ public class BaseinfoLocationPassage extends BaseinfoLocation implements Seriali
 		this.description = description;
 	}
 
-	public String getIsUsed(){
-		return this.isUsed;
-	}
-	
-	public void setIsUsed(String isUsed){
-		this.isUsed = isUsed;
-	}
-	
+
 	
 }

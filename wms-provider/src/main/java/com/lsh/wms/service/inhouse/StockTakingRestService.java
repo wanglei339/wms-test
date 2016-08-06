@@ -15,7 +15,7 @@ import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
-import com.lsh.wms.core.service.location.LocationConstant;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
@@ -170,10 +170,10 @@ public class StockTakingRestService implements IStockTakingRestService {
             queryMap.put("isValid",1);
             List<StockTakingTask> stockTakingTaskList = stockTakingTaskService.getTakingTask(queryMap);
             for(StockTakingTask takingTask:stockTakingTaskList) {
-                Map <String,Object> one = new HashMap<String, Object>();
                 TaskEntry entry = iTaskRpcService.getTaskEntryById(takingTask.getTaskId());
                 List detailList = entry.getTaskDetailList();
                 for(Object tmp:detailList) {
+                    Map <String,Object> one = new HashMap<String, Object>();
                     StockTakingDetail detail = (StockTakingDetail) tmp;
                     BaseinfoLocation areaFather = locationService.getAreaFather(detail.getLocationId());
                     BaseinfoLocation location = locationService.getLocation(detail.getLocationId());
@@ -338,6 +338,7 @@ public class StockTakingRestService implements IStockTakingRestService {
             detail.setDetailId(idx);
             detail.setLocationId(quant.getLocationId());
             detail.setSkuId(quant.getSkuId());
+            detail.setContainerId(quant.getContainerId());
             detail.setItemId(quant.getItemId());
             detail.setRealItemId(quant.getItemId());
             detail.setRealSkuId(detail.getSkuId());

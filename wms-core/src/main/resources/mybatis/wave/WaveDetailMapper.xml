@@ -21,6 +21,7 @@
 		<result property="deliveryQty" column="delivery_qty"/>
 		<result property="pickTaskId" column="pick_task_id"/>
 		<result property="pickZoneId" column="pick_zone_id"/>
+		<result property="pickOrder" column="pick_order"/>
 		<result property="allocPickLocation" column="alloc_pick_location"/>
 		<result property="realPickLocation" column="real_pick_location"/>
 		<result property="allocCollectLocation" column="alloc_collect_location"/>
@@ -46,21 +47,21 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="WaveDetail">
 		insert into wave_detail (
-			is_alive,is_valid,wave_id,order_id,item_id,sku_id,owner_id,
-			loc_id,supplier_id,status,req_qty,alloc_qty,pick_qty,
-			qc_qty,delivery_qty,pick_task_id,pick_zone_id,alloc_pick_location,real_pick_location,
-			alloc_collect_location,real_collect_location,container_id,pick_uid,pick_at,sow_task_id,
-			sow_uid,sow_at,qc_task_id,qc_uid,qc_at,qc_exception,
-			qc_exception_qty,qc_exception_done,ship_task_id,ship_uid,ship_at,created_at,
-			updated_at
+			is_alive,is_valid,wave_id,order_id,item_id,sku_id,
+			owner_id,loc_id,supplier_id,status,req_qty,alloc_qty,
+			pick_qty,qc_qty,delivery_qty,pick_task_id,pick_zone_id,pick_order,
+			alloc_pick_location,real_pick_location,alloc_collect_location,real_collect_location,container_id,pick_uid,
+			pick_at,sow_task_id,sow_uid,sow_at,qc_task_id,qc_uid,
+			qc_at,qc_exception,qc_exception_qty,qc_exception_done,ship_task_id,ship_uid,
+			ship_at,created_at,updated_at
     	) values (
-			#{isAlive},#{isValid},#{waveId},#{orderId},#{itemId},#{skuId},#{ownerId},
-			#{locId},#{supplierId},#{status},#{reqQty},#{allocQty},#{pickQty},
-			#{qcQty},#{deliveryQty},#{pickTaskId},#{pickZoneId},#{allocPickLocation},#{realPickLocation},
-			#{allocCollectLocation},#{realCollectLocation},#{containerId},#{pickUid},#{pickAt},#{sowTaskId},
-			#{sowUid},#{sowAt},#{qcTaskId},#{qcUid},#{qcAt},#{qcException},
-			#{qcExceptionQty},#{qcExceptionDone},#{shipTaskId},#{shipUid},#{shipAt},#{createdAt},
-			#{updatedAt}
+			#{isAlive},#{isValid},#{waveId},#{orderId},#{itemId},#{skuId},
+			#{ownerId},#{locId},#{supplierId},#{status},#{reqQty},#{allocQty},
+			#{pickQty},#{qcQty},#{deliveryQty},#{pickTaskId},#{pickZoneId},#{pickOrder},
+			#{allocPickLocation},#{realPickLocation},#{allocCollectLocation},#{realCollectLocation},#{containerId},#{pickUid},
+			#{pickAt},#{sowTaskId},#{sowUid},#{sowAt},#{qcTaskId},#{qcUid},
+			#{qcAt},#{qcException},#{qcExceptionQty},#{qcExceptionDone},#{shipTaskId},#{shipUid},
+			#{shipAt},#{createdAt},#{updatedAt}
     	)
 	</insert>
 
@@ -71,7 +72,7 @@
   			<if test="isValid != null">is_valid=#{isValid},</if>
   			<if test="waveId != null">wave_id=#{waveId},</if>
   			<if test="orderId != null">order_id=#{orderId},</if>
-			<if test="itemId != null">item_id=#{itemId},</if>
+  			<if test="itemId != null">item_id=#{itemId},</if>
   			<if test="skuId != null">sku_id=#{skuId},</if>
   			<if test="ownerId != null">owner_id=#{ownerId},</if>
   			<if test="locId != null">loc_id=#{locId},</if>
@@ -84,6 +85,7 @@
   			<if test="deliveryQty != null">delivery_qty=#{deliveryQty},</if>
   			<if test="pickTaskId != null">pick_task_id=#{pickTaskId},</if>
   			<if test="pickZoneId != null">pick_zone_id=#{pickZoneId},</if>
+  			<if test="pickOrder != null">pick_order=#{pickOrder},</if>
   			<if test="allocPickLocation != null">alloc_pick_location=#{allocPickLocation},</if>
   			<if test="realPickLocation != null">real_pick_location=#{realPickLocation},</if>
   			<if test="allocCollectLocation != null">alloc_collect_location=#{allocCollectLocation},</if>
@@ -131,6 +133,14 @@
 		limit #{start},#{limit}
 		</if>
 	</select>
+
+	<select id="getOrderedWaveDetailList" parameterType="map" resultMap="waveDetailResultMap">
+		select * from wave_detail
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+			limit #{start},#{limit}
+		</if>
+	</select>
   
 	<sql id="queryCondition">
 		<where>
@@ -152,6 +162,7 @@
 			<if test="deliveryQty != null">and delivery_qty=#{deliveryQty}</if>
 			<if test="pickTaskId != null">and pick_task_id=#{pickTaskId}</if>
 			<if test="pickZoneId != null">and pick_zone_id=#{pickZoneId}</if>
+			<if test="pickOrder != null">and pick_order=#{pickOrder}</if>
 			<if test="allocPickLocation != null">and alloc_pick_location=#{allocPickLocation}</if>
 			<if test="realPickLocation != null">and real_pick_location=#{realPickLocation}</if>
 			<if test="allocCollectLocation != null">and alloc_collect_location=#{allocCollectLocation}</if>
