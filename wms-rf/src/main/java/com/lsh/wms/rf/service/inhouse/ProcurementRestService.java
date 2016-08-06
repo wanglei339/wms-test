@@ -95,8 +95,10 @@ public class ProcurementRestService implements IProcurementRestService {
         Long uid = Long.valueOf(params.get("uId").toString());
         Long staffId = iSysUserRpcService.getSysUserById(uid).getStaffId();
         try {
+            Map<String,Object> result =new HashMap<String, Object>();
             Long taskId = rpcService.assign(staffId);
-            return JsonUtils.SUCCESS(taskId);
+            result.put("taskId",taskId);
+            return JsonUtils.SUCCESS(result);
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
