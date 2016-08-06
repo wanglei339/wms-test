@@ -85,13 +85,13 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
         Map request = RequestUtils.getRequest();
         JSONObject object = null;
         Long taskId = 0L;
-        List<Map> resultList =new ArrayList<Map>();
+        List<Map> resultList = null;
         try {
             object = JSONObject.fromObject(request.get("result"));
             taskId = Long.parseLong(object.get("taskId").toString());
             resultList = object.getJSONArray("list");
         }catch (Exception e){
-            throw new BizCheckedException("JSON解析失败");
+            return JsonUtils.TOKEN_ERROR("JSON解析失败");
         }
 
         if (!(resultList == null || resultList.size() == 0)) {
