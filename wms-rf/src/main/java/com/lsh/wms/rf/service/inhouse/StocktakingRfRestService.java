@@ -83,9 +83,17 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
     public String doOne() throws BizCheckedException {
         //Long taskId,int qty,String barcode
         Map request = RequestUtils.getRequest();
-        JSONObject object = JSONObject.fromObject(request.get("result"));
-        Long taskId = Long.parseLong(object.get("taskId").toString());
-        List<Map> resultList = object.getJSONArray("list");
+        JSONObject object = null;
+        Long taskId = 0L;
+        List<Map> resultList =new ArrayList<Map>();
+        try {
+            object = JSONObject.fromObject(request.get("result"));
+            taskId = Long.parseLong(object.get("taskId").toString());
+            resultList = object.getJSONArray("list");
+        }catch (Exception e){
+            throw new BizCheckedException("JSON解析失败");
+        }
+
         if (!(resultList == null || resultList.size() == 0)) {
             TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
             StockTakingTask task = (StockTakingTask) (entry.getTaskHead());
