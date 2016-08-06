@@ -262,6 +262,8 @@ public class StockQuantService {
         }
         return count;
     }
+
+    @Transactional(readOnly = false)
     public boolean moveToContainer(Long itemId, Long operator,Long fromContainer,Long toContainer,Long locationId,BigDecimal qty ) {
         Map<String, Object> queryMap = new HashMap<String, Object>();
         queryMap.put("itemId",itemId);
