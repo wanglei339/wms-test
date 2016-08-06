@@ -7,6 +7,7 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.api.service.inhouse.IStockTransferRestService;
 import com.lsh.wms.api.service.inhouse.IStockTransferRpcService;
 import com.lsh.wms.api.service.item.IItemRpcService;
@@ -22,6 +23,7 @@ import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
+import org.apache.commons.collections.map.HashedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,9 +76,9 @@ public class StockTransferRestService implements IStockTransferRestService {
             resultMap.put("itemId", taskInfo.getItemId());
             resultMap.put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
             resultMap.put("fromLocationId", taskInfo.getFromLocationId());
-            resultMap.put("fromLocationName", locationRpcService.getLocation(taskInfo.getFromLocationId()).getLocationCode());
+            resultMap.put("fromLocationCode", locationRpcService.getLocation(taskInfo.getFromLocationId()).getLocationCode());
             resultMap.put("toLocationId", taskInfo.getToLocationId());
-            resultMap.put("toLocationName", locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode());
+            resultMap.put("toLocationCode", locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode());
             resultMap.put("packName", taskInfo.getPackName());
             resultMap.put("uomQty", taskInfo.getQty().divide(taskInfo.getPackUnit()));
             return JsonUtils.SUCCESS(resultMap);
@@ -152,11 +154,8 @@ public class StockTransferRestService implements IStockTransferRestService {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         try {
             rpcService.scanFromLocation(mapQuery);
-        } catch (BizCheckedException e) {
-            throw e;
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {
@@ -173,26 +172,28 @@ public class StockTransferRestService implements IStockTransferRestService {
         Map<String, Object> params = RequestUtils.getRequest();
         //Long locationId = Long.valueOf(params.get("locationId").toString());
         Long uId = Long.valueOf(params.get("uId").toString());
-        SysUser sysUser = iSysUserRpcService.getSysUserById(uId);
-        Long staffId = sysUser.getStaffId();
+        Long staffId = iSysUserRpcService.getSysUserById(uId).getStaffId();
         try {
             final Long taskId = rpcService.assign(staffId);
+            if(taskId == 0) {
+                throw new BizCheckedException("2040001");
+            }
             TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
             if (taskEntry == null) {
                 throw new BizCheckedException("2040001");
             }
             final TaskInfo taskInfo = taskEntry.getTaskInfo();
-            return JsonUtils.SUCCESS(new HashMap<String, Long>() {
+            final Long fromLocationId = taskInfo.getFromLocationId();
+            final String fromLocationCode =  locationRpcService.getLocation(fromLocationId).getLocationCode();
+            return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                 {
                     put("taskId", taskId);
-                    put("fromLocationId", taskInfo.getFromLocationId());
+                    put("fromLocationId", fromLocationId);
+                    put("fromLocationCode",fromLocationCode);
                 }
             });
-        } catch (BizCheckedException e) {
-            throw e;
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
     }
 
@@ -204,11 +205,9 @@ public class StockTransferRestService implements IStockTransferRestService {
         Map<String, Object> params = RequestUtils.getRequest();
         try {
             rpcService.scanToLocation(params);
-        } catch (BizCheckedException e) {
-            throw e;
         } catch (Exception e) {
             logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {
@@ -216,6 +215,5 @@ public class StockTransferRestService implements IStockTransferRestService {
             }
         });
     }
-
 
 }
