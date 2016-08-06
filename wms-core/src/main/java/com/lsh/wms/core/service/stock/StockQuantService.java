@@ -270,11 +270,11 @@ public class StockQuantService {
         queryMap.put("containerId",fromContainer);
         List<StockQuant> stockQuants = stockQuantDao.getQuants(queryMap);
         if(stockQuants==null || stockQuants.size()==0){
-            throw new BizCheckedException("根据containerId和商品id查不到库存信息");
+            throw new BizCheckedException("2550009");
         }
         StockQuant quant = stockQuants.get(0);
         if(quant.getQty().subtract(qty).floatValue() < 0){
-            throw new BizCheckedException("库存不足");
+            throw new BizCheckedException("2550008");
         }
         queryMap.put("containerId", toContainer);
         queryMap.remove("itemId");
