@@ -74,6 +74,12 @@ public class TaskRpcService implements ITaskRpcService {
         taskHandler.assign(taskId, staffId);
     }
 
+    public void assign(Long taskId, Long staffId, Long containerId) throws BizCheckedException{
+        Long taskType = this.getTaskTypeById(taskId);
+        TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
+        taskHandler.assign(taskId, staffId, containerId);
+    }
+
     public void cancel(Long taskId) throws BizCheckedException{
         Long taskType = this.getTaskTypeById(taskId);
         TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);

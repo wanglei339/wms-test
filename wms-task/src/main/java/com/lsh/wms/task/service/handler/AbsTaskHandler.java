@@ -122,14 +122,20 @@ public class AbsTaskHandler implements TaskHandler {
     }
 
     public void done(Long taskId, Long locationId) throws BizCheckedException {
-        baseTaskService.done(taskId, this, locationId);
-        //this.doneConcrete(taskId, locationId);
+        baseTaskService.done(taskId, locationId, this);
+    }
+
+    public void done(Long taskId, Long locationId, Long staffId) throws BizCheckedException {
+        baseTaskService.done(taskId, locationId, staffId, this);
     }
 
     public void doneConcrete(Long taskId) {
     }
 
     public void doneConcrete(Long taskId, Long locationId) throws BizCheckedException{
+    }
+
+    public void doneConcrete(Long taskId, Long locationId, Long staffId) throws BizCheckedException{
     }
 
     public void cancel(Long taskId) {

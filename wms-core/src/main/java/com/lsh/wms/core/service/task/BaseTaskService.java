@@ -138,13 +138,23 @@ public class BaseTaskService {
     }
 
     @Transactional(readOnly = false)
-    public void done(Long taskId, TaskHandler taskHandler,Long locationId) {
+    public void done(Long taskId, Long locationId, TaskHandler taskHandler) {
         TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
         taskInfo.setStatus(TaskConstant.Done);
         taskInfo.setFinishTime(DateUtils.getCurrentSeconds());
         taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
         taskInfoDao.update(taskInfo);
         taskHandler.doneConcrete(taskId, locationId);
+    }
+
+    @Transactional(readOnly = false)
+    public void done(Long taskId, Long locationId, Long staffId, TaskHandler taskHandler) {
+        TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
+        taskInfo.setStatus(TaskConstant.Done);
+        taskInfo.setFinishTime(DateUtils.getCurrentSeconds());
+        taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+        taskInfoDao.update(taskInfo);
+        taskHandler.doneConcrete(taskId, locationId, staffId);
     }
 
     @Transactional(readOnly = false)

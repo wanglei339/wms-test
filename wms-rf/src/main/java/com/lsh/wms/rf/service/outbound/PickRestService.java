@@ -14,6 +14,7 @@ import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.pick.PickTaskService;
+import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
@@ -28,6 +29,7 @@ import org.springframework.scheduling.config.Task;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -118,6 +120,8 @@ public class PickRestService implements IPickRestService {
         Long locationId = Long.valueOf(mapQuery.get("locationId").toString());
         BigDecimal qty = BigDecimal.valueOf(Double.valueOf(mapQuery.get("qty").toString()));
         TaskInfo taskInfo = baseTaskService.getTaskInfoById(taskId);
+        PickTaskHead taskHead = pickTaskService.getPickTaskHead(taskId);
+        Long containerId = taskHead.getContainerId();
         if (taskInfo == null) {
             throw new BizCheckedException("2060003");
         }
@@ -133,6 +137,20 @@ public class PickRestService implements IPickRestService {
                 needPickDetail = pickDetail;
                 break;
             }
+        }
+        // 全部捡完,则需要扫描集货位
+        if (needPickDetail.getPickTaskId().equals("") || needPickDetail.getPickTaskId() == null) {
+            Long allocCollectLocationId = taskHead.getAllocCollectLocation();
+            if (!allocCollectLocationId.equals(locationId)) {
+                throw new BizCheckedException("2060009");
+            }
+            // 完成拣货任务
+            iTaskRpcService.done(taskId, locationId);
+            return JsonUtils.SUCCESS(new HashMap<String, Object>(){
+                {
+                    put("done", true);
+                }
+            });
         }
         Long allocLocationId = needPickDetail.getAllocPickLocation();
         // 判断是否与分配拣货位一致
@@ -153,6 +171,11 @@ public class PickRestService implements IPickRestService {
             throw new BizCheckedException("2060007", quantQty.toString());
         }
         // 库移
-        return JsonUtils.SUCCESS(123);
+        pickTaskService.pickOne(needPickDetail, locationId, containerId, qty, staffId);
+        return JsonUtils.SUCCESS(new HashMap<String, Object>(){
+            {
+                put("done", false);
+            }
+        });
     }
 }
