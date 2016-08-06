@@ -338,6 +338,7 @@ public class StockTakingRestService implements IStockTakingRestService {
             detail.setDetailId(idx);
             detail.setLocationId(quant.getLocationId());
             detail.setSkuId(quant.getSkuId());
+            detail.setContainerId(quant.getContainerId());
             detail.setItemId(quant.getItemId());
             detail.setRealItemId(quant.getItemId());
             detail.setRealSkuId(detail.getSkuId());
