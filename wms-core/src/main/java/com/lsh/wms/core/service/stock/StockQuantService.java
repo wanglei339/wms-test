@@ -67,6 +67,13 @@ public class StockQuantService {
 
     @Transactional(readOnly =  false)
     public void create(StockQuant quant) {
+        String packName = "";
+        if (quant.getPackUnit().equals(BigDecimal.ONE)) {
+            packName = "EA";
+        } else {
+            packName = String.format("H%02d", quant.getPackUnit().toBigInteger());
+        }
+        quant.setPackName(packName);
         quant.setCreatedAt(DateUtils.getCurrentSeconds());
         quant.setUpdatedAt(DateUtils.getCurrentSeconds());
         stockQuantDao.insert(quant);
@@ -254,6 +261,66 @@ public class StockQuantService {
             count = count.add(quant.getQty());
         }
         return count;
+    }
+    public boolean moveToContainer(Long itemId, Long operator,Long fromContainer,Long toContainer,Long locationId,BigDecimal qty ) {
+        Map<String, Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("itemId",itemId);
+        queryMap.put("containerId",fromContainer);
+        List<StockQuant> stockQuants = stockQuantDao.getQuants(queryMap);
+        if(stockQuants==null || stockQuants.size()==0){
+            return false;
+        }
+        StockQuant quant = stockQuants.get(0);
+        if(quant.getQty().subtract(qty).floatValue() < 0){
+            return false;
+        }
+        queryMap.put("containerId", toContainer);
+        queryMap.remove("itemId");
+        queryMap.put("locationId",locationId);
+        List<StockQuant> stockQuantList = stockQuantDao.getQuants(queryMap);
+        StockMove move =new StockMove();
+        StockQuant toQuant = null;
+
+        if(stockQuantList ==  null || stockQuantList.size() ==0){
+            toQuant = (StockQuant) quant.clone();
+            toQuant.setLocationId(locationId);
+            toQuant.setContainerId(toContainer);
+            toQuant.setQty(qty);
+            this.create(toQuant);
+            stockQuantDao.insert(toQuant);
+
+        }else {
+            toQuant = stockQuantList.get(0);
+            toQuant.setQty(toQuant.getQty().add(qty));
+        }
+
+        quant.setQty(quant.getQty().subtract(qty));
+        stockQuantDao.update(quant);
+        move.setItemId(quant.getItemId());
+        move.setSkuId(quant.getSkuId());
+        move.setOwnerId(quant.getOwnerId());
+        move.setFromLocationId(quant.getLocationId());
+        move.setToLocationId(toQuant.getLocationId());
+        move.setFromContainerId(quant.getContainerId());
+        move.setToContainerId(toQuant.getContainerId());
+        move.setQty(qty);
+        move.setOperator(operator);
+        move.setStatus(4L);
+        moveDao.insert(move);
+
+
+        // 新建 quant move历史记录
+        StockQuantMoveRel moveFromRel =new StockQuantMoveRel();
+        moveFromRel.setMoveId(move.getId());
+        moveFromRel.setQuantId(quant.getId());
+        relDao.insert(moveFromRel);
+
+        StockQuantMoveRel moveToRel =new StockQuantMoveRel();
+        moveToRel.setMoveId(move.getId());
+        moveToRel.setQuantId(quant.getId());
+        relDao.insert(moveToRel);
+
+        return true;
     }
 
     public int countStockQuant(Map<String, Object> mapQuery){

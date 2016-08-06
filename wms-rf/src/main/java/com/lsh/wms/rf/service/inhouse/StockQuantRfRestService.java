@@ -42,7 +42,7 @@ public class StockQuantRfRestService implements IStockQuantRfRestService {
     private IItemRpcService itemRpcService;
 
     @POST
-    @Path("getItemList")
+    @Path("getItem")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String getItemByLocation() throws BizCheckedException {
@@ -61,16 +61,19 @@ public class StockQuantRfRestService implements IStockQuantRfRestService {
         if(quantList.isEmpty()) {
             throw new BizCheckedException("2550003");
         }
-        List<Object> resultList = new ArrayList<Object>();
         StockQuant quant = quantList.get(0);
         Map<String, Object> m = new HashMap<String, Object>();
         m.put("itemId", quant.getItemId());
-        m.put("name", itemRpcService.getItem(quant.getItemId()).getSkuName());
+        m.put("name", csiSku.getSkuName());
         m.put("packName", quant.getPackName());
-        resultList.add(m);
+        //List <String> packNameList = new ArrayList<String>();
+        //packNameList.add(quant.getPackName());
+        //packNameList.add("ea");
+        //packNameList.add("pallet");
+        //m.put("packName", packNameList);
 
-        Map<String, List<Object>> result = new HashMap<String, List<Object>>();
-        result.put("list",resultList);
+        Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>();
+        result.put("info", m);
         return JsonUtils.SUCCESS(result);
     }
 }

@@ -10,6 +10,7 @@ import com.lsh.wms.api.service.inhouse.IProcurementRestService;
 import com.lsh.wms.api.service.item.IItemRpcService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -47,6 +48,9 @@ public class ProcurementRestService implements IProcurementRestService {
 
     @Reference
     private ILocationRpcService locationRpcService;
+
+    @Reference
+    private ISysUserRpcService iSysUserRpcService;
 
     @POST
     @Path("scanFromLocation")
@@ -88,16 +92,16 @@ public class ProcurementRestService implements IProcurementRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String fetchTask() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
-        Long locationId = Long.valueOf(params.get("locationId").toString());
-        Long staffId = Long.valueOf(params.get("staffId").toString());
+        Long uid = Long.valueOf(params.get("uId").toString());
+        Long staffId = iSysUserRpcService.getSysUserById(uid).getStaffId();
         try {
             Long taskId = rpcService.assign(staffId);
             return JsonUtils.SUCCESS(taskId);
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
     }
 
