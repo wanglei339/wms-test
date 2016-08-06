@@ -101,6 +101,6 @@ public class PickTaskService {
         pickDetail.setPickAt(DateUtils.getCurrentSeconds());
         waveService.updateDetail(pickDetail);
         // 移动库存
-        stockMoveService.moveWholeContainer(fromContainerId, containerId, taskId, staffId, locationId, locationService.getWarehouseLocationId());
+        //stockMoveService.moveWholeContainer(fromContainerId, containerId, taskId, staffId, locationId, locationService.getWarehouseLocationId());
     }
 }

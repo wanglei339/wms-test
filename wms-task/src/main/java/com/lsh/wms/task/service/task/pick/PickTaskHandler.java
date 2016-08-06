@@ -58,6 +58,7 @@ public class PickTaskHandler extends AbsTaskHandler {
     public void doneConcrete(Long taskId, Long locationId, Long staffId) throws BizCheckedException{
         PickTaskHead taskHead = pickTaskService.getPickTaskHead(taskId);
         taskHead.setPickAt(DateUtils.getCurrentSeconds());
+        taskHead.setRealCollectLocation(locationId);
         pickTaskService.update(taskHead);
         // 更新wave_detail
         /*List<WaveDetail> pickDetails = waveService.getDetailsByPickTaskId(taskId);
@@ -66,12 +67,13 @@ public class PickTaskHandler extends AbsTaskHandler {
             waveService.updateDetail(pickDetail);
         }*/
         // 移动库存
-        stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, locationService.getWarehouseLocationId(), locationId);
+        //stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, locationService.getWarehouseLocationId(), locationId);
     }
 
     public void assignConcrete(Long taskId, Long staffId, Long containerId) throws BizCheckedException {
         PickTaskHead head = pickTaskService.getPickTaskHead(taskId);
         head.setContainerId(containerId);
+        pickTaskService.update(head);
     }
 
     public void getConcrete(TaskEntry taskEntry) {

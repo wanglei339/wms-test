@@ -61,20 +61,6 @@ public class PickRestService implements IPickRestService {
     private IPickRpcService iPickRpcService;
 
     /**
-     * 创建拣货任务(测试用)
-     * @return
-     * @throws BizCheckedException
-     */
-    @POST
-    @Path("createTask")
-    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
-    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-    public String createTask() throws BizCheckedException {
-        Map<String, Object> mapQuery = RequestUtils.getRequest();
-        return JsonUtils.SUCCESS(123);
-    }
-
-    /**
      * 扫描拣货签(拣货任务id)
      * @return
      * @throws BizCheckedException
@@ -90,8 +76,15 @@ public class PickRestService implements IPickRestService {
         Long containerId = Long.valueOf(mapQuery.get("containerId").toString());
         TaskInfo taskInfo = baseTaskService.getTaskInfoById(taskId);
         PickTaskHead taskHead = pickTaskService.getPickTaskHead(taskId);
+        if (!taskInfo.getStatus().equals(TaskConstant.Draft)) {
+            throw new BizCheckedException("2060001");
+        }
         if (taskInfo == null || !taskInfo.getType().equals(taskType)) {
             throw new BizCheckedException("2060003");
+        }
+        // 检查是否有已分配的任务
+        if (baseTaskService.checkTaskByContainerId(containerId)) {
+            throw new BizCheckedException("2030008");
         }
         // 检查container是否可用
         if (containerService.isContainerInUse(containerId)) {
@@ -139,13 +132,13 @@ public class PickRestService implements IPickRestService {
             }
         }
         // 全部捡完,则需要扫描集货位
-        if (needPickDetail.getPickTaskId().equals("") || needPickDetail.getPickTaskId() == null) {
+        if (needPickDetail.getPickTaskId() == null || needPickDetail.getPickTaskId().equals("")) {
             Long allocCollectLocationId = taskHead.getAllocCollectLocation();
             if (!allocCollectLocationId.equals(locationId)) {
                 throw new BizCheckedException("2060009");
             }
             // 完成拣货任务
-            iTaskRpcService.done(taskId, locationId);
+            iTaskRpcService.done(taskId, locationId, staffId);
             return JsonUtils.SUCCESS(new HashMap<String, Object>(){
                 {
                     put("done", true);
