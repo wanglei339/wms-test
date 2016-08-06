@@ -60,13 +60,14 @@ public class ProcurementRestService implements IProcurementRestService {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         try {
             rpcService.scanFromLocation(mapQuery);
-        } catch (BizCheckedException e) {
-            throw e;
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
-        return JsonUtils.SUCCESS(true);
+        return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+            {
+                put("response", true);
+            }
+        });
     }
 
     @POST
@@ -77,13 +78,15 @@ public class ProcurementRestService implements IProcurementRestService {
         Map<String, Object> params = RequestUtils.getRequest();
         try {
             rpcService.scanToLocation(params);
-        } catch (BizCheckedException e) {
-            throw e;
         } catch (Exception e) {
             logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
-        return JsonUtils.SUCCESS(true);
+        return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+            {
+                put("response", true);
+            }
+        });
     }
 
     @POST
@@ -95,14 +98,34 @@ public class ProcurementRestService implements IProcurementRestService {
         Long uid = Long.valueOf(params.get("uId").toString());
         Long staffId = iSysUserRpcService.getSysUserById(uid).getStaffId();
         try {
+<<<<<<< HEAD
             Map<String,Object> result =new HashMap<String, Object>();
             Long taskId = rpcService.assign(staffId);
             result.put("taskId",taskId);
             return JsonUtils.SUCCESS(result);
         } catch (BizCheckedException e) {
             throw e;
+=======
+            final Long taskId = rpcService.assign(staffId);
+            if(taskId == 0) {
+                throw new BizCheckedException("2040001");
+            }
+            TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
+            if (taskEntry == null) {
+                throw new BizCheckedException("2040001");
+            }
+            final TaskInfo taskInfo = taskEntry.getTaskInfo();
+            final Long fromLocationId = taskInfo.getFromLocationId();
+            final String fromLocationCode =  locationRpcService.getLocation(fromLocationId).getLocationCode();
+            return JsonUtils.SUCCESS(new HashMap<String, Object>() {
+                {
+                    put("taskId", taskId);
+                    put("fromLocationId", fromLocationId);
+                    put("fromLocationCode",fromLocationCode);
+                }
+            });
+>>>>>>> bb3c4cdc2c0f1010856c2d646f4379bd3f38292e
         } catch (Exception e) {
-            logger.error(e.getMessage());
             return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
     }
@@ -124,9 +147,9 @@ public class ProcurementRestService implements IProcurementRestService {
             resultMap.put("itemId", taskInfo.getItemId());
             resultMap.put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
             resultMap.put("fromLocationId", taskInfo.getFromLocationId());
-            resultMap.put("fromLocationName", locationRpcService.getLocation(taskInfo.getFromLocationId()).getLocationCode());
+            resultMap.put("fromLocationCode", locationRpcService.getLocation(taskInfo.getFromLocationId()).getLocationCode());
             resultMap.put("toLocationId", taskInfo.getToLocationId());
-            resultMap.put("toLocationName", locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode());
+            resultMap.put("toLocationCode", locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode());
             resultMap.put("packName", taskInfo.getPackName());
             resultMap.put("uomQty", taskInfo.getQty().divide(taskInfo.getPackUnit()));
             return JsonUtils.SUCCESS(resultMap);

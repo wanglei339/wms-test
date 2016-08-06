@@ -7,6 +7,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.pick.IPickRestService;
 import com.lsh.wms.api.service.pick.IPickRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
@@ -111,7 +112,6 @@ public class PickRestService implements IPickRestService {
         Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
         Long staffId = Long.valueOf(mapQuery.get("operator").toString());
         Long locationId = Long.valueOf(mapQuery.get("locationId").toString());
-        BigDecimal qty = BigDecimal.valueOf(Double.valueOf(mapQuery.get("qty").toString()));
         TaskInfo taskInfo = baseTaskService.getTaskInfoById(taskId);
         PickTaskHead taskHead = pickTaskService.getPickTaskHead(taskId);
         Long containerId = taskHead.getContainerId();
@@ -145,6 +145,7 @@ public class PickRestService implements IPickRestService {
                 }
             });
         }
+        BigDecimal qty = BigDecimal.valueOf(Double.valueOf(mapQuery.get("qty").toString()));
         Long allocLocationId = needPickDetail.getAllocPickLocation();
         // 判断是否与分配拣货位一致
         if (!allocLocationId.equals(locationId)) {
@@ -165,10 +166,18 @@ public class PickRestService implements IPickRestService {
         }
         // 库移
         pickTaskService.pickOne(needPickDetail, locationId, containerId, qty, staffId);
-        return JsonUtils.SUCCESS(new HashMap<String, Object>(){
-            {
-                put("done", false);
-            }
-        });
+        // 获取下一个wave_detail,如已做完则获取集货位id
+        Long pickOrder = needPickDetail.getPickOrder();
+        Boolean pickDone = false; // 货物是否已捡完
+        Map<String, Object> result = new HashMap<String, Object>();
+        if (pickOrder < pickDetails.size()) {
+            WaveDetail nextPickDetail = waveService.getDetailByPickTaskIdAndPickOrder(taskId, pickOrder);
+            result.put("next_detail", nextPickDetail);
+        } else {
+            pickDone = true;
+            result.put("next_detail", taskHead);
+        }
+        result.put("done", pickDone);
+        return JsonUtils.SUCCESS(result);
     }
 }

@@ -66,7 +66,7 @@ public class PickTaskHandler extends AbsTaskHandler {
             pickDetail.setRealCollectLocation(locationId);
             waveService.updateDetail(pickDetail);
         }*/
-        // 移动库存
+        // 移动库存, TODO
         //stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, locationService.getWarehouseLocationId(), locationId);
     }
 
