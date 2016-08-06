@@ -111,6 +111,11 @@ public class LocationService {
         return location;
     }
 
+    /**
+     * 更新location
+     * @param iBaseinfoLocaltionModel
+     * @return
+     */
     @Transactional(readOnly = false)
     public BaseinfoLocation updateLocation(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
         BaseinfoLocation baseinfoLocation = (BaseinfoLocation) iBaseinfoLocaltionModel;
@@ -123,19 +128,11 @@ public class LocationService {
         return baseinfoLocation;
     }
 
-    @Transactional(readOnly = false)
-    public BaseinfoLocation insertLocation(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
-        BaseinfoLocation baseinfoLocation = (BaseinfoLocation) iBaseinfoLocaltionModel;
-        if (this.getLocation(baseinfoLocation.getLocationId()) == null) {
-            return null;
-        }
-        long updatedAt = DateUtils.getCurrentSeconds();
-        baseinfoLocation.setUpdatedAt(updatedAt);
-        locationDao.update(baseinfoLocation);
-        return baseinfoLocation;
-    }
-
-    // 获取节点location_id
+    /**
+     * 获取节点location_id
+     * @param locations
+     * @return
+     */
     public List<Long> getLocationIds(List<BaseinfoLocation> locations) {
         List<Long> locationIds = new ArrayList<Long>();
         for (BaseinfoLocation location : locations) {
@@ -144,7 +141,11 @@ public class LocationService {
         return locationIds;
     }
 
-    // 获取一个location下一层的子节点
+    /**
+     * 获取一个location下一层的子节点
+     * @param locationId
+     * @return
+     */
     public List<BaseinfoLocation> getChildrenLocations(Long locationId) {
         Map<String, Object> params = new HashMap<String, Object>();
         Map<Long, BaseinfoLocation> childrenLocations = new HashMap<Long, BaseinfoLocation>();
@@ -159,13 +160,21 @@ public class LocationService {
         return locations;
     }
 
-    // 获取一个location下一层的子节点id
+    /**
+     * 获取一个location下一层的子节点id
+     * @param locationId
+     * @return
+     */
     public List<Long> getChildrenLocationIds(Long locationId) {
         List<BaseinfoLocation> locations = this.getChildrenLocations(locationId);
         return this.getLocationIds(locations);
     }
 
-    // 获取一个location下所有是存储位的子节点
+    /**
+     * 获取一个location下所有是存储位的子节点
+     * @param locationId
+     * @return
+     */
     public List<BaseinfoLocation> getStoreLocations(Long locationId) {
         List<BaseinfoLocation> locations = new ArrayList();
         BaseinfoLocation curLocation = this.getLocation(locationId);
@@ -211,37 +220,6 @@ public class LocationService {
         }
         return this.getLocation(fatherId);
     }
-
-    /**
-     * 获取父亲的type
-     *
-     * @param locationId
-     * @return
-     */
-    public Long getFatherLocationType(Long locationId) {
-        BaseinfoLocation curLocation = this.getLocation(locationId);
-        Long fatherId = curLocation.getFatherId();
-        if (fatherId == 0) {
-            return null;
-        }
-        return this.getLocation(fatherId).getType();
-    }
-
-    /**
-     * 获取父亲的编码
-     *
-     * @param locationId
-     * @return
-     */
-    public String getFatherLocationCode(Long locationId) {
-        BaseinfoLocation curLocation = this.getLocation(locationId);
-        Long fatherId = curLocation.getFatherId();
-        if (fatherId == 0) {
-            return null;
-        }
-        return this.getLocation(fatherId).getLocationCode();
-    }
-
 
     /**
      * 根据所在位置的locationId
@@ -299,7 +277,6 @@ public class LocationService {
 
     /**
      * 获取父级区域所有大区的节点
-     *
      * @param locationId
      * @return
      */
@@ -308,13 +285,21 @@ public class LocationService {
         return areaFather;
     }
 
-    // 获取父级区域节点id
+    /**
+     * 获取父级区域节点id
+     * @param locationId
+     * @return
+     */
     public Long getAreaFatherId(Long locationId) {
         BaseinfoLocation areaFatherId = this.getAreaFather(locationId);
         return areaFatherId.getLocationId();
     }
 
-    // 按类型获取location节点
+    /**
+     * 按类型获取location节点
+     * @param type
+     * @return
+     */
     public List<BaseinfoLocation> getLocationsByType(String type) {
         if (type == null || type.equals("")) {
             return null;
@@ -327,7 +312,10 @@ public class LocationService {
         return locations;
     }
 
-    // 获取可用仓库根节点
+    /**
+     * 获取可用仓库根节点
+     * @return
+     */
     public BaseinfoLocation getWarehouseLocation() {
         List<BaseinfoLocation> locations = this.getLocationsByType("warehouse");
         if (locations.size() > 0) {
@@ -337,13 +325,19 @@ public class LocationService {
         }
     }
 
-    // 获取可用仓库根节点id
+    /**
+     * 获取可用仓库根节点id
+     * @return
+     */
     public Long getWarehouseLocationId() {
         BaseinfoLocation location = this.getWarehouseLocation();
         return location.getLocationId();
     }
 
-    // 获取可用盘亏盘盈节点
+    /**
+     * 获取可用盘亏盘盈节点
+     * @return
+     */
     public BaseinfoLocation getInventoryLostLocation() {
         List<BaseinfoLocation> locations = this.getLocationsByType("inventoryLost");
         if (locations.size() > 0) {
@@ -353,13 +347,19 @@ public class LocationService {
         }
     }
 
-    // 获取可用盘亏盘盈节点id
+    /**
+     * 获取可用盘亏盘盈节点id
+     * @return
+     */
     public Long getInventoryLostLocationId() {
         BaseinfoLocation location = this.getInventoryLostLocation();
         return location.getLocationId();
     }
 
-    //获取可用残次区的节点
+    /**
+     * 获取可用残次区的节点
+     * @return
+     */
     public BaseinfoLocation getDefectiveLocation() {
         List<BaseinfoLocation> locations = this.getLocationsByType("defective_area");
         if (locations.size() > 0) {
@@ -369,13 +369,19 @@ public class LocationService {
         }
     }
 
-    // 获取可用残次区节点id
+    /**
+     * 获取可用残次区节点id
+     * @return
+     */
     public Long getDefectiveLocationId() {
         BaseinfoLocation location = this.getDefectiveLocation();
         return location.getLocationId();
     }
 
-    //获取可用退货区节点
+    /**
+     * 获取可用退货区节点
+     * @return
+     */
     public BaseinfoLocation getBackLocation() {
         List<BaseinfoLocation> locations = this.getLocationsByType("back_area");
         if (locations.size() > 0) {
@@ -385,13 +391,20 @@ public class LocationService {
         }
     }
 
-    //获取可用退货区节点id
+    /**
+     * 获取可用退货区节点id
+     * @return
+     */
     public Long getBackLocationId() {
         BaseinfoLocation location = this.getBackLocation();
         return location.getLocationId();
     }
 
-    // 分配可用暂存区location
+    /**
+     * 分配可用暂存区location
+     * @param type
+     * @return
+     */
     public BaseinfoLocation getAvailableLocationByType(String type) {
         List<BaseinfoLocation> locations = this.getLocationsByType(type);
         if (locations.size() > 0) {
@@ -406,19 +419,29 @@ public class LocationService {
         return null;
     }
 
-    // 获取可用暂存区节点id
+    /**
+     * 获取可用暂存区节点id
+     * @param type
+     * @return
+     */
     public Long getAvailableLocationId(String type) {
         BaseinfoLocation location = this.getAvailableLocationByType(type);
         return location.getLocationId();
     }
 
 
-    //分配可用集货区节点
+    /**
+     * 分配可用集货区节点
+     * @return
+     */
     public BaseinfoLocation getCollectionLocation() {
         return this.getAvailableLocationByType("collection_area");
     }
 
-    //获取可用的集货节点id
+    /**
+     * 获取可用的集货节点id
+     * @return
+     */
     public Long getCollectionLocationId() {
         BaseinfoLocation location = this.getCollectionLocation();
         return location.getLocationId();
@@ -435,13 +458,20 @@ public class LocationService {
         }
     }
 
-    //获取码头节点id
+    /**
+     * 获取码头节点id
+     * @return
+     */
     public Long getDockLocationId() {
         BaseinfoLocation location = this.getDockLocation();
         return location.getLocationId();
     }
 
-    //获取货位节点的id
+    /**
+     * 获取货位节点的id
+     * @param mapQuery
+     * @return
+     */
     public List<BaseinfoLocation> getBaseinfoLocationList(Map<String, Object> mapQuery) {
         return locationDao.getBaseinfoLocationList(mapQuery);
     }
@@ -474,7 +504,6 @@ public class LocationService {
 
     /**
      * 根据type,isvalid和或者code获取location的集合,主要和查询有关
-     *
      * @param mapQuery 前端传过来的map参数
      * @return
      */
@@ -502,66 +531,6 @@ public class LocationService {
     }
 
     /**
-     * 获取级别的type,包含货架区5、阁楼区6、地堆区7、残存区8、集货区9、退货区10、残次区11
-     */
-//    private static final long[] REGIONTYPE = {5, 6, 7, 8, 9, 10, 11};
-//
-    private static boolean flag = true;
-//    private static String RegionName = "";
-
-    /**
-     * 根据现有的位置,获取区域的位置,一直找到区的一层
-     * TODO 返回父亲的type类型,然后,根据类型在外面拼写
-     * 获取库位的库位
-     *
-     * @param baseinfoLocation
-     * @return
-     */
-    //获取区域的name,拼接字符串
-    public BaseinfoLocation getRegionLocation(BaseinfoLocation baseinfoLocation) {
-        BaseinfoLocation subLocation = new BaseinfoLocation();
-        if (flag == false) {
-            return subLocation;
-        }
-        //先排序
-//        Arrays.sort(REGIONTYPE);
-        //获取父亲对象
-        BaseinfoLocation fatherLocation = this.getFatherLocation(baseinfoLocation.getLocationId());
-        //没有父亲
-        if (null == fatherLocation) {
-            return subLocation;
-        }
-//        Long fatherLocationType = fatherLocation.getType();
-        //找到区域的一层不找了
-        if (fatherLocation.getClassification() == LocationConstant.RegionType) {
-            flag = false;
-            return fatherLocation;
-        }
-//        //向上查找直到type属于货架区、阁楼区、暂存区、地堆区、退货区
-//        if (!(Arrays.binarySearch(REGIONTYPE, fatherLocationType) < 0)) {
-//            String regionCode = fatherLocation.getLocationCode();
-//            String regionTypeName = fatherLocation.getTypeName();
-//            RegionName = regionTypeName + regionCode + "区";
-//            flag = false;
-//            return RegionName;
-//        } else {
-        else {
-            this.getRegionLocation(fatherLocation);
-            return fatherLocation;
-        }
-//        return RegionName;
-    }
-
-    /**
-     * 全局变量,开关使用完置为原来的值
-     *
-     * @param flag
-     */
-    public static void setFlag(boolean flag) {
-        LocationService.flag = flag;
-    }
-
-    /**
      * 获取location子代集合的开关
      */
     public static boolean LocationFlag = true;
@@ -569,8 +538,6 @@ public class LocationService {
     public static void setLocationFlag(boolean locationFlag) {
         LocationFlag = locationFlag;
     }
-
-//    public static List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
 
     /**
      * 根据当前的locationId获取,指定type的子集

@@ -147,6 +147,7 @@ public class LocationDetailService {
         //转化成父类,插入
         BaseinfoLocation location = new BaseinfoLocation();
         ObjUtils.bean2bean(iBaseinfoLocaltionModel, location);
+
         //先插入父亲
         locationService.insertLocation(location);
         //根据model选择service
@@ -208,20 +209,8 @@ public class LocationDetailService {
                 IStrategy istrategy = locationDetailServiceFactory.getIstrategy(location.getType());
                 //就是子
                 BaseinfoLocation son = istrategy.getBaseinfoItemLocationModelById(location.getLocationId());
-                //设置子类信息
+                //拷贝主表的信息
                 ObjUtils.bean2bean(location, son);
-                // todo 区域的region返回
-
-
-//                if (locationService.isLocationInUse(location.getId())) {
-//                    son.setIsUsed("已占用");
-//                } else {
-//                    son.setIsUsed("未占用");
-//                }
-                //设置区域名称
-//                String regionName = locationService.getRegionName(location);
-//                son.setRegionName(regionName);
-//                locationService.setFlag(true);
                 subList.add(son);
             }
             return subList;
@@ -236,11 +225,6 @@ public class LocationDetailService {
      * @return
      */
     public Integer countLocationDetail(Map<String, Object> params) {
-        Integer typeImp = (Integer) params.get("type");
-        Long type = Long.valueOf(typeImp.toString());
-        //主表的数据 细节表一定有
-//        IStrategy iStrategy = locationDetailServiceFactory.getIstrategy(type);
-//        return iStrategy.countBaseinfoLocaltionModel(params);
         return locationService.countLocation(params);
     }
 
