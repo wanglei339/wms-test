@@ -95,7 +95,9 @@ public class PickRestService implements IPickRestService {
         List<WaveDetail> pickDetails = pickTaskService.getPickTaskDetails(taskId);
         // 拣货顺序算法
         iPickRpcService.calcPickOrder(pickDetails);
-        return JsonUtils.SUCCESS(pickDetails);
+        Map<String, Object> result = new HashMap<String, Object>();
+        result.put("pick_details", pickDetails);
+        return JsonUtils.SUCCESS(result);
     }
 
     /**
