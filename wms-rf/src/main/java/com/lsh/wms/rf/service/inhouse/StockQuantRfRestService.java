@@ -66,11 +66,7 @@ public class StockQuantRfRestService implements IStockQuantRfRestService {
         Map<String, Object> m = new HashMap<String, Object>();
         m.put("itemId", quant.getItemId());
         m.put("name", itemRpcService.getItem(quant.getItemId()).getSkuName());
-        List <String> packNameList = new ArrayList<String>();
-        packNameList.add(quant.getPackName());
-        packNameList.add("ea");
-        packNameList.add("pallet");
-        m.put("packName", packNameList);
+        m.put("packName", quant.getPackName());
         resultList.add(m);
 
         Map<String, List<Object>> result = new HashMap<String, List<Object>>();
