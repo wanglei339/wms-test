@@ -1,14 +1,14 @@
 package com.lsh.wms.core.service.location;
 
-import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.model.baseinfo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ObjectUtils;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.InvocationTargetException;
@@ -25,27 +25,6 @@ import java.util.*;
 @Transactional(readOnly = true)
 public class LocationDetailService {
     private static final Logger logger = LoggerFactory.getLogger(LocationService.class);
-    /**
-     * 建立货位的枚举
-     */
-    //因为货位的类型有多样的,如果需要查询所有的bin,需要分别按现有的bin类型查找,然后将查到的list追加在一起仅用于(list页面)
-    public static final List<Integer> BINTYPELIST = Arrays.asList(16, 17, 18, 19, 20, 21, 22, 23, 24);
-
-    /**
-     * 货区的编号 5~11
-     */
-    public static final List<Integer> REGIONTYPELIST = Arrays.asList(5, 6, 7, 8, 9, 10, 11);
-
-    /**
-     * 所有bin的type=15
-     */
-    private static final int BINTYPE = 15;
-
-    /**
-     * 所有的区域的父类的type=2
-     */
-    private static final int REGIONTYPE = 2;
-
 
     @Autowired
     private LocationDetailServiceFactory locationDetailServiceFactory;
@@ -66,8 +45,6 @@ public class LocationDetailService {
     @Autowired
     private LocationDetailModelFactory locationDetailModelFactory;
 
-
-    //构造之后实例化之前,完成service注册
 
     /**
      * 将所有的Service注册到工厂中
@@ -167,6 +144,12 @@ public class LocationDetailService {
         if (null == iBaseinfoLocaltionModel) {
             throw new RuntimeException("插入和Location对象为空");
         }
+        //转化成父类,插入
+        BaseinfoLocation location = new BaseinfoLocation();
+        ObjUtils.bean2bean(iBaseinfoLocaltionModel, location);
+
+        //先插入父亲
+        locationService.insertLocation(location);
         //根据model选择service
         IStrategy iStrategy = locationDetailServiceFactory.getIstrategy(iBaseinfoLocaltionModel.getType());
         iStrategy.insert(iBaseinfoLocaltionModel);
@@ -179,25 +162,30 @@ public class LocationDetailService {
      */
     @Transactional(readOnly = false)
     public void update(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
-        //校验
-        if (null == iBaseinfoLocaltionModel) {
-            throw new RuntimeException("更新的Location对象为空");
-        }
+        //主表更新
+        BaseinfoLocation location = (BaseinfoLocation) iBaseinfoLocaltionModel;
+        locationService.updateLocation(location);
+        //子表更新
         IStrategy iStrategy = locationDetailServiceFactory.getIstrategy(iBaseinfoLocaltionModel.getType());
         iStrategy.update(iBaseinfoLocaltionModel);
     }
 
     /**
      * location的detail的查询
-     *
+     * 先查父亲,再查子类
      * @param locationId 位置的
-     * @param type       位置类型Integer
      * @return
      */
-    public BaseinfoLocation getIBaseinfoLocaltionModelByIdAndType(Long locationId, Long type) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        IStrategy iStrategy = locationDetailServiceFactory.getIstrategy(Long.valueOf(type.toString()));
-        BaseinfoLocation baseinfoLocation = iStrategy.getBaseinfoItemLocationModelById(locationId);
-        return baseinfoLocation;
+    public IBaseinfoLocaltionModel getIBaseinfoLocaltionModelById(Long locationId) throws BizCheckedException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+
+        BaseinfoLocation baseinfoLocation = locationService.getLocation(locationId);
+        if (baseinfoLocation == null) {
+            throw new BizCheckedException("查无此类");
+        }
+        IStrategy iStrategy = locationDetailServiceFactory.getIstrategy(Long.valueOf(baseinfoLocation.getType()));
+        IBaseinfoLocaltionModel iBaseinfoLocaltionModel = iStrategy.getBaseinfoItemLocationModelById(locationId);
+        ObjUtils.bean2bean(baseinfoLocation,iBaseinfoLocaltionModel);
+        return iBaseinfoLocaltionModel;
     }
 
     /**
@@ -221,31 +209,8 @@ public class LocationDetailService {
                 IStrategy istrategy = locationDetailServiceFactory.getIstrategy(location.getType());
                 //就是子
                 BaseinfoLocation son = istrategy.getBaseinfoItemLocationModelById(location.getLocationId());
-                //设置子类信息
+                //拷贝主表的信息
                 ObjUtils.bean2bean(location, son);
-
-//                son.setLocationCode(location.getLocationCode());
-//                son.setFatherId(location.getFatherId());
-//                son.setType(location.getType());
-//                son.setTypeName(location.getTypeName());
-//                son.setIsLeaf(location.getIsLeaf());
-//                son.setIsValid(location.getIsValid());
-//                son.setCanStore(location.getCanStore());
-//                son.setContainerVol(location.getContainerVol());
-//                son.setRegionNo(location.getRegionNo());
-//                son.setPassageNo(location.getPassageNo());
-//                son.setShelfLevelNo(location.getShelfLevelNo());
-//                son.setBinPositionNo(location.getBinPositionNo());
-//                //设置占用与否
-                if (locationService.isLocationInUse(location.getId())) {
-                    son.setIsUsed("已占用");
-                } else {
-                    son.setIsUsed("未占用");
-                }
-                //设置区域名称
-                String regionName = locationService.getRegionName(location);
-                son.setRegionName(regionName);
-                locationService.setFlag(true);
                 subList.add(son);
             }
             return subList;
@@ -260,11 +225,7 @@ public class LocationDetailService {
      * @return
      */
     public Integer countLocationDetail(Map<String, Object> params) {
-        Integer typeImp = (Integer) params.get("type");
-        Long type = Long.valueOf(typeImp.toString());
-        IStrategy iStrategy = locationDetailServiceFactory.getIstrategy(type);
-
-        return iStrategy.countBaseinfoLocaltionModel(params);
+        return locationService.countLocation(params);
     }
 
 

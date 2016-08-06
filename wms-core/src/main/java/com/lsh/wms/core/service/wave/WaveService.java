@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -105,6 +106,21 @@ public class WaveService {
     }
 
     @Transactional(readOnly = true)
+    public List<WaveDetail> getOrderedDetailsByPickTaskId(long pickTaskId){
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("pickTaskId", pickTaskId);
+        return detailDao.getOrderedWaveDetailList(mapQuery);
+    }
+
+    @Transactional(readOnly = true)
+    public WaveDetail getDetailByPickTaskIdAndPickOrder(Long pickTaskId, Long pickOrder) {
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("pickTaskId", pickTaskId);
+        mapQuery.put("pickOrder", pickOrder);
+        return detailDao.getOrderedWaveDetailList(mapQuery).get(0);
+    }
+
+    @Transactional(readOnly = true)
     public List<WaveDetail> getDetailsByQCTaskId(long qcTaskId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("qcTaskId", qcTaskId);
@@ -147,6 +163,11 @@ public class WaveService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public BigDecimal getUnPickedQty(Map<String, Object> mapQuery)
+    {
+        return detailDao.getUnPickedQty(mapQuery);
+    }
 
 
 

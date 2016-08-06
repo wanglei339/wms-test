@@ -26,32 +26,6 @@ public class BaseinfoLocationBin extends BaseinfoLocation implements Serializabl
     private Long type;
     /** 温区1常温2冷藏 */
     private Integer zoneType;
-	/**
-	 * 是否可用(显示用)
-	 */
-	private String isUsed;
-	/**
-	 * 所属区域名称(显示用)
-	 */
-	private String regionName;
-
-
-	public String getIsUsed() {
-		return isUsed;
-	}
-
-	public String getRegionName() {
-		return regionName;
-	}
-
-
-	public void setIsUsed(String isUsed) {
-		this.isUsed = isUsed;
-	}
-
-	public void setRegionName(String regionName) {
-		this.regionName = regionName;
-	}
 
 
 	public Long getId(){

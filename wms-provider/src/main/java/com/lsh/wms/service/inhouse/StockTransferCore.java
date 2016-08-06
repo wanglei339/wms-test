@@ -84,38 +84,39 @@ public class StockTransferCore {
         Long staffId = sysUser.getStaffId();
 
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
+        TaskInfo taskInfo = taskEntry.getTaskInfo();
         if (taskEntry == null) {
             throw new BizCheckedException("3040001");
         }
-        if (fromLocationId.compareTo(taskEntry.getTaskInfo().getFromLocationId()) != 0 ) {
+        if (fromLocationId.compareTo(taskInfo.getFromLocationId()) != 0 ) {
             throw new BizCheckedException("2040005");
         }
-
-        Long containerId = taskEntry.getTaskInfo().getContainerId();
+        String packName = taskInfo.getPackName();
+        Long containerId = taskInfo.getContainerId();
         Long toLocationId = locationService.getAreaFatherId(fromLocationId);
-        if (taskEntry.getTaskInfo().getPackName().equals("pallet")) {
+        if (taskInfo.getPackName().equals("pallet")) {
             moveRpcService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
 
         } else {
             BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString());
-            qtyDone = qtyDone.multiply(itemRpcService.getPackUnit(params.get("packName").toString()));
+            qtyDone = qtyDone.multiply(itemRpcService.getPackUnit(packName));
             StockMove move = new StockMove();
-            ObjUtils.bean2bean(taskEntry.getTaskInfo(), move);
+            ObjUtils.bean2bean(taskInfo, move);
             move.setQty(qtyDone);
             move.setToLocationId(toLocationId);
             List<StockMove> moveList = new ArrayList<StockMove>();
             moveList.add(move);
             moveRpcService.move(moveList);
 
-            if(taskEntry.getTaskInfo().getQty() != qtyDone) {
-                taskEntry.getTaskInfo().setQtyDone(qtyDone);
+            if(taskInfo.getQty() != qtyDone) {
+                taskInfo.setQtyDone(qtyDone);
             }
         }
 
-        if(taskEntry.getTaskInfo().getFromLocationId() != fromLocationId) {
-            taskEntry.getTaskInfo().setRealFromLocationId(fromLocationId);
+        if(taskInfo.getFromLocationId() != fromLocationId) {
+            taskInfo.setRealFromLocationId(fromLocationId);
         }
-        taskInfoDao.update(taskEntry.getTaskInfo());
+        taskInfoDao.update(taskInfo);
     }
 
     public void inbound(Map<String,Object> params) throws BizCheckedException {
@@ -130,32 +131,33 @@ public class StockTransferCore {
             throw new BizCheckedException("3040001");
         }
         TaskInfo taskInfo = taskEntry.getTaskInfo();
-        Long containerId = taskEntry.getTaskInfo().getContainerId();
+        String packName = taskInfo.getPackName();
+        Long containerId = taskInfo.getContainerId();
         Long fromLocationId = locationService.getAreaFatherId(taskInfo.getFromLocationId());
 
-        if (taskEntry.getTaskInfo().getPackName() == "pallet") {
+        if (taskInfo.getPackName() == "pallet") {
             moveRpcService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
         } else {
             BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString());
-            qtyDone = qtyDone.multiply(itemRpcService.getPackUnit(params.get("packName").toString()));
+            qtyDone = qtyDone.multiply(itemRpcService.getPackUnit(packName));
             StockMove move = new StockMove();
-            ObjUtils.bean2bean(taskEntry.getTaskInfo(), move);
+            ObjUtils.bean2bean(taskInfo, move);
             move.setFromLocationId(fromLocationId);
             move.setToLocationId(toLocationId);
             List<StockMove> moveList = new ArrayList<StockMove>();
             moveList.add(move);
             moveRpcService.move(moveList);
 
-            if(taskEntry.getTaskInfo().getQty() != qtyDone) {
-                taskEntry.getTaskInfo().setQtyDone(qtyDone);
+            if(taskInfo.getQty() != qtyDone) {
+                taskInfo.setQtyDone(qtyDone);
             }
         }
         taskRpcService.done(taskId);
 
-        if(taskEntry.getTaskInfo().getToLocationId() != toLocationId) {
-            taskEntry.getTaskInfo().setRealToLocationId(toLocationId);
+        if(taskInfo.getToLocationId() != toLocationId) {
+            taskInfo.setRealToLocationId(toLocationId);
         }
-        taskInfoDao.update(taskEntry.getTaskInfo());
+        taskInfoDao.update(taskInfo);
     }
 
 }

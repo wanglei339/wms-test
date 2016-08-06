@@ -83,15 +83,20 @@ public class StockMoveService {
 
     @Transactional(readOnly = false)
     public void moveWholeContainer(Long containerId, Long taskId, Long staffId, Long fromLocationId, Long toLocationId) throws BizCheckedException {
-        List<StockQuant> quantList = quantService.reserveByContainer(containerId, taskId);
+        this.moveWholeContainer(containerId, containerId, taskId, staffId, fromLocationId, toLocationId);
+    }
+
+    @Transactional(readOnly = false)
+    public void moveWholeContainer(Long fromContainerId, Long toContainerId, Long taskId, Long staffId, Long fromLocationId, Long toLocationId) throws BizCheckedException {
+        List<StockQuant> quantList = quantService.reserveByContainer(fromContainerId, taskId);
 
         for (StockQuant quant : quantList) {
             StockMove move = new StockMove();
             move.setTaskId(taskId);
             move.setFromLocationId(fromLocationId);
             move.setToLocationId(toLocationId);
-            move.setFromContainerId(containerId);
-            move.setToContainerId(containerId);
+            move.setFromContainerId(fromContainerId);
+            move.setToContainerId(toContainerId);
             move.setItemId(quant.getItemId());
             move.setQty(quant.getQty());
             move.setOperator(staffId);

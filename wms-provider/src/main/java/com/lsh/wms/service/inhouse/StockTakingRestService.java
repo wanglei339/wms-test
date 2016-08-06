@@ -10,19 +10,16 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.inhouse.IStockTakingRestService;
-import com.lsh.wms.api.service.location.ILocationRestService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
-import com.lsh.wms.core.service.location.LocationConstant;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.core.service.task.StockTakingTaskService;
-import com.lsh.wms.model.StockTakingInfo;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.stock.ItemAndSupplierRelation;
@@ -128,24 +125,7 @@ public class StockTakingRestService implements IStockTakingRestService {
         statusList.add(3);statusList.add(4);
         mapQuery.put("statusList",statusList);
         List<StockTakingHead> heads = stockTakingService.queryTakingHead(mapQuery);
-        List<StockTakingInfo> infos =new ArrayList<StockTakingInfo>();
-        for (StockTakingHead head:heads) {
-            StockTakingInfo info =new StockTakingInfo();
-            info.setHead(head);
-            Set<Long> operatorSet =new HashSet<Long>();
-            Map<String,Object> taskMap =new HashMap<String, Object>();
-            taskMap.put("takingId",head.getTakingId());
-            List<StockTakingTask> takingTasks =stockTakingTaskService.getTakingTask(taskMap);
-            for(StockTakingTask task:takingTasks){
-                TaskEntry entry =iTaskRpcService.getTaskEntryById(task.getTaskId());
-                if(entry.getTaskInfo().getOperator()!=0) {
-                    operatorSet.add(entry.getTaskInfo().getOperator());
-                }
-            }
-            info.setOperatorSet(operatorSet);
-            infos.add(info);
-        }
-        return JsonUtils.SUCCESS(infos);
+        return JsonUtils.SUCCESS(heads);
     }
     @POST
     @Path("getCount")
@@ -170,10 +150,10 @@ public class StockTakingRestService implements IStockTakingRestService {
             queryMap.put("isValid",1);
             List<StockTakingTask> stockTakingTaskList = stockTakingTaskService.getTakingTask(queryMap);
             for(StockTakingTask takingTask:stockTakingTaskList) {
-                Map <String,Object> one = new HashMap<String, Object>();
                 TaskEntry entry = iTaskRpcService.getTaskEntryById(takingTask.getTaskId());
                 List detailList = entry.getTaskDetailList();
                 for(Object tmp:detailList) {
+                    Map <String,Object> one = new HashMap<String, Object>();
                     StockTakingDetail detail = (StockTakingDetail) tmp;
                     BaseinfoLocation areaFather = locationService.getAreaFather(detail.getLocationId());
                     BaseinfoLocation location = locationService.getLocation(detail.getLocationId());
@@ -338,6 +318,7 @@ public class StockTakingRestService implements IStockTakingRestService {
             detail.setDetailId(idx);
             detail.setLocationId(quant.getLocationId());
             detail.setSkuId(quant.getSkuId());
+            detail.setContainerId(quant.getContainerId());
             detail.setItemId(quant.getItemId());
             detail.setRealItemId(quant.getItemId());
             detail.setRealSkuId(detail.getSkuId());

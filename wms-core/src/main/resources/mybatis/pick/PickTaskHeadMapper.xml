@@ -10,6 +10,8 @@
 		<result property="transPlan" column="trans_plan"/>
 		<result property="pickType" column="pick_type"/>
 		<result property="containerId" column="container_id"/>
+		<result property="allocCollectLocation" column="alloc_collect_location"/>
+		<result property="realCollectLocation" column="real_collect_location"/>
 		<result property="pickAt" column="pick_at"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
@@ -18,10 +20,10 @@
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PickTaskHead">
 		insert into pick_task_head (
 			task_id,delivery_id,wave_id,trans_plan,pick_type,container_id,
-			pick_at,created_at,updated_at
+			alloc_collect_location,real_collect_location,pick_at,created_at,updated_at
     	) values (
 			#{taskId},#{deliveryId},#{waveId},#{transPlan},#{pickType},#{containerId},
-			#{pickAt},#{createdAt},#{updatedAt}
+			#{allocCollectLocation},#{realCollectLocation},#{pickAt},#{createdAt},#{updatedAt}
     	)
 	</insert>
 
@@ -34,6 +36,8 @@
   			<if test="transPlan != null">trans_plan=#{transPlan},</if>
   			<if test="pickType != null">pick_type=#{pickType},</if>
   			<if test="containerId != null">container_id=#{containerId},</if>
+  			<if test="allocCollectLocation != null">alloc_collect_location=#{allocCollectLocation},</if>
+  			<if test="realCollectLocation != null">real_collect_location=#{realCollectLocation},</if>
   			<if test="pickAt != null">pick_at=#{pickAt},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
@@ -73,6 +77,8 @@
 			<if test="transPlan != null">and trans_plan=#{transPlan}</if>
 			<if test="pickType != null">and pick_type=#{pickType}</if>
 			<if test="containerId != null">and container_id=#{containerId}</if>
+			<if test="allocCollectLocation != null">and alloc_collect_location=#{allocCollectLocation}</if>
+			<if test="realCollectLocation != null">and real_collect_location=#{realCollectLocation}</if>
 			<if test="pickAt != null">and pick_at=#{pickAt}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>

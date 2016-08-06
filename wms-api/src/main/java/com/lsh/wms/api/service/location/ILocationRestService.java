@@ -20,11 +20,11 @@ public interface ILocationRestService {
     public String searchList(Map<String, Object> params);
     public String getTemp(String type);
     //仓库找货区
-    public String getRegionByWareHouseId(Long locationId);
+    public String getRegionByWareHouseId();
     //货区找货架
     public String getShelfByRegionId(Long locationId);
     //货架找货位
     public String getBinByShelf(Long locationId);
     //仓库找货位
-    public String getBinByWarehouseId(Long locationId);
+    public String getBinByWarehouseId();
 }

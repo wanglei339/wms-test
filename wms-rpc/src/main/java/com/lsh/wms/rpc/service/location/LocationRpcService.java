@@ -5,13 +5,11 @@ import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.parsing.Location;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,5 +87,25 @@ public class LocationRpcService implements ILocationRpcService {
     //分配残次区
     public BaseinfoLocation getDefectiveLocation() {
         return locationService.getDefectiveLocation();
+    }
+
+    /**
+     * 获取全货区
+     * @return
+     */
+    public List<BaseinfoLocation> getAllRegion() {
+        Map<String,Object> mapQuery = new HashMap<String,Object>();
+        mapQuery.put("classification",1);
+        return locationService.getBaseinfoLocationList(mapQuery);
+    }
+
+    /**
+     * 获取全货位
+     * @return
+     */
+    public List<BaseinfoLocation> getAllBin() {
+        Map<String,Object> mapQuery = new HashMap<String,Object>();
+        mapQuery.put("classification",2);
+        return locationService.getBaseinfoLocationList(mapQuery);
     }
 }

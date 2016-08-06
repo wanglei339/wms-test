@@ -5,9 +5,8 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.model.stock.StockQuant;
-import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.inhouse.IStockTakingRfRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
@@ -31,7 +30,6 @@ import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.StockTakingTask;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
-import net.sf.json.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,52 +80,58 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
     public String doOne() throws BizCheckedException {
         //Long taskId,int qty,String barcode
         Map request = RequestUtils.getRequest();
-        JSONArray jsonObject = JSONArray.fromObject(request.get("resultList"));
-        List<Map> resultList = (List<Map>)JSONArray.toCollection(jsonObject, HashMap.class);
-        if (resultList == null || resultList.size() == 0) {
-            return JsonUtils.BIZ_ERROR("2550001");
+        JSONObject object = null;
+        Long taskId = 0L;
+        List<Map> resultList = null;
+        try {
+            object = JSONObject.fromObject(request.get("result"));
+            taskId = Long.parseLong(object.get("taskId").toString());
+            resultList = object.getJSONArray("list");
+        }catch (Exception e){
+            return JsonUtils.TOKEN_ERROR("JSON解析失败");
         }
-        Long taskId = Long.parseLong(resultList.get(0).get("taskId").toString());
+
+        if (!(resultList == null || resultList.size() == 0)) {
+            TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
+            StockTakingTask task = (StockTakingTask) (entry.getTaskHead());
+            StockTakingDetail detail = (StockTakingDetail) (entry.getTaskDetailList().get(0));
+            BaseinfoItem item = itemService.getItem(detail.getItemId());
+            for (Map<String, Object> beanMap : resultList) {
+                Object barcode = beanMap.get("barcode");
+                BigDecimal realQty = new BigDecimal(beanMap.get("qty").toString());
+                if (item.getCode().equals(barcode.toString())) {
+                    BigDecimal qty = quantService.getQuantQtyByLocationIdAndItemId(detail.getLocationId(), detail.getItemId());
+                    detail.setTheoreticalQty(qty);
+                    detail.setRealQty(realQty);
+                    detail.setUpdatedAt(DateUtils.getCurrentSeconds());
+                    stockTakingService.updateDetail(detail);
+                } else {
+                    CsiSku csiSku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode.toString());
+                    StockTakingDetail newDetail = new StockTakingDetail();
+                    newDetail.setRealQty(realQty);
+                    newDetail.setTakingId(task.getTakingId());
+                    newDetail.setTaskId(taskId);
+                    newDetail.setRealSkuId(csiSku.getSkuId());
+                    newDetail.setSkuId(csiSku.getSkuId());
+                    newDetail.setLocationId(detail.getLocationId());
+                    newDetail.setContainerId(detail.getContainerId());
+                    newDetail.setRound(detail.getRound());
+                    newDetail.setContainerId(detail.getContainerId());
+                    newDetail.setPackName("箱");
+                    stockTakingService.insertDetail(newDetail);
+                }
+            }
+        }
+
+        iTaskRpcService.done(taskId);
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
-        StockTakingTask task = (StockTakingTask)(entry.getTaskHead());
-        StockTakingDetail detail = (StockTakingDetail) (entry.getTaskDetailList().get(0));
-        BaseinfoItem item = itemService.getItem(detail.getItemId());
-        for(Map<String,Object> beanMap:resultList){
-            Object barcode = beanMap.get("barcode");
-            BigDecimal realQty = new BigDecimal(beanMap.get("qty").toString());
-            if(item.getCode().equals(barcode.toString())) {
-                BigDecimal qty = quantService.getQuantQtyByLocationIdAndItemId(detail.getLocationId(), detail.getItemId());
-                detail.setTheoreticalQty(qty);
-                detail.setRealQty(realQty);
-                detail.setUpdatedAt(DateUtils.getCurrentSeconds());
-                stockTakingService.updateDetail(detail);
-                iTaskRpcService.done(taskId);
-            }else {
-                Map<String,Object> detailMap =new HashMap<String, Object>();
-                CsiSku csiSku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE,barcode.toString());
-                detailMap.put("skuId",csiSku.getSkuId());
-                detailMap.put("takingId",detail.getTakingId());
-                List<StockTakingDetail> tmpDetail = stockTakingService.queryTakingDetail(detailMap);
-                StockTakingDetail newDetail = new StockTakingDetail();
-                newDetail.setRealQty(realQty);
-                newDetail.setDetailId(RandomUtils.genId());
-                newDetail.setTakingId(task.getTakingId());
-                newDetail.setTaskId(taskId);
-                newDetail.setRealSkuId(csiSku.getSkuId());
-                newDetail.setLocationId(detail.getLocationId());
-                newDetail.setContainerId(detail.getContainerId());
-                newDetail.setRound(detail.getRound());
-                newDetail.setPackName(beanMap.get("packName").toString());
-                newDetail.setPackUnit(new BigDecimal(beanMap.get("packUnit").toString()));
-                stockTakingService.insertDetail(newDetail);
-            }
-            Map<String,Object> queryMap = new HashMap<String, Object>();
-            queryMap.put("planId",task.getTakingId());
-            queryMap.put("status",2L);
-            List<TaskEntry> entries = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_STOCK_TAKING,queryMap);
-            if(entries==null || entries.size()==0){
-                this.confirm(task.getTakingId());
-            }
+        StockTakingTask task = (StockTakingTask) (entry.getTaskHead());
+        Map<String, Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("planId", task.getTakingId());
+        queryMap.put("status", 2L);
+        List<TaskEntry> entries = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_STOCK_TAKING, queryMap);
+        if (entries == null || entries.size() == 0) {
+            this.confirm(task.getTakingId());
         }
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {
@@ -147,27 +151,30 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
         List<Map> taskList =  new ArrayList<Map>();
         Long staffId = iSysUserRpcService.getSysUserById(uId).getStaffId();
         Map<String,Object> statusQueryMap = new HashMap();
-        statusQueryMap.put("status",2L);
-        statusQueryMap.put("planner",staffId);
+        statusQueryMap.put("status",2);
+        statusQueryMap.put("operator", staffId);
         List<TaskEntry> list = iTaskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TAKING, statusQueryMap);
         if(list!=null && list.size()!=0){
             for(TaskEntry taskEntry:list){
                 Map<String,Object>task = new HashMap<String,Object>();
                 task.put("taskId",taskEntry.getTaskInfo().getTaskId());
                 String locationCode= " ";
+                Long locationId = 0L;
                 List<Object> objectList = taskEntry.getTaskDetailList();
                 if(objectList!=null && objectList.size()!=0){
                     StockTakingDetail detail =(StockTakingDetail)(objectList.get(0));
+                    locationId = detail.getLocationId();
                     BaseinfoLocation location = locationService.getLocation(detail.getLocationId());
-                    if(location!=null){
+                    if(location != null){
                         locationCode = location.getLocationCode();
                     }
                 }
+                task.put("locationId",locationId);
                 task.put("locationCode",locationCode);
                 taskList.add(task);
             }
-            result.put("taskList",taskList);
-            JsonUtils.SUCCESS(result);
+            result.put("taskList", taskList);
+            return JsonUtils.SUCCESS(result);
         }
         Map<String,Object> queryMap =new HashMap<String, Object>();
         queryMap.put("status",1L);
@@ -186,9 +193,11 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
             task.put("taskId",takingtask.getTaskId());
             taskIdList.add(takingtask.getTaskId());
             List<StockTakingDetail> details =stockTakingService.getDetailByTaskId(takingtask.getTaskId());
-            if(details==null || details.size()==0){
+            if(details == null || details.size() == 0){
                 task.put("locationCode","");
+                task.put("locationId",0L);
             }else {
+                task.put("locationId",details.get(0).getLocationId());
                 BaseinfoLocation location = locationService.getLocation(details.get(0).getLocationId());
                 if(location==null){
                     task.put("locationCode","");
@@ -210,8 +219,12 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
     public String getTaskInfo() throws BizCheckedException{
         Map<String, Object> params =RequestUtils.getRequest();
         Long taskId = Long.valueOf(params.get("taskId").toString());
+        Long locationId = Long.valueOf(params.get("locationId").toString());
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
         StockTakingDetail detail = (StockTakingDetail)(entry.getTaskDetailList().get(0));
+        if(!detail.getLocationId().equals(locationId)){
+            return JsonUtils.TOKEN_ERROR("扫描库位与系统所需盘点库位不相符");
+        }
         StockTakingTask task = (StockTakingTask)(entry.getTaskHead());
         StockTakingHead head = stockTakingService.getHeadById(task.getTakingId());
         BigDecimal qty = quantService.getQuantQtyByLocationIdAndItemId(detail.getLocationId(), detail.getItemId());

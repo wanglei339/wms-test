@@ -1,14 +1,10 @@
 package com.lsh.wms.rpc.service.location;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.base.common.utils.BeanMapTransUtils;
-import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.location.ILocationRestService;
-import com.lsh.wms.api.service.request.RequestUtils;
-import com.lsh.wms.core.service.location.LocationConstant;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import org.slf4j.Logger;
@@ -134,23 +130,12 @@ public class LocationRestService implements ILocationRestService {
 
     /**
      * 根据仓库id获取下面的区域
-     *
-     * @param locationId
      * @return
      */
     @GET
     @Path("getRegionByWareHouseId")
-    public String getRegionByWareHouseId(@QueryParam("locationId") Long locationId) {
-
-        List<Long> regionType = Arrays.asList(LocationConstant.Shelfs, LocationConstant.Lofts, LocationConstant.Floor, LocationConstant.Temporary, LocationConstant.Collection_area, LocationConstant.Back_area, LocationConstant.Defective_area);
-        List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
-        for (Long oneType : regionType) {
-            List<BaseinfoLocation> locationList = locationService.getSubLocationList(locationId, oneType);
-            targetList.addAll(locationList);
-        }
-
-
-        return JsonUtils.SUCCESS(targetList);
+    public String getRegionByWareHouseId() {
+        return JsonUtils.SUCCESS(locationRpcService.getAllRegion());
     }
 
     /**
@@ -191,19 +176,11 @@ public class LocationRestService implements ILocationRestService {
 
     /**
      * 根据仓库id查找所有货位
-     * @param locationId
      * @return
      */
     @GET
     @Path("getBinByWarehouseId")
-    public String getBinByWarehouseId(@QueryParam("locationId") Long locationId) {
-        List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
-        List<Long> regionType = Arrays.asList(LocationConstant.Shelf_collection_bin, LocationConstant.Shelf_store_bin, LocationConstant.Loft_collection_bin, LocationConstant.Loft_store_bin, LocationConstant.Floor_bin, LocationConstant.Temporary_bin, LocationConstant.Collection_bin,LocationConstant.Back_bin,LocationConstant.Defective_bin);
-        for (Long oneType : regionType) {
-            List<BaseinfoLocation> locationList = locationService.getSubLocationList(locationId, oneType);
-            targetList.addAll(locationList);
-        }
-
-        return JsonUtils.SUCCESS(targetList);
+    public String getBinByWarehouseId() {
+        return JsonUtils.SUCCESS(locationRpcService.getAllRegion());
     }
 }
