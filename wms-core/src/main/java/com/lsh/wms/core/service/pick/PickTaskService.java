@@ -7,6 +7,7 @@ import com.lsh.wms.core.dao.pick.PickTaskHeadDao;
 import com.lsh.wms.core.dao.wave.WaveDetailDao;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockMoveService;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.pick.PickTaskHead;
 import com.lsh.wms.model.wave.WaveDetail;
@@ -34,7 +35,7 @@ public class PickTaskService {
     @Autowired
     private WaveDetailDao taskDetailDao;
     @Autowired
-    private StockMoveService stockMoveService;
+    private StockQuantService stockQuantService;
     @Autowired
     private WaveService waveService;
     @Autowired
@@ -93,6 +94,7 @@ public class PickTaskService {
     public void pickOne(WaveDetail pickDetail, Long locationId, Long containerId, BigDecimal qty, Long staffId) {
         Long taskId = pickDetail.getPickTaskId();
         Long fromContainerId = pickDetail.getContainerId();
+        Long itemId = pickDetail.getItemId();
         // 更新wave_detail
         pickDetail.setContainerId(containerId);
         pickDetail.setRealPickLocation(locationId);
@@ -101,6 +103,6 @@ public class PickTaskService {
         pickDetail.setPickAt(DateUtils.getCurrentSeconds());
         waveService.updateDetail(pickDetail);
         // 移动库存
-        //stockMoveService.moveWholeContainer(fromContainerId, containerId, taskId, staffId, locationId, locationService.getWarehouseLocationId());
+        stockQuantService.moveToContainer(itemId, staffId, fromContainerId, containerId, locationService.getWarehouseLocationId(), qty);
     }
 }
