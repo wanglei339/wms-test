@@ -105,7 +105,7 @@ public class ItemRpcService implements IItemRpcService {
         if("ea".equals(newStr.toLowerCase())){
             return new BigDecimal(1);
         }
-        BigDecimal packUnit = null;
+        BigDecimal packUnit = BigDecimal.ZERO;
         boolean result=newStr.substring(1).matches("[0-9]+");
         if(result){
             packUnit = new BigDecimal(newStr.substring(1));

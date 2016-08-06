@@ -8,12 +8,17 @@ import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.PickConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.WaveConstant;
+import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.pick.*;
 import com.lsh.wms.core.service.so.SoOrderService;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.wave.WaveAllocService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.pick.*;
 import com.lsh.wms.model.so.OutbSoDetail;
 import com.lsh.wms.model.so.OutbSoHeader;
@@ -28,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
 
 import java.util.*;
@@ -56,123 +60,50 @@ public class WaveCore {
     ItemService itemService;
     @Reference
     private ITaskRpcService taskRpcService;
+    @Autowired
+    private LocationService locationService;
+    @Autowired
+    private ItemLocationService itemLocationService;
+    @Autowired
+    private StockQuantService stockQuantService;
+    
+    private WaveHead waveHead;
+    List<OutbSoDetail> orderDetails;
+    Map<Long, OutbSoHeader> mapOrder2Head;
+    PickModelTemplate modelTpl;
+    List<PickModel> modelList;
+    List<PickZone> zoneList;
+    Map<Long, PickZone> mapZone;
+    Map<Long, List<Long>> mapZone2StoreLocations;
+    private long waveId;
+    Map<String, List<Long>> mapItemAndPickZone2PickLocations;
+    Map<String, Long> mapItemAndPickZone2PickLocationRound;
+    Map<String, BigDecimal> mapPickZoneLeftAllocQty;
+    List<WaveAllocDetail> pickAllocDetailList;
+    List<TaskEntry> entryList;
+    
 
     public int release(long iWaveId) throws BizCheckedException{
         //获取波次信息
-        WaveHead waveHead = waveService.getWave(iWaveId);
-        if(waveHead==null){
-            return -1;
-        }
-        List<OutbSoDetail> order_details = new LinkedList<OutbSoDetail>();
-        Map<Long, OutbSoHeader> mapOrder2Head = new HashMap<Long, OutbSoHeader>();
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("waveId", iWaveId);
-        List<OutbSoHeader> orders = orderService.getOutbSoHeaderList(mapQuery);
-        Collections.sort(orders, new Comparator<OutbSoHeader>() {
-            //此处可以设定一个排序规则,对波次中的订单优先级进行排序
-            public int compare(OutbSoHeader o1, OutbSoHeader o2) {
-                return o1.getId().compareTo(o2.getId());
-            }
-        });
-        for(int i = 0;i  < orders.size(); ++i){
-            mapOrder2Head.put(orders.get(i).getOrderId(), orders.get(i));
-            List<OutbSoDetail> details = orderService.getOutbSoDetailListByOrderId(orders.get(i).getOrderId());
-            order_details.addAll(details);
-        }
-        //设置释放中状态
-        //获取捡货模版
-        PickModelTemplate modelTpl = modelService.getPickModelTemplate(waveHead.getPickModelTemplateId());
-        List<PickModel> modelList = modelService.getPickModelsByTplId(waveHead.getPickModelTemplateId());
-        if(modelList.size()==0){
-            throw new BizCheckedException("2040006");
-        }
-        Collections.sort(modelList,new Comparator<PickModel> (){
-            //按捡货区权重排序
-            public int compare(PickModel arg0, PickModel arg1) {
-                return arg1.getPickWeight().compareTo(arg0.getPickWeight());
-            }
-        });
-        //获取分区信息
-        List<PickZone> zoneList = new LinkedList<PickZone>();
-        Map<Long, PickZone> mapZone = new HashMap<Long, PickZone>();
-        for(int i = 0; i < modelList.size(); ++i){
-            PickZone zone = zoneService.getPickZone(modelList.get(i).getPickZoneId());
-            if(zone == null){
-                logger.error("get pick zone fail %d", modelList.get(i).getPickZoneId());
-                return -1;
-            }
-            zoneList.add(zone);
-            mapZone.put(zone.getPickZoneId(), zone);
-        }
+        waveId = iWaveId;
+        //执行波次准备
+        this._prepare();
         //执行配货
-        List<WaveAllocDetail> pickAllocDetailList = new ArrayList<WaveAllocDetail>();
-        if(waveHead.getIsResAlloc() == 0) {
-            logger.info("begin to run alloc waveId[%d]", iWaveId);
-            for (int i = 0; i < order_details.size(); ++i) {
-                OutbSoDetail detail = order_details.get(i);
-                int zone_idx = 0;
-                //获取商品的基本信息
-                BaseinfoItem item = itemService.getItem(mapOrder2Head.get(detail.getOrderId()).getOwnerUid(), detail.getSkuId());
-                if (item == null) {
-                    logger.error("item get fail %s", item.getItemId());
-                    return -1;
-                }
-                BigDecimal leftAllocQty = new BigDecimal(detail.getOrderQty());
-                for (PickZone zone : zoneList) {
-                    if (leftAllocQty.compareTo(BigDecimal.ZERO) <= 0) {
-                        break;
-                    }
-                    //判断此区域是否有对应的捡货位
-                    long pick_unit = zone.getPickUnit();
-                    BigDecimal pick_ea_num = null;
-                    if (pick_unit == 1) {
-                        //ea
-                        pick_ea_num = BigDecimal.valueOf(1L);
-                    } else if (pick_unit == 2) {
-                        //整箱
-                        pick_ea_num = item.getPackUnit();
-                    } else if (pick_unit == 3) {
-                        //整托盘,卧槽托盘上的商品数怎么求啊,这里是有风险的,因为实际的码盘数量可能和实际的不一样.
-                        pick_ea_num = item.getPackUnit().multiply(BigDecimal.valueOf(item.getPileX() * item.getPileY() * item.getPileZ()));
-                        if (pick_ea_num.compareTo(BigDecimal.ZERO) == 0) {
-                        }
-                    }
-                    //获取分拣分区下的可分配库存数量,怎么获取?
-                    long zone_qty = 100000;
-                    int alloc_x = leftAllocQty.divide(pick_ea_num).intValue();
-                    int zone_alloc_x = BigDecimal.valueOf(zone_qty).divide(pick_ea_num).intValue();
-                    alloc_x = alloc_x > zone_alloc_x ? zone_alloc_x : alloc_x;
-                    BigDecimal alloc_qty = pick_ea_num.multiply(BigDecimal.valueOf(alloc_x));
-                    //锁库存.怎么锁??
-                    WaveAllocDetail allocDetail = new WaveAllocDetail();
-                    allocDetail.setId(RandomUtils.genId());
-                    allocDetail.setSkuId(detail.getSkuId());
-                    allocDetail.setAllocQty(alloc_qty);
-                    //allocDetail.setLocId(detail.getLotNum()); ??
-                    allocDetail.setOrderId(detail.getOrderId());
-                    allocDetail.setOwnerId(mapOrder2Head.get(detail.getOrderId()).getOwnerUid());
-                    allocDetail.setPickZoneId(zone.getPickZoneId());
-                    allocDetail.setReqQty(new BigDecimal(0));
-                    //allocDetail.setSupplierId(mapOrder2Head.get(detail.getOrderId()).get); ??
-                    allocDetail.setWaveId(iWaveId);
-                    pickAllocDetailList.add(allocDetail);
-
-                    leftAllocQty = leftAllocQty.subtract(alloc_qty);
-                }
-            }
-            //存储配货结果
-            waveService.storeAlloc(waveHead, pickAllocDetailList);
-            //allocService.addAllocDetails(pickAllocDetailList);
-        }else{
-            logger.info("skip to run alloc waveId[%d], load from db", iWaveId);
-            pickAllocDetailList = allocService.getAllocDetailsByWaveId(iWaveId);
-        }
-
+        this._alloc();
         logger.info("begin to run pick model");
         //执行捡货模型,输出最小捡货单元
-        List<PickTaskHead> taskHeads = new LinkedList<PickTaskHead>();
-        List<WaveDetail> taskDetails = new LinkedList<WaveDetail>();
-        List<TaskEntry> entryList = new LinkedList<TaskEntry>();
+        this._executePickModel();
+        //创建捡货任务
+        taskRpcService.batchCreate(TaskConstant.TYPE_PICK, entryList);
+        //标记成功,这里有风险,就是捡货任务已经创建了,但是这里标记失败了,看咋搞????
+        waveService.setStatus(waveId, WaveConstant.STATUS_RELEASE_SUCC);
+        return 0;
+    }
+
+    private void _executePickModel() throws BizCheckedException{
+        //List<PickTaskHead> taskHeads = new LinkedList<PickTaskHead>();
+        //List<WaveDetail> taskDetails = new LinkedList<WaveDetail>();
+        entryList = new LinkedList<TaskEntry>();
         for(int zidx = 0; zidx < zoneList.size(); ++zidx){
             PickZone zone = zoneList.get(zidx);
             List<SplitNode> splitNodes = new LinkedList<SplitNode>();
@@ -198,10 +129,10 @@ public class WaveCore {
             List<SplitNode> stopNodes = new LinkedList<SplitNode>();
             PickModel model = modelList.get(zidx);
             String splitModelNames[] = {
-                    "SplitModelSetGroup",
-                    "SplitModelBigItem",
-                    "SplitModelSet",
-                    "SplitModelSmallItem",
+                    //"SplitModelSetGroup",
+                    //"SplitModelBigItem",
+                    //"SplitModelSet",
+                    //"SplitModelSmallItem",
                     "SplitModelOrder",
                     "SplitModelContainer", //这个必须是最后一个,否则就会出大问题.
             };
@@ -211,7 +142,7 @@ public class WaveCore {
                     splitModel = (SplitModel) Class.forName("com.lsh.wms.service.wave.split."+modelName).newInstance();
                 } catch (Exception e){
                     logger.error("class init fail "+modelName);
-                    return -1;
+                    throw  new BizCheckedException("");
                 }
                 splitModel.init(model, splitNodes);
                 splitModel.split(stopNodes);
@@ -229,46 +160,252 @@ public class WaveCore {
             for(int i = 0; i < bestCutPlan.length; ++i){
                 TaskEntry entry = new TaskEntry();
                 TaskInfo info = new TaskInfo();
-                info.setPlanId(iWaveId);
-                info.setWaveId(iWaveId);
+                info.setPlanId(waveId);
+                info.setWaveId(waveId);
                 List<Object> pickTaskDetails = new LinkedList<Object>();
                 info.setType(TaskConstant.TYPE_PICK);
                 info.setSubType(PickConstant.SHELF_TASK_TYPE);
                 PickTaskHead head = new PickTaskHead();
-                head.setWaveId(iWaveId);
+                head.setWaveId(waveId);
                 head.setPickType(1);
                 //head.setTransPlan("");
                 //head.setDeliveryId(1L);
-                info.setTaskName(String.format("波次[%d]-捡货任务[%d]", iWaveId, taskHeads.size()+1));
+                info.setTaskName(String.format("波次[%d]-捡货任务[%d]", waveId, entryList.size()+1));
                 for(int j = 0; j < bestCutPlan[i]; j++){
                     SplitNode node = stopNodes.get(iChooseIdx+j);
                     for(int k = 0; k < node.details.size(); ++k){
                         WaveDetail detail = node.details.get(k);
                         detail.setPickZoneId(BigDecimal.valueOf(zone.getPickZoneId()));
-                        taskDetails.add(detail);
                         pickTaskDetails.add(detail);
                         head.setDeliveryId(detail.getOrderId());
                         head.setTransPlan(mapOrder2Head.get(detail.getOrderId()).getTransPlan());
                     }
                 }
                 iChooseIdx += bestCutPlan[i];
-                taskHeads.add(head);
                 entry.setTaskInfo(info);
                 entry.setTaskHead(head);
                 entry.setTaskDetailList(pickTaskDetails);
                 entryList.add(entry);
             }
         }
-
-        taskRpcService.batchCreate(TaskConstant.TYPE_PICK, entryList);
-        //TaskEntry entry = new TaskEntry();
-        //entry.set
-        //iTaskRpcService.create(TaskConstant.TYPE_PICK, entry);
-        //waveService.storePickTask(iWaveId, taskHeads, taskDetails);
-        waveService.setStatus(iWaveId, WaveConstant.STATUS_RELEASE_SUCC);
-        return 0;
     }
 
+    private void _alloc() throws BizCheckedException{
+        pickAllocDetailList = new ArrayList<WaveAllocDetail>();
+        if(waveHead.getIsResAlloc() == 0) {
+            logger.info("begin to run alloc waveId[%d]", waveId);
+            for (int i = 0; i < orderDetails.size(); ++i) {
+                OutbSoDetail detail = orderDetails.get(i);
+                int zone_idx = 0;
+                //获取商品的基本信息
+                BaseinfoItem item = itemService.getItem(mapOrder2Head.get(detail.getOrderId()).getOwnerUid(), detail.getSkuId());
+                if (item == null) {
+                    logger.error("item get fail %d", detail.getSkuId());
+                    throw new BizCheckedException("");
+                }
+                //获取商品的捡货位
+                BigDecimal leftAllocQty = new BigDecimal(detail.getOrderQty());
+                for (PickModel model : modelList) {
+                    if (leftAllocQty.compareTo(BigDecimal.ZERO) <= 0) {
+                        break;
+                    }
+                    PickZone zone = mapZone.get(model.getPickZoneId());
+                    long pickLocationId = 1L;//this._getPickLocations(item, zone);
+                    if(pickLocationId==0){
+                        continue;
+                    }
+                    long pick_unit = zone.getPickUnit();
+                    BigDecimal pick_ea_num = null;
+                    if (pick_unit == 1) {
+                        //ea
+                        pick_ea_num = BigDecimal.valueOf(1L);
+                    } else if (pick_unit == 2) {
+                        //整箱
+                        pick_ea_num = item.getPackUnit();
+                    } else if (pick_unit == 3) {
+                        //整托盘,卧槽托盘上的商品数怎么求啊,这里是有风险的,因为实际的码盘数量可能和实际的不一样.
+                        pick_ea_num = item.getPackUnit().multiply(BigDecimal.valueOf(item.getPileX() * item.getPileY() * item.getPileZ()));
+                        if (pick_ea_num.compareTo(BigDecimal.ZERO) == 0) {
+                        }
+                    }
+                    //获取分拣分区下的可分配库存数量,怎么获取?
+                    BigDecimal zone_qty = new BigDecimal("1000000.0000");//this._getPickZoneLeftAllocQty(item, zone);
+                    if(zone_qty.compareTo(BigDecimal.ZERO)<=0){
+                        continue;
+                    }
+                    int alloc_x = leftAllocQty.divide(pick_ea_num, 0, BigDecimal.ROUND_DOWN).intValue();
+                    int zone_alloc_x = zone_qty.divide(pick_ea_num, 0, BigDecimal.ROUND_DOWN).intValue();
+                    alloc_x = alloc_x > zone_alloc_x ? zone_alloc_x : alloc_x;
+                    BigDecimal alloc_qty = pick_ea_num.multiply(BigDecimal.valueOf(alloc_x));
+                    WaveAllocDetail allocDetail = new WaveAllocDetail();
+                    allocDetail.setId(RandomUtils.genId());
+                    allocDetail.setSkuId(detail.getSkuId());
+                    allocDetail.setAllocQty(alloc_qty);
+                    //allocDetail.setLocId(detail.getLotNum()); ??
+                    allocDetail.setOrderId(detail.getOrderId());
+                    allocDetail.setOwnerId(mapOrder2Head.get(detail.getOrderId()).getOwnerUid());
+                    allocDetail.setPickZoneId(zone.getPickZoneId());
+                    allocDetail.setReqQty(new BigDecimal(0));
+                    allocDetail.setAllocPickLocation(pickLocationId);
+                    allocDetail.setItemId(item.getItemId());
+                    //allocDetail.setSupplierId(mapOrder2Head.get(detail.getOrderId()).get); ??
+                    allocDetail.setWaveId(waveId);
+                    pickAllocDetailList.add(allocDetail);
+
+                    leftAllocQty = leftAllocQty.subtract(alloc_qty);
+                }
+            }
+            //存储配货结果
+            waveService.storeAlloc(waveHead, pickAllocDetailList);
+            //allocService.addAllocDetails(pickAllocDetailList);
+        }else{
+            logger.info("skip to run alloc waveId[%d], load from db", waveId);
+            pickAllocDetailList = allocService.getAllocDetailsByWaveId(waveId);
+        }
+    }
+
+
+    private void _prepare() throws BizCheckedException{
+        mapItemAndPickZone2PickLocations = new HashMap<String, List<Long>>();
+        mapItemAndPickZone2PickLocationRound = new HashMap<String, Long>();
+        mapPickZoneLeftAllocQty = new HashMap<String, BigDecimal>();
+        this._prepareWave();
+        this._prepareOrder();
+        this._preparePickModel();
+    }
+
+    private void _prepareWave() throws BizCheckedException{
+        waveHead = waveService.getWave(waveId);
+        if(waveHead==null){
+            throw new BizCheckedException("");
+        }
+    }
+    
+    private void _prepareOrder() throws BizCheckedException{
+        orderDetails = new LinkedList<OutbSoDetail>();
+        mapOrder2Head = new HashMap<Long, OutbSoHeader>();
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("waveId", waveId);
+        List<OutbSoHeader> orders = orderService.getOutbSoHeaderList(mapQuery);
+        Collections.sort(orders, new Comparator<OutbSoHeader>() {
+            //此处可以设定一个排序规则,对波次中的订单优先级进行排序
+            public int compare(OutbSoHeader o1, OutbSoHeader o2) {
+                return o1.getId().compareTo(o2.getId());
+            }
+        });
+        for(int i = 0;i  < orders.size(); ++i){
+            mapOrder2Head.put(orders.get(i).getOrderId(), orders.get(i));
+            List<OutbSoDetail> details = orderService.getOutbSoDetailListByOrderId(orders.get(i).getOrderId());
+            orderDetails.addAll(details);
+        }
+    }
+    private void _preparePickModel() throws BizCheckedException{
+        //获取捡货模版
+        modelTpl = modelService.getPickModelTemplate(waveHead.getPickModelTemplateId());
+        modelList = modelService.getPickModelsByTplId(waveHead.getPickModelTemplateId());
+        if(modelList.size()==0){
+            throw new BizCheckedException("2040006");
+        }
+        Collections.sort(modelList,new Comparator<PickModel> (){
+            //按捡货区权重排序
+            public int compare(PickModel arg0, PickModel arg1) {
+                return arg1.getPickWeight().compareTo(arg0.getPickWeight());
+            }
+        });
+        //获取分区信息
+        zoneList = new LinkedList<PickZone>();
+        mapZone = new HashMap<Long, PickZone>();
+        for(int i = 0; i < modelList.size(); ++i){
+            PickZone zone = zoneService.getPickZone(modelList.get(i).getPickZoneId());
+            if(zone == null){
+                logger.error("get pick zone fail %d", modelList.get(i).getPickZoneId());
+                throw new BizCheckedException("");
+            }
+            zoneList.add(zone);
+            mapZone.put(zone.getPickZoneId(), zone);
+        }
+        //将捡货分区转换为存储位列表
+        /*
+        for(PickModel model : modelList) {
+            PickZone zone = mapZone.get(model.getPickZoneId());
+            String[] pickLocations = zone.getLocations().split(",");
+
+            List<Long> locationList = new LinkedList<Long>();
+            for(String loc : pickLocations) {
+                if(loc.trim().compareTo("")==0){
+                    logger.error("hee");
+                    throw new BizCheckedException("");
+                }
+                locationList.addAll(locationService.getStoreLocationIds(Long.valueOf(loc)));
+            }
+            mapZone2StoreLocations.put(zone.getPickZoneId(), locationList);
+        }
+        */
+    }
+
+    private void _prepareX(){
+        
+    }
+
+    private long _getPickLocations(BaseinfoItem item, PickZone zone){
+        String key = String.format("%d-%d", item.getItemId(), zone.getPickZoneId());
+        List<Long> pickLocationIds = mapItemAndPickZone2PickLocations.get(key);
+        if(pickLocationIds == null) {
+            final List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationList(item.getItemId());
+            List<List<BaseinfoLocation>> locationList = new LinkedList<List<BaseinfoLocation>>();
+            for (BaseinfoItemLocation itemLocation : itemLocationList) {
+                locationList.add(locationService.getFatherList(itemLocation.getPickLocationid()));
+            }
+            //判断此区域是否有对应的捡货位
+            String[] pickLocations = zone.getLocations().split(",");
+            List<Long> pickLocationIdList = new ArrayList<Long>();
+            for (String loc : pickLocations) {
+                for (List<BaseinfoLocation> bls : locationList) {
+                    for (BaseinfoLocation bl : bls) {
+                        if (bl.getLocationId() == Long.valueOf(loc)) {
+                            pickLocationIdList.add(Long.valueOf(loc));
+                        }
+                    }
+                }
+            }
+            mapItemAndPickZone2PickLocations.put(key, pickLocationIdList);
+            pickLocationIds = pickLocationIdList;
+        }
+        if(pickLocationIds.size()==0){
+            return 0;
+        }
+        if(mapItemAndPickZone2PickLocationRound.get(key) == null){
+            mapItemAndPickZone2PickLocationRound.put(key, 0L);
+        }
+        Long round = mapItemAndPickZone2PickLocationRound.get(key);
+        mapItemAndPickZone2PickLocationRound.put(key, round+1);
+        return pickLocationIds.get((int)(round%pickLocationIds.size()));
+    }
+
+    private BigDecimal _getPickZoneLeftAllocQty(BaseinfoItem item, PickZone zone){
+        //锁库存.怎么锁??
+        String key = String.format("%d-%d", item.getItemId(), zone.getPickZoneId());
+        BigDecimal leftQty = mapPickZoneLeftAllocQty.get(key);
+        if ( leftQty == null ) {
+            //可用库存=仓位有效stock_quant求和(怎么求)-wave_detail的有效alloc数量+wave_detail中的捡货数量
+
+            Map<String, Object> mapStockQuery = new HashMap<String, Object>();
+            mapStockQuery.put("itemId", item.getItemId());
+            mapStockQuery.put("locationList", mapZone2StoreLocations.get(zone.getPickZoneId()));
+            mapStockQuery.put("isNormal", true);
+            BigDecimal stockQty = stockQuantService.getQty(mapStockQuery);
+            Map<String, Object> mapSumQuery = new HashMap<String, Object>();
+            mapSumQuery.put("skuId", item.getSkuId());
+            mapSumQuery.put("ownerId", item.getOwnerId());
+            mapSumQuery.put("isLive", 1);
+            mapSumQuery.put("isValid", 1);
+            mapSumQuery.put("pickZoneId", zone.getPickZoneId());
+            BigDecimal unPickedQty = waveService.getUnPickedQty(mapSumQuery);
+            leftQty = stockQty.subtract(unPickedQty);
+            mapPickZoneLeftAllocQty.put(key, leftQty);
+        }
+        return leftQty;
+    }
 
     private long[] getBestCutPlan(long num, long maxPer){
         int needNum = (int)Math.ceil(num/(float)maxPer);
@@ -288,6 +425,5 @@ public class WaveCore {
         }
         return bestCutPlan;
     }
-
 
 }

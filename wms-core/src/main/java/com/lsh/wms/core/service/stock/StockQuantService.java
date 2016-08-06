@@ -67,6 +67,13 @@ public class StockQuantService {
 
     @Transactional(readOnly =  false)
     public void create(StockQuant quant) {
+        String packName = "";
+        if (quant.getPackUnit().equals(BigDecimal.ONE)) {
+            packName = "EA";
+        } else {
+            packName = String.format("H%02d", quant.getPackUnit().toBigInteger());
+        }
+        quant.setPackName(packName);
         quant.setCreatedAt(DateUtils.getCurrentSeconds());
         quant.setUpdatedAt(DateUtils.getCurrentSeconds());
         stockQuantDao.insert(quant);
