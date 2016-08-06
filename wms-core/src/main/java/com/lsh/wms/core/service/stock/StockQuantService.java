@@ -319,7 +319,7 @@ public class StockQuantService {
 
         StockQuantMoveRel moveToRel =new StockQuantMoveRel();
         moveToRel.setMoveId(move.getId());
-        moveToRel.setQuantId(quant.getId());
+        moveToRel.setQuantId(toQuant.getId());
         relDao.insert(moveToRel);
 
     }
