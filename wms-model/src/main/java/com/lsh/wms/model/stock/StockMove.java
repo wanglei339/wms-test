@@ -1,5 +1,7 @@
 package com.lsh.wms.model.stock;
 
+import com.lsh.base.common.utils.DateUtils;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -32,9 +34,9 @@ public class StockMove implements Serializable {
 	/** 移动类型，1-loc2loc，2-con2con，3-loc2con, 4-con2loc */
 	private Long moveType = 0L;
 	/**  */
-	private Long createdAt;
+	private Long createdAt = DateUtils.getCurrentSeconds();
 	/**  */
-	private Long updatedAt;
+	private Long updatedAt = DateUtils.getCurrentSeconds();
 
 	public Long getId() {
 		return id;
