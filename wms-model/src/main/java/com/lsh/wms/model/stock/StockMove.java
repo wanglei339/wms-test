@@ -158,6 +158,27 @@ public class StockMove implements Serializable {
 		this.updatedAt = updatedAt;
 	}
 
+	@Override
+	public String toString() {
+		return "StockMove{" +
+				"id=" + id +
+				", skuId=" + skuId +
+				", ownerId=" + ownerId +
+				", itemId=" + itemId +
+				", fromLocationId=" + fromLocationId +
+				", toLocationId=" + toLocationId +
+				", fromContainerId=" + fromContainerId +
+				", toContainerId=" + toContainerId +
+				", qty=" + qty +
+				", taskId=" + taskId +
+				", operator=" + operator +
+				", status=" + status +
+				", moveType=" + moveType +
+				", createdAt=" + createdAt +
+				", updatedAt=" + updatedAt +
+				'}';
+	}
+
 	public boolean isValid() {
 		if (this.getFromLocationId() == 0L || this.getToLocationId() == 0L) {
 			return false;
@@ -167,4 +188,6 @@ public class StockMove implements Serializable {
 		}
 		return true;
 	}
+
+
 }
