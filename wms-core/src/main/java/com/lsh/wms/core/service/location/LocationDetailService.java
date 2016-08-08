@@ -229,4 +229,33 @@ public class LocationDetailService {
     }
 
 
+    /**
+     * 获取码头的指定条件的location集合
+     * @param params
+     * @return
+     * @throws NoSuchMethodException
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     */
+    public List<BaseinfoLocation> getDockListByType(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        ///////////////////////////////////////////
+        //如果传入的参数只有locationId,那么,先查主表,再查子表,此处先查主表
+        //1.先查主表
+        List<BaseinfoLocation> locationList = locationService.getDockList(params);
+        if (locationList.size() > 0) {
+            List<BaseinfoLocation> subList = new ArrayList<BaseinfoLocation>();
+            //从结果集中去子类的表中去查,并处理结果集
+            for (BaseinfoLocation location : locationList) {
+                IStrategy istrategy = locationDetailServiceFactory.getIstrategy(location.getType());
+                //就是子
+                BaseinfoLocation son = istrategy.getBaseinfoItemLocationModelById(location.getLocationId());
+                //拷贝主表的信息
+                ObjUtils.bean2bean(location, son);
+                subList.add(son);
+            }
+            return subList;
+        }
+        return null;
+    }
+
 }
