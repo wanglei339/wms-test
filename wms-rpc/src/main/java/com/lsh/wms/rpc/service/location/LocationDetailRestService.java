@@ -170,7 +170,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @Path("getList")
     public String searchList() throws BizCheckedException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Map<String, Object> params = RequestUtils.getRequest();
-        List<BaseinfoLocation> locations = locationDetailService.getIBaseinfoLocaltionModelListByType(params);
+        List<BaseinfoLocation> locations = locationDetailRpcService.getLocationDetailList(params);
         //如果是货位就加上regionName
         return JsonUtils.SUCCESS(locations);
     }
@@ -187,14 +187,6 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         //先找到location,然后将location的is——valid置为1
         Map<String, Object> params = RequestUtils.getRequest();
         Long locationId = Long.parseLong(params.get("locationId").toString());
-//        BaseinfoLocation location = locationService.getLocation(locationId);
-//        if (location != null) {
-//            location.setIsValid(0);
-//            // TODO 删除
-//            return JsonUtils.SUCCESS("删除成功");
-//        } else {
-//            throw new BizCheckedException("查无此数据,删除失败");
-//        }
         if (locationDetailRpcService.removeLocation(locationId)) {
             return JsonUtils.SUCCESS("删除成功");
         } else {

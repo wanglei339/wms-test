@@ -548,4 +548,13 @@ public class LocationService {
         return targetList;
     }
 
+    /**
+     * 获取在location列表中的码头,按条件筛选
+     * @param params
+     * @return
+     */
+    public List<BaseinfoLocation> getDockList(Map<String, Object> params){
+           return locationDao.getDockList(params);
+    }
+
 }

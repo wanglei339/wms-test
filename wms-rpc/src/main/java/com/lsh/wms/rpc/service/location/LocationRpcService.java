@@ -108,4 +108,19 @@ public class LocationRpcService implements ILocationRpcService {
         mapQuery.put("classification",2);
         return locationService.getBaseinfoLocationList(mapQuery);
     }
+
+    /**
+     * 获取所有的拣货位
+     * @return
+     */
+    public List<BaseinfoLocation> getColletionBins() {
+        // TODO 将所有的拣货位的type 塞入,然后查询
+        return null;
+    }
+
+    public List<BaseinfoLocation> getDockList(Map<String, Object> params) {
+        return locationService.getDockList(params);
+    }
+
+
 }

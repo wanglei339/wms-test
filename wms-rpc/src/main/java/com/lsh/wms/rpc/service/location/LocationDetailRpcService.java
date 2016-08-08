@@ -30,6 +30,11 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
     }
 
     public List<BaseinfoLocation> getLocationDetailList(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        //如果存在码头出入的参数dockApplication,选用对付码头的方法
+        if (params.get("dockApplication") != null) {
+            List<BaseinfoLocation> baseinfoLocationList = locationDetailService.getDockListByType(params);
+            return baseinfoLocationList;
+        }
         List<BaseinfoLocation> baseinfoLocationList = locationDetailService.getIBaseinfoLocaltionModelListByType(params);
         return baseinfoLocationList;
     }
@@ -51,7 +56,7 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
 
     public boolean removeLocation(Long locationId) throws BizCheckedException {
         BaseinfoLocation location = locationService.getLocation(locationId);
-        if (location != null){
+        if (location != null) {
             location.setIsValid(0);
             locationService.updateLocation(location);
             return true;
