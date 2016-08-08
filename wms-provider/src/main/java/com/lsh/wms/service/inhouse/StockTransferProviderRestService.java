@@ -52,9 +52,9 @@ public class StockTransferProviderRestService implements IStockTransferProviderR
         return JsonUtils.SUCCESS();
     }
 
-    @POST
+    @GET
     @Path("cancel")
-    public String cancelPlan(Long taskId) throws BizCheckedException {
+    public String cancelPlan(@QueryParam("taskId") Long taskId) throws BizCheckedException {
         try{
             rpcService.cancelPlan(taskId);
         } catch (Exception e) {
