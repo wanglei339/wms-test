@@ -1,8 +1,10 @@
 package com.lsh.wms.rf.service.outbound;
 
+import com.alibaba.dubbo.common.json.ParseException;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
@@ -38,7 +40,7 @@ import java.util.*;
 
 @Service(protocol = "rest")
 @Path("outbound/qc")
-@Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
+@Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class QCRestService implements IRFQCRestService{
     private static Logger logger = LoggerFactory.getLogger(QCRestService.class);
@@ -93,14 +95,13 @@ public class QCRestService implements IRFQCRestService{
 
     @POST
     @Path("confirmAll")
-    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
-    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String confirmAll() throws BizCheckedException{
         Map<String, Object> mapRequest = RequestUtils.getRequest();
         HttpSession session = RequestUtils.getSession();
         Long containerId = Long.valueOf(mapRequest.get("containerId").toString());
         //获取当前的有效待QC container 任务列表
-        List<Map<String, Object>> qcList = (List<Map<String, Object>>)mapRequest.get("qc_list");
+
+        List<Map> qcList = JSON.parseArray(mapRequest.get("qc_list").toString(), Map.class);
         List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
         //Map<Long, WaveDetail> sku2Detail = new HashMap<Long, WaveDetail>();
         //for(WaveDetail detail : details){
