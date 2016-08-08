@@ -63,21 +63,12 @@ public class StockTransferProviderRestService implements IStockTransferProviderR
 
     @POST
     @Path("cancel")
-    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
-    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-    public String cancelPlan() throws BizCheckedException {
-        Map<String, Object> params = RequestUtils.getRequest();
-        Long taskId = Long.valueOf(params.get("taskId").toString());
-        if(taskId == null) {
-            throw new BizCheckedException("2040001");
-        }
+    public String cancelPlan(Long taskId) throws BizCheckedException {
         try{
             rpcService.cancelPlan(taskId);
-        } catch (BizCheckedException e) {
-            throw e;
+            logger.info("taskId : " + taskId);
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS();
     }
