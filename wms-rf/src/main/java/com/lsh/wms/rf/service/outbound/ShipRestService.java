@@ -47,7 +47,9 @@ public class ShipRestService implements IShipRestService {
 
     @Path("scan")
     @POST
-    public String scan(@QueryParam("locationId") long locationId) throws BizCheckedException {
+    public String scan() throws BizCheckedException {
+        Map<String, Object> mapRequest = RequestUtils.getRequest();
+        Long locationId = Long.valueOf(mapRequest.get("locationId").toString());
         HttpSession session = RequestUtils.getSession();
         //get task  by containerId
         Map<String, Object> mapQuery = new HashMap<String, Object>();
@@ -55,19 +57,21 @@ public class ShipRestService implements IShipRestService {
         //mapQuery.put("");
         List<TaskEntry> tasks = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_SHIP, mapQuery);
         if(tasks.size()!=1){
-            throw new BizCheckedException("");
+            throw new BizCheckedException("2130008");
         }
         TaskInfo info = tasks.get(0).getTaskInfo();
         //if(info.)
-        iTaskRpcService.assign(info.getTaskId(), Long.valueOf((String) session.getAttribute("uid")));
+        iTaskRpcService.assign(info.getTaskId(), 0L);//Long.valueOf((String) session.getAttribute("uid")));
         return JsonUtils.SUCCESS();
     }
 
     @Path("scanContainer")
     @POST
-    public String scanContainer(@QueryParam("containerId") long containerId) throws BizCheckedException {
+    public String scanContainer() throws BizCheckedException {
+        Map<String, Object> mapRequest = RequestUtils.getRequest();
+        Long containerId = Long.valueOf(mapRequest.get("containerId").toString());
         HttpSession session = RequestUtils.getSession();
-        Long uid = Long.valueOf((String) session.getAttribute("uid"));
+        Long uid = 0L;//Long.valueOf((String) session.getAttribute("uid"));
         List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
         for(WaveDetail d : details){
             d.setShipAt(DateUtils.getCurrentSeconds());
@@ -82,27 +86,58 @@ public class ShipRestService implements IShipRestService {
 
     @Path("confirm")
     @POST
-    public String confirm(@QueryParam("taskId") long taskId) throws BizCheckedException {
-        List<WaveDetail> details = waveService.getDetailsByShipTaskId(taskId);
+    public String confirm() throws BizCheckedException {
+        Map<String, Object> mapRequest = RequestUtils.getRequest();
+        Long locationId = Long.valueOf(mapRequest.get("locationId").toString());
+        List<WaveDetail> details = waveService.getDetailsByLocationId(locationId);
         for(WaveDetail d : details){
             if(d.getShipAt()==0){
                 throw new BizCheckedException("2130002");
             }
         }
-        iTaskRpcService.done(taskId);
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("locationId", locationId);
+        List<TaskEntry> tasks = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_SHIP, mapQuery);
+        if(tasks.size()!=1){
+            throw new BizCheckedException("2130008");
+        }
+        iTaskRpcService.done(tasks.get(0).getTaskInfo().getTaskId());
         return JsonUtils.SUCCESS();
     }
 
-    public String createTask(long locationId) throws BizCheckedException {
+    @Path("createTask")
+    @POST
+    public String createTask() throws BizCheckedException {
+        Map<String, Object> mapRequest = RequestUtils.getRequest();
+        Long locationId = Long.valueOf(mapRequest.get("locationId").toString());
+        if(iLocationRpcService.getLocation(locationId)==null){
+            throw new BizCheckedException("2130006");
+        }
         List<BaseinfoLocation> locations = iLocationRpcService.getChildrenLocations(locationId);
         List<WaveDetail> details = waveService.getDetailsByLocationId(locationId);
-        for (BaseinfoLocation location : locations) {
-            List<WaveDetail> subDetails = waveService.getDetailsByLocationId(location.getLocationId());
-            details.addAll(subDetails);
+        if(locations != null) {
+            for (BaseinfoLocation location : locations) {
+                List<WaveDetail> subDetails = waveService.getDetailsByLocationId(location.getLocationId());
+                details.addAll(subDetails);
+            }
+        }
+        for(WaveDetail detail : details){
+            if(detail.getQcExceptionDone()==0){
+                throw new BizCheckedException("2130005");
+            }
+        }
+        if(details.size()==0){
+            throw new BizCheckedException("2130007");
+        }
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("locationId", locationId);
+        final List<TaskEntry> taskList = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_SHIP, mapQuery);
+        if(taskList.size()>0){
+            throw new BizCheckedException("2130003");
         }
         TaskEntry entry = new TaskEntry();
         TaskInfo info = new TaskInfo();
-        info.setType(TaskConstant.TYPE_QC);
+        info.setType(TaskConstant.TYPE_SHIP);
         info.setLocationId(locationId);
         entry.setTaskDetailList((List<Object>)(List<?>)details);
         entry.setTaskInfo(info);

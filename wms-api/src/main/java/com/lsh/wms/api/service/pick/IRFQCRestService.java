@@ -11,14 +11,14 @@ import java.math.BigDecimal;
  */
 public interface IRFQCRestService {
     /*扫描托盘吗,领取任务*/
-    public String scan(Long containerId);
+    public String scan() throws BizCheckedException;
     /*上报单个商品的qc结果,正常,少货,多货,错货,残次,日期异常等*/
     public String setResult() throws BizCheckedException;
-    //public String skipException(long containerId, long skuId);
+    //public String skipException() throws BizCheckedException;
     /*获取qc任务的剩余未Q列表*/
-    public String getUndoDetails(long containerId);
+    public String getUndoDetails() throws BizCheckedException;
     /*确认完成此qc任务*/
-    public String confirm(long containerId) throws BizCheckedException;
+    public String confirm() throws BizCheckedException;
     /*创建任务,临时*/
-    public String createTask(long containerId) throws BizCheckedException;
+    public String createTask() throws BizCheckedException;
 }
