@@ -224,7 +224,6 @@ public class LocationService {
     /**
      * 根据所在位置的locationId
      * 获取指定type祖先级(包含上一级)的location节点
-     *
      * @param locationId 所在位置id
      * @param type       位置类型
      * @return
@@ -473,6 +472,7 @@ public class LocationService {
      * @return
      */
     public List<BaseinfoLocation> getBaseinfoLocationList(Map<String, Object> mapQuery) {
+        mapQuery.put("isValid",1);
         return locationDao.getBaseinfoLocationList(mapQuery);
     }
 
@@ -499,13 +499,10 @@ public class LocationService {
      * @param mapQuery 前端传过来的map参数
      * @return
      */
-    public BaseinfoLocation getLocationListByType(Map<String, Object> mapQuery) {
+    public List<BaseinfoLocation> getLocationListByType(Map<String, Object> mapQuery) {
         mapQuery.put("isValid", 1);
         List<BaseinfoLocation> list = locationDao.getBaseinfoLocationList(mapQuery);
-        if (list.size() > 0) {
-            return list.get(0);
-        }
-        return null;
+        return list;
     }
 
     /**

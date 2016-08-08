@@ -181,6 +181,6 @@ public class LocationRestService implements ILocationRestService {
     @GET
     @Path("getBinByWarehouseId")
     public String getBinByWarehouseId() {
-        return JsonUtils.SUCCESS(locationRpcService.getAllRegion());
+        return JsonUtils.SUCCESS(locationRpcService.getAllBin());
     }
 }

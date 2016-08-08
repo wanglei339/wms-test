@@ -10,8 +10,6 @@ public class BaseinfoLocationBin extends BaseinfoLocation implements Serializabl
     private Long id;
 	/** 位置id */
     private Long locationId;
-	/** 商品的id */
-    private Long itemId;
 	/** 仓位体积 */
     private BigDecimal volume;
 	/** 承重，默认单位kg，默认0，能承受东西很轻 */
@@ -43,15 +41,7 @@ public class BaseinfoLocationBin extends BaseinfoLocation implements Serializabl
 	public void setLocationId(Long locationId){
 		this.locationId = locationId;
 	}
-	
-	public Long getItemId(){
-		return this.itemId;
-	}
-	
-	public void setItemId(Long itemId){
-		this.itemId = itemId;
-	}
-	
+
 	public BigDecimal getVolume(){
 		return this.volume;
 	}

@@ -2,6 +2,7 @@ package com.lsh.wms.rpc.service.location;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.wms.api.service.location.ILocationRpcService;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +56,7 @@ public class LocationRpcService implements ILocationRpcService {
     //提供位置能否存储存
     public boolean canStore(Long locationId) {
         BaseinfoLocation baseinfoLocation = locationService.getLocation(locationId);
-        if (baseinfoLocation.getCanStore()!=0){
+        if (baseinfoLocation.getCanStore() != 0) {
             return true;
         }
         return false;
@@ -91,33 +93,50 @@ public class LocationRpcService implements ILocationRpcService {
 
     /**
      * 获取全货区
+     *
      * @return
      */
     public List<BaseinfoLocation> getAllRegion() {
-        Map<String,Object> mapQuery = new HashMap<String,Object>();
-        mapQuery.put("classification",1);
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("classification", 1);
         return locationService.getBaseinfoLocationList(mapQuery);
     }
 
     /**
      * 获取全货位
+     *
      * @return
      */
     public List<BaseinfoLocation> getAllBin() {
-        Map<String,Object> mapQuery = new HashMap<String,Object>();
-        mapQuery.put("classification",2);
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("classification", 2);
         return locationService.getBaseinfoLocationList(mapQuery);
     }
 
     /**
      * 获取所有的拣货位
+     *
      * @return
      */
     public List<BaseinfoLocation> getColletionBins() {
-        // TODO 将所有的拣货位的type 塞入,然后查询
-        return null;
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
+        //放入阁楼拣货位
+        mapQuery.put("type", LocationConstant.Loft_collection_bin);
+        List<BaseinfoLocation> loftColletionBins = locationService.getLocationListByType(mapQuery);
+        targetList.addAll(loftColletionBins);
+        //货架拣货位
+        mapQuery.put("type",LocationConstant.Shelf_collection_bin);
+        List<BaseinfoLocation> shelfColletionBins = locationService.getLocationListByType(mapQuery);
+        targetList.addAll(shelfColletionBins);
+        return targetList;
     }
 
+    /**
+     * 按照dock的选择条件,给出符合DOCK条件的locatinList
+     * @param params
+     * @return
+     */
     public List<BaseinfoLocation> getDockList(Map<String, Object> params) {
         return locationService.getDockList(params);
     }
