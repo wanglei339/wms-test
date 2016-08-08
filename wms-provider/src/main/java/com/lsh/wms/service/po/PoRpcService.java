@@ -58,6 +58,11 @@ public class PoRpcService implements IPoRpcService {
 
         inbPoHeader.setOrderStatus(PoConstant.ORDER_YES);
         inbPoHeader.setInserttime(new Date());
+        // TODO: 16/8/8 根据原SO订单号查询SO单是否存在
+        Integer orderType = inbPoHeader.getOrderType();
+        if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
+            
+        }
 
         //设置orderId
         inbPoHeader.setOrderId(RandomUtils.genId());
@@ -73,6 +78,7 @@ public class PoRpcService implements IPoRpcService {
             //设置orderId
             inbPoDetail.setOrderId(inbPoHeader.getOrderId());
             // 获取skuId
+            // TODO: 16/8/8 反仓单可以根据原so单确定itemId 
             List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(inbPoHeader.getOwnerUid(),inbPoDetail.getSkuCode());
             if(null != baseinfoItemList && baseinfoItemList.size()>=1){
                 BaseinfoItem baseinfoItem = baseinfoItemList.get(baseinfoItemList.size()-1);
