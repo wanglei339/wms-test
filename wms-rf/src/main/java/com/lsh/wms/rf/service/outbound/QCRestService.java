@@ -280,7 +280,7 @@ public class QCRestService implements IRFQCRestService{
         return JsonUtils.SUCCESS();
     }
 
-    @GET
+    @POST
     @Path("createTask")
     public String createTask() throws BizCheckedException {
         Map<String, Object> mapRequest = RequestUtils.getRequest();
