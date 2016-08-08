@@ -12,6 +12,7 @@ import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -33,7 +34,7 @@ import java.util.Map;
  */
 @Service(protocol = "rest")
 @Path("outbound/ship")
-@Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
+@Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class ShipRestService implements IShipRestService {
     private static Logger logger = LoggerFactory.getLogger(ShipRestService.class);
@@ -81,7 +82,25 @@ public class ShipRestService implements IShipRestService {
             throw new BizCheckedException("2130001");
         }
         waveService.updateDetails(details);
-        return JsonUtils.SUCCESS();
+        //get task  by containerId
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("containerId", containerId);
+        //mapQuery.put("");
+        List<TaskEntry> tasks = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_SHIP, mapQuery);
+        if(tasks.size()>1){
+            throw new BizCheckedException("2130008");
+        }
+        if(tasks.size()==0){
+            throw new BizCheckedException("2130009");
+        }
+        TaskInfo info = tasks.get(0).getTaskInfo();
+        iTaskRpcService.assign(info.getTaskId(), 123123L);
+        /*
+        获取发货码头
+         */
+        Map<String, Object> rstMap = new HashMap<String, Object>();
+        rstMap.put("xx", 1);
+        return JsonUtils.SUCCESS(rstMap);
     }
 
     @Path("confirm")
@@ -105,6 +124,38 @@ public class ShipRestService implements IShipRestService {
         return JsonUtils.SUCCESS();
     }
 
+    @Path("createTask")
+    @POST
+    public String createTask() throws BizCheckedException {
+        Map<String, Object> mapRequest = RequestUtils.getRequest();
+        Long containerId = Long.valueOf(mapRequest.get("containerId").toString());
+        List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
+        for(WaveDetail detail : details){
+            if(detail.getQcExceptionDone()==0){
+                throw new BizCheckedException("2130005");
+            }
+        }
+        if(details.size()==0){
+            throw new BizCheckedException("2130007");
+        }
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("containerId", containerId);
+        final List<TaskEntry> taskList = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_SHIP, mapQuery);
+        if(taskList.size()>0){
+            throw new BizCheckedException("2130003");
+        }
+        TaskEntry entry = new TaskEntry();
+        TaskInfo info = new TaskInfo();
+        info.setType(TaskConstant.TYPE_SHIP);
+        info.setContainerId(containerId);
+        info.setLocationId(details.get(0).getRealCollectLocation());
+        entry.setTaskDetailList((List<Object>)(List<?>)details);
+        entry.setTaskInfo(info);
+        Long taskId = iTaskRpcService.create(TaskConstant.TYPE_SHIP, entry);
+        return JsonUtils.SUCCESS();
+    }
+
+    /*
     @Path("createTask")
     @POST
     public String createTask() throws BizCheckedException {
@@ -144,4 +195,5 @@ public class ShipRestService implements IShipRestService {
         Long taskId = iTaskRpcService.create(TaskConstant.TYPE_SHIP, entry);
         return JsonUtils.SUCCESS();
     }
+    */
 }
