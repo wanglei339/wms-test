@@ -38,8 +38,9 @@ public class StockQuant implements Serializable,Cloneable {
     private Long supplierId = 0L;
 	/** 货物所属公司id */
     private Long ownerId = 0L;
-	/** 批次号 */
+	/** 批次号(链商内部批次号) */
     private Long lotId = 0L;
+	/** 批次号/
 	/** 入库时间 */
     private Long inDate = 0L;
 	/** 保质期失效时间 */

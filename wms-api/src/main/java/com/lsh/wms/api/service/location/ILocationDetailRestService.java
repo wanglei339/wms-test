@@ -13,7 +13,6 @@ import java.util.Map;
 public interface ILocationDetailRestService {
     //前端页面带着固定的type进来,进行相应的额查找,增加,更新,获取list
     public java.lang.String getLocationDetailById(Integer locationId) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException;
-    public java.lang.String getLocationDetailListByType(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException;
     public java.lang.String insertLocationDetailByType(LocationDetailRequest request) throws BizCheckedException;
     public java.lang.String updateLocationDetailByType(LocationDetailRequest request) throws BizCheckedException, NoSuchMethodException, IllegalAccessException, InvocationTargetException;
     public String countLocationDetailByType();
