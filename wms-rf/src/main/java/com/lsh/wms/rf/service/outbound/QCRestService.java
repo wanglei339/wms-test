@@ -53,6 +53,118 @@ public class QCRestService implements IRFQCRestService{
 
 
     @POST
+    @Path("scanContainer")
+    public String scanContainer() throws BizCheckedException{
+        Map<String, Object> mapRequest = RequestUtils.getRequest();
+        Long containerId = Long.valueOf(mapRequest.get("containerId").toString());
+        HttpSession session = RequestUtils.getSession();
+        //get task  by containerId
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("containerId", containerId);
+        //mapQuery.put("");
+        List<TaskEntry> tasks = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_QC, mapQuery);
+        if(tasks.size()>1){
+            throw new BizCheckedException("2120006");
+        }
+        if(tasks.size()==0){
+            throw new BizCheckedException("2120007");
+        }
+        TaskInfo info = tasks.get(0).getTaskInfo();
+        iTaskRpcService.assign(info.getTaskId(), 123123L);
+        //iTaskRpcService.assign(info.getTaskId(), Long.valueOf((String) session.getAttribute("uid")));
+        List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
+        List<Map<String, Object>> undoDetails = new LinkedList<Map<String, Object>>();
+        for (WaveDetail d : details){
+            if(true) {
+                Map<String, Object> detail = new HashMap<String, Object>();
+                detail.put("skuId", d.getSkuId());
+                BaseinfoItem item = itemRpcService.getItem(d.getOwnerId(), d.getSkuId());
+                detail.put("code", item.getCode());
+                detail.put("codeType", item.getCodeType());
+                detail.put("pickQty", d.getPickQty());
+                detail.put("skuName", item.getSkuName());
+                undoDetails.add(detail);
+            }
+        }
+        Map<String, Object> rstMap = new HashMap<String, Object>();
+        rstMap.put("qc_list", undoDetails);
+        return JsonUtils.SUCCESS(rstMap);
+    }
+
+    @POST
+    @Path("confirmAll")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String confirmAll() throws BizCheckedException{
+        Map<String, Object> mapRequest = RequestUtils.getRequest();
+        HttpSession session = RequestUtils.getSession();
+        Long containerId = Long.valueOf(mapRequest.get("containerId").toString());
+        //获取当前的有效待QC container 任务列表
+        List<Map<String, Object>> qcList = (List<Map<String, Object>>)mapRequest.get("qc_list");
+        List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
+        //Map<Long, WaveDetail> sku2Detail = new HashMap<Long, WaveDetail>();
+        //for(WaveDetail detail : details){
+        //    sku2Detail.put(detail.getSkuId(), detail);
+        //}
+        for(Map<String, Object> qcItem : qcList){
+            String code = qcItem.get("code").toString().trim();
+            BigDecimal qty = new BigDecimal(qcItem.get("qty").toString());
+            CsiSku skuInfo = csiRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, code);
+            if(skuInfo == null){
+                throw new BizCheckedException("2120001");
+            }
+            long skuId = skuInfo.getSkuId();
+            int seekNum = 0;
+            WaveDetail detail = null;
+            for(WaveDetail d : details){
+                if(d.getSkuId()!=skuId){
+                    continue;
+                }
+                seekNum++;
+                detail = d;
+            }
+            if(seekNum == 0){
+                throw new BizCheckedException("2120002");
+            }
+            if(seekNum > 1){
+                throw new BizCheckedException("2120003");
+            }
+            long exceptionType = 0;
+            int cmpRet = detail.getPickQty().compareTo(qty);
+            if( cmpRet > 0 ) exceptionType = 1;
+            if( cmpRet < 0 ) exceptionType = 2;
+            detail.setQcQty(qty);
+            detail.setQcAt(DateUtils.getCurrentSeconds());
+            detail.setQcUid(1L);//Long.valueOf((String) session.getAttribute("uid")));
+            detail.setQcException(exceptionType);
+            if(exceptionType!=0) {
+                detail.setQcExceptionQty(BigDecimal.ZERO);
+                detail.setQcExceptionDone(0L);
+            }else{
+                detail.setQcUid(1L);//Long.valueOf((String) session.getAttribute("uid")));
+                detail.setQcExceptionQty(BigDecimal.ZERO);
+                detail.setQcExceptionDone(1L);
+            }
+            waveService.updateDetail(detail);
+        }
+        if(qcList.size()!=details.size()){
+            throw new BizCheckedException("2120004");
+        }
+        //get task  by containerId
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("containerId", containerId);
+        //mapQuery.put("");
+        List<TaskEntry> tasks = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_QC, mapQuery);
+        if(tasks.size()!=1){
+            throw new BizCheckedException("2120006");
+        }
+        iTaskRpcService.done(tasks.get(0).getTaskInfo().getTaskId());
+        return JsonUtils.SUCCESS();
+    }
+
+
+
+    @POST
     @Path("scan")
     public String scan() throws  BizCheckedException{
         Map<String, Object> mapRequest = RequestUtils.getRequest();
@@ -167,7 +279,7 @@ public class QCRestService implements IRFQCRestService{
         return JsonUtils.SUCCESS();
     }
 
-    @POST
+    @GET
     @Path("createTask")
     public String createTask() throws BizCheckedException {
         Map<String, Object> mapRequest = RequestUtils.getRequest();
