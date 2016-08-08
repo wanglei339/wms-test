@@ -98,7 +98,6 @@ public class StockQuantService {
             if (quant.getReserveTaskId() != 0 && quant.getReserveTaskId().compareTo(move.getTaskId()) != 0) {
                 continue;
             }
-
             this.split(quant, qtyDone);
             quant.setLocationId(move.getToLocationId());
             quant.setContainerId(move.getToContainerId());
@@ -112,7 +111,7 @@ public class StockQuantService {
             relDao.insert(moveRel);
         }
         if (total.compareTo(qtyDone) < 0) {
-            throw new BizCheckedException("3040001");
+            throw new BizCheckedException("2550008");
         }
     }
 
