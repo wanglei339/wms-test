@@ -34,4 +34,13 @@ public class ContainerRpcService implements IContainerRpcService {
     public BaseinfoContainer createTray() {
         return containerService.createContainerByType(1L);
     }
+
+    public BaseinfoContainer createTrolley() {
+        return containerService.createContainerByType(2L);
+    }
+
+    public BaseinfoContainer createCirculatingBox() {
+        return containerService.createContainerByType(3L);
+    }
+
 }
