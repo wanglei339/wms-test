@@ -75,7 +75,7 @@ public class ContainerService {
      * @return
      */
     public Boolean isContainerInUse(Long containerId) {
-        List<StockQuant> quants = stockQuantService.getQuantsByLocationId(containerId);
+        List<StockQuant> quants = stockQuantService.getQuantsByContainerId(containerId);
         if (quants.size() > 0) {
             return true;
         }
