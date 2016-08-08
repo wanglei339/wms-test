@@ -52,9 +52,11 @@ public class QCRestService implements IRFQCRestService{
     private ITaskRpcService iTaskRpcService;
 
 
-    @GET
+    @POST
     @Path("scan")
-    public String scan(@QueryParam("containerId") Long containerId){
+    public String scan() throws  BizCheckedException{
+        Map<String, Object> mapRequest = RequestUtils.getRequest();
+        Long containerId = Long.valueOf(mapRequest.get("containerId").toString());
         HttpSession session = RequestUtils.getSession();
         //get task  by containerId
         Map<String, Object> mapQuery = new HashMap<String, Object>();
@@ -69,7 +71,8 @@ public class QCRestService implements IRFQCRestService{
         //iTaskRpcService.assign(info.getTaskId(), Long.valueOf((String) session.getAttribute("uid")));
         return JsonUtils.SUCCESS();
     }
-    @GET
+
+    @POST
     @Path("setResult")
     public String setResult() throws BizCheckedException{
         Map<String,Object> request = RequestUtils.getRequest();
@@ -117,9 +120,11 @@ public class QCRestService implements IRFQCRestService{
         return JsonUtils.SUCCESS();
     }
 
-    @GET
+    @POST
     @Path("getUndoDetails")
-    public String getUndoDetails(@QueryParam("containerId") long containerId) {
+    public String getUndoDetails() {
+        Map<String, Object> mapRequest = RequestUtils.getRequest();
+        Long containerId = Long.valueOf(mapRequest.get("containerId").toString());
         List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
         List<Map<String, Object>> undoDetails = new LinkedList<Map<String, Object>>();
         for (WaveDetail d : details){
@@ -137,9 +142,11 @@ public class QCRestService implements IRFQCRestService{
         return JsonUtils.SUCCESS(undoDetails);
     }
 
-    @GET
+    @POST
     @Path("confirm")
-    public String confirm(@QueryParam("containerId") long containerId) throws BizCheckedException {
+    public String confirm() throws BizCheckedException {
+        Map<String, Object> mapRequest = RequestUtils.getRequest();
+        Long containerId = Long.valueOf(mapRequest.get("containerId").toString());
         List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
         Set<Long> tasks = new HashSet<Long>();
         //iTaskRpcService.
@@ -160,9 +167,11 @@ public class QCRestService implements IRFQCRestService{
         return JsonUtils.SUCCESS();
     }
 
-    @GET
+    @POST
     @Path("createTask")
-    public String createTask(@QueryParam("containerId") long containerId) throws BizCheckedException {
+    public String createTask() throws BizCheckedException {
+        Map<String, Object> mapRequest = RequestUtils.getRequest();
+        Long containerId = Long.valueOf(mapRequest.get("containerId").toString());
         List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
         if(details.size()==0){
             throw new BizCheckedException("2120005");
