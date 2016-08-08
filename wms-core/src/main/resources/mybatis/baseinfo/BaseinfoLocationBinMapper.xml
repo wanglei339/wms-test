@@ -5,7 +5,6 @@
 	<resultMap id="baseinfoLocationBinResultMap" type="BaseinfoLocationBin">
 		<id property="id" column="id"/>
 		<result property="locationId" column="location_id"/>
-		<result property="itemId" column="item_id"/>
 		<result property="volume" column="volume"/>
 		<result property="weigh" column="weigh"/>
 		<result property="description" column="description"/>
@@ -17,10 +16,10 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLocationBin">
 		insert into baseinfo_location_bin (
-			location_id,item_id,volume,weigh,description,created_at,
+			location_id,volume,weigh,description,created_at,
 			updated_at,type,zone_type
     	) values (
-			#{locationId},#{itemId},#{volume},#{weigh},#{description},#{createdAt},
+			#{locationId},#{volume},#{weigh},#{description},#{createdAt},
 			#{updatedAt},#{type},#{zoneType}
     	)
 	</insert>
@@ -29,7 +28,6 @@
 		update baseinfo_location_bin
     	<set>
   			<if test="locationId != null">location_id=#{locationId},</if>
-  			<if test="itemId != null">item_id=#{itemId},</if>
   			<if test="volume != null">volume=#{volume},</if>
   			<if test="weigh != null">weigh=#{weigh},</if>
   			<if test="description != null">description=#{description},</if>
@@ -63,7 +61,6 @@
 		<where>
 			<if test="id != null">id=#{id}</if>
 			<if test="locationId != null">and location_id=#{locationId}</if>
-			<if test="itemId != null">and item_id=#{itemId}</if>
 			<if test="volume != null">and volume=#{volume}</if>
 			<if test="weigh != null">and weigh=#{weigh}</if>
 			<if test="description != null">and description=#{description}</if>

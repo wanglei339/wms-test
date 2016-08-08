@@ -11,8 +11,6 @@ public class BaseinfoLocationDock extends BaseinfoLocation implements Serializab
     private Long id;
 	/** 位置id */
     private Long locationId;
-	/** 位置类型/码头区域 0-A区 */
-    private Long dockType;
 	/** 码头名 */
     private String dockName;
 	/** 是否存在地秤 */
@@ -59,15 +57,7 @@ public class BaseinfoLocationDock extends BaseinfoLocation implements Serializab
 	public void setLocationId(Long locationId){
 		this.locationId = locationId;
 	}
-	
-	public Long getDockType(){
-		return this.dockType;
-	}
-	
-	public void setDockType(Long dockType){
-		this.dockType = dockType;
-	}
-	
+
 	public String getDockName(){
 		return this.dockName;
 	}

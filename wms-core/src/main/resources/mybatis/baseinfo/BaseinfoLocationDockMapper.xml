@@ -5,7 +5,6 @@
 	<resultMap id="baseinfoLocationDockResultMap" type="BaseinfoLocationDock">
 		<id property="id" column="id"/>
 		<result property="locationId" column="location_id"/>
-		<result property="dockType" column="dock_type"/>
 		<result property="dockName" column="dock_name"/>
 		<result property="haveScales" column="have_scales"/>
 		<result property="dockApplication" column="dock_application"/>
@@ -20,10 +19,10 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLocationDock">
 		insert into baseinfo_location_dock (
-			location_id,dock_type,dock_name,have_scales,dock_application,direction,
+			location_id,dock_name,have_scales,dock_application,direction,
 			width,height,description,created_at,updated_at,type
     	) values (
-			#{locationId},#{dockType},#{dockName},#{haveScales},#{dockApplication},#{direction},
+			#{locationId},#{dockName},#{haveScales},#{dockApplication},#{direction},
 			#{width},#{height},#{description},#{createdAt},#{updatedAt},#{type}
     	)
 	</insert>
@@ -32,7 +31,6 @@
 		update baseinfo_location_dock
     	<set>
   			<if test="locationId != null">location_id=#{locationId},</if>
-  			<if test="dockType != null">dock_type=#{dockType},</if>
   			<if test="dockName != null">dock_name=#{dockName},</if>
   			<if test="haveScales != null">have_scales=#{haveScales},</if>
   			<if test="dockApplication != null">dock_application=#{dockApplication},</if>
@@ -69,7 +67,6 @@
 		<where>
 			<if test="id != null">id=#{id}</if>
 			<if test="locationId != null">and location_id=#{locationId}</if>
-			<if test="dockType != null">and dock_type=#{dockType}</if>
 			<if test="dockName != null">and dock_name=#{dockName}</if>
 			<if test="haveScales != null">and have_scales=#{haveScales}</if>
 			<if test="dockApplication != null">and dock_application=#{dockApplication}</if>

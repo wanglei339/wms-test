@@ -40,12 +40,24 @@ public class PoItem {
     @Size(max=100)
     private String madein;
 
+    /** 批次号 */
+    @Size(max=64)
+    private String lotNum;
+
+    public String getLotNum() {
+        return lotNum;
+    }
+
+    public void setLotNum(String lotNum) {
+        this.lotNum = lotNum;
+    }
+
     public PoItem() {
 
     }
 
     public PoItem(String skuCode, String skuName, String barCode, Long orderQty,
-                  Long packUnit,BigDecimal price, String madein) {
+                  Long packUnit,BigDecimal price, String madein, String lotNum) {
         this.skuCode = skuCode;
         this.skuName = skuName;
         this.barCode = barCode;
@@ -53,6 +65,7 @@ public class PoItem {
         this.packUnit = packUnit;
         this.price = price;
         this.madein = madein;
+        this.lotNum = lotNum;
     }
 
     public BigDecimal getPrice() {

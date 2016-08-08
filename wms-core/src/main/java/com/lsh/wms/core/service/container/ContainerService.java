@@ -1,9 +1,9 @@
 package com.lsh.wms.core.service.container;
 
-import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoContainerDao;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
@@ -31,17 +31,6 @@ public class ContainerService {
     @Autowired
     private StockQuantService stockQuantService;
 
-    // container类型定义
-    public static final Map<Long, Map<String, Object>> containerConfigs = new HashMap<Long, Map<String, Object>>() {
-        {
-            put(1L, new HashMap<String, Object>() { // 托盘
-                {
-                    put("typeName", "托盘");
-                }
-            });
-        }
-    };
-
     public BaseinfoContainer getContainer (Long containerId) {
         Map<String, Object> params = new HashMap<String, Object>();
         BaseinfoContainer container;
@@ -67,7 +56,7 @@ public class ContainerService {
 
     @Transactional(readOnly = false)
     public BaseinfoContainer createContainerByType(Long type) {
-        Map<String, Object> config = this.containerConfigs.get(type);
+        Map<String, Object> config = ContainerConstant.containerConfigs.get(type);
         if (config == null || config.isEmpty()) {
             return null;
         }
@@ -80,6 +69,11 @@ public class ContainerService {
         return container;
     }
 
+    /**
+     * 容器是否在使用,使用的是库存的管理
+     * @param containerId
+     * @return
+     */
     public Boolean isContainerInUse(Long containerId) {
         List<StockQuant> quants = stockQuantService.getQuantsByLocationId(containerId);
         if (quants.size() > 0) {

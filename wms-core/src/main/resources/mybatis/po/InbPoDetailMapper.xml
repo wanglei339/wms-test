@@ -11,6 +11,7 @@
 		<result property="barCode" column="BAR_CODE"/>
 		<result property="orderQty" column="ORDER_QTY"/>
 		<result property="packUnit" column="PACK_UNIT"/>
+		<result property="lotNum" column="lotNum"/>
 		<result property="price" column="PRICE"/>
 		<result property="madein" column="MADEIN"/>
 		<result property="inboundQty" column="INBOUND_QTY"/>
@@ -24,22 +25,22 @@
 		insert into INB_PO_DETAIL (
 			ORDER_ID,SKU_ID,SKU_CODE,SKU_NAME,BAR_CODE,ORDER_QTY,
 			PACK_UNIT,PRICE,MADEIN,INBOUND_QTY,INSERTBY,UPDATEBY,INSERTTIME,
-			UPDATETIME
+			UPDATETIME,LOT_NUM
     	) values (
 			#{orderId},#{skuId},#{skuCode},#{skuName},#{barCode},#{orderQty},
 			#{packUnit},#{price},#{madein},#{inboundQty},#{insertby},#{updateby},#{inserttime},
-			#{updatetime}
+			#{updatetime},#{lotNum}
     	)
 	</insert>
 
 	<insert id="batchInsert" parameterType="java.util.List">
 		insert into INB_PO_DETAIL (
 		ORDER_ID,SKU_ID,SKU_CODE,SKU_NAME,BAR_CODE,ORDER_QTY,PACK_UNIT,PRICE,
-		MADEIN,INBOUND_QTY,INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME
+		MADEIN,INBOUND_QTY,INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME,LOT_NUM
 		) values
 		<foreach collection="list" item="item" index="index" separator="," >
 			(#{item.orderId},#{item.skuId},#{item.skuCode},#{item.skuName},#{item.barCode},#{item.orderQty},#{item.packUnit},
-			#{item.price},#{item.madein},#{item.inboundQty},#{item.insertby},#{item.updateby},now(),#{item.updatetime})
+			#{item.price},#{item.madein},#{item.inboundQty},#{item.insertby},#{item.updateby},now(),#{item.updatetime},#{item.lotNum})
 		</foreach>
 	</insert>
 
@@ -60,6 +61,7 @@
   			<if test="updateby != null">UPDATEBY=#{updateby},</if>
   			<if test="inserttime != null">INSERTTIME=#{inserttime},</if>
   			<if test="updatetime != null">UPDATETIME=#{updatetime}</if>
+			<if test="lotNum != null">LOT_NUM=#{lotNum}</if>
 		</set>
 		where ID=#{id}
 	</update>
@@ -120,6 +122,7 @@
 			<if test="updateby != null">and UPDATEBY=#{updateby}</if>
 			<if test="inserttime != null">and INSERTTIME=#{inserttime}</if>
 			<if test="updatetime != null">and UPDATETIME=#{updatetime}</if>
+			<if test="lotNum != null">and LOT_NUM=#{lotNum}</if>
 		</where>
 	</sql>
    

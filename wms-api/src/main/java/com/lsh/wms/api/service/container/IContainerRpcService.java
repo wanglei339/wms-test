@@ -13,4 +13,6 @@ public interface IContainerRpcService {
     public BaseinfoContainer getContainer(long containerId);
     public BaseinfoContainer insertContainer(BaseinfoContainer container);
     public BaseinfoContainer createTray();
+    public BaseinfoContainer createTrolley();   //笼车
+    public BaseinfoContainer createCirculatingBox();    //周转箱
 }
