@@ -55,6 +55,7 @@ public class StockTransferProviderRestService implements IStockTransferProviderR
     @GET
     @Path("cancel")
     public String cancelPlan(@QueryParam("taskId") Long taskId) throws BizCheckedException {
+        logger.info("taskId: " + taskId);
         try{
             rpcService.cancelPlan(taskId);
         } catch (Exception e) {
