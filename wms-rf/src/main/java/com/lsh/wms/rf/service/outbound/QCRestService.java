@@ -84,12 +84,14 @@ public class QCRestService implements IRFQCRestService{
                 detail.put("code", item.getCode());
                 detail.put("codeType", item.getCodeType());
                 detail.put("pickQty", d.getPickQty());
-                detail.put("skuName", item.getSkuName());
+                detail.put("packName", "EA");
+                //TODO packName
+                detail.put("itemName", item.getSkuName());
                 undoDetails.add(detail);
             }
         }
         Map<String, Object> rstMap = new HashMap<String, Object>();
-        rstMap.put("qc_list", undoDetails);
+        rstMap.put("qcList", undoDetails);
         return JsonUtils.SUCCESS(rstMap);
     }
 
@@ -101,7 +103,7 @@ public class QCRestService implements IRFQCRestService{
         Long containerId = Long.valueOf(mapRequest.get("containerId").toString());
         //获取当前的有效待QC container 任务列表
 
-        List<Map> qcList = JSON.parseArray(mapRequest.get("qc_list").toString(), Map.class);
+        List<Map> qcList = JSON.parseArray(mapRequest.get("qcList").toString(), Map.class);
         List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
         //Map<Long, WaveDetail> sku2Detail = new HashMap<Long, WaveDetail>();
         //for(WaveDetail detail : details){
@@ -160,7 +162,11 @@ public class QCRestService implements IRFQCRestService{
             throw new BizCheckedException("2120006");
         }
         iTaskRpcService.done(tasks.get(0).getTaskInfo().getTaskId());
-        return JsonUtils.SUCCESS();
+        return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+            {
+                put("response", true);
+            }
+        });
     }
 
 
@@ -230,7 +236,11 @@ public class QCRestService implements IRFQCRestService{
             detail.setQcExceptionDone(1L);
         }
         waveService.updateDetail(detail);
-        return JsonUtils.SUCCESS();
+        return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+            {
+                put("response", true);
+            }
+        });
     }
 
     @POST
@@ -248,7 +258,7 @@ public class QCRestService implements IRFQCRestService{
                 detail.put("code", item.getCode());
                 detail.put("codeType", item.getCodeType());
                 detail.put("pickQty", d.getPickQty());
-                detail.put("skuName", item.getSkuName());
+                detail.put("itemName", item.getSkuName());
                 undoDetails.add(detail);
             }
         }
@@ -285,6 +295,12 @@ public class QCRestService implements IRFQCRestService{
     public String createTask() throws BizCheckedException {
         Map<String, Object> mapRequest = RequestUtils.getRequest();
         Long containerId = Long.valueOf(mapRequest.get("containerId").toString());
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("containerId", containerId);
+        final List<TaskEntry> taskList = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_SHIP, mapQuery);
+        if(taskList.size()>0){
+            throw new BizCheckedException("2120008");
+        }
         List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
         if(details.size()==0){
             throw new BizCheckedException("2120005");
@@ -296,6 +312,10 @@ public class QCRestService implements IRFQCRestService{
         entry.setTaskDetailList((List<Object>)(List<?>)details);
         entry.setTaskInfo(info);
         Long taskId = iTaskRpcService.create(TaskConstant.TYPE_QC, entry);
-        return JsonUtils.SUCCESS();
+        return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+            {
+                put("response", true);
+            }
+        });
     }
 }
