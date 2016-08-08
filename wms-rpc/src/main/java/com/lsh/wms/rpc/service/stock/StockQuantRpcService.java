@@ -108,7 +108,13 @@ public class StockQuantRpcService implements IStockQuantRpcService {
     public String freeze(Map<String, Object> mapCondition) throws BizCheckedException {
         BigDecimal requiredQty = new BigDecimal(mapCondition.get("qty").toString());
         mapCondition.put("isFrozen", 0);
-        if ((quantService.getQty(mapCondition)).compareTo(requiredQty) == -1) {
+        mapCondition.put("isDefect", 0);
+        mapCondition.put("isRefund", 0);
+        BigDecimal total = quantService.getQty(mapCondition);
+        logger.info("total" + total);
+        if((requiredQty.add(BigDecimal.ONE)).compareTo(BigDecimal.ZERO) == 0) requiredQty = total;
+        logger.info("require" + requiredQty);
+        if (total.compareTo(requiredQty) == -1 || total.compareTo(BigDecimal.ZERO) == 0) {
             throw new BizCheckedException("2550001", "商品数量不足");
         }
         List<StockQuant> quantList = quantService.getQuants(mapCondition);
@@ -132,7 +138,12 @@ public class StockQuantRpcService implements IStockQuantRpcService {
     public String unfreeze(Map<String, Object> mapCondition) throws BizCheckedException {
         BigDecimal requiredQty = new BigDecimal(mapCondition.get("qty").toString());
         mapCondition.put("isFrozen", 1);
-        if ((quantService.getQty(mapCondition)).compareTo(requiredQty) == -1) {
+        mapCondition.put("isDefect", 0);
+        mapCondition.put("isRefund", 0);
+        BigDecimal total = quantService.getQty(mapCondition);
+        if((requiredQty.add(BigDecimal.ONE)).compareTo(BigDecimal.ZERO) == 0) requiredQty = total;
+
+        if (total.compareTo(requiredQty) == -1 || total.compareTo(BigDecimal.ZERO) == 0) {
             throw new BizCheckedException("2550001", "商品数量不足");
         }
         List<StockQuant> quantList = quantService.getQuants(mapCondition);;
@@ -155,8 +166,12 @@ public class StockQuantRpcService implements IStockQuantRpcService {
 
     public String toDefect(Map<String, Object> mapCondition) throws BizCheckedException {
         BigDecimal requiredQty = new BigDecimal(mapCondition.get("qty").toString());
+        mapCondition.put("isRefund", 0);
         mapCondition.put("isDefect", 0);
-        if ((quantService.getQty(mapCondition)).compareTo(requiredQty) == -1) {
+        BigDecimal total = quantService.getQty(mapCondition);
+        if((requiredQty.add(BigDecimal.ONE)).compareTo(BigDecimal.ZERO) == 0) requiredQty = total;
+
+        if (total.compareTo(requiredQty) == -1 || total.compareTo(BigDecimal.ZERO) == 0) {
             throw new BizCheckedException("2550001", "商品数量不足");
         }
         List<StockQuant> quantList = quantService.getQuants(mapCondition);
@@ -181,7 +196,11 @@ public class StockQuantRpcService implements IStockQuantRpcService {
     public String toRefund(Map<String, Object> mapCondition) throws BizCheckedException {
         BigDecimal requiredQty = new BigDecimal(mapCondition.get("qty").toString());
         mapCondition.put("isRefund", 0);
-        if ((quantService.getQty(mapCondition)).compareTo(requiredQty) == -1) {
+        mapCondition.put("isDefect", 0);
+        BigDecimal total = quantService.getQty(mapCondition);
+        if((requiredQty.add(BigDecimal.ONE)).compareTo(BigDecimal.ZERO) == 0) requiredQty = total;
+
+        if (total.compareTo(requiredQty) == -1 || total.compareTo(BigDecimal.ZERO) == 0) {
             throw new BizCheckedException("2550001", "商品数量不足");
         }
         List<StockQuant> quantList = quantService.getQuants(mapCondition);
