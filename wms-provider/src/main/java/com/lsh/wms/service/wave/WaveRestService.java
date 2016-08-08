@@ -233,7 +233,7 @@ public class WaveRestService implements IWaveRestService {
 
     @GET
     @Path("getPickModelList")
-    public String getPickModelList(@QueryParam("getPickModelList") long iPickModelTplId) {
+    public String getPickModelList(@QueryParam("pickModelTplId") long iPickModelTplId) {
         return JsonUtils.SUCCESS(modelService.getPickModelsByTplId(iPickModelTplId));
     }
 
