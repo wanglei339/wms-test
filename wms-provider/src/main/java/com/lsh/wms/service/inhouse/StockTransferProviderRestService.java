@@ -13,10 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.Map;
 
@@ -61,16 +58,9 @@ public class StockTransferProviderRestService implements IStockTransferProviderR
         return JsonUtils.SUCCESS();
     }
 
-    @POST
+    @GET
     @Path("cancel")
-    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
-    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-    public String cancelPlan() throws BizCheckedException {
-        Map<String, Object> params = RequestUtils.getRequest();
-        Long taskId = Long.valueOf(params.get("taskId").toString());
-        if(taskId == null) {
-            throw new BizCheckedException("2040001");
-        }
+    public String cancelPlan(@QueryParam("taskId") Long taskId) throws BizCheckedException {
         try{
             rpcService.cancelPlan(taskId);
         } catch (BizCheckedException e) {
