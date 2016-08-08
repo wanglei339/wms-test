@@ -36,6 +36,16 @@ public class InbPoDetail implements Serializable {
     private Date inserttime;
 	/**  */
     private Date updatetime;
+	/** 批次号 */
+	private String lotNum;
+
+	public String getLotNum() {
+		return lotNum;
+	}
+
+	public void setLotNum(String lotNum) {
+		this.lotNum = lotNum;
+	}
 
 	public BigDecimal getPrice() {
 		return price;
