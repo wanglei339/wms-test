@@ -27,4 +27,10 @@ public interface ILocationRestService {
     public String getBinByShelf(Long locationId);
     //仓库找货位
     public String getBinByWarehouseId();
+
+    /**
+     * 货物所有的拣货位
+     * @return
+     */
+    public String getAllColletionBins();
 }

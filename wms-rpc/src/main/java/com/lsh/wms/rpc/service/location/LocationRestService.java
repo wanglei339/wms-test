@@ -183,4 +183,16 @@ public class LocationRestService implements ILocationRestService {
     public String getBinByWarehouseId() {
         return JsonUtils.SUCCESS(locationRpcService.getAllBin());
     }
+
+    /**
+     * 获取所有的货架和阁楼的拣货位
+     * @return
+     */
+    @GET
+    @Path("getAllColletionBins")
+    public String getAllColletionBins() {
+        return JsonUtils.SUCCESS(locationRpcService.getColletionBins());
+    }
+
+
 }
