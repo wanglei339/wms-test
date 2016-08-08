@@ -191,7 +191,18 @@ public class LocationRestService implements ILocationRestService {
     @GET
     @Path("getAllColletionBins")
     public String getAllColletionBins() {
+
         return JsonUtils.SUCCESS(locationRpcService.getColletionBins());
+    }
+
+    /**
+     * 获取全货架(阁楼)
+     * @return
+     */
+    @GET
+    @Path("getAllShelfs")
+    public String getAllShelfs() {
+        return JsonUtils.SUCCESS(locationRpcService.getAllShelfs());
     }
 
 

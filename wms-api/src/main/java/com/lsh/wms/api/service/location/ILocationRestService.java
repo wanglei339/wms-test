@@ -33,4 +33,10 @@ public interface ILocationRestService {
      * @return
      */
     public String getAllColletionBins();
+
+    /**
+     * 获取全货架
+     * @return
+     */
+    public String getAllShelfs();
 }
