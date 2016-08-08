@@ -1,6 +1,7 @@
 package com.lsh.wms.rpc.service.location;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.LocationService;
@@ -11,10 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by fengkun on 16/7/11.
@@ -100,6 +98,23 @@ public class LocationRpcService implements ILocationRpcService {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("classification", 1);
         return locationService.getBaseinfoLocationList(mapQuery);
+    }
+
+    /**
+     * 获取全货架
+     * @return
+     */
+    public List<BaseinfoLocation> getAllShelfs() {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        //将不同的货架type塞入
+        List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
+        List<Long> regionType = Arrays.asList(LocationConstant.Shelf, LocationConstant.Loft);
+        for (Long oneType:regionType){
+            mapQuery.put("type",oneType);
+            List<BaseinfoLocation> locationList = locationService.getBaseinfoLocationList(mapQuery);
+            targetList.addAll(locationList);
+        }
+        return targetList;
     }
 
     /**

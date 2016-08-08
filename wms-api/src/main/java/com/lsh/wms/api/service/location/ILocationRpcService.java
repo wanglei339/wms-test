@@ -28,8 +28,18 @@ public interface ILocationRpcService {
     public BaseinfoLocation getBackLocation();
     //分配残次
     public BaseinfoLocation getDefectiveLocation();
-    //获取仓库下所有的库区
+
+    /**
+     * 获取全区域,为建货架(阁楼、货架)和货位服务
+     * @return
+     */
     public List<BaseinfoLocation> getAllRegion();
+
+    /**
+     * 获取全区域的所有货架 为建库位服务
+     * @return
+     */
+    public List<BaseinfoLocation> getAllShelfs();
     //获取所有仓库下的所有货位
     public  List<BaseinfoLocation> getAllBin();
 

@@ -35,11 +35,8 @@ public class StockTransferProviderRestService implements IStockTransferProviderR
     public String addPlan(StockTransferPlan plan)  throws BizCheckedException {
         try{
             rpcService.addPlan(plan);
-        } catch (BizCheckedException e) {
-            throw e;
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS();
     }
@@ -49,11 +46,8 @@ public class StockTransferProviderRestService implements IStockTransferProviderR
     public String updatePlan(StockTransferPlan plan)  throws BizCheckedException {
         try{
             rpcService.updatePlan(plan);
-        } catch (BizCheckedException e) {
-            throw e;
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS();
     }
@@ -61,13 +55,11 @@ public class StockTransferProviderRestService implements IStockTransferProviderR
     @GET
     @Path("cancel")
     public String cancelPlan(@QueryParam("taskId") Long taskId) throws BizCheckedException {
+        logger.info("taskId: " + taskId);
         try{
             rpcService.cancelPlan(taskId);
-        } catch (BizCheckedException e) {
-            throw e;
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS();
     }
