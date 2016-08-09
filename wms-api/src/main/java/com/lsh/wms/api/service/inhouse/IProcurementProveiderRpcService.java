@@ -10,6 +10,7 @@ import java.util.Map;
  */
 public interface IProcurementProveiderRpcService {
     void addProcurementPlan (StockTransferPlan plan) throws  BizCheckedException;
+    void updateProcurementPlan(StockTransferPlan plan)  throws BizCheckedException;
     void createProcurement() throws BizCheckedException;
     void scanFromLocation(Map<String, Object> params) throws BizCheckedException;
     void scanToLocation(Map<String, Object> params) throws  BizCheckedException;

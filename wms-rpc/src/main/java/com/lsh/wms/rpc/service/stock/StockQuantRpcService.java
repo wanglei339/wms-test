@@ -137,7 +137,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
 
     public String unfreeze(Map<String, Object> mapCondition) throws BizCheckedException {
         BigDecimal requiredQty = new BigDecimal(mapCondition.get("qty").toString());
-        mapCondition.put("isFrozen", 1);
+        mapCondition.put("canUnFreeze", true);
         BigDecimal total = quantService.getQty(mapCondition);
         if((requiredQty.add(BigDecimal.ONE)).compareTo(BigDecimal.ZERO) == 0) requiredQty = total;
 

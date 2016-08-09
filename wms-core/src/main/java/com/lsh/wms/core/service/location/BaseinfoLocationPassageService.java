@@ -43,12 +43,12 @@ public class BaseinfoLocationPassageService implements IStrategy {
         baseinfoLocationPassageDao.update((BaseinfoLocationPassage) iBaseinfoLocaltionModel);
     }
 
-    public BaseinfoLocation getBaseinfoItemLocationModelById(Long id)  {
+    public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("locationId", id);
         List<BaseinfoLocationPassage> passageList = baseinfoLocationPassageDao.getBaseinfoLocationPassageList(mapQuery);
 //        BaseinfoLocationPassage passage =  passageList.get(0);
-        return passageList.size() > 0 ? null : passageList.get(0);
+        return passageList.size() > 0 ? passageList.get(0) : null;
 
 
     }
@@ -65,7 +65,7 @@ public class BaseinfoLocationPassageService implements IStrategy {
         return baseinfoLocationPassageDao.countBaseinfoLocationPassage(params);
     }
 
-    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params)  {
+    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) {
         return (List<BaseinfoLocation>) (List<?>) baseinfoLocationPassageDao.getBaseinfoLocationPassageList(params);
 
     }

@@ -250,4 +250,31 @@ public class StockQuant implements Serializable,Cloneable {
 			return false;
 		}
 	}
+
+	@Override
+	public String toString() {
+		return "StockQuant{" +
+				"id=" + id +
+				", skuId=" + skuId +
+				", locationId=" + locationId +
+				", containerId=" + containerId +
+				", qty=" + qty +
+				", packUnit=" + packUnit +
+				", packName='" + packName + '\'' +
+				", value=" + value +
+				", cost=" + cost +
+				", reserveTaskId=" + reserveTaskId +
+				", isFrozen=" + isFrozen +
+				", supplierId=" + supplierId +
+				", ownerId=" + ownerId +
+				", lotId=" + lotId +
+				", inDate=" + inDate +
+				", expireDate=" + expireDate +
+				", createdAt=" + createdAt +
+				", updatedAt=" + updatedAt +
+				", itemId=" + itemId +
+				", isDefect=" + isDefect +
+				", isRefund=" + isRefund +
+				'}';
+	}
 }

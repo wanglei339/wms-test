@@ -45,6 +45,7 @@ public class BaseinfoLocationBinService implements IStrategy {
 
     /**
      * 通过locationId查找主表BaseinfoLocaiton
+     *
      * @param id
      * @return
      */
@@ -53,7 +54,7 @@ public class BaseinfoLocationBinService implements IStrategy {
         mapQuery.put("locationId", id);
         List<BaseinfoLocationBin> bins = baseinfoLocationBinDao.getBaseinfoLocationBinList(mapQuery);
 //        BaseinfoLocationBin bin =  bins.get(0);
-        return bins.size() > 0 ? null : bins.get(0);
+        return bins.size() > 0 ? bins.get(0) : null;
     }
 
     /**

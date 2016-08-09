@@ -28,8 +28,11 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
     @Autowired
     private LocationService locationService;
 
-    public IBaseinfoLocaltionModel getLocationDetailById(Long locationId) {
+    public IBaseinfoLocaltionModel getLocationDetailById(Long locationId) throws BizCheckedException{
         BaseinfoLocation subLocation = (BaseinfoLocation) locationDetailService.getIBaseinfoLocaltionModelById(locationId);
+        if (null == subLocation){
+            throw new BizCheckedException("2180001");
+        }
         return subLocation;
     }
 
@@ -39,20 +42,25 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
      * @param params
      * @return
      */
-    public List<BaseinfoLocation> getLocationDetailList(Map<String, Object> params) {
+    public List<BaseinfoLocation> getLocationDetailList(Map<String, Object> params) throws BizCheckedException {
         //如果存在码头出入的参数dockApplication,选用对付码头的方法
         if (params.get("dockApplication") != null) {
             List<BaseinfoLocation> baseinfoLocationList = locationDetailService.getDockListByType(params);
+            //抛异常
+            if (null == baseinfoLocationList) {
+                throw new BizCheckedException("2180002");
+            }
             return baseinfoLocationList;
         }
         List<BaseinfoLocation> baseinfoLocationList = locationDetailService.getIBaseinfoLocaltionModelListByType(params);
+        //抛异常
+        if (null == baseinfoLocationList) {
+            throw new BizCheckedException("2180002");
+        }
         return baseinfoLocationList;
     }
 
     public boolean insertLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException {
-        if (locationDetailService.getIBaseinfoLocaltionModelById(baseinfoLocation.getLocationId()) == null) {
-            return false;
-        }
         try {
             locationDetailService.insert(baseinfoLocation);
         } catch (Exception e) {
@@ -64,11 +72,11 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
 
     public boolean updateLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException {
         if (locationDetailService.getIBaseinfoLocaltionModelById(baseinfoLocation.getLocationId()) == null) {
-            return false;
+            throw new BizCheckedException("2180001");
         }
-        try{
+        try {
             locationDetailService.update(baseinfoLocation);
-        } catch (Exception e){
+        } catch (Exception e) {
             logger.error(e.getCause().getMessage());
             return false;
         }
@@ -84,9 +92,15 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
         BaseinfoLocation location = locationService.getLocation(locationId);
         if (location != null) {
             location.setIsValid(0);
-            locationService.updateLocation(location);
-            return true;
+            try {
+                locationService.updateLocation(location);
+                return true;
+            } catch (Exception e) {
+                logger.error(e.getCause().getMessage());
+                return false;
+            }
+        } else {
+            throw new BizCheckedException("2180003");
         }
-        return false;
     }
 }

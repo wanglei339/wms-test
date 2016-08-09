@@ -114,8 +114,11 @@ public class ReceiptRpcService implements IReceiptRpcService {
         List<StockLot> stockLotList = new ArrayList<StockLot>();
 
         for(ReceiptItem receiptItem : request.getItems()){
+            if(receiptItem.getInboundQty() <= 0) {
+                throw new BizCheckedException("2020007");
+            }
 
-            if(containerService.isContainerInUse(inbReceiptHeader.getContainerId())){
+            if(!containerService.isContainerCanUse(inbReceiptHeader.getContainerId())){
                 throw new BizCheckedException("2000002");
             }
 
@@ -152,8 +155,10 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
             //根据OrderId及SkuId获取InbPoDetail
             InbPoDetail inbPoDetail = poOrderService.getInbPoDetailByOrderIdAndSkuId(inbReceiptDetail.getOrderId(), inbReceiptDetail.getSkuId());
+
             //写入InbReceiptDetail中的OrderQty
             inbReceiptDetail.setOrderQty(inbPoDetail.getOrderQty());
+
             // 判断是否超过订单总数
             Long poInboundQty = null != inbPoDetail.getInboundQty() ? inbPoDetail.getInboundQty() : 0L;
 
@@ -180,7 +185,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             }
 
             InbPoDetail updateInbPoDetail = new InbPoDetail();
-            updateInbPoDetail.setInboundQty(inbPoDetail.getInboundQty());
+            updateInbPoDetail.setInboundQty(inbReceiptDetail.getInboundQty());
             updateInbPoDetail.setOrderId(inbReceiptDetail.getOrderId());
             updateInbPoDetail.setSkuId(inbReceiptDetail.getSkuId());
             updateInbPoDetailList.add(updateInbPoDetail);

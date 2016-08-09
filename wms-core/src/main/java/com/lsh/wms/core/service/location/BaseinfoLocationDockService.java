@@ -56,7 +56,7 @@ public class BaseinfoLocationDockService implements IStrategy {
         mapQuery.put("locationId", id);
         List<BaseinfoLocationDock> dockList = baseinfoLocationDockDao.getBaseinfoLocationDockList(mapQuery);
 //        BaseinfoLocationDock dock = dockList.get(0);
-        return dockList.size() > 0 ? null : dockList.get(0);
+        return dockList.size() > 0 ? dockList.get(0) : null;
     }
 
     /**

@@ -109,7 +109,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
      */
     @GET
     @Path("getLocationDetail")
-    public String getLocationDetailById(@QueryParam("locationId") Integer locationId)  {
+    public String getLocationDetailById(@QueryParam("locationId") Long locationId)  {
         Long id = Long.parseLong(locationId.toString());
 //        BaseinfoLocation subLocation = (BaseinfoLocation) locationDetailService.getIBaseinfoLocaltionModelById(id);
         return JsonUtils.SUCCESS(locationDetailRpcService.getLocationDetailById(id));
@@ -135,6 +135,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         if (isTrue){
             return JsonUtils.SUCCESS("插入成功");
         }else {
+            //原位置已经存在
             return JsonUtils.EXCEPTION_ERROR("insertError");
         }
 //        return JsonUtils.SUCCESS(locationDetailRpcService.insertLocationDetailByType((BaseinfoLocation) iBaseinfoLocaltionModel));
@@ -145,20 +146,18 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @Path("updateLocation")
     public String updateLocationDetailByType(LocationDetailRequest request) throws BizCheckedException {
         Long locationId = Long.parseLong(request.getLocationId().toString());
-        IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationDetailService.getIBaseinfoLocaltionModelById(locationId);
+        IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationDetailRpcService.getLocationDetailById(locationId);
         ObjUtils.bean2bean(request, iBaseinfoLocaltionModel);
 
         //添加更新时间
         long updatedAt = DateUtils.getCurrentSeconds();
         iBaseinfoLocaltionModel.setUpdatedAt(updatedAt);
-//        locationDetailService.update(iBaseinfoLocaltionModel);
         boolean isTrue = locationDetailRpcService.updateLocationDetailByType((BaseinfoLocation) iBaseinfoLocaltionModel);
         if (isTrue){
             return JsonUtils.SUCCESS("更新成功");
         } else {
             return JsonUtils.EXCEPTION_ERROR("updateError");
         }
-//        return JsonUtils.SUCCESS(locationDetailRpcService.updateLocationDetailByType((BaseinfoLocation) iBaseinfoLocaltionModel));
     }
 
 
@@ -166,20 +165,17 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @Path("countLocation")
     public String countLocationDetailByType() {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
-//        return JsonUtils.SUCCESS(locationDetailService.countLocationDetail(mapQuery));
         return JsonUtils.SUCCESS(locationDetailRpcService.countLocationDetailByType(mapQuery));
     }
-
-
-    @Autowired
-    private LocationService locationService;
-
 
     @POST
     @Path("getList")
     public String searchList() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
         List<BaseinfoLocation> locations = locationDetailRpcService.getLocationDetailList(params);
+        if (locations==null){
+            throw new BizCheckedException("");   // 位置不存在
+        }
         //如果是货位就加上regionName
         return JsonUtils.SUCCESS(locations);
     }
@@ -199,7 +195,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         if (locationDetailRpcService.removeLocation(locationId)) {
             return JsonUtils.SUCCESS("删除成功");
         } else {
-            throw new BizCheckedException("2180001");   //  位置不存在
+            return JsonUtils.EXCEPTION_ERROR("位置不存在");  //  位置不存在
         }
     }
 
