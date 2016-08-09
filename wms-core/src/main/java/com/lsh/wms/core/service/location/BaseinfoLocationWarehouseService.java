@@ -48,14 +48,14 @@ public class BaseinfoLocationWarehouseService implements IStrategy {
         mapQuery.put("locationId", id);
         List<BaseinfoLocationWarehouse> warehouseList = baseinfoLocationWarehouseDao.getBaseinfoLocationWarehouseList(mapQuery);
 //        BaseinfoLocationWarehouse warehouse =  warehouseList.get(0);
-        return warehouseList.size() > 0 ? null : warehouseList.get(0);
+        return warehouseList.size() > 0 ? warehouseList.get(0) : null;
     }
 
     public Integer countBaseinfoLocaltionModel(Map<String, Object> params) {
         return baseinfoLocationWarehouseDao.countBaseinfoLocationWarehouse(params);
     }
 
-    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params)  {
+    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) {
         return (List<BaseinfoLocation>) (List<?>) baseinfoLocationWarehouseDao.getBaseinfoLocationWarehouseList(params);
     }
 }

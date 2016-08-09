@@ -49,7 +49,7 @@ public class BaseinfoLocationRegionService implements IStrategy {
         mapQuery.put("locationId", id);
         List<BaseinfoLocationRegion> regionList = baseinfoLocationRegionDao.getBaseinfoLocationRegionList(mapQuery);
 //        BaseinfoLocationRegion region =  regionList.get(0);
-        return regionList.size() > 0 ? null : regionList.get(0);
+        return regionList.size() > 0 ? regionList.get(0) : null;
 
     }
 
@@ -57,7 +57,7 @@ public class BaseinfoLocationRegionService implements IStrategy {
         return baseinfoLocationRegionDao.countBaseinfoLocationRegion(params);
     }
 
-    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params)  {
+    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) {
         return (List<BaseinfoLocation>) (List<?>) baseinfoLocationRegionDao.getBaseinfoLocationRegionList(params);
 
     }
