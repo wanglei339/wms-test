@@ -204,6 +204,8 @@ public class StockQuantService {
 
     @Transactional(readOnly = false)
     public void unFreeze(StockQuant quant) {
+        quant.setIsDefect(0L);
+        quant.setIsRefund(0L);
         quant.setIsFrozen(0L);
         stockQuantDao.update(quant);
     }
@@ -212,6 +214,7 @@ public class StockQuantService {
     public void toDefect(StockQuant quant) {
         quant.setIsFrozen(0L);
         quant.setIsDefect(1L);
+        quant.setIsRefund(0L);
         stockQuantDao.update(quant);
     }
 
@@ -219,6 +222,7 @@ public class StockQuantService {
     public void toRefund(StockQuant quant) {
         quant.setIsFrozen(0L);
         quant.setIsRefund(1L);
+        quant.setIsDefect(0L);
         stockQuantDao.update(quant);
     }
 
