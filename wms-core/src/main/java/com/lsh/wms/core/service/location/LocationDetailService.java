@@ -140,6 +140,10 @@ public class LocationDetailService {
      */
     @Transactional(readOnly = false)
     public void insert(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
+        //校验
+        if (null == iBaseinfoLocaltionModel) {
+            throw new RuntimeException("插入和Location对象为空");
+        }
         //转化成父类,插入
         BaseinfoLocation location = new BaseinfoLocation();
         ObjUtils.bean2bean(iBaseinfoLocaltionModel, location);
