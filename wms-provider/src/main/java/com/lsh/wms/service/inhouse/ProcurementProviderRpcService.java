@@ -196,8 +196,8 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     }
 
     public void scanToLocation(Map<String, Object> params) throws  BizCheckedException {
-        core.inbound(params);
         Long taskId = Long.valueOf(params.get("taskId").toString());
+        core.inbound(params);
         taskRpcService.done(taskId);
     }
 

@@ -116,7 +116,6 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
                     newDetail.setLocationId(detail.getLocationId());
                     newDetail.setContainerId(detail.getContainerId());
                     newDetail.setRound(detail.getRound());
-                    newDetail.setContainerId(detail.getContainerId());
                     stockTakingService.insertDetail(newDetail);
                 }
             }
@@ -303,6 +302,7 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
                     move.setQty(detail.getRealQty().subtract(detail.getTheoreticalQty()));
                     move.setFromLocationId(locationService.getInventoryLostLocationId());
                     move.setToLocationId(detail.getLocationId());
+                    move.setToContainerId(detail.getContainerId());
                 }
                 moveList.add(move);
             } else {
