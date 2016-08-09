@@ -63,6 +63,12 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
     }
     public void assignConcrete(Long taskId, Long staffId) throws BizCheckedException {
         StockTakingTask stockTakingTask = stockTakingTaskService.getTakingTaskByTaskId(taskId);
+        List<StockTakingDetail> details = stockTakingService.getDetailByTaskId(taskId);
+        if(details!=null && details.size()!=0){
+            StockTakingDetail detail = details.get(0);
+            detail.setOperator(staffId);
+            stockTakingService.updateDetail(detail);
+        }
         if(stockTakingTask!=null) {
             StockTakingHead head = stockTakingService.getHeadById(stockTakingTask.getTakingId());
             head.setStatus(2L);

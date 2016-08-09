@@ -2,6 +2,7 @@ package com.lsh.wms.service.inhouse;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.item.IItemRpcService;
 import com.lsh.wms.api.service.stock.IStockMoveRpcService;
@@ -84,17 +85,17 @@ public class StockTransferCore {
         Long staffId = sysUser.getStaffId();
 
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
-        TaskInfo taskInfo = taskEntry.getTaskInfo();
         if (taskEntry == null) {
-            throw new BizCheckedException("3040001");
+            throw new BizCheckedException("2550005");
         }
+        TaskInfo taskInfo = taskEntry.getTaskInfo();
         if (fromLocationId.compareTo(taskInfo.getFromLocationId()) != 0 ) {
             throw new BizCheckedException("2040005");
         }
         String packName = taskInfo.getPackName();
         Long containerId = taskInfo.getContainerId();
         Long toLocationId = locationService.getAreaFatherId(fromLocationId);
-        if (taskInfo.getPackName().equals("pallet")) {
+        if (taskInfo.getSubType().compareTo(1L)==0) {
             moveRpcService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
 
         } else {
@@ -107,7 +108,6 @@ public class StockTransferCore {
             List<StockMove> moveList = new ArrayList<StockMove>();
             moveList.add(move);
             moveRpcService.move(moveList);
-
             if(taskInfo.getQty() != qtyDone) {
                 taskInfo.setQtyDone(qtyDone);
             }
@@ -128,14 +128,14 @@ public class StockTransferCore {
 
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
         if (taskEntry == null) {
-            throw new BizCheckedException("3040001");
+            throw new BizCheckedException("2550005");
         }
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         String packName = taskInfo.getPackName();
         Long containerId = taskInfo.getContainerId();
         Long fromLocationId = locationService.getAreaFatherId(taskInfo.getFromLocationId());
 
-        if (taskInfo.getPackName() == "pallet") {
+        if (taskInfo.getSubType().compareTo(1L)==0) {
             moveRpcService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
         } else {
             BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString());

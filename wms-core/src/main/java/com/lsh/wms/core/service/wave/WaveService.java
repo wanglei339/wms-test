@@ -51,7 +51,7 @@ public class WaveService {
         head.setWaveId(waveId);
         head.setCreatedAt(DateUtils.getCurrentSeconds());
         waveHeadDao.insert(head);
-        //this.addToWave(head.getWaveId(), vOrders);
+        this.addToWave(head.getWaveId(), vOrders);
     }
 
     @Transactional(readOnly = false)
@@ -60,7 +60,9 @@ public class WaveService {
             //更新wave信息
             long soId = vOrders.get(i);
             OutbSoHeader outbSoHeader = new OutbSoHeader();
-
+            outbSoHeader.setOrderId(soId);
+            outbSoHeader.setWaveId(iWaveId);
+            soHeaderDao.updateByOrderOtherIdOrOrderId(outbSoHeader);
         }
     }
 

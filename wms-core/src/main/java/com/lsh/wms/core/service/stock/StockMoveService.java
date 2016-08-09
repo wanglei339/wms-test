@@ -114,4 +114,34 @@ public class StockMoveService {
             quantService.move(move);
         }
     }
+    @Transactional(readOnly = false)
+    public void moveToContainer(Long itemId, Long operator,Long fromContainer,Long toContainer,Long locationId,BigDecimal qty) {
+        Map<String, Object> queryMap = new HashMap<String, Object>();
+        BigDecimal total = BigDecimal.ZERO;
+        queryMap.put("itemId",itemId);
+        queryMap.put("containerId",fromContainer);
+        List<StockQuant> stockQuants = quantService.getQuants(queryMap);
+        if(stockQuants==null || stockQuants.size()==0){
+            throw new BizCheckedException("2550009");
+        }
+        for(StockQuant quant:stockQuants){
+            total = total.add(quant.getQty());
+        }
+        if(total.subtract(qty).floatValue() < 0){
+            throw new BizCheckedException("2550008");
+        }
+        StockQuant quant = stockQuants.get(0);
+        StockMove move =new StockMove();
+        move.setQty(qty);
+        move.setSkuId(quant.getSkuId());
+        move.setOwnerId(quant.getOwnerId());
+        move.setItemId(quant.getItemId());
+        move.setFromLocationId(quant.getLocationId());
+        move.setToLocationId(locationId);
+        move.setFromContainerId(fromContainer);
+        move.setToContainerId(toContainer);
+        move.setOperator(operator);
+        quantService.move(move);
+    }
+
 }

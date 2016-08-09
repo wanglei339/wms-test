@@ -77,7 +77,12 @@ public class StockTakingRestService implements IStockTakingRestService {
     @POST
     @Path("create")
     public String create(StockTakingRequest request) throws BizCheckedException{
-        StockTakingHead head = new StockTakingHead();
+
+        StockTakingHead head = stockTakingService.getHeadById(request.getTakingId());
+        if(head!=null){
+            return JsonUtils.TOKEN_ERROR("请勿重复提交");
+        }
+        head = new StockTakingHead();
         ObjUtils.bean2bean(request, head);
         List<StockTakingDetail> detailList = prepareDetailList(head);
         stockTakingService.insertHead(head);
@@ -89,7 +94,6 @@ public class StockTakingRestService implements IStockTakingRestService {
     public String update(StockTakingRequest request) throws BizCheckedException{
         StockTakingHead head = new StockTakingHead();
         ObjUtils.bean2bean(request, head);
-        this.cancelTask(head.getTakingId());
         this.update(head);
         return JsonUtils.SUCCESS();
     }
@@ -159,7 +163,7 @@ public class StockTakingRestService implements IStockTakingRestService {
                     BaseinfoLocation location = locationService.getLocation(detail.getLocationId());
                     CsiSku csiSku = skuService.getSku(detail.getSkuId());
                     Long supplierId = quantService.getSupplierByLocationAndItemId(detail.getLocationId(), detail.getItemId());
-                    one.put("operator", entry.getTaskInfo().getOperator());
+                    one.put("operator", detail.getOperator());
                     one.put("supplierId", supplierId);
                     one.put("itemId", detail.getItemId());
                     one.put("theoreticalQty", detail.getTheoreticalQty());
@@ -365,12 +369,14 @@ public class StockTakingRestService implements IStockTakingRestService {
         List<TaskEntry> taskEntryList=new ArrayList<TaskEntry>();
         for(StockTakingDetail detail:detailList) {
             TaskInfo taskInfo = new TaskInfo();
+            taskInfo.setTaskName("盘点任务[ " + taskInfo.getLocationId() + "]");
             taskInfo.setPlanId(head.getTakingId());
             taskInfo.setDueTime(dueTime);
             taskInfo.setPlanner(head.getPlanner());
             taskInfo.setStatus(1L);
             taskInfo.setLocationId(detail.getLocationId());
             taskInfo.setSkuId(detail.getSkuId());
+            taskInfo.setItemId(detail.getItemId());
             taskInfo.setContainerId(detail.getContainerId());
             taskInfo.setType(TaskConstant.TYPE_STOCK_TAKING);
             taskInfo.setDraftTime(DateUtils.getCurrentSeconds());
@@ -397,8 +403,9 @@ public class StockTakingRestService implements IStockTakingRestService {
     public void update(StockTakingHead head) throws BizCheckedException{
         StockTakingHead oldHead = stockTakingService.getHeadById(head.getTakingId());
         if(oldHead==null){
-            return ;
+           throw  new BizCheckedException("2550007");
         }
+        this.cancelTask(head.getTakingId());
         head.setId(oldHead.getId());
         stockTakingService.updateHead(head);
         List<StockTakingDetail> detailList = prepareDetailList(head);

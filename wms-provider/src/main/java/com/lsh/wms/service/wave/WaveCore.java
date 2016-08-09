@@ -93,11 +93,17 @@ public class WaveCore {
         logger.info("begin to run pick model");
         //执行捡货模型,输出最小捡货单元
         this._executePickModel();
+        //处理线路\运输计划,分配集货道
+        this._allocDock();
         //创建捡货任务
         taskRpcService.batchCreate(TaskConstant.TYPE_PICK, entryList);
         //标记成功,这里有风险,就是捡货任务已经创建了,但是这里标记失败了,看咋搞????
         waveService.setStatus(waveId, WaveConstant.STATUS_RELEASE_SUCC);
         return 0;
+    }
+
+    private void _allocDock() throws BizCheckedException{
+
     }
 
     private void _executePickModel() throws BizCheckedException{

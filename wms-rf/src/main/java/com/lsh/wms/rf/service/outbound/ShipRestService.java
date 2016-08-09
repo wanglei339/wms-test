@@ -99,7 +99,7 @@ public class ShipRestService implements IShipRestService {
         获取发货码头
          */
         Map<String, Object> rstMap = new HashMap<String, Object>();
-        rstMap.put("xx", 1);
+        rstMap.put("dockName", "TESTDOCK");
         return JsonUtils.SUCCESS(rstMap);
     }
 
@@ -152,7 +152,11 @@ public class ShipRestService implements IShipRestService {
         entry.setTaskDetailList((List<Object>)(List<?>)details);
         entry.setTaskInfo(info);
         Long taskId = iTaskRpcService.create(TaskConstant.TYPE_SHIP, entry);
-        return JsonUtils.SUCCESS();
+        return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+            {
+                put("response", true);
+            }
+        });
     }
 
     /*
