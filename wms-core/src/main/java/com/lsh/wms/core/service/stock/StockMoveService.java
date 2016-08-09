@@ -115,7 +115,7 @@ public class StockMoveService {
         }
     }
     @Transactional(readOnly = false)
-    public void moveToContainer(Long itemId, Long operator,Long fromContainer,Long toContainer,Long locationId,BigDecimal qty,Long taskId) {
+    public void moveToContainer(Long itemId, Long operator,Long fromContainer,Long toContainer,Long locationId,BigDecimal qty) {
         Map<String, Object> queryMap = new HashMap<String, Object>();
         BigDecimal total = BigDecimal.ZERO;
         queryMap.put("itemId",itemId);

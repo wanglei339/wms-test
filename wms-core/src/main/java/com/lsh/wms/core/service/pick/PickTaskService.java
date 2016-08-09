@@ -35,7 +35,7 @@ public class PickTaskService {
     @Autowired
     private WaveDetailDao taskDetailDao;
     @Autowired
-    private StockQuantService stockQuantService;
+    private StockMoveService moveService;
     @Autowired
     private WaveService waveService;
     @Autowired
@@ -103,6 +103,6 @@ public class PickTaskService {
         pickDetail.setPickAt(DateUtils.getCurrentSeconds());
         waveService.updateDetail(pickDetail);
         // 移动库存
-        stockQuantService.moveToContainer(itemId, staffId, fromContainerId, containerId, locationService.getWarehouseLocationId(), qty);
+        moveService.moveToContainer(itemId, staffId, fromContainerId, containerId, locationService.getWarehouseLocationId(), qty);
     }
 }
