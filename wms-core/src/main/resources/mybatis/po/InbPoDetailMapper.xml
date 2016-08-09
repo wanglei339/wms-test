@@ -74,7 +74,6 @@
 
 
 	<update id="batchUpdateInboundQtyByOrderIdAndSkuId" parameterType="java.util.List">
-
 		<foreach collection="list" item="item" index="index"  open="" close=""  separator=";">
 			update INB_PO_DETAIL
 			<set>
