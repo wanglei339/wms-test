@@ -35,7 +35,7 @@ public class BaseinfoLocationRegionService implements IStrategy {
 
     @Transactional(readOnly = false)
     public void insert(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
-         baseinfoLocationRegionDao.insert((BaseinfoLocationRegion) iBaseinfoLocaltionModel);
+        baseinfoLocationRegionDao.insert((BaseinfoLocationRegion) iBaseinfoLocaltionModel);
     }
 
     @Transactional(readOnly = false)
@@ -43,13 +43,13 @@ public class BaseinfoLocationRegionService implements IStrategy {
         baseinfoLocationRegionDao.update((BaseinfoLocationRegion) iBaseinfoLocaltionModel);
     }
 
-    
-    public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+
+    public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("locationId", id);
-        List<BaseinfoLocationRegion> regionList =  baseinfoLocationRegionDao.getBaseinfoLocationRegionList(mapQuery);
-        BaseinfoLocationRegion region =  regionList.get(0);
-        return region;
+        List<BaseinfoLocationRegion> regionList = baseinfoLocationRegionDao.getBaseinfoLocationRegionList(mapQuery);
+//        BaseinfoLocationRegion region =  regionList.get(0);
+        return regionList.size() > 0 ? null : regionList.get(0);
 
     }
 
@@ -57,8 +57,8 @@ public class BaseinfoLocationRegionService implements IStrategy {
         return baseinfoLocationRegionDao.countBaseinfoLocationRegion(params);
     }
 
-    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        return  (List<BaseinfoLocation>)(List<?>) baseinfoLocationRegionDao.getBaseinfoLocationRegionList(params);
+    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params)  {
+        return (List<BaseinfoLocation>) (List<?>) baseinfoLocationRegionDao.getBaseinfoLocationRegionList(params);
 
     }
 }

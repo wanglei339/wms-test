@@ -23,8 +23,6 @@ public class BaseinfoLocationBinService implements IStrategy {
     private static final Logger logger = LoggerFactory.getLogger(LocationService.class);
 
 
-
-
     @Autowired
     private BaseinfoLocationBinDao baseinfoLocationBinDao;
     @Autowired
@@ -46,20 +44,16 @@ public class BaseinfoLocationBinService implements IStrategy {
     }
 
     /**
-     * 通过locationId查找主表BaseinfoLocaiton,然后利用类反射工具,将父类的值,传给子类
-     *
+     * 通过locationId查找主表BaseinfoLocaiton
      * @param id
      * @return
-     * @throws NoSuchMethodException
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
      */
-    public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("locationId", id);
-        List<BaseinfoLocationBin> bins =  baseinfoLocationBinDao.getBaseinfoLocationBinList(mapQuery);
-        BaseinfoLocationBin bin =  bins.get(0);
-        return bin;
+        List<BaseinfoLocationBin> bins = baseinfoLocationBinDao.getBaseinfoLocationBinList(mapQuery);
+//        BaseinfoLocationBin bin =  bins.get(0);
+        return bins.size() > 0 ? null : bins.get(0);
     }
 
     /**
@@ -73,10 +67,9 @@ public class BaseinfoLocationBinService implements IStrategy {
         return baseinfoLocationBinDao.countBaseinfoLocationBin(params);
     }
 
-    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-       return  (List<BaseinfoLocation>)(List<?>) baseinfoLocationBinDao.getBaseinfoLocationBinList(params);
+    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) {
+        return (List<BaseinfoLocation>) (List<?>) baseinfoLocationBinDao.getBaseinfoLocationBinList(params);
     }
-
 
 
 }

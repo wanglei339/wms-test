@@ -51,12 +51,12 @@ public class BaseinfoLocationDockService implements IStrategy {
 
     }
 
-    public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("locationId", id);
-        List<BaseinfoLocationDock> dockList =  baseinfoLocationDockDao.getBaseinfoLocationDockList(mapQuery);
-        BaseinfoLocationDock dock =  dockList.get(0);
-        return dock;
+        List<BaseinfoLocationDock> dockList = baseinfoLocationDockDao.getBaseinfoLocationDockList(mapQuery);
+//        BaseinfoLocationDock dock = dockList.get(0);
+        return dockList.size() > 0 ? null : dockList.get(0);
     }
 
     /**
@@ -76,12 +76,9 @@ public class BaseinfoLocationDockService implements IStrategy {
      *
      * @param params
      * @return
-     * @throws NoSuchMethodException
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
      */
-    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        return (List<BaseinfoLocation>)(List<?>)baseinfoLocationDockDao.getBaseinfoLocationDockList(params);
+    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) {
+        return (List<BaseinfoLocation>) (List<?>) baseinfoLocationDockDao.getBaseinfoLocationDockList(params);
     }
 
 }

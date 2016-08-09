@@ -44,19 +44,19 @@ public class BaseinfoLocationService implements IStrategy {
         baseinfoLocationDao.update((BaseinfoLocation) iBaseinfoLocaltionModel);
     }
 
-    public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        Map<String,Object> mapQuery = new HashMap<String,Object>();
-        mapQuery.put("locationId",id);
+    public BaseinfoLocation getBaseinfoItemLocationModelById(Long id)  {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("locationId", id);
         List<BaseinfoLocation> baseinfoLocationList = baseinfoLocationDao.getBaseinfoLocationList(mapQuery);
-        BaseinfoLocation baseinfoLocation = baseinfoLocationList.get(0);
-        return baseinfoLocation;
+//        BaseinfoLocation baseinfoLocation = baseinfoLocationList.get(0);
+        return baseinfoLocationList.size() > 0 ? null : baseinfoLocationList.get(0);
     }
 
     public Integer countBaseinfoLocaltionModel(Map<String, Object> params) {
         return baseinfoLocationDao.countBaseinfoLocation(params);
     }
 
-    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params)  {
         List<BaseinfoLocation> baseinfoLocationList = locationService.getBaseinfoLocationList(params);
         return baseinfoLocationList;
     }

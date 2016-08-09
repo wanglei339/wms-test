@@ -31,7 +31,7 @@ public class ContainerService {
     @Autowired
     private StockQuantService stockQuantService;
 
-    public BaseinfoContainer getContainer (Long containerId) {
+    public BaseinfoContainer getContainer(Long containerId) {
         Map<String, Object> params = new HashMap<String, Object>();
         BaseinfoContainer container;
         params.put("containerId", containerId);
@@ -45,12 +45,12 @@ public class ContainerService {
     }
 
     @Transactional(readOnly = false)
-    public void insertContainer (BaseinfoContainer container) {
+    public void insertContainer(BaseinfoContainer container) {
         containerDao.insert(container);
     }
 
     @Transactional(readOnly = false)
-    public void updateContainer (BaseinfoContainer container) {
+    public void updateContainer(BaseinfoContainer container) {
         containerDao.update(container);
     }
 
@@ -71,12 +71,27 @@ public class ContainerService {
 
     /**
      * 容器是否在使用,使用的是库存的管理
+     *
      * @param containerId
      * @return
      */
     public Boolean isContainerInUse(Long containerId) {
         List<StockQuant> quants = stockQuantService.getQuantsByContainerId(containerId);
         if (quants.size() > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 判断容器能否使用
+     * @param containerId
+     * @return
+     */
+    public boolean isContainerCanUse(Long containerId) {
+//      是否存在托盘和是否在使用
+        List<StockQuant> quants = stockQuantService.getQuantsByContainerId(containerId);
+        if (this.getContainer(containerId) != null && quants.size() > 0) {
             return true;
         }
         return false;

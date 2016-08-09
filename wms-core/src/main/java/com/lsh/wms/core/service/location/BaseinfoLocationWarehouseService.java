@@ -28,9 +28,9 @@ public class BaseinfoLocationWarehouseService implements IStrategy {
     @Autowired
     private BaseinfoLocationWarehouseDao baseinfoLocationWarehouseDao;
     @Autowired
-    private  LocationService locationService;
+    private LocationService locationService;
     @Autowired
-    private  FatherToChildUtil fatherToChildUtil;
+    private FatherToChildUtil fatherToChildUtil;
 
 
     @Transactional(readOnly = false)
@@ -43,19 +43,19 @@ public class BaseinfoLocationWarehouseService implements IStrategy {
         baseinfoLocationWarehouseDao.update((BaseinfoLocationWarehouse) iBaseinfoLocaltionModel);
     }
 
-    public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("locationId", id);
-        List<BaseinfoLocationWarehouse> warehouseList =  baseinfoLocationWarehouseDao.getBaseinfoLocationWarehouseList(mapQuery);
-        BaseinfoLocationWarehouse warehouse =  warehouseList.get(0);
-        return warehouse;
+        List<BaseinfoLocationWarehouse> warehouseList = baseinfoLocationWarehouseDao.getBaseinfoLocationWarehouseList(mapQuery);
+//        BaseinfoLocationWarehouse warehouse =  warehouseList.get(0);
+        return warehouseList.size() > 0 ? null : warehouseList.get(0);
     }
 
     public Integer countBaseinfoLocaltionModel(Map<String, Object> params) {
         return baseinfoLocationWarehouseDao.countBaseinfoLocationWarehouse(params);
     }
 
-    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        return  (List<BaseinfoLocation>)(List<?>) baseinfoLocationWarehouseDao.getBaseinfoLocationWarehouseList(params);
+    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params)  {
+        return (List<BaseinfoLocation>) (List<?>) baseinfoLocationWarehouseDao.getBaseinfoLocationWarehouseList(params);
     }
 }
