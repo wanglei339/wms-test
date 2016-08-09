@@ -49,9 +49,9 @@ import java.util.Map;
 @Path("inhouse/stock_taking")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-public class StocktakingRfRestService implements IStockTakingRfRestService {
+public class StockTakingRfRestService implements IStockTakingRfRestService {
 
-    private static Logger logger = LoggerFactory.getLogger(StocktakingRfRestService.class);
+    private static Logger logger = LoggerFactory.getLogger(StockTakingRfRestService.class);
 
     @Reference
     private ITaskRpcService iTaskRpcService;
