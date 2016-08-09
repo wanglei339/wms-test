@@ -75,15 +75,16 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         if ( plan.getQty().compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
             throw new BizCheckedException(plan.getQty().toString() + "====" + total.toString());
         }
-
+        TaskEntry taskEntry = new TaskEntry();
+        TaskInfo taskInfo = new TaskInfo();
+        taskInfo.setSubType(2L);
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
         Long containerId = quantList.get(0).getContainerId();
         if (plan.getPackName() == "pallet") {
+            taskInfo.setSubType(1L);
             containerId = containerService.createContainerByType(2L).getId();
         }
 
-        TaskEntry taskEntry = new TaskEntry();
-        TaskInfo taskInfo = new TaskInfo();
         ObjUtils.bean2bean(plan, taskInfo);
         taskInfo.setTaskName("补货任务[ " + taskInfo.getFromLocationId() + " => " + taskInfo.getToLocationId() + "]");
         taskInfo.setType(TaskConstant.TYPE_PROCUREMENT);

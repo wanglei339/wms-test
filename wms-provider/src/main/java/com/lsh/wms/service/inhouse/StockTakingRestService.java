@@ -369,12 +369,14 @@ public class StockTakingRestService implements IStockTakingRestService {
         List<TaskEntry> taskEntryList=new ArrayList<TaskEntry>();
         for(StockTakingDetail detail:detailList) {
             TaskInfo taskInfo = new TaskInfo();
+            taskInfo.setTaskName("盘点任务[ " + taskInfo.getLocationId() + "]");
             taskInfo.setPlanId(head.getTakingId());
             taskInfo.setDueTime(dueTime);
             taskInfo.setPlanner(head.getPlanner());
             taskInfo.setStatus(1L);
             taskInfo.setLocationId(detail.getLocationId());
             taskInfo.setSkuId(detail.getSkuId());
+            taskInfo.setItemId(detail.getItemId());
             taskInfo.setContainerId(detail.getContainerId());
             taskInfo.setType(TaskConstant.TYPE_STOCK_TAKING);
             taskInfo.setDraftTime(DateUtils.getCurrentSeconds());

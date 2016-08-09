@@ -95,7 +95,7 @@ public class StockTransferCore {
         String packName = taskInfo.getPackName();
         Long containerId = taskInfo.getContainerId();
         Long toLocationId = locationService.getAreaFatherId(fromLocationId);
-        if (taskInfo.getPackName().equals("pallet")) {
+        if (taskInfo.getSubType().compareTo(1L)==0) {
             moveRpcService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
 
         } else {
@@ -135,7 +135,7 @@ public class StockTransferCore {
         Long containerId = taskInfo.getContainerId();
         Long fromLocationId = locationService.getAreaFatherId(taskInfo.getFromLocationId());
 
-        if (taskInfo.getPackName() == "pallet") {
+        if (taskInfo.getSubType().compareTo(1L)==0) {
             moveRpcService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
         } else {
             BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString());
