@@ -112,7 +112,9 @@ public class LocationRpcService implements ILocationRpcService {
         for (Long oneType:regionType){
             mapQuery.put("type",oneType);
             List<BaseinfoLocation> locationList = locationService.getBaseinfoLocationList(mapQuery);
-            targetList.addAll(locationList);
+            if (locationList.size()>0){
+                targetList.addAll(locationList);
+            }
         }
         return targetList;
     }

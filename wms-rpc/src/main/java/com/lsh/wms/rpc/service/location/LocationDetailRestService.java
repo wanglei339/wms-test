@@ -109,7 +109,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
      */
     @GET
     @Path("getLocationDetail")
-    public String getLocationDetailById(@QueryParam("locationId") Integer locationId) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public String getLocationDetailById(@QueryParam("locationId") Integer locationId)  {
         Long id = Long.parseLong(locationId.toString());
 //        BaseinfoLocation subLocation = (BaseinfoLocation) locationDetailService.getIBaseinfoLocaltionModelById(id);
         return JsonUtils.SUCCESS(locationDetailRpcService.getLocationDetailById(id));
@@ -130,15 +130,20 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         Long createAt = DateUtils.getCurrentSeconds();
         iBaseinfoLocaltionModel.setCreatedAt(createAt);
         iBaseinfoLocaltionModel.setUpdatedAt(createAt);
-//        locationDetailService.insert(iBaseinfoLocaltionModel);
-
-        return JsonUtils.SUCCESS(locationDetailRpcService.insertLocationDetailByType(iBaseinfoLocaltionModel));
+        //插入是否成功
+        boolean isTrue = locationDetailRpcService.insertLocationDetailByType((BaseinfoLocation) iBaseinfoLocaltionModel);
+        if (isTrue){
+            return JsonUtils.SUCCESS("插入成功");
+        }else {
+            return JsonUtils.EXCEPTION_ERROR("insertError");
+        }
+//        return JsonUtils.SUCCESS(locationDetailRpcService.insertLocationDetailByType((BaseinfoLocation) iBaseinfoLocaltionModel));
     }
 
 
     @POST
     @Path("updateLocation")
-    public String updateLocationDetailByType(LocationDetailRequest request) throws BizCheckedException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public String updateLocationDetailByType(LocationDetailRequest request) throws BizCheckedException {
         Long locationId = Long.parseLong(request.getLocationId().toString());
         IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationDetailService.getIBaseinfoLocaltionModelById(locationId);
         ObjUtils.bean2bean(request, iBaseinfoLocaltionModel);
@@ -147,7 +152,13 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         long updatedAt = DateUtils.getCurrentSeconds();
         iBaseinfoLocaltionModel.setUpdatedAt(updatedAt);
 //        locationDetailService.update(iBaseinfoLocaltionModel);
-        return JsonUtils.SUCCESS(locationDetailRpcService.updateLocationDetailByType(iBaseinfoLocaltionModel));
+        boolean isTrue = locationDetailRpcService.updateLocationDetailByType((BaseinfoLocation) iBaseinfoLocaltionModel);
+        if (isTrue){
+            return JsonUtils.SUCCESS("更新成功");
+        } else {
+            return JsonUtils.EXCEPTION_ERROR("updateError");
+        }
+//        return JsonUtils.SUCCESS(locationDetailRpcService.updateLocationDetailByType((BaseinfoLocation) iBaseinfoLocaltionModel));
     }
 
 
@@ -164,11 +175,9 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     private LocationService locationService;
 
 
-    // TODO 需要修改只放入id然后查询的问题
-    // TODO 需要修改码头的查询逻辑,然后加入leftJoin查询
     @POST
     @Path("getList")
-    public String searchList() throws BizCheckedException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public String searchList() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
         List<BaseinfoLocation> locations = locationDetailRpcService.getLocationDetailList(params);
         //如果是货位就加上regionName
@@ -190,7 +199,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         if (locationDetailRpcService.removeLocation(locationId)) {
             return JsonUtils.SUCCESS("删除成功");
         } else {
-            throw new BizCheckedException("查无此数据,删除失败");
+            throw new BizCheckedException("2180001");   //  位置不存在
         }
     }
 

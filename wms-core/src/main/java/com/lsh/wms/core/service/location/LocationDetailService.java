@@ -140,10 +140,6 @@ public class LocationDetailService {
      */
     @Transactional(readOnly = false)
     public void insert(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
-        //校验
-        if (null == iBaseinfoLocaltionModel) {
-            throw new RuntimeException("插入和Location对象为空");
-        }
         //转化成父类,插入
         BaseinfoLocation location = new BaseinfoLocation();
         ObjUtils.bean2bean(iBaseinfoLocaltionModel, location);
@@ -173,18 +169,19 @@ public class LocationDetailService {
     /**
      * location的detail的查询
      * 先查父亲,再查子类
+     *
      * @param locationId 位置的
      * @return
      */
-    public IBaseinfoLocaltionModel getIBaseinfoLocaltionModelById(Long locationId) throws BizCheckedException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public IBaseinfoLocaltionModel getIBaseinfoLocaltionModelById(Long locationId) throws BizCheckedException {
 
         BaseinfoLocation baseinfoLocation = locationService.getLocation(locationId);
         if (baseinfoLocation == null) {
-            throw new BizCheckedException("查无此类");
+            throw new BizCheckedException("2180001");
         }
         IStrategy iStrategy = locationDetailServiceFactory.getIstrategy(Long.valueOf(baseinfoLocation.getType()));
         IBaseinfoLocaltionModel iBaseinfoLocaltionModel = iStrategy.getBaseinfoItemLocationModelById(locationId);
-        ObjUtils.bean2bean(baseinfoLocation,iBaseinfoLocaltionModel);
+        ObjUtils.bean2bean(baseinfoLocation, iBaseinfoLocaltionModel);
         return iBaseinfoLocaltionModel;
     }
 
@@ -193,11 +190,8 @@ public class LocationDetailService {
      *
      * @param params 传入的是getList的map参数集合
      * @return locationDetail的model
-     * @throws NoSuchMethodException     找不到方法,源自本包内的FatherToChildUtil类
-     * @throws IllegalAccessException    源自本包内的FatherToChildUtil类
-     * @throws InvocationTargetException 源自本包内的FatherToChildUtil类
      */
-    public List<BaseinfoLocation> getIBaseinfoLocaltionModelListByType(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public List<BaseinfoLocation> getIBaseinfoLocaltionModelListByType(Map<String, Object> params) {
         ///////////////////////////////////////////
         //如果传入的参数只有locationId,那么,先查主表,再查子表,此处先查主表
         //1.先查主表
@@ -231,13 +225,11 @@ public class LocationDetailService {
 
     /**
      * 获取码头的指定条件的location集合
+     *
      * @param params
      * @return
-     * @throws NoSuchMethodException
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
      */
-    public List<BaseinfoLocation> getDockListByType(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public List<BaseinfoLocation> getDockListByType(Map<String, Object> params) {
         ///////////////////////////////////////////
         //如果传入的参数只有locationId,那么,先查主表,再查子表,此处先查主表
         //1.先查主表

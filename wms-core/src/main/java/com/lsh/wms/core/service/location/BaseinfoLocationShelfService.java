@@ -21,7 +21,7 @@ import java.util.Map;
  */
 @Component
 @Transactional(readOnly = true)
-public class BaseinfoLocationShelfService implements IStrategy{
+public class BaseinfoLocationShelfService implements IStrategy {
     private static final Logger logger = LoggerFactory.getLogger(BaseinfoLocationShelfService.class);
     @Autowired
     private BaseinfoLocationShelfDao baseinfoLocationShelfDao;
@@ -38,19 +38,19 @@ public class BaseinfoLocationShelfService implements IStrategy{
         baseinfoLocationShelfDao.update((BaseinfoLocationShelf) iBaseinfoLocaltionModel);
     }
 
-    public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public BaseinfoLocation getBaseinfoItemLocationModelById(Long id)  {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("locationId", id);
-        List<BaseinfoLocationShelf> shelfList =  baseinfoLocationShelfDao.getBaseinfoLocationShelfList(mapQuery);
-        BaseinfoLocationShelf shelf =  shelfList.get(0);
-        return shelf;
+        List<BaseinfoLocationShelf> shelfList = baseinfoLocationShelfDao.getBaseinfoLocationShelfList(mapQuery);
+//        BaseinfoLocationShelf shelf =  shelfList.get(0);
+        return shelfList.size() > 0 ? null : shelfList.get(0);
     }
 
     public Integer countBaseinfoLocaltionModel(Map<String, Object> params) {
         return baseinfoLocationShelfDao.countBaseinfoLocationShelf(params);
     }
 
-    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        return  (List<BaseinfoLocation>)(List<?>) baseinfoLocationShelfDao.getBaseinfoLocationShelfList(params);
+    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params)  {
+        return (List<BaseinfoLocation>) (List<?>) baseinfoLocationShelfDao.getBaseinfoLocationShelfList(params);
     }
 }
