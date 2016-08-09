@@ -38,19 +38,19 @@ public class BaseinfoLocationShelfService implements IStrategy {
         baseinfoLocationShelfDao.update((BaseinfoLocationShelf) iBaseinfoLocaltionModel);
     }
 
-    public BaseinfoLocation getBaseinfoItemLocationModelById(Long id)  {
+    public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("locationId", id);
         List<BaseinfoLocationShelf> shelfList = baseinfoLocationShelfDao.getBaseinfoLocationShelfList(mapQuery);
 //        BaseinfoLocationShelf shelf =  shelfList.get(0);
-        return shelfList.size() > 0 ? null : shelfList.get(0);
+        return shelfList.size() > 0 ? shelfList.get(0) : null;
     }
 
     public Integer countBaseinfoLocaltionModel(Map<String, Object> params) {
         return baseinfoLocationShelfDao.countBaseinfoLocationShelf(params);
     }
 
-    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params)  {
+    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) {
         return (List<BaseinfoLocation>) (List<?>) baseinfoLocationShelfDao.getBaseinfoLocationShelfList(params);
     }
 }

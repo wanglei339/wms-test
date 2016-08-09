@@ -117,7 +117,6 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
                     newDetail.setContainerId(detail.getContainerId());
                     newDetail.setRound(detail.getRound());
                     newDetail.setContainerId(detail.getContainerId());
-                    newDetail.setPackName("箱");
                     stockTakingService.insertDetail(newDetail);
                 }
             }
@@ -296,12 +295,12 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
                 move.setSkuId(detail.getSkuId());
                 move.setItemId(detail.getItemId());
                 move.setStatus(TaskConstant.Done);
-                if (detail.getTheoreticalQty().compareTo(detail.getRealQty()) < 0) {
-                    move.setQty(detail.getRealQty().subtract(detail.getTheoreticalQty()));
+                if (detail.getTheoreticalQty().compareTo(detail.getRealQty()) > 0) {
+                    move.setQty(detail.getTheoreticalQty().subtract(detail.getRealQty()));
                     move.setFromLocationId(detail.getLocationId());
                     move.setToLocationId(locationService.getInventoryLostLocationId());
                 } else {
-                    move.setQty(detail.getTheoreticalQty().subtract(detail.getRealQty()));
+                    move.setQty(detail.getRealQty().subtract(detail.getTheoreticalQty()));
                     move.setFromLocationId(locationService.getInventoryLostLocationId());
                     move.setToLocationId(detail.getLocationId());
                 }
@@ -324,8 +323,7 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
                 moveList.add(moveLoss);
             }
         }
-        moveService.create(moveList);
-
+        moveService.move(moveList);
     }
 
     private boolean chargeDifference(Long stockTakingId, Long round) {

@@ -4,6 +4,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
 import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.core.dao.stock.StockQuantDao;
@@ -33,6 +34,9 @@ public class StockQuantService {
 
     @Autowired
     private StockQuantMoveRelDao relDao;
+
+    @Autowired
+    private LocationService locationService;
 
     public BigDecimal getQty(Map<String, Object> mapQuery) {
         BigDecimal total = stockQuantDao.getQty(mapQuery);
@@ -110,7 +114,8 @@ public class StockQuantService {
             moveRel.setQuantId(quant.getId());
             relDao.insert(moveRel);
         }
-        if (total.compareTo(qtyDone) < 0) {
+        if (total.compareTo(qtyDone) < 0 && locationService.getInventoryLostLocationId().compareTo(move.getFromLocationId()) != 0) {
+
             throw new BizCheckedException("2550008");
         }
     }

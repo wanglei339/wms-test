@@ -50,9 +50,6 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
     }
 
     public boolean insertLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException {
-        if (locationDetailService.getIBaseinfoLocaltionModelById(baseinfoLocation.getLocationId()) == null) {
-            return false;
-        }
         try {
             locationDetailService.insert(baseinfoLocation);
         } catch (Exception e) {
@@ -64,7 +61,7 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
 
     public boolean updateLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException {
         if (locationDetailService.getIBaseinfoLocaltionModelById(baseinfoLocation.getLocationId()) == null) {
-            return false;
+            throw new BizCheckedException("2180001");
         }
         try{
             locationDetailService.update(baseinfoLocation);

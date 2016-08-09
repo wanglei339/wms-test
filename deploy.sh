@@ -35,6 +35,7 @@ do
     rsync -avzP $APPROOT/$APP-$VERSION-dev/lib/wms-*.jar $REMOTE:/home/work/lsh-wms/$APP/lib
     rsync -avzP $APPROOT/$APP-$VERSION-dev/lib/base-common-*.jar $REMOTE:/home/work/lsh-wms/$APP/lib
     rsync -avzP $APPROOT/$APP-$VERSION-dev/conf/com $REMOTE:/home/work/lsh-wms/$APP/conf
+    rsync -avzP $APPROOT/$APP-$VERSION-dev/conf/props/exception.properties $REMOTE:/home/work/lsh-wms/$APP/conf/props
     ssh $REMOTE "sh /home/work/lsh-wms/$APP/bin/run.sh"
     rm -rf $APPROOT/$APP-$VERSION-dev
   fi
