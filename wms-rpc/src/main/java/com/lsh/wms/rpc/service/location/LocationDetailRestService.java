@@ -135,6 +135,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         if (isTrue){
             return JsonUtils.SUCCESS("插入成功");
         }else {
+            //原位置已经存在
             return JsonUtils.EXCEPTION_ERROR("insertError");
         }
 //        return JsonUtils.SUCCESS(locationDetailRpcService.insertLocationDetailByType((BaseinfoLocation) iBaseinfoLocaltionModel));
@@ -180,6 +181,9 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     public String searchList() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
         List<BaseinfoLocation> locations = locationDetailRpcService.getLocationDetailList(params);
+        if (locations==null){
+            throw new BizCheckedException("2180001");   // 位置不存在
+        }
         //如果是货位就加上regionName
         return JsonUtils.SUCCESS(locations);
     }
@@ -199,7 +203,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         if (locationDetailRpcService.removeLocation(locationId)) {
             return JsonUtils.SUCCESS("删除成功");
         } else {
-            throw new BizCheckedException("2180001");   //  位置不存在
+            return JsonUtils.EXCEPTION_ERROR("位置不存在");  //  位置不存在
         }
     }
 

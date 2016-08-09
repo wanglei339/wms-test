@@ -87,7 +87,7 @@ public class LocationService {
 //        } else {
 //            return null;
 //        }
-        return locations.size() > 0 ? null : locations.get(0);
+        return locations.size() > 0 ? locations.get(0) : null;
     }
 
     /**
