@@ -77,7 +77,7 @@ public class ShelfLifeRestService implements IShelfLifeRestService{
 
     @GET
     @Path("getShelflifeRule")
-    public String getShelflifeRule(Long ruleId) {
+    public String getShelflifeRule(@QueryParam("ruleId") Long ruleId) {
         return JsonUtils.SUCCESS(shelfLifeRpcService.getShelflifeRule(ruleId));
     }
 }
