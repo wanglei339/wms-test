@@ -1,6 +1,7 @@
 package com.lsh.wms.core.service.location;
 
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
@@ -101,7 +102,7 @@ public class LocationService {
     public BaseinfoLocation setLocationIdAndRange(BaseinfoLocation location) {
         Long fatherLocationId = location.getFatherId();
         // 根节点处理
-        if (fatherLocationId == 0) {
+        if (fatherLocationId == null || fatherLocationId.equals(0)) {
             location.setLocationId(0L);
             location.setLeftRange(1L);
             location.setLevel(0L); // 设置层数,根节点层数为0,下一层为起始层,层数为1

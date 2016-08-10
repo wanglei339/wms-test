@@ -113,6 +113,6 @@ public class LocationConstant {  // TODO 修改格式大写加下滑线
 
     // location_id划分相关
     public static final Integer CHILDREN_RANGE = 128; //每个节点的子节点数
-    public static final Integer LOCATION_LEVEL = 9; // 整棵树的最大层数
+    public static final Integer LOCATION_LEVEL = 8; // 整棵树的最大层数
 
 }

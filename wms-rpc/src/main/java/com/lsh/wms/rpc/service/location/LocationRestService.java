@@ -35,15 +35,6 @@ public class LocationRestService implements ILocationRestService {
     @Autowired
     private LocationService locationService;
 
-    @POST
-    @Path("add")
-    public String add() {
-        Map<String, Object> mapRequest = RequestUtils.getRequest();
-        BaseinfoLocation location = new BaseinfoLocation();
-        location = locationService.insertLocation(location);
-        return JsonUtils.SUCCESS(location);
-    }
-
     @GET
     @Path("getLocation")
     public String getLocation(@QueryParam("locationId") Long locationId) {
