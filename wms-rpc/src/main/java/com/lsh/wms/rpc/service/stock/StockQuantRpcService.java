@@ -264,7 +264,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             if(isNormal == 0) {
                 freeze = freeze.add(qty);
             }
-            if (locationService.getLocation(locationId).getType().equals( LocationConstant.InventoryLost) ) {
+            if (locationService.getLocation(locationId).getType().equals( LocationConstant.INVENTORYLOST) ) {
                 loss = loss.add(qty);
                 if (isDefect == 1) {
                     lossDefect = lossDefect.add(qty);

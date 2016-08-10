@@ -425,7 +425,7 @@ public class StockTakingRestService implements IStockTakingRestService {
     //根据仓库id查找所有货位
     public List<Long> getBinByWarehouseId(Long locationId) {
         List<Long> targetList = new ArrayList<Long>();
-        List<Long> regionType = Arrays.asList(LocationConstant.Shelf_collection_bin, LocationConstant.Shelf_store_bin, LocationConstant.Loft_collection_bin, LocationConstant.Loft_store_bin, LocationConstant.Floor_bin, LocationConstant.Temporary_bin, LocationConstant.Collection_bin, LocationConstant.Back_bin, LocationConstant.Defective_bin);
+        List<Long> regionType = Arrays.asList(LocationConstant.SHELF_PICKING_BIN, LocationConstant.SHELF_STORE_BIN, LocationConstant.LOFT_PICKING_BIN, LocationConstant.LOFT_STORE_BIN, LocationConstant.FLOOR_BIN, LocationConstant.TEMPORARY_BIN, LocationConstant.COLLECTION_BIN, LocationConstant.BACK_BIN, LocationConstant.DEFECTIVE_BIN);
         for (Long oneType : regionType) {
             List<BaseinfoLocation> locationList = locationService.getSubLocationList(locationId, oneType);
             for(BaseinfoLocation location:locationList){
@@ -437,7 +437,7 @@ public class StockTakingRestService implements IStockTakingRestService {
     //根据货架或者阁楼找bin
     public List<Long> getBinByShelf(Long locationId) {
         List<Long> targetList = new ArrayList<Long>();
-        List<Long> regionType = Arrays.asList(LocationConstant.Shelf_collection_bin, LocationConstant.Shelf_store_bin, LocationConstant.Loft_collection_bin, LocationConstant.Loft_store_bin);
+        List<Long> regionType = Arrays.asList(LocationConstant.SHELF_PICKING_BIN, LocationConstant.SHELF_STORE_BIN, LocationConstant.LOFT_PICKING_BIN, LocationConstant.LOFT_STORE_BIN);
         for (Long oneType : regionType) {
             List<BaseinfoLocation> locationList = locationService.getSubLocationList(locationId, oneType);
             for(BaseinfoLocation location:locationList){

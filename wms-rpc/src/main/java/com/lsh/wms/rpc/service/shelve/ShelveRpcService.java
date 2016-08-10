@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.shelve.IShelveRpcService;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
@@ -98,7 +99,7 @@ public class ShelveRpcService implements IShelveRpcService {
             Long pickingLocationId = itemLocation.getPickLocationid();
             BaseinfoLocation pickingLocation = locationService.getLocation(pickingLocationId);
             // 是否是拣货位
-            if (!pickingLocation.getType().equals(locationService.LOCATION_TYPE.get("picking"))) {
+            if (!pickingLocation.getType().equals(LocationConstant.LOCATION_TYPE.get("picking"))) {
                 throw new BizCheckedException("2030002");
             }
             // TODO: 判断该拣货位是否符合拣货标准

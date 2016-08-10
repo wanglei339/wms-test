@@ -84,8 +84,10 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
     }
 
     public Integer countLocationDetailByType(Map<String, Object> mapQuery) {
+        if (mapQuery.get("dockApplication") != null) {
+            return locationDetailService.countDockList(mapQuery);
+        }
         return locationDetailService.countLocationDetail(mapQuery);
-
     }
 
     public boolean removeLocation(Long locationId) throws BizCheckedException {
