@@ -37,6 +37,14 @@ public class StockLot implements Serializable {
 	private String packName = "";
 	/** 供应商信息 */
 	private Long supplierId;
+	/** 2级包装名称 */
+	private String l2Name = "";
+	/** 2级包装单位－含有基本单位个数 */
+	private BigDecimal l2Unit = new BigDecimal(0);
+	/** 基本单位名称 */
+	private String unitName = "";
+	/** 国条码 */
+	private String code = "";
 
 	public Long getSupplierId() {
 		return supplierId;
@@ -156,6 +164,38 @@ public class StockLot implements Serializable {
 
 	public void  setPackName(String packName){
 		this.packName = packName;
+	}
+
+	public String getL2Name(){
+		return this.l2Name;
+	}
+
+	public void setL2Name(String l2Name){
+		this.l2Name = l2Name;
+	}
+
+	public BigDecimal getL2Unit(){
+		return this.l2Unit;
+	}
+
+	public void setL2Unit(BigDecimal l2Unit){
+		this.l2Unit = l2Unit;
+	}
+
+	public String getUnitName(){
+		return this.unitName;
+	}
+
+	public void setUnitName(String unitName){
+		this.unitName = unitName;
+	}
+
+	public String getCode(){
+		return this.code;
+	}
+
+	public void setCode(String code){
+		this.code = code;
 	}
 
 
