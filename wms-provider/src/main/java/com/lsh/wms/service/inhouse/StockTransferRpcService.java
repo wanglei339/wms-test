@@ -107,7 +107,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
 
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
         Long containerId = quantList.get(0).getContainerId();
-        if (plan.getPackName() == "pallet") {
+        if (plan.getSubType() == 2) {
             containerId = containerService.createContainerByType(2L).getId();
         }
 
@@ -132,8 +132,8 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if(plan.getUomQty() == BigDecimal.ZERO) {
             plan.setUomQty(taskInfo.getQtyUom());
         }
-        if(plan.getPackName().compareTo("") == 0) {
-            plan.setPackName(taskInfo.getPackName());
+        if(plan.getSubType() == 2) {
+            plan.setSubType(taskInfo.getSubType());
         }
         if(plan.getToLocationId() == 0 ) {
             plan.setToLocationId(taskInfo.getToLocationId());
