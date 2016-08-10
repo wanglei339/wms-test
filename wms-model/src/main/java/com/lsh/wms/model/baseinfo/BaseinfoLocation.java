@@ -13,6 +13,12 @@ public class BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel {
 	protected String locationCode;
 	/** 父级位置id */
 	protected Long fatherId;
+	/** 子节点范围起点 */
+	private Long leftRange;
+	/** 子节点范围终点 */
+	private Long rightRange;
+	/** 在树形结构的第几层 */
+	private Long level;
 	/** 位置类型 */
 	protected Long type;
 	/** 类型名 */
@@ -76,6 +82,30 @@ public class BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel {
 	
 	public void setFatherId(Long fatherId){
 		this.fatherId = fatherId;
+	}
+
+	public Long getLeftRange(){
+		return this.leftRange;
+	}
+
+	public void setLeftRange(Long leftRange){
+		this.leftRange = leftRange;
+	}
+
+	public Long getRightRange(){
+		return this.rightRange;
+	}
+
+	public void setRightRange(Long rightRange){
+		this.rightRange = rightRange;
+	}
+
+	public Long getLevel(){
+		return this.level;
+	}
+
+	public void setLevel(Long level){
+		this.level = level;
 	}
 	
 	public Long getType(){
