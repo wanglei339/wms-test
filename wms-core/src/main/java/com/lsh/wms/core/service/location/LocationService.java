@@ -129,6 +129,15 @@ public class LocationService {
     }
 
     /**
+     * 设置location节点子节点的范围
+     * @param location
+     * @return
+     */
+    public BaseinfoLocation setChildrenRange(BaseinfoLocation location) {
+        return location;
+    }
+
+    /**
      * 获取节点location_id
      * @param locations
      * @return
