@@ -17,6 +17,6 @@ public interface SysUserDao {
 
     Integer countSysUser(Map<String, Object> params);
 
-    List<SysUser> getSysUserList(Map<String, Object> params);
+    List<SysUser> git (Map<String, Object> params);
 	
 }

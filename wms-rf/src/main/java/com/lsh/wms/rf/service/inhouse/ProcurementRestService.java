@@ -73,8 +73,11 @@ public class ProcurementRestService implements IProcurementRestService {
                 }
             }
             rpcService.scanFromLocation(mapQuery);
+        }catch (BizCheckedException ex){
+            throw ex;
         } catch (Exception e) {
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
         }
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {
@@ -101,9 +104,12 @@ public class ProcurementRestService implements IProcurementRestService {
                 }
             }
             rpcService.scanToLocation(params);
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+        }catch (BizCheckedException ex){
+            throw ex;
+        }
+        catch (Exception e) {
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
         }
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {
@@ -118,8 +124,13 @@ public class ProcurementRestService implements IProcurementRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String fetchTask() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
-        Long uid = Long.valueOf(params.get("uId").toString());
-        Long staffId = iSysUserRpcService.getSysUserById(uid).getStaffId();
+        Long staffId = 0L;
+        try {
+            Long uid = Long.valueOf(params.get("uId").toString());
+            staffId = iSysUserRpcService.getSysUserById(uid).getStaffId();
+        }catch (Exception e){
+            return JsonUtils.TOKEN_ERROR("违法的账户");
+        }
         final Long taskId = rpcService.assign(staffId);
         if(taskId == 0) {
             throw new BizCheckedException("2040001");
@@ -163,9 +174,11 @@ public class ProcurementRestService implements IProcurementRestService {
             resultMap.put("packName", taskInfo.getPackName());
             resultMap.put("uomQty", taskInfo.getQty().divide(taskInfo.getPackUnit()));
             return JsonUtils.SUCCESS(resultMap);
+        }catch (BizCheckedException ex){
+            throw ex;
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
         }
     }
 }

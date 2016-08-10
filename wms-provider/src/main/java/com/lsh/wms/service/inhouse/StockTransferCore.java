@@ -81,21 +81,32 @@ public class StockTransferCore {
     }
 
     public void outbound(Map<String, Object> params) throws BizCheckedException {
+        StockQuantCondition condition = new StockQuantCondition();
         Long taskId = Long.valueOf(params.get("taskId").toString());
         Long fromLocationId = Long.valueOf(params.get("locationId").toString());
-        Long uId = Long.valueOf(params.get("uId").toString());
-        SysUser sysUser = iSysUserRpcService.getSysUserById(uId);
-        Long staffId = sysUser.getStaffId();
+        condition.setLocationId(fromLocationId);
+        Long staffId = 0L;
+        List<StockQuant> stockQuantList = stockQuantRpcService.getQuantList(condition);
+        if(stockQuantList == null || stockQuantList.size()==0){
+            throw new BizCheckedException("2550008");
+        }
+        StockQuant quant = stockQuantList.get(0);
+        try {
+            Long uId = Long.valueOf(params.get("uId").toString());
+            SysUser sysUser = iSysUserRpcService.getSysUserById(uId);
+            staffId = sysUser.getStaffId();
+        }catch (Exception e){
+            throw new BizCheckedException("2550013");
+        }
 
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
         if (taskEntry == null) {
             throw new BizCheckedException("2550005");
         }
         TaskInfo taskInfo = taskEntry.getTaskInfo();
-        if (fromLocationId.compareTo(taskInfo.getFromLocationId()) != 0 ) {
-            throw new BizCheckedException("2040005");
+        if(quant.getItemId().compareTo(taskInfo.getItemId())!=0)
+            throw new BizCheckedException("2040005");{
         }
-        String packName = taskInfo.getPackName();
         Long containerId = taskInfo.getContainerId();
         Long toLocationId = locationService.getAreaFatherId(fromLocationId);
         if (taskInfo.getSubType().compareTo(1L)==0) {
@@ -103,7 +114,7 @@ public class StockTransferCore {
 
         } else {
             BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString());
-            qtyDone = qtyDone.multiply(itemRpcService.getPackUnit(packName));
+            qtyDone = qtyDone.multiply(taskInfo.getPackUnit());
             StockMove move = new StockMove();
             ObjUtils.bean2bean(taskInfo, move);
             move.setQty(qtyDone);
@@ -123,18 +134,22 @@ public class StockTransferCore {
     }
 
     public void inbound(Map<String,Object> params) throws BizCheckedException {
+        Long staffId = 0L;
         Long taskId = Long.valueOf(params.get("taskId").toString());
         Long toLocationId = Long.valueOf(params.get("locationId").toString());
-        Long uId = Long.valueOf(params.get("uId").toString());
-        SysUser sysUser = iSysUserRpcService.getSysUserById(uId);
-        Long staffId = sysUser.getStaffId();
+        try {
+            Long uId = Long.valueOf(params.get("uId").toString());
+            SysUser sysUser = iSysUserRpcService.getSysUserById(uId);
+            staffId = sysUser.getStaffId();
+        }catch (Exception e){
+            throw new BizCheckedException("2550013");
+        }
 
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
         if (taskEntry == null) {
             throw new BizCheckedException("2550005");
         }
         TaskInfo taskInfo = taskEntry.getTaskInfo();
-        String packName = taskInfo.getPackName();
         Long containerId = taskInfo.getContainerId();
         Long fromLocationId = locationService.getAreaFatherId(taskInfo.getFromLocationId());
 
@@ -142,9 +157,10 @@ public class StockTransferCore {
             moveRpcService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
         } else {
             BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString());
-            qtyDone = qtyDone.multiply(itemRpcService.getPackUnit(packName));
+            qtyDone = qtyDone.multiply(taskInfo.getPackUnit());
             StockMove move = new StockMove();
             ObjUtils.bean2bean(taskInfo, move);
+            move.setQty(qtyDone);
             move.setFromLocationId(fromLocationId);
             move.setToLocationId(toLocationId);
             List<StockMove> moveList = new ArrayList<StockMove>();

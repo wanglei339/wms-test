@@ -3,7 +3,6 @@ package com.lsh.wms.rf.service.receipt;
 import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
-import com.alibaba.dubbo.rpc.cluster.merger.BooleanArrayMerger;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.config.PropertyUtils;
@@ -24,13 +23,10 @@ import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
-import com.lsh.wms.core.service.po.PoReceiptService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.po.InbPoDetail;
 import com.lsh.wms.model.po.InbPoHeader;
-import com.lsh.wms.model.po.InbReceiptDetail;
-import com.lsh.wms.model.po.InbReceiptHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,6 +96,10 @@ public class ReceiptRestService implements IReceiptRfService {
         }
 
         for(ReceiptItem receiptItem : receiptRequest.getItems()) {
+            if(receiptItem.getProTime() == null) {
+                throw new BizCheckedException("2020008");
+            }
+
             InbPoDetail inbPoDetail = poOrderService.getInbPoDetailByOrderIdAndBarCode(inbPoHeader.getOrderId(), receiptItem.getBarCode());
 
             if(inbPoDetail == null){

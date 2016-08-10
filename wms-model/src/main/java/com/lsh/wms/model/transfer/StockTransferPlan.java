@@ -22,14 +22,14 @@ public class StockTransferPlan implements Serializable {
 	@Size(min=1)
     private Long toLocationId;
 	/** 数量 */
-	@NotNull
-	@Size(min=1)
     private BigDecimal qty;
 	/** 商品单位转换id */
     private String packName = "";
     /** 商品包装单位 */
     private BigDecimal packUnit = BigDecimal.ONE;
 	/** 以包装单位计量的库移数量 */
+	@NotNull
+	@Size(min=1)
     private BigDecimal uomQty = BigDecimal.ZERO;
 	/**优先级*/
 	private Long priority =0L;

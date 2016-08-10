@@ -89,9 +89,11 @@ public class StockTransferRestService implements IStockTransferRestService {
             resultMap.put("packName", taskInfo.getPackName());
             resultMap.put("uomQty", taskInfo.getQty().divide(taskInfo.getPackUnit()));
             return JsonUtils.SUCCESS(resultMap);
+        } catch (BizCheckedException e){
+            throw e;
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("System Busy!");
         }
     }
 
@@ -133,9 +135,11 @@ public class StockTransferRestService implements IStockTransferRestService {
                 }
             });
 
+        } catch (BizCheckedException e){
+            throw e;
         } catch (Exception e) {
-            e.printStackTrace();
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("System Busy!");
         }
     }
 
@@ -178,9 +182,11 @@ public class StockTransferRestService implements IStockTransferRestService {
                 }
             });
 
+        } catch (BizCheckedException e){
+            throw e;
         } catch (Exception e) {
-            e.printStackTrace();
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("System Busy!");
         }
     }
 
@@ -192,8 +198,11 @@ public class StockTransferRestService implements IStockTransferRestService {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         try {
             rpcService.scanFromLocation(mapQuery);
+        } catch (BizCheckedException e){
+            throw e;
         } catch (Exception e) {
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("System Busy!");
         }
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {
@@ -230,8 +239,11 @@ public class StockTransferRestService implements IStockTransferRestService {
                     put("fromLocationCode",fromLocationCode);
                 }
             });
+        } catch (BizCheckedException e){
+            throw e;
         } catch (Exception e) {
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("System Busy!");
         }
     }
 
@@ -243,9 +255,11 @@ public class StockTransferRestService implements IStockTransferRestService {
         Map<String, Object> params = RequestUtils.getRequest();
         try {
             rpcService.scanToLocation(params);
+        } catch (BizCheckedException e){
+            throw e;
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("System Busy!");
         }
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {
