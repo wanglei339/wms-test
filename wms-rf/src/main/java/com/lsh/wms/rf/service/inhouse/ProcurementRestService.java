@@ -118,8 +118,13 @@ public class ProcurementRestService implements IProcurementRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String fetchTask() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
-        Long uid = Long.valueOf(params.get("uId").toString());
-        Long staffId = iSysUserRpcService.getSysUserById(uid).getStaffId();
+        Long staffId = 0L;
+        try {
+            Long uid = Long.valueOf(params.get("uId").toString());
+            staffId = iSysUserRpcService.getSysUserById(uid).getStaffId();
+        }catch (Exception e){
+            return JsonUtils.TOKEN_ERROR("违法的账户");
+        }
         final Long taskId = rpcService.assign(staffId);
         if(taskId == 0) {
             throw new BizCheckedException("2040001");
