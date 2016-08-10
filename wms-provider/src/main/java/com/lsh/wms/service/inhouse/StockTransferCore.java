@@ -60,7 +60,6 @@ public class StockTransferCore {
     public void fillTransferPlan(StockTransferPlan plan) throws BizCheckedException {
 
         if (plan.getSubType().compareTo(1L)==0) {
-            plan.setPackName(itemRpcService.getItem(plan.getItemId()).getPackName());
             StockQuantCondition condition = new StockQuantCondition();
             condition.setLocationId(plan.getFromLocationId());
             condition.setItemId(plan.getItemId());
@@ -70,9 +69,13 @@ public class StockTransferCore {
             plan.setPackUnit(quant.getPackUnit());
             plan.setPackName(quant.getPackName());
         } else {
-            BigDecimal packUnit = itemRpcService.getPackUnit(plan.getPackName());
-            plan.setPackUnit(packUnit);
-            BigDecimal requiredQty = plan.getUomQty().multiply(packUnit);
+            StockQuantCondition condition = new StockQuantCondition();
+            condition.setLocationId(plan.getFromLocationId());
+            condition.setItemId(plan.getItemId());
+            StockQuant quant = stockQuantRpcService.getQuantList(condition).get(0);
+            plan.setPackUnit(quant.getPackUnit());
+            plan.setPackName(quant.getPackName());
+            BigDecimal requiredQty = plan.getUomQty().multiply(quant.getPackUnit());
             plan.setQty(requiredQty);
         }
     }
