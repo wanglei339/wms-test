@@ -35,8 +35,11 @@ public class StockTransferProviderRestService implements IStockTransferProviderR
     public String addPlan(StockTransferPlan plan)  throws BizCheckedException {
         try{
             rpcService.addPlan(plan);
+        } catch (BizCheckedException e){
+            throw e;
         } catch (Exception e) {
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("System Busy!");
         }
         return JsonUtils.SUCCESS();
     }
@@ -44,10 +47,13 @@ public class StockTransferProviderRestService implements IStockTransferProviderR
     @POST
     @Path("update")
     public String updatePlan(StockTransferPlan plan)  throws BizCheckedException {
-        try{
+        try {
             rpcService.updatePlan(plan);
+        } catch (BizCheckedException e){
+            throw e;
         } catch (Exception e) {
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("System Busy!");
         }
         return JsonUtils.SUCCESS();
     }
@@ -57,8 +63,11 @@ public class StockTransferProviderRestService implements IStockTransferProviderR
     public String cancelPlan(@QueryParam("taskId") Long taskId) throws BizCheckedException {
         try{
             rpcService.cancelPlan(taskId);
+        } catch (BizCheckedException e){
+            throw e;
         } catch (Exception e) {
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("System Busy!");
         }
         return JsonUtils.SUCCESS();
     }
