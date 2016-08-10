@@ -73,8 +73,11 @@ public class ProcurementRestService implements IProcurementRestService {
                 }
             }
             rpcService.scanFromLocation(mapQuery);
+        }catch (BizCheckedException ex){
+            throw ex;
         } catch (Exception e) {
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
         }
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {
@@ -101,9 +104,12 @@ public class ProcurementRestService implements IProcurementRestService {
                 }
             }
             rpcService.scanToLocation(params);
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+        }catch (BizCheckedException ex){
+            throw ex;
+        }
+        catch (Exception e) {
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
         }
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {
@@ -168,9 +174,11 @@ public class ProcurementRestService implements IProcurementRestService {
             resultMap.put("packName", taskInfo.getPackName());
             resultMap.put("uomQty", taskInfo.getQty().divide(taskInfo.getPackUnit()));
             return JsonUtils.SUCCESS(resultMap);
+        }catch (BizCheckedException ex){
+            throw ex;
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
         }
     }
 }
