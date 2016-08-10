@@ -15,4 +15,5 @@ public interface IProcurementProveiderRpcService {
     void scanFromLocation(Map<String, Object> params) throws BizCheckedException;
     void scanToLocation(Map<String, Object> params) throws  BizCheckedException;
     Long assign(Long staffId) throws BizCheckedException;
+    boolean checkPlan(StockTransferPlan plan) throws BizCheckedException;
 }
