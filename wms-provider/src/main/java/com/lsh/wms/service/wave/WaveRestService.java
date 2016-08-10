@@ -278,5 +278,11 @@ public class WaveRestService implements IWaveRestService {
         return null;
     }
 
+    @GET
+    @Path("getWaveDetaileList")
+    public String getWaveDetaileList(@QueryParam("waveId") long iWaveId){
+        return JsonUtils.SUCCESS(waveService.getDetaileByWaveId(iWaveId));
+    }
+
 
 }
