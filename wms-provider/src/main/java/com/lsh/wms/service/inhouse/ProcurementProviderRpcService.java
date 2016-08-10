@@ -13,7 +13,6 @@ import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
-import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
@@ -135,7 +134,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     }
                     // 找合适的quant
                     StockQuantCondition condition = new StockQuantCondition();
-                    List<BaseinfoLocation> shelfList = locationService.getLocationsByType("shelf");
+                    List<BaseinfoLocation> shelfList = locationService.getLocationsByType("shelf_store_bin");
                     List<Long> shelfBinList = new ArrayList<Long>();
                     for (BaseinfoLocation shelf : shelfList) {
                         shelfBinList.addAll(locationService.getStoreLocationIds(shelf.getLocationId()));
@@ -163,6 +162,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
     public Long assign(Long staffId) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
+
         mapQuery.put("status", TaskConstant.Draft);
         List<TaskEntry> list = taskRpcService.getTaskList(TaskConstant.TYPE_PROCUREMENT, mapQuery);
         if (list.isEmpty()) {
@@ -184,7 +184,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     }
                     // 找合适的quant
                     StockQuantCondition condition = new StockQuantCondition();
-                    List<BaseinfoLocation> loftList = locationService.getLocationsByType("loft");
+                    List<BaseinfoLocation> loftList = locationService.getLocationsByType("loft_store_bin");
                     List<Long> loftBinList = new ArrayList<Long>();
                     for (BaseinfoLocation loft : loftList ) {
                         loftBinList.addAll(locationService.getStoreLocationIds(loft.getLocationId()));
@@ -239,8 +239,8 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         BaseinfoLocation toLocation = locationRpcService.getLocation(toLocationId);
 
         if(fromLocation!=null && toLocation!=null &&
-                fromLocation.getType().equals("loft")
-                && (toLocation.getType().equals("loft_collection_bin") || toLocation.getType().equals("shelf_collection_bin"))){
+                (fromLocation.getType().equals(LocationConstant.LOFT_STORE_BIN) && toLocation.getType().equals(LocationConstant.LOFT_PICKING_BIN))
+                || (fromLocation.getType().equals(LocationConstant.SHELF_STORE_BIN) && toLocation.getType().equals(LocationConstant.SHELF_PICKING_BIN))){
             condition.setLocationId(fromLocationId);
             List<StockQuant> quants = stockQuantService.getQuantList(condition);
             List<BaseinfoItemLocation> itemLocations = itemRpcService.getItemLocationByLocationID(toLocationId);
