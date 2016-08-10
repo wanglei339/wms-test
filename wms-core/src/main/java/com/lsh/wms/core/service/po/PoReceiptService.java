@@ -83,7 +83,7 @@ public class PoReceiptService {
         }
 
         for (StockLot stockLot : stockLotList) {
-//            stockLotService.insertLot(stockLot);
+            stockLotService.insertLot(stockLot);
         }
 
     }

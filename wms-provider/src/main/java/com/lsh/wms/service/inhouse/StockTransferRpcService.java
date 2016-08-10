@@ -78,18 +78,18 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         List <StockQuant> toQuants = quantService.getQuantsByLocationId(toLocationId);
         BaseinfoLocation location = locationService.getLocation(toLocationId);
 
-        if( (fromQuants.size() == 0) || (fromQuants.get(0).getItemId() != plan.getItemId()) ){
+        if( (fromQuants.size() == 0) || (fromQuants.get(0).getItemId().compareTo(plan.getItemId()) != 0) ){
             throw new BizCheckedException("2550003");
         }
 
         if( toQuants.size() > 0 ){
-            if(location.getType() == LocationConstant.LOFT_PICKING_BIN || location.getType() == LocationConstant.SHELF_PICKING_BIN){
+            if(location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN) == 0 || location.getType().compareTo(LocationConstant.SHELF_PICKING_BIN) == 0 ){
                 List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toLocationId);
-                if(itemLocations.get(0).getItemId() != fromQuants.get(0).getItemId()){
+                if(itemLocations.get(0).getItemId().compareTo(fromQuants.get(0).getItemId()) != 0){
                     throw new BizCheckedException("2550004");
                 }
             } else {
-                if( (toQuants.get(0).getItemId() != fromQuants.get(0).getItemId()) || (toQuants.get(0).getLotId() != fromQuants.get(0).getLotId()) ){
+                if( (toQuants.get(0).getItemId().compareTo(fromQuants.get(0).getItemId()) != 0) || (toQuants.get(0).getLotId().compareTo(fromQuants.get(0).getLotId()) != 0) ){
                     throw new BizCheckedException("2550004");
                 }
             }
@@ -129,7 +129,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if(plan.getItemId() == 0) {
             plan.setItemId(taskInfo.getItemId());
         }
-        if(plan.getUomQty() == BigDecimal.ZERO) {
+        if(plan.getUomQty().compareTo(BigDecimal.ZERO) == 0) {
             plan.setUomQty(taskInfo.getQtyUom());
         }
         if(plan.getSubType() == 2) {
