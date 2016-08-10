@@ -17,6 +17,8 @@ public class BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel {
 	private Long leftRange;
 	/** 子节点范围终点 */
 	private Long rightRange;
+	/** 在树形结构的第几层 */
+	private Long level;
 	/** 位置类型 */
 	protected Long type;
 	/** 类型名 */
@@ -96,6 +98,14 @@ public class BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel {
 
 	public void setRightRange(Long rightRange){
 		this.rightRange = rightRange;
+	}
+
+	public Long getLevel(){
+		return this.level;
+	}
+
+	public void setLevel(Long level){
+		this.level = level;
 	}
 	
 	public Long getType(){

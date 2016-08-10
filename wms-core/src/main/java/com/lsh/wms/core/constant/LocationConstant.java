@@ -64,5 +64,8 @@ public class LocationConstant {
     public static final Integer RegionType = 1; //库区
     public static final Integer BinType = 2;    //库位
 
+    // location_id划分相关
+    public static final Integer CHILDREN_RANGE = 128; //每个节点的子节点数
+    public static final Integer LOCATION_LEVEL = 9; // 整棵树的最大层数
 
 }

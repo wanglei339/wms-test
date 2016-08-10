@@ -9,6 +9,7 @@
 		<result property="fatherId" column="father_id"/>
 		<result property="leftRange" column="left_range"/>
 		<result property="rightRange" column="right_range"/>
+		<result property="level" column="level"/>
 		<result property="type" column="type"/>
 		<result property="typeName" column="type_name"/>
 		<result property="isLeaf" column="is_leaf"/>
@@ -29,15 +30,15 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLocation">
 		insert into baseinfo_location (
-			location_id,location_code,father_id,left_range,right_range,type,
-			type_name,is_leaf,is_valid,can_store,container_vol,region_no,
-			passage_no,shelf_level_no,bin_position_no,description,created_at,updated_at,
-			classification,can_use,is_locked
+			location_id,location_code,father_id,left_range,right_range,level,
+			type,type_name,is_leaf,is_valid,can_store,container_vol,
+			region_no,passage_no,shelf_level_no,bin_position_no,description,created_at,
+			updated_at,classification,can_use,is_locked
     	) values (
-			#{locationId},#{locationCode},#{fatherId},#{leftRange},#{rightRange},#{type},
-			#{typeName},#{isLeaf},#{isValid},#{canStore},#{containerVol},#{regionNo},
-			#{passageNo},#{shelfLevelNo},#{binPositionNo},#{description},#{createdAt},#{updatedAt},
-			#{classification},#{canUse},#{isLocked}
+			#{locationId},#{locationCode},#{fatherId},#{leftRange},#{rightRange},#{level},
+			#{type},#{typeName},#{isLeaf},#{isValid},#{canStore},#{containerVol},
+			#{regionNo},#{passageNo},#{shelfLevelNo},#{binPositionNo},#{description},#{createdAt},
+			#{updatedAt},#{classification},#{canUse},#{isLocked}
     	)
 	</insert>
 
@@ -49,6 +50,7 @@
   			<if test="fatherId != null">father_id=#{fatherId},</if>
   			<if test="leftRange != null">left_range=#{leftRange},</if>
   			<if test="rightRange != null">right_range=#{rightRange},</if>
+  			<if test="level != null">level=#{level},</if>
   			<if test="type != null">type=#{type},</if>
   			<if test="typeName != null">type_name=#{typeName},</if>
   			<if test="isLeaf != null">is_leaf=#{isLeaf},</if>
@@ -95,6 +97,7 @@
 			<if test="fatherId != null">and father_id=#{fatherId}</if>
 			<if test="leftRange != null">and left_range=#{leftRange}</if>
 			<if test="rightRange != null">and right_range=#{rightRange}</if>
+			<if test="level != null">and level=#{level}</if>
 			<if test="type != null">and type=#{type}</if>
 			<if test="typeName != null">and type_name=#{typeName}</if>
 			<if test="isLeaf != null">and is_leaf=#{isLeaf}</if>
@@ -123,6 +126,7 @@
 			<if test="fatherId != null">and location.father_id=#{fatherId}</if>
 			<if test="leftRange != null">and left_range=#{leftRange}</if>
 			<if test="rightRange != null">and right_range=#{rightRange}</if>
+			<if test="level != null">and level=#{level}</if>
 			<if test="type != null">and location.type=#{type}</if>
 			<if test="typeName != null">and location.type_name=#{typeName}</if>
 			<if test="isLeaf != null">and location.is_leaf=#{isLeaf}</if>
