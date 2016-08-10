@@ -14,10 +14,15 @@ import java.util.Map;
  * @Date 16/8/6 下午3:14
  */
 public interface ILocationDetailRpc {
-    public IBaseinfoLocaltionModel getLocationDetailById(Long locationId) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException;
-    public List<BaseinfoLocation> getLocationDetailList(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException;
-    public IBaseinfoLocaltionModel insertLocationDetailByType(IBaseinfoLocaltionModel localtionModel) throws BizCheckedException;
-    public IBaseinfoLocaltionModel updateLocationDetailByType(IBaseinfoLocaltionModel localtionModel) throws BizCheckedException, NoSuchMethodException, IllegalAccessException, InvocationTargetException;
+    public IBaseinfoLocaltionModel getLocationDetailById(Long locationId) throws BizCheckedException;
+
+    public List<BaseinfoLocation> getLocationDetailList(Map<String, Object> params) throws BizCheckedException;
+
+    public boolean insertLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException;
+
+    public boolean updateLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException;
+
     public Integer countLocationDetailByType(Map<String, Object> mapQuery);
+
     public boolean removeLocation(Long locationId) throws BizCheckedException;
 }

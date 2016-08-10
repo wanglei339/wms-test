@@ -137,9 +137,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
 
     public String unfreeze(Map<String, Object> mapCondition) throws BizCheckedException {
         BigDecimal requiredQty = new BigDecimal(mapCondition.get("qty").toString());
-        mapCondition.put("isFrozen", 1);
-        mapCondition.put("isDefect", 0);
-        mapCondition.put("isRefund", 0);
+        mapCondition.put("canUnFreeze", true);
         BigDecimal total = quantService.getQty(mapCondition);
         if((requiredQty.add(BigDecimal.ONE)).compareTo(BigDecimal.ZERO) == 0) requiredQty = total;
 
@@ -166,7 +164,6 @@ public class StockQuantRpcService implements IStockQuantRpcService {
 
     public String toDefect(Map<String, Object> mapCondition) throws BizCheckedException {
         BigDecimal requiredQty = new BigDecimal(mapCondition.get("qty").toString());
-        mapCondition.put("isRefund", 0);
         mapCondition.put("isDefect", 0);
         BigDecimal total = quantService.getQty(mapCondition);
         if((requiredQty.add(BigDecimal.ONE)).compareTo(BigDecimal.ZERO) == 0) requiredQty = total;
@@ -196,7 +193,6 @@ public class StockQuantRpcService implements IStockQuantRpcService {
     public String toRefund(Map<String, Object> mapCondition) throws BizCheckedException {
         BigDecimal requiredQty = new BigDecimal(mapCondition.get("qty").toString());
         mapCondition.put("isRefund", 0);
-        mapCondition.put("isDefect", 0);
         BigDecimal total = quantService.getQty(mapCondition);
         if((requiredQty.add(BigDecimal.ONE)).compareTo(BigDecimal.ZERO) == 0) requiredQty = total;
 

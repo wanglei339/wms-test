@@ -43,12 +43,12 @@ public class BaseinfoLocationPassageService implements IStrategy {
         baseinfoLocationPassageDao.update((BaseinfoLocationPassage) iBaseinfoLocaltionModel);
     }
 
-    public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("locationId", id);
-        List<BaseinfoLocationPassage> passageList =  baseinfoLocationPassageDao.getBaseinfoLocationPassageList(mapQuery);
-        BaseinfoLocationPassage passage =  passageList.get(0);
-        return passage;
+        List<BaseinfoLocationPassage> passageList = baseinfoLocationPassageDao.getBaseinfoLocationPassageList(mapQuery);
+//        BaseinfoLocationPassage passage =  passageList.get(0);
+        return passageList.size() > 0 ? passageList.get(0) : null;
 
 
     }
@@ -57,6 +57,7 @@ public class BaseinfoLocationPassageService implements IStrategy {
     /**
      * 因为是先查找父类的表,所以只要把父类的数目返回即可
      * 传的参数一定是父类中有的
+     *
      * @param params
      * @return
      */
@@ -64,8 +65,8 @@ public class BaseinfoLocationPassageService implements IStrategy {
         return baseinfoLocationPassageDao.countBaseinfoLocationPassage(params);
     }
 
-    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        return  (List<BaseinfoLocation>)(List<?>) baseinfoLocationPassageDao.getBaseinfoLocationPassageList(params);
+    public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) {
+        return (List<BaseinfoLocation>) (List<?>) baseinfoLocationPassageDao.getBaseinfoLocationPassageList(params);
 
     }
 }

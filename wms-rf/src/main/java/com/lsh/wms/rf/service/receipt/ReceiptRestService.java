@@ -96,11 +96,15 @@ public class ReceiptRestService implements IReceiptRfService {
 
         InbPoHeader inbPoHeader = poOrderService.getInbPoHeaderByOrderOtherId(receiptRequest.getOrderOtherId());
         if(inbPoHeader == null) {
-            throw new BizCheckedException("2010001", "订单不存在");
+            throw new BizCheckedException("2020001");
         }
 
         for(ReceiptItem receiptItem : receiptRequest.getItems()) {
             InbPoDetail inbPoDetail = poOrderService.getInbPoDetailByOrderIdAndBarCode(inbPoHeader.getOrderId(), receiptItem.getBarCode());
+
+            if(inbPoDetail == null){
+                throw new BizCheckedException("2020001");
+            }
 
             receiptItem.setSkuName(inbPoDetail.getSkuName());
             receiptItem.setPackUnit(inbPoDetail.getPackUnit());
@@ -122,7 +126,8 @@ public class ReceiptRestService implements IReceiptRfService {
             throw new BizCheckedException("1020001", "参数不能为空");
         }
 
-        if(containerService.isContainerInUse(containerId)){
+
+        if(!containerService.isContainerCanUse(containerId)){
             throw new BizCheckedException("2000002");
         }
 

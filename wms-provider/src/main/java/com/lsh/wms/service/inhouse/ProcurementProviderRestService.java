@@ -42,6 +42,20 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
         }
         return JsonUtils.SUCCESS();
     }
+    @POST
+    @Path("update")
+    public String updateProcurementPlan(StockTransferPlan plan)  throws BizCheckedException {
+        try{
+            rpcService.addProcurementPlan(plan);
+        } catch (BizCheckedException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+        }
+        return JsonUtils.SUCCESS();
+    }
 
     @GET
     @Path("autoCreate")

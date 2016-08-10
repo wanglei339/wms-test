@@ -4,6 +4,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
 import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.core.dao.stock.StockQuantDao;
@@ -33,6 +34,9 @@ public class StockQuantService {
 
     @Autowired
     private StockQuantMoveRelDao relDao;
+
+    @Autowired
+    private LocationService locationService;
 
     public BigDecimal getQty(Map<String, Object> mapQuery) {
         BigDecimal total = stockQuantDao.getQty(mapQuery);
@@ -93,7 +97,6 @@ public class StockQuantService {
         mapQuery.put("containerId", move.getFromContainerId());
         List<StockQuant> quantList = stockQuantDao.getQuants(mapQuery);
         BigDecimal qtyDone = move.getQty();
-        BigDecimal total = BigDecimal.ZERO;
         for (StockQuant quant : quantList) {
             if (quant.getReserveTaskId() != 0 && quant.getReserveTaskId().compareTo(move.getTaskId()) != 0) {
                 continue;
@@ -103,21 +106,58 @@ public class StockQuantService {
             quant.setContainerId(move.getToContainerId());
             this.update(quant);
             qtyDone = qtyDone.subtract(quant.getQty());
-            total = total.add(quant.getQty());
             // 新建 quant move历史记录
             StockQuantMoveRel moveRel =new StockQuantMoveRel();
             moveRel.setMoveId(move.getId());
             moveRel.setQuantId(quant.getId());
             relDao.insert(moveRel);
         }
-        if (total.compareTo(qtyDone) < 0) {
+        if (qtyDone.compareTo(BigDecimal.ZERO) < 0 ) {
+
+            throw new BizCheckedException("2550008");
+        }
+    }
+
+    @Transactional(readOnly = false)
+    public void move(StockMove move,StockQuant oldQuant) throws BizCheckedException {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("itemId", move.getItemId());
+        mapQuery.put("locationId", move.getFromLocationId());
+        mapQuery.put("containerId", move.getFromContainerId());
+        List<StockQuant> quantList = stockQuantDao.getQuants(mapQuery);
+        BigDecimal qtyDone = move.getQty();
+        if((quantList==null || quantList.size()==0) && locationService.getInventoryLostLocationId().compareTo(move.getFromLocationId())==0){
+            quantList = new ArrayList<StockQuant>();
+            StockQuant newQuant = (StockQuant)oldQuant.clone();
+            newQuant.setQty(BigDecimal.ZERO);
+            newQuant.setLocationId(move.getFromLocationId());
+            newQuant.setContainerId( move.getFromContainerId());
+            quantList.add(newQuant);
+        }
+        for (StockQuant quant : quantList) {
+            if (quant.getReserveTaskId() != 0 && quant.getReserveTaskId().compareTo(move.getTaskId()) != 0) {
+                continue;
+            }
+            this.split(quant, qtyDone);
+            quant.setLocationId(move.getToLocationId());
+            quant.setContainerId(move.getToContainerId());
+            this.update(quant);
+            qtyDone = qtyDone.subtract(quant.getQty());
+            // 新建 quant move历史记录
+            StockQuantMoveRel moveRel =new StockQuantMoveRel();
+            moveRel.setMoveId(move.getId());
+            moveRel.setQuantId(quant.getId());
+            relDao.insert(moveRel);
+        }
+        if (qtyDone.compareTo(BigDecimal.ZERO) < 0 ) {
+
             throw new BizCheckedException("2550008");
         }
     }
 
     @Transactional(readOnly = false)
     public void split(StockQuant quant, BigDecimal requiredQty){
-        if ( quant.getQty().compareTo(requiredQty) <= 0) {
+        if ( quant.getQty().compareTo(requiredQty) <= 0 && quant.getQty().compareTo(BigDecimal.ZERO) > 0) {
             return;
         }
 
@@ -203,6 +243,8 @@ public class StockQuantService {
 
     @Transactional(readOnly = false)
     public void unFreeze(StockQuant quant) {
+        quant.setIsDefect(0L);
+        quant.setIsRefund(0L);
         quant.setIsFrozen(0L);
         stockQuantDao.update(quant);
     }
@@ -211,6 +253,7 @@ public class StockQuantService {
     public void toDefect(StockQuant quant) {
         quant.setIsFrozen(0L);
         quant.setIsDefect(1L);
+        quant.setIsRefund(0L);
         stockQuantDao.update(quant);
     }
 
@@ -218,6 +261,7 @@ public class StockQuantService {
     public void toRefund(StockQuant quant) {
         quant.setIsFrozen(0L);
         quant.setIsRefund(1L);
+        quant.setIsDefect(0L);
         stockQuantDao.update(quant);
     }
 

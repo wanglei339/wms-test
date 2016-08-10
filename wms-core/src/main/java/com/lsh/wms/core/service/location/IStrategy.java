@@ -23,9 +23,9 @@ import java.util.Map;
 public interface IStrategy {
     public void insert(IBaseinfoLocaltionModel iBaseinfoLocaltionModel);
     public void update(IBaseinfoLocaltionModel iBaseinfoLocaltionModel);
-    BaseinfoLocation getBaseinfoItemLocationModelById(Long id) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException;
+    BaseinfoLocation getBaseinfoItemLocationModelById(Long id);
 
     Integer countBaseinfoLocaltionModel(Map<String, Object> params);
 
-    List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException;
+    List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params);
 }

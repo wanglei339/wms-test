@@ -82,12 +82,12 @@ public class LocationService {
         params.put("locationId", locationId);
         params.put("isValid", 1);
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
-        if (locations.size() == 1) {
-            location = locations.get(0);
-        } else {
-            return null;
-        }
-        return location;
+//        if (locations.size() == 1) {
+//            location = locations.get(0);
+//        } else {
+//            return null;
+//        }
+        return locations.size() > 0 ? locations.get(0) : null;
     }
 
     /**
@@ -113,6 +113,7 @@ public class LocationService {
 
     /**
      * 更新location
+     *
      * @param iBaseinfoLocaltionModel
      * @return
      */
@@ -139,6 +140,7 @@ public class LocationService {
 
     /**
      * 获取节点location_id
+     *
      * @param locations
      * @return
      */
@@ -152,6 +154,7 @@ public class LocationService {
 
     /**
      * 获取一个location下一层的子节点
+     *
      * @param locationId
      * @return
      */
@@ -171,6 +174,7 @@ public class LocationService {
 
     /**
      * 获取一个location下一层的子节点id
+     *
      * @param locationId
      * @return
      */
@@ -181,6 +185,7 @@ public class LocationService {
 
     /**
      * 获取一个location下所有是存储位的子节点
+     *
      * @param locationId
      * @return
      */
@@ -233,6 +238,7 @@ public class LocationService {
     /**
      * 根据所在位置的locationId
      * 获取指定type祖先级(包含上一级)的location节点
+     *
      * @param locationId 所在位置id
      * @param type       位置类型
      * @return
@@ -251,6 +257,7 @@ public class LocationService {
 
     /**
      * 找全路径
+     *
      * @param locationId
      * @return
      */
@@ -269,7 +276,6 @@ public class LocationService {
     }
 
 
-
     /**
      * 获取祖先级别的区域location节点id
      * 根据指定的祖先级别的type
@@ -285,6 +291,7 @@ public class LocationService {
 
     /**
      * 获取父级区域所有大区的节点
+     *
      * @param locationId
      * @return
      */
@@ -295,6 +302,7 @@ public class LocationService {
 
     /**
      * 获取父级区域节点id
+     *
      * @param locationId
      * @return
      */
@@ -305,6 +313,7 @@ public class LocationService {
 
     /**
      * 按类型获取location节点
+     *
      * @param type
      * @return
      */
@@ -322,6 +331,7 @@ public class LocationService {
 
     /**
      * 获取可用仓库根节点
+     *
      * @return
      */
     public BaseinfoLocation getWarehouseLocation() {
@@ -335,6 +345,7 @@ public class LocationService {
 
     /**
      * 获取可用仓库根节点id
+     *
      * @return
      */
     public Long getWarehouseLocationId() {
@@ -344,6 +355,7 @@ public class LocationService {
 
     /**
      * 获取可用盘亏盘盈节点
+     *
      * @return
      */
     public BaseinfoLocation getInventoryLostLocation() {
@@ -357,6 +369,7 @@ public class LocationService {
 
     /**
      * 获取可用盘亏盘盈节点id
+     *
      * @return
      */
     public Long getInventoryLostLocationId() {
@@ -366,6 +379,7 @@ public class LocationService {
 
     /**
      * 获取可用残次区的节点
+     *
      * @return
      */
     public BaseinfoLocation getDefectiveLocation() {
@@ -379,6 +393,7 @@ public class LocationService {
 
     /**
      * 获取可用残次区节点id
+     *
      * @return
      */
     public Long getDefectiveLocationId() {
@@ -388,6 +403,7 @@ public class LocationService {
 
     /**
      * 获取可用退货区节点
+     *
      * @return
      */
     public BaseinfoLocation getBackLocation() {
@@ -401,6 +417,7 @@ public class LocationService {
 
     /**
      * 获取可用退货区节点id
+     *
      * @return
      */
     public Long getBackLocationId() {
@@ -410,6 +427,7 @@ public class LocationService {
 
     /**
      * 分配可用暂存区location
+     *
      * @param type
      * @return
      */
@@ -429,6 +447,7 @@ public class LocationService {
 
     /**
      * 获取可用暂存区节点id
+     *
      * @param type
      * @return
      */
@@ -440,6 +459,7 @@ public class LocationService {
 
     /**
      * 分配可用集货区节点
+     *
      * @return
      */
     public BaseinfoLocation getCollectionLocation() {
@@ -448,6 +468,7 @@ public class LocationService {
 
     /**
      * 获取可用的集货节点id
+     *
      * @return
      */
     public Long getCollectionLocationId() {
@@ -468,6 +489,7 @@ public class LocationService {
 
     /**
      * 获取码头节点id
+     *
      * @return
      */
     public Long getDockLocationId() {
@@ -477,11 +499,12 @@ public class LocationService {
 
     /**
      * 获取货位节点的id
+     *
      * @param mapQuery
      * @return
      */
     public List<BaseinfoLocation> getBaseinfoLocationList(Map<String, Object> mapQuery) {
-        mapQuery.put("isValid",1);
+        mapQuery.put("isValid", 1);
         return locationDao.getBaseinfoLocationList(mapQuery);
     }
 
@@ -505,6 +528,7 @@ public class LocationService {
 
     /**
      * 根据type,isvalid和或者code获取location的集合,主要和查询有关
+     *
      * @param mapQuery 前端传过来的map参数
      * @return
      */
@@ -556,11 +580,12 @@ public class LocationService {
 
     /**
      * 获取在location列表中的码头,按条件筛选
+     *
      * @param params
      * @return
      */
-    public List<BaseinfoLocation> getDockList(Map<String, Object> params){
-           return locationDao.getDockList(params);
+    public List<BaseinfoLocation> getDockList(Map<String, Object> params) {
+        return locationDao.getDockList(params);
     }
 
 }
