@@ -99,6 +99,7 @@ public class LocationConstant {  // TODO 修改格式大写加下滑线
             put("loft_collection_bin", new Long(18)); //17阁楼拣货位
             put("loft_store_bin", new Long(19));   //18阁楼存货位
 
+    
             /*其他功能区的货位*/
             put("floor_bin", new Long(20)); // 20 地堆货位
             put("temporary_bin", new Long(21)); // 21 暂存货位
@@ -109,5 +110,9 @@ public class LocationConstant {  // TODO 修改格式大写加下滑线
             put("supplier_area", new Long(26));// 24 残次货位
         }
     };
+
+    // location_id划分相关
+    public static final Integer CHILDREN_RANGE = 128; //每个节点的子节点数
+    public static final Integer LOCATION_LEVEL = 8; // 整棵树的最大层数
 
 }

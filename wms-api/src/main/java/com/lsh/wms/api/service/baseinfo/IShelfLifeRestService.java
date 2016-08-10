@@ -13,4 +13,5 @@ public interface IShelfLifeRestService {
     String updateShelflifeRule(BaseinfoShelflifeRule shelflifeRule);
     String insertShelflifeRule(BaseinfoShelflifeRule shelflifeRule);
     String deleteShelflifeRule(BaseinfoShelflifeRule shelflifeRule);
+    String getShelflifeRule(Long ruleId);
 }
