@@ -37,4 +37,8 @@ public class ShelfLifeRpcService implements IShelfLifeRpcService{
     public void deleteShelflifeRule(BaseinfoShelflifeRule shelflifeRule) {
         shelfLifeService.deleteShelflifeRule(shelflifeRule);
     }
+
+    public BaseinfoShelflifeRule getShelflifeRule(Long ruleId) {
+        return shelfLifeService.getShelflifeRule(ruleId);
+    }
 }

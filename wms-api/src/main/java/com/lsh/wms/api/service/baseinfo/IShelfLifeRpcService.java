@@ -14,4 +14,5 @@ public interface IShelfLifeRpcService {
     void updateShelflifeRule(BaseinfoShelflifeRule shelflifeRule);
     void insertShelflifeRule(BaseinfoShelflifeRule shelflifeRule);
     void deleteShelflifeRule(BaseinfoShelflifeRule shelflifeRule);
+    BaseinfoShelflifeRule getShelflifeRule(Long ruleId);
 }
