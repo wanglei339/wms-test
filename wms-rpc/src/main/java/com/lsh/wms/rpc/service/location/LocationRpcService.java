@@ -152,15 +152,4 @@ public class LocationRpcService implements ILocationRpcService {
         return targetList;
     }
 
-    /**
-     * 按照dock的选择条件,给出符合DOCK条件的locatinList
-     * @param params
-     * @return
-     */
-    public List<BaseinfoLocation> getDockList(Map<String, Object> params) {
-        params.put("isValid",LocationConstant.IS_VALID);
-        return locationService.getDockList(params);
-    }
-
-
 }
