@@ -10,10 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.Map;
 
@@ -76,5 +73,11 @@ public class ShelfLifeRestService implements IShelfLifeRestService{
             return JsonUtils.EXCEPTION_ERROR("delete failed");
         }
         return JsonUtils.SUCCESS();
+    }
+
+    @GET
+    @Path("getShelflifeRule")
+    public String getShelflifeRule(@QueryParam("ruleId") Long ruleId) {
+        return JsonUtils.SUCCESS(shelfLifeRpcService.getShelflifeRule(ruleId));
     }
 }

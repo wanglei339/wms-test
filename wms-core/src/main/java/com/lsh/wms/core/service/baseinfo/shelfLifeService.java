@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,13 +22,25 @@ import java.util.Map;
 public class ShelfLifeService {
     private static final Logger logger = LoggerFactory.getLogger(ShelfLifeService.class);
     @Autowired
-    BaseinfoShelflifeRuleDao shelflifeRuleDao;
+    private BaseinfoShelflifeRuleDao shelflifeRuleDao;
 
     public List<BaseinfoShelflifeRule> getShelflifeRuleList(Map<String,Object> mapQuery){
         return shelflifeRuleDao.getBaseinfoShelflifeRuleList(mapQuery);
     }
     public Integer getShelflifeRuleCount(Map<String,Object> mapQuery){
         return shelflifeRuleDao.countBaseinfoShelflifeRule(mapQuery);
+    }
+
+    public BaseinfoShelflifeRule getShelflifeRule(Long ruleId){
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("ruleId",ruleId);
+        List<BaseinfoShelflifeRule> list =
+                shelflifeRuleDao.getBaseinfoShelflifeRuleList(mapQuery);
+        BaseinfoShelflifeRule shelflifeRule = null;
+        if(list.size() >0 ){
+            shelflifeRule = list.get(0);
+        }
+        return shelflifeRule;
     }
 
     @Transactional(readOnly = false)
