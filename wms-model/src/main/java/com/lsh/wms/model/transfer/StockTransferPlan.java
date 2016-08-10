@@ -22,7 +22,10 @@ public class StockTransferPlan implements Serializable {
     private BigDecimal packUnit = BigDecimal.ONE;
 	/** 以包装单位计量的库移数量 */
     private BigDecimal uomQty = BigDecimal.ZERO;
-
+	/**优先级*/
+	private Long priority =0L;
+	/** 移库操作单位*/
+	private Long subType = 2L;
 	/** 发起者 */
 	private Long planner = 0L;
 
@@ -104,5 +107,21 @@ public class StockTransferPlan implements Serializable {
 
 	public void setPlanner(Long planner) {
 		this.planner = planner;
+	}
+
+	public Long getPriority() {
+		return priority;
+	}
+
+	public void setPriority(Long priority) {
+		this.priority = priority;
+	}
+
+	public Long getSubType() {
+		return subType;
+	}
+
+	public void setSubType(Long subType) {
+		this.subType = subType;
 	}
 }

@@ -69,7 +69,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         StockQuantCondition condition = new StockQuantCondition();
         TaskEntry taskEntry = new TaskEntry();
         TaskInfo taskInfo = new TaskInfo();
-        taskInfo.setSubType(2L);
         condition.setLocationId(plan.getFromLocationId());
         condition.setItemId(plan.getItemId());
         BigDecimal total = stockQuantService.getQty(condition);
@@ -80,7 +79,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
         Long containerId = quantList.get(0).getContainerId();
         if (plan.getPackName() == "pallet") {
-            taskInfo.setSubType(1L);
             containerId = containerService.createContainerByType(2L).getId();
         }
         core.fillTransferPlan(plan);
