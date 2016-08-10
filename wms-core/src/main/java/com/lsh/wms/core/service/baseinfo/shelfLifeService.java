@@ -19,8 +19,9 @@ import java.util.Map;
  */
 @Component
 @Transactional(readOnly = true)
-public class ShelfLifeService {
-    private static final Logger logger = LoggerFactory.getLogger(ShelfLifeService.class);
+public class shelfLifeService {
+
+    private static final Logger logger = LoggerFactory.getLogger(shelfLifeService.class);
     @Autowired
     private BaseinfoShelflifeRuleDao shelflifeRuleDao;
 
