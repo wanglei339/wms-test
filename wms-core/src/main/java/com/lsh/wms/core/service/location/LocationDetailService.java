@@ -52,41 +52,41 @@ public class LocationDetailService {
     @PostConstruct
     public void postConstruct() {
         //注入仓库
-        locationDetailServiceFactory.register(LocationConstant.Warehouse, baseinfoLocationWarehouseService);
+        locationDetailServiceFactory.register(LocationConstant.WAREHOUSE, baseinfoLocationWarehouseService);
         //注入区域
-        locationDetailServiceFactory.register(LocationConstant.Region_area, baseinfoLocationRegionService);
+        locationDetailServiceFactory.register(LocationConstant.REGION_AREA, baseinfoLocationRegionService);
         //注入passage
-        locationDetailServiceFactory.register(LocationConstant.Passage, baseinfoLocationPassageService);
+        locationDetailServiceFactory.register(LocationConstant.PASSAGE, baseinfoLocationPassageService);
         //注入货架区和阁楼区
-        locationDetailServiceFactory.register(LocationConstant.Shelfs, baseinfoLocationRegionService);
-        locationDetailServiceFactory.register(LocationConstant.Lofts, baseinfoLocationRegionService);
+        locationDetailServiceFactory.register(LocationConstant.SHELFS, baseinfoLocationRegionService);
+        locationDetailServiceFactory.register(LocationConstant.LOFTS, baseinfoLocationRegionService);
         //注入区域
-        locationDetailServiceFactory.register(LocationConstant.InventoryLost, baseinfoLocationRegionService);
-        locationDetailServiceFactory.register(LocationConstant.Floor, baseinfoLocationRegionService);
-        locationDetailServiceFactory.register(LocationConstant.Temporary, baseinfoLocationRegionService);
-        locationDetailServiceFactory.register(LocationConstant.Collection_area, baseinfoLocationRegionService);
-        locationDetailServiceFactory.register(LocationConstant.Back_area, baseinfoLocationRegionService);
-        locationDetailServiceFactory.register(LocationConstant.Defective_area, baseinfoLocationRegionService);
+        locationDetailServiceFactory.register(LocationConstant.INVENTORYLOST, baseinfoLocationRegionService);
+        locationDetailServiceFactory.register(LocationConstant.FLOOR, baseinfoLocationRegionService);
+        locationDetailServiceFactory.register(LocationConstant.TEMPORARY, baseinfoLocationRegionService);
+        locationDetailServiceFactory.register(LocationConstant.COLLECTION_AREA, baseinfoLocationRegionService);
+        locationDetailServiceFactory.register(LocationConstant.BACK_AREA, baseinfoLocationRegionService);
+        locationDetailServiceFactory.register(LocationConstant.DEFECTIVE_AREA, baseinfoLocationRegionService);
         //货架和阁楼
-        locationDetailServiceFactory.register(LocationConstant.Shelf, baseinfoLocationShelfService);
-        locationDetailServiceFactory.register(LocationConstant.Loft, baseinfoLocationShelfService);
+        locationDetailServiceFactory.register(LocationConstant.SHELF, baseinfoLocationShelfService);
+        locationDetailServiceFactory.register(LocationConstant.LOFT, baseinfoLocationShelfService);
         //注入码头
-        locationDetailServiceFactory.register(LocationConstant.Dock_area, baseinfoLocationDockService);
+        locationDetailServiceFactory.register(LocationConstant.DOCK_AREA, baseinfoLocationDockService);
         //货位
-        locationDetailServiceFactory.register(LocationConstant.Bin, baseinfoLocationBinService);
+        locationDetailServiceFactory.register(LocationConstant.BIN, baseinfoLocationBinService);
         //货架和阁楼的货位
-        locationDetailServiceFactory.register(LocationConstant.Shelf_collection_bin, baseinfoLocationBinService);
-        locationDetailServiceFactory.register(LocationConstant.Shelf_store_bin, baseinfoLocationBinService);
-        locationDetailServiceFactory.register(LocationConstant.Loft_collection_bin, baseinfoLocationBinService);
-        locationDetailServiceFactory.register(LocationConstant.Loft_store_bin, baseinfoLocationBinService);
+        locationDetailServiceFactory.register(LocationConstant.SHELF_PICKING_BIN, baseinfoLocationBinService);
+        locationDetailServiceFactory.register(LocationConstant.SHELF_STORE_BIN, baseinfoLocationBinService);
+        locationDetailServiceFactory.register(LocationConstant.LOFT_PICKING_BIN, baseinfoLocationBinService);
+        locationDetailServiceFactory.register(LocationConstant.LOFT_STORE_BIN, baseinfoLocationBinService);
 
 
         //添加各种功能bin的service服务
-        locationDetailServiceFactory.register(LocationConstant.Floor_bin, baseinfoLocationBinService);
-        locationDetailServiceFactory.register(LocationConstant.Temporary_bin, baseinfoLocationBinService);
-        locationDetailServiceFactory.register(LocationConstant.Collection_bin, baseinfoLocationBinService);
-        locationDetailServiceFactory.register(LocationConstant.Back_bin, baseinfoLocationBinService);
-        locationDetailServiceFactory.register(LocationConstant.Defective_bin, baseinfoLocationBinService);
+        locationDetailServiceFactory.register(LocationConstant.FLOOR_BIN, baseinfoLocationBinService);
+        locationDetailServiceFactory.register(LocationConstant.TEMPORARY_BIN, baseinfoLocationBinService);
+        locationDetailServiceFactory.register(LocationConstant.COLLECTION_BIN, baseinfoLocationBinService);
+        locationDetailServiceFactory.register(LocationConstant.BACK_BIN, baseinfoLocationBinService);
+        locationDetailServiceFactory.register(LocationConstant.DEFECTIVE_BIN, baseinfoLocationBinService);
     }
 
     /**
@@ -95,40 +95,40 @@ public class LocationDetailService {
     @PostConstruct
     public void postBinConstruct() {
         //仓库
-        locationDetailModelFactory.register(LocationConstant.Warehouse, new BaseinfoLocationWarehouse());
+        locationDetailModelFactory.register(LocationConstant.WAREHOUSE, new BaseinfoLocationWarehouse());
         //区域
-        locationDetailModelFactory.register(LocationConstant.Region_area, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.REGION_AREA, new BaseinfoLocationRegion());
         //注入过道
-        locationDetailModelFactory.register(LocationConstant.Passage, new BaseinfoLocationPassage());
+        locationDetailModelFactory.register(LocationConstant.PASSAGE, new BaseinfoLocationPassage());
 
         //注入阁楼区和货架区
-        locationDetailModelFactory.register(LocationConstant.Shelfs, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.Lofts, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.SHELFS, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.LOFTS, new BaseinfoLocationRegion());
         //注入区域
-        locationDetailModelFactory.register(LocationConstant.InventoryLost, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.Floor, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.Temporary, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.Collection_area, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.Back_area, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.Defective_area, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.INVENTORYLOST, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.FLOOR, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.TEMPORARY, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.COLLECTION_AREA, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.BACK_AREA, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.DEFECTIVE_AREA, new BaseinfoLocationRegion());
         //货架和阁楼
-        locationDetailModelFactory.register(LocationConstant.Shelf, new BaseinfoLocationShelf());
-        locationDetailModelFactory.register(LocationConstant.Loft, new BaseinfoLocationShelf());
+        locationDetailModelFactory.register(LocationConstant.SHELF, new BaseinfoLocationShelf());
+        locationDetailModelFactory.register(LocationConstant.LOFT, new BaseinfoLocationShelf());
         //注入码头
-        locationDetailModelFactory.register(LocationConstant.Dock_area, new BaseinfoLocationDock());
+        locationDetailModelFactory.register(LocationConstant.DOCK_AREA, new BaseinfoLocationDock());
         //货位
-        locationDetailModelFactory.register(LocationConstant.Bin, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.BIN, new BaseinfoLocationBin());
         //货架和阁楼的货位
-        locationDetailModelFactory.register(LocationConstant.Shelf_collection_bin, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.Shelf_store_bin, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.Loft_collection_bin, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.Loft_store_bin, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.SHELF_PICKING_BIN, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.SHELF_STORE_BIN, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.LOFT_PICKING_BIN, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.LOFT_STORE_BIN, new BaseinfoLocationBin());
         //功能bin
-        locationDetailModelFactory.register(LocationConstant.Floor_bin, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.Temporary_bin, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.Collection_bin, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.Back_bin, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.Defective_bin, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.FLOOR_BIN, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.TEMPORARY_BIN, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.COLLECTION_BIN, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.BACK_BIN, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.DEFECTIVE_BIN, new BaseinfoLocationBin());
     }
 
 
@@ -147,12 +147,15 @@ public class LocationDetailService {
         //转化成父类,插入
         BaseinfoLocation location = new BaseinfoLocation();
         ObjUtils.bean2bean(iBaseinfoLocaltionModel, location);
-
-        //先插入父亲
+        //先插入主表
         locationService.insertLocation(location);
         //根据model选择service
         IStrategy iStrategy = locationDetailServiceFactory.getIstrategy(iBaseinfoLocaltionModel.getType());
         iStrategy.insert(iBaseinfoLocaltionModel);
+        //将father的叶子节点变为0
+        BaseinfoLocation fatherLocation = locationService.getFatherLocation(location.getLocationId());
+        fatherLocation.setIsLeaf(0);
+        locationService.updateLocation(fatherLocation);
     }
 
     /**
@@ -223,7 +226,17 @@ public class LocationDetailService {
      * @return
      */
     public Integer countLocationDetail(Map<String, Object> params) {
+
         return locationService.countLocation(params);
+    }
+
+    /**
+     * location中dock的筛选条件计数
+     * @param params
+     * @return
+     */
+    public Integer countDockList(Map<String,Object> params){
+        return locationService.countDockList(params);
     }
 
 

@@ -1,68 +1,113 @@
 package com.lsh.wms.core.constant;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @Author 马启迪 maqidi@lsh123.com
  * @Date 16/7/29 下午2:55
  */
-public class LocationConstant {
-    public static final Long Warehouse = 1L;
-    public static final Long Region_area = 2L;
-    public static final Long Passage = 3L;
+public class LocationConstant {  // TODO 修改格式大写加下滑线
+    public static final Long WAREHOUSE = 1L;
+    public static final Long REGION_AREA = 2L;
+    public static final Long PASSAGE = 3L;
     //各区域
-    public static final Long InventoryLost = 4L;    //盘亏盘盈区
-    public static final Long Shelfs = 5L;     //货架区
-    public static final Long Lofts = 6L;       //阁楼区
+    public static final Long INVENTORYLOST = 4L;    //盘亏盘盈区
+    public static final Long SHELFS = 5L;     //货架区
+    public static final Long LOFTS = 6L;       //阁楼区
     //功能区
-    public static final Long Floor = 7l;
-    public static final Long Temporary = 8L;
-    public static final Long Collection_area = 9L;
-    public static final Long Back_area = 10L;
-    public static final Long Defective_area = 11L;
-    public static final Long Dock_area = 12L;
+    public static final Long FLOOR = 7l;
+    public static final Long TEMPORARY = 8L;
+    public static final Long COLLECTION_AREA = 9L; //集货区
+    public static final Long BACK_AREA = 10L;
+    public static final Long DEFECTIVE_AREA = 11L;
+    public static final Long DOCK_AREA = 12L;
     //货架和阁楼隶属货架区,阁楼区
-    public static final Long Shelf = 13L;
-    public static final Long Loft = 14L;
+    public static final Long SHELF = 13L;
+    public static final Long LOFT = 14L;
     //所有的货位
-    public static final Long Bin = 15L;
+    public static final Long BIN = 15L;
     //所有的货位
     //货架拣货位和存货位
-    public static final Long Shelf_collection_bin = 16L;
-    public static final Long Shelf_store_bin = 17L;
+    public static final Long SHELF_PICKING_BIN = 16L;
+    public static final Long SHELF_STORE_BIN = 17L;
     //阁楼拣货位和存货位
-    public static final Long Loft_collection_bin = 18L;
-    public static final Long Loft_store_bin = 19L;
+    public static final Long LOFT_PICKING_BIN = 18L;
+    public static final Long LOFT_STORE_BIN = 19L;
     //功能区的货位
-    public static final Long Floor_bin = 20L;
-    public static final Long Temporary_bin = 21L;
-    public static final Long Collection_bin = 22L;
-    public static final Long Back_bin = 23L;
-    public static final Long Defective_bin = 24L;
+    public static final Long FLOOR_BIN = 20L;
+    public static final Long TEMPORARY_BIN = 21L;
+    public static final Long COLLECTION_BIN = 22L;  //集货货位
+    public static final Long BACK_BIN = 23L;
+    public static final Long DEFECTIVE_BIN = 24L;
     //虚拟货区
-    public static final Long Consume_area = 25L;
-    public static final Long Supplier_area = 25L;
+    public static final Long CONSUME_AREA = 25L;
+    public static final Long SUPPLIER_AREA = 25L;
 
 
     //温区设置
-    public static final Integer RoomTemperature = 1;
-    public static final Integer LowTemperature = 2;
+    public static final Integer ROOM_TEMPERATURE = 1;
+    public static final Integer LOW_TEMPERATURE = 2;
 
     //通道的位置设置
-    public static final Integer PassageEastWest = 1;//东西走向
-    public static final Integer PassageNorthSouth = 2;//南北走向
+    public static final Integer PASSAGE_EAST_WEST = 1;//东西走向
+    public static final Integer PASSAGE_NORTH_SOUTH = 2;//南北走向
 
     //码头的位置设置
-    public static final Integer DockEast = 1;//东
-    public static final Integer DockSouth = 2;//南
-    public static final Integer DockWest = 3;//西
-    public static final Integer DockNorth = 4;//北
+    public static final Integer DOCK_EAST = 1;//东
+    public static final Integer DOCK_SOUTH = 2;//南
+    public static final Integer DOCK_WEST = 3;//西
+    public static final Integer DOCK_NORTH = 4;//北
     //码头出库入库设置
-    public static final Integer DockIn = 1; //入库码头
-    public static final Integer DockOut = 2; //出库码头
+    public static final Integer DOCK_IN = 1; //入库码头
+    public static final Integer DOCK_OUT = 2; //出库码头
 
     //设置库位和库区的区别项
-    public static final Integer OtherType = 0; //其他项
-    public static final Integer RegionType = 1; //库区
-    public static final Integer BinType = 2;    //库位
+    public static final Integer OTHER_TYPE = 0; //其他项
+    public static final Integer REGION_TYPE = 1; //库区
+    public static final Integer BIN_TYPE = 2;    //库位
 
+    //位置是否删除
+    public static final Integer IS_VALID = 1;
+    public static final Integer NOT_VALID = 0;
+
+    public static final Map<String, Long> LOCATION_TYPE = new HashMap<String, Long>() {
+        {
+            put("warehouse", new Long(1)); // 1仓库
+            put("area", new Long(2)); // 2区域
+            put("passage", new Long(3));   //3通道
+            //各区域
+            put("inventoryLost", new Long(4));    //4盘盈盘亏
+            put("shelf_area", new Long(5)); //5货架区
+            put("loft_area", new Long(6)); //6阁楼区
+            put("floor", new Long(7)); // 7 地堆区
+            put("temporary", new Long(8)); // 8 暂存区
+            put("collection_area", new Long(9)); // 9 集货区
+            put("back_area", new Long(10)); // 10 退货区
+            put("defective_area", new Long(11)); // 11残次区
+            put("dock_area", new Long(12)); // 12 码头区
+
+            //货架和阁楼隶属货架区,阁楼区
+            put("shelf", new Long(13));  //13货架(个体)
+            put("loft", new Long(14));   //14阁楼(个体)
+
+            //所有的货位
+            put("bin", new Long(15)); // 15 所有的货位(存有货架|阁楼|区域的id)
+            //所有的货位
+            put("shelf_collection_bin", new Long(16)); //16货架拣货位
+            put("shelf_store_bin", new Long(17));   //19 货架存货位货位
+            put("loft_collection_bin", new Long(18)); //17阁楼拣货位
+            put("loft_store_bin", new Long(19));   //18阁楼存货位
+
+            /*其他功能区的货位*/
+            put("floor_bin", new Long(20)); // 20 地堆货位
+            put("temporary_bin", new Long(21)); // 21 暂存货位
+            put("collection_bin", new Long(22)); // 22 集货货位
+            put("back_bin", new Long(23)); // 23 退货货位
+            put("defective_bin", new Long(24));// 24 残次货位
+            put("consume_area", new Long(25));// 24 残次货位
+            put("supplier_area", new Long(26));// 24 残次货位
+        }
+    };
 
 }

@@ -12,8 +12,6 @@ import com.lsh.wms.api.service.location.ILocationDetailRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.LocationDetailModelFactory;
-import com.lsh.wms.core.service.location.LocationDetailService;
-import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.baseinfo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,9 +39,6 @@ import java.util.*;
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class LocationDetailRestService implements ILocationDetailRestService {
     private static Logger logger = LoggerFactory.getLogger(LocationRestService.class);
-
-    @Autowired
-    private LocationDetailService locationDetailService;
     @Autowired
     private LocationDetailModelFactory locationDetailModelFactory;
     @Autowired
@@ -59,40 +54,40 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @PostConstruct
     public void postConstruct() {
         //仓库
-        locationDetailModelFactory.register(LocationConstant.Warehouse, new BaseinfoLocationWarehouse());
+        locationDetailModelFactory.register(LocationConstant.WAREHOUSE, new BaseinfoLocationWarehouse());
         //区域
-        locationDetailModelFactory.register(LocationConstant.Region_area, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.REGION_AREA, new BaseinfoLocationRegion());
         //注入过道
-        locationDetailModelFactory.register(LocationConstant.Passage, new BaseinfoLocationPassage());
+        locationDetailModelFactory.register(LocationConstant.PASSAGE, new BaseinfoLocationPassage());
 
         //注入阁楼区和货架区
-        locationDetailModelFactory.register(LocationConstant.Shelfs, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.Lofts, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.SHELFS, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.LOFTS, new BaseinfoLocationRegion());
         //注入区域
-        locationDetailModelFactory.register(LocationConstant.InventoryLost, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.Floor, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.Temporary, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.Collection_area, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.Back_area, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.Defective_area, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.INVENTORYLOST, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.FLOOR, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.TEMPORARY, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.COLLECTION_AREA, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.BACK_AREA, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.DEFECTIVE_AREA, new BaseinfoLocationRegion());
         //货架和阁楼
-        locationDetailModelFactory.register(LocationConstant.Shelf, new BaseinfoLocationShelf());
-        locationDetailModelFactory.register(LocationConstant.Loft, new BaseinfoLocationShelf());
+        locationDetailModelFactory.register(LocationConstant.SHELF, new BaseinfoLocationShelf());
+        locationDetailModelFactory.register(LocationConstant.LOFT, new BaseinfoLocationShelf());
         //注入码头
-        locationDetailModelFactory.register(LocationConstant.Dock_area, new BaseinfoLocationDock());
+        locationDetailModelFactory.register(LocationConstant.DOCK_AREA, new BaseinfoLocationDock());
         //货位
-        locationDetailModelFactory.register(LocationConstant.Bin, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.BIN, new BaseinfoLocationBin());
         //货架和阁楼的货位
-        locationDetailModelFactory.register(LocationConstant.Shelf_collection_bin, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.Shelf_store_bin, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.Loft_collection_bin, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.Loft_store_bin, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.SHELF_PICKING_BIN, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.SHELF_STORE_BIN, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.LOFT_PICKING_BIN, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.LOFT_STORE_BIN, new BaseinfoLocationBin());
         //功能bin
-        locationDetailModelFactory.register(LocationConstant.Floor_bin, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.Temporary_bin, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.Collection_bin, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.Back_bin, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.Defective_bin, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.FLOOR_BIN, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.TEMPORARY_BIN, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.COLLECTION_BIN, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.BACK_BIN, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.DEFECTIVE_BIN, new BaseinfoLocationBin());
     }
 
 
