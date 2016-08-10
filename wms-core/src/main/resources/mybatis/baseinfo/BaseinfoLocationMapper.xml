@@ -88,6 +88,38 @@
 		limit #{start},#{limit}
 		</if>
 	</select>
+
+	<select id="getChildrenLocationList" parameterType="map" resultMap="baseinfoLocationResultMap">
+		select * from baseinfo_location
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="locationId != null">and location_id=#{locationId}</if>
+			<if test="locationCode != null">and location_code=#{locationCode}</if>
+			<if test="fatherId != null">and father_id=#{fatherId}</if>
+			<if test="leftRange != null">and left_range&gt;=#{leftRange}</if>
+			<if test="rightRange != null">and right_range&lt;=#{rightRange}</if>
+			<if test="level != null">and level=#{level}</if>
+			<if test="type != null">and type=#{type}</if>
+			<if test="typeName != null">and type_name=#{typeName}</if>
+			<if test="isLeaf != null">and is_leaf=#{isLeaf}</if>
+			<if test="isValid != null">and is_valid=#{isValid}</if>
+			<if test="canStore != null">and can_store=#{canStore}</if>
+			<if test="containerVol != null">and container_vol=#{containerVol}</if>
+			<if test="regionNo != null">and region_no=#{regionNo}</if>
+			<if test="passageNo != null">and passage_no=#{passageNo}</if>
+			<if test="shelfLevelNo != null">and shelf_level_no=#{shelfLevelNo}</if>
+			<if test="binPositionNo != null">and bin_position_no=#{binPositionNo}</if>
+			<if test="description != null">and description=#{description}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="classification != null">and classification=#{classification}</if>
+			<if test="canUse != null">and can_use=#{canUse}</if>
+			<if test="isLocked != null">and is_locked=#{isLocked}</if>
+		</where>
+		<if test="start != null and limit != null">
+			limit #{start},#{limit}
+		</if>
+	</select>
   
 	<sql id="queryCondition">
 		<where>

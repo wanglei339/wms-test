@@ -37,8 +37,8 @@ public class LocationRpcService implements ILocationRpcService {
     }
 
     // 获取一个location下一层的子节点
-    public List<BaseinfoLocation> getChildrenLocations(Long locationId) {
-        return locationService.getChildrenLocations(locationId);
+    public List<BaseinfoLocation> getNextLevelLocations(Long locationId) {
+        return locationService.getNextLevelLocations(locationId);
     }
 
     // 获取父级节点

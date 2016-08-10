@@ -41,7 +41,7 @@ public class LocationService {
     // 获取location
     public BaseinfoLocation getLocation(Long locationId) {
         Map<String, Object> params = new HashMap<String, Object>();
-        BaseinfoLocation location;
+        BaseinfoLocation location = new BaseinfoLocation();
         params.put("locationId", locationId);
         params.put("isValid", 1);
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
@@ -163,12 +163,43 @@ public class LocationService {
     }
 
     /**
-     * 获取一个location下一层的子节点
+     * 获取一个location所有子节点
      *
      * @param locationId
      * @return
      */
     public List<BaseinfoLocation> getChildrenLocations(Long locationId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        BaseinfoLocation location = this.getLocation(locationId);
+        params.put("leftRange", location.getLeftRange());
+        params.put("rightRange", location.getRightRange());
+        params.put("isValid", 1);
+        return locationDao.getChildrenLocationList(params);
+    }
+
+    /**
+     * 根据type获取子节点
+     * @param locationId
+     * @param type
+     * @return
+     */
+    public List<BaseinfoLocation> getChildrenLocationsByType(Long locationId, String type) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        BaseinfoLocation location = this.getLocation(locationId);
+        params.put("leftRange", location.getLeftRange());
+        params.put("rightRange", location.getRightRange());
+        params.put("type", type);
+        params.put("isValid", 1);
+        return locationDao.getChildrenLocationList(params);
+    }
+
+    /**
+     * 获取一个location下一层的子节点
+     *
+     * @param locationId
+     * @return
+     */
+    public List<BaseinfoLocation> getNextLevelLocations(Long locationId) {
         Map<String, Object> params = new HashMap<String, Object>();
         Map<Long, BaseinfoLocation> childrenLocations = new HashMap<Long, BaseinfoLocation>();
         // 判断是否已为子节点
@@ -188,8 +219,8 @@ public class LocationService {
      * @param locationId
      * @return
      */
-    public List<Long> getChildrenLocationIds(Long locationId) {
-        List<BaseinfoLocation> locations = this.getChildrenLocations(locationId);
+    public List<Long> getNextLevelLocationIds(Long locationId) {
+        List<BaseinfoLocation> locations = this.getNextLevelLocations(locationId);
         return this.getLocationIds(locations);
     }
 
@@ -200,23 +231,13 @@ public class LocationService {
      * @return
      */
     public List<BaseinfoLocation> getStoreLocations(Long locationId) {
-        List<BaseinfoLocation> locations = new ArrayList();
-        BaseinfoLocation curLocation = this.getLocation(locationId);
-        if (curLocation == null) {
-            return null;
-        }
-        if (curLocation.getCanStore() == 1) {
-            locations.add(curLocation);
-        }
-        if (curLocation.getIsLeaf() == 0) {
-            List<BaseinfoLocation> childrenLocations = this.getChildrenLocations(locationId);
-            // 深度优先,递归遍历
-            for (BaseinfoLocation location : childrenLocations) {
-                List<BaseinfoLocation> childrenStoreLocations = this.getStoreLocations(location.getLocationId());
-                locations.addAll(childrenStoreLocations);
-            }
-        }
-        return locations;
+        Map<String, Object> params = new HashMap<String, Object>();
+        BaseinfoLocation location = this.getLocation(locationId);
+        params.put("leftRange", location.getLeftRange());
+        params.put("rightRange", location.getRightRange());
+        params.put("can_store", 1);
+        params.put("isValid", 1);
+        return locationDao.getChildrenLocationList(params);
     }
 
     /**
