@@ -29,45 +29,6 @@ public class LocationService {
     private StockQuantService stockQuantService;
 
 
-    // location类型定义
-    public static final Map<String, Long> LOCATION_TYPE = new HashMap<String, Long>() {
-        {
-
-            put("warehouse", new Long(1)); // 1仓库
-            put("area", new Long(2)); // 2区域
-            put("passage", new Long(3));   //3通道
-            //各区域
-            put("inventoryLost", new Long(4));    //4盘盈盘亏
-            put("shelf_area", new Long(5)); //5货架区
-            put("loft_area", new Long(6)); //6阁楼区
-            put("floor", new Long(7)); // 7 地堆区
-            put("temporary", new Long(8)); // 8 暂存区
-            put("collection_area", new Long(9)); // 9 集货区
-            put("back_area", new Long(10)); // 10 退货区
-            put("defective_area", new Long(11)); // 11残次区
-            put("dock_area", new Long(12)); // 12 码头区
-
-            //货架和阁楼隶属货架区,阁楼区
-            put("shelf", new Long(13));  //13货架(个体)
-            put("loft", new Long(14));   //14阁楼(个体)
-
-            //所有的货位
-            put("bin", new Long(15)); // 15 所有的货位(存有货架|阁楼|区域的id)
-            //所有的货位
-            put("shelf_collection_bin", new Long(16)); //16货架拣货位
-            put("shelf_store_bin", new Long(17));   //19 货架存货位货位
-            put("loft_collection_bin", new Long(18)); //17阁楼拣货位
-            put("loft_store_bin", new Long(19));   //18阁楼存货位
-
-            /*其他功能区的货位*/
-            put("floor_bin", new Long(20)); // 20 地堆货位
-            put("temporary_bin", new Long(21)); // 21 暂存货位
-            put("collection_bin", new Long(22)); // 22 集货货位
-            put("back_bin", new Long(23)); // 23 退货货位
-            put("defective_bin", new Long(24));// 24 残次货位
-        }
-    };
-
     //计数
     //valid一定是1 未删除的
     public int countLocation(Map<String, Object> params) {
@@ -82,11 +43,6 @@ public class LocationService {
         params.put("locationId", locationId);
         params.put("isValid", 1);
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
-//        if (locations.size() == 1) {
-//            location = locations.get(0);
-//        } else {
-//            return null;
-//        }
         return locations.size() > 0 ? locations.get(0) : null;
     }
 
@@ -237,7 +193,7 @@ public class LocationService {
     public BaseinfoLocation getFatherByType(Long locationId, String type) {
         BaseinfoLocation curLocation = this.getLocation(locationId);
         Long fatherId = curLocation.getFatherId();
-        if (curLocation.getType().equals(this.LOCATION_TYPE.get(type))) {
+        if (curLocation.getType().equals(LocationConstant.LOCATION_TYPE.get(type))) {
             return curLocation;
         }
         if (fatherId == 0) {
@@ -256,7 +212,7 @@ public class LocationService {
         List<BaseinfoLocation> baseinfoLocationList = new ArrayList<BaseinfoLocation>();
         BaseinfoLocation curLocation = this.getLocation(locationId);
         Long fatherId = curLocation.getFatherId();
-        if (curLocation.getType().equals(this.LOCATION_TYPE.get(LocationConstant.Warehouse))) {
+        if (curLocation.getType().equals(LocationConstant.LOCATION_TYPE.get(LocationConstant.WAREHOUSE))) {
             baseinfoLocationList.add(curLocation);
             return baseinfoLocationList;
         }
@@ -313,7 +269,7 @@ public class LocationService {
             return null;
         }
         Map<String, Object> params = new HashMap<String, Object>();
-        Long LOCATION_TYPE = this.LOCATION_TYPE.get(type);
+        Long LOCATION_TYPE = LocationConstant.LOCATION_TYPE.get(type);
         params.put("type", LOCATION_TYPE);
         params.put("isValid", 1);
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
@@ -577,6 +533,15 @@ public class LocationService {
      */
     public List<BaseinfoLocation> getDockList(Map<String, Object> params) {
         return locationDao.getDockList(params);
+    }
+
+    /**
+     * 计数按码头出入库条件筛选的码头条数
+     * @param params
+     * @return
+     */
+    public Integer countDockList(Map<String,Object> params){
+        return  locationDao.countDockList(params);
     }
 
 }

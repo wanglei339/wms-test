@@ -46,6 +46,10 @@ public class TaskRpcService implements ITaskRpcService {
         TaskHandler handler = handlerFactory.getTaskHandler(taskType);
         handler.batchAssign(tasks, staffId);
     }
+    public void update(Long taskType,TaskEntry entry) throws BizCheckedException {
+        TaskHandler handler = handlerFactory.getTaskHandler(taskType);
+        handler.update(entry);
+    }
     public void batchCancel(Long taskType,List<Long> tasks) throws BizCheckedException {
         TaskHandler handler = handlerFactory.getTaskHandler(taskType);
         handler.batchCancel(tasks);

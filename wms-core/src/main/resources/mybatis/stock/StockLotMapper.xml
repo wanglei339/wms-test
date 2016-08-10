@@ -18,6 +18,10 @@
 		<result property="packUnit" column="pack_unit"/>
 		<result property="packName" column="pack_name"/>
 		<result property="supplierId" column="supplier_id"/>
+		<result property="l2Name" column="l2_name"/>
+		<result property="l2Unit" column="l2_unit"/>
+		<result property="unitName" column="unit_name"/>
+		<result property="code" column="code"/>
 	</resultMap>
 	<resultMap id="ItemAndSupplierMap" type="ItemAndSupplierRelation">
 		<result property="itemId" column="item_id"/>
@@ -27,10 +31,12 @@
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockLot">
 		insert into stock_lot (
 			lot_id,sku_id,serial_no,in_date,product_date,expire_date,
-			created_at,updated_at,po_id,item_id,receipt_id,pack_unit,pack_name,supplier_id
+			created_at,updated_at,po_id,item_id,receipt_id,pack_unit,pack_name,supplier_id,
+			l2_name,l2_unit,unit_name,code
     	) values (
 			#{lotId},#{skuId},#{serialNo},#{inDate},#{productDate},#{expireDate},
-			#{createdAt},#{updatedAt},#{poId},#{itemId},#{receiptId},#{packUnit},#{packName},#{supplierId}
+			#{createdAt},#{updatedAt},#{poId},#{itemId},#{receiptId},#{packUnit},#{packName},#{supplierId},
+			#{l2Name},#{l2Unit},#{unitName},#{code}
     	)
 	</insert>
 
@@ -51,6 +57,10 @@
 			<if test="packUnit != null">pack_unit=#{packUnit},</if>
 			<if test="packName != null">pack_name=#{packName},</if>
 			<if test="supplierId !=null">supplier_id=#{supplierId}</if>
+			<if test="l2Name != null">l2_name=#{l2Name},</if>
+			<if test="l2Unit != null">l2_unit=#{l2Unit},</if>
+			<if test="unitName != null">unit_name=#{unitName},</if>
+			<if test="code != null">code=#{code}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -113,6 +123,10 @@
 			<if test="packUnit != null">and pack_unit=#{packUnit}</if>
 			<if test="packName != null">and pack_name=#{packName}</if>
 			<if test="supplierId !=null"> and supplier_id=#{supplierId}</if>
+			<if test="l2Name != null">and l2_name=#{l2Name}</if>
+			<if test="l2Unit != null">and l2_unit=#{l2Unit}</if>
+			<if test="unitName != null">and unit_name=#{unitName}</if>
+			<if test="code != null">and code=#{code}</if>
 		</where>
 	</sql>
 

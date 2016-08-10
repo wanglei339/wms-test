@@ -6,6 +6,7 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.system.SysUser;
 import net.sf.json.JSONObject;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.inhouse.IStockTakingRfRestService;
@@ -49,9 +50,9 @@ import java.util.Map;
 @Path("inhouse/stock_taking")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-public class StocktakingRfRestService implements IStockTakingRfRestService {
+public class StockTakingRfRestService implements IStockTakingRfRestService {
 
-    private static Logger logger = LoggerFactory.getLogger(StocktakingRfRestService.class);
+    private static Logger logger = LoggerFactory.getLogger(StockTakingRfRestService.class);
 
     @Reference
     private ITaskRpcService iTaskRpcService;
@@ -116,7 +117,6 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
                     newDetail.setLocationId(detail.getLocationId());
                     newDetail.setContainerId(detail.getContainerId());
                     newDetail.setRound(detail.getRound());
-                    newDetail.setContainerId(detail.getContainerId());
                     stockTakingService.insertDetail(newDetail);
                 }
             }
@@ -144,14 +144,19 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String assign() throws BizCheckedException {
-        Map<String,Object> result =new HashMap<String, Object>();
-        Map<String, Object> params =RequestUtils.getRequest();
+        Map<String,Object> result = new HashMap<String, Object>();
+        Map<String, Object> params = RequestUtils.getRequest();
         Long uId = Long.valueOf(params.get("uId").toString());
         List<Map> taskList =  new ArrayList<Map>();
-        Long staffId = iSysUserRpcService.getSysUserById(uId).getStaffId();
+        SysUser user =  iSysUserRpcService.getSysUserById(uId);
+        if(user==null){
+            throw new BizCheckedException("违法的账户");
+        }
+        Long staffId = user.getStaffId();
         Map<String,Object> statusQueryMap = new HashMap();
         statusQueryMap.put("status",2);
         statusQueryMap.put("operator", staffId);
+
         List<TaskEntry> list = iTaskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TAKING, statusQueryMap);
         if(list!=null && list.size()!=0){
             for(TaskEntry taskEntry:list){
@@ -235,7 +240,6 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
         List<StockQuant> quantList = quantService.getQuants(queryMap);
         String packName = (quantList==null ||quantList.size()==0) ? "" : quantList.get(0).getPackName();
         Map<String,Object> result = new HashMap<String, Object>();
-        //TODO 返回rf枪所需的字段值。
         result.put("viewType",head.getViewType());
         result.put("taskId",taskId);
         BaseinfoLocation location = locationService.getLocation(detail.getLocationId());
@@ -303,6 +307,7 @@ public class StocktakingRfRestService implements IStockTakingRfRestService {
                     move.setQty(detail.getRealQty().subtract(detail.getTheoreticalQty()));
                     move.setFromLocationId(locationService.getInventoryLostLocationId());
                     move.setToLocationId(detail.getLocationId());
+                    move.setToContainerId(detail.getContainerId());
                 }
                 moveList.add(move);
             } else {

@@ -41,6 +41,9 @@ public class ProcurementRestService implements IProcurementRestService {
     private IProcurementProveiderRpcService rpcService;
 
     @Reference
+    private ITaskRpcService iTaskRpcService;
+
+    @Reference
     private ITaskRpcService taskRpcService;
 
     @Reference
@@ -59,6 +62,16 @@ public class ProcurementRestService implements IProcurementRestService {
     public String scanFromLocation() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         try {
+            Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
+            TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
+            if(entry==null ){
+                return JsonUtils.TOKEN_ERROR("任务不存在");
+            }else {
+                Long fromLocation = Long.valueOf(mapQuery.get("locationId").toString());
+                if(entry.getTaskInfo().getFromLocationId().compareTo(fromLocation) !=0 ){
+                    return JsonUtils.TOKEN_ERROR("扫描库位和系统库位不一致");
+                }
+            }
             rpcService.scanFromLocation(mapQuery);
         } catch (Exception e) {
             return JsonUtils.EXCEPTION_ERROR(e.getMessage());
@@ -77,6 +90,16 @@ public class ProcurementRestService implements IProcurementRestService {
     public String scanToLocation() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
         try {
+            Long taskId = Long.valueOf(params.get("taskId").toString());
+            TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
+            if(entry==null ){
+                return JsonUtils.TOKEN_ERROR("任务不存在");
+            }else {
+                Long toLocation = Long.valueOf(params.get("locationId").toString());
+                if(entry.getTaskInfo().getToLocationId().compareTo(toLocation) !=0 ){
+                    return JsonUtils.TOKEN_ERROR("扫描库位和系统库位不一致");
+                }
+            }
             rpcService.scanToLocation(params);
         } catch (Exception e) {
             logger.error(e.getCause().getMessage());

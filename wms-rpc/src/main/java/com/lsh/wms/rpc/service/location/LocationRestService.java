@@ -147,7 +147,7 @@ public class LocationRestService implements ILocationRestService {
     @Path("getShelfByRegionId")
     public String getShelfByRegionId(@QueryParam("locationId") Long locationId) {
         List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
-        List<Long> regionType = Arrays.asList(LocationConstant.Shelf, LocationConstant.Loft);
+        List<Long> regionType = Arrays.asList(LocationConstant.SHELF, LocationConstant.LOFT);
         for (Long oneType : regionType) {
             List<BaseinfoLocation> locationList = locationService.getSubLocationList(locationId, oneType);
             targetList.addAll(locationList);
@@ -165,7 +165,7 @@ public class LocationRestService implements ILocationRestService {
     @Path("getBinByShelf")
     public String getBinByShelf(@QueryParam("locationId") Long locationId) {
         List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
-        List<Long> regionType = Arrays.asList(LocationConstant.Shelf_collection_bin, LocationConstant.Shelf_store_bin, LocationConstant.Loft_collection_bin, LocationConstant.Loft_store_bin);
+        List<Long> regionType = Arrays.asList(LocationConstant.SHELF_PICKING_BIN, LocationConstant.SHELF_STORE_BIN, LocationConstant.LOFT_PICKING_BIN, LocationConstant.LOFT_STORE_BIN);
         for (Long oneType : regionType) {
             List<BaseinfoLocation> locationList = locationService.getSubLocationList(locationId, oneType);
             targetList.addAll(locationList);

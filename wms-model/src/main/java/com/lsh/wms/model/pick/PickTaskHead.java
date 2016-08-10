@@ -20,9 +20,9 @@ public class PickTaskHead implements Serializable {
 	/** 容器id */
     private Long containerId = 0L;
 	/** 分配的集货位 */
-	private Long allocCollectLocation;
+	private Long allocCollectLocation = 0L;
 	/** 实际的集货位 */
-	private Long realCollectLocation;
+	private Long realCollectLocation = 0L;
 	/** 拣货完成时间 */
     private Long pickAt = 0L;
 	/**  */

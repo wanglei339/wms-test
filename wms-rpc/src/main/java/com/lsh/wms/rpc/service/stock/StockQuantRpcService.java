@@ -137,7 +137,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
 
     public String unfreeze(Map<String, Object> mapCondition) throws BizCheckedException {
         BigDecimal requiredQty = new BigDecimal(mapCondition.get("qty").toString());
-        mapCondition.put("isFrozen", 1);
+        mapCondition.put("canUnFreeze", true);
         BigDecimal total = quantService.getQty(mapCondition);
         if((requiredQty.add(BigDecimal.ONE)).compareTo(BigDecimal.ZERO) == 0) requiredQty = total;
 
@@ -223,13 +223,9 @@ public class StockQuantRpcService implements IStockQuantRpcService {
     }
 
     public Map<Long, Map<String, BigDecimal>>getItemStockList(Map<String, Object> mapQuery) {
-        Long startTime = System.currentTimeMillis();
-        Long endTime;
+
         Map<Long, Map<String, BigDecimal>> itemQuant = new HashMap<Long, Map<String, BigDecimal>>();
         HashMap<String, Object> mapCondition = new HashMap<String, Object>();
-
-
-        int pn = Integer.valueOf(mapQuery.get("start").toString()), rn = Integer.valueOf(mapQuery.get("limit").toString());
 
         List<BaseinfoItem> itemList= itemService.searchItem(mapQuery);
         List<Long> itemIdList = new ArrayList<Long>();
@@ -237,19 +233,10 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         for (BaseinfoItem item : itemList) {
             itemIdList.add(item.getItemId());
         }
-        logger.info(itemIdList.size() + "");
-        endTime = System.currentTimeMillis();
-        logger.info("getItemIdList :" + (endTime-startTime));
-
-//        List<Long> locationList = locationService.getStoreLocationIds(locationService.getWarehouseLocationId());
-//        List<Long> locationListLoss = locationService.getStoreLocationIds(locationService.getInventoryLostLocationId());
 
         BigDecimal total, freeze, loss, lossDefect, lossRefund, defect, refund;
         mapCondition.put("itemList", itemIdList);
         List<StockQuant> quantList = quantService.getQuants(mapCondition);
-
-        endTime = System.currentTimeMillis();
-        logger.info("getQuantList :" + (endTime-startTime));
 
         total = BigDecimal.ZERO;
         loss = BigDecimal.ZERO;
@@ -277,7 +264,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             if(isNormal == 0) {
                 freeze = freeze.add(qty);
             }
-            if (locationService.getLocation(locationId).getType().equals( LocationConstant.InventoryLost) ) {
+            if (locationService.getLocation(locationId).getType().equals( LocationConstant.INVENTORYLOST) ) {
                 loss = loss.add(qty);
                 if (isDefect == 1) {
                     lossDefect = lossDefect.add(qty);
@@ -321,8 +308,6 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             }
         }
 
-        endTime = System.currentTimeMillis();
-        logger.info("" + (endTime-startTime));
         return itemQuant;
     }
 

@@ -8,5 +8,7 @@ import com.lsh.wms.model.transfer.StockTransferPlan;
  */
 public interface IProcurementProviderRestService {
     String addProcurementPlan (StockTransferPlan plan) throws BizCheckedException;
+    String updateProcurementPlan(StockTransferPlan plan)  throws BizCheckedException;
+    String cancelProcurementPlan(long taskId)  throws BizCheckedException;
     String createProcurement() throws BizCheckedException;
 }

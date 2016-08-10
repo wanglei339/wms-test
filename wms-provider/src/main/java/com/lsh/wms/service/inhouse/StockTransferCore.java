@@ -59,7 +59,7 @@ public class StockTransferCore {
 
     public void fillTransferPlan(StockTransferPlan plan) throws BizCheckedException {
 
-        if (plan.getPackName().equals("pallet")) {
+        if (plan.getSubType().compareTo(1L)==0) {
             plan.setPackName(itemRpcService.getItem(plan.getItemId()).getPackName());
             StockQuantCondition condition = new StockQuantCondition();
             condition.setLocationId(plan.getFromLocationId());
