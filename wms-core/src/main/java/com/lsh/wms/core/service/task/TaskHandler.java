@@ -30,10 +30,12 @@ public interface TaskHandler {
     void done(Long taskId, Long locationId) throws BizCheckedException;
     void done(Long taskId, Long locationId, Long staffId) throws BizCheckedException;
     void cancel(Long taskId);
+    void update(TaskEntry taskEntry);
 
     void doneConcrete(Long taskId);
     void doneConcrete(Long taskId, Long locationId);
     void doneConcrete(Long taskId, Long locationId, Long staffId);
     void cancelConcrete(Long taskId);
     void allocateConcrete(Long taskId);
+    void updteConcrete(TaskEntry taskEntry);
 }

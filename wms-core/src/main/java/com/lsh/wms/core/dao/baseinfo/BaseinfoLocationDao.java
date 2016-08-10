@@ -20,5 +20,7 @@ public interface BaseinfoLocationDao{
     List<BaseinfoLocation> getBaseinfoLocationList(Map<String, Object> params);
 //设置dock的服务,处理出入码头的关联查询
 	List<BaseinfoLocation> getDockList(Map<String, Object> params);
+	//码头dock的计数
+	Integer countDockList(Map<String, Object> params);
 	
 }

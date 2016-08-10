@@ -108,7 +108,7 @@ public class LocationRpcService implements ILocationRpcService {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         //将不同的货架type塞入
         List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
-        List<Long> regionType = Arrays.asList(LocationConstant.Shelf, LocationConstant.Loft);
+        List<Long> regionType = Arrays.asList(LocationConstant.SHELF, LocationConstant.LOFT);
         for (Long oneType:regionType){
             mapQuery.put("type",oneType);
             List<BaseinfoLocation> locationList = locationService.getBaseinfoLocationList(mapQuery);
@@ -127,6 +127,7 @@ public class LocationRpcService implements ILocationRpcService {
     public List<BaseinfoLocation> getAllBin() {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("classification", 2);
+        mapQuery.put("isValid",LocationConstant.IS_VALID);
         return locationService.getBaseinfoLocationList(mapQuery);
     }
 
@@ -139,11 +140,13 @@ public class LocationRpcService implements ILocationRpcService {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
         //放入阁楼拣货位
-        mapQuery.put("type", LocationConstant.Loft_collection_bin);
+        mapQuery.put("type", LocationConstant.LOFT_PICKING_BIN);
+        mapQuery.put("isValid",LocationConstant.IS_VALID);
         List<BaseinfoLocation> loftColletionBins = locationService.getLocationListByType(mapQuery);
         targetList.addAll(loftColletionBins);
         //货架拣货位
-        mapQuery.put("type",LocationConstant.Shelf_collection_bin);
+        mapQuery.put("type",LocationConstant.SHELF_PICKING_BIN);
+        mapQuery.put("isValid",LocationConstant.IS_VALID);
         List<BaseinfoLocation> shelfColletionBins = locationService.getLocationListByType(mapQuery);
         targetList.addAll(shelfColletionBins);
         return targetList;
@@ -155,6 +158,7 @@ public class LocationRpcService implements ILocationRpcService {
      * @return
      */
     public List<BaseinfoLocation> getDockList(Map<String, Object> params) {
+        params.put("isValid",LocationConstant.IS_VALID);
         return locationService.getDockList(params);
     }
 

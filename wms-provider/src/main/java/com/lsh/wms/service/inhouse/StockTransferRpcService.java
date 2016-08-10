@@ -12,7 +12,12 @@ import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
+import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.constant.LocationConstant;
+import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
@@ -61,8 +66,35 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     @Reference
     private ILocationRpcService locationRpcService;
 
+    @Autowired
+    private StockQuantService quantService;
+
+    @Autowired
+    private ItemLocationService itemLocationService;
 
     public void addPlan(StockTransferPlan plan)  throws BizCheckedException {
+        Long fromLocationId = plan.getFromLocationId(), toLocationId = plan.getToLocationId();
+        List <StockQuant> fromQuants = quantService.getQuantsByLocationId(fromLocationId);
+        List <StockQuant> toQuants = quantService.getQuantsByLocationId(toLocationId);
+        BaseinfoLocation location = locationService.getLocation(toLocationId);
+
+        if( (fromQuants.size() == 0) || (fromQuants.get(0).getItemId().compareTo(plan.getItemId()) != 0) ){
+            throw new BizCheckedException("2550003");
+        }
+
+        if( toQuants.size() > 0 ){
+            if(location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN) == 0 || location.getType().compareTo(LocationConstant.SHELF_PICKING_BIN) == 0 ){
+                List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toLocationId);
+                if(itemLocations.get(0).getItemId().compareTo(fromQuants.get(0).getItemId()) != 0){
+                    throw new BizCheckedException("2550004");
+                }
+            } else {
+                if( (toQuants.get(0).getItemId().compareTo(fromQuants.get(0).getItemId()) != 0) || (toQuants.get(0).getLotId().compareTo(fromQuants.get(0).getLotId()) != 0) ){
+                    throw new BizCheckedException("2550004");
+                }
+            }
+        }
+
         StockQuantCondition condition = new StockQuantCondition();
         condition.setLocationId(plan.getFromLocationId());
         condition.setItemId(plan.getItemId());
@@ -75,7 +107,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
 
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
         Long containerId = quantList.get(0).getContainerId();
-        if (plan.getPackName() == "pallet") {
+        if (plan.getSubType() == 2) {
             containerId = containerService.createContainerByType(2L).getId();
         }
 
@@ -97,11 +129,11 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if(plan.getItemId() == 0) {
             plan.setItemId(taskInfo.getItemId());
         }
-        if(plan.getUomQty() == BigDecimal.ZERO) {
+        if(plan.getUomQty().compareTo(BigDecimal.ZERO) == 0) {
             plan.setUomQty(taskInfo.getQtyUom());
         }
-        if(plan.getPackName().compareTo("") == 0) {
-            plan.setPackName(taskInfo.getPackName());
+        if(plan.getSubType() == 2) {
+            plan.setSubType(taskInfo.getSubType());
         }
         if(plan.getToLocationId() == 0 ) {
             plan.setToLocationId(taskInfo.getToLocationId());

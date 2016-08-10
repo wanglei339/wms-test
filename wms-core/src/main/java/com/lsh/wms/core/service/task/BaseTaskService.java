@@ -92,6 +92,12 @@ public class BaseTaskService {
         taskHandler.assignConcrete(taskId, staffId);
     }
     @Transactional(readOnly = false)
+    public void update(TaskEntry taskEntry, TaskHandler taskHandler) throws BizCheckedException {
+        TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskEntry.getTaskInfo().getTaskId());;
+        taskInfoDao.update(taskInfo);
+        taskHandler.updteConcrete(taskEntry);
+    }
+    @Transactional(readOnly = false)
     public void batchAssign(List<Long> taskList,  Long staffId,TaskHandler taskHandler) {
         for(Long taskId:taskList) {
             TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);

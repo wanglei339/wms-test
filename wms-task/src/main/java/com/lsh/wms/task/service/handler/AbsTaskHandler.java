@@ -40,13 +40,13 @@ public class AbsTaskHandler implements TaskHandler {
             taskInfo.setTaskId(taskId);
             taskEntry.setTaskInfo(taskInfo);
         }
-       baseTaskService.batchCreate(taskEntries,this);
+       baseTaskService.batchCreate(taskEntries, this);
     }
     public void batchAssign(List<Long> tasks,Long staffId) throws BizCheckedException {
-        baseTaskService.batchAssign(tasks,staffId,this);
+        baseTaskService.batchAssign(tasks, staffId, this);
     }
     public void batchCancel(List<Long> tasks) throws BizCheckedException {
-        baseTaskService.batchCancel(tasks,this);
+        baseTaskService.batchCancel(tasks, this);
     }
 
     public void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
@@ -103,6 +103,10 @@ public class AbsTaskHandler implements TaskHandler {
         baseTaskService.assign(taskId, staffId, this);
         // this.assignConcrete(taskId, staffId);
     }
+    public void update(TaskEntry taskEntry) throws BizCheckedException {
+        baseTaskService.update(taskEntry, this);
+        // this.assignConcrete(taskId, staffId);
+    }
 
     public void assignConcrete(Long taskId, Long staffId) throws BizCheckedException {
     }
@@ -145,6 +149,8 @@ public class AbsTaskHandler implements TaskHandler {
 
     public void cancelConcrete(Long taskId) {
     }
+    public void updteConcrete(Long taskId) {
+    }
 
     public void allocate(Long taskId) {
         baseTaskService.allocate(taskId, this);
@@ -152,6 +158,10 @@ public class AbsTaskHandler implements TaskHandler {
     }
 
     public void allocateConcrete(Long taskId) {
+    }
+
+    public void updteConcrete(TaskEntry taskEntry) {
+
     }
 
     public void release(Long taskId) {

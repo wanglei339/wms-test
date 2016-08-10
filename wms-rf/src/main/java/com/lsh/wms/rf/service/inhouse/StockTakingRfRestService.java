@@ -145,12 +145,18 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String assign() throws BizCheckedException {
         Map<String,Object> result = new HashMap<String, Object>();
-        Map<String, Object> params = RequestUtils.getRequest();
-        Long uId = Long.valueOf(params.get("uId").toString());
-        List<Map> taskList =  new ArrayList<Map>();
+        Long uId=0L;
+        List<Map> taskList = new ArrayList<Map>();
+        try {
+            Map<String, Object> params = RequestUtils.getRequest();
+            uId = Long.valueOf(params.get("uId").toString());
+        }catch (Exception e){
+            logger.info(e.getMessage());
+            return JsonUtils.TOKEN_ERROR("违法的账户");
+        }
         SysUser user =  iSysUserRpcService.getSysUserById(uId);
         if(user==null){
-            throw new BizCheckedException("违法的账户");
+            return JsonUtils.TOKEN_ERROR("违法的账户");
         }
         Long staffId = user.getStaffId();
         Map<String,Object> statusQueryMap = new HashMap();
