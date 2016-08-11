@@ -36,6 +36,7 @@ public interface IStaffRestService {
     public String updateGroup(Map<String, Object> params) throws BizCheckedException;
 
     public String deleteGroup(Map<String, Object> params) throws BizCheckedException;
+    String getGroup(Long iGroupId);
 
 
     public String getLevelList(Map<String, Object> params);

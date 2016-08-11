@@ -147,6 +147,12 @@ public class StaffRestService implements IStaffRestService {
         return JsonUtils.SUCCESS(group);
     }
 
+    @GET
+    @Path("getGroup")
+    public String getGroup(@QueryParam("groupId") Long iGroupId){
+        return JsonUtils.SUCCESS(staffRpcService.getDepartmentById(iGroupId));
+    }
+
     @POST
     @Path("getLevelList")
     public String getLevelList(Map<String, Object> params) {
