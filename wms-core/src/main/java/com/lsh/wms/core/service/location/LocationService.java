@@ -67,6 +67,7 @@ public class LocationService {
 
     /**
      * 更新location
+     *
      * @param iBaseinfoLocaltionModel
      * @return
      */
@@ -84,6 +85,7 @@ public class LocationService {
 
     /**
      * 重置location_id和range
+     *
      * @param location
      * @return
      */
@@ -97,13 +99,14 @@ public class LocationService {
     /**
      * 设置location节点子节点的范围
      * 重要方法,设置location_id必须使用此方法!!!
+     *
      * @param location
      * @return
      */
     public BaseinfoLocation setLocationIdAndRange(BaseinfoLocation location) {
         Long fatherLocationId = location.getFatherId();
         // 根节点处理
-        if (fatherLocationId == null || fatherLocationId.equals(0)) {
+        if (fatherLocationId == null || fatherLocationId.equals(-1L)) {
             location.setLocationId(0L);
             location.setLeftRange(1L);
             location.setLevel(0L); // 设置层数,根节点层数为0,下一层为起始层,层数为1
@@ -122,14 +125,14 @@ public class LocationService {
             Long tmpLocationId = fatherLeftRange;
             levelLocationIds.add(tmpLocationId);
             // 找出当前层所有可能的location_id
-            for (Long i = fatherLeftRange; i < LocationConstant.CHILDREN_RANGE; i++) {
+            for (Long i = fatherLeftRange; i < (fatherLeftRange + LocationConstant.CHILDREN_RANGE); i++) {
                 tmpLocationId += (fatherRightRange - fatherLeftRange + 1) / LocationConstant.CHILDREN_RANGE;
                 levelLocationIds.add(tmpLocationId);
             }
             for (Long levelLocationId : levelLocationIds) {
                 BaseinfoLocation tmpLocation = this.getLocation(levelLocationId);
                 // 如果已分配过但是逻辑删除了,则复用该id
-                if (tmpLocation == null || tmpLocation.getIsValid() == 0) {
+                if (tmpLocation == null || tmpLocation.getIsValid() == 0) { //一旦集合比较大,选择没有分配过的location即null,进入方法设置locationId和左右范围
                     location.setLocationId(levelLocationId);
                     location.setLeftRange(levelLocationId + 1);
                     location.setLevel(level);
@@ -180,6 +183,7 @@ public class LocationService {
 
     /**
      * 根据type获取子节点
+     *
      * @param locationId
      * @param type
      * @return
@@ -622,11 +626,12 @@ public class LocationService {
 
     /**
      * 计数按码头出入库条件筛选的码头条数
+     *
      * @param params
      * @return
      */
-    public Integer countDockList(Map<String,Object> params){
-        return  locationDao.countDockList(params);
+    public Integer countDockList(Map<String, Object> params) {
+        return locationDao.countDockList(params);
     }
 
 }

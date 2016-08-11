@@ -182,6 +182,10 @@ public class LocationDetailService {
         IStrategy iStrategy = locationDetailServiceFactory.getIstrategy(iBaseinfoLocaltionModel.getType());
         iStrategy.insert(iBaseinfoLocaltionModel);
         //将father的叶子节点变为0
+        //如果插入的是仓库
+        if (location.getFatherId()==-1L){
+            return;
+        }
         BaseinfoLocation fatherLocation = locationService.getFatherLocation(location.getLocationId());
         fatherLocation.setIsLeaf(0);
         locationService.updateLocation(fatherLocation);
