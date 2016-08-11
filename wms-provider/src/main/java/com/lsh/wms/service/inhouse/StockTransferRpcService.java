@@ -82,7 +82,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             throw new BizCheckedException("2550003");
         }
 
-        if( toQuants.size() > 0 ){
+        if( toQuants.size() > 0 && location.getType().compareTo(LocationConstant.FLOOR) != 0){
             if(location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN) == 0 || location.getType().compareTo(LocationConstant.SHELF_PICKING_BIN) == 0 ){
                 List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toLocationId);
                 if(itemLocations.get(0).getItemId().compareTo(fromQuants.get(0).getItemId()) != 0){
