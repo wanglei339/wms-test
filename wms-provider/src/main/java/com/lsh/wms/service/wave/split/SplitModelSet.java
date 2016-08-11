@@ -12,6 +12,10 @@ import java.util.Map;
 public class SplitModelSet extends SplitModel{
     @Override
     public void split(List<SplitNode> stopNodes) {
+        if(true) {
+            this.skipSplit();
+            return;
+        }
         //这个简单,直接按照是否是一个相同的集货区进行合并就行了
         for(SplitNode node : this.oriNodes){
             Map<Long, SplitNode> mapOrderNodes = new HashMap<Long, SplitNode>();

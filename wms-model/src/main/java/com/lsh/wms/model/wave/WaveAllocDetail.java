@@ -26,6 +26,10 @@ public class WaveAllocDetail implements Serializable {
     private BigDecimal reqQty = new BigDecimal("0.0000");
 	/** 配货库存量 */
     private BigDecimal allocQty;
+	/** 分配库存单位名称 */
+	private String allocUnitName = "EA";
+	/** 分配库存单位数量 */
+	private BigDecimal allocUnitQty = new BigDecimal("0.0000");
 	/** 分配的捡货分区 */
     private Long pickZoneId;
 	/** 分配分拣位 */
@@ -113,6 +117,22 @@ public class WaveAllocDetail implements Serializable {
 	
 	public void setAllocQty(BigDecimal allocQty){
 		this.allocQty = allocQty;
+	}
+
+	public BigDecimal getAllocUnitQty(){
+		return this.allocUnitQty;
+	}
+
+	public void setAllocUnitQty(BigDecimal allocUnitQty){
+		this.allocUnitQty = allocUnitQty;
+	}
+
+	public String getAllocUnitName(){
+		return this.allocUnitName;
+	}
+
+	public void setAllocUnitName(String allocUnitName){
+		this.allocUnitName = allocUnitName;
 	}
 	
 	public Long getPickZoneId(){

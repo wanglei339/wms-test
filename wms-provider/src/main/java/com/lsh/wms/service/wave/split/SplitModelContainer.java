@@ -1,6 +1,9 @@
 package com.lsh.wms.service.wave.split;
 
+import com.lsh.wms.model.wave.WaveDetail;
+
 import java.util.List;
+import java.math.BigDecimal;
 
 /**
  * Created by zengwenjun on 16/7/15.
@@ -15,7 +18,19 @@ public class SplitModelContainer extends SplitModel{
         // 3. 尽量均匀的分布
         // 4. 和最后的合并算法一起考虑,对路径优化有一定的提升
         for(SplitNode node : this.oriNodes){
-            stopNodes.add(node);
+            BigDecimal sumQty = new BigDecimal("0");
+            for(WaveDetail detail : node.details){
+                sumQty = sumQty.add(detail.getAllocUnitQty()); // 这TM的是ea的,草勒,看来还得存个捡货单元单位量
+            }
+            if(sumQty.compareTo(BigDecimal.valueOf(this.model.getContainerUnitCapacity()))>0){
+                //卧槽,多了,要分开
+                stopNodes.add(node);
+                int needNum = sumQty.divide(BigDecimal.valueOf(this.model.getContainerUnitCapacity()), 0, BigDecimal.ROUND_CEILING).intValue();
+                //写一个最佳的分裂算法
+
+            }else{
+                stopNodes.add(node);
+            }
         }
     }
 }
