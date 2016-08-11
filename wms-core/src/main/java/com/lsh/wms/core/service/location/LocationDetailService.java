@@ -147,8 +147,14 @@ public class LocationDetailService {
         //转化成父类,插入
         BaseinfoLocation location = new BaseinfoLocation();
         ObjUtils.bean2bean(iBaseinfoLocaltionModel, location);
-        //先插入主表
-        locationService.insertLocation(location);
+
+        //先插入主表(并获得主表的location)
+        BaseinfoLocation baseinfoLocation = locationService.insertLocation(location);
+
+        //拷贝插入过主表后的location数据(时间和id)
+        iBaseinfoLocaltionModel.setLocationId(baseinfoLocation.getLocationId());
+        iBaseinfoLocaltionModel.setCreatedAt(baseinfoLocation.getCreatedAt());
+        iBaseinfoLocaltionModel.setUpdatedAt(baseinfoLocation.getUpdatedAt());
         //根据model选择service
         IStrategy iStrategy = locationDetailServiceFactory.getIstrategy(iBaseinfoLocaltionModel.getType());
         iStrategy.insert(iBaseinfoLocaltionModel);
@@ -232,10 +238,11 @@ public class LocationDetailService {
 
     /**
      * location中dock的筛选条件计数
+     *
      * @param params
      * @return
      */
-    public Integer countDockList(Map<String,Object> params){
+    public Integer countDockList(Map<String, Object> params) {
         return locationService.countDockList(params);
     }
 

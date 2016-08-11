@@ -13,5 +13,5 @@ import java.util.Map;
  */
 @Component
 public interface TargetListHandler {
-    List<BaseinfoLocation> getTargetLocaltionModelList(Map<String, Object> params);
+    List<BaseinfoLocation> getTargetLocaltionModelList();
 }

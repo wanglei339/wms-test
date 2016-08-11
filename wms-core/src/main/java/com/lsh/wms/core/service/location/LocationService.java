@@ -60,6 +60,7 @@ public class LocationService {
         //添加新增时间
         long createdAt = DateUtils.getCurrentSeconds();
         location.setCreatedAt(createdAt);
+        location.setUpdatedAt(createdAt);
         locationDao.insert(location);
         return location;
     }

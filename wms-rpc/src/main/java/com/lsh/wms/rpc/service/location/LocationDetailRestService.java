@@ -118,13 +118,14 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationDetailModelFactory.getLocationModel(Long.valueOf(request.getType().toString()));
         //转成子类
         ObjUtils.bean2bean(request, iBaseinfoLocaltionModel);
-        //设置id
-        Long locationId = RandomUtils.genId();
-        iBaseinfoLocaltionModel.setLocationId(locationId);
-        //生成时间
-        Long createAt = DateUtils.getCurrentSeconds();
-        iBaseinfoLocaltionModel.setCreatedAt(createAt);
-        iBaseinfoLocaltionModel.setUpdatedAt(createAt);
+        // 不设置locationId在底层设置
+//        //设置id
+//        Long locationId = RandomUtils.genId();
+//        iBaseinfoLocaltionModel.setLocationId(locationId);
+//        //生成时间
+//        Long createAt = DateUtils.getCurrentSeconds();
+//        iBaseinfoLocaltionModel.setCreatedAt(createAt);
+//        iBaseinfoLocaltionModel.setUpdatedAt(createAt);
         //插入是否成功
         boolean isTrue = locationDetailRpcService.insertLocationDetailByType((BaseinfoLocation) iBaseinfoLocaltionModel);
         if (isTrue){
