@@ -16,7 +16,7 @@ import java.util.Map;
  */
 @Component
 @Transactional(readOnly = true)
-public class Passage implements TargetListHandler {
+public class PassageListService implements TargetListHandler {
     @Autowired
     private LocationService locationService;
     public List<BaseinfoLocation> getTargetLocaltionModelList() {

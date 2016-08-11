@@ -115,4 +115,10 @@ public class LocationConstant {  // TODO 修改格式大写加下滑线
     public static final Integer CHILDREN_RANGE = 128; //每个节点的子节点数
     public static final Integer LOCATION_LEVEL = 8; // 整棵树的最大层数
 
+    //与获取的targetList的方法相关
+    public static final Integer LIST_TYPE_AREA = 1; //获取大区的list方法
+    public static final Integer LIST_TYPE_DOMAIN = 2;   //获取功能list方法
+    public static final Integer LIST_TYPE_PASSAGE = 3;   //获取通道list方法
+    public static final Integer LIST_TYPE_SHELFREGION = 4;   //获取货架区和阁楼区的list方法
+    public static final Integer LIST_TYPE_SHELF = 5; //获取货架和阁楼的list方法
 }

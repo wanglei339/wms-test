@@ -195,4 +195,15 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         }
     }
 
+    /**
+     * 按照指定的获取list的方法
+     * @return 全大区、全功能区、全货架阁楼、全货架阁楼区、全通道
+     * @throws BizCheckedException
+     */
+    @GET
+    @Path("getTargetListByListType")
+    public String getTargetListByListType(@QueryParam("listType") Integer listType) throws BizCheckedException {
+        return JsonUtils.SUCCESS(locationDetailRpcService.getTargetListByListType(listType));
+    }
+
 }

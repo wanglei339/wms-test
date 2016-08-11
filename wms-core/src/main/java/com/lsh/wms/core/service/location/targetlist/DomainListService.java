@@ -10,19 +10,21 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 /**
- * 查找所有的阁楼区和货架区
+ * 查找功能区
+ *
  * @Author 马启迪 maqidi@lsh123.com
- * @Date 16/8/10 下午6:31
+ * @Date 16/8/10 下午6:29
  */
 @Component
 @Transactional(readOnly = true)
-public class ShelfRegion implements TargetListHandler{
+public class DomainListService implements TargetListHandler {
     @Autowired
     private LocationService locationService;
+
     public List<BaseinfoLocation> getTargetLocaltionModelList() {
         List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
-        //查找所有货架和阁楼
-        List<Long> DOMAIN_TYPE = Arrays.asList(LocationConstant.SHELFS, LocationConstant.LOFTS);
+        //查找所有的功能区,地堆,暂存,集货区,退货,残次区
+        List<Long> DOMAIN_TYPE = Arrays.asList(LocationConstant.FLOOR, LocationConstant.TEMPORARY, LocationConstant.COLLECTION_AREA, LocationConstant.BACK_AREA, LocationConstant.DEFECTIVE_AREA);
         //查出来拼在一起
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("isValid", 1);

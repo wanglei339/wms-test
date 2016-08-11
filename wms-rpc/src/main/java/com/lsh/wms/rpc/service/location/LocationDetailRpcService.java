@@ -105,4 +105,17 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
             throw new BizCheckedException("2180003");
         }
     }
+
+    /**
+     * 获取固定的位置list的方法,通过传入获取的list方法不同,返回不同的location集合,如功能区、全货架、全大区、全货架区、全通道
+     * @param listType
+     * @return
+     * @throws BizCheckedException
+     */
+    public List<BaseinfoLocation> getTargetListByListType(Integer listType) throws BizCheckedException {
+        if (null == listType) {
+            throw new BizCheckedException("2180004");
+        }
+        return locationDetailService.getTargetListByListType(listType);
+    }
 }

@@ -18,4 +18,5 @@ public interface ILocationDetailRestService {
     public String countLocationDetailByType();
     public String searchList() throws BizCheckedException;
     public String removeLocation()throws BizCheckedException;
+    public String getTargetListByListType(Integer listType)throws BizCheckedException;
 }

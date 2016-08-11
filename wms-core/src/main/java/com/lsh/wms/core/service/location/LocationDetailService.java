@@ -3,6 +3,7 @@ package com.lsh.wms.core.service.location;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.core.constant.LocationConstant;
+import com.lsh.wms.core.service.location.targetlist.*;
 import com.lsh.wms.model.baseinfo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
@@ -44,7 +44,19 @@ public class LocationDetailService {
     private BaseinfoLocationShelfService baseinfoLocationShelfService;
     @Autowired
     private LocationDetailModelFactory locationDetailModelFactory;
-
+    //获取list方法的注入
+    @Autowired
+    private TargetListFactory targetListFactory;
+    @Autowired
+    private AreaListService areaListService;
+    @Autowired
+    private DomainListService domainListService;
+    @Autowired
+    private PassageListService passageListService;
+    @Autowired
+    private ShelfListService shelfListService;
+    @Autowired
+    private ShelfRegionListService shelfRegionListService;
 
     /**
      * 将所有的Service注册到工厂中
@@ -131,6 +143,17 @@ public class LocationDetailService {
         locationDetailModelFactory.register(LocationConstant.DEFECTIVE_BIN, new BaseinfoLocationBin());
     }
 
+    /**
+     * 将所有的getList方法注入到工厂中
+     */
+    @PostConstruct
+    public void postTargetListConstruct() {
+        targetListFactory.register(LocationConstant.LIST_TYPE_AREA, areaListService);
+        targetListFactory.register(LocationConstant.LIST_TYPE_DOMAIN, domainListService);
+        targetListFactory.register(LocationConstant.LIST_TYPE_PASSAGE, passageListService);
+        targetListFactory.register(LocationConstant.LIST_TYPE_SHELFREGION, shelfRegionListService);
+        targetListFactory.register(LocationConstant.LIST_TYPE_SHELF, shelfListService);
+    }
 
     /**
      * Location的细节表插入
@@ -274,4 +297,15 @@ public class LocationDetailService {
         return null;
     }
 
+    /**
+     * 获取指定的全功能区、全货架、全货架区、全大区、全通道, 使用的话,请使用locationDeatilRPCService服务
+     * @param listType
+     * @return
+     * @throws BizCheckedException
+     */
+    public List<BaseinfoLocation> getTargetListByListType(Integer listType)throws BizCheckedException {
+        TargetListHandler listHandler = targetListFactory.getTargetListHandler(listType);
+        List<BaseinfoLocation> targetList = listHandler.getTargetLocaltionModelList();
+        return targetList;
+    }
 }

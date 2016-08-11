@@ -26,38 +26,13 @@ public interface ILocationDetailRpc {
 
     public boolean removeLocation(Long locationId) throws BizCheckedException;
 
-//    /**
-//     * 获取全货架
-//     * 包含所有阁楼和货架
-//     * @return
-//     */
-//    public List<BaseinfoLocation> getAllShelfs();
+    /**
+     * 获取需要得到的list方法
+     * @param listType
+     * @return
+     * @throws BizCheckedException
+     */
+    public List<BaseinfoLocation> getTargetListByListType(Integer listType) throws BizCheckedException;
 
-
-    //获取将这些方法写在策略模式中,按照不同的targetType来取不同的策略
-//    /**
-//     * 获取大区(抽象区)
-//     * 仓库中A区B区
-//     * @return
-//     */
-//    public List<BaseinfoLocation> getArea();
-//
-//    /**
-//     * 获取所有的功能区(例如集货区、退货区、残次区、暂存区等)
-//     * @return
-//     */
-//    public List<BaseinfoLocation> getDomains();
-//
-//    /**
-//     * 获取所有的通道
-//     * @return
-//     */
-//    public List<BaseinfoLocation> getAllPassage();
-//
-//    /**
-//     * 获取所有的货架区和阁楼区
-//     * @return
-//     */
-//    public List<BaseinfoLocation> getShelfRegion();
 
 }

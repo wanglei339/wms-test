@@ -17,7 +17,7 @@ import java.util.Map;
  */
 @Component
 @Transactional(readOnly = true)
-public class Area implements TargetListHandler {
+public class AreaListService implements TargetListHandler {
     @Autowired
     private LocationService locationService;
 
