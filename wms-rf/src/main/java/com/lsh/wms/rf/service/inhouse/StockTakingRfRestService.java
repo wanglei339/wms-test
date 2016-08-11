@@ -192,9 +192,34 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         if(entries==null ||entries.size()==0){
             return JsonUtils.TOKEN_ERROR("无盘点任务可领");
         }
-        TaskInfo info=entries.get(0).getTaskInfo();
-        queryMap.put("takingId", info.getPlanId());
-        Long round = stockTakingService.chargeTime(info.getPlanId());
+
+        //同一盘点任务，同一个人不能领多次
+        TaskInfo info = null;
+        StockTakingTask  takingTask = null;
+        for(TaskEntry entry:entries){
+            takingTask = (StockTakingTask)(entry.getTaskHead());
+            if(takingTask.getRound()==1){
+                info = entry.getTaskInfo();
+                break;
+            }else {
+                queryMap.put("planId", info.getPlanId());
+                queryMap.put("status",3L);
+                List<TaskEntry> entryList = iTaskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TAKING,queryMap);
+                Map<Long,Integer> chageMap = new HashMap<Long, Integer>();
+                for(TaskEntry tmp:entryList){
+                    chageMap.put(tmp.getTaskInfo().getOperator(),1);
+                }
+                if(!chageMap.containsKey(staffId)){
+                    info = entry.getTaskInfo();
+                    break;
+                }
+            }
+
+        }
+        if(info==null){
+            return JsonUtils.TOKEN_ERROR("无盘点任务可领");
+        }
+        Long round = takingTask.getRound();
         queryMap.put("round", round);
         List<StockTakingTask> takingTasks =stockTakingTaskService.getTakingTask(queryMap);
         List<Long> taskIdList = new ArrayList<Long>();
