@@ -150,7 +150,7 @@ public class StaffRestService implements IStaffRestService {
     @GET
     @Path("getGroup")
     public String getGroup(@QueryParam("groupId") Long iGroupId){
-        return JsonUtils.SUCCESS(staffRpcService.getDepartmentById(iGroupId));
+        return JsonUtils.SUCCESS(staffRpcService.getGroupById(iGroupId));
     }
 
     @POST
