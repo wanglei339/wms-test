@@ -168,7 +168,7 @@ public class ShipRestService implements IShipRestService {
         if(iLocationRpcService.getLocation(locationId)==null){
             throw new BizCheckedException("2130006");
         }
-        List<BaseinfoLocation> locations = iLocationRpcService.getChildrenLocations(locationId);
+        List<BaseinfoLocation> locations = iLocationRpcService.getNextLevelLocations(locationId);
         List<WaveDetail> details = waveService.getDetailsByLocationId(locationId);
         if(locations != null) {
             for (BaseinfoLocation location : locations) {
