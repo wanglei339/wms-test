@@ -82,15 +82,25 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             throw new BizCheckedException("2550003");
         }
 
-        if( toQuants.size() > 0 && location.getType().compareTo(LocationConstant.FLOOR) != 0){
-            if(location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN) == 0 || location.getType().compareTo(LocationConstant.SHELF_PICKING_BIN) == 0 ){
-                List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toLocationId);
-                if(itemLocations.get(0).getItemId().compareTo(fromQuants.get(0).getItemId()) != 0){
-                    throw new BizCheckedException("2550004");
+        if( toQuants.size() > 0 ){
+            // 地堆区
+            if( location.getType().compareTo(LocationConstant.FLOOR) == 0 ){
+                if( location.getCanUse() == 0) {
+                    throw new BizCheckedException("2550006");
                 }
             } else {
-                if( (toQuants.get(0).getItemId().compareTo(fromQuants.get(0).getItemId()) != 0) || (toQuants.get(0).getLotId().compareTo(fromQuants.get(0).getLotId()) != 0) ){
-                    throw new BizCheckedException("2550004");
+                // 拣货位
+                if (location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN) == 0 || location.getType().compareTo(LocationConstant.SHELF_PICKING_BIN) == 0) {
+                    List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toLocationId);
+                    if (itemLocations.get(0).getItemId().compareTo(fromQuants.get(0).getItemId()) != 0) {
+                        throw new BizCheckedException("2550004");
+                    }
+                }
+                // 其余货位
+                else {
+                    if ((toQuants.get(0).getItemId().compareTo(fromQuants.get(0).getItemId()) != 0) || (toQuants.get(0).getLotId().compareTo(fromQuants.get(0).getLotId()) != 0)) {
+                        throw new BizCheckedException("2550004");
+                    }
                 }
             }
         }
@@ -123,7 +133,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
 
     public void updatePlan(StockTransferPlan plan)  throws BizCheckedException {
         Long taskId = plan.getTaskId();
-        taskRpcService.cancel(taskId);
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         if(plan.getItemId() == 0) {
@@ -140,6 +149,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         }
         plan.setFromLocationId(taskInfo.getFromLocationId());
         this.addPlan(plan);
+        taskRpcService.cancel(taskId);
     }
 
     public void cancelPlan(Long taskId){
