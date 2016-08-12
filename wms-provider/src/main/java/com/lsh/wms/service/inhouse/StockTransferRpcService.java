@@ -11,11 +11,13 @@ import com.lsh.wms.api.service.stock.IStockMoveRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockQuant;
@@ -45,8 +47,8 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     @Reference
     private ITaskRpcService taskRpcService;
 
-    @Reference
-    private IStockQuantRpcService stockQuantService;
+    @Autowired
+    private BaseTaskService baseTaskService;
 
     @Reference
     private IItemRpcService itemRpcService;
@@ -69,8 +71,14 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     @Autowired
     private StockQuantService quantService;
 
+    @Reference
+    private IStockQuantRpcService stockQuantService;
+
     @Autowired
     private ItemLocationService itemLocationService;
+
+    @Autowired
+    private TaskInfoDao taskInfoDao;
 
     public void addPlan(StockTransferPlan plan)  throws BizCheckedException {
         Long fromLocationId = plan.getFromLocationId(), toLocationId = plan.getToLocationId();
@@ -181,6 +189,66 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         }
         taskRpcService.assign(list.get(0).getTaskInfo().getTaskId(), staffId);
         return list.get(0).getTaskInfo().getTaskId();
+    }
 
+    private void createScrap() throws BizCheckedException {
+        StockQuantCondition condition = new StockQuantCondition();
+        condition.setIsDefect(1L);
+        List<StockQuant> quantList = stockQuantService.getQuantList(condition);
+        Long toLocationId = locationService.getDefectiveLocationId();
+
+        for (StockQuant quant : quantList) {
+            if(baseTaskService.checkTaskByToLocation(toLocationId, TaskConstant.TYPE_STOCK_TRANSFER)){
+                logger.warn("任务已存在");
+                continue;
+            }
+            if (locationService.getLocation(quant.getLocationId()).getType().compareTo(LocationConstant.DEFECTIVE_AREA) != 0) {
+                StockTransferPlan plan = new StockTransferPlan();
+                plan.setFromLocationId(quant.getLocationId());
+                plan.setToLocationId(toLocationId);
+                plan.setQty(quant.getQty());
+                plan.setItemId(quant.getItemId());
+                if (quant.getPackName().toLowerCase().compareTo("ea") == 0) {
+                    plan.setSubType(1L);
+                } else {
+                    plan.setSubType(2L);
+                }
+                plan.setPackName(quant.getPackName());
+                this.addPlan(plan);
+            }
+        }
+    }
+
+    private void createReturn() throws BizCheckedException {
+        StockQuantCondition condition = new StockQuantCondition();
+        condition.setIsRefund(1L);
+        List<StockQuant> quantList = stockQuantService.getQuantList(condition);
+        Long toLocationId = locationService.getBackLocationId();
+
+        for (StockQuant quant : quantList) {
+            if(baseTaskService.checkTaskByToLocation(toLocationId, TaskConstant.TYPE_STOCK_TRANSFER)){
+                logger.warn("任务已存在");
+                continue;
+            }
+            if (locationService.getLocation(quant.getLocationId()).getType().compareTo(LocationConstant.BACK_AREA) != 0) {
+                StockTransferPlan plan = new StockTransferPlan();
+                plan.setFromLocationId(quant.getLocationId());
+                plan.setToLocationId(toLocationId);
+                plan.setQty(quant.getQty());
+                plan.setItemId(quant.getItemId());
+                plan.setPackName(quant.getPackName());
+                if (quant.getPackName().toLowerCase().compareTo("ea") == 0) {
+                    plan.setSubType(1L);
+                } else {
+                    plan.setSubType(2L);
+                }
+                this.addPlan(plan);
+            }
+        }
+    }
+
+    public void createStockTransfer() throws BizCheckedException{
+        this.createScrap();
+        this.createReturn();
     }
 }
