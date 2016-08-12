@@ -49,5 +49,19 @@ public interface ILocationRpcService {
      */
     public List<BaseinfoLocation> getColletionBins();
 
+    /**
+     * 上锁
+     * @param locationId
+     * @return
+     */
+    public BaseinfoLocation lockLocation(Long locationId);
+
+    /**
+     * 解锁
+     * @param locationId
+     * @return
+     */
+    public BaseinfoLocation unlockLocation(Long locationId);
+
 
 }

@@ -121,4 +121,5 @@ public class LocationConstant {  // TODO 修改格式大写加下滑线
     public static final Integer LIST_TYPE_PASSAGE = 3;   //获取通道list方法
     public static final Integer LIST_TYPE_SHELFREGION = 4;   //获取货架区和阁楼区的list方法
     public static final Integer LIST_TYPE_SHELF = 5; //获取货架和阁楼的list方法
+
 }

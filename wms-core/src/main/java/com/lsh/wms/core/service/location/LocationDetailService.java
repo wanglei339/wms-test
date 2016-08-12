@@ -181,10 +181,24 @@ public class LocationDetailService {
         iStrategy.insert(iBaseinfoLocaltionModel);
         //将father的叶子节点变为0
         //如果插入的是仓库
-        if (location.getFatherId()==-1L){
+        if (location.getFatherId() == -1L) {
             return;
         }
-        // todo 插入层级在这层还是rpc层
+        //如果是货架个体,插入指定层的货架层
+        if (LocationConstant.SHELF == iBaseinfoLocaltionModel.getType()) {
+            // TODO 拿到指定的code,加入-L-i
+            BaseinfoLocationShelf shelf = new BaseinfoLocationShelf();
+            ObjUtils.bean2bean(iBaseinfoLocaltionModel, shelf);  //拷贝性质
+            Long level = shelf.getLevel();
+            for (int i = 1; i < level; i++) {
+
+            }
+        }
+        // TODO 如果是阁楼个体,插入指定层的阁楼层
+        if (LocationConstant.LOFT == iBaseinfoLocaltionModel.getType()) {
+
+        }
+        // todo 插入层级在这层还是rpc层(事务问题,保证update(叶子节点)和)
         BaseinfoLocation fatherLocation = locationService.getFatherLocation(location.getLocationId());
         fatherLocation.setIsLeaf(0);
         locationService.updateLocation(fatherLocation);
@@ -302,11 +316,12 @@ public class LocationDetailService {
 
     /**
      * 获取指定的全功能区、全货架、全货架区、全大区、全通道, 使用的话,请使用locationDeatilRPCService服务
+     *
      * @param listType
      * @return
      * @throws BizCheckedException
      */
-    public List<BaseinfoLocation> getTargetListByListType(Integer listType)throws BizCheckedException {
+    public List<BaseinfoLocation> getTargetListByListType(Integer listType) throws BizCheckedException {
         TargetListHandler listHandler = targetListFactory.getTargetListHandler(listType);
         List<BaseinfoLocation> targetList = listHandler.getTargetLocaltionModelList();
         return targetList;

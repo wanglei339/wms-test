@@ -85,19 +85,20 @@ public class LocationService {
 
     /**
      * 删除节点和下面的所有子树
+     *
      * @param locationId
      * @return
      */
     @Transactional(readOnly = false)
-    public BaseinfoLocation removeLocationAndChildren(Long locationId) throws BizCheckedException{
+    public BaseinfoLocation removeLocationAndChildren(Long locationId) throws BizCheckedException {
         BaseinfoLocation location = this.getLocation(locationId);
         //找不到
-        if(null == location){
+        if (null == location) {
             throw new BizCheckedException("2180003");
         }
         //将location的子树查出来isvalid置为0
         List<BaseinfoLocation> childrenList = this.getChildrenLocations(locationId);
-        for (BaseinfoLocation child:childrenList){
+        for (BaseinfoLocation child : childrenList) {
             child.setIsValid(0);
             updateLocation(child);
         }
@@ -649,7 +650,7 @@ public class LocationService {
      * @return
      */
     public List<BaseinfoLocation> getDockList(Map<String, Object> params) {
-        params.put("isValid",1);
+        params.put("isValid", 1);
         return locationDao.getDockList(params);
     }
 
@@ -660,8 +661,40 @@ public class LocationService {
      * @return
      */
     public Integer countDockList(Map<String, Object> params) {
-        params.put("isValid",1);
+        params.put("isValid", 1);
         return locationDao.countDockList(params);
     }
+
+    /**
+     * location上锁
+     *
+     * @return
+     */
+    public BaseinfoLocation lockLocation(Long locationId) {
+        BaseinfoLocation location = this.getLocation(locationId);
+        if (location == null) {
+            throw new BizCheckedException("2180001");
+        }
+        location.setIsLocked(1);    //上锁
+        this.updateLocation(location);
+        return location;
+    }
+
+    /**
+     * 解锁
+     *
+     * @param locationId
+     * @return
+     */
+    public BaseinfoLocation unlockLocation(Long locationId) {
+        BaseinfoLocation location = this.getLocation(locationId);
+        if (location == null) {
+            throw new BizCheckedException("2180001");
+        }
+        location.setIsLocked(0);    //解锁
+        this.updateLocation(location);
+        return location;
+    }
+
 
 }
