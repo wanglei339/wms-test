@@ -156,7 +156,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         }
         SysUser user =  iSysUserRpcService.getSysUserById(uId);
         if(user==null){
-            return JsonUtils.TOKEN_ERROR("违法的账户");
+            return JsonUtils.TOKEN_ERROR("用户不存在");
         }
         Long staffId = user.getStaffId();
         Map<String,Object> statusQueryMap = new HashMap();
@@ -187,7 +187,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             return JsonUtils.SUCCESS(result);
         }
         Map<String,Object> queryMap =new HashMap<String, Object>();
-        queryMap.put("status",1L);
+        queryMap.put("status", 1L);
         List<TaskEntry> entries =iTaskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TAKING, queryMap);
         if(entries==null ||entries.size()==0){
             return JsonUtils.TOKEN_ERROR("无盘点任务可领");
@@ -253,8 +253,16 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String getTaskInfo() throws BizCheckedException{
         Map<String, Object> params =RequestUtils.getRequest();
-        Long taskId = Long.valueOf(params.get("taskId").toString());
-        Long locationId = Long.valueOf(params.get("locationId").toString());
+        Long taskId = 0L;
+        Long locationId = 0L;
+
+        try {
+            taskId = Long.valueOf(params.get("taskId").toString());
+            locationId = Long.valueOf(params.get("locationId").toString());
+        }catch (Exception e){
+            return JsonUtils.TOKEN_ERROR("数据格式类型有误");
+        }
+
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
         StockTakingDetail detail = (StockTakingDetail)(entry.getTaskDetailList().get(0));
         if(!detail.getLocationId().equals(locationId)){
@@ -373,7 +381,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         for (StockTakingDetail detail : details) {
             String key = "l:"+detail.getLocationId()+"i:"+detail.getItemId();
             BigDecimal differQty = detail.getRealQty().subtract(detail.getTheoreticalQty());
-            if(!compareMap.containsKey(key) || compareMap.get(key).compareTo(differQty)!=0) {
+            if((!compareMap.containsKey(key)) || compareMap.get(key).compareTo(differQty)!=0) {
                 return false;
             }
         }

@@ -23,6 +23,7 @@ import com.lsh.wms.core.service.task.StockTakingTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.stock.ItemAndSupplierRelation;
+import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.taking.LocationListRequest;
 import com.lsh.wms.model.taking.StockTakingDetail;
@@ -162,9 +163,12 @@ public class StockTakingRestService implements IStockTakingRestService {
                     BaseinfoLocation areaFather = locationService.getAreaFather(detail.getLocationId());
                     BaseinfoLocation location = locationService.getLocation(detail.getLocationId());
                     CsiSku csiSku = skuService.getSku(detail.getSkuId());
-                    Long supplierId = quantService.getSupplierByLocationAndItemId(detail.getLocationId(), detail.getItemId());
+                    if(detail.getItemId().compareTo(0L)==0){
+                        detail.setItemId(-1L);
+                    }
+                    StockLot lot = lotService.getStockLotByLotId(detail.getLotId());
                     one.put("operator", detail.getOperator());
-                    one.put("supplierId", supplierId);
+                    one.put("supplierId", lot ==null ? " " : lot.getSupplierId());
                     one.put("itemId", detail.getItemId());
                     one.put("theoreticalQty", detail.getTheoreticalQty());
                     one.put("areaCode", areaFather == null ? " " : areaFather.getLocationCode());
@@ -369,7 +373,7 @@ public class StockTakingRestService implements IStockTakingRestService {
         List<TaskEntry> taskEntryList=new ArrayList<TaskEntry>();
         for(StockTakingDetail detail:detailList) {
             TaskInfo taskInfo = new TaskInfo();
-            taskInfo.setTaskName("盘点任务[ " + taskInfo.getLocationId() + "]");
+            taskInfo.setTaskName("盘点任务[ " + detail.getLocationId() + "]");
             taskInfo.setPlanId(head.getTakingId());
             taskInfo.setDueTime(dueTime);
             taskInfo.setPlanner(head.getPlanner());

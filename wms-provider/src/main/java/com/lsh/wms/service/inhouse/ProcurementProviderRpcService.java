@@ -27,10 +27,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Created by mali on 16/8/2.
@@ -69,6 +67,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     private BaseTaskService baseTaskService;
 
     public void addProcurementPlan(StockTransferPlan plan) throws BizCheckedException {
+
         StockQuantCondition condition = new StockQuantCondition();
         TaskEntry taskEntry = new TaskEntry();
         TaskInfo taskInfo = new TaskInfo();
@@ -255,6 +254,29 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
         return false;
     }
-
+    public Set<Long> getOutBoundLocation(Long itemId,Long locationId) {
+        StockQuantCondition condition = new StockQuantCondition();
+        Set<Long> outBondLocations = new HashSet<Long>();
+        condition.setItemId(itemId);
+        BaseinfoLocation pickLocation = locationService.getLocation(locationId);
+        if(pickLocation.getType().compareTo(LocationConstant.LOFT_PICKING_BIN)==0){
+            List<StockQuant> quants = stockQuantService.getQuantList(condition);
+            for(StockQuant quant:quants){
+                BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
+                if(location.getType().compareTo(LocationConstant.LOFT_STORE_BIN)==0){
+                    outBondLocations.add(location.getLocationId());
+                }
+            }
+        }else if(pickLocation.getType().compareTo(LocationConstant.SHELF_PICKING_BIN) ==0){
+            List<StockQuant> quants = stockQuantService.getQuantList(condition);
+            for(StockQuant quant:quants){
+                BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
+                if(location.getType().compareTo(LocationConstant.SHELF_STORE_BIN)==0){
+                    outBondLocations.add(location.getLocationId());
+                }
+            }
+        }
+        return outBondLocations;
+    }
 
 }

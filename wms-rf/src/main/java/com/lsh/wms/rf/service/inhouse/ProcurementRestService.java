@@ -132,8 +132,8 @@ public class ProcurementRestService implements IProcurementRestService {
             return JsonUtils.TOKEN_ERROR("违法的账户");
         }
         final Long taskId = rpcService.assign(staffId);
-        if(taskId == 0) {
-            throw new BizCheckedException("2040001");
+        if(taskId.compareTo(0L)==0) {
+            return JsonUtils.TOKEN_ERROR("无补货任务可领");
         }
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
         if (taskEntry == null) {

@@ -108,7 +108,7 @@ public class StockTransferCore {
             throw new BizCheckedException("2040005");{
         }
         Long containerId = taskInfo.getContainerId();
-        Long toLocationId = locationService.getAreaFatherId(fromLocationId);
+        Long toLocationId = locationService.getWarehouseLocationId();
         if (taskInfo.getSubType().compareTo(1L)==0) {
             moveRpcService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
 

@@ -80,6 +80,20 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
         return JsonUtils.SUCCESS();
     }
     @GET
+    @Path("getOutBoundLocation")
+    public String getOutBoundLocation(@QueryParam("itemId") long itemId,@QueryParam("locationId") long locationId)  throws BizCheckedException {
+        try{
+            rpcService.getOutBoundLocation(itemId,locationId);
+        } catch (BizCheckedException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+        }
+        return JsonUtils.SUCCESS();
+    }
+    @GET
     @Path("autoCreate")
     public String createProcurement()  throws BizCheckedException {
         try{
