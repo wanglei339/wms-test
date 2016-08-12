@@ -170,10 +170,8 @@ public class LocationDetailService {
         //转化成父类,插入
         BaseinfoLocation location = new BaseinfoLocation();
         ObjUtils.bean2bean(iBaseinfoLocaltionModel, location);
-
         //先插入主表(并获得主表的location)
         BaseinfoLocation baseinfoLocation = locationService.insertLocation(location);
-
         //拷贝插入过主表后的location数据(时间和id)
         iBaseinfoLocaltionModel.setLocationId(baseinfoLocation.getLocationId());
         iBaseinfoLocaltionModel.setCreatedAt(baseinfoLocation.getCreatedAt());
@@ -186,6 +184,7 @@ public class LocationDetailService {
         if (location.getFatherId()==-1L){
             return;
         }
+        // todo 插入层级在这层还是rpc层
         BaseinfoLocation fatherLocation = locationService.getFatherLocation(location.getLocationId());
         fatherLocation.setIsLeaf(0);
         locationService.updateLocation(fatherLocation);

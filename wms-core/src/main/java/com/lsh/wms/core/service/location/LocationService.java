@@ -49,7 +49,7 @@ public class LocationService {
     }
 
     /**
-     * 插入location方法,TODO 需要插入商品的四维坐标
+     * 插入location方法
      *
      * @param location
      * @return
@@ -81,6 +81,30 @@ public class LocationService {
         baseinfoLocation.setUpdatedAt(updatedAt);
         locationDao.update(baseinfoLocation);
         return baseinfoLocation;
+    }
+
+    /**
+     * 删除节点和下面的所有子树
+     * @param locationId
+     * @return
+     */
+    @Transactional(readOnly = false)
+    public BaseinfoLocation removeLocationAndChildren(Long locationId) throws BizCheckedException{
+        BaseinfoLocation location = this.getLocation(locationId);
+        //找不到
+        if(null == location){
+            throw new BizCheckedException("2180003");
+        }
+        //将location的子树查出来isvalid置为0
+        List<BaseinfoLocation> childrenList = this.getChildrenLocations(locationId);
+        for (BaseinfoLocation child:childrenList){
+            child.setIsValid(0);
+            updateLocation(child);
+        }
+        //删除该节点
+        location.setIsValid(0);
+        updateLocation(location);
+        return location;
     }
 
     /**
@@ -621,6 +645,7 @@ public class LocationService {
      * @return
      */
     public List<BaseinfoLocation> getDockList(Map<String, Object> params) {
+        params.put("isValid",1);
         return locationDao.getDockList(params);
     }
 
@@ -631,6 +656,7 @@ public class LocationService {
      * @return
      */
     public Integer countDockList(Map<String, Object> params) {
+        params.put("isValid",1);
         return locationDao.countDockList(params);
     }
 

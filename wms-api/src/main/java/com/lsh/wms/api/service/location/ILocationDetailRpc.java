@@ -34,5 +34,12 @@ public interface ILocationDetailRpc {
      */
     public List<BaseinfoLocation> getTargetListByListType(Integer listType) throws BizCheckedException;
 
+    /**
+     * 获取下一层级的所有节点
+     * @param locationId
+     * @return
+     */
+    public List<BaseinfoLocation> getNextLevelLocations(Long locationId);
+
 
 }
