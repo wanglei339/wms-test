@@ -151,7 +151,7 @@ public class StockTransferCore {
         }
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         Long containerId = taskInfo.getContainerId();
-        Long fromLocationId = locationService.getAreaFatherId(taskInfo.getFromLocationId());
+        Long fromLocationId = locationService.getWarehouseLocationId();
 
         if (taskInfo.getSubType().compareTo(1L)==0) {
             moveRpcService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
