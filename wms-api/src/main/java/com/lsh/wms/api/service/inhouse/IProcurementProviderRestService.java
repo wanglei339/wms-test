@@ -11,4 +11,5 @@ public interface IProcurementProviderRestService {
     String updateProcurementPlan(StockTransferPlan plan)  throws BizCheckedException;
     String cancelProcurementPlan(long taskId)  throws BizCheckedException;
     String createProcurement() throws BizCheckedException;
+    String getOutBoundLocation(long itemId,long locationId)  throws BizCheckedException;
 }

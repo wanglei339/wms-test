@@ -1,13 +1,11 @@
 package com.lsh.wms.rpc.service.staff;
 
 import com.alibaba.dubbo.config.annotation.Service;
-import com.alibaba.dubbo.rpc.RpcContext;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.RandomUtils;
-import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.staff.IStaffRestService;
 import com.lsh.wms.core.constant.StaffConstant;
 import com.lsh.wms.model.baseinfo.*;
@@ -15,12 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.ext.InterceptorContext;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +82,12 @@ public class StaffRestService implements IStaffRestService {
         department.setRecordStatus(StaffConstant.RECORD_STATUS_DELETED);
         staffRpcService.updateDepartment(department);
         return JsonUtils.SUCCESS(department);
+    }
+
+    @GET
+    @Path("getDepartment")
+    public String getDepartment(@QueryParam("departmentId") Long iDepartmentId){
+        return JsonUtils.SUCCESS(staffRpcService.getDepartmentById(iDepartmentId));
     }
 
     @POST
@@ -203,6 +203,12 @@ public class StaffRestService implements IStaffRestService {
         return JsonUtils.SUCCESS(level);
     }
 
+    @GET
+    @Path("getLevel")
+    public String getLevel(@QueryParam("levelId") Long iLevelId){
+        return JsonUtils.SUCCESS(staffRpcService.getLevelById(iLevelId));
+    }
+
 
     @POST
     @Path("getJobList")
@@ -254,6 +260,21 @@ public class StaffRestService implements IStaffRestService {
         return JsonUtils.SUCCESS(job);
     }
 
+    @GET
+    @Path("getJob")
+    public String getJob(@QueryParam("jobId") Long iJobId){
+        return JsonUtils.SUCCESS(staffRpcService.getJobById(iJobId));
+    }
+
+    @GET
+    @Path("getJobsByStaffId")
+    public String getJobsByStaffId(@QueryParam("staffId") Long iStaffId) {
+        Map<String, List<BaseinfoStaffJobRelation>> map = new HashMap<String, List<BaseinfoStaffJobRelation>>();
+        map.put("list",staffRpcService.getJobsByStaffId(iStaffId));
+        return JsonUtils.SUCCESS(map);
+    }
+
+
     @POST
     @Path("getStaffList")
     public String getStaffList(Map<String, Object> params) {
@@ -269,8 +290,8 @@ public class StaffRestService implements IStaffRestService {
 
     @GET
     @Path("getStaff")
-    public String getStaffById(@QueryParam("staffId")Long staffId) {
-        return JsonUtils.SUCCESS(staffRpcService.getStaffById(staffId));
+    public String getStaffById(@QueryParam("staffId") Long iStaffId) {
+        return JsonUtils.SUCCESS(staffRpcService.getStaffById(iStaffId));
     }
 
     @POST

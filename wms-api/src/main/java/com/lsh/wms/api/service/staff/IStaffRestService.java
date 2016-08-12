@@ -26,6 +26,8 @@ public interface IStaffRestService {
 
     public String deleteDepartment(Map<String, Object> params);
 
+    String getDepartment(Long iDepartmentId);
+
 
     public String getGroupList(Map<String, Object> params);
 
@@ -36,8 +38,8 @@ public interface IStaffRestService {
     public String updateGroup(Map<String, Object> params) throws BizCheckedException;
 
     public String deleteGroup(Map<String, Object> params) throws BizCheckedException;
-    String getGroup(Long iGroupId);
 
+    String getGroup(Long iGroupId);
 
     public String getLevelList(Map<String, Object> params);
 
@@ -49,6 +51,7 @@ public interface IStaffRestService {
 
     public String deleteLevel(Map<String, Object> params) throws BizCheckedException;
 
+    String getLevel( Long iLevelId);
 
     public String getJobList(Map<String, Object> params);
 
@@ -60,10 +63,13 @@ public interface IStaffRestService {
 
     public String deleteJob(Map<String, Object> params) throws BizCheckedException;
 
+    String getJob(Long iJobId);
+
+    String getJobsByStaffId(Long iStaffId);
 
     public String getStaffList(Map<String, Object> params);
 
-    public String getStaffById(Long staffId);
+    public String getStaffById(Long iStaffId);
 
     public String getStaffListCount(Map<String, Object> params);
 

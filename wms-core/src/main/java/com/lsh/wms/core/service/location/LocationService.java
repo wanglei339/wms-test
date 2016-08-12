@@ -148,6 +148,10 @@ public class LocationService {
             List<Long> levelLocationIds = new ArrayList<Long>();
             Long tmpLocationId = fatherLeftRange;
             levelLocationIds.add(tmpLocationId);
+            // 超出最大层数
+            if (level > LocationConstant.LOCATION_LEVEL) {
+                throw new BizCheckedException("2600002");
+            }
             // 找出当前层所有可能的location_id
             for (Long i = fatherLeftRange; i < (fatherLeftRange + LocationConstant.CHILDREN_RANGE); i++) {
                 tmpLocationId += (fatherRightRange - fatherLeftRange + 1) / LocationConstant.CHILDREN_RANGE;

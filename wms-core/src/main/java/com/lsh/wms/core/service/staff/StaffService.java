@@ -160,6 +160,15 @@ public class StaffService {
         staffInfoDao.update(staffInfo);
     }
 
+    public List<BaseinfoStaffJobRelation> getJobsByStaffId(Long iStaffId){
+        Map<String, Object> dParams = new HashMap<String, Object>();
+        dParams.put("staffId", iStaffId);
+        List<BaseinfoStaffJobRelation> list =
+                staffJobRelationDao.getBaseinfoStaffJobRelationList(dParams);
+        return list;
+    }
+
+
     @Transactional(readOnly = false)
     public void assignJobToStaff(Long iStaffId, ArrayList<Object> jobIds) {
         long now = (System.currentTimeMillis() / 1000);
