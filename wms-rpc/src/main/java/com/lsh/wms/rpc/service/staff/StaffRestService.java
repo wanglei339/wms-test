@@ -90,6 +90,12 @@ public class StaffRestService implements IStaffRestService {
         return JsonUtils.SUCCESS(department);
     }
 
+    @GET
+    @Path("getDepartment")
+    public String getDepartment(@QueryParam("departmentId") Long iDepartmentId){
+        return JsonUtils.SUCCESS(staffRpcService.getDepartmentById(iDepartmentId));
+    }
+
     @POST
     @Path("getGroupList")
     public String getGroupList(Map<String, Object> params) {
@@ -259,6 +265,13 @@ public class StaffRestService implements IStaffRestService {
         staffRpcService.updateJob(job);
         return JsonUtils.SUCCESS(job);
     }
+
+    @GET
+    @Path("getJob")
+    public String getJob(@QueryParam("jobId") Long iJobId){
+        return JsonUtils.SUCCESS(staffRpcService.getJobById(iJobId));
+    }
+
 
     @POST
     @Path("getStaffList")

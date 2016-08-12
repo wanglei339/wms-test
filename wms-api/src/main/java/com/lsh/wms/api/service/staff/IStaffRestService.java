@@ -26,6 +26,8 @@ public interface IStaffRestService {
 
     public String deleteDepartment(Map<String, Object> params);
 
+    String getDepartment(Long iDepartmentId);
+
 
     public String getGroupList(Map<String, Object> params);
 
@@ -61,6 +63,7 @@ public interface IStaffRestService {
 
     public String deleteJob(Map<String, Object> params) throws BizCheckedException;
 
+    String getJob(Long iJobId);
 
     public String getStaffList(Map<String, Object> params);
 
