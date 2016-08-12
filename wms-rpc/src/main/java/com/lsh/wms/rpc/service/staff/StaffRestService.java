@@ -203,6 +203,12 @@ public class StaffRestService implements IStaffRestService {
         return JsonUtils.SUCCESS(level);
     }
 
+    @GET
+    @Path("getLevel")
+    public String getLevel(@QueryParam("levelId") Long iLevelId){
+        return JsonUtils.SUCCESS(staffRpcService.getLevelById(iLevelId));
+    }
+
 
     @POST
     @Path("getJobList")
