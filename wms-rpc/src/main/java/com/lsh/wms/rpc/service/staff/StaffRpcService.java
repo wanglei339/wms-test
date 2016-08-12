@@ -115,6 +115,11 @@ public class StaffRpcService implements IStaffRpcService {
         return staffService.countBaseinfoStaffJob(mapQuery);
     }
 
+    public List<BaseinfoStaffJobRelation> getJobsByStaffId(Long iStaffId){
+        return staffService.getJobsByStaffId(iStaffId);
+    }
+
+
     public void addJob(BaseinfoStaffJob job) {
         staffService.addJob(job);
     }
