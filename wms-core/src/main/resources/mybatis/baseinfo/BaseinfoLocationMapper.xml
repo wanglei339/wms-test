@@ -68,12 +68,12 @@
   			<if test="canUse != null">can_use=#{canUse},</if>
   			<if test="isLocked != null">is_locked=#{isLocked}</if>
 		</set>
-		where id=#{id}
+		where location_id=#{locationId}
 	</update>
   
 	<select id="getBaseinfoLocationById" parameterType="int" resultMap="baseinfoLocationResultMap">
 		select * from baseinfo_location
-		where ID=#{id} 
+		where location_id=#{locationId}
 	</select>
   
 	<select id="countBaseinfoLocation" parameterType="map" resultType="int">

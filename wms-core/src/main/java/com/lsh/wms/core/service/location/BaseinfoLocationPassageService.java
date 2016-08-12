@@ -35,6 +35,7 @@ public class BaseinfoLocationPassageService implements IStrategy {
 
     @Transactional(readOnly = false)
     public void insert(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
+
         baseinfoLocationPassageDao.insert((BaseinfoLocationPassage) iBaseinfoLocaltionModel);
     }
 
