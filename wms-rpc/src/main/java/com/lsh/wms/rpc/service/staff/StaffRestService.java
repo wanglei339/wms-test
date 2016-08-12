@@ -288,11 +288,10 @@ public class StaffRestService implements IStaffRestService {
         return JsonUtils.SUCCESS(staffRpcService.getStaffListCount(params));
     }
 
-    @POST
+    @GET
     @Path("getStaff")
-    public String getStaffById(Map<String, Object> params) {
-        Long staffId = (Long) params.get("staffId");
-        return JsonUtils.SUCCESS(staffRpcService.getStaffById(staffId));
+    public String getStaffById(@QueryParam("staffId") Long iStaffId) {
+        return JsonUtils.SUCCESS(staffRpcService.getStaffById(iStaffId));
     }
 
     @POST
