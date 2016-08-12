@@ -10,6 +10,7 @@ import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
@@ -264,7 +265,8 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             if(isNormal == 0) {
                 freeze = freeze.add(qty);
             }
-            if (locationService.getLocation(locationId).getType().equals( LocationConstant.INVENTORYLOST) ) {
+            BaseinfoLocation location = locationService.getLocation(locationId);
+            if (location != null && location.getType().equals( LocationConstant.INVENTORYLOST) ) {
                 loss = loss.add(qty);
                 if (isDefect == 1) {
                     lossDefect = lossDefect.add(qty);
