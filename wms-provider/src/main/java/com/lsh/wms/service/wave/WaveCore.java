@@ -135,10 +135,10 @@ public class WaveCore {
             List<SplitNode> stopNodes = new LinkedList<SplitNode>();
             PickModel model = modelList.get(zidx);
             String splitModelNames[] = {
-                    //"SplitModelSetGroup",
-                    //"SplitModelBigItem",
-                    //"SplitModelSet",
-                    //"SplitModelSmallItem",
+                    "SplitModelSetGroup",
+                    "SplitModelBigItem",
+                    "SplitModelSet",
+                    "SplitModelSmallItem",
                     "SplitModelOrder",
                     "SplitModelContainer", //这个必须是最后一个,否则就会出大问题.
             };
@@ -216,23 +216,27 @@ public class WaveCore {
                         break;
                     }
                     PickZone zone = mapZone.get(model.getPickZoneId());
-                    long pickLocationId = 1L;//this._getPickLocations(item, zone);
+                    long pickLocationId = this._getPickLocation(item, zone);
                     if(pickLocationId==0){
                         continue;
                     }
                     long pick_unit = zone.getPickUnit();
                     BigDecimal pick_ea_num = null;
+                    String unitName = "";
                     if (pick_unit == 1) {
                         //ea
                         pick_ea_num = BigDecimal.valueOf(1L);
+                        unitName = "EA";
                     } else if (pick_unit == 2) {
                         //整箱
                         pick_ea_num = item.getPackUnit();
+                        unitName = "H"+pick_ea_num;
                     } else if (pick_unit == 3) {
                         //整托盘,卧槽托盘上的商品数怎么求啊,这里是有风险的,因为实际的码盘数量可能和实际的不一样.
                         pick_ea_num = item.getPackUnit().multiply(BigDecimal.valueOf(item.getPileX() * item.getPileY() * item.getPileZ()));
                         if (pick_ea_num.compareTo(BigDecimal.ZERO) == 0) {
                         }
+                        unitName = (item.getPileX() * item.getPileY() * item.getPileZ())+"H"+pick_ea_num;
                     }
                     //获取分拣分区下的可分配库存数量,怎么获取?
                     BigDecimal zone_qty = new BigDecimal("1000000.0000");//this._getPickZoneLeftAllocQty(item, zone);
@@ -242,6 +246,9 @@ public class WaveCore {
                     int alloc_x = leftAllocQty.divide(pick_ea_num, 0, BigDecimal.ROUND_DOWN).intValue();
                     int zone_alloc_x = zone_qty.divide(pick_ea_num, 0, BigDecimal.ROUND_DOWN).intValue();
                     alloc_x = alloc_x > zone_alloc_x ? zone_alloc_x : alloc_x;
+                    if(alloc_x==0){
+                        continue;
+                    }
                     BigDecimal alloc_qty = pick_ea_num.multiply(BigDecimal.valueOf(alloc_x));
                     WaveAllocDetail allocDetail = new WaveAllocDetail();
                     allocDetail.setId(RandomUtils.genId());
@@ -256,9 +263,14 @@ public class WaveCore {
                     allocDetail.setItemId(item.getItemId());
                     //allocDetail.setSupplierId(mapOrder2Head.get(detail.getOrderId()).get); ??
                     allocDetail.setWaveId(waveId);
+                    allocDetail.setAllocUnitQty(BigDecimal.valueOf(alloc_x));
+                    allocDetail.setAllocUnitName(unitName);
                     pickAllocDetailList.add(allocDetail);
 
                     leftAllocQty = leftAllocQty.subtract(alloc_qty);
+                }
+                if (leftAllocQty.compareTo(BigDecimal.ZERO) > 0) {
+                    logger.error("alloc "+item.getItemId()+" left "+leftAllocQty.toString());
                 }
             }
             //存储配货结果
@@ -350,21 +362,24 @@ public class WaveCore {
     }
 
     private void _prepareX(){
-        
     }
 
-    private long _getPickLocations(BaseinfoItem item, PickZone zone){
+    private long _getPickLocation(BaseinfoItem item, PickZone zone){
         String key = String.format("%d-%d", item.getItemId(), zone.getPickZoneId());
         List<Long> pickLocationIds = mapItemAndPickZone2PickLocations.get(key);
         if(pickLocationIds == null) {
+            List<Long> pickLocationIdList = new ArrayList<Long>();
             final List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationList(item.getItemId());
             List<List<BaseinfoLocation>> locationList = new LinkedList<List<BaseinfoLocation>>();
             for (BaseinfoItemLocation itemLocation : itemLocationList) {
-                locationList.add(locationService.getFatherList(itemLocation.getPickLocationid()));
+                pickLocationIdList.add(itemLocation.getPickLocationid());
+                //TODO hehe
+                //locationList.add(locationService.getFatherList(itemLocation.getPickLocationid()));
             }
             //判断此区域是否有对应的捡货位
+            /*
             String[] pickLocations = zone.getLocations().split(",");
-            List<Long> pickLocationIdList = new ArrayList<Long>();
+
             for (String loc : pickLocations) {
                 for (List<BaseinfoLocation> bls : locationList) {
                     for (BaseinfoLocation bl : bls) {
@@ -374,6 +389,7 @@ public class WaveCore {
                     }
                 }
             }
+            */
             mapItemAndPickZone2PickLocations.put(key, pickLocationIdList);
             pickLocationIds = pickLocationIdList;
         }

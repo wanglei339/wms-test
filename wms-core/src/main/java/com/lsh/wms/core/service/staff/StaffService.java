@@ -1,6 +1,5 @@
 package com.lsh.wms.core.service.staff;
 
-import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
@@ -160,6 +159,15 @@ public class StaffService {
         staffInfo.setUpdatedAt(now);
         staffInfoDao.update(staffInfo);
     }
+
+    public List<BaseinfoStaffJobRelation> getJobsByStaffId(Long iStaffId){
+        Map<String, Object> dParams = new HashMap<String, Object>();
+        dParams.put("staffId", iStaffId);
+        List<BaseinfoStaffJobRelation> list =
+                staffJobRelationDao.getBaseinfoStaffJobRelationList(dParams);
+        return list;
+    }
+
 
     @Transactional(readOnly = false)
     public void assignJobToStaff(Long iStaffId, ArrayList<Object> jobIds) {

@@ -3,6 +3,7 @@ package com.lsh.wms.core.service.location;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.core.constant.LocationConstant;
+import com.lsh.wms.core.service.location.targetlist.*;
 import com.lsh.wms.model.baseinfo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
@@ -44,7 +44,19 @@ public class LocationDetailService {
     private BaseinfoLocationShelfService baseinfoLocationShelfService;
     @Autowired
     private LocationDetailModelFactory locationDetailModelFactory;
-
+    //获取list方法的注入
+    @Autowired
+    private TargetListFactory targetListFactory;
+    @Autowired
+    private AreaListService areaListService;
+    @Autowired
+    private DomainListService domainListService;
+    @Autowired
+    private PassageListService passageListService;
+    @Autowired
+    private ShelfListService shelfListService;
+    @Autowired
+    private ShelfRegionListService shelfRegionListService;
 
     /**
      * 将所有的Service注册到工厂中
@@ -131,6 +143,17 @@ public class LocationDetailService {
         locationDetailModelFactory.register(LocationConstant.DEFECTIVE_BIN, new BaseinfoLocationBin());
     }
 
+    /**
+     * 将所有的getList方法注入到工厂中
+     */
+    @PostConstruct
+    public void postTargetListConstruct() {
+        targetListFactory.register(LocationConstant.LIST_TYPE_AREA, areaListService);
+        targetListFactory.register(LocationConstant.LIST_TYPE_DOMAIN, domainListService);
+        targetListFactory.register(LocationConstant.LIST_TYPE_PASSAGE, passageListService);
+        targetListFactory.register(LocationConstant.LIST_TYPE_SHELFREGION, shelfRegionListService);
+        targetListFactory.register(LocationConstant.LIST_TYPE_SHELF, shelfListService);
+    }
 
     /**
      * Location的细节表插入
@@ -147,12 +170,63 @@ public class LocationDetailService {
         //转化成父类,插入
         BaseinfoLocation location = new BaseinfoLocation();
         ObjUtils.bean2bean(iBaseinfoLocaltionModel, location);
-        //先插入主表
-        locationService.insertLocation(location);
+        //先插入主表(并获得主表的location)
+        BaseinfoLocation baseinfoLocation = locationService.insertLocation(location);
+        //拷贝插入过主表后的location数据(时间和id)
+        iBaseinfoLocaltionModel.setLocationId(baseinfoLocation.getLocationId());
+        iBaseinfoLocaltionModel.setCreatedAt(baseinfoLocation.getCreatedAt());
+        iBaseinfoLocaltionModel.setUpdatedAt(baseinfoLocation.getUpdatedAt());
         //根据model选择service
         IStrategy iStrategy = locationDetailServiceFactory.getIstrategy(iBaseinfoLocaltionModel.getType());
         iStrategy.insert(iBaseinfoLocaltionModel);
         //将father的叶子节点变为0
+        //如果插入的是仓库
+        if (location.getFatherId() == -1L) {
+            return;
+        }
+        //如果是货架个体,插入指定层的货架层
+        if (LocationConstant.SHELF == iBaseinfoLocaltionModel.getType()) {
+            // TODO 拿到指定的code,加入-i
+            BaseinfoLocationShelf shelf = new BaseinfoLocationShelf();
+            ObjUtils.bean2bean(iBaseinfoLocaltionModel, shelf);  //拷贝性质
+            Long level = shelf.getLevel();
+            String fatherCode = shelf.getLocationCode();
+            for (int i = 1; i < level; i++) {
+                String newCode = fatherCode + "-" + i;
+                BaseinfoLocation levelLocation = new BaseinfoLocation();
+                ObjUtils.bean2bean(baseinfoLocation, levelLocation);
+                levelLocation.setFatherId(baseinfoLocation.getFatherId());  //  设置父亲的id
+                levelLocation.setLocationCode(newCode); //code刷新,range不用管
+                levelLocation.setType(LocationConstant.SHELF_LEVELS); //设置类型
+                levelLocation.setTypeName("货架层");
+                locationService.insertLocation(levelLocation);
+            }
+            //将货架的叶子节点设置为0
+            location.setIsLeaf(0);
+            locationService.updateLocation(location);
+        }
+        // TODO 如果是阁楼个体,插入指定层的阁楼层
+        if (LocationConstant.LOFT == iBaseinfoLocaltionModel.getType()) {
+            // TODO 拿到指定的code,加入-i
+            BaseinfoLocationShelf shelf = new BaseinfoLocationShelf();
+            ObjUtils.bean2bean(iBaseinfoLocaltionModel, shelf);  //拷贝性质
+            Long level = shelf.getLevel();
+            String fatherCode = shelf.getLocationCode();
+            for (int i = 1; i < level; i++) {
+                String newCode = fatherCode + "-" + i;
+                BaseinfoLocation levelLocation = new BaseinfoLocation();
+                ObjUtils.bean2bean(baseinfoLocation, levelLocation);
+                levelLocation.setFatherId(baseinfoLocation.getFatherId());  //  设置父亲的id
+                levelLocation.setLocationCode(newCode); //code刷新,range不用管
+                levelLocation.setType(LocationConstant.LOFT_LEVELS); //设置类型
+                levelLocation.setTypeName("阁楼层");
+                locationService.insertLocation(levelLocation);
+            }
+            //将货架的叶子节点设置为0
+            location.setIsLeaf(0);
+            locationService.updateLocation(location);
+        }
+        //其他type处理方式
         BaseinfoLocation fatherLocation = locationService.getFatherLocation(location.getLocationId());
         fatherLocation.setIsLeaf(0);
         locationService.updateLocation(fatherLocation);
@@ -232,10 +306,11 @@ public class LocationDetailService {
 
     /**
      * location中dock的筛选条件计数
+     *
      * @param params
      * @return
      */
-    public Integer countDockList(Map<String,Object> params){
+    public Integer countDockList(Map<String, Object> params) {
         return locationService.countDockList(params);
     }
 
@@ -267,4 +342,16 @@ public class LocationDetailService {
         return null;
     }
 
+    /**
+     * 获取指定的全功能区、全货架、全货架区、全大区、全通道, 使用的话,请使用locationDeatilRPCService服务
+     *
+     * @param listType
+     * @return
+     * @throws BizCheckedException
+     */
+    public List<BaseinfoLocation> getTargetListByListType(Integer listType) throws BizCheckedException {
+        TargetListHandler listHandler = targetListFactory.getTargetListHandler(listType);
+        List<BaseinfoLocation> targetList = listHandler.getTargetLocaltionModelList();
+        return targetList;
+    }
 }

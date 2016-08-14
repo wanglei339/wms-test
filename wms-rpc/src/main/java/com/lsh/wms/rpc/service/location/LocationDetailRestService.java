@@ -6,7 +6,6 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
-import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.model.location.LocationDetailRequest;
 import com.lsh.wms.api.service.location.ILocationDetailRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
@@ -106,7 +105,6 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @Path("getLocationDetail")
     public String getLocationDetailById(@QueryParam("locationId") Long locationId)  {
         Long id = Long.parseLong(locationId.toString());
-//        BaseinfoLocation subLocation = (BaseinfoLocation) locationDetailService.getIBaseinfoLocaltionModelById(id);
         return JsonUtils.SUCCESS(locationDetailRpcService.getLocationDetailById(id));
     }
 
@@ -114,17 +112,9 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @Path("insertLocation")
     public String insertLocationDetailByType(LocationDetailRequest request) throws BizCheckedException {
         //根据type类型,将父类转为子类
-
         IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationDetailModelFactory.getLocationModel(Long.valueOf(request.getType().toString()));
         //转成子类
         ObjUtils.bean2bean(request, iBaseinfoLocaltionModel);
-        //设置id
-        Long locationId = RandomUtils.genId();
-        iBaseinfoLocaltionModel.setLocationId(locationId);
-        //生成时间
-        Long createAt = DateUtils.getCurrentSeconds();
-        iBaseinfoLocaltionModel.setCreatedAt(createAt);
-        iBaseinfoLocaltionModel.setUpdatedAt(createAt);
         //插入是否成功
         boolean isTrue = locationDetailRpcService.insertLocationDetailByType((BaseinfoLocation) iBaseinfoLocaltionModel);
         if (isTrue){
@@ -133,7 +123,6 @@ public class LocationDetailRestService implements ILocationDetailRestService {
             //原位置已经存在
             return JsonUtils.EXCEPTION_ERROR("insertError");
         }
-//        return JsonUtils.SUCCESS(locationDetailRpcService.insertLocationDetailByType((BaseinfoLocation) iBaseinfoLocaltionModel));
     }
 
 
@@ -194,4 +183,25 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         }
     }
 
+    /**
+     * 按照指定的获取list的方法
+     * @return 全大区、全功能区、全货架阁楼、全货架阁楼区、全通道
+     * @throws BizCheckedException
+     */
+    @GET
+    @Path("getTargetListByListType")
+    public String getTargetListByListType(@QueryParam("listType") Integer listType) throws BizCheckedException {
+        return JsonUtils.SUCCESS(locationDetailRpcService.getTargetListByListType(listType));
+    }
+
+    /**
+     * 获取下一层的所有节点
+     * @param locationId
+     * @return
+     */
+    @GET
+    @Path("getNextLevelLocations")
+    public String getNextLevelLocations(@QueryParam("locationId") Long locationId) {
+        return JsonUtils.SUCCESS(locationDetailRpcService.getNextLevelLocations(locationId));
+    }
 }

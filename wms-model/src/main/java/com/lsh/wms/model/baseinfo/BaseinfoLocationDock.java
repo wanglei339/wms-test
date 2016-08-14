@@ -13,11 +13,11 @@ public class BaseinfoLocationDock extends BaseinfoLocation implements Serializab
     private Long locationId;
 	/** 码头名 */
     private String dockName;
-	/** 是否存在地秤 */
+	/** 是否存在地秤 1-有地秤2-无地秤*/
     private Integer haveScales;
-	/** 用途，0-进货，1-出货 */
+	/** 用途，1-进货，2-出货 */
     private Integer dockApplication;
-	/** 方位，0-东，1-南，2-西，3-北 */
+	/** 方位，1-东，2-南，3-西，4-北 */
     private Integer direction;
 	/** 长度默认单位 米 */
     private BigDecimal width;

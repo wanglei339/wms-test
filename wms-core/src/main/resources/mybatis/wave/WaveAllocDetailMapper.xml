@@ -13,6 +13,8 @@
 		<result property="supplierId" column="supplier_id"/>
 		<result property="reqQty" column="req_qty"/>
 		<result property="allocQty" column="alloc_qty"/>
+		<result property="allocUnitName" column="alloc_unit_name"/>
+		<result property="allocUnitQty" column="alloc_unit_qty"/>
 		<result property="pickZoneId" column="pick_zone_id"/>
 		<result property="allocPickLocation" column="alloc_pick_location"/>
 		<result property="createdAt" column="created_at"/>
@@ -22,10 +24,10 @@
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="WaveAllocDetail">
 		insert into wave_alloc_detail (
 			wave_id,order_id,item_id,sku_id,owner_id,loc_id,supplier_id,
-			req_qty,alloc_qty,pick_zone_id,alloc_pick_location,created_at,updated_at
+			req_qty,alloc_qty,alloc_unit_name,alloc_unit_qty,pick_zone_id,alloc_pick_location,created_at,updated_at
     	) values (
 			#{waveId},#{orderId},#{itemId},#{skuId},#{ownerId},#{locId},#{supplierId},
-			#{reqQty},#{allocQty},#{pickZoneId},#{allocPickLocation},#{createdAt},#{updatedAt}
+			#{reqQty},#{allocQty},#{allocUnitName},#{allocUnitQty},#{pickZoneId},#{allocPickLocation},#{createdAt},#{updatedAt}
     	)
 	</insert>
 
@@ -41,6 +43,8 @@
   			<if test="supplierId != null">supplier_id=#{supplierId},</if>
   			<if test="reqQty != null">req_qty=#{reqQty},</if>
   			<if test="allocQty != null">alloc_qty=#{allocQty},</if>
+			<if test="allocUnitName != null">alloc_unit_name=#{allocUnitName},</if>
+			<if test="allocUnitQty != null">alloc_unit_qty=#{allocUnitQty},</if>
   			<if test="pickZoneId != null">pick_zone_id=#{pickZoneId},</if>
 			<if test="allocPickLocation != null">alloc_pick_location=#{allocPickLocation},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>

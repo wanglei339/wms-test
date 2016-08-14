@@ -8,6 +8,10 @@ import java.util.List;
 public class SplitModelSetGroup extends SplitModel{
     @Override
     public void split(List<SplitNode> stopNodes) {
+        if(true) {
+            this.skipSplit();
+            return;
+        }
         //判断单个container能容纳的商品数量,这个商品数量和基本单位怎么转换呢?你妈了个大爷的
         //按照如下规则分列
         // 1. 符合容纳限制的最小份数

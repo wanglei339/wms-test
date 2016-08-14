@@ -1,5 +1,8 @@
 package com.lsh.wms.model.transfer;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -9,18 +12,24 @@ public class StockTransferPlan implements Serializable {
 	/** 移库任务id */
     private Long taskId = 0L;
 	/** 商品国条 */
-    private Long itemId = 0L;
+	@NotNull
+    private Long itemId ;
 	/** 移入库位id */
-    private Long fromLocationId = 0L;
+	@NotNull
+    private Long fromLocationId;
 	/** 移入库位id */
-    private Long toLocationId = 0L;
+	@NotNull
+	@Size(min=1)
+    private Long toLocationId;
 	/** 数量 */
-    private BigDecimal qty = BigDecimal.ZERO;
+    private BigDecimal qty;
 	/** 商品单位转换id */
     private String packName = "";
     /** 商品包装单位 */
     private BigDecimal packUnit = BigDecimal.ONE;
 	/** 以包装单位计量的库移数量 */
+	@NotNull
+	@Size(min=1)
     private BigDecimal uomQty = BigDecimal.ZERO;
 	/**优先级*/
 	private Long priority =0L;
@@ -28,6 +37,16 @@ public class StockTransferPlan implements Serializable {
 	private Long subType = 2L;
 	/** 发起者 */
 	private Long planner = 0L;
+	/**任务截止时间*/
+	private Long dueTime = 0L;
+
+	public Long getDueTime() {
+		return dueTime;
+	}
+
+	public void setDueTime(Long dueTime) {
+		this.dueTime = dueTime;
+	}
 
 	public Long getPlanId(){
 		return this.planId;

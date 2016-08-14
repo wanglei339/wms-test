@@ -114,6 +114,10 @@ public class ReceiptRpcService implements IReceiptRpcService {
         List<StockLot> stockLotList = new ArrayList<StockLot>();
 
         for(ReceiptItem receiptItem : request.getItems()){
+            if(System.currentTimeMillis() - receiptItem.getProTime().getTime() <= 0) {
+                throw new BizCheckedException("2020009");
+            }
+
             if(receiptItem.getInboundQty() <= 0) {
                 throw new BizCheckedException("2020007");
             }

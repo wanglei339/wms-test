@@ -11,8 +11,15 @@ import com.lsh.wms.api.service.stock.IStockMoveRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.container.ContainerService;
+import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.constant.LocationConstant;
+import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
@@ -40,8 +47,8 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     @Reference
     private ITaskRpcService taskRpcService;
 
-    @Reference
-    private IStockQuantRpcService stockQuantService;
+    @Autowired
+    private BaseTaskService baseTaskService;
 
     @Reference
     private IItemRpcService itemRpcService;
@@ -61,8 +68,51 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     @Reference
     private ILocationRpcService locationRpcService;
 
+    @Autowired
+    private StockQuantService quantService;
+
+    @Reference
+    private IStockQuantRpcService stockQuantService;
+
+    @Autowired
+    private ItemLocationService itemLocationService;
+
+    @Autowired
+    private TaskInfoDao taskInfoDao;
 
     public void addPlan(StockTransferPlan plan)  throws BizCheckedException {
+        Long fromLocationId = plan.getFromLocationId(), toLocationId = plan.getToLocationId();
+        List <StockQuant> fromQuants = quantService.getQuantsByLocationId(fromLocationId);
+        List <StockQuant> toQuants = quantService.getQuantsByLocationId(toLocationId);
+        BaseinfoLocation location = locationService.getLocation(toLocationId);
+
+        if( (fromQuants.size() == 0) || (fromQuants.get(0).getItemId().compareTo(plan.getItemId()) != 0) ){
+            throw new BizCheckedException("2550003");
+        }
+
+        if( toQuants.size() > 0 ){
+            // 地堆区
+            if( location.getType().compareTo(LocationConstant.FLOOR) == 0 ){
+                if( location.getCanUse() == 0) {
+                    throw new BizCheckedException("2550006");
+                }
+            } else {
+                // 拣货位
+                if (location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN) == 0 || location.getType().compareTo(LocationConstant.SHELF_PICKING_BIN) == 0) {
+                    List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toLocationId);
+                    if (itemLocations.get(0).getItemId().compareTo(fromQuants.get(0).getItemId()) != 0) {
+                        throw new BizCheckedException("2550004");
+                    }
+                }
+                // 其余货位
+                else {
+                    if ((toQuants.get(0).getItemId().compareTo(fromQuants.get(0).getItemId()) != 0) || (toQuants.get(0).getLotId().compareTo(fromQuants.get(0).getLotId()) != 0)) {
+                        throw new BizCheckedException("2550004");
+                    }
+                }
+            }
+        }
+
         StockQuantCondition condition = new StockQuantCondition();
         condition.setLocationId(plan.getFromLocationId());
         condition.setItemId(plan.getItemId());
@@ -75,7 +125,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
 
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
         Long containerId = quantList.get(0).getContainerId();
-        if (plan.getPackName() == "pallet") {
+        if (plan.getSubType() == 2) {
             containerId = containerService.createContainerByType(2L).getId();
         }
 
@@ -91,23 +141,23 @@ public class StockTransferRpcService implements IStockTransferRpcService {
 
     public void updatePlan(StockTransferPlan plan)  throws BizCheckedException {
         Long taskId = plan.getTaskId();
-        taskRpcService.cancel(taskId);
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         if(plan.getItemId() == 0) {
             plan.setItemId(taskInfo.getItemId());
         }
-        if(plan.getUomQty() == BigDecimal.ZERO) {
+        if(plan.getUomQty().compareTo(BigDecimal.ZERO) == 0) {
             plan.setUomQty(taskInfo.getQtyUom());
         }
-        if(plan.getPackName().compareTo("") == 0) {
-            plan.setPackName(taskInfo.getPackName());
+        if(plan.getSubType() == 2) {
+            plan.setSubType(taskInfo.getSubType());
         }
         if(plan.getToLocationId() == 0 ) {
             plan.setToLocationId(taskInfo.getToLocationId());
         }
         plan.setFromLocationId(taskInfo.getFromLocationId());
         this.addPlan(plan);
+        taskRpcService.cancel(taskId);
     }
 
     public void cancelPlan(Long taskId){
@@ -139,6 +189,66 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         }
         taskRpcService.assign(list.get(0).getTaskInfo().getTaskId(), staffId);
         return list.get(0).getTaskInfo().getTaskId();
+    }
 
+    private void createScrap() throws BizCheckedException {
+        StockQuantCondition condition = new StockQuantCondition();
+        condition.setIsDefect(1L);
+        List<StockQuant> quantList = stockQuantService.getQuantList(condition);
+        Long toLocationId = locationService.getDefectiveLocationId();
+
+        for (StockQuant quant : quantList) {
+            if(baseTaskService.checkTaskByToLocation(toLocationId, TaskConstant.TYPE_STOCK_TRANSFER)){
+                logger.warn("任务已存在");
+                continue;
+            }
+            if (locationService.getLocation(quant.getLocationId()).getType().compareTo(LocationConstant.DEFECTIVE_AREA) != 0) {
+                StockTransferPlan plan = new StockTransferPlan();
+                plan.setFromLocationId(quant.getLocationId());
+                plan.setToLocationId(toLocationId);
+                plan.setQty(quant.getQty());
+                plan.setItemId(quant.getItemId());
+                if (quant.getPackName().toLowerCase().compareTo("ea") == 0) {
+                    plan.setSubType(1L);
+                } else {
+                    plan.setSubType(2L);
+                }
+                plan.setPackName(quant.getPackName());
+                this.addPlan(plan);
+            }
+        }
+    }
+
+    private void createReturn() throws BizCheckedException {
+        StockQuantCondition condition = new StockQuantCondition();
+        condition.setIsRefund(1L);
+        List<StockQuant> quantList = stockQuantService.getQuantList(condition);
+        Long toLocationId = locationService.getBackLocationId();
+
+        for (StockQuant quant : quantList) {
+            if(baseTaskService.checkTaskByToLocation(toLocationId, TaskConstant.TYPE_STOCK_TRANSFER)){
+                logger.warn("任务已存在");
+                continue;
+            }
+            if (locationService.getLocation(quant.getLocationId()).getType().compareTo(LocationConstant.BACK_AREA) != 0) {
+                StockTransferPlan plan = new StockTransferPlan();
+                plan.setFromLocationId(quant.getLocationId());
+                plan.setToLocationId(toLocationId);
+                plan.setQty(quant.getQty());
+                plan.setItemId(quant.getItemId());
+                plan.setPackName(quant.getPackName());
+                if (quant.getPackName().toLowerCase().compareTo("ea") == 0) {
+                    plan.setSubType(1L);
+                } else {
+                    plan.setSubType(2L);
+                }
+                this.addPlan(plan);
+            }
+        }
+    }
+
+    public void createStockTransfer() throws BizCheckedException{
+        this.createScrap();
+        this.createReturn();
     }
 }

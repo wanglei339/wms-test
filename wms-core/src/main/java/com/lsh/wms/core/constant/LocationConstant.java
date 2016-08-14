@@ -44,6 +44,10 @@ public class LocationConstant {  // TODO 修改格式大写加下滑线
     public static final Long CONSUME_AREA = 25L;
     public static final Long SUPPLIER_AREA = 25L;
 
+    //货架层和阁楼层
+    public static final Long SHELF_LEVELS = 27L;
+    public static final Long LOFT_LEVELS = 28L;
+
 
     //温区设置
     public static final Integer ROOM_TEMPERATURE = 1;
@@ -99,6 +103,7 @@ public class LocationConstant {  // TODO 修改格式大写加下滑线
             put("loft_collection_bin", new Long(18)); //17阁楼拣货位
             put("loft_store_bin", new Long(19));   //18阁楼存货位
 
+    
             /*其他功能区的货位*/
             put("floor_bin", new Long(20)); // 20 地堆货位
             put("temporary_bin", new Long(21)); // 21 暂存货位
@@ -109,5 +114,16 @@ public class LocationConstant {  // TODO 修改格式大写加下滑线
             put("supplier_area", new Long(26));// 24 残次货位
         }
     };
+
+    // location_id划分相关
+    public static final Integer CHILDREN_RANGE = 128; //每个节点的子节点数
+    public static final Integer LOCATION_LEVEL = 8; // 整棵树的最大层数
+
+    //与获取的targetList的方法相关
+    public static final Integer LIST_TYPE_AREA = 1; //获取大区的list方法
+    public static final Integer LIST_TYPE_DOMAIN = 2;   //获取功能list方法
+    public static final Integer LIST_TYPE_PASSAGE = 3;   //获取通道list方法
+    public static final Integer LIST_TYPE_SHELFREGION = 4;   //获取货架区和阁楼区的list方法
+    public static final Integer LIST_TYPE_SHELF = 5; //获取货架和阁楼的list方法
 
 }

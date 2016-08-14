@@ -4,6 +4,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.model.pick.*;
 import com.lsh.wms.model.wave.WaveRequest;
 
+import javax.ws.rs.QueryParam;
 import java.util.Map;
 
 /**
@@ -36,5 +37,7 @@ public interface IWaveRestService {
     String updatePickModel(PickModel model);
     String deletePickModel(long iPickModelId);
 
-    String getWaveDetaileList(long iWaveId);
+    String getWaveDetailList(long iWaveId);
+
+    String getWaveQcExceptionList(long iWaveId);
 }

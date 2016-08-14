@@ -37,8 +37,8 @@ public class LocationRpcService implements ILocationRpcService {
     }
 
     // 获取一个location下一层的子节点
-    public List<BaseinfoLocation> getChildrenLocations(Long locationId) {
-        return locationService.getChildrenLocations(locationId);
+    public List<BaseinfoLocation> getNextLevelLocations(Long locationId) {
+        return locationService.getNextLevelLocations(locationId);
     }
 
     // 获取父级节点
@@ -102,6 +102,7 @@ public class LocationRpcService implements ILocationRpcService {
 
     /**
      * 获取全货架
+     *
      * @return
      */
     public List<BaseinfoLocation> getAllShelfs() {
@@ -109,10 +110,10 @@ public class LocationRpcService implements ILocationRpcService {
         //将不同的货架type塞入
         List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
         List<Long> regionType = Arrays.asList(LocationConstant.SHELF, LocationConstant.LOFT);
-        for (Long oneType:regionType){
-            mapQuery.put("type",oneType);
+        for (Long oneType : regionType) {
+            mapQuery.put("type", oneType);
             List<BaseinfoLocation> locationList = locationService.getBaseinfoLocationList(mapQuery);
-            if (locationList.size()>0){
+            if (locationList.size() > 0) {
                 targetList.addAll(locationList);
             }
         }
@@ -127,7 +128,7 @@ public class LocationRpcService implements ILocationRpcService {
     public List<BaseinfoLocation> getAllBin() {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("classification", 2);
-        mapQuery.put("isValid",LocationConstant.IS_VALID);
+        mapQuery.put("isValid", LocationConstant.IS_VALID);
         return locationService.getBaseinfoLocationList(mapQuery);
     }
 
@@ -141,26 +142,35 @@ public class LocationRpcService implements ILocationRpcService {
         List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
         //放入阁楼拣货位
         mapQuery.put("type", LocationConstant.LOFT_PICKING_BIN);
-        mapQuery.put("isValid",LocationConstant.IS_VALID);
+        mapQuery.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocation> loftColletionBins = locationService.getLocationListByType(mapQuery);
         targetList.addAll(loftColletionBins);
         //货架拣货位
-        mapQuery.put("type",LocationConstant.SHELF_PICKING_BIN);
-        mapQuery.put("isValid",LocationConstant.IS_VALID);
+        mapQuery.put("type", LocationConstant.SHELF_PICKING_BIN);
+        mapQuery.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocation> shelfColletionBins = locationService.getLocationListByType(mapQuery);
         targetList.addAll(shelfColletionBins);
         return targetList;
     }
 
     /**
-     * 按照dock的选择条件,给出符合DOCK条件的locatinList
-     * @param params
+     * 位置上锁
+     *
+     * @param locationId
      * @return
      */
-    public List<BaseinfoLocation> getDockList(Map<String, Object> params) {
-        params.put("isValid",LocationConstant.IS_VALID);
-        return locationService.getDockList(params);
+    public BaseinfoLocation lockLocation(Long locationId) {
+        return locationService.lockLocation(locationId);
     }
 
+    /**
+     * 位置解锁
+     *
+     * @param locationId
+     * @return
+     */
+    public BaseinfoLocation unlockLocation(Long locationId) {
+        return locationService.unlockLocation(locationId);
+    }
 
 }

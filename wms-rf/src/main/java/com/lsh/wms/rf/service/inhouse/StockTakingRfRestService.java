@@ -145,12 +145,18 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String assign() throws BizCheckedException {
         Map<String,Object> result = new HashMap<String, Object>();
-        Map<String, Object> params = RequestUtils.getRequest();
-        Long uId = Long.valueOf(params.get("uId").toString());
-        List<Map> taskList =  new ArrayList<Map>();
+        Long uId=0L;
+        List<Map> taskList = new ArrayList<Map>();
+        try {
+            Map<String, Object> params = RequestUtils.getRequest();
+            uId = Long.valueOf(params.get("uId").toString());
+        }catch (Exception e){
+            logger.info(e.getMessage());
+            return JsonUtils.TOKEN_ERROR("违法的账户");
+        }
         SysUser user =  iSysUserRpcService.getSysUserById(uId);
         if(user==null){
-            throw new BizCheckedException("违法的账户");
+            return JsonUtils.TOKEN_ERROR("用户不存在");
         }
         Long staffId = user.getStaffId();
         Map<String,Object> statusQueryMap = new HashMap();
@@ -181,14 +187,39 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             return JsonUtils.SUCCESS(result);
         }
         Map<String,Object> queryMap =new HashMap<String, Object>();
-        queryMap.put("status",1L);
+        queryMap.put("status", 1L);
         List<TaskEntry> entries =iTaskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TAKING, queryMap);
         if(entries==null ||entries.size()==0){
             return JsonUtils.TOKEN_ERROR("无盘点任务可领");
         }
-        TaskInfo info=entries.get(0).getTaskInfo();
-        queryMap.put("takingId", info.getPlanId());
-        Long round = stockTakingService.chargeTime(info.getPlanId());
+
+        //同一盘点任务，同一个人不能领多次
+        TaskInfo info = null;
+        StockTakingTask  takingTask = null;
+        for(TaskEntry entry:entries){
+            takingTask = (StockTakingTask)(entry.getTaskHead());
+            if(takingTask.getRound()==1){
+                info = entry.getTaskInfo();
+                break;
+            }else {
+                queryMap.put("planId", info.getPlanId());
+                queryMap.put("status",3L);
+                List<TaskEntry> entryList = iTaskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TAKING,queryMap);
+                Map<Long,Integer> chageMap = new HashMap<Long, Integer>();
+                for(TaskEntry tmp:entryList){
+                    chageMap.put(tmp.getTaskInfo().getOperator(),1);
+                }
+                if(!chageMap.containsKey(staffId)){
+                    info = entry.getTaskInfo();
+                    break;
+                }
+            }
+
+        }
+        if(info==null){
+            return JsonUtils.TOKEN_ERROR("无盘点任务可领");
+        }
+        Long round = takingTask.getRound();
         queryMap.put("round", round);
         List<StockTakingTask> takingTasks =stockTakingTaskService.getTakingTask(queryMap);
         List<Long> taskIdList = new ArrayList<Long>();
@@ -222,8 +253,16 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String getTaskInfo() throws BizCheckedException{
         Map<String, Object> params =RequestUtils.getRequest();
-        Long taskId = Long.valueOf(params.get("taskId").toString());
-        Long locationId = Long.valueOf(params.get("locationId").toString());
+        Long taskId = 0L;
+        Long locationId = 0L;
+
+        try {
+            taskId = Long.valueOf(params.get("taskId").toString());
+            locationId = Long.valueOf(params.get("locationId").toString());
+        }catch (Exception e){
+            return JsonUtils.TOKEN_ERROR("数据格式类型有误");
+        }
+
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
         StockTakingDetail detail = (StockTakingDetail)(entry.getTaskDetailList().get(0));
         if(!detail.getLocationId().equals(locationId)){
@@ -342,7 +381,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         for (StockTakingDetail detail : details) {
             String key = "l:"+detail.getLocationId()+"i:"+detail.getItemId();
             BigDecimal differQty = detail.getRealQty().subtract(detail.getTheoreticalQty());
-            if(!compareMap.containsKey(key) || compareMap.get(key).compareTo(differQty)!=0) {
+            if((!compareMap.containsKey(key)) || compareMap.get(key).compareTo(differQty)!=0) {
                 return false;
             }
         }

@@ -57,6 +57,15 @@ public class StockLotService {
         }
         return lot;
     }
+    public Long getSupplierIdByItemId(Long itemId) {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("itemId",itemId);
+        List<StockLot> lots = lotDao.getStockLotList(mapQuery);
+        if(lots ==null || lots.size()==0){
+            return 0L;
+        }
+        return lots.get(0).getSupplierId();
+    }
 
     @Transactional(readOnly = false)
     public void insertLot(StockLot lot) throws BizCheckedException {

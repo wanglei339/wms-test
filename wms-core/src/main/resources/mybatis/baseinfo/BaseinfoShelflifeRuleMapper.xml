@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.baseinfo.BaseinfoShelflifeRuleDao" >
+
+	<resultMap id="baseinfoShelflifeRuleResultMap" type="BaseinfoShelflifeRule">
+		<id property="id" column="id"/>
+		<result property="ruleId" column="rule_id"/>
+		<result property="shelfLife" column="shelf_life"/>
+		<result property="rejectionTerm" column="rejection_term"/>
+		<result property="refusalPeriod" column="refusal_period"/>
+		<result property="warningPeriod" column="warning_period"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoShelflifeRule">
+		insert into baseinfo_shelflife_rule (
+			rule_id,shelf_life,rejection_term,refusal_period,warning_period,created_at,updated_at
+    	) values (
+			#{ruleId},#{shelfLife},#{rejectionTerm},#{refusalPeriod},#{warningPeriod},#{createdAt},#{updatedAt}
+    	)
+	</insert>
+
+	<delete id="delete" parameterType="BaseinfoShelflifeRule">
+		delete from baseinfo_shelflife_rule
+		where rule_id=#{ruleId}
+	</delete>
+
+	<update id="update" parameterType="BaseinfoShelflifeRule">
+		update baseinfo_shelflife_rule
+    	<set>
+			<if test="ruleId != null">rule_id=#{ruleId},</if>
+  			<if test="shelfLife != null">shelf_life=#{shelfLife},</if>
+  			<if test="rejectionTerm != null">rejection_term=#{rejectionTerm},</if>
+  			<if test="refusalPeriod != null">refusal_period=#{refusalPeriod},</if>
+  			<if test="warningPeriod != null">warning_period=#{warningPeriod}</if>
+			<if test="createdAt != null">created_at=#{createdAt},</if>
+			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+		</set>
+		where rule_id=#{ruleId}
+	</update>
+  
+	<select id="getBaseinfoShelflifeRuleById" parameterType="int" resultMap="baseinfoShelflifeRuleResultMap">
+		select * from baseinfo_shelflife_rule
+		where ID=#{id} 
+	</select>
+  
+	<select id="countBaseinfoShelflifeRule" parameterType="map" resultType="int">
+		select count(*) from baseinfo_shelflife_rule
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getBaseinfoShelflifeRuleList" parameterType="map" resultMap="baseinfoShelflifeRuleResultMap">
+		select * from baseinfo_shelflife_rule
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="ruleId != null">and rule_id=#{ruleId}</if>
+			<if test="shelfLife != null">and shelf_life=#{shelfLife}</if>
+			<if test="rejectionTerm != null">and rejection_term=#{rejectionTerm}</if>
+			<if test="refusalPeriod != null">and refusal_period=#{refusalPeriod}</if>
+			<if test="warningPeriod != null">and warning_period=#{warningPeriod}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>

@@ -1,5 +1,7 @@
 package com.lsh.wms.core.service.location;
 
+import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
@@ -39,7 +41,7 @@ public class LocationService {
     // 获取location
     public BaseinfoLocation getLocation(Long locationId) {
         Map<String, Object> params = new HashMap<String, Object>();
-        BaseinfoLocation location;
+        BaseinfoLocation location = new BaseinfoLocation();
         params.put("locationId", locationId);
         params.put("isValid", 1);
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
@@ -47,22 +49,18 @@ public class LocationService {
     }
 
     /**
-     * 插入location方法,TODO 需要插入商品的四维坐标
+     * 插入location方法
      *
      * @param location
      * @return
      */
     @Transactional(readOnly = false)
     public BaseinfoLocation insertLocation(BaseinfoLocation location) {
-
-        if (location.getLocationId() == 0) {
-            //添加locationId
-            int iLocationId = 0;
-            location.setLocationId((long) iLocationId);
-        }
+        location = this.setLocationIdAndRange(location);
         //添加新增时间
         long createdAt = DateUtils.getCurrentSeconds();
         location.setCreatedAt(createdAt);
+        location.setUpdatedAt(createdAt);
         locationDao.insert(location);
         return location;
     }
@@ -86,6 +84,104 @@ public class LocationService {
     }
 
     /**
+     * 删除节点和下面的所有子树
+     *
+     * @param locationId
+     * @return
+     */
+    @Transactional(readOnly = false)
+    public BaseinfoLocation removeLocationAndChildren(Long locationId) throws BizCheckedException {
+        BaseinfoLocation location = this.getLocation(locationId);
+        //找不到
+        if (null == location) {
+            throw new BizCheckedException("2180003");
+        }
+        //将location的子树查出来isvalid置为0
+        List<BaseinfoLocation> childrenList = this.getChildrenLocations(locationId);
+        for (BaseinfoLocation child : childrenList) {
+            child.setIsValid(0);
+            updateLocation(child);
+        }
+        //删除该节点
+        location.setIsValid(0);
+        updateLocation(location);
+        return location;
+    }
+
+    /**
+     * 重置location_id和range
+     *
+     * @param location
+     * @return
+     */
+    @Transactional(readOnly = false)
+    public BaseinfoLocation resetLocation(BaseinfoLocation location) {
+        location = this.setLocationIdAndRange(location);
+        this.updateLocation(location);
+        return location;
+    }
+
+    /**
+     * 设置location节点子节点的范围
+     * 重要方法,设置location_id必须使用此方法!!!
+     *
+     * @param location
+     * @return
+     */
+    public BaseinfoLocation setLocationIdAndRange(BaseinfoLocation location) {
+        Long fatherLocationId = location.getFatherId();
+        // 根节点处理
+        if (fatherLocationId == null || fatherLocationId.equals(-1L)) {
+            location.setLocationId(0L);
+            location.setLeftRange(1L);
+            location.setLevel(0L); // 设置层数,根节点层数为0,下一层为起始层,层数为1
+            Long rightRange = 0L;
+            for (Integer i = 1; i <= LocationConstant.LOCATION_LEVEL; i++) {
+                rightRange += Math.round(Math.pow(LocationConstant.CHILDREN_RANGE, i));
+            }
+            location.setRightRange(rightRange);
+        } else {
+            // 非根节点
+            BaseinfoLocation fatherLocation = this.getLocation(fatherLocationId);
+            Long level = fatherLocation.getLevel() + 1;
+            Long fatherLeftRange = fatherLocation.getLeftRange();
+            Long fatherRightRange = fatherLocation.getRightRange();
+            List<Long> levelLocationIds = new ArrayList<Long>();
+            Long tmpLocationId = fatherLeftRange;
+            levelLocationIds.add(tmpLocationId);
+            // 超出最大层数
+            if (level > LocationConstant.LOCATION_LEVEL) {
+                throw new BizCheckedException("2600002");
+            }
+            // 找出当前层所有可能的location_id
+            for (Long i = fatherLeftRange; i < (fatherLeftRange + LocationConstant.CHILDREN_RANGE); i++) {
+                tmpLocationId += (fatherRightRange - fatherLeftRange + 1) / LocationConstant.CHILDREN_RANGE;
+                levelLocationIds.add(tmpLocationId);
+            }
+            for (Long levelLocationId : levelLocationIds) {
+                BaseinfoLocation tmpLocation = this.getLocation(levelLocationId);
+                // 如果已分配过但是逻辑删除了,则复用该id
+                if (tmpLocation == null || tmpLocation.getIsValid() == 0) { //一旦集合比较大,选择没有分配过的location即null,进入方法设置locationId和左右范围
+                    location.setLocationId(levelLocationId);
+                    location.setLeftRange(levelLocationId + 1);
+                    location.setLevel(level);
+                    Long rightRange = levelLocationId;
+                    for (Integer i = 1; i <= LocationConstant.LOCATION_LEVEL - level; i++) {
+                        rightRange += Math.round(Math.pow(LocationConstant.CHILDREN_RANGE, i));
+                    }
+                    location.setRightRange(rightRange);
+                    break;
+                }
+            }
+            // id已分配至上限,不可继续分配
+            if (location.getLocationId().equals(0) || location.getLocationId() == null) {
+                throw new BizCheckedException("2600001");
+            }
+        }
+        return location;
+    }
+
+    /**
      * 获取节点location_id
      *
      * @param locations
@@ -100,12 +196,44 @@ public class LocationService {
     }
 
     /**
-     * 获取一个location下一层的子节点
+     * 获取一个location所有子节点
      *
      * @param locationId
      * @return
      */
     public List<BaseinfoLocation> getChildrenLocations(Long locationId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        BaseinfoLocation location = this.getLocation(locationId);
+        params.put("leftRange", location.getLeftRange());
+        params.put("rightRange", location.getRightRange());
+        params.put("isValid", 1);
+        return locationDao.getChildrenLocationList(params);
+    }
+
+    /**
+     * 根据type获取子节点
+     *
+     * @param locationId
+     * @param type
+     * @return
+     */
+    public List<BaseinfoLocation> getChildrenLocationsByType(Long locationId, String type) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        BaseinfoLocation location = this.getLocation(locationId);
+        params.put("leftRange", location.getLeftRange());
+        params.put("rightRange", location.getRightRange());
+        params.put("type", type);
+        params.put("isValid", 1);
+        return locationDao.getChildrenLocationList(params);
+    }
+
+    /**
+     * 获取一个location下一层的子节点
+     *
+     * @param locationId
+     * @return
+     */
+    public List<BaseinfoLocation> getNextLevelLocations(Long locationId) {
         Map<String, Object> params = new HashMap<String, Object>();
         Map<Long, BaseinfoLocation> childrenLocations = new HashMap<Long, BaseinfoLocation>();
         // 判断是否已为子节点
@@ -125,8 +253,8 @@ public class LocationService {
      * @param locationId
      * @return
      */
-    public List<Long> getChildrenLocationIds(Long locationId) {
-        List<BaseinfoLocation> locations = this.getChildrenLocations(locationId);
+    public List<Long> getNextLevelLocationIds(Long locationId) {
+        List<BaseinfoLocation> locations = this.getNextLevelLocations(locationId);
         return this.getLocationIds(locations);
     }
 
@@ -137,23 +265,13 @@ public class LocationService {
      * @return
      */
     public List<BaseinfoLocation> getStoreLocations(Long locationId) {
-        List<BaseinfoLocation> locations = new ArrayList();
-        BaseinfoLocation curLocation = this.getLocation(locationId);
-        if (curLocation == null) {
-            return null;
-        }
-        if (curLocation.getCanStore() == 1) {
-            locations.add(curLocation);
-        }
-        if (curLocation.getIsLeaf() == 0) {
-            List<BaseinfoLocation> childrenLocations = this.getChildrenLocations(locationId);
-            // 深度优先,递归遍历
-            for (BaseinfoLocation location : childrenLocations) {
-                List<BaseinfoLocation> childrenStoreLocations = this.getStoreLocations(location.getLocationId());
-                locations.addAll(childrenStoreLocations);
-            }
-        }
-        return locations;
+        Map<String, Object> params = new HashMap<String, Object>();
+        BaseinfoLocation location = this.getLocation(locationId);
+        params.put("leftRange", location.getLeftRange());
+        params.put("rightRange", location.getRightRange());
+        params.put("can_store", 1);
+        params.put("isValid", 1);
+        return locationDao.getChildrenLocationList(params);
     }
 
     /**
@@ -532,16 +650,51 @@ public class LocationService {
      * @return
      */
     public List<BaseinfoLocation> getDockList(Map<String, Object> params) {
+        params.put("isValid", 1);
         return locationDao.getDockList(params);
     }
 
     /**
      * 计数按码头出入库条件筛选的码头条数
+     *
      * @param params
      * @return
      */
-    public Integer countDockList(Map<String,Object> params){
-        return  locationDao.countDockList(params);
+    public Integer countDockList(Map<String, Object> params) {
+        params.put("isValid", 1);
+        return locationDao.countDockList(params);
     }
+
+    /**
+     * location上锁
+     *
+     * @return
+     */
+    public BaseinfoLocation lockLocation(Long locationId) {
+        BaseinfoLocation location = this.getLocation(locationId);
+        if (location == null) {
+            throw new BizCheckedException("2180001");
+        }
+        location.setIsLocked(1);    //上锁
+        this.updateLocation(location);
+        return location;
+    }
+
+    /**
+     * 解锁
+     *
+     * @param locationId
+     * @return
+     */
+    public BaseinfoLocation unlockLocation(Long locationId) {
+        BaseinfoLocation location = this.getLocation(locationId);
+        if (location == null) {
+            throw new BizCheckedException("2180001");
+        }
+        location.setIsLocked(0);    //解锁
+        this.updateLocation(location);
+        return location;
+    }
+
 
 }

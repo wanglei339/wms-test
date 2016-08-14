@@ -7,6 +7,9 @@
 		<result property="locationId" column="location_id"/>
 		<result property="locationCode" column="location_code"/>
 		<result property="fatherId" column="father_id"/>
+		<result property="leftRange" column="left_range"/>
+		<result property="rightRange" column="right_range"/>
+		<result property="level" column="level"/>
 		<result property="type" column="type"/>
 		<result property="typeName" column="type_name"/>
 		<result property="isLeaf" column="is_leaf"/>
@@ -27,15 +30,15 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLocation">
 		insert into baseinfo_location (
-			location_id,location_code,father_id,type,type_name,is_leaf,
-			is_valid,can_store,container_vol,region_no,passage_no,shelf_level_no,
-			bin_position_no,description,created_at,updated_at,classification,can_use,
-			is_locked
+			location_id,location_code,father_id,left_range,right_range,level,
+			type,type_name,is_leaf,is_valid,can_store,container_vol,
+			region_no,passage_no,shelf_level_no,bin_position_no,description,created_at,
+			updated_at,classification,can_use,is_locked
     	) values (
-			#{locationId},#{locationCode},#{fatherId},#{type},#{typeName},#{isLeaf},
-			#{isValid},#{canStore},#{containerVol},#{regionNo},#{passageNo},#{shelfLevelNo},
-			#{binPositionNo},#{description},#{createdAt},#{updatedAt},#{classification},#{canUse},
-			#{isLocked}
+			#{locationId},#{locationCode},#{fatherId},#{leftRange},#{rightRange},#{level},
+			#{type},#{typeName},#{isLeaf},#{isValid},#{canStore},#{containerVol},
+			#{regionNo},#{passageNo},#{shelfLevelNo},#{binPositionNo},#{description},#{createdAt},
+			#{updatedAt},#{classification},#{canUse},#{isLocked}
     	)
 	</insert>
 
@@ -45,6 +48,9 @@
   			<if test="locationId != null">location_id=#{locationId},</if>
   			<if test="locationCode != null">location_code=#{locationCode},</if>
   			<if test="fatherId != null">father_id=#{fatherId},</if>
+  			<if test="leftRange != null">left_range=#{leftRange},</if>
+  			<if test="rightRange != null">right_range=#{rightRange},</if>
+  			<if test="level != null">level=#{level},</if>
   			<if test="type != null">type=#{type},</if>
   			<if test="typeName != null">type_name=#{typeName},</if>
   			<if test="isLeaf != null">is_leaf=#{isLeaf},</if>
@@ -82,6 +88,38 @@
 		limit #{start},#{limit}
 		</if>
 	</select>
+
+	<select id="getChildrenLocationList" parameterType="map" resultMap="baseinfoLocationResultMap">
+		select * from baseinfo_location
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="locationId != null">and location_id=#{locationId}</if>
+			<if test="locationCode != null">and location_code=#{locationCode}</if>
+			<if test="fatherId != null">and father_id=#{fatherId}</if>
+			<if test="leftRange != null">and left_range&gt;=#{leftRange}</if>
+			<if test="rightRange != null">and right_range&lt;=#{rightRange}</if>
+			<if test="level != null">and level=#{level}</if>
+			<if test="type != null">and type=#{type}</if>
+			<if test="typeName != null">and type_name=#{typeName}</if>
+			<if test="isLeaf != null">and is_leaf=#{isLeaf}</if>
+			<if test="isValid != null">and is_valid=#{isValid}</if>
+			<if test="canStore != null">and can_store=#{canStore}</if>
+			<if test="containerVol != null">and container_vol=#{containerVol}</if>
+			<if test="regionNo != null">and region_no=#{regionNo}</if>
+			<if test="passageNo != null">and passage_no=#{passageNo}</if>
+			<if test="shelfLevelNo != null">and shelf_level_no=#{shelfLevelNo}</if>
+			<if test="binPositionNo != null">and bin_position_no=#{binPositionNo}</if>
+			<if test="description != null">and description=#{description}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="classification != null">and classification=#{classification}</if>
+			<if test="canUse != null">and can_use=#{canUse}</if>
+			<if test="isLocked != null">and is_locked=#{isLocked}</if>
+		</where>
+		<if test="start != null and limit != null">
+			limit #{start},#{limit}
+		</if>
+	</select>
   
 	<sql id="queryCondition">
 		<where>
@@ -89,6 +127,9 @@
 			<if test="locationId != null">and location_id=#{locationId}</if>
 			<if test="locationCode != null">and location_code=#{locationCode}</if>
 			<if test="fatherId != null">and father_id=#{fatherId}</if>
+			<if test="leftRange != null">and left_range=#{leftRange}</if>
+			<if test="rightRange != null">and right_range=#{rightRange}</if>
+			<if test="level != null">and level=#{level}</if>
 			<if test="type != null">and type=#{type}</if>
 			<if test="typeName != null">and type_name=#{typeName}</if>
 			<if test="isLeaf != null">and is_leaf=#{isLeaf}</if>
@@ -115,6 +156,9 @@
 			<if test="locationId != null">and location.location_id=#{locationId}</if>
 			<if test="locationCode != null">and location.location_code=#{locationCode}</if>
 			<if test="fatherId != null">and location.father_id=#{fatherId}</if>
+			<if test="leftRange != null">and left_range=#{leftRange}</if>
+			<if test="rightRange != null">and right_range=#{rightRange}</if>
+			<if test="level != null">and level=#{level}</if>
 			<if test="type != null">and location.type=#{type}</if>
 			<if test="typeName != null">and location.type_name=#{typeName}</if>
 			<if test="isLeaf != null">and location.is_leaf=#{isLeaf}</if>
@@ -145,6 +189,9 @@
 			<if test="locationId != null">and location.location_id=#{locationId}</if>
 			<if test="locationCode != null">and location.location_code=#{locationCode}</if>
 			<if test="fatherId != null">and location.father_id=#{fatherId}</if>
+			<if test="leftRange != null">and left_range=#{leftRange}</if>
+			<if test="rightRange != null">and right_range=#{rightRange}</if>
+			<if test="level != null">and level=#{level}</if>
 			<if test="type != null">and location.type=#{type}</if>
 			<if test="typeName != null">and location.type_name=#{typeName}</if>
 			<if test="isLeaf != null">and location.is_leaf=#{isLeaf}</if>

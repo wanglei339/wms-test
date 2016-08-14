@@ -53,6 +53,8 @@ public interface IStaffRpcService {
 
     public BaseinfoStaffJob getJobById(Long iJobId);
 
+    List<BaseinfoStaffJobRelation> getJobsByStaffId(Long iStaffId);
+
 
     public List<BaseinfoStaffInfo> getStaffList(Map<String, Object> mapQuery);
 

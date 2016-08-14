@@ -7,6 +7,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.inhouse.IProcurementProveiderRpcService;
 import com.lsh.wms.api.service.inhouse.IProcurementProviderRestService;
+import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.model.transfer.StockTransferPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,18 +28,23 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
 
     @Autowired
     private ProcurementProviderRpcService rpcService;
+    @Reference
+    private ITaskRpcService taskRpcService;
 
     @POST
     @Path("add")
     public String addProcurementPlan(StockTransferPlan plan)  throws BizCheckedException {
         try{
+            if(rpcService.checkPlan(plan)==false){
+                return JsonUtils.TOKEN_ERROR("补货计划参数错误");
+            }
             rpcService.addProcurementPlan(plan);
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS();
     }
@@ -46,17 +52,47 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
     @Path("update")
     public String updateProcurementPlan(StockTransferPlan plan)  throws BizCheckedException {
         try{
-            rpcService.addProcurementPlan(plan);
+            if(rpcService.checkPlan(plan)==false){
+                return JsonUtils.TOKEN_ERROR("补货计划参数错误");
+            }
+            rpcService.updateProcurementPlan(plan);
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS();
     }
-
+    @GET
+    @Path("cancel")
+    public String cancelProcurementPlan(@QueryParam("taskId") long taskId)  throws BizCheckedException {
+        try{
+            taskRpcService.cancel(taskId);
+        } catch (BizCheckedException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+        }
+        return JsonUtils.SUCCESS();
+    }
+    @GET
+    @Path("getOutBoundLocation")
+    public String getOutBoundLocation(@QueryParam("itemId") long itemId,@QueryParam("locationId") long locationId)  throws BizCheckedException {
+        try{
+            rpcService.getOutBoundLocation(itemId,locationId);
+        } catch (BizCheckedException e) {
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+        }
+        return JsonUtils.SUCCESS();
+    }
     @GET
     @Path("autoCreate")
     public String createProcurement()  throws BizCheckedException {
@@ -66,8 +102,8 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
             throw e;
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getCause().getMessage());
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS();
     }

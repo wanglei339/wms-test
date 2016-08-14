@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.wave.WaveQcExceptionDao" >
+
+	<resultMap id="waveQcExceptionResultMap" type="WaveQcException">
+		<id property="id" column="id"/>
+		<result property="waveId" column="wave_id"/>
+		<result property="skuId" column="sku_id"/>
+		<result property="qcTaskId" column="qc_task_id"/>
+		<result property="exceptionType" column="exception_type"/>
+		<result property="exceptionQty" column="exception_qty"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="WaveQcException">
+		insert ignore into wave_qc_exception (
+			wave_id,sku_id,qc_task_id,exception_type,exception_qty,created_at,
+			updated_at
+    	) values (
+			#{waveId},#{skuId},#{qcTaskId},#{exceptionType},#{exceptionQty},#{createdAt},
+			#{updatedAt}
+    	)
+	</insert>
+
+	<update id="update" parameterType="WaveQcException">
+		update wave_qc_exception
+    	<set>
+  			<if test="waveId != null">wave_id=#{waveId},</if>
+  			<if test="skuId != null">sku_id=#{skuId},</if>
+  			<if test="qcTaskId != null">qc_task_id=#{qcTaskId},</if>
+  			<if test="exceptionType != null">exception_type=#{exceptionType},</if>
+  			<if test="exceptionQty != null">exception_qty=#{exceptionQty},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getWaveQcExceptionById" parameterType="int" resultMap="waveQcExceptionResultMap">
+		select * from wave_qc_exception
+		where ID=#{id} 
+	</select>
+  
+	<select id="countWaveQcException" parameterType="map" resultType="int">
+		select count(*) from wave_qc_exception
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getWaveQcExceptionList" parameterType="map" resultMap="waveQcExceptionResultMap">
+		select * from wave_qc_exception
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="waveId != null">and wave_id=#{waveId}</if>
+			<if test="skuId != null">and sku_id=#{skuId}</if>
+			<if test="qcTaskId != null">and qc_task_id=#{qcTaskId}</if>
+			<if test="exceptionType != null">and exception_type=#{exceptionType}</if>
+			<if test="exceptionQty != null">and exception_qty=#{exceptionQty}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>

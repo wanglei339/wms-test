@@ -16,6 +16,8 @@
 		<result property="status" column="status"/>
 		<result property="reqQty" column="req_qty"/>
 		<result property="allocQty" column="alloc_qty"/>
+		<result property="allocUnitName" column="alloc_unit_name"/>
+		<result property="allocUnitQty" column="alloc_unit_qty"/>
 		<result property="pickQty" column="pick_qty"/>
 		<result property="qcQty" column="qc_qty"/>
 		<result property="deliveryQty" column="delivery_qty"/>
@@ -48,7 +50,7 @@
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="WaveDetail">
 		insert into wave_detail (
 			is_alive,is_valid,wave_id,order_id,item_id,sku_id,
-			owner_id,loc_id,supplier_id,status,req_qty,alloc_qty,
+			owner_id,loc_id,supplier_id,status,req_qty,alloc_qty,alloc_unit_name,alloc_unit_qty,
 			pick_qty,qc_qty,delivery_qty,pick_task_id,pick_zone_id,pick_order,
 			alloc_pick_location,real_pick_location,alloc_collect_location,real_collect_location,container_id,pick_uid,
 			pick_at,sow_task_id,sow_uid,sow_at,qc_task_id,qc_uid,
@@ -56,7 +58,7 @@
 			ship_at,created_at,updated_at
     	) values (
 			#{isAlive},#{isValid},#{waveId},#{orderId},#{itemId},#{skuId},
-			#{ownerId},#{locId},#{supplierId},#{status},#{reqQty},#{allocQty},
+			#{ownerId},#{locId},#{supplierId},#{status},#{reqQty},#{allocQty},#{allocUnitName},#{allocUnitQty},
 			#{pickQty},#{qcQty},#{deliveryQty},#{pickTaskId},#{pickZoneId},#{pickOrder},
 			#{allocPickLocation},#{realPickLocation},#{allocCollectLocation},#{realCollectLocation},#{containerId},#{pickUid},
 			#{pickAt},#{sowTaskId},#{sowUid},#{sowAt},#{qcTaskId},#{qcUid},
@@ -80,6 +82,8 @@
   			<if test="status != null">status=#{status},</if>
   			<if test="reqQty != null">req_qty=#{reqQty},</if>
   			<if test="allocQty != null">alloc_qty=#{allocQty},</if>
+			<if test="allocUnitName != null">alloc_unit_name=#{allocUnitName},</if>
+			<if test="allocUnitQty != null">alloc_unit_qty=#{allocUnitQty},</if>
   			<if test="pickQty != null">pick_qty=#{pickQty},</if>
   			<if test="qcQty != null">qc_qty=#{qcQty},</if>
   			<if test="deliveryQty != null">delivery_qty=#{deliveryQty},</if>

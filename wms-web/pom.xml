@@ -106,7 +106,7 @@
                 <upload.path.root>/Users/yay/Documents/upload/staticfile/</upload.path.root>
                 <oss.file.endpoint>oss-cn-beijing.aliyuncs.com</oss.file.endpoint>
                 <oss.image.endpoint>oss-cn-beijing.aliyuncs.com</oss.image.endpoint>
-                <zookeeper.ip>10.1.1.2</zookeeper.ip>
+                <zookeeper.ip>192.168.60.48</zookeeper.ip>
                 <live.rest.host>127.0.0.1:8890</live.rest.host>
             </properties>
         </profile>

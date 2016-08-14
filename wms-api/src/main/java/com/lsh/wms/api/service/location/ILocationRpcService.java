@@ -13,7 +13,7 @@ import java.util.Map;
 public interface ILocationRpcService {
     public BaseinfoLocation getLocation(Long locationId);
     public List<BaseinfoLocation> getStoreLocations(Long locationId);
-    public List<BaseinfoLocation> getChildrenLocations(Long locationId);
+    public List<BaseinfoLocation> getNextLevelLocations(Long locationId);
     public BaseinfoLocation getFatherLocation(Long locationId);
     public BaseinfoLocation getFatherByType(Long locationId, String type);
 
@@ -48,6 +48,20 @@ public interface ILocationRpcService {
      * @return
      */
     public List<BaseinfoLocation> getColletionBins();
+
+    /**
+     * 上锁
+     * @param locationId
+     * @return
+     */
+    public BaseinfoLocation lockLocation(Long locationId);
+
+    /**
+     * 解锁
+     * @param locationId
+     * @return
+     */
+    public BaseinfoLocation unlockLocation(Long locationId);
 
 
 }

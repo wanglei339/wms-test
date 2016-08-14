@@ -15,4 +15,5 @@ public interface IStockTransferRpcService {
     Long assign(Long staffId) throws BizCheckedException;
     void updatePlan(StockTransferPlan plan) throws BizCheckedException;
     void cancelPlan(Long taskId) throws BizCheckedException;
+    void createStockTransfer() throws BizCheckedException;
 }

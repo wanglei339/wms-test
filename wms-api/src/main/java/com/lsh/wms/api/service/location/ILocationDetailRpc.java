@@ -25,4 +25,21 @@ public interface ILocationDetailRpc {
     public Integer countLocationDetailByType(Map<String, Object> mapQuery);
 
     public boolean removeLocation(Long locationId) throws BizCheckedException;
+
+    /**
+     * 获取需要得到的list方法
+     * @param listType
+     * @return
+     * @throws BizCheckedException
+     */
+    public List<BaseinfoLocation> getTargetListByListType(Integer listType) throws BizCheckedException;
+
+    /**
+     * 获取下一层级的所有节点
+     * @param locationId
+     * @return
+     */
+    public List<BaseinfoLocation> getNextLevelLocations(Long locationId);
+
+
 }

@@ -27,10 +27,12 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
     private LocationDetailService locationDetailService;
     @Autowired
     private LocationService locationService;
+    @Autowired
+    private LocationRpcService locationRpcService;
 
-    public IBaseinfoLocaltionModel getLocationDetailById(Long locationId) throws BizCheckedException{
+    public IBaseinfoLocaltionModel getLocationDetailById(Long locationId) throws BizCheckedException {
         BaseinfoLocation subLocation = (BaseinfoLocation) locationDetailService.getIBaseinfoLocaltionModelById(locationId);
-        if (null == subLocation){
+        if (null == subLocation) {
             throw new BizCheckedException("2180001");
         }
         return subLocation;
@@ -91,11 +93,9 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
     }
 
     public boolean removeLocation(Long locationId) throws BizCheckedException {
-        BaseinfoLocation location = locationService.getLocation(locationId);
-        if (location != null) {
-            location.setIsValid(0);
+        if (locationId != null) {
             try {
-                locationService.updateLocation(location);
+                locationService.removeLocationAndChildren(locationId);
                 return true;
             } catch (Exception e) {
                 logger.error(e.getCause().getMessage());
@@ -104,5 +104,28 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
         } else {
             throw new BizCheckedException("2180003");
         }
+    }
+
+    /**
+     * 获取固定的位置list的方法,通过传入获取的list方法不同,返回不同的location集合,如功能区、全货架、全大区、全货架区、全通道
+     *
+     * @param listType
+     * @return
+     * @throws BizCheckedException
+     */
+    public List<BaseinfoLocation> getTargetListByListType(Integer listType) throws BizCheckedException {
+        if (null == listType) {
+            throw new BizCheckedException("2180004");
+        }
+        return locationDetailService.getTargetListByListType(listType);
+    }
+
+    /**
+     * 获取下一层级的所有节点
+     * @param locationId
+     * @return
+     */
+    public List<BaseinfoLocation> getNextLevelLocations(Long locationId) {
+        return locationRpcService.getNextLevelLocations(locationId);
     }
 }

@@ -6,12 +6,14 @@ import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.dao.so.OutbSoHeaderDao;
 import com.lsh.wms.core.dao.wave.WaveDetailDao;
 import com.lsh.wms.core.dao.wave.WaveHeadDao;
+import com.lsh.wms.core.dao.wave.WaveQcExceptionDao;
 import com.lsh.wms.core.service.pick.PickTaskService;
 import com.lsh.wms.model.pick.PickTaskHead;
 import com.lsh.wms.model.so.OutbSoHeader;
 import com.lsh.wms.model.wave.WaveAllocDetail;
 import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.wave.WaveHead;
+import com.lsh.wms.model.wave.WaveQcException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,8 @@ public class WaveService {
     private PickTaskService taskService;
     @Autowired
     private WaveDetailDao detailDao;
+    @Autowired
+    private WaveQcExceptionDao qcExceptionDao;
 
     @Transactional(readOnly = false)
     public void createWave(WaveHead head, List<Long> vOrders){
@@ -178,6 +182,25 @@ public class WaveService {
         return detailDao.getUnPickedQty(mapQuery);
     }
 
+    @Transactional(readOnly = false)
+    public void insertQCException(WaveQcException exception){
+        exception.setCreatedAt(DateUtils.getCurrentSeconds());
+        exception.setUpdatedAt(DateUtils.getCurrentSeconds());
+        qcExceptionDao.insert(exception);
+    }
 
+    @Transactional(readOnly = true)
+    public List<WaveQcException> getExceptionsByWaveId(long waveId){
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("waveId", waveId);
+        return qcExceptionDao.getWaveQcExceptionList(mapQuery);
+    }
+
+    @Transactional(readOnly = true)
+    public List<WaveQcException> getExceptionsByQcTaskId(long taskId){
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("qcTaskId", taskId);
+        return qcExceptionDao.getWaveQcExceptionList(mapQuery);
+    }
 
 }
