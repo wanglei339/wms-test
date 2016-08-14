@@ -186,19 +186,47 @@ public class LocationDetailService {
         }
         //如果是货架个体,插入指定层的货架层
         if (LocationConstant.SHELF == iBaseinfoLocaltionModel.getType()) {
-            // TODO 拿到指定的code,加入-L-i
+            // TODO 拿到指定的code,加入-i
             BaseinfoLocationShelf shelf = new BaseinfoLocationShelf();
             ObjUtils.bean2bean(iBaseinfoLocaltionModel, shelf);  //拷贝性质
             Long level = shelf.getLevel();
+            String fatherCode = shelf.getLocationCode();
             for (int i = 1; i < level; i++) {
-
+                String newCode = fatherCode + "-" + i;
+                BaseinfoLocation levelLocation = new BaseinfoLocation();
+                ObjUtils.bean2bean(baseinfoLocation, levelLocation);
+                levelLocation.setFatherId(baseinfoLocation.getFatherId());  //  设置父亲的id
+                levelLocation.setLocationCode(newCode); //code刷新,range不用管
+                levelLocation.setType(LocationConstant.SHELF_LEVELS); //设置类型
+                levelLocation.setTypeName("货架层");
+                locationService.insertLocation(levelLocation);
             }
+            //将货架的叶子节点设置为0
+            location.setIsLeaf(0);
+            locationService.updateLocation(location);
         }
         // TODO 如果是阁楼个体,插入指定层的阁楼层
         if (LocationConstant.LOFT == iBaseinfoLocaltionModel.getType()) {
-
+            // TODO 拿到指定的code,加入-i
+            BaseinfoLocationShelf shelf = new BaseinfoLocationShelf();
+            ObjUtils.bean2bean(iBaseinfoLocaltionModel, shelf);  //拷贝性质
+            Long level = shelf.getLevel();
+            String fatherCode = shelf.getLocationCode();
+            for (int i = 1; i < level; i++) {
+                String newCode = fatherCode + "-" + i;
+                BaseinfoLocation levelLocation = new BaseinfoLocation();
+                ObjUtils.bean2bean(baseinfoLocation, levelLocation);
+                levelLocation.setFatherId(baseinfoLocation.getFatherId());  //  设置父亲的id
+                levelLocation.setLocationCode(newCode); //code刷新,range不用管
+                levelLocation.setType(LocationConstant.LOFT_LEVELS); //设置类型
+                levelLocation.setTypeName("阁楼层");
+                locationService.insertLocation(levelLocation);
+            }
+            //将货架的叶子节点设置为0
+            location.setIsLeaf(0);
+            locationService.updateLocation(location);
         }
-        // todo 插入层级在这层还是rpc层(事务问题,保证update(叶子节点)和)
+        //其他type处理方式
         BaseinfoLocation fatherLocation = locationService.getFatherLocation(location.getLocationId());
         fatherLocation.setIsLeaf(0);
         locationService.updateLocation(fatherLocation);

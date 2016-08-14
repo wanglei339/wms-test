@@ -44,6 +44,10 @@ public class LocationConstant {  // TODO 修改格式大写加下滑线
     public static final Long CONSUME_AREA = 25L;
     public static final Long SUPPLIER_AREA = 25L;
 
+    //货架层和阁楼层
+    public static final Long SHELF_LEVELS = 27L;
+    public static final Long LOFT_LEVELS = 28L;
+
 
     //温区设置
     public static final Integer ROOM_TEMPERATURE = 1;
