@@ -5,6 +5,7 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
 import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.core.dao.stock.StockQuantDao;
@@ -38,12 +39,31 @@ public class StockQuantService {
     @Autowired
     private LocationService locationService;
 
+    private void prepareQuery(Map<String, Object> params) {
+        List<BaseinfoLocation> locationList = new ArrayList<BaseinfoLocation>();
+        if (params.get("locationId") != null) {
+            BaseinfoLocation location = locationService.getLocation((Long) params.get("locationId"));
+            locationList.add(location);
+        }
+        if  (params.get("locationList") != null) {
+            for (Long locationId : (List<Long>) params.get("locationList")) {
+                BaseinfoLocation location = locationService.getLocation(locationId);
+                locationList.add(location);
+            }
+        }
+        if ( ! locationList.isEmpty() ) {
+            params.put("locationList", locationList);
+        }
+    }
+
     public BigDecimal getQty(Map<String, Object> mapQuery) {
+        this.prepareQuery(mapQuery);
         BigDecimal total = stockQuantDao.getQty(mapQuery);
         return total == null ? BigDecimal.ZERO : total;
     }
 
     public List<StockQuant> getQuants(Map<String, Object> params) {
+        this.prepareQuery(params);
         return stockQuantDao.getQuants(params);
     }
 
@@ -279,6 +299,7 @@ public class StockQuantService {
         }
         return qty;
     }
+
     public Long getSupplierByLocationAndItemId(Long locationId,Long itemId) {
         Set<Long> suppliers=new HashSet<Long>();
         Map<String,Object> queryMap =new HashMap<String, Object>();

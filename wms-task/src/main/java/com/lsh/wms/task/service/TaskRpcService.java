@@ -4,11 +4,16 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.task.TaskTriggerService;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.core.service.task.TaskHandler;
+import com.lsh.wms.model.task.TaskTrigger;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -20,12 +25,23 @@ import java.util.Map;
 
 @Service(protocol = "dubbo")
 public class TaskRpcService implements ITaskRpcService {
+
+    private static final Logger logger = LoggerFactory.getLogger(TaskRpcService.class);
+
     @Autowired
     private TaskHandlerFactory handlerFactory;
 
     @Autowired
     private BaseTaskService baseTaskService;
 
+    @Autowired
+    private TaskTriggerService triggerService;
+
+    private Map<String, List<TaskTrigger>> triggerMap;
+
+    public TaskRpcService() {
+        triggerMap = triggerService.getAll();
+    }
 
     public Long create(Long taskType, TaskEntry taskEntry) throws BizCheckedException{
         TaskHandler handler = handlerFactory.getTaskHandler(taskType);
@@ -107,6 +123,18 @@ public class TaskRpcService implements ITaskRpcService {
         Long taskType = this.getTaskTypeById(taskId);
         TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
         taskHandler.done(taskId);
+
+        String key = taskType + taskHandler.getClass().getName() + 1L;
+        List<TaskTrigger> triggerList = triggerMap.get(key);
+        for(TaskTrigger trigger : triggerList) {
+            TaskHandler handler = handlerFactory.getTaskHandler(taskType);
+            try {
+                Method method = handler.getClass().getDeclaredMethod(trigger.getDestMethod(), TaskEntry.class);
+                method.invoke(handler, this.getTaskEntryById(taskId));
+            } catch (Exception e) {
+                logger.warn(e.getMessage());
+            }
+        }
     }
 
     public void done(Long taskId, Long locationId) throws BizCheckedException {

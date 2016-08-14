@@ -116,15 +116,19 @@
 		</if>
 
 	</select>
+
+	<select id="lock" parameterType="map" resultMap="stockQuantResultMap">
+		select * from stock_quant for update
+		<include refid="queryCondition"/>
+	</select>
   
 	<sql id="queryCondition">
 		<where>
 			<if test="skuId != null and skuId != 0">sku_id=#{skuId}</if>
-			<if test="locationId != null and locationId != 0">and location_id=#{locationId}</if>
 			<if test="locationList != null">
-				and location_id in
-				<foreach collection="locationList"  item="item" index="index" open="(" separator=","  close=")">
-					#{item}
+				and
+				<foreach collection="locationList"  item="item" index="index" open="(" separator="or"  close=")">
+					( ${item.getLeftRange()} &lt;= location_id and location_id &lt;= ${item.getRightRange()} )
 				</foreach>
 			</if>
 			<if test="itemList != null">

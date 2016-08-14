@@ -50,11 +50,6 @@ public class StockQuantRpcService implements IStockQuantRpcService {
     private Map<String, Object> getQueryCondition(StockQuantCondition condition) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         try {
-            if (condition.getLocationId() != null) {
-                List<Long> locationList = locationService.getStoreLocationIds(condition.getLocationId());
-                condition.setLocationId(0L);
-                condition.setLocationList(locationList);
-            }
             mapQuery = PropertyUtils.describe(condition);
         } catch (Exception e) {
             logger.error(e.getCause().getMessage());
