@@ -64,16 +64,21 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     @Reference
     private IItemRpcService itemLocationService;
 
+    @Autowired
     private BaseTaskService baseTaskService;
 
     public void addProcurementPlan(StockTransferPlan plan) throws BizCheckedException {
-
+        if (baseTaskService.checkTaskByToLocation(plan.getToLocationId(), TaskConstant.TYPE_PROCUREMENT)) {
+            throw new BizCheckedException("2550015");
+        }
         StockQuantCondition condition = new StockQuantCondition();
         TaskEntry taskEntry = new TaskEntry();
         TaskInfo taskInfo = new TaskInfo();
         condition.setLocationId(plan.getFromLocationId());
         condition.setItemId(plan.getItemId());
         BigDecimal total = stockQuantService.getQty(condition);
+
+        core.fillTransferPlan(plan);
 
         if ( plan.getQty().compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
             throw new BizCheckedException(plan.getQty().toString() + "====" + total.toString());
@@ -83,7 +88,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         if (plan.getSubType().equals(2L)) {
             containerId = containerService.createContainerByType(2L).getId();
         }
-        core.fillTransferPlan(plan);
 
         ObjUtils.bean2bean(plan, taskInfo);
         taskInfo.setTaskName("补货任务[ " + taskInfo.getFromLocationId() + " => " + taskInfo.getToLocationId() + "]");
