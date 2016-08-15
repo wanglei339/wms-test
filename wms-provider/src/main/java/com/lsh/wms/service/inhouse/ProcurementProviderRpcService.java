@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -81,7 +80,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         core.fillTransferPlan(plan);
 
         if ( plan.getQty().compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
-            throw new BizCheckedException(plan.getQty().toString() + "====" + total.toString());
+            throw new BizCheckedException("2550008");
         }
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
         Long containerId = quantList.get(0).getContainerId();
@@ -109,7 +108,8 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         core.fillTransferPlan(plan);
 
         if ( plan.getQty().compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
-            throw new BizCheckedException(plan.getQty().toString() + "====" + total.toString());
+
+            throw new BizCheckedException("2550008");
         }
         TaskInfo taskInfo = entry.getTaskInfo();
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
@@ -156,6 +156,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     plan.setFromLocationId(quant.getLocationId());
                     plan.setToLocationId(itemLocation.getPickLocationid());
                     plan.setPackName("pallet");
+                    plan.setSubType(1L);
                     plan.setUomQty(BigDecimal.ONE);
                     this.addProcurementPlan(plan);
                 }
@@ -209,6 +210,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                         plan.setToLocationId(itemLocation.getPickLocationid());
                         plan.setPackName(quant.getPackName());
                         plan.setUomQty(requiredQty);
+                        plan.setSubType(2L);
                         this.addProcurementPlan(plan);
                         requiredQty = requiredQty.subtract(quantQty);
                         if (quantQty.compareTo(BigDecimal.ZERO) <= 0) {
@@ -240,7 +242,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         Long toLocationId = plan.getToLocationId();
         BaseinfoLocation fromLocation = locationRpcService.getLocation(fromLocationId);
         BaseinfoLocation toLocation = locationRpcService.getLocation(toLocationId);
-
+        //货架捡货位只能在货架存货位取货，阁楼捡货位只能在阁楼捡货位取货
         if(fromLocation!=null && toLocation!=null &&
                 (fromLocation.getType().equals(LocationConstant.LOFT_STORE_BIN) && toLocation.getType().equals(LocationConstant.LOFT_PICKING_BIN))
                 || (fromLocation.getType().equals(LocationConstant.SHELF_STORE_BIN) && toLocation.getType().equals(LocationConstant.SHELF_PICKING_BIN))){
