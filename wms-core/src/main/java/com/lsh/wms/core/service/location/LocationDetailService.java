@@ -189,9 +189,10 @@ public class LocationDetailService {
             // TODO 拿到指定的code,加入-i
             BaseinfoLocationShelf shelf = new BaseinfoLocationShelf();
             ObjUtils.bean2bean(iBaseinfoLocaltionModel, shelf);  //拷贝性质
-            Long level = shelf.getLevel();
+            Long levels = shelf.getLevel();
+            int level = Integer.parseInt(levels.toString());
             String fatherCode = shelf.getLocationCode();
-            for (int i = 1; i < level; i++) {
+            for (int i = 1; i <= level; i++) {
                 String newCode = fatherCode + "-" + i;
                 BaseinfoLocation levelLocation = new BaseinfoLocation();
                 ObjUtils.bean2bean(baseinfoLocation, levelLocation);
@@ -208,11 +209,12 @@ public class LocationDetailService {
         // TODO 如果是阁楼个体,插入指定层的阁楼层
         if (LocationConstant.LOFT == iBaseinfoLocaltionModel.getType()) {
             // TODO 拿到指定的code,加入-i
-            BaseinfoLocationShelf shelf = new BaseinfoLocationShelf();
-            ObjUtils.bean2bean(iBaseinfoLocaltionModel, shelf);  //拷贝性质
-            Long level = shelf.getLevel();
-            String fatherCode = shelf.getLocationCode();
-            for (int i = 1; i < level; i++) {
+            BaseinfoLocationShelf loft = new BaseinfoLocationShelf();
+            ObjUtils.bean2bean(iBaseinfoLocaltionModel, loft);  //拷贝性质
+            Long levels = loft.getLevel();
+            int level = Integer.parseInt(levels.toString());
+            String fatherCode = loft.getLocationCode();
+            for (int i = 1; i <= level; i++) {
                 String newCode = fatherCode + "-" + i;
                 BaseinfoLocation levelLocation = new BaseinfoLocation();
                 ObjUtils.bean2bean(baseinfoLocation, levelLocation);
