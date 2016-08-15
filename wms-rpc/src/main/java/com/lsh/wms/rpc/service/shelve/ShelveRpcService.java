@@ -95,6 +95,9 @@ public class ShelveRpcService implements IShelveRpcService {
         StockQuant quant = quants.get(0);
         Long itemId = quant.getItemId();
         List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationList(itemId);
+        if (itemLocations.size() < 1) {
+            throw new BizCheckedException("2030010");
+        }
         for (BaseinfoItemLocation itemLocation : itemLocations) {
             Long pickingLocationId = itemLocation.getPickLocationid();
             BaseinfoLocation pickingLocation = locationService.getLocation(pickingLocationId);
