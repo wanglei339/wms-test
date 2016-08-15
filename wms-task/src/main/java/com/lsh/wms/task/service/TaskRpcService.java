@@ -37,12 +37,6 @@ public class TaskRpcService implements ITaskRpcService {
     @Autowired
     private TaskTriggerService triggerService;
 
-    private Map<String, List<TaskTrigger>> triggerMap;
-
-    public TaskRpcService() {
-        triggerMap = triggerService.getAll();
-    }
-
     public Long create(Long taskType, TaskEntry taskEntry) throws BizCheckedException{
         TaskHandler handler = handlerFactory.getTaskHandler(taskType);
         handler.create(taskEntry);
@@ -127,11 +121,32 @@ public class TaskRpcService implements ITaskRpcService {
         Long taskType = this.getTaskTypeById(taskId);
         TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
         taskHandler.done(taskId);
+        this.afterDone(taskId);
+    }
 
-        String key = taskType + taskHandler.getClass().getName() + 1L;
+    public void done(Long taskId, Long locationId) throws BizCheckedException {
+        Long taskType = this.getTaskTypeById(taskId);
+        TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
+        taskHandler.done(taskId, locationId);
+        this.afterDone(taskId);
+    }
+
+    public void done(Long taskId, Long locationId, Long staffId) throws BizCheckedException {
+        Long taskType = this.getTaskTypeById(taskId);
+        TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
+        taskHandler.done(taskId, locationId, staffId);
+        this.afterDone(taskId);
+    }
+
+    public void afterDone(Long taskId) {
+        Map<String, List<TaskTrigger>> triggerMap = triggerService.getAll();
+        Long taskType = this.getTaskTypeById(taskId);
+        TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
+
+        String key = taskType + this.getTaskEntryById(taskId).getTaskInfo().getSubType() + "done" + 1L;
         List<TaskTrigger> triggerList = triggerMap.get(key);
         for(TaskTrigger trigger : triggerList) {
-            TaskHandler handler = handlerFactory.getTaskHandler(taskType);
+            TaskHandler handler = handlerFactory.getTaskHandler(trigger.getDestType());
             try {
                 Method method = handler.getClass().getDeclaredMethod(trigger.getDestMethod(), TaskEntry.class);
                 method.invoke(handler, this.getTaskEntryById(taskId));
@@ -140,17 +155,4 @@ public class TaskRpcService implements ITaskRpcService {
             }
         }
     }
-
-    public void done(Long taskId, Long locationId) throws BizCheckedException {
-        Long taskType = this.getTaskTypeById(taskId);
-        TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
-        taskHandler.done(taskId, locationId);
-    }
-
-    public void done(Long taskId, Long locationId, Long staffId) throws BizCheckedException {
-        Long taskType = this.getTaskTypeById(taskId);
-        TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
-        taskHandler.done(taskId, locationId, staffId);
-    }
-
 }

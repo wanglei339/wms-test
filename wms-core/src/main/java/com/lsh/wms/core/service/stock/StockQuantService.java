@@ -79,7 +79,11 @@ public class StockQuantService {
         }
     }
 
+    @Transactional(readOnly = false)
     public BigDecimal getQty(Map<String, Object> mapQuery) {
+        if (mapQuery.get("locationId") != null) {
+            this.lockQuantByLocation(Long.valueOf(mapQuery.get("locationId").toString()));
+        }
         this.prepareQuery(mapQuery);
         BigDecimal total = stockQuantDao.getQty(mapQuery);
         return total == null ? BigDecimal.ZERO : total;
