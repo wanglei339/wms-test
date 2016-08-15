@@ -39,6 +39,29 @@ public class StockQuantService {
     @Autowired
     private LocationService locationService;
 
+    @Transactional(readOnly = false)
+    public void lockQuantByLocation(Long locationId) {
+        Map<String, Object> condition = new HashMap<String, Object>();
+        List<BaseinfoLocation> list = new ArrayList<BaseinfoLocation>();
+        list.add(locationService.getLocation(locationId));
+        condition.put("locationList", list);
+        stockQuantDao.lock(condition);
+    }
+
+    @Transactional(readOnly = false)
+    public void lockQuantByContainerId(Long containerId) {
+        Map<String, Object> condition = new HashMap<String, Object>();
+        condition.put("containerId", containerId);
+        stockQuantDao.lock(condition);
+    }
+
+    @Transactional(readOnly = false)
+    public void lockQuantById(Long id) {
+        Map<String, Object> condition = new HashMap<String, Object>();
+        condition.put("id", id);
+        stockQuantDao.lock(condition);
+    }
+
     private void prepareQuery(Map<String, Object> params) {
         List<BaseinfoLocation> locationList = new ArrayList<BaseinfoLocation>();
         if (params.get("locationId") != null) {
@@ -261,6 +284,7 @@ public class StockQuantService {
         stockQuantDao.update(quant);
     }
 
+
     @Transactional(readOnly = false)
     public void unFreeze(StockQuant quant) {
         quant.setIsDefect(0L);
@@ -283,6 +307,44 @@ public class StockQuantService {
         quant.setIsRefund(1L);
         quant.setIsDefect(0L);
         stockQuantDao.update(quant);
+    }
+
+
+    @Transactional(readOnly = false)
+    private void dealOne(StockQuant quant, String operation) {
+        if (operation.equals("freeze")) {
+            this.freeze(quant);
+        } else if (operation.equals("unFreeze")) {
+            this.unFreeze(quant);
+        } else if (operation.equals("toDefect")) {
+            this.toDefect(quant);
+        } else if (operation.equals("toRefund")) {
+            this.toRefund(quant);
+        }
+    }
+
+    @Transactional(readOnly = false)
+    public void process(Map<String, Object> mapCondition, String operation) {
+        this.lockQuantByLocation((Long) mapCondition.get("locationId"));
+
+        BigDecimal requiredQty = new BigDecimal(mapCondition.get("requiredQty").toString());
+        List<StockQuant> quantList = this.getQuants(mapCondition);
+        for (StockQuant quant : quantList) {
+            if (requiredQty.compareTo(BigDecimal.ZERO) == 0) {
+                break;
+            }
+            // need > have
+            if (requiredQty.compareTo(quant.getQty()) > 0) {
+                this.dealOne(quant, operation);
+                requiredQty = requiredQty.subtract(quant.getQty());
+            } else {
+                if (requiredQty.compareTo(quant.getQty()) == -1) {
+                    this.split(quant, requiredQty);
+                }
+                this.dealOne(quant, operation);
+                break;
+            }
+        }
     }
 
     public List<Long> getContainerIdByLocationId(Long locationId) {
