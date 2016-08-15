@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by mali on 16/8/2.
@@ -42,9 +44,8 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
         }
         return JsonUtils.SUCCESS();
     }
@@ -59,9 +60,8 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
         }
         return JsonUtils.SUCCESS();
     }
@@ -73,25 +73,24 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
         }
         return JsonUtils.SUCCESS();
     }
     @GET
     @Path("getOutBoundLocation")
     public String getOutBoundLocation(@QueryParam("itemId") long itemId,@QueryParam("locationId") long locationId)  throws BizCheckedException {
+        Set<Long> outBoundLocation = new HashSet<Long>();
         try{
-            rpcService.getOutBoundLocation(itemId,locationId);
+            outBoundLocation = rpcService.getOutBoundLocation(itemId,locationId);
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
         }
-        return JsonUtils.SUCCESS();
+        return JsonUtils.SUCCESS(outBoundLocation);
     }
     @GET
     @Path("autoCreate")
@@ -101,9 +100,8 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
         }
         return JsonUtils.SUCCESS();
     }
