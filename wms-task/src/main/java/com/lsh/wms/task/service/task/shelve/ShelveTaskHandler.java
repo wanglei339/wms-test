@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.shelve.IShelveRpcService;
 import com.lsh.wms.api.service.stock.IStockMoveRestService;
 import com.lsh.wms.api.service.stock.IStockMoveRpcService;
@@ -28,7 +29,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by fengkun on 16/7/25.
@@ -59,6 +62,38 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         handlerFactory.register(TaskConstant.TYPE_SHELVE, this);
     }
 
+    public void create(TaskEntry taskEntry) {
+        Long containerId = taskEntry.getTaskInfo().getContainerId();
+        // 检查容器信息
+        if (containerId == null || containerId.equals("")) {
+            throw new BizCheckedException("2030003");
+        }
+        // 检查该容器是否已创建过任务
+        if (baseTaskService.checkTaskByContainerId(containerId)) {
+            throw new BizCheckedException("2030008");
+        }
+        // 获取quant
+        List<StockQuant> quants = stockQuantService.getQuantsByContainerId(containerId);
+        if (quants.size() < 1) {
+            throw new BizCheckedException("2030001");
+        }
+        StockQuant quant = quants.get(0);
+
+        TaskInfo taskInfo = new TaskInfo();
+        ShelveTaskHead taskHead = new ShelveTaskHead();
+        TaskEntry entry = new TaskEntry();
+
+        ObjUtils.bean2bean(quant, taskInfo);
+        ObjUtils.bean2bean(quant, taskHead);
+
+        taskInfo.setType(TaskConstant.TYPE_SHELVE);
+        taskInfo.setFromLocationId(quant.getLocationId());
+
+        entry.setTaskInfo(taskInfo);
+        entry.setTaskHead(taskHead);
+
+        super.create(entry);
+    }
 
     public void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
         ShelveTaskHead taskHead = (ShelveTaskHead) taskEntry.getTaskHead();

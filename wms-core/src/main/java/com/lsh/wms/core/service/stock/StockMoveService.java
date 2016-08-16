@@ -83,11 +83,13 @@ public class StockMoveService {
 
     @Transactional(readOnly = false)
     public void moveWholeContainer(Long containerId, Long taskId, Long staffId, Long fromLocationId, Long toLocationId) throws BizCheckedException {
+        quantService.lockQuantByContainerId(containerId);
         this.moveWholeContainer(containerId, containerId, taskId, staffId, fromLocationId, toLocationId);
     }
 
     @Transactional(readOnly = false)
     public void moveWholeContainer(Long fromContainerId, Long toContainerId, Long taskId, Long staffId, Long fromLocationId, Long toLocationId) throws BizCheckedException {
+        quantService.lockQuantByContainerId(fromContainerId);
         List<StockQuant> quantList = quantService.reserveByContainer(fromContainerId, taskId);
         for (StockQuant quant : quantList) {
             StockMove move = new StockMove();
@@ -109,11 +111,15 @@ public class StockMoveService {
     public void move(List<StockMove> moveList) throws BizCheckedException{
         for (StockMove move : moveList) {
             this.create(move);
+            quantService.lockQuantByLocation(move.getFromLocationId());
             quantService.move(move);
         }
     }
+
     @Transactional(readOnly = false)
     public void moveToContainer(Long itemId, Long operator,Long fromContainer,Long toContainer,Long locationId,BigDecimal qty) {
+        quantService.lockQuantByContainerId(fromContainer);
+
         Map<String, Object> queryMap = new HashMap<String, Object>();
         BigDecimal total = BigDecimal.ZERO;
         queryMap.put("itemId",itemId);

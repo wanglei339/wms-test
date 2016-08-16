@@ -79,4 +79,11 @@ public class TaskRestService implements ITaskRestService {
         }
         return JsonUtils.SUCCESS(entry.getStockMoveList());
     }
+
+    @GET
+    @Path("done")
+    public String done(@QueryParam("taskId") long taskId) throws BizCheckedException {
+        taskRpcService.done(taskId);
+        return JsonUtils.SUCCESS();
+    }
 }
