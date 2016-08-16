@@ -67,9 +67,10 @@ public class LocationConstant {  // TODO 修改格式大写加下滑线
     public static final Integer DOCK_OUT = 2; //出库码头
 
     //设置库位和库区的区别项
-    public static final Integer OTHER_TYPE = 0; //其他项
+
     public static final Integer REGION_TYPE = 1; //库区
     public static final Integer BIN_TYPE = 2;    //库位
+    public static final Integer OTHER_TYPE = 3; //其他项
 
     //位置是否删除
     public static final Integer IS_VALID = 1;
@@ -99,9 +100,9 @@ public class LocationConstant {  // TODO 修改格式大写加下滑线
             put("bin", new Long(15)); // 15 所有的货位(存有货架|阁楼|区域的id)
             //所有的货位
             put("shelf_collection_bin", new Long(16)); //16货架拣货位
-            put("shelf_store_bin", new Long(17));   //19 货架存货位货位
-            put("loft_collection_bin", new Long(18)); //17阁楼拣货位
-            put("loft_store_bin", new Long(19));   //18阁楼存货位
+            put("shelf_store_bin", new Long(17));   //17 货架存货位货位
+            put("loft_collection_bin", new Long(18)); //18阁楼拣货位
+            put("loft_store_bin", new Long(19));   //19阁楼存货位
 
     
             /*其他功能区的货位*/
@@ -110,8 +111,8 @@ public class LocationConstant {  // TODO 修改格式大写加下滑线
             put("collection_bin", new Long(22)); // 22 集货货位
             put("back_bin", new Long(23)); // 23 退货货位
             put("defective_bin", new Long(24));// 24 残次货位
-            put("consume_area", new Long(25));// 24 残次货位
-            put("supplier_area", new Long(26));// 24 残次货位
+            put("consume_area", new Long(25));// 25 消费区
+            put("supplier_area", new Long(26));// 26 供应区
         }
     };
 
