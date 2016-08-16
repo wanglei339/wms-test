@@ -74,13 +74,11 @@ public class TaskRpcService implements ITaskRpcService {
         }
     }
 
-
     public TaskEntry getTaskEntryById(Long taskId) throws BizCheckedException{
         Long taskType = this.getTaskTypeById(taskId);
         TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
         return taskHandler.getTask(taskId);
     }
-
 
     public void assign(Long taskId, Long staffId) throws BizCheckedException{
         Long taskType = this.getTaskTypeById(taskId);
@@ -138,7 +136,7 @@ public class TaskRpcService implements ITaskRpcService {
         this.afterDone(taskId);
     }
 
-    public void afterDone(Long taskId) {
+    public void afterDone(Long taskId) throws BizCheckedException {
         Map<String, List<TaskTrigger>> triggerMap = triggerService.getAll();
         Long taskType = this.getTaskTypeById(taskId);
         TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
@@ -150,8 +148,10 @@ public class TaskRpcService implements ITaskRpcService {
             try {
                 Method method = handler.getClass().getDeclaredMethod(trigger.getDestMethod(), TaskEntry.class);
                 method.invoke(handler, this.getTaskEntryById(taskId));
-            } catch (Exception e) {
+            } catch (BizCheckedException e) {
                 logger.warn(e.getMessage());
+            }catch (Exception e) {
+                logger.warn(e.getCause().getMessage());
             }
         }
     }

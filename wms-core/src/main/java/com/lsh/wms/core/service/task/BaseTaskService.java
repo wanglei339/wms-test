@@ -131,6 +131,7 @@ public class BaseTaskService {
         taskInfoDao.update(taskInfo);
         taskHandler.doneConcrete(taskId);
     }
+
     @Transactional(readOnly = false)
     public void batchDone(List<Long> taskList ,TaskHandler taskHandler) {
         for(Long taskId:taskList) {

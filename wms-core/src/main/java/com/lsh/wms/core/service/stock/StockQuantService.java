@@ -80,10 +80,16 @@ public class StockQuantService {
     }
 
     @Transactional(readOnly = false)
+    public BigDecimal getRealtimeQty(Long locationId, Long itemId) {
+        Map<String, Object> mapCondition = new HashMap<String, Object>();
+        mapCondition.put("locationId", locationId);
+        mapCondition.put("itemId", itemId);
+
+        this.lockQuantByLocation(locationId);
+        return this.getQty(mapCondition);
+    }
+
     public BigDecimal getQty(Map<String, Object> mapQuery) {
-        if (mapQuery.get("locationId") != null) {
-            this.lockQuantByLocation(Long.valueOf(mapQuery.get("locationId").toString()));
-        }
         this.prepareQuery(mapQuery);
         BigDecimal total = stockQuantDao.getQty(mapQuery);
         return total == null ? BigDecimal.ZERO : total;
