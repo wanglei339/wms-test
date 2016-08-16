@@ -696,5 +696,16 @@ public class LocationService {
         return location;
     }
 
-
+    /**
+     * 检查位置的锁状态
+     * @param locationId
+     * @return
+     */
+    public Boolean checkLocationLockStatus(Long locationId) {
+        BaseinfoLocation location = this.getLocation(locationId);
+        if (location.getIsLocked().equals(1)) {
+            return true;
+        }
+        return false;
+    }
 }

@@ -14,6 +14,7 @@ import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.rpc.service.inhouse.ProcurementRpcService;
 import com.lsh.wms.rpc.service.location.LocationRpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,8 @@ public class ShelveRpcService implements IShelveRpcService {
     private ItemLocationService itemLocationService;
     @Autowired
     private LocationRpcService locationRpcService;
+    @Autowired
+    private ProcurementRpcService procurementRpcService;
 
     private static final Float SHELF_LIFE_THRESHOLD = 0.3f; // 保质期差额阈值
 
@@ -59,6 +62,7 @@ public class ShelveRpcService implements IShelveRpcService {
         if (quants.size() < 1) {
             throw new BizCheckedException("2030001");
         }
+        // 目前一个入库托盘上只能有一种商品
         StockQuant quant = quants.get(0);
         Long itemId = quant.getItemId();
         BaseinfoItem item = itemService.getItem(itemId);
@@ -70,8 +74,9 @@ public class ShelveRpcService implements IShelveRpcService {
             // 地堆无空间,上拣货位
             if (floorLocation == null) {
                 targetLocation = assignPickingLocation(container);
+            } else {
+                targetLocation = floorLocation;
             }
-            targetLocation = floorLocation;
         } else { // 不允许地堆
             // 上拣货位
             targetLocation = assignPickingLocation(container);
@@ -106,7 +111,7 @@ public class ShelveRpcService implements IShelveRpcService {
                 throw new BizCheckedException("2030002");
             }
             // TODO: 判断该拣货位是否符合拣货标准
-            if (true) {
+            if (procurementRpcService.needProcurement(pickingLocationId, itemId)) {
                 // 对比保质期差额阈值
                 if (true) {
                     return pickingLocation;
@@ -143,5 +148,9 @@ public class ShelveRpcService implements IShelveRpcService {
             throw new BizCheckedException("2030003");
         }
         return targetLocation;
+    }
+
+    public Boolean checkShelfLifeThreshold (StockQuant quant) {
+        Long expireDate = quant.getExpireDate();
     }
 }
