@@ -147,27 +147,31 @@ public class PickRestService implements IPickRestService {
                 }
             });
         }
-        BigDecimal qty = BigDecimal.valueOf(Double.valueOf(mapQuery.get("qty").toString()));
-        Long allocLocationId = needPickDetail.getAllocPickLocation();
-        // 判断是否与分配拣货位一致
-        if (!allocLocationId.equals(locationId)) {
-            throw new BizCheckedException("2060005");
+        if (mapQuery.get("qty") != null) {
+            BigDecimal qty = BigDecimal.valueOf(Double.valueOf(mapQuery.get("qty").toString()));
+            Long allocLocationId = needPickDetail.getAllocPickLocation();
+            // 判断是否与分配拣货位一致
+            if (!allocLocationId.equals(locationId)) {
+                throw new BizCheckedException("2060005");
+            }
+            Long itemId = needPickDetail.getItemId();
+            // 判断拣货数量与库存数量
+            BigDecimal allocQty = needPickDetail.getAllocQty();
+            BigDecimal quantQty = stockQuantService.getQuantQtyByLocationIdAndItemId(locationId, itemId);
+            if (qty.compareTo(new BigDecimal(0)) == -1) {
+                throw new BizCheckedException("2060008");
+            }
+            if (qty.compareTo(allocQty) == 1) {
+                throw new BizCheckedException("2060006");
+            }
+            if (allocQty.compareTo(quantQty) == 1 && qty.compareTo(quantQty) == 1) {
+                throw new BizCheckedException("2060007", quantQty.toString());
+            }
+            // 库移
+            if (qty.compareTo(new BigDecimal(0)) == 1) {
+                pickTaskService.pickOne(needPickDetail, locationId, containerId, qty, staffId);
+            }
         }
-        Long itemId = needPickDetail.getItemId();
-        // 判断拣货数量与库存数量
-        BigDecimal allocQty = needPickDetail.getAllocQty();
-        BigDecimal quantQty = stockQuantService.getQuantQtyByLocationIdAndItemId(locationId, itemId);
-        if (qty.compareTo(new BigDecimal(0)) == -1) {
-            throw new BizCheckedException("2060008");
-        }
-        if (qty.compareTo(allocQty) == 1) {
-            throw new BizCheckedException("2060006");
-        }
-        if (allocQty.compareTo(quantQty) == 1 && qty.compareTo(quantQty) == 1) {
-            throw new BizCheckedException("2060007", quantQty.toString());
-        }
-        // 库移
-        pickTaskService.pickOne(needPickDetail, locationId, containerId, qty, staffId);
         // 获取下一个wave_detail,如已做完则获取集货位id
         Long pickOrder = needPickDetail.getPickOrder();
         Boolean pickDone = false; // 货物是否已捡完

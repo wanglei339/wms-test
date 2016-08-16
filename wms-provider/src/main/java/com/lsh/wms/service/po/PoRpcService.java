@@ -14,9 +14,11 @@ import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
+import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.po.InbPoDetail;
 import com.lsh.wms.model.po.InbPoHeader;
+import com.lsh.wms.model.so.OutbSoHeader;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import org.slf4j.Logger;
@@ -46,6 +48,9 @@ public class PoRpcService implements IPoRpcService {
     private PoOrderService poOrderService;
 
     @Autowired
+    private SoOrderService soOrderService;
+
+    @Autowired
     private ItemService itemService;
 
     @Reference
@@ -61,7 +66,10 @@ public class PoRpcService implements IPoRpcService {
         // TODO: 16/8/8 根据原SO订单号查询SO单是否存在
         Integer orderType = inbPoHeader.getOrderType();
         if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
-            
+            OutbSoHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(Long.parseLong(inbPoHeader.getOrderOtherId()));
+            if(null == soHeader){
+                throw new BizCheckedException("2020001");
+            }
         }
 
         //设置orderId
