@@ -69,8 +69,7 @@ public class StockQuantService {
             locationList.add(location);
         }
         if  (params.get("locationList") != null) {
-            for (Long locationId : (List<Long>) params.get("locationList")) {
-                BaseinfoLocation location = locationService.getLocation(locationId);
+            for (BaseinfoLocation location : (List<BaseinfoLocation>) params.get("locationList")) {
                 locationList.add(location);
             }
         }
