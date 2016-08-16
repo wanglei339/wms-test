@@ -161,9 +161,9 @@ public class ShelveRpcService implements IShelveRpcService {
         Long expireDate = quant.getExpireDate();
         Map<String, Object> params = new HashMap<String, Object>();
         // 获取到拣货位的库区id
-        Long areaLocationId = LocationService.getFatherByClassification(location.getLocationId());
+        BaseinfoLocation areaLocation = locationService.getFatherByClassification(location.getLocationId());
         // 获取该库区下所有的货架位
-        List<BaseinfoLocation> storeLocations = locationService.getChildrenLocationsByType(areaLocationId, "shelf_store_bin");
+        List<BaseinfoLocation> storeLocations = locationService.getChildrenLocationsByType(areaLocation.getLocationId(), "shelf_store_bin");
         params.put("itemId", quant.getItemId());
         params.put("locationList", storeLocations);
         // 获取货架位上的该商品库存

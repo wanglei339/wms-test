@@ -491,7 +491,7 @@ public class LocationService {
     }
 
     /**
-     * 分配可用暂存区location
+     * 分配可用可用location
      *
      * @param type
      * @return
@@ -708,4 +708,22 @@ public class LocationService {
         }
         return false;
     }
+    
+    /**
+     * 根据库区库位类型classification来查到区的级别
+     * @param locationId
+     * @return
+     */
+    public BaseinfoLocation getFatherByClassification(Long locationId){
+        BaseinfoLocation curLocation = this.getLocation(locationId);
+        Long fatherId = curLocation.getFatherId();
+        if (curLocation.getClassification().equals(LocationConstant.REGION_TYPE)) {
+            return curLocation;
+        }
+        if (fatherId == 0) {
+            return null;
+        }
+        return this.getFatherByClassification(fatherId);
+    }
+
 }
