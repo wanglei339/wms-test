@@ -3,6 +3,8 @@ package com.lsh.wms.api.service.inhouse;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.model.transfer.StockTransferPlan;
 
+import java.util.List;
+
 /**
  * Created by mali on 16/8/1.
  */
