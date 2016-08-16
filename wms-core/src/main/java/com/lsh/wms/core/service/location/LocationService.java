@@ -699,10 +699,9 @@ public class LocationService {
     /**
      * 根据库区库位类型classification来查到区的级别
      * @param locationId
-     * @param classification
      * @return
      */
-    public BaseinfoLocation getFatherByClassification(Long locationId,Integer classification){
+    public BaseinfoLocation getFatherByClassification(Long locationId){
         BaseinfoLocation curLocation = this.getLocation(locationId);
         Long fatherId = curLocation.getFatherId();
         if (curLocation.getClassification().equals(LocationConstant.REGION_TYPE)) {
@@ -711,7 +710,7 @@ public class LocationService {
         if (fatherId == 0) {
             return null;
         }
-        return this.getFatherByClassification(fatherId, classification);
+        return this.getFatherByClassification(fatherId);
     }
 
 }
