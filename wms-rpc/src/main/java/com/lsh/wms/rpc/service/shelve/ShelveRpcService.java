@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.shelve.IShelveRpcService;
+import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
@@ -110,10 +111,10 @@ public class ShelveRpcService implements IShelveRpcService {
             if (!pickingLocation.getType().equals(LocationConstant.LOCATION_TYPE.get("picking"))) {
                 throw new BizCheckedException("2030002");
             }
-            // TODO: 判断该拣货位是否符合拣货标准
+            // 判断该拣货位是否符合拣货标准
             if (procurementRpcService.needProcurement(pickingLocationId, itemId)) {
                 // 对比保质期差额阈值
-                if (true) {
+                if (this.checkShelfLifeThreshold(quant, pickingLocation, "shelf_store_bin")) {
                     return pickingLocation;
                 } else {
                     // 查找补货任务
@@ -150,7 +151,29 @@ public class ShelveRpcService implements IShelveRpcService {
         return targetLocation;
     }
 
-    public Boolean checkShelfLifeThreshold (StockQuant quant) {
+    /**
+     * 判断上架商品是否达到该区域存储位商品保质期的差额阈值
+     * @param quant
+     * @param location
+     * @return
+     */
+    public Boolean checkShelfLifeThreshold (StockQuant quant, BaseinfoLocation location, String locationType) {
         Long expireDate = quant.getExpireDate();
+        Map<String, Object> params = new HashMap<String, Object>();
+        // 获取到拣货位的库区id
+        Long areaLocationId = LocationService.getFatherByClassification(location.getLocationId());
+        // 获取该库区下所有的货架位
+        List<BaseinfoLocation> storeLocations = locationService.getChildrenLocationsByType(areaLocationId, "shelf_store_bin");
+        params.put("itemId", quant.getItemId());
+        params.put("locationList", storeLocations);
+        // 获取货架位上的该商品库存
+        List<StockQuant> storedQuants = stockQuantService.getQuants(params);
+        for (StockQuant storedQuant : storedQuants) {
+            // 达到差额阈值
+            if ((expireDate - storedQuant.getExpireDate()) < CsiConstan.SHELF_LIFE_THRESHOLD) {
+                return true;
+            }
+        }
+        return false;
     }
 }

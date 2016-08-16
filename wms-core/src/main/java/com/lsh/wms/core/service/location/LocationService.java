@@ -222,7 +222,7 @@ public class LocationService {
         BaseinfoLocation location = this.getLocation(locationId);
         params.put("leftRange", location.getLeftRange());
         params.put("rightRange", location.getRightRange());
-        params.put("type", type);
+        params.put("type", LocationConstant.LOCATION_TYPE.get(type));
         params.put("isValid", 1);
         return locationDao.getChildrenLocationList(params);
     }
