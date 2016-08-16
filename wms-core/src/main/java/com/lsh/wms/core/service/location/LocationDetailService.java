@@ -186,7 +186,7 @@ public class LocationDetailService {
         }
         //如果是货架个体,插入指定层的货架层
         if (LocationConstant.SHELF.equals(iBaseinfoLocaltionModel.getType())) {
-            // TODO 拿到指定的code,加入-i
+            //拿到指定的code,加入-i
             BaseinfoLocationShelf shelf = new BaseinfoLocationShelf();
             ObjUtils.bean2bean(iBaseinfoLocaltionModel, shelf);  //拷贝性质
             Long levels = shelf.getLevel();
@@ -209,7 +209,7 @@ public class LocationDetailService {
         }
         // TODO 如果是阁楼个体,插入指定层的阁楼层
         if (LocationConstant.LOFT.equals(iBaseinfoLocaltionModel.getType())) {
-            // TODO 拿到指定的code,加入-i
+            // 拿到指定的code,加入-i
             BaseinfoLocationShelf loft = new BaseinfoLocationShelf();
             ObjUtils.bean2bean(iBaseinfoLocaltionModel, loft);  //拷贝性质
             Long levels = loft.getLevel();
@@ -354,8 +354,12 @@ public class LocationDetailService {
      * @throws BizCheckedException
      */
     public List<BaseinfoLocation> getTargetListByListType(Integer listType) throws BizCheckedException {
-        TargetListHandler listHandler = targetListFactory.getTargetListHandler(listType);
-        List<BaseinfoLocation> targetList = listHandler.getTargetLocaltionModelList();
-        return targetList;
+//        TargetListHandler listHandler = targetListFactory.getTargetListHandler(listType);
+//        List<BaseinfoLocation> targetList = listHandler.getTargetLocaltionModelList();
+        //根据type选择对应的type的service
+        Map<String,Object> params = new HashMap<String, Object>();
+        params.put("type",listType);
+        params.put("isvalid",1);
+        return locationService.getBaseinfoLocationList(params);
     }
 }
