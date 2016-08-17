@@ -10,8 +10,8 @@ import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.shelve.ShelveTaskService;
 import com.lsh.wms.core.service.stock.StockQuantService;
-import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
@@ -50,7 +50,7 @@ public class ShelveRpcService implements IShelveRpcService {
     @Autowired
     private ProcurementRpcService procurementRpcService;
     @Autowired
-    private BaseTaskService taskService;
+    private ShelveTaskService shelveTaskService;
 
     private static final Float SHELF_LIFE_THRESHOLD = 0.3f; // 保质期差额阈值
 
@@ -123,7 +123,7 @@ public class ShelveRpcService implements IShelveRpcService {
                     return pickingLocation;
                 } else {
                     // 查找补货任务
-                    TaskInfo procurementTask = taskService.getIncompleteTaskByLocation(pickingLocationId, TaskConstant.TYPE_PROCUREMENT).get(0);
+                    TaskInfo procurementTask = shelveTaskService.getIncompleteTaskByLocation(pickingLocationId, TaskConstant.TYPE_PROCUREMENT).get(0);
                     if (procurementTask != null) {
                         // 补货任务已领取
                         if (procurementTask.getStatus().equals(TaskConstant.Assigned)) {
