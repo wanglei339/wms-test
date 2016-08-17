@@ -81,7 +81,6 @@ public class ShelveTaskHandler extends AbsTaskHandler {
 
         TaskInfo taskInfo = new TaskInfo();
         ShelveTaskHead taskHead = new ShelveTaskHead();
-        TaskEntry entry = new TaskEntry();
 
         ObjUtils.bean2bean(quant, taskInfo);
         ObjUtils.bean2bean(quant, taskHead);
@@ -89,10 +88,10 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         taskInfo.setType(TaskConstant.TYPE_SHELVE);
         taskInfo.setFromLocationId(quant.getLocationId());
 
-        entry.setTaskInfo(taskInfo);
-        entry.setTaskHead(taskHead);
+        taskEntry.setTaskInfo(taskInfo);
+        taskEntry.setTaskHead(taskHead);
 
-        super.create(entry);
+        super.create(taskEntry);
     }
 
     public void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
