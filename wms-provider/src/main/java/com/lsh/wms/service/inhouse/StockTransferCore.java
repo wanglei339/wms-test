@@ -122,12 +122,12 @@ public class StockTransferCore {
             List<StockMove> moveList = new ArrayList<StockMove>();
             moveList.add(move);
             moveRpcService.move(moveList);
-            if(taskInfo.getQty() != qtyDone) {
+            if(taskInfo.getQty().compareTo(qtyDone) != 0) {
                 taskInfo.setQtyDone(qtyDone);
             }
         }
 
-        if(taskInfo.getFromLocationId() != fromLocationId) {
+        if(taskInfo.getFromLocationId().compareTo(fromLocationId) != 0) {
             taskInfo.setRealFromLocationId(fromLocationId);
         }
         taskInfoDao.update(taskInfo);
