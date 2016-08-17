@@ -1,5 +1,6 @@
 package com.lsh.wms.api.model.location;
 
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
@@ -17,43 +18,30 @@ public class LocationDetailResponse implements Serializable {
     /**  */
     private Long id;
     /** 位置id */
-    @NotNull
     private Long locationId;
     /** 位置编码 */
-    @NotBlank
     private String locationCode;
     /** 父级位置id */
-    @NotNull
     private Long fatherId;
     /** 位置类型 */
-    @NotNull
     private Long type;
     /** 类型名 */
-    @NotBlank
     private String typeName;
     /** 是否为叶子位置节点 */
-    @NotNull
     private Integer isLeaf;
     /** 是否可用 */
-    @NotNull
     private Integer isValid;
     /** 是否是存储用位置 */
-    @NotNull
     private Integer canStore;
     /** 可容纳容器数量 */
-    @NotNull
     private Long containerVol;
     /** 区域坐标，四维坐标-区位坐标 */
-    @NotNull
     private Long regionNo;
     /** 通道坐标，四维坐标-通道坐标 */
-    @NotNull
     private Long passageNo;
     /** 货架层坐标，四维坐标-层数坐标 */
-    @NotNull
     private Long shelfLevelNo;
     /** 货位同层坐标，四维坐标-同层 */
-    @NotNull
     private Long binPositionNo;
     /** 描述 */
     private String description;
@@ -62,21 +50,14 @@ public class LocationDetailResponse implements Serializable {
     /** 更新日期 */
     private Long updatedAt;
     /** 区别库区库位-0为其他1-为库区-2为库位 */
-    @NotNull
     private Integer classification;
     /** 是否现在可用0-不可用1-可用 */
-    @NotNull
     private Integer canUse;
     /** 0-未上锁1-上锁 */
-    @NotNull
     private Integer isLocked;
 
 
     //...........................bin独有的...........................
-    /**
-     * 商品的id
-     */
-    private Long itemId;
     /**
      * 仓位体积
      */
@@ -116,38 +97,14 @@ public class LocationDetailResponse implements Serializable {
      * 长度默认单位 米
      */
     private BigDecimal width;
+    /** 长度默认单位 米 */
+    private BigDecimal length;
     /**
      * 高度默认单位 米
      */
     private BigDecimal height;
     //.................................通道独有的.................
-    //方位，0-南北，1-东西  同码头
 
-    //...............................区域名字
-    //区域名字regionName在Bin已经定义
-
-    /**
-     * 显示的区域名字
-     */
-    private String regionName;
-
-    private String regionCode;
-
-    public String getRegionName() {
-        return regionName;
-    }
-
-    public String getRegionCode() {
-        return regionCode;
-    }
-
-    public void setRegionName(String regionName) {
-        this.regionName = regionName;
-    }
-
-    public void setRegionCode(String regionCode) {
-        this.regionCode = regionCode;
-    }
     //..................................货架和阁楼(type通过主表判断)
     /**
      * 货架层数
@@ -172,8 +129,10 @@ public class LocationDetailResponse implements Serializable {
      */
     private String phoneNo;
 
-    /** 长度默认单位 米 */
-    private BigDecimal length;
+    /**
+     * 前端回显示用father
+     */
+    private BaseinfoLocation fatherLocation;
 
     public Long getId() {
         return id;
@@ -235,6 +194,34 @@ public class LocationDetailResponse implements Serializable {
         return description;
     }
 
+    public Long getCreatedAt() {
+        return createdAt;
+    }
+
+    public Long getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public Integer getClassification() {
+        return classification;
+    }
+
+    public Integer getCanUse() {
+        return canUse;
+    }
+
+    public Integer getIsLocked() {
+        return isLocked;
+    }
+
+    public BigDecimal getVolume() {
+        return volume;
+    }
+
+    public BigDecimal getWeigh() {
+        return weigh;
+    }
+
     public Integer getZoneType() {
         return zoneType;
     }
@@ -263,6 +250,10 @@ public class LocationDetailResponse implements Serializable {
         return width;
     }
 
+    public BigDecimal getLength() {
+        return length;
+    }
+
     public BigDecimal getHeight() {
         return height;
     }
@@ -287,40 +278,8 @@ public class LocationDetailResponse implements Serializable {
         return phoneNo;
     }
 
-    public BigDecimal getLength() {
-        return length;
-    }
-
-    public Long getCreatedAt() {
-        return createdAt;
-    }
-
-    public Long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public Integer getClassification() {
-        return classification;
-    }
-
-    public Integer getCanUse() {
-        return canUse;
-    }
-
-    public Integer getIsLocked() {
-        return isLocked;
-    }
-
-    public Long getItemId() {
-        return itemId;
-    }
-
-    public BigDecimal getVolume() {
-        return volume;
-    }
-
-    public BigDecimal getWeigh() {
-        return weigh;
+    public BaseinfoLocation getFatherLocation() {
+        return fatherLocation;
     }
 
     public void setId(Long id) {
@@ -383,6 +342,34 @@ public class LocationDetailResponse implements Serializable {
         this.description = description;
     }
 
+    public void setCreatedAt(Long createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(Long updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public void setClassification(Integer classification) {
+        this.classification = classification;
+    }
+
+    public void setCanUse(Integer canUse) {
+        this.canUse = canUse;
+    }
+
+    public void setIsLocked(Integer isLocked) {
+        this.isLocked = isLocked;
+    }
+
+    public void setVolume(BigDecimal volume) {
+        this.volume = volume;
+    }
+
+    public void setWeigh(BigDecimal weigh) {
+        this.weigh = weigh;
+    }
+
     public void setZoneType(Integer zoneType) {
         this.zoneType = zoneType;
     }
@@ -411,6 +398,10 @@ public class LocationDetailResponse implements Serializable {
         this.width = width;
     }
 
+    public void setLength(BigDecimal length) {
+        this.length = length;
+    }
+
     public void setHeight(BigDecimal height) {
         this.height = height;
     }
@@ -435,39 +426,7 @@ public class LocationDetailResponse implements Serializable {
         this.phoneNo = phoneNo;
     }
 
-    public void setLength(BigDecimal length) {
-        this.length = length;
-    }
-
-    public void setCreatedAt(Long createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public void setUpdatedAt(Long updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public void setClassification(Integer classification) {
-        this.classification = classification;
-    }
-
-    public void setCanUse(Integer canUse) {
-        this.canUse = canUse;
-    }
-
-    public void setIsLocked(Integer isLocked) {
-        this.isLocked = isLocked;
-    }
-
-    public void setItemId(Long itemId) {
-        this.itemId = itemId;
-    }
-
-    public void setVolume(BigDecimal volume) {
-        this.volume = volume;
-    }
-
-    public void setWeigh(BigDecimal weigh) {
-        this.weigh = weigh;
+    public void setFatherLocation(BaseinfoLocation fatherLocation) {
+        this.fatherLocation = fatherLocation;
     }
 }

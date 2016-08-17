@@ -7,6 +7,7 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.model.location.LocationDetailRequest;
+import com.lsh.wms.api.model.location.LocationDetailResponse;
 import com.lsh.wms.api.service.location.ILocationDetailRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.constant.LocationConstant;
@@ -42,6 +43,8 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     private LocationDetailModelFactory locationDetailModelFactory;
     @Autowired
     private LocationDetailRpcService locationDetailRpcService;
+    @Autowired
+    private LocationRpcService locationRpcService;
     //设置bin的Type集合,用于判断type是否是bin,然后设置
 
 
@@ -105,7 +108,14 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @Path("getLocationDetail")
     public String getLocationDetailById(@QueryParam("locationId") Long locationId)  {
         Long id = Long.parseLong(locationId.toString());
-        return JsonUtils.SUCCESS(locationDetailRpcService.getLocationDetailById(id));
+        //前端回显示用的fatherLocation的显示
+        IBaseinfoLocaltionModel localtionModel = locationDetailRpcService.getLocationDetailById(id);
+        BaseinfoLocation fatherLocation = locationRpcService.getFatherLocation(id);
+        LocationDetailResponse detailResponse = new LocationDetailResponse();
+        ObjUtils.bean2bean(localtionModel,detailResponse);
+        //设置fathe的回显示
+        detailResponse.setFatherLocation(fatherLocation);
+        return JsonUtils.SUCCESS(detailResponse);
     }
 
     @POST
@@ -158,9 +168,8 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         Map<String, Object> params = RequestUtils.getRequest();
         List<BaseinfoLocation> locations = locationDetailRpcService.getLocationDetailList(params);
         if (locations==null){
-            throw new BizCheckedException("");   // 位置不存在
+            throw new BizCheckedException("2180001");   // 位置不存在
         }
-        //如果是货位就加上regionName
         return JsonUtils.SUCCESS(locations);
     }
 
