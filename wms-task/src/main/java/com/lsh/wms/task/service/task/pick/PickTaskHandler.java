@@ -66,8 +66,8 @@ public class PickTaskHandler extends AbsTaskHandler {
             pickDetail.setRealCollectLocation(locationId);
             waveService.updateDetail(pickDetail);
         }*/
-        // 移动库存, TODO
-        //stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, locationService.getWarehouseLocationId(), locationId);
+        // 移动库存
+        stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, locationService.getWarehouseLocationId(), locationId);
     }
 
     public void assignConcrete(Long taskId, Long staffId, Long containerId) throws BizCheckedException {

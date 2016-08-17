@@ -118,8 +118,9 @@
 	</select>
 
 	<select id="lock" parameterType="map" resultMap="stockQuantResultMap">
-		select * from stock_quant for update
+		select * from stock_quant
 		<include refid="queryCondition"/>
+		 for update
 	</select>
   
 	<sql id="queryCondition">
