@@ -7,14 +7,14 @@ import java.util.Map;
  * @Author 马启迪 maqidi@lsh123.com
  * @Date 16/7/29 下午2:55
  */
-public class LocationConstant {  // TODO 修改格式大写加下滑线
+public class LocationConstant {
     public static final Long WAREHOUSE = 1L;
     public static final Long REGION_AREA = 2L;
     public static final Long PASSAGE = 3L;
     //各区域
     public static final Long INVENTORYLOST = 4L;    //盘亏盘盈区
     public static final Long SHELFS = 5L;     //货架区
-    public static final Long LOFTS = 6L;       //阁楼区
+    public static final Long LOFTS = 6L;       //阁楼区(指的是阁楼的一层为一个阁楼区,有四层就是四个阁楼区)
     //功能区
     public static final Long FLOOR = 7l;
     public static final Long TEMPORARY = 8L;
@@ -113,6 +113,8 @@ public class LocationConstant {  // TODO 修改格式大写加下滑线
             put("defective_bin", new Long(24));// 24 残次货位
             put("consume_area", new Long(25));// 25 消费区
             put("supplier_area", new Long(26));// 26 供应区
+            put("shelf_levels", new Long(27));// 27 货架层
+            put("loft_levels", new Long(28));// 28 阁楼层
         }
     };
 

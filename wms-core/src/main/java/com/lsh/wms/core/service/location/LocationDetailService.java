@@ -215,7 +215,7 @@ public class LocationDetailService {
             location.setIsLeaf(0);
             locationService.updateLocation(location);
         }
-        // TODO 如果是阁楼个体,插入指定层的阁楼层
+        //  如果是阁楼个体,插入指定层的阁楼层
         if (LocationConstant.LOFT.equals(iBaseinfoLocaltionModel.getType())) {
             // 拿到指定的code,加入-i
             BaseinfoLocationShelf loft = new BaseinfoLocationShelf();

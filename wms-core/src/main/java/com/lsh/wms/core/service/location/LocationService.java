@@ -7,6 +7,7 @@ import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoLocationShelf;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 import com.lsh.wms.model.stock.StockQuant;
 import org.slf4j.Logger;
@@ -575,8 +576,11 @@ public class LocationService {
 
     // TODO 获取拣货位最近的存储位
     public BaseinfoLocation getNearestStorageByPicking(BaseinfoLocation pickingLocation) {
+        //查找,判断的因素是什么,商品还是?空位?
         return null;
+
     }
+
 
 
     //获取code
@@ -670,6 +674,7 @@ public class LocationService {
      *
      * @return
      */
+    @Transactional(readOnly = false)
     public BaseinfoLocation lockLocation(Long locationId) {
         BaseinfoLocation location = this.getLocation(locationId);
         if (location == null) {
@@ -686,6 +691,7 @@ public class LocationService {
      * @param locationId
      * @return
      */
+    @Transactional(readOnly = false)
     public BaseinfoLocation unlockLocation(Long locationId) {
         BaseinfoLocation location = this.getLocation(locationId);
         if (location == null) {
@@ -725,5 +731,7 @@ public class LocationService {
         }
         return this.getFatherByClassification(fatherId);
     }
+
+
 
 }
