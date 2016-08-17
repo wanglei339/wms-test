@@ -37,6 +37,15 @@ public class TaskRpcService implements ITaskRpcService {
     @Autowired
     private TaskTriggerService triggerService;
 
+
+    private String getCurrentMethodName() {
+        StackTraceElement[] stacktrace = Thread.currentThread().getStackTrace();
+        StackTraceElement e = stacktrace[2];
+        String methodName = e.getMethodName();
+        return methodName;
+    }
+
+
     public Long create(Long taskType, TaskEntry taskEntry) throws BizCheckedException{
         TaskHandler handler = handlerFactory.getTaskHandler(taskType);
         handler.create(taskEntry);
@@ -137,6 +146,11 @@ public class TaskRpcService implements ITaskRpcService {
     }
 
     public void afterDone(Long taskId) throws BizCheckedException {
+
+        StackTraceElement[] stacktrace = Thread.currentThread().getStackTrace();
+        StackTraceElement element = stacktrace[2];
+        String methodName = element.getMethodName();
+
         Map<String, List<TaskTrigger>> triggerMap = triggerService.getAll();
         Long taskType = this.getTaskTypeById(taskId);
         TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);

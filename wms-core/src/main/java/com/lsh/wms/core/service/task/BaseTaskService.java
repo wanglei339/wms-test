@@ -36,6 +36,7 @@ public class BaseTaskService {
         taskInfoDao.insert(taskInfo);
         taskHandler.createConcrete(taskEntry);
     }
+
     @Transactional(readOnly = false)
     public void batchCreate(List<TaskEntry> taskEntries, TaskHandler taskHandler) throws BizCheckedException {
         for(TaskEntry taskEntry : taskEntries) {
@@ -173,6 +174,7 @@ public class BaseTaskService {
         taskInfoDao.update(taskInfo);
         taskHandler.cancelConcrete(taskId);
     }
+
     @Transactional(readOnly = false)
     public void batchCancel(List<Long> taskList,TaskHandler taskHandler) {
         for(Long taskId:taskList) {

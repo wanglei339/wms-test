@@ -83,8 +83,6 @@ public class StockQuantService {
         Map<String, Object> mapCondition = new HashMap<String, Object>();
         mapCondition.put("locationId", locationId);
         mapCondition.put("itemId", itemId);
-
-        this.lockQuantByLocation(locationId);
         return this.getQty(mapCondition);
     }
 
