@@ -156,7 +156,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
                 throw new BizCheckedException("2030011");
             }
             // 检查位置使用状态
-            if (locationService.isLocationInUse(locationId)) {
+            if (realLocation.getCanUse().equals(0)) {
                 throw new BizCheckedException("2030007");
             }
         }
