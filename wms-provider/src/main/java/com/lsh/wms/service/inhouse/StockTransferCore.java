@@ -122,12 +122,12 @@ public class StockTransferCore {
             List<StockMove> moveList = new ArrayList<StockMove>();
             moveList.add(move);
             moveRpcService.move(moveList);
-            if(taskInfo.getQty() != qtyDone) {
+            if(taskInfo.getQty().compareTo(qtyDone) != 0) {
                 taskInfo.setQtyDone(qtyDone);
             }
         }
 
-        if(taskInfo.getFromLocationId() != fromLocationId) {
+        if(taskInfo.getFromLocationId().compareTo(fromLocationId) != 0) {
             taskInfo.setRealFromLocationId(fromLocationId);
         }
         taskInfoDao.update(taskInfo);
@@ -163,17 +163,21 @@ public class StockTransferCore {
             move.setQty(qtyDone);
             move.setFromLocationId(fromLocationId);
             move.setToLocationId(toLocationId);
+            move.setFromContainerId(containerId);
+            move.setToContainerId(containerId);
+            move.setSkuId(taskInfo.getSkuId());
+            move.setOwnerId(taskInfo.getOwnerId());
             List<StockMove> moveList = new ArrayList<StockMove>();
             moveList.add(move);
             moveRpcService.move(moveList);
 
-            if(taskInfo.getQty() != qtyDone) {
+            if(taskInfo.getQty().compareTo(qtyDone) != 0) {
                 taskInfo.setQtyDone(qtyDone);
             }
         }
         taskRpcService.done(taskId);
 
-        if(taskInfo.getToLocationId() != toLocationId) {
+        if(taskInfo.getToLocationId().compareTo(toLocationId) != 0) {
             taskInfo.setRealToLocationId(toLocationId);
         }
         taskInfoDao.update(taskInfo);

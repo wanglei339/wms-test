@@ -222,7 +222,7 @@ public class LocationService {
         BaseinfoLocation location = this.getLocation(locationId);
         params.put("leftRange", location.getLeftRange());
         params.put("rightRange", location.getRightRange());
-        params.put("type", type);
+        params.put("type", LocationConstant.LOCATION_TYPE.get(type));
         params.put("isValid", 1);
         return locationDao.getChildrenLocationList(params);
     }
@@ -604,12 +604,12 @@ public class LocationService {
     }
 
     /**
-     * 位置是否已占用
+     * 判断位置上是否有库存, 判断占用情况应该使用location.getCanUse()
      *
      * @param locationId
      * @return
      */
-    public Boolean isLocationInUse(Long locationId) {
+    public Boolean isQuantInLocation(Long locationId) {
         List<StockQuant> quants = stockQuantService.getQuantsByLocationId(locationId);
         if (quants.size() > 0) {
             return true;
@@ -696,6 +696,19 @@ public class LocationService {
         return location;
     }
 
+    /**
+     * 检查位置的锁状态
+     * @param locationId
+     * @return
+     */
+    public Boolean checkLocationLockStatus(Long locationId) {
+        BaseinfoLocation location = this.getLocation(locationId);
+        if (location.getIsLocked().equals(1)) {
+            return true;
+        }
+        return false;
+    }
+    
     /**
      * 根据库区库位类型classification来查到区的级别
      * @param locationId

@@ -125,7 +125,8 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         taskHead.setSupplierId(quant.getSupplierId());
         taskHead.setAllocLocationId(targetLocation.getLocationId());
         taskService.create(taskHead);
-        // TODO: 锁location
+        // 锁location
+        locationService.lockLocation(targetLocation.getFatherId());
     }
 
     public void assignConcrete(Long taskId, Long staffId) throws BizCheckedException{
@@ -150,15 +151,20 @@ public class ShelveTaskHandler extends AbsTaskHandler {
             if (realLocation == null) {
                 throw new BizCheckedException("2030006");
             }
-            // TODO: 要改
-            if (locationService.isLocationInUse(locationId)) {
+            // 检查位置锁定状态
+            if (locationService.checkLocationLockStatus(locationId)) {
+                throw new BizCheckedException("2030011");
+            }
+            // 检查位置使用状态
+            if (realLocation.getCanUse().equals(0)) {
                 throw new BizCheckedException("2030007");
             }
         }
         // move到目标location_id
         iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
         taskService.done(taskId, locationId);
-        // TODO: 释放location
+        // 释放分配的location
+        locationService.unlockLocation(taskHead.getAllocLocationId());
     }
 
     public void getConcrete(TaskEntry taskEntry) {
