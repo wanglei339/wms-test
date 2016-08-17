@@ -3,6 +3,7 @@ package com.lsh.wms.api.service.inhouse;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.model.transfer.StockTransferPlan;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -10,6 +11,7 @@ import java.util.Map;
  */
 public interface IStockTransferRpcService {
     void addPlan(StockTransferPlan plan) throws BizCheckedException;
+    void addPlans(List<StockTransferPlan> plans) throws BizCheckedException;
     void scanToLocation(Map<String, Object> params) throws BizCheckedException;
     void scanFromLocation(Map<String, Object> params) throws BizCheckedException;
     Long assign(Long staffId) throws BizCheckedException;

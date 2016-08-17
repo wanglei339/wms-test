@@ -150,18 +150,14 @@ public class StockQuantRpcService implements IStockQuantRpcService {
     }
 
     public Map<Long, Map<String, BigDecimal>>getItemStockList(Map<String, Object> mapQuery) {
-
         Map<Long, Map<String, BigDecimal>> itemQuant = new HashMap<Long, Map<String, BigDecimal>>();
         HashMap<String, Object> mapCondition = new HashMap<String, Object>();
-
         List<BaseinfoItem> itemList= itemService.searchItem(mapQuery);
         List<Long> itemIdList = new ArrayList<Long>();
-
         for (BaseinfoItem item : itemList) {
             itemIdList.add(item.getItemId());
         }
         mapCondition.put("itemList", itemIdList);
-
         // get all inventory record
         Long lossLocationId = locationService.getInventoryLostLocationId();
         mapCondition.put("locationId", lossLocationId);
@@ -170,23 +166,21 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         for (StockQuant quant : lossQuantList) {
             lossQuantSet.add(quant.getId());
         }
-
-        BigDecimal total, freeze, loss, lossDefect, lossRefund, defect, refund;
-
         // get all quant
         mapCondition.put("locationId", locationService.getWarehouseLocationId());
         List<StockQuant> quantList = quantService.getQuants(mapCondition);
-
-        total = BigDecimal.ZERO;
-        loss = BigDecimal.ZERO;
-        freeze = BigDecimal.ZERO;
-        defect = BigDecimal.ZERO;
-        refund = BigDecimal.ZERO;
-        lossDefect = BigDecimal.ZERO;
-        lossRefund = BigDecimal.ZERO;
-
-        Long isFrozen,reserveTaskId,isNormal,isDefect,isRefund,locationId;
+        BigDecimal total, freeze, loss, lossDefect, lossRefund, defect, refund;
+        Long isFrozen,reserveTaskId,isNormal,isDefect,isRefund;
         for (StockQuant quant : quantList) {
+            total = BigDecimal.ZERO;
+            loss = BigDecimal.ZERO;
+            freeze = BigDecimal.ZERO;
+            defect = BigDecimal.ZERO;
+            refund = BigDecimal.ZERO;
+            lossDefect = BigDecimal.ZERO;
+            lossRefund = BigDecimal.ZERO;
+
+            Long itemId= quant.getItemId();
             isFrozen = quant.getIsFrozen();
             reserveTaskId = quant.getReserveTaskId();
             isNormal = 1L;
@@ -195,15 +189,11 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             }
             isDefect = quant.getIsDefect();
             isRefund = quant.getIsRefund();
-            locationId = quant.getLocationId();
             BigDecimal qty = quant.getQty();
-
             total = total.add(qty);
-
             if(isNormal == 0) {
                 freeze = freeze.add(qty);
             }
-
             if (lossQuantSet.contains(quant.getId())) {
                 loss = loss.add(qty);
                 if (isDefect == 1) {
@@ -218,13 +208,19 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             if (isRefund == 1) {
                 refund = refund.add(qty);
             }
-
             BigDecimal reTotal = total.subtract(loss);
             BigDecimal reDefect = defect.subtract(lossDefect);
             BigDecimal reRefund = refund.subtract(lossRefund);
             BigDecimal normal = reTotal.subtract(reDefect.add(reRefund));
             BigDecimal available = normal.subtract(freeze);
-
+            Map<String, BigDecimal> item = itemQuant.get(itemId);
+            if(item != null) {
+                reTotal = item.get("total").add(reTotal);
+                available = item.get("available").add(available);
+                freeze = item.get("freeze").add(freeze);
+                reDefect = item.get("defect").add(reDefect);
+                reRefund = item.get("refund").add(reRefund);
+            }
             Map<String, BigDecimal> result = new HashMap<String, BigDecimal>();
             result.put("total", reTotal);
             result.put("available",available);
@@ -233,7 +229,6 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             result.put("refund", reRefund);
             itemQuant.put(quant.getItemId(),result);
         }
-
         int size = itemList.size();
         for (int i = 0; i < size; i++){
             Long itemId = itemIdList.get(i);
