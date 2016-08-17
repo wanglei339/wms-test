@@ -74,7 +74,7 @@ public class WaveCore {
     List<PickModel> modelList;
     List<PickZone> zoneList;
     Map<Long, PickZone> mapZone;
-    Map<Long, List<Long>> mapZone2StoreLocations;
+    Map<Long, List<BaseinfoLocation>> mapZone2StoreLocations;
     private long waveId;
     Map<String, List<Long>> mapItemAndPickZone2PickLocations;
     Map<String, Long> mapItemAndPickZone2PickLocationRound;
@@ -239,7 +239,7 @@ public class WaveCore {
                         unitName = (item.getPileX() * item.getPileY() * item.getPileZ())+"H"+pick_ea_num;
                     }
                     //获取分拣分区下的可分配库存数量,怎么获取?
-                    BigDecimal zone_qty = new BigDecimal("1000000.0000");//this._getPickZoneLeftAllocQty(item, zone);
+                    BigDecimal zone_qty = this._getPickZoneLeftAllocQty(item, zone);
                     if(zone_qty.compareTo(BigDecimal.ZERO)<=0){
                         continue;
                     }
@@ -342,54 +342,47 @@ public class WaveCore {
             zoneList.add(zone);
             mapZone.put(zone.getPickZoneId(), zone);
         }
-        //将捡货分区转换为存储位列表
-        /*
+        //将捡货分区location详细信息
+        mapZone2StoreLocations = new HashMap<Long, List<BaseinfoLocation>>();
         for(PickModel model : modelList) {
             PickZone zone = mapZone.get(model.getPickZoneId());
             String[] pickLocations = zone.getLocations().split(",");
 
-            List<Long> locationList = new LinkedList<Long>();
+            List<BaseinfoLocation> locationList = new LinkedList<BaseinfoLocation>();
             for(String loc : pickLocations) {
                 if(loc.trim().compareTo("")==0){
                     logger.error("hee");
                     throw new BizCheckedException("");
                 }
-                locationList.addAll(locationService.getStoreLocationIds(Long.valueOf(loc)));
+                locationList.add(locationService.getLocation(Long.valueOf(loc)));
             }
             mapZone2StoreLocations.put(zone.getPickZoneId(), locationList);
         }
-        */
     }
 
     private void _prepareX(){
     }
 
     private long _getPickLocation(BaseinfoItem item, PickZone zone){
+        /*
+        这其实应该有一个捡货位分配算法.
+        地堆区的捡货是个蛋疼的问题.
+         */
         String key = String.format("%d-%d", item.getItemId(), zone.getPickZoneId());
         List<Long> pickLocationIds = mapItemAndPickZone2PickLocations.get(key);
         if(pickLocationIds == null) {
             List<Long> pickLocationIdList = new ArrayList<Long>();
             final List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationList(item.getItemId());
-            List<List<BaseinfoLocation>> locationList = new LinkedList<List<BaseinfoLocation>>();
-            for (BaseinfoItemLocation itemLocation : itemLocationList) {
-                pickLocationIdList.add(itemLocation.getPickLocationid());
-                //TODO hehe
-                //locationList.add(locationService.getFatherList(itemLocation.getPickLocationid()));
-            }
             //判断此区域是否有对应的捡货位
-            /*
-            String[] pickLocations = zone.getLocations().split(",");
-
-            for (String loc : pickLocations) {
-                for (List<BaseinfoLocation> bls : locationList) {
-                    for (BaseinfoLocation bl : bls) {
-                        if (bl.getLocationId() == Long.valueOf(loc)) {
-                            pickLocationIdList.add(Long.valueOf(loc));
-                        }
+            List<BaseinfoLocation> locationList = mapZone2StoreLocations.get(zone.getPickZoneId());
+            for(BaseinfoItemLocation pickLocation : itemLocationList){
+                for(BaseinfoLocation location : locationList){
+                    if ( pickLocation.getPickLocationid() >= location.getLeftRange()
+                            && pickLocation.getPickLocationid() <= location.getRightRange()){
+                        pickLocationIdList.add(pickLocation.getPickLocationid());
                     }
                 }
             }
-            */
             mapItemAndPickZone2PickLocations.put(key, pickLocationIdList);
             pickLocationIds = pickLocationIdList;
         }
@@ -410,12 +403,11 @@ public class WaveCore {
         BigDecimal leftQty = mapPickZoneLeftAllocQty.get(key);
         if ( leftQty == null ) {
             //可用库存=仓位有效stock_quant求和(怎么求)-wave_detail的有效alloc数量+wave_detail中的捡货数量
-
-            Map<String, Object> mapStockQuery = new HashMap<String, Object>();
-            mapStockQuery.put("itemId", item.getItemId());
-            mapStockQuery.put("locationList", mapZone2StoreLocations.get(zone.getPickZoneId()));
-            mapStockQuery.put("isNormal", true);
-            BigDecimal stockQty = stockQuantService.getQty(mapStockQuery);
+            BigDecimal stockQty = new BigDecimal("0.0000");
+            List<BaseinfoLocation> locationList = mapZone2StoreLocations.get(zone.getPickZoneId());
+            for(BaseinfoLocation location : locationList) {
+                stockQty = stockQty.add(stockQuantService.getRealtimeQty(location,  item.getItemId()));
+            }
             Map<String, Object> mapSumQuery = new HashMap<String, Object>();
             mapSumQuery.put("skuId", item.getSkuId());
             mapSumQuery.put("ownerId", item.getOwnerId());

@@ -157,6 +157,9 @@ public class TaskRpcService implements ITaskRpcService {
 
         String key = taskType + this.getTaskEntryById(taskId).getTaskInfo().getSubType() + "done" + 1L;
         List<TaskTrigger> triggerList = triggerMap.get(key);
+        if (null == triggerList) {
+            return;
+        }
         for(TaskTrigger trigger : triggerList) {
             TaskHandler handler = handlerFactory.getTaskHandler(trigger.getDestType());
             try {

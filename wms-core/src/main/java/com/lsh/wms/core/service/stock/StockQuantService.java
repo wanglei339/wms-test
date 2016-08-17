@@ -80,11 +80,19 @@ public class StockQuantService {
 
     @Transactional(readOnly = false)
     public BigDecimal getRealtimeQty(Long locationId, Long itemId) {
+        return this.getRealtimeQty(locationService.getLocation(locationId), itemId);
+    }
+
+    @Transactional(readOnly = false)
+    public BigDecimal getRealtimeQty(BaseinfoLocation location, Long itemId) {
         Map<String, Object> mapCondition = new HashMap<String, Object>();
-        mapCondition.put("locationId", locationId);
         mapCondition.put("itemId", itemId);
+        List<BaseinfoLocation> list = new ArrayList<BaseinfoLocation>();
+        list.add(location);
+        mapCondition.put("locationList", list);
         return this.getQty(mapCondition);
     }
+
 
     public BigDecimal getQty(Map<String, Object> mapQuery) {
         this.prepareQuery(mapQuery);

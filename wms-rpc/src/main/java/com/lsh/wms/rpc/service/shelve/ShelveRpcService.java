@@ -4,16 +4,21 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.shelve.IShelveRpcService;
+import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.LocationConstant;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.shelve.ShelveTaskService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.rpc.service.inhouse.ProcurementRpcService;
 import com.lsh.wms.rpc.service.location.LocationRpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +47,10 @@ public class ShelveRpcService implements IShelveRpcService {
     private ItemLocationService itemLocationService;
     @Autowired
     private LocationRpcService locationRpcService;
+    @Autowired
+    private ProcurementRpcService procurementRpcService;
+    @Autowired
+    private ShelveTaskService shelveTaskService;
 
     private static final Float SHELF_LIFE_THRESHOLD = 0.3f; // 保质期差额阈值
 
@@ -59,6 +68,7 @@ public class ShelveRpcService implements IShelveRpcService {
         if (quants.size() < 1) {
             throw new BizCheckedException("2030001");
         }
+        // 目前一个入库托盘上只能有一种商品
         StockQuant quant = quants.get(0);
         Long itemId = quant.getItemId();
         BaseinfoItem item = itemService.getItem(itemId);
@@ -70,8 +80,9 @@ public class ShelveRpcService implements IShelveRpcService {
             // 地堆无空间,上拣货位
             if (floorLocation == null) {
                 targetLocation = assignPickingLocation(container);
+            } else {
+                targetLocation = floorLocation;
             }
-            targetLocation = floorLocation;
         } else { // 不允许地堆
             // 上拣货位
             targetLocation = assignPickingLocation(container);
@@ -105,20 +116,21 @@ public class ShelveRpcService implements IShelveRpcService {
             if (!pickingLocation.getType().equals(LocationConstant.LOCATION_TYPE.get("picking"))) {
                 throw new BizCheckedException("2030002");
             }
-            // TODO: 判断该拣货位是否符合拣货标准
-            if (true) {
+            // 判断该拣货位是否符合拣货标准
+            if (procurementRpcService.needProcurement(pickingLocationId, itemId)) {
                 // 对比保质期差额阈值
-                if (true) {
+                if (this.checkShelfLifeThreshold(quant, pickingLocation, "shelf_store_bin")) {
                     return pickingLocation;
                 } else {
                     // 查找补货任务
-                    if (true) {
+                    TaskInfo procurementTask = shelveTaskService.getIncompleteTaskByLocation(pickingLocationId, TaskConstant.TYPE_PROCUREMENT).get(0);
+                    if (procurementTask != null) {
                         // 补货任务已领取
-                        if (true) {
+                        if (procurementTask.getStatus().equals(TaskConstant.Assigned)) {
                             // 上货架位
                             return assignShelfLocation(container, pickingLocation);
                         } else {
-                            // 取消补货任务
+                            // TODO: 取消补货任务
                             return pickingLocation;
                         }
                     }
@@ -143,5 +155,31 @@ public class ShelveRpcService implements IShelveRpcService {
             throw new BizCheckedException("2030003");
         }
         return targetLocation;
+    }
+
+    /**
+     * 判断上架商品是否达到该区域存储位商品保质期的差额阈值
+     * @param quant
+     * @param location
+     * @return
+     */
+    public Boolean checkShelfLifeThreshold (StockQuant quant, BaseinfoLocation location, String locationType) {
+        Long expireDate = quant.getExpireDate();
+        Map<String, Object> params = new HashMap<String, Object>();
+        // 获取到拣货位的库区id
+        BaseinfoLocation areaLocation = locationService.getFatherByClassification(location.getLocationId());
+        // 获取该库区下所有的货架位
+        List<BaseinfoLocation> storeLocations = locationService.getChildrenLocationsByType(areaLocation.getLocationId(), "shelf_store_bin");
+        params.put("itemId", quant.getItemId());
+        params.put("locationList", storeLocations);
+        // 获取货架位上的该商品库存
+        List<StockQuant> storedQuants = stockQuantService.getQuants(params);
+        for (StockQuant storedQuant : storedQuants) {
+            // 达到差额阈值
+            if ((expireDate - storedQuant.getExpireDate()) < CsiConstan.SHELF_LIFE_THRESHOLD) {
+                return true;
+            }
+        }
+        return false;
     }
 }

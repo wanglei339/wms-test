@@ -11,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by mali on 16/7/22.
@@ -231,5 +228,25 @@ public class BaseTaskService {
             return null;
         }
         return taskInfos.get(0).getTaskId();
+    }
+
+    /**
+     * 根据locationId获取指定类型的未完成任务
+     * @param locationId
+     * @param type
+     * @return
+     */
+    public List<TaskInfo> getIncompleteTaskByLocation (Long locationId, Long type) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("locaitonId", locationId);
+        params.put("type", type);
+        List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
+        List<TaskInfo> retTaskInfos = new ArrayList<TaskInfo>();
+        for (TaskInfo taskInfo : taskInfos) {
+            if (!taskInfo.getStatus().equals(TaskConstant.Done) && !taskInfo.getStatus().equals(TaskConstant.Cancel)) {
+                retTaskInfos.add(taskInfo);
+            }
+        }
+        return retTaskInfos;
     }
 }
