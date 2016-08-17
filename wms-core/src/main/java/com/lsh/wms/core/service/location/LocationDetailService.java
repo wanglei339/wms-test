@@ -57,6 +57,8 @@ public class LocationDetailService {
     private ShelfListService shelfListService;
     @Autowired
     private ShelfRegionListService shelfRegionListService;
+    @Autowired
+    private BaseinfoLocationLevelService baseinfoLocationLevelService;
 
     /**
      * 将所有的Service注册到工厂中
@@ -99,6 +101,9 @@ public class LocationDetailService {
         locationDetailServiceFactory.register(LocationConstant.COLLECTION_BIN, baseinfoLocationBinService);
         locationDetailServiceFactory.register(LocationConstant.BACK_BIN, baseinfoLocationBinService);
         locationDetailServiceFactory.register(LocationConstant.DEFECTIVE_BIN, baseinfoLocationBinService);
+        //注入location的层级的服务
+        locationDetailServiceFactory.register(LocationConstant.SHELF_LEVELS, baseinfoLocationLevelService);
+        locationDetailServiceFactory.register(LocationConstant.LOFT_LEVELS, baseinfoLocationLevelService);
     }
 
     /**
@@ -141,6 +146,9 @@ public class LocationDetailService {
         locationDetailModelFactory.register(LocationConstant.COLLECTION_BIN, new BaseinfoLocationBin());
         locationDetailModelFactory.register(LocationConstant.BACK_BIN, new BaseinfoLocationBin());
         locationDetailModelFactory.register(LocationConstant.DEFECTIVE_BIN, new BaseinfoLocationBin());
+        //货架和阁楼层
+        locationDetailModelFactory.register(LocationConstant.SHELF_LEVELS, new BaseinfoLocation());
+        locationDetailModelFactory.register(LocationConstant.LOFT_LEVELS, new BaseinfoLocation());
     }
 
     /**

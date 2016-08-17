@@ -42,7 +42,7 @@ public class LocationConstant {  // TODO 修改格式大写加下滑线
     public static final Long DEFECTIVE_BIN = 24L;
     //虚拟货区
     public static final Long CONSUME_AREA = 25L;
-    public static final Long SUPPLIER_AREA = 25L;
+    public static final Long SUPPLIER_AREA = 26L;
 
     //货架层和阁楼层
     public static final Long SHELF_LEVELS = 27L;
