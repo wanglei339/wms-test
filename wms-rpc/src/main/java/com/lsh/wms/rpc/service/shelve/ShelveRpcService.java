@@ -6,15 +6,18 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.shelve.IShelveRpcService;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.LocationConstant;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.rpc.service.inhouse.ProcurementRpcService;
 import com.lsh.wms.rpc.service.location.LocationRpcService;
 import org.slf4j.Logger;
@@ -46,6 +49,8 @@ public class ShelveRpcService implements IShelveRpcService {
     private LocationRpcService locationRpcService;
     @Autowired
     private ProcurementRpcService procurementRpcService;
+    @Autowired
+    private BaseTaskService taskService;
 
     private static final Float SHELF_LIFE_THRESHOLD = 0.3f; // 保质期差额阈值
 
@@ -118,13 +123,14 @@ public class ShelveRpcService implements IShelveRpcService {
                     return pickingLocation;
                 } else {
                     // 查找补货任务
-                    if (true) {
+                    TaskInfo procurementTask = taskService.getIncompleteTaskByLocation(pickingLocationId, TaskConstant.TYPE_PROCUREMENT).get(0);
+                    if (procurementTask != null) {
                         // 补货任务已领取
-                        if (true) {
+                        if (procurementTask.getStatus().equals(TaskConstant.Assigned)) {
                             // 上货架位
                             return assignShelfLocation(container, pickingLocation);
                         } else {
-                            // 取消补货任务
+                            // TODO: 取消补货任务
                             return pickingLocation;
                         }
                     }
