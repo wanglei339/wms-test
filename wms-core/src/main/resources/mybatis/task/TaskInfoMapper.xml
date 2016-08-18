@@ -139,7 +139,7 @@
 		</if>
 	</select>
 
-	<select id="getPerformance" parameterType="map" resultMap="java.util.Map">
+	<select id="getPerformance" parameterType="map" resultType="java.util.HashMap">
 		select staffId, type, sub_type, sum(task_qty) as task_qty, date from task_info
 		<where>
 			<if test="staffId != null">operator#{staffId}</if>

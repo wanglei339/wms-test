@@ -10,6 +10,7 @@ import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationShelf;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 import com.lsh.wms.model.stock.StockQuant;
+import com.sun.org.apache.bcel.internal.generic.ArrayInstruction;
 import com.sun.org.apache.xpath.internal.functions.FuncDoclocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -567,7 +568,7 @@ public class LocationService {
 
     /**
      * 获取货位节点的id
-     *
+     * 一次去数据库中取两个相邻货架的拣货位,然后按照筛选规则去筛选存货位
      * @param mapQuery
      * @return
      */
@@ -578,23 +579,65 @@ public class LocationService {
 
     /**
      * 根据货架的拣货位获取货架的最近存货位
+     * TODO 获取拣货位最近的存储位 (待检测)
      * @param pickingLocation
      * @return
      */
-    // TODO 获取拣货位最近的存储位
-    //一次去数据库中取两个相邻货架的拣货位,然后按照筛选规则去筛选存货位
     public BaseinfoLocation getNearestStorageByPicking(BaseinfoLocation pickingLocation) {
         //获取相邻货架的所有拣货位,先获取当前货架,获取通道,货物相邻货架,然后获取
         BaseinfoLocation shelfLocation1 = this.getShelfByClassification(pickingLocation.getLocationId());
         //通道
-        Map<String,Object> params = new HashMap<String, Object>();
-        params.put("fatherId",shelfLocation1.getFatherId());
-        List<BaseinfoLocation> location = this.getBaseinfoLocationList(params);
-
-
-//        List<BaseinfoLocation> locations = this.get
-        //列+1
-        return null;
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("fatherId", shelfLocation1.getFatherId());
+        List<BaseinfoLocation> nearShelfList = this.getBaseinfoLocationList(params);
+        BaseinfoLocation shelfLocation2 = null;
+        //将本货架的所有位置放在一个集合中
+        List<BaseinfoLocation> implLocations = new ArrayList<BaseinfoLocation>();
+        List<BaseinfoLocation> subList = this.getStoreLocations(shelfLocation1.getLocationId());
+        List<BaseinfoLocation> nearShelfSubs = null;
+        implLocations.addAll(subList);
+        //存在相邻的货架
+        if (nearShelfList.size() > 0) {
+            shelfLocation2 = nearShelfList.get(0);
+            nearShelfSubs = this.getStoreLocations(shelfLocation2.getLocationId());
+            implLocations.addAll(nearShelfSubs);
+        }
+        //所有的存储位结果集放入
+        List<BaseinfoLocation> shelfStoreBins = new ArrayList<BaseinfoLocation>();
+        for (BaseinfoLocation impl : implLocations) {
+            if (impl.getType().equals(LocationConstant.SHELF_STORE_BIN)) {
+                shelfStoreBins.add(impl);
+            }
+        }
+        //存储为的空且没上锁判断,第一级过滤能用
+        List<BaseinfoLocation> canUseShelfStoreBins = new ArrayList<BaseinfoLocation>();
+        List<Long> distanceList = new ArrayList<Long>();
+        for (BaseinfoLocation bin : shelfStoreBins) {
+            //空没上锁
+            if (this.shelfBinLocationIsEmptyAndUnlock(bin.getLocationId())) {
+                canUseShelfStoreBins.add(bin);
+                //放入距离
+                Long distance = bin.getBinPositionNo() ^ 2 + bin.getShelfLevelNo() ^ 2;
+                distanceList.add(distance);
+            }
+        }
+        //第二层级的过滤如果canUseShelfStoreBins的位置size()没有,返回空
+        if (canUseShelfStoreBins.size() > 0) {
+            Long min = 0L;
+            int index = 0;
+            int i = 0;
+            for (Long distance : distanceList) {
+                if (distance.compareTo(min) < 0) {
+                    min = distance;
+                    index = i;
+                }
+                i++;
+            }
+            //选出距离最近的位置,如果有多个,选出第一个
+            return canUseShelfStoreBins.get(index);
+        } else {
+            return null;
+        }
     }
 
 
@@ -687,6 +730,7 @@ public class LocationService {
     /**
      * 货架位置为空并且没上锁(没占用+没上锁)
      * 一库位一托盘
+     *
      * @param locationId
      * @return
      */
@@ -698,12 +742,13 @@ public class LocationService {
     }
 
     /**
-     *  位置为空,切无库存
+     * 位置为空,切无库存
+     *
      * @param locationId
      * @return
      */
-    public boolean locationIsEmptyAndUnlock(Long locationId){
-        if ((!this.isQuantInLocation(locationId))&&this.checkLocationLockStatus(locationId)){
+    public boolean locationIsEmptyAndUnlock(Long locationId) {
+        if ((!this.isQuantInLocation(locationId)) && this.checkLocationLockStatus(locationId)) {
             return true;
         }
         return false;
