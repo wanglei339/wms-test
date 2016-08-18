@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.shelve.IShelveRpcService;
 import com.lsh.wms.api.service.stock.IStockMoveRestService;
 import com.lsh.wms.api.service.stock.IStockMoveRpcService;
@@ -28,7 +29,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by fengkun on 16/7/25.
@@ -59,6 +62,37 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         handlerFactory.register(TaskConstant.TYPE_SHELVE, this);
     }
 
+    public void create(TaskEntry taskEntry) {
+        Long containerId = taskEntry.getTaskInfo().getContainerId();
+        // 检查容器信息
+        if (containerId == null || containerId.equals("")) {
+            throw new BizCheckedException("2030003");
+        }
+        // 检查该容器是否已创建过任务
+        if (baseTaskService.checkTaskByContainerId(containerId)) {
+            throw new BizCheckedException("2030008");
+        }
+        // 获取quant
+        List<StockQuant> quants = stockQuantService.getQuantsByContainerId(containerId);
+        if (quants.size() < 1) {
+            throw new BizCheckedException("2030001");
+        }
+        StockQuant quant = quants.get(0);
+
+        TaskInfo taskInfo = new TaskInfo();
+        ShelveTaskHead taskHead = new ShelveTaskHead();
+
+        ObjUtils.bean2bean(quant, taskInfo);
+        ObjUtils.bean2bean(quant, taskHead);
+
+        taskInfo.setType(TaskConstant.TYPE_SHELVE);
+        taskInfo.setFromLocationId(quant.getLocationId());
+
+        taskEntry.setTaskInfo(taskInfo);
+        taskEntry.setTaskHead(taskHead);
+
+        super.create(taskEntry);
+    }
 
     public void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
         ShelveTaskHead taskHead = (ShelveTaskHead) taskEntry.getTaskHead();
@@ -90,7 +124,8 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         taskHead.setSupplierId(quant.getSupplierId());
         taskHead.setAllocLocationId(targetLocation.getLocationId());
         taskService.create(taskHead);
-        // TODO: 锁location
+        // 锁location
+        locationService.lockLocation(targetLocation.getFatherId());
     }
 
     public void assignConcrete(Long taskId, Long staffId) throws BizCheckedException{
@@ -115,15 +150,20 @@ public class ShelveTaskHandler extends AbsTaskHandler {
             if (realLocation == null) {
                 throw new BizCheckedException("2030006");
             }
-            // TODO: 要改
-            if (locationService.isLocationInUse(locationId)) {
+            // 检查位置锁定状态
+            if (locationService.checkLocationLockStatus(locationId)) {
+                throw new BizCheckedException("2030011");
+            }
+            // 检查位置使用状态
+            if (realLocation.getCanUse().equals(0)) {
                 throw new BizCheckedException("2030007");
             }
         }
         // move到目标location_id
         iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
         taskService.done(taskId, locationId);
-        // TODO: 释放location
+        // 释放分配的location
+        locationService.unlockLocation(taskHead.getAllocLocationId());
     }
 
     public void getConcrete(TaskEntry taskEntry) {

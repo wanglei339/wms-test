@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.task.TaskTriggerDao" >
+
+	<resultMap id="taskTriggerResultMap" type="TaskTrigger">
+		<id property="id" column="id"/>
+		<result property="name" column="name"/>
+		<result property="oriType" column="ori_type"/>
+		<result property="oriSubType" column="ori_sub_type"/>
+		<result property="oriMethod" column="ori_method"/>
+		<result property="destType" column="dest_type"/>
+		<result property="destMethod" column="dest_method"/>
+		<result property="timming" column="timming"/>
+		<result property="exception" column="exception"/>
+		<result property="priority" column="priority"/>
+		<result property="isValid" column="is_valid"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TaskTrigger">
+		insert into task_trigger (
+			name,ori_type,ori_sub_type, ori_method,dest_type,dest_method,timming,
+			exception,priority,is_valid,created_at,updated_at
+    	) values (
+			#{name},#{oriType},#{oriSubType},#{oriMethod},#{destType},#{destMethod},#{timming},
+			#{exception},#{priority},#{isValid},#{createdAt},#{updatedAt}
+    	)
+	</insert>
+
+	<update id="update" parameterType="TaskTrigger">
+		update task_trigger
+    	<set>
+  			<if test="name != null">name=#{name},</if>
+  			<if test="oriType != null">ori_type=#{oriType},</if>
+			<if test="oriSubType != null">ori_sub_type=#{oriSubType},</if>
+  			<if test="oriMethod != null">ori_method=#{oriMethod},</if>
+  			<if test="destType != null">dest_type=#{destType},</if>
+  			<if test="destMethod != null">dest_method=#{destMethod},</if>
+  			<if test="timming != null">timming=#{timming},</if>
+  			<if test="exception != null">exception=#{exception},</if>
+  			<if test="priority != null">priority=#{priority},</if>
+  			<if test="isValid != null">is_valid=#{isValid},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getTaskTriggerById" parameterType="int" resultMap="taskTriggerResultMap">
+		select * from task_trigger
+		where ID=#{id} 
+	</select>
+  
+	<select id="countTaskTrigger" parameterType="map" resultType="int">
+		select count(*) from task_trigger
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getTaskTriggerList" parameterType="map" resultMap="taskTriggerResultMap">
+		select * from task_trigger
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="name != null">and name=#{name}</if>
+			<if test="oriType != null">and ori_type=#{oriType}</if>
+			<if test="oriSubType != null">and ori_sub_type=#{oriSubType}</if>
+			<if test="oriMethod != null">and ori_method=#{oriMethod}</if>
+			<if test="destType != null">and dest_type=#{destType}</if>
+			<if test="destMethod != null">and dest_method=#{destMethod}</if>
+			<if test="timming != null">and timming=#{timming}</if>
+			<if test="exception != null">and exception=#{exception}</if>
+			<if test="priority != null">and priority=#{priority}</if>
+			<if test="isValid != null">and is_valid=#{isValid}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>

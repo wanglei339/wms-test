@@ -42,8 +42,6 @@ public class WaveService {
     @Autowired
     private WaveAllocService allocService;
     @Autowired
-    private PickTaskService taskService;
-    @Autowired
     private WaveDetailDao detailDao;
     @Autowired
     private WaveQcExceptionDao qcExceptionDao;

@@ -7,6 +7,7 @@ import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoLocationShelf;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 import com.lsh.wms.model.stock.StockQuant;
 import org.slf4j.Logger;
@@ -221,7 +222,7 @@ public class LocationService {
         BaseinfoLocation location = this.getLocation(locationId);
         params.put("leftRange", location.getLeftRange());
         params.put("rightRange", location.getRightRange());
-        params.put("type", type);
+        params.put("type", LocationConstant.LOCATION_TYPE.get(type));
         params.put("isValid", 1);
         return locationDao.getChildrenLocationList(params);
     }
@@ -490,7 +491,11 @@ public class LocationService {
     }
 
     /**
+<<<<<<< HEAD
      * 分配可用location
+=======
+     * 分配可用可用location
+>>>>>>> 3ae5cf4ce726ac6292c2fe6da1fa30ff2194c9b7
      *
      * @param type
      * @return
@@ -574,8 +579,11 @@ public class LocationService {
 
     // TODO 获取拣货位最近的存储位
     public BaseinfoLocation getNearestStorageByPicking(BaseinfoLocation pickingLocation) {
+        //查找,判断的因素是什么,商品还是?空位?
         return null;
+
     }
+
 
 
     //获取code
@@ -603,12 +611,12 @@ public class LocationService {
     }
 
     /**
-     * 位置是否已占用
+     * 判断位置上是否有库存, 判断占用情况应该使用location.getCanUse()
      *
      * @param locationId
      * @return
      */
-    public Boolean isLocationInUse(Long locationId) {
+    public Boolean isQuantInLocation(Long locationId) {
         List<StockQuant> quants = stockQuantService.getQuantsByLocationId(locationId);
         if (quants.size() > 0) {
             return true;
@@ -696,6 +704,37 @@ public class LocationService {
         this.updateLocation(location);
         return location;
     }
+
+    /**
+     * 检查位置的锁状态
+     * @param locationId
+     * @return
+     */
+    public Boolean checkLocationLockStatus(Long locationId) {
+        BaseinfoLocation location = this.getLocation(locationId);
+        if (location.getIsLocked().equals(1)) {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * 根据库区库位类型classification来查到区的级别
+     * @param locationId
+     * @return
+     */
+    public BaseinfoLocation getFatherByClassification(Long locationId){
+        BaseinfoLocation curLocation = this.getLocation(locationId);
+        Long fatherId = curLocation.getFatherId();
+        if (curLocation.getClassification().equals(LocationConstant.REGION_TYPE)) {
+            return curLocation;
+        }
+        if (fatherId == 0) {
+            return null;
+        }
+        return this.getFatherByClassification(fatherId);
+    }
+
 
 
 }

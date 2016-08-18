@@ -57,6 +57,8 @@ public class LocationDetailService {
     private ShelfListService shelfListService;
     @Autowired
     private ShelfRegionListService shelfRegionListService;
+    @Autowired
+    private BaseinfoLocationLevelService baseinfoLocationLevelService;
 
     /**
      * 将所有的Service注册到工厂中
@@ -99,6 +101,9 @@ public class LocationDetailService {
         locationDetailServiceFactory.register(LocationConstant.COLLECTION_BIN, baseinfoLocationBinService);
         locationDetailServiceFactory.register(LocationConstant.BACK_BIN, baseinfoLocationBinService);
         locationDetailServiceFactory.register(LocationConstant.DEFECTIVE_BIN, baseinfoLocationBinService);
+        //注入location的层级的服务
+        locationDetailServiceFactory.register(LocationConstant.SHELF_LEVELS, baseinfoLocationLevelService);
+        locationDetailServiceFactory.register(LocationConstant.LOFT_LEVELS, baseinfoLocationLevelService);
     }
 
     /**
@@ -141,6 +146,9 @@ public class LocationDetailService {
         locationDetailModelFactory.register(LocationConstant.COLLECTION_BIN, new BaseinfoLocationBin());
         locationDetailModelFactory.register(LocationConstant.BACK_BIN, new BaseinfoLocationBin());
         locationDetailModelFactory.register(LocationConstant.DEFECTIVE_BIN, new BaseinfoLocationBin());
+        //货架和阁楼层
+        locationDetailModelFactory.register(LocationConstant.SHELF_LEVELS, new BaseinfoLocation());
+        locationDetailModelFactory.register(LocationConstant.LOFT_LEVELS, new BaseinfoLocation());
     }
 
     /**
@@ -185,8 +193,8 @@ public class LocationDetailService {
             return;
         }
         //如果是货架个体,插入指定层的货架层
-        if (LocationConstant.SHELF == iBaseinfoLocaltionModel.getType()) {
-            // TODO 拿到指定的code,加入-i
+        if (LocationConstant.SHELF.equals(iBaseinfoLocaltionModel.getType())) {
+            //拿到指定的code,加入-i
             BaseinfoLocationShelf shelf = new BaseinfoLocationShelf();
             ObjUtils.bean2bean(iBaseinfoLocaltionModel, shelf);  //拷贝性质
             Long levels = shelf.getLevel();
@@ -199,6 +207,7 @@ public class LocationDetailService {
                 levelLocation.setFatherId(baseinfoLocation.getFatherId());  //  设置父亲的id
                 levelLocation.setLocationCode(newCode); //code刷新,range不用管
                 levelLocation.setType(LocationConstant.SHELF_LEVELS); //设置类型
+                levelLocation.setClassification(3);
                 levelLocation.setTypeName("货架层");
                 locationService.insertLocation(levelLocation);
             }
@@ -206,9 +215,9 @@ public class LocationDetailService {
             location.setIsLeaf(0);
             locationService.updateLocation(location);
         }
-        // TODO 如果是阁楼个体,插入指定层的阁楼层
-        if (LocationConstant.LOFT == iBaseinfoLocaltionModel.getType()) {
-            // TODO 拿到指定的code,加入-i
+        //  如果是阁楼个体,插入指定层的阁楼层
+        if (LocationConstant.LOFT.equals(iBaseinfoLocaltionModel.getType())) {
+            // 拿到指定的code,加入-i
             BaseinfoLocationShelf loft = new BaseinfoLocationShelf();
             ObjUtils.bean2bean(iBaseinfoLocaltionModel, loft);  //拷贝性质
             Long levels = loft.getLevel();
@@ -222,6 +231,7 @@ public class LocationDetailService {
                 levelLocation.setLocationCode(newCode); //code刷新,range不用管
                 levelLocation.setType(LocationConstant.LOFT_LEVELS); //设置类型
                 levelLocation.setTypeName("阁楼层");
+                levelLocation.setClassification(3);
                 locationService.insertLocation(levelLocation);
             }
             //将货架的叶子节点设置为0
@@ -352,8 +362,12 @@ public class LocationDetailService {
      * @throws BizCheckedException
      */
     public List<BaseinfoLocation> getTargetListByListType(Integer listType) throws BizCheckedException {
-        TargetListHandler listHandler = targetListFactory.getTargetListHandler(listType);
-        List<BaseinfoLocation> targetList = listHandler.getTargetLocaltionModelList();
-        return targetList;
+//        TargetListHandler listHandler = targetListFactory.getTargetListHandler(listType);
+//        List<BaseinfoLocation> targetList = listHandler.getTargetLocaltionModelList();
+        //根据type选择对应的type的service
+        Map<String,Object> params = new HashMap<String, Object>();
+        params.put("type",listType);
+        params.put("isvalid",1);
+        return locationService.getBaseinfoLocationList(params);
     }
 }

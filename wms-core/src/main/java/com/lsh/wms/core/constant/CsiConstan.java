@@ -18,4 +18,9 @@ public class CsiConstan {
      *  国条码类别 2 ISBN
      */
     public static final int CSI_CODE_TYPE_ISBN = 2;
+
+    /**
+     * 货架商品保质期阈值
+     */
+    public static final Long SHELF_LIFE_THRESHOLD = 100L;
 }

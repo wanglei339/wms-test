@@ -25,4 +25,6 @@ public interface StockQuantDao {
     List<Long> getContainerIdByLocationId(Long locationId);
 
     BigDecimal getQty(Map<String, Object> mapQuery);
+
+    List<StockQuant> lock(Map<String, Object> params);
 }

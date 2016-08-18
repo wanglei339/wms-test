@@ -7,14 +7,17 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.task.ITaskRestService;
+import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.model.shelve.ShelveTaskHead;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.model.task.TaskMsg;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.SystemEnvironmentPropertySource;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +32,9 @@ import java.util.Map;
 public class TaskRestService implements ITaskRestService {
     @Autowired
     private TaskRpcService taskRpcService;
+
+    @Autowired
+    private MessageService messageService;
 
     @POST
     @Path("getTaskList")
@@ -78,5 +84,19 @@ public class TaskRestService implements ITaskRestService {
             return JsonUtils.EXCEPTION_ERROR();
         }
         return JsonUtils.SUCCESS(entry.getStockMoveList());
+    }
+
+    @GET
+    @Path("done")
+    public String done(@QueryParam("taskId") long taskId) throws BizCheckedException {
+        //taskRpcService.done(taskId);
+        TaskMsg message = new TaskMsg();
+        message.setContent("malitest");
+        List<Object> list = new ArrayList<Object>();
+        list.add(1213L);
+        message.setParamList(list);
+        //messageService.sendMessage(message);
+        TaskMsg msg = messageService.getMessage();
+        return JsonUtils.SUCCESS(msg);
     }
 }

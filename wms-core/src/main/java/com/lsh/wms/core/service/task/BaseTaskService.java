@@ -11,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by mali on 16/7/22.
@@ -36,6 +33,7 @@ public class BaseTaskService {
         taskInfoDao.insert(taskInfo);
         taskHandler.createConcrete(taskEntry);
     }
+
     @Transactional(readOnly = false)
     public void batchCreate(List<TaskEntry> taskEntries, TaskHandler taskHandler) throws BizCheckedException {
         for(TaskEntry taskEntry : taskEntries) {
@@ -131,6 +129,7 @@ public class BaseTaskService {
         taskInfoDao.update(taskInfo);
         taskHandler.doneConcrete(taskId);
     }
+
     @Transactional(readOnly = false)
     public void batchDone(List<Long> taskList ,TaskHandler taskHandler) {
         for(Long taskId:taskList) {
@@ -172,6 +171,7 @@ public class BaseTaskService {
         taskInfoDao.update(taskInfo);
         taskHandler.cancelConcrete(taskId);
     }
+
     @Transactional(readOnly = false)
     public void batchCancel(List<Long> taskList,TaskHandler taskHandler) {
         for(Long taskId:taskList) {
@@ -230,4 +230,26 @@ public class BaseTaskService {
         return taskInfos.get(0).getTaskId();
     }
 
+<<<<<<< HEAD
+=======
+    /**
+     * 根据locationId获取指定类型的未完成任务
+     * @param locationId
+     * @param type
+     * @return
+     */
+    public List<TaskInfo> getIncompleteTaskByLocation (Long locationId, Long type) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("locaitonId", locationId);
+        params.put("type", type);
+        List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
+        List<TaskInfo> retTaskInfos = new ArrayList<TaskInfo>();
+        for (TaskInfo taskInfo : taskInfos) {
+            if (!taskInfo.getStatus().equals(TaskConstant.Done) && !taskInfo.getStatus().equals(TaskConstant.Cancel)) {
+                retTaskInfos.add(taskInfo);
+            }
+        }
+        return retTaskInfos;
+    }
+>>>>>>> 3ae5cf4ce726ac6292c2fe6da1fa30ff2194c9b7
 }

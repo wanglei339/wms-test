@@ -18,16 +18,22 @@ public class StockTransferTaskDetail implements Serializable {
     private Long skuId = 0L;
 	/** 商品id */
     private Long itemId = 0L;
-	/** 移入库位id */
+	/** 移出库位id */
     private Long fromLocationId = 0L;
 	/** 移入库位id */
     private Long toLocationId = 0L;
 	/** 数量 */
     private BigDecimal qty = BigDecimal.ZERO;
-	/** 商品单位转换id */
-    private Long uomId = 0L;
 	/** 以包装单位计量的库移数量 */
     private BigDecimal uomQty = BigDecimal.ZERO;
+	/** 移库操作单位*/
+	private Long subType = 2L;
+	/** 商品单位转换id */
+	private String packName = "";
+	/** 商品包装单位 */
+	private BigDecimal packUnit = BigDecimal.ONE;
+	/** 容器设备id */
+	private Long containerId = 0L;
 	/**  */
     private Long createdAt;
 	/**  */
@@ -105,14 +111,6 @@ public class StockTransferTaskDetail implements Serializable {
 		this.qty = qty;
 	}
 	
-	public Long getUomId(){
-		return this.uomId;
-	}
-	
-	public void setUomId(Long uomId){
-		this.uomId = uomId;
-	}
-	
 	public BigDecimal getUomQty(){
 		return this.uomQty;
 	}
@@ -120,7 +118,39 @@ public class StockTransferTaskDetail implements Serializable {
 	public void setUomQty(BigDecimal uomQty){
 		this.uomQty = uomQty;
 	}
-	
+
+	public Long getSubType() {
+		return this.getSubType();
+	}
+
+	public void setSubType(Long subType) {
+		this.subType = subType;
+	}
+
+	public String getPackName() {
+		return this.packName;
+	}
+
+	public void setPackName(String packName) {
+		this.packName = packName;
+	}
+
+	public BigDecimal getPackUnit() {
+		return this.packUnit;
+	}
+
+	public void setPackUnit(BigDecimal packUnit) {
+		this.packUnit = packUnit;
+	}
+
+	public Long getContainerId() {
+		return this.containerId;
+	}
+
+	public void setContainerId(Long containerId) {
+		this.containerId = containerId;
+	}
+
 	public Long getCreatedAt(){
 		return this.createdAt;
 	}

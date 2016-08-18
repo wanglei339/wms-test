@@ -38,8 +38,8 @@ public class ItemRpcService implements IItemRpcService {
     @Autowired
     private ItemLocationService itemLocationService;
 
-    @Reference
-    private ICsiRpcService remoteCsiRpcService;
+    @Autowired
+    private CsiRpcService remoteCsiRpcService;
 
 
 
