@@ -71,6 +71,7 @@ public class LocationConstant {
     public static final Integer REGION_TYPE = 1; //库区
     public static final Integer BIN_TYPE = 2;    //库位
     public static final Integer OTHER_TYPE = 3; //其他项
+    public static final Integer LOFT_SHELF= 4;    //货架和阁楼的架子个体
 
     //位置是否删除
     public static final Integer IS_VALID = 1;

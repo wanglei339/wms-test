@@ -10,6 +10,7 @@ import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationShelf;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 import com.lsh.wms.model.stock.StockQuant;
+import com.sun.org.apache.xpath.internal.functions.FuncDoclocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,8 @@ public class LocationService {
     private BaseinfoLocationDao locationDao;
     @Autowired
     private StockQuantService stockQuantService;
+    @Autowired
+    private BaseinfoLocationShelfService baseinfoLocationShelfService;
 
 
     //计数
@@ -574,13 +577,26 @@ public class LocationService {
         return locationDao.getBaseinfoLocationList(mapQuery);
     }
 
+    /**
+     * 根据货架的拣货位获取货架的最近存货位
+     * @param pickingLocation
+     * @return
+     */
     // TODO 获取拣货位最近的存储位
+    //一次去数据库中取两个相邻货架的拣货位,然后按照筛选规则去筛选存货位
     public BaseinfoLocation getNearestStorageByPicking(BaseinfoLocation pickingLocation) {
-        //查找,判断的因素是什么,商品还是?空位?
+        //获取相邻货架的所有拣货位,先获取当前货架,获取通道,货物相邻货架,然后获取
+        BaseinfoLocation shelfLocation1 = this.getShelfByClassification(pickingLocation.getLocationId());
+        //通道
+        Map<String,Object> params = new HashMap<String, Object>();
+        params.put("fatherId",shelfLocation1.getFatherId());
+        List<BaseinfoLocation> location = this.getBaseinfoLocationList(params);
+
+
+//        List<BaseinfoLocation> locations = this.get
+        //列+1
         return null;
-
     }
-
 
 
     //获取code
@@ -608,7 +624,7 @@ public class LocationService {
     }
 
     /**
-     * 判断位置上是否有库存, 判断占用情况应该使用location.getCanUse()
+     * 判断位置上是否有库存, 判断占用情况应该使用location.getCanUse(),即位置上是否是空的
      *
      * @param locationId
      * @return
@@ -620,6 +636,80 @@ public class LocationService {
         }
         return false;
     }
+
+    /**
+     * 设置location被占用
+     *
+     * @param locationId
+     * @return
+     */
+    @Transactional(readOnly = false)
+    public BaseinfoLocation setLocationIsOccupied(Long locationId) {
+        BaseinfoLocation location = this.getLocation(locationId);
+        if (location == null) {
+            throw new BizCheckedException("2180001");
+        }
+        location.setCanUse(2);    //被占用
+        this.updateLocation(location);
+        return location;
+    }
+
+    /**
+     * 设置为止没有被占用
+     *
+     * @param locationId
+     * @return
+     */
+    @Transactional(readOnly = false)
+    public BaseinfoLocation setLocationUnOccupied(Long locationId) {
+        BaseinfoLocation location = this.getLocation(locationId);
+        if (location == null) {
+            throw new BizCheckedException("2180001");
+        }
+        location.setCanUse(1);    //被未被使用
+        this.updateLocation(location);
+        return location;
+    }
+
+    /**
+     * 查看位置现在是否能继续使用,(没上满|没库存的)都是能继续使用的,对于库位
+     *
+     * @param locationId
+     * @return
+     */
+    public Boolean checkLocationUseStatus(Long locationId) {
+        BaseinfoLocation location = this.getLocation(locationId);
+        if (location.getCanUse().equals(1)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 货架位置为空并且没上锁(没占用+没上锁)
+     * 一库位一托盘
+     * @param locationId
+     * @return
+     */
+    public boolean shelfBinLocationIsEmptyAndUnlock(Long locationId) {
+        if ((!this.checkLocationUseStatus(locationId)) && this.checkLocationLockStatus(locationId)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     *  位置为空,切无库存
+     * @param locationId
+     * @return
+     */
+    public boolean locationIsEmptyAndUnlock(Long locationId){
+        if ((!this.isQuantInLocation(locationId))&&this.checkLocationLockStatus(locationId)){
+            return true;
+        }
+        return false;
+    }
+
 
     /**
      * 获取location子代集合的开关
@@ -704,6 +794,7 @@ public class LocationService {
 
     /**
      * 检查位置的锁状态
+     *
      * @param locationId
      * @return
      */
@@ -714,13 +805,14 @@ public class LocationService {
         }
         return false;
     }
-    
+
     /**
      * 根据库区库位类型classification来查到区的级别
+     *
      * @param locationId
      * @return
      */
-    public BaseinfoLocation getFatherByClassification(Long locationId){
+    public BaseinfoLocation getFatherByClassification(Long locationId) {
         BaseinfoLocation curLocation = this.getLocation(locationId);
         Long fatherId = curLocation.getFatherId();
         if (curLocation.getClassification().equals(LocationConstant.REGION_TYPE)) {
@@ -732,6 +824,23 @@ public class LocationService {
         return this.getFatherByClassification(fatherId);
     }
 
+    /**
+     * 根据货架类型classification来查到区的级别
+     *
+     * @param locationId
+     * @return
+     */
+    public BaseinfoLocation getShelfByClassification(Long locationId) {
+        BaseinfoLocation curLocation = this.getLocation(locationId);
+        Long fatherId = curLocation.getFatherId();
+        if (curLocation.getClassification().equals(LocationConstant.LOFT_SHELF)) {
+            return curLocation;
+        }
+        if (fatherId == 0) {
+            return null;
+        }
+        return this.getShelfByClassification(fatherId);
+    }
 
 
 }
