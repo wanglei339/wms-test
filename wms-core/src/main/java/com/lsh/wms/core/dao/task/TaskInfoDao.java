@@ -18,5 +18,6 @@ public interface TaskInfoDao {
     Integer countTaskInfo(Map<String, Object> params);
 
     List<TaskInfo> getTaskInfoList(Map<String, Object> params);
-	
+
+	List<TaskInfo> getPerformance(Map<String, Object> params);
 }
