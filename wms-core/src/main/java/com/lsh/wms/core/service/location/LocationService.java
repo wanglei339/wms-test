@@ -494,11 +494,7 @@ public class LocationService {
     }
 
     /**
-<<<<<<< HEAD
-     * 分配可用location
-=======
      * 分配可用可用location
->>>>>>> 3ae5cf4ce726ac6292c2fe6da1fa30ff2194c9b7
      *
      * @param type
      * @return
@@ -711,6 +707,24 @@ public class LocationService {
             return true;
         }
         return false;
+    }
+    /**
+     * 分配可用可用location
+     *
+     * @param type
+     * @return
+     */
+    public BaseinfoLocation getlocationIsEmptyAndUnlockByType(String type) {
+        List<BaseinfoLocation> locations = this.getLocationsByType(type);
+        if (locations.size() > 0) {
+            for (BaseinfoLocation location : locations) {
+                Long locationId = location.getLocationId();
+                if ((!this.isQuantInLocation(locationId))&&this.checkLocationLockStatus(locationId)){
+                    return location;
+                }
+            }
+        }
+        return null;
     }
 
 

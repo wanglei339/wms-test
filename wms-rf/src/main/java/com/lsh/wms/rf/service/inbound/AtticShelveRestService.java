@@ -171,10 +171,13 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         if(user==null){
             return JsonUtils.TOKEN_ERROR("用户不存在");
         }
-
         // 检查是否有已分配的任务
-        if (taskId == null && baseTaskService.checkTaskByContainerId(containerId)) {
+        if (taskId == null) {
             throw new BizCheckedException("2030008");
+        }
+        TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
+        if(entry.getTaskInfo().getOperator().compareTo(user.getStaffId())!=0 && baseTaskService.checkTaskByContainerId(containerId)){
+            return JsonUtils.TOKEN_ERROR("该上架任务已被人领取");
         }
         Map result = this.getResultMap(taskId);
         if(result == null) {
@@ -236,7 +239,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
             }
 
         }else if(realLocation.getType().compareTo(LocationConstant.LOFT_STORE_BIN)==0){
-            if(locationService.isLocationInUse(realLocationId)){
+            if(locationService.checkLocationUseStatus(realLocationId)){
                 return JsonUtils.TOKEN_ERROR("扫描库位已被占用");
             }
             if(location.getType().compareTo((LocationConstant.LOFT_STORE_BIN))!=0){
@@ -252,6 +255,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
             detail.setRealLocationId(realLocationId);
             detail.setShelveAt(DateUtils.getCurrentSeconds());
             detail.setOperator(info.getOperator());
+            detail.setStatus(2L);
             shelveTaskService.updateDetail(detail);
 
         }else {
@@ -317,6 +321,18 @@ public class AtticShelveRestService implements IAtticShelveRestService{
             BaseinfoLocation location = locationService.getLocation(itemLocation.getPickLocationid());
             if(location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN)==0) {
                 if (rpcService.needProcurement(itemLocation.getPickLocationid(), itemLocation.getItemId())) {
+
+                    //插detail
+                    AtticShelveTaskDetail detail = new AtticShelveTaskDetail();
+                    StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
+                    ObjUtils.bean2bean(quant, detail);
+                    detail.setTaskId(taskId);
+                    detail.setReceiptId(lot.getReceiptId());
+                    detail.setOrderId(lot.getPoId());
+                    detail.setAllocLocationId(location.getLocationId());
+                    detail.setRealLocationId(location.getLocationId());
+
+
                     BigDecimal num = total.divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN);
                     Map<String, Object> map = new HashMap<String, Object>();
                     map.put("taskId", taskId);
@@ -324,6 +340,8 @@ public class AtticShelveRestService implements IAtticShelveRestService{
                     map.put("locationCode", location.getLocationCode());
                     map.put("qty", num.compareTo(new BigDecimal(3)) >= 0 ? 3 : num);
                     map.put("packName", quant.getPackName());
+
+                    shelveTaskService.create(detail);
                     return map;
                 }
             }
@@ -342,39 +360,37 @@ public class AtticShelveRestService implements IAtticShelveRestService{
 
 
         while (total.compareTo(BigDecimal.ZERO) > 0) {
-            BaseinfoLocation location = locationService.getAvailableLocationByType("loft_store_bin");
-            if (!locationService.isLocationInUse(location.getLocationId())) {
-                //锁Location
-                locationService.lockLocation(location.getLocationId());
-                //插detail
-                AtticShelveTaskDetail detail = new AtticShelveTaskDetail();
-                StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
-                ObjUtils.bean2bean(quant, detail);
-                detail.setTaskId(taskId);
-                detail.setReceiptId(lot.getReceiptId());
-                detail.setOrderId(lot.getPoId());
-                detail.setAllocLocationId(location.getLocationId());
-                detail.setRealLocationId(location.getLocationId());
+            BaseinfoLocation location = locationService.getlocationIsEmptyAndUnlockByType("loft_store_bin");
+            //锁Location
+            locationService.lockLocation(location.getLocationId());
+            //插detail
+            AtticShelveTaskDetail detail = new AtticShelveTaskDetail();
+            StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
+            ObjUtils.bean2bean(quant, detail);
+            detail.setTaskId(taskId);
+            detail.setReceiptId(lot.getReceiptId());
+            detail.setOrderId(lot.getPoId());
+            detail.setAllocLocationId(location.getLocationId());
+            detail.setRealLocationId(location.getLocationId());
 
-                BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(location.getLocationId());
-                //体积的80%为有效体积
-                BigDecimal valum = bin.getVolume().multiply(new BigDecimal(0.8));
-                BigDecimal num = valum.divide(bulk, BigDecimal.ROUND_HALF_EVEN);
-                if (total.subtract(num).compareTo(BigDecimal.ZERO) >= 0) {
-                    detail.setQty(num);
-                } else {
-                    detail.setQty(total);
-                }
-                total = total.subtract(num);
-                Map<String, Object> map = new HashMap<String, Object>();
-                map.put("taskId", taskId);
-                map.put("locationId", location.getLocationId());
-                map.put("locationCode", location.getLocationCode());
-                map.put("qty", detail.getQty().divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
-                map.put("packName", quant.getPackName());
-                shelveTaskService.create(detail);
-                return map;
+            BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(location.getLocationId());
+            //体积的80%为有效体积
+            BigDecimal valum = bin.getVolume().multiply(new BigDecimal(0.8));
+            BigDecimal num = valum.divide(bulk, BigDecimal.ROUND_HALF_EVEN);
+            if (total.subtract(num).compareTo(BigDecimal.ZERO) >= 0) {
+                detail.setQty(num);
+            } else {
+                detail.setQty(total);
             }
+            total = total.subtract(num);
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("taskId", taskId);
+            map.put("locationId", location.getLocationId());
+            map.put("locationCode", location.getLocationCode());
+            map.put("qty", detail.getQty().divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
+            map.put("packName", quant.getPackName());
+            shelveTaskService.create(detail);
+            return map;
         }
         return null;
     }

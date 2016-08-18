@@ -1,7 +1,6 @@
 package com.lsh.wms.core.service.task;
 
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
@@ -120,45 +119,41 @@ public class BaseTaskService {
         taskHandler.assignConcrete(taskId, staffId, containerId);
     }
 
+
     @Transactional(readOnly = false)
-    public void done(Long taskId, TaskHandler taskHandler) {
+    public void baseDone(Long taskId, TaskHandler taskHandler) {
         TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
         taskInfo.setStatus(TaskConstant.Done);
         taskInfo.setFinishTime(DateUtils.getCurrentSeconds());
         taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+        Long date = org.apache.commons.lang.time.DateUtils.ceiling(Calendar.getInstance(), Calendar.DATE).getTimeInMillis() / 1000L;
+        taskInfo.setDate(date);
+        taskHandler.calcPerformance(taskInfo);
         taskInfoDao.update(taskInfo);
+    }
+
+    @Transactional(readOnly = false)
+    public void done(Long taskId, TaskHandler taskHandler) {
+        this.baseDone(taskId, taskHandler);
         taskHandler.doneConcrete(taskId);
     }
 
     @Transactional(readOnly = false)
     public void batchDone(List<Long> taskList ,TaskHandler taskHandler) {
         for(Long taskId:taskList) {
-            TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
-            taskInfo.setStatus(TaskConstant.Done);
-            taskInfo.setFinishTime(DateUtils.getCurrentSeconds());
-            taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
-            taskInfoDao.update(taskInfo);
-            taskHandler.doneConcrete(taskId);
+            this.done(taskId, taskHandler);
         }
     }
 
     @Transactional(readOnly = false)
     public void done(Long taskId, Long locationId, TaskHandler taskHandler) {
-        TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
-        taskInfo.setStatus(TaskConstant.Done);
-        taskInfo.setFinishTime(DateUtils.getCurrentSeconds());
-        taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
-        taskInfoDao.update(taskInfo);
+        this.baseDone(taskId, taskHandler);
         taskHandler.doneConcrete(taskId, locationId);
     }
 
     @Transactional(readOnly = false)
     public void done(Long taskId, Long locationId, Long staffId, TaskHandler taskHandler) {
-        TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
-        taskInfo.setStatus(TaskConstant.Done);
-        taskInfo.setFinishTime(DateUtils.getCurrentSeconds());
-        taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
-        taskInfoDao.update(taskInfo);
+        this.baseDone(taskId, taskHandler);
         taskHandler.doneConcrete(taskId, locationId, staffId);
     }
 
@@ -230,8 +225,6 @@ public class BaseTaskService {
         return taskInfos.get(0).getTaskId();
     }
 
-<<<<<<< HEAD
-=======
     /**
      * 根据locationId获取指定类型的未完成任务
      * @param locationId
@@ -251,5 +244,10 @@ public class BaseTaskService {
         }
         return retTaskInfos;
     }
->>>>>>> 3ae5cf4ce726ac6292c2fe6da1fa30ff2194c9b7
+
+    public List<TaskInfo> getPerformance(Map<String, Object> condition) {
+        List<TaskInfo> taskInfoList = taskInfoDao.getPerformance(condition);
+        return taskInfoList;
+    }
+
 }

@@ -93,12 +93,12 @@
                 <db.url>jdbc:mysql://192.168.60.48:5201/lsh_wms?useUnicode=true&amp;autoReconnect=true&amp;characterEncoding=UTF8&amp;allowMultiQueries=true</db.url>
                 <db.username>root</db.username>
                 <db.password>root123</db.password>
-                <redis.host.w>192.168.60.48</redis.host.w>
+                <redis.host.w>127.0.0.1</redis.host.w>
                 <redis.port.w>6379</redis.port.w>
-                <redis.passwd.w>lsh@2016</redis.passwd.w>
-                <redis.host.r>192.168.60.48</redis.host.r>
+                <redis.passwd.w></redis.passwd.w>
+                <redis.host.r>127.0.0.1</redis.host.r>
                 <redis.port.r>6379</redis.port.r>
-                <redis.passwd.r>lsh@2016</redis.passwd.r>
+                <redis.passwd.r></redis.passwd.r>
                 <upload.path.root>/data/upload/staticfile</upload.path.root>
                 <oss.file.endpoint>oss-cn-beijing.aliyuncs.com</oss.file.endpoint>
                 <oss.image.endpoint>oss-cn-beijing.aliyuncs.com</oss.image.endpoint>

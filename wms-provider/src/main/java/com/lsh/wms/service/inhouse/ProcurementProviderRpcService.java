@@ -270,7 +270,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             List<StockQuant> quants = stockQuantService.getQuantList(condition);
             for(StockQuant quant:quants){
                 BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
-                if(location.getType().compareTo(LocationConstant.LOFT_STORE_BIN)==0){
+                if(location.getType().compareTo(LocationConstant.LOFT_STORE_BIN)==0 && location.getIsLocked().compareTo(1)!=0){
                     outBondLocations.add(location.getLocationId());
                 }
             }
@@ -278,7 +278,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             List<StockQuant> quants = stockQuantService.getQuantList(condition);
             for(StockQuant quant:quants){
                 BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
-                if(location.getType().compareTo(LocationConstant.SHELF_STORE_BIN)==0){
+                if(location.getType().compareTo(LocationConstant.SHELF_STORE_BIN)==0 && location.getIsLocked().compareTo(1)!=0){
                     outBondLocations.add(location.getLocationId());
                 }
             }
