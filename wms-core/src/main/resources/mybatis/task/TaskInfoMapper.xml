@@ -67,7 +67,7 @@
 			#{subType},#{status},#{isAllocated},#{priority},#{draftTime},#{assignTime},
 			#{dueTime},#{finishTime},#{cancelTime},#{ext1},#{ext2},#{ext3},
 			#{ext4},#{ext5},#{ext6},#{ext7},#{ext8},#{ext9},
-			#{createdAt},#{updatedAt},#{task_qty}, #{date}
+			#{createdAt},#{updatedAt},#{taskQty}, #{date}
     	)
 	</insert>
 
@@ -113,7 +113,7 @@
   			<if test="ext7 != null">ext7=#{ext7},</if>
   			<if test="ext8 != null">ext8=#{ext8},</if>
   			<if test="ext9 != null">ext9=#{ext9},</if>
-			<if test="task_qty != null">task_qty=#{taskQty},</if>
+			<if test="taskQty != null">task_qty=#{taskQty},</if>
 			<if test="date != null">date=#{date},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
