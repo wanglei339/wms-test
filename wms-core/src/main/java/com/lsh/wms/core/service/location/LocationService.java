@@ -41,7 +41,6 @@ public class LocationService {
     // 获取location
     public BaseinfoLocation getLocation(Long locationId) {
         Map<String, Object> params = new HashMap<String, Object>();
-        BaseinfoLocation location = new BaseinfoLocation();
         params.put("locationId", locationId);
         params.put("isValid", 1);
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
@@ -491,7 +490,7 @@ public class LocationService {
     }
 
     /**
-     * 分配可用暂存区location
+     * 分配可用location
      *
      * @param type
      * @return
@@ -670,6 +669,7 @@ public class LocationService {
      *
      * @return
      */
+    @Transactional(readOnly = false)
     public BaseinfoLocation lockLocation(Long locationId) {
         BaseinfoLocation location = this.getLocation(locationId);
         if (location == null) {
@@ -686,6 +686,7 @@ public class LocationService {
      * @param locationId
      * @return
      */
+    @Transactional(readOnly = false)
     public BaseinfoLocation unlockLocation(Long locationId) {
         BaseinfoLocation location = this.getLocation(locationId);
         if (location == null) {

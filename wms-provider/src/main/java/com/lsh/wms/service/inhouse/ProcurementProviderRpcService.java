@@ -10,6 +10,7 @@ import com.lsh.wms.api.service.item.IItemRpcService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
@@ -85,7 +86,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
         Long containerId = quantList.get(0).getContainerId();
         if (plan.getSubType().equals(2L)) {
-            containerId = containerService.createContainerByType(2L).getId();
+            containerId = containerService.createContainerByType(2L).getContainerId();
         }
 
         ObjUtils.bean2bean(plan, taskInfo);
@@ -115,7 +116,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
         Long containerId = quantList.get(0).getContainerId();
         if (plan.getSubType().equals(2L)) {
-            containerId = containerService.createContainerByType(2L).getId();
+            containerId = containerService.createContainerByType(2L).getContainerId();
         }
 
         ObjUtils.bean2bean(plan, taskInfo);
