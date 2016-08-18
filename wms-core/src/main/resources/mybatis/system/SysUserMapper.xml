@@ -29,7 +29,6 @@
 	<update id="update" parameterType="SysUser">
 		update sys_user
     	<set>
-  			<if test="uid != null">uid=#{uid},</if>
   			<if test="username != null">username=#{username},</if>
   			<if test="screenname != null">screenname=#{screenname},</if>
   			<if test="password != null">password=#{password},</if>
