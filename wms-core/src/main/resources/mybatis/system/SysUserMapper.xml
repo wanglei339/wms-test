@@ -36,7 +36,7 @@
   			<if test="status != null">status=#{status},</if>
   			<if test="staffId != null">staff_id=#{staffId},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
-  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
 			<if test="role != null">role=#{role}</if>
 		</set>
 		where uid=#{uid}
