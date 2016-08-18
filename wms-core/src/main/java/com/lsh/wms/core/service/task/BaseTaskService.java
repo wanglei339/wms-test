@@ -245,8 +245,8 @@ public class BaseTaskService {
         return retTaskInfos;
     }
 
-    public List<TaskInfo> getPerformance(Map<String, Object> condition) {
-        List<TaskInfo> taskInfoList = taskInfoDao.getPerformance(condition);
+    public List<Map<String, Object>> getPerformance(Map<String, Object> condition) {
+        List<Map<String, Object>> taskInfoList = taskInfoDao.getPerformance(condition);
         return taskInfoList;
     }
 

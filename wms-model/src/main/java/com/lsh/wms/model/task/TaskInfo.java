@@ -95,6 +95,8 @@ public class TaskInfo implements Serializable {
 
 	public Long date = 0L;
 
+
+
 	public BigDecimal getTaskQty() {
 		return taskQty;
 	}
@@ -471,5 +473,7 @@ public class TaskInfo implements Serializable {
     public void setQtyDoneUom(BigDecimal qtyDoneUom) {
         this.qtyDoneUom = qtyDoneUom;
     }
+
+
 
 }

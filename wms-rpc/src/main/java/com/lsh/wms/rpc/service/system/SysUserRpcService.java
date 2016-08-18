@@ -25,7 +25,7 @@ public class SysUserRpcService implements ISysUserRpcService {
     @Autowired
     private SysUserService sysUserService;
 
-    public List<SysUser> getSysUserList(Map<String, Object> params) {
+    public List<SysUser>getSysUserList(Map<String, Object> params) {
         return sysUserService.getSysUserList(params);
     }
 

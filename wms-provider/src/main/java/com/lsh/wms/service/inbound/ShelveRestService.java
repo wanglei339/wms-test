@@ -56,7 +56,7 @@ public class ShelveRestService implements IShelveRestService {
     public String createTask() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         if(mapQuery.get("type")==null) {
-            JsonUtils.EXCEPTION_ERROR();
+            return JsonUtils.EXCEPTION_ERROR();
         }
         Long taskType = Long.valueOf(mapQuery.get("type").toString());
         Long containerId = Long.valueOf(mapQuery.get("containerId").toString());
@@ -108,7 +108,7 @@ public class ShelveRestService implements IShelveRestService {
     public String scanContainer() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         if(mapQuery.get("type")==null) {
-            JsonUtils.EXCEPTION_ERROR();
+            return JsonUtils.EXCEPTION_ERROR();
         }
         Long taskType = Long.valueOf(mapQuery.get("type").toString());
         Long staffId = Long.valueOf(mapQuery.get("operator").toString());
