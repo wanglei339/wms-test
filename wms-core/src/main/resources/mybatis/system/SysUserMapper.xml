@@ -40,7 +40,7 @@
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 			<if test="role != null">role=#{role}</if>
 		</set>
-		where id=#{id}
+		where uid=#{uid}
 	</update>
   
 	<select id="getSysUserById" parameterType="int" resultMap="sysUserResultMap">
