@@ -11,10 +11,6 @@
 
     <artifactId>wms-core</artifactId>
 
-    <properties>
-        <kotlin.version>1.0.3</kotlin.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.lsh</groupId>
@@ -46,5 +42,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>

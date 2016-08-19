@@ -120,7 +120,7 @@ public class StockTransferTaskDetail implements Serializable {
 	}
 
 	public Long getSubType() {
-		return this.getSubType();
+		return this.subType;
 	}
 
 	public void setSubType(Long subType) {
