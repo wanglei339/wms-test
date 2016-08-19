@@ -10,7 +10,7 @@ import com.lsh.wms.model.stock.StockQuant;
  * Created by fengkun on 16/7/15.
  */
 public interface IShelveRpcService {
-    public BaseinfoLocation assginShelveLocation(BaseinfoContainer container) throws BizCheckedException;
+    public BaseinfoLocation assginShelveLocation(BaseinfoContainer container, Long subType) throws BizCheckedException;
     public BaseinfoLocation assignPickingLocation(BaseinfoContainer container) throws BizCheckedException;
     public BaseinfoLocation assignShelfLocation(BaseinfoContainer container, BaseinfoLocation pickingLocation) throws BizCheckedException;
 }

@@ -78,41 +78,41 @@ public class LocationConstant {  // TODO 修改格式大写加下滑线
 
     public static final Map<String, Long> LOCATION_TYPE = new HashMap<String, Long>() {
         {
-            put("warehouse", new Long(1)); // 1仓库
-            put("area", new Long(2)); // 2区域
-            put("passage", new Long(3));   //3通道
+            put("warehouse", 1L); // 1仓库
+            put("area", 2L); // 2区域
+            put("passage", 3L);   //3通道
             //各区域
-            put("inventoryLost", new Long(4));    //4盘盈盘亏
-            put("shelf_area", new Long(5)); //5货架区
-            put("loft_area", new Long(6)); //6阁楼区
-            put("floor", new Long(7)); // 7 地堆区
-            put("temporary", new Long(8)); // 8 暂存区
-            put("collection_area", new Long(9)); // 9 集货区
-            put("back_area", new Long(10)); // 10 退货区
-            put("defective_area", new Long(11)); // 11残次区
-            put("dock_area", new Long(12)); // 12 码头区
+            put("inventoryLost", 4L);    //4盘盈盘亏
+            put("shelf_area", 5L); //5货架区
+            put("loft_area", 6L); //6阁楼区
+            put("floor", 7L); // 7 地堆区
+            put("temporary", 8L); // 8 暂存区
+            put("collection_area", 9L); // 9 集货区
+            put("back_area", 10L); // 10 退货区
+            put("defective_area", 11L); // 11残次区
+            put("dock_area", 12L); // 12 码头区
 
             //货架和阁楼隶属货架区,阁楼区
-            put("shelf", new Long(13));  //13货架(个体)
-            put("loft", new Long(14));   //14阁楼(个体)
+            put("shelf", 13L);  //13货架(个体)
+            put("loft", 14L);   //14阁楼(个体)
 
             //所有的货位
-            put("bin", new Long(15)); // 15 所有的货位(存有货架|阁楼|区域的id)
+            put("bin", 15L); // 15 所有的货位(存有货架|阁楼|区域的id)
             //所有的货位
-            put("shelf_collection_bin", new Long(16)); //16货架拣货位
-            put("shelf_store_bin", new Long(17));   //17 货架存货位货位
-            put("loft_collection_bin", new Long(18)); //18阁楼拣货位
-            put("loft_store_bin", new Long(19));   //19阁楼存货位
+            put("shelf_collection_bin", 16L); //16货架拣货位
+            put("shelf_store_bin", 17L);   //17 货架存货位货位
+            put("loft_collection_bin", 18L); //18阁楼拣货位
+            put("loft_store_bin", 19L);   //19阁楼存货位
 
-    
+
             /*其他功能区的货位*/
-            put("floor_bin", new Long(20)); // 20 地堆货位
-            put("temporary_bin", new Long(21)); // 21 暂存货位
-            put("collection_bin", new Long(22)); // 22 集货货位
-            put("back_bin", new Long(23)); // 23 退货货位
-            put("defective_bin", new Long(24));// 24 残次货位
-            put("consume_area", new Long(25));// 25 消费区
-            put("supplier_area", new Long(26));// 26 供应区
+            put("floor_bin", 20L); // 20 地堆货位
+            put("temporary_bin", 21L); // 21 暂存货位
+            put("collection_bin", 22L); // 22 集货货位
+            put("back_bin", 23L); // 23 退货货位
+            put("defective_bin", 24L); // 24 残次货位
+            put("consume_area", 25L); // 25 消费区
+            put("supplier_area", 26L); // 26 供应区
         }
     };
 
