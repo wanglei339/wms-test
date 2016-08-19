@@ -23,6 +23,8 @@ public class BaseinfoLocationRegion extends BaseinfoLocation implements Serializ
     private String description;
 	/** 区域类型同主表type */
     private Long type;
+	/** 仓库的货主1是物美2是链商 */
+	private Long ownerid;
 
 	@Override
 	public Long getType() {
@@ -90,6 +92,11 @@ public class BaseinfoLocationRegion extends BaseinfoLocation implements Serializ
 		this.description = description;
 	}
 
+	public Long getOwnerid() {
+		return ownerid;
+	}
 
-	
+	public void setOwnerid(Long ownerid) {
+		this.ownerid = ownerid;
+	}
 }

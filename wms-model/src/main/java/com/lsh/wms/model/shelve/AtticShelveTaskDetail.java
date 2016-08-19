@@ -38,6 +38,8 @@ public class AtticShelveTaskDetail implements Serializable {
     private Long status = 1L;
 	/** 数量*/
 	private BigDecimal qty = BigDecimal.ZERO;
+	/** 实际数量*/
+	private BigDecimal realQty = BigDecimal.ZERO;
 	/**  */
     private Long createdAt = DateUtils.getCurrentSeconds();
 	/**  */
@@ -177,5 +179,13 @@ public class AtticShelveTaskDetail implements Serializable {
 
 	public void setQty(BigDecimal qty) {
 		this.qty = qty;
+	}
+
+	public BigDecimal getRealQty() {
+		return realQty;
+	}
+
+	public void setRealQty(BigDecimal realQty) {
+		this.realQty = realQty;
 	}
 }

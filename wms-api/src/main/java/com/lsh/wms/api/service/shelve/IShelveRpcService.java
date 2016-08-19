@@ -13,4 +13,5 @@ public interface IShelveRpcService {
     public BaseinfoLocation assginShelveLocation(BaseinfoContainer container) throws BizCheckedException;
     public BaseinfoLocation assignPickingLocation(BaseinfoContainer container) throws BizCheckedException;
     public BaseinfoLocation assignShelfLocation(BaseinfoContainer container, BaseinfoLocation pickingLocation) throws BizCheckedException;
+    Boolean checkShelfLifeThreshold (StockQuant quant, BaseinfoLocation location, String locationType);
 }
