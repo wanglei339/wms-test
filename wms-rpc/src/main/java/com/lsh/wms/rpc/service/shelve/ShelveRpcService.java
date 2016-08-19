@@ -113,7 +113,7 @@ public class ShelveRpcService implements IShelveRpcService {
             Long pickingLocationId = itemLocation.getPickLocationid();
             BaseinfoLocation pickingLocation = locationService.getLocation(pickingLocationId);
             // 是否是拣货位
-            if (!pickingLocation.getType().equals(LocationConstant.LOCATION_TYPE.get("picking"))) {
+            if (!pickingLocation.getType().equals(LocationConstant.LOCATION_TYPE.get("shelf_collection_bin"))) {
                 throw new BizCheckedException("2030002");
             }
             // 判断该拣货位是否符合拣货标准

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.shelve.AtticShelveTaskDetailDao" >
+
+	<resultMap id="atticShelveTaskDetailResultMap" type="AtticShelveTaskDetail">
+		<id property="id" column="id"/>
+		<result property="taskId" column="task_id"/>
+		<result property="receiptId" column="receipt_id"/>
+		<result property="orderId" column="order_id"/>
+		<result property="skuId" column="sku_id"/>
+		<result property="ownerId" column="owner_id"/>
+		<result property="lotId" column="lot_id"/>
+		<result property="supplierId" column="supplier_id"/>
+		<result property="allocLocationId" column="alloc_location_id"/>
+		<result property="realLocationId" column="real_location_id"/>
+		<result property="containerId" column="container_id"/>
+		<result property="operator" column="operator"/>
+		<result property="shelveAt" column="shelve_at"/>
+		<result property="status" column="status"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+		<result property="qty" column="qty"/>
+		<result property="realQty" column="real_qty"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="AtticShelveTaskDetail">
+		insert into attic_shelve_task_detail (
+			task_id,receipt_id,order_id,sku_id,owner_id,lot_id,
+			supplier_id,alloc_location_id,real_location_id,container_id,operator,shelve_at,
+			status,created_at,updated_at,qty,real_qty
+    	) values (
+			#{taskId},#{receiptId},#{orderId},#{skuId},#{ownerId},#{lotId},
+			#{supplierId},#{allocLocationId},#{realLocationId},#{containerId},#{operator},#{shelveAt},
+			#{status},#{createdAt},#{updatedAt},#{qty},#{realQty}
+    	)
+	</insert>
+
+	<update id="update" parameterType="AtticShelveTaskDetail">
+		update attic_shelve_task_detail
+    	<set>
+  			<if test="taskId != null">task_id=#{taskId},</if>
+  			<if test="receiptId != null">receipt_id=#{receiptId},</if>
+  			<if test="orderId != null">order_id=#{orderId},</if>
+  			<if test="skuId != null">sku_id=#{skuId},</if>
+  			<if test="ownerId != null">owner_id=#{ownerId},</if>
+  			<if test="lotId != null">lot_id=#{lotId},</if>
+  			<if test="supplierId != null">supplier_id=#{supplierId},</if>
+  			<if test="allocLocationId != null">alloc_location_id=#{allocLocationId},</if>
+  			<if test="realLocationId != null">real_location_id=#{realLocationId},</if>
+  			<if test="containerId != null">container_id=#{containerId},</if>
+  			<if test="operator != null">operator=#{operator},</if>
+  			<if test="shelveAt != null">shelve_at=#{shelveAt},</if>
+  			<if test="status != null">status=#{status},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+			<if test="qty !=null">qty=#{qty},</if>
+			<if test="realQty !=null">real_qty=#{realQty}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getAtticShelveTaskDetailById" parameterType="int" resultMap="atticShelveTaskDetailResultMap">
+		select * from attic_shelve_task_detail
+		where ID=#{id} 
+	</select>
+  
+	<select id="countAtticShelveTaskDetail" parameterType="map" resultType="int">
+		select count(*) from attic_shelve_task_detail
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getAtticShelveTaskDetailList" parameterType="map" resultMap="atticShelveTaskDetailResultMap">
+		select * from attic_shelve_task_detail
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="taskId != null">and task_id=#{taskId}</if>
+			<if test="receiptId != null">and receipt_id=#{receiptId}</if>
+			<if test="orderId != null">and order_id=#{orderId}</if>
+			<if test="skuId != null">and sku_id=#{skuId}</if>
+			<if test="ownerId != null">and owner_id=#{ownerId}</if>
+			<if test="lotId != null">and lot_id=#{lotId}</if>
+			<if test="supplierId != null">and supplier_id=#{supplierId}</if>
+			<if test="allocLocationId != null">and alloc_location_id=#{allocLocationId}</if>
+			<if test="realLocationId != null">and real_location_id=#{realLocationId}</if>
+			<if test="containerId != null">and container_id=#{containerId}</if>
+			<if test="operator != null">and operator=#{operator}</if>
+			<if test="shelveAt != null">and shelve_at=#{shelveAt}</if>
+			<if test="status != null">and status=#{status}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="qty !=null">and qty=#{qty}</if>
+			<if test="realQty !=null">and real_qty=#{realQty}</if>
+		</where>
+	</sql>
+   
+</mapper>

@@ -19,6 +19,7 @@
         <module>wms-model</module>
         <module>wms-task</module>
         <module>wms-rf</module>
+        <module>wms-integration</module>
     </modules>
     <properties>
         <spring.version>3.2.9.RELEASE</spring.version>

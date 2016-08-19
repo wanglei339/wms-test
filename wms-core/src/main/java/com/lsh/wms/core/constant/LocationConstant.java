@@ -7,14 +7,14 @@ import java.util.Map;
  * @Author 马启迪 maqidi@lsh123.com
  * @Date 16/7/29 下午2:55
  */
-public class LocationConstant {  // TODO 修改格式大写加下滑线
+public class LocationConstant {
     public static final Long WAREHOUSE = 1L;
     public static final Long REGION_AREA = 2L;
     public static final Long PASSAGE = 3L;
     //各区域
     public static final Long INVENTORYLOST = 4L;    //盘亏盘盈区
     public static final Long SHELFS = 5L;     //货架区
-    public static final Long LOFTS = 6L;       //阁楼区
+    public static final Long LOFTS = 6L;       //阁楼区(指的是阁楼的一层为一个阁楼区,有四层就是四个阁楼区)
     //功能区
     public static final Long FLOOR = 7l;
     public static final Long TEMPORARY = 8L;
@@ -47,7 +47,14 @@ public class LocationConstant {  // TODO 修改格式大写加下滑线
     //货架层和阁楼层
     public static final Long SHELF_LEVELS = 27L;
     public static final Long LOFT_LEVELS = 28L;
-
+    //返仓区
+    public static final Long MARKET_RETURN_AREA = 29L;
+    //集货道组和集货道
+    public static final Long COLLECTION_ROAD_GROUP = 30L;
+    public static final Long COLLECTION_ROAD = 31L;
+    //区域(主要是返仓)的货主配置
+    public static final Long OWER_WUMARKET=1L;  //物美
+    public static final Long OWER_LSH=2L;  //链商
 
     //温区设置
     public static final Integer ROOM_TEMPERATURE = 1;
@@ -71,6 +78,7 @@ public class LocationConstant {  // TODO 修改格式大写加下滑线
     public static final Integer REGION_TYPE = 1; //库区
     public static final Integer BIN_TYPE = 2;    //库位
     public static final Integer OTHER_TYPE = 3; //其他项
+    public static final Integer LOFT_SHELF= 4;    //货架和阁楼的架子个体
 
     //位置是否删除
     public static final Integer IS_VALID = 1;
@@ -106,13 +114,15 @@ public class LocationConstant {  // TODO 修改格式大写加下滑线
 
 
             /*其他功能区的货位*/
-            put("floor_bin", 20L); // 20 地堆货位
-            put("temporary_bin", 21L); // 21 暂存货位
-            put("collection_bin", 22L); // 22 集货货位
-            put("back_bin", 23L); // 23 退货货位
-            put("defective_bin", 24L); // 24 残次货位
-            put("consume_area", 25L); // 25 消费区
-            put("supplier_area", 26L); // 26 供应区
+            put("floor_bin", new Long(20)); // 20 地堆货位
+            put("temporary_bin", new Long(21)); // 21 暂存货位
+            put("collection_bin", new Long(22)); // 22 集货货位
+            put("back_bin", new Long(23)); // 23 退货货位
+            put("defective_bin", new Long(24));// 24 残次货位
+            put("consume_area", new Long(25));// 25 消费区
+            put("supplier_area", new Long(26));// 26 供应区
+            put("shelf_levels", new Long(27));// 27 货架层
+            put("loft_levels", new Long(28));// 28 阁楼层
         }
     };
 

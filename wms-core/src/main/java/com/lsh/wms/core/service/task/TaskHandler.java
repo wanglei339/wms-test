@@ -38,4 +38,5 @@ public interface TaskHandler {
     void cancelConcrete(Long taskId);
     void allocateConcrete(Long taskId);
     void updteConcrete(TaskEntry taskEntry);
+    void calcPerformance(TaskInfo taskInfo);
 }

@@ -45,6 +45,8 @@
 		<result property="ext9" column="ext9"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
+		<result property="taskQty" column="task_qty"/>
+		<result property="date" column="date"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TaskInfo">
@@ -56,7 +58,7 @@
 			sub_type,status,is_allocated,priority,draft_time,assign_time,
 			due_time,finish_time,cancel_time,ext1,ext2,ext3,
 			ext4,ext5,ext6,ext7,ext8,ext9,
-			created_at,updated_at
+			created_at,updated_at, task_qty, date
     	) values (
 			#{taskId},#{taskName},#{planId},#{waveId},#{orderId},#{locationId},
 			#{skuId},#{ownerId},#{itemId},#{fromLocationId},#{toLocationId},#{qty},
@@ -65,7 +67,7 @@
 			#{subType},#{status},#{isAllocated},#{priority},#{draftTime},#{assignTime},
 			#{dueTime},#{finishTime},#{cancelTime},#{ext1},#{ext2},#{ext3},
 			#{ext4},#{ext5},#{ext6},#{ext7},#{ext8},#{ext9},
-			#{createdAt},#{updatedAt}
+			#{createdAt},#{updatedAt},#{taskQty}, #{date}
     	)
 	</insert>
 
@@ -111,6 +113,8 @@
   			<if test="ext7 != null">ext7=#{ext7},</if>
   			<if test="ext8 != null">ext8=#{ext8},</if>
   			<if test="ext9 != null">ext9=#{ext9},</if>
+			<if test="taskQty != null">task_qty=#{taskQty},</if>
+			<if test="date != null">date=#{date},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
@@ -133,6 +137,16 @@
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
 		</if>
+	</select>
+
+	<select id="getPerformance" parameterType="map" resultType="java.util.HashMap">
+		select operator as staffId, type, sub_type, sum(task_qty) as task_qty, date from task_info
+		<where>
+			<if test="staffId != null">operator = #{staffId}</if>
+			<if test="startDate != null">and #{startDate} &lt;= date</if>
+			<if test="endDate != null">and date &lt;= #{endDate}</if>
+		</where>
+		 	group by operator, date, type, sub_type
 	</select>
   
 	<sql id="queryCondition">
@@ -177,6 +191,8 @@
 			<if test="ext7 != null">and ext7=#{ext7}</if>
 			<if test="ext8 != null">and ext8=#{ext8}</if>
 			<if test="ext9 != null">and ext9=#{ext9}</if>
+			<if test="date != null">and date=#{date}</if>
+			<if test="taskQty != null">and task_qty=#{taskQty}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 		</where>

@@ -104,7 +104,17 @@ public class LocationDetailResponse implements Serializable {
      */
     private BigDecimal height;
     //.................................通道独有的.................
+    //.................................region的owerid的
+    /** 仓库的货主1是物美2是链商 */
+    private Long ownerid;
 
+    public Long getOwnerid() {
+        return ownerid;
+    }
+
+    public void setOwnerid(Long ownerid) {
+        this.ownerid = ownerid;
+    }
     //..................................货架和阁楼(type通过主表判断)
     /**
      * 货架层数

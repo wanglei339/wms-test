@@ -26,4 +26,5 @@ public interface ITaskRpcService {
     void update(Long taskType,TaskEntry entry) throws BizCheckedException;
     void batchAssign(Long taskType,List<Long> tasks,Long staffId) throws BizCheckedException;
     void batchCancel(Long taskType,List<Long> tasks) throws BizCheckedException;
+    List<Map<String, Object>> getPerformance(Map<String, Object> condition) throws BizCheckedException;
 }

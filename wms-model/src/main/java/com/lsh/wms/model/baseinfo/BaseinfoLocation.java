@@ -235,6 +235,6 @@ public class BaseinfoLocation implements Serializable,IBaseinfoLocaltionModel {
 	public void setIsLocked(Integer isLocked){
 		this.isLocked = isLocked;
 	}
-	
-	
+
+
 }

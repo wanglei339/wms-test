@@ -104,6 +104,8 @@ public class LocationDetailService {
         //注入location的层级的服务
         locationDetailServiceFactory.register(LocationConstant.SHELF_LEVELS, baseinfoLocationLevelService);
         locationDetailServiceFactory.register(LocationConstant.LOFT_LEVELS, baseinfoLocationLevelService);
+        //注入超市返仓区服务
+        locationDetailServiceFactory.register(LocationConstant.MARKET_RETURN_AREA, baseinfoLocationRegionService);
     }
 
     /**
@@ -149,6 +151,8 @@ public class LocationDetailService {
         //货架和阁楼层
         locationDetailModelFactory.register(LocationConstant.SHELF_LEVELS, new BaseinfoLocation());
         locationDetailModelFactory.register(LocationConstant.LOFT_LEVELS, new BaseinfoLocation());
+        //注入超市返仓区
+        locationDetailModelFactory.register(LocationConstant.MARKET_RETURN_AREA, new BaseinfoLocationRegion());
     }
 
     /**
@@ -193,6 +197,7 @@ public class LocationDetailService {
             return;
         }
         //如果是货架个体,插入指定层的货架层
+        // todo 如果单插入阁楼层的话,会出现插入两次主表的问题(货架和层一起插就不会),因为阁楼|货架层service注入了原来的locationService
         if (LocationConstant.SHELF.equals(iBaseinfoLocaltionModel.getType())) {
             //拿到指定的code,加入-i
             BaseinfoLocationShelf shelf = new BaseinfoLocationShelf();
@@ -215,7 +220,7 @@ public class LocationDetailService {
             location.setIsLeaf(0);
             locationService.updateLocation(location);
         }
-        // TODO 如果是阁楼个体,插入指定层的阁楼层
+        //  如果是阁楼个体,插入指定层的阁楼层
         if (LocationConstant.LOFT.equals(iBaseinfoLocaltionModel.getType())) {
             // 拿到指定的code,加入-i
             BaseinfoLocationShelf loft = new BaseinfoLocationShelf();
@@ -365,9 +370,25 @@ public class LocationDetailService {
 //        TargetListHandler listHandler = targetListFactory.getTargetListHandler(listType);
 //        List<BaseinfoLocation> targetList = listHandler.getTargetLocaltionModelList();
         //根据type选择对应的type的service
-        Map<String,Object> params = new HashMap<String, Object>();
-        params.put("type",listType);
-        params.put("isvalid",1);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("type", listType);
+        params.put("isvalid", 1);
         return locationService.getBaseinfoLocationList(params);
+    }
+
+    /**
+     * 获取超市返仓区,里面的货主区分,通过BaseinfoLocationRegion类中的getOwnerid()方法来辨认
+     *  Todo 前端的页面没有货主的概念
+     * @return
+     */
+    public List<BaseinfoLocationRegion> getMarketReturnList() {
+        List<BaseinfoLocation> locationList = locationService.getTargetLocationListByType(LocationConstant.MARKET_RETURN_AREA);
+        List<IBaseinfoLocaltionModel> iBaseinfoLocaltionModels = new ArrayList<IBaseinfoLocaltionModel>();
+        IBaseinfoLocaltionModel marketLocation = null;
+        for (BaseinfoLocation location : locationList) {
+            marketLocation = this.getIBaseinfoLocaltionModelById(location.getLocationId());
+            iBaseinfoLocaltionModels.add(marketLocation);
+        }
+        return (List<BaseinfoLocationRegion>)(List<?>)iBaseinfoLocaltionModels;
     }
 }

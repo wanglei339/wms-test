@@ -7,7 +7,9 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.task.ITaskRestService;
+import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.task.MessageService;
+import com.lsh.wms.model.baseinfo.BaseinfoStaffInfo;
 import com.lsh.wms.model.shelve.ShelveTaskHead;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -35,6 +37,9 @@ public class TaskRestService implements ITaskRestService {
 
     @Autowired
     private MessageService messageService;
+
+    @Autowired
+    private StaffService staffService;
 
     @POST
     @Path("getTaskList")
@@ -98,5 +103,18 @@ public class TaskRestService implements ITaskRestService {
         //messageService.sendMessage(message);
         TaskMsg msg = messageService.getMessage();
         return JsonUtils.SUCCESS(msg);
+    }
+
+    @POST
+    @Path("getPerformance")
+    public String getPerformance(Map<String, Object> mapQuery) {
+        List<Map<String,Object>> result = new ArrayList<Map<String, Object>>();
+        List<BaseinfoStaffInfo> staffList =  staffService.getStaffList(mapQuery);
+        for(BaseinfoStaffInfo staff : staffList) {
+            mapQuery.put("staffId", staff.getStaffId());
+            List<Map<String, Object>> stat = taskRpcService.getPerformance(mapQuery);
+            result.addAll(stat);
+        }
+        return JsonUtils.SUCCESS(staffList);
     }
 }
