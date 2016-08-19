@@ -11,7 +11,6 @@ import java.util.Map;
  */
 public interface IStockTransferRpcService {
     void addPlan(StockTransferPlan plan) throws BizCheckedException;
-    void addPlans(List<StockTransferPlan> plans) throws BizCheckedException;
     void scanToLocation(Map<String, Object> params) throws BizCheckedException;
     void scanFromLocation(Map<String, Object> params) throws BizCheckedException;
     Long assign(Long staffId) throws BizCheckedException;
