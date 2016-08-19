@@ -1,5 +1,6 @@
 package com.lsh.wms.rpc.service.pick;
 
+import com.alibaba.dubbo.common.utils.CollectionUtils;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.wms.api.service.pick.IPickRpcService;
 import com.lsh.wms.core.service.location.LocationService;
@@ -71,8 +72,17 @@ public class PickRpcService implements IPickRpcService {
                 firstLocationMap = pickLocationMap;
             }
         }
-
+        //todo 排序算法
         //第一次排序按照通道的大小排序
         //第二次排序按照序列的大小排序(起始通道是递增的,+1后通道按照序列减少)
+        Collections.sort(pickList, new Comparator<Map<String, Object>>() {
+            public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+                return 0;
+            }
+
+            public boolean equals(Object obj) {
+                return false;
+            }
+        });
     }
 }

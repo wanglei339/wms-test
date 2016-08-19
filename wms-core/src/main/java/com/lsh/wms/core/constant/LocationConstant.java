@@ -49,6 +49,9 @@ public class LocationConstant {
     public static final Long LOFT_LEVELS = 28L;
     //返仓区
     public static final Long MARKET_RETURN_AREA = 29L;
+    //集货道组和集货道
+    public static final Long COLLECTION_ROAD_GROUP = 30L;
+    public static final Long COLLECTION_ROAD = 31L;
     //区域(主要是返仓)的货主配置
     public static final Long OWER_WUMARKET=1L;  //物美
     public static final Long OWER_LSH=2L;  //链商
