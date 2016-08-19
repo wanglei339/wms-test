@@ -7,6 +7,7 @@
 		<result property="uid" column="uid"/>
 		<result property="username" column="username"/>
 		<result property="screenname" column="screenname"/>
+		<result property="role" column="role"/>
 		<result property="password" column="password"/>
 		<result property="salt" column="salt"/>
 		<result property="status" column="status"/>
@@ -18,17 +19,16 @@
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="SysUser">
 		insert into sys_user (
 			uid,username,screenname,password,salt,status,
-			staff_id,created_at,updated_at
+			staff_id,created_at,updated_at,role
     	) values (
 			#{uid},#{username},#{screenname},#{password},#{salt},#{status},
-			#{staffId},#{createdAt},#{updatedAt}
+			#{staffId},#{createdAt},#{updatedAt},#{role}
     	)
 	</insert>
 
 	<update id="update" parameterType="SysUser">
 		update sys_user
     	<set>
-  			<if test="uid != null">uid=#{uid},</if>
   			<if test="username != null">username=#{username},</if>
   			<if test="screenname != null">screenname=#{screenname},</if>
   			<if test="password != null">password=#{password},</if>
@@ -36,9 +36,10 @@
   			<if test="status != null">status=#{status},</if>
   			<if test="staffId != null">staff_id=#{staffId},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
-  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+			<if test="role != null">role=#{role}</if>
 		</set>
-		where id=#{id}
+		where uid=#{uid}
 	</update>
   
 	<select id="getSysUserById" parameterType="int" resultMap="sysUserResultMap">
@@ -71,6 +72,7 @@
 			<if test="staffId != null">and staff_id=#{staffId}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="role != null">and role=#{role}</if>
 		</where>
 	</sql>
    
