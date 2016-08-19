@@ -18,7 +18,6 @@ import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
-import com.lsh.wms.core.service.transfer.StockTransferTaskDetailService;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockQuant;
@@ -31,8 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.swing.*;
-import javax.ws.rs.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -82,9 +79,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
 
     @Autowired
     private TaskInfoDao taskInfoDao;
-
-    @Autowired
-    private StockTransferTaskDetailService transferTaskDetailService;
 
     public void addPlan(StockTransferPlan plan)  throws BizCheckedException {
         Long fromLocationId = plan.getFromLocationId(), toLocationId = plan.getToLocationId();
@@ -144,86 +138,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         taskEntry.setTaskInfo(taskInfo);
         taskRpcService.create(TaskConstant.TYPE_STOCK_TRANSFER, taskEntry);
     }
-
-    public void addPlans(List<StockTransferPlan> plans) throws BizCheckedException {
-        List<Object> taskDetailList = new ArrayList<Object>();
-        List<StockTransferTaskDetail> detailList = new ArrayList<StockTransferTaskDetail>();
-        String taskName = "移库任务";
-        for (StockTransferPlan plan : plans) {
-
-            Long fromLocationId = plan.getFromLocationId(), toLocationId = plan.getToLocationId();
-            List <StockQuant> fromQuants = quantService.getQuantsByLocationId(fromLocationId);
-            List <StockQuant> toQuants = quantService.getQuantsByLocationId(toLocationId);
-            BaseinfoLocation location = locationService.getLocation(toLocationId);
-
-            if( (fromQuants.size() == 0) || (fromQuants.get(0).getItemId().compareTo(plan.getItemId()) != 0) ){
-                throw new BizCheckedException("2550003");
-            }
-
-            if( toQuants.size() > 0 ){
-                // 地堆区
-                if( location.getType().compareTo(LocationConstant.FLOOR) == 0 ){
-                    if( location.getCanUse() == 0) {
-                        throw new BizCheckedException("2550006");
-                    }
-                } else {
-                    // 拣货位
-                    if (location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN) == 0 || location.getType().compareTo(LocationConstant.SHELF_PICKING_BIN) == 0) {
-                        List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toLocationId);
-                        if (itemLocations.get(0).getItemId().compareTo(fromQuants.get(0).getItemId()) != 0) {
-                            throw new BizCheckedException("2550004");
-                        }
-                    }
-                    // 其余货位
-                    else {
-                        if ((toQuants.get(0).getItemId().compareTo(fromQuants.get(0).getItemId()) != 0) || (toQuants.get(0).getLotId().compareTo(fromQuants.get(0).getLotId()) != 0)) {
-                            throw new BizCheckedException("2550004");
-                        }
-                    }
-                }
-            }
-
-            StockQuantCondition condition = new StockQuantCondition();
-            condition.setLocationId(plan.getFromLocationId());
-            condition.setItemId(plan.getItemId());
-            BigDecimal total = stockQuantService.getQty(condition);
-            core.fillTransferPlan(plan);
-
-            if ( plan.getQty().compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
-                throw new BizCheckedException("2550002","商品数量不足");
-            }
-
-            StockTransferTaskDetail taskDetail = new StockTransferTaskDetail();
-            taskDetail.setFromLocationId(plan.getFromLocationId());
-            taskDetail.setToLocationId(plan.getToLocationId());
-            taskDetail.setItemId(plan.getItemId());
-            taskDetail.setQty(plan.getQty());
-            taskDetail.setUomQty(plan.getQty());
-            taskDetail.setSubType(plan.getSubType());
-            taskDetail.setPackUnit(plan.getPackUnit());
-            taskDetail.setPackName(plan.getPackName());
-            List<StockQuant> quantList = stockQuantService.getQuantList(condition);
-            Long containerId = quantList.get(0).getContainerId();
-            if (plan.getSubType() == 2) {
-                containerId = containerService.createContainerByType(2L).getId();
-            }
-            taskDetail.setContainerId(containerId);
-            taskDetailList.add(taskDetail);
-            detailList.add(taskDetail);
-            taskName += "\n[" + taskDetail.getFromLocationId() + " => " + taskDetail.getToLocationId() + "]";
-        }
-
-        transferTaskDetailService.create(detailList);
-
-        TaskEntry taskEntry = new TaskEntry();
-        TaskInfo taskInfo = new TaskInfo();
-        taskInfo.setTaskName(taskName);
-        taskInfo.setType(TaskConstant.TYPE_STOCK_TRANSFER);
-        taskEntry.setTaskInfo(taskInfo);
-        taskEntry.setTaskDetailList(taskDetailList);
-        taskRpcService.create(TaskConstant.TYPE_STOCK_TRANSFER, taskEntry);
-    }
-
 
     public void updatePlan(StockTransferPlan plan)  throws BizCheckedException {
         Long taskId = plan.getTaskId();

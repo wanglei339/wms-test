@@ -90,8 +90,6 @@ public class AtticShelveRestService implements IAtticShelveRestService{
      */
     @POST
     @Path("createTask")
-    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
-    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String createTask() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long containerId = 0L;
@@ -138,237 +136,240 @@ public class AtticShelveRestService implements IAtticShelveRestService{
     }
 
     /**
-     * 扫描需上架的容器id
+     * 创建上架详情
      * @return
      * @throws BizCheckedException
      */
     @POST
-    @Path("scanContainer")
-    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
-    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-    public String scanContainer() throws BizCheckedException {
-        List<Map> list = new ArrayList<Map>();
-        Map<String, Object> mapQuery = RequestUtils.getRequest();
-        Long uId=0L;
-        Long containerId = 0L;
-        Long taskId = 0L;
-        try {
-            uId = Long.valueOf(mapQuery.get("uId").toString());
-            containerId = Long.valueOf(mapQuery.get("containerId").toString());
-            taskId = baseTaskService.getDraftTaskIdByContainerId(containerId);
-        }catch (Exception e) {
-            logger.error(e.getMessage());
-            return JsonUtils.TOKEN_ERROR("参数传递格式有误");
-        }
-
-        SysUser user =  iSysUserRpcService.getSysUserById(uId);
-        if(user==null){
-            return JsonUtils.TOKEN_ERROR("用户不存在");
-        }
-
-        // 检查是否有已分配的任务
-        if (taskId == null && baseTaskService.checkTaskByContainerId(containerId)) {
-            throw new BizCheckedException("2030008");
-        }
-        Map result = this.getResultMap(taskId);
-        if(result == null) {
-            return JsonUtils.TOKEN_ERROR("阁楼上架库存错误");
-        }else {
-            iTaskRpcService.assign(taskId, user.getStaffId());
-            return JsonUtils.SUCCESS(result);
-        }
-
-    }
-
-    /**
-     * 扫描上架目标location_id
-     * @return
-     * @throws BizCheckedException
-     */
-    @POST
-    @Path("scanTargetLocation")
-    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
-    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-    public String scanTargetLocation() throws BizCheckedException {
+    @Path("createDetail")
+    public String createDetail() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long taskId = 0L;
-        Long allocLocationId = 0L;
-        Long realLocationId = 0L;
-        BigDecimal realQty = BigDecimal.ZERO;
+        Long operator = 0L;
+        List <AtticShelveTaskDetail> details =null;
         try {
-            taskId= Long.valueOf(mapQuery.get("taskId").toString());
-            allocLocationId= Long.valueOf(mapQuery.get("allocLocationId").toString());
-            realLocationId = Long.valueOf(mapQuery.get("realLocationId").toString());
-            realQty = new BigDecimal(mapQuery.get("qty").toString());
+            taskId = Long.valueOf(mapQuery.get("taskId").toString());
+            details = (List)mapQuery.get("detailList");
+            operator = Long.valueOf(mapQuery.get("operator").toString());
         }catch (Exception e){
             logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("参数传递格式有误");
         }
 
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
-        if(entry==null){
+        if(entry ==null){
             return JsonUtils.TOKEN_ERROR("任务不存在");
         }
         TaskInfo info = entry.getTaskInfo();
+        info.setStatus(TaskConstant.Assigned);
+        info.setExt1(1L); //pc创建任务详情标示
+        info.setOperator(operator);
         // 获取quant
         List<StockQuant> quants = stockQuantService.getQuantsByContainerId(info.getContainerId());
         if (quants.size() < 1) {
             throw new BizCheckedException("2030001");
         }
         StockQuant quant = quants.get(0);
+        StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
+        for(AtticShelveTaskDetail detail:details) {
+            ObjUtils.bean2bean(quant, detail);
+            detail.setTaskId(taskId);
+            detail.setReceiptId(lot.getReceiptId());
+            detail.setOrderId(lot.getPoId());
+            detail.setOperator(operator);
+            if(detail.getId().compareTo(0L)==0){
+                shelveTaskService.create(detail);
+            }else {
+                shelveTaskService.updateDetail(detail);
+            }
+        }
+        return JsonUtils.SUCCESS();
+    }
+    /**
+     * 确认上架详情
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("confimDetail")
+    public String conFirmDetail() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long taskId = 0L;
+        List <AtticShelveTaskDetail> details = new ArrayList<AtticShelveTaskDetail>();
+        try {
+            taskId = Long.valueOf(mapQuery.get("taskId").toString());
+            details = (List)mapQuery.get("detailList");
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            return JsonUtils.TOKEN_ERROR("参数传递格式有误");
+        }
 
-        BaseinfoLocation location = locationService.getLocation(allocLocationId);
-        BaseinfoLocation realLocation = locationService.getLocation(realLocationId);
-        if(location==null || realLocation ==null){
-            return JsonUtils.TOKEN_ERROR("库位不存在");
+        TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
+        if(entry ==null){
+            return JsonUtils.TOKEN_ERROR("任务不存在");
         }
 
 
-        if(location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN)==0){
-            if(realLocationId.compareTo(allocLocationId)!=0){
-                return JsonUtils.TOKEN_ERROR("扫描货位与系统所提供货位不符");
-            }
+        // 获取quant
+        List<StockQuant> quants = stockQuantService.getQuantsByContainerId(entry.getTaskInfo().getContainerId());
+        if (quants.size() < 1) {
+            throw new BizCheckedException("2030001");
+        }
+        StockQuant quant = quants.get(0);
 
-        }else if(realLocation.getType().compareTo(LocationConstant.LOFT_STORE_BIN)==0){
-            if(locationService.checkLocationUseStatus(realLocationId)){
-                return JsonUtils.TOKEN_ERROR("扫描库位已被占用");
-            }
-            if(location.getType().compareTo((LocationConstant.LOFT_STORE_BIN))!=0){
-                return JsonUtils.TOKEN_ERROR("提供扫描库位类型不符");
-            }
+        for(AtticShelveTaskDetail detail:details){
+            this.doneDetail(detail, quant);
+        }
+        iTaskRpcService.done(taskId);
 
-            AtticShelveTaskDetail detail = shelveTaskService.getShelveTaskDetail(taskId,allocLocationId);
-
-            if(detail ==null){
-                return JsonUtils.TOKEN_ERROR("系统库位参数错误");
+        return JsonUtils.SUCCESS();
+    }
+    /**
+     * 获取上架任务列表
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("getTaskList")
+    public String getTaskList() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        List<Map> resultList = new ArrayList<Map>();
+        List<TaskEntry> entries = iTaskRpcService.getTaskList(TaskConstant.TYPE_ATTIC_SHELVE, mapQuery);
+        for(TaskEntry entry :entries){
+            Long canEdit=0L;
+            Map<String,Object> one =  new HashMap<String, Object>();
+            TaskInfo info = entry.getTaskInfo();
+            if(info.getStatus().compareTo(TaskConstant.Draft)==0 || (info.getStatus().compareTo(TaskConstant.Assigned)==0 && info.getExt1()==1)){
+                canEdit = 1L;
             }
-            detail.setQty(realQty.multiply(quant.getPackUnit()));
-            detail.setRealLocationId(realLocationId);
-            detail.setShelveAt(DateUtils.getCurrentSeconds());
-            detail.setOperator(info.getOperator());
-            detail.setStatus(2L);
-            shelveTaskService.updateDetail(detail);
+            one.put("status",info.getStatus());
+            one.put("canEdit",canEdit);
+            one.put("operator",info.getOperator());
+            one.put("taskId", info.getTaskId());
+            one.put("containerId",info.getContainerId());
 
+
+            List<Object> details = entry.getTaskDetailList();
+            if(details ==null || details.size()==0) {
+                // 获取quant
+                List<StockQuant> quants = stockQuantService.getQuantsByContainerId(entry.getTaskInfo().getContainerId());
+                if (quants.size() < 1) {
+                    throw new BizCheckedException("2030001");
+                }
+                StockQuant quant = quants.get(0);
+                StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
+                one.put("orderId", lot.getPoId());
+                one.put("packName",quant.getPackName());
+                one.put("qty",stockQuantService.getQuantQtyByLocationIdAndItemId(quant.getLocationId(), quant.getItemId()).divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
+                one.put("supplierId",quant.getSupplierId());
+                one.put("ownerId",quant.getOwnerId());
+                one.put("finishTime",info.getFinishTime());
+                resultList.add(one);
+            }else {
+                AtticShelveTaskDetail detail = (AtticShelveTaskDetail)(details.get(0));
+                one.put("orderId", detail.getOrderId());
+                one.put("packName",info.getPackName());
+                one.put("qty",stockQuantService.getQuantQtyByLocationIdAndItemId(info.getLocationId(), info.getItemId()).divide(info.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
+                one.put("supplierId",detail.getSupplierId());
+                one.put("ownerId",detail.getOwnerId());
+                one.put("finishTime",info.getFinishTime());
+                resultList.add(one);
+            }
+        }
+        return JsonUtils.SUCCESS(resultList);
+    }
+    /**
+     * 获得上架详情
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("getDetail")
+    public String getDetail() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long taskId = 0L;
+        Map<String,Object>  head = new HashMap<String, Object>();
+        Map<String,Object>  result = new HashMap<String, Object>();
+        try {
+            taskId = Long.valueOf(mapQuery.get("taskId").toString());
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            return JsonUtils.TOKEN_ERROR("参数传递格式有误");
+        }
+
+        TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
+        if(entry ==null){
+            return JsonUtils.TOKEN_ERROR("任务不存在");
+        }
+        List<Object> details = entry.getTaskDetailList();
+        TaskInfo info = entry.getTaskInfo();
+        if(details ==null || details.size()==0){
+            // 获取quant
+            List<StockQuant> quants = stockQuantService.getQuantsByContainerId(info.getContainerId());
+            if (quants.size() < 1) {
+                throw new BizCheckedException("2030001");
+            }
+            StockQuant quant = quants.get(0);
+            StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
+            head.put("containerId",quant.getContainerId());
+            head.put("orderId",lot.getPoId());
+            head.put("supplierId",quant.getSupplierId());
+            head.put("ownerId",quant.getOwnerId());
+            head.put("status",info.getStatus());
+            head.put("packName",quant.getPackName());
+            head.put("qty",stockQuantService.getQuantQtyByLocationIdAndItemId(quant.getLocationId(), quant.getItemId()).divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
+            head.put("operator",info.getOperator());
         }else {
-            return JsonUtils.TOKEN_ERROR("提供扫描库位类型不符");
+            AtticShelveTaskDetail detail = (AtticShelveTaskDetail)(details.get(0));
+            head.put("containerId",detail.getContainerId());
+            head.put("orderId",detail.getOrderId());
+            head.put("supplierId",detail.getSupplierId());
+            head.put("ownerId",detail.getOwnerId());
+            head.put("status",info.getStatus());
+            head.put("packName",info.getPackName());
+            head.put("qty",stockQuantService.getQuantQtyByLocationIdAndItemId(info.getLocationId(), info.getItemId()).divide(info.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
+            head.put("operator",info.getOperator());
+        }
+        result.put("head", head);
+        if(details==null || details.size()==0){
+            details = new ArrayList<Object>();
+        }
+        result.put("detail", details);
+
+        return JsonUtils.SUCCESS(result);
+    }
+
+    private void doneDetail(AtticShelveTaskDetail detail,StockQuant quant) {
+
+        detail.setShelveAt(DateUtils.getCurrentSeconds());
+        detail.setStatus(2L);
+        if(detail.getRealQty().compareTo(BigDecimal.ZERO)==0){
+            detail.setRealQty(detail.getQty());
+        }
+        if(detail.getRealLocationId().compareTo(0L)==0){
+            detail.setRealLocationId(detail.getAllocLocationId());
         }
 
         //移动库存
-        List<StockQuant> pickQuant = stockQuantService.getQuantsByLocationId(realLocationId);
+        List<StockQuant> pickQuant = stockQuantService.getQuantsByLocationId(detail.getRealLocationId());
         Long containerId = 0L;
         if(pickQuant ==null ||pickQuant.size() ==0){
             containerId = containerService.createContainerByType(1L).getContainerId();
         }else {
             containerId = pickQuant.get(0).getContainerId();
         }
+        if(detail.getId().compareTo(0L)==0){
+            shelveTaskService.create(detail);
+        }
         StockMove move = new StockMove();
         ObjUtils.bean2bean(quant, move);
         move.setFromLocationId(quant.getLocationId());
-        move.setToLocationId(realLocationId);
-        move.setQty(realQty.multiply(quant.getPackUnit()));
+        move.setToLocationId(detail.getRealLocationId());
+        move.setQty(detail.getRealQty().multiply(quant.getPackUnit()));
         move.setFromContainerId(quant.getContainerId());
         move.setToContainerId(containerId);
         stockQuantService.move(move);
-
-        Map result = this.getResultMap(taskId);
-
-        if(result==null) {
-            iTaskRpcService.done(taskId);
-            return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
-                {
-                    put("response", true);
-                }
-            });
-        }else {
-            return JsonUtils.SUCCESS(result);
-        }
-    }
-
-
-    public Map getResultMap(Long taskId) {
-        TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
-        if (entry == null) {
-            return null;
-        }
-        TaskInfo info = entry.getTaskInfo();
-        // 获取quant
-        List<StockQuant> quants = stockQuantService.getQuantsByContainerId(info.getContainerId());
-        if (quants.size() < 1) {
-            return null;
-        }
-        StockQuant quant = quants.get(0);
-
-        if (quants.size() < 1) {
-            throw new BizCheckedException("2030001");
-        }
-
-        //TODO 对比货架商品和新进商品保质期是否到达阀值
-
-        //判断阁楼捡货位是不是需要补货
-        BigDecimal total = stockQuantService.getQuantQtyByLocationIdAndItemId(quant.getLocationId(), quant.getItemId());
-
-        List<BaseinfoItemLocation> locations = itemLocationService.getItemLocationList(quant.getItemId());
-        for (BaseinfoItemLocation itemLocation : locations) {
-            BaseinfoLocation location = locationService.getLocation(itemLocation.getPickLocationid());
-            if(location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN)==0) {
-                if (rpcService.needProcurement(itemLocation.getPickLocationid(), itemLocation.getItemId())) {
-                    BigDecimal num = total.divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN);
-                    Map<String, Object> map = new HashMap<String, Object>();
-                    map.put("taskId", taskId);
-                    map.put("locationId", location.getLocationId());
-                    map.put("locationCode", location.getLocationCode());
-                    map.put("qty", num.compareTo(new BigDecimal(3)) >= 0 ? 3 : num);
-                    map.put("packName", quant.getPackName());
-                    return map;
-                }
-            }
-        }
-
-        //当捡货位都不需要补货时，将上架货物存到阁楼存货位上
-        //根据库位体积判断需要几个库位存
-        BaseinfoItem item = itemService.getItem(quant.getItemId());
-        List<AtticShelveTaskDetail> details = new ArrayList<AtticShelveTaskDetail>();
-        BigDecimal bulk = BigDecimal.ONE;
-        //计算包装单位的体积
-        bulk = bulk.multiply(item.getPackLength());
-        bulk = bulk.multiply(item.getPackHeight());
-        bulk = bulk.multiply(item.getPackWidth());
-
-
-
-        while (total.compareTo(BigDecimal.ZERO) > 0) {
-            BaseinfoLocation location = locationService.getlocationIsEmptyAndUnlockByType("loft_store_bin");
-            //锁Location
-            locationService.lockLocation(location.getLocationId());
-            //插detail
-            AtticShelveTaskDetail detail = new AtticShelveTaskDetail();
-            StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
-            ObjUtils.bean2bean(quant, detail);
-            detail.setTaskId(taskId);
-            detail.setReceiptId(lot.getReceiptId());
-            detail.setOrderId(lot.getPoId());
-            detail.setAllocLocationId(location.getLocationId());
-            detail.setRealLocationId(location.getLocationId());
-
-            BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(location.getLocationId());
-            //体积的80%为有效体积
-            BigDecimal valum = bin.getVolume().multiply(new BigDecimal(0.8));
-            BigDecimal num = valum.divide(bulk, BigDecimal.ROUND_HALF_EVEN);
-            if (total.subtract(num).compareTo(BigDecimal.ZERO) >= 0) {
-                detail.setQty(num);
-            } else {
-                detail.setQty(total);
-            }
-            total = total.subtract(num);
-            Map<String, Object> map = new HashMap<String, Object>();
-            map.put("taskId", taskId);
-            map.put("locationId", location.getLocationId());
-            map.put("locationCode", location.getLocationCode());
-            map.put("qty", detail.getQty().divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
-            map.put("packName", quant.getPackName());
-            shelveTaskService.create(detail);
-            return map;
-        }
-        return null;
+        locationService.unlockLocation(detail.getAllocLocationId());
+        shelveTaskService.updateDetail(detail);
     }
 }

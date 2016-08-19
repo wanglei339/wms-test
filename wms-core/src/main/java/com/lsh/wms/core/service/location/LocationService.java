@@ -759,7 +759,11 @@ public class LocationService {
         if (locations.size() > 0) {
             for (BaseinfoLocation location : locations) {
                 Long locationId = location.getLocationId();
+<<<<<<< HEAD
                 if ((!this.isQuantInLocation(locationId)) && this.checkLocationLockStatus(locationId)) {
+=======
+                if ((!this.isQuantInLocation(locationId))&& (this.checkLocationLockStatus(locationId))){
+>>>>>>> 4a6eb50372d9557df52592601d564c2ae3cbf1e4
                     return location;
                 }
             }
@@ -858,9 +862,9 @@ public class LocationService {
     public Boolean checkLocationLockStatus(Long locationId) {
         BaseinfoLocation location = this.getLocation(locationId);
         if (location.getIsLocked().equals(1)) {
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     /**

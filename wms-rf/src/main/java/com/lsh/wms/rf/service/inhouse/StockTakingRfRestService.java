@@ -202,7 +202,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
                 info = entry.getTaskInfo();
                 break;
             }else {
-                queryMap.put("planId", info.getPlanId());
+                queryMap.put("planId", takingTask.getTakingId());
                 queryMap.put("status",3L);
                 List<TaskEntry> entryList = iTaskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TAKING,queryMap);
                 Map<Long,Integer> chageMap = new HashMap<Long, Integer>();
