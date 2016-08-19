@@ -173,4 +173,8 @@ public class TaskRpcService implements ITaskRpcService {
             }
         }
     }
+
+    public List<Map<String,Object>> getPerformance(Map<String, Object> condition) {
+        return baseTaskService.getPerformance(condition);
+    }
 }
