@@ -17,11 +17,13 @@ import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.PoConstant;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.po.PoReceiptService;
+import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
@@ -32,15 +34,14 @@ import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.InbReceiptHeader;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.task.TaskEntry;
+import com.lsh.wms.model.task.TaskInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.math.BigDecimal.ROUND_HALF_EVEN;
 
@@ -79,6 +80,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
     @Autowired
     private ContainerService containerService;
+
+    @Autowired
+    private StaffService staffService;
 
 
     public Boolean throwOrder(String orderOtherId) throws BizCheckedException {
@@ -264,7 +268,15 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //插入订单
         poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList,stockQuantList,stockLotList);
 
-
+        TaskEntry taskEntry = new TaskEntry();
+        TaskInfo taskInfo = new TaskInfo();
+        taskInfo.setType(TaskConstant.TYPE_PO);
+        taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
+        taskInfo.setContainerId(inbReceiptHeader.getContainerId());
+        taskInfo.setOperator(Long.valueOf(inbReceiptHeader.getReceiptUser()));
+        taskEntry.setTaskInfo(taskInfo);
+        Long taskId = iTaskRpcService.create(TaskConstant.TYPE_PO, taskEntry);
+        iTaskRpcService.done(taskId);
 
        /* TaskEntry taskEntry = new TaskEntry();
         TaskInfo taskInfo = new TaskInfo();

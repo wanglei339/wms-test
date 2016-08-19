@@ -59,6 +59,7 @@ public class AtticShelveTaskDetailService {
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("taskId", taskId);
         mapQuery.put("allocLocationId",allocLocationId);
+        mapQuery.put("status",1L);
         List<AtticShelveTaskDetail> taskDetails = detailDao.getAtticShelveTaskDetailList(mapQuery);
         if(taskDetails ==null ||taskDetails.size()==0){
             return null;

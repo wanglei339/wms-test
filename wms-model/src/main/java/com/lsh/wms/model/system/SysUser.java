@@ -13,6 +13,9 @@ public class SysUser implements Serializable {
     private String username;
 	/** 昵称 */
     private String screenname;
+
+	/**角色ID*/
+	private String role;
 	/** 密码 */
     private String password;
 	/** 盐 */
@@ -105,6 +108,12 @@ public class SysUser implements Serializable {
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
-	
-	
+
+	public String getRole() {
+		return role;
+	}
+
+	public void setRole(String role) {
+		this.role = role;
+	}
 }

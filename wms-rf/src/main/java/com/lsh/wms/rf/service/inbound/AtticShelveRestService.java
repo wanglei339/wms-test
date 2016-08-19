@@ -129,6 +129,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         ObjUtils.bean2bean(quant, taskInfo);
 
         taskInfo.setType(taskType);
+        taskInfo.setSubType(1L);
         taskInfo.setFromLocationId(quant.getLocationId());
 
         entry.setTaskInfo(taskInfo);
@@ -176,8 +177,11 @@ public class AtticShelveRestService implements IAtticShelveRestService{
             throw new BizCheckedException("2030008");
         }
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
-        if(entry.getTaskInfo().getOperator().compareTo(user.getStaffId())!=0 && baseTaskService.checkTaskByContainerId(containerId)){
-            return JsonUtils.TOKEN_ERROR("该上架任务已被人领取");
+        TaskInfo info = entry.getTaskInfo();
+        if(info.getOperator().compareTo(0L)!=0) {
+            if (info.getOperator().compareTo(user.getStaffId()) != 0 && baseTaskService.checkTaskByContainerId(containerId)) {
+                return JsonUtils.TOKEN_ERROR("该上架任务已被人领取");
+            }
         }
         Map result = this.getResultMap(taskId);
         if(result == null) {
@@ -232,32 +236,29 @@ public class AtticShelveRestService implements IAtticShelveRestService{
             return JsonUtils.TOKEN_ERROR("库位不存在");
         }
 
-
+        AtticShelveTaskDetail detail = shelveTaskService.getShelveTaskDetail(taskId,allocLocationId);
         if(location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN)==0){
             if(realLocationId.compareTo(allocLocationId)!=0){
                 return JsonUtils.TOKEN_ERROR("扫描货位与系统所提供货位不符");
             }
 
-        }else if(realLocation.getType().compareTo(LocationConstant.LOFT_STORE_BIN)==0){
-            if(locationService.checkLocationUseStatus(realLocationId)){
+        }else if(realLocation.getType().compareTo(LocationConstant.LOFT_STORE_BIN)==0 ){
+            if(locationService.checkLocationUseStatus(realLocationId) && realLocationId.compareTo(allocLocationId)!=0 ){
                 return JsonUtils.TOKEN_ERROR("扫描库位已被占用");
             }
             if(location.getType().compareTo((LocationConstant.LOFT_STORE_BIN))!=0){
                 return JsonUtils.TOKEN_ERROR("提供扫描库位类型不符");
             }
 
-            AtticShelveTaskDetail detail = shelveTaskService.getShelveTaskDetail(taskId,allocLocationId);
 
             if(detail ==null){
                 return JsonUtils.TOKEN_ERROR("系统库位参数错误");
             }
-            detail.setQty(realQty.multiply(quant.getPackUnit()));
+            detail.setRealQty(realQty.multiply(quant.getPackUnit()));
             detail.setRealLocationId(realLocationId);
             detail.setShelveAt(DateUtils.getCurrentSeconds());
             detail.setOperator(info.getOperator());
             detail.setStatus(2L);
-            shelveTaskService.updateDetail(detail);
-
         }else {
             return JsonUtils.TOKEN_ERROR("提供扫描库位类型不符");
         }
@@ -278,6 +279,9 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         move.setFromContainerId(quant.getContainerId());
         move.setToContainerId(containerId);
         stockQuantService.move(move);
+        locationService.unlockLocation(move.getToLocationId());
+        shelveTaskService.updateDetail(detail);
+
 
         Map result = this.getResultMap(taskId);
 
@@ -361,6 +365,10 @@ public class AtticShelveRestService implements IAtticShelveRestService{
 
         while (total.compareTo(BigDecimal.ZERO) > 0) {
             BaseinfoLocation location = locationService.getlocationIsEmptyAndUnlockByType("loft_store_bin");
+            if(location==null) {
+                throw new BizCheckedException("2030015");
+            }
+
             //锁Location
             locationService.lockLocation(location.getLocationId());
             //插detail
