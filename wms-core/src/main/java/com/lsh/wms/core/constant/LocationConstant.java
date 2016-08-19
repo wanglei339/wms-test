@@ -114,15 +114,15 @@ public class LocationConstant {
 
 
             /*其他功能区的货位*/
-            put("floor_bin", new Long(20)); // 20 地堆货位
-            put("temporary_bin", new Long(21)); // 21 暂存货位
-            put("collection_bin", new Long(22)); // 22 集货货位
-            put("back_bin", new Long(23)); // 23 退货货位
-            put("defective_bin", new Long(24));// 24 残次货位
-            put("consume_area", new Long(25));// 25 消费区
-            put("supplier_area", new Long(26));// 26 供应区
-            put("shelf_levels", new Long(27));// 27 货架层
-            put("loft_levels", new Long(28));// 28 阁楼层
+            put("floor_bin", 20L); // 20 地堆货位
+            put("temporary_bin", 21L); // 21 暂存货位
+            put("collection_bin", 22L); // 22 集货货位
+            put("back_bin", 23L); // 23 退货货位
+            put("defective_bin", 24L);// 24 残次货位
+            put("consume_area", 25L);// 25 消费区
+            put("supplier_area", 26L);// 26 供应区
+            put("shelf_levels", 27L);// 27 货架层
+            put("loft_levels", 28L);// 28 阁楼层
         }
     };
 

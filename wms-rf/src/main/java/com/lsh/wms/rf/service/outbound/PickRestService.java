@@ -21,6 +21,7 @@ import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.pick.PickTaskHead;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
@@ -79,10 +80,16 @@ public class PickRestService implements IPickRestService {
         Long staffId = Long.valueOf(mapQuery.get("operator").toString());
         List<Map> taskList = JSON.parseArray(mapQuery.get("taskList").toString(), Map.class);
         List<WaveDetail> pickDetails = new ArrayList<WaveDetail>();
+        List<Map<String, Long>> assignParams = new ArrayList<Map<String, Long>>();
 
         for (Map<String, Object> task: taskList) {
             Long taskId = Long.valueOf(task.get("taskId").toString());
             Long containerId = Long.valueOf(task.get("containerId").toString());
+            Map<String, Long> assignParam = new HashMap<String, Long>();
+            BaseinfoContainer container = containerService.getContainer(containerId);
+            if (container == null) {
+                throw new BizCheckedException("2000002");
+            }
             TaskInfo taskInfo = baseTaskService.getTaskInfoById(taskId);
             PickTaskHead taskHead = pickTaskService.getPickTaskHead(taskId);
             if (!taskInfo.getStatus().equals(TaskConstant.Draft)) {
@@ -99,9 +106,14 @@ public class PickRestService implements IPickRestService {
             if (containerService.isContainerInUse(containerId)) {
                 throw new BizCheckedException("2000002");
             }
-            iTaskRpcService.assign(taskId, staffId, containerId);
+            assignParam.put("taskId", taskId);
+            assignParam.put("staffId", staffId);
+            assignParam.put("containerId", containerId);
+            assignParams.add(assignParam);
             pickDetails.addAll(pickTaskService.getPickTaskDetails(taskId));
         }
+        iTaskRpcService.assignMul(assignParams);
+
         // 拣货顺序算法
         iPickRpcService.calcPickOrder(pickDetails);
         Map<String, Object> result = new HashMap<String, Object>();
@@ -153,7 +165,7 @@ public class PickRestService implements IPickRestService {
                 break;
             }
         }
-        // TODO 多条集货位
+
         // 全部捡完,则需要扫描集货位
         if (needPickDetail.getPickTaskId() == null || needPickDetail.getPickTaskId().equals("")) {
             TaskInfo collcetTaskInfo = taskInfos.get(0); // 取第一个拣货任务
