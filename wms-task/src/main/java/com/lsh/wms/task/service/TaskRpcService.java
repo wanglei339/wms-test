@@ -4,10 +4,17 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.LocationConstant;
+import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.service.item.ItemLocationService;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.task.TaskTriggerService;
+import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.core.service.task.TaskHandler;
+import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.task.TaskTrigger;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
 import org.slf4j.Logger;
@@ -38,6 +45,11 @@ public class TaskRpcService implements ITaskRpcService {
     @Autowired
     private TaskTriggerService triggerService;
 
+    @Autowired
+    private ItemLocationService itemLocationService;
+
+    @Autowired
+    private LocationService locationService;
 
     private String getCurrentMethodName() {
         StackTraceElement[] stacktrace = Thread.currentThread().getStackTrace();
@@ -148,6 +160,31 @@ public class TaskRpcService implements ITaskRpcService {
 
     public void afterDone(Long taskId) throws BizCheckedException {
 
+        TaskInfo taskInfo =  this.getTaskEntryById(taskId).getTaskInfo();
+        Long itemId = taskInfo.getItemId();
+        List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationList(itemId);
+        Long pickLocationId = itemLocations.get(0).getPickLocationid();
+        BaseinfoLocation pickLocation = locationService.getLocation(pickLocationId);
+        Long handlerType = 0L;
+        if (pickLocation.getType().equals(LocationConstant.LOCATION_TYPE.get("loft_collection_bin"))) {
+            // 阁楼上架任务
+            handlerType = TaskConstant.TYPE_ATTIC_SHELVE;
+        } else {
+            handlerType = TaskConstant.TYPE_SHELVE;
+        }
+
+        try {
+            TaskHandler taskHandler = handlerFactory.getTaskHandler(handlerType);
+            taskHandler.create(getTaskEntryById(taskId));
+        } catch (BizCheckedException e) {
+            logger.warn(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Exception",e);
+            logger.warn(e.getCause().getMessage());
+        }
+
+
+       /*
         StackTraceElement[] stacktrace = Thread.currentThread().getStackTrace();
         StackTraceElement element = stacktrace[2];
         String methodName = element.getMethodName();
@@ -169,9 +206,10 @@ public class TaskRpcService implements ITaskRpcService {
             } catch (BizCheckedException e) {
                 logger.warn(e.getMessage());
             }catch (Exception e) {
+                logger.error("Exception",e);
                 logger.warn(e.getCause().getMessage());
             }
-        }
+        }*/
     }
 
     public List<Map<String,Object>> getPerformance(Map<String, Object> condition) {

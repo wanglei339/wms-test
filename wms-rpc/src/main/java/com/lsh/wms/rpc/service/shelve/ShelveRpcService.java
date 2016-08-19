@@ -123,8 +123,9 @@ public class ShelveRpcService implements IShelveRpcService {
                     return pickingLocation;
                 } else {
                     // 查找补货任务
-                    TaskInfo procurementTask = shelveTaskService.getIncompleteTaskByLocation(pickingLocationId, TaskConstant.TYPE_PROCUREMENT).get(0);
-                    if (procurementTask != null) {
+                    List<TaskInfo> procurementTasks = shelveTaskService.getIncompleteTaskByLocation(pickingLocationId, TaskConstant.TYPE_PROCUREMENT);
+                    if (procurementTasks.size() > 0) {
+                        TaskInfo procurementTask = procurementTasks.get(0);
                         // 补货任务已领取
                         if (procurementTask.getStatus().equals(TaskConstant.Assigned)) {
                             // 上货架位
@@ -134,6 +135,7 @@ public class ShelveRpcService implements IShelveRpcService {
                             return pickingLocation;
                         }
                     }
+                    return pickingLocation;
                 }
             } else {
                 // 上货架位
