@@ -197,6 +197,7 @@ public class LocationDetailService {
             return;
         }
         //如果是货架个体,插入指定层的货架层
+        // todo 如果单插入阁楼层的话,会出现插入两次主表的问题(货架和层一起插就不会),因为阁楼|货架层service注入了原来的locationService
         if (LocationConstant.SHELF.equals(iBaseinfoLocaltionModel.getType())) {
             //拿到指定的code,加入-i
             BaseinfoLocationShelf shelf = new BaseinfoLocationShelf();

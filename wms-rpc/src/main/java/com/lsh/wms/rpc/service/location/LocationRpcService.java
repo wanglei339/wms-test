@@ -59,7 +59,7 @@ public class LocationRpcService implements ILocationRpcService {
         }
         return false;
     }
-
+    // todo 插入集货道和集货道组,需要用此insert方法,因为只是插入主表
     public BaseinfoLocation insertLocation(BaseinfoLocation location) {
         return locationService.insertLocation(location);
     }

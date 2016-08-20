@@ -759,7 +759,7 @@ public class LocationService {
         if (locations.size() > 0) {
             for (BaseinfoLocation location : locations) {
                 Long locationId = location.getLocationId();
-                if ((!this.isQuantInLocation(locationId))&& (this.checkLocationLockStatus(locationId))){
+                if ((!this.isQuantInLocation(locationId)) && (this.checkLocationLockStatus(locationId))) {
                     return location;
                 }
             }
@@ -901,13 +901,14 @@ public class LocationService {
 
     /**
      * 获取指定位置类型的方法
+     *
      * @param type 位置类型
      * @return
      */
-    public List<BaseinfoLocation> getTargetLocationListByType(Long type){
+    public List<BaseinfoLocation> getTargetLocationListByType(Long type) {
         Long targetType = Long.parseLong(type.toString());
-        Map<String,Object> params = new HashMap<String,Object>();
-        params.put("type",targetType);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("type", targetType);
         return this.getBaseinfoLocationList(params);
     }
 
