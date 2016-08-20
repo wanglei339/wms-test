@@ -12,12 +12,16 @@ import com.lsh.wms.core.service.pick.PickModelService;
 import com.lsh.wms.core.service.pick.PickZoneService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.core.service.wave.WaveTemplateService;
 import com.lsh.wms.model.pick.*;
+import com.lsh.wms.model.so.OutbSoHeader;
 import com.lsh.wms.model.wave.WaveHead;
 import com.lsh.wms.model.wave.WaveRequest;
+import com.lsh.wms.model.wave.WaveTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -47,6 +51,8 @@ public class WaveRestService implements IWaveRestService {
     private PickModelService modelService;
     @Autowired
     private WaveCore core;
+    @Autowired
+    private WaveTemplateService waveTemplateService;
 
 
     @POST
@@ -125,20 +131,38 @@ public class WaveRestService implements IWaveRestService {
 
     @POST
     @Path("createWave")
-    public String createWave(WaveRequest request) {
+    public String createWave(WaveRequest request) throws BizCheckedException {
         WaveHead pickWaveHead = new WaveHead();
         ObjUtils.bean2bean(request,pickWaveHead);
+        //获取波次模版
+        WaveTemplate tpl = waveTemplateService.getWaveTemplate(pickWaveHead.getWaveTemplateId());
+        if(tpl == null){
+            throw new BizCheckedException("2040008");
+        }
+        pickWaveHead.setPickModelTemplateId(tpl.getPickModelTemplateId());
+        pickWaveHead.setWaveDest(tpl.getWaveDest());
         List<Long> orderIds = request.getOrderIds();
+        for(Long orderId : orderIds){
+            OutbSoHeader so = soOrderService.getOutbSoHeaderByOrderId(orderId);
+            if(so == null){
+                return JsonUtils.OTHER_EXCEPTION(String.format("订单[%d]不存在", orderId));
+            }
+            if(so.getWaveId() > 0){
+                return JsonUtils.OTHER_EXCEPTION(String.format("订单[%d]已排好波次", orderId));
+            }
+        }
+        if(orderIds.size()==0){
+            return JsonUtils.OTHER_EXCEPTION("订单数为0");
+        }
         try{
             waveService.createWave(pickWaveHead,orderIds);
         }catch (Exception e){
             logger.error(e.getCause().getMessage());
             return JsonUtils.EXCEPTION_ERROR("Create failed");
         }
-
-
         return JsonUtils.SUCCESS();
     }
+
     @GET
     @Path("setStatus")
     public String setStatus(@QueryParam("waveId") long iWaveId,@QueryParam("status") int iStatus) {

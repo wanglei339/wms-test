@@ -118,6 +118,10 @@ public class WaveService {
         return detailDao.getOrderedWaveDetailList(mapQuery);
     }
 
+    @Transactional(readOnly = true)
+    public WaveDetail getWaveDetailById(long id){
+        return detailDao.getWaveDetailById(id);
+    }
 
     public List<WaveDetail> getDetaileByWaveId(long waveId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
