@@ -19,6 +19,15 @@ import org.slf4j.LoggerFactory;
 public class SynInventory implements ISynInventory {
     private static Logger logger = LoggerFactory.getLogger(SynInventory.class);
     public void synInventory(Long sku_id) {
-        logger.info(sku_id.toString());
+        for(int i=0;i<10000;i++){ // TODO: 16/8/20  
+            logger.info(sku_id.toString());
+            try{
+                Thread.currentThread().sleep(1000);
+            }catch (Exception ex){
+                ex.printStackTrace();
+            }
+
+        }
+
     }
 }
