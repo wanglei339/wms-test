@@ -33,17 +33,16 @@ public class StockMoveRpcService implements IStockMoveRpcService {
         moveService.create(moveList);
     }
 
-    @Transactional(readOnly = false)
+
     public void move(List<StockMove> moveList) throws BizCheckedException{
         moveService.move(moveList);
     }
 
-    @Transactional(readOnly = false)
     public void moveWholeContainer(Long containerId, Long taskId, Long staffId, Long fromLocationId, Long toLocationId) throws BizCheckedException {
         moveService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
     }
 
-    @Transactional(readOnly = false)
+
     public void moveWholeContainer(Long fromContainerId, Long toContainerId, Long taskId, Long staffId, Long fromLocationId, Long toLocationId) throws BizCheckedException {
         moveService.moveWholeContainer(fromContainerId, toContainerId, taskId, staffId, fromLocationId, toLocationId);
     }
