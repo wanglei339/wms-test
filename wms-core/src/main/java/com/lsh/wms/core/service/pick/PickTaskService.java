@@ -116,6 +116,8 @@ public class PickTaskService {
         pickDetail.setPickAt(DateUtils.getCurrentSeconds());
         waveService.updateDetail(pickDetail);
         // 移动库存
-        moveService.moveToContainer(itemId, staffId, fromContainerId, containerId, locationService.getWarehouseLocationId(), qty);
+        if (qty.compareTo(new BigDecimal(0)) == 1) {
+            moveService.moveToContainer(itemId, staffId, fromContainerId, containerId, locationService.getWarehouseLocationId(), qty);
+        }
     }
 }

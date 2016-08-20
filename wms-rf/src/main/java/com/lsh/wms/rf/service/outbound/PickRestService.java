@@ -210,9 +210,7 @@ public class PickRestService implements IPickRestService {
                 throw new BizCheckedException("2060007", quantQty.toString());
             }
             // 库移
-            if (qty.compareTo(new BigDecimal(0)) == 1) {
-                pickTaskService.pickOne(needPickDetail, locationId, containerId, qty, staffId);
-            }
+            pickTaskService.pickOne(needPickDetail, locationId, containerId, qty, staffId);
         }
         // 获取下一个wave_detail,如已做完则获取集货位id
         Long nextPickOrder = needPickDetail.getPickOrder() + 1;
@@ -223,7 +221,7 @@ public class PickRestService implements IPickRestService {
                 nextPickDetail = pickDetail;
             }
         }
-        if (nextPickDetail == null) {
+        if (nextPickDetail.getPickTaskId() == null || nextPickDetail.getPickTaskId().equals(0L)) {
             pickDone = true;
             result.put("next_collection", pickTaskService.getPickTaskHead(taskIds.get(0))); // 返回第一个任务的头信息用于集货位分配
         } else {
