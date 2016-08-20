@@ -27,9 +27,9 @@ import org.springframework.scheduling.config.Task;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * Created by mali on 16/7/30.
@@ -111,7 +111,8 @@ public class StockTransferCore {
             moveRpcService.move(moveList);
             taskInfo.setQtyDone(qtyDone);
         }
-        taskInfo.setStatus(TaskConstant.Doing);
+        //taskInfo.setStatus(TaskConstant.Doing);
+        taskInfo.setExt3(1L);
         taskInfoDao.update(taskInfo);
     }
 
@@ -157,28 +158,102 @@ public class StockTransferCore {
         taskRpcService.done(taskId);
     }
 
-    public Long getNextOutbound(List<TaskEntry> entryList) {
-        Long taskId = entryList.get(0).getTaskInfo().getTaskId();
-        Long ext = entryList.get(0).getTaskInfo().getExt1();
-        for (TaskEntry entry : entryList){
-            TaskInfo taskInfo = entry.getTaskInfo();
-            if (taskInfo.getExt1() < ext) {
-                taskId = taskInfo.getTaskId();
+    public void sortOutbound(List<TaskEntry> entryList) {
+        Collections.sort(entryList, new Comparator<TaskEntry>() {
+            public int compare (TaskEntry entry1, TaskEntry entry2) {
+                try {
+                    TaskInfo info1 = entry1.getTaskInfo(), info2 = entry2.getTaskInfo();
+                    //sort fromLocationId
+                    if (info1.getFromLocationId().compareTo(info2.getFromLocationId()) < 0) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return 0;
+                }
             }
+        });
+        Long order = 1L;
+        for (TaskEntry entry : entryList) {
+            entry.getTaskInfo().setExt1(order);
+            order ++;
+            taskInfoDao.update(entry.getTaskInfo());
         }
-        return taskId;
     }
 
-    public Long getNextInbound(List<TaskEntry> entryList) {
-        Long taskId = entryList.get(0).getTaskInfo().getTaskId();
-        Long ext = entryList.get(0).getTaskInfo().getExt1();
-        for (TaskEntry entry : entryList){
-            TaskInfo taskInfo = entry.getTaskInfo();
-            if (taskInfo.getExt1() < ext) {
-                taskId = taskInfo.getTaskId();
+    public void sortInbound(List<TaskEntry> entryList) {
+        Collections.sort(entryList, new Comparator<TaskEntry>() {
+            public int compare (TaskEntry entry1, TaskEntry entry2) {
+                try {
+                    TaskInfo info1 = entry1.getTaskInfo(), info2 = entry2.getTaskInfo();
+                    //sort toLocationId
+                    if (info1.getToLocationId().compareTo(info2.getToLocationId()) < 0) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return 0;
+                }
             }
+        });
+        Long order = 1L;
+        for (TaskEntry entry : entryList) {
+            entry.getTaskInfo().setExt2(order);
+            order ++;
+            taskInfoDao.update(entry.getTaskInfo());
         }
-        return taskId;
+
+    }
+
+    public Long getFirstOutbound(Long staffId) {
+        Map<String ,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("status", TaskConstant.Assigned);
+        mapQuery.put("operator", staffId);
+        mapQuery.put("ext1",1);
+        List<TaskEntry> entryList = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQuery);
+        return entryList.get(0).getTaskInfo().getTaskId();
+    }
+
+    public Long getFirstInbound(Long staffId) {
+        Map<String ,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("operator", staffId);
+        mapQuery.put("status", TaskConstant.Assigned);
+        mapQuery.put("ext2",1);
+        List<TaskEntry> entryList = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQuery);
+        return entryList.get(0).getTaskInfo().getTaskId();
+    }
+
+
+    public Long getNextOutbound(TaskEntry entry) {
+        Long ext1 = entry.getTaskInfo().getExt1();
+        Long operator = entry.getTaskInfo().getOperator();
+        Map<String ,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("status", TaskConstant.Assigned);
+        mapQuery.put("ext1", ext1 + 1);
+        mapQuery.put("operator", operator);
+        List<TaskEntry> entryList = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQuery);
+        if (entryList.isEmpty()) {
+            return 0L;
+        }
+        return entryList.get(0).getTaskInfo().getTaskId();
+    }
+
+    public Long getNextInbound(TaskEntry entry) {
+        Long ext2 = entry.getTaskInfo().getExt2();
+        Long operator = entry.getTaskInfo().getOperator();
+        Map<String ,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("status", TaskConstant.Assigned);
+        mapQuery.put("operator", operator);
+        mapQuery.put("ext2", ext2 + 1);
+        List<TaskEntry> entryList = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQuery);
+        if (entryList.isEmpty()) {
+            return 0L;
+        }
+        return entryList.get(0).getTaskInfo().getTaskId();
     }
 
     //TODO
@@ -186,5 +261,10 @@ public class StockTransferCore {
         BaseinfoLocation targetLocation;
         targetLocation = currentLocation;
         return targetLocation;
+    }
+
+    //TODO
+    public Long getNearestTask(List<TaskEntry> entryList) {
+        return entryList.get(0).getTaskInfo().getTaskId();
     }
 }
