@@ -377,11 +377,13 @@ public class LocationDetailService {
     }
 
     /**
-     * 获取超市返仓区,里面的货主区分,通过BaseinfoLocationRegion类中的getOwnerid()方法来辨认
-     *  Todo 前端的页面没有货主的概念
+     * 获取超市返仓区,里面的货主区分,通过BaseinfoLocationRegion类中的。通过货主owerid查返仓位置
+     * Todo 前端的页面没有货主的概念
+     *
      * @return
      */
-    public List<BaseinfoLocationRegion> getMarketReturnList() {
+    public List<BaseinfoLocationRegion> getMarketReturnList(Long ownerid) throws BizCheckedException {
+        Map<String, Object> params = new HashMap<String, Object>();
         List<BaseinfoLocation> locationList = locationService.getTargetLocationListByType(LocationConstant.MARKET_RETURN_AREA);
         List<IBaseinfoLocaltionModel> iBaseinfoLocaltionModels = new ArrayList<IBaseinfoLocaltionModel>();
         IBaseinfoLocaltionModel marketLocation = null;
@@ -389,6 +391,18 @@ public class LocationDetailService {
             marketLocation = this.getIBaseinfoLocaltionModelById(location.getLocationId());
             iBaseinfoLocaltionModels.add(marketLocation);
         }
-        return (List<BaseinfoLocationRegion>)(List<?>)iBaseinfoLocaltionModels;
+        //过滤货主
+        List<BaseinfoLocationRegion> regions = (List<BaseinfoLocationRegion>) (List<?>) iBaseinfoLocaltionModels;
+        List<BaseinfoLocationRegion> targetReturn = new ArrayList<BaseinfoLocationRegion>();
+        for (BaseinfoLocationRegion one : regions) {
+            if (one.getOwnerid().equals(ownerid)) {
+                targetReturn.add(one);
+            }
+        }
+        if (targetReturn.size() > 0) {
+            return targetReturn;
+        } else {
+            throw new BizCheckedException("2180005");
+        }
     }
 }

@@ -900,7 +900,7 @@ public class LocationService {
     }
 
     /**
-     * 获取指定位置类型的方法
+     * 获取指定位置类型的方法,建议使用这个方法获取指定type的方法
      *
      * @param type 位置类型
      * @return
