@@ -155,6 +155,9 @@ public class PickRestService implements IPickRestService {
         }
 
         // 取排好序的拣货详情
+        if (taskIds.size() < 1) {
+            throw new BizCheckedException("2060010");
+        }
         List<WaveDetail> pickDetails = waveService.getOrderedDetailsByPickTaskIds(taskIds);
         // 查找最后未完成的任务
         WaveDetail needPickDetail = new WaveDetail();
