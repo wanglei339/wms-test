@@ -41,6 +41,9 @@ public class StockQuantService {
 
     @Transactional(readOnly = false)
     public void lockQuantByLocation(Long locationId) {
+        if (locationId.equals(0L)) {
+            return;
+        }
         Map<String, Object> condition = new HashMap<String, Object>();
         List<BaseinfoLocation> list = new ArrayList<BaseinfoLocation>();
         list.add(locationService.getLocation(locationId));
