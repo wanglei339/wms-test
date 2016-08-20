@@ -86,13 +86,16 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         Long toLocationId = plan.getToLocationId();
         Long itemId = plan.getItemId();
 
-        //TODO
-        //get available location
         BaseinfoLocation toLocation = locationService.getLocation(toLocationId);
         if (toLocation == null) {
             throw new BizCheckedException("2060012");
         }
-        if(toLocation.getCanUse() == 2) {
+        if (toLocation.getCanStore() != 1) {
+            throw new BizCheckedException("2550020");
+        }
+        //TODO
+        //get available location
+        if (toLocation.getCanUse() != 1) {
             toLocation = core.getNearestLocation(toLocation);
             toLocationId = toLocation.getLocationId();
         }
@@ -171,7 +174,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             throw new BizCheckedException("2550018");
         }
         core.outbound(params);
-        logger.info("--outbound finish--");
         Map<String, Object> next = new HashMap<String, Object>();
         Long nextLocationId, nextItem;
         String packName;
@@ -324,11 +326,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
                 plan.setToLocationId(toLocationId);
                 plan.setQty(quant.getQty());
                 plan.setItemId(quant.getItemId());
-                if (quant.getPackName().toLowerCase().compareTo("ea") == 0) {
-                    plan.setSubType(1L);
-                } else {
-                    plan.setSubType(2L);
-                }
+                plan.setSubType(2L);
                 plan.setPackName(quant.getPackName());
                 this.addPlan(plan);
             }
@@ -353,11 +351,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
                 plan.setQty(quant.getQty());
                 plan.setItemId(quant.getItemId());
                 plan.setPackName(quant.getPackName());
-                if (quant.getPackName().toLowerCase().compareTo("ea") == 0) {
-                    plan.setSubType(1L);
-                } else {
-                    plan.setSubType(2L);
-                }
+                plan.setSubType(2L);
                 this.addPlan(plan);
             }
         }
