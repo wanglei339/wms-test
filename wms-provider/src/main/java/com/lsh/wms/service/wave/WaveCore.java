@@ -126,7 +126,7 @@ public class WaveCore {
             BaseinfoLocation collecRoad = mapRoute2CollectRoad.get(rout);
             if ( collecRoad == null ){
                 if(iUseIdx >= unUsedCollectionRoadList.size()){
-                    throw  new BizCheckedException("");
+                    throw  new BizCheckedException("2040012");
                 }
                 collecRoad = unUsedCollectionRoadList.get(iUseIdx);
                 iUseIdx++;
@@ -241,6 +241,7 @@ public class WaveCore {
                         pickTaskDetails.add(detail);
                         head.setDeliveryId(detail.getOrderId());
                         head.setTransPlan(mapOrder2Head.get(detail.getOrderId()).getTransPlan());
+                        head.setAllocCollectLocation(detail.getAllocCollectLocation());
                     }
                 }
                 iChooseIdx += bestCutPlan[i];
@@ -330,7 +331,7 @@ public class WaveCore {
                 }
             }
             //存储配货结果
-            waveService.storeAlloc(waveHead, pickAllocDetailList);
+            //waveService.storeAlloc(waveHead, pickAllocDetailList);
             //allocService.addAllocDetails(pickAllocDetailList);
         }else{
             logger.info("skip to run alloc waveId[%d], load from db", waveId);
@@ -353,22 +354,22 @@ public class WaveCore {
     private void _prepareWave() throws BizCheckedException{
         waveHead = waveService.getWave(waveId);
         if(waveHead==null){
-            throw new BizCheckedException("");
+            throw new BizCheckedException("2040001");
         }
         //集货模版
         waveTemplate = waveTemplateService.getWaveTemplate(waveHead.getWaveTemplateId());
         if(waveTemplate==null){
-            throw new BizCheckedException("");
+            throw new BizCheckedException("2040008");
         }
         //获取集货组
         BaseinfoLocation locGrp = locationService.getLocation(waveTemplate.getCollectLocations());
         if(locGrp==null){
-            throw new BizCheckedException("");
+            throw new BizCheckedException("2040009");
         }
         //获取集货道列表
         List<BaseinfoLocation> collectLocations = locationService.getSubLocationList(locGrp.getLocationId(), LocationConstant.COLLECTION_ROAD);
         if(collectLocations.size()==0){
-            throw new BizCheckedException("");
+            throw new BizCheckedException("2040010");
         }
         unUsedCollectionRoadList = new ArrayList<BaseinfoLocation>();
         for(BaseinfoLocation location : collectLocations){
@@ -378,7 +379,7 @@ public class WaveCore {
         }
         //无可用的集货道
         if(unUsedCollectionRoadList.size()==0){
-            throw new BizCheckedException("");
+            throw new BizCheckedException("2040011");
         }
         //集货到分配排序
         //TODO collection sort
