@@ -11,6 +11,7 @@ import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
+import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockMove;
@@ -60,6 +61,9 @@ public class StockTransferCore {
     @Reference
     private ISysUserRpcService iSysUserRpcService;
 
+    @Autowired
+    private ContainerService containerService;
+
     public void fillTransferPlan(StockTransferPlan plan) throws BizCheckedException {
         StockQuantCondition condition = new StockQuantCondition();
         condition.setLocationId(plan.getFromLocationId());
@@ -89,12 +93,10 @@ public class StockTransferCore {
         if (taskEntry == null) {
             throw new BizCheckedException("2550005");
         }
-
-
         StockQuantCondition condition = new StockQuantCondition();
         condition.setLocationId(fromLocationId);
+        condition.setItemId(taskEntry.getTaskInfo().getItemId());
         List<StockQuant> quants = stockQuantRpcService.getQuantList(condition);
-
 
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         if(taskInfo.getType().compareTo(TaskConstant.TYPE_ATTIC_SHELVE)==0){
@@ -127,8 +129,6 @@ public class StockTransferCore {
             move.setToLocationId(toLocationId);
             move.setFromContainerId(quants.get(0).getContainerId());
             move.setToContainerId(taskInfo.getContainerId());
-            move.setToContainerId(taskInfo.getContainerId());
-
             List<StockMove> moveList = new ArrayList<StockMove>();
             moveList.add(move);
             moveRpcService.move(moveList);
@@ -171,7 +171,17 @@ public class StockTransferCore {
             move.setFromLocationId(fromLocationId);
             move.setToLocationId(toLocationId);
             move.setFromContainerId(containerId);
-            move.setToContainerId(containerId);
+            StockQuantCondition condition = new StockQuantCondition();
+            condition.setLocationId(toLocationId);
+            condition.setItemId(taskInfo.getItemId());
+            List<StockQuant> quants = stockQuantRpcService.getQuantList(condition);
+            Long toContainerId;
+            if (quants == null || quants.size() == 0) {
+                toContainerId = containerService.createContainerByType(1L).getContainerId();
+            } else {
+                toContainerId = quants.get(0).getContainerId();
+            }
+            move.setToContainerId(toContainerId);
             move.setSkuId(taskInfo.getSkuId());
             move.setOwnerId(taskInfo.getOwnerId());
             List<StockMove> moveList = new ArrayList<StockMove>();

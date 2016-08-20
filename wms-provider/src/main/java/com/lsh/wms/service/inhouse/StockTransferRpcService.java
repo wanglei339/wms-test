@@ -139,7 +139,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             throw new BizCheckedException("2550002");
         }
         Long containerId = quantList.get(0).getContainerId();
-        if (plan.getSubType() == 2) {
+        if (plan.getSubType().compareTo(2L) == 0) {
             containerId = containerService.createContainerByType(2L).getContainerId();
         }
         TaskEntry taskEntry = new TaskEntry();
