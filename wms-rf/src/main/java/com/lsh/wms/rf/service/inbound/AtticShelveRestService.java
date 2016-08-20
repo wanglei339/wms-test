@@ -316,53 +316,51 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
 
         BigDecimal total = stockQuantService.getQuantQtyByLocationIdAndItemId(quant.getLocationId(), quant.getItemId());
 
-        //对比货架商品和新进商品保质期是否到达阀值
-//        if(shelveRpcService.checkShelfLifeThreshold(quant,)) {
-        if(1==1){
-
             //判断阁楼捡货位是不是需要补货
 
             List<BaseinfoItemLocation> locations = itemLocationService.getItemLocationList(quant.getItemId());
             for (BaseinfoItemLocation itemLocation : locations) {
+                //对比货架商品和新进商品保质期是否到达阀值
                 BaseinfoLocation location = locationService.getLocation(itemLocation.getPickLocationid());
-                if (location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN) == 0) {
-                    if (rpcService.needProcurement(itemLocation.getPickLocationid(), itemLocation.getItemId())) {
-                        Map<String,Object> checkTask =new HashMap<String, Object>();
-                        checkTask.put("toLocationId",location.getLocationId());
-                        List<TaskEntry> entries = iTaskRpcService.getTaskList(TaskConstant.TYPE_PROCUREMENT,checkTask);
-                        if(entries!=null &&entries.size()!=0){
-                            TaskInfo taskInfo = entries.get(0).getTaskInfo();
-                            if(taskInfo.getStatus().compareTo(TaskConstant.Draft)==0){
-                                iTaskRpcService.cancel(taskInfo.getTaskId());
-                            }else if(taskInfo.getStatus().compareTo(TaskConstant.Assigned)==0){
-                                continue;
+                if(shelveRpcService.checkShelfLifeThreshold(quant,location,"loft_store_bin")) {
+                    if (location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN) == 0) {
+                        if (rpcService.needProcurement(itemLocation.getPickLocationid(), itemLocation.getItemId())) {
+                            Map<String, Object> checkTask = new HashMap<String, Object>();
+                            checkTask.put("toLocationId", location.getLocationId());
+                            List<TaskEntry> entries = iTaskRpcService.getTaskList(TaskConstant.TYPE_PROCUREMENT, checkTask);
+                            if (entries != null && entries.size() != 0) {
+                                TaskInfo taskInfo = entries.get(0).getTaskInfo();
+                                if (taskInfo.getStatus().compareTo(TaskConstant.Draft) == 0) {
+                                    iTaskRpcService.cancel(taskInfo.getTaskId());
+                                } else if (taskInfo.getStatus().compareTo(TaskConstant.Assigned) == 0) {
+                                    continue;
+                                }
                             }
+                            //插detail
+                            AtticShelveTaskDetail detail = new AtticShelveTaskDetail();
+                            StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
+                            ObjUtils.bean2bean(quant, detail);
+                            detail.setTaskId(taskId);
+                            detail.setReceiptId(lot.getReceiptId());
+                            detail.setOrderId(lot.getPoId());
+                            detail.setAllocLocationId(location.getLocationId());
+                            detail.setRealLocationId(location.getLocationId());
+
+
+                            BigDecimal num = total.divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN);
+                            Map<String, Object> map = new HashMap<String, Object>();
+                            map.put("taskId", taskId);
+                            map.put("locationId", location.getLocationId());
+                            map.put("locationCode", location.getLocationCode());
+                            map.put("qty", num.compareTo(new BigDecimal(3)) >= 0 ? 3 : num);
+                            map.put("packName", quant.getPackName());
+
+                            shelveTaskService.create(detail);
+                            return map;
                         }
-                        //插detail
-                        AtticShelveTaskDetail detail = new AtticShelveTaskDetail();
-                        StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
-                        ObjUtils.bean2bean(quant, detail);
-                        detail.setTaskId(taskId);
-                        detail.setReceiptId(lot.getReceiptId());
-                        detail.setOrderId(lot.getPoId());
-                        detail.setAllocLocationId(location.getLocationId());
-                        detail.setRealLocationId(location.getLocationId());
-
-
-                        BigDecimal num = total.divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN);
-                        Map<String, Object> map = new HashMap<String, Object>();
-                        map.put("taskId", taskId);
-                        map.put("locationId", location.getLocationId());
-                        map.put("locationCode", location.getLocationCode());
-                        map.put("qty", num.compareTo(new BigDecimal(3)) >= 0 ? 3 : num);
-                        map.put("packName", quant.getPackName());
-
-                        shelveTaskService.create(detail);
-                        return map;
                     }
                 }
             }
-        }
 
 
         //当捡货位都不需要补货时，将上架货物存到阁楼存货位上

@@ -12,6 +12,7 @@ import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -119,6 +121,66 @@ public class ProcurementRestService implements IProcurementRestService {
     }
 
     @POST
+    @Path("scanLocation")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String scanLocation() throws BizCheckedException {
+        Map<String, Object> params = RequestUtils.getRequest();
+        try {
+            Long taskId = Long.valueOf(params.get("taskId").toString());
+            final TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
+            String status = params.get("status").toString();
+            if(status.equals("inbound")) {
+                if (entry == null) {
+                    return JsonUtils.TOKEN_ERROR("任务不存在");
+                } else {
+                    Long toLocation = Long.valueOf(params.get("locationId").toString());
+                    if (entry.getTaskInfo().getToLocationId().compareTo(toLocation) != 0) {
+                        return JsonUtils.TOKEN_ERROR("扫描库位和系统库位不一致");
+                    }
+                }
+                rpcService.scanToLocation(params);
+                return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+                    {
+                        put("response", true);
+                    }
+                });
+            }else if(status.equals("outbound")) {
+                if(entry==null ){
+                    return JsonUtils.TOKEN_ERROR("任务不存在");
+                }else {
+                    Long toLocation = Long.valueOf(params.get("locationId").toString());
+                    if(entry.getTaskInfo().getToLocationId().compareTo(toLocation) !=0 ){
+                        return JsonUtils.TOKEN_ERROR("扫描库位和系统库位不一致");
+                    }
+                }
+                rpcService.scanFromLocation(params);
+                final TaskInfo info = entry.getTaskInfo();
+                return JsonUtils.SUCCESS(new HashMap<String, Object>() {
+                    {
+                        put("taskId", info.getTaskId());
+                        put("status","inbound");
+                        put("locationId", info.getToLocationId());
+                        put("locationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
+                        put("itemId", info.getItemId());
+                        put("itemName", itemRpcService.getItem(info.getItemId()).getSkuName());
+                        put("packName", info.getPackName());
+                        put("uomQty", info.getQty().divide(info.getPackUnit()));
+                    }
+                });
+            }else {
+                return JsonUtils.TOKEN_ERROR("任务状态异常");
+            }
+        }catch (BizCheckedException ex){
+            throw ex;
+        }
+        catch (Exception e) {
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
+        }
+    }
+
+    @POST
     @Path("fetchTask")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
@@ -131,6 +193,41 @@ public class ProcurementRestService implements IProcurementRestService {
         }catch (Exception e){
             return JsonUtils.TOKEN_ERROR("违法的账户");
         }
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("operator",staffId);
+        queryMap.put("status",2L);
+        List<TaskEntry> entries = iTaskRpcService.getTaskList(TaskConstant.TYPE_PROCUREMENT, queryMap);
+        if(entries!=null && entries.size()!=0){
+            TaskEntry entry = entries.get(0);
+            final TaskInfo info = entry.getTaskInfo();
+            if(info.getExt4()==1L){
+                return JsonUtils.SUCCESS(new HashMap<String, Object>() {
+                    {
+                        put("taskId", info.getTaskId());
+                        put("status","inbound");
+                        put("locationId", info.getToLocationId());
+                        put("locationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
+                        put("itemId", info.getItemId());
+                        put("itemName", itemRpcService.getItem(info.getItemId()).getSkuName());
+                        put("packName", info.getPackName());
+                        put("uomQty", info.getQty().divide(info.getPackUnit()));
+                    }
+                });
+            }else {
+                return JsonUtils.SUCCESS(new HashMap<String, Object>() {
+                    {
+                        put("taskId", info.getTaskId());
+                        put("status","outbound");
+                        put("locationId", info.getFromLocationId());
+                        put("locationCode", locationRpcService.getLocation(info.getFromLocationId()).getLocationCode());
+                        put("itemId", info.getItemId());
+                        put("itemName", itemRpcService.getItem(info.getItemId()).getSkuName());
+                        put("packName", info.getPackName());
+                        put("uomQty", info.getQty().divide(info.getPackUnit()));
+                    }
+                });
+            }
+        }
         final Long taskId = rpcService.assign(staffId);
         if(taskId.compareTo(0L)==0) {
             return JsonUtils.TOKEN_ERROR("无补货任务可领");
@@ -141,12 +238,17 @@ public class ProcurementRestService implements IProcurementRestService {
         }
         final TaskInfo taskInfo = taskEntry.getTaskInfo();
         final Long fromLocationId = taskInfo.getFromLocationId();
-        final String fromLocationCode =  locationRpcService.getLocation(fromLocationId).getLocationCode();
+        final String fromLocationCode = locationRpcService.getLocation(fromLocationId).getLocationCode();
         return JsonUtils.SUCCESS(new HashMap<String, Object>() {
             {
-                put("taskId", taskId);
-                put("fromLocationId", fromLocationId);
-                put("fromLocationCode",fromLocationCode);
+                put("taskId", taskInfo.getTaskId());
+                put("status", "outbound");
+                put("locationId", fromLocationId);
+                put("locationCode", fromLocationCode);
+                put("itemId", taskInfo.getItemId());
+                put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
+                put("packName", taskInfo.getPackName());
+                put("uomQty", taskInfo.getQty().divide(taskInfo.getPackUnit()));
             }
         });
     }

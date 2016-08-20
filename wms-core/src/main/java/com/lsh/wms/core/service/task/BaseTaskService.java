@@ -88,6 +88,21 @@ public class BaseTaskService {
         taskInfoDao.update(taskInfo);
         taskHandler.assignConcrete(taskId, staffId);
     }
+
+    @Transactional(readOnly = false)
+    public void assignMul(List<Map<String, Long>> params, TaskHandler taskHandler) throws BizCheckedException {
+        for (Map<String, Long> param: params) {
+            TaskInfo taskInfo = taskInfoDao.getTaskInfoById(param.get("taskId"));
+            taskInfo.setOperator(param.get("staffId"));
+            taskInfo.setStatus(TaskConstant.Assigned);
+            taskInfo.setAssignTime(DateUtils.getCurrentSeconds());
+            taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+            taskInfo.setContainerId(param.get("containerId"));
+            taskInfoDao.update(taskInfo);
+            taskHandler.assignConcrete(param.get("taskId"), param.get("staffId"), param.get("containerId"));
+        }
+    }
+
     @Transactional(readOnly = false)
     public void update(TaskEntry taskEntry, TaskHandler taskHandler) throws BizCheckedException {
         TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskEntry.getTaskInfo().getTaskId());;

@@ -8,13 +8,18 @@ import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.shelve.IShelveRpcService;
 import com.lsh.wms.api.service.stock.IStockMoveRestService;
 import com.lsh.wms.api.service.stock.IStockMoveRpcService;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
+import com.lsh.wms.core.service.item.ItemLocationService;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.shelve.ShelveTaskHead;
 import com.lsh.wms.model.stock.StockLot;
@@ -52,6 +57,8 @@ public class ShelveTaskHandler extends AbsTaskHandler {
     private StockQuantService stockQuantService;
     @Autowired
     private StockLotService stockLotService;
+    @Autowired
+    private ItemLocationService itemLocationService;
     @Reference
     private IShelveRpcService iShelveRpcService;
     @Reference
@@ -109,7 +116,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         }
         StockQuant quant = quants.get(0);
         // 获取目标location
-        BaseinfoLocation targetLocation = iShelveRpcService.assginShelveLocation(container);
+        BaseinfoLocation targetLocation = iShelveRpcService.assginShelveLocation(container, taskEntry.getTaskInfo().getSubType());
         if (targetLocation == null) {
             throw new BizCheckedException("2030005");
         }
