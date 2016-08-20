@@ -180,9 +180,11 @@ public class StockQuantService {
             moveRel.setMoveId(move.getId());
             moveRel.setQuantId(quant.getId());
             relDao.insert(moveRel);
+            if (qtyDone.compareTo(BigDecimal.ZERO) <= 0) {
+                break;
+            }
         }
         if (qtyDone.compareTo(BigDecimal.ZERO) < 0 ) {
-
             throw new BizCheckedException("2550008");
         }
     }

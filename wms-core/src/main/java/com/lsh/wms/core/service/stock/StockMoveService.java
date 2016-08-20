@@ -109,12 +109,14 @@ public class StockMoveService {
 
     @Transactional(readOnly = false)
     public void move(List<StockMove> moveList) throws BizCheckedException{
+        boolean islocked = false;
         for (StockMove move : moveList) {
             this.create(move);
             if (move.getFromLocationId().equals(0L)){
                 quantService.lockQuantByContainerId(move.getFromContainerId());
-            } else {
+            } else if (!islocked){
                 quantService.lockQuantByLocation(move.getFromLocationId());
+                islocked = true;
             }
             quantService.move(move);
         }

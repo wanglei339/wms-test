@@ -171,6 +171,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             throw new BizCheckedException("2550018");
         }
         core.outbound(params);
+        logger.info("--outbound finish--");
         Map<String, Object> next = new HashMap<String, Object>();
         Long nextLocationId, nextItem;
         String packName;
