@@ -181,7 +181,7 @@ public class PickRestService implements IPickRestService {
             // 完成拣货任务
             iTaskRpcService.done(taskId, locationId, staffId);
             // 获取下一个拣货位id
-            if (taskInfos.get(1) != null) {
+            if (taskInfos.size() > 1) {
                 PickTaskHead nextTaskHead = pickTaskService.getPickTaskHead(taskInfos.get(1).getTaskId());
                 result.put("next_collection", nextTaskHead);
             }
