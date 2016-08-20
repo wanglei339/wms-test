@@ -90,9 +90,9 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (toLocation == null) {
             throw new BizCheckedException("2060012");
         }
-        if (toLocation.getCanStore() != 1) {
-            throw new BizCheckedException("2550020");
-        }
+//        if (toLocation.getCanStore() != 1) {
+//            throw new BizCheckedException("2550020");
+//        }
         //TODO
         //get available location
         if (toLocation.getCanUse() != 1) {

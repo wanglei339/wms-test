@@ -205,6 +205,10 @@ public class StockTransferRestService implements IStockTransferRestService {
         Map<String, Object> result;
         Long type = Long.valueOf(mapQuery.get("type").toString());
         try {
+            Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
+            if (taskRpcService.getTaskEntryById(taskId).getTaskInfo().getType() != TaskConstant.TYPE_STOCK_TRANSFER) {
+                throw new BizCheckedException("2550021");
+            }
             if (type.equals(1L)) {
                 result = rpcService.scanFromLocation(mapQuery);
             } else {
@@ -283,7 +287,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             }
             TaskInfo taskInfo = taskEntry.getTaskInfo();
             Map<String, Object> response = new HashMap<String, Object>();
-            if (taskInfo.getOperator().equals(staffId) && taskInfo.getStatus().equals(TaskConstant.Assigned)) {
+            if (taskInfo.getOperator().equals(staffId) && taskInfo.getStatus().equals(TaskConstant.Assigned) && taskInfo.getExt3() == 0) {
                 taskInfo.setOperator(1L);
                 taskInfo.setStatus(TaskConstant.Draft);
                 taskInfoDao.update(taskInfo);
