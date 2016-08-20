@@ -111,13 +111,21 @@ public class StockMoveService {
     public void move(List<StockMove> moveList) throws BizCheckedException{
         for (StockMove move : moveList) {
             this.create(move);
-            quantService.lockQuantByLocation(move.getFromLocationId());
+            if (move.getFromLocationId().equals(0L)){
+                quantService.lockQuantByContainerId(move.getFromContainerId());
+            } else {
+                quantService.lockQuantByLocation(move.getFromLocationId());
+            }
             quantService.move(move);
         }
     }
 
     @Transactional(readOnly = false)
-    public void moveToContainer(Long itemId, Long operator,Long fromContainer,Long toContainer,Long locationId,BigDecimal qty) {
+    public void moveToContainer(Long itemId, Long operator,Long fromContainer,Long toContainer,Long locationId,BigDecimal qty) throws BizCheckedException {
+        if (qty.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BizCheckedException("1550001" );
+        }
+
         quantService.lockQuantByContainerId(fromContainer);
 
         Map<String, Object> queryMap = new HashMap<String, Object>();
@@ -148,5 +156,4 @@ public class StockMoveService {
         this.create(move);
         quantService.move(move);
     }
-
 }
