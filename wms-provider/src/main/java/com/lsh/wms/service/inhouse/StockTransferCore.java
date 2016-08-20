@@ -104,6 +104,7 @@ public class StockTransferCore {
             throw new BizCheckedException("2550005");
         }
         TaskInfo taskInfo = taskEntry.getTaskInfo();
+        taskInfo.setExt4(1L);
         if(quant.getItemId().compareTo(taskInfo.getItemId())!=0)
             throw new BizCheckedException("2040005");{
         }
