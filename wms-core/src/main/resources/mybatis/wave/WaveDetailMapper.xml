@@ -115,9 +115,9 @@
 		where id=#{id}
 	</update>
   
-	<select id="getWaveDetailById" parameterType="int" resultMap="waveDetailResultMap">
+	<select id="getWaveDetailById" parameterType="long" resultMap="waveDetailResultMap">
 		select * from wave_detail
-		where ID=#{id}
+		where id=#{id}
 	</select>
 
 	<select id="getUnPickedQty" parameterType="map" resultType="java.math.BigDecimal">

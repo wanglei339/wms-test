@@ -82,11 +82,13 @@ public class WaveService {
         List<WaveHead> WaveHeadList = waveHeadDao.getWaveHeadList(mapQuery);
         return WaveHeadList.size() == 0 ? null : WaveHeadList.get(0);
     }
+
     @Transactional(readOnly = false)
     public void update(WaveHead head){
         head.setUpdatedAt(DateUtils.getCurrentSeconds());
         waveHeadDao.update(head);
     }
+
     @Transactional(readOnly = false)
     public void setStatus(long iWaveId, int iStatus){
         WaveHead head = this.getWave(iWaveId);
@@ -116,6 +118,10 @@ public class WaveService {
         return detailDao.getOrderedWaveDetailList(mapQuery);
     }
 
+    @Transactional(readOnly = true)
+    public WaveDetail getWaveDetailById(long id){
+        return detailDao.getWaveDetailById(id);
+    }
 
     public List<WaveDetail> getDetaileByWaveId(long waveId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
@@ -177,7 +183,11 @@ public class WaveService {
     @Transactional(readOnly = true)
     public BigDecimal getUnPickedQty(Map<String, Object> mapQuery)
     {
-        return detailDao.getUnPickedQty(mapQuery);
+        BigDecimal unPickedQty = detailDao.getUnPickedQty(mapQuery);
+        if ( unPickedQty == null ){
+            unPickedQty = new BigDecimal("0.0000");
+        }
+        return unPickedQty;
     }
 
     @Transactional(readOnly = false)

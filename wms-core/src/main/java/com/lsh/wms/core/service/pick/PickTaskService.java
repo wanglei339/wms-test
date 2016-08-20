@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.pick;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.wave.WaveDetailDao;
@@ -10,6 +11,7 @@ import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.pick.PickTaskHead;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zengwenjun on 16/7/15.
@@ -36,6 +39,8 @@ public class PickTaskService {
     private WaveDetailDao taskDetailDao;
     @Autowired
     private StockMoveService moveService;
+    @Autowired
+    private StockQuantService stockQuantService;
     @Autowired
     private WaveService waveService;
     @Autowired
@@ -93,8 +98,16 @@ public class PickTaskService {
     @Transactional(readOnly = false)
     public void pickOne(WaveDetail pickDetail, Long locationId, Long containerId, BigDecimal qty, Long staffId) {
         Long taskId = pickDetail.getPickTaskId();
-        Long fromContainerId = pickDetail.getContainerId();
         Long itemId = pickDetail.getItemId();
+        Map<String, Object> quantParams = new HashMap<String, Object>();
+        quantParams.put("locationId", locationId);
+        quantParams.put("itemId", itemId);
+        List<StockQuant> quants = stockQuantService.getQuants(quantParams);
+        if (quants.size() < 1) {
+            throw new BizCheckedException("2550009");
+        }
+        StockQuant quant = quants.get(0);
+        Long fromContainerId = quant.getContainerId();
         // 更新wave_detail
         pickDetail.setContainerId(containerId);
         pickDetail.setRealPickLocation(locationId);
