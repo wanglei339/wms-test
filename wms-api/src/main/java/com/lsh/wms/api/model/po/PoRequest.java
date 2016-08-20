@@ -23,7 +23,6 @@ public class PoRequest implements Serializable {
     private String orderOtherId;
 
     /** 采购组 */
-    @NotBlank
     @Size(max=64)
     private String orderUser;
 
@@ -36,7 +35,6 @@ public class PoRequest implements Serializable {
     private Integer orderType;
 
     /** 供商编码 */
-    @NotNull
     private Long supplierCode;
 
     /** 供商名称 */

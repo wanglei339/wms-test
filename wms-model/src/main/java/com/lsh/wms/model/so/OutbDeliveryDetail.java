@@ -25,6 +25,9 @@ public class OutbDeliveryDetail implements Serializable {
     private Long packUnit;
 	/** 批次号 */
     private String lotNum;
+	/** 批号ID */
+	private Long lotId;
+
 	/** 出货数 */
     private Long deliveryNum;
 	/**  */
@@ -156,4 +159,11 @@ public class OutbDeliveryDetail implements Serializable {
 		this.updatetime = updatetime;
 	}
 
+	public Long getLotId() {
+		return lotId;
+	}
+
+	public void setLotId(Long lotId) {
+		this.lotId = lotId;
+	}
 }
