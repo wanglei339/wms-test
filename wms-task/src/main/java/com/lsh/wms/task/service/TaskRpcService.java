@@ -16,11 +16,14 @@ import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.core.service.task.TaskHandler;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.task.TaskTrigger;
+import com.lsh.wms.task.service.event.EventHandlerFactory;
+import com.lsh.wms.task.service.event.IEventHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.beans.EventHandler;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
@@ -50,6 +53,9 @@ public class TaskRpcService implements ITaskRpcService {
 
     @Autowired
     private LocationService locationService;
+
+    @Autowired
+    private EventHandlerFactory eventHandlerFactory;
 
     private String getCurrentMethodName() {
         StackTraceElement[] stacktrace = Thread.currentThread().getStackTrace();
@@ -159,57 +165,12 @@ public class TaskRpcService implements ITaskRpcService {
     }
 
     public void afterDone(Long taskId) throws BizCheckedException {
-
-        TaskInfo taskInfo =  this.getTaskEntryById(taskId).getTaskInfo();
-        Long itemId = taskInfo.getItemId();
-        List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationList(itemId);
-        Long pickLocationId = itemLocations.get(0).getPickLocationid();
-        BaseinfoLocation pickLocation = locationService.getLocation(pickLocationId);
-        Long handlerType = 0L;
-        if (pickLocation.getType().equals(LocationConstant.LOCATION_TYPE.get("loft_collection_bin"))) {
-            // 阁楼上架任务
-            handlerType = TaskConstant.TYPE_ATTIC_SHELVE;
-        } else {
-            handlerType = TaskConstant.TYPE_SHELVE;
-        }
-
+        IEventHandler handler = eventHandlerFactory.getEventHandler(this.getTaskTypeById(taskId));
         try {
-            TaskHandler taskHandler = handlerFactory.getTaskHandler(handlerType);
-            taskHandler.create(getTaskEntryById(taskId));
-        } catch (BizCheckedException e) {
-            logger.warn(e.getMessage());
-        } catch (Exception e) {
-            logger.error("Exception",e);
-            logger.warn(e.getCause().getMessage());
+            handler.process(taskId);
+        } catch (Exception e){
+            logger.error("AfterDone Exception", e);
         }
-
-
-       /*
-        StackTraceElement[] stacktrace = Thread.currentThread().getStackTrace();
-        StackTraceElement element = stacktrace[2];
-        String methodName = element.getMethodName();
-
-        Map<String, List<TaskTrigger>> triggerMap = triggerService.getAll();
-        Long taskType = this.getTaskTypeById(taskId);
-        TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
-
-        String key = taskType + this.getTaskEntryById(taskId).getTaskInfo().getSubType() + "done" + 1L;
-        List<TaskTrigger> triggerList = triggerMap.get(key);
-        if (null == triggerList) {
-            return;
-        }
-        for(TaskTrigger trigger : triggerList) {
-            TaskHandler handler = handlerFactory.getTaskHandler(trigger.getDestType());
-            try {
-                Method method = handler.getClass().getDeclaredMethod(trigger.getDestMethod(), TaskEntry.class);
-                method.invoke(handler, this.getTaskEntryById(taskId));
-            } catch (BizCheckedException e) {
-                logger.warn(e.getMessage());
-            }catch (Exception e) {
-                logger.error("Exception",e);
-                logger.warn(e.getCause().getMessage());
-            }
-        }*/
     }
 
     public List<Map<String,Object>> getPerformance(Map<String, Object> condition) {
