@@ -12,4 +12,5 @@ public interface IProcurementRestService {
     String scanToLocation() throws  BizCheckedException;
     String taskView() throws BizCheckedException;
     String fetchTask() throws BizCheckedException;
+    String scanLocation() throws BizCheckedException;
 }

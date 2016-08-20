@@ -125,14 +125,10 @@ public class AtticShelveRestService implements IAtticShelveRestService{
 
         entry.setTaskInfo(taskInfo);
 
-        final Long taskId = iTaskRpcService.create(taskType, entry);
+        iTaskRpcService.create(taskType, entry);
 
 
-        return JsonUtils.SUCCESS(new HashMap<String, Object>() {
-            {
-                put("taskId", taskId);
-            }
-        });
+        return JsonUtils.SUCCESS();
     }
 
     /**
