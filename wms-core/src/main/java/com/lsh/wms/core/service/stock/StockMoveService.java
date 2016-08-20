@@ -117,7 +117,11 @@ public class StockMoveService {
     }
 
     @Transactional(readOnly = false)
-    public void moveToContainer(Long itemId, Long operator,Long fromContainer,Long toContainer,Long locationId,BigDecimal qty) {
+    public void moveToContainer(Long itemId, Long operator,Long fromContainer,Long toContainer,Long locationId,BigDecimal qty) throws BizCheckedException {
+        if (qty.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BizCheckedException("1550001" );
+        }
+
         quantService.lockQuantByContainerId(fromContainer);
 
         Map<String, Object> queryMap = new HashMap<String, Object>();
