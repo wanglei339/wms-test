@@ -141,12 +141,17 @@ public class AtticShelveRestService implements IAtticShelveRestService{
     public String createDetail() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long taskId = 0L;
-        Long operator = 0L;
-        List <AtticShelveTaskDetail> details =null;
+        Long allocLocationId = 0L;
+        Long realLocationId =0L;
+        BigDecimal qty = BigDecimal.ZERO;
+        BigDecimal realQty = BigDecimal.ZERO;
+
         try {
             taskId = Long.valueOf(mapQuery.get("taskId").toString());
-            details = (List)mapQuery.get("detailList");
-            operator = Long.valueOf(mapQuery.get("operator").toString());
+            allocLocationId= Long.valueOf(mapQuery.get("allocLocationId").toString());
+            realLocationId = Long.valueOf(mapQuery.get("realLocationId").toString());
+            qty = new BigDecimal(mapQuery.get("qty").toString());
+            realQty = new BigDecimal(mapQuery.get("realQty").toString());
         }catch (Exception e){
             logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("参数传递格式有误");
@@ -158,8 +163,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         }
         TaskInfo info = entry.getTaskInfo();
         info.setStatus(TaskConstant.Assigned);
-        info.setExt1(1L); //pc创建任务详情标示
-        info.setOperator(operator);
+        info.setExt1(1L); //pc创建任务详情标示  0: 未创建详情 1:已创建详情 2:已执行中
         // 获取quant
         List<StockQuant> quants = stockQuantService.getQuantsByContainerId(info.getContainerId());
         if (quants.size() < 1) {
@@ -167,18 +171,91 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         }
         StockQuant quant = quants.get(0);
         StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
-        for(AtticShelveTaskDetail detail:details) {
-            ObjUtils.bean2bean(quant, detail);
-            detail.setTaskId(taskId);
-            detail.setReceiptId(lot.getReceiptId());
-            detail.setOrderId(lot.getPoId());
-            detail.setOperator(operator);
-            if(detail.getId().compareTo(0L)==0){
-                shelveTaskService.create(detail);
-            }else {
-                shelveTaskService.updateDetail(detail);
-            }
+        AtticShelveTaskDetail detail =  new AtticShelveTaskDetail();
+        ObjUtils.bean2bean(quant, detail);
+        detail.setTaskId(taskId);
+        detail.setReceiptId(lot.getReceiptId());
+        detail.setOrderId(lot.getPoId());
+        detail.setOperator(info.getOperator());
+        detail.setAllocLocationId(allocLocationId);
+        detail.setRealLocationId(realLocationId);
+        detail.setQty(qty);
+        detail.setRealQty(realQty);
+        shelveTaskService.create(detail);
+
+
+        return JsonUtils.SUCCESS();
+    }
+    /**
+     * 修改上架详情
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("updateDetail")
+    public String updateDetail() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long detailId = 0L;
+        Long allocLocationId = 0L;
+        Long realLocationId =0L;
+        BigDecimal qty = BigDecimal.ZERO;
+        BigDecimal realQty = BigDecimal.ZERO;
+
+        try {
+            detailId = Long.valueOf(mapQuery.get("detailId").toString());
+            allocLocationId= Long.valueOf(mapQuery.get("allocLocationId").toString());
+            realLocationId = Long.valueOf(mapQuery.get("realLocationId").toString());
+            qty = new BigDecimal(mapQuery.get("qty").toString());
+            realQty = new BigDecimal(mapQuery.get("realQty").toString());
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            return JsonUtils.TOKEN_ERROR("参数传递格式有误");
         }
+
+        AtticShelveTaskDetail detail = shelveTaskService.getDetailById(detailId);
+        if(detail ==null){
+            return JsonUtils.TOKEN_ERROR("任务详情不存在");
+        }
+        detail.setAllocLocationId(allocLocationId);
+        detail.setRealLocationId(realLocationId);
+        detail.setQty(qty);
+        detail.setRealQty(realQty);
+        shelveTaskService.updateDetail(detail);
+
+
+        return JsonUtils.SUCCESS();
+    }
+    /**
+     * 创建上架详情
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("doDetail")
+    public String doDetail() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long taskId = 0L;
+        Long allocLocationId = 0L;
+        Long realLocationId =0L;
+        BigDecimal qty = BigDecimal.ZERO;
+        BigDecimal realQty = BigDecimal.ZERO;
+
+        try {
+            taskId = Long.valueOf(mapQuery.get("taskId").toString());
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            return JsonUtils.TOKEN_ERROR("参数传递格式有误");
+        }
+
+        TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
+        if(entry ==null){
+            return JsonUtils.TOKEN_ERROR("任务不存在");
+        }
+        TaskInfo info = entry.getTaskInfo();
+        info.setExt1(2L); //pc创建任务详情标示  0: 未创建详情 1:已创建详情 2:已执行中
+        entry.setTaskInfo(info);
+        iTaskRpcService.update(TaskConstant.TYPE_ATTIC_SHELVE,entry);
+
         return JsonUtils.SUCCESS();
     }
     /**
@@ -191,10 +268,8 @@ public class AtticShelveRestService implements IAtticShelveRestService{
     public String conFirmDetail() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long taskId = 0L;
-        List <AtticShelveTaskDetail> details = new ArrayList<AtticShelveTaskDetail>();
         try {
             taskId = Long.valueOf(mapQuery.get("taskId").toString());
-            details = (List)mapQuery.get("detailList");
         }catch (Exception e){
             logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("参数传递格式有误");
@@ -205,16 +280,17 @@ public class AtticShelveRestService implements IAtticShelveRestService{
             return JsonUtils.TOKEN_ERROR("任务不存在");
         }
 
-
         // 获取quant
         List<StockQuant> quants = stockQuantService.getQuantsByContainerId(entry.getTaskInfo().getContainerId());
         if (quants.size() < 1) {
             throw new BizCheckedException("2030001");
         }
         StockQuant quant = quants.get(0);
-
-        for(AtticShelveTaskDetail detail:details){
-            this.doneDetail(detail, quant);
+        List<Object> details = entry.getTaskDetailList();
+        if(details!=null && details.size()!=0) {
+            for (Object detail : details) {
+                this.doneDetail((AtticShelveTaskDetail) detail, quant);
+            }
         }
         iTaskRpcService.done(taskId);
 

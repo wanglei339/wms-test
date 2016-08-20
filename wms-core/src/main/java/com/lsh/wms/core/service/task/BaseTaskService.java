@@ -239,6 +239,21 @@ public class BaseTaskService {
         }
         return taskInfos.get(0).getTaskId();
     }
+    /**
+     * 根据container_id获取已分配的任务id
+     * @param containerId
+     * @return
+     */
+    public Long getAssignTaskIdByContainerId (Long containerId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("containerId", containerId);
+        params.put("status", TaskConstant.Assigned);
+        List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
+        if (taskInfos.size() == 0) {
+            return null;
+        }
+        return taskInfos.get(0).getTaskId();
+    }
 
     /**
      * 根据locationId获取指定类型的未完成任务
