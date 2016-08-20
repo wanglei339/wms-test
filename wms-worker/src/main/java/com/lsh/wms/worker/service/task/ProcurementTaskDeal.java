@@ -36,8 +36,8 @@ public class ProcurementTaskDeal implements IScheduleTaskDealSingle<String> {
 
     public List<String> selectTasks(String taskParameter, String ownSign, int taskItemNum, List<TaskItemDefine> taskItemList, int eachFetchDataNum) throws Exception {
         //taskItemList.get(0).getTaskItemId();
-        System.out.println(taskItemList.size());
-        System.out.println("[" + new Timestamp(System.currentTimeMillis()) + "] [select] " + Thread.currentThread().getName() + "..." + taskItemList.get(0).getTaskItemId());
+        logger.info(taskItemList.size()+"");
+        logger.info("[" + new Timestamp(System.currentTimeMillis()) + "] [select] " + Thread.currentThread().getName() + "..." + taskItemList.get(0).getTaskItemId());
         int num = eachFetchDataNum / taskItemList.size();
         List<String> list = new ArrayList<String>();
         String id = taskItemList.get(0).getTaskItemId();

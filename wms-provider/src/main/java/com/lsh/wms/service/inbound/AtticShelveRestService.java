@@ -226,6 +226,34 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         return JsonUtils.SUCCESS();
     }
     /**
+     * 修改上架详情
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("cancelDetail")
+    public String cancelDetail() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long detailId = 0L;
+
+        try {
+            detailId = Long.valueOf(mapQuery.get("detailId").toString());
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            return JsonUtils.TOKEN_ERROR("参数传递格式有误");
+        }
+
+        AtticShelveTaskDetail detail = shelveTaskService.getDetailById(detailId);
+        if(detail ==null){
+            return JsonUtils.TOKEN_ERROR("任务详情不存在");
+        }
+        detail.setStatus(0L);
+        shelveTaskService.updateDetail(detail);
+
+
+        return JsonUtils.SUCCESS();
+    }
+    /**
      * 创建上架详情
      * @return
      * @throws BizCheckedException
@@ -235,10 +263,6 @@ public class AtticShelveRestService implements IAtticShelveRestService{
     public String doDetail() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long taskId = 0L;
-        Long allocLocationId = 0L;
-        Long realLocationId =0L;
-        BigDecimal qty = BigDecimal.ZERO;
-        BigDecimal realQty = BigDecimal.ZERO;
 
         try {
             taskId = Long.valueOf(mapQuery.get("taskId").toString());
@@ -254,7 +278,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         TaskInfo info = entry.getTaskInfo();
         info.setExt1(2L); //pc创建任务详情标示  0: 未创建详情 1:已创建详情 2:已执行中
         entry.setTaskInfo(info);
-        iTaskRpcService.update(TaskConstant.TYPE_ATTIC_SHELVE,entry);
+        iTaskRpcService.update(TaskConstant.TYPE_ATTIC_SHELVE, entry);
 
         return JsonUtils.SUCCESS();
     }
@@ -264,7 +288,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
      * @throws BizCheckedException
      */
     @POST
-    @Path("confimDetail")
+    @Path("confirmDetail")
     public String conFirmDetail() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long taskId = 0L;
@@ -351,6 +375,17 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         return JsonUtils.SUCCESS(resultList);
     }
     /**
+     * 获取上架任务列表
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("getlocationList")
+    public String getLocationList() throws BizCheckedException {
+        List<Long> resultList =new ArrayList<Long>();
+        return JsonUtils.SUCCESS(resultList);
+    }
+    /**
      * 获得上架详情
      * @return
      * @throws BizCheckedException
@@ -412,7 +447,9 @@ public class AtticShelveRestService implements IAtticShelveRestService{
     }
 
     private void doneDetail(AtticShelveTaskDetail detail,StockQuant quant) {
-
+        if(detail.getStatus().compareTo(1L)!=0){
+            return;
+        }
         detail.setShelveAt(DateUtils.getCurrentSeconds());
         detail.setStatus(2L);
         if(detail.getRealQty().compareTo(BigDecimal.ZERO)==0){

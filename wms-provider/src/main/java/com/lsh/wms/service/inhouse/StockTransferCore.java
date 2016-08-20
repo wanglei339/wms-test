@@ -97,6 +97,7 @@ public class StockTransferCore {
         condition.setLocationId(fromLocationId);
         condition.setItemId(taskEntry.getTaskInfo().getItemId());
         List<StockQuant> quants = stockQuantRpcService.getQuantList(condition);
+
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         if(taskInfo.getType().compareTo(TaskConstant.TYPE_ATTIC_SHELVE)==0){
             taskInfo.setExt4(1L);
@@ -117,6 +118,7 @@ public class StockTransferCore {
         if (taskInfo.getSubType().compareTo(1L)==0) {
             moveRpcService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
         } else {
+
             BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString()).multiply(taskInfo.getPackUnit());
             if(taskInfo.getQty().compareTo(qtyDone) < 0){
                 throw new BizCheckedException("2550008");
@@ -126,7 +128,7 @@ public class StockTransferCore {
             move.setQty(qtyDone);
             move.setToLocationId(toLocationId);
             move.setFromContainerId(quants.get(0).getContainerId());
-            move.setToContainerId(containerId);
+            move.setToContainerId(taskInfo.getContainerId());
             List<StockMove> moveList = new ArrayList<StockMove>();
             moveList.add(move);
             moveRpcService.move(moveList);
@@ -244,7 +246,7 @@ public class StockTransferCore {
         Map<String ,Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("status", TaskConstant.Assigned);
         mapQuery.put("operator", staffId);
-        mapQuery.put("ext1",1);
+        mapQuery.put("ext1", 1);
         List<TaskEntry> entryList = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQuery);
         return entryList.get(0).getTaskInfo().getTaskId();
     }
@@ -253,7 +255,7 @@ public class StockTransferCore {
         Map<String ,Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("operator", staffId);
         mapQuery.put("status", TaskConstant.Assigned);
-        mapQuery.put("ext2",1);
+        mapQuery.put("ext2", 1);
         List<TaskEntry> entryList = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQuery);
         return entryList.get(0).getTaskInfo().getTaskId();
     }
