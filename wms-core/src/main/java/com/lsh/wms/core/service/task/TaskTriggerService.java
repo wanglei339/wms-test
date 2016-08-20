@@ -24,7 +24,7 @@ public class TaskTriggerService {
         condition.put("is_valid", 1L);
         List<TaskTrigger> triggerList = dao.getTaskTriggerList(condition);
         for (TaskTrigger trigger : triggerList) {
-            String key = trigger.getOriType() + trigger.getOriSubType() + trigger.getOriMethod();
+            String key = "" + trigger.getOriType() + trigger.getOriSubType() + trigger.getOriMethod();
             if (trigger.getTimming().equals(3L)) {
                 key += trigger.getException();
             } else {

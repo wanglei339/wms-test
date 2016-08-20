@@ -17,18 +17,7 @@ public class WaveRequest implements Serializable {
     private Long waveTemplateId = 0L;
     /** 波次产生来源，SYS-系统，TMS-运输系统 */
     private String waveSource = "SYS";
-    /** 波次产生目的, COMMON-普通, YG-优供, SUPERMARKET-大卖场 */
-    private String waveDest = "COMMON";
-    /** 捡货模型模版id */
-    private Long pickModelTemplateId;
 
-    public Long getPickModelTemplateId() {
-        return pickModelTemplateId;
-    }
-
-    public void setPickModelTemplateId(Long pickModelTemplateId) {
-        this.pickModelTemplateId = pickModelTemplateId;
-    }
 
     public Long getStatus() {
         return status;
@@ -36,14 +25,6 @@ public class WaveRequest implements Serializable {
 
     public void setStatus(Long status) {
         this.status = status;
-    }
-
-    public String getWaveDest() {
-        return waveDest;
-    }
-
-    public void setWaveDest(String waveDest) {
-        this.waveDest = waveDest;
     }
 
     public String getWaveSource() {
@@ -88,11 +69,9 @@ public class WaveRequest implements Serializable {
         this.orderIds = orderIds;
     }
 
-    public WaveRequest(List<Long> orderIds, Long pickModelTemplateId, Long status, String waveDest, String waveName, String waveSource, Long waveTemplateId, Long waveType) {
+    public WaveRequest(List<Long> orderIds, Long status, String waveName, String waveSource, Long waveTemplateId, Long waveType) {
         this.orderIds = orderIds;
-        this.pickModelTemplateId = pickModelTemplateId;
         this.status = status;
-        this.waveDest = waveDest;
         this.waveName = waveName;
         this.waveSource = waveSource;
         this.waveTemplateId = waveTemplateId;

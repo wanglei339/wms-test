@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public interface TaskHandler {
     void create(TaskEntry taskEntry) throws BizCheckedException;
-    public void createConcrete(TaskEntry taskEntry) throws BizCheckedException;
+    void createConcrete(TaskEntry taskEntry) throws BizCheckedException;
     void batchCreate(List<TaskEntry> taskEntries) throws BizCheckedException;
     void batchAssign(List<Long> tasks,Long staffId) throws BizCheckedException;
     void batchCancel(List<Long> tasks) throws BizCheckedException;
@@ -22,6 +22,7 @@ public interface TaskHandler {
     List<TaskEntry> getTaskHeadList(Map<String, Object> condition);
     void assign(Long taskId, Long staffId) throws BizCheckedException;
     void assign(Long taskId, Long staffId, Long containerId) throws BizCheckedException;
+    void assignMul(List<Map<String, Long>> params) throws BizCheckedException;
     void assignConcrete(Long taskId, Long staffId) throws BizCheckedException;
     void assignConcrete(Long taskId, Long staffId, Long containerId) throws BizCheckedException;
     void allocate(Long taskId);

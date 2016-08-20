@@ -88,6 +88,21 @@ public class BaseTaskService {
         taskInfoDao.update(taskInfo);
         taskHandler.assignConcrete(taskId, staffId);
     }
+
+    @Transactional(readOnly = false)
+    public void assignMul(List<Map<String, Long>> params, TaskHandler taskHandler) throws BizCheckedException {
+        for (Map<String, Long> param: params) {
+            TaskInfo taskInfo = taskInfoDao.getTaskInfoById(param.get("taskId"));
+            taskInfo.setOperator(param.get("staffId"));
+            taskInfo.setStatus(TaskConstant.Assigned);
+            taskInfo.setAssignTime(DateUtils.getCurrentSeconds());
+            taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+            taskInfo.setContainerId(param.get("containerId"));
+            taskInfoDao.update(taskInfo);
+            taskHandler.assignConcrete(param.get("taskId"), param.get("staffId"), param.get("containerId"));
+        }
+    }
+
     @Transactional(readOnly = false)
     public void update(TaskEntry taskEntry, TaskHandler taskHandler) throws BizCheckedException {
         TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskEntry.getTaskInfo().getTaskId());;
@@ -218,6 +233,21 @@ public class BaseTaskService {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("containerId", containerId);
         params.put("status", TaskConstant.Draft);
+        List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
+        if (taskInfos.size() == 0) {
+            return null;
+        }
+        return taskInfos.get(0).getTaskId();
+    }
+    /**
+     * 根据container_id获取已分配的任务id
+     * @param containerId
+     * @return
+     */
+    public Long getAssignTaskIdByContainerId (Long containerId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("containerId", containerId);
+        params.put("status", TaskConstant.Assigned);
         List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
         if (taskInfos.size() == 0) {
             return null;

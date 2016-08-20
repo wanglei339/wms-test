@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.wave.WaveTemplateDao" >
+
+	<resultMap id="waveTemplateResultMap" type="WaveTemplate">
+		<id property="id" column="id"/>
+		<result property="waveTemplateId" column="wave_template_id"/>
+		<result property="waveTemplateName" column="wave_template_name"/>
+		<result property="status" column="status"/>
+		<result property="waveDest" column="wave_dest"/>
+		<result property="collectLocations" column="collect_locations"/>
+		<result property="useCollectBin" column="use_collect_bin"/>
+		<result property="pickModelTemplateId" column="pick_model_template_id"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="WaveTemplate">
+		insert into wave_template (
+			wave_template_id,wave_template_name,status,wave_dest,collect_locations,use_collect_bin,
+			pick_model_template_id,created_at,updated_at
+    	) values (
+			#{waveTemplateId},#{waveTemplateName},#{status},#{waveDest},#{collectLocations},#{useCollectBin},
+			#{pickModelTemplateId},#{createdAt},#{updatedAt}
+    	)
+	</insert>
+
+	<update id="update" parameterType="WaveTemplate">
+		update wave_template
+    	<set>
+  			<if test="waveTemplateId != null">wave_template_id=#{waveTemplateId},</if>
+  			<if test="waveTemplateName != null">wave_template_name=#{waveTemplateName},</if>
+  			<if test="status != null">status=#{status},</if>
+  			<if test="waveDest != null">wave_dest=#{waveDest},</if>
+  			<if test="collectLocations != null">collect_locations=#{collectLocations},</if>
+  			<if test="useCollectBin != null">use_collect_bin=#{useCollectBin},</if>
+  			<if test="pickModelTemplateId != null">pick_model_template_id=#{pickModelTemplateId},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getWaveTemplateById" parameterType="int" resultMap="waveTemplateResultMap">
+		select * from wave_template
+		where ID=#{id} 
+	</select>
+  
+	<select id="countWaveTemplate" parameterType="map" resultType="int">
+		select count(*) from wave_template
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getWaveTemplateList" parameterType="map" resultMap="waveTemplateResultMap">
+		select * from wave_template
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="waveTemplateId != null">and wave_template_id=#{waveTemplateId}</if>
+			<if test="waveTemplateName != null">and wave_template_name=#{waveTemplateName}</if>
+			<if test="status != null">and status=#{status}</if>
+			<if test="waveDest != null">and wave_dest=#{waveDest}</if>
+			<if test="collectLocations != null">and collect_locations=#{collectLocations}</if>
+			<if test="useCollectBin != null">and use_collect_bin=#{useCollectBin}</if>
+			<if test="pickModelTemplateId != null">and pick_model_template_id=#{pickModelTemplateId}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>

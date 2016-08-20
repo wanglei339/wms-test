@@ -145,6 +145,7 @@ public class StockMoveService {
         move.setFromContainerId(fromContainer);
         move.setToContainerId(toContainer);
         move.setOperator(operator);
+        this.create(move);
         quantService.move(move);
     }
 

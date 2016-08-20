@@ -12,6 +12,4 @@ import org.springframework.stereotype.Component;
 public class TaskMsgHandler {
     @Autowired
     private MessageService msgService;
-
-
 }
