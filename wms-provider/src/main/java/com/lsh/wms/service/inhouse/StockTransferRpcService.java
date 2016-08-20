@@ -140,7 +140,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         }
         Long containerId = quantList.get(0).getContainerId();
         if (plan.getSubType() == 2) {
-            containerId = containerService.createContainerByType(2L).getId();
+            containerId = containerService.createContainerByType(2L).getContainerId();
         }
         TaskEntry taskEntry = new TaskEntry();
         TaskInfo taskInfo = new TaskInfo();
