@@ -215,4 +215,20 @@ public class SoDeliveryService {
         return outbDeliveryHeaderList;
     }
 
+    /**
+     * 根据ORDER_ID、ITEM_ID获取OutbDeliveryDetail
+     * */
+    public OutbDeliveryDetail getOutbDeliveryDetail(Long orderId,Long itemId){
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("orderId", orderId);
+        params.put("itemId",itemId);
+        List<OutbDeliveryDetail> lists = outbDeliveryDetailDao.getOutbDeliveryDetailList(params);
+        if(lists.size()>0){
+            return lists.get(0);
+        }
+        return null;
+
+    }
+
+
 }

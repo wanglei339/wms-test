@@ -90,8 +90,22 @@ public class StockTransferCore {
             throw new BizCheckedException("2550005");
         }
         TaskInfo taskInfo = taskEntry.getTaskInfo();
-        if(taskInfo.getFromLocationId().compareTo(fromLocationId) != 0) {
-            throw new BizCheckedException("2040005");
+        if(taskInfo.getType().compareTo(TaskConstant.TYPE_ATTIC_SHELVE)==0){
+            taskInfo.setExt4(1L);
+            StockQuantCondition condition = new StockQuantCondition();
+            condition.setLocationId(fromLocationId);
+            List<StockQuant> quants = stockQuantRpcService.getQuantList(condition);
+            if(quants == null || quants.size()==0){
+                throw new BizCheckedException("2550008");
+            }
+            StockQuant quant = quants.get(0);
+            if(quant.getItemId().compareTo(taskInfo.getItemId())!=0)
+                throw new BizCheckedException("2040005");{
+            }
+        }else {
+            if (taskInfo.getFromLocationId().compareTo(fromLocationId) != 0) {
+                throw new BizCheckedException("2040005");
+            }
         }
         Long containerId = taskInfo.getContainerId();
         Long toLocationId = locationService.getWarehouseLocationId();

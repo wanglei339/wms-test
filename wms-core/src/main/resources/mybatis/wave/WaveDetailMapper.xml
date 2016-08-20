@@ -115,9 +115,9 @@
 		where id=#{id}
 	</update>
   
-	<select id="getWaveDetailById" parameterType="int" resultMap="waveDetailResultMap">
+	<select id="getWaveDetailById" parameterType="long" resultMap="waveDetailResultMap">
 		select * from wave_detail
-		where ID=#{id}
+		where id=#{id}
 	</select>
 
 	<select id="getUnPickedQty" parameterType="map" resultType="java.math.BigDecimal">
@@ -141,8 +141,9 @@
 	<select id="getOrderedWaveDetailList" parameterType="map" resultMap="waveDetailResultMap">
 		select * from wave_detail
 		<include refid="queryCondition"/>
+		order by pick_order
 		<if test="start != null and limit != null">
-			limit #{start},#{limit}
+		limit #{start},#{limit}
 		</if>
 	</select>
   
@@ -188,6 +189,12 @@
 			<if test="shipAt != null">and ship_at=#{shipAt}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="pickTaskIds != null">
+				and pick_task_id in
+				<foreach collection="pickTaskIds" item="pickTaskId" index="index" open="(" separator=","  close=")">
+					#{pickTaskId}
+				</foreach>
+			</if>
 		</where>
 	</sql>
    
