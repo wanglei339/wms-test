@@ -104,12 +104,17 @@ public class AbsTaskHandler implements TaskHandler {
         baseTaskService.assign(taskId, staffId, this);
         // this.assignConcrete(taskId, staffId);
     }
+
     public void update(TaskEntry taskEntry) throws BizCheckedException {
         baseTaskService.update(taskEntry, this);
         // this.assignConcrete(taskId, staffId);
     }
 
     public void assignConcrete(Long taskId, Long staffId) throws BizCheckedException {
+    }
+
+    public void assignMul(List<Map<String, Long>> params) throws BizCheckedException {
+        baseTaskService.assignMul(params, this);
     }
 
     public void assign(Long taskId, Long staffId, Long containerId) throws BizCheckedException {

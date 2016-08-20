@@ -33,7 +33,7 @@ public class StockTransferProviderRestService implements IStockTransferProviderR
 
     @POST
     @Path("add")
-    public String addPlan(StockTransferPlan plan)  throws BizCheckedException {
+    public String addPlan(StockTransferPlan plan) throws BizCheckedException {
         try{
             rpcService.addPlan(plan);
         } catch (BizCheckedException e){
@@ -47,7 +47,7 @@ public class StockTransferProviderRestService implements IStockTransferProviderR
 
     @POST
     @Path("update")
-    public String updatePlan(StockTransferPlan plan)  throws BizCheckedException {
+    public String updatePlan(StockTransferPlan plan) throws BizCheckedException {
         try {
             rpcService.updatePlan(plan);
         } catch (BizCheckedException e){

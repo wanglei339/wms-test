@@ -5,6 +5,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.PickConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.WaveConstant;
@@ -16,6 +17,7 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.wave.WaveAllocService;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.core.service.wave.WaveTemplateService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
@@ -27,6 +29,7 @@ import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveAllocDetail;
 import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.wave.WaveHead;
+import com.lsh.wms.model.wave.WaveTemplate;
 import com.lsh.wms.service.wave.split.SplitModel;
 import com.lsh.wms.service.wave.split.SplitNode;
 import org.slf4j.Logger;
@@ -66,10 +69,17 @@ public class WaveCore {
     private ItemLocationService itemLocationService;
     @Autowired
     private StockQuantService stockQuantService;
+    @Autowired
+    private WaveTemplateService waveTemplateService;
     
     private WaveHead waveHead;
     List<OutbSoDetail> orderDetails;
+    List<OutbSoHeader> orderList;
     Map<Long, OutbSoHeader> mapOrder2Head;
+    WaveTemplate waveTemplate;
+    List<BaseinfoLocation> unUsedCollectionRoadList;
+    Map<String, BaseinfoLocation> mapRoute2CollectRoad;
+    Map<Long, Long> mapOrder2CollectBin;
     PickModelTemplate modelTpl;
     List<PickModel> modelList;
     List<PickZone> zoneList;
@@ -88,13 +98,17 @@ public class WaveCore {
         waveId = iWaveId;
         //执行波次准备
         this._prepare();
+        //处理线路\运输计划,分配集货道
+        this._allocDock();
         //执行配货
         this._alloc();
         logger.info("begin to run pick model");
         //执行捡货模型,输出最小捡货单元
         this._executePickModel();
-        //处理线路\运输计划,分配集货道
-        this._allocDock();
+        //锁定集货区,记得发货的时候释放哟
+        for(BaseinfoLocation locaion : mapRoute2CollectRoad.values()) {
+            locationService.lockLocation(locaion.getLocationId());
+        }
         //创建捡货任务
         taskRpcService.batchCreate(TaskConstant.TYPE_PICK, entryList);
         //标记成功,这里有风险,就是捡货任务已经创建了,但是这里标记失败了,看咋搞????
@@ -103,7 +117,48 @@ public class WaveCore {
     }
 
     private void _allocDock() throws BizCheckedException{
-
+        Map<Long, Long> mapCollectBinCount = new HashMap<Long, Long>();
+        Map<Long, List<BaseinfoLocation>> mapCollectRoad2Bin = new HashMap<Long, List<BaseinfoLocation>>();
+        int iUseIdx = 0;
+        for(OutbSoHeader order : orderList){
+            Long collectAllocId = 0L;
+            String rout = order.getTransPlan();
+            BaseinfoLocation collecRoad = mapRoute2CollectRoad.get(rout);
+            if ( collecRoad == null ){
+                if(iUseIdx >= unUsedCollectionRoadList.size()){
+                    throw  new BizCheckedException("2040012");
+                }
+                collecRoad = unUsedCollectionRoadList.get(iUseIdx);
+                iUseIdx++;
+                mapRoute2CollectRoad.put(rout, collecRoad);
+                mapCollectBinCount.put(collecRoad.getLocationId(), 0L);
+            }
+            long binIdx = mapCollectBinCount.get(collecRoad.getLocationId());
+            if(waveTemplate.getUseCollectBin() == 0){
+                //不使用精细的集货位
+                collectAllocId = collecRoad.getLocationId();
+            }else{
+                //使用精细的集货位
+                List<BaseinfoLocation> collectionBins = mapCollectRoad2Bin.get(collecRoad.getLocationId());
+                if(collectionBins == null){
+                    if(collecRoad.getIsLeaf()==1){
+                        //卧槽,已经是叶子节点了,没有集货位啊,怎么搞啊
+                        collectionBins = new ArrayList<BaseinfoLocation>();
+                    }
+                    collectionBins = locationService.getSubLocationList(collecRoad.getLocationId(), LocationConstant.COLLECTION_BIN);
+                    mapCollectRoad2Bin.put(collecRoad.getLocationId(), collectionBins);
+                }
+                if(order.getWaveIndex()>= collectionBins.size()){
+                    //卧槽,越界了,根本放不下啊,就放在道上将就将就吧
+                    collectAllocId = collecRoad.getLocationId();
+                }else{
+                    //哈哈,终于找到你拉兄弟
+                    //不过这里我们不处理集货位的占用处理逻辑,TMS你不要瞎搞啊,否则就把我害惨了
+                    collectAllocId = collectionBins.get(order.getWaveIndex()).getLocationId();
+                }
+            }
+            mapOrder2CollectBin.put(order.getOrderId(), collectAllocId);
+        }
     }
 
     private void _executePickModel() throws BizCheckedException{
@@ -123,6 +178,7 @@ public class WaveCore {
                     }
                     WaveDetail detail = new WaveDetail();
                     ObjUtils.bean2bean(ad, detail);
+                    detail.setAllocCollectLocation(mapOrder2CollectBin.get(detail.getOrderId()));
                     node.details.add(detail);
                 }
                 if(node.details.size()>0) {
@@ -185,6 +241,7 @@ public class WaveCore {
                         pickTaskDetails.add(detail);
                         head.setDeliveryId(detail.getOrderId());
                         head.setTransPlan(mapOrder2Head.get(detail.getOrderId()).getTransPlan());
+                        head.setAllocCollectLocation(detail.getAllocCollectLocation());
                     }
                 }
                 iChooseIdx += bestCutPlan[i];
@@ -274,7 +331,7 @@ public class WaveCore {
                 }
             }
             //存储配货结果
-            waveService.storeAlloc(waveHead, pickAllocDetailList);
+            //waveService.storeAlloc(waveHead, pickAllocDetailList);
             //allocService.addAllocDetails(pickAllocDetailList);
         }else{
             logger.info("skip to run alloc waveId[%d], load from db", waveId);
@@ -287,6 +344,8 @@ public class WaveCore {
         mapItemAndPickZone2PickLocations = new HashMap<String, List<Long>>();
         mapItemAndPickZone2PickLocationRound = new HashMap<String, Long>();
         mapPickZoneLeftAllocQty = new HashMap<String, BigDecimal>();
+        mapRoute2CollectRoad = new HashMap<String, BaseinfoLocation>();
+        mapOrder2CollectBin = new HashMap<Long, Long>();
         this._prepareWave();
         this._prepareOrder();
         this._preparePickModel();
@@ -295,8 +354,35 @@ public class WaveCore {
     private void _prepareWave() throws BizCheckedException{
         waveHead = waveService.getWave(waveId);
         if(waveHead==null){
-            throw new BizCheckedException("");
+            throw new BizCheckedException("2040001");
         }
+        //集货模版
+        waveTemplate = waveTemplateService.getWaveTemplate(waveHead.getWaveTemplateId());
+        if(waveTemplate==null){
+            throw new BizCheckedException("2040008");
+        }
+        //获取集货组
+        BaseinfoLocation locGrp = locationService.getLocation(waveTemplate.getCollectLocations());
+        if(locGrp==null){
+            throw new BizCheckedException("2040009");
+        }
+        //获取集货道列表
+        List<BaseinfoLocation> collectLocations = locationService.getSubLocationList(locGrp.getLocationId(), LocationConstant.COLLECTION_ROAD);
+        if(collectLocations.size()==0){
+            throw new BizCheckedException("2040010");
+        }
+        unUsedCollectionRoadList = new ArrayList<BaseinfoLocation>();
+        for(BaseinfoLocation location : collectLocations){
+            if(location.getCanUse()==1 && location.getIsLocked()==0){
+                unUsedCollectionRoadList.add(location);
+            }
+        }
+        //无可用的集货道
+        if(unUsedCollectionRoadList.size()==0){
+            throw new BizCheckedException("2040011");
+        }
+        //集货到分配排序
+        //TODO collection sort
     }
     
     private void _prepareOrder() throws BizCheckedException{
@@ -304,19 +390,20 @@ public class WaveCore {
         mapOrder2Head = new HashMap<Long, OutbSoHeader>();
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("waveId", waveId);
-        List<OutbSoHeader> orders = orderService.getOutbSoHeaderList(mapQuery);
-        Collections.sort(orders, new Comparator<OutbSoHeader>() {
+        orderList = orderService.getOutbSoHeaderList(mapQuery);
+        Collections.sort(orderList, new Comparator<OutbSoHeader>() {
             //此处可以设定一个排序规则,对波次中的订单优先级进行排序
             public int compare(OutbSoHeader o1, OutbSoHeader o2) {
                 return o1.getId().compareTo(o2.getId());
             }
         });
-        for(int i = 0;i  < orders.size(); ++i){
-            mapOrder2Head.put(orders.get(i).getOrderId(), orders.get(i));
-            List<OutbSoDetail> details = orderService.getOutbSoDetailListByOrderId(orders.get(i).getOrderId());
+        for(int i = 0;i  < orderList.size(); ++i){
+            mapOrder2Head.put(orderList.get(i).getOrderId(), orderList.get(i));
+            List<OutbSoDetail> details = orderService.getOutbSoDetailListByOrderId(orderList.get(i).getOrderId());
             orderDetails.addAll(details);
         }
     }
+
     private void _preparePickModel() throws BizCheckedException{
         //获取捡货模版
         modelTpl = modelService.getPickModelTemplate(waveHead.getPickModelTemplateId());

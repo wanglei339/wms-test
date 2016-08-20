@@ -18,6 +18,7 @@ import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.stock.StockQuant;
@@ -29,6 +30,8 @@ import com.lsh.wms.model.transfer.StockTransferPlan;
 import org.apache.commons.collections.map.HashedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.config.Task;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -66,6 +69,9 @@ public class StockTransferRestService implements IStockTransferRestService {
     @Reference
     private IStockQuantRpcService stockQuantRpcService;
 
+    @Autowired
+    private TaskInfoDao taskInfoDao;
+
     @POST
     @Path("view")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
@@ -78,8 +84,8 @@ public class StockTransferRestService implements IStockTransferRestService {
             if (taskEntry == null) {
                 throw new BizCheckedException("2040001");
             }
-            TaskInfo taskInfo = taskEntry.getTaskInfo();
             Map<String, Object> resultMap = new HashMap<String, Object>();
+            TaskInfo taskInfo = taskEntry.getTaskInfo();
             resultMap.put("itemId", taskInfo.getItemId());
             resultMap.put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
             resultMap.put("fromLocationId", taskInfo.getFromLocationId());
@@ -191,25 +197,45 @@ public class StockTransferRestService implements IStockTransferRestService {
     }
 
     @POST
-    @Path("scanFromLocation")
+    @Path("scanLocation")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-    public String scanFromLocation() throws BizCheckedException {
+    public String scanLocation() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Map<String, Object> result;
+        Long type = Long.valueOf(mapQuery.get("type").toString());
         try {
-            rpcService.scanFromLocation(mapQuery);
+            if (type == 1) {
+                result = rpcService.scanFromLocation(mapQuery);
+            } else {
+                result = rpcService.scanToLocation(mapQuery);
+            }
         } catch (BizCheckedException e){
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
             return JsonUtils.EXCEPTION_ERROR("System Busy!");
         }
-        return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
-            {
-                put("response", true);
-            }
-        });
+        return JsonUtils.SUCCESS(result);
     }
+
+//    @POST
+//    @Path("scanFromLocation")
+//    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+//    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+//    public String scanFromLocation() throws BizCheckedException {
+//        Map<String, Object> mapQuery = RequestUtils.getRequest();
+//        Map<String, Object> result;
+//        try {
+//            result = rpcService.scanFromLocation(mapQuery);
+//        } catch (BizCheckedException e){
+//            throw e;
+//        } catch (Exception e) {
+//            logger.error(e.getMessage());
+//            return JsonUtils.EXCEPTION_ERROR("System Busy!");
+//        }
+//        return JsonUtils.SUCCESS(result);
+//    }
 
     @POST
     @Path("fetchTask")
@@ -218,8 +244,7 @@ public class StockTransferRestService implements IStockTransferRestService {
     public String fetchTask() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
         //Long locationId = Long.valueOf(params.get("locationId").toString());
-        Long uId = Long.valueOf(params.get("uId").toString());
-        Long staffId = iSysUserRpcService.getSysUserById(uId).getStaffId();
+        Long staffId = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getStaffId();
         try {
             final Long taskId = rpcService.assign(staffId);
             if(taskId == 0) {
@@ -229,14 +254,23 @@ public class StockTransferRestService implements IStockTransferRestService {
             if (taskEntry == null) {
                 throw new BizCheckedException("2040001");
             }
-            final TaskInfo taskInfo = taskEntry.getTaskInfo();
-            final Long fromLocationId = taskInfo.getFromLocationId();
-            final String fromLocationCode =  locationRpcService.getLocation(fromLocationId).getLocationCode();
+            TaskInfo taskInfo = taskEntry.getTaskInfo();
+            final Long locationId, type;
+            //outbound
+            if (taskInfo.getStatus().equals(TaskConstant.Assigned)) {
+                type = 1L;
+                locationId = taskInfo.getFromLocationId();
+            } else {
+                type = 2L;
+                locationId = taskInfo.getToLocationId();
+            }
+            final String locationCode =  locationRpcService.getLocation(locationId).getLocationCode();
             return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                 {
+                    put("type", type);
                     put("taskId", taskId);
-                    put("fromLocationId", fromLocationId);
-                    put("fromLocationCode",fromLocationCode);
+                    put("locationId", locationId);
+                    put("locationCode",locationCode);
                 }
             });
         } catch (BizCheckedException e){
@@ -248,24 +282,55 @@ public class StockTransferRestService implements IStockTransferRestService {
     }
 
     @POST
-    @Path("scanToLocation")
+    @Path("unFetchTask")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-    public String scanToLocation() throws BizCheckedException {
+    public String unFetchTask() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
+        //Long locationId = Long.valueOf(params.get("locationId").toString());
+        Long staffId = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getStaffId();
         try {
-            rpcService.scanToLocation(params);
+            Long taskId = Long.valueOf(params.get("taskId").toString());
+            TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
+            if (taskEntry == null) {
+                throw new BizCheckedException("2040001");
+            }
+            TaskInfo taskInfo = taskEntry.getTaskInfo();
+            Map<String, Object> response = new HashMap<String, Object>();
+            if (taskInfo.getOperator().equals(staffId) && taskInfo.getStatus().equals(TaskConstant.Assigned)) {
+                taskInfo.setOperator(1L);
+                taskInfo.setStatus(TaskConstant.Draft);
+                taskInfoDao.update(taskInfo);
+                response.put("unFetch", true);
+            } else {
+                response.put("unFetch", false);
+            }
+            return JsonUtils.SUCCESS(response);
+
         } catch (BizCheckedException e){
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
             return JsonUtils.EXCEPTION_ERROR("System Busy!");
         }
-        return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
-            {
-                put("response", true);
-            }
-        });
     }
+
+//    @POST
+//    @Path("scanToLocation")
+//    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+//    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+//    public String scanToLocation() throws BizCheckedException {
+//        Map<String, Object> params = RequestUtils.getRequest();
+//        Map<String, Object> result;
+//        try {
+//            result = rpcService.scanToLocation(params);
+//        } catch (BizCheckedException e){
+//            throw e;
+//        } catch (Exception e) {
+//            logger.error(e.getMessage());
+//            return JsonUtils.EXCEPTION_ERROR("System Busy!");
+//        }
+//        return JsonUtils.SUCCESS(result);
+//    }
 
 }

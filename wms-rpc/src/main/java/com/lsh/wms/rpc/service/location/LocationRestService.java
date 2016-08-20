@@ -193,7 +193,11 @@ public class LocationRestService implements ILocationRestService {
     @GET
     @Path("getAllShelfs")
     public String getAllShelfs() {
-        return JsonUtils.SUCCESS(locationRpcService.getAllShelfs());
+//        return JsonUtils.SUCCESS(locationRpcService.getAllShelfs());
+        Long locationId = Long.parseLong("9073135487256");
+        BaseinfoLocation baseinfoLocation = locationService.getLocation(locationId);
+        return JsonUtils.SUCCESS(locationService.getNearestStorageByPicking(baseinfoLocation));
+
     }
 
 

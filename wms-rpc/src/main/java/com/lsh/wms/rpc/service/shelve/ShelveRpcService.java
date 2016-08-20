@@ -10,8 +10,8 @@ import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
-import com.lsh.wms.core.service.shelve.ShelveTaskService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
@@ -50,17 +50,17 @@ public class ShelveRpcService implements IShelveRpcService {
     @Autowired
     private ProcurementRpcService procurementRpcService;
     @Autowired
-    private ShelveTaskService shelveTaskService;
+    private BaseTaskService baseTaskService;
 
     private static final Float SHELF_LIFE_THRESHOLD = 0.3f; // 保质期差额阈值
 
     /**
-     * 分配上架容器
+     * 分配上架位置
      * @param container
      * @return
      * @throws BizCheckedException
      */
-    public BaseinfoLocation assginShelveLocation(BaseinfoContainer container) throws BizCheckedException {
+    public BaseinfoLocation assginShelveLocation(BaseinfoContainer container, Long subType) throws BizCheckedException {
         BaseinfoLocation targetLocation = new BaseinfoLocation();
         Long containerId = container.getContainerId();
         // 获取托盘上stockQuant信息
@@ -117,15 +117,15 @@ public class ShelveRpcService implements IShelveRpcService {
                 throw new BizCheckedException("2030002");
             }
             // 判断该拣货位是否符合拣货标准
+            // TODO 不找拣货位了,调度器创建任务时传过来
             if (procurementRpcService.needProcurement(pickingLocationId, itemId)) {
                 // 对比保质期差额阈值
                 if (this.checkShelfLifeThreshold(quant, pickingLocation, "shelf_store_bin")) {
                     return pickingLocation;
                 } else {
                     // 查找补货任务
-                    List<TaskInfo> procurementTasks = shelveTaskService.getIncompleteTaskByLocation(pickingLocationId, TaskConstant.TYPE_PROCUREMENT);
-                    if (procurementTasks.size() > 0) {
-                        TaskInfo procurementTask = procurementTasks.get(0);
+                    TaskInfo procurementTask = baseTaskService.getIncompleteTaskByLocation(pickingLocationId, TaskConstant.TYPE_PROCUREMENT).get(0);
+                    if (procurementTask != null) {
                         // 补货任务已领取
                         if (procurementTask.getStatus().equals(TaskConstant.Assigned)) {
                             // 上货架位
@@ -135,7 +135,6 @@ public class ShelveRpcService implements IShelveRpcService {
                             return pickingLocation;
                         }
                     }
-                    return pickingLocation;
                 }
             } else {
                 // 上货架位
@@ -171,7 +170,7 @@ public class ShelveRpcService implements IShelveRpcService {
         // 获取到拣货位的库区id
         BaseinfoLocation areaLocation = locationService.getFatherByClassification(location.getLocationId());
         // 获取该库区下所有的货架位
-        List<BaseinfoLocation> storeLocations = locationService.getChildrenLocationsByType(areaLocation.getLocationId(), "shelf_store_bin");
+        List<BaseinfoLocation> storeLocations = locationService.getChildrenLocationsByType(areaLocation.getLocationId(), locationType);
         params.put("itemId", quant.getItemId());
         params.put("locationList", storeLocations);
         // 获取货架位上的该商品库存

@@ -569,6 +569,7 @@ public class LocationService {
     /**
      * 获取货位节点的id
      * 一次去数据库中取两个相邻货架的拣货位,然后按照筛选规则去筛选存货位
+     *
      * @param mapQuery
      * @return
      */
@@ -580,61 +581,54 @@ public class LocationService {
     /**
      * 根据货架的拣货位获取货架的最近存货位
      * TODO 获取拣货位最近的存储位 (待检测)
+     *
      * @param pickingLocation
      * @return
      */
     public BaseinfoLocation getNearestStorageByPicking(BaseinfoLocation pickingLocation) {
         //获取相邻货架的所有拣货位,先获取当前货架,获取通道,货物相邻货架,然后获取
-        BaseinfoLocation shelfLocation1 = this.getShelfByClassification(pickingLocation.getLocationId());
+        BaseinfoLocation shelfLocationSelf = this.getShelfByClassification(pickingLocation.getLocationId());
         //通道
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("fatherId", shelfLocation1.getFatherId());
-        List<BaseinfoLocation> nearShelfList = this.getBaseinfoLocationList(params);
-        BaseinfoLocation shelfLocation2 = null;
+        params.put("locationId", shelfLocationSelf.getFatherId());
+        List<BaseinfoLocation> passageList = this.getBaseinfoLocationList(params);
+        BaseinfoLocation passage = null;
         //将本货架的所有位置放在一个集合中
-        List<BaseinfoLocation> implLocations = new ArrayList<BaseinfoLocation>();
-        List<BaseinfoLocation> subList = this.getStoreLocations(shelfLocation1.getLocationId());
-        List<BaseinfoLocation> nearShelfSubs = null;
-        implLocations.addAll(subList);
-        //存在相邻的货架
-        if (nearShelfList.size() > 0) {
-            shelfLocation2 = nearShelfList.get(0);
-            nearShelfSubs = this.getStoreLocations(shelfLocation2.getLocationId());
-            implLocations.addAll(nearShelfSubs);
-        }
-        //所有的存储位结果集放入
-        List<BaseinfoLocation> shelfStoreBins = new ArrayList<BaseinfoLocation>();
-        for (BaseinfoLocation impl : implLocations) {
-            if (impl.getType().equals(LocationConstant.SHELF_STORE_BIN)) {
-                shelfStoreBins.add(impl);
+        List<BaseinfoLocation> tempLocations = new ArrayList<BaseinfoLocation>();
+        List<BaseinfoLocation> allNearShelfSubs = null;
+        //无论是否存在相邻货架,将一个通道下的所有位置拿出来(必须保证货架个体的father必须是通道)
+        passage = passageList.get(0);
+        allNearShelfSubs = this.getStoreLocations(passage.getLocationId());
+        tempLocations.addAll(allNearShelfSubs);
+        List<Map<String, Object>> storeBinDistanceList = new ArrayList<Map<String, Object>>();
+        //放入location和当前location到目标位置的距离
+        for (BaseinfoLocation temp : tempLocations) {
+            //存货位,为空没上锁
+            if (temp.getType().equals(LocationConstant.SHELF_STORE_BIN) && this.shelfBinLocationIsEmptyAndUnlock(temp)) {
+                //放入location和距离
+                Long distance = (temp.getBinPositionNo() - pickingLocation.getBinPositionNo()) * (temp.getBinPositionNo() - pickingLocation.getBinPositionNo()) + (temp.getShelfLevelNo() - pickingLocation.getShelfLevelNo()) * (temp.getShelfLevelNo() - pickingLocation.getShelfLevelNo());
+                Map<String, Object> distanceMap = new HashMap<String, Object>();
+                distanceMap.put("location", temp);
+                distanceMap.put("distance", distance);
+                storeBinDistanceList.add(distanceMap);
             }
         }
-        //存储为的空且没上锁判断,第一级过滤能用
-        List<BaseinfoLocation> canUseShelfStoreBins = new ArrayList<BaseinfoLocation>();
-        List<Long> distanceList = new ArrayList<Long>();
-        for (BaseinfoLocation bin : shelfStoreBins) {
-            //空没上锁
-            if (this.shelfBinLocationIsEmptyAndUnlock(bin.getLocationId())) {
-                canUseShelfStoreBins.add(bin);
-                //放入距离
-                Long distance = bin.getBinPositionNo() ^ 2 + bin.getShelfLevelNo() ^ 2;
-                distanceList.add(distance);
-            }
-        }
-        //第二层级的过滤如果canUseShelfStoreBins的位置size()没有,返回空
-        if (canUseShelfStoreBins.size() > 0) {
-            Long min = 0L;
-            int index = 0;
-            int i = 0;
-            for (Long distance : distanceList) {
-                if (distance.compareTo(min) < 0) {
-                    min = distance;
-                    index = i;
+        //遍历距离的list,根据map的ditance的取出最小的
+        if (storeBinDistanceList.size() > 0) {
+            Map<String, Object> minDistanceMap = new HashMap<String, Object>();
+            BaseinfoLocation location = (BaseinfoLocation) storeBinDistanceList.get(0).get("location");
+            Long minDistance = (Long) storeBinDistanceList.get(0).get("distance");
+            minDistanceMap.put("location", location);
+            minDistanceMap.put("distance", minDistance);
+            for (Map<String, Object> distanceMap : storeBinDistanceList) {
+                if ((Long.parseLong(((Long) distanceMap.get("distance")).toString()) == Long.parseLong(((Long) minDistanceMap.get("distance")).toString())) && (this.getShelfByClassification(((BaseinfoLocation) distanceMap.get("location")).getLocationId())).getLocationId().equals(shelfLocationSelf.getLocationId())) {
+                    //位置相同,同货架优先,同货架位置相同,给一个就行
+                    minDistanceMap = distanceMap;
+                } else if (Long.parseLong(((Long) distanceMap.get("distance")).toString()) < Long.parseLong(((Long) minDistanceMap.get("distance")).toString())) {
+                    minDistanceMap = distanceMap;
                 }
-                i++;
             }
-            //选出距离最近的位置,如果有多个,选出第一个
-            return canUseShelfStoreBins.get(index);
+            return (BaseinfoLocation) minDistanceMap.get("location");
         } else {
             return null;
         }
@@ -731,11 +725,11 @@ public class LocationService {
      * 货架位置为空并且没上锁(没占用+没上锁)
      * 一库位一托盘
      *
-     * @param locationId
+     * @param location
      * @return
      */
-    public boolean shelfBinLocationIsEmptyAndUnlock(Long locationId) {
-        if ((!this.checkLocationUseStatus(locationId)) && this.checkLocationLockStatus(locationId)) {
+    public boolean shelfBinLocationIsEmptyAndUnlock(BaseinfoLocation location) {
+        if ((location.getCanUse().equals(1)) && location.getIsLocked().equals(0)) {
             return true;
         }
         return false;
@@ -753,6 +747,7 @@ public class LocationService {
         }
         return false;
     }
+
     /**
      * 分配可用可用location
      *
@@ -764,7 +759,7 @@ public class LocationService {
         if (locations.size() > 0) {
             for (BaseinfoLocation location : locations) {
                 Long locationId = location.getLocationId();
-                if ((!this.isQuantInLocation(locationId))&& !this.checkLocationLockStatus(locationId)){
+                if ((!this.isQuantInLocation(locationId)) && (this.checkLocationLockStatus(locationId))) {
                     return location;
                 }
             }
@@ -904,5 +899,17 @@ public class LocationService {
         return this.getShelfByClassification(fatherId);
     }
 
+    /**
+     * 获取指定位置类型的方法
+     *
+     * @param type 位置类型
+     * @return
+     */
+    public List<BaseinfoLocation> getTargetLocationListByType(Long type) {
+        Long targetType = Long.parseLong(type.toString());
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("type", targetType);
+        return this.getBaseinfoLocationList(params);
+    }
 
 }
