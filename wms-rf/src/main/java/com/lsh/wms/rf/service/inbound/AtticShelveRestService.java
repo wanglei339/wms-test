@@ -153,7 +153,6 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String scanContainer() throws BizCheckedException {
-        List<Map> list = new ArrayList<Map>();
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long uId=0L;
         Long containerId = 0L;
@@ -173,23 +172,38 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         }
         // 检查是否有已分配的任务
         if (taskId == null) {
-            throw new BizCheckedException("2030008");
-        }
-        TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
-        TaskInfo info = entry.getTaskInfo();
-        if(info.getOperator().compareTo(0L)!=0) {
+            //查看是否有已经执行的任务
+            taskId = baseTaskService.getAssignTaskIdByContainerId(containerId);
+            if(taskId==null) {
+                throw new BizCheckedException("2030008");
+            }
+            TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
+            TaskInfo info = entry.getTaskInfo();
             if (info.getOperator().compareTo(user.getStaffId()) != 0 && baseTaskService.checkTaskByContainerId(containerId)) {
                 return JsonUtils.TOKEN_ERROR("该上架任务已被人领取");
             }
-        }
-        Map result = this.getResultMap(taskId);
-        if(result == null) {
-            return JsonUtils.TOKEN_ERROR("阁楼上架库存错误");
+            AtticShelveTaskDetail detail = shelveTaskService.getDetailByTaskIdAndStatus(taskId, 1L);
+            if(detail==null){
+                return JsonUtils.TOKEN_ERROR("任务详情异常");
+            }
+            BaseinfoLocation location = locationService.getLocation(detail.getAllocLocationId());
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("taskId", taskId);
+            map.put("locationId", location.getLocationId());
+            map.put("locationCode", location.getLocationCode());
+            map.put("qty", detail.getQty().divide(info.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
+            map.put("packName", info.getPackName());
+            return JsonUtils.SUCCESS(map);
         }else {
-            iTaskRpcService.assign(taskId, user.getStaffId());
-            return JsonUtils.SUCCESS(result);
-        }
 
+            Map result = this.getResultMap(taskId);
+            if (result == null) {
+                return JsonUtils.TOKEN_ERROR("阁楼上架库存错误");
+            } else {
+                iTaskRpcService.assign(taskId, user.getStaffId());
+                return JsonUtils.SUCCESS(result);
+            }
+        }
     }
 
     /**

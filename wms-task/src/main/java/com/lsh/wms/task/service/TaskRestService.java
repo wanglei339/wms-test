@@ -94,15 +94,8 @@ public class TaskRestService implements ITaskRestService {
     @GET
     @Path("done")
     public String done(@QueryParam("taskId") long taskId) throws BizCheckedException {
-        //taskRpcService.done(taskId);
-        TaskMsg message = new TaskMsg();
-        message.setContent("malitest");
-        List<Object> list = new ArrayList<Object>();
-        list.add(1213L);
-        message.setParamList(list);
-        //messageService.sendMessage(message);
-        TaskMsg msg = messageService.getMessage();
-        return JsonUtils.SUCCESS(msg);
+        taskRpcService.afterDone(taskId);
+        return JsonUtils.SUCCESS();
     }
 
     @POST

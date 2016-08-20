@@ -74,4 +74,20 @@ public class AtticShelveTaskDetailService {
         detailDao.update(detail);
 
     }
+
+    public AtticShelveTaskDetail getDetailById(Long id) {
+       return detailDao.getAtticShelveTaskDetailById(id);
+
+    }
+    public AtticShelveTaskDetail getDetailByTaskIdAndStatus(Long taskId,Long status) {
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("taskId", taskId);
+        mapQuery.put("status",status);
+        List<AtticShelveTaskDetail> taskDetails = detailDao.getAtticShelveTaskDetailList(mapQuery);
+        if(taskDetails ==null ||taskDetails.size()==0){
+            return null;
+        }else {
+            return taskDetails.get(0);
+        }
+    }
 }

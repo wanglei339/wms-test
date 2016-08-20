@@ -102,7 +102,7 @@ public class WaveCore {
         this._allocDock();
         //执行配货
         this._alloc();
-        logger.info("begin to run pick model");
+        logger.info("begin to run outbound model");
         //执行捡货模型,输出最小捡货单元
         this._executePickModel();
         //锁定集货区,记得发货的时候释放哟
@@ -423,7 +423,7 @@ public class WaveCore {
         for(int i = 0; i < modelList.size(); ++i){
             PickZone zone = zoneService.getPickZone(modelList.get(i).getPickZoneId());
             if(zone == null){
-                logger.error("get pick zone fail %d", modelList.get(i).getPickZoneId());
+                logger.error("get outbound zone fail %d", modelList.get(i).getPickZoneId());
                 throw new BizCheckedException("");
             }
             zoneList.add(zone);

@@ -4,16 +4,26 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.LocationConstant;
+import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.service.item.ItemLocationService;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.task.TaskTriggerService;
+import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.core.service.task.TaskHandler;
+import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.task.TaskTrigger;
+import com.lsh.wms.task.service.event.EventHandlerFactory;
+import com.lsh.wms.task.service.event.IEventHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.beans.EventHandler;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,6 +48,14 @@ public class TaskRpcService implements ITaskRpcService {
     @Autowired
     private TaskTriggerService triggerService;
 
+    @Autowired
+    private ItemLocationService itemLocationService;
+
+    @Autowired
+    private LocationService locationService;
+
+    @Autowired
+    private EventHandlerFactory eventHandlerFactory;
 
     private String getCurrentMethodName() {
         StackTraceElement[] stacktrace = Thread.currentThread().getStackTrace();
@@ -155,30 +173,11 @@ public class TaskRpcService implements ITaskRpcService {
     }
 
     public void afterDone(Long taskId) throws BizCheckedException {
-
-        StackTraceElement[] stacktrace = Thread.currentThread().getStackTrace();
-        StackTraceElement element = stacktrace[2];
-        String methodName = element.getMethodName();
-
-        Map<String, List<TaskTrigger>> triggerMap = triggerService.getAll();
-        Long taskType = this.getTaskTypeById(taskId);
-        TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
-
-        String key = taskType + this.getTaskEntryById(taskId).getTaskInfo().getSubType() + "done" + 1L;
-        List<TaskTrigger> triggerList = triggerMap.get(key);
-        if (null == triggerList) {
-            return;
-        }
-        for(TaskTrigger trigger : triggerList) {
-            TaskHandler handler = handlerFactory.getTaskHandler(trigger.getDestType());
-            try {
-                Method method = handler.getClass().getDeclaredMethod(trigger.getDestMethod(), TaskEntry.class);
-                method.invoke(handler, this.getTaskEntryById(taskId));
-            } catch (BizCheckedException e) {
-                logger.warn(e.getMessage());
-            }catch (Exception e) {
-                logger.warn(e.getCause().getMessage());
-            }
+        IEventHandler handler = eventHandlerFactory.getEventHandler(this.getTaskTypeById(taskId));
+        try {
+            handler.process(taskId);
+        } catch (Exception e){
+            logger.error("AfterDone Exception", e);
         }
     }
 
