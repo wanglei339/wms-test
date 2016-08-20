@@ -111,7 +111,11 @@ public class StockMoveService {
     public void move(List<StockMove> moveList) throws BizCheckedException{
         for (StockMove move : moveList) {
             this.create(move);
-            quantService.lockQuantByLocation(move.getFromLocationId());
+            if (move.getFromLocationId().equals(0L)){
+                quantService.lockQuantByContainerId(move.getFromContainerId());
+            } else {
+                quantService.lockQuantByLocation(move.getFromLocationId());
+            }
             quantService.move(move);
         }
     }
@@ -152,5 +156,4 @@ public class StockMoveService {
         this.create(move);
         quantService.move(move);
     }
-
 }
