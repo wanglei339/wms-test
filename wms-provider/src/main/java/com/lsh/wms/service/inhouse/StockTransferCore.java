@@ -300,4 +300,19 @@ public class StockTransferCore {
     public Long getNearestTask(List<TaskEntry> entryList) {
         return entryList.get(0).getTaskInfo().getTaskId();
     }
+
+
+
+    public List<Long> getMoreTasks(List<TaskEntry> entryList) {
+        List<Long> taskList = new ArrayList<Long>();
+        int idx = 0;
+        for(TaskEntry entry : entryList) {
+            taskList.add(entry.getTaskInfo().getTaskId());
+            idx ++;
+            if(idx == 5) {
+                break;
+            }
+        }
+        return taskList;
+    }
 }

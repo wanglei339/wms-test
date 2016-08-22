@@ -233,6 +233,7 @@ public class StockTransferRestService implements IStockTransferRestService {
         Long staffId = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getStaffId();
         try {
             final Long taskId = rpcService.assign(staffId);
+            logger.info("assign finish");
             if (taskId == 0) {
                 throw new BizCheckedException("2040001");
             }

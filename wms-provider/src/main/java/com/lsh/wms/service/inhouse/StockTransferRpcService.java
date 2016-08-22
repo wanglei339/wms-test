@@ -239,7 +239,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         //mapQuery.put("status", TaskConstant.Doing);
         mapQuery.put("status", TaskConstant.Assigned);
-        mapQuery.put("ext3", 1L);
         mapQuery.put("operator", staffId);
         List<TaskEntry> list = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQuery);
         //task exist
@@ -279,9 +278,16 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (list.isEmpty()) {
             return 0L;
         }
-        Long taskId = core.getNearestTask(list);
-        taskRpcService.assign(taskId, staffId);
-        return taskId;
+
+//        Long taskId = core.getNearestTask(list);
+//        taskRpcService.assign(taskId, staffId);
+//        return taskId;
+
+        List<Long> taskList = core.getMoreTasks(list);
+        for (Long task : taskList) {
+            taskRpcService.assign(task, staffId);
+        }
+        return Long.valueOf(this.sortTask(staffId).get("taskId").toString());
     }
 
     public Map<String, Object> sortTask(Long staffId) {
