@@ -1,5 +1,6 @@
 package com.lsh.wms.rpc.service.system;
 
+import com.alibaba.dubbo.common.json.JSON;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
@@ -13,10 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringArrayPropertyEditor;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;;
 import java.util.Map;
@@ -75,5 +73,11 @@ public class SysUserRestService implements ISysUserRestService {
     @Path("getUserByUsername")
     public String getSysUserByUsername(Map<String, Object> params) {
         return JsonUtils.SUCCESS(sysUserRpcService.getSysUserByUsername((String)params.get("username")));
+    }
+
+    @GET
+    @Path("getSysUserById")
+    public String getSysUserById(@QueryParam("uid") Long iUid){
+        return JsonUtils.SUCCESS(sysUserRpcService.getSysUserById(iUid));
     }
 }

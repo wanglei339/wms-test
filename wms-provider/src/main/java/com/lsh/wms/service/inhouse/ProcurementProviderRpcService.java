@@ -132,7 +132,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     }
 
     private void createShelfProcurement() throws BizCheckedException {
-        List<BaseinfoLocation> shelfLocationList = locationService.getLocationsByType("shelf_collection_bin");
+        List<BaseinfoLocation> shelfLocationList = locationService.getLocationsByType(LocationConstant.SHELF_PICKING_BIN);
         for (BaseinfoLocation shelfCollectionBin : shelfLocationList) {
             List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationByLocationID(shelfCollectionBin.getLocationId());
             for (BaseinfoItemLocation itemLocation : itemLocationList) {
@@ -142,7 +142,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     }
                     // 找合适的quant
                     StockQuantCondition condition = new StockQuantCondition();
-                    List<BaseinfoLocation> shelfList = locationService.getLocationsByType("shelf_store_bin");
+                    List<BaseinfoLocation> shelfList = locationService.getLocationsByType(LocationConstant.SHELF_STORE_BIN);
                     List<Long> shelfBinList = new ArrayList<Long>();
                     for (BaseinfoLocation shelf : shelfList) {
                         if (shelf.getIsLocked().compareTo(0)==0) {
@@ -185,7 +185,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     }
 
     public void createLoftProcurement() throws BizCheckedException {
-        List<BaseinfoLocation> loftPickLocationList = locationService.getLocationsByType("loft_collection_bin");
+        List<BaseinfoLocation> loftPickLocationList = locationService.getLocationsByType(LocationConstant.LOFT_PICKING_BIN);
         for (BaseinfoLocation loftPick : loftPickLocationList) {
             List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationByLocationID(loftPick.getLocationId());
             for (BaseinfoItemLocation itemLocation : itemLocationList) {
@@ -195,7 +195,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     }
                     // 找合适的quant
                     StockQuantCondition condition = new StockQuantCondition();
-                    List<BaseinfoLocation> loftList = locationService.getLocationsByType("loft_store_bin");
+                    List<BaseinfoLocation> loftList = locationService.getLocationsByType(LocationConstant.LOFT_STORE_BIN);
                     List<Long> loftBinList = new ArrayList<Long>();
                     for (BaseinfoLocation loft : loftList ) {
                         if(loft.getIsLocked().compareTo(0)==0) {

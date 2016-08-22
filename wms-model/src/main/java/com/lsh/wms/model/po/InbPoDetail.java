@@ -22,6 +22,9 @@ public class InbPoDetail implements Serializable {
     private Long orderQty;
 	/** 包装单位 */
     private Long packUnit;
+	/** 包装名称 */
+	private String packName;
+
 	/** 价格 */
 	private BigDecimal price;
 	/** 产地 */
@@ -166,6 +169,12 @@ public class InbPoDetail implements Serializable {
 	public void setUpdatetime(Date updatetime){
 		this.updatetime = updatetime;
 	}
-	
-	
+
+	public String getPackName() {
+		return packName;
+	}
+
+	public void setPackName(String packName) {
+		this.packName = packName;
+	}
 }

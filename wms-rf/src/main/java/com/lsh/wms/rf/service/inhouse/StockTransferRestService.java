@@ -99,7 +99,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("System Busy!");
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
     }
 
@@ -145,7 +145,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("System Busy!");
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
     }
 
@@ -192,7 +192,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("System Busy!");
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
     }
 
@@ -206,7 +206,11 @@ public class StockTransferRestService implements IStockTransferRestService {
         Long type = Long.valueOf(mapQuery.get("type").toString());
         try {
             Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
-            if (taskRpcService.getTaskEntryById(taskId).getTaskInfo().getType() != TaskConstant.TYPE_STOCK_TRANSFER) {
+            TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
+            if (taskEntry == null) {
+                throw new BizCheckedException("3040001");
+            }
+            if (!taskEntry.getTaskInfo().getType().equals(TaskConstant.TYPE_STOCK_TRANSFER)) {
                 throw new BizCheckedException("2550021");
             }
             if (type.equals(1L)) {
@@ -218,7 +222,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("System Busy!");
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS(result);
     }
@@ -268,7 +272,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("System Busy!");
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
     }
 
@@ -302,7 +306,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("System Busy!");
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
     }
 
@@ -320,7 +324,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("System Busy!");
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
     }
 }

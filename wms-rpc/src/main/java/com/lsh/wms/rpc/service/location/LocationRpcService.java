@@ -47,7 +47,7 @@ public class LocationRpcService implements ILocationRpcService {
     }
 
     // 获取父级区域location节点
-    public BaseinfoLocation getFatherByType(Long locationId, String type) {
+    public BaseinfoLocation getFatherByType(Long locationId, Long type) {
         return locationService.getFatherByType(locationId, type);
     }
 
@@ -70,12 +70,12 @@ public class LocationRpcService implements ILocationRpcService {
 
     // 分配暂存区location
     public BaseinfoLocation assignTemporary() {
-        return locationService.getAvailableLocationByType("temporary");
+        return locationService.getAvailableLocationByType(LocationConstant.TEMPORARY);
     }
 
     // 分配地堆区location
     public BaseinfoLocation assignFloor() {
-        return locationService.getAvailableLocationByType("floor");
+        return locationService.getAvailableLocationByType(LocationConstant.FLOOR);
     }
 
 

@@ -10,7 +10,7 @@ import java.util.Map;
 public interface ILocationRestService {
     public String getLocation(Long locationId);
     public String getStoreLocationIds(Long locationId);
-    public String getFatherByType(Long locationId, String type);
+    public String getFatherByType(Long locationId, Long type);
     public String getFatherArea(Long locationId);
     public String getWarehouseLocationId();
     public String getInventoryLostLocationId();
@@ -18,7 +18,7 @@ public interface ILocationRestService {
     public String updateLocation();
     public String countBaseinfoLocation(Map<String, Object> params);
     public String searchList(Map<String, Object> params);
-    public String getTemp(String type);
+    public String getTemp(Long type);
     //仓库找货区
     public String getRegionByWareHouseId();
     //货区找货架

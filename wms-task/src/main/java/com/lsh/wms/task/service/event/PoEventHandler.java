@@ -58,7 +58,7 @@ public class PoEventHandler extends AbsEventHandler implements IEventHandler {
         Long pickLocationId = itemLocations.get(0).getPickLocationid();
         BaseinfoLocation pickLocation = locationService.getLocation(pickLocationId);
         Long handlerType = 0L;
-        if (pickLocation.getType().equals(LocationConstant.LOCATION_TYPE.get("loft_collection_bin"))) {
+        if (pickLocation.getType().equals(LocationConstant.LOFT_PICKING_BIN)) {
             // 阁楼上架任务
             handlerType = TaskConstant.TYPE_ATTIC_SHELVE;
         } else {

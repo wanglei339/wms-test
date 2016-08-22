@@ -33,6 +33,10 @@ public class PoItem {
 
     /** 包装单位 */
     private Long packUnit;
+
+    /** 包装名称 */
+    private String packName;
+
     /** 价格 */
     private BigDecimal price;
 
@@ -57,7 +61,7 @@ public class PoItem {
     }
 
     public PoItem(String skuCode, String skuName, String barCode, Long orderQty,
-                  Long packUnit,BigDecimal price, String madein, String lotNum) {
+                  Long packUnit,BigDecimal price, String madein, String lotNum, String packName) {
         this.skuCode = skuCode;
         this.skuName = skuName;
         this.barCode = barCode;
@@ -66,6 +70,7 @@ public class PoItem {
         this.price = price;
         this.madein = madein;
         this.lotNum = lotNum;
+        this.packName = packName;
     }
 
     public BigDecimal getPrice() {
@@ -124,4 +129,11 @@ public class PoItem {
         this.madein = madein;
     }
 
+    public String getPackName() {
+        return packName;
+    }
+
+    public void setPackName(String packName) {
+        this.packName = packName;
+    }
 }
