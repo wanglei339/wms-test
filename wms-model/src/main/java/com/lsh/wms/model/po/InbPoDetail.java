@@ -27,7 +27,7 @@ public class InbPoDetail implements Serializable {
 	/** 产地 */
     private String madein;
 	/** 实际收货数 */
-    private Long inboundQty;
+    private Long inboundQty = 0L;
 	/**  */
     private String insertby;
 	/**  */

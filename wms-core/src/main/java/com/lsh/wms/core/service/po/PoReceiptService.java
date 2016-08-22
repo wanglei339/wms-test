@@ -81,10 +81,12 @@ public class PoReceiptService {
         for (StockQuant stockQuant : stockQuantList) {
             stockQuantService.create(stockQuant);
         }
-
-        for (StockLot stockLot : stockLotList) {
-            stockLotService.insertLot(stockLot);
+        if(stockLotList != null){
+            for (StockLot stockLot : stockLotList) {
+                stockLotService.insertLot(stockLot);
+            }
         }
+
 
     }
 

@@ -26,12 +26,13 @@ public class AbsTaskHandler implements TaskHandler {
 
     public void create(TaskEntry taskEntry) throws BizCheckedException{
         // 插入标准任务信息
-        Long taskId = RandomUtils.genId();
         TaskInfo taskInfo = taskEntry.getTaskInfo();
-        taskInfo.setTaskId(taskId);
+        if (taskInfo.getTaskId().equals(0L)) {
+            Long taskId = RandomUtils.genId();
+            taskInfo.setTaskId(taskId);
+        }
         taskEntry.setTaskInfo(taskInfo);
         baseTaskService.create(taskEntry, this);
-        // this.createConcrete(taskEntry);
     }
 
     public void batchCreate(List<TaskEntry> taskEntries) throws BizCheckedException{

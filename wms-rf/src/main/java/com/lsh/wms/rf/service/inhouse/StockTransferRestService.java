@@ -74,7 +74,7 @@ public class StockTransferRestService implements IStockTransferRestService {
 
     @POST
     @Path("view")
-    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String taskView() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
@@ -95,7 +95,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             resultMap.put("packName", taskInfo.getPackName());
             resultMap.put("uomQty", taskInfo.getQty().divide(taskInfo.getPackUnit()));
             return JsonUtils.SUCCESS(resultMap);
-        } catch (BizCheckedException e){
+        } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -105,7 +105,7 @@ public class StockTransferRestService implements IStockTransferRestService {
 
     @POST
     @Path("createReturn")
-    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String createReturn() throws BizCheckedException {
         try {
@@ -119,15 +119,15 @@ public class StockTransferRestService implements IStockTransferRestService {
             plan.setToLocationId(locationRpcService.getBackLocation().getLocationId());
             plan.setUomQty(new BigDecimal(params.get("uomQty").toString()));
             String barCode = params.get("barcode").toString();
-            CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE,barCode);
-            if(csiSku == null) {
+            CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barCode);
+            if (csiSku == null) {
                 throw new BizCheckedException("2550003");
             }
             StockQuantCondition condition = new StockQuantCondition();
             condition.setLocationId(locationId);
             condition.setSkuId(csiSku.getSkuId());
             List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
-            if(quantList.isEmpty()) {
+            if (quantList.isEmpty()) {
                 throw new BizCheckedException("2550003");
             }
             StockQuant quant = quantList.get(0);
@@ -141,7 +141,7 @@ public class StockTransferRestService implements IStockTransferRestService {
                 }
             });
 
-        } catch (BizCheckedException e){
+        } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -151,7 +151,7 @@ public class StockTransferRestService implements IStockTransferRestService {
 
     @POST
     @Path("createScrap")
-    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String createScrap() throws BizCheckedException {
         try {
@@ -165,16 +165,16 @@ public class StockTransferRestService implements IStockTransferRestService {
             plan.setToLocationId(locationRpcService.getDefectiveLocation().getLocationId());
             plan.setUomQty(new BigDecimal(params.get("uomQty").toString()));
 
-            String barCode =params.get("barcode").toString();
-            CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE,barCode);
-            if(csiSku == null) {
+            String barCode = params.get("barcode").toString();
+            CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barCode);
+            if (csiSku == null) {
                 throw new BizCheckedException("2550003");
             }
             StockQuantCondition condition = new StockQuantCondition();
             condition.setLocationId(locationId);
             condition.setSkuId(csiSku.getSkuId());
             List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
-            if(quantList.isEmpty()) {
+            if (quantList.isEmpty()) {
                 throw new BizCheckedException("2550003");
             }
             List<Object> resultList = new ArrayList<Object>();
@@ -188,7 +188,7 @@ public class StockTransferRestService implements IStockTransferRestService {
                 }
             });
 
-        } catch (BizCheckedException e){
+        } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -198,19 +198,23 @@ public class StockTransferRestService implements IStockTransferRestService {
 
     @POST
     @Path("scanLocation")
-    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String scanLocation() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Map<String, Object> result;
         Long type = Long.valueOf(mapQuery.get("type").toString());
         try {
-            if (type == 1) {
+            Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
+            if (taskRpcService.getTaskEntryById(taskId).getTaskInfo().getType() != TaskConstant.TYPE_STOCK_TRANSFER) {
+                throw new BizCheckedException("2550021");
+            }
+            if (type.equals(1L)) {
                 result = rpcService.scanFromLocation(mapQuery);
             } else {
                 result = rpcService.scanToLocation(mapQuery);
             }
-        } catch (BizCheckedException e){
+        } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -219,27 +223,9 @@ public class StockTransferRestService implements IStockTransferRestService {
         return JsonUtils.SUCCESS(result);
     }
 
-//    @POST
-//    @Path("scanFromLocation")
-//    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
-//    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-//    public String scanFromLocation() throws BizCheckedException {
-//        Map<String, Object> mapQuery = RequestUtils.getRequest();
-//        Map<String, Object> result;
-//        try {
-//            result = rpcService.scanFromLocation(mapQuery);
-//        } catch (BizCheckedException e){
-//            throw e;
-//        } catch (Exception e) {
-//            logger.error(e.getMessage());
-//            return JsonUtils.EXCEPTION_ERROR("System Busy!");
-//        }
-//        return JsonUtils.SUCCESS(result);
-//    }
-
     @POST
     @Path("fetchTask")
-    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String fetchTask() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
@@ -247,33 +233,38 @@ public class StockTransferRestService implements IStockTransferRestService {
         Long staffId = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getStaffId();
         try {
             final Long taskId = rpcService.assign(staffId);
-            if(taskId == 0) {
+            logger.info("assign finish");
+            if (taskId == 0) {
                 throw new BizCheckedException("2040001");
             }
             TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
             if (taskEntry == null) {
                 throw new BizCheckedException("2040001");
             }
-            TaskInfo taskInfo = taskEntry.getTaskInfo();
+            final TaskInfo taskInfo = taskEntry.getTaskInfo();
             final Long locationId, type;
             //outbound
-            if (taskInfo.getStatus().equals(TaskConstant.Assigned)) {
+            if (taskInfo.getExt3().equals(0L)) {
                 type = 1L;
                 locationId = taskInfo.getFromLocationId();
             } else {
                 type = 2L;
                 locationId = taskInfo.getToLocationId();
             }
-            final String locationCode =  locationRpcService.getLocation(locationId).getLocationCode();
+            final String locationCode = locationRpcService.getLocation(locationId).getLocationCode();
             return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                 {
                     put("type", type);
                     put("taskId", taskId);
                     put("locationId", locationId);
-                    put("locationCode",locationCode);
+                    put("locationCode", locationCode);
+                    put("itemId", taskInfo.getItemId());
+                    put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
+                    put("packName", taskInfo.getPackName());
+                    put("uomQty", taskInfo.getQty().divide(taskInfo.getPackUnit()));
                 }
             });
-        } catch (BizCheckedException e){
+        } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -283,7 +274,7 @@ public class StockTransferRestService implements IStockTransferRestService {
 
     @POST
     @Path("unFetchTask")
-    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String unFetchTask() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
@@ -297,7 +288,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             }
             TaskInfo taskInfo = taskEntry.getTaskInfo();
             Map<String, Object> response = new HashMap<String, Object>();
-            if (taskInfo.getOperator().equals(staffId) && taskInfo.getStatus().equals(TaskConstant.Assigned)) {
+            if (taskInfo.getOperator().equals(staffId) && taskInfo.getStatus().equals(TaskConstant.Assigned) && taskInfo.getExt3() == 0) {
                 taskInfo.setOperator(1L);
                 taskInfo.setStatus(TaskConstant.Draft);
                 taskInfoDao.update(taskInfo);
@@ -307,7 +298,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             }
             return JsonUtils.SUCCESS(response);
 
-        } catch (BizCheckedException e){
+        } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -315,22 +306,21 @@ public class StockTransferRestService implements IStockTransferRestService {
         }
     }
 
-//    @POST
-//    @Path("scanToLocation")
-//    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
-//    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-//    public String scanToLocation() throws BizCheckedException {
-//        Map<String, Object> params = RequestUtils.getRequest();
-//        Map<String, Object> result;
-//        try {
-//            result = rpcService.scanToLocation(params);
-//        } catch (BizCheckedException e){
-//            throw e;
-//        } catch (Exception e) {
-//            logger.error(e.getMessage());
-//            return JsonUtils.EXCEPTION_ERROR("System Busy!");
-//        }
-//        return JsonUtils.SUCCESS(result);
-//    }
-
+    @POST
+    @Path("confirmTask")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String confirmTask() throws BizCheckedException {
+        Map<String, Object> params = RequestUtils.getRequest();
+        //Long locationId = Long.valueOf(params.get("locationId").toString());
+        Long staffId = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getStaffId();
+        try {
+            return JsonUtils.SUCCESS(rpcService.sortTask(staffId));
+        } catch (BizCheckedException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("System Busy!");
+        }
+    }
 }

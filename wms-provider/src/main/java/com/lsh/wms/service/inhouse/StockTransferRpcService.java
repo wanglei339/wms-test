@@ -86,17 +86,20 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         Long toLocationId = plan.getToLocationId();
         Long itemId = plan.getItemId();
 
-        //TODO
-        //get available location
         BaseinfoLocation toLocation = locationService.getLocation(toLocationId);
         if (toLocation == null) {
             throw new BizCheckedException("2060012");
         }
-        if(toLocation.getCanUse() == 2) {
+//        if (toLocation.getCanStore() != 1) {
+//            throw new BizCheckedException("2550020");
+//        }
+        //TODO
+        //get available location
+        if (toLocation.getCanUse() != 1) {
             toLocation = core.getNearestLocation(toLocation);
             toLocationId = toLocation.getLocationId();
         }
-        if (locationService.checkLocationLockStatus(toLocationId)) {
+        if (!locationService.checkLocationLockStatus(toLocationId)) {
             throw new BizCheckedException("2550010");
         }
         StockQuantCondition condition = new StockQuantCondition();
@@ -139,8 +142,8 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             throw new BizCheckedException("2550002");
         }
         Long containerId = quantList.get(0).getContainerId();
-        if (plan.getSubType() == 2) {
-            containerId = containerService.createContainerByType(2L).getId();
+        if (plan.getSubType().compareTo(2L) == 0) {
+            containerId = containerService.createContainerByType(2L).getContainerId();
         }
         TaskEntry taskEntry = new TaskEntry();
         TaskInfo taskInfo = new TaskInfo();
@@ -148,7 +151,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         taskInfo.setTaskName("移库任务[ " + taskInfo.getFromLocationId() + " => " + taskInfo.getToLocationId() + "]");
         taskInfo.setType(TaskConstant.TYPE_STOCK_TRANSFER);
         taskInfo.setContainerId(containerId);
-        taskInfo.setExt1(RandomUtils.genId() % 100);
         taskEntry.setTaskInfo(taskInfo);
         Long taskId = taskRpcService.create(TaskConstant.TYPE_STOCK_TRANSFER, taskEntry);
         logger.info("taskId: " + taskId);
@@ -165,87 +167,110 @@ public class StockTransferRpcService implements IStockTransferRpcService {
 
     public Map<String, Object> scanFromLocation(Map<String, Object> params) throws BizCheckedException {
         Long taskId = Long.valueOf(params.get("taskId").toString());
-        TaskInfo taskInfo = taskRpcService.getTaskEntryById(taskId).getTaskInfo();
-        Map<String, Object> mapQurey = new HashMap<String, Object>();
-        mapQurey.put("status", TaskConstant.Assigned);
-        mapQurey.put("operator", taskInfo.getOperator());
-        List<TaskEntry> entryList = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQurey);
-        Map<String, Object> next = new HashMap<String, Object>();
-        Long nextLocationId;
-        if (entryList == null) {
-            throw new BizCheckedException("2550016");
-        } else {
-            Long nextOutTask = core.getNextOutbound(entryList);
-            if (!nextOutTask.equals(taskId)) {
-                throw new BizCheckedException("2550018");
-            }
-            core.outbound(params);
-            //inbound
-            if (entryList.size() == 1) {
-                mapQurey.put("status", TaskConstant.Doing);
-                List<TaskEntry> list = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQurey);
-                Long nextInTask = core.getNextInbound(list);
-                TaskInfo nextInfo = taskRpcService.getTaskEntryById(nextInTask).getTaskInfo();
-                nextLocationId = nextInfo.getToLocationId();
-                next.put("type", 2);
-                next.put("taskId",nextInTask);
-            } else {
-                mapQurey.put("status", TaskConstant.Assigned);
-                entryList = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQurey);
-                nextOutTask = core.getNextOutbound(entryList);
-                TaskInfo nextInfo = taskRpcService.getTaskEntryById(nextOutTask).getTaskInfo();
-                nextLocationId = nextInfo.getFromLocationId();
-                next.put("type", 1);
-                next.put("taskId", nextOutTask);
-            }
-            next.put("locationId", nextLocationId);
-            next.put("locationCode", locationService.getLocation(nextLocationId).getLocationCode());
-            return next;
+        Long locationId = Long.valueOf(params.get("locationId").toString());
+        TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
+        Long nextOutTask = core.getNextOutbound(taskEntry);
+        if (!taskEntry.getTaskInfo().getFromLocationId().equals(locationId)) {
+            throw new BizCheckedException("2550018");
         }
+        core.outbound(params);
+        Map<String, Object> next = new HashMap<String, Object>();
+        Long nextLocationId, nextItem;
+        String packName;
+        BigDecimal packUnit, qty;
+        //inbound
+        if (nextOutTask == 0) {
+            Long nextInTask = core.getFirstInbound(taskEntry.getTaskInfo().getOperator());
+            TaskInfo nextInfo = taskRpcService.getTaskEntryById(nextInTask).getTaskInfo();
+            nextLocationId = nextInfo.getToLocationId();
+            nextItem = nextInfo.getItemId();
+            packName = nextInfo.getPackName();
+            packUnit = nextInfo.getPackUnit();
+            qty = nextInfo.getQty();
+            next.put("type", 2);
+            next.put("taskId",nextInTask);
+        } else {//outbound
+            TaskInfo nextInfo = taskRpcService.getTaskEntryById(nextOutTask).getTaskInfo();
+            nextLocationId = nextInfo.getFromLocationId();
+            nextItem = nextInfo.getItemId();
+            packName = nextInfo.getPackName();
+            packUnit = nextInfo.getPackUnit();
+            qty = nextInfo.getQty();
+            next.put("type", 1);
+            next.put("taskId", nextOutTask);
+        }
+        next.put("locationId", nextLocationId);
+        next.put("locationCode", locationService.getLocation(nextLocationId).getLocationCode());
+        next.put("itemId", nextItem);
+        next.put("itemName", itemRpcService.getItem(nextItem).getSkuName());
+        next.put("packName", packName);
+        next.put("uomQty", qty.divide(packUnit));
+        return next;
     }
 
     public Map<String, Object> scanToLocation(Map<String, Object> params) throws BizCheckedException {
         Long taskId = Long.valueOf(params.get("taskId").toString());
-        TaskInfo taskInfo = taskRpcService.getTaskEntryById(taskId).getTaskInfo();
-        Map<String, Object> mapQurey = new HashMap<String, Object>();
-        mapQurey.put("status", TaskConstant.Doing);
-        mapQurey.put("operator", taskInfo.getOperator());
-        List<TaskEntry> entryList = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQurey);
-        if (entryList == null) {
-            throw new BizCheckedException("2550017");
-        } else {
-            if (!entryList.get(0).getTaskInfo().getTaskId().equals(taskId)) {
-                throw new BizCheckedException("2550019");
-            }
-            core.inbound(params);
-            Map<String, Object> next = new HashMap<String, Object>();
-            if (entryList.size() == 1) {
-                next.put("finished", true);
-            } else {
-                Long nextLocationId = entryList.get(1).getTaskInfo().getToLocationId();
-                next.put("type", 2);
-                next.put("taskId", entryList.get(1).getTaskInfo().getToLocationId());
-                next.put("locationId", nextLocationId);
-                next.put("locationCode", locationService.getLocation(nextLocationId).getLocationCode());
-            }
-            return next;
+        Long locationId = Long.valueOf(params.get("locationId").toString());
+        TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
+        Long nextInTask = core.getNextInbound(taskEntry);
+        if (!taskEntry.getTaskInfo().getToLocationId().equals(locationId)) {
+            throw new BizCheckedException("2550019");
         }
+        core.inbound(params);
+        Map<String, Object> next = new HashMap<String, Object>();
+        if (nextInTask == 0) {
+            next.put("finished", true);
+        } else {
+            TaskInfo nextInfo = taskRpcService.getTaskEntryById(nextInTask).getTaskInfo();
+            Long nextLocationId = nextInfo.getToLocationId();
+            next.put("type", 2);
+            next.put("taskId", nextInfo.getTaskId());
+            next.put("locationId", nextLocationId);
+            next.put("locationCode", locationService.getLocation(nextLocationId).getLocationCode());
+            next.put("itemId", nextInfo.getItemId());
+            next.put("itemName", itemRpcService.getItem(nextInfo.getItemId()).getSkuName());
+            next.put("packName", nextInfo.getPackName());
+            next.put("uomQty", nextInfo.getQty().divide(nextInfo.getPackUnit()));
+        }
+        return next;
     }
 
     public Long assign(Long staffId) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("status", TaskConstant.Doing);
+        //mapQuery.put("status", TaskConstant.Doing);
+        mapQuery.put("status", TaskConstant.Assigned);
         mapQuery.put("operator", staffId);
         List<TaskEntry> list = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQuery);
         //task exist
         if (!list.isEmpty()) {
-            mapQuery.put("status", TaskConstant.Assigned);
+            //mapQuery.put("status", TaskConstant.Assigned);
+            mapQuery.put("ext3", 0L);
             List<TaskEntry> entryList = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQuery);
+            //outbound
             if (!entryList.isEmpty()) {
-                return core.getNextOutbound(entryList);
+                TaskEntry nextEntry = entryList.get(0);
+                Long ext1 = nextEntry.getTaskInfo().getExt1();
+                for (TaskEntry entry : entryList) {
+                    Long nextExt1 = entry.getTaskInfo().getExt1();
+                    if (nextExt1.compareTo(ext1) < 0) {
+                        nextEntry = entry;
+                        ext1 = nextExt1;
+                    }
+                }
+                return nextEntry.getTaskInfo().getTaskId();
             }
-            return core.getNextInbound(list);
+            TaskEntry nextEntry = list.get(0);
+            Long ext2 = nextEntry.getTaskInfo().getExt2();
+            for (TaskEntry entry : list) {
+                Long nextExt2 = entry.getTaskInfo().getExt2();
+                if (nextExt2.compareTo(ext2) < 0) {
+                    nextEntry = entry;
+                    ext2 = nextExt2;
+                }
+            }
+            return nextEntry.getTaskInfo().getTaskId();
         }
+        logger.info("New Task");
         //get new task
         mapQuery.clear();
         mapQuery.put("status", TaskConstant.Draft);
@@ -253,8 +278,41 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (list.isEmpty()) {
             return 0L;
         }
-        taskRpcService.assign(list.get(0).getTaskInfo().getTaskId(), staffId);
-        return list.get(0).getTaskInfo().getTaskId();
+
+//        Long taskId = core.getNearestTask(list);
+//        taskRpcService.assign(taskId, staffId);
+//        return taskId;
+
+        List<Long> taskList = core.getMoreTasks(list);
+        for (Long task : taskList) {
+            taskRpcService.assign(task, staffId);
+        }
+        return Long.valueOf(this.sortTask(staffId).get("taskId").toString());
+    }
+
+    public Map<String, Object> sortTask(Long staffId) {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("status", TaskConstant.Assigned);
+        mapQuery.put("operator", staffId);
+        List<TaskEntry> entryList = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQuery);
+        if (entryList.isEmpty()) {
+            throw new BizCheckedException("3040001");
+        }
+        core.sortOutbound(entryList);
+        core.sortInbound(entryList);
+        Long taskId = core.getFirstOutbound(staffId);
+        TaskInfo nextInfo = taskRpcService.getTaskEntryById(taskId).getTaskInfo();
+        Long nextLocationId = nextInfo.getFromLocationId();
+        Map<String, Object> next = new HashMap<String, Object>();
+        next.put("type", 1);
+        next.put("taskId", nextInfo.getTaskId());
+        next.put("locationId", nextLocationId);
+        next.put("locationCode", locationService.getLocation(nextLocationId).getLocationCode());
+        next.put("itemId", nextInfo.getItemId());
+        next.put("itemName", itemRpcService.getItem(nextInfo.getItemId()).getSkuName());
+        next.put("packName", nextInfo.getPackName());
+        next.put("uomQty", nextInfo.getQty().divide(nextInfo.getPackUnit()));
+        return next;
     }
 
     private void createScrap() throws BizCheckedException {
@@ -274,11 +332,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
                 plan.setToLocationId(toLocationId);
                 plan.setQty(quant.getQty());
                 plan.setItemId(quant.getItemId());
-                if (quant.getPackName().toLowerCase().compareTo("ea") == 0) {
-                    plan.setSubType(1L);
-                } else {
-                    plan.setSubType(2L);
-                }
+                plan.setSubType(2L);
                 plan.setPackName(quant.getPackName());
                 this.addPlan(plan);
             }
@@ -303,11 +357,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
                 plan.setQty(quant.getQty());
                 plan.setItemId(quant.getItemId());
                 plan.setPackName(quant.getPackName());
-                if (quant.getPackName().toLowerCase().compareTo("ea") == 0) {
-                    plan.setSubType(1L);
-                } else {
-                    plan.setSubType(2L);
-                }
+                plan.setSubType(2L);
                 this.addPlan(plan);
             }
         }

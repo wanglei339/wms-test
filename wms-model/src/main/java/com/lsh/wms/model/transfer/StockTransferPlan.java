@@ -5,6 +5,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
 public class StockTransferPlan implements Serializable {
 	/** 移库计划id */
@@ -39,6 +40,8 @@ public class StockTransferPlan implements Serializable {
 	private Long planner = 0L;
 	/**任务截止时间*/
 	private Long dueTime = 0L;
+
+	private List<Long> testList;
 
 	public Long getDueTime() {
 		return dueTime;
@@ -142,5 +145,33 @@ public class StockTransferPlan implements Serializable {
 
 	public void setSubType(Long subType) {
 		this.subType = subType;
+	}
+
+	public List<Long> getTestList() {
+		return testList;
+	}
+
+	public void setTestList(List<Long> testList) {
+		this.testList = testList;
+	}
+
+	@Override
+	public String toString() {
+		return "StockTransferPlan{" +
+				"planId=" + planId +
+				", taskId=" + taskId +
+				", itemId=" + itemId +
+				", fromLocationId=" + fromLocationId +
+				", toLocationId=" + toLocationId +
+				", qty=" + qty +
+				", packName='" + packName + '\'' +
+				", packUnit=" + packUnit +
+				", uomQty=" + uomQty +
+				", priority=" + priority +
+				", subType=" + subType +
+				", planner=" + planner +
+				", dueTime=" + dueTime +
+				", testList=" + testList +
+				'}';
 	}
 }

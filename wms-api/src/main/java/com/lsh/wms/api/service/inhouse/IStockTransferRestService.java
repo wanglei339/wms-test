@@ -12,4 +12,5 @@ public interface IStockTransferRestService {
     String createReturn() throws BizCheckedException;
     String fetchTask() throws BizCheckedException;
     String unFetchTask() throws BizCheckedException;
+    String confirmTask() throws BizCheckedException;
 }
