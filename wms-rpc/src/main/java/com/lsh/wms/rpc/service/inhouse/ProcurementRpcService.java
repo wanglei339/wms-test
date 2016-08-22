@@ -9,6 +9,8 @@ import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.rpc.service.stock.StockQuantRpcService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
@@ -20,6 +22,8 @@ import java.math.BigDecimal;
 public class ProcurementRpcService implements IProcurementRpcService{
     @Autowired
     private StockQuantRpcService quantService;
+
+    private static Logger logger = LoggerFactory.getLogger(ProcurementRpcService.class);
 
 
     @Autowired
@@ -34,10 +38,9 @@ public class ProcurementRpcService implements IProcurementRpcService{
             return true;
         }
         StockQuant quant = quantService.getQuantList(condition).get(0);
-        qty = qty.divide(quant.getPackUnit());
-
+        qty = qty.divide(quant.getPackUnit(),4);
         BaseinfoItem itemInfo = itemService.getItem(itemId);
-        qty = qty.divide(itemInfo.getPackUnit());
+        qty = qty.divide(itemInfo.getPackUnit(),4);
         if (itemInfo.getItemLevel() == 1) {
             return qty.compareTo(new BigDecimal(5.0)) >= 0 ? false : true;
         } else if (itemInfo.getItemLevel() == 2) {

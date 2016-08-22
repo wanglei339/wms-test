@@ -72,6 +72,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             logger.error("error plan ：" + plan.toString());
             return;
         }
+        logger.info("true plan ：" + plan.toString());
         if (baseTaskService.checkTaskByToLocation(plan.getToLocationId(), TaskConstant.TYPE_PROCUREMENT)) {
             throw new BizCheckedException("2550015");
         }
