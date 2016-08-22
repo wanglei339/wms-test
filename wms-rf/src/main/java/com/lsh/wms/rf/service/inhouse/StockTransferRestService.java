@@ -206,7 +206,11 @@ public class StockTransferRestService implements IStockTransferRestService {
         Long type = Long.valueOf(mapQuery.get("type").toString());
         try {
             Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
-            if (taskRpcService.getTaskEntryById(taskId).getTaskInfo().getType() != TaskConstant.TYPE_STOCK_TRANSFER) {
+            TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
+            if (taskEntry == null) {
+                throw new BizCheckedException("3040001");
+            }
+            if (!taskEntry.getTaskInfo().getType().equals(TaskConstant.TYPE_STOCK_TRANSFER)) {
                 throw new BizCheckedException("2550021");
             }
             if (type.equals(1L)) {

@@ -93,6 +93,9 @@ public class StockTransferCore {
         if (taskEntry == null) {
             throw new BizCheckedException("2550005");
         }
+        if (!taskEntry.getTaskInfo().getOperator().equals(staffId)) {
+            throw new BizCheckedException("2550031");
+        }
         StockQuantCondition condition = new StockQuantCondition();
         condition.setLocationId(fromLocationId);
         condition.setItemId(taskEntry.getTaskInfo().getItemId());
@@ -151,6 +154,9 @@ public class StockTransferCore {
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
         if (taskEntry == null) {
             throw new BizCheckedException("2550005");
+        }
+        if (!taskEntry.getTaskInfo().getOperator().equals(staffId)) {
+            throw new BizCheckedException("2550031");
         }
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         if(taskInfo.getToLocationId().compareTo(toLocationId) != 0) {
