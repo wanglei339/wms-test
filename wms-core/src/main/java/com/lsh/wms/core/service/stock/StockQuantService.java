@@ -2,6 +2,7 @@ package com.lsh.wms.core.service.stock;
 
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
 import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
 import com.lsh.wms.core.service.location.LocationService;
@@ -193,12 +194,16 @@ public class StockQuantService {
             quant.setLocationId(move.getToLocationId());
             quant.setContainerId(move.getToContainerId());
             this.update(quant);
-            qtyDone = qtyDone.subtract(quant.getQty());
+            BaseinfoLocation toLocation = locationService.getLocation(move.getToLocationId());
+            if (toLocation.getType().equals(LocationConstant.CONSUME_AREA)) {
+            }
             // 新建 quant move历史记录
             StockQuantMoveRel moveRel =new StockQuantMoveRel();
             moveRel.setMoveId(move.getId());
             moveRel.setQuantId(quant.getId());
             relDao.insert(moveRel);
+            // 是否已经完成move？
+            qtyDone = qtyDone.subtract(quant.getQty());
             if (qtyDone.compareTo(BigDecimal.ZERO) <= 0) {
                 break;
             }
