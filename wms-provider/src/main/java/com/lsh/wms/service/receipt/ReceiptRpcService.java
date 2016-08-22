@@ -211,9 +211,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
                  *
                  */
                 //查供应商、生产日期、失效日期
-//                Long lotId =
-//                        soDeliveryService.getOutbDeliveryDetail(Long.parseLong(inbPoHeader.getOrderOtherId()),baseinfoItem.getItemId()).getLotId();
-                Long lotId = 107142254184058l;
+                Long lotId =
+                        soDeliveryService.getOutbDeliveryDetail(Long.parseLong(inbPoHeader.getOrderOtherId()),baseinfoItem.getItemId()).getLotId();
+                //Long lotId = 185499637539527l;
                 StockLot stockLot = stockLotService.getStockLotByLotId(lotId);
 
                 StockQuant quant = new StockQuant();
@@ -231,7 +231,10 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 quant.setExpireDate(stockLot.getExpireDate());
                 quant.setCost(inbPoDetail.getPrice());
                 BigDecimal inboundQty = BigDecimal.valueOf(inbReceiptDetail.getInboundQty());
-                quant.setQty(inboundQty);
+                // TODO: 16/8/22  qty只能传转换成基本单位的数量
+                BigDecimal qty = inboundQty.multiply(BigDecimal.valueOf(inbReceiptDetail.getPackUnit()));
+                quant.setQty(qty);
+                //quant.setQty(inboundQty);
                 BigDecimal value = inbPoDetail.getPrice().multiply(inboundQty);
                 quant.setValue(value);
                 stockQuantList.add(quant);
@@ -377,7 +380,11 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 quant.setExpireDate(expireDate / 1000);
                 quant.setCost(inbPoDetail.getPrice());
                 BigDecimal inboundQty = BigDecimal.valueOf(inbReceiptDetail.getInboundQty());
-                quant.setQty(inboundQty);
+
+                // TODO: 16/8/22  qty只能传转换成基本单位的数量
+                BigDecimal qty = inboundQty.multiply(BigDecimal.valueOf(inbReceiptDetail.getPackUnit()));
+                quant.setQty(qty);
+                //quant.setQty(inboundQty);
                 BigDecimal value = inbPoDetail.getPrice().multiply(inboundQty);
                 quant.setValue(value);
                 stockQuantList.add(quant);
