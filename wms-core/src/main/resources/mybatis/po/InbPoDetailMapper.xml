@@ -19,28 +19,29 @@
 		<result property="updateby" column="UPDATEBY"/>
 		<result property="inserttime" column="INSERTTIME"/>
 		<result property="updatetime" column="UPDATETIME"/>
+		<result property="packName" column="PACK_NAME"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="InbPoDetail">
 		insert into INB_PO_DETAIL (
 			ORDER_ID,SKU_ID,SKU_CODE,SKU_NAME,BAR_CODE,ORDER_QTY,
 			PACK_UNIT,PRICE,MADEIN,INBOUND_QTY,INSERTBY,UPDATEBY,INSERTTIME,
-			UPDATETIME,LOT_NUM
+			UPDATETIME,LOT_NUM,PACK_NAME
     	) values (
 			#{orderId},#{skuId},#{skuCode},#{skuName},#{barCode},#{orderQty},
 			#{packUnit},#{price},#{madein},#{inboundQty},#{insertby},#{updateby},#{inserttime},
-			#{updatetime},#{lotNum}
+			#{updatetime},#{lotNum},#{packName}
     	)
 	</insert>
 
 	<insert id="batchInsert" parameterType="java.util.List">
 		insert into INB_PO_DETAIL (
 		ORDER_ID,SKU_ID,SKU_CODE,SKU_NAME,BAR_CODE,ORDER_QTY,PACK_UNIT,PRICE,
-		MADEIN,INBOUND_QTY,INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME,LOT_NUM
+		MADEIN,INBOUND_QTY,INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME,LOT_NUM,PACK_NAME
 		) values
 		<foreach collection="list" item="item" index="index" separator="," >
 			(#{item.orderId},#{item.skuId},#{item.skuCode},#{item.skuName},#{item.barCode},#{item.orderQty},#{item.packUnit},
-			#{item.price},#{item.madein},#{item.inboundQty},#{item.insertby},#{item.updateby},now(),#{item.updatetime},#{item.lotNum})
+			#{item.price},#{item.madein},#{item.inboundQty},#{item.insertby},#{item.updateby},now(),#{item.updatetime},#{item.lotNum},#{item.packName})
 		</foreach>
 	</insert>
 
@@ -54,6 +55,7 @@
   			<if test="barCode != null">BAR_CODE=#{barCode},</if>
   			<if test="orderQty != null">ORDER_QTY=#{orderQty},</if>
   			<if test="packUnit != null">PACK_UNIT=#{packUnit},</if>
+			<if test="packName != null">PACK_NAME=#{packName},</if>
 			<if test="price != null">PRICE=#{price},</if>
   			<if test="madein != null">MADEIN=#{madein},</if>
   			<if test="inboundQty != null">INBOUND_QTY=#{inboundQty},</if>
@@ -114,6 +116,7 @@
 			<if test="barCode != null">and BAR_CODE=#{barCode}</if>
 			<if test="orderQty != null">and ORDER_QTY=#{orderQty}</if>
 			<if test="packUnit != null">and PACK_UNIT=#{packUnit}</if>
+			<if test="packName != null">and PACK_NAME=#{packName}</if>
 			<if test="price != null">and PRICE=#{price}</if>
 			<if test="madein != null">and MADEIN=#{madein}</if>
 			<if test="inboundQty != null">and INBOUND_QTY=#{inboundQty}</if>

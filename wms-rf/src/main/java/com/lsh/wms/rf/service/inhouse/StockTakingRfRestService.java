@@ -264,6 +264,9 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         }
 
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
+        if(entry==null){
+            return JsonUtils.TOKEN_ERROR("盘点任务不存在");
+        }
         StockTakingDetail detail = (StockTakingDetail)(entry.getTaskDetailList().get(0));
         if(!detail.getLocationId().equals(locationId)){
             return JsonUtils.TOKEN_ERROR("扫描库位与系统所需盘点库位不相符");
