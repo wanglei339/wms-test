@@ -136,6 +136,7 @@ public class StockTransferCore {
         }
         //taskInfo.setStatus(TaskConstant.Doing);
         taskInfo.setExt3(1L);
+
         taskInfoDao.update(taskInfo);
     }
 

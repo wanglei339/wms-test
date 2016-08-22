@@ -142,17 +142,12 @@ public class ProcurementRestService implements IProcurementRestService {
                 rpcService.scanToLocation(params);
                 return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
                     {
-                        put("finished", true);
+                        put("response", true);
                     }
                 });
             }else if(type.compareTo(1L)==0) {
                 if(entry==null ){
                     return JsonUtils.TOKEN_ERROR("任务不存在");
-                }else {
-                    Long toLocation = Long.valueOf(params.get("locationId").toString());
-                    if(entry.getTaskInfo().getToLocationId().compareTo(toLocation) !=0 ){
-                        return JsonUtils.TOKEN_ERROR("扫描库位和系统库位不一致");
-                    }
                 }
                 rpcService.scanFromLocation(params);
                 final TaskInfo info = entry.getTaskInfo();
@@ -165,7 +160,7 @@ public class ProcurementRestService implements IProcurementRestService {
                         put("itemId", info.getItemId());
                         put("itemName", itemRpcService.getItem(info.getItemId()).getSkuName());
                         put("packName", info.getPackName());
-                        put("uomQty", info.getQty().divide(info.getPackUnit()));
+                        put("uomQty", info.getQtyDone().divide(info.getPackUnit()));
                     }
                 });
             }else {
@@ -210,7 +205,7 @@ public class ProcurementRestService implements IProcurementRestService {
                         put("itemId", info.getItemId());
                         put("itemName", itemRpcService.getItem(info.getItemId()).getSkuName());
                         put("packName", info.getPackName());
-                        put("uomQty", info.getQty().divide(info.getPackUnit()));
+                        put("uomQty", info.getQtyDone().divide(info.getPackUnit()));
                     }
                 });
             }else {
