@@ -2,6 +2,7 @@ package com.lsh.wms.core.service.stock;
 
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
 import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
 import com.lsh.wms.core.service.location.LocationService;
@@ -158,6 +159,22 @@ public class StockQuantService {
         stockQuantDao.update(quant);
     }
 
+    public int getContainerQty(Long locationId) {
+        return stockQuantDao.getContainerIdByLocationId(locationId).size();
+    }
+
+    @Transactional(readOnly = false)
+    public void updateLocationStatus(Long locationId) throws BizCheckedException {
+        BaseinfoLocation fromLocation = locationService.getLocation(locationId);
+        if (null == fromLocation) {
+            throw new BizCheckedException("2180001");
+        } else {
+            Long currentVol = new Long(this.getContainerQty(locationId));
+            if (fromLocation.getContainerVol().compareTo(currentVol) <= 0)
+                fromLocation.setCanUse(2);
+        }
+    }
+
     @Transactional(readOnly = false)
     public void move(StockMove move) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
@@ -165,6 +182,9 @@ public class StockQuantService {
         mapQuery.put("locationId", move.getFromLocationId());
         mapQuery.put("containerId", move.getFromContainerId());
         List<StockQuant> quantList = stockQuantDao.getQuants(mapQuery);
+        if (0 == quantList.size()) {
+            throw new BizCheckedException("2550009");
+        }
         BigDecimal qtyDone = move.getQty();
         for (StockQuant quant : quantList) {
             if (quant.getReserveTaskId() != 0 && quant.getReserveTaskId().compareTo(move.getTaskId()) != 0) {
@@ -174,19 +194,25 @@ public class StockQuantService {
             quant.setLocationId(move.getToLocationId());
             quant.setContainerId(move.getToContainerId());
             this.update(quant);
-            qtyDone = qtyDone.subtract(quant.getQty());
+            BaseinfoLocation toLocation = locationService.getLocation(move.getToLocationId());
+            if (toLocation.getType().equals(LocationConstant.CONSUME_AREA)) {
+            }
             // 新建 quant move历史记录
             StockQuantMoveRel moveRel =new StockQuantMoveRel();
             moveRel.setMoveId(move.getId());
             moveRel.setQuantId(quant.getId());
             relDao.insert(moveRel);
+            // 是否已经完成move？
+            qtyDone = qtyDone.subtract(quant.getQty());
             if (qtyDone.compareTo(BigDecimal.ZERO) <= 0) {
                 break;
             }
         }
-        if (qtyDone.compareTo(BigDecimal.ZERO) < 0 ) {
+        if (qtyDone.compareTo(BigDecimal.ZERO) > 0 ) {
             throw new BizCheckedException("2550008");
         }
+        this.updateLocationStatus(move.getFromLocationId());
+        this.updateLocationStatus(move.getToLocationId());
     }
 
     @Transactional(readOnly = false)
