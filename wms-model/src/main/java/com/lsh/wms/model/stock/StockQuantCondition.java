@@ -1,5 +1,7 @@
 package com.lsh.wms.model.stock;
 
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
@@ -38,6 +40,10 @@ public class StockQuantCondition implements Serializable {
     /** 0-非退货，1-退货 */
     private Long isRefund;
 
+    private List<Long> locationIdList;
+
+    private List<BaseinfoLocation> locationList;
+
     private boolean isNormal;
 
     private Long taskId;
@@ -68,7 +74,6 @@ public class StockQuantCondition implements Serializable {
         this.isNormal = isNormal;
     }
 
-    private List<Long> locationList;
 
     public Long getId() {
         return id;
@@ -182,12 +187,19 @@ public class StockQuantCondition implements Serializable {
         this.isRefund = isRefund;
     }
 
-    public List<Long> getLocationList() {
+    public List<BaseinfoLocation> getLocationList() {
         return locationList;
     }
 
-    public void setLocationList(List<Long> locationList) {
+    public void setLocationList(List<BaseinfoLocation> locationList) {
         this.locationList = locationList;
     }
 
+    public List<Long> getLocationIdList() {
+        return locationIdList;
+    }
+
+    public void setLocationIdList(List<Long> locationIdList) {
+        this.locationIdList = locationIdList;
+    }
 }

@@ -68,6 +68,10 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     private BaseTaskService baseTaskService;
 
     public void addProcurementPlan(StockTransferPlan plan) throws BizCheckedException {
+        if(!this.checkPlan(plan)){
+            logger.error("error plan ：" + plan.toString());
+            return;
+        }
         if (baseTaskService.checkTaskByToLocation(plan.getToLocationId(), TaskConstant.TYPE_PROCUREMENT)) {
             throw new BizCheckedException("2550015");
         }
@@ -141,9 +145,11 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     List<BaseinfoLocation> shelfList = locationService.getLocationsByType("shelf_store_bin");
                     List<Long> shelfBinList = new ArrayList<Long>();
                     for (BaseinfoLocation shelf : shelfList) {
-                        shelfBinList.addAll(locationService.getStoreLocationIds(shelf.getLocationId()));
+                        if (shelf.getIsLocked().compareTo(0)==0) {
+                            shelfBinList.add(shelf.getLocationId());
+                        }
                     }
-                    condition.setLocationList(shelfBinList);
+                    condition.setLocationIdList(shelfBinList);
                     condition.setItemId(itemLocation.getItemId());
                     List<StockQuant> quantList = stockQuantService.getQuantList(condition);
                     if (quantList.isEmpty()) {
@@ -159,6 +165,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     plan.setPackName("pallet");
                     plan.setSubType(1L);
                     plan.setUomQty(BigDecimal.ONE);
+                    plan.setTestList(shelfBinList);
                     this.addProcurementPlan(plan);
                 }
             }
@@ -192,9 +199,11 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     List<BaseinfoLocation> loftList = locationService.getLocationsByType("loft_store_bin");
                     List<Long> loftBinList = new ArrayList<Long>();
                     for (BaseinfoLocation loft : loftList ) {
-                        loftBinList.addAll(locationService.getStoreLocationIds(loft.getLocationId()));
+                        if(loft.getIsLocked().compareTo(0)==0) {
+                            loftBinList.add(loft.getLocationId());
+                        }
                     }
-                    condition.setLocationList(loftBinList);
+                    condition.setLocationIdList(loftBinList);
                     condition.setItemId(itemLocation.getItemId());
                     List<StockQuant> quantList = stockQuantService.getQuantList(condition);
                     if (quantList.isEmpty()) {
@@ -212,6 +221,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                         plan.setPackName(quant.getPackName());
                         plan.setUomQty(requiredQty);
                         plan.setSubType(2L);
+                        plan.setTestList(loftBinList);
                         this.addProcurementPlan(plan);
                         requiredQty = requiredQty.subtract(quantQty);
                         if (quantQty.compareTo(BigDecimal.ZERO) <= 0) {
