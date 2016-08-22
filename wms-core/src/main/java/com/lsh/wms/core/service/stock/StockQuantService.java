@@ -158,6 +158,22 @@ public class StockQuantService {
         stockQuantDao.update(quant);
     }
 
+    public int getContainerQty(Long locationId) {
+        return stockQuantDao.getContainerIdByLocationId(locationId).size();
+    }
+
+    @Transactional(readOnly = false)
+    public void updateLocationStatus(Long locationId) throws BizCheckedException {
+        BaseinfoLocation fromLocation = locationService.getLocation(locationId);
+        if (null == fromLocation) {
+            throw new BizCheckedException("2180001");
+        } else {
+            Long currentVol = new Long(this.getContainerQty(locationId));
+            if (fromLocation.getContainerVol().compareTo(currentVol) <= 0)
+                fromLocation.setCanUse(2);
+        }
+    }
+
     @Transactional(readOnly = false)
     public void move(StockMove move) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
@@ -165,6 +181,9 @@ public class StockQuantService {
         mapQuery.put("locationId", move.getFromLocationId());
         mapQuery.put("containerId", move.getFromContainerId());
         List<StockQuant> quantList = stockQuantDao.getQuants(mapQuery);
+        if (0 == quantList.size()) {
+            throw new BizCheckedException("2550009");
+        }
         BigDecimal qtyDone = move.getQty();
         for (StockQuant quant : quantList) {
             if (quant.getReserveTaskId() != 0 && quant.getReserveTaskId().compareTo(move.getTaskId()) != 0) {
@@ -184,9 +203,11 @@ public class StockQuantService {
                 break;
             }
         }
-        if (qtyDone.compareTo(BigDecimal.ZERO) < 0 ) {
+        if (qtyDone.compareTo(BigDecimal.ZERO) > 0 ) {
             throw new BizCheckedException("2550008");
         }
+        this.updateLocationStatus(move.getFromLocationId());
+        this.updateLocationStatus(move.getToLocationId());
     }
 
     @Transactional(readOnly = false)
