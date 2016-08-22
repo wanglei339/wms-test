@@ -42,7 +42,6 @@ public class StockMoveRpcService implements IStockMoveRpcService {
         moveService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
     }
 
-
     public void moveWholeContainer(Long fromContainerId, Long toContainerId, Long taskId, Long staffId, Long fromLocationId, Long toLocationId) throws BizCheckedException {
         moveService.moveWholeContainer(fromContainerId, toContainerId, taskId, staffId, fromLocationId, toLocationId);
     }

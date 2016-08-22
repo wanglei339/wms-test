@@ -23,7 +23,7 @@ public class PoItem {
     private String skuName;
 
     /** 国条码 */
-    @NotBlank
+    //@NotBlank
     @Size(max=64)
     private String barCode;
 

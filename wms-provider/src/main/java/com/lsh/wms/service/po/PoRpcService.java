@@ -18,6 +18,7 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.po.InbPoDetail;
 import com.lsh.wms.model.po.InbPoHeader;
+import com.lsh.wms.model.so.OutbSoDetail;
 import com.lsh.wms.model.so.OutbSoHeader;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -60,17 +61,28 @@ public class PoRpcService implements IPoRpcService {
         //初始化InbPoHeader
         InbPoHeader inbPoHeader = new InbPoHeader();
         ObjUtils.bean2bean(request, inbPoHeader);
+        Integer orderType = inbPoHeader.getOrderType();
+
 
         inbPoHeader.setOrderStatus(PoConstant.ORDER_YES);
         inbPoHeader.setInserttime(new Date());
-        // TODO: 16/8/8 根据原SO订单号查询SO单是否存在
-        Integer orderType = inbPoHeader.getOrderType();
         if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
+            //返仓单的下单用户
+            String orderUser = inbPoHeader.getOrderUser();
+            if(orderUser == null){
+                throw new BizCheckedException("2020010");
+            }
             OutbSoHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(Long.parseLong(inbPoHeader.getOrderOtherId()));
             if(null == soHeader){
                 throw new BizCheckedException("2020001");
             }
+        }else{
+            Long supplierCode = inbPoHeader.getSupplierCode();
+            if(supplierCode == null){
+                throw new BizCheckedException("2020011");
+            }
         }
+
 
         //设置orderId
         inbPoHeader.setOrderId(RandomUtils.genId());
@@ -86,12 +98,35 @@ public class PoRpcService implements IPoRpcService {
             //设置orderId
             inbPoDetail.setOrderId(inbPoHeader.getOrderId());
             // 获取skuId
-            // TODO: 16/8/8 反仓单可以根据原so单确定itemId
-            List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(inbPoHeader.getOwnerUid(),inbPoDetail.getSkuCode());
-            if(null != baseinfoItemList && baseinfoItemList.size()>=1){
-                BaseinfoItem baseinfoItem = baseinfoItemList.get(baseinfoItemList.size()-1);
-                inbPoDetail.setSkuId(baseinfoItem.getSkuId());
+            // TODO: 16/8/19 取baseinfoItem中的skuId与so单中的skuId 取交集
+            List<Long> soSkuIds = new ArrayList<Long>();
+            List<Long> iSkuIds = new ArrayList<Long>();
+            if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
+                //获取so订单明细
+                List<OutbSoDetail> soDetails =
+                        soOrderService.getOutbSoDetailListByOrderId(Long.parseLong(inbPoHeader.getOrderOtherId()));
+                for(OutbSoDetail soDetail : soDetails) {
+                    soSkuIds.add(soDetail.getSkuId());
+                }
+                List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(inbPoHeader.getOwnerUid(),inbPoDetail.getSkuCode());
+                for (BaseinfoItem item : baseinfoItemList){
+                    iSkuIds.add(item.getSkuId());
+                }
+                soSkuIds.retainAll(iSkuIds);
+                if(soSkuIds.size() > 0){
+                    inbPoDetail.setSkuId(soSkuIds.get(0));
+                }
+
             }
+
+            else{
+                List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(inbPoHeader.getOwnerUid(),inbPoDetail.getSkuCode());
+                if(null != baseinfoItemList && baseinfoItemList.size()>=1){
+                    BaseinfoItem baseinfoItem = baseinfoItemList.get(baseinfoItemList.size()-1);
+                    inbPoDetail.setSkuId(baseinfoItem.getSkuId());
+                }
+            }
+
 
             inbPoDetailList.add(inbPoDetail);
         }

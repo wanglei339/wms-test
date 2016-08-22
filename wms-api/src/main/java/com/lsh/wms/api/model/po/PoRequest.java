@@ -24,7 +24,7 @@ public class PoRequest implements Serializable {
 
     /** 采购组 */
     @Size(max=64)
-    private String orderUser;
+    private String orderUser = "";
 
     /** 货主 */
     @NotNull
@@ -35,45 +35,45 @@ public class PoRequest implements Serializable {
     private Integer orderType;
 
     /** 供商编码 */
-    private Long supplierCode;
+    private Long supplierCode = 0L;
 
     /** 供商名称 */
     @Size(max=50)
-    private String supplierName;
+    private String supplierName = "";
 
     /** 商品凭证号 */
     @Size(max=100)
-    private String skuVoucherNo;
+    private String skuVoucherNo = "";
 
     /** 供商电话 */
     @Size(max=50)
-    private String supplierPhone;
+    private String supplierPhone = "";
 
     /** 供商传真 */
     @Size(max=50)
-    private String supplierFax;
+    private String supplierFax = "";
 
     /** 订单日期 */
     @NotNull
-    private Date orderTime;
+    private Date orderTime = new Date();
 
     /** 库存地 */
     @Size(max=100)
-    private String stockCode;
+    private String stockCode = "";
 
     /** 收货地点 */
     @Size(max=64)
-    private String deliveryPlace;
+    private String deliveryPlace = "";
 
     /** 收货地址 */
     @Size(max=1000)
-    private String deliveryAddrs;
+    private String deliveryAddrs = "";
 
     /** 发货时间 */
-    private Date deliveryDate;
+    private Date deliveryDate = new Date();
 
     /** 截止收货时间 */
-    private Date endDeliveryDate;
+    private Date endDeliveryDate = new Date();
 
     /** 商品 */
     @Valid
