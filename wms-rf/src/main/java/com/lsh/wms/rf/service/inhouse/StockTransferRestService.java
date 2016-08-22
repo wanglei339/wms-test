@@ -99,7 +99,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("System Busy!");
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
     }
 
@@ -145,7 +145,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("System Busy!");
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
     }
 
@@ -192,7 +192,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("System Busy!");
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
     }
 
@@ -218,7 +218,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("System Busy!");
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS(result);
     }
@@ -268,7 +268,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("System Busy!");
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
     }
 
@@ -302,7 +302,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("System Busy!");
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
     }
 
@@ -320,7 +320,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("System Busy!");
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
     }
 }
