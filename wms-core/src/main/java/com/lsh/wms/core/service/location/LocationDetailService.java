@@ -106,6 +106,9 @@ public class LocationDetailService {
         locationDetailServiceFactory.register(LocationConstant.LOFT_LEVELS, baseinfoLocationLevelService);
         //注入超市返仓区服务
         locationDetailServiceFactory.register(LocationConstant.MARKET_RETURN_AREA, baseinfoLocationRegionService);
+        //注入CONSUME_AREA和SUPPLIER_AREA
+        locationDetailServiceFactory.register(LocationConstant.CONSUME_AREA, baseinfoLocationRegionService);
+        locationDetailServiceFactory.register(LocationConstant.SUPPLIER_AREA, baseinfoLocationRegionService);
     }
 
     /**
@@ -153,6 +156,9 @@ public class LocationDetailService {
         locationDetailModelFactory.register(LocationConstant.LOFT_LEVELS, new BaseinfoLocation());
         //注入超市返仓区
         locationDetailModelFactory.register(LocationConstant.MARKET_RETURN_AREA, new BaseinfoLocationRegion());
+        //注入CONSUME_AREA和SUPPLIER_AREA
+        locationDetailModelFactory.register(LocationConstant.CONSUME_AREA, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.SUPPLIER_AREA, new BaseinfoLocationRegion());
     }
 
     /**

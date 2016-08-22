@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.location.targetlist;
 
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ public class PassageListService implements TargetListHandler {
     private LocationService locationService;
     public List<BaseinfoLocation> getTargetLocaltionModelList() {
 
-        List<BaseinfoLocation> passageList = locationService.getLocationsByType("passage");
+        List<BaseinfoLocation> passageList = locationService.getLocationsByType(LocationConstant.PASSAGE);
         return passageList;
     }
 }
