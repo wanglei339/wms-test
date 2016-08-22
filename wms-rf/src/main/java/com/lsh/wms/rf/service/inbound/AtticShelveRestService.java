@@ -385,7 +385,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
 
 
         while (total.compareTo(BigDecimal.ZERO) > 0) {
-            BaseinfoLocation location = locationService.getlocationIsEmptyAndUnlockByType("loft_store_bin");
+            BaseinfoLocation location = locationService.getlocationIsEmptyAndUnlockByType(LocationConstant.LOFT_STORE_BIN);
             if(location==null) {
                 throw new BizCheckedException("2030015");
             }

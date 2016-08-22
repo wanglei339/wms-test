@@ -15,7 +15,7 @@ public interface ILocationRpcService {
     public List<BaseinfoLocation> getStoreLocations(Long locationId);
     public List<BaseinfoLocation> getNextLevelLocations(Long locationId);
     public BaseinfoLocation getFatherLocation(Long locationId);
-    public BaseinfoLocation getFatherByType(Long locationId, String type);
+    public BaseinfoLocation getFatherByType(Long locationId, Long type);
 
     public boolean canStore(Long locationId);
 

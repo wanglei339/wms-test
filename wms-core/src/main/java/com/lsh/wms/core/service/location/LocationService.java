@@ -312,10 +312,10 @@ public class LocationService {
      * @param type       位置类型
      * @return
      */
-    public BaseinfoLocation getFatherByType(Long locationId, String type) {
+    public BaseinfoLocation getFatherByType(Long locationId, Long type) {
         BaseinfoLocation curLocation = this.getLocation(locationId);
         Long fatherId = curLocation.getFatherId();
-        if (curLocation.getType().equals(LocationConstant.LOCATION_TYPE.get(type))) {
+        if (curLocation.getType().equals(type)){
             return curLocation;
         }
         if (fatherId == 0) {
@@ -334,7 +334,7 @@ public class LocationService {
         List<BaseinfoLocation> baseinfoLocationList = new ArrayList<BaseinfoLocation>();
         BaseinfoLocation curLocation = this.getLocation(locationId);
         Long fatherId = curLocation.getFatherId();
-        if (curLocation.getType().equals(LocationConstant.LOCATION_TYPE.get(LocationConstant.WAREHOUSE))) {
+        if (curLocation.getType().equals(LocationConstant.WAREHOUSE)) {
             baseinfoLocationList.add(curLocation);
             return baseinfoLocationList;
         }
@@ -353,7 +353,7 @@ public class LocationService {
      * @param type
      * @return
      */
-    public Long getFatherIdByType(Long locationId, String type) {
+    public Long getFatherIdByType(Long locationId, Long type) {
         BaseinfoLocation fatherLocation = this.getFatherByType(locationId, type);
         return fatherLocation.getLocationId();
     }
@@ -365,7 +365,7 @@ public class LocationService {
      * @return
      */
     public BaseinfoLocation getAreaFather(Long locationId) {
-        BaseinfoLocation areaFather = this.getFatherByType(locationId, "area");
+        BaseinfoLocation areaFather = this.getFatherByType(locationId, LocationConstant.REGION_AREA);
         return areaFather;
     }
 
@@ -386,13 +386,12 @@ public class LocationService {
      * @param type
      * @return
      */
-    public List<BaseinfoLocation> getLocationsByType(String type) {
-        if (type == null || type.equals("")) {
+    public List<BaseinfoLocation> getLocationsByType(Long type) {
+        if (type == null) {
             return null;
         }
         Map<String, Object> params = new HashMap<String, Object>();
-        Long LOCATION_TYPE = LocationConstant.LOCATION_TYPE.get(type);
-        params.put("type", LOCATION_TYPE);
+        params.put("type", type);
         params.put("isValid", 1);
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
         return locations;
@@ -404,7 +403,7 @@ public class LocationService {
      * @return
      */
     public BaseinfoLocation getWarehouseLocation() {
-        List<BaseinfoLocation> locations = this.getLocationsByType("warehouse");
+        List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.WAREHOUSE);
         if (locations.size() > 0) {
             return locations.get(0);
         } else {
@@ -428,7 +427,7 @@ public class LocationService {
      * @return
      */
     public BaseinfoLocation getInventoryLostLocation() {
-        List<BaseinfoLocation> locations = this.getLocationsByType("inventoryLost");
+        List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.INVENTORYLOST);
         if (locations.size() > 0) {
             return locations.get(0);
         } else {
@@ -452,7 +451,7 @@ public class LocationService {
      * @return
      */
     public BaseinfoLocation getDefectiveLocation() {
-        List<BaseinfoLocation> locations = this.getLocationsByType("defective_area");
+        List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.DEFECTIVE_AREA);
         if (locations.size() > 0) {
             return locations.get(0);
         } else {
@@ -476,7 +475,7 @@ public class LocationService {
      * @return
      */
     public BaseinfoLocation getBackLocation() {
-        List<BaseinfoLocation> locations = this.getLocationsByType("back_area");
+        List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.BACK_AREA);
         if (locations.size() > 0) {
             return locations.get(0);
         } else {
@@ -500,7 +499,7 @@ public class LocationService {
      * @param type
      * @return
      */
-    public BaseinfoLocation getAvailableLocationByType(String type) {
+    public BaseinfoLocation getAvailableLocationByType(Long type) {
         List<BaseinfoLocation> locations = this.getLocationsByType(type);
         if (locations.size() > 0) {
             for (BaseinfoLocation location : locations) {
@@ -515,12 +514,12 @@ public class LocationService {
     }
 
     /**
-     * 获取可用暂存区节点id
+     * 获取可用Location节点id
      *
      * @param type
      * @return
      */
-    public Long getAvailableLocationId(String type) {
+    public Long getAvailableLocationId(Long type) {
         BaseinfoLocation location = this.getAvailableLocationByType(type);
         return location.getLocationId();
     }
@@ -532,7 +531,7 @@ public class LocationService {
      * @return
      */
     public BaseinfoLocation getCollectionLocation() {
-        return this.getAvailableLocationByType("collection_area");
+        return this.getAvailableLocationByType(LocationConstant.COLLECTION_AREA);
     }
 
     /**
@@ -548,7 +547,7 @@ public class LocationService {
     //分配码头dock
     // TODO 分配节点以后在调整怎么分配
     public BaseinfoLocation getDockLocation() {
-        List<BaseinfoLocation> locations = this.getLocationsByType("dock_area");
+        List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.DOCK_AREA);
         if (locations.size() > 0) {
             return locations.get(0);
         } else {
@@ -754,7 +753,7 @@ public class LocationService {
      * @param type
      * @return
      */
-    public BaseinfoLocation getlocationIsEmptyAndUnlockByType(String type) {
+    public BaseinfoLocation getlocationIsEmptyAndUnlockByType(Long type) {
         List<BaseinfoLocation> locations = this.getLocationsByType(type);
         if (locations.size() > 0) {
             for (BaseinfoLocation location : locations) {

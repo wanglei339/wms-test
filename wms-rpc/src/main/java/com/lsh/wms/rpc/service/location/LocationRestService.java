@@ -61,7 +61,7 @@ public class LocationRestService implements ILocationRestService {
 
     @GET
     @Path("getFatherByType")
-    public String getFatherByType(@QueryParam("locationId") Long locationId, @QueryParam("type") String type) {
+    public String getFatherByType(@QueryParam("locationId") Long locationId, @QueryParam("type") Long type) {
         BaseinfoLocation location = locationRpcService.getFatherByType(locationId, type);
         return JsonUtils.SUCCESS(location);
     }
@@ -69,7 +69,7 @@ public class LocationRestService implements ILocationRestService {
     @GET
     @Path("getFatherArea")
     public String getFatherArea(@QueryParam("locationId") Long locationId) {
-        BaseinfoLocation location = locationRpcService.getFatherByType(locationId, "area");
+        BaseinfoLocation location = locationRpcService.getFatherByType(locationId, LocationConstant.REGION_AREA);
         return JsonUtils.SUCCESS(location);
     }
 
@@ -110,8 +110,6 @@ public class LocationRestService implements ILocationRestService {
     public String searchList(Map<String, Object> params) {
         List<BaseinfoLocation> baseinfoLocationList = locationService.getBaseinfoLocationList(params);
         return JsonUtils.SUCCESS(baseinfoLocationList);
-//        return JsonUtils.SUCCESS(this.getBinByShelf(13L));
-
     }
 
     @POST
@@ -122,7 +120,7 @@ public class LocationRestService implements ILocationRestService {
 
     @GET
     @Path("getTemp")
-    public String getTemp(@QueryParam("type") String type) {
+    public String getTemp(@QueryParam("type") Long type) {
         return JsonUtils.SUCCESS(locationService.getAvailableLocationByType(type));
     }
 

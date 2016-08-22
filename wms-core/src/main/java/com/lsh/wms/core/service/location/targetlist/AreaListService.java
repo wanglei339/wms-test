@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.location.targetlist;
 
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +27,7 @@ public class AreaListService implements TargetListHandler {
      * @return
      */
     public List<BaseinfoLocation> getTargetLocaltionModelList() {
-
-        List<BaseinfoLocation> areaList = locationService.getLocationsByType("area");
+        List<BaseinfoLocation> areaList = locationService.getLocationsByType(LocationConstant.REGION_AREA);
         return areaList;
     }
 }
