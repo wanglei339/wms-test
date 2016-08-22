@@ -5,7 +5,7 @@ APPS=( "wms-rpc" "wms-task" "wms-provider" "wms-rf" )
 #版本号
 VERSION="1.0-SNAPSHOT"
 #远程路径
-REMOTE="work@192.168.60.59"
+REMOTE="work@192.168.60.48"
 #本地路径
 ROOT=$(cd `dirname $0`; pwd)
 
