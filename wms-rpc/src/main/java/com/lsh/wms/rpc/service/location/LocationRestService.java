@@ -9,7 +9,10 @@ import com.lsh.wms.api.service.location.ILocationRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.wave.WaveDetail;
+import com.lsh.wms.rpc.service.pick.PickRpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +39,10 @@ public class LocationRestService implements ILocationRestService {
     private LocationRpcService locationRpcService;
     @Autowired
     private LocationService locationService;
+    @Autowired
+    private PickRpcService pickRpcService;
+    @Autowired
+    private WaveService waveService;
 
     @GET
     @Path("getLocation")
@@ -194,11 +201,20 @@ public class LocationRestService implements ILocationRestService {
     @Path("getAllShelfs")
     public String getAllShelfs() {
         return JsonUtils.SUCCESS(locationRpcService.getAllShelfs());
-//        Long locationId = Long.parseLong("9073135487256");
-//        BaseinfoLocation baseinfoLocation = locationService.getLocation(locationId);
-//        return JsonUtils.SUCCESS(locationService.getNearestStorageByPicking(baseinfoLocation));
-        //测试方法
-
+//////        Long locationId = Long.parseLong("9073135487256");
+//////        BaseinfoLocation baseinfoLocation = locationService.getLocation(locationId);
+//////        return JsonUtils.SUCCESS(locationService.getNearestStorageByPicking(baseinfoLocation));
+////        //测试方法(PickRpcService()的方法)
+//        //获取list
+//        List<WaveDetail> pickDetails = new ArrayList<WaveDetail>();
+//        pickDetails.add(waveService.getWaveDetailById(23));
+//        pickDetails.add(waveService.getWaveDetailById(24));
+//        pickDetails.add(waveService.getWaveDetailById(26));
+//        pickDetails.add(waveService.getWaveDetailById(27));
+//        pickDetails.add(waveService.getWaveDetailById(28));
+//        pickRpcService.calcPickOrder(pickDetails);
+//
+//        return "yes";
     }
 
 

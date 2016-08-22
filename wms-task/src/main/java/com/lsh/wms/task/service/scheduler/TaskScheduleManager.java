@@ -1,7 +1,6 @@
 package com.lsh.wms.task.service.scheduler;
 
 import com.lsh.base.common.exception.BizCheckedException;
-import javafx.event.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
