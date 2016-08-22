@@ -247,13 +247,16 @@ public class StockTransferRestService implements IStockTransferRestService {
             }
             final TaskInfo taskInfo = taskEntry.getTaskInfo();
             final Long locationId, type;
+            final BigDecimal uomQty;
             //outbound
             if (taskInfo.getExt3().equals(0L)) {
                 type = 1L;
                 locationId = taskInfo.getFromLocationId();
+                uomQty = taskInfo.getQty().divide(taskInfo.getPackUnit());
             } else {
                 type = 2L;
                 locationId = taskInfo.getToLocationId();
+                uomQty = taskInfo.getQtyDone().divide(taskInfo.getPackUnit());
             }
             final String locationCode = locationRpcService.getLocation(locationId).getLocationCode();
             return JsonUtils.SUCCESS(new HashMap<String, Object>() {
@@ -265,7 +268,7 @@ public class StockTransferRestService implements IStockTransferRestService {
                     put("itemId", taskInfo.getItemId());
                     put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
                     put("packName", taskInfo.getPackName());
-                    put("uomQty", taskInfo.getQty().divide(taskInfo.getPackUnit()));
+                    put("uomQty", uomQty);
                 }
             });
         } catch (BizCheckedException e) {
