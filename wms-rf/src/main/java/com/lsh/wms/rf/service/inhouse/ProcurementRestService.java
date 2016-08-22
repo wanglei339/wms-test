@@ -129,8 +129,8 @@ public class ProcurementRestService implements IProcurementRestService {
         try {
             Long taskId = Long.valueOf(params.get("taskId").toString());
             final TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
-            String status = params.get("status").toString();
-            if(status.equals("inbound")) {
+            Long type = Long.parseLong(params.get("type").toString());
+            if(type.compareTo(2L)==0) {
                 if (entry == null) {
                     return JsonUtils.TOKEN_ERROR("任务不存在");
                 } else {
@@ -145,7 +145,7 @@ public class ProcurementRestService implements IProcurementRestService {
                         put("response", true);
                     }
                 });
-            }else if(status.equals("outbound")) {
+            }else if(type.compareTo(1L)==0) {
                 if(entry==null ){
                     return JsonUtils.TOKEN_ERROR("任务不存在");
                 }else {
@@ -159,7 +159,7 @@ public class ProcurementRestService implements IProcurementRestService {
                 return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                     {
                         put("taskId", info.getTaskId());
-                        put("status","inbound");
+                        put("type",2);
                         put("locationId", info.getToLocationId());
                         put("locationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
                         put("itemId", info.getItemId());
@@ -204,7 +204,7 @@ public class ProcurementRestService implements IProcurementRestService {
                 return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                     {
                         put("taskId", info.getTaskId());
-                        put("status","inbound");
+                        put("type",2L);
                         put("locationId", info.getToLocationId());
                         put("locationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
                         put("itemId", info.getItemId());
@@ -217,7 +217,7 @@ public class ProcurementRestService implements IProcurementRestService {
                 return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                     {
                         put("taskId", info.getTaskId());
-                        put("status","outbound");
+                        put("type",1L);
                         put("locationId", info.getFromLocationId());
                         put("locationCode", locationRpcService.getLocation(info.getFromLocationId()).getLocationCode());
                         put("itemId", info.getItemId());

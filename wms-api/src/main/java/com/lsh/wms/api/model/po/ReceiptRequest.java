@@ -37,7 +37,7 @@ public class ReceiptRequest implements Serializable {
 
     /** 收货时间 */
     @NotNull
-    private Date receiptTime;
+    private Date receiptTime = new Date();
 
     /** 收货码头 */
     @Size(max=64)

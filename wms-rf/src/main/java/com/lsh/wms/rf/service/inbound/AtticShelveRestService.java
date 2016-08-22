@@ -324,10 +324,6 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         }
         StockQuant quant = quants.get(0);
 
-        if (quants.size() < 1) {
-            throw new BizCheckedException("2030001");
-        }
-
         BigDecimal total = stockQuantService.getQuantQtyByLocationIdAndItemId(quant.getLocationId(), quant.getItemId());
 
             //判断阁楼捡货位是不是需要补货

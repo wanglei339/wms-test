@@ -15,7 +15,7 @@ public class ReceiptItem implements Serializable {
     /** 批次号 */
     @NotBlank
     @Size(max=64)
-    private String lotNum;
+    private String lotNum = "";
 
     /** skuId */
     private Long skuId;
@@ -49,7 +49,7 @@ public class ReceiptItem implements Serializable {
 
     /** 生产日期 */
     @NotNull
-    private Date proTime;
+    private Date proTime = new Date();
 
     /** 拒收原因 */
     @Size(max=100)
