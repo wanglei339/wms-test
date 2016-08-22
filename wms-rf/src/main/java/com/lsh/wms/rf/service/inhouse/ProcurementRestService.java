@@ -142,7 +142,7 @@ public class ProcurementRestService implements IProcurementRestService {
                 rpcService.scanToLocation(params);
                 return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
                     {
-                        put("response", true);
+                        put("finished", true);
                     }
                 });
             }else if(type.compareTo(1L)==0) {

@@ -103,7 +103,7 @@ public class StockTakingRestService implements IStockTakingRestService {
     public String cancel(@QueryParam("takingId") Long takingId) throws BizCheckedException{
         StockTakingHead head = stockTakingService.getHeadById(takingId);
         if(head==null){
-            return JsonUtils.BIZ_ERROR("2550001");
+            return JsonUtils.TOKEN_ERROR("盘点任务不存在");
         }
         head.setStatus(5L);
         stockTakingService.updateHead(head);
