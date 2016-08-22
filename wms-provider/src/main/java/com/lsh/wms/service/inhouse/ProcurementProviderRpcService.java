@@ -72,7 +72,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             logger.error("error plan ：" + plan.toString());
             return;
         }
-        logger.info("true plan ：" + plan.toString());
         if (baseTaskService.checkTaskByToLocation(plan.getToLocationId(), TaskConstant.TYPE_PROCUREMENT)) {
             throw new BizCheckedException("2550015");
         }
@@ -166,7 +165,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     plan.setPackName("pallet");
                     plan.setSubType(1L);
                     plan.setUomQty(BigDecimal.ONE);
-                    plan.setTestList(shelfBinList);
                     this.addProcurementPlan(plan);
                 }
             }
@@ -222,7 +220,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                         plan.setPackName(quant.getPackName());
                         plan.setUomQty(requiredQty);
                         plan.setSubType(2L);
-                        plan.setTestList(loftBinList);
                         this.addProcurementPlan(plan);
                         requiredQty = requiredQty.subtract(quantQty);
                         if (quantQty.compareTo(BigDecimal.ZERO) <= 0) {
