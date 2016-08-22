@@ -179,7 +179,7 @@ public class StockTransferCore {
             move.setToLocationId(toLocationId);
             move.setFromContainerId(containerId);
             StockQuantCondition condition = new StockQuantCondition();
-            condition.setLocationId(toLocationId);
+            condition.setLocationId(fromLocationId);
             condition.setItemId(taskInfo.getItemId());
             List<StockQuant> quants = stockQuantRpcService.getQuantList(condition);
             Long toContainerId;
