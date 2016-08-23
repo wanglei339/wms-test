@@ -83,7 +83,7 @@
 		where location_id=#{locationId}
 	</select>
 
-	<select id="getLocationIByContainerId" parameterType="long" resultType="long">
+	<select id="getLocationIdByContainerId" parameterType="long" resultType="long">
 		select distinct location_id from stock_quant
 		where container_id=#{containerId}
 	</select>

@@ -6,6 +6,7 @@ import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
 import com.lsh.wms.core.dao.stock.StockQuantDao;
 import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantMoveRel;
@@ -16,10 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by mali on 16/7/11.ck
@@ -36,6 +34,9 @@ public class StockMoveService {
 
     @Autowired
     private StockQuantService quantService;
+
+    @Autowired
+    private LocationService locationService;
 
     @Autowired
     private StockQuantMoveRelDao relDao;
@@ -83,13 +84,13 @@ public class StockMoveService {
 
     @Transactional(readOnly = false)
     public void moveWholeContainer(Long containerId, Long taskId, Long staffId, Long fromLocationId, Long toLocationId) throws BizCheckedException {
-        quantService.lockQuantByContainerId(containerId);
+        locationService.lockLocationByContainer(containerId);
         this.moveWholeContainer(containerId, containerId, taskId, staffId, fromLocationId, toLocationId);
     }
 
     @Transactional(readOnly = false)
     public void moveWholeContainer(Long fromContainerId, Long toContainerId, Long taskId, Long staffId, Long fromLocationId, Long toLocationId) throws BizCheckedException {
-        quantService.lockQuantByContainerId(fromContainerId);
+        locationService.lockLocationByContainer(fromContainerId);
         List<StockQuant> quantList = quantService.reserveByContainer(fromContainerId, taskId);
         for (StockQuant quant : quantList) {
             StockMove move = new StockMove();
@@ -110,14 +111,15 @@ public class StockMoveService {
     @Transactional(readOnly = false)
     public void move(List<StockMove> moveList) throws BizCheckedException{
         boolean islocked = false;
+        SortedSet<Long> locationSet = new TreeSet<Long>();
+        for (StockMove move : moveList) {
+            locationSet.add(move.getFromLocationId());
+        }
+        for (Long locationId : locationSet) {
+            locationService.lockLocation(locationId);
+        }
         for (StockMove move : moveList) {
             this.create(move);
-            if (move.getFromLocationId().equals(0L)){
-                quantService.lockQuantByContainerId(move.getFromContainerId());
-            } else if (!islocked){
-                quantService.lockQuantByLocation(move.getFromLocationId());
-                islocked = true;
-            }
             quantService.move(move);
         }
     }
@@ -128,7 +130,7 @@ public class StockMoveService {
             throw new BizCheckedException("1550001" );
         }
 
-        quantService.lockQuantByContainerId(fromContainer);
+        locationService.lockLocationByContainer(fromContainer);
 
         Map<String, Object> queryMap = new HashMap<String, Object>();
         BigDecimal total = BigDecimal.ZERO;
@@ -158,4 +160,5 @@ public class StockMoveService {
         this.create(move);
         quantService.move(move);
     }
+
 }

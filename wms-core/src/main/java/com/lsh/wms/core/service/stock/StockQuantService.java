@@ -42,6 +42,9 @@ public class StockQuantService {
 
     private void prepareQuery(Map<String, Object> params) {
         List<BaseinfoLocation> locationList = new ArrayList<BaseinfoLocation>();
+        if (params.get("location") != null) {
+            locationList.add((BaseinfoLocation) params.get("location"));
+        }
         if (params.get("locationId") != null) {
             BaseinfoLocation location = locationService.getLocation((Long) params.get("locationId"));
             locationList.add(location);
