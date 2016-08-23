@@ -82,11 +82,13 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     @Autowired
     private TaskInfoDao taskInfoDao;
 
-    public void addPlan(StockTransferPlan plan)  throws BizCheckedException {
+    public boolean checkPlan(StockTransferPlan plan) throws BizCheckedException {
         Long fromLocationId = plan.getFromLocationId();
         Long toLocationId = plan.getToLocationId();
+        if (fromLocationId.compareTo(toLocationId) == 0) {
+            throw new BizCheckedException("2060013");
+        }
         Long itemId = plan.getItemId();
-
         BaseinfoLocation toLocation = locationService.getLocation(toLocationId);
         if (toLocation == null) {
             throw new BizCheckedException("2060012");
@@ -100,17 +102,39 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             toLocation = core.getNearestLocation(toLocation);
             toLocationId = toLocation.getLocationId();
         }
-        if (!locationService.checkLocationLockStatus(toLocationId)) {
-            throw new BizCheckedException("2550010");
-        }
+
         StockQuantCondition condition = new StockQuantCondition();
         condition.setLocationId(fromLocationId);
         condition.setItemId(itemId);
         condition.setReserveTaskId(0L);
+        BigDecimal total = stockQuantService.getQty(condition);
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
-        if (quantList.isEmpty()) {
-            throw new BizCheckedException("2550002");
+
+        Long taskId = plan.getTaskId();
+        if (!taskId.equals(0L)) {
+            TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
+            if (taskEntry == null) {
+                throw new BizCheckedException("3040001");
+            }
+            TaskInfo taskInfo = taskEntry.getTaskInfo();
+            condition.setReserveTaskId(taskId);
+            total = total.add(stockQuantService.getQty(condition));
+            List<StockQuant> list = stockQuantService.getQuantList(condition);
+            if (quantList.isEmpty() && list.isEmpty()) {
+                throw new BizCheckedException("2550032");
+            }
+            if (toLocationId.compareTo(taskInfo.getToLocationId()) != 0 && !locationService.checkLocationLockStatus(toLocationId)) {
+                throw new BizCheckedException("2550010");
+            }
+        } else {
+            if (quantList.isEmpty()) {
+                throw new BizCheckedException("2550032");
+            }
+            if (!locationService.checkLocationLockStatus(toLocationId)) {
+                throw new BizCheckedException("2550010");
+            }
         }
+
         List<StockQuant> toQuants = quantService.getQuantsByLocationId(toLocationId);
         Long locationType = toLocation.getType();
         if( toQuants.size() > 0 ){
@@ -137,42 +161,47 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             }
         }
         core.fillTransferPlan(plan);
-        BigDecimal total = stockQuantService.getQty(condition);
         BigDecimal requiredQty = plan.getQty();
         if ( requiredQty.compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
             throw new BizCheckedException("2550002");
         }
-        Long containerId = quantList.get(0).getContainerId();
-        if (plan.getSubType().compareTo(2L) == 0) {
-            containerId = containerService.createContainerByType(2L).getContainerId();
-        }
-        TaskEntry taskEntry = new TaskEntry();
-        TaskInfo taskInfo = new TaskInfo();
-        ObjUtils.bean2bean(plan, taskInfo);
-        taskInfo.setTaskName("移库任务[ " + taskInfo.getFromLocationId() + " => " + taskInfo.getToLocationId() + "]");
-        taskInfo.setType(TaskConstant.TYPE_STOCK_TRANSFER);
-        taskInfo.setContainerId(containerId);
-        taskEntry.setTaskInfo(taskInfo);
-        Long taskId = taskRpcService.create(TaskConstant.TYPE_STOCK_TRANSFER, taskEntry);
-        logger.info("taskId: " + taskId);
+        plan.setContainerId(quantList.get(0).getContainerId());
+        return true;
     }
 
-    public void updatePlan(StockTransferPlan plan)  throws BizCheckedException {
+    public void addPlan(StockTransferPlan plan) throws BizCheckedException {
+        if (checkPlan(plan)) {
+            Long containerId = plan.getContainerId();
+            if (plan.getSubType().compareTo(2L) == 0) {
+                containerId = containerService.createContainerByType(2L).getContainerId();
+            }
+            TaskEntry taskEntry = new TaskEntry();
+            TaskInfo taskInfo = new TaskInfo();
+            ObjUtils.bean2bean(plan, taskInfo);
+            taskInfo.setTaskName("移库任务[ " + taskInfo.getFromLocationId() + " => " + taskInfo.getToLocationId() + "]");
+            taskInfo.setType(TaskConstant.TYPE_STOCK_TRANSFER);
+            taskInfo.setContainerId(containerId);
+            taskEntry.setTaskInfo(taskInfo);
+            Long taskId = taskRpcService.create(TaskConstant.TYPE_STOCK_TRANSFER, taskEntry);
+            logger.info("taskId: " + taskId);
+        }
+    }
+
+    public void updatePlan(StockTransferPlan plan) throws BizCheckedException {
         Long taskId = plan.getTaskId();
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
         if (taskEntry == null) {
             throw new BizCheckedException("3040001");
         }
         TaskInfo taskInfo = taskEntry.getTaskInfo();
-        locationService.getLocation(taskInfo.getToLocationId()).setIsLocked(0); //unLock
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("reserveTaskId", taskId);
-        List<StockQuant> quantList = quantService.getQuants(mapQuery);
-        for (StockQuant quant : quantList) {
-            quant.setReserveTaskId(0L);
+        if (!taskInfo.getStatus().equals(TaskConstant.Draft)) {
+            throw new BizCheckedException("2550033");
         }
+        if (checkPlan(plan)) {
+            this.cancelPlan(plan.getTaskId());
+        }
+        plan.setTaskId(0L);
         this.addPlan(plan);
-        this.cancelPlan(plan.getTaskId());
     }
 
     public void cancelPlan(Long taskId){
