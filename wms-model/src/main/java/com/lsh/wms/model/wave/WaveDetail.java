@@ -9,6 +9,8 @@ public class WaveDetail implements Serializable {
 	/**  */
     private Long id;
 	/** 0代表生命周期结束了,也即是否在一个有效的波次周期内，波次完成或者取消这个值要标记为无效,否则会有问题 */
+	/** 参考detail—id，分裂使用 */
+	private Long refDetailId = 0L;
     private Long isAlive = 1L;
 	/** 是否有效，比如被合盘的情况下，原记录被标记为无效 */
     private Long isValid = 1L;
@@ -45,7 +47,9 @@ public class WaveDetail implements Serializable {
 	/** 捡货任务id */
 	private Long pickTaskId;
 	/** 分配的捡货分区,通过分区信息取获取对应的区域路径，可获取到虾面的捡货位 */
-    private BigDecimal pickZoneId;
+    private Long pickZoneId;
+	/** 分配分拣区域locationid */
+	private Long pickAreaLocation = 0L;
 	/** 拣货顺序 */
 	private Long pickOrder = 0L;
 	/** 分配分拣位 */
@@ -97,6 +101,14 @@ public class WaveDetail implements Serializable {
 	
 	public void setId(Long id){
 		this.id = id;
+	}
+
+	public Long getRefDetailId(){
+		return this.refDetailId;
+	}
+
+	public void setRefDetailId(Long refDetailId){
+		this.refDetailId = refDetailId;
 	}
 	
 	public Long getIsAlive(){
@@ -243,12 +255,20 @@ public class WaveDetail implements Serializable {
 		this.pickTaskId = pickTaskId;
 	}
 	
-	public BigDecimal getPickZoneId(){
+	public Long getPickZoneId(){
 		return this.pickZoneId;
 	}
 	
-	public void setPickZoneId(BigDecimal pickZoneId){
+	public void setPickZoneId(Long pickZoneId){
 		this.pickZoneId = pickZoneId;
+	}
+
+	public Long getPickAreaLocation(){
+		return this.pickAreaLocation;
+	}
+
+	public void setPickAreaLocation(Long pickAreaLocation){
+		this.pickAreaLocation = pickAreaLocation;
 	}
 
 	public Long getPickOrder(){

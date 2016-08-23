@@ -6,6 +6,7 @@ import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
 import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
@@ -68,6 +69,9 @@ public class StockQuantService {
 
     private void prepareQuery(Map<String, Object> params) {
         List<BaseinfoLocation> locationList = new ArrayList<BaseinfoLocation>();
+        if (params.get("location") != null) {
+            locationList.add((BaseinfoLocation) params.get("location"));
+        }
         if (params.get("locationId") != null) {
             BaseinfoLocation location = locationService.getLocation((Long) params.get("locationId"));
             locationList.add(location);
@@ -447,4 +451,5 @@ public class StockQuantService {
     public int countStockQuant(Map<String, Object> mapQuery){
         return stockQuantDao.countStockQuant(mapQuery);
     }
+
 }
