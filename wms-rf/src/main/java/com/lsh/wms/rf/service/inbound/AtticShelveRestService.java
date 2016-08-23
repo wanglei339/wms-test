@@ -198,7 +198,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
 
             Map result = this.getResultMap(taskId);
             if (result == null) {
-                return JsonUtils.TOKEN_ERROR("阁楼上架库存错误");
+                return JsonUtils.TOKEN_ERROR("阁楼上架库存异常 ");
             } else {
                 iTaskRpcService.assign(taskId, user.getStaffId());
                 return JsonUtils.SUCCESS(result);

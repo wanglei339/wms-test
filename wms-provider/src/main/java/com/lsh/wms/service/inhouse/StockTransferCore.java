@@ -102,7 +102,7 @@ public class StockTransferCore {
         List<StockQuant> quants = stockQuantRpcService.getQuantList(condition);
 
         TaskInfo taskInfo = taskEntry.getTaskInfo();
-        if(taskInfo.getType().compareTo(TaskConstant.TYPE_ATTIC_SHELVE)==0){
+        if(taskInfo.getType().compareTo(TaskConstant.TYPE_PROCUREMENT)==0){
             taskInfo.setExt4(1L);
             if(quants == null || quants.size()==0){
                 throw new BizCheckedException("2550008");
@@ -224,7 +224,7 @@ public class StockTransferCore {
 
     public void sortInbound(List<TaskEntry> entryList) {
         Collections.sort(entryList, new Comparator<TaskEntry>() {
-            public int compare (TaskEntry entry1, TaskEntry entry2) {
+            public int compare(TaskEntry entry1, TaskEntry entry2) {
                 try {
                     TaskInfo info1 = entry1.getTaskInfo(), info2 = entry2.getTaskInfo();
                     //sort toLocationId
