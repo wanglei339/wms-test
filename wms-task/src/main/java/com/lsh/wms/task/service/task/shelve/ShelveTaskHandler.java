@@ -173,7 +173,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
             List<StockQuant> quants = stockQuantService.getQuantsByLocationId(locationId);
             Long containerId = 0L;
             if (quants.isEmpty()) {
-                containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
+                containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
             } else {
                 containerId = quants.get(0).getContainerId();
             }
