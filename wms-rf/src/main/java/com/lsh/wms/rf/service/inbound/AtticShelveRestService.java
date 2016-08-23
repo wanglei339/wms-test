@@ -13,6 +13,7 @@ import com.lsh.wms.api.service.shelve.IAtticShelveRfRestService;
 import com.lsh.wms.api.service.shelve.IShelveRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
@@ -280,7 +281,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         List<StockQuant> pickQuant = stockQuantService.getQuantsByLocationId(realLocationId);
         Long containerId = 0L;
         if(pickQuant ==null ||pickQuant.size() ==0){
-            containerId = containerService.createContainerByType(1L).getContainerId();
+            containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
         }else {
             containerId = pickQuant.get(0).getContainerId();
         }

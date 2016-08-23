@@ -14,10 +14,7 @@ import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.po.IReceiptRpcService;
 import com.lsh.wms.api.service.stock.IStockLotRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
-import com.lsh.wms.core.constant.BusiConstant;
-import com.lsh.wms.core.constant.CsiConstan;
-import com.lsh.wms.core.constant.PoConstant;
-import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemLocationService;
@@ -140,7 +137,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
         Integer orderType = inbPoHeader.getOrderType();
         if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
             //新增container
-            Long containerId = containerService.createContainerByType(1L).getContainerId();
+            Long containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
             inbReceiptHeader.setContainerId(containerId);
             // TODO: 16/8/19 设置退货区
 

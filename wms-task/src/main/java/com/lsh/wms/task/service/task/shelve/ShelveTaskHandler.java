@@ -8,6 +8,7 @@ import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.shelve.IShelveRpcService;
 import com.lsh.wms.api.service.stock.IStockMoveRestService;
 import com.lsh.wms.api.service.stock.IStockMoveRpcService;
+import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
@@ -151,9 +152,9 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         if (taskHead == null) {
             throw new BizCheckedException("2030009");
         }
+        BaseinfoLocation realLocation = locationService.getLocation(locationId);
         // 实际上架位置和分配位置不一致
         if (!locationId.equals(taskHead.getAllocLocationId())) {
-            BaseinfoLocation realLocation = locationService.getLocation(locationId);
             if (realLocation == null) {
                 throw new BizCheckedException("2030006");
             }
@@ -167,7 +168,19 @@ public class ShelveTaskHandler extends AbsTaskHandler {
             }
         }
         // move到目标location_id
-        iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
+        // 地堆区需要合盘
+        if (realLocation.getType().equals(LocationConstant.FLOOR)) {
+            List<StockQuant> quants = stockQuantService.getQuantsByLocationId(locationId);
+            Long containerId = 0L;
+            if (quants.isEmpty()) {
+                containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
+            } else {
+                containerId = quants.get(0).getContainerId();
+            }
+            iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), containerId, taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
+        } else {
+            iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
+        }
         taskService.done(taskId, locationId);
         // 释放分配的location
         locationService.unlockLocation(taskHead.getAllocLocationId());
