@@ -11,6 +11,7 @@ import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.stock.IStockMoveRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.container.ContainerService;
@@ -100,7 +101,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             toLocation = core.getNearestLocation(toLocation);
             toLocationId = toLocation.getLocationId();
         }
-        if (!locationService.checkLocationLockStatus(toLocationId)) {
+        if (locationService.checkLocationLockStatus(toLocationId)) {
             throw new BizCheckedException("2550010");
         }
         StockQuantCondition condition = new StockQuantCondition();
@@ -144,7 +145,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         }
         Long containerId = quantList.get(0).getContainerId();
         if (plan.getSubType().compareTo(2L) == 0) {
-            containerId = containerService.createContainerByType(2L).getContainerId();
+            containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
         }
         TaskEntry taskEntry = new TaskEntry();
         TaskInfo taskInfo = new TaskInfo();
