@@ -14,4 +14,5 @@ public interface IRolePermissionRpcService {
     void insert(RolePermission rolePermission);
     void update(RolePermission rolePermission);
     RolePermission getRolePermissionByName(String role);
+    RolePermission getRolePermissionById(Long id);
 }
