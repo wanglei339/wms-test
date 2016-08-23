@@ -102,7 +102,7 @@ public class StockTransferCore {
         List<StockQuant> quants = stockQuantRpcService.getQuantList(condition);
 
         TaskInfo taskInfo = taskEntry.getTaskInfo();
-        if(taskInfo.getType().compareTo(TaskConstant.TYPE_ATTIC_SHELVE)==0){
+        if(taskInfo.getType().compareTo(TaskConstant.TYPE_PROCUREMENT)==0){
             taskInfo.setExt4(1L);
             if(quants == null || quants.size()==0){
                 throw new BizCheckedException("2550008");
@@ -207,11 +207,7 @@ public class StockTransferCore {
                 try {
                     TaskInfo info1 = entry1.getTaskInfo(), info2 = entry2.getTaskInfo();
                     //sort fromLocationId
-                    if (info1.getFromLocationId().compareTo(info2.getFromLocationId()) < 0) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
+                    return info1.getFromLocationId().compareTo(info2.getFromLocationId());
                 } catch (Exception e) {
                     e.printStackTrace();
                     return 0;
@@ -228,15 +224,11 @@ public class StockTransferCore {
 
     public void sortInbound(List<TaskEntry> entryList) {
         Collections.sort(entryList, new Comparator<TaskEntry>() {
-            public int compare (TaskEntry entry1, TaskEntry entry2) {
+            public int compare(TaskEntry entry1, TaskEntry entry2) {
                 try {
                     TaskInfo info1 = entry1.getTaskInfo(), info2 = entry2.getTaskInfo();
                     //sort toLocationId
-                    if (info1.getToLocationId().compareTo(info2.getToLocationId()) < 0) {
-                        return 1;
-                    } else {
-                        return 0;
-                    }
+                    return info1.getToLocationId().compareTo(info2.getToLocationId());
                 } catch (Exception e) {
                     e.printStackTrace();
                     return 0;
@@ -311,18 +303,52 @@ public class StockTransferCore {
         return entryList.get(0).getTaskInfo().getTaskId();
     }
 
-
-
-    public List<Long> getMoreTasks(List<TaskEntry> entryList) {
+    public List<Long> sortTaskByLocation(List<TaskEntry> entryList) {
+        TaskInfo taskInfo = entryList.get(0).getTaskInfo();
         List<Long> taskList = new ArrayList<Long>();
+        taskList.add(taskInfo.getTaskId());
+        Long fromLocationId = taskInfo.getFromLocationId(), toLocationId = taskInfo.getToLocationId();
+        List<TaskEntry> list = new ArrayList<TaskEntry>();
+        boolean isFirst = true;
+        for (TaskEntry entry : entryList) {
+            if (isFirst) {
+                isFirst = false;
+                continue;
+            }
+            TaskInfo info = entry.getTaskInfo();
+            Long newFromLocaiton = java.lang.Math.abs(info.getFromLocationId() - fromLocationId),
+                    newToLocation = java.lang.Math.abs(info.getToLocationId() - toLocationId);
+            info.setFromLocationId(newFromLocaiton);
+            info.setToLocationId(newToLocation);
+            list.add(entry);
+        }
+        // sort by locationId
+        Collections.sort(list, new Comparator<TaskEntry>() {
+            public int compare (TaskEntry entry1, TaskEntry entry2) {
+                try {
+                    TaskInfo info1 = entry1.getTaskInfo(), info2 = entry2.getTaskInfo();
+                    if (info1.getFromLocationId().compareTo(info2.getFromLocationId()) == 0) {
+                        return info1.getToLocationId().compareTo(info2.getToLocationId());
+                    } return info1.getFromLocationId().compareTo(info2.getFromLocationId());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return 0;
+                }
+            }
+        });
+        // get other 4 tasks
         int idx = 0;
-        for(TaskEntry entry : entryList) {
+        for (TaskEntry entry : list) {
             taskList.add(entry.getTaskInfo().getTaskId());
             idx ++;
-            if(idx == 5) {
+            if (idx == 4) {
                 break;
             }
         }
         return taskList;
+    }
+
+    public List<Long> getMoreTasks(List<TaskEntry> entryList) {
+        return this.sortTaskByLocation(entryList);
     }
 }

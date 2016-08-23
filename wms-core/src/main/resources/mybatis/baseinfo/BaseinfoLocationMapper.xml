@@ -27,6 +27,10 @@
 		<result property="canUse" column="can_use"/>
 		<result property="isLocked" column="is_locked"/>
 	</resultMap>
+
+	<select id="lock" parameterType="long" resultMap="baseinfoLocationResultMap">
+		select * from baseinfo_location where location_id = #{locationId} for update
+	</select>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLocation">
 		insert into baseinfo_location (

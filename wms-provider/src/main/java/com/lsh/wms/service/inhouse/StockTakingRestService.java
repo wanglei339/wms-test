@@ -125,10 +125,6 @@ public class StockTakingRestService implements IStockTakingRestService {
     @POST
     @Path("getList")
     public String getList(Map<String,Object> mapQuery) throws BizCheckedException{
-        List<Integer> statusList = new ArrayList<Integer>();
-        statusList.add(1);statusList.add(2);
-        statusList.add(3);statusList.add(4);
-        mapQuery.put("statusList",statusList);
         List<StockTakingHead> heads = stockTakingService.queryTakingHead(mapQuery);
         return JsonUtils.SUCCESS(heads);
     }
@@ -213,8 +209,12 @@ public class StockTakingRestService implements IStockTakingRestService {
 
             //商品,供应商得到库位
             Map<String,Object> queryMap =new HashMap<String, Object>();
-            queryMap.put("supplierId",request.getSupplierId());
-            queryMap.put("itemId",request.getItemId());
+            if(request.getSupplierId().compareTo(0L)!=0) {
+                queryMap.put("supplierId", request.getSupplierId());
+            }
+            if(request.getItemId().compareTo(0L)!=0) {
+                queryMap.put("itemId", request.getItemId());
+            }
             List<StockQuant>quantList = quantService.getQuants(queryMap);
             Set<Long> locationSet =new HashSet<Long>();
             for(StockQuant quant:quantList){
@@ -227,8 +227,6 @@ public class StockTakingRestService implements IStockTakingRestService {
             }else {
                 locationList =new ArrayList<Long>(locationSet);
             }
-
-
         }
 
         if (locationList.size() < locationNum ) {

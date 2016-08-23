@@ -6,6 +6,7 @@ import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
 import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
@@ -40,34 +41,11 @@ public class StockQuantService {
     @Autowired
     private LocationService locationService;
 
-    @Transactional(readOnly = false)
-    public void lockQuantByLocation(Long locationId) {
-        if (locationId.equals(0L)) {
-            return;
-        }
-        Map<String, Object> condition = new HashMap<String, Object>();
-        List<BaseinfoLocation> list = new ArrayList<BaseinfoLocation>();
-        list.add(locationService.getLocation(locationId));
-        condition.put("locationList", list);
-        stockQuantDao.lock(condition);
-    }
-
-    @Transactional(readOnly = false)
-    public void lockQuantByContainerId(Long containerId) {
-        Map<String, Object> condition = new HashMap<String, Object>();
-        condition.put("containerId", containerId);
-        stockQuantDao.lock(condition);
-    }
-
-    @Transactional(readOnly = false)
-    public void lockQuantById(Long id) {
-        Map<String, Object> condition = new HashMap<String, Object>();
-        condition.put("id", id);
-        stockQuantDao.lock(condition);
-    }
-
     private void prepareQuery(Map<String, Object> params) {
         List<BaseinfoLocation> locationList = new ArrayList<BaseinfoLocation>();
+        if (params.get("location") != null) {
+            locationList.add((BaseinfoLocation) params.get("location"));
+        }
         if (params.get("locationId") != null) {
             BaseinfoLocation location = locationService.getLocation((Long) params.get("locationId"));
             locationList.add(location);
@@ -88,6 +66,10 @@ public class StockQuantService {
         if ( ! locationList.isEmpty() ) {
             params.put("locationList", locationList);
         }
+    }
+
+    public List<Long> getLocationIdByContainerId(Long containerId) {
+        return stockQuantDao.getLocationIdByContainerId(containerId);
     }
 
     @Transactional(readOnly = false)
@@ -163,6 +145,8 @@ public class StockQuantService {
         return stockQuantDao.getContainerIdByLocationId(locationId).size();
     }
 
+
+
     @Transactional(readOnly = false)
     public void updateLocationStatus(Long locationId) throws BizCheckedException {
         BaseinfoLocation fromLocation = locationService.getLocation(locationId);
@@ -172,6 +156,7 @@ public class StockQuantService {
             Long currentVol = new Long(this.getContainerQty(locationId));
             if (fromLocation.getContainerVol().compareTo(currentVol) <= 0)
                 fromLocation.setCanUse(2);
+                locationService.updateLocation(fromLocation);
         }
     }
 
@@ -260,6 +245,7 @@ public class StockQuantService {
 
         StockQuant newQuant = (StockQuant) quant.clone();
         newQuant.setQty(quant.getQty().subtract(requiredQty));
+        newQuant.setReserveTaskId(0L);
         this.create(newQuant);
         Map<String,Object> queryMap=new HashMap<String, Object>();
         queryMap.put("quantId", quant.getId());
@@ -301,7 +287,7 @@ public class StockQuantService {
         List<StockQuant> quantList = this.getQuants(mapQuery);
         for (StockQuant quant : quantList) {
             if (quant.getReserveTaskId() != 0 && quant.getReserveTaskId().compareTo(taskId) != 0) {
-                throw new BizCheckedException("3550002");
+                throw new BizCheckedException("3550003");
             }
             this.reserve(quant, taskId);
         }
@@ -379,7 +365,7 @@ public class StockQuantService {
 
     @Transactional(readOnly = false)
     public void process(Map<String, Object> mapCondition, String operation) {
-        this.lockQuantByLocation((Long) mapCondition.get("locationId"));
+        locationService.lockLocationById((Long) mapCondition.get("locationId"));
 
         BigDecimal requiredQty = new BigDecimal(mapCondition.get("requiredQty").toString());
         List<StockQuant> quantList = this.getQuants(mapCondition);
@@ -446,4 +432,5 @@ public class StockQuantService {
     public int countStockQuant(Map<String, Object> mapQuery){
         return stockQuantDao.countStockQuant(mapQuery);
     }
+
 }

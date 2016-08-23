@@ -1,29 +1,35 @@
 package com.lsh.wms.core.service.wave;
 
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.dao.so.OutbSoHeaderDao;
 import com.lsh.wms.core.dao.wave.WaveDetailDao;
 import com.lsh.wms.core.dao.wave.WaveHeadDao;
 import com.lsh.wms.core.dao.wave.WaveQcExceptionDao;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.pick.PickTaskService;
+import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.pick.PickTaskHead;
 import com.lsh.wms.model.so.OutbSoHeader;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.wave.WaveAllocDetail;
 import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.wave.WaveHead;
 import com.lsh.wms.model.wave.WaveQcException;
+import com.sun.org.apache.bcel.internal.generic.ALOAD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -45,6 +51,10 @@ public class WaveService {
     private WaveDetailDao detailDao;
     @Autowired
     private WaveQcExceptionDao qcExceptionDao;
+    @Autowired
+    private StockQuantService stockQuantService;
+    @Autowired
+    private LocationService locationService;
 
     @Transactional(readOnly = false)
     public void createWave(WaveHead head, List<Long> vOrders){
@@ -168,6 +178,13 @@ public class WaveService {
     }
 
     @Transactional(readOnly = false)
+    public void insertDetail(WaveDetail detail){
+        detail.setUpdatedAt(DateUtils.getCurrentSeconds());
+        detail.setCreatedAt(DateUtils.getCurrentSeconds());
+        detailDao.insert(detail);
+    }
+
+    @Transactional(readOnly = false)
     public void updateDetail(WaveDetail detail){
         detail.setUpdatedAt(DateUtils.getCurrentSeconds());
         detailDao.update(detail);
@@ -188,6 +205,90 @@ public class WaveService {
             unPickedQty = new BigDecimal("0.0000");
         }
         return unPickedQty;
+    }
+
+    @Transactional(readOnly = true)
+    public BigDecimal getUnAllocQty(long itemId, BaseinfoLocation location)
+    {
+        //可用库存=仓位有效stock_quant求和(怎么求)-wave_detail的有效alloc数量+wave_detail中的捡货数量
+        BigDecimal stockQty = stockQuantService.getRealtimeQty(location, itemId);
+        Map<String, Object> mapSumQuery = new HashMap<String, Object>();
+        mapSumQuery.put("pickLocationObj", location);
+        mapSumQuery.put("itemId", itemId);
+        mapSumQuery.put("isLive", 1);
+        mapSumQuery.put("isValid", 1);
+        BigDecimal unPickedQty = this.getUnPickedQty(mapSumQuery);
+        return stockQty.subtract(unPickedQty);
+    }
+
+    public Map<Long, BigDecimal> getLocationUnAllocQty(BaseinfoLocation location, long itemId){
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("location", location);
+        mapQuery.put("itemId", itemId);
+        List<StockQuant> quants = stockQuantService.getQuants(mapQuery);
+        Map<Long, BigDecimal> locationInventory = new HashMap<Long, BigDecimal>();
+        for(StockQuant quant : quants){
+            if(locationInventory.get(quant.getLocationId())==null){
+                locationInventory.put(quant.getLocationId(), this.getUnAllocQty(itemId, locationService.getLocation(quant.getLocationId())));
+            }
+        }
+        return locationInventory;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Map> allocByLocation(Map<Long, BigDecimal> locationInventory, BigDecimal qty, long exceptLocation){
+        BigDecimal leftSplitQty = qty;
+        BigDecimal realSplitQty = new BigDecimal("0.0000");
+        List<Map> allocInfos = new LinkedList<Map>();
+        for ( Long key : locationInventory.keySet()){
+            if(exceptLocation > 0 && key == exceptLocation){
+                continue;
+            }
+            if(leftSplitQty.compareTo(BigDecimal.ZERO)<=0){
+                break;
+            }
+            if(locationInventory.get(key).compareTo(BigDecimal.ZERO) > 0){
+                BigDecimal tmpSplitQty = locationInventory.get(key).compareTo(leftSplitQty) > 0 ? leftSplitQty : locationInventory.get(key);
+                //new detail
+                leftSplitQty = leftSplitQty.subtract(tmpSplitQty);
+                realSplitQty = realSplitQty.add(tmpSplitQty);
+                Map<String, Object> mapInfo = new HashMap<String, Object>();
+                mapInfo.put("locationId", key);
+                mapInfo.put("allocQty", tmpSplitQty);
+                locationInventory.put(key, locationInventory.get(key).subtract(tmpSplitQty));
+                allocInfos.add(mapInfo);
+            }
+        }
+        return allocInfos;
+    }
+
+    @Transactional(readOnly = false)
+    public List<WaveDetail> splitWaveDetail(WaveDetail detail, BigDecimal splitQty){
+        //pick area location
+        BaseinfoLocation pickArea = locationService.getLocation(detail.getPickAreaLocation());
+        //getLocationUnAllocQty
+        Map<Long, BigDecimal> locationInventory = this.getLocationUnAllocQty(pickArea, detail.getItemId());
+
+        List<WaveDetail> splitDetails = new ArrayList<WaveDetail>();
+        List<Map> allocInfos = this.allocByLocation(locationInventory, splitQty, detail.getAllocPickLocation());
+        BigDecimal realSplitQty = new BigDecimal("0.0000");
+        for(Map info : allocInfos){
+            WaveDetail newDetail = new WaveDetail();
+            ObjUtils.bean2bean(detail, newDetail);
+            newDetail.setAllocQty((BigDecimal) info.get("allocQty"));
+            realSplitQty = realSplitQty.add((BigDecimal) info.get("allocQty"));
+            newDetail.setAllocPickLocation((Long) info.get("locationId"));
+            newDetail.setRefDetailId(detail.getId());
+            this.insertDetail(newDetail);
+            splitDetails.add(newDetail);
+        }
+        if(allocInfos.size()>0) {
+            //-detail
+            BigDecimal allocQty = detail.getAllocQty();
+            detail.setAllocQty(allocQty.subtract(realSplitQty));
+            this.updateDetail(detail);
+        }
+        return splitDetails;
     }
 
     @Transactional(readOnly = false)

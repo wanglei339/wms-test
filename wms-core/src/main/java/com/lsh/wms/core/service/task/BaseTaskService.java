@@ -280,4 +280,19 @@ public class BaseTaskService {
         return taskInfoList;
     }
 
+    /**
+     * 通过用户id和任务类型获取已分配的任务
+     * @param operator
+     * @param type
+     * @return
+     */
+    public List<TaskInfo> getAssignedTaskByOperator (Long operator, Long type) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("operator", operator);
+        params.put("type", type);
+        params.put("status", TaskConstant.Assigned);
+        List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
+        return taskInfos;
+    }
+
 }

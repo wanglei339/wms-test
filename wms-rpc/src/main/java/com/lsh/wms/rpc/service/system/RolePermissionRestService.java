@@ -19,7 +19,7 @@ import java.util.Map;
  */
 
 @Service(protocol = "rest")
-@Path("sys")
+@Path("role")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class RolePermissionRestService implements IRolePermissionRestService {
@@ -74,4 +74,11 @@ public class RolePermissionRestService implements IRolePermissionRestService {
     public String getRolePermissionByName(@QueryParam("role") String role) {
         return JsonUtils.SUCCESS(rolePermissionRpcService.getRolePermissionByName(role));
     }
+    @GET
+    @Path("getRolePermissionById")
+    public String getRolePermissionById(@QueryParam("id") Long id) {
+        return JsonUtils.SUCCESS(rolePermissionRpcService.getRolePermissionById(id));
+    }
+
+
 }
