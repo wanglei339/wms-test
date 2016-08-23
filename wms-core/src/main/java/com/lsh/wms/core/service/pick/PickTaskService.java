@@ -61,6 +61,7 @@ public class PickTaskService {
             taskHeadDao.insert(head);
         }
         for(WaveDetail detail : details){
+            detail.setCreatedAt(DateUtils.getCurrentSeconds());
             detail.setUpdatedAt(DateUtils.getCurrentSeconds());
             taskDetailDao.insert(detail);
         }

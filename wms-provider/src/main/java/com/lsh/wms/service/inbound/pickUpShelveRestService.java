@@ -2,7 +2,6 @@ package com.lsh.wms.service.inbound;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
-import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
@@ -10,10 +9,9 @@ import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.inhouse.IProcurementRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.shelve.IAtticShelveRestService;
+import com.lsh.wms.api.service.shelve.IPickUpShelveRestService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
-import com.lsh.wms.core.constant.ContainerConstant;
-import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.item.ItemLocationService;
@@ -24,26 +22,18 @@ import com.lsh.wms.core.service.shelve.AtticShelveTaskDetailService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
-import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
-import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.baseinfo.BaseinfoLocationBin;
 import com.lsh.wms.model.shelve.AtticShelveTaskDetail;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
-import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,9 +44,9 @@ import java.util.Map;
  * Created by wuhao on 16/8/16.
  */
 @Service(protocol = "rest")
-@Path("inbound/attic_shelve")
-public class AtticShelveRestService implements IAtticShelveRestService{
-    private static Logger logger = LoggerFactory.getLogger(AtticShelveRestService.class);
+@Path("inbound/pick_up_shelve")
+public class pickUpShelveRestService implements IPickUpShelveRestService {
+    private static Logger logger = LoggerFactory.getLogger(pickUpShelveRestService.class);
     @Reference
     private ITaskRpcService iTaskRpcService;
     @Reference
@@ -82,7 +72,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
     @Reference
     private ISysUserRpcService iSysUserRpcService;
 
-    private Long taskType = TaskConstant.TYPE_ATTIC_SHELVE;
+    private Long taskType = TaskConstant.TYPE_PICK_UP_SHELVE;
 
     /**
      * 创建上架任务
@@ -466,7 +456,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         List<StockQuant> pickQuant = stockQuantService.getQuantsByLocationId(detail.getRealLocationId());
         Long containerId = 0L;
         if(pickQuant ==null ||pickQuant.size() ==0){
-            containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
+            containerId = containerService.createContainerByType(1L).getContainerId();
         }else {
             containerId = pickQuant.get(0).getContainerId();
         }

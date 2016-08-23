@@ -126,6 +126,18 @@ public class LocationDetailRequest implements Serializable {
     //...............................区域
     //区域名字regionName在Bin已经定义
 
+    /**
+     * 区域的货主概念
+     */
+    private Long ownerid;
+
+    public Long getOwnerid() {
+        return ownerid;
+    }
+
+    public void setOwnerid(Long ownerid) {
+        this.ownerid = ownerid;
+    }
     //..................................货架和阁楼(type通过主表判断)
     /**
      * 货架层数

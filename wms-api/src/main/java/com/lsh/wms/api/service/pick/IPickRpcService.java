@@ -8,5 +8,5 @@ import java.util.List;
  * Created by fengkun on 16/8/5.
  */
 public interface IPickRpcService {
-    public void calcPickOrder(List<WaveDetail> pickDetails);
+    public List<WaveDetail> calcPickOrder(List<WaveDetail> pickDetails);
 }

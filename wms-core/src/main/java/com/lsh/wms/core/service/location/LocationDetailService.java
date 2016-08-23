@@ -255,6 +255,26 @@ public class LocationDetailService {
         locationService.updateLocation(fatherLocation);
     }
 
+    public void insertShelflevelsByShelf(BaseinfoLocation baseinfoLocation,IBaseinfoLocaltionModel iBaseinfoLocaltionModel,Long type){
+        // 拿到指定的code,加入-i
+        BaseinfoLocationShelf loft = new BaseinfoLocationShelf();
+        ObjUtils.bean2bean(iBaseinfoLocaltionModel, loft);  //拷贝性质
+        Long levels = loft.getLevel();
+        int level = Integer.parseInt(levels.toString());
+        String fatherCode = loft.getLocationCode();
+        for (int i = 1; i <= level; i++) {
+            String newCode = fatherCode + "-" + i;
+            BaseinfoLocation levelLocation = new BaseinfoLocation();
+            ObjUtils.bean2bean(baseinfoLocation, levelLocation);
+            levelLocation.setFatherId(baseinfoLocation.getFatherId());  //  设置父亲的id
+            levelLocation.setLocationCode(newCode); //code刷新,range不用管
+            levelLocation.setType(type); //设置类型
+            levelLocation.setTypeName("阁楼层");
+            levelLocation.setClassification(3);
+            locationService.insertLocation(levelLocation);
+        }
+    }
+
     /**
      * location的主表和细节表一起更新
      *

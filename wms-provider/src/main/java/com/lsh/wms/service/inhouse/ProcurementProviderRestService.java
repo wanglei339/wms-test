@@ -45,7 +45,7 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS();
     }
@@ -61,7 +61,7 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS();
     }
@@ -74,7 +74,7 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS();
     }
@@ -88,7 +88,7 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS(outBoundLocation);
     }
@@ -101,7 +101,7 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS();
     }
