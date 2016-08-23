@@ -162,7 +162,11 @@ public class ProcurementRestService implements IProcurementRestService {
                         put("itemId", info.getItemId());
                         put("itemName", itemRpcService.getItem(info.getItemId()).getSkuName());
                         put("packName", info.getPackName());
-                        put("uomQty", info.getQtyDone().divide(info.getPackUnit()));
+                        if(info.getSubType().compareTo(1L)==0){
+                            put("uomQty","整托");
+                        }else {
+                            put("uomQty", info.getQtyDone().divide(info.getPackUnit()));
+                        }
 
                     }
                 });
@@ -174,7 +178,7 @@ public class ProcurementRestService implements IProcurementRestService {
         }
         catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
     }
 
@@ -209,7 +213,11 @@ public class ProcurementRestService implements IProcurementRestService {
                         put("itemName", itemRpcService.getItem(info.getItemId()).getSkuName());
                         put("packName", info.getPackName());
                         put("subType",info.getSubType());
-                        put("uomQty", info.getQtyDone().divide(info.getPackUnit()));
+                        if(info.getSubType().compareTo(1L)==0){
+                            put("uomQty","整托");
+                        }else {
+                            put("uomQty", info.getQtyDone().divide(info.getPackUnit()));
+                        }
 
                     }
                 });
@@ -224,7 +232,11 @@ public class ProcurementRestService implements IProcurementRestService {
                         put("itemName", itemRpcService.getItem(info.getItemId()).getSkuName());
                         put("packName", info.getPackName());
                         put("subType",info.getSubType());
-                        put("uomQty", info.getQty().divide(info.getPackUnit()));
+                        if(info.getSubType().compareTo(1L)==0){
+                            put("uomQty","整托");
+                        }else {
+                            put("uomQty", info.getQty().divide(info.getPackUnit()));
+                        }
                     }
                 });
             }
