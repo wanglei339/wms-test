@@ -14,6 +14,7 @@ import com.lsh.wms.api.service.pick.IPickRestService;
 import com.lsh.wms.api.service.pick.IPickRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.staff.IStaffRpcService;
+import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
@@ -27,6 +28,7 @@ import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoStaffInfo;
 import com.lsh.wms.model.pick.PickTaskHead;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
@@ -64,7 +66,7 @@ public class PickRestService implements IPickRestService {
     @Autowired
     private StockQuantService stockQuantService;
     @Reference
-    private IStaffRpcService iStaffRpcService;
+    private ISysUserRpcService iSysUserRpcService;
     @Reference
     private IPickRpcService iPickRpcService;
 
@@ -85,8 +87,8 @@ public class PickRestService implements IPickRestService {
         List<Map<String, Long>> assignParams = new ArrayList<Map<String, Long>>();
 
         // 判断用户是否存在
-        BaseinfoStaffInfo staffInfo = iStaffRpcService.getStaffById(staffId);
-        if (staffInfo == null) {
+        SysUser sysUser = iSysUserRpcService.getSysUserById(staffId);
+        if (sysUser == null) {
             throw new BizCheckedException("2000003");
         }
 
@@ -157,8 +159,8 @@ public class PickRestService implements IPickRestService {
         Map<String, Object> result = new HashMap<String, Object>();
 
         // 判断用户是否存在
-        BaseinfoStaffInfo staffInfo = iStaffRpcService.getStaffById(staffId);
-        if (staffInfo == null) {
+        SysUser sysUser = iSysUserRpcService.getSysUserById(staffId);
+        if (sysUser == null) {
             throw new BizCheckedException("2000003");
         }
 
