@@ -11,7 +11,6 @@ import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.stock.IStockMoveRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
-import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.container.ContainerService;
@@ -103,13 +102,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             toLocation = core.getNearestLocation(toLocation);
             toLocationId = toLocation.getLocationId();
         }
-<<<<<<< HEAD
 
-=======
-        if (locationService.checkLocationLockStatus(toLocationId)) {
-            throw new BizCheckedException("2550010");
-        }
->>>>>>> 5ff1d3c73e7aac15a15364c9c576e4a0ce320b92
         StockQuantCondition condition = new StockQuantCondition();
         condition.setLocationId(fromLocationId);
         condition.setItemId(itemId);
@@ -172,7 +165,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if ( requiredQty.compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
             throw new BizCheckedException("2550002");
         }
-<<<<<<< HEAD
         plan.setContainerId(quantList.get(0).getContainerId());
         return true;
     }
@@ -192,11 +184,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             taskEntry.setTaskInfo(taskInfo);
             Long taskId = taskRpcService.create(TaskConstant.TYPE_STOCK_TRANSFER, taskEntry);
             logger.info("taskId: " + taskId);
-=======
-        Long containerId = quantList.get(0).getContainerId();
-        if (plan.getSubType().compareTo(2L) == 0) {
-            containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
->>>>>>> 5ff1d3c73e7aac15a15364c9c576e4a0ce320b92
         }
     }
 
