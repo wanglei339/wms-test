@@ -260,6 +260,7 @@ public class StockQuantService {
 
         StockQuant newQuant = (StockQuant) quant.clone();
         newQuant.setQty(quant.getQty().subtract(requiredQty));
+        newQuant.setReserveTaskId(0L);
         this.create(newQuant);
         Map<String,Object> queryMap=new HashMap<String, Object>();
         queryMap.put("quantId", quant.getId());
