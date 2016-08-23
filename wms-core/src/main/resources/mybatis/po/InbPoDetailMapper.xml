@@ -49,8 +49,6 @@
 	<update id="update" parameterType="InbPoDetail">
 		update INB_PO_DETAIL
     	<set>
-  			<if test="orderId != null">ORDER_ID=#{orderId},</if>
-  			<if test="skuId != null">SKU_ID=#{skuId},</if>
   			<if test="skuCode != null">SKU_CODE=#{skuCode},</if>
   			<if test="skuName != null">SKU_NAME=#{skuName},</if>
   			<if test="barCode != null">BAR_CODE=#{barCode},</if>
@@ -67,7 +65,7 @@
   			<if test="updatetime != null">UPDATETIME=#{updatetime},</if>
 			<if test="lotNum != null">LOT_NUM=#{lotNum}</if>
 		</set>
-		where ID=#{id}
+		where ORDER_ID=#{orderId} and SKU_ID=#{skuId}
 	</update>
 
 	<update id="updateInboundQtyByOrderIdAndSkuId">
