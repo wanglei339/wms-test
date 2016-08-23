@@ -198,7 +198,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
 
             Map result = this.getResultMap(taskId);
             if (result == null) {
-                return JsonUtils.TOKEN_ERROR("阁楼上架库存错误");
+                return JsonUtils.TOKEN_ERROR("阁楼上架库存异常 ");
             } else {
                 iTaskRpcService.assign(taskId, user.getStaffId());
                 return JsonUtils.SUCCESS(result);
@@ -332,7 +332,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             for (BaseinfoItemLocation itemLocation : locations) {
                 //对比货架商品和新进商品保质期是否到达阀值
                 BaseinfoLocation location = locationService.getLocation(itemLocation.getPickLocationid());
-                if(shelveRpcService.checkShelfLifeThreshold(quant,location,"loft_store_bin")) {
+                if(shelveRpcService.checkShelfLifeThreshold(quant,location,LocationConstant.LOFT_STORE_BIN)) {
                     if (location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN) == 0) {
                         if (rpcService.needProcurement(itemLocation.getPickLocationid(), itemLocation.getItemId())) {
                             Map<String, Object> checkTask = new HashMap<String, Object>();

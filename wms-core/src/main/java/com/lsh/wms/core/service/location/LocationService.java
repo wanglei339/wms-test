@@ -7,11 +7,8 @@ import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.baseinfo.BaseinfoLocationShelf;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 import com.lsh.wms.model.stock.StockQuant;
-import com.sun.org.apache.bcel.internal.generic.ArrayInstruction;
-import com.sun.org.apache.xpath.internal.functions.FuncDoclocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +36,7 @@ public class LocationService {
     //计数
     //valid一定是1 未删除的
     public int countLocation(Map<String, Object> params) {
-        params.put("isValid", 1);
+        params.put("isValid", LocationConstant.IS_VALID);
         return locationDao.countBaseinfoLocation(params);
     }
 
@@ -47,7 +44,7 @@ public class LocationService {
     public BaseinfoLocation getLocation(Long locationId) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("locationId", locationId);
-        params.put("isValid", 1);
+        params.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
         return locations.size() > 0 ? locations.get(0) : null;
     }
@@ -103,11 +100,11 @@ public class LocationService {
         //将location的子树查出来isvalid置为0
         List<BaseinfoLocation> childrenList = this.getChildrenLocations(locationId);
         for (BaseinfoLocation child : childrenList) {
-            child.setIsValid(0);
+            child.setIsValid(LocationConstant.NOT_VALID);
             updateLocation(child);
         }
         //删除该节点
-        location.setIsValid(0);
+        location.setIsValid(LocationConstant.NOT_VALID);
         updateLocation(location);
         return location;
     }
@@ -210,7 +207,7 @@ public class LocationService {
         BaseinfoLocation location = this.getLocation(locationId);
         params.put("leftRange", location.getLeftRange());
         params.put("rightRange", location.getRightRange());
-        params.put("isValid", 1);
+        params.put("isValid", LocationConstant.IS_VALID);
         return locationDao.getChildrenLocationList(params);
     }
 
@@ -221,13 +218,13 @@ public class LocationService {
      * @param type
      * @return
      */
-    public List<BaseinfoLocation> getChildrenLocationsByType(Long locationId, String type) {
+    public List<BaseinfoLocation> getChildrenLocationsByType(Long locationId, Long type) {
         Map<String, Object> params = new HashMap<String, Object>();
         BaseinfoLocation location = this.getLocation(locationId);
         params.put("leftRange", location.getLeftRange());
         params.put("rightRange", location.getRightRange());
-        params.put("type", LocationConstant.LOCATION_TYPE.get(type));
-        params.put("isValid", 1);
+        params.put("type", type);
+        params.put("isValid", LocationConstant.IS_VALID);
         return locationDao.getChildrenLocationList(params);
     }
 
@@ -246,7 +243,7 @@ public class LocationService {
             return null;
         }
         params.put("fatherId", locationId);
-        params.put("isValid", 1);
+        params.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
         return locations;
     }
@@ -274,7 +271,7 @@ public class LocationService {
         params.put("leftRange", location.getLeftRange());
         params.put("rightRange", location.getRightRange());
         params.put("can_store", 1);
-        params.put("isValid", 1);
+        params.put("isValid", LocationConstant.IS_VALID);
         return locationDao.getChildrenLocationList(params);
     }
 
@@ -315,7 +312,7 @@ public class LocationService {
     public BaseinfoLocation getFatherByType(Long locationId, Long type) {
         BaseinfoLocation curLocation = this.getLocation(locationId);
         Long fatherId = curLocation.getFatherId();
-        if (curLocation.getType().equals(type)){
+        if (curLocation.getType().equals(type)) {
             return curLocation;
         }
         if (fatherId == 0) {
@@ -392,7 +389,7 @@ public class LocationService {
         }
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("type", type);
-        params.put("isValid", 1);
+        params.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
         return locations;
     }
@@ -573,7 +570,7 @@ public class LocationService {
      * @return
      */
     public List<BaseinfoLocation> getBaseinfoLocationList(Map<String, Object> mapQuery) {
-        mapQuery.put("isValid", 1);
+        mapQuery.put("isValid", LocationConstant.IS_VALID);
         return locationDao.getBaseinfoLocationList(mapQuery);
     }
 
@@ -653,7 +650,7 @@ public class LocationService {
      * @return
      */
     public List<BaseinfoLocation> getLocationListByType(Map<String, Object> mapQuery) {
-        mapQuery.put("isValid", 1);
+        mapQuery.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocation> list = locationDao.getBaseinfoLocationList(mapQuery);
         return list;
     }
@@ -786,7 +783,7 @@ public class LocationService {
         List<BaseinfoLocation> subList = this.getStoreLocations(locationId);
         //然后然后遍历这颗子树,找出指定的type的list
         for (BaseinfoLocation baseinfoLocation : subList) {
-            if (baseinfoLocation.getType() == type) {
+            if (baseinfoLocation.getType().equals(type)) {
                 targetList.add(baseinfoLocation);
             }
         }
@@ -800,7 +797,7 @@ public class LocationService {
      * @return
      */
     public List<BaseinfoLocation> getDockList(Map<String, Object> params) {
-        params.put("isValid", 1);
+        params.put("isValid", LocationConstant.IS_VALID);
         return locationDao.getDockList(params);
     }
 
@@ -811,7 +808,7 @@ public class LocationService {
      * @return
      */
     public Integer countDockList(Map<String, Object> params) {
-        params.put("isValid", 1);
+        params.put("isValid", LocationConstant.IS_VALID);
         return locationDao.countDockList(params);
     }
 

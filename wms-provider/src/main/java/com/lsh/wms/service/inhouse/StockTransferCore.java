@@ -102,7 +102,7 @@ public class StockTransferCore {
         List<StockQuant> quants = stockQuantRpcService.getQuantList(condition);
 
         TaskInfo taskInfo = taskEntry.getTaskInfo();
-        if(taskInfo.getType().compareTo(TaskConstant.TYPE_ATTIC_SHELVE)==0){
+        if(taskInfo.getType().compareTo(TaskConstant.TYPE_PROCUREMENT)==0){
             taskInfo.setExt4(1L);
             if(quants == null || quants.size()==0){
                 throw new BizCheckedException("2550008");
@@ -129,9 +129,12 @@ public class StockTransferCore {
             StockMove move = new StockMove();
             ObjUtils.bean2bean(taskInfo, move);
             move.setQty(qtyDone);
+            move.setFromLocationId(fromLocationId);
             move.setToLocationId(toLocationId);
             move.setFromContainerId(quants.get(0).getContainerId());
             move.setToContainerId(taskInfo.getContainerId());
+            move.setSkuId(taskInfo.getSkuId());
+            move.setOwnerId(taskInfo.getOwnerId());
             List<StockMove> moveList = new ArrayList<StockMove>();
             moveList.add(move);
             moveRpcService.move(moveList);
@@ -139,6 +142,7 @@ public class StockTransferCore {
         }
         //taskInfo.setStatus(TaskConstant.Doing);
         taskInfo.setExt3(1L);
+
         taskInfoDao.update(taskInfo);
     }
 
@@ -178,7 +182,7 @@ public class StockTransferCore {
             move.setToLocationId(toLocationId);
             move.setFromContainerId(containerId);
             StockQuantCondition condition = new StockQuantCondition();
-            condition.setLocationId(toLocationId);
+            condition.setLocationId(fromLocationId);
             condition.setItemId(taskInfo.getItemId());
             List<StockQuant> quants = stockQuantRpcService.getQuantList(condition);
             Long toContainerId;
@@ -224,7 +228,7 @@ public class StockTransferCore {
 
     public void sortInbound(List<TaskEntry> entryList) {
         Collections.sort(entryList, new Comparator<TaskEntry>() {
-            public int compare (TaskEntry entry1, TaskEntry entry2) {
+            public int compare(TaskEntry entry1, TaskEntry entry2) {
                 try {
                     TaskInfo info1 = entry1.getTaskInfo(), info2 = entry2.getTaskInfo();
                     //sort toLocationId

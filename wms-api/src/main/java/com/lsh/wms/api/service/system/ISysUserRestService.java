@@ -21,4 +21,6 @@ public interface ISysUserRestService {
     public String checkLogin (Map<String, Object> params)throws BizCheckedException;
 
     public String getSysUserByUsername(Map<String, Object> params);
+
+    String getSysUserById(Long iUid);
 }

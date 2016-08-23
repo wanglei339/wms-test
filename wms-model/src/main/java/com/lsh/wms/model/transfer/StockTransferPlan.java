@@ -33,7 +33,7 @@ public class StockTransferPlan implements Serializable {
 	@Size(min=1)
     private BigDecimal uomQty = BigDecimal.ZERO;
 	/**优先级*/
-	private Long priority =0L;
+	private Long priority =2L;
 	/** 移库操作单位*/
 	private Long subType = 2L;
 	/** 发起者 */
@@ -41,7 +41,6 @@ public class StockTransferPlan implements Serializable {
 	/**任务截止时间*/
 	private Long dueTime = 0L;
 
-	private List<Long> testList;
 
 	public Long getDueTime() {
 		return dueTime;
@@ -147,13 +146,6 @@ public class StockTransferPlan implements Serializable {
 		this.subType = subType;
 	}
 
-	public List<Long> getTestList() {
-		return testList;
-	}
-
-	public void setTestList(List<Long> testList) {
-		this.testList = testList;
-	}
 
 	@Override
 	public String toString() {
@@ -171,7 +163,6 @@ public class StockTransferPlan implements Serializable {
 				", subType=" + subType +
 				", planner=" + planner +
 				", dueTime=" + dueTime +
-				", testList=" + testList +
 				'}';
 	}
 }

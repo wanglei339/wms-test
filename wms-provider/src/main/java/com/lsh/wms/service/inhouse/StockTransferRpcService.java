@@ -30,6 +30,7 @@ import com.lsh.wms.model.transfer.StockTransferTaskDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.config.Task;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -157,6 +158,19 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     }
 
     public void updatePlan(StockTransferPlan plan)  throws BizCheckedException {
+        Long taskId = plan.getTaskId();
+        TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
+        if (taskEntry == null) {
+            throw new BizCheckedException("3040001");
+        }
+        TaskInfo taskInfo = taskEntry.getTaskInfo();
+        locationService.getLocation(taskInfo.getToLocationId()).setIsLocked(0); //unLock
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("reserveTaskId", taskId);
+        List<StockQuant> quantList = quantService.getQuants(mapQuery);
+        for (StockQuant quant : quantList) {
+            quant.setReserveTaskId(0L);
+        }
         this.addPlan(plan);
         this.cancelPlan(plan.getTaskId());
     }
@@ -186,7 +200,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             nextItem = nextInfo.getItemId();
             packName = nextInfo.getPackName();
             packUnit = nextInfo.getPackUnit();
-            qty = nextInfo.getQty();
+            qty = nextInfo.getQtyDone();
             next.put("type", 2);
             next.put("taskId",nextInTask);
         } else {//outbound
@@ -219,7 +233,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         core.inbound(params);
         Map<String, Object> next = new HashMap<String, Object>();
         if (nextInTask == 0) {
-            next.put("finished", true);
+            next.put("response", true);
         } else {
             TaskInfo nextInfo = taskRpcService.getTaskEntryById(nextInTask).getTaskInfo();
             Long nextLocationId = nextInfo.getToLocationId();
@@ -230,7 +244,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             next.put("itemId", nextInfo.getItemId());
             next.put("itemName", itemRpcService.getItem(nextInfo.getItemId()).getSkuName());
             next.put("packName", nextInfo.getPackName());
-            next.put("uomQty", nextInfo.getQty().divide(nextInfo.getPackUnit()));
+            next.put("uomQty", nextInfo.getQtyDone().divide(nextInfo.getPackUnit()));
         }
         return next;
     }

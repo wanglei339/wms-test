@@ -120,7 +120,7 @@ public class ShelveRpcService implements IShelveRpcService {
             // TODO 不找拣货位了,调度器创建任务时传过来
             if (procurementRpcService.needProcurement(pickingLocationId, itemId)) {
                 // 对比保质期差额阈值
-                if (this.checkShelfLifeThreshold(quant, pickingLocation, "shelf_store_bin")) {
+                if (this.checkShelfLifeThreshold(quant, pickingLocation, LocationConstant.SHELF_STORE_BIN)) {
                     return pickingLocation;
                 } else {
                     // 查找补货任务
@@ -164,7 +164,7 @@ public class ShelveRpcService implements IShelveRpcService {
      * @param location
      * @return
      */
-    public Boolean checkShelfLifeThreshold (StockQuant quant, BaseinfoLocation location, String locationType) {
+    public Boolean checkShelfLifeThreshold (StockQuant quant, BaseinfoLocation location, Long locationType) {
         Long expireDate = quant.getExpireDate();
         Map<String, Object> params = new HashMap<String, Object>();
         // 获取到拣货位的库区id
