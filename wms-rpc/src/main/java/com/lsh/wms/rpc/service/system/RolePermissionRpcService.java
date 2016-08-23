@@ -44,4 +44,15 @@ public class RolePermissionRpcService implements IRolePermissionRpcService {
         }
         return rolePermission;
     }
+
+    public RolePermission getRolePermissionById(Long id) {
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("id",id);
+        List<RolePermission> lists = rolePermissionService.getRolePermissionList(mapQuery);
+        RolePermission rolePermission = new RolePermission();
+        if(lists.size() == 1){
+            rolePermission = lists.get(0);
+        }
+        return rolePermission;
+    }
 }

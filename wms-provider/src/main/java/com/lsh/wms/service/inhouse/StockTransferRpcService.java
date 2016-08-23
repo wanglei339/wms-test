@@ -189,7 +189,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         }
         core.outbound(params);
         Map<String, Object> next = new HashMap<String, Object>();
-        Long nextLocationId, nextItem;
+        Long nextLocationId, nextItem, subType;
         String packName;
         BigDecimal packUnit, qty;
         //inbound
@@ -200,6 +200,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             nextItem = nextInfo.getItemId();
             packName = nextInfo.getPackName();
             packUnit = nextInfo.getPackUnit();
+            subType = nextInfo.getSubType();
             qty = nextInfo.getQtyDone();
             next.put("type", 2);
             next.put("taskId",nextInTask);
@@ -209,6 +210,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             nextItem = nextInfo.getItemId();
             packName = nextInfo.getPackName();
             packUnit = nextInfo.getPackUnit();
+            subType = nextInfo.getSubType();
             qty = nextInfo.getQty();
             next.put("type", 1);
             next.put("taskId", nextOutTask);
@@ -219,6 +221,10 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         next.put("itemName", itemRpcService.getItem(nextItem).getSkuName());
         next.put("packName", packName);
         next.put("uomQty", qty.divide(packUnit));
+        if (subType.compareTo(1L) == 0) {
+            next.put("uomQty", "整托");
+        }
+        next.put("subType", subType);
         return next;
     }
 
@@ -245,19 +251,21 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             next.put("itemName", itemRpcService.getItem(nextInfo.getItemId()).getSkuName());
             next.put("packName", nextInfo.getPackName());
             next.put("uomQty", nextInfo.getQtyDone().divide(nextInfo.getPackUnit()));
+            if (nextInfo.getSubType().compareTo(1L) == 0) {
+                next.put("uomQty", "整托");
+            }
+            next.put("subType", nextInfo.getSubType());
         }
         return next;
     }
 
     public Long assign(Long staffId) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
-        //mapQuery.put("status", TaskConstant.Doing);
         mapQuery.put("status", TaskConstant.Assigned);
         mapQuery.put("operator", staffId);
         List<TaskEntry> list = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQuery);
         //task exist
         if (!list.isEmpty()) {
-            //mapQuery.put("status", TaskConstant.Assigned);
             mapQuery.put("ext3", 0L);
             List<TaskEntry> entryList = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQuery);
             //outbound
@@ -284,7 +292,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             }
             return nextEntry.getTaskInfo().getTaskId();
         }
-        logger.info("New Task");
         //get new task
         mapQuery.clear();
         mapQuery.put("status", TaskConstant.Draft);
@@ -292,11 +299,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (list.isEmpty()) {
             return 0L;
         }
-
-//        Long taskId = core.getNearestTask(list);
-//        taskRpcService.assign(taskId, staffId);
-//        return taskId;
-
         List<Long> taskList = core.getMoreTasks(list);
         for (Long task : taskList) {
             taskRpcService.assign(task, staffId);
@@ -326,6 +328,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         next.put("itemName", itemRpcService.getItem(nextInfo.getItemId()).getSkuName());
         next.put("packName", nextInfo.getPackName());
         next.put("uomQty", nextInfo.getQty().divide(nextInfo.getPackUnit()));
+        next.put("subType", nextInfo.getSubType());
         return next;
     }
 
