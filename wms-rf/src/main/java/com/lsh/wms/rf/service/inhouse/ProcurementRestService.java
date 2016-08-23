@@ -162,11 +162,8 @@ public class ProcurementRestService implements IProcurementRestService {
                         put("itemId", info.getItemId());
                         put("itemName", itemRpcService.getItem(info.getItemId()).getSkuName());
                         put("packName", info.getPackName());
-                        if(info.getQtyDone().compareTo(BigDecimal.ZERO)==0) {
-                            put("uomQty", info.getQty().divide(info.getPackUnit()));
-                        }else {
-                            put("uomQty", info.getQtyDone().divide(info.getPackUnit()));
-                        }
+                        put("uomQty", info.getQtyDone().divide(info.getPackUnit()));
+
                     }
                 });
             }else {
@@ -212,11 +209,8 @@ public class ProcurementRestService implements IProcurementRestService {
                         put("itemName", itemRpcService.getItem(info.getItemId()).getSkuName());
                         put("packName", info.getPackName());
                         put("subType",info.getSubType());
-                        if(info.getQtyDone().compareTo(BigDecimal.ZERO)==0) {
-                            put("uomQty", info.getQty().divide(info.getPackUnit()));
-                        }else {
-                            put("uomQty", info.getQtyDone().divide(info.getPackUnit()));
-                        }
+                        put("uomQty", info.getQtyDone().divide(info.getPackUnit()));
+
                     }
                 });
             }else {
