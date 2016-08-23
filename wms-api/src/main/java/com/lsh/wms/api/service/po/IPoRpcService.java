@@ -30,5 +30,6 @@ public interface IPoRpcService {
     public Integer countInbPoHeader(Map<String, Object> params);
 
     public List<InbPoHeader> getPoDetailList(Map<String, Object> params);
+    void canReceipt(Map<String, Object> map);
 
 }
