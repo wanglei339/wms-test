@@ -105,8 +105,8 @@ public class BaseTaskService {
 
     @Transactional(readOnly = false)
     public void update(TaskEntry taskEntry, TaskHandler taskHandler) throws BizCheckedException {
-        TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskEntry.getTaskInfo().getTaskId());;
-        taskInfoDao.update(taskInfo);
+        //TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskEntry.getTaskInfo().getTaskId());
+        taskInfoDao.update(taskEntry.getTaskInfo());
         taskHandler.updteConcrete(taskEntry);
     }
     @Transactional(readOnly = false)

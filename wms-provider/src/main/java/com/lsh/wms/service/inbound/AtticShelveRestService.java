@@ -225,7 +225,6 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         if(!this.chargeLocation(allocLocationId,LocationConstant.LOFT_STORE_BIN) || !this.chargeLocation(realLocationId,LocationConstant.LOFT_STORE_BIN)){
             return JsonUtils.TOKEN_ERROR("库位状态异常");
         }
-
         AtticShelveTaskDetail detail = shelveTaskService.getDetailById(detailId);
         if(detail ==null){
             return JsonUtils.TOKEN_ERROR("任务详情不存在");
@@ -410,6 +409,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         Long taskId=0L;
         Long operator = 0L;
         Map<String, Object> mapQuery = RequestUtils.getRequest();
+
         try {
             taskId = Long.valueOf(mapQuery.get("taskId").toString());
             operator = Long.valueOf(mapQuery.get("operator").toString());
