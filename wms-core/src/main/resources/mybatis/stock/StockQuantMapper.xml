@@ -83,6 +83,11 @@
 		where location_id=#{locationId}
 	</select>
 
+	<select id="getLocationIByContainerId" parameterType="long" resultType="long">
+		select distinct location_id from stock_quant
+		where container_id=#{containerId}
+	</select>
+
 	<select id="countStockQuant" parameterType="map" resultType="int">
 		select count(*) from stock_quant
 		<include refid="queryCondition"/>
