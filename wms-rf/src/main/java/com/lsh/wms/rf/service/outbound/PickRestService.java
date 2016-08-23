@@ -81,7 +81,7 @@ public class PickRestService implements IPickRestService {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long staffId = Long.valueOf(mapQuery.get("operator").toString());
         List<Map> taskList = JSON.parseArray(mapQuery.get("taskList").toString(), Map.class);
-        final List<WaveDetail> pickDetails = new ArrayList<WaveDetail>();
+        List<WaveDetail> pickDetails = new ArrayList<WaveDetail>();
         List<Map<String, Long>> assignParams = new ArrayList<Map<String, Long>>();
 
         // 判断用户是否存在
@@ -129,7 +129,7 @@ public class PickRestService implements IPickRestService {
         iTaskRpcService.assignMul(assignParams);
 
         // 拣货顺序算法
-        iPickRpcService.calcPickOrder(pickDetails);
+        pickDetails = iPickRpcService.calcPickOrder(pickDetails);
         // 返回值按pick_order排序
         Collections.sort(pickDetails, new Comparator<WaveDetail>() {
             public int compare(WaveDetail o1, WaveDetail o2) {
