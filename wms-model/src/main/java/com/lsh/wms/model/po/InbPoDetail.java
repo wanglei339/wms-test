@@ -42,6 +42,9 @@ public class InbPoDetail implements Serializable {
 	/** 批次号 */
 	private String lotNum;
 
+	/**保质期例外收货*/
+	private Integer exceptionReceipt;
+
 	public String getLotNum() {
 		return lotNum;
 	}
@@ -176,5 +179,13 @@ public class InbPoDetail implements Serializable {
 
 	public void setPackName(String packName) {
 		this.packName = packName;
+	}
+
+	public Integer getExceptionReceipt() {
+		return exceptionReceipt;
+	}
+
+	public void setExceptionReceipt(Integer exceptionReceipt) {
+		this.exceptionReceipt = exceptionReceipt;
 	}
 }

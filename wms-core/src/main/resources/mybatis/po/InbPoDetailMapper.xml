@@ -11,6 +11,7 @@
 		<result property="barCode" column="BAR_CODE"/>
 		<result property="orderQty" column="ORDER_QTY"/>
 		<result property="packUnit" column="PACK_UNIT"/>
+		<result property="exceptionReceipt" column="EXCEPTION_RECEIPT"/>
 		<result property="lotNum" column="lotNum"/>
 		<result property="price" column="PRICE"/>
 		<result property="madein" column="MADEIN"/>
@@ -26,22 +27,22 @@
 		insert into INB_PO_DETAIL (
 			ORDER_ID,SKU_ID,SKU_CODE,SKU_NAME,BAR_CODE,ORDER_QTY,
 			PACK_UNIT,PRICE,MADEIN,INBOUND_QTY,INSERTBY,UPDATEBY,INSERTTIME,
-			UPDATETIME,LOT_NUM,PACK_NAME
+			UPDATETIME,LOT_NUM,PACK_NAME,EXCEPTION_RECEIPT
     	) values (
 			#{orderId},#{skuId},#{skuCode},#{skuName},#{barCode},#{orderQty},
 			#{packUnit},#{price},#{madein},#{inboundQty},#{insertby},#{updateby},#{inserttime},
-			#{updatetime},#{lotNum},#{packName}
+			#{updatetime},#{lotNum},#{packName},#{exceptionReceipt}
     	)
 	</insert>
 
 	<insert id="batchInsert" parameterType="java.util.List">
 		insert into INB_PO_DETAIL (
 		ORDER_ID,SKU_ID,SKU_CODE,SKU_NAME,BAR_CODE,ORDER_QTY,PACK_UNIT,PRICE,
-		MADEIN,INBOUND_QTY,INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME,LOT_NUM,PACK_NAME
+		MADEIN,INBOUND_QTY,INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME,LOT_NUM,PACK_NAME,EXCEPTION_RECEIPT
 		) values
 		<foreach collection="list" item="item" index="index" separator="," >
 			(#{item.orderId},#{item.skuId},#{item.skuCode},#{item.skuName},#{item.barCode},#{item.orderQty},#{item.packUnit},
-			#{item.price},#{item.madein},#{item.inboundQty},#{item.insertby},#{item.updateby},now(),#{item.updatetime},#{item.lotNum},#{item.packName})
+			#{item.price},#{item.madein},#{item.inboundQty},#{item.insertby},#{item.updateby},now(),#{item.updatetime},#{item.lotNum},#{item.packName},#{item.exceptionReceipt})
 		</foreach>
 	</insert>
 
@@ -62,7 +63,8 @@
   			<if test="insertby != null">INSERTBY=#{insertby},</if>
   			<if test="updateby != null">UPDATEBY=#{updateby},</if>
   			<if test="inserttime != null">INSERTTIME=#{inserttime},</if>
-  			<if test="updatetime != null">UPDATETIME=#{updatetime}</if>
+			<if test="exceptionReceipt != null">EXCEPTION_RECEIPT=#{exceptionReceipt},</if>
+  			<if test="updatetime != null">UPDATETIME=#{updatetime},</if>
 			<if test="lotNum != null">LOT_NUM=#{lotNum}</if>
 		</set>
 		where ID=#{id}
@@ -125,6 +127,7 @@
 			<if test="inserttime != null">and INSERTTIME=#{inserttime}</if>
 			<if test="updatetime != null">and UPDATETIME=#{updatetime}</if>
 			<if test="lotNum != null">and LOT_NUM=#{lotNum}</if>
+			<if test="exceptionReceipt != null">and EXCEPTION_RECEIPT=#{exceptionReceipt}</if>
 		</where>
 	</sql>
    

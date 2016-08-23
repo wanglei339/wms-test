@@ -199,17 +199,23 @@ public class LocationRestService implements ILocationRestService {
     @Path("getAllShelfs")
     public String getAllShelfs() {
         return JsonUtils.SUCCESS(locationRpcService.getAllShelfs());
-//////        Long locationId = Long.parseLong("9073135487256");
-//////        BaseinfoLocation baseinfoLocation = locationService.getLocation(locationId);
-//////        return JsonUtils.SUCCESS(locationService.getNearestStorageByPicking(baseinfoLocation));
-////        //测试方法(PickRpcService()的方法)
-//        //获取list
+////        Long locationId = Long.parseLong("9073135487256");
+////        BaseinfoLocation baseinfoLocation = locationService.getLocation(locationId);
+////        return JsonUtils.SUCCESS(locationService.getNearestStorageByPicking(baseinfoLocation));
+//        //测试方法(PickRpcService()的方法)
+        //获取list
 //        List<WaveDetail> pickDetails = new ArrayList<WaveDetail>();
-//        pickDetails.add(waveService.getWaveDetailById(23));
-//        pickDetails.add(waveService.getWaveDetailById(24));
-//        pickDetails.add(waveService.getWaveDetailById(26));
-//        pickDetails.add(waveService.getWaveDetailById(27));
-//        pickDetails.add(waveService.getWaveDetailById(28));
+////        pickDetails.add(waveService.getWaveDetailById(23));
+////        pickDetails.add(waveService.getWaveDetailById(24));
+////        pickDetails.add(waveService.getWaveDetailById(26));
+////        pickDetails.add(waveService.getWaveDetailById(27));
+////        pickDetails.add(waveService.getWaveDetailById(28));
+//
+//        pickDetails.add(waveService.getWaveDetailById(30));
+//        pickDetails.add(waveService.getWaveDetailById(31));
+//        pickDetails.add(waveService.getWaveDetailById(32));
+//        pickDetails.add(waveService.getWaveDetailById(151));
+//        pickDetails.add(waveService.getWaveDetailById(152));
 //        pickRpcService.calcPickOrder(pickDetails);
 //
 //        return "yes";

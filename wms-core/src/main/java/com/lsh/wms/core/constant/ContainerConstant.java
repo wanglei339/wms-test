@@ -9,6 +9,9 @@ import java.util.Map;
  */
 public class ContainerConstant {
     // container类型定义
+    public static final Long PALLET = 1L; // 托盘
+    public static final Long CAGE = 2L; // 笼车
+    public static final Long TURNOVER_BOX = 3L; // 周转箱
     // TODO 以后放托盘的各项配置
     public static final Map<Long, Map<String, Object>> containerConfigs = new HashMap<Long, Map<String, Object>>() {
         {

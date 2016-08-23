@@ -178,7 +178,7 @@ public class ProcurementRestService implements IProcurementRestService {
         }
         catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
         }
     }
 
@@ -255,14 +255,18 @@ public class ProcurementRestService implements IProcurementRestService {
         return JsonUtils.SUCCESS(new HashMap<String, Object>() {
             {
                 put("taskId", taskInfo.getTaskId());
-                put("status", "outbound");
+                put("type", 1L);
                 put("locationId", fromLocationId);
                 put("locationCode", fromLocationCode);
                 put("itemId", taskInfo.getItemId());
                 put("subType",taskInfo.getSubType());
                 put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
                 put("packName", taskInfo.getPackName());
-                put("uomQty", taskInfo.getQty().divide(taskInfo.getPackUnit()));
+                if(taskInfo.getSubType().compareTo(1L)==0){
+                    put("uomQty","整托");
+                }else {
+                    put("uomQty", taskInfo.getQty().divide(taskInfo.getPackUnit()));
+                }
             }
         });
     }

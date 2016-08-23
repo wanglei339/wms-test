@@ -2,6 +2,7 @@ package com.lsh.wms.api.service.location;
 
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
+import com.lsh.wms.model.stock.StockQuant;
 
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ public interface ILocationRpcService {
     public BaseinfoLocation insertLocation(BaseinfoLocation location);
     public BaseinfoLocation updateLocation(BaseinfoLocation location);
     public BaseinfoLocation assignTemporary();
-    public BaseinfoLocation assignFloor();
+    public BaseinfoLocation assignFloor(StockQuant quant);
 
     //分配退货
     public BaseinfoLocation getBackLocation();

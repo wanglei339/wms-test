@@ -10,6 +10,7 @@ import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.inhouse.IProcurementRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.shelve.IAtticShelveRfRestService;
+import com.lsh.wms.api.service.shelve.IPickUpShelveRfRestService;
 import com.lsh.wms.api.service.shelve.IShelveRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
@@ -55,11 +56,11 @@ import java.util.Map;
  * Created by wuhao on 16/8/16.
  */
 @Service(protocol = "rest")
-@Path("inbound/attic_shelve")
+@Path("inbound/pick_up_shelve")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-public class AtticShelveRestService implements IAtticShelveRfRestService {
-    private static Logger logger = LoggerFactory.getLogger(AtticShelveRestService.class);
+public class PickUpShelveRestService implements IPickUpShelveRfRestService {
+    private static Logger logger = LoggerFactory.getLogger(PickUpShelveRestService.class);
     @Reference
     private ITaskRpcService iTaskRpcService;
     @Reference
@@ -87,7 +88,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
     @Reference
     private ISysUserRpcService iSysUserRpcService;
 
-    private Long taskType = TaskConstant.TYPE_ATTIC_SHELVE;
+    private Long taskType = TaskConstant.TYPE_PICK_UP_SHELVE;
 
     /**
      * 创建上架任务
@@ -251,12 +252,8 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         }
 
         AtticShelveTaskDetail detail = shelveTaskService.getShelveTaskDetail(taskId,allocLocationId);
-        if(location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN)==0){
-            if(realLocationId.compareTo(allocLocationId)!=0){
-                return JsonUtils.TOKEN_ERROR("扫描货位与系统所提供货位不符");
-            }
-
-        }else if(realLocation.getType().compareTo(LocationConstant.LOFT_STORE_BIN)==0 ){
+        //TODO 判断扫描库位是不是存储合一库位
+        if(realLocation.getType().compareTo(LocationConstant.LOFT_STORE_BIN)==0 ){
             if(locationService.checkLocationUseStatus(realLocationId) && realLocationId.compareTo(allocLocationId)!=0 ){
                 return JsonUtils.TOKEN_ERROR("扫描库位已被占用");
             }
@@ -327,54 +324,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
 
         BigDecimal total = stockQuantService.getQuantQtyByLocationIdAndItemId(quant.getLocationId(), quant.getItemId());
 
-            //判断阁楼捡货位是不是需要补货
-
-            List<BaseinfoItemLocation> locations = itemLocationService.getItemLocationList(quant.getItemId());
-            for (BaseinfoItemLocation itemLocation : locations) {
-                //对比货架商品和新进商品保质期是否到达阀值
-                BaseinfoLocation location = locationService.getLocation(itemLocation.getPickLocationid());
-                if(shelveRpcService.checkShelfLifeThreshold(quant,location,LocationConstant.LOFT_STORE_BIN)) {
-                    if (location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN) == 0) {
-                        if (rpcService.needProcurement(itemLocation.getPickLocationid(), itemLocation.getItemId())) {
-                            Map<String, Object> checkTask = new HashMap<String, Object>();
-                            checkTask.put("toLocationId", location.getLocationId());
-                            List<TaskEntry> entries = iTaskRpcService.getTaskList(TaskConstant.TYPE_PROCUREMENT, checkTask);
-                            if (entries != null && entries.size() != 0) {
-                                TaskInfo taskInfo = entries.get(0).getTaskInfo();
-                                if (taskInfo.getStatus().compareTo(TaskConstant.Draft) == 0) {
-                                    iTaskRpcService.cancel(taskInfo.getTaskId());
-                                } else if (taskInfo.getStatus().compareTo(TaskConstant.Assigned) == 0) {
-                                    continue;
-                                }
-                            }
-                            //插detail
-                            AtticShelveTaskDetail detail = new AtticShelveTaskDetail();
-                            StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
-                            ObjUtils.bean2bean(quant, detail);
-                            detail.setTaskId(taskId);
-                            detail.setReceiptId(lot.getReceiptId());
-                            detail.setOrderId(lot.getPoId());
-                            detail.setAllocLocationId(location.getLocationId());
-                            detail.setRealLocationId(location.getLocationId());
-
-
-                            BigDecimal num = total.divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN);
-                            Map<String, Object> map = new HashMap<String, Object>();
-                            map.put("taskId", taskId);
-                            map.put("locationId", location.getLocationId());
-                            map.put("locationCode", location.getLocationCode());
-                            map.put("qty", num.compareTo(new BigDecimal(3)) >= 0 ? 3 : num);
-                            map.put("packName", quant.getPackName());
-
-                            shelveTaskService.create(detail);
-                            return map;
-                        }
-                    }
-                }
-            }
-
-
-        //当捡货位都不需要补货时，将上架货物存到阁楼存货位上
+        //将上架货物存到阁楼存货位上
         BaseinfoItem item = itemService.getItem(quant.getItemId());
         List<AtticShelveTaskDetail> details = new ArrayList<AtticShelveTaskDetail>();
         BigDecimal bulk = BigDecimal.ONE;
@@ -386,6 +336,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
 
 
         while (total.compareTo(BigDecimal.ZERO) > 0) {
+            //TODO 获取存储合一货位
             BaseinfoLocation location = locationService.getlocationIsEmptyAndUnlockByType(LocationConstant.LOFT_STORE_BIN);
             if(location==null) {
                 throw new BizCheckedException("2030015");
