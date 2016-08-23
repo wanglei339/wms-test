@@ -15,4 +15,6 @@ public interface IRolePermissionRestService {
     String insert(RolePermission rolePermission);
     String update(RolePermission rolePermission);
     String getRolePermissionByName(String role);
+
+    String getRolePermissionById(Long id);
 }

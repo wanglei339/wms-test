@@ -908,4 +908,20 @@ public class LocationService {
         return this.getBaseinfoLocationList(params);
     }
 
+    @Transactional(readOnly = false)
+    public void lockLocationById(Long locationId) {
+        if (null == this.getLocation(locationId)) {
+            throw new BizCheckedException("2180002");
+        }
+        locationDao.lock(locationId);
+    }
+
+    @Transactional(readOnly = false)
+    public void lockLocationByContainer(Long containerId) {
+        List<Long> locationIdList = stockQuantService.getLocationIdByContainerId(containerId);
+        if (1 != locationIdList.size()) {
+            throw new BizCheckedException("3050002");
+        }
+        this.lockLocationById(locationIdList.get(0));
+    }
 }
