@@ -74,4 +74,11 @@ public class RolePermissionRestService implements IRolePermissionRestService {
     public String getRolePermissionByName(@QueryParam("role") String role) {
         return JsonUtils.SUCCESS(rolePermissionRpcService.getRolePermissionByName(role));
     }
+    @GET
+    @Path("getRolePermissionById")
+    public String getRolePermissionById(@QueryParam("id") Long id) {
+        return JsonUtils.SUCCESS(rolePermissionRpcService.getRolePermissionById(id));
+    }
+
+
 }
