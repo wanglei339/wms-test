@@ -200,7 +200,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             nextItem = nextInfo.getItemId();
             packName = nextInfo.getPackName();
             packUnit = nextInfo.getPackUnit();
-            qty = nextInfo.getQty();
+            qty = nextInfo.getQtyDone();
             next.put("type", 2);
             next.put("taskId",nextInTask);
         } else {//outbound
@@ -233,7 +233,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         core.inbound(params);
         Map<String, Object> next = new HashMap<String, Object>();
         if (nextInTask == 0) {
-            next.put("finished", true);
+            next.put("response", true);
         } else {
             TaskInfo nextInfo = taskRpcService.getTaskEntryById(nextInTask).getTaskInfo();
             Long nextLocationId = nextInfo.getToLocationId();

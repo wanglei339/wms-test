@@ -129,9 +129,12 @@ public class StockTransferCore {
             StockMove move = new StockMove();
             ObjUtils.bean2bean(taskInfo, move);
             move.setQty(qtyDone);
+            move.setFromLocationId(fromLocationId);
             move.setToLocationId(toLocationId);
             move.setFromContainerId(quants.get(0).getContainerId());
             move.setToContainerId(taskInfo.getContainerId());
+            move.setSkuId(taskInfo.getSkuId());
+            move.setOwnerId(taskInfo.getOwnerId());
             List<StockMove> moveList = new ArrayList<StockMove>();
             moveList.add(move);
             moveRpcService.move(moveList);
@@ -179,7 +182,7 @@ public class StockTransferCore {
             move.setToLocationId(toLocationId);
             move.setFromContainerId(containerId);
             StockQuantCondition condition = new StockQuantCondition();
-            condition.setLocationId(toLocationId);
+            condition.setLocationId(fromLocationId);
             condition.setItemId(taskInfo.getItemId());
             List<StockQuant> quants = stockQuantRpcService.getQuantList(condition);
             Long toContainerId;
