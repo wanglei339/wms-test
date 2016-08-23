@@ -124,14 +124,14 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             if (quantList.isEmpty() && list.isEmpty()) {
                 throw new BizCheckedException("2550032");
             }
-            if (toLocationId.compareTo(taskInfo.getToLocationId()) != 0 && !locationService.checkLocationLockStatus(toLocationId)) {
+            if (toLocationId.compareTo(taskInfo.getToLocationId()) != 0 && locationService.checkLocationLockStatus(toLocationId)) {
                 throw new BizCheckedException("2550010");
             }
         } else {
             if (quantList.isEmpty()) {
                 throw new BizCheckedException("2550032");
             }
-            if (!locationService.checkLocationLockStatus(toLocationId)) {
+            if (locationService.checkLocationLockStatus(toLocationId)) {
                 throw new BizCheckedException("2550010");
             }
         }
