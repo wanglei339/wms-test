@@ -221,6 +221,9 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         next.put("itemName", itemRpcService.getItem(nextItem).getSkuName());
         next.put("packName", packName);
         next.put("uomQty", qty.divide(packUnit));
+        if (subType.compareTo(1L) == 0) {
+            next.put("uomQty", "整托");
+        }
         next.put("subType", subType);
         return next;
     }
@@ -248,6 +251,9 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             next.put("itemName", itemRpcService.getItem(nextInfo.getItemId()).getSkuName());
             next.put("packName", nextInfo.getPackName());
             next.put("uomQty", nextInfo.getQtyDone().divide(nextInfo.getPackUnit()));
+            if (nextInfo.getSubType().compareTo(1L) == 0) {
+                next.put("uomQty", "整托");
+            }
             next.put("subType", nextInfo.getSubType());
         }
         return next;

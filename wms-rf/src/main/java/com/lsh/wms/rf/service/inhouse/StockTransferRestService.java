@@ -267,7 +267,7 @@ public class StockTransferRestService implements IStockTransferRestService {
                     put("itemId", taskInfo.getItemId());
                     put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
                     put("packName", taskInfo.getPackName());
-                    put("uomQty", uomQty);
+                    put("uomQty", taskInfo.getSubType().compareTo(1L) == 0 ? "整托" : uomQty);
                     put("subType", taskInfo.getSubType());
                 }
             });
