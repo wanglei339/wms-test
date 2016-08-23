@@ -18,6 +18,14 @@ then
   mvn clean compile package
 fi
 
+#环境选择
+echo "部署59/48?[59: 1; 48: 2]: "
+read env
+if [ "$env" = "2" ]
+then
+  REMOTE="work@192.168.60.48"
+fi
+
 #循环部署代码
 for APP in ${APPS[@]}
 do

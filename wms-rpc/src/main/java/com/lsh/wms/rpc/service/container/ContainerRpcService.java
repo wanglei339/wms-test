@@ -3,6 +3,7 @@ package com.lsh.wms.rpc.service.container;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.container.IContainerRpcService;
+import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import org.slf4j.Logger;
@@ -32,15 +33,15 @@ public class ContainerRpcService implements IContainerRpcService {
     }
 
     public BaseinfoContainer createTray() {
-        return containerService.createContainerByType(1L);
+        return containerService.createContainerByType(ContainerConstant.PALLET);
     }
 
     public BaseinfoContainer createTrolley() {
-        return containerService.createContainerByType(2L);
+        return containerService.createContainerByType(ContainerConstant.CAGE);
     }
 
     public BaseinfoContainer createCirculatingBox() {
-        return containerService.createContainerByType(3L);
+        return containerService.createContainerByType(ContainerConstant.TURNOVER_BOX);
     }
 
 }
