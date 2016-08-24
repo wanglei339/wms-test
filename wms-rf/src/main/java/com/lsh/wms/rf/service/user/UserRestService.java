@@ -2,33 +2,26 @@ package com.lsh.wms.rf.service.user;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
-import com.alibaba.dubbo.rpc.RpcContext;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
-import com.lsh.base.common.config.PropertyUtils;
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.base.common.utils.RandomUtils;
-import com.lsh.base.common.utils.StrUtils;
-import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.user.IUserRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.user.IUserRpcService;
-import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
-import com.lsh.wms.model.system.SysUser;
-import org.apache.catalina.Session;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * Created by lixin-mac on 16/7/28.
@@ -43,6 +36,9 @@ public class UserRestService implements IUserRestService {
 
     @Reference
     private IUserRpcService userRpcService;
+
+    @Value("classpath:AndroidMenu.json")
+    private Resource menuResource;
 
 
     @Path("login")
@@ -74,4 +70,23 @@ public class UserRestService implements IUserRestService {
 //        session.setAttribute("","");
         return JsonUtils.SUCCESS(map);
     }
+
+    @Path("getMenuList")
+    @POST
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String getMenuList() throws BizCheckedException {
+        try {
+            String menu = FileUtils.readFileToString(menuResource.getFile());
+            List<Map> menuList = JSON.parseArray(menu, Map.class);
+            Map<String, Object> rst = new HashMap<String, Object>();
+            rst.put("menuList", menuList);
+            return JsonUtils.SUCCESS(rst);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return JsonUtils.OTHER_EXCEPTION("配置读取错误");
+        }
+    }
+
+
 }

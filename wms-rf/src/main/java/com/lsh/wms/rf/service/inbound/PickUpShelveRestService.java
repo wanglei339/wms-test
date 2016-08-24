@@ -123,6 +123,9 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             throw new BizCheckedException("2030001");
         }
         StockQuant quant = quants.get(0);
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("containerId",containerId);
+        BigDecimal total = stockQuantService.getQty(queryMap);
 
         TaskInfo taskInfo = new TaskInfo();
         TaskEntry entry = new TaskEntry();
@@ -132,6 +135,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         taskInfo.setType(taskType);
         taskInfo.setSubType(1L);
         taskInfo.setFromLocationId(quant.getLocationId());
+        taskInfo.setQty(total);
 
         entry.setTaskInfo(taskInfo);
 
@@ -172,7 +176,8 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         if(user==null){
             return JsonUtils.TOKEN_ERROR("用户不存在");
         }
-        // 检查是否有已分配的任务
+
+         //检查是否有已分配的任务
         if (taskId == null) {
             //查看是否有已经执行的任务
             taskId = baseTaskService.getAssignTaskIdByContainerId(containerId);
@@ -207,6 +212,62 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             }
         }
     }
+
+
+    /**
+     * 回溯任务
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("restore")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String restore() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long uId=0L;
+        Long containerId = 0L;
+        Long taskId = 0L;
+        try {
+            uId = Long.valueOf(mapQuery.get("uId").toString());
+        }catch (Exception e) {
+            logger.error(e.getMessage());
+            return JsonUtils.TOKEN_ERROR("参数传递格式有误");
+        }
+
+        SysUser user =  iSysUserRpcService.getSysUserById(uId);
+        if(user==null){
+            return JsonUtils.TOKEN_ERROR("用户不存在");
+        }
+        // 检查是否有已分配的任务
+        taskId = baseTaskService.getAssignTaskIdByContainerId(containerId);
+        if(taskId==null) {
+            return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+                {
+                    put("response", false);
+                }
+            });
+        }
+        TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
+        TaskInfo info = entry.getTaskInfo();
+        if (info.getOperator().compareTo(user.getStaffId()) != 0 && baseTaskService.checkTaskByContainerId(containerId)) {
+            return JsonUtils.TOKEN_ERROR("该上架任务已被人领取");
+        }
+        AtticShelveTaskDetail detail = shelveTaskService.getDetailByTaskIdAndStatus(taskId, 1L);
+        if(detail==null){
+            return JsonUtils.TOKEN_ERROR("任务详情异常");
+        }
+        BaseinfoLocation location = locationService.getLocation(detail.getAllocLocationId());
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("taskId", taskId);
+        map.put("locationId", location.getLocationId());
+        map.put("locationCode", location.getLocationCode());
+        map.put("qty", detail.getQty());
+        map.put("packName", info.getPackName());
+        return JsonUtils.SUCCESS(map);
+
+    }
+
 
     /**
      * 扫描上架目标location_id

@@ -946,7 +946,7 @@ public class LocationService {
     public void lockLocationByContainer(Long containerId) {
         List<Long> locationIdList = stockQuantService.getLocationIdByContainerId(containerId);
         if (1 != locationIdList.size()) {
-            throw new BizCheckedException("3050002");
+            throw new BizCheckedException("3550002");
         }
         this.lockLocationById(locationIdList.get(0));
     }
