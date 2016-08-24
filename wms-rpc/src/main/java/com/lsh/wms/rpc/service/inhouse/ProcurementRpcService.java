@@ -85,6 +85,8 @@ public class ProcurementRpcService implements IProcurementRpcService{
         }
         return qty;
     }
+
+
     public TaskEntry addProcurementPlan(StockTransferPlan plan) throws BizCheckedException {
         if(!this.checkPlan(plan)){
             logger.error("error plan ：" + plan.toString());

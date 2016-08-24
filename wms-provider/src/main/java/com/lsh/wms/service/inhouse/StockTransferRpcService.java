@@ -84,6 +84,9 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     private TaskInfoDao taskInfoDao;
 
     public boolean checkPlan(StockTransferPlan plan) throws BizCheckedException {
+        if (plan.getUomQty().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BizCheckedException("2550034");
+        }
         Long fromLocationId = plan.getFromLocationId();
         Long toLocationId = plan.getToLocationId();
         if (fromLocationId.compareTo(toLocationId) == 0) {
