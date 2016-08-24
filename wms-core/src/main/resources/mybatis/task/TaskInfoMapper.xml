@@ -143,6 +143,8 @@
 	<select id="getPerformance" parameterType="map" resultType="java.util.HashMap">
 		select operator as staffId, type, sub_type, sum(task_qty) as task_qty, date from task_info
 		<where>
+			<if test="type != null">type = #{type}</if>
+			<if test="date != null">date = #{date}</if>
 			<if test="staffId != null">operator = #{staffId}</if>
 			<if test="startDate != null">and #{startDate} &lt;= date</if>
 			<if test="endDate != null">and date &lt;= #{endDate}</if>
