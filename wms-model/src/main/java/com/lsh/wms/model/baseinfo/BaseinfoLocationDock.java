@@ -31,6 +31,8 @@ public class BaseinfoLocationDock extends BaseinfoLocation implements Serializab
     private Long updatedAt;
 	/** 主表类型 */
     private Long type;
+	/** 是否可用1可用，0删除 */
+	private Integer isValid;
 
 	@Override
 	public Long getType() {
@@ -128,5 +130,15 @@ public class BaseinfoLocationDock extends BaseinfoLocation implements Serializab
 	
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
+	}
+
+	@Override
+	public Integer getIsValid() {
+		return isValid;
+	}
+
+	@Override
+	public void setIsValid(Integer isValid) {
+		this.isValid = isValid;
 	}
 }

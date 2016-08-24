@@ -1,6 +1,8 @@
 package com.lsh.wms.core.service.location;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationShelfDao;
 import com.lsh.wms.model.baseinfo.*;
 import org.slf4j.Logger;
@@ -41,16 +43,30 @@ public class BaseinfoLocationShelfService implements IStrategy {
     public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("locationId", id);
+        mapQuery.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocationShelf> shelfList = baseinfoLocationShelfDao.getBaseinfoLocationShelfList(mapQuery);
 //        BaseinfoLocationShelf shelf =  shelfList.get(0);
         return shelfList.size() > 0 ? shelfList.get(0) : null;
     }
 
     public Integer countBaseinfoLocaltionModel(Map<String, Object> params) {
+        params.put("isValid",LocationConstant.IS_VALID);
         return baseinfoLocationShelfDao.countBaseinfoLocationShelf(params);
     }
 
     public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) {
+        params.put("isValid",LocationConstant.IS_VALID);
         return (List<BaseinfoLocation>) (List<?>) baseinfoLocationShelfDao.getBaseinfoLocationShelfList(params);
+    }
+    @Transactional(readOnly = false)
+    public IBaseinfoLocaltionModel removeLocation(Long locationId) {
+        //先查,然后删除
+        BaseinfoLocationShelf temp = (BaseinfoLocationShelf) this.getBaseinfoItemLocationModelById(locationId);
+        if (temp == null) {
+            throw new BizCheckedException("2180003");
+        }
+        temp.setIsValid(LocationConstant.NOT_VALID);
+        this.update(temp);
+        return temp;
     }
 }

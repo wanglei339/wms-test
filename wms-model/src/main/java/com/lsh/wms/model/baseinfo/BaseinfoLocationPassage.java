@@ -25,6 +25,8 @@ public class BaseinfoLocationPassage extends BaseinfoLocation implements Seriali
     private String description;
 	/** 主表类型 */
     private Long type;
+	/** 是否可用1可用，0删除 */
+	private Integer isValid;
 
 	@Override
 	public Long getType() {
@@ -100,6 +102,13 @@ public class BaseinfoLocationPassage extends BaseinfoLocation implements Seriali
 		this.description = description;
 	}
 
+	@Override
+	public Integer getIsValid() {
+		return isValid;
+	}
 
-	
+	@Override
+	public void setIsValid(Integer isValid) {
+		this.isValid = isValid;
+	}
 }

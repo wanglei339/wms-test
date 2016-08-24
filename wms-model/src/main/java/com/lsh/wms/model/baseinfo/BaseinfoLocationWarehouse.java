@@ -24,6 +24,8 @@ public class BaseinfoLocationWarehouse extends BaseinfoLocation implements Seria
     private Long updatedAt;
 	/** 主表的type */
     private Long type;
+	/** 是否可用1可用，0删除 */
+	private Integer isValid;
 
 	@Override
 	public Long getType() {
@@ -98,5 +100,14 @@ public class BaseinfoLocationWarehouse extends BaseinfoLocation implements Seria
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
-	
+
+	@Override
+	public Integer getIsValid() {
+		return isValid;
+	}
+
+	@Override
+	public void setIsValid(Integer isValid) {
+		this.isValid = isValid;
+	}
 }

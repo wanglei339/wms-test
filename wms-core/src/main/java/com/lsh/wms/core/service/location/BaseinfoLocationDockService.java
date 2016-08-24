@@ -1,6 +1,8 @@
 package com.lsh.wms.core.service.location;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDockDao;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationDock;
@@ -48,6 +50,7 @@ public class BaseinfoLocationDockService implements IStrategy {
     public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("locationId", id);
+        mapQuery.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocationDock> dockList = baseinfoLocationDockDao.getBaseinfoLocationDockList(mapQuery);
 //        BaseinfoLocationDock dock = dockList.get(0);
         return dockList.size() > 0 ? dockList.get(0) : null;
@@ -62,6 +65,7 @@ public class BaseinfoLocationDockService implements IStrategy {
      * @return
      */
     public Integer countBaseinfoLocaltionModel(Map<String, Object> params) {
+        params.put("isValid",LocationConstant.IS_VALID);
         return baseinfoLocationDockDao.countBaseinfoLocationDock(params);
     }
 
@@ -72,7 +76,25 @@ public class BaseinfoLocationDockService implements IStrategy {
      * @return
      */
     public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) {
+        params.put("isValid",LocationConstant.IS_VALID);
         return (List<BaseinfoLocation>) (List<?>) baseinfoLocationDockDao.getBaseinfoLocationDockList(params);
+    }
+
+    /**
+     * 删除码头细节表,将isvalid置为0
+     * @param locationId
+     * @return
+     */
+    @Transactional(readOnly = false)
+    public IBaseinfoLocaltionModel removeLocation(Long locationId) {
+        //先查,然后删除
+        BaseinfoLocationDock temp = (BaseinfoLocationDock) this.getBaseinfoItemLocationModelById(locationId);
+        if (temp == null) {
+            throw new BizCheckedException("2180003");
+        }
+        temp.setIsValid(LocationConstant.NOT_VALID);
+        this.update(temp);
+        return temp;
     }
 
 }

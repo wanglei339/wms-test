@@ -54,7 +54,7 @@ public class TaskFinishEventHandler extends AbsEventHandler implements IEventHan
         if (TaskConstant.TYPE_PO == sourceTaskType) {
             this.createShelveTask(msg.getSourceTaskId());
         } else if (TaskConstant.TYPE_PICK == sourceTaskType) {
-            taskHandlerFactory.getTaskHandler(TaskConstant.TYPE_QC).create(msg.getId());
+            taskHandlerFactory.getTaskHandler(TaskConstant.TYPE_QC).create(msg.getSourceTaskId());
         }
     }
 
