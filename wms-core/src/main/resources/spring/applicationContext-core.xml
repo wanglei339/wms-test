@@ -47,6 +47,9 @@
         <property name="connectionTimeoutInMs" value="30000"/>
     </bean>
 
+    <bean id="sqlStatementInterceptor" class="com.lsh.wms.core.dao.SqlStatementInterceptor">
+    </bean>
+
     <!-- MyBatis配置 -->
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean" lazy-init="false">
         <property name="dataSource" ref="dataSource"/>
@@ -56,6 +59,11 @@
         <property name="typeAliasesPackage" value="com.lsh.wms.model"/>
         <!-- 显式指定Mapper文件位置 -->
         <property name="mapperLocations" value="classpath:mybatis/**/*Mapper.xml"/>
+        <property name="plugins">
+            <array>
+                <ref bean="sqlStatementInterceptor"/>
+            </array>
+        </property>
     </bean>
     <!-- 扫描basePackage下所有以@MyBatisRepository标识的 接口-->
     <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">-->
