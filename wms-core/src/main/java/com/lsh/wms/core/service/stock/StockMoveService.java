@@ -78,7 +78,7 @@ public class StockMoveService {
 
     public List<StockQuantMoveRel> getHistoryById(Long moveId) {
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("moveId",moveId);
+        mapQuery.put("moveId", moveId);
         return relDao.getStockQuantMoveRelList(mapQuery);
     }
 

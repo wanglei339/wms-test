@@ -31,4 +31,5 @@ public class TaskConstant {
     public static final Long EVENT_SO_ACCEPT = 100001L;
     public static final Long EVENT_WAVE_RELEASE = 100002L;
     public static final Long EVENT_OUT_OF_STOCK = 100003L;
+    public static final Long EVENT_PROCUREMENT_CANCEL = 100004L;
 }

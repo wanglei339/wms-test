@@ -20,6 +20,12 @@ public class TaskMsg implements Serializable {
     private Long priority;
     private Map<String, Object> msgBody;
 
+    public TaskMsg() {
+        this.id = RandomUtils.genId();
+        this.timestamp = DateUtils.getCurrentSeconds();
+        this.priority = 0L;
+    }
+
     public Long getId() {
         return id;
     }
