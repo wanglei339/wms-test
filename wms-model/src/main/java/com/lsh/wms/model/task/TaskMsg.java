@@ -1,26 +1,31 @@
 package com.lsh.wms.model.task;
 
+import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.RandomUtils;
+import com.sun.java.swing.plaf.windows.WindowsBorders;
+
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mali on 16/8/16.
  */
 public class TaskMsg implements Serializable {
 
-    private Long taskId;
+    private Long id = RandomUtils.genId();
     private Long type;
-    private String content;
-    private Long timestamp;
+    private Long sourceTaskId;
+    private Long timestamp = DateUtils.getCurrentSeconds();
     private Long priority;
-    private List<Object> paramList;
+    private Map<String, Object> msgBody;
 
-    public Long getTaskId() {
-        return taskId;
+    public Long getId() {
+        return id;
     }
 
-    public void setTaskId(Long taskId) {
-        this.taskId = taskId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getType() {
@@ -31,12 +36,12 @@ public class TaskMsg implements Serializable {
         this.type = type;
     }
 
-    public Long getPriority() {
-        return priority;
+    public Long getSourceTaskId() {
+        return sourceTaskId;
     }
 
-    public void setPriority(Long priority) {
-        this.priority = priority;
+    public void setSourceTaskId(Long sourceTaskId) {
+        this.sourceTaskId = sourceTaskId;
     }
 
     public Long getTimestamp() {
@@ -47,20 +52,20 @@ public class TaskMsg implements Serializable {
         this.timestamp = timestamp;
     }
 
-    public String getContent() {
-        return content;
+    public Long getPriority() {
+        return priority;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setPriority(Long priority) {
+        this.priority = priority;
     }
 
-    public List<Object> getParamList() {
-        return paramList;
+    public Map<String, Object> getMsgBody() {
+        return msgBody;
     }
 
-    public void setParamList(List<Object> paramList) {
-        this.paramList = paramList;
+    public void setMsgBody(Map<String, Object> msgBody) {
+        this.msgBody = msgBody;
     }
 
 }

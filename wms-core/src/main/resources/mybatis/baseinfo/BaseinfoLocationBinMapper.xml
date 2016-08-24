@@ -12,15 +12,16 @@
 		<result property="updatedAt" column="updated_at"/>
 		<result property="type" column="type"/>
 		<result property="zoneType" column="zone_type"/>
+		<result property="isValid" column="is_valid"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLocationBin">
 		insert into baseinfo_location_bin (
-			location_id,volume,weigh,description,created_at,
-			updated_at,type,zone_type
+			location_id,volume,weigh,description,created_at,updated_at,
+			type,zone_type,is_valid
     	) values (
-			#{locationId},#{volume},#{weigh},#{description},#{createdAt},
-			#{updatedAt},#{type},#{zoneType}
+			#{locationId},#{volume},#{weigh},#{description},#{createdAt},#{updatedAt},
+			#{type},#{zoneType},#{isValid}
     	)
 	</insert>
 
@@ -34,7 +35,8 @@
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
   			<if test="type != null">type=#{type},</if>
-  			<if test="zoneType != null">zone_type=#{zoneType}</if>
+  			<if test="zoneType != null">zone_type=#{zoneType},</if>
+  			<if test="isValid != null">is_valid=#{isValid}</if>
 		</set>
 		where location_id=#{locationId}
 	</update>
@@ -68,6 +70,7 @@
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 			<if test="type != null">and type=#{type}</if>
 			<if test="zoneType != null">and zone_type=#{zoneType}</if>
+			<if test="isValid != null">and is_valid=#{isValid}</if>
 		</where>
 	</sql>
    

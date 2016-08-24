@@ -1,6 +1,8 @@
 package com.lsh.wms.core.service.location;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationWarehouseDao;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationBin;
@@ -46,16 +48,30 @@ public class BaseinfoLocationWarehouseService implements IStrategy {
     public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("locationId", id);
+        mapQuery.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocationWarehouse> warehouseList = baseinfoLocationWarehouseDao.getBaseinfoLocationWarehouseList(mapQuery);
 //        BaseinfoLocationWarehouse warehouse =  warehouseList.get(0);
         return warehouseList.size() > 0 ? warehouseList.get(0) : null;
     }
 
     public Integer countBaseinfoLocaltionModel(Map<String, Object> params) {
+        params.put("isValid", LocationConstant.IS_VALID);
         return baseinfoLocationWarehouseDao.countBaseinfoLocationWarehouse(params);
     }
 
     public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) {
+        params.put("isValid", LocationConstant.IS_VALID);
         return (List<BaseinfoLocation>) (List<?>) baseinfoLocationWarehouseDao.getBaseinfoLocationWarehouseList(params);
+    }
+    @Transactional(readOnly = false)
+    public IBaseinfoLocaltionModel removeLocation(Long locationId) {
+        //先查,然后删除
+        BaseinfoLocationWarehouse temp = (BaseinfoLocationWarehouse) this.getBaseinfoItemLocationModelById(locationId);
+        if (temp == null) {
+            throw new BizCheckedException("2180003");
+        }
+        temp.setIsValid(LocationConstant.NOT_VALID);
+        this.update(temp);
+        return temp;
     }
 }

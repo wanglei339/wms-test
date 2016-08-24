@@ -296,12 +296,13 @@ public class StockTransferCore {
 
     //TODO
     public BaseinfoLocation getNearestLocation(BaseinfoLocation currentLocation) {
-        BaseinfoLocation targetLocation = currentLocation;
         List <BaseinfoLocation> locationList = locationService.getStoreLocations(currentLocation.getLocationId());
-        if (!locationList.isEmpty()) {
-            targetLocation = locationList.get(0);
+        for (BaseinfoLocation location : locationList) {
+            if (location.getCanUse().equals(1) && !locationService.checkLocationLockStatus(location.getLocationId())) {
+                return location;
+            }
         }
-        return targetLocation;
+        return currentLocation;
     }
 
     public List<Long> sortTaskByLocation(List<TaskEntry> entryList) {

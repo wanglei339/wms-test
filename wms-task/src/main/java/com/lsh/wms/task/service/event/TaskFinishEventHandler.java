@@ -12,22 +12,22 @@ import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.task.TaskMsg;
 import com.lsh.wms.task.service.TaskRpcService;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
+import com.lsh.wms.task.service.task.pick.QCTaskHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.beans.EventHandler;
 import java.util.List;
 
 /**
  * Created by mali on 16/8/19.
  */
 @Component
-public class PoEventHandler extends AbsEventHandler implements IEventHandler {
+public class TaskFinishEventHandler extends AbsEventHandler implements IEventHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(PoEventHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(TaskFinishEventHandler.class);
 
     @Autowired
     private TaskRpcService taskRpcService;
@@ -40,21 +40,32 @@ public class PoEventHandler extends AbsEventHandler implements IEventHandler {
 
     @Autowired
     private TaskHandlerFactory taskHandlerFactory;
+
     @Autowired
     private EventHandlerFactory eventHandlerFactory;
 
-
-
     @PostConstruct
     public void postConstruct() {
-        eventHandlerFactory.register(TaskConstant.TYPE_PO, this);
+        eventHandlerFactory.register(TaskConstant.EVENT_TASK_FINISH, this);
     }
 
+    public void process(TaskMsg msg) {
+        Long sourceTaskType = taskRpcService.getTaskTypeById(msg.getSourceTaskId());
+        if (TaskConstant.TYPE_PO == sourceTaskType) {
+            this.createShelveTask(msg.getSourceTaskId());
+        } else if (TaskConstant.TYPE_PICK == sourceTaskType) {
+            taskHandlerFactory.getTaskHandler(TaskConstant.TYPE_QC).create(msg.getSourceTaskId());
+        }
+    }
 
-    public void process(Long taskId) {
+    private void createShelveTask(Long taskId) throws BizCheckedException {
         TaskInfo taskInfo =  taskRpcService.getTaskEntryById(taskId).getTaskInfo();
         Long itemId = taskInfo.getItemId();
         List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationList(itemId);
+        if (itemLocations == null || itemLocations.size()  == 0){
+            logger.warn("item "+itemId+ " have no pick location");
+            throw new BizCheckedException("2030010");
+        }
         Long pickLocationId = itemLocations.get(0).getPickLocationid();
         BaseinfoLocation pickLocation = locationService.getLocation(pickLocationId);
         Long handlerType = 0L;
@@ -64,7 +75,6 @@ public class PoEventHandler extends AbsEventHandler implements IEventHandler {
         } else {
             handlerType = TaskConstant.TYPE_SHELVE;
         }
-
         try {
             TaskHandler taskHandler = taskHandlerFactory.getTaskHandler(handlerType);
             taskHandler.create(taskRpcService.getTaskEntryById(taskId));
@@ -75,8 +85,4 @@ public class PoEventHandler extends AbsEventHandler implements IEventHandler {
             logger.warn(e.getCause().getMessage());
         }
     }
-
-    public void process(TaskMsg msg) {
-    }
-
 }
