@@ -161,9 +161,7 @@ public class StockQuantService {
             throw new BizCheckedException("2180001");
         } else {
             Long currentVol = new Long(this.getContainerQty(locationId));
-            if (fromLocation.getContainerVol().compareTo(currentVol) <= 0)
-                fromLocation.setCanUse(2);
-                locationService.updateLocation(fromLocation);
+            locationService.refreshContainerVol(locationId, currentVol);
         }
     }
 
