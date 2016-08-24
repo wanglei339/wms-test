@@ -9,6 +9,8 @@ import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.shelve.IShelveRestService;
+import com.lsh.wms.api.service.staff.IStaffRpcService;
+import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRestService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
@@ -16,8 +18,10 @@ import com.lsh.wms.core.service.shelve.ShelveTaskService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
+import com.lsh.wms.model.baseinfo.BaseinfoStaffInfo;
 import com.lsh.wms.model.shelve.ShelveTaskHead;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +44,8 @@ import java.util.Map;
 public class ShelveRestService implements IShelveRestService {
     @Reference
     private ITaskRpcService iTaskRpcService;
+    @Reference
+    private ISysUserRpcService iSysUserRpcService;
     @Autowired
     private BaseTaskService baseTaskService;
     @Autowired
@@ -111,6 +117,11 @@ public class ShelveRestService implements IShelveRestService {
         Long staffId = Long.valueOf(mapQuery.get("operator").toString());
         Long containerId = Long.valueOf(mapQuery.get("containerId").toString());
         Long taskId = baseTaskService.getDraftTaskIdByContainerId(containerId);
+        // 判断用户是否存在
+        SysUser sysUser = iSysUserRpcService.getSysUserById(staffId);
+        if (sysUser == null) {
+            throw new BizCheckedException("2000003");
+        }
         // 检查是否有已分配的任务
         if (taskId == null && baseTaskService.checkTaskByContainerId(containerId)) {
             throw new BizCheckedException("2030008");

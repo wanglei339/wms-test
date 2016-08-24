@@ -11,6 +11,7 @@ import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.stock.IStockMoveRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.container.ContainerService;
@@ -82,97 +83,131 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     @Autowired
     private TaskInfoDao taskInfoDao;
 
-    public void addPlan(StockTransferPlan plan)  throws BizCheckedException {
+    public boolean checkPlan(StockTransferPlan plan) throws BizCheckedException {
         Long fromLocationId = plan.getFromLocationId();
         Long toLocationId = plan.getToLocationId();
-        Long itemId = plan.getItemId();
-
+        if (fromLocationId.compareTo(toLocationId) == 0) {
+            throw new BizCheckedException("2060013");
+        }
         BaseinfoLocation toLocation = locationService.getLocation(toLocationId);
         if (toLocation == null) {
             throw new BizCheckedException("2060012");
         }
-//        if (toLocation.getCanStore() != 1) {
-//            throw new BizCheckedException("2550020");
-//        }
-        //TODO
-        //get available location
-        if (toLocation.getCanUse() != 1) {
-            toLocation = core.getNearestLocation(toLocation);
-            toLocationId = toLocation.getLocationId();
+        if (toLocation.getCanStore() != 1) {
+            throw new BizCheckedException("2550020");
         }
-        if (!locationService.checkLocationLockStatus(toLocationId)) {
-            throw new BizCheckedException("2550010");
+        if( toLocation.getCanUse() != 1) {
+            throw new BizCheckedException("2550006");
         }
+        Long itemId = plan.getItemId();
         StockQuantCondition condition = new StockQuantCondition();
         condition.setLocationId(fromLocationId);
         condition.setItemId(itemId);
         condition.setReserveTaskId(0L);
+        BigDecimal total = stockQuantService.getQty(condition);
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
-        if (quantList.isEmpty()) {
-            throw new BizCheckedException("2550002");
+
+        Long taskId = plan.getTaskId();
+        if (!taskId.equals(0L)) {
+            TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
+            if (taskEntry == null) {
+                throw new BizCheckedException("3040001");
+            }
+            TaskInfo taskInfo = taskEntry.getTaskInfo();
+            condition.setReserveTaskId(taskId);
+            total = total.add(stockQuantService.getQty(condition));
+            List<StockQuant> list = stockQuantService.getQuantList(condition);
+            if (quantList.isEmpty() && list.isEmpty()) {
+                throw new BizCheckedException("2550032");
+            }
+            if (toLocationId.compareTo(taskInfo.getToLocationId()) != 0 && locationService.checkLocationLockStatus(toLocationId)) {
+                throw new BizCheckedException("2550010");
+            }
+        } else {
+            if (quantList.isEmpty()) {
+                throw new BizCheckedException("2550032");
+            }
+            if (locationService.checkLocationLockStatus(toLocationId)) {
+                throw new BizCheckedException("2550010");
+            }
         }
+
         List<StockQuant> toQuants = quantService.getQuantsByLocationId(toLocationId);
         Long locationType = toLocation.getType();
-        if( toQuants.size() > 0 ){
-            // 地堆区
-            if( locationType.compareTo(LocationConstant.FLOOR) == 0 ){
-                if( toLocation.getCanUse() == 2) {
-                    throw new BizCheckedException("2550006");
+        if( toQuants.size() > 0 && locationType.compareTo(LocationConstant.FLOOR) != 0 ) {
+            // 拣货位
+            if (locationType.compareTo(LocationConstant.LOFT_PICKING_BIN) == 0 || locationType.compareTo(LocationConstant.SHELF_PICKING_BIN) == 0) {
+                List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toLocationId);
+                if (itemLocations.get(0).getItemId().compareTo(itemId) != 0) {
+                    throw new BizCheckedException("2550004");
                 }
-            } else {
-                // 拣货位
-                if (locationType.compareTo(LocationConstant.LOFT_PICKING_BIN) == 0 || locationType.compareTo(LocationConstant.SHELF_PICKING_BIN) == 0) {
-                    List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toLocationId);
-                    if (itemLocations.get(0).getItemId().compareTo(itemId) != 0) {
-                        throw new BizCheckedException("2550004");
-                    }
-                } else { //其余货位
-                    if (toQuants.get(0).getItemId().compareTo(itemId) != 0) {
-                        throw new BizCheckedException("2550004");
-                    }
-                    if (toQuants.get(0).getLotId().compareTo(quantList.get(0).getLotId()) != 0) {
-                        throw new BizCheckedException("2550003");
-                    }
+            } else { //其余货位
+                if (toQuants.get(0).getItemId().compareTo(itemId) != 0) {
+                    throw new BizCheckedException("2550004");
+                }
+                if (toQuants.get(0).getLotId().compareTo(quantList.get(0).getLotId()) != 0) {
+                    throw new BizCheckedException("2550003");
                 }
             }
         }
         core.fillTransferPlan(plan);
-        BigDecimal total = stockQuantService.getQty(condition);
         BigDecimal requiredQty = plan.getQty();
         if ( requiredQty.compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
             throw new BizCheckedException("2550002");
         }
-        Long containerId = quantList.get(0).getContainerId();
-        if (plan.getSubType().compareTo(2L) == 0) {
-            containerId = containerService.createContainerByType(2L).getContainerId();
-        }
-        TaskEntry taskEntry = new TaskEntry();
-        TaskInfo taskInfo = new TaskInfo();
-        ObjUtils.bean2bean(plan, taskInfo);
-        taskInfo.setTaskName("移库任务[ " + taskInfo.getFromLocationId() + " => " + taskInfo.getToLocationId() + "]");
-        taskInfo.setType(TaskConstant.TYPE_STOCK_TRANSFER);
-        taskInfo.setContainerId(containerId);
-        taskEntry.setTaskInfo(taskInfo);
-        Long taskId = taskRpcService.create(TaskConstant.TYPE_STOCK_TRANSFER, taskEntry);
-        logger.info("taskId: " + taskId);
+        plan.setContainerId(quantList.get(0).getContainerId());
+        return true;
     }
 
-    public void updatePlan(StockTransferPlan plan)  throws BizCheckedException {
+    public Long addPlan(StockTransferPlan plan) throws BizCheckedException {
+        BaseinfoLocation fromLocation = locationService.getLocation( plan.getFromLocationId());
+        BaseinfoLocation toLocation = locationService.getLocation(plan.getToLocationId());
+        if (fromLocation == null || toLocation == null) {
+            throw new BizCheckedException("2060012");
+        }
+        if (fromLocation.getCanStore() != 1) {
+            fromLocation = core.getNearestLocation(fromLocation);
+            plan.setFromLocationId(fromLocation.getLocationId());
+        }
+        if (toLocation.getCanStore() != 1) {
+            toLocation = core.getNearestLocation(toLocation);
+            plan.setToLocationId(toLocation.getLocationId());
+        }
+        Long taskId = plan.getTaskId();
+        plan.setTaskId(0L);
+        if (checkPlan(plan)) {
+            plan.setTaskId(taskId);
+            Long containerId = plan.getContainerId();
+            if (plan.getSubType().compareTo(2L) == 0) {
+                containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
+            }
+            TaskEntry taskEntry = new TaskEntry();
+            TaskInfo taskInfo = new TaskInfo();
+            ObjUtils.bean2bean(plan, taskInfo);
+            taskInfo.setTaskName("移库任务[ " + taskInfo.getFromLocationId() + " => " + taskInfo.getToLocationId() + "]");
+            taskInfo.setType(TaskConstant.TYPE_STOCK_TRANSFER);
+            taskInfo.setContainerId(containerId);
+            taskEntry.setTaskInfo(taskInfo);
+            taskId = taskRpcService.create(TaskConstant.TYPE_STOCK_TRANSFER, taskEntry);
+        }
+        return taskId;
+    }
+
+    public void updatePlan(StockTransferPlan plan) throws BizCheckedException {
         Long taskId = plan.getTaskId();
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
         if (taskEntry == null) {
             throw new BizCheckedException("3040001");
         }
         TaskInfo taskInfo = taskEntry.getTaskInfo();
-        locationService.getLocation(taskInfo.getToLocationId()).setIsLocked(0); //unLock
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("reserveTaskId", taskId);
-        List<StockQuant> quantList = quantService.getQuants(mapQuery);
-        for (StockQuant quant : quantList) {
-            quant.setReserveTaskId(0L);
+        if (!taskInfo.getStatus().equals(TaskConstant.Draft)) {
+            throw new BizCheckedException("2550033");
         }
+        if (checkPlan(plan)) {
+            this.cancelPlan(plan.getTaskId());
+        }
+        plan.setTaskId(0L);
         this.addPlan(plan);
-        this.cancelPlan(plan.getTaskId());
     }
 
     public void cancelPlan(Long taskId){
@@ -189,7 +224,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         }
         core.outbound(params);
         Map<String, Object> next = new HashMap<String, Object>();
-        Long nextLocationId, nextItem;
+        Long nextLocationId, nextItem, subType;
         String packName;
         BigDecimal packUnit, qty;
         //inbound
@@ -200,6 +235,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             nextItem = nextInfo.getItemId();
             packName = nextInfo.getPackName();
             packUnit = nextInfo.getPackUnit();
+            subType = nextInfo.getSubType();
             qty = nextInfo.getQtyDone();
             next.put("type", 2);
             next.put("taskId",nextInTask);
@@ -209,6 +245,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             nextItem = nextInfo.getItemId();
             packName = nextInfo.getPackName();
             packUnit = nextInfo.getPackUnit();
+            subType = nextInfo.getSubType();
             qty = nextInfo.getQty();
             next.put("type", 1);
             next.put("taskId", nextOutTask);
@@ -219,6 +256,10 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         next.put("itemName", itemRpcService.getItem(nextItem).getSkuName());
         next.put("packName", packName);
         next.put("uomQty", qty.divide(packUnit));
+        if (subType.compareTo(1L) == 0) {
+            next.put("uomQty", "整托");
+        }
+        next.put("subType", subType);
         return next;
     }
 
@@ -245,19 +286,21 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             next.put("itemName", itemRpcService.getItem(nextInfo.getItemId()).getSkuName());
             next.put("packName", nextInfo.getPackName());
             next.put("uomQty", nextInfo.getQtyDone().divide(nextInfo.getPackUnit()));
+            if (nextInfo.getSubType().compareTo(1L) == 0) {
+                next.put("uomQty", "整托");
+            }
+            next.put("subType", nextInfo.getSubType());
         }
         return next;
     }
 
     public Long assign(Long staffId) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
-        //mapQuery.put("status", TaskConstant.Doing);
         mapQuery.put("status", TaskConstant.Assigned);
         mapQuery.put("operator", staffId);
         List<TaskEntry> list = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQuery);
         //task exist
         if (!list.isEmpty()) {
-            //mapQuery.put("status", TaskConstant.Assigned);
             mapQuery.put("ext3", 0L);
             List<TaskEntry> entryList = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQuery);
             //outbound
@@ -284,7 +327,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             }
             return nextEntry.getTaskInfo().getTaskId();
         }
-        logger.info("New Task");
         //get new task
         mapQuery.clear();
         mapQuery.put("status", TaskConstant.Draft);
@@ -292,11 +334,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (list.isEmpty()) {
             return 0L;
         }
-
-//        Long taskId = core.getNearestTask(list);
-//        taskRpcService.assign(taskId, staffId);
-//        return taskId;
-
         List<Long> taskList = core.getMoreTasks(list);
         for (Long task : taskList) {
             taskRpcService.assign(task, staffId);
@@ -326,6 +363,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         next.put("itemName", itemRpcService.getItem(nextInfo.getItemId()).getSkuName());
         next.put("packName", nextInfo.getPackName());
         next.put("uomQty", nextInfo.getQty().divide(nextInfo.getPackUnit()));
+        next.put("subType", nextInfo.getSubType());
         return next;
     }
 

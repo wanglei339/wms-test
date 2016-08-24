@@ -15,6 +15,7 @@ import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.core.service.wave.WaveTemplateService;
 import com.lsh.wms.model.pick.*;
 import com.lsh.wms.model.so.OutbSoHeader;
+import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.wave.WaveHead;
 import com.lsh.wms.model.wave.WaveRequest;
 import com.lsh.wms.model.wave.WaveTemplate;
@@ -83,6 +84,31 @@ public class WaveRestService implements IWaveRestService {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("waveId", iWaveId);
         return JsonUtils.SUCCESS(soOrderService.getOutbSoHeaderList(mapQuery));
+    }
+
+    @GET
+    @Path("shipWave")
+    public String shipWave(@QueryParam("waveId") long iWaveId,
+                           @QueryParam("uid") long iUid) throws BizCheckedException {
+        WaveHead head = waveService.getWave(iWaveId);
+        if(head==null){
+            throw new BizCheckedException("2040001");
+        }
+        if(head.getStatus() == WaveConstant.STATUS_RELEASE_SUCC
+                || head.getStatus() == WaveConstant.STATUS_SUCC){
+            //可以发
+        }else{
+            throw new BizCheckedException("2040013");
+        }
+        List<WaveDetail> detailList = waveService.getDetailsByWaveId(iWaveId);
+        for(WaveDetail detail : detailList){
+            if ( detail.getQcExceptionDone() == 0){
+                throw new BizCheckedException("2040014");
+            }
+        }
+        //发起来
+        waveService.shipWave(head, detailList);
+        return JsonUtils.SUCCESS();
     }
 
     @GET
@@ -305,7 +331,7 @@ public class WaveRestService implements IWaveRestService {
     @GET
     @Path("getWaveDetailList")
     public String getWaveDetailList(@QueryParam("waveId") long iWaveId){
-        return JsonUtils.SUCCESS(waveService.getDetaileByWaveId(iWaveId));
+        return JsonUtils.SUCCESS(waveService.getDetailsByWaveId(iWaveId));
     }
 
     @GET

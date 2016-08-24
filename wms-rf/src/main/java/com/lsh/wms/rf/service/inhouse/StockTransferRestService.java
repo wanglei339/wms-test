@@ -111,8 +111,12 @@ public class StockTransferRestService implements IStockTransferRestService {
         try {
             Map<String, Object> params = RequestUtils.getRequest();
             StockTransferPlan plan = new StockTransferPlan();
-            Long uId = Long.valueOf(params.get("uId").toString());
-            Long staffId = iSysUserRpcService.getSysUserById(uId).getStaffId();
+            Long staffId;
+            try {
+                staffId= iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getStaffId();
+            }catch (Exception e){
+                throw new BizCheckedException("2550013");
+            }
             plan.setPlanner(staffId);
             Long locationId = Long.valueOf(params.get("locationId").toString());
             plan.setFromLocationId(locationId);
@@ -121,32 +125,30 @@ public class StockTransferRestService implements IStockTransferRestService {
             String barCode = params.get("barcode").toString();
             CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barCode);
             if (csiSku == null) {
-                throw new BizCheckedException("2550003");
+                throw new BizCheckedException("2550015");
             }
             StockQuantCondition condition = new StockQuantCondition();
             condition.setLocationId(locationId);
             condition.setSkuId(csiSku.getSkuId());
             List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
             if (quantList.isEmpty()) {
-                throw new BizCheckedException("2550003");
+                throw new BizCheckedException("2550015");
             }
             StockQuant quant = quantList.get(0);
             plan.setItemId(quant.getItemId());
             plan.setPackName(quant.getPackName());
             rpcService.addPlan(plan);
-
-            return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
-                {
-                    put("response", true);
-                }
-            });
-
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
             return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
+        return JsonUtils.SUCCESS(new HashMap<String, Object>() {
+            {
+                put("response", true);
+            }
+        });
     }
 
     @POST
@@ -157,43 +159,44 @@ public class StockTransferRestService implements IStockTransferRestService {
         try {
             Map<String, Object> params = RequestUtils.getRequest();
             StockTransferPlan plan = new StockTransferPlan();
-            Long uId = Long.valueOf(params.get("uId").toString());
-            Long staffId = iSysUserRpcService.getSysUserById(uId).getStaffId();
+            Long staffId;
+            try {
+                staffId= iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getStaffId();
+            }catch (Exception e){
+                throw new BizCheckedException("2550013");
+            }
             plan.setPlanner(staffId);
             Long locationId = Long.valueOf(params.get("locationId").toString());
             plan.setFromLocationId(locationId);
             plan.setToLocationId(locationRpcService.getDefectiveLocation().getLocationId());
             plan.setUomQty(new BigDecimal(params.get("uomQty").toString()));
-
             String barCode = params.get("barcode").toString();
             CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barCode);
             if (csiSku == null) {
-                throw new BizCheckedException("2550003");
+                throw new BizCheckedException("2550015");
             }
             StockQuantCondition condition = new StockQuantCondition();
             condition.setLocationId(locationId);
             condition.setSkuId(csiSku.getSkuId());
             List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
             if (quantList.isEmpty()) {
-                throw new BizCheckedException("2550003");
+                throw new BizCheckedException("2550015");
             }
-            List<Object> resultList = new ArrayList<Object>();
             StockQuant quant = quantList.get(0);
             plan.setItemId(quant.getItemId());
             plan.setPackName(quant.getPackName());
             rpcService.addPlan(plan);
-            return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
-                {
-                    put("response", true);
-                }
-            });
-
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
             return JsonUtils.EXCEPTION_ERROR(e.getMessage());
         }
+        return JsonUtils.SUCCESS(new HashMap<String, Object>() {
+            {
+                put("response", true);
+            }
+        });
     }
 
     @POST
@@ -237,7 +240,6 @@ public class StockTransferRestService implements IStockTransferRestService {
         Long staffId = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getStaffId();
         try {
             final Long taskId = rpcService.assign(staffId);
-            logger.info("assign finish");
             if (taskId == 0) {
                 throw new BizCheckedException("2040001");
             }
@@ -268,7 +270,8 @@ public class StockTransferRestService implements IStockTransferRestService {
                     put("itemId", taskInfo.getItemId());
                     put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
                     put("packName", taskInfo.getPackName());
-                    put("uomQty", uomQty);
+                    put("uomQty", taskInfo.getSubType().compareTo(1L) == 0 ? "整托" : uomQty);
+                    put("subType", taskInfo.getSubType());
                 }
             });
         } catch (BizCheckedException e) {

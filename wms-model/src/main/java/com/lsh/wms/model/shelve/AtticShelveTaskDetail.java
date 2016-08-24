@@ -33,7 +33,7 @@ public class AtticShelveTaskDetail implements Serializable {
 	/** 上架人员id */
     private Long operator = 0L;
 	/** 上架时间 */
-    private Long shelveAt = DateUtils.getCurrentSeconds();
+    private Long shelveAt = 0L;
 	/** 状态 1-已创建,2-上架完成 */
     private Long status = 1L;
 	/** 数量*/

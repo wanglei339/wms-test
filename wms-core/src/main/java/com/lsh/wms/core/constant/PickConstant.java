@@ -6,6 +6,7 @@ package com.lsh.wms.core.constant;
 public class PickConstant {
     public static final Long SHELF_TASK_TYPE = 1L;
     public static final Long LOFT_TASK_TYPE = 2L;
+    public static final Long SPLIT_TASK_TYPE = 3L;
 
     public static final Long QC_EXCEPTION_DONE_SKIP = 3L;
     public static final Long QC_EXCEPTION_DONE_DONE = 2L;

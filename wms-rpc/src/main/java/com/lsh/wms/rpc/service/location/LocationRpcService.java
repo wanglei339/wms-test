@@ -6,8 +6,10 @@ import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
+import com.lsh.wms.model.stock.StockQuant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,8 +76,8 @@ public class LocationRpcService implements ILocationRpcService {
     }
 
     // 分配地堆区location
-    public BaseinfoLocation assignFloor() {
-        return locationService.getAvailableLocationByType(LocationConstant.FLOOR);
+    public BaseinfoLocation assignFloor(StockQuant quant) {
+        return locationService.getAvailableFloorLocation(quant.getLotId());
     }
 
 

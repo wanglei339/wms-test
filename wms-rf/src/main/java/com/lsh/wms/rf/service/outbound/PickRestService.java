@@ -13,17 +13,22 @@ import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.pick.IPickRestService;
 import com.lsh.wms.api.service.pick.IPickRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.api.service.staff.IStaffRpcService;
+import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.pick.PickTaskService;
+import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
+import com.lsh.wms.model.baseinfo.BaseinfoStaffInfo;
 import com.lsh.wms.model.pick.PickTaskHead;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
@@ -34,10 +39,7 @@ import org.w3c.dom.ls.LSException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by fengkun on 16/8/4.
@@ -64,6 +66,8 @@ public class PickRestService implements IPickRestService {
     @Autowired
     private StockQuantService stockQuantService;
     @Reference
+    private ISysUserRpcService iSysUserRpcService;
+    @Reference
     private IPickRpcService iPickRpcService;
 
     /**
@@ -81,6 +85,18 @@ public class PickRestService implements IPickRestService {
         List<Map> taskList = JSON.parseArray(mapQuery.get("taskList").toString(), Map.class);
         List<WaveDetail> pickDetails = new ArrayList<WaveDetail>();
         List<Map<String, Long>> assignParams = new ArrayList<Map<String, Long>>();
+
+        // 判断用户是否存在
+        SysUser sysUser = iSysUserRpcService.getSysUserById(staffId);
+        if (sysUser == null) {
+            throw new BizCheckedException("2000003");
+        }
+
+        // 判断该用户是否已领取过拣货任务
+        List<TaskInfo> assignedTaskInfos = baseTaskService.getAssignedTaskByOperator(staffId, TaskConstant.TYPE_PICK);
+        if (assignedTaskInfos.size() > 0) {
+            throw new BizCheckedException("2060011");
+        }
 
         for (Map<String, Object> task: taskList) {
             Long taskId = Long.valueOf(task.get("taskId").toString());
@@ -115,7 +131,13 @@ public class PickRestService implements IPickRestService {
         iTaskRpcService.assignMul(assignParams);
 
         // 拣货顺序算法
-        iPickRpcService.calcPickOrder(pickDetails);
+        pickDetails = iPickRpcService.calcPickOrder(pickDetails);
+        // 返回值按pick_order排序
+        Collections.sort(pickDetails, new Comparator<WaveDetail>() {
+            public int compare(WaveDetail o1, WaveDetail o2) {
+                return o1.getPickOrder().compareTo(o2.getPickOrder());
+            }
+        });
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("pick_details", pickDetails);
         return JsonUtils.SUCCESS(result);
@@ -135,6 +157,12 @@ public class PickRestService implements IPickRestService {
         Long staffId = Long.valueOf(mapQuery.get("operator").toString());
         Long locationId = Long.valueOf(mapQuery.get("locationId").toString());
         Map<String, Object> result = new HashMap<String, Object>();
+
+        // 判断用户是否存在
+        SysUser sysUser = iSysUserRpcService.getSysUserById(staffId);
+        if (sysUser == null) {
+            throw new BizCheckedException("2000003");
+        }
 
         // 获取分配给操作人员的所有拣货任务
         Map<String, Object> taskInfoParams = new HashMap<String, Object>();
@@ -179,6 +207,8 @@ public class PickRestService implements IPickRestService {
                 throw new BizCheckedException("2060009");
             }
             // 完成拣货任务
+            needPickDetail.setRealCollectLocation(locationId);
+            waveService.updateDetail(needPickDetail);
             iTaskRpcService.done(taskId, locationId, staffId);
             // 获取下一个拣货位id
             if (taskInfos.size() > 1) {

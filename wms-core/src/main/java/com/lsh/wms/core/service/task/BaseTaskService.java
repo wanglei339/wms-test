@@ -105,8 +105,8 @@ public class BaseTaskService {
 
     @Transactional(readOnly = false)
     public void update(TaskEntry taskEntry, TaskHandler taskHandler) throws BizCheckedException {
-        TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskEntry.getTaskInfo().getTaskId());;
-        taskInfoDao.update(taskInfo);
+        //TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskEntry.getTaskInfo().getTaskId());
+        taskInfoDao.update(taskEntry.getTaskInfo());
         taskHandler.updteConcrete(taskEntry);
     }
     @Transactional(readOnly = false)
@@ -285,6 +285,21 @@ public class BaseTaskService {
         TaskInfo info = taskInfoDao.getTaskInfoById(taskId);
         info.setPriority(newPriority);
         taskInfoDao.update(info);
+    }
+    
+    /**
+     * 通过用户id和任务类型获取已分配的任务
+     * @param operator
+     * @param type
+     * @return
+     */
+    public List<TaskInfo> getAssignedTaskByOperator (Long operator, Long type) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("operator", operator);
+        params.put("type", type);
+        params.put("status", TaskConstant.Assigned);
+        List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
+        return taskInfos;
     }
 
 }

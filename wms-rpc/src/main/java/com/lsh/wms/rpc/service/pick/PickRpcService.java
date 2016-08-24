@@ -11,6 +11,7 @@ import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.spel.ast.Literal;
 
 import java.util.*;
 
@@ -29,9 +30,10 @@ public class PickRpcService implements IPickRpcService {
 
     /**
      * 拣货顺序排序z型排序
+     *
      * @param pickDetails
      */
-    public void calcPickOrder(List<WaveDetail> pickDetails) throws BizCheckedException{
+    public List<WaveDetail> calcPickOrder(List<WaveDetail> pickDetails) throws BizCheckedException {
         if (!(pickDetails.size() > 0)) {
             throw new BizCheckedException("2040010");
         }
@@ -54,59 +56,76 @@ public class PickRpcService implements IPickRpcService {
             }
         });
         //货位按通道分组(原则,有几个通道建几个通道)
-        Map<Long, List<BaseinfoLocation>> passageNoMap = new LinkedHashMap<Long, List<BaseinfoLocation>>(); //map中放同通道的locationList,使用LinkedHashMap,为了记住map的存放顺序
-        List<BaseinfoLocation> list = new ArrayList<BaseinfoLocation>();
+        //list放入map中的map中
+//        Map<Long, List<BaseinfoLocation>> passageNoMap = new LinkedHashMap<Long, List<BaseinfoLocation>>(); //map中放同通道的locationList,使用LinkedHashMap,为了记住map的存放顺序
+        Map<Long, List<Map<String, Object>>> passageNoMap = new LinkedHashMap<Long, List<Map<String, Object>>>(); //map中放同通道的locationList,使用LinkedHashMap,为了记住map的存放顺序
         for (int i = 0; i < pickList.size(); i++) { //此处不用迭代器是为了按照顺序取list(已按照passage拍过一次)
             //根据通道号不同,新建通道的map
             Map<String, Object> temp = pickList.get(i);
             BaseinfoLocation location = (BaseinfoLocation) temp.get("location");
+            WaveDetail waveDetail = (WaveDetail) temp.get("waveDetail");
             Long passageNo = (Long) temp.get("passageNo");
             if (passageNoMap.get(passageNo) == null) { //如果没有创建,有的话拿出来存进去
-                List<BaseinfoLocation> locations = new ArrayList<BaseinfoLocation>();
-                locations.add(location);
+                List<Map<String, Object>> locations = new ArrayList<Map<String, Object>>();
+                Map<String, Object> locationWaveMap = new HashMap<String, Object>();
+                locationWaveMap.put("location", location);
+                locationWaveMap.put("waveDetail", waveDetail);
+                locationWaveMap.put("passageNo", passageNo);
+                locations.add(locationWaveMap);
                 passageNoMap.put(passageNo, locations);
             } else {
-                List<BaseinfoLocation> locationList = passageNoMap.get(passageNo);
-                locationList.add(location);
+                List<Map<String, Object>> locationList = passageNoMap.get(passageNo);
+                locationList.add(temp);
                 passageNoMap.put(passageNo, locationList);
             }
         }
         //同通道货位排序
-        List<BaseinfoLocation> sortList = new ArrayList<BaseinfoLocation>();
+        List<Map<String, Object>> sortList = new ArrayList<Map<String, Object>>();
         int count = 0;
         //遍历不同通道 位置数组的map,为了不同通道货位的正序和逆序的蛇形排列
         for (Long key : passageNoMap.keySet()) {
-            List<BaseinfoLocation> tempList = passageNoMap.get(key);
+            List<Map<String, Object>> tempList = passageNoMap.get(key);
             //奇数升序
             if (count % 2 == 0) {
-                Collections.sort(tempList, new Comparator<BaseinfoLocation>() {
-                    public int compare(BaseinfoLocation o1, BaseinfoLocation o2) {
-                        return o1.getBinPositionNo() > o2.getBinPositionNo() ? 1 : ((o1.getBinPositionNo() == o2.getBinPositionNo()) ? 0 : -1);
+                Collections.sort(tempList, new Comparator<Map<String, Object>>() {
+
+                    public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+                        return ((BaseinfoLocation) o1.get("location")).getBinPositionNo() > ((BaseinfoLocation) o2.get("location")).getBinPositionNo() ? 1 : (((BaseinfoLocation) o1.get("location")).getBinPositionNo() == ((BaseinfoLocation) o2.get("location")).getBinPositionNo() ? 0 : -1);
                     }
                 });
             } else {// 降序
-                Collections.sort(tempList, new Comparator<BaseinfoLocation>() {
-                    public int compare(BaseinfoLocation o1, BaseinfoLocation o2) {
-                        return o1.getBinPositionNo() < o2.getBinPositionNo() ? 1 : ((o1.getBinPositionNo() == o2.getBinPositionNo()) ? 0 : -1);
+                Collections.sort(tempList, new Comparator<Map<String, Object>>() {
+                    public int compare(Map<String, Object> o1, Map<String, Object> o2) {
+                        return ((BaseinfoLocation) o1.get("location")).getBinPositionNo() < ((BaseinfoLocation) o2.get("location")).getBinPositionNo() ? 1 : (((BaseinfoLocation) o1.get("location")).getBinPositionNo() == ((BaseinfoLocation) o2.get("location")).getBinPositionNo() ? 0 : -1);
                     }
                 });
             }
             sortList.addAll(tempList);
             count++;
         }
+        List<WaveDetail> waveDetailList = new ArrayList<WaveDetail>();
         //更新wave
+//        for (int index = 0; index < sortList.size(); index++) {
+//            for (WaveDetail tempWave : pickDetails) {
+//                if (sortList.get(index).getLocationId().equals(tempWave.getAllocPickLocation())) {
+//                    tempWave.setPickOrder(Long.parseLong(Integer.toString(index + 1)));
+//                    try {
+//                        waveService.updateDetail(tempWave);
+//                        waveDetailList.add(tempWave);
+//                    } catch (Exception e) {
+//                        logger.error(e.getCause().getMessage());
+//                        throw new BizCheckedException("2040011");
+//                    }
+//                }
+//            }
+//        }
         for (int index = 0; index < sortList.size(); index++) {
-            for (WaveDetail tempWave : pickDetails) {
-                if (sortList.get(index).getLocationId().equals(tempWave.getAllocPickLocation())) {
-                    tempWave.setPickOrder(Long.parseLong(Integer.toString(index + 1)));
-                    try {
-                        waveService.updateDetail(tempWave);
-                    }catch (Exception e){
-                        logger.error(e.getCause().getMessage());
-                        throw new BizCheckedException("2040011");
-                    }
-                }
-            }
+            Map<String, Object> tempWaveAndLocationMap = sortList.get(index);
+            WaveDetail waveDetail = (WaveDetail) tempWaveAndLocationMap.get("waveDetail");
+            waveDetail.setPickOrder(Long.parseLong(Integer.toString(index + 1)));
+            waveService.updateDetail(waveDetail);
+            waveDetailList.add(waveDetail);
         }
+        return waveDetailList;
     }
 }

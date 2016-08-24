@@ -1,6 +1,7 @@
 package com.lsh.wms.model.so;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class OutbDeliveryDetail implements Serializable {
@@ -20,16 +21,16 @@ public class OutbDeliveryDetail implements Serializable {
 	/** 国条码 */
     private String barCode;
 	/** 订货数 */
-    private Long orderQty;
+    private BigDecimal orderQty;
 	/** 包装单位 */
-    private Long packUnit;
+    private BigDecimal packUnit;
 	/** 批次号 */
     private String lotNum;
 	/** 批号ID */
 	private Long lotId;
 
 	/** 出货数 */
-    private Long deliveryNum;
+    private BigDecimal deliveryNum;
 	/**  */
     private String insertby;
 	/**  */
@@ -38,125 +39,61 @@ public class OutbDeliveryDetail implements Serializable {
     private Date inserttime;
 	/**  */
     private Date updatetime;
-	
-	public Long getId(){
-		return this.id;
+
+	public String getBarCode() {
+		return barCode;
 	}
-	
-	public void setId(Long id){
-		this.id = id;
-	}
-	
-	public Long getDeliveryId(){
-		return this.deliveryId;
-	}
-	
-	public void setDeliveryId(Long deliveryId){
-		this.deliveryId = deliveryId;
-	}
-	
-	public Long getOrderId(){
-		return this.orderId;
-	}
-	
-	public void setOrderId(Long orderId){
-		this.orderId = orderId;
-	}
-	
-	public Long getItemId(){
-		return this.itemId;
-	}
-	
-	public void setItemId(Long itemId){
-		this.itemId = itemId;
-	}
-	
-	public Long getSkuId(){
-		return this.skuId;
-	}
-	
-	public void setSkuId(Long skuId){
-		this.skuId = skuId;
-	}
-	
-	public String getSkuName(){
-		return this.skuName;
-	}
-	
-	public void setSkuName(String skuName){
-		this.skuName = skuName;
-	}
-	
-	public String getBarCode(){
-		return this.barCode;
-	}
-	
-	public void setBarCode(String barCode){
+
+	public void setBarCode(String barCode) {
 		this.barCode = barCode;
 	}
-	
-	public Long getOrderQty(){
-		return this.orderQty;
+
+	public Long getDeliveryId() {
+		return deliveryId;
 	}
-	
-	public void setOrderQty(Long orderQty){
-		this.orderQty = orderQty;
+
+	public void setDeliveryId(Long deliveryId) {
+		this.deliveryId = deliveryId;
 	}
-	
-	public Long getPackUnit(){
-		return this.packUnit;
+
+	public BigDecimal getDeliveryNum() {
+		return deliveryNum;
 	}
-	
-	public void setPackUnit(Long packUnit){
-		this.packUnit = packUnit;
-	}
-	
-	public String getLotNum(){
-		return this.lotNum;
-	}
-	
-	public void setLotNum(String lotNum){
-		this.lotNum = lotNum;
-	}
-	
-	public Long getDeliveryNum(){
-		return this.deliveryNum;
-	}
-	
-	public void setDeliveryNum(Long deliveryNum){
+
+	public void setDeliveryNum(BigDecimal deliveryNum) {
 		this.deliveryNum = deliveryNum;
 	}
-	
-	public String getInsertby(){
-		return this.insertby;
+
+	public Long getId() {
+		return id;
 	}
-	
-	public void setInsertby(String insertby){
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getInsertby() {
+		return insertby;
+	}
+
+	public void setInsertby(String insertby) {
 		this.insertby = insertby;
 	}
-	
-	public String getUpdateby(){
-		return this.updateby;
+
+	public Date getInserttime() {
+		return inserttime;
 	}
-	
-	public void setUpdateby(String updateby){
-		this.updateby = updateby;
-	}
-	
-	public Date getInserttime(){
-		return this.inserttime;
-	}
-	
-	public void setInserttime(Date inserttime){
+
+	public void setInserttime(Date inserttime) {
 		this.inserttime = inserttime;
 	}
-	
-	public Date getUpdatetime(){
-		return this.updatetime;
+
+	public Long getItemId() {
+		return itemId;
 	}
-	
-	public void setUpdatetime(Date updatetime){
-		this.updatetime = updatetime;
+
+	public void setItemId(Long itemId) {
+		this.itemId = itemId;
 	}
 
 	public Long getLotId() {
@@ -165,5 +102,69 @@ public class OutbDeliveryDetail implements Serializable {
 
 	public void setLotId(Long lotId) {
 		this.lotId = lotId;
+	}
+
+	public String getLotNum() {
+		return lotNum;
+	}
+
+	public void setLotNum(String lotNum) {
+		this.lotNum = lotNum;
+	}
+
+	public Long getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(Long orderId) {
+		this.orderId = orderId;
+	}
+
+	public BigDecimal getOrderQty() {
+		return orderQty;
+	}
+
+	public void setOrderQty(BigDecimal orderQty) {
+		this.orderQty = orderQty;
+	}
+
+	public BigDecimal getPackUnit() {
+		return packUnit;
+	}
+
+	public void setPackUnit(BigDecimal packUnit) {
+		this.packUnit = packUnit;
+	}
+
+	public Long getSkuId() {
+		return skuId;
+	}
+
+	public void setSkuId(Long skuId) {
+		this.skuId = skuId;
+	}
+
+	public String getSkuName() {
+		return skuName;
+	}
+
+	public void setSkuName(String skuName) {
+		this.skuName = skuName;
+	}
+
+	public String getUpdateby() {
+		return updateby;
+	}
+
+	public void setUpdateby(String updateby) {
+		this.updateby = updateby;
+	}
+
+	public Date getUpdatetime() {
+		return updatetime;
+	}
+
+	public void setUpdatetime(Date updatetime) {
+		this.updatetime = updatetime;
 	}
 }

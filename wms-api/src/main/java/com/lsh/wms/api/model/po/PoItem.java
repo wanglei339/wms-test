@@ -29,10 +29,10 @@ public class PoItem {
 
     /** 进货数 */
     @NotNull
-    private Long orderQty;
+    private BigDecimal orderQty;
 
     /** 包装单位 */
-    private Long packUnit;
+    private BigDecimal packUnit;
 
     /** 包装名称 */
     private String packName;
@@ -60,8 +60,8 @@ public class PoItem {
 
     }
 
-    public PoItem(String skuCode, String skuName, String barCode, Long orderQty,
-                  Long packUnit,BigDecimal price, String madein, String lotNum, String packName) {
+    public PoItem(String skuCode, String skuName, String barCode, BigDecimal orderQty,
+                  BigDecimal packUnit,BigDecimal price, String madein, String lotNum, String packName) {
         this.skuCode = skuCode;
         this.skuName = skuName;
         this.barCode = barCode;
@@ -105,19 +105,19 @@ public class PoItem {
         this.barCode = barCode;
     }
 
-    public Long getOrderQty(){
+    public BigDecimal getOrderQty(){
         return this.orderQty;
     }
 
-    public void setOrderQty(Long orderQty){
+    public void setOrderQty(BigDecimal orderQty){
         this.orderQty = orderQty;
     }
 
-    public Long getPackUnit(){
+    public BigDecimal getPackUnit(){
         return this.packUnit;
     }
 
-    public void setPackUnit(Long packUnit){
+    public void setPackUnit(BigDecimal packUnit){
         this.packUnit = packUnit;
     }
 

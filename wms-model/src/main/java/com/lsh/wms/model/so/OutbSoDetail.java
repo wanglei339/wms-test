@@ -1,6 +1,7 @@
 package com.lsh.wms.model.so;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class OutbSoDetail implements Serializable {
@@ -18,9 +19,9 @@ public class OutbSoDetail implements Serializable {
 	/** 国条码 */
     private String barCode;
 	/** 订货数 */
-    private Long orderQty;
+    private BigDecimal orderQty;
 	/** 包装单位 */
-    private Long packUnit;
+    private BigDecimal packUnit;
 	/** 批次号 */
     private String lotNum;
 	/**  */
@@ -80,19 +81,19 @@ public class OutbSoDetail implements Serializable {
 		this.barCode = barCode;
 	}
 	
-	public Long getOrderQty(){
+	public BigDecimal getOrderQty(){
 		return this.orderQty;
 	}
 	
-	public void setOrderQty(Long orderQty){
+	public void setOrderQty(BigDecimal orderQty){
 		this.orderQty = orderQty;
 	}
 	
-	public Long getPackUnit(){
+	public BigDecimal getPackUnit(){
 		return this.packUnit;
 	}
 	
-	public void setPackUnit(Long packUnit){
+	public void setPackUnit(BigDecimal packUnit){
 		this.packUnit = packUnit;
 	}
 	

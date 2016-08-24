@@ -76,7 +76,7 @@ public class ShelveRpcService implements IShelveRpcService {
         Integer floorAvailable = item.getFloorAvailable();
         // 允许地堆
         if (floorAvailable.equals(1)) {
-            BaseinfoLocation floorLocation = locationRpcService.assignFloor();
+            BaseinfoLocation floorLocation = locationRpcService.assignFloor(quant);
             // 地堆无空间,上拣货位
             if (floorLocation == null) {
                 targetLocation = assignPickingLocation(container);

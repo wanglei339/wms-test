@@ -59,7 +59,7 @@
 		where id=#{id}
 	</update>
   
-	<select id="getAtticShelveTaskDetailById" parameterType="int" resultMap="atticShelveTaskDetailResultMap">
+	<select id="getAtticShelveTaskDetailById" parameterType="long" resultMap="atticShelveTaskDetailResultMap">
 		select * from attic_shelve_task_detail
 		where ID=#{id} 
 	</select>

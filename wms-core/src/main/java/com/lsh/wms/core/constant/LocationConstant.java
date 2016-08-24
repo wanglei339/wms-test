@@ -52,9 +52,18 @@ public class LocationConstant {
     //集货道组和集货道
     public static final Long COLLECTION_ROAD_GROUP = 30L;
     public static final Long COLLECTION_ROAD = 31L;
+    //拆零区
+    public static final Long SPLIT_AREA = 32L;
+    //拆零货架
+    public static final Long SPLIT_SHELF = 33L;
+    //拆零货架的层
+    public static final Long SPLIT_SHELF_LEVEL = 34L;
+    //拆零存储一体货位
+    public static final Long SPLIT_SHELF_BIN = 35L;
+
     //区域(主要是返仓)的货主配置
-    public static final Long OWER_WUMARKET=1L;  //物美
-    public static final Long OWER_LSH=2L;  //链商
+    public static final Long OWER_WUMARKET = 1L;  //物美
+    public static final Long OWER_LSH = 2L;  //链商
 
     //温区设置
     public static final Integer ROOM_TEMPERATURE = 1;
@@ -78,7 +87,7 @@ public class LocationConstant {
     public static final Integer REGION_TYPE = 1; //库区
     public static final Integer BIN_TYPE = 2;    //库位
     public static final Integer OTHER_TYPE = 3; //其他项
-    public static final Integer LOFT_SHELF= 4;    //货架和阁楼的架子个体
+    public static final Integer LOFT_SHELF = 4;    //货架和阁楼的架子个体
 
     //位置是否删除
     public static final Integer IS_VALID = 1;
@@ -94,5 +103,13 @@ public class LocationConstant {
     public static final Integer LIST_TYPE_PASSAGE = 3;   //获取通道list方法
     public static final Integer LIST_TYPE_SHELFREGION = 4;   //获取货架区和阁楼区的list方法
     public static final Integer LIST_TYPE_SHELF = 5; //获取货架和阁楼的list方法
+
+    public static final Map<Long,String> LOCATION_TYPE_NAME = new HashMap<Long, String>(){
+        {
+            put(27L,"货架层");
+            put(28L,"阁楼层");
+            put(34L,"拆零货架层");
+        }
+    };
 
 }
