@@ -60,4 +60,11 @@ public class PerformanceRestService implements IPerformanceRestService {
     }
 
 
+    @POST
+    @Path("getTaskInfo")
+    public String getTaskInfo(Map<String, Object> mapQuery){
+        return JsonUtils.SUCCESS(performanceRpcService.getTaskInfo(mapQuery));
+    }
+
+
 }
