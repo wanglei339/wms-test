@@ -1,6 +1,7 @@
 package com.lsh.wms.task.service.task.pick;
 
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.location.LocationService;
@@ -13,11 +14,17 @@ import com.lsh.wms.model.task.StockTakingTask;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.task.service.handler.AbsTaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
+import org.omg.PortableServer.POAPackage.ObjectAlreadyActive;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zengwenjun on 16/7/23.
@@ -77,8 +84,25 @@ public class PickTaskHandler extends AbsTaskHandler {
     }
 
     public void getConcrete(TaskEntry taskEntry) {
-        taskEntry.setTaskHead(pickTaskService.getPickTaskHead(taskEntry.getTaskInfo().getTaskId()));
-        taskEntry.setTaskDetailList((List<Object>)(List<?>)pickTaskService.getPickTaskDetails(taskEntry.getTaskInfo().getTaskId()));
+        List<WaveDetail> pickTaskDetails = pickTaskService.getPickTaskDetails(taskEntry.getTaskInfo().getTaskId());
+        List<Map<String, Object>> details = new ArrayList<Map<String, Object>>();
+
+        BigDecimal totalQty = new BigDecimal(0);
+
+        for (WaveDetail pickTaskDetail: pickTaskDetails) {
+            Map<String, Object> detail = BeanMapTransUtils.Bean2map(pickTaskDetail);
+            if (Long.valueOf(detail.get("pickAt").toString()) > 0) {
+                detail.put("pickStatus", 1);
+            } else {
+                detail.put("pickStatus", 0);
+            }
+            details.add(detail);
+            totalQty = totalQty.add(pickTaskDetail.getAllocQty());
+        }
+        Map<String, Object> head = BeanMapTransUtils.Bean2map(pickTaskService.getPickTaskHead(taskEntry.getTaskInfo().getTaskId()));
+        head.put("totalQty", totalQty);
+        taskEntry.setTaskHead(head);
+        taskEntry.setTaskDetailList((List<Object>)(List<?>)details);
     }
 
     public void getHeadConcrete(TaskEntry taskEntry) {

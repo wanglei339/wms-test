@@ -170,7 +170,11 @@ public class ShelveRestService implements IShelveRestService {
         Long staffId = Long.valueOf(mapQuery.get("operator").toString());
         List<TaskInfo> taskInfos = baseTaskService.getAssignedTaskByOperator(staffId, TaskConstant.TYPE_SHELVE);
         if (taskInfos.isEmpty() || taskInfos == null) {
-            return JsonUtils.SUCCESS(null);
+            return JsonUtils.SUCCESS(new HashMap<String, Object>() {
+                {
+                    put("response", false);
+                }
+            });
         }
         return JsonUtils.SUCCESS(shelveTaskService.getShelveTaskHead(taskInfos.get(0).getTaskId()));
     }
