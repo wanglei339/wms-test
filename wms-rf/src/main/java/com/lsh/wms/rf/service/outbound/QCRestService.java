@@ -73,8 +73,7 @@ public class QCRestService implements IRFQCRestService{
             throw new BizCheckedException("2120007");
         }
         TaskInfo info = tasks.get(0).getTaskInfo();
-        iTaskRpcService.assign(info.getTaskId(), 123123L);
-        //iTaskRpcService.assign(info.getTaskId(), Long.valueOf((String) session.getAttribute("uid")));
+        iTaskRpcService.assign(info.getTaskId(), Long.valueOf(RequestUtils.getHeader("uid")));
         List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
         List<Map<String, Object>> undoDetails = new LinkedList<Map<String, Object>>();
         for (WaveDetail d : details){
@@ -179,13 +178,13 @@ public class QCRestService implements IRFQCRestService{
 
             detail.setQcQty(qty);
             detail.setQcAt(DateUtils.getCurrentSeconds());
-            detail.setQcUid(1L);//Long.valueOf((String) session.getAttribute("uid")));
+            detail.setQcUid(Long.valueOf(RequestUtils.getHeader("uid")));
             detail.setQcException(exceptionType);
             if (exceptionType != 0) {
                 detail.setQcExceptionQty(BigDecimal.ZERO);
                 detail.setQcExceptionDone(0L);
             } else {
-                detail.setQcUid(1L);//Long.valueOf((String) session.getAttribute("uid")));
+                detail.setQcUid(Long.valueOf(RequestUtils.getHeader("uid")));
                 detail.setQcExceptionQty(BigDecimal.ZERO);
                 detail.setQcExceptionDone(1L);
             }
@@ -219,8 +218,7 @@ public class QCRestService implements IRFQCRestService{
             throw new BizCheckedException("");
         }
         TaskInfo info = tasks.get(0).getTaskInfo();
-        iTaskRpcService.assign(info.getTaskId(), 123123L);
-        //iTaskRpcService.assign(info.getTaskId(), Long.valueOf((String) session.getAttribute("uid")));
+        iTaskRpcService.assign(info.getTaskId(), Long.valueOf(RequestUtils.getHeader("uid")));
         return JsonUtils.SUCCESS();
     }
 
