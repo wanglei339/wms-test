@@ -107,6 +107,9 @@ public class WaveCore {
         logger.info("begin to run outbound model");
         //执行捡货模型,输出最小捡货单元
         this._executePickModel();
+        if(true){
+            return 0;
+        }
         //锁定集货区,记得发货的时候释放哟
         for(BaseinfoLocation locaion : mapRoute2CollectRoad.values()) {
             locationService.lockLocation(locaion.getLocationId());
@@ -228,7 +231,7 @@ public class WaveCore {
                 info.setWaveId(waveId);
                 List<Object> pickTaskDetails = new LinkedList<Object>();
                 info.setType(TaskConstant.TYPE_PICK);
-                info.setSubType(PickConstant.SHELF_TASK_TYPE);
+                info.setSubType(zone.getPickType());
                 PickTaskHead head = new PickTaskHead();
                 head.setWaveId(waveId);
                 head.setPickType(1);
@@ -255,10 +258,10 @@ public class WaveCore {
         }
     }
 
-    private void _allocNormal(OutbSoDetail detail, PickZone zone, BaseinfoItem item, BaseinfoLocation location, BigDecimal leftAllocQty) throws BizCheckedException{
+    private BigDecimal _allocNormal(OutbSoDetail detail, PickZone zone, BaseinfoItem item, BaseinfoLocation location, BigDecimal leftAllocQty) throws BizCheckedException{
         long pickLocationId = this._getPickLocation(item, location);
         if (pickLocationId == 0) {
-            return;
+            return leftAllocQty;
         }
         long pick_unit = zone.getPickUnit();
         BigDecimal pick_ea_num = null;
@@ -281,13 +284,13 @@ public class WaveCore {
         //获取分拣分区下的可分配库存数量,怎么获取?
         BigDecimal zone_qty = this._getPickZoneLeftAllocQty(item, location);
         if (zone_qty.compareTo(BigDecimal.ZERO) <= 0) {
-            return;
+            return leftAllocQty;
         }
         int alloc_x = leftAllocQty.divide(pick_ea_num, 0, BigDecimal.ROUND_DOWN).intValue();
         int zone_alloc_x = zone_qty.divide(pick_ea_num, 0, BigDecimal.ROUND_DOWN).intValue();
         alloc_x = alloc_x > zone_alloc_x ? zone_alloc_x : alloc_x;
         if (alloc_x == 0) {
-            return;
+            return leftAllocQty;
         }
         BigDecimal alloc_qty = pick_ea_num.multiply(BigDecimal.valueOf(alloc_x));
         WaveAllocDetail allocDetail = new WaveAllocDetail();
@@ -308,9 +311,10 @@ public class WaveCore {
         allocDetail.setPickAreaLocation(location.getLocationId());
         pickAllocDetailList.add(allocDetail);
         leftAllocQty = leftAllocQty.subtract(alloc_qty);
+        return leftAllocQty;
     }
 
-    private void _allocStockPickSame(OutbSoDetail detail, PickZone zone, BaseinfoItem item, BaseinfoLocation location, BigDecimal leftAllocQty) throws BizCheckedException{
+    private BigDecimal _allocStockPickSame(OutbSoDetail detail, PickZone zone, BaseinfoItem item, BaseinfoLocation location, BigDecimal leftAllocQty) throws BizCheckedException{
         //没补货机制的区域,存捡合一,得精细计算到每个货位
         String key = String.format("%d-%d", item.getItemId(), location.getLocationId());
         Map<Long, BigDecimal> locationInventory = mapItemArea2LocationInventory.get(key);
@@ -343,6 +347,7 @@ public class WaveCore {
             pickAllocDetailList.add(allocDetail);
             leftAllocQty = leftAllocQty.subtract((BigDecimal) info.get("allocQty"));
         }
+        return leftAllocQty;
     }
     private void _alloc() throws BizCheckedException{
         //进行库存精确锁定
@@ -375,12 +380,15 @@ public class WaveCore {
                         if (leftAllocQty.compareTo(BigDecimal.ZERO) <= 0) {
                             break;
                         }
-                        if(location.getType()==0L)
+                        if(location.getType() == LocationConstant.SPLIT_AREA
+                                || location.getType() == LocationConstant.SPLIT_SHELF
+                                || location.getType() == LocationConstant.SPLIT_SHELF_BIN
+                                || location.getType() == LocationConstant.SPLIT_SHELF_LEVEL)
                         {
-                            this._allocStockPickSame(detail, zone, item, location, leftAllocQty);
+                            leftAllocQty = this._allocStockPickSame(detail, zone, item, location, leftAllocQty);
                         } else {
                             //有补货机制的区域,不考虑捡货位货量,只考虑区域货量
-                            this._allocNormal(detail, zone, item, location, leftAllocQty);
+                            leftAllocQty = this._allocNormal(detail, zone, item, location, leftAllocQty);
                         }
                     }
                 }

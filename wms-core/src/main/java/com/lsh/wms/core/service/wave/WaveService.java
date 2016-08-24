@@ -346,11 +346,11 @@ public class WaveService {
             BaseinfoItem item = itemService.getItem(detail.getItemId());
             deliveryDetail.setSkuName(item.getSkuName());
             deliveryDetail.setBarCode(item.getCode());
-            deliveryDetail.setOrderQty(detail.getReqQty().longValue());
-            deliveryDetail.setPackUnit(item.getPackUnit().longValue());
+            deliveryDetail.setOrderQty(detail.getReqQty());
+            deliveryDetail.setPackUnit(item.getPackUnit());
             deliveryDetail.setLotId(0L);
             deliveryDetail.setLotNum("");
-            deliveryDetail.setDeliveryNum(detail.getQcQty().longValue());
+            deliveryDetail.setDeliveryNum(detail.getQcQty());
             deliveryDetails.add(deliveryDetail);
         }
         for(WaveDetail detail : waveDetails){
@@ -370,6 +370,8 @@ public class WaveService {
             }
             soDeliveryService.insert(header, details);
         }
+        //发货
+        detailDao.shipWave(waveHead.getWaveId());
         this.setStatus(waveHead.getWaveId(), WaveConstant.STATUS_SUCC);
     }
 
