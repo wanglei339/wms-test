@@ -33,20 +33,7 @@ public class SoDeliveryService {
     @Autowired
     private OutbDeliveryDetailDao outbDeliveryDetailDao;
 
-    /**
-     * 插入OutbDeliveryHeader及List<OutbDeliveryDetail>
-     * @param outbDeliveryHeader
-     * @param outbDeliveryDetailList
-     */
-    @Transactional(readOnly = false)
-    public void insert(OutbDeliveryHeader outbDeliveryHeader, List<OutbDeliveryDetail> outbDeliveryDetailList){
-        outbDeliveryHeader.setInserttime(new Date());
-        outbDeliveryHeaderDao.insert(outbDeliveryHeader);
-        for (OutbDeliveryDetail outbDeliveryDetail :outbDeliveryDetailList) {
-            outbDeliveryDetail.setDeliveryId(outbDeliveryHeader.getId());
-        }
-        outbDeliveryDetailDao.batchInsert(outbDeliveryDetailList);
-    }
+
 
     /**
      * 插入OutbDeliveryHeader及List<OutbDeliveryDetail>

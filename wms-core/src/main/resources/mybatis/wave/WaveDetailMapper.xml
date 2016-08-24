@@ -120,7 +120,7 @@
 	</update>
 
 	<update id="shipWave" parameterType="long">
-		update wave_detail set is_alive=1 where wave_id=#{waveId}
+		update wave_detail set is_alive=0 where wave_id=#{waveId}
 	</update>
   
 	<select id="getWaveDetailById" parameterType="long" resultMap="waveDetailResultMap">

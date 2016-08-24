@@ -368,7 +368,7 @@ public class WaveService {
             for(OutbDeliveryDetail detail : details){
                 detail.setDeliveryId(header.getDeliveryId());
             }
-            soDeliveryService.insert(header, details);
+            soDeliveryService.insertOrder(header, details);
         }
         //发货
         detailDao.shipWave(waveHead.getWaveId());
