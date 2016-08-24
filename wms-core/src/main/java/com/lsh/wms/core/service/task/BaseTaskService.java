@@ -286,7 +286,7 @@ public class BaseTaskService {
         info.setPriority(newPriority);
         taskInfoDao.update(info);
     }
-    
+
     /**
      * 通过用户id和任务类型获取已分配的任务
      * @param operator
