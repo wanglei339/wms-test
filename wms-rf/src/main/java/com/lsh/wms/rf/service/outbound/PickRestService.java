@@ -232,6 +232,7 @@ public class PickRestService implements IPickRestService {
         }
         Long taskId = needPickDetail.getPickTaskId();
         PickTaskHead taskHead = pickTaskService.getPickTaskHead(taskId);
+        TaskInfo taskInfo = taskInfos.get(0);
         Long containerId = taskHead.getContainerId();
         // 拣货并转移库存至托盘
         if (mapQuery.get("qty") != null) {
@@ -254,19 +255,26 @@ public class PickRestService implements IPickRestService {
             if (allocQty.compareTo(quantQty) == 1 && qty.compareTo(quantQty) == 1) {
                 throw new BizCheckedException("2060007", quantQty.toString());
             }
+            // 存捡合一
+            if (taskInfo.getSubType().equals(3L) && quantQty.compareTo(allocQty) == -1) {
+                BigDecimal splitQty = allocQty.subtract(quantQty);
+                waveService.splitWaveDetail(needPickDetail, splitQty);
+            }
             // 库移
             pickTaskService.pickOne(needPickDetail, locationId, containerId, qty, staffId);
         }
         // 获取下一个wave_detail,如已做完则获取集货位id
-        Long nextPickOrder = needPickDetail.getPickOrder() + 1;
         Boolean pickDone = false; // 货物是否已捡完
+        List<WaveDetail> nextPickDetails = waveService.getOrderedDetailsByPickTaskIds(taskIds); // 因为可能拆分,所以需要重新获取一次
         WaveDetail nextPickDetail = new WaveDetail();
-        for (WaveDetail pickDetail: pickDetails) {
-            if (pickDetail.getPickOrder().equals(nextPickOrder)) {
+        for (WaveDetail pickDetail: nextPickDetails) {
+            Long pickAt = pickDetail.getPickAt();
+            if (pickAt == null || pickAt.equals(0L)) {
                 nextPickDetail = pickDetail;
+                break;
             }
         }
-        if (nextPickDetail.getPickTaskId() == null || nextPickDetail.getPickTaskId().equals(0L)) {
+        if (nextPickDetail.getPickTaskId() == null || nextPickDetail.getPickTaskId().equals("")) {
             pickDone = true;
             result.put("next_detail", pickTaskService.getPickTaskHead(taskIds.get(0))); // 返回第一个任务的头信息用于集货位分配
         } else {
