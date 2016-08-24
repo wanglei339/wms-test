@@ -22,6 +22,8 @@ public class BaseinfoLocationShelf extends BaseinfoLocation implements Serializa
     private Long updatedAt;
 	/** 主表的type */
     private Long type;
+	/** 是否可用1可用，0删除 */
+	private Integer isValid;
 
 	@Override
 	public Long getType() {
@@ -89,5 +91,13 @@ public class BaseinfoLocationShelf extends BaseinfoLocation implements Serializa
 		this.updatedAt = updatedAt;
 	}
 
-	
+	@Override
+	public Integer getIsValid() {
+		return isValid;
+	}
+
+	@Override
+	public void setIsValid(Integer isValid) {
+		this.isValid = isValid;
+	}
 }

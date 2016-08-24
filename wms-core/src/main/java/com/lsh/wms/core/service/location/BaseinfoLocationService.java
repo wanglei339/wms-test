@@ -60,4 +60,8 @@ public class BaseinfoLocationService implements IStrategy {
         List<BaseinfoLocation> baseinfoLocationList = locationService.getBaseinfoLocationList(params);
         return baseinfoLocationList;
     }
+
+    public IBaseinfoLocaltionModel removeLocation(Long locationId) {
+        return null;
+    }
 }

@@ -24,6 +24,8 @@ public class BaseinfoLocationBin extends BaseinfoLocation implements Serializabl
     private Long type;
     /** 温区1常温2冷藏 */
     private Integer zoneType;
+	/** 是否可用1可用，0删除 */
+	private Integer isValid;
 
 
 	public Long getId(){
@@ -96,5 +98,15 @@ public class BaseinfoLocationBin extends BaseinfoLocation implements Serializabl
 
 	public void setZoneType(Integer zoneType) {
 		this.zoneType = zoneType;
+	}
+
+	@Override
+	public Integer getIsValid() {
+		return isValid;
+	}
+
+	@Override
+	public void setIsValid(Integer isValid) {
+		this.isValid = isValid;
 	}
 }

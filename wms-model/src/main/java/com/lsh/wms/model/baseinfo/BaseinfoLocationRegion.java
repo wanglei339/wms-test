@@ -25,6 +25,8 @@ public class BaseinfoLocationRegion extends BaseinfoLocation implements Serializ
     private Long type;
 	/** 仓库的货主1是物美2是链商 */
 	private Long ownerid;
+	/** 是否可用1可用，0删除 */
+	private Integer isValid;
 
 	@Override
 	public Long getType() {
@@ -98,5 +100,15 @@ public class BaseinfoLocationRegion extends BaseinfoLocation implements Serializ
 
 	public void setOwnerid(Long ownerid) {
 		this.ownerid = ownerid;
+	}
+
+	@Override
+	public Integer getIsValid() {
+		return isValid;
+	}
+
+	@Override
+	public void setIsValid(Integer isValid) {
+		this.isValid = isValid;
 	}
 }
