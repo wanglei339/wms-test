@@ -252,8 +252,8 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         }
 
         AtticShelveTaskDetail detail = shelveTaskService.getShelveTaskDetail(taskId,allocLocationId);
-        //TODO 判断扫描库位是不是存储合一库位
-        if(realLocation.getType().compareTo(LocationConstant.LOFT_STORE_BIN)==0 ){
+        //判断扫描库位是不是存储合一库位
+        if(realLocation.getType().compareTo(LocationConstant.SPLIT_SHELF_BIN)==0 ){
             if(locationService.checkLocationUseStatus(realLocationId) && realLocationId.compareTo(allocLocationId)!=0 ){
                 return JsonUtils.TOKEN_ERROR("扫描库位已被占用");
             }
@@ -336,8 +336,8 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
 
 
         while (total.compareTo(BigDecimal.ZERO) > 0) {
-            //TODO 获取存储合一货位
-            BaseinfoLocation location = locationService.getlocationIsEmptyAndUnlockByType(LocationConstant.LOFT_STORE_BIN);
+            //获取存储合一货位
+            BaseinfoLocation location = locationService.getlocationIsEmptyAndUnlockByType(LocationConstant.SPLIT_SHELF_BIN);
             if(location==null) {
                 throw new BizCheckedException("2030015");
             }

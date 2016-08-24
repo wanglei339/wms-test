@@ -124,14 +124,14 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             if (quantList.isEmpty() && list.isEmpty()) {
                 throw new BizCheckedException("2550032");
             }
-            if (toLocationId.compareTo(taskInfo.getToLocationId()) != 0 && !locationService.checkLocationLockStatus(toLocationId)) {
+            if (toLocationId.compareTo(taskInfo.getToLocationId()) != 0 && locationService.checkLocationLockStatus(toLocationId)) {
                 throw new BizCheckedException("2550010");
             }
         } else {
             if (quantList.isEmpty()) {
                 throw new BizCheckedException("2550032");
             }
-            if (!locationService.checkLocationLockStatus(toLocationId)) {
+            if (locationService.checkLocationLockStatus(toLocationId)) {
                 throw new BizCheckedException("2550010");
             }
         }
@@ -171,7 +171,10 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     }
 
     public void addPlan(StockTransferPlan plan) throws BizCheckedException {
+        Long taskId = plan.getTaskId();
+        plan.setTaskId(0L);
         if (checkPlan(plan)) {
+            plan.setTaskId(taskId);
             Long containerId = plan.getContainerId();
             if (plan.getSubType().compareTo(2L) == 0) {
                 containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
@@ -183,8 +186,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             taskInfo.setType(TaskConstant.TYPE_STOCK_TRANSFER);
             taskInfo.setContainerId(containerId);
             taskEntry.setTaskInfo(taskInfo);
-            Long taskId = taskRpcService.create(TaskConstant.TYPE_STOCK_TRANSFER, taskEntry);
-            logger.info("taskId: " + taskId);
+            taskRpcService.create(TaskConstant.TYPE_STOCK_TRANSFER, taskEntry);
         }
     }
 
