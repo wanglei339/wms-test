@@ -107,9 +107,6 @@ public class WaveCore {
         logger.info("begin to run outbound model");
         //执行捡货模型,输出最小捡货单元
         this._executePickModel();
-        if(true){
-            return 0;
-        }
         //锁定集货区,记得发货的时候释放哟
         for(BaseinfoLocation locaion : mapRoute2CollectRoad.values()) {
             locationService.lockLocation(locaion.getLocationId());
