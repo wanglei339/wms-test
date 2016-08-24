@@ -146,7 +146,7 @@ public class PickRestService implements IPickRestService {
             }
         });
         Map<String, Object> result = new HashMap<String, Object>();
-        result.put("pick_detail", pickDetails.get(0));
+        result.put("next_detail", pickDetails.get(0));
         result.put("done", false);
         result.put("pick_done", false);
         return JsonUtils.SUCCESS(result);
