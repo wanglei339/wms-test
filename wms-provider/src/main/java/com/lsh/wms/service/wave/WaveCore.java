@@ -16,6 +16,7 @@ import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.pick.*;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.core.service.wave.WaveAllocService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.core.service.wave.WaveTemplateService;
@@ -27,6 +28,7 @@ import com.lsh.wms.model.so.OutbSoDetail;
 import com.lsh.wms.model.so.OutbSoHeader;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.model.task.TaskMsg;
 import com.lsh.wms.model.wave.WaveAllocDetail;
 import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.wave.WaveHead;
@@ -72,6 +74,8 @@ public class WaveCore {
     private StockQuantService stockQuantService;
     @Autowired
     private WaveTemplateService waveTemplateService;
+    @Autowired
+    private MessageService messageService;
     
     private WaveHead waveHead;
     List<OutbSoDetail> orderDetails;
@@ -115,6 +119,19 @@ public class WaveCore {
         taskRpcService.batchCreate(TaskConstant.TYPE_PICK, entryList);
         //标记成功,这里有风险,就是捡货任务已经创建了,但是这里标记失败了,看咋搞????
         waveService.setStatus(waveId, WaveConstant.STATUS_RELEASE_SUCC);
+        //发给调度创建纪录,调度器可能需要做些处理
+        {
+            Set<Long> items = new HashSet<Long>();
+            for (OutbSoDetail detail : orderDetails) {
+                items.add(detail.getItemId());
+            }
+            TaskMsg msg = new TaskMsg();
+            msg.setType(TaskConstant.EVENT_WAVE_RELEASE);
+            Map<String, Object> body = new HashMap<String, Object>();
+            body.put("itemList", items.toArray());
+            msg.setMsgBody(body);
+            messageService.sendMessage(msg);
+        }
         return 0;
     }
 

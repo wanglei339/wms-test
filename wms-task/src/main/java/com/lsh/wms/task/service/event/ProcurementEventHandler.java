@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,17 +51,28 @@ public class ProcurementEventHandler extends AbsEventHandler implements IEventHa
     }
 
     private void adjustPriority(TaskMsg msg) {
-        TaskHandler handler = taskHandlerFactory.getTaskHandler(TaskConstant.TYPE_PROCUREMENT);
+
         Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("itemId", Long.valueOf(msg.getMsgBody().get("itemId").toString()));
+        mapQuery.put("msgType", msg.getType());
         if (msg.getType().equals(TaskConstant.EVENT_OUT_OF_STOCK)) {
             mapQuery.put("locationId", Long.valueOf(msg.getMsgBody().get("locationId").toString()));
+            this.adjustPriority(mapQuery);
         }
-        List<TaskEntry> taskEntryList = taskRpcService.getTaskList(TaskConstant.TYPE_PROCUREMENT, mapQuery);
+        else {
+            for (Long itemId : (ArrayList<Long>) msg.getMsgBody().get("itemList")) {
+                mapQuery.put("itemId", Long.valueOf(msg.getMsgBody().get("itemId").toString()));
+                this.adjustPriority(mapQuery);
+            }
+        }
+    }
+
+    private void adjustPriority(Map<String,Object> condition) {
+        TaskHandler handler = taskHandlerFactory.getTaskHandler(TaskConstant.TYPE_PROCUREMENT);
+        List<TaskEntry> taskEntryList = taskRpcService.getTaskList(TaskConstant.TYPE_PROCUREMENT, condition);
 
         for(TaskEntry entry: taskEntryList){
             Long taskId = entry.getTaskInfo().getTaskId();
-            Long newPriority = msg.getType() - 100000L + 1L;
+            Long newPriority = Long.valueOf(condition.get("msgType").toString()) - 100000L + 1L;
             handler.setPriority(taskId, newPriority);
         }
     }
