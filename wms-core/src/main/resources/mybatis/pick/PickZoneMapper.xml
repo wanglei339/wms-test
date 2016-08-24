@@ -53,6 +53,7 @@
 	<select id="getPickZoneList" parameterType="map" resultMap="pickZoneResultMap">
 		select * from pick_zone
 		<include refid="queryCondition"/>
+		ORDER BY id DESC
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
 		</if>
