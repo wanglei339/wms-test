@@ -393,7 +393,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             for (BaseinfoItemLocation itemLocation : locations) {
                 //对比货架商品和新进商品保质期是否到达阀值
                 BaseinfoLocation location = locationService.getLocation(itemLocation.getPickLocationid());
-                if(shelveRpcService.checkShelfLifeThreshold(quant,location,LocationConstant.LOFT_STORE_BIN)) {
+                if(shelveRpcService.checkShelfLifeThreshold(quant,location,LocationConstant.LOFT_STORE_BLOCK)) {
                     if (location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN) == 0) {
                         if (rpcService.needProcurement(itemLocation.getPickLocationid(), itemLocation.getItemId())) {
                             Map<String, Object> checkTask = new HashMap<String, Object>();
