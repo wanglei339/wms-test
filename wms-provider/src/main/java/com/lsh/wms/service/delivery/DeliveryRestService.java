@@ -42,18 +42,6 @@ public class DeliveryRestService implements IDeliveryRestService {
     @Autowired
     private DeliveryRpcService deliveryRpcService;
 
-    @Autowired
-    private SoDeliveryService soDeliveryService;
-
-    @POST
-    @Path("init")
-    public String init(String soDeliveryInfo) {
-        OutbDeliveryHeader outbDeliveryHeader = JSON.parseObject(soDeliveryInfo,OutbDeliveryHeader.class);
-        List<OutbDeliveryDetail> outbDeliveryDetailList = JSON.parseArray((String) outbDeliveryHeader.getDeliveryDetails(),OutbDeliveryDetail.class);
-        soDeliveryService.insert(outbDeliveryHeader,outbDeliveryDetailList);
-        return JsonUtils.SUCCESS();
-    }
-
     @POST
     @Path("insert")
     public BaseResponse insertOrder(DeliveryRequest request) throws BizCheckedException {
@@ -61,16 +49,6 @@ public class DeliveryRestService implements IDeliveryRestService {
         return ResUtils.getResponse(ResponseConstant.RES_CODE_1,ResponseConstant.RES_MSG_OK,null);
 
     }
-
-//    @POST
-//    @Path("updateDeliveryType")
-//    public String updateDeliveryType() throws BizCheckedException {
-//        Map<String, Object> map = RequestUtils.getRequest();
-//
-//        deliveryRpcService.updateDeliveryType(map);
-//
-//        return JsonUtils.SUCCESS();
-//    }
 
     @GET
     @Path("getOutbDeliveryHeaderDetailByDeliveryId")
