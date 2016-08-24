@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,5 +90,8 @@ public class AtticShelveTaskHandler extends AbsTaskHandler {
         taskEntry.setTaskInfo(taskInfo);
 
         super.create(taskEntry);
+    }
+    public void calcPerformance(TaskInfo taskInfo) {
+        taskInfo.setTaskQty(taskInfo.getQty().divide(taskInfo.getPackUnit()));
     }
 }

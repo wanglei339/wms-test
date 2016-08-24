@@ -63,6 +63,7 @@
 	<select id="getWaveHeadList" parameterType="map" resultMap="waveHeadResultMap">
 		select * from wave_head
 		<include refid="queryCondition"/>
+		ORDER BY id DESC
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
 		</if>

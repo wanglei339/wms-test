@@ -92,6 +92,13 @@ public class PickRestService implements IPickRestService {
             throw new BizCheckedException("2000003");
         }
 
+        // 回溯
+        Map<String, Object> restoreResult = pickTaskService.restore(staffId, taskList);
+
+        if (restoreResult != null) {
+            return JsonUtils.SUCCESS(restoreResult);
+        }
+
         // 判断该用户是否已领取过拣货任务
         List<TaskInfo> assignedTaskInfos = baseTaskService.getAssignedTaskByOperator(staffId, TaskConstant.TYPE_PICK);
         if (assignedTaskInfos.size() > 0) {
@@ -139,7 +146,9 @@ public class PickRestService implements IPickRestService {
             }
         });
         Map<String, Object> result = new HashMap<String, Object>();
-        result.put("pick_details", pickDetails);
+        result.put("pick_detail", pickDetails.get(0));
+        result.put("done", false);
+        result.put("pick_done", false);
         return JsonUtils.SUCCESS(result);
     }
 
@@ -213,9 +222,12 @@ public class PickRestService implements IPickRestService {
             // 获取下一个拣货位id
             if (taskInfos.size() > 1) {
                 PickTaskHead nextTaskHead = pickTaskService.getPickTaskHead(taskInfos.get(1).getTaskId());
-                result.put("next_collection", nextTaskHead);
+                result.put("next_detail", nextTaskHead);
+                result.put("done", false);
+            } else {
+                result.put("done", true);
             }
-            result.put("done", true);
+            result.put("pick_done", true);
             return JsonUtils.SUCCESS(result);
         }
         Long taskId = needPickDetail.getPickTaskId();
@@ -256,11 +268,36 @@ public class PickRestService implements IPickRestService {
         }
         if (nextPickDetail.getPickTaskId() == null || nextPickDetail.getPickTaskId().equals(0L)) {
             pickDone = true;
-            result.put("next_collection", pickTaskService.getPickTaskHead(taskIds.get(0))); // 返回第一个任务的头信息用于集货位分配
+            result.put("next_detail", pickTaskService.getPickTaskHead(taskIds.get(0))); // 返回第一个任务的头信息用于集货位分配
         } else {
             result.put("next_detail", nextPickDetail);
         }
-        result.put("done", pickDone);
+        result.put("pick_done", pickDone);
+        result.put("done", false);
+        return JsonUtils.SUCCESS(result);
+    }
+
+    /**
+     * 回溯拣货状态
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("restore")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String restore() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long staffId = Long.valueOf(mapQuery.get("operator").toString());
+        // 判断用户是否存在
+        SysUser sysUser = iSysUserRpcService.getSysUserById(staffId);
+        if (sysUser == null) {
+            throw new BizCheckedException("2000003");
+        }
+        Map<String, Object> result = pickTaskService.restore(staffId, null);
+        if (result == null) {
+            result.put("response", false);
+        }
         return JsonUtils.SUCCESS(result);
     }
 }

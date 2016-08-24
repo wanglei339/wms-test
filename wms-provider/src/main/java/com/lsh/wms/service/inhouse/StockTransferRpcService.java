@@ -165,6 +165,9 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (fromLocation == null || toLocation == null) {
             throw new BizCheckedException("2060012");
         }
+        if (fromLocation.getLocationId().equals(toLocation.getLocationId())) {
+            throw new BizCheckedException("2060013");
+        }
         if (fromLocation.getCanStore() != 1) {
             fromLocation = core.getNearestLocation(fromLocation);
             plan.setFromLocationId(fromLocation.getLocationId());
@@ -207,6 +210,9 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         BaseinfoLocation toLocation = locationService.getLocation(plan.getToLocationId());
         if (fromLocation == null || toLocation == null) {
             throw new BizCheckedException("2060012");
+        }
+        if (fromLocation.getLocationId().equals(toLocation.getLocationId())) {
+            throw new BizCheckedException("2060013");
         }
         if (fromLocation.getCanStore() != 1) {
             fromLocation = core.getNearestLocation(fromLocation);
