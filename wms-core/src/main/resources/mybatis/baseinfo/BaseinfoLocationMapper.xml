@@ -71,7 +71,7 @@
   			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
   			<if test="classification != null">classification=#{classification},</if>
   			<if test="canUse != null">can_use=#{canUse},</if>
-  			<if test="isLocked != null">is_locked=#{isLocked}</if>
+  			<if test="isLocked != null">is_locked=#{isLocked},</if>
 			<if test="curContainerVol != null">cur_container_vol=#{curContainerVol}</if>
 		</set>
 		where location_id=#{locationId}
