@@ -198,6 +198,8 @@ public class StockTransferCore {
             List<StockMove> moveList = new ArrayList<StockMove>();
             moveList.add(move);
             moveRpcService.move(moveList);
+            taskInfo.setQtyDone(qtyDone);
+            taskInfoDao.update(taskInfo);
         }
         taskRpcService.done(taskId);
     }

@@ -123,6 +123,10 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         }
         StockQuant quant = quants.get(0);
 
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("containerId",containerId);
+        BigDecimal total = stockQuantService.getQty(queryMap);
+
         TaskInfo taskInfo = new TaskInfo();
         TaskEntry entry = new TaskEntry();
 
@@ -130,6 +134,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
 
         taskInfo.setType(taskType);
         taskInfo.setSubType(1L);
+        taskInfo.setQty(total);
         taskInfo.setFromLocationId(quant.getLocationId());
 
         entry.setTaskInfo(taskInfo);
@@ -192,7 +197,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             map.put("taskId", taskId);
             map.put("locationId", location.getLocationId());
             map.put("locationCode", location.getLocationCode());
-            map.put("qty", detail.getQty().divide(info.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
+            map.put("qty", detail.getQty());
             map.put("packName", info.getPackName());
             return JsonUtils.SUCCESS(map);
         }else {
