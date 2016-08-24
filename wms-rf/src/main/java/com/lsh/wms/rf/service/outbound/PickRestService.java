@@ -23,6 +23,7 @@ import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoStaffInfo;
@@ -31,6 +32,7 @@ import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.model.task.TaskMsg;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.config.Task;
@@ -55,6 +57,10 @@ public class PickRestService implements IPickRestService {
 
     @Reference
     private ITaskRpcService iTaskRpcService;
+    @Reference
+    private ISysUserRpcService iSysUserRpcService;
+    @Reference
+    private IPickRpcService iPickRpcService;
     @Autowired
     private BaseTaskService baseTaskService;
     @Autowired
@@ -65,11 +71,8 @@ public class PickRestService implements IPickRestService {
     private WaveService waveService;
     @Autowired
     private StockQuantService stockQuantService;
-    @Reference
-    private ISysUserRpcService iSysUserRpcService;
-    @Reference
-    private IPickRpcService iPickRpcService;
-
+    @Autowired
+    private MessageService messageService;
     /**
      * 扫描拣货签(拣货任务id)
      * @return
@@ -262,6 +265,16 @@ public class PickRestService implements IPickRestService {
             }
             // 库移
             pickTaskService.pickOne(needPickDetail, locationId, containerId, qty, staffId);
+            // 发送缺货消息
+            if (allocQty.compareTo(quantQty) == 1) {
+                TaskMsg msg = new TaskMsg();
+                msg.setType(TaskConstant.EVENT_OUT_OF_STOCK);
+                Map<String, Object> body = new HashMap<String, Object>();
+                body.put("itemId", itemId);
+                body.put("locationId", locationId);
+                msg.setMsgBody(body);
+                messageService.sendMessage(msg);
+            }
         }
         // 获取下一个wave_detail,如已做完则获取集货位id
         Boolean pickDone = false; // 货物是否已捡完
