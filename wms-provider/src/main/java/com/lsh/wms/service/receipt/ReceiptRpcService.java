@@ -440,7 +440,6 @@ public class ReceiptRpcService implements IReceiptRpcService {
             }
         }
 
-
         //插入订单
         poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList,stockQuantList,stockLotList);
 
@@ -450,6 +449,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             taskInfo.setType(TaskConstant.TYPE_PO);
             taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
             taskInfo.setContainerId(inbReceiptHeader.getContainerId());
+            taskInfo.setItemId(inbReceiptDetailList.get(0).getItemId());
             taskInfo.setOperator(Long.valueOf(inbReceiptHeader.getReceiptUser()));
             taskEntry.setTaskInfo(taskInfo);
             Long taskId = iTaskRpcService.create(TaskConstant.TYPE_PO, taskEntry);
