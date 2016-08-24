@@ -295,6 +295,10 @@ public class PickRestService implements IPickRestService {
             throw new BizCheckedException("2000003");
         }
         Map<String, Object> result = pickTaskService.restore(staffId, null);
+        if (result == null) {
+            result = new HashMap<String, Object>();
+            result.put("response", false);
+        }
         return JsonUtils.SUCCESS(result);
     }
 }

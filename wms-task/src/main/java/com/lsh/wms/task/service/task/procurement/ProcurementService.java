@@ -1,6 +1,7 @@
 package com.lsh.wms.task.service.task.procurement;
 
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.task.service.handler.AbsTaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,5 +20,9 @@ public class ProcurementService extends AbsTaskHandler {
     @PostConstruct
     public void postConstruct() {
         handlerFactory.register(TaskConstant.TYPE_PROCUREMENT, this);
+    }
+
+    public void calcPerformance(TaskInfo taskInfo) {
+        taskInfo.setTaskQty(taskInfo.getQty().divide(taskInfo.getPackUnit()));
     }
 }

@@ -9,4 +9,5 @@ import com.lsh.base.common.exception.BizCheckedException;
 public interface IUserRestService {
 
     String userLogin() throws BizCheckedException;
+    String getMenuList() throws BizCheckedException;
 }
