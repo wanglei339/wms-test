@@ -70,8 +70,16 @@ public class LocationDetailRequest implements Serializable {
     /** 0-未上锁1-上锁 */
     @NotNull
     private Integer isLocked;
+    @NotNull
+    private Long curContainerVol;
 
+    public void setCurContainerVol(Long curContainerVol) {
+        this.curContainerVol = curContainerVol;
+    }
 
+    public Long getCurContainerVol() {
+        return curContainerVol;
+    }
     //...........................bin独有的...........................
     /**
      * 商品的id
