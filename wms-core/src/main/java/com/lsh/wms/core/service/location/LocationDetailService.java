@@ -246,6 +246,7 @@ public class LocationDetailService {
      * @param iBaseinfoLocaltionModel
      * @param type
      */
+    @Transactional(readOnly = false)
     public void insertShelflevelsByShelf(BaseinfoLocation baseinfoLocation, IBaseinfoLocaltionModel iBaseinfoLocaltionModel, Long type) {
         // 拿到指定的code,加入-i
         BaseinfoLocationShelf loft = new BaseinfoLocationShelf();
@@ -266,7 +267,6 @@ public class LocationDetailService {
             locationService.insertLocation(levelLocation);
         }
     }
-
     /**
      * location的主表和细节表一起更新
      *
