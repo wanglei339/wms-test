@@ -36,9 +36,18 @@ public class ProcurementEventHandler extends AbsEventHandler implements IEventHa
         eventHandlerFactory.register(TaskConstant.EVENT_OUT_OF_STOCK, this);
         eventHandlerFactory.register(TaskConstant.EVENT_SO_ACCEPT, this);
         eventHandlerFactory.register(TaskConstant.EVENT_WAVE_RELEASE, this);
+        eventHandlerFactory.register(TaskConstant.EVENT_PROCUREMENT_CANCEL, this);
     }
 
     public void process(TaskMsg msg) {
+        if (TaskConstant.EVENT_PROCUREMENT_CANCEL == msg.getType()) {
+            this.cancel(msg);
+        } else {
+            this.adjustPriority(msg);
+        }
+    }
+
+    private void adjustPriority(TaskMsg msg) {
         TaskHandler handler = taskHandlerFactory.getTaskHandler(TaskConstant.TYPE_PROCUREMENT);
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("itemId", msg.getMsgBody().get("itemId"));
@@ -49,6 +58,11 @@ public class ProcurementEventHandler extends AbsEventHandler implements IEventHa
             Long newPriority = msg.getType() - 9999L;
             handler.setPriority(taskId, newPriority);
         }
+    }
+
+    private void cancel(TaskMsg msg) {
+        Long procurementTaskId = Long.valueOf(msg.getMsgBody().get("taskId").toString());
+        taskHandlerFactory.getTaskHandler(TaskConstant.TYPE_PROCUREMENT).cancel(procurementTaskId);
     }
 
 }
