@@ -5,6 +5,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * Created by panxudong on 16/7/15.
@@ -33,7 +34,7 @@ public class DeliveryItem implements Serializable {
     private String barCode;
 
     /** 包装单位 */
-    private Long packUnit;
+    private BigDecimal packUnit;
 
     /** 批次号 */
     @Size(max=64)
@@ -41,14 +42,14 @@ public class DeliveryItem implements Serializable {
 
     /** 出货数 */
     @NotNull
-    private Long deliveryNum;
+    private BigDecimal deliveryNum;
 
     public DeliveryItem() {
 
     }
 
     public DeliveryItem(Long orderId, Long itemId, Long skuId, String skuName, String barCode,
-                        Long packUnit, String lotNum, Long deliveryNum) {
+                        BigDecimal packUnit, String lotNum, BigDecimal deliveryNum) {
         this.orderId = orderId;
         this.itemId = itemId;
         this.skuId = skuId;
@@ -99,11 +100,11 @@ public class DeliveryItem implements Serializable {
         this.barCode = barCode;
     }
 
-    public Long getPackUnit() {
+    public BigDecimal getPackUnit() {
         return packUnit;
     }
 
-    public void setPackUnit(Long packUnit) {
+    public void setPackUnit(BigDecimal packUnit) {
         this.packUnit = packUnit;
     }
 
@@ -115,11 +116,11 @@ public class DeliveryItem implements Serializable {
         this.lotNum = lotNum;
     }
 
-    public Long getDeliveryNum() {
+    public BigDecimal getDeliveryNum() {
         return deliveryNum;
     }
 
-    public void setDeliveryNum(Long deliveryNum) {
+    public void setDeliveryNum(BigDecimal deliveryNum) {
         this.deliveryNum = deliveryNum;
     }
 }

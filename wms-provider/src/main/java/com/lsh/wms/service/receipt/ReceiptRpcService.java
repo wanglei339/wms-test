@@ -215,7 +215,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
                 StockQuant quant = new StockQuant();
                 quant.setLotId(lotId);
-                quant.setPackUnit(BigDecimal.valueOf(inbPoDetail.getPackUnit()));
+                quant.setPackUnit(inbPoDetail.getPackUnit());
                 quant.setSkuId(inbReceiptDetail.getSkuId());
                 quant.setItemId(inbReceiptDetail.getItemId());
                 quant.setLocationId(inbReceiptHeader.getLocation());
@@ -227,9 +227,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
                 quant.setExpireDate(stockLot.getExpireDate());
                 quant.setCost(inbPoDetail.getPrice());
-                BigDecimal inboundQty = BigDecimal.valueOf(inbReceiptDetail.getInboundQty());
+                BigDecimal inboundQty = inbReceiptDetail.getInboundQty();
                 // TODO: 16/8/22  qty只能传转换成基本单位的数量
-                BigDecimal qty = inboundQty.multiply(BigDecimal.valueOf(inbReceiptDetail.getPackUnit()));
+                BigDecimal qty = inboundQty.multiply(inbReceiptDetail.getPackUnit());
                 quant.setQty(qty);
                 //quant.setQty(inboundQty);
                 BigDecimal value = inbPoDetail.getPrice().multiply(inboundQty);
@@ -270,7 +270,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     throw new BizCheckedException("2020009");
                 }
 
-                if(receiptItem.getInboundQty() <= 0) {
+                if(receiptItem.getInboundQty().compareTo(new BigDecimal(0)) <= 0) {
                     throw new BizCheckedException("2020007");
                 }
 
@@ -315,9 +315,10 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 inbReceiptDetail.setOrderQty(inbPoDetail.getOrderQty());
 
                 // 判断是否超过订单总数
-                Long poInboundQty = null != inbPoDetail.getInboundQty() ? inbPoDetail.getInboundQty() : 0L;
+                //Long poInboundQty = null != inbPoDetail.getInboundQty() ? inbPoDetail.getInboundQty() : 0L;
+                BigDecimal poInboundQty = null != inbPoDetail.getInboundQty() ? inbPoDetail.getInboundQty() : new BigDecimal(0);
 
-                if (poInboundQty + inbReceiptDetail.getInboundQty() > inbPoDetail.getOrderQty()) {
+                if (poInboundQty.add(inbReceiptDetail.getInboundQty()).compareTo(inbPoDetail.getOrderQty()) > 0) {
                     throw new BizCheckedException("2020005");
                 }
 
@@ -386,7 +387,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
                 StockQuant quant = new StockQuant();
                 quant.setLotId(lotId);
-                quant.setPackUnit(BigDecimal.valueOf(inbPoDetail.getPackUnit()));
+                quant.setPackUnit(inbPoDetail.getPackUnit());
                 quant.setSkuId(inbReceiptDetail.getSkuId());
                 quant.setItemId(inbReceiptDetail.getItemId());
                 quant.setLocationId(inbReceiptHeader.getLocation());
@@ -398,10 +399,10 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 Long expireDate = inbReceiptDetail.getProTime().getTime() + baseinfoItem.getShelfLife().longValue(); // 生产日期+保质期=保质期失效时间
                 quant.setExpireDate(expireDate / 1000);
                 quant.setCost(inbPoDetail.getPrice());
-                BigDecimal inboundQty = BigDecimal.valueOf(inbReceiptDetail.getInboundQty());
+                BigDecimal inboundQty = inbReceiptDetail.getInboundQty();
 
                 // TODO: 16/8/22  qty只能传转换成基本单位的数量
-                BigDecimal qty = inboundQty.multiply(BigDecimal.valueOf(inbReceiptDetail.getPackUnit()));
+                BigDecimal qty = inboundQty.multiply(inbReceiptDetail.getPackUnit());
                 quant.setQty(qty);
                 //quant.setQty(inboundQty);
                 BigDecimal value = inbPoDetail.getPrice().multiply(inboundQty);
@@ -422,7 +423,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                  */
                 StockLot stockLot = new StockLot();
                 stockLot.setLotId(lotId);
-                stockLot.setPackUnit(BigDecimal.valueOf(inbPoDetail.getPackUnit()));
+                stockLot.setPackUnit(inbPoDetail.getPackUnit());
                 stockLot.setSkuId(inbReceiptDetail.getSkuId());
                 stockLot.setSerialNo(inbReceiptDetail.getLotNum());
                 stockLot.setItemId(inbReceiptDetail.getItemId());

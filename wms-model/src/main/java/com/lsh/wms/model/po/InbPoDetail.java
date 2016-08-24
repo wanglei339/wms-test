@@ -19,9 +19,9 @@ public class InbPoDetail implements Serializable {
 	/** 国条码 */
     private String barCode;
 	/** 进货数 */
-    private Long orderQty;
+    private BigDecimal orderQty;
 	/** 包装单位 */
-    private Long packUnit;
+    private BigDecimal packUnit;
 	/** 包装名称 */
 	private String packName;
 
@@ -30,7 +30,7 @@ public class InbPoDetail implements Serializable {
 	/** 产地 */
     private String madein;
 	/** 实际收货数 */
-    private Long inboundQty = 0L;
+    private BigDecimal inboundQty = new BigDecimal(0);
 	/**  */
     private String insertby;
 	/**  */
@@ -109,19 +109,19 @@ public class InbPoDetail implements Serializable {
 		this.barCode = barCode;
 	}
 	
-	public Long getOrderQty(){
+	public BigDecimal getOrderQty(){
 		return this.orderQty;
 	}
 	
-	public void setOrderQty(Long orderQty){
+	public void setOrderQty(BigDecimal orderQty){
 		this.orderQty = orderQty;
 	}
 	
-	public Long getPackUnit(){
+	public BigDecimal getPackUnit(){
 		return this.packUnit;
 	}
 	
-	public void setPackUnit(Long packUnit){
+	public void setPackUnit(BigDecimal packUnit){
 		this.packUnit = packUnit;
 	}
 	
@@ -133,11 +133,11 @@ public class InbPoDetail implements Serializable {
 		this.madein = madein;
 	}
 	
-	public Long getInboundQty(){
+	public BigDecimal getInboundQty(){
 		return this.inboundQty;
 	}
 	
-	public void setInboundQty(Long inboundQty){
+	public void setInboundQty(BigDecimal inboundQty){
 		this.inboundQty = inboundQty;
 	}
 	

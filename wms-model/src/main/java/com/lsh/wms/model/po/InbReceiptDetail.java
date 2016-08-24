@@ -1,6 +1,7 @@
 package com.lsh.wms.model.po;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class InbReceiptDetail implements Serializable {
@@ -24,17 +25,17 @@ public class InbReceiptDetail implements Serializable {
 	/** 国条码 */
     private String barCode;
 	/** 进货数 */
-    private Long orderQty;
+    private BigDecimal orderQty;
 	/** 包装单位 */
-    private Long packUnit;
+    private BigDecimal packUnit;
 	/** 产地 */
     private String madein;
 	/** 实际收货数 */
-    private Long inboundQty;
+    private BigDecimal inboundQty;
 	/** 到货数 */
-    private Long arriveNum;
+    private BigDecimal arriveNum;
 	/** 残次数 */
-    private Long defectNum;
+    private BigDecimal defectNum;
 	/** 生产日期 */
     private Date proTime;
 	/** 拒收原因 */
@@ -48,6 +49,95 @@ public class InbReceiptDetail implements Serializable {
 	/**  */
     private Date updatetime;
 
+
+	public BigDecimal getArriveNum() {
+		return arriveNum;
+	}
+
+	public void setArriveNum(BigDecimal arriveNum) {
+		this.arriveNum = arriveNum;
+	}
+
+	public String getBarCode() {
+		return barCode;
+	}
+
+	public void setBarCode(String barCode) {
+		this.barCode = barCode;
+	}
+
+	public BigDecimal getDefectNum() {
+		return defectNum;
+	}
+
+	public void setDefectNum(BigDecimal defectNum) {
+		this.defectNum = defectNum;
+	}
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public BigDecimal getInboundQty() {
+		return inboundQty;
+	}
+
+	public void setInboundQty(BigDecimal inboundQty) {
+		this.inboundQty = inboundQty;
+	}
+
+	public String getInsertby() {
+		return insertby;
+	}
+
+	public void setInsertby(String insertby) {
+		this.insertby = insertby;
+	}
+
+	public Date getInserttime() {
+		return inserttime;
+	}
+
+	public void setInserttime(Date inserttime) {
+		this.inserttime = inserttime;
+	}
+
+	public Long getItemId() {
+		return itemId;
+	}
+
+	public void setItemId(Long itemId) {
+		this.itemId = itemId;
+	}
+
+	public String getLotNum() {
+		return lotNum;
+	}
+
+	public void setLotNum(String lotNum) {
+		this.lotNum = lotNum;
+	}
+
+	public String getMadein() {
+		return madein;
+	}
+
+	public void setMadein(String madein) {
+		this.madein = madein;
+	}
+
+	public Long getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(Long orderId) {
+		this.orderId = orderId;
+	}
+
 	public String getOrderOtherId() {
 		return orderOtherId;
 	}
@@ -56,165 +146,75 @@ public class InbReceiptDetail implements Serializable {
 		this.orderOtherId = orderOtherId;
 	}
 
-	public Long getId(){
-		return this.id;
+	public BigDecimal getOrderQty() {
+		return orderQty;
 	}
-	
-	public void setId(Long id){
-		this.id = id;
-	}
-	
-	public Long getReceiptOrderId(){
-		return this.receiptOrderId;
-	}
-	
-	public void setReceiptOrderId(Long receiptOrderId){
-		this.receiptOrderId = receiptOrderId;
-	}
-	
-	public Long getOrderId(){
-		return this.orderId;
-	}
-	
-	public void setOrderId(Long orderId){
-		this.orderId = orderId;
-	}
-	
-	public String getLotNum(){
-		return this.lotNum;
-	}
-	
-	public void setLotNum(String lotNum){
-		this.lotNum = lotNum;
-	}
-	
-	public Long getSkuId(){
-		return this.skuId;
-	}
-	
-	public void setSkuId(Long skuId){
-		this.skuId = skuId;
-	}
-	
-	public Long getItemId(){
-		return this.itemId;
-	}
-	
-	public void setItemId(Long itemId){
-		this.itemId = itemId;
-	}
-	
-	public String getSkuName(){
-		return this.skuName;
-	}
-	
-	public void setSkuName(String skuName){
-		this.skuName = skuName;
-	}
-	
-	public String getBarCode(){
-		return this.barCode;
-	}
-	
-	public void setBarCode(String barCode){
-		this.barCode = barCode;
-	}
-	
-	public Long getOrderQty(){
-		return this.orderQty;
-	}
-	
-	public void setOrderQty(Long orderQty){
+
+	public void setOrderQty(BigDecimal orderQty) {
 		this.orderQty = orderQty;
 	}
-	
-	public Long getPackUnit(){
-		return this.packUnit;
+
+	public BigDecimal getPackUnit() {
+		return packUnit;
 	}
-	
-	public void setPackUnit(Long packUnit){
+
+	public void setPackUnit(BigDecimal packUnit) {
 		this.packUnit = packUnit;
 	}
-	
-	public String getMadein(){
-		return this.madein;
+
+	public Date getProTime() {
+		return proTime;
 	}
-	
-	public void setMadein(String madein){
-		this.madein = madein;
-	}
-	
-	public Long getInboundQty(){
-		return this.inboundQty;
-	}
-	
-	public void setInboundQty(Long inboundQty){
-		this.inboundQty = inboundQty;
-	}
-	
-	public Long getArriveNum(){
-		return this.arriveNum;
-	}
-	
-	public void setArriveNum(Long arriveNum){
-		this.arriveNum = arriveNum;
-	}
-	
-	public Long getDefectNum(){
-		return this.defectNum;
-	}
-	
-	public void setDefectNum(Long defectNum){
-		this.defectNum = defectNum;
-	}
-	
-	public Date getProTime(){
-		return this.proTime;
-	}
-	
-	public void setProTime(Date proTime){
+
+	public void setProTime(Date proTime) {
 		this.proTime = proTime;
 	}
-	
-	public String getRefuseReason(){
-		return this.refuseReason;
+
+	public Long getReceiptOrderId() {
+		return receiptOrderId;
 	}
-	
-	public void setRefuseReason(String refuseReason){
+
+	public void setReceiptOrderId(Long receiptOrderId) {
+		this.receiptOrderId = receiptOrderId;
+	}
+
+	public String getRefuseReason() {
+		return refuseReason;
+	}
+
+	public void setRefuseReason(String refuseReason) {
 		this.refuseReason = refuseReason;
 	}
-	
-	public String getInsertby(){
-		return this.insertby;
+
+	public Long getSkuId() {
+		return skuId;
 	}
-	
-	public void setInsertby(String insertby){
-		this.insertby = insertby;
+
+	public void setSkuId(Long skuId) {
+		this.skuId = skuId;
 	}
-	
-	public String getUpdateby(){
-		return this.updateby;
+
+	public String getSkuName() {
+		return skuName;
 	}
-	
-	public void setUpdateby(String updateby){
+
+	public void setSkuName(String skuName) {
+		this.skuName = skuName;
+	}
+
+	public String getUpdateby() {
+		return updateby;
+	}
+
+	public void setUpdateby(String updateby) {
 		this.updateby = updateby;
 	}
-	
-	public Date getInserttime(){
-		return this.inserttime;
+
+	public Date getUpdatetime() {
+		return updatetime;
 	}
-	
-	public void setInserttime(Date inserttime){
-		this.inserttime = inserttime;
-	}
-	
-	public Date getUpdatetime(){
-		return this.updatetime;
-	}
-	
-	public void setUpdatetime(Date updatetime){
+
+	public void setUpdatetime(Date updatetime) {
 		this.updatetime = updatetime;
 	}
-	
-	
 }
