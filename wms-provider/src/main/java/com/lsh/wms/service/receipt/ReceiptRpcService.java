@@ -456,7 +456,13 @@ public class ReceiptRpcService implements IReceiptRpcService {
             iTaskRpcService.done(taskId);
         }else if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
             for(StockTransferPlan plan : planList){
-                stockTransferRpcService.addPlan(plan);
+                BaseinfoItem item  =  itemService.getItem(plan.getItemId());
+                Long skuId = item.getSkuId();
+                InbPoDetail inbPoDetail = poOrderService.getInbPoDetailByOrderIdAndSkuId(inbPoHeader.getOrderId(),skuId);
+                Long taskId = stockTransferRpcService.addPlan(plan);
+                inbPoDetail.setTaskId(taskId);
+
+                poOrderService.updateInbPoDetail(inbPoDetail);
             }
         }
 
