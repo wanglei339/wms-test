@@ -45,6 +45,9 @@ public class InbPoDetail implements Serializable {
 	/**保质期例外收货*/
 	private Integer exceptionReceipt;
 
+	/**返仓单生成移库任务的taskId*/
+	private Long taskId;
+
 	public String getLotNum() {
 		return lotNum;
 	}
@@ -187,5 +190,13 @@ public class InbPoDetail implements Serializable {
 
 	public void setExceptionReceipt(Integer exceptionReceipt) {
 		this.exceptionReceipt = exceptionReceipt;
+	}
+
+	public Long getTaskId() {
+		return taskId;
+	}
+
+	public void setTaskId(Long taskId) {
+		this.taskId = taskId;
 	}
 }

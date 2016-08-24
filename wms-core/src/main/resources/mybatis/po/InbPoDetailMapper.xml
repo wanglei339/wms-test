@@ -21,6 +21,7 @@
 		<result property="inserttime" column="INSERTTIME"/>
 		<result property="updatetime" column="UPDATETIME"/>
 		<result property="packName" column="PACK_NAME"/>
+		<result property="taskId" column="TASK_ID"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="InbPoDetail">
@@ -58,6 +59,7 @@
 			<if test="price != null">PRICE=#{price},</if>
   			<if test="madein != null">MADEIN=#{madein},</if>
   			<if test="inboundQty != null">INBOUND_QTY=#{inboundQty},</if>
+			<if test="taskId != null">TASK_ID=#{taskId},</if>
   			<if test="insertby != null">INSERTBY=#{insertby},</if>
   			<if test="updateby != null">UPDATEBY=#{updateby},</if>
   			<if test="inserttime != null">INSERTTIME=#{inserttime},</if>
@@ -125,6 +127,7 @@
 			<if test="inserttime != null">and INSERTTIME=#{inserttime}</if>
 			<if test="updatetime != null">and UPDATETIME=#{updatetime}</if>
 			<if test="lotNum != null">and LOT_NUM=#{lotNum}</if>
+			<if test="taskId != null">and TASK_ID=#{taskId}</if>
 			<if test="exceptionReceipt != null">and EXCEPTION_RECEIPT=#{exceptionReceipt}</if>
 		</where>
 	</sql>
