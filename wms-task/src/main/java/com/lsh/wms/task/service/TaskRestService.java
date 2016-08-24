@@ -6,8 +6,10 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.task.ITaskRestService;
 import com.lsh.wms.core.service.staff.StaffService;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.model.baseinfo.BaseinfoStaffInfo;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskMsg;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,9 @@ public class TaskRestService implements ITaskRestService {
 
     @Autowired
     private StaffService staffService;
+
+    @Autowired
+    private StockQuantService quantService;
 
     @POST
     @Path("getTaskList")
@@ -108,12 +113,12 @@ public class TaskRestService implements ITaskRestService {
     @POST
     @Path("sendMsg")
     public String sendMsg(Map<String, Object> mapQuery) {
-
-        Long type =(Long) mapQuery.get("type");
-        TaskMsg msg = new TaskMsg();
-        msg.setType(Long.valueOf(mapQuery.get("type").toString()));
-        msg.setMsgBody(mapQuery);
-        messageService.sendMessage(msg);
+        quantService.getQuantQtyByLocationIdAndItemId(88653814975646L,4716171821967L );
+//        Long type =(Long.valueOf(mapQuery.get("type").toString()));
+//        TaskMsg msg = new TaskMsg();
+//        msg.setType(Long.valueOf(mapQuery.get("type").toString()));
+//        msg.setMsgBody(mapQuery);
+//        messageService.sendMessage(msg);
         return JsonUtils.SUCCESS();
     }
 }

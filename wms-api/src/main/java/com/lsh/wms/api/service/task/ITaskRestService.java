@@ -17,4 +17,5 @@ public interface ITaskRestService {
     String getTaskMove(long taskId) throws BizCheckedException;
     String done(long taskId) throws BizCheckedException;
     String getPerformance(Map<String, Object> condition) throws BizCheckedException;
+    String sendMsg(Map<String, Object> mapQuery) throws BizCheckedException;
 }

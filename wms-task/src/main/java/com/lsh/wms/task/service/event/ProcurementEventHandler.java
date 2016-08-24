@@ -9,6 +9,7 @@ import com.lsh.wms.task.service.handler.TaskHandlerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import java.util.Map;
 /**
  * Created by mali on 16/8/24.
  */
+@Component
 public class ProcurementEventHandler extends AbsEventHandler implements IEventHandler {
     private static final Logger logger = LoggerFactory.getLogger(TaskFinishEventHandler.class);
 
@@ -40,7 +42,7 @@ public class ProcurementEventHandler extends AbsEventHandler implements IEventHa
     }
 
     public void process(TaskMsg msg) {
-        if (TaskConstant.EVENT_PROCUREMENT_CANCEL == msg.getType()) {
+        if (msg.getType().equals(TaskConstant.EVENT_PROCUREMENT_CANCEL)) {
             this.cancel(msg);
         } else {
             this.adjustPriority(msg);
@@ -50,19 +52,25 @@ public class ProcurementEventHandler extends AbsEventHandler implements IEventHa
     private void adjustPriority(TaskMsg msg) {
         TaskHandler handler = taskHandlerFactory.getTaskHandler(TaskConstant.TYPE_PROCUREMENT);
         Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("itemId", msg.getMsgBody().get("itemId"));
+        mapQuery.put("itemId", Long.valueOf(msg.getMsgBody().get("itemId").toString()));
+        if (msg.getType().equals(TaskConstant.EVENT_OUT_OF_STOCK)) {
+            mapQuery.put("locationId", Long.valueOf(msg.getMsgBody().get("locationId").toString()));
+        }
         List<TaskEntry> taskEntryList = taskRpcService.getTaskList(TaskConstant.TYPE_PROCUREMENT, mapQuery);
 
         for(TaskEntry entry: taskEntryList){
             Long taskId = entry.getTaskInfo().getTaskId();
-            Long newPriority = msg.getType() - 9999L;
+            Long newPriority = msg.getType() - 100000L + 1L;
             handler.setPriority(taskId, newPriority);
         }
     }
 
     private void cancel(TaskMsg msg) {
         Long procurementTaskId = Long.valueOf(msg.getMsgBody().get("taskId").toString());
+        TaskEntry taskEntry = taskRpcService.getTaskEntryById(procurementTaskId);
+        if (taskEntry.getTaskInfo().getStatus().equals(TaskConstant.Draft)) {
+            return;
+        }
         taskHandlerFactory.getTaskHandler(TaskConstant.TYPE_PROCUREMENT).cancel(procurementTaskId);
     }
-
 }

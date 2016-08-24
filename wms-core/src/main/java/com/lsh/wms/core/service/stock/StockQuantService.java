@@ -420,5 +420,7 @@ public class StockQuantService {
         moveRel.setMoveId(move.getId());
         moveRel.setQuantId(quant.getId());
         relDao.insert(moveRel);
+
+        this.updateLocationStatus(move.getToLocationId());
     }
 }

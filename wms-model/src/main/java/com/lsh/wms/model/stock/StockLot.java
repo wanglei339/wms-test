@@ -46,6 +46,16 @@ public class StockLot implements Serializable {
 	/** 国条码 */
 	private String code = "";
 
+	private boolean isOld = false;
+
+	public boolean isOld() {
+		return isOld;
+	}
+
+	public void setIsOld(boolean isOld) {
+		this.isOld = isOld;
+	}
+
 	public Long getSupplierId() {
 		return supplierId;
 	}
