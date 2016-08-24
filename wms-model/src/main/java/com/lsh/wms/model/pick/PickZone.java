@@ -15,6 +15,8 @@ public class PickZone implements Serializable {
     private String pickZoneName;
 	/** 管理的location，可以是多个，逗号分离 */
     private String locations;
+	/** 1-货架,2-阁楼,3-存捡合一拆零货架 */
+	private Long pickType = 1L;
 	/** 最小捡货单位，1-ea，2-箱, 3-整托盘 */
     private Long pickUnit;
 	/** 支持的分拣模式, 可以是多种，逗号分离 */
@@ -62,6 +64,14 @@ public class PickZone implements Serializable {
 	
 	public void setLocations(String locations){
 		this.locations = locations;
+	}
+
+	public Long getPickType(){
+		return this.pickType;
+	}
+
+	public void setPickType(Long pickType){
+		this.pickType = pickType;
 	}
 	
 	public Long getPickUnit(){

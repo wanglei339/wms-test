@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -160,7 +161,7 @@ public class ReceiptRestService implements IReceiptRfService {
         Map<String, Object> orderInfoMap = new HashMap<String, Object>();
         orderInfoMap.put("skuName", inbPoDetail.getSkuName());
         orderInfoMap.put("packUnit", inbPoDetail.getPackUnit());
-        Long orderQty = inbPoDetail.getOrderQty()  - inbPoDetail.getInboundQty();
+        BigDecimal orderQty = inbPoDetail.getOrderQty().subtract(inbPoDetail.getInboundQty());
 
         orderInfoMap.put("orderQty", orderQty);// todo 剩余待收货数
         orderInfoMap.put("batchNeeded", baseinfoItem.getBatchNeeded());

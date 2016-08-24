@@ -5,6 +5,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -30,7 +31,7 @@ public class ReceiptItem implements Serializable {
     private String barCode;
 
     /** 包装单位 */
-    private Long packUnit;
+    private BigDecimal packUnit;
 
     /** 产地 */
     @Size(max=100)
@@ -38,14 +39,14 @@ public class ReceiptItem implements Serializable {
 
     /** 实际收货数 */
     @NotNull
-    private Long inboundQty;
+    private BigDecimal inboundQty;
 
     /** 到货数 */
     @NotNull
-    private Long arriveNum;
+    private BigDecimal arriveNum;
 
     /** 残次数 */
-    private Long defectNum;
+    private BigDecimal defectNum;
 
     /** 生产日期 */
     @NotNull
@@ -59,8 +60,8 @@ public class ReceiptItem implements Serializable {
 
     }
 
-    public ReceiptItem(Long skuId,String lotNum,  String skuName, String barCode, Long packUnit,
-                       String madein, Long inboundQty, Long arriveNum, Long defectNum, Date proTime, String refuseReason) {
+    public ReceiptItem(Long skuId,String lotNum,  String skuName, String barCode, BigDecimal packUnit,
+                       String madein, BigDecimal inboundQty, BigDecimal arriveNum, BigDecimal defectNum, Date proTime, String refuseReason) {
         this.skuId = skuId;
         this.lotNum = lotNum;
         this.skuName = skuName;
@@ -99,11 +100,11 @@ public class ReceiptItem implements Serializable {
         this.barCode = barCode;
     }
 
-    public Long getPackUnit(){
+    public BigDecimal getPackUnit(){
         return this.packUnit;
     }
 
-    public void setPackUnit(Long packUnit){
+    public void setPackUnit(BigDecimal packUnit){
         this.packUnit = packUnit;
     }
 
@@ -115,27 +116,27 @@ public class ReceiptItem implements Serializable {
         this.madein = madein;
     }
 
-    public Long getInboundQty(){
+    public BigDecimal getInboundQty(){
         return this.inboundQty;
     }
 
-    public void setInboundQty(Long inboundQty){
+    public void setInboundQty(BigDecimal inboundQty){
         this.inboundQty = inboundQty;
     }
 
-    public Long getArriveNum(){
+    public BigDecimal getArriveNum(){
         return this.arriveNum;
     }
 
-    public void setArriveNum(Long arriveNum){
+    public void setArriveNum(BigDecimal arriveNum){
         this.arriveNum = arriveNum;
     }
 
-    public Long getDefectNum(){
+    public BigDecimal getDefectNum(){
         return this.defectNum;
     }
 
-    public void setDefectNum(Long defectNum){
+    public void setDefectNum(BigDecimal defectNum){
         this.defectNum = defectNum;
     }
 

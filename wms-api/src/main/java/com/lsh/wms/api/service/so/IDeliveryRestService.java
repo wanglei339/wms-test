@@ -15,11 +15,7 @@ import com.lsh.wms.api.model.so.DeliveryRequest;
  */
 public interface IDeliveryRestService {
 
-    public String init(String soDeliveryInfo);
-
     public BaseResponse insertOrder(DeliveryRequest request) throws BizCheckedException;
-
-//    public String updateDeliveryType() throws BizCheckedException;
 
     public String getOutbDeliveryHeaderDetailByDeliveryId(Long deliveryId) throws BizCheckedException;
 

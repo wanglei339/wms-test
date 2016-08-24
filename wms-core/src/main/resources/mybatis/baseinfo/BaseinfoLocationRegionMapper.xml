@@ -12,15 +12,16 @@
 		<result property="description" column="description"/>
 		<result property="type" column="type"/>
 		<result property="ownerid" column="ownerId"/>
+		<result property="isValid" column="is_valid"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLocationRegion">
 		insert into baseinfo_location_region (
 			location_id,length,width,created_at,updated_at,description,
-			type,ownerId
+			type,ownerId,is_valid
     	) values (
 			#{locationId},#{length},#{width},#{createdAt},#{updatedAt},#{description},
-			#{type},#{ownerid}
+			#{type},#{ownerid},#{isValid}
     	)
 	</insert>
 
@@ -34,7 +35,8 @@
   			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
   			<if test="description != null">description=#{description},</if>
   			<if test="type != null">type=#{type},</if>
-  			<if test="ownerid != null">ownerId=#{ownerid}</if>
+  			<if test="ownerid != null">ownerId=#{ownerid},</if>
+  			<if test="isValid != null">is_valid=#{isValid}</if>
 		</set>
 		where location_id=#{locationId}
 	</update>
@@ -68,6 +70,7 @@
 			<if test="description != null">and description=#{description}</if>
 			<if test="type != null">and type=#{type}</if>
 			<if test="ownerid != null">and ownerId=#{ownerid}</if>
+			<if test="isValid != null">and is_valid=#{isValid}</if>
 		</where>
 	</sql>
    

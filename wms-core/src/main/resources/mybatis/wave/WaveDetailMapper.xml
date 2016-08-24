@@ -4,6 +4,7 @@
 
 	<resultMap id="waveDetailResultMap" type="WaveDetail">
 		<id property="id" column="id"/>
+		<result property="refDetailId" column="ref_detail_id"/>
 		<result property="isAlive" column="is_alive"/>
 		<result property="isValid" column="is_valid"/>
 		<result property="waveId" column="wave_id"/>
@@ -23,6 +24,7 @@
 		<result property="deliveryQty" column="delivery_qty"/>
 		<result property="pickTaskId" column="pick_task_id"/>
 		<result property="pickZoneId" column="pick_zone_id"/>
+		<result property="pickAreaLocation" column="pick_area_location"/>
 		<result property="pickOrder" column="pick_order"/>
 		<result property="allocPickLocation" column="alloc_pick_location"/>
 		<result property="realPickLocation" column="real_pick_location"/>
@@ -49,17 +51,17 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="WaveDetail">
 		insert into wave_detail (
-			is_alive,is_valid,wave_id,order_id,item_id,sku_id,
+			ref_detail_id,is_alive,is_valid,wave_id,order_id,item_id,sku_id,
 			owner_id,loc_id,supplier_id,status,req_qty,alloc_qty,alloc_unit_name,alloc_unit_qty,
-			pick_qty,qc_qty,delivery_qty,pick_task_id,pick_zone_id,pick_order,
+			pick_qty,qc_qty,delivery_qty,pick_task_id,pick_zone_id,pick_area_location,pick_order,
 			alloc_pick_location,real_pick_location,alloc_collect_location,real_collect_location,container_id,pick_uid,
 			pick_at,sow_task_id,sow_uid,sow_at,qc_task_id,qc_uid,
 			qc_at,qc_exception,qc_exception_qty,qc_exception_done,ship_task_id,ship_uid,
 			ship_at,created_at,updated_at
     	) values (
-			#{isAlive},#{isValid},#{waveId},#{orderId},#{itemId},#{skuId},
+			#{refDetailId},#{isAlive},#{isValid},#{waveId},#{orderId},#{itemId},#{skuId},
 			#{ownerId},#{locId},#{supplierId},#{status},#{reqQty},#{allocQty},#{allocUnitName},#{allocUnitQty},
-			#{pickQty},#{qcQty},#{deliveryQty},#{pickTaskId},#{pickZoneId},#{pickOrder},
+			#{pickQty},#{qcQty},#{deliveryQty},#{pickTaskId},#{pickZoneId},#{pickAreaLocation},#{pickOrder},
 			#{allocPickLocation},#{realPickLocation},#{allocCollectLocation},#{realCollectLocation},#{containerId},#{pickUid},
 			#{pickAt},#{sowTaskId},#{sowUid},#{sowAt},#{qcTaskId},#{qcUid},
 			#{qcAt},#{qcException},#{qcExceptionQty},#{qcExceptionDone},#{shipTaskId},#{shipUid},
@@ -70,6 +72,7 @@
 	<update id="update" parameterType="WaveDetail">
 		update wave_detail
     	<set>
+			<if test="refDetailId != null">ref_detail_id=#{refDetailId},</if>
   			<if test="isAlive != null">is_alive=#{isAlive},</if>
   			<if test="isValid != null">is_valid=#{isValid},</if>
   			<if test="waveId != null">wave_id=#{waveId},</if>
@@ -89,6 +92,7 @@
   			<if test="deliveryQty != null">delivery_qty=#{deliveryQty},</if>
   			<if test="pickTaskId != null">pick_task_id=#{pickTaskId},</if>
   			<if test="pickZoneId != null">pick_zone_id=#{pickZoneId},</if>
+			<if test="pickAreaLocation != null">pick_area_location=#{pickAreaLocation},</if>
   			<if test="pickOrder != null">pick_order=#{pickOrder},</if>
   			<if test="allocPickLocation != null">alloc_pick_location=#{allocPickLocation},</if>
   			<if test="realPickLocation != null">real_pick_location=#{realPickLocation},</if>
@@ -113,6 +117,10 @@
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
 		where id=#{id}
+	</update>
+
+	<update id="shipWave" parameterType="long">
+		update wave_detail set is_alive=0 where wave_id=#{waveId}
 	</update>
   
 	<select id="getWaveDetailById" parameterType="long" resultMap="waveDetailResultMap">
@@ -150,6 +158,7 @@
 	<sql id="queryCondition">
 		<where>
 			<if test="id != null">id=#{id}</if>
+			<if test="refDetailId != null">and ref_detail_id=#{refDetailId}</if>
 			<if test="isAlive != null">and is_alive=#{isAlive}</if>
 			<if test="isValid != null">and is_valid=#{isValid}</if>
 			<if test="waveId != null">and wave_id=#{waveId}</if>
@@ -167,6 +176,7 @@
 			<if test="deliveryQty != null">and delivery_qty=#{deliveryQty}</if>
 			<if test="pickTaskId != null">and pick_task_id=#{pickTaskId}</if>
 			<if test="pickZoneId != null">and pick_zone_id=#{pickZoneId}</if>
+			<if test="pickAreaLocation != null">and pick_area_location=#{pickAreaLocation}</if>
 			<if test="pickOrder != null">and pick_order=#{pickOrder}</if>
 			<if test="allocPickLocation != null">and alloc_pick_location=#{allocPickLocation}</if>
 			<if test="realPickLocation != null">and real_pick_location=#{realPickLocation}</if>
@@ -194,6 +204,9 @@
 				<foreach collection="pickTaskIds" item="pickTaskId" index="index" open="(" separator=","  close=")">
 					#{pickTaskId}
 				</foreach>
+			</if>
+			<if test="pickLocationObj != null">
+				and ( ${pickLocationObj.getLocationId()} &lt;= alloc_pick_location and alloc_pick_location &lt;= ${pickLocationObj.getRightRange()})
 			</if>
 		</where>
 	</sql>

@@ -100,4 +100,10 @@ public class PoRestService implements IPoRestService {
         Map<String, Object> params = RequestUtils.getRequest();
         return JsonUtils.SUCCESS(iPoRpcService.getPoDetailList(params));
     }
+
+    @POST
+    @Path("canReceipt")
+    public String canReceipt() {
+        return null;
+    }
 }

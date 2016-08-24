@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.location;
 
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 import org.slf4j.Logger;
@@ -36,10 +37,16 @@ public class BaseinfoLocationLevelService implements IStrategy{
     }
 
     public Integer countBaseinfoLocaltionModel(Map<String, Object> params) {
+        params.put("isValid", LocationConstant.IS_VALID);
         return locationService.countLocation(params);
     }
 
     public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) {
+        params.put("isValid",LocationConstant.IS_VALID);
         return locationService.getBaseinfoLocationList(params);
+    }
+
+    public IBaseinfoLocaltionModel removeLocation(Long locationId) {
+        return null;
     }
 }

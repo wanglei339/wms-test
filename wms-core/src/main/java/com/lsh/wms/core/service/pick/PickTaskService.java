@@ -3,16 +3,20 @@ package com.lsh.wms.core.service.pick;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.wave.WaveDetailDao;
 import com.lsh.wms.core.dao.pick.PickTaskHeadDao;
 import com.lsh.wms.core.dao.wave.WaveDetailDao;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.pick.PickTaskHead;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
+import com.sun.jdi.LongValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +49,8 @@ public class PickTaskService {
     private WaveService waveService;
     @Autowired
     private LocationService locationService;
+    @Autowired
+    private BaseTaskService baseTaskService;
 
     @Transactional(readOnly = false)
     public Boolean createPickTask(PickTaskHead head, List<WaveDetail> details){
@@ -61,6 +67,7 @@ public class PickTaskService {
             taskHeadDao.insert(head);
         }
         for(WaveDetail detail : details){
+            detail.setCreatedAt(DateUtils.getCurrentSeconds());
             detail.setUpdatedAt(DateUtils.getCurrentSeconds());
             taskDetailDao.insert(detail);
         }
@@ -119,5 +126,57 @@ public class PickTaskService {
         if (qty.compareTo(new BigDecimal(0)) == 1) {
             moveService.moveToContainer(itemId, staffId, fromContainerId, containerId, locationService.getWarehouseLocationId(), qty);
         }
+    }
+
+    /**
+     * 回溯拣货状态
+     * @param staffId
+     * @return
+     */
+    public Map<String, Object> restore (Long staffId, List<Map> taskList) {
+        Map<String, Object> result = new HashMap<String, Object>();
+        // 获取分配给操作人员的所有拣货任务
+        List<TaskInfo> taskInfos = baseTaskService.getAssignedTaskByOperator(staffId, TaskConstant.TYPE_PICK);
+        if (taskInfos.isEmpty()) {
+            return null;
+        }
+        // 取taskId
+        List<Long> taskIds = new ArrayList<Long>();
+
+        for (TaskInfo taskInfo: taskInfos) {
+            taskIds.add(taskInfo.getTaskId());
+        }
+
+        if (taskList != null && !taskList.isEmpty()) {
+            for (Map<Long, Object> task: taskList) {
+                if (!taskIds.contains(Long.valueOf(task.get("taskId").toString()))) {
+                    throw new BizCheckedException("2060011");
+                }
+            }
+        }
+
+        List<WaveDetail> pickDetails = waveService.getOrderedDetailsByPickTaskIds(taskIds);
+        // 查找最后未完成的任务
+        WaveDetail needPickDetail = new WaveDetail();
+        for (WaveDetail pickDetail : pickDetails) {
+            Long pickAt = pickDetail.getPickAt();
+            if (pickAt == null || pickAt.equals(0L)) {
+                needPickDetail = pickDetail;
+                break;
+            }
+        }
+        // 全部捡完,则需要扫描集货位
+        if (needPickDetail.getPickTaskId() == null || needPickDetail.getPickTaskId().equals("")) {
+            // 获取下一个拣货位id
+            PickTaskHead nextTaskHead = this.getPickTaskHead(taskInfos.get(0).getTaskId());
+            result.put("next_detail", nextTaskHead);
+            result.put("done", false);
+            result.put("pick_done", true);
+        } else {
+            result.put("next_detail", needPickDetail);
+            result.put("done", false);
+            result.put("pick_done", false);
+        }
+        return result;
     }
 }

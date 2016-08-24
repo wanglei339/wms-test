@@ -2,7 +2,6 @@ package com.lsh.wms.service.inbound;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
-import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
@@ -10,6 +9,7 @@ import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.inhouse.IProcurementRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.shelve.IAtticShelveRestService;
+import com.lsh.wms.api.service.shelve.IPickUpShelveRestService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.ContainerConstant;
@@ -24,26 +24,19 @@ import com.lsh.wms.core.service.shelve.AtticShelveTaskDetailService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
-import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.baseinfo.BaseinfoLocationBin;
 import com.lsh.wms.model.shelve.AtticShelveTaskDetail;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
-import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,9 +47,9 @@ import java.util.Map;
  * Created by wuhao on 16/8/16.
  */
 @Service(protocol = "rest")
-@Path("inbound/attic_shelve")
-public class AtticShelveRestService implements IAtticShelveRestService{
-    private static Logger logger = LoggerFactory.getLogger(AtticShelveRestService.class);
+@Path("inbound/pick_up_shelve")
+public class pickUpShelveRestService implements IPickUpShelveRestService {
+    private static Logger logger = LoggerFactory.getLogger(pickUpShelveRestService.class);
     @Reference
     private ITaskRpcService iTaskRpcService;
     @Reference
@@ -82,7 +75,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
     @Reference
     private ISysUserRpcService iSysUserRpcService;
 
-    private Long taskType = TaskConstant.TYPE_ATTIC_SHELVE;
+    private Long taskType = TaskConstant.TYPE_PICK_UP_SHELVE;
 
     /**
      * 创建上架任务
@@ -159,7 +152,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
             return JsonUtils.TOKEN_ERROR("参数传递格式有误");
         }
 
-        if(!this.chargeLocation(allocLocationId,LocationConstant.LOFT_STORE_BIN) || !this.chargeLocation(realLocationId,LocationConstant.LOFT_STORE_BIN)){
+        if(!this.chargeLocation(allocLocationId, LocationConstant.SPLIT_SHELF_BIN) || !this.chargeLocation(realLocationId,LocationConstant.SPLIT_SHELF_BIN)){
             return JsonUtils.TOKEN_ERROR("库位状态异常");
         }
 
@@ -191,7 +184,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
 
 
         entry.setTaskInfo(info);
-        iTaskRpcService.update(TaskConstant.TYPE_ATTIC_SHELVE,entry);
+        iTaskRpcService.update(TaskConstant.TYPE_PICK_UP_SHELVE,entry);
 
 
         return JsonUtils.SUCCESS();
@@ -222,7 +215,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
             return JsonUtils.TOKEN_ERROR("参数传递格式有误");
         }
 
-        if(!this.chargeLocation(allocLocationId,LocationConstant.LOFT_STORE_BIN) || !this.chargeLocation(realLocationId,LocationConstant.LOFT_STORE_BIN)){
+        if(!this.chargeLocation(allocLocationId,LocationConstant.SPLIT_SHELF_BIN) || !this.chargeLocation(realLocationId,LocationConstant.SPLIT_SHELF_BIN)){
             return JsonUtils.TOKEN_ERROR("库位状态异常");
         }
         AtticShelveTaskDetail detail = shelveTaskService.getDetailById(detailId);
@@ -291,7 +284,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         TaskInfo info = entry.getTaskInfo();
         info.setExt1(2L); //pc创建任务详情标示  0: 未创建详情 1:已创建详情 2:已执行中
         entry.setTaskInfo(info);
-        iTaskRpcService.update(TaskConstant.TYPE_ATTIC_SHELVE, entry);
+        iTaskRpcService.update(TaskConstant.TYPE_PICK_UP_SHELVE, entry);
 
         return JsonUtils.SUCCESS();
     }
@@ -343,7 +336,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
     public String getTaskList() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         List<Map> resultList = new ArrayList<Map>();
-        List<TaskEntry> entries = iTaskRpcService.getTaskList(TaskConstant.TYPE_ATTIC_SHELVE, mapQuery);
+        List<TaskEntry> entries = iTaskRpcService.getTaskList(TaskConstant.TYPE_PICK_UP_SHELVE, mapQuery);
         for(TaskEntry entry :entries){
             Long canEdit=0L;
             Map<String,Object> one =  new HashMap<String, Object>();
@@ -418,7 +411,6 @@ public class AtticShelveRestService implements IAtticShelveRestService{
             return JsonUtils.TOKEN_ERROR("参数传递格式有误");
         }
 
-
         Map<String,Object> queryMap = new HashMap<String, Object>();
         queryMap.put("status",2L);
         List<TaskEntry> entries = iTaskRpcService.getTaskList(TaskConstant.TYPE_ATTIC_SHELVE, queryMap);
@@ -433,9 +425,9 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         }
         TaskInfo info = entry.getTaskInfo();
         info.setOperator(operator);
-        info.setStatus(TaskConstant.Assigned);
         entry.setTaskInfo(info);
-        iTaskRpcService.update(TaskConstant.TYPE_ATTIC_SHELVE,entry);
+        logger.info(JsonUtils.SUCCESS(entry));
+        iTaskRpcService.update(TaskConstant.TYPE_PICK_UP_SHELVE,entry);
         return JsonUtils.SUCCESS();
     }
     /**
@@ -540,9 +532,6 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         BaseinfoLocation location = locationService.getLocation(locationId);
         if(location==null){
             throw new BizCheckedException("2030013");
-        }
-        if(location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN)==0) {
-            return true;
         }
         if (location.getType().compareTo(type) != 0 || location.getIsLocked().compareTo(1) == 0) {
             return false;

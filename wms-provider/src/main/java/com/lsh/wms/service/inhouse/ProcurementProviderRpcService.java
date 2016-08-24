@@ -90,7 +90,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
         Long containerId = quantList.get(0).getContainerId();
         if (plan.getSubType().equals(2L)) {
-            containerId = containerService.createContainerByType(2L).getContainerId();
+            containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
         }
 
         ObjUtils.bean2bean(plan, taskInfo);
@@ -120,7 +120,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
         Long containerId = quantList.get(0).getContainerId();
         if (plan.getSubType().equals(2L)) {
-            containerId = containerService.createContainerByType(2L).getContainerId();
+            containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
         }
 
         ObjUtils.bean2bean(plan, taskInfo);

@@ -28,4 +28,5 @@ public interface IStrategy {
     Integer countBaseinfoLocaltionModel(Map<String, Object> params);
 
     List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params);
+    public IBaseinfoLocaltionModel removeLocation(Long locationId);
 }

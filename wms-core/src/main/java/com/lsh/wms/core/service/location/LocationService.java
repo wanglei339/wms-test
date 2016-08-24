@@ -31,6 +31,8 @@ public class LocationService {
     private StockQuantService stockQuantService;
     @Autowired
     private BaseinfoLocationShelfService baseinfoLocationShelfService;
+    @Autowired
+    private LocationDetailService locationDetailService;
 
 
     //计数
@@ -86,7 +88,7 @@ public class LocationService {
 
     /**
      * 删除节点和下面的所有子树
-     *
+     * 并且删除细节表的所有location
      * @param locationId
      * @return
      */
@@ -102,6 +104,7 @@ public class LocationService {
         for (BaseinfoLocation child : childrenList) {
             child.setIsValid(LocationConstant.NOT_VALID);
             updateLocation(child);
+            locationDetailService.removeLocationDetail(child);
         }
         //删除该节点
         location.setIsValid(LocationConstant.NOT_VALID);
@@ -500,10 +503,33 @@ public class LocationService {
         List<BaseinfoLocation> locations = this.getLocationsByType(type);
         if (locations.size() > 0) {
             for (BaseinfoLocation location : locations) {
-                Long locationId = location.getLocationId();
-                List<Long> containerIds = stockQuantService.getContainerIdByLocationId(locationId);
-                if (location.getContainerVol() - containerIds.size() > 0) {
+                if (location.getCanUse().equals(1) && !this.checkLocationLockStatus(location.getLocationId())) {
                     return location;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取可用的地堆区,需保证是同一批次
+     * @return
+     */
+    public BaseinfoLocation getAvailableFloorLocation(Long lotId) {
+        List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.FLOOR);
+        if (locations.size() > 0) {
+            for (BaseinfoLocation location : locations) {
+                Long locationId = location.getLocationId();
+                if (location.getCanUse().equals(1) && !this.checkLocationLockStatus(locationId)) {
+                    List<StockQuant> quants = stockQuantService.getQuantsByLocationId(locationId);
+                    if (quants.isEmpty()) {
+                        return location;
+                    } else {
+                        StockQuant quant = quants.get(0);
+                        if (quant.getLotId().equals(lotId)) {
+                            return location;
+                        }
+                    }
                 }
             }
         }
@@ -738,7 +764,7 @@ public class LocationService {
      * @return
      */
     public boolean locationIsEmptyAndUnlock(Long locationId) {
-        if ((!this.isQuantInLocation(locationId)) && this.checkLocationLockStatus(locationId)) {
+        if ((!this.isQuantInLocation(locationId)) && !this.checkLocationLockStatus(locationId)) {
             return true;
         }
         return false;
@@ -755,7 +781,7 @@ public class LocationService {
         if (locations.size() > 0) {
             for (BaseinfoLocation location : locations) {
                 Long locationId = location.getLocationId();
-                if ((!this.isQuantInLocation(locationId)) && (this.checkLocationLockStatus(locationId))) {
+                if ((!this.isQuantInLocation(locationId)) && (!this.checkLocationLockStatus(locationId))) {
                     return location;
                 }
             }
@@ -854,9 +880,9 @@ public class LocationService {
     public Boolean checkLocationLockStatus(Long locationId) {
         BaseinfoLocation location = this.getLocation(locationId);
         if (location.getIsLocked().equals(1)) {
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     /**

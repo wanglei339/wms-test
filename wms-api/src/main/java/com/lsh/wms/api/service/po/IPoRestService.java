@@ -32,4 +32,5 @@ public interface IPoRestService {
     public String countInbPoHeader();
 
     public String getPoDetailList();
+    String canReceipt();
 }

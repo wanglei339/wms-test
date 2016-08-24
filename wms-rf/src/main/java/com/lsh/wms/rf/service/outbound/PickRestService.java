@@ -14,6 +14,7 @@ import com.lsh.wms.api.service.pick.IPickRestService;
 import com.lsh.wms.api.service.pick.IPickRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.staff.IStaffRpcService;
+import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
@@ -27,6 +28,7 @@ import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoStaffInfo;
 import com.lsh.wms.model.pick.PickTaskHead;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
@@ -64,7 +66,7 @@ public class PickRestService implements IPickRestService {
     @Autowired
     private StockQuantService stockQuantService;
     @Reference
-    private IStaffRpcService iStaffRpcService;
+    private ISysUserRpcService iSysUserRpcService;
     @Reference
     private IPickRpcService iPickRpcService;
 
@@ -81,13 +83,20 @@ public class PickRestService implements IPickRestService {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long staffId = Long.valueOf(mapQuery.get("operator").toString());
         List<Map> taskList = JSON.parseArray(mapQuery.get("taskList").toString(), Map.class);
-        final List<WaveDetail> pickDetails = new ArrayList<WaveDetail>();
+        List<WaveDetail> pickDetails = new ArrayList<WaveDetail>();
         List<Map<String, Long>> assignParams = new ArrayList<Map<String, Long>>();
 
         // 判断用户是否存在
-        BaseinfoStaffInfo staffInfo = iStaffRpcService.getStaffById(staffId);
-        if (staffInfo == null) {
+        SysUser sysUser = iSysUserRpcService.getSysUserById(staffId);
+        if (sysUser == null) {
             throw new BizCheckedException("2000003");
+        }
+
+        // 回溯
+        Map<String, Object> restoreResult = pickTaskService.restore(staffId, taskList);
+
+        if (restoreResult != null) {
+            return JsonUtils.SUCCESS(restoreResult);
         }
 
         // 判断该用户是否已领取过拣货任务
@@ -129,7 +138,7 @@ public class PickRestService implements IPickRestService {
         iTaskRpcService.assignMul(assignParams);
 
         // 拣货顺序算法
-        iPickRpcService.calcPickOrder(pickDetails);
+        pickDetails = iPickRpcService.calcPickOrder(pickDetails);
         // 返回值按pick_order排序
         Collections.sort(pickDetails, new Comparator<WaveDetail>() {
             public int compare(WaveDetail o1, WaveDetail o2) {
@@ -137,7 +146,9 @@ public class PickRestService implements IPickRestService {
             }
         });
         Map<String, Object> result = new HashMap<String, Object>();
-        result.put("pick_details", pickDetails);
+        result.put("pick_detail", pickDetails.get(0));
+        result.put("done", false);
+        result.put("pick_done", false);
         return JsonUtils.SUCCESS(result);
     }
 
@@ -157,8 +168,8 @@ public class PickRestService implements IPickRestService {
         Map<String, Object> result = new HashMap<String, Object>();
 
         // 判断用户是否存在
-        BaseinfoStaffInfo staffInfo = iStaffRpcService.getStaffById(staffId);
-        if (staffInfo == null) {
+        SysUser sysUser = iSysUserRpcService.getSysUserById(staffId);
+        if (sysUser == null) {
             throw new BizCheckedException("2000003");
         }
 
@@ -205,13 +216,18 @@ public class PickRestService implements IPickRestService {
                 throw new BizCheckedException("2060009");
             }
             // 完成拣货任务
+            needPickDetail.setRealCollectLocation(locationId);
+            waveService.updateDetail(needPickDetail);
             iTaskRpcService.done(taskId, locationId, staffId);
             // 获取下一个拣货位id
             if (taskInfos.size() > 1) {
                 PickTaskHead nextTaskHead = pickTaskService.getPickTaskHead(taskInfos.get(1).getTaskId());
-                result.put("next_collection", nextTaskHead);
+                result.put("next_detail", nextTaskHead);
+                result.put("done", false);
+            } else {
+                result.put("done", true);
             }
-            result.put("done", true);
+            result.put("pick_done", true);
             return JsonUtils.SUCCESS(result);
         }
         Long taskId = needPickDetail.getPickTaskId();
@@ -252,11 +268,33 @@ public class PickRestService implements IPickRestService {
         }
         if (nextPickDetail.getPickTaskId() == null || nextPickDetail.getPickTaskId().equals(0L)) {
             pickDone = true;
-            result.put("next_collection", pickTaskService.getPickTaskHead(taskIds.get(0))); // 返回第一个任务的头信息用于集货位分配
+            result.put("next_detail", pickTaskService.getPickTaskHead(taskIds.get(0))); // 返回第一个任务的头信息用于集货位分配
         } else {
             result.put("next_detail", nextPickDetail);
         }
-        result.put("done", pickDone);
+        result.put("pick_done", pickDone);
+        result.put("done", false);
+        return JsonUtils.SUCCESS(result);
+    }
+
+    /**
+     * 回溯拣货状态
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("restore")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String restore() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long staffId = Long.valueOf(mapQuery.get("operator").toString());
+        // 判断用户是否存在
+        SysUser sysUser = iSysUserRpcService.getSysUserById(staffId);
+        if (sysUser == null) {
+            throw new BizCheckedException("2000003");
+        }
+        Map<String, Object> result = pickTaskService.restore(staffId, null);
         return JsonUtils.SUCCESS(result);
     }
 }

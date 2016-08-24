@@ -105,8 +105,8 @@ public class BaseTaskService {
 
     @Transactional(readOnly = false)
     public void update(TaskEntry taskEntry, TaskHandler taskHandler) throws BizCheckedException {
-        TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskEntry.getTaskInfo().getTaskId());;
-        taskInfoDao.update(taskInfo);
+        //TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskEntry.getTaskInfo().getTaskId());
+        taskInfoDao.update(taskEntry.getTaskInfo());
         taskHandler.updteConcrete(taskEntry);
     }
     @Transactional(readOnly = false)
@@ -278,6 +278,13 @@ public class BaseTaskService {
     public List<Map<String, Object>> getPerformance(Map<String, Object> condition) {
         List<Map<String, Object>> taskInfoList = taskInfoDao.getPerformance(condition);
         return taskInfoList;
+    }
+
+    @Transactional(readOnly = false)
+    public void setPriority(Long taskId, Long newPriority) {
+        TaskInfo info = taskInfoDao.getTaskInfoById(taskId);
+        info.setPriority(newPriority);
+        taskInfoDao.update(info);
     }
 
     /**

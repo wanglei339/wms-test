@@ -9,6 +9,7 @@ import com.lsh.wms.api.service.stock.IStockMoveRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.container.ContainerService;
@@ -187,7 +188,7 @@ public class StockTransferCore {
             List<StockQuant> quants = stockQuantRpcService.getQuantList(condition);
             Long toContainerId;
             if (quants == null || quants.size() == 0) {
-                toContainerId = containerService.createContainerByType(1L).getContainerId();
+                toContainerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
             } else {
                 toContainerId = quants.get(0).getContainerId();
             }
@@ -293,14 +294,13 @@ public class StockTransferCore {
 
     //TODO
     public BaseinfoLocation getNearestLocation(BaseinfoLocation currentLocation) {
-        BaseinfoLocation targetLocation;
-        targetLocation = currentLocation;
-        return targetLocation;
-    }
-
-    //TODO
-    public Long getNearestTask(List<TaskEntry> entryList) {
-        return entryList.get(0).getTaskInfo().getTaskId();
+        List <BaseinfoLocation> locationList = locationService.getStoreLocations(currentLocation.getLocationId());
+        for (BaseinfoLocation location : locationList) {
+            if (location.getCanUse().equals(1) && !locationService.checkLocationLockStatus(location.getLocationId())) {
+                return location;
+            }
+        }
+        return currentLocation;
     }
 
     public List<Long> sortTaskByLocation(List<TaskEntry> entryList) {

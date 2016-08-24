@@ -22,7 +22,13 @@ public class TaskConstant {
     public static final Long TYPE_PROCUREMENT = 104L;
     public static final Long TYPE_STOCK_TRANSFER = 105L;
     public static final Long TYPE_ATTIC_SHELVE = 106L;
+    public static final Long TYPE_PICK_UP_SHELVE = 107L;
 
     public static final Long TYPE_QC = 110L;
     public static final Long TYPE_SHIP = 111L;
+
+    public static final Long EVENT_TASK_FINISH  = 100000L;
+    public static final Long EVENT_SO_ACCEPT = 100001L;
+    public static final Long EVENT_WAVE_RELEASE = 100002L;
+    public static final Long EVENT_OUT_OF_STOCK = 100003L;
 }
