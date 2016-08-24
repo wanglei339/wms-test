@@ -193,7 +193,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             map.put("taskId", taskId);
             map.put("locationId", location.getLocationId());
             map.put("locationCode", location.getLocationCode());
-            map.put("qty", detail.getQty().divide(info.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
+            map.put("qty", detail.getQty());
             map.put("packName", info.getPackName());
             return JsonUtils.SUCCESS(map);
         }else {
@@ -252,12 +252,12 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         }
 
         AtticShelveTaskDetail detail = shelveTaskService.getShelveTaskDetail(taskId,allocLocationId);
-        //TODO 判断扫描库位是不是存储合一库位
-        if(realLocation.getType().compareTo(LocationConstant.LOFT_STORE_BIN)==0 ){
+        //判断扫描库位是不是存储合一库位
+        if(realLocation.getType().compareTo(LocationConstant.SPLIT_SHELF_BIN)==0 ){
             if(locationService.checkLocationUseStatus(realLocationId) && realLocationId.compareTo(allocLocationId)!=0 ){
                 return JsonUtils.TOKEN_ERROR("扫描库位已被占用");
             }
-            if(location.getType().compareTo((LocationConstant.LOFT_STORE_BIN))!=0){
+            if(location.getType().compareTo((LocationConstant.SPLIT_SHELF_BIN))!=0){
                 return JsonUtils.TOKEN_ERROR("提供扫描库位类型不符");
             }
 
@@ -265,7 +265,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             if(detail ==null){
                 return JsonUtils.TOKEN_ERROR("系统库位参数错误");
             }
-            detail.setRealQty(realQty.multiply(quant.getPackUnit()));
+            detail.setRealQty(realQty);
             detail.setRealLocationId(realLocationId);
             detail.setShelveAt(DateUtils.getCurrentSeconds());
             detail.setOperator(info.getOperator());
@@ -321,8 +321,9 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             return null;
         }
         StockQuant quant = quants.get(0);
-
-        BigDecimal total = stockQuantService.getQuantQtyByLocationIdAndItemId(quant.getLocationId(), quant.getItemId());
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("containerId",quant.getContainerId());
+        BigDecimal total = stockQuantService.getQty(queryMap).divide(quant.getPackUnit(), 0);
 
         //将上架货物存到阁楼存货位上
         BaseinfoItem item = itemService.getItem(quant.getItemId());
@@ -336,8 +337,8 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
 
 
         while (total.compareTo(BigDecimal.ZERO) > 0) {
-            //TODO 获取存储合一货位
-            BaseinfoLocation location = locationService.getlocationIsEmptyAndUnlockByType(LocationConstant.LOFT_STORE_BIN);
+            //获取存储合一货位
+            BaseinfoLocation location = locationService.getlocationIsEmptyAndUnlockByType(LocationConstant.SPLIT_SHELF_BIN);
             if(location==null) {
                 throw new BizCheckedException("2030015");
             }
@@ -357,7 +358,10 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(location.getLocationId());
             //体积的80%为有效体积
             BigDecimal valum = bin.getVolume().multiply(new BigDecimal(0.8));
-            BigDecimal num = valum.divide(bulk, BigDecimal.ROUND_HALF_EVEN);
+            if(valum.compareTo(bulk)< 0 ){
+                continue;
+            }
+            BigDecimal num = valum.divide(bulk, 0);
             if (total.subtract(num).compareTo(BigDecimal.ZERO) >= 0) {
                 detail.setQty(num);
             } else {
@@ -368,7 +372,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             map.put("taskId", taskId);
             map.put("locationId", location.getLocationId());
             map.put("locationCode", location.getLocationCode());
-            map.put("qty", detail.getQty().divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
+            map.put("qty", quant.getQty());
             map.put("packName", quant.getPackName());
             shelveTaskService.create(detail);
             return map;

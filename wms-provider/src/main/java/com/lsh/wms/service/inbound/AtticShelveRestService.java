@@ -140,6 +140,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
     @POST
     @Path("createDetail")
     public String createDetail() throws BizCheckedException {
+
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long taskId = 0L;
         Long allocLocationId = 0L;
@@ -156,6 +157,10 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         }catch (Exception e){
             logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("参数传递格式有误");
+        }
+
+        if(!this.chargeLocation(allocLocationId,LocationConstant.LOFT_STORE_BIN) || !this.chargeLocation(realLocationId,LocationConstant.LOFT_STORE_BIN)){
+            return JsonUtils.TOKEN_ERROR("库位状态异常");
         }
 
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
@@ -183,6 +188,10 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         detail.setQty(qty);
         detail.setRealQty(realQty);
         shelveTaskService.create(detail);
+
+
+        entry.setTaskInfo(info);
+        iTaskRpcService.update(TaskConstant.TYPE_ATTIC_SHELVE,entry);
 
 
         return JsonUtils.SUCCESS();
@@ -213,6 +222,9 @@ public class AtticShelveRestService implements IAtticShelveRestService{
             return JsonUtils.TOKEN_ERROR("参数传递格式有误");
         }
 
+        if(!this.chargeLocation(allocLocationId,LocationConstant.LOFT_STORE_BIN) || !this.chargeLocation(realLocationId,LocationConstant.LOFT_STORE_BIN)){
+            return JsonUtils.TOKEN_ERROR("库位状态异常");
+        }
         AtticShelveTaskDetail detail = shelveTaskService.getDetailById(detailId);
         if(detail ==null){
             return JsonUtils.TOKEN_ERROR("任务详情不存在");
@@ -255,7 +267,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         return JsonUtils.SUCCESS();
     }
     /**
-     * 创建上架详情
+     * 执行上架详情
      * @return
      * @throws BizCheckedException
      */
@@ -387,6 +399,46 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         return JsonUtils.SUCCESS(resultList);
     }
     /**
+     * 修改上架人列表
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("updateOperator")
+    public String updateOperator() throws BizCheckedException {
+        Long taskId=0L;
+        Long operator = 0L;
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+
+        try {
+            taskId = Long.valueOf(mapQuery.get("taskId").toString());
+            operator = Long.valueOf(mapQuery.get("operator").toString());
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            return JsonUtils.TOKEN_ERROR("参数传递格式有误");
+        }
+
+
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("status",2L);
+        List<TaskEntry> entries = iTaskRpcService.getTaskList(TaskConstant.TYPE_ATTIC_SHELVE, queryMap);
+
+        if(entries!=null && entries.size()!=0) {
+            return JsonUtils.TOKEN_ERROR("改人已存在上架任务");
+        }
+
+        TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
+        if(entry ==null){
+            return JsonUtils.TOKEN_ERROR("任务不存在");
+        }
+        TaskInfo info = entry.getTaskInfo();
+        info.setOperator(operator);
+        info.setStatus(TaskConstant.Assigned);
+        entry.setTaskInfo(info);
+        iTaskRpcService.update(TaskConstant.TYPE_ATTIC_SHELVE,entry);
+        return JsonUtils.SUCCESS();
+    }
+    /**
      * 获得上架详情
      * @return
      * @throws BizCheckedException
@@ -427,7 +479,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
             head.put("packName",quant.getPackName());
             head.put("qty",stockQuantService.getQuantQtyByLocationIdAndItemId(quant.getLocationId(), quant.getItemId()).divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
             head.put("operator",info.getOperator());
-            head.put("isDoing",info.getExt1());
+            head.put("isDoing",info.getExt1().compareTo(2L)==0 ? 1 :0);
         }else {
             AtticShelveTaskDetail detail = (AtticShelveTaskDetail)(details.get(0));
             head.put("containerId",detail.getContainerId());
@@ -438,7 +490,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
             head.put("packName",info.getPackName());
             head.put("qty",stockQuantService.getQuantQtyByLocationIdAndItemId(info.getLocationId(), info.getItemId()).divide(info.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
             head.put("operator",info.getOperator());
-            head.put("isDoing",info.getExt1());
+            head.put("isDoing",info.getExt1().compareTo(2L)==0 ? 1 :0);
         }
         result.put("head", head);
         if(details==null || details.size()==0){
@@ -483,5 +535,18 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         stockQuantService.move(move);
         locationService.unlockLocation(detail.getAllocLocationId());
         shelveTaskService.updateDetail(detail);
+    }
+    public boolean chargeLocation(Long locationId,Long type) {
+        BaseinfoLocation location = locationService.getLocation(locationId);
+        if(location==null){
+            throw new BizCheckedException("2030013");
+        }
+        if(location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN)==0) {
+            return true;
+        }
+        if (location.getType().compareTo(type) != 0 || location.getIsLocked().compareTo(1) == 0) {
+            return false;
+        }
+        return true;
     }
 }

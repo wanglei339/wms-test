@@ -13,6 +13,8 @@ public interface WaveDetailDao {
 	void insert(WaveDetail waveDetail);
 	
 	void update(WaveDetail waveDetail);
+
+	void shipWave(long waveId);
 	
 	WaveDetail getWaveDetailById(Long id);
 

@@ -5,6 +5,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * Created by panxudong on 16/7/15.
@@ -26,10 +27,10 @@ public class SoItem implements Serializable {
 
     /** 订货数 */
     @NotNull
-    private Long orderQty;
+    private BigDecimal orderQty;
 
     /** 包装单位 */
-    private Long packUnit;
+    private BigDecimal packUnit;
 
     /** 批次号 */
     @Size(max=64)
@@ -39,7 +40,7 @@ public class SoItem implements Serializable {
 
     }
 
-    public SoItem(Long itemId, String skuName, String barCode, Long orderQty, Long packUnit, String lotNum) {
+    public SoItem(Long itemId, String skuName, String barCode, BigDecimal orderQty, BigDecimal packUnit, String lotNum) {
         this.itemId = itemId;
         this.skuName = skuName;
         this.barCode = barCode;
@@ -72,19 +73,19 @@ public class SoItem implements Serializable {
         this.barCode = barCode;
     }
 
-    public Long getOrderQty() {
+    public BigDecimal getOrderQty() {
         return orderQty;
     }
 
-    public void setOrderQty(Long orderQty) {
+    public void setOrderQty(BigDecimal orderQty) {
         this.orderQty = orderQty;
     }
 
-    public Long getPackUnit() {
+    public BigDecimal getPackUnit() {
         return packUnit;
     }
 
-    public void setPackUnit(Long packUnit) {
+    public void setPackUnit(BigDecimal packUnit) {
         this.packUnit = packUnit;
     }
 

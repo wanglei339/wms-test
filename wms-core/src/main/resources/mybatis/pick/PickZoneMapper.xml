@@ -8,6 +8,7 @@
 		<result property="pickZoneCode" column="pick_zone_code"/>
 		<result property="pickZoneName" column="pick_zone_name"/>
 		<result property="locations" column="locations"/>
+		<result property="pickType" column="pick_type"/>
 		<result property="pickUnit" column="pick_unit"/>
 		<result property="pickModelSupport" column="pick_model_support"/>
 		<result property="createdAt" column="created_at"/>
@@ -16,10 +17,10 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PickZone">
 		insert into pick_zone (
-			pick_zone_id,pick_zone_code,pick_zone_name,locations,pick_unit,pick_model_support,
+			pick_zone_id,pick_zone_code,pick_zone_name,locations,pick_type,pick_model_support,
 			created_at,updated_at
     	) values (
-			#{pickZoneId},#{pickZoneCode},#{pickZoneName},#{locations},#{pickUnit},#{pickModelSupport},
+			#{pickZoneId},#{pickZoneCode},#{pickZoneName},#{locations},#{pickType}#{pickUnit},#{pickModelSupport},
 			#{createdAt},#{updatedAt}
     	)
 	</insert>
@@ -30,6 +31,7 @@
   			<if test="pickZoneCode != null">pick_zone_code=#{pickZoneCode},</if>
   			<if test="pickZoneName != null">pick_zone_name=#{pickZoneName},</if>
   			<if test="locations != null">locations=#{locations},</if>
+			<if test="pickType != null">pick_type#{pickType},</if>
   			<if test="pickUnit != null">pick_unit=#{pickUnit},</if>
   			<if test="pickModelSupport != null">pick_model_support=#{pickModelSupport},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
@@ -63,6 +65,7 @@
 			<if test="pickZoneCode != null">and pick_zone_code=#{pickZoneCode}</if>
 			<if test="pickZoneName != null">and pick_zone_name=#{pickZoneName}</if>
 			<if test="locations != null">and locations=#{locations}</if>
+			<if test="pickType != null">and pick_type=#{pickType}</if>
 			<if test="pickUnit != null">and pick_unit=#{pickUnit}</if>
 			<if test="pickModelSupport != null">and pick_model_support=#{pickModelSupport}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>

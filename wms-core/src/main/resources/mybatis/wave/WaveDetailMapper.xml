@@ -118,6 +118,10 @@
 		</set>
 		where id=#{id}
 	</update>
+
+	<update id="shipWave" parameterType="long">
+		update wave_detail set is_alive=0 where wave_id=#{waveId}
+	</update>
   
 	<select id="getWaveDetailById" parameterType="long" resultMap="waveDetailResultMap">
 		select * from wave_detail

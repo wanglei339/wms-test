@@ -9,12 +9,14 @@ import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.core.service.task.TaskTriggerService;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.core.service.task.TaskHandler;
 import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.model.task.TaskMsg;
 import com.lsh.wms.model.task.TaskTrigger;
 import com.lsh.wms.task.service.event.EventHandlerFactory;
 import com.lsh.wms.task.service.event.IEventHandler;
@@ -56,6 +58,9 @@ public class TaskRpcService implements ITaskRpcService {
 
     @Autowired
     private EventHandlerFactory eventHandlerFactory;
+
+    @Autowired
+    private MessageService messageService;
 
     private String getCurrentMethodName() {
         StackTraceElement[] stacktrace = Thread.currentThread().getStackTrace();
@@ -173,9 +178,11 @@ public class TaskRpcService implements ITaskRpcService {
     }
 
     public void afterDone(Long taskId) throws BizCheckedException {
-        IEventHandler handler = eventHandlerFactory.getEventHandler(this.getTaskTypeById(taskId));
         try {
-            handler.process(taskId);
+            TaskMsg msg = new TaskMsg();
+            msg.setSourceTaskId(taskId);
+            msg.setType(TaskConstant.EVENT_TASK_FINISH);
+            messageService.sendMessage(msg);
         } catch (Exception e){
             logger.error("AfterDone Exception", e);
         }

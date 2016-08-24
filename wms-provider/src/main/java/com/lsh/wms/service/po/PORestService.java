@@ -73,6 +73,14 @@ public class PORestService implements IPoRestService {
     }
 
     @POST
+    @Path("canReceipt")
+    public String canReceipt(){
+        Map<String, Object> map = RequestUtils.getRequest();
+        poRpcService.canReceipt(map);
+        return JsonUtils.SUCCESS();
+    }
+
+    @POST
     @Path("getPoHeaderList")
     public String getPoHeaderList() {
         Map<String, Object> params = RequestUtils.getRequest();

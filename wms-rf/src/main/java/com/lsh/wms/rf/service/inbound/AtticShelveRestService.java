@@ -324,8 +324,9 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             return null;
         }
         StockQuant quant = quants.get(0);
-
-        BigDecimal total = stockQuantService.getQuantQtyByLocationIdAndItemId(quant.getLocationId(), quant.getItemId());
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("containerId",quant.getContainerId());
+        BigDecimal total = stockQuantService.getQty(queryMap).divide(quant.getPackUnit(), 0);
 
             //判断阁楼捡货位是不是需要补货
 
@@ -348,6 +349,13 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
                                 }
                             }
                             //插detail
+                            BigDecimal num = total.divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN);
+                            BigDecimal qty = BigDecimal.ZERO;
+                            if(num.compareTo(new BigDecimal(3)) >= 0){
+                                qty = new BigDecimal(3);
+                            }else {
+                                qty = num;
+                            }
                             AtticShelveTaskDetail detail = new AtticShelveTaskDetail();
                             StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
                             ObjUtils.bean2bean(quant, detail);
@@ -356,14 +364,14 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
                             detail.setOrderId(lot.getPoId());
                             detail.setAllocLocationId(location.getLocationId());
                             detail.setRealLocationId(location.getLocationId());
+                            detail.setQty(qty);
 
 
-                            BigDecimal num = total.divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN);
                             Map<String, Object> map = new HashMap<String, Object>();
                             map.put("taskId", taskId);
                             map.put("locationId", location.getLocationId());
                             map.put("locationCode", location.getLocationCode());
-                            map.put("qty", num.compareTo(new BigDecimal(3)) >= 0 ? 3 : num);
+                            map.put("qty", qty);
                             map.put("packName", quant.getPackName());
 
                             shelveTaskService.create(detail);
@@ -406,6 +414,11 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(location.getLocationId());
             //体积的80%为有效体积
             BigDecimal valum = bin.getVolume().multiply(new BigDecimal(0.8));
+
+            if(valum.compareTo(bulk)< 0 ){
+                continue;
+            }
+
             BigDecimal num = valum.divide(bulk, BigDecimal.ROUND_HALF_EVEN);
             if (total.subtract(num).compareTo(BigDecimal.ZERO) >= 0) {
                 detail.setQty(num);
@@ -417,7 +430,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             map.put("taskId", taskId);
             map.put("locationId", location.getLocationId());
             map.put("locationCode", location.getLocationCode());
-            map.put("qty", detail.getQty().divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
+            map.put("qty", detail.getQty());
             map.put("packName", quant.getPackName());
             shelveTaskService.create(detail);
             return map;

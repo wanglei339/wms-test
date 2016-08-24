@@ -8,19 +8,22 @@ import com.lsh.wms.core.dao.so.OutbSoHeaderDao;
 import com.lsh.wms.core.dao.wave.WaveDetailDao;
 import com.lsh.wms.core.dao.wave.WaveHeadDao;
 import com.lsh.wms.core.dao.wave.WaveQcExceptionDao;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.pick.PickTaskService;
+import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.pick.PickTaskHead;
+import com.lsh.wms.model.so.OutbDeliveryDetail;
+import com.lsh.wms.model.so.OutbDeliveryHeader;
 import com.lsh.wms.model.so.OutbSoHeader;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.wave.WaveAllocDetail;
 import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.wave.WaveHead;
 import com.lsh.wms.model.wave.WaveQcException;
-import com.sun.org.apache.bcel.internal.generic.ALOAD;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +58,10 @@ public class WaveService {
     private StockQuantService stockQuantService;
     @Autowired
     private LocationService locationService;
+    @Autowired
+    private SoDeliveryService soDeliveryService;
+    @Autowired
+    private ItemService itemService;
 
     @Transactional(readOnly = false)
     public void createWave(WaveHead head, List<Long> vOrders){
@@ -133,7 +140,7 @@ public class WaveService {
         return detailDao.getWaveDetailById(id);
     }
 
-    public List<WaveDetail> getDetaileByWaveId(long waveId){
+    public List<WaveDetail> getDetailsByWaveId(long waveId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("waveId", waveId);
         return detailDao.getWaveDetailList(mapQuery);
@@ -310,6 +317,62 @@ public class WaveService {
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("qcTaskId", taskId);
         return qcExceptionDao.getWaveQcExceptionList(mapQuery);
+    }
+
+    @Transactional(readOnly = false)
+    public void shipWave(WaveHead waveHead, List<WaveDetail> waveDetails){
+        Map<Long, OutbDeliveryHeader> mapHeader = new HashMap<Long, OutbDeliveryHeader>();
+        Map<Long, List<OutbDeliveryDetail>> mapDetails = new HashMap<Long, List<OutbDeliveryDetail>>();
+        for(WaveDetail detail : waveDetails){
+            if ( mapHeader.get(detail.getOrderId()) == null ){
+                OutbDeliveryHeader header = new OutbDeliveryHeader();
+                header.setWarehouseId(0L);
+                header.setShippingAreaCode(""+detail.getRealCollectLocation());
+                header.setWaveId(waveHead.getWaveId());
+                header.setTransPlan("");
+                header.setTransTime(new Date());
+                header.setDeliveryCode("");
+                header.setDeliveryUser("");
+                header.setDeliveryType(1);
+                header.setDeliveryTime(new Date());
+                mapHeader.put(detail.getOrderId(), header);
+                mapDetails.put(detail.getOrderId(), new LinkedList<OutbDeliveryDetail>());
+            }
+            List<OutbDeliveryDetail> deliveryDetails = mapDetails.get(detail.getOrderId());
+            OutbDeliveryDetail deliveryDetail = new OutbDeliveryDetail();
+            deliveryDetail.setOrderId(detail.getOrderId());
+            deliveryDetail.setItemId(detail.getItemId());
+            deliveryDetail.setSkuId(detail.getSkuId());
+            BaseinfoItem item = itemService.getItem(detail.getItemId());
+            deliveryDetail.setSkuName(item.getSkuName());
+            deliveryDetail.setBarCode(item.getCode());
+            deliveryDetail.setOrderQty(detail.getReqQty());
+            deliveryDetail.setPackUnit(item.getPackUnit());
+            deliveryDetail.setLotId(0L);
+            deliveryDetail.setLotNum("");
+            deliveryDetail.setDeliveryNum(detail.getQcQty());
+            deliveryDetails.add(deliveryDetail);
+        }
+        for(WaveDetail detail : waveDetails){
+            //detail.setShipAt(DateUtils.getCurrentSeconds());
+            //detail.setDeliveryQty(detail.getQcQty());
+            //this.updateDetail(detail);
+        }
+        for(Long key : mapHeader.keySet()){
+            OutbDeliveryHeader header = mapHeader.get(key);
+            List<OutbDeliveryDetail> details = mapDetails.get(key);
+            if ( details.size() == 0 ){
+                continue;
+            }
+            header.setDeliveryId(RandomUtils.genId());
+            for(OutbDeliveryDetail detail : details){
+                detail.setDeliveryId(header.getDeliveryId());
+            }
+            soDeliveryService.insertOrder(header, details);
+        }
+        //发货
+        detailDao.shipWave(waveHead.getWaveId());
+        this.setStatus(waveHead.getWaveId(), WaveConstant.STATUS_SUCC);
     }
 
 }
