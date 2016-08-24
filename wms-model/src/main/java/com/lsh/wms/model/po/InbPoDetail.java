@@ -43,7 +43,7 @@ public class InbPoDetail implements Serializable {
 	private String lotNum;
 
 	/**保质期例外收货*/
-	private Integer exceptionReceipt;
+	private Integer exceptionReceipt = 0;
 
 	/**返仓单生成移库任务的taskId*/
 	private Long taskId;
