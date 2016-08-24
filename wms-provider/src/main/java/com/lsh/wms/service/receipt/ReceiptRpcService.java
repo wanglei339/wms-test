@@ -215,7 +215,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
                 StockQuant quant = new StockQuant();
                 quant.setLotId(lotId);
-                quant.setPackUnit(BigDecimal.valueOf(inbPoDetail.getPackUnit()));
+                quant.setPackUnit(inbPoDetail.getPackUnit());
                 quant.setSkuId(inbReceiptDetail.getSkuId());
                 quant.setItemId(inbReceiptDetail.getItemId());
                 quant.setLocationId(inbReceiptHeader.getLocation());
@@ -227,9 +227,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
                 quant.setExpireDate(stockLot.getExpireDate());
                 quant.setCost(inbPoDetail.getPrice());
-                BigDecimal inboundQty = BigDecimal.valueOf(inbReceiptDetail.getInboundQty());
+                BigDecimal inboundQty = inbReceiptDetail.getInboundQty();
                 // TODO: 16/8/22  qty只能传转换成基本单位的数量
-                BigDecimal qty = inboundQty.multiply(BigDecimal.valueOf(inbReceiptDetail.getPackUnit()));
+                BigDecimal qty = inboundQty.multiply(inbReceiptDetail.getPackUnit());
                 quant.setQty(qty);
                 //quant.setQty(inboundQty);
                 BigDecimal value = inbPoDetail.getPrice().multiply(inboundQty);
@@ -270,7 +270,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     throw new BizCheckedException("2020009");
                 }
 
-                if(receiptItem.getInboundQty() <= 0) {
+                if(receiptItem.getInboundQty().compareTo(new BigDecimal(0)) <= 0) {
                     throw new BizCheckedException("2020007");
                 }
 
@@ -315,29 +315,52 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 inbReceiptDetail.setOrderQty(inbPoDetail.getOrderQty());
 
                 // 判断是否超过订单总数
-                Long poInboundQty = null != inbPoDetail.getInboundQty() ? inbPoDetail.getInboundQty() : 0L;
+                //Long poInboundQty = null != inbPoDetail.getInboundQty() ? inbPoDetail.getInboundQty() : 0L;
+                BigDecimal poInboundQty = null != inbPoDetail.getInboundQty() ? inbPoDetail.getInboundQty() : new BigDecimal(0);
 
-                if (poInboundQty + inbReceiptDetail.getInboundQty() > inbPoDetail.getOrderQty()) {
+                if (poInboundQty.add(inbReceiptDetail.getInboundQty()).compareTo(inbPoDetail.getOrderQty()) > 0) {
                     throw new BizCheckedException("2020005");
                 }
 
-                // TODO: 16/7/20   商品信息是否完善,怎么排查.2,保质期例外怎么验证?
-                //保质期判断,如果失败抛出异常
-                BigDecimal shelLife = baseinfoItem.getShelfLife();
-                String producePlace = baseinfoItem.getProducePlace();
-                Double shelLife_CN = Double.parseDouble(PropertyUtils.getString("shelLife_CN"));
-                Double shelLife_Not_CN = Double.parseDouble(PropertyUtils.getString("shelLife_Not_CN"));
-                String produceChina = PropertyUtils.getString("produceChina");
-                BigDecimal left_day = new BigDecimal(DateUtils.daysBetween(inbReceiptDetail.getProTime(), new Date()));
-                if (producePlace.contains(produceChina)) { // TODO: 16/7/20  产地是否存的是CN
-                    if (left_day.divide(shelLife, 2, ROUND_HALF_EVEN).doubleValue() >= shelLife_CN) {
-                        throw new BizCheckedException("2020003");
-                    }
-                } else {
-                    if (left_day.divide(shelLife, 2, ROUND_HALF_EVEN).doubleValue() > shelLife_Not_CN) {
-                        throw new BizCheckedException("2020003");
+                //取出是否检验保质期字段 exceptionReceipt = 0 校验 = 1不校验
+                Integer exceptionReceipt = inbPoDetail.getExceptionReceipt();
+                if(exceptionReceipt != 1){
+                    // TODO: 16/7/20   商品信息是否完善,怎么排查.2,保质期例外怎么验证?
+                    //保质期判断,如果失败抛出异常
+                    BigDecimal shelLife = baseinfoItem.getShelfLife();
+                    String producePlace = baseinfoItem.getProducePlace();
+                    Double shelLife_CN = Double.parseDouble(PropertyUtils.getString("shelLife_CN"));
+                    Double shelLife_Not_CN = Double.parseDouble(PropertyUtils.getString("shelLife_Not_CN"));
+                    String produceChina = PropertyUtils.getString("produceChina");
+                    BigDecimal left_day = new BigDecimal(DateUtils.daysBetween(inbReceiptDetail.getProTime(), new Date()));
+                    if (producePlace.contains(produceChina)) { // TODO: 16/7/20  产地是否存的是CN
+                        if (left_day.divide(shelLife, 2, ROUND_HALF_EVEN).doubleValue() >= shelLife_CN) {
+                            throw new BizCheckedException("2020003");
+                        }
+                    } else {
+                        if (left_day.divide(shelLife, 2, ROUND_HALF_EVEN).doubleValue() > shelLife_Not_CN) {
+                            throw new BizCheckedException("2020003");
+                        }
                     }
                 }
+
+//                // TODO: 16/7/20   商品信息是否完善,怎么排查.2,保质期例外怎么验证?
+//                //保质期判断,如果失败抛出异常
+//                BigDecimal shelLife = baseinfoItem.getShelfLife();
+//                String producePlace = baseinfoItem.getProducePlace();
+//                Double shelLife_CN = Double.parseDouble(PropertyUtils.getString("shelLife_CN"));
+//                Double shelLife_Not_CN = Double.parseDouble(PropertyUtils.getString("shelLife_Not_CN"));
+//                String produceChina = PropertyUtils.getString("produceChina");
+//                BigDecimal left_day = new BigDecimal(DateUtils.daysBetween(inbReceiptDetail.getProTime(), new Date()));
+//                if (producePlace.contains(produceChina)) { // TODO: 16/7/20  产地是否存的是CN
+//                    if (left_day.divide(shelLife, 2, ROUND_HALF_EVEN).doubleValue() >= shelLife_CN) {
+//                        throw new BizCheckedException("2020003");
+//                    }
+//                } else {
+//                    if (left_day.divide(shelLife, 2, ROUND_HALF_EVEN).doubleValue() > shelLife_Not_CN) {
+//                        throw new BizCheckedException("2020003");
+//                    }
+//                }
 
                 InbPoDetail updateInbPoDetail = new InbPoDetail();
                 updateInbPoDetail.setInboundQty(inbReceiptDetail.getInboundQty());
@@ -364,7 +387,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
                 StockQuant quant = new StockQuant();
                 quant.setLotId(lotId);
-                quant.setPackUnit(BigDecimal.valueOf(inbPoDetail.getPackUnit()));
+                quant.setPackUnit(inbPoDetail.getPackUnit());
                 quant.setSkuId(inbReceiptDetail.getSkuId());
                 quant.setItemId(inbReceiptDetail.getItemId());
                 quant.setLocationId(inbReceiptHeader.getLocation());
@@ -373,13 +396,13 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 quant.setOwnerId(inbPoHeader.getOwnerUid());
                 Date receiptTime = inbReceiptHeader.getReceiptTime();
                 quant.setInDate(receiptTime.getTime() / 1000);
-                Long expireDate = inbReceiptDetail.getProTime().getTime() + shelLife.longValue(); // 生产日期+保质期=保质期失效时间
+                Long expireDate = inbReceiptDetail.getProTime().getTime() + baseinfoItem.getShelfLife().longValue(); // 生产日期+保质期=保质期失效时间
                 quant.setExpireDate(expireDate / 1000);
                 quant.setCost(inbPoDetail.getPrice());
-                BigDecimal inboundQty = BigDecimal.valueOf(inbReceiptDetail.getInboundQty());
+                BigDecimal inboundQty = inbReceiptDetail.getInboundQty();
 
                 // TODO: 16/8/22  qty只能传转换成基本单位的数量
-                BigDecimal qty = inboundQty.multiply(BigDecimal.valueOf(inbReceiptDetail.getPackUnit()));
+                BigDecimal qty = inboundQty.multiply(inbReceiptDetail.getPackUnit());
                 quant.setQty(qty);
                 //quant.setQty(inboundQty);
                 BigDecimal value = inbPoDetail.getPrice().multiply(inboundQty);
@@ -400,7 +423,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                  */
                 StockLot stockLot = new StockLot();
                 stockLot.setLotId(lotId);
-                stockLot.setPackUnit(BigDecimal.valueOf(inbPoDetail.getPackUnit()));
+                stockLot.setPackUnit(inbPoDetail.getPackUnit());
                 stockLot.setSkuId(inbReceiptDetail.getSkuId());
                 stockLot.setSerialNo(inbReceiptDetail.getLotNum());
                 stockLot.setItemId(inbReceiptDetail.getItemId());

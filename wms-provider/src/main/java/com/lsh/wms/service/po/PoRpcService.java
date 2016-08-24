@@ -4,6 +4,7 @@ import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.model.po.PoItem;
@@ -213,5 +214,11 @@ public class PoRpcService implements IPoRpcService {
         poOrderService.fillDetailToHeaderList(inbPoHeaderList);
 
         return inbPoHeaderList;
+    }
+
+
+    public void canReceipt(Map<String, Object> map){
+        InbPoDetail inbPoDetail = BeanMapTransUtils.map2Bean(map,InbPoDetail.class);
+        poOrderService.updateInbPoDetail(inbPoDetail);
     }
 }

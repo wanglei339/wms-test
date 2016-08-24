@@ -9,6 +9,9 @@ public interface IAtticShelveRestService {
     String createTask() throws BizCheckedException;
     String createDetail() throws BizCheckedException;
     String conFirmDetail() throws BizCheckedException;
+    String updateDetail() throws BizCheckedException;
     String getTaskList() throws BizCheckedException;
     String getDetail() throws BizCheckedException;
+    String doDetail() throws BizCheckedException;
+    String updateOperator() throws BizCheckedException;
 }

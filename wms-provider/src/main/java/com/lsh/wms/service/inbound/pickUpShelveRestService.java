@@ -13,6 +13,7 @@ import com.lsh.wms.api.service.shelve.IPickUpShelveRestService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.ContainerConstant;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.item.ItemLocationService;
@@ -23,6 +24,7 @@ import com.lsh.wms.core.service.shelve.AtticShelveTaskDetailService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.shelve.AtticShelveTaskDetail;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
@@ -131,6 +133,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
     @POST
     @Path("createDetail")
     public String createDetail() throws BizCheckedException {
+
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long taskId = 0L;
         Long allocLocationId = 0L;
@@ -147,6 +150,10 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
         }catch (Exception e){
             logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("参数传递格式有误");
+        }
+
+        if(!this.chargeLocation(allocLocationId, LocationConstant.SPLIT_SHELF_BIN) || !this.chargeLocation(realLocationId,LocationConstant.SPLIT_SHELF_BIN)){
+            return JsonUtils.TOKEN_ERROR("库位状态异常");
         }
 
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
@@ -174,6 +181,10 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
         detail.setQty(qty);
         detail.setRealQty(realQty);
         shelveTaskService.create(detail);
+
+
+        entry.setTaskInfo(info);
+        iTaskRpcService.update(TaskConstant.TYPE_PICK_UP_SHELVE,entry);
 
 
         return JsonUtils.SUCCESS();
@@ -204,6 +215,9 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
             return JsonUtils.TOKEN_ERROR("参数传递格式有误");
         }
 
+        if(!this.chargeLocation(allocLocationId,LocationConstant.SPLIT_SHELF_BIN) || !this.chargeLocation(realLocationId,LocationConstant.SPLIT_SHELF_BIN)){
+            return JsonUtils.TOKEN_ERROR("库位状态异常");
+        }
         AtticShelveTaskDetail detail = shelveTaskService.getDetailById(detailId);
         if(detail ==null){
             return JsonUtils.TOKEN_ERROR("任务详情不存在");
@@ -246,7 +260,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
         return JsonUtils.SUCCESS();
     }
     /**
-     * 创建上架详情
+     * 执行上架详情
      * @return
      * @throws BizCheckedException
      */
@@ -270,7 +284,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
         TaskInfo info = entry.getTaskInfo();
         info.setExt1(2L); //pc创建任务详情标示  0: 未创建详情 1:已创建详情 2:已执行中
         entry.setTaskInfo(info);
-        iTaskRpcService.update(TaskConstant.TYPE_ATTIC_SHELVE, entry);
+        iTaskRpcService.update(TaskConstant.TYPE_PICK_UP_SHELVE, entry);
 
         return JsonUtils.SUCCESS();
     }
@@ -322,7 +336,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
     public String getTaskList() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         List<Map> resultList = new ArrayList<Map>();
-        List<TaskEntry> entries = iTaskRpcService.getTaskList(TaskConstant.TYPE_ATTIC_SHELVE, mapQuery);
+        List<TaskEntry> entries = iTaskRpcService.getTaskList(TaskConstant.TYPE_PICK_UP_SHELVE, mapQuery);
         for(TaskEntry entry :entries){
             Long canEdit=0L;
             Map<String,Object> one =  new HashMap<String, Object>();
@@ -376,6 +390,45 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
     public String getLocationList() throws BizCheckedException {
         List<Long> resultList =new ArrayList<Long>();
         return JsonUtils.SUCCESS(resultList);
+    }
+    /**
+     * 修改上架人列表
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("updateOperator")
+    public String updateOperator() throws BizCheckedException {
+        Long taskId=0L;
+        Long operator = 0L;
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+
+        try {
+            taskId = Long.valueOf(mapQuery.get("taskId").toString());
+            operator = Long.valueOf(mapQuery.get("operator").toString());
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            return JsonUtils.TOKEN_ERROR("参数传递格式有误");
+        }
+
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("status",2L);
+        List<TaskEntry> entries = iTaskRpcService.getTaskList(TaskConstant.TYPE_ATTIC_SHELVE, queryMap);
+
+        if(entries!=null && entries.size()!=0) {
+            return JsonUtils.TOKEN_ERROR("改人已存在上架任务");
+        }
+
+        TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
+        if(entry ==null){
+            return JsonUtils.TOKEN_ERROR("任务不存在");
+        }
+        TaskInfo info = entry.getTaskInfo();
+        info.setOperator(operator);
+        entry.setTaskInfo(info);
+        logger.info(JsonUtils.SUCCESS(entry));
+        iTaskRpcService.update(TaskConstant.TYPE_PICK_UP_SHELVE,entry);
+        return JsonUtils.SUCCESS();
     }
     /**
      * 获得上架详情
@@ -474,5 +527,15 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
         stockQuantService.move(move);
         locationService.unlockLocation(detail.getAllocLocationId());
         shelveTaskService.updateDetail(detail);
+    }
+    public boolean chargeLocation(Long locationId,Long type) {
+        BaseinfoLocation location = locationService.getLocation(locationId);
+        if(location==null){
+            throw new BizCheckedException("2030013");
+        }
+        if (location.getType().compareTo(type) != 0 || location.getIsLocked().compareTo(1) == 0) {
+            return false;
+        }
+        return true;
     }
 }

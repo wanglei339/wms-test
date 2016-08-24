@@ -22,6 +22,8 @@ public class StockTransferPlan implements Serializable {
 	@NotNull
 	@Size(min=1)
     private Long toLocationId;
+	/** */
+	private Long containerId;
 	/** 数量 */
     private BigDecimal qty;
 	/** 商品单位转换id */
@@ -89,7 +91,15 @@ public class StockTransferPlan implements Serializable {
 	public void setToLocationId(Long toLocationId){
 		this.toLocationId = toLocationId;
 	}
-	
+
+	public Long getContainerId(){
+		return this.containerId;
+	}
+
+	public void setContainerId(Long containerId){
+		this.containerId = containerId;
+	}
+
 	public BigDecimal getQty(){
 		return this.qty;
 	}

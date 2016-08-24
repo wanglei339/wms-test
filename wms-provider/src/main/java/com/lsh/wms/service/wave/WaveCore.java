@@ -364,7 +364,7 @@ public class WaveCore {
                     throw new BizCheckedException("");
                 }
                 //获取商品的捡货位
-                BigDecimal leftAllocQty = new BigDecimal(detail.getOrderQty());
+                BigDecimal leftAllocQty = detail.getOrderQty();
                 for (PickModel model : modelList) {
                     if (leftAllocQty.compareTo(BigDecimal.ZERO) <= 0) {
                         break;
