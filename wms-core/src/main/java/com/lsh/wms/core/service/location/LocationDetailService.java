@@ -257,7 +257,7 @@ public class LocationDetailService {
             String newCode = fatherCode + "-" + i;
             BaseinfoLocation levelLocation = new BaseinfoLocation();
             ObjUtils.bean2bean(baseinfoLocation, levelLocation);
-            levelLocation.setFatherId(baseinfoLocation.getFatherId());  //  设置父亲的id
+            levelLocation.setFatherId(baseinfoLocation.getLocationId());  //  设置父亲的id
             levelLocation.setLocationCode(newCode); //code刷新,range不用管
             levelLocation.setType(type); //设置类型
             levelLocation.setShelfLevelNo(Long.parseLong(Integer.toString(i)));
@@ -335,7 +335,6 @@ public class LocationDetailService {
      * @return
      */
     public Integer countLocationDetail(Map<String, Object> params) {
-
         return locationService.countLocation(params);
     }
 
@@ -422,5 +421,18 @@ public class LocationDetailService {
         } else {
             throw new BizCheckedException("2180005");
         }
+    }
+
+    /**
+     * 删除细节表
+     * 该方法只删除细节表
+     * @param iBaseinfoLocaltionModel
+     * @return
+     */
+    @Transactional(readOnly = false)
+    public IBaseinfoLocaltionModel removeLocationDetail(IBaseinfoLocaltionModel iBaseinfoLocaltionModel){
+        IStrategy istrategy = locationDetailServiceFactory.getIstrategy(iBaseinfoLocaltionModel.getType());
+        istrategy.removeLocation(iBaseinfoLocaltionModel.getLocationId());
+        return iBaseinfoLocaltionModel;
     }
 }

@@ -203,11 +203,24 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (!taskInfo.getStatus().equals(TaskConstant.Draft)) {
             throw new BizCheckedException("2550033");
         }
+        BaseinfoLocation fromLocation = locationService.getLocation( plan.getFromLocationId());
+        BaseinfoLocation toLocation = locationService.getLocation(plan.getToLocationId());
+        if (fromLocation == null || toLocation == null) {
+            throw new BizCheckedException("2060012");
+        }
+        if (fromLocation.getCanStore() != 1) {
+            fromLocation = core.getNearestLocation(fromLocation);
+            plan.setFromLocationId(fromLocation.getLocationId());
+        }
+        if (toLocation.getCanStore() != 1) {
+            toLocation = core.getNearestLocation(toLocation);
+            plan.setToLocationId(toLocation.getLocationId());
+        }
         if (checkPlan(plan)) {
             this.cancelPlan(plan.getTaskId());
+            plan.setTaskId(0L);
+            this.addPlan(plan);
         }
-        plan.setTaskId(0L);
-        this.addPlan(plan);
     }
 
     public void cancelPlan(Long taskId){

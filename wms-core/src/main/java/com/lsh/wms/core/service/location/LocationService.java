@@ -31,6 +31,8 @@ public class LocationService {
     private StockQuantService stockQuantService;
     @Autowired
     private BaseinfoLocationShelfService baseinfoLocationShelfService;
+    @Autowired
+    private LocationDetailService locationDetailService;
 
 
     //计数
@@ -86,7 +88,7 @@ public class LocationService {
 
     /**
      * 删除节点和下面的所有子树
-     *
+     * 并且删除细节表的所有location
      * @param locationId
      * @return
      */
@@ -102,6 +104,7 @@ public class LocationService {
         for (BaseinfoLocation child : childrenList) {
             child.setIsValid(LocationConstant.NOT_VALID);
             updateLocation(child);
+            locationDetailService.removeLocationDetail(child);
         }
         //删除该节点
         location.setIsValid(LocationConstant.NOT_VALID);
