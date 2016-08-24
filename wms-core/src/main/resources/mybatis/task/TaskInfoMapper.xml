@@ -148,6 +148,20 @@
 			<if test="endDate != null">and date &lt;= #{endDate}</if>
 		</where>
 		 	group by operator, date, type, sub_type
+		<if test="start != null and limit != null">
+			limit #{start},#{limit}
+		</if>
+	</select>
+
+	<select id="getPerformanceCount" parameterType="map" resultType="int">
+		select count(t.num) from
+		(select count(*) num from task_info
+		<where>
+			<if test="staffId != null">operator = #{staffId}</if>
+			<if test="startDate != null">and #{startDate} &lt;= date</if>
+			<if test="endDate != null">and date &lt;= #{endDate}</if>
+		</where>
+		group by operator, date, type, sub_type) t
 	</select>
   
 	<sql id="queryCondition">
