@@ -20,17 +20,18 @@
 		<result property="updateby" column="UPDATEBY"/>
 		<result property="inserttime" column="INSERTTIME"/>
 		<result property="updatetime" column="UPDATETIME"/>
+		<result property="staffId" column="STAFF_ID"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="InbReceiptHeader">
 		insert into INB_RECEIPT_HEADER (
 			WAREHOUSE_ID,BOOKING_NUM,RECEIPT_ORDER_ID,LOT_SEQ_ID,RECEIPT_WHARF,TEMP_STORE_AREA,
 			CONTAINER_ID,LOCATION,REAL_LOCATION,RECEIPT_USER,RECEIPT_TIME,RECEIPT_STATUS,
-			INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME
+			INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME,STAFF_ID
     	) values (
 			#{warehouseId},#{bookingNum},#{receiptOrderId},#{lotSeqId},#{receiptWharf},#{tempStoreArea},
 			#{containerId},#{location},#{realLocation},#{receiptUser},#{receiptTime},#{receiptStatus},
-			#{insertby},#{updateby},#{inserttime},#{updatetime}
+			#{insertby},#{updateby},#{inserttime},#{updatetime},#{staffId}
     	)
 	</insert>
 
@@ -51,6 +52,7 @@
   			<if test="receiptStatus != null">RECEIPT_STATUS=#{receiptStatus},</if>
   			<if test="insertby != null">INSERTBY=#{insertby},</if>
   			<if test="updateby != null">UPDATEBY=#{updateby},</if>
+			<if test="staffId != null">STAFF_ID=#{staffId},</if>
   			<if test="inserttime != null">INSERTTIME=#{inserttime},</if>
   			<if test="updatetime != null">UPDATETIME=#{updatetime}</if>
 		</set>
@@ -73,6 +75,7 @@
 			<if test="receiptStatus != null">RECEIPT_STATUS=#{receiptStatus},</if>
 			<if test="insertby != null">INSERTBY=#{insertby},</if>
 			<if test="updateby != null">UPDATEBY=#{updateby},</if>
+			<if test="staffId != null">STAFF_ID=#{staffId},</if>
 			<if test="inserttime != null">INSERTTIME=#{inserttime},</if>
 			<if test="updatetime != null">UPDATETIME=#{updatetime}</if>
 		</set>
@@ -116,6 +119,7 @@
 			<if test="updateby != null">and UPDATEBY=#{updateby}</if>
 			<if test="inserttime != null">and INSERTTIME=#{inserttime}</if>
 			<if test="updatetime != null">and UPDATETIME=#{updatetime}</if>
+			<if test="staffId != null">and STAFF_ID=#{staffId}</if>
 		</where>
 	</sql>
    

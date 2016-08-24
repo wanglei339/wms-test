@@ -68,13 +68,15 @@ public class PickTaskHandler extends AbsTaskHandler {
         taskHead.setRealCollectLocation(locationId);
         pickTaskService.update(taskHead);
         // 更新wave_detail
-        /*List<WaveDetail> pickDetails = waveService.getDetailsByPickTaskId(taskId);
+        List<WaveDetail> pickDetails = waveService.getDetailsByPickTaskId(taskId);
+        BigDecimal realTotalQty = new BigDecimal(0);
         for (WaveDetail pickDetail : pickDetails) {
-            pickDetail.setRealCollectLocation(locationId);
-            waveService.updateDetail(pickDetail);
-        }*/
-        // 移动库存, TOD
-        stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, locationService.getWarehouseLocationId(), locationId);
+            realTotalQty = realTotalQty.add(pickDetail.getPickQty());
+        }
+        // 移动库存,实际移动库存为0时则不移动
+        if (realTotalQty.compareTo(new BigDecimal(0)) == 1) {
+            stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, locationService.getWarehouseLocationId(), locationId);
+        }
     }
 
     public void assignConcrete(Long taskId, Long staffId, Long containerId) throws BizCheckedException {

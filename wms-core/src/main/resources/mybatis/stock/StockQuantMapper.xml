@@ -46,6 +46,14 @@
     	)
 	</insert>
 
+	<insert id="moveToComplete"  parameterType="long">
+		insert into stock_quant_complete select * from stock_quant where id = #{id}
+	</insert>
+
+	<delete id="remove" parameterType="long">
+		delete from stock_quant where id = #{id}
+	</delete>
+
 	<update id="update" parameterType="StockQuant">
 		update stock_quant
     	<set>
@@ -127,6 +135,7 @@
 		<include refid="queryCondition"/>
 		 for update
 	</select>
+
   
 	<sql id="queryCondition">
 		<where>

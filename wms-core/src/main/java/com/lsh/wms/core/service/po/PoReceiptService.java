@@ -9,6 +9,7 @@ import com.lsh.wms.model.po.InbPoDetail;
 import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.InbReceiptHeader;
 import com.lsh.wms.model.stock.StockLot;
+import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,22 +73,20 @@ public class PoReceiptService {
      * @param inbReceiptDetailList
      */
     @Transactional(readOnly = false)
-    public void insertOrder(InbReceiptHeader inbReceiptHeader, List<InbReceiptDetail> inbReceiptDetailList,List<InbPoDetail> updateInbPoDetailList,List<StockQuant> stockQuantList ,List<StockLot> stockLotList) {
+    public void insertOrder(InbReceiptHeader inbReceiptHeader, List<InbReceiptDetail> inbReceiptDetailList,List<InbPoDetail> updateInbPoDetailList,List<Map<String, Object>> moveList) {
+
         //插入订单
         inbReceiptHeader.setInserttime(new Date());
         inbReceiptHeaderDao.insert(inbReceiptHeader);
         inbReceiptDetailDao.batchInsert(inbReceiptDetailList);
         inbPoDetailDao.batchUpdateInboundQtyByOrderIdAndSkuId(updateInbPoDetailList);
-        for (StockQuant stockQuant : stockQuantList) {
-            stockQuantService.create(stockQuant);
-        }
-        if(stockLotList != null){
-            for (StockLot stockLot : stockLotList) {
-                stockLotService.insertLot(stockLot);
+        for (Map<String, Object> moveInfo : moveList) {
+            StockLot lot = (StockLot) moveInfo.get("lot");
+            if (lot.isOld()) {
+                stockLotService.insertLot(lot);
             }
+            stockQuantService.move((StockMove) moveInfo.get("move"), lot);
         }
-
-
     }
 
     /**

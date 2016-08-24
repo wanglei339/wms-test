@@ -134,7 +134,7 @@
 	<select id="getTaskInfoList" parameterType="map" resultMap="taskInfoResultMap">
 		select * from task_info
 		<include refid="queryCondition"/>
-		ORDER BY id DESC
+		ORDER BY priority DESC
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
 		</if>
@@ -143,11 +143,27 @@
 	<select id="getPerformance" parameterType="map" resultType="java.util.HashMap">
 		select operator as staffId, type, sub_type, sum(task_qty) as task_qty, date from task_info
 		<where>
+			<if test="type != null">type = #{type}</if>
+			<if test="date != null">date = #{date}</if>
 			<if test="staffId != null">operator = #{staffId}</if>
 			<if test="startDate != null">and #{startDate} &lt;= date</if>
 			<if test="endDate != null">and date &lt;= #{endDate}</if>
 		</where>
 		 	group by operator, date, type, sub_type
+		<if test="start != null and limit != null">
+			limit #{start},#{limit}
+		</if>
+	</select>
+
+	<select id="getPerformanceCount" parameterType="map" resultType="int">
+		select count(t.num) from
+		(select count(*) num from task_info
+		<where>
+			<if test="staffId != null">operator = #{staffId}</if>
+			<if test="startDate != null">and #{startDate} &lt;= date</if>
+			<if test="endDate != null">and date &lt;= #{endDate}</if>
+		</where>
+		group by operator, date, type, sub_type) t
 	</select>
   
 	<sql id="queryCondition">

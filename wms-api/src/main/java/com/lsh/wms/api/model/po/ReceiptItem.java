@@ -56,12 +56,15 @@ public class ReceiptItem implements Serializable {
     @Size(max=100)
     private String refuseReason;
 
+    /**包装名称*/
+    private String packName;
+
     public ReceiptItem() {
 
     }
 
     public ReceiptItem(Long skuId,String lotNum,  String skuName, String barCode, BigDecimal packUnit,
-                       String madein, BigDecimal inboundQty, BigDecimal arriveNum, BigDecimal defectNum, Date proTime, String refuseReason) {
+                       String madein, BigDecimal inboundQty, BigDecimal arriveNum, BigDecimal defectNum, Date proTime, String refuseReason,String packName) {
         this.skuId = skuId;
         this.lotNum = lotNum;
         this.skuName = skuName;
@@ -73,6 +76,7 @@ public class ReceiptItem implements Serializable {
         this.defectNum = defectNum;
         this.proTime = proTime;
         this.refuseReason = refuseReason;
+        this.packName = packName;
     }
 
     public String getLotNum(){
@@ -154,5 +158,13 @@ public class ReceiptItem implements Serializable {
 
     public void setSkuId(Long skuId) {
         this.skuId = skuId;
+    }
+
+    public void setPackName(String packName) {
+        this.packName = packName;
+    }
+
+    public String getPackName() {
+        return packName;
     }
 }

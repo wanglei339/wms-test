@@ -37,6 +37,7 @@ import com.lsh.wms.model.po.InbPoHeader;
 import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.InbReceiptHeader;
 import com.lsh.wms.model.stock.StockLot;
+import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -89,9 +90,6 @@ public class ReceiptRpcService implements IReceiptRpcService {
     private ContainerService containerService;
 
     @Autowired
-    private StaffService staffService;
-
-    @Autowired
     private SoDeliveryService soDeliveryService;
 
     @Autowired
@@ -109,6 +107,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
     @Autowired
     private LocationDetailService locationDetailService;
 
+    @Autowired
+    private StaffService staffService;
 
     public Boolean throwOrder(String orderOtherId) throws BizCheckedException {
         InbPoHeader inbPoHeader = new InbPoHeader();
@@ -161,9 +161,13 @@ public class ReceiptRpcService implements IReceiptRpcService {
         List<InbPoDetail> updateInbPoDetailList = new ArrayList<InbPoDetail>();
         List<StockQuant> stockQuantList = new ArrayList<StockQuant>();
         List<StockLot> stockLotList = new ArrayList<StockLot>();
+        List<Map<String, Object>> moveList = new ArrayList<Map<String, Object>>();
 
         Map<Long,Long> locationMap = new HashMap<Long, Long>();
         List<StockTransferPlan> planList = new ArrayList<StockTransferPlan>();
+
+        Long taskId = RandomUtils.genId();
+
         if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
             for(ReceiptItem receiptItem : request.getItems()){
                 InbReceiptDetail inbReceiptDetail = new InbReceiptDetail();
@@ -212,30 +216,44 @@ public class ReceiptRpcService implements IReceiptRpcService {
                         soDeliveryService.getOutbDeliveryDetail(Long.parseLong(inbPoHeader.getOrderOtherId()),baseinfoItem.getItemId()).getLotId();
                 //Long lotId = 185499637539527l;
                 StockLot stockLot = stockLotService.getStockLotByLotId(lotId);
+                stockLot.setIsOld(true);
 
-                StockQuant quant = new StockQuant();
-                quant.setLotId(lotId);
-                quant.setPackUnit(inbPoDetail.getPackUnit());
-                quant.setSkuId(inbReceiptDetail.getSkuId());
-                quant.setItemId(inbReceiptDetail.getItemId());
-                quant.setLocationId(inbReceiptHeader.getLocation());
-                quant.setContainerId(inbReceiptHeader.getContainerId());
-                quant.setSupplierId(stockLot.getSupplierId());
-                quant.setOwnerId(inbPoHeader.getOwnerUid());
-                Date receiptTime = inbReceiptHeader.getReceiptTime();
-                quant.setInDate(receiptTime.getTime() / 1000);
+//                StockQuant quant = new StockQuant();
+//                quant.setLotId(lotId);
+//                quant.setPackUnit(inbPoDetail.getPackUnit());
+//                quant.setSkuId(inbReceiptDetail.getSkuId());
+//                quant.setItemId(inbReceiptDetail.getItemId());
+//                quant.setLocationId(inbReceiptHeader.getLocation());
+//                quant.setContainerId(inbReceiptHeader.getContainerId());
+//                quant.setSupplierId(stockLot.getSupplierId());
+//                quant.setOwnerId(inbPoHeader.getOwnerUid());
+//                Date receiptTime = inbReceiptHeader.getReceiptTime();
+//                quant.setInDate(receiptTime.getTime() / 1000);
+//
+//                quant.setExpireDate(stockLot.getExpireDate());
+//                quant.setCost(inbPoDetail.getPrice());
+//                BigDecimal inboundQty = inbReceiptDetail.getInboundQty();
+//                // TODO: 16/8/22  qty只能传转换成基本单位的数量
+//                BigDecimal qty = inboundQty.multiply(inbReceiptDetail.getPackUnit());
+//                quant.setQty(qty);
+//                //quant.setQty(inboundQty);
+//                BigDecimal value = inbPoDetail.getPrice().multiply(inboundQty);
+//                quant.setValue(value);
+//                stockQuantList.add(quant);
 
-                quant.setExpireDate(stockLot.getExpireDate());
-                quant.setCost(inbPoDetail.getPrice());
                 BigDecimal inboundQty = inbReceiptDetail.getInboundQty();
-                // TODO: 16/8/22  qty只能传转换成基本单位的数量
-                BigDecimal qty = inboundQty.multiply(inbReceiptDetail.getPackUnit());
-                quant.setQty(qty);
-                //quant.setQty(inboundQty);
-                BigDecimal value = inbPoDetail.getPrice().multiply(inboundQty);
-                quant.setValue(value);
-                stockQuantList.add(quant);
 
+                StockMove move = new StockMove();
+                move.setToLocationId(inbReceiptHeader.getLocation());
+                move.setToContainerId(inbReceiptHeader.getContainerId());
+                move.setQty(inbReceiptDetail.getInboundQty());
+                move.setItemId(inbReceiptDetail.getItemId());
+                move.setTaskId(taskId);
+
+                Map<String, Object> moveInfo = new HashMap<String, Object>();
+                moveInfo.put("lot", stockLot);
+                moveInfo.put("move", move);
+                moveList.add(moveInfo);
 
                 // TODO: 16/8/19 找货品对应的拣货位
                 List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationList(baseinfoItem.getItemId());
@@ -383,32 +401,32 @@ public class ReceiptRpcService implements IReceiptRpcService {
                  *
                  */
                 // TODO: 16/7/21  如何形成上架任务
-                Long lotId = RandomUtils.genId();
-
-                StockQuant quant = new StockQuant();
-                quant.setLotId(lotId);
-                quant.setPackUnit(inbPoDetail.getPackUnit());
-                quant.setSkuId(inbReceiptDetail.getSkuId());
-                quant.setItemId(inbReceiptDetail.getItemId());
-                quant.setLocationId(inbReceiptHeader.getLocation());
-                quant.setContainerId(inbReceiptHeader.getContainerId());
-                quant.setSupplierId(inbPoHeader.getSupplierCode());
-                quant.setOwnerId(inbPoHeader.getOwnerUid());
-                Date receiptTime = inbReceiptHeader.getReceiptTime();
-                quant.setInDate(receiptTime.getTime() / 1000);
-                Long expireDate = inbReceiptDetail.getProTime().getTime() + baseinfoItem.getShelfLife().longValue(); // 生产日期+保质期=保质期失效时间
-                quant.setExpireDate(expireDate / 1000);
-                quant.setCost(inbPoDetail.getPrice());
-                BigDecimal inboundQty = inbReceiptDetail.getInboundQty();
-
-                // TODO: 16/8/22  qty只能传转换成基本单位的数量
-                BigDecimal qty = inboundQty.multiply(inbReceiptDetail.getPackUnit());
-                quant.setQty(qty);
-                //quant.setQty(inboundQty);
-                BigDecimal value = inbPoDetail.getPrice().multiply(inboundQty);
-                quant.setValue(value);
-                stockQuantList.add(quant);
-                // stockQuantService.create(quant);
+//                Long lotId = RandomUtils.genId();
+//
+//                StockQuant quant = new StockQuant();
+//                quant.setLotId(lotId);
+//                quant.setPackUnit(inbPoDetail.getPackUnit());
+//                quant.setSkuId(inbReceiptDetail.getSkuId());
+//                quant.setItemId(inbReceiptDetail.getItemId());
+//                quant.setLocationId(inbReceiptHeader.getLocation());
+//                quant.setContainerId(inbReceiptHeader.getContainerId());
+//                quant.setSupplierId(inbPoHeader.getSupplierCode());
+//                quant.setOwnerId(inbPoHeader.getOwnerUid());
+//                Date receiptTime = inbReceiptHeader.getReceiptTime();
+//                quant.setInDate(receiptTime.getTime() / 1000);
+//                Long expireDate = inbReceiptDetail.getProTime().getTime() + baseinfoItem.getShelfLife().longValue(); // 生产日期+保质期=保质期失效时间
+//                quant.setExpireDate(expireDate / 1000);
+//                quant.setCost(inbPoDetail.getPrice());
+//                BigDecimal inboundQty = inbReceiptDetail.getInboundQty();
+//
+//                // TODO: 16/8/22  qty只能传转换成基本单位的数量
+//                BigDecimal qty = inboundQty.multiply(inbReceiptDetail.getPackUnit());
+//                quant.setQty(qty);
+//                //quant.setQty(inboundQty);
+//                BigDecimal value = inbPoDetail.getPrice().multiply(inboundQty);
+//                quant.setValue(value);
+//                stockQuantList.add(quant);
+//                // stockQuantService.create(quant);
 
 
                 /***
@@ -421,6 +439,10 @@ public class ReceiptRpcService implements IReceiptRpcService {
                  * poId          采购订单
                  * receiptId     收货单
                  */
+                Long lotId = RandomUtils.genId();
+                Date receiptTime = inbReceiptHeader.getReceiptTime();
+                Long expireDate = inbReceiptDetail.getProTime().getTime() + baseinfoItem.getShelfLife().longValue(); // 生产日期+保质期=保质期失效时间
+
                 StockLot stockLot = new StockLot();
                 stockLot.setLotId(lotId);
                 stockLot.setPackUnit(inbPoDetail.getPackUnit());
@@ -434,32 +456,45 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 stockLot.setPoId(inbReceiptDetail.getOrderId());
                 stockLot.setSupplierId(inbPoHeader.getSupplierCode());
                 stockLotList.add(stockLot);
-                // stockLotRestService.insertLot(stockLot);
 
+                StockMove move = new StockMove();
+                move.setFromLocationId(locationService.getLocationsByType(LocationConstant.SUPPLIER_AREA).get(0).getLocationId());
+                move.setToLocationId(inbReceiptHeader.getLocation());
+                move.setToContainerId(inbReceiptHeader.getContainerId());
+                move.setQty(inbReceiptDetail.getInboundQty());
+                move.setItemId(inbReceiptDetail.getItemId());
+                move.setTaskId(taskId);
+
+                Map<String, Object> moveInfo = new HashMap<String, Object>();
+                moveInfo.put("lot", stockLot);
+                moveInfo.put("move", move);
+                moveList.add(moveInfo);
 
             }
         }
 
         //插入订单
-        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList,stockQuantList,stockLotList);
+        //poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList,stockQuantList,stockLotList);
+        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList, moveList);
 
         if(PoConstant.ORDER_TYPE_PO == orderType){
             TaskEntry taskEntry = new TaskEntry();
             TaskInfo taskInfo = new TaskInfo();
+            taskInfo.setTaskId(taskId);
             taskInfo.setType(TaskConstant.TYPE_PO);
             taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
             taskInfo.setContainerId(inbReceiptHeader.getContainerId());
             taskInfo.setItemId(inbReceiptDetailList.get(0).getItemId());
             taskInfo.setOperator(Long.valueOf(inbReceiptHeader.getReceiptUser()));
             taskEntry.setTaskInfo(taskInfo);
-            Long taskId = iTaskRpcService.create(TaskConstant.TYPE_PO, taskEntry);
+            taskId = iTaskRpcService.create(TaskConstant.TYPE_PO, taskEntry);
             iTaskRpcService.done(taskId);
         }else if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
             for(StockTransferPlan plan : planList){
                 BaseinfoItem item  =  itemService.getItem(plan.getItemId());
                 Long skuId = item.getSkuId();
                 InbPoDetail inbPoDetail = poOrderService.getInbPoDetailByOrderIdAndSkuId(inbPoHeader.getOrderId(),skuId);
-                Long taskId = stockTransferRpcService.addPlan(plan);
+                taskId = stockTransferRpcService.addPlan(plan);
                 inbPoDetail.setTaskId(taskId);
 
                 poOrderService.updateInbPoDetail(inbPoDetail);

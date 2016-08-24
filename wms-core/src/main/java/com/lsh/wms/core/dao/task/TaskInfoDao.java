@@ -1,6 +1,7 @@
 package com.lsh.wms.core.dao.task;
 
 import com.lsh.wms.core.dao.MyBatisRepository;
+import com.lsh.wms.model.po.InbPoDetail;
 import com.lsh.wms.model.task.TaskInfo;
 
 import java.util.List;
@@ -20,4 +21,6 @@ public interface TaskInfoDao {
     List<TaskInfo> getTaskInfoList(Map<String, Object> params);
 
 	List<Map<String, Object>> getPerformance(Map<String, Object> params);
+
+	Integer getPerformanceCount(Map<String, Object> params);
 }

@@ -5,9 +5,11 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
 import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.core.dao.stock.StockQuantDao;
@@ -41,6 +43,16 @@ public class StockQuantService {
     @Autowired
     private LocationService locationService;
 
+    @Autowired
+    private ItemService itemService;
+
+
+    @Transactional(readOnly = false)
+    public void moveToComplete(StockQuant quant){
+        stockQuantDao.moveToComplete(quant.getId());
+        stockQuantDao.remove(quant.getId());
+    }
+
     private void prepareQuery(Map<String, Object> params) {
         List<BaseinfoLocation> locationList = new ArrayList<BaseinfoLocation>();
         if (params.get("location") != null) {
@@ -70,11 +82,6 @@ public class StockQuantService {
 
     public List<Long> getLocationIdByContainerId(Long containerId) {
         return stockQuantDao.getLocationIdByContainerId(containerId);
-    }
-
-    @Transactional(readOnly = false)
-    public BigDecimal getRealtimeQty(Long locationId, Long itemId) {
-        return this.getRealtimeQty(locationService.getLocation(locationId), itemId);
     }
 
     @Transactional(readOnly = false)
@@ -179,14 +186,16 @@ public class StockQuantService {
             quant.setLocationId(move.getToLocationId());
             quant.setContainerId(move.getToContainerId());
             this.update(quant);
-            BaseinfoLocation toLocation = locationService.getLocation(move.getToLocationId());
-            if (toLocation.getType().equals(LocationConstant.CONSUME_AREA)) {
-            }
             // 新建 quant move历史记录
             StockQuantMoveRel moveRel =new StockQuantMoveRel();
             moveRel.setMoveId(move.getId());
             moveRel.setQuantId(quant.getId());
             relDao.insert(moveRel);
+            // 对于移出库的库存，移出stock_quant表,
+            BaseinfoLocation toLocation = locationService.getLocation(move.getToLocationId());
+            if (toLocation.getType().equals(LocationConstant.CONSUME_AREA)) {
+                this.moveToComplete(quant);
+            }
             // 是否已经完成move？
             qtyDone = qtyDone.subtract(quant.getQty());
             if (qtyDone.compareTo(BigDecimal.ZERO) <= 0) {
@@ -198,43 +207,6 @@ public class StockQuantService {
         }
         this.updateLocationStatus(move.getFromLocationId());
         this.updateLocationStatus(move.getToLocationId());
-    }
-
-    @Transactional(readOnly = false)
-    public void move(StockMove move,StockQuant oldQuant) throws BizCheckedException {
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("itemId", move.getItemId());
-        mapQuery.put("locationId", move.getFromLocationId());
-        mapQuery.put("containerId", move.getFromContainerId());
-        List<StockQuant> quantList = stockQuantDao.getQuants(mapQuery);
-        BigDecimal qtyDone = move.getQty();
-        if((quantList==null || quantList.size()==0) && locationService.getInventoryLostLocationId().compareTo(move.getFromLocationId())==0){
-            quantList = new ArrayList<StockQuant>();
-            StockQuant newQuant = (StockQuant)oldQuant.clone();
-            newQuant.setQty(BigDecimal.ZERO);
-            newQuant.setLocationId(move.getFromLocationId());
-            newQuant.setContainerId( move.getFromContainerId());
-            quantList.add(newQuant);
-        }
-        for (StockQuant quant : quantList) {
-            if (quant.getReserveTaskId() != 0 && quant.getReserveTaskId().compareTo(move.getTaskId()) != 0) {
-                continue;
-            }
-            this.split(quant, qtyDone);
-            quant.setLocationId(move.getToLocationId());
-            quant.setContainerId(move.getToContainerId());
-            this.update(quant);
-            qtyDone = qtyDone.subtract(quant.getQty());
-            // 新建 quant move历史记录
-            StockQuantMoveRel moveRel =new StockQuantMoveRel();
-            moveRel.setMoveId(move.getId());
-            moveRel.setQuantId(quant.getId());
-            relDao.insert(moveRel);
-        }
-        if (qtyDone.compareTo(BigDecimal.ZERO) < 0 ) {
-
-            throw new BizCheckedException("2550008");
-        }
     }
 
     @Transactional(readOnly = false)
@@ -390,10 +362,12 @@ public class StockQuantService {
     public List<Long> getContainerIdByLocationId(Long locationId) {
         return stockQuantDao.getContainerIdByLocationId(locationId);
     }
+
     public BigDecimal getQuantQtyByLocationIdAndItemId(Long locationId,Long itemId) {
         Map<String,Object> queryMap=new HashMap();
         queryMap.put("locationId",locationId);
         queryMap.put("itemId", itemId);
+        this.prepareQuery(queryMap);
         List<StockQuant> stockQuants=stockQuantDao.getQuants(queryMap);
         BigDecimal qty=new BigDecimal(0L);
         for (StockQuant quant:stockQuants){
@@ -407,6 +381,7 @@ public class StockQuantService {
         Map<String,Object> queryMap =new HashMap<String, Object>();
         queryMap.put("locationId",locationId);
         queryMap.put("itemId",itemId);
+        this.prepareQuery(queryMap);
         List<StockQuant> quants=stockQuantDao.getQuants(queryMap);
         if(quants!=null && quants.size()!=0){
             return quants.get(0).getSupplierId();
@@ -415,22 +390,37 @@ public class StockQuantService {
         }
     }
 
-    public BigDecimal getItemCount(Long itemId, List<Long> locationList, boolean isNormal) {
-        Map<String, Object> queryMap = new HashMap<String, Object>();
-        queryMap.put("itemId",itemId);
-        queryMap.put("locationList",locationList);
-        queryMap.put("isNormal",isNormal);
-        List<StockQuant> stockQuants = stockQuantDao.getQuants(queryMap);
-
-        BigDecimal count = BigDecimal.ZERO;
-        for(StockQuant quant : stockQuants) {
-            count = count.add(quant.getQty());
-        }
-        return count;
-    }
-
     public int countStockQuant(Map<String, Object> mapQuery){
         return stockQuantDao.countStockQuant(mapQuery);
     }
 
+    @Transactional(readOnly = false)
+    public void move(StockMove move, StockLot lot) {
+        // 创建move
+        moveDao.insert(move);
+
+        // 创建quant
+        StockQuant quant = new StockQuant();
+        quant.setLotId(lot.getLotId());
+        quant.setPackUnit(lot.getPackUnit());
+        quant.setPackName(lot.getPackName());
+        quant.setSkuId(lot.getSkuId());
+        quant.setItemId(lot.getItemId());
+        quant.setLocationId(move.getToLocationId());
+        quant.setContainerId(move.getToContainerId());
+        quant.setSupplierId(lot.getSupplierId());
+        quant.setOwnerId(itemService.getItem(quant.getItemId()).getOwnerId());
+        quant.setInDate(lot.getInDate());
+        quant.setExpireDate(lot.getExpireDate());
+        quant.setQty(move.getQty());
+        this.create(quant);
+
+        // 新建 quant move历史记录
+        StockQuantMoveRel moveRel =new StockQuantMoveRel();
+        moveRel.setMoveId(move.getId());
+        moveRel.setQuantId(quant.getId());
+        relDao.insert(moveRel);
+
+        this.updateLocationStatus(move.getToLocationId());
+    }
 }

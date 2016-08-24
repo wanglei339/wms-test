@@ -29,4 +29,8 @@ public interface StockQuantDao {
     BigDecimal getQty(Map<String, Object> mapQuery);
 
     List<StockQuant> lock(Map<String, Object> params);
+
+    void moveToComplete(Long id);
+
+    void remove(Long id);
 }

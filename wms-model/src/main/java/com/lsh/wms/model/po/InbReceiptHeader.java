@@ -42,6 +42,8 @@ public class InbReceiptHeader implements Serializable {
     private Date updatetime;
 
 	private Object receiptDetails;
+	/**收货人ID*/
+	private Long staffId;
 
 	public Object getReceiptDetails() {
 		return receiptDetails;
@@ -186,6 +188,12 @@ public class InbReceiptHeader implements Serializable {
 	public void setUpdatetime(Date updatetime){
 		this.updatetime = updatetime;
 	}
-	
-	
+
+	public void setStaffId(Long staffId) {
+		this.staffId = staffId;
+	}
+
+	public Long getStaffId() {
+		return staffId;
+	}
 }

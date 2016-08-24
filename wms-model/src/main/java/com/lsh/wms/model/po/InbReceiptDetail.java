@@ -28,6 +28,8 @@ public class InbReceiptDetail implements Serializable {
     private BigDecimal orderQty;
 	/** 包装单位 */
     private BigDecimal packUnit;
+	/**包装名称*/
+	private String packName;
 	/** 产地 */
     private String madein;
 	/** 实际收货数 */
@@ -217,4 +219,13 @@ public class InbReceiptDetail implements Serializable {
 	public void setUpdatetime(Date updatetime) {
 		this.updatetime = updatetime;
 	}
+
+	public String getPackName() {
+		return packName;
+	}
+
+	public void setPackName(String packName) {
+		this.packName = packName;
+	}
+
 }
