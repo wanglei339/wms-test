@@ -8,4 +8,5 @@ import com.lsh.base.common.exception.BizCheckedException;
 public interface IPickRestService {
     String scanPickTask() throws BizCheckedException;
     String scanPickLocation() throws BizCheckedException;
+    String restore() throws BizCheckedException;
 }
