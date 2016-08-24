@@ -122,6 +122,16 @@ public class ShelveRestService implements IShelveRestService {
         if (sysUser == null) {
             throw new BizCheckedException("2000003");
         }
+        // 回溯
+        List<TaskInfo> taskInfos = baseTaskService.getAssignedTaskByOperator(staffId, TaskConstant.TYPE_SHELVE);
+        if (!taskInfos.isEmpty() && taskInfos != null) {
+            TaskInfo taskInfo = taskInfos.get(0);
+            if (taskInfo.getContainerId().equals(containerId)) {
+                return JsonUtils.SUCCESS(shelveTaskService.getShelveTaskHead(taskInfos.get(0).getTaskId()));
+            } else {
+                throw new BizCheckedException("2030016");
+            }
+        }
         // 检查是否有已分配的任务
         if (taskId == null && baseTaskService.checkTaskByContainerId(containerId)) {
             throw new BizCheckedException("2030008");
@@ -154,5 +164,28 @@ public class ShelveRestService implements IShelveRestService {
                 put("response", true);
             }
         });
+    }
+
+    /**
+     * 回溯上架任务
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("restore")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String restore() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long staffId = Long.valueOf(mapQuery.get("operator").toString());
+        List<TaskInfo> taskInfos = baseTaskService.getAssignedTaskByOperator(staffId, TaskConstant.TYPE_SHELVE);
+        if (taskInfos.isEmpty() || taskInfos == null) {
+            return JsonUtils.SUCCESS(new HashMap<String, Object>() {
+                {
+                    put("response", false);
+                }
+            });
+        }
+        return JsonUtils.SUCCESS(shelveTaskService.getShelveTaskHead(taskInfos.get(0).getTaskId()));
     }
 }

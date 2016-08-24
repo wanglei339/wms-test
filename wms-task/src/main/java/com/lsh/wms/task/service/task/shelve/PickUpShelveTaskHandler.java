@@ -83,4 +83,7 @@ public class PickUpShelveTaskHandler extends AbsTaskHandler {
 
         super.create(taskEntry);
     }
+    public void calcPerformance(TaskInfo taskInfo) {
+        taskInfo.setTaskQty(taskInfo.getQty().divide(taskInfo.getPackUnit()));
+    }
 }

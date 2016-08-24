@@ -44,7 +44,7 @@ public class LocationConstant {
     public static final Long CONSUME_AREA = 25L;
     public static final Long SUPPLIER_AREA = 26L;
 
-    //货架层和阁楼层
+    //货架层和阁楼货架层
     public static final Long SHELF_LEVELS = 27L;
     public static final Long LOFT_LEVELS = 28L;
     //返仓区
@@ -60,6 +60,15 @@ public class LocationConstant {
     public static final Long SPLIT_SHELF_LEVEL = 34L;
     //拆零存储一体货位
     public static final Long SPLIT_SHELF_BIN = 35L;
+
+    //货架层的拣货块
+    public static final Long SHELF_PICK_BLOCK = 36L; // TODO 在生成层的过程,生成拣货块,不会进行联动
+    //货架层的存货块
+    public static final Long SHELF_STORE_BLOCK = 37L;
+    //阁楼货架层的拣货块
+    public static final Long LOFT_PICK_BLOCK = 38L;
+    //阁楼货架层的拣货块
+    public static final Long LOFT_STORE_BLOCK = 39L;
 
     //区域(主要是返仓)的货主配置
     public static final Long OWER_WUMARKET = 1L;  //物美

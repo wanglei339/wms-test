@@ -105,15 +105,19 @@ public class PickTaskService {
     public void pickOne(WaveDetail pickDetail, Long locationId, Long containerId, BigDecimal qty, Long staffId) {
         Long taskId = pickDetail.getPickTaskId();
         Long itemId = pickDetail.getItemId();
-        Map<String, Object> quantParams = new HashMap<String, Object>();
-        quantParams.put("locationId", locationId);
-        quantParams.put("itemId", itemId);
-        List<StockQuant> quants = stockQuantService.getQuants(quantParams);
-        if (quants.size() < 1) {
-            throw new BizCheckedException("2550009");
+        if (qty.compareTo(new BigDecimal(0)) == 1) {
+            Map<String, Object> quantParams = new HashMap<String, Object>();
+            quantParams.put("locationId", locationId);
+            quantParams.put("itemId", itemId);
+            List<StockQuant> quants = stockQuantService.getQuants(quantParams);
+            if (quants.size() < 1) {
+                throw new BizCheckedException("2550009");
+            }
+            StockQuant quant = quants.get(0);
+            Long fromContainerId = quant.getContainerId();
+            // 移动库存
+            moveService.moveToContainer(itemId, staffId, fromContainerId, containerId, locationService.getWarehouseLocationId(), qty);
         }
-        StockQuant quant = quants.get(0);
-        Long fromContainerId = quant.getContainerId();
         // 更新wave_detail
         pickDetail.setContainerId(containerId);
         pickDetail.setRealPickLocation(locationId);
@@ -121,10 +125,6 @@ public class PickTaskService {
         pickDetail.setPickUid(staffId);
         pickDetail.setPickAt(DateUtils.getCurrentSeconds());
         waveService.updateDetail(pickDetail);
-        // 移动库存
-        if (qty.compareTo(new BigDecimal(0)) == 1) {
-            moveService.moveToContainer(itemId, staffId, fromContainerId, containerId, locationService.getWarehouseLocationId(), qty);
-        }
     }
 
     /**

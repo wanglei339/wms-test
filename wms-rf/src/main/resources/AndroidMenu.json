@@ -1,0 +1,122 @@
+[
+{
+
+  "url": "http://hx.market-h5.wmdev2.lsh123.com/bababab/app_receipt_v1.0_tttt.apk",
+
+  "name": "收货",
+
+  "fileName": "app_receipt_v1.0.apk",
+
+  "identity": "61b06beab79acaa4aca21b83e7324b07"
+
+},
+
+{
+
+"url": "http://hx.market-h5.wmdev2.lsh123.com/bababab/app_shelve_v1.0_tttt.apk",
+
+"name": "上架",
+
+"fileName": "app_shelve_v1.0.apk",
+
+"identity": "c9dfda3fe256e03d292da589aa7a04fd"
+
+},
+
+{
+
+"url": "http://hx.market-h5.wmdev2.lsh123.com/bababab/app_atticshelve_v1.0_tttt.apk",
+
+"name": "阁楼上架",
+
+"fileName": "app_atticshelve_v1.0.apk",
+
+"identity": "69b7272edc7810a247bdec639356a0b8"
+
+},
+
+{
+
+"url": "http://hx.market-h5.wmdev2.lsh123.com/bababab/app_stack_v1.0_tttt.apk",
+
+"name": "盘点",
+
+"fileName": "app_stack_v1.0.apk",
+
+"identity": "44874486c5dd35af9acc75c80a27bd0a"
+
+},
+
+{
+
+"url": "http://hx.market-h5.wmdev2.lsh123.com/bababab/app_createscrap_v1.0_tttt.apk",
+
+"name": "转残次",
+
+"fileName": "app_createscrap_v1.0.apk",
+
+"identity": "2824a6b6f414ac5367e40edf90b3b331"
+
+},
+
+{
+
+"url": "http://hx.market-h5.wmdev2.lsh123.com/bababab/app_createreturn_v1.0_tttt.apk",
+
+"name": "转退货",
+
+"fileName": "app_createreturn_v1.0.apk",
+
+"identity": "ebf79eee66747852152dfae07520c2e2"
+
+},
+
+{
+
+"url": "http://hx.market-h5.wmdev2.lsh123.com/bababab/app_transfer_v1.0_tttt.apk",
+
+"name": "移库",
+
+"fileName": "app_transfer_v1.0.apk",
+
+"identity": "1b62b414ad061da98f4547be82403229"
+
+},
+
+{
+
+"url": "http://hx.market-h5.wmdev2.lsh123.com/bababab/app_procurement_v1.0_tttt.apk",
+
+"name": "补货",
+
+"fileName": "app_procurement_v1.0.apk",
+
+"identity": "62781e637ecfdadc9c4b057cc1f90e9a"
+
+},
+
+{
+
+"url": "http://hx.market-h5.wmdev2.lsh123.com/bababab/app_pick_v1.0_tttt.apk",
+
+"name": "拣货",
+
+"fileName": "app_pick_v1.0.apk",
+
+"identity": "8552c22b5f9d241ac5ec1a79303ead80"
+
+},
+
+{
+
+"url": "http://hx.market-h5.wmdev2.lsh123.com/bababab/app_qc_v1.0_tttt.apk",
+
+"name": "QC",
+
+"fileName": "app_qc_v1.0.apk",
+
+"identity": "131332af71274df9d6d2c7011fbd0536"
+
+}
+
+]
