@@ -123,6 +123,9 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             throw new BizCheckedException("2030001");
         }
         StockQuant quant = quants.get(0);
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("containerId",containerId);
+        BigDecimal total = stockQuantService.getQty(queryMap);
 
         TaskInfo taskInfo = new TaskInfo();
         TaskEntry entry = new TaskEntry();
@@ -132,6 +135,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         taskInfo.setType(taskType);
         taskInfo.setSubType(1L);
         taskInfo.setFromLocationId(quant.getLocationId());
+        taskInfo.setQty(total);
 
         entry.setTaskInfo(taskInfo);
 
