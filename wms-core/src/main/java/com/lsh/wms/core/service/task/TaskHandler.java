@@ -11,6 +11,7 @@ import java.util.Map;
  * Created by mali on 16/7/23.
  */
 public interface TaskHandler {
+    void create(Long taskId) throws BizCheckedException;
     void create(TaskEntry taskEntry) throws BizCheckedException;
     void createConcrete(TaskEntry taskEntry) throws BizCheckedException;
     void batchCreate(List<TaskEntry> taskEntries) throws BizCheckedException;
@@ -40,4 +41,5 @@ public interface TaskHandler {
     void allocateConcrete(Long taskId);
     void updteConcrete(TaskEntry taskEntry);
     void calcPerformance(TaskInfo taskInfo);
+    void setPriority(Long taskId, Long newPriority);
 }

@@ -280,4 +280,11 @@ public class BaseTaskService {
         return taskInfoList;
     }
 
+    @Transactional(readOnly = false)
+    public void setPriority(Long taskId, Long newPriority) {
+        TaskInfo info = taskInfoDao.getTaskInfoById(taskId);
+        info.setPriority(newPriority);
+        taskInfoDao.update(info);
+    }
+
 }

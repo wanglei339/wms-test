@@ -22,5 +22,4 @@ public class EventHandlerFactory {
         }
         return (IEventHandler) handlerMap.get(type);
     }
-
 }

@@ -23,6 +23,8 @@ public class AbsTaskHandler implements TaskHandler {
     @Autowired
     private BaseTaskService baseTaskService;
 
+    public void create(Long taskId) throws BizCheckedException{
+    }
 
     public void create(TaskEntry taskEntry) throws BizCheckedException{
         // 插入标准任务信息
@@ -176,5 +178,9 @@ public class AbsTaskHandler implements TaskHandler {
 
     public void calcPerformance(TaskInfo taskInfo) {
         taskInfo.setTaskQty(BigDecimal.ONE);
+    }
+
+    public void setPriority(Long taskId, Long newPriority) {
+        baseTaskService.setPriority(taskId, newPriority);
     }
 }

@@ -25,4 +25,9 @@ public class TaskConstant {
 
     public static final Long TYPE_QC = 110L;
     public static final Long TYPE_SHIP = 111L;
+
+    public static final Long EVENT_TASK_FINISH  = 100000L;
+    public static final Long EVENT_SO_ACCEPT = 100001L;
+    public static final Long EVENT_WAVE_RELEASE = 100002L;
+    public static final Long EVENT_OUT_OF_STOCK = 100003L;
 }
