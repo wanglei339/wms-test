@@ -90,6 +90,23 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         locationDetailModelFactory.register(LocationConstant.COLLECTION_BIN, new BaseinfoLocationBin());
         locationDetailModelFactory.register(LocationConstant.BACK_BIN, new BaseinfoLocationBin());
         locationDetailModelFactory.register(LocationConstant.DEFECTIVE_BIN, new BaseinfoLocationBin());
+        //注入虚拟货区
+        locationDetailModelFactory.register(LocationConstant.CONSUME_AREA, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.SUPPLIER_AREA, new BaseinfoLocationRegion());
+        //阁楼个体层和货架个体层
+        locationDetailModelFactory.register(LocationConstant.SHELF_LEVELS, new BaseinfoLocation());
+        locationDetailModelFactory.register(LocationConstant.LOFT_LEVELS, new BaseinfoLocation());
+        //返仓区
+        locationDetailModelFactory.register(LocationConstant.MARKET_RETURN_AREA, new BaseinfoLocationRegion());
+        //集货道和集货道组
+        locationDetailModelFactory.register(LocationConstant.COLLECTION_ROAD_GROUP, new BaseinfoLocation());
+        locationDetailModelFactory.register(LocationConstant.COLLECTION_ROAD, new BaseinfoLocation());
+        //拆零区、拆零货架、拆零货架层、拆零存储一体货位
+        locationDetailModelFactory.register(LocationConstant.SPLIT_AREA, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.SPLIT_SHELF, new BaseinfoLocationShelf());
+        locationDetailModelFactory.register(LocationConstant.SPLIT_SHELF_LEVEL, new BaseinfoLocation());
+        locationDetailModelFactory.register(LocationConstant.SPLIT_SHELF_BIN, new BaseinfoLocationBin());
+
     }
 
 
