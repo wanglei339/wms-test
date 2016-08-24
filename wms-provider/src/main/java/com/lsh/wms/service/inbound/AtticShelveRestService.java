@@ -479,7 +479,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
             head.put("packName",quant.getPackName());
             head.put("qty",stockQuantService.getQuantQtyByLocationIdAndItemId(quant.getLocationId(), quant.getItemId()).divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
             head.put("operator",info.getOperator());
-            head.put("isDoing",info.getExt1());
+            head.put("isDoing",info.getExt1().compareTo(2L)==0 ? 1 :0);
         }else {
             AtticShelveTaskDetail detail = (AtticShelveTaskDetail)(details.get(0));
             head.put("containerId",detail.getContainerId());
@@ -490,7 +490,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
             head.put("packName",info.getPackName());
             head.put("qty",stockQuantService.getQuantQtyByLocationIdAndItemId(info.getLocationId(), info.getItemId()).divide(info.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
             head.put("operator",info.getOperator());
-            head.put("isDoing",info.getExt1());
+            head.put("isDoing",info.getExt1().compareTo(2L)==0 ? 1 :0);
         }
         result.put("head", head);
         if(details==null || details.size()==0){
