@@ -38,4 +38,7 @@ public interface ICsiRestService {
 
     String getOwnerList(Map<String,Object> mapQuery);
     String getOwnerCount(Map<String,Object> mapQuery);
+
+    String getSupplierList(Map<String, Object> mapQuery);
+    String getSupplierCount(Map<String, Object> mapQuery);
 }
