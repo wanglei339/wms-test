@@ -219,8 +219,11 @@ public class PickRestService implements IPickRestService {
                 throw new BizCheckedException("2060009");
             }
             // 完成拣货任务
-            needPickDetail.setRealCollectLocation(locationId);
-            waveService.updateDetail(needPickDetail);
+            List<WaveDetail> collectWaveDetails = waveService.getDetailsByPickTaskId(taskId);
+            for (WaveDetail collectWaveDetail: collectWaveDetails) {
+                collectWaveDetail.setRealCollectLocation(locationId);
+                waveService.updateDetail(collectWaveDetail);
+            }
             iTaskRpcService.done(taskId, locationId, staffId);
             // 获取下一个拣货位id
             if (taskInfos.size() > 1) {
