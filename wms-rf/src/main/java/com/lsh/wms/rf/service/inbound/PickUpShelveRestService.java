@@ -240,7 +240,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             return JsonUtils.TOKEN_ERROR("用户不存在");
         }
         // 检查是否有已分配的任务
-        taskId = baseTaskService.getAssignTaskIdByContainerId(containerId);
+        taskId = baseTaskService.getAssignTaskIdByOperatorAndType(user.getStaffId(), TaskConstant.TYPE_PICK_UP_SHELVE);
         if(taskId==null) {
             return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
                 {
@@ -250,9 +250,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         }
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
         TaskInfo info = entry.getTaskInfo();
-        if (info.getOperator().compareTo(user.getStaffId()) != 0 && baseTaskService.checkTaskByContainerId(containerId)) {
-            return JsonUtils.TOKEN_ERROR("该上架任务已被人领取");
-        }
+
         AtticShelveTaskDetail detail = shelveTaskService.getDetailByTaskIdAndStatus(taskId, 1L);
         if(detail==null){
             return JsonUtils.TOKEN_ERROR("任务详情异常");
@@ -281,12 +279,10 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
     public String scanTargetLocation() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long taskId = 0L;
-        Long allocLocationId = 0L;
         Long realLocationId = 0L;
         BigDecimal realQty = BigDecimal.ZERO;
         try {
             taskId= Long.valueOf(mapQuery.get("taskId").toString());
-            allocLocationId= Long.valueOf(mapQuery.get("allocLocationId").toString());
             realLocationId = Long.valueOf(mapQuery.get("realLocationId").toString());
             realQty = new BigDecimal(mapQuery.get("qty").toString());
         }catch (Exception e){
@@ -306,22 +302,17 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         }
         StockQuant quant = quants.get(0);
 
-        BaseinfoLocation location = locationService.getLocation(allocLocationId);
         BaseinfoLocation realLocation = locationService.getLocation(realLocationId);
-        if(location==null || realLocation ==null){
+        if(realLocation ==null){
             return JsonUtils.TOKEN_ERROR("库位不存在");
         }
 
-        AtticShelveTaskDetail detail = shelveTaskService.getShelveTaskDetail(taskId,allocLocationId);
+        AtticShelveTaskDetail detail = shelveTaskService.getShelveTaskDetail(taskId,TaskConstant.Draft);
         //判断扫描库位是不是存储合一库位
         if(realLocation.getType().compareTo(LocationConstant.SPLIT_SHELF_BIN)==0 ){
-            if(locationService.checkLocationUseStatus(realLocationId) && realLocationId.compareTo(allocLocationId)!=0 ){
+            if(locationService.checkLocationUseStatus(realLocationId) ){
                 return JsonUtils.TOKEN_ERROR("扫描库位已被占用");
             }
-            if(location.getType().compareTo((LocationConstant.SPLIT_SHELF_BIN))!=0){
-                return JsonUtils.TOKEN_ERROR("提供扫描库位类型不符");
-            }
-
 
             if(detail ==null){
                 return JsonUtils.TOKEN_ERROR("系统库位参数错误");
@@ -388,7 +379,6 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
 
         //将上架货物存到阁楼存货位上
         BaseinfoItem item = itemService.getItem(quant.getItemId());
-        List<AtticShelveTaskDetail> details = new ArrayList<AtticShelveTaskDetail>();
         BigDecimal bulk = BigDecimal.ONE;
         //计算包装单位的体积
         bulk = bulk.multiply(item.getPackLength());
@@ -397,11 +387,20 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
 
 
 
-        while (total.compareTo(BigDecimal.ZERO) > 0) {
-            //获取存储合一货位
-            BaseinfoLocation location = locationService.getlocationIsEmptyAndUnlockByType(LocationConstant.SPLIT_SHELF_BIN);
-            if(location==null) {
-                throw new BizCheckedException("2030015");
+        List<BaseinfoLocation> locationList = locationService.getLocationsByType(LocationConstant.SPLIT_SHELF_BIN);
+
+        if(locationList==null ||locationList.size()==0) {
+            throw new BizCheckedException("2030015");
+        }
+
+        for(BaseinfoLocation location:locationList) {
+
+            BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(location.getLocationId());
+            //体积的80%为有效体积
+            BigDecimal valum = bin.getVolume().multiply(new BigDecimal(0.8));
+
+            if (valum.compareTo(bulk) < 0 || (!locationService.locationIsEmptyAndUnlock(location))) {
+                continue;
             }
 
             //锁Location
@@ -416,24 +415,17 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             detail.setAllocLocationId(location.getLocationId());
             detail.setRealLocationId(location.getLocationId());
 
-            BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(location.getLocationId());
-            //体积的80%为有效体积
-            BigDecimal valum = bin.getVolume().multiply(new BigDecimal(0.8));
-            if(valum.compareTo(bulk)< 0 ){
-                continue;
-            }
-            BigDecimal num = valum.divide(bulk, 0);
+            BigDecimal num = valum.divide(bulk, BigDecimal.ROUND_DOWN);
             if (total.subtract(num).compareTo(BigDecimal.ZERO) >= 0) {
                 detail.setQty(num);
             } else {
                 detail.setQty(total);
             }
-            total = total.subtract(num);
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("taskId", taskId);
             map.put("locationId", location.getLocationId());
             map.put("locationCode", location.getLocationCode());
-            map.put("qty", quant.getQty());
+            map.put("qty", detail.getQty());
             map.put("packName", quant.getPackName());
             shelveTaskService.create(detail);
             return map;

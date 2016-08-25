@@ -159,6 +159,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     StockQuant quant = quantList.get(0);
                     // 创建任务
                     StockTransferPlan plan = new StockTransferPlan();
+                    plan.setPriority(2L);
                     plan.setItemId(itemLocation.getItemId());
                     plan.setFromLocationId(quant.getLocationId());
                     plan.setToLocationId(itemLocation.getPickLocationid());
@@ -214,6 +215,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                         BigDecimal quantQty =  quant.getQty().divide(quant.getPackUnit());
                         // 创建任务
                         StockTransferPlan plan = new StockTransferPlan();
+                        plan.setPriority(2L);
                         plan.setItemId(itemLocation.getItemId());
                         plan.setFromLocationId(quant.getLocationId());
                         plan.setToLocationId(itemLocation.getPickLocationid());

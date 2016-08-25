@@ -238,7 +238,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             return JsonUtils.TOKEN_ERROR("用户不存在");
         }
         // 检查是否有已分配的任务
-        taskId = baseTaskService.getAssignTaskIdByContainerId(containerId);
+        taskId = baseTaskService.getAssignTaskIdByOperatorAndType(user.getStaffId(), TaskConstant.TYPE_ATTIC_SHELVE);
         if(taskId==null) {
             return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
                 {
@@ -248,9 +248,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         }
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
         TaskInfo info = entry.getTaskInfo();
-        if (info.getOperator().compareTo(user.getStaffId()) != 0 && baseTaskService.checkTaskByContainerId(containerId)) {
-            return JsonUtils.TOKEN_ERROR("该上架任务已被人领取");
-        }
+
         AtticShelveTaskDetail detail = shelveTaskService.getDetailByTaskIdAndStatus(taskId, 1L);
         if(detail==null){
             return JsonUtils.TOKEN_ERROR("任务详情异常");
@@ -278,12 +276,10 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
     public String scanTargetLocation() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long taskId = 0L;
-        Long allocLocationId = 0L;
         Long realLocationId = 0L;
         BigDecimal realQty = BigDecimal.ZERO;
         try {
             taskId= Long.valueOf(mapQuery.get("taskId").toString());
-            allocLocationId= Long.valueOf(mapQuery.get("allocLocationId").toString());
             realLocationId = Long.valueOf(mapQuery.get("realLocationId").toString());
             realQty = new BigDecimal(mapQuery.get("qty").toString());
         }catch (Exception e){
@@ -303,20 +299,23 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         }
         StockQuant quant = quants.get(0);
 
-        BaseinfoLocation location = locationService.getLocation(allocLocationId);
         BaseinfoLocation realLocation = locationService.getLocation(realLocationId);
-        if(location==null || realLocation ==null){
+        if(realLocation ==null){
             return JsonUtils.TOKEN_ERROR("库位不存在");
         }
 
-        AtticShelveTaskDetail detail = shelveTaskService.getShelveTaskDetail(taskId,allocLocationId);
+        AtticShelveTaskDetail detail = shelveTaskService.getShelveTaskDetail(taskId,TaskConstant.Draft);
+        if(detail==null){
+            return JsonUtils.TOKEN_ERROR("上架详情异常");
+        }
+        BaseinfoLocation location = locationService.getLocation(detail.getAllocLocationId());
         if(location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN)==0){
-            if(realLocationId.compareTo(allocLocationId)!=0){
+            if(realLocationId.compareTo(location.getLocationId())!=0){
                 return JsonUtils.TOKEN_ERROR("扫描货位与系统所提供货位不符");
             }
 
         }else if(realLocation.getType().compareTo(LocationConstant.LOFT_STORE_BIN)==0 ){
-            if(locationService.checkLocationUseStatus(realLocationId) && realLocationId.compareTo(allocLocationId)!=0 ){
+            if(locationService.checkLocationUseStatus(realLocationId) && realLocationId.compareTo(detail.getAllocLocationId())!=0 ){
                 return JsonUtils.TOKEN_ERROR("扫描库位已被占用");
             }
             if(location.getType().compareTo((LocationConstant.LOFT_STORE_BIN))!=0){
@@ -379,7 +378,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         TaskInfo info = entry.getTaskInfo();
         // 获取quant
         List<StockQuant> quants = stockQuantService.getQuantsByContainerId(info.getContainerId());
-        if (quants.size() < 1) {
+        if (quants==null ||quants.size() < 1) {
             return null;
         }
         StockQuant quant = quants.get(0);
@@ -443,7 +442,6 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
 
         //当捡货位都不需要补货时，将上架货物存到阁楼存货位上
         BaseinfoItem item = itemService.getItem(quant.getItemId());
-        List<AtticShelveTaskDetail> details = new ArrayList<AtticShelveTaskDetail>();
         BigDecimal bulk = BigDecimal.ONE;
         //计算包装单位的体积
         bulk = bulk.multiply(item.getPackLength());
@@ -451,11 +449,19 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         bulk = bulk.multiply(item.getPackWidth());
 
 
+        List<BaseinfoLocation> locationList = locationService.getLocationsByType(LocationConstant.LOFT_STORE_BIN);
 
-        while (total.compareTo(BigDecimal.ZERO) > 0) {
-            BaseinfoLocation location = locationService.getlocationIsEmptyAndUnlockByType(LocationConstant.LOFT_STORE_BIN);
-            if(location==null) {
-                throw new BizCheckedException("2030015");
+        if(locationList==null ||locationList.size()==0) {
+            throw new BizCheckedException("2030015");
+        }
+
+        for(BaseinfoLocation location:locationList) {
+
+            BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(location.getLocationId());
+            //体积的80%为有效体积
+            BigDecimal valum = bin.getVolume().multiply(new BigDecimal(0.8));
+            if (valum.compareTo(bulk) < 0 || (!locationService.locationIsEmptyAndUnlock(location))) {
+                continue;
             }
 
             //锁Location
@@ -470,21 +476,12 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             detail.setAllocLocationId(location.getLocationId());
             detail.setRealLocationId(location.getLocationId());
 
-            BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(location.getLocationId());
-            //体积的80%为有效体积
-            BigDecimal valum = bin.getVolume().multiply(new BigDecimal(0.8));
-
-            if(valum.compareTo(bulk)< 0 ){
-                continue;
-            }
-
-            BigDecimal num = valum.divide(bulk, BigDecimal.ROUND_HALF_EVEN);
+            BigDecimal num = valum.divide(bulk, BigDecimal.ROUND_DOWN);
             if (total.subtract(num).compareTo(BigDecimal.ZERO) >= 0) {
                 detail.setQty(num);
             } else {
                 detail.setQty(total);
             }
-            total = total.subtract(num);
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("taskId", taskId);
             map.put("locationId", location.getLocationId());
