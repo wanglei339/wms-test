@@ -214,7 +214,6 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 //查供应商、生产日期、失效日期
                 Long lotId =
                         soDeliveryService.getOutbDeliveryDetail(Long.parseLong(inbPoHeader.getOrderOtherId()),baseinfoItem.getItemId()).getLotId();
-                //Long lotId = 185499637539527l;
                 StockLot stockLot = stockLotService.getStockLotByLotId(lotId);
                 stockLot.setIsOld(true);
 
@@ -248,6 +247,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 move.setToContainerId(inbReceiptHeader.getContainerId());
                 move.setQty(inbReceiptDetail.getInboundQty());
                 move.setItemId(inbReceiptDetail.getItemId());
+                move.setOperator(inbReceiptHeader.getStaffId());
                 move.setTaskId(taskId);
 
                 Map<String, Object> moveInfo = new HashMap<String, Object>();
@@ -303,11 +303,6 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 //设置receiptOrderId
                 inbReceiptDetail.setReceiptOrderId(inbReceiptHeader.getReceiptOrderId());
                 inbReceiptDetail.setOrderOtherId(request.getOrderOtherId());
-
-//            if (inbPoHeader == null) {
-//                throw new BizCheckedException("2020001");
-//            }
-
                 boolean isCanReceipt = inbPoHeader.getOrderStatus() == PoConstant.ORDER_THROW || inbPoHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART;
                 if (!isCanReceipt) {
                     throw new BizCheckedException("2020002");
@@ -333,7 +328,6 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 inbReceiptDetail.setOrderQty(inbPoDetail.getOrderQty());
 
                 // 判断是否超过订单总数
-                //Long poInboundQty = null != inbPoDetail.getInboundQty() ? inbPoDetail.getInboundQty() : 0L;
                 BigDecimal poInboundQty = null != inbPoDetail.getInboundQty() ? inbPoDetail.getInboundQty() : new BigDecimal(0);
 
                 if (poInboundQty.add(inbReceiptDetail.getInboundQty()).compareTo(inbPoDetail.getOrderQty()) > 0) {
@@ -361,25 +355,6 @@ public class ReceiptRpcService implements IReceiptRpcService {
                         }
                     }
                 }
-
-//                // TODO: 16/7/20   商品信息是否完善,怎么排查.2,保质期例外怎么验证?
-//                //保质期判断,如果失败抛出异常
-//                BigDecimal shelLife = baseinfoItem.getShelfLife();
-//                String producePlace = baseinfoItem.getProducePlace();
-//                Double shelLife_CN = Double.parseDouble(PropertyUtils.getString("shelLife_CN"));
-//                Double shelLife_Not_CN = Double.parseDouble(PropertyUtils.getString("shelLife_Not_CN"));
-//                String produceChina = PropertyUtils.getString("produceChina");
-//                BigDecimal left_day = new BigDecimal(DateUtils.daysBetween(inbReceiptDetail.getProTime(), new Date()));
-//                if (producePlace.contains(produceChina)) { // TODO: 16/7/20  产地是否存的是CN
-//                    if (left_day.divide(shelLife, 2, ROUND_HALF_EVEN).doubleValue() >= shelLife_CN) {
-//                        throw new BizCheckedException("2020003");
-//                    }
-//                } else {
-//                    if (left_day.divide(shelLife, 2, ROUND_HALF_EVEN).doubleValue() > shelLife_Not_CN) {
-//                        throw new BizCheckedException("2020003");
-//                    }
-//                }
-
                 InbPoDetail updateInbPoDetail = new InbPoDetail();
                 updateInbPoDetail.setInboundQty(inbReceiptDetail.getInboundQty());
                 updateInbPoDetail.setOrderId(inbReceiptDetail.getOrderId());
@@ -460,6 +435,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 StockMove move = new StockMove();
                 move.setFromLocationId(locationService.getLocationsByType(LocationConstant.SUPPLIER_AREA).get(0).getLocationId());
                 move.setToLocationId(inbReceiptHeader.getLocation());
+                move.setOperator(inbReceiptHeader.getStaffId());
                 move.setToContainerId(inbReceiptHeader.getContainerId());
                 move.setQty(inbReceiptDetail.getInboundQty());
                 move.setItemId(inbReceiptDetail.getItemId());

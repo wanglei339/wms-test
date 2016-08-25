@@ -95,6 +95,9 @@ public class ReceiptRestService implements IReceiptRfService {
         if(inbPoHeader == null) {
             throw new BizCheckedException("2020001");
         }
+        //校验之后修改订单状态为收货中
+        inbPoHeader.setOrderStatus(PoConstant.ORDER_RECTIPTING);
+        poOrderService.updateInbPoHeader(inbPoHeader);
 
         for(ReceiptItem receiptItem : receiptRequest.getItems()) {
             if(receiptItem.getProTime() == null) {
