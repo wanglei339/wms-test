@@ -379,7 +379,6 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
 
         //将上架货物存到阁楼存货位上
         BaseinfoItem item = itemService.getItem(quant.getItemId());
-        List<AtticShelveTaskDetail> details = new ArrayList<AtticShelveTaskDetail>();
         BigDecimal bulk = BigDecimal.ONE;
         //计算包装单位的体积
         bulk = bulk.multiply(item.getPackLength());
@@ -388,18 +387,19 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
 
 
 
-        while (total.compareTo(BigDecimal.ZERO) > 0) {
-            //获取存储合一货位
-            BaseinfoLocation location = locationService.getlocationIsEmptyAndUnlockByType(LocationConstant.SPLIT_SHELF_BIN);
-            if(location==null) {
-                throw new BizCheckedException("2030015");
-            }
+        List<BaseinfoLocation> locationList = locationService.getLocationsByType(LocationConstant.SPLIT_SHELF_BIN);
 
+        if(locationList==null ||locationList.size()==0) {
+            throw new BizCheckedException("2030015");
+        }
+
+        for(BaseinfoLocation location:locationList) {
 
             BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(location.getLocationId());
             //体积的80%为有效体积
             BigDecimal valum = bin.getVolume().multiply(new BigDecimal(0.8));
-            if(valum.compareTo(bulk)< 0 ){
+
+            if (valum.compareTo(bulk) < 0 || (!locationService.locationIsEmptyAndUnlock(location))) {
                 continue;
             }
 
@@ -414,19 +414,18 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             detail.setOrderId(lot.getPoId());
             detail.setAllocLocationId(location.getLocationId());
             detail.setRealLocationId(location.getLocationId());
-            BigDecimal num = valum.divide(bulk, BigDecimal.ROUND_DOWN);
 
+            BigDecimal num = valum.divide(bulk, BigDecimal.ROUND_DOWN);
             if (total.subtract(num).compareTo(BigDecimal.ZERO) >= 0) {
                 detail.setQty(num);
             } else {
                 detail.setQty(total);
             }
-            total = total.subtract(num);
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("taskId", taskId);
             map.put("locationId", location.getLocationId());
             map.put("locationCode", location.getLocationCode());
-            map.put("qty", quant.getQty());
+            map.put("qty", detail.getQty());
             map.put("packName", quant.getPackName());
             shelveTaskService.create(detail);
             return map;
