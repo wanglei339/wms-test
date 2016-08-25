@@ -254,6 +254,23 @@ public class BaseTaskService {
         }
         return taskInfos.get(0).getTaskId();
     }
+    /**
+     * 根据container_id获取已分配的任务id
+     * @param operator
+     * @param type
+     * @return
+     */
+    public Long getAssignTaskIdByOperatorAndType (Long operator,Long type) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("operator", operator);
+        params.put("status", TaskConstant.Assigned);
+        params.put("type", type);
+        List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
+        if (taskInfos.size() == 0) {
+            return null;
+        }
+        return taskInfos.get(0).getTaskId();
+    }
 
     /**
      * 根据locationId获取指定类型的未完成任务
