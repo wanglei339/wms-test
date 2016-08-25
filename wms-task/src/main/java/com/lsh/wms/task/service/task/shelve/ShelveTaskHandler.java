@@ -117,7 +117,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         }
         StockQuant quant = quants.get(0);
         // 获取目标location
-        BaseinfoLocation targetLocation = iShelveRpcService.assginShelveLocation(container, taskEntry.getTaskInfo().getSubType());
+        BaseinfoLocation targetLocation = iShelveRpcService.assginShelveLocation(container, taskEntry.getTaskInfo().getSubType(), taskId);
         if (targetLocation == null) {
             throw new BizCheckedException("2030005");
         }

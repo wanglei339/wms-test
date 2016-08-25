@@ -89,6 +89,7 @@ public class LocationService {
     /**
      * 删除节点和下面的所有子树
      * 并且删除细节表的所有location
+     *
      * @param locationId
      * @return
      */
@@ -513,6 +514,7 @@ public class LocationService {
 
     /**
      * 获取可用的地堆区,需保证是同一批次
+     *
      * @return
      */
     public BaseinfoLocation getAvailableFloorLocation(Long lotId) {
@@ -656,6 +658,58 @@ public class LocationService {
         }
     }
 
+    // todo 因为阁楼和拆零区的货位不是整托,会有同一批次的商品继续分配相同的货位,现阶段用库存为零判断,以后加入其它判断(待产品经理给规则)
+    //货架和阁楼的继续上架的东西不同,不是整托上
+    public BaseinfoLocation getNearestBinInSpiltByPicking(BaseinfoLocation pickingLocation) {
+        //获取相邻货架的所有拣货位,先获取当前货架,获取通道,货物相邻货架,然后获取
+        BaseinfoLocation shelfLocationSelf = this.getShelfByClassification(pickingLocation.getLocationId());
+        //通道
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("locationId", shelfLocationSelf.getFatherId());
+        List<BaseinfoLocation> passageList = this.getBaseinfoLocationList(params);
+        BaseinfoLocation passage = null;
+        //将本货架的所有位置放在一个集合中
+        List<BaseinfoLocation> tempLocations = new ArrayList<BaseinfoLocation>();
+        List<BaseinfoLocation> allNearShelfSubs = null;
+        //无论是否存在相邻货架,将一个通道下的所有位置拿出来(必须保证货架个体的father必须是通道)
+        passage = passageList.get(0);
+        allNearShelfSubs = this.getStoreLocations(passage.getLocationId());
+        tempLocations.addAll(allNearShelfSubs);
+        List<Map<String, Object>> storeBinDistanceList = new ArrayList<Map<String, Object>>();
+        //放入location和当前location到目标位置的距离
+        for (BaseinfoLocation temp : tempLocations) {
+            //存货位,为空没上锁
+            // todo 继续上阁楼或者拆零区的逻辑(判断逻辑查库存,优化的方法)
+            if (temp.getType().equals(LocationConstant.SPLIT_SHELF_BIN) && this.locationIsEmptyAndUnlock(temp.getLocationId())) {
+                //放入location和距离
+                Long distance = (temp.getBinPositionNo() - pickingLocation.getBinPositionNo()) * (temp.getBinPositionNo() - pickingLocation.getBinPositionNo()) + (temp.getShelfLevelNo() - pickingLocation.getShelfLevelNo()) * (temp.getShelfLevelNo() - pickingLocation.getShelfLevelNo());
+                Map<String, Object> distanceMap = new HashMap<String, Object>();
+                distanceMap.put("location", temp);
+                distanceMap.put("distance", distance);
+                storeBinDistanceList.add(distanceMap);
+            }
+        }
+        //遍历距离的list,根据map的ditance的取出最小的
+        if (storeBinDistanceList.size() > 0) {
+            Map<String, Object> minDistanceMap = new HashMap<String, Object>();
+            BaseinfoLocation location = (BaseinfoLocation) storeBinDistanceList.get(0).get("location");
+            Long minDistance = (Long) storeBinDistanceList.get(0).get("distance");
+            minDistanceMap.put("location", location);
+            minDistanceMap.put("distance", minDistance);
+            for (Map<String, Object> distanceMap : storeBinDistanceList) {
+                if ((Long.parseLong(((Long) distanceMap.get("distance")).toString()) == Long.parseLong(((Long) minDistanceMap.get("distance")).toString())) && (this.getShelfByClassification(((BaseinfoLocation) distanceMap.get("location")).getLocationId())).getLocationId().equals(shelfLocationSelf.getLocationId())) {
+                    //位置相同,同货架优先,同货架位置相同,给一个就行
+                    minDistanceMap = distanceMap;
+                } else if (Long.parseLong(((Long) distanceMap.get("distance")).toString()) < Long.parseLong(((Long) minDistanceMap.get("distance")).toString())) {
+                    minDistanceMap = distanceMap;
+                }
+            }
+            return (BaseinfoLocation) minDistanceMap.get("location");
+        } else {
+            return null;
+        }
+    }
+
 
     //获取code
     public String getCodeById(Long locationId) {
@@ -745,7 +799,7 @@ public class LocationService {
 
     /**
      * 货架位置为空并且没上锁(没占用+没上锁)
-     * 一库位一托盘
+     * 一库位一托盘码
      *
      * @param location
      * @return
@@ -758,13 +812,23 @@ public class LocationService {
     }
 
     /**
-     * 位置为空,切无库存
-     *
+     * 提供空的可用位置,位置上当前没托盘切没有被任务锁定
      * @param locationId
      * @return
      */
     public boolean locationIsEmptyAndUnlock(Long locationId) {
-        if ((!this.isQuantInLocation(locationId)) && !this.checkLocationLockStatus(locationId)) {
+        if (this.getLocation(locationId).getCurContainerVol().equals(0L) && !this.checkLocationLockStatus(locationId)) {
+            return true;
+        }
+        return false;
+    }
+    /**
+     * 提供空的可用位置,位置上当前没托盘切没有被任务锁定
+     * @param location
+     * @return
+     */
+    public boolean locationIsEmptyAndUnlock(BaseinfoLocation location) {
+        if (location.getCurContainerVol().equals(0L) && !this.checkLocationLockStatus(location)) {
             return true;
         }
         return false;
@@ -780,8 +844,7 @@ public class LocationService {
         List<BaseinfoLocation> locations = this.getLocationsByType(type);
         if (locations.size() > 0) {
             for (BaseinfoLocation location : locations) {
-                Long locationId = location.getLocationId();
-                if ((!this.isQuantInLocation(locationId)) && (!this.checkLocationLockStatus(locationId))) {
+                if (this.locationIsEmptyAndUnlock(location)) {
                     return location;
                 }
             }
@@ -884,6 +947,18 @@ public class LocationService {
         }
         return false;
     }
+    /**
+     * 检查位置的锁状态
+     *
+     * @param location
+     * @return
+     */
+    public Boolean checkLocationLockStatus(BaseinfoLocation location) {
+        if (location.getIsLocked().equals(1)) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * 根据库区库位类型classification来查到区的级别
@@ -949,5 +1024,45 @@ public class LocationService {
             throw new BizCheckedException("3550002");
         }
         this.lockLocationById(locationIdList.get(0));
+    }
+
+    /**
+     * 更新当前容器的容量的方法,并更新canUse
+     *
+     * @param locationId
+     * @param containerVol
+     * @return
+     */
+    @Transactional(readOnly = false)
+    public BaseinfoLocation refreshContainerVol(Long locationId, Long containerVol) {
+        BaseinfoLocation location = this.getLocation(locationId);
+        if (location == null) {
+            throw new BizCheckedException("2180001");
+        }
+        location.setCurContainerVol(containerVol);    //被占用
+        //设置状态
+        if (this.isOnThreshold(location, containerVol)) {
+            location.setCanUse(2);
+        } else {
+            location.setCanUse(1);
+        }
+        this.updateLocation(location);
+        return location;
+    }
+
+    /**
+     * 是否达到容量上限
+     *
+     * @param location
+     * @param containerVol
+     * @return
+     */
+    //判断当前容器的是否达到上限
+    public boolean isOnThreshold(BaseinfoLocation location, Long containerVol) {
+        if (location.getContainerVol() - containerVol > 0) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }

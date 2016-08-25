@@ -13,12 +13,14 @@ import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.model.task.TaskMsg;
 import com.lsh.wms.rpc.service.inhouse.ProcurementRpcService;
 import com.lsh.wms.rpc.service.location.LocationRpcService;
 import org.slf4j.Logger;
@@ -52,6 +54,8 @@ public class ShelveRpcService implements IShelveRpcService {
     private ProcurementRpcService procurementRpcService;
     @Autowired
     private BaseTaskService baseTaskService;
+    @Autowired
+    private MessageService messageService;
 
     private static final Float SHELF_LIFE_THRESHOLD = 0.3f; // 保质期差额阈值
 
@@ -61,7 +65,7 @@ public class ShelveRpcService implements IShelveRpcService {
      * @return
      * @throws BizCheckedException
      */
-    public BaseinfoLocation assginShelveLocation(BaseinfoContainer container, Long subType) throws BizCheckedException {
+    public BaseinfoLocation assginShelveLocation(BaseinfoContainer container, Long subType, Long taskId) throws BizCheckedException {
         BaseinfoLocation targetLocation = new BaseinfoLocation();
         Long containerId = container.getContainerId();
         // 获取托盘上stockQuant信息
@@ -80,13 +84,13 @@ public class ShelveRpcService implements IShelveRpcService {
             BaseinfoLocation floorLocation = locationRpcService.assignFloor(quant);
             // 地堆无空间,上拣货位
             if (floorLocation == null) {
-                targetLocation = assignPickingLocation(container);
+                targetLocation = assignPickingLocation(container, taskId);
             } else {
                 targetLocation = floorLocation;
             }
         } else { // 不允许地堆
             // 上拣货位
-            targetLocation = assignPickingLocation(container);
+            targetLocation = assignPickingLocation(container, taskId);
         }
         return targetLocation;
     }
@@ -97,7 +101,7 @@ public class ShelveRpcService implements IShelveRpcService {
      * @return
      * @throws BizCheckedException
      */
-    public BaseinfoLocation assignPickingLocation(BaseinfoContainer container) throws BizCheckedException {
+    public BaseinfoLocation assignPickingLocation(BaseinfoContainer container, Long taskId) throws BizCheckedException {
         Long containerId = container.getContainerId();
         // 获取托盘上stockQuant信息
         List<StockQuant> quants = stockQuantService.getQuantsByContainerId(containerId);
@@ -121,7 +125,7 @@ public class ShelveRpcService implements IShelveRpcService {
             // TODO 不找拣货位了,调度器创建任务时传过来
             if (procurementRpcService.needProcurement(pickingLocationId, itemId)) {
                 // 对比保质期差额阈值
-                if (this.checkShelfLifeThreshold(quant, pickingLocation, LocationConstant.SHELF_STORE_BIN)) {
+                if (this.checkShelfLifeThreshold(quant, pickingLocation, LocationConstant.SHELF_STORE_BLOCK)) {
                     return pickingLocation;
                 } else {
                     // 查找补货任务
@@ -132,7 +136,14 @@ public class ShelveRpcService implements IShelveRpcService {
                             // 上货架位
                             return assignShelfLocation(container, pickingLocation);
                         } else {
-                            // TODO: 取消补货任务
+                            // 取消补货任务
+                            TaskMsg msg = new TaskMsg();
+                            msg.setType(TaskConstant.EVENT_PROCUREMENT_CANCEL);
+                            msg.setSourceTaskId(taskId);
+                            Map<String, Object> body = new HashMap<String, Object>();
+                            body.put("taskId", procurementTask.getTaskId());
+                            msg.setMsgBody(body);
+                            messageService.sendMessage(msg);
                             return pickingLocation;
                         }
                     }

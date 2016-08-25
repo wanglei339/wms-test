@@ -4,18 +4,16 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.base.common.utils.BeanMapTransUtils;
-import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.task.ITaskRestService;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.staff.StaffService;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.model.baseinfo.BaseinfoStaffInfo;
-import com.lsh.wms.model.shelve.ShelveTaskHead;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
-import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.task.TaskMsg;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.SystemEnvironmentPropertySource;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -40,6 +38,9 @@ public class TaskRestService implements ITaskRestService {
 
     @Autowired
     private StaffService staffService;
+
+    @Autowired
+    private StockQuantService quantService;
 
     @POST
     @Path("getTaskList")
@@ -109,5 +110,17 @@ public class TaskRestService implements ITaskRestService {
             result.addAll(stat);
         }
         return JsonUtils.SUCCESS(staffList);
+    }
+
+    @POST
+    @Path("sendMsg")
+    public String sendMsg(Map<String, Object> mapQuery) {
+        quantService.getQuantQtyByLocationIdAndItemId(88653814975646L,4716171821967L );
+//        Long type =(Long.valueOf(mapQuery.get("type").toString()));
+//        TaskMsg msg = new TaskMsg();
+//        msg.setType(Long.valueOf(mapQuery.get("type").toString()));
+//        msg.setMsgBody(mapQuery);
+//        messageService.sendMessage(msg);
+        return JsonUtils.SUCCESS();
     }
 }
