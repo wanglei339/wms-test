@@ -799,7 +799,7 @@ public class LocationService {
 
     /**
      * 货架位置为空并且没上锁(没占用+没上锁)
-     * 一库位一托盘
+     * 一库位一托盘码
      *
      * @param location
      * @return
@@ -812,13 +812,23 @@ public class LocationService {
     }
 
     /**
-     * 位置为空,切无库存
-     *
+     * 提供空的可用位置,位置上当前没托盘切没有被任务锁定
      * @param locationId
      * @return
      */
     public boolean locationIsEmptyAndUnlock(Long locationId) {
-        if ((!this.isQuantInLocation(locationId)) && !this.checkLocationLockStatus(locationId)) {
+        if (this.getLocation(locationId).getCurContainerVol().equals(0L) && !this.checkLocationLockStatus(locationId)) {
+            return true;
+        }
+        return false;
+    }
+    /**
+     * 提供空的可用位置,位置上当前没托盘切没有被任务锁定
+     * @param location
+     * @return
+     */
+    public boolean locationIsEmptyAndUnlock(BaseinfoLocation location) {
+        if (location.getCurContainerVol().equals(0L) && !this.checkLocationLockStatus(location)) {
             return true;
         }
         return false;
@@ -834,8 +844,7 @@ public class LocationService {
         List<BaseinfoLocation> locations = this.getLocationsByType(type);
         if (locations.size() > 0) {
             for (BaseinfoLocation location : locations) {
-                Long locationId = location.getLocationId();
-                if ((!this.isQuantInLocation(locationId)) && (!this.checkLocationLockStatus(locationId))) {
+                if (this.locationIsEmptyAndUnlock(location)) {
                     return location;
                 }
             }
@@ -938,6 +947,18 @@ public class LocationService {
         }
         return false;
     }
+    /**
+     * 检查位置的锁状态
+     *
+     * @param location
+     * @return
+     */
+    public Boolean checkLocationLockStatus(BaseinfoLocation location) {
+        if (location.getIsLocked().equals(1)) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * 根据库区库位类型classification来查到区的级别
@@ -1007,6 +1028,7 @@ public class LocationService {
 
     /**
      * 更新当前容器的容量的方法,并更新canUse
+     *
      * @param locationId
      * @param containerVol
      * @return
@@ -1019,9 +1041,9 @@ public class LocationService {
         }
         location.setCurContainerVol(containerVol);    //被占用
         //设置状态
-        if (this.isOnThreshold(location,containerVol)){
+        if (this.isOnThreshold(location, containerVol)) {
             location.setCanUse(2);
-        }else {
+        } else {
             location.setCanUse(1);
         }
         this.updateLocation(location);
@@ -1030,6 +1052,7 @@ public class LocationService {
 
     /**
      * 是否达到容量上限
+     *
      * @param location
      * @param containerVol
      * @return
@@ -1038,7 +1061,7 @@ public class LocationService {
     public boolean isOnThreshold(BaseinfoLocation location, Long containerVol) {
         if (location.getContainerVol() - containerVol > 0) {
             return false;
-        }else {
+        } else {
             return true;
         }
     }
