@@ -65,14 +65,18 @@ public class StockTransferCore {
         StockQuantCondition condition = new StockQuantCondition();
         condition.setLocationId(plan.getFromLocationId());
         condition.setItemId(plan.getItemId());
-        StockQuant quant = stockQuantRpcService.getQuantList(condition).get(0);
+        List<StockQuant> quants = stockQuantRpcService.getQuantList(condition);
+        StockQuant quant = null;
+        if(quants==null || quants.size()==0){
+            quant = quants.get(0);
+        }
         plan.setPackUnit(quant.getPackUnit());
         plan.setPackName(quant.getPackName());
         if (plan.getSubType().compareTo(1L)==0) {
             BigDecimal total = stockQuantRpcService.getQty(condition);
-            plan.setQty(total);
+            plan.setQty(total.divide(quant.getPackUnit(),BigDecimal.ROUND_DOWN));
         } else {
-            BigDecimal requiredQty = plan.getUomQty().multiply(quant.getPackUnit());
+            BigDecimal requiredQty = plan.getUomQty();
             plan.setQty(requiredQty);
         }
     }
@@ -119,13 +123,13 @@ public class StockTransferCore {
             moveRpcService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
         } else {
 
-            BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString()).multiply(taskInfo.getPackUnit());
+            BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString());
             if(taskInfo.getQty().compareTo(qtyDone) < 0){
                 throw new BizCheckedException("2550008");
             }
             StockMove move = new StockMove();
             ObjUtils.bean2bean(taskInfo, move);
-            move.setQty(qtyDone);
+            move.setQty(qtyDone.multiply(quants.get(0).getPackUnit()));
             move.setFromLocationId(fromLocationId);
             move.setToLocationId(toLocationId);
             move.setFromContainerId(quants.get(0).getContainerId());
@@ -168,13 +172,13 @@ public class StockTransferCore {
         if (taskInfo.getSubType().compareTo(1L)==0) {
             moveRpcService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
         } else {
-            BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString()).multiply(taskInfo.getPackUnit());
+            BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString());
             if(taskInfo.getQtyDone().compareTo(qtyDone) != 0){
                 throw new BizCheckedException("2550014");
             }
             StockMove move = new StockMove();
             ObjUtils.bean2bean(taskInfo, move);
-            move.setQty(qtyDone);
+            move.setQty(qtyDone.multiply(taskInfo.getPackUnit()));
             move.setFromLocationId(fromLocationId);
             move.setToLocationId(toLocationId);
             move.setFromContainerId(containerId);
