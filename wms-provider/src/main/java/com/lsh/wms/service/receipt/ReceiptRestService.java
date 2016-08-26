@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.text.ParseException;
 import java.util.*;
 
 
@@ -68,7 +69,7 @@ public class ReceiptRestService implements IReceiptRestService {
 
     @POST
     @Path("insert")
-    public BaseResponse insertOrder(ReceiptRequest request) throws BizCheckedException{
+    public BaseResponse insertOrder(ReceiptRequest request) throws BizCheckedException, ParseException {
         receiptRpcService.insertOrder(request);
         return ResUtils.getResponse(ResponseConstant.RES_CODE_1,ResponseConstant.RES_MSG_OK,null);
     }
@@ -109,6 +110,13 @@ public class ReceiptRestService implements IReceiptRestService {
     public String getPoReceiptDetailList() {
         Map<String, Object> params = RequestUtils.getRequest();
         return JsonUtils.SUCCESS(receiptRpcService.getPoReceiptDetailList(params));
+    }
+
+    @GET
+    @Path("insertPoReceipt")
+    public String insertReceipt(@QueryParam("orderId") Long orderId ,@QueryParam("staffId") Long staffId) throws BizCheckedException, ParseException {
+        receiptRpcService.insertReceipt(orderId,staffId);
+        return JsonUtils.SUCCESS();
     }
 
 }

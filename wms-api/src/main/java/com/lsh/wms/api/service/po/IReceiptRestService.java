@@ -4,6 +4,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.po.ReceiptRequest;
 
+import java.text.ParseException;
 import java.util.Map;
 
 /**
@@ -19,7 +20,7 @@ public interface IReceiptRestService {
 
     public String init(String poReceiptInfo);
 
-    public BaseResponse insertOrder(ReceiptRequest request) throws BizCheckedException;
+    public BaseResponse insertOrder(ReceiptRequest request) throws BizCheckedException, ParseException;
 
     /* 投单接口 */
     public String throwOrder(String orderOtherId) throws BizCheckedException;
@@ -33,5 +34,6 @@ public interface IReceiptRestService {
     public String countInbPoReceiptHeader();
 
     public String getPoReceiptDetailList();
+    String insertReceipt(Long orderId,Long staffId) throws BizCheckedException, ParseException;
 
 }
