@@ -133,7 +133,9 @@ public class StockTransferRpcService implements IStockTransferRpcService {
 
         List<StockQuant> toQuants = quantService.getQuantsByLocationId(toLocationId);
         Long locationType = toLocation.getType();
-        if( toQuants.size() > 0 && locationType.compareTo(LocationConstant.FLOOR) != 0 ) {
+        if( toQuants.size() > 0 && locationType.compareTo(LocationConstant.FLOOR) != 0
+                && locationType.compareTo(LocationConstant.BACK_AREA) != 0
+                && locationType.compareTo(LocationConstant.DEFECTIVE_AREA) != 0) {
             // 拣货位
             if (locationType.compareTo(LocationConstant.LOFT_PICKING_BIN) == 0 || locationType.compareTo(LocationConstant.SHELF_PICKING_BIN) == 0) {
                 List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toLocationId);
