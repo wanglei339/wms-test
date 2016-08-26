@@ -18,7 +18,7 @@ import java.util.Date;
 @Transactional(readOnly = true)
 public class IdGenerator {
     @Autowired
-    private IdCounterDao idCounterDao;
+    private static IdCounterDao idCounterDao;
 
     /**
      * id生成方法
@@ -29,7 +29,7 @@ public class IdGenerator {
      * @return
      */
     @Transactional(readOnly = false)
-    public Long genId(String prefix, Boolean useDateFormat, Boolean addPrefixNum) {
+    public static Long genId(String prefix, Boolean useDateFormat, Boolean addPrefixNum) {
         Long counter = 1L; // 计数器
         String key = prefix; // 计数器的key
         Long value = 0L; // 返回值
