@@ -97,6 +97,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         taskInfo.setTaskName("补货任务[ " + taskInfo.getFromLocationId() + " => " + taskInfo.getToLocationId() + "]");
         taskInfo.setType(TaskConstant.TYPE_PROCUREMENT);
         taskInfo.setContainerId(containerId);
+        taskInfo.setQtyDone(taskInfo.getQty());
         taskEntry.setTaskInfo(taskInfo);
         taskRpcService.create(TaskConstant.TYPE_PROCUREMENT, taskEntry);
     }

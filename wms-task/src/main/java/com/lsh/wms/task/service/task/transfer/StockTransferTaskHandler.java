@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,5 +67,9 @@ public class StockTransferTaskHandler extends AbsTaskHandler {
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         locationService.unlockLocation(taskInfo.getToLocationId());
         quantService.unReserve(taskInfo.getTaskId());
+    }
+
+    public void calcPerformance(TaskInfo taskInfo) {
+        taskInfo.setTaskQty(taskInfo.getQty());
     }
 }
