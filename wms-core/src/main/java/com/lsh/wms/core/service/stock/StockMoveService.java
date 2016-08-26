@@ -2,11 +2,13 @@ package com.lsh.wms.core.service.stock;
 
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
 import com.lsh.wms.core.dao.stock.StockQuantDao;
 import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantMoveRel;
@@ -110,18 +112,38 @@ public class StockMoveService {
 
     @Transactional(readOnly = false)
     public void move(List<StockMove> moveList) throws BizCheckedException{
-        boolean islocked = false;
         SortedSet<Long> locationSet = new TreeSet<Long>();
         for (StockMove move : moveList) {
             locationSet.add(move.getFromLocationId());
         }
         for (Long locationId : locationSet) {
-            locationService.lockLocation(locationId);
+            locationService.lockLocationById(locationId);
         }
         for (StockMove move : moveList) {
             this.create(move);
-            quantService.move(move);
+            if(move.getLot()==null) {
+                quantService.move(move);
+            }else {
+                this.move(move,move.getLot());
+            }
         }
+    }
+    @Transactional(readOnly = false)
+    public void moveToConsume(Long locationId,Long taskId,Long staffId) throws BizCheckedException{
+
+        List<StockQuant> quants = quantService.getQuantsByLocationId(locationId);
+
+        //存储已经生成move的ContainerId
+        Map<Long,Integer> isMovedMap = new HashMap<Long, Integer>();
+
+        for(StockQuant quant:quants){
+            if(!isMovedMap.containsKey(quant.getContainerId())){
+                this.moveWholeContainer(quant.getContainerId(),taskId,staffId,quant.getLocationId(), LocationConstant.CONSUME_AREA);
+                isMovedMap.put(quant.getContainerId(),1);
+            }
+        }
+
+
     }
 
     @Transactional(readOnly = false)
@@ -160,5 +182,8 @@ public class StockMoveService {
         this.create(move);
         quantService.move(move);
     }
-
+    @Transactional(readOnly = false)
+    public void move(StockMove move, StockLot lot) {
+       quantService.move(move,lot);
+    }
 }

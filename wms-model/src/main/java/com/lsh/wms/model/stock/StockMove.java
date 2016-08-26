@@ -38,6 +38,8 @@ public class StockMove implements Serializable {
 	/**  */
 	private Long updatedAt = DateUtils.getCurrentSeconds();
 
+	private StockLot lot;
+
 	public Long getId() {
 		return id;
 	}
@@ -158,6 +160,14 @@ public class StockMove implements Serializable {
 		this.updatedAt = updatedAt;
 	}
 
+	public StockLot getLot() {
+		return lot;
+	}
+
+	public void setLot(StockLot lot) {
+		this.lot = lot;
+	}
+
 	@Override
 	public String toString() {
 		return "StockMove{" +
@@ -176,6 +186,7 @@ public class StockMove implements Serializable {
 				", moveType=" + moveType +
 				", createdAt=" + createdAt +
 				", updatedAt=" + updatedAt +
+				", lot=" + lot +
 				'}';
 	}
 

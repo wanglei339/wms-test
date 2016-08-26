@@ -599,6 +599,13 @@ public class LocationService {
      */
     public List<BaseinfoLocation> getBaseinfoLocationList(Map<String, Object> mapQuery) {
         mapQuery.put("isValid", LocationConstant.IS_VALID);
+        //locationCode
+        String locationCode = (String) mapQuery.get("locationCode");
+        if(locationCode != null){
+            locationCode = locationCode+"%";
+            mapQuery.put("locationCode",locationCode);
+        }
+
         return locationDao.getBaseinfoLocationList(mapQuery);
     }
 
