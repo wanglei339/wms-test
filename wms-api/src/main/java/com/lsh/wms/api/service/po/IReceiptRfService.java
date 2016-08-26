@@ -5,6 +5,7 @@ import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.po.ReceiptRequest;
 
 import javax.ws.rs.QueryParam;
+import java.text.ParseException;
 
 /**
  * Project Name: lsh-wms
@@ -17,7 +18,7 @@ import javax.ws.rs.QueryParam;
  */
 public interface IReceiptRfService {
 
-    public BaseResponse insertOrder() throws  BizCheckedException;
+    public BaseResponse insertOrder() throws BizCheckedException, ParseException;
 
     public String getPoDetailByOrderIdAndBarCode(String orderOtherId,Long containerId, String barCode) throws BizCheckedException;
 

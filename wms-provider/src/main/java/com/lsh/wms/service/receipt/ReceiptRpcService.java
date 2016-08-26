@@ -49,6 +49,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static java.math.BigDecimal.ROUND_HALF_EVEN;
@@ -118,7 +120,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
         return true;
     }
 
-    public void insertOrder(ReceiptRequest request) throws BizCheckedException {
+    public void insertOrder(ReceiptRequest request) throws BizCheckedException, ParseException {
         //初始化InbReceiptHeader
         InbReceiptHeader inbReceiptHeader = new InbReceiptHeader();
         ObjUtils.bean2bean(request, inbReceiptHeader);
@@ -195,7 +197,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 updateInbPoDetail.setOrderId(inbReceiptDetail.getOrderId());
                 updateInbPoDetail.setSkuId(inbReceiptDetail.getSkuId());
                 updateInbPoDetailList.add(updateInbPoDetail);
-                inbReceiptDetailList.add(inbReceiptDetail);
+                //inbReceiptDetailList.add(inbReceiptDetail);
 
 
                 // TODO: 16/8/19 找原so单对应货品的批号,从出库单找
@@ -216,6 +218,15 @@ public class ReceiptRpcService implements IReceiptRpcService {
                         soDeliveryService.getOutbDeliveryDetail(Long.parseLong(inbPoHeader.getOrderOtherId()),baseinfoItem.getItemId()).getLotId();
                 StockLot stockLot = stockLotService.getStockLotByLotId(lotId);
                 stockLot.setIsOld(true);
+
+                //将收货细单中的生产日期改为该lot下的生产日期。
+                SimpleDateFormat format =   new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
+                String d = format.format(stockLot.getProductDate());
+                Date date = format.parse(d);
+                inbReceiptDetail.setProTime(date);
+                //将inbReceiptDetail填入inbReceiptDetailList中
+                inbReceiptDetailList.add(inbReceiptDetail);
+
 
 //                StockQuant quant = new StockQuant();
 //                quant.setLotId(lotId);
@@ -548,5 +559,34 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
     public List<InbReceiptHeader> getPoReceiptDetailList(Map<String, Object> params) {
         return poReceiptService.getInbReceiptHeaderList(params);
+    }
+
+    public void insertReceipt(Long orderId , Long staffId) throws BizCheckedException, ParseException {
+        InbPoHeader inbPoHeader = poOrderService.getInbPoHeaderByOrderId(orderId);
+        List<InbPoDetail> inbPoDetails = poOrderService.getInbPoDetailListByOrderId(orderId);
+        ReceiptRequest request = new ReceiptRequest();
+
+        request.setOrderOtherId(inbPoHeader.getOrderOtherId());
+        Map<String , Object> map = new HashMap<String, Object>();
+        map.put("staffId",staffId);
+        request.setReceiptUser(staffService.getStaffList(map).get(0).getName());
+        request.setWarehouseId(inbPoHeader.getWarehouseId());
+        request.setStaffId(staffId);
+
+        List<ReceiptItem> items = new ArrayList<ReceiptItem>();
+
+        for(InbPoDetail inbPoDetail : inbPoDetails){
+            ReceiptItem item = new ReceiptItem();
+            item.setArriveNum(inbPoDetail.getOrderQty());
+            item.setBarCode(inbPoDetail.getBarCode());
+            item.setInboundQty(inbPoDetail.getOrderQty());
+            item.setPackName(inbPoDetail.getPackName());
+            item.setPackUnit(inbPoDetail.getPackUnit());
+            item.setSkuId(inbPoDetail.getSkuId());
+            item.setSkuName(inbPoDetail.getSkuName());
+            items.add(item);
+        }
+        request.setItems(items);
+        this.insertOrder(request);
     }
 }
