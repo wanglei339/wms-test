@@ -314,7 +314,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 //设置receiptOrderId
                 inbReceiptDetail.setReceiptOrderId(inbReceiptHeader.getReceiptOrderId());
                 inbReceiptDetail.setOrderOtherId(request.getOrderOtherId());
-                boolean isCanReceipt = inbPoHeader.getOrderStatus() == PoConstant.ORDER_THROW || inbPoHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART;
+                boolean isCanReceipt = inbPoHeader.getOrderStatus() == PoConstant.ORDER_THROW || inbPoHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART || inbPoHeader.getOrderStatus() == PoConstant.ORDER_RECTIPTING;
                 if (!isCanReceipt) {
                     throw new BizCheckedException("2020002");
                 }
@@ -472,7 +472,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
             taskInfo.setContainerId(inbReceiptHeader.getContainerId());
             taskInfo.setItemId(inbReceiptDetailList.get(0).getItemId());
-            taskInfo.setOperator(Long.valueOf(inbReceiptHeader.getReceiptUser()));
+            taskInfo.setOperator(inbReceiptHeader.getStaffId());
             taskEntry.setTaskInfo(taskInfo);
             taskId = iTaskRpcService.create(TaskConstant.TYPE_PO, taskEntry);
             iTaskRpcService.done(taskId);

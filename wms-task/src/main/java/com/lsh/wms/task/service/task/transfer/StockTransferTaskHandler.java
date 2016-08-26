@@ -2,6 +2,7 @@ package com.lsh.wms.task.service.task.transfer;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,7 +48,10 @@ public class StockTransferTaskHandler extends AbsTaskHandler {
 
     public void createConcrete(TaskEntry taskEntry) {
         TaskInfo taskInfo = taskEntry.getTaskInfo();
-        locationService.lockLocation(taskInfo.getToLocationId());
+        Long locationType = locationService.getLocation(taskInfo.getToLocationId()).getType();
+        if (!locationType.equals(LocationConstant.DEFECTIVE_AREA) && !locationType.equals(LocationConstant.BACK_AREA)) {
+            locationService.lockLocation(taskInfo.getToLocationId());
+        }
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("locationId", taskInfo.getFromLocationId());
         mapQuery.put("itemId",taskInfo.getItemId());
@@ -66,5 +71,9 @@ public class StockTransferTaskHandler extends AbsTaskHandler {
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         locationService.unlockLocation(taskInfo.getToLocationId());
         quantService.unReserve(taskInfo.getTaskId());
+    }
+
+    public void calcPerformance(TaskInfo taskInfo) {
+        taskInfo.setTaskQty(taskInfo.getQty());
     }
 }

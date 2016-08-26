@@ -23,6 +23,7 @@ import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
+import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.po.InbPoDetail;
@@ -71,6 +72,9 @@ public class ReceiptRestService implements IReceiptRfService {
     @Autowired
     private ContainerService containerService;
 
+    @Autowired
+    private StaffService staffService;
+
     @POST
     @Path("add")
     public BaseResponse insertOrder() throws BizCheckedException, ParseException {
@@ -90,15 +94,24 @@ public class ReceiptRestService implements IReceiptRfService {
 
         receiptRequest.setReceiptUser(RequestUtils.getHeader("uid"));
 
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("uid",RequestUtils.getHeader("uid"));
+        Long staffId = staffService.getStaffList(map).get(0).getStaffId();
+        receiptRequest.setStaffId(staffId);
+
+
+
         receiptRequest.setReceiptTime(new Date());
 
         InbPoHeader inbPoHeader = poOrderService.getInbPoHeaderByOrderOtherId(receiptRequest.getOrderOtherId());
         if(inbPoHeader == null) {
             throw new BizCheckedException("2020001");
         }
-        //校验之后修改订单状态为收货中
-        inbPoHeader.setOrderStatus(PoConstant.ORDER_RECTIPTING);
-        poOrderService.updateInbPoHeader(inbPoHeader);
+        //校验之后修改订单状态为收货中 第一次收货将订单改为收货中
+        if(inbPoHeader.getOrderStatus() == PoConstant.ORDER_THROW){
+            inbPoHeader.setOrderStatus(PoConstant.ORDER_RECTIPTING);
+            poOrderService.updateInbPoHeader(inbPoHeader);
+        }
 
         for(ReceiptItem receiptItem : receiptRequest.getItems()) {
             if(receiptItem.getProTime() == null) {
@@ -131,27 +144,25 @@ public class ReceiptRestService implements IReceiptRfService {
             throw new BizCheckedException("1020001", "参数不能为空");
         }
 
-
-        if(!containerService.isContainerCanUse(containerId)){
-            throw new BizCheckedException("2000002");
-        }
-
-
         InbPoHeader  inbPoHeader  = poOrderService.getInbPoHeaderByOrderOtherId(orderOtherId);
 
         if (inbPoHeader == null) {
             throw new BizCheckedException("2020001");
         }
 
-        boolean isCanReceipt = inbPoHeader.getOrderStatus() == PoConstant.ORDER_THROW || inbPoHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART;
+        boolean isCanReceipt = inbPoHeader.getOrderStatus() == PoConstant.ORDER_THROW || inbPoHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART || inbPoHeader.getOrderStatus() == PoConstant.ORDER_RECTIPTING;
         if (!isCanReceipt) {
             throw new BizCheckedException("2020002");
+        }
+
+        if(!containerService.isContainerCanUse(containerId)){
+            throw new BizCheckedException("2000002");
         }
 
         InbPoDetail inbPoDetail = poOrderService.getInbPoDetailByOrderIdAndBarCode(inbPoHeader.getOrderId(), barCode);
 
         if (inbPoDetail == null) {
-            throw new BizCheckedException("2020001");
+            throw new BizCheckedException("2020022");
         }
 
 

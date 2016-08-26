@@ -175,6 +175,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         if (quants.size() < 1) {
             throw new BizCheckedException("2030001");
         }
+        locationService.lockLocation(allocLocationId);
         StockQuant quant = quants.get(0);
         StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
         AtticShelveTaskDetail detail =  new AtticShelveTaskDetail();
@@ -229,6 +230,8 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         if(detail ==null){
             return JsonUtils.TOKEN_ERROR("任务详情不存在");
         }
+        locationService.unlockLocation(detail.getAllocLocationId());
+        locationService.lockLocation(allocLocationId);
         detail.setAllocLocationId(allocLocationId);
         detail.setRealLocationId(realLocationId);
         detail.setQty(qty);

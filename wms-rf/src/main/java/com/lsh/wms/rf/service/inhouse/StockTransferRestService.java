@@ -93,7 +93,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             resultMap.put("toLocationId", taskInfo.getToLocationId());
             resultMap.put("toLocationCode", locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode());
             resultMap.put("packName", taskInfo.getPackName());
-            resultMap.put("uomQty", taskInfo.getQty().divide(taskInfo.getPackUnit()));
+            resultMap.put("uomQty", taskInfo.getQty());
             return JsonUtils.SUCCESS(resultMap);
         } catch (BizCheckedException e) {
             throw e;
@@ -254,11 +254,11 @@ public class StockTransferRestService implements IStockTransferRestService {
             if (taskInfo.getExt3().equals(0L)) {
                 type = 1L;
                 locationId = taskInfo.getFromLocationId();
-                uomQty = taskInfo.getQty().divide(taskInfo.getPackUnit());
+                uomQty = taskInfo.getQty();
             } else {
                 type = 2L;
                 locationId = taskInfo.getToLocationId();
-                uomQty = taskInfo.getQtyDone().divide(taskInfo.getPackUnit());
+                uomQty = taskInfo.getQtyDone();
             }
             final String locationCode = locationRpcService.getLocation(locationId).getLocationCode();
             return JsonUtils.SUCCESS(new HashMap<String, Object>() {
