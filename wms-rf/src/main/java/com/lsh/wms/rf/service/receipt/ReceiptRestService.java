@@ -150,7 +150,7 @@ public class ReceiptRestService implements IReceiptRfService {
             throw new BizCheckedException("2020001");
         }
 
-        boolean isCanReceipt = inbPoHeader.getOrderStatus() == PoConstant.ORDER_THROW || inbPoHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART;
+        boolean isCanReceipt = inbPoHeader.getOrderStatus() == PoConstant.ORDER_THROW || inbPoHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART || inbPoHeader.getOrderStatus() == PoConstant.ORDER_RECTIPTING;
         if (!isCanReceipt) {
             throw new BizCheckedException("2020002");
         }
