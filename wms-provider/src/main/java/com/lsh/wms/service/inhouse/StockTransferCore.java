@@ -74,7 +74,7 @@ public class StockTransferCore {
         plan.setPackName(quant.getPackName());
         if (plan.getSubType().compareTo(1L)==0) {
             BigDecimal total = stockQuantRpcService.getQty(condition);
-            plan.setQty(total.divide(quant.getPackUnit(),BigDecimal.ROUND_DOWN));
+            plan.setQty(total.divide(quant.getPackUnit(), BigDecimal.ROUND_DOWN));
         } else {
             BigDecimal requiredQty = plan.getUomQty();
             plan.setQty(requiredQty);
@@ -129,7 +129,7 @@ public class StockTransferCore {
             }
             StockMove move = new StockMove();
             ObjUtils.bean2bean(taskInfo, move);
-            move.setQty(qtyDone.multiply(quants.get(0).getPackUnit()));
+            move.setQty(qtyDone.multiply(quants.get(0).getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP));
             move.setFromLocationId(fromLocationId);
             move.setToLocationId(toLocationId);
             move.setFromContainerId(quants.get(0).getContainerId());
@@ -178,7 +178,7 @@ public class StockTransferCore {
             }
             StockMove move = new StockMove();
             ObjUtils.bean2bean(taskInfo, move);
-            move.setQty(qtyDone.multiply(taskInfo.getPackUnit()));
+            move.setQty(qtyDone.multiply(taskInfo.getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP));
             move.setFromLocationId(fromLocationId);
             move.setToLocationId(toLocationId);
             move.setFromContainerId(containerId);
