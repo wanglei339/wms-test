@@ -131,12 +131,6 @@ public class ReceiptRestService implements IReceiptRfService {
             throw new BizCheckedException("1020001", "参数不能为空");
         }
 
-
-        if(!containerService.isContainerCanUse(containerId)){
-            throw new BizCheckedException("2000002");
-        }
-
-
         InbPoHeader  inbPoHeader  = poOrderService.getInbPoHeaderByOrderOtherId(orderOtherId);
 
         if (inbPoHeader == null) {
@@ -148,10 +142,14 @@ public class ReceiptRestService implements IReceiptRfService {
             throw new BizCheckedException("2020002");
         }
 
+        if(!containerService.isContainerCanUse(containerId)){
+            throw new BizCheckedException("2000002");
+        }
+
         InbPoDetail inbPoDetail = poOrderService.getInbPoDetailByOrderIdAndBarCode(inbPoHeader.getOrderId(), barCode);
 
         if (inbPoDetail == null) {
-            throw new BizCheckedException("2020001");
+            throw new BizCheckedException("2020022");
         }
 
 
