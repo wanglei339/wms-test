@@ -35,6 +35,7 @@ import javax.servlet.http.HttpSession;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -72,7 +73,7 @@ public class ReceiptRestService implements IReceiptRfService {
 
     @POST
     @Path("add")
-    public BaseResponse insertOrder() throws BizCheckedException{
+    public BaseResponse insertOrder() throws BizCheckedException, ParseException {
         Map<String, Object> request = RequestUtils.getRequest();
 
         List<ReceiptItem> receiptItemList = JSON.parseArray((String)request.get("items"), ReceiptItem.class);
