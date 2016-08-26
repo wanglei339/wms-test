@@ -66,10 +66,10 @@ public class StockTransferCore {
         condition.setLocationId(plan.getFromLocationId());
         condition.setItemId(plan.getItemId());
         List<StockQuant> quants = stockQuantRpcService.getQuantList(condition);
-        StockQuant quant = null;
         if(quants==null || quants.size()==0){
-            quant = quants.get(0);
+            throw new BizCheckedException("2550008");
         }
+        StockQuant quant = quants.get(0);
         plan.setPackUnit(quant.getPackUnit());
         plan.setPackName(quant.getPackName());
         if (plan.getSubType().compareTo(1L)==0) {
