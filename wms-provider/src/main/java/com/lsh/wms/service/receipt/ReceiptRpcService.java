@@ -314,7 +314,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 //设置receiptOrderId
                 inbReceiptDetail.setReceiptOrderId(inbReceiptHeader.getReceiptOrderId());
                 inbReceiptDetail.setOrderOtherId(request.getOrderOtherId());
-                boolean isCanReceipt = inbPoHeader.getOrderStatus() == PoConstant.ORDER_THROW || inbPoHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART;
+                boolean isCanReceipt = inbPoHeader.getOrderStatus() == PoConstant.ORDER_THROW || inbPoHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART || inbPoHeader.getOrderStatus() == PoConstant.ORDER_RECTIPTING;
                 if (!isCanReceipt) {
                     throw new BizCheckedException("2020002");
                 }
