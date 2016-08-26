@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.utils.IdCounterDao" >
+
+	<resultMap id="idCounterResultMap" type="IdCounter">
+		<id property="id" column="id"/>
+		<result property="key" column="key"/>
+		<result property="counter" column="counter"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="IdCounter">
+		insert into id_counter (
+			key,counter,created_at,updated_at
+    	) values (
+			#{key},#{counter},#{createdAt},#{updatedAt}
+    	)
+	</insert>
+
+	<update id="update" parameterType="IdCounter">
+		update id_counter
+    	<set>
+  			<if test="key != null">key=#{key},</if>
+  			<if test="counter != null">counter=#{counter},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getIdCounterById" parameterType="int" resultMap="idCounterResultMap">
+		select * from id_counter
+		where ID=#{id} 
+	</select>
+  
+	<select id="countIdCounter" parameterType="map" resultType="int">
+		select count(*) from id_counter
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getIdCounterList" parameterType="map" resultMap="idCounterResultMap">
+		select * from id_counter
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+
+	<select id="getIdCounterByKey" parameterType="string" resultMap="idCounterResultMap">
+		select * from id_counter
+		where key=#{key} FOR UPDATE
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="key != null">and key=#{key}</if>
+			<if test="counter != null">and counter=#{counter}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>
