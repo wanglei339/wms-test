@@ -39,11 +39,11 @@ public class ReceiptItem implements Serializable {
 
     /** 实际收货数 */
     @NotNull
-    private BigDecimal inboundQty;
+    private BigDecimal inboundQty = new BigDecimal(0);
 
     /** 到货数 */
     @NotNull
-    private BigDecimal arriveNum;
+    private BigDecimal arriveNum= new BigDecimal(0);
 
     /** 残次数 */
     private BigDecimal defectNum;

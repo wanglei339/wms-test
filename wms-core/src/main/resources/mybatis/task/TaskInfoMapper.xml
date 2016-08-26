@@ -197,7 +197,11 @@
 			<if test="draftTime != null">and draft_time=#{draftTime}</if>
 			<if test="assignTime != null">and assign_time=#{assignTime}</if>
 			<if test="dueTime != null">and due_time=#{dueTime}</if>
+			<if test="dueTimeAfter != null">and due_time&gt;=#{dueTimeAfter}</if>
+			<if test="dueTimeBefore != null">and due_time&lt;=#{dueTimeBefore}</if>
 			<if test="finishTime != null">and finish_time=#{finishTime}</if>
+			<if test="finishTimeAfter != null">and finish_time&gt;=#{finishTimeAfter}</if>
+			<if test="finishTimeBefore != null">and finish_time&lt;=#{finishTimeBefore}</if>
 			<if test="cancelTime != null">and cancel_time=#{cancelTime}</if>
 			<if test="ext1 != null">and ext1=#{ext1}</if>
 			<if test="ext2 != null">and ext2=#{ext2}</if>

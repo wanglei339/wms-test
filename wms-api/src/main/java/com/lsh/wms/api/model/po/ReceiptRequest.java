@@ -43,6 +43,8 @@ public class ReceiptRequest implements Serializable {
     @Size(max=64)
     private String receiptWharf;
 
+    private Long staffId;
+
     /** 商品 */
     @Valid
     @Size(min=1)
@@ -53,7 +55,7 @@ public class ReceiptRequest implements Serializable {
     }
 
     public ReceiptRequest(String orderOtherId, Long warehouseId, String bookingNum,Long containerId, String receiptUser, Date receiptTime,
-                          String receiptWharf, List<ReceiptItem> items) {
+                          String receiptWharf, Long staffId,List<ReceiptItem> items) {
         this.orderOtherId = orderOtherId;
         this.warehouseId = warehouseId;
         this.bookingNum = bookingNum;
@@ -61,6 +63,7 @@ public class ReceiptRequest implements Serializable {
         this.receiptUser = receiptUser;
         this.receiptTime = receiptTime;
         this.receiptWharf = receiptWharf;
+        this.staffId = staffId;
         this.items = items;
     }
 
@@ -128,4 +131,11 @@ public class ReceiptRequest implements Serializable {
         this.items = items;
     }
 
+    public Long getStaffId() {
+        return staffId;
+    }
+
+    public void setStaffId(Long staffId) {
+        this.staffId = staffId;
+    }
 }
