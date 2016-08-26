@@ -810,6 +810,20 @@ public class LocationService {
         }
         return false;
     }
+    /**
+     * 货架位置为空并且没上锁(没占用+没上锁)
+     * 一库位一托盘码
+     *
+     * @param locationId
+     * @return
+     */
+    public boolean shelfBinLocationIsEmptyAndUnlock(Long locationId) {
+        BaseinfoLocation location = this.getLocation(locationId);
+        if ((location.getCanUse().equals(1)) && location.getIsLocked().equals(0)) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * 提供空的可用位置,位置上当前没托盘切没有被任务锁定

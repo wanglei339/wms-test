@@ -223,7 +223,7 @@ public class LocationDetailService {
         }
         //  如果是阁楼个体,插入指定层的阁楼层
         if (LocationConstant.LOFT.equals(iBaseinfoLocaltionModel.getType())) {
-          this.insertShelflevelsByShelf(baseinfoLocation,iBaseinfoLocaltionModel,LocationConstant.SHELF_LEVELS);
+          this.insertShelflevelsByShelf(baseinfoLocation,iBaseinfoLocaltionModel,LocationConstant.LOFT_LEVELS);
             //将货架的叶子节点设置为0
             location.setIsLeaf(0);
             locationService.updateLocation(location);
