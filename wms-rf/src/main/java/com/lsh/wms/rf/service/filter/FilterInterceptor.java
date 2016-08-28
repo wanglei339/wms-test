@@ -70,13 +70,21 @@ public class FilterInterceptor{
                 String key = StrUtils.formatString(RedisKeyConstant.USER_UID_TOKEN,uid);
                 //redis中获取key
                 String value = redisStringDao.get(key);
+                //取出流水号
+                String serialNumber = request.getHeader("serialNumber");
                 if (value == null || !value.equals(utoken)) {
                     throw new BizCheckedException("2660003");
                 }else{
                     //如果验证成功，说明此用户进行了一次有效操作，延长token的过期时间
                     redisStringDao.expire(key, PropertyUtils.getLong("tokenExpire"));
                     try {
-                      return pjp.proceed();
+                        if(redisStringDao.get(serialNumber) == null){
+                            return pjp.proceed();
+                        }
+                        else{
+                            return redisStringDao.get(serialNumber);
+                        }
+                        //return pjp.proceed();
                     } catch (Throwable ex) {
                         throw ex;
 
