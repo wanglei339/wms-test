@@ -79,7 +79,11 @@ public class FilterInterceptor{
                     redisStringDao.expire(key, PropertyUtils.getLong("tokenExpire"));
                     try {
                         if(redisStringDao.get(serialNumber) == null){
-                            return pjp.proceed();
+                            //将结果放到redis中。
+                            String result = (String) pjp.proceed();
+                            redisStringDao.set(serialNumber,result);
+                            return result;
+                            //return pjp.proceed();
                         }
                         else{
                             return redisStringDao.get(serialNumber);
