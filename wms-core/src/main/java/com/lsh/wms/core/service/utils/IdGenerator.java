@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.utils;
 
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.IdGeneratorContant;
 import com.lsh.wms.core.dao.utils.IdCounterDao;
@@ -31,7 +32,7 @@ public class IdGenerator {
     @Transactional(readOnly = false)
     public static Long genId(String prefix, Boolean useDateFormat, Boolean addPrefixNum) {
         Long counter = 1L; // 计数器
-        String key = prefix; // 计数器的key
+        String idKey = prefix; // 计数器的key
         Long value = 0L; // 返回值
         String dateValue = ""; // 日期格式
 
@@ -40,14 +41,14 @@ public class IdGenerator {
             Date date = new Date();
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
             dateValue = dateFormat.format(date);
-            key += dateValue;
+            idKey += dateValue;
         }
 
-        IdCounter idCounter = idCounterDao.getIdCounterByKey(key);
+        IdCounter idCounter = idCounterDao.getIdCounterByIdKey(idKey);
 
         // 自增计数器
         if (idCounter == null) {
-            idCounter.setKey(key);
+            idCounter.setIdKey(idKey);
             idCounter.setCounter(counter);
             idCounter.setCreatedAt(DateUtils.getCurrentSeconds());
             idCounter.setUpdatedAt(DateUtils.getCurrentSeconds());

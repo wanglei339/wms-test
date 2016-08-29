@@ -8,7 +8,7 @@ public class IdCounter implements Serializable {
 	/**  */
     private Long id;
 	/** id的键 */
-    private String key;
+    private String idKey;
 	/** 计数器 */
     private Long counter;
 	/**  */
@@ -24,12 +24,12 @@ public class IdCounter implements Serializable {
 		this.id = id;
 	}
 	
-	public String getKey(){
-		return this.key;
+	public String getIdKey(){
+		return this.idKey;
 	}
 	
-	public void setKey(String key){
-		this.key = key;
+	public void setIdKey(String idKey){
+		this.idKey = idKey;
 	}
 	
 	public Long getCounter(){

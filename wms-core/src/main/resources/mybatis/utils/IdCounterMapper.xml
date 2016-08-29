@@ -47,9 +47,9 @@
 		</if>
 	</select>
 
-	<select id="getIdCounterByKey" parameterType="string" resultMap="idCounterResultMap">
+	<select id="getIdCounterByIdKey" parameterType="string" resultMap="idCounterResultMap">
 		select * from id_counter
-		where key=#{key} for update
+		where id_key=#{idKey} for update
 	</select>
   
 	<sql id="queryCondition">

@@ -10,5 +10,5 @@ public interface IContainerRestService {
     public String getContainer(long containerId) throws BizCheckedException;
     public String insertContainer(BaseinfoContainer container);
     public String createContainerByType(Long type);
-
+    Long test();
 }
