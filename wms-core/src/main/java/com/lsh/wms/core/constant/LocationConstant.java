@@ -70,6 +70,10 @@ public class LocationConstant {
     //阁楼货架层的拣货块
     public static final Long LOFT_STORE_BLOCK = 39L;
 
+    //是否能存储
+    public static final Integer CAN_STORE = 1;
+    public static final Integer CANNOT_STORE = 0;
+
     //区域(主要是返仓)的货主配置
     public static final Long OWER_WUMARKET = 1L;  //物美
     public static final Long OWER_LSH = 2L;  //链商
@@ -90,6 +94,7 @@ public class LocationConstant {
     //码头出库入库设置
     public static final Integer DOCK_IN = 1; //入库码头
     public static final Integer DOCK_OUT = 2; //出库码头
+
 
     //设置库位和库区的区别项
 

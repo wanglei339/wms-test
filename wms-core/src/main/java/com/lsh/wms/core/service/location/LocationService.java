@@ -30,19 +30,27 @@ public class LocationService {
     @Autowired
     private StockQuantService stockQuantService;
     @Autowired
-    private BaseinfoLocationShelfService baseinfoLocationShelfService;
-    @Autowired
     private LocationDetailService locationDetailService;
 
 
-    //计数
-    //valid一定是1 未删除的
+    /**
+     * 计数
+     * valid一定是1 未删除的
+     *
+     * @param params
+     * @return
+     */
     public int countLocation(Map<String, Object> params) {
         params.put("isValid", LocationConstant.IS_VALID);
         return locationDao.countBaseinfoLocation(params);
     }
 
-    // 获取location
+    /**
+     * 根据locationId获取location
+     *
+     * @param locationId 位置序列号
+     * @return BaseinfoLocation
+     */
     public BaseinfoLocation getLocation(Long locationId) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("locationId", locationId);
@@ -55,7 +63,7 @@ public class LocationService {
      * 插入location方法
      *
      * @param location
-     * @return
+     * @return 位置BaseinfoLocation
      */
     @Transactional(readOnly = false)
     public BaseinfoLocation insertLocation(BaseinfoLocation location) {
@@ -71,8 +79,8 @@ public class LocationService {
     /**
      * 更新location
      *
-     * @param iBaseinfoLocaltionModel
-     * @return
+     * @param iBaseinfoLocaltionModel location
+     * @return location
      */
     @Transactional(readOnly = false)
     public BaseinfoLocation updateLocation(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
@@ -87,11 +95,24 @@ public class LocationService {
     }
 
     /**
+     * 批量更新location
+     *
+     * @param locations 位置集合list
+     * @return
+     */
+    @Transactional(readOnly = false)
+    public void update(List<IBaseinfoLocaltionModel> locations) {
+        for (IBaseinfoLocaltionModel location : locations) {
+            this.updateLocation(location);
+        }
+    }
+
+    /**
      * 删除节点和下面的所有子树
      * 并且删除细节表的所有location
      *
      * @param locationId
-     * @return
+     * @return location
      */
     @Transactional(readOnly = false)
     public BaseinfoLocation removeLocationAndChildren(Long locationId) throws BizCheckedException {
@@ -240,7 +261,6 @@ public class LocationService {
      */
     public List<BaseinfoLocation> getNextLevelLocations(Long locationId) {
         Map<String, Object> params = new HashMap<String, Object>();
-        Map<Long, BaseinfoLocation> childrenLocations = new HashMap<Long, BaseinfoLocation>();
         // 判断是否已为子节点
         BaseinfoLocation curLocation = this.getLocation(locationId);
         if (curLocation.getIsLeaf() == 1) {
@@ -274,7 +294,7 @@ public class LocationService {
         BaseinfoLocation location = this.getLocation(locationId);
         params.put("leftRange", location.getLeftRange());
         params.put("rightRange", location.getRightRange());
-        params.put("can_store", 1);
+        params.put("can_store", LocationConstant.CAN_STORE);
         params.put("isValid", LocationConstant.IS_VALID);
         return locationDao.getChildrenLocationList(params);
     }
@@ -591,8 +611,7 @@ public class LocationService {
     }
 
     /**
-     * 获取货位节点的id
-     * 一次去数据库中取两个相邻货架的拣货位,然后按照筛选规则去筛选存货位
+     * 查找位置
      *
      * @param mapQuery
      * @return
@@ -604,14 +623,13 @@ public class LocationService {
 
     /**
      * 根据货架的拣货位获取货架的最近存货位
-     * TODO 获取拣货位最近的存储位 (待检测)
      *
      * @param pickingLocation
      * @return
      */
     public BaseinfoLocation getNearestStorageByPicking(BaseinfoLocation pickingLocation) {
         //获取相邻货架的所有拣货位,先获取当前货架,获取通道,货物相邻货架,然后获取
-        BaseinfoLocation shelfLocationSelf = this.getShelfByClassification(pickingLocation.getLocationId());
+        BaseinfoLocation shelfLocationSelf = this.getShelfByClassification(pickingLocation.getLocationId());    //获取货架
         //通道
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("locationId", shelfLocationSelf.getFatherId());
@@ -621,14 +639,29 @@ public class LocationService {
         List<BaseinfoLocation> tempLocations = new ArrayList<BaseinfoLocation>();
         List<BaseinfoLocation> allNearShelfSubs = null;
         //无论是否存在相邻货架,将一个通道下的所有位置拿出来(必须保证货架个体的father必须是通道)
-        passage = passageList.get(0);
+        passage = passageList.get(0);   //获取通道
         allNearShelfSubs = this.getStoreLocations(passage.getLocationId());
         tempLocations.addAll(allNearShelfSubs);
+        //筛选相邻两货架间距离当前拣货位最近的存货位
+        BaseinfoLocation nearestLocation = this.filterNearestBinAlgorithm(tempLocations, pickingLocation, shelfLocationSelf, LocationConstant.SHELF_STORE_BIN);
+        return nearestLocation;
+    }
+
+    /**
+     * 获取货架存货位最小位置的方法,选取的集合在相邻的两货架之间(现阶段)
+     *
+     * @param locations         筛选的存储位置集合
+     * @param pickingLocation   拣货位的位置
+     * @param shelfLocationSelf 拣货位所在货架(用于判断是否是同一货架)
+     * @param type              查找的指定location的集合
+     * @return
+     */
+    public BaseinfoLocation filterNearestBinAlgorithm(List<BaseinfoLocation> locations, BaseinfoLocation pickingLocation, BaseinfoLocation shelfLocationSelf, Long type) {
         List<Map<String, Object>> storeBinDistanceList = new ArrayList<Map<String, Object>>();
         //放入location和当前location到目标位置的距离
-        for (BaseinfoLocation temp : tempLocations) {
+        for (BaseinfoLocation temp : locations) {
             //存货位,为空没上锁
-            if (temp.getType().equals(LocationConstant.SHELF_STORE_BIN) && this.shelfBinLocationIsEmptyAndUnlock(temp)) {
+            if (temp.getType().equals(type) && this.shelfBinLocationIsEmptyAndUnlock(temp)) {
                 //放入location和距离
                 Long distance = (temp.getBinPositionNo() - pickingLocation.getBinPositionNo()) * (temp.getBinPositionNo() - pickingLocation.getBinPositionNo()) + (temp.getShelfLevelNo() - pickingLocation.getShelfLevelNo()) * (temp.getShelfLevelNo() - pickingLocation.getShelfLevelNo());
                 Map<String, Object> distanceMap = new HashMap<String, Object>();
@@ -658,8 +691,13 @@ public class LocationService {
         }
     }
 
-    // todo 因为阁楼和拆零区的货位不是整托,会有同一批次的商品继续分配相同的货位,现阶段用库存为零判断,以后加入其它判断(待产品经理给规则)
-    //货架和阁楼的继续上架的东西不同,不是整托上
+
+    /**
+     * todo 因为阁楼和拆零区的货位不是整托,会有同一批次的商品继续分配相同的货位,现阶段用库存为零判断,以后加入其它判断(待产品经理给规则)
+     *
+     * @param pickingLocation
+     * @return
+     */
     public BaseinfoLocation getNearestBinInSpiltByPicking(BaseinfoLocation pickingLocation) {
         //获取相邻货架的所有拣货位,先获取当前货架,获取通道,货物相邻货架,然后获取
         BaseinfoLocation shelfLocationSelf = this.getShelfByClassification(pickingLocation.getLocationId());
@@ -675,39 +713,8 @@ public class LocationService {
         passage = passageList.get(0);
         allNearShelfSubs = this.getStoreLocations(passage.getLocationId());
         tempLocations.addAll(allNearShelfSubs);
-        List<Map<String, Object>> storeBinDistanceList = new ArrayList<Map<String, Object>>();
-        //放入location和当前location到目标位置的距离
-        for (BaseinfoLocation temp : tempLocations) {
-            //存货位,为空没上锁
-            // todo 继续上阁楼或者拆零区的逻辑(判断逻辑查库存,优化的方法)
-            if (temp.getType().equals(LocationConstant.SPLIT_SHELF_BIN) && this.locationIsEmptyAndUnlock(temp.getLocationId())) {
-                //放入location和距离
-                Long distance = (temp.getBinPositionNo() - pickingLocation.getBinPositionNo()) * (temp.getBinPositionNo() - pickingLocation.getBinPositionNo()) + (temp.getShelfLevelNo() - pickingLocation.getShelfLevelNo()) * (temp.getShelfLevelNo() - pickingLocation.getShelfLevelNo());
-                Map<String, Object> distanceMap = new HashMap<String, Object>();
-                distanceMap.put("location", temp);
-                distanceMap.put("distance", distance);
-                storeBinDistanceList.add(distanceMap);
-            }
-        }
-        //遍历距离的list,根据map的ditance的取出最小的
-        if (storeBinDistanceList.size() > 0) {
-            Map<String, Object> minDistanceMap = new HashMap<String, Object>();
-            BaseinfoLocation location = (BaseinfoLocation) storeBinDistanceList.get(0).get("location");
-            Long minDistance = (Long) storeBinDistanceList.get(0).get("distance");
-            minDistanceMap.put("location", location);
-            minDistanceMap.put("distance", minDistance);
-            for (Map<String, Object> distanceMap : storeBinDistanceList) {
-                if ((Long.parseLong(((Long) distanceMap.get("distance")).toString()) == Long.parseLong(((Long) minDistanceMap.get("distance")).toString())) && (this.getShelfByClassification(((BaseinfoLocation) distanceMap.get("location")).getLocationId())).getLocationId().equals(shelfLocationSelf.getLocationId())) {
-                    //位置相同,同货架优先,同货架位置相同,给一个就行
-                    minDistanceMap = distanceMap;
-                } else if (Long.parseLong(((Long) distanceMap.get("distance")).toString()) < Long.parseLong(((Long) minDistanceMap.get("distance")).toString())) {
-                    minDistanceMap = distanceMap;
-                }
-            }
-            return (BaseinfoLocation) minDistanceMap.get("location");
-        } else {
-            return null;
-        }
+        BaseinfoLocation neareatLocation = this.filterNearestBinAlgorithm(tempLocations, pickingLocation, shelfLocationSelf, LocationConstant.SPLIT_SHELF_BIN);
+        return neareatLocation;
     }
 
 
@@ -767,7 +774,7 @@ public class LocationService {
     }
 
     /**
-     * 设置为止没有被占用
+     * 设置位置没有被占用
      *
      * @param locationId
      * @return
@@ -810,6 +817,7 @@ public class LocationService {
         }
         return false;
     }
+
     /**
      * 货架位置为空并且没上锁(没占用+没上锁)
      * 一库位一托盘码
@@ -826,7 +834,8 @@ public class LocationService {
     }
 
     /**
-     * 提供空的可用位置,位置上当前没托盘切没有被任务锁定
+     * 判断位置上当前没托盘切没有被任务锁定
+     *
      * @param locationId
      * @return
      */
@@ -836,8 +845,10 @@ public class LocationService {
         }
         return false;
     }
+
     /**
      * 提供空的可用位置,位置上当前没托盘切没有被任务锁定
+     *
      * @param location
      * @return
      */
@@ -866,19 +877,13 @@ public class LocationService {
         return null;
     }
 
-
-    /**
-     * 获取location子代集合的开关
-     */
-    public static boolean LocationFlag = true;
-
-    public static void setLocationFlag(boolean locationFlag) {
-        LocationFlag = locationFlag;
-    }
-
     /**
      * 根据当前的locationId获取,指定type的子集
      * 如果fatherId不是locationId,那就是祖先的id
+     *
+     * @param locationId
+     * @param type       指定的位置type
+     * @return
      */
     public List<BaseinfoLocation> getSubLocationList(Long locationId, Long type) {
         List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
@@ -894,7 +899,7 @@ public class LocationService {
     }
 
     /**
-     * 获取在location列表中的码头,按条件筛选
+     * 获取在location列表中的码头,按条件筛选(前端使用,用于关联查询join)
      *
      * @param params
      * @return
@@ -961,6 +966,7 @@ public class LocationService {
         }
         return false;
     }
+
     /**
      * 检查位置的锁状态
      *
@@ -976,6 +982,7 @@ public class LocationService {
 
     /**
      * 根据库区库位类型classification来查到区的级别
+     * 区的级别classification=1
      *
      * @param locationId
      * @return
@@ -994,6 +1001,7 @@ public class LocationService {
 
     /**
      * 根据货架类型classification来查到区的级别
+     * 货架的级别classification=4
      *
      * @param locationId
      * @return
@@ -1069,7 +1077,7 @@ public class LocationService {
      *
      * @param location
      * @param containerVol
-     * @return
+     * @return true 达到上限 false没有达到上限
      */
     //判断当前容器的是否达到上限
     public boolean isOnThreshold(BaseinfoLocation location, Long containerVol) {

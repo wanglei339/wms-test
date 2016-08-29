@@ -84,7 +84,7 @@ public class BaseinfoLocation implements Serializable, IBaseinfoLocaltionModel {
      */
     protected Long updatedAt;
     /**
-     * 区别库区库位-3为其他1-为库区-2为库位
+     * 区别库区库位-3为其他1-为库区-2为库位4-货架
      */
     protected Integer classification;
     /**

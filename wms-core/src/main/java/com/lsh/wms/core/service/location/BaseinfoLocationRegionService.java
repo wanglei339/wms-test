@@ -32,8 +32,6 @@ public class BaseinfoLocationRegionService implements IStrategy {
     //增删改查
     @Autowired
     private BaseinfoLocationRegionDao baseinfoLocationRegionDao;
-    @Autowired
-    private LocationService locationService;
 
     @Transactional(readOnly = false)
     public void insert(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
@@ -51,7 +49,6 @@ public class BaseinfoLocationRegionService implements IStrategy {
         mapQuery.put("locationId", id);
         mapQuery.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocationRegion> regionList = baseinfoLocationRegionDao.getBaseinfoLocationRegionList(mapQuery);
-//        BaseinfoLocationRegion region =  regionList.get(0);
         return regionList.size() > 0 ? regionList.get(0) : null;
 
     }

@@ -26,11 +26,8 @@ public class BaseinfoLocationBinService implements IStrategy {
 
     @Autowired
     private BaseinfoLocationBinDao baseinfoLocationBinDao;
-    @Autowired
-    private LocationService locationService;
-
     /**
-     * 传入BaseinfoLocationBin然后插入到主表中,并且插入到细节表中
+     * 插入货位表baseinfo_location_bin
      *
      * @param
      */
@@ -48,34 +45,41 @@ public class BaseinfoLocationBinService implements IStrategy {
      * 通过locationId查找主表BaseinfoLocaiton
      *
      * @param id
-     * @return
+     * @return BaseinfoLocation
      */
     public BaseinfoLocation getBaseinfoItemLocationModelById(Long id) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("locationId", id);
         mapQuery.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocationBin> bins = baseinfoLocationBinDao.getBaseinfoLocationBinList(mapQuery);
-//        BaseinfoLocationBin bin =  bins.get(0);
         return bins.size() > 0 ? bins.get(0) : null;
     }
 
     /**
-     * 因为是先查找父类的表,所以只要把父类的数目返回即可
-     * 传的参数一定是父类中有的
-     *
+     * 货位计数
      * @param params
-     * @return
+     * @return 货位个数
      */
     public Integer countBaseinfoLocaltionModel(Map<String, Object> params) {
         params.put("isValid", LocationConstant.IS_VALID);
         return baseinfoLocationBinDao.countBaseinfoLocationBin(params);
     }
 
+    /**
+     * 获取货位的list
+     * @param params
+     * @return  货位的list
+     */
     public List<BaseinfoLocation> getBaseinfoLocaltionModelList(Map<String, Object> params) {
         params.put("isValid", LocationConstant.IS_VALID);
         return (List<BaseinfoLocation>) (List<?>) baseinfoLocationBinDao.getBaseinfoLocationBinList(params);
     }
 
+    /**
+     * 删除货位
+     * @param locationId
+     * @return 货位bin
+     */
     @Transactional(readOnly = false)
     public IBaseinfoLocaltionModel removeLocation(Long locationId) {
         //先查,然后删除

@@ -199,9 +199,9 @@ public class LocationRestService implements ILocationRestService {
     @Path("getAllShelfs")
     public String getAllShelfs() {
         return JsonUtils.SUCCESS(locationRpcService.getAllShelfs());
-////        Long locationId = Long.parseLong("9073135487256");
-////        BaseinfoLocation baseinfoLocation = locationService.getLocation(locationId);
-////        return JsonUtils.SUCCESS(locationService.getNearestStorageByPicking(baseinfoLocation));
+//        Long locationId = Long.parseLong("9073135487256");
+//        BaseinfoLocation baseinfoLocation = locationService.getLocation(locationId);
+//        return JsonUtils.SUCCESS(locationService.getNearestStorageByPicking(baseinfoLocation));
 //        //测试方法(PickRpcService()的方法)
         //获取list
 //        List<WaveDetail> pickDetails = new ArrayList<WaveDetail>();

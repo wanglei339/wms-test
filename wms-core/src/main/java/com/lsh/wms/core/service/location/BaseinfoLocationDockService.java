@@ -27,8 +27,6 @@ public class BaseinfoLocationDockService implements IStrategy {
 
     @Autowired
     private BaseinfoLocationDockDao baseinfoLocationDockDao;
-    @Autowired
-    private LocationService locationService;
 
     /**
      * 只完成插入服务
@@ -52,16 +50,12 @@ public class BaseinfoLocationDockService implements IStrategy {
         mapQuery.put("locationId", id);
         mapQuery.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocationDock> dockList = baseinfoLocationDockDao.getBaseinfoLocationDockList(mapQuery);
-//        BaseinfoLocationDock dock = dockList.get(0);
         return dockList.size() > 0 ? dockList.get(0) : null;
     }
 
     /**
-     * Location的主表没有码头的出和入的性质
-     * 不包含码头的dock_type数目就是主表的数
-     * 含有出入码头,就计数为dock表的条目数
-     *
-     * @param params
+     * 码头的计数
+     * @param params 查找条件
      * @return
      */
     public Integer countBaseinfoLocaltionModel(Map<String, Object> params) {
@@ -81,7 +75,7 @@ public class BaseinfoLocationDockService implements IStrategy {
     }
 
     /**
-     * 删除码头细节表,将isvalid置为0
+     * 删除码头,将isvalid置为0
      * @param locationId
      * @return
      */

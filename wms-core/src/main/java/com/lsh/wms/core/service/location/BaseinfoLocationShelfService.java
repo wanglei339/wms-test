@@ -27,8 +27,6 @@ public class BaseinfoLocationShelfService implements IStrategy {
     private static final Logger logger = LoggerFactory.getLogger(BaseinfoLocationShelfService.class);
     @Autowired
     private BaseinfoLocationShelfDao baseinfoLocationShelfDao;
-    @Autowired
-    private LocationService locationService;
 
     @Transactional(readOnly = false)
     public void insert(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
@@ -45,7 +43,6 @@ public class BaseinfoLocationShelfService implements IStrategy {
         mapQuery.put("locationId", id);
         mapQuery.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocationShelf> shelfList = baseinfoLocationShelfDao.getBaseinfoLocationShelfList(mapQuery);
-//        BaseinfoLocationShelf shelf =  shelfList.get(0);
         return shelfList.size() > 0 ? shelfList.get(0) : null;
     }
 

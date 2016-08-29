@@ -29,10 +29,6 @@ public class BaseinfoLocationWarehouseService implements IStrategy {
 
     @Autowired
     private BaseinfoLocationWarehouseDao baseinfoLocationWarehouseDao;
-    @Autowired
-    private LocationService locationService;
-    @Autowired
-    private FatherToChildUtil fatherToChildUtil;
 
 
     @Transactional(readOnly = false)
@@ -50,7 +46,6 @@ public class BaseinfoLocationWarehouseService implements IStrategy {
         mapQuery.put("locationId", id);
         mapQuery.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocationWarehouse> warehouseList = baseinfoLocationWarehouseDao.getBaseinfoLocationWarehouseList(mapQuery);
-//        BaseinfoLocationWarehouse warehouse =  warehouseList.get(0);
         return warehouseList.size() > 0 ? warehouseList.get(0) : null;
     }
 
