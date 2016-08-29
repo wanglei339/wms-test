@@ -36,14 +36,6 @@ public class ContainerRestService implements IContainerRestService {
     private ContainerRpcService containerRpcService;
     @Autowired
     private ContainerService containerService;
-    @Autowired
-    private IdGenerator idGenerator;
-
-    @GET
-    @Path("test")
-    public Long test() {
-        return idGenerator.genId("task", false, false);
-    }
 
     @GET
     @Path("getContainer")

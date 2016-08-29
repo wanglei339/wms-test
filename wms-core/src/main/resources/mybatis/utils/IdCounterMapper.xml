@@ -4,7 +4,7 @@
 
 	<resultMap id="idCounterResultMap" type="IdCounter">
 		<id property="id" column="id"/>
-		<result property="key" column="key"/>
+		<result property="idKey" column="id_key"/>
 		<result property="counter" column="counter"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
@@ -12,16 +12,16 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="IdCounter">
 		insert into id_counter (
-			key,counter,created_at,updated_at
+			id_key,counter,created_at,updated_at
     	) values (
-			#{key},#{counter},#{createdAt},#{updatedAt}
+			#{idKey},#{counter},#{createdAt},#{updatedAt}
     	)
 	</insert>
 
 	<update id="update" parameterType="IdCounter">
 		update id_counter
     	<set>
-  			<if test="key != null">key=#{key},</if>
+  			<if test="idKey != null">id_key=#{idKey},</if>
   			<if test="counter != null">counter=#{counter},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
@@ -55,7 +55,7 @@
 	<sql id="queryCondition">
 		<where>
 			<if test="id != null">id=#{id}</if>
-			<if test="key != null">and key=#{key}</if>
+			<if test="idKey != null">and id_key=#{idKey}</if>
 			<if test="counter != null">and counter=#{counter}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
