@@ -72,8 +72,10 @@ public class TaskFinishEventHandler extends AbsEventHandler implements IEventHan
         if (pickLocation.getType().equals(LocationConstant.LOFT_PICKING_BIN)) {
             // 阁楼上架任务
             handlerType = TaskConstant.TYPE_ATTIC_SHELVE;
-        } else {
+        } else if (pickLocation.getType().equals(LocationConstant.SHELF_PICKING_BIN)){
             handlerType = TaskConstant.TYPE_SHELVE;
+        } else {
+            handlerType = TaskConstant.TYPE_PICK_UP_SHELVE;
         }
         try {
             TaskHandler taskHandler = taskHandlerFactory.getTaskHandler(handlerType);
