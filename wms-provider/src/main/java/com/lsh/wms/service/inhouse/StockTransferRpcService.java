@@ -4,7 +4,6 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.ObjUtils;
-import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.inhouse.IStockTransferRpcService;
 import com.lsh.wms.api.service.item.IItemRpcService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
@@ -12,12 +11,12 @@ import com.lsh.wms.api.service.stock.IStockMoveRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.ContainerConstant;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.location.LocationService;
-import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
@@ -27,14 +26,11 @@ import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
-import com.lsh.wms.model.transfer.StockTransferTaskDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.config.Task;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -137,7 +133,9 @@ public class StockTransferRpcService implements IStockTransferRpcService {
 
         List<StockQuant> toQuants = quantService.getQuantsByLocationId(toLocationId);
         Long locationType = toLocation.getType();
-        if( toQuants.size() > 0 && locationType.compareTo(LocationConstant.FLOOR) != 0 ) {
+        if( toQuants.size() > 0 && locationType.compareTo(LocationConstant.FLOOR) != 0
+                && locationType.compareTo(LocationConstant.BACK_AREA) != 0
+                && locationType.compareTo(LocationConstant.DEFECTIVE_AREA) != 0) {
             // 拣货位
             if (locationType.compareTo(LocationConstant.LOFT_PICKING_BIN) == 0 || locationType.compareTo(LocationConstant.SHELF_PICKING_BIN) == 0) {
                 List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toLocationId);
@@ -154,7 +152,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             }
         }
         core.fillTransferPlan(plan);
-        BigDecimal requiredQty = plan.getQty();
+        BigDecimal requiredQty = plan.getQty().multiply(plan.getPackUnit());
         if ( requiredQty.compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
             throw new BizCheckedException("2550002");
         }
@@ -193,6 +191,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             taskInfo.setTaskName("移库任务[ " + taskInfo.getFromLocationId() + " => " + taskInfo.getToLocationId() + "]");
             taskInfo.setType(TaskConstant.TYPE_STOCK_TRANSFER);
             taskInfo.setContainerId(containerId);
+            taskInfo.setQtyDone(taskInfo.getQty());
             taskEntry.setTaskInfo(taskInfo);
             taskId = taskRpcService.create(TaskConstant.TYPE_STOCK_TRANSFER, taskEntry);
         }
@@ -248,7 +247,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         Map<String, Object> next = new HashMap<String, Object>();
         Long nextLocationId, nextItem, subType;
         String packName;
-        BigDecimal packUnit, qty;
+        BigDecimal qty;
         //inbound
         if (nextOutTask == 0) {
             Long nextInTask = core.getFirstInbound(taskEntry.getTaskInfo().getOperator());
@@ -256,7 +255,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             nextLocationId = nextInfo.getToLocationId();
             nextItem = nextInfo.getItemId();
             packName = nextInfo.getPackName();
-            packUnit = nextInfo.getPackUnit();
             subType = nextInfo.getSubType();
             qty = nextInfo.getQtyDone();
             next.put("type", 2);
@@ -266,7 +264,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             nextLocationId = nextInfo.getFromLocationId();
             nextItem = nextInfo.getItemId();
             packName = nextInfo.getPackName();
-            packUnit = nextInfo.getPackUnit();
             subType = nextInfo.getSubType();
             qty = nextInfo.getQty();
             next.put("type", 1);
@@ -277,7 +274,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         next.put("itemId", nextItem);
         next.put("itemName", itemRpcService.getItem(nextItem).getSkuName());
         next.put("packName", packName);
-        next.put("uomQty", qty.divide(packUnit));
+        next.put("uomQty", qty);
         if (subType.compareTo(1L) == 0) {
             next.put("uomQty", "整托");
         }
@@ -307,7 +304,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             next.put("itemId", nextInfo.getItemId());
             next.put("itemName", itemRpcService.getItem(nextInfo.getItemId()).getSkuName());
             next.put("packName", nextInfo.getPackName());
-            next.put("uomQty", nextInfo.getQtyDone().divide(nextInfo.getPackUnit()));
+            next.put("uomQty", nextInfo.getQtyDone());
             if (nextInfo.getSubType().compareTo(1L) == 0) {
                 next.put("uomQty", "整托");
             }
@@ -384,7 +381,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         next.put("itemId", nextInfo.getItemId());
         next.put("itemName", itemRpcService.getItem(nextInfo.getItemId()).getSkuName());
         next.put("packName", nextInfo.getPackName());
-        next.put("uomQty", nextInfo.getQty().divide(nextInfo.getPackUnit()));
+        next.put("uomQty", nextInfo.getQty());
         next.put("subType", nextInfo.getSubType());
         return next;
     }

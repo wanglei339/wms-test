@@ -165,7 +165,7 @@ public class ProcurementRestService implements IProcurementRestService {
                         if(info.getSubType().compareTo(1L)==0){
                             put("uomQty","整托");
                         }else {
-                            put("uomQty", info.getQtyDone().divide(info.getPackUnit()));
+                            put("uomQty", info.getQtyDone());
                         }
 
                     }
@@ -216,7 +216,7 @@ public class ProcurementRestService implements IProcurementRestService {
                         if(info.getSubType().compareTo(1L)==0){
                             put("uomQty","整托");
                         }else {
-                            put("uomQty", info.getQtyDone().divide(info.getPackUnit()));
+                            put("uomQty", info.getQtyDone());
                         }
 
                     }
@@ -235,7 +235,7 @@ public class ProcurementRestService implements IProcurementRestService {
                         if(info.getSubType().compareTo(1L)==0){
                             put("uomQty","整托");
                         }else {
-                            put("uomQty", info.getQty().divide(info.getPackUnit()));
+                            put("uomQty", info.getQty());
                         }
                     }
                 });
@@ -265,7 +265,7 @@ public class ProcurementRestService implements IProcurementRestService {
                 if(taskInfo.getSubType().compareTo(1L)==0){
                     put("uomQty","整托");
                 }else {
-                    put("uomQty", taskInfo.getQty().divide(taskInfo.getPackUnit()));
+                    put("uomQty", taskInfo.getQty());
                 }
             }
         });

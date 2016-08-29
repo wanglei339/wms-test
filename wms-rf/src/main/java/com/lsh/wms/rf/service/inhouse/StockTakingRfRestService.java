@@ -5,6 +5,8 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.wms.core.service.stock.StockLotService;
+import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.system.SysUser;
 import net.sf.json.JSONObject;
@@ -62,6 +64,8 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
     private StockTakingService stockTakingService;
     @Autowired
     private LocationService locationService;
+    @Autowired
+    private StockLotService lotService;
     @Autowired
     private StockMoveService moveService;
     @Autowired
@@ -346,6 +350,8 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
                     move.setFromLocationId(detail.getLocationId());
                     move.setToLocationId(locationService.getInventoryLostLocationId());
                 } else {
+                    StockLot lot = lotService.getStockLotByLotId(detail.getLotId());
+                    move.setLot(lot);
                     move.setQty(detail.getRealQty().subtract(detail.getTheoreticalQty()));
                     move.setFromLocationId(locationService.getInventoryLostLocationId());
                     move.setToLocationId(detail.getLocationId());

@@ -109,6 +109,7 @@ public class LocationRestService implements ILocationRestService {
     @Path("getLocationList")
     public String searchList(Map<String, Object> params) {
         List<BaseinfoLocation> baseinfoLocationList = locationService.getBaseinfoLocationList(params);
+        logger.info(JsonUtils.SUCCESS(baseinfoLocationList));
         return JsonUtils.SUCCESS(baseinfoLocationList);
     }
 
