@@ -167,8 +167,8 @@
 	</select>
 
 	<select id="getKanBanCount" parameterType="Long" resultType="java.util.HashMap">
-		select sub_type,status, count(id) as taskNum, count(distinct container_id) as skuNum, sum(qty_done) as qtyNum from task_info
-		where type = #{type} and  status != 6 and draft_time between (unix_timestamp(now()-86440)) and now()
+		select sub_type,status, count(id) as taskNum, count(distinct container_id) as containerNum, sum(qty_done) as qtyNum from task_info
+		where type = #{type} and  status not in (5,6) and draft_time between (unix_timestamp(now()-86440)) and now()
 		group by status,sub_type
 	</select>
   
