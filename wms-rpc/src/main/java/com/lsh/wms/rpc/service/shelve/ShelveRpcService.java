@@ -148,6 +148,7 @@ public class ShelveRpcService implements IShelveRpcService {
                             return pickingLocation;
                         }
                     }
+                    return pickingLocation;
                 }
             } else {
                 // 上货架位
