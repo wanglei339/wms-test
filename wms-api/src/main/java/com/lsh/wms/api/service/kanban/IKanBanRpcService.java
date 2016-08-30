@@ -12,4 +12,6 @@ public interface IKanBanRpcService {
     List<Map<String, Object>> getPoKanbanCount(Long type);
 
     List<Map<String, Object>> getPoDetailKanBanCount(Long orderType);
+
+    List<Map<String,Object>> getKanBanCountByStatus(Long type);
 }

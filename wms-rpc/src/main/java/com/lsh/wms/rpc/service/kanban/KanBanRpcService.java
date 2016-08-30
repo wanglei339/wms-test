@@ -28,4 +28,8 @@ public class KanBanRpcService implements IKanBanRpcService {
     public List<Map<String, Object>> getPoDetailKanBanCount(Long orderType) {
         return kanBanService.getPoDetailKanBanCount(orderType);
     }
+
+    public List<Map<String, Object>> getKanBanCountByStatus(Long type) {
+        return kanBanService.getKanBanCountByStatus(type);
+    }
 }
