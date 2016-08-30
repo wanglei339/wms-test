@@ -107,6 +107,10 @@
 		limit #{start},#{limit}
 		</if>
 	</select>
+
+	<select id="getInbPoDetailCountByOrderId" parameterType="Long" resultType="java.math.BigDecimal">
+		select sum(ORDER_QTY) from INB_PO_DETAIL where ORDER_ID=#{orderId}
+	</select>
   
 	<sql id="queryCondition">
 		<where>

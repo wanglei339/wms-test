@@ -20,5 +20,11 @@ public interface InbPoHeaderDao {
     Integer countInbPoHeader(Map<String, Object> params);
 
     List<InbPoHeader> getInbPoHeaderList(Map<String, Object> params);
+
+	List<Map<String, Object>> getPoKanBanCount(Long orderType);
+
+	List<InbPoHeader> getPoDayCount(Long orderType);
+
+
 	
 }
