@@ -34,7 +34,7 @@ public class PickRpcService implements IPickRpcService {
      * @param pickDetails
      */
     public List<WaveDetail> calcPickOrder(List<WaveDetail> pickDetails) throws BizCheckedException {
-        if (!(pickDetails.size() > 0)) {
+        if (null == pickDetails && pickDetails.size() <= 0) {
             throw new BizCheckedException("2040010");
         }
         List<Map<String, Object>> pickList = new ArrayList<Map<String, Object>>();
@@ -56,8 +56,6 @@ public class PickRpcService implements IPickRpcService {
             }
         });
         //货位按通道分组(原则,有几个通道建几个通道)
-        //list放入map中的map中
-//        Map<Long, List<BaseinfoLocation>> passageNoMap = new LinkedHashMap<Long, List<BaseinfoLocation>>(); //map中放同通道的locationList,使用LinkedHashMap,为了记住map的存放顺序
         Map<Long, List<Map<String, Object>>> passageNoMap = new LinkedHashMap<Long, List<Map<String, Object>>>(); //map中放同通道的locationList,使用LinkedHashMap,为了记住map的存放顺序
         for (int i = 0; i < pickList.size(); i++) { //此处不用迭代器是为了按照顺序取list(已按照passage拍过一次)
             //根据通道号不同,新建通道的map
@@ -104,27 +102,17 @@ public class PickRpcService implements IPickRpcService {
             count++;
         }
         List<WaveDetail> waveDetailList = new ArrayList<WaveDetail>();
-        //更新wave
-//        for (int index = 0; index < sortList.size(); index++) {
-//            for (WaveDetail tempWave : pickDetails) {
-//                if (sortList.get(index).getLocationId().equals(tempWave.getAllocPickLocation())) {
-//                    tempWave.setPickOrder(Long.parseLong(Integer.toString(index + 1)));
-//                    try {
-//                        waveService.updateDetail(tempWave);
-//                        waveDetailList.add(tempWave);
-//                    } catch (Exception e) {
-//                        logger.error(e.getCause().getMessage());
-//                        throw new BizCheckedException("2040011");
-//                    }
-//                }
-//            }
-//        }
         for (int index = 0; index < sortList.size(); index++) {
             Map<String, Object> tempWaveAndLocationMap = sortList.get(index);
             WaveDetail waveDetail = (WaveDetail) tempWaveAndLocationMap.get("waveDetail");
             waveDetail.setPickOrder(Long.parseLong(Integer.toString(index + 1)));
-            waveService.updateDetail(waveDetail);
-            waveDetailList.add(waveDetail);
+            try {
+                waveService.updateDetail(waveDetail);
+                waveDetailList.add(waveDetail);
+            } catch (Exception e) {
+                logger.error(e.getCause().getMessage());
+                throw new BizCheckedException("2040011");
+            }
         }
         return waveDetailList;
     }

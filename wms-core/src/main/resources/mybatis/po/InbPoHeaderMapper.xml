@@ -115,6 +115,18 @@
 		limit #{start},#{limit}
 		</if>
 	</select>
+
+
+	<select id="getPoKanBanCount" parameterType="Long" resultType="java.util.HashMap">
+		select COUNT(ID) PONUM,ORDER_STATUS from INB_PO_HEADER
+		where ORDER_TYPE=#{orderType} and to_days(ORDER_TIME) = to_days(now())
+		group by ORDER_STATUS
+	</select>
+
+	<select id="getPoDayCount" parameterType="Long" resultMap="inbPoHeaderResultMap">
+		select ORDER_ID,ORDER_STATUS from INB_PO_HEADER
+		where ORDER_TYPE=#{orderType} and to_days(ORDER_TIME) = to_days(now())
+	</select>
   
 	<sql id="queryCondition">
 		<where>

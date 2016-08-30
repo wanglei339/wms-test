@@ -85,7 +85,7 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
         return true;
     }
 
-    public Integer countLocationDetailByType(Map<String, Object> mapQuery) {
+    public Integer countLocationDetailByType(Map<String, Object> mapQuery) throws BizCheckedException{
         if (mapQuery.get("dockApplication") != null) {
             return locationDetailService.countDockList(mapQuery);
         }
@@ -125,7 +125,7 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
      * @param locationId
      * @return
      */
-    public List<BaseinfoLocation> getNextLevelLocations(Long locationId) {
+    public List<BaseinfoLocation> getNextLevelLocations(Long locationId) throws BizCheckedException{
         return locationRpcService.getNextLevelLocations(locationId);
     }
 }

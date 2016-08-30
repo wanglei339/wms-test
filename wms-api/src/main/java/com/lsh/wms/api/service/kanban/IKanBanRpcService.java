@@ -8,4 +8,10 @@ import java.util.Map;
  */
 public interface IKanBanRpcService {
     List<Map<String, Object>> getKanbanCount(Long type);
+
+    List<Map<String, Object>> getPoKanbanCount(Long type);
+
+    List<Map<String, Object>> getPoDetailKanBanCount(Long orderType);
+
+    List<Map<String,Object>> getKanBanCountByStatus(Long type);
 }
