@@ -66,8 +66,8 @@ public class StockTransferCore {
         condition.setLocationId(plan.getFromLocationId());
         condition.setItemId(plan.getItemId());
         List<StockQuant> quants = stockQuantRpcService.getQuantList(condition);
-        if(quants==null || quants.size()==0){
-            logger.error("error plan:"+plan.toString());
+        if(quants == null || quants.size() == 0){
+            logger.error("error plan:" + plan.toString());
             return;
         }
         StockQuant quant = quants.get(0);
@@ -123,8 +123,10 @@ public class StockTransferCore {
         if (taskInfo.getSubType().compareTo(1L)==0) {
             moveRpcService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
         } else {
-
             BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString());
+            if (qtyDone.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new BizCheckedException("2550034");
+            }
             if(taskInfo.getQty().compareTo(qtyDone) < 0){
                 throw new BizCheckedException("2550008");
             }
@@ -144,7 +146,6 @@ public class StockTransferCore {
         }
         //taskInfo.setStatus(TaskConstant.Doing);
         taskInfo.setExt3(1L);
-
         taskInfoDao.update(taskInfo);
     }
 
@@ -174,6 +175,9 @@ public class StockTransferCore {
             moveRpcService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
         } else {
             BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString());
+            if (qtyDone.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new BizCheckedException("2550034");
+            }
             if(taskInfo.getQtyDone().compareTo(qtyDone) != 0){
                 throw new BizCheckedException("2550014");
             }

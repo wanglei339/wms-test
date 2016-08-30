@@ -396,22 +396,17 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     private void createScrap() throws BizCheckedException {
         StockQuantCondition condition = new StockQuantCondition();
         condition.setIsDefect(1L);
+        condition.setReserveTaskId(0L);
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
         Long toLocationId = locationService.getDefectiveLocationId();
-
         for (StockQuant quant : quantList) {
-            if(baseTaskService.checkTaskByToLocation(toLocationId, TaskConstant.TYPE_STOCK_TRANSFER)){
-                logger.warn("任务已存在");
-                continue;
-            }
             if (locationService.getLocation(quant.getLocationId()).getType().compareTo(LocationConstant.DEFECTIVE_AREA) != 0) {
                 StockTransferPlan plan = new StockTransferPlan();
                 plan.setFromLocationId(quant.getLocationId());
                 plan.setToLocationId(toLocationId);
-                plan.setQty(quant.getQty());
+                plan.setQty(quant.getQty().divide(quant.getPackUnit()));
                 plan.setItemId(quant.getItemId());
                 plan.setSubType(2L);
-                plan.setPackName(quant.getPackName());
                 this.addPlan(plan);
             }
         }
@@ -420,22 +415,17 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     private void createReturn() throws BizCheckedException {
         StockQuantCondition condition = new StockQuantCondition();
         condition.setIsRefund(1L);
+        condition.setReserveTaskId(0L);
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
         Long toLocationId = locationService.getBackLocationId();
-
         for (StockQuant quant : quantList) {
-            if(baseTaskService.checkTaskByToLocation(toLocationId, TaskConstant.TYPE_STOCK_TRANSFER)){
-                logger.warn("任务已存在");
-                continue;
-            }
             if (locationService.getLocation(quant.getLocationId()).getType().compareTo(LocationConstant.BACK_AREA) != 0) {
                 StockTransferPlan plan = new StockTransferPlan();
                 plan.setFromLocationId(quant.getLocationId());
                 plan.setToLocationId(toLocationId);
-                plan.setQty(quant.getQty());
                 plan.setItemId(quant.getItemId());
-                plan.setPackName(quant.getPackName());
                 plan.setSubType(2L);
+                plan.setQty(quant.getQty().divide(quant.getPackUnit()));
                 this.addPlan(plan);
             }
         }
