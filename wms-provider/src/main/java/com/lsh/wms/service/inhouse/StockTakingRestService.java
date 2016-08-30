@@ -198,6 +198,9 @@ public class StockTakingRestService implements IStockTakingRestService {
         if (request.getAreaId() != 0 && request.getStorageId() == 0) {
             //根据库区得出库位
             locationList = this.getBinByWarehouseId(request.getAreaId());
+            if(locationList!=null && locationList.size()==0){
+                locationList.add(request.getAreaId());
+            }
         } else if (request.getStorageId() != 0) {
             //根据货架得出库位
             locationList = this.getBinByShelf(request.getStorageId());
@@ -218,7 +221,7 @@ public class StockTakingRestService implements IStockTakingRestService {
                 locationSet.add(quant.getLocationId());
             }
         }
-        if(locationList!=null && locationList.size()!=0){
+        if(locationList!=null ){
             locationList.retainAll(new ArrayList<Long>(locationSet));
         }else {
             locationList =new ArrayList<Long>(locationSet);
