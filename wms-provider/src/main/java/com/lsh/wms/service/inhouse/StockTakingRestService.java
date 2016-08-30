@@ -228,7 +228,6 @@ public class StockTakingRestService implements IStockTakingRestService {
             }
         }
 
-
         List<Long> locations = new ArrayList<Long>();
         int i=0;
         while (i<locationNum){
@@ -239,19 +238,23 @@ public class StockTakingRestService implements IStockTakingRestService {
             // 取出一个随机数
             int r = (int) (Math.random() * locationList.size());
             Long locationId = locationList.get(r);
+
+            // 排除已经取过的值
+            locationList.remove(r);
+
             //过滤掉区的上一层
             if(locationId.compareTo(0L)==0 ||locationId.compareTo(1L)==0 || locationId.compareTo(2L)==0){
-                // 排除已经取过的值
-                locationList.remove(r);
                 continue;
             }
             BaseinfoLocation location = locationService.getFatherByClassification(locationId);
+            if(location==null){
+                continue;
+            }
             //是阁楼区，货架区，存捡一体区，地堆区
-            if(location.getType().compareTo(LocationConstant.SHELFS)==0 ||location.getType().compareTo(LocationConstant.LOFTS)==0  ||location.getType().compareTo(LocationConstant.SPLIT_AREA)==0 ||location.getType().compareTo(LocationConstant.FLOOR)==0)
-            locations.add(locationList.get(r));
-            // 排除已经取过的值
-            locationList.remove(r);
-            i++;
+            if(location.getType().compareTo(LocationConstant.SHELFS)==0 ||location.getType().compareTo(LocationConstant.LOFTS)==0  ||location.getType().compareTo(LocationConstant.SPLIT_AREA)==0 ||location.getType().compareTo(LocationConstant.FLOOR)==0) {
+                locations.add(locationList.get(r));
+                i++;
+            }
         }
 
         return JsonUtils.SUCCESS(locations);
