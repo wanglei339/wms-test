@@ -2,6 +2,7 @@ package com.lsh.wms.rpc.service.location;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.ObjUtils;
@@ -46,14 +47,13 @@ public class LocationRestService implements ILocationRestService {
 
     @GET
     @Path("getLocation")
-    public String getLocation(@QueryParam("locationId") Long locationId) {
-        BaseinfoLocation locationInfo = locationRpcService.getLocation(locationId);
-        return JsonUtils.SUCCESS(locationInfo);
+    public String getLocation(@QueryParam("locationId") Long locationId) throws BizCheckedException {
+        return JsonUtils.SUCCESS(locationRpcService.getLocation(locationId));
     }
 
     @GET
     @Path("getStoreLocationIds")
-    public String getStoreLocationIds(@QueryParam("locationId") Long locationId) {
+    public String getStoreLocationIds(@QueryParam("locationId") Long locationId) throws BizCheckedException {
         List<BaseinfoLocation> locations = locationRpcService.getStoreLocations(locationId);
         List<Long> locationIds = locationService.getLocationIds(locations);
         return JsonUtils.SUCCESS(locationIds);
@@ -61,14 +61,14 @@ public class LocationRestService implements ILocationRestService {
 
     @GET
     @Path("getFatherByType")
-    public String getFatherByType(@QueryParam("locationId") Long locationId, @QueryParam("type") Long type) {
+    public String getFatherByType(@QueryParam("locationId") Long locationId, @QueryParam("type") Long type) throws BizCheckedException {
         BaseinfoLocation location = locationRpcService.getFatherByType(locationId, type);
         return JsonUtils.SUCCESS(location);
     }
 
     @GET
     @Path("getFatherArea")
-    public String getFatherArea(@QueryParam("locationId") Long locationId) {
+    public String getFatherArea(@QueryParam("locationId") Long locationId) throws BizCheckedException {
         BaseinfoLocation location = locationRpcService.getFatherByType(locationId, LocationConstant.REGION_AREA);
         return JsonUtils.SUCCESS(location);
     }
@@ -88,12 +88,12 @@ public class LocationRestService implements ILocationRestService {
     }
 
 
-//    //insert与detail相关,需要同时插入detail的信息
+    //    //insert与detail相关,需要同时插入detail的信息
     @POST
     @Path("insertLocation")
     public String insertLocation() {
         Map<String, Object> param = RequestUtils.getRequest();
-        BaseinfoLocation location = BeanMapTransUtils.map2Bean(param,BaseinfoLocation.class);
+        BaseinfoLocation location = BeanMapTransUtils.map2Bean(param, BaseinfoLocation.class);
         return JsonUtils.SUCCESS(locationRpcService.insertLocation(location));
     }
 
@@ -101,13 +101,13 @@ public class LocationRestService implements ILocationRestService {
     @Path("updateLocation")
     public String updateLocation() {
         Map<String, Object> param = RequestUtils.getRequest();
-        BaseinfoLocation location = BeanMapTransUtils.map2Bean(param,BaseinfoLocation.class);
+        BaseinfoLocation location = BeanMapTransUtils.map2Bean(param, BaseinfoLocation.class);
         return JsonUtils.SUCCESS(locationRpcService.updateLocation(location));
     }
 
     @POST
     @Path("getLocationList")
-    public String searchList(Map<String, Object> params) {
+    public String searchList(Map<String, Object> params) throws BizCheckedException{
         List<BaseinfoLocation> baseinfoLocationList = locationService.getBaseinfoLocationList(params);
         logger.info(JsonUtils.SUCCESS(baseinfoLocationList));
         return JsonUtils.SUCCESS(baseinfoLocationList);
@@ -115,18 +115,19 @@ public class LocationRestService implements ILocationRestService {
 
     @POST
     @Path("countLocation")
-    public String countBaseinfoLocation(Map<String, Object> params) {
+    public String countBaseinfoLocation(Map<String, Object> params) throws BizCheckedException {
         return JsonUtils.SUCCESS(locationService.countLocation(params));
     }
 
     @GET
     @Path("getTemp")
-    public String getTemp(@QueryParam("type") Long type) {
+    public String getTemp(@QueryParam("type") Long type) throws BizCheckedException {
         return JsonUtils.SUCCESS(locationService.getAvailableLocationByType(type));
     }
 
     /**
      * 根据仓库id获取下面的区域
+     *
      * @return
      */
     @GET
@@ -137,12 +138,13 @@ public class LocationRestService implements ILocationRestService {
 
     /**
      * 根据区域id选择货架
+     *
      * @param locationId
      * @return
      */
     @GET
     @Path("getShelfByRegionId")
-    public String getShelfByRegionId(@QueryParam("locationId") Long locationId) {
+    public String getShelfByRegionId(@QueryParam("locationId") Long locationId) throws BizCheckedException {
         List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
         List<Long> regionType = Arrays.asList(LocationConstant.SHELF, LocationConstant.LOFT);
         for (Long oneType : regionType) {
@@ -155,12 +157,13 @@ public class LocationRestService implements ILocationRestService {
 
     /**
      * 根据货架或者阁楼找bin
+     *
      * @param locationId
      * @return
      */
     @GET
     @Path("getBinByShelf")
-    public String getBinByShelf(@QueryParam("locationId") Long locationId) {
+    public String getBinByShelf(@QueryParam("locationId") Long locationId) throws BizCheckedException {
         List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
         List<Long> regionType = Arrays.asList(LocationConstant.SHELF_PICKING_BIN, LocationConstant.SHELF_STORE_BIN, LocationConstant.LOFT_PICKING_BIN, LocationConstant.LOFT_STORE_BIN);
         for (Long oneType : regionType) {
@@ -173,6 +176,7 @@ public class LocationRestService implements ILocationRestService {
 
     /**
      * 根据仓库id查找所有货位
+     *
      * @return
      */
     @GET
@@ -183,6 +187,7 @@ public class LocationRestService implements ILocationRestService {
 
     /**
      * 获取所有的货架和阁楼的拣货位
+     *
      * @return
      */
     @GET
@@ -194,6 +199,7 @@ public class LocationRestService implements ILocationRestService {
 
     /**
      * 获取全货架(阁楼)
+     *
      * @return
      */
     @GET
