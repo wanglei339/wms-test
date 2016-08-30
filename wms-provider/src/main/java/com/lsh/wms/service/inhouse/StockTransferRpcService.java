@@ -86,11 +86,18 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         Long fromLocationId = plan.getFromLocationId();
         Long toLocationId = plan.getToLocationId();
         if (fromLocationId.compareTo(toLocationId) == 0) {
-            throw new BizCheckedException("2060013");
+            throw new BizCheckedException("2550017");
+        }
+        BaseinfoLocation fromLocation = locationService.getLocation(fromLocationId);
+        if (fromLocation == null) {
+            throw new BizCheckedException("2550016");
         }
         BaseinfoLocation toLocation = locationService.getLocation(toLocationId);
         if (toLocation == null) {
-            throw new BizCheckedException("2060012");
+            throw new BizCheckedException("2550016");
+        }
+        if (fromLocation.getType().equals(LocationConstant.TEMPORARY) || toLocation.getType().equals(LocationConstant.TEMPORARY)) {
+            throw new BizCheckedException("2550035");
         }
         if (toLocation.getCanStore() != 1) {
             throw new BizCheckedException("2550020");
@@ -164,10 +171,10 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         BaseinfoLocation fromLocation = locationService.getLocation( plan.getFromLocationId());
         BaseinfoLocation toLocation = locationService.getLocation(plan.getToLocationId());
         if (fromLocation == null || toLocation == null) {
-            throw new BizCheckedException("2060012");
+            throw new BizCheckedException("2550016");
         }
         if (fromLocation.getLocationId().equals(toLocation.getLocationId())) {
-            throw new BizCheckedException("2060013");
+            throw new BizCheckedException("2550017");
         }
         if (fromLocation.getCanStore() != 1) {
             fromLocation = core.getNearestLocation(fromLocation);
@@ -211,10 +218,10 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         BaseinfoLocation fromLocation = locationService.getLocation( plan.getFromLocationId());
         BaseinfoLocation toLocation = locationService.getLocation(plan.getToLocationId());
         if (fromLocation == null || toLocation == null) {
-            throw new BizCheckedException("2060012");
+            throw new BizCheckedException("2550016");
         }
         if (fromLocation.getLocationId().equals(toLocation.getLocationId())) {
-            throw new BizCheckedException("2060013");
+            throw new BizCheckedException("2550017");
         }
         if (fromLocation.getCanStore() != 1) {
             fromLocation = core.getNearestLocation(fromLocation);
