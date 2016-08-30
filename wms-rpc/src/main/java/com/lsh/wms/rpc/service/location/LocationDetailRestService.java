@@ -123,7 +123,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
      */
     @GET
     @Path("getLocationDetail")
-    public String getLocationDetailById(@QueryParam("locationId") Long locationId)  {
+    public String getLocationDetailById(@QueryParam("locationId") Long locationId) throws BizCheckedException {
         Long id = Long.parseLong(locationId.toString());
         //前端回显示用的fatherLocation的显示
         IBaseinfoLocaltionModel localtionModel = locationDetailRpcService.getLocationDetailById(id);
@@ -227,7 +227,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
      */
     @GET
     @Path("getNextLevelLocations")
-    public String getNextLevelLocations(@QueryParam("locationId") Long locationId) {
+    public String getNextLevelLocations(@QueryParam("locationId") Long locationId) throws BizCheckedException{
         return JsonUtils.SUCCESS(locationDetailRpcService.getNextLevelLocations(locationId));
     }
 }

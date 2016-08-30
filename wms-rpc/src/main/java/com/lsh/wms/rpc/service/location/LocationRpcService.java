@@ -1,6 +1,7 @@
 package com.lsh.wms.rpc.service.location;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.core.constant.LocationConstant;
@@ -29,44 +30,49 @@ public class LocationRpcService implements ILocationRpcService {
     @Autowired
     private StockQuantService stockQuantService;
 
-    public BaseinfoLocation getLocation(Long locationId) {
-        return locationService.getLocation(locationId);
+    public BaseinfoLocation getLocation(Long locationId) throws BizCheckedException {
+        BaseinfoLocation baseinfoLocation = locationService.getLocation(locationId);
+        if (null == baseinfoLocation) {
+            throw new BizCheckedException("2180001");
+        }
+        return baseinfoLocation;
     }
 
     // 获取一个location下所有是存储位的子节点
-    public List<BaseinfoLocation> getStoreLocations(Long locationId) {
+    public List<BaseinfoLocation> getStoreLocations(Long locationId) throws BizCheckedException {
         return locationService.getStoreLocations(locationId);
     }
 
     // 获取一个location下一层的子节点
-    public List<BaseinfoLocation> getNextLevelLocations(Long locationId) {
+    public List<BaseinfoLocation> getNextLevelLocations(Long locationId) throws BizCheckedException {
         return locationService.getNextLevelLocations(locationId);
     }
 
     // 获取父级节点
-    public BaseinfoLocation getFatherLocation(Long locationId) {
+    public BaseinfoLocation getFatherLocation(Long locationId) throws BizCheckedException {
         return locationService.getFatherLocation(locationId);
     }
 
     // 获取父级区域location节点
-    public BaseinfoLocation getFatherByType(Long locationId, Long type) {
+    public BaseinfoLocation getFatherByType(Long locationId, Long type) throws BizCheckedException {
         return locationService.getFatherByType(locationId, type);
     }
 
     //提供位置能否存储存
-    public boolean canStore(Long locationId) {
+    public boolean canStore(Long locationId) throws BizCheckedException {
         BaseinfoLocation baseinfoLocation = locationService.getLocation(locationId);
         if (baseinfoLocation.getCanStore() != 0) {
             return true;
         }
         return false;
     }
+
     // todo 插入集货道和集货道组,需要用此insert方法,因为只是插入主表
-    public BaseinfoLocation insertLocation(BaseinfoLocation location) {
+    public BaseinfoLocation insertLocation(BaseinfoLocation location) throws BizCheckedException {
         return locationService.insertLocation(location);
     }
 
-    public BaseinfoLocation updateLocation(BaseinfoLocation location) {
+    public BaseinfoLocation updateLocation(BaseinfoLocation location) throws BizCheckedException {
         return locationService.updateLocation(location);
     }
 
@@ -76,7 +82,7 @@ public class LocationRpcService implements ILocationRpcService {
     }
 
     // 分配地堆区location
-    public BaseinfoLocation assignFloor(StockQuant quant) {
+    public BaseinfoLocation assignFloor(StockQuant quant) throws BizCheckedException {
         return locationService.getAvailableFloorLocation(quant.getLotId());
     }
 
@@ -161,7 +167,7 @@ public class LocationRpcService implements ILocationRpcService {
      * @param locationId
      * @return
      */
-    public BaseinfoLocation lockLocation(Long locationId) {
+    public BaseinfoLocation lockLocation(Long locationId) throws BizCheckedException {
         return locationService.lockLocation(locationId);
     }
 
@@ -171,7 +177,7 @@ public class LocationRpcService implements ILocationRpcService {
      * @param locationId
      * @return
      */
-    public BaseinfoLocation unlockLocation(Long locationId) {
+    public BaseinfoLocation unlockLocation(Long locationId) throws BizCheckedException {
         return locationService.unlockLocation(locationId);
     }
 

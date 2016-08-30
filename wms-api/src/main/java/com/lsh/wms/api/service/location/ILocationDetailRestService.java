@@ -12,12 +12,19 @@ import java.util.Map;
  */
 public interface ILocationDetailRestService {
     //前端页面带着固定的type进来,进行相应的额查找,增加,更新,获取list
-    public java.lang.String getLocationDetailById(Long locationId);
+    public java.lang.String getLocationDetailById(Long locationId) throws BizCheckedException;
+
     public java.lang.String insertLocationDetailByType(LocationDetailRequest request) throws BizCheckedException;
+
     public java.lang.String updateLocationDetailByType(LocationDetailRequest request) throws BizCheckedException;
-    public String countLocationDetailByType();
+
+    public String countLocationDetailByType() throws BizCheckedException;
+
     public String searchList() throws BizCheckedException;
-    public String removeLocation()throws BizCheckedException;
-    public String getTargetListByListType(Integer listType)throws BizCheckedException;
-    public String getNextLevelLocations(Long locationId);
+
+    public String removeLocation() throws BizCheckedException;
+
+    public String getTargetListByListType(Integer listType) throws BizCheckedException;
+
+    public String getNextLevelLocations(Long locationId) throws BizCheckedException;
 }
