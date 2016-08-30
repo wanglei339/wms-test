@@ -192,40 +192,36 @@ public class StockTakingRestService implements IStockTakingRestService {
         if(request.getLocationNum()!=0) {
             locationNum = request.getLocationNum();
         }
-        if (request.getItemId() == 0 && request.getSupplierId() == 0 && request.getAreaId() == 0 && request.getStorageId() == 0) {
-            BaseinfoLocation location = locationService.getWarehouseLocation();
-            locationList = locationService.getStoreLocationIds(location.getLocationId());
-        } else {
 
-            //库区，货架得到库位
-            if (request.getAreaId() != 0 && request.getStorageId() == 0) {
-                //根据库区得出库位
-                locationList = this.getBinByWarehouseId(request.getAreaId());
-            } else if (request.getStorageId() != 0) {
-                //根据货架得出库位
-                locationList = this.getBinByShelf(request.getStorageId());
-            }
 
-            //商品,供应商得到库位
-            Map<String,Object> queryMap =new HashMap<String, Object>();
-            if(request.getSupplierId().compareTo(0L)!=0) {
-                queryMap.put("supplierId", request.getSupplierId());
+        //库区，货架得到库位
+        if (request.getAreaId() != 0 && request.getStorageId() == 0) {
+            //根据库区得出库位
+            locationList = this.getBinByWarehouseId(request.getAreaId());
+        } else if (request.getStorageId() != 0) {
+            //根据货架得出库位
+            locationList = this.getBinByShelf(request.getStorageId());
+        }
+
+        //商品,供应商得到库位
+        Map<String,Object> queryMap =new HashMap<String, Object>();
+        if(request.getSupplierId().compareTo(0L)!=0) {
+            queryMap.put("supplierId", request.getSupplierId());
+        }
+        if(request.getItemId().compareTo(0L)!=0) {
+            queryMap.put("itemId", request.getItemId());
+        }
+        List<StockQuant>quantList = quantService.getQuants(queryMap);
+        Set<Long> locationSet =new HashSet<Long>();
+        for(StockQuant quant:quantList){
+            if(quant.getLocationId()!=null) {
+                locationSet.add(quant.getLocationId());
             }
-            if(request.getItemId().compareTo(0L)!=0) {
-                queryMap.put("itemId", request.getItemId());
-            }
-            List<StockQuant>quantList = quantService.getQuants(queryMap);
-            Set<Long> locationSet =new HashSet<Long>();
-            for(StockQuant quant:quantList){
-                if(quant.getLocationId()!=null) {
-                    locationSet.add(quant.getLocationId());
-                }
-            }
-            if(locationList!=null && locationList.size()!=0){
-                locationList.retainAll(new ArrayList<Long>(locationSet));
-            }else {
-                locationList =new ArrayList<Long>(locationSet);
-            }
+        }
+        if(locationList!=null && locationList.size()!=0){
+            locationList.retainAll(new ArrayList<Long>(locationSet));
+        }else {
+            locationList =new ArrayList<Long>(locationSet);
         }
 
         List<Long> locations = new ArrayList<Long>();
@@ -252,7 +248,7 @@ public class StockTakingRestService implements IStockTakingRestService {
             }
             //是阁楼区，货架区，存捡一体区，地堆区
             if(location.getType().compareTo(LocationConstant.SHELFS)==0 ||location.getType().compareTo(LocationConstant.LOFTS)==0  ||location.getType().compareTo(LocationConstant.SPLIT_AREA)==0 ||location.getType().compareTo(LocationConstant.FLOOR)==0) {
-                locations.add(locationList.get(r));
+                locations.add(locationId);
                 i++;
             }
         }
