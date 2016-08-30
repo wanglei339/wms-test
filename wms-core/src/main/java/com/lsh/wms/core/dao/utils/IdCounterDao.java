@@ -19,6 +19,6 @@ public interface IdCounterDao {
 
     List<IdCounter> getIdCounterList(Map<String, Object> params);
 
-	IdCounter getIdCounterByKey(String key);
+	IdCounter getIdCounterByIdKey(String idKey);
 	
 }

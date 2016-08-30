@@ -9,6 +9,7 @@ import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.container.IContainerRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.service.container.ContainerService;
+import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

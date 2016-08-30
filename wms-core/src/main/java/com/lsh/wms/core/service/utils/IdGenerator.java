@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.utils;
 
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.IdGeneratorContant;
 import com.lsh.wms.core.dao.utils.IdCounterDao;
@@ -18,7 +19,7 @@ import java.util.Date;
 @Transactional(readOnly = true)
 public class IdGenerator {
     @Autowired
-    private static IdCounterDao idCounterDao;
+    private IdCounterDao idCounterDao;
 
     /**
      * id生成方法
@@ -29,9 +30,9 @@ public class IdGenerator {
      * @return
      */
     @Transactional(readOnly = false)
-    public static Long genId(String prefix, Boolean useDateFormat, Boolean addPrefixNum) {
+    public Long genId(String prefix, Boolean useDateFormat, Boolean addPrefixNum) {
         Long counter = 1L; // 计数器
-        String key = prefix; // 计数器的key
+        String idKey = prefix; // 计数器的key
         Long value = 0L; // 返回值
         String dateValue = ""; // 日期格式
 
@@ -40,14 +41,15 @@ public class IdGenerator {
             Date date = new Date();
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
             dateValue = dateFormat.format(date);
-            key += dateValue;
+            idKey += dateValue;
         }
 
-        IdCounter idCounter = idCounterDao.getIdCounterByKey(key);
+        IdCounter idCounter = idCounterDao.getIdCounterByIdKey(idKey);
 
         // 自增计数器
         if (idCounter == null) {
-            idCounter.setKey(key);
+            idCounter = new IdCounter();
+            idCounter.setIdKey(idKey);
             idCounter.setCounter(counter);
             idCounter.setCreatedAt(DateUtils.getCurrentSeconds());
             idCounter.setUpdatedAt(DateUtils.getCurrentSeconds());
@@ -64,7 +66,7 @@ public class IdGenerator {
         if (addPrefixNum) {
             Integer prefixNum = IdGeneratorContant.PREFIX_CONFIG.get(prefix);
             if (prefixNum != null) {
-                value += Long.valueOf(prefixNum.toString() + String.format("%16d", 0));
+                value += Long.valueOf(prefixNum.toString() + String.format("%016d", 0));
             }
         }
 
