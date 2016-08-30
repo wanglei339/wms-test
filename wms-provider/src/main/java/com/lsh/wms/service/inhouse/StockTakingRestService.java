@@ -228,12 +228,14 @@ public class StockTakingRestService implements IStockTakingRestService {
             }
         }
 
-        if (locationList.size() < locationNum ) {
-            locationNum = locationList.size();
-        }
-        long[] locations = new long[locationNum];
+
+        List<Long> locations = new ArrayList<Long>();
         int i=0;
-        while (i<locations.length){
+        while (i<locationNum){
+            if(locationList.size()==0){
+                break;
+            }
+
             // 取出一个随机数
             int r = (int) (Math.random() * locationList.size());
             Long locationId = locationList.get(r);
@@ -244,8 +246,9 @@ public class StockTakingRestService implements IStockTakingRestService {
                 continue;
             }
             BaseinfoLocation location = locationService.getFatherByClassification(locationId);
+            //是阁楼区，货架区，存捡一体区，地堆区
             if(location.getType().compareTo(LocationConstant.SHELFS)==0 ||location.getType().compareTo(LocationConstant.LOFTS)==0  ||location.getType().compareTo(LocationConstant.SPLIT_AREA)==0 ||location.getType().compareTo(LocationConstant.FLOOR)==0)
-            locations[i] = locationList.get(r);
+            locations.add(locationList.get(r));
             // 排除已经取过的值
             locationList.remove(r);
             i++;
