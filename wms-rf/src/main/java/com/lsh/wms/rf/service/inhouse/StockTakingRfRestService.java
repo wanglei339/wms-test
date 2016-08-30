@@ -333,7 +333,6 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         List<StockTakingDetail> detailList = stockTakingService.getDetailListByRound(stockTakingId, roundTime);
         StockTakingHead head = stockTakingService.getHeadById(stockTakingId);
         head.setStatus(3L);
-        stockTakingService.updateHead(head);
         List<StockMove> moveList = new ArrayList<StockMove>();
         for (StockTakingDetail detail : detailList) {
             if(detail.getItemId()==0L){
@@ -377,6 +376,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             }
         }
         moveService.move(moveList);
+        stockTakingService.updateHead(head);
     }
 
     private boolean chargeDifference(Long stockTakingId, Long round) {
@@ -416,7 +416,6 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             stockTakingDetail.setRound(roundTime + 1);
             detailList.add(stockTakingDetail);
         }
-        stockTakingService.insertDetailList(detailList);
         this.createTask(head, detailList, roundTime + 1, head.getDueTime());
     }
     public void createTask(StockTakingHead head, List<StockTakingDetail> detailList,Long round,Long dueTime) throws BizCheckedException{
