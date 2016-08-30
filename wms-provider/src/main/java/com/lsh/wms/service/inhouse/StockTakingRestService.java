@@ -232,14 +232,23 @@ public class StockTakingRestService implements IStockTakingRestService {
             locationNum = locationList.size();
         }
         long[] locations = new long[locationNum];
-        for (int i = 0; i < locations.length; i++) {
-
+        int i=0;
+        while (i<locations.length){
             // 取出一个随机数
             int r = (int) (Math.random() * locationList.size());
+            Long locationId = locationList.get(r);
+            //过滤掉区的上一层
+            if(locationId.compareTo(0L)==0 ||locationId.compareTo(1L)==0 || locationId.compareTo(2L)==0){
+                // 排除已经取过的值
+                locationList.remove(r);
+                continue;
+            }
+            BaseinfoLocation location = locationService.getFatherByClassification(locationId);
+            if(location.getType().compareTo(LocationConstant.SHELFS)==0 ||location.getType().compareTo(LocationConstant.LOFTS)==0  ||location.getType().compareTo(LocationConstant.SPLIT_AREA)==0 ||location.getType().compareTo(LocationConstant.FLOOR)==0)
             locations[i] = locationList.get(r);
-
             // 排除已经取过的值
             locationList.remove(r);
+            i++;
         }
 
         return JsonUtils.SUCCESS(locations);
