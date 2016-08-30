@@ -67,7 +67,8 @@ public class StockTransferCore {
         condition.setItemId(plan.getItemId());
         List<StockQuant> quants = stockQuantRpcService.getQuantList(condition);
         if(quants==null || quants.size()==0){
-            throw new BizCheckedException("2550008");
+            logger.error("error plan:"+plan.toString());
+            return;
         }
         StockQuant quant = quants.get(0);
         plan.setPackUnit(quant.getPackUnit());

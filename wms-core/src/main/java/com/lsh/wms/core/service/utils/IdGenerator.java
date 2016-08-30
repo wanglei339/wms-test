@@ -19,7 +19,7 @@ import java.util.Date;
 @Transactional(readOnly = true)
 public class IdGenerator {
     @Autowired
-    private static IdCounterDao idCounterDao;
+    private IdCounterDao idCounterDao;
 
     /**
      * id生成方法
@@ -30,7 +30,7 @@ public class IdGenerator {
      * @return
      */
     @Transactional(readOnly = false)
-    public static Long genId(String prefix, Boolean useDateFormat, Boolean addPrefixNum) {
+    public Long genId(String prefix, Boolean useDateFormat, Boolean addPrefixNum) {
         Long counter = 1L; // 计数器
         String idKey = prefix; // 计数器的key
         Long value = 0L; // 返回值
@@ -48,6 +48,7 @@ public class IdGenerator {
 
         // 自增计数器
         if (idCounter == null) {
+            idCounter = new IdCounter();
             idCounter.setIdKey(idKey);
             idCounter.setCounter(counter);
             idCounter.setCreatedAt(DateUtils.getCurrentSeconds());
@@ -65,7 +66,7 @@ public class IdGenerator {
         if (addPrefixNum) {
             Integer prefixNum = IdGeneratorContant.PREFIX_CONFIG.get(prefix);
             if (prefixNum != null) {
-                value += Long.valueOf(prefixNum.toString() + String.format("%16d", 0));
+                value += Long.valueOf(prefixNum.toString() + String.format("%016d", 0));
             }
         }
 

@@ -186,7 +186,6 @@ public class StockTakingRestService implements IStockTakingRestService {
     @POST
     @Path("getLocationList")
     public String getLocationList(LocationListRequest request) {
-        logger.info("get param:"+JsonUtils.SUCCESS(request));
         List<Long> locationList =null;
         int locationNum= Integer.MAX_VALUE;
         //Long itemId,Long AreaId,Long supplierId,Long storageId int locationNum
