@@ -56,7 +56,7 @@ public class LocationService {
         params.put("locationId", locationId);
         params.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
-        return locations.size() > 0 ? locations.get(0) : null;
+        return (locations != null && locations.size() > 0) ? locations.get(0) : null;
     }
 
     /**
@@ -620,9 +620,9 @@ public class LocationService {
         mapQuery.put("isValid", LocationConstant.IS_VALID);
         //locationCode
         String locationCode = (String) mapQuery.get("locationCode");
-        if(locationCode != null){
-            locationCode = locationCode+"%";
-            mapQuery.put("locationCode",locationCode);
+        if (locationCode != null) {
+            locationCode = locationCode + "%";
+            mapQuery.put("locationCode", locationCode);
         }
 
         return locationDao.getBaseinfoLocationList(mapQuery);
