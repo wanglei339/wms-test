@@ -131,7 +131,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             condition.setLocationId(locationId);
             condition.setSkuId(csiSku.getSkuId());
             List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
-            if (quantList.isEmpty()) {
+            if (quantList == null || quantList.isEmpty()) {
                 throw new BizCheckedException("2550015");
             }
             StockQuant quant = quantList.get(0);
@@ -237,8 +237,13 @@ public class StockTransferRestService implements IStockTransferRestService {
     public String fetchTask() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
         //Long locationId = Long.valueOf(params.get("locationId").toString());
-        Long staffId = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getStaffId();
         try {
+            Long staffId;
+            try {
+                staffId= iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getStaffId();
+            }catch (Exception e){
+                throw new BizCheckedException("2550013");
+            }
             final Long taskId = rpcService.assign(staffId);
             if (taskId == 0) {
                 throw new BizCheckedException("2040001");

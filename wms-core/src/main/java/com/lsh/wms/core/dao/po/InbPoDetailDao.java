@@ -4,6 +4,7 @@ import com.lsh.wms.core.dao.MyBatisRepository;
 import com.lsh.wms.model.po.InbPoDetail;
 import org.apache.ibatis.annotations.Param;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -25,5 +26,7 @@ public interface InbPoDetailDao {
 	Integer countInbPoDetail(Map<String, Object> params);
 
 	List<InbPoDetail> getInbPoDetailList(Map<String, Object> params);
+
+	BigDecimal getInbPoDetailCountByOrderId(Long orderId);
 	
 }
