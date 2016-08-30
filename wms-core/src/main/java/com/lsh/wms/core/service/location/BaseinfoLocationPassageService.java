@@ -31,8 +31,6 @@ public class BaseinfoLocationPassageService implements IStrategy {
 
     @Autowired
     private BaseinfoLocationPassageDao baseinfoLocationPassageDao;
-    @Autowired
-    private LocationService locationService;
 
 
     @Transactional(readOnly = false)
@@ -51,7 +49,6 @@ public class BaseinfoLocationPassageService implements IStrategy {
         mapQuery.put("locationId", id);
         mapQuery.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocationPassage> passageList = baseinfoLocationPassageDao.getBaseinfoLocationPassageList(mapQuery);
-//        BaseinfoLocationPassage passage =  passageList.get(0);
         return passageList.size() > 0 ? passageList.get(0) : null;
 
 
@@ -59,9 +56,7 @@ public class BaseinfoLocationPassageService implements IStrategy {
 
 
     /**
-     * 因为是先查找父类的表,所以只要把父类的数目返回即可
-     * 传的参数一定是父类中有的
-     *
+     * 通道计数
      * @param params
      * @return
      */

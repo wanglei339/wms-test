@@ -59,7 +59,8 @@ public class ProcurementEventHandler extends AbsEventHandler implements IEventHa
             this.adjustPriority(mapQuery);
         }
         else {
-            for (Long itemId : (ArrayList<Long>) msg.getMsgBody().get("itemList")) {
+            for (Object rawItemId : (ArrayList<Object>) msg.getMsgBody().get("itemList")) {
+                Long itemId = Long.valueOf(rawItemId.toString());
                 mapQuery.put("itemId", Long.valueOf(msg.getMsgBody().get("itemId").toString()));
                 this.adjustPriority(mapQuery);
             }

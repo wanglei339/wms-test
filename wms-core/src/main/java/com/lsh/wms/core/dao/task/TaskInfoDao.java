@@ -23,4 +23,7 @@ public interface TaskInfoDao {
 	List<Map<String, Object>> getPerformance(Map<String, Object> params);
 
 	Integer getPerformanceCount(Map<String, Object> params);
+
+	List<Map<String, Object>> getKanBanCount(Long type);
+
 }

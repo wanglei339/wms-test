@@ -48,7 +48,6 @@ public class BaseinfoLocationService implements IStrategy {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("locationId", id);
         List<BaseinfoLocation> baseinfoLocationList = baseinfoLocationDao.getBaseinfoLocationList(mapQuery);
-//        BaseinfoLocation baseinfoLocation = baseinfoLocationList.get(0);
         return baseinfoLocationList.size() > 0 ? baseinfoLocationList.get(0) : null;
     }
 

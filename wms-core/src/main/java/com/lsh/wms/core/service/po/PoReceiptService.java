@@ -82,7 +82,7 @@ public class PoReceiptService {
         inbPoDetailDao.batchUpdateInboundQtyByOrderIdAndSkuId(updateInbPoDetailList);
         for (Map<String, Object> moveInfo : moveList) {
             StockLot lot = (StockLot) moveInfo.get("lot");
-            if (lot.isOld()) {
+            if (! lot.isOld()) {
                 stockLotService.insertLot(lot);
             }
             stockQuantService.move((StockMove) moveInfo.get("move"), lot);
