@@ -432,7 +432,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
                 StockTransferPlan plan = new StockTransferPlan();
                 plan.setFromLocationId(quant.getLocationId());
                 plan.setToLocationId(toLocationId);
-                plan.setQty(quant.getQty());
+                plan.setQty(quant.getQty().divide(quant.getPackUnit()));
                 plan.setItemId(quant.getItemId());
                 plan.setPackName(quant.getPackName());
                 plan.setSubType(2L);
