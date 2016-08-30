@@ -56,7 +56,7 @@ public class StockTransferTaskHandler extends AbsTaskHandler {
         mapQuery.put("locationId", taskInfo.getFromLocationId());
         mapQuery.put("itemId",taskInfo.getItemId());
         mapQuery.put("reserveTaskId", 0L);
-        quantService.reserve(mapQuery,taskInfo.getTaskId(),taskInfo.getQty());
+        quantService.reserve(mapQuery,taskInfo.getTaskId(),taskInfo.getQty().multiply(taskInfo.getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP));
     }
 
     public void doneConcrete(Long taskId){

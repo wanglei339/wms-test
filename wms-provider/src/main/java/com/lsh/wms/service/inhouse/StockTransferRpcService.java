@@ -159,7 +159,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             }
         }
         core.fillTransferPlan(plan);
-        BigDecimal requiredQty = plan.getQty().multiply(plan.getPackUnit());
+        BigDecimal requiredQty = plan.getQty().multiply(plan.getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP);
         if ( requiredQty.compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
             throw new BizCheckedException("2550002");
         }
