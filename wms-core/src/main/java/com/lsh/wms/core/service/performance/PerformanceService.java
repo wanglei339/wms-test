@@ -35,7 +35,7 @@ public class PerformanceService {
         // 根据收货类型,日期,员工确定明细
         List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(mapQuery);
         return taskInfos;
-    };
+    }
 
 
 }
