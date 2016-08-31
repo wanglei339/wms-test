@@ -130,6 +130,9 @@ public class ShelveRestService implements IShelveRestService {
         List<TaskInfo> taskInfos = baseTaskService.getAssignedTaskByOperator(staffId, TaskConstant.TYPE_SHELVE);
         if (!taskInfos.isEmpty() && taskInfos != null) {
             TaskInfo taskInfo = taskInfos.get(0);
+            if(taskInfo.getType().compareTo(TaskConstant.TYPE_SHELVE)!=0){
+                return JsonUtils.TOKEN_ERROR("任务类型不匹配");
+            }
             if (taskInfo.getContainerId().equals(containerId)) {
                 return JsonUtils.SUCCESS(shelveTaskService.getShelveTaskHead(taskInfos.get(0).getTaskId()));
             } else {
@@ -140,6 +143,12 @@ public class ShelveRestService implements IShelveRestService {
         if (taskId == null && baseTaskService.checkTaskByContainerId(containerId)) {
             throw new BizCheckedException("2030008");
         }
+
+        TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
+        if(entry.getTaskInfo().getType().compareTo(TaskConstant.TYPE_SHELVE)!=0){
+            return JsonUtils.TOKEN_ERROR("任务类型不匹配");
+        }
+
         iTaskRpcService.assign(taskId, staffId);
         ShelveTaskHead taskHead = shelveTaskService.getShelveTaskHead(taskId);
         BaseinfoLocation allocLocation = locationService.getLocation(taskHead.getAllocLocationId());

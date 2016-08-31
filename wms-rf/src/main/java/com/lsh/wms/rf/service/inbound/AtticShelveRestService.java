@@ -186,6 +186,9 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             }
             TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
             TaskInfo info = entry.getTaskInfo();
+            if(info.getType().compareTo(TaskConstant.TYPE_ATTIC_SHELVE)!=0){
+                return JsonUtils.TOKEN_ERROR("任务类型不匹配");
+            }
             if (info.getOperator().compareTo(user.getStaffId()) != 0 && baseTaskService.checkTaskByContainerId(containerId)) {
                 return JsonUtils.TOKEN_ERROR("该上架任务已被人领取");
             }
