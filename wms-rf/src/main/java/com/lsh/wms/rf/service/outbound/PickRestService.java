@@ -136,7 +136,7 @@ public class PickRestService implements IPickRestService {
             assignParam.put("staffId", staffId);
             assignParam.put("containerId", containerId);
             assignParams.add(assignParam);
-            pickDetails.addAll(pickTaskService.getPickTaskDetails(taskId));
+            pickDetails.addAll(waveService.getDetailsByPickTaskId(taskId));
         }
         iTaskRpcService.assignMul(assignParams);
 

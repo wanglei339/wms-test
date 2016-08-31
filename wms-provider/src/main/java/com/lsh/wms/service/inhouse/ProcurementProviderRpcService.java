@@ -236,7 +236,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
     public void createProcurement() throws BizCheckedException {
         this.createShelfProcurement();
-        this.createLoftProcurement();
+        //this.createLoftProcurement();
     }
 
     public void scanFromLocation(Map<String, Object> params) throws BizCheckedException {
