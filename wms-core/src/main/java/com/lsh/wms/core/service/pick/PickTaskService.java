@@ -87,12 +87,6 @@ public class PickTaskService {
         return pickTaskHeadList.size() == 0 ? null : pickTaskHeadList.get(0);
     }
 
-    public List<WaveDetail> getPickTaskDetails(Long taskId){
-        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("pickTaskId", taskId);
-        return taskDetailDao.getWaveDetailList(mapQuery);
-    }
-
     /**
      * 更新拣货详情并移动库存
      * @param pickDetail

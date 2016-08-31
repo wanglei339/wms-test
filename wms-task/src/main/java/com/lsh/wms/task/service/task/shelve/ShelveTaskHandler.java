@@ -35,6 +35,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,6 +96,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
 
         taskInfo.setType(TaskConstant.TYPE_SHELVE);
         taskInfo.setFromLocationId(quant.getLocationId());
+        taskInfo.setQtyDone(quant.getQty());
 
         taskEntry.setTaskInfo(taskInfo);
         taskEntry.setTaskHead(taskHead);
