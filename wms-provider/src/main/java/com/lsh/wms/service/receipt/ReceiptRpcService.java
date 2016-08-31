@@ -487,6 +487,10 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
                 poOrderService.updateInbPoDetail(inbPoDetail);
             }
+            //返仓单生成移库单之后 将状态改为收货完成
+            inbPoHeader.setOrderStatus(PoConstant.ORDER_RECTIPT_ALL);
+            poOrderService.updateInbPoHeader(inbPoHeader);
+
         }
 
 
