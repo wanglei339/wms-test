@@ -1,10 +1,14 @@
 package com.lsh.wms.core.service.inventory;
 
 import com.lsh.wms.core.dao.redis.RedisSortedSetDao;
+import com.lsh.wms.core.service.so.SoOrderRedisService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
+
+import java.util.Set;
 
 /**
  * Project Name: lsh-wms
@@ -18,10 +22,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class InventoryRedisService {
     @Autowired
-    private RedisSortedSetDao redisSortedSetDao;
+    private SoOrderRedisService soOrderRedisService;
     private static Logger logger = LoggerFactory.getLogger(InventoryRedisService.class);
 
-
+    public double soOrderSkuQty(Long sku_id){
+        Set<ZSetOperations.TypedTuple<String>>  skuQtys=  soOrderRedisService.getSoSkuQty(sku_id);
+        double qty = 0.0;
+        for (ZSetOperations.TypedTuple typeTuple:skuQtys) {
+            qty  = qty + typeTuple.getScore();
+        }
+        return qty;
+    }
 
 
 }
