@@ -164,7 +164,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         }
         Long staffId = user.getStaffId();
         Map<String,Object> statusQueryMap = new HashMap();
-        statusQueryMap.put("status",2);
+        statusQueryMap.put("status",TaskConstant.Assigned);
         statusQueryMap.put("operator", staffId);
 
         List<TaskEntry> list = iTaskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TAKING, statusQueryMap);
@@ -191,7 +191,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             return JsonUtils.SUCCESS(result);
         }
         Map<String,Object> queryMap =new HashMap<String, Object>();
-        queryMap.put("status", 1L);
+        queryMap.put("status", TaskConstant.Draft);
         List<TaskEntry> entries =iTaskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TAKING, queryMap);
         if(entries==null ||entries.size()==0){
             return JsonUtils.TOKEN_ERROR("无盘点任务可领");
@@ -207,7 +207,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
                 break;
             }else {
                 queryMap.put("planId", takingTask.getTakingId());
-                queryMap.put("status",3L);
+                queryMap.put("status",TaskConstant.Done);
                 List<TaskEntry> entryList = iTaskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TAKING,queryMap);
                 Map<Long,Integer> chageMap = new HashMap<Long, Integer>();
                 for(TaskEntry tmp:entryList){
