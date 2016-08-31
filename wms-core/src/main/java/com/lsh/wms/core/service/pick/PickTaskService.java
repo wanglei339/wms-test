@@ -2,6 +2,7 @@ package com.lsh.wms.core.service.pick;
 
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.wave.WaveDetailDao;
@@ -12,6 +13,7 @@ import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.pick.PickTaskHead;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskInfo;
@@ -162,14 +164,27 @@ public class PickTaskService {
         if (needPickDetail.getPickTaskId() == null || needPickDetail.getPickTaskId().equals("")) {
             // 获取下一个拣货位id
             PickTaskHead nextTaskHead = this.getPickTaskHead(taskInfos.get(0).getTaskId());
-            result.put("next_detail", nextTaskHead);
+            result.put("next_detail", renderResult(BeanMapTransUtils.Bean2map(nextTaskHead), "allocCollectLocation", "allocCollectLocationCode"));
             result.put("done", false);
             result.put("pick_done", true);
         } else {
-            result.put("next_detail", needPickDetail);
+            result.put("next_detail", renderResult(BeanMapTransUtils.Bean2map(needPickDetail), "allocPickLocation", "allocPickLocationCode"));
             result.put("done", false);
             result.put("pick_done", false);
         }
+        return result;
+    }
+
+    /**
+     * 设置结果
+     * @param result
+     * @param locationKey
+     * @param resultKey
+     * @return
+     */
+    public Map<String, Object> renderResult(Map<String, Object> result, String locationKey, String resultKey) {
+        BaseinfoLocation location = locationService.getLocation(Long.valueOf(result.get(locationKey).toString()));
+        result.put(resultKey, location.getLocationCode());
         return result;
     }
 }
