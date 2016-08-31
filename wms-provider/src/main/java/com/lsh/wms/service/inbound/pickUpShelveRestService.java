@@ -365,7 +365,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
                 StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
                 one.put("orderId", lot.getPoId());
                 one.put("packName",quant.getPackName());
-                one.put("qty",stockQuantService.getQuantQtyByLocationIdAndItemId(quant.getLocationId(), quant.getItemId()).divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
+                one.put("qty",stockQuantService.getQuantQtyByContainerId(info.getContainerId()).divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
                 one.put("supplierId",quant.getSupplierId());
                 one.put("ownerId",quant.getOwnerId());
                 one.put("finishTime",info.getFinishTime());
@@ -374,7 +374,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
                 AtticShelveTaskDetail detail = (AtticShelveTaskDetail)(details.get(0));
                 one.put("orderId", detail.getOrderId());
                 one.put("packName",info.getPackName());
-                one.put("qty",stockQuantService.getQuantQtyByLocationIdAndItemId(info.getLocationId(), info.getItemId()).divide(info.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
+                one.put("qty",stockQuantService.getQuantQtyByContainerId(info.getContainerId()).divide(info.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
                 one.put("supplierId",detail.getSupplierId());
                 one.put("ownerId",detail.getOwnerId());
                 one.put("finishTime",info.getFinishTime());
@@ -464,6 +464,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
             if (quants.size() < 1) {
                 throw new BizCheckedException("2030001");
             }
+            Map<String,Object> qtyMap = new HashMap<String, Object>();
             StockQuant quant = quants.get(0);
             StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
             head.put("containerId",quant.getContainerId());
@@ -472,7 +473,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
             head.put("ownerId",quant.getOwnerId());
             head.put("status",info.getStatus());
             head.put("packName",quant.getPackName());
-            head.put("qty",stockQuantService.getQuantQtyByLocationIdAndItemId(quant.getLocationId(), quant.getItemId()).divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
+            head.put("qty",stockQuantService.getQuantQtyByContainerId(info.getContainerId()).divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
             head.put("operator",info.getOperator());
             head.put("isDoing",info.getExt1().compareTo(2L)==0 ? 1 :0);
         }else {
@@ -483,7 +484,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
             head.put("ownerId",detail.getOwnerId());
             head.put("status",info.getStatus());
             head.put("packName",info.getPackName());
-            head.put("qty",stockQuantService.getQuantQtyByLocationIdAndItemId(info.getLocationId(), info.getItemId()).divide(info.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
+            head.put("qty",stockQuantService.getQuantQtyByContainerId(info.getContainerId()).divide(info.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
             head.put("operator",info.getOperator());
             head.put("isDoing",info.getExt1().compareTo(2L)==0 ? 1 :0);
         }

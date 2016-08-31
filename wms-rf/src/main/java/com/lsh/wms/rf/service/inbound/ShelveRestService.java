@@ -130,9 +130,6 @@ public class ShelveRestService implements IShelveRestService {
         List<TaskInfo> taskInfos = baseTaskService.getAssignedTaskByOperator(staffId, TaskConstant.TYPE_SHELVE);
         if (!taskInfos.isEmpty() && taskInfos != null) {
             TaskInfo taskInfo = taskInfos.get(0);
-            if(taskInfo.getType().compareTo(TaskConstant.TYPE_SHELVE)!=0){
-                return JsonUtils.TOKEN_ERROR("任务类型不匹配");
-            }
             if (taskInfo.getContainerId().equals(containerId)) {
                 return JsonUtils.SUCCESS(shelveTaskService.getShelveTaskHead(taskInfos.get(0).getTaskId()));
             } else {
@@ -195,7 +192,7 @@ public class ShelveRestService implements IShelveRestService {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long staffId = Long.valueOf(mapQuery.get("operator").toString());
         List<TaskInfo> taskInfos = baseTaskService.getAssignedTaskByOperator(staffId, TaskConstant.TYPE_SHELVE);
-        if (taskInfos.isEmpty() || taskInfos == null) {
+        if ( taskInfos == null || taskInfos.isEmpty() ) {
             return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                 {
                     put("response", false);

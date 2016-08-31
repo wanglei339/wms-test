@@ -372,7 +372,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
                 StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
                 one.put("orderId", lot.getPoId());
                 one.put("packName",quant.getPackName());
-                one.put("qty",stockQuantService.getQuantQtyByLocationIdAndItemId(quant.getLocationId(), quant.getItemId()).divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
+                one.put("qty",stockQuantService.getQuantQtyByContainerId(info.getContainerId()).divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
                 one.put("supplierId",quant.getSupplierId());
                 one.put("ownerId",quant.getOwnerId());
                 one.put("finishTime",info.getFinishTime());
@@ -381,7 +381,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
                 AtticShelveTaskDetail detail = (AtticShelveTaskDetail)(details.get(0));
                 one.put("orderId", detail.getOrderId());
                 one.put("packName",info.getPackName());
-                one.put("qty",stockQuantService.getQuantQtyByLocationIdAndItemId(info.getLocationId(), info.getItemId()).divide(info.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
+                one.put("qty",stockQuantService.getQuantQtyByContainerId(info.getContainerId()).divide(info.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
                 one.put("supplierId",detail.getSupplierId());
                 one.put("ownerId",detail.getOwnerId());
                 one.put("finishTime",info.getFinishTime());
