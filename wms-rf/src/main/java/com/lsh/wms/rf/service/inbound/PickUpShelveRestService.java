@@ -310,7 +310,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         AtticShelveTaskDetail detail = shelveTaskService.getShelveTaskDetail(taskId,TaskConstant.Draft);
         //判断扫描库位是不是存储合一库位
         if(realLocation.getType().compareTo(LocationConstant.SPLIT_SHELF_BIN)==0 ){
-            if(locationService.checkLocationUseStatus(realLocationId) ){
+            if(locationService.checkLocationUseStatus(realLocationId) && realLocationId.compareTo(detail.getAllocLocationId())!=0){
                 return JsonUtils.TOKEN_ERROR("扫描库位已被占用");
             }
 
