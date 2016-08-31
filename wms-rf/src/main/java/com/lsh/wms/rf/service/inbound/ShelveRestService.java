@@ -14,10 +14,12 @@ import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRestService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.shelve.ShelveTaskService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoStaffInfo;
 import com.lsh.wms.model.shelve.ShelveTaskHead;
 import com.lsh.wms.model.stock.StockQuant;
@@ -52,6 +54,8 @@ public class ShelveRestService implements IShelveRestService {
     private StockQuantService stockQuantService;
     @Autowired
     private ShelveTaskService shelveTaskService;
+    @Autowired
+    private LocationService locationService;
 
     private Long taskType = TaskConstant.TYPE_SHELVE;
 
@@ -138,7 +142,10 @@ public class ShelveRestService implements IShelveRestService {
         }
         iTaskRpcService.assign(taskId, staffId);
         ShelveTaskHead taskHead = shelveTaskService.getShelveTaskHead(taskId);
-        return JsonUtils.SUCCESS(taskHead);
+        BaseinfoLocation allocLocation = locationService.getLocation(taskHead.getAllocLocationId());
+        Map<String, Object> result = BeanMapTransUtils.Bean2map(taskHead);
+        result.put("allocLocationCode", allocLocation.getLocationCode());
+        return JsonUtils.SUCCESS(result);
     }
 
     /**

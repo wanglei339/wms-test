@@ -226,7 +226,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
     public String restore() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long uId=0L;
-        Long containerId = 0L;
+       // Long containerId = 0L;
         Long taskId = 0L;
         try {
             uId = Long.valueOf(mapQuery.get("uId").toString());

@@ -7,7 +7,9 @@ import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.pick.PickTaskService;
 import com.lsh.wms.core.service.stock.StockMoveService;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.pick.PickTaskHead;
 import com.lsh.wms.model.task.StockTakingTask;
@@ -48,6 +50,21 @@ public class PickTaskHandler extends AbsTaskHandler {
         handlerFactory.register(TaskConstant.TYPE_PICK, this);
     }
 
+    public void create(TaskEntry taskEntry) {
+        TaskInfo taskInfo = taskEntry.getTaskInfo();
+        Long taskId = taskInfo.getTaskId();
+        List<WaveDetail> pickTaskDetails = waveService.getDetailsByPickTaskId(taskId);
+        BigDecimal qtyDone = BigDecimal.ZERO;
+
+        for (WaveDetail pickTaskDetail: pickTaskDetails) {
+            qtyDone = qtyDone.add(pickTaskDetail.getAllocQty());
+        }
+        taskInfo.setQtyDone(qtyDone);
+        taskEntry.setTaskInfo(taskInfo);
+
+        super.create(taskEntry);
+    }
+
     public void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
         PickTaskHead head = (PickTaskHead)taskEntry.getTaskHead();
         Long taskId = taskEntry.getTaskInfo().getTaskId();
@@ -60,6 +77,17 @@ public class PickTaskHandler extends AbsTaskHandler {
             detail.setPickTaskId(taskId);
         }
         pickTaskService.createPickTask(head, details);
+    }
+
+    public void calcPerformance(TaskInfo taskInfo) {
+        Long taskId = taskInfo.getTaskId();
+        List<WaveDetail> pickDetails = waveService.getDetailsByPickTaskId(taskId);
+        BigDecimal ptyDone = BigDecimal.ZERO;
+        for (WaveDetail pickDetail : pickDetails) {
+            ptyDone = ptyDone.add(pickDetail.getPickQty());
+        }
+        taskInfo.setQtyDone(ptyDone);
+        taskInfo.setTaskQty(BigDecimal.ONE);
     }
 
     public void doneConcrete(Long taskId, Long locationId, Long staffId) throws BizCheckedException{
@@ -86,7 +114,7 @@ public class PickTaskHandler extends AbsTaskHandler {
     }
 
     public void getConcrete(TaskEntry taskEntry) {
-        List<WaveDetail> pickTaskDetails = pickTaskService.getPickTaskDetails(taskEntry.getTaskInfo().getTaskId());
+        List<WaveDetail> pickTaskDetails = waveService.getDetailsByPickTaskId(taskEntry.getTaskInfo().getTaskId());
         List<Map<String, Object>> details = new ArrayList<Map<String, Object>>();
 
         BigDecimal totalQty = new BigDecimal(0);
