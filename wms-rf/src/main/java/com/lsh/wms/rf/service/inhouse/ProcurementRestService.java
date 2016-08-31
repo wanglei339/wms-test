@@ -80,7 +80,7 @@ public class ProcurementRestService implements IProcurementRestService {
             throw ex;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
+            return JsonUtils.TOKEN_ERROR("系统繁忙");
         }
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {
@@ -112,7 +112,7 @@ public class ProcurementRestService implements IProcurementRestService {
         }
         catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
+            return JsonUtils.TOKEN_ERROR("系统繁忙");
         }
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {
@@ -178,7 +178,7 @@ public class ProcurementRestService implements IProcurementRestService {
         }
         catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
+            return JsonUtils.TOKEN_ERROR("系统繁忙");
         }
     }
 
@@ -298,7 +298,7 @@ public class ProcurementRestService implements IProcurementRestService {
             throw ex;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("系统繁忙");
+            return JsonUtils.TOKEN_ERROR("系统繁忙");
         }
     }
 }

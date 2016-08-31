@@ -44,8 +44,6 @@ public class PickTaskHandler extends AbsTaskHandler {
     private LocationService locationService;
     @Autowired
     private WaveService waveService;
-    @Autowired
-    private BaseTaskService baseTaskService;
 
     @PostConstruct
     public void postConstruct() {

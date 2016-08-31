@@ -9,6 +9,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.pick.IPickRestService;
 import com.lsh.wms.api.service.pick.IPickRpcService;
@@ -73,6 +74,7 @@ public class PickRestService implements IPickRestService {
     private StockQuantService stockQuantService;
     @Autowired
     private MessageService messageService;
+
     /**
      * 扫描拣货签(拣货任务id)
      * @return
@@ -148,8 +150,9 @@ public class PickRestService implements IPickRestService {
                 return o1.getPickOrder().compareTo(o2.getPickOrder());
             }
         });
+
         Map<String, Object> result = new HashMap<String, Object>();
-        result.put("next_detail", pickDetails.get(0));
+        result.put("next_detail", pickTaskService.renderResult(BeanMapTransUtils.Bean2map(pickDetails.get(0)), "allocPickLocation", "allocPickLocationCode"));
         result.put("done", false);
         result.put("pick_done", false);
         return JsonUtils.SUCCESS(result);
@@ -225,10 +228,10 @@ public class PickRestService implements IPickRestService {
                 waveService.updateDetail(collectWaveDetail);
             }
             iTaskRpcService.done(taskId, locationId, staffId);
-            // 获取下一个拣货位id
+            // 获取下一个集货位id
             if (taskInfos.size() > 1) {
                 PickTaskHead nextTaskHead = pickTaskService.getPickTaskHead(taskInfos.get(1).getTaskId());
-                result.put("next_detail", nextTaskHead);
+                result.put("next_detail", pickTaskService.renderResult(BeanMapTransUtils.Bean2map(nextTaskHead), "allocCollectLocation", "allocCollectLocationCode"));
                 result.put("done", false);
             } else {
                 result.put("done", true);
@@ -292,9 +295,9 @@ public class PickRestService implements IPickRestService {
         }
         if (nextPickDetail.getPickTaskId() == null || nextPickDetail.getPickTaskId().equals("")) {
             pickDone = true;
-            result.put("next_detail", pickTaskService.getPickTaskHead(taskIds.get(0))); // 返回第一个任务的头信息用于集货位分配
+            result.put("next_detail", pickTaskService.renderResult(BeanMapTransUtils.Bean2map(pickTaskService.getPickTaskHead(taskIds.get(0))), "allocCollectLocation", "allocCollectLocationCode")); // 返回第一个任务的头信息用于集货位分配
         } else {
-            result.put("next_detail", nextPickDetail);
+            result.put("next_detail", pickTaskService.renderResult(BeanMapTransUtils.Bean2map(nextPickDetail), "allocPickLocation", "allocPickLocationCode"));
         }
         result.put("pick_done", pickDone);
         result.put("done", false);
