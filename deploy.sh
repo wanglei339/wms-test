@@ -45,6 +45,7 @@ do
     rsync -avzP $APPROOT/$APP-$VERSION-dev/conf/com $REMOTE:/home/work/lsh-wms/$APP/conf
     rsync -avzP $APPROOT/$APP-$VERSION-dev/conf/props/exception.properties $REMOTE:/home/work/lsh-wms/$APP/conf/props
     ssh $REMOTE "sh /home/work/lsh-wms/$APP/bin/run.sh"
+    ssh $REMOTE "tail -f /home/work/lsh-wms/$APP/log/provider.log"
     rm -rf $APPROOT/$APP-$VERSION-dev
   fi
 done
