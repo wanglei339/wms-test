@@ -22,6 +22,10 @@ public class PoRequest implements Serializable {
     @Size(max=100)
     private String orderOtherId;
 
+
+    @Size(max=100)
+    private String orderOtherRefId = "";
+
     /** 采购组 */
     @Size(max=64)
     private String orderUser = "";
@@ -84,12 +88,13 @@ public class PoRequest implements Serializable {
 
     }
 
-    public PoRequest(Long warehouseId, String orderOtherId, String orderUser, Long ownerUid, Integer orderType,
+    public PoRequest(Long warehouseId, String orderOtherId, String orderOtherRefIdId, String orderUser, Long ownerUid, Integer orderType,
                      Long supplierCode, String supplierName, String skuVoucherNo, String supplierPhone,
                      String supplierFax, Date orderTime, String stockCode, String deliveryPlace, String deliveryAddrs,
                      Date deliveryDate, Date endDeliveryDate, List<PoItem> items) {
         this.warehouseId = warehouseId;
         this.orderOtherId = orderOtherId;
+        this.orderOtherRefId = orderOtherRefIdId;
         this.orderUser = orderUser;
         this.ownerUid = ownerUid;
         this.orderType = orderType;
@@ -241,5 +246,13 @@ public class PoRequest implements Serializable {
 
     public void setItems(List<PoItem> items) {
         this.items = items;
+    }
+
+    public String getOrderOtherRefId() {
+        return orderOtherRefId;
+    }
+
+    public void setOrderOtherRefId(String orderOtherRefId) {
+        this.orderOtherRefId = orderOtherRefId;
     }
 }

@@ -23,6 +23,8 @@ public class SoRequest implements Serializable {
     @Size(max=100)
     private String orderOtherId;
 
+    private String orderOtherRefId = "";
+
     /** 下单用户 */
     @NotBlank
     @Size(max=64)
@@ -37,16 +39,16 @@ public class SoRequest implements Serializable {
     private Integer orderType;
 
     /** 波次号 */
-    @NotNull
-    private Long waveId;
+    //@NotNull
+    private Long waveId = 0l;
 
     /** TMS线路 */
     @Size(max=64)
     private String transPlan;
 
     /** TMS顺序号 */
-    @NotNull
-    private Integer waveIndex;
+    //@NotNull
+    private Integer waveIndex = 0;
 
     /** 交货时间 */
     private Date transTime;
@@ -63,11 +65,12 @@ public class SoRequest implements Serializable {
     public SoRequest() {
     }
 
-    public SoRequest(Long warehouseId, String orderOtherId, String orderUser, Long ownerUid, Integer orderType,
+    public SoRequest(Long warehouseId, String orderOtherId,String orderOtherRefId, String orderUser, Long ownerUid, Integer orderType,
                      Long waveId, String transPlan, Integer waveIndex, Date transTime, String deliveryAddrs,
                      List<SoItem> items) {
         this.warehouseId = warehouseId;
         this.orderOtherId = orderOtherId;
+        this.orderOtherRefId = orderOtherRefId;
         this.orderUser = orderUser;
         this.ownerUid = ownerUid;
         this.orderType = orderType;
@@ -165,5 +168,13 @@ public class SoRequest implements Serializable {
 
     public void setItems(List<SoItem> items) {
         this.items = items;
+    }
+
+    public String getOrderOtherRefId() {
+        return orderOtherRefId;
+    }
+
+    public void setOrderOtherRefId(String orderOtherRefId) {
+        this.orderOtherRefId = orderOtherRefId;
     }
 }

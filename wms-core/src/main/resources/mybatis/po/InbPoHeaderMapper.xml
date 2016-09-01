@@ -6,6 +6,7 @@
 		<id property="id" column="ID"/>
 		<result property="warehouseId" column="WAREHOUSE_ID"/>
 		<result property="orderOtherId" column="ORDER_OTHER_ID"/>
+		<result property="orderOtherRefId" column="ORDER_OTHER_REF_ID"/>
 		<result property="orderId" column="ORDER_ID"/>
 		<result property="orderUser" column="ORDER_USER"/>
 		<result property="ownerUid" column="OWNER_UID"/>
@@ -33,12 +34,12 @@
 			WAREHOUSE_ID,ORDER_OTHER_ID,ORDER_ID,ORDER_USER,OWNER_UID,ORDER_TYPE,
 			SUPPLIER_CODE,SUPPLIER_NAME,SKU_VOUCHER_NO,SUPPLIER_PHONE,SUPPLIER_FAX,ORDER_TIME,
 			ORDER_STATUS,STOCK_CODE,DELIVERY_PLACE,DELIVERY_ADDRS,DELIVERY_DATE,END_DELIVERY_DATE,
-			INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME
+			INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME,ORDER_OTHER_REF_ID
     	) values (
 			#{warehouseId},#{orderOtherId},#{orderId},#{orderUser},#{ownerUid},#{orderType},
 			#{supplierCode},#{supplierName},#{skuVoucherNo},#{supplierPhone},#{supplierFax},#{orderTime},
 			#{orderStatus},#{stockCode},#{deliveryPlace},#{deliveryAddrs},#{deliveryDate},#{endDeliveryDate},
-			#{insertby},#{updateby},#{inserttime},#{updatetime}
+			#{insertby},#{updateby},#{inserttime},#{updatetime},#{orderOtherRefId}
     	)
 	</insert>
 
@@ -47,6 +48,7 @@
     	<set>
   			<if test="warehouseId != null">WAREHOUSE_ID=#{warehouseId},</if>
   			<if test="orderOtherId != null">ORDER_OTHER_ID=#{orderOtherId},</if>
+			<if test="orderOtherRefId != null">ORDER_OTHER_REF_ID=#{orderOtherRefId},</if>
   			<if test="orderId != null">ORDER_ID=#{orderId},</if>
   			<if test="orderUser != null">ORDER_USER=#{orderUser},</if>
   			<if test="ownerUid != null">OWNER_UID=#{ownerUid},</if>
@@ -133,6 +135,7 @@
 			<if test="id != null">ID=#{id}</if>
 			<if test="warehouseId != null">and WAREHOUSE_ID=#{warehouseId}</if>
 			<if test="orderOtherId != null">and ORDER_OTHER_ID=#{orderOtherId}</if>
+			<if test="orderOtherRefId != null">and ORDER_OTHER_REF_ID=#{orderOtherRefId}</if>
 			<if test="orderId != null">and ORDER_ID=#{orderId}</if>
 			<if test="orderUser != null">and ORDER_USER=#{orderUser}</if>
 			<if test="ownerUid != null">and OWNER_UID=#{ownerUid}</if>
