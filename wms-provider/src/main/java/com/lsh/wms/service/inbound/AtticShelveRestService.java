@@ -158,7 +158,9 @@ public class AtticShelveRestService implements IAtticShelveRestService{
             logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("参数传递格式有误");
         }
-
+        if(qty.compareTo(BigDecimal.ZERO)<=0 || realQty.compareTo(BigDecimal.ZERO)<=0){
+            return JsonUtils.TOKEN_ERROR("上架详情数量异常");
+        }
         if(!this.chargeLocation(allocLocationId,LocationConstant.LOFT_STORE_BIN) || !this.chargeLocation(realLocationId,LocationConstant.LOFT_STORE_BIN)){
             return JsonUtils.TOKEN_ERROR("库位状态异常");
         }
@@ -222,7 +224,9 @@ public class AtticShelveRestService implements IAtticShelveRestService{
             logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("参数传递格式有误");
         }
-
+        if(qty.compareTo(BigDecimal.ZERO)<=0 || realQty.compareTo(BigDecimal.ZERO)<=0){
+            return JsonUtils.TOKEN_ERROR("上架详情数量异常");
+        }
         if(!this.chargeLocation(allocLocationId,LocationConstant.LOFT_STORE_BIN) || !this.chargeLocation(realLocationId,LocationConstant.LOFT_STORE_BIN)){
             return JsonUtils.TOKEN_ERROR("库位状态异常");
         }
@@ -242,7 +246,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         return JsonUtils.SUCCESS();
     }
     /**
-     * 修改上架详情
+     * 取消上架详情
      * @return
      * @throws BizCheckedException
      */
@@ -438,7 +442,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         info.setOperator(operator);
         info.setStatus(TaskConstant.Assigned);
         entry.setTaskInfo(info);
-        iTaskRpcService.update(TaskConstant.TYPE_ATTIC_SHELVE,entry);
+        iTaskRpcService.update(TaskConstant.TYPE_ATTIC_SHELVE, entry);
         return JsonUtils.SUCCESS();
     }
     /**

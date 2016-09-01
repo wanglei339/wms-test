@@ -151,7 +151,9 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
             logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("参数传递格式有误");
         }
-
+        if(qty.compareTo(BigDecimal.ZERO)<=0 || realQty.compareTo(BigDecimal.ZERO)<=0){
+            return JsonUtils.TOKEN_ERROR("上架详情数量异常");
+        }
         if(!this.chargeLocation(allocLocationId, LocationConstant.SPLIT_SHELF_BIN) || !this.chargeLocation(realLocationId,LocationConstant.SPLIT_SHELF_BIN)){
             return JsonUtils.TOKEN_ERROR("库位状态异常");
         }
@@ -215,7 +217,9 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
             logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("参数传递格式有误");
         }
-
+        if(qty.compareTo(BigDecimal.ZERO)<=0 || realQty.compareTo(BigDecimal.ZERO)<=0){
+            return JsonUtils.TOKEN_ERROR("上架详情数量异常");
+        }
         if(!this.chargeLocation(allocLocationId,LocationConstant.SPLIT_SHELF_BIN) || !this.chargeLocation(realLocationId,LocationConstant.SPLIT_SHELF_BIN)){
             return JsonUtils.TOKEN_ERROR("库位状态异常");
         }
@@ -235,7 +239,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
         return JsonUtils.SUCCESS();
     }
     /**
-     * 修改上架详情
+     * 取消上架详情
      * @return
      * @throws BizCheckedException
      */
