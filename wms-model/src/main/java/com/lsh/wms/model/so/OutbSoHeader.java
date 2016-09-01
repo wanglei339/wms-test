@@ -13,6 +13,9 @@ public class OutbSoHeader implements Serializable {
     private Long orderId;
 	/** 出库订单号 */
     private String orderOtherId;
+	/** 参考单号 */
+	private String orderOtherRefId;
+
 	/** 下单用户 */
     private String orderUser;
 	/** 货主 */
@@ -185,5 +188,12 @@ public class OutbSoHeader implements Serializable {
 	public void setOrderDetails(Object orderDetails) {
 		this.orderDetails = orderDetails;
 	}
-	
+
+	public String getOrderOtherRefId() {
+		return orderOtherRefId;
+	}
+
+	public void setOrderOtherRefId(String orderOtherRefId) {
+		this.orderOtherRefId = orderOtherRefId;
+	}
 }

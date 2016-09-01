@@ -5,6 +5,7 @@
 	<resultMap id="outbSoDetailResultMap" type="OutbSoDetail">
 		<id property="id" column="ID"/>
 		<result property="orderId" column="ORDER_ID"/>
+		<result property="skuCode" column="SKU_CODE"/>
 		<result property="itemId" column="ITEM_ID"/>
 		<result property="skuId" column="SKU_ID"/>
 		<result property="skuName" column="SKU_NAME"/>
@@ -20,22 +21,22 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="OutbSoDetail">
 		insert into OUTB_SO_DETAIL (
-			ORDER_ID,ITEM_ID,SKU_ID,SKU_NAME,BAR_CODE,ORDER_QTY,
-			PACK_UNIT,LOT_NUM,INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME
+			ORDER_ID,SKU_CODE,SKU_ID,SKU_NAME,BAR_CODE,ORDER_QTY,
+			PACK_UNIT,LOT_NUM,INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME,ITEM_ID
     	) values (
-			#{orderId},#{itemId},#{skuId},#{skuName},#{barCode},#{orderQty},
-			#{packUnit},#{lotNum},#{insertby},#{updateby},#{inserttime},#{updatetime}
+			#{orderId},#{skuCode},#{skuId},#{skuName},#{barCode},#{orderQty},
+			#{packUnit},#{lotNum},#{insertby},#{updateby},#{inserttime},#{updatetime},#{itemId}
     	)
 	</insert>
 
 	<insert id="batchInsert" parameterType="java.util.List">
 		insert into OUTB_SO_DETAIL (
-		ORDER_ID,ITEM_ID,SKU_ID,SKU_NAME,BAR_CODE,ORDER_QTY,
-		PACK_UNIT,LOT_NUM,INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME
+		ORDER_ID,SKU_CODE,SKU_ID,SKU_NAME,BAR_CODE,ORDER_QTY,
+		PACK_UNIT,LOT_NUM,INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME,ITEM_ID
 		) values
 		<foreach collection="list" item="item" index="index" separator="," >
-			(#{item.orderId},#{item.itemId},#{item.skuId},#{item.skuName},#{item.barCode},#{item.orderQty},
-			#{item.packUnit},#{item.lotNum},#{item.insertby},#{item.updateby},now(),#{item.updatetime})
+			(#{item.orderId},#{item.skuCode},#{item.skuId},#{item.skuName},#{item.barCode},#{item.orderQty},
+			#{item.packUnit},#{item.lotNum},#{item.insertby},#{item.updateby},now(),#{item.updatetime},#{item.itemId})
 		</foreach>
 	</insert>
 
@@ -44,8 +45,9 @@
 		update OUTB_SO_DETAIL
     	<set>
   			<if test="orderId != null">ORDER_ID=#{orderId},</if>
-  			<if test="itemId != null">ITEM_ID=#{itemId},</if>
+  			<if test="skuCode != null">SKU_CODE=#{skuCode},</if>
   			<if test="skuId != null">SKU_ID=#{skuId},</if>
+			<if test="itemId != null">ITEM_ID=#{itemId},</if>
   			<if test="skuName != null">SKU_NAME=#{skuName},</if>
   			<if test="barCode != null">BAR_CODE=#{barCode},</if>
   			<if test="orderQty != null">ORDER_QTY=#{orderQty},</if>
@@ -81,8 +83,9 @@
 		<where>
 			<if test="id != null">ID=#{id}</if>
 			<if test="orderId != null">and ORDER_ID=#{orderId}</if>
-			<if test="itemId != null">and ITEM_ID=#{itemId}</if>
+			<if test="skuCode != null">and SKU_CODE=#{skuCode}</if>
 			<if test="skuId != null">and SKU_ID=#{skuId}</if>
+			<if test="itemId != null">and ITEM_ID=#{itemId}</if>
 			<if test="skuName != null">and SKU_NAME=#{skuName}</if>
 			<if test="barCode != null">and BAR_CODE=#{barCode}</if>
 			<if test="orderQty != null">and ORDER_QTY=#{orderQty}</if>

@@ -201,9 +201,8 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     }
 
     /**
-     * 按照指定的获取list的方法
-     *
-     * @return 全大区、全功能区、全货架阁楼、全货架阁楼区、全通道
+     * 获取指定type的location列表
+     * @return 同一类型的位置集合
      * @throws BizCheckedException
      */
     @GET

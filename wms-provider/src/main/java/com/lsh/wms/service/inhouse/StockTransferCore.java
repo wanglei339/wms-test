@@ -9,7 +9,9 @@ import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.ContainerConstant;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.location.LocationService;
@@ -60,6 +62,9 @@ public class StockTransferCore {
 
     @Autowired
     private ContainerService containerService;
+
+    @Autowired
+    private BaseinfoLocationDao locationDao;
 
     public void fillTransferPlan(StockTransferPlan plan) throws BizCheckedException {
         StockQuantCondition condition = new StockQuantCondition();
@@ -301,11 +306,16 @@ public class StockTransferCore {
 
     //TODO
     public BaseinfoLocation getNearestLocation(BaseinfoLocation currentLocation) {
-        List <BaseinfoLocation> locationList = locationService.getStoreLocations(currentLocation.getLocationId());
-        for (BaseinfoLocation location : locationList) {
-            if (location.getCanUse().equals(1) && !locationService.checkLocationLockStatus(location.getLocationId())) {
-                return location;
-            }
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("leftRange", currentLocation.getLeftRange());
+        params.put("rightRange", currentLocation.getRightRange());
+        params.put("canStore", LocationConstant.CAN_STORE);
+        params.put("isValid", LocationConstant.IS_VALID);
+        params.put("canUse", LocationConstant.CAN_USE);
+        params.put("isLocked", LocationConstant.UNLOCK);
+        List <BaseinfoLocation> locationList = locationDao.getChildrenLocationList(params);
+        if (locationList != null && !locationList.isEmpty()) {
+            return locationList.get(0);
         }
         return currentLocation;
     }

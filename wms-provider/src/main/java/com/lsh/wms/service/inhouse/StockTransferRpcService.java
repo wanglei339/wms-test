@@ -89,11 +89,8 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             throw new BizCheckedException("2550017");
         }
         BaseinfoLocation fromLocation = locationService.getLocation(fromLocationId);
-        if (fromLocation == null) {
-            throw new BizCheckedException("2550016");
-        }
         BaseinfoLocation toLocation = locationService.getLocation(toLocationId);
-        if (toLocation == null) {
+        if (fromLocation == null || toLocation == null) {
             throw new BizCheckedException("2550016");
         }
         if (fromLocation.getType().equals(LocationConstant.TEMPORARY) || toLocation.getType().equals(LocationConstant.TEMPORARY)) {
@@ -140,13 +137,14 @@ public class StockTransferRpcService implements IStockTransferRpcService {
 
         List<StockQuant> toQuants = quantService.getQuantsByLocationId(toLocationId);
         Long locationType = toLocation.getType();
-        if( toQuants.size() > 0 && locationType.compareTo(LocationConstant.FLOOR) != 0
+        if( toQuants != null && toQuants.size() > 0
+                && locationType.compareTo(LocationConstant.FLOOR) != 0
                 && locationType.compareTo(LocationConstant.BACK_AREA) != 0
                 && locationType.compareTo(LocationConstant.DEFECTIVE_AREA) != 0) {
             // 拣货位
             if (locationType.compareTo(LocationConstant.LOFT_PICKING_BIN) == 0 || locationType.compareTo(LocationConstant.SHELF_PICKING_BIN) == 0) {
                 List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toLocationId);
-                if (itemLocations.get(0).getItemId().compareTo(itemId) != 0) {
+                if (itemLocations.size() > 0 && itemLocations.get(0).getItemId().compareTo(itemId) != 0) {
                     throw new BizCheckedException("2550004");
                 }
             } else { //其余货位

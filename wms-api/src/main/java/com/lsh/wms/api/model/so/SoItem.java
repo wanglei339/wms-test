@@ -12,9 +12,9 @@ import java.math.BigDecimal;
  */
 public class SoItem implements Serializable {
 
-    /** 商品ID */
+    /** 外部商品编码 */
     @NotNull
-    private Long itemId;
+    private String skuCode;
 
     /** 商品名称 */
     @Size(max=50)
@@ -40,8 +40,8 @@ public class SoItem implements Serializable {
 
     }
 
-    public SoItem(Long itemId, String skuName, String barCode, BigDecimal orderQty, BigDecimal packUnit, String lotNum) {
-        this.itemId = itemId;
+    public SoItem(String skuCode, String skuName, String barCode, BigDecimal orderQty, BigDecimal packUnit, String lotNum) {
+        this.skuCode = skuCode;
         this.skuName = skuName;
         this.barCode = barCode;
         this.orderQty = orderQty;
@@ -49,12 +49,13 @@ public class SoItem implements Serializable {
         this.lotNum = lotNum;
     }
 
-    public Long getItemId() {
-        return itemId;
+
+    public String getSkuCode() {
+        return skuCode;
     }
 
-    public void setItemId(Long itemId) {
-        this.itemId = itemId;
+    public void setSkuCode(String skuCode) {
+        this.skuCode = skuCode;
     }
 
     public String getSkuName() {

@@ -297,7 +297,7 @@ public class LocationService {
         BaseinfoLocation location = this.getLocation(locationId);
         params.put("leftRange", location.getLeftRange());
         params.put("rightRange", location.getRightRange());
-        params.put("can_store", LocationConstant.CAN_STORE);
+        params.put("canStore", LocationConstant.CAN_STORE);
         params.put("isValid", LocationConstant.IS_VALID);
         return locationDao.getChildrenLocationList(params);
     }
