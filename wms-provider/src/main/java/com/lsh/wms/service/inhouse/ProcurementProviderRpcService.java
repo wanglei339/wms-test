@@ -244,9 +244,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     }
 
     public void scanToLocation(Map<String, Object> params) throws  BizCheckedException {
-        Long taskId = Long.valueOf(params.get("taskId").toString());
         core.inbound(params);
-        taskRpcService.done(taskId);
     }
     public boolean checkPlan(StockTransferPlan plan) throws BizCheckedException {
         StockQuantCondition condition = new StockQuantCondition();
