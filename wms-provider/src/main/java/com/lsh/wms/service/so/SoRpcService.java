@@ -79,7 +79,7 @@ public class SoRpcService implements ISoRpcService {
             //根据ItemId及OwnerUid获取List<BaseinfoItem>
             // TODO: 根据ItemId,OwnerUid获取BaseinfoItem,现在是取List第一个元素,待改进
             List<BaseinfoItem> baseinfoItemList = itemService.getItemsBySkuCode(outbSoHeader.getOwnerUid(),
-                    String.valueOf(outbSoDetail.getItemId()));
+                    outbSoDetail.getSkuCode());
 
             if(baseinfoItemList.size() <=0) {
                 throw new BizCheckedException("2900001");
@@ -87,6 +87,8 @@ public class SoRpcService implements ISoRpcService {
 
             //设置skuId
             outbSoDetail.setSkuId(baseinfoItemList.get(0).getSkuId());
+            //设置itemId
+            outbSoDetail.setItemId(baseinfoItemList.get(0).getItemId());
 
             outbSoDetailList.add(outbSoDetail);
         }

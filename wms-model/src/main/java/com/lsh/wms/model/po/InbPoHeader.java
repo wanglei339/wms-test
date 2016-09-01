@@ -11,6 +11,9 @@ public class InbPoHeader implements Serializable {
     private Long warehouseId;
 	/**采购订单号  */
     private String orderOtherId;
+
+	/**参考订单号  */
+	private String orderOtherRefId;
 	/** 入库订单单号 */
     private Long orderId;
 	/** 采购组 */
@@ -244,5 +247,13 @@ public class InbPoHeader implements Serializable {
 
 	public void setOrderDetails(Object orderDetails) {
 		this.orderDetails = orderDetails;
+	}
+
+	public void setOrderOtherRefId(String orderOtherRefId) {
+		this.orderOtherRefId = orderOtherRefId;
+	}
+
+	public String getOrderOtherRefId() {
+		return orderOtherRefId;
 	}
 }

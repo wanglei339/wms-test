@@ -10,10 +10,13 @@ public class OutbSoDetail implements Serializable {
     private Long id;
 	/** 订单ID */
     private Long orderId;
-	/** 商品ID */
-    private Long itemId;
+	/** 外部商品编码 */
+    private String skuCode;
 	/** 仓库商品编码 */
     private Long skuId;
+	/** 仓库商品ID */
+	private Long itemId;
+
 	/** 商品名称 */
     private String skuName;
 	/** 国条码 */
@@ -47,14 +50,6 @@ public class OutbSoDetail implements Serializable {
 	
 	public void setOrderId(Long orderId){
 		this.orderId = orderId;
-	}
-	
-	public Long getItemId(){
-		return this.itemId;
-	}
-	
-	public void setItemId(Long itemId){
-		this.itemId = itemId;
 	}
 	
 	public Long getSkuId(){
@@ -136,5 +131,20 @@ public class OutbSoDetail implements Serializable {
 	public void setUpdatetime(Date updatetime){
 		this.updatetime = updatetime;
 	}
-	
+
+	public String getSkuCode() {
+		return skuCode;
+	}
+
+	public void setSkuCode(String skuCode) {
+		this.skuCode = skuCode;
+	}
+
+	public Long getItemId() {
+		return itemId;
+	}
+
+	public void setItemId(Long itemId) {
+		this.itemId = itemId;
+	}
 }
