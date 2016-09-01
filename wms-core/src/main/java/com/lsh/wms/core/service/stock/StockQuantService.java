@@ -375,6 +375,17 @@ public class StockQuantService {
         }
         return qty;
     }
+    public BigDecimal getQuantQtyByContainerId(Long containerId) {
+        Map<String,Object> queryMap=new HashMap();
+        queryMap.put("containerId",containerId);
+        this.prepareQuery(queryMap);
+        List<StockQuant> stockQuants=stockQuantDao.getQuants(queryMap);
+        BigDecimal qty=new BigDecimal(0L);
+        for (StockQuant quant:stockQuants){
+            qty = qty.add(quant.getQty());
+        }
+        return qty;
+    }
 
     public Long getSupplierByLocationAndItemId(Long locationId,Long itemId) {
         Set<Long> suppliers=new HashSet<Long>();

@@ -34,6 +34,12 @@ public class KanBanService {
         return taskInfoDao.getKanBanCount(type);
     }
 
+    public List<Map<String,Object>> getKanBanCountByStatus(Long type){
+        return taskInfoDao.getKanBanCountByStatus(type);
+    }
+
+
+
     public List<Map<String, Object>> getPoKanBanCount(Long orderType){
         return inbPoHeaderDao.getPoKanBanCount(orderType);
     }

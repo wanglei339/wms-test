@@ -179,7 +179,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             condition.setLocationId(locationId);
             condition.setSkuId(csiSku.getSkuId());
             List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
-            if (quantList.isEmpty()) {
+            if (quantList == null || quantList.isEmpty()) {
                 throw new BizCheckedException("2550015");
             }
             StockQuant quant = quantList.get(0);

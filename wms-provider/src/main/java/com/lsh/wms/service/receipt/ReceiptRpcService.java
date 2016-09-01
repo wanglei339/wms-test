@@ -133,7 +133,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //根据request中的orderOtherId查询InbPoHeader
         InbPoHeader inbPoHeader = poOrderService.getInbPoHeaderByOrderOtherId(request.getOrderOtherId());
         if (inbPoHeader == null) {
-                throw new BizCheckedException("2020001");
+            throw new BizCheckedException("2020001");
         }
         //判断PO订单类型  虚拟容器,放入退货区
         Integer orderType = inbPoHeader.getOrderType();
@@ -487,6 +487,10 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
                 poOrderService.updateInbPoDetail(inbPoDetail);
             }
+            //返仓单生成移库单之后 将状态改为收货完成
+            inbPoHeader.setOrderStatus(PoConstant.ORDER_RECTIPT_ALL);
+            poOrderService.updateInbPoHeader(inbPoHeader);
+
         }
 
 

@@ -107,11 +107,7 @@ public class ReceiptRestService implements IReceiptRfService {
         if(inbPoHeader == null) {
             throw new BizCheckedException("2020001");
         }
-        //校验之后修改订单状态为收货中 第一次收货将订单改为收货中
-        if(inbPoHeader.getOrderStatus() == PoConstant.ORDER_THROW){
-            inbPoHeader.setOrderStatus(PoConstant.ORDER_RECTIPTING);
-            poOrderService.updateInbPoHeader(inbPoHeader);
-        }
+
 
         for(ReceiptItem receiptItem : receiptRequest.getItems()) {
             if(receiptItem.getProTime() == null) {
@@ -130,7 +126,6 @@ public class ReceiptRestService implements IReceiptRfService {
         }
 
         receiptRequest.setItems(receiptItemList);
-
         iReceiptRpcService.insertOrder(receiptRequest);
         Map<String,Boolean> body = new HashMap<String, Boolean>();
         body.put("response",true);
@@ -170,6 +165,12 @@ public class ReceiptRestService implements IReceiptRfService {
         CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barCode);
         if (null == csiSku || csiSku.getSkuId() == null) {
             throw new BizCheckedException("2020004");
+        }
+
+        //校验之后修改订单状态为收货中 第一次收货将订单改为收货中
+        if(inbPoHeader.getOrderStatus() == PoConstant.ORDER_THROW){
+            inbPoHeader.setOrderStatus(PoConstant.ORDER_RECTIPTING);
+            poOrderService.updateInbPoHeader(inbPoHeader);
         }
         BaseinfoItem baseinfoItem = itemService.getItem(inbPoHeader.getOwnerUid(), csiSku.getSkuId());
 

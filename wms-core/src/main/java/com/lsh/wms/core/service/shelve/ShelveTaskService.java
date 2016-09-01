@@ -35,9 +35,10 @@ public class ShelveTaskService extends BaseTaskService {
     }
 
     @Transactional(readOnly = false)
-    public void assign(Long taskId, Long staffId) {
+    public void assign(Long taskId, Long staffId, Long locationId) {
         ShelveTaskHead taskHead = taskHeadDao.getShelveTaskHeadByTaskId(taskId);
         taskHead.setOperator(staffId);
+        taskHead.setAllocLocationId(locationId);
         taskHead.setUpdatedAt(DateUtils.getCurrentSeconds());
         taskHeadDao.update(taskHead);
     }

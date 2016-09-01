@@ -26,4 +26,6 @@ public interface TaskInfoDao {
 
 	List<Map<String, Object>> getKanBanCount(Long type);
 
+	List<Map<String, Object>> getKanBanCountByStatus(Long type);
+
 }

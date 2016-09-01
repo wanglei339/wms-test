@@ -192,63 +192,68 @@ public class StockTakingRestService implements IStockTakingRestService {
         if(request.getLocationNum()!=0) {
             locationNum = request.getLocationNum();
         }
-        if (request.getItemId() == 0 && request.getSupplierId() == 0 && request.getAreaId() == 0 && request.getStorageId() == 0) {
-            BaseinfoLocation location = locationService.getWarehouseLocation();
-            locationList = locationService.getStoreLocationIds(location.getLocationId());
-        } else {
 
-            //库区，货架得到库位
-            if (request.getAreaId() != 0 && request.getStorageId() == 0) {
-                //根据库区得出库位
-                locationList = this.getBinByWarehouseId(request.getAreaId());
-            } else if (request.getStorageId() != 0) {
-                //根据货架得出库位
-                locationList = this.getBinByShelf(request.getStorageId());
-            }
 
-            //商品,供应商得到库位
-            Map<String,Object> queryMap =new HashMap<String, Object>();
-            if(request.getSupplierId().compareTo(0L)!=0) {
-                queryMap.put("supplierId", request.getSupplierId());
+        //库区，货架得到库位
+        if (request.getAreaId() != 0 && request.getStorageId() == 0) {
+            //根据库区得出库位
+            locationList = this.getBinByWarehouseId(request.getAreaId());
+            if(locationList!=null && locationList.size()==0){
+                locationList.add(request.getAreaId());
             }
-            if(request.getItemId().compareTo(0L)!=0) {
-                queryMap.put("itemId", request.getItemId());
-            }
-            List<StockQuant>quantList = quantService.getQuants(queryMap);
-            Set<Long> locationSet =new HashSet<Long>();
-            for(StockQuant quant:quantList){
-                if(quant.getLocationId()!=null) {
-                    locationSet.add(quant.getLocationId());
-                }
-            }
-            if(locationList!=null && locationList.size()!=0){
-                locationList.retainAll(new ArrayList<Long>(locationSet));
-            }else {
-                locationList =new ArrayList<Long>(locationSet);
-            }
+        } else if (request.getStorageId() != 0) {
+            //根据货架得出库位
+            locationList = this.getBinByShelf(request.getStorageId());
         }
 
-        if (locationList.size() < locationNum ) {
-            locationNum = locationList.size();
+        //商品,供应商得到库位
+        Map<String,Object> queryMap =new HashMap<String, Object>();
+        if(request.getSupplierId().compareTo(0L)!=0) {
+            queryMap.put("supplierId", request.getSupplierId());
         }
-        long[] locations = new long[locationNum];
+        if(request.getItemId().compareTo(0L)!=0) {
+            queryMap.put("itemId", request.getItemId());
+        }
+        List<StockQuant>quantList = quantService.getQuants(queryMap);
+        Set<Long> locationSet =new HashSet<Long>();
+        for(StockQuant quant:quantList){
+            if(quant.getLocationId()!=null) {
+                locationSet.add(quant.getLocationId());
+            }
+        }
+        if(locationList!=null ){
+            locationList.retainAll(new ArrayList<Long>(locationSet));
+        }else {
+            locationList =new ArrayList<Long>(locationSet);
+        }
+
+        List<Long> locations = new ArrayList<Long>();
         int i=0;
-        while (i<locations.length){
+        while (i<locationNum){
+            if(locationList.size()==0){
+                break;
+            }
+
             // 取出一个随机数
             int r = (int) (Math.random() * locationList.size());
             Long locationId = locationList.get(r);
+
+            // 排除已经取过的值
+            locationList.remove(r);
+
             //过滤掉区的上一层
             if(locationId.compareTo(0L)==0 ||locationId.compareTo(1L)==0 || locationId.compareTo(2L)==0){
-                // 排除已经取过的值
-                locationList.remove(r);
                 continue;
             }
             BaseinfoLocation location = locationService.getFatherByClassification(locationId);
-            if(location.getType().compareTo(LocationConstant.SHELFS)==0 ||location.getType().compareTo(LocationConstant.LOFTS)==0  ||location.getType().compareTo(LocationConstant.SPLIT_AREA)==0 ||location.getType().compareTo(LocationConstant.FLOOR)==0)
-            locations[i] = locationList.get(r);
-            // 排除已经取过的值
-            locationList.remove(r);
-            i++;
+            if(location==null){
+                continue;
+            }
+            //是阁楼区，货架区，存捡一体区，地堆区
+            if(location.getType().compareTo(LocationConstant.SHELFS)==0 ||location.getType().compareTo(LocationConstant.LOFTS)==0  ||location.getType().compareTo(LocationConstant.SPLIT_AREA)==0 ||location.getType().compareTo(LocationConstant.FLOOR)==0) {
+                locations.add(locationId);
+                i++;
+            }
         }
 
         return JsonUtils.SUCCESS(locations);

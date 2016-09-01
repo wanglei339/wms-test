@@ -14,10 +14,12 @@ import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRestService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.shelve.ShelveTaskService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoStaffInfo;
 import com.lsh.wms.model.shelve.ShelveTaskHead;
 import com.lsh.wms.model.stock.StockQuant;
@@ -52,6 +54,8 @@ public class ShelveRestService implements IShelveRestService {
     private StockQuantService stockQuantService;
     @Autowired
     private ShelveTaskService shelveTaskService;
+    @Autowired
+    private LocationService locationService;
 
     private Long taskType = TaskConstant.TYPE_SHELVE;
 
@@ -136,9 +140,18 @@ public class ShelveRestService implements IShelveRestService {
         if (taskId == null && baseTaskService.checkTaskByContainerId(containerId)) {
             throw new BizCheckedException("2030008");
         }
+
+        TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
+        if(entry.getTaskInfo().getType().compareTo(TaskConstant.TYPE_SHELVE)!=0){
+            return JsonUtils.TOKEN_ERROR("任务类型不匹配");
+        }
+
         iTaskRpcService.assign(taskId, staffId);
         ShelveTaskHead taskHead = shelveTaskService.getShelveTaskHead(taskId);
-        return JsonUtils.SUCCESS(taskHead);
+        BaseinfoLocation allocLocation = locationService.getLocation(taskHead.getAllocLocationId());
+        Map<String, Object> result = BeanMapTransUtils.Bean2map(taskHead);
+        result.put("allocLocationCode", allocLocation.getLocationCode());
+        return JsonUtils.SUCCESS(result);
     }
 
     /**
@@ -179,7 +192,7 @@ public class ShelveRestService implements IShelveRestService {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long staffId = Long.valueOf(mapQuery.get("operator").toString());
         List<TaskInfo> taskInfos = baseTaskService.getAssignedTaskByOperator(staffId, TaskConstant.TYPE_SHELVE);
-        if (taskInfos.isEmpty() || taskInfos == null) {
+        if ( taskInfos == null || taskInfos.isEmpty() ) {
             return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                 {
                     put("response", false);

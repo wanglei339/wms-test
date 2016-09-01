@@ -40,5 +40,11 @@ public class KanBanRestService implements IKanBanRestService {
         return JsonUtils.SUCCESS(kanBanRpcService.getPoDetailKanBanCount(orderType));
     }
 
+    @GET
+    @Path("getKanBanCountByStatus")
+    public String getKanBanCountByStatus(@QueryParam("type") Long type) {
+        return JsonUtils.SUCCESS(kanBanRpcService.getKanBanCountByStatus(type));
+    }
+
 
 }

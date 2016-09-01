@@ -44,4 +44,23 @@ public class RedisKeyConstant {
     public static final String MD_VIDEO_INFO = "md:video:info:{0}";
     public static final String MD_IMAGE_INFO = "md:image:info:{0}";
 
+    /**
+     * so单库存占用redis key sort set
+     */
+
+    public static final String SO_SKU_INVENTORY_QTY = "so:sku:{0}:qty";
+    /**
+     * po单库存占用redis key   sort set
+     */
+
+    public static final String PO_SKU_INVENTORY_QTY = "po:sku:{0}:qty";
+
+
+    /**
+     * 库内库存占用redis key   sort set
+     */
+
+    public static final String WAREHOUSE_SKU_INVENTORY_QTY = "warehouse:{0}:sku:{1}:qty";
+
+
 }

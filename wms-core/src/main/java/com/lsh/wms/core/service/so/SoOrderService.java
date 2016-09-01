@@ -35,6 +35,9 @@ public class SoOrderService {
     @Autowired
     private OutbSoDetailDao outbSoDetailDao;
 
+    @Autowired
+    private SoOrderRedisService soOrderRedisService;
+
     /**
      * 插入OutbSoHeader及OutbSoDetail
      * @param outbSoHeader
@@ -50,6 +53,7 @@ public class SoOrderService {
             outbSoDetail.setOrderId(outbSoHeader.getOrderId());
         }
         outbSoDetailDao.batchInsert(outbSoDetailList);
+        soOrderRedisService.insertSoRedis(outbSoHeader,outbSoDetailList);
     }
 
     /**

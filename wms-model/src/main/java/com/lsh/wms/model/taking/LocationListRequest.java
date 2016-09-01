@@ -12,7 +12,7 @@ public class LocationListRequest implements Serializable {
     /** 商品id */
     private Long itemId = 0L;
     /** 库区id */
-    private Long AreaId = 0L;
+    private Long areaId = 0L;
     /**供应商id */
     private Long supplierId = 0L;
     /** 货架id */
@@ -28,16 +28,18 @@ public class LocationListRequest implements Serializable {
         this.itemId = itemId;
     }
 
-    public Long getAreaId() {
-        return AreaId;
-    }
 
-    public void setAreaId(Long areaId) {
-        AreaId = areaId;
-    }
 
     public Long getSupplierId() {
         return supplierId;
+    }
+
+    public Long getAreaId() {
+        return areaId;
+    }
+
+    public void setAreaId(Long areaId) {
+        this.areaId = areaId;
     }
 
     public void setSupplierId(Long supplierId) {
@@ -66,7 +68,7 @@ public class LocationListRequest implements Serializable {
     public LocationListRequest(Long itemId, Long supplierId, Long areaId, Long storageId, int locationNum) {
         this.itemId = itemId;
         this.supplierId = supplierId;
-        AreaId = areaId;
+        this.areaId = areaId;
         this.storageId = storageId;
         this.locationNum = locationNum;
     }

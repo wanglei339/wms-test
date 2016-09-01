@@ -186,6 +186,9 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             }
             TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
             TaskInfo info = entry.getTaskInfo();
+            if(info.getType().compareTo(TaskConstant.TYPE_PICK_UP_SHELVE)!=0){
+                return JsonUtils.TOKEN_ERROR("任务类型不匹配");
+            }
             if (info.getOperator().compareTo(user.getStaffId()) != 0 && baseTaskService.checkTaskByContainerId(containerId)) {
                 return JsonUtils.TOKEN_ERROR("该上架任务已被人领取");
             }
@@ -202,7 +205,10 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             map.put("packName", info.getPackName());
             return JsonUtils.SUCCESS(map);
         }else {
-
+            TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
+            if(entry.getTaskInfo().getType().compareTo(TaskConstant.TYPE_PICK_UP_SHELVE)!=0){
+                return JsonUtils.TOKEN_ERROR("任务类型不匹配");
+            }
             Map result = this.getResultMap(taskId);
             if (result == null) {
                 return JsonUtils.TOKEN_ERROR("阁楼上架库存异常 ");
@@ -226,7 +232,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
     public String restore() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long uId=0L;
-        Long containerId = 0L;
+       // Long containerId = 0L;
         Long taskId = 0L;
         try {
             uId = Long.valueOf(mapQuery.get("uId").toString());
@@ -310,7 +316,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         AtticShelveTaskDetail detail = shelveTaskService.getShelveTaskDetail(taskId,TaskConstant.Draft);
         //判断扫描库位是不是存储合一库位
         if(realLocation.getType().compareTo(LocationConstant.SPLIT_SHELF_BIN)==0 ){
-            if(locationService.checkLocationUseStatus(realLocationId) ){
+            if(locationService.checkLocationUseStatus(realLocationId) && realLocationId.compareTo(detail.getAllocLocationId())!=0){
                 return JsonUtils.TOKEN_ERROR("扫描库位已被占用");
             }
 
