@@ -64,13 +64,14 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
         return baseinfoLocationList;
     }
 
-    public boolean insertLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException {
+    public BaseinfoLocation insertLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException {
         try {
             //一个通道只能插入两个货架子,加入校验判断
             if (baseinfoLocation.getClassification().equals(LocationConstant.LOFT_SHELF)) {
                 Map<String, Object> mapQuery = new HashMap<String, Object>();
                 mapQuery.put("fatherId", baseinfoLocation.getFatherId());
-                if (locationService.getBaseinfoLocationList(mapQuery).size() >= 2) {
+                int size = locationService.getBaseinfoLocationList(mapQuery).size();
+                if (size >= 2) {
                     //一个通道放两个以上的货架是不可以的
                     throw new BizCheckedException("2180006");
                 }
@@ -80,12 +81,12 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return false;
+            return baseinfoLocation;
         }
-        return true;
+        return baseinfoLocation;
     }
 
-    public boolean updateLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException {
+    public BaseinfoLocation updateLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException {
         if (locationDetailService.getIBaseinfoLocaltionModelById(baseinfoLocation.getLocationId()) == null) {
             throw new BizCheckedException("2180001");
         }
@@ -93,9 +94,9 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
             locationDetailService.update(baseinfoLocation);
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return false;
+            return baseinfoLocation;
         }
-        return true;
+        return baseinfoLocation;
     }
 
     public Integer countLocationDetailByType(Map<String, Object> mapQuery) throws BizCheckedException {

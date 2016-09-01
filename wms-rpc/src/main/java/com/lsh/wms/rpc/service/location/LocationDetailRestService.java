@@ -129,7 +129,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         IBaseinfoLocaltionModel localtionModel = locationDetailRpcService.getLocationDetailById(id);
         BaseinfoLocation fatherLocation = locationRpcService.getFatherLocation(id);
         LocationDetailResponse detailResponse = new LocationDetailResponse();
-        ObjUtils.bean2bean(localtionModel,detailResponse);
+        ObjUtils.bean2bean(localtionModel, detailResponse);
         //设置fathe的回显示
         detailResponse.setFatherLocation(fatherLocation);
         return JsonUtils.SUCCESS(detailResponse);
@@ -143,13 +143,8 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         //转成子类
         ObjUtils.bean2bean(request, iBaseinfoLocaltionModel);
         //插入是否成功
-        boolean isTrue = locationDetailRpcService.insertLocationDetailByType((BaseinfoLocation) iBaseinfoLocaltionModel);
-        if (isTrue){
-            return JsonUtils.SUCCESS("插入成功");
-        }else {
-            //原位置已经存在
-            return JsonUtils.EXCEPTION_ERROR("insertError");
-        }
+        return JsonUtils.SUCCESS(locationDetailRpcService.insertLocationDetailByType((BaseinfoLocation) iBaseinfoLocaltionModel));
+
     }
 
 
@@ -163,12 +158,8 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         //添加更新时间
         long updatedAt = DateUtils.getCurrentSeconds();
         iBaseinfoLocaltionModel.setUpdatedAt(updatedAt);
-        boolean isTrue = locationDetailRpcService.updateLocationDetailByType((BaseinfoLocation) iBaseinfoLocaltionModel);
-        if (isTrue){
-            return JsonUtils.SUCCESS("更新成功");
-        } else {
-            return JsonUtils.EXCEPTION_ERROR("updateError");
-        }
+        return JsonUtils.SUCCESS(locationDetailRpcService.updateLocationDetailByType((BaseinfoLocation) iBaseinfoLocaltionModel));
+
     }
 
 
@@ -184,7 +175,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     public String searchList() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
         List<BaseinfoLocation> locations = locationDetailRpcService.getLocationDetailList(params);
-        if (locations==null){
+        if (locations == null) {
             throw new BizCheckedException("2180001");   // 位置不存在
         }
         return JsonUtils.SUCCESS(locations);
@@ -211,6 +202,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
 
     /**
      * 按照指定的获取list的方法
+     *
      * @return 全大区、全功能区、全货架阁楼、全货架阁楼区、全通道
      * @throws BizCheckedException
      */
@@ -222,12 +214,13 @@ public class LocationDetailRestService implements ILocationDetailRestService {
 
     /**
      * 获取下一层的所有节点
+     *
      * @param locationId
      * @return
      */
     @GET
     @Path("getNextLevelLocations")
-    public String getNextLevelLocations(@QueryParam("locationId") Long locationId) throws BizCheckedException{
+    public String getNextLevelLocations(@QueryParam("locationId") Long locationId) throws BizCheckedException {
         return JsonUtils.SUCCESS(locationDetailRpcService.getNextLevelLocations(locationId));
     }
 }

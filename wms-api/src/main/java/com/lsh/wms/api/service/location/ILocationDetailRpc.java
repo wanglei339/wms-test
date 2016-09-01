@@ -18,9 +18,9 @@ public interface ILocationDetailRpc {
 
     public List<BaseinfoLocation> getLocationDetailList(Map<String, Object> params) throws BizCheckedException;
 
-    public boolean insertLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException;
+    public BaseinfoLocation insertLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException;
 
-    public boolean updateLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException;
+    public BaseinfoLocation updateLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException;
 
     public Integer countLocationDetailByType(Map<String, Object> mapQuery) throws BizCheckedException;
 
