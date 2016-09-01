@@ -3,6 +3,7 @@ package com.lsh.wms.rpc.service.location;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.service.location.ILocationDetailRpc;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.LocationDetailService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -64,9 +66,20 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
 
     public boolean insertLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException {
         try {
+            //一个通道只能插入两个货架子,加入校验判断
+            if (baseinfoLocation.getClassification().equals(LocationConstant.LOFT_SHELF)) {
+                Map<String, Object> mapQuery = new HashMap<String, Object>();
+                mapQuery.put("fatherId", baseinfoLocation.getFatherId());
+                if (locationService.getBaseinfoLocationList(mapQuery).size() >= 2) {
+                    //一个通道放两个以上的货架是不可以的
+                    throw new BizCheckedException("2180006");
+                }
+            }
             locationDetailService.insert(baseinfoLocation);
+        } catch (BizCheckedException e) {
+            throw e;
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getMessage());
             return false;
         }
         return true;
@@ -79,13 +92,13 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
         try {
             locationDetailService.update(baseinfoLocation);
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getMessage());
             return false;
         }
         return true;
     }
 
-    public Integer countLocationDetailByType(Map<String, Object> mapQuery) throws BizCheckedException{
+    public Integer countLocationDetailByType(Map<String, Object> mapQuery) throws BizCheckedException {
         if (mapQuery.get("dockApplication") != null) {
             return locationDetailService.countDockList(mapQuery);
         }
@@ -98,7 +111,7 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
                 locationService.removeLocationAndChildren(locationId);
                 return true;
             } catch (Exception e) {
-                logger.error(e.getCause().getMessage());
+                logger.error(e.getMessage());
                 return false;
             }
         } else {
@@ -122,10 +135,11 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
 
     /**
      * 获取下一层级的所有节点
+     *
      * @param locationId
      * @return
      */
-    public List<BaseinfoLocation> getNextLevelLocations(Long locationId) throws BizCheckedException{
+    public List<BaseinfoLocation> getNextLevelLocations(Long locationId) throws BizCheckedException {
         return locationRpcService.getNextLevelLocations(locationId);
     }
 }

@@ -51,7 +51,10 @@ public class LocationService {
      * @param locationId 位置序列号
      * @return BaseinfoLocation
      */
-    public BaseinfoLocation getLocation(Long locationId) {
+    public BaseinfoLocation getLocation(Long locationId) throws BizCheckedException {
+        if (null == locationId) {
+            throw new BizCheckedException("2180001");
+        }
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("locationId", locationId);
         params.put("isValid", LocationConstant.IS_VALID);

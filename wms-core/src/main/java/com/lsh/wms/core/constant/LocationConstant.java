@@ -73,6 +73,10 @@ public class LocationConstant {
     //是否能存储
     public static final Integer CAN_STORE = 1;
     public static final Integer CANNOT_STORE = 0;
+    //是否继续使用
+    public static final Integer CAN_USE = 1;
+    public static final Integer CANNOT_USE = 2;
+
 
     //区域(主要是返仓)的货主配置
     public static final Long OWER_WUMARKET = 1L;  //物美
@@ -96,7 +100,7 @@ public class LocationConstant {
     public static final Integer DOCK_OUT = 2; //出库码头
 
 
-    //设置库位和库区的区别项
+    //设置库位和库区的区别项classification
 
     public static final Integer REGION_TYPE = 1; //库区
     public static final Integer BIN_TYPE = 2;    //库位
@@ -106,6 +110,10 @@ public class LocationConstant {
     //位置是否删除
     public static final Integer IS_VALID = 1;
     public static final Integer NOT_VALID = 0;
+    //是否上锁
+    public static final Integer IS_LOCKED=1;
+    public static final Integer UNLOCK=0;
+
 
     // location_id划分相关
     public static final Integer CHILDREN_RANGE = 128; //每个节点的子节点数
