@@ -118,11 +118,6 @@ public class ShelveTaskHandler extends AbsTaskHandler {
             throw new BizCheckedException("2030001");
         }
         StockQuant quant = quants.get(0);
-        // 获取目标location
-        BaseinfoLocation targetLocation = iShelveRpcService.assginShelveLocation(container, taskEntry.getTaskInfo().getSubType(), taskId);
-        if (targetLocation == null) {
-            throw new BizCheckedException("2030005");
-        }
         Long lotId = quant.getLotId();
         // 获取批次信息
         StockLot stockLot = stockLotService.getStockLotByLotId(lotId);
@@ -132,10 +127,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         taskHead.setOwnerId(quant.getOwnerId());
         taskHead.setLotId(lotId);
         taskHead.setSupplierId(quant.getSupplierId());
-        taskHead.setAllocLocationId(targetLocation.getLocationId());
         taskService.create(taskHead);
-        // 锁location
-        locationService.lockLocation(targetLocation.getFatherId());
     }
 
     public void assignConcrete(Long taskId, Long staffId) throws BizCheckedException{
@@ -144,7 +136,16 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         if (taskHead == null) {
             throw new BizCheckedException("2030009");
         }
-        taskService.assign(taskId, staffId);
+        Long containerId = taskHead.getContainerId();
+        BaseinfoContainer container = containerService.getContainer(containerId);
+        // 获取目标location
+        BaseinfoLocation targetLocation = iShelveRpcService.assginShelveLocation(container, taskInfo.getSubType(), taskId);
+        if (targetLocation == null) {
+            throw new BizCheckedException("2030005");
+        }
+        taskService.assign(taskId, staffId, targetLocation.getLocationId());
+        // 锁location
+        locationService.lockLocation(targetLocation.getFatherId());
         // move到仓库location_id
         iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, taskInfo.getFromLocationId(), locationService.getWarehouseLocationId());
     }

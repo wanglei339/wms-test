@@ -9,9 +9,11 @@ import com.lsh.wms.model.so.OutbSoHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Project Name: lsh-wms
@@ -40,6 +42,11 @@ public class SoOrderRedisService {
     public void delSoRedis(Long orderId,Long skuId){
         String redistKey = StrUtils.formatString(RedisKeyConstant.SO_SKU_INVENTORY_QTY, skuId);
         redisSortedSetDao.remove(redistKey,orderId.toString());
+    }
+
+    public Set<ZSetOperations.TypedTuple<String>> getSoSkuQty(Long skuId){
+        String redistKey = StrUtils.formatString(RedisKeyConstant.SO_SKU_INVENTORY_QTY, skuId);
+        return  redisSortedSetDao.rangeWithScores(redistKey,0,-1);
     }
 
 }

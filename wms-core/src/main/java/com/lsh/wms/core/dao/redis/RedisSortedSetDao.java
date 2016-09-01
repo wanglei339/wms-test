@@ -32,6 +32,13 @@ public class RedisSortedSetDao extends RedisBaseDao {
         return zSetOp_r.range(key, start, stop);
     }
 
+    public Set<ZSetOperations.TypedTuple<String>> rangeWithScores(String key, long start, long stop) {
+        if (StringUtils.isBlank(key)) {
+            return null;
+        }
+        return zSetOp_r.rangeWithScores(key, start, stop);
+    }
+
     /**
      * 返回个数
      * @param key
