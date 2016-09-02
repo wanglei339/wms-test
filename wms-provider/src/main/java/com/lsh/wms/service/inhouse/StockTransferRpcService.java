@@ -429,8 +429,56 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         }
     }
 
-    public void createStockTransfer() throws BizCheckedException{
+    public void createStockTransfer() throws BizCheckedException {
         this.createScrap();
         this.createReturn();
+    }
+
+    public Long allocateToLocationId(StockQuant quant) throws BizCheckedException {
+        Long locationId = quant.getLocationId();
+        BaseinfoLocation location = locationService.getLocation(locationId);
+        if (location == null ){
+            throw new BizCheckedException("2060012");
+        }
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("canStore", LocationConstant.CAN_STORE);
+        params.put("isValid", LocationConstant.IS_VALID);
+        params.put("canUse", LocationConstant.CAN_USE);
+        params.put("isLocked", LocationConstant.UNLOCK);
+        params.put("type", LocationConstant.SHELF_STORE_BIN);
+        List <BaseinfoLocation> shelfLocationList = locationService.getBaseinfoLocationList(params);
+        if (shelfLocationList != null && !shelfLocationList.isEmpty()) {
+            shelfLocationList.remove(location);
+        }
+        params.put("type", LocationConstant.LOFT_STORE_BIN);
+        List <BaseinfoLocation> loftLocationList = locationService.getBaseinfoLocationList(params);
+        if (loftLocationList != null && !loftLocationList.isEmpty()) {
+            loftLocationList.remove(location);
+            shelfLocationList.addAll(loftLocationList);
+        }
+        StockQuantCondition condition = new StockQuantCondition();
+        condition.setItemId(quant.getItemId());
+        condition.setLotId(quant.getLotId());
+        condition.setLocationList(shelfLocationList);
+        List<StockQuant> quantList = stockQuantService.getQuantList(condition);
+        // find empty location
+        if (quantList == null || quantList.isEmpty()) {
+            params.put("curContainerVol", 0L);
+            loftLocationList = locationService.getBaseinfoLocationList(params);
+            if (loftLocationList != null && !loftLocationList.isEmpty()) {
+                loftLocationList.remove(location);
+            }
+            params.put("type", LocationConstant.SHELF_STORE_BIN);
+            shelfLocationList = locationService.getBaseinfoLocationList(params);
+            if (shelfLocationList != null && !shelfLocationList.isEmpty()) {
+                shelfLocationList.remove(location);
+                loftLocationList.addAll(shelfLocationList);
+            }
+            if (loftLocationList == null || loftLocationList.isEmpty()) {
+                return 0L;
+            }
+            return loftLocationList.get(0).getLocationId();
+        }
+        return quantList.get(0).getLocationId();
     }
 }
