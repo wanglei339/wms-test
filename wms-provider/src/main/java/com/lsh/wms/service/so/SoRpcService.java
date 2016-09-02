@@ -96,12 +96,12 @@ public class SoRpcService implements ISoRpcService {
         //插入订单
         soOrderService.insertOrder(outbSoHeader, outbSoDetailList);
 
-        TaskEntry taskEntry = new TaskEntry();
-        TaskInfo taskInfo = new TaskInfo();
-        taskInfo.setType(TaskConstant.TYPE_PICK);
-        taskInfo.setOrderId(outbSoHeader.getOrderId());
-        taskEntry.setTaskInfo(taskInfo);
-        iTaskRpcService.create(TaskConstant.TYPE_PICK,taskEntry);
+//        TaskEntry taskEntry = new TaskEntry();
+//        TaskInfo taskInfo = new TaskInfo();
+//        taskInfo.setType(TaskConstant.TYPE_PICK);
+//        taskInfo.setOrderId(outbSoHeader.getOrderId());
+//        taskEntry.setTaskInfo(taskInfo);
+//        iTaskRpcService.create(TaskConstant.TYPE_PICK,taskEntry);
 
     }
 
