@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
 
 /**
  * Created by mali on 16/8/2.
@@ -23,6 +24,6 @@ public class ProcurementService extends AbsTaskHandler {
     }
 
     public void calcPerformance(TaskInfo taskInfo) {
-        taskInfo.setTaskQty(taskInfo.getQty().divide(taskInfo.getPackUnit()));
+        taskInfo.setTaskQty(taskInfo.getQty());
     }
 }
