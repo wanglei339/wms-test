@@ -50,7 +50,8 @@ public class StockTakingService {
             detail.setUpdatedAt(DateUtils.getCurrentSeconds());
         }
         detailDao.batchInsert(detailList);
-    }@Transactional (readOnly = false)
+    }
+    @Transactional (readOnly = false)
      public void insertDetail(StockTakingDetail detail) {
         detail.setCreatedAt(DateUtils.getCurrentSeconds());
         detail.setUpdatedAt(DateUtils.getCurrentSeconds());
