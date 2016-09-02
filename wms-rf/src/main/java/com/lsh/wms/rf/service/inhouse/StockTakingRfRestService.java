@@ -85,6 +85,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
     public String doOne() throws BizCheckedException {
         //Long taskId,int qty,String barcode
         Map request = RequestUtils.getRequest();
+        List<StockTakingDetail> insertDetails = new ArrayList<StockTakingDetail>();
         JSONObject object = null;
         Long taskId = 0L;
         List<Map> resultList = null;
@@ -111,19 +112,25 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
                     detail.setUpdatedAt(DateUtils.getCurrentSeconds());
                     stockTakingService.updateDetail(detail);
                 } else {
-                    CsiSku csiSku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode.toString());
-                    StockTakingDetail newDetail = new StockTakingDetail();
-                    newDetail.setRealQty(realQty);
-                    newDetail.setTakingId(task.getTakingId());
-                    newDetail.setTaskId(taskId);
-                    newDetail.setRealSkuId(csiSku.getSkuId());
-                    newDetail.setSkuId(csiSku.getSkuId());
-                    newDetail.setLocationId(detail.getLocationId());
-                    newDetail.setContainerId(detail.getContainerId());
-                    newDetail.setRound(detail.getRound());
-                    stockTakingService.insertDetail(newDetail);
+                    try {
+                        CsiSku csiSku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode.toString());
+                        StockTakingDetail newDetail = new StockTakingDetail();
+                        newDetail.setRealQty(realQty);
+                        newDetail.setTakingId(task.getTakingId());
+                        newDetail.setTaskId(taskId);
+                        newDetail.setRealSkuId(csiSku.getSkuId());
+                        newDetail.setSkuId(csiSku.getSkuId());
+                        newDetail.setLocationId(detail.getLocationId());
+                        newDetail.setContainerId(detail.getContainerId());
+                        newDetail.setRound(detail.getRound());
+                        insertDetails.add(newDetail);
+                    }catch (Exception e){
+                        return JsonUtils.TOKEN_ERROR("国条:"+barcode.toString()+"在仓库无记录");
+                    }
                 }
             }
+            stockTakingService.insertDetailList(insertDetails);
+
         }
 
         iTaskRpcService.done(taskId);

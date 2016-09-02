@@ -24,6 +24,6 @@ public class ProcurementService extends AbsTaskHandler {
     }
 
     public void calcPerformance(TaskInfo taskInfo) {
-        taskInfo.setTaskQty(taskInfo.getQty());
+        taskInfo.setTaskQty(taskInfo.getQtyDone());
     }
 }
