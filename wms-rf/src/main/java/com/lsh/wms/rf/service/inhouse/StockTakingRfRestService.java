@@ -169,10 +169,9 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         if(user==null){
             return JsonUtils.TOKEN_ERROR("用户不存在");
         }
-        Long staffId = user.getStaffId();
         Map<String,Object> statusQueryMap = new HashMap();
         statusQueryMap.put("status",TaskConstant.Assigned);
-        statusQueryMap.put("operator", staffId);
+        statusQueryMap.put("operator", uId);
 
         List<TaskEntry> list = iTaskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TAKING, statusQueryMap);
         if(list!=null && list.size()!=0){
@@ -220,7 +219,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
                 for(TaskEntry tmp:entryList){
                     chageMap.put(tmp.getTaskInfo().getOperator(),1);
                 }
-                if(!chageMap.containsKey(staffId)){
+                if(!chageMap.containsKey(uId)){
                     info = entry.getTaskInfo();
                     break;
                 }
@@ -253,7 +252,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             }
             taskList.add(task);
         }
-        iTaskRpcService.batchAssign(TaskConstant.TYPE_STOCK_TAKING, taskIdList, staffId);
+        iTaskRpcService.batchAssign(TaskConstant.TYPE_STOCK_TAKING, taskIdList, uId);
         result.put("taskList",taskList);
         return JsonUtils.SUCCESS(result);
     }

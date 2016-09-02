@@ -19,6 +19,7 @@ import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
+import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
@@ -88,11 +89,12 @@ public class StockTransferCore {
     }
 
     public void outbound(Map<String, Object> params) throws BizCheckedException {
-        Long staffId = 0L;
+        Long uid = 0L;
         Long taskId = Long.valueOf(params.get("taskId").toString());
         Long fromLocationId = Long.valueOf(params.get("locationId").toString());
         try {
-            staffId= iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getStaffId();
+            SysUser user = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString()));
+            uid=user.getUid();
         }catch (Exception e){
             throw new BizCheckedException("2550013");
         }
@@ -100,7 +102,7 @@ public class StockTransferCore {
         if (taskEntry == null) {
             throw new BizCheckedException("2550005");
         }
-        if (!taskEntry.getTaskInfo().getOperator().equals(staffId)) {
+        if (!taskEntry.getTaskInfo().getOperator().equals(uid)) {
             throw new BizCheckedException("2550031");
         }
         StockQuantCondition condition = new StockQuantCondition();
@@ -126,7 +128,7 @@ public class StockTransferCore {
         Long containerId = taskInfo.getContainerId();
         Long toLocationId = locationService.getWarehouseLocationId();
         if (taskInfo.getSubType().compareTo(1L)==0) {
-            moveRpcService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
+            moveRpcService.moveWholeContainer(containerId, taskId, uid, fromLocationId, toLocationId);
         } else {
             BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString());
             if (qtyDone.compareTo(BigDecimal.ZERO) <= 0) {
@@ -155,11 +157,12 @@ public class StockTransferCore {
     }
 
     public void inbound(Map<String,Object> params) throws BizCheckedException {
-        Long staffId = 0L;
+        Long uid = 0L;
         Long taskId = Long.valueOf(params.get("taskId").toString());
         Long toLocationId = Long.valueOf(params.get("locationId").toString());
         try {
-            staffId= iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getStaffId();
+            SysUser user= iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString()));
+            uid = user.getUid();
         }catch (Exception e){
             throw new BizCheckedException("2550013");
         }
@@ -167,7 +170,7 @@ public class StockTransferCore {
         if (taskEntry == null) {
             throw new BizCheckedException("2550005");
         }
-        if (!taskEntry.getTaskInfo().getOperator().equals(staffId)) {
+        if (!taskEntry.getTaskInfo().getOperator().equals(uid)) {
             throw new BizCheckedException("2550031");
         }
         TaskInfo taskInfo = taskEntry.getTaskInfo();
@@ -177,7 +180,7 @@ public class StockTransferCore {
         Long containerId = taskInfo.getContainerId();
         Long fromLocationId = locationService.getWarehouseLocationId();
         if (taskInfo.getSubType().compareTo(1L)==0) {
-            moveRpcService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
+            moveRpcService.moveWholeContainer(containerId, taskId, uid, fromLocationId, toLocationId);
         } else {
             BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString());
             if (qtyDone.compareTo(BigDecimal.ZERO) <= 0) {

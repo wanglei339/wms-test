@@ -13,6 +13,7 @@ import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import org.slf4j.Logger;
@@ -188,16 +189,19 @@ public class ProcurementRestService implements IProcurementRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String fetchTask() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
-        Long staffId = 0L;
+        Long uid = 0L;
         try {
-            Long uid = Long.valueOf(params.get("uId").toString());
-            staffId = iSysUserRpcService.getSysUserById(uid).getStaffId();
+            uid = Long.valueOf(params.get("uId").toString());
         }catch (Exception e){
             return JsonUtils.TOKEN_ERROR("违法的账户");
         }
+        SysUser user = iSysUserRpcService.getSysUserById(uid);
+        if(user==null){
+            return JsonUtils.TOKEN_ERROR("用户不存在");
+        }
         Map<String,Object> queryMap = new HashMap<String, Object>();
-        queryMap.put("operator",staffId);
-        queryMap.put("status",2L);
+        queryMap.put("operator",uid);
+        queryMap.put("status",TaskConstant.Assigned);
         List<TaskEntry> entries = iTaskRpcService.getTaskList(TaskConstant.TYPE_PROCUREMENT, queryMap);
         if(entries!=null && entries.size()!=0){
             TaskEntry entry = entries.get(0);
@@ -241,7 +245,7 @@ public class ProcurementRestService implements IProcurementRestService {
                 });
             }
         }
-        final Long taskId = rpcService.assign(staffId);
+        final Long taskId = rpcService.assign(uid);
         if(taskId.compareTo(0L)==0) {
             return JsonUtils.TOKEN_ERROR("无补货任务可领");
         }
