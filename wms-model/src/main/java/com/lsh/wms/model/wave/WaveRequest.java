@@ -3,6 +3,7 @@ package com.lsh.wms.model.wave;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by lixin-mac on 16/7/18.
@@ -59,18 +60,18 @@ public class WaveRequest implements Serializable {
         this.waveName = waveName;
     }
 
-    private List<Long> orderIds = null;
+    private List<Map> orders = null;
 
-    public List<Long> getOrderIds() {
-        return orderIds;
+    public List<Map> getOrders() {
+        return orders;
     }
 
-    public void setOrderIds(List<Long> orderIds) {
-        this.orderIds = orderIds;
+    public void setOrders(List<Map> orders) {
+        this.orders = orders;
     }
 
-    public WaveRequest(List<Long> orderIds, Long status, String waveName, String waveSource, Long waveTemplateId, Long waveType) {
-        this.orderIds = orderIds;
+    public WaveRequest(List<Map> orders, Long status, String waveName, String waveSource, Long waveTemplateId, Long waveType) {
+        this.orders = orders;
         this.status = status;
         this.waveName = waveName;
         this.waveSource = waveSource;

@@ -120,7 +120,7 @@ public class WaveCore {
         //标记成功,这里有风险,就是捡货任务已经创建了,但是这里标记失败了,看咋搞????
         waveService.setStatus(waveId, WaveConstant.STATUS_RELEASE_SUCC);
         //发给调度创建纪录,调度器可能需要做些处理
-        {
+        try {
             Set<Long> items = new HashSet<Long>();
             for (OutbSoDetail detail : orderDetails) {
                 items.add(detail.getItemId());
@@ -131,6 +131,9 @@ public class WaveCore {
             body.put("itemList", items.toArray());
             msg.setMsgBody(body);
             messageService.sendMessage(msg);
+        } catch (Exception e){
+            e.printStackTrace();
+            logger.warn("report wave info to redis fail");
         }
         return 0;
     }
@@ -372,7 +375,7 @@ public class WaveCore {
         //地堆区有货,优先配在地堆区
         pickAllocDetailList = new ArrayList<WaveAllocDetail>();
         if(waveHead.getIsResAlloc() == 0) {
-            logger.info("begin to run alloc waveId[%d]", waveId);
+            logger.info("begin to run alloc waveId{1}", waveId);
             for (int i = 0; i < orderDetails.size(); ++i) {
                 OutbSoDetail detail = orderDetails.get(i);
                 int zone_idx = 0;
@@ -411,8 +414,7 @@ public class WaveCore {
                 }
             }
             //存储配货结果
-            //waveService.storeAlloc(waveHead, pickAllocDetailList);
-            //allocService.addAllocDetails(pickAllocDetailList);
+            waveService.storeAlloc(waveHead, pickAllocDetailList);
         }else{
             logger.info("skip to run alloc waveId[%d], load from db", waveId);
             pickAllocDetailList = allocService.getAllocDetailsByWaveId(waveId);

@@ -19,6 +19,7 @@ import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.wave.WaveHead;
 import com.lsh.wms.model.wave.WaveRequest;
 import com.lsh.wms.model.wave.WaveTemplate;
+import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,9 +52,9 @@ public class WaveRestService implements IWaveRestService {
     @Autowired
     private PickModelService modelService;
     @Autowired
-    private WaveCore core;
-    @Autowired
     private WaveTemplateService waveTemplateService;
+    @Autowired
+    private WaveRpcService waveRpcService;
 
 
     @POST
@@ -107,7 +108,10 @@ public class WaveRestService implements IWaveRestService {
             }
         }
         //发起来
+        //必须保证数据只能发货一次,保证方法为生成发货单完成标示在行项目中,调用时将忽略已经标记生成的行项目
+        //如此做将可以允许重复发货
         waveService.shipWave(head, detailList);
+        //传送给外部系统,其实比较好的方式是扔出来到队列里,外部可以选择性处理.
         return JsonUtils.SUCCESS();
     }
 
@@ -115,78 +119,19 @@ public class WaveRestService implements IWaveRestService {
     @Path("releaseWave")
     public String releaseWave(@QueryParam("waveId") long iWaveId,
                               @QueryParam("uid") long iUid) throws BizCheckedException {
-        WaveHead head = waveService.getWave(iWaveId);
-        if(head==null){
-            throw new BizCheckedException("2040001");
-        }
-        if(head.getStatus() == WaveConstant.STATUS_NEW
-                || head.getStatus() == WaveConstant.STATUS_RELEASE_FAIL
-                || (head.getStatus() == WaveConstant.STATUS_RELEASE_START && DateUtils.getCurrentSeconds()-head.getReleaseAt() > 300))
-        {
-
-        } else {
-            throw new BizCheckedException("2040002");
-        }
-        head.setReleaseUid(iUid);
-        head.setReleaseAt(DateUtils.getCurrentSeconds());
-        head.setStatus((long) WaveConstant.STATUS_RELEASE_START);
-        try{
-            waveService.update(head);
-        }catch (Exception e){
-            throw  new BizCheckedException("2040003");
-        }
-        boolean bNeedRollBack = true;
-        try {
-            int ret = core.release(iWaveId);
-            if ( ret == 0 ) {
-                bNeedRollBack = false;
-            }else{
-                logger.error("wave release fail, ret %d", ret);
-            }
-        }catch (BizCheckedException e){
-            logger.error("Wave release fail, wave id %d msg %s", iWaveId, e.getMessage());
-            throw e;
-        } finally {
-            if(bNeedRollBack) {
-                head.setStatus((long) WaveConstant.STATUS_RELEASE_FAIL);
-                waveService.update(head);
-            }
-        }
+        waveRpcService.releaseWave(iWaveId, iUid);
         return JsonUtils.SUCCESS();
     }
 
     @POST
     @Path("createWave")
     public String createWave(WaveRequest request) throws BizCheckedException {
-        WaveHead pickWaveHead = new WaveHead();
-        ObjUtils.bean2bean(request,pickWaveHead);
-        //获取波次模版
-        WaveTemplate tpl = waveTemplateService.getWaveTemplate(pickWaveHead.getWaveTemplateId());
-        if(tpl == null){
-            throw new BizCheckedException("2040008");
-        }
-        pickWaveHead.setPickModelTemplateId(tpl.getPickModelTemplateId());
-        pickWaveHead.setWaveDest(tpl.getWaveDest());
-        List<Long> orderIds = request.getOrderIds();
-        for(Long orderId : orderIds){
-            OutbSoHeader so = soOrderService.getOutbSoHeaderByOrderId(orderId);
-            if(so == null){
-                return JsonUtils.OTHER_EXCEPTION(String.format("订单[%d]不存在", orderId));
+        final Long waveId = waveRpcService.createWave(request);
+        return JsonUtils.SUCCESS(new HashMap<String, Object>() {
+            {
+                put("waveId", waveId);
             }
-            if(so.getWaveId() > 0){
-                return JsonUtils.OTHER_EXCEPTION(String.format("订单[%d]已排好波次", orderId));
-            }
-        }
-        if(orderIds.size()==0){
-            return JsonUtils.OTHER_EXCEPTION("订单数为0");
-        }
-        try{
-            waveService.createWave(pickWaveHead,orderIds);
-        }catch (Exception e){
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR("Create failed");
-        }
-        return JsonUtils.SUCCESS();
+        });
     }
 
     @GET
