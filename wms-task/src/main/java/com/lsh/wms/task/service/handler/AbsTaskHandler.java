@@ -2,8 +2,10 @@ package com.lsh.wms.task.service.handler;
 
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.task.TaskHandler;
+import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,8 @@ import java.util.Map;
 public class AbsTaskHandler implements TaskHandler {
     @Autowired
     private BaseTaskService baseTaskService;
+    @Autowired
+    private IdGenerator idGenerator;
 
     public void create(Long taskId) throws BizCheckedException{
     }
@@ -30,7 +34,10 @@ public class AbsTaskHandler implements TaskHandler {
         // 插入标准任务信息
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         if (taskInfo.getTaskId().equals(0L)) {
-            Long taskId = RandomUtils.genId();
+            Long taskType = taskInfo.getType();
+            String idKey = "task_" + taskType.toString();
+            Long taskId = idGenerator.genId(idKey, true, true);
+            //Long taskId = RandomUtils.genId();
             taskInfo.setTaskId(taskId);
         }
         taskEntry.setTaskInfo(taskInfo);

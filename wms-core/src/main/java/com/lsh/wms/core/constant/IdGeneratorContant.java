@@ -9,8 +9,18 @@ import java.util.Map;
 public class IdGeneratorContant {
     public static final Map<String, Integer> PREFIX_CONFIG = new HashMap<String, Integer>(){
         {
-            put("task", 1);
-            put("wave", 2);
+            put("task_100", 10); // TYPE_STOCK_TAKING
+            put("task_101", 11); // TYPE_PO
+            put("task_102", 12); // TYPE_PICK
+            put("task_103", 13); // TYPE_SHELVE
+            put("task_104", 14); // TYPE_PROCUREMENT
+            put("task_105", 15); // TYPE_STOCK_TRANSFER
+            put("task_106", 16); // TYPE_ATTIC_SHELVE
+            put("task_107", 17); // TYPE_PICK_UP_SHELVE
+            put("task_108", 18);
+            put("task_109", 19);
+            put("task_110", 20); // TYPE_QC
+            put("task_111", 21); // TYPE_SHIP
         }
     };
 

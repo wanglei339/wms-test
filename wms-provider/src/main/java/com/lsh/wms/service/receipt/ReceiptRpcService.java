@@ -27,6 +27,7 @@ import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
@@ -112,6 +113,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
     @Autowired
     private StaffService staffService;
 
+    @Autowired
+    private IdGenerator idGenerator;
+
     public Boolean throwOrder(String orderOtherId) throws BizCheckedException {
         InbPoHeader inbPoHeader = new InbPoHeader();
         inbPoHeader.setOrderOtherId(orderOtherId);
@@ -168,7 +172,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
         Map<Long,Long> locationMap = new HashMap<Long, Long>();
         List<StockTransferPlan> planList = new ArrayList<StockTransferPlan>();
 
-        Long taskId = RandomUtils.genId();
+        String idKey = "task_" + TaskConstant.TYPE_PO.toString();
+        Long taskId = idGenerator.genId(idKey, true, true);
+        //Long taskId = RandomUtils.genId();
 
         if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
             for(ReceiptItem receiptItem : request.getItems()){
