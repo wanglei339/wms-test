@@ -90,6 +90,8 @@ public class WaveDetail implements Serializable {
     private Long shipUid = 0L;
 	/** 发货时间 */
     private Long shipAt = 0L;
+	/** 关联发货单id */
+	private Long deliveryId = 0L;
 	/**  */
     private Long createdAt = 0L;
 	/**  */
@@ -429,6 +431,14 @@ public class WaveDetail implements Serializable {
 	
 	public void setShipAt(Long shipAt){
 		this.shipAt = shipAt;
+	}
+
+	public Long getDeliveryId(){
+		return this.deliveryId;
+	}
+
+	public void setDeliveryId(Long deliveryId){
+		this.deliveryId = deliveryId;
 	}
 	
 	public Long getCreatedAt(){

@@ -3,6 +3,7 @@ package com.lsh.wms.core.service.wave;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.wms.core.constant.IdGeneratorContant;
 import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.dao.so.OutbSoHeaderDao;
 import com.lsh.wms.core.dao.wave.WaveDetailDao;
@@ -12,7 +13,9 @@ import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.pick.PickTaskService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
+import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.pick.PickTaskHead;
@@ -28,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.expression.spel.ast.LongLiteral;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,24 +66,31 @@ public class WaveService {
     private SoDeliveryService soDeliveryService;
     @Autowired
     private ItemService itemService;
+    @Autowired
+    private IdGenerator idGenerator;
+    @Autowired
+    private StockMoveService stockMoveService;
 
     @Transactional(readOnly = false)
-    public void createWave(WaveHead head, List<Long> vOrders){
+    public void createWave(WaveHead head, List<Map> vOrders){
         //gen waveId
         long waveId = RandomUtils.genId();
-        head.setWaveId(waveId);
+        head.setWaveId(idGenerator.genId("wave", true, false));
         head.setCreatedAt(DateUtils.getCurrentSeconds());
         waveHeadDao.insert(head);
         this.addToWave(head.getWaveId(), vOrders);
     }
 
     @Transactional(readOnly = false)
-    public void addToWave(long iWaveId, List<Long> vOrders) {
+    public void addToWave(long iWaveId, List<Map> vOrders) {
         for(int i = 0; i < vOrders.size(); i++){
             //更新wave信息
-            long soId = vOrders.get(i);
+            Map so = vOrders.get(i);
             OutbSoHeader outbSoHeader = new OutbSoHeader();
-            outbSoHeader.setOrderId(soId);
+            outbSoHeader.setOrderId(Long.valueOf(so.get("orderId").toString()));
+            outbSoHeader.setTransPlan(so.get("transPlan").toString());
+            outbSoHeader.setWaveIndex(Integer.valueOf(so.get("waveIndex").toString()));
+            outbSoHeader.setTransTime(DateUtils.parse(so.get("transTime").toString()));
             outbSoHeader.setWaveId(iWaveId);
             soHeaderDao.updateByOrderOtherIdOrOrderId(outbSoHeader);
         }
@@ -324,6 +335,9 @@ public class WaveService {
         Map<Long, OutbDeliveryHeader> mapHeader = new HashMap<Long, OutbDeliveryHeader>();
         Map<Long, List<OutbDeliveryDetail>> mapDetails = new HashMap<Long, List<OutbDeliveryDetail>>();
         for(WaveDetail detail : waveDetails){
+            if(detail.getDeliveryId()!=0){
+                continue;
+            }
             if ( mapHeader.get(detail.getOrderId()) == null ){
                 OutbDeliveryHeader header = new OutbDeliveryHeader();
                 header.setWarehouseId(0L);
@@ -335,6 +349,7 @@ public class WaveService {
                 header.setDeliveryUser("");
                 header.setDeliveryType(1);
                 header.setDeliveryTime(new Date());
+                header.setInserttime(new Date());
                 mapHeader.put(detail.getOrderId(), header);
                 mapDetails.put(detail.getOrderId(), new LinkedList<OutbDeliveryDetail>());
             }
@@ -351,12 +366,8 @@ public class WaveService {
             deliveryDetail.setLotId(0L);
             deliveryDetail.setLotNum("");
             deliveryDetail.setDeliveryNum(detail.getQcQty());
+            deliveryDetail.setInserttime(new Date());
             deliveryDetails.add(deliveryDetail);
-        }
-        for(WaveDetail detail : waveDetails){
-            //detail.setShipAt(DateUtils.getCurrentSeconds());
-            //detail.setDeliveryQty(detail.getQcQty());
-            //this.updateDetail(detail);
         }
         for(Long key : mapHeader.keySet()){
             OutbDeliveryHeader header = mapHeader.get(key);
@@ -370,8 +381,23 @@ public class WaveService {
             }
             soDeliveryService.insertOrder(header, details);
         }
-        //发货
-        detailDao.shipWave(waveHead.getWaveId());
+        Set<Long> locations = new HashSet<Long>();
+        for(WaveDetail detail : waveDetails){
+            if(detail.getDeliveryId()!=0) {
+                continue;
+            }
+            detail.setDeliveryId(mapHeader.get(detail.getOrderId()).getDeliveryId());
+            detail.setShipAt(DateUtils.getCurrentSeconds());
+            detail.setDeliveryQty(detail.getQcQty());
+            detail.setIsAlive(0L);
+            this.updateDetail(detail);
+            locations.add(detail.getRealCollectLocation());
+        }
+        //库存移动,移出仓库;
+        for(Object locationId : locations.toArray()) {
+            stockMoveService.moveToConsume((Long)locationId, 0L, 0L);
+        }
+        //detailDao.shipWave(waveHead.getWaveId());
         this.setStatus(waveHead.getWaveId(), WaveConstant.STATUS_SUCC);
     }
 

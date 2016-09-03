@@ -8,6 +8,7 @@ import com.lsh.wms.core.dao.stock.StockMoveDao;
 import com.lsh.wms.core.dao.stock.StockQuantDao;
 import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
@@ -133,12 +134,14 @@ public class StockMoveService {
 
         List<StockQuant> quants = quantService.getQuantsByLocationId(locationId);
 
+        BaseinfoLocation location = locationService.getLocationsByType(LocationConstant.CONSUME_AREA).get(0);
+
         //存储已经生成move的ContainerId
         Map<Long,Integer> isMovedMap = new HashMap<Long, Integer>();
 
         for(StockQuant quant:quants){
             if(!isMovedMap.containsKey(quant.getContainerId())){
-                this.moveWholeContainer(quant.getContainerId(),taskId,staffId,quant.getLocationId(), LocationConstant.CONSUME_AREA);
+                this.moveWholeContainer(quant.getContainerId(),taskId,staffId,quant.getLocationId(), location.getLocationId());
                 isMovedMap.put(quant.getContainerId(),1);
             }
         }

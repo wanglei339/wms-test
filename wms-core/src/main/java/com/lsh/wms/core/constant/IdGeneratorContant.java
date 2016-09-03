@@ -10,6 +10,7 @@ public class IdGeneratorContant {
     public static final Map<String, Integer> PREFIX_CONFIG = new HashMap<String, Integer>(){
         {
             put("task", 1);
+            put("wave", 2);
         }
     };
 
