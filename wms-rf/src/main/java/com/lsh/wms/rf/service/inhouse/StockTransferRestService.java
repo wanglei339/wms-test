@@ -9,6 +9,7 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.core.constant.CsiConstan;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.api.service.inhouse.IStockTransferRestService;
 import com.lsh.wms.api.service.inhouse.IStockTransferRpcService;
@@ -20,6 +21,7 @@ import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.system.SysUserService;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
@@ -155,6 +157,10 @@ public class StockTransferRestService implements IStockTransferRestService {
             }
             plan.setPlanner(staffId);
             Long locationId = Long.valueOf(params.get("locationId").toString());
+            BaseinfoLocation location = locationRpcService.getLocation(locationId);
+            if (location == null) {
+                throw new BizCheckedException("2060012");
+            }
             StockQuantCondition condition = new StockQuantCondition();
             condition.setLocationId(locationId);
             List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
@@ -169,7 +175,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             plan.setToLocationId(toLocationId);
             plan.setFromLocationId(locationId);
             plan.setItemId(quant.getItemId());
-            plan.setSubType(2L);
+            plan.setSubType(Long.valueOf(params.get("subType").toString()));
             plan.setUomQty(new BigDecimal(params.get("uomQty").toString()));
             rpcService.addPlan(plan);
         } catch (BizCheckedException e) {
@@ -218,7 +224,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             }
             StockQuant quant = quantList.get(0);
             plan.setItemId(quant.getItemId());
-            plan.setSubType(2L);
+            plan.setSubType(Long.valueOf(params.get("subType").toString()));
             rpcService.addPlan(plan);
         } catch (BizCheckedException e) {
             throw e;

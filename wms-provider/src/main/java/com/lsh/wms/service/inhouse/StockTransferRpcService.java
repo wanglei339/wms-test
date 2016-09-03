@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -187,7 +188,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (checkPlan(plan)) {
             plan.setTaskId(taskId);
             Long containerId = plan.getContainerId();
-            if (plan.getSubType().compareTo(2L) == 0) {
+            if (plan.getSubType().compareTo(2L) == 0 || plan.getSubType().compareTo(3L) == 0) {
                 containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
             }
             TaskEntry taskEntry = new TaskEntry();
@@ -445,16 +446,26 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         params.put("isValid", LocationConstant.IS_VALID);
         params.put("canUse", LocationConstant.CAN_USE);
         params.put("isLocked", LocationConstant.UNLOCK);
-        params.put("type", LocationConstant.SHELF_STORE_BIN);
-        List <BaseinfoLocation> shelfLocationList = locationService.getBaseinfoLocationList(params);
-        if (shelfLocationList != null && !shelfLocationList.isEmpty()) {
-            shelfLocationList.remove(location);
-        }
-        params.put("type", LocationConstant.LOFT_STORE_BIN);
-        List <BaseinfoLocation> loftLocationList = locationService.getBaseinfoLocationList(params);
-        if (loftLocationList != null && !loftLocationList.isEmpty()) {
-            loftLocationList.remove(location);
-            shelfLocationList.addAll(loftLocationList);
+        List <BaseinfoLocation> shelfLocationList = new ArrayList<BaseinfoLocation>();
+        List <BaseinfoLocation> loftLocationList = new ArrayList<BaseinfoLocation>();
+        if (location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
+            params.put("type", LocationConstant.SPLIT_SHELF_BIN);
+            shelfLocationList = locationService.getBaseinfoLocationList(params);
+            if (shelfLocationList != null && !shelfLocationList.isEmpty()) {
+                shelfLocationList.remove(location);
+            }
+        } else {
+            params.put("type", LocationConstant.SHELF_STORE_BIN);
+            shelfLocationList = locationService.getBaseinfoLocationList(params);
+            if (shelfLocationList != null && !shelfLocationList.isEmpty()) {
+                shelfLocationList.remove(location);
+            }
+            params.put("type", LocationConstant.LOFT_STORE_BIN);
+            loftLocationList = locationService.getBaseinfoLocationList(params);
+            if (loftLocationList != null && !loftLocationList.isEmpty()) {
+                loftLocationList.remove(location);
+                shelfLocationList.addAll(loftLocationList);
+            }
         }
         StockQuantCondition condition = new StockQuantCondition();
         condition.setItemId(quant.getItemId());
@@ -468,11 +479,13 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             if (loftLocationList != null && !loftLocationList.isEmpty()) {
                 loftLocationList.remove(location);
             }
-            params.put("type", LocationConstant.SHELF_STORE_BIN);
-            shelfLocationList = locationService.getBaseinfoLocationList(params);
-            if (shelfLocationList != null && !shelfLocationList.isEmpty()) {
-                shelfLocationList.remove(location);
-                loftLocationList.addAll(shelfLocationList);
+            if (!location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
+                params.put("type", LocationConstant.SHELF_STORE_BIN);
+                shelfLocationList = locationService.getBaseinfoLocationList(params);
+                if (shelfLocationList != null && !shelfLocationList.isEmpty()) {
+                    shelfLocationList.remove(location);
+                    loftLocationList.addAll(shelfLocationList);
+                }
             }
             if (loftLocationList == null || loftLocationList.isEmpty()) {
                 return 0L;
