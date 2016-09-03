@@ -12,6 +12,7 @@
                 <value>classpath:props/redis.properties</value>
                 <value>classpath:props/baidu.properties</value>
                 <value>classpath:props/provider.properties</value>
+                <value>classpath:props/wms.properties</value>
             </list>
         </property>
     </bean>
