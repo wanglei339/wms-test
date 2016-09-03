@@ -13,6 +13,7 @@ import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.pick.PickTaskService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
+import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.utils.IdGenerator;
@@ -70,6 +71,8 @@ public class WaveService {
     private IdGenerator idGenerator;
     @Autowired
     private StockMoveService stockMoveService;
+    @Autowired
+    private SoOrderService soOrderService;
 
     @Transactional(readOnly = false)
     public void createWave(WaveHead head, List<Map> vOrders){
@@ -92,6 +95,7 @@ public class WaveService {
             outbSoHeader.setWaveIndex(Integer.valueOf(so.get("waveIndex").toString()));
             outbSoHeader.setTransTime(DateUtils.parse(so.get("transTime").toString()));
             outbSoHeader.setWaveId(iWaveId);
+            outbSoHeader.setOrderStatus(2);
             soHeaderDao.updateByOrderOtherIdOrOrderId(outbSoHeader);
         }
     }
@@ -136,6 +140,7 @@ public class WaveService {
     public List<WaveDetail> getDetailsByPickTaskId(long pickTaskId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("pickTaskId", pickTaskId);
+        mapQuery.put("isValid", 1);
         return detailDao.getWaveDetailList(mapQuery);
     }
 
@@ -143,6 +148,7 @@ public class WaveService {
     public List<WaveDetail> getOrderedDetailsByPickTaskIds(List<Long> pickTaskIds){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("pickTaskIds", pickTaskIds);
+        mapQuery.put("isValid", 1);
         return detailDao.getOrderedWaveDetailList(mapQuery);
     }
 
@@ -154,6 +160,7 @@ public class WaveService {
     public List<WaveDetail> getDetailsByWaveId(long waveId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("waveId", waveId);
+        mapQuery.put("isValid", 1);
         return detailDao.getWaveDetailList(mapQuery);
     }
 
@@ -162,6 +169,7 @@ public class WaveService {
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("pickTaskId", pickTaskId);
         mapQuery.put("pickOrder", pickOrder);
+        mapQuery.put("isValid", 1);
         return detailDao.getOrderedWaveDetailList(mapQuery).get(0);
     }
 
@@ -169,6 +177,7 @@ public class WaveService {
     public List<WaveDetail> getDetailsByQCTaskId(long qcTaskId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("qcTaskId", qcTaskId);
+        mapQuery.put("isValid", 1);
         return detailDao.getWaveDetailList(mapQuery);
     }
 
@@ -176,7 +185,7 @@ public class WaveService {
     public List<WaveDetail> getDetailsByContainerId(long containerId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("containerId", containerId);
-        mapQuery.put("is_alive", 1);
+        mapQuery.put("isValid", 1);
         return detailDao.getWaveDetailList(mapQuery);
     }
 
@@ -184,6 +193,7 @@ public class WaveService {
     public List<WaveDetail> getDetailsByShipTaskId(long shipTaskId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("shipTaskId", shipTaskId);
+        mapQuery.put("isValid", 1);
         return detailDao.getWaveDetailList(mapQuery);
     }
 
@@ -191,7 +201,7 @@ public class WaveService {
     public List<WaveDetail> getDetailsByLocationId(long locationId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("locationId", locationId);
-        mapQuery.put("is_alive", 1);
+        mapQuery.put("isValid", 1);
         return detailDao.getWaveDetailList(mapQuery);
     }
 
@@ -380,6 +390,7 @@ public class WaveService {
                 detail.setDeliveryId(header.getDeliveryId());
             }
             soDeliveryService.insertOrder(header, details);
+            this.updateOrderStatus(key);
         }
         Set<Long> locations = new HashSet<Long>();
         for(WaveDetail detail : waveDetails){
@@ -399,6 +410,103 @@ public class WaveService {
         }
         //detailDao.shipWave(waveHead.getWaveId());
         this.setStatus(waveHead.getWaveId(), WaveConstant.STATUS_SUCC);
+    }
+
+    /*在捡货\QC任务\发货任务完成时调用*/
+    public void updateOrderStatus(long orderId){
+        //取出order的head
+        OutbSoHeader header = soOrderService.getOutbSoHeaderByOrderId(orderId);
+        if(header == null){
+            logger.warn("so get fail "+orderId);
+            return;
+        }
+        if(header.getWaveId()<=1){
+            return;
+            //波次都没进,呵呵
+        }
+        //取出order的所有detail
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("orderId", orderId);
+        mapQuery.put("isValid", 1);
+        List<WaveDetail> details = detailDao.getWaveDetailList(mapQuery);
+        if(details.size()==0){
+            //配货失败,理论上可以细化
+            return;
+        }
+        int pick_num = 0;
+        int qc_num = 0;
+        int ship_num = 0;
+        for(WaveDetail detail : details){
+            if(detail.getPickAt()>0){
+                pick_num++;
+            }
+            if(detail.getQcExceptionDone()!=0){
+                qc_num++;
+            }
+            if(detail.getDeliveryId()!=0){
+                ship_num++;
+            }
+        }
+        int status = 2;
+        if(ship_num==details.size()){
+            status = 5;
+        }else if ( qc_num == details.size()){
+            status = 4;
+        }else if ( pick_num == details.size()){
+            status = 3;
+        }else{
+            status = 2;
+        }
+        if(status == header.getOrderStatus()){
+            return;
+        }else{
+            header.setOrderStatus(status);
+            soOrderService.update(header);
+        }
+    }
+
+    /*在捡货\QC任务\发货任务完成时调用*/
+    public void updateWaveStatus(long waveId){
+        WaveHead header = this.getWave(waveId);
+        if(header == null){
+            logger.warn("wave get fail "+waveId);
+            return;
+        }
+        List<WaveDetail> details = this.getDetailsByWaveId(waveId);
+        if(details.size()==0){
+            logger.warn("wave null "+waveId);
+            return;
+        }
+        int pick_num = 0;
+        int qc_num = 0;
+        int ship_num = 0;
+        for(WaveDetail detail : details){
+            if(detail.getPickAt()>0){
+                pick_num++;
+            }
+            if(detail.getQcExceptionDone()!=0){
+                qc_num++;
+            }
+            if(detail.getDeliveryId()!=0){
+                ship_num++;
+            }
+        }
+        int status = 30;
+        if(ship_num==details.size()){
+            status = 50;
+        }else if ( qc_num == details.size()){
+            status = 32;
+        }else if ( pick_num == details.size()){
+            status = 31;
+        }else{
+            status = 30;
+        }
+        if(status == header.getStatus()){
+            return;
+        }else{
+            header.setStatus((long)status);
+            this.update(header);
+        }
     }
 
 }

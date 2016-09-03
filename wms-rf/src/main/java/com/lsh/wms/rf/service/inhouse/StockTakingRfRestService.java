@@ -129,7 +129,9 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
                     }
                 }
             }
-            stockTakingService.insertDetailList(insertDetails);
+            if(insertDetails.size()!=0) {
+                stockTakingService.insertDetailList(insertDetails);
+            }
 
         }
 
@@ -419,6 +421,8 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             stockTakingDetail.setId(0L);
             BigDecimal qty=quantService.getQuantQtyByLocationIdAndItemId(stockTakingDetail.getLocationId(), stockTakingDetail.getItemId());
             stockTakingDetail.setTheoreticalQty(qty);
+            stockTakingDetail.setOperator(0L);
+            stockTakingDetail.setRealQty(BigDecimal.ZERO);
             stockTakingDetail.setRound(roundTime + 1);
             detailList.add(stockTakingDetail);
         }
