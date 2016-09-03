@@ -107,7 +107,10 @@ public class StockMoveService {
             move.setOperator(staffId);
             this.create(move);
             quantService.move(move);
-            quantService.unReserveById(quant.getId());
+            BaseinfoLocation location = locationService.getLocation(move.getToLocationId());
+            if(location.getType().compareTo(LocationConstant.CONSUME_AREA)!=0) {
+                quantService.unReserveById(quant.getId());
+            }
         }
     }
 
