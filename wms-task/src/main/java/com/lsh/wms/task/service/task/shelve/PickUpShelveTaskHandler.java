@@ -77,8 +77,10 @@ public class PickUpShelveTaskHandler extends AbsTaskHandler {
 
         ObjUtils.bean2bean(quant, taskInfo);
 
+        taskInfo.setTaskName("拆零上架任务[ " + taskInfo.getContainerId() + "]");
         taskInfo.setType(TaskConstant.TYPE_PICK_UP_SHELVE);
         taskInfo.setFromLocationId(quant.getLocationId());
+        taskInfo.setQtyDone(taskInfo.getQty().divide(taskInfo.getPackUnit(), 2, BigDecimal.ROUND_DOWN));
 
         taskEntry.setTaskInfo(taskInfo);
 
