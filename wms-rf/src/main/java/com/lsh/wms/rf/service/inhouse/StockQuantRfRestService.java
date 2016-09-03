@@ -52,14 +52,14 @@ public class StockQuantRfRestService implements IStockQuantRfRestService {
 
         CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE,barCode);
         if(csiSku == null) {
-            throw new BizCheckedException("2550003");
+            throw new BizCheckedException("2550032");
         }
         StockQuantCondition condition = new StockQuantCondition();
         condition.setLocationId(locationId);
         condition.setSkuId(csiSku.getSkuId());
         List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
         if(quantList.isEmpty()) {
-            throw new BizCheckedException("2550003");
+            throw new BizCheckedException("2550032");
         }
         StockQuant quant = quantList.get(0);
         Map<String, Object> m = new HashMap<String, Object>();

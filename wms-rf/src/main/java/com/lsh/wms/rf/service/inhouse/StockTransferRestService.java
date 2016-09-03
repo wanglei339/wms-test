@@ -118,7 +118,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             condition.setLocationId(locationId);
             List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
             if (quantList == null || quantList.isEmpty()) {
-                throw new BizCheckedException("2550015");
+                throw new BizCheckedException("2550032");
             }
             StockQuant quant = quantList.get(0);
             result.put("locationId", locationId);
@@ -165,7 +165,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             condition.setLocationId(locationId);
             List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
             if (quantList == null || quantList.isEmpty()) {
-                throw new BizCheckedException("2550015");
+                throw new BizCheckedException("2550032");
             }
             StockQuant quant = quantList.get(0);
             Long toLocationId = rpcService.allocateToLocationId(quant);
@@ -177,6 +177,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             plan.setItemId(quant.getItemId());
             plan.setSubType(Long.valueOf(params.get("subType").toString()));
             plan.setUomQty(new BigDecimal(params.get("uomQty").toString()));
+            logger.info("create qty:" + plan.getUomQty());
             rpcService.addPlan(plan);
         } catch (BizCheckedException e) {
             throw e;
@@ -213,14 +214,14 @@ public class StockTransferRestService implements IStockTransferRestService {
             String barCode = params.get("barcode").toString();
             CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barCode);
             if (csiSku == null) {
-                throw new BizCheckedException("2550015");
+                throw new BizCheckedException("2550032");
             }
             StockQuantCondition condition = new StockQuantCondition();
             condition.setLocationId(locationId);
             condition.setSkuId(csiSku.getSkuId());
             List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
             if (quantList == null || quantList.isEmpty()) {
-                throw new BizCheckedException("2550015");
+                throw new BizCheckedException("2550032");
             }
             StockQuant quant = quantList.get(0);
             plan.setItemId(quant.getItemId());
@@ -261,14 +262,14 @@ public class StockTransferRestService implements IStockTransferRestService {
             String barCode = params.get("barcode").toString();
             CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barCode);
             if (csiSku == null) {
-                throw new BizCheckedException("2550015");
+                throw new BizCheckedException("2550032");
             }
             StockQuantCondition condition = new StockQuantCondition();
             condition.setLocationId(locationId);
             condition.setSkuId(csiSku.getSkuId());
             List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
             if (quantList == null || quantList.isEmpty()) {
-                throw new BizCheckedException("2550015");
+                throw new BizCheckedException("2550032");
             }
             StockQuant quant = quantList.get(0);
             plan.setItemId(quant.getItemId());
