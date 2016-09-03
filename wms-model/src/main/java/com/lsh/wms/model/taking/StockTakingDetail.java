@@ -39,7 +39,7 @@ public class StockTakingDetail implements Serializable {
 	/**货主id */
 	private Long ownerId = 0L;
 	/**包装名称 */
-	private String packName = "";
+	private String packName = "H0";
 	/** 包装单位*/
 	private BigDecimal packUnit = new BigDecimal(1);
 	/** */
