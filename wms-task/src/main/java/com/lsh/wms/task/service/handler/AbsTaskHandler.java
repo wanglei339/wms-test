@@ -23,9 +23,9 @@ import java.util.Map;
 @Component
 public class AbsTaskHandler implements TaskHandler {
     @Autowired
-    private BaseTaskService baseTaskService;
+    protected BaseTaskService baseTaskService;
     @Autowired
-    private IdGenerator idGenerator;
+    protected IdGenerator idGenerator;
 
     public void create(Long taskId) throws BizCheckedException{
     }
