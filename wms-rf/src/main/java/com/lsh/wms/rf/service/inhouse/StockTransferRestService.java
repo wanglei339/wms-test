@@ -177,7 +177,6 @@ public class StockTransferRestService implements IStockTransferRestService {
             plan.setItemId(quant.getItemId());
             plan.setSubType(Long.valueOf(params.get("subType").toString()));
             plan.setUomQty(new BigDecimal(params.get("uomQty").toString()));
-            logger.info("create qty:" + plan.getUomQty());
             rpcService.addPlan(plan);
         } catch (BizCheckedException e) {
             throw e;
@@ -273,7 +272,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             }
             StockQuant quant = quantList.get(0);
             plan.setItemId(quant.getItemId());
-            plan.setSubType(2L);
+            plan.setSubType(Long.valueOf(params.get("subType").toString()));
             rpcService.addPlan(plan);
         } catch (BizCheckedException e) {
             throw e;
