@@ -82,8 +82,7 @@ public class StockTransferCore {
             BigDecimal total = stockQuantRpcService.getQty(condition);
             plan.setQty(total.divide(quant.getPackUnit(), BigDecimal.ROUND_DOWN));
         } else if (plan.getSubType().compareTo(2L) == 0) {
-            BigDecimal requiredQty = plan.getUomQty();
-            plan.setQty(requiredQty);
+            plan.setQty(plan.getUomQty());
         } else if (plan.getSubType().compareTo(3L) == 0) {
             plan.setPackUnit(BigDecimal.ONE);
             plan.setPackName("EA");
