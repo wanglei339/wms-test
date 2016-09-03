@@ -438,7 +438,14 @@ public class ReceiptRpcService implements IReceiptRpcService {
                  */
                 Long lotId = RandomUtils.genId();
                 Date receiptTime = inbReceiptHeader.getReceiptTime();
-                Long expireDate = inbReceiptDetail.getProTime().getTime() + baseinfoItem.getShelfLife().longValue(); // 生产日期+保质期=保质期失效时间
+
+                //修改失效日期
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(inbReceiptDetail.getProTime());
+                calendar.add(calendar.DAY_OF_YEAR,baseinfoItem.getShelfLife().intValue());
+                Long expireDate = calendar.getTime().getTime()/1000;
+
+                //Long expireDate = inbReceiptDetail.getProTime().getTime() + baseinfoItem.getShelfLife().longValue(); // 生产日期+保质期=保质期失效时间
 
                 StockLot stockLot = new StockLot();
                 stockLot.setLotId(lotId);
