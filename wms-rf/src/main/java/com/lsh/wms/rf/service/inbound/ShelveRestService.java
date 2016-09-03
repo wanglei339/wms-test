@@ -131,7 +131,11 @@ public class ShelveRestService implements IShelveRestService {
         if (!taskInfos.isEmpty() && taskInfos != null) {
             TaskInfo taskInfo = taskInfos.get(0);
             if (taskInfo.getContainerId().equals(containerId)) {
-                return JsonUtils.SUCCESS(shelveTaskService.getShelveTaskHead(taskInfos.get(0).getTaskId()));
+                ShelveTaskHead taskHead = shelveTaskService.getShelveTaskHead(taskInfos.get(0).getTaskId());
+                BaseinfoLocation allocLocation = locationService.getLocation(taskHead.getAllocLocationId());
+                Map<String, Object> result = BeanMapTransUtils.Bean2map(taskHead);
+                result.put("allocLocationCode", allocLocation.getLocationCode());
+                return JsonUtils.SUCCESS(result);
             } else {
                 throw new BizCheckedException("2030016");
             }

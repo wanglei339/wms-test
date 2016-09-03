@@ -104,16 +104,98 @@ public class StockTransferRestService implements IStockTransferRestService {
     }
 
     @POST
-    @Path("createReturn")
+    @Path("viewLocation")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-    public String createReturn() throws BizCheckedException {
+    public String viewLocation() throws BizCheckedException {
+        Map<String, Object> params = RequestUtils.getRequest();
+        Map<String, Object> result = new HashMap<String, Object>();
+        try {
+            Long locationId = Long.valueOf(params.get("locationId").toString());
+            StockQuantCondition condition = new StockQuantCondition();
+            condition.setLocationId(locationId);
+            List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
+            if (quantList == null || quantList.isEmpty()) {
+                throw new BizCheckedException("2550015");
+            }
+            StockQuant quant = quantList.get(0);
+            result.put("locationId", locationId);
+            result.put("locationCode", locationRpcService.getLocation(locationId).getLocationCode());
+            result.put("itemId", quant.getItemId());
+            result.put("itemName", itemRpcService.getItem(quant.getItemId()).getSkuName());
+            result.put("packName", quant.getPackName());
+            result.put("lotId", quant.getLotId());
+            condition.setItemId(quant.getItemId());
+            condition.setLotId(quant.getLotId());
+            condition.setReserveTaskId(0L);
+            BigDecimal qty = stockQuantRpcService.getQty(condition);
+            result.put("uomQty", qty.divide(quant.getPackUnit()));
+        } catch (BizCheckedException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+        }
+        return JsonUtils.SUCCESS(result);
+    }
+
+    @POST
+    @Path("createPlan")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String createPlan() throws BizCheckedException {
         try {
             Map<String, Object> params = RequestUtils.getRequest();
             StockTransferPlan plan = new StockTransferPlan();
             Long staffId;
             try {
-                staffId= iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getStaffId();
+                staffId = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getUid();
+            } catch (Exception e) {
+                throw new BizCheckedException("2550013");
+            }
+            plan.setPlanner(staffId);
+            Long locationId = Long.valueOf(params.get("locationId").toString());
+            StockQuantCondition condition = new StockQuantCondition();
+            condition.setLocationId(locationId);
+            List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
+            if (quantList == null || quantList.isEmpty()) {
+                throw new BizCheckedException("2550015");
+            }
+            StockQuant quant = quantList.get(0);
+            Long toLocationId = rpcService.allocateToLocationId(quant);
+            if (toLocationId.equals(0L)) {
+                throw new BizCheckedException("2550036");
+            }
+            plan.setToLocationId(toLocationId);
+            plan.setFromLocationId(locationId);
+            plan.setItemId(quant.getItemId());
+            plan.setSubType(2L);
+            plan.setUomQty(new BigDecimal(params.get("uomQty").toString()));
+            rpcService.addPlan(plan);
+        } catch (BizCheckedException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+        }
+        return JsonUtils.SUCCESS(new HashMap<String, Object>() {
+            {
+                put("response", true);
+            }
+        });
+    }
+
+    @POST
+    @Path("createReturn")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String createReturn() throws BizCheckedException {
+        Map<String, Object> params = RequestUtils.getRequest();
+        StockTransferPlan plan = new StockTransferPlan();
+        try {
+            Long staffId;
+            try {
+                staffId= iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getUid();
             }catch (Exception e){
                 throw new BizCheckedException("2550013");
             }
@@ -136,7 +218,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             }
             StockQuant quant = quantList.get(0);
             plan.setItemId(quant.getItemId());
-            plan.setPackName(quant.getPackName());
+            plan.setSubType(2L);
             rpcService.addPlan(plan);
         } catch (BizCheckedException e) {
             throw e;
@@ -156,12 +238,12 @@ public class StockTransferRestService implements IStockTransferRestService {
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String createScrap() throws BizCheckedException {
+        Map<String, Object> params = RequestUtils.getRequest();
+        StockTransferPlan plan = new StockTransferPlan();
         try {
-            Map<String, Object> params = RequestUtils.getRequest();
-            StockTransferPlan plan = new StockTransferPlan();
             Long staffId;
             try {
-                staffId= iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getStaffId();
+                staffId= iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getUid();
             }catch (Exception e){
                 throw new BizCheckedException("2550013");
             }
@@ -184,7 +266,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             }
             StockQuant quant = quantList.get(0);
             plan.setItemId(quant.getItemId());
-            plan.setPackName(quant.getPackName());
+            plan.setSubType(2L);
             rpcService.addPlan(plan);
         } catch (BizCheckedException e) {
             throw e;
@@ -240,7 +322,7 @@ public class StockTransferRestService implements IStockTransferRestService {
         try {
             Long staffId;
             try {
-                staffId= iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getStaffId();
+                staffId= iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getUid();
             }catch (Exception e){
                 throw new BizCheckedException("2550013");
             }

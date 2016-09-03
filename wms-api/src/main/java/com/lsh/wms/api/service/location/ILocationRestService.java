@@ -1,6 +1,7 @@
 package com.lsh.wms.api.service.location;
 
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.wms.api.model.location.LocationDetailRequest;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 
 import java.util.Map;
@@ -21,9 +22,9 @@ public interface ILocationRestService {
 
     public String getInventoryLostLocationId();
 
-    public String insertLocation();
+    public String insertLocation(LocationDetailRequest request);
 
-    public String updateLocation();
+    public String updateLocation(LocationDetailRequest request);
 
     public String countBaseinfoLocation(Map<String, Object> params) throws BizCheckedException;
 

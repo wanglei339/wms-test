@@ -213,7 +213,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             if (result == null) {
                 return JsonUtils.TOKEN_ERROR("阁楼上架库存异常 ");
             } else {
-                iTaskRpcService.assign(taskId, user.getStaffId());
+                iTaskRpcService.assign(taskId, uId);
                 return JsonUtils.SUCCESS(result);
             }
         }
@@ -246,7 +246,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             return JsonUtils.TOKEN_ERROR("用户不存在");
         }
         // 检查是否有已分配的任务
-        taskId = baseTaskService.getAssignTaskIdByOperatorAndType(user.getStaffId(), TaskConstant.TYPE_PICK_UP_SHELVE);
+        taskId = baseTaskService.getAssignTaskIdByOperatorAndType(uId, TaskConstant.TYPE_PICK_UP_SHELVE);
         if(taskId==null) {
             return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
                 {

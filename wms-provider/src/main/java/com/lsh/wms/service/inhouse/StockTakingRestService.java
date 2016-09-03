@@ -198,12 +198,18 @@ public class StockTakingRestService implements IStockTakingRestService {
         if (request.getAreaId() != 0 && request.getStorageId() == 0) {
             //根据库区得出库位
             locationList = this.getBinByWarehouseId(request.getAreaId());
-            if(locationList!=null && locationList.size()==0){
+            if(locationList ==null || locationList.size()==0){
+                locationList = new ArrayList<Long>();
                 locationList.add(request.getAreaId());
             }
         } else if (request.getStorageId() != 0) {
             //根据货架得出库位
             locationList = this.getBinByShelf(request.getStorageId());
+
+            if(locationList == null) {
+                locationList = new ArrayList<Long>();
+            }
+
         }
 
         //商品,供应商得到库位
@@ -388,7 +394,7 @@ public class StockTakingRestService implements IStockTakingRestService {
             taskInfo.setPlanId(head.getTakingId());
             taskInfo.setDueTime(dueTime);
             taskInfo.setPlanner(head.getPlanner());
-            taskInfo.setStatus(1L);
+            taskInfo.setStatus(TaskConstant.Draft);
             taskInfo.setLocationId(detail.getLocationId());
             taskInfo.setSkuId(detail.getSkuId());
             taskInfo.setItemId(detail.getItemId());
@@ -411,8 +417,8 @@ public class StockTakingRestService implements IStockTakingRestService {
             taskHead.setTakingId(taskInfo.getPlanId());
             taskEntry.setTaskHead(taskHead);
             taskEntryList.add(taskEntry);
-            iTaskRpcService.create(TaskConstant.TYPE_STOCK_TAKING, taskEntry);
         }
+        iTaskRpcService.batchCreate(TaskConstant.TYPE_STOCK_TAKING, taskEntryList);
     }
 
     public void update(StockTakingHead head) throws BizCheckedException{
@@ -427,7 +433,7 @@ public class StockTakingRestService implements IStockTakingRestService {
         this.createTask(head, detailList, 1L, head.getDueTime());
     }
     public String cancelTask(Long takingId) throws BizCheckedException {
-        Map<String,Object> queryMap =new HashMap();
+        Map<String,Object> queryMap = new HashMap<String, Object>();
         queryMap.put("takingId", takingId);
         List<Long> taskList = new ArrayList<Long>();
         List<StockTakingTask> takingTasks = stockTakingTaskService.getTakingTask(queryMap);
