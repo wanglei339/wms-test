@@ -46,7 +46,8 @@ public class QCTaskHandler extends AbsTaskHandler {
         info.setExt1(pickEntry.getTaskInfo().getTaskId());
         info.setOrderId(details.get(0).getOrderId());
         info.setQty(new BigDecimal(details.size()));
-
+        info.setWaveId(details.get(0).getWaveId());
+        info.setPlanId(info.getPlanId());
         TaskEntry taskEntry = new TaskEntry();
         taskEntry.setTaskDetailList((List<Object>) (List<?>) details);
         taskEntry.setTaskInfo(info);
@@ -62,11 +63,21 @@ public class QCTaskHandler extends AbsTaskHandler {
         waveService.updateDetails(details);
     }
 
+
+
     protected void getConcrete(TaskEntry taskEntry) {
         taskEntry.setTaskDetailList((List<Object>)(List<?>)waveService.getDetailsByQCTaskId(taskEntry.getTaskInfo().getTaskId()));
     }
 
     public void doneConcrete(Long taskId){
         //这里做一些处理,做些啥呢?
+        //--------------稍微注意一下下面两个操作会不会影响到性能,严格来讲,其实最好是异步的,呵呵.
+        //更新订单状态
+        TaskInfo info = baseTaskService.getTaskInfoById(taskId);
+        if(info.getOrderId()>0){
+            waveService.updateOrderStatus(info.getOrderId());
+        }
+        //更新波次状态
+        waveService.updateWaveStatus(info.getWaveId());
     }
 }

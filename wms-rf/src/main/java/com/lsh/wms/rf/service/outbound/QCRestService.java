@@ -37,6 +37,7 @@ import java.util.*;
  * Created by zengwenjun on 16/7/30.
  */
 
+
 @Service(protocol = "rest")
 @Path("outbound/qc")
 @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
@@ -53,7 +54,6 @@ public class QCRestService implements IRFQCRestService{
     private ITaskRpcService iTaskRpcService;
     @Reference
     private IContainerRpcService iContainerRpcService;
-
 
     @POST
     @Path("scanContainer")

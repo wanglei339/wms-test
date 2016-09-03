@@ -262,6 +262,7 @@ public class WaveCore {
                         detail.setPickZoneId(zone.getPickZoneId());
                         pickTaskDetails.add(detail);
                         head.setDeliveryId(detail.getOrderId());
+                        info.setOrderId(detail.getOrderId());
                         head.setTransPlan(mapOrder2Head.get(detail.getOrderId()).getTransPlan());
                         head.setAllocCollectLocation(detail.getAllocCollectLocation());
                     }
