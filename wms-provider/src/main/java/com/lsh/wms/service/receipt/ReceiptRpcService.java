@@ -253,10 +253,14 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
                 BigDecimal inboundQty = inbReceiptDetail.getInboundQty();
 
+                //qty转化为ea
+                BigDecimal qty = inboundQty.multiply(inbReceiptDetail.getPackUnit());
+
                 StockMove move = new StockMove();
                 move.setToLocationId(inbReceiptHeader.getLocation());
                 move.setToContainerId(inbReceiptHeader.getContainerId());
-                move.setQty(inbReceiptDetail.getInboundQty());
+                //move.setQty(inbReceiptDetail.getInboundQty());
+                move.setQty(qty);
                 move.setItemId(inbReceiptDetail.getItemId());
                 move.setOperator(inbReceiptHeader.getStaffId());
                 move.setTaskId(taskId);
@@ -449,7 +453,10 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 move.setToLocationId(inbReceiptHeader.getLocation());
                 move.setOperator(inbReceiptHeader.getStaffId());
                 move.setToContainerId(inbReceiptHeader.getContainerId());
-                move.setQty(inbReceiptDetail.getInboundQty());
+                //qty转化为ea
+                BigDecimal qty = inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit());
+
+                move.setQty(qty);
                 move.setItemId(inbReceiptDetail.getItemId());
                 move.setTaskId(taskId);
 
