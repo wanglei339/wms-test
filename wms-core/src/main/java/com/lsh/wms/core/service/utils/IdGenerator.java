@@ -32,8 +32,8 @@ public class IdGenerator {
     @Transactional(readOnly = false)
     public Long genId(String prefix, Boolean useDateFormat, Boolean addPrefixNum) {
         Long counter = 1L; // 计数器
-        String idKey = prefix; // 计数器的key
         Long value = 0L; // 返回值
+        String idKey = prefix; // 计数器的key
         String dateValue = ""; // 日期格式
 
         // 使用日期格式时设置key的格式: prefix+yyyyMMdd
