@@ -359,10 +359,11 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (list.isEmpty()) {
             return 0L;
         }
-        List<Long> taskList = core.getMoreTasks(list);
-        for (Long task : taskList) {
-            taskRpcService.assign(task, staffId);
-        }
+//        List<Long> taskList = core.getMoreTasks(list);
+//        for (Long task : taskList) {
+//            taskRpcService.assign(task, staffId);
+//        }
+        taskRpcService.assign(list.get(0).getTaskInfo().getTaskId(), staffId);
         return Long.valueOf(this.sortTask(staffId).get("taskId").toString());
     }
 

@@ -21,6 +21,7 @@ public class QCRpcService implements IQCRpcService{
         if(detail == null){
             throw new BizCheckedException("2070001");
         }
+        //必须要进行库存操作
         detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_SKIP);
         waveService.updateDetail(detail);
     }

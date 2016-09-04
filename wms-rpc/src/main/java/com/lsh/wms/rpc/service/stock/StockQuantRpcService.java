@@ -80,7 +80,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             requiredQty = total;
         }
         if (total.compareTo(requiredQty) < 0 || total.compareTo(BigDecimal.ZERO) == 0) {
-            throw new BizCheckedException("2550001", "商品数量不足");
+            throw new BizCheckedException("2550001");
         }
 
         mapCondition.put("requiredQty", requiredQty);
@@ -99,7 +99,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             requiredQty = total;
         }
         if (total.compareTo(requiredQty) == -1 || total.compareTo(BigDecimal.ZERO) == 0) {
-            throw new BizCheckedException("2550001", "商品数量不足");
+            throw new BizCheckedException("2550001");
         }
 
         mapCondition.put("requiredQty", requiredQty);
@@ -119,7 +119,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         }
 
         if (total.compareTo(requiredQty) == -1 || total.compareTo(BigDecimal.ZERO) == 0) {
-            throw new BizCheckedException("2550001", "商品数量不足");
+            throw new BizCheckedException("2550001");
         }
         mapCondition.put("requiredQty", requiredQty);
         quantService.process(mapCondition, "toDefect");
@@ -137,7 +137,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             requiredQty = total;
         }
         if (total.compareTo(requiredQty) == -1 || total.compareTo(BigDecimal.ZERO) == 0) {
-            throw new BizCheckedException("2550001", "商品数量不足");
+            throw new BizCheckedException("2550001");
         }
         mapCondition.put("requiredQty", requiredQty);
         quantService.process(mapCondition, "toRefund");
