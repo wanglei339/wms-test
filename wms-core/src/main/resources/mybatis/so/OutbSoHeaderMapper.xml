@@ -100,6 +100,12 @@
 		limit #{start},#{limit}
 		</if>
 	</select>
+
+	<select id="getSoKanBanCount" parameterType="Long" resultType="java.util.HashMap">
+		select COUNT(ID) SONUM,ORDER_STATUS from OUTB_SO_HEADER
+		where ORDER_TYPE=#{orderType} and to_days(INSERTTIME) = to_days(now())
+		group by ORDER_STATUS
+	</select>
   
 	<sql id="queryCondition">
 		<where>

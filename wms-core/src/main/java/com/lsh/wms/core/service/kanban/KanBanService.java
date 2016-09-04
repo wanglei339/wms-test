@@ -4,8 +4,8 @@ package com.lsh.wms.core.service.kanban;
 import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.dao.po.InbPoDetailDao;
 import com.lsh.wms.core.dao.po.InbPoHeaderDao;
+import com.lsh.wms.core.dao.so.OutbSoHeaderDao;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
-import com.lsh.wms.model.po.InbPoDetail;
 import com.lsh.wms.model.po.InbPoHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,6 +28,9 @@ public class KanBanService {
 
     @Autowired
     private InbPoDetailDao inbPoDetailDao;
+
+    @Autowired
+    private OutbSoHeaderDao outbSoHeaderDao;
 
 
     public List<Map<String,Object>> getKanBanCount(Long type){
@@ -111,5 +114,9 @@ public class KanBanService {
         return arr;
     }
 
+
+    public List<Map<String, Object>> getSoKanBanCount(Long orderType){
+        return outbSoHeaderDao.getSoKanBanCount(orderType);
+    }
 
 }
