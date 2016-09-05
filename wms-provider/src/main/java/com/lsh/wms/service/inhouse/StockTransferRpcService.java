@@ -475,12 +475,22 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             params.put("type", LocationConstant.SHELF_STORE_BIN);
             shelfLocationList = locationService.getBaseinfoLocationList(params);
             if (shelfLocationList != null && !shelfLocationList.isEmpty()) {
-                shelfLocationList.remove(location);
+                for (BaseinfoLocation targetLocation : shelfLocationList) {
+                    if (targetLocation.getLocationId().equals(locationId)) {
+                        shelfLocationList.remove(targetLocation);
+                        break;
+                    }
+                }
             }
             params.put("type", LocationConstant.LOFT_STORE_BIN);
             loftLocationList = locationService.getBaseinfoLocationList(params);
             if (loftLocationList != null && !loftLocationList.isEmpty()) {
-                loftLocationList.remove(location);
+                for (BaseinfoLocation targetLocation : loftLocationList) {
+                    if (targetLocation.getLocationId().equals(locationId)) {
+                        loftLocationList.remove(targetLocation);
+                        break;
+                    }
+                }
                 shelfLocationList.addAll(loftLocationList);
             }
         }
@@ -494,13 +504,23 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             params.put("curContainerVol", 0L);
             loftLocationList = locationService.getBaseinfoLocationList(params);
             if (loftLocationList != null && !loftLocationList.isEmpty()) {
-                loftLocationList.remove(location);
+                for (BaseinfoLocation targetLocation : loftLocationList) {
+                    if (targetLocation.getLocationId().equals(locationId)) {
+                        loftLocationList.remove(targetLocation);
+                        break;
+                    }
+                }
             }
             if (!location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
                 params.put("type", LocationConstant.SHELF_STORE_BIN);
                 shelfLocationList = locationService.getBaseinfoLocationList(params);
                 if (shelfLocationList != null && !shelfLocationList.isEmpty()) {
-                    shelfLocationList.remove(location);
+                    for (BaseinfoLocation targetLocation : shelfLocationList) {
+                        if (targetLocation.getLocationId().equals(locationId)) {
+                            shelfLocationList.remove(targetLocation);
+                            break;
+                        }
+                    }
                     loftLocationList.addAll(shelfLocationList);
                 }
             }

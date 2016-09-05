@@ -126,7 +126,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             }
             StockQuant quant = quantList.get(0);
             result.put("locationId", locationId);
-            result.put("locationCode", locationRpcService.getLocation(locationId).getLocationCode());
+            result.put("locationCode", location.getLocationCode());
             result.put("itemId", quant.getItemId());
             result.put("itemName", itemRpcService.getItem(quant.getItemId()).getSkuName());
             result.put("packName", quant.getPackName());
