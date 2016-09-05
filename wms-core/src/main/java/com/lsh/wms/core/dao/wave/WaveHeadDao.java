@@ -18,5 +18,7 @@ public interface WaveHeadDao {
     Integer countWaveHead(Map<String, Object> params);
 
     List<WaveHead> getWaveHeadList(Map<String, Object> params);
+
+	List<Map<String, Object>> getWaveKanBanCount();
 	
 }

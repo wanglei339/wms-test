@@ -16,4 +16,6 @@ public interface IKanBanRpcService {
     List<Map<String,Object>> getKanBanCountByStatus(Long type);
 
     List<Map<String, Object>> getSoKanbanCount(Long type);
+
+    List<Map<String, Object>> getWaveKanBanCount();
 }

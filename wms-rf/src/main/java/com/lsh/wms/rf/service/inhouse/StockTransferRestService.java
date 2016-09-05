@@ -175,7 +175,11 @@ public class StockTransferRestService implements IStockTransferRestService {
             plan.setToLocationId(toLocationId);
             plan.setFromLocationId(locationId);
             plan.setItemId(quant.getItemId());
-            plan.setSubType(Long.valueOf(params.get("subType").toString()));
+            Long subType = 2L;
+            if (location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
+                subType = 3L;
+            }
+            plan.setSubType(subType);
             plan.setUomQty(new BigDecimal(params.get("uomQty").toString()));
             rpcService.addPlan(plan);
         } catch (BizCheckedException e) {
@@ -207,6 +211,10 @@ public class StockTransferRestService implements IStockTransferRestService {
             }
             plan.setPlanner(staffId);
             Long locationId = Long.valueOf(params.get("locationId").toString());
+            BaseinfoLocation location = locationRpcService.getLocation(locationId);
+            if (location == null) {
+                throw new BizCheckedException("2060012");
+            }
             plan.setFromLocationId(locationId);
             plan.setToLocationId(locationRpcService.getBackLocation().getLocationId());
             plan.setUomQty(new BigDecimal(params.get("uomQty").toString()));
@@ -224,7 +232,11 @@ public class StockTransferRestService implements IStockTransferRestService {
             }
             StockQuant quant = quantList.get(0);
             plan.setItemId(quant.getItemId());
-            plan.setSubType(Long.valueOf(params.get("subType").toString()));
+            Long subType = 2L;
+            if (location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
+                subType = 3L;
+            }
+            plan.setSubType(subType);
             rpcService.addPlan(plan);
         } catch (BizCheckedException e) {
             throw e;
@@ -255,6 +267,10 @@ public class StockTransferRestService implements IStockTransferRestService {
             }
             plan.setPlanner(staffId);
             Long locationId = Long.valueOf(params.get("locationId").toString());
+            BaseinfoLocation location = locationRpcService.getLocation(locationId);
+            if (location == null) {
+                throw new BizCheckedException("2060012");
+            }
             plan.setFromLocationId(locationId);
             plan.setToLocationId(locationRpcService.getDefectiveLocation().getLocationId());
             plan.setUomQty(new BigDecimal(params.get("uomQty").toString()));
@@ -272,7 +288,11 @@ public class StockTransferRestService implements IStockTransferRestService {
             }
             StockQuant quant = quantList.get(0);
             plan.setItemId(quant.getItemId());
-            plan.setSubType(Long.valueOf(params.get("subType").toString()));
+            Long subType = 2L;
+            if (location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
+                subType = 3L;
+            }
+            plan.setSubType(subType);
             rpcService.addPlan(plan);
         } catch (BizCheckedException e) {
             throw e;

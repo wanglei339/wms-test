@@ -68,6 +68,12 @@
 		limit #{start},#{limit}
 		</if>
 	</select>
+
+	<select id="getWaveKanBanCount" resultType="java.util.HashMap">
+		select status, count(wave_id) as waveNum from wave_head
+		where  created_at between (unix_timestamp(now()-86440)) and now()
+		group by status
+	</select>
   
 	<sql id="queryCondition">
 		<where>
