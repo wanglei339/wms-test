@@ -191,13 +191,13 @@ public class StockQuantService {
             moveRel.setMoveId(move.getId());
             moveRel.setQuantId(quant.getId());
             relDao.insert(moveRel);
-            /*
+
             // 对于移出库的库存，移出stock_quant表,
             BaseinfoLocation toLocation = locationService.getLocation(move.getToLocationId());
             if (toLocation.getType().equals(LocationConstant.CONSUME_AREA)) {
                 this.moveToComplete(quant);
             }
-            */
+
             // 是否已经完成move？
             qtyDone = qtyDone.subtract(quant.getQty());
             if (qtyDone.compareTo(BigDecimal.ZERO) <= 0) {
