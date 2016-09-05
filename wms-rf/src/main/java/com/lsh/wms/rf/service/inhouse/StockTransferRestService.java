@@ -114,6 +114,10 @@ public class StockTransferRestService implements IStockTransferRestService {
         Map<String, Object> result = new HashMap<String, Object>();
         try {
             Long locationId = Long.valueOf(params.get("locationId").toString());
+            BaseinfoLocation location = locationRpcService.getLocation(locationId);
+            if (location == null) {
+                throw new BizCheckedException("2060012");
+            }
             StockQuantCondition condition = new StockQuantCondition();
             condition.setLocationId(locationId);
             List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
