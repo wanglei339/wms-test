@@ -3,12 +3,14 @@ package com.lsh.wms.core.service.location;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.q.Module.Base;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 import com.lsh.wms.model.stock.StockQuant;
+import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,8 @@ public class LocationService {
     private StockQuantService stockQuantService;
     @Autowired
     private LocationDetailService locationDetailService;
+    @Autowired
+    private LocationRedisService locationRedisService;
 
 
     /**
@@ -55,6 +59,25 @@ public class LocationService {
         if (null == locationId) {
             throw new BizCheckedException("2180001");
         }
+        //先从redis中取数据,没有去数据库中取
+//        Map<String, String> locationMap = locationRedisService.getRedisLocation(locationId);
+//        if (locationMap != null) {
+//            BaseinfoLocation location = new BaseinfoLocation();
+//            location.setLocationId(Long.parseLong(locationMap.get("locationId")));
+//            location.setLocationCode(locationMap.get("locationCode"));
+//            location.setFatherId(Long.parseLong(locationMap.get("fatherId")));
+//            location.setLeftRange(Long.parseLong(locationMap.get("leftRange")));
+//            location.setRightRange(Long.parseLong(locationMap.get("rightRange")));
+//            location.setLevel(Long.parseLong(locationMap.get("level")));
+//            location.setType(Long.parseLong(locationMap.get("type")));
+//            location.setTypeName(locationMap.get("typeName"));
+//            location.setIsLeaf(Integer.parseInt(locationMap.get("isLeaf")));
+//            location.setIsValid(Integer.parseInt(locationMap.get("isValid")));
+//            location.setCanStore(Integer.parseInt(locationMap.get("canStore")));
+//            location.setContainerVol(Long.parseLong(locationMap.get("containerVol")));
+//            location.setRegionNo(Long.parseLong(locationMap.get("regionNo")));
+//
+//        }
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("locationId", locationId);
         params.put("isValid", LocationConstant.IS_VALID);
@@ -658,7 +681,6 @@ public class LocationService {
     }
 
 
-
     /**
      * 获取货架存货位最小位置的方法,选取的集合在相邻的两货架之间(现阶段)
      *
@@ -731,10 +753,11 @@ public class LocationService {
 
     /**
      * 获取阁楼拣货位的最近的存货位,不关心当前的托盘数,没达到上线,可以一直放,放什么商品不关心
+     *
      * @param pickingLocation 阁楼货架的拣货位
      * @return
      */
-    public BaseinfoLocation getNearestBinInLoftByPicking(BaseinfoLocation pickingLocation){
+    public BaseinfoLocation getNearestBinInLoftByPicking(BaseinfoLocation pickingLocation) {
         //获取相邻货架的所有拣货位,先获取当前货架,获取通道,货物相邻货架,然后获取
         BaseinfoLocation shelfLocationSelf = this.getShelfByClassification(pickingLocation.getLocationId());
         //通道
@@ -749,7 +772,7 @@ public class LocationService {
         passage = passageList.get(0);
         allNearShelfSubs = this.getStoreLocations(passage.getLocationId());
         tempLocations.addAll(allNearShelfSubs);
-        BaseinfoLocation neareatLocation = this.filterNearestBinAlgorithm(tempLocations, pickingLocation, shelfLocationSelf,LocationConstant.LOFT_STORE_BIN);
+        BaseinfoLocation neareatLocation = this.filterNearestBinAlgorithm(tempLocations, pickingLocation, shelfLocationSelf, LocationConstant.LOFT_STORE_BIN);
         return neareatLocation;
     }
 
@@ -1123,4 +1146,14 @@ public class LocationService {
             return true;
         }
     }
+
+    /**
+     * 根据货位查找所在通道
+     * @param locationId    货位的id
+     * @return
+     */
+    public BaseinfoLocation getPassageByBin(Long locationId){
+      return this.getFatherByType(locationId,LocationConstant.PASSAGE);
+    }
+
 }
