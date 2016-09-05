@@ -191,7 +191,19 @@
 			<if test="ownerId != null">and owner_id=#{ownerId}</if>
 			<if test="itemId != null">and item_id=#{itemId}</if>
 			<if test="fromLocationId != null">and from_location_id=#{fromLocationId}</if>
+			<if test="fromLocationList != null">
+				and from_location_id in
+				<foreach collection="fromLocationList"  item="item" index="index" open="(" separator=","  close=")">
+					#{fromLocationId}
+				</foreach>
+			</if>
 			<if test="toLocationId != null">and to_location_id=#{toLocationId}</if>
+			<if test="toLocationList != null">
+				and to_location_id in
+				<foreach collection="toLocationList"  item="item" index="index" open="(" separator=","  close=")">
+					#{toLocationId}
+				</foreach>
+			</if>
 			<if test="qty != null">and qty=#{qty}</if>
 			<if test="realFromLocationId != null">and real_from_location_id=#{realFromLocationId}</if>
 			<if test="realToLocationId != null">and real_to_location_id=#{realToLocationId}</if>

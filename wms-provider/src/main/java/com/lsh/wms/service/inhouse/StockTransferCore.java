@@ -380,7 +380,20 @@ public class StockTransferCore {
         return taskList;
     }
 
-    public List<Long> getMoreTasks(List<TaskEntry> entryList) {
-        return this.sortTaskByLocation(entryList);
+    //TODO
+    public List<TaskEntry> getMoreTasks(TaskEntry entry) {
+        Long fromLocationId = entry.getTaskInfo().getFromLocationId(),
+                toLocationId = entry.getTaskInfo().getToLocationId(),
+                fromPassage = locationService.getFatherIdByType(fromLocationId, LocationConstant.PASSAGE),
+                toPassage = locationService.getFatherIdByType(toLocationId, LocationConstant.PASSAGE);
+        List<Long> fromLocationIdList = locationService.getStoreLocationIds(fromPassage),
+                toLocationIdList = locationService.getStoreLocationIds(toPassage);
+        List<TaskEntry> taskList = new ArrayList<TaskEntry>();
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("status", TaskConstant.Draft);
+        params.put("fromLocationList", fromLocationIdList);
+        params.put("toLocationList", toLocationIdList);
+        taskList = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, params);
+        return taskList;
     }
 }

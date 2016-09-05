@@ -5,6 +5,7 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -12,7 +13,7 @@ import java.util.Date;
  * Created by panxudong on 16/7/15.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PoItem {
+public class PoItem implements Serializable {
 
     /** 物美码 */
     @NotNull
