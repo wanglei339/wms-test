@@ -154,7 +154,7 @@
 				</foreach>
 			</if>
 			<if test="containerId != null and containerId != 0">and container_id=#{containerId}</if>
-			<if test="reserveTaskId != null and reserveTaskId != 0">and reserve_task_id=#{reserveTaskId}</if>
+			<if test="reserveTaskId != null">and reserve_task_id=#{reserveTaskId}</if>
 			<if test="packUnit != null and packUnit != 0">and pack_unit=#{packUnit}</if>
 			<if test="packName != null">and pack_name=#{packName}</if>
 			<if test="isFrozen != null">and is_frozen=#{isFrozen}</if>
@@ -163,7 +163,7 @@
 			<if test="lotId != null and lotId != 0">and lot_id=#{lotId}</if>
 			<if test="inDate != null">and in_date=#{inDate}</if>
 			<if test="expireDate != null">and expire_date=#{expireDate}</if>
-			<if test="itemId != null and itemId !=0">and item_id=#{itemId}</if>
+			<if test="itemId != null and itemId != 0">and item_id=#{itemId}</if>
 			<if test="isNormal != null and isNormal != true">and (is_frozen = 1 or reserve_task_id != 0)</if>
 			<if test="canUnFreeze != null and canUnfreeze != false">and (is_frozen = 1 or is_defect = 1 or is_refund = 1)</if>
 			<if test="isDefect != null">and is_defect=#{isDefect}</if>

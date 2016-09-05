@@ -19,6 +19,7 @@ import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
+import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
@@ -29,7 +30,6 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.Comparator;
 
 /**
  * Created by mali on 16/7/30.
@@ -71,36 +71,40 @@ public class StockTransferCore {
         condition.setLocationId(plan.getFromLocationId());
         condition.setItemId(plan.getItemId());
         List<StockQuant> quants = stockQuantRpcService.getQuantList(condition);
-        if(quants == null || quants.size() == 0){
+        if (quants == null || quants.size() == 0) {
             logger.error("error plan:" + plan.toString());
             return;
         }
         StockQuant quant = quants.get(0);
         plan.setPackUnit(quant.getPackUnit());
         plan.setPackName(quant.getPackName());
-        if (plan.getSubType().compareTo(1L)==0) {
+        if (plan.getSubType().compareTo(1L) == 0) {
             BigDecimal total = stockQuantRpcService.getQty(condition);
             plan.setQty(total.divide(quant.getPackUnit(), BigDecimal.ROUND_DOWN));
-        } else {
-            BigDecimal requiredQty = plan.getUomQty();
-            plan.setQty(requiredQty);
+        } else if (plan.getSubType().compareTo(2L) == 0) {
+            plan.setQty(plan.getUomQty());
+        } else if (plan.getSubType().compareTo(3L) == 0) {
+            plan.setPackUnit(BigDecimal.ONE);
+            plan.setPackName("EA");
+            plan.setQty(plan.getUomQty());
         }
     }
 
     public void outbound(Map<String, Object> params) throws BizCheckedException {
-        Long staffId = 0L;
+        Long uid = 0L;
         Long taskId = Long.valueOf(params.get("taskId").toString());
         Long fromLocationId = Long.valueOf(params.get("locationId").toString());
         try {
-            staffId= iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getStaffId();
-        }catch (Exception e){
+            SysUser user = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString()));
+            uid = user.getUid();
+        } catch (Exception e) {
             throw new BizCheckedException("2550013");
         }
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
         if (taskEntry == null) {
             throw new BizCheckedException("2550005");
         }
-        if (!taskEntry.getTaskInfo().getOperator().equals(staffId)) {
+        if (!taskEntry.getTaskInfo().getOperator().equals(uid)) {
             throw new BizCheckedException("2550031");
         }
         StockQuantCondition condition = new StockQuantCondition();
@@ -109,35 +113,40 @@ public class StockTransferCore {
         List<StockQuant> quants = stockQuantRpcService.getQuantList(condition);
 
         TaskInfo taskInfo = taskEntry.getTaskInfo();
-        if(taskInfo.getType().compareTo(TaskConstant.TYPE_PROCUREMENT)==0){
+        if (taskInfo.getType().compareTo(TaskConstant.TYPE_PROCUREMENT) == 0) {
             taskInfo.setExt4(1L);
-            if(quants == null || quants.size()==0){
+            if (quants == null || quants.size() == 0) {
                 throw new BizCheckedException("2550008");
             }
             StockQuant quant = quants.get(0);
-            if(quant.getItemId().compareTo(taskInfo.getItemId())!=0)
-                throw new BizCheckedException("2040005");{
+            if (quant.getItemId().compareTo(taskInfo.getItemId()) != 0)
+                throw new BizCheckedException("2040005");
+            {
             }
-        }else {
+        } else {
             if (taskInfo.getFromLocationId().compareTo(fromLocationId) != 0) {
                 throw new BizCheckedException("2040005");
             }
         }
         Long containerId = taskInfo.getContainerId();
         Long toLocationId = locationService.getWarehouseLocationId();
-        if (taskInfo.getSubType().compareTo(1L)==0) {
-            moveRpcService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
+        if (taskInfo.getSubType().compareTo(1L) == 0) {
+            moveRpcService.moveWholeContainer(containerId, taskId, uid, fromLocationId, toLocationId);
         } else {
             BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString());
             if (qtyDone.compareTo(BigDecimal.ZERO) <= 0) {
                 throw new BizCheckedException("2550034");
             }
-            if(taskInfo.getQty().compareTo(qtyDone) < 0){
+            if (taskInfo.getQty().compareTo(qtyDone) < 0) {
                 throw new BizCheckedException("2550008");
             }
             StockMove move = new StockMove();
             ObjUtils.bean2bean(taskInfo, move);
-            move.setQty(qtyDone.multiply(quants.get(0).getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP));
+            if (taskInfo.getSubType().compareTo(2L) == 0) {
+                move.setQty(qtyDone.multiply(quants.get(0).getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP));
+            } else if (taskInfo.getSubType().compareTo(3L) == 0) {
+                move.setQty(qtyDone);
+            }
             move.setFromLocationId(fromLocationId);
             move.setToLocationId(toLocationId);
             move.setFromContainerId(quants.get(0).getContainerId());
@@ -154,41 +163,46 @@ public class StockTransferCore {
         taskInfoDao.update(taskInfo);
     }
 
-    public void inbound(Map<String,Object> params) throws BizCheckedException {
-        Long staffId = 0L;
+    public void inbound(Map<String, Object> params) throws BizCheckedException {
+        Long uid = 0L;
         Long taskId = Long.valueOf(params.get("taskId").toString());
         Long toLocationId = Long.valueOf(params.get("locationId").toString());
         try {
-            staffId= iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getStaffId();
-        }catch (Exception e){
+            SysUser user = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString()));
+            uid = user.getUid();
+        } catch (Exception e) {
             throw new BizCheckedException("2550013");
         }
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
         if (taskEntry == null) {
             throw new BizCheckedException("2550005");
         }
-        if (!taskEntry.getTaskInfo().getOperator().equals(staffId)) {
+        if (!taskEntry.getTaskInfo().getOperator().equals(uid)) {
             throw new BizCheckedException("2550031");
         }
         TaskInfo taskInfo = taskEntry.getTaskInfo();
-        if(taskInfo.getToLocationId().compareTo(toLocationId) != 0) {
+        if (taskInfo.getToLocationId().compareTo(toLocationId) != 0) {
             throw new BizCheckedException("2040007");
         }
         Long containerId = taskInfo.getContainerId();
         Long fromLocationId = locationService.getWarehouseLocationId();
-        if (taskInfo.getSubType().compareTo(1L)==0) {
-            moveRpcService.moveWholeContainer(containerId, taskId, staffId, fromLocationId, toLocationId);
+        if (taskInfo.getSubType().compareTo(1L) == 0) {
+            moveRpcService.moveWholeContainer(containerId, taskId, uid, fromLocationId, toLocationId);
         } else {
             BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString());
             if (qtyDone.compareTo(BigDecimal.ZERO) <= 0) {
                 throw new BizCheckedException("2550034");
             }
-            if(taskInfo.getQtyDone().compareTo(qtyDone) != 0){
+            if (taskInfo.getQtyDone().compareTo(qtyDone) != 0) {
                 throw new BizCheckedException("2550014");
             }
             StockMove move = new StockMove();
             ObjUtils.bean2bean(taskInfo, move);
-            move.setQty(qtyDone.multiply(taskInfo.getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP));
+            if (taskInfo.getSubType().compareTo(2L) == 0) {
+                move.setQty(qtyDone.multiply(taskInfo.getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP));
+            } else if (taskInfo.getSubType().compareTo(3L) == 0) {
+                move.setQty(qtyDone);
+            }
             move.setFromLocationId(fromLocationId);
             move.setToLocationId(toLocationId);
             move.setFromContainerId(containerId);
@@ -216,7 +230,7 @@ public class StockTransferCore {
 
     public void sortOutbound(List<TaskEntry> entryList) {
         Collections.sort(entryList, new Comparator<TaskEntry>() {
-            public int compare (TaskEntry entry1, TaskEntry entry2) {
+            public int compare(TaskEntry entry1, TaskEntry entry2) {
                 try {
                     TaskInfo info1 = entry1.getTaskInfo(), info2 = entry2.getTaskInfo();
                     //sort fromLocationId
@@ -230,7 +244,7 @@ public class StockTransferCore {
         Long order = 1L;
         for (TaskEntry entry : entryList) {
             entry.getTaskInfo().setExt1(order);
-            order ++;
+            order++;
             taskInfoDao.update(entry.getTaskInfo());
         }
     }
@@ -251,14 +265,14 @@ public class StockTransferCore {
         Long order = 1L;
         for (TaskEntry entry : entryList) {
             entry.getTaskInfo().setExt2(order);
-            order ++;
+            order++;
             taskInfoDao.update(entry.getTaskInfo());
         }
 
     }
 
     public Long getFirstOutbound(Long staffId) {
-        Map<String ,Object> mapQuery = new HashMap<String, Object>();
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("status", TaskConstant.Assigned);
         mapQuery.put("operator", staffId);
         mapQuery.put("ext1", 1);
@@ -267,7 +281,7 @@ public class StockTransferCore {
     }
 
     public Long getFirstInbound(Long staffId) {
-        Map<String ,Object> mapQuery = new HashMap<String, Object>();
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("operator", staffId);
         mapQuery.put("status", TaskConstant.Assigned);
         mapQuery.put("ext2", 1);
@@ -279,7 +293,7 @@ public class StockTransferCore {
     public Long getNextOutbound(TaskEntry entry) {
         Long ext1 = entry.getTaskInfo().getExt1();
         Long operator = entry.getTaskInfo().getOperator();
-        Map<String ,Object> mapQuery = new HashMap<String, Object>();
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("status", TaskConstant.Assigned);
         mapQuery.put("ext1", ext1 + 1);
         mapQuery.put("operator", operator);
@@ -293,7 +307,7 @@ public class StockTransferCore {
     public Long getNextInbound(TaskEntry entry) {
         Long ext2 = entry.getTaskInfo().getExt2();
         Long operator = entry.getTaskInfo().getOperator();
-        Map<String ,Object> mapQuery = new HashMap<String, Object>();
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("status", TaskConstant.Assigned);
         mapQuery.put("operator", operator);
         mapQuery.put("ext2", ext2 + 1);
@@ -313,7 +327,7 @@ public class StockTransferCore {
         params.put("isValid", LocationConstant.IS_VALID);
         params.put("canUse", LocationConstant.CAN_USE);
         params.put("isLocked", LocationConstant.UNLOCK);
-        List <BaseinfoLocation> locationList = locationDao.getChildrenLocationList(params);
+        List<BaseinfoLocation> locationList = locationDao.getChildrenLocationList(params);
         if (locationList != null && !locationList.isEmpty()) {
             return locationList.get(0);
         }
@@ -341,12 +355,13 @@ public class StockTransferCore {
         }
         // sort by locationId
         Collections.sort(list, new Comparator<TaskEntry>() {
-            public int compare (TaskEntry entry1, TaskEntry entry2) {
+            public int compare(TaskEntry entry1, TaskEntry entry2) {
                 try {
                     TaskInfo info1 = entry1.getTaskInfo(), info2 = entry2.getTaskInfo();
                     if (info1.getFromLocationId().compareTo(info2.getFromLocationId()) == 0) {
                         return info1.getToLocationId().compareTo(info2.getToLocationId());
-                    } return info1.getFromLocationId().compareTo(info2.getFromLocationId());
+                    }
+                    return info1.getFromLocationId().compareTo(info2.getFromLocationId());
                 } catch (Exception e) {
                     e.printStackTrace();
                     return 0;
@@ -357,7 +372,7 @@ public class StockTransferCore {
         int idx = 0;
         for (TaskEntry entry : list) {
             taskList.add(entry.getTaskInfo().getTaskId());
-            idx ++;
+            idx++;
             if (idx == 4) {
                 break;
             }

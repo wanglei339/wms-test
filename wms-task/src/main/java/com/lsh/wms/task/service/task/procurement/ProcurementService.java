@@ -24,6 +24,11 @@ public class ProcurementService extends AbsTaskHandler {
     }
 
     public void calcPerformance(TaskInfo taskInfo) {
-        taskInfo.setTaskQty(taskInfo.getQty());
+        if(taskInfo.getSubType().compareTo(1L)==0){
+            taskInfo.setTaskQty(BigDecimal.ONE);
+        }else {
+            taskInfo.setTaskQty(taskInfo.getQtyDone());
+        }
+
     }
 }

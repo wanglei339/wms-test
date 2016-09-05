@@ -6,6 +6,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.wms.api.model.location.LocationDetailRequest;
 import com.lsh.wms.api.service.location.ILocationRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.constant.LocationConstant;
@@ -17,6 +18,7 @@ import com.lsh.wms.rpc.service.pick.PickRpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ObjectUtils;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -91,17 +93,17 @@ public class LocationRestService implements ILocationRestService {
     //    //insert与detail相关,需要同时插入detail的信息
     @POST
     @Path("insertLocation")
-    public String insertLocation() {
-        Map<String, Object> param = RequestUtils.getRequest();
-        BaseinfoLocation location = BeanMapTransUtils.map2Bean(param, BaseinfoLocation.class);
+    public String insertLocation(LocationDetailRequest request) {
+        BaseinfoLocation location = new BaseinfoLocation();
+        ObjUtils.bean2bean(request,location);
         return JsonUtils.SUCCESS(locationRpcService.insertLocation(location));
     }
 
     @POST
     @Path("updateLocation")
-    public String updateLocation() {
-        Map<String, Object> param = RequestUtils.getRequest();
-        BaseinfoLocation location = BeanMapTransUtils.map2Bean(param, BaseinfoLocation.class);
+    public String updateLocation(LocationDetailRequest request) {
+        BaseinfoLocation location = new BaseinfoLocation();
+        ObjUtils.bean2bean(request,location);
         return JsonUtils.SUCCESS(locationRpcService.updateLocation(location));
     }
 

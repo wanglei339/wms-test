@@ -86,6 +86,7 @@
 	<select id="getOutbDeliveryHeaderList" parameterType="map" resultMap="outbDeliveryHeaderResultMap">
 		select * from OUTB_DELIVERY_HEADER
 		<include refid="queryCondition"/>
+		ORDER BY ID DESC
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
 		</if>

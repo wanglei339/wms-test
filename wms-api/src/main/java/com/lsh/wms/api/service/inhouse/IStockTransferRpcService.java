@@ -1,6 +1,7 @@
 package com.lsh.wms.api.service.inhouse;
 
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.transfer.StockTransferPlan;
 
 import java.util.List;
@@ -19,4 +20,5 @@ public interface IStockTransferRpcService {
     void updatePlan(StockTransferPlan plan) throws BizCheckedException;
     void cancelPlan(Long taskId) throws BizCheckedException;
     void createStockTransfer() throws BizCheckedException;
+    Long allocateToLocationId(StockQuant quant) throws BizCheckedException;
 }

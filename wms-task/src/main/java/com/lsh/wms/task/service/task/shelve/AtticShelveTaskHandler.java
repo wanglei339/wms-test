@@ -84,6 +84,8 @@ public class AtticShelveTaskHandler extends AbsTaskHandler {
 
         ObjUtils.bean2bean(quant, taskInfo);
 
+        taskInfo.setTaskName("阁楼上架任务[ " + taskInfo.getContainerId() + "]");
+        taskInfo.setTaskQty(taskInfo.getQty().divide(taskInfo.getPackUnit(),2, BigDecimal.ROUND_DOWN));
         taskInfo.setType(TaskConstant.TYPE_ATTIC_SHELVE);
         taskInfo.setFromLocationId(quant.getLocationId());
 
@@ -92,6 +94,6 @@ public class AtticShelveTaskHandler extends AbsTaskHandler {
         super.create(taskEntry);
     }
     public void calcPerformance(TaskInfo taskInfo) {
-        taskInfo.setTaskQty(taskInfo.getQty().divide(taskInfo.getPackUnit(),BigDecimal.ROUND_DOWN));
+        taskInfo.setTaskQty(taskInfo.getQty().divide(taskInfo.getPackUnit(),2,BigDecimal.ROUND_DOWN));
     }
 }

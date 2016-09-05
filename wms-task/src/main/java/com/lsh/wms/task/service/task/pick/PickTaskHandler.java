@@ -105,6 +105,13 @@ public class PickTaskHandler extends AbsTaskHandler {
         if (realTotalQty.compareTo(new BigDecimal(0)) == 1) {
             stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, locationService.getWarehouseLocationId(), locationId);
         }
+        //--------------稍微注意一下下面两个操作会不会影响到性能,严格来讲,其实最好是异步的,呵呵.
+        //更新订单状态
+        if(taskHead.getDeliveryId()>1) {
+            waveService.updateOrderStatus(taskHead.getDeliveryId());
+        }
+        //更新波次状态
+        waveService.updateWaveStatus(taskHead.getWaveId());
     }
 
     public void assignConcrete(Long taskId, Long staffId, Long containerId) throws BizCheckedException {

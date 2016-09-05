@@ -657,6 +657,8 @@ public class LocationService {
         return nearestLocation;
     }
 
+
+
     /**
      * 获取货架存货位最小位置的方法,选取的集合在相邻的两货架之间(现阶段)
      *
@@ -724,6 +726,30 @@ public class LocationService {
         allNearShelfSubs = this.getStoreLocations(passage.getLocationId());
         tempLocations.addAll(allNearShelfSubs);
         BaseinfoLocation neareatLocation = this.filterNearestBinAlgorithm(tempLocations, pickingLocation, shelfLocationSelf, LocationConstant.SPLIT_SHELF_BIN);
+        return neareatLocation;
+    }
+
+    /**
+     * 获取阁楼拣货位的最近的存货位,不关心当前的托盘数,没达到上线,可以一直放,放什么商品不关心
+     * @param pickingLocation 阁楼货架的拣货位
+     * @return
+     */
+    public BaseinfoLocation getNearestBinInLoftByPicking(BaseinfoLocation pickingLocation){
+        //获取相邻货架的所有拣货位,先获取当前货架,获取通道,货物相邻货架,然后获取
+        BaseinfoLocation shelfLocationSelf = this.getShelfByClassification(pickingLocation.getLocationId());
+        //通道
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("locationId", shelfLocationSelf.getFatherId());
+        List<BaseinfoLocation> passageList = this.getBaseinfoLocationList(params);
+        BaseinfoLocation passage = null;
+        //将本货架的所有位置放在一个集合中
+        List<BaseinfoLocation> tempLocations = new ArrayList<BaseinfoLocation>();
+        List<BaseinfoLocation> allNearShelfSubs = null;
+        //无论是否存在相邻货架,将一个通道下的所有位置拿出来(必须保证货架个体的father必须是通道)
+        passage = passageList.get(0);
+        allNearShelfSubs = this.getStoreLocations(passage.getLocationId());
+        tempLocations.addAll(allNearShelfSubs);
+        BaseinfoLocation neareatLocation = this.filterNearestBinAlgorithm(tempLocations, pickingLocation, shelfLocationSelf,LocationConstant.LOFT_STORE_BIN);
         return neareatLocation;
     }
 

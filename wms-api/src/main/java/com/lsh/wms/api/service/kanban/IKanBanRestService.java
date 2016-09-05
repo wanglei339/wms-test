@@ -12,4 +12,6 @@ public interface IKanBanRestService {
     String getPoDetailKanBanCount(Long orderType);
 
     String getKanBanCountByStatus(Long type);
+
+    String getSoKanbanCount(Long type);
 }

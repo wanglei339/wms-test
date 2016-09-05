@@ -94,7 +94,7 @@
                 <redis.passwd.w></redis.passwd.w>
                 <redis.host.r>127.0.0.1</redis.host.r>
                 <redis.port.r>6379</redis.port.r>
-                <redis.passwd.r>lsh@2016</redis.passwd.r>
+                <redis.passwd.r></redis.passwd.r>
                 <upload.path.root>/data/upload/staticfile</upload.path.root>
                 <oss.file.endpoint>oss-cn-beijing.aliyuncs.com</oss.file.endpoint>
                 <oss.image.endpoint>oss-cn-beijing.aliyuncs.com</oss.image.endpoint>
