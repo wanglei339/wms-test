@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #发布的APP
-APPS=( "wms-rpc" "wms-task" "wms-provider" "wms-rf" )
+APPS=( "wms-rpc" "wms-task" "wms-provider" "wms-rf" "wms-integration")
 #版本号
 VERSION="1.0-SNAPSHOT"
 #远程路径

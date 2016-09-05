@@ -233,7 +233,6 @@ public class StockQuantService {
 
     @Transactional(readOnly = false)
     public List<StockQuant> reserve(Map<String, Object> mapQuery, Long taskId, BigDecimal requiredQty) throws BizCheckedException {
-        logger.info("reserve_qty:" + requiredQty);
         List<StockQuant> quantList = this.getQuants(mapQuery);
         List<StockQuant> resultList = new ArrayList<StockQuant>();
         for (StockQuant quant : quantList) {

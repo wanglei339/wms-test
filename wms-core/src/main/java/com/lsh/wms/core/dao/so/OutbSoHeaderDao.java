@@ -20,5 +20,7 @@ public interface OutbSoHeaderDao {
     Integer countOutbSoHeader(Map<String, Object> params);
 
     List<OutbSoHeader> getOutbSoHeaderList(Map<String, Object> params);
+
+	List<Map<String, Object>> getSoKanBanCount(Long orderType);
 	
 }
