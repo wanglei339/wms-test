@@ -354,7 +354,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
             one.put("status",info.getStatus());
             one.put("canEdit",canEdit);
             one.put("operator",info.getOperator());
-            one.put("taskId", info.getTaskId());
+            one.put("taskId", info.getTaskId().toString());
             one.put("containerId",info.getContainerId());
 
 

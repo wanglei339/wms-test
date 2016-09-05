@@ -62,5 +62,10 @@ public class RedisKeyConstant {
 
     public static final String WAREHOUSE_SKU_INVENTORY_QTY = "warehouse:{0}:sku:{1}:qty";
 
+    /**
+     * 库区区位占用resid key  hash
+     */
+    public static final String LOCATION_LOCATIONID = "location:locationId:{0}";
+
 
 }

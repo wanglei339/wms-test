@@ -3,9 +3,11 @@ package com.lsh.wms.core.service.item;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoItemDao;
+import com.lsh.wms.core.dao.baseinfo.BaseinfoItemQuantRangeDao;
 import com.lsh.wms.core.dao.csi.CsiSkuDao;
 import com.lsh.wms.core.dao.stock.StockQuantDao;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoItemQuantRange;
 import com.lsh.wms.model.csi.CsiSku;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +33,8 @@ public class ItemService {
     private static final ConcurrentMap<Long, BaseinfoItem> m_ItemCache = new ConcurrentHashMap<Long, BaseinfoItem>();
     @Autowired
     private BaseinfoItemDao itemDao;
+    @Autowired
+    private BaseinfoItemQuantRangeDao rangeDao;
 
     @Autowired
     private CsiSkuDao skuDao;
@@ -61,6 +65,26 @@ public class ItemService {
             e.printStackTrace();
         }
         return new_item;
+    }
+    public BaseinfoItemQuantRange getItemRange(Long itemId){
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("itemId",itemId);
+        List<BaseinfoItemQuantRange> ranges = rangeDao.getBaseinfoItemQuantRangeList(mapQuery);
+
+        return ranges==null ||ranges.isEmpty() ? null :ranges.get(0);
+    }
+    @Transactional(readOnly = false)
+    public void insertItemRange(BaseinfoItemQuantRange range){
+        range.setUpdatedAt(DateUtils.getCurrentSeconds());
+        range.setCreatedAt(DateUtils.getCurrentSeconds());
+        rangeDao.insert(range);
+
+    }
+    @Transactional(readOnly = false)
+    public void updateItemRange(BaseinfoItemQuantRange range){
+        range.setUpdatedAt(DateUtils.getCurrentSeconds());
+        rangeDao.update(range);
+
     }
 
     public List<BaseinfoItem> getItemsBySkuCode(long iOwnerId, String sSkuCode){

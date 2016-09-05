@@ -107,10 +107,10 @@ public class StockMoveService {
             move.setOperator(staffId);
             this.create(move);
             quantService.move(move);
-//            BaseinfoLocation location = locationService.getLocation(move.getToLocationId());
-//            if(location.getType().compareTo(LocationConstant.CONSUME_AREA)!=0) {
-//                quantService.unReserveById(quant.getId());
-//            }
+            BaseinfoLocation location = locationService.getLocation(move.getToLocationId());
+            if(location.getType().compareTo(LocationConstant.CONSUME_AREA)!=0) {
+                quantService.unReserveById(quant.getId());
+            }
             quantService.unReserveById(quant.getId());
         }
     }
@@ -156,7 +156,7 @@ public class StockMoveService {
     @Transactional(readOnly = false)
     public void moveToContainer(Long itemId, Long operator,Long fromContainer,Long toContainer,Long locationId,BigDecimal qty) throws BizCheckedException {
         if (qty.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BizCheckedException("1550001" );
+            throw new BizCheckedException("1550001");
         }
 
         locationService.lockLocationByContainer(fromContainer);

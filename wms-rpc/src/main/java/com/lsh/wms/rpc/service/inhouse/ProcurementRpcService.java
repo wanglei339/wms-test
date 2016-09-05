@@ -1,5 +1,6 @@
 package com.lsh.wms.rpc.service.inhouse;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.ObjUtils;
@@ -9,10 +10,9 @@ import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.item.ItemService;
+import com.lsh.wms.core.service.location.BaseinfoLocationBinService;
 import com.lsh.wms.core.service.task.BaseTaskService;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
-import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
-import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.baseinfo.*;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
@@ -45,15 +45,14 @@ public class ProcurementRpcService implements IProcurementRpcService{
     private ContainerService containerService;
     @Autowired
     private LocationRpcService locationRpcService;
-
+    @Autowired
+    private BaseinfoLocationBinService locationBinService;
     @Autowired
     private ItemRpcService itemRpcService;
-
-    private static Logger logger = LoggerFactory.getLogger(ProcurementRpcService.class);
-
-
     @Autowired
     private ItemService itemService;
+
+    private static Logger logger = LoggerFactory.getLogger(ProcurementRpcService.class);
 
     public boolean needProcurement(Long locationId, Long itemId) throws BizCheckedException {
         StockQuantCondition condition = new StockQuantCondition();
@@ -64,17 +63,23 @@ public class ProcurementRpcService implements IProcurementRpcService{
             return true;
         }
         StockQuant quant = quantService.getQuantList(condition).get(0);
-        qty = qty.divide(quant.getPackUnit(),4);
-        BaseinfoItem itemInfo = itemService.getItem(itemId);
-        qty = qty.divide(itemInfo.getPackUnit(),4);
-        if (itemInfo.getItemLevel() == 1) {
-            return qty.compareTo(new BigDecimal(5.0)) >= 0 ? false : true;
-        } else if (itemInfo.getItemLevel() == 2) {
-            return qty.compareTo(new BigDecimal(3.0)) >= 0 ? false : true;
-        } else if (itemInfo.getItemLevel() == 3) {
-            return qty.compareTo(new BigDecimal(2.0)) >= 0 ? false : true;
-        } else {
-            return false;
+        qty = qty.divide(quant.getPackUnit(),0,BigDecimal.ROUND_DOWN);
+        //       BaseinfoItem itemInfo = itemService.getItem(itemId);
+//        if (itemInfo.getItemLevel() == 1) {
+//            return qty.compareTo(new BigDecimal(5.0)) >= 0 ? false : true;
+//        } else if (itemInfo.getItemLevel() == 2) {
+//            return qty.compareTo(new BigDecimal(3.0)) >= 0 ? false : true;
+//        } else if (itemInfo.getItemLevel() == 3) {
+//            return qty.compareTo(new BigDecimal(2.0)) >= 0 ? false : true;
+//        } else {
+//            return false;
+//        }
+        BaseinfoItemQuantRange range = itemService.getItemRange(itemId);
+        if(range==null){
+            return qty.compareTo(this.getThreshold(locationId, itemId)) < 0;
+        }else {
+            BigDecimal minQty = range.getMinQty();
+            return qty.compareTo(minQty) < 0;
         }
     }
 
@@ -85,7 +90,26 @@ public class ProcurementRpcService implements IProcurementRpcService{
         }
         return qty;
     }
+    public BigDecimal getThreshold(Long locationId, Long itemId) {
+        BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(locationId);
+        BigDecimal pickVolume = bin.getVolume();
+        BaseinfoItem item = itemService.getItem(itemId);
 
+        BigDecimal bulk = BigDecimal.ONE;
+        BigDecimal sum = BigDecimal.ONE;
+        //计算包装单位的体积
+        bulk = bulk.multiply(item.getPackLength());
+        bulk = bulk.multiply(item.getPackHeight());
+        bulk = bulk.multiply(item.getPackWidth());
+        //计算码盘存储数量
+        sum = sum.multiply(new BigDecimal(item.getPileX()));
+        sum = sum.multiply(new BigDecimal(item.getPileY()));
+        sum = sum.multiply(new BigDecimal(item.getPileZ()));
+        //计算库位能存多少商品
+        BigDecimal num = pickVolume.divide(bulk,0,BigDecimal.ROUND_UP);
+
+        return num.subtract(sum);
+    }
 
     public TaskEntry addProcurementPlan(StockTransferPlan plan) throws BizCheckedException {
         if(!this.checkPlan(plan)){

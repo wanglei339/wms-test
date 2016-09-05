@@ -479,7 +479,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             detail.setAllocLocationId(location.getLocationId());
             detail.setRealLocationId(location.getLocationId());
 
-            BigDecimal num = valum.divide(bulk,2,BigDecimal.ROUND_DOWN);
+            BigDecimal num = valum.divide(bulk,0,BigDecimal.ROUND_DOWN);
             if (total.subtract(num).compareTo(BigDecimal.ZERO) >= 0) {
                 detail.setQty(num);
             } else {
