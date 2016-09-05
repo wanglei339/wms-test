@@ -33,8 +33,8 @@ public class LocationService {
     private StockQuantService stockQuantService;
     @Autowired
     private LocationDetailService locationDetailService;
-//    @Autowired
-//    private LocationRedisService locationRedisService;
+    @Autowired
+    private LocationRedisService locationRedisService;
 
 
     /**
@@ -60,29 +60,46 @@ public class LocationService {
             throw new BizCheckedException("2180001");
         }
         //先从redis中取数据,没有去数据库中取
-//        Map<String, String> locationMap = locationRedisService.getRedisLocation(locationId);
-//        if (locationMap != null) {
-//            BaseinfoLocation location = new BaseinfoLocation();
-//            location.setLocationId(Long.parseLong(locationMap.get("locationId")));
-//            location.setLocationCode(locationMap.get("locationCode"));
-//            location.setFatherId(Long.parseLong(locationMap.get("fatherId")));
-//            location.setLeftRange(Long.parseLong(locationMap.get("leftRange")));
-//            location.setRightRange(Long.parseLong(locationMap.get("rightRange")));
-//            location.setLevel(Long.parseLong(locationMap.get("level")));
-//            location.setType(Long.parseLong(locationMap.get("type")));
-//            location.setTypeName(locationMap.get("typeName"));
-//            location.setIsLeaf(Integer.parseInt(locationMap.get("isLeaf")));
-//            location.setIsValid(Integer.parseInt(locationMap.get("isValid")));
-//            location.setCanStore(Integer.parseInt(locationMap.get("canStore")));
-//            location.setContainerVol(Long.parseLong(locationMap.get("containerVol")));
-//            location.setRegionNo(Long.parseLong(locationMap.get("regionNo")));
-//
-//        }
+        Map<String, String> locationMap = locationRedisService.getRedisLocation(locationId);
+        if (locationMap != null && !locationMap.isEmpty()) {
+            BaseinfoLocation location = new BaseinfoLocation();
+            location.setLocationId(Long.parseLong(locationMap.get("locationId")));
+            location.setLocationCode(locationMap.get("locationCode"));
+            location.setFatherId(Long.parseLong(locationMap.get("fatherId")));
+            location.setLeftRange(Long.parseLong(locationMap.get("leftRange")));
+            location.setRightRange(Long.parseLong(locationMap.get("rightRange")));
+            location.setLevel(Long.parseLong(locationMap.get("level")));
+            location.setType(Long.parseLong(locationMap.get("type")));
+            location.setTypeName(locationMap.get("typeName"));
+            location.setIsLeaf(Integer.parseInt(locationMap.get("isLeaf")));
+            location.setIsValid(Integer.parseInt(locationMap.get("isValid")));
+            location.setCanStore(Integer.parseInt(locationMap.get("canStore")));
+            location.setContainerVol(Long.parseLong(locationMap.get("containerVol")));
+            location.setRegionNo(Long.parseLong(locationMap.get("regionNo")));
+            location.setPassageNo(Long.parseLong(locationMap.get("passageNo")));
+            location.setShelfLevelNo(Long.parseLong(locationMap.get("shelfLevelNo")));
+            location.setBinPositionNo(Long.parseLong(locationMap.get("binPositionNo")));
+            location.setCreatedAt(Long.parseLong(locationMap.get("createdAt")));
+            location.setUpdatedAt(Long.parseLong(locationMap.get("updatedAt")));
+            location.setClassification(Integer.parseInt(locationMap.get("classification")));
+            location.setCanUse(Integer.parseInt(locationMap.get("canUse")));
+            location.setIsLocked(Integer.parseInt(locationMap.get("isLocked")));
+            location.setCurContainerVol(Long.parseLong(locationMap.get("curContainerVol")));
+            location.setDescription(locationMap.get("description"));
+            return location;
+        }
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("locationId", locationId);
         params.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
-        return (locations != null && locations.size() > 0) ? locations.get(0) : null;
+        //redis中没有,放入redis
+        if (locations != null && locations.size() > 0) {
+//            //将没读入redis的写入redis(直接调用接口写入redis)
+//            locationRedisService.insertLocationRedis(locations.get(0));
+            return locations.get(0);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -99,6 +116,8 @@ public class LocationService {
         location.setCreatedAt(createdAt);
         location.setUpdatedAt(createdAt);
         locationDao.insert(location);
+        //写入缓存
+        locationRedisService.insertLocationRedis(location);
         return location;
     }
 
@@ -117,6 +136,8 @@ public class LocationService {
         long updatedAt = DateUtils.getCurrentSeconds();
         baseinfoLocation.setUpdatedAt(updatedAt);
         locationDao.update(baseinfoLocation);
+        //写入缓存
+        locationRedisService.insertLocationRedis(baseinfoLocation);
         return baseinfoLocation;
     }
 
@@ -152,6 +173,9 @@ public class LocationService {
         for (BaseinfoLocation child : childrenList) {
             child.setIsValid(LocationConstant.NOT_VALID);
             updateLocation(child);
+            //删除redis的数据
+            locationRedisService.delLocationRedis(child.getLocationId());
+
             locationDetailService.removeLocationDetail(child);
         }
         //删除该节点
@@ -1149,11 +1173,12 @@ public class LocationService {
 
     /**
      * 根据货位查找所在通道
-     * @param locationId    货位的id
+     *
+     * @param locationId 货位的id
      * @return
      */
-    public BaseinfoLocation getPassageByBin(Long locationId){
-      return this.getFatherByType(locationId,LocationConstant.PASSAGE);
+    public BaseinfoLocation getPassageByBin(Long locationId) {
+        return this.getFatherByType(locationId, LocationConstant.PASSAGE);
     }
 
 }
