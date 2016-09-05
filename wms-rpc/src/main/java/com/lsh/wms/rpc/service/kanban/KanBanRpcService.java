@@ -36,4 +36,8 @@ public class KanBanRpcService implements IKanBanRpcService {
     public List<Map<String, Object>> getSoKanbanCount(Long type) {
         return kanBanService.getSoKanBanCount(type);
     }
+
+    public List<Map<String, Object>> getWaveKanBanCount() {
+        return kanBanService.getWaveKanBanCount();
+    }
 }
