@@ -303,6 +303,7 @@ public class LocationService {
         return locationDao.getChildrenLocationList(params);
     }
 
+
     /**
      * 获取一个location下一层的子节点
      *
@@ -1081,6 +1082,17 @@ public class LocationService {
         }
         return this.getFatherByClassification(fatherId);
     }
+    public BaseinfoLocation getFatherByClassification(BaseinfoLocation location) {
+        Long fatherId = location.getFatherId();
+        if (location.getClassification().equals(LocationConstant.REGION_TYPE)) {
+            return location;
+        }
+        if (fatherId == 0) {
+            return null;
+        }
+        return this.getFatherByClassification(fatherId);
+    }
+
 
     /**
      * 根据货架类型classification来查到区的级别
@@ -1180,5 +1192,18 @@ public class LocationService {
     public BaseinfoLocation getPassageByBin(Long locationId) {
         return this.getFatherByType(locationId, LocationConstant.PASSAGE);
     }
+
+    /**
+     * 导入mysql数据库到redis的方法
+     */
+    public void syncRedisAll() {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("isValid", LocationConstant.IS_VALID);
+        List<BaseinfoLocation> locations = this.getBaseinfoLocationList(mapQuery);
+        for (BaseinfoLocation location:locations){
+            locationRedisService.insertLocationRedis(location);
+        }
+    }
+
 
 }

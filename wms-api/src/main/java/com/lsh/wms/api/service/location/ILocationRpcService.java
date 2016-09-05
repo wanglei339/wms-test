@@ -79,5 +79,17 @@ public interface ILocationRpcService {
      */
     public BaseinfoLocation unlockLocation(Long locationId) throws BizCheckedException;
 
+    /**
+     * 同通道的位置排序
+     */
+    public List<BaseinfoLocation> sortLocationInOnePassage(List<BaseinfoLocation> locations) throws BizCheckedException;
+
+    /**
+     * 查找最近的通道
+     * @param location
+     * @return
+     */
+    public List<BaseinfoLocation> getNearestPassage(BaseinfoLocation location);
+
 
 }
