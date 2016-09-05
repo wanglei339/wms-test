@@ -33,8 +33,8 @@ public class LocationService {
     private StockQuantService stockQuantService;
     @Autowired
     private LocationDetailService locationDetailService;
-    @Autowired
-    private LocationRedisService locationRedisService;
+//    @Autowired
+//    private LocationRedisService locationRedisService;
 
 
     /**
