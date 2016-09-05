@@ -18,6 +18,5 @@ public class IntegrationMain {
             System.arraycopy(args, 1, argAry, 0, args.length - 1);
         }
         com.alibaba.dubbo.container.Main.main(argAry);
-
     }
 }
