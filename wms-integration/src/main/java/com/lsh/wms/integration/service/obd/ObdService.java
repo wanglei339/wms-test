@@ -70,6 +70,8 @@ public class ObdService implements IObdService{
         ObjUtils.bean2bean(request,soRequest);
 
         soRequest.setItems(items);
+        //默认下单用户
+        soRequest.setOrderUser("超市");
 
         // TODO: 16/9/5  重复的order_other_id 校验
         String orderOtherId = request.getOrderOtherId();

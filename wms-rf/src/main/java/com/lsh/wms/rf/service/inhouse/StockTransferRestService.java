@@ -114,7 +114,12 @@ public class StockTransferRestService implements IStockTransferRestService {
         Map<String, Object> result = new HashMap<String, Object>();
         try {
             Long locationId = Long.valueOf(params.get("locationId").toString());
-            BaseinfoLocation location = locationRpcService.getLocation(locationId);
+            BaseinfoLocation location;
+            try {
+                location = locationRpcService.getLocation(locationId);
+            } catch (BizCheckedException e) {
+                throw new BizCheckedException("2060012");
+            }
             if (location == null) {
                 throw new BizCheckedException("2060012");
             }
@@ -161,7 +166,12 @@ public class StockTransferRestService implements IStockTransferRestService {
             }
             plan.setPlanner(staffId);
             Long locationId = Long.valueOf(params.get("locationId").toString());
-            BaseinfoLocation location = locationRpcService.getLocation(locationId);
+            BaseinfoLocation location;
+            try {
+                location = locationRpcService.getLocation(locationId);
+            } catch (BizCheckedException e) {
+                throw new BizCheckedException("2060012");
+            }
             if (location == null) {
                 throw new BizCheckedException("2060012");
             }
@@ -215,7 +225,12 @@ public class StockTransferRestService implements IStockTransferRestService {
             }
             plan.setPlanner(staffId);
             Long locationId = Long.valueOf(params.get("locationId").toString());
-            BaseinfoLocation location = locationRpcService.getLocation(locationId);
+            BaseinfoLocation location;
+            try {
+                location = locationRpcService.getLocation(locationId);
+            } catch (BizCheckedException e) {
+                throw new BizCheckedException("2060012");
+            }
             if (location == null) {
                 throw new BizCheckedException("2060012");
             }
@@ -271,7 +286,12 @@ public class StockTransferRestService implements IStockTransferRestService {
             }
             plan.setPlanner(staffId);
             Long locationId = Long.valueOf(params.get("locationId").toString());
-            BaseinfoLocation location = locationRpcService.getLocation(locationId);
+            BaseinfoLocation location;
+            try {
+                location = locationRpcService.getLocation(locationId);
+            } catch (BizCheckedException e) {
+                throw new BizCheckedException("2060012");
+            }
             if (location == null) {
                 throw new BizCheckedException("2060012");
             }

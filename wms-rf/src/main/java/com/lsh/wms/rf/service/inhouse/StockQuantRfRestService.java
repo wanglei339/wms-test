@@ -6,11 +6,13 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.item.IItemRpcService;
+import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.stock.IStockQuantRfRestService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.core.constant.CsiConstan;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
@@ -41,6 +43,9 @@ public class StockQuantRfRestService implements IStockQuantRfRestService {
     @Reference
     private IItemRpcService itemRpcService;
 
+    @Reference
+    private ILocationRpcService locationRpcService;
+
     @POST
     @Path("getItem")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
@@ -48,8 +53,16 @@ public class StockQuantRfRestService implements IStockQuantRfRestService {
     public String getItemByLocation() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
         Long locationId = Long.valueOf(params.get("locationId").toString());
+        BaseinfoLocation location;
+        try {
+            location = locationRpcService.getLocation(locationId);
+        } catch (BizCheckedException e) {
+            throw new BizCheckedException("2060012");
+        }
+        if (location == null) {
+            throw new BizCheckedException("2060012");
+        }
         String barCode =params.get("barcode").toString();
-
         CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE,barCode);
         if(csiSku == null) {
             throw new BizCheckedException("2550032");
@@ -66,12 +79,6 @@ public class StockQuantRfRestService implements IStockQuantRfRestService {
         m.put("itemId", quant.getItemId());
         m.put("name", csiSku.getSkuName());
         m.put("packName", quant.getPackName());
-        //List <String> packNameList = new ArrayList<String>();
-        //packNameList.add(quant.getPackName());
-        //packNameList.add("ea");
-        //packNameList.add("pallet");
-        //m.put("packName", packNameList);
-
         Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>();
         result.put("info", m);
         return JsonUtils.SUCCESS(result);
