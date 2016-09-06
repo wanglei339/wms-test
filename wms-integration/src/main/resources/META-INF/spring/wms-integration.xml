@@ -20,7 +20,7 @@
 
     <!-- 应用信息配置，也可以用dubbo.properties配置 -->
     <!-- http://dubbo.io/User+Guide-zh.htm#UserGuide-zh-%3Cdubbo%3Aapplication%2F%3E -->
-    <dubbo:application name="wms-provider" owner="lsh-wms" organization="lsh"/>
+    <dubbo:application name="wms-integration" owner="lsh-wms" organization="lsh"/>
 
     <!-- 注册中心配置 -->
     <!-- http://dubbo.io/User+Guide-zh.htm#UserGuide-zh-%3Cdubbo%3Aregistry%2F%3E -->
