@@ -167,7 +167,7 @@ public class WaveCore {
                         //卧槽,已经是叶子节点了,没有集货位啊,怎么搞啊
                         collectionBins = new ArrayList<BaseinfoLocation>();
                     }
-                    collectionBins = locationService.getSubLocationList(collecRoad.getLocationId(), LocationConstant.COLLECTION_BIN);
+                    collectionBins = locationService.getChildrenLocationsByType(collecRoad.getLocationId(), LocationConstant.COLLECTION_BIN);
                     mapCollectRoad2Bin.put(collecRoad.getLocationId(), collectionBins);
                 }
                 if(order.getWaveIndex()>= collectionBins.size()){
@@ -451,7 +451,7 @@ public class WaveCore {
             throw new BizCheckedException("2040009");
         }
         //获取集货道列表
-        List<BaseinfoLocation> collectLocations = locationService.getSubLocationList(locGrp.getLocationId(), LocationConstant.COLLECTION_ROAD);
+        List<BaseinfoLocation> collectLocations = locationService.getChildrenLocationsByType(locGrp.getLocationId(), LocationConstant.COLLECTION_ROAD);
         if(collectLocations.size()==0){
             throw new BizCheckedException("2040010");
         }
