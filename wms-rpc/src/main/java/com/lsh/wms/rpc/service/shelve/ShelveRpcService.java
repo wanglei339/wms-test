@@ -185,6 +185,9 @@ public class ShelveRpcService implements IShelveRpcService {
         BaseinfoLocation areaLocation = locationService.getFatherByClassification(location.getLocationId());
         // 获取该库区下所有的货架位
         List<BaseinfoLocation> storeLocations = locationService.getChildrenLocationsByType(areaLocation.getLocationId(), locationType);
+        if (storeLocations.size() < 1) {
+            return false;
+        }
         params.put("itemId", quant.getItemId());
         params.put("locationList", storeLocations);
         // 获取货架位上的该商品库存
