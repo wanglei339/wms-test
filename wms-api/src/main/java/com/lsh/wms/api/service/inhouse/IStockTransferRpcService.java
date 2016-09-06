@@ -11,6 +11,7 @@ import java.util.Map;
  * Created by mali on 16/8/1.
  */
 public interface IStockTransferRpcService {
+    boolean checkLocation(Long fromType, Long toType) throws BizCheckedException;
     boolean checkPlan(StockTransferPlan plan) throws BizCheckedException;
     Long addPlan(StockTransferPlan plan) throws BizCheckedException;
     Map<String, Object> scanToLocation(Map<String, Object> params) throws BizCheckedException;

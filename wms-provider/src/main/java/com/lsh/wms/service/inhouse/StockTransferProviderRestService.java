@@ -1,13 +1,10 @@
 package com.lsh.wms.service.inhouse;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.inhouse.IStockTransferProviderRestService;
-import com.lsh.wms.api.service.inhouse.IStockTransferRpcService;
-import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.model.transfer.StockTransferPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by mali on 16/8/1.
@@ -34,9 +29,9 @@ public class StockTransferProviderRestService implements IStockTransferProviderR
     @POST
     @Path("add")
     public String addPlan(StockTransferPlan plan) throws BizCheckedException {
-        try{
+        try {
             rpcService.addPlan(plan);
-        } catch (BizCheckedException e){
+        } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -50,7 +45,7 @@ public class StockTransferProviderRestService implements IStockTransferProviderR
     public String updatePlan(StockTransferPlan plan) throws BizCheckedException {
         try {
             rpcService.updatePlan(plan);
-        } catch (BizCheckedException e){
+        } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -62,9 +57,9 @@ public class StockTransferProviderRestService implements IStockTransferProviderR
     @GET
     @Path("cancel")
     public String cancelPlan(@QueryParam("taskId") Long taskId) throws BizCheckedException {
-        try{
+        try {
             rpcService.cancelPlan(taskId);
-        } catch (BizCheckedException e){
+        } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
