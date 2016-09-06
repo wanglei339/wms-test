@@ -217,6 +217,7 @@ public class LocationRpcService implements ILocationRpcService {
             //距离目标通道的距离
             tempMap.put("passageDisance", (temp.getPassageNo() - location.getPassageNo()) * (temp.getPassageNo() - location.getPassageNo()));
             tempMap.put("location", temp);
+            passageDistanceList.add(tempMap);
         }
         //按距离排序,升序
         Collections.sort(passageDistanceList, new Comparator<Map<String, Object>>() {
