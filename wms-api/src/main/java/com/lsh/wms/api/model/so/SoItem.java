@@ -11,6 +11,9 @@ import java.math.BigDecimal;
  * Created by panxudong on 16/7/15.
  */
 public class SoItem implements Serializable {
+    /** 上游细单Id */
+    @NotNull
+    private String detailOtherId;
 
     /** 外部商品编码 */
     @NotNull
@@ -40,7 +43,8 @@ public class SoItem implements Serializable {
 
     }
 
-    public SoItem(String skuCode, String skuName, String barCode, BigDecimal orderQty, BigDecimal packUnit, String lotNum) {
+    public SoItem(String detailOtherId,String skuCode, String skuName, String barCode, BigDecimal orderQty, BigDecimal packUnit, String lotNum) {
+        this.detailOtherId = detailOtherId;
         this.skuCode = skuCode;
         this.skuName = skuName;
         this.barCode = barCode;
@@ -96,5 +100,13 @@ public class SoItem implements Serializable {
 
     public void setLotNum(String lotNum) {
         this.lotNum = lotNum;
+    }
+
+    public String getDetailOtherId() {
+        return detailOtherId;
+    }
+
+    public void setDetailOtherId(String detailOtherId) {
+        this.detailOtherId = detailOtherId;
     }
 }
