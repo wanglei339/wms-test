@@ -3,6 +3,7 @@ package com.lsh.wms.service.inhouse;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.inhouse.IProcurementProveiderRpcService;
 import com.lsh.wms.api.service.inhouse.IProcurementRpcService;
@@ -175,15 +176,37 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
     public Long assign(Long staffId) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
-
-        mapQuery.put("status", TaskConstant.Draft);
+        mapQuery.put("status", TaskConstant.Done);
         List<TaskEntry> list = taskRpcService.getTaskList(TaskConstant.TYPE_PROCUREMENT, mapQuery);
-        if (list.isEmpty()) {
-            return 0L;
-        } else {
-            taskRpcService.assign(list.get(0).getTaskInfo().getTaskId(), staffId);
-            return list.get(0).getTaskInfo().getTaskId();
+        if(list==null ||list.isEmpty()){
+            mapQuery.put("status", TaskConstant.Draft);
+            list = taskRpcService.getTaskList(TaskConstant.TYPE_PROCUREMENT, mapQuery);
+            if (list.isEmpty()) {
+                return 0L;
+            } else {
+                for(TaskEntry entry:list){
+                    BaseinfoLocation passageLocation = locationService.getPassageByBin(entry.getTaskInfo().getToLocationId());
+                    Map<String,Object> queryMap = new HashMap<String, Object>();
+                    queryMap.put("status",TaskConstant.Assigned);
+                    queryMap.put("locationObj",passageLocation);
+                    List<TaskEntry> entries = taskRpcService.getTaskList(TaskConstant.TYPE_PROCUREMENT, queryMap);
+                    if(entries==null ||entries.isEmpty()){
+                        taskRpcService.assign(entry.getTaskInfo().getTaskId(), staffId);
+                        return entry.getTaskInfo().getTaskId();
+                    }
+
+                }
+                return 0L;
+            }
         }
+        
+
+        Long taskId = this.getNextTask(list.get(list.size()-1).getTaskInfo().getToLocationId());
+        if(taskId.compareTo(0L)==0){
+            return 0L;
+        }
+        taskRpcService.assign(taskId, staffId);
+        return taskId;
     }
 
     public void createLoftProcurement() throws BizCheckedException {
@@ -293,6 +316,41 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             }
         }
         return outBondLocations;
+    }
+    public Long getNextTask(Long locationId) {
+        BaseinfoLocation passageLocation = locationService.getPassageByBin(locationId);
+        int priority=5;
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        while (priority!=0){
+            queryMap.put("priority", priority);
+            List<BaseinfoLocation> locations = locationRpcService.getNearestPassage(passageLocation);
+            for(BaseinfoLocation location:locations){
+                queryMap.put("status",TaskConstant.Draft);
+                List<TaskEntry> entries = taskRpcService.getTaskList(TaskConstant.TYPE_PROCUREMENT,queryMap);
+                if(entries==null || entries.size()==0) {
+                    continue;
+                }
+                queryMap.put("locationObj",location);
+                queryMap.put("status", TaskConstant.Assigned);
+                List<TaskEntry> taskEntryList = taskRpcService.getTaskList(TaskConstant.TYPE_PROCUREMENT,queryMap);
+                if(taskEntryList==null || taskEntryList.size()==0){
+                    List<BaseinfoLocation> locationList = new ArrayList<BaseinfoLocation>();
+
+                    if(priority==5){
+                        return entries.get(0).getTaskInfo().getTaskId();
+                    }
+                    Map<Long,Long> TaskMap = new HashMap<Long, Long>();
+                    for(TaskEntry entry:entries){
+                        TaskMap.put(entry.getTaskInfo().getToLocationId(),entry.getTaskInfo().getTaskId());
+                        locationList.add(locationService.getLocation(entry.getTaskInfo().getToLocationId()));
+                    }
+                    locationList = locationRpcService.sortLocationInOnePassage(locationList);
+                    return TaskMap.get(locationList.get(0).getLocationId());
+                }
+            }
+            priority--;
+        }
+        return 0L;
     }
 
 }
