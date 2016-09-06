@@ -4,6 +4,7 @@
 
 	<resultMap id="inbPoDetailResultMap" type="InbPoDetail">
 		<id property="id" column="ID"/>
+		<result property="detailOtherId" column="DETAIL_OTHER_ID"/>
 		<result property="orderId" column="ORDER_ID"/>
 		<result property="skuId" column="SKU_ID"/>
 		<result property="skuCode" column="SKU_CODE"/>
@@ -26,11 +27,11 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="InbPoDetail">
 		insert into INB_PO_DETAIL (
-			ORDER_ID,SKU_ID,SKU_CODE,SKU_NAME,BAR_CODE,ORDER_QTY,
+			DETAIL_OTHER_ID,ORDER_ID,SKU_ID,SKU_CODE,SKU_NAME,BAR_CODE,ORDER_QTY,
 			PACK_UNIT,PRICE,MADEIN,INBOUND_QTY,INSERTBY,UPDATEBY,INSERTTIME,
 			UPDATETIME,LOT_NUM,PACK_NAME,EXCEPTION_RECEIPT
     	) values (
-			#{orderId},#{skuId},#{skuCode},#{skuName},#{barCode},#{orderQty},
+			#{detailOtherId},#{orderId},#{skuId},#{skuCode},#{skuName},#{barCode},#{orderQty},
 			#{packUnit},#{price},#{madein},#{inboundQty},#{insertby},#{updateby},#{inserttime},
 			#{updatetime},#{lotNum},#{packName},#{exceptionReceipt}
     	)
@@ -38,11 +39,11 @@
 
 	<insert id="batchInsert" parameterType="java.util.List">
 		insert into INB_PO_DETAIL (
-		ORDER_ID,SKU_ID,SKU_CODE,SKU_NAME,BAR_CODE,ORDER_QTY,PACK_UNIT,PRICE,
+		DETAIL_OTHER_ID,ORDER_ID,SKU_ID,SKU_CODE,SKU_NAME,BAR_CODE,ORDER_QTY,PACK_UNIT,PRICE,
 		MADEIN,INBOUND_QTY,INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME,LOT_NUM,PACK_NAME,EXCEPTION_RECEIPT
 		) values
 		<foreach collection="list" item="item" index="index" separator="," >
-			(#{item.orderId},#{item.skuId},#{item.skuCode},#{item.skuName},#{item.barCode},#{item.orderQty},#{item.packUnit},
+			(#{item.detailOtherId},#{item.orderId},#{item.skuId},#{item.skuCode},#{item.skuName},#{item.barCode},#{item.orderQty},#{item.packUnit},
 			#{item.price},#{item.madein},#{item.inboundQty},#{item.insertby},#{item.updateby},now(),#{item.updatetime},#{item.lotNum},#{item.packName},#{item.exceptionReceipt})
 		</foreach>
 	</insert>
@@ -50,6 +51,7 @@
 	<update id="update" parameterType="InbPoDetail">
 		update INB_PO_DETAIL
     	<set>
+			<if test="detailOtherId != null">DETAIL_OTHER_ID=#{detailOtherId},</if>
   			<if test="skuCode != null">SKU_CODE=#{skuCode},</if>
   			<if test="skuName != null">SKU_NAME=#{skuName},</if>
   			<if test="barCode != null">BAR_CODE=#{barCode},</if>
@@ -115,6 +117,7 @@
 	<sql id="queryCondition">
 		<where>
 			<if test="id != null">ID=#{id}</if>
+			<if test="detailOtherId != null">and DETAIL_OTHER_ID=#{detailOtherId}</if>
 			<if test="orderId != null">and ORDER_ID=#{orderId}</if>
 			<if test="skuId != null">and SKU_ID=#{skuId}</if>
 			<if test="skuCode != null">and SKU_CODE=#{skuCode}</if>
