@@ -227,9 +227,16 @@ public class LocationRpcService implements ILocationRpcService {
         //结果放入List
         List<BaseinfoLocation> sortList = new ArrayList<BaseinfoLocation>();
         for (Map<String, Object> mapTemp : passageDistanceList) {
-                sortList.add((BaseinfoLocation) mapTemp.get("location"));
+            sortList.add((BaseinfoLocation) mapTemp.get("location"));
         }
         return sortList;
+    }
+
+    /**
+     * 将mysql数据导入到redis
+     */
+    public void syncRedisAll() {
+        locationService.syncRedisAll();
     }
 
 }

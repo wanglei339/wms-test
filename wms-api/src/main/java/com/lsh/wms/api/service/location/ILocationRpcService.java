@@ -91,5 +91,10 @@ public interface ILocationRpcService {
      */
     public List<BaseinfoLocation> getNearestPassage(BaseinfoLocation location);
 
+    /**
+     * 将mysql数据一次性导入redis
+     */
+    public void syncRedisAll();
+
 
 }
