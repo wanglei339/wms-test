@@ -120,6 +120,9 @@ public class StockTransferRestService implements IStockTransferRestService {
             } catch (BizCheckedException e) {
                 throw new BizCheckedException("2060012");
             }
+            if (location == null) {
+                throw new BizCheckedException("2060012");
+            }
             StockQuantCondition condition = new StockQuantCondition();
             condition.setLocationId(locationId);
             List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
@@ -167,6 +170,9 @@ public class StockTransferRestService implements IStockTransferRestService {
             try {
                 location = locationRpcService.getLocation(locationId);
             } catch (BizCheckedException e) {
+                throw new BizCheckedException("2060012");
+            }
+            if (location == null) {
                 throw new BizCheckedException("2060012");
             }
             StockQuantCondition condition = new StockQuantCondition();
@@ -225,6 +231,9 @@ public class StockTransferRestService implements IStockTransferRestService {
             } catch (BizCheckedException e) {
                 throw new BizCheckedException("2060012");
             }
+            if (location == null) {
+                throw new BizCheckedException("2060012");
+            }
             plan.setFromLocationId(locationId);
             plan.setToLocationId(locationRpcService.getBackLocation().getLocationId());
             plan.setUomQty(new BigDecimal(params.get("uomQty").toString()));
@@ -281,6 +290,9 @@ public class StockTransferRestService implements IStockTransferRestService {
             try {
                 location = locationRpcService.getLocation(locationId);
             } catch (BizCheckedException e) {
+                throw new BizCheckedException("2060012");
+            }
+            if (location == null) {
                 throw new BizCheckedException("2060012");
             }
             plan.setFromLocationId(locationId);
