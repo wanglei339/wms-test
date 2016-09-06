@@ -204,6 +204,9 @@
 					#{toLocationId}
 				</foreach>
 			</if>
+			<if test="locationObj != null">
+				and  ( ${locationObj.getLocationId()} &lt;= to_location_id and to_location_id &lt;= ${locationObj.getRightRange()} )
+			</if>
 			<if test="qty != null">and qty=#{qty}</if>
 			<if test="realFromLocationId != null">and real_from_location_id=#{realFromLocationId}</if>
 			<if test="realToLocationId != null">and real_to_location_id=#{realToLocationId}</if>
