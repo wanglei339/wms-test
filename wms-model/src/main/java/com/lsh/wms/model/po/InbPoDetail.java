@@ -8,6 +8,8 @@ public class InbPoDetail implements Serializable {
 
 	/**  */
     private Long id;
+	/** 上游细单Id */
+	private String detailOtherId;
 	/** 订单ID */
     private Long orderId;
 	/** 商品ID */
@@ -198,5 +200,12 @@ public class InbPoDetail implements Serializable {
 
 	public void setTaskId(Long taskId) {
 		this.taskId = taskId;
+	}
+	public String getDetailOtherId(){
+		return this.detailOtherId;
+	}
+
+	public void setDetailOtherId(String detailOtherId){
+		this.detailOtherId = detailOtherId;
 	}
 }
