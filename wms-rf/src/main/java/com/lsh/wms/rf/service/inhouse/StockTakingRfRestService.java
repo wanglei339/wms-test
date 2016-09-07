@@ -179,7 +179,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         if(list!=null && list.size()!=0){
             for(TaskEntry taskEntry:list){
                 Map<String,Object>task = new HashMap<String,Object>();
-                task.put("taskId",taskEntry.getTaskInfo().getTaskId());
+                task.put("taskId",taskEntry.getTaskInfo().getTaskId().toString());
                 String locationCode= " ";
                 Long locationId = 0L;
                 List<Object> objectList = taskEntry.getTaskDetailList();

@@ -155,7 +155,7 @@ public class ProcurementRestService implements IProcurementRestService {
                 final TaskInfo info = entry.getTaskInfo();
                 return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                     {
-                        put("taskId", info.getTaskId());
+                        put("taskId", info.getTaskId().toString());
                         put("type",2);
                         put("locationId", info.getToLocationId());
                         put("subType",info.getSubType());
@@ -209,7 +209,7 @@ public class ProcurementRestService implements IProcurementRestService {
             if(info.getExt4().compareTo(1L)==0){
                 return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                     {
-                        put("taskId", info.getTaskId());
+                        put("taskId", info.getTaskId().toString());
                         put("type",2L);
                         put("locationId", info.getToLocationId());
                         put("locationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
@@ -228,7 +228,7 @@ public class ProcurementRestService implements IProcurementRestService {
             }else {
                 return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                     {
-                        put("taskId", info.getTaskId());
+                        put("taskId", info.getTaskId().toString());
                         put("type",1L);
                         put("locationId", info.getFromLocationId());
                         put("locationCode", locationRpcService.getLocation(info.getFromLocationId()).getLocationCode());
@@ -258,7 +258,7 @@ public class ProcurementRestService implements IProcurementRestService {
         final String fromLocationCode = locationRpcService.getLocation(fromLocationId).getLocationCode();
         return JsonUtils.SUCCESS(new HashMap<String, Object>() {
             {
-                put("taskId", taskInfo.getTaskId());
+                put("taskId", taskInfo.getTaskId().toString());
                 put("type", 1L);
                 put("locationId", fromLocationId);
                 put("locationCode", fromLocationCode);

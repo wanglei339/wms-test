@@ -6,11 +6,12 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.item.IItemRpcService;
+import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.stock.IStockQuantRfRestService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.core.constant.CsiConstan;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
@@ -22,7 +23,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mali on 16/8/2.
@@ -41,24 +44,35 @@ public class StockQuantRfRestService implements IStockQuantRfRestService {
     @Reference
     private IItemRpcService itemRpcService;
 
+    @Reference
+    private ILocationRpcService locationRpcService;
+
     @POST
     @Path("getItem")
-    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String getItemByLocation() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
         Long locationId = Long.valueOf(params.get("locationId").toString());
-        String barCode =params.get("barcode").toString();
-
-        CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE,barCode);
-        if(csiSku == null) {
+        BaseinfoLocation location;
+        try {
+            location = locationRpcService.getLocation(locationId);
+        } catch (BizCheckedException e) {
+            throw new BizCheckedException("2060012");
+        }
+        if (location == null) {
+            throw new BizCheckedException("2060012");
+        }
+        String barCode = params.get("barcode").toString();
+        CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barCode);
+        if (csiSku == null) {
             throw new BizCheckedException("2550032");
         }
         StockQuantCondition condition = new StockQuantCondition();
         condition.setLocationId(locationId);
         condition.setSkuId(csiSku.getSkuId());
         List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
-        if(quantList.isEmpty()) {
+        if (quantList.isEmpty()) {
             throw new BizCheckedException("2550032");
         }
         StockQuant quant = quantList.get(0);
@@ -66,12 +80,6 @@ public class StockQuantRfRestService implements IStockQuantRfRestService {
         m.put("itemId", quant.getItemId());
         m.put("name", csiSku.getSkuName());
         m.put("packName", quant.getPackName());
-        //List <String> packNameList = new ArrayList<String>();
-        //packNameList.add(quant.getPackName());
-        //packNameList.add("ea");
-        //packNameList.add("pallet");
-        //m.put("packName", packNameList);
-
         Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>();
         result.put("info", m);
         return JsonUtils.SUCCESS(result);

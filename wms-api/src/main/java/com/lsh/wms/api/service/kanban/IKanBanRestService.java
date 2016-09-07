@@ -14,4 +14,6 @@ public interface IKanBanRestService {
     String getKanBanCountByStatus(Long type);
 
     String getSoKanbanCount(Long type);
+
+    String getWaveKanBanCount();
 }

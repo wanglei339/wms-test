@@ -358,7 +358,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 //取出是否检验保质期字段 exceptionReceipt = 0 校验 = 1不校验
                 Integer exceptionReceipt = inbPoDetail.getExceptionReceipt();
                 //调拨类型的单据不校验保质期
-                if(exceptionReceipt != 1 || PoConstant.ORDER_TYPE_TRANSFERS != orderType){
+                if(exceptionReceipt != 1 && (PoConstant.ORDER_TYPE_TRANSFERS == orderType)){
                     // TODO: 16/7/20   商品信息是否完善,怎么排查.2,保质期例外怎么验证?
                     //保质期判断,如果失败抛出异常
                     BigDecimal shelLife = baseinfoItem.getShelfLife();
@@ -455,7 +455,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 stockLot.setItemId(inbReceiptDetail.getItemId());
                 stockLot.setInDate(receiptTime.getTime() / 1000);
                 stockLot.setProductDate(inbReceiptDetail.getProTime().getTime() / 1000);
-                stockLot.setExpireDate(expireDate / 1000);
+                stockLot.setExpireDate(expireDate);
                 stockLot.setReceiptId(inbReceiptHeader.getReceiptOrderId());
                 stockLot.setPoId(inbReceiptDetail.getOrderId());
                 stockLot.setSupplierId(inbPoHeader.getSupplierCode());

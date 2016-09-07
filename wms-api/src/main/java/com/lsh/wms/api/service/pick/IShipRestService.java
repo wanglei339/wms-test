@@ -16,4 +16,5 @@ public interface IShipRestService {
     public String confirm() throws BizCheckedException;
     /*创建任务,临时*/
     public String createTask() throws BizCheckedException;
+    public String releaseCollectionRoad() throws BizCheckedException;
 }

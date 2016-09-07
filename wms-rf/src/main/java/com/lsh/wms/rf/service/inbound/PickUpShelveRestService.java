@@ -198,7 +198,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             }
             BaseinfoLocation location = locationService.getLocation(detail.getAllocLocationId());
             Map<String, Object> map = new HashMap<String, Object>();
-            map.put("taskId", taskId);
+            map.put("taskId", taskId.toString());
             map.put("locationId", location.getLocationId());
             map.put("locationCode", location.getLocationCode());
             map.put("qty", detail.getQty());
@@ -263,7 +263,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         }
         BaseinfoLocation location = locationService.getLocation(detail.getAllocLocationId());
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("taskId", taskId);
+        map.put("taskId", taskId.toString());
         map.put("locationId", location.getLocationId());
         map.put("locationCode", location.getLocationCode());
         map.put("qty", detail.getQty());
@@ -421,7 +421,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             detail.setAllocLocationId(location.getLocationId());
             detail.setRealLocationId(location.getLocationId());
 
-            BigDecimal num = valum.divide(bulk,2,BigDecimal.ROUND_DOWN);
+            BigDecimal num = valum.divide(bulk,0,BigDecimal.ROUND_DOWN);
             if (total.subtract(num).compareTo(BigDecimal.ZERO) >= 0) {
                 detail.setQty(num);
             } else {

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-APP="wms-provider"
+APP="wms-integration"
 PHOME=$(dirname `readlink -f "$0"`)
 PHOME=$(dirname $PHOME)
 

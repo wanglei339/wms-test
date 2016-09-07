@@ -52,5 +52,10 @@ public class KanBanRestService implements IKanBanRestService {
         return JsonUtils.SUCCESS(kanBanRpcService.getSoKanbanCount(type));
     }
 
+    @GET
+    @Path("getWaveKanBanCount")
+    public String getWaveKanBanCount() {
+        return JsonUtils.SUCCESS(kanBanRpcService.getWaveKanBanCount());
+    }
 
 }

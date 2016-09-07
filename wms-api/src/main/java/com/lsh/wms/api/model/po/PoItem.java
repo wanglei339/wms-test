@@ -5,6 +5,7 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -12,11 +13,15 @@ import java.util.Date;
  * Created by panxudong on 16/7/15.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PoItem {
+public class PoItem implements Serializable {
 
     /** 物美码 */
     @NotNull
     private String skuCode;
+
+    /** 上游细单Id */
+    @NotNull
+    private String detailOtherId;
 
     /** 商品名称 */
     @Size(max=50)
@@ -60,8 +65,9 @@ public class PoItem {
 
     }
 
-    public PoItem(String skuCode, String skuName, String barCode, BigDecimal orderQty,
+    public PoItem(String detailOtherId,String skuCode, String skuName, String barCode, BigDecimal orderQty,
                   BigDecimal packUnit,BigDecimal price, String madein, String lotNum, String packName) {
+        this.detailOtherId = detailOtherId;
         this.skuCode = skuCode;
         this.skuName = skuName;
         this.barCode = barCode;
@@ -135,5 +141,13 @@ public class PoItem {
 
     public void setPackName(String packName) {
         this.packName = packName;
+    }
+
+    public String getDetailOtherId() {
+        return detailOtherId;
+    }
+
+    public void setDetailOtherId(String detailOtherId) {
+        this.detailOtherId = detailOtherId;
     }
 }

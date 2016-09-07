@@ -39,6 +39,7 @@ public class PoRequest implements Serializable {
     private Integer orderType;
 
     /** 供商编码 */
+    @NotNull
     private Long supplierCode = 0L;
 
     /** 供商名称 */
