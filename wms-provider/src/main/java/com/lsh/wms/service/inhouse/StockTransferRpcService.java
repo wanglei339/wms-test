@@ -118,8 +118,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (fromLocation == null || toLocation == null) {
             throw new BizCheckedException("2550016");
         }
-        Long locationType = toLocation.getType();
-        if (this.checkLocation(fromLocation.getType(), toLocation.getType())) {
+        if (!this.checkLocation(fromLocation.getType(), toLocation.getType())) {
             throw new BizCheckedException("2550037");
         }
         if (toLocation.getCanStore() != 1) {
@@ -161,6 +160,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             }
         }
         List<StockQuant> toQuants = quantService.getQuantsByLocationId(toLocationId);
+        Long locationType = toLocation.getType();
         // 拣货位
         if (locationType.compareTo(LocationConstant.SPLIT_SHELF_BIN) == 0 || locationType.compareTo(LocationConstant.SHELF_PICKING_BIN) == 0) {
             List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toLocationId);
