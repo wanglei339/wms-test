@@ -38,7 +38,7 @@
   			<if test="type != null">type=#{type},</if>
   			<if test="isValid != null">is_valid=#{isValid}</if>
 		</set>
-		where location_id=#{locationId}
+		where location_id=#{locationId} and is_valid=1
 	</update>
   
 	<select id="getBaseinfoLocationPassageById" parameterType="int" resultMap="baseinfoLocationPassageResultMap">

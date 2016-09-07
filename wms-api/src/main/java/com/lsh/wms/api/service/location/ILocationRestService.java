@@ -57,4 +57,11 @@ public interface ILocationRestService {
      * @return
      */
     public String getAllShelfs();
+
+    /**
+     * 将mysql一次性导入redis
+     *
+     * @return
+     */
+    public String syncRedisAll() throws BizCheckedException;
 }

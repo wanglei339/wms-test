@@ -43,7 +43,7 @@ public class LocationRedisService {
         locationMap.put("type", ObjUtils.toString(location.getType(), ""));
         locationMap.put("typeName", ObjUtils.toString(location.getTypeName(), ""));
         locationMap.put("isLeaf", ObjUtils.toString(location.getIsLeaf(), ""));
-        locationMap.put("isValid", ObjUtils.toString(location.getIsLocked(), ""));
+        locationMap.put("isValid", ObjUtils.toString(location.getIsValid(), ""));
         locationMap.put("canStore", ObjUtils.toString(location.getCanStore(), ""));
         locationMap.put("containerVol", ObjUtils.toString(location.getContainerVol(), ""));
         locationMap.put("regionNo", ObjUtils.toString(location.getRegionNo(), ""));
