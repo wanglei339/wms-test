@@ -23,7 +23,7 @@ public class SynStockService implements ISynStockService {
     private ISynInventory iSynInventory;
 
 
-    public void synStock(Long sku_id, Double qty) {
+    public void synStock(Long sku_id, Double qty) { // TODO: 16/9/8  
         // iSynInventory.synInventory(sku_id,qty);
     }
 }
