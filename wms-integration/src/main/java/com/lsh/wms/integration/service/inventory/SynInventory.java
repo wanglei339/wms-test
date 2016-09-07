@@ -3,6 +3,7 @@ package com.lsh.wms.integration.service.inventory;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.atp.api.model.baseVo.ItemDc;
+import com.lsh.atp.api.model.baseVo.SkuVo;
 import com.lsh.atp.api.model.inventory.InventorySyncLshRequest;
 import com.lsh.atp.api.service.inventory.IInventorySyncLshRpcService;
 import com.lsh.base.common.config.PropertyUtils;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,15 +44,14 @@ public class SynInventory implements ISynInventory {
     public void synInventory(Long item_id,Double qty) {
         InventorySyncLshRequest request = new InventorySyncLshRequest();
         request.setZoneCode(PropertyUtils.getString("zone_code"));
-        request.setChannel(PropertyUtils.getInt("channel"));
         request.setSystem(PropertyUtils.getString("system"));
         BaseinfoItem  baseinfoItem   = itemService.getItem(item_id);
         Long ownerId = baseinfoItem.getOwnerId();
         request.setDcCode(PropertyUtils.getString("owner_"+ownerId));   // TODO: 16/9/7
-        List<ItemDc> skuList = new ArrayList<ItemDc>();
-        ItemDc itemDc = new ItemDc();
+        List<SkuVo> skuList = new ArrayList<SkuVo>();
+        SkuVo itemDc = new SkuVo();
         itemDc.setItemId(item_id);
-        itemDc.setQty(qty.longValue()); // TODO: 16/9/7
+        itemDc.setQty(new BigDecimal(qty)); // TODO: 16/9/7
         request.setSkuList(skuList);
         iInventorySyncLshRpcService.inventorySyncLsh(request);
     }

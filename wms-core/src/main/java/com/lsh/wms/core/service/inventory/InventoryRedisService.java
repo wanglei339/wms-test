@@ -29,6 +29,7 @@ import java.util.Set;
 public class InventoryRedisService {
     @Autowired
     private SoOrderRedisService soOrderRedisService;
+    @Autowired
     private StockRedisService stockRedisService;
     private static Logger logger = LoggerFactory.getLogger(InventoryRedisService.class);
 
@@ -41,7 +42,7 @@ public class InventoryRedisService {
         return qty;
     }
 
-    public double getAailableSkuQty(Long skuId) {
+    public double getAvailableSkuQty(Long skuId) {
         return stockRedisService.getSkuQty(skuId) - this.soOrderSkuQty(skuId);
     }
 

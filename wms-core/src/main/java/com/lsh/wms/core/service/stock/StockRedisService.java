@@ -2,8 +2,10 @@ package com.lsh.wms.core.service.stock;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.base.common.utils.StrUtils;
+import com.lsh.wms.api.service.inventory.ISynInventory;
 import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
+import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +25,12 @@ public class StockRedisService {
     @Autowired
     private RedisStringDao redisDao;
 
+    @Autowired
+    private InventoryRedisService inventoryRedisService;
+
+    @Reference(async = true)
+    private ISynInventory iSynInventory;
+
     private static Logger logger = LoggerFactory.getLogger(StockRedisService.class);
 
     private String getRedisKey(Long skuId) {
@@ -34,17 +42,22 @@ public class StockRedisService {
     public Double getSkuQty(Long skuId){
         String redistKey = getRedisKey(skuId);
         String val = redisDao.get(redistKey);
-        return null == val ? new Double(val) : 0.0;
+        return null == val ?  0.0 :new Double(val);
     }
 
     public void inBound(Long skuId, BigDecimal qty) {
         String redisKey = getRedisKey(skuId);
         redisDao.increase(redisKey, new Double(qty.toString()));
+        double availableQty =    inventoryRedisService.getAvailableSkuQty(skuId);
+        iSynInventory.synInventory(skuId,availableQty);
+
     }
 
     public void outBound(Long skuId, BigDecimal qty) {
         String redisKey = getRedisKey(skuId);
         redisDao.decrease(redisKey, new Double(qty.toString()));
+        double availableQty =  inventoryRedisService.getAvailableSkuQty(skuId);
+        iSynInventory.synInventory(skuId,availableQty);
     }
 
 }
