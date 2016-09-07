@@ -48,6 +48,8 @@ public class userRpcService implements IUserRpcService{
             Map<String,Object> map = new HashMap<String, Object>();
             map.put("uid",uid);
             map.put("utoken",token);
+            map.put("validTime",PropertyUtils.getLong("tokenExpire"));
+            map.put("userName",sysUserRpcService.getSysUserById(uid).getScreenname());
             return map;
         }
         return null;

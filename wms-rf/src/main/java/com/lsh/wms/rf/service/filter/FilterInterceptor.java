@@ -20,6 +20,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,7 +46,8 @@ public class FilterInterceptor{
 
     @Around("declareJointPointExpression()")
     public Object around(ProceedingJoinPoint pjp) throws Throwable {
-
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        logger.info("开始时间:"+sdf.format(new Date()));
         if("0".equals(PropertyUtils.getString("variable"))) {
             try {
                return pjp.proceed();
@@ -78,14 +81,20 @@ public class FilterInterceptor{
                     //如果验证成功，说明此用户进行了一次有效操作，延长token的过期时间
                     redisStringDao.expire(key, PropertyUtils.getLong("tokenExpire"));
                     try {
+                        if(serialNumber == null){
+                            logger.info("结束时间:"+sdf.format(new Date()));
+                            return pjp.proceed();
+                        }
                         if(redisStringDao.get(serialNumber) == null){
                             //将结果放到redis中。
                             String result = (String) pjp.proceed();
                             redisStringDao.set(serialNumber,result);
+                            logger.info("结束时间:"+sdf.format(new Date()));
                             return result;
                             //return pjp.proceed();
                         }
                         else{
+                            logger.info("结束时间:"+sdf.format(new Date()));
                             return redisStringDao.get(serialNumber);
                         }
                         //return pjp.proceed();

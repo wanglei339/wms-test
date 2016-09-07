@@ -230,5 +230,23 @@ public class LocationRestService implements ILocationRestService {
 //        return "yes";
     }
 
+    /**
+     * 将mysql一次性导入redis
+     * @return
+     */
+    @GET
+    @Path("syncRedisAll")
+    public String syncRedisAll() throws BizCheckedException{
+        try{
+            locationRpcService.syncRedisAll();
+            return JsonUtils.SUCCESS("同步成功");
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            throw new BizCheckedException("2210001");
+        }
+
+
+    }
+
 
 }

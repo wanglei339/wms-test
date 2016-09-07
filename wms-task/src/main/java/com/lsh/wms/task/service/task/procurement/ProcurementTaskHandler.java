@@ -22,7 +22,7 @@ import java.util.List;
  * Created by mali on 16/8/2.
  */
 @Component
-public class ProcurementService extends AbsTaskHandler {
+public class ProcurementTaskHandler extends AbsTaskHandler {
     @Autowired
     private TaskHandlerFactory handlerFactory;
     @Autowired
