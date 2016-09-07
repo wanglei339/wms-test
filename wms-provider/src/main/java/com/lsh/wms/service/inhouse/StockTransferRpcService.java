@@ -118,6 +118,9 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (fromLocation == null || toLocation == null) {
             throw new BizCheckedException("2550016");
         }
+        if (!this.checkLocation(fromLocation.getType(), toLocation.getType())) {
+            throw new BizCheckedException("2550037");
+        }
         if (toLocation.getCanStore() != 1) {
             throw new BizCheckedException("2550020");
         }
@@ -156,20 +159,15 @@ public class StockTransferRpcService implements IStockTransferRpcService {
                 throw new BizCheckedException("2550010");
             }
         }
-
         List<StockQuant> toQuants = quantService.getQuantsByLocationId(toLocationId);
         Long locationType = toLocation.getType();
-        if (this.checkLocation(fromLocation.getType(), toLocation.getType())) {
-            throw new BizCheckedException("2550037");
-        }
         // 拣货位
         if (locationType.compareTo(LocationConstant.SPLIT_SHELF_BIN) == 0 || locationType.compareTo(LocationConstant.SHELF_PICKING_BIN) == 0) {
             List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toLocationId);
             if (itemLocations.size() > 0 && itemLocations.get(0).getItemId().compareTo(itemId) != 0) {
                 throw new BizCheckedException("2550004");
             }
-        }
-        if (toQuants != null && toQuants.size() > 0
+        } else if (toQuants != null && toQuants.size() > 0
                 && locationType.compareTo(LocationConstant.BACK_AREA) != 0
                 && locationType.compareTo(LocationConstant.DEFECTIVE_AREA) != 0) {
             //其余货位
