@@ -500,6 +500,9 @@ public class StockTransferRpcService implements IStockTransferRpcService {
                 }
             }
         }
+        if (toLocationList == null || toLocationList.isEmpty()) {
+            return 0L;
+        }
         StockQuantCondition condition = new StockQuantCondition();
         condition.setItemId(quant.getItemId());
         condition.setLotId(quant.getLotId());
