@@ -1,7 +1,10 @@
 package com.lsh.wms.core.service.inventory;
 
+import com.lsh.base.common.utils.StrUtils;
+import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.dao.redis.RedisSortedSetDao;
 import com.lsh.wms.core.service.so.SoOrderRedisService;
+import com.lsh.wms.core.service.stock.StockRedisService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,7 @@ import java.util.Set;
 public class InventoryRedisService {
     @Autowired
     private SoOrderRedisService soOrderRedisService;
+    private StockRedisService stockRedisService;
     private static Logger logger = LoggerFactory.getLogger(InventoryRedisService.class);
 
     public double soOrderSkuQty(Long sku_id){
@@ -34,5 +38,7 @@ public class InventoryRedisService {
         return qty;
     }
 
-
+    public double availableSkuQty(Long skuId) {
+        return stockRedisService.getSkuQty(skuId) - this.soOrderSkuQty(skuId);
+    }
 }

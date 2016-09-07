@@ -40,4 +40,11 @@ public class RedisStringDao extends RedisBaseDao {
         valOp_w.set(key, valueStr);
     }
 
+    public void increase(String key, double val) {
+        valOp_w.increment(key, val);
+    }
+
+    public void decrease(String key, double val) {
+        valOp_w.increment(key, 0-val);
+    }
 }
