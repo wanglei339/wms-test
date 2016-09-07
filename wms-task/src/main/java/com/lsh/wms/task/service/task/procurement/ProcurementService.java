@@ -26,7 +26,7 @@ public class ProcurementService extends AbsTaskHandler {
     @Autowired
     private TaskHandlerFactory handlerFactory;
     @Autowired
-    private BaseTaskService taskService;
+    private BaseTaskService baseTaskService;
     @Reference
     private IStockQuantRpcService stockQuantService;
     @Autowired
@@ -48,7 +48,7 @@ public class ProcurementService extends AbsTaskHandler {
     public void cancelConcrete(Long taskId) {
 
         StockQuantCondition condition = new StockQuantCondition();
-        TaskInfo info = taskService.getTaskInfoById(taskId);
+        TaskInfo info = baseTaskService.getTaskInfoById(taskId);
         condition.setLocationId(info.getFromLocationId());
         condition.setItemId(info.getItemId());
         List<StockQuant> quants = stockQuantService.getQuantList(condition);
