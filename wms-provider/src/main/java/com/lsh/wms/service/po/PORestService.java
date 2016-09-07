@@ -54,8 +54,8 @@ public class PORestService implements IPoRestService {
     @Autowired
     private PoOrderService poOrderService;
 
-    @Reference
-    private IIbdBackService ibdBackService;
+//    @Reference
+//    private IIbdBackService ibdBackService;
 
     @Autowired
     private BaseinfoLocationWarehouseService baseinfoLocationWarehouseService;
@@ -83,27 +83,27 @@ public class PORestService implements IPoRestService {
 
         poRpcService.updateOrderStatus(map);
 
-        //确认收货之后将验收单回传到上游系统
-        if("5".equals(map.get("orderStatus"))){
-            IbdBackRequest ibdBackRequest = new IbdBackRequest();
-            Header header = new Header();
-            BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) baseinfoLocationWarehouseService.getBaseinfoItemLocationModelById(1L);
-            String warehouseName = warehouse.getWarehouseName();
-            header.setPlant(warehouseName);
-            header.setPoNumber((String)map.get("orderOtherId"));
-            List<InbPoDetail> inbPoDetails = poOrderService.getInbPoDetailListByOrderId((Long)map.get("orderId"));
-            List<IbdItem>  items = new ArrayList<IbdItem>();
-            for(InbPoDetail inbPoDetail : inbPoDetails){
-                IbdItem ibdItem = new IbdItem();
-                ibdItem.setEntryQnt(inbPoDetail.getInboundQty().toString());
-                ibdItem.setMateriaNo(inbPoDetail.getSkuCode());
-                ibdItem.setEntryQnt(inbPoDetail.getDetailOtherId());
-                items.add(ibdItem);
-            }
-            ibdBackRequest.setItems(items);
-            ibdBackRequest.setHeader(header);
-            ibdBackService.createOrderByPost(ibdBackRequest,null);
-        }
+//        //确认收货之后将验收单回传到上游系统
+//        if("5".equals(map.get("orderStatus"))){
+//            IbdBackRequest ibdBackRequest = new IbdBackRequest();
+//            Header header = new Header();
+//            BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) baseinfoLocationWarehouseService.getBaseinfoItemLocationModelById(1L);
+//            String warehouseName = warehouse.getWarehouseName();
+//            header.setPlant(warehouseName);
+//            header.setPoNumber((String)map.get("orderOtherId"));
+//            List<InbPoDetail> inbPoDetails = poOrderService.getInbPoDetailListByOrderId((Long)map.get("orderId"));
+//            List<IbdItem>  items = new ArrayList<IbdItem>();
+//            for(InbPoDetail inbPoDetail : inbPoDetails){
+//                IbdItem ibdItem = new IbdItem();
+//                ibdItem.setEntryQnt(inbPoDetail.getInboundQty().toString());
+//                ibdItem.setMateriaNo(inbPoDetail.getSkuCode());
+//                ibdItem.setEntryQnt(inbPoDetail.getDetailOtherId());
+//                items.add(ibdItem);
+//            }
+//            ibdBackRequest.setItems(items);
+//            ibdBackRequest.setHeader(header);
+//            ibdBackService.createOrderByPost(ibdBackRequest,null);
+//        }
 
         return JsonUtils.SUCCESS();
     }
