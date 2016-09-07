@@ -6,6 +6,7 @@ import java.io.Serializable;
  * Created by lixin-mac on 16/9/7.
  */
 public class StockItem implements Serializable{
+
     /**上游商品编码*/
     private String materialNo;
     /**数量*/
