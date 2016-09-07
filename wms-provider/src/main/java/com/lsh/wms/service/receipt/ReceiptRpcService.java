@@ -455,7 +455,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 stockLot.setItemId(inbReceiptDetail.getItemId());
                 stockLot.setInDate(receiptTime.getTime() / 1000);
                 stockLot.setProductDate(inbReceiptDetail.getProTime().getTime() / 1000);
-                stockLot.setExpireDate(expireDate / 1000);
+                stockLot.setExpireDate(expireDate);
                 stockLot.setReceiptId(inbReceiptHeader.getReceiptOrderId());
                 stockLot.setPoId(inbReceiptDetail.getOrderId());
                 stockLot.setSupplierId(inbPoHeader.getSupplierCode());
