@@ -87,10 +87,14 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         condition.setLocationId(plan.getFromLocationId());
         condition.setItemId(plan.getItemId());
         BigDecimal total = stockQuantService.getQty(condition);
+        List<StockQuant> quants = stockQuantService.getQuantList(condition);
+        if(quants==null || quants.size()==0){
+            throw new BizCheckedException("2550008");
+        }
 
         core.fillTransferPlan(plan);
 
-        if ( plan.getQty().compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
+        if ( plan.getQty().multiply(quants.get(0).getPackUnit()).compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
             throw new BizCheckedException("2550008");
         }
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
