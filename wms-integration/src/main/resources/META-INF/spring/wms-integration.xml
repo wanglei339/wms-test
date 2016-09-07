@@ -24,7 +24,7 @@
 
     <!-- 注册中心配置 -->
     <!-- http://dubbo.io/User+Guide-zh.htm#UserGuide-zh-%3Cdubbo%3Aregistry%2F%3E -->
-    <dubbo:registry address="zookeeper://${zookeeper.ip}:2181"/>
+    <dubbo:registry address="zookeeper://${zookeeper.ip}:2181" check="false" />
 
     <!-- 监控中心配置 -->
     <!-- http://dubbo.io/User+Guide-zh.htm#UserGuide-zh-%3Cdubbo%3Amonitor%2F%3E -->
@@ -38,7 +38,7 @@
 
     <!-- 服务提供者协议配置 -->
     <!-- http://dubbo.io/User+Guide-zh.htm#UserGuide-zh-%3Cdubbo%3Aprotocol%2F%3E -->
-    <dubbo:protocol name="dubbo" serialization="kryo" optimizer="com.lsh.wms.api.SerializationOptimizerImpl"/>
+    <dubbo:protocol name="dubbo"  serialization="kryo" optimizer="com.lsh.wms.api.SerializationOptimizerImpl"/>
     <dubbo:protocol name="rest" port="9006" contextpath="api/wms/java/v1" server="tomcat"
                     extension="com.alibaba.dubbo.rpc.protocol.rest.support.LoggingFilter,com.lsh.wms.api.service.exception.ValidateExceptionMapper,com.lsh.wms.api.service.exception.BizExceptionMapper,com.lsh.wms.api.service.exception.BaseExceptionMapper,com.lsh.wms.api.service.exception.SysExceptionMapper"/>
 
