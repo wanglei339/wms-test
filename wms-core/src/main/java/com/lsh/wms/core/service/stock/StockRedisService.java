@@ -1,8 +1,10 @@
 package com.lsh.wms.core.service.stock;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
+import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -19,6 +22,7 @@ import java.util.Set;
 public class StockRedisService {
     @Autowired
     private RedisStringDao redisDao;
+
     private static Logger logger = LoggerFactory.getLogger(StockRedisService.class);
 
     private String getRedisKey(Long skuId) {
@@ -38,13 +42,9 @@ public class StockRedisService {
         redisDao.increase(redisKey, new Double(qty.toString()));
     }
 
-    public void oubBound(Long skuId, BigDecimal qty) {
+    public void outBound(Long skuId, BigDecimal qty) {
         String redisKey = getRedisKey(skuId);
         redisDao.decrease(redisKey, new Double(qty.toString()));
     }
 
-    @Transactional(readOnly = false)
-    public void onDelivery() {
-
-    }
 }
