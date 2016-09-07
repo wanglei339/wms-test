@@ -22,7 +22,7 @@ public class RedisStringDao extends RedisBaseDao {
 
 
     public Long increment(String key) {
-        return valOp_r.increment(key, 1L);
+        return valOp_w.increment(key, 1L);
     }
 
     public String get(String key) {

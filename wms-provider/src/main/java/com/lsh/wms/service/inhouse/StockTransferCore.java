@@ -15,6 +15,7 @@ import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
@@ -65,6 +66,8 @@ public class StockTransferCore {
 
     @Autowired
     private BaseinfoLocationDao locationDao;
+    @Autowired
+    private StockQuantService quantService;
 
     public void fillTransferPlan(StockTransferPlan plan) throws BizCheckedException {
         StockQuantCondition condition = new StockQuantCondition();
@@ -119,13 +122,21 @@ public class StockTransferCore {
                 throw new BizCheckedException("2550008");
             }
             StockQuant quant = quants.get(0);
-            if (quant.getItemId().compareTo(taskInfo.getItemId()) != 0)
+            if (quant.getItemId().compareTo(taskInfo.getItemId()) != 0) {
                 throw new BizCheckedException("2040005");
-            {
             }
+
         } else {
             if (taskInfo.getFromLocationId().compareTo(fromLocationId) != 0) {
                 throw new BizCheckedException("2040005");
+            }
+            condition.setLocationId(taskInfo.getFromLocationId());
+            List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
+            if(quantList!=null) {
+                for (StockQuant quant : quantList) {
+                    quant.setReserveTaskId(0L);
+                    quantService.update(quant);
+                }
             }
         }
         Long containerId = taskInfo.getContainerId();

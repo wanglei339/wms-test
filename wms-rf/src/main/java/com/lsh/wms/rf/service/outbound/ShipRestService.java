@@ -6,14 +6,17 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.q.Module.Base;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.pick.IShipRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
@@ -24,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,7 +49,31 @@ public class ShipRestService implements IShipRestService {
     WaveService waveService;
     @Reference
     ILocationRpcService iLocationRpcService;
+    @Reference
+    IStockQuantRpcService stockQuantRpcService;
 
+    @Path("releaseCollectionRoad")
+    @POST
+    public String releaseCollectionRoad() throws BizCheckedException{
+        //看下位置上是否有货
+        Map<String, Object> mapRequest = RequestUtils.getRequest();
+        Long locationId = Long.valueOf(mapRequest.get("locationId").toString());
+        BaseinfoLocation location = iLocationRpcService.getLocation(locationId);
+        StockQuantCondition condition = new StockQuantCondition();
+        condition.setLocationId(locationId);
+        java.math.BigDecimal qty = stockQuantRpcService.getQty(condition);
+        if(qty.compareTo(BigDecimal.ZERO)!=0){
+            throw new BizCheckedException("2130010");
+        }else{
+            //释放集货导
+            iLocationRpcService.unlockLocation(locationId);
+        }
+        return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+            {
+                put("response", true);
+            }
+        });
+    }
     @Path("scan")
     @POST
     public String scan() throws BizCheckedException {

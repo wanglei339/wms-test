@@ -81,7 +81,7 @@ public class ProcurementEventHandler extends AbsEventHandler implements IEventHa
     private void cancel(TaskMsg msg) {
         Long procurementTaskId = Long.valueOf(msg.getMsgBody().get("taskId").toString());
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(procurementTaskId);
-        if (taskEntry.getTaskInfo().getStatus().equals(TaskConstant.Draft)) {
+        if (!taskEntry.getTaskInfo().getStatus().equals(TaskConstant.Draft)) {
             return;
         }
         taskHandlerFactory.getTaskHandler(TaskConstant.TYPE_PROCUREMENT).cancel(procurementTaskId);

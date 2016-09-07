@@ -117,7 +117,7 @@ public class LocationRpcService implements ILocationRpcService {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         //将不同的货架type塞入
         List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
-        List<Long> regionType = Arrays.asList(LocationConstant.SHELF, LocationConstant.LOFT);
+        List<Long> regionType = Arrays.asList(LocationConstant.SHELF, LocationConstant.LOFT, LocationConstant.SPLIT_SHELF);
         for (Long oneType : regionType) {
             mapQuery.put("type", oneType);
             List<BaseinfoLocation> locationList = locationService.getBaseinfoLocationList(mapQuery);
@@ -217,6 +217,7 @@ public class LocationRpcService implements ILocationRpcService {
             //距离目标通道的距离
             tempMap.put("passageDisance", (temp.getPassageNo() - location.getPassageNo()) * (temp.getPassageNo() - location.getPassageNo()));
             tempMap.put("location", temp);
+            passageDistanceList.add(tempMap);
         }
         //按距离排序,升序
         Collections.sort(passageDistanceList, new Comparator<Map<String, Object>>() {

@@ -1,11 +1,15 @@
 package com.lsh.wms.service.wave;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.wms.api.model.so.SoItem;
+import com.lsh.wms.api.model.so.SoRequest;
+import com.lsh.wms.api.service.po.IIbdBackService;
 import com.lsh.wms.api.service.wave.IWaveRestService;
 import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.service.pick.PickModelService;
@@ -14,6 +18,7 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.core.service.wave.WaveTemplateService;
 import com.lsh.wms.model.pick.*;
+import com.lsh.wms.model.so.OutbSoDetail;
 import com.lsh.wms.model.so.OutbSoHeader;
 import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.wave.WaveHead;
@@ -27,9 +32,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by zengwenjun on 16/7/15.
@@ -55,6 +58,9 @@ public class WaveRestService implements IWaveRestService {
     private WaveTemplateService waveTemplateService;
     @Autowired
     private WaveRpcService waveRpcService;
+
+//    @Reference
+//    private IIbdBackService ibdBackService;
 
 
     @POST
@@ -102,16 +108,44 @@ public class WaveRestService implements IWaveRestService {
             throw new BizCheckedException("2040013");
         }
         List<WaveDetail> detailList = waveService.getDetailsByWaveId(iWaveId);
+        Set<Long> orderIds = new HashSet<Long>();
+        //将orderId取出 放入set集合中
         for(WaveDetail detail : detailList){
             if ( detail.getQcExceptionDone() == 0){
                 throw new BizCheckedException("2040014");
             }
+            orderIds.add(detail.getOrderId());
         }
         //发起来
         //必须保证数据只能发货一次,保证方法为生成发货单完成标示在行项目中,调用时将忽略已经标记生成的行项目
         //如此做将可以允许重复发货
         waveService.shipWave(head, detailList);
         //传送给外部系统,其实比较好的方式是扔出来到队列里,外部可以选择性处理.
+
+//        // TODO: 16/9/7 回传物美
+//        for(Long orderId : orderIds){
+//            OutbSoHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
+//            SoRequest soRequest = new SoRequest();
+//            ObjUtils.bean2bean(soHeader,soRequest);
+//
+//            //查询明细。
+//            List<OutbSoDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
+//            List<SoItem> items = new ArrayList<SoItem>();
+//            for (OutbSoDetail soDetail : soDetails){
+//                SoItem soItem = new SoItem();
+//                ObjUtils.bean2bean(soDetail,soItem);
+//                //查询waveDetail找出实际出库的数量
+//                Map<String,Object> mapquery = new HashMap<String, Object>();
+//                mapquery.put("");
+//
+//                items.add(soItem);
+//            }
+//            //查询waveDetail找出实际出库的数量
+//            soRequest.setItems(items);
+//            ibdBackService.createOrderByPost(soRequest,null);
+//        }
+
+
         return JsonUtils.SUCCESS();
     }
 

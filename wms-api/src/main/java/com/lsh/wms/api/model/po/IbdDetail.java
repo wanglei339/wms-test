@@ -16,6 +16,11 @@ public class IbdDetail implements Serializable {
     @NotNull
     private String skuCode;
 
+
+    /** 上游细单Id */
+    @NotNull
+    private String detailOtherId;
+
     /** 国条码 */
     //@NotBlank
     private String barCode;
@@ -38,7 +43,8 @@ public class IbdDetail implements Serializable {
 
     public IbdDetail() {}
 
-    public IbdDetail(String skuCode, String barCode, BigDecimal orderQty, BigDecimal packUnit, String packName, BigDecimal price) {
+    public IbdDetail(String detailOtherId,String skuCode, String barCode, BigDecimal orderQty, BigDecimal packUnit, String packName, BigDecimal price) {
+        this.detailOtherId = detailOtherId;
         this.skuCode = skuCode;
         this.barCode = barCode;
         this.orderQty = orderQty;
@@ -93,5 +99,13 @@ public class IbdDetail implements Serializable {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public String getDetailOtherId() {
+        return detailOtherId;
+    }
+
+    public void setDetailOtherId(String detailOtherId) {
+        this.detailOtherId = detailOtherId;
     }
 }
