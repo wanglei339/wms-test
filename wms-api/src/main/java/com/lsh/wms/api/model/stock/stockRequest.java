@@ -13,6 +13,7 @@ public class StockRequest implements Serializable{
     private String storageLocation = "0001";
     /**类型551报损552报溢*/
     private String moveType;
+
     private List<StockItem> items;
 
     public StockRequest(){}
