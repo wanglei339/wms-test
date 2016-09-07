@@ -6,7 +6,9 @@ import java.io.Serializable;
  * Created by lixin-mac on 16/9/6.
  */
 public class Header implements Serializable {
+    //仓库
     private String plant;
+    //采购凭证号
     private String poNumber;
 
     public String getPlant() {
