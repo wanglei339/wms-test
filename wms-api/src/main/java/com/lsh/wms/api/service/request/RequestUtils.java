@@ -105,4 +105,9 @@ public class RequestUtils {
         boolean isMultipart = ServletFileUpload.isMultipartContent(request);
         return isMultipart;
     }
+
+    public static void destroySession(){
+        HttpServletRequest request = (HttpServletRequest) RpcContext.getContext().getRequest();
+        request.getSession().invalidate();
+    }
 }
