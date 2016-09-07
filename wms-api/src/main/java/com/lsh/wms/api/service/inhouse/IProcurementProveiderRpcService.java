@@ -12,8 +12,8 @@ import java.util.Set;
  * Created by mali on 16/8/1.
  */
 public interface IProcurementProveiderRpcService {
-    void addProcurementPlan (StockTransferPlan plan) throws  BizCheckedException;
-    void updateProcurementPlan(StockTransferPlan plan)  throws BizCheckedException;
+    boolean addProcurementPlan (StockTransferPlan plan) throws  BizCheckedException;
+    boolean updateProcurementPlan(StockTransferPlan plan)  throws BizCheckedException;
     void createProcurement() throws BizCheckedException;
     void scanFromLocation(Map<String, Object> params) throws BizCheckedException;
     void scanToLocation(Map<String, Object> params) throws  BizCheckedException;

@@ -17,12 +17,14 @@ import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.model.task.TaskMsg;
 import com.lsh.wms.model.transfer.StockTransferPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +58,9 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     @Autowired
     private LocationService locationService;
 
+    @Autowired
+    private MessageService messageService;
+
     @Reference
     private ILocationRpcService locationRpcService;
 
@@ -68,10 +73,10 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     @Autowired
     private BaseTaskService baseTaskService;
 
-    public void addProcurementPlan(StockTransferPlan plan) throws BizCheckedException {
+    public boolean addProcurementPlan(StockTransferPlan plan) throws BizCheckedException {
         if(!this.checkPlan(plan)){
             logger.error("error plan ：" + plan.toString());
-            return;
+            return false;
         }
         if (baseTaskService.checkTaskByToLocation(plan.getToLocationId(), TaskConstant.TYPE_PROCUREMENT)) {
             throw new BizCheckedException("2550015");
@@ -94,16 +99,21 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
         }
 
+
         ObjUtils.bean2bean(plan, taskInfo);
         taskInfo.setTaskName("补货任务[ " + taskInfo.getFromLocationId() + " => " + taskInfo.getToLocationId() + "]");
         taskInfo.setType(TaskConstant.TYPE_PROCUREMENT);
         taskInfo.setContainerId(containerId);
         taskInfo.setQtyDone(taskInfo.getQty());
         taskEntry.setTaskInfo(taskInfo);
+        if(!this.canCreateTask(taskEntry)){
+            return false;
+        }
         taskRpcService.create(TaskConstant.TYPE_PROCUREMENT, taskEntry);
+        return true;
     }
 
-    public void updateProcurementPlan(StockTransferPlan plan)  throws BizCheckedException {
+    public boolean updateProcurementPlan(StockTransferPlan plan)  throws BizCheckedException {
         TaskEntry entry =  taskRpcService.getTaskEntryById(plan.getTaskId());
         if(entry == null){
             throw new BizCheckedException("3040001");
@@ -130,7 +140,11 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         taskInfo.setType(TaskConstant.TYPE_PROCUREMENT);
         taskInfo.setContainerId(containerId);
         entry.setTaskInfo(taskInfo);
+        if(!this.canCreateTask(entry)){
+            return false;
+        }
         taskRpcService.update(TaskConstant.TYPE_PROCUREMENT, entry);
+        return true;
     }
 
     private void createShelfProcurement() throws BizCheckedException {
@@ -229,6 +243,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     }
                     condition.setLocationIdList(loftBinList);
                     condition.setItemId(itemLocation.getItemId());
+                    condition.setReserveTaskId(0L);
                     List<StockQuant> quantList = stockQuantService.getQuantList(condition);
                     if (quantList.isEmpty()) {
                         logger.warn("ItemId:" + itemLocation.getItemId() + "缺货异常");
@@ -297,6 +312,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         StockQuantCondition condition = new StockQuantCondition();
         Set<Long> outBondLocations = new HashSet<Long>();
         condition.setItemId(itemId);
+        condition.setReserveTaskId(0L);
         BaseinfoLocation pickLocation = locationService.getLocation(locationId);
         if(pickLocation.getType().compareTo(LocationConstant.LOFT_PICKING_BIN)==0){
             List<StockQuant> quants = stockQuantService.getQuantList(condition);
@@ -351,6 +367,29 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             priority--;
         }
         return 0L;
+    }
+    Boolean canCreateTask(TaskEntry taskEntry){
+        TaskInfo info = taskEntry.getTaskInfo();
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("fromLocationId",info.getFromLocationId());
+        queryMap.put("status", 2L);
+        List<TaskEntry> entries = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, queryMap);
+        if(entries!=null && entries.size()!=0){
+            return false;
+        }
+        queryMap.put("status",1L);
+        entries = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, queryMap);
+        if(entries!=null && entries.size()!=0){
+            for(TaskEntry entry : entries) {
+                TaskMsg msg = new TaskMsg();
+                msg.setType(TaskConstant.EVENT_STOCK_TRANSFER_CANCEL);
+                msg.setPriority(1L);
+                msg.setSourceTaskId(entry.getTaskInfo().getTaskId());
+                messageService.sendMessage(msg);
+            }
+            return false;
+        }
+        return true;
     }
 
 }
