@@ -10,5 +10,5 @@ package com.lsh.wms.api.service.inventory;
  * desc:类功能描述
  */
 public interface ISynInventory {
-    public void synInventory(Long sku_id);
+    public void synInventory(Long item_id,Double qty);
 }
