@@ -21,6 +21,11 @@
             <artifactId>wms-core</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.lsh.atp</groupId>
+            <artifactId>atp-api</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
