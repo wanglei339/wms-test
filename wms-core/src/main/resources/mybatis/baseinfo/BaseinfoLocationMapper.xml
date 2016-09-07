@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao" >
+<mapper namespace="com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao">
 
-	<resultMap id="baseinfoLocationResultMap" type="BaseinfoLocation">
-		<id property="id" column="id"/>
-		<result property="locationId" column="location_id"/>
-		<result property="locationCode" column="location_code"/>
-		<result property="fatherId" column="father_id"/>
-		<result property="leftRange" column="left_range"/>
-		<result property="rightRange" column="right_range"/>
-		<result property="level" column="level"/>
-		<result property="type" column="type"/>
-		<result property="typeName" column="type_name"/>
-		<result property="isLeaf" column="is_leaf"/>
-		<result property="isValid" column="is_valid"/>
-		<result property="canStore" column="can_store"/>
-		<result property="containerVol" column="container_vol"/>
-		<result property="regionNo" column="region_no"/>
-		<result property="passageNo" column="passage_no"/>
-		<result property="shelfLevelNo" column="shelf_level_no"/>
-		<result property="binPositionNo" column="bin_position_no"/>
-		<result property="description" column="description"/>
-		<result property="createdAt" column="created_at"/>
-		<result property="updatedAt" column="updated_at"/>
-		<result property="classification" column="classification"/>
-		<result property="canUse" column="can_use"/>
-		<result property="isLocked" column="is_locked"/>
-		<result property="curContainerVol" column="cur_container_vol"/>
-	</resultMap>
+    <resultMap id="baseinfoLocationResultMap" type="BaseinfoLocation">
+        <id property="id" column="id"/>
+        <result property="locationId" column="location_id"/>
+        <result property="locationCode" column="location_code"/>
+        <result property="fatherId" column="father_id"/>
+        <result property="leftRange" column="left_range"/>
+        <result property="rightRange" column="right_range"/>
+        <result property="level" column="level"/>
+        <result property="type" column="type"/>
+        <result property="typeName" column="type_name"/>
+        <result property="isLeaf" column="is_leaf"/>
+        <result property="isValid" column="is_valid"/>
+        <result property="canStore" column="can_store"/>
+        <result property="containerVol" column="container_vol"/>
+        <result property="regionNo" column="region_no"/>
+        <result property="passageNo" column="passage_no"/>
+        <result property="shelfLevelNo" column="shelf_level_no"/>
+        <result property="binPositionNo" column="bin_position_no"/>
+        <result property="description" column="description"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="classification" column="classification"/>
+        <result property="canUse" column="can_use"/>
+        <result property="isLocked" column="is_locked"/>
+        <result property="curContainerVol" column="cur_container_vol"/>
+    </resultMap>
 
-	<select id="lock" parameterType="long" resultMap="baseinfoLocationResultMap">
+    <select id="lock" parameterType="long" resultMap="baseinfoLocationResultMap">
 		select * from baseinfo_location where location_id = #{locationId} for update
 	</select>
-  
-	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLocation">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLocation">
 		insert into baseinfo_location (
 			location_id,location_code,father_id,left_range,right_range,level,
 			type,type_name,is_leaf,is_valid,can_store,container_vol,
@@ -47,179 +47,181 @@
     	)
 	</insert>
 
-	<update id="update" parameterType="BaseinfoLocation">
-		update baseinfo_location
-    	<set>
-  			<if test="locationId != null">location_id=#{locationId},</if>
-  			<if test="locationCode != null">location_code=#{locationCode},</if>
-  			<if test="fatherId != null">father_id=#{fatherId},</if>
-  			<if test="leftRange != null">left_range=#{leftRange},</if>
-  			<if test="rightRange != null">right_range=#{rightRange},</if>
-  			<if test="level != null">level=#{level},</if>
-  			<if test="type != null">type=#{type},</if>
-  			<if test="typeName != null">type_name=#{typeName},</if>
-  			<if test="isLeaf != null">is_leaf=#{isLeaf},</if>
-  			<if test="isValid != null">is_valid=#{isValid},</if>
-  			<if test="canStore != null">can_store=#{canStore},</if>
-  			<if test="containerVol != null">container_vol=#{containerVol},</if>
-  			<if test="regionNo != null">region_no=#{regionNo},</if>
-  			<if test="passageNo != null">passage_no=#{passageNo},</if>
-  			<if test="shelfLevelNo != null">shelf_level_no=#{shelfLevelNo},</if>
-  			<if test="binPositionNo != null">bin_position_no=#{binPositionNo},</if>
-  			<if test="description != null">description=#{description},</if>
-  			<if test="createdAt != null">created_at=#{createdAt},</if>
-  			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
-  			<if test="classification != null">classification=#{classification},</if>
-  			<if test="canUse != null">can_use=#{canUse},</if>
-  			<if test="isLocked != null">is_locked=#{isLocked},</if>
-			<if test="curContainerVol != null">cur_container_vol=#{curContainerVol}</if>
-		</set>
-		where location_id=#{locationId}
-	</update>
-  
-	<select id="getBaseinfoLocationById" parameterType="int" resultMap="baseinfoLocationResultMap">
+    <update id="update" parameterType="BaseinfoLocation">
+        update baseinfo_location
+        <set>
+            <if test="locationId != null">location_id=#{locationId},</if>
+            <if test="locationCode != null">location_code=#{locationCode},</if>
+            <if test="fatherId != null">father_id=#{fatherId},</if>
+            <if test="leftRange != null">left_range=#{leftRange},</if>
+            <if test="rightRange != null">right_range=#{rightRange},</if>
+            <if test="level != null">level=#{level},</if>
+            <if test="type != null">type=#{type},</if>
+            <if test="typeName != null">type_name=#{typeName},</if>
+            <if test="isLeaf != null">is_leaf=#{isLeaf},</if>
+            <if test="isValid != null">is_valid=#{isValid},</if>
+            <if test="canStore != null">can_store=#{canStore},</if>
+            <if test="containerVol != null">container_vol=#{containerVol},</if>
+            <if test="regionNo != null">region_no=#{regionNo},</if>
+            <if test="passageNo != null">passage_no=#{passageNo},</if>
+            <if test="shelfLevelNo != null">shelf_level_no=#{shelfLevelNo},</if>
+            <if test="binPositionNo != null">bin_position_no=#{binPositionNo},</if>
+            <if test="description != null">description=#{description},</if>
+            <if test="createdAt != null">created_at=#{createdAt},</if>
+            <if test="updatedAt != null">updated_at=#{updatedAt},</if>
+            <if test="classification != null">classification=#{classification},</if>
+            <if test="canUse != null">can_use=#{canUse},</if>
+            <if test="isLocked != null">is_locked=#{isLocked},</if>
+            <if test="curContainerVol != null">cur_container_vol=#{curContainerVol}</if>
+        </set>
+        where location_id=#{locationId} and is_valid=1
+    </update>
+
+    <select id="getBaseinfoLocationById" parameterType="int" resultMap="baseinfoLocationResultMap">
 		select * from baseinfo_location
 		where location_id=#{locationId}
 	</select>
-  
-	<select id="countBaseinfoLocation" parameterType="map" resultType="int">
-		select count(*) from baseinfo_location
-		<include refid="queryCondition"/>
-	</select>
-  
-	<select id="getBaseinfoLocationList" parameterType="map" resultMap="baseinfoLocationResultMap">
-		select * from baseinfo_location
-		<include refid="queryCondition"/>
-		<if test="start != null and limit != null">
-		limit #{start},#{limit}
-		</if>
-	</select>
 
-	<select id="getChildrenLocationList" parameterType="map" resultMap="baseinfoLocationResultMap">
-		select * from baseinfo_location
-		<where>
-			<if test="id != null">id=#{id}</if>
-			<if test="locationId != null">and location_id=#{locationId}</if>
-			<if test="locationCode != null">and location_code=#{locationCode}</if>
-			<if test="fatherId != null">and father_id=#{fatherId}</if>
-			<if test="leftRange != null">and left_range&gt;=#{leftRange}</if>
-			<if test="rightRange != null">and right_range&lt;=#{rightRange}</if>
-			<if test="level != null">and level=#{level}</if>
-			<if test="type != null">and type=#{type}</if>
-			<if test="typeName != null">and type_name=#{typeName}</if>
-			<if test="isLeaf != null">and is_leaf=#{isLeaf}</if>
-			<if test="isValid != null">and is_valid=#{isValid}</if>
-			<if test="canStore != null">and can_store=#{canStore}</if>
-			<if test="containerVol != null">and container_vol=#{containerVol}</if>
-			<if test="regionNo != null">and region_no=#{regionNo}</if>
-			<if test="passageNo != null">and passage_no=#{passageNo}</if>
-			<if test="shelfLevelNo != null">and shelf_level_no=#{shelfLevelNo}</if>
-			<if test="binPositionNo != null">and bin_position_no=#{binPositionNo}</if>
-			<if test="description != null">and description=#{description}</if>
-			<if test="createdAt != null">and created_at=#{createdAt}</if>
-			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
-			<if test="classification != null">and classification=#{classification}</if>
-			<if test="canUse != null">and can_use=#{canUse}</if>
-			<if test="isLocked != null">and is_locked=#{isLocked}</if>
-			<if test="curContainerVol != null">and cur_container_vol=#{curContainerVol}</if>
-		</where>
-		<if test="start != null and limit != null">
-			limit #{start},#{limit}
-		</if>
-	</select>
-  
-	<sql id="queryCondition">
-		<where>
-			<if test="id != null">id=#{id}</if>
-			<if test="locationId != null">and location_id=#{locationId}</if>
-			<if test="locationCode != null">and location_code like #{locationCode}</if>
-			<if test="fatherId != null">and father_id=#{fatherId}</if>
-			<if test="leftRange != null">and left_range=#{leftRange}</if>
-			<if test="rightRange != null">and right_range=#{rightRange}</if>
-			<if test="level != null">and level=#{level}</if>
-			<if test="type != null">and type=#{type}</if>
-			<if test="typeName != null">and type_name=#{typeName}</if>
-			<if test="isLeaf != null">and is_leaf=#{isLeaf}</if>
-			<if test="isValid != null">and is_valid=#{isValid}</if>
-			<if test="canStore != null">and can_store=#{canStore}</if>
-			<if test="containerVol != null">and container_vol=#{containerVol}</if>
-			<if test="regionNo != null">and region_no=#{regionNo}</if>
-			<if test="passageNo != null">and passage_no=#{passageNo}</if>
-			<if test="shelfLevelNo != null">and shelf_level_no=#{shelfLevelNo}</if>
-			<if test="binPositionNo != null">and bin_position_no=#{binPositionNo}</if>
-			<if test="description != null">and description=#{description}</if>
-			<if test="createdAt != null">and created_at=#{createdAt}</if>
-			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
-			<if test="classification != null">and classification=#{classification}</if>
-			<if test="canUse != null">and can_use=#{canUse}</if>
-			<if test="isLocked != null">and is_locked=#{isLocked}</if>
-			<if test="curContainerVol != null">and cur_container_vol=#{curContainerVol}</if>
-		</where>
-	</sql>
+    <select id="countBaseinfoLocation" parameterType="map" resultType="int">
+        select count(*) from baseinfo_location
+        <include refid="queryCondition"/>
+    </select>
 
-	<select id="getDockList" parameterType="map" resultMap="baseinfoLocationResultMap">
-		select location.* from baseinfo_location AS location JOIN baseinfo_location_dock AS  dock ON location.location_id = dock.location_id
-		<where>
-			<if test="id != null">location.id=#{id}</if>
-			<if test="locationId != null">and location.location_id=#{locationId}</if>
-			<if test="locationCode != null">and location.location_code=#{locationCode}</if>
-			<if test="fatherId != null">and location.father_id=#{fatherId}</if>
-			<if test="leftRange != null">and left_range=#{leftRange}</if>
-			<if test="rightRange != null">and right_range=#{rightRange}</if>
-			<if test="level != null">and level=#{level}</if>
-			<if test="type != null">and location.type=#{type}</if>
-			<if test="typeName != null">and location.type_name=#{typeName}</if>
-			<if test="isLeaf != null">and location.is_leaf=#{isLeaf}</if>
-			<if test="isValid != null">and location.is_valid=#{isValid}</if>
-			<if test="canStore != null">and location.can_store=#{canStore}</if>
-			<if test="containerVol != null">and location.container_vol=#{containerVol}</if>
-			<if test="regionNo != null">and location.region_no=#{regionNo}</if>
-			<if test="passageNo != null">and location.passage_no=#{passageNo}</if>
-			<if test="shelfLevelNo != null">and location.shelf_level_no=#{shelfLevelNo}</if>
-			<if test="binPositionNo != null">and location.bin_position_no=#{binPositionNo}</if>
-			<if test="description != null">and location.description=#{description}</if>
-			<if test="createdAt != null">and location.created_at=#{createdAt}</if>
-			<if test="updatedAt != null">and location.updated_at=#{updatedAt}</if>
-			<if test="classification != null">and location.classification=#{classification}</if>
-			<if test="canUse != null">and location.can_use=#{canUse}</if>
-			<if test="isLocked != null">and location.is_locked=#{isLocked}</if>
-			<if test="dockApplication != null">and dock.dock_application=#{dockApplication}</if>
-		</where>
-		<if test="start != null and limit != null">
-			limit #{start},#{limit}
-		</if>
-	</select>
+    <select id="getBaseinfoLocationList" parameterType="map" resultMap="baseinfoLocationResultMap">
+        select * from baseinfo_location
+        <include refid="queryCondition"/>
+        <if test="start != null and limit != null">
+            limit #{start},#{limit}
+        </if>
+    </select>
 
-	<select id="countDockList" parameterType="map" resultType="int">
-		select count(*) from baseinfo_location AS location JOIN baseinfo_location_dock AS  dock ON location.location_id = dock.location_id
-		<where>
-			<if test="id != null">location.id=#{id}</if>
-			<if test="locationId != null">and location.location_id=#{locationId}</if>
-			<if test="locationCode != null">and location.location_code=#{locationCode}</if>
-			<if test="fatherId != null">and location.father_id=#{fatherId}</if>
-			<if test="leftRange != null">and left_range=#{leftRange}</if>
-			<if test="rightRange != null">and right_range=#{rightRange}</if>
-			<if test="level != null">and level=#{level}</if>
-			<if test="type != null">and location.type=#{type}</if>
-			<if test="typeName != null">and location.type_name=#{typeName}</if>
-			<if test="isLeaf != null">and location.is_leaf=#{isLeaf}</if>
-			<if test="isValid != null">and location.is_valid=#{isValid}</if>
-			<if test="canStore != null">and location.can_store=#{canStore}</if>
-			<if test="containerVol != null">and location.container_vol=#{containerVol}</if>
-			<if test="regionNo != null">and location.region_no=#{regionNo}</if>
-			<if test="passageNo != null">and location.passage_no=#{passageNo}</if>
-			<if test="shelfLevelNo != null">and location.shelf_level_no=#{shelfLevelNo}</if>
-			<if test="binPositionNo != null">and location.bin_position_no=#{binPositionNo}</if>
-			<if test="description != null">and location.description=#{description}</if>
-			<if test="createdAt != null">and location.created_at=#{createdAt}</if>
-			<if test="updatedAt != null">and location.updated_at=#{updatedAt}</if>
-			<if test="classification != null">and location.classification=#{classification}</if>
-			<if test="canUse != null">and location.can_use=#{canUse}</if>
-			<if test="isLocked != null">and location.is_locked=#{isLocked}</if>
-			<if test="dockApplication != null">and dock.dock_application=#{dockApplication}</if>
-			<if test="curContainerVol != null">and cur_container_vol=#{curContainerVol}</if>
-		</where>
-	</select>
+    <select id="getChildrenLocationList" parameterType="map" resultMap="baseinfoLocationResultMap">
+        select * from baseinfo_location
+        <where>
+            <if test="id != null">id=#{id}</if>
+            <if test="locationId != null">and location_id=#{locationId}</if>
+            <if test="locationCode != null">and location_code=#{locationCode}</if>
+            <if test="fatherId != null">and father_id=#{fatherId}</if>
+            <if test="leftRange != null">and left_range&gt;=#{leftRange}</if>
+            <if test="rightRange != null">and right_range&lt;=#{rightRange}</if>
+            <if test="level != null">and level=#{level}</if>
+            <if test="type != null">and type=#{type}</if>
+            <if test="typeName != null">and type_name=#{typeName}</if>
+            <if test="isLeaf != null">and is_leaf=#{isLeaf}</if>
+            <if test="isValid != null">and is_valid=#{isValid}</if>
+            <if test="canStore != null">and can_store=#{canStore}</if>
+            <if test="containerVol != null">and container_vol=#{containerVol}</if>
+            <if test="regionNo != null">and region_no=#{regionNo}</if>
+            <if test="passageNo != null">and passage_no=#{passageNo}</if>
+            <if test="shelfLevelNo != null">and shelf_level_no=#{shelfLevelNo}</if>
+            <if test="binPositionNo != null">and bin_position_no=#{binPositionNo}</if>
+            <if test="description != null">and description=#{description}</if>
+            <if test="createdAt != null">and created_at=#{createdAt}</if>
+            <if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+            <if test="classification != null">and classification=#{classification}</if>
+            <if test="canUse != null">and can_use=#{canUse}</if>
+            <if test="isLocked != null">and is_locked=#{isLocked}</if>
+            <if test="curContainerVol != null">and cur_container_vol=#{curContainerVol}</if>
+        </where>
+        <if test="start != null and limit != null">
+            limit #{start},#{limit}
+        </if>
+    </select>
+
+    <sql id="queryCondition">
+        <where>
+            <if test="id != null">id=#{id}</if>
+            <if test="locationId != null">and location_id=#{locationId}</if>
+            <if test="locationCode != null">and location_code like #{locationCode}</if>
+            <if test="fatherId != null">and father_id=#{fatherId}</if>
+            <if test="leftRange != null">and left_range=#{leftRange}</if>
+            <if test="rightRange != null">and right_range=#{rightRange}</if>
+            <if test="level != null">and level=#{level}</if>
+            <if test="type != null">and type=#{type}</if>
+            <if test="typeName != null">and type_name=#{typeName}</if>
+            <if test="isLeaf != null">and is_leaf=#{isLeaf}</if>
+            <if test="isValid != null">and is_valid=#{isValid}</if>
+            <if test="canStore != null">and can_store=#{canStore}</if>
+            <if test="containerVol != null">and container_vol=#{containerVol}</if>
+            <if test="regionNo != null">and region_no=#{regionNo}</if>
+            <if test="passageNo != null">and passage_no=#{passageNo}</if>
+            <if test="shelfLevelNo != null">and shelf_level_no=#{shelfLevelNo}</if>
+            <if test="binPositionNo != null">and bin_position_no=#{binPositionNo}</if>
+            <if test="description != null">and description=#{description}</if>
+            <if test="createdAt != null">and created_at=#{createdAt}</if>
+            <if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+            <if test="classification != null">and classification=#{classification}</if>
+            <if test="canUse != null">and can_use=#{canUse}</if>
+            <if test="isLocked != null">and is_locked=#{isLocked}</if>
+            <if test="curContainerVol != null">and cur_container_vol=#{curContainerVol}</if>
+        </where>
+    </sql>
+
+    <select id="getDockList" parameterType="map" resultMap="baseinfoLocationResultMap">
+        select location.* from baseinfo_location AS location JOIN baseinfo_location_dock AS dock ON location.location_id
+        = dock.location_id
+        <where>
+            <if test="id != null">location.id=#{id}</if>
+            <if test="locationId != null">and location.location_id=#{locationId}</if>
+            <if test="locationCode != null">and location.location_code=#{locationCode}</if>
+            <if test="fatherId != null">and location.father_id=#{fatherId}</if>
+            <if test="leftRange != null">and left_range=#{leftRange}</if>
+            <if test="rightRange != null">and right_range=#{rightRange}</if>
+            <if test="level != null">and level=#{level}</if>
+            <if test="type != null">and location.type=#{type}</if>
+            <if test="typeName != null">and location.type_name=#{typeName}</if>
+            <if test="isLeaf != null">and location.is_leaf=#{isLeaf}</if>
+            <if test="isValid != null">and location.is_valid=#{isValid}</if>
+            <if test="canStore != null">and location.can_store=#{canStore}</if>
+            <if test="containerVol != null">and location.container_vol=#{containerVol}</if>
+            <if test="regionNo != null">and location.region_no=#{regionNo}</if>
+            <if test="passageNo != null">and location.passage_no=#{passageNo}</if>
+            <if test="shelfLevelNo != null">and location.shelf_level_no=#{shelfLevelNo}</if>
+            <if test="binPositionNo != null">and location.bin_position_no=#{binPositionNo}</if>
+            <if test="description != null">and location.description=#{description}</if>
+            <if test="createdAt != null">and location.created_at=#{createdAt}</if>
+            <if test="updatedAt != null">and location.updated_at=#{updatedAt}</if>
+            <if test="classification != null">and location.classification=#{classification}</if>
+            <if test="canUse != null">and location.can_use=#{canUse}</if>
+            <if test="isLocked != null">and location.is_locked=#{isLocked}</if>
+            <if test="dockApplication != null">and dock.dock_application=#{dockApplication}</if>
+        </where>
+        <if test="start != null and limit != null">
+            limit #{start},#{limit}
+        </if>
+    </select>
+
+    <select id="countDockList" parameterType="map" resultType="int">
+        select count(*) from baseinfo_location AS location JOIN baseinfo_location_dock AS dock ON location.location_id =
+        dock.location_id
+        <where>
+            <if test="id != null">location.id=#{id}</if>
+            <if test="locationId != null">and location.location_id=#{locationId}</if>
+            <if test="locationCode != null">and location.location_code=#{locationCode}</if>
+            <if test="fatherId != null">and location.father_id=#{fatherId}</if>
+            <if test="leftRange != null">and left_range=#{leftRange}</if>
+            <if test="rightRange != null">and right_range=#{rightRange}</if>
+            <if test="level != null">and level=#{level}</if>
+            <if test="type != null">and location.type=#{type}</if>
+            <if test="typeName != null">and location.type_name=#{typeName}</if>
+            <if test="isLeaf != null">and location.is_leaf=#{isLeaf}</if>
+            <if test="isValid != null">and location.is_valid=#{isValid}</if>
+            <if test="canStore != null">and location.can_store=#{canStore}</if>
+            <if test="containerVol != null">and location.container_vol=#{containerVol}</if>
+            <if test="regionNo != null">and location.region_no=#{regionNo}</if>
+            <if test="passageNo != null">and location.passage_no=#{passageNo}</if>
+            <if test="shelfLevelNo != null">and location.shelf_level_no=#{shelfLevelNo}</if>
+            <if test="binPositionNo != null">and location.bin_position_no=#{binPositionNo}</if>
+            <if test="description != null">and location.description=#{description}</if>
+            <if test="createdAt != null">and location.created_at=#{createdAt}</if>
+            <if test="updatedAt != null">and location.updated_at=#{updatedAt}</if>
+            <if test="classification != null">and location.classification=#{classification}</if>
+            <if test="canUse != null">and location.can_use=#{canUse}</if>
+            <if test="isLocked != null">and location.is_locked=#{isLocked}</if>
+            <if test="dockApplication != null">and dock.dock_application=#{dockApplication}</if>
+            <if test="curContainerVol != null">and cur_container_vol=#{curContainerVol}</if>
+        </where>
+    </select>
 
 
 </mapper>

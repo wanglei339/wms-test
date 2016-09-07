@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 public class IbdBackService implements IIbdBackService{
     private static Logger logger = LoggerFactory.getLogger(IbdBackService.class);
 
-    public void createOrderByPost(IbdBackRequest request, String token){
+    public void createOrderByPost(Object request, String token){
 
         String jsonPoCreate = this.initOrderCreate(request);
 
@@ -60,7 +60,7 @@ public class IbdBackService implements IIbdBackService{
     }
 
 
-    private String initOrderCreate(IbdBackRequest request){
+    private String initOrderCreate(Object request){
 
 
         return JSON.toJSONString(request);

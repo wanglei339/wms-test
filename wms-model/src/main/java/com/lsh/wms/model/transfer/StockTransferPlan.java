@@ -1,12 +1,14 @@
 package com.lsh.wms.model.transfer;
 
-import javax.validation.Valid;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.List;
 
+@JsonSerialize(include= JsonSerialize.Inclusion.NON_NULL)
 public class StockTransferPlan implements Serializable {
 	/** 移库计划id */
     private Long planId = 0L;

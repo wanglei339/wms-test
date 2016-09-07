@@ -33,10 +33,11 @@ public class AbsTaskHandler implements TaskHandler {
     public void create(TaskEntry taskEntry) throws BizCheckedException{
         // 插入标准任务信息
         TaskInfo taskInfo = taskEntry.getTaskInfo();
-        if (taskInfo.getTaskId().equals(0L)) {
+        Long taskId = taskInfo.getTaskId();
+        if (taskId.equals(0L) || baseTaskService.getTaskInfoById(taskId) != null) {
             Long taskType = taskInfo.getType();
             String idKey = "task_" + taskType.toString();
-            Long taskId = idGenerator.genId(idKey, true, true);
+            taskId = idGenerator.genId(idKey, true, true);
             //Long taskId = RandomUtils.genId();
             taskInfo.setTaskId(taskId);
         }
