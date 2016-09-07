@@ -80,27 +80,51 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     @Autowired
     private TaskInfoDao taskInfoDao;
 
+    public boolean checkLocation(Long fromType, Long toType) throws BizCheckedException {
+        if (fromType.equals(LocationConstant.SHELF_STORE_BIN)) {
+            return (toType.equals(LocationConstant.SHELF_STORE_BIN) ||
+                    toType.equals(LocationConstant.BACK_AREA) ||
+                    toType.equals(LocationConstant.DEFECTIVE_AREA));
+        } else if (fromType.equals(LocationConstant.SPLIT_SHELF_BIN)) {
+            return (toType.equals(LocationConstant.SPLIT_SHELF_BIN) ||
+                    toType.equals(LocationConstant.BACK_AREA) ||
+                    toType.equals(LocationConstant.DEFECTIVE_AREA));
+        } else if (fromType.equals(LocationConstant.BACK_AREA)) {
+            return (toType.equals(LocationConstant.SHELF_STORE_BIN) ||
+                    toType.equals(LocationConstant.SPLIT_SHELF_BIN) ||
+                    toType.equals(LocationConstant.DEFECTIVE_AREA));
+        } else if (fromType.equals(LocationConstant.DEFECTIVE_AREA)) {
+            return (toType.equals(LocationConstant.SHELF_STORE_BIN) ||
+                    toType.equals(LocationConstant.SPLIT_SHELF_BIN) ||
+                    toType.equals(LocationConstant.BACK_AREA));
+        } else if (fromType.equals(LocationConstant.MARKET_RETURN_AREA)) {
+            return (toType.equals(LocationConstant.SHELF_PICKING_BIN) ||
+                    toType.equals(LocationConstant.SPLIT_SHELF_BIN));
+        }
+        return false;
+    }
+
     public boolean checkPlan(StockTransferPlan plan) throws BizCheckedException {
         if (plan.getUomQty().compareTo(BigDecimal.ZERO) <= 0) {
             throw new BizCheckedException("2550034");
         }
-        Long fromLocationId = plan.getFromLocationId();
-        Long toLocationId = plan.getToLocationId();
+        Long fromLocationId = plan.getFromLocationId(),
+                toLocationId = plan.getToLocationId();
         if (fromLocationId.compareTo(toLocationId) == 0) {
             throw new BizCheckedException("2550017");
         }
-        BaseinfoLocation fromLocation = locationService.getLocation(fromLocationId);
-        BaseinfoLocation toLocation = locationService.getLocation(toLocationId);
+        BaseinfoLocation fromLocation = locationService.getLocation(fromLocationId),
+                toLocation = locationService.getLocation(toLocationId);
         if (fromLocation == null || toLocation == null) {
             throw new BizCheckedException("2550016");
         }
-        if (fromLocation.getType().equals(LocationConstant.TEMPORARY) || toLocation.getType().equals(LocationConstant.TEMPORARY)) {
-            throw new BizCheckedException("2550035");
+        if (!this.checkLocation(fromLocation.getType(), toLocation.getType())) {
+            throw new BizCheckedException("2550037");
         }
         if (toLocation.getCanStore() != 1) {
             throw new BizCheckedException("2550020");
         }
-        if( toLocation.getCanUse() != 1) {
+        if (toLocation.getCanUse() != 1) {
             throw new BizCheckedException("2550006");
         }
         Long itemId = plan.getItemId();
@@ -135,31 +159,28 @@ public class StockTransferRpcService implements IStockTransferRpcService {
                 throw new BizCheckedException("2550010");
             }
         }
-
         List<StockQuant> toQuants = quantService.getQuantsByLocationId(toLocationId);
         Long locationType = toLocation.getType();
-        if( toQuants != null && toQuants.size() > 0
-                && locationType.compareTo(LocationConstant.FLOOR) != 0
+        // 拣货位
+        if (locationType.compareTo(LocationConstant.SPLIT_SHELF_BIN) == 0 || locationType.compareTo(LocationConstant.SHELF_PICKING_BIN) == 0) {
+            List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toLocationId);
+            if (itemLocations.size() > 0 && itemLocations.get(0).getItemId().compareTo(itemId) != 0) {
+                throw new BizCheckedException("2550004");
+            }
+        } else if (toQuants != null && toQuants.size() > 0
                 && locationType.compareTo(LocationConstant.BACK_AREA) != 0
                 && locationType.compareTo(LocationConstant.DEFECTIVE_AREA) != 0) {
-            // 拣货位
-            if (locationType.compareTo(LocationConstant.LOFT_PICKING_BIN) == 0 || locationType.compareTo(LocationConstant.SHELF_PICKING_BIN) == 0) {
-                List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toLocationId);
-                if (itemLocations.size() > 0 && itemLocations.get(0).getItemId().compareTo(itemId) != 0) {
-                    throw new BizCheckedException("2550004");
-                }
-            } else { //其余货位
-                if (toQuants.get(0).getItemId().compareTo(itemId) != 0) {
-                    throw new BizCheckedException("2550004");
-                }
-                if (toQuants.get(0).getLotId().compareTo(quantList.get(0).getLotId()) != 0) {
-                    throw new BizCheckedException("2550003");
-                }
+            //其余货位
+            if (toQuants.get(0).getItemId().compareTo(itemId) != 0) {
+                throw new BizCheckedException("2550004");
+            }
+            if (toQuants.get(0).getLotId().compareTo(quantList.get(0).getLotId()) != 0) {
+                throw new BizCheckedException("2550003");
             }
         }
         core.fillTransferPlan(plan);
         BigDecimal requiredQty = plan.getQty().multiply(plan.getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP);
-        if ( requiredQty.compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
+        if (requiredQty.compareTo(total) > 0) {
             throw new BizCheckedException("2550002");
         }
         plan.setContainerId(quantList.get(0).getContainerId());
@@ -167,7 +188,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     }
 
     public Long addPlan(StockTransferPlan plan) throws BizCheckedException {
-        BaseinfoLocation fromLocation = locationService.getLocation( plan.getFromLocationId());
+        BaseinfoLocation fromLocation = locationService.getLocation(plan.getFromLocationId());
         BaseinfoLocation toLocation = locationService.getLocation(plan.getToLocationId());
         if (fromLocation == null || toLocation == null) {
             throw new BizCheckedException("2550016");
@@ -214,7 +235,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (!taskInfo.getStatus().equals(TaskConstant.Draft)) {
             throw new BizCheckedException("2550033");
         }
-        BaseinfoLocation fromLocation = locationService.getLocation( plan.getFromLocationId());
+        BaseinfoLocation fromLocation = locationService.getLocation(plan.getFromLocationId());
         BaseinfoLocation toLocation = locationService.getLocation(plan.getToLocationId());
         if (fromLocation == null || toLocation == null) {
             throw new BizCheckedException("2550016");
@@ -237,7 +258,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         }
     }
 
-    public void cancelPlan(Long taskId){
+    public void cancelPlan(Long taskId) {
         taskRpcService.cancel(taskId);
     }
 
@@ -264,7 +285,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             subType = nextInfo.getSubType();
             qty = nextInfo.getQtyDone();
             next.put("type", 2);
-            next.put("taskId",nextInTask);
+            next.put("taskId", nextInTask.toString());
         } else {//outbound
             TaskInfo nextInfo = taskRpcService.getTaskEntryById(nextOutTask).getTaskInfo();
             nextLocationId = nextInfo.getFromLocationId();
@@ -273,7 +294,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             subType = nextInfo.getSubType();
             qty = nextInfo.getQty();
             next.put("type", 1);
-            next.put("taskId", nextOutTask);
+            next.put("taskId", nextOutTask.toString());
         }
         next.put("locationId", nextLocationId);
         next.put("locationCode", locationService.getLocation(nextLocationId).getLocationCode());
@@ -304,7 +325,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             TaskInfo nextInfo = taskRpcService.getTaskEntryById(nextInTask).getTaskInfo();
             Long nextLocationId = nextInfo.getToLocationId();
             next.put("type", 2);
-            next.put("taskId", nextInfo.getTaskId());
+            next.put("taskId", nextInfo.getTaskId().toString());
             next.put("locationId", nextLocationId);
             next.put("locationCode", locationService.getLocation(nextLocationId).getLocationCode());
             next.put("itemId", nextInfo.getItemId());
@@ -382,7 +403,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         Long nextLocationId = nextInfo.getFromLocationId();
         Map<String, Object> next = new HashMap<String, Object>();
         next.put("type", 1);
-        next.put("taskId", nextInfo.getTaskId());
+        next.put("taskId", nextInfo.getTaskId().toString());
         next.put("locationId", nextLocationId);
         next.put("locationCode", locationService.getLocation(nextLocationId).getLocationCode());
         next.put("itemId", nextInfo.getItemId());
@@ -455,7 +476,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     public Long allocateToLocationId(StockQuant quant) throws BizCheckedException {
         Long locationId = quant.getLocationId();
         BaseinfoLocation location = locationService.getLocation(locationId);
-        if (location == null ){
+        if (location == null) {
             throw new BizCheckedException("2060012");
         }
         Map<String, Object> params = new HashMap<String, Object>();
@@ -463,71 +484,40 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         params.put("isValid", LocationConstant.IS_VALID);
         params.put("canUse", LocationConstant.CAN_USE);
         params.put("isLocked", LocationConstant.UNLOCK);
-        List <BaseinfoLocation> shelfLocationList = new ArrayList<BaseinfoLocation>();
-        List <BaseinfoLocation> loftLocationList = new ArrayList<BaseinfoLocation>();
+        List<BaseinfoLocation> toLocationList = new ArrayList<BaseinfoLocation>();
         if (location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
             params.put("type", LocationConstant.SPLIT_SHELF_BIN);
-            shelfLocationList = locationService.getBaseinfoLocationList(params);
-            if (shelfLocationList != null && !shelfLocationList.isEmpty()) {
-                shelfLocationList.remove(location);
-            }
-        } else {
+            toLocationList = locationService.getBaseinfoLocationList(params);
+        } else if (location.getType().equals(LocationConstant.SHELF_STORE_BIN)) {
             params.put("type", LocationConstant.SHELF_STORE_BIN);
-            shelfLocationList = locationService.getBaseinfoLocationList(params);
-            if (shelfLocationList != null && !shelfLocationList.isEmpty()) {
-                for (BaseinfoLocation targetLocation : shelfLocationList) {
-                    if (targetLocation.getLocationId().equals(locationId)) {
-                        shelfLocationList.remove(targetLocation);
-                        break;
-                    }
+            toLocationList = locationService.getBaseinfoLocationList(params);
+        }
+        if (toLocationList != null && !toLocationList.isEmpty()) {
+            for (BaseinfoLocation targetLocation : toLocationList) {
+                if (targetLocation.getLocationId().equals(locationId)) {
+                    toLocationList.remove(targetLocation);
+                    break;
                 }
-            }
-            params.put("type", LocationConstant.LOFT_STORE_BIN);
-            loftLocationList = locationService.getBaseinfoLocationList(params);
-            if (loftLocationList != null && !loftLocationList.isEmpty()) {
-                for (BaseinfoLocation targetLocation : loftLocationList) {
-                    if (targetLocation.getLocationId().equals(locationId)) {
-                        loftLocationList.remove(targetLocation);
-                        break;
-                    }
-                }
-                shelfLocationList.addAll(loftLocationList);
             }
         }
         StockQuantCondition condition = new StockQuantCondition();
         condition.setItemId(quant.getItemId());
         condition.setLotId(quant.getLotId());
-        condition.setLocationList(shelfLocationList);
+        condition.setLocationList(toLocationList);
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
         // find empty location
         if (quantList == null || quantList.isEmpty()) {
             params.put("curContainerVol", 0L);
-            loftLocationList = locationService.getBaseinfoLocationList(params);
-            if (loftLocationList != null && !loftLocationList.isEmpty()) {
-                for (BaseinfoLocation targetLocation : loftLocationList) {
+            toLocationList = locationService.getBaseinfoLocationList(params);
+            if (toLocationList != null && !toLocationList.isEmpty()) {
+                for (BaseinfoLocation targetLocation : toLocationList) {
                     if (targetLocation.getLocationId().equals(locationId)) {
-                        loftLocationList.remove(targetLocation);
+                        toLocationList.remove(targetLocation);
                         break;
                     }
                 }
             }
-            if (!location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
-                params.put("type", LocationConstant.SHELF_STORE_BIN);
-                shelfLocationList = locationService.getBaseinfoLocationList(params);
-                if (shelfLocationList != null && !shelfLocationList.isEmpty()) {
-                    for (BaseinfoLocation targetLocation : shelfLocationList) {
-                        if (targetLocation.getLocationId().equals(locationId)) {
-                            shelfLocationList.remove(targetLocation);
-                            break;
-                        }
-                    }
-                    loftLocationList.addAll(shelfLocationList);
-                }
-            }
-            if (loftLocationList == null || loftLocationList.isEmpty()) {
-                return 0L;
-            }
-            return loftLocationList.get(0).getLocationId();
+            return (toLocationList == null || toLocationList.isEmpty()) ? 0L : toLocationList.get(0).getLocationId();
         }
         return quantList.get(0).getLocationId();
     }

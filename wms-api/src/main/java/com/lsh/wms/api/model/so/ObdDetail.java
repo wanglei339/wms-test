@@ -11,6 +11,10 @@ import java.math.BigDecimal;
  */
 @JsonIgnoreProperties(ignoreUnknown = false)
 public class ObdDetail implements Serializable {
+    /** 上游细单Id */
+    @NotNull
+    private String detailOtherId;
+
     @NotNull
     private String skuCode;
 
@@ -34,7 +38,8 @@ public class ObdDetail implements Serializable {
     public ObdDetail() {
     }
 
-    public ObdDetail(String skuCode, String barCode, BigDecimal orderQty, BigDecimal packUnit, String packName, String lotNum) {
+    public ObdDetail(String detailOtherId,String skuCode, String barCode, BigDecimal orderQty, BigDecimal packUnit, String packName, String lotNum) {
+        this.detailOtherId = detailOtherId;
         this.skuCode = skuCode;
         this.barCode = barCode;
         this.orderQty = orderQty;
@@ -89,5 +94,13 @@ public class ObdDetail implements Serializable {
 
     public void setLotNum(String lotNum) {
         this.lotNum = lotNum;
+    }
+
+    public String getDetailOtherId() {
+        return detailOtherId;
+    }
+
+    public void setDetailOtherId(String detailOtherId) {
+        this.detailOtherId = detailOtherId;
     }
 }

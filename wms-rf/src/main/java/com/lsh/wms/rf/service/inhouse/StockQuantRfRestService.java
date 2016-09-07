@@ -10,7 +10,6 @@ import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.stock.IStockQuantRfRestService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
@@ -24,7 +23,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mali on 16/8/2.
@@ -48,7 +49,7 @@ public class StockQuantRfRestService implements IStockQuantRfRestService {
 
     @POST
     @Path("getItem")
-    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String getItemByLocation() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
@@ -62,16 +63,16 @@ public class StockQuantRfRestService implements IStockQuantRfRestService {
         if (location == null) {
             throw new BizCheckedException("2060012");
         }
-        String barCode =params.get("barcode").toString();
-        CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE,barCode);
-        if(csiSku == null) {
+        String barCode = params.get("barcode").toString();
+        CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barCode);
+        if (csiSku == null) {
             throw new BizCheckedException("2550032");
         }
         StockQuantCondition condition = new StockQuantCondition();
         condition.setLocationId(locationId);
         condition.setSkuId(csiSku.getSkuId());
         List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
-        if(quantList.isEmpty()) {
+        if (quantList.isEmpty()) {
             throw new BizCheckedException("2550032");
         }
         StockQuant quant = quantList.get(0);

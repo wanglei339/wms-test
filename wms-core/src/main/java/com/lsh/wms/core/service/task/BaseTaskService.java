@@ -280,7 +280,7 @@ public class BaseTaskService {
      */
     public List<TaskInfo> getIncompleteTaskByLocation (Long locationId, Long type) {
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("locaitonId", locationId);
+        params.put("locationId", locationId);
         params.put("type", type);
         List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
         List<TaskInfo> retTaskInfos = new ArrayList<TaskInfo>();

@@ -8,6 +8,8 @@ public class OutbSoDetail implements Serializable {
 
 	/**  */
     private Long id;
+	/** 上游细单ID */
+	private String detailOtherId;
 	/** 订单ID */
     private Long orderId;
 	/** 外部商品编码 */
@@ -42,6 +44,14 @@ public class OutbSoDetail implements Serializable {
 	
 	public void setId(Long id){
 		this.id = id;
+	}
+
+	public String getDetailOtherId(){
+		return this.detailOtherId;
+	}
+
+	public void setDetailOtherId(String detailOtherId){
+		this.detailOtherId = detailOtherId;
 	}
 	
 	public Long getOrderId(){

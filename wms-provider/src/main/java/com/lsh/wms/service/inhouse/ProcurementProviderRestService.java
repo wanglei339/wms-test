@@ -37,10 +37,13 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
     @Path("add")
     public String addProcurementPlan(StockTransferPlan plan)  throws BizCheckedException {
         try{
-            if(rpcService.checkPlan(plan)==false){
+            if(!rpcService.checkPlan(plan)){
                 return JsonUtils.TOKEN_ERROR("补货计划参数错误");
             }
-            rpcService.addProcurementPlan(plan);
+             boolean isTrue = rpcService.addProcurementPlan(plan);
+            if(!isTrue){
+                return JsonUtils.TOKEN_ERROR("创建失败");
+            }
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
@@ -53,10 +56,13 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
     @Path("update")
     public String updateProcurementPlan(StockTransferPlan plan)  throws BizCheckedException {
         try{
-            if(rpcService.checkPlan(plan)==false){
+            if(!rpcService.checkPlan(plan)){
                 return JsonUtils.TOKEN_ERROR("补货计划参数错误");
             }
-            rpcService.updateProcurementPlan(plan);
+            boolean isTrue = rpcService.updateProcurementPlan(plan);
+            if(!isTrue){
+                return JsonUtils.TOKEN_ERROR("更新失败");
+            }
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {

@@ -1,44 +1,39 @@
 package com.lsh.wms.rf.service.inhouse;
 
-import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.base.common.utils.ObjUtils;
-import com.lsh.wms.api.service.stock.IStockQuantRpcService;
-import com.lsh.wms.core.constant.CsiConstan;
-import com.lsh.wms.core.constant.LocationConstant;
-import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.api.service.inhouse.IStockTransferRestService;
 import com.lsh.wms.api.service.inhouse.IStockTransferRpcService;
 import com.lsh.wms.api.service.item.IItemRpcService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.CsiConstan;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
-import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
-import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
-import org.apache.commons.collections.map.HashedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.config.Task;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -219,8 +214,8 @@ public class StockTransferRestService implements IStockTransferRestService {
         try {
             Long staffId;
             try {
-                staffId= iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getUid();
-            }catch (Exception e){
+                staffId = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getUid();
+            } catch (Exception e) {
                 throw new BizCheckedException("2550013");
             }
             plan.setPlanner(staffId);
@@ -280,8 +275,8 @@ public class StockTransferRestService implements IStockTransferRestService {
         try {
             Long staffId;
             try {
-                staffId= iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getUid();
-            }catch (Exception e){
+                staffId = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getUid();
+            } catch (Exception e) {
                 throw new BizCheckedException("2550013");
             }
             plan.setPlanner(staffId);
@@ -372,8 +367,8 @@ public class StockTransferRestService implements IStockTransferRestService {
         try {
             Long staffId;
             try {
-                staffId= iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getUid();
-            }catch (Exception e){
+                staffId = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getUid();
+            } catch (Exception e) {
                 throw new BizCheckedException("2550013");
             }
             final Long taskId = rpcService.assign(staffId);
@@ -401,7 +396,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                 {
                     put("type", type);
-                    put("taskId", taskId);
+                    put("taskId", taskId.toString());
                     put("locationId", locationId);
                     put("locationCode", locationCode);
                     put("itemId", taskInfo.getItemId());

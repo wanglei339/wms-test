@@ -198,7 +198,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             }
             BaseinfoLocation location = locationService.getLocation(detail.getAllocLocationId());
             Map<String, Object> map = new HashMap<String, Object>();
-            map.put("taskId", taskId);
+            map.put("taskId", taskId.toString());
             map.put("locationId", location.getLocationId());
             map.put("locationCode", location.getLocationCode());
             map.put("qty", detail.getQty());
@@ -263,7 +263,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         }
         BaseinfoLocation location = locationService.getLocation(detail.getAllocLocationId());
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("taskId", taskId);
+        map.put("taskId", taskId.toString());
         map.put("locationId", location.getLocationId());
         map.put("locationCode", location.getLocationCode());
         map.put("qty", detail.getQty());

@@ -10,4 +10,5 @@ public interface IUserRestService {
 
     String userLogin() throws BizCheckedException;
     String getMenuList() throws BizCheckedException;
+    String userLogout();
 }
