@@ -105,7 +105,8 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     }
 
     public boolean checkPlan(StockTransferPlan plan) throws BizCheckedException {
-        if (plan.getUomQty().compareTo(BigDecimal.ZERO) <= 0) {
+        BigDecimal uomQty = plan.getUomQty();
+        if (uomQty.compareTo(BigDecimal.ZERO) <= 0 || uomQty.setScale(0, BigDecimal.ROUND_DOWN).compareTo(uomQty) != 0) {
             throw new BizCheckedException("2550034");
         }
         Long fromLocationId = plan.getFromLocationId(),
@@ -429,7 +430,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
                 StockTransferPlan plan = new StockTransferPlan();
                 plan.setFromLocationId(quant.getLocationId());
                 plan.setToLocationId(toLocationId);
-                plan.setQty(quant.getQty().divide(quant.getPackUnit()));
+                plan.setQty(quant.getQty().divide(quant.getPackUnit(), 0, BigDecimal.ROUND_DOWN));
                 plan.setItemId(quant.getItemId());
                 Long subType = 2L;
                 if (location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
@@ -458,7 +459,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
                 plan.setFromLocationId(quant.getLocationId());
                 plan.setToLocationId(toLocationId);
                 plan.setItemId(quant.getItemId());
-                plan.setQty(quant.getQty().divide(quant.getPackUnit()));
+                plan.setQty(quant.getQty().divide(quant.getPackUnit(), 0, BigDecimal.ROUND_DOWN));
                 Long subType = 2L;
                 if (location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
                     subType = 3L;

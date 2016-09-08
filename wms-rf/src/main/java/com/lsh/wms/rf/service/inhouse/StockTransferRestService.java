@@ -129,13 +129,19 @@ public class StockTransferRestService implements IStockTransferRestService {
             result.put("locationCode", location.getLocationCode());
             result.put("itemId", quant.getItemId());
             result.put("itemName", itemRpcService.getItem(quant.getItemId()).getSkuName());
-            result.put("packName", quant.getPackName());
+
             result.put("lotId", quant.getLotId());
             condition.setItemId(quant.getItemId());
             condition.setLotId(quant.getLotId());
             condition.setReserveTaskId(0L);
             BigDecimal qty = stockQuantRpcService.getQty(condition);
-            result.put("uomQty", qty.divide(quant.getPackUnit()));
+            if (location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
+                result.put("packName", "EA");
+                result.put("uomQty", qty);
+            } else {
+                result.put("packName", quant.getPackName());
+                result.put("uomQty", qty.divide(quant.getPackUnit(), 0, BigDecimal.ROUND_DOWN));
+            }
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
