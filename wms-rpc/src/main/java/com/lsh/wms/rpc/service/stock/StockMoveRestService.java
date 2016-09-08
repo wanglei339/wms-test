@@ -102,7 +102,7 @@ public class StockMoveRestService implements IStockMoveRestService {
     @GET
     @Path("getHistory")
     public String getHistory(@QueryParam("move_id") Long move_id) {
-        List<StockQuantMoveRel> moveRels=stockMoveService.getHistoryById(move_id);
+        List<StockQuantMoveRel> moveRels = stockMoveService.getHistoryById(move_id);
         return JsonUtils.SUCCESS(moveRels);
     }
 

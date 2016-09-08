@@ -11,6 +11,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Map;
+
 /**
  * Created by Ming on 7/14/16.
  */
@@ -20,7 +21,7 @@ import java.util.Map;
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 
-public class StockLotRestService implements IStockLotRestService{
+public class StockLotRestService implements IStockLotRestService {
 
     @Autowired
     private StockLotRpcService stockLotRpcService;
@@ -49,10 +50,10 @@ public class StockLotRestService implements IStockLotRestService{
     @POST
     @Path("insertLot")
     public String insertLot(StockLot lot) {
-        boolean isTrue =stockLotRpcService.insert(lot);
-        if(isTrue) {
+        boolean isTrue = stockLotRpcService.insert(lot);
+        if (isTrue) {
             return JsonUtils.SUCCESS();
-        }else {
+        } else {
             return JsonUtils.EXCEPTION_ERROR("insertFail");
         }
     }
@@ -60,10 +61,10 @@ public class StockLotRestService implements IStockLotRestService{
     @POST
     @Path("updateLot")
     public String updateLot(StockLot lot) {
-        boolean isTrue =stockLotRpcService.update(lot);
-        if(isTrue) {
+        boolean isTrue = stockLotRpcService.update(lot);
+        if (isTrue) {
             return JsonUtils.SUCCESS();
-        }else {
+        } else {
             return JsonUtils.EXCEPTION_ERROR("updateFail");
         }
     }

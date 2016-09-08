@@ -101,7 +101,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             return (toType.equals(LocationConstant.SHELF_PICKING_BIN) ||
                     toType.equals(LocationConstant.SPLIT_SHELF_BIN));
         } else if (fromType.equals(LocationConstant.SHELF_PICKING_BIN)) {
-            return (toType.equals(LocationConstant.SHELF_PICKING_BIN)||
+            return (toType.equals(LocationConstant.SHELF_PICKING_BIN) ||
                     toType.equals(LocationConstant.BACK_AREA) ||
                     toType.equals(LocationConstant.DEFECTIVE_AREA));
         }

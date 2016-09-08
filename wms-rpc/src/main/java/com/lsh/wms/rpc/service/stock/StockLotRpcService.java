@@ -1,9 +1,6 @@
 package com.lsh.wms.rpc.service.stock;
 
 import com.alibaba.dubbo.config.annotation.Service;
-import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
-import com.lsh.base.common.json.JsonUtils;
-import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.stock.IStockLotRpcService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.model.stock.StockLot;
@@ -11,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +15,7 @@ import java.util.Map;
  * Created by wuhao on 16/7/29.
  */
 @Service(protocol = "dubbo")
-public class StockLotRpcService implements IStockLotRpcService{
+public class StockLotRpcService implements IStockLotRpcService {
     private static Logger logger = LoggerFactory.getLogger(StockLotRpcService.class);
 
     @Autowired
@@ -46,7 +41,7 @@ public class StockLotRpcService implements IStockLotRpcService{
      * supplierId    供应商Id
      */
     public boolean insert(StockLot lot) {
-        if(stockLotService.getStockLotByLotId(lot.getLotId()) != null) {
+        if (stockLotService.getStockLotByLotId(lot.getLotId()) != null) {
             return false;
         }
         try {
@@ -59,7 +54,7 @@ public class StockLotRpcService implements IStockLotRpcService{
     }
 
     public boolean update(StockLot lot) {
-        if(stockLotService.getStockLotByLotId(lot.getLotId()) == null) {
+        if (stockLotService.getStockLotByLotId(lot.getLotId()) == null) {
             return false;
         }
         try {

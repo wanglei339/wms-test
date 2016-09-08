@@ -125,7 +125,6 @@ public class StockTransferCore {
             if (quant.getItemId().compareTo(taskInfo.getItemId()) != 0) {
                 throw new BizCheckedException("2040005");
             }
-
         } else {
             if (taskInfo.getFromLocationId().compareTo(fromLocationId) != 0) {
                 throw new BizCheckedException("2040005");

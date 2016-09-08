@@ -21,7 +21,7 @@ public class StockTransferTaskDeal implements IScheduleTaskDealSingle<String> {
     @Reference
     private IStockTransferRpcService iStockTransferRpcService;
 
-    private static Logger logger =  LoggerFactory.getLogger(StockTransferTaskDeal.class);
+    private static Logger logger = LoggerFactory.getLogger(StockTransferTaskDeal.class);
 
     public boolean execute(String task, String ownSign) throws Exception {
         try {

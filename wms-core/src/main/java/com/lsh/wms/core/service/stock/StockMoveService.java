@@ -5,7 +5,6 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
-import com.lsh.wms.core.dao.stock.StockQuantDao;
 import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
@@ -49,7 +48,7 @@ public class StockMoveService {
     }
 
     @Transactional(readOnly = false)
-    public void create(StockMove move){
+    public void create(StockMove move) {
         move.setCreatedAt(DateUtils.getCurrentSeconds());
         move.setUpdatedAt(DateUtils.getCurrentSeconds());
         moveDao.insert(move);
@@ -108,7 +107,7 @@ public class StockMoveService {
             this.create(move);
             quantService.move(move);
             BaseinfoLocation location = locationService.getLocation(move.getToLocationId());
-            if(location.getType().compareTo(LocationConstant.CONSUME_AREA)!=0) {
+            if (location.getType().compareTo(LocationConstant.CONSUME_AREA) != 0) {
                 quantService.unReserveById(quant.getId());
             }
             quantService.unReserveById(quant.getId());
@@ -116,7 +115,7 @@ public class StockMoveService {
     }
 
     @Transactional(readOnly = false)
-    public void move(List<StockMove> moveList) throws BizCheckedException{
+    public void move(List<StockMove> moveList) throws BizCheckedException {
         SortedSet<Long> locationSet = new TreeSet<Long>();
         for (StockMove move : moveList) {
             locationSet.add(move.getFromLocationId());
@@ -126,33 +125,34 @@ public class StockMoveService {
         }
         for (StockMove move : moveList) {
             this.create(move);
-            if(move.getLot()==null) {
+            if (move.getLot() == null) {
                 quantService.move(move);
-            }else {
-                this.move(move,move.getLot());
+            } else {
+                this.move(move, move.getLot());
             }
         }
     }
+
     @Transactional(readOnly = false)
-    public void moveToConsume(Long locationId,Long taskId,Long staffId) throws BizCheckedException{
+    public void moveToConsume(Long locationId, Long taskId, Long staffId) throws BizCheckedException {
 
         List<StockQuant> quants = quantService.getQuantsByLocationId(locationId);
 
         BaseinfoLocation location = locationService.getLocationsByType(LocationConstant.CONSUME_AREA).get(0);
 
         //存储已经生成move的ContainerId
-        Map<Long,Integer> isMovedMap = new HashMap<Long, Integer>();
+        Map<Long, Integer> isMovedMap = new HashMap<Long, Integer>();
 
-        for(StockQuant quant:quants){
-            if(!isMovedMap.containsKey(quant.getContainerId())){
-                this.moveWholeContainer(quant.getContainerId(),taskId,staffId,quant.getLocationId(), location.getLocationId());
-                isMovedMap.put(quant.getContainerId(),1);
+        for (StockQuant quant : quants) {
+            if (!isMovedMap.containsKey(quant.getContainerId())) {
+                this.moveWholeContainer(quant.getContainerId(), taskId, staffId, quant.getLocationId(), location.getLocationId());
+                isMovedMap.put(quant.getContainerId(), 1);
             }
         }
     }
 
     @Transactional(readOnly = false)
-    public void moveToContainer(Long itemId, Long operator,Long fromContainer,Long toContainer,Long locationId,BigDecimal qty) throws BizCheckedException {
+    public void moveToContainer(Long itemId, Long operator, Long fromContainer, Long toContainer, Long locationId, BigDecimal qty) throws BizCheckedException {
         if (qty.compareTo(BigDecimal.ZERO) <= 0) {
             throw new BizCheckedException("1550001");
         }
@@ -161,20 +161,20 @@ public class StockMoveService {
 
         Map<String, Object> queryMap = new HashMap<String, Object>();
         BigDecimal total = BigDecimal.ZERO;
-        queryMap.put("itemId",itemId);
-        queryMap.put("containerId",fromContainer);
+        queryMap.put("itemId", itemId);
+        queryMap.put("containerId", fromContainer);
         List<StockQuant> stockQuants = quantService.getQuants(queryMap);
-        if(stockQuants==null || stockQuants.size()==0){
+        if (stockQuants == null || stockQuants.size() == 0) {
             throw new BizCheckedException("2550009");
         }
-        for(StockQuant quant:stockQuants){
+        for (StockQuant quant : stockQuants) {
             total = total.add(quant.getQty());
         }
-        if(total.subtract(qty).floatValue() < 0){
+        if (total.subtract(qty).floatValue() < 0) {
             throw new BizCheckedException("2550008");
         }
         StockQuant quant = stockQuants.get(0);
-        StockMove move =new StockMove();
+        StockMove move = new StockMove();
         move.setQty(qty);
         move.setSkuId(quant.getSkuId());
         move.setOwnerId(quant.getOwnerId());
@@ -190,6 +190,6 @@ public class StockMoveService {
 
     @Transactional(readOnly = false)
     public void move(StockMove move, StockLot lot) {
-       quantService.move(move,lot);
+        quantService.move(move, lot);
     }
 }
