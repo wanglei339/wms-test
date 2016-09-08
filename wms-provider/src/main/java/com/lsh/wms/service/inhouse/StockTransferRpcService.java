@@ -100,12 +100,17 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         } else if (fromType.equals(LocationConstant.MARKET_RETURN_AREA)) {
             return (toType.equals(LocationConstant.SHELF_PICKING_BIN) ||
                     toType.equals(LocationConstant.SPLIT_SHELF_BIN));
+        } else if (fromType.equals(LocationConstant.SHELF_PICKING_BIN)) {
+            return (toType.equals(LocationConstant.SHELF_PICKING_BIN)||
+                    toType.equals(LocationConstant.BACK_AREA) ||
+                    toType.equals(LocationConstant.DEFECTIVE_AREA));
         }
         return false;
     }
 
     public boolean checkPlan(StockTransferPlan plan) throws BizCheckedException {
-        if (plan.getUomQty().compareTo(BigDecimal.ZERO) <= 0) {
+        BigDecimal uomQty = plan.getUomQty();
+        if (uomQty.compareTo(BigDecimal.ZERO) <= 0 || uomQty.setScale(0, BigDecimal.ROUND_DOWN).compareTo(uomQty) != 0) {
             throw new BizCheckedException("2550034");
         }
         Long fromLocationId = plan.getFromLocationId(),
@@ -120,6 +125,18 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         }
         if (!this.checkLocation(fromLocation.getType(), toLocation.getType())) {
             throw new BizCheckedException("2550037");
+        }
+        if (plan.getSubType().equals(1L)) {
+            throw new BizCheckedException("2550040");
+        }
+        if (fromLocation.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
+            if (!plan.getSubType().equals(3L)) {
+                throw new BizCheckedException("2550038");
+            }
+        } else if (fromLocation.getType().equals(LocationConstant.SHELF_PICKING_BIN) || fromLocation.getType().equals(LocationConstant.SHELF_STORE_BIN)) {
+            if (!plan.getSubType().equals(2L)) {
+                throw new BizCheckedException("2550039");
+            }
         }
         if (toLocation.getCanStore() != 1) {
             throw new BizCheckedException("2550020");
@@ -429,7 +446,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
                 StockTransferPlan plan = new StockTransferPlan();
                 plan.setFromLocationId(quant.getLocationId());
                 plan.setToLocationId(toLocationId);
-                plan.setQty(quant.getQty().divide(quant.getPackUnit()));
+                plan.setQty(quant.getQty().divide(quant.getPackUnit(), 0, BigDecimal.ROUND_DOWN));
                 plan.setItemId(quant.getItemId());
                 Long subType = 2L;
                 if (location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
@@ -458,7 +475,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
                 plan.setFromLocationId(quant.getLocationId());
                 plan.setToLocationId(toLocationId);
                 plan.setItemId(quant.getItemId());
-                plan.setQty(quant.getQty().divide(quant.getPackUnit()));
+                plan.setQty(quant.getQty().divide(quant.getPackUnit(), 0, BigDecimal.ROUND_DOWN));
                 Long subType = 2L;
                 if (location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
                     subType = 3L;
@@ -492,6 +509,9 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             toLocationList = locationService.getBaseinfoLocationList(params);
         } else if (location.getType().equals(LocationConstant.SHELF_STORE_BIN)) {
             params.put("type", LocationConstant.SHELF_STORE_BIN);
+            toLocationList = locationService.getBaseinfoLocationList(params);
+        } else if (location.getType().equals(LocationConstant.SHELF_PICKING_BIN)) {
+            params.put("type", LocationConstant.SHELF_PICKING_BIN);
             toLocationList = locationService.getBaseinfoLocationList(params);
         }
         if (toLocationList != null && !toLocationList.isEmpty()) {

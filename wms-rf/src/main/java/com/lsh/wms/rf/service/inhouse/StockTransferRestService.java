@@ -118,6 +118,12 @@ public class StockTransferRestService implements IStockTransferRestService {
             if (location == null) {
                 throw new BizCheckedException("2060012");
             }
+            if (!(location.getType().equals(LocationConstant.SHELF_PICKING_BIN) ||
+                    location.getType().equals(LocationConstant.SHELF_STORE_BIN) ||
+                    location.getType().equals(LocationConstant.SPLIT_SHELF_BIN))
+                    ) {
+                throw new BizCheckedException("2550041");
+            }
             StockQuantCondition condition = new StockQuantCondition();
             condition.setLocationId(locationId);
             List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
@@ -129,13 +135,18 @@ public class StockTransferRestService implements IStockTransferRestService {
             result.put("locationCode", location.getLocationCode());
             result.put("itemId", quant.getItemId());
             result.put("itemName", itemRpcService.getItem(quant.getItemId()).getSkuName());
-            result.put("packName", quant.getPackName());
             result.put("lotId", quant.getLotId());
             condition.setItemId(quant.getItemId());
             condition.setLotId(quant.getLotId());
             condition.setReserveTaskId(0L);
             BigDecimal qty = stockQuantRpcService.getQty(condition);
-            result.put("uomQty", qty.divide(quant.getPackUnit()));
+            if (location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
+                result.put("packName", "EA");
+                result.put("uomQty", qty);
+            } else {
+                result.put("packName", quant.getPackName());
+                result.put("uomQty", qty.divide(quant.getPackUnit(), 0, BigDecimal.ROUND_DOWN));
+            }
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {

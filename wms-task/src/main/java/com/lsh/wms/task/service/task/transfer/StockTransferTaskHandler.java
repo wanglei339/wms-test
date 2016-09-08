@@ -52,25 +52,25 @@ public class StockTransferTaskHandler extends AbsTaskHandler {
         if (!locationType.equals(LocationConstant.DEFECTIVE_AREA) && !locationType.equals(LocationConstant.BACK_AREA)) {
             locationService.lockLocation(taskInfo.getToLocationId());
         }
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("locationId", taskInfo.getFromLocationId());
-        mapQuery.put("itemId",taskInfo.getItemId());
-        mapQuery.put("reserveTaskId", 0L);
-        quantService.reserve(mapQuery,taskInfo.getTaskId(),taskInfo.getQty().multiply(taskInfo.getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP));
+//        Map<String, Object> mapQuery = new HashMap<String, Object>();
+//        mapQuery.put("locationId", taskInfo.getFromLocationId());
+//        mapQuery.put("itemId",taskInfo.getItemId());
+//        mapQuery.put("reserveTaskId", 0L);
+//        quantService.reserve(mapQuery,taskInfo.getTaskId(),taskInfo.getQty().multiply(taskInfo.getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP));
     }
 
     public void doneConcrete(Long taskId){
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         locationService.unlockLocation(taskInfo.getToLocationId());
-        quantService.unReserve(taskInfo.getTaskId());
+//        quantService.unReserve(taskInfo.getTaskId());
     }
 
     public void cancelConcrete(Long taskId) {
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         locationService.unlockLocation(taskInfo.getToLocationId());
-        quantService.unReserve(taskInfo.getTaskId());
+//        quantService.unReserve(taskInfo.getTaskId());
     }
 
     public void calcPerformance(TaskInfo taskInfo) {

@@ -83,7 +83,7 @@ public class StockTransferCore {
         plan.setPackName(quant.getPackName());
         if (plan.getSubType().compareTo(1L) == 0) {
             BigDecimal total = stockQuantRpcService.getQty(condition);
-            plan.setQty(total.divide(quant.getPackUnit(), BigDecimal.ROUND_DOWN));
+            plan.setQty(total.divide(quant.getPackUnit(), 0, BigDecimal.ROUND_DOWN));
         } else if (plan.getSubType().compareTo(2L) == 0) {
             plan.setQty(plan.getUomQty());
         } else if (plan.getSubType().compareTo(3L) == 0) {
@@ -130,14 +130,6 @@ public class StockTransferCore {
             if (taskInfo.getFromLocationId().compareTo(fromLocationId) != 0) {
                 throw new BizCheckedException("2040005");
             }
-            condition.setLocationId(taskInfo.getFromLocationId());
-            List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
-            if(quantList!=null) {
-                for (StockQuant quant : quantList) {
-                    quant.setReserveTaskId(0L);
-                    quantService.update(quant);
-                }
-            }
         }
         Long containerId = taskInfo.getContainerId();
         Long toLocationId = locationService.getWarehouseLocationId();
@@ -145,7 +137,8 @@ public class StockTransferCore {
             moveRpcService.moveWholeContainer(containerId, taskId, uid, fromLocationId, toLocationId);
         } else {
             BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString());
-            if (qtyDone.compareTo(BigDecimal.ZERO) <= 0) {
+            if (qtyDone.compareTo(BigDecimal.ZERO) < 0 ||
+                    qtyDone.setScale(0, BigDecimal.ROUND_DOWN).compareTo(qtyDone) != 0) {
                 throw new BizCheckedException("2550034");
             }
             if (taskInfo.getQty().compareTo(qtyDone) < 0) {
@@ -201,7 +194,8 @@ public class StockTransferCore {
             moveRpcService.moveWholeContainer(containerId, taskId, uid, fromLocationId, toLocationId);
         } else {
             BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString());
-            if (qtyDone.compareTo(BigDecimal.ZERO) <= 0) {
+            if (qtyDone.compareTo(BigDecimal.ZERO) < 0 ||
+                    qtyDone.setScale(0, BigDecimal.ROUND_DOWN).compareTo(qtyDone) != 0) {
                 throw new BizCheckedException("2550034");
             }
             if (taskInfo.getQtyDone().compareTo(qtyDone) != 0) {
