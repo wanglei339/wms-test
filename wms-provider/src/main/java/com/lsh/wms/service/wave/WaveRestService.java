@@ -12,6 +12,7 @@ import com.lsh.wms.api.model.so.SoRequest;
 import com.lsh.wms.api.service.po.IIbdBackService;
 import com.lsh.wms.api.service.wave.IWaveRestService;
 import com.lsh.wms.core.constant.WaveConstant;
+import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.core.service.pick.PickModelService;
 import com.lsh.wms.core.service.pick.PickZoneService;
 import com.lsh.wms.core.service.so.SoOrderService;
@@ -58,6 +59,8 @@ public class WaveRestService implements IWaveRestService {
     private WaveTemplateService waveTemplateService;
     @Autowired
     private WaveRpcService waveRpcService;
+    @Autowired
+    private InventoryRedisService inventoryRedisService;
 
 //    @Reference
 //    private IIbdBackService ibdBackService;
@@ -120,6 +123,8 @@ public class WaveRestService implements IWaveRestService {
         //必须保证数据只能发货一次,保证方法为生成发货单完成标示在行项目中,调用时将忽略已经标记生成的行项目
         //如此做将可以允许重复发货
         waveService.shipWave(head, detailList);
+        //更新可用库存
+        inventoryRedisService.onDelivery(detailList);
         //传送给外部系统,其实比较好的方式是扔出来到队列里,外部可以选择性处理.
 
 //        // TODO: 16/9/7 回传物美

@@ -149,8 +149,6 @@ public class StockMoveService {
                 isMovedMap.put(quant.getContainerId(),1);
             }
         }
-
-
     }
 
     @Transactional(readOnly = false)
@@ -189,6 +187,7 @@ public class StockMoveService {
         this.create(move);
         quantService.move(move);
     }
+
     @Transactional(readOnly = false)
     public void move(StockMove move, StockLot lot) {
        quantService.move(move,lot);

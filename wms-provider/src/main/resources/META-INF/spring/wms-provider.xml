@@ -45,7 +45,7 @@
 
     <dubbo:consumer check="false" />
     <!-- 扫描注解包路径，多个包用逗号分隔，不填pacakge表示扫描当前ApplicationContext中所有的类 -->
-    <dubbo:annotation package="com.lsh.wms.service"/>
+    <dubbo:annotation package="com.lsh.wms.service,com.lsh.wms.core.service.stock"/>
 
     <!-- 服务提供者暴露服务配置 -->
     <!-- http://dubbo.io/User+Guide-zh.htm#UserGuide-zh-%3Cdubbo%3Aservice%2F%3E -->

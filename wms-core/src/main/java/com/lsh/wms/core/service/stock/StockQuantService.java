@@ -3,10 +3,12 @@ package com.lsh.wms.core.service.stock;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.LocationConstant;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
 import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockLot;
@@ -46,6 +48,11 @@ public class StockQuantService {
     @Autowired
     private ItemService itemService;
 
+    @Autowired
+    private StockRedisService stockRedisService;
+
+    @Autowired
+    private BaseTaskService baseTaskService;
 
     @Transactional(readOnly = false)
     public void moveToComplete(StockQuant quant){
@@ -209,6 +216,22 @@ public class StockQuantService {
         }
         this.updateLocationStatus(move.getFromLocationId());
         this.updateLocationStatus(move.getToLocationId());
+
+        if (move.getFromLocationId().equals(0L) &&
+                ( baseTaskService.getTaskTypeById(move.getTaskId()).equals(TaskConstant.TYPE_SHELVE) ||
+                  baseTaskService.getTaskTypeById(move.getTaskId()).equals(TaskConstant.TYPE_ATTIC_SHELVE) ||
+                  baseTaskService.getTaskTypeById(move.getTaskId()).equals(TaskConstant.TYPE_PICK_UP_SHELVE)
+                )
+           )
+        {
+            stockRedisService.inBound(move.getItemId(), move.getQty());
+        }
+        if (locationService.getLocation(move.getFromLocationId()).getType().equals(LocationConstant.INVENTORYLOST)) {
+            stockRedisService.inBound(move.getItemId(), move.getQty());
+        }
+        if (locationService.getLocation(move.getToLocationId()).getType().equals(LocationConstant.INVENTORYLOST)) {
+            stockRedisService.outBound(move.getItemId(), move.getQty());
+        }
     }
 
     @Transactional(readOnly = false)
@@ -435,5 +458,13 @@ public class StockQuantService {
         relDao.insert(moveRel);
 
         this.updateLocationStatus(move.getToLocationId());
+
+        if (locationService.getLocation(move.getFromLocationId()).getType().equals(LocationConstant.INVENTORYLOST)) {
+            stockRedisService.inBound(move.getItemId(), move.getQty());
+        }
+        if (locationService.getLocation(move.getToLocationId()).getType().equals(LocationConstant.INVENTORYLOST)) {
+            stockRedisService.outBound(move.getItemId(), move.getQty());
+        }
     }
+
 }
