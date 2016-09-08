@@ -171,6 +171,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     }
                     condition.setLocationIdList(shelfBinList);
                     condition.setItemId(itemLocation.getItemId());
+                    condition.setReserveTaskId(0L);
                     List<StockQuant> quantList = stockQuantService.getQuantList(condition);
                     if (quantList.isEmpty()) {
                         logger.warn("ItemId:" + itemLocation.getItemId() + "缺货异常");
@@ -179,7 +180,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     StockQuant quant = quantList.get(0);
                     // 创建任务
                     StockTransferPlan plan = new StockTransferPlan();
-                    plan.setPriority(2L);
+                    plan.setPriority(1L);
                     plan.setItemId(itemLocation.getItemId());
                     plan.setFromLocationId(quant.getLocationId());
                     plan.setToLocationId(itemLocation.getPickLocationid());
@@ -258,7 +259,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                         BigDecimal quantQty =  quant.getQty().divide(quant.getPackUnit());
                         // 创建任务
                         StockTransferPlan plan = new StockTransferPlan();
-                        plan.setPriority(2L);
+                        plan.setPriority(1L);
                         plan.setItemId(itemLocation.getItemId());
                         plan.setFromLocationId(quant.getLocationId());
                         plan.setToLocationId(itemLocation.getPickLocationid());
