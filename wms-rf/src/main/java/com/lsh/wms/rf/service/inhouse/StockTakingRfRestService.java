@@ -86,8 +86,8 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
     @Autowired
     private BaseinfoLocationWarehouseService baseinfoLocationWarehouseService;
 
-    @Reference
-    private IIbdBackService ibdBackService;
+//    @Reference
+//    private IIbdBackService ibdBackService;
 
 
     @POST
