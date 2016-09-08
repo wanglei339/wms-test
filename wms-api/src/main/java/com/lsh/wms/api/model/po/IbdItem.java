@@ -13,6 +13,14 @@ public class IbdItem implements Serializable {
     //收货数量
     private String entryQnt;
 
+    public IbdItem(){}
+
+    public IbdItem(String poItem, String materiaNo, String entryQnt) {
+        this.poItem = poItem;
+        this.materiaNo = materiaNo;
+        this.entryQnt = entryQnt;
+    }
+
     public String getEntryQnt() {
         return entryQnt;
     }

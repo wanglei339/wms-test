@@ -34,11 +34,13 @@ public class ObdDetail implements Serializable {
 
     /** 批次信息 */
     private String lotNum;
+    /** 商品单价,未税 */
+    private BigDecimal price;
 
     public ObdDetail() {
     }
 
-    public ObdDetail(String detailOtherId,String skuCode, String barCode, BigDecimal orderQty, BigDecimal packUnit, String packName, String lotNum) {
+    public ObdDetail(String detailOtherId,String skuCode, String barCode, BigDecimal orderQty, BigDecimal packUnit, String packName, String lotNum ,BigDecimal price) {
         this.detailOtherId = detailOtherId;
         this.skuCode = skuCode;
         this.barCode = barCode;
@@ -46,6 +48,7 @@ public class ObdDetail implements Serializable {
         this.packUnit = packUnit;
         this.packName = packName;
         this.lotNum = lotNum;
+        this.price = price;
     }
 
     public String getSkuCode() {
@@ -102,5 +105,13 @@ public class ObdDetail implements Serializable {
 
     public void setDetailOtherId(String detailOtherId) {
         this.detailOtherId = detailOtherId;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 }
