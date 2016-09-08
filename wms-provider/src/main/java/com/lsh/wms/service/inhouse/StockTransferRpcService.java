@@ -100,6 +100,10 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         } else if (fromType.equals(LocationConstant.MARKET_RETURN_AREA)) {
             return (toType.equals(LocationConstant.SHELF_PICKING_BIN) ||
                     toType.equals(LocationConstant.SPLIT_SHELF_BIN));
+        } else if (fromType.equals(LocationConstant.SHELF_PICKING_BIN)) {
+            return (toType.equals(LocationConstant.SHELF_PICKING_BIN)||
+                    toType.equals(LocationConstant.BACK_AREA) ||
+                    toType.equals(LocationConstant.DEFECTIVE_AREA));
         }
         return false;
     }
@@ -121,6 +125,18 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         }
         if (!this.checkLocation(fromLocation.getType(), toLocation.getType())) {
             throw new BizCheckedException("2550037");
+        }
+        if (plan.getSubType().equals(1L)) {
+            throw new BizCheckedException("2550040");
+        }
+        if (fromLocation.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
+            if (!plan.getSubType().equals(3L)) {
+                throw new BizCheckedException("2550038");
+            }
+        } else if (fromLocation.getType().equals(LocationConstant.SHELF_PICKING_BIN) || fromLocation.getType().equals(LocationConstant.SHELF_STORE_BIN)) {
+            if (!plan.getSubType().equals(2L)) {
+                throw new BizCheckedException("2550039");
+            }
         }
         if (toLocation.getCanStore() != 1) {
             throw new BizCheckedException("2550020");
@@ -493,6 +509,9 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             toLocationList = locationService.getBaseinfoLocationList(params);
         } else if (location.getType().equals(LocationConstant.SHELF_STORE_BIN)) {
             params.put("type", LocationConstant.SHELF_STORE_BIN);
+            toLocationList = locationService.getBaseinfoLocationList(params);
+        } else if (location.getType().equals(LocationConstant.SHELF_PICKING_BIN)) {
+            params.put("type", LocationConstant.SHELF_PICKING_BIN);
             toLocationList = locationService.getBaseinfoLocationList(params);
         }
         if (toLocationList != null && !toLocationList.isEmpty()) {
