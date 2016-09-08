@@ -27,6 +27,11 @@ public class ObdRequest implements Serializable {
     @Size(max=100)
     private String orderOtherRefId = "";
 
+    /** 下单用户 */
+    @NotBlank
+    @Size(max=64)
+    private String orderUser;
+
     /** 货主 */
     @NotNull
     private Long ownerUid;
@@ -49,8 +54,9 @@ public class ObdRequest implements Serializable {
     public ObdRequest() {
     }
 
-    public ObdRequest(Long warehouseId, String orderOtherId, String orderOtherRefId, Long ownerUid, Integer orderType, Date transTime, String deliveryAddrs, List<ObdDetail> detailList) {
+    public ObdRequest(Long warehouseId, String orderUser,String orderOtherId, String orderOtherRefId, Long ownerUid, Integer orderType, Date transTime, String deliveryAddrs, List<ObdDetail> detailList) {
         this.warehouseId = warehouseId;
+        this.orderUser = orderUser;
         this.orderOtherId = orderOtherId;
         this.orderOtherRefId = orderOtherRefId;
         this.ownerUid = ownerUid;
@@ -122,5 +128,13 @@ public class ObdRequest implements Serializable {
 
     public void setDetailList(List<ObdDetail> detailList) {
         this.detailList = detailList;
+    }
+
+    public String getOrderUser() {
+        return orderUser;
+    }
+
+    public void setOrderUser(String orderUser) {
+        this.orderUser = orderUser;
     }
 }
