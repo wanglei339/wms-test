@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -62,7 +63,8 @@ public class WaveRestService implements IWaveRestService {
     @Autowired
     private InventoryRedisService inventoryRedisService;
 
-//    @Reference
+
+//    @Reference(check = false)
 //    private IIbdBackService ibdBackService;
 
 
@@ -113,10 +115,12 @@ public class WaveRestService implements IWaveRestService {
         List<WaveDetail> detailList = waveService.getDetailsByWaveId(iWaveId);
         Set<Long> orderIds = new HashSet<Long>();
         //将orderId取出 放入set集合中
+        Map<Long,Object> map = new HashMap<Long, Object>();
         for(WaveDetail detail : detailList){
             if ( detail.getQcExceptionDone() == 0){
                 throw new BizCheckedException("2040014");
             }
+            map.put(detail.getRefDetailId(),detail.getQcQty());
             orderIds.add(detail.getOrderId());
         }
         //发起来
@@ -140,8 +144,7 @@ public class WaveRestService implements IWaveRestService {
 //                SoItem soItem = new SoItem();
 //                ObjUtils.bean2bean(soDetail,soItem);
 //                //查询waveDetail找出实际出库的数量
-//                Map<String,Object> mapquery = new HashMap<String, Object>();
-//                mapquery.put("");
+//                soDetail.setOrderQty((BigDecimal) map.get(soDetail.getId()));
 //
 //                items.add(soItem);
 //            }
