@@ -434,6 +434,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
                 Long subType = 2L;
                 if (location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
                     subType = 3L;
+                    plan.setQty(quant.getQty());
                 }
                 plan.setSubType(subType);
                 this.addPlan(plan);
@@ -457,12 +458,13 @@ public class StockTransferRpcService implements IStockTransferRpcService {
                 plan.setFromLocationId(quant.getLocationId());
                 plan.setToLocationId(toLocationId);
                 plan.setItemId(quant.getItemId());
+                plan.setQty(quant.getQty().divide(quant.getPackUnit()));
                 Long subType = 2L;
                 if (location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
                     subType = 3L;
+                    plan.setQty(quant.getQty());
                 }
                 plan.setSubType(subType);
-                plan.setQty(quant.getQty().divide(quant.getPackUnit()));
                 this.addPlan(plan);
             }
         }
