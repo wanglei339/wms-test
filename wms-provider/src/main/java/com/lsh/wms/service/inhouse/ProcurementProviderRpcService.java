@@ -58,8 +58,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     @Autowired
     private LocationService locationService;
 
-    @Autowired
-    private MessageService messageService;
 
     @Reference
     private ILocationRpcService locationRpcService;
@@ -110,9 +108,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         taskInfo.setContainerId(containerId);
         taskInfo.setQtyDone(taskInfo.getQty());
         taskEntry.setTaskInfo(taskInfo);
-        if(!this.canCreateTask(taskEntry)){
-            return false;
-        }
         taskRpcService.create(TaskConstant.TYPE_PROCUREMENT, taskEntry);
         return true;
     }
@@ -144,9 +139,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         taskInfo.setType(TaskConstant.TYPE_PROCUREMENT);
         taskInfo.setContainerId(containerId);
         entry.setTaskInfo(taskInfo);
-        if(!this.canCreateTask(entry)){
-            return false;
-        }
         taskRpcService.update(TaskConstant.TYPE_PROCUREMENT, entry);
         return true;
     }
@@ -372,29 +364,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             priority--;
         }
         return 0L;
-    }
-    Boolean canCreateTask(TaskEntry taskEntry){
-        TaskInfo info = taskEntry.getTaskInfo();
-        Map<String,Object> queryMap = new HashMap<String, Object>();
-        queryMap.put("fromLocationId",info.getFromLocationId());
-        queryMap.put("status", 2L);
-        List<TaskEntry> entries = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, queryMap);
-        if(entries!=null && entries.size()!=0){
-            return false;
-        }
-        queryMap.put("status",1L);
-        entries = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, queryMap);
-        if(entries!=null && entries.size()!=0){
-            for(TaskEntry entry : entries) {
-                TaskMsg msg = new TaskMsg();
-                msg.setType(TaskConstant.EVENT_STOCK_TRANSFER_CANCEL);
-                msg.setPriority(1L);
-                msg.setSourceTaskId(entry.getTaskInfo().getTaskId());
-                messageService.sendMessage(msg);
-            }
-            return false;
-        }
-        return true;
     }
 
 }

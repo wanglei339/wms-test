@@ -45,27 +45,4 @@ public class ProcurementTaskHandler extends AbsTaskHandler {
         }
 
     }
-    public void cancelConcrete(Long taskId) {
-
-        StockQuantCondition condition = new StockQuantCondition();
-        TaskInfo info = baseTaskService.getTaskInfoById(taskId);
-        condition.setLocationId(info.getFromLocationId());
-        condition.setItemId(info.getItemId());
-        List<StockQuant> quants = stockQuantService.getQuantList(condition);
-        for(StockQuant quant:quants){
-            quant.setReserveTaskId(0L);
-            quantService.update(quant);
-        }
-    }
-    public void createConcrete(TaskEntry taskEntry) {
-        StockQuantCondition condition = new StockQuantCondition();
-        TaskInfo info = taskEntry.getTaskInfo();
-        condition.setLocationId(info.getFromLocationId());
-        condition.setItemId(info.getItemId());
-        List<StockQuant> quants = stockQuantService.getQuantList(condition);
-        for(StockQuant quant:quants){
-            quant.setReserveTaskId(info.getTaskId());
-            quantService.update(quant);
-        }
-    }
 }
