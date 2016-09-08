@@ -31,16 +31,13 @@ public class IbdBackService implements IIbdBackService{
         }
 
         if(token != null && !token.equals("")){
-//            addLog(LOG_TYPE.INFO, "************** order wumart ");
             System.out.println("order wumart CreateOrder json : " + jsonPoCreate);
             String jsonStr = HttpUtil.doPost(url,jsonPoCreate,token);
             System.out.println("order wumart res " + jsonStr);
             OrderResponse orderResponse = JSON.parseObject(jsonStr, OrderResponse.class);
             System.out.println("orderResponse " + orderResponse);
-            //addLog(LOG_TYPE.INFO, "orderResponse = " + JSON.toJSONString(orderResponse));
             logger.info("orderResponse = " + JSON.toJSONString(orderResponse));
         }else{
-            //addLog(LOG_TYPE.INFO, "************** token is null ");
             logger.info("************** token is null ");
         }
 
