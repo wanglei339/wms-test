@@ -7,17 +7,21 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.wms.api.model.so.ObdBackRequest;
+import com.lsh.wms.api.model.so.ObdItem;
 import com.lsh.wms.api.model.so.SoItem;
 import com.lsh.wms.api.model.so.SoRequest;
 import com.lsh.wms.api.service.po.IIbdBackService;
 import com.lsh.wms.api.service.wave.IWaveRestService;
 import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.service.inventory.InventoryRedisService;
+import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
 import com.lsh.wms.core.service.pick.PickModelService;
 import com.lsh.wms.core.service.pick.PickZoneService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.core.service.wave.WaveTemplateService;
+import com.lsh.wms.model.baseinfo.BaseinfoLocationWarehouse;
 import com.lsh.wms.model.pick.*;
 import com.lsh.wms.model.so.OutbSoDetail;
 import com.lsh.wms.model.so.OutbSoHeader;
@@ -62,6 +66,9 @@ public class WaveRestService implements IWaveRestService {
     private WaveRpcService waveRpcService;
     @Autowired
     private InventoryRedisService inventoryRedisService;
+
+    @Autowired
+    private BaseinfoLocationWarehouseService baseinfoLocationWarehouseService;
 
 
 //    @Reference(check = false)
@@ -134,23 +141,34 @@ public class WaveRestService implements IWaveRestService {
 //        // TODO: 16/9/7 回传物美
 //        for(Long orderId : orderIds){
 //            OutbSoHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
-//            SoRequest soRequest = new SoRequest();
-//            ObjUtils.bean2bean(soHeader,soRequest);
+//            //组装OBD反馈信息
+//            ObdBackRequest request = new ObdBackRequest();
+//            BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) baseinfoLocationWarehouseService.getBaseinfoItemLocationModelById(1L);
+//            String warehouseName = warehouse.getWarehouseName();
+//            request.setPlant(warehouseName);//仓库
+//            request.setBusinessId(soHeader.getOrderOtherId());
+//            request.setOfcId(soHeader.getOrderOtherRefId());//参考单号
+//            request.setAgPartnNumber(soHeader.getOrderUser());//用户
 //
 //            //查询明细。
 //            List<OutbSoDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
-//            List<SoItem> items = new ArrayList<SoItem>();
+//            List<ObdItem> items = new ArrayList<ObdItem>();
 //            for (OutbSoDetail soDetail : soDetails){
-//                SoItem soItem = new SoItem();
-//                ObjUtils.bean2bean(soDetail,soItem);
-//                //查询waveDetail找出实际出库的数量
-//                soDetail.setOrderQty((BigDecimal) map.get(soDetail.getId()));
+//                ObdItem soItem = new ObdItem();
+//                soItem.setMateriaNo(soDetail.getSkuCode());//skuCode
+//                soItem.setMeasuringUnit("EA");
+//                soItem.setPrice(soDetail.getPrice());
+//                //转化成ea
+//                soItem.setQuantity(soDetail.getOrderQty().multiply(soDetail.getPackUnit()).toString());
+//                //实际出库数量
+//                soItem.setSendQuantity((String) map.get(soDetail.getDetailOtherId()));
 //
+//                //查询waveDetail找出实际出库的数量
 //                items.add(soItem);
 //            }
 //            //查询waveDetail找出实际出库的数量
-//            soRequest.setItems(items);
-//            ibdBackService.createOrderByPost(soRequest,null);
+//            request.setItems(items);
+//            ibdBackService.createOrderByPost(request,null);
 //        }
 
 
