@@ -81,15 +81,12 @@ public class StockTransferCore {
         StockQuant quant = quants.get(0);
         plan.setPackUnit(quant.getPackUnit());
         plan.setPackName(quant.getPackName());
+        plan.setQty(plan.getUomQty());
         if (plan.getSubType().compareTo(1L) == 0) {
             BigDecimal total = stockQuantRpcService.getQty(condition);
             plan.setQty(total.divide(quant.getPackUnit(), 0, BigDecimal.ROUND_DOWN));
-        } else if (plan.getSubType().compareTo(2L) == 0) {
-            plan.setQty(plan.getUomQty());
         } else if (plan.getSubType().compareTo(3L) == 0) {
-            plan.setPackUnit(BigDecimal.ONE);
             plan.setPackName("EA");
-            plan.setQty(plan.getUomQty());
         }
     }
 
@@ -136,7 +133,7 @@ public class StockTransferCore {
             moveRpcService.moveWholeContainer(containerId, taskId, uid, fromLocationId, toLocationId);
         } else {
             BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString());
-            if (qtyDone.compareTo(BigDecimal.ZERO) < 0 ||
+            if (qtyDone.compareTo(BigDecimal.ZERO) <= 0 ||
                     qtyDone.setScale(0, BigDecimal.ROUND_DOWN).compareTo(qtyDone) != 0) {
                 throw new BizCheckedException("2550034");
             }
@@ -193,7 +190,7 @@ public class StockTransferCore {
             moveRpcService.moveWholeContainer(containerId, taskId, uid, fromLocationId, toLocationId);
         } else {
             BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString());
-            if (qtyDone.compareTo(BigDecimal.ZERO) < 0 ||
+            if (qtyDone.compareTo(BigDecimal.ZERO) <= 0 ||
                     qtyDone.setScale(0, BigDecimal.ROUND_DOWN).compareTo(qtyDone) != 0) {
                 throw new BizCheckedException("2550034");
             }

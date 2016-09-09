@@ -11,6 +11,13 @@ public class Header implements Serializable {
     //采购凭证号
     private String poNumber;
 
+    public Header(){}
+
+    public Header(String plant, String poNumber) {
+        this.plant = plant;
+        this.poNumber = poNumber;
+    }
+
     public String getPlant() {
         return plant;
     }

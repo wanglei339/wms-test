@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
 
 /**
  * Created by mali on 16/7/25.
@@ -68,6 +69,12 @@ public class StockTransferTaskHandler extends AbsTaskHandler {
     }
 
     public void calcPerformance(TaskInfo taskInfo) {
-        taskInfo.setTaskQty(taskInfo.getQty().multiply(taskInfo.getPackUnit()));
+        if (taskInfo.getPackName().equals("EA")) {
+            taskInfo.setTaskPackQty(taskInfo.getQty().divide(taskInfo.getPackUnit(), 2 , BigDecimal.ROUND_DOWN));
+            taskInfo.setTaskEaQty(taskInfo.getQty());
+        } else {
+            taskInfo.setTaskPackQty(taskInfo.getQty());
+            taskInfo.setTaskEaQty(taskInfo.getQty().multiply(taskInfo.getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP));
+        }
     }
 }

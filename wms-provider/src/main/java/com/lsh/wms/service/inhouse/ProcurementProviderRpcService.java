@@ -309,7 +309,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         StockQuantCondition condition = new StockQuantCondition();
         Set<Long> outBondLocations = new HashSet<Long>();
         condition.setItemId(itemId);
-        condition.setReserveTaskId(0L);
         BaseinfoLocation pickLocation = locationService.getLocation(locationId);
         if(pickLocation.getType().compareTo(LocationConstant.LOFT_PICKING_BIN)==0){
             List<StockQuant> quants = stockQuantService.getQuantList(condition);

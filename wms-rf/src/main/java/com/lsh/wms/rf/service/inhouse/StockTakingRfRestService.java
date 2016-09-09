@@ -429,14 +429,14 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
 //            request.setItems(itemsLoss);
 //            request.setMoveType(String.valueOf(IntegrationConstan.LOSS));
 //            request.setPlant(warehouseName);
-//            ibdBackService.createOrderByPost(request,null);
+//            ibdBackService.createOrderByPost(request,null,IntegrationConstan.URL_STOCKCHANGE);
 //        }
 //
 //        if (itemsWin.size()>0){
 //            request.setItems(itemsWin);
 //            request.setMoveType(String.valueOf(IntegrationConstan.WIN));
 //            request.setPlant(warehouseName);
-//            ibdBackService.createOrderByPost(request,null);
+//            ibdBackService.createOrderByPost(request,null,IntegrationConstan.URL_STOCKCHANGE);
 //        }
 
 
@@ -488,6 +488,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         for(StockTakingDetail detail:detailList) {
             TaskInfo taskInfo = new TaskInfo();
             taskInfo.setPlanId(head.getTakingId());
+            taskInfo.setTaskName("盘点任务["+taskInfo.getLocationId()+"]");
             taskInfo.setDueTime(dueTime);
             taskInfo.setPlanner(head.getPlanner());
             taskInfo.setStatus(1L);

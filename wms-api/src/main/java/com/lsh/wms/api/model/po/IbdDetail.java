@@ -31,11 +31,11 @@ public class IbdDetail implements Serializable {
 
     /** 包装单位 */
     @NotNull
-    private BigDecimal packUnit;
+    private BigDecimal packUnit = new BigDecimal(0);
 
     /** 包装名称 */
     @NotNull
-    private String packName;
+    private String packName = "";
 
     /** 价格 */
     @NotNull
