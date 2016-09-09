@@ -14,7 +14,9 @@ import com.lsh.wms.api.model.po.PoItem;
 import com.lsh.wms.api.model.po.PoRequest;
 import com.lsh.wms.api.service.po.IIbdService;
 import com.lsh.wms.api.service.po.IPoRpcService;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.po.InbPoHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +49,9 @@ public class IbdService implements IIbdService {
     @Autowired
     private PoOrderService poOrderService;
 
+    @Autowired
+    private ItemService itemService;
+
     @POST
     @Path("add")
     public BaseResponse add(IbdRequest request) throws BizCheckedException{
@@ -57,6 +62,13 @@ public class IbdService implements IIbdService {
         List<PoItem> items = new ArrayList<PoItem>();
 
         for(IbdDetail ibdDetail : details){
+            List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(request.getOwnerUid(),ibdDetail.getSkuCode());
+            if(null != baseinfoItemList && baseinfoItemList.size()>=1){
+                BaseinfoItem baseinfoItem = baseinfoItemList.get(baseinfoItemList.size()-1);
+                ibdDetail.setPackName(baseinfoItem.getPackName());
+                ibdDetail.setPackUnit(baseinfoItem.getPackUnit());
+            }
+
             BigDecimal qty = ibdDetail.getOrderQty().divide(ibdDetail.getPackUnit(),2);
             ibdDetail.setOrderQty(qty);
             PoItem poItem = new PoItem();
