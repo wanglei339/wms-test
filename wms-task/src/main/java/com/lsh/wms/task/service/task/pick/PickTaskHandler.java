@@ -82,12 +82,12 @@ public class PickTaskHandler extends AbsTaskHandler {
     public void calcPerformance(TaskInfo taskInfo) {
         Long taskId = taskInfo.getTaskId();
         List<WaveDetail> pickDetails = waveService.getDetailsByPickTaskId(taskId);
-        BigDecimal ptyDone = BigDecimal.ZERO;
+        BigDecimal qtyDone = BigDecimal.ZERO;
         for (WaveDetail pickDetail : pickDetails) {
-            ptyDone = ptyDone.add(pickDetail.getPickQty());
+            qtyDone = qtyDone.add(pickDetail.getPickQty());
         }
-        taskInfo.setQtyDone(ptyDone);
-        taskInfo.setTaskQty(BigDecimal.ONE);
+        taskInfo.setQtyDone(qtyDone);
+        taskInfo.setTaskEaQty(qtyDone);
     }
 
     public void doneConcrete(Long taskId, Long locationId, Long staffId) throws BizCheckedException{

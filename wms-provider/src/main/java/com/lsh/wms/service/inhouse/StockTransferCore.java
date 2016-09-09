@@ -269,7 +269,6 @@ public class StockTransferCore {
             order++;
             taskInfoDao.update(entry.getTaskInfo());
         }
-
     }
 
     public Long getFirstOutbound(Long staffId) {
