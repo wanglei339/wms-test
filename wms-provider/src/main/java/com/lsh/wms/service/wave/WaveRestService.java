@@ -168,7 +168,7 @@ public class WaveRestService implements IWaveRestService {
 //            }
 //            //查询waveDetail找出实际出库的数量
 //            request.setItems(items);
-//            ibdBackService.createOrderByPost(request,null);
+//            ibdBackService.createOrderByPost(request,null,IntegrationConstan.URL_OBD);
 //        }
 
 
