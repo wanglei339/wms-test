@@ -223,7 +223,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         }
         Long taskId = plan.getTaskId();
         plan.setTaskId(0L);
-        if (checkPlan(plan)) {
+        if (this.checkPlan(plan)) {
             plan.setTaskId(taskId);
             Long containerId = plan.getContainerId();
             if (plan.getSubType().compareTo(2L) == 0 || plan.getSubType().compareTo(3L) == 0) {
@@ -268,7 +268,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             toLocation = core.getNearestLocation(toLocation);
             plan.setToLocationId(toLocation.getLocationId());
         }
-        if (checkPlan(plan)) {
+        if (this.checkPlan(plan)) {
             this.cancelPlan(plan.getTaskId());
             plan.setTaskId(0L);
             this.addPlan(plan);
