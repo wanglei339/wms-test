@@ -145,8 +145,8 @@
 	</select>
 
 	<select id="getPerformance" parameterType="map" resultType="java.util.HashMap">
-		select operator as uid, type, sub_type,count(id) as taskNum,
-		count(distinct container_id) as containerNum, sum(task_ea_qty) as taskEaQty,
+		select operator as uid, type, sub_type,count(id) as taskQty,
+		count(distinct container_id) as containerQty, sum(task_ea_qty) as taskEaQty,
 		sum(task_pack_qty) as taskPackQty, date from task_info
 		<where>
 			<if test="type != null">type = #{type}</if>
