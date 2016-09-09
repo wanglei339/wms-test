@@ -527,7 +527,9 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         }
         StockQuantCondition condition = new StockQuantCondition();
         condition.setItemId(quant.getItemId());
-        condition.setLotId(quant.getLotId());
+        if (!location.getType().equals(LocationConstant.SHELF_PICKING_BIN)) {
+            condition.setLotId(quant.getLotId());
+        }
         condition.setLocationList(toLocationList);
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
         // find empty location
