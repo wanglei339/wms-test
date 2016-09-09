@@ -515,11 +515,11 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         params.put("canUse", LocationConstant.CAN_USE);
         params.put("isLocked", LocationConstant.UNLOCK);
         params.put("type", location.getType());
+        List<BaseinfoLocation> toLocationList = locationService.getBaseinfoLocationList(params);
         if (location.getType().equals(LocationConstant.SHELF_PICKING_BIN)) {
-            List<BaseinfoLocation> locationList = locationService.getBaseinfoLocationList(params);
             List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationList(quant.getItemId());
             List<Long> locationIdList = new ArrayList<Long>();
-            for (BaseinfoLocation baseinfoLocation : locationList) {
+            for (BaseinfoLocation baseinfoLocation : toLocationList) {
                 if (!baseinfoLocation.getLocationId().equals(locationId)) {
                     locationIdList.add(baseinfoLocation.getLocationId());
                 }
@@ -532,7 +532,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             }
             return 0L;
         }
-        List<BaseinfoLocation> toLocationList = locationService.getBaseinfoLocationList(params);
         if (toLocationList != null && !toLocationList.isEmpty()) {
             for (BaseinfoLocation targetLocation : toLocationList) {
                 if (targetLocation.getLocationId().equals(locationId)) {
