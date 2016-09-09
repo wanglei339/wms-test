@@ -99,8 +99,15 @@ public class TaskInfo implements Serializable {
 	/** 任务工作量(ea计算) */
 	private BigDecimal taskEaQty = BigDecimal.ZERO;
 
+	private BigDecimal taskQty = BigDecimal.ZERO;
 
+	public BigDecimal getTaskQty() {
+		return taskQty;
+	}
 
+	public void setTaskQty(BigDecimal taskQty) {
+		this.taskQty = taskQty;
+	}
 
 	public Long getDate() {
 		return date;
