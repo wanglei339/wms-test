@@ -45,7 +45,8 @@
 		<result property="ext9" column="ext9"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
-		<result property="taskQty" column="task_qty"/>
+		<result property="taskPackQty" column="task_pack_qty"/>
+		<result property="taskEaQty" column="task_ea_qty"/>
 		<result property="date" column="date"/>
 	</resultMap>
   
@@ -58,7 +59,8 @@
 			sub_type,status,is_allocated,priority,draft_time,assign_time,
 			due_time,finish_time,cancel_time,ext1,ext2,ext3,
 			ext4,ext5,ext6,ext7,ext8,ext9,
-			created_at,updated_at, task_qty, date
+			created_at,updated_at, task_pack_qty,
+			task_ea_qty, date
     	) values (
 			#{taskId},#{taskName},#{planId},#{waveId},#{orderId},#{locationId},
 			#{skuId},#{ownerId},#{itemId},#{fromLocationId},#{toLocationId},#{qty},
@@ -67,7 +69,8 @@
 			#{subType},#{status},#{isAllocated},#{priority},#{draftTime},#{assignTime},
 			#{dueTime},#{finishTime},#{cancelTime},#{ext1},#{ext2},#{ext3},
 			#{ext4},#{ext5},#{ext6},#{ext7},#{ext8},#{ext9},
-			#{createdAt},#{updatedAt},#{taskQty}, #{date}
+			#{createdAt},#{updatedAt},#{taskPackQty},
+			#{taskEaQty}, #{date}
     	)
 	</insert>
 
@@ -113,7 +116,8 @@
   			<if test="ext7 != null">ext7=#{ext7},</if>
   			<if test="ext8 != null">ext8=#{ext8},</if>
   			<if test="ext9 != null">ext9=#{ext9},</if>
-			<if test="taskQty != null">task_qty=#{taskQty},</if>
+			<if test="taskPackQty != null">task_pack_qty=#{taskPackQty},</if>
+			<if test="taskEaQty != null">task_ea_qty=#{taskEaQty},</if>
 			<if test="date != null">date=#{date},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
@@ -240,7 +244,8 @@
 			<if test="ext8 != null">and ext8=#{ext8}</if>
 			<if test="ext9 != null">and ext9=#{ext9}</if>
 			<if test="date != null">and date=#{date}</if>
-			<if test="taskQty != null">and task_qty=#{taskQty}</if>
+			<if test="taskPackQty != null">and task_pack_qty=#{taskPackQty}</if>
+			<if test="taskEaQty != null">and task_ea_qty=#{taskEaQty}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 		</where>
