@@ -161,7 +161,9 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         condition.setReserveTaskId(0L);
         BigDecimal total = stockQuantService.getQty(condition);
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
-
+        if (quantList.isEmpty()) {
+            throw new BizCheckedException("2550032");
+        }
         Long taskId = plan.getTaskId();
         if (!taskId.equals(0L)) {
             TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
@@ -169,19 +171,10 @@ public class StockTransferRpcService implements IStockTransferRpcService {
                 throw new BizCheckedException("3040001");
             }
             TaskInfo taskInfo = taskEntry.getTaskInfo();
-            condition.setReserveTaskId(taskId);
-            total = total.add(stockQuantService.getQty(condition));
-            List<StockQuant> list = stockQuantService.getQuantList(condition);
-            if (quantList.isEmpty() && list.isEmpty()) {
-                throw new BizCheckedException("2550032");
-            }
             if (toLocationId.compareTo(taskInfo.getToLocationId()) != 0 && locationService.checkLocationLockStatus(toLocationId)) {
                 throw new BizCheckedException("2550010");
             }
         } else {
-            if (quantList.isEmpty()) {
-                throw new BizCheckedException("2550032");
-            }
             if (locationService.checkLocationLockStatus(toLocationId)) {
                 throw new BizCheckedException("2550010");
             }
@@ -521,16 +514,12 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         params.put("isValid", LocationConstant.IS_VALID);
         params.put("canUse", LocationConstant.CAN_USE);
         params.put("isLocked", LocationConstant.UNLOCK);
-        List<BaseinfoLocation> toLocationList = new ArrayList<BaseinfoLocation>();
-        if (location.getType().equals(LocationConstant.SPLIT_SHELF_BIN) || location.getType().equals(LocationConstant.SHELF_PICKING_BIN)) {
-            params.put("type", LocationConstant.SPLIT_SHELF_BIN);
-            if (location.getType().equals(LocationConstant.SHELF_PICKING_BIN)) {
-                params.put("type", LocationConstant.SHELF_PICKING_BIN);
-            }
-            List<BaseinfoLocation> locationList = locationService.getBaseinfoLocationList(params);
+        params.put("type", location.getType());
+        List<BaseinfoLocation> toLocationList = locationService.getBaseinfoLocationList(params);
+        if (location.getType().equals(LocationConstant.SHELF_PICKING_BIN)) {
             List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationList(quant.getItemId());
             List<Long> locationIdList = new ArrayList<Long>();
-            for (BaseinfoLocation baseinfoLocation : locationList) {
+            for (BaseinfoLocation baseinfoLocation : toLocationList) {
                 if (!baseinfoLocation.getLocationId().equals(locationId)) {
                     locationIdList.add(baseinfoLocation.getLocationId());
                 }
@@ -538,23 +527,10 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             for (BaseinfoItemLocation itemLocation : itemLocationList) {
                 Long itemLocationId = itemLocation.getPickLocationid();
                 if (!itemLocationId.equals(locationId) && locationIdList.contains(itemLocationId)) {
-                    if (location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
-                        List<StockQuant> quantList = quantService.getQuantsByLocationId(itemLocationId);
-                        if (quantList != null && !quantList.isEmpty()) {
-                            if (quantList.get(0).getLotId().equals(quant.getLotId())) {
-                                return itemLocationId;
-                            }
-                            continue;
-                        }
-                        return itemLocationId;
-                    }
                     return itemLocationId;
                 }
             }
             return 0L;
-        } else if (location.getType().equals(LocationConstant.SHELF_STORE_BIN)) {
-            params.put("type", LocationConstant.SHELF_STORE_BIN);
-            toLocationList = locationService.getBaseinfoLocationList(params);
         }
         if (toLocationList != null && !toLocationList.isEmpty()) {
             for (BaseinfoLocation targetLocation : toLocationList) {

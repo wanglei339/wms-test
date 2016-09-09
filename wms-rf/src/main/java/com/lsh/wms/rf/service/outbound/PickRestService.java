@@ -35,6 +35,7 @@ import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.task.TaskMsg;
 import com.lsh.wms.model.wave.WaveDetail;
+import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.config.Task;
 import org.w3c.dom.ls.LSException;
@@ -293,9 +294,30 @@ public class PickRestService implements IPickRestService {
                 break;
             }
         }
-        if (nextPickDetail.getPickTaskId() == null || nextPickDetail.getPickTaskId().equals("")) {
-            pickDone = true;
-            result.put("next_detail", pickTaskService.renderResult(BeanMapTransUtils.Bean2map(pickTaskService.getPickTaskHead(taskIds.get(0))), "allocCollectLocation", "allocCollectLocationCode")); // 返回第一个任务的头信息用于集货位分配
+        if (nextPickDetail.getPickTaskId() == null || nextPickDetail.getPickTaskId().equals(0L)) {
+            // 货架补拣,只做一次
+            if (needPickDetail.getRefDetailId().equals(0L) && taskInfo.getSubType().equals(1L)) {
+                List<WaveDetail> splitWaveDetails = new ArrayList<WaveDetail>();
+                Long lastOrder = needPickDetail.getPickOrder();
+                for (WaveDetail pickDetail: pickDetails) {
+                    // 判断是否缺交
+                    if (pickDetail.getAllocQty().compareTo(pickDetail.getPickQty()) == 1) {
+                        BigDecimal subQty = pickDetail.getAllocQty().subtract(pickDetail.getPickQty());
+                        splitWaveDetails.add(waveService.splitShelfWaveDetail(pickDetail, subQty, lastOrder));
+                        lastOrder++;
+                    }
+                }
+                if (!splitWaveDetails.isEmpty()) {
+                    pickDone = false;
+                    result.put("next_detail", pickTaskService.renderResult(BeanMapTransUtils.Bean2map(splitWaveDetails.get(0)), "allocPickLocation", "allocPickLocationCode"));
+                } else {
+                    pickDone = true;
+                    result.put("next_detail", pickTaskService.renderResult(BeanMapTransUtils.Bean2map(pickTaskService.getPickTaskHead(taskIds.get(0))), "allocCollectLocation", "allocCollectLocationCode")); // 返回第一个任务的头信息用于集货位分配
+                }
+            } else {
+                pickDone = true;
+                result.put("next_detail", pickTaskService.renderResult(BeanMapTransUtils.Bean2map(pickTaskService.getPickTaskHead(taskIds.get(0))), "allocCollectLocation", "allocCollectLocationCode")); // 返回第一个任务的头信息用于集货位分配
+            }
         } else {
             result.put("next_detail", pickTaskService.renderResult(BeanMapTransUtils.Bean2map(nextPickDetail), "allocPickLocation", "allocPickLocationCode"));
         }

@@ -320,6 +320,32 @@ public class WaveService {
     }
 
     @Transactional(readOnly = false)
+    public WaveDetail splitShelfWaveDetail(WaveDetail detail, BigDecimal splitQty, Long order) {
+        WaveDetail splitDetail = new WaveDetail();
+        BigDecimal restQty = stockQuantService.getQuantQtyByLocationIdAndItemId(detail.getAllocPickLocation(), detail.getItemId());
+        // 判断分配拣货位上是否又有库存了
+        if (restQty.compareTo(BigDecimal.ZERO) == 1) {
+            BigDecimal realSplitQty = BigDecimal.ZERO;
+            if (restQty.compareTo(splitQty) >= 0) {
+                realSplitQty = splitQty;
+            } else {
+                realSplitQty = restQty;
+            }
+            ObjUtils.bean2bean(detail, splitDetail);
+            splitDetail.setAllocQty(realSplitQty);
+            splitDetail.setRefDetailId(detail.getId());
+            splitDetail.setPickOrder(order + 1);
+            splitDetail.setPickAt(0L);
+            splitDetail.setRealPickLocation(0L);
+            splitDetail.setPickQty(BigDecimal.ZERO);
+            this.insertDetail(splitDetail);
+            detail.setAllocQty(detail.getPickQty());
+            this.updateDetail(detail);
+        }
+        return splitDetail;
+    }
+
+    @Transactional(readOnly = false)
     public void insertQCException(WaveQcException exception){
         exception.setCreatedAt(DateUtils.getCurrentSeconds());
         exception.setUpdatedAt(DateUtils.getCurrentSeconds());
