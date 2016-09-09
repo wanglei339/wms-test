@@ -10,14 +10,19 @@ import com.lsh.wms.api.service.inhouse.IProcurementRestService;
 import com.lsh.wms.api.service.item.IItemRpcService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.api.service.stock.IStockQuantRestService;
+import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -59,6 +64,8 @@ public class ProcurementRestService implements IProcurementRestService {
     @Reference
     private ISysUserRpcService iSysUserRpcService;
 
+    @Reference
+    private IStockQuantRpcService quantRpcService;
     @POST
     @Path("scanFromLocation")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
@@ -153,6 +160,17 @@ public class ProcurementRestService implements IProcurementRestService {
                 }
                 rpcService.scanFromLocation(params);
                 final TaskInfo info = entry.getTaskInfo();
+                StockQuantCondition condition = new StockQuantCondition();
+                condition.setItemId(info.getItemId());
+                condition.setLocationId(info.getFromLocationId());
+                BigDecimal qty = quantRpcService.getQty(condition);
+                if(qty.compareTo(BigDecimal.ZERO)==0){
+                    return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+                        {
+                            put("response", true);
+                        }
+                    });
+                }
                 return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                     {
                         put("taskId", info.getTaskId().toString());

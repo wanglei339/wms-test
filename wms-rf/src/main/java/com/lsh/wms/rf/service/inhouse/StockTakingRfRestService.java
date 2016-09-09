@@ -488,6 +488,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         for(StockTakingDetail detail:detailList) {
             TaskInfo taskInfo = new TaskInfo();
             taskInfo.setPlanId(head.getTakingId());
+            taskInfo.setTaskName("盘点任务["+taskInfo.getLocationId()+"]");
             taskInfo.setDueTime(dueTime);
             taskInfo.setPlanner(head.getPlanner());
             taskInfo.setStatus(1L);
