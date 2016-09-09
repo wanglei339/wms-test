@@ -84,26 +84,36 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (fromType.equals(LocationConstant.SHELF_STORE_BIN)) {
             return (toType.equals(LocationConstant.SHELF_STORE_BIN) ||
                     toType.equals(LocationConstant.BACK_AREA) ||
-                    toType.equals(LocationConstant.DEFECTIVE_AREA));
+                    toType.equals(LocationConstant.DEFECTIVE_AREA) ||
+                    toType.equals(LocationConstant.SHELF_PICKING_BIN)
+            );
         } else if (fromType.equals(LocationConstant.SPLIT_SHELF_BIN)) {
             return (toType.equals(LocationConstant.SPLIT_SHELF_BIN) ||
                     toType.equals(LocationConstant.BACK_AREA) ||
-                    toType.equals(LocationConstant.DEFECTIVE_AREA));
+                    toType.equals(LocationConstant.DEFECTIVE_AREA)
+            );
         } else if (fromType.equals(LocationConstant.BACK_AREA)) {
             return (toType.equals(LocationConstant.SHELF_STORE_BIN) ||
                     toType.equals(LocationConstant.SPLIT_SHELF_BIN) ||
-                    toType.equals(LocationConstant.DEFECTIVE_AREA));
+                    toType.equals(LocationConstant.DEFECTIVE_AREA) ||
+                    toType.equals(LocationConstant.SHELF_PICKING_BIN)
+            );
         } else if (fromType.equals(LocationConstant.DEFECTIVE_AREA)) {
             return (toType.equals(LocationConstant.SHELF_STORE_BIN) ||
                     toType.equals(LocationConstant.SPLIT_SHELF_BIN) ||
-                    toType.equals(LocationConstant.BACK_AREA));
+                    toType.equals(LocationConstant.BACK_AREA) ||
+                    toType.equals(LocationConstant.SHELF_PICKING_BIN)
+            );
         } else if (fromType.equals(LocationConstant.MARKET_RETURN_AREA)) {
             return (toType.equals(LocationConstant.SHELF_PICKING_BIN) ||
-                    toType.equals(LocationConstant.SPLIT_SHELF_BIN));
+                    toType.equals(LocationConstant.SPLIT_SHELF_BIN)
+            );
         } else if (fromType.equals(LocationConstant.SHELF_PICKING_BIN)) {
             return (toType.equals(LocationConstant.SHELF_PICKING_BIN) ||
                     toType.equals(LocationConstant.BACK_AREA) ||
-                    toType.equals(LocationConstant.DEFECTIVE_AREA));
+                    toType.equals(LocationConstant.DEFECTIVE_AREA) ||
+                    toType.equals(LocationConstant.SHELF_STORE_BIN)
+            );
         }
         return false;
     }
@@ -179,7 +189,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         List<StockQuant> toQuants = quantService.getQuantsByLocationId(toLocationId);
         Long locationType = toLocation.getType();
         // 拣货位
-        if (locationType.compareTo(LocationConstant.SPLIT_SHELF_BIN) == 0 || locationType.compareTo(LocationConstant.SHELF_PICKING_BIN) == 0) {
+        if (locationType.compareTo(LocationConstant.SHELF_PICKING_BIN) == 0) {
             List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toLocationId);
             if (itemLocations.size() > 0 && itemLocations.get(0).getItemId().compareTo(itemId) != 0) {
                 throw new BizCheckedException("2550004");
@@ -504,14 +514,28 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         params.put("canUse", LocationConstant.CAN_USE);
         params.put("isLocked", LocationConstant.UNLOCK);
         List<BaseinfoLocation> toLocationList = new ArrayList<BaseinfoLocation>();
-        if (location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
+        if (location.getType().equals(LocationConstant.SPLIT_SHELF_BIN) || location.getType().equals(LocationConstant.SHELF_PICKING_BIN)) {
             params.put("type", LocationConstant.SPLIT_SHELF_BIN);
-            toLocationList = locationService.getBaseinfoLocationList(params);
+            if (location.getType().equals(LocationConstant.SHELF_PICKING_BIN)) {
+                params.put("type", LocationConstant.SHELF_PICKING_BIN);
+            }
+            List<BaseinfoLocation> locationList = locationService.getBaseinfoLocationList(params);
+            List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationList(quant.getItemId());
+            List<Long> locationIdList = new ArrayList<Long>();
+            for (BaseinfoLocation baseinfoLocation : locationList) {
+                if (!baseinfoLocation.getLocationId().equals(locationId)) {
+                    locationIdList.add(baseinfoLocation.getLocationId());
+                }
+            }
+            for (BaseinfoItemLocation itemLocation : itemLocationList) {
+                Long itemLocationId = itemLocation.getPickLocationid();
+                if (!itemLocationId.equals(locationId) && locationIdList.contains(itemLocationId)) {
+                    return itemLocationId;
+                }
+            }
+            return 0L;
         } else if (location.getType().equals(LocationConstant.SHELF_STORE_BIN)) {
             params.put("type", LocationConstant.SHELF_STORE_BIN);
-            toLocationList = locationService.getBaseinfoLocationList(params);
-        } else if (location.getType().equals(LocationConstant.SHELF_PICKING_BIN)) {
-            params.put("type", LocationConstant.SHELF_PICKING_BIN);
             toLocationList = locationService.getBaseinfoLocationList(params);
         }
         if (toLocationList != null && !toLocationList.isEmpty()) {
@@ -527,9 +551,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         }
         StockQuantCondition condition = new StockQuantCondition();
         condition.setItemId(quant.getItemId());
-        if (!location.getType().equals(LocationConstant.SHELF_PICKING_BIN)) {
-            condition.setLotId(quant.getLotId());
-        }
+        condition.setLotId(quant.getLotId());
         condition.setLocationList(toLocationList);
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
         // find empty location
