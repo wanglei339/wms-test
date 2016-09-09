@@ -165,6 +165,7 @@ public class ProcurementRestService implements IProcurementRestService {
                 condition.setLocationId(info.getFromLocationId());
                 BigDecimal qty = quantRpcService.getQty(condition);
                 if(qty.compareTo(BigDecimal.ZERO)==0){
+                    iTaskRpcService.cancel(taskId);
                     return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
                         {
                             put("response", true);
