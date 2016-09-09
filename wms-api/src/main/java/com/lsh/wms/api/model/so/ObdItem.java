@@ -8,7 +8,7 @@ import java.math.BigDecimal;
  */
 public class ObdItem implements Serializable{
     /**上游商品编码*/
-    private String materiaNo;
+    private String materialNo;
     /**购买数量*/
     private String quantity;
     /**实际发货数量*/
@@ -20,20 +20,20 @@ public class ObdItem implements Serializable{
 
     public ObdItem(){}
 
-    public ObdItem(String materiaNo, String measuringUnit, BigDecimal price, String quantity, String sendQuantity) {
-        this.materiaNo = materiaNo;
+    public ObdItem(String materialNo, String measuringUnit, BigDecimal price, String quantity, String sendQuantity) {
+        this.materialNo = materialNo;
         this.measuringUnit = measuringUnit;
         this.price = price;
         this.quantity = quantity;
         this.sendQuantity = sendQuantity;
     }
 
-    public String getMateriaNo() {
-        return materiaNo;
+    public String getMaterialNo() {
+        return materialNo;
     }
 
-    public void setMateriaNo(String materiaNo) {
-        this.materiaNo = materiaNo;
+    public void setMaterialNo(String materialNo) {
+        this.materialNo = materialNo;
     }
 
     public String getMeasuringUnit() {
