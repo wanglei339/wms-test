@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by lixin-mac on 16/9/6.
  */
-@Service(protocol = "dubbo")
+@Service(protocol = "dubbo",async=true)
 public class IbdBackService implements IIbdBackService{
     private static Logger logger = LoggerFactory.getLogger(IbdBackService.class);
 
