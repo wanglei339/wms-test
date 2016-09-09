@@ -297,6 +297,14 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (!taskEntry.getTaskInfo().getFromLocationId().equals(locationId)) {
             throw new BizCheckedException("2550018");
         }
+        if (new BigDecimal(params.get("uomQty").toString()).compareTo(BigDecimal.ZERO) == 0) {
+            taskRpcService.cancel(taskId);
+            return new HashMap<String, Object>() {
+                {
+                    put("response", true);
+                }
+            };
+        }
         core.outbound(params);
         Map<String, Object> next = new HashMap<String, Object>();
         Long nextLocationId, nextItem, subType;
@@ -530,6 +538,16 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             for (BaseinfoItemLocation itemLocation : itemLocationList) {
                 Long itemLocationId = itemLocation.getPickLocationid();
                 if (!itemLocationId.equals(locationId) && locationIdList.contains(itemLocationId)) {
+                    if (location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
+                        List<StockQuant> quantList = quantService.getQuantsByLocationId(itemLocationId);
+                        if (quantList != null && !quantList.isEmpty()) {
+                            if (quantList.get(0).getLotId().equals(quant.getLotId())) {
+                                return itemLocationId;
+                            }
+                            continue;
+                        }
+                        return itemLocationId;
+                    }
                     return itemLocationId;
                 }
             }
