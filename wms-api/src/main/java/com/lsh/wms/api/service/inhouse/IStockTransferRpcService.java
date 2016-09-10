@@ -4,6 +4,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.transfer.StockTransferPlan;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,7 @@ import java.util.Map;
  */
 public interface IStockTransferRpcService {
     boolean checkLocation(Long fromType, Long toType) throws BizCheckedException;
+    boolean checkQty(StockTransferPlan plan, BigDecimal total) throws BizCheckedException;
     boolean checkPlan(StockTransferPlan plan) throws BizCheckedException;
     Long addPlan(StockTransferPlan plan) throws BizCheckedException;
     Map<String, Object> scanToLocation(Map<String, Object> params) throws BizCheckedException;

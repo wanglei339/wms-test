@@ -145,8 +145,8 @@
 	</select>
 
 	<select id="getPerformance" parameterType="map" resultType="java.util.HashMap">
-		select operator as uid, type, sub_type,count(id) as taskNum,
-		count(distinct container_id) as containerNum, sum(task_ea_qty) as taskEaQty,
+		select operator as uid, type, sub_type,count(id) as taskQty,
+		count(distinct container_id) as containerQty, sum(task_ea_qty) as taskEaQty,
 		sum(task_pack_qty) as taskPackQty, date from task_info
 		<where>
 			<if test="type != null">type = #{type}</if>
@@ -182,6 +182,11 @@
 		select status, count(id) as taskNum, count(distinct container_id) as containerNum, sum(qty_done) as qtyNum from task_info
 		where type = #{type} and  status not in (5,6) and draft_time between (unix_timestamp(now()-86440)) and now()
 		group by status
+	</select>
+
+	<select id="getQty" parameterType="map" resultType="java.math.BigDecimal">
+		select sum(qty) from task_info
+		<include refid="queryCondition"/>
 	</select>
   
 	<sql id="queryCondition">

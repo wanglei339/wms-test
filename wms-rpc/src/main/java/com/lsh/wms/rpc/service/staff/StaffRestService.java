@@ -107,7 +107,7 @@ public class StaffRestService implements IStaffRestService {
     @Path("addGroup")
     public String addGroup(Map<String, Object> params) throws BizCheckedException {
         String sGroupName = (String) params.get("groupName");
-        Long iDepartmentId = (Long)params.get("departmentId");
+        Long iDepartmentId = new Long(params.get("departmentId").toString());
         BaseinfoStaffDepartment department = staffRpcService.getDepartmentById(iDepartmentId);
         if (department == null) {
             throw new BizCheckedException("部门不存在");

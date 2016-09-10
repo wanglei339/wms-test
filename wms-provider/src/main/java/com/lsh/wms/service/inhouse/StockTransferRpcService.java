@@ -118,6 +118,19 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         return false;
     }
 
+    public boolean checkQty(StockTransferPlan plan, BigDecimal total) throws BizCheckedException {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("fromLocationId", plan.getFromLocationId());
+        mapQuery.put("itemId", plan.getItemId());
+        mapQuery.put("status", TaskConstant.Draft);
+        BigDecimal reservedQty = baseTaskService.getQty(mapQuery), requiredQty = plan.getUomQty(), packUnit = plan.getPackUnit();
+        if (plan.getSubType().equals(3L)) {
+            packUnit = BigDecimal.ONE;
+        }
+        requiredQty = (reservedQty.add(requiredQty)).multiply(packUnit). setScale(0, BigDecimal.ROUND_HALF_UP);
+        return requiredQty.compareTo(total) <= 0;
+}
+
     public boolean checkPlan(StockTransferPlan plan) throws BizCheckedException {
         BigDecimal uomQty = plan.getUomQty();
         if (uomQty.compareTo(BigDecimal.ZERO) <= 0 || uomQty.setScale(0, BigDecimal.ROUND_DOWN).compareTo(uomQty) != 0) {
@@ -160,6 +173,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         condition.setItemId(itemId);
         condition.setReserveTaskId(0L);
         BigDecimal total = stockQuantService.getQty(condition);
+
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
         if (quantList.isEmpty()) {
             throw new BizCheckedException("2550032");
@@ -199,9 +213,15 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             }
         }
         core.fillTransferPlan(plan);
-        BigDecimal requiredQty = plan.getQty().multiply(plan.getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP);
+        BigDecimal requiredQty = plan.getQty();
+        if (plan.getSubType().equals(2L)) {
+            requiredQty = requiredQty.multiply(plan.getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP);
+        }
         if (requiredQty.compareTo(total) > 0) {
             throw new BizCheckedException("2550002");
+        }
+        if (!this.checkQty(plan, total)) {
+            throw new BizCheckedException("2550042");
         }
         plan.setContainerId(quantList.get(0).getContainerId());
         return true;
@@ -515,11 +535,11 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         params.put("canUse", LocationConstant.CAN_USE);
         params.put("isLocked", LocationConstant.UNLOCK);
         params.put("type", location.getType());
+        List<BaseinfoLocation> toLocationList = locationService.getBaseinfoLocationList(params);
         if (location.getType().equals(LocationConstant.SHELF_PICKING_BIN)) {
-            List<BaseinfoLocation> locationList = locationService.getBaseinfoLocationList(params);
             List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationList(quant.getItemId());
             List<Long> locationIdList = new ArrayList<Long>();
-            for (BaseinfoLocation baseinfoLocation : locationList) {
+            for (BaseinfoLocation baseinfoLocation : toLocationList) {
                 if (!baseinfoLocation.getLocationId().equals(locationId)) {
                     locationIdList.add(baseinfoLocation.getLocationId());
                 }
@@ -532,7 +552,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             }
             return 0L;
         }
-        List<BaseinfoLocation> toLocationList = locationService.getBaseinfoLocationList(params);
         if (toLocationList != null && !toLocationList.isEmpty()) {
             for (BaseinfoLocation targetLocation : toLocationList) {
                 if (targetLocation.getLocationId().equals(locationId)) {

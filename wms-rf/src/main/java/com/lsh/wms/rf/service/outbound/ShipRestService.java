@@ -12,6 +12,7 @@ import com.lsh.wms.api.service.pick.IShipRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
@@ -59,6 +60,12 @@ public class ShipRestService implements IShipRestService {
         Map<String, Object> mapRequest = RequestUtils.getRequest();
         Long locationId = Long.valueOf(mapRequest.get("locationId").toString());
         BaseinfoLocation location = iLocationRpcService.getLocation(locationId);
+        if(location.getType() != LocationConstant.COLLECTION_ROAD){
+            throw new BizCheckedException("2130011");
+        }
+        if(location.getIsLocked() == 0){
+            throw new BizCheckedException("2130012");
+        }
         StockQuantCondition condition = new StockQuantCondition();
         condition.setLocationId(locationId);
         java.math.BigDecimal qty = stockQuantRpcService.getQty(condition);
@@ -74,6 +81,7 @@ public class ShipRestService implements IShipRestService {
             }
         });
     }
+
     @Path("scan")
     @POST
     public String scan() throws BizCheckedException {
