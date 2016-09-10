@@ -137,7 +137,8 @@ public class StockTransferCore {
                     qtyDone.setScale(0, BigDecimal.ROUND_DOWN).compareTo(qtyDone) != 0) {
                 throw new BizCheckedException("2550034");
             }
-            if (taskInfo.getQty().compareTo(qtyDone) < 0) {
+            BigDecimal total = stockQuantRpcService.getQty(condition);
+            if (total.compareTo(qtyDone) < 0) {
                 throw new BizCheckedException("2550008");
             }
             StockMove move = new StockMove();
@@ -183,6 +184,18 @@ public class StockTransferCore {
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         if (taskInfo.getToLocationId().compareTo(toLocationId) != 0) {
             throw new BizCheckedException("2040007");
+        }
+        BaseinfoLocation location;
+        try {
+            location = locationService.getLocation(toLocationId);
+        } catch (BizCheckedException e) {
+            throw new BizCheckedException("2060012");
+        }
+        if (location == null) {
+            throw new BizCheckedException("2060012");
+        }
+        if (location.getCanUse().equals(LocationConstant.CANNOT_USE)) {
+            throw new BizCheckedException("2550006");
         }
         Long containerId = taskInfo.getContainerId();
         Long fromLocationId = locationService.getWarehouseLocationId();

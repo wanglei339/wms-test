@@ -8,6 +8,8 @@ public class WaveConstant {
     public static int STATUS_NEW = 10;
     public static int STATUS_RELEASE_START = 20;
     public static int STATUS_RELEASE_SUCC = 30;
+    public static int STATUS_PICK_SUCC = 31;
+    public static int STATUS_QC_SUCC = 32;
     public static int STATUS_RELEASE_FAIL = 40;
     public static int STATUS_SUCC = 50;
     public static int STATUS_CANCEL = 100;
