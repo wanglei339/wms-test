@@ -199,7 +199,10 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             }
         }
         core.fillTransferPlan(plan);
-        BigDecimal requiredQty = plan.getQty().multiply(plan.getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP);
+        BigDecimal requiredQty = plan.getQty();
+        if (plan.getSubType().equals(2L)) {
+            requiredQty = requiredQty.multiply(plan.getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP);
+        }
         if (requiredQty.compareTo(total) > 0) {
             throw new BizCheckedException("2550002");
         }
