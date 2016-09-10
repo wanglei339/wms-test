@@ -19,8 +19,6 @@ public interface IRFQCRestService {
     public String getUndoDetails() throws BizCheckedException;
     /*确认完成此qc任务*/
     public String confirm() throws BizCheckedException;
-    /*创建任务,临时*/
-    public String createTask() throws BizCheckedException;
     public String confirmAll() throws BizCheckedException;
     public String scanContainer() throws BizCheckedException;
 }
