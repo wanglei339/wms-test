@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -319,4 +320,8 @@ public class BaseTaskService {
         return taskInfos;
     }
 
+    public BigDecimal getQty (Map<String, Object> condition) {
+        BigDecimal sum = taskInfoDao.getQty(condition);
+        return sum == null ? BigDecimal.ZERO : sum;
+    }
 }

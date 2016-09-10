@@ -4,6 +4,7 @@ import com.lsh.wms.core.dao.MyBatisRepository;
 import com.lsh.wms.model.po.InbPoDetail;
 import com.lsh.wms.model.task.TaskInfo;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -27,5 +28,7 @@ public interface TaskInfoDao {
 	List<Map<String, Object>> getKanBanCount(Long type);
 
 	List<Map<String, Object>> getKanBanCountByStatus(Long type);
+
+	BigDecimal getQty(Map<String, Object> params);
 
 }
