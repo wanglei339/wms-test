@@ -220,7 +220,11 @@ public class QCRestService implements IRFQCRestService{
                 waveService.updateDetail(detail);
             }
         }
-        if(qcList.size()-addExceptionNum!=details.size()){
+        Set<Long> setItem = new HashSet<Long>();
+        for(WaveDetail detail : details){
+            setItem.add(detail.getItemId());
+        }
+        if(qcList.size()-addExceptionNum!=setItem.size()){
             throw new BizCheckedException("2120004");
         }
         iTaskRpcService.done(tasks.get(0).getTaskInfo().getTaskId());
@@ -231,6 +235,7 @@ public class QCRestService implements IRFQCRestService{
         });
     }
 
+    @POST
     @Path("scanContainer")
     public String scanContainer() throws BizCheckedException{
         Map<String, Object> mapRequest = RequestUtils.getRequest();
@@ -250,20 +255,32 @@ public class QCRestService implements IRFQCRestService{
         TaskInfo info = tasks.get(0).getTaskInfo();
         iTaskRpcService.assign(info.getTaskId(), Long.valueOf(RequestUtils.getHeader("uid")));
         List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
-        List<Map<String, Object>> undoDetails = new LinkedList<Map<String, Object>>();
-        for (WaveDetail d : details){
-            if(true) {
-                Map<String, Object> detail = new HashMap<String, Object>();
-                detail.put("skuId", d.getSkuId());
-                BaseinfoItem item = itemRpcService.getItem(d.getOwnerId(), d.getSkuId());
-                detail.put("code", item.getCode());
-                detail.put("codeType", item.getCodeType());
-                detail.put("pickQty", d.getPickQty());
-                detail.put("packName", "EA");
-                //TODO packName
-                detail.put("itemName", item.getSkuName());
-                undoDetails.add(detail);
+        //merge item_id 2 pick  qty
+        Map<Long, BigDecimal> mapItem2PickQty = new HashMap<Long, BigDecimal>();
+        for( WaveDetail d : details){
+            if(mapItem2PickQty.get(d.getItemId())==null){
+                mapItem2PickQty.put(d.getItemId(), new BigDecimal(d.getPickQty().toString()));
+            }else{
+                mapItem2PickQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getPickQty()));
             }
+        }
+
+        List<Map<String, Object>> undoDetails = new LinkedList<Map<String, Object>>();
+        for(Long itemId : mapItem2PickQty.keySet()) {
+            Map<String, Object> detail = new HashMap<String, Object>();
+            BaseinfoItem item = itemRpcService.getItem(itemId);
+            if(item == null){
+                //商品数据异常
+            }
+            detail.put("skuId", item.getSkuId());
+            detail.put("itemId", item.getItemId());
+            detail.put("code", item.getCode());
+            detail.put("codeType", item.getCodeType());
+            detail.put("pickQty", mapItem2PickQty.get(itemId));
+            detail.put("packName", "EA");
+            //TODO packName
+            detail.put("itemName", item.getSkuName());
+            undoDetails.add(detail);
         }
         BaseinfoContainer containerInfo = iContainerRpcService.getContainer(containerId);
         if(containerInfo==null){
@@ -301,10 +318,101 @@ public class QCRestService implements IRFQCRestService{
         */
         List<Map> qcList = JSON.parseArray(mapRequest.get("qcList").toString(), Map.class);
         List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
-        //Map<Long, WaveDetail> sku2Detail = new HashMap<Long, WaveDetail>();
-        //for(WaveDetail detail : details){
-        //    sku2Detail.put(detail.getSkuId(), detail);
-        //}
+        int addExceptionNum = 0;
+        for(Map<String, Object> qcItem : qcList) {
+            long exceptionType = 0;
+            String code = qcItem.get("code").toString().trim();
+            BigDecimal qty = new BigDecimal(qcItem.get("qty").toString());
+            CsiSku skuInfo = csiRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, code);
+            if (skuInfo == null) {
+                throw new BizCheckedException("2120001");
+            }
+            long skuId = skuInfo.getSkuId();
+            int seekNum = 0;
+            List<WaveDetail> matchDetails = new LinkedList<WaveDetail>();
+            BigDecimal pickQty = new BigDecimal("0.0000");
+            for (WaveDetail d : details) {
+                if (d.getSkuId() != skuId) {
+                    continue;
+                }
+                seekNum++;
+                matchDetails.add(d);
+                pickQty = pickQty.add(d.getPickQty());
+            }
+            if (seekNum == 0) {
+                exceptionType = 3;
+                long tmpExceptionType = qcItem.get("exceptionType") == null ? 0L : Long.valueOf(qcItem.get("exceptionType").toString());
+                if (tmpExceptionType != exceptionType) {
+                    throw new BizCheckedException("2120009");
+                }
+                if (qcItem.get("exceptionQty") == null) {
+                    throw new BizCheckedException("2120010");
+                }
+                WaveQcException qcException = new WaveQcException();
+                qcException.setSkuId(skuInfo.getSkuId());
+                BigDecimal exctpionQty = new BigDecimal(qcItem.get("exceptionQty").toString());
+                qcException.setExceptionQty(exctpionQty);
+                qcException.setExceptionType(exceptionType);
+                qcException.setQcTaskId(0L);
+                qcException.setWaveId(0L);
+                waveService.insertQCException(qcException);
+                addExceptionNum++;
+                continue;
+            }
+            int cmpRet = pickQty.compareTo(qty);
+            if (cmpRet > 0) exceptionType = 2; //多货
+            if (cmpRet < 0) exceptionType = 1; //少货
+
+            BigDecimal curQty = new BigDecimal("0.0000");
+            for(int i = 0; i < matchDetails.size(); ++i){
+                WaveDetail detail = matchDetails.get(i);
+                BigDecimal lastQty = curQty;
+                curQty = curQty.add(detail.getPickQty());
+                detail.setQcQty(qty);
+                detail.setQcAt(DateUtils.getCurrentSeconds());
+                detail.setQcUid(Long.valueOf(RequestUtils.getHeader("uid")));
+                detail.setQcException(exceptionType);
+                detail.setQcAt(DateUtils.getCurrentSeconds());
+                detail.setQcUid(Long.valueOf(RequestUtils.getHeader("uid")));
+                if (exceptionType != 0) {
+                    //多货
+                    if (i == matchDetails.size() - 1) {
+                        detail.setQcException(exceptionType);
+                        detail.setQcExceptionQty(qty.subtract(curQty));
+                        detail.setQcExceptionDone(0L);
+                        detail.setQcQty(qty.subtract(lastQty));
+
+                    } else {
+                        //忽略
+                        detail.setQcQty(detail.getPickQty());
+                        detail.setQcException(0L);
+                        detail.setQcExceptionQty(BigDecimal.ZERO);
+                        detail.setQcExceptionDone(1L);
+                        detail.setQcQty(detail.getPickQty());
+                    }
+                } else {
+                    detail.setQcQty(detail.getPickQty());
+                    detail.setQcException(0L);
+                    detail.setQcExceptionQty(BigDecimal.ZERO);
+                    detail.setQcExceptionDone(1L);
+                }
+                waveService.updateDetail(detail);
+            }
+        }
+        Set<Long> setItem = new HashSet<Long>();
+        for(WaveDetail detail : details){
+            setItem.add(detail.getItemId());
+        }
+        if(qcList.size()-addExceptionNum!=setItem.size()){
+            throw new BizCheckedException("2120004");
+        }
+        iTaskRpcService.done(tasks.get(0).getTaskInfo().getTaskId());
+        return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+            {
+                put("response", true);
+            }
+        });
+        /*
         int addExceptionNum = 0;
         for(Map<String, Object> qcItem : qcList) {
             long exceptionType = 0;
@@ -374,6 +482,7 @@ public class QCRestService implements IRFQCRestService{
                 put("response", true);
             }
         });
+        */
     }
 
 

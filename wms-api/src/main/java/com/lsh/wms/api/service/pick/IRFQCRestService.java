@@ -21,4 +21,6 @@ public interface IRFQCRestService {
     public String confirm() throws BizCheckedException;
     public String confirmAll() throws BizCheckedException;
     public String scanContainer() throws BizCheckedException;
+    public String getQcTaskByPickTask() throws BizCheckedException;
+    public String confirmByPickTask();
 }
