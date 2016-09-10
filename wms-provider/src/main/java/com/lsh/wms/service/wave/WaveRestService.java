@@ -114,7 +114,10 @@ public class WaveRestService implements IWaveRestService {
             throw new BizCheckedException("2040001");
         }
         if(head.getStatus() == WaveConstant.STATUS_RELEASE_SUCC
-                || head.getStatus() == WaveConstant.STATUS_SUCC){
+                || head.getStatus() == WaveConstant.STATUS_SUCC
+                || head.getStatus() == WaveConstant.STATUS_PICK_SUCC
+                || head.getStatus() == WaveConstant.STATUS_QC_SUCC
+                ){
             //可以发
         }else{
             throw new BizCheckedException("2040013");

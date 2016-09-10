@@ -110,7 +110,6 @@ public class StockMoveService {
             if (location.getType().compareTo(LocationConstant.CONSUME_AREA) != 0) {
                 quantService.unReserveById(quant.getId());
             }
-            quantService.unReserveById(quant.getId());
         }
     }
 
