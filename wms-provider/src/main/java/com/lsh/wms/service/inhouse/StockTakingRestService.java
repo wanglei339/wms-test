@@ -9,10 +9,8 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
-import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.service.inhouse.IStockTakingRestService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
-import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.csi.CsiSkuService;
@@ -73,9 +71,6 @@ public class StockTakingRestService implements IStockTakingRestService {
 
     @Autowired
     private StockTakingTaskService stockTakingTaskService;
-
-    @Autowired
-    private ItemService itemService;
 
     @Autowired
     private CsiSkuService skuService;
