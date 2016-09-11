@@ -168,9 +168,9 @@ public class QCRestService implements IRFQCRestService{
         rstMap.put("qcList", undoDetails);
         rstMap.put("containerType", containerInfo.getType());
         rstMap.put("pickTaskId", pickTaskId);
-        rstMap.put("soUserId", soInfo.getOrderUser());
+        rstMap.put("customerId", soInfo.getOrderUser());
         //TODO SO USER ID
-        rstMap.put("soUserName", soInfo.getOrderUser());
+        rstMap.put("customerName", soInfo.getOrderUser());
         rstMap.put("collectionRoadCode", collectLocaion.getLocationCode());
         rstMap.put("itemLineNum", mapItem2PickQty.size());
         //TODO BOX NUM
