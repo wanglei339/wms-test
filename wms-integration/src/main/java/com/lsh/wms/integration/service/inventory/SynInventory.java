@@ -33,7 +33,7 @@ import java.util.List;
 public class SynInventory implements ISynInventory {
     private static Logger logger = LoggerFactory.getLogger(SynInventory.class);
 
-    @Reference
+    @Reference(async = true)
     private IInventorySyncLshRpcService iInventorySyncLshRpcService;
 
 
