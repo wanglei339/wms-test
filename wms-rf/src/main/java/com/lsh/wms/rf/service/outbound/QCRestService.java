@@ -17,6 +17,7 @@ import com.lsh.wms.api.service.so.ISoRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.service.stock.StockUtil;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
@@ -124,26 +125,31 @@ public class QCRestService implements IRFQCRestService{
         }
         //merge item_id 2 pick  qty
         Map<Long, BigDecimal> mapItem2PickQty = new HashMap<Long, BigDecimal>();
-        Map<Long, Long> mapItem2QCStatus = new HashMap<Long, Long>();
+        Map<Long, WaveDetail> mapItem2WaveDetail = new HashMap<Long, WaveDetail>();
         for( WaveDetail d : details){
             if(mapItem2PickQty.get(d.getItemId())==null){
                 mapItem2PickQty.put(d.getItemId(), new BigDecimal(d.getPickQty().toString()));
             }else{
                 mapItem2PickQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getPickQty()));
             }
-            mapItem2QCStatus.put(d.getItemId(), d.getQcExceptionDone());
+            mapItem2WaveDetail.put(d.getItemId(), d);
         }
 
         List<Map<String, Object>> undoDetails = new LinkedList<Map<String, Object>>();
         for(Long itemId : mapItem2PickQty.keySet()) {
+            WaveDetail waveDetail = mapItem2WaveDetail.get(itemId);
             Map<String, Object> detail = new HashMap<String, Object>();
             BaseinfoItem item = itemRpcService.getItem(itemId);
             detail.put("skuId", item.getSkuId());
             detail.put("itemId", item.getItemId());
             detail.put("code", item.getCode());
             detail.put("codeType", item.getCodeType());
-            detail.put("pickQty", mapItem2PickQty.get(itemId));
-            detail.put("packName", "EA");
+            BigDecimal qtyUom = mapItem2PickQty.get(itemId);
+            if(waveDetail.getAllocUnitName().compareTo("EA") != 0){
+                qtyUom = StockUtil.EAQty2UomQty(qtyUom, waveDetail.getAllocUnitName());
+            }
+            detail.put("uomQty", qtyUom);
+            detail.put("uom", waveDetail.getAllocUnitName());
             //TODO packName
             detail.put("itemName", item.getSkuName());
             detail.put("qcDone", mapItem2PickQty.get(itemId).intValue()==0 ? 0 : 1);
@@ -181,7 +187,7 @@ public class QCRestService implements IRFQCRestService{
         //获取参数
         Map<String,Object> request = RequestUtils.getRequest();
         long qcTaskId =  Long.valueOf(request.get("qcTaskId").toString());
-        BigDecimal qty = new BigDecimal(request.get("qty").toString());
+        BigDecimal qtyUom = new BigDecimal(request.get("uomQty").toString());
         long exceptionType = request.get("exceptionType")==null ? 0L : Long.valueOf(request.get("exceptionType").toString());
         BigDecimal exceptionQty = request.get("exceptionQty")==null ? BigDecimal.ZERO : new BigDecimal(request.get("exceptionQty").toString());
         //初始化QC任务
@@ -219,44 +225,46 @@ public class QCRestService implements IRFQCRestService{
             qcException.setQcTaskId(qcTaskId);
             qcException.setWaveId(qcTaskInfo.getWaveId());
             waveService.insertQCException(qcException);
-        }
-        int cmpRet = pickQty.compareTo(qty);
-        if (cmpRet > 0) exceptionType = 2; //多货
-        if (cmpRet < 0) exceptionType = 1; //少货
-        BigDecimal curQty = new BigDecimal("0.0000");
-        for(int i = 0; i < matchDetails.size(); ++i){
-            WaveDetail detail = matchDetails.get(i);
-            BigDecimal lastQty = curQty;
-            curQty = curQty.add(detail.getPickQty());
-            detail.setQcQty(qty);
-            detail.setQcAt(DateUtils.getCurrentSeconds());
-            detail.setQcUid(Long.valueOf(RequestUtils.getHeader("uid")));
-            detail.setQcException(exceptionType);
-            detail.setQcAt(DateUtils.getCurrentSeconds());
-            detail.setQcUid(Long.valueOf(RequestUtils.getHeader("uid")));
-            if (exceptionType != 0) {
-                //多货
-                if (i == matchDetails.size() - 1) {
-                    detail.setQcException(exceptionType);
-                    detail.setQcExceptionQty(qty.subtract(curQty));
-                    detail.setQcExceptionDone(0L);
-                    detail.setQcQty(qty.subtract(lastQty));
+        }else {
+            BigDecimal qty = StockUtil.UomQty2EAQty(qtyUom, details.get(0).getAllocUnitName());
+            int cmpRet = pickQty.compareTo(qty);
+            if (cmpRet > 0) exceptionType = 2; //多货
+            if (cmpRet < 0) exceptionType = 1; //少货
+            BigDecimal curQty = new BigDecimal("0.0000");
+            for (int i = 0; i < matchDetails.size(); ++i) {
+                WaveDetail detail = matchDetails.get(i);
+                BigDecimal lastQty = curQty;
+                curQty = curQty.add(detail.getPickQty());
+                detail.setQcQty(qty);
+                detail.setQcAt(DateUtils.getCurrentSeconds());
+                detail.setQcUid(Long.valueOf(RequestUtils.getHeader("uid")));
+                detail.setQcException(exceptionType);
+                detail.setQcAt(DateUtils.getCurrentSeconds());
+                detail.setQcUid(Long.valueOf(RequestUtils.getHeader("uid")));
+                if (exceptionType != 0) {
+                    //多货
+                    if (i == matchDetails.size() - 1) {
+                        detail.setQcException(exceptionType);
+                        detail.setQcExceptionQty(qty.subtract(curQty));
+                        detail.setQcExceptionDone(0L);
+                        detail.setQcQty(qty.subtract(lastQty));
 
+                    } else {
+                        //忽略
+                        detail.setQcQty(detail.getPickQty());
+                        detail.setQcException(0L);
+                        detail.setQcExceptionQty(BigDecimal.ZERO);
+                        detail.setQcExceptionDone(1L);
+                        detail.setQcQty(detail.getPickQty());
+                    }
                 } else {
-                    //忽略
                     detail.setQcQty(detail.getPickQty());
                     detail.setQcException(0L);
                     detail.setQcExceptionQty(BigDecimal.ZERO);
                     detail.setQcExceptionDone(1L);
-                    detail.setQcQty(detail.getPickQty());
                 }
-            } else {
-                detail.setQcQty(detail.getPickQty());
-                detail.setQcException(0L);
-                detail.setQcExceptionQty(BigDecimal.ZERO);
-                detail.setQcExceptionDone(1L);
+                waveService.updateDetail(detail);
             }
-            waveService.updateDetail(detail);
         }
         //校验qc任务是否完全完成;
         boolean bSucc = true;
@@ -265,9 +273,12 @@ public class QCRestService implements IRFQCRestService{
                 bSucc = false;
                 break;
             }
+            //计算QC的任务量
+            //TODO QC TaSK qTY
         }
-        if(bSucc){
+        if(bSucc && qcTaskInfo.getStatus() != TaskConstant.Done){
             //成功
+            //设置task的信息;
             iTaskRpcService.done(qcTaskId, qcTaskInfo.getLocationId(), Long.valueOf(RequestUtils.getHeader("uid")));
         }
         //返回结果

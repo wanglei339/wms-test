@@ -399,8 +399,12 @@ public class WaveService {
             deliveryDetail.setBarCode(item.getCode());
             deliveryDetail.setOrderQty(detail.getReqQty());
             deliveryDetail.setPackUnit(item.getPackUnit());
-            deliveryDetail.setLotId(0L);
-            deliveryDetail.setLotNum("");
+            //通过stock quant获取到对应的lot信息
+            List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(detail.getContainerId());
+            StockQuant stockQuant = stockQuants.size() > 0 ? stockQuants.get(0) : null;
+            deliveryDetail.setLotId(stockQuant == null ? 0L : stockQuant.getLotId());
+            //TODO fuck
+            deliveryDetail.setLotNum(stockQuant == null ? "" : "");
             deliveryDetail.setDeliveryNum(detail.getQcQty());
             deliveryDetail.setInserttime(new Date());
             deliveryDetails.add(deliveryDetail);
