@@ -154,6 +154,7 @@ public class QCRestService implements IRFQCRestService{
             }
             detail.put("uomQty", uomQty);
             detail.put("uom", waveDetail.getAllocUnitName());
+            detail.put("isSplit", waveDetail.getAllocUnitName().compareTo("EA")==0);
             //TODO packName
             detail.put("itemName", item.getSkuName());
             detail.put("qcDone", waveDetail.getQcExceptionDone()!=0);
