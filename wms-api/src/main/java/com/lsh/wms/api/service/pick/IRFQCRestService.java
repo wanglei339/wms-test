@@ -15,4 +15,5 @@ public interface IRFQCRestService {
     /*上报单个商品的qc结果,正常,少货,多货,错货,残次,日期异常等*/
     public String qcOneItem() throws BizCheckedException;
     public String confirmAll() throws BizCheckedException;
+    public String confirm() throws BizCheckedException;
 }
