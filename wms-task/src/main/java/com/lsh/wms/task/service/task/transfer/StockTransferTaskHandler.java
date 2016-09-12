@@ -70,7 +70,7 @@ public class StockTransferTaskHandler extends AbsTaskHandler {
 
     public void calcPerformance(TaskInfo taskInfo) {
         if (taskInfo.getPackName().equals("EA")) {
-            taskInfo.setTaskPackQty(taskInfo.getQtyDone().divide(taskInfo.getPackUnit(), 2 , BigDecimal.ROUND_DOWN));
+            taskInfo.setTaskPackQty(taskInfo.getQtyDone().divide(taskInfo.getPackUnit(), 2, BigDecimal.ROUND_DOWN));
             taskInfo.setTaskEaQty(taskInfo.getQtyDone());
         } else {
             taskInfo.setTaskPackQty(taskInfo.getQtyDone());
