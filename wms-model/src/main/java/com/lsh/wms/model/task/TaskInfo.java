@@ -91,11 +91,15 @@ public class TaskInfo implements Serializable {
 	/**  */
     private Long updatedAt;
 
-	private BigDecimal taskQty = BigDecimal.ZERO;
 
 	public Long date = 0L;
 
+	/** 任务工作量(按外包装计算) */
+	private BigDecimal taskPackQty = BigDecimal.ZERO;
+	/** 任务工作量(ea计算) */
+	private BigDecimal taskEaQty = BigDecimal.ZERO;
 
+	private BigDecimal taskQty = BigDecimal.ZERO;
 
 	public BigDecimal getTaskQty() {
 		return taskQty;
@@ -474,6 +478,19 @@ public class TaskInfo implements Serializable {
         this.qtyDoneUom = qtyDoneUom;
     }
 
+	public BigDecimal getTaskEaQty() {
+		return taskEaQty;
+	}
 
+	public void setTaskEaQty(BigDecimal taskEaQty) {
+		this.taskEaQty = taskEaQty;
+	}
 
+	public BigDecimal getTaskPackQty() {
+		return taskPackQty;
+	}
+
+	public void setTaskPackQty(BigDecimal taskPackQty) {
+		this.taskPackQty = taskPackQty;
+	}
 }

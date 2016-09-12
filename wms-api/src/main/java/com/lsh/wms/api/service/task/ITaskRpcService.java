@@ -2,6 +2,7 @@ package com.lsh.wms.api.service.task;
 
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.model.task.TaskEntry;
+import com.lsh.wms.model.task.TaskInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -28,4 +29,5 @@ public interface ITaskRpcService {
     void batchAssign(Long taskType,List<Long> tasks,Long staffId) throws BizCheckedException;
     void batchCancel(Long taskType,List<Long> tasks) throws BizCheckedException;
     List<Map<String, Object>> getPerformance(Map<String, Object> condition) throws BizCheckedException;
+    TaskInfo getTaskInfo(Long taskId) throws BizCheckedException;
 }

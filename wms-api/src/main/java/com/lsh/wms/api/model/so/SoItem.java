@@ -39,11 +39,14 @@ public class SoItem implements Serializable {
     @Size(max=64)
     private String lotNum;
 
+    /** 商品单价,未税 */
+    private BigDecimal price;
+
     public SoItem() {
 
     }
 
-    public SoItem(String detailOtherId,String skuCode, String skuName, String barCode, BigDecimal orderQty, BigDecimal packUnit, String lotNum) {
+    public SoItem(String detailOtherId,String skuCode, String skuName, String barCode, BigDecimal orderQty, BigDecimal packUnit, String lotNum,BigDecimal price) {
         this.detailOtherId = detailOtherId;
         this.skuCode = skuCode;
         this.skuName = skuName;
@@ -51,6 +54,7 @@ public class SoItem implements Serializable {
         this.orderQty = orderQty;
         this.packUnit = packUnit;
         this.lotNum = lotNum;
+        this.price = price;
     }
 
 
@@ -108,5 +112,13 @@ public class SoItem implements Serializable {
 
     public void setDetailOtherId(String detailOtherId) {
         this.detailOtherId = detailOtherId;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 }

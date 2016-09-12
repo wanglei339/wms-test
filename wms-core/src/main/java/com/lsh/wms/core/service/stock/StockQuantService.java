@@ -3,16 +3,17 @@ package com.lsh.wms.core.service.stock;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.LocationConstant;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
+import com.lsh.wms.core.dao.stock.StockQuantDao;
 import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
-import com.lsh.wms.core.dao.stock.StockQuantDao;
 import com.lsh.wms.model.stock.StockQuantMoveRel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,9 +47,14 @@ public class StockQuantService {
     @Autowired
     private ItemService itemService;
 
+    @Autowired
+    private StockRedisService stockRedisService;
+
+    @Autowired
+    private BaseTaskService baseTaskService;
 
     @Transactional(readOnly = false)
-    public void moveToComplete(StockQuant quant){
+    public void moveToComplete(StockQuant quant) {
         stockQuantDao.moveToComplete(quant.getId());
         stockQuantDao.remove(quant.getId());
     }
@@ -64,7 +70,7 @@ public class StockQuantService {
                 locationList.add(location);
             }
         }
-        if  (params.get("locationList") != null) {
+        if (params.get("locationList") != null) {
             for (BaseinfoLocation location : (List<BaseinfoLocation>) params.get("locationList")) {
                 locationList.add(location);
             }
@@ -72,12 +78,12 @@ public class StockQuantService {
         if (params.get("locationIdList") != null) {
             for (Long locaitonId : (List<Long>) params.get("locationIdList")) {
                 BaseinfoLocation location = locationService.getLocation(locaitonId);
-                if(location!=null) {
+                if (location != null) {
                     locationList.add(location);
                 }
             }
         }
-        if ( ! locationList.isEmpty() ) {
+        if (!locationList.isEmpty()) {
             params.put("locationList", locationList);
         }
     }
@@ -130,7 +136,7 @@ public class StockQuantService {
         return relDao.getStockQuantMoveRelList(mapQuery);
     }
 
-    @Transactional(readOnly =  false)
+    @Transactional(readOnly = false)
     public void create(StockQuant quant) {
         String packName = "";
         if (quant.getPackUnit().equals(BigDecimal.ONE)) {
@@ -144,7 +150,7 @@ public class StockQuantService {
         stockQuantDao.insert(quant);
     }
 
-    @Transactional(readOnly =  false)
+    @Transactional(readOnly = false)
     public void update(StockQuant quant) {
         quant.setUpdatedAt(DateUtils.getCurrentSeconds());
         stockQuantDao.update(quant);
@@ -153,7 +159,6 @@ public class StockQuantService {
     public int getContainerQty(Long locationId) {
         return stockQuantDao.getContainerIdByLocationId(locationId).size();
     }
-
 
 
     @Transactional(readOnly = false)
@@ -187,7 +192,7 @@ public class StockQuantService {
             quant.setContainerId(move.getToContainerId());
             this.update(quant);
             // 新建 quant move历史记录
-            StockQuantMoveRel moveRel =new StockQuantMoveRel();
+            StockQuantMoveRel moveRel = new StockQuantMoveRel();
             moveRel.setMoveId(move.getId());
             moveRel.setQuantId(quant.getId());
             relDao.insert(moveRel);
@@ -204,16 +209,31 @@ public class StockQuantService {
                 break;
             }
         }
-        if (qtyDone.compareTo(BigDecimal.ZERO) > 0 ) {
+        if (qtyDone.compareTo(BigDecimal.ZERO) > 0) {
             throw new BizCheckedException("2550008");
         }
         this.updateLocationStatus(move.getFromLocationId());
         this.updateLocationStatus(move.getToLocationId());
+
+        if (move.getFromLocationId().equals(0L) &&
+                (baseTaskService.getTaskTypeById(move.getTaskId()).equals(TaskConstant.TYPE_SHELVE) ||
+                        baseTaskService.getTaskTypeById(move.getTaskId()).equals(TaskConstant.TYPE_ATTIC_SHELVE) ||
+                        baseTaskService.getTaskTypeById(move.getTaskId()).equals(TaskConstant.TYPE_PICK_UP_SHELVE)
+                )
+                ) {
+            stockRedisService.inBound(move.getItemId(), move.getQty());
+        }
+        if (locationService.getLocation(move.getFromLocationId()).getType().equals(LocationConstant.INVENTORYLOST)) {
+            stockRedisService.inBound(move.getItemId(), move.getQty());
+        }
+        if (locationService.getLocation(move.getToLocationId()).getType().equals(LocationConstant.INVENTORYLOST)) {
+            stockRedisService.outBound(move.getItemId(), move.getQty());
+        }
     }
 
     @Transactional(readOnly = false)
-    public void split(StockQuant quant, BigDecimal requiredQty){
-        if ( quant.getQty().compareTo(requiredQty) <= 0 && quant.getQty().compareTo(BigDecimal.ZERO) > 0) {
+    public void split(StockQuant quant, BigDecimal requiredQty) {
+        if (quant.getQty().compareTo(requiredQty) <= 0 && quant.getQty().compareTo(BigDecimal.ZERO) > 0) {
             return;
         }
 
@@ -221,10 +241,10 @@ public class StockQuantService {
         newQuant.setQty(quant.getQty().subtract(requiredQty));
         newQuant.setReserveTaskId(0L);
         this.create(newQuant);
-        Map<String,Object> queryMap=new HashMap<String, Object>();
+        Map<String, Object> queryMap = new HashMap<String, Object>();
         queryMap.put("quantId", quant.getId());
-        List<StockQuantMoveRel> relList= relDao.getStockQuantMoveRelList(queryMap);
-        for(StockQuantMoveRel rel:relList){
+        List<StockQuantMoveRel> relList = relDao.getStockQuantMoveRelList(queryMap);
+        for (StockQuantMoveRel rel : relList) {
             rel.setQuantId(newQuant.getId());
             relDao.insert(rel);
         }
@@ -236,15 +256,15 @@ public class StockQuantService {
         List<StockQuant> quantList = this.getQuants(mapQuery);
         List<StockQuant> resultList = new ArrayList<StockQuant>();
         for (StockQuant quant : quantList) {
-            if (! quant.isAvailable()) {
-               continue;
+            if (!quant.isAvailable()) {
+                continue;
             }
             this.split(quant, requiredQty);
             quant.setReserveTaskId(taskId);
             resultList.add(quant);
             stockQuantDao.update(quant);
             requiredQty = requiredQty.subtract(quant.getQty());
-            if (requiredQty.compareTo(BigDecimal.ZERO) == 0){
+            if (requiredQty.compareTo(BigDecimal.ZERO) == 0) {
                 break;
             }
         }
@@ -365,45 +385,46 @@ public class StockQuantService {
         return stockQuantDao.getContainerIdByLocationId(locationId);
     }
 
-    public BigDecimal getQuantQtyByLocationIdAndItemId(Long locationId,Long itemId) {
-        Map<String,Object> queryMap=new HashMap();
-        queryMap.put("locationId",locationId);
+    public BigDecimal getQuantQtyByLocationIdAndItemId(Long locationId, Long itemId) {
+        Map<String, Object> queryMap = new HashMap();
+        queryMap.put("locationId", locationId);
         queryMap.put("itemId", itemId);
         this.prepareQuery(queryMap);
-        List<StockQuant> stockQuants=stockQuantDao.getQuants(queryMap);
-        BigDecimal qty=new BigDecimal(0L);
-        for (StockQuant quant:stockQuants){
-            qty = qty.add(quant.getQty());
-        }
-        return qty;
-    }
-    public BigDecimal getQuantQtyByContainerId(Long containerId) {
-        Map<String,Object> queryMap=new HashMap();
-        queryMap.put("containerId",containerId);
-        this.prepareQuery(queryMap);
-        List<StockQuant> stockQuants=stockQuantDao.getQuants(queryMap);
-        BigDecimal qty=new BigDecimal(0L);
-        for (StockQuant quant:stockQuants){
+        List<StockQuant> stockQuants = stockQuantDao.getQuants(queryMap);
+        BigDecimal qty = new BigDecimal(0L);
+        for (StockQuant quant : stockQuants) {
             qty = qty.add(quant.getQty());
         }
         return qty;
     }
 
-    public Long getSupplierByLocationAndItemId(Long locationId,Long itemId) {
-        Set<Long> suppliers=new HashSet<Long>();
-        Map<String,Object> queryMap =new HashMap<String, Object>();
-        queryMap.put("locationId",locationId);
-        queryMap.put("itemId",itemId);
+    public BigDecimal getQuantQtyByContainerId(Long containerId) {
+        Map<String, Object> queryMap = new HashMap();
+        queryMap.put("containerId", containerId);
         this.prepareQuery(queryMap);
-        List<StockQuant> quants=stockQuantDao.getQuants(queryMap);
-        if(quants!=null && quants.size()!=0){
+        List<StockQuant> stockQuants = stockQuantDao.getQuants(queryMap);
+        BigDecimal qty = new BigDecimal(0L);
+        for (StockQuant quant : stockQuants) {
+            qty = qty.add(quant.getQty());
+        }
+        return qty;
+    }
+
+    public Long getSupplierByLocationAndItemId(Long locationId, Long itemId) {
+        Set<Long> suppliers = new HashSet<Long>();
+        Map<String, Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("locationId", locationId);
+        queryMap.put("itemId", itemId);
+        this.prepareQuery(queryMap);
+        List<StockQuant> quants = stockQuantDao.getQuants(queryMap);
+        if (quants != null && quants.size() != 0) {
             return quants.get(0).getSupplierId();
-        }else {
+        } else {
             return null;
         }
     }
 
-    public int countStockQuant(Map<String, Object> mapQuery){
+    public int countStockQuant(Map<String, Object> mapQuery) {
         return stockQuantDao.countStockQuant(mapQuery);
     }
 
@@ -429,11 +450,19 @@ public class StockQuantService {
         this.create(quant);
 
         // 新建 quant move历史记录
-        StockQuantMoveRel moveRel =new StockQuantMoveRel();
+        StockQuantMoveRel moveRel = new StockQuantMoveRel();
         moveRel.setMoveId(move.getId());
         moveRel.setQuantId(quant.getId());
         relDao.insert(moveRel);
 
         this.updateLocationStatus(move.getToLocationId());
+
+        if (locationService.getLocation(move.getFromLocationId()).getType().equals(LocationConstant.INVENTORYLOST)) {
+            stockRedisService.inBound(move.getItemId(), move.getQty());
+        }
+        if (locationService.getLocation(move.getToLocationId()).getType().equals(LocationConstant.INVENTORYLOST)) {
+            stockRedisService.outBound(move.getItemId(), move.getQty());
+        }
     }
+
 }

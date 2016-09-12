@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
@@ -12,9 +13,14 @@ import com.lsh.wms.api.model.po.IbdDetail;
 import com.lsh.wms.api.model.po.IbdRequest;
 import com.lsh.wms.api.model.po.PoItem;
 import com.lsh.wms.api.model.po.PoRequest;
+import com.lsh.wms.api.model.stock.StockItem;
+import com.lsh.wms.api.model.stock.StockRequest;
 import com.lsh.wms.api.service.po.IIbdService;
 import com.lsh.wms.api.service.po.IPoRpcService;
+import com.lsh.wms.core.constant.IntegrationConstan;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.po.InbPoHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +53,12 @@ public class IbdService implements IIbdService {
     @Autowired
     private PoOrderService poOrderService;
 
+    @Autowired
+    private ItemService itemService;
+
+    @Autowired
+    private IbdBackService ibdBackService;
+
     @POST
     @Path("add")
     public BaseResponse add(IbdRequest request) throws BizCheckedException{
@@ -57,6 +69,14 @@ public class IbdService implements IIbdService {
         List<PoItem> items = new ArrayList<PoItem>();
 
         for(IbdDetail ibdDetail : details){
+            List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(request.getOwnerUid(),ibdDetail.getSkuCode());
+            if(null != baseinfoItemList && baseinfoItemList.size()>=1){
+                BaseinfoItem baseinfoItem = baseinfoItemList.get(baseinfoItemList.size()-1);
+                ibdDetail.setPackName(baseinfoItem.getPackName());
+                ibdDetail.setPackUnit(baseinfoItem.getPackUnit());
+                ibdDetail.setBarCode(baseinfoItem.getCode());
+            }
+
             BigDecimal qty = ibdDetail.getOrderQty().divide(ibdDetail.getPackUnit(),2);
             ibdDetail.setOrderQty(qty);
             PoItem poItem = new PoItem();
@@ -86,5 +106,23 @@ public class IbdService implements IIbdService {
 
         poRpcService.insertOrder(poRequest);
         return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, null);
+    }
+
+    @POST
+    @Path("test")
+    public String Test() {
+        StockRequest request = new StockRequest();
+        request.setPlant("DC37");
+        request.setMoveType("551");
+        request.setStorageLocation("0001");
+        List<StockItem> items = new ArrayList<StockItem>();
+        StockItem item = new StockItem();
+        item.setEntryQnt("5");
+        item.setMaterialNo("000000000000207274");
+        item.setEntryUom("EA");
+        items.add(item);
+        request.setItems(items);
+
+        return ibdBackService.createOrderByPost(request,null, IntegrationConstan.URL_STOCKCHANGE);
     }
 }

@@ -6,12 +6,8 @@ import com.lsh.wms.api.service.stock.IStockMoveRpcService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.stock.StockMove;
-import com.lsh.wms.model.stock.StockQuant;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,12 +25,13 @@ public class StockMoveRpcService implements IStockMoveRpcService {
     public void create(StockMove move) {
         moveService.create(move);
     }
+
     public void create(List<StockMove> moveList) {
         moveService.create(moveList);
     }
 
 
-    public void move(List<StockMove> moveList) throws BizCheckedException{
+    public void move(List<StockMove> moveList) throws BizCheckedException {
         moveService.move(moveList);
     }
 

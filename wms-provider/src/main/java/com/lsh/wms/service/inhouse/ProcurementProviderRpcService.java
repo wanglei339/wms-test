@@ -58,8 +58,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     @Autowired
     private LocationService locationService;
 
-    @Autowired
-    private MessageService messageService;
 
     @Reference
     private ILocationRpcService locationRpcService;
@@ -87,10 +85,14 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         condition.setLocationId(plan.getFromLocationId());
         condition.setItemId(plan.getItemId());
         BigDecimal total = stockQuantService.getQty(condition);
+        List<StockQuant> quants = stockQuantService.getQuantList(condition);
+        if(quants==null || quants.size()==0){
+            throw new BizCheckedException("2550008");
+        }
 
         core.fillTransferPlan(plan);
 
-        if ( plan.getQty().compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
+        if ( plan.getQty().multiply(quants.get(0).getPackUnit()).compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
             throw new BizCheckedException("2550008");
         }
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
@@ -106,9 +108,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         taskInfo.setContainerId(containerId);
         taskInfo.setQtyDone(taskInfo.getQty());
         taskEntry.setTaskInfo(taskInfo);
-        if(!this.canCreateTask(taskEntry)){
-            return false;
-        }
         taskRpcService.create(TaskConstant.TYPE_PROCUREMENT, taskEntry);
         return true;
     }
@@ -140,9 +139,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         taskInfo.setType(TaskConstant.TYPE_PROCUREMENT);
         taskInfo.setContainerId(containerId);
         entry.setTaskInfo(taskInfo);
-        if(!this.canCreateTask(entry)){
-            return false;
-        }
         taskRpcService.update(TaskConstant.TYPE_PROCUREMENT, entry);
         return true;
     }
@@ -167,6 +163,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     }
                     condition.setLocationIdList(shelfBinList);
                     condition.setItemId(itemLocation.getItemId());
+                    condition.setReserveTaskId(0L);
                     List<StockQuant> quantList = stockQuantService.getQuantList(condition);
                     if (quantList.isEmpty()) {
                         logger.warn("ItemId:" + itemLocation.getItemId() + "缺货异常");
@@ -175,7 +172,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     StockQuant quant = quantList.get(0);
                     // 创建任务
                     StockTransferPlan plan = new StockTransferPlan();
-                    plan.setPriority(2L);
+                    plan.setPriority(1L);
                     plan.setItemId(itemLocation.getItemId());
                     plan.setFromLocationId(quant.getLocationId());
                     plan.setToLocationId(itemLocation.getPickLocationid());
@@ -254,7 +251,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                         BigDecimal quantQty =  quant.getQty().divide(quant.getPackUnit());
                         // 创建任务
                         StockTransferPlan plan = new StockTransferPlan();
-                        plan.setPriority(2L);
+                        plan.setPriority(1L);
                         plan.setItemId(itemLocation.getItemId());
                         plan.setFromLocationId(quant.getLocationId());
                         plan.setToLocationId(itemLocation.getPickLocationid());
@@ -312,7 +309,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         StockQuantCondition condition = new StockQuantCondition();
         Set<Long> outBondLocations = new HashSet<Long>();
         condition.setItemId(itemId);
-        condition.setReserveTaskId(0L);
         BaseinfoLocation pickLocation = locationService.getLocation(locationId);
         if(pickLocation.getType().compareTo(LocationConstant.LOFT_PICKING_BIN)==0){
             List<StockQuant> quants = stockQuantService.getQuantList(condition);
@@ -367,29 +363,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             priority--;
         }
         return 0L;
-    }
-    Boolean canCreateTask(TaskEntry taskEntry){
-        TaskInfo info = taskEntry.getTaskInfo();
-        Map<String,Object> queryMap = new HashMap<String, Object>();
-        queryMap.put("fromLocationId",info.getFromLocationId());
-        queryMap.put("status", 2L);
-        List<TaskEntry> entries = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, queryMap);
-        if(entries!=null && entries.size()!=0){
-            return false;
-        }
-        queryMap.put("status",1L);
-        entries = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, queryMap);
-        if(entries!=null && entries.size()!=0){
-            for(TaskEntry entry : entries) {
-                TaskMsg msg = new TaskMsg();
-                msg.setType(TaskConstant.EVENT_STOCK_TRANSFER_CANCEL);
-                msg.setPriority(1L);
-                msg.setSourceTaskId(entry.getTaskInfo().getTaskId());
-                messageService.sendMessage(msg);
-            }
-            return false;
-        }
-        return true;
     }
 
 }

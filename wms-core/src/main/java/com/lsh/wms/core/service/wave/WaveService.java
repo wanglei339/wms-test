@@ -320,6 +320,32 @@ public class WaveService {
     }
 
     @Transactional(readOnly = false)
+    public WaveDetail splitShelfWaveDetail(WaveDetail detail, BigDecimal splitQty, Long order) {
+        WaveDetail splitDetail = new WaveDetail();
+        BigDecimal restQty = stockQuantService.getQuantQtyByLocationIdAndItemId(detail.getAllocPickLocation(), detail.getItemId());
+        // 判断分配拣货位上是否又有库存了
+        if (restQty.compareTo(BigDecimal.ZERO) == 1) {
+            BigDecimal realSplitQty = BigDecimal.ZERO;
+            if (restQty.compareTo(splitQty) >= 0) {
+                realSplitQty = splitQty;
+            } else {
+                realSplitQty = restQty;
+            }
+            ObjUtils.bean2bean(detail, splitDetail);
+            splitDetail.setAllocQty(realSplitQty);
+            splitDetail.setRefDetailId(detail.getId());
+            splitDetail.setPickOrder(order + 1);
+            splitDetail.setPickAt(0L);
+            splitDetail.setRealPickLocation(0L);
+            splitDetail.setPickQty(BigDecimal.ZERO);
+            this.insertDetail(splitDetail);
+            detail.setAllocQty(detail.getPickQty());
+            this.updateDetail(detail);
+        }
+        return splitDetail;
+    }
+
+    @Transactional(readOnly = false)
     public void insertQCException(WaveQcException exception){
         exception.setCreatedAt(DateUtils.getCurrentSeconds());
         exception.setUpdatedAt(DateUtils.getCurrentSeconds());
@@ -373,8 +399,12 @@ public class WaveService {
             deliveryDetail.setBarCode(item.getCode());
             deliveryDetail.setOrderQty(detail.getReqQty());
             deliveryDetail.setPackUnit(item.getPackUnit());
-            deliveryDetail.setLotId(0L);
-            deliveryDetail.setLotNum("");
+            //通过stock quant获取到对应的lot信息
+            List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(detail.getContainerId());
+            StockQuant stockQuant = stockQuants.size() > 0 ? stockQuants.get(0) : null;
+            deliveryDetail.setLotId(stockQuant == null ? 0L : stockQuant.getLotId());
+            //TODO fuck
+            deliveryDetail.setLotNum(stockQuant == null ? "" : "");
             deliveryDetail.setDeliveryNum(detail.getQcQty());
             deliveryDetail.setInserttime(new Date());
             deliveryDetails.add(deliveryDetail);

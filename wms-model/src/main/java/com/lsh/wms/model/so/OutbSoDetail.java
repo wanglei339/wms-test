@@ -27,6 +27,8 @@ public class OutbSoDetail implements Serializable {
     private BigDecimal orderQty;
 	/** 包装单位 */
     private BigDecimal packUnit;
+	/** 商品单价,未税 */
+	private BigDecimal price;
 	/** 批次号 */
     private String lotNum;
 	/**  */
@@ -156,5 +158,13 @@ public class OutbSoDetail implements Serializable {
 
 	public void setItemId(Long itemId) {
 		this.itemId = itemId;
+	}
+
+	public BigDecimal getPrice() {
+		return price;
+	}
+
+	public void setPrice(BigDecimal price) {
+		this.price = price;
 	}
 }

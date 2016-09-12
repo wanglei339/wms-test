@@ -25,7 +25,7 @@
 
     <!-- 注册中心配置 -->
     <!-- http://dubbo.io/User+Guide-zh.htm#UserGuide-zh-%3Cdubbo%3Aregistry%2F%3E -->
-    <dubbo:registry address="zookeeper://${zookeeper.ip}:2181"/>
+    <dubbo:registry address="zookeeper://${zookeeper.ip}:2181" check="false"/>
 
     <!-- 监控中心配置 -->
     <!-- http://dubbo.io/User+Guide-zh.htm#UserGuide-zh-%3Cdubbo%3Amonitor%2F%3E -->
@@ -43,6 +43,7 @@
     <dubbo:protocol name="rest" port="9003" contextpath="api/wms/java/v1" server="tomcat"
                     extension="com.alibaba.dubbo.rpc.protocol.rest.support.LoggingFilter,com.lsh.wms.api.service.exception.ValidateExceptionMapper,com.lsh.wms.api.service.exception.BizExceptionMapper,com.lsh.wms.api.service.exception.BaseExceptionMapper,com.lsh.wms.api.service.exception.SysExceptionMapper"/>
 
+    <dubbo:consumer check="false" />
     <!-- 扫描注解包路径，多个包用逗号分隔，不填pacakge表示扫描当前ApplicationContext中所有的类 -->
     <dubbo:annotation package="com.lsh.wms.service"/>
 

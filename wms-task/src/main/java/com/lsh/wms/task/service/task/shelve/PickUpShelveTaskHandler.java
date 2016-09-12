@@ -13,6 +13,7 @@ import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.task.service.handler.AbsTaskHandler;
@@ -77,6 +78,8 @@ public class PickUpShelveTaskHandler extends AbsTaskHandler {
 
         ObjUtils.bean2bean(quant, taskInfo);
 
+        taskInfo.setQty(stockQuantService.getQuantQtyByContainerId(containerId));
+
         taskInfo.setTaskName("拆零上架任务[ " + taskInfo.getContainerId() + "]");
         taskInfo.setType(TaskConstant.TYPE_PICK_UP_SHELVE);
         taskInfo.setFromLocationId(quant.getLocationId());
@@ -87,6 +90,8 @@ public class PickUpShelveTaskHandler extends AbsTaskHandler {
         super.create(taskEntry);
     }
     public void calcPerformance(TaskInfo taskInfo) {
-        taskInfo.setTaskQty(taskInfo.getQty().divide(taskInfo.getPackUnit(), BigDecimal.ROUND_DOWN));
+        taskInfo.setTaskEaQty(taskInfo.getQty());
+        taskInfo.setTaskPackQty(taskInfo.getTaskQty().divide(taskInfo.getPackUnit(),2,BigDecimal.ROUND_DOWN));
+        taskInfo.setQtyDone(taskInfo.getQty().divide(taskInfo.getPackUnit(), 2, BigDecimal.ROUND_DOWN));
     }
 }

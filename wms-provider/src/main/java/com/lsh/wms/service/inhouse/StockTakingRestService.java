@@ -12,6 +12,7 @@ import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.inhouse.IStockTakingRestService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.constant.LocationConstant;
@@ -52,6 +53,8 @@ public class StockTakingRestService implements IStockTakingRestService {
     private static final Logger logger = LoggerFactory.getLogger(StockTakingRestService.class);
 
     @Autowired
+    private RedisStringDao redisStringDao;
+    @Autowired
     private StockTakingService stockTakingService;
 
     @Autowired
@@ -70,20 +73,21 @@ public class StockTakingRestService implements IStockTakingRestService {
     private StockTakingTaskService stockTakingTaskService;
 
     @Autowired
-    private ItemService itemService;
-
-    @Autowired
     private CsiSkuService skuService;
 
     @POST
     @Path("create")
     public String create(StockTakingRequest request) throws BizCheckedException{
 
-        StockTakingHead head = stockTakingService.getHeadById(request.getTakingId());
-        if(head!=null){
+        String key = request.getTakingId().toString();
+
+        String takingId = redisStringDao.get(key);
+        if(takingId != null){
             return JsonUtils.TOKEN_ERROR("请勿重复提交");
         }
-        head = new StockTakingHead();
+
+        redisStringDao.set(key,key);
+        StockTakingHead head = new StockTakingHead();
         ObjUtils.bean2bean(request, head);
         List<StockTakingDetail> detailList = prepareDetailList(head);
         stockTakingService.insertHead(head);

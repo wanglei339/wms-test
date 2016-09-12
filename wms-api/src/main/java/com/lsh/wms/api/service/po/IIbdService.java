@@ -11,4 +11,6 @@ import java.util.Map;
  */
 public interface IIbdService {
     BaseResponse add(IbdRequest request)throws BizCheckedException;
+
+    String Test();
 }

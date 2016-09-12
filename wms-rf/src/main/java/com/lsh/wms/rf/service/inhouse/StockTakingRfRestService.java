@@ -5,6 +5,9 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.wms.api.model.stock.StockItem;
+import com.lsh.wms.api.model.stock.StockRequest;
+import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
@@ -76,6 +79,12 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
     private ItemService itemService;
     @Reference
     private ISysUserRpcService iSysUserRpcService;
+
+    @Autowired
+    private BaseinfoLocationWarehouseService baseinfoLocationWarehouseService;
+
+//    @Reference
+//    private IIbdBackService ibdBackService;
 
 
     @POST
@@ -233,6 +242,8 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         }
         Long round = takingTask.getRound();
         queryMap.put("round", round);
+        queryMap.put("isValid",1L);
+        queryMap.put("takingId",takingTask.getTakingId());
         List<StockTakingTask> takingTasks =stockTakingTaskService.getTakingTask(queryMap);
         List<Long> taskIdList = new ArrayList<Long>();
         for(StockTakingTask takingtask:takingTasks){
@@ -342,20 +353,36 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         StockTakingHead head = stockTakingService.getHeadById(stockTakingId);
         head.setStatus(3L);
         List<StockMove> moveList = new ArrayList<StockMove>();
+        //盘亏 盘盈的分成两个list items为盘亏 items1盘盈
+        List<StockItem> itemsLoss = new ArrayList<StockItem>();
+        List<StockItem> itemsWin = new ArrayList<StockItem>();
+        StockRequest request = new StockRequest();
+
         for (StockTakingDetail detail : detailList) {
             if(detail.getItemId()==0L){
                 continue;
             }
+            StockItem stockItem = new StockItem();
             if (detail.getSkuId().equals(detail.getRealSkuId())) {
                 StockMove move = new StockMove();
                 move.setTaskId(detail.getTakingId());
                 move.setSkuId(detail.getSkuId());
                 move.setItemId(detail.getItemId());
                 move.setStatus(TaskConstant.Done);
+
+
+                BaseinfoItem item = itemService.getItem(move.getItemId());
                 if (detail.getTheoreticalQty().compareTo(detail.getRealQty()) > 0) {
                     move.setQty(detail.getTheoreticalQty().subtract(detail.getRealQty()));
                     move.setFromLocationId(detail.getLocationId());
                     move.setToLocationId(locationService.getInventoryLostLocationId());
+                    //组装回传物美的数据
+
+                    stockItem.setEntryQnt(detail.getTheoreticalQty().subtract(detail.getRealQty()).toString());
+                    stockItem.setEntryUom("EA");
+
+                    stockItem.setMaterialNo(item.getSkuCode());
+                    itemsLoss.add(stockItem);
                 } else {
                     StockLot lot = lotService.getStockLotByLotId(detail.getLotId());
                     move.setLot(lot);
@@ -363,6 +390,11 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
                     move.setFromLocationId(locationService.getInventoryLostLocationId());
                     move.setToLocationId(detail.getLocationId());
                     move.setToContainerId(detail.getContainerId());
+
+                    stockItem.setEntryQnt(detail.getRealQty().subtract(detail.getTheoreticalQty()).toString());
+                    stockItem.setMaterialNo(item.getSkuCode());
+                    stockItem.setEntryUom("EA");
+                    itemsWin.add(stockItem);
                 }
                 moveList.add(move);
             } else {
@@ -381,10 +413,37 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
                 moveLoss.setToLocationId(detail.getLocationId());
                 moveLoss.setQty(detail.getRealQty());
                 moveList.add(moveLoss);
+
             }
         }
-        moveService.move(moveList);
+        try {
+            moveService.move(moveList);
+        }catch (Exception e) {
+            head.setStatus(4L);
+            stockTakingService.updateHead(head);
+            logger.error(e.getMessage());
+            throw  new BizCheckedException("2550099");
+        }
         stockTakingService.updateHead(head);
+//        //组装信息 回传物美
+//        BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) baseinfoLocationWarehouseService.getBaseinfoItemLocationModelById(1L);
+//        String warehouseName = warehouse.getWarehouseName();
+//
+//        if(itemsLoss.size()>0){
+//            request.setItems(itemsLoss);
+//            request.setMoveType(String.valueOf(IntegrationConstan.LOSS));
+//            request.setPlant(warehouseName);
+//            ibdBackService.createOrderByPost(request,null,IntegrationConstan.URL_STOCKCHANGE);
+//        }
+//
+//        if (itemsWin.size()>0){
+//            request.setItems(itemsWin);
+//            request.setMoveType(String.valueOf(IntegrationConstan.WIN));
+//            request.setPlant(warehouseName);
+//            ibdBackService.createOrderByPost(request,null,IntegrationConstan.URL_STOCKCHANGE);
+//        }
+
+
     }
 
     private boolean chargeDifference(Long stockTakingId, Long round) {
@@ -433,6 +492,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         for(StockTakingDetail detail:detailList) {
             TaskInfo taskInfo = new TaskInfo();
             taskInfo.setPlanId(head.getTakingId());
+            taskInfo.setTaskName("盘点任务["+taskInfo.getLocationId()+"]");
             taskInfo.setDueTime(dueTime);
             taskInfo.setPlanner(head.getPlanner());
             taskInfo.setStatus(1L);

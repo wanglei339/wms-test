@@ -81,15 +81,12 @@ public class StockTransferCore {
         StockQuant quant = quants.get(0);
         plan.setPackUnit(quant.getPackUnit());
         plan.setPackName(quant.getPackName());
+        plan.setQty(plan.getUomQty());
         if (plan.getSubType().compareTo(1L) == 0) {
             BigDecimal total = stockQuantRpcService.getQty(condition);
-            plan.setQty(total.divide(quant.getPackUnit(), BigDecimal.ROUND_DOWN));
-        } else if (plan.getSubType().compareTo(2L) == 0) {
-            plan.setQty(plan.getUomQty());
+            plan.setQty(total.divide(quant.getPackUnit(), 0, BigDecimal.ROUND_DOWN));
         } else if (plan.getSubType().compareTo(3L) == 0) {
-            plan.setPackUnit(BigDecimal.ONE);
             plan.setPackName("EA");
-            plan.setQty(plan.getUomQty());
         }
     }
 
@@ -125,18 +122,9 @@ public class StockTransferCore {
             if (quant.getItemId().compareTo(taskInfo.getItemId()) != 0) {
                 throw new BizCheckedException("2040005");
             }
-
         } else {
             if (taskInfo.getFromLocationId().compareTo(fromLocationId) != 0) {
                 throw new BizCheckedException("2040005");
-            }
-            condition.setLocationId(taskInfo.getFromLocationId());
-            List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
-            if(quantList!=null) {
-                for (StockQuant quant : quantList) {
-                    quant.setReserveTaskId(0L);
-                    quantService.update(quant);
-                }
             }
         }
         Long containerId = taskInfo.getContainerId();
@@ -145,10 +133,12 @@ public class StockTransferCore {
             moveRpcService.moveWholeContainer(containerId, taskId, uid, fromLocationId, toLocationId);
         } else {
             BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString());
-            if (qtyDone.compareTo(BigDecimal.ZERO) <= 0) {
+            if (qtyDone.compareTo(BigDecimal.ZERO) <= 0 ||
+                    qtyDone.setScale(0, BigDecimal.ROUND_DOWN).compareTo(qtyDone) != 0) {
                 throw new BizCheckedException("2550034");
             }
-            if (taskInfo.getQty().compareTo(qtyDone) < 0) {
+            BigDecimal total = stockQuantRpcService.getQty(condition);
+            if (total.compareTo(qtyDone) < 0) {
                 throw new BizCheckedException("2550008");
             }
             StockMove move = new StockMove();
@@ -195,13 +185,26 @@ public class StockTransferCore {
         if (taskInfo.getToLocationId().compareTo(toLocationId) != 0) {
             throw new BizCheckedException("2040007");
         }
+        BaseinfoLocation location;
+        try {
+            location = locationService.getLocation(toLocationId);
+        } catch (BizCheckedException e) {
+            throw new BizCheckedException("2060012");
+        }
+        if (location == null) {
+            throw new BizCheckedException("2060012");
+        }
+        if (location.getCanUse().equals(LocationConstant.CANNOT_USE)) {
+            throw new BizCheckedException("2550006");
+        }
         Long containerId = taskInfo.getContainerId();
         Long fromLocationId = locationService.getWarehouseLocationId();
         if (taskInfo.getSubType().compareTo(1L) == 0) {
             moveRpcService.moveWholeContainer(containerId, taskId, uid, fromLocationId, toLocationId);
         } else {
             BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString());
-            if (qtyDone.compareTo(BigDecimal.ZERO) <= 0) {
+            if (qtyDone.compareTo(BigDecimal.ZERO) <= 0 ||
+                    qtyDone.setScale(0, BigDecimal.ROUND_DOWN).compareTo(qtyDone) != 0) {
                 throw new BizCheckedException("2550034");
             }
             if (taskInfo.getQtyDone().compareTo(qtyDone) != 0) {
@@ -279,7 +282,6 @@ public class StockTransferCore {
             order++;
             taskInfoDao.update(entry.getTaskInfo());
         }
-
     }
 
     public Long getFirstOutbound(Long staffId) {

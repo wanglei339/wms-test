@@ -13,36 +13,37 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by lixin-mac on 16/9/6.
  */
-@Service(protocol = "dubbo")
+@Service(protocol = "dubbo",async=true)
 public class IbdBackService implements IIbdBackService{
     private static Logger logger = LoggerFactory.getLogger(IbdBackService.class);
 
-    public void createOrderByPost(IbdBackRequest request, String token){
+    public String createOrderByPost(Object request, String token,String url){
 
         String jsonPoCreate = this.initOrderCreate(request);
 
         //token 缓存 2小时 获取token
 
         //可配置
-        String url = "http://service.wumart.com/order/lianshangorder";
+        //String url = "http://service.wumart.com/wms/ibd";//ibd _url
+        //String url = "http://service.wumart.com/wms/stockChange";// 报损报溢的
+
 
         if (token == null || token.equals("")){
             token = this.getToken(url);
         }
 
+        OrderResponse orderResponse = new OrderResponse();
         if(token != null && !token.equals("")){
-//            addLog(LOG_TYPE.INFO, "************** order wumart ");
             System.out.println("order wumart CreateOrder json : " + jsonPoCreate);
             String jsonStr = HttpUtil.doPost(url,jsonPoCreate,token);
             System.out.println("order wumart res " + jsonStr);
-            OrderResponse orderResponse = JSON.parseObject(jsonStr, OrderResponse.class);
+            orderResponse = JSON.parseObject(jsonStr, OrderResponse.class);
             System.out.println("orderResponse " + orderResponse);
-            //addLog(LOG_TYPE.INFO, "orderResponse = " + JSON.toJSONString(orderResponse));
             logger.info("orderResponse = " + JSON.toJSONString(orderResponse));
         }else{
-            //addLog(LOG_TYPE.INFO, "************** token is null ");
             logger.info("************** token is null ");
         }
+        return JSON.toJSONString(orderResponse);
 
     }
 
@@ -60,7 +61,7 @@ public class IbdBackService implements IIbdBackService{
     }
 
 
-    private String initOrderCreate(IbdBackRequest request){
+    private String initOrderCreate(Object request){
 
 
         return JSON.toJSONString(request);

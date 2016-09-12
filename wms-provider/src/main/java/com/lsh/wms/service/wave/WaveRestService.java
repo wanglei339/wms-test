@@ -7,16 +7,21 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.wms.api.model.so.ObdBackRequest;
+import com.lsh.wms.api.model.so.ObdItem;
 import com.lsh.wms.api.model.so.SoItem;
 import com.lsh.wms.api.model.so.SoRequest;
 import com.lsh.wms.api.service.po.IIbdBackService;
 import com.lsh.wms.api.service.wave.IWaveRestService;
 import com.lsh.wms.core.constant.WaveConstant;
+import com.lsh.wms.core.service.inventory.InventoryRedisService;
+import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
 import com.lsh.wms.core.service.pick.PickModelService;
 import com.lsh.wms.core.service.pick.PickZoneService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.core.service.wave.WaveTemplateService;
+import com.lsh.wms.model.baseinfo.BaseinfoLocationWarehouse;
 import com.lsh.wms.model.pick.*;
 import com.lsh.wms.model.so.OutbSoDetail;
 import com.lsh.wms.model.so.OutbSoHeader;
@@ -32,6 +37,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -58,8 +64,14 @@ public class WaveRestService implements IWaveRestService {
     private WaveTemplateService waveTemplateService;
     @Autowired
     private WaveRpcService waveRpcService;
+    @Autowired
+    private InventoryRedisService inventoryRedisService;
 
-//    @Reference
+    @Autowired
+    private BaseinfoLocationWarehouseService baseinfoLocationWarehouseService;
+
+
+//    @Reference(check = false)
 //    private IIbdBackService ibdBackService;
 
 
@@ -102,7 +114,10 @@ public class WaveRestService implements IWaveRestService {
             throw new BizCheckedException("2040001");
         }
         if(head.getStatus() == WaveConstant.STATUS_RELEASE_SUCC
-                || head.getStatus() == WaveConstant.STATUS_SUCC){
+                || head.getStatus() == WaveConstant.STATUS_SUCC
+                || head.getStatus() == WaveConstant.STATUS_PICK_SUCC
+                || head.getStatus() == WaveConstant.STATUS_QC_SUCC
+                ){
             //可以发
         }else{
             throw new BizCheckedException("2040013");
@@ -110,39 +125,53 @@ public class WaveRestService implements IWaveRestService {
         List<WaveDetail> detailList = waveService.getDetailsByWaveId(iWaveId);
         Set<Long> orderIds = new HashSet<Long>();
         //将orderId取出 放入set集合中
+        Map<Long,Object> map = new HashMap<Long, Object>();
         for(WaveDetail detail : detailList){
             if ( detail.getQcExceptionDone() == 0){
                 throw new BizCheckedException("2040014");
             }
+            map.put(detail.getRefDetailId(),detail.getQcQty());
             orderIds.add(detail.getOrderId());
         }
         //发起来
         //必须保证数据只能发货一次,保证方法为生成发货单完成标示在行项目中,调用时将忽略已经标记生成的行项目
         //如此做将可以允许重复发货
         waveService.shipWave(head, detailList);
+        //更新可用库存
+        inventoryRedisService.onDelivery(detailList);
         //传送给外部系统,其实比较好的方式是扔出来到队列里,外部可以选择性处理.
 
 //        // TODO: 16/9/7 回传物美
 //        for(Long orderId : orderIds){
 //            OutbSoHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
-//            SoRequest soRequest = new SoRequest();
-//            ObjUtils.bean2bean(soHeader,soRequest);
+//            //组装OBD反馈信息
+//            ObdBackRequest request = new ObdBackRequest();
+//            BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) baseinfoLocationWarehouseService.getBaseinfoItemLocationModelById(1L);
+//            String warehouseName = warehouse.getWarehouseName();
+//            request.setPlant(warehouseName);//仓库
+//            request.setBusinessId(soHeader.getOrderOtherId());
+//            request.setOfcId(soHeader.getOrderOtherRefId());//参考单号
+//            request.setAgPartnNumber(soHeader.getOrderUser());//用户
 //
 //            //查询明细。
 //            List<OutbSoDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
-//            List<SoItem> items = new ArrayList<SoItem>();
+//            List<ObdItem> items = new ArrayList<ObdItem>();
 //            for (OutbSoDetail soDetail : soDetails){
-//                SoItem soItem = new SoItem();
-//                ObjUtils.bean2bean(soDetail,soItem);
-//                //查询waveDetail找出实际出库的数量
-//                Map<String,Object> mapquery = new HashMap<String, Object>();
-//                mapquery.put("");
+//                ObdItem soItem = new ObdItem();
+//                soItem.setMateriaNo(soDetail.getSkuCode());//skuCode
+//                soItem.setMeasuringUnit("EA");
+//                soItem.setPrice(soDetail.getPrice());
+//                //转化成ea
+//                soItem.setQuantity(soDetail.getOrderQty().multiply(soDetail.getPackUnit()).toString());
+//                //实际出库数量
+//                soItem.setSendQuantity((String) map.get(soDetail.getDetailOtherId()));
 //
+//                //查询waveDetail找出实际出库的数量
 //                items.add(soItem);
 //            }
 //            //查询waveDetail找出实际出库的数量
-//            soRequest.setItems(items);
-//            ibdBackService.createOrderByPost(soRequest,null);
+//            request.setItems(items);
+//            ibdBackService.createOrderByPost(request,null,IntegrationConstan.URL_OBD);
 //        }
 
 

@@ -9,9 +9,17 @@ public class IbdItem implements Serializable {
     //上游细单号
     private String poItem;
     //上游商品编码
-    private String materiaNo;
+    private String materialNo;
     //收货数量
     private String entryQnt;
+
+    public IbdItem(){}
+
+    public IbdItem(String poItem, String materialNo, String entryQnt) {
+        this.poItem = poItem;
+        this.materialNo = materialNo;
+        this.entryQnt = entryQnt;
+    }
 
     public String getEntryQnt() {
         return entryQnt;
@@ -21,12 +29,12 @@ public class IbdItem implements Serializable {
         this.entryQnt = entryQnt;
     }
 
-    public String getMateriaNo() {
-        return materiaNo;
+    public String getMaterialNo() {
+        return materialNo;
     }
 
-    public void setMateriaNo(String materiaNo) {
-        this.materiaNo = materiaNo;
+    public void setMaterialNo(String materialNo) {
+        this.materialNo = materialNo;
     }
 
     public String getPoItem() {

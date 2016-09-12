@@ -2,31 +2,25 @@ package com.lsh.wms.rpc.service.stock;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
-import com.alibaba.fastjson.JSON;
-
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
+import com.lsh.wms.api.service.stock.IStockQuantRestService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
-import com.lsh.wms.core.service.stock.StockLotService;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
-import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.stock.StockLot;
-import com.lsh.wms.model.stock.StockQuant;
-import com.lsh.wms.api.service.stock.IStockQuantRestService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.stock.StockQuantMoveRel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.parsing.Location;
+
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mali on 16/6/29.
@@ -53,8 +47,8 @@ public class StockQuantRestService implements IStockQuantRestService {
 
     @POST
     @Path("getOnhandQty")
-         public String getOnhandQty(StockQuantCondition condition) throws BizCheckedException {
-        BigDecimal total =  stockQuantRpcService.getQty(condition);
+    public String getOnhandQty(StockQuantCondition condition) throws BizCheckedException {
+        BigDecimal total = stockQuantRpcService.getQty(condition);
         return JsonUtils.SUCCESS(total);
     }
 
@@ -105,7 +99,7 @@ public class StockQuantRestService implements IStockQuantRestService {
 
     @POST
     @Path("toDefect")
-    public  String toDefect(Map<String, Object> mapCondition) throws BizCheckedException {
+    public String toDefect(Map<String, Object> mapCondition) throws BizCheckedException {
         return JsonUtils.SUCCESS(stockQuantRpcService.toDefect(mapCondition));
     }
 
@@ -118,7 +112,7 @@ public class StockQuantRestService implements IStockQuantRestService {
     @GET
     @Path("getHistory")
     public String getHistory(@QueryParam("quant_id") Long quant_id) {
-        List<StockQuantMoveRel> moveRels=stockQuantService.getHistoryById(quant_id);
+        List<StockQuantMoveRel> moveRels = stockQuantService.getHistoryById(quant_id);
         return JsonUtils.SUCCESS(moveRels);
     }
 
