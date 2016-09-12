@@ -119,6 +119,15 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     }
 
     public boolean checkQty(StockTransferPlan plan, BigDecimal total) throws BizCheckedException {
+        BigDecimal taskQty = BigDecimal.ZERO;
+        Long taskId = plan.getTaskId();
+        if (!taskId.equals(0L)) {
+            TaskEntry entry = taskRpcService.getTaskEntryById(taskId);
+            if (entry == null) {
+                throw new BizCheckedException("3040001");
+            }
+            taskQty = entry.getTaskInfo().getQty();
+        }
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("fromLocationId", plan.getFromLocationId());
         mapQuery.put("itemId", plan.getItemId());
@@ -127,7 +136,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (plan.getSubType().equals(3L)) {
             packUnit = BigDecimal.ONE;
         }
-        requiredQty = (reservedQty.add(requiredQty)).multiply(packUnit). setScale(0, BigDecimal.ROUND_HALF_UP);
+        requiredQty = (reservedQty.subtract(taskQty).add(requiredQty)).multiply(packUnit). setScale(0, BigDecimal.ROUND_HALF_UP);
         return requiredQty.compareTo(total) <= 0;
 }
 
