@@ -46,7 +46,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -230,7 +229,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         Long containerId = 0L;
         Long taskId = 0L;
         try {
-            uId = Long.valueOf(mapQuery.get("uId").toString());
+            uId =  Long.valueOf(RequestUtils.getHeader("uid"));
         }catch (Exception e) {
             logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("参数传递格式有误");
@@ -354,7 +353,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         move.setFromContainerId(quant.getContainerId());
         move.setToContainerId(containerId);
         stockQuantService.move(move);
-        locationService.unlockLocation(move.getToLocationId());
+        locationService.unlockLocation(detail.getAllocLocationId());
         shelveTaskService.updateDetail(detail);
 
 

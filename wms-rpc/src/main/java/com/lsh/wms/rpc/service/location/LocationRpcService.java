@@ -76,23 +76,23 @@ public class LocationRpcService implements ILocationRpcService {
         return locationService.updateLocation(location);
     }
 
-    // 分配暂存区location
+    // 分配暂存区location TODO 多个暂存区分配哪个
     public BaseinfoLocation assignTemporary() {
         return locationService.getAvailableLocationByType(LocationConstant.TEMPORARY);
     }
 
-    // 分配地堆区location
+    // 分配地堆区location TODO 多个地堆分配哪个(现在返回的是一个)
     public BaseinfoLocation assignFloor(StockQuant quant) throws BizCheckedException {
         return locationService.getAvailableFloorLocation(quant.getLotId());
     }
 
 
-    //分配退货区
+    //分配退货区 TODO 两个退货区分配哪个
     public BaseinfoLocation getBackLocation() {
         return locationService.getBackLocation();
     }
 
-    //分配残次区
+    //分配残次区 TODO 两个残次区分配哪个
     public BaseinfoLocation getDefectiveLocation() {
         return locationService.getDefectiveLocation();
     }

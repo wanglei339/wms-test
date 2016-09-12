@@ -7,11 +7,8 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.model.stock.StockItem;
 import com.lsh.wms.api.model.stock.StockRequest;
-import com.lsh.wms.api.service.po.IIbdBackService;
-import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
 import com.lsh.wms.core.service.stock.StockLotService;
-import com.lsh.wms.model.baseinfo.BaseinfoLocationWarehouse;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.system.SysUser;
@@ -419,7 +416,14 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
 
             }
         }
-        moveService.move(moveList);
+        try {
+            moveService.move(moveList);
+        }catch (Exception e) {
+            head.setStatus(4L);
+            stockTakingService.updateHead(head);
+            logger.error(e.getMessage());
+            throw  new BizCheckedException("2550099");
+        }
         stockTakingService.updateHead(head);
 //        //组装信息 回传物美
 //        BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) baseinfoLocationWarehouseService.getBaseinfoItemLocationModelById(1L);
@@ -429,14 +433,14 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
 //            request.setItems(itemsLoss);
 //            request.setMoveType(String.valueOf(IntegrationConstan.LOSS));
 //            request.setPlant(warehouseName);
-//            ibdBackService.createOrderByPost(request,null,IntegrationConstan.URL_STOCKCHANGE);
+//            ibdBackService.createOrderByPost(request,IntegrationConstan.URL_STOCKCHANGE);
 //        }
 //
 //        if (itemsWin.size()>0){
 //            request.setItems(itemsWin);
 //            request.setMoveType(String.valueOf(IntegrationConstan.WIN));
 //            request.setPlant(warehouseName);
-//            ibdBackService.createOrderByPost(request,null,IntegrationConstan.URL_STOCKCHANGE);
+//            ibdBackService.createOrderByPost(request,IntegrationConstan.URL_STOCKCHANGE);
 //        }
 
 

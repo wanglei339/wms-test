@@ -5,6 +5,8 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.stock.IStockLotRestService;
 import com.lsh.wms.model.stock.StockLot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
@@ -22,6 +24,8 @@ import java.util.Map;
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 
 public class StockLotRestService implements IStockLotRestService {
+
+    private static Logger logger = LoggerFactory.getLogger(StockLotRpcService.class);
 
     @Autowired
     private StockLotRpcService stockLotRpcService;
@@ -50,32 +54,32 @@ public class StockLotRestService implements IStockLotRestService {
     @POST
     @Path("insertLot")
     public String insertLot(StockLot lot) {
-        boolean isTrue = stockLotRpcService.insert(lot);
-        if (isTrue) {
-            return JsonUtils.SUCCESS();
-        } else {
-            return JsonUtils.EXCEPTION_ERROR("insertFail");
+        try {
+            stockLotRpcService.insert(lot);
+        } catch (Exception e) {
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("insert failed");
         }
+        return JsonUtils.SUCCESS();
     }
 
     @POST
     @Path("updateLot")
     public String updateLot(StockLot lot) {
-        boolean isTrue = stockLotRpcService.update(lot);
-        if (isTrue) {
-            return JsonUtils.SUCCESS();
-        } else {
-            return JsonUtils.EXCEPTION_ERROR("updateFail");
+        try {
+            stockLotRpcService.update(lot);
+        } catch (Exception e) {
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("update failed");
         }
+        return JsonUtils.SUCCESS();
     }
 
     @POST
     @Path("searchLot")
     public String searchLot(Map<String, Object> mapQuery) {
-
-        List<StockLot> StockLotlist = stockLotRpcService.search(mapQuery);
-        return JsonUtils.SUCCESS(StockLotlist);
+        List<StockLot> lotList = stockLotRpcService.search(mapQuery);
+        return JsonUtils.SUCCESS(lotList);
     }
-
 
 }

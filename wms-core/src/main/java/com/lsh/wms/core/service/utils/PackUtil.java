@@ -1,11 +1,11 @@
-package com.lsh.wms.core.service.stock;
+package com.lsh.wms.core.service.utils;
 
 import java.math.BigDecimal;
 
 /**
  * Created by zengwenjun on 16/9/11.
  */
-public class StockUtil {
+public class PackUtil {
     public static String PackUnit2Uom(BigDecimal packUit, String eachUnitName){
         if(eachUnitName.compareTo("EA") == 0){
             return String.format("H%02d", packUit.intValue());
@@ -20,6 +20,9 @@ public class StockUtil {
 
     public static BigDecimal Uom2PackUnit(String uom){
         byte[] bytes = uom.getBytes();
+        if(uom.compareTo("EA") == 0){
+            return new BigDecimal("1");
+        }
         if(bytes[0] != 'H'){
             return null;
         }
@@ -52,8 +55,8 @@ public class StockUtil {
     }
 
     public static BigDecimal EAQty2UomQty(BigDecimal qty, String uom){
-        BigDecimal packUint = StockUtil.Uom2PackUnit(uom);
-        return StockUtil.EAQty2UomQty(qty, packUint);
+        BigDecimal packUint = PackUtil.Uom2PackUnit(uom);
+        return PackUtil.EAQty2UomQty(qty, packUint);
     }
 
     public static BigDecimal UomQty2EAQty(BigDecimal uomQty, BigDecimal packUint){
@@ -61,8 +64,8 @@ public class StockUtil {
     }
 
     public static BigDecimal UomQty2EAQty(BigDecimal uomQty, String uom){
-        BigDecimal packUint = StockUtil.Uom2PackUnit(uom);
-        return StockUtil.UomQty2EAQty(uomQty, packUint);
+        BigDecimal packUint = PackUtil.Uom2PackUnit(uom);
+        return PackUtil.UomQty2EAQty(uomQty, packUint);
     }
 
 }

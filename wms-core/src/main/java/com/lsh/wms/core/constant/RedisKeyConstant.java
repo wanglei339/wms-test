@@ -40,6 +40,8 @@ public class RedisKeyConstant {
      */
     public static final String USER_UID_TOKEN = "user:{0}:token";
 
+    public static final String WM_BACK_TOKEN = "wm:token";
+
     /********媒资相关********/
     public static final String MD_VIDEO_INFO = "md:video:info:{0}";
     public static final String MD_IMAGE_INFO = "md:image:info:{0}";
