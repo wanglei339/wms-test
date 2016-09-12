@@ -136,9 +136,9 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (plan.getSubType().equals(3L)) {
             packUnit = BigDecimal.ONE;
         }
-        requiredQty = (reservedQty.subtract(taskQty).add(requiredQty)).multiply(packUnit). setScale(0, BigDecimal.ROUND_HALF_UP);
+        requiredQty = (reservedQty.subtract(taskQty).add(requiredQty)).multiply(packUnit).setScale(0, BigDecimal.ROUND_HALF_UP);
         return requiredQty.compareTo(total) <= 0;
-}
+    }
 
     public boolean checkPlan(StockTransferPlan plan) throws BizCheckedException {
         BigDecimal uomQty = plan.getUomQty();
