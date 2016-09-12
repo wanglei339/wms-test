@@ -35,7 +35,7 @@ public class StockTransferProviderRestService implements IStockTransferProviderR
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            return JsonUtils.TOKEN_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS();
     }
@@ -49,7 +49,7 @@ public class StockTransferProviderRestService implements IStockTransferProviderR
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            return JsonUtils.TOKEN_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS();
     }
@@ -63,7 +63,7 @@ public class StockTransferProviderRestService implements IStockTransferProviderR
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            return JsonUtils.TOKEN_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS();
     }
