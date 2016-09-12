@@ -4,7 +4,6 @@ import com.lsh.base.common.utils.DateUtils;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Date;
 
 public class AtticShelveTaskDetail implements Serializable {
 

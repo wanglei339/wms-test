@@ -76,8 +76,6 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
     @Autowired
     private AtticShelveTaskDetailService shelveTaskService;
     @Autowired
-    private ItemLocationService itemLocationService;
-    @Autowired
     private LocationService locationService;
     @Autowired
     private StockLotService lotService;
