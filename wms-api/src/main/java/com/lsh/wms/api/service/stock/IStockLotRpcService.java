@@ -10,8 +10,7 @@ import java.util.Map;
  */
 public interface IStockLotRpcService {
     StockLot getLotByLotId(long iLotId);
-    boolean insert(StockLot lot);
-    boolean update(StockLot lot);
-    List search(Map<String, Object> mapQuery);
-
+    void insert(StockLot lot);
+    void update(StockLot lot);
+    List<StockLot> search(Map<String, Object> mapQuery);
 }

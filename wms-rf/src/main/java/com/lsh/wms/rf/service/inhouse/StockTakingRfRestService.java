@@ -7,11 +7,8 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.model.stock.StockItem;
 import com.lsh.wms.api.model.stock.StockRequest;
-import com.lsh.wms.api.service.po.IIbdBackService;
-import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
 import com.lsh.wms.core.service.stock.StockLotService;
-import com.lsh.wms.model.baseinfo.BaseinfoLocationWarehouse;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.system.SysUser;
@@ -424,6 +421,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         }catch (Exception e) {
             head.setStatus(4L);
             stockTakingService.updateHead(head);
+            logger.error(e.getMessage());
             throw  new BizCheckedException("2550099");
         }
         stockTakingService.updateHead(head);

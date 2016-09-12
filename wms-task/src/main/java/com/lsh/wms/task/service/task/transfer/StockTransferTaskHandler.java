@@ -70,11 +70,11 @@ public class StockTransferTaskHandler extends AbsTaskHandler {
 
     public void calcPerformance(TaskInfo taskInfo) {
         if (taskInfo.getPackName().equals("EA")) {
-            taskInfo.setTaskPackQty(taskInfo.getQty().divide(taskInfo.getPackUnit(), 2 , BigDecimal.ROUND_DOWN));
-            taskInfo.setTaskEaQty(taskInfo.getQty());
+            taskInfo.setTaskPackQty(taskInfo.getQtyDone().divide(taskInfo.getPackUnit(), 2, BigDecimal.ROUND_DOWN));
+            taskInfo.setTaskEaQty(taskInfo.getQtyDone());
         } else {
-            taskInfo.setTaskPackQty(taskInfo.getQty());
-            taskInfo.setTaskEaQty(taskInfo.getQty().multiply(taskInfo.getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP));
+            taskInfo.setTaskPackQty(taskInfo.getQtyDone());
+            taskInfo.setTaskEaQty(taskInfo.getQtyDone().multiply(taskInfo.getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP));
         }
     }
 }
