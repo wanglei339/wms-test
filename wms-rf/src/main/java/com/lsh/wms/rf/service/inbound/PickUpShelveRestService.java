@@ -233,7 +233,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
        // Long containerId = 0L;
         Long taskId = 0L;
         try {
-            uId = Long.valueOf(mapQuery.get("uId").toString());
+            uId = Long.valueOf(RequestUtils.getHeader("uid"));
         }catch (Exception e) {
             logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("参数传递格式有误");
@@ -346,7 +346,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         move.setFromContainerId(quant.getContainerId());
         move.setToContainerId(containerId);
         stockQuantService.move(move);
-        locationService.unlockLocation(move.getToLocationId());
+        locationService.unlockLocation(detail.getAllocLocationId());
         shelveTaskService.updateDetail(detail);
 
 
