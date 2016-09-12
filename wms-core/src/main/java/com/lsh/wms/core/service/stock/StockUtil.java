@@ -20,6 +20,9 @@ public class StockUtil {
 
     public static BigDecimal Uom2PackUnit(String uom){
         byte[] bytes = uom.getBytes();
+        if(uom.compareTo("EA") == 0){
+            return new BigDecimal("1");
+        }
         if(bytes[0] != 'H'){
             return null;
         }

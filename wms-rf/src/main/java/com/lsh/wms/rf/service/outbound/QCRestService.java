@@ -144,11 +144,7 @@ public class QCRestService implements IRFQCRestService{
             detail.put("itemId", item.getItemId());
             detail.put("code", item.getCode());
             detail.put("codeType", item.getCodeType());
-            BigDecimal qtyUom = mapItem2PickQty.get(itemId);
-            if(waveDetail.getAllocUnitName().compareTo("EA") != 0){
-                qtyUom = StockUtil.EAQty2UomQty(qtyUom, waveDetail.getAllocUnitName());
-            }
-            detail.put("uomQty", qtyUom);
+            detail.put("uomQty", StockUtil.EAQty2UomQty(mapItem2PickQty.get(itemId), waveDetail.getAllocUnitName()));
             detail.put("uom", waveDetail.getAllocUnitName());
             //TODO packName
             detail.put("itemName", item.getSkuName());
