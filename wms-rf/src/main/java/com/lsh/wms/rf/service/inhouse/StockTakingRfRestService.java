@@ -419,7 +419,13 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
 
             }
         }
-        moveService.move(moveList);
+        try {
+            moveService.move(moveList);
+        }catch (Exception e) {
+            head.setStatus(4L);
+            stockTakingService.updateHead(head);
+            throw  new BizCheckedException("2550099");
+        }
         stockTakingService.updateHead(head);
 //        //组装信息 回传物美
 //        BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) baseinfoLocationWarehouseService.getBaseinfoItemLocationModelById(1L);
