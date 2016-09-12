@@ -284,6 +284,10 @@ public class QCRestService implements IRFQCRestService{
                 }
                 waveService.updateDetail(detail);
             }
+            qcTaskInfo.setExt2(exceptionType);
+            TaskEntry entry = new TaskEntry();
+            entry.setTaskInfo(qcTaskInfo);
+            iTaskRpcService.update(TaskConstant.TYPE_QC, entry);
         }
         //校验qc任务是否完全完成;
         boolean bSucc = true;
@@ -339,11 +343,15 @@ public class QCRestService implements IRFQCRestService{
             qcTaskInfo.setExt5(wrongItemNum);
             qcTaskInfo.setExt4(boxNum);
             qcTaskInfo.setExt3(turnoverBoxNum);
+            if(wrongItemNum > 0){
+                qcTaskInfo.setExt2(3L);
+            }
             TaskEntry entry = new TaskEntry();
             entry.setTaskInfo(qcTaskInfo);
             iTaskRpcService.update(TaskConstant.TYPE_QC, entry);
             iTaskRpcService.done(qcTaskId, qcTaskInfo.getLocationId());
         }
+
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {
                 put("response", true);
