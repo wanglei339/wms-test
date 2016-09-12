@@ -421,6 +421,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         }catch (Exception e) {
             head.setStatus(4L);
             stockTakingService.updateHead(head);
+            logger.error(e.getMessage());
             throw  new BizCheckedException("2550099");
         }
         stockTakingService.updateHead(head);
