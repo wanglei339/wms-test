@@ -70,6 +70,13 @@ public class LocationConstant {
     //阁楼货架层的拣货块
     public static final Long LOFT_STORE_BLOCK = 39L;
 
+    //贵品区
+    public static final Long VALUABLES_AREA = 40L;
+    public static final Long VALUABLES_SHELF = 41L;
+    public static final Long VALUABLES_SHELF_LEVEL = 42L;
+    public static final Long VALUABLES_SHELF_BIN = 43L;
+
+
     //是否能存储
     public static final Integer CAN_STORE = 1;
     public static final Integer CANNOT_STORE = 0;
@@ -131,6 +138,7 @@ public class LocationConstant {
             put(27L,"货架层");
             put(28L,"阁楼层");
             put(34L,"拆零货架层");
+            put(42L,"贵品货架");
         }
     };
 
