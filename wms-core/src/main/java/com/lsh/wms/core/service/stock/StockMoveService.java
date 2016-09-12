@@ -123,6 +123,9 @@ public class StockMoveService {
             locationService.lockLocationById(locationId);
         }
         for (StockMove move : moveList) {
+            if (move.getQty().compareTo(BigDecimal.ZERO) <= 0) {
+                continue;
+            }
             this.create(move);
             if (move.getLot() == null) {
                 quantService.move(move);

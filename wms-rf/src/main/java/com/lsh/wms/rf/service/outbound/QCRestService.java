@@ -135,6 +135,8 @@ public class QCRestService implements IRFQCRestService{
             mapItem2WaveDetail.put(d.getItemId(), d);
         }
 
+        int boxNum = 0;
+        boolean hasEA = false;
         List<Map<String, Object>> undoDetails = new LinkedList<Map<String, Object>>();
         for(Long itemId : mapItem2PickQty.keySet()) {
             WaveDetail waveDetail = mapItem2WaveDetail.get(itemId);
@@ -144,12 +146,21 @@ public class QCRestService implements IRFQCRestService{
             detail.put("itemId", item.getItemId());
             detail.put("code", item.getCode());
             detail.put("codeType", item.getCodeType());
-            detail.put("uomQty", StockUtil.EAQty2UomQty(mapItem2PickQty.get(itemId), waveDetail.getAllocUnitName()));
+            BigDecimal uomQty = StockUtil.EAQty2UomQty(mapItem2PickQty.get(itemId), waveDetail.getAllocUnitName());
+            if(waveDetail.getAllocUnitName().compareTo("EA") == 0){
+                hasEA = true;
+            }else{
+                boxNum += (int)(uomQty.floatValue());
+            }
+            detail.put("uomQty", uomQty);
             detail.put("uom", waveDetail.getAllocUnitName());
             //TODO packName
             detail.put("itemName", item.getSkuName());
-            detail.put("qcDone", mapItem2PickQty.get(itemId).intValue()==0 ? 0 : 1);
+            detail.put("qcDone", waveDetail.getQcExceptionDone()!=0);
             undoDetails.add(detail);
+        }
+        if(hasEA){
+            boxNum++;
         }
         //获取托盘信息
         BaseinfoContainer containerInfo = iContainerRpcService.getContainer(containerId);
@@ -170,8 +181,8 @@ public class QCRestService implements IRFQCRestService{
         rstMap.put("collectionRoadCode", collectLocaion.getLocationCode());
         rstMap.put("itemLineNum", mapItem2PickQty.size());
         //TODO BOX NUM
-        rstMap.put("itemBoxNum", mapItem2PickQty.size());
-        rstMap.put("taskStatus", qcTaskInfo.getStatus());
+        rstMap.put("itemBoxNum", boxNum);
+        rstMap.put("qcTaskDone", qcTaskInfo.getStatus() == TaskConstant.Done);
         rstMap.put("qcTaskId", qcTaskInfo.getTaskId());
         return JsonUtils.SUCCESS(rstMap);
     }
@@ -184,8 +195,13 @@ public class QCRestService implements IRFQCRestService{
         Map<String,Object> request = RequestUtils.getRequest();
         long qcTaskId =  Long.valueOf(request.get("qcTaskId").toString());
         BigDecimal qtyUom = new BigDecimal(request.get("uomQty").toString());
-        long exceptionType = request.get("exceptionType")==null ? 0L : Long.valueOf(request.get("exceptionType").toString());
-        BigDecimal exceptionQty = request.get("exceptionQty")==null ? BigDecimal.ZERO : new BigDecimal(request.get("exceptionQty").toString());
+        BigDecimal defectQty = new BigDecimal(request.get("defectQty").toString());
+        long exceptionType = 0L;
+        BigDecimal exceptionQty = new BigDecimal("0.0000");
+        if(defectQty.compareTo(BigDecimal.ZERO) > 0) {
+            exceptionType = 4;
+            exceptionQty = defectQty;
+        }
         //初始化QC任务
         TaskInfo qcTaskInfo = iTaskRpcService.getTaskInfo(qcTaskId);
         if(qcTaskInfo == null){
@@ -211,6 +227,10 @@ public class QCRestService implements IRFQCRestService{
             pickQty = pickQty.add(d.getPickQty());
         }
         if (seekNum == 0) {
+
+            if(true){
+                throw new BizCheckedException("2120002");
+            }
             if (exceptionType != 3) {
                 throw new BizCheckedException("2120009");
             }
@@ -241,7 +261,11 @@ public class QCRestService implements IRFQCRestService{
                     //多货
                     if (i == matchDetails.size() - 1) {
                         detail.setQcException(exceptionType);
-                        detail.setQcExceptionQty(qty.subtract(curQty));
+                        if(exceptionType == 4){
+                            detail.setQcExceptionQty(exceptionQty);
+                        }else {
+                            detail.setQcExceptionQty(qty.subtract(curQty));
+                        }
                         detail.setQcExceptionDone(0L);
                         detail.setQcQty(qty.subtract(lastQty));
 
@@ -272,20 +296,67 @@ public class QCRestService implements IRFQCRestService{
             //计算QC的任务量
             //TODO QC TaSK qTY
         }
-        if(bSucc && qcTaskInfo.getStatus() != TaskConstant.Done){
-            //成功
-            //设置task的信息;
-            iTaskRpcService.done(qcTaskId, qcTaskInfo.getLocationId(), Long.valueOf(RequestUtils.getHeader("uid")));
-        }
         //返回结果
         Map<String, Object> rstMap = new HashMap<String, Object>();
-        rstMap.put("qcDone", bSucc ? 1 : 0);
+        rstMap.put("qcDone", bSucc);
         return JsonUtils.SUCCESS(rstMap);
-        //这里其实遗留了一个问题,就是到底出去的是一些什么样的商品物理信息,比如是一箱还是一堆ea
-        //TODO OUTBOUND ITEM INFO;
     }
 
+    @POST
+    @Path("confirm")
+    public String confirm() throws BizCheckedException{
+        Map<String, Object> mapRequest = RequestUtils.getRequest();
+        Map<String,Object> request = RequestUtils.getRequest();
+        long qcTaskId =  Long.valueOf(request.get("qcTaskId").toString());
+        long boxNum = Long.valueOf(request.get("boxNum").toString());
+        long turnoverBoxNum = Long.valueOf(request.get("turnoverBoxNum").toString());
+        long wrongItemNum = Long.valueOf(request.get("wrongItemNum").toString());
+        //初始化QC任务
+        TaskInfo qcTaskInfo = iTaskRpcService.getTaskInfo(qcTaskId);
+        if(qcTaskInfo == null){
+            throw new BizCheckedException("2120007");
+        }
+        List<WaveDetail> details = waveService.getDetailsByContainerId(qcTaskInfo.getContainerId());
+        //校验qc任务是否完全完成;
+        boolean bSucc = true;
+        BigDecimal sumEAQty = new BigDecimal("0.0000");
+        for(WaveDetail d : details){
+            if(d.getQcExceptionDone() == 0){
+                bSucc = false;
+                break;
+            }
+            sumEAQty = sumEAQty.add(d.getPickQty());
+            //计算QC的任务量
+            //TODO QC TaSK qTY
+        }
+        if(!bSucc){
+            throw new BizCheckedException("2120004");
+        }
+        if(bSucc){
+            //成功
+            //设置task的信息;
+            qcTaskInfo.setTaskEaQty(sumEAQty);
+            qcTaskInfo.setTaskPackQty(BigDecimal.valueOf(boxNum+turnoverBoxNum));
+            qcTaskInfo.setExt5(wrongItemNum);
+            qcTaskInfo.setExt4(boxNum);
+            qcTaskInfo.setExt3(turnoverBoxNum);
+            TaskEntry entry = new TaskEntry();
+            entry.setTaskInfo(qcTaskInfo);
+            iTaskRpcService.update(TaskConstant.TYPE_QC, entry);
+            iTaskRpcService.done(qcTaskId, qcTaskInfo.getLocationId());
+        }
+        return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+            {
+                put("response", true);
+            }
+        });
+    }
 
+    /**
+     * 废弃了,呵呵
+     * @return
+     * @throws BizCheckedException
+     */
     @POST
     @Path("confirmAll")
     public String confirmAll() throws BizCheckedException{

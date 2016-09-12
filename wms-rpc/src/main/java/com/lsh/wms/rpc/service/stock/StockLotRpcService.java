@@ -21,10 +21,8 @@ public class StockLotRpcService implements IStockLotRpcService {
     @Autowired
     private StockLotService stockLotService;
 
-
     public StockLot getLotByLotId(long iLotId) {
-        StockLot stockLot = stockLotService.getStockLotByLotId(iLotId);
-        return stockLot;
+        return stockLotService.getStockLotByLotId(iLotId);
     }
 
     /***
@@ -40,35 +38,16 @@ public class StockLotRpcService implements IStockLotRpcService {
      * packName      包装名称
      * supplierId    供应商Id
      */
-    public boolean insert(StockLot lot) {
-        if (stockLotService.getStockLotByLotId(lot.getLotId()) != null) {
-            return false;
-        }
-        try {
-            stockLotService.insertLot(lot);
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            return false;
-        }
-        return true;
+    public void insert(StockLot lot) {
+        stockLotService.insertLot(lot);
     }
 
-    public boolean update(StockLot lot) {
-        if (stockLotService.getStockLotByLotId(lot.getLotId()) == null) {
-            return false;
-        }
-        try {
-            stockLotService.updateLot(lot);
-        } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
-            return false;
-        }
-        return true;
+    public void update(StockLot lot) {
+        stockLotService.updateLot(lot);
     }
 
-    public List search(Map<String, Object> mapQuery) {
+    public List<StockLot> search(Map<String, Object> mapQuery) {
         return stockLotService.searchLot(mapQuery);
     }
-
 
 }
