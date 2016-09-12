@@ -358,7 +358,7 @@ public class StockTakingRestService implements IStockTakingRestService {
             detailList.add(detail);
             idx++;
         }
-        logger.info(JsonUtils.SUCCESS(quantList));
+        logger.info(JsonUtils.SUCCESS(detailList));
         return detailList;
     }
 

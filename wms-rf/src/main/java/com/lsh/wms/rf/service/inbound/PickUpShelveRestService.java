@@ -346,7 +346,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         move.setFromContainerId(quant.getContainerId());
         move.setToContainerId(containerId);
         stockQuantService.move(move);
-        locationService.unlockLocation(move.getToLocationId());
+        locationService.unlockLocation(detail.getAllocLocationId());
         shelveTaskService.updateDetail(detail);
 
 
