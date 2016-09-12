@@ -5,6 +5,7 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoContainerDao;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.stock.StockQuant;
@@ -30,6 +31,8 @@ public class ContainerService {
     private BaseinfoContainerDao containerDao;
     @Autowired
     private StockQuantService stockQuantService;
+    @Autowired
+    private LocationService locationService;
 
     public BaseinfoContainer getContainer(Long containerId) {
         Map<String, Object> params = new HashMap<String, Object>();
@@ -96,6 +99,15 @@ public class ContainerService {
             return true;
         }
         return false;
+    }
+
+    @Transactional(readOnly = false)
+    public Long getContaierIdByLocationId(Long locationId) {
+        locationService.lockLocationById(locationId);
+        Map<String,Object> condition = new HashMap<String, Object>();
+        condition.put("locationId", locationId);
+        List<StockQuant> quantList = stockQuantService.getQuants(condition);
+        return quantList.isEmpty() ? 0L : quantList.get(0).getContainerId();
     }
 }
 

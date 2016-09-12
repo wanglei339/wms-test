@@ -13,7 +13,10 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -44,6 +47,16 @@ public class InventoryRedisService {
 
     public double getAvailableSkuQty(Long skuId) {
         return stockRedisService.getSkuQty(skuId) - this.soOrderSkuQty(skuId);
+    }
+
+    public Map<String, BigDecimal> getInventoryInfo(Long skuId) {
+        BigDecimal total = new BigDecimal(stockRedisService.getSkuQty(skuId));
+        BigDecimal soQty =  new BigDecimal(soOrderSkuQty(skuId));
+        Map<String, BigDecimal> inventoryInfo = new HashMap<String, BigDecimal>();
+        inventoryInfo.put("total", total);
+        inventoryInfo.put("soQty", soQty);
+        inventoryInfo.put("available", total.subtract(soQty));
+        return inventoryInfo;
     }
 
     @Transactional(readOnly = false)

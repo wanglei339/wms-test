@@ -40,7 +40,8 @@ public class StockQuant implements Serializable,Cloneable {
     private Long ownerId = 0L;
 	/** 批次号(链商内部批次号) */
     private Long lotId = 0L;
-	/** 批次号/
+	/** 批次号(外部批次号,商品包装上的批次号) */
+	private String LotCode = "";
 	/** 入库时间 */
     private Long inDate = 0L;
 	/** 保质期失效时间 */
@@ -56,6 +57,35 @@ public class StockQuant implements Serializable,Cloneable {
 	private Long isDefect = 0L;
 	/** 0-非退货，1-退货 */
 	private Long isRefund = 0L;
+
+	private Long isInhouse = 0L;
+
+	private Long isNormal = 1L;
+
+	public Long getIsNormal() {
+		return isNormal;
+	}
+
+	public void setIsNormal(Long isNormal) {
+		this.isNormal = isNormal;
+	}
+
+	public Long getIsInhouse() {
+		return isInhouse;
+	}
+
+	public void setIsInhouse(Long isInhouse) {
+		this.isInhouse = isInhouse;
+	}
+
+	public String getLotCode() {
+		return LotCode;
+	}
+
+	public void setLotCode(String lotCode) {
+		LotCode = lotCode;
+	}
+
 
     public Long getId(){
     	return this.id;
