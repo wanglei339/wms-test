@@ -2,12 +2,10 @@ package com.lsh.wms.service.wave;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.base.common.utils.CollectionUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.LocationConstant;
-import com.lsh.wms.core.constant.PickConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.service.item.ItemLocationService;
@@ -16,7 +14,7 @@ import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.pick.*;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockQuantService;
-import com.lsh.wms.core.service.stock.StockUtil;
+import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.core.service.wave.WaveAllocService;
 import com.lsh.wms.core.service.wave.WaveService;
@@ -293,13 +291,13 @@ public class WaveCore {
             //整箱
             pick_ea_num = item.getPackUnit();
             //TODO ZHE  LI YOU WENTI
-            unitName = StockUtil.PackUnit2Uom(item.getPackUnit(), "EA");
+            unitName = PackUtil.PackUnit2Uom(item.getPackUnit(), "EA");
         } else if (pick_unit == 3) {
             //整托盘,卧槽托盘上的商品数怎么求啊,这里是有风险的,因为实际的码盘数量可能和实际的不一样.
             pick_ea_num = item.getPackUnit().multiply(BigDecimal.valueOf(item.getPileX() * item.getPileY() * item.getPileZ()));
             if (pick_ea_num.compareTo(BigDecimal.ZERO) == 0) {
             }
-            unitName = (item.getPileX() * item.getPileY() * item.getPileZ()) + StockUtil.PackUnit2Uom(item.getPackUnit(), "EA");
+            unitName = (item.getPileX() * item.getPileY() * item.getPileZ()) + PackUtil.PackUnit2Uom(item.getPackUnit(), "EA");
         }
         //获取分拣分区下的可分配库存数量,怎么获取?
         BigDecimal zone_qty = this._getPickZoneLeftAllocQty(item, location);
