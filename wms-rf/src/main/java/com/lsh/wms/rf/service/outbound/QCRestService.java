@@ -17,13 +17,12 @@ import com.lsh.wms.api.service.so.ISoRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.TaskConstant;
-import com.lsh.wms.core.service.stock.StockUtil;
+import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
-import com.lsh.wms.model.so.OutbSoDetail;
 import com.lsh.wms.model.so.OutbSoHeader;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -32,7 +31,6 @@ import com.lsh.wms.model.wave.WaveQcException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.config.Task;
 
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.*;
@@ -146,7 +144,7 @@ public class QCRestService implements IRFQCRestService{
             detail.put("itemId", item.getItemId());
             detail.put("code", item.getCode());
             detail.put("codeType", item.getCodeType());
-            BigDecimal uomQty = StockUtil.EAQty2UomQty(mapItem2PickQty.get(itemId), waveDetail.getAllocUnitName());
+            BigDecimal uomQty = PackUtil.EAQty2UomQty(mapItem2PickQty.get(itemId), waveDetail.getAllocUnitName());
             if(waveDetail.getAllocUnitName().compareTo("EA") == 0){
                 hasEA = true;
             }else{
@@ -243,7 +241,7 @@ public class QCRestService implements IRFQCRestService{
             qcException.setWaveId(qcTaskInfo.getWaveId());
             waveService.insertQCException(qcException);
         }else {
-            BigDecimal qty = StockUtil.UomQty2EAQty(qtyUom, details.get(0).getAllocUnitName());
+            BigDecimal qty = PackUtil.UomQty2EAQty(qtyUom, details.get(0).getAllocUnitName());
             int cmpRet = pickQty.compareTo(qty);
             if (cmpRet > 0) exceptionType = 2; //多货
             if (cmpRet < 0) exceptionType = 1; //少货
