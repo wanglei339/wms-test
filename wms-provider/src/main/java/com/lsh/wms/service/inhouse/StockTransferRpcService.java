@@ -3,6 +3,7 @@ package com.lsh.wms.service.inhouse;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.inhouse.IStockTransferRpcService;
 import com.lsh.wms.api.service.item.IItemRpcService;
@@ -13,6 +14,7 @@ import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.item.ItemLocationService;
@@ -23,6 +25,8 @@ import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
+import com.lsh.wms.model.taking.StockTakingDetail;
+import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
@@ -79,6 +83,9 @@ public class StockTransferRpcService implements IStockTransferRpcService {
 
     @Autowired
     private TaskInfoDao taskInfoDao;
+
+    @Autowired
+    private RedisStringDao redisStringDao;
 
     public boolean checkLocation(Long fromType, Long toType) throws BizCheckedException {
         if (fromType.equals(LocationConstant.SHELF_STORE_BIN)) {
@@ -269,6 +276,15 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             taskInfo.setContainerId(containerId);
             taskInfo.setQtyDone(taskInfo.getQty());
             taskEntry.setTaskInfo(taskInfo);
+
+            if (!taskId.equals(0L)) {
+                String key = taskId.toString();
+                String transferId = redisStringDao.get(key);
+                if (transferId != null) {
+                    throw new BizCheckedException("2550043");
+                }
+                redisStringDao.set(key, key);
+            }
             taskId = taskRpcService.create(TaskConstant.TYPE_STOCK_TRANSFER, taskEntry);
         }
         return taskId;
