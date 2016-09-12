@@ -66,8 +66,6 @@ public class StockTransferCore {
 
     @Autowired
     private BaseinfoLocationDao locationDao;
-    @Autowired
-    private StockQuantService quantService;
 
     public void fillTransferPlan(StockTransferPlan plan) throws BizCheckedException {
         StockQuantCondition condition = new StockQuantCondition();
@@ -185,20 +183,9 @@ public class StockTransferCore {
         if (taskInfo.getToLocationId().compareTo(toLocationId) != 0) {
             throw new BizCheckedException("2040007");
         }
-        BaseinfoLocation location;
-        try {
-            location = locationService.getLocation(toLocationId);
-        } catch (BizCheckedException e) {
-            throw new BizCheckedException("2060012");
-        }
-        if (location == null) {
-            throw new BizCheckedException("2060012");
-        }
-        if (location.getCanUse().equals(LocationConstant.CANNOT_USE)) {
-            throw new BizCheckedException("2550006");
-        }
         Long containerId = taskInfo.getContainerId();
         Long fromLocationId = locationService.getWarehouseLocationId();
+
         if (taskInfo.getSubType().compareTo(1L) == 0) {
             moveRpcService.moveWholeContainer(containerId, taskId, uid, fromLocationId, toLocationId);
         } else {
