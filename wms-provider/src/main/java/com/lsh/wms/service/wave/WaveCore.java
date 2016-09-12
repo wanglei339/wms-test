@@ -16,6 +16,7 @@ import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.pick.*;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.stock.StockUtil;
 import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.core.service.wave.WaveAllocService;
 import com.lsh.wms.core.service.wave.WaveService;
@@ -291,13 +292,14 @@ public class WaveCore {
         } else if (pick_unit == 2) {
             //整箱
             pick_ea_num = item.getPackUnit();
-            unitName = "H" + pick_ea_num;
+            //TODO ZHE  LI YOU WENTI
+            unitName = StockUtil.PackUnit2Uom(item.getPackUnit(), "EA");
         } else if (pick_unit == 3) {
             //整托盘,卧槽托盘上的商品数怎么求啊,这里是有风险的,因为实际的码盘数量可能和实际的不一样.
             pick_ea_num = item.getPackUnit().multiply(BigDecimal.valueOf(item.getPileX() * item.getPileY() * item.getPileZ()));
             if (pick_ea_num.compareTo(BigDecimal.ZERO) == 0) {
             }
-            unitName = (item.getPileX() * item.getPileY() * item.getPileZ()) + "H" + pick_ea_num;
+            unitName = (item.getPileX() * item.getPileY() * item.getPileZ()) + StockUtil.PackUnit2Uom(item.getPackUnit(), "EA");
         }
         //获取分拣分区下的可分配库存数量,怎么获取?
         BigDecimal zone_qty = this._getPickZoneLeftAllocQty(item, location);

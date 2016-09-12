@@ -58,8 +58,14 @@ public class SynStockService{
         headMap.put("api-version", "1.1");
         headMap.put("random", RandomUtils.randomStr2(32));
         headMap.put("platform", "1");
-        String res  = HttpClientUtils.postBody(atp_inventory_url,  requestBody,atp_inventory_timeout , atp_inventory_charset, headMap);
-        logger.info("库存同步返回结果是: "+res);
+        try{
+            String res  = HttpClientUtils.postBody(atp_inventory_url,  requestBody,atp_inventory_timeout , atp_inventory_charset, headMap);
+            logger.info("库存同步返回结果是: "+res);
+        }catch (Exception ex ){
+            logger.error("库存同步异常"); // TODO: 16/9/10 库存同步 
+            logger.error(ex.getMessage());
+        }
+       
 
     }
 }

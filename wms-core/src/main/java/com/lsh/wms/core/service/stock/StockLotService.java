@@ -92,5 +92,4 @@ public class StockLotService {
         return lotDao.getSupplierIdOrItemId(mapQuery);
     }
 
-
 }
