@@ -62,12 +62,6 @@ public class SysUserRpcService implements ISysUserRpcService {
             sysUser.setSalt(salt);
             sysUser.setPassword(genPwd(sysUser.getPassword(), salt));
         }
-        //校验username不能相同,因为是唯一key
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("username", sysUser.getUsername());
-        if (this.getSysUserList(params).size() > 0) {
-            throw new BizCheckedException("2660004");
-        }
         sysUserService.updateSysUser(sysUser);
     }
 

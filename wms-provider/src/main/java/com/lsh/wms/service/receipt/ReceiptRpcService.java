@@ -492,7 +492,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList,stockQuantList,stockLotList);
         poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList, moveList);
 
-        if(PoConstant.ORDER_TYPE_PO == orderType){
+        if(PoConstant.ORDER_TYPE_PO == orderType || PoConstant.ORDER_TYPE_TRANSFERS == orderType){
             TaskEntry taskEntry = new TaskEntry();
             TaskInfo taskInfo = new TaskInfo();
             taskInfo.setTaskId(taskId);

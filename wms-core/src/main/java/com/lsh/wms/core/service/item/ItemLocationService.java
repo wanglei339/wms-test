@@ -1,7 +1,11 @@
 package com.lsh.wms.core.service.item;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoItemLocationDao;
+import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +31,8 @@ public class ItemLocationService {
 
     @Autowired
     private BaseinfoItemLocationDao itemLocationDao;
+    @Autowired
+    private LocationService locationService;
 
 //    public List<BaseinfoItemLocation> getItemLocationList(long iSkuId,long iOwnerId){
 //        Long key = (((long)iOwnerId)<<32) + (iSkuId);
@@ -75,6 +81,24 @@ public class ItemLocationService {
 //        if(list.size()>0){
 //            return null;
 //        }
+        long itemId = itemLocation.getItemId();
+        long locationId = itemLocation.getPickLocationid();
+        List<BaseinfoItemLocation> newList = this.getItemLocationByLocationID(locationId);
+        if(newList.size()>0){
+            throw new BizCheckedException("2880001");
+        }
+        List<BaseinfoItemLocation> oldList = this.getItemLocationList(itemId);
+        if(oldList.size()>0){
+            BaseinfoItemLocation oldItemList = oldList.get(0);
+            BaseinfoLocation oldLocation = locationService.getLocation(oldItemList.getPickLocationid());
+            BaseinfoLocation newLocation = locationService.getLocation(locationId);
+            if(!oldLocation.getType().equals(newLocation.getType())){
+                throw new BizCheckedException("2880002");
+            }
+        }
+
+
+
         itemLocationDao.insert(itemLocation);
         return itemLocation;
     }

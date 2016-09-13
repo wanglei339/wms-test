@@ -1,6 +1,7 @@
 package com.lsh.wms.api.model.po;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * Created by lixin-mac on 16/9/6.
@@ -11,21 +12,21 @@ public class IbdItem implements Serializable {
     //上游商品编码
     private String materialNo;
     //收货数量
-    private String entryQnt;
+    private BigDecimal entryQnt;
 
     public IbdItem(){}
 
-    public IbdItem(String poItem, String materialNo, String entryQnt) {
+    public IbdItem(String poItem, String materialNo, BigDecimal entryQnt) {
         this.poItem = poItem;
         this.materialNo = materialNo;
         this.entryQnt = entryQnt;
     }
 
-    public String getEntryQnt() {
+    public BigDecimal getEntryQnt() {
         return entryQnt;
     }
 
-    public void setEntryQnt(String entryQnt) {
+    public void setEntryQnt(BigDecimal entryQnt) {
         this.entryQnt = entryQnt;
     }
 

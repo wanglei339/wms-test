@@ -1,11 +1,13 @@
 package com.lsh.wms.integration.service.ibd;
 
+import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
@@ -87,6 +89,9 @@ public class IbdService implements IIbdService {
         //request.setDetailList(newDetails);
 
         //初始化PoRequest
+        if (StringUtils.isContains(request.getSupplierCode(), "DC")) {
+            request.setSupplierCode(request.getSupplierCode().substring(2));
+        }
         PoRequest poRequest = new PoRequest();
         ObjUtils.bean2bean(request,poRequest);
         //将IbdDetail转化为poItem

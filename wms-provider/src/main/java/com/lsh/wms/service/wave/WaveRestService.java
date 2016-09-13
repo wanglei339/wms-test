@@ -13,6 +13,7 @@ import com.lsh.wms.api.model.so.SoItem;
 import com.lsh.wms.api.model.so.SoRequest;
 import com.lsh.wms.api.service.po.IIbdBackService;
 import com.lsh.wms.api.service.wave.IWaveRestService;
+import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
@@ -71,8 +72,8 @@ public class WaveRestService implements IWaveRestService {
     private BaseinfoLocationWarehouseService baseinfoLocationWarehouseService;
 
 
-//    @Reference(check = false)
-//    private IIbdBackService ibdBackService;
+    @Reference(check = false)
+    private IIbdBackService ibdBackService;
 
 
     @POST
@@ -141,38 +142,38 @@ public class WaveRestService implements IWaveRestService {
         inventoryRedisService.onDelivery(detailList);
         //传送给外部系统,其实比较好的方式是扔出来到队列里,外部可以选择性处理.
 
-//        // TODO: 16/9/7 回传物美
-//        for(Long orderId : orderIds){
-//            OutbSoHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
-//            //组装OBD反馈信息
-//            ObdBackRequest request = new ObdBackRequest();
-//            BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) baseinfoLocationWarehouseService.getBaseinfoItemLocationModelById(1L);
-//            String warehouseName = warehouse.getWarehouseName();
-//            request.setPlant(warehouseName);//仓库
-//            request.setBusinessId(soHeader.getOrderOtherId());
-//            request.setOfcId(soHeader.getOrderOtherRefId());//参考单号
-//            request.setAgPartnNumber(soHeader.getOrderUser());//用户
-//
-//            //查询明细。
-//            List<OutbSoDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
-//            List<ObdItem> items = new ArrayList<ObdItem>();
-//            for (OutbSoDetail soDetail : soDetails){
-//                ObdItem soItem = new ObdItem();
-//                soItem.setMateriaNo(soDetail.getSkuCode());//skuCode
-//                soItem.setMeasuringUnit("EA");
-//                soItem.setPrice(soDetail.getPrice());
-//                //转化成ea
-//                soItem.setQuantity(soDetail.getOrderQty().multiply(soDetail.getPackUnit()).toString());
-//                //实际出库数量
-//                soItem.setSendQuantity((String) map.get(soDetail.getDetailOtherId()));
-//
-//                //查询waveDetail找出实际出库的数量
-//                items.add(soItem);
-//            }
-//            //查询waveDetail找出实际出库的数量
-//            request.setItems(items);
-//            ibdBackService.createOrderByPost(request,IntegrationConstan.URL_OBD);
-//        }
+        // TODO: 16/9/7 回传物美
+        for(Long orderId : orderIds){
+            OutbSoHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
+            //组装OBD反馈信息
+            ObdBackRequest request = new ObdBackRequest();
+            BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) baseinfoLocationWarehouseService.getBaseinfoItemLocationModelById(1L);
+            String warehouseName = warehouse.getWarehouseName();
+            request.setPlant(warehouseName);//仓库
+            request.setBusinessId(soHeader.getOrderOtherId());
+            request.setOfcId(soHeader.getOrderOtherRefId());//参考单号
+            request.setAgPartnNumber(soHeader.getOrderUser());//用户
+
+            //查询明细。
+            List<OutbSoDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
+            List<ObdItem> items = new ArrayList<ObdItem>();
+            for (OutbSoDetail soDetail : soDetails){
+                ObdItem soItem = new ObdItem();
+                soItem.setMaterialNo(soDetail.getSkuCode());//skuCode
+                soItem.setMeasuringUnit("EA");
+                soItem.setPrice(soDetail.getPrice());
+                //转化成ea
+                soItem.setQuantity(soDetail.getOrderQty().multiply(soDetail.getPackUnit()).toString());
+                //实际出库数量
+                soItem.setSendQuantity((String) map.get(soDetail.getDetailOtherId()));
+
+                //查询waveDetail找出实际出库的数量
+                items.add(soItem);
+            }
+            //查询waveDetail找出实际出库的数量
+            request.setItems(items);
+            ibdBackService.createOrderByPost(request, IntegrationConstan.URL_OBD);
+        }
 
 
         return JsonUtils.SUCCESS();
