@@ -114,6 +114,7 @@
 		select * from INB_PO_HEADER
 		<include refid="queryCondition"/>
 		<if test="start != null and limit != null">
+		order by ORDER_TIME desc
 		limit #{start},#{limit}
 		</if>
 	</select>

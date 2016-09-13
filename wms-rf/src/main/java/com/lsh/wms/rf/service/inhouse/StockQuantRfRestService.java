@@ -53,7 +53,8 @@ public class StockQuantRfRestService implements IStockQuantRfRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String getItemByLocation() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
-        Long locationId = Long.valueOf(params.get("locationId").toString());
+        String locationCode = params.get("locationCode").toString();
+        Long locationId = locationRpcService.getLocationIdByCode(locationCode);
         BaseinfoLocation location;
         try {
             location = locationRpcService.getLocation(locationId);

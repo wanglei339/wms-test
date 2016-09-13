@@ -93,7 +93,7 @@ public class LocationRestService implements ILocationRestService {
     //    //insert与detail相关,需要同时插入detail的信息
     @POST
     @Path("insertLocation")
-    public String insertLocation(LocationDetailRequest request) {
+    public String insertLocation(LocationDetailRequest request)throws BizCheckedException{
         BaseinfoLocation location = new BaseinfoLocation();
         ObjUtils.bean2bean(request,location);
         return JsonUtils.SUCCESS(locationRpcService.insertLocation(location));
@@ -101,7 +101,7 @@ public class LocationRestService implements ILocationRestService {
 
     @POST
     @Path("updateLocation")
-    public String updateLocation(LocationDetailRequest request) {
+    public String updateLocation(LocationDetailRequest request) throws BizCheckedException{
         BaseinfoLocation location = new BaseinfoLocation();
         ObjUtils.bean2bean(request,location);
         return JsonUtils.SUCCESS(locationRpcService.updateLocation(location));
@@ -207,7 +207,8 @@ public class LocationRestService implements ILocationRestService {
     @GET
     @Path("getAllShelfs")
     public String getAllShelfs() {
-        return JsonUtils.SUCCESS(locationRpcService.getAllShelfs());
+//        return JsonUtils.SUCCESS(locationRpcService.getAllShelfs());
+        return JsonUtils.SUCCESS(locationRpcService.getLocationIdByCode("DC10-N-002-XXXXXXXX"));
 //        Long locationId = Long.parseLong("9073135487256");
 //        BaseinfoLocation baseinfoLocation = locationService.getLocation(locationId);
 //        return JsonUtils.SUCCESS(locationService.getNearestStorageByPicking(baseinfoLocation));

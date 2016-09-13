@@ -107,7 +107,7 @@ public class ContainerService {
         Map<String,Object> condition = new HashMap<String, Object>();
         condition.put("locationId", locationId);
         List<StockQuant> quantList = stockQuantService.getQuants(condition);
-        return quantList.isEmpty() ? 0L : quantList.get(0).getContainerId();
+        return (quantList == null || quantList.isEmpty()) ? 0L : quantList.get(0).getContainerId();
     }
 }
 

@@ -79,8 +79,8 @@
   			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
 			<if test="itemId != null">item_id=#{itemId},</if>
 			<if test="isDefect != null">is_defect=#{isDefect},</if>
-			<if test="isRefund != null">is_refund=#{isRefund}</if>
-			<if test="isNormal != null">is_normal=#{isNormal}</if>
+			<if test="isRefund != null">is_refund=#{isRefund},</if>
+			<if test="isNormal != null">is_normal=#{isNormal},</if>
 			<if test="isInhouse != null">is_inhouse=#{isInhouse}</if>
 			<if test="lotCode != null">lot_code=#{lotCode}</if>
 		</set>

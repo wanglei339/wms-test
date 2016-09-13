@@ -80,6 +80,7 @@
 	<select id="getStockTakingHeadList" parameterType="map" resultMap="stockTakingHeadResultMap">
 		select * from stock_taking_head
 		<include refid="queryCondition"/>
+		ORDER BY createdAt DESC
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
 		</if>

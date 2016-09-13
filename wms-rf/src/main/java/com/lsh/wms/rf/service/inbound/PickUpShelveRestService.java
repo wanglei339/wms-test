@@ -8,6 +8,7 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.inhouse.IProcurementRpcService;
+import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.shelve.IAtticShelveRfRestService;
 import com.lsh.wms.api.service.shelve.IPickUpShelveRfRestService;
@@ -85,6 +86,8 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
     private ContainerService containerService;
     @Reference
     private ISysUserRpcService iSysUserRpcService;
+    @Reference
+    private ILocationRpcService locationRpcService;
 
     private Long taskType = TaskConstant.TYPE_PICK_UP_SHELVE;
 
@@ -162,7 +165,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         Long containerId = 0L;
         Long taskId = 0L;
         try {
-            uId = Long.valueOf(mapQuery.get("uId").toString());
+            uId = Long.valueOf(RequestUtils.getHeader("uid"));
             containerId = Long.valueOf(mapQuery.get("containerId").toString());
             taskId = baseTaskService.getDraftTaskIdByContainerId(containerId);
         }catch (Exception e) {
@@ -284,10 +287,12 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long taskId = 0L;
         Long realLocationId = 0L;
+        String realLocationCode ="";
         BigDecimal realQty = BigDecimal.ZERO;
         try {
             taskId= Long.valueOf(mapQuery.get("taskId").toString());
-            realLocationId = Long.valueOf(mapQuery.get("realLocationId").toString());
+            realLocationCode = mapQuery.get("realLocationCode").toString();
+            realLocationId =  locationRpcService.getLocationIdByCode(realLocationCode);
             realQty = new BigDecimal(mapQuery.get("qty").toString());
         }catch (Exception e){
             logger.error(e.getMessage());

@@ -351,9 +351,14 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 // 判断是否超过订单总数
                 BigDecimal poInboundQty = null != inbPoDetail.getInboundQty() ? inbPoDetail.getInboundQty() : new BigDecimal(0);
 
+                logger.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~orderQty1" + poInboundQty+"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+
+                logger.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~2" +poInboundQty.add(inbReceiptDetail.getInboundQty()).compareTo(inbPoDetail.getOrderQty()) +"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
                 if (poInboundQty.add(inbReceiptDetail.getInboundQty()).compareTo(inbPoDetail.getOrderQty()) > 0) {
+                    logger.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~3");
                     throw new BizCheckedException("2020005");
                 }
+                logger.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~4");
 
                 //取出是否检验保质期字段 exceptionReceipt = 0 校验 = 1不校验
                 Integer exceptionReceipt = inbPoDetail.getExceptionReceipt();
