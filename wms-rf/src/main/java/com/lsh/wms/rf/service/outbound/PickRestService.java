@@ -25,6 +25,7 @@ import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.task.MessageService;
+import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoStaffInfo;
@@ -247,6 +248,10 @@ public class PickRestService implements IPickRestService {
         // 拣货并转移库存至托盘
         if (mapQuery.get("qty") != null) {
             BigDecimal qty = BigDecimal.valueOf(Double.valueOf(mapQuery.get("qty").toString()));
+            // 货架拣货箱数转成EA
+            if (taskInfo.getSubType().equals(1L)) {
+                qty = PackUtil.UomQty2EAQty(qty, needPickDetail.getAllocUnitName());
+            }
             Long allocLocationId = needPickDetail.getAllocPickLocation();
             // 判断是否与分配拣货位一致
             if (!allocLocationId.equals(locationId)) {

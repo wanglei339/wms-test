@@ -12,6 +12,7 @@ import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.pick.PickTaskHead;
@@ -184,7 +185,13 @@ public class PickTaskService {
      */
     public Map<String, Object> renderResult(Map<String, Object> result, String locationKey, String resultKey) {
         BaseinfoLocation location = locationService.getLocation(Long.valueOf(result.get(locationKey).toString()));
+        TaskInfo taskInfo = baseTaskService.getTaskInfoById(Long.valueOf(result.get("pickTaskId").toString()));
         result.put(resultKey, location.getLocationCode());
+        // 货架拣货时将EA转成箱数
+        if (taskInfo.getSubType().equals(1L) && !result.get("allocQty").equals(BigDecimal.ZERO) && result.get("allocQty") != null) {
+            BigDecimal allocQty = new BigDecimal(Long.valueOf(result.get("allocQty").toString()));
+            result.put("allocQty", PackUtil.EAQty2UomQty(allocQty, result.get("allocUnitName").toString()));
+        }
         return result;
     }
 }
