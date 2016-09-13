@@ -252,6 +252,11 @@ public class PickRestService implements IPickRestService {
         Long containerId = taskHead.getContainerId();
         // 拣货并转移库存至托盘
         if (mapQuery.get("qty") != null) {
+            try {
+                new BigDecimal(mapQuery.get("qty").toString());
+            } catch (Exception e) {
+                throw new BizCheckedException("2060013");
+            }
             BigDecimal qty = new BigDecimal(mapQuery.get("qty").toString());
             // 货架拣货箱数转成EA
             if (taskInfo.getSubType().equals(1L)) {
