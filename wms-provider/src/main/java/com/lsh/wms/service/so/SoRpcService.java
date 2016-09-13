@@ -51,7 +51,7 @@ public class SoRpcService implements ISoRpcService {
     @Reference
     private ITaskRpcService iTaskRpcService;
 
-    public void insertOrder(SoRequest request) throws BizCheckedException {
+    public Long insertOrder(SoRequest request) throws BizCheckedException {
         //OutbSoHeader
         OutbSoHeader outbSoHeader = new OutbSoHeader();
         ObjUtils.bean2bean(request, outbSoHeader);
@@ -63,7 +63,8 @@ public class SoRpcService implements ISoRpcService {
         outbSoHeader.setInserttime(new Date());
 
         //设置orderId
-        outbSoHeader.setOrderId(RandomUtils.genId());
+        Long orderId = RandomUtils.genId();
+        outbSoHeader.setOrderId(orderId);
 
         //初始化List<OutbSoDetail>
         List<OutbSoDetail> outbSoDetailList = new ArrayList<OutbSoDetail>();
@@ -102,6 +103,7 @@ public class SoRpcService implements ISoRpcService {
 //        taskInfo.setOrderId(outbSoHeader.getOrderId());
 //        taskEntry.setTaskInfo(taskInfo);
 //        iTaskRpcService.create(TaskConstant.TYPE_PICK,taskEntry);
+        return orderId;
 
     }
 

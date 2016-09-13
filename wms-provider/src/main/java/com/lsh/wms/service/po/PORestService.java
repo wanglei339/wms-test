@@ -97,7 +97,9 @@ public class PORestService implements IPoRestService {
             List<IbdItem>  items = new ArrayList<IbdItem>();
             for(InbPoDetail inbPoDetail : inbPoDetails){
                 IbdItem ibdItem = new IbdItem();
-                ibdItem.setEntryQnt(inbPoDetail.getInboundQty().toString());
+                //转成ea
+                String entryQnt = inbPoDetail.getInboundQty().multiply(inbPoDetail.getPackUnit()).toString();
+                ibdItem.setEntryQnt(entryQnt);
                 ibdItem.setMaterialNo(inbPoDetail.getSkuCode());
                 ibdItem.setPoItem(inbPoDetail.getDetailOtherId());
                 items.add(ibdItem);

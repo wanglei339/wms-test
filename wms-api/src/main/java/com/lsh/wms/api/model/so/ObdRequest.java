@@ -17,7 +17,7 @@ import java.util.List;
 public class ObdRequest implements Serializable {
     /** 仓库ID */
     @NotNull
-    private Long warehouseId;
+    private String warehouseCode;
 
     @NotBlank
     @Size(max=100)
@@ -54,8 +54,8 @@ public class ObdRequest implements Serializable {
     public ObdRequest() {
     }
 
-    public ObdRequest(Long warehouseId, String orderUser,String orderOtherId, String orderOtherRefId, Long ownerUid, Integer orderType, Date transTime, String deliveryAddrs, List<ObdDetail> detailList) {
-        this.warehouseId = warehouseId;
+    public ObdRequest(String warehouseCode, String orderUser,String orderOtherId, String orderOtherRefId, Long ownerUid, Integer orderType, Date transTime, String deliveryAddrs, List<ObdDetail> detailList) {
+        this.warehouseCode = warehouseCode;
         this.orderUser = orderUser;
         this.orderOtherId = orderOtherId;
         this.orderOtherRefId = orderOtherRefId;
@@ -66,12 +66,12 @@ public class ObdRequest implements Serializable {
         this.detailList = detailList;
     }
 
-    public Long getWarehouseId() {
-        return warehouseId;
+    public String getWarehouseCode() {
+        return warehouseCode;
     }
 
-    public void setWarehouseId(Long warehouseId) {
-        this.warehouseId = warehouseId;
+    public void setWarehouseCode(String warehouseCode) {
+        this.warehouseCode = warehouseCode;
     }
 
     public String getOrderOtherId() {
