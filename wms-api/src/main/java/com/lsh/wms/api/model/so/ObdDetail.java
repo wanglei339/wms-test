@@ -35,7 +35,7 @@ public class ObdDetail implements Serializable {
     /** 批次信息 */
     private String lotNum;
     /** 商品单价,未税 */
-    private BigDecimal price;
+    private BigDecimal price = BigDecimal.ZERO;
 
     public ObdDetail() {
     }
