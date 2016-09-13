@@ -174,6 +174,23 @@ public class StockQuantService {
 
     @Transactional(readOnly = false)
     public void move(StockMove move) throws BizCheckedException {
+        boolean moveInhouse = false;
+        boolean moveOutHouse = false;
+        if (move.getFromLocationId().equals(0L) &&
+                (baseTaskService.getTaskTypeById(move.getTaskId()).equals(TaskConstant.TYPE_SHELVE) ||
+                        baseTaskService.getTaskTypeById(move.getTaskId()).equals(TaskConstant.TYPE_ATTIC_SHELVE) ||
+                        baseTaskService.getTaskTypeById(move.getTaskId()).equals(TaskConstant.TYPE_PICK_UP_SHELVE)
+                )
+                ) {
+            moveInhouse = true;
+        }
+        if (locationService.getLocation(move.getFromLocationId()).getType().equals(LocationConstant.INVENTORYLOST)) {
+            moveInhouse = true;
+        }
+        if (locationService.getLocation(move.getToLocationId()).getType().equals(LocationConstant.INVENTORYLOST)) {
+            moveOutHouse = true;
+        }
+
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("itemId", move.getItemId());
         mapQuery.put("locationId", move.getFromLocationId());
@@ -190,6 +207,13 @@ public class StockQuantService {
             this.split(quant, qtyDone);
             quant.setLocationId(move.getToLocationId());
             quant.setContainerId(move.getToContainerId());
+            if (moveInhouse) {
+                quant.setIsInhouse(1L);
+            }
+            if (moveInhouse) {
+                quant.setIsInhouse(0L);
+            }
+
             this.update(quant);
             // 新建 quant move历史记录
             StockQuantMoveRel moveRel = new StockQuantMoveRel();
@@ -200,6 +224,7 @@ public class StockQuantService {
             // 对于移出库的库存，移出stock_quant表,
             BaseinfoLocation toLocation = locationService.getLocation(move.getToLocationId());
             if (toLocation.getType().equals(LocationConstant.CONSUME_AREA)) {
+                quant.setIsInhouse(0L);
                 this.moveToComplete(quant);
             }
 
@@ -215,18 +240,10 @@ public class StockQuantService {
         this.updateLocationStatus(move.getFromLocationId());
         this.updateLocationStatus(move.getToLocationId());
 
-        if (move.getFromLocationId().equals(0L) &&
-                (baseTaskService.getTaskTypeById(move.getTaskId()).equals(TaskConstant.TYPE_SHELVE) ||
-                        baseTaskService.getTaskTypeById(move.getTaskId()).equals(TaskConstant.TYPE_ATTIC_SHELVE) ||
-                        baseTaskService.getTaskTypeById(move.getTaskId()).equals(TaskConstant.TYPE_PICK_UP_SHELVE)
-                )
-                ) {
+        if (moveInhouse) {
             stockRedisService.inBound(move.getItemId(), move.getQty());
         }
-        if (locationService.getLocation(move.getFromLocationId()).getType().equals(LocationConstant.INVENTORYLOST)) {
-            stockRedisService.inBound(move.getItemId(), move.getQty());
-        }
-        if (locationService.getLocation(move.getToLocationId()).getType().equals(LocationConstant.INVENTORYLOST)) {
+        if (moveOutHouse) {
             stockRedisService.outBound(move.getItemId(), move.getQty());
         }
     }
@@ -315,7 +332,13 @@ public class StockQuantService {
     @Transactional(readOnly = false)
     public void freeze(StockQuant quant) {
         quant.setIsFrozen(1L);
+        if (quant.getIsNormal() == 1) {
+            quant.setIsNormal(0L);
+            quant.setIsInhouse(0L);
+            stockRedisService.outBound(quant.getItemId(), quant.getQty());
+        }
         stockQuantDao.update(quant);
+        stockRedisService.outBound(quant.getItemId(), quant.getQty());
     }
 
 
@@ -324,7 +347,10 @@ public class StockQuantService {
         quant.setIsDefect(0L);
         quant.setIsRefund(0L);
         quant.setIsFrozen(0L);
+        quant.setIsNormal(1L);
+        quant.setIsInhouse(1L);
         stockQuantDao.update(quant);
+        stockRedisService.inBound(quant.getItemId(), quant.getQty());
     }
 
     @Transactional(readOnly = false)
@@ -332,6 +358,11 @@ public class StockQuantService {
         quant.setIsFrozen(0L);
         quant.setIsDefect(1L);
         quant.setIsRefund(0L);
+        if (quant.getIsNormal() == 1) {
+            quant.setIsNormal(0L);
+            quant.setIsInhouse(0L);
+            stockRedisService.outBound(quant.getItemId(), quant.getQty());
+        }
         stockQuantDao.update(quant);
     }
 
@@ -340,6 +371,11 @@ public class StockQuantService {
         quant.setIsFrozen(0L);
         quant.setIsRefund(1L);
         quant.setIsDefect(0L);
+        if (quant.getIsNormal() == 1) {
+            quant.setIsNormal(0L);
+            quant.setIsInhouse(0L);
+            stockRedisService.outBound(quant.getItemId(), quant.getQty());
+        }
         stockQuantDao.update(quant);
     }
 
@@ -447,6 +483,7 @@ public class StockQuantService {
         quant.setInDate(lot.getInDate());
         quant.setExpireDate(lot.getExpireDate());
         quant.setQty(move.getQty());
+        quant.setLotCode(lot.getCode());
         this.create(quant);
 
         // 新建 quant move历史记录

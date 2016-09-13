@@ -15,7 +15,7 @@ public class IntegrationConstan {
     //STOCKCHANGE
     public static final String URL_STOCKCHANGE = "http://service.wumart.com/wms/stockChange";
     //obd
-    public static final String URL_OBD = "";
+    public static final String URL_OBD = "http://service.wumart.com/wms/soobd";
 
 
 

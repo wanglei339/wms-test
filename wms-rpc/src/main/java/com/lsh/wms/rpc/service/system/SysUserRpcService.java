@@ -8,6 +8,7 @@ import com.lsh.base.q.Utilities.MD5;
 import com.lsh.base.qiniu.pili.common.Utils;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.core.service.system.SysUserService;
+import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.BaseinfoStaffDepartment;
 import com.lsh.wms.model.system.SysUser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,9 @@ public class SysUserRpcService implements ISysUserRpcService {
     @Autowired
     private SysUserService sysUserService;
 
+    @Autowired
+    private IdGenerator idGenerator;
+
     public List<SysUser>getSysUserList(Map<String, Object> params) {
         return sysUserService.getSysUserList(params);
     }
@@ -34,7 +38,9 @@ public class SysUserRpcService implements ISysUserRpcService {
     }
 
     public void addSysUser(SysUser sysUser) {
-        sysUser.setUid(RandomUtils.genId());
+        //sysUser.setUid(RandomUtils.genId());
+        //使用Id生成器
+        sysUser.setUid(idGenerator.genId("uid",false,false));
         String salt = RandomUtils.randomStr(10);
         sysUser.setSalt(salt);
         sysUser.setPassword(genPwd(sysUser.getPassword(),salt));

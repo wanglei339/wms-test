@@ -134,6 +134,7 @@ public class QCRestService implements IRFQCRestService{
         }
 
         int boxNum = 0;
+        int allBoxNum = 0;
         boolean hasEA = false;
         List<Map<String, Object>> undoDetails = new LinkedList<Map<String, Object>>();
         for(Long itemId : mapItem2PickQty.keySet()) {
@@ -158,8 +159,9 @@ public class QCRestService implements IRFQCRestService{
             detail.put("qcDone", waveDetail.getQcExceptionDone()!=0);
             undoDetails.add(detail);
         }
+        allBoxNum = boxNum;
         if(hasEA){
-            boxNum++;
+            allBoxNum++;
         }
         //获取托盘信息
         BaseinfoContainer containerInfo = iContainerRpcService.getContainer(containerId);
@@ -173,16 +175,18 @@ public class QCRestService implements IRFQCRestService{
         Map<String, Object> rstMap = new HashMap<String, Object>();
         rstMap.put("qcList", undoDetails);
         rstMap.put("containerType", containerInfo.getType());
-        rstMap.put("pickTaskId", pickTaskId);
-        rstMap.put("customerId", soInfo.getOrderUser());
+        rstMap.put("pickTaskId", pickTaskId.toString());
+        rstMap.put("customerId", soInfo.getOrderUser().toString());
         //TODO SO USER ID
         rstMap.put("customerName", soInfo.getOrderUser());
         rstMap.put("collectionRoadCode", collectLocaion.getLocationCode());
         rstMap.put("itemLineNum", mapItem2PickQty.size());
         //TODO BOX NUM
+        rstMap.put("allBoxNum", allBoxNum);
         rstMap.put("itemBoxNum", boxNum);
+        rstMap.put("turnoverBoxNum", hasEA ? 1 : 0);
         rstMap.put("qcTaskDone", qcTaskInfo.getStatus() == TaskConstant.Done);
-        rstMap.put("qcTaskId", qcTaskInfo.getTaskId());
+        rstMap.put("qcTaskId", qcTaskInfo.getTaskId().toString());
         return JsonUtils.SUCCESS(rstMap);
     }
 
@@ -241,7 +245,11 @@ public class QCRestService implements IRFQCRestService{
             qcException.setWaveId(qcTaskInfo.getWaveId());
             waveService.insertQCException(qcException);
         }else {
-            BigDecimal qty = PackUtil.UomQty2EAQty(qtyUom, details.get(0).getAllocUnitName());
+            BigDecimal qty = PackUtil.UomQty2EAQty(qtyUom, matchDetails.get(0).getAllocUnitName());
+            exceptionQty = PackUtil.UomQty2EAQty(exceptionQty, matchDetails.get(0).getAllocUnitName());
+            if(exceptionQty.compareTo(qty) > 0){
+                throw new BizCheckedException("2120013");
+            }
             int cmpRet = pickQty.compareTo(qty);
             if (cmpRet > 0) exceptionType = 2; //多货
             if (cmpRet < 0) exceptionType = 1; //少货
@@ -284,6 +292,10 @@ public class QCRestService implements IRFQCRestService{
                 }
                 waveService.updateDetail(detail);
             }
+            qcTaskInfo.setExt2(exceptionType);
+            TaskEntry entry = new TaskEntry();
+            entry.setTaskInfo(qcTaskInfo);
+            iTaskRpcService.update(TaskConstant.TYPE_QC, entry);
         }
         //校验qc任务是否完全完成;
         boolean bSucc = true;
@@ -309,7 +321,8 @@ public class QCRestService implements IRFQCRestService{
         long qcTaskId =  Long.valueOf(request.get("qcTaskId").toString());
         long boxNum = Long.valueOf(request.get("boxNum").toString());
         long turnoverBoxNum = Long.valueOf(request.get("turnoverBoxNum").toString());
-        long wrongItemNum = Long.valueOf(request.get("wrongItemNum").toString());
+        long wrongItemNum = 0L;
+        //long wrongItemNum = Long.valueOf(request.get("wrongItemNum").toString());
         //初始化QC任务
         TaskInfo qcTaskInfo = iTaskRpcService.getTaskInfo(qcTaskId);
         if(qcTaskInfo == null){
@@ -339,11 +352,15 @@ public class QCRestService implements IRFQCRestService{
             qcTaskInfo.setExt5(wrongItemNum);
             qcTaskInfo.setExt4(boxNum);
             qcTaskInfo.setExt3(turnoverBoxNum);
+            if(wrongItemNum > 0){
+                qcTaskInfo.setExt2(3L);
+            }
             TaskEntry entry = new TaskEntry();
             entry.setTaskInfo(qcTaskInfo);
             iTaskRpcService.update(TaskConstant.TYPE_QC, entry);
             iTaskRpcService.done(qcTaskId, qcTaskInfo.getLocationId());
         }
+
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {
                 put("response", true);

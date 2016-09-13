@@ -24,7 +24,6 @@ public class AtticShelveTaskDetailService {
     @Transactional(readOnly = false)
     public void create(AtticShelveTaskDetail detail) {
         detail.setCreatedAt(DateUtils.getCurrentSeconds());
-        detail.setUpdatedAt(DateUtils.getCurrentSeconds());
         detailDao.insert(detail);
     }
     @Transactional(readOnly = false)

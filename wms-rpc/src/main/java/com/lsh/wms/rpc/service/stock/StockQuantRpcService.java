@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
+import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockMoveService;
@@ -38,6 +39,9 @@ public class StockQuantRpcService implements IStockQuantRpcService {
 
     @Autowired
     private ItemService itemService;
+
+    @Autowired
+    private InventoryRedisService inventoryRedisService;
 
     private Map<String, Object> getQueryCondition(StockQuantCondition condition) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
@@ -145,96 +149,47 @@ public class StockQuantRpcService implements IStockQuantRpcService {
 
     public Map<Long, Map<String, BigDecimal>> getItemStockList(Map<String, Object> mapQuery) {
         Map<Long, Map<String, BigDecimal>> itemQuant = new HashMap<Long, Map<String, BigDecimal>>();
-        HashMap<String, Object> mapCondition = new HashMap<String, Object>();
+        Map<Long, BigDecimal> mapDefect = new HashMap<Long, BigDecimal>();
+        Map<Long, BigDecimal> mapRefund = new HashMap<Long, BigDecimal>();
+
         List<BaseinfoItem> itemList = itemService.searchItem(mapQuery);
         List<Long> itemIdList = new ArrayList<Long>();
         for (BaseinfoItem item : itemList) {
             itemIdList.add(item.getItemId());
+            mapDefect.put(item.getItemId(), BigDecimal.ZERO);
+            mapRefund.put(item.getItemId(), BigDecimal.ZERO);
         }
-        mapCondition.put("itemList", itemIdList);
-        // get all inventory record
-        Long lossLocationId = locationService.getInventoryLostLocationId();
-        mapCondition.put("locationId", lossLocationId);
-        HashSet<Long> lossQuantSet = new HashSet<Long>();
-        List<StockQuant> lossQuantList = quantService.getQuants(mapCondition);
-        for (StockQuant quant : lossQuantList) {
-            lossQuantSet.add(quant.getId());
-        }
+
         // get all quant
-        mapCondition.put("locationId", locationService.getWarehouseLocationId());
+        HashMap<String, Object> mapCondition = new HashMap<String, Object>();
+        mapCondition.put("itemList", itemIdList);
+        mapCondition.put("isInhouse", 1L);
         List<StockQuant> quantList = quantService.getQuants(mapCondition);
         BigDecimal total, freeze, loss, lossDefect, lossRefund, defect, refund;
         Long isFrozen, reserveTaskId, isNormal, isDefect, isRefund;
-        for (StockQuant quant : quantList) {
-            total = BigDecimal.ZERO;
-            loss = BigDecimal.ZERO;
-            freeze = BigDecimal.ZERO;
-            defect = BigDecimal.ZERO;
-            refund = BigDecimal.ZERO;
-            lossDefect = BigDecimal.ZERO;
-            lossRefund = BigDecimal.ZERO;
 
+        for (StockQuant quant : quantList) {
             Long itemId = quant.getItemId();
-            isFrozen = quant.getIsFrozen();
-            reserveTaskId = quant.getReserveTaskId();
-            isNormal = 1L;
-            if (isFrozen == 1 || reserveTaskId != 0) {
-                isNormal = 0L;
-            }
-            isDefect = quant.getIsDefect();
-            isRefund = quant.getIsRefund();
             BigDecimal qty = quant.getQty();
-            total = total.add(qty);
-            if (isNormal == 0) {
-                freeze = freeze.add(qty);
+
+            if (quant.getIsDefect().equals(1L)) {
+                mapRefund.put(itemId, mapRefund.get(itemId).add(qty));
             }
-            if (lossQuantSet.contains(quant.getId())) {
-                loss = loss.add(qty);
-                if (isDefect == 1) {
-                    lossDefect = lossDefect.add(qty);
-                } else if (isRefund == 1) {
-                    lossRefund = lossRefund.add(qty);
-                }
+            if (quant.getIsDefect().equals(1L)) {
+                mapDefect.put(itemId, mapDefect.get(itemId).add(qty));
             }
-            if (isDefect == 1) {
-                defect = defect.add(qty);
-            }
-            if (isRefund == 1) {
-                refund = refund.add(qty);
-            }
-            BigDecimal reTotal = total.subtract(loss);
-            BigDecimal reDefect = defect.subtract(lossDefect);
-            BigDecimal reRefund = refund.subtract(lossRefund);
-            BigDecimal normal = reTotal.subtract(reDefect.add(reRefund));
-            BigDecimal available = normal.subtract(freeze);
-            Map<String, BigDecimal> item = itemQuant.get(itemId);
-            if (item != null) {
-                reTotal = item.get("total").add(reTotal);
-                available = item.get("available").add(available);
-                freeze = item.get("freeze").add(freeze);
-                reDefect = item.get("defect").add(reDefect);
-                reRefund = item.get("refund").add(reRefund);
-            }
-            Map<String, BigDecimal> result = new HashMap<String, BigDecimal>();
-            result.put("total", reTotal);
-            result.put("available", available);
-            result.put("freeze", freeze);
-            result.put("defect", reDefect);
-            result.put("refund", reRefund);
-            itemQuant.put(quant.getItemId(), result);
         }
-        int size = itemList.size();
-        for (int i = 0; i < size; i++) {
+
+        for (int i = 0; i < itemList.size(); i++) {
             Long itemId = itemIdList.get(i);
-            if (itemQuant.get(itemId) == null) {
-                Map<String, BigDecimal> result = new HashMap<String, BigDecimal>();
-                result.put("total", BigDecimal.ZERO);
-                result.put("available", BigDecimal.ZERO);
-                result.put("freeze", BigDecimal.ZERO);
-                result.put("defect", BigDecimal.ZERO);
-                result.put("refund", BigDecimal.ZERO);
-                itemQuant.put(itemId, result);
-            }
+            Map<String, BigDecimal> info = inventoryRedisService.getInventoryInfo(itemId);
+            Map<String, BigDecimal> result = new HashMap<String, BigDecimal>();
+            result.put("total", info.get("total"));
+            result.put("reserved", info.get("soQty"));
+            result.put("available", info.get("available"));
+            result.put("defect", mapDefect.get(itemId));
+            result.put("refund", mapRefund.get(itemId));
+            itemQuant.put(itemId, result);
         }
 
         return itemQuant;

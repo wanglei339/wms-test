@@ -123,6 +123,6 @@ public class IbdService implements IIbdService {
         items.add(item);
         request.setItems(items);
 
-        return ibdBackService.createOrderByPost(request,null, IntegrationConstan.URL_STOCKCHANGE);
+        return ibdBackService.createOrderByPost(request, IntegrationConstan.URL_STOCKCHANGE);
     }
 }

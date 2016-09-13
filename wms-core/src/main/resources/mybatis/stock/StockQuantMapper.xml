@@ -24,6 +24,8 @@
 		<result property="itemId" column="item_id"/>
 		<result property="isDefect" column="is_defect"/>
 		<result property="isRefund" column="is_refund"/>
+		<result property="isNormal" column="is_normal"/>
+		<result property="isInhouse" column="is_inhouse"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockQuant">
@@ -38,11 +40,11 @@
 			pack_unit,
 			pack_name,
 			is_frozen,supplier_id,owner_id,lot_id,
-			in_date,expire_date,created_at,updated_at,item_id,is_defect,is_refund
+			in_date,expire_date,created_at,updated_at,item_id,is_defect,is_refund,is_normal,is_inhouse
     	) values (
 			#{skuId},#{locationId},#{containerId},#{qty},#{reserveTaskId},#{value},
 			#{cost},#{packUnit},#{packName},#{isFrozen},#{supplierId},#{ownerId},#{lotId},
-			#{inDate},#{expireDate},#{createdAt},#{updatedAt},#{itemId},#{isDefect},#{isRefund}
+			#{inDate},#{expireDate},#{createdAt},#{updatedAt},#{itemId},#{isDefect},#{isRefund},#{isNormal},#{isInhouse}
     	)
 	</insert>
 
@@ -77,6 +79,8 @@
 			<if test="itemId != null">item_id=#{itemId},</if>
 			<if test="isDefect != null">is_defect=#{isDefect},</if>
 			<if test="isRefund != null">is_refund=#{isRefund}</if>
+			<if test="isNormal != null">is_normal=#{isNormal}</if>
+			<if test="isInhouse != null">is_inhouse=#{isInhouse}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -166,8 +170,10 @@
 			<if test="itemId != null and itemId != 0">and item_id=#{itemId}</if>
 			<if test="isNormal != null and isNormal != true">and (is_frozen = 1 or reserve_task_id != 0)</if>
 			<if test="canUnFreeze != null and canUnfreeze != false">and (is_frozen = 1 or is_defect = 1 or is_refund = 1)</if>
+			<if test="isNormal != null">and is_normal=#{isNormal}</if>
 			<if test="isDefect != null">and is_defect=#{isDefect}</if>
 			<if test="isRefund != null">and is_refund=#{isRefund}</if>
+			<if test="isInhouse != null">and is_inhouse=#{isInhouse}</if>
 		</where>
 	</sql>
    

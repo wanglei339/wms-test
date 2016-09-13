@@ -6,5 +6,5 @@ package com.lsh.wms.api.service.po;
  */
 
 public interface IIbdBackService {
-    String createOrderByPost(Object request, String token,String url);
+    String createOrderByPost(Object request, String url);
 }
