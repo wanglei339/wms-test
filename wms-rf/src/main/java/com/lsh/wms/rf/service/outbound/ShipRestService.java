@@ -58,7 +58,7 @@ public class ShipRestService implements IShipRestService {
     public String releaseCollectionRoad() throws BizCheckedException{
         //看下位置上是否有货
         Map<String, Object> mapRequest = RequestUtils.getRequest();
-        Long locationId = Long.valueOf(mapRequest.get("locationId").toString());
+        Long locationId = iLocationRpcService.getLocationIdByCode(mapRequest.get("locationCode").toString());
         BaseinfoLocation location = iLocationRpcService.getLocation(locationId);
         if(location.getType() != LocationConstant.COLLECTION_ROAD){
             throw new BizCheckedException("2130011");
@@ -86,7 +86,7 @@ public class ShipRestService implements IShipRestService {
     @POST
     public String scan() throws BizCheckedException {
         Map<String, Object> mapRequest = RequestUtils.getRequest();
-        Long locationId = Long.valueOf(mapRequest.get("locationId").toString());
+        Long locationId = iLocationRpcService.getLocationIdByCode(mapRequest.get("locationCode").toString());
         HttpSession session = RequestUtils.getSession();
         //get task  by containerId
         Map<String, Object> mapQuery = new HashMap<String, Object>();

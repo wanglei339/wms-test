@@ -403,8 +403,7 @@ public class WaveService {
             List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(detail.getContainerId());
             StockQuant stockQuant = stockQuants.size() > 0 ? stockQuants.get(0) : null;
             deliveryDetail.setLotId(stockQuant == null ? 0L : stockQuant.getLotId());
-            //TODO fuck
-            deliveryDetail.setLotNum(stockQuant == null ? "" : "");
+            deliveryDetail.setLotNum(stockQuant == null ? "" : stockQuant.getLotCode());
             deliveryDetail.setDeliveryNum(detail.getQcQty());
             deliveryDetail.setInserttime(new Date());
             deliveryDetails.add(deliveryDetail);
