@@ -32,7 +32,7 @@ public class IbdRequest implements Serializable {
 
     /** 供商编码 */
     @NotNull
-    private Long supplierCode = 0L;
+    private String supplierCode = "";
 
     /** 订单日期 */
     @NotNull
@@ -50,7 +50,7 @@ public class IbdRequest implements Serializable {
 
     public IbdRequest(String warehouseCode, String orderOtherId, String orderOtherRefId,
                       Long ownerUid, Integer orderType,
-                      Long supplierCode, Date orderTime,
+                      String supplierCode, Date orderTime,
                       Date endDeliveryDate, List<IbdDetail> detailList) {
         this.warehouseCode = warehouseCode;
         this.orderOtherId = orderOtherId;
@@ -103,11 +103,11 @@ public class IbdRequest implements Serializable {
         this.orderType = orderType;
     }
 
-    public Long getSupplierCode() {
+    public String getSupplierCode() {
         return supplierCode;
     }
 
-    public void setSupplierCode(Long supplierCode) {
+    public void setSupplierCode(String supplierCode) {
         this.supplierCode = supplierCode;
     }
 
