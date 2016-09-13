@@ -193,7 +193,7 @@ public class ShelveRestService implements IShelveRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String restore() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
-        Long staffId = Long.valueOf(mapQuery.get("operator").toString());
+        Long staffId = Long.valueOf(RequestUtils.getHeader("uid"));
         List<TaskInfo> taskInfos = baseTaskService.getAssignedTaskByOperator(staffId, TaskConstant.TYPE_SHELVE);
         if ( taskInfos == null || taskInfos.isEmpty() ) {
             return JsonUtils.SUCCESS(new HashMap<String, Object>() {

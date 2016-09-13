@@ -185,10 +185,16 @@ public class PickTaskService {
      */
     public Map<String, Object> renderResult(Map<String, Object> result, String locationKey, String resultKey) {
         BaseinfoLocation location = locationService.getLocation(Long.valueOf(result.get(locationKey).toString()));
-        TaskInfo taskInfo = baseTaskService.getTaskInfoById(Long.valueOf(result.get("pickTaskId").toString()));
+        Long taskId = 0L;
+        if (result.get("pickTaskId") != null) {
+            taskId = Long.valueOf(result.get("pickTaskId").toString());
+        } else {
+            taskId = Long.valueOf(result.get("taskId").toString());
+        }
+        TaskInfo taskInfo = baseTaskService.getTaskInfoById(taskId);
         result.put(resultKey, location.getLocationCode());
         // 货架拣货时将EA转成箱数
-        if (taskInfo.getSubType().equals(1L) && !result.get("allocQty").equals(BigDecimal.ZERO) && result.get("allocQty") != null) {
+        if (taskInfo.getSubType().equals(1L) && result.get("allocQty") != null && !result.get("allocQty").equals(BigDecimal.ZERO)) {
             BigDecimal allocQty = new BigDecimal(result.get("allocQty").toString());
             result.put("allocQty", PackUtil.EAQty2UomQty(allocQty, result.get("allocUnitName").toString()));
         }
