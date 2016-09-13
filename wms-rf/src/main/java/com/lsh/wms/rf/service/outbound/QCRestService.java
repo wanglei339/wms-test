@@ -246,6 +246,10 @@ public class QCRestService implements IRFQCRestService{
             waveService.insertQCException(qcException);
         }else {
             BigDecimal qty = PackUtil.UomQty2EAQty(qtyUom, matchDetails.get(0).getAllocUnitName());
+            exceptionQty = PackUtil.UomQty2EAQty(exceptionQty, matchDetails.get(0).getAllocUnitName());
+            if(exceptionQty.compareTo(qty) > 0){
+                throw new BizCheckedException("2120013");
+            }
             int cmpRet = pickQty.compareTo(qty);
             if (cmpRet > 0) exceptionType = 2; //多货
             if (cmpRet < 0) exceptionType = 1; //少货
