@@ -27,10 +27,25 @@ public class ObdRequest implements Serializable {
     @Size(max=100)
     private String orderOtherRefId = "";
 
-    /** 下单用户 */
+    /** 售达方编码 */
+    @NotBlank
+    @Size(max=64)
+    private String orderUserCode;
+
+    /** 下单客户（售达方名称） */
     @NotBlank
     @Size(max=64)
     private String orderUser;
+
+    /** 送达方名称 */
+    @NotBlank
+    @Size(max=64)
+    private String deliveryName;
+
+    /** 送达方编码 */
+    @NotBlank
+    @Size(max=64)
+    private String deliveryCode;
 
     /** 货主 */
     @NotNull
@@ -54,16 +69,19 @@ public class ObdRequest implements Serializable {
     public ObdRequest() {
     }
 
-    public ObdRequest(String warehouseCode, String orderUser,String orderOtherId, String orderOtherRefId, Long ownerUid, Integer orderType, Date transTime, String deliveryAddrs, List<ObdDetail> detailList) {
-        this.warehouseCode = warehouseCode;
-        this.orderUser = orderUser;
+    public ObdRequest(String deliveryAddrs, String deliveryCode, String deliveryName, List<ObdDetail> detailList, String orderOtherId, String orderOtherRefId, Integer orderType, String orderUser, String orderUserCode, Long ownerUid, Date transTime, String warehouseCode) {
+        this.deliveryAddrs = deliveryAddrs;
+        this.deliveryCode = deliveryCode;
+        this.deliveryName = deliveryName;
+        this.detailList = detailList;
         this.orderOtherId = orderOtherId;
         this.orderOtherRefId = orderOtherRefId;
-        this.ownerUid = ownerUid;
         this.orderType = orderType;
+        this.orderUser = orderUser;
+        this.orderUserCode = orderUserCode;
+        this.ownerUid = ownerUid;
         this.transTime = transTime;
-        this.deliveryAddrs = deliveryAddrs;
-        this.detailList = detailList;
+        this.warehouseCode = warehouseCode;
     }
 
     public String getWarehouseCode() {
@@ -136,5 +154,29 @@ public class ObdRequest implements Serializable {
 
     public void setOrderUser(String orderUser) {
         this.orderUser = orderUser;
+    }
+
+    public String getDeliveryCode() {
+        return deliveryCode;
+    }
+
+    public void setDeliveryCode(String deliveryCode) {
+        this.deliveryCode = deliveryCode;
+    }
+
+    public String getDeliveryName() {
+        return deliveryName;
+    }
+
+    public void setDeliveryName(String deliveryName) {
+        this.deliveryName = deliveryName;
+    }
+
+    public String getOrderUserCode() {
+        return orderUserCode;
+    }
+
+    public void setOrderUserCode(String orderUserCode) {
+        this.orderUserCode = orderUserCode;
     }
 }
