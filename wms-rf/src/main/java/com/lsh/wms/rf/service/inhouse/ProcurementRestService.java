@@ -63,6 +63,8 @@ public class ProcurementRestService implements IProcurementRestService {
 
     @Reference
     private IStockQuantRpcService quantRpcService;
+
+
     @POST
     @Path("scanFromLocation")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
@@ -140,8 +142,9 @@ public class ProcurementRestService implements IProcurementRestService {
                 if (entry == null) {
                     return JsonUtils.TOKEN_ERROR("任务不存在");
                 } else {
-                    Long toLocation = Long.valueOf(params.get("locationId").toString());
-                    if (entry.getTaskInfo().getToLocationId().compareTo(toLocation) != 0) {
+                    String locationCode = params.get("locationCode").toString();
+                    Long toLocationId =  locationRpcService.getLocationIdByCode(locationCode);
+                    if (entry.getTaskInfo().getToLocationId().compareTo(toLocationId) != 0) {
                         return JsonUtils.TOKEN_ERROR("扫描库位和系统库位不一致");
                     }
                 }

@@ -71,6 +71,7 @@ public class StockTransferCore {
 
     @Autowired
     private BaseinfoLocationDao locationDao;
+
     @Reference
     private ILocationRpcService locationRpcService;
 
