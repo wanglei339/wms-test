@@ -231,6 +231,7 @@ public class StockTransferCore {
             if (toContainerId.equals(0L)) {
                 toContainerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
             }
+            move.setFromContainerId(containerId);
             move.setToContainerId(toContainerId);
             move.setSkuId(taskInfo.getSkuId());
             move.setOwnerId(taskInfo.getOwnerId());
