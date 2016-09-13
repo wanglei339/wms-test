@@ -5,17 +5,13 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.service.staff.IStaffRpcService;
 import com.lsh.wms.model.baseinfo.*;
-import com.sun.jdi.LongValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.lsh.wms.core.service.staff.StaffService;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.prefs.BackingStoreException;
 
 /**
  * Created by wulin on 16/7/9.
