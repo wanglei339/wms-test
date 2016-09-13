@@ -16,11 +16,11 @@ public interface ISysUserRpcService {
 
     public Integer getSysUserListCount(Map<String, Object> params);
 
-    public void addSysUser(SysUser sysUser);
+    public void addSysUser(SysUser sysUser) throws BizCheckedException;
 
-    public void updateSysUser(SysUser sysUser);
+    public void updateSysUser(SysUser sysUser) throws BizCheckedException;
 
-    public SysUser getSysUserById(Long iUid);
+    public SysUser getSysUserById(Long iUid) throws BizCheckedException;
 
     Boolean checkLogin(String username, String password) throws BizCheckedException;
 }
