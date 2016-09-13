@@ -3,7 +3,6 @@ package com.lsh.wms.service.inhouse;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.inhouse.IStockTransferRpcService;
 import com.lsh.wms.api.service.item.IItemRpcService;
@@ -11,7 +10,6 @@ import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.stock.IStockMoveRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
-import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
@@ -25,8 +23,6 @@ import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
-import com.lsh.wms.model.taking.StockTakingDetail;
-import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
@@ -239,7 +235,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (!this.checkQty(plan, total)) {
             throw new BizCheckedException("2550042");
         }
-        plan.setContainerId(quantList.get(0).getContainerId());
+//        plan.setContainerId(quantList.get(0).getContainerId());
         return true;
     }
 
@@ -264,16 +260,16 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         plan.setTaskId(0L);
         if (this.checkPlan(plan)) {
             plan.setTaskId(taskId);
-            Long containerId = plan.getContainerId();
-            if (plan.getSubType().compareTo(2L) == 0 || plan.getSubType().compareTo(3L) == 0) {
-                containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
-            }
+//            Long containerId = plan.getContainerId();
+//            if (plan.getSubType().compareTo(2L) == 0 || plan.getSubType().compareTo(3L) == 0) {
+//                containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
+//            }
             TaskEntry taskEntry = new TaskEntry();
             TaskInfo taskInfo = new TaskInfo();
             ObjUtils.bean2bean(plan, taskInfo);
             taskInfo.setTaskName("移库任务[ " + taskInfo.getFromLocationId() + " => " + taskInfo.getToLocationId() + "]");
             taskInfo.setType(TaskConstant.TYPE_STOCK_TRANSFER);
-            taskInfo.setContainerId(containerId);
+//            taskInfo.setContainerId(containerId);
             taskInfo.setQtyDone(taskInfo.getQty());
             taskEntry.setTaskInfo(taskInfo);
 
