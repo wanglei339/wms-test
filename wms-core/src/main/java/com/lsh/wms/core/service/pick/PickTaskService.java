@@ -189,7 +189,7 @@ public class PickTaskService {
         result.put(resultKey, location.getLocationCode());
         // 货架拣货时将EA转成箱数
         if (taskInfo.getSubType().equals(1L) && !result.get("allocQty").equals(BigDecimal.ZERO) && result.get("allocQty") != null) {
-            BigDecimal allocQty = new BigDecimal(Long.valueOf(result.get("allocQty").toString()));
+            BigDecimal allocQty = new BigDecimal(result.get("allocQty").toString());
             result.put("allocQty", PackUtil.EAQty2UomQty(allocQty, result.get("allocUnitName").toString()));
         }
         return result;

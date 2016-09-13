@@ -11,6 +11,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.pick.IPickRestService;
 import com.lsh.wms.api.service.pick.IPickRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
@@ -63,6 +64,8 @@ public class PickRestService implements IPickRestService {
     private ISysUserRpcService iSysUserRpcService;
     @Reference
     private IPickRpcService iPickRpcService;
+    @Reference
+    private ILocationRpcService iLocationRpcService;
     @Autowired
     private BaseTaskService baseTaskService;
     @Autowired
@@ -87,7 +90,8 @@ public class PickRestService implements IPickRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String scanPickTask() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
-        Long staffId = Long.valueOf(mapQuery.get("operator").toString());
+        // Long staffId = Long.valueOf(mapQuery.get("operator").toString());
+        Long staffId = Long.valueOf(RequestUtils.getHeader("uid"));
         List<Map> taskList = JSON.parseArray(mapQuery.get("taskList").toString(), Map.class);
         List<WaveDetail> pickDetails = new ArrayList<WaveDetail>();
         List<Map<String, Long>> assignParams = new ArrayList<Map<String, Long>>();
@@ -170,8 +174,10 @@ public class PickRestService implements IPickRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String scanPickLocation() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
-        Long staffId = Long.valueOf(mapQuery.get("operator").toString());
-        Long locationId = Long.valueOf(mapQuery.get("locationId").toString());
+        // Long staffId = Long.valueOf(mapQuery.get("operator").toString());
+        Long staffId = Long.valueOf(RequestUtils.getHeader("uid"));
+        String locationCode = mapQuery.get("locationCode").toString();
+        Long locationId = iLocationRpcService.getLocationIdByCode(locationCode);
         Map<String, Object> result = new HashMap<String, Object>();
 
         // 判断用户是否存在
@@ -246,7 +252,7 @@ public class PickRestService implements IPickRestService {
         Long containerId = taskHead.getContainerId();
         // 拣货并转移库存至托盘
         if (mapQuery.get("qty") != null) {
-            BigDecimal qty = BigDecimal.valueOf(Double.valueOf(mapQuery.get("qty").toString()));
+            BigDecimal qty = new BigDecimal(mapQuery.get("qty").toString());
             // 货架拣货箱数转成EA
             if (taskInfo.getSubType().equals(1L)) {
                 qty = PackUtil.UomQty2EAQty(qty, needPickDetail.getAllocUnitName());
@@ -341,7 +347,8 @@ public class PickRestService implements IPickRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String restore() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
-        Long staffId = Long.valueOf(mapQuery.get("operator").toString());
+        // Long staffId = Long.valueOf(mapQuery.get("operator").toString());
+        Long staffId = Long.valueOf(RequestUtils.getHeader("uid"));
         // 判断用户是否存在
         SysUser sysUser = iSysUserRpcService.getSysUserById(staffId);
         if (sysUser == null) {
