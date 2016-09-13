@@ -342,6 +342,14 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
     @Path("getTaskList")
     public String getTaskList() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long orderId = 0L;
+        Long supplierId = 0L;
+        if(mapQuery.get("orderId")!=null){
+            orderId = Long.valueOf(mapQuery.get("orderId").toString());
+        }
+        if(mapQuery.get("supplierId")!=null){
+            supplierId = Long.valueOf(mapQuery.get("supplierId").toString());
+        }
         List<Map> resultList = new ArrayList<Map>();
         List<TaskEntry> entries = iTaskRpcService.getTaskList(TaskConstant.TYPE_PICK_UP_SHELVE, mapQuery);
         for(TaskEntry entry :entries){
@@ -373,6 +381,11 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
                 one.put("supplierId",quant.getSupplierId());
                 one.put("ownerId",quant.getOwnerId());
                 one.put("finishTime",info.getFinishTime());
+                if(orderId.compareTo(0L)!=0){
+                    if(orderId.compareTo(Long.valueOf(one.get("orderId").toString()))==0){
+
+                    }
+                }
                 resultList.add(one);
             }else {
                 AtticShelveTaskDetail detail = (AtticShelveTaskDetail)(details.get(0));
@@ -434,7 +447,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
         info.setOperator(operator);
         entry.setTaskInfo(info);
         logger.info(JsonUtils.SUCCESS(entry));
-        iTaskRpcService.update(TaskConstant.TYPE_PICK_UP_SHELVE,entry);
+        iTaskRpcService.update(TaskConstant.TYPE_PICK_UP_SHELVE, entry);
         return JsonUtils.SUCCESS();
     }
     /**
