@@ -86,6 +86,13 @@ public class LocationRpcService implements ILocationRpcService {
         return locationService.getAvailableFloorLocation(quant.getLotId());
     }
 
+    public Long getLocationIdByCode(String code) throws BizCheckedException {
+        if (null == code || "".equals(code)) {
+            throw new BizCheckedException("2180008");
+        }
+        return locationService.getLocationIdByCode(code);
+    }
+
 
     //分配退货区 TODO 两个退货区分配哪个
     public BaseinfoLocation getBackLocation() {

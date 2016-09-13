@@ -33,6 +33,8 @@ public interface ILocationRpcService {
 
     public BaseinfoLocation assignFloor(StockQuant quant) throws BizCheckedException;
 
+    public Long getLocationIdByCode(String code) throws BizCheckedException;
+
     //分配退货
     public BaseinfoLocation getBackLocation();
 
