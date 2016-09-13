@@ -13,8 +13,6 @@ public class PickTaskHead implements Serializable {
     private Long deliveryId = 0L;
 	/** 波次id */
     private Long waveId = 0L;
-	/** TMS线路 */
-    private String transPlan = "";
 	/** 拣货任务类型，1-摘果，2-播种，3-边摘边播 */
     private Integer pickType = 1;
 	/** 容器id */
@@ -60,14 +58,6 @@ public class PickTaskHead implements Serializable {
 	
 	public void setWaveId(Long waveId){
 		this.waveId = waveId;
-	}
-	
-	public String getTransPlan(){
-		return this.transPlan;
-	}
-	
-	public void setTransPlan(String transPlan){
-		this.transPlan = transPlan;
 	}
 	
 	public Integer getPickType(){

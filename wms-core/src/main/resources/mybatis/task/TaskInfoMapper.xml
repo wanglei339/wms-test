@@ -48,6 +48,7 @@
 		<result property="taskPackQty" column="task_pack_qty"/>
 		<result property="taskEaQty" column="task_ea_qty"/>
 		<result property="date" column="date"/>
+		<result property="transPlan" column="trans_plan"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TaskInfo">
@@ -60,7 +61,7 @@
 			due_time,finish_time,cancel_time,ext1,ext2,ext3,
 			ext4,ext5,ext6,ext7,ext8,ext9,
 			created_at,updated_at, task_pack_qty,
-			task_ea_qty, date
+			task_ea_qty, date, trans_plan
     	) values (
 			#{taskId},#{taskName},#{planId},#{waveId},#{orderId},#{locationId},
 			#{skuId},#{ownerId},#{itemId},#{fromLocationId},#{toLocationId},#{qty},
@@ -70,7 +71,7 @@
 			#{dueTime},#{finishTime},#{cancelTime},#{ext1},#{ext2},#{ext3},
 			#{ext4},#{ext5},#{ext6},#{ext7},#{ext8},#{ext9},
 			#{createdAt},#{updatedAt},#{taskPackQty},
-			#{taskEaQty}, #{date}
+			#{taskEaQty}, #{date},#{transPlan}
     	)
 	</insert>
 
@@ -119,7 +120,8 @@
 			<if test="taskPackQty != null">task_pack_qty=#{taskPackQty},</if>
 			<if test="taskEaQty != null">task_ea_qty=#{taskEaQty},</if>
 			<if test="date != null">date=#{date},</if>
-  			<if test="createdAt != null">created_at=#{createdAt},</if>
+			<if test="transPlan != null">trans_plan=#{transPlan},</if>
+			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
 		where id=#{id}
@@ -251,6 +253,7 @@
 			<if test="ext8 != null">and ext8=#{ext8}</if>
 			<if test="ext9 != null">and ext9=#{ext9}</if>
 			<if test="date != null">and date=#{date}</if>
+			<if test="transPlan != null">and trans_plan=#{transPlan}</if>
 			<if test="taskPackQty != null">and task_pack_qty=#{taskPackQty}</if>
 			<if test="taskEaQty != null">and task_ea_qty=#{taskEaQty}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
