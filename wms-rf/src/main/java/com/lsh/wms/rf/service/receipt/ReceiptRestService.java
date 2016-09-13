@@ -122,6 +122,7 @@ public class ReceiptRestService implements IReceiptRfService {
 
             receiptItem.setSkuName(inbPoDetail.getSkuName());
             receiptItem.setPackUnit(inbPoDetail.getPackUnit());
+            receiptItem.setPackName(inbPoDetail.getPackName());
             receiptItem.setMadein(inbPoDetail.getMadein());
         }
 
