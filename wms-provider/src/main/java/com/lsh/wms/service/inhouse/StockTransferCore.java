@@ -231,9 +231,13 @@ public class StockTransferCore {
             }
             move.setFromLocationId(fromLocationId);
             move.setToLocationId(toLocationId);
-            Long toContainerId = containerService.getContaierIdByLocationId(toLocationId);
+            Long newContainerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
+            Long toContainerId= containerService.getContaierIdByLocationId(toLocationId);
+            Long locationType = locationService.getLocation(toLocationId).getType();
             if (toContainerId.equals(0L)) {
-                toContainerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
+                toContainerId = newContainerId;
+            } else if (locationType.equals(LocationConstant.BACK_AREA) || locationType.equals(LocationConstant.DEFECTIVE_AREA)){
+                toContainerId = newContainerId;
             }
             move.setFromContainerId(containerId);
             move.setToContainerId(toContainerId);
