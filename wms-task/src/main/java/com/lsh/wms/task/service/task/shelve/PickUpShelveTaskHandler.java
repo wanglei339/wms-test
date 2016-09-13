@@ -12,6 +12,7 @@ import com.lsh.wms.core.service.shelve.AtticShelveTaskDetailService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
@@ -49,6 +50,8 @@ public class PickUpShelveTaskHandler extends AbsTaskHandler {
     @Reference
     private IStockMoveRpcService iStockMoveRpcService;
 
+    @Autowired StockLotService lotService;
+
     @PostConstruct
     public void postConstruct() {
         handlerFactory.register(TaskConstant.TYPE_PICK_UP_SHELVE, this);
@@ -73,13 +76,15 @@ public class PickUpShelveTaskHandler extends AbsTaskHandler {
             throw new BizCheckedException("2030001");
         }
         StockQuant quant = quants.get(0);
-
+         StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
         TaskInfo taskInfo = new TaskInfo();
 
         ObjUtils.bean2bean(quant, taskInfo);
 
         taskInfo.setQty(stockQuantService.getQuantQtyByContainerId(containerId));
 
+        taskInfo.setOrderId(lot.getPoId());
+        taskInfo.setExt9(quant.getSupplierId().toString());
         taskInfo.setTaskName("拆零上架任务[ " + taskInfo.getContainerId() + "]");
         taskInfo.setType(TaskConstant.TYPE_PICK_UP_SHELVE);
         taskInfo.setFromLocationId(quant.getLocationId());
