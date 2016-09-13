@@ -10,12 +10,12 @@ import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.stock.IStockMoveRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.container.ContainerService;
-import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
@@ -326,7 +326,8 @@ public class StockTransferRpcService implements IStockTransferRpcService {
 
     public Map<String, Object> scanFromLocation(Map<String, Object> params) throws BizCheckedException {
         Long taskId = Long.valueOf(params.get("taskId").toString());
-        Long locationId = Long.valueOf(params.get("locationId").toString());
+        String locationCode = params.get("locationCode").toString();
+        Long locationId = locationRpcService.getLocationIdByCode(locationCode);
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
         Long nextOutTask = core.getNextOutbound(taskEntry);
         if (!taskEntry.getTaskInfo().getFromLocationId().equals(locationId)) {
@@ -381,7 +382,8 @@ public class StockTransferRpcService implements IStockTransferRpcService {
 
     public Map<String, Object> scanToLocation(Map<String, Object> params) throws BizCheckedException {
         Long taskId = Long.valueOf(params.get("taskId").toString());
-        Long locationId = Long.valueOf(params.get("locationId").toString());
+        String locationCode = params.get("locationCode").toString();
+        Long locationId = locationRpcService.getLocationIdByCode(locationCode);
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
         Long nextInTask = core.getNextInbound(taskEntry);
         if (!taskEntry.getTaskInfo().getToLocationId().equals(locationId)) {
