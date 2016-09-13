@@ -822,7 +822,7 @@ public class LocationService {
      * @return
      */
     public Long getLocationIdByCode(String code) {
-        Long locationId = null;
+        Long locationId = 0L;
         //先从redis中取code-locaitonId
         locationId = locationRedisService.getRedisLocationIdByCode(code);
         if (null == locationId) {

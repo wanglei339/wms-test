@@ -7,6 +7,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.model.stock.StockItem;
 import com.lsh.wms.api.model.stock.StockRequest;
+import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.model.stock.StockLot;
@@ -79,7 +80,8 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
     private ItemService itemService;
     @Reference
     private ISysUserRpcService iSysUserRpcService;
-
+    @Reference
+    private ILocationRpcService locationRpcService;
     @Autowired
     private BaseinfoLocationWarehouseService baseinfoLocationWarehouseService;
 
@@ -281,7 +283,8 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
 
         try {
             taskId = Long.valueOf(params.get("taskId").toString());
-            locationId = Long.valueOf(params.get("locationId").toString());
+            String locationCode = params.get("locationCode").toString();
+            locationId =  locationRpcService.getLocationIdByCode(locationCode);
         }catch (Exception e){
             return JsonUtils.TOKEN_ERROR("数据格式类型有误");
         }

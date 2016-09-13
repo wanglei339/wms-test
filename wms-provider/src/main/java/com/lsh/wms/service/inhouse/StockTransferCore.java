@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.item.IItemRpcService;
+import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.stock.IStockMoveRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
@@ -66,6 +67,8 @@ public class StockTransferCore {
 
     @Autowired
     private BaseinfoLocationDao locationDao;
+    @Reference
+    private ILocationRpcService locationRpcService;
 
     public void fillTransferPlan(StockTransferPlan plan) throws BizCheckedException {
         StockQuantCondition condition = new StockQuantCondition();
@@ -91,7 +94,8 @@ public class StockTransferCore {
     public void outbound(Map<String, Object> params) throws BizCheckedException {
         Long uid = 0L;
         Long taskId = Long.valueOf(params.get("taskId").toString());
-        Long fromLocationId = Long.valueOf(params.get("locationId").toString());
+        String locationCode = params.get("locationCode").toString();
+        Long fromLocationId =  locationRpcService.getLocationIdByCode(locationCode);
         try {
             SysUser user = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString()));
             uid = user.getUid();
@@ -165,7 +169,8 @@ public class StockTransferCore {
     public void inbound(Map<String, Object> params) throws BizCheckedException {
         Long uid = 0L;
         Long taskId = Long.valueOf(params.get("taskId").toString());
-        Long toLocationId = Long.valueOf(params.get("locationId").toString());
+        String locationCode = params.get("locationCode").toString();
+        Long toLocationId =  locationRpcService.getLocationIdByCode(locationCode);
         try {
             SysUser user = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString()));
             uid = user.getUid();
