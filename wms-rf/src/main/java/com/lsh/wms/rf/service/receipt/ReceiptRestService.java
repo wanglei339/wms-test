@@ -176,9 +176,9 @@ public class ReceiptRestService implements IReceiptRfService {
 
         Map<String, Object> orderInfoMap = new HashMap<String, Object>();
         orderInfoMap.put("skuName", inbPoDetail.getSkuName());
+        //orderInfoMap.put("packName", "H01");
         orderInfoMap.put("packName", inbPoDetail.getPackName());
-        BigDecimal orderQty = inbPoDetail.getOrderQty().subtract(inbPoDetail.getInboundQty()).divide(inbPoDetail.getPackUnit(),2);
-
+        BigDecimal orderQty = inbPoDetail.getOrderQty().subtract(inbPoDetail.getInboundQty());
         orderInfoMap.put("orderQty", orderQty);// todo 剩余待收货数
         orderInfoMap.put("batchNeeded", baseinfoItem.getBatchNeeded());
 

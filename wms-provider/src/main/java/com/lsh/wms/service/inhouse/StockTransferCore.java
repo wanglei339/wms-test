@@ -14,9 +14,12 @@ import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.container.ContainerService;
+import com.lsh.wms.core.service.item.ItemService;
+import com.lsh.wms.core.service.location.BaseinfoLocationBinService;
 import com.lsh.wms.core.service.location.LocationService;
-import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoLocationBin;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
@@ -66,6 +69,12 @@ public class StockTransferCore {
 
     @Autowired
     private BaseinfoLocationDao locationDao;
+
+    @Autowired
+    private BaseinfoLocationBinService locationBinService;
+
+    @Autowired
+    private ItemService itemService;
 
     public void fillTransferPlan(StockTransferPlan plan) throws BizCheckedException {
         StockQuantCondition condition = new StockQuantCondition();
@@ -149,7 +158,7 @@ public class StockTransferCore {
             move.setFromLocationId(fromLocationId);
             move.setToLocationId(toLocationId);
             move.setFromContainerId(quants.get(0).getContainerId());
-            move.setToContainerId(taskInfo.getContainerId());
+            move.setToContainerId(containerId);
             move.setSkuId(taskInfo.getSkuId());
             move.setOwnerId(taskInfo.getOwnerId());
             List<StockMove> moveList = new ArrayList<StockMove>();
@@ -197,6 +206,18 @@ public class StockTransferCore {
             if (taskInfo.getQtyDone().compareTo(qtyDone) != 0) {
                 throw new BizCheckedException("2550014");
             }
+            if (taskInfo.getType().compareTo(TaskConstant.TYPE_STOCK_TRANSFER) == 0) {
+                BaseinfoLocation toLocation = locationService.getLocation(toLocationId);
+                if (toLocation.getType().equals(LocationConstant.SHELF_STORE_BIN) ||
+                        toLocation.getType().equals(LocationConstant.SHELF_PICKING_BIN) ||
+                        toLocation.getType().equals(LocationConstant.SPLIT_SHELF_BIN)
+                        ) {
+                    BigDecimal freeVolume = this.getThreshold(toLocationId, taskInfo.getItemId(), taskInfo.getSubType(), qtyDone);
+                    if (freeVolume.compareTo(BigDecimal.ZERO) < 0) {
+                        throw new BizCheckedException("2550006");
+                    }
+                }
+            }
             StockMove move = new StockMove();
             ObjUtils.bean2bean(taskInfo, move);
             if (taskInfo.getSubType().compareTo(2L) == 0) {
@@ -206,17 +227,11 @@ public class StockTransferCore {
             }
             move.setFromLocationId(fromLocationId);
             move.setToLocationId(toLocationId);
-            move.setFromContainerId(containerId);
-            StockQuantCondition condition = new StockQuantCondition();
-            condition.setLocationId(fromLocationId);
-            condition.setItemId(taskInfo.getItemId());
-            List<StockQuant> quants = stockQuantRpcService.getQuantList(condition);
-            Long toContainerId;
-            if (quants == null || quants.size() == 0) {
+            Long toContainerId = containerService.getContaierIdByLocationId(toLocationId);
+            if (toContainerId.equals(0L)) {
                 toContainerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
-            } else {
-                toContainerId = quants.get(0).getContainerId();
             }
+            move.setFromContainerId(containerId);
             move.setToContainerId(toContainerId);
             move.setSkuId(taskInfo.getSkuId());
             move.setOwnerId(taskInfo.getOwnerId());
@@ -395,5 +410,32 @@ public class StockTransferCore {
         params.put("toLocationList", toLocationIdList);
         taskList = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, params);
         return taskList;
+    }
+
+    public BigDecimal getThreshold(Long locationId, Long itemId, Long subType, BigDecimal qty) {
+        BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(locationId);
+        BigDecimal pickVolume = bin.getVolume();
+        //取容积的80%
+        pickVolume = pickVolume.multiply(new BigDecimal(0.8)).setScale(0, BigDecimal.ROUND_HALF_UP);
+        BaseinfoItem item = itemService.getItem(itemId);
+
+        BigDecimal bulk = BigDecimal.ONE;
+        if (subType.equals(2L)) {
+            //计算包装单位的体积
+            bulk = bulk.multiply(item.getPackLength());
+            bulk = bulk.multiply(item.getPackHeight());
+            bulk = bulk.multiply(item.getPackWidth());
+        } else if (subType.equals(3L)) {
+            //计算EA单位的体积
+            bulk = bulk.multiply(item.getLength());
+            bulk = bulk.multiply(item.getHeight());
+            bulk = bulk.multiply(item.getWidth());
+        }
+        StockQuantCondition condition = new StockQuantCondition();
+        condition.setLocationId(locationId);
+        BigDecimal reservedQty = stockQuantRpcService.getQty(condition);
+        //计算库位能存多少商品
+        BigDecimal num = pickVolume.divide(bulk, 0, BigDecimal.ROUND_UP);
+        return num.subtract(qty).subtract(reservedQty);
     }
 }
