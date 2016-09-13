@@ -296,7 +296,7 @@ public class StaffRestService implements IStaffRestService {
 
     @POST
     @Path("addStaff")
-    public String addStaff(Map<String, Object> params) {
+    public String addStaff(Map<String, Object> params) throws BizCheckedException{
         BaseinfoStaffInfo staffInfo = staffRpcService.createStaff(params);
         return JsonUtils.SUCCESS(staffInfo);
     }

@@ -2,8 +2,10 @@ package com.lsh.wms.rpc.service.staff;
 
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.service.staff.IStaffRpcService;
 import com.lsh.wms.model.baseinfo.*;
+import com.sun.jdi.LongValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.lsh.wms.core.service.staff.StaffService;
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.prefs.BackingStoreException;
 
 /**
  * Created by wulin on 16/7/9.
@@ -166,7 +169,12 @@ public class StaffRpcService implements IStaffRpcService {
         return staffInfo;
     }
 
-    public BaseinfoStaffInfo createStaff(Map<String, Object> params) {
+    public BaseinfoStaffInfo createStaff(Map<String, Object> params)throws BizCheckedException {
+        Long staffId = Long.valueOf(params.get("staffId").toString());
+        BaseinfoStaffInfo staffInfo = this.getStaffById(staffId);
+        if (staffInfo != null) {
+            throw new BizCheckedException("2660005");
+        }
         return staffService.createStaff(params);
     }
 
