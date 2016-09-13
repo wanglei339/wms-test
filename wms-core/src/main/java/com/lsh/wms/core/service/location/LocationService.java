@@ -807,11 +807,36 @@ public class LocationService {
         String code = null;
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("locationId", locationId);
+        params.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocation> baseinfoLocationList = locationDao.getBaseinfoLocationList(params);
         if (baseinfoLocationList.size() > 0) {
             code = baseinfoLocationList.get(0).getLocationCode();
         }
         return code;
+    }
+
+    /**
+     * 通过为止编码,返回为位置的id
+     *
+     * @param code
+     * @return
+     */
+    public Long getLocationIdByCode(String code) {
+        Long locationId = null;
+        //先从redis中取code-locaitonId
+        locationId = locationRedisService.getRedisLocationIdByCode(code);
+        if (null == locationId) {
+
+        }
+
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("locationCode", code);
+        params.put("isValid", LocationConstant.IS_VALID);
+        List<BaseinfoLocation> baseinfoLocations = locationDao.getBaseinfoLocationList(params);
+        if (baseinfoLocations.size() > 0) {
+            locationId = baseinfoLocations.get(0).getLocationId();
+        }
+        return locationId;
     }
 
     /**
@@ -1082,6 +1107,7 @@ public class LocationService {
         }
         return this.getFatherByClassification(fatherId);
     }
+
     public BaseinfoLocation getFatherByClassification(BaseinfoLocation location) {
         Long fatherId = location.getFatherId();
         if (location.getClassification().equals(LocationConstant.REGION_TYPE)) {
@@ -1200,7 +1226,7 @@ public class LocationService {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocation> locations = this.getBaseinfoLocationList(mapQuery);
-        for (BaseinfoLocation location:locations){
+        for (BaseinfoLocation location : locations) {
             locationRedisService.insertLocationRedis(location);
         }
     }

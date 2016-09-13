@@ -69,5 +69,10 @@ public class RedisKeyConstant {
      */
     public static final String LOCATION_LOCATIONID = "location:locationId:{0}";
 
+    /**
+     * 库区区位占用resid key  string
+     */
+    public static final String LOCATION_CODE = "location:code:{0}";
+
 
 }

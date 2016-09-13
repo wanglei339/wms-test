@@ -138,7 +138,7 @@
 	<select id="getTaskInfoList" parameterType="map" resultMap="taskInfoResultMap">
 		select * from task_info
 		<include refid="queryCondition"/>
-		ORDER BY priority DESC
+		ORDER BY priority,id DESC
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
 		</if>
