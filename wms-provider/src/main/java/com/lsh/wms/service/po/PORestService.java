@@ -102,7 +102,7 @@ public class PORestService implements IPoRestService {
                 //转成ea
                 BigDecimal inboudQty =  inbPoDetail.getInboundQty().multiply(inbPoDetail.getPackUnit()).setScale(3);
                 BigDecimal orderQty = inbPoDetail.getOrderQty().multiply(inbPoDetail.getPackUnit()).setScale(3);
-                BigDecimal entryQnt = poHeader.getOrderType().equals(3) ? inbPoDetail.getOrderQty() : inboudQty;
+                BigDecimal entryQnt = poHeader.getOrderType().equals(3) ? orderQty : inboudQty;
 
                 ibdItem.setEntryQnt(entryQnt);
                 ibdItem.setMaterialNo(inbPoDetail.getSkuCode());
