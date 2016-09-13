@@ -19,6 +19,8 @@ public interface BaseinfoLocationDao{
     Integer countBaseinfoLocation(Map<String, Object> params);
 
     List<BaseinfoLocation> getBaseinfoLocationList(Map<String, Object> params);
+	//按照code精确查找location
+	List<BaseinfoLocation> getLocationbyCode(Map<String, Object> params);
 	//设置dock的服务,处理出入码头的关联查询
 	List<BaseinfoLocation> getDockList(Map<String, Object> params);
 	// 获取子节点列表

@@ -116,7 +116,7 @@ public class ShelveRestService implements IShelveRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String scanContainer() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
-        Long staffId = Long.valueOf(mapQuery.get("operator").toString());
+        Long staffId = Long.valueOf(RequestUtils.getHeader("uid"));
         Long containerId = Long.valueOf(mapQuery.get("containerId").toString());
         Long taskId = baseTaskService.getDraftTaskIdByContainerId(containerId);
         // 判断用户是否存在

@@ -3,7 +3,6 @@ package com.lsh.wms.service.inhouse;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.inhouse.IStockTransferRpcService;
 import com.lsh.wms.api.service.item.IItemRpcService;
@@ -25,8 +24,6 @@ import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
-import com.lsh.wms.model.taking.StockTakingDetail;
-import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
@@ -266,7 +263,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             plan.setTaskId(taskId);
             Long containerId = plan.getContainerId();
             if (plan.getSubType().compareTo(2L) == 0 || plan.getSubType().compareTo(3L) == 0) {
-                containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
+                containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
             }
             TaskEntry taskEntry = new TaskEntry();
             TaskInfo taskInfo = new TaskInfo();
@@ -329,7 +326,8 @@ public class StockTransferRpcService implements IStockTransferRpcService {
 
     public Map<String, Object> scanFromLocation(Map<String, Object> params) throws BizCheckedException {
         Long taskId = Long.valueOf(params.get("taskId").toString());
-        Long locationId = Long.valueOf(params.get("locationId").toString());
+        String locationCode = params.get("locationCode").toString();
+        Long locationId = locationRpcService.getLocationIdByCode(locationCode);
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
         Long nextOutTask = core.getNextOutbound(taskEntry);
         if (!taskEntry.getTaskInfo().getFromLocationId().equals(locationId)) {
@@ -384,7 +382,8 @@ public class StockTransferRpcService implements IStockTransferRpcService {
 
     public Map<String, Object> scanToLocation(Map<String, Object> params) throws BizCheckedException {
         Long taskId = Long.valueOf(params.get("taskId").toString());
-        Long locationId = Long.valueOf(params.get("locationId").toString());
+        String locationCode = params.get("locationCode").toString();
+        Long locationId = locationRpcService.getLocationIdByCode(locationCode);
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
         Long nextInTask = core.getNextInbound(taskEntry);
         if (!taskEntry.getTaskInfo().getToLocationId().equals(locationId)) {

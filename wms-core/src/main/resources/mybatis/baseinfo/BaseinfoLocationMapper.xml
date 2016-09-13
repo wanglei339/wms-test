@@ -128,6 +128,18 @@
         </if>
     </select>
 
+    <select id="getLocationbyCode" parameterType="map" resultMap="baseinfoLocationResultMap">
+        select * from baseinfo_location
+        <where>
+            <if test="id != null">id=#{id}</if>
+            <if test="isValid != null">and is_valid=#{isValid}</if>
+            <if test="locationCode != null">and location_code=#{locationCode}</if>
+        </where>
+        <if test="start != null and limit != null">
+            limit #{start},#{limit}
+        </if>
+    </select>
+
     <sql id="queryCondition">
         <where>
             <if test="id != null">id=#{id}</if>

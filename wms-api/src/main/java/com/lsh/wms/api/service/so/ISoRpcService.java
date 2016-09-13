@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public interface ISoRpcService {
 
-    public void insertOrder(SoRequest request) throws BizCheckedException;
+    public Long insertOrder(SoRequest request) throws BizCheckedException;
 
     public Boolean updateOrderStatus(Map<String, Object> map) throws BizCheckedException;
 
