@@ -102,7 +102,7 @@
   
 	<select id="getInbPoHeaderById" parameterType="Long" resultMap="inbPoHeaderResultMap">
 		select * from INB_PO_HEADER
-		where ID=#{id} 
+		where ORDER_ID=#{id}
 	</select>
   
 	<select id="countInbPoHeader" parameterType="map" resultType="int">
