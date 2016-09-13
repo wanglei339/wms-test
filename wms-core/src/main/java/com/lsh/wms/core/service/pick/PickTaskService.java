@@ -8,12 +8,14 @@ import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.wave.WaveDetailDao;
 import com.lsh.wms.core.dao.pick.PickTaskHeadDao;
 import com.lsh.wms.core.dao.wave.WaveDetailDao;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.pick.PickTaskHead;
 import com.lsh.wms.model.stock.StockQuant;
@@ -53,6 +55,8 @@ public class PickTaskService {
     private LocationService locationService;
     @Autowired
     private BaseTaskService baseTaskService;
+    @Autowired
+    private ItemService itemService;
 
     @Transactional(readOnly = false)
     public Boolean createPickTask(PickTaskHead head, List<WaveDetail> details){
@@ -193,10 +197,19 @@ public class PickTaskService {
         }
         TaskInfo taskInfo = baseTaskService.getTaskInfoById(taskId);
         result.put(resultKey, location.getLocationCode());
-        // 货架拣货时将EA转成箱数
-        if (taskInfo.getSubType().equals(1L) && result.get("allocQty") != null && !result.get("allocQty").equals(BigDecimal.ZERO)) {
-            BigDecimal allocQty = new BigDecimal(result.get("allocQty").toString());
-            result.put("allocQty", PackUtil.EAQty2UomQty(allocQty, result.get("allocUnitName").toString()));
+        if (taskInfo.getSubType().equals(1L)) {
+            // 货架拣货时将EA转成箱数
+            if (result.get("allocQty") != null && !result.get("allocQty").equals(BigDecimal.ZERO)) {
+                BigDecimal allocQty = new BigDecimal(result.get("allocQty").toString());
+                result.put("allocQty", PackUtil.EAQty2UomQty(allocQty, result.get("allocUnitName").toString()));
+            }
+            result.put("unitName", "箱");
+        } else {
+            result.put("unitName", "EA");
+        }
+        if (result.get("itemId") != null) {
+            BaseinfoItem item = itemService.getItem(Long.valueOf(result.get("itemId").toString()));
+            result.put("skuName", item.getSkuName());
         }
         return result;
     }

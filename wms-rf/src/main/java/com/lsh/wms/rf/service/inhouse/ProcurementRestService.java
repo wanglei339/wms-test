@@ -134,6 +134,7 @@ public class ProcurementRestService implements IProcurementRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String scanLocation() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
+        params.put("uid",RequestUtils.getHeader("uid"));
         try {
             Long taskId = Long.valueOf(params.get("taskId").toString());
             final TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
