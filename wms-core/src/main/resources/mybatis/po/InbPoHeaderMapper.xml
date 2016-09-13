@@ -100,7 +100,7 @@
 		where ORDER_OTHER_ID=#{orderOtherId} OR ORDER_ID=#{orderId}
 	</update>
   
-	<select id="getInbPoHeaderById" parameterType="int" resultMap="inbPoHeaderResultMap">
+	<select id="getInbPoHeaderById" parameterType="Long" resultMap="inbPoHeaderResultMap">
 		select * from INB_PO_HEADER
 		where ID=#{id} 
 	</select>
