@@ -166,7 +166,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             StockTransferPlan plan = new StockTransferPlan();
             Long staffId;
             try {
-                staffId = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getUid();
+                staffId =  Long.valueOf(RequestUtils.getHeader("uid"));
             } catch (Exception e) {
                 throw new BizCheckedException("2550013");
             }
@@ -225,7 +225,7 @@ public class StockTransferRestService implements IStockTransferRestService {
         try {
             Long staffId;
             try {
-                staffId = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getUid();
+                staffId =  Long.valueOf(RequestUtils.getHeader("uid"));
             } catch (Exception e) {
                 throw new BizCheckedException("2550013");
             }
@@ -286,7 +286,7 @@ public class StockTransferRestService implements IStockTransferRestService {
         try {
             Long staffId;
             try {
-                staffId = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getUid();
+                staffId =  Long.valueOf(RequestUtils.getHeader("uid"));
             } catch (Exception e) {
                 throw new BizCheckedException("2550013");
             }
@@ -379,7 +379,7 @@ public class StockTransferRestService implements IStockTransferRestService {
         try {
             Long staffId;
             try {
-                staffId = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uId").toString())).getUid();
+                staffId =  Long.valueOf(RequestUtils.getHeader("uid"));
             } catch (Exception e) {
                 throw new BizCheckedException("2550013");
             }

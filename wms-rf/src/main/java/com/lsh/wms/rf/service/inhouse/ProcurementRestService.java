@@ -207,7 +207,7 @@ public class ProcurementRestService implements IProcurementRestService {
         Map<String, Object> params = RequestUtils.getRequest();
         Long uid = 0L;
         try {
-            uid = Long.valueOf(params.get("uId").toString());
+            uid =  Long.valueOf(RequestUtils.getHeader("uid"));
         }catch (Exception e){
             return JsonUtils.TOKEN_ERROR("违法的账户");
         }

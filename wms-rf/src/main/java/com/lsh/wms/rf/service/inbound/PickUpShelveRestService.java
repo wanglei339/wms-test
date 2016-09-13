@@ -165,7 +165,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         Long containerId = 0L;
         Long taskId = 0L;
         try {
-            uId = Long.valueOf(mapQuery.get("uId").toString());
+            uId = Long.valueOf(RequestUtils.getHeader("uid"));
             containerId = Long.valueOf(mapQuery.get("containerId").toString());
             taskId = baseTaskService.getDraftTaskIdByContainerId(containerId);
         }catch (Exception e) {

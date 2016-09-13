@@ -172,8 +172,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         Long uId=0L;
         List<Map> taskList = new ArrayList<Map>();
         try {
-            Map<String, Object> params = RequestUtils.getRequest();
-            uId = Long.valueOf(params.get("uId").toString());
+            uId =  Long.valueOf(RequestUtils.getHeader("uid"));
         }catch (Exception e){
             logger.info(e.getMessage());
             return JsonUtils.TOKEN_ERROR("违法的账户");
