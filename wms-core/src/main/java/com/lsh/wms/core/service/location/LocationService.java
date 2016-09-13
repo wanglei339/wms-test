@@ -174,7 +174,8 @@ public class LocationService {
             child.setIsValid(LocationConstant.NOT_VALID);
             updateLocation(child);
             //删除redis的数据
-            locationRedisService.delLocationRedis(child.getLocationId());
+            locationRedisService.delLocationCodeRedis(child.getLocationCode()); //删除code-locationId
+            locationRedisService.delLocationRedis(child.getLocationId());   //删除locationId的hash
 
             locationDetailService.removeLocationDetail(child);
         }
@@ -825,14 +826,14 @@ public class LocationService {
         Long locationId = null;
         //先从redis中取code-locaitonId
         locationId = locationRedisService.getRedisLocationIdByCode(code);
-        if (null == locationId) {
-
+        if (null != locationId) {
+            return locationId;
         }
-
+        //redis没有去mysql中查
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("locationCode", code);
         params.put("isValid", LocationConstant.IS_VALID);
-        List<BaseinfoLocation> baseinfoLocations = locationDao.getBaseinfoLocationList(params);
+        List<BaseinfoLocation> baseinfoLocations = locationDao.getLocationbyCode(params);
         if (baseinfoLocations.size() > 0) {
             locationId = baseinfoLocations.get(0).getLocationId();
         }
