@@ -62,10 +62,17 @@ public class ObdService implements IObdService{
             List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(request.getOwnerUid(),obdDetail.getSkuCode());
             if(null != baseinfoItemList && baseinfoItemList.size()>=1){
                 BaseinfoItem baseinfoItem = baseinfoItemList.get(baseinfoItemList.size()-1);
-                obdDetail.setPackName(baseinfoItem.getPackName());
-                obdDetail.setPackUnit(baseinfoItem.getPackUnit());
                 obdDetail.setBarCode(baseinfoItem.getCode());
+                obdDetail.setPackUnit(baseinfoItem.getPackUnit());
+                obdDetail.setPackName(baseinfoItem.getPackName());
+
             }
+//            if(null != baseinfoItemList && baseinfoItemList.size()>=1){
+//                BaseinfoItem baseinfoItem = baseinfoItemList.get(baseinfoItemList.size()-1);
+//                obdDetail.setPackName(baseinfoItem.getPackName());
+//                obdDetail.setPackUnit(baseinfoItem.getPackUnit());
+//                obdDetail.setBarCode(baseinfoItem.getCode());
+//            }
 
             BigDecimal qty = obdDetail.getOrderQty().divide(obdDetail.getPackUnit(),2);
             obdDetail.setOrderQty(qty);
