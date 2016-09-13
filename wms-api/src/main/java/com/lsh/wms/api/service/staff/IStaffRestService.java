@@ -73,7 +73,7 @@ public interface IStaffRestService {
 
     public String getStaffListCount(Map<String, Object> params);
 
-    public String addStaff(Map<String, Object> params);
+    public String addStaff(Map<String, Object> params) throws BizCheckedException;
 
     public String updateStaff(Map<String, Object> params) throws BizCheckedException;
 
