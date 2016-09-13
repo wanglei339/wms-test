@@ -166,12 +166,14 @@ public class StockTransferRestService implements IStockTransferRestService {
             Map<String, Object> params = RequestUtils.getRequest();
             StockTransferPlan plan = new StockTransferPlan();
             Long staffId;
+            Long uid;
             try {
-                staffId = iSysUserRpcService.getSysUserById(Long.valueOf(RequestUtils.getHeader("uid"))).getUid();
+                uid = iSysUserRpcService.getSysUserById(Long.valueOf(RequestUtils.getHeader("uid"))).getUid();
             } catch (Exception e) {
                 throw new BizCheckedException("2550013");
             }
-            plan.setPlanner(staffId);
+            params.put("uid", uid);
+            plan.setPlanner(uid);
             String locationCode = params.get("locationCode").toString();
             Long locationId = locationRpcService.getLocationIdByCode(locationCode);
             BaseinfoLocation location;
@@ -225,13 +227,14 @@ public class StockTransferRestService implements IStockTransferRestService {
         Map<String, Object> params = RequestUtils.getRequest();
         StockTransferPlan plan = new StockTransferPlan();
         try {
-            Long staffId;
+            Long uid;
             try {
-                staffId = iSysUserRpcService.getSysUserById(Long.valueOf(RequestUtils.getHeader("uid"))).getUid();
+                uid = iSysUserRpcService.getSysUserById(Long.valueOf(RequestUtils.getHeader("uid"))).getUid();
             } catch (Exception e) {
                 throw new BizCheckedException("2550013");
             }
-            plan.setPlanner(staffId);
+            params.put("uid", uid);
+            plan.setPlanner(uid);
             String locationCode = params.get("locationCode").toString();
             Long locationId = locationRpcService.getLocationIdByCode(locationCode);
             BaseinfoLocation location;
@@ -287,13 +290,14 @@ public class StockTransferRestService implements IStockTransferRestService {
         Map<String, Object> params = RequestUtils.getRequest();
         StockTransferPlan plan = new StockTransferPlan();
         try {
-            Long staffId;
+            Long uid;
             try {
-                staffId = iSysUserRpcService.getSysUserById(Long.valueOf(RequestUtils.getHeader("uid"))).getUid();
+                uid = iSysUserRpcService.getSysUserById(Long.valueOf(RequestUtils.getHeader("uid"))).getUid();
             } catch (Exception e) {
                 throw new BizCheckedException("2550013");
             }
-            plan.setPlanner(staffId);
+            params.put("uid", uid);
+            plan.setPlanner(uid);
             String locationCode = params.get("locationCode").toString();
             Long locationId = locationRpcService.getLocationIdByCode(locationCode);
             BaseinfoLocation location;
@@ -346,12 +350,19 @@ public class StockTransferRestService implements IStockTransferRestService {
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String scanLocation() throws BizCheckedException {
-        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Map<String, Object> params = RequestUtils.getRequest();
         Map<String, Object> result;
-        Long type = Long.valueOf(mapQuery.get("type").toString());
-        logger.info(mapQuery.toString());
+        Long type = Long.valueOf(params.get("type").toString());
+        logger.info(params.toString());
         try {
-            Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
+            Long uid;
+            try {
+                uid = iSysUserRpcService.getSysUserById(Long.valueOf(RequestUtils.getHeader("uid"))).getUid();
+            } catch (Exception e) {
+                throw new BizCheckedException("2550013");
+            }
+            params.put("uid", uid);
+            Long taskId = Long.valueOf(params.get("taskId").toString());
             TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
             if (taskEntry == null) {
                 throw new BizCheckedException("3040001");
@@ -360,9 +371,9 @@ public class StockTransferRestService implements IStockTransferRestService {
                 throw new BizCheckedException("2550021");
             }
             if (type.equals(1L)) {
-                result = rpcService.scanFromLocation(mapQuery);
+                result = rpcService.scanFromLocation(params);
             } else {
-                result = rpcService.scanToLocation(mapQuery);
+                result = rpcService.scanToLocation(params);
             }
         } catch (BizCheckedException e) {
             throw e;
@@ -381,13 +392,14 @@ public class StockTransferRestService implements IStockTransferRestService {
         Map<String, Object> params = RequestUtils.getRequest();
         //Long locationId = Long.valueOf(params.get("locationId").toString());
         try {
-            Long staffId;
+            Long uid;
             try {
-                staffId = iSysUserRpcService.getSysUserById(Long.valueOf(RequestUtils.getHeader("uid"))).getUid();
+                uid = iSysUserRpcService.getSysUserById(Long.valueOf(RequestUtils.getHeader("uid"))).getUid();
             } catch (Exception e) {
                 throw new BizCheckedException("2550013");
             }
-            final Long taskId = rpcService.assign(staffId);
+            params.put("uid", uid);
+            final Long taskId = rpcService.assign(uid);
             if (taskId == 0) {
                 throw new BizCheckedException("2040001");
             }
