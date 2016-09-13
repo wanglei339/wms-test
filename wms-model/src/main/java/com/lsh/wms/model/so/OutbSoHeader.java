@@ -16,8 +16,14 @@ public class OutbSoHeader implements Serializable {
 	/** 参考单号 */
 	private String orderOtherRefId;
 
-	/** 下单用户 */
-    private String orderUser;
+	/** 售达方编码 */
+	private String orderUserCode;
+	/** 下单客户（售达方名称） */
+	private String orderUser;
+	/** 送达方名称 */
+	private String deliveryName;
+	/** 送达方编码 */
+	private String deliveryCode;
 	/** 货主 */
     private Long ownerUid;
 	/** 订单类型 1进货单，2退货单 */
@@ -195,5 +201,29 @@ public class OutbSoHeader implements Serializable {
 
 	public void setOrderOtherRefId(String orderOtherRefId) {
 		this.orderOtherRefId = orderOtherRefId;
+	}
+
+	public String getDeliveryCode() {
+		return deliveryCode;
+	}
+
+	public void setDeliveryCode(String deliveryCode) {
+		this.deliveryCode = deliveryCode;
+	}
+
+	public String getDeliveryName() {
+		return deliveryName;
+	}
+
+	public void setDeliveryName(String deliveryName) {
+		this.deliveryName = deliveryName;
+	}
+
+	public String getOrderUserCode() {
+		return orderUserCode;
+	}
+
+	public void setOrderUserCode(String orderUserCode) {
+		this.orderUserCode = orderUserCode;
 	}
 }

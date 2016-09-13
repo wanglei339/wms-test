@@ -93,6 +93,8 @@ public class TaskInfo implements Serializable {
 
 
 	public Long date = 0L;
+	/** TMS线路 */
+	private String transPlan = "";
 
 	/** 任务工作量(按外包装计算) */
 	private BigDecimal taskPackQty = BigDecimal.ZERO;
@@ -492,5 +494,13 @@ public class TaskInfo implements Serializable {
 
 	public void setTaskPackQty(BigDecimal taskPackQty) {
 		this.taskPackQty = taskPackQty;
+	}
+
+	public String getTransPlan(){
+		return this.transPlan;
+	}
+
+	public void setTransPlan(String transPlan){
+		this.transPlan = transPlan;
 	}
 }

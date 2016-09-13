@@ -90,6 +90,9 @@ public class ShelveTaskHandler extends AbsTaskHandler {
 
         TaskInfo taskInfo = new TaskInfo();
         ShelveTaskHead taskHead = new ShelveTaskHead();
+        Long lotId = quant.getLotId();
+        // 获取批次信息
+        StockLot stockLot = stockLotService.getStockLotByLotId(lotId);
 
         ObjUtils.bean2bean(quant, taskInfo);
         ObjUtils.bean2bean(quant, taskHead);
@@ -97,6 +100,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         taskInfo.setType(TaskConstant.TYPE_SHELVE);
         taskInfo.setFromLocationId(quant.getLocationId());
         taskInfo.setQtyDone(quant.getQty());
+        taskInfo.setOrderId(stockLot.getPoId());
 
         taskEntry.setTaskInfo(taskInfo);
         taskEntry.setTaskHead(taskHead);

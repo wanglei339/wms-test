@@ -7,8 +7,6 @@
 		<result property="taskId" column="task_id"/>
 		<result property="deliveryId" column="delivery_id"/>
 		<result property="waveId" column="wave_id"/>
-		<result property="transPlan" column="trans_plan"/>
-		<result property="pickType" column="pick_type"/>
 		<result property="containerId" column="container_id"/>
 		<result property="allocCollectLocation" column="alloc_collect_location"/>
 		<result property="realCollectLocation" column="real_collect_location"/>
@@ -19,10 +17,10 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PickTaskHead">
 		insert into pick_task_head (
-			task_id,delivery_id,wave_id,trans_plan,pick_type,container_id,
+			task_id,delivery_id,wave_id,pick_type,container_id,
 			alloc_collect_location,real_collect_location,pick_at,created_at,updated_at
     	) values (
-			#{taskId},#{deliveryId},#{waveId},#{transPlan},#{pickType},#{containerId},
+			#{taskId},#{deliveryId},#{waveId},#{pickType},#{containerId},
 			#{allocCollectLocation},#{realCollectLocation},#{pickAt},#{createdAt},#{updatedAt}
     	)
 	</insert>
@@ -33,7 +31,6 @@
   			<if test="taskId != null">task_id=#{taskId},</if>
   			<if test="deliveryId != null">delivery_id=#{deliveryId},</if>
   			<if test="waveId != null">wave_id=#{waveId},</if>
-  			<if test="transPlan != null">trans_plan=#{transPlan},</if>
   			<if test="pickType != null">pick_type=#{pickType},</if>
   			<if test="containerId != null">container_id=#{containerId},</if>
   			<if test="allocCollectLocation != null">alloc_collect_location=#{allocCollectLocation},</if>

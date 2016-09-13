@@ -8,6 +8,8 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.model.stock.StockItem;
 import com.lsh.wms.api.model.stock.StockRequest;
 import com.lsh.wms.api.service.location.ILocationRpcService;
+import com.lsh.wms.core.constant.ContainerConstant;
+import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.model.stock.StockLot;
@@ -84,6 +86,8 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
     private ILocationRpcService locationRpcService;
     @Autowired
     private BaseinfoLocationWarehouseService baseinfoLocationWarehouseService;
+    @Autowired
+    private ContainerService containerService;
 
 //    @Reference
 //    private IIbdBackService ibdBackService;
@@ -366,6 +370,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             }
             StockItem stockItem = new StockItem();
             if (detail.getSkuId().equals(detail.getRealSkuId())) {
+                Long containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
                 StockMove move = new StockMove();
                 move.setTaskId(detail.getTakingId());
                 move.setSkuId(detail.getSkuId());
@@ -378,6 +383,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
                     move.setQty(detail.getTheoreticalQty().subtract(detail.getRealQty()));
                     move.setFromLocationId(detail.getLocationId());
                     move.setToLocationId(locationService.getInventoryLostLocationId());
+                    move.setToContainerId(containerId);
                     //组装回传物美的数据
 
                     stockItem.setEntryQnt(detail.getTheoreticalQty().subtract(detail.getRealQty()).toString());

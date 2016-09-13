@@ -7,17 +7,22 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.shelve.IShelveRestService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.shelve.ShelveTaskService;
+import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.shelve.ShelveTaskHead;
+import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
@@ -43,14 +48,20 @@ public class ShelveRestService implements IShelveRestService {
     private ITaskRpcService iTaskRpcService;
     @Reference
     private ISysUserRpcService iSysUserRpcService;
+    @Reference
+    private ILocationRpcService iLocationRpcService;
     @Autowired
     private BaseTaskService baseTaskService;
     @Autowired
     private StockQuantService stockQuantService;
     @Autowired
+    private StockLotService stockLotService;
+    @Autowired
     private ShelveTaskService shelveTaskService;
     @Autowired
     private LocationService locationService;
+    @Autowired
+    private ItemService itemService;
 
     private Long taskType = TaskConstant.TYPE_SHELVE;
 
@@ -128,8 +139,12 @@ public class ShelveRestService implements IShelveRestService {
             if (taskInfo.getContainerId().equals(containerId)) {
                 ShelveTaskHead taskHead = shelveTaskService.getShelveTaskHead(taskInfos.get(0).getTaskId());
                 BaseinfoLocation allocLocation = locationService.getLocation(taskHead.getAllocLocationId());
+                StockLot stockLot = stockLotService.getStockLotByLotId(taskHead.getLotId());
+                BaseinfoItem item = itemService.getItem(stockLot.getItemId());
                 Map<String, Object> result = BeanMapTransUtils.Bean2map(taskHead);
                 result.put("allocLocationCode", allocLocation.getLocationCode());
+                result.put("itemId", item.getItemId());
+                result.put("skuName", item.getSkuName());
                 return JsonUtils.SUCCESS(result);
             } else {
                 throw new BizCheckedException("2030016");
@@ -148,8 +163,12 @@ public class ShelveRestService implements IShelveRestService {
         iTaskRpcService.assign(taskId, staffId);
         ShelveTaskHead taskHead = shelveTaskService.getShelveTaskHead(taskId);
         BaseinfoLocation allocLocation = locationService.getLocation(taskHead.getAllocLocationId());
+        StockLot stockLot = stockLotService.getStockLotByLotId(taskHead.getLotId());
+        BaseinfoItem item = itemService.getItem(stockLot.getItemId());
         Map<String, Object> result = BeanMapTransUtils.Bean2map(taskHead);
         result.put("allocLocationCode", allocLocation.getLocationCode());
+        result.put("itemId", item.getItemId());
+        result.put("skuName", item.getSkuName());
         return JsonUtils.SUCCESS(result);
     }
 
@@ -165,7 +184,8 @@ public class ShelveRestService implements IShelveRestService {
     public String scanTargetLocation() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
-        Long locationId = Long.valueOf(mapQuery.get("locationId").toString());
+        String locationCode = mapQuery.get("locationCode").toString();
+        Long locationId = iLocationRpcService.getLocationIdByCode(locationCode);
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
         if(entry == null){
             return JsonUtils.EXCEPTION_ERROR();
@@ -189,7 +209,7 @@ public class ShelveRestService implements IShelveRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String restore() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
-        Long staffId = Long.valueOf(mapQuery.get("operator").toString());
+        Long staffId = Long.valueOf(RequestUtils.getHeader("uid"));
         List<TaskInfo> taskInfos = baseTaskService.getAssignedTaskByOperator(staffId, TaskConstant.TYPE_SHELVE);
         if ( taskInfos == null || taskInfos.isEmpty() ) {
             return JsonUtils.SUCCESS(new HashMap<String, Object>() {
@@ -200,8 +220,12 @@ public class ShelveRestService implements IShelveRestService {
         }
         ShelveTaskHead taskHead = shelveTaskService.getShelveTaskHead(taskInfos.get(0).getTaskId());
         BaseinfoLocation allocLocation = locationService.getLocation(taskHead.getAllocLocationId());
+        StockLot stockLot = stockLotService.getStockLotByLotId(taskHead.getLotId());
+        BaseinfoItem item = itemService.getItem(stockLot.getItemId());
         Map<String, Object> result = BeanMapTransUtils.Bean2map(taskHead);
         result.put("allocLocationCode", allocLocation.getLocationCode());
+        result.put("itemId", item.getItemId());
+        result.put("skuName", item.getSkuName());
         return JsonUtils.SUCCESS(result);
     }
 }
