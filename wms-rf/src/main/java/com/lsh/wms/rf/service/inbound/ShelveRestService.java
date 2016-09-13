@@ -7,6 +7,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.shelve.IShelveRestService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
@@ -43,6 +44,8 @@ public class ShelveRestService implements IShelveRestService {
     private ITaskRpcService iTaskRpcService;
     @Reference
     private ISysUserRpcService iSysUserRpcService;
+    @Reference
+    private ILocationRpcService iLocationRpcService;
     @Autowired
     private BaseTaskService baseTaskService;
     @Autowired
@@ -165,7 +168,8 @@ public class ShelveRestService implements IShelveRestService {
     public String scanTargetLocation() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
-        Long locationId = Long.valueOf(mapQuery.get("locationId").toString());
+        String locationCode = mapQuery.get("locationCode").toString();
+        Long locationId = iLocationRpcService.getLocationIdByCode(locationCode);
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
         if(entry == null){
             return JsonUtils.EXCEPTION_ERROR();
@@ -189,7 +193,7 @@ public class ShelveRestService implements IShelveRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String restore() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
-        Long staffId = Long.valueOf(mapQuery.get("operator").toString());
+        Long staffId = Long.valueOf(RequestUtils.getHeader("uid"));
         List<TaskInfo> taskInfos = baseTaskService.getAssignedTaskByOperator(staffId, TaskConstant.TYPE_SHELVE);
         if ( taskInfos == null || taskInfos.isEmpty() ) {
             return JsonUtils.SUCCESS(new HashMap<String, Object>() {
