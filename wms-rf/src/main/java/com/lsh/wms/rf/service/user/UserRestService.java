@@ -52,6 +52,7 @@ public class UserRestService implements IUserRestService {
         String passwd = (String) request.get("passwd");
         System.out.println("userName : " + userName + "passwd : "+passwd);
         Map<String,Object> map = userRpcService.login(userName,passwd);
+        //
 //        HttpServletResponse response = (HttpServletResponse)RpcContext.getContext().getResponse();
 //        response.addHeader("uid",map.get("uid").toString());
 //        response.addHeader("utoken",map.get("utoken").toString());

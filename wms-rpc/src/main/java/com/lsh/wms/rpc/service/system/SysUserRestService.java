@@ -36,27 +36,27 @@ public class SysUserRestService implements ISysUserRestService {
 
     @POST
     @Path("getUserList")
-    public String getSysUserList(Map<String, Object> params) {
+    public String getSysUserList(Map<String, Object> params) throws BizCheckedException{
         List<SysUser> userList = sysUserRpcService.getSysUserList(params);
         return JsonUtils.SUCCESS(userList);
     }
 
     @POST
     @Path("getUserListCount")
-    public String getSysUserListCount(Map<String, Object> params) {
+    public String getSysUserListCount(Map<String, Object> params) throws BizCheckedException{
         return JsonUtils.SUCCESS(sysUserRpcService.getSysUserListCount(params));
     }
 
     @POST
     @Path("addUser")
-    public String addSysUser(SysUser sysUser) {
+    public String addSysUser(SysUser sysUser) throws BizCheckedException{
         sysUserRpcService.addSysUser(sysUser);
         return JsonUtils.SUCCESS(sysUser);
     }
 
     @POST
     @Path("updateUser")
-    public String updateSysUser(SysUser sysUser) {
+    public String updateSysUser(SysUser sysUser) throws BizCheckedException{
         sysUserRpcService.updateSysUser(sysUser);
         return JsonUtils.SUCCESS(sysUser);
     }

@@ -25,10 +25,25 @@ public class SoRequest implements Serializable {
 
     private String orderOtherRefId = "";
 
-    /** 下单用户 */
+    /** 售达方编码 */
+    @NotBlank
+    @Size(max=64)
+    private String orderUserCode;
+
+    /** 下单客户（售达方名称） */
     @NotBlank
     @Size(max=64)
     private String orderUser;
+
+    /** 送达方名称 */
+    @NotBlank
+    @Size(max=64)
+    private String deliveryName;
+
+    /** 送达方编码 */
+    @NotBlank
+    @Size(max=64)
+    private String deliveryCode;
 
     /** 货主 */
     @NotNull
@@ -65,21 +80,22 @@ public class SoRequest implements Serializable {
     public SoRequest() {
     }
 
-    public SoRequest(Long warehouseId, String orderOtherId,String orderOtherRefId, String orderUser, Long ownerUid, Integer orderType,
-                     Long waveId, String transPlan, Integer waveIndex, Date transTime, String deliveryAddrs,
-                     List<SoItem> items) {
-        this.warehouseId = warehouseId;
+    public SoRequest(String deliveryAddrs, String deliveryCode, String deliveryName, List<SoItem> items, String orderOtherId, String orderOtherRefId, Integer orderType, String orderUser, String orderUserCode, Long ownerUid, String transPlan, Date transTime, Long warehouseId, Long waveId, Integer waveIndex) {
+        this.deliveryAddrs = deliveryAddrs;
+        this.deliveryCode = deliveryCode;
+        this.deliveryName = deliveryName;
+        this.items = items;
         this.orderOtherId = orderOtherId;
         this.orderOtherRefId = orderOtherRefId;
-        this.orderUser = orderUser;
-        this.ownerUid = ownerUid;
         this.orderType = orderType;
-        this.waveId = waveId;
+        this.orderUser = orderUser;
+        this.orderUserCode = orderUserCode;
+        this.ownerUid = ownerUid;
         this.transPlan = transPlan;
-        this.waveIndex = waveIndex;
         this.transTime = transTime;
-        this.deliveryAddrs = deliveryAddrs;
-        this.items = items;
+        this.warehouseId = warehouseId;
+        this.waveId = waveId;
+        this.waveIndex = waveIndex;
     }
 
     public Long getWarehouseId() {
@@ -176,5 +192,29 @@ public class SoRequest implements Serializable {
 
     public void setOrderOtherRefId(String orderOtherRefId) {
         this.orderOtherRefId = orderOtherRefId;
+    }
+
+    public String getDeliveryCode() {
+        return deliveryCode;
+    }
+
+    public void setDeliveryCode(String deliveryCode) {
+        this.deliveryCode = deliveryCode;
+    }
+
+    public String getDeliveryName() {
+        return deliveryName;
+    }
+
+    public void setDeliveryName(String deliveryName) {
+        this.deliveryName = deliveryName;
+    }
+
+    public String getOrderUserCode() {
+        return orderUserCode;
+    }
+
+    public void setOrderUserCode(String orderUserCode) {
+        this.orderUserCode = orderUserCode;
     }
 }

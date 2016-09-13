@@ -10,17 +10,17 @@ import java.util.Map;
  */
 public interface ISysUserRestService {
 
-    public String getSysUserList(Map<String, Object> params);
+    public String getSysUserList(Map<String, Object> params)throws BizCheckedException;
 
-    public String getSysUserListCount(Map<String, Object> params);
+    public String getSysUserListCount(Map<String, Object> params)throws BizCheckedException;
 
-    public String addSysUser(SysUser sysUser);
+    public String addSysUser(SysUser sysUser)throws BizCheckedException;
 
-    public String updateSysUser(SysUser sysUser);
+    public String updateSysUser(SysUser sysUser)throws BizCheckedException;
 
     public String checkLogin (Map<String, Object> params)throws BizCheckedException;
 
-    public String getSysUserByUsername(Map<String, Object> params);
+    public String getSysUserByUsername(Map<String, Object> params)throws BizCheckedException;
 
     String getSysUserById(Long iUid);
 }

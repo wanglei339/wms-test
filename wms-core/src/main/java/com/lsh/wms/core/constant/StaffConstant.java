@@ -16,5 +16,15 @@ public class StaffConstant {
     /* 离职 */
     public static final int STAFF_INFO_STATUS_OFF = 2;
 
+    /**
+     *系统用户可用
+     */
+    public static final Integer USER_USE= 1;
+
+    /**
+     * 系统用户禁用
+     */
+    public static final Integer USER_FORBIDDEN = 2;
+
 
 }

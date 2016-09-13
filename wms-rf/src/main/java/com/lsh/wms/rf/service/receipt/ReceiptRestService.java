@@ -157,14 +157,14 @@ public class ReceiptRestService implements IReceiptRfService {
         InbPoDetail inbPoDetail = poOrderService.getInbPoDetailByOrderIdAndBarCode(inbPoHeader.getOrderId(), barCode);
 
         if (inbPoDetail == null) {
-            throw new BizCheckedException("2020022");
+            throw new BizCheckedException("2020004");
         }
 
 
         //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
         CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barCode);
         if (null == csiSku || csiSku.getSkuId() == null) {
-            throw new BizCheckedException("2020004");
+            throw new BizCheckedException("2020022");
         }
 
         //校验之后修改订单状态为收货中 第一次收货将订单改为收货中
