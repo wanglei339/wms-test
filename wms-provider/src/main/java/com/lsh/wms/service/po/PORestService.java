@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -94,11 +95,15 @@ public class PORestService implements IPoRestService {
             String poNumber =map.get("orderOtherId").toString();
             header.setPoNumber(poNumber);
             List<InbPoDetail> inbPoDetails = poOrderService.getInbPoDetailListByOrderId((Long) map.get("orderId"));
+            InbPoHeader poHeader = poOrderService.getInbPoHeaderById((Long) map.get("orderId"));
             List<IbdItem>  items = new ArrayList<IbdItem>();
             for(InbPoDetail inbPoDetail : inbPoDetails){
                 IbdItem ibdItem = new IbdItem();
                 //转成ea
-                String entryQnt = inbPoDetail.getInboundQty().multiply(inbPoDetail.getPackUnit()).toString();
+                BigDecimal inboudQty =  inbPoDetail.getInboundQty().multiply(inbPoDetail.getPackUnit());
+                inboudQty.setScale(3);
+                BigDecimal entryQnt = poHeader.getOrderType().equals(3) ? inbPoDetail.getOrderQty() : inboudQty;
+
                 ibdItem.setEntryQnt(entryQnt);
                 ibdItem.setMaterialNo(inbPoDetail.getSkuCode());
                 ibdItem.setPoItem(inbPoDetail.getDetailOtherId());
