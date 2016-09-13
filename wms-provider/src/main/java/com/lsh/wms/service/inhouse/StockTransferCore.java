@@ -107,7 +107,7 @@ public class StockTransferCore {
         String locationCode = params.get("locationCode").toString();
         Long fromLocationId = locationRpcService.getLocationIdByCode(locationCode);
         try {
-            uid = iSysUserRpcService.getSysUserById(Long.valueOf(RequestUtils.getHeader("uid"))).getUid();
+            uid = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uid").toString())).getUid();
         } catch (Exception e) {
             throw new BizCheckedException("2550013");
         }
@@ -181,7 +181,7 @@ public class StockTransferCore {
         String locationCode = params.get("locationCode").toString();
         Long toLocationId = locationRpcService.getLocationIdByCode(locationCode);
         try {
-            uid = iSysUserRpcService.getSysUserById(Long.valueOf(RequestUtils.getHeader("uid"))).getUid();
+            uid = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uid").toString())).getUid();
         } catch (Exception e) {
             throw new BizCheckedException("2550013");
         }

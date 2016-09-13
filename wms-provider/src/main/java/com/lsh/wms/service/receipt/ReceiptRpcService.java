@@ -309,7 +309,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     throw new BizCheckedException("2020009");
                 }
 
-                if(receiptItem.getInboundQty().compareTo(new BigDecimal(0)) <= 0) {
+                if(receiptItem.getInboundQty().compareTo(BigDecimal.ZERO) < 0) {
                     throw new BizCheckedException("2020007");
                 }
 
@@ -336,7 +336,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
                 CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, inbReceiptDetail.getBarCode());
                 if (null == csiSku || csiSku.getSkuId() == null) {
-                    throw new BizCheckedException("2020004");
+                    throw new BizCheckedException("2020022");
                 }
                 inbReceiptDetail.setSkuId(csiSku.getSkuId());
                 BaseinfoItem baseinfoItem = itemService.getItem(inbPoHeader.getOwnerUid(), csiSku.getSkuId());

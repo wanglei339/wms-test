@@ -7,6 +7,7 @@ import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.base.q.Utilities.MD5;
 import com.lsh.base.qiniu.pili.common.Utils;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
+import com.lsh.wms.core.constant.StaffConstant;
 import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.BaseinfoStaffDepartment;
@@ -29,7 +30,7 @@ public class SysUserRpcService implements ISysUserRpcService {
     @Autowired
     private IdGenerator idGenerator;
 
-    public List<SysUser>getSysUserList(Map<String, Object> params) {
+    public List<SysUser> getSysUserList(Map<String, Object> params) {
         return sysUserService.getSysUserList(params);
     }
 
@@ -37,22 +38,35 @@ public class SysUserRpcService implements ISysUserRpcService {
         return sysUserService.getSysUserListCount(params);
     }
 
-    public void addSysUser(SysUser sysUser) {
+    public void addSysUser(SysUser sysUser) throws BizCheckedException {
         //sysUser.setUid(RandomUtils.genId());
+
+        //校验,新增的用户的username不能相同,因为是唯一key
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("username", sysUser.getUsername());
+        if (this.getSysUserList(params).size() > 0) {
+            throw new BizCheckedException("2660004");
+        }
         //使用Id生成器
-        sysUser.setUid(idGenerator.genId("uid",false,false));
+        sysUser.setUid(idGenerator.genId("uid", false, false));
         String salt = RandomUtils.randomStr(10);
         sysUser.setSalt(salt);
-        sysUser.setPassword(genPwd(sysUser.getPassword(),salt));
+        sysUser.setPassword(genPwd(sysUser.getPassword(), salt));
         //sysUser.setScreenname(sysUser.getUsername());
         sysUserService.addSysUser(sysUser);
     }
 
-    public void updateSysUser(SysUser sysUser) {
+    public void updateSysUser(SysUser sysUser) throws BizCheckedException {
         if (sysUser.getPassword() != null) {
             String salt = RandomUtils.randomStr(10);
             sysUser.setSalt(salt);
-            sysUser.setPassword(genPwd(sysUser.getPassword(),salt));
+            sysUser.setPassword(genPwd(sysUser.getPassword(), salt));
+        }
+        //校验username不能相同,因为是唯一key
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("username", sysUser.getUsername());
+        if (this.getSysUserList(params).size() > 0) {
+            throw new BizCheckedException("2660004");
         }
         sysUserService.updateSysUser(sysUser);
     }
@@ -89,12 +103,17 @@ public class SysUserRpcService implements ISysUserRpcService {
         if (user != null) {
             String salt = user.getSalt();
             String signPwd = genPwd(password, salt);
+            //用户禁用,直接抛异常提示
+            if (user.getStatus().equals(StaffConstant.USER_FORBIDDEN)) {  //常量放在StaffConstant中
+                throw new BizCheckedException("2660003");
+            }
+            //密码提示
             if (signPwd.equals(user.getPassword())) {
                 return true;
-            }else{
+            } else {
                 throw new BizCheckedException("2660002");
             }
-        }else{
+        } else {
             throw new BizCheckedException("2660001");
         }
 

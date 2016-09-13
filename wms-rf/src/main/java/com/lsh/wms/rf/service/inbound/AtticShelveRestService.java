@@ -205,6 +205,8 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             map.put("locationCode", location.getLocationCode());
             map.put("qty", detail.getQty());
             map.put("packName", info.getPackName());
+            map.put("itemId",info.getItemId());
+            map.put("skuName",itemService.getItem(info.getItemId()).getSkuName());
             return JsonUtils.SUCCESS(map);
         }else {
 
@@ -265,6 +267,8 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         map.put("locationCode", location.getLocationCode());
         map.put("qty", detail.getQty());
         map.put("packName", info.getPackName());
+        map.put("itemId",info.getItemId());
+        map.put("skuName",itemService.getItem(info.getItemId()).getSkuName());
         return JsonUtils.SUCCESS(map);
 
     }
@@ -438,6 +442,8 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
                             map.put("locationCode", location.getLocationCode());
                             map.put("qty", qty);
                             map.put("packName", quant.getPackName());
+                            map.put("itemId",quant.getItemId());
+                            map.put("skuName",itemService.getItem(quant.getItemId()).getSkuName());
 
                             shelveTaskService.create(detail);
                             return map;
@@ -495,6 +501,8 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             map.put("locationCode", location.getLocationCode());
             map.put("qty", detail.getQty());
             map.put("packName", quant.getPackName());
+            map.put("itemId",quant.getItemId());
+            map.put("skuName",itemService.getItem(quant.getItemId()).getSkuName());
             shelveTaskService.create(detail);
             return map;
         }
