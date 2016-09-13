@@ -54,7 +54,7 @@ public class StockQuantRfRestService implements IStockQuantRfRestService {
     public String getItemByLocation() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
         String locationCode = params.get("locationCode").toString();
-        Long locationId =  locationRpcService.getLocationIdByCode(locationCode);
+        Long locationId = locationRpcService.getLocationIdByCode(locationCode);
         BaseinfoLocation location;
         try {
             location = locationRpcService.getLocation(locationId);

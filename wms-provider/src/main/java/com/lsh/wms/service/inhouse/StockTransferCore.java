@@ -25,7 +25,6 @@ import com.lsh.wms.model.baseinfo.BaseinfoLocationBin;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
-import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
@@ -106,10 +105,9 @@ public class StockTransferCore {
         Long uid = 0L;
         Long taskId = Long.valueOf(params.get("taskId").toString());
         String locationCode = params.get("locationCode").toString();
-        Long fromLocationId =  locationRpcService.getLocationIdByCode(locationCode);
+        Long fromLocationId = locationRpcService.getLocationIdByCode(locationCode);
         try {
-            SysUser user = iSysUserRpcService.getSysUserById(Long.valueOf(RequestUtils.getHeader("uid")));
-            uid = user.getUid();
+            uid = iSysUserRpcService.getSysUserById(Long.valueOf(RequestUtils.getHeader("uid"))).getUid();
         } catch (Exception e) {
             throw new BizCheckedException("2550013");
         }
@@ -181,10 +179,9 @@ public class StockTransferCore {
         Long uid = 0L;
         Long taskId = Long.valueOf(params.get("taskId").toString());
         String locationCode = params.get("locationCode").toString();
-        Long toLocationId =  locationRpcService.getLocationIdByCode(locationCode);
+        Long toLocationId = locationRpcService.getLocationIdByCode(locationCode);
         try {
-            SysUser user = iSysUserRpcService.getSysUserById( Long.valueOf(RequestUtils.getHeader("uid")));
-            uid = user.getUid();
+            uid = iSysUserRpcService.getSysUserById(Long.valueOf(RequestUtils.getHeader("uid"))).getUid();
         } catch (Exception e) {
             throw new BizCheckedException("2550013");
         }
