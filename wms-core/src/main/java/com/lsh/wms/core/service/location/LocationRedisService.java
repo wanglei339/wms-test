@@ -4,6 +4,7 @@ import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.dao.redis.RedisHashDao;
+import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,8 @@ import java.util.Map;
 public class LocationRedisService {
     @Autowired
     private RedisHashDao redisHashDao;
+    @Autowired
+    private RedisStringDao redisStringDao;
 
     public static final Integer timeout = 600;//600s 过期时间
 
@@ -31,7 +34,7 @@ public class LocationRedisService {
             logger.info("--新增位置缓存信息，数据为空--");
             return;
         }
-
+        //hash值插入 (locationId-location)
         String redistKey = StrUtils.formatString(RedisKeyConstant.LOCATION_LOCATIONID, location.getLocationId());
         Map<String, String> locationMap = new HashMap<String, String>();
         locationMap.put("locationId", ObjUtils.toString(location.getLocationId(), ""));
@@ -58,8 +61,18 @@ public class LocationRedisService {
         locationMap.put("curContainerVol", ObjUtils.toString(location.getCurContainerVol(), ""));
         locationMap.put("description", ObjUtils.toString(location.getDescription(), ""));
         redisHashDao.putAll(redistKey, locationMap);
+
+        //string值插入k-v (code-locationId)
+        String redisCodeKey = StrUtils.formatString(RedisKeyConstant.LOCATION_CODE, location.getLocationCode());
+        redisStringDao.set(redisCodeKey, location.getLocationId());
     }
 
+    /**
+     * 通过locationId获取redis中的hash值
+     *
+     * @param locationId 位置id
+     * @return 位置参数map
+     */
     public Map<String, String> getRedisLocation(Long locationId) {
         if (locationId == null) {
             logger.info("--新增位置缓存信息，数据为空--");
@@ -70,11 +83,40 @@ public class LocationRedisService {
         return locationMap;
     }
 
-    public void delLocationRedis(Long locationId){
-        String redistKey = StrUtils.formatString(RedisKeyConstant.LOCATION_LOCATIONID,locationId);
+    /**
+     * 通过位置编码查找redis缓存中的locationId
+     *
+     * @param code 位置编码
+     * @return 位置id
+     */
+    public Long getRedisLocationIdByCode(String code) {
+        if (null == code) {
+            logger.info("--新增位置缓存信息，数据为空--");
+        }
+        String redisKey = StrUtils.formatString(RedisKeyConstant.LOCATION_CODE, code);
+        String idStr = redisStringDao.get(redisKey);
+        Long locationId = ObjUtils.toLong(idStr);
+        return locationId;
+    }
+
+
+    /**
+     * 通过id删除
+     * @param locationId
+     */
+    public void delLocationRedis(Long locationId) {
+        String redistKey = StrUtils.formatString(RedisKeyConstant.LOCATION_LOCATIONID, locationId);
         redisHashDao.delete(redistKey);
     }
 
+    /**
+     * 删除code-locationId的缓存
+     * @param code 位置编码
+     */
+    public  void delLocationCodeRedis(String code){
+        String redisKey = StrUtils.formatString(RedisKeyConstant.LOCATION_CODE,code);
+        redisStringDao.delete(redisKey);
+    }
 
 
 }

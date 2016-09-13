@@ -114,7 +114,11 @@ public class LocationDetailService {
         locationDetailServiceFactory.register(LocationConstant.SPLIT_SHELF, baseinfoLocationShelfService);
         locationDetailServiceFactory.register(LocationConstant.SPLIT_SHELF_LEVEL, baseinfoLocationLevelService);
         locationDetailServiceFactory.register(LocationConstant.SPLIT_SHELF_BIN, baseinfoLocationBinService);
-
+        //注入贵品区、贵品货架、贵品货架层级、贵品存拣货位
+        locationDetailServiceFactory.register(LocationConstant.VALUABLES_AREA, baseinfoLocationRegionService);
+        locationDetailServiceFactory.register(LocationConstant.VALUABLES_SHELF, baseinfoLocationShelfService);
+        locationDetailServiceFactory.register(LocationConstant.VALUABLES_SHELF_LEVEL, baseinfoLocationLevelService);
+        locationDetailServiceFactory.register(LocationConstant.VALUABLES_SHELF_BIN, baseinfoLocationBinService);
     }
 
     /**
@@ -170,6 +174,11 @@ public class LocationDetailService {
         locationDetailModelFactory.register(LocationConstant.SPLIT_SHELF, new BaseinfoLocationShelf());
         locationDetailModelFactory.register(LocationConstant.SPLIT_SHELF_LEVEL, new BaseinfoLocation());
         locationDetailModelFactory.register(LocationConstant.SPLIT_SHELF_BIN, new BaseinfoLocationBin());
+        //注入贵品区、贵品货架、贵品货架层级、贵品存拣货位
+        locationDetailModelFactory.register(LocationConstant.VALUABLES_AREA, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.VALUABLES_SHELF, new BaseinfoLocationShelf());
+        locationDetailModelFactory.register(LocationConstant.VALUABLES_SHELF_LEVEL, new BaseinfoLocation());
+        locationDetailModelFactory.register(LocationConstant.VALUABLES_SHELF_BIN, new BaseinfoLocationBin());
     }
 
     /**
@@ -216,20 +225,27 @@ public class LocationDetailService {
         //如果是货架个体,插入指定层的货架层
         // todo 如果单插入阁楼层的话,会出现插入两次主表的问题(货架和层一起插就不会),因为阁楼|货架层service注入了原来的locationService
         if (LocationConstant.SHELF.equals(iBaseinfoLocaltionModel.getType())) {
-            this.insertShelflevelsByShelf(baseinfoLocation,iBaseinfoLocaltionModel,LocationConstant.SHELF_LEVELS);
+            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.SHELF_LEVELS);
             //将货架的叶子节点设置为0
             location.setIsLeaf(0);
             locationService.updateLocation(location);
         }
         //  如果是阁楼个体,插入指定层的阁楼层
         if (LocationConstant.LOFT.equals(iBaseinfoLocaltionModel.getType())) {
-          this.insertShelflevelsByShelf(baseinfoLocation,iBaseinfoLocaltionModel,LocationConstant.LOFT_LEVELS);
+            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.LOFT_LEVELS);
             //将货架的叶子节点设置为0
             location.setIsLeaf(0);
             locationService.updateLocation(location);
         }
-        if (LocationConstant.SPLIT_SHELF.equals(iBaseinfoLocaltionModel.getType())){
-            this.insertShelflevelsByShelf(baseinfoLocation,iBaseinfoLocaltionModel,LocationConstant.SPLIT_SHELF_LEVEL);
+        if (LocationConstant.SPLIT_SHELF.equals(iBaseinfoLocaltionModel.getType())) {
+            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.SPLIT_SHELF_LEVEL);
+            //将货架的叶子节点设置为0
+            location.setIsLeaf(0);
+            locationService.updateLocation(location);
+        }
+        //贵品区的货架
+        if (LocationConstant.VALUABLES_SHELF.equals(iBaseinfoLocaltionModel.getType())) {
+            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.VALUABLES_SHELF_LEVEL);
             //将货架的叶子节点设置为0
             location.setIsLeaf(0);
             locationService.updateLocation(location);
@@ -242,6 +258,7 @@ public class LocationDetailService {
 
     /**
      * 根据货架个体(阁楼货架、货架个体、拆零货架)联动插入货架层
+     *
      * @param baseinfoLocation
      * @param iBaseinfoLocaltionModel
      * @param type
@@ -267,6 +284,7 @@ public class LocationDetailService {
             locationService.insertLocation(levelLocation);
         }
     }
+
     /**
      * location的主表和细节表一起更新
      *
@@ -426,11 +444,12 @@ public class LocationDetailService {
     /**
      * 删除细节表
      * 该方法只删除细节表
+     *
      * @param iBaseinfoLocaltionModel
      * @return
      */
     @Transactional(readOnly = false)
-    public IBaseinfoLocaltionModel removeLocationDetail(IBaseinfoLocaltionModel iBaseinfoLocaltionModel){
+    public IBaseinfoLocaltionModel removeLocationDetail(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
         IStrategy istrategy = locationDetailServiceFactory.getIstrategy(iBaseinfoLocaltionModel.getType());
         istrategy.removeLocation(iBaseinfoLocaltionModel.getLocationId());
         return iBaseinfoLocaltionModel;

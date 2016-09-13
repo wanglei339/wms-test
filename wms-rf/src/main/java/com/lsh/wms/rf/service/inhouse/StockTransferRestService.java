@@ -96,7 +96,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            return JsonUtils.TOKEN_ERROR(e.getMessage());
         }
     }
 
@@ -151,7 +151,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            return JsonUtils.TOKEN_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS(result);
     }
@@ -206,7 +206,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            return JsonUtils.TOKEN_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS(new HashMap<String, Object>() {
             {
@@ -267,7 +267,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            return JsonUtils.TOKEN_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS(new HashMap<String, Object>() {
             {
@@ -328,7 +328,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            return JsonUtils.TOKEN_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS(new HashMap<String, Object>() {
             {
@@ -345,6 +345,7 @@ public class StockTransferRestService implements IStockTransferRestService {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Map<String, Object> result;
         Long type = Long.valueOf(mapQuery.get("type").toString());
+        logger.info(mapQuery.toString());
         try {
             Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
             TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
@@ -363,7 +364,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            return JsonUtils.TOKEN_ERROR(e.getMessage());
         }
         return JsonUtils.SUCCESS(result);
     }
@@ -421,7 +422,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR(e.getMessage());
+            return JsonUtils.TOKEN_ERROR(e.getMessage());
         }
     }
 }
