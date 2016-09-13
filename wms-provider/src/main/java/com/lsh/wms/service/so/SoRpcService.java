@@ -90,6 +90,8 @@ public class SoRpcService implements ISoRpcService {
             outbSoDetail.setSkuId(baseinfoItemList.get(0).getSkuId());
             //设置itemId
             outbSoDetail.setItemId(baseinfoItemList.get(0).getItemId());
+            //设置skuName
+            outbSoDetail.setSkuName(baseinfoItemList.get(0).getSkuName());
 
             outbSoDetailList.add(outbSoDetail);
         }
