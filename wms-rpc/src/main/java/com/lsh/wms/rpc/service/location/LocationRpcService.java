@@ -90,7 +90,11 @@ public class LocationRpcService implements ILocationRpcService {
         if (null == code || "".equals(code)) {
             throw new BizCheckedException("2180008");
         }
-        return locationService.getLocationIdByCode(code);
+        Long locationId = locationService.getLocationIdByCode(code);
+        if (null == locationId) {
+            throw new BizCheckedException("2180009");
+        }
+        return locationId;
     }
 
 

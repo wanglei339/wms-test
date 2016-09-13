@@ -22,9 +22,9 @@ public interface ILocationRestService {
 
     public String getInventoryLostLocationId();
 
-    public String insertLocation(LocationDetailRequest request);
+    public String insertLocation(LocationDetailRequest request) throws BizCheckedException;
 
-    public String updateLocation(LocationDetailRequest request);
+    public String updateLocation(LocationDetailRequest request) throws BizCheckedException;
 
     public String countBaseinfoLocation(Map<String, Object> params) throws BizCheckedException;
 
