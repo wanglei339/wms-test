@@ -57,8 +57,8 @@ public class PORestService implements IPoRestService {
     @Autowired
     private PoOrderService poOrderService;
 
-    @Reference
-    private IIbdBackService ibdBackService;
+//    @Reference
+//    private IIbdBackService ibdBackService;
 
     @Autowired
     private ItemService itemService;
@@ -89,38 +89,38 @@ public class PORestService implements IPoRestService {
 
         poRpcService.updateOrderStatus(map);
 
-        //确认收货之后将验收单回传到上游系统
-        if("5".equals(map.get("orderStatus").toString())){
-            IbdBackRequest ibdBackRequest = new IbdBackRequest();
-            Header header = new Header();
-            BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) baseinfoLocationWarehouseService.getBaseinfoItemLocationModelById(0L);
-            String warehouseName = warehouse.getWarehouseName();
-            header.setPlant(warehouseName);
-            String poNumber =map.get("orderOtherId").toString();
-            header.setPoNumber(poNumber);
-            List<InbPoDetail> inbPoDetails = poOrderService.getInbPoDetailListByOrderId((Long) map.get("orderId"));
-            InbPoHeader poHeader = poOrderService.getInbPoHeaderById((Long) map.get("orderId"));
-            List<IbdItem>  items = new ArrayList<IbdItem>();
-            for(InbPoDetail inbPoDetail : inbPoDetails){
-                IbdItem ibdItem = new IbdItem();
-                //转成ea
-                BigDecimal inboudQty =  inbPoDetail.getInboundQty().multiply(inbPoDetail.getPackUnit()).setScale(3);
-                BigDecimal orderQty = inbPoDetail.getOrderQty().multiply(inbPoDetail.getPackUnit()).setScale(3);
-                BigDecimal entryQnt = poHeader.getOrderType().equals(3) ? orderQty : inboudQty;
-
-                ibdItem.setEntryQnt(entryQnt);
-                ibdItem.setMaterialNo(inbPoDetail.getSkuCode());
-                ibdItem.setPoItem(inbPoDetail.getDetailOtherId());
-                //回传baseinfo_item中的unitName
-                //ibdItem.setPackName(inbPoDetail.getPackName());
-                String unitName = itemService.getItem(poHeader.getOwnerUid(),inbPoDetail.getSkuId()).getUnitName();
-                ibdItem.setPackName(unitName);
-                items.add(ibdItem);
-            }
-            ibdBackRequest.setItems(items);
-            ibdBackRequest.setHeader(header);
-            ibdBackService.createOrderByPost(ibdBackRequest, IntegrationConstan.URL_IBD);
-        }
+//        //确认收货之后将验收单回传到上游系统
+//        if("5".equals(map.get("orderStatus").toString())){
+//            IbdBackRequest ibdBackRequest = new IbdBackRequest();
+//            Header header = new Header();
+//            BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) baseinfoLocationWarehouseService.getBaseinfoItemLocationModelById(0L);
+//            String warehouseName = warehouse.getWarehouseName();
+//            header.setPlant(warehouseName);
+//            String poNumber =map.get("orderOtherId").toString();
+//            header.setPoNumber(poNumber);
+//            List<InbPoDetail> inbPoDetails = poOrderService.getInbPoDetailListByOrderId((Long) map.get("orderId"));
+//            InbPoHeader poHeader = poOrderService.getInbPoHeaderById((Long) map.get("orderId"));
+//            List<IbdItem>  items = new ArrayList<IbdItem>();
+//            for(InbPoDetail inbPoDetail : inbPoDetails){
+//                IbdItem ibdItem = new IbdItem();
+//                //转成ea
+//                BigDecimal inboudQty =  inbPoDetail.getInboundQty().multiply(inbPoDetail.getPackUnit()).setScale(3);
+//                BigDecimal orderQty = inbPoDetail.getOrderQty().multiply(inbPoDetail.getPackUnit()).setScale(3);
+//                BigDecimal entryQnt = poHeader.getOrderType().equals(3) ? orderQty : inboudQty;
+//
+//                ibdItem.setEntryQnt(entryQnt);
+//                ibdItem.setMaterialNo(inbPoDetail.getSkuCode());
+//                ibdItem.setPoItem(inbPoDetail.getDetailOtherId());
+//                //回传baseinfo_item中的unitName
+//                //ibdItem.setPackName(inbPoDetail.getPackName());
+//                String unitName = itemService.getItem(poHeader.getOwnerUid(),inbPoDetail.getSkuId()).getUnitName();
+//                ibdItem.setPackName(unitName);
+//                items.add(ibdItem);
+//            }
+//            ibdBackRequest.setItems(items);
+//            ibdBackRequest.setHeader(header);
+//            ibdBackService.createOrderByPost(ibdBackRequest, IntegrationConstan.URL_IBD);
+//        }
 
         return JsonUtils.SUCCESS();
     }
