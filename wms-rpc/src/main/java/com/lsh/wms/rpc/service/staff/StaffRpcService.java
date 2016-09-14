@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.lsh.wms.core.service.staff.StaffService;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -166,9 +168,11 @@ public class StaffRpcService implements IStaffRpcService {
     }
 
     public BaseinfoStaffInfo createStaff(Map<String, Object> params)throws BizCheckedException {
-        Long staffId = Long.valueOf(params.get("staffId").toString());
-        BaseinfoStaffInfo staffInfo = this.getStaffById(staffId);
-        if (staffInfo != null) {
+        String staffNo = params.get("staffNo").toString();
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("staffNo", staffNo);
+        List<BaseinfoStaffInfo> staffInfoList = this.getStaffList(mapQuery);
+        if (staffInfoList != null && !staffInfoList.isEmpty()) {
             throw new BizCheckedException("2660005");
         }
         return staffService.createStaff(params);
