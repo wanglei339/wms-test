@@ -169,6 +169,16 @@ public class LocationRpcService implements ILocationRpcService {
         mapQuery.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocation> shelfColletionBins = locationService.getLocationListByType(mapQuery);
         targetList.addAll(shelfColletionBins);
+        //贵品区一体位置
+        mapQuery.put("type", LocationConstant.VALUABLES_SHELF_BIN);
+        mapQuery.put("isValid", LocationConstant.IS_VALID);
+        List<BaseinfoLocation> valuablesShelfBins = locationService.getBaseinfoLocationList(mapQuery);
+        targetList.addAll(valuablesShelfBins);
+        //存拣货一体位置
+        mapQuery.put("type", LocationConstant.SPLIT_SHELF_BIN);
+        mapQuery.put("isValid", LocationConstant.IS_VALID);
+        List<BaseinfoLocation> splitShelfBins = locationService.getBaseinfoLocationList(mapQuery);
+        targetList.addAll(splitShelfBins);
         return targetList;
     }
 
