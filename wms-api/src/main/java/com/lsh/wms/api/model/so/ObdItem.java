@@ -10,9 +10,9 @@ public class ObdItem implements Serializable{
     /**上游商品编码*/
     private String materialNo;
     /**购买数量*/
-    private String quantity;
+    private BigDecimal quantity;
     /**实际发货数量*/
-    private String sendQuantity;
+    private BigDecimal sendQuantity;
     /**采购订单的计量单位,如 EA,KG*/
     private String measuringUnit;
     /**商品单价,未税*/
@@ -20,7 +20,7 @@ public class ObdItem implements Serializable{
 
     public ObdItem(){}
 
-    public ObdItem(String materialNo, String measuringUnit, BigDecimal price, String quantity, String sendQuantity) {
+    public ObdItem(String materialNo, String measuringUnit, BigDecimal price, BigDecimal quantity, BigDecimal sendQuantity) {
         this.materialNo = materialNo;
         this.measuringUnit = measuringUnit;
         this.price = price;
@@ -52,19 +52,19 @@ public class ObdItem implements Serializable{
         this.price = price;
     }
 
-    public String getQuantity() {
+    public BigDecimal getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(String quantity) {
+    public void setQuantity(BigDecimal quantity) {
         this.quantity = quantity;
     }
 
-    public String getSendQuantity() {
+    public BigDecimal getSendQuantity() {
         return sendQuantity;
     }
 
-    public void setSendQuantity(String sendQuantity) {
+    public void setSendQuantity(BigDecimal sendQuantity) {
         this.sendQuantity = sendQuantity;
     }
 }
