@@ -13,6 +13,8 @@ public class IbdItem implements Serializable {
     private String materialNo;
     //收货数量
     private BigDecimal entryQnt;
+    // 包装单位
+    private String packName;
 
     public IbdItem(){}
 
@@ -44,5 +46,13 @@ public class IbdItem implements Serializable {
 
     public void setPoItem(String poItem) {
         this.poItem = poItem;
+    }
+
+    public String getPackName() {
+        return packName;
+    }
+
+    public void setPackName(String packName) {
+        this.packName = packName;
     }
 }
