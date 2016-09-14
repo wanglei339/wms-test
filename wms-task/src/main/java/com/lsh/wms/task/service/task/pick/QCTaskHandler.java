@@ -14,8 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by zengwenjun on 16/7/30.
@@ -45,7 +48,11 @@ public class QCTaskHandler extends AbsTaskHandler {
         info.setContainerId(containerId);
         info.setExt1(pickEntry.getTaskInfo().getTaskId());
         info.setOrderId(details.get(0).getOrderId());
-        info.setQty(new BigDecimal(details.size()));
+        Set<Long> setItem = new HashSet<Long>();
+        for (WaveDetail detail : details){
+            setItem.add(detail.getItemId());
+        }
+        info.setQty(new BigDecimal(setItem.size()));
         info.setWaveId(details.get(0).getWaveId());
         info.setPlanId(info.getPlanId());
         TaskEntry taskEntry = new TaskEntry();

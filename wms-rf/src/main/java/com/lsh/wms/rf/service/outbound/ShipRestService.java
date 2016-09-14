@@ -14,6 +14,7 @@ import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
@@ -24,6 +25,7 @@ import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.parsing.Location;
 
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.*;
@@ -50,6 +52,8 @@ public class ShipRestService implements IShipRestService {
     WaveService waveService;
     @Reference
     ILocationRpcService iLocationRpcService;
+    @Autowired
+    LocationService locationService;
     @Reference
     IStockQuantRpcService stockQuantRpcService;
 
@@ -74,6 +78,7 @@ public class ShipRestService implements IShipRestService {
         }else{
             //释放集货导
             iLocationRpcService.unlockLocation(locationId);
+            locationService.setLocationUnOccupied(locationId);
         }
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {

@@ -71,10 +71,8 @@ public class WaveRestService implements IWaveRestService {
     @Autowired
     private BaseinfoLocationWarehouseService baseinfoLocationWarehouseService;
 
-
-    @Reference(check = false)
+    @Reference
     private IIbdBackService ibdBackService;
-
 
     @POST
     @Path("getList")
@@ -126,7 +124,7 @@ public class WaveRestService implements IWaveRestService {
         List<WaveDetail> detailList = waveService.getDetailsByWaveId(iWaveId);
         Set<Long> orderIds = new HashSet<Long>();
         //将orderId取出 放入set集合中
-        Map<Long,Object> map = new HashMap<Long, Object>();
+        Map<Long,BigDecimal> map = new HashMap<Long, BigDecimal>();
         for(WaveDetail detail : detailList){
             if ( detail.getQcExceptionDone() == 0){
                 throw new BizCheckedException("2040014");
@@ -163,18 +161,18 @@ public class WaveRestService implements IWaveRestService {
                 soItem.setMeasuringUnit("EA");
                 soItem.setPrice(soDetail.getPrice());
                 //转化成ea
-                soItem.setQuantity(soDetail.getOrderQty().multiply(soDetail.getPackUnit()).toString());
+                soItem.setQuantity(soDetail.getOrderQty().multiply(soDetail.getPackUnit()).setScale(3));
                 //实际出库数量
-                soItem.setSendQuantity((String) map.get(soDetail.getDetailOtherId()));
+                soItem.setSendQuantity(map.get(soDetail.getDetailOtherId()));
 
                 //查询waveDetail找出实际出库的数量
                 items.add(soItem);
             }
             //查询waveDetail找出实际出库的数量
             request.setItems(items);
+
             ibdBackService.createOrderByPost(request, IntegrationConstan.URL_OBD);
         }
-
 
         return JsonUtils.SUCCESS();
     }

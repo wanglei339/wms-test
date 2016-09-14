@@ -136,9 +136,9 @@ public class ProcurementRestService implements IProcurementRestService {
         Map<String, Object> params = RequestUtils.getRequest();
         params.put("uid",RequestUtils.getHeader("uid"));
         try {
-            Long taskId = Long.valueOf(params.get("taskId").toString());
+            Long taskId = Long.valueOf(params.get("taskId").toString().trim());
             final TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
-            Long type = Long.parseLong(params.get("type").toString());
+            Long type = Long.parseLong(params.get("type").toString().trim());
             if(type.compareTo(2L)==0) {
                 if (entry == null) {
                     return JsonUtils.TOKEN_ERROR("任务不存在");
