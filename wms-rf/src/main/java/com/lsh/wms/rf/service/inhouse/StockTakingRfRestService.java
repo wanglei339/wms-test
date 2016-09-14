@@ -106,7 +106,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         List<Map> resultList = null;
         try {
             object = JSONObject.fromObject(request.get("result"));
-            taskId = Long.parseLong(object.get("taskId").toString());
+            taskId = Long.parseLong(object.get("taskId").toString().trim());
             resultList = object.getJSONArray("list");
         }catch (Exception e){
             return JsonUtils.TOKEN_ERROR("JSON解析失败");
@@ -119,8 +119,8 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             BaseinfoItem item = itemService.getItem(detail.getItemId());
             for (Map<String, Object> beanMap : resultList) {
                 Object barcode = beanMap.get("barcode");
-                BigDecimal realQty = new BigDecimal(beanMap.get("qty").toString());
-                if (item.getCode().equals(barcode.toString())) {
+                BigDecimal realQty = new BigDecimal(beanMap.get("qty").toString().trim());
+                if (item.getCode().equals(barcode.toString().trim())) {
                     BigDecimal qty = quantService.getQuantQtyByLocationIdAndItemId(detail.getLocationId(), detail.getItemId());
                     detail.setTheoreticalQty(qty);
                     detail.setRealQty(realQty);
@@ -285,8 +285,8 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         Long locationId = 0L;
 
         try {
-            taskId = Long.valueOf(params.get("taskId").toString());
-            String locationCode = params.get("locationCode").toString();
+            taskId = Long.valueOf(params.get("taskId").toString().trim());
+            String locationCode = params.get("locationCode").toString().trim();
             locationId =  locationRpcService.getLocationIdByCode(locationCode);
         }catch (Exception e){
             return JsonUtils.TOKEN_ERROR("数据格式类型有误");

@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import java.math.BigDecimal;
@@ -434,7 +435,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
         info.setOperator(operator);
         entry.setTaskInfo(info);
         logger.info(JsonUtils.SUCCESS(entry));
-        iTaskRpcService.update(TaskConstant.TYPE_PICK_UP_SHELVE,entry);
+        iTaskRpcService.update(TaskConstant.TYPE_PICK_UP_SHELVE, entry);
         return JsonUtils.SUCCESS();
     }
     /**

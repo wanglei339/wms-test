@@ -74,11 +74,6 @@ public class WaveRestService implements IWaveRestService {
     @Reference
     private IIbdBackService ibdBackService;
 
-
-//    @Reference(check = false)
-//    private IIbdBackService ibdBackService;
-
-
     @POST
     @Path("getList")
     public String getList(Map<String, Object> mapQuery) {
@@ -178,7 +173,6 @@ public class WaveRestService implements IWaveRestService {
 
             ibdBackService.createOrderByPost(request, IntegrationConstan.URL_OBD);
         }
-
 
         return JsonUtils.SUCCESS();
     }

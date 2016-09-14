@@ -1,5 +1,6 @@
 package com.lsh.wms.api.service.staff;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.model.baseinfo.*;
 
 import java.util.List;
@@ -55,7 +56,6 @@ public interface IStaffRpcService {
 
     List<BaseinfoStaffJobRelation> getJobsByStaffId(Long iStaffId);
 
-
     public List<BaseinfoStaffInfo> getStaffList(Map<String, Object> mapQuery);
 
     public Integer getStaffListCount(Map<String, Object> mapQuery);
@@ -67,7 +67,7 @@ public interface IStaffRpcService {
     public BaseinfoStaffInfo getStaffById(Long staffId);
 
 
-    public BaseinfoStaffInfo createStaff(Map<String, Object> params);
+    public BaseinfoStaffInfo createStaff(Map<String, Object> params) throws BizCheckedException;
 
     public BaseinfoStaffInfo saveStaff(Map<String, Object> params);
 
