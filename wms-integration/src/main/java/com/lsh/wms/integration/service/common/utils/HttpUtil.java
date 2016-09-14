@@ -166,35 +166,35 @@ public class HttpUtil {
      *            json对象
      * @return
      */
-//	public static String doPost(String apiUrl, Object json) {
-//		CloseableHttpClient httpClient = HttpClients.createDefault();
-//		String httpStr = null;
-//		HttpPost httpPost = new HttpPost(apiUrl);
-//		CloseableHttpResponse response = null;
-//
-//		try {
-//			httpPost.setConfig(requestConfig);
-//			StringEntity stringEntity = new StringEntity(json.toString(), "UTF-8");// 解决中文乱码问题
-//			stringEntity.setContentEncoding("UTF-8");
-//			stringEntity.setContentType("application/json");
-//			httpPost.setEntity(stringEntity);
-//			response = httpClient.execute(httpPost);
-//			HttpEntity entity = response.getEntity();
-////			System.out.println(response.getStatusLine().getStatusCode());
-//			httpStr = EntityUtils.toString(entity, "UTF-8");
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		} finally {
-//			if (response != null) {
-//				try {
-//					EntityUtils.consume(response.getEntity());
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		}
-//		return httpStr;
-//	}
+	public static String doPost(String apiUrl, Object json) {
+		CloseableHttpClient httpClient = HttpClients.createDefault();
+		String httpStr = null;
+		HttpPost httpPost = new HttpPost(apiUrl);
+		CloseableHttpResponse response = null;
+
+		try {
+			httpPost.setConfig(requestConfig);
+			StringEntity stringEntity = new StringEntity(json.toString(), "UTF-8");// 解决中文乱码问题
+			stringEntity.setContentEncoding("UTF-8");
+			stringEntity.setContentType("application/json");
+			httpPost.setEntity(stringEntity);
+			response = httpClient.execute(httpPost);
+			HttpEntity entity = response.getEntity();
+//			System.out.println(response.getStatusLine().getStatusCode());
+			httpStr = EntityUtils.toString(entity, "UTF-8");
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (response != null) {
+				try {
+					EntityUtils.consume(response.getEntity());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		return httpStr;
+	}
 
     /**
      * 发送 POST 请求（HTTP），JSON形式
