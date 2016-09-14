@@ -152,8 +152,8 @@
 		sum(task_pack_qty) as taskPackQty, date from task_info
 		<where>
 			<if test="type != null">type = #{type}</if>
-			<if test="date != null">date = #{date}</if>
-			<if test="uid != null">operator = #{uid}</if>
+			<if test="date != null"> and date = #{date}</if>
+			<if test="uid != null"> and operator = #{uid}</if>
 			<if test="startDate != null">and #{startDate} &lt;= date</if>
 			<if test="endDate != null">and date &lt;= #{endDate}</if>
 		</where>
