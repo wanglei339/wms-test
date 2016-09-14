@@ -17,6 +17,7 @@ import com.lsh.wms.api.service.po.IIbdBackService;
 import com.lsh.wms.api.service.po.IPoRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.constant.IntegrationConstan;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationWarehouse;
@@ -58,6 +59,9 @@ public class PORestService implements IPoRestService {
 
     @Reference
     private IIbdBackService ibdBackService;
+
+    @Autowired
+    private ItemService itemService;
 
     @Autowired
     private BaseinfoLocationWarehouseService baseinfoLocationWarehouseService;
@@ -107,7 +111,10 @@ public class PORestService implements IPoRestService {
                 ibdItem.setEntryQnt(entryQnt);
                 ibdItem.setMaterialNo(inbPoDetail.getSkuCode());
                 ibdItem.setPoItem(inbPoDetail.getDetailOtherId());
-                ibdItem.setPackName(inbPoDetail.getPackName());
+                //回传baseinfo_item中的unitName
+                //ibdItem.setPackName(inbPoDetail.getPackName());
+                String unitName = itemService.getItem(poHeader.getOwnerUid(),inbPoDetail.getSkuId()).getUnitName();
+                ibdItem.setPackName(unitName);
                 items.add(ibdItem);
             }
             ibdBackRequest.setItems(items);
