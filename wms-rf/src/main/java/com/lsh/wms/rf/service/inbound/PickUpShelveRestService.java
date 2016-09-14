@@ -166,7 +166,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         Long taskId = 0L;
         try {
             uId = Long.valueOf(RequestUtils.getHeader("uid"));
-            containerId = Long.valueOf(mapQuery.get("containerId").toString());
+            containerId = Long.valueOf(mapQuery.get("containerId").toString().trim());
             taskId = baseTaskService.getDraftTaskIdByContainerId(containerId);
         }catch (Exception e) {
             logger.error(e.getMessage());
@@ -294,10 +294,10 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         String realLocationCode ="";
         BigDecimal realQty = BigDecimal.ZERO;
         try {
-            taskId= Long.valueOf(mapQuery.get("taskId").toString());
-            realLocationCode = mapQuery.get("realLocationCode").toString();
+            taskId= Long.valueOf(mapQuery.get("taskId").toString().trim());
+            realLocationCode = mapQuery.get("realLocationCode").toString().trim();
             realLocationId =  locationRpcService.getLocationIdByCode(realLocationCode);
-            realQty = new BigDecimal(mapQuery.get("qty").toString());
+            realQty = new BigDecimal(mapQuery.get("qty").toString().trim());
         }catch (Exception e){
             logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("参数传递格式有误");
