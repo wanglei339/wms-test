@@ -71,10 +71,10 @@ public class LocationConstant {
     public static final Long LOFT_STORE_BLOCK = 39L;
 
     //贵品区
-    public static final Long VALUABLES_AREA = 40L;
-    public static final Long VALUABLES_SHELF = 41L;
-    public static final Long VALUABLES_SHELF_LEVEL = 42L;
-    public static final Long VALUABLES_SHELF_BIN = 43L;
+    public static final Long VALUABLES_AREA = 40L;      //贵品区
+    public static final Long VALUABLES_SHELF = 41L;     //贵品货架个体
+    public static final Long VALUABLES_SHELF_LEVEL = 42L;   //贵品货架的货架层
+    public static final Long VALUABLES_SHELF_BIN = 43L; //贵品存拣一体位
 
 
     //是否能存储
