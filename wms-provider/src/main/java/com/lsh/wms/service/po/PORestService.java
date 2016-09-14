@@ -113,7 +113,7 @@ public class PORestService implements IPoRestService {
 //                ibdItem.setPoItem(inbPoDetail.getDetailOtherId());
 //                //回传baseinfo_item中的unitName
 //                //ibdItem.setPackName(inbPoDetail.getPackName());
-//                String unitName = itemService.getItem(poHeader.getOwnerUid(),inbPoDetail.getSkuId()).getUnitName();
+//                String unitName = itemService.getItem(poHeader.getOwnerUid(),inbPoDetail.getSkuId()).getUnitName().toUpperCase();
 //                ibdItem.setPackName(unitName);
 //                items.add(ibdItem);
 //            }

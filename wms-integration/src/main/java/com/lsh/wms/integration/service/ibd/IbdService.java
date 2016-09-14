@@ -74,9 +74,9 @@ public class IbdService implements IIbdService {
             List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(request.getOwnerUid(),ibdDetail.getSkuCode());
             if(null != baseinfoItemList && baseinfoItemList.size()>=1){
                 BaseinfoItem baseinfoItem = baseinfoItemList.get(baseinfoItemList.size()-1);
-                String unitName = baseinfoItem.getUnitName();
+                String unitName = baseinfoItem.getUnitName().toUpperCase();
                 //基础数据中维护基本单位名称,物美下传的packName为基本单位名称, 如果两边不相等,抛异常
-                if(unitName.equals(ibdDetail.getPackName())){
+                if(unitName.equals(ibdDetail.getPackName().toUpperCase())){
                     throw new BizCheckedException("2770002");
                 }
                 //转换为系统内部的PackName和packUnit
