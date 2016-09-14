@@ -73,7 +73,6 @@ public class PerformanceRestService implements IPerformanceRestService {
         if (uid != null) {
             mapQuery.put("uid", uid);
         }
-        mapQuery.remove("staffNo");
         List<Map<String, Object>> listTemp = performanceRpcService.getPerformance(mapQuery);
         return JsonUtils.SUCCESS(listTemp);
     }

@@ -93,23 +93,23 @@ public class LocationRestService implements ILocationRestService {
     //    //insert与detail相关,需要同时插入detail的信息
     @POST
     @Path("insertLocation")
-    public String insertLocation(LocationDetailRequest request)throws BizCheckedException{
+    public String insertLocation(LocationDetailRequest request) throws BizCheckedException {
         BaseinfoLocation location = new BaseinfoLocation();
-        ObjUtils.bean2bean(request,location);
+        ObjUtils.bean2bean(request, location);
         return JsonUtils.SUCCESS(locationRpcService.insertLocation(location));
     }
 
     @POST
     @Path("updateLocation")
-    public String updateLocation(LocationDetailRequest request) throws BizCheckedException{
+    public String updateLocation(LocationDetailRequest request) throws BizCheckedException {
         BaseinfoLocation location = new BaseinfoLocation();
-        ObjUtils.bean2bean(request,location);
+        ObjUtils.bean2bean(request, location);
         return JsonUtils.SUCCESS(locationRpcService.updateLocation(location));
     }
 
     @POST
     @Path("getLocationList")
-    public String searchList(Map<String, Object> params) throws BizCheckedException{
+    public String searchList(Map<String, Object> params) throws BizCheckedException {
         List<BaseinfoLocation> baseinfoLocationList = locationService.getBaseinfoLocationList(params);
         logger.info(JsonUtils.SUCCESS(baseinfoLocationList));
         return JsonUtils.SUCCESS(baseinfoLocationList);
@@ -148,7 +148,7 @@ public class LocationRestService implements ILocationRestService {
     @Path("getShelfByRegionId")
     public String getShelfByRegionId(@QueryParam("locationId") Long locationId) throws BizCheckedException {
         List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
-        List<Long> regionType = Arrays.asList(LocationConstant.SHELF, LocationConstant.LOFT,LocationConstant.SPLIT_SHELF);
+        List<Long> regionType = Arrays.asList(LocationConstant.SHELF, LocationConstant.LOFT, LocationConstant.SPLIT_SHELF);
         for (Long oneType : regionType) {
             List<BaseinfoLocation> locationList = locationService.getChildrenLocationsByType(locationId, oneType);
             targetList.addAll(locationList);
@@ -167,7 +167,7 @@ public class LocationRestService implements ILocationRestService {
     @Path("getBinByShelf")
     public String getBinByShelf(@QueryParam("locationId") Long locationId) throws BizCheckedException {
         List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
-        List<Long> regionType = Arrays.asList(LocationConstant.SHELF_PICKING_BIN, LocationConstant.SHELF_STORE_BIN, LocationConstant.LOFT_PICKING_BIN, LocationConstant.LOFT_STORE_BIN,LocationConstant.SPLIT_SHELF_BIN);
+        List<Long> regionType = Arrays.asList(LocationConstant.SHELF_PICKING_BIN, LocationConstant.SHELF_STORE_BIN, LocationConstant.LOFT_PICKING_BIN, LocationConstant.LOFT_STORE_BIN, LocationConstant.SPLIT_SHELF_BIN);
         for (Long oneType : regionType) {
             List<BaseinfoLocation> locationList = locationService.getChildrenLocationsByType(locationId, oneType);
             targetList.addAll(locationList);
@@ -233,20 +233,47 @@ public class LocationRestService implements ILocationRestService {
 
     /**
      * 将mysql一次性导入redis
+     *
      * @return
      */
     @GET
     @Path("syncRedisAll")
-    public String syncRedisAll() throws BizCheckedException{
-        try{
+    public String syncRedisAll() throws BizCheckedException {
+        try {
             locationRpcService.syncRedisAll();
             return JsonUtils.SUCCESS("同步成功");
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error(e.getMessage());
             throw new BizCheckedException("2210001");
         }
 
 
+    }
+
+    /**
+     * 锁库位
+     *
+     * @param locationId 库位id
+     * @return 结果
+     * @throws BizCheckedException
+     */
+    @GET
+    @Path("lockLocation")
+    public String lockLocation(@QueryParam("locationId") Long locationId) throws BizCheckedException {
+        return JsonUtils.SUCCESS(locationRpcService.lockLocation(locationId));
+    }
+
+    /**
+     * 解锁库位
+     *
+     * @param locationId 库位id
+     * @return
+     * @throws BizCheckedException
+     */
+    @GET
+    @Path("unlockLocation")
+    public String unlockLocation(@QueryParam("locationId") Long locationId) throws BizCheckedException {
+        return JsonUtils.SUCCESS(locationRpcService.unlockLocation(locationId));
     }
 
 
