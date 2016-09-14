@@ -74,8 +74,6 @@ public class IbdService implements IIbdService {
             List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(request.getOwnerUid(),ibdDetail.getSkuCode());
             if(null != baseinfoItemList && baseinfoItemList.size()>=1){
                 BaseinfoItem baseinfoItem = baseinfoItemList.get(baseinfoItemList.size()-1);
-                ibdDetail.setPackName(baseinfoItem.getPackName());
-                ibdDetail.setPackUnit(baseinfoItem.getPackUnit());
                 ibdDetail.setBarCode(baseinfoItem.getCode());
             }
 
