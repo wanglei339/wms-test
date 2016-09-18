@@ -348,7 +348,7 @@ public class StockTransferCore {
         params.put("rightRange", currentLocation.getRightRange());
         params.put("canStore", LocationConstant.CAN_STORE);
         params.put("isValid", LocationConstant.IS_VALID);
-        params.put("canUse", LocationConstant.CAN_USE);
+        //params.put("canUse", LocationConstant.CAN_USE);
         params.put("isLocked", LocationConstant.UNLOCK);
         List<BaseinfoLocation> locationList = locationDao.getChildrenLocationList(params);
         if (locationList != null && !locationList.isEmpty()) {
@@ -417,7 +417,19 @@ public class StockTransferCore {
         params.put("fromLocationList", fromLocationIdList);
         params.put("toLocationList", toLocationIdList);
         taskList = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, params);
-        return taskList;
+        if (taskList == null || taskList.isEmpty()) {
+            params.clear();
+            params.put("status", TaskConstant.Draft);
+            params.put("fromLocationList", fromLocationIdList);
+            taskList = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, params);
+            if (taskList == null || taskList.isEmpty()) {
+                params.clear();
+                params.put("status", TaskConstant.Draft);
+                params.put("toLocationList", toLocationIdList);
+                taskList = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, params);
+            }
+        }
+        return taskList == null ? new ArrayList<TaskEntry>() : taskList;
     }
 
     public BigDecimal getThreshold(Long locationId, Long itemId, Long subType, BigDecimal qty) {

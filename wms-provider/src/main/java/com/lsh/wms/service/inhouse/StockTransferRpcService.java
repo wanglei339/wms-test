@@ -177,9 +177,9 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (toLocation.getCanStore() != 1) {
             throw new BizCheckedException("2550020");
         }
-        if (toLocation.getCanUse() != 1) {
-            throw new BizCheckedException("2550006");
-        }
+//        if (toLocation.getCanUse() != 1) {
+//            throw new BizCheckedException("2550006");
+//        }
         Long itemId = plan.getItemId();
         StockQuantCondition condition = new StockQuantCondition();
         condition.setLocationId(fromLocationId);
@@ -556,7 +556,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("canStore", LocationConstant.CAN_STORE);
         params.put("isValid", LocationConstant.IS_VALID);
-        params.put("canUse", LocationConstant.CAN_USE);
+        //params.put("canUse", LocationConstant.CAN_USE);
         params.put("isLocked", LocationConstant.UNLOCK);
         params.put("type", location.getType());
         List<BaseinfoLocation> toLocationList = locationService.getBaseinfoLocationList(params);
