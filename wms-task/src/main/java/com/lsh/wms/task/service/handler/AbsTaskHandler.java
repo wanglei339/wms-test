@@ -47,8 +47,10 @@ public class AbsTaskHandler implements TaskHandler {
 
     public void batchCreate(List<TaskEntry> taskEntries) throws BizCheckedException{
         for(TaskEntry taskEntry:taskEntries){
-            Long taskId = RandomUtils.genId();
             TaskInfo taskInfo = taskEntry.getTaskInfo();
+            Long taskType = taskInfo.getType();
+            String idKey = "task_" + taskType.toString();
+            Long taskId = idGenerator.genId(idKey, true, true);
             taskInfo.setTaskId(taskId);
             taskEntry.setTaskInfo(taskInfo);
         }
