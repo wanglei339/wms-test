@@ -18,10 +18,11 @@ public class IbdItem implements Serializable {
 
     public IbdItem(){}
 
-    public IbdItem(String poItem, String materialNo, BigDecimal entryQnt) {
+    public IbdItem(String poItem, String materialNo, BigDecimal entryQnt,String packName) {
         this.poItem = poItem;
         this.materialNo = materialNo;
         this.entryQnt = entryQnt;
+        this.packName = packName;
     }
 
     public BigDecimal getEntryQnt() {
