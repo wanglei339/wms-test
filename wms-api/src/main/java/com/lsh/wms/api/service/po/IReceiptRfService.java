@@ -18,7 +18,7 @@ import java.text.ParseException;
  */
 public interface IReceiptRfService {
 
-    public BaseResponse insertOrder() throws BizCheckedException, ParseException;
+    public String insertOrder() throws BizCheckedException, ParseException;
 
     public String getPoDetailByOrderIdAndBarCode(String orderOtherId,Long containerId, String barCode) throws BizCheckedException;
 
