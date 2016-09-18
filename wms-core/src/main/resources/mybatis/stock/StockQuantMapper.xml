@@ -170,7 +170,6 @@
 			<if test="inDate != null">and in_date=#{inDate}</if>
 			<if test="expireDate != null">and expire_date=#{expireDate}</if>
 			<if test="itemId != null and itemId != 0">and item_id=#{itemId}</if>
-			<if test="isNormal != null and isNormal != true">and (is_frozen = 1 or reserve_task_id != 0)</if>
 			<if test="canUnFreeze != null and canUnfreeze != false">and (is_frozen = 1 or is_defect = 1 or is_refund = 1)</if>
 			<if test="isNormal != null">and is_normal=#{isNormal}</if>
 			<if test="isDefect != null">and is_defect=#{isDefect}</if>
