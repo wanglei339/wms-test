@@ -168,8 +168,10 @@
 		(select count(*) num from task_info
 		<where>
 			<if test="uid != null">operator = #{uid}</if>
+			<if test="type != null">type = #{type}</if>
 			<if test="startDate != null">and #{startDate} &lt;= date</if>
 			<if test="endDate != null">and date &lt;= #{endDate}</if>
+
 		</where>
 		group by operator, date, type, sub_type) t
 	</select>
