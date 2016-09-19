@@ -210,7 +210,7 @@ public class StockQuantService {
             if (moveInhouse) {
                 quant.setIsInhouse(1L);
             }
-            if (moveInhouse) {
+            if (moveOutHouse) {
                 quant.setIsInhouse(0L);
             }
 

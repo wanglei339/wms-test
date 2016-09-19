@@ -87,9 +87,11 @@ public class FilterInterceptor{
                         }
                         if(redisStringDao.get(serialNumber) == null){
                             //将结果放到redis中。
+                            logger.info("1111111111111111111111111111~~~~~~serialNumber" + serialNumber);
                             String result = (String) pjp.proceed();
                             redisStringDao.set(serialNumber,result);
                             logger.info("结束时间:"+sdf.format(new Date()));
+                            logger.info("2222222222222222222222222222~~~~~~~~~~result" + result);
                             return result;
                             //return pjp.proceed();
                         }

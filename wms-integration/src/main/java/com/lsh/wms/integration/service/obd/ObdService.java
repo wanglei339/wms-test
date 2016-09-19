@@ -17,6 +17,7 @@ import com.lsh.wms.api.service.so.ISoRpcService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.so.OutbSoDetail;
 import com.lsh.wms.model.so.OutbSoHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -104,12 +105,16 @@ public class ObdService implements IObdService{
         }
         soRequest.setWarehouseId(1l);
         Long orderId = soRpcService.insertOrder(soRequest);
-        Map<String,Object> map = new HashMap<String, Object>();
-        map.put("orderId",orderId);
-        map.put("orderOtherId",request.getOrderOtherId());
-        map.put("orderOtherRefId",request.getOrderOtherRefId());
+        OutbSoHeader outbSoHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
+        List<OutbSoDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
+        outbSoHeader.setOrderDetails(soDetails);
+
+//        Map<String,Object> map = new HashMap<String, Object>();
+//        map.put("orderId",orderId);
+//        map.put("orderOtherId",request.getOrderOtherId());
+//        map.put("orderOtherRefId",request.getOrderOtherRefId());
 
 
-        return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, map);
+        return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, outbSoHeader);
     }
 }

@@ -64,4 +64,20 @@ public interface ILocationRestService {
      * @return
      */
     public String syncRedisAll() throws BizCheckedException;
+
+    /**
+     * 锁库位
+     * @param locationId
+     * @return 锁结果
+     * @throws BizCheckedException
+     */
+    public String lockLocation(Long locationId) throws BizCheckedException;
+
+    /**
+     * 解锁库位
+     * @param locationId
+     * @return
+     * @throws BizCheckedException
+     */
+    public String unlockLocation(Long locationId) throws BizCheckedException;
 }

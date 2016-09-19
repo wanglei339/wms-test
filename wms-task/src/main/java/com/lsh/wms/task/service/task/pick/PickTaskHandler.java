@@ -65,6 +65,22 @@ public class PickTaskHandler extends AbsTaskHandler {
         super.create(taskEntry);
     }
 
+    public void batchCreate(List<TaskEntry> taskEntries) throws BizCheckedException{
+        for (TaskEntry taskEntry : taskEntries){
+            TaskInfo taskInfo = taskEntry.getTaskInfo();
+            Long taskId = taskInfo.getTaskId();
+            List<WaveDetail> pickTaskDetails = waveService.getDetailsByPickTaskId(taskId);
+            BigDecimal qtyDone = BigDecimal.ZERO;
+
+            for (WaveDetail pickTaskDetail: pickTaskDetails) {
+                qtyDone = qtyDone.add(pickTaskDetail.getAllocQty());
+            }
+            taskInfo.setQtyDone(qtyDone);
+            taskEntry.setTaskInfo(taskInfo);
+        }
+        super.batchCreate(taskEntries);
+    }
+
     public void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
         PickTaskHead head = (PickTaskHead)taskEntry.getTaskHead();
         Long taskId = taskEntry.getTaskInfo().getTaskId();

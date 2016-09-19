@@ -18,7 +18,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mali on 16/7/28.
@@ -165,14 +168,12 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         mapCondition.put("itemList", itemIdList);
         mapCondition.put("isInhouse", 1L);
         List<StockQuant> quantList = quantService.getQuants(mapCondition);
-        BigDecimal total, freeze, loss, lossDefect, lossRefund, defect, refund;
-        Long isFrozen, reserveTaskId, isNormal, isDefect, isRefund;
 
         for (StockQuant quant : quantList) {
             Long itemId = quant.getItemId();
             BigDecimal qty = quant.getQty();
 
-            if (quant.getIsDefect().equals(1L)) {
+            if (quant.getIsRefund().equals(1L)) {
                 mapRefund.put(itemId, mapRefund.get(itemId).add(qty));
             }
             if (quant.getIsDefect().equals(1L)) {

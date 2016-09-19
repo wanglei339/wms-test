@@ -77,7 +77,7 @@ public class ReceiptRestService implements IReceiptRfService {
 
     @POST
     @Path("add")
-    public BaseResponse insertOrder() throws BizCheckedException, ParseException {
+    public String insertOrder() throws BizCheckedException, ParseException {
         Map<String, Object> request = RequestUtils.getRequest();
 
         List<ReceiptItem> receiptItemList = JSON.parseArray((String)request.get("items"), ReceiptItem.class);
@@ -130,7 +130,12 @@ public class ReceiptRestService implements IReceiptRfService {
         iReceiptRpcService.insertOrder(receiptRequest);
         Map<String,Boolean> body = new HashMap<String, Boolean>();
         body.put("response",true);
-        return ResUtils.getResponse(ResponseConstant.RES_CODE_1,ResponseConstant.RES_MSG_OK,body);
+        //return ResUtils.getResponse(ResponseConstant.RES_CODE_1,ResponseConstant.RES_MSG_OK,body);
+        return JsonUtils.SUCCESS(new HashMap<String, Object>() {
+            {
+                put("response", true);
+            }
+        });
     }
 
     @POST
