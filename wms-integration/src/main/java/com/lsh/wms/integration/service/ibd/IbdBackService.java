@@ -65,6 +65,21 @@ public class IbdBackService implements IIbdBackService{
 
     }
 
+    public String createOfcOrderByPost(Object request, String url){
+        String jsonPoCreate = this.initOrderCreate(request);
+
+        logger.info("order CreateOfcOrder json : " + jsonPoCreate);
+        String jsonStr = HttpUtil.doPost(url,jsonPoCreate);
+
+        logger.info("order jsonStr :" + jsonStr +"~~~~");
+        OrderResponse orderResponse = JSON.parseObject(jsonStr,OrderResponse.class);
+        logger.info("orderResponse = " + JSON.toJSONString(orderResponse));
+        return JSON.toJSONString(orderResponse);
+
+    }
+
+
+
     private String getToken(String url){
         String jsonStr = HttpUtil.doPostToken(url);
         System.out.println(jsonStr);
