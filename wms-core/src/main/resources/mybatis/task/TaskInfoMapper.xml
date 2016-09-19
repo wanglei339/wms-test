@@ -140,7 +140,27 @@
 	<select id="getTaskInfoList" parameterType="map" resultMap="taskInfoResultMap">
 		select * from task_info
 		<include refid="queryCondition"/>
-		ORDER BY status ASC, priority DESC,created_at ASC,id DESC
+		<if test="orderBy == null or orderType == null">
+			ORDER BY  priority DESC,created_at DESC
+		</if>
+		<if test='"createdAt".equals(orderBy)  and "desc".equals(orderType)'>
+			ORDER BY  created_at DESC
+		</if>
+		<if test=' "priority".equals(orderBy)  and  "desc".equals(orderType)'>
+			ORDER BY  priority DESC
+		</if>
+		<if test=" 'status'.equals(orderBy)  and 'desc'.equals(orderType)">
+			ORDER BY  status DESC
+		</if>
+		<if test=" 'createdAt'.equals(orderBy)  and 'asc'.equals(orderType)">
+			ORDER BY  created_at ASC
+		</if>
+		<if test=" 'priority'.equals(orderBy)  and  'asc'.equals(orderType)">
+			ORDER BY  priority ASC
+		</if>
+		<if test=" 'status'.equals(orderBy)  and  'asc'.equals(orderType)">
+			ORDER BY  status ASC
+		</if>
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
 		</if>

@@ -84,6 +84,7 @@ public class PickUpShelveTaskHandler extends AbsTaskHandler {
         taskInfo.setQty(stockQuantService.getQuantQtyByContainerId(containerId));
 
         taskInfo.setOrderId(lot.getPoId());
+        taskInfo.setPriority(1L);
         taskInfo.setExt9(quant.getSupplierId().toString());
         taskInfo.setTaskName("拆零上架任务[ " + taskInfo.getContainerId() + "]");
         taskInfo.setType(TaskConstant.TYPE_PICK_UP_SHELVE);

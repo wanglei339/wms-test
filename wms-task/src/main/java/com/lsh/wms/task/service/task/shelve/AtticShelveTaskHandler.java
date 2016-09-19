@@ -88,6 +88,7 @@ public class AtticShelveTaskHandler extends AbsTaskHandler {
         taskInfo.setTaskQty(taskInfo.getQty().divide(taskInfo.getPackUnit(),2, BigDecimal.ROUND_DOWN));
         taskInfo.setType(TaskConstant.TYPE_ATTIC_SHELVE);
         taskInfo.setFromLocationId(quant.getLocationId());
+        taskInfo.setPriority(1L);
 
         taskEntry.setTaskInfo(taskInfo);
 
