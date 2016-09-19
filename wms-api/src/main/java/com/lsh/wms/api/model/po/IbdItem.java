@@ -9,6 +9,9 @@ import java.math.BigDecimal;
 public class IbdItem implements Serializable {
     //上游细单号
     private String poItem;
+    //收货行项目号detailOtherId
+    private String delivItem;
+
     //上游商品编码
     private String materialNo;
     //收货数量
@@ -18,11 +21,12 @@ public class IbdItem implements Serializable {
 
     public IbdItem(){}
 
-    public IbdItem(String poItem, String materialNo, BigDecimal entryQnt,String packName) {
+    public IbdItem(String poItem, String materialNo, BigDecimal entryQnt,String packName,String delivItem) {
         this.poItem = poItem;
         this.materialNo = materialNo;
         this.entryQnt = entryQnt;
         this.packName = packName;
+        this.delivItem = delivItem;
     }
 
     public BigDecimal getEntryQnt() {
@@ -55,5 +59,13 @@ public class IbdItem implements Serializable {
 
     public void setPackName(String packName) {
         this.packName = packName;
+    }
+
+    public String getDelivItem() {
+        return delivItem;
+    }
+
+    public void setDelivItem(String delivItem) {
+        this.delivItem = delivItem;
     }
 }

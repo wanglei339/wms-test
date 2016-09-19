@@ -8,8 +8,11 @@ import java.io.Serializable;
 public class Header implements Serializable {
     //仓库
     private String plant;
-    //采购凭证号
+    //采购凭证号 orderOtherId
     private String poNumber;
+
+    //delivNumber  orderOtherRefId
+    private String delivNumber;
 
     //R2POS的单据类型
     private String docType;
@@ -18,11 +21,12 @@ public class Header implements Serializable {
 
     public Header(){}
 
-    public Header(String docStyle, String docType, String plant, String poNumber) {
+    public Header(String docStyle, String docType, String plant, String poNumber,String delivNumber) {
         this.docStyle = docStyle;
         this.docType = docType;
         this.plant = plant;
         this.poNumber = poNumber;
+        this.delivNumber = delivNumber;
     }
 
     public String getDocStyle() {
@@ -55,5 +59,13 @@ public class Header implements Serializable {
 
     public void setPoNumber(String poNumber) {
         this.poNumber = poNumber;
+    }
+
+    public String getDelivNumber() {
+        return delivNumber;
+    }
+
+    public void setDelivNumber(String delivNumber) {
+        this.delivNumber = delivNumber;
     }
 }
