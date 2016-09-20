@@ -162,7 +162,9 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             mapDefect.put(item.getItemId(), BigDecimal.ZERO);
             mapRefund.put(item.getItemId(), BigDecimal.ZERO);
         }
-
+        if (itemIdList.isEmpty()) {
+            return itemQuant;
+        }
         // get all quant
         HashMap<String, Object> mapCondition = new HashMap<String, Object>();
         mapCondition.put("itemList", itemIdList);
@@ -192,7 +194,6 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             result.put("refund", mapRefund.get(itemId));
             itemQuant.put(itemId, result);
         }
-
         return itemQuant;
     }
 
