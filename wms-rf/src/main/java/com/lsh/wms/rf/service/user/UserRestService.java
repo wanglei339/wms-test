@@ -6,10 +6,16 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.wms.api.model.so.ObdBackRequest;
+import com.lsh.wms.api.service.exception.SysExceptionMapper;
+import com.lsh.wms.api.service.system.IRolePermissionRpcService;
+import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.user.IUserRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.user.IUserRpcService;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
+import com.lsh.wms.model.system.RolePermission;
+import com.lsh.wms.model.system.SysUser;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +25,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +43,12 @@ public class UserRestService implements IUserRestService {
 
     @Reference
     private IUserRpcService userRpcService;
+
+    @Reference
+    private ISysUserRpcService sysUserRpcService;
+
+    @Reference
+    private IRolePermissionRpcService rolePermissionRpcService;
 
     @Value("classpath:AndroidMenu.json")
     private Resource menuResource;
@@ -71,7 +84,6 @@ public class UserRestService implements IUserRestService {
 //        session.setAttribute("","");
         return JsonUtils.SUCCESS(map);
     }
-
     @Path("getMenuList")
     @POST
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
@@ -79,13 +91,49 @@ public class UserRestService implements IUserRestService {
     public String getMenuList() throws BizCheckedException {
         try {
             String menu = FileUtils.readFileToString(menuResource.getFile());
-            List<Map> menuList = JSON.parseArray(menu, Map.class);
+            List<Map> menuTmpList = JSON.parseArray(menu, Map.class);
+            List<Map> menuList = new ArrayList<Map>();
+            List<String> menuRfList = new ArrayList<String>();
+            HashMap<String,Object> permissionMap = new HashMap<String, Object>() {
+                {
+                    put("do_receipt", "收货");
+                    put("do_shelve", "上架");
+                    put("do_atticshelve", "阁楼上架");
+                    put("do_stock", "盘点");
+                    put("do_createscrap", "转残次");
+                    put("do_createreturn", "转退货");
+                    put("do_transfer", "移库");
+                    put("do_procurement", "补货");
+                    put("do_pick", "拣货");
+                    put("do_qc", "QC");
+                    put("do_releasecollection", "释放集货道");
+
+                }
+            };
+            Long uid = Long.valueOf(RequestUtils.getHeader("uid"));
+            SysUser user = sysUserRpcService.getSysUserById(uid);
+            if(user==null){
+                return JsonUtils.TOKEN_ERROR("用户不存在");
+            }
+            RolePermission role =  rolePermissionRpcService.getRolePermissionById(Long.valueOf(user.getRole()));
+            List<String> permissionList = JSON.parseArray(role.getPermission(), String.class);
+            for(String permission:permissionList){
+                if(permissionMap.get(permission)!=null){
+                    menuRfList.add(permission);
+                    for(Map one:menuTmpList){
+                        if(one.get("name").equals(permissionMap.get(permission))){
+                            menuList.add(one);
+                        }
+                    }
+                }
+            }
             Map<String, Object> rst = new HashMap<String, Object>();
             rst.put("menuList", menuList);
+            rst.put("menuRfList",menuRfList);
             return JsonUtils.SUCCESS(rst);
         } catch (IOException e) {
             e.printStackTrace();
-            return JsonUtils.OTHER_EXCEPTION("配置读取错误");
+            return JsonUtils.TOKEN_ERROR("配置读取错误");
         }
     }
 
