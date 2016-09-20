@@ -276,5 +276,10 @@ public class LocationRestService implements ILocationRestService {
         return JsonUtils.SUCCESS(locationRpcService.unlockLocation(locationId));
     }
 
+    @GET
+    @Path("getLocationIdByCode")
+    public String getLocationIdByCode(@QueryParam("locationCode") String locationCode) throws BizCheckedException {
+        return JsonUtils.SUCCESS(locationRpcService.getLocationIdByCode(locationCode));
+    }
 
 }

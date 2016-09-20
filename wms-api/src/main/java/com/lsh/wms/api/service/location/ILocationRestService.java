@@ -80,4 +80,6 @@ public interface ILocationRestService {
      * @throws BizCheckedException
      */
     public String unlockLocation(Long locationId) throws BizCheckedException;
+
+    public String getLocationIdByCode(String locationCode) throws BizCheckedException;
 }
