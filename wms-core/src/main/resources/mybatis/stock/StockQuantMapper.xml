@@ -159,6 +159,7 @@
 					#{item}
 				</foreach>
 			</if>
+			<if test="locationId != null">and location_id=#{locationId}</if>
 			<if test="containerId != null and containerId != 0">and container_id=#{containerId}</if>
 			<if test="reserveTaskId != null">and reserve_task_id=#{reserveTaskId}</if>
 			<if test="packUnit != null and packUnit != 0">and pack_unit=#{packUnit}</if>
