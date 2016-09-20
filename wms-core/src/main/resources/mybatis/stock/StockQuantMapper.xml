@@ -177,6 +177,12 @@
 			<if test="isRefund != null">and is_refund=#{isRefund}</if>
 			<if test="isInhouse != null">and is_inhouse=#{isInhouse}</if>
 			<if test="lotCode != null">and lot_code=#{lotCode}</if>
+			<if test="abnormalList != null">
+				and location_id not in
+				<foreach collection="abnormalList"  item="item" index="index" open="(" separator=","  close=")">
+					#{item}
+				</foreach>
+			</if>
 		</where>
 	</sql>
    
