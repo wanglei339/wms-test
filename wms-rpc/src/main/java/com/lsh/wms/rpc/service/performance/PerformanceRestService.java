@@ -9,6 +9,8 @@ import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.model.baseinfo.BaseinfoStaffInfo;
 import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.rpc.service.system.SysUserRpcService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.Consumes;
@@ -29,6 +31,9 @@ import java.util.Map;
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class PerformanceRestService implements IPerformanceRestService {
+
+    private static Logger logger = LoggerFactory.getLogger(PerformanceRestService.class);
+
     @Autowired
     private PerformanceRpcService performanceRpcService;
 
@@ -50,37 +55,58 @@ public class PerformanceRestService implements IPerformanceRestService {
         //将查询条件的员工工号staffNo 先查staff表转为staffId,根据staffId去SysUser表,根据的staffId转化为uid,然后去task表中查
         //staffNo->staffId
         String staffNo = (String) mapQuery.get("staffNo");
-        Map<String, Object> staffQuery = new HashMap<String, Object>();
-        staffQuery.put("staffNo", staffNo);
-        List<BaseinfoStaffInfo> staffList = new ArrayList<BaseinfoStaffInfo>();
-        if (staffNo != null) {
-            staffList = staffService.getStaffList(staffQuery);
-        }
-
-        Long staffId = null;
-        Long uid = null;
-        if (staffList.size() > 0) {
-            staffId = staffList.get(0).getStaffId();
-            //staffId->uid
-            Map<String, Object> userQuery = new HashMap<String, Object>();
-            userQuery.put("staffId", staffId);
-            List<SysUser> userList = sysUserRpcService.getSysUserList(userQuery);
-            if (userList.size() > 0) {
-                uid = userList.get(0).getUid();
+        List<Map<String, Object>> listTemp = new ArrayList<Map<String, Object>>();
+        if (staffNo == null) {
+            listTemp = performanceRpcService.getPerformance(mapQuery);
+        } else {
+            Map<String, Object> staffQuery = new HashMap<String, Object>();
+            staffQuery.put("staffNo", staffNo);
+            List<BaseinfoStaffInfo> staffList = staffService.getStaffList(staffQuery);
+            List<Long> uidList = new ArrayList<Long>();
+            if (staffList != null && !staffList.isEmpty()) {
+                //staffId -> uidList
+                Map<String, Object> userQuery = new HashMap<String, Object>();
+                userQuery.put("staffId", staffList.get(0).getStaffId());
+                List<SysUser> userList = sysUserRpcService.getSysUserList(userQuery);
+                if (userList != null && !userList.isEmpty()) {
+                    for (SysUser user : userList) {
+                        uidList.add(user.getUid());
+                    }
+                    //拿到了uidList
+                    mapQuery.put("uidList", uidList);
+                    listTemp = performanceRpcService.getPerformance(mapQuery);
+                }
             }
         }
-        //拿到了uid
-        if (uid != null) {
-            mapQuery.put("uid", uid);
-        }
-        List<Map<String, Object>> listTemp = performanceRpcService.getPerformance(mapQuery);
         return JsonUtils.SUCCESS(listTemp);
     }
 
     @POST
     @Path("getPerformanceCount")
     public String getPerformanceCount(Map<String, Object> mapQuery) throws BizCheckedException {
-        return JsonUtils.SUCCESS(performanceRpcService.getPerformanceCount(mapQuery));
+        String staffNo = (String) mapQuery.get("staffNo");
+        Integer count = 0;
+        if (staffNo == null) {
+            count = performanceRpcService.getPerformanceCount(mapQuery);
+        } else {
+            Map<String, Object> staffQuery = new HashMap<String, Object>();
+            staffQuery.put("staffNo", staffNo);
+            List<BaseinfoStaffInfo> staffList = staffService.getStaffList(staffQuery);
+            List<Long> uidList = new ArrayList<Long>();
+            if (staffList != null && !staffList.isEmpty()) {
+                Map<String, Object> userQuery = new HashMap<String, Object>();
+                userQuery.put("staffId", staffList.get(0).getStaffId());
+                List<SysUser> userList = sysUserRpcService.getSysUserList(userQuery);
+                if (userList != null && !userList.isEmpty()) {
+                    for (SysUser user : userList) {
+                        uidList.add(user.getUid());
+                    }
+                    mapQuery.put("uidList", uidList);
+                    count = performanceRpcService.getPerformanceCount(mapQuery);
+                }
+            }
+        }
+        return JsonUtils.SUCCESS(count);
     }
 
 
@@ -96,6 +122,5 @@ public class PerformanceRestService implements IPerformanceRestService {
     public String getTaskInfo(Map<String, Object> mapQuery) {
         return JsonUtils.SUCCESS(performanceRpcService.getTaskInfo(mapQuery));
     }
-
 
 }
