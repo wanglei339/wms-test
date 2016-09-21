@@ -120,6 +120,12 @@
 			<if test="inserttime != null">and INSERTTIME=#{inserttime}</if>
 			<if test="updatetime != null">and UPDATETIME=#{updatetime}</if>
 			<if test="staffId != null">and STAFF_ID=#{staffId}</if>
+			<if test="receiptList != null">
+				and RECEIPT_ORDER_ID in
+				<foreach collection="receiptList"  item="item" index="index" open="(" separator=","  close=")">
+					#{item}
+				</foreach>
+			</if>
 		</where>
 	</sql>
    
