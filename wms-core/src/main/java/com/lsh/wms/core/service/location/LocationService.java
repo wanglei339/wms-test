@@ -50,6 +50,20 @@ public class LocationService {
     }
 
     /**
+     * 根据相同的属性的分类获取指定位置群,入全货架组、全货位组
+     * @param classification
+     * @return
+     * @throws BizCheckedException
+     */
+    public List<BaseinfoLocation> getLocationsByClassfication(Integer classification) throws BizCheckedException {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("classification", classification);
+        params.put("isValid", LocationConstant.IS_VALID);
+        List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
+        return locations;
+    }
+
+    /**
      * 根据locationId获取location
      *
      * @param locationId 位置序列号

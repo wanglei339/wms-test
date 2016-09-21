@@ -125,17 +125,7 @@ public class LocationRpcService implements ILocationRpcService {
      * @return
      */
     public List<BaseinfoLocation> getAllShelfs() {
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-        //将不同的货架type塞入
-        List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
-        List<Long> regionType = Arrays.asList(LocationConstant.SHELF, LocationConstant.LOFT, LocationConstant.SPLIT_SHELF);
-        for (Long oneType : regionType) {
-            mapQuery.put("type", oneType);
-            List<BaseinfoLocation> locationList = locationService.getBaseinfoLocationList(mapQuery);
-            if (locationList.size() > 0) {
-                targetList.addAll(locationList);
-            }
-        }
+        List<BaseinfoLocation> targetList = locationService.getLocationsByClassfication(LocationConstant.CLASSIFICATION_SHELFS);
         return targetList;
     }
 

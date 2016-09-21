@@ -120,6 +120,12 @@ public class LocationConstant {
     //是否上锁
     public static final Integer IS_LOCKED=1;
     public static final Integer UNLOCK=0;
+    //关于classification,同属性分类
+    public static final Integer CLASSIFICATION_AREAS = 1;
+    public static final Integer CLASSIFICATION_BINS = 2;
+    public static final Integer CLASSIFICATION_OTHERS = 3;
+    public static final Integer CLASSIFICATION_SHELFS = 4;
+
 
 
     // location_id划分相关
