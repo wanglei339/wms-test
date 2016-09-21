@@ -1,6 +1,7 @@
 package com.lsh.wms.integration.service.common.utils;
 
 import com.alibaba.fastjson.JSON;
+import com.lsh.base.common.utils.RandomUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -173,6 +174,14 @@ public class HttpUtil {
 		CloseableHttpResponse response = null;
 
 		try {
+            //head头部信息添加
+            httpPost.setHeader("api-version","v1.0");
+            Long random = RandomUtils.genId();
+            httpPost.setHeader("random",random.toString());
+
+            httpPost.setHeader("platform","wms");
+
+
 			httpPost.setConfig(requestConfig);
 			StringEntity stringEntity = new StringEntity(json.toString(), "UTF-8");// 解决中文乱码问题
 			stringEntity.setContentEncoding("UTF-8");
