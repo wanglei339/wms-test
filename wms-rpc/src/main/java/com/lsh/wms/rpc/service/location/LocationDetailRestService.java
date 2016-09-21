@@ -124,10 +124,9 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @GET
     @Path("getLocationDetail")
     public String getLocationDetailById(@QueryParam("locationId") Long locationId) throws BizCheckedException {
-        Long id = Long.parseLong(locationId.toString());
         //前端回显示用的fatherLocation的显示
-        IBaseinfoLocaltionModel localtionModel = locationDetailRpcService.getLocationDetailById(id);
-        BaseinfoLocation fatherLocation = locationRpcService.getFatherLocation(id);
+        IBaseinfoLocaltionModel localtionModel = locationDetailRpcService.getLocationDetailById(locationId);
+        BaseinfoLocation fatherLocation = locationRpcService.getFatherLocation(locationId);
         LocationDetailResponse detailResponse = new LocationDetailResponse();
         ObjUtils.bean2bean(localtionModel, detailResponse);
         //设置fathe的回显示

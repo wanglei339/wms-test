@@ -77,28 +77,28 @@ public class LocationService {
         Map<String, String> locationMap = locationRedisService.getRedisLocation(locationId);
         if (locationMap != null && !locationMap.isEmpty()) {
             BaseinfoLocation location = new BaseinfoLocation();
-            location.setLocationId(Long.parseLong(locationMap.get("locationId")));
+            location.setLocationId(Long.valueOf(locationMap.get("locationId")));
             location.setLocationCode(locationMap.get("locationCode"));
-            location.setFatherId(Long.parseLong(locationMap.get("fatherId")));
-            location.setLeftRange(Long.parseLong(locationMap.get("leftRange")));
-            location.setRightRange(Long.parseLong(locationMap.get("rightRange")));
-            location.setLevel(Long.parseLong(locationMap.get("level")));
-            location.setType(Long.parseLong(locationMap.get("type")));
+            location.setFatherId(Long.valueOf(locationMap.get("fatherId")));
+            location.setLeftRange(Long.valueOf(locationMap.get("leftRange")));
+            location.setRightRange(Long.valueOf(locationMap.get("rightRange")));
+            location.setLevel(Long.valueOf(locationMap.get("level")));
+            location.setType(Long.valueOf(locationMap.get("type")));
             location.setTypeName(locationMap.get("typeName"));
-            location.setIsLeaf(Integer.parseInt(locationMap.get("isLeaf")));
-            location.setIsValid(Integer.parseInt(locationMap.get("isValid")));
-            location.setCanStore(Integer.parseInt(locationMap.get("canStore")));
-            location.setContainerVol(Long.parseLong(locationMap.get("containerVol")));
-            location.setRegionNo(Long.parseLong(locationMap.get("regionNo")));
-            location.setPassageNo(Long.parseLong(locationMap.get("passageNo")));
-            location.setShelfLevelNo(Long.parseLong(locationMap.get("shelfLevelNo")));
-            location.setBinPositionNo(Long.parseLong(locationMap.get("binPositionNo")));
-            location.setCreatedAt(Long.parseLong(locationMap.get("createdAt")));
-            location.setUpdatedAt(Long.parseLong(locationMap.get("updatedAt")));
-            location.setClassification(Integer.parseInt(locationMap.get("classification")));
-            location.setCanUse(Integer.parseInt(locationMap.get("canUse")));
-            location.setIsLocked(Integer.parseInt(locationMap.get("isLocked")));
-            location.setCurContainerVol(Long.parseLong(locationMap.get("curContainerVol")));
+            location.setIsLeaf(Integer.valueOf(locationMap.get("isLeaf")));
+            location.setIsValid(Integer.valueOf(locationMap.get("isValid")));
+            location.setCanStore(Integer.valueOf(locationMap.get("canStore")));
+            location.setContainerVol(Long.valueOf(locationMap.get("containerVol")));
+            location.setRegionNo(Long.valueOf(locationMap.get("regionNo")));
+            location.setPassageNo(Long.valueOf(locationMap.get("passageNo")));
+            location.setShelfLevelNo(Long.valueOf(locationMap.get("shelfLevelNo")));
+            location.setBinPositionNo(Long.valueOf(locationMap.get("binPositionNo")));
+            location.setCreatedAt(Long.valueOf(locationMap.get("createdAt")));
+            location.setUpdatedAt(Long.valueOf(locationMap.get("updatedAt")));
+            location.setClassification(Integer.valueOf(locationMap.get("classification")));
+            location.setCanUse(Integer.valueOf(locationMap.get("canUse")));
+            location.setIsLocked(Integer.valueOf(locationMap.get("isLocked")));
+            location.setCurContainerVol(Long.valueOf(locationMap.get("curContainerVol")));
             location.setDescription(locationMap.get("description"));
             return location;
         }
@@ -752,10 +752,10 @@ public class LocationService {
             minDistanceMap.put("location", location);
             minDistanceMap.put("distance", minDistance);
             for (Map<String, Object> distanceMap : storeBinDistanceList) {
-                if ((Long.parseLong(((Long) distanceMap.get("distance")).toString()) == Long.parseLong(((Long) minDistanceMap.get("distance")).toString())) && (this.getShelfByClassification(((BaseinfoLocation) distanceMap.get("location")).getLocationId())).getLocationId().equals(shelfLocationSelf.getLocationId())) {
+                if ((Long.valueOf(((Long) distanceMap.get("distance")).toString()) == Long.valueOf(((Long) minDistanceMap.get("distance")).toString())) && (this.getShelfByClassification(((BaseinfoLocation) distanceMap.get("location")).getLocationId())).getLocationId().equals(shelfLocationSelf.getLocationId())) {
                     //位置相同,同货架优先,同货架位置相同,给一个就行
                     minDistanceMap = distanceMap;
-                } else if (Long.parseLong(((Long) distanceMap.get("distance")).toString()) < Long.parseLong(((Long) minDistanceMap.get("distance")).toString())) {
+                } else if (Long.valueOf(((Long) distanceMap.get("distance")).toString()) < Long.valueOf(((Long) minDistanceMap.get("distance")).toString())) {
                     minDistanceMap = distanceMap;
                 }
             }
@@ -1161,9 +1161,8 @@ public class LocationService {
      * @return
      */
     public List<BaseinfoLocation> getTargetLocationListByType(Long type) {
-        Long targetType = Long.parseLong(type.toString());
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("type", targetType);
+        params.put("type", type);
         return this.getBaseinfoLocationList(params);
     }
 
