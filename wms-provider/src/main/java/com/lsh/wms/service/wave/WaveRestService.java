@@ -19,11 +19,13 @@ import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
 import com.lsh.wms.core.service.pick.PickModelService;
 import com.lsh.wms.core.service.pick.PickZoneService;
+import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.core.service.wave.WaveTemplateService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationWarehouse;
 import com.lsh.wms.model.pick.*;
+import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbSoDetail;
 import com.lsh.wms.model.so.OutbSoHeader;
 import com.lsh.wms.model.wave.WaveDetail;
@@ -31,6 +33,7 @@ import com.lsh.wms.model.wave.WaveHead;
 import com.lsh.wms.model.wave.WaveRequest;
 import com.lsh.wms.model.wave.WaveTemplate;
 import org.apache.commons.collections.MapUtils;
+import org.apache.ibatis.ognl.ObjectElementsAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,9 +73,12 @@ public class WaveRestService implements IWaveRestService {
 
     @Autowired
     private BaseinfoLocationWarehouseService baseinfoLocationWarehouseService;
-
+//
 //    @Reference
 //    private IIbdBackService ibdBackService;
+
+    @Autowired
+    private SoDeliveryService soDeliveryService;
 
     @POST
     @Path("getList")
@@ -124,12 +130,12 @@ public class WaveRestService implements IWaveRestService {
         List<WaveDetail> detailList = waveService.getDetailsByWaveId(iWaveId);
         Set<Long> orderIds = new HashSet<Long>();
         //将orderId取出 放入set集合中
-        Map<Long,BigDecimal> map = new HashMap<Long, BigDecimal>();
+        //Map<Long,BigDecimal> map = new HashMap<Long, BigDecimal>();
         for(WaveDetail detail : detailList){
             if ( detail.getQcExceptionDone() == 0){
                 throw new BizCheckedException("2040014");
             }
-            map.put(detail.getRefDetailId(),detail.getQcQty());
+            //map.put(detail.getRefDetailId(),detail.getQcQty());
             orderIds.add(detail.getOrderId());
         }
         //发起来
@@ -155,6 +161,8 @@ public class WaveRestService implements IWaveRestService {
 //            //查询明细。
 //            List<OutbSoDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
 //            List<ObdItem> items = new ArrayList<ObdItem>();
+//
+//
 //            for (OutbSoDetail soDetail : soDetails){
 //                ObdItem soItem = new ObdItem();
 //                soItem.setMaterialNo(soDetail.getSkuCode());//skuCode
@@ -162,8 +170,11 @@ public class WaveRestService implements IWaveRestService {
 //                soItem.setPrice(soDetail.getPrice());
 //                //转化成ea
 //                soItem.setQuantity(soDetail.getOrderQty().multiply(soDetail.getPackUnit()).setScale(3));
+//                // TODO: 16/9/18 目前根据orderId与itemId来确定一条发货单。
+//                OutbDeliveryDetail outbDeliveryDetail = soDeliveryService.getOutbDeliveryDetail(soDetail.getOrderId(),soDetail.getItemId());
+//
 //                //实际出库数量
-//                soItem.setSendQuantity(map.get(soDetail.getDetailOtherId()));
+//                soItem.setSendQuantity(outbDeliveryDetail.getDeliveryNum());
 //
 //                //查询waveDetail找出实际出库的数量
 //                items.add(soItem);

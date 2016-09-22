@@ -99,8 +99,9 @@ public class UserRestService implements IUserRestService {
                     put("do_receipt", "收货");
                     put("do_shelve", "上架");
                     put("do_atticshelve", "阁楼上架");
-                    put("do_stock", "盘点");
+                    put("do_stack", "盘点");
                     put("do_createscrap", "转残次");
+                    put("do_createtransfer", "创建移库");
                     put("do_createreturn", "转退货");
                     put("do_transfer", "移库");
                     put("do_procurement", "补货");
