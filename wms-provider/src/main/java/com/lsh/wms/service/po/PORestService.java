@@ -57,8 +57,8 @@ public class PORestService implements IPoRestService {
     @Autowired
     private PoOrderService poOrderService;
 
-    @Reference
-    private IIbdBackService ibdBackService;
+//    @Reference
+//    private IIbdBackService ibdBackService;
 
     @Autowired
     private ItemService itemService;
@@ -88,54 +88,54 @@ public class PORestService implements IPoRestService {
         Map<String, Object> map = RequestUtils.getRequest();
 
         poRpcService.updateOrderStatus(map);
-
-        //确认收货之后将验收单回传到上游系统
-        if("5".equals(map.get("orderStatus").toString())){
-            IbdBackRequest ibdBackRequest = new IbdBackRequest();
-            Header header = new Header();
-            BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) baseinfoLocationWarehouseService.getBaseinfoItemLocationModelById(0L);
-            String warehouseName = warehouse.getWarehouseName();
-            header.setPlant(warehouseName);
-//            String poNumber =map.get("orderOtherId").toString();
-//            header.setPoNumber(poNumber);
-            List<InbPoDetail> inbPoDetails = poOrderService.getInbPoDetailListByOrderId((Long) map.get("orderId"));
-            InbPoHeader poHeader = poOrderService.getInbPoHeaderById((Long) map.get("orderId"));
-
-            //回传类型
-            String docType = poHeader.getOrderType().equals(3) ? "08" : "02";
-            String docStyle = poHeader.getOrderType().equals(3) ? "02" : "00";
-            header.setDocStyle(docStyle);
-            header.setDocType(docType);
-            header.setPoNumber(poHeader.getOrderOtherId());
-            header.setDelivNumber(poHeader.getOrderOtherRefId());
-
-
-            List<IbdItem>  items = new ArrayList<IbdItem>();
-            for(InbPoDetail inbPoDetail : inbPoDetails){
-                IbdItem ibdItem = new IbdItem();
-                //转成ea
-                BigDecimal inboudQty =  inbPoDetail.getInboundQty().multiply(inbPoDetail.getPackUnit()).setScale(3);
-                BigDecimal orderQty = inbPoDetail.getOrderQty().multiply(inbPoDetail.getPackUnit()).setScale(3);
-                BigDecimal entryQnt = poHeader.getOrderType().equals(3) ? orderQty : inboudQty;
-                ibdItem.setEntryQnt(entryQnt);
-                ibdItem.setMaterialNo(inbPoDetail.getSkuCode());
-                ibdItem.setDelivItem(inbPoDetail.getDetailOtherId());
-                ibdItem.setPoItem(inbPoDetail.getDetailOtherId());
-                //回传baseinfo_item中的unitName
-                //ibdItem.setPackName(inbPoDetail.getPackName());
-                String unitName = itemService.getItem(poHeader.getOwnerUid(),inbPoDetail.getSkuId()).getUnitName().toUpperCase();
-                ibdItem.setPackName(unitName);
-                items.add(ibdItem);
-            }
-            ibdBackRequest.setItems(items);
-            ibdBackRequest.setHeader(header);
-            if(poHeader.getOwnerUid() == 1){
-                ibdBackService.createOrderByPost(ibdBackRequest, IntegrationConstan.URL_IBD);
-            }else{
-                ibdBackService.receivePurchaseOrder(ibdBackRequest);
-            }
-
-        }
+//
+//        //确认收货之后将验收单回传到上游系统
+//        if("5".equals(map.get("orderStatus").toString())){
+//            IbdBackRequest ibdBackRequest = new IbdBackRequest();
+//            Header header = new Header();
+//            BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) baseinfoLocationWarehouseService.getBaseinfoItemLocationModelById(0L);
+//            String warehouseName = warehouse.getWarehouseName();
+//            header.setPlant(warehouseName);
+////            String poNumber =map.get("orderOtherId").toString();
+////            header.setPoNumber(poNumber);
+//            List<InbPoDetail> inbPoDetails = poOrderService.getInbPoDetailListByOrderId((Long) map.get("orderId"));
+//            InbPoHeader poHeader = poOrderService.getInbPoHeaderById((Long) map.get("orderId"));
+//
+//            //回传类型
+//            String docType = poHeader.getOrderType().equals(3) ? "08" : "02";
+//            String docStyle = poHeader.getOrderType().equals(3) ? "02" : "00";
+//            header.setDocStyle(docStyle);
+//            header.setDocType(docType);
+//            header.setPoNumber(poHeader.getOrderOtherId());
+//            header.setDelivNumber(poHeader.getOrderOtherRefId());
+//
+//
+//            List<IbdItem>  items = new ArrayList<IbdItem>();
+//            for(InbPoDetail inbPoDetail : inbPoDetails){
+//                IbdItem ibdItem = new IbdItem();
+//                //转成ea
+//                BigDecimal inboudQty =  inbPoDetail.getInboundQty().multiply(inbPoDetail.getPackUnit()).setScale(3);
+//                BigDecimal orderQty = inbPoDetail.getOrderQty().multiply(inbPoDetail.getPackUnit()).setScale(3);
+//                BigDecimal entryQnt = poHeader.getOrderType().equals(3) ? orderQty : inboudQty;
+//                ibdItem.setEntryQnt(entryQnt);
+//                ibdItem.setMaterialNo(inbPoDetail.getSkuCode());
+//                ibdItem.setDelivItem(inbPoDetail.getDetailOtherId());
+//                ibdItem.setPoItem(inbPoDetail.getDetailOtherId());
+//                //回传baseinfo_item中的unitName
+//                //ibdItem.setPackName(inbPoDetail.getPackName());
+//                String unitName = itemService.getItem(poHeader.getOwnerUid(),inbPoDetail.getSkuId()).getUnitName().toUpperCase();
+//                ibdItem.setPackName(unitName);
+//                items.add(ibdItem);
+//            }
+//            ibdBackRequest.setItems(items);
+//            ibdBackRequest.setHeader(header);
+//            if(poHeader.getOwnerUid() == 1){
+//                ibdBackService.createOrderByPost(ibdBackRequest, IntegrationConstan.URL_IBD);
+//            }else{
+//                ibdBackService.receivePurchaseOrder(ibdBackRequest);
+//            }
+//
+//        }
 
 
 
