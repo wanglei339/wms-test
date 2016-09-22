@@ -1,6 +1,7 @@
 package com.lsh.wms.core.service.stock;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.atp.api.model.baseVo.SkuVo;
 import com.lsh.atp.api.model.inventory.InventorySyncLshRequest;
 import com.lsh.base.common.config.PropertyUtils;
@@ -31,8 +32,8 @@ import java.util.Map;
  * Package name:com.lsh.wms.core.service.stock.
  * desc:类功能描述
  */
-@Component
-public class SynStockService{
+@Service(protocol = "dubbo")
+public class SynStockService implements ISynStockInventory{
 
     private static Logger logger = LoggerFactory.getLogger(SynStockService.class);
     @Autowired
@@ -43,9 +44,7 @@ public class SynStockService{
 
     public void synStock(Long item_id, Double qty) { // TODO: 16/9/8
         iSynInventory.synInventory(item_id,qty);
-
-
-        InventorySyncLshRequest request = new InventorySyncLshRequest();
+        /*InventorySyncLshRequest request = new InventorySyncLshRequest();
         request.setZoneCode(PropertyUtils.getString("zone_code"));
         request.setSystem(PropertyUtils.getString("system"));
         BaseinfoItem baseinfoItem   = itemService.getItem(item_id);
@@ -67,7 +66,7 @@ public class SynStockService{
         headMap.put("api-version", "1.1");
         headMap.put("random", RandomUtils.randomStr2(32));
         headMap.put("platform", "1");
-        /*try{
+        try{
             String res  = HttpClientUtils.postBody(atp_inventory_url,  requestBody,atp_inventory_timeout , atp_inventory_charset, headMap);
             logger.info("库存同步返回结果是: "+res);
         }catch (Exception ex ){
