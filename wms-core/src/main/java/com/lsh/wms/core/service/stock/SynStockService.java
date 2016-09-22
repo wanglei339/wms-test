@@ -1,11 +1,14 @@
 package com.lsh.wms.core.service.stock;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.atp.api.model.baseVo.SkuVo;
 import com.lsh.atp.api.model.inventory.InventorySyncLshRequest;
 import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.net.HttpClientUtils;
 import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.wms.api.service.inventory.ISynInventory;
+import com.lsh.wms.api.service.inventory.ISynStockInventory;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import org.slf4j.Logger;
@@ -35,7 +38,13 @@ public class SynStockService{
     @Autowired
     private ItemService itemService;
 
+    @Reference
+    private ISynInventory iSynInventory;
+
     public void synStock(Long item_id, Double qty) { // TODO: 16/9/8
+        iSynInventory.synInventory(item_id,qty);
+
+
         InventorySyncLshRequest request = new InventorySyncLshRequest();
         request.setZoneCode(PropertyUtils.getString("zone_code"));
         request.setSystem(PropertyUtils.getString("system"));
@@ -58,13 +67,13 @@ public class SynStockService{
         headMap.put("api-version", "1.1");
         headMap.put("random", RandomUtils.randomStr2(32));
         headMap.put("platform", "1");
-        try{
+        /*try{
             String res  = HttpClientUtils.postBody(atp_inventory_url,  requestBody,atp_inventory_timeout , atp_inventory_charset, headMap);
             logger.info("库存同步返回结果是: "+res);
         }catch (Exception ex ){
             logger.error("库存同步异常"); // TODO: 16/9/10 库存同步 
             logger.error(ex.getMessage());
-        }
+        }*/
        
 
     }
