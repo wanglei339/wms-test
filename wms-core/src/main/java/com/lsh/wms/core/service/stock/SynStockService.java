@@ -32,6 +32,7 @@ import java.util.Map;
  * Package name:com.lsh.wms.core.service.stock.
  * desc:类功能描述
  */
+@Component
 @Service(protocol = "dubbo")
 public class SynStockService implements ISynStockInventory{
 
