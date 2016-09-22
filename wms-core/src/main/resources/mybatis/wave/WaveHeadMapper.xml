@@ -63,7 +63,22 @@
 	<select id="getWaveHeadList" parameterType="map" resultMap="waveHeadResultMap">
 		select * from wave_head
 		<include refid="queryCondition"/>
-		ORDER BY id DESC
+
+		<if test="orderBy == null or orderType == null">
+			ORDER BY  id DESC
+		</if>
+		<if test='"createdAt".equals(orderBy)  and "desc".equals(orderType)'>
+			ORDER BY  created_at DESC
+		</if>
+		<if test=" 'status'.equals(orderBy)  and 'desc'.equals(orderType)">
+			ORDER BY  status DESC
+		</if>
+		<if test=" 'createdAt'.equals(orderBy)  and 'asc'.equals(orderType)">
+			ORDER BY  created_at ASC
+		</if>
+		<if test=" 'status'.equals(orderBy)  and  'asc'.equals(orderType)">
+			ORDER BY  status ASC
+		</if>
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
 		</if>
