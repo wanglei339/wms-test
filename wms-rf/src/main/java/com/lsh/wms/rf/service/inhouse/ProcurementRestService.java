@@ -159,7 +159,6 @@ public class ProcurementRestService implements IProcurementRestService {
                 if(entry==null ){
                     return JsonUtils.TOKEN_ERROR("任务不存在");
                 }
-                rpcService.scanFromLocation(params);
                 final TaskInfo info = entry.getTaskInfo();
                 StockQuantCondition condition = new StockQuantCondition();
                 condition.setItemId(info.getItemId());
@@ -173,6 +172,7 @@ public class ProcurementRestService implements IProcurementRestService {
                         }
                     });
                 }
+                rpcService.scanFromLocation(params);
                 return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                     {
                         put("taskId", info.getTaskId().toString());
