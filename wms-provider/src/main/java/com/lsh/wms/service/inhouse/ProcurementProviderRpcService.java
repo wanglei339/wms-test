@@ -117,6 +117,10 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         if(entry == null){
             throw new BizCheckedException("3040001");
         }
+        TaskInfo taskInfo = entry.getTaskInfo();
+        if (taskInfo.getToLocationId().compareTo(plan.getToLocationId())!=0 && baseTaskService.checkTaskByToLocation(plan.getToLocationId(), TaskConstant.TYPE_PROCUREMENT)){
+            throw new BizCheckedException("2550015");
+        }
         StockQuantCondition condition = new StockQuantCondition();
         condition.setLocationId(plan.getFromLocationId());
         condition.setItemId(plan.getItemId());
@@ -127,7 +131,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
             throw new BizCheckedException("2550008");
         }
-        TaskInfo taskInfo = entry.getTaskInfo();
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
         Long containerId = quantList.get(0).getContainerId();
         if (plan.getSubType().equals(2L)) {

@@ -45,7 +45,7 @@ public class SynStockService implements ISynStockInventory{
 
     public void synStock(Long item_id, Double qty) { // TODO: 16/9/8
         iSynInventory.synInventory(item_id,qty);
-        /*InventorySyncLshRequest request = new InventorySyncLshRequest();
+        InventorySyncLshRequest request = new InventorySyncLshRequest();
         request.setZoneCode(PropertyUtils.getString("zone_code"));
         request.setSystem(PropertyUtils.getString("system"));
         BaseinfoItem baseinfoItem   = itemService.getItem(item_id);
@@ -71,9 +71,9 @@ public class SynStockService implements ISynStockInventory{
             String res  = HttpClientUtils.postBody(atp_inventory_url,  requestBody,atp_inventory_timeout , atp_inventory_charset, headMap);
             logger.info("库存同步返回结果是: "+res);
         }catch (Exception ex ){
-            logger.error("库存同步异常"); // TODO: 16/9/10 库存同步 
+            logger.error("库存同步异常"); // TODO: 16/9/10 库存同步
             logger.error(ex.getMessage());
-        }*/
+        }
        
 
     }
