@@ -88,7 +88,7 @@ public class PORestService implements IPoRestService {
         Map<String, Object> map = RequestUtils.getRequest();
 
         poRpcService.updateOrderStatus(map);
-//
+
 //        //确认收货之后将验收单回传到上游系统
 //        if("5".equals(map.get("orderStatus").toString())){
 //            IbdBackRequest ibdBackRequest = new IbdBackRequest();
@@ -136,9 +136,6 @@ public class PORestService implements IPoRestService {
 //            }
 //
 //        }
-
-
-
         return JsonUtils.SUCCESS();
     }
 
