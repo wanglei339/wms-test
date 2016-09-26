@@ -95,6 +95,7 @@
 	<select id="getInbReceiptHeaderList" parameterType="map" resultMap="inbReceiptHeaderResultMap">
 		select * from INB_RECEIPT_HEADER
 		<include refid="queryCondition"/>
+		ORDER BY  inserttime DEAC
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
 		</if>
