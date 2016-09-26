@@ -98,5 +98,13 @@ public interface ILocationRpcService {
      */
     public void syncRedisAll();
 
+    /**
+     * 设置集货道或集货位的位置id
+     * @param locationId  位置
+     * @param storeNo     门店编号
+     * @return
+     */
+    public BaseinfoLocation setStoreNoOnRoad(Long locationId,Long storeNo)throws BizCheckedException;
+
 
 }

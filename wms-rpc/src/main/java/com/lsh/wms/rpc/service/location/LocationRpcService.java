@@ -251,4 +251,22 @@ public class LocationRpcService implements ILocationRpcService {
         locationService.syncRedisAll();
     }
 
+    /**
+     * @param locationId 位置
+     * @param storeNo    门店编号
+     * @return
+     * @throws BizCheckedException
+     */
+    public BaseinfoLocation setStoreNoOnRoad(Long locationId, Long storeNo) throws BizCheckedException {
+        if (null == storeNo) {
+            throw new BizCheckedException("2180010");
+        }
+        BaseinfoLocation location = this.getLocation(locationId);
+        if (!location.getType().equals(LocationConstant.COLLECTION_BIN) && !location.getType().equals(LocationConstant.COLLECTION_ROAD)) {
+            throw new BizCheckedException("2180011");
+        }
+        BaseinfoLocation targetLocation = locationService.setStoreNoOnRoad(location,storeNo);
+        return targetLocation;
+    }
+
 }

@@ -230,7 +230,6 @@ public class QCRestService implements IRFQCRestService{
             pickQty = pickQty.add(d.getPickQty());
         }
         if (seekNum == 0) {
-
             if(true){
                 throw new BizCheckedException("2120002");
             }

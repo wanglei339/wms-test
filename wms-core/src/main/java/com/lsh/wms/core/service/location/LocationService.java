@@ -51,6 +51,7 @@ public class LocationService {
 
     /**
      * 根据相同的属性的分类获取指定位置群,入全货架组、全货位组
+     *
      * @param classification
      * @return
      * @throws BizCheckedException
@@ -1243,6 +1244,20 @@ public class LocationService {
         for (BaseinfoLocation location : locations) {
             locationRedisService.insertLocationRedis(location);
         }
+    }
+
+    /**
+     * 设置门店号
+     * @param location 位置
+     * @param storeNo   设置的门店号
+     * @return  设置门店号的位置
+     * @throws BizCheckedException
+     */
+    @Transactional(readOnly = false)
+    public BaseinfoLocation setStoreNoOnRoad(BaseinfoLocation location, Long storeNo) throws BizCheckedException {
+        location.setStoreNo(storeNo);
+        this.updateLocation(location);
+        return location;
     }
 
 
