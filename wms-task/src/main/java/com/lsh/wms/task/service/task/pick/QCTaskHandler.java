@@ -35,7 +35,7 @@ public class QCTaskHandler extends AbsTaskHandler {
         handlerFactory.register(TaskConstant.TYPE_QC, this);
     }
 
-    public void create(Long taskId) throws BizCheckedException {
+    public void create(Long taskId) throws BizCheckedException {    //创建到另一张表中,然后CRUD操作在新表中进行
         TaskEntry pickEntry = this.getTask(taskId);
         Long containerId = pickEntry.getTaskInfo().getContainerId();
         List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);

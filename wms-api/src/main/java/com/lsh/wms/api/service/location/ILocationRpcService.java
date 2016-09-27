@@ -106,5 +106,21 @@ public interface ILocationRpcService {
      */
     public BaseinfoLocation setStoreNoOnRoad(Long locationId,Long storeNo)throws BizCheckedException;
 
+    /**
+     * 将门店的所有集货位置列出
+     * @param storeNo
+     * @return
+     * @throws BizCheckedException
+     */
+    public List<BaseinfoLocation> getCollectionByStoreNo(Long storeNo)throws BizCheckedException;
+
+    /**
+     * 移除集货道的门店号,将其置为0
+     * @param locationId
+     * @return
+     * @throws BizCheckedException
+     */
+    public BaseinfoLocation removeStoreNoOnRoad(Long locationId) throws  BizCheckedException;
+
 
 }

@@ -265,8 +265,38 @@ public class LocationRpcService implements ILocationRpcService {
         if (!location.getType().equals(LocationConstant.COLLECTION_BIN) && !location.getType().equals(LocationConstant.COLLECTION_ROAD)) {
             throw new BizCheckedException("2180011");
         }
-        BaseinfoLocation targetLocation = locationService.setStoreNoOnRoad(location,storeNo);
+        BaseinfoLocation targetLocation = locationService.setStoreNoOnRoad(location, storeNo);
         return targetLocation;
     }
+
+    /**
+     * 将门店位置下的所有集货位置拿出来
+     *
+     * @param storeNo 门店号
+     * @return
+     * @throws BizCheckedException
+     */
+    public List<BaseinfoLocation> getCollectionByStoreNo(Long storeNo) throws BizCheckedException {
+        if (null == storeNo) {
+            throw new BizCheckedException("2180010");
+        }
+        List<BaseinfoLocation> locations = locationService.getCollectionByStoreNo(storeNo);
+        return locations;
+    }
+
+    /**
+     * 移除集货道的门店号,将其置为0
+     * @param locationId
+     * @return
+     * @throws BizCheckedException
+     */
+    public BaseinfoLocation removeStoreNoOnRoad(Long locationId) throws BizCheckedException {
+        if (null == locationId) {
+            throw new BizCheckedException("2180001");
+        }
+        BaseinfoLocation location = locationService.removeStoreNoOnRoad(locationId);
+        return location;
+    }
+
 
 }

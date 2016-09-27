@@ -60,6 +60,8 @@ public class LocationRedisService {
         locationMap.put("isLocked", ObjUtils.toString(location.getIsLocked(), ""));
         locationMap.put("curContainerVol", ObjUtils.toString(location.getCurContainerVol(), ""));
         locationMap.put("description", ObjUtils.toString(location.getDescription(), ""));
+        locationMap.put("storeNo", ObjUtils.toString(location.getStoreNo(), ""));
+
         redisHashDao.putAll(redistKey, locationMap);
 
         //string值插入k-v (code-locationId)

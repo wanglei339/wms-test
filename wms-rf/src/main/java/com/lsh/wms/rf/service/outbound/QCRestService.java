@@ -116,7 +116,7 @@ public class QCRestService implements IRFQCRestService{
         if(qcTaskInfo.getStatus() == TaskConstant.Draft){
             iTaskRpcService.assign(qcTaskInfo.getTaskId(), Long.valueOf(RequestUtils.getHeader("uid")));
         }
-        List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
+        List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);    //一个托盘上是一个货主的货
         if(details.size() == 0){
             //空托盘
             throw new BizCheckedException("2120005");

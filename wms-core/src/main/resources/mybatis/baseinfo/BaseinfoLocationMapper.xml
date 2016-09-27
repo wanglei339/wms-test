@@ -27,6 +27,7 @@
         <result property="canUse" column="can_use"/>
         <result property="isLocked" column="is_locked"/>
         <result property="curContainerVol" column="cur_container_vol"/>
+        <result property="storeNo" column="store_no"/>
     </resultMap>
 
     <select id="lock" parameterType="long" resultMap="baseinfoLocationResultMap">

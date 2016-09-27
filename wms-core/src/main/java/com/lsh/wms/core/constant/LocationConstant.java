@@ -126,6 +126,8 @@ public class LocationConstant {
     public static final Integer CLASSIFICATION_OTHERS = 3;
     public static final Integer CLASSIFICATION_SHELFS = 4;
 
+    //设置location的门店号为删除,即置为0
+    public static final Long REMOVE_STORE_NO = 0L;
 
 
     // location_id划分相关

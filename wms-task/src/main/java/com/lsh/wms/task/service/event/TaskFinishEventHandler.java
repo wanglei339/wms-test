@@ -56,6 +56,7 @@ public class TaskFinishEventHandler extends AbsEventHandler implements IEventHan
         } else if (TaskConstant.TYPE_PICK == sourceTaskType) {
             taskHandlerFactory.getTaskHandler(TaskConstant.TYPE_QC).create(msg.getSourceTaskId());
         }
+        // todo 播种任务之后的qc任务出现
     }
 
     private void createShelveTask(Long taskId) throws BizCheckedException {

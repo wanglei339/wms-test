@@ -101,6 +101,7 @@ public class LocationService {
             location.setIsLocked(Integer.valueOf(locationMap.get("isLocked")));
             location.setCurContainerVol(Long.valueOf(locationMap.get("curContainerVol")));
             location.setDescription(locationMap.get("description"));
+            location.setDescription(locationMap.get("storeNo"));
             return location;
         }
         Map<String, Object> params = new HashMap<String, Object>();
@@ -1248,9 +1249,10 @@ public class LocationService {
 
     /**
      * 设置门店号
+     *
      * @param location 位置
-     * @param storeNo   设置的门店号
-     * @return  设置门店号的位置
+     * @param storeNo  设置的门店号
+     * @return 设置门店号的位置
      * @throws BizCheckedException
      */
     @Transactional(readOnly = false)
@@ -1258,6 +1260,66 @@ public class LocationService {
         location.setStoreNo(storeNo);
         this.updateLocation(location);
         return location;
+    }
+
+    /**
+     * 设置门店号
+     *
+     * @param locationId 位置编号
+     * @param storeNo    设置的门店号
+     * @return 设置门店号的位置
+     * @throws BizCheckedException
+     */
+    @Transactional(readOnly = false)
+    public BaseinfoLocation setStoreNoOnRoad(Long locationId, Long storeNo) throws BizCheckedException {
+        BaseinfoLocation location = this.getLocation(locationId);
+        location.setStoreNo(storeNo);
+        this.updateLocation(location);
+        return location;
+    }
+
+    /**
+     * 移除集货道|集货位的门店号,将门店号置为0
+     *
+     * @param location 位置
+     * @return
+     * @throws BizCheckedException
+     */
+    @Transactional(readOnly = false)
+    public BaseinfoLocation removeStoreNoOnRoad(BaseinfoLocation location) throws BizCheckedException {
+        location.setStoreNo(LocationConstant.REMOVE_STORE_NO);
+        this.updateLocation(location);
+        return location;
+    }
+    /**
+     * 移除集货道|集货位的门店号,将门店号置为0
+     *
+     * @param location 位置
+     * @return
+     * @throws BizCheckedException
+     */
+    @Transactional(readOnly = false)
+    public BaseinfoLocation removeStoreNoOnRoad(Long locationId) throws BizCheckedException {
+        BaseinfoLocation location = this.getLocation(locationId);
+        location.setStoreNo(LocationConstant.REMOVE_STORE_NO);
+        this.updateLocation(location);
+        return location;
+    }
+
+    /**
+     * 查找指定门店号的集货位置,集货道|集货位
+     *
+     * @param storeNo
+     * @return
+     */
+    public List<BaseinfoLocation> getCollectionByStoreNo(Long storeNo) throws BizCheckedException {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("storeNo", storeNo);
+        List<BaseinfoLocation> list = this.getBaseinfoLocationList(mapQuery);
+        if (null == list || list.size() < 1) {
+            throw new BizCheckedException("2180012");
+        }
+        return list;
     }
 
 
