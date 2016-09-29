@@ -289,6 +289,10 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
         if(entry ==null){
             return JsonUtils.TOKEN_ERROR("任务不存在");
         }
+        List<Object> details = entry.getTaskDetailList();
+        if(details==null || details.size()==0){
+            return JsonUtils.TOKEN_ERROR("任务详情不能为空");
+        }
         TaskInfo info = entry.getTaskInfo();
         info.setExt1(2L); //pc创建任务详情标示  0: 未创建详情 1:已创建详情 2:已执行中
         entry.setTaskInfo(info);
@@ -386,17 +390,6 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
                 resultList.add(one);
             }
         }
-        return JsonUtils.SUCCESS(resultList);
-    }
-    /**
-     * 获取上架任务列表
-     * @return
-     * @throws BizCheckedException
-     */
-    @POST
-    @Path("getlocationList")
-    public String getLocationList() throws BizCheckedException {
-        List<Long> resultList =new ArrayList<Long>();
         return JsonUtils.SUCCESS(resultList);
     }
     /**
