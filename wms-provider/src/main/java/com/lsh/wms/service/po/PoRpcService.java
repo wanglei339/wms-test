@@ -239,18 +239,19 @@ public class PoRpcService implements IPoRpcService {
     /**
      * 根据po找门店
      */
-    public Set<String> getObdHeader(String ibdOtherId){
+    public Set<ObdHeader> getObdHeader(String ibdOtherId){
         List<IbdObdRelation> list = poOrderService.getIbdObdRelationByIbdOtherId(ibdOtherId);
 
-        Set<String> storeCode = new HashSet<String>();
+        Set<ObdHeader> obdSet = new HashSet<ObdHeader>();
+
         for(IbdObdRelation ibdObdRelation : list){
             Map<String,Object> map = new HashMap<String, Object>();
             map.put("orderOtherId",ibdObdRelation.getObdOtherId());
             ObdHeader obdheader = soOrderService.getOutbSoHeaderList(map).get(0);
-            storeCode.add(obdheader.getDeliveryCode());
+            obdSet.add(obdheader);
         }
 
-        return storeCode;
+        return obdSet;
     }
 
 }
