@@ -4,6 +4,7 @@ import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.model.so.SoItem;
@@ -11,14 +12,11 @@ import com.lsh.wms.api.model.so.SoRequest;
 import com.lsh.wms.api.service.so.ISoRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.BusiConstant;
-import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
-import com.lsh.wms.model.so.OutbSoDetail;
-import com.lsh.wms.model.so.OutbSoHeader;
-import com.lsh.wms.model.task.TaskEntry;
-import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.model.so.ObdDetail;
+import com.lsh.wms.model.so.ObdHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,51 +51,51 @@ public class SoRpcService implements ISoRpcService {
 
     public Long insertOrder(SoRequest request) throws BizCheckedException {
         //OutbSoHeader
-        OutbSoHeader outbSoHeader = new OutbSoHeader();
-        ObjUtils.bean2bean(request, outbSoHeader);
+        ObdHeader obdHeader = new ObdHeader();
+        ObjUtils.bean2bean(request, obdHeader);
 
         //设置订单状态
-        outbSoHeader.setOrderStatus(BusiConstant.EFFECTIVE_YES);
+        obdHeader.setOrderStatus(BusiConstant.EFFECTIVE_YES);
 
         //设置订单插入时间
-        outbSoHeader.setInserttime(new Date());
+        obdHeader.setCreatedAt(DateUtils.getCurrentSeconds());
 
         //设置orderId
         Long orderId = RandomUtils.genId();
-        outbSoHeader.setOrderId(orderId);
+        obdHeader.setOrderId(orderId);
 
         //初始化List<OutbSoDetail>
-        List<OutbSoDetail> outbSoDetailList = new ArrayList<OutbSoDetail>();
+        List<ObdDetail> obdDetailList = new ArrayList<ObdDetail>();
 
         for(SoItem soItem : request.getItems()) {
-            OutbSoDetail outbSoDetail = new OutbSoDetail();
+            ObdDetail obdDetail = new ObdDetail();
 
-            ObjUtils.bean2bean(soItem, outbSoDetail);
+            ObjUtils.bean2bean(soItem, obdDetail);
 
             //设置orderId
-            outbSoDetail.setOrderId(outbSoHeader.getOrderId());
+            obdDetail.setOrderId(obdHeader.getOrderId());
 
             //根据ItemId及OwnerUid获取List<BaseinfoItem>
             // TODO: 根据ItemId,OwnerUid获取BaseinfoItem,现在是取List第一个元素,待改进
-            List<BaseinfoItem> baseinfoItemList = itemService.getItemsBySkuCode(outbSoHeader.getOwnerUid(),
-                    outbSoDetail.getSkuCode());
+            List<BaseinfoItem> baseinfoItemList = itemService.getItemsBySkuCode(obdHeader.getOwnerUid(),
+                    obdDetail.getSkuCode());
 
             if(baseinfoItemList.size() <=0) {
                 throw new BizCheckedException("2900001");
             }
 
             //设置skuId
-            outbSoDetail.setSkuId(baseinfoItemList.get(0).getSkuId());
+            obdDetail.setSkuId(baseinfoItemList.get(0).getSkuId());
             //设置itemId
-            outbSoDetail.setItemId(baseinfoItemList.get(0).getItemId());
+            obdDetail.setItemId(baseinfoItemList.get(0).getItemId());
             //设置skuName
-            outbSoDetail.setSkuName(baseinfoItemList.get(0).getSkuName());
+            obdDetail.setSkuName(baseinfoItemList.get(0).getSkuName());
 
-            outbSoDetailList.add(outbSoDetail);
+            obdDetailList.add(obdDetail);
         }
 
         //插入订单
-        soOrderService.insertOrder(outbSoHeader, outbSoDetailList);
+        soOrderService.insertOrder(obdHeader, obdDetailList);
 
 //        TaskEntry taskEntry = new TaskEntry();
 //        TaskInfo taskInfo = new TaskInfo();
@@ -138,21 +136,21 @@ public class SoRpcService implements ISoRpcService {
             throw new BizCheckedException("1030002", "参数类型不正确");
         }
 
-        OutbSoHeader outbSoHeader = new OutbSoHeader();
+        ObdHeader obdHeader = new ObdHeader();
         if(map.get("orderOtherId") != null && !StringUtils.isBlank(String.valueOf(map.get("orderOtherId")))) {
-            outbSoHeader.setOrderOtherId(String.valueOf(map.get("orderOtherId")));
+            obdHeader.setOrderOtherId(String.valueOf(map.get("orderOtherId")));
         }
         if(map.get("orderId") != null && StringUtils.isInteger(String.valueOf(map.get("orderId")))) {
-            outbSoHeader.setOrderId(Long.valueOf(String.valueOf(map.get("orderId"))));
+            obdHeader.setOrderId(Long.valueOf(String.valueOf(map.get("orderId"))));
         }
-        outbSoHeader.setOrderStatus(Integer.valueOf(String.valueOf(map.get("orderStatus"))));
+        obdHeader.setOrderStatus(Integer.valueOf(String.valueOf(map.get("orderStatus"))));
 
-        soOrderService.updateOutbSoHeaderByOrderOtherIdOrOrderId(outbSoHeader);
+        soOrderService.updateOutbSoHeaderByOrderOtherIdOrOrderId(obdHeader);
 
         return true;
     }
 
-    public OutbSoHeader getOutbSoHeaderDetailByOrderId(Long orderId) throws BizCheckedException {
+    public ObdHeader getOutbSoHeaderDetailByOrderId(Long orderId) throws BizCheckedException {
         if(orderId == null) {
             throw new BizCheckedException("1030001", "参数不能为空");
         }
@@ -164,7 +162,7 @@ public class SoRpcService implements ISoRpcService {
         return soOrderService.countOutbSoHeader(params);
     }
 
-    public List<OutbSoHeader> getOutbSoHeaderList(Map<String, Object> params) {
+    public List<ObdHeader> getOutbSoHeaderList(Map<String, Object> params) {
         return soOrderService.getOutbSoHeaderList(params);
     }
 }

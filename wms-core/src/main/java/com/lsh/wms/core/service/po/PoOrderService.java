@@ -1,15 +1,16 @@
 package com.lsh.wms.core.service.po;
 
-import com.lsh.base.common.json.JsonUtils;
-import com.lsh.wms.core.dao.po.InbPoDetailDao;
-import com.lsh.wms.core.dao.po.InbPoHeaderDao;
-import com.lsh.wms.model.po.InbPoDetail;
-import com.lsh.wms.model.po.InbPoHeader;
+import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.core.dao.po.IbdDetailDao;
+import com.lsh.wms.core.dao.po.IbdHeaderDao;
+import com.lsh.wms.core.dao.po.IbdObdRelationDao;
+import com.lsh.wms.model.po.IbdDetail;
+import com.lsh.wms.model.po.IbdHeader;
+import com.lsh.wms.model.po.IbdObdRelation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,43 +29,46 @@ import java.util.Map;
 public class PoOrderService {
 
     @Autowired
-    private InbPoHeaderDao inbPoHeaderDao;
+    private IbdHeaderDao ibdHeaderDao;
 
     @Autowired
-    private InbPoDetailDao inbPoDetailDao;
+    private IbdDetailDao ibdDetailDao;
+
+    @Autowired
+    private IbdObdRelationDao ibdObdRelationDao;
 
     /**
      * 插入InbPoHeader及InbPoDetail
-     * @param inbPoHeader
-     * @param inbPoDetailList
+     * @param ibdHeader
+     * @param ibdDetailList
      */
     @Transactional(readOnly = false)
-    public void insertOrder(InbPoHeader inbPoHeader, List<InbPoDetail> inbPoDetailList) {
-        inbPoHeaderDao.insert(inbPoHeader);
+    public void insertOrder(IbdHeader ibdHeader, List<IbdDetail> ibdDetailList) {
+        ibdHeaderDao.insert(ibdHeader);
 
-        inbPoDetailDao.batchInsert(inbPoDetailList);
+        ibdDetailDao.batchInsert(ibdDetailList);
     }
 
     /**
      * 根据ID编辑InbPoHeader
-     * @param inbPoHeader
+     * @param ibdHeader
      */
     @Transactional(readOnly = false)
-    public void updateInbPoHeader(InbPoHeader inbPoHeader){
-        inbPoHeader.setUpdatetime(new Date());
+    public void updateInbPoHeader(IbdHeader ibdHeader){
+        ibdHeader.setUpdatedAt(DateUtils.getCurrentSeconds());
 
-        inbPoHeaderDao.update(inbPoHeader);
+        ibdHeaderDao.update(ibdHeader);
     }
 
     /**
      * 根据OrderOtherId或OrderId更新InbPoHeader
-     * @param inbPoHeader
+     * @param ibdHeader
      */
     @Transactional(readOnly = false)
-    public void updateInbPoHeaderByOrderOtherIdOrOrderId(InbPoHeader inbPoHeader){
-        inbPoHeader.setUpdatetime(new Date());
+    public void updateInbPoHeaderByOrderOtherIdOrOrderId(IbdHeader ibdHeader){
+        ibdHeader.setUpdatedAt(DateUtils.getCurrentSeconds());
 
-        inbPoHeaderDao.updateByOrderOtherIdOrOrderId(inbPoHeader);
+        ibdHeaderDao.updateByOrderOtherIdOrOrderId(ibdHeader);
     }
 
     /**
@@ -72,8 +76,8 @@ public class PoOrderService {
      * @param id
      * @return
      */
-    public InbPoHeader getInbPoHeaderById(Long id){
-        return inbPoHeaderDao.getInbPoHeaderById(id);
+    public IbdHeader getInbPoHeaderById(Long id){
+        return ibdHeaderDao.getIbdHeaderById(id);
     }
 
     /**
@@ -82,7 +86,7 @@ public class PoOrderService {
      * @return
      */
     public Integer countInbPoHeader(Map<String, Object> params){
-        return inbPoHeaderDao.countInbPoHeader(params);
+        return ibdHeaderDao.countIbdHeader(params);
     }
 
     /**
@@ -90,28 +94,28 @@ public class PoOrderService {
      * @param params
      * @return
      */
-    public List<InbPoHeader> getInbPoHeaderList(Map<String, Object> params){
-        return inbPoHeaderDao.getInbPoHeaderList(params);
+    public List<IbdHeader> getInbPoHeaderList(Map<String, Object> params){
+        return ibdHeaderDao.getIbdHeaderList(params);
     }
 
     /**
      * 根据ID编辑InbPoDetail
-     * @param inbPoDetail
+     * @param ibdDetail
      */
     @Transactional(readOnly = false)
-    public void updateInbPoDetail(InbPoDetail inbPoDetail) {
-        inbPoDetailDao.update(inbPoDetail);
+    public void updateInbPoDetail(IbdDetail ibdDetail) {
+        ibdDetailDao.update(ibdDetail);
     }
 
     /**
      * 编辑InboundQty
      * @param inboundQty
      * @param orderId
-     * @param skuId
+     * @param detailOtherId
      */
     @Transactional(readOnly = false)
-    public void updateInbPoDetailInboundQtyByOrderIdAndSkuId(Long inboundQty, Long orderId, Long skuId) {
-        inbPoDetailDao.updateInboundQtyByOrderIdAndSkuId(inboundQty, orderId, skuId);
+    public void updateInbPoDetailInboundQtyByOrderIdAndSkuId(Long inboundQty, Long orderId, String detailOtherId) {
+        ibdDetailDao.updateInboundQtyByOrderIdAndDetailOtherId(inboundQty, orderId, detailOtherId);
     }
 
     /**
@@ -119,8 +123,8 @@ public class PoOrderService {
      * @param id
      * @return
      */
-    public InbPoDetail getInbPoDetailById(Long id) {
-        return inbPoDetailDao.getInbPoDetailById(id);
+    public IbdDetail getInbPoDetailById(Long id) {
+        return ibdDetailDao.getIbdDetailById(id);
     }
 
     /**
@@ -129,7 +133,7 @@ public class PoOrderService {
      * @return
      */
     public Integer countInbPoDetail(Map<String, Object> params) {
-        return inbPoDetailDao.countInbPoDetail(params);
+        return ibdDetailDao.countIbdDetail(params);
     }
 
     /**
@@ -137,8 +141,8 @@ public class PoOrderService {
      * @param params
      * @return
      */
-    public List<InbPoDetail> getInbPoDetailList(Map<String, Object> params) {
-        return inbPoDetailDao.getInbPoDetailList(params);
+    public List<IbdDetail> getInbPoDetailList(Map<String, Object> params) {
+        return ibdDetailDao.getIbdDetailList(params);
     }
 
     /**
@@ -146,14 +150,14 @@ public class PoOrderService {
      * @param params
      * @return
      */
-    public InbPoHeader getInbPoHeaderByParams(Map<String, Object> params) {
-        List<InbPoHeader> inbPoHeaderList = getInbPoHeaderList(params);
+    public IbdHeader getInbPoHeaderByParams(Map<String, Object> params) {
+        List<IbdHeader> ibdHeaderList = getInbPoHeaderList(params);
 
-        if(inbPoHeaderList.size() <= 0 || inbPoHeaderList.size() > 1) {
+        if(ibdHeaderList.size() <= 0 || ibdHeaderList.size() > 1) {
             return  null;
         }
 
-        return inbPoHeaderList.get(0);
+        return ibdHeaderList.get(0);
     }
 
     /**
@@ -161,7 +165,7 @@ public class PoOrderService {
      * @param orderId
      * @return
      */
-    public InbPoHeader getInbPoHeaderByOrderId(Long orderId) {
+    public IbdHeader getInbPoHeaderByOrderId(Long orderId) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("orderId", orderId);
 
@@ -173,7 +177,7 @@ public class PoOrderService {
      * @param orderOtherId
      * @return
      */
-    public InbPoHeader getInbPoHeaderByOrderOtherId(String orderOtherId) {
+    public IbdHeader getInbPoHeaderByOrderOtherId(String orderOtherId) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("orderOtherId", orderOtherId);
 
@@ -185,52 +189,68 @@ public class PoOrderService {
      * @param params
      * @return
      */
-    public InbPoDetail getInbPoDetailByParams(Map<String, Object> params) {
-        List<InbPoDetail> inbPoDetailList = getInbPoDetailList(params);
+    public IbdDetail getInbPoDetailByParams(Map<String, Object> params) {
+        List<IbdDetail> ibdDetailList = getInbPoDetailList(params);
 
-        if(inbPoDetailList.size() <= 0 || inbPoDetailList.size() > 1) {
+        if(ibdDetailList.size() <= 0 || ibdDetailList.size() > 1) {
             return  null;
         }
 
-        return inbPoDetailList.get(0);
+        return ibdDetailList.get(0);
     }
 
     /**
      * 根据OrderId及SkuId获取InbPoDetail
      * @param orderId
-     * @param skuId
+     * @param detailOtherId
      * @return
      */
-    public InbPoDetail getInbPoDetailByOrderIdAndSkuId(Long orderId, Long skuId) {
+    public IbdDetail getInbPoDetailByOrderIdAndDetailOtherId(Long orderId,String detailOtherId) {
         Map<String, Object> params = new HashMap<String, Object>();
 
         params.put("orderId", orderId);
-        params.put("skuId", skuId);
+        params.put("detailOtherId", detailOtherId);
 
         return getInbPoDetailByParams(params);
     }
+//    public IbdDetail getInbPoDetailByOrderIdAndSkuId(Long orderId, Long skuId) {
+//        Map<String, Object> params = new HashMap<String, Object>();
+//
+//        params.put("orderId", orderId);
+//        params.put("skuId", skuId);
+//
+//        return getInbPoDetailByParams(params);
+//    }
 
     /**
-     * 根据OrderId及BarCode获取InbPoDetail
+     * 根据OrderId及skuCode获取InbPoDetail
      * @param orderId
-     * @param barCode
+     * @param skuCode
      * @return
      */
-    public InbPoDetail getInbPoDetailByOrderIdAndBarCode(Long orderId, String barCode) {
+    public IbdDetail getInbPoDetailByOrderIdAndSkuCode(Long orderId, String skuCode) {
         Map<String, Object> params = new HashMap<String, Object>();
 
         params.put("orderId", orderId);
-        params.put("barCode", barCode);
+        params.put("skuCode", skuCode);
 
         return getInbPoDetailByParams(params);
     }
+//    public IbdDetail getInbPoDetailByOrderIdAndBarCode(Long orderId, String barCode) {
+//        Map<String, Object> params = new HashMap<String, Object>();
+//
+//        params.put("orderId", orderId);
+//        params.put("barCode", barCode);
+//
+//        return getInbPoDetailByParams(params);
+//    }
 
     /**
      * 根据OrderId获取List<InbPoDetail>
      * @param orderId
      * @return
      */
-    public List<InbPoDetail> getInbPoDetailListByOrderId(Long orderId) {
+    public List<IbdDetail> getInbPoDetailListByOrderId(Long orderId) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("orderId", orderId);
 
@@ -239,26 +259,43 @@ public class PoOrderService {
 
     /**
      * List<InbPoHeader>填充InbPoDetail
-     * @param inbPoHeaderList
+     * @param ibdHeaderList
      */
-    public void fillDetailToHeaderList(List<InbPoHeader> inbPoHeaderList) {
-        for(InbPoHeader inbPoHeader : inbPoHeaderList) {
-            fillDetailToHeader(inbPoHeader);
+    public void fillDetailToHeaderList(List<IbdHeader> ibdHeaderList) {
+        for(IbdHeader ibdHeader : ibdHeaderList) {
+            fillDetailToHeader(ibdHeader);
         }
     }
 
     /**
      * InbPoHeader填充InbPoDetail
-     * @param inbPoHeader
+     * @param ibdHeader
      */
-    public void fillDetailToHeader(InbPoHeader inbPoHeader) {
-        if (inbPoHeader == null) {
+    public void fillDetailToHeader(IbdHeader ibdHeader) {
+        if (ibdHeader == null) {
             return;
         }
 
-        List<InbPoDetail> inbPoDetailList = getInbPoDetailListByOrderId(inbPoHeader.getOrderId());
+        List<IbdDetail> ibdDetailList = getInbPoDetailListByOrderId(ibdHeader.getOrderId());
 
-        inbPoHeader.setOrderDetails(inbPoDetailList);
+        ibdHeader.setOrderDetails(ibdDetailList);
     }
+
+    /**
+     * 根据ibd_other_id 找到obd_other_id列表
+     */
+    public List<IbdObdRelation> getIbdObdRelationByIbdOtherId(String ibdOtherId){
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("ibdOtherId",ibdOtherId);
+        List<IbdObdRelation> list = ibdObdRelationDao.getIbdObdRelationList(map);
+        return list;
+    }
+    /**
+     * 根据传入参数获取IbdObdRelation列表
+     */
+    public List<IbdObdRelation> getIbdObdRelationList(Map<String,Object> params){
+        return ibdObdRelationDao.getIbdObdRelationList(params);
+    }
+
 
 }

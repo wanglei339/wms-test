@@ -12,7 +12,6 @@ import com.lsh.wms.api.model.po.ReceiptItem;
 import com.lsh.wms.api.model.po.ReceiptRequest;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.po.IReceiptRpcService;
-import com.lsh.wms.api.service.stock.IStockLotRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.service.container.ContainerService;
@@ -26,15 +25,14 @@ import com.lsh.wms.core.service.po.PoReceiptService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
-import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationRegion;
 import com.lsh.wms.model.csi.CsiSku;
-import com.lsh.wms.model.po.InbPoDetail;
-import com.lsh.wms.model.po.InbPoHeader;
+import com.lsh.wms.model.po.IbdDetail;
+import com.lsh.wms.model.po.IbdHeader;
 import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.InbReceiptHeader;
 import com.lsh.wms.model.stock.StockLot;
@@ -44,7 +42,6 @@ import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
 import com.lsh.wms.service.inhouse.StockTransferRpcService;
-import com.sun.xml.bind.v2.TODO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,10 +114,10 @@ public class ReceiptRpcService implements IReceiptRpcService {
     private IdGenerator idGenerator;
 
     public Boolean throwOrder(String orderOtherId) throws BizCheckedException {
-        InbPoHeader inbPoHeader = new InbPoHeader();
-        inbPoHeader.setOrderOtherId(orderOtherId);
-        inbPoHeader.setOrderStatus(PoConstant.ORDER_THROW);
-        poOrderService.updateInbPoHeaderByOrderOtherIdOrOrderId(inbPoHeader);
+        IbdHeader ibdHeader = new IbdHeader();
+        ibdHeader.setOrderOtherId(orderOtherId);
+        ibdHeader.setOrderStatus(PoConstant.ORDER_THROW);
+        poOrderService.updateInbPoHeaderByOrderOtherIdOrOrderId(ibdHeader);
         return true;
     }
 
@@ -135,19 +132,19 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //设置托盘码,暂存区,分配库位;实际库位由他人写入
         // TODO: 16/8/19 退货类型的单据 虚拟容器,放入退货区
         //根据request中的orderOtherId查询InbPoHeader
-        InbPoHeader inbPoHeader = poOrderService.getInbPoHeaderByOrderOtherId(request.getOrderOtherId());
-        if (inbPoHeader == null) {
+        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(request.getOrderOtherId());
+        if (ibdHeader == null) {
             throw new BizCheckedException("2020001");
         }
         //判断PO订单类型  虚拟容器,放入退货区
-        Integer orderType = inbPoHeader.getOrderType();
+        Integer orderType = ibdHeader.getOrderType();
         if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
             //新增container
             Long containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
             inbReceiptHeader.setContainerId(containerId);
             // TODO: 16/8/19 设置退货区
 
-            List<BaseinfoLocationRegion> lists = locationDetailService.getMarketReturnList(inbPoHeader.getOwnerUid());
+            List<BaseinfoLocationRegion> lists = locationDetailService.getMarketReturnList(ibdHeader.getOwnerUid());
             Long location = lists.get(0).getLocationId();
             inbReceiptHeader.setLocation(location);
 
@@ -164,7 +161,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         //初始化List<InbReceiptDetail>
         List<InbReceiptDetail> inbReceiptDetailList = new ArrayList<InbReceiptDetail>();
-        List<InbPoDetail> updateInbPoDetailList = new ArrayList<InbPoDetail>();
+        List<IbdDetail> updateIbdDetailList = new ArrayList<IbdDetail>();
         List<StockQuant> stockQuantList = new ArrayList<StockQuant>();
         List<StockLot> stockLotList = new ArrayList<StockLot>();
         List<Map<String, Object>> moveList = new ArrayList<Map<String, Object>>();
@@ -185,24 +182,24 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 inbReceiptDetail.setReceiptOrderId(inbReceiptHeader.getReceiptOrderId());
                 inbReceiptDetail.setOrderOtherId(request.getOrderOtherId());
                 //写入InbReceiptDetail中的OrderId
-                inbReceiptDetail.setOrderId(inbPoHeader.getOrderId());
+                inbReceiptDetail.setOrderId(ibdHeader.getOrderId());
 
                 //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
-                BaseinfoItem baseinfoItem = itemService.getItem(inbPoHeader.getOwnerUid(), inbReceiptDetail.getSkuId());
+                BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), inbReceiptDetail.getSkuId());
                 inbReceiptDetail.setItemId(baseinfoItem.getItemId());
 
 
-                //根据OrderId及SkuId获取InbPoDetail
-                InbPoDetail inbPoDetail = poOrderService.getInbPoDetailByOrderIdAndSkuId(inbReceiptDetail.getOrderId(), inbReceiptDetail.getSkuId());
+                //根据OrderId及SkuCode获取InbPoDetail
+                IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(inbReceiptDetail.getOrderId(), baseinfoItem.getSkuCode());
 
                 //写入InbReceiptDetail中的OrderQty
-                inbReceiptDetail.setOrderQty(inbPoDetail.getOrderQty());
+                inbReceiptDetail.setOrderQty(ibdDetail.getOrderQty());
 
-                InbPoDetail updateInbPoDetail = new InbPoDetail();
-                updateInbPoDetail.setInboundQty(inbReceiptDetail.getInboundQty());
-                updateInbPoDetail.setOrderId(inbReceiptDetail.getOrderId());
-                updateInbPoDetail.setSkuId(inbReceiptDetail.getSkuId());
-                updateInbPoDetailList.add(updateInbPoDetail);
+                IbdDetail updateIbdDetail = new IbdDetail();
+                updateIbdDetail.setInboundQty(inbReceiptDetail.getInboundQty());
+                updateIbdDetail.setOrderId(inbReceiptDetail.getOrderId());
+                //updateIbdDetail.setSkuId(inbReceiptDetail.getSkuId());
+                updateIbdDetailList.add(updateIbdDetail);
                 //inbReceiptDetailList.add(inbReceiptDetail);
 
 
@@ -221,7 +218,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                  */
                 //查供应商、生产日期、失效日期
                 Long lotId =
-                        soDeliveryService.getOutbDeliveryDetail(Long.parseLong(inbPoHeader.getOrderOtherId()),baseinfoItem.getItemId()).getLotId();
+                        soDeliveryService.getOutbDeliveryDetail(Long.parseLong(ibdHeader.getOrderOtherId()),baseinfoItem.getItemId()).getLotId();
                 StockLot stockLot = stockLotService.getStockLotByLotId(lotId);
                 stockLot.setIsOld(true);
 
@@ -324,13 +321,13 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 //设置receiptOrderId
                 inbReceiptDetail.setReceiptOrderId(inbReceiptHeader.getReceiptOrderId());
                 inbReceiptDetail.setOrderOtherId(request.getOrderOtherId());
-                boolean isCanReceipt = inbPoHeader.getOrderStatus() == PoConstant.ORDER_THROW || inbPoHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART || inbPoHeader.getOrderStatus() == PoConstant.ORDER_RECTIPTING;
+                boolean isCanReceipt = ibdHeader.getOrderStatus() == PoConstant.ORDER_THROW || ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART || ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPTING;
                 if (!isCanReceipt) {
                     throw new BizCheckedException("2020002");
                 }
 
                 //写入InbReceiptDetail中的OrderId
-                inbReceiptDetail.setOrderId(inbPoHeader.getOrderId());
+                inbReceiptDetail.setOrderId(ibdHeader.getOrderId());
 
 
                 //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
@@ -339,29 +336,24 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     throw new BizCheckedException("2020022");
                 }
                 inbReceiptDetail.setSkuId(csiSku.getSkuId());
-                BaseinfoItem baseinfoItem = itemService.getItem(inbPoHeader.getOwnerUid(), csiSku.getSkuId());
+                BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
                 inbReceiptDetail.setItemId(baseinfoItem.getItemId());
 
                 //根据OrderId及SkuId获取InbPoDetail
-                InbPoDetail inbPoDetail = poOrderService.getInbPoDetailByOrderIdAndSkuId(inbReceiptDetail.getOrderId(), inbReceiptDetail.getSkuId());
+                IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(inbReceiptDetail.getOrderId(), baseinfoItem.getSkuCode());
 
                 //写入InbReceiptDetail中的OrderQty
-                inbReceiptDetail.setOrderQty(inbPoDetail.getOrderQty());
+                inbReceiptDetail.setOrderQty(ibdDetail.getOrderQty());
 
                 // 判断是否超过订单总数
-                BigDecimal poInboundQty = null != inbPoDetail.getInboundQty() ? inbPoDetail.getInboundQty() : new BigDecimal(0);
+                BigDecimal poInboundQty = null != ibdDetail.getInboundQty() ? ibdDetail.getInboundQty() : new BigDecimal(0);
 
-                logger.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~orderQty1" + poInboundQty+"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-
-                logger.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~2" +poInboundQty.add(inbReceiptDetail.getInboundQty()).compareTo(inbPoDetail.getOrderQty()) +"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-                if (poInboundQty.add(inbReceiptDetail.getInboundQty()).compareTo(inbPoDetail.getOrderQty()) > 0) {
-                    logger.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~3");
+                if (poInboundQty.add(inbReceiptDetail.getInboundQty()).compareTo(ibdDetail.getOrderQty()) > 0) {
                     throw new BizCheckedException("2020005");
                 }
-                logger.info("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~4");
 
                 //取出是否检验保质期字段 exceptionReceipt = 0 校验 = 1不校验
-                Integer exceptionReceipt = inbPoDetail.getExceptionReceipt();
+                Integer exceptionReceipt = ibdDetail.getExceptionReceipt();
                 //调拨类型的单据不校验保质期
                 if(PoConstant.ORDER_TYPE_TRANSFERS != orderType){
                     if(exceptionReceipt != 1){
@@ -384,11 +376,11 @@ public class ReceiptRpcService implements IReceiptRpcService {
                         }
                     }
                 }
-                InbPoDetail updateInbPoDetail = new InbPoDetail();
-                updateInbPoDetail.setInboundQty(inbReceiptDetail.getInboundQty());
-                updateInbPoDetail.setOrderId(inbReceiptDetail.getOrderId());
-                updateInbPoDetail.setSkuId(inbReceiptDetail.getSkuId());
-                updateInbPoDetailList.add(updateInbPoDetail);
+                IbdDetail updateIbdDetail = new IbdDetail();
+                updateIbdDetail.setInboundQty(inbReceiptDetail.getInboundQty());
+                updateIbdDetail.setOrderId(inbReceiptDetail.getOrderId());
+                //updateIbdDetail.setSkuId(inbReceiptDetail.getSkuId());
+                updateIbdDetailList.add(updateIbdDetail);
                 inbReceiptDetailList.add(inbReceiptDetail);
 
 
@@ -456,7 +448,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
                 StockLot stockLot = new StockLot();
                 stockLot.setLotId(lotId);
-                stockLot.setPackUnit(inbPoDetail.getPackUnit());
+                stockLot.setPackUnit(ibdDetail.getPackUnit());
                 stockLot.setSkuId(inbReceiptDetail.getSkuId());
                 stockLot.setSerialNo(inbReceiptDetail.getLotNum());
                 stockLot.setItemId(inbReceiptDetail.getItemId());
@@ -465,7 +457,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 stockLot.setExpireDate(expireDate);
                 stockLot.setReceiptId(inbReceiptHeader.getReceiptOrderId());
                 stockLot.setPoId(inbReceiptDetail.getOrderId());
-                stockLot.setSupplierId(inbPoHeader.getSupplierCode());
+                stockLot.setSupplierId(ibdHeader.getSupplierCode());
                 stockLotList.add(stockLot);
 
                 StockMove move = new StockMove();
@@ -490,7 +482,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         //插入订单
         //poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList,stockQuantList,stockLotList);
-        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList, moveList);
+        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList);
 
         if(PoConstant.ORDER_TYPE_PO == orderType || PoConstant.ORDER_TYPE_TRANSFERS == orderType){
             TaskEntry taskEntry = new TaskEntry();
@@ -507,16 +499,16 @@ public class ReceiptRpcService implements IReceiptRpcService {
         }else if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
             for(StockTransferPlan plan : planList){
                 BaseinfoItem item  =  itemService.getItem(plan.getItemId());
-                Long skuId = item.getSkuId();
-                InbPoDetail inbPoDetail = poOrderService.getInbPoDetailByOrderIdAndSkuId(inbPoHeader.getOrderId(),skuId);
+                String skuCode = item.getSkuCode();
+                IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(),skuCode);
                 taskId = stockTransferRpcService.addPlan(plan);
-                inbPoDetail.setTaskId(taskId);
+                ibdDetail.setTaskId(taskId);
 
-                poOrderService.updateInbPoDetail(inbPoDetail);
+                poOrderService.updateInbPoDetail(ibdDetail);
             }
             //返仓单生成移库单之后 将状态改为收货完成
-            inbPoHeader.setOrderStatus(PoConstant.ORDER_RECTIPT_ALL);
-            poOrderService.updateInbPoHeader(inbPoHeader);
+            ibdHeader.setOrderStatus(PoConstant.ORDER_RECTIPT_ALL);
+            poOrderService.updateInbPoHeader(ibdHeader);
 
         }
 
@@ -594,28 +586,28 @@ public class ReceiptRpcService implements IReceiptRpcService {
     }
 
     public void insertReceipt(Long orderId , Long staffId) throws BizCheckedException, ParseException {
-        InbPoHeader inbPoHeader = poOrderService.getInbPoHeaderByOrderId(orderId);
-        List<InbPoDetail> inbPoDetails = poOrderService.getInbPoDetailListByOrderId(orderId);
+        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(orderId);
+        List<IbdDetail> ibdDetails = poOrderService.getInbPoDetailListByOrderId(orderId);
         ReceiptRequest request = new ReceiptRequest();
 
-        request.setOrderOtherId(inbPoHeader.getOrderOtherId());
+        request.setOrderOtherId(ibdHeader.getOrderOtherId());
         Map<String , Object> map = new HashMap<String, Object>();
         map.put("staffId",staffId);
         request.setReceiptUser(staffService.getStaffList(map).get(0).getName());
-        request.setWarehouseId(inbPoHeader.getWarehouseId());
+        request.setWarehouseId(0l);
         request.setStaffId(staffId);
 
         List<ReceiptItem> items = new ArrayList<ReceiptItem>();
 
-        for(InbPoDetail inbPoDetail : inbPoDetails){
+        for(IbdDetail ibdDetail : ibdDetails){
             ReceiptItem item = new ReceiptItem();
-            item.setArriveNum(inbPoDetail.getOrderQty());
-            item.setBarCode(inbPoDetail.getBarCode());
-            item.setInboundQty(inbPoDetail.getOrderQty());
-            item.setPackName(inbPoDetail.getPackName());
-            item.setPackUnit(inbPoDetail.getPackUnit());
-            item.setSkuId(inbPoDetail.getSkuId());
-            item.setSkuName(inbPoDetail.getSkuName());
+            item.setArriveNum(ibdDetail.getOrderQty());
+            //item.setBarCode(ibdDetail.getBarCode());
+            item.setInboundQty(ibdDetail.getOrderQty());
+            item.setPackName(ibdDetail.getPackName());
+            item.setPackUnit(ibdDetail.getPackUnit());
+            //item.setSkuId(ibdDetail.getSkuId());
+            item.setSkuName(ibdDetail.getSkuName());
             items.add(item);
         }
         request.setItems(items);

@@ -3,7 +3,7 @@ package com.lsh.wms.api.service.po;
 
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.model.po.PoRequest;
-import com.lsh.wms.model.po.InbPoHeader;
+import com.lsh.wms.model.po.IbdHeader;
 
 import java.util.List;
 import java.util.Map;
@@ -23,13 +23,13 @@ public interface IPoRpcService {
 
     public Boolean updateOrderStatus(Map<String, Object> map) throws BizCheckedException;
 
-    public List<InbPoHeader> getPoHeaderList(Map<String, Object> params);
+    public List<IbdHeader> getPoHeaderList(Map<String, Object> params);
 
-    public InbPoHeader getPoDetailByOrderId(Long orderId) throws BizCheckedException;
+    public IbdHeader getPoDetailByOrderId(Long orderId) throws BizCheckedException;
 
     public Integer countInbPoHeader(Map<String, Object> params);
 
-    public List<InbPoHeader> getPoDetailList(Map<String, Object> params);
+    public List<IbdHeader> getPoDetailList(Map<String, Object> params);
     void canReceipt(Map<String, Object> map);
 
 }

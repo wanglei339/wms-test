@@ -2,7 +2,6 @@ package com.lsh.wms.service.wave;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.wave.IWaveRpcService;
@@ -10,7 +9,7 @@ import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.core.service.wave.WaveTemplateService;
-import com.lsh.wms.model.so.OutbSoHeader;
+import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.wave.WaveHead;
 import com.lsh.wms.model.wave.WaveRequest;
 import com.lsh.wms.model.wave.WaveTemplate;
@@ -49,7 +48,7 @@ public class WaveRpcService implements IWaveRpcService {
         List<Map> orders = request.getOrders();
         for(Map order : orders){
             Long orderId = Long.valueOf(order.get("orderId").toString());
-            OutbSoHeader so = soOrderService.getOutbSoHeaderByOrderId(orderId);
+            ObdHeader so = soOrderService.getOutbSoHeaderByOrderId(orderId);
             if(so == null){
                 throw new BizCheckedException("", String.format("订单[%d]不存在", orderId));
             }

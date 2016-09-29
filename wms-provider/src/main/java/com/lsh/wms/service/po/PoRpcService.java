@@ -5,6 +5,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.BeanMapTransUtils;
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.model.po.PoItem;
@@ -12,23 +13,17 @@ import com.lsh.wms.api.model.po.PoRequest;
 import com.lsh.wms.api.service.po.IPoRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.PoConstant;
-import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
-import com.lsh.wms.model.po.InbPoDetail;
-import com.lsh.wms.model.po.InbPoHeader;
-import com.lsh.wms.model.so.OutbSoDetail;
-import com.lsh.wms.model.so.OutbSoHeader;
-import com.lsh.wms.model.task.TaskEntry;
-import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.model.po.IbdDetail;
+import com.lsh.wms.model.po.IbdHeader;
+import com.lsh.wms.model.so.ObdHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -60,25 +55,25 @@ public class PoRpcService implements IPoRpcService {
 
     public void insertOrder(PoRequest request) throws BizCheckedException{
         //初始化InbPoHeader
-        InbPoHeader inbPoHeader = new InbPoHeader();
-        ObjUtils.bean2bean(request, inbPoHeader);
-        Integer orderType = inbPoHeader.getOrderType();
+        IbdHeader ibdHeader = new IbdHeader();
+        ObjUtils.bean2bean(request, ibdHeader);
+        Integer orderType = ibdHeader.getOrderType();
 
 
-        inbPoHeader.setOrderStatus(PoConstant.ORDER_YES);
-        inbPoHeader.setInserttime(new Date());
+        ibdHeader.setOrderStatus(PoConstant.ORDER_YES);
+        ibdHeader.setCreatedAt(DateUtils.getCurrentSeconds());
         if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
             //返仓单的下单用户
-            String orderUser = inbPoHeader.getOrderUser();
+            String orderUser = ibdHeader.getOrderUser();
             if(orderUser == null){
                 throw new BizCheckedException("2020010");
             }
-            OutbSoHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(Long.parseLong(inbPoHeader.getOrderOtherId()));
+            ObdHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(Long.parseLong(ibdHeader.getOrderOtherId()));
             if(null == soHeader){
                 throw new BizCheckedException("2020001");
             }
         }else{
-            Long supplierCode = inbPoHeader.getSupplierCode();
+            Long supplierCode = ibdHeader.getSupplierCode();
             if(supplierCode == null){
                 throw new BizCheckedException("2020011");
             }
@@ -86,61 +81,61 @@ public class PoRpcService implements IPoRpcService {
 
 
         //设置orderId
-        inbPoHeader.setOrderId(RandomUtils.genId());
+        ibdHeader.setOrderId(RandomUtils.genId());
 
         //初始化List<InbPoDetail>
-        List<InbPoDetail> inbPoDetailList = new ArrayList<InbPoDetail>();
+        List<IbdDetail> ibdDetailList = new ArrayList<IbdDetail>();
 
         for(PoItem poItem : request.getItems()) {
-            InbPoDetail inbPoDetail = new InbPoDetail();
+            IbdDetail ibdDetail = new IbdDetail();
 
-            ObjUtils.bean2bean(poItem, inbPoDetail);
+            ObjUtils.bean2bean(poItem, ibdDetail);
 
             //设置orderId
-            inbPoDetail.setOrderId(inbPoHeader.getOrderId());
-            // 获取skuId
-            // TODO: 16/8/19 取baseinfoItem中的skuId与so单中的skuId 取交集
-            List<Long> soSkuIds = new ArrayList<Long>();
-            List<Long> iSkuIds = new ArrayList<Long>();
-            if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
-                //获取so订单明细
-                List<OutbSoDetail> soDetails =
-                        soOrderService.getOutbSoDetailListByOrderId(Long.parseLong(inbPoHeader.getOrderOtherId()));
-                for(OutbSoDetail soDetail : soDetails) {
-                    soSkuIds.add(soDetail.getSkuId());
-                }
-                List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(inbPoHeader.getOwnerUid(),inbPoDetail.getSkuCode());
-                for (BaseinfoItem item : baseinfoItemList){
-                    iSkuIds.add(item.getSkuId());
-                }
-                soSkuIds.retainAll(iSkuIds);
-                if(soSkuIds.size() > 0){
-                    inbPoDetail.setSkuId(soSkuIds.get(0));
-                }
+            ibdDetail.setOrderId(ibdHeader.getOrderId());
+//            // 获取skuId
+//            // TODO: 16/8/19 取baseinfoItem中的skuId与so单中的skuId 取交集
+//            List<Long> soSkuIds = new ArrayList<Long>();
+//            List<Long> iSkuIds = new ArrayList<Long>();
+//            if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
+//                //获取so订单明细
+//                List<OutbSoDetail> soDetails =
+//                        soOrderService.getOutbSoDetailListByOrderId(Long.parseLong(ibdHeader.getOrderOtherId()));
+//                for(OutbSoDetail soDetail : soDetails) {
+//                    soSkuIds.add(soDetail.getSkuId());
+//                }
+//                List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(ibdHeader.getOwnerUid(), ibdDetail.getSkuCode());
+//                for (BaseinfoItem item : baseinfoItemList){
+//                    iSkuIds.add(item.getSkuId());
+//                }
+//                soSkuIds.retainAll(iSkuIds);
+//                if(soSkuIds.size() > 0){
+//                    ibdDetail.setSkuId(soSkuIds.get(0));
+//                }
+//
+//            }
+//
+//            else{
+//                List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(ibdHeader.getOwnerUid(), ibdDetail.getSkuCode());
+//                if(null != baseinfoItemList && baseinfoItemList.size()>=1){
+//                    BaseinfoItem baseinfoItem = baseinfoItemList.get(baseinfoItemList.size()-1);
+//                    ibdDetail.setSkuId(baseinfoItem.getSkuId());
+//                }
+//            }
 
-            }
 
-            else{
-                List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(inbPoHeader.getOwnerUid(),inbPoDetail.getSkuCode());
-                if(null != baseinfoItemList && baseinfoItemList.size()>=1){
-                    BaseinfoItem baseinfoItem = baseinfoItemList.get(baseinfoItemList.size()-1);
-                    inbPoDetail.setSkuId(baseinfoItem.getSkuId());
-                }
-            }
-
-
-            inbPoDetailList.add(inbPoDetail);
+            ibdDetailList.add(ibdDetail);
         }
 
         //插入订单
-        poOrderService.insertOrder(inbPoHeader, inbPoDetailList);
+        poOrderService.insertOrder(ibdHeader, ibdDetailList);
 
-        TaskEntry taskEntry = new TaskEntry();
-        TaskInfo taskInfo = new TaskInfo();
-        taskInfo.setType(TaskConstant.TYPE_PO);
-        taskInfo.setOrderId(inbPoHeader.getOrderId());
-        taskEntry.setTaskInfo(taskInfo);
-        iTaskRpcService.create(TaskConstant.TYPE_PO,taskEntry);
+//        TaskEntry taskEntry = new TaskEntry();
+//        TaskInfo taskInfo = new TaskInfo();
+//        taskInfo.setType(TaskConstant.TYPE_PO);
+//        taskInfo.setOrderId(ibdHeader.getOrderId());
+//        taskEntry.setTaskInfo(taskInfo);
+//        iTaskRpcService.create(TaskConstant.TYPE_PO,taskEntry);
 
     }
 
@@ -174,51 +169,51 @@ public class PoRpcService implements IPoRpcService {
             throw new BizCheckedException("1010002", "参数类型不正确");
         }
 
-        InbPoHeader inbPoHeader = new InbPoHeader();
+        IbdHeader ibdHeader = new IbdHeader();
         if(map.get("orderOtherId") != null && !StringUtils.isBlank(String.valueOf(map.get("orderOtherId")))) {
-            inbPoHeader.setOrderOtherId(String.valueOf(map.get("orderOtherId")));
+            ibdHeader.setOrderOtherId(String.valueOf(map.get("orderOtherId")));
         }
         if(map.get("orderId") != null && StringUtils.isInteger(String.valueOf(map.get("orderId")))) {
-            inbPoHeader.setOrderId(Long.valueOf(String.valueOf(map.get("orderId"))));
+            ibdHeader.setOrderId(Long.valueOf(String.valueOf(map.get("orderId"))));
         }
-        inbPoHeader.setOrderStatus(Integer.valueOf(String.valueOf(map.get("orderStatus"))));
+        ibdHeader.setOrderStatus(Integer.valueOf(String.valueOf(map.get("orderStatus"))));
 
-        poOrderService.updateInbPoHeaderByOrderOtherIdOrOrderId(inbPoHeader);
+        poOrderService.updateInbPoHeaderByOrderOtherIdOrOrderId(ibdHeader);
 
         return true;
     }
 
-    public List<InbPoHeader> getPoHeaderList(Map<String, Object> params) {
+    public List<IbdHeader> getPoHeaderList(Map<String, Object> params) {
         return poOrderService.getInbPoHeaderList(params);
     }
 
-    public InbPoHeader getPoDetailByOrderId(Long orderId) throws BizCheckedException {
+    public IbdHeader getPoDetailByOrderId(Long orderId) throws BizCheckedException {
         if(orderId == null) {
             throw new BizCheckedException("1010001", "参数不能为空");
         }
 
-        InbPoHeader inbPoHeader = poOrderService.getInbPoHeaderByOrderId(orderId);
+        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(orderId);
 
-        poOrderService.fillDetailToHeader(inbPoHeader);
+        poOrderService.fillDetailToHeader(ibdHeader);
 
-        return inbPoHeader;
+        return ibdHeader;
     }
 
     public Integer countInbPoHeader(Map<String, Object> params) {
         return poOrderService.countInbPoHeader(params);
     }
 
-    public List<InbPoHeader> getPoDetailList(Map<String, Object> params) {
-        List<InbPoHeader> inbPoHeaderList = poOrderService.getInbPoHeaderList(params);
+    public List<IbdHeader> getPoDetailList(Map<String, Object> params) {
+        List<IbdHeader> ibdHeaderList = poOrderService.getInbPoHeaderList(params);
 
-        poOrderService.fillDetailToHeaderList(inbPoHeaderList);
+        poOrderService.fillDetailToHeaderList(ibdHeaderList);
 
-        return inbPoHeaderList;
+        return ibdHeaderList;
     }
 
 
     public void canReceipt(Map<String, Object> map){
-        InbPoDetail inbPoDetail = BeanMapTransUtils.map2Bean(map,InbPoDetail.class);
-        poOrderService.updateInbPoDetail(inbPoDetail);
+        IbdDetail ibdDetail = BeanMapTransUtils.map2Bean(map,IbdDetail.class);
+        poOrderService.updateInbPoDetail(ibdDetail);
     }
 }

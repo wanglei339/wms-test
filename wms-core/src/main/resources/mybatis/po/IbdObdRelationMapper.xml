@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.ibd.IbdObdRelationDao" >
+
+	<resultMap id="ibdObdRelationResultMap" type="IbdObdRelation">
+		<id property="id" column="id"/>
+		<result property="ibdOtherId" column="ibd_other_id"/>
+		<result property="ibdDetailId" column="ibd_detail_id"/>
+		<result property="obdOtherId" column="obd_other_id"/>
+		<result property="obdDetailId" column="obd_detail_id"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="IbdObdRelation">
+		insert into ibd_obd_relation (
+			ibd_other_id,ibd_detail_id,obd_other_id,obd_detail_id
+    	) values (
+			#{ibdOtherId},#{ibdDetailId},#{obdOtherId},#{obdDetailId}
+    	)
+	</insert>
+
+	<update id="update" parameterType="IbdObdRelation">
+		update ibd_obd_relation
+    	<set>
+  			<if test="ibdOtherId != null">ibd_other_id=#{ibdOtherId},</if>
+  			<if test="ibdDetailId != null">ibd_detail_id=#{ibdDetailId},</if>
+  			<if test="obdOtherId != null">obd_other_id=#{obdOtherId},</if>
+  			<if test="obdDetailId != null">obd_detail_id=#{obdDetailId}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getIbdObdRelationById" parameterType="int" resultMap="ibdObdRelationResultMap">
+		select * from ibd_obd_relation
+		where ID=#{id} 
+	</select>
+  
+	<select id="countIbdObdRelation" parameterType="map" resultType="int">
+		select count(*) from ibd_obd_relation
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getIbdObdRelationList" parameterType="map" resultMap="ibdObdRelationResultMap">
+		select * from ibd_obd_relation
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="ibdOtherId != null">and ibd_other_id=#{ibdOtherId}</if>
+			<if test="ibdDetailId != null">and ibd_detail_id=#{ibdDetailId}</if>
+			<if test="obdOtherId != null">and obd_other_id=#{obdOtherId}</if>
+			<if test="obdDetailId != null">and obd_detail_id=#{obdDetailId}</if>
+		</where>
+	</sql>
+   
+</mapper>

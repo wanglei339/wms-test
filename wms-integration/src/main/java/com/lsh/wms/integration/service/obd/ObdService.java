@@ -8,7 +8,6 @@ import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
-import com.lsh.wms.api.model.so.ObdDetail;
 import com.lsh.wms.api.model.so.ObdRequest;
 import com.lsh.wms.api.model.so.SoItem;
 import com.lsh.wms.api.model.so.SoRequest;
@@ -17,8 +16,8 @@ import com.lsh.wms.api.service.so.ISoRpcService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
-import com.lsh.wms.model.so.OutbSoDetail;
-import com.lsh.wms.model.so.OutbSoHeader;
+import com.lsh.wms.model.so.ObdDetail;
+import com.lsh.wms.model.so.ObdHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.Consumes;
@@ -54,12 +53,12 @@ public class ObdService implements IObdService{
     public BaseResponse add(ObdRequest request) throws BizCheckedException{
 
         //数量做转换 ea转化为外包装箱数
-        List<ObdDetail> details = request.getDetailList();
+        List<com.lsh.wms.api.model.so.ObdDetail> details = request.getDetailList();
 
-        List<ObdDetail> newDetails = new ArrayList<ObdDetail>();
+        List<com.lsh.wms.api.model.so.ObdDetail> newDetails = new ArrayList<com.lsh.wms.api.model.so.ObdDetail>();
         List<SoItem> items = new ArrayList<SoItem>();
 
-        for(ObdDetail obdDetail : details){
+        for(com.lsh.wms.api.model.so.ObdDetail obdDetail : details){
             List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(request.getOwnerUid(),obdDetail.getSkuCode());
             if(null != baseinfoItemList && baseinfoItemList.size()>=1){
                 BaseinfoItem baseinfoItem = baseinfoItemList.get(baseinfoItemList.size()-1);
@@ -99,15 +98,15 @@ public class ObdService implements IObdService{
         Map<String,Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("orderOtherId" , orderOtherId);
         mapQuery.put("orderType",orderType);
-        List<OutbSoHeader> lists = soOrderService.getOutbSoHeaderList(mapQuery);
+        List<ObdHeader> lists = soOrderService.getOutbSoHeaderList(mapQuery);
         if(lists.size() > 0){
             throw new BizCheckedException("2020099");
         }
         soRequest.setWarehouseId(1l);
         Long orderId = soRpcService.insertOrder(soRequest);
-        OutbSoHeader outbSoHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
-        List<OutbSoDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
-        outbSoHeader.setOrderDetails(soDetails);
+        ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
+        List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
+        obdHeader.setOrderDetails(soDetails);
 
 //        Map<String,Object> map = new HashMap<String, Object>();
 //        map.put("orderId",orderId);
@@ -115,6 +114,6 @@ public class ObdService implements IObdService{
 //        map.put("orderOtherRefId",request.getOrderOtherRefId());
 
 
-        return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, outbSoHeader);
+        return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, obdHeader);
     }
 }

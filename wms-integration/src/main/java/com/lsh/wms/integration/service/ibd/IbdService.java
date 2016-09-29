@@ -5,9 +5,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
-import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
@@ -15,24 +13,17 @@ import com.lsh.wms.api.model.po.IbdDetail;
 import com.lsh.wms.api.model.po.IbdRequest;
 import com.lsh.wms.api.model.po.PoItem;
 import com.lsh.wms.api.model.po.PoRequest;
-import com.lsh.wms.api.model.so.ObdBackRequest;
-import com.lsh.wms.api.model.so.ObdItem;
 import com.lsh.wms.api.model.so.ObdOfcBackRequest;
 import com.lsh.wms.api.model.so.ObdOfcItem;
-import com.lsh.wms.api.model.stock.StockItem;
-import com.lsh.wms.api.model.stock.StockRequest;
 import com.lsh.wms.api.service.po.IIbdService;
 import com.lsh.wms.api.service.po.IPoRpcService;
-import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
-import com.lsh.wms.model.baseinfo.BaseinfoLocationWarehouse;
-import com.lsh.wms.model.po.InbPoHeader;
-import com.lsh.wms.model.so.OutbDeliveryDetail;
-import com.lsh.wms.model.so.OutbSoDetail;
-import com.lsh.wms.model.so.OutbSoHeader;
+import com.lsh.wms.model.po.IbdHeader;
+import com.lsh.wms.model.so.ObdDetail;
+import com.lsh.wms.model.so.ObdHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -120,13 +111,12 @@ public class IbdService implements IIbdService {
         Map<String,Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("orderOtherId" , orderOtherId);
         mapQuery.put("orderType",orderType);
-        List<InbPoHeader> lists = poOrderService.getInbPoHeaderList(mapQuery);
+        List<IbdHeader> lists = poOrderService.getInbPoHeaderList(mapQuery);
         if(lists.size() > 0){
             throw new BizCheckedException("2020088");
         }
 
         poRequest.setItems(items);
-        poRequest.setWarehouseId(1l);
 
         poRpcService.insertOrder(poRequest);
         return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, null);
@@ -177,17 +167,17 @@ public class IbdService implements IIbdService {
 //        return ibdBackService.createOrderByPost(request, IntegrationConstan.URL_OBD);
 
 
-        OutbSoHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(76978698850361L);
+        ObdHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(76978698850361L);
         //组装OBD反馈信息
         ObdOfcBackRequest request = new ObdOfcBackRequest();
         request.setDeliveryTime("2016-09-20");
         request.setObdCode(soHeader.getOrderId().toString());
         request.setSoCode(soHeader.getOrderOtherId());
         //查询明细。
-        List<OutbSoDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(76978698850361L);
+        List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(76978698850361L);
         List<ObdOfcItem> items = new ArrayList<ObdOfcItem>();
 
-        for(OutbSoDetail detail : soDetails){
+        for(ObdDetail detail : soDetails){
             ObdOfcItem item = new ObdOfcItem();
             item.setPackNum(detail.getPackUnit());
             item.setSkuQty(detail.getOrderQty());

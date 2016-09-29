@@ -14,8 +14,8 @@ import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.so.ISoRestService;
 import com.lsh.wms.api.service.so.ISoRpcService;
 import com.lsh.wms.core.service.so.SoOrderService;
-import com.lsh.wms.model.so.OutbSoDetail;
-import com.lsh.wms.model.so.OutbSoHeader;
+import com.lsh.wms.model.so.ObdDetail;
+import com.lsh.wms.model.so.ObdHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,9 +51,9 @@ public class SoRestService implements ISoRestService {
     @POST
     @Path("init")
     public String init(String soOrderInfo) {
-        OutbSoHeader outbSoHeader = JSON.parseObject(soOrderInfo,OutbSoHeader.class);
-        List<OutbSoDetail> outbSoDetailList = JSON.parseArray((String)outbSoHeader.getOrderDetails(),OutbSoDetail.class);
-        soOrderService.insert(outbSoHeader,outbSoDetailList);
+        ObdHeader obdHeader = JSON.parseObject(soOrderInfo,ObdHeader.class);
+        List<ObdDetail> obdDetailList = JSON.parseArray((String) obdHeader.getOrderDetails(),ObdDetail.class);
+        soOrderService.insert(obdHeader, obdDetailList);
         return JsonUtils.SUCCESS();
     }
 

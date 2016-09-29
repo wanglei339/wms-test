@@ -23,7 +23,7 @@ import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
-import com.lsh.wms.model.so.OutbSoHeader;
+import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
@@ -169,7 +169,7 @@ public class QCRestService implements IRFQCRestService{
             throw new BizCheckedException("托盘码不存在");
         }
         //获取客户信息
-        OutbSoHeader soInfo = iSoRpcService.getOutbSoHeaderDetailByOrderId(details.get(0).getOrderId());
+        ObdHeader soInfo = iSoRpcService.getOutbSoHeaderDetailByOrderId(details.get(0).getOrderId());
         //获取集货道信息
         BaseinfoLocation collectLocaion = iLocationRpcService.getLocation(details.get(0).getAllocCollectLocation());
         Map<String, Object> rstMap = new HashMap<String, Object>();

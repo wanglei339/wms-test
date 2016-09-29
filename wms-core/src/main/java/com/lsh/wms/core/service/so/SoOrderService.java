@@ -1,12 +1,12 @@
 package com.lsh.wms.core.service.so;
 
-import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.constant.BusiConstant;
-import com.lsh.wms.core.dao.so.OutbSoDetailDao;
-import com.lsh.wms.core.dao.so.OutbSoHeaderDao;
-import com.lsh.wms.model.so.OutbSoDetail;
-import com.lsh.wms.model.so.OutbSoHeader;
+import com.lsh.wms.core.dao.so.ObdDetailDao;
+import com.lsh.wms.core.dao.so.ObdHeaderDao;
+import com.lsh.wms.model.so.ObdDetail;
+import com.lsh.wms.model.so.ObdHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,62 +30,62 @@ import java.util.Map;
 public class SoOrderService {
 
     @Autowired
-    private OutbSoHeaderDao outbSoHeaderDao;
+    private ObdHeaderDao obdHeaderDao;
 
     @Autowired
-    private OutbSoDetailDao outbSoDetailDao;
+    private ObdDetailDao obdDetailDao;
 
     @Autowired
     private SoOrderRedisService soOrderRedisService;
 
     /**
      * 插入OutbSoHeader及OutbSoDetail
-     * @param outbSoHeader
-     * @param outbSoDetailList
+     * @param obdHeader
+     * @param obdDetailList
      */
     @Transactional(readOnly = false)
-    public void insert(OutbSoHeader outbSoHeader, List<OutbSoDetail> outbSoDetailList){
-        outbSoHeader.setInserttime(new Date());
-        outbSoHeader.setOrderId(RandomUtils.genId());
-        outbSoHeader.setOrderStatus(BusiConstant.EFFECTIVE_YES);
-        outbSoHeaderDao.insert(outbSoHeader);
-        for (OutbSoDetail outbSoDetail :outbSoDetailList) {
-            outbSoDetail.setOrderId(outbSoHeader.getOrderId());
+    public void insert(ObdHeader obdHeader, List<ObdDetail> obdDetailList){
+        obdHeader.setCreatedAt(DateUtils.getCurrentSeconds());
+        obdHeader.setOrderId(RandomUtils.genId());
+        obdHeader.setOrderStatus(BusiConstant.EFFECTIVE_YES);
+        obdHeaderDao.insert(obdHeader);
+        for (ObdDetail obdDetail : obdDetailList) {
+            obdDetail.setOrderId(obdHeader.getOrderId());
         }
-        outbSoDetailDao.batchInsert(outbSoDetailList);
-        soOrderRedisService.insertSoRedis(outbSoHeader,outbSoDetailList);
+        obdDetailDao.batchInsert(obdDetailList);
+        soOrderRedisService.insertSoRedis(obdHeader, obdDetailList);
     }
 
     /**
      * 插入OutbSoHeader及OutbSoDetail
-     * @param outbSoHeader
-     * @param outbSoDetailList
+     * @param obdHeader
+     * @param obdDetailList
      */
     @Transactional
-    public void insertOrder(OutbSoHeader outbSoHeader, List<OutbSoDetail> outbSoDetailList) {
-        outbSoHeaderDao.insert(outbSoHeader);
+    public void insertOrder(ObdHeader obdHeader, List<ObdDetail> obdDetailList) {
+        obdHeaderDao.insert(obdHeader);
 
-        outbSoDetailDao.batchInsert(outbSoDetailList);
+        obdDetailDao.batchInsert(obdDetailList);
     }
 
     /**
      * 更新OutbSoHeader
-     * @param outbSoHeader
+     * @param obdHeader
      */
     @Transactional(readOnly = false)
-    public void update(OutbSoHeader outbSoHeader){
-        outbSoHeaderDao.update(outbSoHeader);
+    public void update(ObdHeader obdHeader){
+        obdHeaderDao.update(obdHeader);
     }
 
     /**
      * 根据OrderOtherId或OrderId更新OutbSoHeader
-     * @param outbSoHeader
+     * @param obdHeader
      */
     @Transactional(readOnly = false)
-    public void updateOutbSoHeaderByOrderOtherIdOrOrderId(OutbSoHeader outbSoHeader) {
-        outbSoHeader.setUpdatetime(new Date());
+    public void updateOutbSoHeaderByOrderOtherIdOrOrderId(ObdHeader obdHeader) {
+        obdHeader.setUpdatedAt(DateUtils.getCurrentSeconds());
 
-        outbSoHeaderDao.updateByOrderOtherIdOrOrderId(outbSoHeader);
+        obdHeaderDao.updateByOrderOtherIdOrOrderId(obdHeader);
     }
 
     /**
@@ -93,8 +93,8 @@ public class SoOrderService {
      * @param id
      * @return
      */
-    public OutbSoHeader getOutbSoHeaderById(Long id){
-        return outbSoHeaderDao.getOutbSoHeaderById(id);
+    public ObdHeader getOutbSoHeaderById(Long id){
+        return obdHeaderDao.getObdHeaderById(id);
     }
 
     /**
@@ -103,7 +103,7 @@ public class SoOrderService {
      * @return
      */
     public Integer countOutbSoHeader(Map<String, Object> params){
-        return outbSoHeaderDao.countOutbSoHeader(params);
+        return obdHeaderDao.countObdHeader(params);
     }
 
     /**
@@ -111,8 +111,8 @@ public class SoOrderService {
      * @param params
      * @return
      */
-    public List<OutbSoHeader> getOutbSoHeaderList(Map<String, Object> params){
-        return outbSoHeaderDao.getOutbSoHeaderList(params);
+    public List<ObdHeader> getOutbSoHeaderList(Map<String, Object> params){
+        return obdHeaderDao.getObdHeaderList(params);
     }
 
     /**
@@ -120,8 +120,8 @@ public class SoOrderService {
      * @param id
      * @return
      */
-    public OutbSoDetail getOutbSoDetailById(Long id) {
-        return outbSoDetailDao.getOutbSoDetailById(id);
+    public ObdDetail getOutbSoDetailById(Long id) {
+        return obdDetailDao.getObdDetailById(id);
     }
 
     /**
@@ -130,7 +130,7 @@ public class SoOrderService {
      * @return
      */
     public Integer countOutbSoDetail(Map<String, Object> params) {
-        return outbSoDetailDao.countOutbSoDetail(params);
+        return obdDetailDao.countObdDetail(params);
     }
 
     /**
@@ -138,8 +138,8 @@ public class SoOrderService {
      * @param params
      * @return
      */
-    public List<OutbSoDetail> getOutbSoDetailList(Map<String, Object> params){
-        return outbSoDetailDao.getOutbSoDetailList(params);
+    public List<ObdDetail> getOutbSoDetailList(Map<String, Object> params){
+        return obdDetailDao.getObdDetailList(params);
     }
 
     /**
@@ -147,7 +147,7 @@ public class SoOrderService {
      * @param orderId
      * @return
      */
-    public List<OutbSoDetail> getOutbSoDetailListByOrderId(Long orderId) {
+    public List<ObdDetail> getOutbSoDetailListByOrderId(Long orderId) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("orderId", orderId);
 
@@ -156,26 +156,26 @@ public class SoOrderService {
 
     /**
      * List<OutbSoHeader>填充OutbSoDetail
-     * @param outbSoHeaderList
+     * @param obdHeaderList
      */
-    public void fillDetailToHeaderList(List<OutbSoHeader> outbSoHeaderList) {
-        for(OutbSoHeader outbSoHeader : outbSoHeaderList) {
-            fillDetailToHeader(outbSoHeader);
+    public void fillDetailToHeaderList(List<ObdHeader> obdHeaderList) {
+        for(ObdHeader obdHeader : obdHeaderList) {
+            fillDetailToHeader(obdHeader);
         }
     }
 
     /**
      * OutbSoHeader填充OutbSoDetail
-     * @param outbSoHeader
+     * @param obdHeader
      */
-    public void fillDetailToHeader(OutbSoHeader outbSoHeader) {
-        if(outbSoHeader == null) {
+    public void fillDetailToHeader(ObdHeader obdHeader) {
+        if(obdHeader == null) {
             return;
         }
 
-        List<OutbSoDetail> outbSoDetailList = getOutbSoDetailListByOrderId(outbSoHeader.getOrderId());
+        List<ObdDetail> obdDetailList = getOutbSoDetailListByOrderId(obdHeader.getOrderId());
 
-        outbSoHeader.setOrderDetails(outbSoDetailList);
+        obdHeader.setOrderDetails(obdDetailList);
     }
 
     /**
@@ -183,15 +183,15 @@ public class SoOrderService {
      * @param waveId
      * @return
      */
-    public List<OutbSoHeader> getOutSoHeaderListByWaveId(Long waveId) {
+    public List<ObdHeader> getOutSoHeaderListByWaveId(Long waveId) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("waveId", waveId);
 
-        List<OutbSoHeader> outbSoHeaderList = outbSoHeaderDao.getOutbSoHeaderList(params);
+        List<ObdHeader> obdHeaderList = obdHeaderDao.getObdHeaderList(params);
 
-        fillDetailToHeaderList(outbSoHeaderList);
+        fillDetailToHeaderList(obdHeaderList);
 
-        return outbSoHeaderList;
+        return obdHeaderList;
     }
 
     /**
@@ -199,22 +199,22 @@ public class SoOrderService {
      * @param orderId
      * @return
      */
-    public OutbSoHeader getOutbSoHeaderByOrderId(Long orderId) {
+    public ObdHeader getOutbSoHeaderByOrderId(Long orderId) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("orderId", orderId);
 
         //获取OutbSoHeader
-        List<OutbSoHeader> outbSoHeaderList = getOutbSoHeaderList(params);
-        if(outbSoHeaderList.size() > 1 || outbSoHeaderList.size() <= 0) {
+        List<ObdHeader> obdHeaderList = getOutbSoHeaderList(params);
+        if(obdHeaderList.size() > 1 || obdHeaderList.size() <= 0) {
             return null;
         }
 
-        OutbSoHeader outbSoHeader = outbSoHeaderList.get(0);
+        ObdHeader obdHeader = obdHeaderList.get(0);
 
         //获取OutbSoDetail
-        fillDetailToHeader(outbSoHeader);
+        fillDetailToHeader(obdHeader);
 
-        return outbSoHeader;
+        return obdHeader;
     }
 
 }

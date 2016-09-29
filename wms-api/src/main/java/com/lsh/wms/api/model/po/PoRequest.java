@@ -14,10 +14,6 @@ import java.util.List;
  */
 public class PoRequest implements Serializable {
 
-    /** 仓库ID */
-    @NotNull
-    private Long warehouseId;
-
     @NotBlank
     @Size(max=100)
     private String orderOtherId;
@@ -46,18 +42,6 @@ public class PoRequest implements Serializable {
     @Size(max=50)
     private String supplierName = "";
 
-    /** 商品凭证号 */
-    @Size(max=100)
-    private String skuVoucherNo = "";
-
-    /** 供商电话 */
-    @Size(max=50)
-    private String supplierPhone = "";
-
-    /** 供商传真 */
-    @Size(max=50)
-    private String supplierFax = "";
-
     /** 订单日期 */
     @NotNull
     private Date orderTime = new Date();
@@ -66,13 +50,6 @@ public class PoRequest implements Serializable {
     @Size(max=100)
     private String stockCode = "";
 
-    /** 收货地点 */
-    @Size(max=64)
-    private String deliveryPlace = "";
-
-    /** 收货地址 */
-    @Size(max=1000)
-    private String deliveryAddrs = "";
 
     /** 发货时间 */
     private Date deliveryDate = new Date();
@@ -89,155 +66,34 @@ public class PoRequest implements Serializable {
 
     }
 
-    public PoRequest(Long warehouseId, String orderOtherId, String orderOtherRefIdId, String orderUser, Long ownerUid, Integer orderType,
-                     Long supplierCode, String supplierName, String skuVoucherNo, String supplierPhone,
-                     String supplierFax, Date orderTime, String stockCode, String deliveryPlace, String deliveryAddrs,
-                     Date deliveryDate, Date endDeliveryDate, List<PoItem> items) {
-        this.warehouseId = warehouseId;
-        this.orderOtherId = orderOtherId;
-        this.orderOtherRefId = orderOtherRefIdId;
-        this.orderUser = orderUser;
-        this.ownerUid = ownerUid;
-        this.orderType = orderType;
-        this.supplierCode = supplierCode;
-        this.supplierName = supplierName;
-        this.skuVoucherNo = skuVoucherNo;
-        this.supplierPhone = supplierPhone;
-        this.supplierFax = supplierFax;
-        this.orderTime = orderTime;
-        this.stockCode = stockCode;
-        this.deliveryPlace = deliveryPlace;
-        this.deliveryAddrs = deliveryAddrs;
+    public PoRequest(Date deliveryDate, Date endDeliveryDate, List<PoItem> items, String orderOtherId, String orderOtherRefId, Date orderTime, Integer orderType, String orderUser, Long ownerUid, String stockCode, Long supplierCode, String supplierName) {
         this.deliveryDate = deliveryDate;
         this.endDeliveryDate = endDeliveryDate;
         this.items = items;
-    }
-
-    public Long getWarehouseId(){
-        return this.warehouseId;
-    }
-
-    public void setWarehouseId(Long warehouseId){
-        this.warehouseId = warehouseId;
-    }
-
-    public String getOrderOtherId() {
-        return orderOtherId;
-    }
-
-    public void setOrderOtherId(String orderOtherId) {
         this.orderOtherId = orderOtherId;
-    }
-
-    public String getOrderUser() {
-        return orderUser;
-    }
-
-    public void setOrderUser(String orderUser) {
-        this.orderUser = orderUser;
-    }
-
-    public Long getOwnerUid(){
-        return this.ownerUid;
-    }
-
-    public void setOwnerUid(Long ownerUid){
-        this.ownerUid = ownerUid;
-    }
-
-    public Integer getOrderType(){
-        return this.orderType;
-    }
-
-    public void setOrderType(Integer orderType){
+        this.orderOtherRefId = orderOtherRefId;
+        this.orderTime = orderTime;
         this.orderType = orderType;
-    }
-
-    public Long getSupplierCode(){
-        return this.supplierCode;
-    }
-
-    public void setSupplierCode(Long supplierCode){
+        this.orderUser = orderUser;
+        this.ownerUid = ownerUid;
+        this.stockCode = stockCode;
         this.supplierCode = supplierCode;
-    }
-
-    public String getSupplierName(){
-        return this.supplierName;
-    }
-
-    public void setSupplierName(String supplierName){
         this.supplierName = supplierName;
     }
 
-    public String getSkuVoucherNo(){
-        return this.skuVoucherNo;
+    public Date getDeliveryDate() {
+        return deliveryDate;
     }
 
-    public void setSkuVoucherNo(String skuVoucherNo){
-        this.skuVoucherNo = skuVoucherNo;
-    }
-
-    public String getSupplierPhone(){
-        return this.supplierPhone;
-    }
-
-    public void setSupplierPhone(String supplierPhone){
-        this.supplierPhone = supplierPhone;
-    }
-
-    public String getSupplierFax(){
-        return this.supplierFax;
-    }
-
-    public void setSupplierFax(String supplierFax){
-        this.supplierFax = supplierFax;
-    }
-
-    public Date getOrderTime(){
-        return this.orderTime;
-    }
-
-    public void setOrderTime(Date orderTime){
-        this.orderTime = orderTime;
-    }
-
-    public String getStockCode(){
-        return this.stockCode;
-    }
-
-    public void setStockCode(String stockCode){
-        this.stockCode = stockCode;
-    }
-
-    public String getDeliveryPlace(){
-        return this.deliveryPlace;
-    }
-
-    public void setDeliveryPlace(String deliveryPlace){
-        this.deliveryPlace = deliveryPlace;
-    }
-
-    public String getDeliveryAddrs(){
-        return this.deliveryAddrs;
-    }
-
-    public void setDeliveryAddrs(String deliveryAddrs){
-        this.deliveryAddrs = deliveryAddrs;
-    }
-
-    public Date getDeliveryDate(){
-        return this.deliveryDate;
-    }
-
-    public void setDeliveryDate(Date deliveryDate){
+    public void setDeliveryDate(Date deliveryDate) {
         this.deliveryDate = deliveryDate;
     }
 
-    public Date getEndDeliveryDate(){
-        return this.endDeliveryDate;
+    public Date getEndDeliveryDate() {
+        return endDeliveryDate;
     }
 
-    public void setEndDeliveryDate(Date endDeliveryDate){
+    public void setEndDeliveryDate(Date endDeliveryDate) {
         this.endDeliveryDate = endDeliveryDate;
     }
 
@@ -249,11 +105,75 @@ public class PoRequest implements Serializable {
         this.items = items;
     }
 
+    public String getOrderOtherId() {
+        return orderOtherId;
+    }
+
+    public void setOrderOtherId(String orderOtherId) {
+        this.orderOtherId = orderOtherId;
+    }
+
     public String getOrderOtherRefId() {
         return orderOtherRefId;
     }
 
     public void setOrderOtherRefId(String orderOtherRefId) {
         this.orderOtherRefId = orderOtherRefId;
+    }
+
+    public Date getOrderTime() {
+        return orderTime;
+    }
+
+    public void setOrderTime(Date orderTime) {
+        this.orderTime = orderTime;
+    }
+
+    public Integer getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(Integer orderType) {
+        this.orderType = orderType;
+    }
+
+    public String getOrderUser() {
+        return orderUser;
+    }
+
+    public void setOrderUser(String orderUser) {
+        this.orderUser = orderUser;
+    }
+
+    public Long getOwnerUid() {
+        return ownerUid;
+    }
+
+    public void setOwnerUid(Long ownerUid) {
+        this.ownerUid = ownerUid;
+    }
+
+    public String getStockCode() {
+        return stockCode;
+    }
+
+    public void setStockCode(String stockCode) {
+        this.stockCode = stockCode;
+    }
+
+    public Long getSupplierCode() {
+        return supplierCode;
+    }
+
+    public void setSupplierCode(Long supplierCode) {
+        this.supplierCode = supplierCode;
+    }
+
+    public String getSupplierName() {
+        return supplierName;
+    }
+
+    public void setSupplierName(String supplierName) {
+        this.supplierName = supplierName;
     }
 }

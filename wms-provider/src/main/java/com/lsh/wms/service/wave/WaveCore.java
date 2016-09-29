@@ -23,8 +23,8 @@ import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.pick.*;
-import com.lsh.wms.model.so.OutbSoDetail;
-import com.lsh.wms.model.so.OutbSoHeader;
+import com.lsh.wms.model.so.ObdDetail;
+import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.task.TaskMsg;
@@ -77,9 +77,9 @@ public class WaveCore {
     private MessageService messageService;
     
     private WaveHead waveHead;
-    List<OutbSoDetail> orderDetails;
-    List<OutbSoHeader> orderList;
-    Map<Long, OutbSoHeader> mapOrder2Head;
+    List<ObdDetail> orderDetails;
+    List<ObdHeader> orderList;
+    Map<Long, ObdHeader> mapOrder2Head;
     WaveTemplate waveTemplate;
     List<BaseinfoLocation> unUsedCollectionRoadList;
     Map<String, BaseinfoLocation> mapRoute2CollectRoad;
@@ -121,7 +121,7 @@ public class WaveCore {
         //发给调度创建纪录,调度器可能需要做些处理
         try {
             Set<Long> items = new HashSet<Long>();
-            for (OutbSoDetail detail : orderDetails) {
+            for (ObdDetail detail : orderDetails) {
                 items.add(detail.getItemId());
             }
             TaskMsg msg = new TaskMsg();
@@ -141,7 +141,7 @@ public class WaveCore {
         Map<Long, Long> mapCollectBinCount = new HashMap<Long, Long>();
         Map<Long, List<BaseinfoLocation>> mapCollectRoad2Bin = new HashMap<Long, List<BaseinfoLocation>>();
         int iUseIdx = 0;
-        for(OutbSoHeader order : orderList){
+        for(ObdHeader order : orderList){
             Long collectAllocId = 0L;
             String rout = order.getTransPlan();
             BaseinfoLocation collecRoad = mapRoute2CollectRoad.get(rout);
@@ -275,7 +275,7 @@ public class WaveCore {
         }
     }
 
-    private BigDecimal _allocNormal(OutbSoDetail detail, PickZone zone, BaseinfoItem item, BaseinfoLocation location, BigDecimal leftAllocQty) throws BizCheckedException{
+    private BigDecimal _allocNormal(ObdDetail detail, PickZone zone, BaseinfoItem item, BaseinfoLocation location, BigDecimal leftAllocQty) throws BizCheckedException{
         long pickLocationId = this._getPickLocation(item, location);
         if (pickLocationId == 0) {
             return leftAllocQty;
@@ -332,7 +332,7 @@ public class WaveCore {
         return leftAllocQty;
     }
 
-    private BigDecimal _allocStockPickSame(OutbSoDetail detail, PickZone zone, BaseinfoItem item, BaseinfoLocation location, BigDecimal leftAllocQty) throws BizCheckedException{
+    private BigDecimal _allocStockPickSame(ObdDetail detail, PickZone zone, BaseinfoItem item, BaseinfoLocation location, BigDecimal leftAllocQty) throws BizCheckedException{
         //没补货机制的区域,存捡合一,得精细计算到每个货位
         String key = String.format("%d-%d", item.getItemId(), location.getLocationId());
         Map<Long, BigDecimal> locationInventory = mapItemArea2LocationInventory.get(key);
@@ -378,7 +378,7 @@ public class WaveCore {
         if(waveHead.getIsResAlloc() == 0) {
             logger.info("begin to run alloc waveId{1}", waveId);
             for (int i = 0; i < orderDetails.size(); ++i) {
-                OutbSoDetail detail = orderDetails.get(i);
+                ObdDetail detail = orderDetails.get(i);
                 int zone_idx = 0;
                 //获取商品的基本信息
                 BaseinfoItem item = itemService.getItem(mapOrder2Head.get(detail.getOrderId()).getOwnerUid(), detail.getSkuId());
@@ -470,20 +470,20 @@ public class WaveCore {
     }
     
     private void _prepareOrder() throws BizCheckedException{
-        orderDetails = new LinkedList<OutbSoDetail>();
-        mapOrder2Head = new HashMap<Long, OutbSoHeader>();
+        orderDetails = new LinkedList<ObdDetail>();
+        mapOrder2Head = new HashMap<Long, ObdHeader>();
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("waveId", waveId);
         orderList = orderService.getOutbSoHeaderList(mapQuery);
-        Collections.sort(orderList, new Comparator<OutbSoHeader>() {
+        Collections.sort(orderList, new Comparator<ObdHeader>() {
             //此处可以设定一个排序规则,对波次中的订单优先级进行排序
-            public int compare(OutbSoHeader o1, OutbSoHeader o2) {
+            public int compare(ObdHeader o1, ObdHeader o2) {
                 return o1.getId().compareTo(o2.getId());
             }
         });
         for(int i = 0;i  < orderList.size(); ++i){
             mapOrder2Head.put(orderList.get(i).getOrderId(), orderList.get(i));
-            List<OutbSoDetail> details = orderService.getOutbSoDetailListByOrderId(orderList.get(i).getOrderId());
+            List<ObdDetail> details = orderService.getOutbSoDetailListByOrderId(orderList.get(i).getOrderId());
             orderDetails.addAll(details);
         }
     }

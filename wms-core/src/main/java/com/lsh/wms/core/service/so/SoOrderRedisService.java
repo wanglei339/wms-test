@@ -2,10 +2,9 @@ package com.lsh.wms.core.service.so;
 
 import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.core.constant.RedisKeyConstant;
-import com.lsh.wms.core.dao.redis.RedisHashDao;
 import com.lsh.wms.core.dao.redis.RedisSortedSetDao;
-import com.lsh.wms.model.so.OutbSoDetail;
-import com.lsh.wms.model.so.OutbSoHeader;
+import com.lsh.wms.model.so.ObdDetail;
+import com.lsh.wms.model.so.ObdHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,11 +30,11 @@ public class SoOrderRedisService {
     private RedisSortedSetDao redisSortedSetDao;
     private static Logger logger = LoggerFactory.getLogger(SoOrderRedisService.class);
 
-    public void insertSoRedis(OutbSoHeader outbSoHeader, List<OutbSoDetail> outbSoDetailList){
-        Long orderId = outbSoHeader.getOrderId();
-        for (OutbSoDetail outbSoDetail: outbSoDetailList) {
-            String redistKey = StrUtils.formatString(RedisKeyConstant.SO_SKU_INVENTORY_QTY, outbSoDetail.getSkuId());
-            redisSortedSetDao.add(redistKey,orderId.toString(),outbSoDetail.getOrderQty().doubleValue());
+    public void insertSoRedis(ObdHeader obdHeader, List<ObdDetail> obdDetailList){
+        Long orderId = obdHeader.getOrderId();
+        for (ObdDetail obdDetail : obdDetailList) {
+            String redistKey = StrUtils.formatString(RedisKeyConstant.SO_SKU_INVENTORY_QTY, obdDetail.getSkuId());
+            redisSortedSetDao.add(redistKey,orderId.toString(), obdDetail.getOrderQty().doubleValue());
         }
     }
 

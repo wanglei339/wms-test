@@ -12,7 +12,7 @@ import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
-import com.lsh.wms.model.so.OutbSoDetail;
+import com.lsh.wms.model.so.ObdDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,14 +70,14 @@ public class DeliveryRpcService implements IDeliveryRpcService {
             params.put("itemId", deliveryItem.getItemId());
             params.put("start", 0);
             params.put("limit", 1);
-            List<OutbSoDetail> outbSoDetailList = soOrderService.getOutbSoDetailList(params);
+            List<ObdDetail> obdDetailList = soOrderService.getOutbSoDetailList(params);
 
-            if(outbSoDetailList.size() <= 0) {
+            if(obdDetailList.size() <= 0) {
 //                throw new BizCheckedException("2900002", "出库订单明细数据异常");
             }
 
             //设置订货数
-            outbDeliveryDetail.setOrderQty(outbSoDetailList.get(0).getOrderQty());
+            outbDeliveryDetail.setOrderQty(obdDetailList.get(0).getOrderQty());
 
             outbDeliveryDetailList.add(outbDeliveryDetail);
         }

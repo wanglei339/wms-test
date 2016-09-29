@@ -2,12 +2,12 @@ package com.lsh.wms.core.service.kanban;
 
 
 import com.lsh.wms.core.constant.PoConstant;
-import com.lsh.wms.core.dao.po.InbPoDetailDao;
-import com.lsh.wms.core.dao.po.InbPoHeaderDao;
-import com.lsh.wms.core.dao.so.OutbSoHeaderDao;
+import com.lsh.wms.core.dao.po.IbdDetailDao;
+import com.lsh.wms.core.dao.po.IbdHeaderDao;
+import com.lsh.wms.core.dao.so.ObdHeaderDao;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.dao.wave.WaveHeadDao;
-import com.lsh.wms.model.po.InbPoHeader;
+import com.lsh.wms.model.po.IbdHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,13 +25,13 @@ public class KanBanService {
     private TaskInfoDao taskInfoDao;
 
     @Autowired
-    private InbPoHeaderDao inbPoHeaderDao;
+    private IbdHeaderDao ibdHeaderDao;
 
     @Autowired
-    private InbPoDetailDao inbPoDetailDao;
+    private IbdDetailDao ibdDetailDao;
 
     @Autowired
-    private OutbSoHeaderDao outbSoHeaderDao;
+    private ObdHeaderDao obdHeaderDao;
 
     @Autowired
     private WaveHeadDao waveHeadDao;
@@ -48,11 +48,11 @@ public class KanBanService {
 
 
     public List<Map<String, Object>> getPoKanBanCount(Long orderType){
-        return inbPoHeaderDao.getPoKanBanCount(orderType);
+        return ibdHeaderDao.getPoKanBanCount(orderType);
     }
 
     public List<Map<String, Object>> getPoDetailKanBanCount(Long orderType){
-        List<InbPoHeader> headers = inbPoHeaderDao.getPoDayCount(orderType);
+        List<IbdHeader> headers = ibdHeaderDao.getPoDayCount(orderType);
         Map<Long,Integer> fMap = new HashMap<Long, Integer>();
         BigDecimal sumQty = new BigDecimal(0);
 
@@ -70,22 +70,22 @@ public class KanBanService {
         //待收货商品总量
         BigDecimal sumQty1 = new BigDecimal(0);
         for(Long orderId : orderIds1){
-            sumQty1 = sumQty1.add(inbPoDetailDao.getInbPoDetailCountByOrderId(orderId));
+            sumQty1 = sumQty1.add(ibdDetailDao.getInbPoDetailCountByOrderId(orderId));
         }
         //收货中商品总量
         BigDecimal sumQty2 = new BigDecimal(0);
         for(Long orderId : orderIds2){
-            sumQty2 = sumQty2.add(inbPoDetailDao.getInbPoDetailCountByOrderId(orderId));
+            sumQty2 = sumQty2.add(ibdDetailDao.getInbPoDetailCountByOrderId(orderId));
         }
         //部分收货商品总量
         BigDecimal sumQty3 = new BigDecimal(0);
         for(Long orderId : orderIds3){
-            sumQty3 = sumQty3.add(inbPoDetailDao.getInbPoDetailCountByOrderId(orderId));
+            sumQty3 = sumQty3.add(ibdDetailDao.getInbPoDetailCountByOrderId(orderId));
         }
         //已收货商品总量
         BigDecimal sumQty4 = new BigDecimal(0);
         for(Long orderId : orderIds4){
-            sumQty4 = sumQty4.add(inbPoDetailDao.getInbPoDetailCountByOrderId(orderId));
+            sumQty4 = sumQty4.add(ibdDetailDao.getInbPoDetailCountByOrderId(orderId));
         }
 
         //商品总量
@@ -120,7 +120,7 @@ public class KanBanService {
 
 
     public List<Map<String, Object>> getSoKanBanCount(Long orderType){
-        return outbSoHeaderDao.getSoKanBanCount(orderType);
+        return obdHeaderDao.getSoKanBanCount(orderType);
     }
 
     public List<Map<String, Object>> getWaveKanBanCount(){

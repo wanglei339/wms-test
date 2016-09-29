@@ -9,9 +9,6 @@ import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
-import com.lsh.wms.api.model.base.BaseResponse;
-import com.lsh.wms.api.model.base.ResUtils;
-import com.lsh.wms.api.model.base.ResponseConstant;
 import com.lsh.wms.api.model.po.ReceiptItem;
 import com.lsh.wms.api.model.po.ReceiptRequest;
 import com.lsh.wms.api.service.po.IReceiptRfService;
@@ -26,8 +23,8 @@ import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.csi.CsiSku;
-import com.lsh.wms.model.po.InbPoDetail;
-import com.lsh.wms.model.po.InbPoHeader;
+import com.lsh.wms.model.po.IbdDetail;
+import com.lsh.wms.model.po.IbdHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,8 +100,8 @@ public class ReceiptRestService implements IReceiptRfService {
 
         receiptRequest.setReceiptTime(new Date());
 
-        InbPoHeader inbPoHeader = poOrderService.getInbPoHeaderByOrderOtherId(receiptRequest.getOrderOtherId());
-        if(inbPoHeader == null) {
+        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(receiptRequest.getOrderOtherId());
+        if(ibdHeader == null) {
             throw new BizCheckedException("2020001");
         }
 
@@ -114,16 +111,21 @@ public class ReceiptRestService implements IReceiptRfService {
                 throw new BizCheckedException("2020008");
             }
 
-            InbPoDetail inbPoDetail = poOrderService.getInbPoDetailByOrderIdAndBarCode(inbPoHeader.getOrderId(), receiptItem.getBarCode());
+            //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
+            CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, receiptItem.getBarCode());
 
-            if(inbPoDetail == null){
+            BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
+
+            IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(), baseinfoItem.getSkuCode());
+
+            if(ibdDetail == null){
                 throw new BizCheckedException("2020001");
             }
 
-            receiptItem.setSkuName(inbPoDetail.getSkuName());
-            receiptItem.setPackUnit(inbPoDetail.getPackUnit());
-            receiptItem.setPackName(inbPoDetail.getPackName());
-            receiptItem.setMadein(inbPoDetail.getMadein());
+            receiptItem.setSkuName(ibdDetail.getSkuName());
+            receiptItem.setPackUnit(ibdDetail.getPackUnit());
+            receiptItem.setPackName(ibdDetail.getPackName());
+            receiptItem.setMadein(baseinfoItem.getProducePlace());
         }
 
         receiptRequest.setItems(receiptItemList);
@@ -145,13 +147,13 @@ public class ReceiptRestService implements IReceiptRfService {
             throw new BizCheckedException("1020001", "参数不能为空");
         }
 
-        InbPoHeader  inbPoHeader  = poOrderService.getInbPoHeaderByOrderOtherId(orderOtherId);
+        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(orderOtherId);
 
-        if (inbPoHeader == null) {
+        if (ibdHeader == null) {
             throw new BizCheckedException("2020001");
         }
 
-        boolean isCanReceipt = inbPoHeader.getOrderStatus() == PoConstant.ORDER_THROW || inbPoHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART || inbPoHeader.getOrderStatus() == PoConstant.ORDER_RECTIPTING;
+        boolean isCanReceipt = ibdHeader.getOrderStatus() == PoConstant.ORDER_THROW || ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART || ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPTING;
         if (!isCanReceipt) {
             throw new BizCheckedException("2020002");
         }
@@ -159,7 +161,7 @@ public class ReceiptRestService implements IReceiptRfService {
         if(!containerService.isContainerCanUse(containerId)){
             throw new BizCheckedException("2000002");
         }
-        InbPoDetail inbPoDetail = poOrderService.getInbPoDetailByOrderIdAndBarCode(inbPoHeader.getOrderId(), barCode);
+
 
         //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
         CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barCode);
@@ -167,26 +169,38 @@ public class ReceiptRestService implements IReceiptRfService {
             throw new BizCheckedException("2020022");
         }
 
-        if (inbPoDetail == null) {
+        BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
+
+        IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(),baseinfoItem.getSkuCode());
+
+        if (ibdDetail == null) {
             throw new BizCheckedException("2020004");
         }
 
 
         //校验之后修改订单状态为收货中 第一次收货将订单改为收货中
-        if(inbPoHeader.getOrderStatus() == PoConstant.ORDER_THROW){
-            inbPoHeader.setOrderStatus(PoConstant.ORDER_RECTIPTING);
-            poOrderService.updateInbPoHeader(inbPoHeader);
+        if(ibdHeader.getOrderStatus() == PoConstant.ORDER_THROW){
+            ibdHeader.setOrderStatus(PoConstant.ORDER_RECTIPTING);
+            poOrderService.updateInbPoHeader(ibdHeader);
         }
-        BaseinfoItem baseinfoItem = itemService.getItem(inbPoHeader.getOwnerUid(), csiSku.getSkuId());
+
 
         Map<String, Object> orderInfoMap = new HashMap<String, Object>();
-        orderInfoMap.put("skuName", inbPoDetail.getSkuName());
+        orderInfoMap.put("skuName", ibdDetail.getSkuName());
         //orderInfoMap.put("packName", "H01");
-        orderInfoMap.put("packName", inbPoDetail.getPackName());
-        BigDecimal orderQty = inbPoDetail.getOrderQty().subtract(inbPoDetail.getInboundQty());
+        orderInfoMap.put("packName", ibdDetail.getPackName());
+        BigDecimal orderQty = ibdDetail.getOrderQty().subtract(ibdDetail.getInboundQty());
         orderInfoMap.put("orderQty", orderQty);// todo 剩余待收货数
         orderInfoMap.put("batchNeeded", baseinfoItem.getBatchNeeded());
 
         return JsonUtils.SUCCESS(orderInfoMap);
+    }
+
+    @POST
+    @Path("getStoreInfo")
+    public String getStoreInfo(@FormParam("storeId") String storeId,@FormParam("containerId") Long containerId, @FormParam("barCode") String barCode) throws BizCheckedException {
+
+
+        return JsonUtils.SUCCESS();
     }
 }

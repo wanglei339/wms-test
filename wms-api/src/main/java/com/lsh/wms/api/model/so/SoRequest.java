@@ -15,9 +15,6 @@ import java.util.List;
  */
 public class SoRequest implements Serializable {
 
-    /** 仓库ID */
-    @NotNull
-    private Long warehouseId;
 
     @NotBlank
     @Size(max=100)
@@ -80,7 +77,7 @@ public class SoRequest implements Serializable {
     public SoRequest() {
     }
 
-    public SoRequest(String deliveryAddrs, String deliveryCode, String deliveryName, List<SoItem> items, String orderOtherId, String orderOtherRefId, Integer orderType, String orderUser, String orderUserCode, Long ownerUid, String transPlan, Date transTime, Long warehouseId, Long waveId, Integer waveIndex) {
+    public SoRequest(String deliveryAddrs, String deliveryCode, String deliveryName, List<SoItem> items, String orderOtherId, String orderOtherRefId, Integer orderType, String orderUser, String orderUserCode, Long ownerUid, String transPlan, Date transTime, Long waveId, Integer waveIndex) {
         this.deliveryAddrs = deliveryAddrs;
         this.deliveryCode = deliveryCode;
         this.deliveryName = deliveryName;
@@ -93,81 +90,8 @@ public class SoRequest implements Serializable {
         this.ownerUid = ownerUid;
         this.transPlan = transPlan;
         this.transTime = transTime;
-        this.warehouseId = warehouseId;
         this.waveId = waveId;
         this.waveIndex = waveIndex;
-    }
-
-    public Long getWarehouseId() {
-        return warehouseId;
-    }
-
-    public void setWarehouseId(Long warehouseId) {
-        this.warehouseId = warehouseId;
-    }
-
-    public String getOrderOtherId() {
-        return orderOtherId;
-    }
-
-    public void setOrderOtherId(String orderOtherId) {
-        this.orderOtherId = orderOtherId;
-    }
-
-    public String getOrderUser() {
-        return orderUser;
-    }
-
-    public void setOrderUser(String orderUser) {
-        this.orderUser = orderUser;
-    }
-
-    public Long getOwnerUid() {
-        return ownerUid;
-    }
-
-    public void setOwnerUid(Long ownerUid) {
-        this.ownerUid = ownerUid;
-    }
-
-    public Integer getOrderType() {
-        return orderType;
-    }
-
-    public void setOrderType(Integer orderType) {
-        this.orderType = orderType;
-    }
-
-    public Long getWaveId() {
-        return waveId;
-    }
-
-    public void setWaveId(Long waveId) {
-        this.waveId = waveId;
-    }
-
-    public String getTransPlan() {
-        return transPlan;
-    }
-
-    public void setTransPlan(String transPlan) {
-        this.transPlan = transPlan;
-    }
-
-    public Integer getWaveIndex() {
-        return waveIndex;
-    }
-
-    public void setWaveIndex(Integer waveIndex) {
-        this.waveIndex = waveIndex;
-    }
-
-    public Date getTransTime() {
-        return transTime;
-    }
-
-    public void setTransTime(Date transTime) {
-        this.transTime = transTime;
     }
 
     public String getDeliveryAddrs() {
@@ -176,22 +100,6 @@ public class SoRequest implements Serializable {
 
     public void setDeliveryAddrs(String deliveryAddrs) {
         this.deliveryAddrs = deliveryAddrs;
-    }
-
-    public List<SoItem> getItems() {
-        return items;
-    }
-
-    public void setItems(List<SoItem> items) {
-        this.items = items;
-    }
-
-    public String getOrderOtherRefId() {
-        return orderOtherRefId;
-    }
-
-    public void setOrderOtherRefId(String orderOtherRefId) {
-        this.orderOtherRefId = orderOtherRefId;
     }
 
     public String getDeliveryCode() {
@@ -210,11 +118,91 @@ public class SoRequest implements Serializable {
         this.deliveryName = deliveryName;
     }
 
+    public List<SoItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<SoItem> items) {
+        this.items = items;
+    }
+
+    public String getOrderOtherId() {
+        return orderOtherId;
+    }
+
+    public void setOrderOtherId(String orderOtherId) {
+        this.orderOtherId = orderOtherId;
+    }
+
+    public String getOrderOtherRefId() {
+        return orderOtherRefId;
+    }
+
+    public void setOrderOtherRefId(String orderOtherRefId) {
+        this.orderOtherRefId = orderOtherRefId;
+    }
+
+    public Integer getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(Integer orderType) {
+        this.orderType = orderType;
+    }
+
+    public String getOrderUser() {
+        return orderUser;
+    }
+
+    public void setOrderUser(String orderUser) {
+        this.orderUser = orderUser;
+    }
+
     public String getOrderUserCode() {
         return orderUserCode;
     }
 
     public void setOrderUserCode(String orderUserCode) {
         this.orderUserCode = orderUserCode;
+    }
+
+    public Long getOwnerUid() {
+        return ownerUid;
+    }
+
+    public void setOwnerUid(Long ownerUid) {
+        this.ownerUid = ownerUid;
+    }
+
+    public String getTransPlan() {
+        return transPlan;
+    }
+
+    public void setTransPlan(String transPlan) {
+        this.transPlan = transPlan;
+    }
+
+    public Date getTransTime() {
+        return transTime;
+    }
+
+    public void setTransTime(Date transTime) {
+        this.transTime = transTime;
+    }
+
+    public Long getWaveId() {
+        return waveId;
+    }
+
+    public void setWaveId(Long waveId) {
+        this.waveId = waveId;
+    }
+
+    public Integer getWaveIndex() {
+        return waveIndex;
+    }
+
+    public void setWaveIndex(Integer waveIndex) {
+        this.waveIndex = waveIndex;
     }
 }

@@ -3,15 +3,13 @@ package com.lsh.wms.core.service.wave;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
-import com.lsh.wms.core.constant.IdGeneratorContant;
 import com.lsh.wms.core.constant.WaveConstant;
-import com.lsh.wms.core.dao.so.OutbSoHeaderDao;
+import com.lsh.wms.core.dao.so.ObdHeaderDao;
 import com.lsh.wms.core.dao.wave.WaveDetailDao;
 import com.lsh.wms.core.dao.wave.WaveHeadDao;
 import com.lsh.wms.core.dao.wave.WaveQcExceptionDao;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
-import com.lsh.wms.core.service.pick.PickTaskService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockMoveService;
@@ -19,10 +17,9 @@ import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.pick.PickTaskHead;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
-import com.lsh.wms.model.so.OutbSoHeader;
+import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.wave.WaveAllocDetail;
 import com.lsh.wms.model.wave.WaveDetail;
@@ -31,14 +28,11 @@ import com.lsh.wms.model.wave.WaveQcException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.expression.spel.ast.LongLiteral;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by zengwenjun on 16/7/15.
@@ -52,7 +46,7 @@ public class WaveService {
     @Autowired
     private WaveHeadDao waveHeadDao;
     @Autowired
-    private OutbSoHeaderDao soHeaderDao;
+    private ObdHeaderDao soHeaderDao;
     @Autowired
     private WaveAllocService allocService;
     @Autowired
@@ -89,14 +83,14 @@ public class WaveService {
         for(int i = 0; i < vOrders.size(); i++){
             //更新wave信息
             Map so = vOrders.get(i);
-            OutbSoHeader outbSoHeader = new OutbSoHeader();
-            outbSoHeader.setOrderId(Long.valueOf(so.get("orderId").toString()));
-            outbSoHeader.setTransPlan(so.get("transPlan").toString());
-            outbSoHeader.setWaveIndex(Integer.valueOf(so.get("waveIndex").toString()));
-            outbSoHeader.setTransTime(DateUtils.parse(so.get("transTime").toString()));
-            outbSoHeader.setWaveId(iWaveId);
-            outbSoHeader.setOrderStatus(2);
-            soHeaderDao.updateByOrderOtherIdOrOrderId(outbSoHeader);
+            ObdHeader obdHeader = new ObdHeader();
+            obdHeader.setOrderId(Long.valueOf(so.get("orderId").toString()));
+            obdHeader.setTransPlan(so.get("transPlan").toString());
+            obdHeader.setWaveIndex(Integer.valueOf(so.get("waveIndex").toString()));
+            obdHeader.setTransTime(DateUtils.parse(so.get("transTime").toString()));
+            obdHeader.setWaveId(iWaveId);
+            obdHeader.setOrderStatus(2);
+            soHeaderDao.updateByOrderOtherIdOrOrderId(obdHeader);
         }
     }
 
@@ -444,7 +438,7 @@ public class WaveService {
     /*在捡货\QC任务\发货任务完成时调用*/
     public void updateOrderStatus(long orderId){
         //取出order的head
-        OutbSoHeader header = soOrderService.getOutbSoHeaderByOrderId(orderId);
+        ObdHeader header = soOrderService.getOutbSoHeaderByOrderId(orderId);
         if(header == null){
             logger.warn("so get fail "+orderId);
             return;

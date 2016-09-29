@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.po.IbdHeaderDao" >
+
+	<resultMap id="ibdHeaderResultMap" type="IbdHeader">
+		<id property="id" column="id"/>
+		<result property="orderOtherRefId" column="order_other_ref_id"/>
+		<result property="orderOtherId" column="order_other_id"/>
+		<result property="orderId" column="order_id"/>
+		<result property="orderUser" column="order_user"/>
+		<result property="ownerUid" column="owner_uid"/>
+		<result property="orderType" column="order_type"/>
+		<result property="supplierCode" column="supplier_code"/>
+		<result property="supplierName" column="supplier_name"/>
+		<result property="orderTime" column="order_time"/>
+		<result property="orderStatus" column="order_status"/>
+		<result property="stockCode" column="stock_code"/>
+		<result property="deliveryDate" column="delivery_date"/>
+		<result property="endDeliveryDate" column="end_delivery_date"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="IbdHeader">
+		insert into ibd_header (
+		order_other_ref_id,order_other_id,order_id,order_user,owner_uid,order_type,
+		supplier_code,supplier_name,order_time,order_status,stock_code,delivery_date,
+		end_delivery_date,created_at,updated_at
+		) values (
+		#{orderOtherRefId},#{orderOtherId},#{orderId},#{orderUser},#{ownerUid},#{orderType},
+		#{supplierCode},#{supplierName},#{orderTime},#{orderStatus},#{stockCode},#{deliveryDate},
+		#{endDeliveryDate},#{createdAt},#{updatedAt}
+		)
+	</insert>
+
+	<update id="update" parameterType="IbdHeader">
+		update ibd_header
+		<set>
+			<if test="orderOtherRefId != null">order_other_ref_id=#{orderOtherRefId},</if>
+			<if test="orderOtherId != null">order_other_id=#{orderOtherId},</if>
+			<if test="orderId != null">order_id=#{orderId},</if>
+			<if test="orderUser != null">order_user=#{orderUser},</if>
+			<if test="ownerUid != null">owner_uid=#{ownerUid},</if>
+			<if test="orderType != null">order_type=#{orderType},</if>
+			<if test="supplierCode != null">supplier_code=#{supplierCode},</if>
+			<if test="supplierName != null">supplier_name=#{supplierName},</if>
+			<if test="orderTime != null">order_time=#{orderTime},</if>
+			<if test="orderStatus != null">order_status=#{orderStatus},</if>
+			<if test="stockCode != null">stock_code=#{stockCode},</if>
+			<if test="deliveryDate != null">delivery_date=#{deliveryDate},</if>
+			<if test="endDeliveryDate != null">end_delivery_date=#{endDeliveryDate},</if>
+			<if test="createdAt != null">created_at=#{createdAt},</if>
+			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<update id="updateByOrderOtherIdOrOrderId" parameterType="IbdHeader">
+		update INB_PO_HEADER
+		<set>
+			<if test="orderOtherRefId != null">order_other_ref_id=#{orderOtherRefId},</if>
+			<if test="orderOtherId != null">order_other_id=#{orderOtherId},</if>
+			<if test="orderId != null">order_id=#{orderId},</if>
+			<if test="orderUser != null">order_user=#{orderUser},</if>
+			<if test="ownerUid != null">owner_uid=#{ownerUid},</if>
+			<if test="orderType != null">order_type=#{orderType},</if>
+			<if test="supplierCode != null">supplier_code=#{supplierCode},</if>
+			<if test="supplierName != null">supplier_name=#{supplierName},</if>
+			<if test="orderTime != null">order_time=#{orderTime},</if>
+			<if test="orderStatus != null">order_status=#{orderStatus},</if>
+			<if test="stockCode != null">stock_code=#{stockCode},</if>
+			<if test="deliveryDate != null">delivery_date=#{deliveryDate},</if>
+			<if test="endDeliveryDate != null">end_delivery_date=#{endDeliveryDate},</if>
+			<if test="createdAt != null">created_at=#{createdAt},</if>
+			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where order_other_id=#{orderOtherId} or order_id=#{orderId}
+	</update>
+
+	<select id="getIbdHeaderById" parameterType="int" resultMap="ibdHeaderResultMap">
+		select * from ibd_header
+		where ID=#{id}
+	</select>
+
+	<select id="countIbdHeader" parameterType="map" resultType="int">
+		select count(*) from ibd_header
+		<include refid="queryCondition"/>
+	</select>
+
+	<select id="getIbdHeaderList" parameterType="map" resultMap="ibdHeaderResultMap">
+		select * from ibd_header
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+			limit #{start},#{limit}
+		</if>
+	</select>
+
+	<select id="getPoKanBanCount" parameterType="Long" resultType="java.util.HashMap">
+		select COUNT(id) PONUM,order_status from ibd_header
+		where order_type=#{orderType} and order_status in (3,5,6) and to_days(order_time) = to_days(now())
+		group by order_status
+	</select>
+
+	<select id="getPoDayCount" parameterType="Long" resultMap="ibdHeaderResultMap">
+		select order_id,order_status from ibd_header
+		where order_type=#{orderType} and to_days(order_time) = to_days(now())
+	</select>
+
+
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="orderOtherRefId != null">and order_other_ref_id=#{orderOtherRefId}</if>
+			<if test="orderOtherId != null">and order_other_id=#{orderOtherId}</if>
+			<if test="orderId != null">and order_id=#{orderId}</if>
+			<if test="orderUser != null">and order_user=#{orderUser}</if>
+			<if test="ownerUid != null">and owner_uid=#{ownerUid}</if>
+			<if test="orderType != null">and order_type=#{orderType}</if>
+			<if test="supplierCode != null">and supplier_code=#{supplierCode}</if>
+			<if test="supplierName != null">and supplier_name=#{supplierName}</if>
+			<if test="orderTime != null">and order_time=#{orderTime}</if>
+			<if test="orderStatus != null">and order_status=#{orderStatus}</if>
+			<if test="stockCode != null">and stock_code=#{stockCode}</if>
+			<if test="deliveryDate != null">and delivery_date=#{deliveryDate}</if>
+			<if test="endDeliveryDate != null">and end_delivery_date=#{endDeliveryDate}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+
+</mapper>

@@ -1,6 +1,5 @@
 package com.lsh.wms.service.po;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
@@ -9,28 +8,20 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
-import com.lsh.wms.api.model.po.Header;
-import com.lsh.wms.api.model.po.IbdBackRequest;
-import com.lsh.wms.api.model.po.IbdItem;
 import com.lsh.wms.api.model.po.PoRequest;
-import com.lsh.wms.api.service.po.IIbdBackService;
 import com.lsh.wms.api.service.po.IPoRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
-import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
 import com.lsh.wms.core.service.po.PoOrderService;
-import com.lsh.wms.model.baseinfo.BaseinfoLocationWarehouse;
-import com.lsh.wms.model.po.InbPoDetail;
-import com.lsh.wms.model.po.InbPoHeader;
+import com.lsh.wms.model.po.IbdDetail;
+import com.lsh.wms.model.po.IbdHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -69,9 +60,9 @@ public class PORestService implements IPoRestService {
     @POST
     @Path("init")
     public String init(String poOrderInfo) { // test
-        InbPoHeader inbPoHeader = JSON.parseObject(poOrderInfo,InbPoHeader.class);
-        List<InbPoDetail> inbPoDetailList = JSON.parseArray((String)inbPoHeader.getOrderDetails(),InbPoDetail.class);
-        poOrderService.insertOrder(inbPoHeader,inbPoDetailList);
+        IbdHeader ibdHeader = JSON.parseObject(poOrderInfo,IbdHeader.class);
+        List<IbdDetail> ibdDetailList = JSON.parseArray((String) ibdHeader.getOrderDetails(),IbdDetail.class);
+        poOrderService.insertOrder(ibdHeader, ibdDetailList);
         return JsonUtils.SUCCESS();
     }
 

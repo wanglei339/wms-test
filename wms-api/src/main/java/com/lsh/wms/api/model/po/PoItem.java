@@ -15,68 +15,103 @@ import java.util.Date;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class PoItem implements Serializable {
 
-    /** 物美码 */
+    /**
+     * 物美码
+     */
     @NotNull
     private String skuCode;
 
-    /** 上游细单Id */
+    /**
+     * 上游细单Id
+     */
     @NotNull
     private String detailOtherId;
 
-    /** 商品名称 */
-    @Size(max=50)
+    /**
+     * 商品名称
+     */
+    @Size(max = 50)
     private String skuName;
 
-    /** 国条码 */
-    //@NotBlank
-    @Size(max=64)
-    private String barCode;
 
-    /** 进货数 */
+    /**
+     * 进货数
+     */
     @NotNull
     private BigDecimal orderQty;
 
-    /** 包装单位 */
+    /**
+     * 包装单位
+     */
     private BigDecimal packUnit;
 
-    /** 包装名称 */
+    /**
+     * 包装名称
+     */
     private String packName;
 
-    /** 价格 */
+    /**
+     * 价格
+     */
     private BigDecimal price;
 
-    /** 产地 */
-    @Size(max=100)
-    private String madein;
+    /**
+     * 基本单位名称
+     */
+    private String unitName;
 
-    /** 批次号 */
-    @Size(max=64)
-    private String lotNum;
+    /**
+     * 基本单位数量
+     */
+    private BigDecimal unitQty;
 
-    public String getLotNum() {
-        return lotNum;
-    }
-
-    public void setLotNum(String lotNum) {
-        this.lotNum = lotNum;
-    }
 
     public PoItem() {
 
     }
 
-    public PoItem(String detailOtherId,String skuCode, String skuName, String barCode, BigDecimal orderQty,
-                  BigDecimal packUnit,BigDecimal price, String madein, String lotNum, String packName) {
+    public PoItem(String detailOtherId, BigDecimal orderQty, String packName, BigDecimal packUnit, BigDecimal price, String skuCode, String skuName, String unitName, BigDecimal unitQty) {
         this.detailOtherId = detailOtherId;
-        this.skuCode = skuCode;
-        this.skuName = skuName;
-        this.barCode = barCode;
         this.orderQty = orderQty;
+        this.packName = packName;
         this.packUnit = packUnit;
         this.price = price;
-        this.madein = madein;
-        this.lotNum = lotNum;
+        this.skuCode = skuCode;
+        this.skuName = skuName;
+        this.unitName = unitName;
+        this.unitQty = unitQty;
+    }
+
+    public String getDetailOtherId() {
+        return detailOtherId;
+    }
+
+    public void setDetailOtherId(String detailOtherId) {
+        this.detailOtherId = detailOtherId;
+    }
+
+    public BigDecimal getOrderQty() {
+        return orderQty;
+    }
+
+    public void setOrderQty(BigDecimal orderQty) {
+        this.orderQty = orderQty;
+    }
+
+    public String getPackName() {
+        return packName;
+    }
+
+    public void setPackName(String packName) {
         this.packName = packName;
+    }
+
+    public BigDecimal getPackUnit() {
+        return packUnit;
+    }
+
+    public void setPackUnit(BigDecimal packUnit) {
+        this.packUnit = packUnit;
     }
 
     public BigDecimal getPrice() {
@@ -95,59 +130,27 @@ public class PoItem implements Serializable {
         this.skuCode = skuCode;
     }
 
-    public String getSkuName(){
-        return this.skuName;
+    public String getSkuName() {
+        return skuName;
     }
 
-    public void setSkuName(String skuName){
+    public void setSkuName(String skuName) {
         this.skuName = skuName;
     }
 
-    public String getBarCode(){
-        return this.barCode;
+    public String getUnitName() {
+        return unitName;
     }
 
-    public void setBarCode(String barCode){
-        this.barCode = barCode;
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
     }
 
-    public BigDecimal getOrderQty(){
-        return this.orderQty;
+    public BigDecimal getUnitQty() {
+        return unitQty;
     }
 
-    public void setOrderQty(BigDecimal orderQty){
-        this.orderQty = orderQty;
-    }
-
-    public BigDecimal getPackUnit(){
-        return this.packUnit;
-    }
-
-    public void setPackUnit(BigDecimal packUnit){
-        this.packUnit = packUnit;
-    }
-
-    public String getMadein(){
-        return this.madein;
-    }
-
-    public void setMadein(String madein){
-        this.madein = madein;
-    }
-
-    public String getPackName() {
-        return packName;
-    }
-
-    public void setPackName(String packName) {
-        this.packName = packName;
-    }
-
-    public String getDetailOtherId() {
-        return detailOtherId;
-    }
-
-    public void setDetailOtherId(String detailOtherId) {
-        this.detailOtherId = detailOtherId;
+    public void setUnitQty(BigDecimal unitQty) {
+        this.unitQty = unitQty;
     }
 }

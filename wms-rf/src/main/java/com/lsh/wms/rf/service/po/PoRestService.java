@@ -14,8 +14,8 @@ import com.lsh.wms.api.service.po.IPoRestService;
 import com.lsh.wms.api.service.po.IPoRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.service.po.PoOrderService;
-import com.lsh.wms.model.po.InbPoDetail;
-import com.lsh.wms.model.po.InbPoHeader;
+import com.lsh.wms.model.po.IbdDetail;
+import com.lsh.wms.model.po.IbdHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,9 +51,9 @@ public class PoRestService implements IPoRestService {
     @POST
     @Path("init")
     public String init(String poOrderInfo) { // test
-        InbPoHeader inbPoHeader = JSON.parseObject(poOrderInfo,InbPoHeader.class);
-        List<InbPoDetail> inbPoDetailList = JSON.parseArray((String)inbPoHeader.getOrderDetails(),InbPoDetail.class);
-        poOrderService.insertOrder(inbPoHeader,inbPoDetailList);
+        IbdHeader ibdHeader = JSON.parseObject(poOrderInfo,IbdHeader.class);
+        List<IbdDetail> ibdDetailList = JSON.parseArray((String) ibdHeader.getOrderDetails(),IbdDetail.class);
+        poOrderService.insertOrder(ibdHeader, ibdDetailList);
         return JsonUtils.SUCCESS();
     }
 

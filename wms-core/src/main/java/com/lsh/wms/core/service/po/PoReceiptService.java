@@ -1,16 +1,15 @@
 package com.lsh.wms.core.service.po;
 
-import com.lsh.wms.core.dao.po.InbPoDetailDao;
+import com.lsh.wms.core.dao.po.IbdDetailDao;
 import com.lsh.wms.core.dao.po.InbReceiptDetailDao;
 import com.lsh.wms.core.dao.po.InbReceiptHeaderDao;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
-import com.lsh.wms.model.po.InbPoDetail;
+import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.InbReceiptHeader;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
-import com.lsh.wms.model.stock.StockQuant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +43,7 @@ public class PoReceiptService {
     private InbReceiptHeaderDao inbReceiptHeaderDao;
 
     @Autowired
-    private InbPoDetailDao inbPoDetailDao;
+    private IbdDetailDao ibdDetailDao;
 
     @Autowired
     private StockQuantService stockQuantService;
@@ -73,13 +72,13 @@ public class PoReceiptService {
      * @param inbReceiptDetailList
      */
     @Transactional(readOnly = false)
-    public void insertOrder(InbReceiptHeader inbReceiptHeader, List<InbReceiptDetail> inbReceiptDetailList,List<InbPoDetail> updateInbPoDetailList,List<Map<String, Object>> moveList) {
+    public void insertOrder(InbReceiptHeader inbReceiptHeader, List<InbReceiptDetail> inbReceiptDetailList, List<IbdDetail> updateIbdDetailList, List<Map<String, Object>> moveList) {
 
         //插入订单
         inbReceiptHeader.setInserttime(new Date());
         inbReceiptHeaderDao.insert(inbReceiptHeader);
         inbReceiptDetailDao.batchInsert(inbReceiptDetailList);
-        inbPoDetailDao.batchUpdateInboundQtyByOrderIdAndSkuId(updateInbPoDetailList);
+        ibdDetailDao.batchUpdateInboundQtyByOrderIdAndDetailOtherId(updateIbdDetailList);
         for (Map<String, Object> moveInfo : moveList) {
             StockLot lot = (StockLot) moveInfo.get("lot");
             if (! lot.isOld()) {

@@ -22,4 +22,6 @@ public interface IReceiptRfService {
 
     public String getPoDetailByOrderIdAndBarCode(String orderOtherId,Long containerId, String barCode) throws BizCheckedException;
 
+
+    String getStoreInfo(String storeId,Long containerId, String barCode) throws BizCheckedException;
 }

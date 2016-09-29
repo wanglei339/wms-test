@@ -2,7 +2,7 @@ package com.lsh.wms.api.service.so;
 
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.model.so.SoRequest;
-import com.lsh.wms.model.so.OutbSoHeader;
+import com.lsh.wms.model.so.ObdHeader;
 
 import java.util.List;
 import java.util.Map;
@@ -22,10 +22,10 @@ public interface ISoRpcService {
 
     public Boolean updateOrderStatus(Map<String, Object> map) throws BizCheckedException;
 
-    public OutbSoHeader getOutbSoHeaderDetailByOrderId(Long orderId) throws BizCheckedException;
+    public ObdHeader getOutbSoHeaderDetailByOrderId(Long orderId) throws BizCheckedException;
 
     public Integer countOutbSoHeader(Map<String, Object> params);
 
-    public List<OutbSoHeader> getOutbSoHeaderList(Map<String, Object> params);
+    public List<ObdHeader> getOutbSoHeaderList(Map<String, Object> params);
 
 }

@@ -23,21 +23,22 @@ public class SoItem implements Serializable {
     @Size(max=50)
     private String skuName;
 
-    /** 国条码 */
-    @NotBlank
-    @Size(max=64)
-    private String barCode;
-
     /** 订货数 */
     @NotNull
     private BigDecimal orderQty;
+    /** 基本单位数量 */
+    private String unitQty;
 
     /** 包装单位 */
     private BigDecimal packUnit;
 
+    /** 包装名称 */
+    private String packName;
+    /** 基本单位名称 */
+    private String unitName;
     /** 批次号 */
     @Size(max=64)
-    private String lotNum;
+    private String lotCode;
 
     /** 商品单价,未税 */
     private BigDecimal price;
@@ -46,17 +47,66 @@ public class SoItem implements Serializable {
 
     }
 
-    public SoItem(String detailOtherId,String skuCode, String skuName, String barCode, BigDecimal orderQty, BigDecimal packUnit, String lotNum,BigDecimal price) {
+    public SoItem(String unitQty, String detailOtherId, String lotCode, BigDecimal orderQty, String packName, BigDecimal packUnit, BigDecimal price, String skuCode, String skuName, String unitName) {
+        this.unitQty = unitQty;
         this.detailOtherId = detailOtherId;
+        this.lotCode = lotCode;
+        this.orderQty = orderQty;
+        this.packName = packName;
+        this.packUnit = packUnit;
+        this.price = price;
         this.skuCode = skuCode;
         this.skuName = skuName;
-        this.barCode = barCode;
-        this.orderQty = orderQty;
-        this.packUnit = packUnit;
-        this.lotNum = lotNum;
-        this.price = price;
+        this.unitName = unitName;
     }
 
+    public String getDetailOtherId() {
+        return detailOtherId;
+    }
+
+    public void setDetailOtherId(String detailOtherId) {
+        this.detailOtherId = detailOtherId;
+    }
+
+    public String getLotCode() {
+        return lotCode;
+    }
+
+    public void setLotCode(String lotCode) {
+        this.lotCode = lotCode;
+    }
+
+    public BigDecimal getOrderQty() {
+        return orderQty;
+    }
+
+    public void setOrderQty(BigDecimal orderQty) {
+        this.orderQty = orderQty;
+    }
+
+    public String getPackName() {
+        return packName;
+    }
+
+    public void setPackName(String packName) {
+        this.packName = packName;
+    }
+
+    public BigDecimal getPackUnit() {
+        return packUnit;
+    }
+
+    public void setPackUnit(BigDecimal packUnit) {
+        this.packUnit = packUnit;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
 
     public String getSkuCode() {
         return skuCode;
@@ -74,51 +124,19 @@ public class SoItem implements Serializable {
         this.skuName = skuName;
     }
 
-    public String getBarCode() {
-        return barCode;
+    public String getUnitName() {
+        return unitName;
     }
 
-    public void setBarCode(String barCode) {
-        this.barCode = barCode;
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
     }
 
-    public BigDecimal getOrderQty() {
-        return orderQty;
+    public String getUnitQty() {
+        return unitQty;
     }
 
-    public void setOrderQty(BigDecimal orderQty) {
-        this.orderQty = orderQty;
-    }
-
-    public BigDecimal getPackUnit() {
-        return packUnit;
-    }
-
-    public void setPackUnit(BigDecimal packUnit) {
-        this.packUnit = packUnit;
-    }
-
-    public String getLotNum() {
-        return lotNum;
-    }
-
-    public void setLotNum(String lotNum) {
-        this.lotNum = lotNum;
-    }
-
-    public String getDetailOtherId() {
-        return detailOtherId;
-    }
-
-    public void setDetailOtherId(String detailOtherId) {
-        this.detailOtherId = detailOtherId;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
+    public void setUnitQty(String unitQty) {
+        this.unitQty = unitQty;
     }
 }
