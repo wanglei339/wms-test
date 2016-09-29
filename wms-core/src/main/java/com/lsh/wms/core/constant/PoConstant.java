@@ -26,9 +26,10 @@ public class PoConstant {
     public static final int ORDER_RECTIPTING = 6;
 
     // TODO: 16/8/8 加了订单类型
-    /** 订单类型 1PO ,2 返仓 ,3 调拨单*/
+    /** 订单类型 1PO ,2 返仓 ,3 调拨单 , 4直流*/
     public static final int ORDER_TYPE_PO = 1;
     public static final int ORDER_TYPE_SO_BACK = 2;
     public static final int ORDER_TYPE_TRANSFERS = 3;
+    public static final int ORDER_TYPE_CPO = 4;
 
 }
