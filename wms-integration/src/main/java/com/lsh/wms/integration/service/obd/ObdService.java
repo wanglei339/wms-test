@@ -102,7 +102,7 @@ public class ObdService implements IObdService{
         if(lists.size() > 0){
             throw new BizCheckedException("2020099");
         }
-        soRequest.setWarehouseId(1l);
+        //soRequest.setWarehouseId(1l);
         Long orderId = soRpcService.insertOrder(soRequest);
         ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
         List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
