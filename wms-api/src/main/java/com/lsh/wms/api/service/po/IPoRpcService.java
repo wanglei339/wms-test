@@ -7,6 +7,7 @@ import com.lsh.wms.model.po.IbdHeader;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Project Name: lsh-wms
@@ -31,5 +32,9 @@ public interface IPoRpcService {
 
     public List<IbdHeader> getPoDetailList(Map<String, Object> params);
     void canReceipt(Map<String, Object> map);
+
+    List<IbdHeader> getIbdHeader(String storeCode) throws BizCheckedException;
+
+    Set<String> getObdHeader(String ibdOtherId);
 
 }

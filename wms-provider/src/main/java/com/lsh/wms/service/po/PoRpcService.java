@@ -13,19 +13,19 @@ import com.lsh.wms.api.model.po.PoRequest;
 import com.lsh.wms.api.service.po.IPoRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.PoConstant;
+import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
+import com.lsh.wms.model.po.IbdObdRelation;
 import com.lsh.wms.model.so.ObdHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Project Name: lsh-wms
@@ -216,4 +216,41 @@ public class PoRpcService implements IPoRpcService {
         IbdDetail ibdDetail = BeanMapTransUtils.map2Bean(map,IbdDetail.class);
         poOrderService.updateInbPoDetail(ibdDetail);
     }
+
+    /**
+     * 根据门店Id来找对应的ibd
+     */
+    public List<IbdHeader> getIbdHeader(String storeCode) throws BizCheckedException{
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("deliveryCode",storeCode);
+        mapQuery.put("orderType", SoConstant.ORDER_TYPE_STO);
+        mapQuery.put("orderStatus",1);
+        List<ObdHeader> list = soOrderService.getOutbSoHeaderList(mapQuery);
+        if(list.size() <= 0){
+            throw new BizCheckedException("2020100");
+        }
+        for(ObdHeader obdHeader : list){
+
+
+        }
+
+        return null;
+    }
+    /**
+     * 根据po找门店
+     */
+    public Set<String> getObdHeader(String ibdOtherId){
+        List<IbdObdRelation> list = poOrderService.getIbdObdRelationByIbdOtherId(ibdOtherId);
+
+        Set<String> storeCode = new HashSet<String>();
+        for(IbdObdRelation ibdObdRelation : list){
+            Map<String,Object> map = new HashMap<String, Object>();
+            map.put("orderOtherId",ibdObdRelation.getObdOtherId());
+            ObdHeader obdheader = soOrderService.getOutbSoHeaderList(map).get(0);
+            storeCode.add(obdheader.getDeliveryCode());
+        }
+
+        return storeCode;
+    }
+
 }
