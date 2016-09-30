@@ -11,4 +11,7 @@ public interface IPickUpShelveRestService {
     String conFirmDetail() throws BizCheckedException;
     String getTaskList() throws BizCheckedException;
     String getDetail() throws BizCheckedException;
+    String updateOperator() throws BizCheckedException;
+    String doDetail() throws BizCheckedException;
+    String cancelDetail() throws BizCheckedException;
 }

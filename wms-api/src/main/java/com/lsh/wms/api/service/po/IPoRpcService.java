@@ -4,9 +4,11 @@ package com.lsh.wms.api.service.po;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.model.po.PoRequest;
 import com.lsh.wms.model.po.IbdHeader;
+import com.lsh.wms.model.so.ObdHeader;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Project Name: lsh-wms
@@ -31,5 +33,9 @@ public interface IPoRpcService {
 
     public List<IbdHeader> getPoDetailList(Map<String, Object> params);
     void canReceipt(Map<String, Object> map);
+
+    List<IbdHeader> getIbdHeader(String storeCode) throws BizCheckedException;
+
+    Set<ObdHeader> getObdHeader(String ibdOtherId);
 
 }
