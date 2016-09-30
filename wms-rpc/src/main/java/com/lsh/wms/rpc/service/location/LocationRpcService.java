@@ -298,5 +298,10 @@ public class LocationRpcService implements ILocationRpcService {
         return location;
     }
 
+    public List<BaseinfoLocation> sortLocationByStoreNo() throws BizCheckedException {
+        List<BaseinfoLocation> locations = locationService.sortLocationByStoreNo();
+        return locations;
+    }
+
 
 }

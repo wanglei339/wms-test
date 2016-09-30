@@ -34,6 +34,10 @@
 		select * from baseinfo_location where location_id = #{locationId} for update
 	</select>
 
+    <select id="sortLocationByStoreNo" parameterType="long" resultMap="baseinfoLocationResultMap">
+        select * from baseinfo_location where store_no &gt;#{storeNo} ORDER BY store_no ASC
+    </select>
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLocation">
 		insert into baseinfo_location (
 			location_id,location_code,father_id,left_range,right_range,level,

@@ -122,5 +122,12 @@ public interface ILocationRpcService {
      */
     public BaseinfoLocation removeStoreNoOnRoad(Long locationId) throws  BizCheckedException;
 
+    /**
+     * 获取门店号升序的播种位置
+     * @return
+     * @throws BizCheckedException
+     */
+    public List<BaseinfoLocation> sortLocationByStoreNo() throws BizCheckedException;
+
 
 }

@@ -1291,6 +1291,7 @@ public class LocationService {
         this.updateLocation(location);
         return location;
     }
+
     /**
      * 移除集货道|集货位的门店号,将门店号置为0
      *
@@ -1322,5 +1323,12 @@ public class LocationService {
         return list;
     }
 
-
+    /**
+     * 获取按门店号升序排序好的播种位置
+     * @return
+     */
+    public List<BaseinfoLocation> sortLocationByStoreNo() {
+        List<BaseinfoLocation> locations = locationDao.sortLocationByStoreNo(LocationConstant.REMOVE_STORE_NO); //0不是门店的位置,查找的是大于0的结果
+        return locations;
+    }
 }

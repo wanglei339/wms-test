@@ -29,5 +29,7 @@ public interface BaseinfoLocationDao{
 	Integer countDockList(Map<String, Object> params);
 
 	List<BaseinfoLocation> lock(Long locationId);
+	//按门店号获取升序播种位置
+	List<BaseinfoLocation> sortLocationByStoreNo(Long storeNo);
 	
 }
