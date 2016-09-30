@@ -208,7 +208,7 @@ public class LocationRestService implements ILocationRestService {
     @Path("getAllShelfs")
     public String getAllShelfs() {
         return JsonUtils.SUCCESS(locationRpcService.getAllShelfs());
-//          return JsonUtils.SUCCESS(locationRpcService.sortLocationByStoreNo());
+//          return JsonUtils.SUCCESS(locationRpcService.sortSowLocationByStoreNo());
 //        return JsonUtils.SUCCESS(locationRpcService.removeStoreNoOnRoad(26736205236244L));
 //        return JsonUtils.SUCCESS(locationRpcService.getLocationIdByCode("DC10-N-002-XXX"));
 //        Long locationId = Long.parseLong("9073135487256");

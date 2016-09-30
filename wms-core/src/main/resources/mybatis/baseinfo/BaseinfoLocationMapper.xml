@@ -30,12 +30,15 @@
         <result property="storeNo" column="store_no"/>
     </resultMap>
 
-    <select id="lock" parameterType="long" resultMap="baseinfoLocationResultMap">
+    <select id="lock" parameterType="map" resultMap="baseinfoLocationResultMap">
 		select * from baseinfo_location where location_id = #{locationId} for update
 	</select>
 
-    <select id="sortLocationByStoreNo" parameterType="long" resultMap="baseinfoLocationResultMap">
-        select * from baseinfo_location where store_no &gt;#{storeNo} ORDER BY store_no ASC
+    <select id="sortLocationByStoreNoAndType" parameterType="long" resultMap="baseinfoLocationResultMap">
+        select * from baseinfo_location
+        WHERE type=#{type}
+        and store_no &gt;#{storeNo}
+        ORDER BY store_no ASC
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLocation">

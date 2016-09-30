@@ -1295,7 +1295,7 @@ public class LocationService {
     /**
      * 移除集货道|集货位的门店号,将门店号置为0
      *
-     * @param location 位置
+     * @param locationId 库位id
      * @return
      * @throws BizCheckedException
      */
@@ -1324,11 +1324,16 @@ public class LocationService {
     }
 
     /**
-     * 获取按门店号升序排序好的播种位置
+     * 获取按门店号升序排序好的位置
+     *
+     * @param type 门店位置(播种货位|集货货位)
      * @return
      */
-    public List<BaseinfoLocation> sortLocationByStoreNo() {
-        List<BaseinfoLocation> locations = locationDao.sortLocationByStoreNo(LocationConstant.REMOVE_STORE_NO); //0不是门店的位置,查找的是大于0的结果
+    public List<BaseinfoLocation> sortLocationByStoreNo(Long type) {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("type", type);
+        mapQuery.put("storeNo",LocationConstant.REMOVE_STORE_NO);
+        List<BaseinfoLocation> locations = locationDao.sortLocationByStoreNoAndType(mapQuery); //0不是门店的位置,查找的是大于0的结果
         return locations;
     }
 }

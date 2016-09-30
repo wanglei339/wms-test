@@ -127,7 +127,6 @@ public interface ILocationRpcService {
      * @return
      * @throws BizCheckedException
      */
-    public List<BaseinfoLocation> sortLocationByStoreNo() throws BizCheckedException;
-
+    public List<BaseinfoLocation> sortSowLocationByStoreNo() throws BizCheckedException;
 
 }

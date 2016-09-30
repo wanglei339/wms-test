@@ -30,6 +30,6 @@ public interface BaseinfoLocationDao{
 
 	List<BaseinfoLocation> lock(Long locationId);
 	//按门店号获取升序播种位置
-	List<BaseinfoLocation> sortLocationByStoreNo(Long storeNo);
+	List<BaseinfoLocation> sortLocationByStoreNoAndType(Map<String, Object> params);
 	
 }

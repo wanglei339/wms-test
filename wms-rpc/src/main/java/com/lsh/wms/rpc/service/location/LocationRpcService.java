@@ -298,8 +298,13 @@ public class LocationRpcService implements ILocationRpcService {
         return location;
     }
 
-    public List<BaseinfoLocation> sortLocationByStoreNo() throws BizCheckedException {
-        List<BaseinfoLocation> locations = locationService.sortLocationByStoreNo();
+    /**
+     * 获取所有的门店升序排列的播种位置
+     * @return
+     * @throws BizCheckedException
+     */
+    public List<BaseinfoLocation> sortSowLocationByStoreNo() throws BizCheckedException {
+        List<BaseinfoLocation> locations = locationService.sortLocationByStoreNo(LocationConstant.LOFT_STORE_BIN);
         return locations;
     }
 
