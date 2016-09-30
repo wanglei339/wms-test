@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.baseinfo.BaseinfoStoreDao" >
+
+	<resultMap id="baseinfoStoreResultMap" type="BaseinfoStore">
+		<id property="id" column="id"/>
+		<result property="storeNo" column="store_no"/>
+		<result property="storeName" column="store_name"/>
+		<result property="region" column="region"/>
+		<result property="scale" column="scale"/>
+		<result property="isOpen" column="is_open"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoStore">
+		insert into baseinfo_store (
+			store_no,store_name,region,scale,is_open
+    	) values (
+			#{storeNo},#{storeName},#{region},#{scale},#{isOpen}
+    	)
+	</insert>
+
+	<update id="update" parameterType="BaseinfoStore">
+		update baseinfo_store
+    	<set>
+  			<if test="storeNo != null">store_no=#{storeNo},</if>
+  			<if test="storeName != null">store_name=#{storeName},</if>
+  			<if test="region != null">region=#{region},</if>
+  			<if test="scale != null">scale=#{scale},</if>
+  			<if test="isOpen != null">is_open=#{isOpen}</if>
+		</set>
+		where store_no=#{storeNo}
+	</update>
+  
+	<select id="getBaseinfoStoreById" parameterType="int" resultMap="baseinfoStoreResultMap">
+		select * from baseinfo_store
+		where store_no=#{storeNo}
+	</select>
+  
+	<select id="countBaseinfoStore" parameterType="map" resultType="int">
+		select count(*) from baseinfo_store
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getBaseinfoStoreList" parameterType="map" resultMap="baseinfoStoreResultMap">
+		select * from baseinfo_store
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="storeNo != null">and store_no=#{storeNo}</if>
+			<if test="storeName != null">and store_name=#{storeName}</if>
+			<if test="region != null">and region=#{region}</if>
+			<if test="scale != null">and scale=#{scale}</if>
+			<if test="isOpen != null">and is_open=#{isOpen}</if>
+		</where>
+	</sql>
+   
+</mapper>
