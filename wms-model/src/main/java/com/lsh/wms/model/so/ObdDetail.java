@@ -35,9 +35,9 @@ public class ObdDetail implements Serializable {
 	/** 批次号 */
 	private String lotCode;
 	/**  */
-	private Long createdAt;
+	private Long createdAt = 0l;
 	/**  */
-	private Long updatedAt;
+	private Long updatedAt = 0l;
 
 	public Long getId(){
 		return this.id;

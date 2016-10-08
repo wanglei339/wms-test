@@ -37,9 +37,9 @@ public class IbdDetail implements Serializable {
 	/** 返仓单生成移库任务的taskid */
 	private Long taskId;
 	/**  */
-	private Long createdAt;
+	private Long createdAt = 0l;
 	/**  */
-	private Long updatedAt;
+	private Long updatedAt = 0l;
 
 	public Long getId(){
 		return this.id;
