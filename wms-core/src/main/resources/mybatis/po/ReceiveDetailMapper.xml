@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.po.ReceiveDetailDao" >
+
+	<resultMap id="receiveDetailResultMap" type="ReceiveDetail">
+		<id property="id" column="id"/>
+		<result property="detailOtherId" column="detail_other_id"/>
+		<result property="receiveId" column="receive_id"/>
+		<result property="skuCode" column="sku_code"/>
+		<result property="skuName" column="sku_name"/>
+		<result property="orderQty" column="order_qty"/>
+		<result property="packName" column="pack_name"/>
+		<result property="packUnit" column="pack_unit"/>
+		<result property="unitName" column="unit_name"/>
+		<result property="unitQty" column="unit_qty"/>
+		<result property="price" column="price"/>
+		<result property="inboundQty" column="inbound_qty"/>
+		<result property="lotCode" column="lot_code"/>
+		<result property="exceptionReceipt" column="exception_receipt"/>
+		<result property="taskId" column="task_id"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="ReceiveDetail">
+		insert into receive_detail (
+			detail_other_id,receive_id,sku_code,sku_name,order_qty,pack_name,
+			pack_unit,unit_name,unit_qty,price,inbound_qty,lot_code,
+			exception_receipt,created_at,updated_at
+    	) values (
+			#{detailOtherId},#{receiveId},#{skuCode},#{skuName},#{orderQty},#{packName},
+			#{packUnit},#{unitName},#{unitQty},#{price},#{inboundQty},#{lotCode},
+			#{exceptionReceipt},#{createdAt},#{updatedAt}
+    	)
+	</insert>
+
+	<insert id="batchInsert" parameterType="java.util.List">
+		insert into receive_detail (
+		detail_other_id,receive_id,sku_code,sku_name,order_qty,pack_name,
+		pack_unit,unit_name,unit_qty,price,inbound_qty,lot_code,
+		exception_receipt,created_at,updated_at
+		) values
+		<foreach collection="list" item="item" index="index" separator="," >
+			(#{item.detailOtherId},#{item.receiveId},#{item.skuCode},#{item.skuName},#{item.orderQty},#{item.packName},#{item.packUnit},
+			#{item.unitName},#{item.unitQty},#{item.price},#{item.inboundQty},#{item.lotCode},#{item.exceptionReceipt},#{item.createdAt},#{item.updatedAt})
+		</foreach>
+	</insert>
+
+	<update id="update" parameterType="ReceiveDetail">
+		update receive_detail
+    	<set>
+  			<if test="detailOtherId != null">detail_other_id=#{detailOtherId},</if>
+  			<if test="receiveId != null">receive_id=#{receiveId},</if>
+  			<if test="skuCode != null">sku_code=#{skuCode},</if>
+  			<if test="skuName != null">sku_name=#{skuName},</if>
+  			<if test="orderQty != null">order_qty=#{orderQty},</if>
+  			<if test="packName != null">pack_name=#{packName},</if>
+  			<if test="packUnit != null">pack_unit=#{packUnit},</if>
+  			<if test="unitName != null">unit_name=#{unitName},</if>
+  			<if test="unitQty != null">unit_qty=#{unitQty},</if>
+  			<if test="price != null">price=#{price},</if>
+  			<if test="inboundQty != null">inbound_qty=#{inboundQty},</if>
+  			<if test="lotCode != null">lot_code=#{lotCode},</if>
+  			<if test="exceptionReceipt != null">exception_receipt=#{exceptionReceipt},</if>
+  			<if test="taskId != null">task_id=#{taskId},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<update id="updateInboundQtyByReceiveIdAndDetailOtherId">
+		update receive_detail
+		SET inbound_qty=inbound_qty + #{inboundQty}
+		where order_id=#{orderId} AND detail_other_id=#{detailOtherId} AND order_qty >= inbound_qty + #{inboundQty}
+	</update>
+
+	<update id="batchUpdateInboundQtyByReceiveIdAndDetailOtherId" parameterType="java.util.List">
+		<foreach collection="list" item="item" index="index"  open="" close=""  separator=";">
+			update receive_detail
+			<set>
+				inbound_qty=inbound_qty + #{item.inboundQty}
+			</set>
+			where receive_id=#{item.receiveId} AND detail_other_id=#{detailOtherId} AND order_qty >= inbound_qty + #{item.inboundQty}
+		</foreach>
+	</update>
+  
+	<select id="getReceiveDetailById" parameterType="int" resultMap="receiveDetailResultMap">
+		select * from receive_detail
+		where ID=#{id} 
+	</select>
+  
+	<select id="countReceiveDetail" parameterType="map" resultType="int">
+		select count(*) from receive_detail
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getReceiveDetailList" parameterType="map" resultMap="receiveDetailResultMap">
+		select * from receive_detail
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="detailOtherId != null">and detail_other_id=#{detailOtherId}</if>
+			<if test="receiveId != null">and receive_id=#{receiveId}</if>
+			<if test="skuCode != null">and sku_code=#{skuCode}</if>
+			<if test="skuName != null">and sku_name=#{skuName}</if>
+			<if test="orderQty != null">and order_qty=#{orderQty}</if>
+			<if test="packName != null">and pack_name=#{packName}</if>
+			<if test="packUnit != null">and pack_unit=#{packUnit}</if>
+			<if test="unitName != null">and unit_name=#{unitName}</if>
+			<if test="unitQty != null">and unit_qty=#{unitQty}</if>
+			<if test="price != null">and price=#{price}</if>
+			<if test="inboundQty != null">and inbound_qty=#{inboundQty}</if>
+			<if test="lotCode != null">and lot_code=#{lotCode}</if>
+			<if test="exceptionReceipt != null">and exception_receipt=#{exceptionReceipt}</if>
+			<if test="taskId != null">and task_id=#{taskId}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>
