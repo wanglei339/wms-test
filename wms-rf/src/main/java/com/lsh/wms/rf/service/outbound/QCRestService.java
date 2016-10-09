@@ -184,6 +184,7 @@ public class QCRestService implements IRFQCRestService{
         //TODO BOX NUM
         rstMap.put("allBoxNum", allBoxNum);
         rstMap.put("itemBoxNum", boxNum);
+        //TODO 前端显示有问题,没显示周装箱的总数量
         rstMap.put("turnoverBoxNum", hasEA ? 1 : 0);
         rstMap.put("qcTaskDone", qcTaskInfo.getStatus() == TaskConstant.Done);
         rstMap.put("qcTaskId", qcTaskInfo.getTaskId().toString());
@@ -312,6 +313,7 @@ public class QCRestService implements IRFQCRestService{
         return JsonUtils.SUCCESS(rstMap);
     }
 
+    //组盘
     @POST
     @Path("confirm")
     public String confirm() throws BizCheckedException{
@@ -486,6 +488,7 @@ public class QCRestService implements IRFQCRestService{
         if(qcList.size()-addExceptionNum!=setItem.size()){
             throw new BizCheckedException("2120004");
         }
+        // 最后qc提交的状态是有task状态的变更的
         iTaskRpcService.done(tasks.get(0).getTaskInfo().getTaskId());
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {

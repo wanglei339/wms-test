@@ -46,6 +46,7 @@ public class QCTaskHandler extends AbsTaskHandler {
         TaskInfo info = new TaskInfo();
         info.setType(TaskConstant.TYPE_QC);
         info.setContainerId(containerId);
+        // todo setEXt1字段设置的是QC的上一个任务,这里可以是 pickTaskId 和 直流集货任务id 等等
         info.setExt1(pickEntry.getTaskInfo().getTaskId());
         info.setOrderId(details.get(0).getOrderId());
         Set<Long> setItem = new HashSet<Long>();
