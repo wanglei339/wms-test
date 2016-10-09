@@ -12,7 +12,6 @@ import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.task.TaskMsg;
 import com.lsh.wms.task.service.TaskRpcService;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
-import com.lsh.wms.task.service.task.pick.QCTaskHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

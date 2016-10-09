@@ -304,7 +304,7 @@ public class LocationRpcService implements ILocationRpcService {
      * @throws BizCheckedException
      */
     public List<BaseinfoLocation> sortSowLocationByStoreNo() throws BizCheckedException {
-        List<BaseinfoLocation> locations = locationService.sortLocationByStoreNo(LocationConstant.LOFT_STORE_BIN);
+        List<BaseinfoLocation> locations = locationService.sortLocationByStoreNo(LocationConstant.SOW_BIN);
         return locations;
     }
 

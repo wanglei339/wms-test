@@ -313,7 +313,7 @@ public class QCRestService implements IRFQCRestService{
         return JsonUtils.SUCCESS(rstMap);
     }
 
-    //组盘
+    //组盘(已经组盘和未组盘状态)
     @POST
     @Path("confirm")
     public String confirm() throws BizCheckedException{

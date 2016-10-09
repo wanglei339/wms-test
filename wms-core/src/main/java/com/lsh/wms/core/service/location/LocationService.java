@@ -1316,6 +1316,7 @@ public class LocationService {
     public List<BaseinfoLocation> getCollectionByStoreNo(Long storeNo) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("storeNo", storeNo);
+        mapQuery.put("type",LocationConstant.COLLECTION_BIN);
         List<BaseinfoLocation> list = this.getBaseinfoLocationList(mapQuery);
         if (null == list || list.size() < 1) {
             throw new BizCheckedException("2180012");
