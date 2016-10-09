@@ -106,6 +106,10 @@
 		where order_type=#{orderType} and to_days(order_time) = to_days(now())
 	</select>
 
+	<select id="getIbdListOrderByDate" parameterType="String" resultMap="ibdHeaderResultMap">
+		select * from ibd_header where order_id in (#{orderIds}) order by order_time
+	</select>
+
 
 	<sql id="queryCondition">
 		<where>
