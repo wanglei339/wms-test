@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.seed.SeedingTaskHeadDao" >
+
+	<resultMap id="seedingTaskHeadResultMap" type="SeedingTaskHead">
+		<id property="id" column="id"/>
+		<result property="taskId" column="task_id"/>
+		<result property="storeNo" column="store_no"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+		<result property="requireQty" column="require_qty"/>
+		<result property="realContainerId" column="real_container_id"/>
+		<result property="packUnit" column="pack_unit"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="SeedingTaskHead">
+		insert into seeding_task_head (
+			task_id,store_no,created_at,updated_at,require_qty,real_container_id,pack_unit
+    	) values (
+			#{taskId},#{storeNo},#{createdAt},#{updatedAt},#{requireQty},#{realContainerId},#{packUnit}
+    	)
+	</insert>
+
+	<update id="update" parameterType="SeedingTaskHead">
+		update seeding_task_head
+    	<set>
+  			<if test="taskId != null">task_id=#{taskId},</if>
+  			<if test="storeNo != null">store_no=#{storeNo},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+  			<if test="requireQty != null">require_qty=#{requireQty},</if>
+			<if test="realContainerId != null">real_container_id=#{realContainerId},</if>
+			<if test="packUnit != null">pack_unit=#{packUnit}</if>
+
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getSeedingTaskHeadById" parameterType="int" resultMap="seedingTaskHeadResultMap">
+		select * from seeding_task_head
+		where ID=#{id} 
+	</select>
+  
+	<select id="countSeedingTaskHead" parameterType="map" resultType="int">
+		select count(*) from seeding_task_head
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getSeedingTaskHeadList" parameterType="map" resultMap="seedingTaskHeadResultMap">
+		select * from seeding_task_head
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="taskId != null">and task_id=#{taskId}</if>
+			<if test="storeNo != null">and store_no=#{storeNo}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="requireQty != null">and require_qty=#{requireQty}</if>
+			<if test="realContainerId != null"> and real_container_id=#{realContainerId}</if>
+			<if test="packUnit != null">and pack_unit=#{packUnit}</if>
+		</where>
+	</sql>
+   
+</mapper>

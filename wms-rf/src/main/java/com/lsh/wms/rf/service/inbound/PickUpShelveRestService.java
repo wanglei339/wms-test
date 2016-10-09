@@ -233,9 +233,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String restore() throws BizCheckedException {
-        Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long uId=0L;
-       // Long containerId = 0L;
         Long taskId = 0L;
         try {
             uId = Long.valueOf(RequestUtils.getHeader("uid"));

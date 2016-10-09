@@ -14,7 +14,7 @@ import java.util.Map;
 public interface IStockTakingRestService {
     String create(StockTakingRequest request) throws BizCheckedException;
     String update(StockTakingRequest request) throws BizCheckedException;
-    String genId();
+    String genId(Long taskType);
     String getLocationList(LocationListRequest request);
     String getDetail(long takingId) throws BizCheckedException;
     String getCount(Map<String,Object> mapQuery);

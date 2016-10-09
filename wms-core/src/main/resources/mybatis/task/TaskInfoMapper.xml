@@ -149,6 +149,9 @@
 		<if test=' "priority".equals(orderBy)  and  "desc".equals(orderType)'>
 			ORDER BY  priority DESC
 		</if>
+		<if test=' "ext1".equals(orderBy)  and  "desc".equals(orderType)'>
+			ORDER BY  priority DESC
+		</if>
 		<if test=" 'status'.equals(orderBy)  and 'desc'.equals(orderType)">
 			ORDER BY  status DESC
 		</if>
@@ -159,6 +162,9 @@
 			ORDER BY  priority ASC
 		</if>
 		<if test=" 'status'.equals(orderBy)  and  'asc'.equals(orderType)">
+			ORDER BY  status ASC
+		</if>
+		<if test=" 'ext1'.equals(orderBy)  and  'asc'.equals(orderType)">
 			ORDER BY  status ASC
 		</if>
 		<if test="start != null and limit != null">

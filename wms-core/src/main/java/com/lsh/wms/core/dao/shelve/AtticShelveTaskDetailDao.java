@@ -18,5 +18,6 @@ public interface AtticShelveTaskDetailDao {
     Integer countAtticShelveTaskDetail(Map<String, Object> params);
 
     List<AtticShelveTaskDetail> getAtticShelveTaskDetailList(Map<String, Object> params);
-	
+
+	void remove(Long id);
 }

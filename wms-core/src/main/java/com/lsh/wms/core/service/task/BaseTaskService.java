@@ -153,6 +153,12 @@ public class BaseTaskService {
         this.baseDone(taskId, taskHandler);
         taskHandler.doneConcrete(taskId);
     }
+    @Transactional(readOnly = false)
+    public void done(TaskEntry entry, TaskHandler taskHandler) {
+        this.update(entry,taskHandler);
+        this.baseDone(entry.getTaskInfo().getTaskId(), taskHandler);
+        taskHandler.doneConcrete(entry.getTaskInfo().getTaskId());
+    }
 
     @Transactional(readOnly = false)
     public void batchDone(List<Long> taskList ,TaskHandler taskHandler) {

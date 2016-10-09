@@ -54,12 +54,29 @@ public class TaskFinishEventHandler extends AbsEventHandler implements IEventHan
             this.createShelveTask(msg.getSourceTaskId());
         } else if (TaskConstant.TYPE_PICK == sourceTaskType) {
             taskHandlerFactory.getTaskHandler(TaskConstant.TYPE_QC).create(msg.getSourceTaskId());
+        } else if(TaskConstant.TYPE_SET_GOODS == sourceTaskType){
+            //集货完成，生成Qc任务
+            taskHandlerFactory.getTaskHandler(TaskConstant.TYPE_QC).create(msg.getSourceTaskId());
         }
-        // todo 集货任务完成后qc任务出现
+
     }
 
     private void createShelveTask(Long taskId) throws BizCheckedException {
         TaskInfo taskInfo =  taskRpcService.getTaskEntryById(taskId).getTaskInfo();
+        Long handlerType = 0L;
+        TaskHandler taskHandler = null;
+        if(taskInfo.getExt1().compareTo(1L)==0){
+            handlerType = TaskConstant.TYPE_SEED;
+            taskHandler = taskHandlerFactory.getTaskHandler(handlerType);
+            taskHandler.create(taskRpcService.getTaskEntryById(taskId));
+            return;
+        }
+        if(taskInfo.getExt1().compareTo(2L)==0){
+            handlerType = TaskConstant.TYPE_QC;
+            taskHandler = taskHandlerFactory.getTaskHandler(handlerType);
+            taskHandler.create(taskRpcService.getTaskEntryById(taskId));
+            return;
+        }
         Long itemId = taskInfo.getItemId();
         List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationList(itemId);
         if (itemLocations == null || itemLocations.size()  == 0){
@@ -68,7 +85,6 @@ public class TaskFinishEventHandler extends AbsEventHandler implements IEventHan
         }
         Long pickLocationId = itemLocations.get(0).getPickLocationid();
         BaseinfoLocation pickLocation = locationService.getLocation(pickLocationId);
-        Long handlerType = 0L;
         if (pickLocation.getType().equals(LocationConstant.LOFT_PICKING_BIN)) {
             // 阁楼上架任务
             handlerType = TaskConstant.TYPE_ATTIC_SHELVE;
@@ -78,7 +94,7 @@ public class TaskFinishEventHandler extends AbsEventHandler implements IEventHan
             handlerType = TaskConstant.TYPE_PICK_UP_SHELVE;
         }
         try {
-            TaskHandler taskHandler = taskHandlerFactory.getTaskHandler(handlerType);
+            taskHandler = taskHandlerFactory.getTaskHandler(handlerType);
             taskHandler.create(taskRpcService.getTaskEntryById(taskId));
         } catch (BizCheckedException e) {
             logger.warn(e.getMessage());
