@@ -119,6 +119,9 @@ public class LocationDetailService {
         locationDetailServiceFactory.register(LocationConstant.VALUABLES_SHELF, baseinfoLocationShelfService);
         locationDetailServiceFactory.register(LocationConstant.VALUABLES_SHELF_LEVEL, baseinfoLocationLevelService);
         locationDetailServiceFactory.register(LocationConstant.VALUABLES_SHELF_BIN, baseinfoLocationBinService);
+        //注入播种区、播种货位
+        locationDetailServiceFactory.register(LocationConstant.SOW_AREA, baseinfoLocationRegionService);
+        locationDetailServiceFactory.register(LocationConstant.SOW_BIN, baseinfoLocationBinService);
     }
 
     /**
@@ -179,6 +182,9 @@ public class LocationDetailService {
         locationDetailModelFactory.register(LocationConstant.VALUABLES_SHELF, new BaseinfoLocationShelf());
         locationDetailModelFactory.register(LocationConstant.VALUABLES_SHELF_LEVEL, new BaseinfoLocation());
         locationDetailModelFactory.register(LocationConstant.VALUABLES_SHELF_BIN, new BaseinfoLocationBin());
+        //注入播种区和播种货位
+        locationDetailModelFactory.register(LocationConstant.SOW_AREA, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.SOW_BIN, new BaseinfoLocationBin());
     }
 
     /**

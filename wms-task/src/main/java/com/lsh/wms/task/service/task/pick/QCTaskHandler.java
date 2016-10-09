@@ -36,6 +36,8 @@ public class QCTaskHandler extends AbsTaskHandler {
     }
 
     public void create(Long taskId) throws BizCheckedException {    //创建到另一张表中,然后CRUD操作在新表中进行
+        //TODO 集货任务的创建QC任务
+
         TaskEntry pickEntry = this.getTask(taskId);
         Long containerId = pickEntry.getTaskInfo().getContainerId();
         List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
