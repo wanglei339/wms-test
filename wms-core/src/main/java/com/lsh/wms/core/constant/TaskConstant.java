@@ -23,6 +23,7 @@ public class TaskConstant {
     public static final Long TYPE_ATTIC_SHELVE = 106L;
     public static final Long TYPE_PICK_UP_SHELVE = 107L;
     public static final Long TYPE_SEED = 108L;
+    public static final Long TYPE_SET_GOODS = 109L;
 
     public static final Long TYPE_QC = 110L;
     public static final Long TYPE_SHIP = 111L;

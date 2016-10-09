@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.rmi.MarshalledObject;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -215,6 +216,20 @@ public class SoOrderService {
         fillDetailToHeader(obdHeader);
 
         return obdHeader;
+    }
+    /**
+     * 根据orderOtherId找OutbSoHeader
+     */
+    public ObdHeader getOutbSoHeaderByOrderOtherId(String orderOtherId){
+        Map<String,Object> map  = new HashMap<String, Object>();
+        map.put("orderOtherId",orderOtherId) ;
+        //获取OutbSoHeader
+        List<ObdHeader> obdHeaderList = getOutbSoHeaderList(map);
+        if(obdHeaderList.size() > 1 || obdHeaderList.size() <= 0) {
+            return null;
+        }
+        return obdHeaderList.get(0);
+
     }
 
 }

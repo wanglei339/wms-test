@@ -4,6 +4,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.shelve.AtticShelveTaskDetailDao;
 import com.lsh.wms.model.shelve.AtticShelveTaskDetail;
+import com.lsh.wms.model.stock.StockQuant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,5 +88,9 @@ public class AtticShelveTaskDetailService {
         }else {
             return taskDetails.get(0);
         }
+    }
+    @Transactional(readOnly = false)
+    public void remove(AtticShelveTaskDetail detail) {
+        detailDao.remove(detail.getId());
     }
 }

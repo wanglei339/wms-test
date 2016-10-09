@@ -163,6 +163,14 @@ public class TaskRpcService implements ITaskRpcService {
         this.afterDone(taskId);
     }
 
+    public void done(TaskEntry entry) throws BizCheckedException {
+        Long taskType = entry.getTaskInfo().getType();
+        Long taskId = entry.getTaskInfo().getTaskId();
+        TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
+        taskHandler.done(entry);
+        this.afterDone(taskId);
+    }
+
     public void done(Long taskId, Long locationId) throws BizCheckedException {
         Long taskType = this.getTaskTypeById(taskId);
         TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);

@@ -76,7 +76,9 @@
 		limit #{start},#{limit}
 		</if>
 	</select>
-  
+	<delete id="remove" parameterType="long">
+		delete from stock_quant where id = #{id}
+	</delete>
 	<sql id="queryCondition">
 		<where>
 			<if test="id != null">id=#{id}</if>

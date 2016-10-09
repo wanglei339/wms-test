@@ -8,7 +8,6 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.inhouse.IProcurementRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
-import com.lsh.wms.api.service.shelve.IAtticShelveRestService;
 import com.lsh.wms.api.service.shelve.IPickUpShelveRestService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
@@ -35,7 +34,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import java.math.BigDecimal;
@@ -261,9 +259,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
         if(detail ==null){
             return JsonUtils.TOKEN_ERROR("任务详情不存在");
         }
-        detail.setStatus(0L);
-        shelveTaskService.updateDetail(detail);
-
+        shelveTaskService.remove(detail);
 
         return JsonUtils.SUCCESS();
     }
@@ -324,7 +320,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
 
         // 获取quant
         List<StockQuant> quants = stockQuantService.getQuantsByContainerId(entry.getTaskInfo().getContainerId());
-        if (quants.size() < 1) {
+        if (quants ==null || quants.size() < 1) {
             throw new BizCheckedException("2030001");
         }
         StockQuant quant = quants.get(0);

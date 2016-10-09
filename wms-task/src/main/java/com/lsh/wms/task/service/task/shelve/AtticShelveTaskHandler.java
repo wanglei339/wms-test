@@ -9,15 +9,9 @@ import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.shelve.AtticShelveTaskDetailService;
-import com.lsh.wms.core.service.shelve.ShelveTaskService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
-import com.lsh.wms.model.baseinfo.BaseinfoContainer;
-import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.shelve.AtticShelveTaskDetail;
-import com.lsh.wms.model.shelve.ShelveTaskHead;
-import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -28,7 +22,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 /**

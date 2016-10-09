@@ -29,6 +29,7 @@ public interface TaskHandler {
     void allocate(Long taskId);
     void release(Long taskId);
     void done(Long taskId);
+    void done(TaskEntry taskEntry);
     void done(Long taskId, Long locationId) throws BizCheckedException;
     void done(Long taskId, Long locationId, Long staffId) throws BizCheckedException;
     void cancel(Long taskId);

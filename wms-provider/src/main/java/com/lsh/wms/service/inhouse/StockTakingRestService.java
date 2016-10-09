@@ -11,16 +11,16 @@ import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.inhouse.IStockTakingRestService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.csi.CsiSkuService;
-import com.lsh.wms.core.service.item.ItemService;
-import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.core.service.task.StockTakingTaskService;
+import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.stock.ItemAndSupplierRelation;
@@ -75,6 +75,9 @@ public class StockTakingRestService implements IStockTakingRestService {
     @Autowired
     private CsiSkuService skuService;
 
+    @Autowired
+    protected IdGenerator idGenerator;
+
     @POST
     @Path("create")
     public String create(StockTakingRequest request) throws BizCheckedException{
@@ -122,8 +125,14 @@ public class StockTakingRestService implements IStockTakingRestService {
     }
     @GET
     @Path("genId")
-    public String genId(){
-        Long takingId=RandomUtils.genId();
+    public String genId(@QueryParam("taskType") Long taskType){
+        Long takingId = 0L;
+        if(taskType.compareTo(100L)==0){
+            takingId = RandomUtils.genId();
+        }else {
+            String idKey = "task_" + taskType.toString();
+            takingId = idGenerator.genId(idKey, true, true);
+        }
         return JsonUtils.SUCCESS(takingId);
     }
     @POST
@@ -295,7 +304,7 @@ public class StockTakingRestService implements IStockTakingRestService {
         }
         Set<Long> supplierSet =new HashSet<Long>();
         Map<String,Object> queryMap = new HashMap<String, Object>();
-        queryMap.put("itemList",itemList);
+        queryMap.put("itemList", itemList);
         List<ItemAndSupplierRelation> relationList = lotService.getSupplierIdOrItemId(queryMap);
         for(ItemAndSupplierRelation relation:relationList){
             supplierSet.add(relation.getSupplierId());

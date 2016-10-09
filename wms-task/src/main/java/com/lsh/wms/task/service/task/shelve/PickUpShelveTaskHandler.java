@@ -14,7 +14,6 @@ import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
-import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.task.service.handler.AbsTaskHandler;
@@ -50,7 +49,8 @@ public class PickUpShelveTaskHandler extends AbsTaskHandler {
     @Reference
     private IStockMoveRpcService iStockMoveRpcService;
 
-    @Autowired StockLotService lotService;
+    @Autowired
+    StockLotService lotService;
 
     @PostConstruct
     public void postConstruct() {

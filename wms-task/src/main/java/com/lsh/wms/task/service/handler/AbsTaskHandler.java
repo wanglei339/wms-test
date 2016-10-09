@@ -143,7 +143,9 @@ public class AbsTaskHandler implements TaskHandler {
         baseTaskService.done(taskId, this);
         //this.doneConcrete(taskId);
     }
-
+    public void done(TaskEntry taskEntry) {
+        baseTaskService.done(taskEntry, this);
+    }
     public void done(Long taskId, Long locationId) throws BizCheckedException {
         baseTaskService.done(taskId, locationId, this);
     }

@@ -128,7 +128,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
                     stockTakingService.updateDetail(detail);
                 } else {
                     try {
-                        CsiSku csiSku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode.toString());
+                        CsiSku csiSku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode.toString().trim());
                         StockTakingDetail newDetail = new StockTakingDetail();
                         newDetail.setRealQty(realQty);
                         newDetail.setTakingId(task.getTakingId());
@@ -495,7 +495,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         }
         this.createTask(head, detailList, roundTime + 1, head.getDueTime());
     }
-    public void createTask(StockTakingHead head, List<StockTakingDetail> detailList,Long round,Long dueTime) throws BizCheckedException{
+    public void createTask(StockTakingHead head, List<StockTakingDetail> detailList,Long round,Long dueTime) throws BizCheckedException {
         List<TaskEntry> taskEntryList=new ArrayList<TaskEntry>();
         for(StockTakingDetail detail:detailList) {
             TaskInfo taskInfo = new TaskInfo();
