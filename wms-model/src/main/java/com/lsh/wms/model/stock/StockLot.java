@@ -10,33 +10,33 @@ public class StockLot implements Serializable {
 	/**  */
     private Long id;
 	/** 批次id */
-    private Long lotId;
+    private Long lotId = 0L;
 	/** 商品id */
-    private Long skuId;
+    private Long skuId = 0L ;
 	/** 生产批次号 */
-    private String serialNo;
+    private String serialNo = "";
 	/** 入库时间 */
-    private Long inDate;
+    private Long inDate = 0L;
 	/** 生产时间 */
-    private Long productDate;
+    private Long productDate = 0L;
 	/** 保质期失效时间 */
-    private Long expireDate;
+    private Long expireDate = 0L;
 	/**  */
-    private Long createdAt;
+    private Long createdAt = 0L;
 	/**  */
-    private Long updatedAt;
+    private Long updatedAt = 0L;
 
-	private Long itemId;
+	private Long itemId = 0L;
 
-	private Long poId;
+	private Long poId = 0L;
 
-	private Long receiptId;
+	private Long receiptId = 0L;
 	/** 包装单位*/
 	private BigDecimal packUnit= new BigDecimal(0);
 	/** 包装名称 */
 	private String packName = "";
 	/** 供应商信息 */
-	private Long supplierId;
+	private Long supplierId = 0L;
 	/** 2级包装名称 */
 	private String l2Name = "";
 	/** 2级包装单位－含有基本单位个数 */

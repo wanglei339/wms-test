@@ -248,8 +248,6 @@ public class LocationRestService implements ILocationRestService {
             logger.error(e.getMessage());
             throw new BizCheckedException("2210001");
         }
-
-
     }
 
     /**

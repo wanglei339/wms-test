@@ -222,7 +222,14 @@ public class SeedTaskHandler extends AbsTaskHandler {
         }
         move.setToContainerId(head.getRealContainerId());
         move.setQty(info.getQty());
-        quantService.move(move);
+        if(info.getSubType().compareTo(2L)==0) {
+            StockLot lot =new StockLot();
+            lot.setItemId(info.getItemId());
+            lot.setPoId(info.getOrderId());
+            quantService.move(move, lot);
+        }else {
+            quantService.move(move);
+        }
     }
     public void updteConcrete(TaskEntry entry) {
         SeedingTaskHead head = (SeedingTaskHead)entry.getTaskHead();

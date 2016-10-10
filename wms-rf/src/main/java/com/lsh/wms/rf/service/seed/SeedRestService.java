@@ -23,6 +23,7 @@ import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.seed.SeedingTaskHead;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockLot;
@@ -208,12 +209,12 @@ public class SeedRestService implements ISeedRestService {
             info.setQty(qty);
             entry.setTaskInfo(info);
             entry.setTaskHead(head);
-            iTaskRpcService.update(TaskConstant.TYPE_SEED, entry);
 
            if(type.compareTo(2L)==0){
                if(qty.compareTo(head.getRequireQty())==0) {
-                   iTaskRpcService.done(taskId);
+                   iTaskRpcService.done(entry);
                }else {
+                   iTaskRpcService.update(TaskConstant.TYPE_SEED,entry);
                    result.put("storeName", storeRpcService.getStoreByStoreNo(head.getStoreNo()).getStoreName());
                    result.put("qty", head.getRequireQty().subtract(info.getQty()));
                    result.put("taskId", taskId);
@@ -244,7 +245,8 @@ public class SeedRestService implements ISeedRestService {
                 });
             }
             mapQuery.put("orderId", info.getOrderId());
-            mapQuery.put("skuId", info.getSkuId());
+            CsiSku sku = csiSkuService.getSku(info.getSkuId());
+            mapQuery.put("barcode", sku.getCode());
             mapQuery.put("containerId", info.getContainerId());
             taskId = rpcService.getTask(mapQuery);
 
@@ -261,12 +263,13 @@ public class SeedRestService implements ISeedRestService {
                 iTaskRpcService.assign(taskId, uid);
                 return JsonUtils.SUCCESS(result);
             }
-        }catch (BizCheckedException ex){
+        }catch (BizCheckedException ex) {
             throw ex;
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return JsonUtils.TOKEN_ERROR("系统繁忙");
         }
+//        } catch (Exception e) {
+//            logger.error(e.getMessage());
+//            return JsonUtils.TOKEN_ERROR("系统繁忙");
+//        }
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {
                 put("response", true);
