@@ -154,9 +154,11 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         // TODO: 2016/10/8 查询验收单是否存在,如果不存在,则根据ibd重新生成
         ReceiveHeader receiveHeader = poOrderService.getReceiveHeader(ibdHeader.getOrderId());
-        Long receiveId = receiveHeader.getReceiveId();
+        Long receiveId = 0l;
         if(receiveHeader == null){
             receiveId = this.genReceive(ibdHeader);
+        }else{
+            receiveId = receiveHeader.getReceiveId();
         }
 
 
@@ -752,6 +754,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
         ReceiveHeader receiveHeader = new ReceiveHeader();
         ObjUtils.bean2bean(ibdHeader,receiveHeader);
         receiveHeader.setReceiveId(receiveId);
+        receiveHeader.setOrderStatus(1);
         receiveHeader.setCreatedAt(DateUtils.getCurrentSeconds());
         List<IbdDetail> ibdList = poOrderService.getInbPoDetailListByOrderId(ibdHeader.getOrderId());
         List<ReceiveDetail> receiveDetails = new ArrayList<ReceiveDetail>();
