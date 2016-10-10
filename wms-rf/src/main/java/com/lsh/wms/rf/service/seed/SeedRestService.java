@@ -144,9 +144,9 @@ public class SeedRestService implements ISeedRestService {
         }catch (BizCheckedException ex){
             throw ex;
         } catch (Exception e) {
-                    logger.error(e.getMessage());
-                    return JsonUtils.TOKEN_ERROR("系统繁忙");
-    }
+            logger.error(e.getMessage());
+            return JsonUtils.TOKEN_ERROR("系统繁忙");
+        }
     }
     @POST
     @Path("scanContainer")

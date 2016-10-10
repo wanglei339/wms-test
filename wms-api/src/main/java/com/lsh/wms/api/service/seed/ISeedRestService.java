@@ -8,4 +8,5 @@ import com.lsh.base.common.exception.BizCheckedException;
 public interface ISeedRestService {
     String assign() throws BizCheckedException;
     String scanContainer() throws BizCheckedException;
+    String restore() throws BizCheckedException;
 }
