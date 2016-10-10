@@ -77,7 +77,7 @@
 		</if>
 	</select>
 	<delete id="remove" parameterType="long">
-		delete from stock_quant where id = #{id}
+		delete from attic_shelve_task_detail where id = #{id}
 	</delete>
 	<sql id="queryCondition">
 		<where>
