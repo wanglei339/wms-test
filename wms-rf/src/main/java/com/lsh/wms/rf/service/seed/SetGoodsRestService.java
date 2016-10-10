@@ -129,11 +129,12 @@ public class SetGoodsRestService implements ISetGoodsRestService {
         if(infos==null || infos.size()==0){
             TaskEntry entry = new TaskEntry();
             info = new TaskInfo();
-            info.setTaskId(TaskConstant.TYPE_SET_GOODS);
+            info.setType(TaskConstant.TYPE_SET_GOODS);
             info.setContainerId(containerId);
             info.setExt1(1L);
+            info.setTaskName("集货任务[ " + containerId + "]");
             info.setStatus(TaskConstant.Draft);
-            info.setPlanId(uId);
+            info.setPlanner(uId);
             entry.setTaskInfo(info);
             taskRpcService.create(TaskConstant.TYPE_SET_GOODS,entry);
         }else {
@@ -158,6 +159,6 @@ public class SetGoodsRestService implements ISetGoodsRestService {
         result.put("locationCode",locations.get(0).getLocationCode());
         result.put("containerId",containerId);
         result.put("status",info.getExt1());
-        return JsonUtils.SUCCESS(request);
+        return JsonUtils.SUCCESS(result);
     }
 }

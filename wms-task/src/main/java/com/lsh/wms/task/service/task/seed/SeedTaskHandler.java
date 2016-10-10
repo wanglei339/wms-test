@@ -172,6 +172,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
             info.setItemId(item.getItemId());
             info.setSkuId(quant.getSkuId());
             info.setOrderId(orderId);
+            info.setTaskName("播种任务[ " + storeNo + "]");
             info.setPackUnit(item.getPackUnit());
             info.setType(TaskConstant.TYPE_SEED);
             info.setPackName(item.getPackName());
