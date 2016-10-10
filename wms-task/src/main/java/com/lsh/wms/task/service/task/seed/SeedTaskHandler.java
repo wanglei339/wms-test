@@ -226,6 +226,8 @@ public class SeedTaskHandler extends AbsTaskHandler {
             StockLot lot =new StockLot();
             lot.setItemId(info.getItemId());
             lot.setPoId(info.getOrderId());
+            lot.setPackName(info.getPackName());
+            lot.setPackUnit(info.getPackUnit());
             quantService.move(move, lot);
         }else {
             quantService.move(move);
