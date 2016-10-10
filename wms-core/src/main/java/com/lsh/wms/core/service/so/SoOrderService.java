@@ -217,19 +217,48 @@ public class SoOrderService {
 
         return obdHeader;
     }
+
+
     /**
-     * 根据orderOtherId找OutbSoHeader
+     * 根据orderOtherId获取OutbSoHeader
+     * @param orderOtherId
+     * @return
      */
-    public ObdHeader getOutbSoHeaderByOrderOtherId(String orderOtherId){
-        Map<String,Object> map  = new HashMap<String, Object>();
-        map.put("orderOtherId",orderOtherId) ;
+    public ObdHeader getOutbSoHeaderByOrderOtherId(String orderOtherId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("orderOtherId", orderOtherId);
+
         //获取OutbSoHeader
-        List<ObdHeader> obdHeaderList = getOutbSoHeaderList(map);
+        List<ObdHeader> obdHeaderList = getOutbSoHeaderList(params);
         if(obdHeaderList.size() > 1 || obdHeaderList.size() <= 0) {
             return null;
         }
-        return obdHeaderList.get(0);
 
+        ObdHeader obdHeader = obdHeaderList.get(0);
+
+        //获取OutbSoDetail
+        fillDetailToHeader(obdHeader);
+
+        return obdHeader;
+    }
+
+    /**
+     * 根据OrderId及SkuId获取InbPoDetail
+     * @param orderId
+     * @param detailOtherId
+     * @return
+     */
+    public ObdDetail getObdDetailByOrderIdAndDetailOtherId(Long orderId,String detailOtherId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+
+        params.put("orderId", orderId);
+        params.put("detailOtherId", detailOtherId);
+        List<ObdDetail> detailList = getOutbSoDetailList(params);
+        if(detailList.size() <= 0){
+            return null;
+        }
+
+        return detailList.get(0);
     }
 
 }
