@@ -143,7 +143,10 @@ public class SeedRestService implements ISeedRestService {
             }
         }catch (BizCheckedException ex){
             throw ex;
-        }
+        } catch (Exception e) {
+                    logger.error(e.getMessage());
+                    return JsonUtils.TOKEN_ERROR("系统繁忙");
+    }
     }
     @POST
     @Path("scanContainer")
@@ -200,23 +203,25 @@ public class SeedRestService implements ISeedRestService {
             if(head.getRequireQty().compareTo(qty)<0) {
                 return JsonUtils.TOKEN_ERROR("播种数量超出门店订单数量");
             }
-            // type 1:正常，2:暂时取消，3:剩余门店不播了。
+            // type 2:继续播，1:剩余门店不播了。
             head.setRealContainerId(containerId);
             info.setQty(qty);
             entry.setTaskInfo(info);
             entry.setTaskHead(head);
             iTaskRpcService.update(TaskConstant.TYPE_SEED, entry);
 
-            if(qty.compareTo(head.getRequireQty())==0) {
-                iTaskRpcService.done(taskId);
-            }else if(type.compareTo(2L)==0){
-                result.put("storeName", storeRpcService.getStoreByStoreNo(head.getStoreNo()).getStoreName());
-                result.put("qty", head.getRequireQty().subtract(info.getQty()));
-                result.put("taskId", taskId);
-                result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
-                result.put("packName", info.getPackName());
-                result.put("itemId", info.getItemId());
-                return JsonUtils.SUCCESS(result);
+           if(type.compareTo(2L)==0){
+               if(qty.compareTo(head.getRequireQty())==0) {
+                   iTaskRpcService.done(taskId);
+               }else {
+                   result.put("storeName", storeRpcService.getStoreByStoreNo(head.getStoreNo()).getStoreName());
+                   result.put("qty", head.getRequireQty().subtract(info.getQty()));
+                   result.put("taskId", taskId);
+                   result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
+                   result.put("packName", info.getPackName());
+                   result.put("itemId", info.getItemId());
+                   return JsonUtils.SUCCESS(result);
+               }
 
             }else {
                 iTaskRpcService.done(taskId);
@@ -230,7 +235,7 @@ public class SeedRestService implements ISeedRestService {
                     for (TaskInfo taskInfo : infos) {
                         taskList.add(taskInfo.getTaskId());
                     }
-                    iTaskRpcService.batchCancel(TaskConstant.TYPE_SEED,taskList);
+                    iTaskRpcService.batchCancel(TaskConstant.TYPE_SEED, taskList);
                 }
                 return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
                     {
