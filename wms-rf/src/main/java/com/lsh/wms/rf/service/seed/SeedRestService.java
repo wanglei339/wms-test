@@ -16,6 +16,7 @@ import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.store.IStoreRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.stock.StockLotService;
@@ -142,9 +143,6 @@ public class SeedRestService implements ISeedRestService {
             }
         }catch (BizCheckedException ex){
             throw ex;
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return JsonUtils.TOKEN_ERROR("系统繁忙");
         }
     }
     @POST

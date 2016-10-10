@@ -36,11 +36,16 @@
 		where id=#{id}
 	</update>
   
-	<select id="getSeedingTaskHeadById" parameterType="int" resultMap="seedingTaskHeadResultMap">
+	<select id="getSeedingTaskHeadById" parameterType="long" resultMap="seedingTaskHeadResultMap">
 		select * from seeding_task_head
 		where ID=#{id} 
 	</select>
-  
+
+	<select id="getSeedingTaskHeadByTaskId" parameterType="long" resultMap="seedingTaskHeadResultMap">
+		select * from seeding_task_head
+		where task_id=#{taskId}
+	</select>
+
 	<select id="countSeedingTaskHead" parameterType="map" resultType="int">
 		select count(*) from seeding_task_head
 		<include refid="queryCondition"/>

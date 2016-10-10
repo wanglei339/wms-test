@@ -227,4 +227,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
         SeedingTaskHead head = (SeedingTaskHead)entry.getTaskHead();
         headService.update(head);
     }
+    public void getConcrete(TaskEntry taskEntry) {
+        taskEntry.setTaskHead(headService.getHeadByTaskId(taskEntry.getTaskInfo().getTaskId()));
+    }
 }

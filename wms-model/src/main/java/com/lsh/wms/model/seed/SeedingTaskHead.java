@@ -18,7 +18,7 @@ public class SeedingTaskHead implements Serializable {
 	/** 所需数量 */
     private BigDecimal requireQty;
 	/** 播种目标托盘id */
-	private Long realContainerId;
+	private Long realContainerId = 0L;
 	/** 订单箱规 */
 	private BigDecimal packUnit;
 	

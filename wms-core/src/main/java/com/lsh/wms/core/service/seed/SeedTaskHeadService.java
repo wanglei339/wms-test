@@ -34,7 +34,10 @@ public class SeedTaskHeadService {
         head.setUpdatedAt(DateUtils.getCurrentSeconds());
         headDao.update(head);
     }
-
+    @Transactional(readOnly = false)
+    public SeedingTaskHead getHeadByTaskId(Long  taskId) {
+       return headDao.getSeedingTaskHeadByTaskId(taskId);
+    }
 
 }
 

@@ -303,4 +303,35 @@ public class BaseinfoLocation implements Serializable, IBaseinfoLocaltionModel {
     public void setStoreNo(Long storeNo) {
         this.storeNo = storeNo;
     }
+
+    @Override
+    public String toString() {
+        return "BaseinfoLocation{" +
+                "id=" + id +
+                ", locationId=" + locationId +
+                ", locationCode='" + locationCode + '\'' +
+                ", fatherId=" + fatherId +
+                ", leftRange=" + leftRange +
+                ", rightRange=" + rightRange +
+                ", level=" + level +
+                ", type=" + type +
+                ", typeName='" + typeName + '\'' +
+                ", isLeaf=" + isLeaf +
+                ", isValid=" + isValid +
+                ", canStore=" + canStore +
+                ", containerVol=" + containerVol +
+                ", regionNo=" + regionNo +
+                ", passageNo=" + passageNo +
+                ", shelfLevelNo=" + shelfLevelNo +
+                ", binPositionNo=" + binPositionNo +
+                ", description='" + description + '\'' +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", classification=" + classification +
+                ", canUse=" + canUse +
+                ", isLocked=" + isLocked +
+                ", curContainerVol=" + curContainerVol +
+                ", storeNo=" + storeNo +
+                '}';
+    }
 }

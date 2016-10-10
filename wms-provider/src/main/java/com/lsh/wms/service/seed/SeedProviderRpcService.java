@@ -3,6 +3,7 @@ package com.lsh.wms.service.seed;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.po.IPoRpcService;
 import com.lsh.wms.api.service.seed.ISeedProveiderRpcService;
@@ -79,13 +80,11 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
         Object containerId = mapQuery.get("containerId");
         Long skuId = 0L;
         Map<String, Object> query = new HashMap<String, Object>();
-        if(skuId == null){
-            CsiSku sku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode);
-            if(sku==null){
-                throw new BizCheckedException("2880001");
-            }
-            skuId= sku.getSkuId();
+        CsiSku sku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode);
+        if(sku==null){
+            throw new BizCheckedException("2880001");
         }
+        skuId= sku.getSkuId();
         query.put("orderId",orderId);
         query.put("skuId",skuId);
         query.put("status",TaskConstant.Draft);
@@ -110,19 +109,19 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
         Long orderId = 0L;
         String key = "store_queue";
         String queueObject = redisStringDao.get(key);
-        Map<Long,Long> storeMap = null;
+        Map<String,String> storeMap = new HashMap<String, String>();
         if(queueObject == null){
             List<BaseinfoLocation> storeList = locationRpcService.sortSowLocationByStoreNo();
             if(storeList!=null && storeList.size()!=0) {
                 for (int i = 0; i < storeList.size(); i++) {
-                    storeMap.put(storeList.get(i).getStoreNo(), Long.valueOf(i));
+                    storeMap.put(storeList.get(i).getStoreNo().toString(), i+"");
                 }
                 JSONObject object = JSONObject.fromObject(storeMap);
                 redisStringDao.set(key, object.toString());
             }
         }else {
             JSONObject object = JSONObject.fromObject(queueObject);
-            storeMap = (HashMap<Long,Long>)JSONObject.toBean(object, HashMap.class);
+            storeMap = (HashMap<String,String>)JSONObject.toBean(object, HashMap.class);
         }
 
         try {
@@ -181,7 +180,7 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
             info.setSubType(2L);
             //门店播放规则
             if(storeMap.containsKey(storeNo)) {
-                info.setExt1(storeMap.get(storeNo));
+                info.setExt1(Long.valueOf(storeMap.get(storeNo)));
             }
             info.setItemId(item.getItemId());
             info.setSkuId(sku.getSkuId());

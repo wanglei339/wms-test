@@ -15,6 +15,8 @@ public interface SeedingTaskHeadDao {
 	
 	SeedingTaskHead getSeedingTaskHeadById(Long id);
 
+	SeedingTaskHead getSeedingTaskHeadByTaskId(Long taskId);
+
     Integer countSeedingTaskHead(Map<String, Object> params);
 
     List<SeedingTaskHead> getSeedingTaskHeadList(Map<String, Object> params);
