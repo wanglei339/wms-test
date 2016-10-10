@@ -45,6 +45,9 @@ public class ReceiptRequest implements Serializable {
 
     private Long staffId;
 
+    /**门店编码*/
+    private String storeId;
+
     /** 商品 */
     @Valid
     @Size(min=1)
@@ -54,17 +57,25 @@ public class ReceiptRequest implements Serializable {
 
     }
 
-    public ReceiptRequest(String orderOtherId, Long warehouseId, String bookingNum,Long containerId, String receiptUser, Date receiptTime,
-                          String receiptWharf, Long staffId,List<ReceiptItem> items) {
-        this.orderOtherId = orderOtherId;
-        this.warehouseId = warehouseId;
+    public ReceiptRequest(String bookingNum, Long containerId, List<ReceiptItem> items, String orderOtherId, Date receiptTime, String receiptUser, String receiptWharf, Long staffId, String storeId, Long warehouseId) {
         this.bookingNum = bookingNum;
         this.containerId = containerId;
-        this.receiptUser = receiptUser;
+        this.items = items;
+        this.orderOtherId = orderOtherId;
         this.receiptTime = receiptTime;
+        this.receiptUser = receiptUser;
         this.receiptWharf = receiptWharf;
         this.staffId = staffId;
-        this.items = items;
+        this.storeId = storeId;
+        this.warehouseId = warehouseId;
+    }
+
+    public String getBookingNum() {
+        return bookingNum;
+    }
+
+    public void setBookingNum(String bookingNum) {
+        this.bookingNum = bookingNum;
     }
 
     public Long getContainerId() {
@@ -75,6 +86,14 @@ public class ReceiptRequest implements Serializable {
         this.containerId = containerId;
     }
 
+    public List<ReceiptItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<ReceiptItem> items) {
+        this.items = items;
+    }
+
     public String getOrderOtherId() {
         return orderOtherId;
     }
@@ -83,36 +102,20 @@ public class ReceiptRequest implements Serializable {
         this.orderOtherId = orderOtherId;
     }
 
-    public Long getWarehouseId(){
-        return this.warehouseId;
+    public Date getReceiptTime() {
+        return receiptTime;
     }
 
-    public void setWarehouseId(Long warehouseId){
-        this.warehouseId = warehouseId;
-    }
-
-    public String getBookingNum(){
-        return this.bookingNum;
-    }
-
-    public void setBookingNum(String bookingNum){
-        this.bookingNum = bookingNum;
-    }
-
-    public String getReceiptUser(){
-        return this.receiptUser;
-    }
-
-    public void setReceiptUser(String receiptUser){
-        this.receiptUser = receiptUser;
-    }
-
-    public Date getReceiptTime(){
-        return this.receiptTime;
-    }
-
-    public void setReceiptTime(Date receiptTime){
+    public void setReceiptTime(Date receiptTime) {
         this.receiptTime = receiptTime;
+    }
+
+    public String getReceiptUser() {
+        return receiptUser;
+    }
+
+    public void setReceiptUser(String receiptUser) {
+        this.receiptUser = receiptUser;
     }
 
     public String getReceiptWharf() {
@@ -123,19 +126,27 @@ public class ReceiptRequest implements Serializable {
         this.receiptWharf = receiptWharf;
     }
 
-    public List<ReceiptItem> getItems() {
-        return items;
-    }
-
-    public void setItems(List<ReceiptItem> items) {
-        this.items = items;
-    }
-
     public Long getStaffId() {
         return staffId;
     }
 
     public void setStaffId(Long staffId) {
         this.staffId = staffId;
+    }
+
+    public String getStoreId() {
+        return storeId;
+    }
+
+    public void setStoreId(String storeId) {
+        this.storeId = storeId;
+    }
+
+    public Long getWarehouseId() {
+        return warehouseId;
+    }
+
+    public void setWarehouseId(Long warehouseId) {
+        this.warehouseId = warehouseId;
     }
 }

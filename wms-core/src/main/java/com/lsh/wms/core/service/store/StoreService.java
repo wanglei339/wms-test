@@ -70,4 +70,27 @@ public class StoreService {
         this.update(store);
         return store;
     }
+
+
+    /**
+     * 根据查询条件返回门店list
+     * @param params
+     * @return
+     */
+    public List<BaseinfoStore> getBaseinfoStoreList(Map<String,Object> params){
+        return baseinfoStoreDao.getBaseinfoStoreList(params);
+    }
+    /**
+     * 根据storeNo返回门店信息
+     */
+    public BaseinfoStore getBaseinfoStore(String storeNo){
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("storeNo",storeNo);
+        List<BaseinfoStore> baseinfoStoreList = this.getBaseinfoStoreList(map);
+
+        if(baseinfoStoreList.size()<=0){
+            return null;
+        }
+        return baseinfoStoreList.get(0);
+    }
 }

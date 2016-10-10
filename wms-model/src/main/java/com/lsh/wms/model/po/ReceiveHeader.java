@@ -36,9 +36,9 @@ public class ReceiveHeader implements Serializable {
 	/** 截止收货时间 */
     private Date endDeliveryDate;
 	/**  */
-    private Long createdAt;
+    private Long createdAt = 0l;
 	/**  */
-    private Long updatedAt;
+    private Long updatedAt = 0l;
 
 	private Object receiveDetails;
 

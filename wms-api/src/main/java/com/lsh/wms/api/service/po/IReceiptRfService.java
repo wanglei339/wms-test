@@ -20,8 +20,10 @@ public interface IReceiptRfService {
 
     public String insertOrder() throws BizCheckedException, ParseException;
 
+    //String addStoreReceipt() throws BizCheckedException, ParseException;
+
     public String getPoDetailByOrderIdAndBarCode(String orderOtherId,Long containerId, String barCode) throws BizCheckedException;
 
 
-    String getStoreInfo(String storeId,Long containerId, String barCode) throws BizCheckedException;
+    String getStoreInfo(String storeId,Long containerId, String barCode,String orderOtherId) throws BizCheckedException;
 }

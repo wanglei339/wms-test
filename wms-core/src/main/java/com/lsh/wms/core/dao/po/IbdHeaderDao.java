@@ -25,6 +25,8 @@ public interface IbdHeaderDao {
 
 	List<IbdHeader> getPoDayCount(Long orderType);
 
+	List<IbdHeader> getIbdListOrderByDate(String orderIds);
+
 
 	
 }

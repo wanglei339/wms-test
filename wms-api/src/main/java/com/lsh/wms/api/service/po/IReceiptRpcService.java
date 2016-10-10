@@ -34,4 +34,6 @@ public interface IReceiptRpcService {
     public List<InbReceiptHeader> getPoReceiptDetailList(Map<String, Object> params);
 
     void insertReceipt(Long orderId,Long staffId) throws BizCheckedException, ParseException;
+
+    void addStoreReceipt(ReceiptRequest request) throws BizCheckedException, ParseException;
 }

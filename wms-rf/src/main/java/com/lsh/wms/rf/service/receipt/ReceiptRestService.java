@@ -16,17 +16,24 @@ import com.lsh.wms.api.service.po.IReceiptRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.PoConstant;
+import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
+import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.staff.StaffService;
+import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
+import com.lsh.wms.model.po.IbdObdRelation;
+import com.lsh.wms.model.so.ObdDetail;
+import com.lsh.wms.model.so.ObdHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpSession;
@@ -34,10 +41,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Project Name: lsh-wms
@@ -71,6 +76,10 @@ public class ReceiptRestService implements IReceiptRfService {
 
     @Autowired
     private StaffService staffService;
+    @Autowired
+    private SoOrderService soOrderService;
+
+
 
     @POST
     @Path("add")
@@ -129,16 +138,101 @@ public class ReceiptRestService implements IReceiptRfService {
         }
 
         receiptRequest.setItems(receiptItemList);
-        iReceiptRpcService.insertOrder(receiptRequest);
-        Map<String,Boolean> body = new HashMap<String, Boolean>();
-        body.put("response",true);
-        //return ResUtils.getResponse(ResponseConstant.RES_CODE_1,ResponseConstant.RES_MSG_OK,body);
+        Integer orderType = ibdHeader.getOrderType();
+
+        if(PoConstant.ORDER_TYPE_CPO == orderType){
+            iReceiptRpcService.addStoreReceipt(receiptRequest);
+        }else{
+            iReceiptRpcService.insertOrder(receiptRequest);
+        }
         return JsonUtils.SUCCESS(new HashMap<String, Object>() {
             {
                 put("response", true);
             }
         });
     }
+//    @POST
+//    @Path("addStoreReceipt")
+//    public String addStoreReceipt() throws BizCheckedException, ParseException {
+//        Map<String, Object> request = RequestUtils.getRequest();
+//
+//        List<ReceiptItem> receiptItemList = JSON.parseArray((String)request.get("items"), ReceiptItem.class);
+//        //request.put("items", receiptItemList);
+//
+//        ReceiptRequest receiptRequest = BeanMapTransUtils.map2Bean(request, ReceiptRequest.class);
+//
+//        HttpSession session = RequestUtils.getSession();
+//
+//        if(session.getAttribute("wareHouseId") == null) {
+//            receiptRequest.setWarehouseId(PropertyUtils.getLong("wareHouseId", 1L));
+//        } else {
+//            receiptRequest.setWarehouseId((Long) session.getAttribute("wareHouseId"));
+//        }
+//        receiptRequest.setReceiptUser(RequestUtils.getHeader("uid"));
+//        Map<String,Object> map = new HashMap<String, Object>();
+//        map.put("uid",RequestUtils.getHeader("uid"));
+//        Long staffId = staffService.getStaffList(map).get(0).getStaffId();
+//        receiptRequest.setStaffId(staffId);
+//
+//        //取出订单ID
+//        String orderIds = (String)request.get("orderIds");
+//
+//        List<IbdHeader> ibdHeaderList = poOrderService.getIbdListOrderByDate(orderIds);
+//        List<ReceiptItem> items = new ArrayList<ReceiptItem>();
+//
+//
+//        ReceiptItem receiptItem = receiptItemList.get(0);
+//
+//        //取出数量
+//        BigDecimal packQty = receiptItem.getInboundQty();
+//        BigDecimal unitQty = receiptItem.getUnitQty();
+//
+//        BigDecimal packUnit = PackUtil.Uom2PackUnit(receiptItem.getPackName());
+//
+//        BigDecimal sumQty = packQty.multiply(packUnit).add(unitQty) ;
+//
+//        //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
+//        CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, receiptItem.getBarCode());
+//
+//
+//        for(IbdHeader ibdHeader : ibdHeaderList){
+//            Long orderId = ibdHeader.getOrderId();
+//            BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
+//
+//            IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(), baseinfoItem.getSkuCode());
+//
+//            if(ibdDetail == null){
+//                throw new BizCheckedException("2020001");
+//            }
+//
+//            receiptItem.setSkuName(ibdDetail.getSkuName());
+//            receiptItem.setPackUnit(ibdDetail.getPackUnit());
+//            //receiptItem.setPackName(ibdDetail.getPackName());
+//            receiptItem.setMadein(baseinfoItem.getProducePlace());
+//            receiptItem.setOrderId(orderId);
+//            // TODO: 2016/10/8 转化为ea进行比较
+//            if(sumQty.compareTo(ibdDetail.getUnitQty()) <= 0){
+//                receiptItem.setInboundQty(sumQty);
+//                break;
+//            }else{
+//                receiptItem.setInboundQty(ibdDetail.getUnitQty());
+//                sumQty = sumQty.subtract(ibdDetail.getUnitQty());
+//            }
+//            items.add(receiptItem);
+//        }
+//
+//
+//        receiptRequest.setReceiptTime(new Date());
+//        receiptRequest.setItems(items);
+//
+//        iReceiptRpcService.addStoreReceipt(receiptRequest);
+//
+//        return JsonUtils.SUCCESS(new HashMap<String, Object>() {
+//            {
+//                put("response", true);
+//            }
+//        });
+//    }
 
     @POST
     @Path("getorderinfo")
@@ -196,11 +290,169 @@ public class ReceiptRestService implements IReceiptRfService {
         return JsonUtils.SUCCESS(orderInfoMap);
     }
 
+    private String oldStoreId = "";
+
     @POST
     @Path("getStoreInfo")
-    public String getStoreInfo(@FormParam("storeId") String storeId,@FormParam("containerId") Long containerId, @FormParam("barCode") String barCode) throws BizCheckedException {
+    public String getStoreInfo(@FormParam("storeId") String storeId,@FormParam("containerId") Long containerId, @FormParam("barCode") String barCode,@FormParam("orderOtherId") String orderOtherId) throws BizCheckedException {
+
+        //判断门店是否有订货
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("deliveryCode",storeId);
+        mapQuery.put("orderType", SoConstant.ORDER_TYPE_STO);
+        mapQuery.put("orderStatus",1);
+        List<ObdHeader> obdHeaderList = soOrderService.getOutbSoHeaderList(mapQuery);
 
 
-        return JsonUtils.SUCCESS();
+        if(!storeId.equals(oldStoreId)){
+            if(obdHeaderList.size() <= 0){
+                throw new BizCheckedException("2020100");
+            }
+            if(!containerService.isContainerCanUse(containerId)){
+                throw new BizCheckedException("2000002");
+            }
+            oldStoreId = storeId;
+        }
+
+
+        CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barCode);
+        if (null == csiSku || csiSku.getSkuId() == null) {
+            throw new BizCheckedException("2020022");
+        }
+
+        //该标志用来判断detail中是否存在该商品
+        Boolean flag = false;
+        //用来存查询细单
+        Map<String,ObdDetail> detailMap = new HashMap<String, ObdDetail>();
+        //查找保质期天数
+        BigDecimal shelfLife = BigDecimal.ZERO;
+        //skucode
+        String skuCode = "";
+        for(ObdHeader obdHeader : obdHeaderList){
+            Long orderId = obdHeader.getOrderId();
+
+            BaseinfoItem baseinfoItem = itemService.getItem(obdHeader.getOwnerUid(), csiSku.getSkuId());
+            shelfLife = baseinfoItem.getShelfLife();
+            skuCode = baseinfoItem.getSkuCode();
+
+            Map<String,Object> params = new HashMap<String, Object>();
+            params.put("orderId",orderId);
+            params.put("itemId",baseinfoItem.getItemId());
+            List<ObdDetail> obdDetailList = soOrderService.getOutbSoDetailList(mapQuery);
+            if(obdDetailList.size() > 0 ){
+                flag = true;
+            }
+            detailMap.put(obdHeader.getOrderOtherId(),obdDetailList.get(0));
+
+
+        }
+        if(flag == false){
+            throw new BizCheckedException("2020101");
+        }
+
+        //map1存放订单信息
+        final List<Map<String,Object>> list1 = new ArrayList<Map<String, Object>>();
+        final Map<String,Object> map2 = new HashMap<String, Object>();
+
+        StringBuilder sb = new StringBuilder();
+        BigDecimal sumPackQty = BigDecimal.ZERO;//剩余应收数量 包装维度
+        BigDecimal sumUnitQty = BigDecimal.ZERO;//基本单位维度
+        String packName = "";
+        BigDecimal packUnit = BigDecimal.ZERO;
+        // TODO: 2016/10/9 先查询出ibdHeader ibdDetail
+        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(orderOtherId);
+        IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(),skuCode);
+        //查询对应的obd
+        Map<String,Object> params = new HashMap<String, Object>();
+        params.put("ibdOtherId",orderOtherId);
+        params.put("ibdDetailId",ibdDetail.getDetailOtherId());
+
+        List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(params);
+
+        // TODO: 2016/10/9 根据ibd来找对应的obd
+        for(IbdObdRelation ibdObdRelation : ibdObdRelations){
+            String obdOtherId = ibdObdRelation.getObdOtherId();
+            String obdDetailId = ibdObdRelation.getObdDetailId();
+
+            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(obdOtherId);
+
+            if(storeId.equals(obdHeader.getDeliveryCode())){
+                ObdDetail obdDetail = soOrderService.getObdDetailByOrderIdAndDetailOtherId(obdHeader.getOrderId(),obdDetailId);
+
+                map2.put("location","J"+storeId);
+                map2.put("orderId",ibdHeader.getOrderId());
+                map2.put("barCode",barCode);
+                map2.put("skuName",csiSku.getSkuName());
+                map2.put("orderQty",obdDetail.getOrderQty());
+                map2.put("packName",ibdDetail.getPackName());
+                map2.put("packUnit",ibdDetail.getPackUnit());
+
+                break;
+            }
+
+
+        }
+
+//        //根据obdOtherId 找对应的ibd
+//        for(Map.Entry<String, ObdDetail> entry : detailMap.entrySet()){
+//            Map<String,Object> map1 = new HashMap<String, Object>();
+//            String obdOtherId = entry.getKey();
+//            ObdDetail obdDetail = entry.getValue();
+//            String obdDetailId = obdDetail.getDetailOtherId();
+//            // TODO: 2016/9/29 一条obd明细应该来自一条ibd明细。
+//            IbdObdRelation ibdObdRef =  poOrderService.getIbdObdRelationListByObd(obdOtherId,obdDetailId).get(0);
+//            String ibdOtherId = ibdObdRef.getIbdOtherId();
+//            String ibdDetailId = ibdObdRef.getIbdDetailId();
+//            //找ibd订单
+//            IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(ibdOtherId);
+//            Long orderId = ibdHeader.getOrderId();
+//            //得到ibd_detail
+//            IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndDetailOtherId(orderId,ibdDetailId);
+//
+//
+//            map1.put("orderId",orderId);
+//            map1.put("packName",ibdDetail.getPackName());
+//            map1.put("obdQty",obdDetail.getUnitQty());
+//            map1.put("createTime",new Date());
+//            list1.add(map1);
+//
+//            sb.append(orderId+",");
+//
+////
+////            //数量
+////            BigDecimal orderQty = ibdDetail.getOrderQty().subtract(ibdDetail.getInboundQty());
+////            sumPackQty = sumPackQty.add(orderQty);
+//            packName = ibdDetail.getPackName();
+//            packUnit = ibdDetail.getPackUnit();
+//            //订单的数量
+//            sumUnitQty = sumUnitQty.add(obdDetail.getUnitQty());
+//
+//
+//        }
+        // TODO: 2016/10/8  sumPackQty表示含有的整件个数,sumUnitQty表示余数散件的个数
+
+
+//        map2.put("orderIds",sb.substring(0,sb.length()-1));
+//        map2.put("barCode",barCode);
+//        map2.put("skuName",csiSku.getSkuName());
+//        map2.put("sumPackQty",sumUnitQty.divide(packUnit,0,BigDecimal.ROUND_HALF_EVEN));
+//        map2.put("sumUnitQty",sumUnitQty.remainder(packUnit));
+//        map2.put("packName",packName);
+        //推算最晚生产日期
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(calendar.DAY_OF_YEAR,-shelfLife.intValue());
+        Date pro = calendar.getTime();
+        SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
+        map2.put("proTime",sd.format(pro));
+
+
+        return JsonUtils.SUCCESS(new HashMap<String,Object>(){
+            {
+                put("receiptInfo",map2);
+            }
+
+        });
     }
+
 }

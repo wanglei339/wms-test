@@ -3,11 +3,13 @@ package com.lsh.wms.core.service.po;
 import com.lsh.wms.core.dao.po.IbdDetailDao;
 import com.lsh.wms.core.dao.po.InbReceiptDetailDao;
 import com.lsh.wms.core.dao.po.InbReceiptHeaderDao;
+import com.lsh.wms.core.dao.po.ReceiveDetailDao;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.InbReceiptHeader;
+import com.lsh.wms.model.po.ReceiveDetail;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
 import org.slf4j.Logger;
@@ -51,6 +53,9 @@ public class PoReceiptService {
     @Autowired
     private StockLotService stockLotService;
 
+    @Autowired
+    private ReceiveDetailDao receiveDetailDao;
+
     /**
      * 插入InbReceiptHeader及List<InbReceiptDetail>
      * @param inbReceiptHeader
@@ -72,13 +77,23 @@ public class PoReceiptService {
      * @param inbReceiptDetailList
      */
     @Transactional(readOnly = false)
-    public void insertOrder(InbReceiptHeader inbReceiptHeader, List<InbReceiptDetail> inbReceiptDetailList, List<IbdDetail> updateIbdDetailList, List<Map<String, Object>> moveList) {
+    public void insertOrder(InbReceiptHeader inbReceiptHeader, List<InbReceiptDetail> inbReceiptDetailList, List<IbdDetail> updateIbdDetailList, List<Map<String, Object>> moveList,List<ReceiveDetail> updateReceiveDetailList) {
 
         //插入订单
         inbReceiptHeader.setInserttime(new Date());
-        inbReceiptHeaderDao.insert(inbReceiptHeader);
+
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("containerId",inbReceiptHeader.getContainerId());
+        InbReceiptHeader oldInbReceiptHeader = this.getInbReceiptHeaderByParams(mapQuery);
+        if(oldInbReceiptHeader == null) {
+            inbReceiptHeaderDao.insert(inbReceiptHeader);
+        }
         inbReceiptDetailDao.batchInsert(inbReceiptDetailList);
         ibdDetailDao.batchUpdateInboundQtyByOrderIdAndDetailOtherId(updateIbdDetailList);
+
+        receiveDetailDao.batchUpdateInboundQtyByReceiveIdAndDetailOtherId(updateReceiveDetailList);
+
+
         for (Map<String, Object> moveInfo : moveList) {
             StockLot lot = (StockLot) moveInfo.get("lot");
             if (! lot.isOld()) {

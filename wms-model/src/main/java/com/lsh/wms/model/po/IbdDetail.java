@@ -29,13 +29,13 @@ public class IbdDetail implements Serializable {
 	/** 价格 */
 	private BigDecimal price;
 	/** 实际收货数 */
-	private BigDecimal inboundQty;
+	private BigDecimal inboundQty = BigDecimal.ZERO;
 	/** 批次号 */
-	private String lotCode;
+	private String lotCode = "";
 	/** 保质期例外收货 0校验保质期1不校验 */
-	private Integer exceptionReceipt;
+	private Integer exceptionReceipt = 0;
 	/** 返仓单生成移库任务的taskid */
-	private Long taskId;
+	private Long taskId = 0l;
 	/**  */
 	private Long createdAt = 0l;
 	/**  */

@@ -1,12 +1,9 @@
 package com.lsh.wms.core.service.po;
 
 import com.lsh.base.common.utils.DateUtils;
-import com.lsh.wms.core.dao.po.IbdDetailDao;
-import com.lsh.wms.core.dao.po.IbdHeaderDao;
-import com.lsh.wms.core.dao.po.IbdObdRelationDao;
-import com.lsh.wms.model.po.IbdDetail;
-import com.lsh.wms.model.po.IbdHeader;
-import com.lsh.wms.model.po.IbdObdRelation;
+import com.lsh.wms.core.dao.po.*;
+import com.lsh.wms.model.po.*;
+import com.lsh.wms.model.so.ObdDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +33,14 @@ public class PoOrderService {
 
     @Autowired
     private IbdObdRelationDao ibdObdRelationDao;
+
+    @Autowired
+    private ReceiveHeaderDao receiveHeaderDao;
+
+    @Autowired
+    private ReceiveDetailDao receiveDetailDao;
+
+
 
     /**
      * 插入InbPoHeader及InbPoDetail
@@ -296,6 +301,95 @@ public class PoOrderService {
     public List<IbdObdRelation> getIbdObdRelationList(Map<String,Object> params){
         return ibdObdRelationDao.getIbdObdRelationList(params);
     }
+
+    /**
+     *
+     */
+
+    public List<IbdObdRelation> getIbdObdRelationListByObd(String obdOtherId,String obdDetailId){
+        Map<String,Object> params = new HashMap<String, Object>();
+        params.put("obdOtherId",obdOtherId);
+        params.put("obdDetailId",obdDetailId);
+        return ibdObdRelationDao.getIbdObdRelationList(params);
+    }
+
+
+    /**
+     * 传入orderIds
+     */
+    public List<IbdHeader> getIbdListOrderByDate(String orderIds){
+        return ibdHeaderDao.getIbdListOrderByDate(orderIds);
+    }
+
+    /**
+     * 根据参数获取receiveHeaderList
+     */
+    List<ReceiveHeader> getReceiveHeaderList(Map<String, Object> params){
+        return receiveHeaderDao.getReceiveHeaderList(params);
+    }
+
+    /**
+     * 根据参数获取receiveHeaderList count
+     */
+    public Integer countReceiveHeader(Map<String, Object> params){
+        return receiveHeaderDao.countReceiveHeader(params);
+    }
+
+    /**
+     * 根据 orderId 获取正常状态的receiveHeader
+     */
+    public ReceiveHeader getReceiveHeader(Long orderId){
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("orderId",orderId);
+        mapQuery.put("orderStatus",1);
+        List<ReceiveHeader> list = this.getReceiveHeaderList(mapQuery);
+        if(list.size() <= 0){
+            return null;
+        }
+        return list.get(0);
+    }
+
+    /**
+     * 插入receiveHeader及receiveDetail
+     * @param receiveHeader
+     * @param receiveDetails
+     */
+    @Transactional(readOnly = false)
+    public void insertReceive(ReceiveHeader receiveHeader, List<ReceiveDetail> receiveDetails) {
+
+        receiveHeaderDao.insert(receiveHeader);
+
+        receiveDetailDao.batchInsert(receiveDetails);
+
+    }
+
+    /**
+     * 根据OrderId及skuCode获取InbPoDetail
+     * @param receiveId
+     * @param skuCode
+     * @return
+     */
+    public ReceiveDetail getReceiveDetailByReceiveIdAndSkuCode(Long receiveId, String skuCode) {
+        Map<String, Object> params = new HashMap<String, Object>();
+
+        params.put("receiveId", receiveId);
+        params.put("skuCode", skuCode);
+
+        return getReceiveDetail(params);
+    }
+
+    /**
+     * 根据条件查询receiveDetail
+     */
+    public ReceiveDetail getReceiveDetail(Map<String,Object> params){
+         List<ReceiveDetail> receiveDetails =  receiveDetailDao.getReceiveDetailList(params);
+        if(receiveDetails.size() <= 0){
+            return null;
+        }
+        return receiveDetails.get(0);
+    }
+
+
 
 
 }

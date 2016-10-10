@@ -25,16 +25,11 @@ import com.lsh.wms.core.service.po.PoReceiptService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
+import com.lsh.wms.core.service.store.StoreService;
 import com.lsh.wms.core.service.utils.IdGenerator;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
-import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
-import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.baseinfo.BaseinfoLocationRegion;
+import com.lsh.wms.model.baseinfo.*;
 import com.lsh.wms.model.csi.CsiSku;
-import com.lsh.wms.model.po.IbdDetail;
-import com.lsh.wms.model.po.IbdHeader;
-import com.lsh.wms.model.po.InbReceiptDetail;
-import com.lsh.wms.model.po.InbReceiptHeader;
+import com.lsh.wms.model.po.*;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
@@ -113,6 +108,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
     @Autowired
     private IdGenerator idGenerator;
 
+    @Autowired
+    private StoreService storeService;
+
     public Boolean throwOrder(String orderOtherId) throws BizCheckedException {
         IbdHeader ibdHeader = new IbdHeader();
         ibdHeader.setOrderOtherId(orderOtherId);
@@ -153,6 +151,15 @@ public class ReceiptRpcService implements IReceiptRpcService {
             inbReceiptHeader.setLocation(baseinfoLocation.getLocationId());// TODO: 16/7/20  暂存区信息
 
         }
+
+        // TODO: 2016/10/8 查询验收单是否存在,如果不存在,则根据ibd重新生成
+        ReceiveHeader receiveHeader = poOrderService.getReceiveHeader(ibdHeader.getOrderId());
+        Long receiveId = receiveHeader.getReceiveId();
+        if(receiveHeader == null){
+            receiveId = this.genReceive(ibdHeader);
+        }
+
+
         //设置InbReceiptHeader状态
         inbReceiptHeader.setReceiptStatus(BusiConstant.EFFECTIVE_YES);
 
@@ -165,6 +172,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
         List<StockQuant> stockQuantList = new ArrayList<StockQuant>();
         List<StockLot> stockLotList = new ArrayList<StockLot>();
         List<Map<String, Object>> moveList = new ArrayList<Map<String, Object>>();
+        //初始化验收单
+        List<ReceiveDetail> updateReceiveDetailList = new ArrayList<ReceiveDetail>();
+
 
         Map<Long,Long> locationMap = new HashMap<Long, Long>();
         List<StockTransferPlan> planList = new ArrayList<StockTransferPlan>();
@@ -199,6 +209,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 updateIbdDetail.setInboundQty(inbReceiptDetail.getInboundQty());
                 updateIbdDetail.setOrderId(inbReceiptDetail.getOrderId());
                 //updateIbdDetail.setSkuId(inbReceiptDetail.getSkuId());
+                updateIbdDetail.setDetailOtherId(ibdDetail.getDetailOtherId());
                 updateIbdDetailList.add(updateIbdDetail);
                 //inbReceiptDetailList.add(inbReceiptDetail);
 
@@ -230,29 +241,6 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 //将inbReceiptDetail填入inbReceiptDetailList中
                 inbReceiptDetailList.add(inbReceiptDetail);
 
-
-//                StockQuant quant = new StockQuant();
-//                quant.setLotId(lotId);
-//                quant.setPackUnit(inbPoDetail.getPackUnit());
-//                quant.setSkuId(inbReceiptDetail.getSkuId());
-//                quant.setItemId(inbReceiptDetail.getItemId());
-//                quant.setLocationId(inbReceiptHeader.getLocation());
-//                quant.setContainerId(inbReceiptHeader.getContainerId());
-//                quant.setSupplierId(stockLot.getSupplierId());
-//                quant.setOwnerId(inbPoHeader.getOwnerUid());
-//                Date receiptTime = inbReceiptHeader.getReceiptTime();
-//                quant.setInDate(receiptTime.getTime() / 1000);
-//
-//                quant.setExpireDate(stockLot.getExpireDate());
-//                quant.setCost(inbPoDetail.getPrice());
-//                BigDecimal inboundQty = inbReceiptDetail.getInboundQty();
-//                // TODO: 16/8/22  qty只能传转换成基本单位的数量
-//                BigDecimal qty = inboundQty.multiply(inbReceiptDetail.getPackUnit());
-//                quant.setQty(qty);
-//                //quant.setQty(inboundQty);
-//                BigDecimal value = inbPoDetail.getPrice().multiply(inboundQty);
-//                quant.setValue(value);
-//                stockQuantList.add(quant);
 
                 BigDecimal inboundQty = inbReceiptDetail.getInboundQty();
 
@@ -380,49 +368,22 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 updateIbdDetail.setInboundQty(inbReceiptDetail.getInboundQty());
                 updateIbdDetail.setOrderId(inbReceiptDetail.getOrderId());
                 //updateIbdDetail.setSkuId(inbReceiptDetail.getSkuId());
+                updateIbdDetail.setDetailOtherId(ibdDetail.getDetailOtherId());
                 updateIbdDetailList.add(updateIbdDetail);
+
+                //根据receiveId及SkuCode获取receiveDetail
+                ReceiveDetail receiveDetail = poOrderService.getReceiveDetailByReceiveIdAndSkuCode(receiveId, baseinfoItem.getSkuCode());
+
+                //批量修改receive 实收数量
+                ReceiveDetail updateReceiveDetail = new ReceiveDetail();
+                updateReceiveDetail.setDetailOtherId(receiveDetail.getDetailOtherId());
+                updateReceiveDetail.setReceiveId(receiveDetail.getReceiveId());
+                updateReceiveDetail.setInboundQty(inbReceiptDetail.getInboundQty());
+                updateReceiveDetailList.add(updateReceiveDetail);
+
+
+
                 inbReceiptDetailList.add(inbReceiptDetail);
-
-
-                /***
-                 * skuId 商品码
-                 * locationId 存储位id
-                 * containerId 容器设备id
-                 * qty 商品数量
-                 * supplierId 货物供应商id
-                 * ownerId 货物所属公司id
-                 * inDate 入库时间
-                 * expireDate 保质期失效时间
-                 * itemId
-                 *
-                 */
-                // TODO: 16/7/21  如何形成上架任务
-//                Long lotId = RandomUtils.genId();
-//
-//                StockQuant quant = new StockQuant();
-//                quant.setLotId(lotId);
-//                quant.setPackUnit(inbPoDetail.getPackUnit());
-//                quant.setSkuId(inbReceiptDetail.getSkuId());
-//                quant.setItemId(inbReceiptDetail.getItemId());
-//                quant.setLocationId(inbReceiptHeader.getLocation());
-//                quant.setContainerId(inbReceiptHeader.getContainerId());
-//                quant.setSupplierId(inbPoHeader.getSupplierCode());
-//                quant.setOwnerId(inbPoHeader.getOwnerUid());
-//                Date receiptTime = inbReceiptHeader.getReceiptTime();
-//                quant.setInDate(receiptTime.getTime() / 1000);
-//                Long expireDate = inbReceiptDetail.getProTime().getTime() + baseinfoItem.getShelfLife().longValue(); // 生产日期+保质期=保质期失效时间
-//                quant.setExpireDate(expireDate / 1000);
-//                quant.setCost(inbPoDetail.getPrice());
-//                BigDecimal inboundQty = inbReceiptDetail.getInboundQty();
-//
-//                // TODO: 16/8/22  qty只能传转换成基本单位的数量
-//                BigDecimal qty = inboundQty.multiply(inbReceiptDetail.getPackUnit());
-//                quant.setQty(qty);
-//                //quant.setQty(inboundQty);
-//                BigDecimal value = inbPoDetail.getPrice().multiply(inboundQty);
-//                quant.setValue(value);
-//                stockQuantList.add(quant);
-//                // stockQuantService.create(quant);
 
 
                 /***
@@ -482,13 +443,16 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         //插入订单
         //poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList,stockQuantList,stockLotList);
-        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList);
+        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList,updateReceiveDetailList);
 
-        if(PoConstant.ORDER_TYPE_PO == orderType || PoConstant.ORDER_TYPE_TRANSFERS == orderType){
+        if(PoConstant.ORDER_TYPE_PO == orderType || PoConstant.ORDER_TYPE_TRANSFERS == orderType || PoConstant.ORDER_TYPE_CPO == orderType){
             TaskEntry taskEntry = new TaskEntry();
             TaskInfo taskInfo = new TaskInfo();
             taskInfo.setTaskId(taskId);
             taskInfo.setType(TaskConstant.TYPE_PO);
+            if(PoConstant.ORDER_TYPE_CPO == orderType){
+                taskInfo.setExt1(1l);
+            }
             taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
             taskInfo.setContainerId(inbReceiptHeader.getContainerId());
             taskInfo.setItemId(inbReceiptDetailList.get(0).getItemId());
@@ -512,13 +476,6 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         }
 
-
-       /* TaskEntry taskEntry = new TaskEntry();
-        TaskInfo taskInfo = new TaskInfo();
-        taskInfo.setType(TaskConstant.TYPE_SHELVE);
-        taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
-        taskEntry.setTaskInfo(taskInfo);
-        iTaskRpcService.create(TaskConstant.TYPE_SHELVE, taskEntry);*/
 
     }
 
@@ -612,5 +569,200 @@ public class ReceiptRpcService implements IReceiptRpcService {
         }
         request.setItems(items);
         this.insertOrder(request);
+    }
+
+    /**
+     * 门店收货
+     */
+    public void addStoreReceipt(ReceiptRequest request) throws BizCheckedException, ParseException {
+
+
+        //查询inbReceiptHeader是否存在 根据托盘查询
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("containerId",request.getContainerId());
+        InbReceiptHeader inbReceiptHeader = poReceiptService.getInbReceiptHeaderByParams(mapQuery);
+        if(inbReceiptHeader == null){
+            //初始化InbReceiptHeader
+            inbReceiptHeader = new InbReceiptHeader();
+            ObjUtils.bean2bean(request, inbReceiptHeader);
+            //设置receiptOrderId
+            inbReceiptHeader.setReceiptOrderId(RandomUtils.genId());
+            //设置InbReceiptHeader状态
+            inbReceiptHeader.setReceiptStatus(BusiConstant.EFFECTIVE_YES);
+            //设置InbReceiptHeader插入时间
+            inbReceiptHeader.setInserttime(new Date());
+        }
+        // TODO: 16/8/19 设置门店暂存区
+//        List<BaseinfoLocationRegion> lists = locationDetailService.getMarketReturnList(ibdHeader.getOwnerUid());
+//        Long location = lists.get(0).getLocationId();
+//        inbReceiptHeader.setLocation(location);
+
+        //初始化List<InbReceiptDetail>
+        List<InbReceiptDetail> inbReceiptDetailList = new ArrayList<InbReceiptDetail>();
+        List<IbdDetail> updateIbdDetailList = new ArrayList<IbdDetail>();
+        List<StockQuant> stockQuantList = new ArrayList<StockQuant>();
+        List<StockLot> stockLotList = new ArrayList<StockLot>();
+        List<Map<String, Object>> moveList = new ArrayList<Map<String, Object>>();
+        //验收单
+        List<ReceiveDetail> updateReceiveDetailList = new ArrayList<ReceiveDetail>();
+
+        Map<Long,Long> locationMap = new HashMap<Long, Long>();
+        List<StockTransferPlan> planList = new ArrayList<StockTransferPlan>();
+
+        String idKey = "task_" + TaskConstant.TYPE_PO.toString();
+        Long taskId = idGenerator.genId(idKey, true, true);
+        //Long taskId = RandomUtils.genId();
+
+        for(ReceiptItem receiptItem : request.getItems()){
+            if(System.currentTimeMillis() - receiptItem.getProTime().getTime() <= 0) {
+                throw new BizCheckedException("2020009");
+            }
+
+            if(receiptItem.getInboundQty().compareTo(BigDecimal.ZERO) < 0) {
+                throw new BizCheckedException("2020007");
+            }
+
+            InbReceiptDetail inbReceiptDetail = new InbReceiptDetail();
+
+            ObjUtils.bean2bean(receiptItem, inbReceiptDetail);
+
+            //根据request中的orderOtherId查询InbPoHeader
+            IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(request.getOrderOtherId());
+            if (ibdHeader == null) {
+                throw new BizCheckedException("2020001");
+            }
+            // TODO: 2016/10/8 查询验收单是否存在,如果不存在,则根据ibd重新生成
+            ReceiveHeader receiveHeader = poOrderService.getReceiveHeader(ibdHeader.getOrderId());
+            Long receiveId = 0l;
+            if(receiveHeader == null){
+                receiveId = this.genReceive(ibdHeader);
+
+            }else{
+                receiveId = receiveHeader.getReceiveId();
+            }
+
+            //设置receiptOrderId
+            inbReceiptDetail.setReceiptOrderId(inbReceiptHeader.getReceiptOrderId());
+            inbReceiptDetail.setOrderOtherId(ibdHeader.getOrderOtherId());
+            boolean isCanReceipt = ibdHeader.getOrderStatus() == PoConstant.ORDER_THROW || ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART || ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPTING;
+            if (!isCanReceipt) {
+                throw new BizCheckedException("2020002");
+            }
+
+            //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
+            CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, inbReceiptDetail.getBarCode());
+            if (null == csiSku || csiSku.getSkuId() == null) {
+                throw new BizCheckedException("2020022");
+            }
+            inbReceiptDetail.setSkuId(csiSku.getSkuId());
+            BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
+            inbReceiptDetail.setItemId(baseinfoItem.getItemId());
+
+            //根据OrderId及SkuCode获取InbPoDetail
+            IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(), baseinfoItem.getSkuCode());
+
+            //写入InbReceiptDetail中的OrderQty
+            inbReceiptDetail.setOrderQty(ibdDetail.getOrderQty());
+
+            // 判断是否超过订单总数
+            BigDecimal poInboundQty = null != ibdDetail.getInboundQty() ? ibdDetail.getInboundQty() : new BigDecimal(0);
+
+            // TODO: 2016/10/8  用ea的数量做比较
+            if (poInboundQty.add(inbReceiptDetail.getInboundQty()).compareTo(ibdDetail.getOrderQty()) > 0) {
+                throw new BizCheckedException("2020005");
+            }
+
+            // 批量修改ibd 实收数量
+            IbdDetail updateIbdDetail = new IbdDetail();
+            updateIbdDetail.setInboundQty(inbReceiptDetail.getInboundQty());
+            updateIbdDetail.setOrderId(inbReceiptDetail.getOrderId());
+            //updateIbdDetail.setSkuId(inbReceiptDetail.getSkuId());
+            updateIbdDetail.setDetailOtherId(ibdDetail.getDetailOtherId());
+            updateIbdDetailList.add(updateIbdDetail);
+
+            //根据receiveId及SkuCode获取receiveDetail
+            ReceiveDetail receiveDetail = poOrderService.getReceiveDetailByReceiveIdAndSkuCode(receiveId, baseinfoItem.getSkuCode());
+
+
+            //批量修改receive 实收数量
+            ReceiveDetail updateReceiveDetail = new ReceiveDetail();
+            updateReceiveDetail.setDetailOtherId(receiveDetail.getDetailOtherId());
+            updateReceiveDetail.setReceiveId(receiveDetail.getReceiveId());
+            updateReceiveDetail.setInboundQty(inbReceiptDetail.getInboundQty());
+            updateReceiveDetailList.add(updateReceiveDetail);
+
+            inbReceiptDetailList.add(inbReceiptDetail);
+
+            StockLot stockLot = new StockLot();
+            stockLot.setIsOld(true);
+
+            StockMove move = new StockMove();
+            move.setFromLocationId(locationService.getLocationsByType(LocationConstant.SUPPLIER_AREA).get(0).getLocationId());
+            move.setToLocationId(inbReceiptHeader.getLocation());
+            move.setOperator(inbReceiptHeader.getStaffId());
+            move.setToContainerId(inbReceiptHeader.getContainerId());
+            //qty转化为ea
+            BigDecimal qty = inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit());
+
+            move.setQty(qty);
+            move.setItemId(inbReceiptDetail.getItemId());
+            move.setTaskId(taskId);
+
+            Map<String, Object> moveInfo = new HashMap<String, Object>();
+            moveInfo.put("lot", stockLot);
+            moveInfo.put("move", move);
+            moveList.add(moveInfo);
+
+        }
+
+
+        //插入订单
+        //poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList,stockQuantList,stockLotList);
+        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList,updateReceiveDetailList);
+
+
+
+//        // TODO: 2016/10/9 大店直流的生成QC任务 根据门店code来查询大店或者小店
+//        String storeId = request.getStoreId();
+//        BaseinfoStore baseinfoStore = storeService.getBaseinfoStore(storeId);
+//        //如果是大店 生成QC
+//        if(baseinfoStore.getScale() == 2){
+//
+//        }
+
+
+//        TaskEntry taskEntry = new TaskEntry();
+//        TaskInfo taskInfo = new TaskInfo();
+//        taskInfo.setTaskId(taskId);
+//        taskInfo.setType(TaskConstant.TYPE_PO);
+//        taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
+//        taskInfo.setContainerId(inbReceiptHeader.getContainerId());
+//        taskInfo.setItemId(inbReceiptDetailList.get(0).getItemId());
+//        taskInfo.setOperator(inbReceiptHeader.getStaffId());
+//        taskEntry.setTaskInfo(taskInfo);
+//        taskId = iTaskRpcService.create(TaskConstant.TYPE_PO, taskEntry);
+//        iTaskRpcService.done(taskId);
+    }
+
+
+    public Long genReceive(IbdHeader ibdHeader){
+
+        //增加receiveHeader总单
+        Long receiveId = RandomUtils.genId();
+        ReceiveHeader receiveHeader = new ReceiveHeader();
+        ObjUtils.bean2bean(ibdHeader,receiveHeader);
+        receiveHeader.setReceiveId(receiveId);
+        receiveHeader.setCreatedAt(DateUtils.getCurrentSeconds());
+        List<IbdDetail> ibdList = poOrderService.getInbPoDetailListByOrderId(ibdHeader.getOrderId());
+        List<ReceiveDetail> receiveDetails = new ArrayList<ReceiveDetail>();
+        for (IbdDetail ibdDetail : ibdList){
+            ReceiveDetail receiveDetail = new ReceiveDetail();
+            ObjUtils.bean2bean(ibdDetail,receiveDetail);
+            receiveDetail.setReceiveId(receiveId);
+            receiveDetail.setCreatedAt(DateUtils.getCurrentSeconds());
+            receiveDetails.add(receiveDetail);
+        }
+        poOrderService.insertReceive(receiveHeader,receiveDetails);
+        return receiveId;
     }
 }
