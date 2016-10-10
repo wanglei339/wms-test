@@ -595,9 +595,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
             inbReceiptHeader.setInserttime(new Date());
         }
         // TODO: 16/8/19 设置门店暂存区
-//        List<BaseinfoLocationRegion> lists = locationDetailService.getMarketReturnList(ibdHeader.getOwnerUid());
-//        Long location = lists.get(0).getLocationId();
-//        inbReceiptHeader.setLocation(location);
+        BaseinfoLocation baseinfoLocation = locationRpcService.assignTemporary();
+        inbReceiptHeader.setLocation(baseinfoLocation.getLocationId());// TODO: 16/7/20  暂存区信息
 
         //初始化List<InbReceiptDetail>
         List<InbReceiptDetail> inbReceiptDetailList = new ArrayList<InbReceiptDetail>();
