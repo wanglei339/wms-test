@@ -81,7 +81,7 @@
 			<set>
 				inbound_qty=inbound_qty + #{item.inboundQty}
 			</set>
-			where receive_id=#{item.receiveId} AND detail_other_id=#{detailOtherId} AND order_qty >= inbound_qty + #{item.inboundQty}
+			where receive_id=#{item.receiveId} AND detail_other_id=#{item.detailOtherId} AND order_qty >= inbound_qty + #{item.inboundQty}
 		</foreach>
 	</update>
   
