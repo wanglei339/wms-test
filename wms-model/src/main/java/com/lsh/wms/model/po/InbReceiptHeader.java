@@ -30,6 +30,10 @@ public class InbReceiptHeader implements Serializable {
     private String receiptUser;
 	/** 收货时间 */
     private Date receiptTime;
+	/** 门店编码 */
+	private String storeCode = "";
+	/** 收货类型 1在库收货 2直流订单收货 3直流门店收货 */
+	private Integer receiptType;
 	/** 收货状态，1已收货，2已上架 */
     private Integer receiptStatus;
 	/**  */
@@ -195,5 +199,21 @@ public class InbReceiptHeader implements Serializable {
 
 	public Long getStaffId() {
 		return staffId;
+	}
+
+	public Integer getReceiptType() {
+		return receiptType;
+	}
+
+	public void setReceiptType(Integer receiptType) {
+		this.receiptType = receiptType;
+	}
+
+	public String getStoreCode() {
+		return storeCode;
+	}
+
+	public void setStoreCode(String storeCode) {
+		this.storeCode = storeCode;
 	}
 }

@@ -21,17 +21,19 @@
 		<result property="inserttime" column="INSERTTIME"/>
 		<result property="updatetime" column="UPDATETIME"/>
 		<result property="staffId" column="STAFF_ID"/>
+		<result property="storeCode" column="STORE_CODE"/>
+		<result property="receiptType" column="RECEIPT_TYPE"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="InbReceiptHeader">
 		insert into INB_RECEIPT_HEADER (
 			WAREHOUSE_ID,BOOKING_NUM,RECEIPT_ORDER_ID,LOT_SEQ_ID,RECEIPT_WHARF,TEMP_STORE_AREA,
 			CONTAINER_ID,LOCATION,REAL_LOCATION,RECEIPT_USER,RECEIPT_TIME,RECEIPT_STATUS,
-			INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME,STAFF_ID
+			INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME,STAFF_ID,STORE_CODE,RECEIPT_TYPE
     	) values (
 			#{warehouseId},#{bookingNum},#{receiptOrderId},#{lotSeqId},#{receiptWharf},#{tempStoreArea},
 			#{containerId},#{location},#{realLocation},#{receiptUser},#{receiptTime},#{receiptStatus},
-			#{insertby},#{updateby},#{inserttime},#{updatetime},#{staffId}
+			#{insertby},#{updateby},#{inserttime},#{updatetime},#{staffId},#{storeCode},#{receiptType}
     	)
 	</insert>
 
@@ -49,6 +51,8 @@
   			<if test="realLocation != null">REAL_LOCATION=#{realLocation},</if>
   			<if test="receiptUser != null">RECEIPT_USER=#{receiptUser},</if>
   			<if test="receiptTime != null">RECEIPT_TIME=#{receiptTime},</if>
+			<if test="storeCode != null">STORE_CODE=#{storeCode},</if>
+			<if test="receiptType != null">RECEIPT_TYPE=#{receiptType},</if>
   			<if test="receiptStatus != null">RECEIPT_STATUS=#{receiptStatus},</if>
   			<if test="insertby != null">INSERTBY=#{insertby},</if>
   			<if test="updateby != null">UPDATEBY=#{updateby},</if>
@@ -72,6 +76,8 @@
 			<if test="realLocation != null">REAL_LOCATION=#{realLocation},</if>
 			<if test="receiptUser != null">RECEIPT_USER=#{receiptUser},</if>
 			<if test="receiptTime != null">RECEIPT_TIME=#{receiptTime},</if>
+			<if test="storeCode != null">STORE_CODE=#{storeCode},</if>
+			<if test="receiptType != null">RECEIPT_TYPE=#{receiptType},</if>
 			<if test="receiptStatus != null">RECEIPT_STATUS=#{receiptStatus},</if>
 			<if test="insertby != null">INSERTBY=#{insertby},</if>
 			<if test="updateby != null">UPDATEBY=#{updateby},</if>
@@ -115,6 +121,8 @@
 			<if test="realLocation != null">and REAL_LOCATION=#{realLocation}</if>
 			<if test="receiptUser != null">and RECEIPT_USER=#{receiptUser}</if>
 			<if test="receiptTime != null">and RECEIPT_TIME=#{receiptTime}</if>
+			<if test="storeCode != null">and STORE_CODE=#{storeCode}</if>
+			<if test="receiptType != null">and RECEIPT_TYPE=#{receiptType}</if>
 			<if test="receiptStatus != null">and RECEIPT_STATUS=#{receiptStatus}</if>
 			<if test="insertby != null">and INSERTBY=#{insertby}</if>
 			<if test="updateby != null">and UPDATEBY=#{updateby}</if>

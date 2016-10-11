@@ -354,11 +354,11 @@ public class ReceiptRestService implements IReceiptRfService {
         final List<Map<String,Object>> list1 = new ArrayList<Map<String, Object>>();
         final Map<String,Object> map2 = new HashMap<String, Object>();
 
-        StringBuilder sb = new StringBuilder();
-        BigDecimal sumPackQty = BigDecimal.ZERO;//剩余应收数量 包装维度
-        BigDecimal sumUnitQty = BigDecimal.ZERO;//基本单位维度
-        String packName = "";
-        BigDecimal packUnit = BigDecimal.ZERO;
+//        StringBuilder sb = new StringBuilder();
+//        BigDecimal sumPackQty = BigDecimal.ZERO;//剩余应收数量 包装维度
+//        BigDecimal sumUnitQty = BigDecimal.ZERO;//基本单位维度
+//        String packName = "";
+//        BigDecimal packUnit = BigDecimal.ZERO;
         // TODO: 2016/10/9 先查询出ibdHeader ibdDetail
         IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(orderOtherId);
         IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(),skuCode);
@@ -445,6 +445,12 @@ public class ReceiptRestService implements IReceiptRfService {
         Date pro = calendar.getTime();
         SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
         map2.put("proTime",sd.format(pro));
+
+        //校验之后修改订单状态为收货中 第一次收货将订单改为收货中
+        if(ibdHeader.getOrderStatus() == PoConstant.ORDER_THROW){
+            ibdHeader.setOrderStatus(PoConstant.ORDER_RECTIPTING);
+            poOrderService.updateInbPoHeader(ibdHeader);
+        }
 
 
         return JsonUtils.SUCCESS(new HashMap<String,Object>(){

@@ -145,10 +145,19 @@ public class ReceiptRpcService implements IReceiptRpcService {
             List<BaseinfoLocationRegion> lists = locationDetailService.getMarketReturnList(ibdHeader.getOwnerUid());
             Long location = lists.get(0).getLocationId();
             inbReceiptHeader.setLocation(location);
+            inbReceiptHeader.setReceiptType(1);
+
+            //设置收货类型
+            inbReceiptHeader.setReceiptType(ReceiptContant.RECEIPT_TYPE_NORMAL);
 
         }else{
             BaseinfoLocation baseinfoLocation = locationRpcService.assignTemporary();
             inbReceiptHeader.setLocation(baseinfoLocation.getLocationId());// TODO: 16/7/20  暂存区信息
+            if(PoConstant.ORDER_TYPE_CPO == orderType){
+                inbReceiptHeader.setReceiptType(ReceiptContant.RECEIPT_TYPE_ORDER);
+            }else{
+                inbReceiptHeader.setReceiptType(ReceiptContant.RECEIPT_TYPE_NORMAL);
+            }
 
         }
 
@@ -589,6 +598,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
             ObjUtils.bean2bean(request, inbReceiptHeader);
             //设置receiptOrderId
             inbReceiptHeader.setReceiptOrderId(RandomUtils.genId());
+            //设置门店以及收货类型
+            inbReceiptHeader.setReceiptType(ReceiptContant.RECEIPT_TYPE_STORE);
+            inbReceiptHeader.setStoreCode(request.getStoreId());
             //设置InbReceiptHeader状态
             inbReceiptHeader.setReceiptStatus(BusiConstant.EFFECTIVE_YES);
             //设置InbReceiptHeader插入时间
@@ -645,6 +657,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
             //设置receiptOrderId
             inbReceiptDetail.setReceiptOrderId(inbReceiptHeader.getReceiptOrderId());
             inbReceiptDetail.setOrderOtherId(ibdHeader.getOrderOtherId());
+            inbReceiptDetail.setOrderId(ibdHeader.getOrderId());
+
             boolean isCanReceipt = ibdHeader.getOrderStatus() == PoConstant.ORDER_THROW || ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART || ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPTING;
             if (!isCanReceipt) {
                 throw new BizCheckedException("2020002");
