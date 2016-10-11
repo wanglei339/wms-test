@@ -108,6 +108,34 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
         String barcode = "";
         Long orderId = 0L;
         String key = "store_queue";
+
+        try {
+            orderId = Long.valueOf(mapQuery.get("orderId").toString().trim());
+            barcode = mapQuery.get("barcode").toString();
+
+        }catch (Exception e){
+            throw new BizCheckedException("2880010");
+        }
+
+
+        CsiSku sku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode);
+        if(sku==null){
+            throw new BizCheckedException("2880001");
+        }
+
+        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(orderId);
+        if(ibdHeader ==null){
+            throw new BizCheckedException("2880004");
+        }
+        mapQuery.put("type", TaskConstant.TYPE_SEED);
+        mapQuery.put("skuId",sku.getSkuId());
+        List<TaskInfo> infos = baseTaskService.getTaskInfoList(mapQuery);
+        if(infos!=null && infos.size()!=0){
+            return;
+        }
+
+        BaseinfoItem item = itemService.getItem(ibdHeader.getOwnerUid(), sku.getSkuId());
+
         String queueObject = redisStringDao.get(key);
         Map<String,String> storeMap = new HashMap<String, String>();
         if(queueObject == null){
@@ -124,30 +152,6 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
             storeMap = (HashMap<String,String>)JSONObject.toBean(object, HashMap.class);
         }
 
-        try {
-            orderId = Long.valueOf(mapQuery.get("orderId").toString().trim());
-            barcode = mapQuery.get("barcode").toString();
-
-        }catch (Exception e){
-            throw new BizCheckedException("参数格式有误");
-        }
-
-        CsiSku sku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode);
-        if(sku==null){
-            throw new BizCheckedException("2880001");
-        }
-
-        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(orderId);
-        if(ibdHeader ==null){
-            throw new BizCheckedException("2880004");
-        }
-        mapQuery.put("type", TaskConstant.TYPE_SEED);
-        List<TaskInfo> infos = baseTaskService.getTaskInfoList(mapQuery);
-        if(infos!=null && infos.size()!=0){
-            throw new BizCheckedException("2880005");
-        }
-
-        BaseinfoItem item = itemService.getItem(ibdHeader.getOwnerUid(), sku.getSkuId());
         String orderOtherId = ibdHeader.getOrderOtherId();
         IbdDetail ibdDetail= poOrderService.getInbPoDetailByOrderIdAndSkuCode(orderId, item.getSkuCode());
         Map<String,Object> queryMap = new HashMap<String, Object>();

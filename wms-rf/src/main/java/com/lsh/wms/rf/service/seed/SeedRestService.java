@@ -319,6 +319,5 @@ public class SeedRestService implements ISeedRestService {
         result.put("packName", info.getPackName());
         result.put("itemId", info.getItemId());
         return JsonUtils.SUCCESS(result);
-
     }
 }
