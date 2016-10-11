@@ -163,7 +163,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
         }
         TaskInfo info = entry.getTaskInfo();
         info.setStatus(TaskConstant.Assigned);
-        info.setExt1(1L); //pc创建任务详情标示  0: 未创建详情 1:已创建详情 2:已执行中
+        info.setStep(1); //pc创建任务详情标示  0: 未创建详情 1:已创建详情 2:已执行中
         // 获取quant
         List<StockQuant> quants = stockQuantService.getQuantsByContainerId(info.getContainerId());
         if (quants.size() < 1) {
@@ -290,7 +290,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
             return JsonUtils.TOKEN_ERROR("任务详情不能为空");
         }
         TaskInfo info = entry.getTaskInfo();
-        info.setExt1(2L); //pc创建任务详情标示  0: 未创建详情 1:已创建详情 2:已执行中
+        info.setStep(2); //pc创建任务详情标示  0: 未创建详情 1:已创建详情 2:已执行中
         entry.setTaskInfo(info);
         iTaskRpcService.update(TaskConstant.TYPE_PICK_UP_SHELVE, entry);
 
@@ -349,7 +349,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
             Long canEdit=0L;
             Map<String,Object> one =  new HashMap<String, Object>();
             TaskInfo info = entry.getTaskInfo();
-            if(info.getStatus().compareTo(TaskConstant.Draft)==0 || (info.getStatus().compareTo(TaskConstant.Assigned)==0 && info.getExt1()==1)){
+            if(info.getStatus().compareTo(TaskConstant.Draft)==0 || (info.getStatus().compareTo(TaskConstant.Assigned)==0 && info.getStep()==1)){
                 canEdit = 1L;
             }
             one.put("status",info.getStatus());
@@ -469,7 +469,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
             head.put("packName",quant.getPackName());
             head.put("qty", info.getQty().divide(quant.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
             head.put("operator",info.getOperator());
-            head.put("isDoing",info.getExt1().compareTo(2L)==0 ? 1 :0);
+            head.put("isDoing",info.getStep()==2 ? 1 :0);
         }else {
             AtticShelveTaskDetail detail = (AtticShelveTaskDetail)(details.get(0));
             head.put("containerId",detail.getContainerId());
@@ -480,7 +480,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
             head.put("packName",info.getPackName());
             head.put("qty", info.getQty().divide(info.getPackUnit(), BigDecimal.ROUND_HALF_EVEN));
             head.put("operator",info.getOperator());
-            head.put("isDoing",info.getExt1().compareTo(2L)==0 ? 1 :0);
+            head.put("isDoing",info.getStep()==2 ? 1 :0);
         }
         result.put("head", head);
         if(details==null || details.size()==0){

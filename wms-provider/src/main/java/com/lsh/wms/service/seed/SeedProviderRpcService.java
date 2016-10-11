@@ -88,7 +88,7 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
         query.put("orderId",orderId);
         query.put("skuId",skuId);
         query.put("status",TaskConstant.Draft);
-        query.put("orderBy","ext1");
+        query.put("orderBy","taskOrder");
         query.put("orderType", "asc");
         List<TaskEntry> entries = taskRpcService.getTaskList(TaskConstant.TYPE_SEED, query);
         if(entries==null || entries.size()==0){
@@ -184,7 +184,7 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
             info.setSubType(2L);
             //门店播放规则
             if(storeMap.containsKey(storeNo)) {
-                info.setExt1(Long.valueOf(storeMap.get(storeNo)));
+                info.setTaskOrder(Long.valueOf(storeMap.get(storeNo)));
             }
             info.setTaskName("播种任务[ " + storeNo + "]");
             info.setItemId(item.getItemId());

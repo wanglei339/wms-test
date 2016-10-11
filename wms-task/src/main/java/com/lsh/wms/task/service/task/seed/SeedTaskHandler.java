@@ -168,7 +168,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
             info.setSubType(subType);
             //门店播放规则
             if(storeMap.containsKey(storeNo)) {
-                info.setExt1(storeMap.get(storeNo));
+                info.setTaskOrder(storeMap.get(storeNo));
             }
             info.setItemId(item.getItemId());
             info.setSkuId(quant.getSkuId());
