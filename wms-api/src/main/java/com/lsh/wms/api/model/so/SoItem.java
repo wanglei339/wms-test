@@ -27,7 +27,7 @@ public class SoItem implements Serializable {
     @NotNull
     private BigDecimal orderQty;
     /** 基本单位数量 */
-    private String unitQty;
+    private BigDecimal unitQty;
 
     /** 包装单位 */
     private BigDecimal packUnit;
@@ -47,7 +47,7 @@ public class SoItem implements Serializable {
 
     }
 
-    public SoItem(String unitQty, String detailOtherId, String lotCode, BigDecimal orderQty, String packName, BigDecimal packUnit, BigDecimal price, String skuCode, String skuName, String unitName) {
+    public SoItem(BigDecimal unitQty, String detailOtherId, String lotCode, BigDecimal orderQty, String packName, BigDecimal packUnit, BigDecimal price, String skuCode, String skuName, String unitName) {
         this.unitQty = unitQty;
         this.detailOtherId = detailOtherId;
         this.lotCode = lotCode;
@@ -132,11 +132,11 @@ public class SoItem implements Serializable {
         this.unitName = unitName;
     }
 
-    public String getUnitQty() {
+    public BigDecimal getUnitQty() {
         return unitQty;
     }
 
-    public void setUnitQty(String unitQty) {
+    public void setUnitQty(BigDecimal unitQty) {
         this.unitQty = unitQty;
     }
 }

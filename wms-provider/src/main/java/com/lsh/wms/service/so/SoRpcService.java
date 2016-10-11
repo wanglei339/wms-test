@@ -17,6 +17,7 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
+import javafx.scene.chart.PieChart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,6 +91,8 @@ public class SoRpcService implements ISoRpcService {
             obdDetail.setItemId(baseinfoItemList.get(0).getItemId());
             //设置skuName
             obdDetail.setSkuName(baseinfoItemList.get(0).getSkuName());
+            //设置新增时间
+            obdDetail.setCreatedAt(DateUtils.getCurrentSeconds());
 
             obdDetailList.add(obdDetail);
         }
