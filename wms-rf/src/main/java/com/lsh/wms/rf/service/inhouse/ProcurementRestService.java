@@ -208,7 +208,6 @@ public class ProcurementRestService implements IProcurementRestService {
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String fetchTask() throws BizCheckedException {
-        Map<String, Object> params = RequestUtils.getRequest();
         Long uid = 0L;
         try {
             uid =  Long.valueOf(RequestUtils.getHeader("uid"));
