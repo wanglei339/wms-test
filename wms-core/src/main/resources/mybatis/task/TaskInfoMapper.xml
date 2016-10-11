@@ -49,6 +49,10 @@
 		<result property="taskEaQty" column="task_ea_qty"/>
 		<result property="date" column="date"/>
 		<result property="transPlan" column="trans_plan"/>
+		<result property="mergedContainerId" column="merged_container_id"/>
+		<result property="step" column="step"/>
+		<result property="isShow" column="is_show"/>
+		<result property="taskOrder" column="task_order"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TaskInfo">
@@ -61,7 +65,7 @@
 			due_time,finish_time,cancel_time,ext1,ext2,ext3,
 			ext4,ext5,ext6,ext7,ext8,ext9,
 			created_at,updated_at, task_pack_qty,
-			task_ea_qty, date, trans_plan
+			task_ea_qty, date, trans_plan,merged_container_id,step,is_show,task_order
     	) values (
 			#{taskId},#{taskName},#{planId},#{waveId},#{orderId},#{locationId},
 			#{skuId},#{ownerId},#{itemId},#{fromLocationId},#{toLocationId},#{qty},
@@ -71,7 +75,7 @@
 			#{dueTime},#{finishTime},#{cancelTime},#{ext1},#{ext2},#{ext3},
 			#{ext4},#{ext5},#{ext6},#{ext7},#{ext8},#{ext9},
 			#{createdAt},#{updatedAt},#{taskPackQty},
-			#{taskEaQty}, #{date},#{transPlan}
+			#{taskEaQty}, #{date},#{transPlan},#{mergedContainerId},#{step},#{is_show},#{task_order}
     	)
 	</insert>
 
@@ -121,6 +125,10 @@
 			<if test="taskEaQty != null">task_ea_qty=#{taskEaQty},</if>
 			<if test="date != null">date=#{date},</if>
 			<if test="transPlan != null">trans_plan=#{transPlan},</if>
+			<if test="mergedContainerId !=null">merged_container_id =#{mergedContainerId},</if>
+			<if test="step !=null">step =#{step},</if>
+			<if test="isShow !=null">is_show =#{isShow},</if>
+			<if test="taskOrder !=null">task_order =#{taskOrder},</if>
 			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
@@ -149,7 +157,7 @@
 		<if test=' "priority".equals(orderBy)  and  "desc".equals(orderType)'>
 			ORDER BY  priority DESC
 		</if>
-		<if test=' "ext1".equals(orderBy)  and  "desc".equals(orderType)'>
+		<if test=' "taskOrder".equals(orderBy)  and  "desc".equals(orderType)'>
 			ORDER BY  priority DESC
 		</if>
 		<if test=" 'status'.equals(orderBy)  and 'desc'.equals(orderType)">
@@ -164,7 +172,7 @@
 		<if test=" 'status'.equals(orderBy)  and  'asc'.equals(orderType)">
 			ORDER BY  status ASC
 		</if>
-		<if test=" 'ext1'.equals(orderBy)  and  'asc'.equals(orderType)">
+		<if test=" 'taskOrder'.equals(orderBy)  and  'asc'.equals(orderType)">
 			ORDER BY  status ASC
 		</if>
 		<if test="start != null and limit != null">
@@ -297,6 +305,10 @@
 			<if test="taskEaQty != null">and task_ea_qty=#{taskEaQty}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="mergedContainerId != null">and merged_container_id=#{mergedContainerId}</if>
+			<if test="step != null">and step=#{step}</if>
+			<if test="isShow != null">and is_show=#{isShow}</if>
+			<if test="taskOrder != null">and task_order=#{taskOrder}</if>
 		</where>
 	</sql>
    

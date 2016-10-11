@@ -131,7 +131,7 @@ public class SeedRestService implements ISeedRestService {
                     SeedingTaskHead head = (SeedingTaskHead) (entry.getTaskHead());
                     TaskInfo info = entry.getTaskInfo();
                     result.put("storeName", storeRpcService.getStoreByStoreNo(head.getStoreNo()).getStoreName());
-                    result.put("qty", head.getRequireQty().subtract(info.getQty()));
+                    result.put("qty", head.getRequireQty());
                     result.put("taskId", taskId);
                     result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
                     result.put("packName", info.getPackName());
@@ -200,41 +200,39 @@ public class SeedRestService implements ISeedRestService {
             }
 
             TaskInfo info = entry.getTaskInfo();
-            qty = qty.add(info.getQty());
             if(head.getRequireQty().compareTo(qty)<0) {
                 return JsonUtils.TOKEN_ERROR("播种数量超出门店订单数量");
             }
-            // type 2:继续播，1:剩余门店不播了。
+            // type 2:继续播，1:剩余门店不播了 ,3:跳过当前任务，播下一个任务
             head.setRealContainerId(containerId);
             info.setQty(qty);
             entry.setTaskInfo(info);
             entry.setTaskHead(head);
-
+            iTaskRpcService.done(entry);
            if(type.compareTo(2L)==0){
-               iTaskRpcService.done(entry);
                if(qty.compareTo(head.getRequireQty())!=0) {
                    //创建剩余数量门店任务
 
+                   info.setTaskId(0L);
                    info.setId(0L);
                    info.setStatus(TaskConstant.Draft);
                    info.setPlanId(uid);
                    info.setContainerId(0L);
                    head.setRequireQty(head.getRequireQty().subtract(info.getQty()));
                    head.getRequireQty().subtract(info.getQty());
+                   entry.setTaskInfo(info);
+                   entry.setTaskHead(head);
+                   iTaskRpcService.create(TaskConstant.TYPE_SEED, entry);
 
+                   return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+                       {
+                           put("response", true);
+                       }
+                   });
 
-                   iTaskRpcService.update(TaskConstant.TYPE_SEED,entry);
-                   result.put("storeName", storeRpcService.getStoreByStoreNo(head.getStoreNo()).getStoreName());
-                   result.put("qty", head.getRequireQty().subtract(info.getQty()));
-                   result.put("taskId", taskId);
-                   result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
-                   result.put("packName", info.getPackName());
-                   result.put("itemId", info.getItemId());
-                   return JsonUtils.SUCCESS(result);
                }
 
-            }else {
-                iTaskRpcService.done(taskId);
+            }else if(type.compareTo(1L)==0){
                 HashMap<String,Object> map = new HashMap<String, Object>();
                 map.put("orderId", info.getOrderId());
                 map.put("status",TaskConstant.Draft);
@@ -264,7 +262,7 @@ public class SeedRestService implements ISeedRestService {
                 head = (SeedingTaskHead) (entry.getTaskHead());
                 info = entry.getTaskInfo();
                 result.put("storeName", storeRpcService.getStoreByStoreNo(head.getStoreNo()).getStoreName());
-                result.put("qty", head.getRequireQty().subtract(info.getQty()));
+                result.put("qty", head.getRequireQty());
                 result.put("taskId", taskId);
                 result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
                 result.put("packName", info.getPackName());
@@ -322,7 +320,7 @@ public class SeedRestService implements ISeedRestService {
         TaskInfo info = entry.getTaskInfo();
         SeedingTaskHead head = (SeedingTaskHead) entry.getTaskHead();
         result.put("storeName", storeRpcService.getStoreByStoreNo(head.getStoreNo()).getStoreName());
-        result.put("qty", head.getRequireQty().subtract(info.getQty()));
+        result.put("qty", head.getRequireQty());
         result.put("taskId", taskId);
         result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
         result.put("packName", info.getPackName());

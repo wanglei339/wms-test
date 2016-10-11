@@ -124,7 +124,6 @@ public class StockTransferCore {
 
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         if (taskInfo.getType().compareTo(TaskConstant.TYPE_PROCUREMENT) == 0) {
-            taskInfo.setExt4(1L);
             if (quants == null || quants.size() == 0) {
                 throw new BizCheckedException("2550008");
             }
@@ -170,7 +169,7 @@ public class StockTransferCore {
             taskInfo.setQtyDone(qtyDone);
         }
         //taskInfo.setStatus(TaskConstant.Doing);
-        taskInfo.setExt3(1L);
+        taskInfo.setStep(1);
         taskInfoDao.update(taskInfo);
     }
 

@@ -86,6 +86,14 @@ public class TaskInfo implements Serializable {
     private String ext8 = "";
 	/** 扩展字段 */
     private String ext9 = "";
+	/** 合板后关系容器id */
+	private Long mergedContainerId;
+	/** 子任务执行状态*/
+	private int step;
+	/** 是否显示，非必须*/
+	private int isShow;
+	/** 任务执行顺序*/
+	private Long taskOrder;
 	/**  */
     private Long createdAt;
 	/**  */
@@ -502,5 +510,37 @@ public class TaskInfo implements Serializable {
 
 	public void setTransPlan(String transPlan){
 		this.transPlan = transPlan;
+	}
+
+	public Long getMergedContainerId() {
+		return mergedContainerId;
+	}
+
+	public void setMergedContainerId(Long mergedContainerId) {
+		this.mergedContainerId = mergedContainerId;
+	}
+
+	public int getStep() {
+		return step;
+	}
+
+	public void setStep(int step) {
+		this.step = step;
+	}
+
+	public int getIsShow() {
+		return isShow;
+	}
+
+	public void setIsShow(int isShow) {
+		this.isShow = isShow;
+	}
+
+	public Long getTaskOrder() {
+		return taskOrder;
+	}
+
+	public void setTaskOrder(Long taskOrder) {
+		this.taskOrder = taskOrder;
 	}
 }

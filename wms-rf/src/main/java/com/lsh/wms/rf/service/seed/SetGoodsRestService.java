@@ -83,10 +83,10 @@ public class SetGoodsRestService implements ISetGoodsRestService {
             throw new BizCheckedException("2880008");
         }
         TaskInfo info = infos.get(0);
-        if(info.getExt1().compareTo(2L)==0){
+        if(info.getStep()==2){
             throw new BizCheckedException("2880009");
         }
-        info.setExt1(2L);
+        info.setStep(2);
         info.setOperator(uId);
         TaskEntry entry = new TaskEntry();
         entry.setTaskInfo(info);
@@ -131,7 +131,7 @@ public class SetGoodsRestService implements ISetGoodsRestService {
             info = new TaskInfo();
             info.setType(TaskConstant.TYPE_SET_GOODS);
             info.setContainerId(containerId);
-            info.setExt1(1L);
+            info.setStep(1);
             info.setTaskName("集货任务[ " + containerId + "]");
             info.setStatus(TaskConstant.Draft);
             info.setPlanner(uId);
@@ -158,7 +158,7 @@ public class SetGoodsRestService implements ISetGoodsRestService {
         result.put("storeName",storeRpcService.getStoreByStoreNo(storeNo).getStoreName());
         result.put("locationCode",locations.get(0).getLocationCode());
         result.put("containerId",containerId);
-        result.put("status",info.getExt1());
+        result.put("status",info.getStep());
         return JsonUtils.SUCCESS(result);
     }
 }
