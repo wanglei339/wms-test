@@ -697,6 +697,15 @@ public class ReceiptRpcService implements IReceiptRpcService {
             StockLot stockLot = new StockLot();
             stockLot.setIsOld(true);
 
+            stockLot.setPackUnit(ibdDetail.getPackUnit());
+            stockLot.setSkuId(inbReceiptDetail.getSkuId());
+            stockLot.setSerialNo(inbReceiptDetail.getLotNum());
+            stockLot.setItemId(inbReceiptDetail.getItemId());
+            stockLot.setReceiptId(inbReceiptHeader.getReceiptOrderId());
+            stockLot.setPoId(inbReceiptDetail.getOrderId());
+            stockLot.setSupplierId(ibdHeader.getSupplierCode());
+            stockLotList.add(stockLot);
+
             StockMove move = new StockMove();
             move.setFromLocationId(locationService.getLocationsByType(LocationConstant.SUPPLIER_AREA).get(0).getLocationId());
             move.setToLocationId(inbReceiptHeader.getLocation());
