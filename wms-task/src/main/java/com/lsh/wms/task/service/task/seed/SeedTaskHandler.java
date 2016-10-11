@@ -126,14 +126,15 @@ public class SeedTaskHandler extends AbsTaskHandler {
         if(ibdHeader ==null){
             throw new BizCheckedException("2880004");
         }
+        BaseinfoItem item = itemService.getItem(quant.getItemId());
         mapQuery.put("type", TaskConstant.TYPE_SEED);
-        mapQuery.put("containerId",containerId);
+        mapQuery.put("orderId",orderId);
+        mapQuery.put("itemId",item.getItemId());
         List<TaskInfo> infos = baseTaskService.getTaskInfoList(mapQuery);
         if(infos!=null && infos.size()!=0){
-            throw new BizCheckedException("2880005");
+            return;
         }
 
-        BaseinfoItem item = itemService.getItem(quant.getItemId());
         String orderOtherId = ibdHeader.getOrderOtherId();
         IbdDetail ibdDetail= poOrderService.getInbPoDetailByOrderIdAndSkuCode(orderId, item.getSkuCode());
         Map<String,Object> queryMap = new HashMap<String, Object>();
