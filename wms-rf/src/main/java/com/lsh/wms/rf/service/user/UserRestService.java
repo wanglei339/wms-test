@@ -17,6 +17,8 @@ import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.model.system.RolePermission;
 import com.lsh.wms.model.system.SysUser;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -38,6 +40,10 @@ import java.util.Map;
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class UserRestService implements IUserRestService {
+
+    private static Logger logger = LoggerFactory.getLogger(UserRestService.class);
+
+
     @Autowired
     private RedisStringDao redisStringDao;
 
@@ -121,6 +127,7 @@ public class UserRestService implements IUserRestService {
             }
             RolePermission role =  rolePermissionRpcService.getRolePermissionById(Long.valueOf(user.getRole()));
             List<String> permissionList = JSON.parseArray(role.getPermission(), String.class);
+            logger.info(JsonUtils.SUCCESS(permissionList));
             for(String permission:permissionList){
                 if(permissionMap.get(permission)!=null){
                     menuRfList.add(permission);
