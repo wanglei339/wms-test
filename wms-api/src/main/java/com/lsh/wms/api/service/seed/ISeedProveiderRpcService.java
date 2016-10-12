@@ -1,6 +1,8 @@
 package com.lsh.wms.api.service.seed;
 
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.wms.api.model.po.ReceiptRequest;
+import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.transfer.StockTransferPlan;
 
 import java.util.Map;
