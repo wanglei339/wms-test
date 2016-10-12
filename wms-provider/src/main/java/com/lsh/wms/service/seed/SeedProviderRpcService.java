@@ -11,11 +11,13 @@ import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
+import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
@@ -73,6 +75,8 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
 
     @Autowired
     BaseTaskService baseTaskService;
+    @Autowired
+    ContainerService containerService;
 
     public Long getTask( Map<String, Object> mapQuery) throws BizCheckedException{
         String orderId = mapQuery.get("orderId").toString().trim();
@@ -94,15 +98,21 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
         if(entries==null || entries.size()==0){
             return 0L;
         }
-        if((containerId != null) && (Long.valueOf(containerId.toString().trim()) != 0)){
-            for(TaskEntry entry:entries){
-                TaskInfo info = entry.getTaskInfo();
-                info.setContainerId(Long.valueOf(containerId.toString().trim()));
-                entry.setTaskInfo(info);
-                taskRpcService.update(TaskConstant.TYPE_SEED,entry);
+        if(containerId != null){
+            BaseinfoContainer container = containerService.getContainer(Long.valueOf(containerId.toString().trim()));
+            if(container==null){
+                throw new BizCheckedException("2880013");
             }
+        }else {
+            containerId = 0L;
         }
+        TaskEntry entry = entries.get(0);
+        TaskInfo info = entry.getTaskInfo();
+        info.setContainerId(Long.valueOf(containerId.toString().trim()));
+        entry.setTaskInfo(info);
+        taskRpcService.update(TaskConstant.TYPE_SEED,entry);
         return entries.get(0).getTaskInfo().getTaskId();
+
     }
     public void createTask( Map<String, Object> mapQuery) throws BizCheckedException {
         String barcode = "";
