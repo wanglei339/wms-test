@@ -137,7 +137,7 @@ public class SeedRestService implements ISeedRestService {
                     StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
                     Map<String,Object> query = new HashMap<String, Object>();
                     query.put("orderId",lot.getPoId());
-                    query.put("skuId",quant.getSkuId());
+                    query.put("barcode",csiSkuService.getSku(quant.getSkuId()).getCode());
                     query.put("containerId",containerId);
                     taskId = rpcService.getTask(query);
                 }
