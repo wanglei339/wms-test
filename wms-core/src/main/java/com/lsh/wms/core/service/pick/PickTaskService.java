@@ -160,13 +160,13 @@ public class PickTaskService {
         WaveDetail needPickDetail = new WaveDetail();
         for (WaveDetail pickDetail : pickDetails) {
             Long pickAt = pickDetail.getPickAt();
-            if (pickAt == null || pickAt.equals(0L)) {
+            if (pickAt == null || pickAt.equals(0L) || pickAt.equals("")) {
                 needPickDetail = pickDetail;
                 break;
             }
         }
         // 全部捡完,则需要扫描集货位
-        if (needPickDetail.getPickTaskId() == null || needPickDetail.getPickTaskId().equals("")) {
+        if (needPickDetail.getPickTaskId() == null || needPickDetail.getPickTaskId().equals(0L)) {
             // 获取下一个拣货位id
             PickTaskHead nextTaskHead = this.getPickTaskHead(taskInfos.get(0).getTaskId());
             result.put("next_detail", renderResult(BeanMapTransUtils.Bean2map(nextTaskHead), "allocCollectLocation", "allocCollectLocationCode"));

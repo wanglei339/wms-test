@@ -220,7 +220,7 @@ public class PickRestService implements IPickRestService {
         }
 
         // 全部捡完,则需要扫描集货位
-        if (needPickDetail.getPickTaskId() == null || needPickDetail.getPickTaskId().equals("")) {
+        if (needPickDetail.getPickTaskId() == null || needPickDetail.getPickTaskId().equals(0L)) {
             TaskInfo collcetTaskInfo = taskInfos.get(0); // 取第一个拣货任务
             Long taskId = collcetTaskInfo.getTaskId();
             PickTaskHead taskHead = pickTaskService.getPickTaskHead(taskId);
@@ -309,7 +309,7 @@ public class PickRestService implements IPickRestService {
                 break;
             }
         }
-        if (nextPickDetail.getPickTaskId() == null || nextPickDetail.getPickTaskId().equals(0L)) {
+        if (nextPickDetail.getPickTaskId() == null || nextPickDetail.getPickTaskId().equals(0L) || nextPickDetail.getPickTaskId().equals("")) {
             // 货架补拣,只做一次
             if (needPickDetail.getRefDetailId().equals(0L) && taskInfo.getSubType().equals(1L)) {
                 List<WaveDetail> splitWaveDetails = new ArrayList<WaveDetail>();
