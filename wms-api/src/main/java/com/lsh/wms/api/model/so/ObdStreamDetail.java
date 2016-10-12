@@ -28,12 +28,12 @@ public class ObdStreamDetail {
     private Long containerId = 0L;
 
     /**收货的数量*/
-    private BigDecimal receiptQty = BigDecimal.ZERO;
+    private BigDecimal pickQty = BigDecimal.ZERO;
 
     public ObdStreamDetail(){}
 
 
-    public ObdStreamDetail(String allocUnitName, Long containerId, Long ibdOrderType, Long itemId, Long locId, Long orderId, Long ownerId, BigDecimal receiptQty, Long skuId, Long status) {
+    public ObdStreamDetail(String allocUnitName, Long containerId, Long ibdOrderType, Long itemId, Long locId, Long orderId, Long ownerId, BigDecimal pickQty, Long skuId, Long status) {
         this.allocUnitName = allocUnitName;
         this.containerId = containerId;
         this.ibdOrderType = ibdOrderType;
@@ -41,7 +41,7 @@ public class ObdStreamDetail {
         this.locId = locId;
         this.orderId = orderId;
         this.ownerId = ownerId;
-        this.receiptQty = receiptQty;
+        this.pickQty = pickQty;
         this.skuId = skuId;
         this.status = status;
     }
@@ -110,19 +110,19 @@ public class ObdStreamDetail {
         this.ownerId = ownerId;
     }
 
-    public BigDecimal getReceiptQty() {
-        return receiptQty;
-    }
-
-    public void setReceiptQty(BigDecimal receiptQty) {
-        this.receiptQty = receiptQty;
-    }
-
     public Long getSkuId() {
         return skuId;
     }
 
     public void setSkuId(Long skuId) {
         this.skuId = skuId;
+    }
+
+    public BigDecimal getPickQty() {
+        return pickQty;
+    }
+
+    public void setPickQty(BigDecimal pickQty) {
+        this.pickQty = pickQty;
     }
 }

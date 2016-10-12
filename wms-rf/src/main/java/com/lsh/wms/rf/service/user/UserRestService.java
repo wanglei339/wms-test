@@ -117,6 +117,7 @@ public class UserRestService implements IUserRestService {
                     put("do_setGoods", "集货");
                     put("do_releasecollection", "释放集货道");
                     put("do_storeReceipt", "门店收货");
+                    put("do_mergeboard", "合板");
 
                 }
             };
@@ -127,13 +128,15 @@ public class UserRestService implements IUserRestService {
             }
             RolePermission role =  rolePermissionRpcService.getRolePermissionById(Long.valueOf(user.getRole()));
             List<String> permissionList = JSON.parseArray(role.getPermission(), String.class);
-            logger.info(JsonUtils.SUCCESS(permissionList));
-            for(String permission:permissionList){
-                if(permissionMap.get(permission)!=null){
-                    menuRfList.add(permission);
-                    for(Map one:menuTmpList){
-                        if(one.get("name").equals(permissionMap.get(permission))){
-                            menuList.add(one);
+            for(Map one:menuTmpList) {
+                for (String key : permissionMap.keySet()) {
+                    if (permissionMap.get(key).equals(one.get("name"))) {
+                        for (String permission : permissionList) {
+                            if (key.equals(permission)) {
+                                menuList.add(one);
+                                menuRfList.add(key);
+                            }
+
                         }
                     }
                 }
@@ -161,6 +164,12 @@ public class UserRestService implements IUserRestService {
             }
         });
     }
-
+    Map<String,String> genMap (List<String> stringList){
+        Map<String,String> result = new HashMap<String, String>();
+        for(String role : stringList){
+            result.put(role,role);
+        }
+        return result;
+    }
 
 }

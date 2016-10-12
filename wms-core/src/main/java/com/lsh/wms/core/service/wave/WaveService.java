@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.wave;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
@@ -33,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.prefs.BackingStoreException;
 
 /**
  * Created by zengwenjun on 16/7/15.
@@ -113,6 +115,19 @@ public class WaveService {
     public void update(WaveHead head){
         head.setUpdatedAt(DateUtils.getCurrentSeconds());
         waveHeadDao.update(head);
+    }
+    @Transactional(readOnly = false)
+    public WaveDetail getDetailByContainerIdAndOrderIdAndItemId(Long containerId ,Long orderId,Long itemId){
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("containerId",containerId);
+        mapQuery.put("orderId",orderId);
+        mapQuery.put("itemId", itemId);
+        List<WaveDetail> waveDetails = detailDao.getWaveDetailList(mapQuery);
+        if(waveDetails== null || waveDetails.size()==0){
+            return null;
+        }else {
+            return waveDetails.get(0);
+        }
     }
 
     @Transactional(readOnly = false)
@@ -313,34 +328,38 @@ public class WaveService {
         return splitDetails;
     }
     @Transactional(readOnly = false)
-    public List<WaveDetail> splitWaveDetail(WaveDetail detail, BigDecimal splitQty,Long containerId){
+    public void splitWaveDetail(WaveDetail detail, BigDecimal requiredQty,Long containerId){
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("orderId",detail.getOrderId());
+        queryMap.put("itemId", detail.getItemId());
+        queryMap.put("containerId",detail.getContainerId());
+        List<WaveDetail> details = detailDao.getOrderedWaveDetailList(queryMap);
+        for(WaveDetail waveDetail:details){
+            this.split(waveDetail,requiredQty,containerId);
+            requiredQty.subtract(waveDetail.getPickQty());
+            if(requiredQty.compareTo(BigDecimal.ZERO)<=0){
+                break;
+            }
+        }
+        if(requiredQty.compareTo(BigDecimal.ZERO)>0){
+            throw new BizCheckedException("2880011");
+        }
+    }
+    @Transactional(readOnly = false)
+    public void split(WaveDetail detail, BigDecimal splitQty , Long containerId) {
+        if(detail.getPickQty().compareTo(splitQty)<=0)
+        {
+            detail.setContainerId(containerId);
 
-
-        //pick area location
-        BaseinfoLocation pickArea = locationService.getLocation(detail.getPickAreaLocation());
-        //getLocationUnAllocQty
-        Map<Long, BigDecimal> locationInventory = this.getLocationUnAllocQty(pickArea, detail.getItemId());
-
-        List<WaveDetail> splitDetails = new ArrayList<WaveDetail>();
-        List<Map> allocInfos = this.allocByLocation(locationInventory, splitQty, detail.getAllocPickLocation());
-        BigDecimal realSplitQty = new BigDecimal("0.0000");
-        for(Map info : allocInfos){
+        }else {
             WaveDetail newDetail = new WaveDetail();
             ObjUtils.bean2bean(detail, newDetail);
-            newDetail.setAllocQty((BigDecimal) info.get("allocQty"));
-            realSplitQty = realSplitQty.add((BigDecimal) info.get("allocQty"));
-            newDetail.setAllocPickLocation((Long) info.get("locationId"));
-            newDetail.setRefDetailId(detail.getId());
-            this.insertDetail(newDetail);
-            splitDetails.add(newDetail);
+            newDetail.setContainerId(containerId);
+            newDetail.setPickQty(splitQty);
+            detail.setPickQty(detail.getPickQty().subtract(splitQty));
+            detailDao.insert(newDetail);
         }
-        if(allocInfos.size()>0) {
-            //-detail
-            BigDecimal allocQty = detail.getAllocQty();
-            detail.setAllocQty(allocQty.subtract(realSplitQty));
-            this.updateDetail(detail);
-        }
-        return splitDetails;
+        detailDao.update(detail);
     }
 
     @Transactional(readOnly = false)

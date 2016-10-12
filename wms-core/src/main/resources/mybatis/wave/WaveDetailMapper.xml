@@ -31,6 +31,7 @@
 		<result property="allocCollectLocation" column="alloc_collect_location"/>
 		<result property="realCollectLocation" column="real_collect_location"/>
 		<result property="containerId" column="container_id"/>
+		<result property="mergedContainerId" column="merged_container_id"/>
 		<result property="pickUid" column="pick_uid"/>
 		<result property="pickAt" column="pick_at"/>
 		<result property="sowTaskId" column="sow_task_id"/>
@@ -46,32 +47,34 @@
 		<result property="shipUid" column="ship_uid"/>
 		<result property="shipAt" column="ship_at"/>
 		<result property="deliveryId" column="delivery_id"/>
-		<result property="receiptQty" column="receipt_qty"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
 		<result property="qcTimes" column="qc_times"/>
 		<result property="qcFault" column="qc_fault"/>
 		<result property="qcFaultQty" column="qc_fault_qty"/>
 	</resultMap>
-  
+
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="WaveDetail">
 		insert into wave_detail (
-			ref_detail_id,is_alive,is_valid,wave_id,order_id,item_id,sku_id,
-			owner_id,loc_id,supplier_id,status,req_qty,alloc_qty,alloc_unit_name,alloc_unit_qty,
-			pick_qty,qc_qty,delivery_qty,pick_task_id,pick_zone_id,pick_area_location,pick_order,
-			alloc_pick_location,real_pick_location,alloc_collect_location,real_collect_location,container_id,pick_uid,
-			pick_at,sow_task_id,sow_uid,sow_at,qc_task_id,qc_uid,
-			qc_at,qc_exception,qc_exception_qty,qc_exception_done,ship_task_id,ship_uid,receipt_qty,
-			ship_at,delivery_id,created_at,updated_at,qc_times,qc_fault,qc_fault_qty
+			ref_detail_id,is_alive,is_valid,wave_id,order_id,item_id,
+			sku_id,owner_id,loc_id,supplier_id,status,req_qty,
+			alloc_qty,alloc_unit_name,alloc_unit_qty,pick_qty,qc_qty,delivery_qty,
+			pick_task_id,pick_zone_id,pick_area_location,pick_order,alloc_pick_location,real_pick_location,
+			alloc_collect_location,real_collect_location,container_id,merged_container_id,pick_uid,pick_at,
+			sow_task_id,sow_uid,sow_at,qc_task_id,qc_uid,qc_at,
+			qc_exception,qc_exception_qty,qc_exception_done,ship_task_id,ship_uid,ship_at,
+			delivery_id,created_at,updated_at,qc_times,qc_fault,qc_fault_qty
     	) values (
-			#{refDetailId},#{isAlive},#{isValid},#{waveId},#{orderId},#{itemId},#{skuId},
-			#{ownerId},#{locId},#{supplierId},#{status},#{reqQty},#{allocQty},#{allocUnitName},#{allocUnitQty},
-			#{pickQty},#{qcQty},#{deliveryQty},#{pickTaskId},#{pickZoneId},#{pickAreaLocation},#{pickOrder},
-			#{allocPickLocation},#{realPickLocation},#{allocCollectLocation},#{realCollectLocation},#{containerId},#{pickUid},
-			#{pickAt},#{sowTaskId},#{sowUid},#{sowAt},#{qcTaskId},#{qcUid},
-			#{qcAt},#{qcException},#{qcExceptionQty},#{qcExceptionDone},#{shipTaskId},#{shipUid},#{receiptQty},
-			#{shipAt},#{deliveryId},#{createdAt},#{updatedAt},#{qcTimes},#{qcFault},#{qcFaultQty}
+			#{refDetailId},#{isAlive},#{isValid},#{waveId},#{orderId},#{itemId},
+			#{skuId},#{ownerId},#{locId},#{supplierId},#{status},#{reqQty},
+			#{allocQty},#{allocUnitName},#{allocUnitQty},#{pickQty},#{qcQty},#{deliveryQty},
+			#{pickTaskId},#{pickZoneId},#{pickAreaLocation},#{pickOrder},#{allocPickLocation},#{realPickLocation},
+			#{allocCollectLocation},#{realCollectLocation},#{containerId},#{mergedContainerId},#{pickUid},#{pickAt},
+			#{sowTaskId},#{sowUid},#{sowAt},#{qcTaskId},#{qcUid},#{qcAt},
+			#{qcException},#{qcExceptionQty},#{qcExceptionDone},#{shipTaskId},#{shipUid},#{shipAt},
+			#{deliveryId},#{createdAt},#{updatedAt},#{qcTimes},#{qcFault},#{qcFaultQty}
     	)
+
 	</insert>
 
 	<update id="update" parameterType="WaveDetail">
@@ -104,6 +107,7 @@
   			<if test="allocCollectLocation != null">alloc_collect_location=#{allocCollectLocation},</if>
   			<if test="realCollectLocation != null">real_collect_location=#{realCollectLocation},</if>
   			<if test="containerId != null">container_id=#{containerId},</if>
+			<if test="mergedContainerId != null">merged_container_id=#{mergedContainerId},</if>
   			<if test="pickUid != null">pick_uid=#{pickUid},</if>
   			<if test="pickAt != null">pick_at=#{pickAt},</if>
   			<if test="sowTaskId != null">sow_task_id=#{sowTaskId},</if>
@@ -119,7 +123,6 @@
   			<if test="shipUid != null">ship_uid=#{shipUid},</if>
   			<if test="shipAt != null">ship_at=#{shipAt},</if>
 			<if test="deliveryId != null">delivery_id=#{deliveryId},</if>
-			<if test="receiptQty != null">receipt_qty=#{receiptQty},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
 			<if test="qcTimes != null">qc_times=#{qcTimes},</if>
@@ -193,6 +196,7 @@
 			<if test="allocCollectLocation != null">and alloc_collect_location=#{allocCollectLocation}</if>
 			<if test="realCollectLocation != null">and real_collect_location=#{realCollectLocation}</if>
 			<if test="containerId != null">and container_id=#{containerId}</if>
+			<if test="mergedContainerId != null">and merged_container_id=#{mergedContainerId}</if>
 			<if test="pickUid != null">and pick_uid=#{pickUid}</if>
 			<if test="pickAt != null">and pick_at=#{pickAt}</if>
 			<if test="sowTaskId != null">and sow_task_id=#{sowTaskId}</if>
@@ -208,7 +212,6 @@
 			<if test="shipUid != null">and ship_uid=#{shipUid}</if>
 			<if test="shipAt != null">and ship_at=#{shipAt}</if>
 			<if test="deliveryId != null">and delivery_id=#{deliveryId}</if>
-			<if test="receiptQty != null">and receipt_qty=#{receiptQty}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 			<if test="qcTimes != null">and qc_times=#{qcTimes}</if>
