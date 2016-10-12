@@ -403,7 +403,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     obdStreamDetail.setItemId(inbReceiptDetail.getItemId());
                     obdStreamDetail.setContainerId(inbReceiptHeader.getContainerId());
                     obdStreamDetail.setOwnerId(ibdHeader.getOwnerUid());
-                    obdStreamDetail.setReceiptQty(inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit()));
+                    //obdStreamDetail.setReceiptQty(inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit()));
+                    //统一放到pickQty中
+                    obdStreamDetail.setPickQty(inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit()));
                     obdStreamDetail.setSkuId(inbReceiptDetail.getSkuId());
                     obdStreamDetailList.add(obdStreamDetail);
 
@@ -730,7 +732,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
             obdStreamDetail.setItemId(inbReceiptDetail.getItemId());
             obdStreamDetail.setContainerId(inbReceiptHeader.getContainerId());
             obdStreamDetail.setOwnerId(ibdHeader.getOwnerUid());
-            obdStreamDetail.setReceiptQty(inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit()));
+            //obdStreamDetail.setReceiptQty(inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit()));
+            obdStreamDetail.setPickQty(inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit()));
             obdStreamDetail.setSkuId(inbReceiptDetail.getSkuId());
             obdStreamDetailList.add(obdStreamDetail);
 
