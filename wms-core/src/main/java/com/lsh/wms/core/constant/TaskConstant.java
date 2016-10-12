@@ -34,4 +34,11 @@ public class TaskConstant {
     public static final Long EVENT_OUT_OF_STOCK = 100003L;
     public static final Long EVENT_PROCUREMENT_CANCEL = 100004L;
     public static final Long EVENT_STOCK_TRANSFER_CANCEL = 100005L;
+
+    //直流和在库的区别sub_type
+    public static final Long TASK_DIRECT = 1L; //直流
+    public static final Long TASK_INBOUND = 0L; //在库
+
+
+
 }
