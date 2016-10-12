@@ -98,11 +98,18 @@ public class WaveDetail implements Serializable {
     private Long createdAt = 0L;
 	/**  */
     private Long updatedAt = 0L;
-	
+	/** qc的进入次数默认0，1-第一次2-复Q */
+	private Integer qcTimes = 0;
+	/** qc追责任0-无责任1-拣货人责任2-qc的责任 */
+	private Long qcFault = 0L;
+	/** 追责数量 */
+	private BigDecimal qcFaultQty = new BigDecimal("0.0000");
+
+
 	public Long getId(){
 		return this.id;
 	}
-	
+
 	public void setId(Long id){
 		this.id = id;
 	}
@@ -114,35 +121,35 @@ public class WaveDetail implements Serializable {
 	public void setRefDetailId(Long refDetailId){
 		this.refDetailId = refDetailId;
 	}
-	
+
 	public Long getIsAlive(){
 		return this.isAlive;
 	}
-	
+
 	public void setIsAlive(Long isAlive){
 		this.isAlive = isAlive;
 	}
-	
+
 	public Long getIsValid(){
 		return this.isValid;
 	}
-	
+
 	public void setIsValid(Long isValid){
 		this.isValid = isValid;
 	}
-	
+
 	public Long getWaveId(){
 		return this.waveId;
 	}
-	
+
 	public void setWaveId(Long waveId){
 		this.waveId = waveId;
 	}
-	
+
 	public Long getOrderId(){
 		return this.orderId;
 	}
-	
+
 	public void setOrderId(Long orderId){
 		this.orderId = orderId;
 	}
@@ -154,59 +161,59 @@ public class WaveDetail implements Serializable {
 	public void setItemId(Long itemId){
 		this.itemId = itemId;
 	}
-	
+
 	public Long getSkuId(){
 		return this.skuId;
 	}
-	
+
 	public void setSkuId(Long skuId){
 		this.skuId = skuId;
 	}
-	
+
 	public Long getOwnerId(){
 		return this.ownerId;
 	}
-	
+
 	public void setOwnerId(Long ownerId){
 		this.ownerId = ownerId;
 	}
-	
+
 	public Long getLocId(){
 		return this.locId;
 	}
-	
+
 	public void setLocId(Long locId){
 		this.locId = locId;
 	}
-	
+
 	public Long getSupplierId(){
 		return this.supplierId;
 	}
-	
+
 	public void setSupplierId(Long supplierId){
 		this.supplierId = supplierId;
 	}
-	
+
 	public Long getStatus(){
 		return this.status;
 	}
-	
+
 	public void setStatus(Long status){
 		this.status = status;
 	}
-	
+
 	public BigDecimal getReqQty(){
 		return this.reqQty;
 	}
-	
+
 	public void setReqQty(BigDecimal reqQty){
 		this.reqQty = reqQty;
 	}
-	
+
 	public BigDecimal getAllocQty(){
 		return this.allocQty;
 	}
-	
+
 	public void setAllocQty(BigDecimal allocQty){
 		this.allocQty = allocQty;
 	}
@@ -226,27 +233,27 @@ public class WaveDetail implements Serializable {
 	public void setAllocUnitName(String allocUnitName){
 		this.allocUnitName = allocUnitName;
 	}
-	
+
 	public BigDecimal getPickQty(){
 		return this.pickQty;
 	}
-	
+
 	public void setPickQty(BigDecimal pickQty){
 		this.pickQty = pickQty;
 	}
-	
+
 	public BigDecimal getQcQty(){
 		return this.qcQty;
 	}
-	
+
 	public void setQcQty(BigDecimal qcQty){
 		this.qcQty = qcQty;
 	}
-	
+
 	public BigDecimal getDeliveryQty(){
 		return this.deliveryQty;
 	}
-	
+
 	public void setDeliveryQty(BigDecimal deliveryQty){
 		this.deliveryQty = deliveryQty;
 	}
@@ -258,11 +265,11 @@ public class WaveDetail implements Serializable {
 	public void setPickTaskId(Long pickTaskId){
 		this.pickTaskId = pickTaskId;
 	}
-	
+
 	public Long getPickZoneId(){
 		return this.pickZoneId;
 	}
-	
+
 	public void setPickZoneId(Long pickZoneId){
 		this.pickZoneId = pickZoneId;
 	}
@@ -282,155 +289,155 @@ public class WaveDetail implements Serializable {
 	public void setPickOrder(Long pickOrder){
 		this.pickOrder = pickOrder;
 	}
-	
+
 	public Long getAllocPickLocation(){
 		return this.allocPickLocation;
 	}
-	
+
 	public void setAllocPickLocation(Long allocPickLocation){
 		this.allocPickLocation = allocPickLocation;
 	}
-	
+
 	public Long getRealPickLocation(){
 		return this.realPickLocation;
 	}
-	
+
 	public void setRealPickLocation(Long realPickLocation){
 		this.realPickLocation = realPickLocation;
 	}
-	
+
 	public Long getAllocCollectLocation(){
 		return this.allocCollectLocation;
 	}
-	
+
 	public void setAllocCollectLocation(Long allocCollectLocation){
 		this.allocCollectLocation = allocCollectLocation;
 	}
-	
+
 	public Long getRealCollectLocation(){
 		return this.realCollectLocation;
 	}
-	
+
 	public void setRealCollectLocation(Long realCollectLocation){
 		this.realCollectLocation = realCollectLocation;
 	}
-	
+
 	public Long getContainerId(){
 		return this.containerId;
 	}
-	
+
 	public void setContainerId(Long containerId){
 		this.containerId = containerId;
 	}
-	
+
 	public Long getPickUid(){
 		return this.pickUid;
 	}
-	
+
 	public void setPickUid(Long pickUid){
 		this.pickUid = pickUid;
 	}
-	
+
 	public Long getPickAt(){
 		return this.pickAt;
 	}
-	
+
 	public void setPickAt(Long pickAt){
 		this.pickAt = pickAt;
 	}
-	
+
 	public Long getSowTaskId(){
 		return this.sowTaskId;
 	}
-	
+
 	public void setSowTaskId(Long sowTaskId){
 		this.sowTaskId = sowTaskId;
 	}
-	
+
 	public Long getSowUid(){
 		return this.sowUid;
 	}
-	
+
 	public void setSowUid(Long sowUid){
 		this.sowUid = sowUid;
 	}
-	
+
 	public Long getSowAt(){
 		return this.sowAt;
 	}
-	
+
 	public void setSowAt(Long sowAt){
 		this.sowAt = sowAt;
 	}
-	
+
 	public Long getQcTaskId(){
 		return this.qcTaskId;
 	}
-	
+
 	public void setQcTaskId(Long qcTaskId){
 		this.qcTaskId = qcTaskId;
 	}
-	
+
 	public Long getQcUid(){
 		return this.qcUid;
 	}
-	
+
 	public void setQcUid(Long qcUid){
 		this.qcUid = qcUid;
 	}
-	
+
 	public Long getQcAt(){
 		return this.qcAt;
 	}
-	
+
 	public void setQcAt(Long qcAt){
 		this.qcAt = qcAt;
 	}
-	
+
 	public Long getQcException(){
 		return this.qcException;
 	}
-	
+
 	public void setQcException(Long qcException){
 		this.qcException = qcException;
 	}
-	
+
 	public BigDecimal getQcExceptionQty(){
 		return this.qcExceptionQty;
 	}
-	
+
 	public void setQcExceptionQty(BigDecimal qcExceptionQty){
 		this.qcExceptionQty = qcExceptionQty;
 	}
-	
+
 	public Long getQcExceptionDone(){
 		return this.qcExceptionDone;
 	}
-	
+
 	public void setQcExceptionDone(Long qcExceptionDone){
 		this.qcExceptionDone = qcExceptionDone;
 	}
-	
+
 	public Long getShipTaskId(){
 		return this.shipTaskId;
 	}
-	
+
 	public void setShipTaskId(Long shipTaskId){
 		this.shipTaskId = shipTaskId;
 	}
-	
+
 	public Long getShipUid(){
 		return this.shipUid;
 	}
-	
+
 	public void setShipUid(Long shipUid){
 		this.shipUid = shipUid;
 	}
-	
+
 	public Long getShipAt(){
 		return this.shipAt;
 	}
-	
+
 	public void setShipAt(Long shipAt){
 		this.shipAt = shipAt;
 	}
@@ -442,19 +449,19 @@ public class WaveDetail implements Serializable {
 	public void setDeliveryId(Long deliveryId){
 		this.deliveryId = deliveryId;
 	}
-	
+
 	public Long getCreatedAt(){
 		return this.createdAt;
 	}
-	
+
 	public void setCreatedAt(Long createdAt){
 		this.createdAt = createdAt;
 	}
-	
+
 	public Long getUpdatedAt(){
 		return this.updatedAt;
 	}
-	
+
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
@@ -466,4 +473,29 @@ public class WaveDetail implements Serializable {
 	public void setReceiptQty(BigDecimal receiptQty) {
 		this.receiptQty = receiptQty;
 	}
+
+	public Integer getQcTimes(){
+		return this.qcTimes;
+	}
+
+	public void setQcTimes(Integer qcTimes){
+		this.qcTimes = qcTimes;
+	}
+
+	public Long getQcFault(){
+		return this.qcFault;
+	}
+
+	public void setQcFault(Long qcFault){
+		this.qcFault = qcFault;
+	}
+
+	public BigDecimal getQcFaultQty(){
+		return this.qcFaultQty;
+	}
+
+	public void setQcFaultQty(BigDecimal qcFaultQty){
+		this.qcFaultQty = qcFaultQty;
+	}
+
 }
