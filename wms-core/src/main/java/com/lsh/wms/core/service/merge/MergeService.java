@@ -32,8 +32,6 @@ public class MergeService {
     private TaskInfoDao taskInfoDao;
     @Autowired
     private WaveDetailDao waveDetailDao;
-    @Autowired
-    private BaseTaskService baseTaskService;
 
     @Transactional(readOnly = false)
     public void mergeContainers(List<Long> containerIds) throws BizCheckedException {
@@ -62,7 +60,7 @@ public class MergeService {
                 taskMapQuery.put("taskId", qcTaskId);
                 taskMapQuery.put("type", TaskConstant.TYPE_QC);
                 taskMapQuery.put("status", TaskConstant.Done);
-                // TODO: 直流属性
+                taskMapQuery.put("businessMode", TaskConstant.MODE_DIRECT);
                 TaskInfo taskInfo = taskInfoDao.getTaskInfoList(taskMapQuery).get(0);
                 if (!taskInfos.contains(taskInfo)) {
                     taskInfos.add(taskInfo);
