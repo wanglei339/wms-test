@@ -480,7 +480,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
             //根据类型来决定任务的流向
             if(PoConstant.ORDER_TYPE_CPO == orderType){
                 taskInfo.setSubType(TaskConstant.TASK_DIRECT);
+                taskInfo.setBusinessMode(TaskConstant.MODE_DIRECT);
             }else{
+                taskInfo.setBusinessMode(TaskConstant.MODE_INBOUND);
                 taskInfo.setSubType(TaskConstant.TASK_INBOUND);
             }
             taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
@@ -786,6 +788,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             taskInfo.setTaskId(taskId);
             taskInfo.setType(TaskConstant.TYPE_PO);
             taskInfo.setSubType(TaskConstant.TASK_STORE_DIRECT);
+            taskInfo.setBusinessMode(TaskConstant.MODE_DIRECT);
             taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
             taskInfo.setContainerId(inbReceiptHeader.getContainerId());
             taskInfo.setItemId(inbReceiptDetailList.get(0).getItemId());
