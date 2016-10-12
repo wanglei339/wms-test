@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.wave;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
@@ -33,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.prefs.BackingStoreException;
 
 /**
  * Created by zengwenjun on 16/7/15.
@@ -114,12 +116,25 @@ public class WaveService {
         head.setUpdatedAt(DateUtils.getCurrentSeconds());
         waveHeadDao.update(head);
     }
+    @Transactional(readOnly = false)
+    public WaveDetail getDetailByContainerIdAndOrderIdAndItemId(Long containerId ,Long orderId,Long itemId){
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("containerId",containerId);
+        mapQuery.put("orderId",orderId);
+        mapQuery.put("itemId", itemId);
+        List<WaveDetail> waveDetails = detailDao.getWaveDetailList(mapQuery);
+        if(waveDetails== null || waveDetails.size()==0){
+            return null;
+        }else {
+            return waveDetails.get(0);
+        }
+    }
 
     @Transactional(readOnly = false)
     public void setStatus(long iWaveId, int iStatus){
         WaveHead head = this.getWave(iWaveId);
         if(head == null) return ;
-        head.setStatus((long)iStatus);
+        head.setStatus((long) iStatus);
         this.update(head);
     }
 
@@ -311,6 +326,40 @@ public class WaveService {
             this.updateDetail(detail);
         }
         return splitDetails;
+    }
+    @Transactional(readOnly = false)
+    public void splitWaveDetail(WaveDetail detail, BigDecimal requiredQty,Long containerId){
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("orderId",detail.getOrderId());
+        queryMap.put("itemId", detail.getItemId());
+        queryMap.put("containerId",detail.getContainerId());
+        List<WaveDetail> details = detailDao.getOrderedWaveDetailList(queryMap);
+        for(WaveDetail waveDetail:details){
+            this.split(waveDetail,requiredQty,containerId);
+            requiredQty.subtract(waveDetail.getReceiptQty());
+            if(requiredQty.compareTo(BigDecimal.ZERO)<=0){
+                break;
+            }
+        }
+        if(requiredQty.compareTo(BigDecimal.ZERO)>0){
+            throw new BizCheckedException("2880011");
+        }
+    }
+    @Transactional(readOnly = false)
+    public void split(WaveDetail detail, BigDecimal splitQty , Long containerId) {
+        if(detail.getReceiptQty().compareTo(splitQty)<=0)
+        {
+            detail.setContainerId(containerId);
+
+        }else {
+            WaveDetail newDetail = new WaveDetail();
+            ObjUtils.bean2bean(detail, newDetail);
+            newDetail.setContainerId(containerId);
+            newDetail.setReceiptQty(splitQty);
+            detail.setReceiptQty(detail.getReceiptQty().subtract(splitQty));
+            detailDao.insert(newDetail);
+        }
+        detailDao.update(detail);
     }
 
     @Transactional(readOnly = false)

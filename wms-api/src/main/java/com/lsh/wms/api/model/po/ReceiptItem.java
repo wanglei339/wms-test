@@ -38,9 +38,9 @@ public class ReceiptItem implements Serializable {
 
     /** 产地 */
     @Size(max=100)
-    private String madein;
+    private String madein = "";
 
-    /** 实际整箱收货数 */
+    /** 实际收货数 */
     @NotNull
     private BigDecimal inboundQty = new BigDecimal(0);
 
@@ -53,7 +53,7 @@ public class ReceiptItem implements Serializable {
     private BigDecimal arriveNum= new BigDecimal(0);
 
     /** 残次数 */
-    private BigDecimal defectNum;
+    private BigDecimal defectNum = BigDecimal.ZERO;
 
     /** 生产日期 */
     @NotNull
@@ -61,7 +61,7 @@ public class ReceiptItem implements Serializable {
 
     /** 拒收原因 */
     @Size(max=100)
-    private String refuseReason;
+    private String refuseReason ="";
 
     /**包装名称*/
     private String packName;

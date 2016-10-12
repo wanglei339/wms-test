@@ -140,7 +140,7 @@ public class ReceiptRestService implements IReceiptRfService {
         receiptRequest.setItems(receiptItemList);
         Integer orderType = ibdHeader.getOrderType();
 
-        if(PoConstant.ORDER_TYPE_CPO == orderType){
+        if(PoConstant.ORDER_TYPE_CPO == orderType && receiptRequest.getStoreId() != null){
             iReceiptRpcService.addStoreReceipt(receiptRequest);
         }else{
             iReceiptRpcService.insertOrder(receiptRequest);

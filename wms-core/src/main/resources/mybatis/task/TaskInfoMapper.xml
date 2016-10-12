@@ -53,6 +53,8 @@
 		<result property="step" column="step"/>
 		<result property="isShow" column="is_show"/>
 		<result property="taskOrder" column="task_order"/>
+		<result property="businessMode" column="business_mode"/>
+		<result property="qcPreviousTaskId" column="qc_previous_task_id"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TaskInfo">
@@ -65,7 +67,7 @@
 			due_time,finish_time,cancel_time,ext1,ext2,ext3,
 			ext4,ext5,ext6,ext7,ext8,ext9,
 			created_at,updated_at, task_pack_qty,
-			task_ea_qty, date, trans_plan,merged_container_id,step,is_show,task_order
+			task_ea_qty, date, trans_plan,merged_container_id,step,is_show,task_order,business_mode,qc_previous_task_id
     	) values (
 			#{taskId},#{taskName},#{planId},#{waveId},#{orderId},#{locationId},
 			#{skuId},#{ownerId},#{itemId},#{fromLocationId},#{toLocationId},#{qty},
@@ -75,7 +77,7 @@
 			#{dueTime},#{finishTime},#{cancelTime},#{ext1},#{ext2},#{ext3},
 			#{ext4},#{ext5},#{ext6},#{ext7},#{ext8},#{ext9},
 			#{createdAt},#{updatedAt},#{taskPackQty},
-			#{taskEaQty}, #{date},#{transPlan},#{mergedContainerId},#{step},#{is_show},#{task_order}
+			#{taskEaQty}, #{date},#{transPlan},#{mergedContainerId},#{step},#{isShow},#{taskOrder},#{businessMode},#{qcPreviousTaskId}
     	)
 	</insert>
 
@@ -129,8 +131,10 @@
 			<if test="step !=null">step =#{step},</if>
 			<if test="isShow !=null">is_show =#{isShow},</if>
 			<if test="taskOrder !=null">task_order =#{taskOrder},</if>
+			<if test="businessMode !=null">business_mode =#{businessMode},</if>
 			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+			<if test="qcPreviousTaskId != null">qc_previous_task_id=#{qcPreviousTaskId}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -250,6 +254,7 @@
 			<if test="skuId != null">and sku_id=#{skuId}</if>
 			<if test="ownerId != null">and owner_id=#{ownerId}</if>
 			<if test="itemId != null">and item_id=#{itemId}</if>
+
 			<if test="fromLocationId != null">and from_location_id=#{fromLocationId}</if>
 			<if test="fromLocationList != null">
 				and from_location_id in
@@ -309,6 +314,8 @@
 			<if test="step != null">and step=#{step}</if>
 			<if test="isShow != null">and is_show=#{isShow}</if>
 			<if test="taskOrder != null">and task_order=#{taskOrder}</if>
+			<if test="businessMode != null">and business_mode=#{businessMode}</if>
+			<if test="qcPreviousTaskId != null">and qc_previous_task_id=#{qcPreviousTaskId}</if>
 		</where>
 	</sql>
    

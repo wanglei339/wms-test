@@ -17,6 +17,7 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.po.IbdDetail;
@@ -31,6 +32,7 @@ import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.task.service.handler.AbsTaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
 import net.sf.json.JSONObject;
@@ -79,6 +81,8 @@ public class SeedTaskHandler extends AbsTaskHandler {
     SoOrderService soOrderService;
     @Autowired
     LocationService locationService;
+    @Autowired
+    WaveService waveService;
 
     @PostConstruct
     public void postConstruct() {
@@ -194,8 +198,8 @@ public class SeedTaskHandler extends AbsTaskHandler {
         TaskEntry entry = taskRpcService.getTaskEntryById(taskId);
         TaskInfo info = entry.getTaskInfo();
         SeedingTaskHead head = (SeedingTaskHead)entry.getTaskHead();
-        //收货播种
         StockMove move = new StockMove();
+        //收货播种
         if(info.getSubType().compareTo(1L)==0){
             StockQuantCondition condition = new StockQuantCondition();
             condition.setContainerId(info.getContainerId());
@@ -208,6 +212,12 @@ public class SeedTaskHandler extends AbsTaskHandler {
             move.setItemId(quant.getItemId());
             move.setFromContainerId(info.getContainerId());
             move.setFromLocationId(quant.getLocationId());
+            WaveDetail detail =  waveService.getDetailByContainerIdAndOrderIdAndItemId(info.getContainerId(), info.getOrderId(), info.getItemId());
+
+            if(detail== null ){
+                throw new BizCheckedException("2880012");
+            }
+
         }else {
             move.setSkuId(info.getSkuId());
             move.setFromContainerId(info.getContainerId());

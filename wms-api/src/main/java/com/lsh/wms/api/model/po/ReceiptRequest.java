@@ -21,11 +21,11 @@ public class ReceiptRequest implements Serializable {
 
     /** 仓库ID */
     @NotNull
-    private Long warehouseId;
+    private Long warehouseId = 1L;
 
     /** 预约单号 */
     @Size(max=64)
-    private String bookingNum;
+    private String bookingNum = "";
 
     /** 托盘码 */
     private Long containerId;
@@ -41,7 +41,7 @@ public class ReceiptRequest implements Serializable {
 
     /** 收货码头 */
     @Size(max=64)
-    private String receiptWharf;
+    private String receiptWharf = "";
 
     private Long staffId;
 
