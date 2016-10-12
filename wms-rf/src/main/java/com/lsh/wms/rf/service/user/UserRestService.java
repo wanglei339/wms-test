@@ -117,6 +117,7 @@ public class UserRestService implements IUserRestService {
                     put("do_setGoods", "集货");
                     put("do_releasecollection", "释放集货道");
                     put("do_storeReceipt", "门店收货");
+                    put("do_mergeboard", "合板");
 
                 }
             };
