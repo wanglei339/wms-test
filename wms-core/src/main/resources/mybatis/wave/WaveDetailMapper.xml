@@ -62,9 +62,8 @@
 			pick_task_id,pick_zone_id,pick_area_location,pick_order,alloc_pick_location,real_pick_location,
 			alloc_collect_location,real_collect_location,container_id,merged_container_id,pick_uid,pick_at,
 			sow_task_id,sow_uid,sow_at,qc_task_id,qc_uid,qc_at,
-			qc_exception,qc_exception_qty,qc_exception_done,ship_task_id,ship_uid,receipt_qty,
-			ship_at,delivery_id,created_at,updated_at,qc_times,qc_fault,
-			qc_fault_qty
+			qc_exception,qc_exception_qty,qc_exception_done,ship_task_id,ship_uid,ship_at,
+			delivery_id,created_at,updated_at,qc_times,qc_fault,qc_fault_qty
     	) values (
 			#{refDetailId},#{isAlive},#{isValid},#{waveId},#{orderId},#{itemId},
 			#{skuId},#{ownerId},#{locId},#{supplierId},#{status},#{reqQty},
@@ -72,10 +71,10 @@
 			#{pickTaskId},#{pickZoneId},#{pickAreaLocation},#{pickOrder},#{allocPickLocation},#{realPickLocation},
 			#{allocCollectLocation},#{realCollectLocation},#{containerId},#{mergedContainerId},#{pickUid},#{pickAt},
 			#{sowTaskId},#{sowUid},#{sowAt},#{qcTaskId},#{qcUid},#{qcAt},
-			#{qcException},#{qcExceptionQty},#{qcExceptionDone},#{shipTaskId},#{shipUid},
-			#{shipAt},#{deliveryId},#{createdAt},#{updatedAt},#{qcTimes},#{qcFault},
-			#{qcFaultQty}
-			)
+			#{qcException},#{qcExceptionQty},#{qcExceptionDone},#{shipTaskId},#{shipUid},#{shipAt},
+			#{deliveryId},#{createdAt},#{updatedAt},#{qcTimes},#{qcFault},#{qcFaultQty}
+    	)
+
 	</insert>
 
 	<update id="update" parameterType="WaveDetail">
