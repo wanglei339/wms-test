@@ -119,7 +119,7 @@ public class WaveService {
     public void setStatus(long iWaveId, int iStatus){
         WaveHead head = this.getWave(iWaveId);
         if(head == null) return ;
-        head.setStatus((long)iStatus);
+        head.setStatus((long) iStatus);
         this.update(head);
     }
 
@@ -286,6 +286,36 @@ public class WaveService {
 
     @Transactional(readOnly = false)
     public List<WaveDetail> splitWaveDetail(WaveDetail detail, BigDecimal splitQty){
+        //pick area location
+        BaseinfoLocation pickArea = locationService.getLocation(detail.getPickAreaLocation());
+        //getLocationUnAllocQty
+        Map<Long, BigDecimal> locationInventory = this.getLocationUnAllocQty(pickArea, detail.getItemId());
+
+        List<WaveDetail> splitDetails = new ArrayList<WaveDetail>();
+        List<Map> allocInfos = this.allocByLocation(locationInventory, splitQty, detail.getAllocPickLocation());
+        BigDecimal realSplitQty = new BigDecimal("0.0000");
+        for(Map info : allocInfos){
+            WaveDetail newDetail = new WaveDetail();
+            ObjUtils.bean2bean(detail, newDetail);
+            newDetail.setAllocQty((BigDecimal) info.get("allocQty"));
+            realSplitQty = realSplitQty.add((BigDecimal) info.get("allocQty"));
+            newDetail.setAllocPickLocation((Long) info.get("locationId"));
+            newDetail.setRefDetailId(detail.getId());
+            this.insertDetail(newDetail);
+            splitDetails.add(newDetail);
+        }
+        if(allocInfos.size()>0) {
+            //-detail
+            BigDecimal allocQty = detail.getAllocQty();
+            detail.setAllocQty(allocQty.subtract(realSplitQty));
+            this.updateDetail(detail);
+        }
+        return splitDetails;
+    }
+    @Transactional(readOnly = false)
+    public List<WaveDetail> splitWaveDetail(WaveDetail detail, BigDecimal splitQty,Long containerId){
+
+
         //pick area location
         BaseinfoLocation pickArea = locationService.getLocation(detail.getPickAreaLocation());
         //getLocationUnAllocQty

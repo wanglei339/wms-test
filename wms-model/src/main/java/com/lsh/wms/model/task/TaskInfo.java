@@ -87,13 +87,16 @@ public class TaskInfo implements Serializable {
 	/** 扩展字段 */
     private String ext9 = "";
 	/** 合板后关系容器id */
-	private Long mergedContainerId;
+	private Long mergedContainerId = 0L;
 	/** 子任务执行状态*/
-	private int step;
+	private int step =0 ;
 	/** 是否显示，非必须*/
-	private int isShow;
+	private int isShow =1;
 	/** 任务执行顺序*/
-	private Long taskOrder;
+	private Long taskOrder = 0L;
+	/** 直流在库标记 1在库 2直流*/
+	private Long businessMode = 0L;
+
 	/**  */
     private Long createdAt;
 	/**  */
@@ -542,5 +545,13 @@ public class TaskInfo implements Serializable {
 
 	public void setTaskOrder(Long taskOrder) {
 		this.taskOrder = taskOrder;
+	}
+
+	public Long getBusinessMode() {
+		return businessMode;
+	}
+
+	public void setBusinessMode(Long businessMode) {
+		this.businessMode = businessMode;
 	}
 }

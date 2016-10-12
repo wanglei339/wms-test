@@ -15,15 +15,15 @@ public class WaveDetail implements Serializable {
 	/** 是否有效，比如被合盘的情况下，原记录被标记为无效 */
     private Long isValid = 1L;
 	/** 波次id */
-    private Long waveId;
+    private Long waveId = 0L;
 	/** 订单id */
-    private Long orderId;
+    private Long orderId = 0L;
 	/** 商品码 */
-	private Long itemId;
+	private Long itemId = 0L;
 	/** 商品id */
-    private Long skuId;
+    private Long skuId = 0L;
 	/** 货主id */
-    private Long ownerId;
+    private Long ownerId = 0L;
 	/** 批次id */
 	private Long locId = 0L;
 	/** 供商id */
@@ -33,7 +33,7 @@ public class WaveDetail implements Serializable {
 	/** 订单需求量 */
 	private BigDecimal reqQty = new BigDecimal("0.0000");
 	/** 配货库存量 */
-	private BigDecimal allocQty;
+	private BigDecimal allocQty = BigDecimal.ZERO;
 	/** 分配库存单位名称 */
 	private String allocUnitName = "EA";
 	/** 分配库存单位数量 */
@@ -45,9 +45,9 @@ public class WaveDetail implements Serializable {
 	/** 最终出库量 */
 	private BigDecimal deliveryQty = new BigDecimal("0.0000");
 	/** 捡货任务id */
-	private Long pickTaskId;
+	private Long pickTaskId =0L;
 	/** 分配的捡货分区,通过分区信息取获取对应的区域路径，可获取到虾面的捡货位 */
-    private Long pickZoneId;
+    private Long pickZoneId = 0L;
 	/** 分配分拣区域locationid */
 	private Long pickAreaLocation = 0L;
 	/** 拣货顺序 */

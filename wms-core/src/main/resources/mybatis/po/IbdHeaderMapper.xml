@@ -56,7 +56,7 @@
 	</update>
 
 	<update id="updateByOrderOtherIdOrOrderId" parameterType="IbdHeader">
-		update INB_PO_HEADER
+		update ibd_header
 		<set>
 			<if test="orderOtherRefId != null">order_other_ref_id=#{orderOtherRefId},</if>
 			<if test="orderOtherId != null">order_other_id=#{orderOtherId},</if>

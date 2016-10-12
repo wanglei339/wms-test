@@ -36,8 +36,9 @@ public class TaskConstant {
     public static final Long EVENT_STOCK_TRANSFER_CANCEL = 100005L;
 
     //直流和在库的区别sub_type
-    public static final Long TASK_DIRECT = 1L; //直流
     public static final Long TASK_INBOUND = 0L; //在库
+    public static final Long TASK_DIRECT = 1L; //直流订单收货
+    public static final Long TASK_STORE_DIRECT = 2L; //直流门店收货
 
 
 
