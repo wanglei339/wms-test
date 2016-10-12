@@ -62,6 +62,8 @@ public class WaveDetail implements Serializable {
     private Long realCollectLocation = 0L;
 	/** 容器id,非常重要的字断，务必维护好当前真实的商品所在的container信息，否则就惨了 */
     private Long containerId = 0L;
+	/** 合板后的container_id关系 */
+	private Long mergedContainerId;
 	/** 拣货员id */
     private Long pickUid = 0L;
 	/** 捡货时间 */
@@ -321,6 +323,14 @@ public class WaveDetail implements Serializable {
 	
 	public void setContainerId(Long containerId){
 		this.containerId = containerId;
+	}
+
+	public Long getMergedContainerId(){
+		return this.mergedContainerId;
+	}
+
+	public void setMergedContainerId(Long mergedContainerId){
+		this.mergedContainerId = mergedContainerId;
 	}
 	
 	public Long getPickUid(){
