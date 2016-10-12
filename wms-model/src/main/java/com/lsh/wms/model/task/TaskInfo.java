@@ -179,7 +179,7 @@ public class TaskInfo implements Serializable {
     /**
      * 直流在库标记 1在库 2直流
      */
-    private Long businessMode = 0L;
+    private Long businessMode = 1L;
 
     /**  */
     private Long createdAt;

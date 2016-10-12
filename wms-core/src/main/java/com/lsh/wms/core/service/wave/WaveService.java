@@ -347,7 +347,7 @@ public class WaveService {
     }
     @Transactional(readOnly = false)
     public void split(WaveDetail detail, BigDecimal splitQty , Long containerId) {
-        if(detail.getReceiptQty().compareTo(splitQty)<=0)
+        if(detail.getPickQty().compareTo(splitQty)<=0)
         {
             detail.setContainerId(containerId);
 
@@ -355,8 +355,8 @@ public class WaveService {
             WaveDetail newDetail = new WaveDetail();
             ObjUtils.bean2bean(detail, newDetail);
             newDetail.setContainerId(containerId);
-            newDetail.setReceiptQty(splitQty);
-            detail.setReceiptQty(detail.getReceiptQty().subtract(splitQty));
+            newDetail.setPickQty(splitQty);
+            detail.setPickQty(detail.getReceiptQty().subtract(splitQty));
             detailDao.insert(newDetail);
         }
         detailDao.update(detail);
