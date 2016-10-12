@@ -49,6 +49,9 @@
 		<result property="receiptQty" column="receipt_qty"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
+		<result property="qcTimes" column="qc_times"/>
+		<result property="qcFault" column="qc_ fault"/>
+		<result property="qcFaultQty" column="qc_fault_qty"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="WaveDetail">
@@ -58,16 +61,16 @@
 			pick_qty,qc_qty,delivery_qty,pick_task_id,pick_zone_id,pick_area_location,pick_order,
 			alloc_pick_location,real_pick_location,alloc_collect_location,real_collect_location,container_id,pick_uid,
 			pick_at,sow_task_id,sow_uid,sow_at,qc_task_id,qc_uid,
-			qc_at,qc_exception,qc_exception_qty,qc_exception_done,ship_task_id,ship_uid,
-			ship_at,delivery_id,created_at,updated_at,receipt_qty
+			qc_at,qc_exception,qc_exception_qty,qc_exception_done,ship_task_id,ship_uid,receipt_qty,
+			ship_at,delivery_id,created_at,updated_at,qc_times,qc_ fault,qc_fault_qty
     	) values (
 			#{refDetailId},#{isAlive},#{isValid},#{waveId},#{orderId},#{itemId},#{skuId},
 			#{ownerId},#{locId},#{supplierId},#{status},#{reqQty},#{allocQty},#{allocUnitName},#{allocUnitQty},
 			#{pickQty},#{qcQty},#{deliveryQty},#{pickTaskId},#{pickZoneId},#{pickAreaLocation},#{pickOrder},
 			#{allocPickLocation},#{realPickLocation},#{allocCollectLocation},#{realCollectLocation},#{containerId},#{pickUid},
 			#{pickAt},#{sowTaskId},#{sowUid},#{sowAt},#{qcTaskId},#{qcUid},
-			#{qcAt},#{qcException},#{qcExceptionQty},#{qcExceptionDone},#{shipTaskId},#{shipUid},
-			#{shipAt},#{deliveryId},#{createdAt},#{updatedAt},#{receiptQty}
+			#{qcAt},#{qcException},#{qcExceptionQty},#{qcExceptionDone},#{shipTaskId},#{shipUid},#{receiptQty},
+			#{shipAt},#{deliveryId},#{createdAt},#{updatedAt},#{qcTimes},#{qcFault},#{qcFaultQty}
     	)
 	</insert>
 
@@ -118,7 +121,10 @@
 			<if test="deliveryId != null">delivery_id=#{deliveryId},</if>
 			<if test="receiptQty != null">receipt_qty=#{receiptQty},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
-  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+			<if test="qcTimes != null">qc_times=#{qcTimes},</if>
+			<if test="qcFault != null">qc_ fault=#{qcFault},</if>
+			<if test="qcFaultQty != null">qc_fault_qty=#{qcFaultQty}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -205,6 +211,9 @@
 			<if test="receiptQty != null">and receipt_qty=#{receiptQty}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="qcTimes != null">and qc_times=#{qcTimes}</if>
+			<if test="qcFault != null">and qc_ fault=#{qcFault}</if>
+			<if test="qcFaultQty != null">and qc_fault_qty=#{qcFaultQty}</if>
 			<if test="pickTaskIds != null">
 				and pick_task_id in
 				<foreach collection="pickTaskIds" item="pickTaskId" index="index" open="(" separator=","  close=")">
