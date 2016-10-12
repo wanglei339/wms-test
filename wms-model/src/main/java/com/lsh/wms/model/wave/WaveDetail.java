@@ -92,8 +92,6 @@ public class WaveDetail implements Serializable {
     private Long shipAt = 0L;
 	/** 关联发货单id */
 	private Long deliveryId = 0L;
-	/**直流收货的数量*/
-	private BigDecimal receiptQty = BigDecimal.ZERO;
 	/**  */
     private Long createdAt = 0L;
 	/**  */
@@ -464,14 +462,6 @@ public class WaveDetail implements Serializable {
 
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
-	}
-
-	public BigDecimal getReceiptQty() {
-		return receiptQty;
-	}
-
-	public void setReceiptQty(BigDecimal receiptQty) {
-		this.receiptQty = receiptQty;
 	}
 
 	public Integer getQcTimes(){

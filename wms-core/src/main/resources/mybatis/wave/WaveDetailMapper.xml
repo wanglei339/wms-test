@@ -46,7 +46,6 @@
 		<result property="shipUid" column="ship_uid"/>
 		<result property="shipAt" column="ship_at"/>
 		<result property="deliveryId" column="delivery_id"/>
-		<result property="receiptQty" column="receipt_qty"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
 		<result property="qcTimes" column="qc_times"/>
@@ -61,7 +60,7 @@
 			pick_qty,qc_qty,delivery_qty,pick_task_id,pick_zone_id,pick_area_location,pick_order,
 			alloc_pick_location,real_pick_location,alloc_collect_location,real_collect_location,container_id,pick_uid,
 			pick_at,sow_task_id,sow_uid,sow_at,qc_task_id,qc_uid,
-			qc_at,qc_exception,qc_exception_qty,qc_exception_done,ship_task_id,ship_uid,receipt_qty,
+			qc_at,qc_exception,qc_exception_qty,qc_exception_done,ship_task_id,ship_uid,
 			ship_at,delivery_id,created_at,updated_at,qc_times,qc_fault,qc_fault_qty
     	) values (
 			#{refDetailId},#{isAlive},#{isValid},#{waveId},#{orderId},#{itemId},#{skuId},
@@ -69,7 +68,7 @@
 			#{pickQty},#{qcQty},#{deliveryQty},#{pickTaskId},#{pickZoneId},#{pickAreaLocation},#{pickOrder},
 			#{allocPickLocation},#{realPickLocation},#{allocCollectLocation},#{realCollectLocation},#{containerId},#{pickUid},
 			#{pickAt},#{sowTaskId},#{sowUid},#{sowAt},#{qcTaskId},#{qcUid},
-			#{qcAt},#{qcException},#{qcExceptionQty},#{qcExceptionDone},#{shipTaskId},#{shipUid},#{receiptQty},
+			#{qcAt},#{qcException},#{qcExceptionQty},#{qcExceptionDone},#{shipTaskId},#{shipUid},
 			#{shipAt},#{deliveryId},#{createdAt},#{updatedAt},#{qcTimes},#{qcFault},#{qcFaultQty}
     	)
 	</insert>
@@ -119,7 +118,6 @@
   			<if test="shipUid != null">ship_uid=#{shipUid},</if>
   			<if test="shipAt != null">ship_at=#{shipAt},</if>
 			<if test="deliveryId != null">delivery_id=#{deliveryId},</if>
-			<if test="receiptQty != null">receipt_qty=#{receiptQty},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
 			<if test="qcTimes != null">qc_times=#{qcTimes},</if>
@@ -208,7 +206,6 @@
 			<if test="shipUid != null">and ship_uid=#{shipUid}</if>
 			<if test="shipAt != null">and ship_at=#{shipAt}</if>
 			<if test="deliveryId != null">and delivery_id=#{deliveryId}</if>
-			<if test="receiptQty != null">and receipt_qty=#{receiptQty}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 			<if test="qcTimes != null">and qc_times=#{qcTimes}</if>
