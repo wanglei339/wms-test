@@ -10,6 +10,7 @@ import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.model.po.ReceiptItem;
 import com.lsh.wms.api.model.po.ReceiptRequest;
+import com.lsh.wms.api.model.so.ObdStreamDetail;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.po.IReceiptRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
@@ -27,6 +28,7 @@ import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.store.StoreService;
 import com.lsh.wms.core.service.utils.IdGenerator;
+import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.*;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.po.*;
@@ -36,6 +38,7 @@ import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
+import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.service.inhouse.StockTransferRpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -185,6 +188,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
         List<Map<String, Object>> moveList = new ArrayList<Map<String, Object>>();
         //初始化验收单
         List<ReceiveDetail> updateReceiveDetailList = new ArrayList<ReceiveDetail>();
+
+        //生成出库detail
+        List<ObdStreamDetail> obdStreamDetailList = new ArrayList<ObdStreamDetail>();
 
 
         Map<Long,Long> locationMap = new HashMap<Long, Long>();
@@ -392,8 +398,16 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 updateReceiveDetail.setInboundQty(inbReceiptDetail.getInboundQty());
                 updateReceiveDetailList.add(updateReceiveDetail);
 
+                if(ibdHeader.getOrderType() == PoConstant.ORDER_TYPE_CPO){
+                    ObdStreamDetail obdStreamDetail = new ObdStreamDetail();
+                    obdStreamDetail.setItemId(inbReceiptDetail.getItemId());
+                    obdStreamDetail.setContainerId(inbReceiptHeader.getContainerId());
+                    obdStreamDetail.setOwnerId(ibdHeader.getOwnerUid());
+                    obdStreamDetail.setReceiptQty(inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit()));
+                    obdStreamDetail.setSkuId(inbReceiptDetail.getSkuId());
+                    obdStreamDetailList.add(obdStreamDetail);
 
-
+                }
                 inbReceiptDetailList.add(inbReceiptDetail);
 
 
@@ -454,16 +468,16 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         //插入订单
         //poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList,stockQuantList,stockLotList);
-        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList,updateReceiveDetailList);
+        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList,updateReceiveDetailList,obdStreamDetailList);
 
         if(PoConstant.ORDER_TYPE_PO == orderType || PoConstant.ORDER_TYPE_TRANSFERS == orderType || PoConstant.ORDER_TYPE_CPO == orderType){
             TaskEntry taskEntry = new TaskEntry();
             TaskInfo taskInfo = new TaskInfo();
             taskInfo.setTaskId(taskId);
             taskInfo.setType(TaskConstant.TYPE_PO);
-            if(PoConstant.ORDER_TYPE_CPO == orderType){
-                taskInfo.setExt1(1l);
-            }
+//            if(PoConstant.ORDER_TYPE_CPO == orderType){
+//                taskInfo.setExt1(1l);
+//            }
             taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
             taskInfo.setContainerId(inbReceiptHeader.getContainerId());
             taskInfo.setItemId(inbReceiptDetailList.get(0).getItemId());
@@ -619,6 +633,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //验收单
         List<ReceiveDetail> updateReceiveDetailList = new ArrayList<ReceiveDetail>();
 
+        //生成出库detail
+        List<ObdStreamDetail> obdStreamDetailList = new ArrayList<ObdStreamDetail>();
+
         Map<Long,Long> locationMap = new HashMap<Long, Long>();
         List<StockTransferPlan> planList = new ArrayList<StockTransferPlan>();
 
@@ -706,6 +723,15 @@ public class ReceiptRpcService implements IReceiptRpcService {
             updateReceiveDetail.setInboundQty(inbReceiptDetail.getInboundQty());
             updateReceiveDetailList.add(updateReceiveDetail);
 
+            //生成出库detail信息
+            ObdStreamDetail obdStreamDetail = new ObdStreamDetail();
+            obdStreamDetail.setItemId(inbReceiptDetail.getItemId());
+            obdStreamDetail.setContainerId(inbReceiptHeader.getContainerId());
+            obdStreamDetail.setOwnerId(ibdHeader.getOwnerUid());
+            obdStreamDetail.setReceiptQty(inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit()));
+            obdStreamDetail.setSkuId(inbReceiptDetail.getSkuId());
+            obdStreamDetailList.add(obdStreamDetail);
+
             inbReceiptDetailList.add(inbReceiptDetail);
 
             StockLot stockLot = new StockLot();
@@ -742,7 +768,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         //插入订单
         //poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList,stockQuantList,stockLotList);
-        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList,updateReceiveDetailList);
+        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList,updateReceiveDetailList,obdStreamDetailList);
 
 
 
@@ -755,17 +781,17 @@ public class ReceiptRpcService implements IReceiptRpcService {
 //        }
 
 
-//        TaskEntry taskEntry = new TaskEntry();
-//        TaskInfo taskInfo = new TaskInfo();
-//        taskInfo.setTaskId(taskId);
-//        taskInfo.setType(TaskConstant.TYPE_PO);
-//        taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
-//        taskInfo.setContainerId(inbReceiptHeader.getContainerId());
-//        taskInfo.setItemId(inbReceiptDetailList.get(0).getItemId());
-//        taskInfo.setOperator(inbReceiptHeader.getStaffId());
-//        taskEntry.setTaskInfo(taskInfo);
-//        taskId = iTaskRpcService.create(TaskConstant.TYPE_PO, taskEntry);
-//        iTaskRpcService.done(taskId);
+        TaskEntry taskEntry = new TaskEntry();
+        TaskInfo taskInfo = new TaskInfo();
+        taskInfo.setTaskId(taskId);
+        taskInfo.setType(TaskConstant.TYPE_PO);
+        taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
+        taskInfo.setContainerId(inbReceiptHeader.getContainerId());
+        taskInfo.setItemId(inbReceiptDetailList.get(0).getItemId());
+        taskInfo.setOperator(inbReceiptHeader.getStaffId());
+        taskEntry.setTaskInfo(taskInfo);
+        taskId = iTaskRpcService.create(TaskConstant.TYPE_PO, taskEntry);
+        iTaskRpcService.done(taskId);
     }
 
 

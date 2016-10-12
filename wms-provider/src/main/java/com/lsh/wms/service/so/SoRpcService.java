@@ -90,6 +90,8 @@ public class SoRpcService implements ISoRpcService {
             obdDetail.setItemId(baseinfoItemList.get(0).getItemId());
             //设置skuName
             obdDetail.setSkuName(baseinfoItemList.get(0).getSkuName());
+            //设置新增时间
+            obdDetail.setCreatedAt(DateUtils.getCurrentSeconds());
 
             obdDetailList.add(obdDetail);
         }
