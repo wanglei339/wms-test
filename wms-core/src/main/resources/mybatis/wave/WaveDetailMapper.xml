@@ -50,7 +50,7 @@
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
 		<result property="qcTimes" column="qc_times"/>
-		<result property="qcFault" column="qc_ fault"/>
+		<result property="qcFault" column="qc_fault"/>
 		<result property="qcFaultQty" column="qc_fault_qty"/>
 	</resultMap>
   
