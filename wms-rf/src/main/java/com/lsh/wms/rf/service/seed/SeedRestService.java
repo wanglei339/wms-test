@@ -132,7 +132,7 @@ public class SeedRestService implements ISeedRestService {
                     TaskInfo info = entry.getTaskInfo();
                     result.put("storeName", storeRpcService.getStoreByStoreNo(head.getStoreNo()).getStoreName());
                     result.put("qty", head.getRequireQty());
-                    result.put("taskId", taskId);
+                    result.put("taskId", taskId.toString());
                     result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
                     result.put("packName", info.getPackName());
                     result.put("itemId", info.getItemId());
@@ -263,7 +263,7 @@ public class SeedRestService implements ISeedRestService {
                 info = entry.getTaskInfo();
                 result.put("storeName", storeRpcService.getStoreByStoreNo(head.getStoreNo()).getStoreName());
                 result.put("qty", head.getRequireQty());
-                result.put("taskId", taskId);
+                result.put("taskId", taskId.toString());
                 result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
                 result.put("packName", info.getPackName());
                 result.put("itemId", info.getItemId());
@@ -321,7 +321,7 @@ public class SeedRestService implements ISeedRestService {
         SeedingTaskHead head = (SeedingTaskHead) entry.getTaskHead();
         result.put("storeName", storeRpcService.getStoreByStoreNo(head.getStoreNo()).getStoreName());
         result.put("qty", head.getRequireQty());
-        result.put("taskId", taskId);
+        result.put("taskId", taskId.toString());
         result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
         result.put("packName", info.getPackName());
         result.put("itemId", info.getItemId());
