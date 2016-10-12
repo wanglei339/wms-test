@@ -8,16 +8,16 @@ import java.math.BigDecimal;
 public class ObdStreamDetail {
 
     /** 订单id */
-    private Long orderId;
+    private Long orderId = 0L;
     /** ibd订单类型 */
     private Long ibdOrderType;
 
     /** 商品码 */
-    private Long itemId;
+    private Long itemId = 0L;
     /** 商品id */
-    private Long skuId;
+    private Long skuId = 0L;
     /** 货主id */
-    private Long ownerId;
+    private Long ownerId =0L;
     /** 批次id */
     private Long locId = 0L;
     /** 0-新建，呵呵，冗余一下，以后看用不用吧 */
