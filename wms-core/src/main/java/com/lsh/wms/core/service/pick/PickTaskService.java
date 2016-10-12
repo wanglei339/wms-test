@@ -160,7 +160,7 @@ public class PickTaskService {
         WaveDetail needPickDetail = new WaveDetail();
         for (WaveDetail pickDetail : pickDetails) {
             Long pickAt = pickDetail.getPickAt();
-            if (pickAt == null || pickAt.equals(0L)) {
+            if (pickAt == null || pickAt.equals(0L) || pickAt.equals("")) {
                 needPickDetail = pickDetail;
                 break;
             }
