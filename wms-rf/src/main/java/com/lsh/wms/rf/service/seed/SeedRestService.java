@@ -5,10 +5,13 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.wms.api.model.po.ReceiptItem;
+import com.lsh.wms.api.model.po.ReceiptRequest;
 import com.lsh.wms.api.service.inhouse.IProcurementProveiderRpcService;
 import com.lsh.wms.api.service.inhouse.IProcurementRestService;
 import com.lsh.wms.api.service.item.IItemRpcService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
+import com.lsh.wms.api.service.po.IReceiptRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.seed.ISeedProveiderRpcService;
 import com.lsh.wms.api.service.seed.ISeedRestService;
@@ -19,11 +22,14 @@ import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.csi.CsiSkuService;
+import com.lsh.wms.core.service.po.PoOrderService;
+import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
+import com.lsh.wms.model.po.IbdHeader;
 import com.lsh.wms.model.seed.SeedingTaskHead;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockLot;
@@ -42,10 +48,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by wuhao on 16/9/28.
@@ -89,8 +92,16 @@ public class SeedRestService implements ISeedRestService {
     @Reference
     private ISeedProveiderRpcService seedProveiderRpcService;
 
+    @Reference
+    private IReceiptRpcService receiptRpcService;
+
     @Autowired
     private StockQuantService quantService;
+    @Autowired
+    private StaffService staffService;
+
+    @Autowired
+    private PoOrderService poOrderService;
 
     @POST
     @Path("assign")
@@ -103,10 +114,16 @@ public class SeedRestService implements ISeedRestService {
             Long uid = Long.valueOf(RequestUtils.getHeader("uid"));
             Object containerId = mapQuery.get("containerId");
             Object barcode = mapQuery.get("barcode");
+            //实际是orderOtherId
             Object orderId = mapQuery.get("orderId");
             if((containerId==null && barcode!=null && orderId!=null) ||(containerId!=null)) {
                 Long taskId = 0L;
                 if(containerId ==null) {
+                    IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(orderId.toString().trim());
+                    if(ibdHeader == null) {
+                        throw new BizCheckedException("2020001");
+                    }
+
                     seedProveiderRpcService.createTask(mapQuery);
                     taskId = rpcService.getTask(mapQuery);
                 }else {
@@ -209,7 +226,15 @@ public class SeedRestService implements ISeedRestService {
             entry.setTaskInfo(info);
             entry.setTaskHead(head);
             iTaskRpcService.done(entry);
-           if(type.compareTo(2L)==0){
+            try {
+                if(info.getSubType().compareTo(2L)==0) {
+                    receiptRpcService.addStoreReceipt(this.fillReceipt(entry));
+                }
+            }catch (Exception exp){
+                logger.info(exp.getMessage());
+                return JsonUtils.TOKEN_ERROR("系统繁忙");
+            }
+            if(type.compareTo(2L)==0){
                if(qty.compareTo(head.getRequireQty())!=0) {
                    //创建剩余数量门店任务
 
@@ -326,5 +351,43 @@ public class SeedRestService implements ISeedRestService {
         result.put("packName", info.getPackName());
         result.put("itemId", info.getItemId());
         return JsonUtils.SUCCESS(result);
+    }
+    private ReceiptRequest fillReceipt( TaskEntry entry ){
+
+        ReceiptRequest receiptRequest = new ReceiptRequest();
+        ReceiptItem item = new ReceiptItem();
+
+        TaskInfo info = entry.getTaskInfo();
+        SeedingTaskHead head = (SeedingTaskHead) entry.getTaskHead();
+
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("uid", info.getOperator());
+        Long staffId = staffService.getStaffList(map).get(0).getStaffId();
+        receiptRequest.setStaffId(staffId);
+
+        receiptRequest.setReceiptTime(new Date());
+
+        CsiSku sku = csiSkuService.getSku(info.getSkuId());
+
+        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(info.getOrderId());
+
+        if(ibdHeader == null) {
+            throw new BizCheckedException("2020001");
+        }
+        receiptRequest.setOrderOtherId(ibdHeader.getOrderOtherId());
+        receiptRequest.setContainerId(head.getRealContainerId());
+        receiptRequest.setStoreId(head.getStoreNo().toString());
+
+        item.setOrderId(info.getOrderId());
+        item.setSkuId(info.getSkuId());
+        item.setSkuName(sku.getSkuName());
+        item.setBarCode(sku.getCode());
+        item.setPackUnit(info.getPackUnit());
+        item.setInboundQty(info.getQty());
+        item.setPackName(info.getPackName());
+        List<ReceiptItem> items = new ArrayList<ReceiptItem>();
+        items.add(item);
+        receiptRequest.setItems(items);
+        return receiptRequest;
     }
 }
