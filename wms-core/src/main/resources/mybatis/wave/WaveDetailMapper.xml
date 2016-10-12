@@ -123,7 +123,7 @@
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
 			<if test="qcTimes != null">qc_times=#{qcTimes},</if>
-			<if test="qcFault != null">qc_ fault=#{qcFault},</if>
+			<if test="qcFault != null">qc_fault=#{qcFault},</if>
 			<if test="qcFaultQty != null">qc_fault_qty=#{qcFaultQty}</if>
 		</set>
 		where id=#{id}
@@ -212,7 +212,7 @@
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 			<if test="qcTimes != null">and qc_times=#{qcTimes}</if>
-			<if test="qcFault != null">and qc_ fault=#{qcFault}</if>
+			<if test="qcFault != null">and qc_fault=#{qcFault}</if>
 			<if test="qcFaultQty != null">and qc_fault_qty=#{qcFaultQty}</if>
 			<if test="pickTaskIds != null">
 				and pick_task_id in
