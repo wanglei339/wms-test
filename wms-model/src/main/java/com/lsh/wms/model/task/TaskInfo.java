@@ -94,6 +94,9 @@ public class TaskInfo implements Serializable {
 	private int isShow =1;
 	/** 任务执行顺序*/
 	private Long taskOrder = 0L;
+	/** 直流在库标记 1在库 2直流*/
+	private Long businessMode = 0L;
+
 	/**  */
     private Long createdAt;
 	/**  */
@@ -542,5 +545,13 @@ public class TaskInfo implements Serializable {
 
 	public void setTaskOrder(Long taskOrder) {
 		this.taskOrder = taskOrder;
+	}
+
+	public Long getBusinessMode() {
+		return businessMode;
+	}
+
+	public void setBusinessMode(Long businessMode) {
+		this.businessMode = businessMode;
 	}
 }
