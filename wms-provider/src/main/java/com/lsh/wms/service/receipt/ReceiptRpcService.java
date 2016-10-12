@@ -702,7 +702,6 @@ public class ReceiptRpcService implements IReceiptRpcService {
             // 判断是否超过订单总数
             BigDecimal poInboundQty = null != ibdDetail.getInboundQty() ? ibdDetail.getInboundQty() : new BigDecimal(0);
 
-            // TODO: 2016/10/8  用ea的数量做比较
             if (poInboundQty.add(inbReceiptDetail.getInboundQty()).compareTo(ibdDetail.getOrderQty()) > 0) {
                 throw new BizCheckedException("2020005");
             }
