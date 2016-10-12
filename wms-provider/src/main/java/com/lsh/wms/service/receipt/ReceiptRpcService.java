@@ -475,9 +475,12 @@ public class ReceiptRpcService implements IReceiptRpcService {
             TaskInfo taskInfo = new TaskInfo();
             taskInfo.setTaskId(taskId);
             taskInfo.setType(TaskConstant.TYPE_PO);
-//            if(PoConstant.ORDER_TYPE_CPO == orderType){
-//                taskInfo.setExt1(1l);
-//            }
+            //根据类型来决定任务的流向
+            if(PoConstant.ORDER_TYPE_CPO == orderType){
+                taskInfo.setSubType(TaskConstant.TASK_DIRECT);
+            }else{
+                taskInfo.setSubType(TaskConstant.TASK_INBOUND);
+            }
             taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
             taskInfo.setContainerId(inbReceiptHeader.getContainerId());
             taskInfo.setItemId(inbReceiptDetailList.get(0).getItemId());
@@ -772,26 +775,23 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
 
 
-//        // TODO: 2016/10/9 大店直流的生成QC任务 根据门店code来查询大店或者小店
-//        String storeId = request.getStoreId();
-//        BaseinfoStore baseinfoStore = storeService.getBaseinfoStore(storeId);
-//        //如果是大店 生成QC
-//        if(baseinfoStore.getScale() == 2){
-//
-//        }
-
-
-        TaskEntry taskEntry = new TaskEntry();
-        TaskInfo taskInfo = new TaskInfo();
-        taskInfo.setTaskId(taskId);
-        taskInfo.setType(TaskConstant.TYPE_PO);
-        taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
-        taskInfo.setContainerId(inbReceiptHeader.getContainerId());
-        taskInfo.setItemId(inbReceiptDetailList.get(0).getItemId());
-        taskInfo.setOperator(inbReceiptHeader.getStaffId());
-        taskEntry.setTaskInfo(taskInfo);
-        taskId = iTaskRpcService.create(TaskConstant.TYPE_PO, taskEntry);
-        iTaskRpcService.done(taskId);
+        // TODO: 2016/10/9 大店直流的生成QC任务 根据门店code来查询大店或者小店
+        BaseinfoStore baseinfoStore = storeService.getBaseinfoStore(inbReceiptHeader.getStoreCode());
+        //如果是大店 生成QC
+        if(baseinfoStore.getScale() == 2){
+            TaskEntry taskEntry = new TaskEntry();
+            TaskInfo taskInfo = new TaskInfo();
+            taskInfo.setTaskId(taskId);
+            taskInfo.setType(TaskConstant.TYPE_PO);
+            taskInfo.setSubType(TaskConstant.TASK_STORE_DIRECT);
+            taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
+            taskInfo.setContainerId(inbReceiptHeader.getContainerId());
+            taskInfo.setItemId(inbReceiptDetailList.get(0).getItemId());
+            taskInfo.setOperator(inbReceiptHeader.getStaffId());
+            taskEntry.setTaskInfo(taskInfo);
+            taskId = iTaskRpcService.create(TaskConstant.TYPE_PO, taskEntry);
+            iTaskRpcService.done(taskId);
+        }
     }
 
 
