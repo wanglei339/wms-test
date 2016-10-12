@@ -65,13 +65,13 @@ public class TaskFinishEventHandler extends AbsEventHandler implements IEventHan
         TaskInfo taskInfo =  taskRpcService.getTaskEntryById(taskId).getTaskInfo();
         Long handlerType = 0L;
         TaskHandler taskHandler = null;
-        if(taskInfo.getExt1().compareTo(1L)==0){
+        if(taskInfo.getSubType().compareTo(TaskConstant.TASK_DIRECT)==0){
             handlerType = TaskConstant.TYPE_SEED;
             taskHandler = taskHandlerFactory.getTaskHandler(handlerType);
             taskHandler.create(taskRpcService.getTaskEntryById(taskId));
             return;
         }
-        if(taskInfo.getExt1().compareTo(2L)==0){
+        if(taskInfo.getSubType().compareTo(TaskConstant.TASK_STORE_DIRECT)==0){
             handlerType = TaskConstant.TYPE_QC;
             taskHandler = taskHandlerFactory.getTaskHandler(handlerType);
             taskHandler.create(taskRpcService.getTaskEntryById(taskId));
