@@ -336,7 +336,7 @@ public class WaveService {
         List<WaveDetail> details = detailDao.getOrderedWaveDetailList(queryMap);
         for(WaveDetail waveDetail:details){
             this.split(waveDetail,requiredQty,containerId);
-            requiredQty.subtract(waveDetail.getReceiptQty());
+            requiredQty.subtract(waveDetail.getPickQty());
             if(requiredQty.compareTo(BigDecimal.ZERO)<=0){
                 break;
             }
@@ -356,7 +356,7 @@ public class WaveService {
             ObjUtils.bean2bean(detail, newDetail);
             newDetail.setContainerId(containerId);
             newDetail.setPickQty(splitQty);
-            detail.setPickQty(detail.getReceiptQty().subtract(splitQty));
+            detail.setPickQty(detail.getPickQty().subtract(splitQty));
             detailDao.insert(newDetail);
         }
         detailDao.update(detail);
