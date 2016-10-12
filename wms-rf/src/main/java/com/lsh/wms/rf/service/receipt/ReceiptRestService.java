@@ -361,7 +361,14 @@ public class ReceiptRestService implements IReceiptRfService {
 //        BigDecimal packUnit = BigDecimal.ZERO;
         // TODO: 2016/10/9 先查询出ibdHeader ibdDetail
         IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(orderOtherId);
+        if (ibdHeader == null) {
+            throw new BizCheckedException("2020001");
+        }
+
         IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(),skuCode);
+        if (ibdDetail == null) {
+            throw new BizCheckedException("2020004");
+        }
         //查询对应的obd
         Map<String,Object> params = new HashMap<String, Object>();
         params.put("ibdOtherId",orderOtherId);

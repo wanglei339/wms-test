@@ -21,12 +21,14 @@ import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.po.IbdHeader;
@@ -102,6 +104,9 @@ public class SeedRestService implements ISeedRestService {
 
     @Autowired
     private PoOrderService poOrderService;
+
+    @Autowired
+    ContainerService containerService;
 
     @POST
     @Path("assign")
@@ -222,6 +227,12 @@ public class SeedRestService implements ISeedRestService {
                 return JsonUtils.TOKEN_ERROR("播种数量超出门店订单数量");
             }
             // type 2:继续播，1:剩余门店不播了 ,3:跳过当前任务，播下一个任务
+            if(containerId != null){
+                BaseinfoContainer container = containerService.getContainer(Long.valueOf(containerId.toString().trim()));
+                if(container==null){
+                    throw new BizCheckedException("2880013");
+                }
+            }
             head.setRealContainerId(containerId);
             info.setQty(qty);
             entry.setTaskInfo(info);
