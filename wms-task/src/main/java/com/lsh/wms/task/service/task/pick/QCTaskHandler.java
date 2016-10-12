@@ -36,28 +36,28 @@ public class QCTaskHandler extends AbsTaskHandler {
     }
 
     public void create(Long taskId) throws BizCheckedException {    //创建到另一张表中,然后CRUD操作在新表中进行
-        //TODO 集货任务的创建QC任务
-
-        TaskEntry pickEntry = this.getTask(taskId);
+        TaskEntry pickEntry = this.getTask(taskId); //此处使用pick就是个代号,也代表其他QC前的任务
+        //判断是直流QC任务,还是在库QC任务,现在只能是通过 前一个任务类型来判断
         Long containerId = pickEntry.getTaskInfo().getContainerId();
         List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
         if(details.size()==0){
             return;
         }
-
         TaskInfo info = new TaskInfo();
         info.setType(TaskConstant.TYPE_QC);
         info.setContainerId(containerId);
         // todo setEXt1字段设置的是QC的上一个任务,这里可以是 pickTaskId 和 直流集货任务id 等等
-        info.setExt1(pickEntry.getTaskInfo().getTaskId());
+        info.setQcPreviousTaskId(pickEntry.getTaskInfo().getTaskId());
         info.setOrderId(details.get(0).getOrderId());
         Set<Long> setItem = new HashSet<Long>();
         for (WaveDetail detail : details){
             setItem.add(detail.getItemId());
         }
-        info.setQty(new BigDecimal(setItem.size()));
+            info.setSubType(pickEntry.getTaskInfo().getBusinessMode());  //沿用上面的直流还是在库
+        info.setQty(new BigDecimal(setItem.size()));    //创建QC任务不设定QC需要的QC数量,而是实际输出来的数量和上面的任务操作数量比对
         info.setWaveId(details.get(0).getWaveId());
         info.setPlanId(info.getPlanId());
+
         TaskEntry taskEntry = new TaskEntry();
         taskEntry.setTaskDetailList((List<Object>) (List<?>) details);
         taskEntry.setTaskInfo(info);
