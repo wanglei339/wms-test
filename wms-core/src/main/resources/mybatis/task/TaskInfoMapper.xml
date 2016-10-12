@@ -133,7 +133,7 @@
 			<if test="taskOrder !=null">task_order =#{taskOrder},</if>
 			<if test="businessMode !=null">business_mode =#{businessMode},</if>
 			<if test="createdAt != null">created_at=#{createdAt},</if>
-  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
 			<if test="qcPreviousTaskId != null">qc_previous_task_id=#{qcPreviousTaskId}</if>
 		</set>
 		where id=#{id}

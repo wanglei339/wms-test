@@ -217,6 +217,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
             if(detail== null ){
                 throw new BizCheckedException("2880012");
             }
+            waveService.splitWaveDetail(detail,info.getQty(),head.getRealContainerId());
 
         }else {
             move.setSkuId(info.getSkuId());
