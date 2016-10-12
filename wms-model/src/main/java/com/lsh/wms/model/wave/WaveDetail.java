@@ -63,7 +63,7 @@ public class WaveDetail implements Serializable {
 	/** 容器id,非常重要的字断，务必维护好当前真实的商品所在的container信息，否则就惨了 */
     private Long containerId = 0L;
 	/** 合板后的container_id关系 */
-	private Long mergedContainerId;
+	private Long mergedContainerId = 0L;
 	/** 拣货员id */
     private Long pickUid = 0L;
 	/** 捡货时间 */
