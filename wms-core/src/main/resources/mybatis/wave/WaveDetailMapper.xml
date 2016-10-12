@@ -75,6 +75,7 @@
 			#{qcException},#{qcExceptionQty},#{qcExceptionDone},#{shipTaskId},#{shipUid},
 			#{shipAt},#{deliveryId},#{createdAt},#{updatedAt},#{qcTimes},#{qcFault},
 			#{qcFaultQty}
+			)
 	</insert>
 
 	<update id="update" parameterType="WaveDetail">
