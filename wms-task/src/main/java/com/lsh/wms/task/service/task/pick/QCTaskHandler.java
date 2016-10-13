@@ -49,6 +49,7 @@ public class QCTaskHandler extends AbsTaskHandler {
         // todo setEXt1字段设置的是QC的上一个任务,这里可以是 pickTaskId 和 直流集货任务id 等等
         info.setQcPreviousTaskId(pickEntry.getTaskInfo().getTaskId());
         info.setOrderId(details.get(0).getOrderId());
+        info.setBusinessMode(pickEntry.getTaskInfo().getBusinessMode());
         Set<Long> setItem = new HashSet<Long>();
         for (WaveDetail detail : details){
             setItem.add(detail.getItemId());

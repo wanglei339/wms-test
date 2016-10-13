@@ -83,14 +83,15 @@ public class QCRestService implements IRFQCRestService {
         TaskInfo pickTaskInfo = null;
         Long containerId = 0L;
         TaskInfo qcTaskInfo = null;
+        boolean isDirect = false;
         //判断是拣货签还是托盘码
         //pickTaskId拣货签12开头,18位的长度
-        String unknownCode = (String) mapRequest.get("unknownCode");
-        String firstTwoCode = unknownCode.substring(0, 2);
-        if (unknownCode.toString().length() == 18 && firstTwoCode.equals("12")) {
-            mapRequest.put("pickTaskId", unknownCode);
+        String code = (String) mapRequest.get("code");
+        String firstTwoCode = code.substring(0, 2);
+        if (code.toString().length() == 18 && firstTwoCode.equals("12")) {
+            mapRequest.put("pickTaskId", code);
         } else {
-            mapRequest.put("containerId", unknownCode);
+            mapRequest.put("containerId", code);
         }
         //参数获取和初始化
         if (mapRequest.get("pickTaskId") != null && mapRequest.get("pickTaskId").toString().compareTo("") != 0) {
@@ -132,6 +133,10 @@ public class QCRestService implements IRFQCRestService {
             throw new BizCheckedException("2120007");
         }
         qcTaskInfo = tasks.get(0).getTaskInfo();
+        //判断是否是直流模式的
+        if (qcTaskInfo.getBusinessMode().equals(TaskConstant.MODE_DIRECT)){ //直流
+            isDirect = true;
+        }
         if (qcTaskInfo.getStatus() == TaskConstant.Draft) {
             iTaskRpcService.assign(qcTaskInfo.getTaskId(), Long.valueOf(RequestUtils.getHeader("uid")));
         }                                                                               // todo 可以解决 加入任务流状态的标示,根据任务流状态和container取 detail中去取
@@ -204,6 +209,7 @@ public class QCRestService implements IRFQCRestService {
         BaseinfoLocation collectLocaion = iLocationRpcService.getLocation(details.get(0).getAllocCollectLocation());
         Map<String, Object> rstMap = new HashMap<String, Object>();
         rstMap.put("qcList", undoDetails);
+        rstMap.put("isDirect",isDirect);
         rstMap.put("containerType", containerInfo.getType());
         rstMap.put("pickTaskId", qcTaskInfo.getQcPreviousTaskId().toString());
         rstMap.put("customerId", soInfo.getOrderUser().toString());
