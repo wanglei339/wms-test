@@ -187,7 +187,12 @@ public class QCRestService implements IRFQCRestService {
             detail.put("isSplit", waveDetail.getAllocUnitName().compareTo("EA") == 0);
             //TODO packName
             detail.put("itemName", item.getSkuName());
+
             detail.put("qcDone", waveDetail.getQcExceptionDone() != WaveConstant.QC_EXCEPTION_STATUS_UNDO);  //qc任务未处理的的判断  那种商品做,哪种商品没做
+            //直流轮一遍所有的qcDone为true
+            if (isDirect){
+                detail.put("qcDone", true);
+            }
             //判断是第几次的QC,只有QC过一遍,再次QC都是复核QC
             detail.put("qcTimes", waveDetail.getQcTimes());
             undoDetails.add(detail);
