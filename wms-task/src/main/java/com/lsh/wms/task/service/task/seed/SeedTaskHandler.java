@@ -2,13 +2,16 @@ package com.lsh.wms.task.service.task.seed;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.LocationConstant;
+import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.container.ContainerService;
+import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.po.PoOrderService;
@@ -20,6 +23,7 @@ import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
 import com.lsh.wms.model.po.IbdObdRelation;
@@ -83,6 +87,8 @@ public class SeedTaskHandler extends AbsTaskHandler {
     LocationService locationService;
     @Autowired
     WaveService waveService;
+    @Autowired
+    private CsiSkuService csiSkuService;
 
     @PostConstruct
     public void postConstruct() {
@@ -217,7 +223,37 @@ public class SeedTaskHandler extends AbsTaskHandler {
             if(detail== null ){
                 throw new BizCheckedException("2880012");
             }
-            waveService.splitWaveDetail(detail,info.getQty(),head.getRealContainerId());
+
+
+
+            //根据po +sku + storeNo 找so
+            Long soOrderId = 0L;
+
+            CsiSku sku = csiSkuService.getSku(info.getSkuId());
+            IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(info.getOrderId());
+
+            if(ibdHeader == null) {
+                throw new BizCheckedException("2020001");
+            }
+
+            BaseinfoItem item = itemService.getItem(ibdHeader.getOwnerUid(), sku.getSkuId());
+
+            String orderOtherId = ibdHeader.getOrderOtherId();
+            IbdDetail ibdDetail= poOrderService.getInbPoDetailByOrderIdAndSkuCode(info.getOrderId(), item.getSkuCode());
+            Map<String,Object> queryMap = new HashMap<String, Object>();
+            queryMap.put("ibdOtherId", orderOtherId);
+            queryMap.put("ibdDetailId", ibdDetail.getDetailOtherId());
+            List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(queryMap);
+            for(IbdObdRelation ibdObdRelation :ibdObdRelations) {
+                String obdOtherId = ibdObdRelation.getObdOtherId();
+                ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(obdOtherId);
+
+                if(obdHeader.getDeliveryCode().equals(head.getStoreNo().toString())) {
+                    soOrderId = obdHeader.getOrderId();
+                }
+            }
+            waveService.splitWaveDetail(detail,info.getQty(),head.getRealContainerId(),soOrderId);
+
 
         }else {
             move.setSkuId(info.getSkuId());

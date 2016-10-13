@@ -328,14 +328,14 @@ public class WaveService {
         return splitDetails;
     }
     @Transactional(readOnly = false)
-    public void splitWaveDetail(WaveDetail detail, BigDecimal requiredQty,Long containerId){
+    public void splitWaveDetail(WaveDetail detail, BigDecimal requiredQty,Long containerId,Long soOrderId){
         Map<String,Object> queryMap = new HashMap<String, Object>();
         queryMap.put("orderId",detail.getOrderId());
         queryMap.put("itemId", detail.getItemId());
         queryMap.put("containerId",detail.getContainerId());
         List<WaveDetail> details = detailDao.getOrderedWaveDetailList(queryMap);
         for(WaveDetail waveDetail:details){
-            this.split(waveDetail,requiredQty,containerId);
+            this.split(waveDetail,requiredQty,containerId,soOrderId);
             requiredQty.subtract(waveDetail.getPickQty());
             if(requiredQty.compareTo(BigDecimal.ZERO)<=0){
                 break;
@@ -346,7 +346,7 @@ public class WaveService {
         }
     }
     @Transactional(readOnly = false)
-    public void split(WaveDetail detail, BigDecimal splitQty , Long containerId) {
+    public void split(WaveDetail detail, BigDecimal splitQty , Long containerId,Long soOrderId) {
         if(detail.getPickQty().compareTo(splitQty)<=0)
         {
             detail.setContainerId(containerId);
@@ -355,6 +355,7 @@ public class WaveService {
             WaveDetail newDetail = new WaveDetail();
             ObjUtils.bean2bean(detail, newDetail);
             newDetail.setContainerId(containerId);
+            newDetail.setOrderId(soOrderId);
             newDetail.setPickQty(splitQty);
             detail.setPickQty(detail.getPickQty().subtract(splitQty));
             detailDao.insert(newDetail);

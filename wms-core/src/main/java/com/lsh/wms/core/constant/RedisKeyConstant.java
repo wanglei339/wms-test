@@ -74,5 +74,11 @@ public class RedisKeyConstant {
      */
     public static final String LOCATION_CODE = "location:code:{0}";
 
+    /**
+     * 直流占用redis key   sort set
+     */
+
+    public static final String PO_STORE = "po_id:{0}:store_no:{1}";
+
 
 }
