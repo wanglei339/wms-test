@@ -60,11 +60,14 @@ public class PoRpcService implements IPoRpcService {
         Integer orderType = ibdHeader.getOrderType();
 
 
-        ibdHeader.setOrderStatus(PoConstant.ORDER_YES);
+        //新增的状态为待投单
+        ibdHeader.setOrderStatus(PoConstant.ORDER_DELIVERY);
         ibdHeader.setCreatedAt(DateUtils.getCurrentSeconds());
         if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
             //返仓单的下单用户
             String orderUser = ibdHeader.getOrderUser();
+            //返仓的置为新增
+            ibdHeader.setOrderStatus(PoConstant.ORDER_YES);
             if(orderUser == null){
                 throw new BizCheckedException("2020010");
             }
