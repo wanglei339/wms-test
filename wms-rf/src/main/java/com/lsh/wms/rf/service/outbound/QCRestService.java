@@ -134,7 +134,7 @@ public class QCRestService implements IRFQCRestService {
         }
         qcTaskInfo = tasks.get(0).getTaskInfo();
         //判断是否是直流模式的
-        if (qcTaskInfo.getBusinessMode().equals(TaskConstant.MODE_DIRECT)){ //直流
+        if (qcTaskInfo.getBusinessMode().equals(TaskConstant.MODE_DIRECT)) { //直流
             isDirect = true;
         }
         if (qcTaskInfo.getStatus() == TaskConstant.Draft) {
@@ -187,13 +187,24 @@ public class QCRestService implements IRFQCRestService {
             detail.put("isSplit", waveDetail.getAllocUnitName().compareTo("EA") == 0);
             //TODO packName
             detail.put("itemName", item.getSkuName());
+            detail.put("isFristTime", waveDetail.getQcTimes() == WaveConstant.QC_TIMES_FIRST);
             detail.put("qcDone", waveDetail.getQcExceptionDone() != WaveConstant.QC_EXCEPTION_STATUS_UNDO);  //qc任务未处理的的判断  那种商品做,哪种商品没做
+            //todo  直流轮一遍所有的qcDone为true,以后的策略可能是只QC几个任务
+            if (isDirect) {
+                detail.put("qcDone", true);
+            }
             //判断是第几次的QC,只有QC过一遍,再次QC都是复核QC
             detail.put("qcTimes", waveDetail.getQcTimes());
             undoDetails.add(detail);
         }
 
-
+        //如果是直流所有的直接跳转为已经QC了
+        if (isDirect) {
+            for (WaveDetail one: details){
+                one.setQcExceptionDone(2L);
+                waveService.updateDetail(one);
+            }
+        }
         allBoxNum = boxNum;
         if (hasEA) {
             allBoxNum++;
@@ -209,7 +220,7 @@ public class QCRestService implements IRFQCRestService {
         BaseinfoLocation collectLocaion = iLocationRpcService.getLocation(details.get(0).getAllocCollectLocation());
         Map<String, Object> rstMap = new HashMap<String, Object>();
         rstMap.put("qcList", undoDetails);
-        rstMap.put("isDirect",isDirect);
+        rstMap.put("isDirect", isDirect);
         rstMap.put("containerType", containerInfo.getType());
         rstMap.put("pickTaskId", qcTaskInfo.getQcPreviousTaskId().toString());
         rstMap.put("customerId", soInfo.getOrderUser().toString());

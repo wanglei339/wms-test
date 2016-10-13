@@ -51,7 +51,7 @@ public class QCTaskHandler extends AbsTaskHandler {
         info.setOrderId(details.get(0).getOrderId());
         info.setBusinessMode(pickEntry.getTaskInfo().getBusinessMode());
         Set<Long> setItem = new HashSet<Long>();
-        for (WaveDetail detail : details){
+        for (WaveDetail detail : details){  //又是一个坑,关于item的问题
             setItem.add(detail.getItemId());
         }
         info.setSubType(pickEntry.getTaskInfo().getBusinessMode());  //沿用上面的直流还是在库
