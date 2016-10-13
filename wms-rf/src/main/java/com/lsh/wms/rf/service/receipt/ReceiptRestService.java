@@ -403,7 +403,7 @@ public class ReceiptRestService implements IReceiptRfService {
                 map2.put("packUnit",ibdDetail.getPackUnit());
 
                 //将obd orderId存入redis
-                String key = StrUtils.formatString(RedisKeyConstant.USER_UID_TOKEN, ibdHeader.getOrderId(), storeId);
+                String key = StrUtils.formatString(RedisKeyConstant.PO_STORE, ibdHeader.getOrderId(), storeId);
                 redisStringDao.set(key,obdHeader.getOrderId());
 
                 break;
