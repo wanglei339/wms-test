@@ -106,13 +106,15 @@ public class QCRestService implements IRFQCRestService {
             containerId = Long.valueOf(mapRequest.get("containerId").toString());
             Map<String, Object> mapQuery = new HashMap<String, Object>();
             mapQuery.put("containerId", containerId);
-            List<TaskEntry> tasks = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_PICK, mapQuery);
-            if (tasks.size() == 0) {
-                throw new BizCheckedException("2060003");
-            } else if (tasks.size() > 1) {
-                //捡货任务冲突
-                throw new BizCheckedException("2120012");
-            }
+
+//            不去taskinfo中查,直接去detail中查
+//            List<TaskEntry> tasks = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_PICK, mapQuery);
+//            if (tasks.size() == 0) {
+//                throw new BizCheckedException("2060003");
+//            } else if (tasks.size() > 1) {
+//                //捡货任务冲突
+//                throw new BizCheckedException("2120012");
+//            }
 //            pickTaskInfo = tasks.get(0).getTaskInfo();
 //            pickTaskId = pickTaskInfo.getTaskId();  //可以不显示
         }
@@ -197,13 +199,13 @@ public class QCRestService implements IRFQCRestService {
             throw new BizCheckedException("托盘码不存在");
         }
         //获取客户信息
-        ObdHeader soInfo = iSoRpcService.getOutbSoHeaderDetailByOrderId(details.get(0).getOrderId());
+        ObdHeader soInfo = iSoRpcService.getOutbSoHeaderDetailByOrderId(details.get(0).getOrderId());   //出库单,orderid
         //获取集货道信息
         BaseinfoLocation collectLocaion = iLocationRpcService.getLocation(details.get(0).getAllocCollectLocation());
         Map<String, Object> rstMap = new HashMap<String, Object>();
         rstMap.put("qcList", undoDetails);
         rstMap.put("containerType", containerInfo.getType());
-        rstMap.put("pickTaskId", qcTaskInfo.getQcPreviousTaskId().toString());        // todo 就这里的picktaskId有显示问题   显示前一个任务的id
+        rstMap.put("pickTaskId", qcTaskInfo.getQcPreviousTaskId().toString());
         rstMap.put("customerId", soInfo.getOrderUser().toString());
         //TODO SO USER ID
         rstMap.put("customerName", soInfo.getOrderUser());
