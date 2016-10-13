@@ -1,6 +1,7 @@
 package com.lsh.wms.core.service.merge;
 
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
@@ -34,7 +35,7 @@ public class MergeService {
     private WaveDetailDao waveDetailDao;
 
     @Transactional(readOnly = false)
-    public void mergeContainers(List<Long> containerIds) throws BizCheckedException {
+    public void mergeContainers(List<Long> containerIds, Long staffId) throws BizCheckedException {
         Long mergedContainerId = 0L;
         List<WaveDetail> waveDetails = new ArrayList<WaveDetail>();
         List<TaskInfo> taskInfos = new ArrayList<TaskInfo>();
@@ -89,5 +90,7 @@ public class MergeService {
             }
             taskInfoDao.update(taskInfo);
         }
+        // 写合板taskInfo,用于做操作记录
+        System.out.println(JsonUtils.SUCCESS(staffId));
     }
 }

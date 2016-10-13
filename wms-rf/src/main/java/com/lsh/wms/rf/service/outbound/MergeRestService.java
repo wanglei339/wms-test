@@ -52,7 +52,8 @@ public class MergeRestService implements IMergeRestService {
         } else {
             throw new BizCheckedException("2870001");
         }
-        for (Long containerId: queryContainerIds) {
+        for (Object objContainerId: queryContainerIds) {
+            Long containerId = Long.valueOf(objContainerId.toString());
             if (!containerIds.contains(containerId)) {
                 containerIds.add(containerId);
             }
@@ -60,8 +61,8 @@ public class MergeRestService implements IMergeRestService {
         if (containerIds.size() <= 1) {
             throw new BizCheckedException("2870005");
         }
-        // 合托
-        mergeService.mergeContainers(containerIds);
+        // 合板
+        mergeService.mergeContainers(containerIds, staffId);
         return JsonUtils.SUCCESS();
     }
 }
