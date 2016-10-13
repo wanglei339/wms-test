@@ -54,7 +54,7 @@ public class QCTaskHandler extends AbsTaskHandler {
         for (WaveDetail detail : details){
             setItem.add(detail.getItemId());
         }
-            info.setSubType(pickEntry.getTaskInfo().getBusinessMode());  //沿用上面的直流还是在库
+        info.setSubType(pickEntry.getTaskInfo().getBusinessMode());  //沿用上面的直流还是在库
         info.setQty(new BigDecimal(setItem.size()));    //创建QC任务不设定QC需要的QC数量,而是实际输出来的数量和上面的任务操作数量比对
         info.setWaveId(details.get(0).getWaveId());
         info.setPlanId(info.getPlanId());

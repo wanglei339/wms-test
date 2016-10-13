@@ -417,7 +417,7 @@ public class SeedRestService implements ISeedRestService {
             ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(obdOtherId);
 
            if(obdHeader.getDeliveryCode().equals(head.getStoreNo().toString())) {
-               String key = StrUtils.formatString(RedisKeyConstant.USER_UID_TOKEN, info.getOrderId(), head.getStoreNo());
+               String key = StrUtils.formatString(RedisKeyConstant.PO_STORE, info.getOrderId(), head.getStoreNo());
                redisStringDao.set(key,obdHeader.getOrderId());
            }
         }
