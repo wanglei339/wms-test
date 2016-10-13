@@ -111,6 +111,22 @@ public class WaveService {
         return WaveHeadList.size() == 0 ? null : WaveHeadList.get(0);
     }
 
+    public List<WaveDetail> getAliveDetailsByContainerId (Long containerId) {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("containerId", containerId);
+        mapQuery.put("isValid", 1);
+        mapQuery.put("isAlive", 1);
+        List<WaveDetail> details = detailDao.getWaveDetailList(mapQuery);
+        return details.size() == 0 ? null : details;
+    }
+
+    public List<WaveDetail> getWaveDetailsByMergedContainerId (Long mergedContainerId) {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("mergedContainerId", mergedContainerId);
+        List<WaveDetail> details = detailDao.getWaveDetailList(mapQuery);
+        return details.size() == 0 ? null : details;
+    }
+
     @Transactional(readOnly = false)
     public void update(WaveHead head){
         head.setUpdatedAt(DateUtils.getCurrentSeconds());
