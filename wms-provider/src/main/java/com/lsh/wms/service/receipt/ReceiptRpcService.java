@@ -8,6 +8,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.model.po.ReceiptItem;
 import com.lsh.wms.api.model.po.ReceiptRequest;
 import com.lsh.wms.api.model.so.ObdStreamDetail;
@@ -15,6 +16,7 @@ import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.po.IReceiptRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.*;
+import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemLocationService;
@@ -113,6 +115,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
     @Autowired
     private StoreService storeService;
+
+    @Autowired
+    private RedisStringDao redisStringDao;
 
     public Boolean throwOrder(String orderOtherId) throws BizCheckedException {
         IbdHeader ibdHeader = new IbdHeader();
@@ -730,6 +735,12 @@ public class ReceiptRpcService implements IReceiptRpcService {
             updateReceiveDetailList.add(updateReceiveDetail);
 
             //生成出库detail信息
+            //获取redis中的orderId
+            String key = StrUtils.formatString(RedisKeyConstant.PO_STORE, ibdHeader.getOrderId(), inbReceiptHeader.getStoreCode());
+
+            Long obdOrderId = Long.valueOf(redisStringDao.get(key));
+
+
             ObdStreamDetail obdStreamDetail = new ObdStreamDetail();
             obdStreamDetail.setItemId(inbReceiptDetail.getItemId());
             obdStreamDetail.setContainerId(inbReceiptHeader.getContainerId());
@@ -738,6 +749,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             obdStreamDetail.setPickQty(inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit()));
             obdStreamDetail.setSkuId(inbReceiptDetail.getSkuId());
             obdStreamDetailList.add(obdStreamDetail);
+            obdStreamDetail.setOrderId(obdOrderId);
 
             inbReceiptDetailList.add(inbReceiptDetail);
 

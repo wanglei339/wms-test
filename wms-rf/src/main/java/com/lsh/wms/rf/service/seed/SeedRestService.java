@@ -5,6 +5,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.model.po.ReceiptItem;
 import com.lsh.wms.api.model.po.ReceiptRequest;
 import com.lsh.wms.api.service.inhouse.IProcurementProveiderRpcService;
@@ -20,18 +21,25 @@ import com.lsh.wms.api.service.store.IStoreRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.LocationConstant;
+import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
+import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
+import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
+import com.lsh.wms.model.po.IbdObdRelation;
 import com.lsh.wms.model.seed.SeedingTaskHead;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockLot;
@@ -107,6 +115,15 @@ public class SeedRestService implements ISeedRestService {
 
     @Autowired
     ContainerService containerService;
+
+    @Autowired
+    ItemService itemService;
+
+    @Autowired
+    private RedisStringDao redisStringDao;
+
+    @Autowired
+    SoOrderService soOrderService;
 
     @POST
     @Path("assign")
@@ -367,7 +384,7 @@ public class SeedRestService implements ISeedRestService {
     private ReceiptRequest fillReceipt( TaskEntry entry ){
 
         ReceiptRequest receiptRequest = new ReceiptRequest();
-        ReceiptItem item = new ReceiptItem();
+        ReceiptItem receiptItem = new ReceiptItem();
 
         TaskInfo info = entry.getTaskInfo();
         SeedingTaskHead head = (SeedingTaskHead) entry.getTaskHead();
@@ -386,19 +403,40 @@ public class SeedRestService implements ISeedRestService {
         if(ibdHeader == null) {
             throw new BizCheckedException("2020001");
         }
+
+        BaseinfoItem item = itemService.getItem(ibdHeader.getOwnerUid(), sku.getSkuId());
+
+        String orderOtherId = ibdHeader.getOrderOtherId();
+        IbdDetail ibdDetail= poOrderService.getInbPoDetailByOrderIdAndSkuCode(info.getOrderId(), item.getSkuCode());
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("ibdOtherId", orderOtherId);
+        queryMap.put("ibdDetailId", ibdDetail.getDetailOtherId());
+        List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(queryMap);
+        for(IbdObdRelation ibdObdRelation :ibdObdRelations) {
+            String obdOtherId = ibdObdRelation.getObdOtherId();
+            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(obdOtherId);
+
+           if(obdHeader.getDeliveryCode().equals(head.getStoreNo().toString())) {
+               String key = StrUtils.formatString(RedisKeyConstant.PO_STORE, info.getOrderId(), head.getStoreNo());
+               redisStringDao.set(key,obdHeader.getOrderId());
+           }
+        }
+
+
         receiptRequest.setOrderOtherId(ibdHeader.getOrderOtherId());
         receiptRequest.setContainerId(head.getRealContainerId());
         receiptRequest.setStoreId(head.getStoreNo().toString());
 
-        item.setOrderId(info.getOrderId());
-        item.setSkuId(info.getSkuId());
-        item.setSkuName(sku.getSkuName());
-        item.setBarCode(sku.getCode());
-        item.setPackUnit(info.getPackUnit());
-        item.setInboundQty(info.getQty());
-        item.setPackName(info.getPackName());
+
+        receiptItem.setOrderId(info.getOrderId());
+        receiptItem.setSkuId(info.getSkuId());
+        receiptItem.setSkuName(sku.getSkuName());
+        receiptItem.setBarCode(sku.getCode());
+        receiptItem.setPackUnit(info.getPackUnit());
+        receiptItem.setInboundQty(info.getQty());
+        receiptItem.setPackName(info.getPackName());
         List<ReceiptItem> items = new ArrayList<ReceiptItem>();
-        items.add(item);
+        items.add(receiptItem);
         receiptRequest.setItems(items);
         return receiptRequest;
     }

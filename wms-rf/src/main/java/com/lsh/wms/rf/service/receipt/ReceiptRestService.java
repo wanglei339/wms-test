@@ -9,6 +9,7 @@ import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
+import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.model.po.ReceiptItem;
 import com.lsh.wms.api.model.po.ReceiptRequest;
 import com.lsh.wms.api.service.po.IReceiptRfService;
@@ -16,7 +17,9 @@ import com.lsh.wms.api.service.po.IReceiptRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.PoConstant;
+import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.constant.SoConstant;
+import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
@@ -43,6 +46,8 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+import static java.awt.SystemColor.info;
 
 /**
  * Project Name: lsh-wms
@@ -78,6 +83,9 @@ public class ReceiptRestService implements IReceiptRfService {
     private StaffService staffService;
     @Autowired
     private SoOrderService soOrderService;
+
+    @Autowired
+    private RedisStringDao redisStringDao;
 
 
 
@@ -393,6 +401,10 @@ public class ReceiptRestService implements IReceiptRfService {
                 map2.put("orderQty",obdDetail.getOrderQty());
                 map2.put("packName",ibdDetail.getPackName());
                 map2.put("packUnit",ibdDetail.getPackUnit());
+
+                //将obd orderId存入redis
+                String key = StrUtils.formatString(RedisKeyConstant.PO_STORE, ibdHeader.getOrderId(), storeId);
+                redisStringDao.set(key,obdHeader.getOrderId());
 
                 break;
             }
