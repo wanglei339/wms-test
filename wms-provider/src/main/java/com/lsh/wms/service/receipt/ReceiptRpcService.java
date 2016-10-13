@@ -736,7 +736,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
             //生成出库detail信息
             //获取redis中的orderId
-            String key = StrUtils.formatString(RedisKeyConstant.USER_UID_TOKEN, ibdHeader.getOrderId(), inbReceiptHeader.getStoreCode());
+            String key = StrUtils.formatString(RedisKeyConstant.PO_STORE, ibdHeader.getOrderId(), inbReceiptHeader.getStoreCode());
 
             Long obdOrderId = Long.valueOf(redisStringDao.get(key));
 
