@@ -475,7 +475,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         //插入订单
         //poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList,stockQuantList,stockLotList);
-        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList,updateReceiveDetailList,obdStreamDetailList);
+        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList,updateReceiveDetailList,obdStreamDetailList,request.getIsCreateTask());
 
         if(PoConstant.ORDER_TYPE_PO == orderType || PoConstant.ORDER_TYPE_TRANSFERS == orderType || PoConstant.ORDER_TYPE_CPO == orderType){
             TaskEntry taskEntry = new TaskEntry();
@@ -787,28 +787,33 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         //插入订单
         //poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList,stockQuantList,stockLotList);
-        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList,updateReceiveDetailList,obdStreamDetailList);
+        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList,updateReceiveDetailList,obdStreamDetailList,1);
 
 
 
         // TODO: 2016/10/9 大店直流的生成QC任务 根据门店code来查询大店或者小店
         BaseinfoStore baseinfoStore = storeService.getBaseinfoStore(inbReceiptHeader.getStoreCode());
         //如果是大店 生成QC
-        if(baseinfoStore.getScale() == 2){
-            TaskEntry taskEntry = new TaskEntry();
-            TaskInfo taskInfo = new TaskInfo();
-            taskInfo.setTaskId(taskId);
-            taskInfo.setType(TaskConstant.TYPE_PO);
-            taskInfo.setSubType(TaskConstant.TASK_STORE_DIRECT);
-            taskInfo.setBusinessMode(TaskConstant.MODE_DIRECT);
-            taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
-            taskInfo.setContainerId(inbReceiptHeader.getContainerId());
-            taskInfo.setItemId(inbReceiptDetailList.get(0).getItemId());
-            taskInfo.setOperator(inbReceiptHeader.getStaffId());
-            taskEntry.setTaskInfo(taskInfo);
-            taskId = iTaskRpcService.create(TaskConstant.TYPE_PO, taskEntry);
-            iTaskRpcService.done(taskId);
+        if(request.getIsCreateTask()==1) {
+            if(baseinfoStore.getScale() == 2){
+                TaskEntry taskEntry = new TaskEntry();
+                TaskInfo taskInfo = new TaskInfo();
+                taskInfo.setTaskId(taskId);
+                taskInfo.setType(TaskConstant.TYPE_PO);
+                taskInfo.setSubType(TaskConstant.TASK_STORE_DIRECT);
+                taskInfo.setBusinessMode(TaskConstant.MODE_DIRECT);
+                taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
+                taskInfo.setContainerId(inbReceiptHeader.getContainerId());
+                taskInfo.setItemId(inbReceiptDetailList.get(0).getItemId());
+                taskInfo.setOperator(inbReceiptHeader.getStaffId());
+                taskEntry.setTaskInfo(taskInfo);
+                taskId = iTaskRpcService.create(TaskConstant.TYPE_PO, taskEntry);
+                iTaskRpcService.done(taskId);
+            }
         }
+    }
+    public void createDetail() {
+
     }
 
 

@@ -86,7 +86,7 @@ public class PoReceiptService {
     @Transactional(readOnly = false)
     public void insertOrder(InbReceiptHeader inbReceiptHeader, List<InbReceiptDetail> inbReceiptDetailList,
                             List<IbdDetail> updateIbdDetailList, List<Map<String, Object>> moveList,
-                            List<ReceiveDetail> updateReceiveDetailList,List<ObdStreamDetail> obdStreamDetailList) {
+                            List<ReceiveDetail> updateReceiveDetailList,List<ObdStreamDetail> obdStreamDetailList,int isMove) {
 
         //插入订单
         inbReceiptHeader.setInserttime(new Date());
@@ -115,7 +115,9 @@ public class PoReceiptService {
             if (! lot.isOld()) {
                 stockLotService.insertLot(lot);
             }
-            stockQuantService.move((StockMove) moveInfo.get("move"), lot);
+            if(isMove==1) {
+                stockQuantService.move((StockMove) moveInfo.get("move"), lot);
+            }
         }
     }
 

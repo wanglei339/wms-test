@@ -427,6 +427,7 @@ public class SeedRestService implements ISeedRestService {
         receiptRequest.setOrderOtherId(ibdHeader.getOrderOtherId());
         receiptRequest.setContainerId(head.getRealContainerId());
         receiptRequest.setStoreId(head.getStoreNo().toString());
+        receiptRequest.setIsCreateTask(0);
         receiptRequest.setReceiptUser("");
 
 
