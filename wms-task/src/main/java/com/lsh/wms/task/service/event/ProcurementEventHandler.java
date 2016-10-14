@@ -61,7 +61,7 @@ public class ProcurementEventHandler extends AbsEventHandler implements IEventHa
         else {
             for (Object rawItemId : (ArrayList<Object>) msg.getMsgBody().get("itemList")) {
                 Long itemId = Long.valueOf(rawItemId.toString());
-                mapQuery.put("itemId", Long.valueOf(msg.getMsgBody().get("itemId").toString()));
+                mapQuery.put("itemId", itemId);
                 this.adjustPriority(mapQuery);
             }
         }

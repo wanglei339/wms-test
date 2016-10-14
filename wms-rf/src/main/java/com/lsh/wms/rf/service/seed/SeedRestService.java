@@ -145,7 +145,7 @@ public class SeedRestService implements ISeedRestService {
                     if(ibdHeader == null) {
                         throw new BizCheckedException("2020001");
                     }
-
+                    mapQuery.put("orderId",ibdHeader.getOrderId());
                     seedProveiderRpcService.createTask(mapQuery);
                     taskId = rpcService.getTask(mapQuery);
                 }else {
