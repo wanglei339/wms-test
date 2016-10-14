@@ -139,7 +139,7 @@ public class QCRestService implements IRFQCRestService {
             throw new BizCheckedException("2120015");
         }
         //大店门店收货 生成qc任务的是直流大店收货直流大店门店收货,QC的q明细不做(只组盘)
-        if (beforeQCtaskinfo.getType().equals(TaskConstant.TYPE_PO)) { //直流
+        if (qcTaskInfo.getQcSkip().equals(TaskConstant.QC_SKIP)) { //直流
             //直流的大店门店收货
             isDirect = true;
         }
