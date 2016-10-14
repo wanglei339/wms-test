@@ -137,8 +137,7 @@ public class WaveService {
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("containerId",containerId);
         mapQuery.put("itemId", itemId);
-        mapQuery.put("isAlive",1);
-        mapQuery.put("isValid",1);
+        mapQuery.put("isValid", 1);
         List<WaveDetail> waveDetails = detailDao.getWaveDetailList(mapQuery);
         if(waveDetails== null || waveDetails.size()==0){
             return null;
@@ -352,7 +351,7 @@ public class WaveService {
         List<WaveDetail> details = detailDao.getOrderedWaveDetailList(queryMap);
         for(WaveDetail waveDetail:details){
             this.split(waveDetail,requiredQty,containerId,soOrderId);
-            requiredQty.subtract(waveDetail.getPickQty());
+            requiredQty = requiredQty.subtract(waveDetail.getPickQty());
             if(requiredQty.compareTo(BigDecimal.ZERO)<=0){
                 break;
             }
@@ -366,6 +365,7 @@ public class WaveService {
         if(detail.getPickQty().compareTo(splitQty)<=0)
         {
             detail.setContainerId(containerId);
+            detail.setOrderId(soOrderId);
 
         }else {
             WaveDetail newDetail = new WaveDetail();
