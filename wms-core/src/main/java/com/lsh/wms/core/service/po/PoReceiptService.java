@@ -109,13 +109,12 @@ public class PoReceiptService {
             waveService.insertDetail(waveDetail);
         }
 
-
-        for (Map<String, Object> moveInfo : moveList) {
-            StockLot lot = (StockLot) moveInfo.get("lot");
-            if (! lot.isOld()) {
-                stockLotService.insertLot(lot);
-            }
-            if(isMove==1) {
+        if(isMove==1) {
+            for (Map<String, Object> moveInfo : moveList) {
+                StockLot lot = (StockLot) moveInfo.get("lot");
+                if (! lot.isOld()) {
+                    stockLotService.insertLot(lot);
+                }
                 stockQuantService.move((StockMove) moveInfo.get("move"), lot);
             }
         }
