@@ -117,7 +117,7 @@ public class QCRestService implements IRFQCRestService {
 //                throw new BizCheckedException("2120012");
 //            }
 //            pickTaskInfo = tasks.get(0).getTaskInfo();
-//            pickTaskId = pickTaskInfo.getTaskId();  //可以不显示
+//            pickTaskId = pickTaskInfo.getTaskId();  //可以不显示(小店播种和大店播种的都要进行明细的QC)
         }
         //获取QC任务
         Map<String, Object> mapQuery = new HashMap<String, Object>();
@@ -133,10 +133,17 @@ public class QCRestService implements IRFQCRestService {
             throw new BizCheckedException("2120007");
         }
         qcTaskInfo = tasks.get(0).getTaskInfo();
-        //判断是否是直流模式的
-        if (qcTaskInfo.getBusinessMode().equals(TaskConstant.MODE_DIRECT)) { //直流
+        //判断是否是直流模式的大店还是小店
+        TaskInfo beforeQCtaskinfo = iTaskRpcService.getTaskInfo(qcTaskInfo.getQcPreviousTaskId());
+        if (null == beforeQCtaskinfo) {
+            throw new BizCheckedException("2120015");
+        }
+        //大店门店收货 生成qc任务的是直流大店收货直流大店门店收货,QC的q明细不做(只组盘)
+        if (beforeQCtaskinfo.getType().equals(TaskConstant.TYPE_PO)) { //直流
+            //直流的大店门店收货
             isDirect = true;
         }
+
         if (qcTaskInfo.getStatus() == TaskConstant.Draft) {
             iTaskRpcService.assign(qcTaskInfo.getTaskId(), Long.valueOf(RequestUtils.getHeader("uid")));
         }                                                                               // todo 可以解决 加入任务流状态的标示,根据任务流状态和container取 detail中去取
@@ -145,6 +152,8 @@ public class QCRestService implements IRFQCRestService {
             //空托盘
             throw new BizCheckedException("2120005");
         }
+        //一旦是直流大店的门店收货,需要忽略qc,直接进入
+
         //merge item_id 2 pick  qty
         Map<Long, BigDecimal> mapItem2PickQty = new HashMap<Long, BigDecimal>();
         Map<Long, WaveDetail> mapItem2WaveDetail = new HashMap<Long, WaveDetail>();
@@ -188,6 +197,7 @@ public class QCRestService implements IRFQCRestService {
             //TODO packName
             detail.put("itemName", item.getSkuName());
             detail.put("isFristTime", waveDetail.getQcTimes() == WaveConstant.QC_TIMES_FIRST);
+            //加入qc的状态
             detail.put("qcDone", waveDetail.getQcExceptionDone() != WaveConstant.QC_EXCEPTION_STATUS_UNDO);  //qc任务未处理的的判断  那种商品做,哪种商品没做
             //todo  直流轮一遍所有的qcDone为true,以后的策略可能是只QC几个任务
             if (isDirect) {
@@ -199,8 +209,9 @@ public class QCRestService implements IRFQCRestService {
         }
 
         //如果是直流所有的直接跳转为已经QC了
+        //todo 以后组盘有异常,还需都更新回来,所有的qcDone更改
         if (isDirect) {
-            for (WaveDetail one: details){
+            for (WaveDetail one : details) {
                 one.setQcExceptionDone(2L);
                 waveService.updateDetail(one);
             }
@@ -373,6 +384,7 @@ public class QCRestService implements IRFQCRestService {
     }
 
     //组盘(已经组盘和未组盘状态)
+    // todo 如果组盘有问题,以后的修复重新QC,需要重新更新detail,将qc的exceptionDone都变回来
     @POST
     @Path("confirm")
     public String confirm() throws BizCheckedException {
@@ -392,6 +404,8 @@ public class QCRestService implements IRFQCRestService {
         //校验qc任务是否完全完成;
         boolean bSucc = true;
         BigDecimal sumEAQty = new BigDecimal("0.0000");
+        //直接走组盘,没有必须要进行判断是否QC异常完毕的东西,或者这里的异常是组盘异常,任务才不结束
+        //不能组盘的时候,PC忽略异常
         for (WaveDetail d : details) {
             if (d.getQcExceptionDone() == 0) {
                 bSucc = false;
