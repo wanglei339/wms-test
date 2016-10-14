@@ -209,6 +209,9 @@ public class TaskInfo implements Serializable {
      */
     private Long qcPreviousTaskId =0L;
 
+    /** 是否跳过q明细，0不跳过1-跳过 */
+    private Integer qcSkip;
+
     public BigDecimal getTaskQty() {
         return taskQty;
     }
@@ -656,5 +659,13 @@ public class TaskInfo implements Serializable {
 
     public void setQcPreviousTaskId(Long qcPreviousTaskId) {
         this.qcPreviousTaskId = qcPreviousTaskId;
+    }
+
+    public Integer getQcSkip(){
+        return this.qcSkip;
+    }
+
+    public void setQcSkip(Integer qcSkip){
+        this.qcSkip = qcSkip;
     }
 }

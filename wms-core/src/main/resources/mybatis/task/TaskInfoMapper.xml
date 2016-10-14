@@ -55,6 +55,7 @@
 		<result property="taskOrder" column="task_order"/>
 		<result property="businessMode" column="business_mode"/>
 		<result property="qcPreviousTaskId" column="qc_previous_task_id"/>
+		<result property="qcSkip" column="qc_skip"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TaskInfo">
@@ -67,7 +68,7 @@
 			due_time,finish_time,cancel_time,ext1,ext2,ext3,
 			ext4,ext5,ext6,ext7,ext8,ext9,
 			created_at,updated_at, task_pack_qty,
-			task_ea_qty, date, trans_plan,merged_container_id,step,is_show,task_order,business_mode,qc_previous_task_id
+			task_ea_qty, date, trans_plan,merged_container_id,step,is_show,task_order,business_mode,qc_previous_task_id,qc_skip
     	) values (
 			#{taskId},#{taskName},#{planId},#{waveId},#{orderId},#{locationId},
 			#{skuId},#{ownerId},#{itemId},#{fromLocationId},#{toLocationId},#{qty},
@@ -77,7 +78,7 @@
 			#{dueTime},#{finishTime},#{cancelTime},#{ext1},#{ext2},#{ext3},
 			#{ext4},#{ext5},#{ext6},#{ext7},#{ext8},#{ext9},
 			#{createdAt},#{updatedAt},#{taskPackQty},
-			#{taskEaQty}, #{date},#{transPlan},#{mergedContainerId},#{step},#{isShow},#{taskOrder},#{businessMode},#{qcPreviousTaskId}
+			#{taskEaQty}, #{date},#{transPlan},#{mergedContainerId},#{step},#{isShow},#{taskOrder},#{businessMode},#{qcPreviousTaskId},#{qcSkip}
     	)
 	</insert>
 
@@ -134,7 +135,8 @@
 			<if test="businessMode !=null">business_mode =#{businessMode},</if>
 			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
-			<if test="qcPreviousTaskId != null">qc_previous_task_id=#{qcPreviousTaskId}</if>
+			<if test="qcPreviousTaskId != null">qc_previous_task_id=#{qcPreviousTaskId},</if>
+			<if test="qcSkip != null">qc_skip=#{qcSkip}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -316,6 +318,7 @@
 			<if test="taskOrder != null">and task_order=#{taskOrder}</if>
 			<if test="businessMode != null">and business_mode=#{businessMode}</if>
 			<if test="qcPreviousTaskId != null">and qc_previous_task_id=#{qcPreviousTaskId}</if>
+			<if test="qcSkip != null">and qc_skip=#{qcSkip}</if>
 		</where>
 	</sql>
    

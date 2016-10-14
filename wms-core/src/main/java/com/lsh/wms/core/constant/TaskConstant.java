@@ -43,5 +43,8 @@ public class TaskConstant {
     // 作业模式
     public static final Long MODE_INBOUND = 1L; // 在库
     public static final Long MODE_DIRECT = 2L; // 直流
+    //是否跳过QC的Q明细
+    public static final int QC_SKIP = 1; // 跳过
+    public static final int QC_NOT_SKIP = 0; // 不跳过
 
 }

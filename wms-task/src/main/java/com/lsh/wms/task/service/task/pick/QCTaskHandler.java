@@ -46,7 +46,6 @@ public class QCTaskHandler extends AbsTaskHandler {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("containerId", containerId);
 
-
         List<TaskEntry> qcTaskEntry = iTaskRpcService.getTaskList(TaskConstant.TYPE_QC, mapQuery);
         TaskInfo qcTaskinfo = null;
         if (qcTaskEntry != null && qcTaskEntry.size() > 1) {
@@ -79,6 +78,8 @@ public class QCTaskHandler extends AbsTaskHandler {
             return;
         }
 
+
+
         List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
         if (details.size() == 0) {
             return;
@@ -98,11 +99,13 @@ public class QCTaskHandler extends AbsTaskHandler {
         info.setQty(new BigDecimal(setItem.size()));    //创建QC任务不设定QC需要的QC数量,而是实际输出来的数量和上面的任务操作数量比对
         info.setWaveId(details.get(0).getWaveId());
         info.setPlanId(info.getPlanId());
-
+        //如果收货任务的大店收货任务才生成QC,大店收货可以跳过QC,task_info的qc_skip置为1,大店收货收到集货道
+        if (pickEntry.getTaskInfo().getType() == TaskConstant.TYPE_PO ){
+            info.setQcSkip(TaskConstant.QC_SKIP);
+        }
         TaskEntry taskEntry = new TaskEntry();
         taskEntry.setTaskDetailList((List<Object>) (List<?>) details);
         taskEntry.setTaskInfo(info);
-
         this.create(taskEntry);
     }
 
