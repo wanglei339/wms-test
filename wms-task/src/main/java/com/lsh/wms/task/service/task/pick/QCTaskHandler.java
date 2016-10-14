@@ -75,6 +75,7 @@ public class QCTaskHandler extends AbsTaskHandler {
             taskEntry.setTaskDetailList((List<Object>) (List<?>) details);
             taskEntry.setTaskInfo(qcTaskinfo);
             this.update(taskEntry);
+            //只更新,taskinfo并且waveDetai中的qcTaskId更新
             return;
         }
 
@@ -113,6 +114,15 @@ public class QCTaskHandler extends AbsTaskHandler {
         waveService.updateDetails(details);
     }
 
+    //之跟新 wave——detail
+    public void updteConcrete(TaskEntry taskEntry) throws BizCheckedException{
+        List<WaveDetail> details = (List<WaveDetail>) (List<?>) taskEntry.getTaskDetailList();
+        for (WaveDetail detail : details) {
+            detail.setQcTaskId(taskEntry.getTaskInfo().getTaskId());
+        }
+        waveService.updateDetails(details);
+    }
+
 
     protected void getConcrete(TaskEntry taskEntry) {
         taskEntry.setTaskDetailList((List<Object>) (List<?>) waveService.getDetailsByQCTaskId(taskEntry.getTaskInfo().getTaskId()));
@@ -129,4 +139,6 @@ public class QCTaskHandler extends AbsTaskHandler {
         //更新波次状态
         waveService.updateWaveStatus(info.getWaveId());
     }
+
+
 }
