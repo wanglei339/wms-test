@@ -9,6 +9,7 @@ import com.lsh.wms.api.service.po.IPoRpcService;
 import com.lsh.wms.api.service.seed.ISeedProveiderRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.CsiConstan;
+import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.container.ContainerService;
@@ -137,8 +138,8 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
         if(ibdHeader ==null){
             throw new BizCheckedException("2880004");
         }
-        if(ibdHeader.getOrderStatus().compareTo(2)!=0){
-            throw new BizCheckedException("2880004");
+        if(ibdHeader.getOrderStatus().compareTo(PoConstant.ORDER_THROW)!=0){
+            throw new BizCheckedException("2880015");
         }
         mapQuery.put("type", TaskConstant.TYPE_SEED);
         mapQuery.put("skuId",sku.getSkuId());

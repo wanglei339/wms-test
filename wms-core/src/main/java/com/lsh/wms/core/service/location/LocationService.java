@@ -1316,7 +1316,23 @@ public class LocationService {
     public List<BaseinfoLocation> getCollectionByStoreNo(Long storeNo) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("storeNo", storeNo);
-        mapQuery.put("type",LocationConstant.COLLECTION_BIN);
+        mapQuery.put("type", LocationConstant.COLLECTION_BIN);
+        List<BaseinfoLocation> list = this.getBaseinfoLocationList(mapQuery);
+        if (null == list || list.size() < 1) {
+            throw new BizCheckedException("2180012");
+        }
+        return list;
+    }
+    /**
+     * 查找指定门店号的播种位置
+     *
+     * @param storeNo
+     * @return
+     */
+    public List<BaseinfoLocation> getSowByStoreNo(Long storeNo) throws BizCheckedException {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("storeNo", storeNo);
+        mapQuery.put("type",LocationConstant.SOW_BIN);
         List<BaseinfoLocation> list = this.getBaseinfoLocationList(mapQuery);
         if (null == list || list.size() < 1) {
             throw new BizCheckedException("2180012");

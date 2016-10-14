@@ -91,9 +91,6 @@ public class MergeService {
                 if (!taskInfos.contains(taskInfo)) {
                     taskInfos.add(taskInfo);
                 }
-                if (taskInfo == null) {
-                    throw new BizCheckedException("2870003");
-                }
             }
         }
         if (mergedContainerId.equals(0L)) {

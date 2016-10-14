@@ -283,6 +283,20 @@ public class LocationRpcService implements ILocationRpcService {
         List<BaseinfoLocation> locations = locationService.getCollectionByStoreNo(storeNo);
         return locations;
     }
+    /**
+     * 将门店位置下的所有播种位置拿出来
+     *
+     * @param storeNo 门店号
+     * @return
+     * @throws BizCheckedException
+     */
+    public List<BaseinfoLocation> getSowByStoreNo(Long storeNo) throws BizCheckedException {
+        if (null == storeNo) {
+            throw new BizCheckedException("2180010");
+        }
+        List<BaseinfoLocation> locations = locationService.getSowByStoreNo(storeNo);
+        return locations;
+    }
 
     /**
      * 移除集货道的门店号,将其置为0

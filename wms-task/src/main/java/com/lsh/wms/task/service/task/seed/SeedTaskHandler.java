@@ -218,11 +218,6 @@ public class SeedTaskHandler extends AbsTaskHandler {
             move.setItemId(quant.getItemId());
             move.setFromContainerId(info.getContainerId());
             move.setFromLocationId(quant.getLocationId());
-            WaveDetail detail =  waveService.getDetailByContainerIdAndOrderIdAndItemId(info.getContainerId(), info.getOrderId(), info.getItemId());
-
-            if(detail== null ){
-                throw new BizCheckedException("2880012");
-            }
 
 
 
@@ -236,6 +231,11 @@ public class SeedTaskHandler extends AbsTaskHandler {
                 throw new BizCheckedException("2020001");
             }
 
+            WaveDetail detail =  waveService.getDetailByContainerIdAndItemId(info.getContainerId(), info.getItemId());
+
+            if(detail== null ){
+                throw new BizCheckedException("2880012");
+            }
             BaseinfoItem item = itemService.getItem(ibdHeader.getOwnerUid(), sku.getSkuId());
 
             String orderOtherId = ibdHeader.getOrderOtherId();
@@ -263,18 +263,20 @@ public class SeedTaskHandler extends AbsTaskHandler {
         }
         List<StockQuant> quantList = quantService.getQuantsByContainerId(head.getRealContainerId());
         if(quantList ==null || quantList.size()==0){
-            List<BaseinfoLocation> locations = locationService.getCollectionByStoreNo(head.getStoreNo());
+            List<BaseinfoLocation> locations = locationService.getSowByStoreNo(head.getStoreNo());
             move.setToLocationId(locations.get(0).getLocationId());
         }else {
             move.setToLocationId(quantList.get(0).getLocationId());
         }
         move.setToContainerId(head.getRealContainerId());
         move.setQty(info.getQty());
+        move.setTaskId(taskId);
         if(info.getSubType().compareTo(2L)==0) {
             StockLot lot =new StockLot();
             lot.setItemId(info.getItemId());
             lot.setPoId(info.getOrderId());
             lot.setPackUnit(info.getPackUnit());
+            lot.setSkuId(info.getSkuId());
             lot.setPackName(info.getPackName());
             quantService.move(move, lot);
         }else {

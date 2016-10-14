@@ -258,7 +258,7 @@ public class SeedRestService implements ISeedRestService {
             iTaskRpcService.done(entry);
             try {
                 if(info.getSubType().compareTo(2L)==0) {
-                    receiptRpcService.addStoreReceipt(this.fillReceipt(entry));
+                    receiptRpcService.addSeedStoreReceipt(this.fillReceipt(entry));
                 }
             }catch (Exception exp){
                 logger.info(exp.getMessage());
@@ -427,6 +427,7 @@ public class SeedRestService implements ISeedRestService {
         receiptRequest.setOrderOtherId(ibdHeader.getOrderOtherId());
         receiptRequest.setContainerId(head.getRealContainerId());
         receiptRequest.setStoreId(head.getStoreNo().toString());
+        receiptRequest.setIsCreateTask(0);
         receiptRequest.setReceiptUser("");
 
 

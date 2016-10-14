@@ -48,6 +48,8 @@ public class ReceiptRequest implements Serializable {
     /**门店编码*/
     private String storeId;
 
+    /** 是否生成任务*/
+    private int isCreateTask = 1;
     /** 商品 */
     @Valid
     @Size(min=1)
@@ -148,5 +150,13 @@ public class ReceiptRequest implements Serializable {
 
     public void setWarehouseId(Long warehouseId) {
         this.warehouseId = warehouseId;
+    }
+
+    public int getIsCreateTask() {
+        return isCreateTask;
+    }
+
+    public void setIsCreateTask(int isCreateTask) {
+        this.isCreateTask = isCreateTask;
     }
 }

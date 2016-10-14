@@ -36,4 +36,6 @@ public interface IReceiptRpcService {
     void insertReceipt(Long orderId,Long staffId) throws BizCheckedException, ParseException;
 
     void addStoreReceipt(ReceiptRequest request) throws BizCheckedException, ParseException;
+
+    void addSeedStoreReceipt(ReceiptRequest request) throws BizCheckedException, ParseException;
 }
