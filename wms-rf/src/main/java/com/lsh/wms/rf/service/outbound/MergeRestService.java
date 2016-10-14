@@ -120,6 +120,7 @@ public class MergeRestService implements IMergeRestService {
         BigDecimal packCount = BigDecimal.ZERO; // 总箱数
         BigDecimal turnoverBoxCount = BigDecimal.ZERO; // 总周转箱箱数
         List<Object> resultDetails = new ArrayList<Object>();
+        logger.info(JsonUtils.SUCCESS(containerIds));
         for (Long containerId: containerIds) {
             List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(containerId);
             if (waveDetails == null) {
