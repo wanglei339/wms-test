@@ -216,6 +216,10 @@ public class StockQuantService {
 
             this.update(quant);
             // 新建 quant move历史记录
+            if(move.getId().compareTo(0L)==0){
+                // 创建move
+                moveDao.insert(move);
+            }
             StockQuantMoveRel moveRel = new StockQuantMoveRel();
             moveRel.setMoveId(move.getId());
             moveRel.setQuantId(quant.getId());
