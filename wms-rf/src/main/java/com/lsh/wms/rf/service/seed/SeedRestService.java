@@ -222,7 +222,7 @@ public class SeedRestService implements ISeedRestService {
             List<TaskInfo> infos = baseTaskService.getTaskInfoList(query);
             if(infos!=null && infos.size()!=0){
                 for(TaskInfo info: infos){
-                    if(info.getExt1().compareTo(2L)==0){
+                    if(info.getStep()==2){
                         return JsonUtils.TOKEN_ERROR("该托盘已集货，不能播种到该托盘上");
                     }
                 }

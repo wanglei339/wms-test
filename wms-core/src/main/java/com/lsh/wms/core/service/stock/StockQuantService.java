@@ -216,7 +216,7 @@ public class StockQuantService {
 
             this.update(quant);
             // 新建 quant move历史记录
-            if(move.getId().compareTo(0L)==0){
+            if(move.getId() ==null){
                 // 创建move
                 moveDao.insert(move);
             }
