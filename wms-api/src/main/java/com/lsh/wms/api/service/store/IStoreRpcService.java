@@ -20,4 +20,6 @@ public interface IStoreRpcService {
     public BaseinfoStore removeStore(Long storeNo) throws BizCheckedException;
 
     public List<BaseinfoStore> getStoreList(Map<String,Object> params) throws BizCheckedException;
+
+    public Integer countBaseinfoStore(Map<String, Object> params) throws BizCheckedException;
 }

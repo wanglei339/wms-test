@@ -73,4 +73,10 @@ public class StoreRestService implements IStoreRestService {
         }
         return JsonUtils.SUCCESS(baseinfoStores);
     }
+    @POST
+    @Path("countStores")
+    public String countBaseinfoStore() throws BizCheckedException {
+        Map<String, Object> params = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(storeRpcService.countBaseinfoStore(params));
+    }
 }

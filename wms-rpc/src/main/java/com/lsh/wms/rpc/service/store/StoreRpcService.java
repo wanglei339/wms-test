@@ -51,4 +51,8 @@ public class StoreRpcService implements IStoreRpcService {
 
         return storeService.getBaseinfoStoreList(params);
     }
+
+    public Integer countBaseinfoStore(Map<String, Object> params) throws BizCheckedException {
+        return storeService.countBaseinfoStore(params);
+    }
 }

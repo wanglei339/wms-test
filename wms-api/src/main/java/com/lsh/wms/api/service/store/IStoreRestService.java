@@ -20,4 +20,6 @@ public interface IStoreRestService {
     public String removeStore(Long storeNo) throws BizCheckedException;
 
     public String getStoreList() throws BizCheckedException;
+
+    public String countBaseinfoStore() throws BizCheckedException;
 }
