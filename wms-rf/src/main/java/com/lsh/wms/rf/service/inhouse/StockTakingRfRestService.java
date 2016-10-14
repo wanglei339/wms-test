@@ -7,11 +7,14 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.model.stock.StockItem;
 import com.lsh.wms.api.model.stock.StockRequest;
+import com.lsh.wms.api.service.back.IDataBackService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.core.constant.ContainerConstant;
+import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
 import com.lsh.wms.core.service.stock.StockLotService;
+import com.lsh.wms.model.baseinfo.BaseinfoLocationWarehouse;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.system.SysUser;
@@ -90,7 +93,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
     private ContainerService containerService;
 
 //    @Reference
-//    private IIbdBackService ibdBackService;
+//    private IDataBackService dataBackService;
 
 
     @POST
@@ -441,14 +444,14 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
 //            request.setItems(itemsLoss);
 //            request.setMoveType(String.valueOf(IntegrationConstan.LOSS));
 //            request.setPlant(warehouseName);
-//            ibdBackService.createOrderByPost(request,IntegrationConstan.URL_STOCKCHANGE);
+//            dataBackService.wmDataBackByPost(request,IntegrationConstan.URL_STOCKCHANGE);
 //        }
 //
 //        if (itemsWin.size()>0){
 //            request.setItems(itemsWin);
 //            request.setMoveType(String.valueOf(IntegrationConstan.WIN));
 //            request.setPlant(warehouseName);
-//            ibdBackService.createOrderByPost(request,IntegrationConstan.URL_STOCKCHANGE);
+//            dataBackService.wmDataBackByPost(request,IntegrationConstan.URL_STOCKCHANGE);
 //        }
 
 
