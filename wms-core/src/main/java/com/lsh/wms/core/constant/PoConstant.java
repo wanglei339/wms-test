@@ -19,6 +19,11 @@ public class PoConstant {
      */
     public static final int ORDER_NO = 0;
 
+    /**
+     * 待投单
+     */
+    public static final int ORDER_DELIVERY = 2;
+
     /** 订单状态，0取消，1正常，2待投单,3,待收货 4，部分收货，5已收货,6收货中 */
     public static final int ORDER_THROW = 3;
     public static final int ORDER_RECTIPT_PART = 4;
