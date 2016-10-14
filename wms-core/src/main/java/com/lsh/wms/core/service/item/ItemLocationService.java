@@ -85,7 +85,7 @@ public class ItemLocationService {
         long locationId = itemLocation.getPickLocationid();
         List<BaseinfoItemLocation> newList = this.getItemLocationByLocationID(locationId);
         if(newList.size()>0){
-            throw new BizCheckedException("2880001");
+            throw new BizCheckedException("2990001");
         }
         List<BaseinfoItemLocation> oldList = this.getItemLocationList(itemId);
         if(oldList.size()>0){
@@ -93,7 +93,7 @@ public class ItemLocationService {
             BaseinfoLocation oldLocation = locationService.getLocation(oldItemList.getPickLocationid());
             BaseinfoLocation newLocation = locationService.getLocation(locationId);
             if(!oldLocation.getType().equals(newLocation.getType())){
-                throw new BizCheckedException("2880002");
+                throw new BizCheckedException("2990002");
             }
         }
 
