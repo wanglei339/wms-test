@@ -384,7 +384,7 @@ public class QCRestService implements IRFQCRestService {
     }
 
     //组盘(已经组盘和未组盘状态)
-    // todo 如果组盘有问题,以后的修复重新QC,需要重新更新detail,将qc的exceptionDone都变回来
+    // todo 如果组盘有问题,以后的修复重新QC,需要重新更新detail,
     @POST
     @Path("confirm")
     public String confirm() throws BizCheckedException {
