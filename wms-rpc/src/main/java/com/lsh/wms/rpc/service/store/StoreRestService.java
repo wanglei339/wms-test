@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.store.IStoreRestService;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
 import org.slf4j.Logger;
@@ -12,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -35,11 +38,13 @@ public class StoreRestService implements IStoreRestService {
         }
         return JsonUtils.SUCCESS(storeRpcService.insertStore(baseinfoStore));
     }
+
     @POST
     @Path("updateStore")
     public String updateStore(BaseinfoStore baseinfoStore) throws BizCheckedException {
         return JsonUtils.SUCCESS(storeRpcService.updateStore(baseinfoStore));
     }
+
     @GET
     @Path("getStore")
     public String getStoreByStoreNo(@QueryParam("storeNo") Long storeNo) throws BizCheckedException {
@@ -48,6 +53,7 @@ public class StoreRestService implements IStoreRestService {
         }
         return JsonUtils.SUCCESS(storeRpcService.getStoreByStoreNo(storeNo));
     }
+
     @GET
     @Path("removeStore")
     public String removeStore(@QueryParam("storeNo") Long storeNo) throws BizCheckedException {
@@ -55,5 +61,16 @@ public class StoreRestService implements IStoreRestService {
             throw new BizCheckedException("2180014");
         }
         return JsonUtils.SUCCESS(storeRpcService.removeStore(storeNo));
+    }
+
+    @POST
+    @Path("getStoreList")
+    public String getStoreList() throws BizCheckedException {
+        Map<String, Object> params = RequestUtils.getRequest();
+        List<BaseinfoStore> baseinfoStores = storeRpcService.getStoreList(params);
+        if (baseinfoStores == null) {
+            throw new BizCheckedException("2180016");
+        }
+        return JsonUtils.SUCCESS(baseinfoStores);
     }
 }

@@ -9,6 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * @Author 马启迪 maqidi@lsh123.com
  * @Date 16/9/30 下午3:53
@@ -42,5 +45,10 @@ public class StoreRpcService implements IStoreRpcService {
             throw new BizCheckedException("2180014");
         }
         return storeService.removeStore(storeNo);
+    }
+
+    public List<BaseinfoStore> getStoreList(Map<String, Object> params) throws BizCheckedException {
+
+        return storeService.getBaseinfoStoreList(params);
     }
 }
