@@ -31,7 +31,7 @@
   			<if test="pickZoneCode != null">pick_zone_code=#{pickZoneCode},</if>
   			<if test="pickZoneName != null">pick_zone_name=#{pickZoneName},</if>
   			<if test="locations != null">locations=#{locations},</if>
-			<if test="pickType != null">pick_type#{pickType},</if>
+			<if test="pickType != null">pick_type=#{pickType},</if>
   			<if test="pickUnit != null">pick_unit=#{pickUnit},</if>
   			<if test="pickModelSupport != null">pick_model_support=#{pickModelSupport},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
