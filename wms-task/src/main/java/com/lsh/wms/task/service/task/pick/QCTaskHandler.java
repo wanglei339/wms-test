@@ -49,7 +49,7 @@ public class QCTaskHandler extends AbsTaskHandler {
 
         List<TaskEntry> qcTaskEntry = iTaskRpcService.getTaskList(TaskConstant.TYPE_QC, mapQuery);
         TaskInfo qcTaskinfo = null;
-        if (qcTaskEntry != null) {
+        if (qcTaskEntry != null && qcTaskEntry.size() > 1) {
             qcTaskinfo = qcTaskEntry.get(0).getTaskInfo();
         }
         //如果存在 拣货任务和qc任务一对一, 对于收货后的qc按照商品维度,需要同一个托盘的话,更新就行了
@@ -115,7 +115,7 @@ public class QCTaskHandler extends AbsTaskHandler {
     }
 
     //之跟新 wave——detail
-    public void updteConcrete(TaskEntry taskEntry) throws BizCheckedException{
+    public void updteConcrete(TaskEntry taskEntry) throws BizCheckedException {
         List<WaveDetail> details = (List<WaveDetail>) (List<?>) taskEntry.getTaskDetailList();
         for (WaveDetail detail : details) {
             detail.setQcTaskId(taskEntry.getTaskInfo().getTaskId());
