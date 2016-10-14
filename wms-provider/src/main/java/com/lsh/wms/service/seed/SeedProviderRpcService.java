@@ -137,6 +137,9 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
         if(ibdHeader ==null){
             throw new BizCheckedException("2880004");
         }
+        if(ibdHeader.getOrderStatus().compareTo(2)!=0){
+            throw new BizCheckedException("2880004");
+        }
         mapQuery.put("type", TaskConstant.TYPE_SEED);
         mapQuery.put("skuId",sku.getSkuId());
         List<TaskInfo> infos = baseTaskService.getTaskInfoList(mapQuery);
