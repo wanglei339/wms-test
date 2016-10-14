@@ -263,7 +263,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
         }
         List<StockQuant> quantList = quantService.getQuantsByContainerId(head.getRealContainerId());
         if(quantList ==null || quantList.size()==0){
-            List<BaseinfoLocation> locations = locationService.getCollectionByStoreNo(head.getStoreNo());
+            List<BaseinfoLocation> locations = locationService.getSowByStoreNo(head.getStoreNo());
             move.setToLocationId(locations.get(0).getLocationId());
         }else {
             move.setToLocationId(quantList.get(0).getLocationId());
@@ -275,6 +275,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
             lot.setItemId(info.getItemId());
             lot.setPoId(info.getOrderId());
             lot.setPackUnit(info.getPackUnit());
+            lot.setSkuId(info.getSkuId());
             lot.setPackName(info.getPackName());
             quantService.move(move, lot);
         }else {
