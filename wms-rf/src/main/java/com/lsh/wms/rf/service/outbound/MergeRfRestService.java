@@ -82,7 +82,7 @@ public class MergeRfRestService implements IMergeRfRestService {
         // 合板
         mergeService.mergeContainers(containerIds, staffId);
         Map<String, Object> result = new HashMap<String, Object>();
-        result.put("result", true);
+        result.put("response", true);
         return JsonUtils.SUCCESS(result);
     }
 
