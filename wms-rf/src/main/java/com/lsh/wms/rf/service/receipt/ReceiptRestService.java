@@ -307,7 +307,7 @@ public class ReceiptRestService implements IReceiptRfService {
         //判断门店是否有订货
         Map<String,Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("deliveryCode",storeId);
-        mapQuery.put("orderType", SoConstant.ORDER_TYPE_STO);
+        mapQuery.put("orderType", SoConstant.ORDER_TYPE_DIRECT);
         mapQuery.put("orderStatus",1);
         List<ObdHeader> obdHeaderList = soOrderService.getOutbSoHeaderList(mapQuery);
 

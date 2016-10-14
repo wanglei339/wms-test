@@ -141,6 +141,10 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
         mapQuery.put("skuId",sku.getSkuId());
         List<TaskInfo> infos = baseTaskService.getTaskInfoList(mapQuery);
         if(infos!=null && infos.size()!=0){
+            TaskInfo info = infos.get(0);
+            if(info.getSubType().compareTo(1L)==0){
+                throw new BizCheckedException("2880014");
+            }
             return;
         }
 

@@ -9,6 +9,7 @@ import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.inhouse.IProcurementRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.shelve.IPickUpShelveRestService;
+import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.ContainerConstant;
