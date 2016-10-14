@@ -138,6 +138,7 @@ public class WaveService {
         mapQuery.put("containerId",containerId);
         mapQuery.put("itemId", itemId);
         mapQuery.put("isAlive",1);
+        mapQuery.put("isValid",1);
         List<WaveDetail> waveDetails = detailDao.getWaveDetailList(mapQuery);
         if(waveDetails== null || waveDetails.size()==0){
             return null;
