@@ -3,12 +3,11 @@ package com.lsh.wms.rf.service.outbound;
 import com.alibaba.dubbo.common.logger.Logger;
 import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.alibaba.dubbo.config.annotation.Service;
-import com.alibaba.dubbo.container.Container;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.wms.api.service.merge.IMergeRestService;
+import com.lsh.wms.api.service.merge.IMergeRfRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.service.container.ContainerService;
@@ -21,7 +20,6 @@ import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.print.attribute.DocAttributeSet;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -40,8 +38,8 @@ import java.util.Map;
 @Path("outbound/merge")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-public class MergeRestService implements IMergeRestService {
-    private static Logger logger = LoggerFactory.getLogger(PickRestService.class);
+public class MergeRfRestService implements IMergeRfRestService {
+    private static Logger logger = LoggerFactory.getLogger(MergeRfRestService.class);
 
     @Autowired
     private MergeService mergeService;
