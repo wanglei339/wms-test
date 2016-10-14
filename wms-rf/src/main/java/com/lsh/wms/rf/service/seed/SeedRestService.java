@@ -254,6 +254,7 @@ public class SeedRestService implements ISeedRestService {
             info.setQty(qty);
             entry.setTaskInfo(info);
             entry.setTaskHead(head);
+            iTaskRpcService.update(TaskConstant.TYPE_SEED,entry);
             iTaskRpcService.done(entry);
             try {
                 if(info.getSubType().compareTo(2L)==0) {
@@ -426,6 +427,7 @@ public class SeedRestService implements ISeedRestService {
         receiptRequest.setOrderOtherId(ibdHeader.getOrderOtherId());
         receiptRequest.setContainerId(head.getRealContainerId());
         receiptRequest.setStoreId(head.getStoreNo().toString());
+        receiptRequest.setReceiptUser("");
 
 
         receiptItem.setOrderId(info.getOrderId());

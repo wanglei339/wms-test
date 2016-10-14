@@ -33,7 +33,7 @@ public class ReceiptRequest implements Serializable {
     /** 收货员 */
     @NotBlank
     @Size(max=64)
-    private String receiptUser;
+    private String receiptUser ;
 
     /** 收货时间 */
     @NotNull
