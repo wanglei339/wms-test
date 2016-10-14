@@ -116,7 +116,11 @@ public class QCTaskHandler extends AbsTaskHandler {
 
     //之跟新 wave——detail
     public void updteConcrete(TaskEntry taskEntry) throws BizCheckedException {
+        //如果taskEntry有detail就更新,detail,不然就只return
         List<WaveDetail> details = (List<WaveDetail>) (List<?>) taskEntry.getTaskDetailList();
+        if (null == details || details.size() < 1) {
+            return;
+        }
         for (WaveDetail detail : details) {
             detail.setQcTaskId(taskEntry.getTaskInfo().getTaskId());
         }
