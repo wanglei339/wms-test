@@ -46,6 +46,14 @@ public class WaveConstant {
     public static long QC_FAULT_PICK = 1L;    //拣货人的失误
     public static long QC_FAULT_QC= 1L;       //QC人的失误
 
+    /**
+     * qc的状态
+     */
+    public static long QC_UNDONE = 0L;
+    public static long QC_DONE_TO_COMBINATION = 1L;
+    public static long QC_SKIP_TO_COMBINATION = 2L;
+
+
 
 
 

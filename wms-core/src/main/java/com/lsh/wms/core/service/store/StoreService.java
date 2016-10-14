@@ -80,6 +80,16 @@ public class StoreService {
     public List<BaseinfoStore> getBaseinfoStoreList(Map<String,Object> params){
         return baseinfoStoreDao.getBaseinfoStoreList(params);
     }
+
+    /**
+     * 计数
+     * @param params
+     * @return
+     */
+    public Integer countBaseinfoStore(Map<String, Object> params){
+        return baseinfoStoreDao.countBaseinfoStore(params);
+    }
+
     /**
      * 根据storeNo返回门店信息
      */
