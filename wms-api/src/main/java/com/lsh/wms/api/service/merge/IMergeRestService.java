@@ -7,4 +7,5 @@ import com.lsh.base.common.exception.BizCheckedException;
  */
 public interface IMergeRestService {
     String mergeContainers() throws BizCheckedException;
+    String checkMergeContainers() throws BizCheckedException;
 }
