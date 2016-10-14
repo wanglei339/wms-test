@@ -54,29 +54,29 @@ public class QCTaskHandler extends AbsTaskHandler {
         }
         //如果存在 拣货任务和qc任务一对一, 对于收货后的qc按照商品维度,需要同一个托盘的话,更新就行了
         //是收货任务
-//        if (pickEntry.getTaskInfo().getType() == TaskConstant.TYPE_PO && qcTaskinfo != null) {
-//            List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
-//            if (details.size() == 0) {
-//                return;
-//            }
-//            // todo setEXt1字段设置的是QC的上一个任务,这里可以是 pickTaskId 和 直流集货任务id 等等
-//            qcTaskinfo.setQcPreviousTaskId(pickEntry.getTaskInfo().getTaskId());
-//            qcTaskinfo.setOrderId(details.get(0).getOrderId());
-//            qcTaskinfo.setBusinessMode(pickEntry.getTaskInfo().getBusinessMode());
-//            Set<Long> setItem = new HashSet<Long>();
-//            for (WaveDetail detail : details) {  //又是一个坑,关于item的问题
-//                setItem.add(detail.getItemId());
-//            }
-//            qcTaskinfo.setSubType(pickEntry.getTaskInfo().getBusinessMode());  //沿用上面的直流还是在库
-//            qcTaskinfo.setQty(new BigDecimal(setItem.size()));    //创建QC任务不设定QC需要的QC数量,而是实际输出来的数量和上面的任务操作数量比对
-//            qcTaskinfo.setWaveId(details.get(0).getWaveId());
-//            qcTaskinfo.setPlanId(qcTaskinfo.getPlanId());
-//            TaskEntry taskEntry = new TaskEntry();
-//            taskEntry.setTaskDetailList((List<Object>) (List<?>) details);
-//            taskEntry.setTaskInfo(qcTaskinfo);
-//            this.update(taskEntry);
-//            return;
-//        }
+        if (pickEntry.getTaskInfo().getType() == TaskConstant.TYPE_PO && qcTaskinfo != null) {
+            List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
+            if (details.size() == 0) {
+                return;
+            }
+            // todo setEXt1字段设置的是QC的上一个任务,这里可以是 pickTaskId 和 直流集货任务id 等等
+            qcTaskinfo.setQcPreviousTaskId(pickEntry.getTaskInfo().getTaskId());
+            qcTaskinfo.setOrderId(details.get(0).getOrderId());
+            qcTaskinfo.setBusinessMode(pickEntry.getTaskInfo().getBusinessMode());
+            Set<Long> setItem = new HashSet<Long>();
+            for (WaveDetail detail : details) {  //又是一个坑,关于item的问题
+                setItem.add(detail.getItemId());
+            }
+            qcTaskinfo.setBusinessMode(pickEntry.getTaskInfo().getBusinessMode());  //沿用上面的直流还是在库
+            qcTaskinfo.setQty(new BigDecimal(setItem.size()));    //创建QC任务不设定QC需要的QC数量,而是实际输出来的数量和上面的任务操作数量比对
+            qcTaskinfo.setWaveId(details.get(0).getWaveId());
+            qcTaskinfo.setPlanId(qcTaskinfo.getPlanId());
+            TaskEntry taskEntry = new TaskEntry();
+            taskEntry.setTaskDetailList((List<Object>) (List<?>) details);
+            taskEntry.setTaskInfo(qcTaskinfo);
+            this.update(taskEntry);
+            return;
+        }
 
         List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
         if (details.size() == 0) {
