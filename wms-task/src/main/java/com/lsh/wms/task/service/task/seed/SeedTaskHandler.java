@@ -218,11 +218,6 @@ public class SeedTaskHandler extends AbsTaskHandler {
             move.setItemId(quant.getItemId());
             move.setFromContainerId(info.getContainerId());
             move.setFromLocationId(quant.getLocationId());
-            WaveDetail detail =  waveService.getDetailByContainerIdAndOrderIdAndItemId(info.getContainerId(), info.getOrderId(), info.getItemId());
-
-            if(detail== null ){
-                throw new BizCheckedException("2880012");
-            }
 
 
 
@@ -236,6 +231,11 @@ public class SeedTaskHandler extends AbsTaskHandler {
                 throw new BizCheckedException("2020001");
             }
 
+            WaveDetail detail =  waveService.getDetailByContainerIdAndItemId(info.getContainerId(), info.getItemId());
+
+            if(detail== null ){
+                throw new BizCheckedException("2880012");
+            }
             BaseinfoItem item = itemService.getItem(ibdHeader.getOwnerUid(), sku.getSkuId());
 
             String orderOtherId = ibdHeader.getOrderOtherId();

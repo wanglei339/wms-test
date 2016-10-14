@@ -133,10 +133,9 @@ public class WaveService {
         waveHeadDao.update(head);
     }
     @Transactional(readOnly = false)
-    public WaveDetail getDetailByContainerIdAndOrderIdAndItemId(Long containerId ,Long orderId,Long itemId){
+    public WaveDetail getDetailByContainerIdAndItemId(Long containerId ,Long itemId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("containerId",containerId);
-        mapQuery.put("orderId",orderId);
         mapQuery.put("itemId", itemId);
         List<WaveDetail> waveDetails = detailDao.getWaveDetailList(mapQuery);
         if(waveDetails== null || waveDetails.size()==0){
@@ -346,7 +345,6 @@ public class WaveService {
     @Transactional(readOnly = false)
     public void splitWaveDetail(WaveDetail detail, BigDecimal requiredQty,Long containerId,Long soOrderId){
         Map<String,Object> queryMap = new HashMap<String, Object>();
-        queryMap.put("orderId",detail.getOrderId());
         queryMap.put("itemId", detail.getItemId());
         queryMap.put("containerId",detail.getContainerId());
         List<WaveDetail> details = detailDao.getOrderedWaveDetailList(queryMap);
