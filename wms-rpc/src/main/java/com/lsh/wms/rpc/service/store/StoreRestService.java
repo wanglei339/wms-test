@@ -51,6 +51,7 @@ public class StoreRestService implements IStoreRestService {
         if (null == storeNo) {
             throw new BizCheckedException("2180014");
         }
+
         return JsonUtils.SUCCESS(storeRpcService.getStoreByStoreNo(storeNo));
     }
 
