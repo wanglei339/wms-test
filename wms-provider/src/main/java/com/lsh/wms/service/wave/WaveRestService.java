@@ -1,10 +1,15 @@
 package com.lsh.wms.service.wave;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.wms.api.model.so.ObdBackRequest;
+import com.lsh.wms.api.model.so.ObdItem;
+import com.lsh.wms.api.service.back.IDataBackService;
 import com.lsh.wms.api.service.wave.IWaveRestService;
+import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
@@ -14,7 +19,11 @@ import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.core.service.wave.WaveTemplateService;
+import com.lsh.wms.model.baseinfo.BaseinfoLocationWarehouse;
 import com.lsh.wms.model.pick.*;
+import com.lsh.wms.model.so.ObdDetail;
+import com.lsh.wms.model.so.ObdHeader;
+import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.wave.WaveHead;
 import com.lsh.wms.model.wave.WaveRequest;
@@ -57,7 +66,7 @@ public class WaveRestService implements IWaveRestService {
     private BaseinfoLocationWarehouseService baseinfoLocationWarehouseService;
 //
 //    @Reference
-//    private IIbdBackService ibdBackService;
+//    private IDataBackService dataBackService;
 
     @Autowired
     private SoDeliveryService soDeliveryService;
@@ -128,28 +137,28 @@ public class WaveRestService implements IWaveRestService {
 
 //        // TODO: 16/9/7 回传物美 根据货主区分回传obd
 //        for(Long orderId : orderIds){
-//            OutbSoHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
+//            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
 //            //查询明细。
-//            List<OutbSoDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
+//            List<ObdDetail> obdDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
 //            // TODO: 2016/9/23  组装OBD反馈信息 根据货主区分回传lsh或物美
-//            if(soHeader.getOwnerUid() == 1){
+//            if(obdHeader.getOwnerUid() == 1){
 //                ObdBackRequest request = new ObdBackRequest();
 //                BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) baseinfoLocationWarehouseService.getBaseinfoItemLocationModelById(0L);
 //                String warehouseName = warehouse.getWarehouseName();
 //                request.setPlant(warehouseName);//仓库
-//                request.setBusinessId(soHeader.getOrderOtherId());
-//                request.setOfcId(soHeader.getOrderOtherRefId());//参考单号
-//                request.setAgPartnNumber(soHeader.getOrderUser());//用户
+//                request.setBusinessId(obdHeader.getOrderOtherId());
+//                request.setOfcId(obdHeader.getOrderOtherRefId());//参考单号
+//                request.setAgPartnNumber(obdHeader.getOrderUser());//用户
 //                List<ObdItem> items = new ArrayList<ObdItem>();
-//                for (OutbSoDetail soDetail : soDetails){
+//                for (ObdDetail obdDetail : obdDetails){
 //                    ObdItem soItem = new ObdItem();
-//                    soItem.setMaterialNo(soDetail.getSkuCode());//skuCode
+//                    soItem.setMaterialNo(obdDetail.getSkuCode());//skuCode
 //                    soItem.setMeasuringUnit("EA");
-//                    soItem.setPrice(soDetail.getPrice());
+//                    soItem.setPrice(obdDetail.getPrice());
 //                    //转化成ea
-//                    soItem.setQuantity(soDetail.getOrderQty().multiply(soDetail.getPackUnit()).setScale(3));
+//                    soItem.setQuantity(obdDetail.getOrderQty().multiply(obdDetail.getPackUnit()).setScale(3));
 //                    // TODO: 16/9/18 目前根据orderId与itemId来确定一条发货单。
-//                    OutbDeliveryDetail outbDeliveryDetail = soDeliveryService.getOutbDeliveryDetail(soDetail.getOrderId(),soDetail.getItemId());
+//                    OutbDeliveryDetail outbDeliveryDetail = soDeliveryService.getOutbDeliveryDetail(obdDetail.getOrderId(),obdDetail.getItemId());
 //
 //                    //实际出库数量
 //                    soItem.setSendQuantity(outbDeliveryDetail.getDeliveryNum());
@@ -160,7 +169,7 @@ public class WaveRestService implements IWaveRestService {
 //                //查询waveDetail找出实际出库的数量
 //                request.setItems(items);
 //
-//                ibdBackService.createOrderByPost(request, IntegrationConstan.URL_OBD);
+//                dataBackService.wmDataBackByPost(request, IntegrationConstan.URL_OBD);
 //            }
 //
 //        }

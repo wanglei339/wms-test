@@ -1,5 +1,6 @@
 package com.lsh.wms.service.po;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
@@ -8,12 +9,18 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
+import com.lsh.wms.api.model.po.Header;
+import com.lsh.wms.api.model.po.IbdBackRequest;
+import com.lsh.wms.api.model.po.IbdItem;
 import com.lsh.wms.api.model.po.PoRequest;
+import com.lsh.wms.api.service.back.IDataBackService;
 import com.lsh.wms.api.service.po.IPoRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
 import com.lsh.wms.core.service.po.PoOrderService;
+import com.lsh.wms.model.baseinfo.BaseinfoLocationWarehouse;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
 import org.slf4j.Logger;
@@ -22,6 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -47,9 +56,9 @@ public class PORestService implements IPoRestService {
 
     @Autowired
     private PoOrderService poOrderService;
-
+//
 //    @Reference
-//    private IIbdBackService ibdBackService;
+//    private IDataBackService dataBackService;
 
     @Autowired
     private ItemService itemService;
@@ -89,41 +98,41 @@ public class PORestService implements IPoRestService {
 //            header.setPlant(warehouseName);
 ////            String poNumber =map.get("orderOtherId").toString();
 ////            header.setPoNumber(poNumber);
-//            List<InbPoDetail> inbPoDetails = poOrderService.getInbPoDetailListByOrderId((Long) map.get("orderId"));
-//            InbPoHeader poHeader = poOrderService.getInbPoHeaderById((Long) map.get("orderId"));
+//            List<IbdDetail> ibdDetails = poOrderService.getInbPoDetailListByOrderId((Long) map.get("orderId"));
+//            IbdHeader ibdHeader = poOrderService.getInbPoHeaderById((Long) map.get("orderId"));
 //
 //            //回传类型
-//            String docType = poHeader.getOrderType().equals(3) ? "08" : "02";
-//            String docStyle = poHeader.getOrderType().equals(3) ? "02" : "00";
+//            String docType = ibdHeader.getOrderType().equals(3) ? "08" : "02";
+//            String docStyle = ibdHeader.getOrderType().equals(3) ? "02" : "00";
 //            header.setDocStyle(docStyle);
 //            header.setDocType(docType);
-//            header.setPoNumber(poHeader.getOrderOtherId());
-//            header.setDelivNumber(poHeader.getOrderOtherRefId());
+//            header.setPoNumber(ibdHeader.getOrderOtherId());
+//            header.setDelivNumber(ibdHeader.getOrderOtherRefId());
 //
 //
 //            List<IbdItem>  items = new ArrayList<IbdItem>();
-//            for(InbPoDetail inbPoDetail : inbPoDetails){
+//            for(IbdDetail ibdDetail : ibdDetails){
 //                IbdItem ibdItem = new IbdItem();
 //                //转成ea
-//                BigDecimal inboudQty =  inbPoDetail.getInboundQty().multiply(inbPoDetail.getPackUnit()).setScale(3);
-//                BigDecimal orderQty = inbPoDetail.getOrderQty().multiply(inbPoDetail.getPackUnit()).setScale(3);
-//                BigDecimal entryQnt = poHeader.getOrderType().equals(3) ? orderQty : inboudQty;
+//                BigDecimal inboudQty =  ibdDetail.getInboundQty().multiply(ibdDetail.getPackUnit()).setScale(3);
+//                BigDecimal orderQty = ibdDetail.getOrderQty().multiply(ibdDetail.getPackUnit()).setScale(3);
+//                BigDecimal entryQnt = ibdHeader.getOrderType().equals(3) ? orderQty : inboudQty;
 //                ibdItem.setEntryQnt(entryQnt);
-//                ibdItem.setMaterialNo(inbPoDetail.getSkuCode());
-//                ibdItem.setDelivItem(inbPoDetail.getDetailOtherId());
-//                ibdItem.setPoItem(inbPoDetail.getDetailOtherId());
+//                ibdItem.setMaterialNo(ibdDetail.getSkuCode());
+//                ibdItem.setDelivItem(ibdDetail.getDetailOtherId());
+//                ibdItem.setPoItem(ibdDetail.getDetailOtherId());
 //                //回传baseinfo_item中的unitName
 //                //ibdItem.setPackName(inbPoDetail.getPackName());
-//                String unitName = itemService.getItem(poHeader.getOwnerUid(),inbPoDetail.getSkuId()).getUnitName().toUpperCase();
-//                ibdItem.setPackName(unitName);
+//                //String unitName = itemService.getItem(ibdHeader.getOwnerUid(),inbPoDetail.getSkuId()).getUnitName().toUpperCase();
+//                ibdItem.setPackName(ibdDetail.getUnitName());
 //                items.add(ibdItem);
 //            }
 //            ibdBackRequest.setItems(items);
 //            ibdBackRequest.setHeader(header);
-//            if(poHeader.getOwnerUid() == 1){
-//                ibdBackService.createOrderByPost(ibdBackRequest, IntegrationConstan.URL_IBD);
+//            if(ibdHeader.getOwnerUid() == 1){
+//                dataBackService.wmDataBackByPost(ibdBackRequest, IntegrationConstan.URL_IBD);
 //            }else{
-//                ibdBackService.receivePurchaseOrder(ibdBackRequest);
+//                dataBackService.erpDataBack(ibdBackRequest);
 //            }
 //
 //        }
