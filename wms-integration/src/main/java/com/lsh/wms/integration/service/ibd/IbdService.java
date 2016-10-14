@@ -20,6 +20,7 @@ import com.lsh.wms.api.service.po.IPoRpcService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
+import com.lsh.wms.integration.service.back.DataBackService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.po.IbdHeader;
 import com.lsh.wms.model.so.ObdDetail;
@@ -59,7 +60,7 @@ public class IbdService implements IIbdService {
     private ItemService itemService;
 
     @Autowired
-    private IbdBackService ibdBackService;
+    private DataBackService dataBackService;
     @Autowired
     private SoOrderService soOrderService;
 
@@ -187,7 +188,7 @@ public class IbdService implements IIbdService {
         }
         request.setDetails(items);
         String url = "http://api.ofc.lsh123.com/ofc/api/order/obd/push";
-        return ibdBackService.createOfcOrderByPost(request,url);
+        return dataBackService.ofcDataBackByPost(request,url);
 
 
     }
