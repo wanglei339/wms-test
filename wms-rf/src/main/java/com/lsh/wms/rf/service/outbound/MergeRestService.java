@@ -5,6 +5,7 @@ import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.container.Container;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.merge.IMergeRestService;
@@ -65,11 +66,12 @@ public class MergeRestService implements IMergeRestService {
         Long staffId = Long.valueOf(RequestUtils.getHeader("uid"));
         List<Long> containerIds = new ArrayList<Long>();
         List<Long> queryContainerIds = new ArrayList<Long>();
-        if (mapQuery.get("containerIds") instanceof ArrayList<?>) {
+        queryContainerIds = JSON.parseArray(mapQuery.get("containerIds").toString(), Long.class);
+        /*if (mapQuery.get("containerIds") instanceof ArrayList<?>) {
             queryContainerIds = (ArrayList<Long>) mapQuery.get("containerIds");
         } else {
             throw new BizCheckedException("2870001");
-        }
+        }*/
         for (Object objContainerId: queryContainerIds) {
             Long containerId = Long.valueOf(objContainerId.toString());
             if (!containerIds.contains(containerId)) {
@@ -99,11 +101,12 @@ public class MergeRestService implements IMergeRestService {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         List<Long> containerIds = new ArrayList<Long>();
         List<Long> queryContainerIds = new ArrayList<Long>();
-        if (mapQuery.get("containerIds") instanceof ArrayList<?>) {
-            queryContainerIds = (ArrayList<Long>) mapQuery.get("containerIds");
+        queryContainerIds = JSON.parseArray(mapQuery.get("containerIds").toString(), Long.class);
+        /*if (mapQuery.get("containerIds") instanceof ArrayList<?>) {
+            queryContainerIds = JSON.parseArray(mapQuery.get("containerIds").toString(), Long.class);
         } else {
             throw new BizCheckedException("2870001");
-        }
+        }*/
         for (Object objContainerId: queryContainerIds) {
             Long containerId = Long.valueOf(objContainerId.toString());
             if (!containerIds.contains(containerId)) {
@@ -120,7 +123,6 @@ public class MergeRestService implements IMergeRestService {
         BigDecimal packCount = BigDecimal.ZERO; // 总箱数
         BigDecimal turnoverBoxCount = BigDecimal.ZERO; // 总周转箱箱数
         List<Object> resultDetails = new ArrayList<Object>();
-        logger.info(JsonUtils.SUCCESS(containerIds));
         for (Long containerId: containerIds) {
             List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(containerId);
             if (waveDetails == null) {
