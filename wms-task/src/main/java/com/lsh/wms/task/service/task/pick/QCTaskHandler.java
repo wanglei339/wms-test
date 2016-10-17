@@ -40,7 +40,7 @@ public class QCTaskHandler extends AbsTaskHandler {
 
     public void create(Long taskId) throws BizCheckedException {    //创建到另一张表中,然后CRUD操作在新表中进行
         //todo 一个同一个托盘,只能生成一个qc任务,如果QC存在了之前的qc任务,那么qc任务就更新
-        TaskEntry pickEntry = this.getTask(taskId); //此处使用pick就是个代号,也代表其他QC前的任务
+        TaskEntry pickEntry = iTaskRpcService.getTaskEntryById(taskId); //此处使用pick就是个代号,也代表其他QC前的任务
         //判断是直流QC任务,还是在库QC任务,现在只能是通过 前一个任务类型来判断
         Long containerId = pickEntry.getTaskInfo().getContainerId();
         Map<String, Object> mapQuery = new HashMap<String, Object>();
