@@ -571,6 +571,14 @@ public class ReceiptRpcService implements IReceiptRpcService {
     }
 
 
+    public List<InbReceiptDetail> getInbReceiptDetailListByOrderId(Long orderId){
+        if (orderId == null) {
+            throw new BizCheckedException("1020001", "参数不能为空");
+        }
+        return poReceiptService.getInbReceiptDetailListByOrderId(orderId);
+    }
+
+
     public Integer countInbPoReceiptHeader(Map<String, Object> params) {
         return poReceiptService.countInbReceiptHeader(params);
     }

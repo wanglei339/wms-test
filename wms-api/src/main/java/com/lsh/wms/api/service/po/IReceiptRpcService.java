@@ -2,6 +2,7 @@ package com.lsh.wms.api.service.po;
 
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.model.po.ReceiptRequest;
+import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.InbReceiptHeader;
 
 import java.text.ParseException;
@@ -38,4 +39,6 @@ public interface IReceiptRpcService {
     void addStoreReceipt(ReceiptRequest request) throws BizCheckedException, ParseException;
 
     void addSeedStoreReceipt(ReceiptRequest request) throws BizCheckedException, ParseException;
+
+    public List<InbReceiptDetail> getInbReceiptDetailListByOrderId(Long orderId);
 }
