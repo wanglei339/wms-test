@@ -1349,7 +1349,7 @@ public class LocationService {
     public List<BaseinfoLocation> sortLocationByStoreNo(Long type) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("type", type);
-        mapQuery.put("storeNo",LocationConstant.REMOVE_STORE_NO);
+        mapQuery.put("storeNo",LocationConstant.REMOVE_STORE_NO);   //这里使用的mapper是 storeNO>0, 0是在库的代号
         List<BaseinfoLocation> locations = locationDao.sortLocationByStoreNoAndType(mapQuery); //0不是门店的位置,查找的是大于0的结果
         return locations;
     }
