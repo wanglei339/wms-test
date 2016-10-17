@@ -18,6 +18,7 @@ import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.WaveConstant;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
@@ -61,6 +62,8 @@ public class QCRestService implements IRFQCRestService {
     private IItemRpcService itemRpcService;
     @Reference
     private ITaskRpcService iTaskRpcService;
+    @Autowired
+    private BaseTaskService baseTaskService;
     @Reference
     private IContainerRpcService iContainerRpcService;
     @Reference
@@ -122,22 +125,25 @@ public class QCRestService implements IRFQCRestService {
         //获取QC任务
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("containerId", containerId);
-        List<TaskEntry> tasks = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_QC, mapQuery);
+        mapQuery.put("type", TaskConstant.TYPE_QC);
+//        List<TaskEntry> tasks = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_QC, mapQuery);
+        List<TaskInfo> tasks = baseTaskService.getTaskInfoList(mapQuery);
         //商品集合中需要记住有异常的wave_detail的id
         //扫托盘肯定不是拣货了,也有可能
         //根据container和QC的type 找出QC任务,并根据QC任务记录的前一个任务的taskid,找到具体的需要找到数
-        if (tasks.size() > 1) {
-            throw new BizCheckedException("2120006");
-        }
-        if (tasks.size() == 0) {
+
+        if (null == tasks || tasks.size() == 0) {
             throw new BizCheckedException("2120007");
         }
-        qcTaskInfo = tasks.get(0).getTaskInfo();
-        //判断是否是直流模式的大店还是小店
-        TaskInfo beforeQCtaskinfo = iTaskRpcService.getTaskInfo(qcTaskInfo.getQcPreviousTaskId());
-        if (null == beforeQCtaskinfo) {
-            throw new BizCheckedException("2120015");
+        if (tasks != null && tasks.size() > 1) {
+            throw new BizCheckedException("2120006");
         }
+        qcTaskInfo = tasks.get(0);
+        //判断是否是直流模式的大店还是小店
+//        TaskInfo beforeQCtaskinfo = iTaskRpcService.getTaskInfo(qcTaskInfo.getQcPreviousTaskId());
+//        if (null == beforeQCtaskinfo) {
+//            throw new BizCheckedException("2120015");
+//        }
         //大店门店收货 生成qc任务的是直流大店收货直流大店门店收货,QC的q明细不做(只组盘)
         if (qcTaskInfo.getQcSkip().equals(TaskConstant.QC_SKIP)) { //直流
             //直流的大店门店收货
@@ -226,6 +232,9 @@ public class QCRestService implements IRFQCRestService {
         }
         //获取客户信息
         ObdHeader soInfo = iSoRpcService.getOutbSoHeaderDetailByOrderId(details.get(0).getOrderId());   //出库单,orderid
+        if (null == soInfo) {
+            throw new BizCheckedException("2120016");
+        }
         //获取集货道信息
         BaseinfoLocation collectLocaion = iLocationRpcService.getLocation(details.get(0).getAllocCollectLocation());
         Map<String, Object> rstMap = new HashMap<String, Object>();
