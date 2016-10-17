@@ -48,7 +48,7 @@ public class QCTaskHandler extends AbsTaskHandler {
 
         List<TaskEntry> qcTaskEntry = iTaskRpcService.getTaskList(TaskConstant.TYPE_QC, mapQuery);
         TaskInfo qcTaskinfo = null;
-        if (qcTaskEntry != null && qcTaskEntry.size() > 1) {
+        if (qcTaskEntry != null && qcTaskEntry.size() > 0) {
             qcTaskinfo = qcTaskEntry.get(0).getTaskInfo();
         }
         //如果存在 拣货任务和qc任务一对一, 对于收货后的qc按照商品维度,需要同一个托盘的话,更新就行了
@@ -122,7 +122,7 @@ public class QCTaskHandler extends AbsTaskHandler {
         //如果taskEntry有detail就更新,detail,不然就只return
         List<WaveDetail> details = (List<WaveDetail>) (List<?>) taskEntry.getTaskDetailList();
         if (null == details || details.size() < 1) {
-            return;
+            return;    //直接return就不会更新
         }
         for (WaveDetail detail : details) {
             detail.setQcTaskId(taskEntry.getTaskInfo().getTaskId());
