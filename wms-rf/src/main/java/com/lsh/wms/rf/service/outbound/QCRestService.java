@@ -199,7 +199,6 @@ public class QCRestService implements IRFQCRestService {
             detail.put("isFristTime", waveDetail.getQcTimes() == WaveConstant.QC_TIMES_FIRST);
             //加入qc的状态
             detail.put("qcDone", waveDetail.getQcExceptionDone() != WaveConstant.QC_EXCEPTION_STATUS_UNDO);  //qc任务未处理的的判断  那种商品做,哪种商品没做
-            //todo  直流轮一遍所有的qcDone为true,以后的策略可能是只QC几个任务
             if (isDirect) {
                 detail.put("qcDone", true);
             }
@@ -209,7 +208,7 @@ public class QCRestService implements IRFQCRestService {
         }
 
         //如果是直流所有的直接跳转为已经QC了
-        //todo 以后组盘有异常,还需都更新回来,所有的qcDone更改
+        //todo 以后组盘有异常,还需都更新回来,根据qcTaskInfo.getQcSkip(),变更所有的qcDone更改,修改
         if (isDirect) {
             for (WaveDetail one : details) {
                 one.setQcExceptionDone(2L);
