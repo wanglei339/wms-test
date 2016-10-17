@@ -61,13 +61,11 @@ public class SeedRpcService implements ISeedRpcService {
     @Autowired
     private CsiSkuService csiSkuService;
 
-    @Autowired
-    private RedisStringDao redisStringDao;
-
     public void insertReceipt(ReceiptRequest request) throws BizCheckedException {
         //查询inbReceiptHeader是否存在 根据托盘查询
         Map<String,Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("containerId",request.getContainerId());
+        Map<String,Long> orderMap = request.getOrderMap();
         InbReceiptHeader inbReceiptHeader = poReceiptService.getInbReceiptHeaderByParams(mapQuery);
         if(inbReceiptHeader == null){
             //初始化InbReceiptHeader
@@ -183,9 +181,7 @@ public class SeedRpcService implements ISeedRpcService {
             //获取redis中的orderId
             String key = StrUtils.formatString(RedisKeyConstant.PO_STORE, ibdHeader.getOrderId(), inbReceiptHeader.getStoreCode());
 
-            Long obdOrderId = Long.valueOf(redisStringDao.get(key));
-
-
+            Long obdOrderId = orderMap.get(key);
             ObdStreamDetail obdStreamDetail = new ObdStreamDetail();
             obdStreamDetail.setItemId(inbReceiptDetail.getItemId());
             obdStreamDetail.setContainerId(inbReceiptHeader.getContainerId());

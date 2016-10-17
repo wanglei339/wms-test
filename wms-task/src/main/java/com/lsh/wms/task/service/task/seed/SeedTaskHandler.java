@@ -307,6 +307,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
 
         ReceiptRequest receiptRequest = new ReceiptRequest();
         ReceiptItem receiptItem = new ReceiptItem();
+        Map<String,Long> orderMap = new HashMap<String, Long>();
 
         TaskInfo info = entry.getTaskInfo();
         SeedingTaskHead head = (SeedingTaskHead) entry.getTaskHead();
@@ -340,7 +341,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
 
             if(obdHeader.getDeliveryCode().equals(head.getStoreNo().toString())) {
                 String key = StrUtils.formatString(RedisKeyConstant.PO_STORE, info.getOrderId(), head.getStoreNo());
-                redisStringDao.set(key,obdHeader.getOrderId());
+                orderMap.put(key,obdHeader.getOrderId());
             }
         }
 
@@ -362,6 +363,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
         List<ReceiptItem> items = new ArrayList<ReceiptItem>();
         items.add(receiptItem);
         receiptRequest.setItems(items);
+        receiptRequest.setOrderMap(orderMap);
         return receiptRequest;
     }
 }
