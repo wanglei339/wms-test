@@ -36,4 +36,6 @@ public interface IReceiptRestService {
     public String getPoReceiptDetailList();
     String insertReceipt(Long orderId,Long staffId) throws BizCheckedException, ParseException;
 
+    String getCpoReceiptDetailByOrderId(Long orderId) throws BizCheckedException;
+
 }

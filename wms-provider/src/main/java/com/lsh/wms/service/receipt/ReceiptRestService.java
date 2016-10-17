@@ -98,6 +98,13 @@ public class ReceiptRestService implements IReceiptRestService {
         return JsonUtils.SUCCESS(inbReceiptHeaderList);
     }
 
+    @GET
+    @Path("getCpoReceiptDetailByOrderId")
+    public String getCpoReceiptDetailByOrderId(@QueryParam("orderId") Long orderId) throws BizCheckedException {
+        List<InbReceiptDetail> inbReceiptDetailList = receiptRpcService.getInbReceiptDetailListByOrderId(orderId);
+        return JsonUtils.SUCCESS(inbReceiptDetailList);
+    }
+
     @POST
     @Path("countInbPoReceiptHeader")
     public String countInbPoReceiptHeader() {
