@@ -85,10 +85,11 @@ public class ProcurementRestService implements IProcurementRestService {
             rpcService.scanFromLocation(mapQuery);
         }catch (BizCheckedException ex){
             throw ex;
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return JsonUtils.TOKEN_ERROR("系统繁忙");
         }
+// catch (Exception e) {
+//            logger.error(e.getMessage());
+//            return JsonUtils.TOKEN_ERROR("系统繁忙");
+//        }
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {
                 put("response", true);
@@ -117,10 +118,10 @@ public class ProcurementRestService implements IProcurementRestService {
         }catch (BizCheckedException ex){
             throw ex;
         }
-        catch (Exception e) {
-            logger.error(e.getMessage());
-            return JsonUtils.TOKEN_ERROR("系统繁忙");
-        }
+//        catch (Exception e) {
+//            logger.error(e.getMessage());
+//            return JsonUtils.TOKEN_ERROR("系统繁忙");
+//        }
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {
                 put("response", true);
@@ -197,10 +198,10 @@ public class ProcurementRestService implements IProcurementRestService {
         }catch (BizCheckedException ex){
             throw ex;
         }
-        catch (Exception e) {
-            logger.error(e.getMessage());
-            return JsonUtils.TOKEN_ERROR("系统繁忙");
-        }
+//        catch (Exception e) {
+//            logger.error(e.getMessage());
+//            return JsonUtils.TOKEN_ERROR("系统繁忙");
+//        }
     }
 
     @POST

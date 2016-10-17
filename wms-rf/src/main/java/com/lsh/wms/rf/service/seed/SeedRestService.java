@@ -138,6 +138,20 @@ public class SeedRestService implements ISeedRestService {
             Object barcode = mapQuery.get("barcode");
             //实际是orderOtherId
             Object orderId = mapQuery.get("orderId");
+
+            Long assignTaskId = baseTaskService.getAssignTaskIdByOperatorAndType(uid, TaskConstant.TYPE_SEED);
+            if(assignTaskId!=null){
+                TaskEntry entry = iTaskRpcService.getTaskEntryById(assignTaskId);
+                SeedingTaskHead head = (SeedingTaskHead) (entry.getTaskHead());
+                TaskInfo info = entry.getTaskInfo();
+                result.put("storeName", storeRpcService.getStoreByStoreNo(head.getStoreNo()).getStoreName());
+                result.put("qty", head.getRequireQty());
+                result.put("taskId", assignTaskId.toString());
+                result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
+                result.put("packName", info.getPackName());
+                result.put("itemId", info.getItemId());
+                return JsonUtils.SUCCESS(result);
+            }
             if((containerId==null && barcode!=null && orderId!=null) ||(containerId!=null)) {
                 Long taskId = 0L;
                 if(containerId ==null) {
@@ -255,15 +269,7 @@ public class SeedRestService implements ISeedRestService {
             entry.setTaskInfo(info);
             entry.setTaskHead(head);
             iTaskRpcService.update(TaskConstant.TYPE_SEED,entry);
-            iTaskRpcService.done(entry);
-            try {
-                if(info.getSubType().compareTo(2L)==0) {
-                    receiptRpcService.addSeedStoreReceipt(this.fillReceipt(entry));
-                }
-            }catch (Exception exp){
-                logger.info(exp.getMessage());
-                return JsonUtils.TOKEN_ERROR("系统繁忙");
-            }
+            iTaskRpcService.done(taskId);
             if(type.compareTo(2L)==0){
                if(qty.compareTo(head.getRequireQty())!=0) {
                    //创建剩余数量门店任务
@@ -278,13 +284,13 @@ public class SeedRestService implements ISeedRestService {
                    entry.setTaskInfo(info);
                    entry.setTaskHead(head);
                    iTaskRpcService.create(TaskConstant.TYPE_SEED, entry);
-
-                   return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
-                       {
-                           put("response", true);
-                       }
-                   });
-
+                   if(info.getSubType().compareTo(1L)==0) {
+                       return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+                           {
+                               put("response", true);
+                           }
+                       });
+                   }
                }
 
             }else if(type.compareTo(1L)==0){
@@ -381,66 +387,5 @@ public class SeedRestService implements ISeedRestService {
         result.put("packName", info.getPackName());
         result.put("itemId", info.getItemId());
         return JsonUtils.SUCCESS(result);
-    }
-    private ReceiptRequest fillReceipt( TaskEntry entry ){
-
-        ReceiptRequest receiptRequest = new ReceiptRequest();
-        ReceiptItem receiptItem = new ReceiptItem();
-
-        TaskInfo info = entry.getTaskInfo();
-        SeedingTaskHead head = (SeedingTaskHead) entry.getTaskHead();
-
-        Map<String,Object> map = new HashMap<String, Object>();
-        map.put("uid", info.getOperator());
-        Long staffId = staffService.getStaffList(map).get(0).getStaffId();
-        receiptRequest.setStaffId(staffId);
-
-        receiptRequest.setReceiptTime(new Date());
-
-        CsiSku sku = csiSkuService.getSku(info.getSkuId());
-
-        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(info.getOrderId());
-
-        if(ibdHeader == null) {
-            throw new BizCheckedException("2020001");
-        }
-
-        BaseinfoItem item = itemService.getItem(ibdHeader.getOwnerUid(), sku.getSkuId());
-
-        String orderOtherId = ibdHeader.getOrderOtherId();
-        IbdDetail ibdDetail= poOrderService.getInbPoDetailByOrderIdAndSkuCode(info.getOrderId(), item.getSkuCode());
-        Map<String,Object> queryMap = new HashMap<String, Object>();
-        queryMap.put("ibdOtherId", orderOtherId);
-        queryMap.put("ibdDetailId", ibdDetail.getDetailOtherId());
-        List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(queryMap);
-        for(IbdObdRelation ibdObdRelation :ibdObdRelations) {
-            String obdOtherId = ibdObdRelation.getObdOtherId();
-            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(obdOtherId);
-
-           if(obdHeader.getDeliveryCode().equals(head.getStoreNo().toString())) {
-               String key = StrUtils.formatString(RedisKeyConstant.PO_STORE, info.getOrderId(), head.getStoreNo());
-               redisStringDao.set(key,obdHeader.getOrderId());
-           }
-        }
-
-
-        receiptRequest.setOrderOtherId(ibdHeader.getOrderOtherId());
-        receiptRequest.setContainerId(head.getRealContainerId());
-        receiptRequest.setStoreId(head.getStoreNo().toString());
-        receiptRequest.setIsCreateTask(0);
-        receiptRequest.setReceiptUser("");
-
-
-        receiptItem.setOrderId(info.getOrderId());
-        receiptItem.setSkuId(info.getSkuId());
-        receiptItem.setSkuName(sku.getSkuName());
-        receiptItem.setBarCode(sku.getCode());
-        receiptItem.setPackUnit(info.getPackUnit());
-        receiptItem.setInboundQty(info.getQty());
-        receiptItem.setPackName(info.getPackName());
-        List<ReceiptItem> items = new ArrayList<ReceiptItem>();
-        items.add(receiptItem);
-        receiptRequest.setItems(items);
-        return receiptRequest;
     }
 }

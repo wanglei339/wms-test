@@ -165,7 +165,6 @@ public class StockTransferRestService implements IStockTransferRestService {
         try {
             Map<String, Object> params = RequestUtils.getRequest();
             StockTransferPlan plan = new StockTransferPlan();
-            Long staffId;
             Long uid;
             try {
                 uid = iSysUserRpcService.getSysUserById(Long.valueOf(RequestUtils.getHeader("uid"))).getUid();

@@ -3,7 +3,10 @@ package com.lsh.wms.task.service.task.seed;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.StrUtils;
+import com.lsh.wms.api.model.po.ReceiptItem;
+import com.lsh.wms.api.model.po.ReceiptRequest;
 import com.lsh.wms.api.service.location.ILocationRpcService;
+import com.lsh.wms.api.service.seed.ISeedRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.LocationConstant;
@@ -17,6 +20,7 @@ import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.seed.SeedTaskHeadService;
 import com.lsh.wms.core.service.so.SoOrderService;
+import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
@@ -40,18 +44,17 @@ import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.task.service.handler.AbsTaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
 import net.sf.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
- * Created by mali on 16/8/2.
+ * Created by wuhao on 16/10/17.
  */
 @Component
 public class SeedTaskHandler extends AbsTaskHandler {
@@ -88,7 +91,14 @@ public class SeedTaskHandler extends AbsTaskHandler {
     @Autowired
     WaveService waveService;
     @Autowired
-    private CsiSkuService csiSkuService;
+    CsiSkuService csiSkuService;
+    @Reference
+    ISeedRpcService seedRpcService;
+    @Autowired
+    private StaffService staffService;
+
+    private static Logger logger = LoggerFactory.getLogger(SeedTaskHandler.class);
+
 
     @PostConstruct
     public void postConstruct() {
@@ -279,6 +289,8 @@ public class SeedTaskHandler extends AbsTaskHandler {
             lot.setSkuId(info.getSkuId());
             lot.setPackName(info.getPackName());
             quantService.move(move, lot);
+            ReceiptRequest receiptRequest = this.fillReceipt(entry);
+            seedRpcService.insertReceipt(receiptRequest);
         }else {
             quantService.move(move);
         }
@@ -289,5 +301,67 @@ public class SeedTaskHandler extends AbsTaskHandler {
     }
     public void getConcrete(TaskEntry taskEntry) {
         taskEntry.setTaskHead(headService.getHeadByTaskId(taskEntry.getTaskInfo().getTaskId()));
+    }
+
+    private ReceiptRequest fillReceipt( TaskEntry entry ){
+
+        ReceiptRequest receiptRequest = new ReceiptRequest();
+        ReceiptItem receiptItem = new ReceiptItem();
+
+        TaskInfo info = entry.getTaskInfo();
+        SeedingTaskHead head = (SeedingTaskHead) entry.getTaskHead();
+
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("uid", info.getOperator());
+        Long staffId = staffService.getStaffList(map).get(0).getStaffId();
+        receiptRequest.setStaffId(staffId);
+
+        receiptRequest.setReceiptTime(new Date());
+
+        CsiSku sku = csiSkuService.getSku(info.getSkuId());
+
+        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(info.getOrderId());
+
+        if(ibdHeader == null) {
+            throw new BizCheckedException("2020001");
+        }
+
+        BaseinfoItem item = itemService.getItem(ibdHeader.getOwnerUid(), sku.getSkuId());
+
+        String orderOtherId = ibdHeader.getOrderOtherId();
+        IbdDetail ibdDetail= poOrderService.getInbPoDetailByOrderIdAndSkuCode(info.getOrderId(), item.getSkuCode());
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("ibdOtherId", orderOtherId);
+        queryMap.put("ibdDetailId", ibdDetail.getDetailOtherId());
+        List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(queryMap);
+        for(IbdObdRelation ibdObdRelation :ibdObdRelations) {
+            String obdOtherId = ibdObdRelation.getObdOtherId();
+            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(obdOtherId);
+
+            if(obdHeader.getDeliveryCode().equals(head.getStoreNo().toString())) {
+                String key = StrUtils.formatString(RedisKeyConstant.PO_STORE, info.getOrderId(), head.getStoreNo());
+                redisStringDao.set(key,obdHeader.getOrderId());
+            }
+        }
+
+
+        receiptRequest.setOrderOtherId(ibdHeader.getOrderOtherId());
+        receiptRequest.setContainerId(head.getRealContainerId());
+        receiptRequest.setStoreId(head.getStoreNo().toString());
+        receiptRequest.setIsCreateTask(0);
+        receiptRequest.setReceiptUser("");
+
+
+        receiptItem.setOrderId(info.getOrderId());
+        receiptItem.setSkuId(info.getSkuId());
+        receiptItem.setSkuName(sku.getSkuName());
+        receiptItem.setBarCode(sku.getCode());
+        receiptItem.setPackUnit(info.getPackUnit());
+        receiptItem.setInboundQty(info.getQty());
+        receiptItem.setPackName(info.getPackName());
+        List<ReceiptItem> items = new ArrayList<ReceiptItem>();
+        items.add(receiptItem);
+        receiptRequest.setItems(items);
+        return receiptRequest;
     }
 }

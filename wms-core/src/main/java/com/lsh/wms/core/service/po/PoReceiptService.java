@@ -121,6 +121,38 @@ public class PoReceiptService {
     }
 
     /**
+     * 插入InbReceiptHeader及List<InbReceiptDetail> 不做库存移动
+     * @param inbReceiptHeader
+     * @param inbReceiptDetailList
+     */
+    @Transactional(readOnly = false)
+    public void insertOrder(InbReceiptHeader inbReceiptHeader, List<InbReceiptDetail> inbReceiptDetailList,
+                            List<IbdDetail> updateIbdDetailList,
+                            List<ReceiveDetail> updateReceiveDetailList,List<ObdStreamDetail> obdStreamDetailList) {
+
+        //插入订单
+        inbReceiptHeader.setInserttime(new Date());
+
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("containerId",inbReceiptHeader.getContainerId());
+        InbReceiptHeader oldInbReceiptHeader = this.getInbReceiptHeaderByParams(mapQuery);
+        if(oldInbReceiptHeader == null) {
+            inbReceiptHeaderDao.insert(inbReceiptHeader);
+        }
+        inbReceiptDetailDao.batchInsert(inbReceiptDetailList);
+        ibdDetailDao.batchUpdateInboundQtyByOrderIdAndDetailOtherId(updateIbdDetailList);
+
+        receiveDetailDao.batchUpdateInboundQtyByReceiveIdAndDetailOtherId(updateReceiveDetailList);
+
+        //直流生成waveDetail
+        if(obdStreamDetailList.size() > 0){
+            WaveDetail waveDetail = new WaveDetail();
+            ObjUtils.bean2bean(obdStreamDetailList.get(0),waveDetail);
+            waveService.insertDetail(waveDetail);
+        }
+    }
+
+    /**
      * 根据ReceiptId更新InbReceiptHeader
      * @param inbReceiptHeader
      */

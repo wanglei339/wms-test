@@ -12,12 +12,16 @@ import com.lsh.wms.api.service.store.IStoreRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,9 +52,9 @@ public class SetGoodsRestService implements ISetGoodsRestService {
     @Reference
     ITaskRpcService taskRpcService;
     @Autowired
-    LocationService locationService;
+    SoOrderService soOrderService;
     @Autowired
-    StockQuantService quantService;
+    WaveService waveService;
     @Reference
     private IStoreRpcService storeRpcService;
     @Reference
@@ -140,13 +144,15 @@ public class SetGoodsRestService implements ISetGoodsRestService {
         }else {
             info = infos.get(0);
         }
-        List<StockQuant> quants = quantService.getQuantsByContainerId(containerId);
-        if(quants==null || quants.size()==0){
+        List<WaveDetail> details = waveService.getAliveDetailsByContainerId(containerId);
+        if(details==null || details.size()==0){
             throw new BizCheckedException("2880003");
         }
-
-        BaseinfoLocation location = locationService.getLocation(quants.get(0).getLocationId());
-        Long storeNo = location.getStoreNo();
+        ObdHeader header = soOrderService.getOutbSoHeaderByOrderId(details.get(0).getOrderId());
+        if(header ==null){
+            return JsonUtils.TOKEN_ERROR("so订单不存在");
+        }
+        Long storeNo = Long.valueOf(header.getDeliveryCode());
 
         //获得集货区信息
         List<BaseinfoLocation> locations = locationRpcService.getCollectionByStoreNo(storeNo);

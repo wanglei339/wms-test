@@ -203,7 +203,6 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         String idKey = "task_" + TaskConstant.TYPE_PO.toString();
         Long taskId = idGenerator.genId(idKey, true, true);
-        //Long taskId = RandomUtils.genId();
 
         if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
             for(ReceiptItem receiptItem : request.getItems()){
@@ -843,7 +842,6 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //初始化List<InbReceiptDetail>
         List<InbReceiptDetail> inbReceiptDetailList = new ArrayList<InbReceiptDetail>();
         List<IbdDetail> updateIbdDetailList = new ArrayList<IbdDetail>();
-        List<StockQuant> stockQuantList = new ArrayList<StockQuant>();
         List<StockLot> stockLotList = new ArrayList<StockLot>();
         List<Map<String, Object>> moveList = new ArrayList<Map<String, Object>>();
         //验收单
@@ -851,9 +849,6 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         //生成出库detail
         List<ObdStreamDetail> obdStreamDetailList = new ArrayList<ObdStreamDetail>();
-
-        Map<Long,Long> locationMap = new HashMap<Long, Long>();
-        List<StockTransferPlan> planList = new ArrayList<StockTransferPlan>();
 
         String idKey = "task_" + TaskConstant.TYPE_PO.toString();
         Long taskId = idGenerator.genId(idKey, true, true);
