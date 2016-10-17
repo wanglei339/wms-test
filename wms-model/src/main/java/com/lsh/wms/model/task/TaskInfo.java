@@ -207,10 +207,12 @@ public class TaskInfo implements Serializable {
     /**
      * QC任务之前承接的taskId，用于判断生成qc前是什么任务，好去wave_detail中去，去需要qc的数量，不一定是拣货
      */
-    private Long qcPreviousTaskId =0L;
+    private Long qcPreviousTaskId = 0L;
 
-    /** 是否跳过q明细，0不跳过1-跳过 */
-    private Integer qcSkip;
+    /**
+     * 是否跳过q明细，0不跳过1-跳过
+     */
+    private Integer qcSkip = 0;
 
     public BigDecimal getTaskQty() {
         return taskQty;
@@ -661,11 +663,11 @@ public class TaskInfo implements Serializable {
         this.qcPreviousTaskId = qcPreviousTaskId;
     }
 
-    public Integer getQcSkip(){
+    public Integer getQcSkip() {
         return this.qcSkip;
     }
 
-    public void setQcSkip(Integer qcSkip){
+    public void setQcSkip(Integer qcSkip) {
         this.qcSkip = qcSkip;
     }
 }
