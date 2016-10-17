@@ -383,6 +383,9 @@ public class ReceiptRestService implements IReceiptRfService {
         params.put("ibdDetailId",ibdDetail.getDetailOtherId());
 
         List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(params);
+        if(ibdObdRelations.size() <= 0){
+            throw new BizCheckedException("2021000");
+        }
 
         // TODO: 2016/10/9 根据ibd来找对应的obd
         for(IbdObdRelation ibdObdRelation : ibdObdRelations){
