@@ -80,7 +80,7 @@ public class ContainerService {
      */
     public Boolean isContainerInUse(Long containerId) {
         List<StockQuant> quants = stockQuantService.getQuantsByContainerId(containerId);
-        if (quants.size() > 0) {
+        if (quants != null && quants.size() > 0) {
             return true;
         }
         return false;
@@ -104,7 +104,7 @@ public class ContainerService {
     @Transactional(readOnly = false)
     public Long getContaierIdByLocationId(Long locationId) {
         locationService.lockLocationById(locationId);
-        Map<String,Object> condition = new HashMap<String, Object>();
+        Map<String, Object> condition = new HashMap<String, Object>();
         condition.put("locationId", locationId);
         List<StockQuant> quantList = stockQuantService.getQuants(condition);
         return (quantList == null || quantList.isEmpty()) ? 0L : quantList.get(0).getContainerId();
