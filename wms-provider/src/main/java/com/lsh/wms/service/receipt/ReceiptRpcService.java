@@ -188,7 +188,6 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //初始化List<InbReceiptDetail>
         List<InbReceiptDetail> inbReceiptDetailList = new ArrayList<InbReceiptDetail>();
         List<IbdDetail> updateIbdDetailList = new ArrayList<IbdDetail>();
-        List<StockQuant> stockQuantList = new ArrayList<StockQuant>();
         List<StockLot> stockLotList = new ArrayList<StockLot>();
         List<Map<String, Object>> moveList = new ArrayList<Map<String, Object>>();
         //初始化验收单

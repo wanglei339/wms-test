@@ -130,6 +130,14 @@ public class SetGoodsRestService implements ISetGoodsRestService {
         //TODO 怎么判断该托盘是在可集货区域
         List<TaskInfo> infos = baseTaskService.getTaskInfoList(mapQuery);
         TaskInfo info =null;
+        List<WaveDetail> details = waveService.getAliveDetailsByContainerId(containerId);
+        if(details==null || details.size()==0){
+            throw new BizCheckedException("2880003");
+        }
+        ObdHeader header = soOrderService.getOutbSoHeaderByOrderId(details.get(0).getOrderId());
+        if(header ==null){
+            return JsonUtils.TOKEN_ERROR("so订单不存在");
+        }
         if(infos==null || infos.size()==0){
             TaskEntry entry = new TaskEntry();
             info = new TaskInfo();
@@ -143,14 +151,6 @@ public class SetGoodsRestService implements ISetGoodsRestService {
             taskRpcService.create(TaskConstant.TYPE_SET_GOODS,entry);
         }else {
             info = infos.get(0);
-        }
-        List<WaveDetail> details = waveService.getAliveDetailsByContainerId(containerId);
-        if(details==null || details.size()==0){
-            throw new BizCheckedException("2880003");
-        }
-        ObdHeader header = soOrderService.getOutbSoHeaderByOrderId(details.get(0).getOrderId());
-        if(header ==null){
-            return JsonUtils.TOKEN_ERROR("so订单不存在");
         }
         Long storeNo = Long.valueOf(header.getDeliveryCode());
 

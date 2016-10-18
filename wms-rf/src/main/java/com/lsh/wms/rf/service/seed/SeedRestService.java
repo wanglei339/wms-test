@@ -148,7 +148,7 @@ public class SeedRestService implements ISeedRestService {
                 result.put("qty", head.getRequireQty());
                 result.put("taskId", assignTaskId.toString());
                 result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
-                result.put("packName", info.getPackName());
+                result.put("packName", "EA");
                 result.put("itemId", info.getItemId());
                 return JsonUtils.SUCCESS(result);
             }
@@ -187,7 +187,7 @@ public class SeedRestService implements ISeedRestService {
                     result.put("qty", head.getRequireQty());
                     result.put("taskId", taskId.toString());
                     result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
-                    result.put("packName", info.getPackName());
+                    result.put("packName", "EA");
                     result.put("itemId", info.getItemId());
                     iTaskRpcService.assign(taskId, uid);
                     return JsonUtils.SUCCESS(result);
@@ -326,7 +326,7 @@ public class SeedRestService implements ISeedRestService {
                 result.put("qty", head.getRequireQty());
                 result.put("taskId", taskId.toString());
                 result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
-                result.put("packName", info.getPackName());
+                result.put("packName", "EA");
                 result.put("itemId", info.getItemId());
                 iTaskRpcService.assign(taskId, uid);
                 return JsonUtils.SUCCESS(result);
@@ -384,7 +384,7 @@ public class SeedRestService implements ISeedRestService {
         result.put("qty", head.getRequireQty());
         result.put("taskId", taskId.toString());
         result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
-        result.put("packName", info.getPackName());
+        result.put("packName", "EA");
         result.put("itemId", info.getItemId());
         return JsonUtils.SUCCESS(result);
     }
