@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.system.SysLogDao" >
+
+	<resultMap id="sysLogResultMap" type="SysLog">
+		<id property="id" column="id"/>
+		<result property="logType" column="log_type"/>
+		<result property="logCode" column="log_code"/>
+		<result property="logMessage" column="log_message"/>
+		<result property="createdAt" column="created_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="SysLog">
+		insert into sys_log (
+			log_type,log_code,log_message,created_at
+    	) values (
+			#{logType},#{logCode},#{logMessage},#{createdAt}
+    	)
+	</insert>
+
+	<update id="update" parameterType="SysLog">
+		update sys_log
+    	<set>
+  			<if test="logType != null">log_type=#{logType},</if>
+  			<if test="logCode != null">log_code=#{logCode},</if>
+  			<if test="logMessage != null">log_message=#{logMessage},</if>
+  			<if test="createdAt != null">created_at=#{createdAt}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getSysLogById" parameterType="int" resultMap="sysLogResultMap">
+		select * from sys_log
+		where ID=#{id} 
+	</select>
+  
+	<select id="countSysLog" parameterType="map" resultType="int">
+		select count(*) from sys_log
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getSysLogList" parameterType="map" resultMap="sysLogResultMap">
+		select * from sys_log
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="logType != null">and log_type=#{logType}</if>
+			<if test="logCode != null">and log_code=#{logCode}</if>
+			<if test="logMessage != null">and log_message=#{logMessage}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+		</where>
+	</sql>
+   
+</mapper>

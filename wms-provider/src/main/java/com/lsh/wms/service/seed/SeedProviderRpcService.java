@@ -99,10 +99,13 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
         if(entries==null || entries.size()==0){
             return 0L;
         }
-        if(containerId != null){
-            BaseinfoContainer container = containerService.getContainer(Long.valueOf(containerId.toString().trim()));
-            if(container==null){
-                throw new BizCheckedException("2880013");
+        if(containerId != null ){
+            Long containerNo = Long.valueOf(containerId.toString().trim());
+            if(containerNo.compareTo(0L)!=0) {
+                BaseinfoContainer container = containerService.getContainer(containerNo);
+                if (container == null) {
+                    throw new BizCheckedException("2880013");
+                }
             }
         }else {
             containerId = 0L;

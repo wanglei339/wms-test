@@ -278,9 +278,8 @@ public class SeedRestService implements ISeedRestService {
                    info.setId(0L);
                    info.setStatus(TaskConstant.Draft);
                    info.setPlanId(uid);
-                   info.setContainerId(0L);
+                   info.setContainerId(info.getContainerId());
                    head.setRequireQty(head.getRequireQty().subtract(info.getQty()));
-                   head.getRequireQty().subtract(info.getQty());
                    entry.setTaskInfo(info);
                    entry.setTaskHead(head);
                    iTaskRpcService.create(TaskConstant.TYPE_SEED, entry);
