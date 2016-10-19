@@ -13,7 +13,7 @@ public interface BaseinfoStoreDao {
 	
 	void update(BaseinfoStore baseinfoStore);
 	
-	BaseinfoStore getBaseinfoStoreById(Long id);
+	BaseinfoStore getBaseinfoStoreById(String storeNo);
 
     Integer countBaseinfoStore(Map<String, Object> params);
 

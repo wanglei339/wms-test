@@ -1256,7 +1256,7 @@ public class LocationService {
      * @throws BizCheckedException
      */
     @Transactional(readOnly = false)
-    public BaseinfoLocation setStoreNoOnRoad(BaseinfoLocation location, Long storeNo) throws BizCheckedException {
+    public BaseinfoLocation setStoreNoOnRoad(BaseinfoLocation location, String storeNo) throws BizCheckedException {
         location.setStoreNo(storeNo);
         this.updateLocation(location);
         return location;
@@ -1271,7 +1271,7 @@ public class LocationService {
      * @throws BizCheckedException
      */
     @Transactional(readOnly = false)
-    public BaseinfoLocation setStoreNoOnRoad(Long locationId, Long storeNo) throws BizCheckedException {
+    public BaseinfoLocation setStoreNoOnRoad(Long locationId, String storeNo) throws BizCheckedException {
         BaseinfoLocation location = this.getLocation(locationId);
         location.setStoreNo(storeNo);
         this.updateLocation(location);
@@ -1313,7 +1313,7 @@ public class LocationService {
      * @param storeNo
      * @return
      */
-    public List<BaseinfoLocation> getCollectionByStoreNo(Long storeNo) throws BizCheckedException {
+    public List<BaseinfoLocation> getCollectionByStoreNo(String storeNo) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("storeNo", storeNo);
         mapQuery.put("type", LocationConstant.COLLECTION_BIN);
@@ -1329,7 +1329,7 @@ public class LocationService {
      * @param storeNo
      * @return
      */
-    public List<BaseinfoLocation> getSowByStoreNo(Long storeNo) throws BizCheckedException {
+    public List<BaseinfoLocation> getSowByStoreNo(String storeNo) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("storeNo", storeNo);
         mapQuery.put("type",LocationConstant.SOW_BIN);

@@ -15,9 +15,9 @@ public interface IStoreRestService {
 
     public String updateStore(BaseinfoStore baseinfoStore) throws BizCheckedException;
 
-    public String getStoreByStoreNo(Long storeNo) throws BizCheckedException;
+    public String getStoreByStoreNo(String storeNo) throws BizCheckedException;
 
-    public String removeStore(Long storeNo) throws BizCheckedException;
+    public String removeStore(String storeNo) throws BizCheckedException;
 
     public String getStoreList() throws BizCheckedException;
 

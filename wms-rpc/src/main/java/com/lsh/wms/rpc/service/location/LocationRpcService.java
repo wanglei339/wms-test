@@ -257,7 +257,7 @@ public class LocationRpcService implements ILocationRpcService {
      * @return
      * @throws BizCheckedException
      */
-    public BaseinfoLocation setStoreNoOnRoad(Long locationId, Long storeNo) throws BizCheckedException {
+    public BaseinfoLocation setStoreNoOnRoad(Long locationId, String storeNo) throws BizCheckedException {
         if (null == storeNo) {
             throw new BizCheckedException("2180010");
         }
@@ -276,7 +276,7 @@ public class LocationRpcService implements ILocationRpcService {
      * @return
      * @throws BizCheckedException
      */
-    public List<BaseinfoLocation> getCollectionByStoreNo(Long storeNo) throws BizCheckedException {
+    public List<BaseinfoLocation> getCollectionByStoreNo(String storeNo) throws BizCheckedException {
         if (null == storeNo) {
             throw new BizCheckedException("2180010");
         }
@@ -290,7 +290,7 @@ public class LocationRpcService implements ILocationRpcService {
      * @return
      * @throws BizCheckedException
      */
-    public List<BaseinfoLocation> getSowByStoreNo(Long storeNo) throws BizCheckedException {
+    public List<BaseinfoLocation> getSowByStoreNo(String storeNo) throws BizCheckedException {
         if (null == storeNo) {
             throw new BizCheckedException("2180010");
         }

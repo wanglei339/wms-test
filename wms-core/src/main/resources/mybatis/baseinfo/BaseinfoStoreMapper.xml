@@ -9,13 +9,20 @@
 		<result property="region" column="region"/>
 		<result property="scale" column="scale"/>
 		<result property="isOpen" column="is_open"/>
+		<result property="isValid" column="is_valid"/>
+		<result property="createAt" column="create_at"/>
+		<result property="updateAt" column="update_at"/>
+		<result property="address" column="address"/>
+		<result property="storeId" column="store_id"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoStore">
 		insert into baseinfo_store (
-			store_no,store_name,region,scale,is_open
+			store_no,store_name,region,scale,is_open,is_valid,
+			create_at,update_at,address,store_id
     	) values (
-			#{storeNo},#{storeName},#{region},#{scale},#{isOpen}
+			#{storeNo},#{storeName},#{region},#{scale},#{isOpen},#{isValid},
+			#{createAt},#{updateAt},#{address},#{storeId}
     	)
 	</insert>
 
@@ -26,7 +33,12 @@
   			<if test="storeName != null">store_name=#{storeName},</if>
   			<if test="region != null">region=#{region},</if>
   			<if test="scale != null">scale=#{scale},</if>
-  			<if test="isOpen != null">is_open=#{isOpen}</if>
+  			<if test="isOpen != null">is_open=#{isOpen},</if>
+  			<if test="isValid != null">is_valid=#{isValid},</if>
+  			<if test="createAt != null">create_at=#{createAt},</if>
+  			<if test="updateAt != null">update_at=#{updateAt},</if>
+  			<if test="address != null">address=#{address},</if>
+  			<if test="storeId != null">store_id=#{storeId}</if>
 		</set>
 		where store_no=#{storeNo}
 	</update>
@@ -57,6 +69,11 @@
 			<if test="region != null">and region=#{region}</if>
 			<if test="scale != null">and scale=#{scale}</if>
 			<if test="isOpen != null">and is_open=#{isOpen}</if>
+			<if test="isValid != null">and is_valid=#{isValid}</if>
+			<if test="createAt != null">and create_at=#{createAt}</if>
+			<if test="updateAt != null">and update_at=#{updateAt}</if>
+			<if test="address != null">and address=#{address}</if>
+			<if test="storeId != null">and store_id=#{storeId}</if>
 		</where>
 	</sql>
    

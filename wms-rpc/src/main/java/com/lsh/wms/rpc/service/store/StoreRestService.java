@@ -47,7 +47,7 @@ public class StoreRestService implements IStoreRestService {
 
     @GET
     @Path("getStore")
-    public String getStoreByStoreNo(@QueryParam("storeNo") Long storeNo) throws BizCheckedException {
+    public String getStoreByStoreNo(@QueryParam("storeNo") String storeNo) throws BizCheckedException {
         if (null == storeNo) {
             throw new BizCheckedException("2180014");
         }
@@ -57,7 +57,7 @@ public class StoreRestService implements IStoreRestService {
 
     @GET
     @Path("removeStore")
-    public String removeStore(@QueryParam("storeNo") Long storeNo) throws BizCheckedException {
+    public String removeStore(@QueryParam("storeNo") String storeNo) throws BizCheckedException {
         if (null == storeNo) {
             throw new BizCheckedException("2180014");
         }

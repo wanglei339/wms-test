@@ -104,7 +104,7 @@ public interface ILocationRpcService {
      * @param storeNo     门店编号
      * @return
      */
-    public BaseinfoLocation setStoreNoOnRoad(Long locationId,Long storeNo)throws BizCheckedException;
+    public BaseinfoLocation setStoreNoOnRoad(Long locationId,String storeNo)throws BizCheckedException;
 
     /**
      * 将门店的所有集货位置列出
@@ -112,7 +112,7 @@ public interface ILocationRpcService {
      * @return
      * @throws BizCheckedException
      */
-    public List<BaseinfoLocation> getCollectionByStoreNo(Long storeNo)throws BizCheckedException;
+    public List<BaseinfoLocation> getCollectionByStoreNo(String storeNo)throws BizCheckedException;
 
     /**
      * 移除集货道的门店号,将其置为0
@@ -129,6 +129,6 @@ public interface ILocationRpcService {
      */
     public List<BaseinfoLocation> sortSowLocationByStoreNo() throws BizCheckedException;
 
-    List<BaseinfoLocation> getSowByStoreNo(Long storeNo) throws BizCheckedException;
+    List<BaseinfoLocation> getSowByStoreNo(String storeNo) throws BizCheckedException;
 
 }
