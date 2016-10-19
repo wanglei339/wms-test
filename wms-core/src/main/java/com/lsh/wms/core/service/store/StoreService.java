@@ -65,12 +65,27 @@ public class StoreService {
      * @return
      */
     @Transactional(readOnly = false)
-    public BaseinfoStore removeStore(String storeNo){
+    public BaseinfoStore closeStore(String storeNo){
         BaseinfoStore store = this.getStoreByStoreNo(storeNo);
         store.setIsOpen(StoreConstant.IS_CLOSED);
         this.update(store);
         return store;
     }
+
+    /**
+     * 删除门店,将isValid置为0
+     * @param storeNo
+     * @return
+     */
+    @Transactional(readOnly = false)
+    public BaseinfoStore removeStore(String storeNo){
+        BaseinfoStore store = this.getStoreByStoreNo(storeNo);
+        store.setIsValid(0);
+        this.update(store);
+        return store;
+    }
+
+
 
 
     /**
