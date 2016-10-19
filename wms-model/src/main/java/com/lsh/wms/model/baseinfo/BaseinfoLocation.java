@@ -102,7 +102,7 @@ public class BaseinfoLocation implements Serializable, IBaseinfoLocaltionModel {
     /**
      * 门店号用于直流操作，0是库内操作1-99是区分门店的
      */
-    private Long storeNo = 0L;
+    private String storeNo = "0";
 
     public Long getCurContainerVol() {
         return curContainerVol;
@@ -296,11 +296,11 @@ public class BaseinfoLocation implements Serializable, IBaseinfoLocaltionModel {
         this.isLocked = isLocked;
     }
 
-    public Long getStoreNo() {
+    public String getStoreNo() {
         return storeNo;
     }
 
-    public void setStoreNo(Long storeNo) {
+    public void setStoreNo(String storeNo) {
         this.storeNo = storeNo;
     }
 

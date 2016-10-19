@@ -15,9 +15,9 @@ public interface IStoreRpcService {
 
     public BaseinfoStore updateStore(BaseinfoStore baseinfoStore) throws BizCheckedException;
 
-    public BaseinfoStore getStoreByStoreNo(Long storeNo) throws BizCheckedException;
+    public BaseinfoStore getStoreByStoreNo(String storeNo) throws BizCheckedException;
 
-    public BaseinfoStore removeStore(Long storeNo) throws BizCheckedException;
+    public BaseinfoStore removeStore(String storeNo) throws BizCheckedException;
 
     public List<BaseinfoStore> getStoreList(Map<String,Object> params) throws BizCheckedException;
 

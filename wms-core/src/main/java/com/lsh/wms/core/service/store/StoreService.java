@@ -48,9 +48,10 @@ public class StoreService {
      * @param storeNo 门店编号
      * @return
      */
-    public BaseinfoStore getStoreByStoreNo(Long storeNo) throws BizCheckedException {
+    public BaseinfoStore getStoreByStoreNo(String storeNo) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("storeNo", storeNo);
+        mapQuery.put("isValid", 1); //1有效
         List<BaseinfoStore> baseinfoStores = baseinfoStoreDao.getBaseinfoStoreList(mapQuery);
         if (null == baseinfoStores || baseinfoStores.size() < 1) {
             throw new BizCheckedException("2180013");
@@ -64,7 +65,7 @@ public class StoreService {
      * @return
      */
     @Transactional(readOnly = false)
-    public BaseinfoStore removeStore(Long storeNo){
+    public BaseinfoStore removeStore(String storeNo){
         BaseinfoStore store = this.getStoreByStoreNo(storeNo);
         store.setIsOpen(StoreConstant.IS_CLOSED);
         this.update(store);
@@ -78,6 +79,7 @@ public class StoreService {
      * @return
      */
     public List<BaseinfoStore> getBaseinfoStoreList(Map<String,Object> params){
+        params.put("isValid",1);    //有效的
         return baseinfoStoreDao.getBaseinfoStoreList(params);
     }
 
@@ -87,6 +89,7 @@ public class StoreService {
      * @return
      */
     public Integer countBaseinfoStore(Map<String, Object> params){
+        params.put("isValid",1);    //有效的
         return baseinfoStoreDao.countBaseinfoStore(params);
     }
 
@@ -96,6 +99,7 @@ public class StoreService {
     public BaseinfoStore getBaseinfoStore(String storeNo){
         Map<String,Object> map = new HashMap<String, Object>();
         map.put("storeNo",storeNo);
+        map.put("isValid",1);   //有效的
         List<BaseinfoStore> baseinfoStoreList = this.getBaseinfoStoreList(map);
 
         if(baseinfoStoreList.size()<=0){

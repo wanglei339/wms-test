@@ -47,7 +47,7 @@ public class StoreRestService implements IStoreRestService {
 
     @GET
     @Path("getStore")
-    public String getStoreByStoreNo(@QueryParam("storeNo") Long storeNo) throws BizCheckedException {
+    public String getStoreByStoreNo(@QueryParam("storeNo") String storeNo) throws BizCheckedException {
         if (null == storeNo) {
             throw new BizCheckedException("2180014");
         }
@@ -57,7 +57,7 @@ public class StoreRestService implements IStoreRestService {
 
     @GET
     @Path("removeStore")
-    public String removeStore(@QueryParam("storeNo") Long storeNo) throws BizCheckedException {
+    public String removeStore(@QueryParam("storeNo") String storeNo) throws BizCheckedException {
         if (null == storeNo) {
             throw new BizCheckedException("2180014");
         }
@@ -69,11 +69,12 @@ public class StoreRestService implements IStoreRestService {
     public String getStoreList() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
         List<BaseinfoStore> baseinfoStores = storeRpcService.getStoreList(params);
-        if (baseinfoStores == null) {
+        if (baseinfoStores == null || baseinfoStores.size() < 1) {
             throw new BizCheckedException("2180016");
         }
         return JsonUtils.SUCCESS(baseinfoStores);
     }
+
     @POST
     @Path("countStores")
     public String countBaseinfoStore() throws BizCheckedException {

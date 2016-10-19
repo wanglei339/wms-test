@@ -37,7 +37,7 @@
     <select id="sortLocationByStoreNoAndType" parameterType="long" resultMap="baseinfoLocationResultMap">
         select * from baseinfo_location
         WHERE type=#{type}
-        and store_no &gt;#{storeNo}
+        and store_no &lt;&gt;#{storeNo}
         ORDER BY store_no ASC
     </select>
 

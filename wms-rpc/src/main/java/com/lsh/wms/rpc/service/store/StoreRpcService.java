@@ -32,7 +32,7 @@ public class StoreRpcService implements IStoreRpcService {
         return baseinfoStore;
     }
 
-    public BaseinfoStore getStoreByStoreNo(Long storeNo) throws BizCheckedException {
+    public BaseinfoStore getStoreByStoreNo(String storeNo) throws BizCheckedException {
         if (null == storeNo) {
             throw new BizCheckedException("2180014");
         }
@@ -40,7 +40,7 @@ public class StoreRpcService implements IStoreRpcService {
         return store;
     }
 
-    public BaseinfoStore removeStore(Long storeNo) throws BizCheckedException {
+    public BaseinfoStore removeStore(String storeNo) throws BizCheckedException {
         if (null == storeNo) {
             throw new BizCheckedException("2180014");
         }
