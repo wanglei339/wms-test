@@ -60,7 +60,7 @@ public class SetGoodsTaskHandler extends AbsTaskHandler {
         }
 
         BaseinfoLocation location = locationService.getLocation(quants.get(0).getLocationId());
-        Long storeNo = location.getStoreNo();
+        String storeNo = location.getStoreNo();
 
         //获得集货区信息
         List<BaseinfoLocation> locations = locationRpcService.getCollectionByStoreNo(storeNo);

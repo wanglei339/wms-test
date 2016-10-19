@@ -147,12 +147,13 @@ public class SetGoodsRestService implements ISetGoodsRestService {
             info.setTaskName("集货任务[ " + containerId + "]");
             info.setStatus(TaskConstant.Draft);
             info.setPlanner(uId);
+            info.setBusinessMode(2L);
             entry.setTaskInfo(info);
             taskRpcService.create(TaskConstant.TYPE_SET_GOODS,entry);
         }else {
             info = infos.get(0);
         }
-        Long storeNo = Long.valueOf(header.getDeliveryCode());
+        String storeNo = header.getDeliveryCode();
 
         //获得集货区信息
         List<BaseinfoLocation> locations = locationRpcService.getCollectionByStoreNo(storeNo);

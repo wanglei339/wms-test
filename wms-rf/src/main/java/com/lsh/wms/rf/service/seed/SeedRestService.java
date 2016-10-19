@@ -21,6 +21,7 @@ import com.lsh.wms.api.service.store.IStoreRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.LocationConstant;
+import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
@@ -189,6 +190,7 @@ public class SeedRestService implements ISeedRestService {
                     result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
                     result.put("packName", "EA");
                     result.put("itemId", info.getItemId());
+                    result.put("storeNo", head.getStoreNo());
                     iTaskRpcService.assign(taskId, uid);
                     return JsonUtils.SUCCESS(result);
                 }
@@ -241,19 +243,41 @@ public class SeedRestService implements ISeedRestService {
                     }
                 }
             }
-
             SeedingTaskHead head = (SeedingTaskHead)(entry.getTaskHead());
             //判断输入门店，判断是不是系统提供的门店
             List<Long> quants = quantService.getLocationIdByContainerId(containerId);
             if(quants != null && quants.size()!=0){
                 BaseinfoLocation location = locationRpcService.getLocation(quants.get(0));
-                Long storeNo = location.getStoreNo();
-                if(storeNo.compareTo(head.getStoreNo())!=0){
+                String storeNo = location.getStoreNo();
+                if(!storeNo.equals(head.getStoreNo())){
                     throw new BizCheckedException("2880006");
                 }
             }
 
             TaskInfo info = entry.getTaskInfo();
+
+            //(不收货播种)判断是否已经结束收货
+            if(info.getSubType().compareTo(2L)==0){
+                IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(info.getOrderId());
+                if(ibdHeader.getOrderStatus().compareTo(PoConstant.ORDER_THROW)!=0){
+                    HashMap<String,Object> map = new HashMap<String, Object>();
+                    map.put("orderId", info.getOrderId());
+                    map.put("status",TaskConstant.Draft);
+                    map.put("type",TaskConstant.TYPE_SEED);
+                    infos = baseTaskService.getTaskInfoList(map);
+                    List<Long> taskList = new ArrayList<Long>();
+                    taskList.add(info.getTaskId());
+                    if(infos!=null && infos.size()!=0) {
+                        for (TaskInfo taskInfo : infos) {
+                            taskList.add(taskInfo.getTaskId());
+                        }
+                        iTaskRpcService.batchCancel(TaskConstant.TYPE_SEED, taskList);
+                    }
+                    return JsonUtils.TOKEN_ERROR("该po单已结束收货");
+                }
+            }
+
+
             if(head.getRequireQty().compareTo(qty)<0) {
                 return JsonUtils.TOKEN_ERROR("播种数量超出门店订单数量");
             }
@@ -326,6 +350,7 @@ public class SeedRestService implements ISeedRestService {
                 result.put("taskId", taskId.toString());
                 result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
                 result.put("packName", "EA");
+                result.put("storeNo", head.getStoreNo());
                 result.put("itemId", info.getItemId());
                 iTaskRpcService.assign(taskId, uid);
                 return JsonUtils.SUCCESS(result);
@@ -380,6 +405,7 @@ public class SeedRestService implements ISeedRestService {
         TaskInfo info = entry.getTaskInfo();
         SeedingTaskHead head = (SeedingTaskHead) entry.getTaskHead();
         result.put("storeName", storeRpcService.getStoreByStoreNo(head.getStoreNo()).getStoreName());
+        result.put("storeNo", head.getStoreNo());
         result.put("qty", head.getRequireQty());
         result.put("taskId", taskId.toString());
         result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());

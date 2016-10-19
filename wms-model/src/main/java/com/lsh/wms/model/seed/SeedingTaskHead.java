@@ -10,7 +10,7 @@ public class SeedingTaskHead implements Serializable {
 	/** 任务id */
     private Long taskId;
 	/** 门店号 */
-    private Long storeNo;
+    private String storeNo;
 	/**  */
     private Long createdAt;
 	/**  */
@@ -38,11 +38,11 @@ public class SeedingTaskHead implements Serializable {
 		this.taskId = taskId;
 	}
 	
-	public Long getStoreNo(){
+	public String getStoreNo(){
 		return this.storeNo;
 	}
 	
-	public void setStoreNo(Long storeNo){
+	public void setStoreNo(String storeNo){
 		this.storeNo = storeNo;
 	}
 	

@@ -127,7 +127,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
         Long orderId = lot.getPoId();
         String key = "store_queue";
         String queueObject = redisStringDao.get(key);
-        Map<Long,Long> storeMap = null;
+        Map<String,Long> storeMap = null;
         if(queueObject == null){
             List<BaseinfoLocation> storeList = locationRpcService.sortSowLocationByStoreNo();
             if(storeList!=null && storeList.size()!=0) {
@@ -139,7 +139,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
             }
         }else {
             JSONObject object = JSONObject.fromObject(queueObject);
-            storeMap = (HashMap<Long,Long>)JSONObject.toBean(object, HashMap.class);
+            storeMap = (HashMap<String,Long>)JSONObject.toBean(object, HashMap.class);
         }
 
         IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(orderId);
@@ -183,7 +183,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
             TaskEntry entry = new TaskEntry();
             head.setPackUnit(item.getPackUnit());
             head.setRequireQty(obdDetail.getUnitQty());
-            head.setStoreNo(Long.valueOf(storeNo));
+            head.setStoreNo(storeNo);
             //无收货播种任务标示
             info.setSubType(subType);
             //门店播放规则
@@ -258,7 +258,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
                 String obdOtherId = ibdObdRelation.getObdOtherId();
                 ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(obdOtherId);
 
-                if(obdHeader.getDeliveryCode().equals(head.getStoreNo().toString())) {
+                if(obdHeader.getDeliveryCode().equals(head.getStoreNo())) {
                     soOrderId = obdHeader.getOrderId();
                 }
             }
