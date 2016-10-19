@@ -2,6 +2,7 @@ package com.lsh.wms.task.service.task.pick;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.pick.PickTaskService;
@@ -124,8 +125,11 @@ public class QCTaskHandler extends AbsTaskHandler {
         if (null == details || details.size() < 1) {
             return;    //直接return就不会更新
         }
+        //更新组盘时间,写到wave_detail中
+        long boxTime = DateUtils.getCurrentSeconds();
         for (WaveDetail detail : details) {
             detail.setQcTaskId(taskEntry.getTaskInfo().getTaskId());
+            detail.setQcAt(boxTime);
         }
         waveService.updateDetails(details);
     }
@@ -146,6 +150,5 @@ public class QCTaskHandler extends AbsTaskHandler {
         //更新波次状态
         waveService.updateWaveStatus(info.getWaveId());
     }
-
 
 }
