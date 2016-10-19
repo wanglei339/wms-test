@@ -8,6 +8,7 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by panxudong on 16/7/14.
@@ -54,6 +55,8 @@ public class ReceiptRequest implements Serializable {
     @Valid
     @Size(min=1)
     private List<ReceiptItem> items;
+
+    private Map<String,Long> orderMap;
 
     public ReceiptRequest() {
 
@@ -158,5 +161,13 @@ public class ReceiptRequest implements Serializable {
 
     public void setIsCreateTask(int isCreateTask) {
         this.isCreateTask = isCreateTask;
+    }
+
+    public Map<String, Long> getOrderMap() {
+        return orderMap;
+    }
+
+    public void setOrderMap(Map<String, Long> orderMap) {
+        this.orderMap = orderMap;
     }
 }

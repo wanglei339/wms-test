@@ -389,6 +389,14 @@ public class PoOrderService {
         return receiveDetails.get(0);
     }
 
+    /**
+     * 新增ibdObdRelation
+     * @param ibdObdRelation
+     */
+    public void insert(IbdObdRelation ibdObdRelation){
+        ibdObdRelationDao.insert(ibdObdRelation);
+    }
+
 
 
 
