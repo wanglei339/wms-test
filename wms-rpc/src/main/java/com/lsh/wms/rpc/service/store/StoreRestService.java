@@ -69,11 +69,12 @@ public class StoreRestService implements IStoreRestService {
     public String getStoreList() throws BizCheckedException {
         Map<String, Object> params = RequestUtils.getRequest();
         List<BaseinfoStore> baseinfoStores = storeRpcService.getStoreList(params);
-        if (baseinfoStores == null) {
+        if (baseinfoStores == null || baseinfoStores.size() < 1) {
             throw new BizCheckedException("2180016");
         }
         return JsonUtils.SUCCESS(baseinfoStores);
     }
+
     @POST
     @Path("countStores")
     public String countBaseinfoStore() throws BizCheckedException {
