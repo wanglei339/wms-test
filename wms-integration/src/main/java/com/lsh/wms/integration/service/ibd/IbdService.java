@@ -1,44 +1,45 @@
 package com.lsh.wms.integration.service.ibd;
 
+import com.alibaba.dubbo.common.json.ParseException;
 import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
-import com.lsh.wms.api.model.po.IbdDetail;
-import com.lsh.wms.api.model.po.IbdRequest;
-import com.lsh.wms.api.model.po.PoItem;
-import com.lsh.wms.api.model.po.PoRequest;
+import com.lsh.wms.api.model.po.*;
 import com.lsh.wms.api.model.so.ObdOfcBackRequest;
 import com.lsh.wms.api.model.so.ObdOfcItem;
 import com.lsh.wms.api.service.po.IIbdService;
 import com.lsh.wms.api.service.po.IPoRpcService;
+import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
+import com.lsh.wms.core.service.system.SysLogService;
 import com.lsh.wms.integration.service.back.DataBackService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.po.IbdHeader;
+import com.lsh.wms.model.po.IbdObdRelation;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
+import com.lsh.wms.model.system.SysLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by mali on 16/9/2.
@@ -63,6 +64,9 @@ public class IbdService implements IIbdService {
     private DataBackService dataBackService;
     @Autowired
     private SoOrderService soOrderService;
+
+    @Autowired
+    private SysLogService sysLogService;
 
     @POST
     @Path("add")
@@ -120,6 +124,89 @@ public class IbdService implements IIbdService {
         poRequest.setItems(items);
 
         poRpcService.insertOrder(poRequest);
+        return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, null);
+    }
+
+
+    @POST
+    @Path("addRelation")
+    public BaseResponse addRelation() throws BizCheckedException,ParseException {
+        Map<String, Object> request = RequestUtils.getRequest();
+        List<LinkedHashMap> relationList = (List<LinkedHashMap>)request.get("relationList");
+        Set<String> ibdOrderIds = new HashSet<String>();
+        Set<ObdHeader> obdOrderIds = new HashSet<ObdHeader>();
+        for(LinkedHashMap map : relationList){
+            IbdObdRelation ibdObdRelation = BeanMapTransUtils.map2Bean(map, IbdObdRelation.class);
+            //查询ibd是否已下传
+            String ibdOrderId = ibdObdRelation.getIbdOtherId();
+            if(!ibdOrderIds.contains(ibdOrderId)){
+                IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(ibdOrderId);
+                if(ibdHeader == null){
+                    SysLog sysLog = new SysLog();
+                    //2770006表示关系表有缺失
+                    sysLog.setLogCode(2770004L);
+                    sysLog.setLogType(SysLogConstant.LOG_TYPE_FRET);
+                    sysLog.setLogMessage
+                            ("没有找到ibd订单号为:"+ibdOrderId+"的订单!");
+                    sysLogService.insertSysLog(sysLog);
+                    throw new BizCheckedException("2770004","没有找到ibd订单号为:"+ibdOrderId+"的订单!");
+                }
+                ibdOrderIds.add(ibdOrderId);
+            }
+            //查询Obd是否下传
+            String obdOrderId = ibdObdRelation.getObdOtherId();
+            if(!obdOrderIds.contains(obdOrderId)){
+                ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(obdOrderId);
+                if(obdHeader == null){
+                    SysLog sysLog = new SysLog();
+                    //2770006表示关系表有缺失
+                    sysLog.setLogCode(2770005L);
+                    sysLog.setLogType(SysLogConstant.LOG_TYPE_FRET);
+                    sysLog.setLogMessage("没有找到obd订单号为:"+obdOrderId+"的门店订货单");
+                    throw new BizCheckedException("2770005","没有找到obd订单号为:"+obdOrderId+"的门店订货单");
+                }
+                obdOrderIds.add(obdHeader);
+            }
+            poOrderService.insertIbdObdRelation(ibdObdRelation);
+
+        }
+        //查询该批关系表数据中门店订货信息是否完整
+        for(ObdHeader obdHeader : obdOrderIds){
+            //根据细单条目数量来判断是否完整
+            List<ObdDetail> obdDetails = soOrderService.getOutbSoDetailListByOrderId(obdHeader.getOrderId());
+            List<String> detailOtherIds = new ArrayList<String>();
+            for(ObdDetail obdDetail : obdDetails){
+                detailOtherIds.add(obdDetail.getDetailOtherId());
+            }
+            Map<String,Object> mapQuery = new HashMap<String, Object>();
+            mapQuery.put("obdOrderId",obdHeader.getOrderOtherId());
+            List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(mapQuery);
+            List<String> obddetailIds = new ArrayList<String>();
+            for(IbdObdRelation ibdObdRelation : ibdObdRelations){
+                obddetailIds.add(ibdObdRelation.getObdDetailId());
+            }
+
+            if(obdDetails.size() != ibdObdRelations.size()){
+                // TODO: 2016/10/18 对比每一条明细 确定哪条关系表缺失
+                detailOtherIds.removeAll(obddetailIds);
+                for(String detailOtherId : detailOtherIds){
+                    SysLog sysLog = new SysLog();
+                    //2770006表示关系表有缺失
+                    sysLog.setLogCode(2770006L);
+                    sysLog.setLogType(SysLogConstant.LOG_TYPE_FRET);
+                    sysLog.setLogMessage
+                            ("obdOrderId:"+obdHeader.getOrderOtherRefId()
+                                    + " obdDetailId :" + detailOtherId + "该obd订单明细没有对应的关系表记录!");
+                    sysLogService.insertSysLog(sysLog);
+                }
+                throw new BizCheckedException("关系表缺失");
+            }
+
+
+
+
+        }
+
         return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, null);
     }
 
@@ -192,6 +279,10 @@ public class IbdService implements IIbdService {
 
 
     }
+
+
+
+
 
 
 

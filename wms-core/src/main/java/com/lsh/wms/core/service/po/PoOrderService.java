@@ -393,7 +393,8 @@ public class PoOrderService {
      * 新增ibdObdRelation
      * @param ibdObdRelation
      */
-    public void insert(IbdObdRelation ibdObdRelation){
+    @Transactional(readOnly = false)
+    public void insertIbdObdRelation(IbdObdRelation ibdObdRelation){
         ibdObdRelationDao.insert(ibdObdRelation);
     }
 
