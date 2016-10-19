@@ -259,7 +259,7 @@ public class SeedRestService implements ISeedRestService {
             }
             // type 2:继续播，1:剩余门店不播了 ,3:跳过当前任务，播下一个任务
             if(containerId != null){
-                BaseinfoContainer container = containerService.getContainer(Long.valueOf(containerId.toString().trim()));
+                BaseinfoContainer container = containerService.getContainer(containerId);
                 if(container==null){
                     throw new BizCheckedException("2880013");
                 }

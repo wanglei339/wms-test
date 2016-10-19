@@ -39,7 +39,7 @@ public class ContainerService {
         BaseinfoContainer container;
         params.put("containerId", containerId);
         List<BaseinfoContainer> containers = containerDao.getBaseinfoContainerList(params);
-        if (containers.size() == 1) {
+        if (containers!=null && containers.size() == 1) {
             container = containers.get(0);
         } else {
             return null;
