@@ -57,8 +57,15 @@ public class StoreRestService implements IStoreRestService {
 
     @GET
     @Path("removeStore")
-    public String removeStore(@QueryParam("storeNo") String storeNo) throws BizCheckedException {
-        if (null == storeNo) {
+    public String closeStore(@QueryParam("storeNo") String storeNo) throws BizCheckedException {
+        if (null == storeNo || storeNo.equals("")) {
+            throw new BizCheckedException("2180014");
+        }
+        return JsonUtils.SUCCESS(storeRpcService.closeStore(storeNo));
+    }
+
+    public String removeStore(String storeNo) throws BizCheckedException {
+        if (null == storeNo || storeNo.equals("")) {
             throw new BizCheckedException("2180014");
         }
         return JsonUtils.SUCCESS(storeRpcService.removeStore(storeNo));

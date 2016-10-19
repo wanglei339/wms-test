@@ -17,9 +17,11 @@ public interface IStoreRpcService {
 
     public BaseinfoStore getStoreByStoreNo(String storeNo) throws BizCheckedException;
 
+    public BaseinfoStore closeStore(String storeNo) throws BizCheckedException;
+
     public BaseinfoStore removeStore(String storeNo) throws BizCheckedException;
 
-    public List<BaseinfoStore> getStoreList(Map<String,Object> params) throws BizCheckedException;
+    public List<BaseinfoStore> getStoreList(Map<String, Object> params) throws BizCheckedException;
 
     public Integer countBaseinfoStore(Map<String, Object> params) throws BizCheckedException;
 }
