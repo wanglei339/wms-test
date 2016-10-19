@@ -441,6 +441,7 @@ public class QCRestService implements IRFQCRestService {
             }
             TaskEntry entry = new TaskEntry();
             entry.setTaskInfo(qcTaskInfo);
+            entry.setTaskDetailList((List<Object>) (List<?>)details);
             iTaskRpcService.update(TaskConstant.TYPE_QC, entry);
             iTaskRpcService.done(qcTaskId, qcTaskInfo.getLocationId());
         }
