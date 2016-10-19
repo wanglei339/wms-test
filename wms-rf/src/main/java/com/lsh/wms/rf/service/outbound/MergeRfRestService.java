@@ -143,6 +143,7 @@ public class MergeRfRestService implements IMergeRfRestService {
                     if (!mergedContainerId.equals(0L) && !waveDetail.getMergedContainerId().equals(mergedContainerId)) {
                         throw new BizCheckedException("2870004");
                     }
+                    // 已合过的
                     resultDetail.put("isMerged", true);
                     List<WaveDetail> mergedWaveDetails = waveService.getWaveDetailsByMergedContainerId(waveDetail.getMergedContainerId());
                     for (WaveDetail mergedWaveDetail: mergedWaveDetails) {
@@ -162,6 +163,7 @@ public class MergeRfRestService implements IMergeRfRestService {
                     }
                     mergedContainerId = waveDetail.getMergedContainerId();
                 } else if (!countedContainerIds.contains(containerId)) {
+                    // 未合过的
                     countedContainerIds.add(containerId);
                     containerCount++;
                     Long qcTaskId = waveDetail.getQcTaskId();

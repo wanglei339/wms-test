@@ -7,6 +7,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.merge.IMergeRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -20,19 +21,20 @@ import java.util.Map;
 public class MergeRestService implements IMergeRestService {
     private static Logger logger = LoggerFactory.getLogger(MergeRestService.class);
 
-    @POST
-    @Path("getDeliveryList")
-    public String getDeliveryList() throws BizCheckedException {
-        Map<String, Object> mapQuery = RequestUtils.getRequest();
+    @Autowired
+    private MergeRpcService mergeRpcService;
 
-        return JsonUtils.SUCCESS();
+    @POST
+    @Path("getMergeList")
+    public String getMergeList() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(mergeRpcService.getMergeList(mapQuery));
     }
 
     @POST
-    @Path("getDeliveryCount")
-    public String getDeliveryCount() throws BizCheckedException {
+    @Path("getMergeCount")
+    public String getMergeCount() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
-
-        return JsonUtils.SUCCESS();
+        return JsonUtils.SUCCESS(mergeRpcService.getMergeCount(mapQuery));
     }
 }
