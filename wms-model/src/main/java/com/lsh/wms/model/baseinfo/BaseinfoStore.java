@@ -18,7 +18,7 @@ public class BaseinfoStore implements Serializable {
 	/** 运营情况1-正常2-关闭 */
     private Integer isOpen;
 	/** 0无效1-有效 */
-    private Integer isValid;
+    private Integer isValid =1;
 	/** 创建时间 */
     private Long createAt;
 	/** 更新时间 */
@@ -26,7 +26,7 @@ public class BaseinfoStore implements Serializable {
 	/** 地址 */
     private String address;
 	/** 门店id-暂留 */
-    private Long storeId;
+    private Long storeId =0L;
 	
 	public Long getId(){
 		return this.id;
