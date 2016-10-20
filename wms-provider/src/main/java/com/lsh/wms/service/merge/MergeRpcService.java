@@ -2,6 +2,7 @@ package com.lsh.wms.service.merge;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.merge.IMergeRpcService;
 import com.lsh.wms.core.constant.StoreConstant;
 import com.lsh.wms.core.constant.TaskConstant;
@@ -9,11 +10,14 @@ import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.store.StoreService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.model.tu.TuDetail;
+import com.lsh.wms.model.tu.TuHead;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +46,8 @@ public class MergeRpcService implements IMergeRpcService {
     private StockQuantService stockQuantService;
     @Autowired
     private WaveService waveService;
+    @Autowired
+    private TuService tuService;
 
     /**
      * 门店维度的未装车板数列表
@@ -54,16 +60,12 @@ public class MergeRpcService implements IMergeRpcService {
         List<BaseinfoStore> stores = storeService.getOpenedStoreList(mapQuery);
         List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
         for (BaseinfoStore store: stores) {
-            Map<String, Object> result = new HashMap<String, Object>();
-            result.put("deliveryCode", store.getStoreNo());
-            result.put("deliveryName", store.getStoreName());
-            result.put("address", store.getAddress());
-            result.put("totalMergedContainers", 0); // 未装车总板数
-            result.put("restMergedContainers", 0); // 未装车余货总板数
+            Integer totalMergedContainers = 0; // 未装车总板数
+            Integer restMergedContainers = 0; // 未装车余货总板数
             String storeNo = store.getStoreNo();
             List<BaseinfoLocation> locations = locationService.getCollectionByStoreNo(storeNo); // 门店对应的集货道
             // List<StockQuant> stockQuants = new ArrayList<StockQuant>();
-            List<String> countedContainerIds = new ArrayList<String>();
+            List<Long> countedContainerIds = new ArrayList<Long>();
             for (BaseinfoLocation location: locations) {
                 List<StockQuant> quants = stockQuantService.getQuantsByLocationId(location.getLocationId());
                 for (StockQuant quant: quants) {
@@ -79,12 +81,51 @@ public class MergeRpcService implements IMergeRpcService {
                         List<WaveDetail> waveDetails = waveService.getDetailsByQCTaskId(qcTaskId);
                         if (waveDetails.size() > 0) {
                             for (WaveDetail waveDetail: waveDetails) {
-                                
+                                Long mergedContainerId = 0L;
+                                if (waveDetail.getMergedContainerId().equals(0L)) {
+                                    mergedContainerId = waveDetail.getMergedContainerId();
+                                } else {
+                                    mergedContainerId = waveDetail.getContainerId();
+                                }
+                                if (!countedContainerIds.contains(mergedContainerId)) {
+                                    countedContainerIds.add(mergedContainerId);
+                                    List<TuDetail> tuDetails = tuService.getTuDeailListByMergedContainerId(mergedContainerId);
+                                    if (tuDetails.size() == 0) {
+                                        totalMergedContainers++;
+                                        if (taskInfo.getDate() < DateUtils.getTodayBeginSeconds()) {
+                                            restMergedContainers++;
+                                        }
+                                        // 是否是余货
+                                    } else {
+                                        Boolean needCount = true;
+                                        for (TuDetail tuDetail : tuDetails) {
+                                            String tuId = tuDetail.getTuId();
+                                            TuHead tuHead = tuService.getHeadByTuId(tuId);
+                                            if (!tuHead.getStatus().equals(9)) { // TODO: 改成constant
+                                                needCount = false;
+                                                break;
+                                            }
+                                        }
+                                        if (needCount) {
+                                            totalMergedContainers++;
+                                            if (taskInfo.getDate() < DateUtils.getTodayBeginSeconds()) {
+                                                restMergedContainers++;
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
+            Map<String, Object> result = new HashMap<String, Object>();
+            result.put("storeNo", store.getStoreNo());
+            result.put("storeName", store.getStoreName());
+            result.put("address", store.getAddress());
+            result.put("totalMergedContainers", totalMergedContainers);
+            result.put("restMergedContainers", restMergedContainers);
+            results.add(result);
         }
         return results;
     }

@@ -32,8 +32,8 @@ public class MergeRestService implements IMergeRestService {
     }
 
     @POST
-    @Path("getMergeCount")
-    public String getMergeCount() throws BizCheckedException {
+    @Path("countMergeList")
+    public String countMergeList() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         return JsonUtils.SUCCESS(mergeRpcService.countMergeList(mapQuery));
     }
