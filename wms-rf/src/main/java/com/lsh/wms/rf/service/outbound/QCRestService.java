@@ -320,8 +320,8 @@ public class QCRestService implements IRFQCRestService {
                 throw new BizCheckedException("2120013");
             }
             int cmpRet = pickQty.compareTo(qty);    //拣货 - qc的数量
-            if (cmpRet > 0) exceptionType = WaveConstant.QC_EXCEPTION_OVERFLOW; //多货
-            if (cmpRet < 0) exceptionType = WaveConstant.QC_EXCEPTION_LACK; //少货
+            if (cmpRet > 0) exceptionType = WaveConstant.QC_EXCEPTION_LACK; //多货
+            if (cmpRet < 0) exceptionType = WaveConstant.QC_EXCEPTION_OVERFLOW; //少货
             BigDecimal curQty = new BigDecimal("0.0000");
             for (int i = 0; i < matchDetails.size(); ++i) {
                 WaveDetail detail = matchDetails.get(i);

@@ -17,21 +17,21 @@ public class WaveConstant {
     /**
      * QC的异常状态的表现
      */
-    public static int QC_EXCEPTION_NORMAL=0;  //qc正常
-    public static int QC_EXCEPTION_LACK=1;  //qc少货
-    public static int QC_EXCEPTION_OVERFLOW=2;   //多货
-    public static int QC_EXCEPTION_NOT_MATCH=3;  //错货,不匹配
-    public static int QC_EXCEPTION_DEFECT=4; //残次
-    public static int QC_EXCEPTION_DATE=5;   //日期问题
-    public static int QC_EXCEPTION_OTHER=6;   //其他的qc异常
+    public static long QC_EXCEPTION_NORMAL=0L;  //qc正常
+    public static long QC_EXCEPTION_LACK=1L;  //qc少货
+    public static long QC_EXCEPTION_OVERFLOW=2L;   //多货
+    public static long QC_EXCEPTION_NOT_MATCH=3L;  //错货,不匹配
+    public static long QC_EXCEPTION_DEFECT=4L; //残次
+    public static long QC_EXCEPTION_DATE=5L;   //日期问题
+    public static long QC_EXCEPTION_OTHER=6L;   //其他的qc异常
 
     /**
      * QC异常的处理的状态
      */
-    public static int QC_EXCEPTION_STATUS_UNDO=0;   //未处理
-    public static int QC_EXCEPTION_STATUS_NORMAL=1;   //qc正常
-    public static int QC_EXCEPTION_STATUS_DONE=2;   // 异常已经处理
-    public static int QC_EXCEPTION_STATUS_SKIP=3;   //  异常忽略
+    public static long QC_EXCEPTION_STATUS_UNDO=0L;   //未处理
+    public static long QC_EXCEPTION_STATUS_NORMAL=1L;   //qc正常
+    public static long QC_EXCEPTION_STATUS_DONE=2L;   // 异常已经处理
+    public static long QC_EXCEPTION_STATUS_SKIP=3L;   //  异常忽略
 
     /**
      * QC次数的标识

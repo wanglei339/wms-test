@@ -1,6 +1,8 @@
 package com.lsh.wms.core.service.store;
 
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.constant.StoreConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoStoreDao;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
@@ -29,6 +31,9 @@ public class StoreService {
      */
     @Transactional(readOnly = false)
     public void insertStore(BaseinfoStore baseinfoStore) {
+        baseinfoStore.setStoreId(RandomUtils.genId());
+        baseinfoStore.setCreateAt(DateUtils.getCurrentSeconds());
+        baseinfoStore.setUpdateAt(DateUtils.getCurrentSeconds());
         baseinfoStoreDao.insert(baseinfoStore);
     }
 
@@ -39,34 +44,37 @@ public class StoreService {
      */
     @Transactional(readOnly = false)
     public void update(BaseinfoStore baseinfoStore) {
+        baseinfoStore.setUpdateAt(DateUtils.getCurrentSeconds());
         baseinfoStoreDao.update(baseinfoStore);
     }
 
     /**
      * 通过门店号编号查找门店
      *
-     * @param storeNo 门店编号
+     * @param storeId
      * @return
+     * @throws BizCheckedException
      */
-    public BaseinfoStore getStoreByStoreNo(String storeNo) throws BizCheckedException {
+    public BaseinfoStore getStoreByStoreId(Long storeId) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("storeNo", storeNo);
+        mapQuery.put("storeId", storeId);
         mapQuery.put("isValid", 1); //1有效
         List<BaseinfoStore> baseinfoStores = baseinfoStoreDao.getBaseinfoStoreList(mapQuery);
         if (null == baseinfoStores || baseinfoStores.size() < 1) {
             throw new BizCheckedException("2180013");
         }
-            return baseinfoStores.get(0);
+        return baseinfoStores.get(0);
     }
 
     /**
      * 根据门店号,关闭门店,将is_open置为2
-     * @param storeNo
+     *
+     * @param storeId 门店id
      * @return
      */
     @Transactional(readOnly = false)
-    public BaseinfoStore closeStore(String storeNo){
-        BaseinfoStore store = this.getStoreByStoreNo(storeNo);
+    public BaseinfoStore closeStore(Long storeId) {
+        BaseinfoStore store = this.getStoreByStoreId(storeId);
         store.setIsOpen(StoreConstant.IS_CLOSED);
         this.update(store);
         return store;
@@ -74,52 +82,68 @@ public class StoreService {
 
     /**
      * 删除门店,将isValid置为0
-     * @param storeNo
+     *
+     * @param storeId
      * @return
      */
     @Transactional(readOnly = false)
-    public BaseinfoStore removeStore(String storeNo){
-        BaseinfoStore store = this.getStoreByStoreNo(storeNo);
+    public BaseinfoStore removeStore(Long storeId) {
+        BaseinfoStore store = this.getStoreByStoreId(storeId);
         store.setIsValid(0);
         this.update(store);
         return store;
     }
 
 
-
-
     /**
      * 根据查询条件返回门店list
+     *
      * @param params
      * @return
      */
-    public List<BaseinfoStore> getBaseinfoStoreList(Map<String,Object> params){
-        params.put("isValid",1);    //有效的
+    public List<BaseinfoStore> getBaseinfoStoreList(Map<String, Object> params) {
+        params.put("isValid", 1);    //有效的
         return baseinfoStoreDao.getBaseinfoStoreList(params);
     }
 
     /**
      * 计数
+     *
      * @param params
      * @return
      */
-    public Integer countBaseinfoStore(Map<String, Object> params){
-        params.put("isValid",1);    //有效的
+    public Integer countBaseinfoStore(Map<String, Object> params) {
+        params.put("isValid", 1);    //有效的
         return baseinfoStoreDao.countBaseinfoStore(params);
     }
 
     /**
-     * 根据storeNo返回门店信息
+     * 根据门店id返回门店信息
      */
-    public BaseinfoStore getBaseinfoStore(String storeNo){
-        Map<String,Object> map = new HashMap<String, Object>();
-        map.put("storeNo",storeNo);
-        map.put("isValid",1);   //有效的
+    public BaseinfoStore getBaseinfoStore(Long storeId) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("storeId", storeId);
+        map.put("isValid", 1);   //有效的
         List<BaseinfoStore> baseinfoStoreList = this.getBaseinfoStoreList(map);
 
-        if(baseinfoStoreList.size()<=0){
+        if (baseinfoStoreList.size() <= 0) {
             return null;
         }
         return baseinfoStoreList.get(0);
     }
+
+    /**
+     * 门店的编码storeNo,转为门店的id
+     *
+     * @param storeNo
+     * @return
+     */
+    public List<BaseinfoStore> getStoreIdByCode(String storeNo) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("storeNo", storeNo);
+        map.put("isValid", 1);   //有效的
+        List<BaseinfoStore> baseinfoStoreList = this.getBaseinfoStoreList(map);
+        return baseinfoStoreList;
+    }
+
 }

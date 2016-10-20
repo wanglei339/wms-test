@@ -4,9 +4,12 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.service.pick.IQCRpcService;
 import com.lsh.wms.core.constant.PickConstant;
+import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.math.BigDecimal;
 
 /**
  * Created by zengwenjun on 16/7/30.
@@ -33,6 +36,8 @@ public class QCRpcService implements IQCRpcService{
         }
         detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_DONE);
         detail.setQcQty(detail.getPickQty());
+        detail.setQcExceptionQty(new BigDecimal("0.0000"));
+        detail.setQcException(WaveConstant.QC_EXCEPTION_NORMAL);
         waveService.updateDetail(detail);
     }
 
@@ -43,6 +48,8 @@ public class QCRpcService implements IQCRpcService{
         }
         detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_NORMAL);
         detail.setQcQty(detail.getPickQty());
+        detail.setQcException(WaveConstant.QC_EXCEPTION_NORMAL);
+        detail.setQcExceptionQty(new BigDecimal("0.0000"));
         waveService.updateDetail(detail);
     }
 }
