@@ -54,7 +54,6 @@ public class MergeService {
             if (details == null) {
                 throw new BizCheckedException("2870002");
             }
-            waveDetails.addAll(details);
             for (WaveDetail detail: details) {
                 Long qcTaskId = detail.getQcTaskId();
                 // 已分别合过板的托盘不能合在一起
@@ -63,6 +62,8 @@ public class MergeService {
                         throw new BizCheckedException("2870004");
                     }
                     mergedContainerId = detail.getMergedContainerId();
+                } else {
+                    waveDetails.add(detail);
                 }
                 // 判断托盘是否归属于同一门店
                 Long orderId = detail.getOrderId();

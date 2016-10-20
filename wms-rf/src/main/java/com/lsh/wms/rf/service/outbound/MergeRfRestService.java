@@ -10,13 +10,16 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.merge.IMergeRfRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.constant.ContainerConstant;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.merge.MergeService;
 import com.lsh.wms.core.service.so.SoOrderService;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.so.ObdHeader;
+import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -49,6 +52,8 @@ public class MergeRfRestService implements IMergeRfRestService {
     private SoOrderService soOrderService;
     @Autowired
     private ContainerService containerService;
+    @Autowired
+    private BaseTaskService baseTaskService;
 
     /**
      * 扫描托盘码进行合板
@@ -105,8 +110,8 @@ public class MergeRfRestService implements IMergeRfRestService {
         } else {
             throw new BizCheckedException("2870001");
         }*/
-        for (Object objContainerId: queryContainerIds) {
-            Long containerId = Long.valueOf(objContainerId.toString());
+        for (Object queryContainerId: queryContainerIds) {
+            Long containerId = Long.valueOf(queryContainerId.toString());
             if (!containerIds.contains(containerId)) {
                 containerIds.add(containerId);
             }
@@ -121,6 +126,7 @@ public class MergeRfRestService implements IMergeRfRestService {
         BigDecimal packCount = BigDecimal.ZERO; // 总箱数
         BigDecimal turnoverBoxCount = BigDecimal.ZERO; // 总周转箱箱数
         List<Object> resultDetails = new ArrayList<Object>();
+        List<Long> countedContainerIds = new ArrayList<Long>();
         for (Long containerId: containerIds) {
             List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(containerId);
             if (waveDetails == null) {
@@ -132,48 +138,43 @@ public class MergeRfRestService implements IMergeRfRestService {
             resultDetail.put("turnoverBoxCount", BigDecimal.ZERO);
             resultDetail.put("isMerged", false);
             for (WaveDetail waveDetail: waveDetails) {
-                List<Long> countedContainerIds = new ArrayList<Long>();
                 // 已分别合过板的托盘不能合在一起
                 if (!waveDetail.getMergedContainerId().equals(0L)) {
                     if (!mergedContainerId.equals(0L) && !waveDetail.getMergedContainerId().equals(mergedContainerId)) {
                         throw new BizCheckedException("2870004");
                     }
+                    // 已合过的
                     resultDetail.put("isMerged", true);
-                    if (mergedContainerId.equals(0L)) {
-                        List<WaveDetail> mergedWaveDetails = waveService.getWaveDetailsByMergedContainerId(waveDetail.getMergedContainerId());
-                        for (WaveDetail mergedWaveDetail: mergedWaveDetails) {
-                            if (!countedContainerIds.contains(mergedWaveDetail.getContainerId())) {
-                                countedContainerIds.add(mergedWaveDetail.getContainerId());                                containerCount++;
-                                containerCount++;
-                                BaseinfoContainer container = containerService.getContainer(mergedWaveDetail.getContainerId());
-                                if (container.getType().equals(ContainerConstant.TURNOVER_BOX)) {
-                                    packCount = packCount.add(BigDecimal.ONE);
-                                    turnoverBoxCount = turnoverBoxCount.add(BigDecimal.ONE);
-                                    resultDetail.put("packCount", BigDecimal.ONE.add(new BigDecimal(Double.valueOf(resultDetail.get("packCount").toString()))));
-                                    resultDetail.put("turnoverBoxCount", BigDecimal.ONE.add(new BigDecimal(Double.valueOf(resultDetail.get("packCount").toString()))));
-                                } else {
-                                    BigDecimal uomQty = PackUtil.EAQty2UomQty(waveDetail.getPickQty(), waveDetail.getAllocUnitName());
-                                    packCount = packCount.add(uomQty);
-                                    resultDetail.put("packCount", uomQty.add(new BigDecimal(Double.valueOf(resultDetail.get("packCount").toString()))));
-                                }
-                            }
+                    List<WaveDetail> mergedWaveDetails = waveService.getWaveDetailsByMergedContainerId(waveDetail.getMergedContainerId());
+                    for (WaveDetail mergedWaveDetail: mergedWaveDetails) {
+                        Long qcTaskId = mergedWaveDetail.getQcTaskId();
+                        TaskInfo qcTaskInfo = baseTaskService.getTaskInfoById(qcTaskId);
+                        if (qcTaskInfo == null || !qcTaskInfo.getStatus().equals(TaskConstant.Done)) {
+                            throw new BizCheckedException("2870003");
                         }
+                        if (!countedContainerIds.contains(mergedWaveDetail.getContainerId())) {
+                            countedContainerIds.add(mergedWaveDetail.getContainerId());
+                            containerCount++;
+                            packCount = packCount.add(new BigDecimal(qcTaskInfo.getExt4()));
+                            turnoverBoxCount = turnoverBoxCount.add(new BigDecimal(qcTaskInfo.getExt3()));
+                        }
+                        resultDetail.put("packCount", new BigDecimal(Double.valueOf(resultDetail.get("packCount").toString())).add(new BigDecimal(qcTaskInfo.getExt4())));
+                        resultDetail.put("turnoverBoxCount", new BigDecimal(Double.valueOf(resultDetail.get("turnoverBoxCount").toString())).add(new BigDecimal(qcTaskInfo.getExt3())));
                     }
                     mergedContainerId = waveDetail.getMergedContainerId();
                 } else if (!countedContainerIds.contains(containerId)) {
+                    // 未合过的
                     countedContainerIds.add(containerId);
                     containerCount++;
-                    BaseinfoContainer container = containerService.getContainer(containerId);
-                    if (container.getType().equals(ContainerConstant.TURNOVER_BOX)) {
-                        packCount = packCount.add(BigDecimal.ONE);
-                        turnoverBoxCount = turnoverBoxCount.add(BigDecimal.ONE);
-                        resultDetail.put("packCount", BigDecimal.ONE.add(new BigDecimal(Double.valueOf(resultDetail.get("packCount").toString()))));
-                        resultDetail.put("turnoverBoxCount", BigDecimal.ONE.add(new BigDecimal(Double.valueOf(resultDetail.get("packCount").toString()))));
-                    } else {
-                        BigDecimal uomQty = PackUtil.EAQty2UomQty(waveDetail.getPickQty(), waveDetail.getAllocUnitName());
-                        packCount = packCount.add(uomQty);
-                        resultDetail.put("packCount", uomQty.add(new BigDecimal(Double.valueOf(resultDetail.get("packCount").toString()))));
+                    Long qcTaskId = waveDetail.getQcTaskId();
+                    TaskInfo qcTaskInfo = baseTaskService.getTaskInfoById(qcTaskId);
+                    if (qcTaskInfo == null || !qcTaskInfo.getStatus().equals(TaskConstant.Done)) {
+                        throw new BizCheckedException("2870003");
                     }
+                    packCount = packCount.add(new BigDecimal(qcTaskInfo.getExt4()));
+                    turnoverBoxCount = turnoverBoxCount.add(new BigDecimal(qcTaskInfo.getExt3()));
+                    resultDetail.put("packCount", new BigDecimal(Double.valueOf(resultDetail.get("packCount").toString())).add(new BigDecimal(qcTaskInfo.getExt4())));
+                    resultDetail.put("turnoverBoxCount", new BigDecimal(Double.valueOf(resultDetail.get("turnoverBoxCount").toString())).add(new BigDecimal(qcTaskInfo.getExt3())));
                 }
                 // 判断托盘是否归属于同一门店
                 Long orderId = waveDetail.getOrderId();
@@ -188,8 +189,8 @@ public class MergeRfRestService implements IMergeRfRestService {
                 if (!deliveryCode.equals(obdHeader.getDeliveryCode())) {
                     throw new BizCheckedException("2870007");
                 }
-                resultDetails.add(resultDetail);
             }
+            resultDetails.add(resultDetail);
         }
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("deliveryCode", deliveryCode);
