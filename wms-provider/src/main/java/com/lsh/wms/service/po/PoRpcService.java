@@ -53,7 +53,7 @@ public class PoRpcService implements IPoRpcService {
     @Reference
     private ITaskRpcService iTaskRpcService;
 
-    public void insertOrder(PoRequest request) throws BizCheckedException{
+    public Long insertOrder(PoRequest request) throws BizCheckedException{
         //初始化InbPoHeader
         IbdHeader ibdHeader = new IbdHeader();
         ObjUtils.bean2bean(request, ibdHeader);
@@ -139,6 +139,7 @@ public class PoRpcService implements IPoRpcService {
 //        taskInfo.setOrderId(ibdHeader.getOrderId());
 //        taskEntry.setTaskInfo(taskInfo);
 //        iTaskRpcService.create(TaskConstant.TYPE_PO,taskEntry);
+        return ibdHeader.getOrderId();
 
     }
 

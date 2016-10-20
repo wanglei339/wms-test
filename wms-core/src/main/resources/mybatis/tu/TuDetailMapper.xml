@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.baseinfo.TuDetailDao" >
+
+	<resultMap id="tuDetailResultMap" type="TuDetail">
+		<id property="id" column="id"/>
+		<result property="tuId" column="tu_id"/>
+		<result property="mergedContainerId" column="merged_container_id"/>
+		<result property="boxNum" column="box_num"/>
+		<result property="containerNum" column="container_num"/>
+		<result property="turnoverBoxNum" column="turnover_box_num"/>
+		<result property="isRest" column="is_rest"/>
+		<result property="isExpresive" column="is_expresive"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+		<result property="loadUid" column="load_uid"/>
+		<result property="loadAt" column="load_at"/>
+		<result property="deliveryCode" column="delivery_code"/>
+		<result property="deliveryName" column="delivery_name"/>
+		<result property="isValid" column="is_valid"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TuDetail">
+		insert into tu_detail (
+			tu_id,merged_container_id,box_num,container_num,turnover_box_num,is_rest,
+			is_expresive,created_at,updated_at,load_uid,load_at,delivery_code,
+			delivery_name,is_valid
+    	) values (
+			#{tuId},#{mergedContainerId},#{boxNum},#{containerNum},#{turnoverBoxNum},#{isRest},
+			#{isExpresive},#{createdAt},#{updatedAt},#{loadUid},#{loadAt},#{deliveryCode},
+			#{deliveryName},#{isValid}
+    	)
+	</insert>
+
+	<update id="update" parameterType="TuDetail">
+		update tu_detail
+    	<set>
+  			<if test="tuId != null">tu_id=#{tuId},</if>
+  			<if test="mergedContainerId != null">merged_container_id=#{mergedContainerId},</if>
+  			<if test="boxNum != null">box_num=#{boxNum},</if>
+  			<if test="containerNum != null">container_num=#{containerNum},</if>
+  			<if test="turnoverBoxNum != null">turnover_box_num=#{turnoverBoxNum},</if>
+  			<if test="isRest != null">is_rest=#{isRest},</if>
+  			<if test="isExpresive != null">is_expresive=#{isExpresive},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+  			<if test="loadUid != null">load_uid=#{loadUid},</if>
+  			<if test="loadAt != null">load_at=#{loadAt},</if>
+  			<if test="deliveryCode != null">delivery_code=#{deliveryCode},</if>
+  			<if test="deliveryName != null">delivery_name=#{deliveryName},</if>
+  			<if test="isValid != null">is_valid=#{isValid}</if>
+		</set>
+		where merged_container_id AND is_valid=1
+	</update>
+  
+	<select id="getTuDetailById" parameterType="int" resultMap="tuDetailResultMap">
+		select * from tu_detail
+		where ID=#{id}
+	</select>
+  
+	<select id="countTuDetail" parameterType="map" resultType="int">
+		select count(*) from tu_detail
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getTuDetailList" parameterType="map" resultMap="tuDetailResultMap">
+		select * from tu_detail
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="tuId != null">and tu_id=#{tuId}</if>
+			<if test="mergedContainerId != null">and merged_container_id=#{mergedContainerId}</if>
+			<if test="boxNum != null">and box_num=#{boxNum}</if>
+			<if test="containerNum != null">and container_num=#{containerNum}</if>
+			<if test="turnoverBoxNum != null">and turnover_box_num=#{turnoverBoxNum}</if>
+			<if test="isRest != null">and is_rest=#{isRest}</if>
+			<if test="isExpresive != null">and is_expresive=#{isExpresive}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="loadUid != null">and load_uid=#{loadUid}</if>
+			<if test="loadAt != null">and load_at=#{loadAt}</if>
+			<if test="deliveryCode != null">and delivery_code=#{deliveryCode}</if>
+			<if test="deliveryName != null">and delivery_name=#{deliveryName}</if>
+			<if test="isValid != null">and is_valid=#{isValid}</if>
+		</where>
+	</sql>
+   
+</mapper>

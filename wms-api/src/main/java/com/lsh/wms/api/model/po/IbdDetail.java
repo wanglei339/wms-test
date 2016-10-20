@@ -27,11 +27,11 @@ public class IbdDetail implements Serializable {
 
     /** 进货数 */
     @NotNull
-    private BigDecimal orderQty;
+    private BigDecimal orderQty = BigDecimal.ZERO;
 
     /** 包装单位 */
     @NotNull
-    private BigDecimal packUnit = new BigDecimal(0);
+    private BigDecimal packUnit = BigDecimal.ZERO;
 
     /** 包装名称 */
     @NotNull
@@ -41,15 +41,71 @@ public class IbdDetail implements Serializable {
     @NotNull
     private BigDecimal price;
 
+    /** 基本单位名称 */
+    private String unitName = "";
+
+    /** 基本单位数量 */
+    private BigDecimal unitQty = BigDecimal.ZERO;
+
     public IbdDetail() {}
 
-    public IbdDetail(String detailOtherId,String skuCode, String barCode, BigDecimal orderQty, BigDecimal packUnit, String packName, BigDecimal price) {
-        this.detailOtherId = detailOtherId;
-        this.skuCode = skuCode;
+    public IbdDetail(String barCode, String detailOtherId, BigDecimal orderQty, String packName, BigDecimal packUnit, BigDecimal price, String skuCode, String unitName, BigDecimal unitQty) {
         this.barCode = barCode;
+        this.detailOtherId = detailOtherId;
         this.orderQty = orderQty;
-        this.packUnit = packUnit;
         this.packName = packName;
+        this.packUnit = packUnit;
+        this.price = price;
+        this.skuCode = skuCode;
+        this.unitName = unitName;
+        this.unitQty = unitQty;
+    }
+
+    public String getBarCode() {
+        return barCode;
+    }
+
+    public void setBarCode(String barCode) {
+        this.barCode = barCode;
+    }
+
+    public String getDetailOtherId() {
+        return detailOtherId;
+    }
+
+    public void setDetailOtherId(String detailOtherId) {
+        this.detailOtherId = detailOtherId;
+    }
+
+    public BigDecimal getOrderQty() {
+        return orderQty;
+    }
+
+    public void setOrderQty(BigDecimal orderQty) {
+        this.orderQty = orderQty;
+    }
+
+    public String getPackName() {
+        return packName;
+    }
+
+    public void setPackName(String packName) {
+        this.packName = packName;
+    }
+
+    public BigDecimal getPackUnit() {
+        return packUnit;
+    }
+
+    public void setPackUnit(BigDecimal packUnit) {
+        this.packUnit = packUnit;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
@@ -61,51 +117,19 @@ public class IbdDetail implements Serializable {
         this.skuCode = skuCode;
     }
 
-    public String getBarCode() {
-        return barCode;
+    public String getUnitName() {
+        return unitName;
     }
 
-    public void setBarCode(String barCode) {
-        this.barCode = barCode;
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
     }
 
-    public BigDecimal getOrderQty() {
-        return orderQty;
+    public BigDecimal getUnitQty() {
+        return unitQty;
     }
 
-    public void setOrderQty(BigDecimal orderQty) {
-        this.orderQty = orderQty;
-    }
-
-    public BigDecimal getPackUnit() {
-        return packUnit;
-    }
-
-    public void setPackUnit(BigDecimal packUnit) {
-        this.packUnit = packUnit;
-    }
-
-    public String getPackName() {
-        return packName;
-    }
-
-    public void setPackName(String packName) {
-        this.packName = packName;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    public String getDetailOtherId() {
-        return detailOtherId;
-    }
-
-    public void setDetailOtherId(String detailOtherId) {
-        this.detailOtherId = detailOtherId;
+    public void setUnitQty(BigDecimal unitQty) {
+        this.unitQty = unitQty;
     }
 }

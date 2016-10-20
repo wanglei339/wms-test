@@ -16,8 +16,8 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = false)
 public class ObdRequest implements Serializable {
     /** 仓库ID */
-    @NotNull
-    private String warehouseCode;
+    //@NotNull
+    private String warehouseCode = "";
 
     @NotBlank
     @Size(max=100)
