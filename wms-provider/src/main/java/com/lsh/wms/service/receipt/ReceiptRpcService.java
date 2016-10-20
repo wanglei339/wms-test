@@ -14,6 +14,7 @@ import com.lsh.wms.api.model.po.ReceiptRequest;
 import com.lsh.wms.api.model.so.ObdStreamDetail;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.po.IReceiptRpcService;
+import com.lsh.wms.api.service.store.IStoreRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
@@ -113,8 +114,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
     @Autowired
     private IdGenerator idGenerator;
 
-    @Autowired
-    private StoreService storeService;
+    @Reference
+    private IStoreRpcService iStoreRpcService;
 
     @Autowired
     private RedisStringDao redisStringDao;
@@ -798,7 +799,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
 
         // TODO: 2016/10/9 大店直流的生成QC任务 根据门店code来查询大店或者小店
-        BaseinfoStore baseinfoStore = storeService.getBaseinfoStore(inbReceiptHeader.getStoreCode());
+        BaseinfoStore baseinfoStore = iStoreRpcService.getStoreByStoreNo(inbReceiptHeader.getStoreCode());
         //如果是大店 生成QC
         if(request.getIsCreateTask()==1) {
             if(baseinfoStore.getScale() == 2){

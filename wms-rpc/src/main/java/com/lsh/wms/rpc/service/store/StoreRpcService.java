@@ -36,7 +36,8 @@ public class StoreRpcService implements IStoreRpcService {
         if (null == storeNo) {
             throw new BizCheckedException("2180014");
         }
-        BaseinfoStore store = storeService.getStoreByStoreNo(storeNo);
+        Long storeId = this.getStoreIdByCode(storeNo);
+        BaseinfoStore store = storeService.getStoreByStoreId(storeId);
         return store;
     }
 
@@ -44,22 +45,37 @@ public class StoreRpcService implements IStoreRpcService {
         if (null == storeNo) {
             throw new BizCheckedException("2180014");
         }
-        return storeService.closeStore(storeNo);
+        Long storeId = this.getStoreIdByCode(storeNo);
+        return storeService.closeStore(storeId);
     }
 
     public BaseinfoStore removeStore(String storeNo) throws BizCheckedException {
         if (null == storeNo) {
             throw new BizCheckedException("2180014");
         }
-        return storeService.removeStore(storeNo);
+        Long storeId = this.getStoreIdByCode(storeNo);
+        return storeService.removeStore(storeId);
     }
 
     public List<BaseinfoStore> getStoreList(Map<String, Object> params) throws BizCheckedException {
-
         return storeService.getBaseinfoStoreList(params);
     }
 
     public Integer countBaseinfoStore(Map<String, Object> params) throws BizCheckedException {
         return storeService.countBaseinfoStore(params);
+    }
+
+    public Long getStoreIdByCode(String storeNo) throws BizCheckedException {
+        if (null == storeNo) {
+            throw new BizCheckedException("2180014");
+        }
+        List<BaseinfoStore> baseinfoStores = storeService.getStoreIdByCode(storeNo);
+        if (null == baseinfoStores || baseinfoStores.size() < 1) {
+            throw new BizCheckedException("2180013");
+        }
+        if (baseinfoStores.size() > 1) {
+            throw new BizCheckedException("2180017");
+        }
+        return baseinfoStores.get(0).getStoreId();
     }
 }

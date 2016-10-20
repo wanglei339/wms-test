@@ -74,31 +74,21 @@ public class IbdService implements IIbdService {
         //数量做转换 ea转化为外包装箱数
         List<IbdDetail> details = request.getDetailList();
 
-        List<IbdDetail> newDetails = new ArrayList<IbdDetail>();
+//        List<IbdDetail> newDetails = new ArrayList<IbdDetail>();
         List<PoItem> items = new ArrayList<PoItem>();
 
         for(IbdDetail ibdDetail : details){
             List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(request.getOwnerUid(),ibdDetail.getSkuCode());
-            if(null != baseinfoItemList && baseinfoItemList.size()>=1){
-                BaseinfoItem baseinfoItem = baseinfoItemList.get(baseinfoItemList.size()-1);
-                String unitName = baseinfoItem.getUnitName().toUpperCase();
-                //基础数据中维护基本单位名称,物美下传的packName为基本单位名称, 如果两边不相等,抛异常
-                if(!unitName.equals(ibdDetail.getPackName().toUpperCase())){
-                    throw new BizCheckedException("2770002");
-                }
-                //转换为系统内部的PackName和packUnit
-                ibdDetail.setPackName(baseinfoItem.getPackName());
-                ibdDetail.setPackUnit(baseinfoItem.getPackUnit());
-                ibdDetail.setBarCode(baseinfoItem.getCode());
-            }else{
+            if(baseinfoItemList == null || baseinfoItemList.size() <= 0) {
                 throw new BizCheckedException("2770001");
             }
 
-            BigDecimal qty = ibdDetail.getOrderQty().divide(ibdDetail.getPackUnit(),2);
-            ibdDetail.setOrderQty(qty);
+//            BigDecimal qty = ibdDetail.getOrderQty().divide(ibdDetail.getPackUnit(),2);
+//            ibdDetail.setOrderQty(qty);
             PoItem poItem = new PoItem();
             ObjUtils.bean2bean(ibdDetail,poItem);
-            newDetails.add(ibdDetail);
+//            newDetails.add(ibdDetail);
+            poItem.setSkuName(baseinfoItemList.get(baseinfoItemList.size()-1).getSkuName());
             items.add(poItem);
         }
         //request.setDetailList(newDetails);
@@ -123,8 +113,14 @@ public class IbdService implements IIbdService {
 
         poRequest.setItems(items);
 
-        poRpcService.insertOrder(poRequest);
-        return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, null);
+        Long orderId = poRpcService.insertOrder(poRequest);
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("orderId",orderId);
+        map.put("orderOtherId",request.getOrderOtherId());
+        map.put("orderOtherRefId",request.getOrderOtherRefId());
+
+
+        return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, map);
     }
 
 
@@ -167,6 +163,9 @@ public class IbdService implements IIbdService {
                 }
                 obdOrderIds.add(obdHeader);
             }
+
+
+
             poOrderService.insertIbdObdRelation(ibdObdRelation);
 
         }
@@ -179,7 +178,7 @@ public class IbdService implements IIbdService {
                 detailOtherIds.add(obdDetail.getDetailOtherId());
             }
             Map<String,Object> mapQuery = new HashMap<String, Object>();
-            mapQuery.put("obdOrderId",obdHeader.getOrderOtherId());
+            mapQuery.put("obdOtherId",obdHeader.getOrderOtherId());
             List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(mapQuery);
             List<String> obddetailIds = new ArrayList<String>();
             for(IbdObdRelation ibdObdRelation : ibdObdRelations){
@@ -189,17 +188,19 @@ public class IbdService implements IIbdService {
             if(obdDetails.size() != ibdObdRelations.size()){
                 // TODO: 2016/10/18 对比每一条明细 确定哪条关系表缺失
                 detailOtherIds.removeAll(obddetailIds);
+                List<String> messages = new ArrayList<String>();
                 for(String detailOtherId : detailOtherIds){
                     SysLog sysLog = new SysLog();
                     //2770006表示关系表有缺失
                     sysLog.setLogCode(2770006L);
                     sysLog.setLogType(SysLogConstant.LOG_TYPE_FRET);
-                    sysLog.setLogMessage
-                            ("obdOrderId:"+obdHeader.getOrderOtherRefId()
-                                    + " obdDetailId :" + detailOtherId + "该obd订单明细没有对应的关系表记录!");
+                    String message = "obdOtherId:"+obdHeader.getOrderOtherRefId()
+                            + " obdDetailId :" + detailOtherId + "该obd订单明细没有对应的关系表记录!";
+                    sysLog.setLogMessage(message);
+                    messages.add(message);
                     sysLogService.insertSysLog(sysLog);
                 }
-                throw new BizCheckedException("关系表缺失");
+                throw new BizCheckedException("2770006",messages.toString());
             }
 
 
