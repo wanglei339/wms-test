@@ -1,6 +1,8 @@
 package com.lsh.wms.core.service.store;
 
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.constant.StoreConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoStoreDao;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
@@ -29,6 +31,9 @@ public class StoreService {
      */
     @Transactional(readOnly = false)
     public void insertStore(BaseinfoStore baseinfoStore) {
+        baseinfoStore.setStoreId(RandomUtils.genId());
+        baseinfoStore.setCreateAt(DateUtils.getCurrentSeconds());
+        baseinfoStore.setUpdateAt(DateUtils.getCurrentSeconds());
         baseinfoStoreDao.insert(baseinfoStore);
     }
 
@@ -39,6 +44,7 @@ public class StoreService {
      */
     @Transactional(readOnly = false)
     public void update(BaseinfoStore baseinfoStore) {
+        baseinfoStore.setUpdateAt(DateUtils.getCurrentSeconds());
         baseinfoStoreDao.update(baseinfoStore);
     }
 
@@ -56,16 +62,17 @@ public class StoreService {
         if (null == baseinfoStores || baseinfoStores.size() < 1) {
             throw new BizCheckedException("2180013");
         }
-            return baseinfoStores.get(0);
+        return baseinfoStores.get(0);
     }
 
     /**
      * 根据门店号,关闭门店,将is_open置为2
+     *
      * @param storeNo
      * @return
      */
     @Transactional(readOnly = false)
-    public BaseinfoStore closeStore(String storeNo){
+    public BaseinfoStore closeStore(String storeNo) {
         BaseinfoStore store = this.getStoreByStoreNo(storeNo);
         store.setIsOpen(StoreConstant.IS_CLOSED);
         this.update(store);
@@ -74,11 +81,12 @@ public class StoreService {
 
     /**
      * 删除门店,将isValid置为0
+     *
      * @param storeNo
      * @return
      */
     @Transactional(readOnly = false)
-    public BaseinfoStore removeStore(String storeNo){
+    public BaseinfoStore removeStore(String storeNo) {
         BaseinfoStore store = this.getStoreByStoreNo(storeNo);
         store.setIsValid(0);
         this.update(store);
@@ -86,38 +94,38 @@ public class StoreService {
     }
 
 
-
-
     /**
      * 根据查询条件返回门店list
+     *
      * @param params
      * @return
      */
-    public List<BaseinfoStore> getBaseinfoStoreList(Map<String,Object> params){
-        params.put("isValid",1);    //有效的
+    public List<BaseinfoStore> getBaseinfoStoreList(Map<String, Object> params) {
+        params.put("isValid", 1);    //有效的
         return baseinfoStoreDao.getBaseinfoStoreList(params);
     }
 
     /**
      * 计数
+     *
      * @param params
      * @return
      */
-    public Integer countBaseinfoStore(Map<String, Object> params){
-        params.put("isValid",1);    //有效的
+    public Integer countBaseinfoStore(Map<String, Object> params) {
+        params.put("isValid", 1);    //有效的
         return baseinfoStoreDao.countBaseinfoStore(params);
     }
 
     /**
      * 根据storeNo返回门店信息
      */
-    public BaseinfoStore getBaseinfoStore(String storeNo){
-        Map<String,Object> map = new HashMap<String, Object>();
-        map.put("storeNo",storeNo);
-        map.put("isValid",1);   //有效的
+    public BaseinfoStore getBaseinfoStore(String storeNo) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("storeNo", storeNo);
+        map.put("isValid", 1);   //有效的
         List<BaseinfoStore> baseinfoStoreList = this.getBaseinfoStoreList(map);
 
-        if(baseinfoStoreList.size()<=0){
+        if (baseinfoStoreList.size() <= 0) {
             return null;
         }
         return baseinfoStoreList.get(0);
