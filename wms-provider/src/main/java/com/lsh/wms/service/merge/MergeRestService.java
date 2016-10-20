@@ -37,4 +37,12 @@ public class MergeRestService implements IMergeRestService {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         return JsonUtils.SUCCESS(mergeRpcService.countMergeList(mapQuery));
     }
+
+    @POST
+    @Path("getMergeDetail")
+    public String getMergeDetail() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        String storeNo = mapQuery.get("storeNo").toString();
+        return JsonUtils.SUCCESS(mergeRpcService.getMergeDetailByStoreNo(storeNo));
+    }
 }

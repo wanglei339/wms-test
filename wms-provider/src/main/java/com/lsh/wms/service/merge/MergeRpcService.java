@@ -80,6 +80,7 @@ public class MergeRpcService implements IMergeRpcService {
                         Long qcTaskId = taskInfo.getTaskId();
                         List<WaveDetail> waveDetails = waveService.getDetailsByQCTaskId(qcTaskId);
                         if (waveDetails.size() > 0) {
+                            // TODO: 到这一层抽出来方法
                             for (WaveDetail waveDetail: waveDetails) {
                                 Long mergedContainerId = 0L;
                                 if (waveDetail.getMergedContainerId().equals(0L)) {
@@ -158,6 +159,17 @@ public class MergeRpcService implements IMergeRpcService {
         }
         result.put("packCount", new BigDecimal(qcTaskInfo.getExt4())); // 总箱数
         result.put("turnoverBoxCount", new BigDecimal(qcTaskInfo.getExt3())); // 总周转箱数
+        return result;
+    }
+
+    /**
+     * 获取门店的合板详情
+     * @param storeNo
+     * @return
+     * @throws BizCheckedException
+     */
+    public Map<String, BigDecimal> getMergeDetailByStoreNo(String storeNo) throws BizCheckedException {
+        Map<String, BigDecimal> result = new HashMap<String, BigDecimal>();
         return result;
     }
 }
