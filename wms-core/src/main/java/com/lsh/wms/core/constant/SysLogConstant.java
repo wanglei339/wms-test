@@ -12,4 +12,12 @@ public class SysLogConstant {
 
     public static final int LOG_TYPE_FRET = 3;
 
+    /**回调系统 1 wumart 2 链商OFC 3 erp*/
+    public static final int LOG_TARGET_WUMART = 1;
+
+    public static final int LOG_TARGET_LSHOFC = 2;
+
+    public static final int LOG_TARGET_ERP = 3;
+
+
 }
