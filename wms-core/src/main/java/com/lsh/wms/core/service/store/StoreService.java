@@ -51,12 +51,13 @@ public class StoreService {
     /**
      * 通过门店号编号查找门店
      *
-     * @param storeNo 门店编号
+     * @param storeId
      * @return
+     * @throws BizCheckedException
      */
-    public BaseinfoStore getStoreByStoreNo(String storeNo) throws BizCheckedException {
+    public BaseinfoStore getStoreByStoreId(Long storeId) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("storeNo", storeNo);
+        mapQuery.put("storeId", storeId);
         mapQuery.put("isValid", 1); //1有效
         List<BaseinfoStore> baseinfoStores = baseinfoStoreDao.getBaseinfoStoreList(mapQuery);
         if (null == baseinfoStores || baseinfoStores.size() < 1) {
@@ -68,12 +69,12 @@ public class StoreService {
     /**
      * 根据门店号,关闭门店,将is_open置为2
      *
-     * @param storeNo
+     * @param storeId 门店id
      * @return
      */
     @Transactional(readOnly = false)
-    public BaseinfoStore closeStore(String storeNo) {
-        BaseinfoStore store = this.getStoreByStoreNo(storeNo);
+    public BaseinfoStore closeStore(Long storeId) {
+        BaseinfoStore store = this.getStoreByStoreId(storeId);
         store.setIsOpen(StoreConstant.IS_CLOSED);
         this.update(store);
         return store;
@@ -82,12 +83,12 @@ public class StoreService {
     /**
      * 删除门店,将isValid置为0
      *
-     * @param storeNo
+     * @param storeId
      * @return
      */
     @Transactional(readOnly = false)
-    public BaseinfoStore removeStore(String storeNo) {
-        BaseinfoStore store = this.getStoreByStoreNo(storeNo);
+    public BaseinfoStore removeStore(Long storeId) {
+        BaseinfoStore store = this.getStoreByStoreId(storeId);
         store.setIsValid(0);
         this.update(store);
         return store;
@@ -117,11 +118,11 @@ public class StoreService {
     }
 
     /**
-     * 根据storeNo返回门店信息
+     * 根据门店id返回门店信息
      */
-    public BaseinfoStore getBaseinfoStore(String storeNo) {
+    public BaseinfoStore getBaseinfoStore(Long storeId) {
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("storeNo", storeNo);
+        map.put("storeId", storeId);
         map.put("isValid", 1);   //有效的
         List<BaseinfoStore> baseinfoStoreList = this.getBaseinfoStoreList(map);
 
@@ -130,4 +131,19 @@ public class StoreService {
         }
         return baseinfoStoreList.get(0);
     }
+
+    /**
+     * 门店的编码storeNo,转为门店的id
+     *
+     * @param storeNo
+     * @return
+     */
+    public List<BaseinfoStore> getStoreIdByCode(String storeNo) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("storeNo", storeNo);
+        map.put("isValid", 1);   //有效的
+        List<BaseinfoStore> baseinfoStoreList = this.getBaseinfoStoreList(map);
+        return baseinfoStoreList;
+    }
+
 }

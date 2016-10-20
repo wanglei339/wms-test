@@ -24,4 +24,8 @@ public interface IStoreRpcService {
     public List<BaseinfoStore> getStoreList(Map<String, Object> params) throws BizCheckedException;
 
     public Integer countBaseinfoStore(Map<String, Object> params) throws BizCheckedException;
+
+    public Long getStoreIdByCode(String storeNo)throws BizCheckedException;
+
+
 }
