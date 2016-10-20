@@ -99,6 +99,17 @@ public class StoreService {
     }
 
     /**
+     * 获取开店的门店列表
+     * @param params
+     * @return
+     */
+    public List<BaseinfoStore> getOpenedStoreList(Map<String,Object> params){
+        params.put("isValid",1);    //有效的
+        params.put("isOpen",1);
+        return baseinfoStoreDao.getBaseinfoStoreList(params);
+    }
+
+    /**
      * 计数
      * @param params
      * @return
