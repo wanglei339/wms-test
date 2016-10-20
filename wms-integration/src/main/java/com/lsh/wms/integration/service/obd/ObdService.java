@@ -60,12 +60,8 @@ public class ObdService implements IObdService{
 
         for(com.lsh.wms.api.model.so.ObdDetail obdDetail : details){
             List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(request.getOwnerUid(),obdDetail.getSkuCode());
-            if(null != baseinfoItemList && baseinfoItemList.size()>=1){
-                BaseinfoItem baseinfoItem = baseinfoItemList.get(baseinfoItemList.size()-1);
-                obdDetail.setBarCode(baseinfoItem.getCode());
-                obdDetail.setPackUnit(baseinfoItem.getPackUnit());
-                obdDetail.setPackName(baseinfoItem.getPackName());
-
+            if(baseinfoItemList == null || baseinfoItemList.size() <= 0) {
+                throw new BizCheckedException("2770001");
             }
 //            if(null != baseinfoItemList && baseinfoItemList.size()>=1){
 //                BaseinfoItem baseinfoItem = baseinfoItemList.get(baseinfoItemList.size()-1);
@@ -74,9 +70,9 @@ public class ObdService implements IObdService{
 //                obdDetail.setBarCode(baseinfoItem.getCode());
 //            }
 
-            BigDecimal qty = obdDetail.getOrderQty().divide(obdDetail.getPackUnit(),2);
-            obdDetail.setOrderQty(qty);
-            newDetails.add(obdDetail);
+//            BigDecimal qty = obdDetail.getOrderQty().divide(obdDetail.getPackUnit(),2);
+//            obdDetail.setOrderQty(qty);
+//            newDetails.add(obdDetail);
             SoItem soItem = new SoItem();
             ObjUtils.bean2bean(obdDetail,soItem);
             items.add(soItem);

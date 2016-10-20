@@ -7,6 +7,9 @@ public class SysLog implements Serializable {
 
 	/**  */
     private Long id;
+
+	private Long logId;
+
 	/** 日志类型 1 ibd，2 obd 3 fret */
     private Integer logType;
 	/** 异常码 */
@@ -55,6 +58,12 @@ public class SysLog implements Serializable {
 	public void setCreatedAt(Long createdAt){
 		this.createdAt = createdAt;
 	}
-	
-	
+
+	public Long getLogId() {
+		return logId;
+	}
+
+	public void setLogId(Long logId) {
+		this.logId = logId;
+	}
 }

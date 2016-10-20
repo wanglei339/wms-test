@@ -4,6 +4,7 @@
 
 	<resultMap id="sysLogResultMap" type="SysLog">
 		<id property="id" column="id"/>
+		<result property="logId" column="log_id"/>
 		<result property="logType" column="log_type"/>
 		<result property="logCode" column="log_code"/>
 		<result property="logMessage" column="log_message"/>
@@ -12,15 +13,16 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="SysLog">
 		insert into sys_log (
-			log_type,log_code,log_message,created_at
+			log_id,log_type,log_code,log_message,created_at
     	) values (
-			#{logType},#{logCode},#{logMessage},#{createdAt}
+			#{logId},#{logType},#{logCode},#{logMessage},#{createdAt}
     	)
 	</insert>
 
 	<update id="update" parameterType="SysLog">
 		update sys_log
     	<set>
+			<if test="logId != null">log_id=#{logId},</if>
   			<if test="logType != null">log_type=#{logType},</if>
   			<if test="logCode != null">log_code=#{logCode},</if>
   			<if test="logMessage != null">log_message=#{logMessage},</if>
@@ -50,6 +52,7 @@
 	<sql id="queryCondition">
 		<where>
 			<if test="id != null">id=#{id}</if>
+			<if test="logId != null">and log_id=#{logId}</if>
 			<if test="logType != null">and log_type=#{logType}</if>
 			<if test="logCode != null">and log_code=#{logCode}</if>
 			<if test="logMessage != null">and log_message=#{logMessage}</if>

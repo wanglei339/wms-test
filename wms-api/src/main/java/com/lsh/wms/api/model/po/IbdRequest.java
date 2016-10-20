@@ -15,8 +15,8 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = false)
 public class IbdRequest implements Serializable {
 
-    @NotNull
-    private String warehouseCode;
+    //@NotNull
+    private String warehouseCode = "";
 
     @NotNull
     private String orderOtherId;

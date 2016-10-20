@@ -21,7 +21,7 @@ import java.util.Set;
  */
 public interface IPoRpcService {
 
-    public void insertOrder(PoRequest request) throws BizCheckedException;
+    public Long insertOrder(PoRequest request) throws BizCheckedException;
 
     public Boolean updateOrderStatus(Map<String, Object> map) throws BizCheckedException;
 
