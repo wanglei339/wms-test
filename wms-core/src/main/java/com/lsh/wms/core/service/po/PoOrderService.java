@@ -4,6 +4,7 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.po.*;
 import com.lsh.wms.model.po.*;
 import com.lsh.wms.model.so.ObdDetail;
+import com.lsh.wms.model.system.SysLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -395,7 +396,16 @@ public class PoOrderService {
      */
     @Transactional(readOnly = false)
     public void insertIbdObdRelation(IbdObdRelation ibdObdRelation){
-        ibdObdRelationDao.insert(ibdObdRelation);
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("ibdDetailId",ibdObdRelation.getIbdDetailId());
+        param.put("obdDetailId",ibdObdRelation.getObdDetailId());
+        List<IbdObdRelation> list = ibdObdRelationDao.getIbdObdRelationList(param);
+        //先判断记录是否存在,不存在再插入
+        if(list != null && list.size() > 0){
+
+        }else{
+            ibdObdRelationDao.insert(ibdObdRelation);
+        }
     }
 
 
