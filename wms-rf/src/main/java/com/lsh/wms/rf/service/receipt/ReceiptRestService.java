@@ -372,7 +372,11 @@ public class ReceiptRestService implements IReceiptRfService {
         if (ibdHeader == null) {
             throw new BizCheckedException("2020001");
         }
-
+        //是否可收货 add by zhl
+        boolean isCanReceipt = ibdHeader.getOrderStatus() == PoConstant.ORDER_THROW || ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART || ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPTING;
+        if (!isCanReceipt) {
+            throw new BizCheckedException("2020002");
+        }
         IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(),skuCode);
         if (ibdDetail == null) {
             throw new BizCheckedException("2020004");
@@ -482,5 +486,4 @@ public class ReceiptRestService implements IReceiptRfService {
 
         });
     }
-
 }
