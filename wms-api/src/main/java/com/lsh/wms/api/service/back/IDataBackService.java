@@ -8,7 +8,7 @@ import com.lsh.wms.api.model.po.IbdBackRequest;
  */
 
 public interface IDataBackService {
-    String wmDataBackByPost(Object request, String url);
+    String wmDataBackByPost(Object request, String url , Integer type);
     String ofcDataBackByPost(Object request, String url);
     Boolean erpDataBack(IbdBackRequest request);
 }
