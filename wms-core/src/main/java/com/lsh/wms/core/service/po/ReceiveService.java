@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.po;
 
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.po.ReceiveDetailDao;
 import com.lsh.wms.core.dao.po.ReceiveHeaderDao;
 import com.lsh.wms.model.po.ReceiveDetail;
@@ -29,7 +30,7 @@ public class ReceiveService {
     /**
      * 根据参数获取receiveHeaderList
      */
-    List<ReceiveHeader> getReceiveHeaderList(Map<String, Object> params){
+    public List<ReceiveHeader> getReceiveHeaderList(Map<String, Object> params){
         return receiveHeaderDao.getReceiveHeaderList(params);
     }
 
@@ -47,6 +48,18 @@ public class ReceiveService {
         Map<String,Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("orderId",orderId);
         mapQuery.put("orderStatus",1);
+        List<ReceiveHeader> list = this.getReceiveHeaderList(mapQuery);
+        if(list.size() <= 0){
+            return null;
+        }
+        return list.get(0);
+    }
+    /**
+     * 根据receiveId获取receiveHeader
+     */
+    public ReceiveHeader getReceiveHeaderByReceiveId(Long receiveId){
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("receiveId",receiveId);
         List<ReceiveHeader> list = this.getReceiveHeaderList(mapQuery);
         if(list.size() <= 0){
             return null;
@@ -93,5 +106,44 @@ public class ReceiveService {
         }
         return receiveDetails.get(0);
     }
+
+    /**
+     * 获取receiveDetailList
+     */
+    public List<ReceiveDetail> getReceiveDetailListByReceiveId(Long receiveId){
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("receiveId",receiveId);
+        List<ReceiveDetail> receiveDetails = receiveDetailDao.getReceiveDetailList(map);
+        if (receiveDetails.size() <=0 ) {
+            return null;
+        }
+        return receiveDetails;
+    }
+
+
+    /**
+     * receiveHeader填充receiveDetail
+     * @param receiveHeader
+     */
+    public void fillDetailToHeader(ReceiveHeader receiveHeader) {
+        if(receiveHeader == null) {
+            return;
+        }
+
+        List<ReceiveDetail> receiveDetails = this.getReceiveDetailListByReceiveId(receiveHeader.getReceiveId());
+
+        receiveHeader.setReceiveDetails(receiveDetails);
+    }
+
+    /**
+     * 修改receiveHeader状态
+     */
+    public void updateStatus(ReceiveHeader receiveHeader){
+        receiveHeader.setUpdatedAt(DateUtils.getCurrentSeconds());
+        receiveHeaderDao.update(receiveHeader);
+    }
+
+
+
 
 }
