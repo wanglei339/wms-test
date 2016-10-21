@@ -182,7 +182,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
             TaskInfo info = new TaskInfo();
             TaskEntry entry = new TaskEntry();
             head.setPackUnit(item.getPackUnit());
-            head.setRequireQty(obdDetail.getUnitQty());
+            head.setRequireQty(obdDetail.getOrderQty());
             head.setStoreNo(storeNo);
             //无收货播种任务标示
             info.setSubType(subType);
@@ -279,7 +279,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
             move.setToLocationId(quantList.get(0).getLocationId());
         }
         move.setToContainerId(head.getRealContainerId());
-        move.setQty(info.getQty());
+        move.setQty(info.getQty().multiply(head.getPackUnit()));
         move.setTaskId(taskId);
         if(info.getSubType().compareTo(2L)==0) {
             StockLot lot =new StockLot();
