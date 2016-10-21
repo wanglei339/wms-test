@@ -158,7 +158,8 @@ public class LocationConstant {
             put(27L,"货架层");
             put(28L,"阁楼层");
             put(34L,"拆零货架层");
-            put(42L,"贵品货架");
+            put(42L,"贵品货架层");
+            put(48L,"退货货架层");
         }
     };
 

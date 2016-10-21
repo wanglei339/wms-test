@@ -269,6 +269,12 @@ public class LocationDetailService {
             location.setIsLeaf(0);
             locationService.updateLocation(location);
         }
+        if (LocationConstant.SUPPLIER_RETURN_SHELF.equals(iBaseinfoLocaltionModel.getType())){
+            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.SUPPLIER_RETURN_LEVEL);
+            //将货架的叶子节点设置为0
+            location.setIsLeaf(0);
+            locationService.updateLocation(location);
+        }
         //其他type处理方式
         BaseinfoLocation fatherLocation = locationService.getFatherLocation(location.getLocationId());
         fatherLocation.setIsLeaf(0);
