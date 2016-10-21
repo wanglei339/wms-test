@@ -12,6 +12,8 @@ public class SysLog implements Serializable {
 
 	/** 日志类型 1 ibd，2 obd 3 fret */
     private Integer logType;
+	/**回调系统 1 wumart 2 链商OFC 3 erp*/
+	private Integer targetSystem;
 	/** 异常码 */
     private Long logCode;
 	/** 异常信息 */
@@ -65,5 +67,14 @@ public class SysLog implements Serializable {
 
 	public void setLogId(Long logId) {
 		this.logId = logId;
+	}
+
+
+	public Integer getTargetSystem() {
+		return targetSystem;
+	}
+
+	public void setTargetSystem(Integer targetSystem) {
+		this.targetSystem = targetSystem;
 	}
 }

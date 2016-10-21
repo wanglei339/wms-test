@@ -1353,4 +1353,18 @@ public class LocationService {
         List<BaseinfoLocation> locations = locationDao.sortLocationByStoreNoAndType(mapQuery); //0不是门店的位置,查找的是大于0的结果
         return locations;
     }
+    /**
+     * 根据供商号，获取位置
+     *
+     * @param type (退货存储货位|入库货位)
+     * @param supplierNo (供商号)
+     * @return
+     */
+    public List<BaseinfoLocation> getLocationBySupplierNo(Long type,Long supplierNo) {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("type", type);
+        mapQuery.put("supplierNo",supplierNo);
+        List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(mapQuery);
+        return locations;
+    }
 }

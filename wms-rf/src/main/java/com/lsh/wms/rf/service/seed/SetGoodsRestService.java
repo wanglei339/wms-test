@@ -11,14 +11,11 @@ import com.lsh.wms.api.service.seed.ISetGoodsRestService;
 import com.lsh.wms.api.service.store.IStoreRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
-import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.so.SoOrderService;
-import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.so.ObdHeader;
-import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
@@ -74,7 +71,7 @@ public class SetGoodsRestService implements ISetGoodsRestService {
         Map<String, Object> request = RequestUtils.getRequest();
         try {
             uId =  Long.valueOf(RequestUtils.getHeader("uid"));
-            containerId = Long.valueOf(request.get("containerId").toString());
+            containerId = Long.valueOf(request.get("containerId").toString().trim());
         }catch (Exception e) {
             logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("参数传递格式有误");

@@ -129,48 +129,64 @@ public class IbdService implements IIbdService {
     public BaseResponse addRelation() throws BizCheckedException,ParseException {
         Map<String, Object> request = RequestUtils.getRequest();
         List<LinkedHashMap> relationList = (List<LinkedHashMap>)request.get("relationList");
-        Set<String> ibdOrderIds = new HashSet<String>();
-        Set<ObdHeader> obdOrderIds = new HashSet<ObdHeader>();
+        Set<String> ibdOtherIds = new HashSet<String>();
+        Set<ObdHeader> obdOtherIds = new HashSet<ObdHeader>();
+
+        Map<String,Long> obdMap = new HashMap<String, Long>();
+        Map<String,Long> ibdMap = new HashMap<String, Long>();
         for(LinkedHashMap map : relationList){
             IbdObdRelation ibdObdRelation = BeanMapTransUtils.map2Bean(map, IbdObdRelation.class);
             //查询ibd是否已下传
-            String ibdOrderId = ibdObdRelation.getIbdOtherId();
-            if(!ibdOrderIds.contains(ibdOrderId)){
-                IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(ibdOrderId);
+            String ibdOtherId = ibdObdRelation.getIbdOtherId();
+            if(!ibdOtherIds.contains(ibdOtherId)){
+                IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(ibdOtherId);
                 if(ibdHeader == null){
                     SysLog sysLog = new SysLog();
                     //2770006表示关系表有缺失
                     sysLog.setLogCode(2770004L);
                     sysLog.setLogType(SysLogConstant.LOG_TYPE_FRET);
                     sysLog.setLogMessage
-                            ("没有找到ibd订单号为:"+ibdOrderId+"的订单!");
+                            ("没有找到ibd订单号为:"+ibdOtherId+"的订单!");
                     sysLogService.insertSysLog(sysLog);
-                    throw new BizCheckedException("2770004","没有找到ibd订单号为:"+ibdOrderId+"的订单!");
+                    throw new BizCheckedException("2770004","没有找到ibd订单号为:"+ibdOtherId+"的订单!");
                 }
-                ibdOrderIds.add(ibdOrderId);
+                ibdMap.put(ibdOtherId,ibdHeader.getOrderId());
+                ibdOtherIds.add(ibdOtherId);
             }
             //查询Obd是否下传
-            String obdOrderId = ibdObdRelation.getObdOtherId();
-            if(!obdOrderIds.contains(obdOrderId)){
-                ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(obdOrderId);
+            String obdOtherId = ibdObdRelation.getObdOtherId();
+
+            if(!obdOtherIds.contains(obdOtherId)){
+                ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(obdOtherId);
+
                 if(obdHeader == null){
                     SysLog sysLog = new SysLog();
                     //2770006表示关系表有缺失
                     sysLog.setLogCode(2770005L);
                     sysLog.setLogType(SysLogConstant.LOG_TYPE_FRET);
-                    sysLog.setLogMessage("没有找到obd订单号为:"+obdOrderId+"的门店订货单");
-                    throw new BizCheckedException("2770005","没有找到obd订单号为:"+obdOrderId+"的门店订货单");
+                    sysLog.setLogMessage("没有找到obd订单号为:"+obdOtherId+"的门店订货单");
+                    throw new BizCheckedException("2770005","没有找到obd订单号为:"+obdOtherId+"的门店订货单");
                 }
-                obdOrderIds.add(obdHeader);
+                obdMap.put(obdOtherId,obdHeader.getOrderId());
+                obdOtherIds.add(obdHeader);
             }
 
+            //updated by zhl
+            String ibdDetailId = ibdObdRelation.getIbdDetailId();
+            String obdDetailId = ibdObdRelation.getObdDetailId();
 
+            //验证商品是否对应
+            ObdDetail obdDetail = soOrderService.getObdDetailByOrderIdAndDetailOtherId(obdMap.get(obdOtherId),obdDetailId);
+            com.lsh.wms.model.po.IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndDetailOtherId(ibdMap.get(ibdOtherId),ibdDetailId);
+            if (!obdDetail.getSkuCode().equals(ibdDetail.getSkuCode())){
+                throw new BizCheckedException("2770009");
+            }
 
             poOrderService.insertIbdObdRelation(ibdObdRelation);
 
         }
         //查询该批关系表数据中门店订货信息是否完整
-        for(ObdHeader obdHeader : obdOrderIds){
+        for(ObdHeader obdHeader : obdOtherIds){
             //根据细单条目数量来判断是否完整
             List<ObdDetail> obdDetails = soOrderService.getOutbSoDetailListByOrderId(obdHeader.getOrderId());
             List<String> detailOtherIds = new ArrayList<String>();
