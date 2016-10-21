@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.lsh.wms.core.dao.baseinfo.TuDetailDao" >
+<mapper namespace="com.lsh.wms.core.dao.tu.TuDetailDao" >
 
 	<resultMap id="tuDetailResultMap" type="TuDetail">
 		<id property="id" column="id"/>
@@ -15,20 +15,19 @@
 		<result property="updatedAt" column="updated_at"/>
 		<result property="loadUid" column="load_uid"/>
 		<result property="loadAt" column="load_at"/>
-		<result property="deliveryCode" column="delivery_code"/>
-		<result property="deliveryName" column="delivery_name"/>
+		<result property="storeId" column="store_id"/>
 		<result property="isValid" column="is_valid"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TuDetail">
 		insert into tu_detail (
 			tu_id,merged_container_id,box_num,container_num,turnover_box_num,is_rest,
-			is_expresive,created_at,updated_at,load_uid,load_at,delivery_code,
-			delivery_name,is_valid
+			is_expresive,created_at,updated_at,load_uid,load_at,store_id,
+			is_valid
     	) values (
 			#{tuId},#{mergedContainerId},#{boxNum},#{containerNum},#{turnoverBoxNum},#{isRest},
-			#{isExpresive},#{createdAt},#{updatedAt},#{loadUid},#{loadAt},#{deliveryCode},
-			#{deliveryName},#{isValid}
+			#{isExpresive},#{createdAt},#{updatedAt},#{loadUid},#{loadAt},#{storeId},
+			#{isValid}
     	)
 	</insert>
 
@@ -46,16 +45,15 @@
   			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
   			<if test="loadUid != null">load_uid=#{loadUid},</if>
   			<if test="loadAt != null">load_at=#{loadAt},</if>
-  			<if test="deliveryCode != null">delivery_code=#{deliveryCode},</if>
-  			<if test="deliveryName != null">delivery_name=#{deliveryName},</if>
+  			<if test="storeId != null">store_id=#{storeId},</if>
   			<if test="isValid != null">is_valid=#{isValid}</if>
 		</set>
-		where merged_container_id AND is_valid=1
+		where merged_container_id=#{mergedContainerId}
 	</update>
   
 	<select id="getTuDetailById" parameterType="int" resultMap="tuDetailResultMap">
 		select * from tu_detail
-		where ID=#{id}
+		where ID=#{id} 
 	</select>
   
 	<select id="countTuDetail" parameterType="map" resultType="int">
@@ -85,8 +83,7 @@
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 			<if test="loadUid != null">and load_uid=#{loadUid}</if>
 			<if test="loadAt != null">and load_at=#{loadAt}</if>
-			<if test="deliveryCode != null">and delivery_code=#{deliveryCode}</if>
-			<if test="deliveryName != null">and delivery_name=#{deliveryName}</if>
+			<if test="storeId != null">and store_id=#{storeId}</if>
 			<if test="isValid != null">and is_valid=#{isValid}</if>
 		</where>
 	</sql>

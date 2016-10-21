@@ -1,111 +1,109 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.lsh.wms.core.dao.baseinfo.TuHeadDao" >
+<mapper namespace="com.lsh.wms.core.dao.tu.TuHeadDao">
 
-	<resultMap id="tuHeadResultMap" type="TuHead">
-		<id property="id" column="id"/>
-		<result property="tuId" column="tu_id"/>
-		<result property="transUid" column="trans_uid"/>
-		<result property="cellphone" column="cellphone"/>
-		<result property="name" column="name"/>
-		<result property="carNumber" column="car_number"/>
-		<result property="status" column="status"/>
-		<result property="deliveryCodes" column="delivery_codes"/>
-		<result property="deliveryName" column="delivery_name"/>
-		<result property="preBoard" column="pre_board"/>
-		<result property="realBoard" column="real_board"/>
-		<result property="commitedAt" column="commited_at"/>
-		<result property="warehouseId" column="warehouse_id"/>
-		<result property="createdAt" column="created_at"/>
-		<result property="updatedAt" column="updated_at"/>
-		<result property="loadUid" column="load_uid"/>
-		<result property="loadedAt" column="loaded_at"/>
-		<result property="deliveryUid" column="delivery_uid"/>
-		<result property="deliveryAt" column="delivery_at"/>
-		<result property="isValid" column="is_valid"/>
-	</resultMap>
-  
-	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TuHead">
+    <resultMap id="tuHeadResultMap" type="TuHead">
+        <id property="id" column="id"/>
+        <result property="tuId" column="tu_id"/>
+        <result property="transUid" column="trans_uid"/>
+        <result property="cellphone" column="cellphone"/>
+        <result property="name" column="name"/>
+        <result property="carNumber" column="car_number"/>
+        <result property="status" column="status"/>
+        <result property="storeIds" column="store_ids"/>
+        <result property="preBoard" column="pre_board"/>
+        <result property="realBoard" column="real_board"/>
+        <result property="commitedAt" column="commited_at"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="loadedAt" column="loaded_at"/>
+        <result property="deliveryUid" column="delivery_uid"/>
+        <result property="deliveryAt" column="delivery_at"/>
+        <result property="isValid" column="is_valid"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TuHead">
 		insert into tu_head (
 			tu_id,trans_uid,cellphone,name,car_number,status,
-			delivery_codes,delivery_name,pre_board,real_board,commited_at,warehouse_id,
-			created_at,updated_at,load_uid,loaded_at,delivery_uid,delivery_at,
-			is_valid
+			store_ids,pre_board,real_board,commited_at,warehouse_id,created_at,
+			updated_at,loaded_at,delivery_uid,delivery_at,is_valid
     	) values (
 			#{tuId},#{transUid},#{cellphone},#{name},#{carNumber},#{status},
-			#{deliveryCodes},#{deliveryName},#{preBoard},#{realBoard},#{commitedAt},#{warehouseId},
-			#{createdAt},#{updatedAt},#{loadUid},#{loadedAt},#{deliveryUid},#{deliveryAt},
-			#{isValid}
+			#{storeIds},#{preBoard},#{realBoard},#{commitedAt},#{warehouseId},#{createdAt},
+			#{updatedAt},#{loadedAt},#{deliveryUid},#{deliveryAt},#{isValid}
     	)
 	</insert>
 
-	<update id="update" parameterType="TuHead">
-		update tu_head
-    	<set>
-  			<if test="tuId != null">tu_id=#{tuId},</if>
-  			<if test="transUid != null">trans_uid=#{transUid},</if>
-  			<if test="cellphone != null">cellphone=#{cellphone},</if>
-  			<if test="name != null">name=#{name},</if>
-  			<if test="carNumber != null">car_number=#{carNumber},</if>
-  			<if test="status != null">status=#{status},</if>
-  			<if test="deliveryCodes != null">delivery_codes=#{deliveryCodes},</if>
-  			<if test="deliveryName != null">delivery_name=#{deliveryName},</if>
-  			<if test="preBoard != null">pre_board=#{preBoard},</if>
-  			<if test="realBoard != null">real_board=#{realBoard},</if>
-  			<if test="commitedAt != null">commited_at=#{commitedAt},</if>
-  			<if test="warehouseId != null">warehouse_id=#{warehouseId},</if>
-  			<if test="createdAt != null">created_at=#{createdAt},</if>
-  			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
-  			<if test="loadUid != null">load_uid=#{loadUid},</if>
-  			<if test="loadedAt != null">loaded_at=#{loadedAt},</if>
-  			<if test="deliveryUid != null">delivery_uid=#{deliveryUid},</if>
-  			<if test="deliveryAt != null">delivery_at=#{deliveryAt},</if>
-  			<if test="isValid != null">is_valid=#{isValid}</if>
-		</set>
-		where tu_id=#{tuId}
-	</update>
-  
-	<select id="getTuHeadById" parameterType="int" resultMap="tuHeadResultMap">
+    <update id="update" parameterType="TuHead">
+        update tu_head
+        <set>
+            <if test="tuId != null">tu_id=#{tuId},</if>
+            <if test="transUid != null">trans_uid=#{transUid},</if>
+            <if test="cellphone != null">cellphone=#{cellphone},</if>
+            <if test="name != null">name=#{name},</if>
+            <if test="carNumber != null">car_number=#{carNumber},</if>
+            <if test="status != null">status=#{status},</if>
+            <if test="storeIds != null">store_ids=#{storeIds},</if>
+            <if test="preBoard != null">pre_board=#{preBoard},</if>
+            <if test="realBoard != null">real_board=#{realBoard},</if>
+            <if test="commitedAt != null">commited_at=#{commitedAt},</if>
+            <if test="warehouseId != null">warehouse_id=#{warehouseId},</if>
+            <if test="createdAt != null">created_at=#{createdAt},</if>
+            <if test="updatedAt != null">updated_at=#{updatedAt},</if>
+            <if test="loadedAt != null">loaded_at=#{loadedAt},</if>
+            <if test="deliveryUid != null">delivery_uid=#{deliveryUid},</if>
+            <if test="deliveryAt != null">delivery_at=#{deliveryAt},</if>
+            <if test="isValid != null">is_valid=#{isValid}</if>
+        </set>
+        where tu_id=#{tuId}
+    </update>
+
+    <select id="getTuHeadById" parameterType="int" resultMap="tuHeadResultMap">
 		select * from tu_head
 		where tu_id=#{tuId}
 	</select>
-  
-	<select id="countTuHead" parameterType="map" resultType="int">
-		select count(*) from tu_head
-		<include refid="queryCondition"/>
-	</select>
-  
-	<select id="getTuHeadList" parameterType="map" resultMap="tuHeadResultMap">
-		select * from tu_head
-		<include refid="queryCondition"/>
-		<if test="start != null and limit != null">
-		limit #{start},#{limit}
-		</if>
-	</select>
-  
-	<sql id="queryCondition">
-		<where>
-			<if test="id != null">id=#{id}</if>
-			<if test="tuId != null">and tu_id=#{tuId}</if>
-			<if test="transUid != null">and trans_uid=#{transUid}</if>
-			<if test="cellphone != null">and cellphone=#{cellphone}</if>
-			<if test="name != null">and name=#{name}</if>
-			<if test="carNumber != null">and car_number=#{carNumber}</if>
-			<if test="status != null">and status=#{status}</if>
-			<if test="deliveryCodes != null">and delivery_codes=#{deliveryCodes}</if>
-			<if test="deliveryName != null">and delivery_name=#{deliveryName}</if>
-			<if test="preBoard != null">and pre_board=#{preBoard}</if>
-			<if test="realBoard != null">and real_board=#{realBoard}</if>
-			<if test="commitedAt != null">and commited_at=#{commitedAt}</if>
-			<if test="warehouseId != null">and warehouse_id=#{warehouseId}</if>
-			<if test="createdAt != null">and created_at=#{createdAt}</if>
-			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
-			<if test="loadUid != null">and load_uid=#{loadUid}</if>
-			<if test="loadedAt != null">and loaded_at=#{loadedAt}</if>
-			<if test="deliveryUid != null">and delivery_uid=#{deliveryUid}</if>
-			<if test="deliveryAt != null">and delivery_at=#{deliveryAt}</if>
-			<if test="isValid != null">and is_valid=#{isValid}</if>
-		</where>
-	</sql>
-   
+
+    <select id="countTuHead" parameterType="map" resultType="int">
+        select count(*) from tu_head
+        <include refid="queryCondition"/>
+    </select>
+
+    <select id="getTuHeadList" parameterType="map" resultMap="tuHeadResultMap">
+        select * from tu_head
+        <include refid="queryCondition"/>
+        <if test='"createdAt".equals(orderBy)  and "asc".equals(orderType)'>
+            ORDER BY  created_at ASC
+        </if>
+        <if test='"loadedAt".equals(orderBy)  and "asc".equals(orderType)'>
+            ORDER BY  loaded_at ASC
+        </if>
+        <if test="start != null and limit != null">
+            limit #{start},#{limit}
+        </if>
+    </select>
+
+    <sql id="queryCondition">
+        <where>
+            <if test="id != null">id=#{id}</if>
+            <if test="tuId != null">and tu_id=#{tuId}</if>
+            <if test="transUid != null">and trans_uid=#{transUid}</if>
+            <if test="cellphone != null">and cellphone=#{cellphone}</if>
+            <if test="name != null">and name=#{name}</if>
+            <if test="carNumber != null">and car_number=#{carNumber}</if>
+            <if test="status != null">and status=#{status}</if>
+            <if test="storeIds != null">and store_ids=#{storeIds}</if>
+            <if test="preBoard != null">and pre_board=#{preBoard}</if>
+            <if test="realBoard != null">and real_board=#{realBoard}</if>
+            <if test="commitedAt != null">and commited_at=#{commitedAt}</if>
+            <if test="warehouseId != null">and warehouse_id=#{warehouseId}</if>
+            <if test="createdAt != null">and created_at=#{createdAt}</if>
+            <if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+            <if test="loadedAt != null">and loaded_at=#{loadedAt}</if>
+            <if test="deliveryUid != null">and delivery_uid=#{deliveryUid}</if>
+            <if test="deliveryAt != null">and delivery_at=#{deliveryAt}</if>
+            <if test="isValid != null">and is_valid=#{isValid}</if>
+        </where>
+    </sql>
+
 </mapper>

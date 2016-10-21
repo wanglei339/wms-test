@@ -13,7 +13,14 @@ public interface ILoadRfRestService {
      * @return
      * @throws BizCheckedException
      */
-    public String getTuHeadListByLoadStatus(Integer status)throws BizCheckedException;
+    public String getTuHeadListByLoadStatus()throws BizCheckedException;
+
+    /**
+     * rf获取tu单明细
+     * @return
+     * @throws BizCheckedException
+     */
+    public String getTuHead()throws BizCheckedException;
 
     /**
      * 板子装车
