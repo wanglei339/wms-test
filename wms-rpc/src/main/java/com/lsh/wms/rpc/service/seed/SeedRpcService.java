@@ -22,6 +22,7 @@ import com.lsh.wms.core.service.location.LocationDetailService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.po.PoReceiptService;
+import com.lsh.wms.core.service.po.ReceiveService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
@@ -60,6 +61,9 @@ public class SeedRpcService implements ISeedRpcService {
 
     @Autowired
     private CsiSkuService csiSkuService;
+
+    @Autowired
+    private ReceiveService receiveService;
 
     public void insertReceipt(ReceiptRequest request) throws BizCheckedException {
         //查询inbReceiptHeader是否存在 根据托盘查询
@@ -117,7 +121,7 @@ public class SeedRpcService implements ISeedRpcService {
                 throw new BizCheckedException("2020001");
             }
             // TODO: 2016/10/8 查询验收单是否存在,如果不存在,则根据ibd重新生成
-            ReceiveHeader receiveHeader = poOrderService.getReceiveHeader(ibdHeader.getOrderId());
+            ReceiveHeader receiveHeader = receiveService.getReceiveHeader(ibdHeader.getOrderId());
             Long receiveId = 0l;
             if(receiveHeader == null){
                 receiveId = this.genReceive(ibdHeader);
@@ -167,7 +171,7 @@ public class SeedRpcService implements ISeedRpcService {
             updateIbdDetailList.add(updateIbdDetail);
 
             //根据receiveId及SkuCode获取receiveDetail
-            ReceiveDetail receiveDetail = poOrderService.getReceiveDetailByReceiveIdAndSkuCode(receiveId, baseinfoItem.getSkuCode());
+            ReceiveDetail receiveDetail = receiveService.getReceiveDetailByReceiveIdAndSkuCode(receiveId, baseinfoItem.getSkuCode());
 
 
             //批量修改receive 实收数量
@@ -216,7 +220,7 @@ public class SeedRpcService implements ISeedRpcService {
             receiveDetail.setCreatedAt(DateUtils.getCurrentSeconds());
             receiveDetails.add(receiveDetail);
         }
-        poOrderService.insertReceive(receiveHeader,receiveDetails);
+        receiveService.insertReceive(receiveHeader,receiveDetails);
         return receiveId;
     }
 }
