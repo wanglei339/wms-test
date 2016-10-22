@@ -72,6 +72,26 @@ public class LocationDetailRequest implements Serializable {
     private Integer isLocked;
     @NotNull
     private Long curContainerVol;
+    @NotNull
+    private Long supplierNo;
+    @NotNull
+    private String storeNo;
+
+    public String getStoreNo() {
+        return storeNo;
+    }
+
+    public void setStoreNo(String storeNo) {
+        this.storeNo = storeNo;
+    }
+
+    public Long getSupplierNo() {
+        return supplierNo;
+    }
+
+    public void setSupplierNo(Long supplierNo) {
+        this.supplierNo = supplierNo;
+    }
 
     public void setCurContainerVol(Long curContainerVol) {
         this.curContainerVol = curContainerVol;

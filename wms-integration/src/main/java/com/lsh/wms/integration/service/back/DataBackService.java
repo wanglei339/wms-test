@@ -3,14 +3,21 @@ package com.lsh.wms.integration.service.back;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
+import com.lsh.base.common.utils.BeanMapTransUtils;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.model.po.IbdBackRequest;
 import com.lsh.wms.api.model.po.IbdItem;
 import com.lsh.wms.api.service.back.IDataBackService;
 import com.lsh.wms.api.service.po.IIbdBackService;
 import com.lsh.wms.core.constant.RedisKeyConstant;
+import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
+import com.lsh.wms.core.service.system.SysLogService;
+import com.lsh.wms.core.service.system.SysMsgService;
 import com.lsh.wms.integration.service.common.utils.HttpUtil;
 import com.lsh.wms.integration.model.OrderResponse;
+import com.lsh.wms.model.system.SysLog;
+import com.lsh.wms.model.system.SysMsg;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.slf4j.Logger;
@@ -36,7 +43,13 @@ public class DataBackService implements IDataBackService {
     @Autowired
     private RedisStringDao redisStringDao;
 
-    public String wmDataBackByPost(Object request, String url){
+    @Autowired
+    private SysMsgService sysMsgService;
+
+    @Autowired
+    private SysLogService sysLogService;
+
+    public String wmDataBackByPost(Object request, String url , Integer type){
         String jsonCreate = this.initJson(request);
 
 
@@ -62,6 +75,24 @@ public class DataBackService implements IDataBackService {
                 jsonStr = HttpUtil.doPost(url,jsonCreate,token);
                 orderResponse = JSON.parseObject(jsonStr,OrderResponse.class);
             }
+            //存入sys_log
+            Long sysId = RandomUtils.genId();
+            SysLog sysLog = new SysLog();
+            sysLog.setLogId(sysId);
+            sysLog.setLogMessage(orderResponse.getMessage());
+            sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
+            sysLog.setLogType(type);
+            sysLog.setLogCode(orderResponse.getCode().longValue());
+            sysLogService.insertSysLog(sysLog);
+
+            //将返回结果存入缓存,发生错误可以重新下传。
+            SysMsg sysMsg = new SysMsg();
+            sysMsg.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
+            sysMsg.setId(sysId);
+            sysMsg.setType(type.longValue());
+            Map<String,Object> map = BeanMapTransUtils.Bean2map(request);
+            sysMsg.setMsgBody(map);
+            sysMsgService.sendMessage(sysMsg);
 
             logger.info("orderResponse = " + JSON.toJSONString(orderResponse));
         }else{

@@ -122,6 +122,12 @@ public class LocationDetailService {
         //注入播种区、播种货位
         locationDetailServiceFactory.register(LocationConstant.SOW_AREA, baseinfoLocationRegionService);
         locationDetailServiceFactory.register(LocationConstant.SOW_BIN, baseinfoLocationBinService);
+        //注入 供商退货区、供商退货货架、供商退货货架层、供商退货入库位置、供商退货存储位置
+        locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_AREA, baseinfoLocationRegionService);
+        locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_SHELF, baseinfoLocationShelfService);
+        locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_LEVEL, baseinfoLocationLevelService);
+        locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_IN_BIN, baseinfoLocationBinService);
+        locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_STORE_BIN, baseinfoLocationBinService);
     }
 
     /**
@@ -185,6 +191,13 @@ public class LocationDetailService {
         //注入播种区和播种货位
         locationDetailModelFactory.register(LocationConstant.SOW_AREA, new BaseinfoLocationRegion());
         locationDetailModelFactory.register(LocationConstant.SOW_BIN, new BaseinfoLocationBin());
+        //注入 供商退货区、供商退货货架、供商退货货架层、供商退货入库位置、供商退货存储位置
+        locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_AREA, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_SHELF, new BaseinfoLocationShelf());
+        locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_LEVEL, new BaseinfoLocation());
+        locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_IN_BIN, new BaseinfoLocationBin());
+        locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_STORE_BIN, new BaseinfoLocationBin());
+
     }
 
     /**
@@ -252,6 +265,12 @@ public class LocationDetailService {
         //贵品区的货架
         if (LocationConstant.VALUABLES_SHELF.equals(iBaseinfoLocaltionModel.getType())) {
             this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.VALUABLES_SHELF_LEVEL);
+            //将货架的叶子节点设置为0
+            location.setIsLeaf(0);
+            locationService.updateLocation(location);
+        }
+        if (LocationConstant.SUPPLIER_RETURN_SHELF.equals(iBaseinfoLocaltionModel.getType())){
+            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.SUPPLIER_RETURN_LEVEL);
             //将货架的叶子节点设置为0
             location.setIsLeaf(0);
             locationService.updateLocation(location);

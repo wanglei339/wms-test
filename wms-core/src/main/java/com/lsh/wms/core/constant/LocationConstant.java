@@ -80,6 +80,14 @@ public class LocationConstant {
     public static final Long SOW_AREA =44L;  //播种区
     public static final Long SOW_BIN =45L;  //播种货位
 
+    //供商退货区
+    public static final Long SUPPLIER_RETURN_AREA = 46L;    //供商退货区
+    public static final Long SUPPLIER_RETURN_SHELF = 47L;   //供商退货货架
+    public static final Long SUPPLIER_RETURN_LEVEL= 48L;    //供商退货货架层
+    public static final Long SUPPLIER_RETURN_IN_BIN = 49L;  //供商退货入库位置(货架一层,方便取货)
+    public static final Long SUPPLIER_RETURN_STORE_BIN = 50L;   //供商退货存储位置(一层往上)
+
+
 
     //是否能存储
     public static final Integer CAN_STORE = 1;
@@ -150,7 +158,8 @@ public class LocationConstant {
             put(27L,"货架层");
             put(28L,"阁楼层");
             put(34L,"拆零货架层");
-            put(42L,"贵品货架");
+            put(42L,"贵品货架层");
+            put(48L,"退货货架层");
         }
     };
 

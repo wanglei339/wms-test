@@ -80,5 +80,10 @@ public class RedisKeyConstant {
 
     public static final String PO_STORE = "po_id:{0}:store_no:{1}";
 
+    /**
+     * 日志信息redis key
+     */
+    public static final String SYS_MSG = "sysLog:logId:{0}";
+
 
 }
