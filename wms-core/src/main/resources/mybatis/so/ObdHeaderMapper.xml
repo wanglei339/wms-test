@@ -21,17 +21,18 @@
 		<result property="deliveryAddrs" column="delivery_addrs"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
+		<result property="supplierNo" column="supplier_no"/>
 	</resultMap>
 
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="ObdHeader">
 		insert into obd_header (
 		order_id,order_other_ref_id,order_other_id,order_user_code,order_user,delivery_name,
 		delivery_code,owner_uid,order_type,wave_id,trans_plan,wave_index,
-		trans_time,order_status,delivery_addrs,created_at,updated_at
+		trans_time,order_status,delivery_addrs,created_at,updated_at,supplier_no
 		) values (
 		#{orderId},#{orderOtherRefId},#{orderOtherId},#{orderUserCode},#{orderUser},#{deliveryName},
 		#{deliveryCode},#{ownerUid},#{orderType},#{waveId},#{transPlan},#{waveIndex},
-		#{transTime},#{orderStatus},#{deliveryAddrs},#{createdAt},#{updatedAt}
+		#{transTime},#{orderStatus},#{deliveryAddrs},#{createdAt},#{updatedAt},#{supplierNo}
 		)
 	</insert>
 
@@ -54,7 +55,8 @@
 			<if test="orderStatus != null">order_status=#{orderStatus},</if>
 			<if test="deliveryAddrs != null">delivery_addrs=#{deliveryAddrs},</if>
 			<if test="createdAt != null">created_at=#{createdAt},</if>
-			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+			<if test="supplierNo != null">supplier_no=#{supplierNo}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -78,7 +80,8 @@
 			<if test="orderStatus != null">order_status=#{orderStatus},</if>
 			<if test="deliveryAddrs != null">delivery_addrs=#{deliveryAddrs},</if>
 			<if test="createdAt != null">created_at=#{createdAt},</if>
-			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+			<if test="supplierNo != null">supplier_no=#{supplierNo}</if>
 		</set>
 		where order_other_id=#{orderOtherId} OR order_id=#{orderId}
 	</update>
@@ -128,6 +131,7 @@
 			<if test="deliveryAddrs != null">and delivery_addrs=#{deliveryAddrs}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="supplierNo != null">and supplier_no=#{supplierNo}</if>
 		</where>
 	</sql>
 

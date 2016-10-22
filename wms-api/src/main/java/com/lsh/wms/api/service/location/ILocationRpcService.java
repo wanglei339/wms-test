@@ -38,6 +38,8 @@ public interface ILocationRpcService {
     //分配退货
     public BaseinfoLocation getBackLocation();
 
+    BaseinfoLocation getLocationByCode(String code) throws BizCheckedException;
+
     //分配残次
     public BaseinfoLocation getDefectiveLocation();
 

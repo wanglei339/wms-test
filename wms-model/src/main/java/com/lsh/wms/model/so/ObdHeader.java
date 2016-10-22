@@ -37,6 +37,8 @@ public class ObdHeader implements Serializable {
 	private Integer orderStatus;
 	/** 收货地址(送达地址) */
 	private String deliveryAddrs;
+	/** 退货 收货供商id*/
+	private String supplierNo = "";
 	/**  */
 	private Long createdAt = 0l;
 	/**  */
@@ -195,5 +197,13 @@ public class ObdHeader implements Serializable {
 
 	public void setOrderDetails(Object orderDetails) {
 		this.orderDetails = orderDetails;
+	}
+
+	public String getSupplierNo() {
+		return supplierNo;
+	}
+
+	public void setSupplierNo(String supplierNo) {
+		this.supplierNo = supplierNo;
 	}
 }
