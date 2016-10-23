@@ -102,61 +102,6 @@ public class MergeRpcService implements IMergeRpcService {
                     }
                 }
             }
-            /*List<BaseinfoLocation> locations = locationService.getCollectionByStoreNo(storeNo); // 门店对应的集货道
-            for (BaseinfoLocation location: locations) {
-                List<StockQuant> quants = stockQuantService.getQuantsByLocationId(location.getLocationId());
-                for (StockQuant quant: quants) {
-                    Long containerId = quant.getContainerId();
-                    Map<String, Object> params = new HashMap<String, Object>();
-                    params.put("containerId", containerId);
-                    params.put("type", TaskConstant.TYPE_QC);
-                    params.put("status", TaskConstant.Done);
-                    List<TaskInfo> taskInfos = baseTaskService.getTaskInfoList(params);
-                    if (taskInfos.size() > 0) {
-                        TaskInfo taskInfo = taskInfos.get(0);
-                        Long qcTaskId = taskInfo.getTaskId();
-                        List<WaveDetail> waveDetails = waveService.getDetailsByQCTaskId(qcTaskId);
-                        if (waveDetails.size() > 0) {
-                            // TODO: 到这一层抽出来方法
-                            for (WaveDetail waveDetail: waveDetails) {
-                                Long mergedContainerId = 0L;
-                                if (waveDetail.getMergedContainerId().equals(0L)) {
-                                    mergedContainerId = waveDetail.getMergedContainerId();
-                                } else {
-                                    mergedContainerId = waveDetail.getContainerId();
-                                }
-                                if (!countedContainerIds.contains(mergedContainerId)) {
-                                    countedContainerIds.add(mergedContainerId);
-                                    List<TuDetail> tuDetails = tuService.getTuDeailListByMergedContainerId(mergedContainerId);
-                                    if (tuDetails.size() == 0) {
-                                        totalMergedContainers++;
-                                        if (taskInfo.getDate() < DateUtils.getTodayBeginSeconds()) {
-                                            restMergedContainers++;
-                                        }
-                                        // 是否是余货
-                                    } else {
-                                        Boolean needCount = true;
-                                        for (TuDetail tuDetail : tuDetails) {
-                                            String tuId = tuDetail.getTuId();
-                                            TuHead tuHead = tuService.getHeadByTuId(tuId);
-                                            if (!tuHead.getStatus().equals(9)) { // TODO: 改成constant
-                                                needCount = false;
-                                                break;
-                                            }
-                                        }
-                                        if (needCount) {
-                                            totalMergedContainers++;
-                                            if (taskInfo.getDate() < DateUtils.getTodayBeginSeconds()) {
-                                                restMergedContainers++;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }*/
             Map<String, Object> result = new HashMap<String, Object>();
             result.put("storeNo", store.getStoreNo());
             result.put("storeName", store.getStoreName());
@@ -205,9 +150,47 @@ public class MergeRpcService implements IMergeRpcService {
      * @return
      * @throws BizCheckedException
      */
-    public Map<String, BigDecimal> getMergeDetailByStoreNo(String storeNo) throws BizCheckedException {
-        Map<String, BigDecimal> result = new HashMap<String, BigDecimal>();
-        return result;
+    public Map<Long, Map<String, Object>> getMergeDetailByStoreNo(String storeNo) throws BizCheckedException {
+        Map<Long, Map<String, Object>> results = new HashMap<Long, Map<String, Object>>();
+        List<Long> countedContainerIds = new ArrayList<Long>();
+        List<WaveDetail> waveDetails = this.getWaveDetailByStoreNo(storeNo);
+        for (WaveDetail waveDetail: waveDetails) {
+            if (!countedContainerIds.contains(waveDetail.getContainerId())) {
+                Long containerId = 0L;
+                if (waveDetail.getMergedContainerId().equals(0L)) {
+                    containerId = waveDetail.getContainerId();
+                } else {
+                    containerId = waveDetail.getMergedContainerId();
+                }
+                Map<String, BigDecimal> qcCounts = this.getQcCountsByWaveDetail(waveDetail);
+                Map<String, Object> result = new HashMap<String, Object>();
+                if (results.containsKey(containerId)) {
+                    result = results.get(containerId);
+                    result.put("packCount", new BigDecimal(Double.valueOf(result.get("packCount").toString())).add(qcCounts.get("packCount")));
+                    result.put("turnoverBoxCount", new BigDecimal(Double.valueOf(result.get("turnoverBoxCount").toString())).add(qcCounts.get("turnoverBoxCount")));
+                    result.put("containerCount", Integer.valueOf(result.get("containerCount").toString()) + 1);
+                    // 是否是余货
+                    if (waveDetail.getQcAt() < DateUtils.getTodayBeginSeconds()) {
+                        result.put("isRest", true);
+                    }
+                } else {
+                    result.put("containerId", containerId);
+                    result.put("containerCount", 1);
+                    result.put("packCount", qcCounts.get("packCount"));
+                    result.put("turnoverBoxCount", qcCounts.get("turnoverBoxCount"));
+                    result.put("isExpensive", false);
+                    if (waveDetail.getQcAt() < DateUtils.getTodayBeginSeconds()) {
+                        result.put("isRest", true);
+                    } else {
+                        result.put("isRest", false);
+                    }
+                    result.put("mergedTime", waveDetail.getMergeAt());
+                }
+                results.put(containerId, result);
+                countedContainerIds.add(waveDetail.getContainerId());
+            }
+        }
+        return results;
     }
 
     /**
@@ -226,6 +209,7 @@ public class MergeRpcService implements IMergeRpcService {
                 params.put("containerId", containerId);
                 params.put("type", TaskConstant.TYPE_QC);
                 params.put("status", TaskConstant.Done);
+                params.put("businessMode", TaskConstant.MODE_DIRECT);
                 List<TaskInfo> taskInfos = baseTaskService.getTaskInfoList(params);
                 if (taskInfos.size() > 0) {
                     TaskInfo taskInfo = taskInfos.get(0);

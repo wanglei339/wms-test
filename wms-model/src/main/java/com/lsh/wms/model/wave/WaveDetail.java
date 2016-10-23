@@ -80,6 +80,12 @@ public class WaveDetail implements Serializable {
     private Long qcUid = 0L;
 	/** QC时间 */
     private Long qcAt = 0L;
+	/** 合板任务id */
+	private Long mergeTaskId;
+	/** 合板人员id */
+	private Long mergeUid;
+	/** 合板时间 */
+	private Long mergeAt;
 	/** 0-正常，1-少货，2-多货，3-错货，4-残次，5-日期不好，6-其他异常 */
     private Long qcException = 0L;
 	/** qc异常数量 */
@@ -400,6 +406,30 @@ public class WaveDetail implements Serializable {
 
 	public void setQcAt(Long qcAt){
 		this.qcAt = qcAt;
+	}
+
+	public Long getMergeTaskId(){
+		return this.mergeTaskId;
+	}
+
+	public void setMergeTaskId(Long mergeTaskId){
+		this.mergeTaskId = mergeTaskId;
+	}
+
+	public Long getMergeUid(){
+		return this.mergeUid;
+	}
+
+	public void setMergeUid(Long mergeUid){
+		this.mergeUid = mergeUid;
+	}
+
+	public Long getMergeAt(){
+		return this.mergeAt;
+	}
+
+	public void setMergeAt(Long mergeAt){
+		this.mergeAt = mergeAt;
 	}
 
 	public Long getQcException(){
