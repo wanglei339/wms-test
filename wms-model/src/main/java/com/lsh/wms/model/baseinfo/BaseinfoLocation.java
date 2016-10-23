@@ -103,6 +103,10 @@ public class BaseinfoLocation implements Serializable, IBaseinfoLocaltionModel {
      * 门店号用于直流操作，0是库内操作1-99是区分门店的
      */
     private String storeNo = "0";
+    /**
+     * 供商号用于退货操作
+     */
+    private Long supplierNo = 0L;
 
     public Long getCurContainerVol() {
         return curContainerVol;

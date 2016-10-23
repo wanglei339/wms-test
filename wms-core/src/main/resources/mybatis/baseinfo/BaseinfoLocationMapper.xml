@@ -28,6 +28,7 @@
         <result property="isLocked" column="is_locked"/>
         <result property="curContainerVol" column="cur_container_vol"/>
         <result property="storeNo" column="store_no"/>
+        <result property="supplierNo" column="supplier_no"/>
     </resultMap>
 
     <select id="lock" parameterType="map" resultMap="baseinfoLocationResultMap">
@@ -46,12 +47,12 @@
 			location_id,location_code,father_id,left_range,right_range,level,
 			type,type_name,is_leaf,is_valid,can_store,container_vol,
 			region_no,passage_no,shelf_level_no,bin_position_no,description,created_at,
-			updated_at,classification,can_use,is_locked,cur_container_vol,store_no
+			updated_at,classification,can_use,is_locked,cur_container_vol,store_no,supplier_no
     	) values (
 			#{locationId},#{locationCode},#{fatherId},#{leftRange},#{rightRange},#{level},
 			#{type},#{typeName},#{isLeaf},#{isValid},#{canStore},#{containerVol},
 			#{regionNo},#{passageNo},#{shelfLevelNo},#{binPositionNo},#{description},#{createdAt},
-			#{updatedAt},#{classification},#{canUse},#{isLocked},#{curContainerVol},#{storeNo}
+			#{updatedAt},#{classification},#{canUse},#{isLocked},#{curContainerVol},#{storeNo},#{supplierNo}
     	)
 	</insert>
 
@@ -81,7 +82,8 @@
             <if test="canUse != null">can_use=#{canUse},</if>
             <if test="isLocked != null">is_locked=#{isLocked},</if>
             <if test="curContainerVol != null">cur_container_vol=#{curContainerVol},</if>
-            <if test="storeNo != null">store_no=#{storeNo}</if>
+            <if test="storeNo != null">store_no=#{storeNo},</if>
+            <if test="supplierNo != null">supplier_no=#{supplierNo}</if>
         </set>
         where location_id=#{locationId} and is_valid=1
     </update>
@@ -132,6 +134,7 @@
             <if test="isLocked != null">and is_locked=#{isLocked}</if>
             <if test="curContainerVol != null">and cur_container_vol=#{curContainerVol}</if>
             <if test="storeNo != null">and store_no=#{storeNo}</if>
+            <if test="supplierNo != null">and supplier_no=#{supplierNo}</if>
         </where>
         <if test="start != null and limit != null">
             limit #{start},#{limit}
@@ -177,6 +180,7 @@
             <if test="isLocked != null">and is_locked=#{isLocked}</if>
             <if test="curContainerVol != null">and cur_container_vol=#{curContainerVol}</if>
             <if test="storeNo != null">and store_no=#{storeNo}</if>
+            <if test="supplierNo != null">and supplier_no=#{supplierNo}</if>
         </where>
     </sql>
 

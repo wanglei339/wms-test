@@ -55,8 +55,25 @@ public class LocationDetailResponse implements Serializable {
     private Integer canUse;
     /** 0-未上锁1-上锁 */
     private Integer isLocked;
+    private Long supplierNo;
 
+    private String storeNo;
 
+    public String getStoreNo() {
+        return storeNo;
+    }
+
+    public void setStoreNo(String storeNo) {
+        this.storeNo = storeNo;
+    }
+
+    public Long getSupplierNo() {
+        return supplierNo;
+    }
+
+    public void setSupplierNo(Long supplierNo) {
+        this.supplierNo = supplierNo;
+    }
     //...........................bin独有的...........................
     /**
      * 仓位体积

@@ -26,6 +26,7 @@ import com.lsh.wms.core.service.location.LocationDetailService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.po.PoReceiptService;
+import com.lsh.wms.core.service.po.ReceiveService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
@@ -120,6 +121,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
     @Autowired
     private RedisStringDao redisStringDao;
 
+    @Autowired
+    private ReceiveService receiveService;
+
     public Boolean throwOrder(String orderOtherId) throws BizCheckedException {
         IbdHeader ibdHeader = new IbdHeader();
         ibdHeader.setOrderOtherId(orderOtherId);
@@ -171,7 +175,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
         }
 
         // TODO: 2016/10/8 查询验收单是否存在,如果不存在,则根据ibd重新生成
-        ReceiveHeader receiveHeader = poOrderService.getReceiveHeader(ibdHeader.getOrderId());
+        ReceiveHeader receiveHeader = receiveService.getReceiveHeader(ibdHeader.getOrderId());
         Long receiveId = 0l;
         if(receiveHeader == null){
             receiveId = this.genReceive(ibdHeader);
@@ -393,7 +397,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 updateIbdDetailList.add(updateIbdDetail);
 
                 //根据receiveId及SkuCode获取receiveDetail
-                ReceiveDetail receiveDetail = poOrderService.getReceiveDetailByReceiveIdAndSkuCode(receiveId, baseinfoItem.getSkuCode());
+                ReceiveDetail receiveDetail = receiveService.getReceiveDetailByReceiveIdAndSkuCode(receiveId, baseinfoItem.getSkuCode());
 
                 //批量修改receive 实收数量
                 ReceiveDetail updateReceiveDetail = new ReceiveDetail();
@@ -681,7 +685,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 throw new BizCheckedException("2020001");
             }
             // TODO: 2016/10/8 查询验收单是否存在,如果不存在,则根据ibd重新生成
-            ReceiveHeader receiveHeader = poOrderService.getReceiveHeader(ibdHeader.getOrderId());
+            ReceiveHeader receiveHeader = receiveService.getReceiveHeader(ibdHeader.getOrderId());
             Long receiveId = 0l;
             if(receiveHeader == null){
                 receiveId = this.genReceive(ibdHeader);
@@ -731,7 +735,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             updateIbdDetailList.add(updateIbdDetail);
 
             //根据receiveId及SkuCode获取receiveDetail
-            ReceiveDetail receiveDetail = poOrderService.getReceiveDetailByReceiveIdAndSkuCode(receiveId, baseinfoItem.getSkuCode());
+            ReceiveDetail receiveDetail = receiveService.getReceiveDetailByReceiveIdAndSkuCode(receiveId, baseinfoItem.getSkuCode());
 
 
             //批量修改receive 实收数量
@@ -838,7 +842,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             receiveDetail.setCreatedAt(DateUtils.getCurrentSeconds());
             receiveDetails.add(receiveDetail);
         }
-        poOrderService.insertReceive(receiveHeader,receiveDetails);
+        receiveService.insertReceive(receiveHeader,receiveDetails);
         return receiveId;
     }
 }
