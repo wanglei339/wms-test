@@ -96,6 +96,16 @@ public class LocationRpcService implements ILocationRpcService {
         }
         return locationId;
     }
+    public BaseinfoLocation getLocationByCode(String code) throws BizCheckedException {
+        if (null == code || "".equals(code)) {
+            throw new BizCheckedException("2180008");
+        }
+        BaseinfoLocation location = locationService.getLocationByCode(code);
+        if (null == location) {
+            throw new BizCheckedException("2180009");
+        }
+        return location;
+    }
 
 
     //分配退货区 TODO 两个退货区分配哪个

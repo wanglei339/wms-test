@@ -30,7 +30,8 @@ public class TaskConstant {
 
     public static final Long TYPE_BACK_IN_STORAGE = 112L;
     public static final Long TYPE_BACK_SHELVE = 113L;
-    public static final Long TYPE_BACK_OUT= 114L;
+    public static final Long TYPE_BACK_OUT = 114L;
+    public static final Long TYPE_MERGE = 115L;
 
 
     public static final Long EVENT_TASK_FINISH  = 100000L;

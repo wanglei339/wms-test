@@ -40,6 +40,8 @@ public class IbdHeader implements Serializable {
 
 	private Object orderDetails;
 
+	private int supplierNum;
+
 	public Long getId(){
 		return this.id;
 	}

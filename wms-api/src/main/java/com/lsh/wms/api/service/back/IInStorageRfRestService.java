@@ -8,6 +8,6 @@ import com.lsh.base.common.exception.BizCheckedException;
 
 public interface IInStorageRfRestService {
     String getSupplierInfo() throws BizCheckedException;
-    String confirm() throws BizCheckedException;
+    String backConfirm() throws BizCheckedException;
     String scanLocation() throws BizCheckedException;
 }

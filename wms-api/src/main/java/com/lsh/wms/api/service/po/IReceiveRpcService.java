@@ -1,5 +1,6 @@
 package com.lsh.wms.api.service.po;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.model.po.ReceiveHeader;
 
 import java.util.List;
@@ -15,4 +16,5 @@ public interface IReceiveRpcService {
     Integer countReceiveHeader(Map<String, Object> params);
 
     ReceiveHeader getReceiveDetailList(Long receiveId);
+    Boolean updateOrderStatus(Map<String, Object> map) throws BizCheckedException;
 }

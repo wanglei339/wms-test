@@ -110,6 +110,13 @@ public class TuService {
         return tuDetailDao.getTuDetailList(mapQuery);
     }
 
+    public List<TuDetail> getTuDeailListByMergedContainerId(Long mergedContainerId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("mergedContainerId", mergedContainerId);
+        params.put("isValid", 1);
+        return tuDetailDao.getTuDetailList(params);
+    }
+
     public Integer countTuDetail(Map<String, Object> mapQuery) {
         mapQuery.put("isValid", 1);
         return tuDetailDao.countTuDetail(mapQuery);

@@ -91,6 +91,10 @@
 		select * from stock_quant
 		where ID=#{id} 
 	</select>
+	<select id="getLotByLocationId" parameterType="long" resultType="long">
+		select distinct lot_id from stock_quant
+		where location_id=#{locationId}
+	</select>
 
 	<select id="getContainerIdByLocationId" parameterType="long" resultType="long">
 		select distinct container_id from stock_quant

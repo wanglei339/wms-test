@@ -1,8 +1,11 @@
 package com.lsh.wms.core.service.merge;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.so.ObdHeaderDao;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
@@ -13,6 +16,7 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.so.ObdHeader;
+import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
@@ -44,7 +48,7 @@ public class MergeService {
     private SoOrderService soOrderService;
 
     @Transactional(readOnly = false)
-    public void mergeContainers(List<Long> containerIds, Long staffId) throws BizCheckedException {
+    public Long mergeContainers(List<Long> containerIds, Long staffId, Long mergeTaskId) throws BizCheckedException {
         Long mergedContainerId = 0L;
         String deliveryCode = "";
         List<WaveDetail> waveDetails = new ArrayList<WaveDetail>();
@@ -100,6 +104,9 @@ public class MergeService {
         // 更新关联信息
         for (WaveDetail waveDetail: waveDetails) {
             waveDetail.setMergedContainerId(mergedContainerId);
+            waveDetail.setMergeTaskId(mergeTaskId);
+            waveDetail.setMergeUid(staffId);
+            waveDetail.setMergeAt(DateUtils.getCurrentSeconds());
             waveDetailDao.update(waveDetail);
         }
         Boolean isShow = true;
@@ -113,8 +120,7 @@ public class MergeService {
             }
             taskInfoDao.update(taskInfo);
         }
-        // 写合板taskInfo,用于做操作记录
-        System.out.println(JsonUtils.SUCCESS(staffId));
+        return mergedContainerId;
     }
 
     public Map<String, Object> getPackCountByContainerId (Long containerId) {

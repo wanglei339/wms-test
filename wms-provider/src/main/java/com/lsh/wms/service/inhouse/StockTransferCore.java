@@ -169,7 +169,7 @@ public class StockTransferCore {
             taskInfo.setQtyDone(qtyDone);
         }
         //taskInfo.setStatus(TaskConstant.Doing);
-        taskInfo.setStep(1);
+        taskInfo.setStep(2);
         taskInfoDao.update(taskInfo);
     }
 
@@ -191,8 +191,10 @@ public class StockTransferCore {
             throw new BizCheckedException("2550031");
         }
         TaskInfo taskInfo = taskEntry.getTaskInfo();
-        if (taskInfo.getToLocationId().compareTo(toLocationId) != 0) {
-            throw new BizCheckedException("2040007");
+        if(taskInfo.getType().compareTo(113l)!=0) {
+            if (taskInfo.getToLocationId().compareTo(toLocationId) != 0) {
+                throw new BizCheckedException("2040007");
+            }
         }
         Long containerId = taskInfo.getContainerId();
         Long fromLocationId = locationService.getWarehouseLocationId();

@@ -104,6 +104,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         taskInfo.setType(TaskConstant.TYPE_PROCUREMENT);
         taskInfo.setContainerId(containerId);
         taskInfo.setQtyDone(taskInfo.getQty());
+        taskInfo.setStep(1);
         taskEntry.setTaskInfo(taskInfo);
         taskRpcService.create(TaskConstant.TYPE_PROCUREMENT, taskEntry);
         return true;
@@ -138,6 +139,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         taskInfo.setTaskName("补货任务[ " + taskInfo.getFromLocationId() + " => " + taskInfo.getToLocationId() + "]");
         taskInfo.setType(TaskConstant.TYPE_PROCUREMENT);
         taskInfo.setContainerId(containerId);
+        taskInfo.setStep(1);
         entry.setTaskInfo(taskInfo);
         taskRpcService.update(TaskConstant.TYPE_PROCUREMENT, entry);
         return true;

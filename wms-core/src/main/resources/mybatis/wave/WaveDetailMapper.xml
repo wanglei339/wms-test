@@ -40,6 +40,9 @@
 		<result property="qcTaskId" column="qc_task_id"/>
 		<result property="qcUid" column="qc_uid"/>
 		<result property="qcAt" column="qc_at"/>
+		<result property="mergeTaskId" column="merge_task_id"/>
+		<result property="mergeUid" column="merge_uid"/>
+		<result property="mergeAt" column="merge_at"/>
 		<result property="qcException" column="qc_exception"/>
 		<result property="qcExceptionQty" column="qc_exception_qty"/>
 		<result property="qcExceptionDone" column="qc_exception_done"/>
@@ -62,8 +65,9 @@
 			pick_task_id,pick_zone_id,pick_area_location,pick_order,alloc_pick_location,real_pick_location,
 			alloc_collect_location,real_collect_location,container_id,merged_container_id,pick_uid,pick_at,
 			sow_task_id,sow_uid,sow_at,qc_task_id,qc_uid,qc_at,
-			qc_exception,qc_exception_qty,qc_exception_done,ship_task_id,ship_uid,ship_at,
-			delivery_id,created_at,updated_at,qc_times,qc_fault,qc_fault_qty
+			merge_task_id,merge_uid,merge_at,qc_exception,qc_exception_qty,qc_exception_done,
+			ship_task_id,ship_uid,ship_at,delivery_id,created_at,updated_at,
+			qc_times,qc_fault,qc_fault_qty
     	) values (
 			#{refDetailId},#{isAlive},#{isValid},#{waveId},#{orderId},#{itemId},
 			#{skuId},#{ownerId},#{locId},#{supplierId},#{status},#{reqQty},
@@ -71,8 +75,9 @@
 			#{pickTaskId},#{pickZoneId},#{pickAreaLocation},#{pickOrder},#{allocPickLocation},#{realPickLocation},
 			#{allocCollectLocation},#{realCollectLocation},#{containerId},#{mergedContainerId},#{pickUid},#{pickAt},
 			#{sowTaskId},#{sowUid},#{sowAt},#{qcTaskId},#{qcUid},#{qcAt},
-			#{qcException},#{qcExceptionQty},#{qcExceptionDone},#{shipTaskId},#{shipUid},#{shipAt},
-			#{deliveryId},#{createdAt},#{updatedAt},#{qcTimes},#{qcFault},#{qcFaultQty}
+			#{mergeTaskId},#{mergeUid},#{mergeAt},#{qcException},#{qcExceptionQty},#{qcExceptionDone},
+			#{shipTaskId},#{shipUid},#{shipAt},#{deliveryId},#{createdAt},#{updatedAt},
+			#{qcTimes},#{qcFault},#{qcFaultQty}
     	)
 
 	</insert>
@@ -116,6 +121,9 @@
   			<if test="qcTaskId != null">qc_task_id=#{qcTaskId},</if>
   			<if test="qcUid != null">qc_uid=#{qcUid},</if>
   			<if test="qcAt != null">qc_at=#{qcAt},</if>
+			<if test="mergeTaskId != null">merge_task_id=#{mergeTaskId},</if>
+			<if test="mergeUid != null">merge_uid=#{mergeUid},</if>
+			<if test="mergeAt != null">merge_at=#{mergeAt},</if>
   			<if test="qcException != null">qc_exception=#{qcException},</if>
   			<if test="qcExceptionQty != null">qc_exception_qty=#{qcExceptionQty},</if>
   			<if test="qcExceptionDone != null">qc_exception_done=#{qcExceptionDone},</if>
@@ -205,6 +213,9 @@
 			<if test="qcTaskId != null">and qc_task_id=#{qcTaskId}</if>
 			<if test="qcUid != null">and qc_uid=#{qcUid}</if>
 			<if test="qcAt != null">and qc_at=#{qcAt}</if>
+			<if test="mergeTaskId != null">and merge_task_id=#{mergeTaskId}</if>
+			<if test="mergeUid != null">and merge_uid=#{mergeUid}</if>
+			<if test="mergeAt != null">and merge_at=#{mergeAt}</if>
 			<if test="qcException != null">and qc_exception=#{qcException}</if>
 			<if test="qcExceptionQty != null">and qc_exception_qty=#{qcExceptionQty}</if>
 			<if test="qcExceptionDone != null">and qc_exception_done=#{qcExceptionDone}</if>
