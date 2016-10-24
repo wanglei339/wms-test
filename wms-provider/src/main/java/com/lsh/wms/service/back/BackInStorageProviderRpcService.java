@@ -73,6 +73,8 @@ public class BackInStorageProviderRpcService implements IBackInStorageProviderRp
                     detail.setPackUnit(obdDetail.getPackUnit());
                     detail.setBarcode(skuService.getSku(obdDetail.getSkuId()).getCode());
                     detail.setSkuId(obdDetail.getSkuId());
+                    detail.setQty(obdDetail.getUnitQty());
+                    detail.setPackName(obdDetail.getPackName());
                     backTaskDetails.add(detail);
                 }
                 entry.setTaskInfo(info);

@@ -19,15 +19,15 @@ public class BackTaskDetail implements Serializable {
 	/** 退货入库实际数量 */
     private BigDecimal realQty = BigDecimal.ZERO;
 	/** 订单箱规 */
-	private BigDecimal packUnit;
+	private BigDecimal packUnit = BigDecimal.ZERO;
 	/** 商品名称*/
-	private String skuName;
+	private String skuName = "";
 	/** 国码*/
-	private String barcode;
+	private String barcode = "";
 	/** 订单箱规名字*/
-	private String packName;
+	private String packName = "";
 	/** 退货入库数量*/
-	private BigDecimal qty;
+	private BigDecimal qty = BigDecimal.ZERO;
 
 
 	public Long getId(){
