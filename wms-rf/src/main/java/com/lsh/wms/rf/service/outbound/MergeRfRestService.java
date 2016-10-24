@@ -2,23 +2,28 @@ package com.lsh.wms.rf.service.outbound;
 
 import com.alibaba.dubbo.common.logger.Logger;
 import com.alibaba.dubbo.common.logger.LoggerFactory;
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.merge.IMergeRfRestService;
+import com.lsh.wms.api.service.merge.IMergeRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.merge.MergeService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.so.ObdHeader;
+import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,9 +56,12 @@ public class MergeRfRestService implements IMergeRfRestService {
     @Autowired
     private SoOrderService soOrderService;
     @Autowired
-    private ContainerService containerService;
-    @Autowired
-    private BaseTaskService baseTaskService;
+    private IdGenerator idGenerator;
+
+    @Reference
+    private IMergeRpcService iMergeRpcService;
+    @Reference
+    private ITaskRpcService iTaskRpcService;
 
     /**
      * 扫描托盘码进行合板
@@ -70,11 +78,6 @@ public class MergeRfRestService implements IMergeRfRestService {
         List<Long> containerIds = new ArrayList<Long>();
         List<Long> queryContainerIds = new ArrayList<Long>();
         queryContainerIds = JSON.parseArray(mapQuery.get("containerIds").toString(), Long.class);
-        /*if (mapQuery.get("containerIds") instanceof ArrayList<?>) {
-            queryContainerIds = (ArrayList<Long>) mapQuery.get("containerIds");
-        } else {
-            throw new BizCheckedException("2870001");
-        }*/
         for (Object objContainerId: queryContainerIds) {
             Long containerId = Long.valueOf(objContainerId.toString());
             if (!containerIds.contains(containerId)) {
@@ -84,8 +87,23 @@ public class MergeRfRestService implements IMergeRfRestService {
         if (containerIds.size() <= 1) {
             throw new BizCheckedException("2870005");
         }
+        String idKey = "task_" + TaskConstant.TYPE_MERGE.toString();
+        Long mergeTaskId = idGenerator.genId(idKey, true, true);
         // 合板
-        mergeService.mergeContainers(containerIds, staffId);
+        Long mergedContainerId = mergeService.mergeContainers(containerIds, staffId, mergeTaskId);
+        // 写合板taskInfo,用于做操作记录
+        TaskEntry taskEntry = new TaskEntry();
+        TaskInfo mergeTaskInfo = new TaskInfo();
+        mergeTaskInfo.setTaskId(mergeTaskId);
+        mergeTaskInfo.setType(TaskConstant.TYPE_MERGE);
+        mergeTaskInfo.setTaskName("合板任务[" + mergedContainerId + "]");
+        mergeTaskInfo.setContainerId(mergedContainerId);
+        mergeTaskInfo.setOperator(staffId);
+        mergeTaskInfo.setBusinessMode(TaskConstant.MODE_DIRECT);
+        taskEntry.setTaskInfo(mergeTaskInfo);
+        iTaskRpcService.create(TaskConstant.TYPE_MERGE, taskEntry);
+        // 直接完成
+        iTaskRpcService.done(mergeTaskId);
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("response", true);
         return JsonUtils.SUCCESS(result);
@@ -105,11 +123,6 @@ public class MergeRfRestService implements IMergeRfRestService {
         List<Long> containerIds = new ArrayList<Long>();
         List<Long> queryContainerIds = new ArrayList<Long>();
         queryContainerIds = JSON.parseArray(mapQuery.get("containerIds").toString(), Long.class);
-        /*if (mapQuery.get("containerIds") instanceof ArrayList<?>) {
-            queryContainerIds = JSON.parseArray(mapQuery.get("containerIds").toString(), Long.class);
-        } else {
-            throw new BizCheckedException("2870001");
-        }*/
         for (Object queryContainerId: queryContainerIds) {
             Long containerId = Long.valueOf(queryContainerId.toString());
             if (!containerIds.contains(containerId)) {
@@ -147,34 +160,26 @@ public class MergeRfRestService implements IMergeRfRestService {
                     resultDetail.put("isMerged", true);
                     List<WaveDetail> mergedWaveDetails = waveService.getWaveDetailsByMergedContainerId(waveDetail.getMergedContainerId());
                     for (WaveDetail mergedWaveDetail: mergedWaveDetails) {
-                        Long qcTaskId = mergedWaveDetail.getQcTaskId();
-                        TaskInfo qcTaskInfo = baseTaskService.getTaskInfoById(qcTaskId);
-                        if (qcTaskInfo == null || !qcTaskInfo.getStatus().equals(TaskConstant.Done)) {
-                            throw new BizCheckedException("2870003");
-                        }
+                        Map<String, BigDecimal> qcCounts = iMergeRpcService.getQcCountsByWaveDetail(mergedWaveDetail);
                         if (!countedContainerIds.contains(mergedWaveDetail.getContainerId())) {
                             countedContainerIds.add(mergedWaveDetail.getContainerId());
                             containerCount++;
-                            packCount = packCount.add(new BigDecimal(qcTaskInfo.getExt4()));
-                            turnoverBoxCount = turnoverBoxCount.add(new BigDecimal(qcTaskInfo.getExt3()));
+                            packCount = packCount.add(qcCounts.get("packCount"));
+                            turnoverBoxCount = turnoverBoxCount.add(qcCounts.get("turnoverBoxCount"));
                         }
-                        resultDetail.put("packCount", new BigDecimal(Double.valueOf(resultDetail.get("packCount").toString())).add(new BigDecimal(qcTaskInfo.getExt4())));
-                        resultDetail.put("turnoverBoxCount", new BigDecimal(Double.valueOf(resultDetail.get("turnoverBoxCount").toString())).add(new BigDecimal(qcTaskInfo.getExt3())));
+                        resultDetail.put("packCount", new BigDecimal(Double.valueOf(resultDetail.get("packCount").toString())).add(qcCounts.get("packCount")));
+                        resultDetail.put("turnoverBoxCount", new BigDecimal(Double.valueOf(resultDetail.get("turnoverBoxCount").toString())).add(qcCounts.get("turnoverBoxCount")));
                     }
                     mergedContainerId = waveDetail.getMergedContainerId();
                 } else if (!countedContainerIds.contains(containerId)) {
                     // 未合过的
                     countedContainerIds.add(containerId);
                     containerCount++;
-                    Long qcTaskId = waveDetail.getQcTaskId();
-                    TaskInfo qcTaskInfo = baseTaskService.getTaskInfoById(qcTaskId);
-                    if (qcTaskInfo == null || !qcTaskInfo.getStatus().equals(TaskConstant.Done)) {
-                        throw new BizCheckedException("2870003");
-                    }
-                    packCount = packCount.add(new BigDecimal(qcTaskInfo.getExt4()));
-                    turnoverBoxCount = turnoverBoxCount.add(new BigDecimal(qcTaskInfo.getExt3()));
-                    resultDetail.put("packCount", new BigDecimal(Double.valueOf(resultDetail.get("packCount").toString())).add(new BigDecimal(qcTaskInfo.getExt4())));
-                    resultDetail.put("turnoverBoxCount", new BigDecimal(Double.valueOf(resultDetail.get("turnoverBoxCount").toString())).add(new BigDecimal(qcTaskInfo.getExt3())));
+                    Map<String, BigDecimal> qcCounts = iMergeRpcService.getQcCountsByWaveDetail(waveDetail);
+                    packCount = packCount.add(qcCounts.get("packCount"));
+                    turnoverBoxCount = turnoverBoxCount.add(qcCounts.get("turnoverBoxCount"));
+                    resultDetail.put("packCount", new BigDecimal(Double.valueOf(resultDetail.get("packCount").toString())).add(qcCounts.get("packCount")));
+                    resultDetail.put("turnoverBoxCount", new BigDecimal(Double.valueOf(resultDetail.get("turnoverBoxCount").toString())).add(qcCounts.get("turnoverBoxCount")));
                 }
                 // 判断托盘是否归属于同一门店
                 Long orderId = waveDetail.getOrderId();

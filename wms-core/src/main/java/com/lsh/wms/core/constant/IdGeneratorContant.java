@@ -21,6 +21,10 @@ public class IdGeneratorContant {
             put("task_109", 19);
             put("task_110", 20); // TYPE_QC
             put("task_111", 21); // TYPE_SHIP
+            put("task_112", 22);
+            put("task_113", 23);
+            put("task_114", 24);
+            put("task_115", 25);
             //uid
             put("uid",99);// uid
         }
