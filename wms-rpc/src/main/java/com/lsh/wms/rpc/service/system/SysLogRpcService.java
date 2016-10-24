@@ -50,7 +50,7 @@ public class SysLogRpcService implements ISysLogRpcService{
     /**
      *回传失败的订单重新回传
      */
-    public void Retransmission(Long logId) throws BizCheckedException{
+    public void retransmission(Long logId) throws BizCheckedException{
         String key = StrUtils.formatString(RedisKeyConstant.SYS_MSG,logId);
         SysMsg sysMsg = sysMsgService.getMessage(key);
         // TODO: 2016/10/24 日志表中还需要记录当时存在问题单据的ID 防止没有生成redis记录造成无法再次回传 

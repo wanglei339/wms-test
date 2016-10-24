@@ -15,6 +15,6 @@ public interface ISysLogRpcService {
 
     Integer countSysLog(Map<String, Object> params);
 
-    void Retransmission(Long logId) throws BizCheckedException;
+    void retransmission(Long logId) throws BizCheckedException;
 
 }
