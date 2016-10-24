@@ -53,6 +53,9 @@ public class StockQuantService {
     @Autowired
     private BaseTaskService baseTaskService;
 
+    @Autowired StockLotService lotService;
+
+
     @Transactional(readOnly = false)
     public void moveToComplete(StockQuant quant) {
         stockQuantDao.moveToComplete(quant.getId());
@@ -117,6 +120,11 @@ public class StockQuantService {
     public List<StockQuant> getQuantsByContainerId(Long containerId) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("containerId", containerId);
+        return this.getQuants(mapQuery);
+    }
+    public List<StockQuant> getQuantsByOrderId(Long orderId) {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("orderId", orderId);
         return this.getQuants(mapQuery);
     }
 
@@ -474,6 +482,9 @@ public class StockQuantService {
         moveDao.insert(move);
 
         // 创建quant
+
+        lotService.insertLot(lot);
+
         StockQuant quant = new StockQuant();
         quant.setLotId(lot.getLotId());
         quant.setPackUnit(lot.getPackUnit());
@@ -488,6 +499,7 @@ public class StockQuantService {
         quant.setExpireDate(lot.getExpireDate());
         quant.setQty(move.getQty());
         quant.setLotCode(lot.getCode());
+        quant.setLotId(lot.getLotId());
         this.create(quant);
 
         // 新建 quant move历史记录

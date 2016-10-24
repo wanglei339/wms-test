@@ -33,6 +33,15 @@ public class BaseTaskService {
         taskInfoDao.insert(taskInfo);
         taskHandler.createConcrete(taskEntry);
     }
+    @Transactional(readOnly = false)
+    public TaskInfo create(TaskInfo taskInfo) throws BizCheckedException {
+        taskInfo.setDraftTime(DateUtils.getCurrentSeconds());
+        taskInfo.setStatus(TaskConstant.Draft);
+        taskInfo.setCreatedAt(DateUtils.getCurrentSeconds());
+        taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+        taskInfoDao.insert(taskInfo);
+        return taskInfo;
+    }
 
     @Transactional(readOnly = false)
     public void batchCreate(List<TaskEntry> taskEntries, TaskHandler taskHandler) throws BizCheckedException {
@@ -77,6 +86,11 @@ public class BaseTaskService {
         taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
         taskInfoDao.update(taskInfo);
         taskHandler.allocateConcrete(taskId);
+    }
+    @Transactional(readOnly = false)
+    public void update(TaskInfo info)
+    {   info.setUpdatedAt(DateUtils.getCurrentSeconds());
+        taskInfoDao.update(info);
     }
 
     @Transactional(readOnly = false)
@@ -246,6 +260,53 @@ public class BaseTaskService {
         }
         return taskInfos.get(0).getTaskId();
     }
+    /**
+     * 根据container_id,任务类型 获取未分配的任务id
+     * @param containerId
+     * @param taskType
+     * @return
+     */
+    public TaskInfo getDraftTaskIdByContainerIdAndType (Long containerId,Long taskType) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("containerId", containerId);
+        params.put("status", TaskConstant.Draft);
+        params.put("type",taskType);
+        List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
+        if (taskInfos.size() == 0) {
+            return null;
+        }
+        return taskInfos.get(0);
+    }
+    /**
+     * 根据location_id获取未分配的任务id
+     * @param locationId
+     * @return
+     */
+    public TaskInfo getDraftTaskIdBylocationId (Long locationId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("locationId", locationId);
+        params.put("status", TaskConstant.Draft);
+        List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
+        if (taskInfos.size() == 0) {
+            return null;
+        }
+        return taskInfos.get(0);
+    }
+    /**
+     * 根据location_id获取任务id
+     * @param locationId
+     * @return
+     */
+    public TaskInfo getTaskIdBylocationId (Long locationId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("locationId", locationId);
+        List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
+        if (taskInfos.size() == 0) {
+            return null;
+        }
+        return taskInfos.get(0);
+    }
+
     /**
      * 根据container_id获取已分配的任务id
      * @param containerId

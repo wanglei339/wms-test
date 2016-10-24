@@ -37,7 +37,7 @@ public class ObdHeader implements Serializable {
 	private Integer orderStatus;
 	/** 收货地址(送达地址) */
 	private String deliveryAddrs;
-	/** 退货 收货供商id*/
+	/** 退货 收货供商号*/
 	private String supplierNo = "";
 	/**  */
 	private Long createdAt = 0l;
