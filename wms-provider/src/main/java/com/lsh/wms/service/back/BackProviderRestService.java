@@ -89,7 +89,7 @@ public class BackProviderRestService implements IBackProviderRestService {
     @GET
     @Path("test")
     public String test() throws BizCheckedException {
-        Long orderId=1460396L;
+        String orderId="1460396";
         backInStorageProviderRpcService.createTask(orderId);
         return JsonUtils.SUCCESS();
     }
