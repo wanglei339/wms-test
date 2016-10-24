@@ -40,7 +40,7 @@ public class SysLogRestService implements ISysLogRestService{
     @Path("retransmission")
     public String retransmission(@QueryParam("logId") Long logId) throws BizCheckedException {
 
-        sysLogRpcService.Retransmission(logId);
+        sysLogRpcService.retransmission(logId);
 
         return JsonUtils.SUCCESS();
     }
