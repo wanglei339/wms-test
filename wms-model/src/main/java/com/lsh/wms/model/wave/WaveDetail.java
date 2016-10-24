@@ -1,5 +1,7 @@
 package com.lsh.wms.model.wave;
 
+import com.lsh.base.common.utils.DateUtils;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.math.BigDecimal;
@@ -81,11 +83,11 @@ public class WaveDetail implements Serializable {
 	/** QC时间 */
     private Long qcAt = 0L;
 	/** 合板任务id */
-	private Long mergeTaskId;
+	private Long mergeTaskId = 0L;
 	/** 合板人员id */
-	private Long mergeUid;
+	private Long mergeUid = 0L;
 	/** 合板时间 */
-	private Long mergeAt;
+	private Long mergeAt = DateUtils.getCurrentSeconds();
 	/** 0-正常，1-少货，2-多货，3-错货，4-残次，5-日期不好，6-其他异常 */
     private Long qcException = 0L;
 	/** qc异常数量 */

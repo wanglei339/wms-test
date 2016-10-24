@@ -122,25 +122,26 @@ public class BackOutRfRestService implements IBackOutRfRestService {
         Map<String,Object> queryMap = new HashMap<String, Object>();
         queryMap.put("locationId", locationId);
         queryMap.put("type",TaskConstant.TYPE_BACK_OUT);
-        List<TaskInfo> infos =  baseTaskService.getTaskInfoList(queryMap);
-        if(infos== null || infos.size()==0 ){
+        List<TaskEntry> entries =  iTaskRpcService.getTaskList(TaskConstant.TYPE_BACK_OUT,queryMap);
+        if(entries== null || entries.size()==0 ){
             return JsonUtils.TOKEN_ERROR("出库任务不存在");
         }
-        TaskInfo info = infos.get(0);
+        TaskInfo info = entries.get(0).getTaskInfo();
         if(info.getStatus().compareTo(TaskConstant.Done)==0){
             return JsonUtils.TOKEN_ERROR("该出库任务已完成");
         }
-        List<ObdDetail> details = soOrderService.getOutbSoDetailList(queryMap);
+        List<Object> details = entries.get(0).getTaskDetailList();
         iTaskRpcService.assign(info.getTaskId(),uId);
         Map<String,Object> result = new HashMap<String, Object>();
         List<Map> list = new ArrayList<Map>();
         result.put("taskId", info.getTaskId());
-        for(ObdDetail detail:details){
+        for(Object detail:details){
+            BackTaskDetail backTaskDetail = (BackTaskDetail)detail;
             Map<String,Object> one = new HashMap<String, Object>();
-            one.put("skuName",detail.getSkuName());
-            one.put("packName",detail.getPackName());
-            one.put("qty",detail.getOrderQty());
-            one.put("skuId",detail.getSkuId());
+            one.put("skuName",backTaskDetail.getSkuName());
+            one.put("packName",backTaskDetail.getPackName());
+            one.put("qty",backTaskDetail.getQty().divide(backTaskDetail.getPackUnit(),0,BigDecimal.ROUND_DOWN));
+            one.put("skuId",backTaskDetail.getSkuId());
             list.add(one);
         }
         request.put("list",list);

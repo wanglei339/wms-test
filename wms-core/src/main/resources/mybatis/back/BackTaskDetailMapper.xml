@@ -10,15 +10,17 @@
 		<result property="updatedAt" column="updated_at"/>
 		<result property="realQty" column="real_qty"/>
 		<result property="packUnit" column="pack_unit"/>
+		<result property="packName" column="pack_name"/>
 		<result property="skuName" column="sku_name"/>
 		<result property="barcode" column="barcode"/>
+		<result property="qty" column="qty"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BackTaskDetail">
 		insert into back_task_detail (
-			task_id,sku_id,created_at,updated_at,real_qty,pack_unit,sku_name,barcode
+			task_id,sku_id,created_at,updated_at,real_qty,pack_unit,sku_name,barcode,qty,pack_name
     	) values (
-			#{taskId},#{skuId},#{createdAt},#{updatedAt},#{realQty},#{packUnit},#{skuName},#{barcode}
+			#{taskId},#{skuId},#{createdAt},#{updatedAt},#{realQty},#{packUnit},#{skuName},#{barcode},#{qty},#{packName}
     	)
 	</insert>
 
@@ -32,7 +34,9 @@
   			<if test="realQty != null">real_qty=#{realQty},</if>
 			<if test="packUnit !=null" >pack_unit=#{packUnit},</if>
 			<if test="skuName !=null">sku_name=#{skuName},</if>
-			<if test="barcode !=null">barcode=#{barcode}</if>
+			<if test="barcode !=null">barcode=#{barcode},</if>
+			<if test="qty !=null">qty=#{qty},</if>
+			<if test="packName !=null">pack_name=#{packName}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -66,6 +70,8 @@
 			<if test="packUnit != null">and pack_unit=#{packUnit}</if>
 			<if test="skuName !=null"> and sku_name=#{skuName}</if>
 			<if test="barcode !=null"> and barcode=#{barcode}</if>
+			<if test="packName !=null"> and pack_name=#{packName}</if>
+			<if test="qty !=null"> and qty=#{qty}</if>
 		</where>
 	</sql>
    

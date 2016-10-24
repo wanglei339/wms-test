@@ -89,14 +89,30 @@ public class BackOutTaskHandler extends AbsTaskHandler {
         info.setLocationId(quants.get(0).getLocationId());
 
         List<BackTaskDetail> backTaskDetails = new ArrayList<BackTaskDetail>();
+        Map<String,String> skuMap = new HashMap<String, String>();
+        Map<String,Integer> skuIndex = new HashMap<String, Integer>();
+        int index=0;
         for(StockQuant quant:quants){
-            BackTaskDetail backTaskDetail = new BackTaskDetail();
-            CsiSku csiSku = skuService.getSku(quant.getSkuId());
-            backTaskDetail.setSkuName(csiSku.getSkuName());
-            backTaskDetail.setPackUnit(quant.getPackUnit());
-            backTaskDetail.setBarcode(csiSku.getCode());
-            backTaskDetail.setSkuId(csiSku.getSkuId());
-            backTaskDetails.add(backTaskDetail);
+            if(skuMap.get(quant.getSkuId().toString())==null) {
+                BackTaskDetail backTaskDetail = new BackTaskDetail();
+                CsiSku csiSku = skuService.getSku(quant.getSkuId());
+                backTaskDetail.setSkuName(csiSku.getSkuName());
+                backTaskDetail.setPackUnit(quant.getPackUnit());
+                backTaskDetail.setBarcode(csiSku.getCode());
+                backTaskDetail.setSkuId(csiSku.getSkuId());
+                backTaskDetail.setPackName(quant.getPackName());
+                backTaskDetail.setQty(quant.getQty());
+                backTaskDetails.add(backTaskDetail);
+                skuIndex.put(quant.getSkuId().toString(), index);
+                skuMap.put(quant.getSkuId().toString(),quant.getSkuId().toString());
+                index++;
+            }else {
+                String skuId =  skuMap.get(quant.getSkuId().toString());
+                int value = skuIndex.get(skuId);
+                BackTaskDetail detail = backTaskDetails.get(value);
+                detail.setQty(detail.getQty().add(quant.getQty()));
+                backTaskDetails.set(value,detail);
+            }
         }
         entry.setTaskInfo(info);
         entry.setTaskDetailList((List<Object>) (List<?>) backTaskDetails);

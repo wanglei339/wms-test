@@ -24,6 +24,12 @@ public class BackTaskDetail implements Serializable {
 	private String skuName;
 	/** 国码*/
 	private String barcode;
+	/** 订单箱规名字*/
+	private String packName;
+	/** 退货入库数量*/
+	private BigDecimal qty;
+
+
 	public Long getId(){
 		return this.id;
 	}
@@ -94,5 +100,21 @@ public class BackTaskDetail implements Serializable {
 
 	public void setBarcode(String barcode) {
 		this.barcode = barcode;
+	}
+
+	public String getPackName() {
+		return packName;
+	}
+
+	public void setPackName(String packName) {
+		this.packName = packName;
+	}
+
+	public BigDecimal getQty() {
+		return qty;
+	}
+
+	public void setQty(BigDecimal qty) {
+		this.qty = qty;
 	}
 }
