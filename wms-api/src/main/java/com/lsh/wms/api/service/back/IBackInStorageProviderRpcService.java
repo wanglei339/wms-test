@@ -7,5 +7,5 @@ import com.lsh.base.common.exception.BizCheckedException;
  */
 
 public interface IBackInStorageProviderRpcService {
-    void createTask(Long poId) throws BizCheckedException;
+    void createTask(String orderOtherId) throws BizCheckedException;
 }

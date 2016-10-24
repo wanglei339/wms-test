@@ -47,13 +47,13 @@ public class BackInStorageProviderRpcService implements IBackInStorageProviderRp
     ITaskRpcService taskRpcService;
 
 
-    public void createTask(Long poId) throws BizCheckedException {
+    public void createTask(String orderOtherId) throws BizCheckedException {
         Map<String,Object> queryMap = new HashMap<String, Object>();
         List<TaskEntry> entries = new ArrayList<TaskEntry>();
         //清除已经生成任务的so
         Map<Long,Integer> chargeMap =  new HashMap<Long, Integer>();
 
-        queryMap.put("ibdOtherId",poId);
+        queryMap.put("ibdOtherId",orderOtherId);
         List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(queryMap);
         for(IbdObdRelation ibdObdRelation:ibdObdRelations){
 

@@ -94,6 +94,11 @@ public class StockQuantService {
     public List<Long> getLocationIdByContainerId(Long containerId) {
         return stockQuantDao.getLocationIdByContainerId(containerId);
     }
+    public Long getLocationIdByLotId(Long lotId) {
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("lotId",lotId);
+        return  stockQuantDao.getQuants(queryMap).get(0).getLocationId();
+    }
 
     @Transactional(readOnly = false)
     public BigDecimal getRealtimeQty(BaseinfoLocation location, Long itemId) {
@@ -103,6 +108,10 @@ public class StockQuantService {
         list.add(location);
         mapCondition.put("locationList", list);
         return this.getQty(mapCondition);
+    }
+
+    public List<Long> getLotIdByLocationId(Long locationId) {
+        return stockQuantDao.getLotByLocationId(locationId);
     }
 
 
@@ -467,6 +476,16 @@ public class StockQuantService {
         List<StockQuant> quants = stockQuantDao.getQuants(queryMap);
         if (quants != null && quants.size() != 0) {
             return quants.get(0).getSupplierId();
+        } else {
+            return null;
+        }
+    }
+    public Long getLocationBylot(Long lotId) {
+        Map<String, Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("lotId", lotId);
+        List<StockQuant> quants = stockQuantDao.getQuants(queryMap);
+        if (quants != null && quants.size() != 0) {
+            return quants.get(0).getLocationId();
         } else {
             return null;
         }

@@ -18,6 +18,7 @@ import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.back.InStorageService;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
+import com.lsh.wms.core.service.csi.CsiSupplierService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.po.PoOrderService;
@@ -34,6 +35,7 @@ import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
+import com.lsh.wms.model.csi.CsiSupplier;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
 import com.lsh.wms.model.po.IbdObdRelation;
@@ -73,6 +75,8 @@ public class BackInStorageTaskHandler extends AbsTaskHandler {
     @Autowired
     SoOrderService soOrderService;
     @Autowired
+    PoOrderService poOrderService;
+    @Autowired
     private ContainerService containerService;
     @Autowired
     LocationService locationService;
@@ -80,6 +84,8 @@ public class BackInStorageTaskHandler extends AbsTaskHandler {
     private StockMoveService moveService;
     @Autowired
     private StockQuantService quantService;
+    @Autowired
+    private CsiSupplierService supplierService;
 
     private static Logger logger = LoggerFactory.getLogger(BackInStorageTaskHandler.class);
 
@@ -139,12 +145,22 @@ public class BackInStorageTaskHandler extends AbsTaskHandler {
 
             StockLot lot =new StockLot();
             lot.setItemId(obdDetail.getItemId());
-            // 目前存的是so单，怎么将so转换成po
-            lot.setPoId(info.getOrderId());
+
+
+            // 将so专成po
+            ObdHeader header = soOrderService.getOutbSoHeaderByOrderId(info.getOrderId());
+
+            Map<String,Object> queryMap = new HashMap<String, Object>();
+            queryMap.put("obdOtherId",header.getOrderOtherId());
+            List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(queryMap);
+            IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(ibdObdRelations.get(0).getIbdOtherId());
+            CsiSupplier supplier = supplierService.getSuppler(header.getSupplierNo(), header.getOwnerUid());
+            lot.setPoId(ibdHeader.getOrderId());
             lot.setPackUnit(obdDetail.getPackUnit());
             lot.setSkuId(obdDetail.getSkuId());
             lot.setPackName(obdDetail.getPackName());
             lot.setSerialNo(obdDetail.getLotCode());
+            lot.setSupplierId(supplier.getSupplierId());
             move.setLot(lot);
             moves.add(move);
         }

@@ -17,6 +17,7 @@ import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.back.BackTaskDetail;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
 import com.lsh.wms.model.po.IbdObdRelation;
@@ -76,28 +77,25 @@ public class BackOutTaskHandler extends AbsTaskHandler {
 
 
     public void create(Long taskId) {
-        Long orderId = baseTaskService.getTaskInfoById(taskId).getOrderId();
-        Map<String,Object> mapQuery = new HashMap<String, Object>();
-        List<StockQuant> quants = quantService.getQuantsByOrderId(orderId);
+        TaskInfo info = baseTaskService.getTaskInfoById(taskId);
+        List<StockQuant> quants = quantService.getQuantsByLocationId(info.getToLocationId());
         if(quants == null || quants.size()==0){
             throw new BizCheckedException("2880003");
         }
         TaskEntry entry = new TaskEntry();
-        TaskInfo info = new TaskInfo();
+        info = new TaskInfo();
         info.setType(TaskConstant.TYPE_BACK_OUT);
         info.setStatus(TaskConstant.Draft);
         info.setLocationId(quants.get(0).getLocationId());
 
-        Map<String,Object> query = new HashMap<String, Object>();
-        query.put("orderId", info.getOrderId());
-        List<ObdDetail> obdDetails = soOrderService.getOutbSoDetailList(query);
         List<BackTaskDetail> backTaskDetails = new ArrayList<BackTaskDetail>();
-        for(ObdDetail detail:obdDetails){
+        for(StockQuant quant:quants){
             BackTaskDetail backTaskDetail = new BackTaskDetail();
-            backTaskDetail.setSkuName(detail.getSkuName());
-            backTaskDetail.setPackUnit(detail.getPackUnit());
-            backTaskDetail.setBarcode(skuService.getSku(detail.getSkuId()).getCode());
-            backTaskDetail.setSkuId(detail.getSkuId());
+            CsiSku csiSku = skuService.getSku(quant.getSkuId());
+            backTaskDetail.setSkuName(csiSku.getSkuName());
+            backTaskDetail.setPackUnit(quant.getPackUnit());
+            backTaskDetail.setBarcode(csiSku.getCode());
+            backTaskDetail.setSkuId(csiSku.getSkuId());
             backTaskDetails.add(backTaskDetail);
         }
         entry.setTaskInfo(info);

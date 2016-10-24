@@ -17,13 +17,18 @@ import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.back.InStorageService;
 import com.lsh.wms.core.service.csi.CsiSupplierService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
+import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.back.BackTaskDetail;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.po.IbdHeader;
+import com.lsh.wms.model.po.IbdObdRelation;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
+import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
@@ -68,6 +73,8 @@ public class BackOutRfRestService implements IBackOutRfRestService {
 
     @Autowired
     private LocationService locationService;
+    @Autowired
+    private StockLotService lotService;
 
     @Autowired
     private CsiSupplierService supplierService;
@@ -77,7 +84,8 @@ public class BackOutRfRestService implements IBackOutRfRestService {
 
     @Reference
     private ILocationRpcService locationRpcService;
-    ;
+    @Autowired
+    PoOrderService poOrderService;
 
     /**
      * 获得商品信息
@@ -110,9 +118,9 @@ public class BackOutRfRestService implements IBackOutRfRestService {
         if(header.getOrderStatus()==2){
             return JsonUtils.TOKEN_ERROR("该退货签未开始退货");
         }
-
+        Long locationId = this.getLocationBySoId(soOtherId);
         Map<String,Object> queryMap = new HashMap<String, Object>();
-        queryMap.put("orderId", header.getOrderId());
+        queryMap.put("locationId", locationId);
         queryMap.put("type",TaskConstant.TYPE_BACK_OUT);
         List<TaskInfo> infos =  baseTaskService.getTaskInfoList(queryMap);
         if(infos== null || infos.size()==0 ){
@@ -168,5 +176,16 @@ public class BackOutRfRestService implements IBackOutRfRestService {
         iTaskRpcService.update(TaskConstant.TYPE_BACK_OUT, entry);
         iTaskRpcService.done(taskId);
         return JsonUtils.SUCCESS();
+    }
+    public Long getLocationBySoId(String orderOtherId) {
+
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("obdOtherId",orderOtherId);
+        List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(queryMap);
+        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(ibdObdRelations.get(0).getIbdOtherId());
+        ObdHeader header = soOrderService.getOutbSoHeaderByOrderOtherId(orderOtherId);
+        Long supplierId = supplierService.getSuppler(header.getSupplierNo(),header.getOwnerUid()).getSupplierId();
+        StockLot lot = lotService.getLotBySupplierAndPoId(supplierId,ibdHeader.getOrderId());
+        return  quantService.getLocationBylot(lot.getLotId());
     }
 }
