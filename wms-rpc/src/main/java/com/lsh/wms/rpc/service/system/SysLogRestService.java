@@ -37,8 +37,8 @@ public class SysLogRestService implements ISysLogRestService{
     }
 
     @GET
-    @Path("Retransmission")
-    public String Retransmission(@QueryParam("logId") Long logId) throws BizCheckedException {
+    @Path("retransmission")
+    public String retransmission(@QueryParam("logId") Long logId) throws BizCheckedException {
 
         sysLogRpcService.Retransmission(logId);
 

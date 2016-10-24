@@ -14,5 +14,5 @@ public interface ISysLogRestService {
 
     String countSysLog(Map<String, Object> params);
 
-    String Retransmission(Long logId) throws BizCheckedException;
+    String retransmission(Long logId) throws BizCheckedException;
 }
