@@ -2,14 +2,12 @@ package com.lsh.wms.rpc.service.system;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.system.ISysLogRestService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.Map;
 
@@ -36,5 +34,14 @@ public class SysLogRestService implements ISysLogRestService{
     @Path("countSysLog")
     public String countSysLog(Map<String, Object> params) {
         return JsonUtils.SUCCESS(sysLogRpcService.countSysLog(params));
+    }
+
+    @GET
+    @Path("Retransmission")
+    public String Retransmission(@QueryParam("logId") Long logId) throws BizCheckedException {
+
+        sysLogRpcService.Retransmission(logId);
+
+        return JsonUtils.SUCCESS();
     }
 }

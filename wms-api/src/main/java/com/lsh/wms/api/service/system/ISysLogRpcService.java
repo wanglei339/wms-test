@@ -1,5 +1,6 @@
 package com.lsh.wms.api.service.system;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.model.system.SysLog;
 
 import java.util.List;
@@ -13,5 +14,7 @@ public interface ISysLogRpcService {
     List<SysLog> getSysLogList(Map<String, Object> params);
 
     Integer countSysLog(Map<String, Object> params);
+
+    void Retransmission(Long logId) throws BizCheckedException;
 
 }

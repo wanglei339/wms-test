@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,4 +38,20 @@ public class SysLogService {
     public Integer countSysLog(Map<String, Object> params){
         return sysLogDao.countSysLog(params);
     }
+
+    /**
+     * 根据logId 来找对应的Syslog
+     * @param logId
+     * @return
+     */
+    public SysLog getSysLogById(Long logId){
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("logId",logId);
+        List<SysLog> list = this.getSysLogList(mapQuery);
+        if(list.size() <= 0){
+            return null;
+        }
+        return list.get(0);
+    }
+
 }

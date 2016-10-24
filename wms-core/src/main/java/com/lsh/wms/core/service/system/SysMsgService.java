@@ -22,6 +22,15 @@ public class SysMsgService {
     public void sendMessage(SysMsg msg) throws BizCheckedException {
         String value = JsonUtils.obj2Json(msg);
         String key = StrUtils.formatString(RedisKeyConstant.SYS_MSG,msg.getId());
-        redisListDao.leftPush(key, JsonUtils.obj2Json(msg));
+        redisListDao.leftPush(key, value);
+    }
+
+    public SysMsg getMessage(String key) throws BizCheckedException {
+        SysMsg msg = null;
+        String value = redisListDao.rightPop(key);
+        if (null != value){
+            msg = JsonUtils.json2Obj(value, SysMsg.class);
+        }
+        return msg;
     }
 }

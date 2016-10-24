@@ -1,5 +1,7 @@
 package com.lsh.wms.api.service.system;
 
+import com.lsh.base.common.exception.BizCheckedException;
+
 import java.util.Map;
 
 /**
@@ -11,4 +13,6 @@ public interface ISysLogRestService {
     String getSysLogList(Map<String, Object> params);
 
     String countSysLog(Map<String, Object> params);
+
+    String Retransmission(Long logId) throws BizCheckedException;
 }
