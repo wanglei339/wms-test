@@ -6,8 +6,7 @@ import com.lsh.base.common.exception.BizCheckedException;
  * Created by wuhao on 16/10/21.
  */
 
-public interface IInStorageRfRestService {
-    String getSupplierInfo() throws BizCheckedException;
-    String backConfirm() throws BizCheckedException;
+public interface IBackShelveRfRestService {
     String scanLocation() throws BizCheckedException;
+    String restore() throws BizCheckedException;
 }

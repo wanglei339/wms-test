@@ -833,7 +833,7 @@ public class LocationService {
     }
 
     /**
-     * 通过为止编码,返回为位置的id
+     * 通过位置编码,返回为位置的id
      *
      * @param code
      * @return
@@ -855,6 +855,23 @@ public class LocationService {
         }
         return locationId;
     }
+    /**
+     * 通过位置编码,返回为位置的location
+     *
+     * @param code
+     * @return
+     */
+    public BaseinfoLocation getLocationByCode(String code) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("locationCode", code);
+        params.put("isValid", LocationConstant.IS_VALID);
+        List<BaseinfoLocation> baseinfoLocations = locationDao.getLocationbyCode(params);
+        if (baseinfoLocations!=null && baseinfoLocations.size() > 0) {
+            return baseinfoLocations.get(0);
+        }
+        return null;
+    }
+
 
     /**
      * 根据type,isvalid和或者code获取location的集合,主要和查询有关
@@ -1360,7 +1377,7 @@ public class LocationService {
      * @param supplierNo (供商号)
      * @return
      */
-    public List<BaseinfoLocation> getLocationBySupplierNo(Long type,Long supplierNo) {
+    public List<BaseinfoLocation> getLocationBySupplierNo(Long type,String supplierNo) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("type", type);
         mapQuery.put("supplierNo",supplierNo);

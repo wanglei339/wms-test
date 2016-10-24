@@ -10,6 +10,7 @@ import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.model.po.PoItem;
 import com.lsh.wms.api.model.po.PoRequest;
+import com.lsh.wms.api.service.back.IBackInStorageProviderRpcService;
 import com.lsh.wms.api.service.po.IPoRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.PoConstant;
@@ -52,6 +53,9 @@ public class PoRpcService implements IPoRpcService {
 
     @Reference
     private ITaskRpcService iTaskRpcService;
+
+    @Reference
+    private IBackInStorageProviderRpcService backInStorageProviderRpcService;
 
     public Long insertOrder(PoRequest request) throws BizCheckedException{
         //初始化InbPoHeader
@@ -181,7 +185,9 @@ public class PoRpcService implements IPoRpcService {
             ibdHeader.setOrderId(Long.valueOf(String.valueOf(map.get("orderId"))));
         }
         ibdHeader.setOrderStatus(Integer.valueOf(String.valueOf(map.get("orderStatus"))));
-
+        if(ibdHeader.getOrderStatus()==3){
+            backInStorageProviderRpcService.createTask(ibdHeader.getOrderOtherId());
+        }
         poOrderService.updateInbPoHeaderByOrderOtherIdOrOrderId(ibdHeader);
 
         return true;

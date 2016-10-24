@@ -65,6 +65,7 @@ public class StockLotService {
         return lots.get(0).getSupplierId();
     }
 
+
     @Transactional(readOnly = false)
     public void insertLot(StockLot lot) throws BizCheckedException {
         if (lot.getLotId() == null || lot.getLotId() == 0) {
@@ -86,6 +87,12 @@ public class StockLotService {
 
     public List<StockLot> searchLot(Map<String, Object> mapQuery) {
         return lotDao.getStockLotList(mapQuery);
+    }
+    public StockLot getLotBySupplierAndPoId(Long supplierId,Long poId) {
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("supplierId",supplierId);
+        queryMap.put("poId",poId);
+        return lotDao.getStockLotList(queryMap).get(0);
     }
 
     public List<ItemAndSupplierRelation> getSupplierIdOrItemId(Map<String, Object> mapQuery) {

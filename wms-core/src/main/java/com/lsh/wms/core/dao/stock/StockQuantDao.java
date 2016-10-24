@@ -33,4 +33,6 @@ public interface StockQuantDao {
     void moveToComplete(Long id);
 
     void remove(Long id);
+
+    List<Long >getLotByLocationId(Long locationId);
 }

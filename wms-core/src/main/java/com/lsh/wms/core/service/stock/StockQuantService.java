@@ -53,6 +53,9 @@ public class StockQuantService {
     @Autowired
     private BaseTaskService baseTaskService;
 
+    @Autowired StockLotService lotService;
+
+
     @Transactional(readOnly = false)
     public void moveToComplete(StockQuant quant) {
         stockQuantDao.moveToComplete(quant.getId());
@@ -91,6 +94,11 @@ public class StockQuantService {
     public List<Long> getLocationIdByContainerId(Long containerId) {
         return stockQuantDao.getLocationIdByContainerId(containerId);
     }
+    public Long getLocationIdByLotId(Long lotId) {
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("lotId",lotId);
+        return  stockQuantDao.getQuants(queryMap).get(0).getLocationId();
+    }
 
     @Transactional(readOnly = false)
     public BigDecimal getRealtimeQty(BaseinfoLocation location, Long itemId) {
@@ -100,6 +108,10 @@ public class StockQuantService {
         list.add(location);
         mapCondition.put("locationList", list);
         return this.getQty(mapCondition);
+    }
+
+    public List<Long> getLotIdByLocationId(Long locationId) {
+        return stockQuantDao.getLotByLocationId(locationId);
     }
 
 
@@ -117,6 +129,11 @@ public class StockQuantService {
     public List<StockQuant> getQuantsByContainerId(Long containerId) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("containerId", containerId);
+        return this.getQuants(mapQuery);
+    }
+    public List<StockQuant> getQuantsByOrderId(Long orderId) {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("orderId", orderId);
         return this.getQuants(mapQuery);
     }
 
@@ -463,6 +480,16 @@ public class StockQuantService {
             return null;
         }
     }
+    public Long getLocationBylot(Long lotId) {
+        Map<String, Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("lotId", lotId);
+        List<StockQuant> quants = stockQuantDao.getQuants(queryMap);
+        if (quants != null && quants.size() != 0) {
+            return quants.get(0).getLocationId();
+        } else {
+            return null;
+        }
+    }
 
     public int countStockQuant(Map<String, Object> mapQuery) {
         return stockQuantDao.countStockQuant(mapQuery);
@@ -474,6 +501,9 @@ public class StockQuantService {
         moveDao.insert(move);
 
         // 创建quant
+
+        lotService.insertLot(lot);
+
         StockQuant quant = new StockQuant();
         quant.setLotId(lot.getLotId());
         quant.setPackUnit(lot.getPackUnit());
@@ -488,6 +518,7 @@ public class StockQuantService {
         quant.setExpireDate(lot.getExpireDate());
         quant.setQty(move.getQty());
         quant.setLotCode(lot.getCode());
+        quant.setLotId(lot.getLotId());
         this.create(quant);
 
         // 新建 quant move历史记录

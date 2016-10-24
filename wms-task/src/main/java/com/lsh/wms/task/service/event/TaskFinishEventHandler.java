@@ -58,6 +58,10 @@ public class TaskFinishEventHandler extends AbsEventHandler implements IEventHan
             //集货完成，生成Qc任务
             taskHandlerFactory.getTaskHandler(TaskConstant.TYPE_QC).create(msg.getSourceTaskId());
         }
+        else if(TaskConstant.TYPE_BACK_SHELVE == sourceTaskType){
+            //退货上架完成，生成出库任务
+            taskHandlerFactory.getTaskHandler(TaskConstant.TYPE_BACK_OUT).create(msg.getSourceTaskId());
+        }
 
     }
 

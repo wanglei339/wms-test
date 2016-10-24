@@ -106,7 +106,7 @@ public class BaseinfoLocation implements Serializable, IBaseinfoLocaltionModel {
     /**
      * 供商号用于退货操作
      */
-    private Long supplierNo = 0L;
+    private String supplierNo = "";
 
     public Long getCurContainerVol() {
         return curContainerVol;
@@ -308,6 +308,14 @@ public class BaseinfoLocation implements Serializable, IBaseinfoLocaltionModel {
         this.storeNo = storeNo;
     }
 
+    public String getSupplierNo() {
+        return supplierNo;
+    }
+
+    public void setSupplierNo(String supplierNo) {
+        this.supplierNo = supplierNo;
+    }
+
     @Override
     public String toString() {
         return "BaseinfoLocation{" +
@@ -335,7 +343,8 @@ public class BaseinfoLocation implements Serializable, IBaseinfoLocaltionModel {
                 ", canUse=" + canUse +
                 ", isLocked=" + isLocked +
                 ", curContainerVol=" + curContainerVol +
-                ", storeNo=" + storeNo +
+                ", storeNo='" + storeNo + '\'' +
+                ", supplierNo=" + supplierNo +
                 '}';
     }
 }
