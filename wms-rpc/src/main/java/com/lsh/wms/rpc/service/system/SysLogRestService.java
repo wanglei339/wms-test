@@ -18,7 +18,7 @@ import java.util.Map;
  */
 
 @Service(protocol = "rest")
-@Path("sys")
+@Path("sysLog")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class SysLogRestService implements ISysLogRestService{
