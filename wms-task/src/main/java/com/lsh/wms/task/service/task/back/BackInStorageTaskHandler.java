@@ -1,57 +1,32 @@
 package com.lsh.wms.task.service.task.back;
 
 import com.alibaba.dubbo.config.annotation.Reference;
-import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
-import com.lsh.base.common.utils.StrUtils;
-import com.lsh.wms.api.model.po.ReceiptItem;
-import com.lsh.wms.api.model.po.ReceiptRequest;
-import com.lsh.wms.api.service.location.ILocationRpcService;
-import com.lsh.wms.api.service.seed.ISeedRpcService;
-import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.LocationConstant;
-import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.constant.TaskConstant;
-import com.lsh.wms.core.dao.redis.RedisStringDao;
-import com.lsh.wms.core.service.back.InStorageService;
+import com.lsh.wms.core.service.back.BackTaskService;
 import com.lsh.wms.core.service.container.ContainerService;
-import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.csi.CsiSupplierService;
-import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.po.PoOrderService;
-import com.lsh.wms.core.service.seed.SeedTaskHeadService;
 import com.lsh.wms.core.service.so.SoOrderService;
-import com.lsh.wms.core.service.staff.StaffService;
-import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
-import com.lsh.wms.core.service.task.BaseTaskService;
-import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.back.BackTaskDetail;
-import com.lsh.wms.model.baseinfo.BaseinfoContainer;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.csi.CsiSupplier;
-import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
 import com.lsh.wms.model.po.IbdObdRelation;
-import com.lsh.wms.model.seed.SeedingTaskHead;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
-import com.lsh.wms.model.stock.StockQuant;
-import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
-import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.task.service.handler.AbsTaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
-import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +44,7 @@ public class BackInStorageTaskHandler extends AbsTaskHandler {
     @Autowired
     private TaskHandlerFactory handlerFactory;
     @Autowired
-    private InStorageService inStorageService;
+    private BackTaskService backTaskService;
     @Reference
     ITaskRpcService taskRpcService;
     @Autowired
@@ -102,7 +77,7 @@ public class BackInStorageTaskHandler extends AbsTaskHandler {
         for(Object object:objectList){
             BackTaskDetail detail = (BackTaskDetail)object;
             detail.setTaskId(info.getTaskId());
-            inStorageService.insertDetail(detail);
+            backTaskService.insertDetail(detail);
         }
     }
     public void updteConcrete(TaskEntry taskEntry) {
@@ -110,7 +85,7 @@ public class BackInStorageTaskHandler extends AbsTaskHandler {
         for(Object object:objectList){
             BackTaskDetail detail = (BackTaskDetail)object;
             detail.setUpdatedAt(DateUtils.getCurrentSeconds());
-            inStorageService.updatedetail(detail);
+            backTaskService.updatedetail(detail);
         }
     }
     public void doneConcrete(Long taskId) {
@@ -167,7 +142,7 @@ public class BackInStorageTaskHandler extends AbsTaskHandler {
         moveService.move(moves);
     }
     public void getConcrete(TaskEntry taskEntry) {
-        taskEntry.setTaskDetailList((List<Object>) (List<?>) inStorageService.getDetailByTaskId(taskEntry.getTaskInfo().getTaskId()));
+        taskEntry.setTaskDetailList((List<Object>) (List<?>) backTaskService.getDetailByTaskId(taskEntry.getTaskInfo().getTaskId()));
     }
 
 }

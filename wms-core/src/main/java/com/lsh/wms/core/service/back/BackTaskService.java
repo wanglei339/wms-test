@@ -1,10 +1,8 @@
 package com.lsh.wms.core.service.back;
 
 import com.lsh.base.common.utils.DateUtils;
-import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.back.BackTaskDetailDao;
 import com.lsh.wms.model.back.BackTaskDetail;
-import com.lsh.wms.model.baseinfo.BaseinfoDepartment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +20,8 @@ import java.util.Map;
 
 @Component
 @Transactional(readOnly = true)
-public class InStorageService {
-    private static final Logger logger = LoggerFactory.getLogger(InStorageService.class);
+public class BackTaskService {
+    private static final Logger logger = LoggerFactory.getLogger(BackTaskService.class);
 
 
     @Autowired

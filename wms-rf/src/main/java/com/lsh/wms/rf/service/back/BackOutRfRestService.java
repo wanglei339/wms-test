@@ -6,15 +6,11 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.back.IBackOutRfRestService;
-import com.lsh.wms.api.service.back.IInStorageRfRestService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
-import com.lsh.wms.api.service.stock.IStockQuantRpcService;
-import com.lsh.wms.api.service.store.IStoreRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
-import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
-import com.lsh.wms.core.service.back.InStorageService;
+import com.lsh.wms.core.service.back.BackTaskService;
 import com.lsh.wms.core.service.csi.CsiSupplierService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.po.PoOrderService;
@@ -23,14 +19,10 @@ import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.back.BackTaskDetail;
-import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.po.IbdHeader;
 import com.lsh.wms.model.po.IbdObdRelation;
-import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockLot;
-import com.lsh.wms.model.stock.StockQuant;
-import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import org.slf4j.Logger;
@@ -80,7 +72,7 @@ public class BackOutRfRestService implements IBackOutRfRestService {
     private CsiSupplierService supplierService;
 
     @Autowired
-    private InStorageService inStorageService;
+    private BackTaskService backTaskService;
 
     @Reference
     private ILocationRpcService locationRpcService;

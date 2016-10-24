@@ -501,8 +501,13 @@ public class StockQuantService {
         moveDao.insert(move);
 
         // 创建quant
-
-        lotService.insertLot(lot);
+        StockLot stockLot = null;
+        if(lot.getLotId()!=null&& lot.getLotId()!=0 ) {
+            stockLot = lotService.getStockLotByLotId(lot.getLotId());
+        }
+        if(stockLot==null) {
+            lotService.insertLot(lot);
+        }
 
         StockQuant quant = new StockQuant();
         quant.setLotId(lot.getLotId());

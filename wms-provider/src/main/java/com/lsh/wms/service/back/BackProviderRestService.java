@@ -81,16 +81,4 @@ public class BackProviderRestService implements IBackProviderRestService {
         soOrderService.update(header);
         return JsonUtils.SUCCESS();
     }
-    /**
-     * 根据orderId获得供商类信息详情
-     * @return
-     * @throws BizCheckedException
-     */
-    @GET
-    @Path("test")
-    public String test() throws BizCheckedException {
-        String orderId="1460396";
-        backInStorageProviderRpcService.createTask(orderId);
-        return JsonUtils.SUCCESS();
-    }
 }
