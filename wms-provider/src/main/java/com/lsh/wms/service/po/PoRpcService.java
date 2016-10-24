@@ -185,7 +185,7 @@ public class PoRpcService implements IPoRpcService {
             ibdHeader.setOrderId(Long.valueOf(String.valueOf(map.get("orderId"))));
         }
         ibdHeader.setOrderStatus(Integer.valueOf(String.valueOf(map.get("orderStatus"))));
-        if(ibdHeader.getOrderStatus()==3){
+        if(ibdHeader.getOrderStatus()==5 && ibdHeader.getOrderType()==2){
             backInStorageProviderRpcService.createTask(ibdHeader.getOrderOtherId());
         }
         poOrderService.updateInbPoHeaderByOrderOtherIdOrOrderId(ibdHeader);

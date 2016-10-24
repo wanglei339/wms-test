@@ -171,6 +171,10 @@ public class SeedRestService implements ISeedRestService {
                         throw new BizCheckedException("2880003");
                     }
                     StockQuant quant = quants.get(0);
+                    BaseinfoLocation location = locationRpcService.getLocation(quant.getLocationId());
+                    if(location.getType().compareTo(LocationConstant.TEMPORARY)!=0){
+                        return JsonUtils.TOKEN_ERROR("该托盘不在暂存区，不能播种");
+                    }
                     StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
                     Map<String,Object> query = new HashMap<String, Object>();
                     query.put("orderId",lot.getPoId());
