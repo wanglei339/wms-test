@@ -8,4 +8,6 @@ package com.lsh.wms.core.constant;
 public class StoreConstant {
     public static final Integer IS_OPEN = 1;
     public static final Integer IS_CLOSED = 2;
+    public static final Integer SCALE_STORE = 1; // 小店
+    public static final Integer SCALE_HYPERMARKET = 2; // 大店
 }

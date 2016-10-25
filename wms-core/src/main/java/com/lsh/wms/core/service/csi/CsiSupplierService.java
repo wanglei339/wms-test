@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.csi;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.csi.CsiOwnerDao;
@@ -81,5 +82,14 @@ public class CsiSupplierService {
         return supplierDao.countCsiSupplier(mapQuery);
 
     }
-
+    public CsiSupplier getSuppler(String supplierCode,Long ownerId){
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("supplierCode",supplierCode);
+        mapQuery.put("ownerId", ownerId);
+        List<CsiSupplier> suppliers = supplierDao.getCsiSupplierList(mapQuery);
+        if(suppliers==null || suppliers.size()!=1){
+            throw new BizCheckedException("2180020");
+        }
+        return suppliers.get(0);
+    }
 }

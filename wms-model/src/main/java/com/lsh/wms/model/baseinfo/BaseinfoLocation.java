@@ -103,6 +103,10 @@ public class BaseinfoLocation implements Serializable, IBaseinfoLocaltionModel {
      * 门店号用于直流操作，0是库内操作1-99是区分门店的
      */
     private String storeNo = "0";
+    /**
+     * 供商号用于退货操作
+     */
+    private String supplierNo = "";
 
     public Long getCurContainerVol() {
         return curContainerVol;
@@ -304,6 +308,14 @@ public class BaseinfoLocation implements Serializable, IBaseinfoLocaltionModel {
         this.storeNo = storeNo;
     }
 
+    public String getSupplierNo() {
+        return supplierNo;
+    }
+
+    public void setSupplierNo(String supplierNo) {
+        this.supplierNo = supplierNo;
+    }
+
     @Override
     public String toString() {
         return "BaseinfoLocation{" +
@@ -331,7 +343,8 @@ public class BaseinfoLocation implements Serializable, IBaseinfoLocaltionModel {
                 ", canUse=" + canUse +
                 ", isLocked=" + isLocked +
                 ", curContainerVol=" + curContainerVol +
-                ", storeNo=" + storeNo +
+                ", storeNo='" + storeNo + '\'' +
+                ", supplierNo=" + supplierNo +
                 '}';
     }
 }

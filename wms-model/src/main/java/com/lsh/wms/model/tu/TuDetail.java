@@ -1,6 +1,7 @@
 package com.lsh.wms.model.tu;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class TuDetail implements Serializable {
@@ -12,7 +13,7 @@ public class TuDetail implements Serializable {
 	/** 合板的板id */
     private Long mergedContainerId;
 	/** 组盘后板上总箱数 */
-    private String boxNum;
+    private BigDecimal boxNum;
 	/** 托盘数聚合 */
     private Integer containerNum;
 	/** 组盘后板上的周转箱数 */
@@ -58,11 +59,11 @@ public class TuDetail implements Serializable {
 		this.mergedContainerId = mergedContainerId;
 	}
 	
-	public String getBoxNum(){
+	public BigDecimal getBoxNum(){
 		return this.boxNum;
 	}
 	
-	public void setBoxNum(String boxNum){
+	public void setBoxNum(BigDecimal boxNum){
 		this.boxNum = boxNum;
 	}
 	

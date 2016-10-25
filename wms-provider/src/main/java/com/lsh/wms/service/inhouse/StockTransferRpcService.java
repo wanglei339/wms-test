@@ -272,6 +272,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             taskInfo.setType(TaskConstant.TYPE_STOCK_TRANSFER);
             taskInfo.setContainerId(containerId);
             taskInfo.setQtyDone(taskInfo.getQty());
+            taskInfo.setStep(1);
             taskEntry.setTaskInfo(taskInfo);
 
             if (!taskId.equals(0L)) {

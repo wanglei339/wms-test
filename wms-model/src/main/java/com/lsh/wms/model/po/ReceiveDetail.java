@@ -21,7 +21,7 @@ public class ReceiveDetail implements Serializable {
 	/** 包装名称 */
     private String packName;
 	/** 包装单位 */
-    private String packUnit;
+    private BigDecimal packUnit;
 	/** 基本单位名称 */
     private String unitName;
 	/** 基本单位数量 */
@@ -97,11 +97,11 @@ public class ReceiveDetail implements Serializable {
 		this.packName = packName;
 	}
 	
-	public String getPackUnit(){
+	public BigDecimal getPackUnit(){
 		return this.packUnit;
 	}
 	
-	public void setPackUnit(String packUnit){
+	public void setPackUnit(BigDecimal packUnit){
 		this.packUnit = packUnit;
 	}
 	
