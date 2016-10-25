@@ -172,11 +172,9 @@ public class PoRpcService implements IPoRpcService {
                 throw new BizCheckedException("1010002", "参数类型不正确");
             }
         }
-
         if(!StringUtils.isInteger(String.valueOf(map.get("orderStatus")))) {
             throw new BizCheckedException("1010002", "参数类型不正确");
         }
-
         IbdHeader ibdHeader = new IbdHeader();
         if(map.get("orderOtherId") != null && !StringUtils.isBlank(String.valueOf(map.get("orderOtherId")))) {
             ibdHeader.setOrderOtherId(String.valueOf(map.get("orderOtherId")));
@@ -185,9 +183,6 @@ public class PoRpcService implements IPoRpcService {
             ibdHeader.setOrderId(Long.valueOf(String.valueOf(map.get("orderId"))));
         }
         ibdHeader.setOrderStatus(Integer.valueOf(String.valueOf(map.get("orderStatus"))));
-        if(ibdHeader.getOrderStatus()==5 && ibdHeader.getOrderType()==2){
-            backInStorageProviderRpcService.createTask(ibdHeader.getOrderOtherId());
-        }
         poOrderService.updateInbPoHeaderByOrderOtherIdOrOrderId(ibdHeader);
 
         return true;

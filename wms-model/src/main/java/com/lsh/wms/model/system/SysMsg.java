@@ -15,11 +15,11 @@ public class SysMsg implements Serializable{
     private Long type;
     private Integer targetSystem;
     private Long timestamp = DateUtils.getCurrentSeconds();
-    private Map<String, Object> msgBody;
+    private String msgBody;
 
     public SysMsg(){}
 
-    public SysMsg(Long id, Map<String, Object> msgBody, Integer targetSystem, Long timestamp, Long type) {
+    public SysMsg(Long id, String msgBody, Integer targetSystem, Long timestamp, Long type) {
         this.id = id;
         this.msgBody = msgBody;
         this.targetSystem = targetSystem;
@@ -35,11 +35,11 @@ public class SysMsg implements Serializable{
         this.id = id;
     }
 
-    public Map<String, Object> getMsgBody() {
+    public String getMsgBody() {
         return msgBody;
     }
 
-    public void setMsgBody(Map<String, Object> msgBody) {
+    public void setMsgBody(String msgBody) {
         this.msgBody = msgBody;
     }
 
