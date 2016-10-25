@@ -15,12 +15,19 @@ public interface ILoadRfRestService {
      */
     public String getTuHeadListByLoadStatus()throws BizCheckedException;
 
+//    /**
+//     * rf获取tu单明细
+//     * @return
+//     * @throws BizCheckedException
+//     */
+//    public String getTuHead()throws BizCheckedException;
+
     /**
-     * rf获取tu单明细
+     * 下一步,tuhead的状态变更,status变为发车中。。。
      * @return
      * @throws BizCheckedException
      */
-    public String getTuHead()throws BizCheckedException;
+    public String changeLoadStatus()throws BizCheckedException;
 
     /**
      * 板子装车
@@ -35,6 +42,13 @@ public interface ILoadRfRestService {
      * @throws BizCheckedException
      */
     public String confirmLoad() throws BizCheckedException;
+
+    /**
+     * 继续装车
+     * @return
+     * @throws BizCheckedException
+     */
+    public String reloadByTuId() throws BizCheckedException;
 
 
 
