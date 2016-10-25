@@ -169,6 +169,7 @@ public class MergeRpcService implements IMergeRpcService {
                     result.put("packCount", new BigDecimal(Double.valueOf(result.get("packCount").toString())).add(qcCounts.get("packCount")));
                     result.put("turnoverBoxCount", new BigDecimal(Double.valueOf(result.get("turnoverBoxCount").toString())).add(qcCounts.get("turnoverBoxCount")));
                     result.put("containerCount", Integer.valueOf(result.get("containerCount").toString()) + 1);
+                    result.put("storeNo",storeNo);
                     // 是否是余货
                     if (waveDetail.getQcAt() < DateUtils.getTodayBeginSeconds()) {
                         result.put("isRest", true);
@@ -178,6 +179,7 @@ public class MergeRpcService implements IMergeRpcService {
                     result.put("containerCount", 1);
                     result.put("packCount", qcCounts.get("packCount"));
                     result.put("turnoverBoxCount", qcCounts.get("turnoverBoxCount"));
+                    result.put("storeNo",storeNo);
                     result.put("isExpensive", false);
                     if (waveDetail.getQcAt() < DateUtils.getTodayBeginSeconds()) {
                         result.put("isRest", true);
