@@ -3,12 +3,16 @@ package com.lsh.wms.core.service.system;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
+import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.dao.redis.RedisListDao;
 import com.lsh.wms.model.system.SysMsg;
+import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * Created by lixin-mac on 2016/10/21.
@@ -27,9 +31,12 @@ public class SysMsgService {
 
     public SysMsg getMessage(String key) throws BizCheckedException {
         SysMsg msg = null;
-        String value = redisListDao.rightPop(key);
+        String value = redisListDao.range(key,0,-1).get(0);
+        System.out.println(value);
         if (null != value){
-            msg = JsonUtils.json2Obj(value, SysMsg.class);
+            JSONObject obj = new JSONObject().fromObject(value);
+            msg = (SysMsg) JSONObject.toBean(obj,SysMsg.class);
+
         }
         return msg;
     }
