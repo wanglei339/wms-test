@@ -76,22 +76,21 @@ public class DataBackService implements IDataBackService {
                 orderResponse = JSON.parseObject(jsonStr,OrderResponse.class);
             }
             //存入sys_log
-            Long sysId = RandomUtils.genId();
+            //Long sysId = RandomUtils.genId();
             SysLog sysLog = new SysLog();
-            sysLog.setLogId(sysId);
+            //sysLog.setLogId(sysId);
             sysLog.setLogMessage(orderResponse.getMessage());
             sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
             sysLog.setLogType(type);
             sysLog.setLogCode(orderResponse.getCode().longValue());
-            sysLogService.insertSysLog(sysLog);
+            Long sysId = sysLogService.insertSysLog(sysLog);
 
             //将返回结果存入缓存,发生错误可以重新下传。
             SysMsg sysMsg = new SysMsg();
             sysMsg.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
             sysMsg.setId(sysId);
             sysMsg.setType(type.longValue());
-            Map<String,Object> map = BeanMapTransUtils.Bean2map(request);
-            sysMsg.setMsgBody(map);
+            sysMsg.setMsgBody(jsonCreate);
             sysMsgService.sendMessage(sysMsg);
 
             logger.info("orderResponse = " + JSON.toJSONString(orderResponse));

@@ -138,6 +138,7 @@ public class ReceiveService {
     /**
      * 修改receiveHeader状态
      */
+    @Transactional(readOnly = false)
     public void updateStatus(ReceiveHeader receiveHeader){
         receiveHeader.setUpdatedAt(DateUtils.getCurrentSeconds());
         receiveHeaderDao.update(receiveHeader);
