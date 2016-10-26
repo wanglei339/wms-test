@@ -46,6 +46,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static java.awt.SystemColor.info;
 
@@ -298,30 +299,41 @@ public class ReceiptRestService implements IReceiptRfService {
         return JsonUtils.SUCCESS(orderInfoMap);
     }
 
-    private String oldStoreId = "";
+    //private String oldStoreId = "";
 
     @POST
     @Path("getStoreInfo")
     public String getStoreInfo(@FormParam("storeId") String storeId,@FormParam("containerId") Long containerId, @FormParam("barCode") String barCode,@FormParam("orderOtherId") String orderOtherId) throws BizCheckedException {
-
+        //参数有效性验证
+        if(StringUtils.isBlank(storeId) || StringUtils.isBlank(barCode) || StringUtils.isBlank(orderOtherId)|| containerId ==null) {
+            throw new BizCheckedException("1020001", "参数不能为空");
+        }
         //判断门店是否有订货
         Map<String,Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("deliveryCode",storeId);
         mapQuery.put("orderType", SoConstant.ORDER_TYPE_DIRECT);
         mapQuery.put("orderStatus",1);
         List<ObdHeader> obdHeaderList = soOrderService.getOutbSoHeaderList(mapQuery);
-
-
-        if(!storeId.equals(oldStoreId)){
-            if(obdHeaderList.size() <= 0){
-                throw new BizCheckedException("2020100");
-            }
-            if(!containerService.isContainerCanUse(containerId)){
-                throw new BizCheckedException("2000002");
-            }
-            oldStoreId = storeId;
+        if(obdHeaderList.size() <= 0){
+            throw new BizCheckedException("2020100");
         }
 
+        /*
+         *判断托盘是否可用
+         */
+
+        String containerStoreKey = RedisKeyConstant.CONTAINER_STORE.replace("{0}",containerId+"");
+        //从缓存中获取该托盘对应的店铺信息
+        String oldStoreId = redisStringDao.get(containerStoreKey);
+        if(!storeId.equals(oldStoreId)){
+            //验证托盘是否可用
+            if(!containerService.isContainerCanUse(containerId)){
+                throw new BizCheckedException("2000002");
+            }else{
+                //可用,存入缓存
+                redisStringDao.set(containerStoreKey,storeId,2, TimeUnit.DAYS);
+            }
+        }
 
         CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barCode);
         if (null == csiSku || csiSku.getSkuId() == null) {
