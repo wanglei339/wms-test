@@ -19,9 +19,9 @@ public class TuDetail implements Serializable {
 	/** 组盘后板上的周转箱数 */
     private Long turnoverBoxNum;
 	/** 是否余货，0不是，1是 */
-    private Integer isRest;
+    private Integer isRest =0;
 	/** '是否贵品，0不是，1是', */
-    private Integer isExpresive;
+    private Integer isExpresive=0;
 	/** 创建时间 */
     private Long createdAt;
 	/** 更新时间 */

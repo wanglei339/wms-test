@@ -75,35 +75,36 @@ public class LocationService {
             throw new BizCheckedException("2180001");
         }
         //先从redis中取数据,没有去数据库中取
-//        Map<String, String> locationMap = locationRedisService.getRedisLocation(locationId);
-//        if (locationMap != null && !locationMap.isEmpty()) {
-//            BaseinfoLocation location = new BaseinfoLocation();
-//            location.setLocationId(Long.valueOf(locationMap.get("locationId")));
-//            location.setLocationCode(locationMap.get("locationCode"));
-//            location.setFatherId(Long.valueOf(locationMap.get("fatherId")));
-//            location.setLeftRange(Long.valueOf(locationMap.get("leftRange")));
-//            location.setRightRange(Long.valueOf(locationMap.get("rightRange")));
-//            location.setLevel(Long.valueOf(locationMap.get("level")));
-//            location.setType(Long.valueOf(locationMap.get("type")));
-//            location.setTypeName(locationMap.get("typeName"));
-//            location.setIsLeaf(Integer.valueOf(locationMap.get("isLeaf")));
-//            location.setIsValid(Integer.valueOf(locationMap.get("isValid")));
-//            location.setCanStore(Integer.valueOf(locationMap.get("canStore")));
-//            location.setContainerVol(Long.valueOf(locationMap.get("containerVol")));
-//            location.setRegionNo(Long.valueOf(locationMap.get("regionNo")));
-//            location.setPassageNo(Long.valueOf(locationMap.get("passageNo")));
-//            location.setShelfLevelNo(Long.valueOf(locationMap.get("shelfLevelNo")));
-//            location.setBinPositionNo(Long.valueOf(locationMap.get("binPositionNo")));
-//            location.setCreatedAt(Long.valueOf(locationMap.get("createdAt")));
-//            location.setUpdatedAt(Long.valueOf(locationMap.get("updatedAt")));
-//            location.setClassification(Integer.valueOf(locationMap.get("classification")));
-//            location.setCanUse(Integer.valueOf(locationMap.get("canUse")));
-//            location.setIsLocked(Integer.valueOf(locationMap.get("isLocked")));
-//            location.setCurContainerVol(Long.valueOf(locationMap.get("curContainerVol")));
-//            location.setDescription(locationMap.get("description"));
-//            location.setDescription(locationMap.get("storeNo"));
-//            return location;
-//        }
+        Map<String, String> locationMap = locationRedisService.getRedisLocation(locationId);
+        if (locationMap != null && !locationMap.isEmpty()) {
+            BaseinfoLocation location = new BaseinfoLocation();
+            location.setLocationId(Long.valueOf(locationMap.get("locationId")));
+            location.setLocationCode(locationMap.get("locationCode"));
+            location.setFatherId(Long.valueOf(locationMap.get("fatherId")));
+            location.setLeftRange(Long.valueOf(locationMap.get("leftRange")));
+            location.setRightRange(Long.valueOf(locationMap.get("rightRange")));
+            location.setLevel(Long.valueOf(locationMap.get("level")));
+            location.setType(Long.valueOf(locationMap.get("type")));
+            location.setTypeName(locationMap.get("typeName"));
+            location.setIsLeaf(Integer.valueOf(locationMap.get("isLeaf")));
+            location.setIsValid(Integer.valueOf(locationMap.get("isValid")));
+            location.setCanStore(Integer.valueOf(locationMap.get("canStore")));
+            location.setContainerVol(Long.valueOf(locationMap.get("containerVol")));
+            location.setRegionNo(Long.valueOf(locationMap.get("regionNo")));
+            location.setPassageNo(Long.valueOf(locationMap.get("passageNo")));
+            location.setShelfLevelNo(Long.valueOf(locationMap.get("shelfLevelNo")));
+            location.setBinPositionNo(Long.valueOf(locationMap.get("binPositionNo")));
+            location.setCreatedAt(Long.valueOf(locationMap.get("createdAt")));
+            location.setUpdatedAt(Long.valueOf(locationMap.get("updatedAt")));
+            location.setClassification(Integer.valueOf(locationMap.get("classification")));
+            location.setCanUse(Integer.valueOf(locationMap.get("canUse")));
+            location.setIsLocked(Integer.valueOf(locationMap.get("isLocked")));
+            location.setCurContainerVol(Long.valueOf(locationMap.get("curContainerVol")));
+            location.setDescription(locationMap.get("description"));
+            location.setStoreNo(locationMap.get("storeNo").toString());
+            location.setSupplierNo(locationMap.get("storeNo").toString());
+            return location;
+        }
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("locationId", locationId);
         params.put("isValid", LocationConstant.IS_VALID);
