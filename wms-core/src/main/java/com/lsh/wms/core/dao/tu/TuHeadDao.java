@@ -18,5 +18,7 @@ public interface TuHeadDao {
     Integer countTuHead(Map<String, Object> params);
 
     List<TuHead> getTuHeadList(Map<String, Object> params);
-	
+
+	List<TuHead> getTuHeadListOnPc(Map<String, Object> params);
+
 }

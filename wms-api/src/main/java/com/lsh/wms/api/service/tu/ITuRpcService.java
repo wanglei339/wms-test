@@ -20,6 +20,8 @@ public interface ITuRpcService {
 
     public List<TuHead> getTuHeadList(Map<String, Object> mapQuery) throws BizCheckedException;
 
+    public List<TuHead> getTuHeadListOnPc(Map<String, Object> params) throws BizCheckedException;
+
     public Integer countTuHead(Map<String, Object> mapQuery) throws BizCheckedException;
 
     public TuHead removeTuHead(String tuId) throws BizCheckedException;
@@ -48,7 +50,8 @@ public interface ITuRpcService {
 
     public List<TuDetail> getTuDetailByStoreCode(String tuId, String deliveryCode) throws BizCheckedException;
 
-    public TuHead changeTuHeadStatus(String tuId,Integer status) throws BizCheckedException;
-    public TuHead changeTuHeadStatus(TuHead tuHead,Integer status) throws BizCheckedException;
+    public TuHead changeTuHeadStatus(String tuId, Integer status) throws BizCheckedException;
+
+    public TuHead changeTuHeadStatus(TuHead tuHead, Integer status) throws BizCheckedException;
 
 }

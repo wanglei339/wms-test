@@ -55,13 +55,18 @@ public class TuService {
         return tuHeadDao.getTuHeadList(mapQuery);
     }
 
-    public Integer countTuHead(Map<String, Object> mapQuery){
+    public List<TuHead> getTuHeadListOnPc(Map<String, Object> params) {
+        params.put("isValid", 1);
+        return tuHeadDao.getTuHeadListOnPc(params);
+    }
+
+    public Integer countTuHead(Map<String, Object> mapQuery) {
         mapQuery.put("isValid", 1);
         return tuHeadDao.countTuHead(mapQuery);
     }
 
     @Transactional(readOnly = false)
-    public TuHead removeTuHead(TuHead tuHead){
+    public TuHead removeTuHead(TuHead tuHead) {
         tuHead.setIsValid(0);   //无效
         this.update(tuHead);
         return tuHead;
@@ -86,7 +91,8 @@ public class TuService {
 
     /**
      * 根据合板的板id查找detail
-     *  板子的id是tuDetail表的唯一key
+     * 板子的id是tuDetail表的唯一key
+     *
      * @param boardId
      * @return
      */
@@ -135,10 +141,6 @@ public class TuService {
         mapQuery.put("deliveryCode", deliveryCode);  //门店号
         return this.getTuDeailList(mapQuery);
     }
-
-
-
-
 
 
 }
