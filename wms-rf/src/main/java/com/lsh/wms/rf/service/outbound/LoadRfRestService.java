@@ -80,8 +80,9 @@ public class LoadRfRestService implements ILoadRfRestService {
     public String getTuHeadListByLoadStatus() throws BizCheckedException {
         Map<String, Object> mapRequest = RequestUtils.getRequest();
         Integer status = Integer.valueOf(mapRequest.get("status").toString());
+        Long loadUid = Long.valueOf(RequestUtils.getHeader("uid").toString());
         //根据传入要的tu单的状态,显示不同list
-        if (null == status) {
+        if (null == status || null == loadUid) {
             throw new BizCheckedException("2990028");
         }
         if (!TuConstant.UNLOAD.equals(status) && !TuConstant.LOAD_OVER.equals(status)) {
@@ -91,41 +92,38 @@ public class LoadRfRestService implements ILoadRfRestService {
         //结果集封装 序号,运单号,tu,装车数;//
         List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
         Map<String, Object> resultMap = new HashMap<String, Object>();
+        List<TuHead> headList = new ArrayList<TuHead>();
         //待装车
         if (TuConstant.UNLOAD.equals(status)) {
+            //将该人的状态是装车中的也列出来
+            Map<String, Object> tuMapQuery = new HashMap<String, Object>();
+            tuMapQuery.put("loadUid", loadUid);
+            tuMapQuery.put("status", TuConstant.IN_LOADING);
+            List<TuHead> doingHeads = iTuRpcService.getTuHeadList(tuMapQuery);
+            if (null != doingHeads && doingHeads.size() > 0) {
+                headList.addAll(doingHeads);
+            }
+            //待装车的
             Map<String, Object> mapQuery = new HashMap<String, Object>();
             mapQuery.put("status", TuConstant.UNLOAD);
             mapQuery.put("orderBy", "createdAt");    //按照createAt排序
             mapQuery.put("orderType", "asc");    //按照createAt排序
             tuHeads = iTuRpcService.getTuHeadList(mapQuery);   //时间的降序
-            //无tu单
-            if (null == tuHeads || tuHeads.size() < 1) {
-                return "";
+            //有待装车单子
+            if (null != tuHeads && tuHeads.size() > 0) {
+                headList.addAll(tuHeads);
             }
-            for (int i = 0; i < tuHeads.size(); i++) {
+            for (int i = 0; i < headList.size(); i++) {
                 Map<String, Object> one = new HashMap<String, Object>();
                 one.put("number", i + 1);   //序号
-                one.put("tu", tuHeads.get(i).getTuId());   //tu号
-                one.put("cellphone", tuHeads.get(i).getCellphone()); //司机的电话号
-                one.put("preBoard", tuHeads.get(i).getPreBoard());   //预装板数
-                one.put("carNumber", tuHeads.get(i).getCarNumber());   //预装板数
-                one.put("driverName", tuHeads.get(i).getName());   //预装板数
+                one.put("tu", headList.get(i).getTuId());   //tu号
+                one.put("cellphone", headList.get(i).getCellphone()); //司机的电话号
+                one.put("preBoard", headList.get(i).getPreBoard());   //预装板数
+                one.put("carNumber", headList.get(i).getCarNumber());   //预装板数
+                one.put("driverName", headList.get(i).getName());   //预装板数
                 //门店
-                String[] storeIdsStr = tuHeads.get(i).getStoreIds().split("\\|"); //门店id以|分割
                 //List<map<"code":,"name">>
-                List<Map<String, Object>> storeList = new ArrayList<Map<String, Object>>();
-                for (String storeIdStr : storeIdsStr) {
-                    Long storeId = Long.valueOf(storeIdStr);
-                    BaseinfoStore store = storeService.getStoreByStoreId(storeId);
-                    if (null == store) {
-                        throw new BizCheckedException("2180018");
-                    }
-                    Map<String, Object> storeMap = new HashMap<String, Object>();
-                    storeMap.put("storeNo", store.getStoreNo());
-                    storeMap.put("storeName", store.getStoreName());
-                    storeMap.put("storeId", store.getStoreId());
-                    storeList.add(storeMap);
-                }
+                List<Map<String, Object>> storeList = storeService.analyStoresIds2Stores(headList.get(i).getStoreIds());
                 one.put("stores", storeList);
                 resultList.add(one);
             }
@@ -139,7 +137,7 @@ public class LoadRfRestService implements ILoadRfRestService {
             tuHeads = iTuRpcService.getTuHeadList(mapQuery);
             //无tu单
             if (null == tuHeads || tuHeads.size() < 1) {
-                return "";
+                return null;
             }
             for (int i = 0; i < tuHeads.size(); i++) {
                 Map<String, Object> one = new HashMap<String, Object>();
@@ -150,21 +148,8 @@ public class LoadRfRestService implements ILoadRfRestService {
                 one.put("carNumber", tuHeads.get(i).getCarNumber());   //预装板数
                 one.put("driverName", tuHeads.get(i).getName());   //预装板数
                 //门店
-                String[] storeIdsStr = tuHeads.get(i).getStoreIds().split("\\|"); //门店id以|分割
                 //List<map<"code":,"name">>
-                List<Map<String, Object>> storeList = new ArrayList<Map<String, Object>>();
-                for (String storeIdStr : storeIdsStr) {
-                    Long storeId = Long.valueOf(storeIdStr);
-                    BaseinfoStore store = storeService.getStoreByStoreId(storeId);
-                    if (null == store) {
-                        throw new BizCheckedException("2180018");
-                    }
-                    Map<String, Object> storeMap = new HashMap<String, Object>();
-                    storeMap.put("storeNo", store.getStoreNo());
-                    storeMap.put("storeName", store.getStoreName());
-                    storeMap.put("storeId", store.getStoreId());
-                    storeList.add(storeMap);
-                }
+                List<Map<String, Object>> storeList = storeService.analyStoresIds2Stores(tuHeads.get(i).getStoreIds());
                 one.put("stores", storeList);
                 resultList.add(one);
             }
@@ -204,24 +189,13 @@ public class LoadRfRestService implements ILoadRfRestService {
     public String getTuJob() throws BizCheckedException {
         Map<String, Object> mapRequest = RequestUtils.getRequest();
         String tuId = mapRequest.get("tuId").toString();
+        Long loadUid = Long.valueOf(RequestUtils.getHeader("uid").toString());
         TuHead tuHead = iTuRpcService.getHeadByTuId(tuId);
         tuHead.setLoadedAt(DateUtils.getCurrentSeconds());
+        tuHead.setLoadUid(loadUid);
         iTuRpcService.changeTuHeadStatus(tuHead, TuConstant.IN_LOADING);    //改成装车中
-
-        List<Map<String, Object>> stores = new ArrayList<Map<String, Object>>();
-        String[] storeIdsStr = tuHead.getStoreIds().split("\\|"); //门店id以|分割
-        for (String storeIdStr : storeIdsStr) {
-            Long storeId = Long.valueOf(storeIdStr);
-            BaseinfoStore store = storeService.getStoreByStoreId(storeId);
-            if (null == store) {
-                throw new BizCheckedException("2180018");
-            }
-            Map<String, Object> storeMap = new HashMap<String, Object>();
-            storeMap.put("storeNo", store.getStoreNo());
-            storeMap.put("storeName", store.getStoreName());
-            storeMap.put("storeId", store.getStoreId());
-            stores.add(storeMap);
-        }
+        //门店信息
+        List<Map<String, Object>> stores = storeService.analyStoresIds2Stores(tuHead.getStoreIds());
         Map<Long, Map<String, Object>> storesRestMap = new HashMap<Long, Map<String, Object>>();
         //循环门店获取尾货信息(没合板,合板日期就是零)
         for (Map<String, Object> store : stores) {
@@ -396,7 +370,6 @@ public class LoadRfRestService implements ILoadRfRestService {
         tuDetail.setTurnoverBoxNum(turnoverBoxNum);
         tuDetail.setStoreId(storeId);
         tuDetail.setLoadAt(DateUtils.getCurrentSeconds());
-        tuDetail.setLoadUid(uid);
         tuDetail.setIsValid(1);
         // todo 贵品还是余货插入
         tuDetail.setIsRest(isExpensive ? 1 : 0);    //贵品为1
@@ -454,7 +427,7 @@ public class LoadRfRestService implements ILoadRfRestService {
         qcMapQuery.put("type", TaskConstant.TYPE_QC);
         qcMapQuery.put("status", TaskConstant.Done);
         List<TaskInfo> qcInfos = baseTaskService.getTaskInfoList(qcMapQuery);
-        if (null == qcInfos) {
+        if (null == qcInfos || qcInfos.size() < 1) {
             throw new BizCheckedException("2870034");
         }
         List<WaveDetail> waveDetails = null;    //查找板子的detail
