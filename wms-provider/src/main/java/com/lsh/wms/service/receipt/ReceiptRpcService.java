@@ -30,9 +30,7 @@ import com.lsh.wms.core.service.po.ReceiveService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
-import com.lsh.wms.core.service.store.StoreService;
 import com.lsh.wms.core.service.utils.IdGenerator;
-import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.*;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.po.*;
@@ -42,7 +40,6 @@ import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
-import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.service.inhouse.StockTransferRpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -411,9 +408,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     obdStreamDetail.setItemId(inbReceiptDetail.getItemId());
                     obdStreamDetail.setContainerId(inbReceiptHeader.getContainerId());
                     obdStreamDetail.setOwnerId(ibdHeader.getOwnerUid());
-                    //obdStreamDetail.setReceiptQty(inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit()));
                     //统一放到pickQty中
-                    obdStreamDetail.setPickQty(inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit()));
+                    obdStreamDetail.setPickQty(inbReceiptDetail.getInboundQty());
+                    obdStreamDetail.setAllocUnitName(inbReceiptDetail.getPackName());
                     obdStreamDetail.setSkuId(inbReceiptDetail.getSkuId());
                     obdStreamDetailList.add(obdStreamDetail);
 
@@ -756,8 +753,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
             obdStreamDetail.setItemId(inbReceiptDetail.getItemId());
             obdStreamDetail.setContainerId(inbReceiptHeader.getContainerId());
             obdStreamDetail.setOwnerId(ibdHeader.getOwnerUid());
-            //obdStreamDetail.setReceiptQty(inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit()));
-            obdStreamDetail.setPickQty(inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit()));
+            obdStreamDetail.setPickQty(inbReceiptDetail.getInboundQty());
+            obdStreamDetail.setAllocUnitName(inbReceiptDetail.getPackName());
             obdStreamDetail.setSkuId(inbReceiptDetail.getSkuId());
             obdStreamDetailList.add(obdStreamDetail);
             obdStreamDetail.setOrderId(obdOrderId);

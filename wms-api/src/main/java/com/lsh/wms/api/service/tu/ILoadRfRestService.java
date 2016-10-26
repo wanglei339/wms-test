@@ -22,12 +22,20 @@ public interface ILoadRfRestService {
 //     */
 //    public String getTuHead()throws BizCheckedException;
 
+//    /**
+//     * 废弃了
+//     * 下一步,tuhead的状态变更,status变为发车中。。。
+//     * @return
+//     * @throws BizCheckedException
+//     */
+//    public String changeLoadStatus()throws BizCheckedException;
+
     /**
-     * 下一步,tuhead的状态变更,status变为发车中。。。
+     *  领取Tu单子,改变tu单状态为装车中,并列出当前尾货
      * @return
      * @throws BizCheckedException
      */
-    public String changeLoadStatus()throws BizCheckedException;
+    public String getTuJob()throws BizCheckedException;
 
     /**
      * 板子装车
@@ -35,6 +43,13 @@ public interface ILoadRfRestService {
      * @throws BizCheckedException
      */
     public String loadBoard() throws BizCheckedException;
+
+    /**
+     * 显示板子上的箱数
+     * @return
+     * @throws BizCheckedException
+     */
+    public String showBoardDetail() throws BizCheckedException;
 
     /**
      * 确认装车完成

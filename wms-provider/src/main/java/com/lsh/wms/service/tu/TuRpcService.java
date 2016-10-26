@@ -3,6 +3,7 @@ package com.lsh.wms.service.tu;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.service.tu.ITuRpcService;
+import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.model.tu.TuDetail;
 import com.lsh.wms.model.tu.TuHead;
@@ -117,10 +118,29 @@ public class TuRpcService implements ITuRpcService {
     }
 
     public List<TuDetail> getTuDetailByStoreCode(String tuId, String deliveryCode) throws BizCheckedException {
-        if (null == tuId || null == deliveryCode){
+        if (null == tuId || null == deliveryCode) {
             throw new BizCheckedException("2990027");
         }
-            return tuService.getTuDetailByStoreCode(tuId,deliveryCode);
+        return tuService.getTuDetailByStoreCode(tuId, deliveryCode);
+    }
+
+    public TuHead changeTuHeadStatus(String tuId, Integer status) throws BizCheckedException {
+        if (null == tuId || tuId.equals("")) {
+            throw new BizCheckedException("2990021");
+        }
+        TuHead tuHead = this.getHeadByTuId(tuId);
+        if (null == tuHead) {
+            throw new BizCheckedException("2990022");
+        }
+        tuHead.setStatus(status);
+        this.update(tuHead);
+        return tuHead;
+    }
+
+    public TuHead changeTuHeadStatus(TuHead tuHead, Integer status) throws BizCheckedException {
+        tuHead.setStatus(status);
+        this.update(tuHead);
+        return tuHead;
     }
 
 
