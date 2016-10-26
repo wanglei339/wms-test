@@ -90,6 +90,7 @@ public class LoadRfRestService implements ILoadRfRestService {
         List<TuHead> tuHeads = null;
         //结果集封装 序号,运单号,tu,装车数;//
         List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
+        Map<String, Object> resultMap = new HashMap<String, Object>();
         //待装车
         if (TuConstant.UNLOAD.equals(status)) {
             Map<String, Object> mapQuery = new HashMap<String, Object>();
@@ -105,7 +106,7 @@ public class LoadRfRestService implements ILoadRfRestService {
                 Map<String, Object> one = new HashMap<String, Object>();
                 one.put("number", i + 1);   //序号
                 one.put("tu", tuHeads.get(i).getTuId());   //tu号
-                one.put("cellphone",tuHeads.get(i).getCellphone()); //司机的电话号
+                one.put("cellphone", tuHeads.get(i).getCellphone()); //司机的电话号
                 one.put("preBoard", tuHeads.get(i).getPreBoard());   //预装板数
                 one.put("carNumber", tuHeads.get(i).getCarNumber());   //预装板数
                 one.put("driverName", tuHeads.get(i).getName());   //预装板数
@@ -144,7 +145,7 @@ public class LoadRfRestService implements ILoadRfRestService {
                 Map<String, Object> one = new HashMap<String, Object>();
                 one.put("number", i + 1);   //序号
                 one.put("tu", tuHeads.get(i).getTuId());
-                one.put("cellphone",tuHeads.get(i).getCellphone()); //司机的电话号
+                one.put("cellphone", tuHeads.get(i).getCellphone()); //司机的电话号
                 one.put("realBoard", tuHeads.get(i).getRealBoard());
                 one.put("carNumber", tuHeads.get(i).getCarNumber());   //预装板数
                 one.put("driverName", tuHeads.get(i).getName());   //预装板数
@@ -168,7 +169,8 @@ public class LoadRfRestService implements ILoadRfRestService {
                 resultList.add(one);
             }
         }
-        return JsonUtils.SUCCESS(resultList);
+        resultMap.put("result", resultList);
+        return JsonUtils.SUCCESS(resultMap);
     }
 
 //    /**
@@ -251,7 +253,9 @@ public class LoadRfRestService implements ILoadRfRestService {
                 storeRestList.add(storesRestMap.get(key));
             }
         }
-        return JsonUtils.SUCCESS(storeRestList);    //无法按时间排序,因为有些时间为空
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+        resultMap.put("result", storeRestList);
+        return JsonUtils.SUCCESS(resultMap);    //无法按时间排序,因为有些时间为空
     }
 
 //    /**
@@ -471,7 +475,7 @@ public class LoadRfRestService implements ILoadRfRestService {
         String storeCode = obdHeader.getDeliveryCode();
         Long storeId = storeService.getStoreIdByCode(storeCode).get(0).getStoreId();    //获取storeId
         boolean isSameStrore = false;
-        for (Map<String,Object> store : stores) {
+        for (Map<String, Object> store : stores) {
             if (store.get("storeNo").toString().equals(storeCode)) {  //相同门店
                 isSameStrore = true;
                 break;
