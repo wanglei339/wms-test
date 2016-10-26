@@ -65,7 +65,7 @@
 		<where>
 			<if test="id != null">id=#{id}</if>
 			<if test="storeNo != null">and store_no=#{storeNo}</if>
-			<if test="storeName != null">and store_name=#{storeName}</if>
+			<if test="storeName != null">and store_name like CONCAT('%',#{storeName},'%' )</if>
 			<if test="region != null">and region=#{region}</if>
 			<if test="scale != null">and scale=#{scale}</if>
 			<if test="isOpen != null">and is_open=#{isOpen}</if>
