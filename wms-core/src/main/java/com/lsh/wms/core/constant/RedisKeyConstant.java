@@ -79,6 +79,11 @@ public class RedisKeyConstant {
      */
 
     public static final String PO_STORE = "po_id:{0}:store_no:{1}";
+    /**
+     * 门店收货托盘对应店铺 redis string,值为对应店铺ID
+     */
+
+    public static final String CONTAINER_STORE = "container_id:{0}";
 
     /**
      * 直流tu运单占用redis    key hash

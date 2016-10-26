@@ -7,6 +7,7 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
+import java.util.concurrent.TimeUnit;
 
 /**
  * redis string
@@ -39,6 +40,18 @@ public class RedisStringDao extends RedisBaseDao {
         }
         valOp_w.set(key, valueStr);
     }
+    public void set(String key,Object value,long time,TimeUnit timeUnit){
+        if (StringUtils.isBlank(key)) {
+            return;
+        }
+        String valueStr = ObjUtils.toString(value, "");
+        if (StringUtils.isBlank(valueStr)) {
+            valueStr = NULL_STR;
+        }
+        valOp_w.set(key,valueStr,time, timeUnit);
+
+    }
+
 
     public void increase(String key, double val) {
         valOp_w.increment(key, val);
