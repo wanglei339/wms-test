@@ -21,7 +21,7 @@ import java.util.Map;
  * @Date 2016/10/25 下午9:25
  */
 @Service(protocol = "rest")
-@Path("tu")
+@Path("outbound/tu")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class TuRestService implements ITuRestService {
