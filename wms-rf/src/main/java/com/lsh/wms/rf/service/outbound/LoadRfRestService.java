@@ -105,6 +105,7 @@ public class LoadRfRestService implements ILoadRfRestService {
                 Map<String, Object> one = new HashMap<String, Object>();
                 one.put("number", i + 1);   //序号
                 one.put("tu", tuHeads.get(i).getTuId());   //tu号
+                one.put("cellphone",tuHeads.get(i).getCellphone()); //司机的电话号
                 one.put("preBoard", tuHeads.get(i).getPreBoard());   //预装板数
                 one.put("carNumber", tuHeads.get(i).getCarNumber());   //预装板数
                 one.put("driverName", tuHeads.get(i).getName());   //预装板数
@@ -143,6 +144,7 @@ public class LoadRfRestService implements ILoadRfRestService {
                 Map<String, Object> one = new HashMap<String, Object>();
                 one.put("number", i + 1);   //序号
                 one.put("tu", tuHeads.get(i).getTuId());
+                one.put("cellphone",tuHeads.get(i).getCellphone()); //司机的电话号
                 one.put("realBoard", tuHeads.get(i).getRealBoard());
                 one.put("carNumber", tuHeads.get(i).getCarNumber());   //预装板数
                 one.put("driverName", tuHeads.get(i).getName());   //预装板数

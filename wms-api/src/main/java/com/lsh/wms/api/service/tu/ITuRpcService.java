@@ -22,6 +22,8 @@ public interface ITuRpcService {
 
     public List<TuHead> getTuHeadListOnPc(Map<String, Object> params) throws BizCheckedException;
 
+    public Integer countTuHeadOnPc(Map<String, Object> mapQuery) throws BizCheckedException;
+
     public Integer countTuHead(Map<String, Object> mapQuery) throws BizCheckedException;
 
     public TuHead removeTuHead(String tuId) throws BizCheckedException;

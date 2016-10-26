@@ -60,6 +60,11 @@ public class TuService {
         return tuHeadDao.getTuHeadListOnPc(params);
     }
 
+    public Integer countTuHeadOnPc(Map<String, Object> mapQuery) {
+        mapQuery.put("isValid", 1);
+        return tuHeadDao.countTuHeadOnPc(mapQuery);
+    }
+
     public Integer countTuHead(Map<String, Object> mapQuery) {
         mapQuery.put("isValid", 1);
         return tuHeadDao.countTuHead(mapQuery);

@@ -32,8 +32,29 @@ public class TuRestService implements ITuRestService {
     @Path("getTuheadList")
     public String getTuheadList() throws BizCheckedException {
         Map<String, Object> mapRequest = RequestUtils.getRequest();
-//        Long startTime = Long.valueOf(mapRequest.get("startTime").toString());    前端传回来的时间,时间需要转换
-//        Long endTime = Long.valueOf(mapRequest.get("endTime").toString());
+        //可传入起始时间和结束时间
         return JsonUtils.SUCCESS(iTuRpcService.getTuHeadListOnPc(mapRequest));
     }
+    @POST
+    @Path("countTuheadList")
+    public String countTuHeadOnPc(Map<String, Object> mapQuery) throws BizCheckedException {
+        return JsonUtils.SUCCESS(iTuRpcService.countTuHeadOnPc(mapQuery));
+    }
+
+
+    /**
+     * todo 发货
+     * 释放集货道|减库存|写入task的绩效
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("shipTu")
+    public String shipTu() throws BizCheckedException {
+        Map<String, Object> mapRequest = RequestUtils.getRequest();
+        String tuId = mapRequest.get("tuId").toString();
+
+        return JsonUtils.SUCCESS("需要写发货的逻辑");
+    }
+
 }

@@ -63,6 +63,16 @@ public class TuRpcService implements ITuRpcService {
         return tuService.getTuHeadListOnPc(params);
     }
 
+    /**
+     * PC上筛选tuList的方法,涉及时间区间的传入
+     * @param mapQuery
+     * @return
+     * @throws BizCheckedException
+     */
+    public Integer countTuHeadOnPc(Map<String, Object> mapQuery) throws BizCheckedException {
+        return tuService.countTuHeadOnPc(mapQuery);
+    }
+
     public Integer countTuHead(Map<String, Object> mapQuery) throws BizCheckedException {
         return tuService.countTuHead(mapQuery);
     }

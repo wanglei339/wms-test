@@ -120,6 +120,11 @@
         </if>
     </select>
 
+    <select id="countTuHeadOnPc" parameterType="map" resultType="int">
+        select count(*) from tu_head
+        <include refid="pcQueryCondition"/>
+    </select>
+
     <sql id="pcQueryCondition">
         <where>
             <if test="id != null">id=#{id}</if>
