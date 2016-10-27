@@ -93,8 +93,14 @@ public class StoreRestService implements IStoreRestService {
 
     @POST
     @Path("getStoreList")
-    public String getStoreList(StoreRequest storeRequest) throws BizCheckedException {
+    public String getStoreList(StoreRequest storeRequest) throws BizCheckedException {  //转成请求而不是map是因为汉子乱码问题
         Map<String, Object> params = BeanMapTransUtils.Bean2map(storeRequest);
+        if (null != params.get("start")) {  //转换,否则sql报错
+            params.put("start", Integer.valueOf(params.get("start").toString()));
+        }
+        if (null != params.get("limit")) {
+            params.put("limit", Integer.valueOf(params.get("limit").toString()));
+        }
         List<BaseinfoStore> baseinfoStores = storeRpcService.getStoreList(params);
         if (baseinfoStores == null || baseinfoStores.size() < 1) {
             throw new BizCheckedException("2180016");
@@ -106,6 +112,12 @@ public class StoreRestService implements IStoreRestService {
     @Path("countStores")
     public String countBaseinfoStore(StoreRequest storeRequest) throws BizCheckedException {
         Map<String, Object> params = BeanMapTransUtils.Bean2map(storeRequest);
+        if (null != params.get("start")) {  //转换,否则sql报错
+            params.put("start", Integer.valueOf(params.get("start").toString()));
+        }
+        if (null != params.get("limit")) {
+            params.put("limit", Integer.valueOf(params.get("limit").toString()));
+        }
         return JsonUtils.SUCCESS(storeRpcService.countBaseinfoStore(params));
     }
 }
