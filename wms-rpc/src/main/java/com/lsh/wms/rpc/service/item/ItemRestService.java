@@ -67,14 +67,14 @@ public class ItemRestService implements IItemRestService {
     @GET
     @Path("getSkuByCode")
     public String getSkuByCode(@QueryParam("codeType") int iCodeType,@QueryParam("code")  String sCode) {
-        CsiSku csiSku = itemRpcService.getSkuByCode(iCodeType,sCode);
+        CsiSku csiSku = itemRpcService.getSkuByCode(iCodeType, sCode);
         return JsonUtils.SUCCESS(csiSku);
     }
 
     @GET
     @Path("getItemsBySkuCode")
     public String getItemsBySkuCode(@QueryParam("ownerId") long iOwnerId,@QueryParam("skuCode")  String sSkuCode) {
-        List<BaseinfoItem>   baseinfoItemList = itemRpcService.getItemsBySkuCode(iOwnerId,sSkuCode);
+        List<BaseinfoItem>   baseinfoItemList = itemRpcService.getItemsBySkuCode(iOwnerId, sSkuCode);
         return  JsonUtils.SUCCESS(baseinfoItemList);
     }
 
@@ -109,6 +109,25 @@ public class ItemRestService implements IItemRestService {
             itemRpcService.insertItem(item);
         }catch (Exception e){
             logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("Create failed");
+        }
+        return JsonUtils.SUCCESS();
+    }
+    @POST
+    @Path("insertItems")
+    public String insertItems(BaseinfoItem item) throws BizCheckedException {
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("skuCode",item.getSkuCode());
+        mapQuery.put("ownerId",item.getOwnerId());
+        mapQuery.put("status",1);
+        List<BaseinfoItem> items = itemService.searchItem(mapQuery);
+        if(items.size() > 0){
+           return JsonUtils.SUCCESS();
+        }
+        try{
+            itemRpcService.insertItem(item);
+        }catch (Exception e){
+            logger.error(e.getMessage());
             return JsonUtils.EXCEPTION_ERROR("Create failed");
         }
         return JsonUtils.SUCCESS();

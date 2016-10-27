@@ -35,7 +35,7 @@
 		select * from baseinfo_location where location_id = #{locationId} for update
 	</select>
 
-    <select id="sortLocationByStoreNoAndType" parameterType="long" resultMap="baseinfoLocationResultMap">
+    <select id="sortLocationByStoreNoAndType" parameterType="string" resultMap="baseinfoLocationResultMap">
         select * from baseinfo_location
         WHERE type=#{type}
         and store_no &lt;&gt;#{storeNo}
