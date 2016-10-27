@@ -220,6 +220,7 @@ public class LoadRfRestService implements ILoadRfRestService {
                 TuDetail tuDetail = iTuRpcService.getDetailByBoardId(Long.valueOf(boardMap.get("containerId").toString()));
                 if (null != tuDetail) {
                     isLoaded = true;
+                    continue;   //已装车尾货不显示
                 }
                 boardMap.put("isLoaded", isLoaded);
                 boardMap.put("storeId", storeId);
