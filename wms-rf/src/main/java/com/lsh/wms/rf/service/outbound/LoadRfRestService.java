@@ -217,7 +217,7 @@ public class LoadRfRestService implements ILoadRfRestService {
                 //是否已经装车
                 boolean isLoaded = false;
                 TuDetail tuDetail = iTuRpcService.getDetailByBoardId(Long.valueOf(boardMap.get("containerId").toString()));
-                if (null == tuDetail) {
+                if (null != tuDetail) {
                     isLoaded = true;
                 }
                 boardMap.put("isLoaded", isLoaded);
