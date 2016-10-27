@@ -7,26 +7,72 @@ package com.lsh.wms.api.model.store;
 public class StoreRequest {
     /**  */
     private Long id;
-    /** 门店号0-在库内xxxx是门店号 */
+    /**
+     * 门店号0-在库内xxxx是门店号
+     */
     private String storeNo;
-    /** 门店名称 */
+    /**
+     * 门店名称
+     */
     private String storeName;
-    /** 区域名称 */
+    /**
+     * 区域名称
+     */
     private String region;
-    /** 规模1-小店2-大店 */
+    /**
+     * 规模1-小店2-大店
+     */
     private Integer scale;
-    /** 运营情况1-正常2-关闭 */
+    /**
+     * 运营情况1-正常2-关闭
+     */
     private Integer isOpen;
-    /** 0无效1-有效 */
-    private Integer isValid =1;
-    /** 创建时间 */
+    /**
+     * 0无效1-有效
+     */
+    private Integer isValid = 1;
+    /**
+     * 创建时间
+     */
     private Long createAt;
-    /** 更新时间 */
+    /**
+     * 更新时间
+     */
     private Long updateAt;
-    /** 地址 */
+    /**
+     * 地址
+     */
     private String address;
-    /** 门店id-暂留 */
+    /**
+     * 门店id-暂留
+     */
     private Long storeId;
+
+    /**
+     * 开始的页码
+     */
+    private Integer start;
+
+    /**
+     * 一页显示多少
+     */
+    private Integer limit;
+
+    public void setStart(Integer start) {
+        this.start = start;
+    }
+
+    public void setLimit(Integer limit) {
+        this.limit = limit;
+    }
+
+    public Integer getStart() {
+        return start;
+    }
+
+    public Integer getLimit() {
+        return limit;
+    }
 
     public Long getId() {
         return id;
