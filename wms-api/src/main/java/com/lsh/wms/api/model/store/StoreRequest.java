@@ -58,6 +58,28 @@ public class StoreRequest {
      */
     private Integer limit;
 
+    //pn和rn没啥用,只是传入而已
+
+    private Integer pn;
+
+    private Integer rn;
+
+    public void setPn(Integer pn) {
+        this.pn = pn;
+    }
+
+    public void setRn(Integer rn) {
+        this.rn = rn;
+    }
+
+    public Integer getPn() {
+        return pn;
+    }
+
+    public Integer getRn() {
+        return rn;
+    }
+
     public void setStart(Integer start) {
         this.start = start;
     }
