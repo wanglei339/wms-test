@@ -83,6 +83,8 @@ public class TuHeadRequest {
      * 是否有效, 0否, 1是
      */
     private Integer isValid = 1;
+    /** 扫货装车人的uid */
+    private Long loadUid;
 
     public Long getStartTime() {
         return startTime;
@@ -242,5 +244,13 @@ public class TuHeadRequest {
 
     public void setIsValid(Integer isValid) {
         this.isValid = isValid;
+    }
+
+    public Long getLoadUid() {
+        return loadUid;
+    }
+
+    public void setLoadUid(Long loadUid) {
+        this.loadUid = loadUid;
     }
 }

@@ -13,21 +13,18 @@
 		<result property="isExpresive" column="is_expresive"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
-		<result property="loadUid" column="load_uid"/>
 		<result property="loadAt" column="load_at"/>
 		<result property="storeId" column="store_id"/>
 		<result property="isValid" column="is_valid"/>
 	</resultMap>
-  
+
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TuDetail">
 		insert into tu_detail (
 			tu_id,merged_container_id,box_num,container_num,turnover_box_num,is_rest,
-			is_expresive,created_at,updated_at,load_uid,load_at,store_id,
-			is_valid
+			is_expresive,created_at,updated_at,load_at,store_id,is_valid
     	) values (
 			#{tuId},#{mergedContainerId},#{boxNum},#{containerNum},#{turnoverBoxNum},#{isRest},
-			#{isExpresive},#{createdAt},#{updatedAt},#{loadUid},#{loadAt},#{storeId},
-			#{isValid}
+			#{isExpresive},#{createdAt},#{updatedAt},#{loadAt},#{storeId},#{isValid}
     	)
 	</insert>
 
@@ -43,7 +40,6 @@
   			<if test="isExpresive != null">is_expresive=#{isExpresive},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
-  			<if test="loadUid != null">load_uid=#{loadUid},</if>
   			<if test="loadAt != null">load_at=#{loadAt},</if>
   			<if test="storeId != null">store_id=#{storeId},</if>
   			<if test="isValid != null">is_valid=#{isValid}</if>
@@ -81,7 +77,6 @@
 			<if test="isExpresive != null">and is_expresive=#{isExpresive}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
-			<if test="loadUid != null">and load_uid=#{loadUid}</if>
 			<if test="loadAt != null">and load_at=#{loadAt}</if>
 			<if test="storeId != null">and store_id=#{storeId}</if>
 			<if test="isValid != null">and is_valid=#{isValid}</if>

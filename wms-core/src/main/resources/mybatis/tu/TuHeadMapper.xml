@@ -21,17 +21,18 @@
         <result property="deliveryUid" column="delivery_uid"/>
         <result property="deliveryAt" column="delivery_at"/>
         <result property="isValid" column="is_valid"/>
+        <result property="loadUid" column="load_uid"/>
     </resultMap>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TuHead">
 		insert into tu_head (
 			tu_id,trans_uid,cellphone,name,car_number,status,
 			store_ids,pre_board,real_board,commited_at,warehouse_id,created_at,
-			updated_at,loaded_at,delivery_uid,delivery_at,is_valid
+			updated_at,loaded_at,delivery_uid,delivery_at,is_valid,load_uid
     	) values (
 			#{tuId},#{transUid},#{cellphone},#{name},#{carNumber},#{status},
 			#{storeIds},#{preBoard},#{realBoard},#{commitedAt},#{warehouseId},#{createdAt},
-			#{updatedAt},#{loadedAt},#{deliveryUid},#{deliveryAt},#{isValid}
+			#{updatedAt},#{loadedAt},#{deliveryUid},#{deliveryAt},#{isValid},#{loadUid}
     	)
 	</insert>
 
@@ -54,7 +55,8 @@
             <if test="loadedAt != null">loaded_at=#{loadedAt},</if>
             <if test="deliveryUid != null">delivery_uid=#{deliveryUid},</if>
             <if test="deliveryAt != null">delivery_at=#{deliveryAt},</if>
-            <if test="isValid != null">is_valid=#{isValid}</if>
+            <if test="isValid != null">is_valid=#{isValid},</if>
+            <if test="loadUid != null">load_uid=#{loadUid}</if>
         </set>
         where tu_id=#{tuId}
     </update>
@@ -103,6 +105,7 @@
             <if test="deliveryUid != null">and delivery_uid=#{deliveryUid}</if>
             <if test="deliveryAt != null">and delivery_at=#{deliveryAt}</if>
             <if test="isValid != null">and is_valid=#{isValid}</if>
+            <if test="loadUid != null">and load_uid=#{loadUid}</if>
         </where>
     </sql>
 
@@ -146,6 +149,7 @@
             <if test="deliveryUid != null">and delivery_uid=#{deliveryUid}</if>
             <if test="deliveryAt != null">and delivery_at=#{deliveryAt}</if>
             <if test="isValid != null">and is_valid=#{isValid}</if>
+            <if test="loadUid != null">and load_uid=#{loadUid}</if>
         </where>
     </sql>
 

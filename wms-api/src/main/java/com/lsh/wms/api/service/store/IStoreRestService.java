@@ -18,6 +18,8 @@ public interface IStoreRestService {
 
     public String getStoreByStoreNo(String storeNo) throws BizCheckedException;
 
+    public String getStoreByStoreId(Long storeId) throws BizCheckedException;
+
     public String closeStore(String storeNo) throws BizCheckedException;
 
     public String removeStore(String storeNo) throws BizCheckedException;
