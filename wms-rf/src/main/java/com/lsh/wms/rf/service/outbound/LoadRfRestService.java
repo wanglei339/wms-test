@@ -132,6 +132,7 @@ public class LoadRfRestService implements ILoadRfRestService {
         if (TuConstant.LOAD_OVER.equals(status)) {
             Map<String, Object> mapQuery = new HashMap<String, Object>();
             mapQuery.put("status", TuConstant.LOAD_OVER);
+            mapQuery.put("loadUid", loadUid);   //该人的装车记录
             mapQuery.put("orderBy", "loadedAt");    //按照createAt排序
             mapQuery.put("orderType", "asc");    //按照loadedAt排序
             tuHeads = iTuRpcService.getTuHeadList(mapQuery);
