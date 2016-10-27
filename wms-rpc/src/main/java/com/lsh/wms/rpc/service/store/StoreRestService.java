@@ -55,8 +55,24 @@ public class StoreRestService implements IStoreRestService {
         if (null == storeNo) {
             throw new BizCheckedException("2180014");
         }
+        BaseinfoStore store = storeRpcService.getStoreByStoreNo(storeNo);
+        if (null == store) {
+            throw new BizCheckedException("2180013");
+        }
+        return JsonUtils.SUCCESS(store);
+    }
 
-        return JsonUtils.SUCCESS(storeRpcService.getStoreByStoreNo(storeNo));
+    @GET
+    @Path("getStoreById")
+    public String getStoreByStoreId(@QueryParam("storeId") Long storeId) throws BizCheckedException {
+        if (null == storeId) {
+            throw new BizCheckedException("2180018");
+        }
+        BaseinfoStore store = storeRpcService.getStoreByStoreId(storeId);
+        if (null == store) {
+            throw new BizCheckedException("2180019");
+        }
+        return JsonUtils.SUCCESS(store);
     }
 
     @GET
@@ -78,7 +94,7 @@ public class StoreRestService implements IStoreRestService {
     @POST
     @Path("getStoreList")
     public String getStoreList(StoreRequest storeRequest) throws BizCheckedException {
-        Map<String,Object> params = BeanMapTransUtils.Bean2map(storeRequest);
+        Map<String, Object> params = BeanMapTransUtils.Bean2map(storeRequest);
         List<BaseinfoStore> baseinfoStores = storeRpcService.getStoreList(params);
         if (baseinfoStores == null || baseinfoStores.size() < 1) {
             throw new BizCheckedException("2180016");
@@ -89,7 +105,7 @@ public class StoreRestService implements IStoreRestService {
     @POST
     @Path("countStores")
     public String countBaseinfoStore(StoreRequest storeRequest) throws BizCheckedException {
-        Map<String,Object> params = BeanMapTransUtils.Bean2map(storeRequest);
+        Map<String, Object> params = BeanMapTransUtils.Bean2map(storeRequest);
         return JsonUtils.SUCCESS(storeRpcService.countBaseinfoStore(params));
     }
 }
