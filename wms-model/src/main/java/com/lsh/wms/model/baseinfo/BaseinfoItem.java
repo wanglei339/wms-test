@@ -20,7 +20,7 @@ public class BaseinfoItem implements Serializable {
 	/** 商品名称 */
 	private String skuName;
 	/** 标准码类型, 1 - 国条, 2 - ISBN */
-	private Integer codeType;
+	private Integer codeType = 1;
 	/** 标准唯一码 */
 	private String code;
 	/**商品状态*/
@@ -32,7 +32,7 @@ public class BaseinfoItem implements Serializable {
 	/** 3级品类id */
 	private Long thirdCat = 0L;
 	/** 保质期天数 */
-	private BigDecimal shelfLife;
+	private BigDecimal shelfLife = BigDecimal.ZERO;
 	/** 基本单位-长 */
 	private BigDecimal length = new BigDecimal(0);
 	/** 基本单位-宽 */
@@ -78,7 +78,7 @@ public class BaseinfoItem implements Serializable {
 	/** 存储温度 */
 	private Integer storageTemperature;
 	/** 安全库存 */
-	private BigDecimal safetyQty;
+	private BigDecimal safetyQty = BigDecimal.ZERO;
 	/** 码盘规则 */
 	private Long pileX = 0l;
 	/** 码盘规则 */
