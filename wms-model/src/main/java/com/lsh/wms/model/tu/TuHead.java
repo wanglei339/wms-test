@@ -30,7 +30,7 @@ public class TuHead implements Serializable {
     /**
      * 状态1.待装车5已装车9已发货
      */
-    private Integer status;
+    private Integer status=1;
     /**
      * 门店id字符串
      */
@@ -42,11 +42,11 @@ public class TuHead implements Serializable {
     /**
      * 实际板数
      */
-    private Long realBoard;
+    private Long realBoard=0L;
     /**
      * 提交时间
      */
-    private Long commitedAt;
+    private Long commitedAt=0L;
     /**  */
     private Long createdAt;
     /**  */
@@ -54,15 +54,15 @@ public class TuHead implements Serializable {
     /**
      * 装车完毕时间
      */
-    private Long loadedAt;
+    private Long loadedAt = 0L;
     /**
      * 发货人|中控
      */
-    private Long deliveryUid;
+    private Long deliveryUid=0L;
     /**
      * 发货时间
      */
-    private Long deliveryAt;
+    private Long deliveryAt=0L;
     /**
      * 是否有效, 0否, 1是
      */
@@ -70,7 +70,7 @@ public class TuHead implements Serializable {
     /**
      * 扫货装车人的uid
      */
-    private Long loadUid;
+    private Long loadUid=0L;
     /**
      * 门店范围1-小店2-大店
      */
@@ -78,7 +78,7 @@ public class TuHead implements Serializable {
     /**
      * rf尾货开关0-开启尾货显示1-关闭尾货
      */
-    private Integer rfSwitch = 0;
+    private Integer rfSwitch = 1;
 
     public Long getId() {
         return this.id;
