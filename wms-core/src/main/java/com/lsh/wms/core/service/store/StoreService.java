@@ -1,6 +1,8 @@
 package com.lsh.wms.core.service.store;
 
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.constant.StoreConstant;
@@ -160,16 +162,17 @@ public class StoreService {
     }
 
     /**
-     * 将storeIds字符串解析成id,并查处
+     * 将storeIds的json字符串解析成id,并查处
      * id1 | id2 |id3
      * @param storeIds  id集合
      * @return  结果集合
      */
     public List<Map<String, Object>> analyStoresIds2Stores(String storeIds) throws BizCheckedException{
-        String[] storeIdsStr = storeIds.split("\\|");
+        //json的拆分
+        List<Map<String,Object>> storeIdsMapList = JsonUtils.json2Obj(storeIds,List.class);
         List<Map<String, Object>> storeList = new ArrayList<Map<String, Object>>();
-        for (String storeIdStr : storeIdsStr) {
-            Long storeId = Long.valueOf(storeIdStr);
+        for (Map<String,Object> oneMap : storeIdsMapList) {
+            Long storeId = Long.valueOf(oneMap.get("storeId").toString());
             BaseinfoStore store = this.getStoreByStoreId(storeId);
             if (null == store) {
                 throw new BizCheckedException("2180018");
