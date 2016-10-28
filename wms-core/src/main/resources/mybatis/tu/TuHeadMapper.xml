@@ -14,7 +14,6 @@
         <result property="preBoard" column="pre_board"/>
         <result property="realBoard" column="real_board"/>
         <result property="commitedAt" column="commited_at"/>
-        <result property="warehouseId" column="warehouse_id"/>
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
         <result property="loadedAt" column="loaded_at"/>
@@ -29,12 +28,12 @@
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TuHead">
 		insert into tu_head (
 			tu_id,trans_uid,cellphone,name,car_number,status,
-			store_ids,pre_board,real_board,commited_at,warehouse_id,created_at,
+			store_ids,pre_board,real_board,commited_at,created_at,
 			updated_at,loaded_at,delivery_uid,delivery_at,is_valid,load_uid,
 			scale,rf_switch
     	) values (
 			#{tuId},#{transUid},#{cellphone},#{name},#{carNumber},#{status},
-			#{storeIds},#{preBoard},#{realBoard},#{commitedAt},#{warehouseId},#{createdAt},
+			#{storeIds},#{preBoard},#{realBoard},#{commitedAt},#{createdAt},
 			#{updatedAt},#{loadedAt},#{deliveryUid},#{deliveryAt},#{isValid},#{loadUid},
 			#{scale},#{rfSwitch}
     	)
@@ -53,7 +52,6 @@
             <if test="preBoard != null">pre_board=#{preBoard},</if>
             <if test="realBoard != null">real_board=#{realBoard},</if>
             <if test="commitedAt != null">commited_at=#{commitedAt},</if>
-            <if test="warehouseId != null">warehouse_id=#{warehouseId},</if>
             <if test="createdAt != null">created_at=#{createdAt},</if>
             <if test="updatedAt != null">updated_at=#{updatedAt},</if>
             <if test="loadedAt != null">loaded_at=#{loadedAt},</if>
@@ -104,7 +102,6 @@
             <if test="preBoard != null">and pre_board=#{preBoard}</if>
             <if test="realBoard != null">and real_board=#{realBoard}</if>
             <if test="commitedAt != null">and commited_at=#{commitedAt}</if>
-            <if test="warehouseId != null">and warehouse_id=#{warehouseId}</if>
             <if test="createdAt != null">and created_at=#{createdAt}</if>
             <if test="updatedAt != null">and updated_at=#{updatedAt}</if>
             <if test="loadedAt != null">and loaded_at=#{loadedAt}</if>
@@ -149,7 +146,6 @@
             <if test="preBoard != null">and pre_board=#{preBoard}</if>
             <if test="realBoard != null">and real_board=#{realBoard}</if>
             <if test="commitedAt != null">and commited_at=#{commitedAt}</if>
-            <if test="warehouseId != null">and warehouse_id=#{warehouseId}</if>
             <if test="startTime != null">and created_at&gt;=#{startTime}</if>
             <if test="endTime != null">and created_at&lt;=#{endTime}</if>
             <if test="updatedAt != null">and updated_at=#{updatedAt}</if>
