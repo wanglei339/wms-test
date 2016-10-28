@@ -18,6 +18,7 @@ public interface IItemRestService {
     String countItem(Map<String, Object> mapQuery);
 
     public String insertItem(BaseinfoItem item) throws BizCheckedException;
+    String insertItems(BaseinfoItem item) throws BizCheckedException;
     String updateItem(BaseinfoItem item) throws BizCheckedException;
 
 

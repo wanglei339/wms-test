@@ -55,6 +55,7 @@ public class TuRpcService implements ITuRpcService {
 
     /**
      * PC上筛选tuList的方法,涉及时间区间的传入
+     *
      * @param params
      * @return
      * @throws BizCheckedException
@@ -65,6 +66,7 @@ public class TuRpcService implements ITuRpcService {
 
     /**
      * PC上筛选tuList的方法,涉及时间区间的传入
+     *
      * @param mapQuery
      * @return
      * @throws BizCheckedException
@@ -109,6 +111,14 @@ public class TuRpcService implements ITuRpcService {
         }
         TuDetail tuDetail = tuService.getDetailByBoardId(boardId);
         return tuDetail;
+    }
+
+    public List<TuDetail> getTuDeailListByTuId(String tuId) throws BizCheckedException {
+        if (null == tuId || tuId.equals("")) {
+            throw new BizCheckedException("2990021");
+        }
+        List<TuDetail> tuDetails = tuService.getTuDeailListByTuId(tuId);
+        return tuDetails;
     }
 
     public TuDetail getDetailById(Long id) throws BizCheckedException {

@@ -13,17 +13,19 @@ import java.util.List;
  */
 @Service(protocol = "dubbo")
 public interface ICsiRpcService {
-    public CsiCategory getCatInfo(long iCatId);
-    public List<CsiCategory> getCatFull(long iCatId);
-    public List<CsiCategory> getCatChilds(long iCatId);
+     CsiCategory getCatInfo(long iCatId);
+     List<CsiCategory> getCatFull(long iCatId);
+     List<CsiCategory> getCatChilds(long iCatId);
 
-    public CsiOwner getOwner(long iOwnerId);
+     CsiOwner getOwner(long iOwnerId);
 
-    public CsiSku getSku(long iSkuId);
-    public CsiSku getSkuByCode(int iCodeType, String sCode);
+     CsiSku getSku(long iSkuId);
+     CsiSku getSkuByCode(int iCodeType, String sCode);
     CsiSku insertSku(CsiSku sku);
 
-    public CsiSupplier getSupplier(long iSupplierId);
+     CsiSupplier getSupplier(long iSupplierId);
+
+    CsiSupplier getSupplier(String supplierCode,Long ownerId);
 
     void updateSku(CsiSku sku);
 

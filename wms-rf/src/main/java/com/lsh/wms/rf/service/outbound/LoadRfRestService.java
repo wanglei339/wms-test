@@ -205,14 +205,16 @@ public class LoadRfRestService implements ILoadRfRestService {
             storesRestMap.putAll(storeMap);
         }
         List<Map<String, Object>> storeRestList = new ArrayList<Map<String, Object>>();
+        //尾货板子的物理托盘码展示
         for (Long key : storesRestMap.keySet()) {
             Map<String, Object> boardMap = storesRestMap.get(key);
             boardMap.put("containerNum", boardMap.get("containerCount"));
             boardMap.put("boxNum", boardMap.get("packCount"));
             boardMap.put("turnoverBoxNum", boardMap.get("turnoverBoxCount"));
             boardMap.put("containerNum", boardMap.get("containerCount"));
+            Long boardId = Long.valueOf(boardMap.get("containerId").toString());
             //余货
-            if (Boolean.valueOf(boardMap.get("isRest").toString())) {
+            if (Boolean.valueOf(boardMap.get("isRest").toString())) {   //需要合板
                 //写入门店的id
                 Long storeId = iStoreRpcService.getStoreIdByCode(boardMap.get("storeNo").toString());
                 //是否已经装车
@@ -222,8 +224,13 @@ public class LoadRfRestService implements ILoadRfRestService {
                     isLoaded = true;
                     continue;   //已装车尾货不显示
                 }
+                //todo 合板的校验
+//                if(){//没组盘的或者合板的,贵品不需要合板(是否有贵品)
+//
+//                }
                 boardMap.put("isLoaded", isLoaded);
                 boardMap.put("storeId", storeId);
+                //markContainerId是物理的通过它来看尾货的托盘
                 //结果插入redis
                 tuRedisService.insertTuContainerRedis(boardMap);
                 storeRestList.add(storesRestMap.get(key));
@@ -402,6 +409,14 @@ public class LoadRfRestService implements ILoadRfRestService {
         if (null == tuHead) {
             throw new BizCheckedException("2990022");
         }
+        //预估剩余板数,预装-已装
+        Long preBoards = tuHead.getPreBoard();
+        Long preRestBoard = null;   //预估剩余可装板子数
+        List<TuDetail> tuDetails = iTuRpcService.getTuDeailListByTuId(tuId);
+        if (null == tuDetails || tuDetails.size() < 1) {  //一个板子都没装
+            preRestBoard = preBoards;
+        }
+        preRestBoard = preBoards - tuDetails.size();
         //预计-detail的条记录
 
 
@@ -481,6 +496,7 @@ public class LoadRfRestService implements ILoadRfRestService {
         }
         Integer containerNum = containerSet.size(); //以板子为维度
         Map<String, Object> result = new HashMap<String, Object>();
+        result.put("preRestBoard",preRestBoard);    //预估剩余板数
         result.put("containerNum", containerNum);
         result.put("boxNum", boxNum);
         result.put("turnoverBoxNum", turnoverBoxNum);
