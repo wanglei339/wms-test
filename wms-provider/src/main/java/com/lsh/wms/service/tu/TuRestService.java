@@ -51,6 +51,7 @@ public class TuRestService implements ITuRestService {
     @POST
     @Path("shipTu")
     public String shipTu() throws BizCheckedException {
+        //进来先校验是否发车,已发车,不需要继续做java层事务,直接跳过传数据,  未发车全部进行
         Map<String, Object> mapRequest = RequestUtils.getRequest();
         String tuId = mapRequest.get("tuId").toString();
 

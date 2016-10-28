@@ -22,17 +22,21 @@
         <result property="deliveryAt" column="delivery_at"/>
         <result property="isValid" column="is_valid"/>
         <result property="loadUid" column="load_uid"/>
+        <result property="scale" column="scale"/>
+        <result property="rfSwitch" column="rf_switch"/>
     </resultMap>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TuHead">
 		insert into tu_head (
 			tu_id,trans_uid,cellphone,name,car_number,status,
 			store_ids,pre_board,real_board,commited_at,warehouse_id,created_at,
-			updated_at,loaded_at,delivery_uid,delivery_at,is_valid,load_uid
+			updated_at,loaded_at,delivery_uid,delivery_at,is_valid,load_uid,
+			scale,rf_switch
     	) values (
 			#{tuId},#{transUid},#{cellphone},#{name},#{carNumber},#{status},
 			#{storeIds},#{preBoard},#{realBoard},#{commitedAt},#{warehouseId},#{createdAt},
-			#{updatedAt},#{loadedAt},#{deliveryUid},#{deliveryAt},#{isValid},#{loadUid}
+			#{updatedAt},#{loadedAt},#{deliveryUid},#{deliveryAt},#{isValid},#{loadUid},
+			#{scale},#{rfSwitch}
     	)
 	</insert>
 
@@ -56,7 +60,9 @@
             <if test="deliveryUid != null">delivery_uid=#{deliveryUid},</if>
             <if test="deliveryAt != null">delivery_at=#{deliveryAt},</if>
             <if test="isValid != null">is_valid=#{isValid},</if>
-            <if test="loadUid != null">load_uid=#{loadUid}</if>
+            <if test="loadUid != null">load_uid=#{loadUid},</if>
+            <if test="scale != null">scale=#{scale},</if>
+            <if test="rfSwitch != null">rf_switch=#{rfSwitch}</if>
         </set>
         where tu_id=#{tuId}
     </update>
@@ -106,6 +112,8 @@
             <if test="deliveryAt != null">and delivery_at=#{deliveryAt}</if>
             <if test="isValid != null">and is_valid=#{isValid}</if>
             <if test="loadUid != null">and load_uid=#{loadUid}</if>
+            <if test="scale != null">and scale=#{scale}</if>
+            <if test="rfSwitch != null">and rf_switch=#{rfSwitch}</if>
         </where>
     </sql>
 
@@ -150,6 +158,8 @@
             <if test="deliveryAt != null">and delivery_at=#{deliveryAt}</if>
             <if test="isValid != null">and is_valid=#{isValid}</if>
             <if test="loadUid != null">and load_uid=#{loadUid}</if>
+            <if test="scale != null">and scale=#{scale}</if>
+            <if test="rfSwitch != null">and rf_switch=#{rfSwitch}</if>
         </where>
     </sql>
 
