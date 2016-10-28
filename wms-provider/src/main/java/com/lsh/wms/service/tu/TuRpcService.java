@@ -217,7 +217,7 @@ public class TuRpcService implements ITuRpcService {
         int timeout = PropertyUtils.getInt("tms_timeout");
         String charset = PropertyUtils.getString("tms_charset");
         Map<String, String> headMap = new HashMap<String, String>();
-        headMap.put("Content-type", "application/x-www-form-urlencoded");
+        headMap.put("Content-type", "application/x-www-form-urlencoded; charset=utf-8");
         headMap.put("Accept", "*/*");
         logger.info("[SHIP OVER]Begin to transfer to TMS, " + "URL: " + url + ", Request body: " + JSON.toJSONString(result));
         try {
@@ -231,19 +231,21 @@ public class TuRpcService implements ITuRpcService {
     }
 
     /**
-     *
+     * 接收TU头信息
      * @param mapRequest
      * @return
      * @throws BizCheckedException
      */
     public TuHead receiveTuHead(Map<String, Object> mapRequest) throws BizCheckedException {
         logger.info("[RECEIVE TU]Receive TU: " + JSON.toJSONString(mapRequest));
-        TuHead tuHead = new TuHead();
         String tuId = mapRequest.get("tu_id").toString();
-        tuHead = tuService.getHeadByTuId(tuId);
+        TuHead tuHead = tuService.getHeadByTuId(tuId);
+        Boolean newTu = true;
         if (tuHead != null) {
             logger.info("[RECEIVE TU]Receive TU: " + tuId + " is duplicated");
-            throw new BizCheckedException("2990020");
+            newTu = false;
+        } else {
+            tuHead = new TuHead();
         }
         tuHead.setTuId(tuId);
         tuHead.setTransUid(Long.valueOf(mapRequest.get("trans_uid").toString()));
@@ -255,7 +257,11 @@ public class TuRpcService implements ITuRpcService {
         tuHead.setCommitedAt(Long.valueOf(mapRequest.get("commited_at").toString()));
         tuHead.setScale(Integer.valueOf(mapRequest.get("scale").toString()));
         tuHead.setStatus(TuConstant.UNLOAD);
-        tuService.create(tuHead);
+        if (newTu) {
+            tuService.create(tuHead);
+        } else {
+            tuService.update(tuHead);
+        }
         logger.info("[RECEIVE TU]Receive TU success: " + JSON.toJSONString(tuHead));
         return tuHead;
     }
