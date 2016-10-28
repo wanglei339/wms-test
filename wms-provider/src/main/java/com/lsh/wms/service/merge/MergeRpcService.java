@@ -6,6 +6,7 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.merge.IMergeRpcService;
 import com.lsh.wms.core.constant.StoreConstant;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.store.StoreService;
@@ -87,7 +88,7 @@ public class MergeRpcService implements IMergeRpcService {
                             for (TuDetail tuDetail : tuDetails) {
                                 String tuId = tuDetail.getTuId();
                                 TuHead tuHead = tuService.getHeadByTuId(tuId);
-                                if (!tuHead.getStatus().equals(9)) { // TODO: 改成constant
+                                if (!tuHead.getStatus().equals(TuConstant.SHIP_OVER)) {
                                     needCount = false;
                                     break;
                                 }
@@ -161,6 +162,22 @@ public class MergeRpcService implements IMergeRpcService {
                     containerId = waveDetail.getContainerId();
                 } else {
                     containerId = waveDetail.getMergedContainerId();
+                }
+                // 未装车的
+                List<TuDetail> tuDetails = tuService.getTuDeailListByMergedContainerId(containerId);
+                Boolean needCount = true;
+                if (tuDetails.size() > 0 ){
+                    for (TuDetail tuDetail : tuDetails) {
+                        String tuId = tuDetail.getTuId();
+                        TuHead tuHead = tuService.getHeadByTuId(tuId);
+                        if (!tuHead.getStatus().equals(TuConstant.SHIP_OVER)) { //未装车
+                            needCount = false;
+                            break;
+                        }
+                    }
+                }
+                if (!needCount) {
+                    continue;
                 }
                 Map<String, BigDecimal> qcCounts = this.getQcCountsByWaveDetail(waveDetail);
                 Map<String, Object> result = new HashMap<String, Object>();

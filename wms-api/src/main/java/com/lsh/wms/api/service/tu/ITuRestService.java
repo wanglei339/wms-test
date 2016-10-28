@@ -14,5 +14,5 @@ public interface ITuRestService {
     //行程单和发货单(在php层做组装)
     //确认发货
     public String shipTu() throws BizCheckedException;
-
+    String receiveTuHead() throws BizCheckedException;
 }

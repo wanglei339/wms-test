@@ -371,7 +371,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                         //保质期判断,如果失败抛出异常
                         BigDecimal shelLife = baseinfoItem.getShelfLife();
                         String producePlace = baseinfoItem.getProducePlace();
-                        Double shelLife_CN = Double.parseDouble(("shelLife_CN"));
+                        Double shelLife_CN = Double.parseDouble(PropertyUtils.getString("shelLife_CN"));
                         Double shelLife_Not_CN = Double.parseDouble(PropertyUtils.getString("shelLife_Not_CN"));
                         String produceChina = PropertyUtils.getString("produceChina");
                         BigDecimal left_day = new BigDecimal(DateUtils.daysBetween(inbReceiptDetail.getProTime(), new Date()));
