@@ -9,6 +9,8 @@ import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.tu.ITuRestService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.model.tu.TuHead;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -26,6 +28,8 @@ import java.util.Map;
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class TuRestService implements ITuRestService {
+
+    private static Logger logger = LoggerFactory.getLogger(TuRestService.class);
     @Reference
     private ITuRpcService iTuRpcService;
 
