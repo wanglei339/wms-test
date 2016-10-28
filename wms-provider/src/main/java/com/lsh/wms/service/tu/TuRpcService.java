@@ -1,7 +1,11 @@
 package com.lsh.wms.service.tu;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
+import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.net.HttpClientUtils;
 import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.tu.TuService;
@@ -11,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -173,5 +178,34 @@ public class TuRpcService implements ITuRpcService {
         return tuHead;
     }
 
+    /**
+     * 使用POST方式将TU发车
+     * @param tuId
+     * @throws BizCheckedException
+     */
+    public Boolean postTuDetails(String tuId) throws BizCheckedException {
+        TuHead tuHead = tuService.getHeadByTuId(tuId);
+        Map<String, String> result = new HashMap<String, String>();
+        String responseBody = "";
+        if (tuHead == null) {
+            throw new BizCheckedException("2990022");
+        }
+        if (!tuHead.getStatus().equals(TuConstant.SHIP_OVER)) {
+            throw new BizCheckedException("2990037");
+        }
+        List<TuDetail> tuDetails = tuService.getTuDeailListByTuId(tuId);
+        result.put("tuId", tuId);
+        //result.put("scale", tuHead.getScale());
+        result.put("tuDetails", JSON.toJSONString(tuDetails));
+        logger.info("[SHIP OVER]Begin to transfer to TMS, " + "URL: " + PropertyUtils.getString("tms_ship_over_url") + ", Request body: " + JSON.toJSONString(result));
+        try {
+            responseBody = HttpClientUtils.post(PropertyUtils.getString("tms_ship_over_url"), result);
+        } catch (Exception e) {
+            logger.info("[SHIP OVER]Transfer to TMS failed: " + responseBody);
+            return false;
+        }
+        logger.info("[SHIP OVER]Transfer to TMS success: " + responseBody);
+        return true;
+    }
 
 }

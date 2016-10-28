@@ -54,6 +54,9 @@ public class TuRestService implements ITuRestService {
         Map<String, Object> mapRequest = RequestUtils.getRequest();
         String tuId = mapRequest.get("tuId").toString();
 
+        // 传给TMS运单发车信息,此过程可以重复调用
+        Boolean postResult = iTuRpcService.postTuDetails(tuId);
+
         return JsonUtils.SUCCESS("需要写发货的逻辑");
     }
 

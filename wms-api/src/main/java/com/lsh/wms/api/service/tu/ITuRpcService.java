@@ -58,4 +58,6 @@ public interface ITuRpcService {
 
     public TuHead changeTuHeadStatus(TuHead tuHead, Integer status) throws BizCheckedException;
 
+    Boolean postTuDetails(String tuId) throws BizCheckedException;
+
 }
