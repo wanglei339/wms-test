@@ -128,6 +128,13 @@ public class TuService {
         return tuDetailDao.getTuDetailList(params);
     }
 
+    public List<TuDetail> getTuDeailListByTuId(String tuId){
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("tuId",tuId);
+        params.put("isValid", 1);
+        return tuDetailDao.getTuDetailList(params);
+    }
+
     public Integer countTuDetail(Map<String, Object> mapQuery) {
         mapQuery.put("isValid", 1);
         return tuDetailDao.countTuDetail(mapQuery);
@@ -144,6 +151,7 @@ public class TuService {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("tuId", tuId);
         mapQuery.put("deliveryCode", deliveryCode);  //门店号
+        mapQuery.put("isValid", 1);
         return this.getTuDeailList(mapQuery);
     }
 

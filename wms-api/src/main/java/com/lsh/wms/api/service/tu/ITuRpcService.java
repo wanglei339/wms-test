@@ -42,6 +42,8 @@ public interface ITuRpcService {
      */
     public TuDetail getDetailByBoardId(Long boardId) throws BizCheckedException;
 
+    public List<TuDetail> getTuDeailListByTuId(String tuId) throws BizCheckedException;
+
     public TuDetail getDetailById(Long id) throws BizCheckedException;
 
     public List<TuDetail> getTuDeailList(Map<String, Object> mapQuery) throws BizCheckedException;
