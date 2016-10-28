@@ -63,7 +63,7 @@ public class TuRestService implements ITuRestService {
     }
 
     /**
-     * 接受TU头信息
+     * 接收TU头信息
      * @return
      * @throws BizCheckedException
      */

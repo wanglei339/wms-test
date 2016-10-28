@@ -231,20 +231,20 @@ public class TuRpcService implements ITuRpcService {
     }
 
     /**
-     *
+     * 接收TU头信息
      * @param mapRequest
      * @return
      * @throws BizCheckedException
      */
     public TuHead receiveTuHead(Map<String, Object> mapRequest) throws BizCheckedException {
         logger.info("[RECEIVE TU]Receive TU: " + JSON.toJSONString(mapRequest));
-        TuHead tuHead = new TuHead();
         String tuId = mapRequest.get("tu_id").toString();
-        tuHead = tuService.getHeadByTuId(tuId);
+        TuHead tuHead = tuService.getHeadByTuId(tuId);
         if (tuHead != null) {
             logger.info("[RECEIVE TU]Receive TU: " + tuId + " is duplicated");
             throw new BizCheckedException("2990020");
         }
+        tuHead = new TuHead();
         tuHead.setTuId(tuId);
         tuHead.setTransUid(Long.valueOf(mapRequest.get("trans_uid").toString()));
         tuHead.setCellphone(mapRequest.get("cellphone").toString());
