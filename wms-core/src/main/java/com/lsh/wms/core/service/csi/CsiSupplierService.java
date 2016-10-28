@@ -48,6 +48,17 @@ public class CsiSupplierService {
         }
         return cat;
     }
+    public CsiSupplier getSupplier(String  supplierCode,Long ownerId){
+        CsiSupplier supplier = null ;
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("supplierCode", supplierCode);
+        mapQuery.put("ownerId", ownerId);
+        List<CsiSupplier> items = supplierDao.getCsiSupplierList(mapQuery);
+        if(items.size() == 1){
+            supplier = items.get(0);
+        }
+        return supplier;
+    }
 
     @Transactional(readOnly = false)
     public void insertSupplier(CsiSupplier supplier){

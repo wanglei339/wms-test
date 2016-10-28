@@ -53,6 +53,28 @@ public class TuRpcService implements ITuRpcService {
         return tuService.getTuHeadList(mapQuery);
     }
 
+    /**
+     * PC上筛选tuList的方法,涉及时间区间的传入
+     *
+     * @param params
+     * @return
+     * @throws BizCheckedException
+     */
+    public List<TuHead> getTuHeadListOnPc(Map<String, Object> params) throws BizCheckedException {
+        return tuService.getTuHeadListOnPc(params);
+    }
+
+    /**
+     * PC上筛选tuList的方法,涉及时间区间的传入
+     *
+     * @param mapQuery
+     * @return
+     * @throws BizCheckedException
+     */
+    public Integer countTuHeadOnPc(Map<String, Object> mapQuery) throws BizCheckedException {
+        return tuService.countTuHeadOnPc(mapQuery);
+    }
+
     public Integer countTuHead(Map<String, Object> mapQuery) throws BizCheckedException {
         return tuService.countTuHead(mapQuery);
     }
@@ -89,6 +111,14 @@ public class TuRpcService implements ITuRpcService {
         }
         TuDetail tuDetail = tuService.getDetailByBoardId(boardId);
         return tuDetail;
+    }
+
+    public List<TuDetail> getTuDeailListByTuId(String tuId) throws BizCheckedException {
+        if (null == tuId || tuId.equals("")) {
+            throw new BizCheckedException("2990021");
+        }
+        List<TuDetail> tuDetails = tuService.getTuDeailListByTuId(tuId);
+        return tuDetails;
     }
 
     public TuDetail getDetailById(Long id) throws BizCheckedException {

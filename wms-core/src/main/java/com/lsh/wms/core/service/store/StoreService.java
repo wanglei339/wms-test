@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,12 +109,13 @@ public class StoreService {
 
     /**
      * 获取开店的门店列表
+     *
      * @param params
      * @return
      */
-    public List<BaseinfoStore> getOpenedStoreList(Map<String,Object> params){
-        params.put("isValid",1);    //有效的
-        params.put("isOpen",1);
+    public List<BaseinfoStore> getOpenedStoreList(Map<String, Object> params) {
+        params.put("isValid", 1);    //有效的
+        params.put("isOpen", 1);
         return baseinfoStoreDao.getBaseinfoStoreList(params);
     }
 
@@ -155,6 +157,31 @@ public class StoreService {
         map.put("isValid", 1);   //有效的
         List<BaseinfoStore> baseinfoStoreList = this.getBaseinfoStoreList(map);
         return baseinfoStoreList;
+    }
+
+    /**
+     * 将storeIds字符串解析成id,并查处
+     * id1 | id2 |id3
+     * @param storeIds  id集合
+     * @return  结果集合
+     */
+    public List<Map<String, Object>> analyStoresIds2Stores(String storeIds) throws BizCheckedException{
+        String[] storeIdsStr = storeIds.split("\\|");
+        List<Map<String, Object>> storeList = new ArrayList<Map<String, Object>>();
+        for (String storeIdStr : storeIdsStr) {
+            Long storeId = Long.valueOf(storeIdStr);
+            BaseinfoStore store = this.getStoreByStoreId(storeId);
+            if (null == store) {
+                throw new BizCheckedException("2180018");
+            }
+            Map<String, Object> storeMap = new HashMap<String, Object>();
+            storeMap.put("storeNo", store.getStoreNo());
+            storeMap.put("storeName", store.getStoreName());
+            storeMap.put("storeId", store.getStoreId());
+            storeMap.put("scale",store.getScale());
+            storeList.add(storeMap);
+        }
+        return storeList;
     }
 
 }

@@ -86,6 +86,12 @@ public class RedisKeyConstant {
     public static final String CONTAINER_STORE = "container_id:{0}";
 
     /**
+     * 直流tu运单占用redis    key hash
+     */
+    public static final String TU_CONTAINER = "tu:containerId:{0}";
+
+
+    /**
      * 日志信息redis key
      */
     public static final String SYS_MSG = "sysLog:logId:{0}";

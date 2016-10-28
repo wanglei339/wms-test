@@ -41,6 +41,13 @@ public class StoreRpcService implements IStoreRpcService {
         return store;
     }
 
+    public BaseinfoStore getStoreByStoreId(Long storeId) throws BizCheckedException {
+        if (null == storeId) {
+            throw new BizCheckedException("2180018");
+        }
+        return storeService.getStoreByStoreId(storeId);
+    }
+
     public BaseinfoStore closeStore(String storeNo) throws BizCheckedException {
         if (null == storeNo) {
             throw new BizCheckedException("2180014");
