@@ -6,15 +6,21 @@ import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.net.HttpClientUtils;
+import com.lsh.base.common.utils.BeanMapTransUtils;
+import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.core.constant.TuConstant;
+import com.lsh.wms.core.service.store.StoreService;
 import com.lsh.wms.core.service.tu.TuService;
+import com.lsh.wms.model.baseinfo.BaseinfoStore;
 import com.lsh.wms.model.tu.TuDetail;
 import com.lsh.wms.model.tu.TuHead;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +36,8 @@ public class TuRpcService implements ITuRpcService {
 
     @Autowired
     private TuService tuService;
+    @Autowired
+    private StoreService storeService;
 
     public TuHead create(TuHead tuHead) throws BizCheckedException {
         //先查有无,有的话,不能创建
@@ -194,12 +202,26 @@ public class TuRpcService implements ITuRpcService {
             throw new BizCheckedException("2990037");
         }
         List<TuDetail> tuDetails = tuService.getTuDeailListByTuId(tuId);
+        List<Map<String, Object>> details = new ArrayList<Map<String, Object>>();
+        for (TuDetail tuDetail: tuDetails) {
+            Map<String, Object> detail = BeanMapTransUtils.Bean2map(tuDetail);
+            BaseinfoStore store = storeService.getBaseinfoStore(tuDetail.getStoreId());
+            detail.put("storeNo", store.getStoreNo());
+            detail.put("storeName", store.getStoreName());
+            details.add(detail);
+        }
         result.put("tuId", tuId);
-        //result.put("scale", tuHead.getScale());
-        result.put("tuDetails", JSON.toJSONString(tuDetails));
-        logger.info("[SHIP OVER]Begin to transfer to TMS, " + "URL: " + PropertyUtils.getString("tms_ship_over_url") + ", Request body: " + JSON.toJSONString(result));
+        result.put("scale", tuHead.getScale().toString());
+        result.put("tuDetails", JSON.toJSONString(details));
+        String url = PropertyUtils.getString("tms_ship_over_url");
+        int timeout = PropertyUtils.getInt("tms_timeout");
+        String charset = PropertyUtils.getString("tms_charset");
+        Map<String, String> headMap = new HashMap<String, String>();
+        headMap.put("Content-type", "application/x-www-form-urlencoded");
+        headMap.put("Accept", "*/*");
+        logger.info("[SHIP OVER]Begin to transfer to TMS, " + "URL: " + url + ", Request body: " + JSON.toJSONString(result));
         try {
-            responseBody = HttpClientUtils.post(PropertyUtils.getString("tms_ship_over_url"), result);
+            responseBody = HttpClientUtils.post(url, result, timeout, charset, headMap);
         } catch (Exception e) {
             logger.info("[SHIP OVER]Transfer to TMS failed: " + responseBody);
             return false;
@@ -208,4 +230,33 @@ public class TuRpcService implements ITuRpcService {
         return true;
     }
 
+    /**
+     *
+     * @param mapRequest
+     * @return
+     * @throws BizCheckedException
+     */
+    public TuHead receiveTuHead(Map<String, Object> mapRequest) throws BizCheckedException {
+        logger.info("[RECEIVE TU]Receive TU: " + JSON.toJSONString(mapRequest));
+        TuHead tuHead = new TuHead();
+        String tuId = mapRequest.get("tu_id").toString();
+        tuHead = tuService.getHeadByTuId(tuId);
+        if (tuHead != null) {
+            logger.info("[RECEIVE TU]Receive TU: " + tuId + " is duplicated");
+            throw new BizCheckedException("2990020");
+        }
+        tuHead.setTuId(tuId);
+        tuHead.setTransUid(Long.valueOf(mapRequest.get("trans_uid").toString()));
+        tuHead.setCellphone(mapRequest.get("cellphone").toString());
+        tuHead.setName(mapRequest.get("name").toString());
+        tuHead.setCarNumber(mapRequest.get("car_number").toString());
+        tuHead.setStoreIds(mapRequest.get("store_ids").toString());
+        tuHead.setPreBoard(Long.valueOf(mapRequest.get("pre_board").toString()));
+        tuHead.setCommitedAt(Long.valueOf(mapRequest.get("commited_at").toString()));
+        tuHead.setScale(Integer.valueOf(mapRequest.get("scale").toString()));
+        tuHead.setStatus(TuConstant.UNLOAD);
+        tuService.create(tuHead);
+        logger.info("[RECEIVE TU]Receive TU success: " + JSON.toJSONString(tuHead));
+        return tuHead;
+    }
 }

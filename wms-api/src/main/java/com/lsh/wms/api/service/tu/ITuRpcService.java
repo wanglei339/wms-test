@@ -60,4 +60,6 @@ public interface ITuRpcService {
 
     Boolean postTuDetails(String tuId) throws BizCheckedException;
 
+    TuHead receiveTuHead(Map<String, Object> mapRequest) throws BizCheckedException;
+
 }

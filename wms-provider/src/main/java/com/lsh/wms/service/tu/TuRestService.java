@@ -8,6 +8,7 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.tu.ITuRestService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
+import com.lsh.wms.model.tu.TuHead;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -59,6 +60,19 @@ public class TuRestService implements ITuRestService {
         Boolean postResult = iTuRpcService.postTuDetails(tuId);
 
         return JsonUtils.SUCCESS("需要写发货的逻辑");
+    }
+
+    /**
+     * 接受TU头信息
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("receiveTuHead")
+    public String receiveTuHead() throws BizCheckedException {
+        Map<String, Object> mapRequest = RequestUtils.getRequest();
+        TuHead tuHead = iTuRpcService.receiveTuHead(mapRequest);
+        return JsonUtils.SUCCESS("");
     }
 
 }
