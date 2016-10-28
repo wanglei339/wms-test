@@ -43,6 +43,10 @@ public class TuHead implements Serializable {
     private Integer isValid=1;
 	/** 扫货装车人的uid */
 	private Long loadUid;
+	/** 门店范围1-小店2-大店 */
+	private Integer scale;
+	/** rf尾货开关0-开启尾货显示1-关闭尾货 */
+	private Integer rfSwitch = 0;
 
 	public Long getId(){
 		return this.id;
@@ -195,4 +199,20 @@ public class TuHead implements Serializable {
     public void setLoadUid(Long loadUid) {
         this.loadUid = loadUid;
     }
+
+	public Integer getScale() {
+		return scale;
+	}
+
+	public Integer getRfSwitch() {
+		return rfSwitch;
+	}
+
+	public void setScale(Integer scale) {
+		this.scale = scale;
+	}
+
+	public void setRfSwitch(Integer rfSwitch) {
+		this.rfSwitch = rfSwitch;
+	}
 }
