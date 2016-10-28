@@ -157,20 +157,12 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
 
         BaseinfoItem item = itemService.getItem(ibdHeader.getOwnerUid(), sku.getSkuId());
 
-        String queueObject = redisStringDao.get(key);
-        Map<String,String> storeMap = new HashMap<String, String>();
-        if(queueObject == null){
-            List<BaseinfoLocation> storeList = locationRpcService.sortSowLocationByStoreNo();
-            if(storeList!=null && storeList.size()!=0) {
-                for (int i = 0; i < storeList.size(); i++) {
-                    storeMap.put(storeList.get(i).getStoreNo().toString(), i+"");
-                }
-                JSONObject object = JSONObject.fromObject(storeMap);
-                redisStringDao.set(key, object.toString());
+        Map<String,Long> storeMap = new HashMap<String, Long>();
+        List<BaseinfoLocation> storeList = locationRpcService.sortSowLocationByStoreNo();
+        if(storeList!=null && storeList.size()!=0) {
+            for (int i = 0; i < storeList.size(); i++) {
+                storeMap.put(storeList.get(i).getStoreNo(), Long.valueOf(i));
             }
-        }else {
-            JSONObject object = JSONObject.fromObject(queueObject);
-            storeMap = (HashMap<String,String>)JSONObject.toBean(object, HashMap.class);
         }
 
         String orderOtherId = ibdHeader.getOrderOtherId();

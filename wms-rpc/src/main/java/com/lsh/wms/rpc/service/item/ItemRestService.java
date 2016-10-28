@@ -124,12 +124,8 @@ public class ItemRestService implements IItemRestService {
         if(items.size() > 0){
            return JsonUtils.SUCCESS();
         }
-        try{
-            itemRpcService.insertItem(item);
-        }catch (Exception e){
-            logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("Create failed");
-        }
+        itemRpcService.insertItem(item);
+
         return JsonUtils.SUCCESS();
     }
 

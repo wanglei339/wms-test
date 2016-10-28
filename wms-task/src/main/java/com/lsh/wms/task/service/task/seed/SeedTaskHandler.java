@@ -105,13 +105,6 @@ public class SeedTaskHandler extends AbsTaskHandler {
         handlerFactory.register(TaskConstant.TYPE_SEED, this);
     }
 
-    public void calcPerformance(TaskInfo taskInfo) {
-
-        taskInfo.setTaskPackQty(taskInfo.getTaskQty().divide(taskInfo.getPackUnit(),0,BigDecimal.ROUND_DOWN));
-        taskInfo.setTaskEaQty(taskInfo.getQty());
-
-
-    }
     public void create(Long taskId) {
         Long containerId = baseTaskService.getTaskInfoById(taskId).getContainerId();
         Map<String,Object> mapQuery = new HashMap<String, Object>();
@@ -125,21 +118,12 @@ public class SeedTaskHandler extends AbsTaskHandler {
         StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
 
         Long orderId = lot.getPoId();
-        String key = "store_queue";
-        String queueObject = redisStringDao.get(key);
-        Map<String,Long> storeMap = null;
-        if(queueObject == null){
-            List<BaseinfoLocation> storeList = locationRpcService.sortSowLocationByStoreNo();
-            if(storeList!=null && storeList.size()!=0) {
-                for (int i = 0; i < storeList.size(); i++) {
-                    storeMap.put(storeList.get(i).getStoreNo(), Long.valueOf(i));
-                }
-                JSONObject object = JSONObject.fromObject(storeMap);
-                redisStringDao.set(key, object.toString());
+        Map<String,Long> storeMap = new HashMap<String, Long>();
+        List<BaseinfoLocation> storeList = locationRpcService.sortSowLocationByStoreNo();
+        if(storeList!=null && storeList.size()!=0) {
+            for (int i = 0; i < storeList.size(); i++) {
+                storeMap.put(storeList.get(i).getStoreNo(), Long.valueOf(i));
             }
-        }else {
-            JSONObject object = JSONObject.fromObject(queueObject);
-            storeMap = (HashMap<String,Long>)JSONObject.toBean(object, HashMap.class);
         }
 
         IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(orderId);

@@ -21,7 +21,7 @@ public class IbdRequest implements Serializable {
     @NotNull
     private String orderOtherId;
 
-    private String orderOtherRefId;
+    private String orderOtherRefId = "";
 
     @NotNull
     private Long ownerUid;

@@ -27,6 +27,9 @@ public interface ICsiRestService {
     public String updateSku(CsiSku sku);
 
     public String insertSupplier(CsiSupplier supplier);
+
+    String insertSuppliers(CsiSupplier supplier);
+
     String updateSupplier(CsiSupplier supplier);
 
     String insertOwner(CsiOwner owner);
