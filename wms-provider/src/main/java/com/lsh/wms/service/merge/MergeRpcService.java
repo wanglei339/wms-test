@@ -193,6 +193,7 @@ public class MergeRpcService implements IMergeRpcService {
                     }
                 } else {
                     result.put("containerId", containerId);
+                    result.put("markContainerId",waveDetail.getContainerId());  //当前作为查找板子码标识的物理托盘码,随机选的
                     result.put("containerCount", 1);
                     result.put("packCount", qcCounts.get("packCount"));
                     result.put("turnoverBoxCount", qcCounts.get("turnoverBoxCount"));
