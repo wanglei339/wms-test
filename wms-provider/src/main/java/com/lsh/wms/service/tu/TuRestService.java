@@ -98,7 +98,6 @@ public class TuRestService implements ITuRestService {
         //事务操作,创建任务,发车状态改变
 
 
-
         // 传给TMS运单发车信息,此过程可以重复调用
         Boolean postResult = iTuRpcService.postTuDetails(tuId);
 

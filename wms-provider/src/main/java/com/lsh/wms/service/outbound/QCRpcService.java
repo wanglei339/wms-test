@@ -13,6 +13,7 @@ import com.lsh.wms.model.wave.WaveDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Created by zengwenjun on 16/7/30.
@@ -35,7 +36,16 @@ public class QCRpcService implements IQCRpcService {
         if (null == qcTaskInfo) {
             throw new BizCheckedException("2070002");
         }
-        iTaskRpcService.done(taskId, qcTaskInfo.getLocationId());
+        List<WaveDetail> detailList = waveService.getDetailsByPickTaskId(qcTaskInfo.getTaskId());
+        boolean isFinished = true;
+        for (WaveDetail one : detailList) {
+            if (WaveConstant.QC_EXCEPTION_STATUS_UNDO == one.getQcExceptionDone()) {
+                isFinished = false;
+            }
+        }
+        if (isFinished) {
+            iTaskRpcService.done(taskId, qcTaskInfo.getLocationId());
+        }
         waveService.updateDetail(detail);
     }
 
@@ -55,7 +65,16 @@ public class QCRpcService implements IQCRpcService {
         if (null == qcTaskInfo) {
             throw new BizCheckedException("2070002");
         }
-        iTaskRpcService.done(taskId, qcTaskInfo.getLocationId());
+        List<WaveDetail> detailList = waveService.getDetailsByPickTaskId(qcTaskInfo.getTaskId());
+        boolean isFinished = true;
+        for (WaveDetail one : detailList) {
+            if (WaveConstant.QC_EXCEPTION_STATUS_UNDO == one.getQcExceptionDone()) {
+                isFinished = false;
+            }
+        }
+        if (isFinished) {
+            iTaskRpcService.done(taskId, qcTaskInfo.getLocationId());
+        }
     }
 
     public void fallbackException(long id) throws BizCheckedException {
@@ -74,6 +93,15 @@ public class QCRpcService implements IQCRpcService {
         if (null == qcTaskInfo) {
             throw new BizCheckedException("2070002");
         }
-        iTaskRpcService.done(taskId, qcTaskInfo.getLocationId());
+        List<WaveDetail> detailList = waveService.getDetailsByPickTaskId(qcTaskInfo.getTaskId());
+        boolean isFinished = true;
+        for (WaveDetail one : detailList) {
+            if (WaveConstant.QC_EXCEPTION_STATUS_UNDO == one.getQcExceptionDone()) {
+                isFinished = false;
+            }
+        }
+        if (isFinished) {
+            iTaskRpcService.done(taskId, qcTaskInfo.getLocationId());
+        }
     }
 }
