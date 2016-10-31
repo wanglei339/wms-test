@@ -17,7 +17,7 @@ import javax.xml.ws.WebServiceFeature;
  * Generated source version: 2.2
  * 
  */
-@WebServiceClient(name = "ZMM_OUTB_OBD", targetNamespace = "urn:sap-com:document:sap:soap:functions:mc-style", wsdlLocation = "file:/home/work/obd.wsdl")
+@WebServiceClient(name = "ZMM_OUTB_OBD", targetNamespace = "urn:sap-com:document:sap:soap:functions:mc-style", wsdlLocation = "file:/home/work/wumart/obd.wsdl")
 public class ZMMOUTBOBD_Service
     extends Service
 {
@@ -30,7 +30,7 @@ public class ZMMOUTBOBD_Service
         URL url = null;
         WebServiceException e = null;
         try {
-            url = new URL("file:/home/work/obd.wsdl");
+            url = new URL("file:/home/work/wumart/obd.wsdl");
         } catch (MalformedURLException ex) {
             e = new WebServiceException(ex);
         }
