@@ -232,7 +232,7 @@ public class LoadRfRestService implements ILoadRfRestService {
         }
 
         boolean OpenSwith = TuConstant.RF_OPEN_REST.equals(tuHead.getRfSwitch()) ? true : false;
-        resultMap.put("openSwith", OpenSwith);
+        resultMap.put("openSwitch", OpenSwith);
         return JsonUtils.SUCCESS(resultMap);
     }
 
