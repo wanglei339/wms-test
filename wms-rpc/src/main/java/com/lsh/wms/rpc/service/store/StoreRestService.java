@@ -4,6 +4,9 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.BeanMapTransUtils;
+import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.wms.api.model.store.StoreRequest;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.store.IStoreRestService;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
@@ -13,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,8 +55,24 @@ public class StoreRestService implements IStoreRestService {
         if (null == storeNo) {
             throw new BizCheckedException("2180014");
         }
+        BaseinfoStore store = storeRpcService.getStoreByStoreNo(storeNo);
+        if (null == store) {
+            throw new BizCheckedException("2180013");
+        }
+        return JsonUtils.SUCCESS(store);
+    }
 
-        return JsonUtils.SUCCESS(storeRpcService.getStoreByStoreNo(storeNo));
+    @GET
+    @Path("getStoreById")
+    public String getStoreByStoreId(@QueryParam("storeId") Long storeId) throws BizCheckedException {
+        if (null == storeId) {
+            throw new BizCheckedException("2180018");
+        }
+        BaseinfoStore store = storeRpcService.getStoreByStoreId(storeId);
+        if (null == store) {
+            throw new BizCheckedException("2180019");
+        }
+        return JsonUtils.SUCCESS(store);
     }
 
     @GET
@@ -73,8 +93,14 @@ public class StoreRestService implements IStoreRestService {
 
     @POST
     @Path("getStoreList")
-    public String getStoreList() throws BizCheckedException {
-        Map<String, Object> params = RequestUtils.getRequest();
+    public String getStoreList(StoreRequest storeRequest) throws BizCheckedException {  //转成请求而不是map是因为汉子乱码问题
+        Map<String, Object> params = BeanMapTransUtils.Bean2map(storeRequest);
+        if (null != params.get("start")) {  //转换,否则sql报错
+            params.put("start", Integer.valueOf(params.get("start").toString()));
+        }
+        if (null != params.get("limit")) {
+            params.put("limit", Integer.valueOf(params.get("limit").toString()));
+        }
         List<BaseinfoStore> baseinfoStores = storeRpcService.getStoreList(params);
         if (baseinfoStores == null || baseinfoStores.size() < 1) {
             throw new BizCheckedException("2180016");
@@ -84,8 +110,14 @@ public class StoreRestService implements IStoreRestService {
 
     @POST
     @Path("countStores")
-    public String countBaseinfoStore() throws BizCheckedException {
-        Map<String, Object> params = RequestUtils.getRequest();
+    public String countBaseinfoStore(StoreRequest storeRequest) throws BizCheckedException {
+        Map<String, Object> params = BeanMapTransUtils.Bean2map(storeRequest);
+        if (null != params.get("start")) {  //转换,否则sql报错
+            params.put("start", Integer.valueOf(params.get("start").toString()));
+        }
+        if (null != params.get("limit")) {
+            params.put("limit", Integer.valueOf(params.get("limit").toString()));
+        }
         return JsonUtils.SUCCESS(storeRpcService.countBaseinfoStore(params));
     }
 }

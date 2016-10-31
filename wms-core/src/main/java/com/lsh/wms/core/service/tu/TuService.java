@@ -55,13 +55,23 @@ public class TuService {
         return tuHeadDao.getTuHeadList(mapQuery);
     }
 
-    public Integer countTuHead(Map<String, Object> mapQuery){
+    public List<TuHead> getTuHeadListOnPc(Map<String, Object> params) {
+        params.put("isValid", 1);
+        return tuHeadDao.getTuHeadListOnPc(params);
+    }
+
+    public Integer countTuHeadOnPc(Map<String, Object> mapQuery) {
+        mapQuery.put("isValid", 1);
+        return tuHeadDao.countTuHeadOnPc(mapQuery);
+    }
+
+    public Integer countTuHead(Map<String, Object> mapQuery) {
         mapQuery.put("isValid", 1);
         return tuHeadDao.countTuHead(mapQuery);
     }
 
     @Transactional(readOnly = false)
-    public TuHead removeTuHead(TuHead tuHead){
+    public TuHead removeTuHead(TuHead tuHead) {
         tuHead.setIsValid(0);   //无效
         this.update(tuHead);
         return tuHead;
@@ -86,7 +96,8 @@ public class TuService {
 
     /**
      * 根据合板的板id查找detail
-     *  板子的id是tuDetail表的唯一key
+     * 板子的id是tuDetail表的唯一key
+     *
      * @param boardId
      * @return
      */
@@ -117,6 +128,13 @@ public class TuService {
         return tuDetailDao.getTuDetailList(params);
     }
 
+    public List<TuDetail> getTuDeailListByTuId(String tuId){
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("tuId",tuId);
+        params.put("isValid", 1);
+        return tuDetailDao.getTuDetailList(params);
+    }
+
     public Integer countTuDetail(Map<String, Object> mapQuery) {
         mapQuery.put("isValid", 1);
         return tuDetailDao.countTuDetail(mapQuery);
@@ -133,12 +151,9 @@ public class TuService {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("tuId", tuId);
         mapQuery.put("deliveryCode", deliveryCode);  //门店号
+        mapQuery.put("isValid", 1);
         return this.getTuDeailList(mapQuery);
     }
-
-
-
-
 
 
 }

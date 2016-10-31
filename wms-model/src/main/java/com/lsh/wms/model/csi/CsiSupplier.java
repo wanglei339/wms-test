@@ -17,9 +17,9 @@ public class CsiSupplier implements Serializable {
 	/** 货主对供商的编号 */
     private String supplierCode;
 	/** 电话号码 */
-    private String phone;
+    private String phone = "";
 	/** 传真 */
-    private String fax;
+    private String fax = "";
 	/**  */
     private Long createdAt = 0L;
 	/**  */

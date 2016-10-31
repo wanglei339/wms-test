@@ -1,6 +1,7 @@
 package com.lsh.wms.api.service.store;
 
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.wms.api.model.store.StoreRequest;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
 
 import java.util.List;
@@ -17,11 +18,13 @@ public interface IStoreRestService {
 
     public String getStoreByStoreNo(String storeNo) throws BizCheckedException;
 
+    public String getStoreByStoreId(Long storeId) throws BizCheckedException;
+
     public String closeStore(String storeNo) throws BizCheckedException;
 
     public String removeStore(String storeNo) throws BizCheckedException;
 
-    public String getStoreList() throws BizCheckedException;
+    public String getStoreList(StoreRequest storeRequest) throws BizCheckedException;
 
-    public String countBaseinfoStore() throws BizCheckedException;
+    public String countBaseinfoStore(StoreRequest storeRequest) throws BizCheckedException;
 }

@@ -61,6 +61,7 @@ public class LocationRedisService {
         locationMap.put("curContainerVol", ObjUtils.toString(location.getCurContainerVol(), ""));
         locationMap.put("description", ObjUtils.toString(location.getDescription(), ""));
         locationMap.put("storeNo", ObjUtils.toString(location.getStoreNo(), ""));
+        locationMap.put("supplierNo", ObjUtils.toString(location.getSupplierNo(), ""));
 
         redisHashDao.putAll(redistKey, locationMap);
 

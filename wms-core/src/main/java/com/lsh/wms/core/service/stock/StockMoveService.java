@@ -152,6 +152,23 @@ public class StockMoveService {
             }
         }
     }
+    @Transactional(readOnly = false)
+    public void moveToConsume(Long containerId) throws BizCheckedException {
+
+        List<StockQuant> quants = quantService.getQuantsByContainerId(containerId);
+
+        BaseinfoLocation location = locationService.getLocationsByType(LocationConstant.CONSUME_AREA).get(0);
+
+        //存储已经生成move的ContainerId
+        Map<Long, Integer> isMovedMap = new HashMap<Long, Integer>();
+
+        for (StockQuant quant : quants) {
+            if (!isMovedMap.containsKey(quant.getContainerId())) {
+                this.moveWholeContainer(quant.getContainerId(), 0L, 0L, quant.getLocationId(), location.getLocationId());
+                isMovedMap.put(quant.getContainerId(), 1);
+            }
+        }
+    }
 
     @Transactional(readOnly = false)
     public void moveToContainer(Long itemId, Long operator, Long fromContainer, Long toContainer, Long locationId, BigDecimal qty) throws BizCheckedException {

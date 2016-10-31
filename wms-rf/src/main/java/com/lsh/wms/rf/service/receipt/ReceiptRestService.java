@@ -26,17 +26,18 @@ import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.staff.StaffService;
-import com.lsh.wms.core.service.utils.PackUtil;
+import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoStaffInfo;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
 import com.lsh.wms.model.po.IbdObdRelation;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
+import com.lsh.wms.model.system.SysUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.http.HttpSession;
@@ -47,8 +48,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-
-import static java.awt.SystemColor.info;
 
 /**
  * Project Name: lsh-wms
@@ -87,6 +86,8 @@ public class ReceiptRestService implements IReceiptRfService {
 
     @Autowired
     private RedisStringDao redisStringDao;
+    @Autowired
+    private SysUserService sysUserService;
 
 
 
@@ -109,9 +110,29 @@ public class ReceiptRestService implements IReceiptRfService {
 
         receiptRequest.setReceiptUser(RequestUtils.getHeader("uid"));
 
+        /*
+         *根据用户ID获取员工ID
+         */
+        //员工ID
+        Long staffId = null;
+
         Map<String,Object> map = new HashMap<String, Object>();
         map.put("uid",RequestUtils.getHeader("uid"));
-        Long staffId = staffService.getStaffList(map).get(0).getStaffId();
+        List<SysUser> userList =  sysUserService.getSysUserList(map);
+
+        if(userList != null && userList.size() > 0){
+            Map<String,Object> map1 = new HashMap<String, Object>();
+            map1.put("id",userList.get(0).getId());
+            List<BaseinfoStaffInfo> baseinfoStaffInfoList = staffService.getStaffList(map1);
+            if(baseinfoStaffInfoList != null && baseinfoStaffInfoList.size() > 0){
+                staffId = baseinfoStaffInfoList.get(0).getStaffId();
+            }
+        }
+        if(staffId == null){
+            //用户不存在
+            throw new BizCheckedException("2000003");
+        }
+
         receiptRequest.setStaffId(staffId);
 
 
@@ -322,7 +343,7 @@ public class ReceiptRestService implements IReceiptRfService {
          *判断托盘是否可用
          */
 
-        String containerStoreKey = RedisKeyConstant.CONTAINER_STORE.replace("{0}",containerId+"");
+        String containerStoreKey = StrUtils.formatString(RedisKeyConstant.CONTAINER_STORE,containerId);
         //从缓存中获取该托盘对应的店铺信息
         String oldStoreId = redisStringDao.get(containerStoreKey);
         if(!storeId.equals(oldStoreId)){

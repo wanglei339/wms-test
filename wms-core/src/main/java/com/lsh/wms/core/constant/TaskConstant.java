@@ -33,6 +33,8 @@ public class TaskConstant {
     public static final Long TYPE_BACK_OUT = 114L;
     public static final Long TYPE_MERGE = 115L;
 
+    public static final Long TYPE_DIRECT_SHIP = 116L;
+
 
     public static final Long EVENT_TASK_FINISH  = 100000L;
     public static final Long EVENT_SO_ACCEPT = 100001L;

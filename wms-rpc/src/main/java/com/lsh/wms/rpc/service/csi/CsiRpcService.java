@@ -66,6 +66,11 @@ public class CsiRpcService implements ICsiRpcService {
         return supplierService.getSupplier(iSupplierId);
     }
 
+    public CsiSupplier getSupplier(String supplierCode,Long ownerId) {
+        return supplierService.getSupplier(supplierCode,ownerId);
+    }
+
+
     public void updateSku(CsiSku sku){
         skuService.updateSku(sku);
     }
