@@ -121,12 +121,7 @@ public class ReceiptRestService implements IReceiptRfService {
         List<SysUser> userList =  sysUserService.getSysUserList(map);
 
         if(userList != null && userList.size() > 0){
-            Map<String,Object> map1 = new HashMap<String, Object>();
-            map1.put("id",userList.get(0).getId());
-            List<BaseinfoStaffInfo> baseinfoStaffInfoList = staffService.getStaffList(map1);
-            if(baseinfoStaffInfoList != null && baseinfoStaffInfoList.size() > 0){
-                staffId = baseinfoStaffInfoList.get(0).getStaffId();
-            }
+            staffId = userList.get(0).getStaffId();
         }
         if(staffId == null){
             //用户不存在
