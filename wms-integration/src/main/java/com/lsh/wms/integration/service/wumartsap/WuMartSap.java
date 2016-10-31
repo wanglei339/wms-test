@@ -65,13 +65,8 @@ public class WuMartSap implements IWuMartSap{
 
         logger.info("传入参数:header :" + JSON.toJSONString(header) + " hItem: " + JSON.toJSONString(hItem) + "  _return + "+ JSON.toJSONString(_return) + " efDelivery: "+JSON.toJSONString(efDelivery));
         zbinding.zbapiBbpInbIbd(header,hItem,_return,efDelivery);
-
         logger.info("传入参数:header :" + JSON.toJSONString(header) + " hItem: " + JSON.toJSONString(hItem) + "  _return + "+ JSON.toJSONString(_return) + " efDelivery: "+JSON.toJSONString(efDelivery));
-
         String ref = com.alibaba.fastjson.JSON.toJSONString(_return);
-
-        logger.info("~~~~~~~~~~~~!111111" + ref);
-
         return ref;
     }
 
@@ -137,8 +132,6 @@ public class WuMartSap implements IWuMartSap{
                 " _return : " + JSON.toJSONString(_return) +
                 " stockTransItems :"+JSON.toJSONString(stockTransItems));
         String ref = com.alibaba.fastjson.JSON.toJSONString(_return);
-
-
         return ref;
     }
 
