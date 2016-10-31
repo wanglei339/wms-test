@@ -138,7 +138,8 @@ public class LoadRfRestService implements ILoadRfRestService {
             tuHeads = iTuRpcService.getTuHeadList(mapQuery);
             //无tu单
             if (null == tuHeads || tuHeads.size() < 1) {
-                return null;
+                resultMap.put("result", resultList);
+                return JsonUtils.SUCCESS(resultMap);
             }
             for (int i = 0; i < tuHeads.size(); i++) {
                 Map<String, Object> one = new HashMap<String, Object>();
