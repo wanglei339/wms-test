@@ -121,12 +121,7 @@ public class ReceiptRestService implements IReceiptRfService {
         List<SysUser> userList =  sysUserService.getSysUserList(map);
 
         if(userList != null && userList.size() > 0){
-            Map<String,Object> map1 = new HashMap<String, Object>();
-            map1.put("id",userList.get(0).getId());
-            List<BaseinfoStaffInfo> baseinfoStaffInfoList = staffService.getStaffList(map1);
-            if(baseinfoStaffInfoList != null && baseinfoStaffInfoList.size() > 0){
-                staffId = baseinfoStaffInfoList.get(0).getStaffId();
-            }
+            staffId = userList.get(0).getStaffId();
         }
         if(staffId == null){
             //用户不存在
@@ -320,9 +315,8 @@ public class ReceiptRestService implements IReceiptRfService {
         return JsonUtils.SUCCESS(orderInfoMap);
     }
 
-    //private String oldStoreId = "";
 
-    @POST
+    /*@POST
     @Path("getStoreInfo")
     public String getStoreInfo(@FormParam("storeId") String storeId,@FormParam("containerId") Long containerId, @FormParam("barCode") String barCode,@FormParam("orderOtherId") String orderOtherId) throws BizCheckedException {
         //参数有效性验证
@@ -339,9 +333,9 @@ public class ReceiptRestService implements IReceiptRfService {
             throw new BizCheckedException("2020100");
         }
 
-        /*
+        *//*
          *判断托盘是否可用
-         */
+         *//*
 
         String containerStoreKey = StrUtils.formatString(RedisKeyConstant.CONTAINER_STORE,containerId);
         //从缓存中获取该托盘对应的店铺信息
@@ -518,5 +512,144 @@ public class ReceiptRestService implements IReceiptRfService {
             }
 
         });
+    }*/
+    //获取门店收获信息
+    @POST
+    @Path("getStoreInfo")
+    public String getStoreInfo(@FormParam("storeId")String storeId,@FormParam("containerId")Long containerId,@FormParam("barCode")String barCode,@FormParam("orderOtherId")String orderOtherId)throws BizCheckedException{
+
+        //参数有效性验证
+        if(StringUtils.isBlank(storeId)||StringUtils.isBlank(barCode)||StringUtils.isBlank(orderOtherId)||containerId==null){
+            throw new BizCheckedException("1020001","参数不能为空");
+        }
+
+        /*
+        *判断托盘是否可用
+        */
+
+        String containerStoreKey=RedisKeyConstant.CONTAINER_STORE.replace("{0}",containerId+"");
+        //从缓存中获取该托盘对应的店铺信息
+        String oldStoreId=redisStringDao.get(containerStoreKey);
+        if(!storeId.equals(oldStoreId)){
+            //验证托盘是否可用
+            if(!containerService.isContainerCanUse(containerId)){
+                throw new BizCheckedException("2000002");
+            }else{
+            //可用,存入缓存
+                redisStringDao.set(containerStoreKey,storeId,2,TimeUnit.DAYS);
+            }
+        }
+
+        //商品是否存在
+        CsiSku csiSku=csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE,barCode);
+        if(null==csiSku||csiSku.getSkuId()==null){
+            throw new BizCheckedException("2020022");
+        }
+
+
+        //po单是否存在
+        IbdHeader ibdHeader=poOrderService.getInbPoHeaderByOrderOtherId(orderOtherId);
+        if(ibdHeader==null){
+            throw new BizCheckedException("2020001");
+        }
+        //是否可收货
+        boolean isCanReceipt=ibdHeader.getOrderStatus()==PoConstant.ORDER_THROW||ibdHeader.getOrderStatus()==PoConstant.ORDER_RECTIPT_PART||ibdHeader.getOrderStatus()==PoConstant.ORDER_RECTIPTING;
+        if(!isCanReceipt){
+            throw new BizCheckedException("2020002");
+        }
+
+        //获取货主商品信息
+        BaseinfoItem baseinfoItem=itemService.getItem(ibdHeader.getOwnerUid(),csiSku.getSkuId());
+        if(baseinfoItem==null){
+            throw new BizCheckedException("2900001");
+        }
+        //查找保质期天数
+        BigDecimal shelfLife=baseinfoItem.getShelfLife();
+        //skucode
+        String skuCode=baseinfoItem.getSkuCode();
+
+        IbdDetail ibdDetail=poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(),skuCode);
+        if(ibdDetail==null){
+            throw new BizCheckedException("2020004");
+        }
+        //查询对应的ibdobdrelation
+        Map<String,Object>params=new HashMap<String,Object>();
+        params.put("ibdOtherId",orderOtherId);
+        params.put("ibdDetailId",ibdDetail.getDetailOtherId());
+
+        List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(params);
+        if(ibdObdRelations!=null&&ibdObdRelations.size()<=0){
+            throw new BizCheckedException("2021000");
+        }
+
+        final Map<String,Object>map2=new HashMap<String,Object>();
+        //用来标记该门店是否有订货
+        boolean isOrder=false;
+        //用来标记商品是否在订货范围内
+        boolean isGoods=false;
+
+        //根据ibdobdrelation来找对应的obd
+        for(IbdObdRelation ibdObdRelation:ibdObdRelations){
+            String obdOtherId=ibdObdRelation.getObdOtherId();
+            String obdDetailId=ibdObdRelation.getObdDetailId();
+
+            ObdHeader obdHeader=soOrderService.getOutbSoHeaderByOrderOtherId(obdOtherId);
+            //该门店有新建的直流出库订单
+            isOrder=obdHeader!=null&&storeId.equals(obdHeader.getDeliveryCode())
+                    &&SoConstant.ORDER_TYPE_DIRECT==obdHeader.getOrderType()
+                    &&1==obdHeader.getOrderStatus();
+
+            if(isOrder){
+                ObdDetail obdDetail=soOrderService.getObdDetailByOrderIdAndDetailOtherId(obdHeader.getOrderId(),obdDetailId);
+                if(obdDetail==null){
+                    throw new BizCheckedException("2020010");
+                }
+                //该商品是否在门店订货范围内
+                isGoods=baseinfoItem.getItemId().equals(obdDetail.getItemId());
+                if(isGoods){
+                    map2.put("location","J"+storeId);
+                    map2.put("orderId",ibdHeader.getOrderId());
+                    map2.put("barCode",barCode);
+                    map2.put("skuName",csiSku.getSkuName());
+                    map2.put("orderQty",obdDetail.getOrderQty());
+                    map2.put("packName",ibdDetail.getPackName());
+                    map2.put("packUnit",ibdDetail.getPackUnit());
+
+                    //将obdorderId存入redis
+                    String key=StrUtils.formatString(RedisKeyConstant.PO_STORE,ibdHeader.getOrderId(),storeId);
+                    redisStringDao.set(key,obdHeader.getOrderId());
+                    break;
+                }
+
+            }
+
+        }
+        if(!isOrder){
+            throw new BizCheckedException("2020101");
+        }
+        if(!isGoods){
+            throw new BizCheckedException("2020004");
+        }
+        //推算最晚生产日期
+        Calendar calendar=Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(calendar.DAY_OF_YEAR,-shelfLife.intValue());
+        Date pro=calendar.getTime();
+        SimpleDateFormat sd=new SimpleDateFormat("yyyy-MM-dd");
+        map2.put("proTime",sd.format(pro));
+
+        //校验之后修改订单状态为收货中第一次收货将订单改为收货中
+        if(ibdHeader.getOrderStatus()==PoConstant.ORDER_THROW){
+            ibdHeader.setOrderStatus(PoConstant.ORDER_RECTIPTING);
+            poOrderService.updateInbPoHeader(ibdHeader);
+        }
+
+        return JsonUtils.SUCCESS(new HashMap<String,Object>(){
+            {
+                put("receiptInfo",map2);
+            }
+
+        });
     }
+
 }
