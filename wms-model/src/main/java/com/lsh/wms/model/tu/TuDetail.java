@@ -35,7 +35,7 @@ public class TuDetail implements Serializable {
     /**
      * '是否贵品，0不是，1是',
      */
-    private Integer isExpresive = 0;
+    private Integer isExpensive = 0;
     /**
      * 创建时间
      */
@@ -113,12 +113,12 @@ public class TuDetail implements Serializable {
         this.isRest = isRest;
     }
 
-    public Integer getIsExpresive() {
-        return this.isExpresive;
+    public void setIsExpensive(Integer isExpensive) {
+        this.isExpensive = isExpensive;
     }
 
-    public void setIsExpresive(Integer isExpresive) {
-        this.isExpresive = isExpresive;
+    public Integer getIsExpensive() {
+        return isExpensive;
     }
 
     public Long getCreatedAt() {
