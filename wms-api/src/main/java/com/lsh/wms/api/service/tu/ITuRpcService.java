@@ -62,4 +62,8 @@ public interface ITuRpcService {
 
     TuHead receiveTuHead(Map<String, Object> mapRequest) throws BizCheckedException;
 
+    void closeRfRestSwitch(String tuId) throws BizCheckedException;
+
+    void openRfRestSwitch(String tuId) throws BizCheckedException;
+
 }

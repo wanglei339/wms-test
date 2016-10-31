@@ -40,7 +40,7 @@ public class LoadAndShipTaskHandler extends AbsTaskHandler {
     }
 
     public void doneConcrete(Long taskId) {
-        //todo 清库存,释放集货道,写绩效
+        //todo 清库存移到consumer,写绩效,数量写入head表头
     }
 
 }

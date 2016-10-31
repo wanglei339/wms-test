@@ -188,6 +188,7 @@ public class TuRpcService implements ITuRpcService {
 
     /**
      * 使用POST方式将TU发车
+     *
      * @param tuId
      * @throws BizCheckedException
      */
@@ -203,7 +204,7 @@ public class TuRpcService implements ITuRpcService {
         }
         List<TuDetail> tuDetails = tuService.getTuDeailListByTuId(tuId);
         List<Map<String, Object>> details = new ArrayList<Map<String, Object>>();
-        for (TuDetail tuDetail: tuDetails) {
+        for (TuDetail tuDetail : tuDetails) {
             Map<String, Object> detail = BeanMapTransUtils.Bean2map(tuDetail);
             BaseinfoStore store = storeService.getBaseinfoStore(tuDetail.getStoreId());
             detail.put("storeNo", store.getStoreNo());
@@ -232,6 +233,7 @@ public class TuRpcService implements ITuRpcService {
 
     /**
      * 接收TU头信息
+     *
      * @param mapRequest
      * @return
      * @throws BizCheckedException
@@ -264,5 +266,37 @@ public class TuRpcService implements ITuRpcService {
         }
         logger.info("[RECEIVE TU]Receive TU success: " + JSON.toJSONString(tuHead));
         return tuHead;
+    }
+
+    /**
+     * 关闭尾货开关
+     *
+     * @param tuId
+     * @return
+     * @throws BizCheckedException
+     */
+    public void closeRfRestSwitch(String tuId) throws BizCheckedException {
+        TuHead tuHead = tuService.getHeadByTuId(tuId);
+        if (null == tuHead) {
+            throw new BizCheckedException("2990022");
+        }
+        tuHead.setRfSwitch(TuConstant.RF_CLOSE_REST);
+        this.update(tuHead);
+    }
+
+    /**
+     * 开启rf尾货开关
+     *
+     * @param tuId
+     * @return
+     * @throws BizCheckedException
+     */
+    public void openRfRestSwitch(String tuId) throws BizCheckedException {
+        TuHead tuHead = tuService.getHeadByTuId(tuId);
+        if (null == tuHead) {
+            throw new BizCheckedException("2990022");
+        }
+        tuHead.setRfSwitch(TuConstant.RF_OPEN_REST);
+        this.update(tuHead);
     }
 }
