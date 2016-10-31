@@ -58,4 +58,12 @@ public interface ITuRpcService {
 
     public TuHead changeTuHeadStatus(TuHead tuHead, Integer status) throws BizCheckedException;
 
+    Boolean postTuDetails(String tuId) throws BizCheckedException;
+
+    TuHead receiveTuHead(Map<String, Object> mapRequest) throws BizCheckedException;
+
+    void closeRfRestSwitch(String tuId) throws BizCheckedException;
+
+    void openRfRestSwitch(String tuId) throws BizCheckedException;
+
 }

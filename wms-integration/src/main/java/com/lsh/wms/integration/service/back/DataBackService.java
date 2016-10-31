@@ -3,19 +3,16 @@ package com.lsh.wms.integration.service.back;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
-import com.lsh.base.common.utils.BeanMapTransUtils;
-import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.model.po.IbdBackRequest;
 import com.lsh.wms.api.model.po.IbdItem;
 import com.lsh.wms.api.service.back.IDataBackService;
-import com.lsh.wms.api.service.po.IIbdBackService;
 import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.system.SysLogService;
 import com.lsh.wms.core.service.system.SysMsgService;
-import com.lsh.wms.integration.service.common.utils.HttpUtil;
 import com.lsh.wms.integration.model.OrderResponse;
+import com.lsh.wms.integration.service.common.utils.HttpUtil;
 import com.lsh.wms.model.system.SysLog;
 import com.lsh.wms.model.system.SysMsg;
 import org.apache.xmlrpc.client.XmlRpcClient;
@@ -25,7 +22,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by lixin-mac on 16/9/6.

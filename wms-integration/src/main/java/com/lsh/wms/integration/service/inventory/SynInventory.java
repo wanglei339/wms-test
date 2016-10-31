@@ -7,6 +7,7 @@ import com.lsh.atp.api.model.baseVo.SkuVo;
 import com.lsh.atp.api.model.inventory.InventorySyncLshRequest;
 import com.lsh.atp.api.service.inventory.IInventorySyncLshRpcService;
 import com.lsh.base.common.config.PropertyUtils;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.inventory.ISynInventory;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
@@ -50,8 +51,11 @@ public class SynInventory implements ISynInventory {
         request.setDcCode(PropertyUtils.getString("owner_"+ownerId));   // TODO: 16/9/7
         List<SkuVo> skuList = new ArrayList<SkuVo>();
         SkuVo itemDc = new SkuVo();
+        //传skuCode
         itemDc.setItemId(item_id);
+        //itemDc.setItemId(baseinfoItem.getSkuCode());
         itemDc.setQty(new BigDecimal(qty)); // TODO: 16/9/7
+        skuList.add(itemDc);
         request.setSkuList(skuList);
         iInventorySyncLshRpcService.inventorySyncLsh(request);
     }

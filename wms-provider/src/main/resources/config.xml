@@ -6,4 +6,5 @@
     <properties resource="classpath:props/msg.properties"/>
     <properties resource="classpath:props/exception.properties"/>
     <properties resource="classpath:props/wms.properties"/>
+    <properties resource="classpath:props/tms.properties"/>
 </configuration>

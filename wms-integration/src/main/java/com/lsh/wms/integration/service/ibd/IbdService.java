@@ -15,6 +15,10 @@ import com.lsh.wms.api.model.base.ResponseConstant;
 import com.lsh.wms.api.model.po.*;
 import com.lsh.wms.api.model.so.ObdOfcBackRequest;
 import com.lsh.wms.api.model.so.ObdOfcItem;
+import com.lsh.wms.api.model.wumart.CreateIbdDetail;
+import com.lsh.wms.api.model.wumart.CreateIbdHeader;
+import com.lsh.wms.api.model.wumart.CreateObdDetail;
+import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.po.IIbdService;
 import com.lsh.wms.api.service.po.IPoRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
@@ -24,20 +28,21 @@ import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.system.SysLogService;
 import com.lsh.wms.integration.service.back.DataBackService;
+import com.lsh.wms.integration.service.wumartsap.WuMartSap;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.po.IbdHeader;
 import com.lsh.wms.model.po.IbdObdRelation;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.system.SysLog;
+import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -68,6 +73,8 @@ public class IbdService implements IIbdService {
     @Autowired
     private SysLogService sysLogService;
 
+    @Autowired
+    private WuMartSap wuMartSap;
     @POST
     @Path("add")
     public BaseResponse add(IbdRequest request) throws BizCheckedException{
@@ -298,9 +305,59 @@ public class IbdService implements IIbdService {
     }
 
 
+    @GET
+    @Path("sendSap")
+    public String sendSap(){
+        CreateIbdHeader header = new CreateIbdHeader();
+
+        XMLGregorianCalendar date = new XMLGregorianCalendarImpl();
+        date.setYear(2016);
+        date.setDay(31);
+        date.setMonth(10);
+        header.setDeliveDate(date);
+        List<CreateIbdDetail> details = new ArrayList<CreateIbdDetail>();
+
+        CreateIbdDetail detail = new CreateIbdDetail();
+        detail.setDeliveQty(new BigDecimal(2));
+        detail.setPoItme("10");
+        detail.setPoNumber("4500027420");
+        detail.setUnit("H24");
+        details.add(detail);
+        header.setItems(details);
+        return wuMartSap.ibd2Sap(header);
+    }
+
+    @GET
+    @Path("sendSapObd")
+    public String sendSapObd() {
+        CreateObdHeader header = new CreateObdHeader();
+        XMLGregorianCalendar date = new XMLGregorianCalendarImpl();
+        date.setYear(2016);
+        date.setDay(28);
+        date.setMonth(10);
+        header.setDueDate(date);
+
+        List<CreateObdDetail> details = new ArrayList<CreateObdDetail>();
+        CreateObdDetail detail1 = new CreateObdDetail();
+        detail1.setRefDoc("4940031769");
+        detail1.setRefItem("10");
+        detail1.setDlvQty(new BigDecimal(2));
+        detail1.setSalesUnit("EA");
+        detail1.setMaterial("100151");
+        details.add(detail1);
 
 
+        CreateObdDetail detail2 = new CreateObdDetail();
+        detail2.setRefDoc("4940031769");
+        detail2.setRefItem("20");
+        detail2.setDlvQty(new BigDecimal(2));
+        detail2.setSalesUnit("EA");
+        detail2.setMaterial("100150");
+        details.add(detail2);
+        header.setItems(details);
 
+        return wuMartSap.obd2Sap(header);
+    }
 
 
 }

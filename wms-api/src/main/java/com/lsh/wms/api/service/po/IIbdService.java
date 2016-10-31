@@ -16,4 +16,8 @@ public interface IIbdService {
 
     BaseResponse addRelation() throws BizCheckedException, ParseException;
     String Test();
+
+    String sendSap();
+
+    String sendSapObd();
 }
