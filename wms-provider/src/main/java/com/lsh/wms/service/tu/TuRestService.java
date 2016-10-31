@@ -73,7 +73,7 @@ public class TuRestService implements ITuRestService {
 
     /**
      * todo 发货
-     * 释放集货道|减库存|写入task的绩效
+     * 减库存|写入task的绩效
      *
      * @return
      * @throws BizCheckedException
@@ -96,6 +96,7 @@ public class TuRestService implements ITuRestService {
             return JsonUtils.SUCCESS(resultMap);
         }
         //事务操作,创建任务,发车状态改变
+
 
 
         // 传给TMS运单发车信息,此过程可以重复调用
