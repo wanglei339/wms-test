@@ -312,16 +312,16 @@ public class IbdService implements IIbdService {
 
         XMLGregorianCalendar date = new XMLGregorianCalendarImpl();
         date.setYear(2016);
-        date.setDay(31);
-        date.setMonth(10);
+        date.setDay(02);
+        date.setMonth(11);
         header.setDeliveDate(date);
         List<CreateIbdDetail> details = new ArrayList<CreateIbdDetail>();
 
         CreateIbdDetail detail = new CreateIbdDetail();
-        detail.setDeliveQty(new BigDecimal(2));
+        detail.setDeliveQty(new BigDecimal(10));
         detail.setPoItme("10");
-        detail.setPoNumber("4500027420");
-        detail.setUnit("H24");
+        detail.setPoNumber("4500027426");
+        detail.setUnit("EA");
         details.add(detail);
         header.setItems(details);
         return wuMartSap.ibd2Sap(header);
@@ -333,27 +333,27 @@ public class IbdService implements IIbdService {
         CreateObdHeader header = new CreateObdHeader();
         XMLGregorianCalendar date = new XMLGregorianCalendarImpl();
         date.setYear(2016);
-        date.setDay(28);
+        date.setDay(31);
         date.setMonth(10);
         header.setDueDate(date);
 
         List<CreateObdDetail> details = new ArrayList<CreateObdDetail>();
         CreateObdDetail detail1 = new CreateObdDetail();
-        detail1.setRefDoc("4940031769");
+        detail1.setRefDoc("4940031776");
         detail1.setRefItem("10");
         detail1.setDlvQty(new BigDecimal(2));
         detail1.setSalesUnit("EA");
-        detail1.setMaterial("100151");
+        detail1.setMaterial("110510");
         details.add(detail1);
 
 
-        CreateObdDetail detail2 = new CreateObdDetail();
-        detail2.setRefDoc("4940031769");
-        detail2.setRefItem("20");
-        detail2.setDlvQty(new BigDecimal(2));
-        detail2.setSalesUnit("EA");
-        detail2.setMaterial("100150");
-        details.add(detail2);
+//        CreateObdDetail detail2 = new CreateObdDetail();
+//        detail2.setRefDoc("4940031769");
+//        detail2.setRefItem("20");
+//        detail2.setDlvQty(new BigDecimal(2));
+//        detail2.setSalesUnit("EA");
+//        detail2.setMaterial("100150");
+//        details.add(detail2);
         header.setItems(details);
 
         return wuMartSap.obd2Sap(header);

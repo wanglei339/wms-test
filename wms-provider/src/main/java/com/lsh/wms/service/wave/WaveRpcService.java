@@ -47,29 +47,31 @@ public class WaveRpcService implements IWaveRpcService {
         pickWaveHead.setWaveDest(tpl.getWaveDest());
         List<Map> orders = request.getOrders();
         for(Map order : orders){
-            Long orderId = Long.valueOf(order.get("orderId").toString());
-            ObdHeader so = soOrderService.getOutbSoHeaderByOrderId(orderId);
+            //Long orderId = Long.valueOf(order.get("orderId").toString());
+            String orderOtherId = order.get("orderId").toString();
+            //ObdHeader so = soOrderService.getOutbSoHeaderByOrderId(orderId);
+            ObdHeader so = soOrderService.getOutbSoHeaderByOrderOtherId(orderOtherId);
             if(so == null){
-                throw new BizCheckedException("", String.format("订单[%d]不存在", orderId));
+                throw new BizCheckedException("2041000", orderOtherId,"");
             }
             if(so.getWaveId() > 0){
-                throw new BizCheckedException("", String.format("订单[%d]已排好波次", orderId));
+                throw new BizCheckedException("2041001", orderOtherId,"");
             }
             if(order.get("transPlan") == null
                     || order.get("waveIndex") == null
                     || order.get("transTime") == null){
-                throw new BizCheckedException("", "参数错误");
+                throw new BizCheckedException("2041002");
             }
         }
         if(orders.size()==0){
-            throw new BizCheckedException("订单数为0");
+            throw new BizCheckedException("2041003");
         }
         try{
             waveService.createWave(pickWaveHead,orders);
             return pickWaveHead.getWaveId();
         }catch (Exception e){
             logger.error(e.getCause().getMessage());
-            throw new BizCheckedException("创建失败,系统错误");
+            throw new BizCheckedException("2041004");
         }
     }
 
@@ -112,4 +114,6 @@ public class WaveRpcService implements IWaveRpcService {
             }
         }
     }
+
+
 }

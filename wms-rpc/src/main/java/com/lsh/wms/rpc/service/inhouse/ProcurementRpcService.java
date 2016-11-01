@@ -53,12 +53,14 @@ public class ProcurementRpcService implements IProcurementRpcService{
     private ItemService itemService;
 
     private static Logger logger = LoggerFactory.getLogger(ProcurementRpcService.class);
-
+    //判断商品是否需要补货
     public boolean needProcurement(Long locationId, Long itemId) throws BizCheckedException {
         StockQuantCondition condition = new StockQuantCondition();
         condition.setItemId(itemId);
         condition.setLocationId(locationId);
+        //获取该拣货位上的商品总数
         BigDecimal qty = quantService.getQty(condition);
+        //数量为0必须补货
         if (qty.equals(BigDecimal.ZERO)) {
             return true;
         }
@@ -74,6 +76,7 @@ public class ProcurementRpcService implements IProcurementRpcService{
 //        } else {
 //            return false;
 //        }
+        //获取该商品的存货范围
         BaseinfoItemQuantRange range = itemService.getItemRange(itemId);
         if(range==null){
             return qty.compareTo(this.getThreshold(locationId, itemId)) < 0;
@@ -90,8 +93,11 @@ public class ProcurementRpcService implements IProcurementRpcService{
         }
         return qty;
     }
+    //获取商品需要补货的临界值=库位存储数量-托盘存储数量
     public BigDecimal getThreshold(Long locationId, Long itemId) {
+
         BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(locationId);
+        //获取仓位体积
         BigDecimal pickVolume = bin.getVolume();
         BaseinfoItem item = itemService.getItem(itemId);
 
