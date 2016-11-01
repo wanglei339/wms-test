@@ -64,9 +64,9 @@ public class WuMartSap implements IWuMartSap{
         Holder<TableOfBbpInbdD> hItem = new Holder<TableOfBbpInbdD>(items);
 
         logger.info("传入参数:header :" + JSON.toJSONString(header) + " hItem: " + JSON.toJSONString(hItem) + "  _return + "+ JSON.toJSONString(_return) + " efDelivery: "+JSON.toJSONString(efDelivery));
-        zbinding.zbapiBbpInbIbd(header,hItem,_return,efDelivery);
+        TableOfBapireturn newReturn = zbinding.zbapiBbpInbIbd(header,hItem,_return,efDelivery);
         logger.info("传入参数:header :" + JSON.toJSONString(header) + " hItem: " + JSON.toJSONString(hItem) + "  _return + "+ JSON.toJSONString(_return) + " efDelivery: "+JSON.toJSONString(efDelivery));
-        String ref = com.alibaba.fastjson.JSON.toJSONString(_return);
+        String ref = com.alibaba.fastjson.JSON.toJSONString(newReturn);
         return ref;
     }
 
@@ -124,14 +124,14 @@ public class WuMartSap implements IWuMartSap{
                     " dueDate : " + JSON.toJSONString(dueDate) +
                     " _return : " + JSON.toJSONString(_return) +
                     " stockTransItems :"+JSON.toJSONString(stockTransItems));
-        zbinding.zBapiOutbCreateObd(createdItems,debugFlg,deliveries,dueDate,extensionIn,extensionOut,noDequeue,_return,serialNumbers,shipPoint,stockTransItems,delivery,numDeliveries);
+        TableOfBapiret2 newReturn = zbinding.zBapiOutbCreateObd(createdItems,debugFlg,deliveries,dueDate,extensionIn,extensionOut,noDequeue,_return,serialNumbers,shipPoint,stockTransItems,delivery,numDeliveries);
         logger.info("入口参数: createdItems :" + JSON.toJSONString(createdItems)+
                 " debugFlg : " + JSON.toJSONString(debugFlg)+
                 " deliveries : " + JSON.toJSONString(deliveries) +
                 " dueDate : " + JSON.toJSONString(dueDate) +
                 " _return : " + JSON.toJSONString(_return) +
                 " stockTransItems :"+JSON.toJSONString(stockTransItems));
-        String ref = com.alibaba.fastjson.JSON.toJSONString(_return);
+        String ref = com.alibaba.fastjson.JSON.toJSONString(newReturn);
         return ref;
     }
 
