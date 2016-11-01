@@ -316,8 +316,16 @@ public class QCRestService implements IRFQCRestService {
             qcException.setWaveId(qcTaskInfo.getWaveId());
             waveService.insertQCException(qcException);
         } else {
-            BigDecimal qty = PackUtil.UomQty2EAQty(qtyUom, matchDetails.get(0).getAllocUnitName());
-            exceptionQty = PackUtil.UomQty2EAQty(exceptionQty, matchDetails.get(0).getAllocUnitName());
+            // ea 合箱子
+            BigDecimal qty = new BigDecimal("0.0000");
+            if (matchDetails.get(0).getAllocUnitName().compareTo("EA") == 0) {
+                qty = PackUtil.UomQty2EAQty(qtyUom, matchDetails.get(0).getAllocUnitName());
+                exceptionQty = PackUtil.UomQty2EAQty(exceptionQty, matchDetails.get(0).getAllocUnitName());
+            } else {
+                qty = qty;
+                exceptionQty = exceptionQty;
+            }
+//            exceptionQty = PackUtil.UomQty2EAQty(exceptionQty, matchDetails.get(0).getAllocUnitName());
             if (exceptionQty.compareTo(qty) > 0) {
                 throw new BizCheckedException("2120013");
             }
