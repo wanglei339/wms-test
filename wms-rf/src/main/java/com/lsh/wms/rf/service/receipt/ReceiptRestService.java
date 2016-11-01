@@ -625,7 +625,7 @@ public class ReceiptRestService implements IReceiptRfService {
 
         }
         if(!isOrder){
-            throw new BizCheckedException("2020101");
+            throw new BizCheckedException("2020100");
         }
         if(!isGoods){
             throw new BizCheckedException("2020004");
