@@ -86,7 +86,8 @@ public class WaveService {
             //更新wave信息
             Map so = vOrders.get(i);
             ObdHeader obdHeader = new ObdHeader();
-            obdHeader.setOrderId(Long.valueOf(so.get("orderId").toString()));
+            //obdHeader.setOrderId(Long.valueOf(so.get("orderId").toString()));
+            obdHeader.setOrderOtherId(so.get("orderId").toString());
             obdHeader.setTransPlan(so.get("transPlan").toString());
             obdHeader.setWaveIndex(Integer.valueOf(so.get("waveIndex").toString()));
             obdHeader.setTransTime(DateUtils.parse(so.get("transTime").toString()));

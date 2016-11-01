@@ -347,4 +347,8 @@ public class WaveRestService implements IWaveRestService {
         return JsonUtils.SUCCESS(waveService.getExceptionsByWaveId(iWaveId));
     }
 
+    public static void main(String[] args) {
+        throw new BizCheckedException("2041001","1111111");
+    }
+
 }

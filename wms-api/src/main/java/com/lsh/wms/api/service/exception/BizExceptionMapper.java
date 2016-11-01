@@ -28,7 +28,7 @@ public class BizExceptionMapper implements ExceptionMapper<BizCheckedException> 
          msg.append(ex.getExceptionStackInfo());
          responseBaseVo.setMsg(msg.toString());*/ //todo 业务异常不抛出异常堆栈
         Integer status = ex.getCode()!=null?Integer.parseInt(ex.getCode()):ExceptionConstant.RES_CODE_500;
-        String message = PropertyUtils.getString(ex.getCode(),ex.getMessage());
+        String message = PropertyUtils.getMessage(ex.getCode(),ex.getMessage());
         BaseResponse responseBaseVo = ResUtils.getResponse(status,message,null);
         Response response = Response.status(Response.Status.OK).entity(responseBaseVo).type(ContentType.APPLICATION_JSON_UTF_8).build();
         return  response;

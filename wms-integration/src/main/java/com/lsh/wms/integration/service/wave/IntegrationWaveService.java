@@ -30,14 +30,14 @@ public class IntegrationWaveService implements IWaveService {
 
     @POST
     @Path("createAndReleaseWave")
-    public String createAndReleaseWave(WaveRequest request) {
+    public String createAndReleaseWave(WaveRequest request) throws BizCheckedException{
         Long waveId = 0L;
         String msg = "创建成功;释放成功";
         int ret = 0;
         try {
             waveId = iWaveRpcService.createWave(request);
         }catch (BizCheckedException e){
-            msg = "创建失败;"+e.getLocalizedMessage();
+            msg = "创建失败;"+e.getMessage();
             ret = -1;
         }
         if(ret == 0) {

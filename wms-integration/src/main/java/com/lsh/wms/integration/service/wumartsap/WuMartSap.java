@@ -67,6 +67,7 @@ public class WuMartSap implements IWuMartSap{
         TableOfBapireturn newReturn = zbinding.zbapiBbpInbIbd(header,hItem,_return,efDelivery);
         logger.info("传入参数:header :" + JSON.toJSONString(header) + " hItem: " + JSON.toJSONString(hItem) + "  _return + "+ JSON.toJSONString(_return) + " efDelivery: "+JSON.toJSONString(efDelivery));
         String ref = com.alibaba.fastjson.JSON.toJSONString(newReturn);
+        // TODO: 2016/11/1 结果记录到日志表中,将数据保存到redis中。以便失败之后重新下传。 
         return ref;
     }
 
