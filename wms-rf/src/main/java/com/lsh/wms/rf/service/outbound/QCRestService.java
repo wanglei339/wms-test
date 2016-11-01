@@ -229,10 +229,10 @@ public class QCRestService implements IRFQCRestService {
         if (isDirect) {
             for (WaveDetail one : details) {
                 one.setQcExceptionDone(2L);
+                one.setQcQty(one.getPickQty()); //先默认qc数量是正常的
                 waveService.updateDetail(one);
                 isFirstQC = false;
             }
-
         }
         allBoxNum = boxNum;
         if (hasEA) {
