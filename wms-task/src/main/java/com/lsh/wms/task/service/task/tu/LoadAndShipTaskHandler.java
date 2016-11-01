@@ -41,28 +41,5 @@ public class LoadAndShipTaskHandler extends AbsTaskHandler {
         handlerFactory.register(TaskConstant.TYPE_DIRECT_SHIP, this);
     }
 
-    /**
-     * 看是大店还是小店
-     *
-     * @param taskId
-     */
-    public void doneConcrete(Long taskId) {
-        TaskEntry entry = taskRpcService.getTaskEntryById(taskId);
-        TaskInfo info = entry.getTaskInfo();
-        Long storeType = info.getSubType();
-        Long containerId = info.getContainerId();
-        if (TaskConstant.TASK_DIRECT_SMALL_SHIP.equals(storeType)) {//小店 不和板子
-            stockMoveService.moveToConsume(containerId);
-        } else {  //板子码
-            List<WaveDetail> waveDetails = waveService.getWaveDetailsByMergedContainerId(info.getContainerId());
-            if (null == waveDetails || waveDetails.size() < 1) {
-                throw new BizCheckedException("2990051");
-            }
-            for (WaveDetail detail : waveDetails) {
-                stockMoveService.moveToConsume(detail.getContainerId());
-            }
-        }
-    }
-
 
 }

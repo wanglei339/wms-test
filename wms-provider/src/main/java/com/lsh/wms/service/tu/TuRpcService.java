@@ -1,5 +1,6 @@
 package com.lsh.wms.service.tu;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.config.PropertyUtils;
@@ -9,21 +10,27 @@ import com.lsh.base.common.net.HttpClientUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.wms.api.service.so.ISoRpcService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.TuConstant;
+import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.store.StoreService;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.tu.TuService;
+import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
+import com.lsh.wms.model.so.ObdHeader;
+import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.tu.TuDetail;
 import com.lsh.wms.model.tu.TuHead;
+import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  * @Author 马启迪 maqidi@lsh123.com
@@ -37,7 +44,15 @@ public class TuRpcService implements ITuRpcService {
     @Autowired
     private TuService tuService;
     @Autowired
+    private StockMoveService stockMoveService;
+    @Autowired
+    private BaseTaskService baseTaskService;
+    @Autowired
+    private WaveService waveService;
+    @Autowired
     private StoreService storeService;
+    @Reference
+    private ISoRpcService iSoRpcService;
 
     public TuHead create(TuHead tuHead) throws BizCheckedException {
         //先查有无,有的话,不能创建
@@ -299,4 +314,147 @@ public class TuRpcService implements ITuRpcService {
         tuHead.setRfSwitch(TuConstant.RF_OPEN_REST);
         this.update(tuHead);
     }
+
+    /**
+     * 移动板子库存到消费区
+     *
+     * @param waveDetails
+     * @return
+     * @throws BizCheckedException
+     */
+    public boolean moveItemToConsumeArea(List<WaveDetail> waveDetails) throws BizCheckedException {
+        if (null == waveDetails || waveDetails.size() < 1) {
+            throw new BizCheckedException("2880012");
+        }
+        for (WaveDetail detail : waveDetails) {
+            stockMoveService.moveToConsume(detail.getContainerId());
+        }
+        return true;
+    }
+
+    /**
+     * 消除物理托盘的库存
+     *
+     * @param containerId
+     * @return
+     * @throws BizCheckedException
+     */
+    public boolean moveItemToConsumeArea(Long containerId) throws BizCheckedException {
+        if (null == containerId) {
+            throw new BizCheckedException("2880010");
+        }
+        stockMoveService.moveToConsume(containerId);
+        return true;
+    }
+
+    /**
+     * 板子的托盘码,和运单号,判断该tu门店下的板子获取板子详细信息的方法
+     *
+     * @param containerId 物理托盘码
+     * @param tuId        运单号
+     * @return
+     * @throws BizCheckedException
+     */
+    public Map<String, Object> getBoardDetailBycontainerId(Long containerId, String tuId) throws BizCheckedException {
+        TuHead tuHead = this.getHeadByTuId(tuId);
+        //大店装车的前置条件是合板,小店是组盘完成
+        Long mergedContainerId = null;  //需要存入detail的id, 大店是合板的id,小店是物理托盘码
+        if (TuConstant.SCALE_STORE.equals(tuHead.getScale())) {    //小店看组盘
+            //QC+done+containerId 找到mergercontaierId
+            Map<String, Object> qcMapQuery = new HashMap<String, Object>();
+            qcMapQuery.put("containerId", containerId);
+            qcMapQuery.put("type", TaskConstant.TYPE_QC);
+            qcMapQuery.put("status", TaskConstant.Done);
+            List<TaskInfo> qcInfos = baseTaskService.getTaskInfoList(qcMapQuery);
+            if (null == qcInfos || qcInfos.size() < 1) {
+                throw new BizCheckedException("2870034");
+            }
+            mergedContainerId = qcInfos.get(0).getMergedContainerId();  //没合板,托盘码和板子码,qc后两者相同
+        } else { //大店也是组盘完毕就能装车
+            Map<String, Object> qcMapQuery = new HashMap<String, Object>();
+            qcMapQuery.put("containerId", containerId);
+            qcMapQuery.put("type", TaskConstant.TYPE_QC);
+            qcMapQuery.put("status", TaskConstant.Done);
+            List<TaskInfo> qcInfos = baseTaskService.getTaskInfoList(qcMapQuery);
+            if (null == qcInfos || qcInfos.size() < 1) {
+                throw new BizCheckedException("2870034");
+            }
+            mergedContainerId = qcInfos.get(0).getMergedContainerId();
+        }
+        //获取门店信息
+        List<Map<String, Object>> stores = storeService.analyStoresIds2Stores(tuHead.getStoreIds());
+        List<WaveDetail> waveDetails = null;    //查找板子的detail
+        //板子聚类
+        if (mergedContainerId.equals(containerId)) { //没合板
+            mergedContainerId = containerId;
+            waveDetails = waveService.getAliveDetailsByContainerId(mergedContainerId);
+        } else {
+            waveDetails = waveService.getWaveDetailsByMergedContainerId(mergedContainerId);   //已经合板
+        }
+        //一个板上的是一个门店的
+        Long orderId = waveDetails.get(0).getOrderId();
+        ObdHeader obdHeader = iSoRpcService.getOutbSoHeaderDetailByOrderId(orderId);
+        if (null == obdHeader) {
+            throw new BizCheckedException("2870006");
+        }
+        String storeCode = obdHeader.getDeliveryCode();
+        Long storeId = storeService.getStoreIdByCode(storeCode).get(0).getStoreId();    //获取storeId
+        boolean isSameStrore = false;
+        for (Map<String, Object> store : stores) {
+            if (store.get("storeNo").toString().equals(storeCode)) {  //相同门店
+                isSameStrore = true;
+                break;
+            }
+        }
+        if (false == isSameStrore) {
+            throw new BizCheckedException("2990032");
+        }
+        //聚类板子的箱数,以QC聚类
+        Map<String, Object> taskQuery = new HashMap<String, Object>();
+        taskQuery.put("mergedContainerId", mergedContainerId);
+        taskQuery.put("type", TaskConstant.TYPE_QC);
+        taskQuery.put("status", TaskConstant.Done);
+        List<TaskInfo> taskInfos = baseTaskService.getTaskInfoList(taskQuery);
+        if (null == taskInfos || taskInfos.size() < 1) {
+            throw new BizCheckedException("2870034");
+        }
+        BigDecimal boxNum = new BigDecimal("0.00");
+        Long turnoverBoxNum = new Long("0");
+        Set<Long> containerSet = new HashSet<Long>();
+        for (TaskInfo taskinfo : taskInfos) {
+            BigDecimal one = new BigDecimal(taskinfo.getExt4());
+            turnoverBoxNum += taskinfo.getExt3();    //周转箱
+            boxNum = boxNum.add(one);   //总箱子
+            containerSet.add(taskinfo.getMergedContainerId());
+        }
+        //结果集
+        Integer containerNum = containerSet.size(); //以板子为维度
+        Map<String, Object> result = new HashMap<String, Object>();
+        //预估剩余板数,预装-已装
+        Long preBoards = tuHead.getPreBoard();
+        Long preRestBoard = null;   //预估剩余可装板子数
+        List<TuDetail> tuDetails = this.getTuDeailListByTuId(tuId);
+        if (null == tuDetails || tuDetails.size() < 1) {  //一个板子都没装
+            preRestBoard = preBoards;
+        }
+        preRestBoard = preBoards - tuDetails.size();
+        result.put("preRestBoard", preRestBoard);    //预估剩余板数
+        result.put("containerNum", containerNum);
+        result.put("boxNum", boxNum);
+        result.put("turnoverBoxNum", turnoverBoxNum);
+        //是否已装车
+        boolean isLoaded = false;
+        TuDetail tuDetail = this.getDetailByBoardId(mergedContainerId);
+        if (null != tuDetail) {
+            isLoaded = true;
+        }
+        result.put("storeId", storeId);
+        result.put("isLoaded", isLoaded);
+        result.put("containerId", mergedContainerId);
+        result.put("isRest", false); //非余货
+        result.put("isExpensive", false);    //非贵品
+        return result;
+    }
+
+
 }
