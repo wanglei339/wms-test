@@ -217,6 +217,10 @@ public class QCRestService implements IRFQCRestService {
             }
             //判断是第几次的QC,只有QC过一遍,再次QC都是复核QC
             detail.put("qcTimes", waveDetail.getQcTimes());
+            if (isDirect) {
+                detail.put("qcDone", true);
+                detail.put("isFristTime",false);
+            }
             undoDetails.add(detail);
         }
 
@@ -226,7 +230,9 @@ public class QCRestService implements IRFQCRestService {
             for (WaveDetail one : details) {
                 one.setQcExceptionDone(2L);
                 waveService.updateDetail(one);
+                isFirstQC = false;
             }
+
         }
         allBoxNum = boxNum;
         if (hasEA) {
