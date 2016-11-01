@@ -9,4 +9,5 @@ public interface IMergeRestService {
     String getMergeList() throws BizCheckedException;
     String countMergeList() throws BizCheckedException;
     String getMergeDetail() throws BizCheckedException;
+    String getWaveDetailByMergeConatinerId(Long mergeContainerId)throws BizCheckedException;
 }

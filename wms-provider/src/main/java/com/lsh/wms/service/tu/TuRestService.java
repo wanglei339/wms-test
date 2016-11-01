@@ -73,7 +73,7 @@ public class TuRestService implements ITuRestService {
 
     /**
      * todo 发货
-     * 释放集货道|减库存|写入task的绩效
+     * 减库存|写入task的绩效
      *
      * @return
      * @throws BizCheckedException

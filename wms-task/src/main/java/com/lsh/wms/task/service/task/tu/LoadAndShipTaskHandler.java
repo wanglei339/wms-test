@@ -1,6 +1,8 @@
 package com.lsh.wms.task.service.task.tu;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -23,6 +25,8 @@ import java.util.List;
 public class LoadAndShipTaskHandler extends AbsTaskHandler {
     @Autowired
     private TaskHandlerFactory handlerFactory;
+    @Reference
+    private ITuRpcService iTuRpcService;
 
     @PostConstruct
     public void postConstruct() {
@@ -36,11 +40,10 @@ public class LoadAndShipTaskHandler extends AbsTaskHandler {
     }
 
     protected void getConcrete(TaskEntry taskEntry) {
-//        taskEntry.setTaskDetailList((List<Object>)(List<?>)waveService.getDetailsByShipTaskId(taskEntry.getTaskInfo().getTaskId()));
     }
 
     public void doneConcrete(Long taskId) {
-        //todo 清库存移到consumer,写绩效,数量写入head表头
+
     }
 
 }

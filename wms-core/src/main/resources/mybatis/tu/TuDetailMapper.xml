@@ -10,7 +10,7 @@
 		<result property="containerNum" column="container_num"/>
 		<result property="turnoverBoxNum" column="turnover_box_num"/>
 		<result property="isRest" column="is_rest"/>
-		<result property="isExpresive" column="is_expresive"/>
+		<result property="isExpensive" column="is_expensive"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
 		<result property="loadAt" column="load_at"/>
@@ -21,10 +21,10 @@
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TuDetail">
 		insert into tu_detail (
 			tu_id,merged_container_id,box_num,container_num,turnover_box_num,is_rest,
-			is_expresive,created_at,updated_at,load_at,store_id,is_valid
+			is_expensive,created_at,updated_at,load_at,store_id,is_valid
     	) values (
 			#{tuId},#{mergedContainerId},#{boxNum},#{containerNum},#{turnoverBoxNum},#{isRest},
-			#{isExpresive},#{createdAt},#{updatedAt},#{loadAt},#{storeId},#{isValid}
+			#{isExpensive},#{createdAt},#{updatedAt},#{loadAt},#{storeId},#{isValid}
     	)
 	</insert>
 
@@ -37,7 +37,7 @@
   			<if test="containerNum != null">container_num=#{containerNum},</if>
   			<if test="turnoverBoxNum != null">turnover_box_num=#{turnoverBoxNum},</if>
   			<if test="isRest != null">is_rest=#{isRest},</if>
-  			<if test="isExpresive != null">is_expresive=#{isExpresive},</if>
+			<if test="isExpensive != null">is_expensive=#{isExpensive},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
   			<if test="loadAt != null">load_at=#{loadAt},</if>
@@ -74,7 +74,7 @@
 			<if test="containerNum != null">and container_num=#{containerNum}</if>
 			<if test="turnoverBoxNum != null">and turnover_box_num=#{turnoverBoxNum}</if>
 			<if test="isRest != null">and is_rest=#{isRest}</if>
-			<if test="isExpresive != null">and is_expresive=#{isExpresive}</if>
+			<if test="isExpensive != null">and is_expensive=#{isExpensive}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 			<if test="loadAt != null">and load_at=#{loadAt}</if>

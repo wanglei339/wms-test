@@ -191,10 +191,12 @@ public class QCRestService implements IRFQCRestService {
             detail.put("itemId", item.getItemId());
             detail.put("code", item.getCode());
             detail.put("codeType", item.getCodeType());
-            BigDecimal uomQty = PackUtil.EAQty2UomQty(mapItem2PickQty.get(itemId), waveDetail.getAllocUnitName());
+            BigDecimal uomQty = null;
             if (waveDetail.getAllocUnitName().compareTo("EA") == 0) {
+                uomQty = PackUtil.EAQty2UomQty(mapItem2PickQty.get(itemId), waveDetail.getAllocUnitName());
                 hasEA = true;
             } else {
+                uomQty = mapItem2PickQty.get(itemId);
                 boxNum += (int) (uomQty.floatValue());
             }
             detail.put("uomQty", uomQty);
@@ -441,7 +443,7 @@ public class QCRestService implements IRFQCRestService {
             }
             TaskEntry entry = new TaskEntry();
             entry.setTaskInfo(qcTaskInfo);
-            entry.setTaskDetailList((List<Object>) (List<?>)details);
+            entry.setTaskDetailList((List<Object>) (List<?>) details);
             iTaskRpcService.update(TaskConstant.TYPE_QC, entry);
             iTaskRpcService.done(qcTaskId, qcTaskInfo.getLocationId());
         }
