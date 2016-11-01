@@ -28,14 +28,14 @@ public class ObdRequest implements Serializable {
     private String orderOtherRefId = "";
 
     /** 售达方编码 */
-    @NotBlank
+    //@NotBlank
     @Size(max=64)
-    private String orderUserCode;
+    private String orderUserCode = "";
 
     /** 下单客户（售达方名称） */
-    @NotBlank
+    //@NotBlank
     @Size(max=64)
-    private String orderUser;
+    private String orderUser = "";
 
     /** 送达方名称 */
     @NotBlank
