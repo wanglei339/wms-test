@@ -40,6 +40,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.NewCookie;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -139,6 +140,7 @@ public class QCRestService implements IRFQCRestService {
             throw new BizCheckedException("2120006");
         }
         qcTaskInfo = tasks.get(0);
+
         //判断是否是直流模式的大店还是小店
 //        TaskInfo beforeQCtaskinfo = iTaskRpcService.getTaskInfo(qcTaskInfo.getQcPreviousTaskId());
 //        if (null == beforeQCtaskinfo) {
@@ -191,8 +193,11 @@ public class QCRestService implements IRFQCRestService {
             detail.put("itemId", item.getItemId());
             detail.put("code", item.getCode());
             detail.put("codeType", item.getCodeType());
-            BigDecimal uomQty = null;
-            if (waveDetail.getAllocUnitName().compareTo("EA") == 0) {
+            BigDecimal uomQty = new BigDecimal("0.0000");
+            //在库的拣货按照EA进行拣货
+            Long business = qcTaskInfo.getBusinessMode();
+            //在库拣货按照EA,直流的播种和门店收货按照箱规则或者EA
+            if (TaskConstant.MODE_INBOUND.equals(business) || waveDetail.getAllocUnitName().compareTo("EA") == 0) {
                 uomQty = PackUtil.EAQty2UomQty(mapItem2PickQty.get(itemId), waveDetail.getAllocUnitName());
                 hasEA = true;
             } else {
@@ -212,6 +217,10 @@ public class QCRestService implements IRFQCRestService {
             }
             //判断是第几次的QC,只有QC过一遍,再次QC都是复核QC
             detail.put("qcTimes", waveDetail.getQcTimes());
+            if (isDirect) {
+                detail.put("qcDone", true);
+                detail.put("isFristTime",false);
+            }
             undoDetails.add(detail);
         }
 
@@ -221,7 +230,9 @@ public class QCRestService implements IRFQCRestService {
             for (WaveDetail one : details) {
                 one.setQcExceptionDone(2L);
                 waveService.updateDetail(one);
+                isFirstQC = false;
             }
+
         }
         allBoxNum = boxNum;
         if (hasEA) {
@@ -266,9 +277,10 @@ public class QCRestService implements IRFQCRestService {
     public String qcOneItem() throws BizCheckedException {
         //获取参数
         Map<String, Object> request = RequestUtils.getRequest();
+        //在库拣货qc输入ea数量,直流按照EA或者箱子播种和收货
         long qcTaskId = Long.valueOf(request.get("qcTaskId").toString());
-        BigDecimal qtyUom = new BigDecimal(request.get("uomQty").toString());
-        BigDecimal defectQty = new BigDecimal(request.get("defectQty").toString());
+        BigDecimal qtyUom = new BigDecimal(request.get("uomQty").toString());   //可以是箱数或EA数量
+        BigDecimal defectQty = new BigDecimal(request.get("defectQty").toString()); //可以是箱数或EA数量(两者是箱子的话都是箱子)
         long exceptionType = 0L;
         BigDecimal exceptionQty = new BigDecimal("0.0000");
         if (defectQty.compareTo(BigDecimal.ZERO) > 0) {
@@ -316,8 +328,14 @@ public class QCRestService implements IRFQCRestService {
             qcException.setWaveId(qcTaskInfo.getWaveId());
             waveService.insertQCException(qcException);
         } else {
-            BigDecimal qty = PackUtil.UomQty2EAQty(qtyUom, matchDetails.get(0).getAllocUnitName());
-            exceptionQty = PackUtil.UomQty2EAQty(exceptionQty, matchDetails.get(0).getAllocUnitName());
+            // ea 合箱子
+            BigDecimal qty = new BigDecimal("0.0000");
+            //在库的拣货或者直流的EA 的QC
+            if (TaskConstant.MODE_INBOUND.equals(qcTaskInfo.getBusinessMode())||matchDetails.get(0).getAllocUnitName().compareTo("EA") == 0) {  //按照EA
+                qty = PackUtil.UomQty2EAQty(qtyUom, matchDetails.get(0).getAllocUnitName());
+                exceptionQty = PackUtil.UomQty2EAQty(exceptionQty, matchDetails.get(0).getAllocUnitName());
+            }
+//            exceptionQty = PackUtil.UomQty2EAQty(exceptionQty, matchDetails.get(0).getAllocUnitName());
             if (exceptionQty.compareTo(qty) > 0) {
                 throw new BizCheckedException("2120013");
             }
