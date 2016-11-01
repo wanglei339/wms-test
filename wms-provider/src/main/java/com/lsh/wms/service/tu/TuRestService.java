@@ -12,10 +12,12 @@ import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.utils.IdGenerator;
+import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.tu.TuDetail;
 import com.lsh.wms.model.tu.TuHead;
+import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,8 @@ public class TuRestService implements ITuRestService {
     private IdGenerator idGenerator;
     @Reference
     private ITaskRpcService iTaskRpcService;
+    @Autowired
+    private WaveService waveService;
 
     @POST
     @Path("getTuheadList")
@@ -113,7 +117,7 @@ public class TuRestService implements ITuRestService {
             throw new BizCheckedException("2990041");
         }
         //大小店
-        if (TuConstant.SCALE_HYPERMARKET.equals(tuHead.getScale())) {  //大店
+        if (TuConstant.SCALE_STORE.equals(tuHead.getScale())) {  //大店 合板
             for (TuDetail detail : details) {
                 String idKey = "task_" + TaskConstant.TYPE_DIRECT_SHIP.toString();
                 Long shipTaskId = idGenerator.genId(idKey, true, true);
@@ -130,11 +134,14 @@ public class TuRestService implements ITuRestService {
                 iTaskRpcService.create(TaskConstant.TYPE_DIRECT_SHIP, taskEntry);
                 // 直接完成
                 iTaskRpcService.done(shipTaskId);
+                //销库存
+                iTuRpcService.moveItemToConsumeArea(detail.getMergedContainerId());
+                //拼接物美SAP
             }
-        }else {
+        } else {
             for (TuDetail detail : details) {
                 //贵品不记录绩效
-                if (detail.getIsExpensive().equals(TuConstant.IS_EXPENSIVE)){
+                if (detail.getIsExpensive().equals(TuConstant.IS_EXPENSIVE)) {
                     continue;   //贵品不记录绩效
                 }
                 String idKey = "task_" + TaskConstant.TYPE_DIRECT_SHIP.toString();
@@ -152,13 +159,16 @@ public class TuRestService implements ITuRestService {
                 iTaskRpcService.create(TaskConstant.TYPE_DIRECT_SHIP, taskEntry);
                 // 直接完成
                 iTaskRpcService.done(shipTaskId);
+                List<WaveDetail> waveDetails = waveService.getWaveDetailsByMergedContainerId(detail.getMergedContainerId());
+                iTuRpcService.moveItemToConsumeArea(waveDetails);
+                //拼接物美SAP
             }
         }
         // 传给TMS运单发车信息,此过程可以重复调用
         Boolean postResult = iTuRpcService.postTuDetails(tuId);
-        if (postResult){
+        if (postResult) {
             return JsonUtils.SUCCESS();
-        }else {
+        } else {
             throw new BizCheckedException("2990042");
         }
     }
