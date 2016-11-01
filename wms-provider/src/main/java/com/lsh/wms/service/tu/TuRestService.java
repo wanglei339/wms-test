@@ -6,16 +6,24 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.api.service.tu.ITuRestService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.TuConstant;
+import com.lsh.wms.core.service.utils.IdGenerator;
+import com.lsh.wms.model.task.TaskEntry;
+import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.model.tu.TuDetail;
 import com.lsh.wms.model.tu.TuHead;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,6 +39,10 @@ public class TuRestService implements ITuRestService {
     private static Logger logger = LoggerFactory.getLogger(TuRestService.class);
     @Reference
     private ITuRpcService iTuRpcService;
+    @Autowired
+    private IdGenerator idGenerator;
+    @Reference
+    private ITaskRpcService iTaskRpcService;
 
     @POST
     @Path("getTuheadList")
@@ -95,13 +107,60 @@ public class TuRestService implements ITuRestService {
             resultMap.put("response", postResult);
             return JsonUtils.SUCCESS(resultMap);
         }
-        //事务操作,创建任务,发车状态改变
-
-
+        List<TuDetail> details = iTuRpcService.getTuDeailListByTuId(tuId);
+        //事务操作,创建任务,发车状态改变 生成任务群
+        if (null == details || details.size() < 1) {
+            throw new BizCheckedException("2990041");
+        }
+        //大小店
+        if (TuConstant.SCALE_HYPERMARKET.equals(tuHead.getScale())) {  //大店
+            for (TuDetail detail : details) {
+                String idKey = "task_" + TaskConstant.TYPE_DIRECT_SHIP.toString();
+                Long shipTaskId = idGenerator.genId(idKey, true, true);
+                TaskEntry taskEntry = new TaskEntry();
+                TaskInfo shipTaskInfo = new TaskInfo();
+                shipTaskInfo.setTaskId(shipTaskId);
+                shipTaskInfo.setType(TaskConstant.TYPE_DIRECT_SHIP);
+                shipTaskInfo.setTaskName("小店直流发货任务[" + detail.getMergedContainerId() + "]");
+                shipTaskInfo.setContainerId(detail.getMergedContainerId()); //小店没和板子,就是原来了物理托盘码
+                shipTaskInfo.setOperator(tuHead.getLoadUid()); //一个人装车
+                shipTaskInfo.setBusinessMode(TaskConstant.MODE_DIRECT);
+                shipTaskInfo.setSubType(TaskConstant.TASK_DIRECT_SMALL_SHIP);
+                taskEntry.setTaskInfo(shipTaskInfo);
+                iTaskRpcService.create(TaskConstant.TYPE_DIRECT_SHIP, taskEntry);
+                // 直接完成
+                iTaskRpcService.done(shipTaskId);
+            }
+        }else {
+            for (TuDetail detail : details) {
+                //贵品不记录绩效
+                if (detail.getIsExpensive().equals(TuConstant.IS_EXPENSIVE)){
+                    continue;   //贵品不记录绩效
+                }
+                String idKey = "task_" + TaskConstant.TYPE_DIRECT_SHIP.toString();
+                Long shipTaskId = idGenerator.genId(idKey, true, true);
+                TaskEntry taskEntry = new TaskEntry();
+                TaskInfo shipTaskInfo = new TaskInfo();
+                shipTaskInfo.setTaskId(shipTaskId);
+                shipTaskInfo.setType(TaskConstant.TYPE_DIRECT_SHIP);
+                shipTaskInfo.setTaskName("大店直流发货任务[" + detail.getMergedContainerId() + "]");
+                shipTaskInfo.setContainerId(detail.getMergedContainerId());
+                shipTaskInfo.setOperator(tuHead.getLoadUid()); //一个人装车
+                shipTaskInfo.setBusinessMode(TaskConstant.MODE_DIRECT);
+                shipTaskInfo.setSubType(TaskConstant.TASK_DIRECT_LARGE_SHIP);
+                taskEntry.setTaskInfo(shipTaskInfo);
+                iTaskRpcService.create(TaskConstant.TYPE_DIRECT_SHIP, taskEntry);
+                // 直接完成
+                iTaskRpcService.done(shipTaskId);
+            }
+        }
         // 传给TMS运单发车信息,此过程可以重复调用
         Boolean postResult = iTuRpcService.postTuDetails(tuId);
-
-        return JsonUtils.SUCCESS("需要写发货的逻辑");
+        if (postResult){
+            return JsonUtils.SUCCESS();
+        }else {
+            throw new BizCheckedException("2990042");
+        }
     }
 
     /**
