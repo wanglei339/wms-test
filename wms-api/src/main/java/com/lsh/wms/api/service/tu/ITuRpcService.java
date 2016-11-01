@@ -3,6 +3,7 @@ package com.lsh.wms.api.service.tu;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.model.tu.TuDetail;
 import com.lsh.wms.model.tu.TuHead;
+import com.lsh.wms.model.wave.WaveDetail;
 
 import java.util.List;
 import java.util.Map;
@@ -65,5 +66,11 @@ public interface ITuRpcService {
     void closeRfRestSwitch(String tuId) throws BizCheckedException;
 
     void openRfRestSwitch(String tuId) throws BizCheckedException;
+
+    boolean moveItemToConsumeArea(List<WaveDetail> waveDetails) throws BizCheckedException;
+
+    boolean moveItemToConsumeArea(Long containerId) throws BizCheckedException;
+
+    Map<String,Object> getBoardDetailBycontainerId(Long containerId,String tuId) throws BizCheckedException;
 
 }
