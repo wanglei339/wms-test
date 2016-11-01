@@ -16,7 +16,12 @@ public class TuConstant {
     //tu的大店小店
     public static final Integer SCALE_STORE = 1; // 小店
     public static final Integer SCALE_HYPERMARKET = 2; // 大店
-
+    //是否贵品
+    public static final Integer IS_REST = 1;
+    public static final Integer NOT_REST = 0;
+    //是否余货
+    public static final Integer IS_EXPENSIVE = 1;
+    public static final Integer NOT_EXPENSIVE = 0;
 
 
 }

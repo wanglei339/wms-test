@@ -107,7 +107,7 @@ public class WaveDetail implements Serializable {
 	/**  */
     private Long updatedAt = 0L;
 	/** qc的进入次数默认0，1-第一次2-复Q */
-	private Integer qcTimes = 0;
+	private Integer qcTimes = 1;
 	/** qc追责任0-无责任1-拣货人责任2-qc的责任 */
 	private Long qcFault = 0L;
 	/** 追责数量 */
