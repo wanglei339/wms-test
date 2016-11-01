@@ -138,7 +138,8 @@ public class LoadRfRestService implements ILoadRfRestService {
             tuHeads = iTuRpcService.getTuHeadList(mapQuery);
             //无tu单
             if (null == tuHeads || tuHeads.size() < 1) {
-                return null;
+                resultMap.put("result", resultList);
+                return JsonUtils.SUCCESS(resultMap);
             }
             for (int i = 0; i < tuHeads.size(); i++) {
                 Map<String, Object> one = new HashMap<String, Object>();
@@ -364,7 +365,7 @@ public class LoadRfRestService implements ILoadRfRestService {
         tuDetail.setIsValid(1);
         // todo 贵品还是余货插入
         tuDetail.setIsRest(isExpensive ? 1 : 0);    //贵品为1
-        tuDetail.setIsExpresive(isRest ? 1 : 0);    //余货为1
+        tuDetail.setIsExpensive(isRest ? 1 : 0);    //余货为1
         iTuRpcService.create(tuDetail);
 
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
