@@ -153,6 +153,8 @@ public class LocationConstant {
     public static final Integer LIST_TYPE_SHELFREGION = 4;   //获取货架区和阁楼区的list方法
     public static final Integer LIST_TYPE_SHELF = 5; //获取货架和阁楼的list方法
 
+
+
     public static final Map<Long,String> LOCATION_TYPE_NAME = new HashMap<Long, String>(){
         {
             put(27L,"货架层");

@@ -190,7 +190,8 @@ public class SeedRpcService implements ISeedRpcService {
             obdStreamDetail.setItemId(inbReceiptDetail.getItemId());
             obdStreamDetail.setContainerId(inbReceiptHeader.getContainerId());
             obdStreamDetail.setOwnerId(ibdHeader.getOwnerUid());
-            obdStreamDetail.setPickQty(inbReceiptDetail.getInboundQty());
+            obdStreamDetail.setPickQty(inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit()));
+            obdStreamDetail.setAllocUnitQty(inbReceiptDetail.getInboundQty());
             obdStreamDetail.setSkuId(inbReceiptDetail.getSkuId());
             obdStreamDetail.setAllocUnitName(inbReceiptDetail.getPackName());
             obdStreamDetailList.add(obdStreamDetail);
