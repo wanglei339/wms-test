@@ -117,7 +117,7 @@ public class TuRestService implements ITuRestService {
             throw new BizCheckedException("2990041");
         }
         //大小店
-        if (TuConstant.SCALE_STORE.equals(tuHead.getScale())) {  //大店 合板
+        if (TuConstant.SCALE_STORE.equals(tuHead.getScale())) {  //小店 合板
             for (TuDetail detail : details) {
                 String idKey = "task_" + TaskConstant.TYPE_DIRECT_SHIP.toString();
                 Long shipTaskId = idGenerator.genId(idKey, true, true);
@@ -134,9 +134,11 @@ public class TuRestService implements ITuRestService {
                 iTaskRpcService.create(TaskConstant.TYPE_DIRECT_SHIP, taskEntry);
                 // 直接完成
                 iTaskRpcService.done(shipTaskId);
-                //销库存
+                //销库存移到consumer位置
                 iTuRpcService.moveItemToConsumeArea(detail.getMergedContainerId());
-                //拼接物美SAP
+                //生成发货单
+                iTuRpcService.creatDeliveryOrderAndDetail(tuHead);
+                //拼接物美sap
             }
         } else {
             for (TuDetail detail : details) {
@@ -160,10 +162,21 @@ public class TuRestService implements ITuRestService {
                 // 直接完成
                 iTaskRpcService.done(shipTaskId);
                 List<WaveDetail> waveDetails = waveService.getWaveDetailsByMergedContainerId(detail.getMergedContainerId());
+                if (null == waveDetails || waveDetails.size() < 1) {
+                    waveDetails = waveService.getAliveDetailsByContainerId(detail.getMergedContainerId());
+                }
+                //生成发货单
                 iTuRpcService.moveItemToConsumeArea(waveDetails);
+                //生成发货单
+                iTuRpcService.creatDeliveryOrderAndDetail(tuHead);
                 //拼接物美SAP
+
+
             }
         }
+        //改变发车状态
+        tuHead.setStatus(TuConstant.SHIP_OVER);
+        iTuRpcService.update(tuHead);
         // 传给TMS运单发车信息,此过程可以重复调用
         Boolean postResult = iTuRpcService.postTuDetails(tuId);
         if (postResult) {

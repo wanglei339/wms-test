@@ -14,13 +14,21 @@ import com.lsh.wms.api.service.so.ISoRpcService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.TuConstant;
+import com.lsh.wms.core.service.item.ItemService;
+import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.stock.StockMoveService;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.store.StoreService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
 import com.lsh.wms.model.so.ObdHeader;
+import com.lsh.wms.model.so.OutbDeliveryDetail;
+import com.lsh.wms.model.so.OutbDeliveryHeader;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.tu.TuDetail;
 import com.lsh.wms.model.tu.TuHead;
@@ -53,6 +61,15 @@ public class TuRpcService implements ITuRpcService {
     private StoreService storeService;
     @Reference
     private ISoRpcService iSoRpcService;
+    @Autowired
+    private ItemService itemService;
+    @Autowired
+    private StockQuantService stockQuantService;
+    @Autowired
+    private SoDeliveryService soDeliveryService;
+    @Autowired
+    private LocationService locationService;
+
 
     public TuHead create(TuHead tuHead) throws BizCheckedException {
         //先查有无,有的话,不能创建
@@ -418,13 +435,13 @@ public class TuRpcService implements ITuRpcService {
         if (null == taskInfos || taskInfos.size() < 1) {
             throw new BizCheckedException("2870034");
         }
-        BigDecimal boxNum = new BigDecimal("0.00");
+        BigDecimal allboxNum = new BigDecimal("0.00");
         Long turnoverBoxNum = new Long("0");
         Set<Long> containerSet = new HashSet<Long>();
         for (TaskInfo taskinfo : taskInfos) {
-            BigDecimal one = new BigDecimal(taskinfo.getExt4());
-            turnoverBoxNum += taskinfo.getExt3();    //周转箱
-            boxNum = boxNum.add(one);   //总箱子
+            BigDecimal one = taskinfo.getTaskPackQty(); //总箱数
+            turnoverBoxNum += taskinfo.getExt3();    //总周转周转箱
+            allboxNum = allboxNum.add(one);   //总箱子
             containerSet.add(taskinfo.getMergedContainerId());
         }
         //结果集
@@ -440,7 +457,7 @@ public class TuRpcService implements ITuRpcService {
         preRestBoard = preBoards - tuDetails.size();
         result.put("preRestBoard", preRestBoard);    //预估剩余板数
         result.put("containerNum", containerNum);
-        result.put("boxNum", boxNum);
+        result.put("boxNum", allboxNum);    //总箱数
         result.put("turnoverBoxNum", turnoverBoxNum);
         //是否已装车
         boolean isLoaded = false;
@@ -456,5 +473,126 @@ public class TuRpcService implements ITuRpcService {
         return result;
     }
 
+    /**
+     * 按照订单的维度生成发货单
+     * 所有的tuDetail聚合
+     *
+     * @param tuHead
+     * @throws BizCheckedException
+     */
+    public void creatDeliveryOrderAndDetail(TuHead tuHead) throws BizCheckedException {
+        List<TuDetail> tuDetails = this.getTuDeailListByTuId(tuHead.getTuId());
+        if (null == tuDetails || tuDetails.size() < 1) {
+            throw new BizCheckedException("2990026");
+        }
+        //找详情
+        List<WaveDetail> totalWaveDetails = new ArrayList<WaveDetail>();
+        for (TuDetail tuDetail : tuDetails) {
+            Long containerId = tuDetail.getMergedContainerId();//可能合板或者没合板
+            List<WaveDetail> waveDetails = waveService.getWaveDetailsByMergedContainerId(containerId); //合板
+            if (null == waveDetails || waveDetails.size() < 1) {
+                waveDetails = waveService.getAliveDetailsByContainerId(containerId);    //没合板
+                if (null == waveDetails || waveDetails.size() < 1) {
+                    throw new BizCheckedException("2880012");
+                }
+            }
+            totalWaveDetails.addAll(waveDetails);
+        }
+        //订单维度聚类
+        Map<Long, OutbDeliveryHeader> mapHeader = new HashMap<Long, OutbDeliveryHeader>();
+        Map<Long, List<OutbDeliveryDetail>> mapDetails = new HashMap<Long, List<OutbDeliveryDetail>>();
+        for (WaveDetail waveDetail : totalWaveDetails) {    //没生成
+            if (null == mapHeader.get(waveDetail.getOrderId())) {
+                OutbDeliveryHeader header = new OutbDeliveryHeader();
+                header.setWarehouseId(0L);
+                header.setShippingAreaCode("" + waveDetail.getRealCollectLocation());
+                header.setWaveId(0L);
+                header.setTransPlan(tuHead.getTuId());
+                header.setTransTime(new Date());
+                header.setDeliveryCode("");
+                header.setDeliveryUser(tuHead.getLoadUid().toString());
+                header.setDeliveryType(1);
+                header.setDeliveryTime(new Date());
+                header.setInserttime(new Date());
+                mapHeader.put(waveDetail.getOrderId(), header);
+                mapDetails.put(waveDetail.getOrderId(), new LinkedList<OutbDeliveryDetail>());
+            }
+            List<OutbDeliveryDetail> deliveryDetails = mapDetails.get(waveDetail.getOrderId());
+            //同订单聚合detail
+            OutbDeliveryDetail deliveryDetail = new OutbDeliveryDetail();
+            deliveryDetail.setOrderId(waveDetail.getOrderId());
+            deliveryDetail.setItemId(waveDetail.getItemId());
+            deliveryDetail.setSkuId(waveDetail.getSkuId());
+            BaseinfoItem item = itemService.getItem(waveDetail.getItemId());
+            deliveryDetail.setSkuName(item.getSkuName());
+            deliveryDetail.setBarCode(item.getCode());
+            deliveryDetail.setOrderQty(waveDetail.getReqQty());
+            //todo 箱子规则
+            deliveryDetail.setPackUnit(waveDetail.getAllocUnitQty());
+            //通过stock quant获取到对应的lot信息
+            List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(waveDetail.getContainerId());
+            StockQuant stockQuant = stockQuants.size() > 0 ? stockQuants.get(0) : null;
+            deliveryDetail.setLotId(stockQuant == null ? 0L : stockQuant.getLotId());
+            deliveryDetail.setLotNum(stockQuant == null ? "" : stockQuant.getLotCode());
+            deliveryDetail.setDeliveryNum(waveDetail.getQcQty());
+            deliveryDetail.setInserttime(new Date());
+            deliveryDetails.add(deliveryDetail);
+        }
+        for (Long key : mapHeader.keySet()) {
+            OutbDeliveryHeader header = mapHeader.get(key);
+            List<OutbDeliveryDetail> details = mapDetails.get(key);
+            if (details.size() == 0) {
+                continue;
+            }
+            header.setDeliveryId(RandomUtils.genId());
+            for (OutbDeliveryDetail detail : details) {
+                detail.setDeliveryId(header.getDeliveryId());
+            }
+            soDeliveryService.insertOrder(header, details);
+        }
+    }
 
+    /**
+     * 拼接物美数据
+     * @param tuId
+     * @throws BizCheckedException
+     */
+    public void bulidSapDate(String tuId) throws BizCheckedException {
+
+        //找详情
+        List<WaveDetail> totalWaveDetails =this.combineWaveDetailsByTuId(tuId);
+
+
+    }
+
+    /**
+     * 根据tuid聚类waveDetail
+     * @param tuId
+     * @return
+     * @throws BizCheckedException
+     */
+    public List<WaveDetail> combineWaveDetailsByTuId(String tuId) throws BizCheckedException {
+        TuHead tuHead = this.getHeadByTuId(tuId);
+        if (null == tuHead) {
+            throw new BizCheckedException("2990022");
+        }
+        List<TuDetail> tuDetails = this.getTuDeailListByTuId(tuHead.getTuId());
+        if (null == tuDetails || tuDetails.size() < 1) {
+            throw new BizCheckedException("2990026");
+        }
+        //找详情
+        List<WaveDetail> totalWaveDetails = new ArrayList<WaveDetail>();
+        for (TuDetail tuDetail : tuDetails) {
+            Long containerId = tuDetail.getMergedContainerId();//可能合板或者没合板
+            List<WaveDetail> waveDetails = waveService.getWaveDetailsByMergedContainerId(containerId); //合板
+            if (null == waveDetails || waveDetails.size() < 1) {
+                waveDetails = waveService.getAliveDetailsByContainerId(containerId);    //没合板
+                if (null == waveDetails || waveDetails.size() < 1) {
+                    throw new BizCheckedException("2880012");
+                }
+            }
+            totalWaveDetails.addAll(waveDetails);
+        }
+        return totalWaveDetails;
+    }
 }

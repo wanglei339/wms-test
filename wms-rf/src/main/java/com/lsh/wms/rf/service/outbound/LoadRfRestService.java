@@ -200,7 +200,7 @@ public class LoadRfRestService implements ILoadRfRestService {
 
                 //尾货
                 if (Boolean.valueOf(boardMap.get("isRest").toString())) {   //需要合板
-                    //合过板子的尾货,才叫尾货
+                    //合板未装车的才叫尾货
                     Map<String, Object> mergeQuery = new HashMap<String, Object>();
                     mergeQuery.put("containerId", boardId);   //查合板, 合板就是板子id,没合板就是物理托盘码
                     List<WaveDetail> waveDetailList = waveService.getWaveDetailsByMergedContainerId(boardId);
@@ -251,10 +251,11 @@ public class LoadRfRestService implements ILoadRfRestService {
         //合板的托盘码
         Long mergedContainerId = Long.valueOf(request.get("containerId").toString());
         //直流的大店小店的校验区别,直流大店,没合板,不许发货
-        if (TuConstant.SCALE_HYPERMARKET.equals(tuHead.getScale())) {//大店QC完成能够发车
-            //QC+done+containerId 找到mergercontaierId
+        if (TuConstant.SCALE_HYPERMARKET.equals(tuHead.getScale())) {//大店可能是托盘码或者板子码
+            //大店传板子或者托盘码
+            //QC+done+containerId 未合板子,taskinfo中板子码和托盘码相同,能查到就是组盘了
             Map<String, Object> qcMapQuery = new HashMap<String, Object>();
-            qcMapQuery.put("containerId", mergedContainerId);
+            qcMapQuery.put("mergedContainerId", mergedContainerId);
             qcMapQuery.put("type", TaskConstant.TYPE_QC);
             qcMapQuery.put("status", TaskConstant.Done);
             List<TaskInfo> qcInfos = baseTaskService.getTaskInfoList(qcMapQuery);
