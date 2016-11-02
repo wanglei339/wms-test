@@ -10,21 +10,33 @@ import com.lsh.base.common.net.HttpClientUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.wms.api.model.wumart.CreateIbdDetail;
+import com.lsh.wms.api.model.wumart.CreateIbdHeader;
+import com.lsh.wms.api.model.wumart.CreateObdDetail;
+import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.so.ISoRpcService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
+import com.lsh.wms.api.service.wumart.IWuMartSap;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
+import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.store.StoreService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.tu.TuService;
+import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
+import com.lsh.wms.model.po.IbdDetail;
+import com.lsh.wms.model.po.IbdHeader;
+import com.lsh.wms.model.po.IbdObdRelation;
+import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
@@ -37,6 +49,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -69,6 +83,13 @@ public class TuRpcService implements ITuRpcService {
     private SoDeliveryService soDeliveryService;
     @Autowired
     private LocationService locationService;
+    @Autowired
+    private SoOrderService soOrderService;
+    @Autowired
+    private PoOrderService poOrderService;
+
+    @Reference
+    private IWuMartSap wuMartSap;
 
 
     public TuHead create(TuHead tuHead) throws BizCheckedException {
@@ -554,19 +575,78 @@ public class TuRpcService implements ITuRpcService {
 
     /**
      * 拼接物美数据
+     *
      * @param tuId
      * @throws BizCheckedException
      */
     public void bulidSapDate(String tuId) throws BizCheckedException {
 
         //找详情
-        List<WaveDetail> totalWaveDetails =this.combineWaveDetailsByTuId(tuId);
+        List<WaveDetail> totalWaveDetails = this.combineWaveDetailsByTuId(tuId);
+        List<CreateObdDetail> createObdDetailList = new ArrayList<CreateObdDetail>();
+        List<CreateIbdDetail> createIbdDetailList = new ArrayList<CreateIbdDetail>();
+        for (WaveDetail oneDetail : totalWaveDetails) {
+            Long itemId = oneDetail.getItemId();
+            Long orderId = oneDetail.getOrderId();
+            CreateObdDetail createObdDetail = new CreateObdDetail();
+            //obd的detail
+            ObdDetail obdDetail = soOrderService.getObdDetailByOrderIdAndItemId(orderId, itemId);
+            if (null == obdDetail) {
+                throw new BizCheckedException("2900004");
+            }
+            //sto obd order_other_id
+            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(obdDetail.getOrderId());
+            createObdDetail.setRefDoc(obdHeader.getOrderOtherId());
+            //销售单位
+            createObdDetail.setSalesUnit(obdDetail.getPackName());
+            //交货量 qc的ea/销售单位
+            createObdDetail.setDlvQty(PackUtil.EAQty2UomQty(oneDetail.getQcQty(), obdDetail.getPackName()));
+            //sto obd detail detail_other_id
+            createObdDetail.setRefItem(obdDetail.getDetailOtherId());
+            createObdDetailList.add(createObdDetail);
 
-
+            //找关系 sto和cpo
+            List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationListByObd(obdHeader.getOrderOtherId(), obdDetail.getDetailOtherId());
+            if (null == ibdObdRelations || ibdObdRelations.size() < 1) {
+                throw new BizCheckedException("2900005");
+            }
+            IbdObdRelation ibdObdRelation = ibdObdRelations.get(0);
+            IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(ibdObdRelation.getIbdOtherId());
+            IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndDetailOtherId(ibdHeader.getOrderId(), ibdObdRelation.getIbdDetailId());
+            //拼装CreateIbdDetail
+            CreateIbdDetail createIbdDetail = new CreateIbdDetail();
+            //采购凭证号
+            createIbdDetail.setPoNumber(ibdHeader.getOrderOtherId());
+            //采购订单的计量单位
+            createIbdDetail.setUnit(ibdDetail.getPackName());
+            //实际出库数量
+            createIbdDetail.setDeliveQty(PackUtil.EAQty2UomQty(oneDetail.getQcQty(), ibdDetail.getPackName()));
+            //行项目号
+            createIbdDetail.setPoItme(ibdDetail.getDetailOtherId());
+            createIbdDetailList.add(createIbdDetail);
+        }
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTime(new Date());
+        XMLGregorianCalendar gcTime = null;
+        try {
+            gcTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
+        } catch (Exception e) {
+            throw new BizCheckedException("2900006");
+        }
+        CreateObdHeader createObdHeader = new CreateObdHeader();
+        createObdHeader.setDueDate(gcTime);
+        createObdHeader.setItems(createObdDetailList);
+        CreateIbdHeader createIbdHeader = new CreateIbdHeader();
+        createIbdHeader.setDeliveDate(gcTime);
+        createIbdHeader.setItems(createIbdDetailList);
+        //鑫哥服务
+        wuMartSap.ibd2Sap(createIbdHeader);
+        wuMartSap.obd2Sap(createObdHeader);
     }
 
     /**
      * 根据tuid聚类waveDetail
+     *
      * @param tuId
      * @return
      * @throws BizCheckedException

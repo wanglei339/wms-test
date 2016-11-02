@@ -41,11 +41,12 @@ public class SoOrderService {
 
     /**
      * 插入OutbSoHeader及OutbSoDetail
+     *
      * @param obdHeader
      * @param obdDetailList
      */
     @Transactional(readOnly = false)
-    public void insert(ObdHeader obdHeader, List<ObdDetail> obdDetailList){
+    public void insert(ObdHeader obdHeader, List<ObdDetail> obdDetailList) {
         obdHeader.setCreatedAt(DateUtils.getCurrentSeconds());
         obdHeader.setOrderId(RandomUtils.genId());
         obdHeader.setOrderStatus(BusiConstant.EFFECTIVE_YES);
@@ -59,6 +60,7 @@ public class SoOrderService {
 
     /**
      * 插入OutbSoHeader及OutbSoDetail
+     *
      * @param obdHeader
      * @param obdDetailList
      */
@@ -71,15 +73,17 @@ public class SoOrderService {
 
     /**
      * 更新OutbSoHeader
+     *
      * @param obdHeader
      */
     @Transactional(readOnly = false)
-    public void update(ObdHeader obdHeader){
+    public void update(ObdHeader obdHeader) {
         obdHeaderDao.update(obdHeader);
     }
 
     /**
      * 根据OrderOtherId或OrderId更新OutbSoHeader
+     *
      * @param obdHeader
      */
     @Transactional(readOnly = false)
@@ -91,33 +95,37 @@ public class SoOrderService {
 
     /**
      * 根据ID获取OutbSoHeader
+     *
      * @param id
      * @return
      */
-    public ObdHeader getOutbSoHeaderById(Long id){
+    public ObdHeader getOutbSoHeaderById(Long id) {
         return obdHeaderDao.getObdHeaderById(id);
     }
 
     /**
      * 自定义参数获取OutbSoHeader数量
+     *
      * @param params
      * @return
      */
-    public Integer countOutbSoHeader(Map<String, Object> params){
+    public Integer countOutbSoHeader(Map<String, Object> params) {
         return obdHeaderDao.countObdHeader(params);
     }
 
     /**
      * 根据参数获取List<OutbSoHeader>
+     *
      * @param params
      * @return
      */
-    public List<ObdHeader> getOutbSoHeaderList(Map<String, Object> params){
+    public List<ObdHeader> getOutbSoHeaderList(Map<String, Object> params) {
         return obdHeaderDao.getObdHeaderList(params);
     }
 
     /**
      * 根据ID获取OutbSoDetail
+     *
      * @param id
      * @return
      */
@@ -127,6 +135,7 @@ public class SoOrderService {
 
     /**
      * 自定义参数获取OutbSoDetail数量
+     *
      * @param params
      * @return
      */
@@ -136,15 +145,17 @@ public class SoOrderService {
 
     /**
      * 根据参数获取List<OutbSoDetail>
+     *
      * @param params
      * @return
      */
-    public List<ObdDetail> getOutbSoDetailList(Map<String, Object> params){
+    public List<ObdDetail> getOutbSoDetailList(Map<String, Object> params) {
         return obdDetailDao.getObdDetailList(params);
     }
 
     /**
      * 根据 order_id 获取so订单商品详情
+     *
      * @param orderId
      * @return
      */
@@ -157,20 +168,22 @@ public class SoOrderService {
 
     /**
      * List<OutbSoHeader>填充OutbSoDetail
+     *
      * @param obdHeaderList
      */
     public void fillDetailToHeaderList(List<ObdHeader> obdHeaderList) {
-        for(ObdHeader obdHeader : obdHeaderList) {
+        for (ObdHeader obdHeader : obdHeaderList) {
             fillDetailToHeader(obdHeader);
         }
     }
 
     /**
      * OutbSoHeader填充OutbSoDetail
+     *
      * @param obdHeader
      */
     public void fillDetailToHeader(ObdHeader obdHeader) {
-        if(obdHeader == null) {
+        if (obdHeader == null) {
             return;
         }
 
@@ -181,6 +194,7 @@ public class SoOrderService {
 
     /**
      * 根据波次号查询List<OutbSoHeader>
+     *
      * @param waveId
      * @return
      */
@@ -197,6 +211,7 @@ public class SoOrderService {
 
     /**
      * 根据OrderId获取OutbSoHeader
+     *
      * @param orderId
      * @return
      */
@@ -206,7 +221,7 @@ public class SoOrderService {
 
         //获取OutbSoHeader
         List<ObdHeader> obdHeaderList = getOutbSoHeaderList(params);
-        if(obdHeaderList.size() > 1 || obdHeaderList.size() <= 0) {
+        if (obdHeaderList.size() > 1 || obdHeaderList.size() <= 0) {
             return null;
         }
 
@@ -221,6 +236,7 @@ public class SoOrderService {
 
     /**
      * 根据orderOtherId获取OutbSoHeader
+     *
      * @param orderOtherId
      * @return
      */
@@ -230,7 +246,7 @@ public class SoOrderService {
 
         //获取OutbSoHeader
         List<ObdHeader> obdHeaderList = getOutbSoHeaderList(params);
-        if(obdHeaderList.size() > 1 || obdHeaderList.size() <= 0) {
+        if (obdHeaderList.size() > 1 || obdHeaderList.size() <= 0) {
             return null;
         }
 
@@ -244,20 +260,40 @@ public class SoOrderService {
 
     /**
      * 根据OrderId及SkuId获取InbPoDetail
+     *
      * @param orderId
      * @param detailOtherId
      * @return
      */
-    public ObdDetail getObdDetailByOrderIdAndDetailOtherId(Long orderId,String detailOtherId) {
+    public ObdDetail getObdDetailByOrderIdAndDetailOtherId(Long orderId, String detailOtherId) {
         Map<String, Object> params = new HashMap<String, Object>();
 
         params.put("orderId", orderId);
         params.put("detailOtherId", detailOtherId);
         List<ObdDetail> detailList = getOutbSoDetailList(params);
-        if(detailList.size() <= 0){
+        if (detailList.size() <= 0) {
             return null;
         }
 
+        return detailList.get(0);
+    }
+
+    /**
+     * 根据OrderId及SkuId获取InbPoDetail
+     *
+     * @param orderId
+     * @param itemId
+     * @return
+     */
+    public ObdDetail getObdDetailByOrderIdAndItemId(Long orderId, Long itemId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+
+        params.put("orderId", orderId);
+        params.put("itemId", itemId);
+        List<ObdDetail> detailList = getOutbSoDetailList(params);
+        if (null == detailList || detailList.size() <= 0) {
+            return null;
+        }
         return detailList.get(0);
     }
 

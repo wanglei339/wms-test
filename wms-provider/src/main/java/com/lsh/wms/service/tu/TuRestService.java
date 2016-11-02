@@ -139,6 +139,7 @@ public class TuRestService implements ITuRestService {
                 //生成发货单
                 iTuRpcService.creatDeliveryOrderAndDetail(tuHead);
                 //拼接物美sap
+                iTuRpcService.bulidSapDate(tuHead.getTuId());
             }
         } else {
             for (TuDetail detail : details) {
@@ -170,8 +171,7 @@ public class TuRestService implements ITuRestService {
                 //生成发货单
                 iTuRpcService.creatDeliveryOrderAndDetail(tuHead);
                 //拼接物美SAP
-
-
+                iTuRpcService.bulidSapDate(tuHead.getTuId());
             }
         }
         //改变发车状态
