@@ -447,7 +447,7 @@ public class QCRestService implements IRFQCRestService {
             qcTaskInfo.setTaskPackQty(BigDecimal.valueOf(boxNum + turnoverBoxNum));     //总箱数
             qcTaskInfo.setExt5(wrongItemNum);
             qcTaskInfo.setExt4(boxNum); //箱数
-            qcTaskInfo.setExt3(turnoverBoxNum); //总箱数
+            qcTaskInfo.setExt3(turnoverBoxNum); //总周转箱数
             //设置合板的托盘
             qcTaskInfo.setMergedContainerId(qcTaskInfo.getContainerId());
             if (wrongItemNum > 0) {
