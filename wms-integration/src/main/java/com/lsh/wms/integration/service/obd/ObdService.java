@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
@@ -18,6 +19,8 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.Consumes;
@@ -47,6 +50,8 @@ public class ObdService implements IObdService{
     private SoOrderService soOrderService;
     @Autowired
     private ItemService itemService;
+    private static Logger logger = LoggerFactory.getLogger(ObdService.class);
+
 
     @POST
     @Path("add")
@@ -99,6 +104,7 @@ public class ObdService implements IObdService{
             throw new BizCheckedException("2020099");
         }
         //soRequest.setWarehouseId(1l);
+        logger.info("---------"+ JsonUtils.SUCCESS(soRequest));
         Long orderId = soRpcService.insertOrder(soRequest);
         ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
         List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
