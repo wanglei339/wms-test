@@ -68,11 +68,9 @@ public class MergeRpcService implements IMergeRpcService {
             List<WaveDetail> waveDetails = this.getWaveDetailByStoreNo(storeNo);
             if (waveDetails.size() > 0) {
                 for (WaveDetail waveDetail : waveDetails) {
-                    Long mergedContainerId = 0L;
-                    if (waveDetail.getMergedContainerId().equals(0L)) {
-                        mergedContainerId = waveDetail.getMergedContainerId();
-                    } else {
-                        mergedContainerId = waveDetail.getContainerId();
+                    Long mergedContainerId = waveDetail.getMergedContainerId();
+                    if (mergedContainerId.equals(0L)) {
+                        continue;
                     }
                     if (!countedContainerIds.contains(mergedContainerId)) {
                         countedContainerIds.add(mergedContainerId);
@@ -157,11 +155,9 @@ public class MergeRpcService implements IMergeRpcService {
         List<WaveDetail> waveDetails = this.getWaveDetailByStoreNo(storeNo);
         for (WaveDetail waveDetail: waveDetails) {
             if (!countedContainerIds.contains(waveDetail.getContainerId())) {
-                Long containerId = 0L;
+                Long containerId = waveDetail.getMergedContainerId();
                 if (waveDetail.getMergedContainerId().equals(0L)) {
-                    containerId = waveDetail.getContainerId();
-                } else {
-                    containerId = waveDetail.getMergedContainerId();
+                    continue;
                 }
                 // 未装车的
                 List<TuDetail> tuDetails = tuService.getTuDeailListByMergedContainerId(containerId);
