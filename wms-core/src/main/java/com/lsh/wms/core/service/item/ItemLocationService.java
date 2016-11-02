@@ -125,5 +125,8 @@ public class ItemLocationService {
         itemLocationDao.deleteItemLocation(itemLocation);
     }
 
+    public void updateByItemIdAndPicId(BaseinfoItemLocation baseinfoItemLocation){
+        itemLocationDao.updateByItemIdAndPicId(baseinfoItemLocation);
+    }
 
 }

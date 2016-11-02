@@ -307,10 +307,10 @@ public class PoOrderService {
      *
      */
 
-    public List<IbdObdRelation> getIbdObdRelationListByObd(String obdOtherId,String obdDetailId){
+    public List<IbdObdRelation> getIbdObdRelationListByObd(String obdOtherId,String obdDetailOtherId){
         Map<String,Object> params = new HashMap<String, Object>();
         params.put("obdOtherId",obdOtherId);
-        params.put("obdDetailId",obdDetailId);
+        params.put("obdDetailId",obdDetailOtherId);
         return ibdObdRelationDao.getIbdObdRelationList(params);
     }
 
