@@ -182,6 +182,17 @@ public class ItemRestService implements IItemRestService {
         }
         return JsonUtils.SUCCESS();
     }
+    @POST
+    @Path("updateItemLocationByItemIdAndPicId")
+    public String updateItemLocationByItemIdAndPicId(BaseinfoItemLocation itemLocation) {
+        try{
+            itemRpcService.updateByItemIdAndPicId(itemLocation);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("failed");
+        }
+        return JsonUtils.SUCCESS();
+    }
     @GET
     @Path("setStatus")
     public String setStatus(@QueryParam("itemId") long iItemId,@QueryParam("status") long iStatus) {

@@ -91,6 +91,9 @@ public class ItemRpcService implements IItemRpcService {
     public void updateItemLocation(BaseinfoItemLocation itemLocation) {
         itemLocationService.updateItemLocation(itemLocation);
     }
+    public void updateByItemIdAndPicId(BaseinfoItemLocation baseinfoItemLocation){
+        itemLocationService.updateByItemIdAndPicId(baseinfoItemLocation);
+    }
 
     public BaseinfoItem getItem(long itemId) {
         return itemService.getItem(itemId);
@@ -114,4 +117,5 @@ public class ItemRpcService implements IItemRpcService {
         }
         return packUnit;
     }
+
 }
