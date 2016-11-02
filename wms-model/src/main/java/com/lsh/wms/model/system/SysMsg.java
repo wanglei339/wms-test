@@ -12,14 +12,14 @@ import java.util.Map;
 public class SysMsg implements Serializable{
 
     private Long id;
-    private Long type;
+    private Integer type;
     private Integer targetSystem;
     private Long timestamp = DateUtils.getCurrentSeconds();
     private String msgBody;
 
     public SysMsg(){}
 
-    public SysMsg(Long id, String msgBody, Integer targetSystem, Long timestamp, Long type) {
+    public SysMsg(Long id, String msgBody, Integer targetSystem, Long timestamp, Integer type) {
         this.id = id;
         this.msgBody = msgBody;
         this.targetSystem = targetSystem;
@@ -59,11 +59,11 @@ public class SysMsg implements Serializable{
         this.timestamp = timestamp;
     }
 
-    public Long getType() {
+    public Integer getType() {
         return type;
     }
 
-    public void setType(Long type) {
+    public void setType(Integer type) {
         this.type = type;
     }
 }
