@@ -138,8 +138,8 @@ public class MergeRpcService implements IMergeRpcService {
         if (qcTaskInfo == null || !qcTaskInfo.getStatus().equals(TaskConstant.Done)) {
             throw new BizCheckedException("2870003");
         }
-        result.put("packCount", new BigDecimal(qcTaskInfo.getExt4())); // 总箱数
-        result.put("turnoverBoxCount", new BigDecimal(qcTaskInfo.getExt3())); // 总周转箱数
+        result.put("packCount", qcTaskInfo.getTaskPackQty()); // 总箱数TaskPackQty=boxNum + turnoverBoxNum
+        result.put("turnoverBoxCount", new BigDecimal(qcTaskInfo.getExt3())); // 总周转箱数Ext3
         return result;
     }
 
