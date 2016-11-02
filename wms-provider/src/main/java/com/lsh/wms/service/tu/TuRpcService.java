@@ -435,13 +435,13 @@ public class TuRpcService implements ITuRpcService {
         if (null == taskInfos || taskInfos.size() < 1) {
             throw new BizCheckedException("2870034");
         }
-        BigDecimal boxNum = new BigDecimal("0.00");
+        BigDecimal allboxNum = new BigDecimal("0.00");
         Long turnoverBoxNum = new Long("0");
         Set<Long> containerSet = new HashSet<Long>();
         for (TaskInfo taskinfo : taskInfos) {
-            BigDecimal one = new BigDecimal(taskinfo.getExt4());
-            turnoverBoxNum += taskinfo.getExt3();    //周转箱
-            boxNum = boxNum.add(one);   //总箱子
+            BigDecimal one = taskinfo.getTaskPackQty(); //总箱数
+            turnoverBoxNum += taskinfo.getExt3();    //总周转周转箱
+            allboxNum = allboxNum.add(one);   //总箱子
             containerSet.add(taskinfo.getMergedContainerId());
         }
         //结果集
@@ -457,7 +457,7 @@ public class TuRpcService implements ITuRpcService {
         preRestBoard = preBoards - tuDetails.size();
         result.put("preRestBoard", preRestBoard);    //预估剩余板数
         result.put("containerNum", containerNum);
-        result.put("boxNum", boxNum);
+        result.put("boxNum", allboxNum);    //总箱数
         result.put("turnoverBoxNum", turnoverBoxNum);
         //是否已装车
         boolean isLoaded = false;
