@@ -84,7 +84,7 @@ public class MergeRfRestService implements IMergeRfRestService {
                 containerIds.add(containerId);
             }
         }
-        if (containerIds.size() <= 1) {
+        if (containerIds.size() < 1) {
             throw new BizCheckedException("2870005");
         }
         String idKey = "task_" + TaskConstant.TYPE_MERGE.toString();
