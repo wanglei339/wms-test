@@ -346,13 +346,13 @@ public class WaveService {
         return splitDetails;
     }
     @Transactional(readOnly = false)
-    public void splitWaveDetail(WaveDetail detail, BigDecimal requiredQty,Long containerId,Long soOrderId){
+    public void splitWaveDetail(WaveDetail detail, BigDecimal requiredQty,Long containerId,Long soOrderId,BigDecimal packUnit){
         Map<String,Object> queryMap = new HashMap<String, Object>();
         queryMap.put("itemId", detail.getItemId());
         queryMap.put("containerId",detail.getContainerId());
         List<WaveDetail> details = detailDao.getOrderedWaveDetailList(queryMap);
         for(WaveDetail waveDetail:details){
-            this.split(waveDetail,requiredQty,containerId,soOrderId);
+            this.split(waveDetail,requiredQty,containerId,soOrderId,packUnit);
             requiredQty = requiredQty.subtract(waveDetail.getPickQty());
             if(requiredQty.compareTo(BigDecimal.ZERO)<=0){
                 break;
@@ -363,8 +363,8 @@ public class WaveService {
         }
     }
     @Transactional(readOnly = false)
-    public void split(WaveDetail detail, BigDecimal splitQty , Long containerId,Long soOrderId) {
-        if(detail.getPickQty().compareTo(splitQty)<=0)
+    public void split(WaveDetail detail, BigDecimal splitQty , Long containerId,Long soOrderId,BigDecimal packUnit) {
+        if(detail.getAllocUnitQty().compareTo(splitQty)<=0)
         {
             detail.setContainerId(containerId);
             detail.setOrderId(soOrderId);
@@ -374,8 +374,10 @@ public class WaveService {
             ObjUtils.bean2bean(detail, newDetail);
             newDetail.setContainerId(containerId);
             newDetail.setOrderId(soOrderId);
-            newDetail.setPickQty(splitQty);
-            detail.setPickQty(detail.getPickQty().subtract(splitQty));
+            newDetail.setPickQty(splitQty.multiply(packUnit));
+            newDetail.setAllocUnitQty(splitQty);
+            detail.setPickQty(detail.getPickQty().subtract(splitQty.multiply(packUnit)));
+            detail.setAllocUnitQty(detail.getAllocQty().subtract(splitQty));
             detailDao.insert(newDetail);
         }
         detailDao.update(detail);

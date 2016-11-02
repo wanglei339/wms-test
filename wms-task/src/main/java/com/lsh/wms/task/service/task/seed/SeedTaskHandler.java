@@ -105,6 +105,14 @@ public class SeedTaskHandler extends AbsTaskHandler {
         handlerFactory.register(TaskConstant.TYPE_SEED, this);
     }
 
+    public void calcPerformance(TaskInfo taskInfo) {
+
+        taskInfo.setTaskPackQty(taskInfo.getQty());
+        taskInfo.setTaskEaQty(taskInfo.getQty().multiply(taskInfo.getPackUnit()));
+
+
+    }
+
     public void create(Long taskId) {
         Long containerId = baseTaskService.getTaskInfoById(taskId).getContainerId();
         Map<String,Object> mapQuery = new HashMap<String, Object>();
@@ -246,7 +254,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
                     soOrderId = obdHeader.getOrderId();
                 }
             }
-            waveService.splitWaveDetail(detail,info.getQty(),head.getRealContainerId(),soOrderId);
+            waveService.splitWaveDetail(detail,info.getQty(),head.getRealContainerId(),soOrderId,head.getPackUnit());
 
 
         }else {
