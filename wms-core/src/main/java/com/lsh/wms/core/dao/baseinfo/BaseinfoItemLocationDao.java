@@ -13,6 +13,8 @@ public interface BaseinfoItemLocationDao {
 	
 	void update(BaseinfoItemLocation baseinfoItemLocation);
 
+	void updateByItemIdAndPicId(BaseinfoItemLocation baseinfoItemLocation);
+
 	void deleteItemLocation(BaseinfoItemLocation baseinfoItemLocation);
 	
 	BaseinfoItemLocation getBaseinfoItemLocationById(Long id);

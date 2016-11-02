@@ -53,7 +53,7 @@ public class SynInventory implements ISynInventory {
         SkuVo itemDc = new SkuVo();
         //传skuCode
         //itemDc.setItemId(item_id);
-        itemDc.setItemId(Long.valueOf(baseinfoItem.getSkuCode()));
+        itemDc.setItemId(baseinfoItem.getSkuCode());
         itemDc.setQty(new BigDecimal(qty)); // TODO: 16/9/7
         skuList.add(itemDc);
         request.setSkuList(skuList);
