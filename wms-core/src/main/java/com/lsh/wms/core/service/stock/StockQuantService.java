@@ -416,7 +416,8 @@ public class StockQuantService {
 
     @Transactional(readOnly = false)
     public void process(Map<String, Object> mapCondition, String operation) {
-        locationService.lockLocationById((Long) mapCondition.get("locationId"));
+        //业务需求改动:不需要加锁
+        //locationService.lockLocationById((Long) mapCondition.get("locationId"));
 
         BigDecimal requiredQty = new BigDecimal(mapCondition.get("requiredQty").toString());
         List<StockQuant> quantList = this.getQuants(mapCondition);
@@ -424,17 +425,17 @@ public class StockQuantService {
             if (requiredQty.compareTo(BigDecimal.ZERO) == 0) {
                 break;
             }
-            // need > have
-            if (requiredQty.compareTo(quant.getQty()) > 0) {
+            // need > have  //// TODO: 16/11/2 修改原因:逻辑错误, need>have应抛出异常,上层已拦截,不会出现该情况
+            /*if (requiredQty.compareTo(quant.getQty()) > 0) {
                 this.dealOne(quant, operation);
                 requiredQty = requiredQty.subtract(quant.getQty());
-            } else {
+            } else {*/
                 if (requiredQty.compareTo(quant.getQty()) == -1) {
                     this.split(quant, requiredQty);
                 }
                 this.dealOne(quant, operation);
                 break;
-            }
+            //}
         }
     }
 
