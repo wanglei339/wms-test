@@ -171,7 +171,7 @@ public class ItemRestService implements IItemRestService {
         }
         return JsonUtils.SUCCESS();
     }
-    @POST
+ /*   @POST
     @Path("updateItemLocation")
     public String updateItemLocation(BaseinfoItemLocation itemLocation) {
         try{
@@ -181,10 +181,10 @@ public class ItemRestService implements IItemRestService {
             return JsonUtils.EXCEPTION_ERROR("failed");
         }
         return JsonUtils.SUCCESS();
-    }
+    }*/
     @POST
-    @Path("updateItemLocationByItemIdAndPicId")
-    public String updateItemLocationByItemIdAndPicId(BaseinfoItemLocation itemLocation) {
+    @Path("updateItemLocation")
+    public String updateItemLocation(BaseinfoItemLocation itemLocation) {
         try{
             itemRpcService.updateByItemIdAndPicId(itemLocation);
         }catch (Exception e){
