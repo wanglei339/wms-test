@@ -89,7 +89,7 @@ public class DataBackService implements IDataBackService {
             SysMsg sysMsg = new SysMsg();
             sysMsg.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
             sysMsg.setId(sysId);
-            sysMsg.setType(type.longValue());
+            sysMsg.setType(type);
             sysMsg.setMsgBody(jsonCreate);
             sysMsgService.sendMessage(sysMsg);
 
