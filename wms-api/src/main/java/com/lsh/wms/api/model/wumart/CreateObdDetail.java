@@ -7,10 +7,14 @@ import java.math.BigDecimal;
  * Created by lixin-mac on 2016/10/28.
  */
 public class CreateObdDetail implements Serializable{
+    /**sto obd order_other_id*/
     private String refDoc;
 
+    /**sto obd detail detail_other_id*/
     private String refItem;
+    /**实际已交货量（按销售单位）*/
     private BigDecimal dlvQty;
+    /**销售单位 */
     private String salesUnit;
 
     /**物料号*/
