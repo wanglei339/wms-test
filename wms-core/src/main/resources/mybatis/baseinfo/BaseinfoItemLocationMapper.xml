@@ -28,6 +28,16 @@
 		</set>
 		where id=#{id}
 	</update>
+	<update id="updateByItemIdAndPicId" parameterType="BaseinfoItemLocation">
+		update baseinfo_item_location
+		<set>
+			<if test="pickLocationid != null">pick_locationid=#{pickLocationid},</if>
+			<if test="userstatus != null">userstatus=#{userstatus}</if>
+			<if test="itemId != null">item_id=#{itemId}</if>
+			<if test="pickLocationType != null">pick_location_type=#{pickLocationType}</if>
+		</set>
+		where pick_locationid=#{pickLocationid} and item_id=#{itemId}
+	</update>
   
 	<select id="getBaseinfoItemLocationById" parameterType="int" resultMap="baseinfoItemLocationResultMap">
 		select * from baseinfo_item_location
