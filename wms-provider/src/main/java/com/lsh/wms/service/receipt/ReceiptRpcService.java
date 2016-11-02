@@ -641,9 +641,15 @@ public class ReceiptRpcService implements IReceiptRpcService {
             //设置InbReceiptHeader插入时间
             inbReceiptHeader.setInserttime(new Date());
         }
-        // TODO: 16/8/19 设置门店暂存区
-        BaseinfoLocation baseinfoLocation = locationRpcService.assignTemporary();
-        inbReceiptHeader.setLocation(baseinfoLocation.getLocationId());// TODO: 16/7/20  暂存区信息
+
+        //大店放在集货道 小店放到集货位
+        BaseinfoStore baseinfoStore = iStoreRpcService.getStoreByStoreNo(inbReceiptHeader.getStoreCode());
+        List<BaseinfoLocation> list = locationRpcService.getCollectionByStoreNo(inbReceiptHeader.getStoreCode());
+        if( list != null && list.size() >= 0 ){
+            inbReceiptHeader.setLocation(list.get(0).getLocationId());
+        }
+//        BaseinfoLocation baseinfoLocation = locationRpcService.assignTemporary();
+//        inbReceiptHeader.setLocation(baseinfoLocation.getLocationId());// TODO: 16/7/20  暂存区信息
 
         //初始化List<InbReceiptDetail>
         List<InbReceiptDetail> inbReceiptDetailList = new ArrayList<InbReceiptDetail>();
@@ -801,8 +807,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
 
 
-        // TODO: 2016/10/9 大店直流的生成QC任务 根据门店code来查询大店或者小店
-        BaseinfoStore baseinfoStore = iStoreRpcService.getStoreByStoreNo(inbReceiptHeader.getStoreCode());
+
         //如果是大店 生成QC
         if(request.getIsCreateTask()==1) {
             if(baseinfoStore.getScale() == 2){

@@ -17,6 +17,8 @@ public class BaseinfoItemLocation implements Serializable {
     private Long pickLocationid;
 	/** 使用状态 */
     private Integer userstatus;
+	/** 拣货位类型*///// TODO: 16/11/2 add 
+	private Integer pickLocationType;
 
 	public Long getItemId() {
 		return itemId;
@@ -65,6 +67,13 @@ public class BaseinfoItemLocation implements Serializable {
 	public void setUserstatus(Integer userstatus){
 		this.userstatus = userstatus;
 	}
-	
-	
+
+
+	public Integer getPickLocationType() {
+		return pickLocationType;
+	}
+
+	public void setPickLocationType(Integer pickLocationType) {
+		this.pickLocationType = pickLocationType;
+	}
 }
