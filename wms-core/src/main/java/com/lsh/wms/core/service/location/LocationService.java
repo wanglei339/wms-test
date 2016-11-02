@@ -5,9 +5,12 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.q.Module.Base;
 import com.lsh.wms.core.constant.LocationConstant;
+import com.lsh.wms.core.constant.StoreConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.store.StoreService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoStore;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 import com.lsh.wms.model.stock.StockQuant;
 import org.apache.commons.collections.MapUtils;
@@ -35,6 +38,8 @@ public class LocationService {
     private LocationDetailService locationDetailService;
     @Autowired
     private LocationRedisService locationRedisService;
+    @Autowired
+    private StoreService storeService;
 
 
     /**
@@ -856,6 +861,7 @@ public class LocationService {
         }
         return locationId;
     }
+
     /**
      * 通过位置编码,返回为位置的location
      *
@@ -867,7 +873,7 @@ public class LocationService {
         params.put("locationCode", code);
         params.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocation> baseinfoLocations = locationDao.getLocationbyCode(params);
-        if (baseinfoLocations!=null && baseinfoLocations.size() > 0) {
+        if (baseinfoLocations != null && baseinfoLocations.size() > 0) {
             return baseinfoLocations.get(0);
         }
         return null;
@@ -1333,14 +1339,25 @@ public class LocationService {
      */
     public List<BaseinfoLocation> getCollectionByStoreNo(String storeNo) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
+        List<BaseinfoStore> storeList = storeService.getStoreIdByCode(storeNo);
+        if (null == storeList || storeList.size() < 1) {
+            throw new BizCheckedException("2180012");
+        }
+        BaseinfoStore store = storeList.get(0);
+        if (StoreConstant.SCALE_STORE.equals(store.getScale())){ //小店
+            mapQuery.put("type", LocationConstant.COLLECTION_ROAD);
+
+        }else {
+            mapQuery.put("type", LocationConstant.COLLECTION_BIN);
+        }
         mapQuery.put("storeNo", storeNo);
-        mapQuery.put("type", LocationConstant.COLLECTION_BIN);
         List<BaseinfoLocation> list = this.getBaseinfoLocationList(mapQuery);
         if (null == list || list.size() < 1) {
             throw new BizCheckedException("2180012");
         }
         return list;
     }
+
     /**
      * 查找指定门店号的播种位置
      *
@@ -1350,7 +1367,7 @@ public class LocationService {
     public List<BaseinfoLocation> getSowByStoreNo(String storeNo) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("storeNo", storeNo);
-        mapQuery.put("type",LocationConstant.SOW_BIN);
+        mapQuery.put("type", LocationConstant.SOW_BIN);
         List<BaseinfoLocation> list = this.getBaseinfoLocationList(mapQuery);
         if (null == list || list.size() < 1) {
             throw new BizCheckedException("2180012");
@@ -1367,21 +1384,22 @@ public class LocationService {
     public List<BaseinfoLocation> sortLocationByStoreNo(Long type) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("type", type);
-        mapQuery.put("storeNo",LocationConstant.REMOVE_STORE_NO);   //这里使用的mapper是 storeNO>0, 0是在库的代号
+        mapQuery.put("storeNo", LocationConstant.REMOVE_STORE_NO);   //这里使用的mapper是 storeNO>0, 0是在库的代号
         List<BaseinfoLocation> locations = locationDao.sortLocationByStoreNoAndType(mapQuery); //0不是门店的位置,查找的是大于0的结果
         return locations;
     }
+
     /**
      * 根据供商号，获取位置
      *
-     * @param type (退货存储货位|入库货位)
+     * @param type       (退货存储货位|入库货位)
      * @param supplierNo (供商号)
      * @return
      */
-    public List<BaseinfoLocation> getLocationBySupplierNo(Long type,String supplierNo) {
+    public List<BaseinfoLocation> getLocationBySupplierNo(Long type, String supplierNo) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("type", type);
-        mapQuery.put("supplierNo",supplierNo);
+        mapQuery.put("supplierNo", supplierNo);
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(mapQuery);
         return locations;
     }
