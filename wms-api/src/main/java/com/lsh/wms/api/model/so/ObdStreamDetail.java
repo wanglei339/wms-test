@@ -24,6 +24,9 @@ public class ObdStreamDetail {
     private Long status = 1L;
     /** 分配库存单位名称 */
     private String allocUnitName = "EA";
+    /**库存包装单位数量*/
+    private BigDecimal allocUnitQty = BigDecimal.ZERO;
+
     /** 容器id,非常重要的字断，务必维护好当前真实的商品所在的container信息，否则就惨了 */
     private Long containerId = 0L;
 
@@ -32,9 +35,9 @@ public class ObdStreamDetail {
 
     public ObdStreamDetail(){}
 
-
-    public ObdStreamDetail(String allocUnitName, Long containerId, Long ibdOrderType, Long itemId, Long locId, Long orderId, Long ownerId, BigDecimal pickQty, Long skuId, Long status) {
+    public ObdStreamDetail(String allocUnitName, BigDecimal allocUnitQty, Long containerId, Long ibdOrderType, Long itemId, Long locId, Long orderId, Long ownerId, BigDecimal pickQty, Long skuId, Long status) {
         this.allocUnitName = allocUnitName;
+        this.allocUnitQty = allocUnitQty;
         this.containerId = containerId;
         this.ibdOrderType = ibdOrderType;
         this.itemId = itemId;
@@ -46,20 +49,20 @@ public class ObdStreamDetail {
         this.status = status;
     }
 
-    public Long getStatus() {
-        return status;
-    }
-
-    public void setStatus(Long status) {
-        this.status = status;
-    }
-
     public String getAllocUnitName() {
         return allocUnitName;
     }
 
     public void setAllocUnitName(String allocUnitName) {
         this.allocUnitName = allocUnitName;
+    }
+
+    public BigDecimal getAllocUnitQty() {
+        return allocUnitQty;
+    }
+
+    public void setAllocUnitQty(BigDecimal allocUnitQty) {
+        this.allocUnitQty = allocUnitQty;
     }
 
     public Long getContainerId() {
@@ -110,6 +113,14 @@ public class ObdStreamDetail {
         this.ownerId = ownerId;
     }
 
+    public BigDecimal getPickQty() {
+        return pickQty;
+    }
+
+    public void setPickQty(BigDecimal pickQty) {
+        this.pickQty = pickQty;
+    }
+
     public Long getSkuId() {
         return skuId;
     }
@@ -118,11 +129,11 @@ public class ObdStreamDetail {
         this.skuId = skuId;
     }
 
-    public BigDecimal getPickQty() {
-        return pickQty;
+    public Long getStatus() {
+        return status;
     }
 
-    public void setPickQty(BigDecimal pickQty) {
-        this.pickQty = pickQty;
+    public void setStatus(Long status) {
+        this.status = status;
     }
 }

@@ -409,8 +409,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     obdStreamDetail.setContainerId(inbReceiptHeader.getContainerId());
                     obdStreamDetail.setOwnerId(ibdHeader.getOwnerUid());
                     //统一放到pickQty中
-                    obdStreamDetail.setPickQty(inbReceiptDetail.getInboundQty());
+                    obdStreamDetail.setPickQty(inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit()));
                     obdStreamDetail.setAllocUnitName(inbReceiptDetail.getPackName());
+                    obdStreamDetail.setAllocUnitQty(inbReceiptDetail.getInboundQty());
                     obdStreamDetail.setSkuId(inbReceiptDetail.getSkuId());
                     obdStreamDetailList.add(obdStreamDetail);
 
@@ -753,7 +754,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
             obdStreamDetail.setItemId(inbReceiptDetail.getItemId());
             obdStreamDetail.setContainerId(inbReceiptHeader.getContainerId());
             obdStreamDetail.setOwnerId(ibdHeader.getOwnerUid());
-            obdStreamDetail.setPickQty(inbReceiptDetail.getInboundQty());
+            obdStreamDetail.setPickQty(inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit()));
+            obdStreamDetail.setAllocUnitQty(inbReceiptDetail.getInboundQty());
             obdStreamDetail.setAllocUnitName(inbReceiptDetail.getPackName());
             obdStreamDetail.setSkuId(inbReceiptDetail.getSkuId());
             obdStreamDetailList.add(obdStreamDetail);
