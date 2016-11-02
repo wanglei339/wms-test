@@ -17,6 +17,7 @@ import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
+import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.store.StoreService;
@@ -25,6 +26,7 @@ import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
+import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
@@ -69,6 +71,8 @@ public class TuRpcService implements ITuRpcService {
     private SoDeliveryService soDeliveryService;
     @Autowired
     private LocationService locationService;
+    @Autowired
+    private SoOrderService soOrderService;
 
 
     public TuHead create(TuHead tuHead) throws BizCheckedException {
@@ -554,19 +558,31 @@ public class TuRpcService implements ITuRpcService {
 
     /**
      * 拼接物美数据
+     *
      * @param tuId
      * @throws BizCheckedException
      */
     public void bulidSapDate(String tuId) throws BizCheckedException {
 
         //找详情
-        List<WaveDetail> totalWaveDetails =this.combineWaveDetailsByTuId(tuId);
+        List<WaveDetail> totalWaveDetails = this.combineWaveDetailsByTuId(tuId);
+        for (WaveDetail oneDetail : totalWaveDetails) {
+            Long itemId = oneDetail.getItemId();
+            Long orderId = oneDetail.getOrderId();
+            //obd的detail
+            ObdDetail obdDetail = soOrderService.getObdDetailByOrderIdAndItemId(orderId, itemId);
+            if (null == obdDetail) {
+                throw new BizCheckedException("");
+            }
 
+
+        }
 
     }
 
     /**
      * 根据tuid聚类waveDetail
+     *
      * @param tuId
      * @return
      * @throws BizCheckedException
