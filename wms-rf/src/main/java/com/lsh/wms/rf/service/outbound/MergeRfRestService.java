@@ -77,6 +77,7 @@ public class MergeRfRestService implements IMergeRfRestService {
         Long staffId = Long.valueOf(RequestUtils.getHeader("uid"));
         List<Long> containerIds = new ArrayList<Long>();
         List<Long> queryContainerIds = new ArrayList<Long>();
+        logger.info("Request body: " + mapQuery.get("containerIds").toString());
         queryContainerIds = JSON.parseArray(mapQuery.get("containerIds").toString(), Long.class);
         for (Object objContainerId: queryContainerIds) {
             Long containerId = Long.valueOf(objContainerId.toString());
