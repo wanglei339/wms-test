@@ -193,15 +193,10 @@ public class QCRestService implements IRFQCRestService {
             detail.put("itemId", item.getItemId());
             detail.put("code", item.getCode());
             detail.put("codeType", item.getCodeType());
-            BigDecimal uomQty = new BigDecimal("0.0000");
-            //在库的拣货按照EA进行拣货
-            Long business = qcTaskInfo.getBusinessMode();
-            //在库拣货按照EA,直流的播种和门店收货按照箱规则或者EA
-            if (TaskConstant.MODE_INBOUND.equals(business) || waveDetail.getAllocUnitName().compareTo("EA") == 0) {
-                uomQty = PackUtil.EAQty2UomQty(mapItem2PickQty.get(itemId), waveDetail.getAllocUnitName());
+            BigDecimal uomQty = PackUtil.EAQty2UomQty(mapItem2PickQty.get(itemId), waveDetail.getAllocUnitName());
+            if (waveDetail.getAllocUnitName().compareTo("EA") == 0) {
                 hasEA = true;
             } else {
-                uomQty = mapItem2PickQty.get(itemId);
                 boxNum += (int) (uomQty.floatValue());
             }
             detail.put("uomQty", uomQty);
@@ -241,7 +236,7 @@ public class QCRestService implements IRFQCRestService {
         //获取托盘信息
         BaseinfoContainer containerInfo = iContainerRpcService.getContainer(containerId);
         if (containerInfo == null) {
-            throw new BizCheckedException("托盘码不存在");
+            throw new BizCheckedException("2000002");
         }
         //获取客户信息
         ObdHeader soInfo = iSoRpcService.getOutbSoHeaderDetailByOrderId(details.get(0).getOrderId());   //出库单,orderid
@@ -328,14 +323,8 @@ public class QCRestService implements IRFQCRestService {
             qcException.setWaveId(qcTaskInfo.getWaveId());
             waveService.insertQCException(qcException);
         } else {
-            // ea 合箱子
-            BigDecimal qty = new BigDecimal("0.0000");
-            //在库的拣货或者直流的EA 的QC
-            if (TaskConstant.MODE_INBOUND.equals(qcTaskInfo.getBusinessMode())||matchDetails.get(0).getAllocUnitName().compareTo("EA") == 0) {  //按照EA
-                qty = PackUtil.UomQty2EAQty(qtyUom, matchDetails.get(0).getAllocUnitName());
-                exceptionQty = PackUtil.UomQty2EAQty(exceptionQty, matchDetails.get(0).getAllocUnitName());
-            }
-//            exceptionQty = PackUtil.UomQty2EAQty(exceptionQty, matchDetails.get(0).getAllocUnitName());
+            BigDecimal qty = PackUtil.UomQty2EAQty(qtyUom, matchDetails.get(0).getAllocUnitName());
+            exceptionQty = PackUtil.UomQty2EAQty(exceptionQty, matchDetails.get(0).getAllocUnitName());
             if (exceptionQty.compareTo(qty) > 0) {
                 throw new BizCheckedException("2120013");
             }
@@ -411,6 +400,11 @@ public class QCRestService implements IRFQCRestService {
         return JsonUtils.SUCCESS(rstMap);
     }
 
+    /**
+     * 箱数boxNum 周转箱数是turnoverBoxNum   总箱数allboxNum= boxNum+turnoverBoxNum
+     * @return
+     * @throws BizCheckedException
+     */
     //组盘(已经组盘和未组盘状态)
     // todo 如果组盘有问题,以后的修复重新QC,需要重新更新detail,
     @POST
@@ -450,10 +444,10 @@ public class QCRestService implements IRFQCRestService {
             //成功
             //设置task的信息;
             qcTaskInfo.setTaskEaQty(sumEAQty);
-            qcTaskInfo.setTaskPackQty(BigDecimal.valueOf(boxNum + turnoverBoxNum));
+            qcTaskInfo.setTaskPackQty(BigDecimal.valueOf(boxNum + turnoverBoxNum));     //总箱数
             qcTaskInfo.setExt5(wrongItemNum);
-            qcTaskInfo.setExt4(boxNum);
-            qcTaskInfo.setExt3(turnoverBoxNum);
+            qcTaskInfo.setExt4(boxNum); //箱数
+            qcTaskInfo.setExt3(turnoverBoxNum); //总周转箱数
             //设置合板的托盘
             qcTaskInfo.setMergedContainerId(qcTaskInfo.getContainerId());
             if (wrongItemNum > 0) {
