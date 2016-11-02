@@ -44,7 +44,7 @@ public class SynStockService implements ISynStockInventory{
     private ISynInventory iSynInventory;
 
     public void synStock(Long item_id, Double qty) { // TODO: 16/9/8
-//        iSynInventory.synInventory(item_id,qty);
+        iSynInventory.synInventory(item_id,qty);
 //        InventorySyncLshRequest request = new InventorySyncLshRequest();
 //        request.setZoneCode(PropertyUtils.getString("zone_code"));
 //        request.setSystem(PropertyUtils.getString("system"));
