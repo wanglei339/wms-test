@@ -639,6 +639,8 @@ public class TuRpcService implements ITuRpcService {
         CreateIbdHeader createIbdHeader = new CreateIbdHeader();
         createIbdHeader.setDeliveDate(gcTime);
         createIbdHeader.setItems(createIbdDetailList);
+        logger.info("+++++++++++++++++++++++++++++++++maqidi+++++++++++++++++++++++"+JSON.toJSONString(createObdHeader));
+        logger.info("+++++++++++++++++++++++++++++++++maqidi++++++++++++++"+JSON.toJSONString(createObdHeader));
         //鑫哥服务
         wuMartSap.ibd2Sap(createIbdHeader);
         wuMartSap.obd2Sap(createObdHeader);

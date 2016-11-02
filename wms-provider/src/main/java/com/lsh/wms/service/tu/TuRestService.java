@@ -136,11 +136,11 @@ public class TuRestService implements ITuRestService {
                 iTaskRpcService.done(shipTaskId);
                 //销库存移到consumer位置
                 iTuRpcService.moveItemToConsumeArea(detail.getMergedContainerId());
-                //生成发货单
-                iTuRpcService.creatDeliveryOrderAndDetail(tuHead);
-                //拼接物美sap
-                iTuRpcService.bulidSapDate(tuHead.getTuId());
             }
+            //生成发货单
+            iTuRpcService.creatDeliveryOrderAndDetail(tuHead);
+            //拼接物美sap
+            iTuRpcService.bulidSapDate(tuHead.getTuId());
         } else {
             for (TuDetail detail : details) {
                 //贵品不记录绩效
@@ -166,13 +166,13 @@ public class TuRestService implements ITuRestService {
                 if (null == waveDetails || waveDetails.size() < 1) {
                     waveDetails = waveService.getAliveDetailsByContainerId(detail.getMergedContainerId());
                 }
-                //生成发货单
+                //移库存
                 iTuRpcService.moveItemToConsumeArea(waveDetails);
-                //生成发货单
-                iTuRpcService.creatDeliveryOrderAndDetail(tuHead);
-                //拼接物美SAP
-                iTuRpcService.bulidSapDate(tuHead.getTuId());
             }
+            //生成发货单
+            iTuRpcService.creatDeliveryOrderAndDetail(tuHead);
+            //拼接物美SAP
+            iTuRpcService.bulidSapDate(tuHead.getTuId());
         }
         //改变发车状态
         tuHead.setStatus(TuConstant.SHIP_OVER);
