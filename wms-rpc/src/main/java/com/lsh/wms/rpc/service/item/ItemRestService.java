@@ -163,12 +163,12 @@ public class ItemRestService implements IItemRestService {
         if(locationService.getLocation(locationId) == null){
             throw new BizCheckedException("2050003");
         }
-        try{
+        //try{
             itemRpcService.insertItemLocation(itemLocation);
-        }catch (Exception e){
+        /*}catch (Exception e){
             logger.error(e.getCause().getMessage());
             return JsonUtils.EXCEPTION_ERROR("failed");
-        }
+        }*/
         return JsonUtils.SUCCESS();
     }
  /*   @POST
