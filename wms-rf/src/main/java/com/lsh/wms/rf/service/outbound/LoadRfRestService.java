@@ -224,7 +224,7 @@ public class LoadRfRestService implements ILoadRfRestService {
             }
             resultMap.put("result", storeRestList);
         } else {
-            //小店无尾货
+            //小店组盘未装车的叫尾货   markContainer和container相同
         }
 
         boolean OpenSwith = TuConstant.RF_OPEN_REST.equals(tuHead.getRfSwitch()) ? true : false;
