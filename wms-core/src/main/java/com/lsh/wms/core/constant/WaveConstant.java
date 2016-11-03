@@ -24,6 +24,7 @@ public class WaveConstant {
     public static long QC_EXCEPTION_DEFECT=4L; //残次
     public static long QC_EXCEPTION_DATE=5L;   //日期问题
     public static long QC_EXCEPTION_OTHER=6L;   //其他的qc异常
+    public static long QC_EXCEPTION_GROUP=7L;   //组盘异常,用于控制从组盘跳转到明细qc
 
     /**
      * QC异常的处理的状态
