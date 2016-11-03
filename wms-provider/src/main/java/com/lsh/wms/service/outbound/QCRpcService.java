@@ -22,30 +22,14 @@ import java.util.List;
 public class QCRpcService implements IQCRpcService {
     @Autowired
     private WaveService waveService;
-    @Reference
-    private ITaskRpcService iTaskRpcService;
 
     public void skipException(long id) throws BizCheckedException {
         WaveDetail detail = waveService.getWaveDetailById(id);
         if (detail == null) {
             throw new BizCheckedException("2070001");
         }
+        //必须要进行库存操作
         detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_SKIP);
-        Long taskId = detail.getQcTaskId();
-        TaskInfo qcTaskInfo = iTaskRpcService.getTaskInfo(taskId);
-        if (null == qcTaskInfo) {
-            throw new BizCheckedException("2070002");
-        }
-        List<WaveDetail> detailList = waveService.getDetailsByPickTaskId(qcTaskInfo.getTaskId());
-        boolean isFinished = true;
-        for (WaveDetail one : detailList) {
-            if (WaveConstant.QC_EXCEPTION_STATUS_UNDO == one.getQcExceptionDone()) {
-                isFinished = false;
-            }
-        }
-        if (isFinished) {
-            iTaskRpcService.done(taskId, qcTaskInfo.getLocationId());
-        }
         waveService.updateDetail(detail);
     }
 
@@ -59,22 +43,6 @@ public class QCRpcService implements IQCRpcService {
         detail.setQcExceptionQty(new BigDecimal("0.0000"));
         detail.setQcException(WaveConstant.QC_EXCEPTION_NORMAL);
         waveService.updateDetail(detail);
-
-        Long taskId = detail.getQcTaskId();
-        TaskInfo qcTaskInfo = iTaskRpcService.getTaskInfo(taskId);
-        if (null == qcTaskInfo) {
-            throw new BizCheckedException("2070002");
-        }
-        List<WaveDetail> detailList = waveService.getDetailsByPickTaskId(qcTaskInfo.getTaskId());
-        boolean isFinished = true;
-        for (WaveDetail one : detailList) {
-            if (WaveConstant.QC_EXCEPTION_STATUS_UNDO == one.getQcExceptionDone()) {
-                isFinished = false;
-            }
-        }
-        if (isFinished) {
-            iTaskRpcService.done(taskId, qcTaskInfo.getLocationId());
-        }
     }
 
     public void fallbackException(long id) throws BizCheckedException {
@@ -87,21 +55,5 @@ public class QCRpcService implements IQCRpcService {
         detail.setQcException(WaveConstant.QC_EXCEPTION_NORMAL);
         detail.setQcExceptionQty(new BigDecimal("0.0000"));
         waveService.updateDetail(detail);
-
-        Long taskId = detail.getQcTaskId();
-        TaskInfo qcTaskInfo = iTaskRpcService.getTaskInfo(taskId);
-        if (null == qcTaskInfo) {
-            throw new BizCheckedException("2070002");
-        }
-        List<WaveDetail> detailList = waveService.getDetailsByPickTaskId(qcTaskInfo.getTaskId());
-        boolean isFinished = true;
-        for (WaveDetail one : detailList) {
-            if (WaveConstant.QC_EXCEPTION_STATUS_UNDO == one.getQcExceptionDone()) {
-                isFinished = false;
-            }
-        }
-        if (isFinished) {
-            iTaskRpcService.done(taskId, qcTaskInfo.getLocationId());
-        }
     }
 }

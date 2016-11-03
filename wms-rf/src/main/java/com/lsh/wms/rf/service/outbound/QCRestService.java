@@ -87,7 +87,7 @@ public class QCRestService implements IRFQCRestService {
         TaskInfo pickTaskInfo = null;
         Long containerId = 0L;
         TaskInfo qcTaskInfo = null;
-        boolean isDirect = false;
+        boolean isDirect = false;   //直流跳过明细qc的开关,true是跳过
         //判断是拣货签还是托盘码
         //pickTaskId拣货签12开头,18位的长度
         String code = (String) mapRequest.get("code");
@@ -147,10 +147,7 @@ public class QCRestService implements IRFQCRestService {
 //            throw new BizCheckedException("2120015");
 //        }
         //大店门店收货 生成qc任务的是直流大店收货直流大店门店收货,QC的q明细不做(只组盘)
-        if (qcTaskInfo.getQcSkip().equals(TaskConstant.QC_SKIP)) { //直流
-            //直流的大店门店收货
-            isDirect = true;
-        }
+
 
         if (qcTaskInfo.getStatus() == TaskConstant.Draft) {
             iTaskRpcService.assign(qcTaskInfo.getTaskId(), Long.valueOf(RequestUtils.getHeader("uid")));
@@ -160,7 +157,7 @@ public class QCRestService implements IRFQCRestService {
             //空托盘
             throw new BizCheckedException("2120005");
         }
-        //一旦是直流大店的门店收货,需要忽略qc,直接进入
+
 
         //merge item_id 2 pick  qty
         Map<Long, BigDecimal> mapItem2PickQty = new HashMap<Long, BigDecimal>();
@@ -179,7 +176,25 @@ public class QCRestService implements IRFQCRestService {
                 mapItem2PickQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getPickQty()));
             }
             mapItem2WaveDetail.put(d.getItemId(), d);
+            //todo 跳过直流,一旦有组盘没有异常,就直接到组盘
+            //一旦是直流大店的门店收货,需要忽略qc,直接进入
+            if (qcTaskInfo.getQcSkip().equals(TaskConstant.QC_SKIP) && !d.getQcException().equals(WaveConstant.QC_EXCEPTION_GROUP)) { //直流组盘不异常,跳过明细qc
+                //直流的大店门店收货跳过组盘的开关
+                isDirect = true;
+            }
         }
+
+        //如果是直流所有的直接跳转为已经QC了
+        //todo 以后组盘有异常,还需都更新回来,根据qcTaskInfo.getQcSkip(),变更所有的qcDone更改,修改
+        if (isDirect) {
+            for (WaveDetail one : details) {
+                one.setQcExceptionDone(2L);
+                one.setQcQty(one.getPickQty()); //先默认qc数量是正常的
+                waveService.updateDetail(one);
+                isFirstQC = false;
+            }
+        }
+
         //找出有责任的得detail,现有流程是一个商品只有一个挂有异常,把异常的detail的id、和商品绑定起来,--->那个商品的哪个detail有问题,需要修复
         int boxNum = 0;
         int allBoxNum = 0;
@@ -207,27 +222,15 @@ public class QCRestService implements IRFQCRestService {
             detail.put("isFristTime", waveDetail.getQcTimes() == WaveConstant.QC_TIMES_FIRST);
             //加入qc的状态
             detail.put("qcDone", waveDetail.getQcExceptionDone() != WaveConstant.QC_EXCEPTION_STATUS_UNDO);  //qc任务未处理的的判断  那种商品做,哪种商品没做
-            if (isDirect) {
-                detail.put("qcDone", true);
-            }
+
             //判断是第几次的QC,只有QC过一遍,再次QC都是复核QC
             detail.put("qcTimes", waveDetail.getQcTimes());
+            //todo 如果有异常的话,直流的也要qc
             if (isDirect) {
                 detail.put("qcDone", true);
-                detail.put("isFristTime",false);
+                detail.put("isFristTime", false);
             }
             undoDetails.add(detail);
-        }
-
-        //如果是直流所有的直接跳转为已经QC了
-        //todo 以后组盘有异常,还需都更新回来,根据qcTaskInfo.getQcSkip(),变更所有的qcDone更改,修改
-        if (isDirect) {
-            for (WaveDetail one : details) {
-                one.setQcExceptionDone(2L);
-                one.setQcQty(one.getPickQty()); //先默认qc数量是正常的
-                waveService.updateDetail(one);
-                isFirstQC = false;
-            }
         }
         allBoxNum = boxNum;
         if (hasEA) {
@@ -402,6 +405,7 @@ public class QCRestService implements IRFQCRestService {
 
     /**
      * 箱数boxNum 周转箱数是turnoverBoxNum   总箱数allboxNum= boxNum+turnoverBoxNum
+     *
      * @return
      * @throws BizCheckedException
      */
@@ -414,6 +418,7 @@ public class QCRestService implements IRFQCRestService {
         Map<String, Object> request = RequestUtils.getRequest();
         long qcTaskId = Long.valueOf(request.get("qcTaskId").toString());
         long boxNum = Long.valueOf(request.get("boxNum").toString());
+        //todo 按道理,系统的箱子数和实际的箱子数是相等的,周转箱不准
         long turnoverBoxNum = Long.valueOf(request.get("turnoverBoxNum").toString());
         long wrongItemNum = 0L;
         //long wrongItemNum = Long.valueOf(request.get("wrongItemNum").toString());
