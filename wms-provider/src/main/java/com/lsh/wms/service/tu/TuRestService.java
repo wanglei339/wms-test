@@ -180,7 +180,7 @@ public class TuRestService implements ITuRestService {
         // 传给TMS运单发车信息,此过程可以重复调用
         Boolean postResult = iTuRpcService.postTuDetails(tuId);
         if (postResult) {
-            return JsonUtils.SUCCESS();
+            return JsonUtils.SUCCESS("success");
         } else {
             throw new BizCheckedException("2990042");
         }
