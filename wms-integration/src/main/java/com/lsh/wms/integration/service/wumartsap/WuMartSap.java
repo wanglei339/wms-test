@@ -8,10 +8,16 @@ import com.lsh.wms.api.model.wumart.CreateIbdHeader;
 import com.lsh.wms.api.model.wumart.CreateObdDetail;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.wumart.IWuMartSap;
+import com.lsh.wms.core.constant.SysLogConstant;
+import com.lsh.wms.core.service.system.SysLogService;
+import com.lsh.wms.core.service.system.SysMsgService;
 import com.lsh.wms.integration.wumart.ibd.*;
 import com.lsh.wms.integration.wumart.ibd.ObjectFactory;
 import com.lsh.wms.integration.wumart.obd.*;
+import com.lsh.wms.model.system.SysLog;
+import com.lsh.wms.model.system.SysMsg;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -35,6 +41,11 @@ public class WuMartSap implements IWuMartSap{
 //
 //    @Value("${wumart.sap.password}")
 //    private String password;
+    @Autowired
+    private SysLogService sysLogService;
+
+    @Autowired
+    private SysMsgService sysMsgService;
 
     public String ibd2Sap(CreateIbdHeader createIbdHeader){
         XMLGregorianCalendar deliveDate = createIbdHeader.getDeliveDate();
@@ -67,7 +78,28 @@ public class WuMartSap implements IWuMartSap{
         TableOfBapireturn newReturn = zbinding.zbapiBbpInbIbd(header,hItem,_return,efDelivery);
         logger.info("传入参数:header :" + JSON.toJSONString(header) + " hItem: " + JSON.toJSONString(hItem) + "  _return + "+ JSON.toJSONString(_return) + " efDelivery: "+JSON.toJSONString(efDelivery));
         String ref = com.alibaba.fastjson.JSON.toJSONString(newReturn);
-        // TODO: 2016/11/1 结果记录到日志表中,将数据保存到redis中。以便失败之后重新下传。 
+        // TODO: 2016/11/1 结果记录到日志表中,将数据保存到redis中。以便失败之后重新下传。
+
+        //存入sys_log
+        //Long sysId = RandomUtils.genId();
+        SysLog sysLog = new SysLog();
+        //sysLog.setLogId(sysId);
+        //记录返回日志
+        sysLog.setLogMessage(newReturn.getItem().get(0).getMessage());
+        sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
+        sysLog.setLogType(SysLogConstant.LOG_TYPE_DIRECT_IBD);
+        //sysLog.setLogCode(newReturn.getItem().get(0).getCode());
+        Long sysId = sysLogService.insertSysLog(sysLog);
+
+        //将返回结果存入缓存,发生错误可以重新下传。
+        SysMsg sysMsg = new SysMsg();
+        sysMsg.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
+        sysMsg.setId(sysId);
+        sysMsg.setType(SysLogConstant.LOG_TYPE_DIRECT_IBD);
+
+        sysMsg.setMsgBody(JSON.toJSONString(createIbdHeader));
+        sysMsgService.sendMessage(sysMsg);
+
         return ref;
     }
 
@@ -133,6 +165,9 @@ public class WuMartSap implements IWuMartSap{
                 " _return : " + JSON.toJSONString(_return) +
                 " stockTransItems :"+JSON.toJSONString(stockTransItems));
         String ref = com.alibaba.fastjson.JSON.toJSONString(newReturn);
+
+
+
         return ref;
     }
 
