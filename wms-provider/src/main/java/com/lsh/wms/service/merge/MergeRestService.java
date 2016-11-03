@@ -56,9 +56,13 @@ public class MergeRestService implements IMergeRestService {
     @GET
     @Path("getWaveDetailByMergeConatinerId")
     public String getWaveDetailByMergeConatinerId(@QueryParam("mergeContainerId") Long mergeContainerId) throws BizCheckedException {
+        //既可以用物理吗,也可以用托盘码
         List<WaveDetail> details = waveService.getWaveDetailsByMergedContainerId(mergeContainerId);
         if (null == details || details.size() < 1) {
-            throw new BizCheckedException("2990040");
+            details = waveService.getAliveDetailsByContainerId(mergeContainerId);
+            if (null == details || details.size() < 1) {
+                throw new BizCheckedException("2990039");
+            }
         }
         return JsonUtils.SUCCESS(details);
     }
