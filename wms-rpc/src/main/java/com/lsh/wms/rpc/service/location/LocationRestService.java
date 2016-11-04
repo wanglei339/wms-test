@@ -1,15 +1,19 @@
 package com.lsh.wms.rpc.service.location;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.model.location.LocationDetailRequest;
+import com.lsh.wms.api.service.item.IItemRpcService;
 import com.lsh.wms.api.service.location.ILocationRestService;
+import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.rpc.service.pick.PickRpcService;
 import net.sf.json.JSONObject;
@@ -40,6 +44,8 @@ public class LocationRestService implements ILocationRestService {
     private PickRpcService pickRpcService;
     @Autowired
     private WaveService waveService;
+    @Reference
+    private IItemRpcService itemLocationService;
 
     @GET
     @Path("getLocation")
@@ -74,6 +80,13 @@ public class LocationRestService implements ILocationRestService {
     public String getWarehouseLocationId() {
         Long locationId = locationService.getWarehouseLocationId();
         return JsonUtils.SUCCESS(locationId);
+    }
+    @POST
+    @Path("getItemLocation")
+    public String getItemLocation() throws BizCheckedException{
+        Map<String,Object> request= RequestUtils.getRequest();
+        List<BaseinfoItemLocation> baseinfoItemLocations = itemLocationService.getItemLocation(request);
+        return JsonUtils.SUCCESS(baseinfoItemLocations);
     }
 
     @GET

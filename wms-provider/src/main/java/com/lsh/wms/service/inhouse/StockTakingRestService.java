@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by mali on 16/7/14.
@@ -85,11 +86,10 @@ public class StockTakingRestService implements IStockTakingRestService {
         String key = request.getTakingId().toString();
 
         String takingId = redisStringDao.get(key);
-        if(takingId != null){
+        if(takingId != null) {
             return JsonUtils.TOKEN_ERROR("请勿重复提交");
         }
-
-        redisStringDao.set(key,key);
+        redisStringDao.set(key,key,24,TimeUnit.HOURS);
         StockTakingHead head = new StockTakingHead();
         ObjUtils.bean2bean(request, head);
         List<StockTakingDetail> detailList = prepareDetailList(head);

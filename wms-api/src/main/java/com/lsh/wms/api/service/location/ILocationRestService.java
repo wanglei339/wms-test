@@ -32,6 +32,8 @@ public interface ILocationRestService {
 
     public String getTemp(Long type) throws BizCheckedException;
 
+    String getItemLocation()throws BizCheckedException;
+
     //仓库找货区
     public String getRegionByWareHouseId();
 
