@@ -107,8 +107,10 @@ public class ItemRestService implements IItemRestService {
         }
         try{
             itemRpcService.insertItem(item);
+        }catch (BizCheckedException e) {
+            throw e;
         }catch (Exception e){
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getMessage());
             return JsonUtils.EXCEPTION_ERROR("Create failed");
         }
         return JsonUtils.SUCCESS();
@@ -134,8 +136,10 @@ public class ItemRestService implements IItemRestService {
     public String updateItem(BaseinfoItem item) throws BizCheckedException {
         try{
             itemRpcService.updateItem(item);
+        }catch (BizCheckedException e) {
+            throw e;
         }catch (Exception e){
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getMessage());
             return JsonUtils.EXCEPTION_ERROR("Update failed");
         }
         return JsonUtils.SUCCESS();
@@ -163,12 +167,14 @@ public class ItemRestService implements IItemRestService {
         if(locationService.getLocation(locationId) == null){
             throw new BizCheckedException("2050003");
         }
-        //try{
+        try{
             itemRpcService.insertItemLocation(itemLocation);
-        /*}catch (Exception e){
+        }catch (BizCheckedException e) {
+            throw e;
+        }catch (Exception e){
             logger.error(e.getCause().getMessage());
             return JsonUtils.EXCEPTION_ERROR("failed");
-        }*/
+        }
         return JsonUtils.SUCCESS();
     }
  /*   @POST
@@ -187,8 +193,10 @@ public class ItemRestService implements IItemRestService {
     public String updateItemLocation(BaseinfoItemLocation itemLocation) {
         try{
             itemRpcService.updateByItemIdAndPicId(itemLocation);
+        }catch (BizCheckedException e) {
+            throw e;
         }catch (Exception e){
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getMessage());
             return JsonUtils.EXCEPTION_ERROR("failed");
         }
         return JsonUtils.SUCCESS();
@@ -205,8 +213,10 @@ public class ItemRestService implements IItemRestService {
     public String deleteItemLocation(BaseinfoItemLocation itemLocation) {
         try{
             itemLocationService.deleteItemLocation(itemLocation);
+        }catch (BizCheckedException e) {
+            throw e;
         }catch (Exception e){
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getMessage());
             return JsonUtils.EXCEPTION_ERROR("failed");
         }
         return JsonUtils.SUCCESS();
