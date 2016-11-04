@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by mali on 16/7/26.
@@ -177,9 +178,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (toLocation.getCanStore() != 1) {
             throw new BizCheckedException("2550020");
         }
-//        if (toLocation.getCanUse() != 1) {
-//            throw new BizCheckedException("2550006");
-//        }
         Long itemId = plan.getItemId();
         StockQuantCondition condition = new StockQuantCondition();
         condition.setLocationId(fromLocationId);
@@ -243,12 +241,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     public Long addPlan(StockTransferPlan plan) throws BizCheckedException {
         BaseinfoLocation fromLocation = locationService.getLocation(plan.getFromLocationId());
         BaseinfoLocation toLocation = locationService.getLocation(plan.getToLocationId());
-        if (fromLocation == null || toLocation == null) {
-            throw new BizCheckedException("2550016");
-        }
-        if (fromLocation.getLocationId().equals(toLocation.getLocationId())) {
-            throw new BizCheckedException("2550017");
-        }
         if (fromLocation.getCanStore() != 1) {
             fromLocation = core.getNearestLocation(fromLocation);
             plan.setFromLocationId(fromLocation.getLocationId());
@@ -262,6 +254,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (this.checkPlan(plan)) {
             plan.setTaskId(taskId);
             Long containerId = plan.getContainerId();
+            //移库单位是箱或ea时,生成新的托盘ID
             if (plan.getSubType().compareTo(2L) == 0 || plan.getSubType().compareTo(3L) == 0) {
                 containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
             }
@@ -275,14 +268,17 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             taskInfo.setStep(1);
             taskEntry.setTaskInfo(taskInfo);
 
+            //判断,避免重复提交
             if (!taskId.equals(0L)) {
                 String key = taskId.toString();
                 String transferId = redisStringDao.get(key);
                 if (transferId != null) {
+                    //不能重复提交
                     throw new BizCheckedException("2550043");
                 }
-                redisStringDao.set(key, key);
+                redisStringDao.set(key, key,1, TimeUnit.DAYS);//生成一条缓存记录该请求taskId
             }
+
             taskId = taskRpcService.create(TaskConstant.TYPE_STOCK_TRANSFER, taskEntry);
         }
         return taskId;
@@ -300,12 +296,12 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         }
         BaseinfoLocation fromLocation = locationService.getLocation(plan.getFromLocationId());
         BaseinfoLocation toLocation = locationService.getLocation(plan.getToLocationId());
-        if (fromLocation == null || toLocation == null) {
+        /*if (fromLocation == null || toLocation == null) {
             throw new BizCheckedException("2550016");
         }
         if (fromLocation.getLocationId().equals(toLocation.getLocationId())) {
             throw new BizCheckedException("2550017");
-        }
+        }*/
         if (fromLocation.getCanStore() != 1) {
             fromLocation = core.getNearestLocation(fromLocation);
             plan.setFromLocationId(fromLocation.getLocationId());
