@@ -42,6 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.util.*;
@@ -310,19 +311,31 @@ public class IbdService implements IIbdService {
     public String sendSap(){
         CreateIbdHeader header = new CreateIbdHeader();
 
+        Calendar calendar = Calendar.getInstance();
+
         XMLGregorianCalendar date = new XMLGregorianCalendarImpl();
-        date.setYear(2016);
-        date.setDay(02);
-        date.setMonth(11);
+        date.setYear(calendar.get(Calendar.YEAR));
+        date.setDay(calendar.get(Calendar.DATE));
+        date.setMonth(calendar.get(Calendar.MONTH));
         header.setDeliveDate(date);
         List<CreateIbdDetail> details = new ArrayList<CreateIbdDetail>();
 
         CreateIbdDetail detail = new CreateIbdDetail();
-        detail.setDeliveQty(new BigDecimal(10));
+        detail.setDeliveQty(new BigDecimal(100));
         detail.setPoItme("10");
-        detail.setPoNumber("4500027426");
+        detail.setPoNumber("4500027448");
         detail.setUnit("EA");
+        detail.setMaterial("000000000000110978");
         details.add(detail);
+
+        CreateIbdDetail detail1 = new CreateIbdDetail();
+        detail1.setDeliveQty(new BigDecimal(200));
+        detail1.setPoItme("20");
+        detail1.setPoNumber("4500027448");
+        detail1.setUnit("EA");
+        detail1.setMaterial("000000000000110809");
+        details.add(detail1);
+
         header.setItems(details);
         return wuMartSap.ibd2Sap(header);
     }

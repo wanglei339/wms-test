@@ -7,8 +7,12 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.model.so.ObdBackRequest;
 import com.lsh.wms.api.model.so.ObdItem;
+import com.lsh.wms.api.model.wumart.CreateIbdHeader;
+import com.lsh.wms.api.model.wumart.CreateObdDetail;
+import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.back.IDataBackService;
 import com.lsh.wms.api.service.wave.IWaveRestService;
+import com.lsh.wms.api.service.wumart.IWuMartSap;
 import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.service.inventory.InventoryRedisService;
@@ -33,6 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.*;
 
 /**
@@ -64,12 +70,15 @@ public class WaveRestService implements IWaveRestService {
 
     @Autowired
     private BaseinfoLocationWarehouseService baseinfoLocationWarehouseService;
-//
-//    @Reference
-//    private IDataBackService dataBackService;
+
+    @Reference
+    private IDataBackService dataBackService;
 
     @Autowired
     private SoDeliveryService soDeliveryService;
+
+    @Reference
+    private IWuMartSap wuMartSap;
 
     @POST
     @Path("getList")
@@ -135,13 +144,13 @@ public class WaveRestService implements IWaveRestService {
         inventoryRedisService.onDelivery(detailList);
         //传送给外部系统,其实比较好的方式是扔出来到队列里,外部可以选择性处理.
 
-//        // TODO: 16/9/7 回传物美 根据货主区分回传obd
-//        for(Long orderId : orderIds){
-//            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
-//            //查询明细。
-//            List<ObdDetail> obdDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
-//            // TODO: 2016/9/23  组装OBD反馈信息 根据货主区分回传lsh或物美
-//            if(obdHeader.getOwnerUid() == 1){
+        // TODO: 16/9/7 回传物美 根据货主区分回传obd
+        for(Long orderId : orderIds){
+            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
+            //查询明细。
+            List<ObdDetail> obdDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
+            // TODO: 2016/9/23  组装OBD反馈信息 根据货主区分回传lsh或物美
+            if(obdHeader.getOwnerUid() == 1){
 //                ObdBackRequest request = new ObdBackRequest();
 //                BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) baseinfoLocationWarehouseService.getBaseinfoItemLocationModelById(0L);
 //                String warehouseName = warehouse.getWarehouseName();
@@ -149,6 +158,39 @@ public class WaveRestService implements IWaveRestService {
 //                request.setBusinessId(obdHeader.getOrderOtherId());
 //                request.setOfcId(obdHeader.getOrderOtherRefId());//参考单号
 //                request.setAgPartnNumber(obdHeader.getOrderUser());//用户
+
+                // TODO: 2016/11/3 回传WMSAP 组装信息
+                CreateObdHeader createObdHeader = new CreateObdHeader();
+                GregorianCalendar cal = new GregorianCalendar();
+                cal.setTime(new Date());
+                XMLGregorianCalendar gcTime = null;
+                try {
+                    gcTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
+                } catch (Exception e) {
+                    throw new BizCheckedException("2900006");
+                }
+                createObdHeader.setDueDate(gcTime);
+
+                List<CreateObdDetail> details = new ArrayList<CreateObdDetail>();
+                for (ObdDetail obdDetail : obdDetails){
+                    CreateObdDetail detail = new CreateObdDetail();
+
+                    // TODO: 16/9/18 目前根据orderId与itemId来确定一条发货单。
+                    OutbDeliveryDetail outbDeliveryDetail = soDeliveryService.getOutbDeliveryDetail(obdDetail.getOrderId(),obdDetail.getItemId());
+                    //实际出库数量
+                    detail.setDlvQty(outbDeliveryDetail.getDeliveryNum());
+                    detail.setMaterial(obdDetail.getSkuCode());
+                    detail.setRefDoc(obdHeader.getOrderOtherId());
+                    detail.setRefItem(obdDetail.getDetailOtherId());
+                    detail.setSalesUnit(obdDetail.getUnitName());
+                    details.add(detail);
+                }
+                createObdHeader.setItems(details);
+                wuMartSap.obd2Sap(createObdHeader);
+
+//                // TODO: 2016/11/3 回传WMSAP 组装信息
+//
+//
 //                List<ObdItem> items = new ArrayList<ObdItem>();
 //                for (ObdDetail obdDetail : obdDetails){
 //                    ObdItem soItem = new ObdItem();
@@ -168,11 +210,11 @@ public class WaveRestService implements IWaveRestService {
 //                }
 //                //查询waveDetail找出实际出库的数量
 //                request.setItems(items);
-//
-//                dataBackService.wmDataBackByPost(request, IntegrationConstan.URL_OBD);
-//            }
-//
-//        }
+
+                //dataBackService.wmDataBackByPost(request, IntegrationConstan.URL_OBD);
+            }
+
+        }
 
         return JsonUtils.SUCCESS();
     }

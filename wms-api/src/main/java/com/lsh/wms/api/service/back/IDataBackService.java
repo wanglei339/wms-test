@@ -2,6 +2,7 @@ package com.lsh.wms.api.service.back;
 
 
 import com.lsh.wms.api.model.po.IbdBackRequest;
+import com.lsh.wms.api.model.wumart.CreateIbdHeader;
 
 /**
  * Created by lixin-mac on 16/9/6.
@@ -10,5 +11,5 @@ import com.lsh.wms.api.model.po.IbdBackRequest;
 public interface IDataBackService {
     String wmDataBackByPost(Object request, String url , Integer type);
     String ofcDataBackByPost(Object request, String url);
-    Boolean erpDataBack(IbdBackRequest request);
+    Boolean erpDataBack(CreateIbdHeader createIbdHeader);
 }
