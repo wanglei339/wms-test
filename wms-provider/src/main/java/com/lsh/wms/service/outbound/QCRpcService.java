@@ -106,10 +106,10 @@ public class QCRpcService implements IQCRpcService {
                     if (null != tuDetail) {     //查到tudetail就是撞车了
                         continue;
                     }
-//                    totalBoxes=totalBoxes+info.getTaskPackQty();
+                    totalBoxes = totalBoxes.add(info.getTaskPackQty()); //总箱数
                     //是否余货
                     if (info.getFinishTime() < DateUtils.getTodayBeginSeconds()) {
-//                        restGroupContainers++;
+                        restBoxes = restBoxes.add(info.getTaskPackQty());
                     }
                 }
             }
@@ -117,8 +117,8 @@ public class QCRpcService implements IQCRpcService {
             result.put("storeNo", store.getStoreNo());
             result.put("storeName", store.getStoreName());
             result.put("address", store.getAddress());
-//            result.put("totalMergedContainers", totalGroupContainers);
-//            result.put("restMergedContainers", restGroupContainers);
+            result.put("totalBoxes", totalBoxes);
+            result.put("restBoxes", restBoxes);
             results.add(result);
         }
         return results;
