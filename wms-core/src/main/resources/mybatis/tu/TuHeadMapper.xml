@@ -23,19 +23,21 @@
         <result property="loadUid" column="load_uid"/>
         <result property="scale" column="scale"/>
         <result property="rfSwitch" column="rf_switch"/>
+        <result property="warehouseId" column="warehouse_id"/>
+        <result property="companyName" column="company_name"/>
     </resultMap>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TuHead">
 		insert into tu_head (
 			tu_id,trans_uid,cellphone,name,car_number,status,
-			store_ids,pre_board,real_board,commited_at,created_at,
-			updated_at,loaded_at,delivery_uid,delivery_at,is_valid,load_uid,
-			scale,rf_switch
+			store_ids,pre_board,real_board,commited_at,created_at,updated_at,
+			loaded_at,delivery_uid,delivery_at,is_valid,load_uid,scale,
+			rf_switch,warehouse_id,company_name
     	) values (
 			#{tuId},#{transUid},#{cellphone},#{name},#{carNumber},#{status},
-			#{storeIds},#{preBoard},#{realBoard},#{commitedAt},#{createdAt},
-			#{updatedAt},#{loadedAt},#{deliveryUid},#{deliveryAt},#{isValid},#{loadUid},
-			#{scale},#{rfSwitch}
+			#{storeIds},#{preBoard},#{realBoard},#{commitedAt},#{createdAt},#{updatedAt},
+			#{loadedAt},#{deliveryUid},#{deliveryAt},#{isValid},#{loadUid},#{scale},
+			#{rfSwitch},#{warehouseId},#{companyName}
     	)
 	</insert>
 
@@ -60,7 +62,9 @@
             <if test="isValid != null">is_valid=#{isValid},</if>
             <if test="loadUid != null">load_uid=#{loadUid},</if>
             <if test="scale != null">scale=#{scale},</if>
-            <if test="rfSwitch != null">rf_switch=#{rfSwitch}</if>
+            <if test="rfSwitch != null">rf_switch=#{rfSwitch},</if>
+            <if test="warehouseId != null">warehouse_id=#{warehouseId},</if>
+            <if test="companyName != null">company_name=#{companyName}</if>
         </set>
         where tu_id=#{tuId}
     </update>
@@ -111,6 +115,8 @@
             <if test="loadUid != null">and load_uid=#{loadUid}</if>
             <if test="scale != null">and scale=#{scale}</if>
             <if test="rfSwitch != null">and rf_switch=#{rfSwitch}</if>
+            <if test="warehouseId != null">and warehouse_id=#{warehouseId}</if>
+            <if test="companyName != null">and company_name=#{companyName}</if>
         </where>
     </sql>
 
@@ -156,6 +162,8 @@
             <if test="loadUid != null">and load_uid=#{loadUid}</if>
             <if test="scale != null">and scale=#{scale}</if>
             <if test="rfSwitch != null">and rf_switch=#{rfSwitch}</if>
+            <if test="warehouseId != null">and warehouse_id=#{warehouseId}</if>
+            <if test="companyName != null">and company_name=#{companyName}</if>
         </where>
     </sql>
 

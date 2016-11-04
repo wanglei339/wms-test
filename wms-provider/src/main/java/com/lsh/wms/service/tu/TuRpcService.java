@@ -311,6 +311,8 @@ public class TuRpcService implements ITuRpcService {
         tuHead.setPreBoard(Long.valueOf(mapRequest.get("pre_board").toString()));
         tuHead.setCommitedAt(Long.valueOf(mapRequest.get("commited_at").toString()));
         tuHead.setScale(Integer.valueOf(mapRequest.get("scale").toString()));
+        tuHead.setWarehouseId(mapRequest.get("warehouse_id").toString());
+        tuHead.setCompanyName(mapRequest.get("company_name").toString());
         tuHead.setStatus(TuConstant.UNLOAD);
         if (newTu) {
             tuService.create(tuHead);
