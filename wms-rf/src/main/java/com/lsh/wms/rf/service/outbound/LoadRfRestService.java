@@ -8,6 +8,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.merge.IMergeRpcService;
+import com.lsh.wms.api.service.pick.IQCRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.so.ISoRpcService;
 import com.lsh.wms.api.service.store.IStoreRpcService;
@@ -65,6 +66,8 @@ public class LoadRfRestService implements ILoadRfRestService {
     private IMergeRpcService iMergeRpcService;
     @Reference
     private IStoreRpcService iStoreRpcService;
+    @Reference
+    private IQCRpcService iqcRpcService;
     /**
      * rf获取所有待装车或者已装车的结果集
      *
@@ -218,13 +221,53 @@ public class LoadRfRestService implements ILoadRfRestService {
                     boardMap.put("isLoaded", isLoaded);
                     boardMap.put("storeId", storeId);
                     //markContainerId是物理的通过它来看尾货的托盘
-                    //结果插入redis
                     storeRestList.add(storesRestMap.get(key));
                 }
             }
             resultMap.put("result", storeRestList);
         } else {
             //小店组盘未装车的叫尾货   markContainer和container相同
+            //循环门店获取尾货信息(没合板,合板日期就是零)
+            Map<Long, Map<String, Object>> storesRestMap = new HashMap<Long, Map<String, Object>>();
+            for (Map<String, Object> store : stores) {
+                String storeNo = store.get("storeNo").toString();
+                Map<Long, Map<String, Object>> storeMap = iqcRpcService.getGroupDetailByStoreNo(storeNo);
+                storesRestMap.putAll(storeMap);
+            }
+            List<Map<String, Object>> storeRestList = new ArrayList<Map<String, Object>>();
+            //尾货板子的物理托盘码展示
+            for (Long key : storesRestMap.keySet()) {
+                Map<String, Object> boardMap = storesRestMap.get(key);
+                boardMap.put("containerNum", boardMap.get("containerCount"));
+                boardMap.put("boxNum", boardMap.get("packCount"));
+                boardMap.put("turnoverBoxNum", boardMap.get("turnoverBoxCount"));
+                boardMap.put("containerNum", boardMap.get("containerCount"));
+                //这里显示的物理托盘码
+                Long containerId = Long.valueOf(boardMap.get("containerId").toString());
+                Long randContainerId = Long.valueOf(boardMap.get("markContainerId").toString());
+                //尾货
+                if (Boolean.valueOf(boardMap.get("isRest").toString())) {   //需要合板
+                    //合板未装车的才叫尾货
+                    Map<String, Object> mergeQuery = new HashMap<String, Object>();
+                    mergeQuery.put("containerId", containerId);   //组盘后物理托盘码
+                    List<WaveDetail> waveDetailList = waveService.getAliveDetailsByContainerId(containerId);
+                    if (null == waveDetailList || waveDetailList.size() < 1) {
+                        continue;
+                    }
+                    //是否已经装车
+                    boolean isLoaded = false;
+                    TuDetail tuDetail = iTuRpcService.getDetailByBoardId(Long.valueOf(boardMap.get("containerId").toString()));
+                    if (null != tuDetail) {
+                        isLoaded = true;
+                        continue;   //已装车尾货不显示
+                    }
+                    Long storeId = iStoreRpcService.getStoreIdByCode(boardMap.get("storeNo").toString());
+                    boardMap.put("isLoaded", isLoaded);
+                    boardMap.put("storeId", storeId);
+                    //markContainerId是物理的通过它来看尾货的托盘
+                    storeRestList.add(storesRestMap.get(key));
+                }
+            }
         }
 
         boolean OpenSwith = TuConstant.RF_OPEN_STATE.equals(tuHead.getRfSwitch()) ? true : false;
