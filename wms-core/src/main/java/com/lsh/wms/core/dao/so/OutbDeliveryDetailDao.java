@@ -20,5 +20,7 @@ public interface OutbDeliveryDetailDao {
     Integer countOutbDeliveryDetail(Map<String, Object> params);
 
     List<OutbDeliveryDetail> getOutbDeliveryDetailList(Map<String, Object> params);
+
+	List<OutbDeliveryDetail> getOutbDeliveryDetailListById(List<Long> deliveryIdList);
 	
 }
