@@ -323,6 +323,17 @@ public class TuRpcService implements ITuRpcService {
         return tuHead;
     }
 
+    public TuHead changeRfRestSwitch(Map<String, Object> mapRequest) throws BizCheckedException {
+        TuHead tuHead = tuService.getHeadByTuId(mapRequest.get("tuId").toString());
+        Integer rfSwitch = Integer.valueOf(mapRequest.get("rfSwitch").toString());
+        if (null == tuHead) {
+            throw new BizCheckedException("2990022");
+        }
+        tuHead.setRfSwitch(rfSwitch);
+        this.update(tuHead);
+        return tuHead;
+    }
+
     /**
      * 关闭尾货开关
      *
@@ -330,30 +341,6 @@ public class TuRpcService implements ITuRpcService {
      * @return
      * @throws BizCheckedException
      */
-    public void closeRfRestSwitch(String tuId) throws BizCheckedException {
-        TuHead tuHead = tuService.getHeadByTuId(tuId);
-        if (null == tuHead) {
-            throw new BizCheckedException("2990022");
-        }
-        tuHead.setRfSwitch(TuConstant.RF_CLOSE_REST);
-        this.update(tuHead);
-    }
-
-    /**
-     * 开启rf尾货开关
-     *
-     * @param tuId
-     * @return
-     * @throws BizCheckedException
-     */
-    public void openRfRestSwitch(String tuId) throws BizCheckedException {
-        TuHead tuHead = tuService.getHeadByTuId(tuId);
-        if (null == tuHead) {
-            throw new BizCheckedException("2990022");
-        }
-        tuHead.setRfSwitch(TuConstant.RF_OPEN_REST);
-        this.update(tuHead);
-    }
 
     /**
      * 移动板子库存到消费区

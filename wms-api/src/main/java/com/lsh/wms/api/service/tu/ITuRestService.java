@@ -27,24 +27,7 @@ public interface ITuRestService {
 
     String receiveTuHead() throws BizCheckedException;
 
-    /**
-     * rf显示尾货接口关闭
-     *
-     * @param tuId
-     * @return
-     * @throws BizCheckedException
-     */
-    public String closeRfRestSwitch(String tuId) throws BizCheckedException;
-
-    /**
-     * rf显示尾货接口开启
-     *
-     * @param tuId
-     * @return
-     * @throws BizCheckedException
-     */
-    public String openRfRestSwitch(String tuId) throws BizCheckedException;
-
+    public String changeRfRestSwitch() throws BizCheckedException;
     /**
      * 移除板子
      * @param mergedContainerId

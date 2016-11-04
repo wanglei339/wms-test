@@ -95,8 +95,8 @@ public class QCRpcService implements IQCRpcService {
         List<BaseinfoStore> stores = storeService.getOpenedStoreList(mapQuery);
         List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
         for (BaseinfoStore store : stores) {
-            Integer totalGroupContainers = 0; // 该门店未装车总托盘数
-            Integer restGroupContainers = 0; // 该门店未装车余货总托盘
+            BigDecimal totalBoxes = new BigDecimal("0.0000"); // 该门店未装车总箱子
+            BigDecimal restBoxes = new BigDecimal("0.0000"); // 该门店未装车余货箱子
             String storeNo = store.getStoreNo();
             List<Long> countedContainerIds = new ArrayList<Long>();
             List<TaskInfo> qcDoneInfos = this.getQcDoneTaskInfoByStoreNo(storeNo);
@@ -106,10 +106,10 @@ public class QCRpcService implements IQCRpcService {
                     if (null != tuDetail) {     //查到tudetail就是撞车了
                         continue;
                     }
-                    totalGroupContainers++;
+//                    totalBoxes=totalBoxes+info.getTaskPackQty();
                     //是否余货
                     if (info.getFinishTime() < DateUtils.getTodayBeginSeconds()) {
-                        restGroupContainers++;
+//                        restGroupContainers++;
                     }
                 }
             }
@@ -117,8 +117,8 @@ public class QCRpcService implements IQCRpcService {
             result.put("storeNo", store.getStoreNo());
             result.put("storeName", store.getStoreName());
             result.put("address", store.getAddress());
-            result.put("totalMergedContainers", totalGroupContainers);
-            result.put("restMergedContainers", restGroupContainers);
+//            result.put("totalMergedContainers", totalGroupContainers);
+//            result.put("restMergedContainers", restGroupContainers);
             results.add(result);
         }
         return results;
