@@ -1345,10 +1345,10 @@ public class LocationService {
         }
         BaseinfoStore store = storeList.get(0);
         if (StoreConstant.SCALE_STORE.equals(store.getScale())){ //小店
-            mapQuery.put("type", LocationConstant.COLLECTION_ROAD);
+            mapQuery.put("type", LocationConstant.COLLECTION_BIN);
 
         }else {
-            mapQuery.put("type", LocationConstant.COLLECTION_BIN);
+            mapQuery.put("type", LocationConstant.COLLECTION_ROAD);
         }
         mapQuery.put("storeNo", storeNo);
         List<BaseinfoLocation> list = this.getBaseinfoLocationList(mapQuery);
