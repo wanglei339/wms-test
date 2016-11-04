@@ -447,7 +447,7 @@ public class TuRpcService implements ITuRpcService {
         }
         BigDecimal allboxNum = new BigDecimal("0.00");
         Long turnoverBoxNum = new Long("0");
-        Set<Long> containerSet = new HashSet<Long>();
+        Set<Long> containerSet = new HashSet<Long>();   //可以是板子也可以是托盘
         for (TaskInfo taskinfo : taskInfos) {
             BigDecimal one = taskinfo.getTaskPackQty(); //总箱数
             turnoverBoxNum += taskinfo.getExt3();    //总周转周转箱
