@@ -311,6 +311,8 @@ public class TuRpcService implements ITuRpcService {
         tuHead.setPreBoard(Long.valueOf(mapRequest.get("pre_board").toString()));
         tuHead.setCommitedAt(Long.valueOf(mapRequest.get("commited_at").toString()));
         tuHead.setScale(Integer.valueOf(mapRequest.get("scale").toString()));
+        tuHead.setWarehouseId(mapRequest.get("warehouse_id").toString());
+        tuHead.setCompanyName(mapRequest.get("company_name").toString());
         tuHead.setStatus(TuConstant.UNLOAD);
         if (newTu) {
             tuService.create(tuHead);
@@ -410,7 +412,7 @@ public class TuRpcService implements ITuRpcService {
             mergedContainerId = qcInfos.get(0).getMergedContainerId();  //没合板,托盘码和板子码,qc后两者相同
         } else { //大店也是组盘完毕就能装车
             Map<String, Object> qcMapQuery = new HashMap<String, Object>();
-            qcMapQuery.put("containerId", containerId);
+            qcMapQuery.put("mergedContainerId", containerId);
             qcMapQuery.put("type", TaskConstant.TYPE_QC);
             qcMapQuery.put("status", TaskConstant.Done);
             List<TaskInfo> qcInfos = baseTaskService.getTaskInfoList(qcMapQuery);

@@ -171,12 +171,14 @@ public class QCRestService implements IRFQCRestService {
                 isFirstQC = true;
             }
             if (mapItem2PickQty.get(d.getItemId()) == null) {
+                // todo 如果是忽略异常,实际的箱子数量,需要按照qc的数量进行计算
                 mapItem2PickQty.put(d.getItemId(), new BigDecimal(d.getPickQty().toString()));
             } else {
+                // todo 如果是忽略异常,实际的箱子数量,需要按照qc的数量进行计算
                 mapItem2PickQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getPickQty()));
             }
             mapItem2WaveDetail.put(d.getItemId(), d);
-            //todo 跳过直流,一旦有组盘没有异常,就直接到组盘
+            //跳过直流,一旦有组盘没有异常,就直接到组盘
             //一旦是直流大店的门店收货,需要忽略qc,直接进入
             if (qcTaskInfo.getQcSkip().equals(TaskConstant.QC_SKIP) && !d.getQcException().equals(WaveConstant.QC_EXCEPTION_GROUP)) { //直流组盘不异常,跳过明细qc
                 //直流的大店门店收货跳过组盘的开关

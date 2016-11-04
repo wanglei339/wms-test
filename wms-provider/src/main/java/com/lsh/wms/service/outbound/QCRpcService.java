@@ -3,17 +3,31 @@ package com.lsh.wms.service.outbound;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.pick.IQCRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
-import com.lsh.wms.core.constant.PickConstant;
-import com.lsh.wms.core.constant.WaveConstant;
+import com.lsh.wms.api.service.tu.ITuRpcService;
+import com.lsh.wms.core.constant.*;
+import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.store.StoreService;
+import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoStore;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.model.tu.TuDetail;
+import com.lsh.wms.model.tu.TuHead;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zengwenjun on 16/7/30.
@@ -22,6 +36,18 @@ import java.util.List;
 public class QCRpcService implements IQCRpcService {
     @Autowired
     private WaveService waveService;
+    @Autowired
+    private StoreService storeService;
+    @Autowired
+    private BaseTaskService baseTaskService;
+    @Autowired
+    private LocationService locationService;
+    @Autowired
+    private StockQuantService stockQuantService;
+    @Autowired
+    private TuService tuService;
+    @Reference
+    private ITuRpcService iTuRpcService;
 
     public void skipException(long id) throws BizCheckedException {
         WaveDetail detail = waveService.getWaveDetailById(id);
@@ -55,5 +81,130 @@ public class QCRpcService implements IQCRpcService {
         detail.setQcException(WaveConstant.QC_EXCEPTION_NORMAL);
         detail.setQcExceptionQty(new BigDecimal("0.0000"));
         waveService.updateDetail(detail);
+    }
+
+    /**
+     * 门店维度组盘列表
+     *
+     * @param mapQuery
+     * @return
+     * @throws BizCheckedException
+     */
+    public List<Map<String, Object>> getGroupList(Map<String, Object> mapQuery) throws BizCheckedException {
+        mapQuery.put("scale", StoreConstant.SCALE_STORE); // 小店不合板
+        List<BaseinfoStore> stores = storeService.getOpenedStoreList(mapQuery);
+        List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
+        for (BaseinfoStore store : stores) {
+            Integer totalGroupContainers = 0; // 该门店未装车总托盘数
+            Integer restGroupContainers = 0; // 该门店未装车余货总托盘
+            String storeNo = store.getStoreNo();
+            List<Long> countedContainerIds = new ArrayList<Long>();
+            List<TaskInfo> qcDoneInfos = this.getQcDoneTaskInfoByStoreNo(storeNo);
+            if (qcDoneInfos.size() > 0) {
+                for (TaskInfo info : qcDoneInfos) {
+                    TuDetail tuDetail = iTuRpcService.getDetailByBoardId(info.getContainerId());
+                    if (null != tuDetail) {     //查到tudetail就是撞车了
+                        continue;
+                    }
+                    totalGroupContainers++;
+                    //是否余货
+                    if (info.getFinishTime() < DateUtils.getTodayBeginSeconds()) {
+                        restGroupContainers++;
+                    }
+                }
+            }
+            Map<String, Object> result = new HashMap<String, Object>();
+            result.put("storeNo", store.getStoreNo());
+            result.put("storeName", store.getStoreName());
+            result.put("address", store.getAddress());
+            result.put("totalMergedContainers", totalGroupContainers);
+            result.put("restMergedContainers", restGroupContainers);
+            results.add(result);
+        }
+        return results;
+    }
+
+    /**
+     * 组盘列表的total
+     *
+     * @param mapQuery
+     * @return
+     * @throws BizCheckedException
+     */
+    public Integer countGroupList(Map<String, Object> mapQuery) throws BizCheckedException {
+        mapQuery.put("scale", StoreConstant.SCALE_STORE); // 小店
+        mapQuery.put("isOpen", 1);
+        Integer total = storeService.countBaseinfoStore(mapQuery);
+        return total;
+    }
+
+    /**
+     * 获取门店的组盘详情
+     *
+     * @param storeNo
+     * @return 《containerId,map《string,object》》
+     * @throws BizCheckedException
+     */
+    public Map<Long, Map<String, Object>> getGroupDetailByStoreNo(String storeNo) throws BizCheckedException {
+        Map<Long, Map<String, Object>> results = new HashMap<Long, Map<String, Object>>();
+        List<TaskInfo> qcDoneTaskinfos = this.getQcDoneTaskInfoByStoreNo(storeNo);
+        if (null == qcDoneTaskinfos || qcDoneTaskinfos.size() < 1) {
+            return results;
+        }
+        //taskinfo里面的qc托盘码唯一
+        for (TaskInfo info : qcDoneTaskinfos) {
+            Long containerId = info.getContainerId(); //获取托盘
+            // 未装车的
+            TuDetail tuDetail = tuService.getDetailByBoardId(containerId);
+            Boolean needCount = true;
+            if (null != tuDetail) {    //一旦能查到就是装车了
+                needCount = false;
+            }
+            if (!needCount) {
+                continue;
+            }
+            // todo
+            Map<String, Object> result = new HashMap<String, Object>();
+            result.put("containerId", containerId);
+            result.put("markContainerId", info.getContainerId());  //当前作为查找板子码标识的物理托盘码,随机选的
+            result.put("containerCount", 1);
+            result.put("packCount", info.getTaskPackQty()); //总箱数
+            result.put("turnoverBoxCount", info.getExt3()); //周转箱
+            result.put("storeNo", storeNo);
+            result.put("isExpensive", false);   //贵品默认是部署的
+            if (info.getFinishTime() < DateUtils.getTodayBeginSeconds()) {
+                result.put("isRest", true);
+            } else {
+                result.put("isRest", false);
+            }
+            results.put(containerId, result);
+        }
+        return results;
+    }
+
+    /**
+     * 通过门店号获取Taskinfo聚类qc完的托盘
+     *
+     * @param storeNo
+     * @return
+     */
+    public List<TaskInfo> getQcDoneTaskInfoByStoreNo(String storeNo) {
+        List<BaseinfoLocation> locations = locationService.getCollectionByStoreNo(storeNo); // 门店对应的集货道
+        List<TaskInfo> qcDoneInfos = new ArrayList<TaskInfo>();
+        for (BaseinfoLocation location : locations) {
+            List<StockQuant> quants = stockQuantService.getQuantsByLocationId(location.getLocationId());
+            for (StockQuant quant : quants) {
+                Long containerId = quant.getContainerId();
+                Map<String, Object> params = new HashMap<String, Object>();
+                params.put("containerId", containerId);
+                params.put("type", TaskConstant.TYPE_QC);
+                params.put("status", TaskConstant.Done);
+                List<TaskInfo> qcInfos = baseTaskService.getTaskInfoList(params);
+                if (null != qcInfos && qcInfos.size() > 0) {
+                    qcDoneInfos.add(qcInfos.get(0));
+                }
+            }
+        }
+        return qcDoneInfos;
     }
 }

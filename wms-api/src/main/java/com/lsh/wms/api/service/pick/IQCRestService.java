@@ -9,4 +9,9 @@ public interface IQCRestService {
     String skipException() throws BizCheckedException; //忽略qc异常,照常发货
     String repairException() throws BizCheckedException; //修复异常,会设置pick_qty=qc_qty,同时保留qc遗迹
     String fallbackException() throws BizCheckedException; //回退异常,qc自身错误,会设置pick_qty=qc_qty,同时保留qc遗迹
+
+    //组盘页面的展示
+    String getGroupList() throws BizCheckedException;
+    String countGroupList() throws BizCheckedException;
+    String getGroupDetailByStoreNo() throws BizCheckedException;
 }

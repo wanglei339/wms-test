@@ -46,4 +46,24 @@ public class QCRestService implements IQCRestService {
         qcRpcService.fallbackException(id);
         return JsonUtils.SUCCESS();
     }
+
+    @POST
+    @Path("getGroupList")
+    public String getGroupList() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(qcRpcService.getGroupList(mapQuery));
+    }
+    @POST
+    @Path("countGroupList")
+    public String countGroupList() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(qcRpcService.countGroupList(mapQuery));
+    }
+    @POST
+    @Path("getGroupDetailByStoreNo")
+    public String getGroupDetailByStoreNo() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        String storeNo = mapQuery.get("storeNo").toString();
+        return JsonUtils.SUCCESS(qcRpcService.getQcDoneTaskInfoByStoreNo(storeNo));
+    }
 }
