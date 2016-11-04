@@ -180,7 +180,9 @@ public class TuRestService implements ITuRestService {
         // 传给TMS运单发车信息,此过程可以重复调用
         Boolean postResult = iTuRpcService.postTuDetails(tuId);
         if (postResult) {
-            return JsonUtils.SUCCESS("success");
+            Map<String, Boolean> resultMap = new HashMap<String, Boolean>();
+            resultMap.put("response", postResult);
+            return JsonUtils.SUCCESS(resultMap);
         } else {
             throw new BizCheckedException("2990042");
         }
@@ -211,7 +213,7 @@ public class TuRestService implements ITuRestService {
     @Path("closeRfRestSwitch")
     public String closeRfRestSwitch(@QueryParam("tuId") String tuId) throws BizCheckedException {
         iTuRpcService.closeRfRestSwitch(tuId);
-        return JsonUtils.SUCCESS("success");
+        return JsonUtils.SUCCESS();
     }
 
     /**
@@ -225,7 +227,7 @@ public class TuRestService implements ITuRestService {
     @Path("openRfRestSwitch")
     public String openRfRestSwitch(@QueryParam("tuId") String tuId) throws BizCheckedException {
         iTuRpcService.openRfRestSwitch(tuId);
-        return JsonUtils.SUCCESS("success");
+        return JsonUtils.SUCCESS();
     }
 
     /**
@@ -237,7 +239,8 @@ public class TuRestService implements ITuRestService {
     @GET
     @Path("removeTuDetail")
     public String removeTuDetail(@QueryParam("mergedContainerId") Long mergedContainerId) throws BizCheckedException {
-        return JsonUtils.SUCCESS(iTuRpcService.removeTuDetail(mergedContainerId));
+        iTuRpcService.removeTuDetail(mergedContainerId);
+        return JsonUtils.SUCCESS();
     }
 
 }

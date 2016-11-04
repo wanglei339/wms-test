@@ -30,7 +30,7 @@ public class TuHead implements Serializable {
     /**
      * 状态1.待装车5已装车9已发货
      */
-    private Integer status=1;
+    private Integer status = 1;
     /**
      * 门店id字符串
      */
@@ -42,11 +42,11 @@ public class TuHead implements Serializable {
     /**
      * 实际板数
      */
-    private Long realBoard=0L;
+    private Long realBoard = 0L;
     /**
      * 提交时间
      */
-    private Long commitedAt=0L;
+    private Long commitedAt = 0L;
     /**  */
     private Long createdAt;
     /**  */
@@ -58,11 +58,11 @@ public class TuHead implements Serializable {
     /**
      * 发货人|中控
      */
-    private Long deliveryUid=0L;
+    private Long deliveryUid = 0L;
     /**
      * 发货时间
      */
-    private Long deliveryAt=0L;
+    private Long deliveryAt = 0L;
     /**
      * 是否有效, 0否, 1是
      */
@@ -70,7 +70,7 @@ public class TuHead implements Serializable {
     /**
      * 扫货装车人的uid
      */
-    private Long loadUid=0L;
+    private Long loadUid = 0L;
     /**
      * 门店范围1-小店2-大店
      */
@@ -79,6 +79,14 @@ public class TuHead implements Serializable {
      * rf尾货开关0-开启尾货显示1-关闭尾货
      */
     private Integer rfSwitch = 1;
+    /**
+     * 仓库ID传输
+     */
+    private String warehouseId;
+    /**
+     * 承运商名称
+     */
+    private String companyName;
 
     public Long getId() {
         return this.id;
@@ -238,5 +246,21 @@ public class TuHead implements Serializable {
 
     public void setRfSwitch(Integer rfSwitch) {
         this.rfSwitch = rfSwitch;
+    }
+
+    public String getWarehouseId() {
+        return warehouseId;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setWarehouseId(String warehouseId) {
+        this.warehouseId = warehouseId;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 }
