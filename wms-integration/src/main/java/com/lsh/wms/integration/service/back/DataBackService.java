@@ -5,6 +5,8 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
 import com.lsh.wms.api.model.po.IbdBackRequest;
 import com.lsh.wms.api.model.po.IbdItem;
+import com.lsh.wms.api.model.wumart.CreateIbdDetail;
+import com.lsh.wms.api.model.wumart.CreateIbdHeader;
 import com.lsh.wms.api.service.back.IDataBackService;
 import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.constant.SysLogConstant;
@@ -114,7 +116,7 @@ public class DataBackService implements IDataBackService {
 
     }
 
-    public Boolean erpDataBack(IbdBackRequest request){
+    public Boolean erpDataBack(CreateIbdHeader createIbdHeader){
         try {
             final XmlRpcClient models = new XmlRpcClient() {{
                 setConfig(new XmlRpcClientConfigImpl() {{
@@ -122,12 +124,12 @@ public class DataBackService implements IDataBackService {
                 }});
             }};
             //原订单ID
-            Integer orderOtherId = Integer.valueOf(request.getHeader().getPoNumber());
+            Integer orderOtherId = Integer.valueOf(createIbdHeader.getItems().get(0).getPoNumber());
             List<HashMap<String,Object>> list = new ArrayList<HashMap<String, Object>>();
-            for(IbdItem item : request.getItems()){
+            for(CreateIbdDetail item : createIbdHeader.getItems()){
                 HashMap<String,Object> map = new HashMap<String, Object>();
-                map.put("product_id",Integer.valueOf(item.getMaterialNo()));
-                map.put("qty_done",item.getEntryQnt().intValue());
+                map.put("product_id",Integer.valueOf(item.getMaterial()));
+                map.put("qty_done",item.getDeliveQty().intValue());
                 list.add(map);
                 
             }

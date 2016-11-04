@@ -8,9 +8,12 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.model.po.Header;
 import com.lsh.wms.api.model.po.IbdBackRequest;
 import com.lsh.wms.api.model.po.IbdItem;
+import com.lsh.wms.api.model.wumart.CreateIbdDetail;
+import com.lsh.wms.api.model.wumart.CreateIbdHeader;
 import com.lsh.wms.api.service.back.IDataBackService;
 import com.lsh.wms.api.service.po.IReceiveRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.api.service.wumart.IWuMartSap;
 import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
@@ -18,14 +21,15 @@ import com.lsh.wms.core.service.po.ReceiveService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationWarehouse;
 import com.lsh.wms.model.po.ReceiveDetail;
 import com.lsh.wms.model.po.ReceiveHeader;
+import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by lixin-mac on 2016/10/21.
@@ -48,6 +52,9 @@ public class ReceiveRestService implements IReceiveRestService{
 
     @Autowired
     private ReceiveService receiveService;
+
+    @Reference
+    private IWuMartSap wuMartSap;
 
     @POST
     @Path("getReceiveHeaderList")
@@ -78,49 +85,90 @@ public class ReceiveRestService implements IReceiveRestService{
 
         //确认收货之后将验收单回传到上游系统
         if("5".equals(map.get("orderStatus").toString())){
-            IbdBackRequest ibdBackRequest = new IbdBackRequest();
-            Header header = new Header();
-            BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) baseinfoLocationWarehouseService.getBaseinfoItemLocationModelById(0L);
-            String warehouseName = warehouse.getWarehouseName();
-            header.setPlant(warehouseName);
+//            IbdBackRequest ibdBackRequest = new IbdBackRequest();
+//            Header header = new Header();
+//            BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) baseinfoLocationWarehouseService.getBaseinfoItemLocationModelById(0L);
+//            String warehouseName = warehouse.getWarehouseName();
+//            header.setPlant(warehouseName);
 //            String poNumber =map.get("orderOtherId").toString();
 //            header.setPoNumber(poNumber);
             List<ReceiveDetail> receiveDetails = receiveService.getReceiveDetailListByReceiveId((Long) map.get("receiveId"));
             //ReceiveHeader ibdHeader = poOrderService.getInbPoHeaderById((Long) map.get("orderId"));
             ReceiveHeader receiveHeader = receiveService.getReceiveHeaderByReceiveId((Long) map.get("receiveId"));
-            //回传类型
-            String docType = receiveHeader.getOrderType().equals(3) ? "08" : "02";
-            String docStyle = receiveHeader.getOrderType().equals(3) ? "02" : "00";
-            header.setDocStyle(docStyle);
-            header.setDocType(docType);
-            header.setPoNumber(receiveHeader.getOrderOtherId());
-            header.setDelivNumber(receiveHeader.getOrderOtherRefId());
-
-
-            List<IbdItem>  items = new ArrayList<IbdItem>();
+//            //回传类型
+//            String docType = receiveHeader.getOrderType().equals(3) ? "08" : "02";
+//            String docStyle = receiveHeader.getOrderType().equals(3) ? "02" : "00";
+//            header.setDocStyle(docStyle);
+//            header.setDocType(docType);
+//            header.setPoNumber(receiveHeader.getOrderOtherId());
+//            header.setDelivNumber(receiveHeader.getOrderOtherRefId());
+            // TODO: 2016/11/3 回传WMSAP 组装信息
+            CreateIbdHeader createIbdHeader = new CreateIbdHeader();
+            Calendar calendar = Calendar.getInstance();
+            XMLGregorianCalendar date = new XMLGregorianCalendarImpl();
+            date.setYear(calendar.get(Calendar.YEAR));
+            date.setDay(calendar.get(Calendar.DATE));
+            date.setMonth(calendar.get(Calendar.MONTH));
+            createIbdHeader.setDeliveDate(date);
+            List<CreateIbdDetail> details = new ArrayList<CreateIbdDetail>();
             for(ReceiveDetail receiveDetail : receiveDetails){
-                IbdItem ibdItem = new IbdItem();
-                //转成ea
-                BigDecimal inboudQty =  receiveDetail.getInboundQty().multiply(receiveDetail.getPackUnit()).setScale(3);
-                BigDecimal orderQty = receiveDetail.getOrderQty().multiply(receiveDetail.getPackUnit()).setScale(3);
-                BigDecimal entryQnt = receiveHeader.getOrderType().equals(3) ? orderQty : inboudQty;
-                ibdItem.setEntryQnt(entryQnt);
-                ibdItem.setMaterialNo(receiveDetail.getSkuCode());
-                ibdItem.setDelivItem(receiveDetail.getDetailOtherId());
-                ibdItem.setPoItem(receiveDetail.getDetailOtherId());
-                //回传baseinfo_item中的unitName
-                //ibdItem.setPackName(inbPoDetail.getPackName());
-                //String unitName = itemService.getItem(ibdHeader.getOwnerUid(),inbPoDetail.getSkuId()).getUnitName().toUpperCase();
-                ibdItem.setPackName(receiveDetail.getUnitName());
-                items.add(ibdItem);
+                CreateIbdDetail detail = new CreateIbdDetail();
+                detail.setPoNumber(receiveHeader.getOrderOtherId());
+                detail.setPoItme(receiveDetail.getDetailOtherId());
+                BigDecimal inboudQty =  receiveDetail.getInboundQty();
+                if(inboudQty.compareTo(BigDecimal.ZERO) <= 0){
+                    continue;
+                }
+                BigDecimal orderQty = receiveDetail.getOrderQty();
+                BigDecimal deliveQty = receiveHeader.getOrderType().equals(3) ? orderQty : inboudQty;
+                detail.setDeliveQty(deliveQty);
+                detail.setUnit(receiveDetail.getUnitName());
+                detail.setMaterial(receiveDetail.getSkuCode());
+
+                details.add(detail);
             }
-            ibdBackRequest.setItems(items);
-            ibdBackRequest.setHeader(header);
+            createIbdHeader.setItems(details);
+
             if(receiveHeader.getOwnerUid() == 1){
-                dataBackService.wmDataBackByPost(ibdBackRequest, IntegrationConstan.URL_IBD, SysLogConstant.LOG_TYPE_WUMART_IBD);
+                //dataBackService.wmDataBackByPost(ibdBackRequest, IntegrationConstan.URL_IBD, SysLogConstant.LOG_TYPE_WUMART_IBD);
+                wuMartSap.ibd2Sap(createIbdHeader);
+
             }else{
-                dataBackService.erpDataBack(ibdBackRequest);
+                dataBackService.erpDataBack(createIbdHeader);
             }
+
+
+            // TODO: 2016/11/3  回传WMSAP 组装信息
+
+//
+//
+//            List<IbdItem>  items = new ArrayList<IbdItem>();
+//            for(ReceiveDetail receiveDetail : receiveDetails){
+//                IbdItem ibdItem = new IbdItem();
+//                //转成ea
+//                BigDecimal inboudQty =  receiveDetail.getInboundQty().multiply(receiveDetail.getPackUnit()).setScale(3);
+//                if(inboudQty.compareTo(BigDecimal.ZERO) <= 0){
+//                    continue;
+//                }
+//                BigDecimal orderQty = receiveDetail.getOrderQty().multiply(receiveDetail.getPackUnit()).setScale(3);
+//                BigDecimal entryQnt = receiveHeader.getOrderType().equals(3) ? orderQty : inboudQty;
+//                ibdItem.setEntryQnt(entryQnt);
+//                ibdItem.setMaterialNo(receiveDetail.getSkuCode());
+//                ibdItem.setDelivItem(receiveDetail.getDetailOtherId());
+//                ibdItem.setPoItem(receiveDetail.getDetailOtherId());
+//                //回传baseinfo_item中的unitName
+//                //ibdItem.setPackName(inbPoDetail.getPackName());
+//                //String unitName = itemService.getItem(ibdHeader.getOwnerUid(),inbPoDetail.getSkuId()).getUnitName().toUpperCase();
+//                ibdItem.setPackName(receiveDetail.getUnitName());
+//                items.add(ibdItem);
+//            }
+//            ibdBackRequest.setItems(items);
+//            ibdBackRequest.setHeader(header);
+//            if(receiveHeader.getOwnerUid() == 1){
+//                dataBackService.wmDataBackByPost(ibdBackRequest, IntegrationConstan.URL_IBD, SysLogConstant.LOG_TYPE_WUMART_IBD);
+//            }else{
+//                dataBackService.erpDataBack(ibdBackRequest);
+//            }
 
         }
         return JsonUtils.SUCCESS();

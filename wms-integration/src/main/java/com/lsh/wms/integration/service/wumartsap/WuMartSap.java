@@ -76,29 +76,31 @@ public class WuMartSap implements IWuMartSap{
 
         logger.info("传入参数:header :" + JSON.toJSONString(header) + " hItem: " + JSON.toJSONString(hItem) + "  _return + "+ JSON.toJSONString(_return) + " efDelivery: "+JSON.toJSONString(efDelivery));
         TableOfBapireturn newReturn = zbinding.zbapiBbpInbIbd(header,hItem,_return,efDelivery);
-        logger.info("传入参数:header :" + JSON.toJSONString(header) + " hItem: " + JSON.toJSONString(hItem) + "  _return + "+ JSON.toJSONString(_return) + " efDelivery: "+JSON.toJSONString(efDelivery));
-        String ref = com.alibaba.fastjson.JSON.toJSONString(newReturn);
+        logger.info("传出参数:header :" + JSON.toJSONString(header) + " hItem: " + JSON.toJSONString(hItem) + "  _return + "+ JSON.toJSONString(_return) + " efDelivery: "+JSON.toJSONString(efDelivery));
+        String ref = com.alibaba.fastjson.JSON.toJSONString(newReturn.getItem());
         // TODO: 2016/11/1 结果记录到日志表中,将数据保存到redis中。以便失败之后重新下传。
+        logger.info("~~~~~~~~~~~~~~~~~~~~~ref:" + ref + "~~~~~~~~~~~~~~~~~~~~~~");
 
-        //存入sys_log
-        //Long sysId = RandomUtils.genId();
-        SysLog sysLog = new SysLog();
-        //sysLog.setLogId(sysId);
-        //记录返回日志
-        sysLog.setLogMessage(newReturn.getItem().get(0).getMessage());
-        sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
-        sysLog.setLogType(SysLogConstant.LOG_TYPE_DIRECT_IBD);
-        //sysLog.setLogCode(newReturn.getItem().get(0).getCode());
-        Long sysId = sysLogService.insertSysLog(sysLog);
-
-        //将返回结果存入缓存,发生错误可以重新下传。
-        SysMsg sysMsg = new SysMsg();
-        sysMsg.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
-        sysMsg.setId(sysId);
-        sysMsg.setType(SysLogConstant.LOG_TYPE_DIRECT_IBD);
-
-        sysMsg.setMsgBody(JSON.toJSONString(createIbdHeader));
-        sysMsgService.sendMessage(sysMsg);
+//        //存入sys_log
+//        //Long sysId = RandomUtils.genId();
+//        SysLog sysLog = new SysLog();
+//        //sysLog.setLogId(sysId);
+//        //记录返回日志
+//        sysLog.setLogMessage(newReturn.getItem().get(0).getMessage());
+//        sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
+//        sysLog.setLogType(SysLogConstant.LOG_TYPE_DIRECT_IBD);
+//        //sysLog.setLogCode(newReturn.getItem().get(0).getCode());
+//        sysLog.setLogCode(1111l);
+//        Long sysId = sysLogService.insertSysLog(sysLog);
+//
+//        //将返回结果存入缓存,发生错误可以重新下传。
+//        SysMsg sysMsg = new SysMsg();
+//        sysMsg.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
+//        sysMsg.setId(sysId);
+//        sysMsg.setType(SysLogConstant.LOG_TYPE_DIRECT_IBD);
+//
+//        sysMsg.setMsgBody(JSON.toJSONString(createIbdHeader));
+//        sysMsgService.sendMessage(sysMsg);
 
         return ref;
     }
@@ -164,7 +166,7 @@ public class WuMartSap implements IWuMartSap{
                 " dueDate : " + JSON.toJSONString(dueDate) +
                 " _return : " + JSON.toJSONString(_return) +
                 " stockTransItems :"+JSON.toJSONString(stockTransItems));
-        String ref = com.alibaba.fastjson.JSON.toJSONString(newReturn);
+        String ref = com.alibaba.fastjson.JSON.toJSONString(newReturn.getItem());
 
 
 
@@ -173,6 +175,8 @@ public class WuMartSap implements IWuMartSap{
 
     protected void auth(BindingProvider provider) {
         Map<String, Object> context = provider.getRequestContext();
+
+        logger.info("~~~~~~~~~~~~~~~~~~~ username :"  + PropertyUtils.getString("wumart.sap.username") + "~~~~~~~~~~~~~~~ password :" + PropertyUtils.getString("wumart.sap.password"));
         context.put(BindingProvider.USERNAME_PROPERTY, PropertyUtils.getString("wumart.sap.username"));
         context.put(BindingProvider.PASSWORD_PROPERTY, PropertyUtils.getString("wumart.sap.password"));
     }
