@@ -22,6 +22,7 @@ import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.po.IIbdService;
 import com.lsh.wms.api.service.po.IPoRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.api.service.wumart.IWuMartSap;
 import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
@@ -74,8 +75,10 @@ public class IbdService implements IIbdService {
     @Autowired
     private SysLogService sysLogService;
 
-    @Autowired
-    private WuMartSap wuMartSap;
+//    @Autowired
+//    private WuMartSap wuMartSap;
+    @Reference
+    private IWuMartSap wuMartSap;
     @POST
     @Path("add")
     public BaseResponse add(IbdRequest request) throws BizCheckedException{
@@ -311,13 +314,13 @@ public class IbdService implements IIbdService {
     public String sendSap(){
         CreateIbdHeader header = new CreateIbdHeader();
 
-        Calendar calendar = Calendar.getInstance();
-
-        XMLGregorianCalendar date = new XMLGregorianCalendarImpl();
-        date.setYear(calendar.get(Calendar.YEAR));
-        date.setDay(calendar.get(Calendar.DATE));
-        date.setMonth(calendar.get(Calendar.MONTH));
-        header.setDeliveDate(date);
+//        Calendar calendar = Calendar.getInstance();
+//
+//        XMLGregorianCalendar date = new XMLGregorianCalendarImpl();
+//        date.setYear(calendar.get(Calendar.YEAR));
+//        date.setDay(calendar.get(Calendar.DATE));
+//        date.setMonth(calendar.get(Calendar.MONTH));
+//        header.setDeliveDate(date);
         List<CreateIbdDetail> details = new ArrayList<CreateIbdDetail>();
 
         CreateIbdDetail detail = new CreateIbdDetail();
@@ -344,11 +347,11 @@ public class IbdService implements IIbdService {
     @Path("sendSapObd")
     public String sendSapObd() {
         CreateObdHeader header = new CreateObdHeader();
-        XMLGregorianCalendar date = new XMLGregorianCalendarImpl();
-        date.setYear(2016);
-        date.setDay(31);
-        date.setMonth(10);
-        header.setDueDate(date);
+//        XMLGregorianCalendar date = new XMLGregorianCalendarImpl();
+//        date.setYear(2016);
+//        date.setDay(31);
+//        date.setMonth(10);
+//        header.setDueDate(date);
 
         List<CreateObdDetail> details = new ArrayList<CreateObdDetail>();
         CreateObdDetail detail1 = new CreateObdDetail();

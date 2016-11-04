@@ -614,19 +614,9 @@ public class TuRpcService implements ITuRpcService {
             createIbdDetail.setPoItme(ibdDetail.getDetailOtherId());
             createIbdDetailList.add(createIbdDetail);
         }
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTime(new Date());
-        XMLGregorianCalendar gcTime = null;
-        try {
-            gcTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
-        } catch (Exception e) {
-            throw new BizCheckedException("2900006");
-        }
         CreateObdHeader createObdHeader = new CreateObdHeader();
-        createObdHeader.setDueDate(gcTime);
         createObdHeader.setItems(createObdDetailList);
         CreateIbdHeader createIbdHeader = new CreateIbdHeader();
-        createIbdHeader.setDeliveDate(gcTime);
         createIbdHeader.setItems(createIbdDetailList);
         logger.info("+++++++++++++++++++++++++++++++++maqidi+++++++++++++++++++++++"+JSON.toJSONString(createObdHeader));
         logger.info("+++++++++++++++++++++++++++++++++maqidi++++++++++++++"+JSON.toJSONString(createObdHeader));
