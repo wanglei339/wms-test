@@ -303,8 +303,9 @@ public class IbdService implements IIbdService {
         }
         request.setDetails(items);
         String url = "http://api.ofc.lsh123.com/ofc/api/order/obd/push";
-        return dataBackService.ofcDataBackByPost(request,url);
+        //return dataBackService.ofcDataBackByPost(request,url);
 
+        return "";
 
     }
 

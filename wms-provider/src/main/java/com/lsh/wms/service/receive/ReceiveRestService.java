@@ -146,7 +146,7 @@ public class ReceiveRestService implements IReceiveRestService{
                 //wuMart.sendIbd(createIbdHeader);
 
             }else{
-                dataBackService.erpDataBack(createIbdHeader);
+                //dataBackService.erpDataBack(createIbdHeader);
             }
 
 
