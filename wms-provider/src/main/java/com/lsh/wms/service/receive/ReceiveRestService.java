@@ -13,6 +13,7 @@ import com.lsh.wms.api.model.wumart.CreateIbdHeader;
 import com.lsh.wms.api.service.back.IDataBackService;
 import com.lsh.wms.api.service.po.IReceiveRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.api.service.wumart.IWuMart;
 import com.lsh.wms.api.service.wumart.IWuMartSap;
 import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.constant.SysLogConstant;
@@ -21,7 +22,6 @@ import com.lsh.wms.core.service.po.ReceiveService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationWarehouse;
 import com.lsh.wms.model.po.ReceiveDetail;
 import com.lsh.wms.model.po.ReceiveHeader;
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
@@ -55,6 +55,8 @@ public class ReceiveRestService implements IReceiveRestService{
 
     @Reference
     private IWuMartSap wuMartSap;
+//    @Reference
+//    private IWuMart wuMart;
 
     @POST
     @Path("getReceiveHeaderList")
@@ -104,37 +106,47 @@ public class ReceiveRestService implements IReceiveRestService{
 //            header.setDelivNumber(receiveHeader.getOrderOtherRefId());
             // TODO: 2016/11/3 回传WMSAP 组装信息
             CreateIbdHeader createIbdHeader = new CreateIbdHeader();
-            Calendar calendar = Calendar.getInstance();
-            XMLGregorianCalendar date = new XMLGregorianCalendarImpl();
-            date.setYear(calendar.get(Calendar.YEAR));
-            date.setDay(calendar.get(Calendar.DATE));
-            date.setMonth(calendar.get(Calendar.MONTH));
-            createIbdHeader.setDeliveDate(date);
             List<CreateIbdDetail> details = new ArrayList<CreateIbdDetail>();
-            for(ReceiveDetail receiveDetail : receiveDetails){
-                CreateIbdDetail detail = new CreateIbdDetail();
-                detail.setPoNumber(receiveHeader.getOrderOtherId());
-                detail.setPoItme(receiveDetail.getDetailOtherId());
-                BigDecimal inboudQty =  receiveDetail.getInboundQty();
-                if(inboudQty.compareTo(BigDecimal.ZERO) <= 0){
-                    continue;
-                }
-                BigDecimal orderQty = receiveDetail.getOrderQty();
-                BigDecimal deliveQty = receiveHeader.getOrderType().equals(3) ? orderQty : inboudQty;
-                detail.setDeliveQty(deliveQty);
-                detail.setUnit(receiveDetail.getUnitName());
-                detail.setMaterial(receiveDetail.getSkuCode());
+//            for(ReceiveDetail receiveDetail : receiveDetails){
+//                CreateIbdDetail detail = new CreateIbdDetail();
+//                detail.setPoNumber(receiveHeader.getOrderOtherId());
+//                detail.setPoItme(receiveDetail.getDetailOtherId());
+//                BigDecimal inboudQty =  receiveDetail.getInboundQty();
+//                if(inboudQty.compareTo(BigDecimal.ZERO) <= 0){
+//                    continue;
+//                }
+//                BigDecimal orderQty = receiveDetail.getOrderQty();
+//                BigDecimal deliveQty = receiveHeader.getOrderType().equals(3) ? orderQty : inboudQty;
+//                detail.setDeliveQty(deliveQty);
+//                detail.setUnit(receiveDetail.getUnitName());
+//                detail.setMaterial(receiveDetail.getSkuCode());
+//
+//                details.add(detail);
+//            }
+            CreateIbdDetail detail = new CreateIbdDetail();
+            detail.setDeliveQty(new BigDecimal(100));
+            detail.setPoItme("10");
+            detail.setPoNumber("4500027448");
+            detail.setUnit("EA");
+            detail.setMaterial("000000000000110978");
+            details.add(detail);
 
-                details.add(detail);
-            }
+            CreateIbdDetail detail1 = new CreateIbdDetail();
+            detail1.setDeliveQty(new BigDecimal(200));
+            detail1.setPoItme("20");
+            detail1.setPoNumber("4500027448");
+            detail1.setUnit("EA");
+            detail1.setMaterial("000000000000110809");
+            details.add(detail1);
             createIbdHeader.setItems(details);
 
             if(receiveHeader.getOwnerUid() == 1){
                 //dataBackService.wmDataBackByPost(ibdBackRequest, IntegrationConstan.URL_IBD, SysLogConstant.LOG_TYPE_WUMART_IBD);
                 wuMartSap.ibd2Sap(createIbdHeader);
+                //wuMart.sendIbd(createIbdHeader);
 
             }else{
-                dataBackService.erpDataBack(createIbdHeader);
+                //dataBackService.erpDataBack(createIbdHeader);
             }
 
 

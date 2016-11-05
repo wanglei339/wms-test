@@ -161,15 +161,6 @@ public class WaveRestService implements IWaveRestService {
 
                 // TODO: 2016/11/3 回传WMSAP 组装信息
                 CreateObdHeader createObdHeader = new CreateObdHeader();
-                GregorianCalendar cal = new GregorianCalendar();
-                cal.setTime(new Date());
-                XMLGregorianCalendar gcTime = null;
-                try {
-                    gcTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
-                } catch (Exception e) {
-                    throw new BizCheckedException("2900006");
-                }
-                createObdHeader.setDueDate(gcTime);
 
                 List<CreateObdDetail> details = new ArrayList<CreateObdDetail>();
                 for (ObdDetail obdDetail : obdDetails){

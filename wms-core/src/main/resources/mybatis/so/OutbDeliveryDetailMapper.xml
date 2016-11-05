@@ -85,6 +85,13 @@
 		limit #{start},#{limit}
 		</if>
 	</select>
+	<select id="getOutbDeliveryDetailListById" parameterType="java.util.List" resultMap="outbDeliveryDetailResultMap">
+		select * from OUTB_DELIVERY_DETAIL
+		where
+		<foreach collection="list" item="item" index="index" separator=" or" >
+			DELIVERY_ID = #{item}
+		</foreach>
+	</select>
   
 	<sql id="queryCondition">
 		<where>

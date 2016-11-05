@@ -16,6 +16,7 @@ import com.lsh.wms.integration.wumart.ibd.ObjectFactory;
 import com.lsh.wms.integration.wumart.obd.*;
 import com.lsh.wms.model.system.SysLog;
 import com.lsh.wms.model.system.SysMsg;
+import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -48,13 +50,18 @@ public class WuMartSap implements IWuMartSap{
     private SysMsgService sysMsgService;
 
     public String ibd2Sap(CreateIbdHeader createIbdHeader){
-        XMLGregorianCalendar deliveDate = createIbdHeader.getDeliveDate();
+
+        Calendar calendar = Calendar.getInstance();
+        XMLGregorianCalendar date = new XMLGregorianCalendarImpl();
+        date.setYear(calendar.get(Calendar.YEAR));
+        date.setDay(calendar.get(Calendar.DATE));
+        date.setMonth(calendar.get(Calendar.MONTH));
         List<CreateIbdDetail> details = createIbdHeader.getItems();
 
         ObjectFactory factory = new ObjectFactory();
         //ibdHeader
         BbpInbdL header = factory.createBbpInbdL();
-        header.setDelivDate(deliveDate);
+        header.setDelivDate(date);
 
         //items
         TableOfBbpInbdD items = factory.createTableOfBbpInbdD();
@@ -106,7 +113,11 @@ public class WuMartSap implements IWuMartSap{
     }
 
     public String obd2Sap(CreateObdHeader createObdHeader){
-        XMLGregorianCalendar dueDate = createObdHeader.getDueDate();
+        Calendar calendar = Calendar.getInstance();
+        XMLGregorianCalendar date = new XMLGregorianCalendarImpl();
+        date.setYear(calendar.get(Calendar.YEAR));
+        date.setDay(calendar.get(Calendar.DATE));
+        date.setMonth(calendar.get(Calendar.MONTH));
         List<CreateObdDetail> details = createObdHeader.getItems();
 
         com.lsh.wms.integration.wumart.obd.ObjectFactory factory = new com.lsh.wms.integration.wumart.obd.ObjectFactory();
@@ -156,14 +167,14 @@ public class WuMartSap implements IWuMartSap{
         logger.info("入口参数: createdItems :" + JSON.toJSONString(createdItems)+
                     " debugFlg : " + JSON.toJSONString(debugFlg)+
                     " deliveries : " + JSON.toJSONString(deliveries) +
-                    " dueDate : " + JSON.toJSONString(dueDate) +
+                    " dueDate : " + JSON.toJSONString(date) +
                     " _return : " + JSON.toJSONString(_return) +
                     " stockTransItems :"+JSON.toJSONString(stockTransItems));
-        TableOfBapiret2 newReturn = zbinding.zBapiOutbCreateObd(createdItems,debugFlg,deliveries,dueDate,extensionIn,extensionOut,noDequeue,_return,serialNumbers,shipPoint,stockTransItems,delivery,numDeliveries);
+        TableOfBapiret2 newReturn = zbinding.zBapiOutbCreateObd(createdItems,debugFlg,deliveries,date,extensionIn,extensionOut,noDequeue,_return,serialNumbers,shipPoint,stockTransItems,delivery,numDeliveries);
         logger.info("入口参数: createdItems :" + JSON.toJSONString(createdItems)+
                 " debugFlg : " + JSON.toJSONString(debugFlg)+
                 " deliveries : " + JSON.toJSONString(deliveries) +
-                " dueDate : " + JSON.toJSONString(dueDate) +
+                " dueDate : " + JSON.toJSONString(date) +
                 " _return : " + JSON.toJSONString(_return) +
                 " stockTransItems :"+JSON.toJSONString(stockTransItems));
         String ref = com.alibaba.fastjson.JSON.toJSONString(newReturn.getItem());

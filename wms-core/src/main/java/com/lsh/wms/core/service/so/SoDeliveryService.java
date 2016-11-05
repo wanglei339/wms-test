@@ -122,6 +122,15 @@ public class SoDeliveryService {
     }
 
     /**
+     * 根据发货单ID列表获取
+     * @param deliveryIdList
+     * @return
+     */
+    public List<OutbDeliveryDetail> getOutbDeliveryDetailList(List<Long> deliveryIdList){
+        return outbDeliveryDetailDao.getOutbDeliveryDetailListById(deliveryIdList);
+    }
+
+    /**
      * 自定义参数获取OutbDeliveryHeader
      * @param params
      * @return

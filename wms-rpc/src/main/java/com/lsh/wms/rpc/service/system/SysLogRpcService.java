@@ -64,20 +64,16 @@ public class SysLogRpcService implements ISysLogRpcService{
 
         //Object request = BeanMapTransUtils.map2Bean(map, Object.class);
 
-        JSONObject obj = new JSONObject().fromObject(json);
-        Object request = null;
         SysLog syslog = sysLogService.getSysLogById(logId);
         if(syslog.getTargetSystem() == SysLogConstant.LOG_TARGET_WUMART){
             // TODO: 2016/10/24 根据type来确定回传的url 先加了ibd obd 还需要报损 报溢
             String url;
             if(syslog.getLogType() == SysLogConstant.LOG_TYPE_WUMART_IBD){
-                request = JSONObject.toBean(obj,IbdBackRequest.class);
                 url = IntegrationConstan.URL_IBD;
             }else{
-                request = JSONObject.toBean(obj,ObdBackRequest.class);
                 url = IntegrationConstan.URL_OBD;
             }
-            dataBackService.wmDataBackByPost(request,url,syslog.getLogType());
+            dataBackService.wmDataBackByPost(json,url,syslog.getLogType());
         }
 
     }
