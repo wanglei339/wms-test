@@ -399,7 +399,7 @@ public class TuRpcService implements ITuRpcService {
             mergedContainerId = qcInfos.get(0).getMergedContainerId();  //没合板,托盘码和板子码,qc后两者相同
         } else { //大店也是组盘完毕就能装车
             Map<String, Object> qcMapQuery = new HashMap<String, Object>();
-            qcMapQuery.put("mergedContainerId", containerId);
+            qcMapQuery.put("containerId", containerId);
             qcMapQuery.put("type", TaskConstant.TYPE_QC);
             qcMapQuery.put("status", TaskConstant.Done);
             List<TaskInfo> qcInfos = baseTaskService.getTaskInfoList(qcMapQuery);
@@ -418,7 +418,7 @@ public class TuRpcService implements ITuRpcService {
         } else {
             waveDetails = waveService.getWaveDetailsByMergedContainerId(mergedContainerId);   //已经合板
         }
-        //一个板上的是一个门店的
+        //一个板上的是一个门店的,只用来取店名字
         Long orderId = waveDetails.get(0).getOrderId();
         ObdHeader obdHeader = iSoRpcService.getOutbSoHeaderDetailByOrderId(orderId);
         if (null == obdHeader) {
@@ -477,7 +477,7 @@ public class TuRpcService implements ITuRpcService {
         }
         result.put("storeId", storeId);
         result.put("isLoaded", isLoaded);
-        result.put("containerId", mergedContainerId);
+        result.put("containerId", mergedContainerId);   //板子码
         result.put("isRest", false); //非余货
         result.put("isExpensive", false);    //非贵品
         return result;
