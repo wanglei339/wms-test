@@ -81,12 +81,12 @@ public class QCRestService implements IQCRestService {
                 ObjUtils.bean2bean(info, response);
                 //余货
                 if (info.getFinishTime() < DateUtils.getTodayBeginSeconds()) {
-                    response.setRest(true);
+                    response.setIsRest(true);
                 }else {
-                    response.setRest(false);
+                    response.setIsRest(false);
                 }
                 //todo 贵品
-                response.setExpensive(false);
+                response.setIsExpensive(false);
                 groupRestResponses.add(response);
             }
         }
