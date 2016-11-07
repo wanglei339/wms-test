@@ -17,7 +17,7 @@ import javax.xml.ws.WebServiceFeature;
  * Generated source version: 2.2
  * 
  */
-@WebServiceClient(name = "Z_DELIVERY_OUTBOUND_UPDATE", targetNamespace = "urn:sap-com:document:sap:rfc:functions", wsdlLocation = "file:/Users/lixin-mac/Documents/obdaccount.wsdl")
+@WebServiceClient(name = "Z_DELIVERY_OUTBOUND_UPDATE", targetNamespace = "urn:sap-com:document:sap:rfc:functions", wsdlLocation = "file:/home/work/wumart/obdaccount.wsdl")
 public class ZDELIVERYOUTBOUNDUPDATE_Service
     extends Service
 {
@@ -30,7 +30,7 @@ public class ZDELIVERYOUTBOUNDUPDATE_Service
         URL url = null;
         WebServiceException e = null;
         try {
-            url = new URL("file:/Users/lixin-mac/Documents/obdaccount.wsdl");
+            url = new URL("file:/home/work/wumart/obdaccount.wsdl");
         } catch (MalformedURLException ex) {
             e = new WebServiceException(ex);
         }

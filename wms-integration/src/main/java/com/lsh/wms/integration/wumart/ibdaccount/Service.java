@@ -16,7 +16,7 @@ import javax.xml.ws.WebServiceFeature;
  * Generated source version: 2.2
  * 
  */
-@WebServiceClient(name = "service", targetNamespace = "urn:sap-com:document:sap:rfc:functions", wsdlLocation = "file:/Users/lixin-mac/Documents/ibdaccount.wsdl")
+@WebServiceClient(name = "service", targetNamespace = "urn:sap-com:document:sap:rfc:functions", wsdlLocation = "file:/home/work/wumart/ibdaccount.wsdl")
 public class Service
     extends javax.xml.ws.Service
 {
@@ -29,7 +29,7 @@ public class Service
         URL url = null;
         WebServiceException e = null;
         try {
-            url = new URL("file:/Users/lixin-mac/Documents/ibdaccount.wsdl");
+            url = new URL("file:/home/work/wumart/ibdaccount.wsdl");
         } catch (MalformedURLException ex) {
             e = new WebServiceException(ex);
         }
