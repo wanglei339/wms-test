@@ -612,6 +612,10 @@ public class TuRpcService implements ITuRpcService {
             createIbdDetail.setDeliveQty(PackUtil.EAQty2UomQty(oneDetail.getQcQty(), ibdDetail.getPackName()));
             //行项目号
             createIbdDetail.setPoItme(ibdDetail.getDetailOtherId());
+
+            createIbdDetail.setVendMat(ibdHeader.getOrderId().toString());
+
+            createIbdDetail.setOrderType(ibdHeader.getOrderType());
             createIbdDetailList.add(createIbdDetail);
         }
         CreateObdHeader createObdHeader = new CreateObdHeader();
