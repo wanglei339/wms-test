@@ -3,6 +3,7 @@ package com.lsh.wms.service.inhouse;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.inhouse.IProcurementProveiderRpcService;
 import com.lsh.wms.api.service.inhouse.IProcurementRpcService;
@@ -67,13 +68,15 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
     @Autowired
     private BaseTaskService baseTaskService;
-
-    public boolean addProcurementPlan(StockTransferPlan plan) throws BizCheckedException {
-        if(!this.checkPlan(plan)){
+    //生成补货任务
+    public boolean addProcurementPlan(StockTransferPlan plan){
+        //系统自动创建的任务,无需进行任务检查,不可抛异常
+        /*if(!this.checkPlan(plan)){
             logger.error("error plan ：" + plan.toString());
             return false;
-        }
-        if (baseTaskService.checkTaskByToLocation(plan.getToLocationId(), TaskConstant.TYPE_PROCUREMENT)) {
+        }*/
+        //移动至checkplan中完成
+        /*if (baseTaskService.checkTaskByToLocation(plan.getToLocationId(), TaskConstant.TYPE_PROCUREMENT)) {
             throw new BizCheckedException("2550015");
         }
         StockQuantCondition condition = new StockQuantCondition();
@@ -85,41 +88,45 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         List<StockQuant> quants = stockQuantService.getQuantList(condition);
         if(quants==null || quants.size()==0){
             throw new BizCheckedException("2550008");
-        }
+        }*/
+        //移动至checkplan中完成并将方法改为checkAndFillPlan
+       // core.fillTransferPlan(plan);
 
-        core.fillTransferPlan(plan);
-
-        if ( plan.getQty().multiply(quants.get(0).getPackUnit()).compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
+        //移动至checkAndFillPlan
+       /* if ( plan.getQty().multiply(quants.get(0).getPackUnit()).compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
             throw new BizCheckedException("2550008");
         }
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
         Long containerId = quantList.get(0).getContainerId();
         if (plan.getSubType().equals(2L)) {
             containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
-        }
+        }*/
 
 
+        TaskInfo taskInfo = new TaskInfo();
         ObjUtils.bean2bean(plan, taskInfo);
         taskInfo.setTaskName("补货任务[ " + taskInfo.getFromLocationId() + " => " + taskInfo.getToLocationId() + "]");
         taskInfo.setType(TaskConstant.TYPE_PROCUREMENT);
-        taskInfo.setContainerId(containerId);
+        taskInfo.setContainerId(plan.getContainerId());
         taskInfo.setQtyDone(taskInfo.getQty());
         taskInfo.setStep(1);
+
+        TaskEntry taskEntry = new TaskEntry();
         taskEntry.setTaskInfo(taskInfo);
         taskRpcService.create(TaskConstant.TYPE_PROCUREMENT, taskEntry);
         return true;
     }
 
     public boolean updateProcurementPlan(StockTransferPlan plan)  throws BizCheckedException {
-        TaskEntry entry =  taskRpcService.getTaskEntryById(plan.getTaskId());
+        /*TaskEntry entry =  taskRpcService.getTaskEntryById(plan.getTaskId());
         if(entry == null){
             throw new BizCheckedException("3040001");
         }
         TaskInfo taskInfo = entry.getTaskInfo();
         if (taskInfo.getToLocationId().compareTo(plan.getToLocationId())!=0 && baseTaskService.checkTaskByToLocation(plan.getToLocationId(), TaskConstant.TYPE_PROCUREMENT)){
             throw new BizCheckedException("2550015");
-        }
-        StockQuantCondition condition = new StockQuantCondition();
+        }*/
+   /*     StockQuantCondition condition = new StockQuantCondition();
         condition.setLocationId(plan.getFromLocationId());
         condition.setItemId(plan.getItemId());
         BigDecimal total = stockQuantService.getQty(condition);
@@ -134,52 +141,63 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         if (plan.getSubType().equals(2L)) {
             containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
         }
-
+*/
+        TaskInfo taskInfo = new TaskInfo();
         ObjUtils.bean2bean(plan, taskInfo);
         taskInfo.setTaskName("补货任务[ " + taskInfo.getFromLocationId() + " => " + taskInfo.getToLocationId() + "]");
         taskInfo.setType(TaskConstant.TYPE_PROCUREMENT);
-        taskInfo.setContainerId(containerId);
+        taskInfo.setContainerId(plan.getContainerId());
         taskInfo.setStep(1);
-        entry.setTaskInfo(taskInfo);
-        taskRpcService.update(TaskConstant.TYPE_PROCUREMENT, entry);
+        TaskEntry taskEntry = new TaskEntry();
+        taskEntry.setTaskInfo(taskInfo);
+        taskRpcService.update(TaskConstant.TYPE_PROCUREMENT, taskEntry);
         return true;
     }
-
+    //创建货架补货任务
     private void createShelfProcurement() throws BizCheckedException {
+        //获取所有货架拣货位的位置信息
         List<BaseinfoLocation> shelfLocationList = locationService.getLocationsByType(LocationConstant.SHELF_PICKING_BIN);
+        //获取所有货架的存储位
+        List<BaseinfoLocation> shelfList = locationService.getLocationsByType(LocationConstant.SHELF_STORE_BIN);
+
         for (BaseinfoLocation shelfCollectionBin : shelfLocationList) {
+            //获取该拣货位存放的商品ID,目前逻辑,一个拣货位只能对应一种商品
             List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationByLocationID(shelfCollectionBin.getLocationId());
+
             for (BaseinfoItemLocation itemLocation : itemLocationList) {
+                //判断商品是否需要补货
                 if (rpcService.needProcurement(itemLocation.getPickLocationid(), itemLocation.getItemId())) {
+                    //该位置当前是否有补货任务
                     if (baseTaskService.checkTaskByToLocation(itemLocation.getPickLocationid(), TaskConstant.TYPE_PROCUREMENT)) {
                         continue;
                     }
-                    // 找合适的quant
+                    /*
+                    *找该商品的存储位
+                     */
                     StockQuantCondition condition = new StockQuantCondition();
-                    List<BaseinfoLocation> shelfList = locationService.getLocationsByType(LocationConstant.SHELF_STORE_BIN);
-                    List<Long> shelfBinList = new ArrayList<Long>();
-                    for (BaseinfoLocation shelf : shelfList) {
-                        if (shelf.getIsLocked().compareTo(0)==0) {
-                            shelfBinList.add(shelf.getLocationId());
-                        }
-                    }
-                    condition.setLocationIdList(shelfBinList);
+                    condition.setLocationList(shelfList);
                     condition.setItemId(itemLocation.getItemId());
                     condition.setReserveTaskId(0L);
+                    //获取存该商品的存储位信息
                     List<StockQuant> quantList = stockQuantService.getQuantList(condition);
                     if (quantList.isEmpty()) {
                         logger.warn("ItemId:" + itemLocation.getItemId() + "缺货异常");
                         continue;
                     }
                     StockQuant quant = quantList.get(0);
+                    //获取存储位该商品库存量
+                    BigDecimal total = stockQuantService.getQty(condition);
                     // 创建任务
                     StockTransferPlan plan = new StockTransferPlan();
                     plan.setPriority(1L);
+                    plan.setContainerId(quant.getContainerId());
                     plan.setItemId(itemLocation.getItemId());
                     plan.setFromLocationId(quant.getLocationId());
                     plan.setToLocationId(itemLocation.getPickLocationid());
                     plan.setPackName("pallet");
-                    plan.setSubType(1L);
+                    plan.setPackUnit(quant.getPackUnit());
+                    plan.setSubType(1L);//整托
+                    plan.setQty(total.divide(quant.getPackUnit(), 0, BigDecimal.ROUND_DOWN));
                     plan.setUomQty(BigDecimal.ONE);
                     this.addProcurementPlan(plan);
                 }
@@ -221,26 +239,25 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         taskRpcService.assign(taskId, staffId);
         return taskId;
     }
-
+    //创建阁楼补货任务
     public void createLoftProcurement() throws BizCheckedException {
+        //获取所有阁楼拣货位的位置信息
         List<BaseinfoLocation> loftPickLocationList = locationService.getLocationsByType(LocationConstant.LOFT_PICKING_BIN);
+        //获取所有阁楼存货位的信息
+        List<BaseinfoLocation> loftList = locationService.getLocationsByType(LocationConstant.LOFT_STORE_BIN);
+
         for (BaseinfoLocation loftPick : loftPickLocationList) {
             List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationByLocationID(loftPick.getLocationId());
             for (BaseinfoItemLocation itemLocation : itemLocationList) {
+                //判断是否需要补货
                 if (rpcService.needProcurement(itemLocation.getPickLocationid(),itemLocation.getItemId())) {
+                    //是否有未完成的补货任务
                     if (baseTaskService.checkTaskByToLocation(itemLocation.getPickLocationid(), TaskConstant.TYPE_PROCUREMENT)) {
                         continue;
                     }
                     // 找合适的quant
                     StockQuantCondition condition = new StockQuantCondition();
-                    List<BaseinfoLocation> loftList = locationService.getLocationsByType(LocationConstant.LOFT_STORE_BIN);
-                    List<Long> loftBinList = new ArrayList<Long>();
-                    for (BaseinfoLocation loft : loftList ) {
-                        if(loft.getIsLocked().compareTo(0)==0) {
-                            loftBinList.add(loft.getLocationId());
-                        }
-                    }
-                    condition.setLocationIdList(loftBinList);
+                    condition.setLocationList(loftList);
                     condition.setItemId(itemLocation.getItemId());
                     condition.setReserveTaskId(0L);
                     List<StockQuant> quantList = stockQuantService.getQuantList(condition);
@@ -306,6 +323,109 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         }
 
         return false;
+    }
+    //检查并重新封装补货任务
+    public boolean checkAndFillPlan(StockTransferPlan plan) throws BizCheckedException {
+        //补出存储位ID
+        Long fromLocationId = plan.getFromLocationId();
+        //补入拣货位ID
+        Long toLocationId = plan.getToLocationId();
+        //补货商品
+        Long itemId = plan.getItemId();
+        //任务ID
+        Long taskId = plan.getTaskId();
+
+        /*
+         *参数验证
+         */
+        //
+        if(fromLocationId == null || toLocationId == null || itemId == null){
+            return false;
+        }
+
+        if(taskId != null ){
+            //更新任务
+            TaskEntry entry =  taskRpcService.getTaskEntryById(plan.getTaskId());
+            if(entry == null){
+                //任务不存在
+                throw new BizCheckedException("3040001");
+            }
+            TaskInfo taskInfo = entry.getTaskInfo();
+            if(taskInfo == null || !TaskConstant.Draft.equals(taskInfo.getStatus())){
+                //该任务非新建状态,不可修改
+                throw new BizCheckedException("2550033");
+            }
+            //拣货位是否修改,新拣货位是否有未完成的拣货任务
+            if (taskInfo.getToLocationId().compareTo(plan.getToLocationId())!=0 && baseTaskService.checkTaskByToLocation(plan.getToLocationId(), TaskConstant.TYPE_PROCUREMENT)){
+                throw new BizCheckedException("2550015");
+            }
+        }else{
+            //新建任务
+            //拣货位是否有未完成的拣货任务
+            if (baseTaskService.checkTaskByToLocation(toLocationId, TaskConstant.TYPE_PROCUREMENT)) {
+                throw new BizCheckedException("2550015");
+            }
+        }
+
+        BaseinfoLocation fromLocation = locationRpcService.getLocation(fromLocationId);
+        BaseinfoLocation toLocation = locationRpcService.getLocation(toLocationId);
+        if(fromLocation == null || toLocation == null ){
+            return false;
+        }
+        //阁楼捡货位只能在阁楼捡货位取货
+        boolean loftCheck = fromLocation.getType().equals(LocationConstant.LOFT_STORE_BIN) && toLocation.getType().equals(LocationConstant.LOFT_PICKING_BIN);
+        //货架捡货位只能在货架存货位取货
+        boolean shelfCheck = fromLocation.getType().equals(LocationConstant.SHELF_STORE_BIN) && toLocation.getType().equals(LocationConstant.SHELF_PICKING_BIN);
+        if(!(loftCheck || shelfCheck)){
+            return false;
+        }
+
+        //获取拣货位对应的货品
+        List<BaseinfoItemLocation> itemLocations = itemRpcService.getItemLocationByLocationID(toLocationId);
+        if(itemLocations == null || itemLocations.size() != 1){
+            throw new BizCheckedException("2060012");
+        }
+        //拣货位商品是否对应
+        if(itemLocations.get(0).getItemId().compareTo(itemId)!=0){
+            throw new BizCheckedException("2060012");
+        }
+
+
+        StockQuantCondition condition = new StockQuantCondition();
+        condition.setLocationId(fromLocationId);
+        condition.setItemId(itemId);
+
+        /*
+         *验证库存是否满足拣货要求
+         */
+        List<StockQuant> quants = stockQuantService.getQuantList(condition);
+        if(quants==null || quants.size()==0){
+            throw new BizCheckedException("2550008");
+        }
+        //获取存储位该商品库存量
+        BigDecimal total = stockQuantService.getQty(condition);
+        StockQuant quant = quants.get(0);
+        if ( plan.getUomQty().multiply(quant.getPackUnit()).compareTo(total) > 0) {
+            // 移库要求的数量超出实际库存数量
+            throw new BizCheckedException("2550008");
+        }
+
+        //验证完成后补充封装任务数据
+        Long containerId = quant.getContainerId();
+        if (plan.getSubType().equals(2L)) {
+            containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
+        }
+        plan.setContainerId(containerId);
+        plan.setPackUnit(quant.getPackUnit());
+        plan.setPackName(quant.getPackName());
+        plan.setQty(plan.getUomQty());
+        if (plan.getSubType().compareTo(1L) == 0) {
+            plan.setQty(total.divide(quant.getPackUnit(), 0, BigDecimal.ROUND_DOWN));
+        } else if (plan.getSubType().compareTo(3L) == 0) {
+            plan.setPackName("EA");
+        }
+
+        return true;
     }
     public Set<Long> getOutBoundLocation(Long itemId,Long locationId) {
         StockQuantCondition condition = new StockQuantCondition();

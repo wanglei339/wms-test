@@ -51,8 +51,8 @@ public class DataBackService implements IDataBackService {
     @Autowired
     private SysLogService sysLogService;
 
-    public String wmDataBackByPost(Object request, String url , Integer type){
-        String jsonCreate = this.initJson(request);
+    public String wmDataBackByPost(String request, String url , Integer type){
+        String jsonCreate = request;
 
 
         //获取redis中缓存的token
@@ -103,53 +103,53 @@ public class DataBackService implements IDataBackService {
 
     }
 
-    public String ofcDataBackByPost(Object request, String url){
-        String jsonPoCreate = this.initJson(request);
-
-        logger.info("order CreateOfcOrder json : " + jsonPoCreate);
-        String jsonStr = HttpUtil.doPost(url,jsonPoCreate);
-
-        logger.info("order jsonStr :" + jsonStr +"~~~~");
-        OrderResponse orderResponse = JSON.parseObject(jsonStr,OrderResponse.class);
-        logger.info("orderResponse = " + JSON.toJSONString(orderResponse));
-        return JSON.toJSONString(orderResponse);
-
-    }
-
-    public Boolean erpDataBack(CreateIbdHeader createIbdHeader){
-        try {
-            final XmlRpcClient models = new XmlRpcClient() {{
-                setConfig(new XmlRpcClientConfigImpl() {{
-                    setServerURL(new URL(String.format("%s/xmlrpc/2/object", url)));
-                }});
-            }};
-            //原订单ID
-            Integer orderOtherId = Integer.valueOf(createIbdHeader.getItems().get(0).getPoNumber());
-            List<HashMap<String,Object>> list = new ArrayList<HashMap<String, Object>>();
-            for(CreateIbdDetail item : createIbdHeader.getItems()){
-                HashMap<String,Object> map = new HashMap<String, Object>();
-                map.put("product_id",Integer.valueOf(item.getMaterial()));
-                map.put("qty_done",item.getDeliveQty().intValue());
-                list.add(map);
-                
-            }
-            logger.info("~~~~~~~list : " + list + " ~~~~~~~~~~~");
-            final Boolean ret1  = (Boolean)models.execute("execute_kw", Arrays.asList(
-                    db, uid, password,
-                    "purchase.order", "lsh_action_wms_receive",
-                    Arrays.asList(Arrays.asList(orderOtherId),list)
-
-            ));
-            //// TODO: 16/9/19 传入的参数
-            logger.info("~~~~~~~~ret1 :" + ret1 + "~~~~~~~~~~~~~");
-
-
-        }
-        catch (Exception e) {
-            logger.info(e.getCause().getMessage());
-        }
-        return false;
-    }
+//    public String ofcDataBackByPost(Object request, String url){
+//        String jsonPoCreate = this.initJson(request);
+//
+//        logger.info("order CreateOfcOrder json : " + jsonPoCreate);
+//        String jsonStr = HttpUtil.doPost(url,jsonPoCreate);
+//
+//        logger.info("order jsonStr :" + jsonStr +"~~~~");
+//        OrderResponse orderResponse = JSON.parseObject(jsonStr,OrderResponse.class);
+//        logger.info("orderResponse = " + JSON.toJSONString(orderResponse));
+//        return JSON.toJSONString(orderResponse);
+//
+//    }
+//
+//    public Boolean erpDataBack(CreateIbdHeader createIbdHeader){
+//        try {
+//            final XmlRpcClient models = new XmlRpcClient() {{
+//                setConfig(new XmlRpcClientConfigImpl() {{
+//                    setServerURL(new URL(String.format("%s/xmlrpc/2/object", url)));
+//                }});
+//            }};
+//            //原订单ID
+//            Integer orderOtherId = Integer.valueOf(createIbdHeader.getItems().get(0).getPoNumber());
+//            List<HashMap<String,Object>> list = new ArrayList<HashMap<String, Object>>();
+//            for(CreateIbdDetail item : createIbdHeader.getItems()){
+//                HashMap<String,Object> map = new HashMap<String, Object>();
+//                map.put("product_id",Integer.valueOf(item.getMaterial()));
+//                map.put("qty_done",item.getDeliveQty().intValue());
+//                list.add(map);
+//
+//            }
+//            logger.info("~~~~~~~list : " + list + " ~~~~~~~~~~~");
+//            final Boolean ret1  = (Boolean)models.execute("execute_kw", Arrays.asList(
+//                    db, uid, password,
+//                    "purchase.order", "lsh_action_wms_receive",
+//                    Arrays.asList(Arrays.asList(orderOtherId),list)
+//
+//            ));
+//            //// TODO: 16/9/19 传入的参数
+//            logger.info("~~~~~~~~ret1 :" + ret1 + "~~~~~~~~~~~~~");
+//
+//
+//        }
+//        catch (Exception e) {
+//            logger.info(e.getCause().getMessage());
+//        }
+//        return false;
+//    }
 
 
 

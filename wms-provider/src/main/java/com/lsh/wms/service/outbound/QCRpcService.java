@@ -24,10 +24,7 @@ import com.lsh.wms.model.wave.WaveDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by zengwenjun on 16/7/30.
@@ -95,8 +92,8 @@ public class QCRpcService implements IQCRpcService {
         List<BaseinfoStore> stores = storeService.getOpenedStoreList(mapQuery);
         List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
         for (BaseinfoStore store : stores) {
-            Integer totalGroupContainers = 0; // 该门店未装车总托盘数
-            Integer restGroupContainers = 0; // 该门店未装车余货总托盘
+            BigDecimal totalBoxes = new BigDecimal("0.0000"); // 该门店未装车总箱子
+            BigDecimal restBoxes = new BigDecimal("0.0000"); // 该门店未装车余货箱子
             String storeNo = store.getStoreNo();
             List<Long> countedContainerIds = new ArrayList<Long>();
             List<TaskInfo> qcDoneInfos = this.getQcDoneTaskInfoByStoreNo(storeNo);
@@ -106,10 +103,10 @@ public class QCRpcService implements IQCRpcService {
                     if (null != tuDetail) {     //查到tudetail就是撞车了
                         continue;
                     }
-                    totalGroupContainers++;
+                    totalBoxes = totalBoxes.add(info.getTaskPackQty()); //总箱数
                     //是否余货
                     if (info.getFinishTime() < DateUtils.getTodayBeginSeconds()) {
-                        restGroupContainers++;
+                        restBoxes = restBoxes.add(info.getTaskPackQty());
                     }
                 }
             }
@@ -117,8 +114,8 @@ public class QCRpcService implements IQCRpcService {
             result.put("storeNo", store.getStoreNo());
             result.put("storeName", store.getStoreName());
             result.put("address", store.getAddress());
-            result.put("totalMergedContainers", totalGroupContainers);
-            result.put("restMergedContainers", restGroupContainers);
+            result.put("totalBoxes", totalBoxes);
+            result.put("restBoxes", restBoxes);
             results.add(result);
         }
         return results;
@@ -184,6 +181,7 @@ public class QCRpcService implements IQCRpcService {
 
     /**
      * 通过门店号获取Taskinfo聚类qc完的托盘
+     * 考虑到以后taskinfo的托盘可能复用,一个托盘码可能有多个完成的qc任务
      *
      * @param storeNo
      * @return
@@ -191,17 +189,38 @@ public class QCRpcService implements IQCRpcService {
     public List<TaskInfo> getQcDoneTaskInfoByStoreNo(String storeNo) {
         List<BaseinfoLocation> locations = locationService.getCollectionByStoreNo(storeNo); // 门店对应的集货道
         List<TaskInfo> qcDoneInfos = new ArrayList<TaskInfo>();
+        //先去集货位拿到所有的托盘的wave_detailList
+        List<WaveDetail> waveDetailList = new ArrayList<WaveDetail>();
         for (BaseinfoLocation location : locations) {
             List<StockQuant> quants = stockQuantService.getQuantsByLocationId(location.getLocationId());
             for (StockQuant quant : quants) {
                 Long containerId = quant.getContainerId();
+                List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(containerId);
+                if (null == waveDetails || waveDetails.size() < 1) {
+                    continue;
+                }
+                waveDetailList.addAll(waveDetails);
+            }
+        }
+        //拿qctaskId 没有qc不会写入wave
+        HashSet<Long> qcTaskIds = new HashSet<Long>();
+        if (waveDetailList.size() > 0) {
+            for (WaveDetail detail : waveDetailList) {
+                if (!detail.getQcTaskId().equals(0L)) {  //有qc任务
+                    qcTaskIds.add(detail.getQcTaskId());
+                }
+            }
+        }
+        //过滤完成的qc任务
+        if (qcTaskIds.size() > 0) {
+            for (Long qcTaskId : qcTaskIds) {
                 Map<String, Object> params = new HashMap<String, Object>();
-                params.put("containerId", containerId);
+                params.put("taskId", qcTaskId);
                 params.put("type", TaskConstant.TYPE_QC);
                 params.put("status", TaskConstant.Done);
-                List<TaskInfo> qcInfos = baseTaskService.getTaskInfoList(params);
-                if (null != qcInfos && qcInfos.size() > 0) {
-                    qcDoneInfos.add(qcInfos.get(0));
+                List<TaskInfo> taskInfos = baseTaskService.getTaskInfoList(params);
+                if (null != taskInfos && taskInfos.size() > 0) {
+                    qcDoneInfos.add(taskInfos.get(0));
                 }
             }
         }

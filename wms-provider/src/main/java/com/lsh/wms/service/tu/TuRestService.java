@@ -203,32 +203,17 @@ public class TuRestService implements ITuRestService {
     }
 
     /**
-     * 关闭尾货开关
-     *
-     * @param tuId
+     * 改变rf的开关
      * @return
      * @throws BizCheckedException
      */
-    @GET
-    @Path("closeRfRestSwitch")
-    public String closeRfRestSwitch(@QueryParam("tuId") String tuId) throws BizCheckedException {
-        iTuRpcService.closeRfRestSwitch(tuId);
-        return JsonUtils.SUCCESS();
+    @POST
+    @Path("changeRfRestSwitch")
+    public String changeRfRestSwitch() throws BizCheckedException {
+        Map<String, Object> mapRequest = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(iTuRpcService.changeRfRestSwitch(mapRequest));
     }
 
-    /**
-     * 开启rf尾货开关
-     *
-     * @param tuId
-     * @return
-     * @throws BizCheckedException
-     */
-    @GET
-    @Path("openRfRestSwitch")
-    public String openRfRestSwitch(@QueryParam("tuId") String tuId) throws BizCheckedException {
-        iTuRpcService.openRfRestSwitch(tuId);
-        return JsonUtils.SUCCESS();
-    }
 
     /**
      * 移除板子

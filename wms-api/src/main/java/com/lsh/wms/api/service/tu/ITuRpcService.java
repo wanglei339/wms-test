@@ -63,9 +63,7 @@ public interface ITuRpcService {
 
     TuHead receiveTuHead(Map<String, Object> mapRequest) throws BizCheckedException;
 
-    void closeRfRestSwitch(String tuId) throws BizCheckedException;
-
-    void openRfRestSwitch(String tuId) throws BizCheckedException;
+    TuHead changeRfRestSwitch(Map<String, Object> mapRequest) throws BizCheckedException;
 
     boolean moveItemToConsumeArea(List<WaveDetail> waveDetails) throws BizCheckedException;
 

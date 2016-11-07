@@ -44,18 +44,18 @@ public class QCTaskHandler extends AbsTaskHandler {
         TaskEntry pickEntry = iTaskRpcService.getTaskEntryById(taskId); //此处使用pick就是个代号,也代表其他QC前的任务
         //判断是直流QC任务,还是在库QC任务,现在只能是通过 前一个任务类型来判断
         Long containerId = pickEntry.getTaskInfo().getContainerId();
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("containerId", containerId);
-
-        List<TaskEntry> qcTaskEntry = iTaskRpcService.getTaskList(TaskConstant.TYPE_QC, mapQuery);
-        TaskInfo qcTaskinfo = null;
-        if (qcTaskEntry != null && qcTaskEntry.size() > 0) {
-            qcTaskinfo = qcTaskEntry.get(0).getTaskInfo();
+        //区wave_detail中找该托盘是否已存在QC(wave_detail中的托盘有生命周期,task中没有,可能托盘复用)
+        List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(containerId);
+        if (null == waveDetails || waveDetails.size() < 1) {
+            return;
         }
+        //同一托盘多商品,多收货任务,一个qc任务,之前生成的qc任务更新
+        Long preQcTaskId = waveDetails.get(0).getQcTaskId();
+        TaskInfo qcTaskinfo = iTaskRpcService.getTaskInfo(preQcTaskId);
         //如果存在 拣货任务和qc任务一对一, 对于收货后的qc按照商品维度,需要同一个托盘的话,更新就行了
         //是收货任务
         if (pickEntry.getTaskInfo().getType() == TaskConstant.TYPE_PO && qcTaskinfo != null) {
-            List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
+            List<WaveDetail> details = waveDetails;
             if (details.size() == 0) {
                 return;
             }
@@ -64,7 +64,7 @@ public class QCTaskHandler extends AbsTaskHandler {
             qcTaskinfo.setOrderId(details.get(0).getOrderId());
             qcTaskinfo.setBusinessMode(pickEntry.getTaskInfo().getBusinessMode());
             Set<Long> setItem = new HashSet<Long>();
-            for (WaveDetail detail : details) {  //又是一个坑,关于item的问题
+            for (WaveDetail detail : details) {
                 setItem.add(detail.getItemId());
             }
             qcTaskinfo.setBusinessMode(pickEntry.getTaskInfo().getBusinessMode());  //沿用上面的直流还是在库
@@ -78,7 +78,6 @@ public class QCTaskHandler extends AbsTaskHandler {
             //只更新,taskinfo并且waveDetai中的qcTaskId更新
             return;
         }
-
 
 
         List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
@@ -101,7 +100,7 @@ public class QCTaskHandler extends AbsTaskHandler {
         info.setWaveId(details.get(0).getWaveId());
         info.setPlanId(info.getPlanId());
         //如果收货任务的大店收货任务才生成QC,大店收货可以跳过QC,task_info的qc_skip置为1,大店收货收到集货道
-        if (pickEntry.getTaskInfo().getType() == TaskConstant.TYPE_PO ){
+        if (pickEntry.getTaskInfo().getType() == TaskConstant.TYPE_PO) {
             info.setQcSkip(TaskConstant.QC_SKIP);
         }
         TaskEntry taskEntry = new TaskEntry();

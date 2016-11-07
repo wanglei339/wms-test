@@ -7,6 +7,9 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.inhouse.IProcurementProviderRestService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.model.task.TaskEntry;
+import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +39,7 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
     @Path("add")
     public String addProcurementPlan(StockTransferPlan plan)  throws BizCheckedException {
         try{
-            if(!rpcService.checkPlan(plan)){
+            if(!rpcService.checkAndFillPlan(plan)){
                 return JsonUtils.TOKEN_ERROR("补货计划参数错误");
             }
              boolean isTrue = rpcService.addProcurementPlan(plan);
@@ -55,7 +58,7 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
     @Path("update")
     public String updateProcurementPlan(StockTransferPlan plan)  throws BizCheckedException {
         try{
-            if(!rpcService.checkPlan(plan)){
+            if(!rpcService.checkAndFillPlan(plan)){
                 return JsonUtils.TOKEN_ERROR("补货计划参数错误");
             }
             boolean isTrue = rpcService.updateProcurementPlan(plan);

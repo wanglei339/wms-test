@@ -323,6 +323,17 @@ public class TuRpcService implements ITuRpcService {
         return tuHead;
     }
 
+    public TuHead changeRfRestSwitch(Map<String, Object> mapRequest) throws BizCheckedException {
+        TuHead tuHead = tuService.getHeadByTuId(mapRequest.get("tuId").toString());
+        Integer rfSwitch = Integer.valueOf(mapRequest.get("rfSwitch").toString());
+        if (null == tuHead) {
+            throw new BizCheckedException("2990022");
+        }
+        tuHead.setRfSwitch(rfSwitch);
+        this.update(tuHead);
+        return tuHead;
+    }
+
     /**
      * 关闭尾货开关
      *
@@ -330,30 +341,6 @@ public class TuRpcService implements ITuRpcService {
      * @return
      * @throws BizCheckedException
      */
-    public void closeRfRestSwitch(String tuId) throws BizCheckedException {
-        TuHead tuHead = tuService.getHeadByTuId(tuId);
-        if (null == tuHead) {
-            throw new BizCheckedException("2990022");
-        }
-        tuHead.setRfSwitch(TuConstant.RF_CLOSE_REST);
-        this.update(tuHead);
-    }
-
-    /**
-     * 开启rf尾货开关
-     *
-     * @param tuId
-     * @return
-     * @throws BizCheckedException
-     */
-    public void openRfRestSwitch(String tuId) throws BizCheckedException {
-        TuHead tuHead = tuService.getHeadByTuId(tuId);
-        if (null == tuHead) {
-            throw new BizCheckedException("2990022");
-        }
-        tuHead.setRfSwitch(TuConstant.RF_OPEN_REST);
-        this.update(tuHead);
-    }
 
     /**
      * 移动板子库存到消费区
@@ -460,7 +447,7 @@ public class TuRpcService implements ITuRpcService {
         }
         BigDecimal allboxNum = new BigDecimal("0.00");
         Long turnoverBoxNum = new Long("0");
-        Set<Long> containerSet = new HashSet<Long>();
+        Set<Long> containerSet = new HashSet<Long>();   //可以是板子也可以是托盘
         for (TaskInfo taskinfo : taskInfos) {
             BigDecimal one = taskinfo.getTaskPackQty(); //总箱数
             turnoverBoxNum += taskinfo.getExt3();    //总周转周转箱
@@ -602,7 +589,7 @@ public class TuRpcService implements ITuRpcService {
             //销售单位
             createObdDetail.setSalesUnit(obdDetail.getPackName());
             //交货量 qc的ea/销售单位
-            createObdDetail.setDlvQty(PackUtil.EAQty2UomQty(oneDetail.getQcQty(), obdDetail.getPackName()));
+            createObdDetail.setDlvQty(PackUtil.EAQty2UomQty(oneDetail.getQcQty(), obdDetail.getPackName()).setScale(2, BigDecimal.ROUND_HALF_UP));
             //sto obd detail detail_other_id
             createObdDetail.setRefItem(obdDetail.getDetailOtherId());
             createObdDetailList.add(createObdDetail);
@@ -622,24 +609,18 @@ public class TuRpcService implements ITuRpcService {
             //采购订单的计量单位
             createIbdDetail.setUnit(ibdDetail.getPackName());
             //实际出库数量
-            createIbdDetail.setDeliveQty(PackUtil.EAQty2UomQty(oneDetail.getQcQty(), ibdDetail.getPackName()));
+            createIbdDetail.setDeliveQty(PackUtil.EAQty2UomQty(oneDetail.getQcQty(), ibdDetail.getPackName()).setScale(2, BigDecimal.ROUND_HALF_UP));
             //行项目号
             createIbdDetail.setPoItme(ibdDetail.getDetailOtherId());
+
+            createIbdDetail.setVendMat(ibdHeader.getOrderId().toString());
+
+            createIbdDetail.setOrderType(ibdHeader.getOrderType());
             createIbdDetailList.add(createIbdDetail);
         }
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTime(new Date());
-        XMLGregorianCalendar gcTime = null;
-        try {
-            gcTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
-        } catch (Exception e) {
-            throw new BizCheckedException("2900006");
-        }
         CreateObdHeader createObdHeader = new CreateObdHeader();
-        createObdHeader.setDueDate(gcTime);
         createObdHeader.setItems(createObdDetailList);
         CreateIbdHeader createIbdHeader = new CreateIbdHeader();
-        createIbdHeader.setDeliveDate(gcTime);
         createIbdHeader.setItems(createIbdDetailList);
         logger.info("+++++++++++++++++++++++++++++++++maqidi+++++++++++++++++++++++"+JSON.toJSONString(createObdHeader));
         logger.info("+++++++++++++++++++++++++++++++++maqidi++++++++++++++"+JSON.toJSONString(createObdHeader));
