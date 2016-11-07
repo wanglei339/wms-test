@@ -343,7 +343,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             return false;
         }
 
-        if(taskId != null ){
+        if(taskId.compareTo(0L)!=0 ){
             //更新任务
             TaskEntry entry =  taskRpcService.getTaskEntryById(plan.getTaskId());
             if(entry == null){

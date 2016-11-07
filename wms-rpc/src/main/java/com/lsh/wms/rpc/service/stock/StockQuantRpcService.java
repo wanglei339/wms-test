@@ -196,7 +196,6 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         }
         return itemQuant;
     }
-
     public int getLocationStockCount(Map<String, Object> mapQuery) {
         return quantService.countStockQuant(mapQuery);
     }

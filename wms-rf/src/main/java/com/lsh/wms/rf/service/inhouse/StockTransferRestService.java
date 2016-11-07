@@ -49,7 +49,7 @@ public class StockTransferRestService implements IStockTransferRestService {
     private static Logger logger = LoggerFactory.getLogger(StockTransferRestService.class);
 
     @Reference
-    private IStockTransferRpcService rpcService;
+    private IStockTransferRpcService iStockTransferRpcService;
 
     @Reference
     private ITaskRpcService taskRpcService;
@@ -191,7 +191,7 @@ public class StockTransferRestService implements IStockTransferRestService {
                 throw new BizCheckedException("2550032");
             }
             StockQuant quant = quantList.get(0);
-            Long toLocationId = rpcService.allocateToLocationId(quant);
+            Long toLocationId = iStockTransferRpcService.allocateToLocationId(quant);
             if (toLocationId.equals(0L)) {
                 throw new BizCheckedException("2550036");
             }
@@ -204,7 +204,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             }
             plan.setSubType(subType);
             plan.setUomQty(new BigDecimal(params.get("uomQty").toString()));
-            rpcService.addPlan(plan);
+            iStockTransferRpcService.addPlan(plan);
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
@@ -267,7 +267,7 @@ public class StockTransferRestService implements IStockTransferRestService {
                 subType = 3L;
             }
             plan.setSubType(subType);
-            rpcService.addPlan(plan);
+            iStockTransferRpcService.addPlan(plan);
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
@@ -330,7 +330,7 @@ public class StockTransferRestService implements IStockTransferRestService {
                 subType = 3L;
             }
             plan.setSubType(subType);
-            rpcService.addPlan(plan);
+            iStockTransferRpcService.addPlan(plan);
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
@@ -370,9 +370,9 @@ public class StockTransferRestService implements IStockTransferRestService {
                 throw new BizCheckedException("2550021");
             }
             if (type.equals(1L)) {
-                result = rpcService.scanFromLocation(params);
+                result = iStockTransferRpcService.scanFromLocation(params);
             } else {
-                result = rpcService.scanToLocation(params);
+                result = iStockTransferRpcService.scanToLocation(params);
             }
         } catch (BizCheckedException e) {
             throw e;
@@ -398,7 +398,7 @@ public class StockTransferRestService implements IStockTransferRestService {
                 throw new BizCheckedException("2550013");
             }
             params.put("uid", uid);
-            final Long taskId = rpcService.assign(uid);
+            final Long taskId = iStockTransferRpcService.assign(uid);
             if (taskId == 0) {
                 throw new BizCheckedException("2040001");
             }

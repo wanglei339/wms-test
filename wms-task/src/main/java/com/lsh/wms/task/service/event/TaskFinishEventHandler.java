@@ -104,7 +104,7 @@ public class TaskFinishEventHandler extends AbsEventHandler implements IEventHan
             logger.warn(e.getMessage());
         } catch (Exception e) {
             logger.error("Exception",e);
-            logger.warn(e.getCause().getMessage());
+            logger.warn(e.getMessage());
         }
     }
 }

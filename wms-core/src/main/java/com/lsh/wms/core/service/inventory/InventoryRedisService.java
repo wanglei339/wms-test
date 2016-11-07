@@ -36,8 +36,8 @@ public class InventoryRedisService {
     private StockRedisService stockRedisService;
     private static Logger logger = LoggerFactory.getLogger(InventoryRedisService.class);
 
-    public double soOrderSkuQty(Long sku_id){
-        Set<ZSetOperations.TypedTuple<String>>  skuQtys=  soOrderRedisService.getSoSkuQty(sku_id);
+    public double soOrderSkuQty(Long itemId){
+        Set<ZSetOperations.TypedTuple<String>>  skuQtys=  soOrderRedisService.getSoSkuQty(itemId);
         double qty = 0.0;
         for (ZSetOperations.TypedTuple typeTuple:skuQtys) {
             qty  = qty + typeTuple.getScore();
@@ -45,13 +45,13 @@ public class InventoryRedisService {
         return qty;
     }
 
-    public double getAvailableSkuQty(Long skuId) {
-        return stockRedisService.getSkuQty(skuId) - this.soOrderSkuQty(skuId);
+    public double getAvailableSkuQty(Long itemId) {
+        return stockRedisService.getSkuQty(itemId) - this.soOrderSkuQty(itemId);
     }
 
-    public Map<String, BigDecimal> getInventoryInfo(Long skuId) {
-        BigDecimal total = new BigDecimal(stockRedisService.getSkuQty(skuId));
-        BigDecimal soQty =  new BigDecimal(soOrderSkuQty(skuId));
+    public Map<String, BigDecimal> getInventoryInfo(Long itemId) {
+        BigDecimal total = new BigDecimal(stockRedisService.getSkuQty(itemId));
+        BigDecimal soQty =  new BigDecimal(soOrderSkuQty(itemId));
         Map<String, BigDecimal> inventoryInfo = new HashMap<String, BigDecimal>();
         inventoryInfo.put("total", total);
         inventoryInfo.put("soQty", soQty);

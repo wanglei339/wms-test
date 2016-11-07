@@ -39,17 +39,17 @@ public class StockRedisService {
         return redisKey;
     }
 
-    public Double getSkuQty(Long skuId){
-        String redistKey = getRedisKey(skuId);
+    public Double getSkuQty(Long itemId){
+        String redistKey = getRedisKey(itemId);
         String val = redisDao.get(redistKey);
         return null == val ?  0.0 :new Double(val);
     }
 
-    public void inBound(Long skuId, BigDecimal qty) {
-        String redisKey = getRedisKey(skuId);
+    public void inBound(Long itemId, BigDecimal qty) {
+        String redisKey = getRedisKey(itemId);
         redisDao.increase(redisKey, new Double(qty.toString()));
-        double availableQty =    inventoryRedisService.getAvailableSkuQty(skuId);
-        synStockService.synStock(skuId,availableQty);
+        double availableQty =    inventoryRedisService.getAvailableSkuQty(itemId);
+        synStockService.synStock(itemId,availableQty);
 
     }
 
