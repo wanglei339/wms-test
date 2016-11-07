@@ -197,8 +197,6 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
                 Long itemId = wd.getItemId();
                 if(orderGoodsInfoMap.get(orderId) == null){
                     //封装订单信息
-                    //Map<Long,Map<String,Object>> orderInfoMap = new HashMap<Long,Map<String,Object>>();
-
                     Map<String,Object> orderMap = new HashMap<String,Object>();
                     orderMap.put("orderId",orderId);//订单号
                     orderMap.put("printDate",new Date());//打印日期// FIXME: 16/11/7
@@ -223,8 +221,6 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
 
                     orderMap.put("goodsList",new HashMap<String, Object>());//订单商品信息
 
-
-                    //orderInfoMap.put(orderId,orderMap);
                     orderGoodsInfoMap.put(orderId,orderMap);
 
                 }
@@ -294,93 +290,5 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
         returnData.put("data",orderGoodsInfoMap);
         return returnData;
     }
-   /* public Map<String,Object> getDeliveryOrdersList(String tuId) throws BizCheckedException{
-        //根据运单号获取发货信息
-        TuHead tuHead =  iTuRpcService.getHeadByTuId(tuId);
 
-        //根据tuid获取containerId
-        List<TuDetail>tuDetailList = iTuRpcService.getTuDeailListByTuId(tuId);
-
-        Map<Long,Map<Long,Map<String,Object>>> orderGoodsInfoMap = new HashMap<Long,Map<Long,Map<String,Object>>>();
-
-        //根据containerId获取waveDetaiList
-        for(TuDetail td:tuDetailList){
-            Long mergedContainerId = td.getMergedContainerId();
-            Long storeId = td.getStoreId();
-
-            Map<String,Object> params = new HashMap<String,Object>();
-            params.put("mergedContainerId",mergedContainerId);
-            List<WaveDetail> waveDetailList = waveService.getWaveDetailsByMergedContainerId(mergedContainerId);
-            if(waveDetailList == null||waveDetailList.size() == 0){
-                waveDetailList = waveService.getDetailsByContainerId(mergedContainerId);
-            }
-            for(WaveDetail wd:waveDetailList){
-                Long orderId=wd.getOrderId();
-                Long skuId = wd.getSkuId();
-                if(orderGoodsInfoMap.get(orderId) == null){
-                    //封装订单信息
-                    Map<Long,Map<String,Object>> orderInfoMap = new HashMap<Long,Map<String,Object>>();
-
-                    Map<String,Object> orderMap = new HashMap<String,Object>();
-                    orderMap.put("orderId",orderId);//订单号
-                    orderMap.put("printDate",new Date());//打印日期// FIXME: 16/11/7
-                    orderMap.put("tuId",tuId);//运单号
-                    orderMap.put("deliveryId",wd.getDeliveryId());//发货单号
-                    orderMap.put("driverName",tuHead.getName());//司机姓名
-                    orderMap.put("driverPhone",tuHead.getCellphone());//司机电话
-                    orderMap.put("boxTotal",1);//装车总箱数// FIXME: 16/11/7
-                    orderMap.put("transBoxTotal",1);//装车周转箱数// FIXME: 16/11/7
-
-                    //获取店铺信息
-                    BaseinfoStore baseinfoStore = storeService.getStoreByStoreId(storeId);
-                    if(baseinfoStore == null){
-                        orderMap.put("storeName","");//收货门店
-                        orderMap.put("storePhone","");//联系电话
-                        orderMap.put("storeAddress","");//收货地址
-                    }else{
-                        orderMap.put("storeName",baseinfoStore.getStoreName());//收货门店
-                        orderMap.put("storePhone","");//联系电话// FIXME: 16/11/7
-                        orderMap.put("storeAddress",baseinfoStore.getAddress());//收货地址
-                    }
-
-
-                    orderInfoMap.put(orderId,orderMap);
-                    orderGoodsInfoMap.put(orderId,orderInfoMap);
-
-                    if(orderGoodsInfoMap.get(orderId).get(skuId) == null){
-                        //订单中,商品信息
-                        Map<Long,Map<String,Object>> goodsInfoMap = new HashMap<Long,Map<String,Object>>();
-
-                        //商品统计信息
-                        Map<String,Object> goodsCountMap = new HashMap<String,Object>();
-                        goodsCountMap.put("goodsName","");
-                        goodsCountMap.put("unitName",wd.getAllocUnitName().substring(1,wd.getAllocUnitName().length()));//箱规
-                        goodsCountMap.put("boxNum",BigDecimal.ZERO);//箱数
-                        goodsCountMap.put("eaNum",BigDecimal.ZERO);//件数
-
-                        goodsInfoMap.put(skuId,goodsCountMap);
-
-                        orderGoodsInfoMap.put(orderId,goodsInfoMap);
-                    }
-
-                }
-                if(wd.getAllocUnitName().equals("EA")){
-                    //统计散件数
-                    String eaNumStr = orderGoodsInfoMap.get(orderId).get(skuId).get("eaNum").toString();
-                    BigDecimal eaNum = BigDecimal.valueOf(Double.parseDouble(eaNumStr)).add(wd.getQcQty());
-                    orderGoodsInfoMap.get(orderId).get(skuId).put("eaNum",eaNum);
-                }else{
-                    //统计箱数
-                    String boxNumStr = orderGoodsInfoMap.get(orderId).get("boxNum").toString();
-                    BigDecimal boxNum = BigDecimal.valueOf(Double.parseDouble(boxNumStr)).add(wd.getQcQty());
-                    orderGoodsInfoMap.get(orderId).get(skuId).put("boxNum",boxNum);
-                }
-
-            }
-
-        }
-        Map<String,Object> returnData = new HashMap<String, Object>();
-        returnData.put("data",orderGoodsInfoMap);
-        return returnData;
-    }*/
 }
