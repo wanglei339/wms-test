@@ -291,8 +291,10 @@ public class LoadRfRestService implements ILoadRfRestService {
         Map<String, Object> request = RequestUtils.getRequest();
         String tuId = request.get("tuId").toString();
         TuHead tuHead = iTuRpcService.getHeadByTuId(tuId);
-        //合板的托盘码
+        //合板的托盘码或者托盘码(校验用的)
         Long mergedContainerId = Long.valueOf(request.get("containerId").toString());
+        //物理托盘码(扫码的)
+        Long realContainerId = Long.valueOf(request.get("realContainerId").toString());
         //直流的大店小店的校验区别,直流大店,没合板,不许发货
         if (TuConstant.SCALE_HYPERMARKET.equals(tuHead.getScale())) {//大店可能是托盘码或者板子码
             //大店传板子或者托盘码
@@ -316,8 +318,8 @@ public class LoadRfRestService implements ILoadRfRestService {
                 throw new BizCheckedException("2870034");
             }
         }
-        //查找该板子的信息,传托盘码可能是和板子的,也可能没合板
-        Map<String, Object> containerDetailMap = iTuRpcService.getBoardDetailBycontainerId(mergedContainerId, tuId);
+        //传物理托盘码
+        Map<String, Object> containerDetailMap = iTuRpcService.getBoardDetailBycontainerId(realContainerId, tuId);
         if (containerDetailMap == null || containerDetailMap.isEmpty()) {
             throw new BizCheckedException("2990036");
         }

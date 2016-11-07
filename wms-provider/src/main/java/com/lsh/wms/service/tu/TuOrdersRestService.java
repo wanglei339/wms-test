@@ -48,5 +48,14 @@ public class TuOrdersRestService implements ITuOrdersRestService{
         }
 
     }
+    @GET
+    @Path("getSendCarOrdersList")
+    public String getSendCarOrdersList(@QueryParam("tuId") String tuId) throws BizCheckedException {
+        if(StringUtil.isBlank(tuId)){
+            return JsonUtils.FAIL("failed! param error:" + tuId);
+        }else{
+            return JsonUtils.SUCCESS(iTuOrdersRpcService.getSendCarOrdersList(tuId));
+        }
+    }
 
 }

@@ -15,6 +15,4 @@ public interface ITuOrdersRpcService {
     public Map<String,Object> getSendCarOrdersList(String tuId) throws BizCheckedException;
     public TaskInfo getTaskInfoByWaveDetail(WaveDetail waveDetail) throws BizCheckedException;
 
-
-
 }

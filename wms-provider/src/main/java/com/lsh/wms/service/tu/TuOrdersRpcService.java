@@ -8,11 +8,13 @@ import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.tu.ITuOrdersRpcService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.store.StoreService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
@@ -46,6 +48,8 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
     private BaseTaskService baseTaskService;
     @Reference
     private ILocationRpcService iLocationRpcService;
+    @Autowired
+    private ItemService itemService;
 
     public Map<String, Object> getTuOrdersList(String tuId) throws BizCheckedException {
         //根据运单号获取发货信息
@@ -169,11 +173,6 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
         return returnData;
     }
 
-    public Map<String, Object> getDeliveryOrdersList(String tuId) throws BizCheckedException {
-
-        return null;
-    }
-
     /**
      * 小店的派车单
      *
@@ -277,4 +276,128 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
         }
         return null;
     }
+
+    public Map<String, Object> getDeliveryOrdersList(String tuId) throws BizCheckedException {
+        //根据运单号获取发货信息
+        TuHead tuHead = iTuRpcService.getHeadByTuId(tuId);
+
+        //根据tuid获取containerId
+        List<TuDetail> tuDetailList = iTuRpcService.getTuDeailListByTuId(tuId);
+
+        //封装订单信息
+        Map<Long, Map<String, Object>> orderGoodsInfoMap = new HashMap<Long, Map<String, Object>>();
+        //封装订单的商品信息
+        Map<Long, Map<Long, Map<String, Object>>> goodsListMap = new HashMap<Long, Map<Long, Map<String, Object>>>();
+
+        //根据containerId获取waveDetaiList
+        for (TuDetail td : tuDetailList) {
+            Long mergedContainerId = td.getMergedContainerId();
+            Long storeId = td.getStoreId();
+
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("mergedContainerId", mergedContainerId);
+            List<WaveDetail> waveDetailList = waveService.getWaveDetailsByMergedContainerId(mergedContainerId);
+            if (waveDetailList == null || waveDetailList.size() == 0) {
+                waveDetailList = waveService.getDetailsByContainerId(mergedContainerId);
+            }
+
+            for (WaveDetail wd : waveDetailList) {
+                Long orderId = wd.getOrderId();
+                Long itemId = wd.getItemId();
+                if (orderGoodsInfoMap.get(orderId) == null) {
+                    //封装订单信息
+                    Map<String, Object> orderMap = new HashMap<String, Object>();
+                    orderMap.put("orderId", orderId);//订单号
+                    orderMap.put("printDate", new Date());//打印日期// FIXME: 16/11/7
+                    orderMap.put("tuId", tuId);//运单号
+                    orderMap.put("deliveryId", wd.getDeliveryId());//发货单号
+                    orderMap.put("driverName", tuHead.getName());//司机姓名
+                    orderMap.put("driverPhone", tuHead.getCellphone());//司机电话
+                    orderMap.put("boxTotal", BigDecimal.ZERO);//装车总箱数
+                    orderMap.put("transBoxTotal", BigDecimal.ZERO);//装车周转箱数
+
+                    //获取店铺信息
+                    BaseinfoStore baseinfoStore = storeService.getStoreByStoreId(storeId);
+                    if (baseinfoStore == null) {
+                        orderMap.put("storeName", "");//收货门店
+                        orderMap.put("storePhone", "");//联系电话
+                        orderMap.put("storeAddress", "");//收货地址
+                    } else {
+                        orderMap.put("storeName", baseinfoStore.getStoreName());//收货门店
+                        orderMap.put("storePhone", "");//联系电话// FIXME: 16/11/7
+                        orderMap.put("storeAddress", baseinfoStore.getAddress());//收货地址
+                    }
+
+                    orderMap.put("goodsList", new HashMap<String, Object>());//订单商品信息
+
+                    orderGoodsInfoMap.put(orderId, orderMap);
+
+                }
+
+                Long taskId = wd.getQcTaskId();
+                TaskInfo taskInfo = baseTaskService.getTaskInfoById(taskId);
+
+                //统计装车箱数
+                BigDecimal packBoxNum = BigDecimal.valueOf(taskInfo.getExt3());
+                BigDecimal oldBoxTotal = (BigDecimal) orderGoodsInfoMap.get(orderId).get("boxTotal");
+                orderGoodsInfoMap.get(orderId).put("boxTotal", packBoxNum.add(oldBoxTotal));
+
+
+                //统计周转箱数
+                BigDecimal transBoxNum = taskInfo.getTaskPackQty();
+                BigDecimal oldTransBoxTotal = (BigDecimal) orderGoodsInfoMap.get(orderId).get("transBoxTotal");
+                orderGoodsInfoMap.get(orderId).put("transBoxTotal", transBoxNum.add(oldTransBoxTotal));
+
+                /*
+                封装订单对应的商品信息
+                 */
+                if (goodsListMap.get(orderId) == null) {
+                    goodsListMap.put(orderId, new HashMap<Long, Map<String, Object>>());//订单商品信息
+                }
+                if (goodsListMap.get(orderId).get(itemId) == null) {
+
+                    BaseinfoItem item = itemService.getItem(itemId);
+                    String goodsName = "";
+                    if (item != null) {
+                        goodsName = item.getSkuName();
+                    }
+                    //订单中,商品信息
+                    Map<String, Object> goodsCountMap = new HashMap<String, Object>();
+                    goodsCountMap.put("goodsName", goodsName);
+                    goodsCountMap.put("boxNum", BigDecimal.ZERO);//箱数
+                    goodsCountMap.put("eaNum", BigDecimal.ZERO);//件数
+                    goodsCountMap.put("unitName", "EA");//箱规,默认EA
+                    goodsListMap.get(orderId).put(itemId, goodsCountMap);
+                }
+
+
+                if (wd.getAllocUnitName().equals("EA")) {
+                    //统计散件数
+                    String eaNumStr = goodsListMap.get(orderId).get(itemId).get("eaNum").toString();
+                    BigDecimal eaNum = BigDecimal.valueOf(Double.parseDouble(eaNumStr)).add(wd.getQcQty());
+                    goodsListMap.get(orderId).get(itemId).put("eaNum", eaNum);
+                } else {
+                    goodsListMap.get(orderId).get(itemId).put("unitName", wd.getAllocUnitName().substring(1, wd.getAllocUnitName().length()));//箱规
+                    //统计箱数
+                    String boxNumStr = goodsListMap.get(orderId).get(itemId).get("boxNum").toString();
+                    BigDecimal boxNum = BigDecimal.valueOf(Double.parseDouble(boxNumStr)).add(wd.getQcQty());
+                    goodsListMap.get(orderId).get(itemId).put("boxNum", boxNum);
+                }
+
+
+            }
+
+        }
+        //整合订单和商品数据
+        for (Long orderId : orderGoodsInfoMap.keySet()) {
+            if (goodsListMap.get(orderId) != null) {
+                orderGoodsInfoMap.get(orderId).put("goodsList", goodsListMap.get(orderId));
+            }
+
+        }
+        Map<String, Object> returnData = new HashMap<String, Object>();
+        returnData.put("data", orderGoodsInfoMap);
+        return returnData;
+    }
+
 }
