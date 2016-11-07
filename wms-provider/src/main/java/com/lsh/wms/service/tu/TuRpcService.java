@@ -399,7 +399,7 @@ public class TuRpcService implements ITuRpcService {
             mergedContainerId = qcInfos.get(0).getMergedContainerId();  //没合板,托盘码和板子码,qc后两者相同
         } else { //大店也是组盘完毕就能装车
             Map<String, Object> qcMapQuery = new HashMap<String, Object>();
-            qcMapQuery.put("mergedContainerId", containerId);
+            qcMapQuery.put("containerId", containerId);
             qcMapQuery.put("type", TaskConstant.TYPE_QC);
             qcMapQuery.put("status", TaskConstant.Done);
             List<TaskInfo> qcInfos = baseTaskService.getTaskInfoList(qcMapQuery);
@@ -418,7 +418,7 @@ public class TuRpcService implements ITuRpcService {
         } else {
             waveDetails = waveService.getWaveDetailsByMergedContainerId(mergedContainerId);   //已经合板
         }
-        //一个板上的是一个门店的
+        //一个板上的是一个门店的,只用来取店名字
         Long orderId = waveDetails.get(0).getOrderId();
         ObdHeader obdHeader = iSoRpcService.getOutbSoHeaderDetailByOrderId(orderId);
         if (null == obdHeader) {
@@ -589,7 +589,7 @@ public class TuRpcService implements ITuRpcService {
             //销售单位
             createObdDetail.setSalesUnit(obdDetail.getPackName());
             //交货量 qc的ea/销售单位
-            createObdDetail.setDlvQty(PackUtil.EAQty2UomQty(oneDetail.getQcQty(), obdDetail.getPackName()));
+            createObdDetail.setDlvQty(PackUtil.EAQty2UomQty(oneDetail.getQcQty(), obdDetail.getPackName()).setScale(2, BigDecimal.ROUND_HALF_UP));
             //sto obd detail detail_other_id
             createObdDetail.setRefItem(obdDetail.getDetailOtherId());
             createObdDetailList.add(createObdDetail);
@@ -609,24 +609,18 @@ public class TuRpcService implements ITuRpcService {
             //采购订单的计量单位
             createIbdDetail.setUnit(ibdDetail.getPackName());
             //实际出库数量
-            createIbdDetail.setDeliveQty(PackUtil.EAQty2UomQty(oneDetail.getQcQty(), ibdDetail.getPackName()));
+            createIbdDetail.setDeliveQty(PackUtil.EAQty2UomQty(oneDetail.getQcQty(), ibdDetail.getPackName()).setScale(2, BigDecimal.ROUND_HALF_UP));
             //行项目号
             createIbdDetail.setPoItme(ibdDetail.getDetailOtherId());
+
+            createIbdDetail.setVendMat(ibdHeader.getOrderId().toString());
+
+            createIbdDetail.setOrderType(ibdHeader.getOrderType());
             createIbdDetailList.add(createIbdDetail);
         }
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTime(new Date());
-        XMLGregorianCalendar gcTime = null;
-        try {
-            gcTime = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
-        } catch (Exception e) {
-            throw new BizCheckedException("2900006");
-        }
         CreateObdHeader createObdHeader = new CreateObdHeader();
-        createObdHeader.setDueDate(gcTime);
         createObdHeader.setItems(createObdDetailList);
         CreateIbdHeader createIbdHeader = new CreateIbdHeader();
-        createIbdHeader.setDeliveDate(gcTime);
         createIbdHeader.setItems(createIbdDetailList);
         logger.info("+++++++++++++++++++++++++++++++++maqidi+++++++++++++++++++++++"+JSON.toJSONString(createObdHeader));
         logger.info("+++++++++++++++++++++++++++++++++maqidi++++++++++++++"+JSON.toJSONString(createObdHeader));

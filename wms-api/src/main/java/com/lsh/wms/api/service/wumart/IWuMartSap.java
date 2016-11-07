@@ -12,4 +12,9 @@ public interface IWuMartSap {
 
     String obd2Sap(CreateObdHeader createObdHeader);
 
+    String ibd2SapAccount(CreateIbdHeader createIbdHeader);
+
+    String obd2SapAccount(CreateObdHeader createObdHeader);
+
+
 }

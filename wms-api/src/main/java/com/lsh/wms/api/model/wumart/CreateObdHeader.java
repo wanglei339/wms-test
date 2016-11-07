@@ -9,25 +9,16 @@ import java.util.List;
  */
 public class CreateObdHeader implements Serializable{
 
-    /**交货时间*/
-    private XMLGregorianCalendar dueDate;
+//    /**交货时间*/
+//    private XMLGregorianCalendar dueDate;
 
     /**商品明细*/
     private List<CreateObdDetail> items;
 
     public CreateObdHeader(){}
 
-    public CreateObdHeader(XMLGregorianCalendar dueDate, List<CreateObdDetail> items) {
-        this.dueDate = dueDate;
+    public CreateObdHeader(List<CreateObdDetail> items) {
         this.items = items;
-    }
-
-    public XMLGregorianCalendar getDueDate() {
-        return dueDate;
-    }
-
-    public void setDueDate(XMLGregorianCalendar dueDate) {
-        this.dueDate = dueDate;
     }
 
     public List<CreateObdDetail> getItems() {
