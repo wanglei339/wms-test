@@ -477,7 +477,7 @@ public class TuRpcService implements ITuRpcService {
         }
         result.put("storeId", storeId);
         result.put("isLoaded", isLoaded);
-        result.put("containerId", mergedContainerId);
+        result.put("containerId", mergedContainerId);   //板子码
         result.put("isRest", false); //非余货
         result.put("isExpensive", false);    //非贵品
         return result;

@@ -300,7 +300,7 @@ public class LoadRfRestService implements ILoadRfRestService {
             //大店传板子或者托盘码
             //QC+done+containerId 未合板子,taskinfo中板子码和托盘码相同,能查到就是组盘了
             Map<String, Object> qcMapQuery = new HashMap<String, Object>();
-            qcMapQuery.put("mergedContainerId", mergedContainerId);
+            qcMapQuery.put("containerId", realContainerId);
             qcMapQuery.put("type", TaskConstant.TYPE_QC);
             qcMapQuery.put("status", TaskConstant.Done);
             List<TaskInfo> qcInfos = baseTaskService.getTaskInfoList(qcMapQuery);
@@ -310,7 +310,7 @@ public class LoadRfRestService implements ILoadRfRestService {
         } else {
             //QC+done+containerId 找到mergercontaierId
             Map<String, Object> qcMapQuery = new HashMap<String, Object>();
-            qcMapQuery.put("containerId", mergedContainerId);   //小店,不合板
+            qcMapQuery.put("containerId", realContainerId);   //小店,不合板
             qcMapQuery.put("type", TaskConstant.TYPE_QC);
             qcMapQuery.put("status", TaskConstant.Done);
             List<TaskInfo> qcInfos = baseTaskService.getTaskInfoList(qcMapQuery);
@@ -336,7 +336,7 @@ public class LoadRfRestService implements ILoadRfRestService {
         Long turnoverBoxNum = Long.valueOf(containerDetailMap.get("turnoverBoxNum").toString());
         TuDetail tuDetail = new TuDetail();
         tuDetail.setTuId(tuId);
-        tuDetail.setMergedContainerId(mergedContainerId);
+        tuDetail.setMergedContainerId(Long.valueOf(containerDetailMap.get("containerId").toString()));
         tuDetail.setBoxNum(boxNum);
         tuDetail.setContainerNum(containerNum);
         tuDetail.setTurnoverBoxNum(turnoverBoxNum);
