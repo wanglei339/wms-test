@@ -8,4 +8,5 @@ import com.lsh.base.common.exception.BizCheckedException;
 public interface ITuOrdersRestService {
     public String getTuOrdersList(String tuId) throws BizCheckedException;
     public String getDeliveryOrdersList(String tuId) throws BizCheckedException;
+    public String getSendCarOrdersList(String tuId) throws BizCheckedException;
 }
