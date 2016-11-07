@@ -39,6 +39,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -169,7 +170,7 @@ public class WaveRestService implements IWaveRestService {
                     // TODO: 16/9/18 目前根据orderId与itemId来确定一条发货单。
                     OutbDeliveryDetail outbDeliveryDetail = soDeliveryService.getOutbDeliveryDetail(obdDetail.getOrderId(),obdDetail.getItemId());
                     //实际出库数量
-                    detail.setDlvQty(outbDeliveryDetail.getDeliveryNum());
+                    detail.setDlvQty(outbDeliveryDetail.getDeliveryNum().setScale(2, BigDecimal.ROUND_HALF_UP));
                     detail.setMaterial(obdDetail.getSkuCode());
                     detail.setRefDoc(obdHeader.getOrderOtherId());
                     detail.setRefItem(obdDetail.getDetailOtherId());

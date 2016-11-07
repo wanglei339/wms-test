@@ -87,13 +87,6 @@ public class ReceiveRestService implements IReceiveRestService{
 
         //确认收货之后将验收单回传到上游系统
         if("5".equals(map.get("orderStatus").toString())){
-//            IbdBackRequest ibdBackRequest = new IbdBackRequest();
-//            Header header = new Header();
-//            BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) baseinfoLocationWarehouseService.getBaseinfoItemLocationModelById(0L);
-//            String warehouseName = warehouse.getWarehouseName();
-//            header.setPlant(warehouseName);
-//            String poNumber =map.get("orderOtherId").toString();
-//            header.setPoNumber(poNumber);
             List<ReceiveDetail> receiveDetails = receiveService.getReceiveDetailListByReceiveId((Long) map.get("receiveId"));
             //ReceiveHeader ibdHeader = poOrderService.getInbPoHeaderById((Long) map.get("orderId"));
             ReceiveHeader receiveHeader = receiveService.getReceiveHeaderByReceiveId((Long) map.get("receiveId"));
@@ -107,37 +100,39 @@ public class ReceiveRestService implements IReceiveRestService{
             // TODO: 2016/11/3 回传WMSAP 组装信息
             CreateIbdHeader createIbdHeader = new CreateIbdHeader();
             List<CreateIbdDetail> details = new ArrayList<CreateIbdDetail>();
-//            for(ReceiveDetail receiveDetail : receiveDetails){
-//                CreateIbdDetail detail = new CreateIbdDetail();
-//                detail.setPoNumber(receiveHeader.getOrderOtherId());
-//                detail.setPoItme(receiveDetail.getDetailOtherId());
-//                BigDecimal inboudQty =  receiveDetail.getInboundQty();
-//                if(inboudQty.compareTo(BigDecimal.ZERO) <= 0){
-//                    continue;
-//                }
-//                BigDecimal orderQty = receiveDetail.getOrderQty();
-//                BigDecimal deliveQty = receiveHeader.getOrderType().equals(3) ? orderQty : inboudQty;
-//                detail.setDeliveQty(deliveQty);
-//                detail.setUnit(receiveDetail.getUnitName());
-//                detail.setMaterial(receiveDetail.getSkuCode());
-//
-//                details.add(detail);
-//            }
-            CreateIbdDetail detail = new CreateIbdDetail();
-            detail.setDeliveQty(new BigDecimal(100));
-            detail.setPoItme("10");
-            detail.setPoNumber("4500027448");
-            detail.setUnit("EA");
-            detail.setMaterial("000000000000110978");
-            details.add(detail);
+            for(ReceiveDetail receiveDetail : receiveDetails){
+                CreateIbdDetail detail = new CreateIbdDetail();
+                detail.setPoNumber(receiveHeader.getOrderOtherId());
+                detail.setPoItme(receiveDetail.getDetailOtherId());
+                BigDecimal inboudQty =  receiveDetail.getInboundQty();
+                if(inboudQty.compareTo(BigDecimal.ZERO) <= 0){
+                    continue;
+                }
+                BigDecimal orderQty = receiveDetail.getOrderQty();
+                BigDecimal deliveQty = receiveHeader.getOrderType().equals(3) ? orderQty : inboudQty;
+                detail.setDeliveQty(deliveQty.setScale(2,BigDecimal.ROUND_HALF_UP));
+                detail.setUnit(receiveDetail.getUnitName());
+                detail.setMaterial(receiveDetail.getSkuCode());
+                detail.setOrderType(receiveHeader.getOrderType());
+                detail.setVendMat(receiveHeader.getOrderId().toString());
 
-            CreateIbdDetail detail1 = new CreateIbdDetail();
-            detail1.setDeliveQty(new BigDecimal(200));
-            detail1.setPoItme("20");
-            detail1.setPoNumber("4500027448");
-            detail1.setUnit("EA");
-            detail1.setMaterial("000000000000110809");
-            details.add(detail1);
+                details.add(detail);
+            }
+//            CreateIbdDetail detail = new CreateIbdDetail();
+//            detail.setDeliveQty(new BigDecimal(100));
+//            detail.setPoItme("10");
+//            detail.setPoNumber("4500027448");
+//            detail.setUnit("EA");
+//            detail.setMaterial("000000000000110978");
+//            details.add(detail);
+//
+//            CreateIbdDetail detail1 = new CreateIbdDetail();
+//            detail1.setDeliveQty(new BigDecimal(200));
+//            detail1.setPoItme("20");
+//            detail1.setPoNumber("4500027448");
+//            detail1.setUnit("EA");
+//            detail1.setMaterial("000000000000110809");
+//            details.add(detail1);
             createIbdHeader.setItems(details);
 
             if(receiveHeader.getOwnerUid() == 1){
