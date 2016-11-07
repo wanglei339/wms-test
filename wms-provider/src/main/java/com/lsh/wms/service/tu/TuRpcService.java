@@ -589,7 +589,7 @@ public class TuRpcService implements ITuRpcService {
             //销售单位
             createObdDetail.setSalesUnit(obdDetail.getPackName());
             //交货量 qc的ea/销售单位
-            createObdDetail.setDlvQty(PackUtil.EAQty2UomQty(oneDetail.getQcQty(), obdDetail.getPackName()));
+            createObdDetail.setDlvQty(PackUtil.EAQty2UomQty(oneDetail.getQcQty(), obdDetail.getPackName()).setScale(2, BigDecimal.ROUND_HALF_UP));
             //sto obd detail detail_other_id
             createObdDetail.setRefItem(obdDetail.getDetailOtherId());
             createObdDetailList.add(createObdDetail);
@@ -609,9 +609,13 @@ public class TuRpcService implements ITuRpcService {
             //采购订单的计量单位
             createIbdDetail.setUnit(ibdDetail.getPackName());
             //实际出库数量
-            createIbdDetail.setDeliveQty(PackUtil.EAQty2UomQty(oneDetail.getQcQty(), ibdDetail.getPackName()));
+            createIbdDetail.setDeliveQty(PackUtil.EAQty2UomQty(oneDetail.getQcQty(), ibdDetail.getPackName()).setScale(2, BigDecimal.ROUND_HALF_UP));
             //行项目号
             createIbdDetail.setPoItme(ibdDetail.getDetailOtherId());
+
+            createIbdDetail.setVendMat(ibdHeader.getOrderId().toString());
+
+            createIbdDetail.setOrderType(ibdHeader.getOrderType());
             createIbdDetailList.add(createIbdDetail);
         }
         CreateObdHeader createObdHeader = new CreateObdHeader();
