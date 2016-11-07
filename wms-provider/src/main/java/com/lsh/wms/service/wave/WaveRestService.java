@@ -179,30 +179,7 @@ public class WaveRestService implements IWaveRestService {
                 createObdHeader.setItems(details);
                 wuMartSap.obd2Sap(createObdHeader);
 
-//                // TODO: 2016/11/3 回传WMSAP 组装信息
-//
-//
-//                List<ObdItem> items = new ArrayList<ObdItem>();
-//                for (ObdDetail obdDetail : obdDetails){
-//                    ObdItem soItem = new ObdItem();
-//                    soItem.setMaterialNo(obdDetail.getSkuCode());//skuCode
-//                    soItem.setMeasuringUnit("EA");
-//                    soItem.setPrice(obdDetail.getPrice());
-//                    //转化成ea
-//                    soItem.setQuantity(obdDetail.getOrderQty().multiply(obdDetail.getPackUnit()).setScale(3));
-//                    // TODO: 16/9/18 目前根据orderId与itemId来确定一条发货单。
-//                    OutbDeliveryDetail outbDeliveryDetail = soDeliveryService.getOutbDeliveryDetail(obdDetail.getOrderId(),obdDetail.getItemId());
-//
-//                    //实际出库数量
-//                    soItem.setSendQuantity(outbDeliveryDetail.getDeliveryNum());
-//
-//                    //查询waveDetail找出实际出库的数量
-//                    items.add(soItem);
-//                }
-//                //查询waveDetail找出实际出库的数量
-//                request.setItems(items);
-
-                //dataBackService.wmDataBackByPost(request, IntegrationConstan.URL_OBD);
+                // TODO: 2016/11/3 回传WMSAP 组装信息
             }
 
         }
