@@ -184,6 +184,7 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
         //根据运单号获取发货信息
         TuHead tuHead = iTuRpcService.getHeadByTuId(tuId);
         Map<String, Object> params = new HashMap<String, Object>();
+        params.put("tuId",tuHead.getTuId());
         params.put("name", tuHead.getName());
         params.put("carNumber", tuHead.getCarNumber());
         params.put("cellPhone", tuHead.getCellphone());
@@ -223,39 +224,45 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
                 //单门店总周转箱
                 Long storeTotalTurnoverBoxCount = (Long) storeMap.get("storeTotalTurnoverBoxCount");
                 storeMap.put("storeTotalTurnoverBoxCount", storeTotalTurnoverBoxCount + qcInfo.getExt3());
-            }
-            //门店名,集货道list,门店id
-            BaseinfoStore store = storeService.getStoreByStoreId(storeId);
-            Map<String, Object> storeMap = new HashMap<String, Object>();
-            storeMap.put("storeId", storeId);
-            storeMap.put("storeName", store.getStoreName());
-            storeMap.put("collectionBins", iLocationRpcService.getCollectionByStoreNo(store.getStoreNo()));
+            } else {
 
-            List<Map<String, Object>> containerList = new LinkedList<Map<String, Object>>();
-            //查找托盘信息
-            List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(tuDetail.getMergedContainerId());
-            if (null == waveDetails || waveDetails.size() < 1) {
-                throw new BizCheckedException("2990041");
+                //门店名,集货道list,门店id
+                BaseinfoStore store = storeService.getStoreByStoreId(storeId);
+                Map<String, Object> storeMap = new HashMap<String, Object>();
+                storeMap.put("storeId", storeId);
+                storeMap.put("storeName", store.getStoreName());
+                storeMap.put("collectionBins", iLocationRpcService.getCollectionByStoreNo(store.getStoreNo()));
+
+                List<Map<String, Object>> containerList = new LinkedList<Map<String, Object>>();
+                //查找托盘信息
+                List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(tuDetail.getMergedContainerId());
+                if (null == waveDetails || waveDetails.size() < 1) {
+                    throw new BizCheckedException("2990041");
+                }
+                WaveDetail detail = waveDetails.get(0);
+                TaskInfo qcInfo = this.getTaskInfoByWaveDetail(detail);
+                if (null == qcInfo) {
+                    continue;   //不存在组盘未完成(不可能)
+                }
+                Map<String, Object> container = new HashMap<String, Object>();
+                container.put("containerId", detail.getContainerId());
+                container.put("packCount", qcInfo.getTaskPackQty());
+                container.put("turnoverBoxCount", qcInfo.getExt3());
+                container.put("isRest", qcInfo.getFinishTime() < DateUtils.getTodayBeginSeconds()); //余货
+                containerList.add(container);
+                //托盘list
+                storeMap.put("containerList", containerList);
+                //门店总箱数,周转箱数
+                storeMap.put("storeTotalPackCount", qcInfo.getTaskPackQty());
+                storeMap.put("storeTotalTurnoverBoxCount", qcInfo.getExt3());
+                stores.put(storeId, storeMap);
+                //全运单总箱数,总周转箱数
+                totalPackCount = totalPackCount.add(qcInfo.getTaskPackQty());
+                totalTurnoverBoxCount = totalTurnoverBoxCount + qcInfo.getExt3();
             }
-            WaveDetail detail = waveDetails.get(0);
-            TaskInfo qcInfo = this.getTaskInfoByWaveDetail(detail);
-            if (null == qcInfo) {
-                continue;   //不存在组盘未完成(不可能)
-            }
-            Map<String, Object> container = new HashMap<String, Object>();
-            container.put("containerId", detail.getContainerId());
-            container.put("packCount", qcInfo.getTaskPackQty());
-            container.put("turnoverBoxCount", qcInfo.getExt3());
-            container.put("isRest", qcInfo.getFinishTime() < DateUtils.getTodayBeginSeconds()); //余货
-            containerList.add(container);
-            //门店总箱数,周转箱数
-            storeMap.put("storeTotalPackCount", qcInfo.getTaskPackQty());
-            storeMap.put("storeTotalTurnoverBoxCount", qcInfo.getExt3());
-            stores.put(storeId, storeMap);
-            //全运单总箱数,总周转箱数
-            totalPackCount = totalPackCount.add(qcInfo.getTaskPackQty());
-            totalTurnoverBoxCount = totalTurnoverBoxCount + qcInfo.getExt3();
+
         }
+        params.put("stores",stores);
         params.put("totalPackCount", totalPackCount);
         params.put("totalTurnoverBoxCount", totalTurnoverBoxCount);
         return params;
