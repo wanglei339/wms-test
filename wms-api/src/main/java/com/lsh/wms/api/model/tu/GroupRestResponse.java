@@ -677,19 +677,19 @@ public class GroupRestResponse {
         this.qcSkip = qcSkip;
     }
 
-    public Boolean getExpensive() {
-        return isExpensive;
-    }
-
-    public void setExpensive(Boolean expensive) {
-        isExpensive = expensive;
-    }
-
-    public Boolean getRest() {
+    public Boolean getIsRest() {
         return isRest;
     }
 
-    public void setRest(Boolean rest) {
+    public Boolean getIsExpensive() {
+        return isExpensive;
+    }
+
+    public void setIsRest(Boolean rest) {
         isRest = rest;
+    }
+
+    public void setIsExpensive(Boolean expensive) {
+        isExpensive = expensive;
     }
 }
