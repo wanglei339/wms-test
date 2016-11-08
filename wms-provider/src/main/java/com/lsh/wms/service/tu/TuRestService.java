@@ -135,7 +135,7 @@ public class TuRestService implements ITuRestService {
                 // 直接完成
                 iTaskRpcService.done(shipTaskId);
                 //销库存移到consumer位置
-                iTuRpcService.moveItemToConsumeArea(detail.getMergedContainerId());
+//                iTuRpcService.moveItemToConsumeArea(detail.getMergedContainerId());
             }
             //生成发货单
             iTuRpcService.creatDeliveryOrderAndDetail(tuHead);
@@ -166,8 +166,8 @@ public class TuRestService implements ITuRestService {
                 if (null == waveDetails || waveDetails.size() < 1) {
                     waveDetails = waveService.getAliveDetailsByContainerId(detail.getMergedContainerId());
                 }
-                //移库存
-                iTuRpcService.moveItemToConsumeArea(waveDetails);
+                //移库存 todo
+//                iTuRpcService.moveItemToConsumeArea(waveDetails);
             }
             //生成发货单
             iTuRpcService.creatDeliveryOrderAndDetail(tuHead);

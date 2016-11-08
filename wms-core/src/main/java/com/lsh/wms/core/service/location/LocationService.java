@@ -1344,10 +1344,10 @@ public class LocationService {
             throw new BizCheckedException("2180012");
         }
         BaseinfoStore store = storeList.get(0);
-        if (StoreConstant.SCALE_STORE.equals(store.getScale())){ //小店
+        if (StoreConstant.SCALE_STORE.equals(store.getScale())) { //小店
             mapQuery.put("type", LocationConstant.COLLECTION_BIN);
 
-        }else {
+        } else {
             mapQuery.put("type", LocationConstant.COLLECTION_ROAD);
         }
         mapQuery.put("storeNo", storeNo);
@@ -1399,8 +1399,21 @@ public class LocationService {
     public List<BaseinfoLocation> getLocationBySupplierNo(Long type, String supplierNo) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("type", type);
+        mapQuery.put("isValid", LocationConstant.IS_VALID);
         mapQuery.put("supplierNo", supplierNo);
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(mapQuery);
+        return locations;
+    }
+
+    /**
+     * 传入left和right查询 固定列区间的库位
+     *
+     * @param params
+     * @return
+     */
+    public List<BaseinfoLocation> getRangeLocationList(Map<String, Object> mapQuery) {
+        mapQuery.put("isValid", LocationConstant.IS_VALID);
+        List<BaseinfoLocation> locations = locationDao.getRangeLocationList(mapQuery);
         return locations;
     }
 }

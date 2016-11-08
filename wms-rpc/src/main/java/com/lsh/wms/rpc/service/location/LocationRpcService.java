@@ -309,6 +309,17 @@ public class LocationRpcService implements ILocationRpcService {
     }
 
     /**
+     * 根据库位的左右范围获取指定库位
+     * @param params
+     * @return
+     * @throws BizCheckedException
+     */
+    public List<BaseinfoLocation> getRangeLocationList(Map<String, Object> params) throws BizCheckedException {
+        List<BaseinfoLocation> locations = locationService.getRangeLocationList(params);
+        return locations;
+    }
+
+    /**
      * 移除集货道的门店号,将其置为0
      * @param locationId
      * @return

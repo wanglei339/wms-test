@@ -14,6 +14,7 @@ import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.pick.IRFQCRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.so.ISoRpcService;
+import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.TaskConstant;
@@ -71,6 +72,8 @@ public class QCRestService implements IRFQCRestService {
     private ISoRpcService iSoRpcService;
     @Reference
     private ILocationRpcService iLocationRpcService;
+    @Reference
+    private IStockQuantRpcService iStockQuantRpcService;
 
     /**
      * 扫码获取qc任务详情
@@ -248,16 +251,18 @@ public class QCRestService implements IRFQCRestService {
         if (null == soInfo) {
             throw new BizCheckedException("2120016");
         }
-        //获取集货道信息
+        //获取集货道信息去库存表中查位置,最准 todo iStockQuantRpcService
+
         BaseinfoLocation collectLocaion = iLocationRpcService.getLocation(details.get(0).getAllocCollectLocation());
         Map<String, Object> rstMap = new HashMap<String, Object>();
         rstMap.put("qcList", undoDetails);
         rstMap.put("isDirect", isDirect);
         rstMap.put("containerType", containerInfo.getType());
         rstMap.put("pickTaskId", qcTaskInfo.getQcPreviousTaskId().toString());
-        rstMap.put("customerId", soInfo.getOrderUser().toString());
-        //TODO SO USER ID
-        rstMap.put("customerName", soInfo.getOrderUser());
+        //送达方的信息
+        rstMap.put("customerId", soInfo.getDeliveryCode().toString());
+        rstMap.put("customerName", soInfo.getDeliveryName());
+        //todo 集货道可以去stockQuent中拿
         rstMap.put("collectionRoadCode", collectLocaion.getLocationCode());
         rstMap.put("itemLineNum", mapItem2PickQty.size());
         //TODO BOX NUM

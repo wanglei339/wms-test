@@ -31,5 +31,13 @@ public interface BaseinfoLocationDao{
 	List<BaseinfoLocation> lock(Long locationId);
 	//按门店号获取升序播种位置
 	List<BaseinfoLocation> sortLocationByStoreNoAndType(Map<String, Object> params);
-	
+
+	/**
+	 * 传入left和right列查询 固定列区间的库位
+	 * @param params
+	 * @return
+	 */
+	List<BaseinfoLocation> getRangeLocationList(Map<String, Object> params);
+
+
 }

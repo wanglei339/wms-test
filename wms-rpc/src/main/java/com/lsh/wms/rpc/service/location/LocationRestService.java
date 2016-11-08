@@ -81,10 +81,11 @@ public class LocationRestService implements ILocationRestService {
         Long locationId = locationService.getWarehouseLocationId();
         return JsonUtils.SUCCESS(locationId);
     }
+
     @POST
     @Path("getItemLocation")
-    public String getItemLocation() throws BizCheckedException{
-        Map<String,Object> request= RequestUtils.getRequest();
+    public String getItemLocation() throws BizCheckedException {
+        Map<String, Object> request = RequestUtils.getRequest();
         List<BaseinfoItemLocation> baseinfoItemLocations = itemLocationService.getItemLocation(request);
         return JsonUtils.SUCCESS(baseinfoItemLocations);
     }
@@ -287,6 +288,43 @@ public class LocationRestService implements ILocationRestService {
     @Path("getLocationIdByCode")
     public String getLocationIdByCode(@QueryParam("locationCode") String locationCode) throws BizCheckedException {
         return JsonUtils.SUCCESS(locationRpcService.getLocationIdByCode(locationCode));
+    }
+
+    /**
+     * 根据库位的左右范围获取指定库位
+     *
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("getRangeLocationList")
+    public String getRangeLocationList() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        List<BaseinfoLocation> locations = locationRpcService.getRangeLocationList(mapQuery);
+        if (null == locations || locations.size() < 1) {
+            throw new BizCheckedException("2180030");
+        }
+        return JsonUtils.SUCCESS(locations);
+    }
+
+    /**
+     * 获取一个location下一层的子节点
+     *
+     * @param locationId
+     * @return
+     * @throws BizCheckedException
+     */
+    @GET
+    @Path("getNextLevelLocations")
+    public String getNextLevelLocations(@QueryParam("locationId") Long locationId) throws BizCheckedException {
+        if (null == locationId || locationId.equals("")) {
+            throw new BizCheckedException("2180004");
+        }
+        List<BaseinfoLocation> locations = locationRpcService.getNextLevelLocations(locationId);
+        if (null == locations || locations.size() < 1) {
+            throw new BizCheckedException("2180002");
+        }
+        return JsonUtils.SUCCESS(locations);
     }
 
 }

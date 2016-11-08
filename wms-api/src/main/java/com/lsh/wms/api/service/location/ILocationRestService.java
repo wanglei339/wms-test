@@ -84,4 +84,19 @@ public interface ILocationRestService {
     public String unlockLocation(Long locationId) throws BizCheckedException;
 
     public String getLocationIdByCode(String locationCode) throws BizCheckedException;
+
+    /**
+     * 根据库位的左右范围获取指定库位
+     * @return
+     * @throws BizCheckedException
+     */
+    public String getRangeLocationList() throws BizCheckedException;
+
+    /**
+     * 获取下一层的位置节点
+     * @param locationId
+     * @return
+     * @throws BizCheckedException
+     */
+    public String getNextLevelLocations(Long locationId) throws BizCheckedException;
 }
