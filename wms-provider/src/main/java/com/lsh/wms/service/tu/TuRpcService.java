@@ -16,6 +16,7 @@ import com.lsh.wms.api.model.wumart.CreateObdDetail;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.so.ISoRpcService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
+import com.lsh.wms.api.service.wumart.IWuMart;
 import com.lsh.wms.api.service.wumart.IWuMartSap;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.TuConstant;
@@ -88,8 +89,11 @@ public class TuRpcService implements ITuRpcService {
     @Autowired
     private PoOrderService poOrderService;
 
+//    @Reference
+//    private IWuMartSap wuMartSap;
+//
     @Reference
-    private IWuMartSap wuMartSap;
+    private IWuMart wuMart;
 
 
     public TuHead create(TuHead tuHead) throws BizCheckedException {
@@ -624,9 +628,12 @@ public class TuRpcService implements ITuRpcService {
         createIbdHeader.setItems(createIbdDetailList);
         logger.info("+++++++++++++++++++++++++++++++++maqidi+++++++++++++++++++++++"+JSON.toJSONString(createObdHeader));
         logger.info("+++++++++++++++++++++++++++++++++maqidi++++++++++++++"+JSON.toJSONString(createObdHeader));
+
         //鑫哥服务
-        wuMartSap.ibd2Sap(createIbdHeader);
-        wuMartSap.obd2Sap(createObdHeader);
+//        wuMartSap.ibd2Sap(createIbdHeader);
+//        wuMartSap.obd2Sap(createObdHeader);
+        wuMart.sendIbd(createIbdHeader);
+        wuMart.sendObd(createObdHeader);
     }
 
     /**
