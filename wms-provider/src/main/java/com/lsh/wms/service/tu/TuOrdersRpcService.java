@@ -198,20 +198,20 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
         Map<Long, Map<String, Object>> stores = new HashMap<Long, Map<String, Object>>();
         for (TuDetail tuDetail : tuDetails) {
             Long storeId = tuDetail.getStoreId();
+            //查找托盘信息
+            List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(tuDetail.getMergedContainerId());
+            if (null == waveDetails || waveDetails.size() < 1) {
+                throw new BizCheckedException("2990041");
+            }
+            WaveDetail detail = waveDetails.get(0);
+            TaskInfo qcInfo = this.getTaskInfoByWaveDetail(detail);
+            if (null == qcInfo) {
+                continue;   //不存在组盘未完成(不可能)
+            }
             //包含
             if (stores.containsKey(storeId)) {
                 Map<String, Object> storeMap = stores.get(storeId);
                 List<Map<String, Object>> containerList = (List<Map<String, Object>>) storeMap.get("containerList");
-                //查找托盘信息
-                List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(tuDetail.getMergedContainerId());
-                if (null == waveDetails || waveDetails.size() < 1) {
-                    throw new BizCheckedException("2990041");
-                }
-                WaveDetail detail = waveDetails.get(0);
-                TaskInfo qcInfo = this.getTaskInfoByWaveDetail(detail);
-                if (null == qcInfo) {
-                    continue;   //不存在组盘未完成(不可能)
-                }
                 Map<String, Object> container = new HashMap<String, Object>();
                 container.put("containerId", detail.getContainerId());
                 container.put("packCount", qcInfo.getTaskPackQty());
@@ -225,25 +225,14 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
                 Long storeTotalTurnoverBoxCount = (Long) storeMap.get("storeTotalTurnoverBoxCount");
                 storeMap.put("storeTotalTurnoverBoxCount", storeTotalTurnoverBoxCount + qcInfo.getExt3());
             } else {
-
                 //门店名,集货道list,门店id
                 BaseinfoStore store = storeService.getStoreByStoreId(storeId);
                 Map<String, Object> storeMap = new HashMap<String, Object>();
                 storeMap.put("storeId", storeId);
                 storeMap.put("storeName", store.getStoreName());
                 storeMap.put("collectionBins", iLocationRpcService.getCollectionByStoreNo(store.getStoreNo()));
-
+                //托盘箱数统计集合
                 List<Map<String, Object>> containerList = new LinkedList<Map<String, Object>>();
-                //查找托盘信息
-                List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(tuDetail.getMergedContainerId());
-                if (null == waveDetails || waveDetails.size() < 1) {
-                    throw new BizCheckedException("2990041");
-                }
-                WaveDetail detail = waveDetails.get(0);
-                TaskInfo qcInfo = this.getTaskInfoByWaveDetail(detail);
-                if (null == qcInfo) {
-                    continue;   //不存在组盘未完成(不可能)
-                }
                 Map<String, Object> container = new HashMap<String, Object>();
                 container.put("containerId", detail.getContainerId());
                 container.put("packCount", qcInfo.getTaskPackQty());
@@ -256,10 +245,10 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
                 storeMap.put("storeTotalPackCount", qcInfo.getTaskPackQty());
                 storeMap.put("storeTotalTurnoverBoxCount", qcInfo.getExt3());
                 stores.put(storeId, storeMap);
-                //全运单总箱数,总周转箱数
-                totalPackCount = totalPackCount.add(qcInfo.getTaskPackQty());
-                totalTurnoverBoxCount = totalTurnoverBoxCount + qcInfo.getExt3();
             }
+            //全运单总箱数,总周转箱数
+            totalPackCount = totalPackCount.add(qcInfo.getTaskPackQty());
+            totalTurnoverBoxCount = totalTurnoverBoxCount + qcInfo.getExt3();
 
         }
         params.put("stores",stores);
