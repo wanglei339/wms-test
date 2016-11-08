@@ -53,10 +53,10 @@ public class ReceiveRestService implements IReceiveRestService{
     @Autowired
     private ReceiveService receiveService;
 
-    @Reference
-    private IWuMartSap wuMartSap;
 //    @Reference
-//    private IWuMart wuMart;
+//    private IWuMartSap wuMartSap;
+    @Reference
+    private IWuMart wuMart;
 
     @POST
     @Path("getReceiveHeaderList")
@@ -118,27 +118,10 @@ public class ReceiveRestService implements IReceiveRestService{
 
                 details.add(detail);
             }
-//            CreateIbdDetail detail = new CreateIbdDetail();
-//            detail.setDeliveQty(new BigDecimal(100));
-//            detail.setPoItme("10");
-//            detail.setPoNumber("4500027448");
-//            detail.setUnit("EA");
-//            detail.setMaterial("000000000000110978");
-//            details.add(detail);
-//
-//            CreateIbdDetail detail1 = new CreateIbdDetail();
-//            detail1.setDeliveQty(new BigDecimal(200));
-//            detail1.setPoItme("20");
-//            detail1.setPoNumber("4500027448");
-//            detail1.setUnit("EA");
-//            detail1.setMaterial("000000000000110809");
-//            details.add(detail1);
             createIbdHeader.setItems(details);
 
             if(receiveHeader.getOwnerUid() == 1){
-                //dataBackService.wmDataBackByPost(ibdBackRequest, IntegrationConstan.URL_IBD, SysLogConstant.LOG_TYPE_WUMART_IBD);
-                wuMartSap.ibd2Sap(createIbdHeader);
-                //wuMart.sendIbd(createIbdHeader);
+                wuMart.sendIbd(createIbdHeader);
 
             }else{
                 //dataBackService.erpDataBack(createIbdHeader);

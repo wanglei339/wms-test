@@ -18,6 +18,7 @@ import com.lsh.wms.integration.wumart.ibdaccount.TABLEOFPROTT;
 import com.lsh.wms.integration.wumart.ibdaccount.TABLEOFVBPOK;
 import com.lsh.wms.integration.wumart.ibdaccount.TABLEOFZDELIVERYEXPORT;
 import com.lsh.wms.integration.wumart.ibdaccount.TABLEOFZDELIVERYIMPORT;
+import com.lsh.wms.integration.wumart.ibdaccount.ZDELIVERYEXPORT;
 import com.lsh.wms.integration.wumart.ibdaccount.ZDELIVERYIMPORT;
 import com.lsh.wms.integration.wumart.obd.*;
 import com.lsh.wms.integration.wumart.obdaccount.*;
@@ -31,6 +32,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Holder;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -57,18 +59,18 @@ public class WuMartSap implements IWuMartSap{
 
     public String ibd2Sap(CreateIbdHeader createIbdHeader){
 
-//        Calendar calendar = Calendar.getInstance();
-//        XMLGregorianCalendar date = new XMLGregorianCalendarImpl();
-//        date.setYear(calendar.get(Calendar.YEAR));
-//        //date.setDay(calendar.get(Calendar.DATE));
-//        date.setDay(5);
-//        date.setMonth(calendar.get(Calendar.MONTH)+1);
+        Calendar calendar = Calendar.getInstance();
+        XMLGregorianCalendar date = new XMLGregorianCalendarImpl();
+        date.setYear(calendar.get(Calendar.YEAR));
+        date.setDay(calendar.get(Calendar.DATE));
+        //date.setDay(5);
+        date.setMonth(calendar.get(Calendar.MONTH)+1);
         List<CreateIbdDetail> details = createIbdHeader.getItems();
 
         com.lsh.wms.integration.wumart.ibd.ObjectFactory factory = new com.lsh.wms.integration.wumart.ibd.ObjectFactory();
         //ibdHeader
         BbpInbdL header = factory.createBbpInbdL();
-        //header.setDelivDate(date);
+        header.setDelivDate(date);
 
         //items
         TableOfBbpInbdD items = factory.createTableOfBbpInbdD();
@@ -94,6 +96,18 @@ public class WuMartSap implements IWuMartSap{
         // TODO: 2016/11/1 结果记录到日志表中,将数据保存到redis中。以便失败之后重新下传。
         logger.info("~~~~~~~~~~~~~~~~~~~~~ref:" + ref + "~~~~~~~~~~~~~~~~~~~~~~");
 
+        if(newReturn.getItem() == null && newReturn.getItem().size() <= 0){
+            return null;
+
+        }
+        Bapireturn bapireturn = newReturn.getItem().get(0);
+        if("E".equals(bapireturn.getType())){
+           return null;
+        }
+        String ibdId = bapireturn.getMessageV2();
+
+
+
 //        //存入sys_log
 //        //Long sysId = RandomUtils.genId();
 //        SysLog sysLog = new SysLog();
@@ -115,15 +129,15 @@ public class WuMartSap implements IWuMartSap{
 //        sysMsg.setMsgBody(JSON.toJSONString(createIbdHeader));
 //        sysMsgService.sendMessage(sysMsg);
 
-        return ref;
+        return ibdId;
     }
 
-    public String obd2Sap(CreateObdHeader createObdHeader){
+    public CreateObdHeader obd2Sap(CreateObdHeader createObdHeader){
         Calendar calendar = Calendar.getInstance();
         XMLGregorianCalendar date = new XMLGregorianCalendarImpl();
         date.setYear(calendar.get(Calendar.YEAR));
         date.setDay(calendar.get(Calendar.DATE));
-        date.setMonth(calendar.get(Calendar.MONTH));
+        date.setMonth(calendar.get(Calendar.MONTH) + 1);
         List<CreateObdDetail> details = createObdHeader.getItems();
 
         com.lsh.wms.integration.wumart.obd.ObjectFactory factory = new com.lsh.wms.integration.wumart.obd.ObjectFactory();
@@ -185,19 +199,48 @@ public class WuMartSap implements IWuMartSap{
                 " stockTransItems :"+JSON.toJSONString(stockTransItems));
         String ref = com.alibaba.fastjson.JSON.toJSONString(newReturn.getItem());
 
+        logger.info("入口参数: createdItems :" + JSON.toJSONString(createdItems));
+
+        logger.info("返回值 ref : " + ref);
+
+        //循环返回值
+        CreateObdHeader backDate = new CreateObdHeader();
+        List<CreateObdDetail> list = new ArrayList<CreateObdDetail>();
+        if(newReturn.getItem() == null && newReturn.getItem().size() <=0){
+            return null;
+        }else{
+            for(Bapiret2 bapiret2 : newReturn.getItem()){
+                String type = bapiret2.getType();
+                if("E".equals(type)){
+                    return null;
+                }
+            }
+            //组装返回的数据
+            for(Bapidlvitemcreated item : createdItems.value.getItem()){
+                CreateObdDetail backDetail = new CreateObdDetail();
+                backDetail.setSalesUnit(item.getSalesUnit());
+                backDetail.setRefItem(item.getDelivItem());
+                backDetail.setRefDoc(item.getDelivNumb());
+                backDetail.setMaterial(item.getMaterial());
+                backDetail.setDlvQty(item.getDlvQty());
+                list.add(backDetail);
+            }
+            backDate.setItems(list);
+        }
 
 
-        return ref;
+        // TODO: 2016/11/7 返回单号
+        return backDate;
     }
 
-    public String ibd2SapAccount(CreateIbdHeader createIbdHeader) {
+    public String ibd2SapAccount(CreateIbdHeader createIbdHeader,String ibdId) {
         //当前时间转成XMLGregorianCalendar类型
-//        Calendar calendar = Calendar.getInstance();
-//        XMLGregorianCalendar date = new XMLGregorianCalendarImpl();
-//        date.setYear(calendar.get(Calendar.YEAR));
-//        //date.setDay(calendar.get(Calendar.DATE));
-//        date.setDay(5);
-//        date.setMonth(calendar.get(Calendar.MONTH));
+        Calendar calendar = Calendar.getInstance();
+        XMLGregorianCalendar date = new XMLGregorianCalendarImpl();
+        date.setYear(calendar.get(Calendar.YEAR));
+        date.setDay(calendar.get(Calendar.DATE));
+        //date.setDay(5);
+        date.setMonth(calendar.get(Calendar.MONTH)+1);
         //注册工厂
         com.lsh.wms.integration.wumart.ibdaccount.ObjectFactory factory = new com.lsh.wms.integration.wumart.ibdaccount.ObjectFactory();
 
@@ -207,11 +250,12 @@ public class WuMartSap implements IWuMartSap{
 
         for(CreateIbdDetail detail :details){
             ZDELIVERYIMPORT pItem = factory.createZDELIVERYIMPORT();
-            pItem.setVBELN(detail.getPoNumber());
+            //pItem.setVBELN(detail.getPoNumber());
+            pItem.setVBELN(ibdId);
             pItem.setPOSNR(detail.getPoItme());
             pItem.setLFIMG(detail.getDeliveQty());
             pItem.setPIKMG(detail.getDeliveQty());
-            //pItem.setWADATIST(date);
+            pItem.setWADATIST(date);
             // TODO: 2016/11/6  在库OOO1直流0005
             //pItem.setLGORT();
             pItem.setLGORT("0001");
@@ -219,11 +263,15 @@ public class WuMartSap implements IWuMartSap{
             pItem.setVRKME(detail.getUnit());
             pItems.getItem().add(pItem);
         }
+        TABLEOFZDELIVERYEXPORT eItems = factory.createTABLEOFZDELIVERYEXPORT();
+        ZDELIVERYEXPORT eItem = factory.createZDELIVERYEXPORT();
+        eItem.setVBELN("180011153");
+        eItems.getItem().add(eItem);
         //组装参数
         Holder<TABLEOFBAPIIBDLVITEMCTRLCHG> itemCONTROL = new Holder<TABLEOFBAPIIBDLVITEMCTRLCHG>();
         Holder<TABLEOFBAPIIBDLVITEMCHG> itemDATA = new Holder<TABLEOFBAPIIBDLVITEMCHG>();
         Holder<TABLEOFPROTT> prot = new Holder<TABLEOFPROTT>();
-        Holder<TABLEOFZDELIVERYEXPORT> pZEXPORT = new Holder<TABLEOFZDELIVERYEXPORT>();
+        Holder<TABLEOFZDELIVERYEXPORT> pZEXPORT = new Holder<TABLEOFZDELIVERYEXPORT>(eItems);
         Holder<TABLEOFZDELIVERYIMPORT> pZIMPORT = new Holder<TABLEOFZDELIVERYIMPORT>(pItems);
         TABLEOFBAPIRET2 _return = factory.createTABLEOFBAPIRET2();
         Holder<TABLEOFBAPIRET2> return1 = new Holder<TABLEOFBAPIRET2>();
@@ -233,7 +281,15 @@ public class WuMartSap implements IWuMartSap{
         this.auth((BindingProvider) zbinding);
         logger.info("传入参数: pZIMPORT : " + JSON.toJSONString(pZIMPORT)+"~~~~~~~~~~~~~~");
         TABLEOFBAPIRET2 newReturn = zbinding.zDELIVERYINBOUNDUPDATE(itemCONTROL,itemDATA,prot,pZEXPORT,pZIMPORT,_return,return1,vbpokTAB);
-        logger.info("参数 : pZIMPORT : " + JSON.toJSONString(pZIMPORT)+"~~~~~~~~~~~~~~");
+        logger.info("参数 : pZIMPORT : " + JSON.toJSONString(pZIMPORT)
+                + " itemCONTROL : "+itemCONTROL
+                + "itemDATA : " + itemDATA
+                + "prot : " + prot
+                + " pZEXPORT : " + JSON.toJSONString(pZEXPORT)
+                + " pZIMPORT : " + JSON.toJSONString(pZIMPORT)
+                + " _return  : " +JSON.toJSONString(_return)
+                + " return1 : " +JSON.toJSONString(return1)
+                + " vbpokTAB" + JSON.toJSONString(vbpokTAB));
 
         logger.info("返回值 : newReturn : " + JSON.toJSONString(newReturn.getItem()));
 
@@ -246,7 +302,7 @@ public class WuMartSap implements IWuMartSap{
         XMLGregorianCalendar date = new XMLGregorianCalendarImpl();
         date.setYear(calendar.get(Calendar.YEAR));
         date.setDay(calendar.get(Calendar.DATE));
-        date.setMonth(calendar.get(Calendar.MONTH));
+        date.setMonth(calendar.get(Calendar.MONTH) + 1);
 
         com.lsh.wms.integration.wumart.obdaccount.ObjectFactory factory = new com.lsh.wms.integration.wumart.obdaccount.ObjectFactory();
         com.lsh.wms.integration.wumart.obdaccount.TABLEOFZDELIVERYIMPORT zItmes = factory.createTABLEOFZDELIVERYIMPORT();
@@ -255,6 +311,7 @@ public class WuMartSap implements IWuMartSap{
         for(CreateObdDetail detail : details){
             com.lsh.wms.integration.wumart.obdaccount.ZDELIVERYIMPORT zItem = factory.createZDELIVERYIMPORT();
             zItem.setVBELN(detail.getRefDoc());
+            //zItem.setVBELN(obdId);
             zItem.setPOSNR(detail.getRefItem());
             zItem.setLFIMG(detail.getDlvQty());
             zItem.setPIKMG(detail.getDlvQty());
@@ -262,12 +319,19 @@ public class WuMartSap implements IWuMartSap{
             zItem.setLGORT("0001");
             zItem.setWERKS("DC09");
             zItem.setVRKME(detail.getSalesUnit());
+            zItmes.getItem().add(zItem);
         }
+        com.lsh.wms.integration.wumart.obdaccount.TABLEOFZDELIVERYEXPORT eItems = factory.createTABLEOFZDELIVERYEXPORT();
+        com.lsh.wms.integration.wumart.obdaccount.ZDELIVERYEXPORT eItem = factory.createZDELIVERYEXPORT();
+        eItem.setVBELN("11111");
+        eItems.getItem().add(eItem);
+
+
         //组装参数
         Holder<TABLEOFBAPIOBDLVITEMCTRLCHG> itemCONTROL = new Holder<TABLEOFBAPIOBDLVITEMCTRLCHG>();
         Holder<TABLEOFBAPIOBDLVITEMCHG> itemDATA = new Holder<TABLEOFBAPIOBDLVITEMCHG>();
         Holder<com.lsh.wms.integration.wumart.obdaccount.TABLEOFPROTT> prot = new Holder<com.lsh.wms.integration.wumart.obdaccount.TABLEOFPROTT>();
-        Holder<com.lsh.wms.integration.wumart.obdaccount.TABLEOFZDELIVERYEXPORT> pZEXPORT = new Holder<com.lsh.wms.integration.wumart.obdaccount.TABLEOFZDELIVERYEXPORT>();
+        Holder<com.lsh.wms.integration.wumart.obdaccount.TABLEOFZDELIVERYEXPORT> pZEXPORT = new Holder<com.lsh.wms.integration.wumart.obdaccount.TABLEOFZDELIVERYEXPORT>(eItems);
         Holder<com.lsh.wms.integration.wumart.obdaccount.TABLEOFZDELIVERYIMPORT> pZIMPORT = new Holder<com.lsh.wms.integration.wumart.obdaccount.TABLEOFZDELIVERYIMPORT>(zItmes);
         com.lsh.wms.integration.wumart.obdaccount.TABLEOFBAPIRET2 _return = factory.createTABLEOFBAPIRET2();
         Holder<com.lsh.wms.integration.wumart.obdaccount.TABLEOFBAPIRET2> return1 = new Holder<com.lsh.wms.integration.wumart.obdaccount.TABLEOFBAPIRET2>();
@@ -275,9 +339,15 @@ public class WuMartSap implements IWuMartSap{
 
         com.lsh.wms.integration.wumart.obdaccount.ZDELIVERYOUTBOUNDUPDATE zbinding = new ZDELIVERYOUTBOUNDUPDATE_Service().getBindingSOAP12();
         this.auth((BindingProvider) zbinding);
+        logger.info("入参: pZEXPORT : " + JSON.toJSONString(pZEXPORT) + " pZIMPORT : " + JSON.toJSONString(pZIMPORT));
         com.lsh.wms.integration.wumart.obdaccount.TABLEOFBAPIRET2 newReturn = zbinding.zDELIVERYOUTBOUNDUPDATE(itemCONTROL,itemDATA,prot,pZEXPORT,pZIMPORT,_return,return1,vbpokTAB);
 
-        logger.info("返回值 : newReturn : " + JSON.toJSONString(newReturn.getItem()));
+        logger.info("返回值 : newReturn : " + JSON.toJSONString(newReturn.getItem())
+                + " itemCONTROL : " + JSON.toJSONString(itemCONTROL)
+                + " itemDATA : " + JSON.toJSONString(itemDATA)
+                + " prot : " + JSON.toJSONString(prot)
+                + " pZEXPORT: " + JSON.toJSONString(pZEXPORT)
+                + " pZIMPORT : " + JSON.toJSONString(pZIMPORT));
         return JSON.toJSONString(newReturn.getItem());
     }
 
