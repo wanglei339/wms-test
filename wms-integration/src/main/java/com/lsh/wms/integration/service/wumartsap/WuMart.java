@@ -20,11 +20,18 @@ public class WuMart implements IWuMart {
 
 
     public void sendIbd(CreateIbdHeader createIbdHeader) {
-        wuMartSap.ibd2Sap(createIbdHeader);
+        String ibdId = wuMartSap.ibd2Sap(createIbdHeader);
+        if(ibdId != null){
+            wuMartSap.ibd2SapAccount(createIbdHeader,ibdId);
+        }
 
     }
 
     public void sendObd(CreateObdHeader createObdHeader) {
-        wuMartSap.obd2Sap(createObdHeader);
+        CreateObdHeader backDate = wuMartSap.obd2Sap(createObdHeader);
+        if(backDate != null){
+            wuMartSap.obd2SapAccount(backDate);
+        }
+
     }
 }

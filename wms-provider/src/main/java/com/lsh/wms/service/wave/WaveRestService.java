@@ -12,6 +12,7 @@ import com.lsh.wms.api.model.wumart.CreateObdDetail;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.back.IDataBackService;
 import com.lsh.wms.api.service.wave.IWaveRestService;
+import com.lsh.wms.api.service.wumart.IWuMart;
 import com.lsh.wms.api.service.wumart.IWuMartSap;
 import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.constant.WaveConstant;
@@ -78,8 +79,11 @@ public class WaveRestService implements IWaveRestService {
     @Autowired
     private SoDeliveryService soDeliveryService;
 
+//    @Reference
+//    private IWuMartSap wuMartSap;
+
     @Reference
-    private IWuMartSap wuMartSap;
+    private IWuMart wuMart;
 
     @POST
     @Path("getList")
@@ -178,7 +182,8 @@ public class WaveRestService implements IWaveRestService {
                     details.add(detail);
                 }
                 createObdHeader.setItems(details);
-                wuMartSap.obd2Sap(createObdHeader);
+                //wuMartSap.obd2Sap(createObdHeader);
+                wuMart.sendObd(createObdHeader);
 
                 // TODO: 2016/11/3 回传WMSAP 组装信息
             }

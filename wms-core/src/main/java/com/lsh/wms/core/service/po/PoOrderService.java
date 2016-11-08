@@ -329,7 +329,7 @@ public class PoOrderService {
     @Transactional(readOnly = false)
     public void insertIbdObdRelation(IbdObdRelation ibdObdRelation){
         Map<String, Object> param = new HashMap<String, Object>();
-        param.put("ibdDetailId",ibdObdRelation.getIbdDetailId());
+        param.put("obdOtherId",ibdObdRelation.getObdOtherId());
         param.put("obdDetailId",ibdObdRelation.getObdDetailId());
         List<IbdObdRelation> list = ibdObdRelationDao.getIbdObdRelationList(param);
         //先判断记录是否存在,不存在再插入
