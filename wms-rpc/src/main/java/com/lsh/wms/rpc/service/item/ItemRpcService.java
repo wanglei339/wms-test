@@ -117,5 +117,7 @@ public class ItemRpcService implements IItemRpcService {
         }
         return packUnit;
     }
-
+    public List<BaseinfoItemLocation> getItemLocation(Map<String,Object> queryMap) {
+        return  itemLocationService.getItemLocation(queryMap);
+    }
 }

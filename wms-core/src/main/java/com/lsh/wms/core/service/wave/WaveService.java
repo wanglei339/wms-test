@@ -127,6 +127,10 @@ public class WaveService {
         List<WaveDetail> details = detailDao.getWaveDetailList(mapQuery);
         return details.size() == 0 ? null : details;
     }
+    public List<WaveDetail> getWaveDetails (Map<String, Object> mapQuery) {
+        List<WaveDetail> details = detailDao.getWaveDetailList(mapQuery);
+        return details.size() == 0 ? null : details;
+    }
 
     @Transactional(readOnly = false)
     public void update(WaveHead head){

@@ -16,7 +16,9 @@ import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockQuant;
@@ -24,6 +26,7 @@ import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
+import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +71,10 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
     @Autowired
     private BaseTaskService baseTaskService;
+    @Autowired
+    private SoOrderService soOrderService;
+    @Autowired
+    private WaveService waveService;
     //生成补货任务
     public boolean addProcurementPlan(StockTransferPlan plan){
         //系统自动创建的任务,无需进行任务检查,不可抛异常
@@ -189,7 +196,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     BigDecimal total = stockQuantService.getQty(condition);
                     // 创建任务
                     StockTransferPlan plan = new StockTransferPlan();
-                    plan.setPriority(1L);
+                    plan.setPriority(getPackPriority(itemLocation.getItemId()));
                     plan.setContainerId(quant.getContainerId());
                     plan.setItemId(itemLocation.getItemId());
                     plan.setFromLocationId(quant.getLocationId());
@@ -204,6 +211,53 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             }
         }
     }
+    //获取商品拣货优先级
+    private Long getPackPriority(Long itemId){
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("itemId", itemId);
+        mapQuery.put("isValid", 1);
+        mapQuery.put("isAlive", 1);
+        List<WaveDetail> detailList = waveService.getWaveDetails(mapQuery);
+        if(detailList == null){
+            return 1L;
+        }
+        boolean haveAssignedTask = false;//有进行中的拣货任务
+        boolean haveDraftTask = false;//有还未开始的拣货任务
+        boolean haveSo = false;//已下单,还没生成拣货任务
+
+        for(WaveDetail wd : detailList){
+           Long pickTaskId =  wd.getPickTaskId();
+            if(pickTaskId == 0){
+                haveSo = true;
+            }
+            Map<String, Object> taskQuery = new HashMap<String, Object>();
+            taskQuery.put("taskId", pickTaskId);
+            List<TaskInfo> taskInfoList =  baseTaskService.getTaskInfoList(taskQuery);
+            for(TaskInfo t : taskInfoList){
+                if(TaskConstant.Done.equals(t.getStatus()) && wd.getPickQty().compareTo(wd.getAllocQty()) == -1){
+                    //有已完成的拣货任务,且拣货数量小于要求拣货的数量
+                    return 5L;//缺交
+                }else if(TaskConstant.Assigned.equals(t.getStatus())){
+                    //有进行中的拣货任务
+                    haveAssignedTask = true;
+                }else if(TaskConstant.Draft.equals(t.getStatus())){
+                    //有尚未开始的拣货任务
+                    haveDraftTask = true;
+                }
+            }
+        }
+        if(haveAssignedTask){
+            return 4L; //有进行中的拣货任务
+        }else if(haveDraftTask){
+            return 3L;//有尚未开始的拣货任务
+        }else if(haveSo){
+            return 2L;
+        }else{
+            return 1L;
+        }
+
+    }
+
 
     public Long assign(Long staffId) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
@@ -343,7 +397,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             return false;
         }
 
-        if(taskId != null ){
+        if(taskId.compareTo(0L)!=0 ){
             //更新任务
             TaskEntry entry =  taskRpcService.getTaskEntryById(plan.getTaskId());
             if(entry == null){

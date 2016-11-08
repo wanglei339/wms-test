@@ -64,6 +64,14 @@ public class ItemLocationService {
             return list;
         }
     }
+    public List<BaseinfoItemLocation> getItemLocation(Map<String,Object> mapQuery){
+        List<BaseinfoItemLocation> list  = itemLocationDao.getBaseinfoItemLocationList(mapQuery);
+        if (list == null) {
+            return new ArrayList<BaseinfoItemLocation>();
+        } else {
+            return list;
+        }
+    }
 
 
 

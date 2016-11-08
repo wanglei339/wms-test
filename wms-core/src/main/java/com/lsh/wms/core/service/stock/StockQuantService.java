@@ -193,8 +193,8 @@ public class StockQuantService {
     public void move(StockMove move) throws BizCheckedException {
         boolean moveInhouse = false;
         boolean moveOutHouse = false;
-        if (move.getFromLocationId().equals(0L) &&
-                (baseTaskService.getTaskTypeById(move.getTaskId()).equals(TaskConstant.TYPE_SHELVE) ||
+        if ((!move.getToLocationId().equals(0L)) &&
+                (baseTaskService.getTaskTypeById(move.getTaskId()).equals(TaskConstant.TYPE_SHELVE)   ||
                         baseTaskService.getTaskTypeById(move.getTaskId()).equals(TaskConstant.TYPE_ATTIC_SHELVE) ||
                         baseTaskService.getTaskTypeById(move.getTaskId()).equals(TaskConstant.TYPE_PICK_UP_SHELVE)
                 )

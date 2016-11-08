@@ -358,6 +358,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         ObjUtils.bean2bean(quant, move);
         move.setFromLocationId(quant.getLocationId());
         move.setToLocationId(realLocationId);
+        move.setTaskId(taskId);
         move.setQty(realQty.multiply(quant.getPackUnit()));
         move.setFromContainerId(quant.getContainerId());
         move.setToContainerId(containerId);

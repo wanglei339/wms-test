@@ -44,13 +44,10 @@ public class ProcurementRestService implements IProcurementRestService {
     private static Logger logger = LoggerFactory.getLogger(ProcurementRestService.class);
 
     @Reference
-    private IProcurementProveiderRpcService rpcService;
+    private IProcurementProveiderRpcService iProcurementProveiderRpcService;
 
     @Reference
     private ITaskRpcService iTaskRpcService;
-
-    @Reference
-    private ITaskRpcService taskRpcService;
 
     @Reference
     private IItemRpcService itemRpcService;
@@ -82,7 +79,7 @@ public class ProcurementRestService implements IProcurementRestService {
                     return JsonUtils.TOKEN_ERROR("扫描库位和系统库位不一致");
                 }
             }
-            rpcService.scanFromLocation(mapQuery);
+            iProcurementProveiderRpcService.scanFromLocation(mapQuery);
         }catch (BizCheckedException ex){
             throw ex;
         }
@@ -114,7 +111,7 @@ public class ProcurementRestService implements IProcurementRestService {
                     return JsonUtils.TOKEN_ERROR("扫描库位和系统库位不一致");
                 }
             }
-            rpcService.scanToLocation(params);
+            iProcurementProveiderRpcService.scanToLocation(params);
         }catch (BizCheckedException ex){
             throw ex;
         }
@@ -150,7 +147,7 @@ public class ProcurementRestService implements IProcurementRestService {
                         return JsonUtils.TOKEN_ERROR("扫描库位和系统库位不一致");
                     }
                 }
-                rpcService.scanToLocation(params);
+                iProcurementProveiderRpcService.scanToLocation(params);
                 return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
                     {
                         put("response", true);
@@ -173,7 +170,7 @@ public class ProcurementRestService implements IProcurementRestService {
                         }
                     });
                 }
-                rpcService.scanFromLocation(params);
+                iProcurementProveiderRpcService.scanFromLocation(params);
                 return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                     {
                         put("taskId", info.getTaskId().toString());
@@ -265,11 +262,11 @@ public class ProcurementRestService implements IProcurementRestService {
                 });
             }
         }
-        final Long taskId = rpcService.assign(uid);
+        final Long taskId = iProcurementProveiderRpcService.assign(uid);
         if(taskId.compareTo(0L)==0) {
             return JsonUtils.TOKEN_ERROR("无补货任务可领");
         }
-        TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
+        TaskEntry taskEntry = iTaskRpcService.getTaskEntryById(taskId);
         if (taskEntry == null) {
             throw new BizCheckedException("2040001");
         }
@@ -303,7 +300,7 @@ public class ProcurementRestService implements IProcurementRestService {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
         try {
-            TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
+            TaskEntry taskEntry = iTaskRpcService.getTaskEntryById(taskId);
             if (taskEntry == null) {
                 throw new BizCheckedException("2040001");
             }

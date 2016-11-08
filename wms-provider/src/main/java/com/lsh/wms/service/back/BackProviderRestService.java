@@ -33,8 +33,6 @@ public class BackProviderRestService implements IBackProviderRestService {
     SoOrderService soOrderService;
     @Autowired
     PoOrderService poOrderService;
-    @Reference
-    IBackInStorageProviderRpcService backInStorageProviderRpcService;
 
     /**
      * 根据orderId获得供商类信息详情
