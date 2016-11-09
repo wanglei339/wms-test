@@ -89,6 +89,7 @@ public class TuRpcService implements ITuRpcService {
     @Autowired
     private PoOrderService poOrderService;
 
+
 //    @Reference
 //    private IWuMartSap wuMartSap;
 //
@@ -347,7 +348,7 @@ public class TuRpcService implements ITuRpcService {
      */
 
     /**
-     * 移动板子库存到消费区
+     * 移动板子库存到消费区   移动在一个事务中
      *
      * @param waveDetails
      * @return
@@ -357,9 +358,11 @@ public class TuRpcService implements ITuRpcService {
         if (null == waveDetails || waveDetails.size() < 1) {
             throw new BizCheckedException("2880012");
         }
+        Set<Long> containerIds = new HashSet<Long>();
         for (WaveDetail detail : waveDetails) {
-            stockMoveService.moveToConsume(detail.getContainerId());
+            containerIds.add(detail.getContainerId());
         }
+        stockMoveService.moveToConsume(containerIds);
         return true;
     }
 

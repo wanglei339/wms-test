@@ -19,6 +19,7 @@ import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.WaveConstant;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
@@ -72,8 +73,8 @@ public class QCRestService implements IRFQCRestService {
     private ISoRpcService iSoRpcService;
     @Reference
     private ILocationRpcService iLocationRpcService;
-    @Reference
-    private IStockQuantRpcService iStockQuantRpcService;
+    @Autowired
+    private StockQuantService stockQuantService;
 
     /**
      * 扫码获取qc任务详情
@@ -251,9 +252,12 @@ public class QCRestService implements IRFQCRestService {
         if (null == soInfo) {
             throw new BizCheckedException("2120016");
         }
-        //获取集货道信息去库存表中查位置,最准 todo iStockQuantRpcService
-
-        BaseinfoLocation collectLocaion = iLocationRpcService.getLocation(details.get(0).getAllocCollectLocation());
+        //获取集货道信息去库存表中查位置,   系统设计 一个托盘只能在一个位置上
+        List<Long> locationIds = stockQuantService.getLocationIdByContainerId(containerInfo.getContainerId());
+        if (null == locationIds || locationIds.size() < 1) {
+            throw new BizCheckedException("2180040");
+        }
+        BaseinfoLocation collectLocaion = iLocationRpcService.getLocation(locationIds.get(0));
         Map<String, Object> rstMap = new HashMap<String, Object>();
         rstMap.put("qcList", undoDetails);
         rstMap.put("isDirect", isDirect);
