@@ -94,9 +94,8 @@ public interface ILocationRestService {
 
     /**
      * 获取下一层的位置节点
-     * @param locationId
      * @return
      * @throws BizCheckedException
      */
-    public String getNextLevelLocations(Long locationId) throws BizCheckedException;
+    public String getNextLevelLocations() throws BizCheckedException;
 }

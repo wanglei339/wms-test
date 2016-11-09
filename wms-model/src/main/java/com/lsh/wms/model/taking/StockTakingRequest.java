@@ -1,5 +1,6 @@
 package com.lsh.wms.model.taking;
 
+import com.lsh.base.common.utils.DateUtils;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import java.io.Serializable;
 
@@ -21,7 +22,7 @@ public class StockTakingRequest implements Serializable {
     /** 盘点性质 */
     private Long planType = 1L;
     /** 要求结束时间 */
-    private Long dueTime = 0L;
+    private Long dueTime = DateUtils.getCurrentSeconds();
     /** 盘点计划Id*/
     private Long takingId = 0L;
     /** 盘点任务发起人*/

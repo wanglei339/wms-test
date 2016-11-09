@@ -2,26 +2,13 @@ package com.lsh.wms.core.service.stock;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
-import com.lsh.atp.api.model.baseVo.SkuVo;
-import com.lsh.atp.api.model.inventory.InventorySyncLshRequest;
-import com.lsh.base.common.config.PropertyUtils;
-import com.lsh.base.common.json.JsonUtils;
-import com.lsh.base.common.net.HttpClientUtils;
-import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.inventory.ISynInventory;
 import com.lsh.wms.api.service.inventory.ISynStockInventory;
 import com.lsh.wms.core.service.item.ItemService;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Project Name: lsh-wms
