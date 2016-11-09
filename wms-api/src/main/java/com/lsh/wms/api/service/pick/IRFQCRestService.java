@@ -16,4 +16,10 @@ public interface IRFQCRestService {
     public String qcOneItem() throws BizCheckedException;
     public String confirmAll() throws BizCheckedException;
     public String confirm() throws BizCheckedException;
+
+
+    public String skipExceptionRf() throws BizCheckedException;
+    public String repairExceptionRf() throws BizCheckedException;
+    public String fallbackExceptionRf() throws BizCheckedException;
+
 }

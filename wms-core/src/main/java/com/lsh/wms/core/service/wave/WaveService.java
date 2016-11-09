@@ -152,6 +152,26 @@ public class WaveService {
         }
     }
 
+    /**
+     * 通过托盘码和skuId获取detail
+     * @param containerId
+     * @param skuId
+     * @return
+     */
+    public List<WaveDetail> getDetailByContainerIdAndSkuId(Long containerId ,Long skuId){
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("containerId",containerId);
+        mapQuery.put("skuId", skuId);
+        mapQuery.put("isValid", 1);
+        mapQuery.put("isAlive", 1);
+        List<WaveDetail> waveDetails = detailDao.getWaveDetailList(mapQuery);
+        if(waveDetails== null || waveDetails.size()==0){
+            return null;
+        }else {
+            return waveDetails;
+        }
+    }
+
     @Transactional(readOnly = false)
     public void setStatus(long iWaveId, int iStatus){
         WaveHead head = this.getWave(iWaveId);
