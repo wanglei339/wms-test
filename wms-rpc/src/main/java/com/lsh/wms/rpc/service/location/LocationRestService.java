@@ -314,9 +314,11 @@ public class LocationRestService implements ILocationRestService {
      * @return
      * @throws BizCheckedException
      */
-    @GET
+    @POST
     @Path("getNextLevelLocations")
-    public String getNextLevelLocations(@QueryParam("locationId") Long locationId) throws BizCheckedException {
+    public String getNextLevelLocations() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long locationId = Long.valueOf(mapQuery.get("locationId").toString());
         if (null == locationId || locationId.equals("")) {
             throw new BizCheckedException("2180004");
         }
