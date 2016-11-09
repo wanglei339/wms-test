@@ -297,4 +297,29 @@ public class SoOrderService {
         return detailList.get(0);
     }
 
+    /**
+     * 根据orderOtherId获取OutbSoHeader
+     *
+     * @param orderOtherId
+     * @return
+     */
+    public ObdHeader getOutbSoHeaderByOrderOtherIdAndType(String orderOtherId,int orderType) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("orderOtherId", orderOtherId);
+        params.put("orderType",orderType);
+
+        //获取OutbSoHeader
+        List<ObdHeader> obdHeaderList = getOutbSoHeaderList(params);
+        if (obdHeaderList.size() > 1 || obdHeaderList.size() <= 0) {
+            return null;
+        }
+
+        ObdHeader obdHeader = obdHeaderList.get(0);
+
+        //获取OutbSoDetail
+        fillDetailToHeader(obdHeader);
+
+        return obdHeader;
+    }
+
 }

@@ -593,7 +593,7 @@ public class ReceiptRestService implements IReceiptRfService {
             String obdOtherId=ibdObdRelation.getObdOtherId();
             String obdDetailId=ibdObdRelation.getObdDetailId();
 
-            ObdHeader obdHeader=soOrderService.getOutbSoHeaderByOrderOtherId(obdOtherId);
+            ObdHeader obdHeader=soOrderService.getOutbSoHeaderByOrderOtherIdAndType(obdOtherId,SoConstant.ORDER_TYPE_DIRECT);
             //该门店有新建的直流出库订单
             isOrder=obdHeader!=null&&storeId.equals(obdHeader.getDeliveryCode())
                     &&SoConstant.ORDER_TYPE_DIRECT==obdHeader.getOrderType()
