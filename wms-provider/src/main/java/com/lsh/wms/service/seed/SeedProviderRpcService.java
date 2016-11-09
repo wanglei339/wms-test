@@ -10,6 +10,7 @@ import com.lsh.wms.api.service.seed.ISeedProveiderRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.PoConstant;
+import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.container.ContainerService;
@@ -178,7 +179,7 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
             String obdDetailId = ibdObdRelation.getObdDetailId();
 
 
-            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(obdOtherId);
+            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherIdAndType(obdOtherId, SoConstant.ORDER_TYPE_DIRECT);
             String storeNo = obdHeader.getDeliveryCode();
             Long obdOrderId = obdHeader.getOrderId();
             Map<String,Object> map = new HashMap<String, Object>();
