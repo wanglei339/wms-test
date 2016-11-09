@@ -15,6 +15,7 @@ import com.lsh.wms.api.service.wave.IWaveRestService;
 import com.lsh.wms.api.service.wumart.IWuMart;
 import com.lsh.wms.api.service.wumart.IWuMartSap;
 import com.lsh.wms.core.constant.IntegrationConstan;
+import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
@@ -32,6 +33,7 @@ import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.wave.WaveHead;
 import com.lsh.wms.model.wave.WaveRequest;
+import com.lsh.wms.model.wave.WaveTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -145,8 +147,10 @@ public class WaveRestService implements IWaveRestService {
         //必须保证数据只能发货一次,保证方法为生成发货单完成标示在行项目中,调用时将忽略已经标记生成的行项目
         //如此做将可以允许重复发货
         waveService.shipWave(head, detailList);
-        //更新可用库存
-        inventoryRedisService.onDelivery(detailList);
+        //更新可用库存,直流忽略
+        if(!head.getStatus().equals(SoConstant.ORDER_TYPE_DIRECT)) {
+            inventoryRedisService.onDelivery(detailList);
+        }
         //传送给外部系统,其实比较好的方式是扔出来到队列里,外部可以选择性处理.
 
         // TODO: 16/9/7 回传物美 根据货主区分回传obd
@@ -361,6 +365,48 @@ public class WaveRestService implements IWaveRestService {
     @Path("getWaveQcExceptionList")
     public String getWaveQcExceptionList(@QueryParam("waveId") long iWaveId) {
         return JsonUtils.SUCCESS(waveService.getExceptionsByWaveId(iWaveId));
+    }
+
+    @GET
+    @Path("getWaveTemplateList")
+    public String getWaveTemplateList(Map<String, Object> mapQuery){
+        return JsonUtils.SUCCESS(waveTemplateService.getWaveTemplateList(mapQuery));
+    }
+
+    @GET
+    @Path("getWaveTemplateList")
+    public String getWaveTemplateCount(Map<String, Object> mapQuery){
+        return JsonUtils.SUCCESS(waveTemplateService.getWaveTemplateCount(mapQuery));
+    }
+
+    @GET
+    @Path("getWaveTemplate")
+    public String getWaveTemplate(@QueryParam("waveTemplateId") long waveTemplateId ){
+        return JsonUtils.SUCCESS(waveTemplateService.getWaveTemplate(waveTemplateId));
+    }
+
+    @POST
+    @Path("createWaveTemplate")
+    public String createWaveTemplate(WaveTemplate tpl){
+        try{
+            waveTemplateService.createWaveTemplate(tpl);
+        }catch (Exception e ){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("create failed");
+        }
+        return JsonUtils.SUCCESS();
+    }
+
+    @POST
+    @Path("updateWaveTemplate")
+    public String updateWaveTemplate(WaveTemplate tpl){
+        try{
+            waveTemplateService.updateWaveTemplate(tpl);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            JsonUtils.EXCEPTION_ERROR("update failed");
+        }
+        return JsonUtils.SUCCESS();
     }
 
     public static void main(String[] args) {

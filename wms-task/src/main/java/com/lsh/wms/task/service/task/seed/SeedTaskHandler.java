@@ -249,7 +249,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
             List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(queryMap);
             for(IbdObdRelation ibdObdRelation :ibdObdRelations) {
                 String obdOtherId = ibdObdRelation.getObdOtherId();
-                ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(obdOtherId);
+                ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherIdAndType(obdOtherId, SoConstant.ORDER_TYPE_DIRECT);
 
                 if(obdHeader.getDeliveryCode().equals(head.getStoreNo())) {
                     soOrderId = obdHeader.getOrderId();
@@ -330,7 +330,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
         List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(queryMap);
         for(IbdObdRelation ibdObdRelation :ibdObdRelations) {
             String obdOtherId = ibdObdRelation.getObdOtherId();
-            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(obdOtherId);
+            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherIdAndType(obdOtherId, SoConstant.ORDER_TYPE_DIRECT);
 
             if(obdHeader.getDeliveryCode().equals(head.getStoreNo().toString())) {
                 String key = StrUtils.formatString(RedisKeyConstant.PO_STORE, info.getOrderId(), head.getStoreNo());

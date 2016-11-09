@@ -35,7 +35,8 @@ public class IntegrationWaveService implements IWaveService {
         String msg = "创建成功;释放成功";
         int ret = 0;
         try {
-            waveId = iWaveRpcService.createWave(request);
+            //waveId = iWaveRpcService.createWave(request);
+            waveId = iWaveRpcService.decorateCreateWave(request);
         }catch (BizCheckedException e){
             msg = "创建失败;"+e.getMessage();
             ret = -1;

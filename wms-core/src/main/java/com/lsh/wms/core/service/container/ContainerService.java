@@ -46,7 +46,18 @@ public class ContainerService {
         }
         return container;
     }
-
+    public BaseinfoContainer getContainerByCode(String containerCode) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        BaseinfoContainer container;
+        params.put("containerCode", containerCode);
+        List<BaseinfoContainer> containers = containerDao.getBaseinfoContainerList(params);
+        if (containers!=null && containers.size() == 1) {
+            container = containers.get(0);
+        } else {
+            return null;
+        }
+        return container;
+    }
     @Transactional(readOnly = false)
     public void insertContainer(BaseinfoContainer container) {
         containerDao.insert(container);
@@ -65,6 +76,7 @@ public class ContainerService {
         }
         BaseinfoContainer container = BeanMapTransUtils.map2Bean(config, BaseinfoContainer.class);
         container.setContainerId(RandomUtils.genId());
+        container.setContainerCode(container.getContainerId().toString());
         container.setCreatedAt(DateUtils.getCurrentSeconds());
         container.setUpdatedAt(DateUtils.getCurrentSeconds());
         container.setType(type);

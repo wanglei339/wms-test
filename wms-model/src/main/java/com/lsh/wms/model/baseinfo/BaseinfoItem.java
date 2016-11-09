@@ -91,6 +91,10 @@ public class BaseinfoItem implements Serializable {
 	private String l2Name = "";
 	/** 外包装名称 */
 	private String packName = "";
+	/**是否贵品 1贵品 2 非贵品*/
+	private Integer isValuable;
+	/**商品类型*/
+	private Integer itemType;
 
 
 
@@ -431,5 +435,21 @@ public class BaseinfoItem implements Serializable {
 
 	public void setUnitName(String unitName) {
 		this.unitName = unitName;
+	}
+
+	public Integer getIsValuable() {
+		return isValuable;
+	}
+
+	public void setIsValuable(Integer isValuable) {
+		this.isValuable = isValuable;
+	}
+
+	public Integer getItemType() {
+		return itemType;
+	}
+
+	public void setItemType(Integer itemType) {
+		this.itemType = itemType;
 	}
 }

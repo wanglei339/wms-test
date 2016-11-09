@@ -5,6 +5,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.wave.IWaveRpcService;
+import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.wave.WaveService;
@@ -17,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +38,25 @@ public class WaveRpcService implements IWaveRpcService {
     @Autowired
     private WaveCore core;
 
+
+    public Long decorateCreateWave(WaveRequest request) throws BizCheckedException {
+        List<Map> oldOrders = request.getOrders();
+        List<Map> newOrders = new ArrayList<Map>();
+        for(Map order : oldOrders){
+            String orderOtherId = order.get("orderId").toString();
+            ObdHeader so = soOrderService.getOutbSoHeaderByOrderOtherIdAndType(orderOtherId, SoConstant.ORDER_TYPE_SO);
+            if(so == null){
+                throw new BizCheckedException("2041000", orderOtherId,"");
+            }
+            Map<String,Long> map = new HashMap<String, Long>();
+            map.put("orderId",so.getOrderId());
+            newOrders.add(map);
+        }
+        request.setOrders(newOrders);
+
+        return this.createWave(request);
+    }
+
     public Long createWave(WaveRequest request) throws BizCheckedException {
         WaveHead pickWaveHead = new WaveHead();
         ObjUtils.bean2bean(request,pickWaveHead);
@@ -47,15 +69,15 @@ public class WaveRpcService implements IWaveRpcService {
         pickWaveHead.setWaveDest(tpl.getWaveDest());
         List<Map> orders = request.getOrders();
         for(Map order : orders){
-            //Long orderId = Long.valueOf(order.get("orderId").toString());
-            String orderOtherId = order.get("orderId").toString();
-            //ObdHeader so = soOrderService.getOutbSoHeaderByOrderId(orderId);
-            ObdHeader so = soOrderService.getOutbSoHeaderByOrderOtherId(orderOtherId);
+            Long orderId = Long.valueOf(order.get("orderId").toString());
+            //String orderOtherId = order.get("orderId").toString();
+            ObdHeader so = soOrderService.getOutbSoHeaderByOrderId(orderId);
+            //ObdHeader so = soOrderService.getOutbSoHeaderByOrderOtherId(orderOtherId);
             if(so == null){
-                throw new BizCheckedException("2041000", orderOtherId,"");
+                throw new BizCheckedException("2041000", orderId,"");
             }
             if(so.getWaveId() > 0){
-                throw new BizCheckedException("2041001", orderOtherId,"");
+                throw new BizCheckedException("2041001", orderId,"");
             }
             if(order.get("transPlan") == null
                     || order.get("waveIndex") == null

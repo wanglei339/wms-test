@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zengwenjun on 16/8/19.
@@ -34,6 +35,13 @@ public class WaveTemplateService {
         waveTemplateDao.insert(tpl);
     }
 
+    @Transactional(readOnly = false)
+    public void updateWaveTemplate(WaveTemplate tpl)
+    {
+        tpl.setUpdatedAt(DateUtils.getCurrentSeconds());
+        waveTemplateDao.update(tpl);
+    }
+
     @Transactional(readOnly = true)
     public WaveTemplate getWaveTemplate(long tplId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
@@ -41,4 +49,15 @@ public class WaveTemplateService {
         List<WaveTemplate> WaveTplList = waveTemplateDao.getWaveTemplateList(mapQuery);
         return WaveTplList.size() == 0 ? null : WaveTplList.get(0);
     }
+
+    @Transactional(readOnly = false)
+    public List<WaveTemplate> getWaveTemplateList(Map<String, Object> mapQuery){
+        return waveTemplateDao.getWaveTemplateList(mapQuery);
+    }
+
+    @Transactional(readOnly = false)
+    public int getWaveTemplateCount(Map<String, Object> mapQuery){
+        return waveTemplateDao.countWaveTemplate(mapQuery);
+    }
+
 }

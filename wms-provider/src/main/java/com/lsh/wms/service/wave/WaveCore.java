@@ -75,7 +75,7 @@ public class WaveCore {
     private WaveTemplateService waveTemplateService;
     @Autowired
     private MessageService messageService;
-    
+
     private WaveHead waveHead;
     List<ObdDetail> orderDetails;
     List<ObdHeader> orderList;
@@ -90,15 +90,15 @@ public class WaveCore {
     Map<Long, PickZone> mapZone;
     Map<Long, List<BaseinfoLocation>> mapZone2StoreLocations;
     private long waveId;
-    Map<String, List<Long>> mapItemAndPickZone2PickLocations;
+    Map<String, List<BaseinfoItemLocation>> mapItemAndPickZone2PickLocations;
     Map<String, Long> mapItemAndPickZone2PickLocationRound;
     Map<String, BigDecimal> mapPickZoneLeftAllocQty;
     List<WaveAllocDetail> pickAllocDetailList;
     List<TaskEntry> entryList;
     Map<String, Map<Long, BigDecimal>> mapItemArea2LocationInventory;
-    
 
-    public int release(long iWaveId) throws BizCheckedException{
+
+    public int release(long iWaveId) throws BizCheckedException {
         //获取波次信息
         waveId = iWaveId;
         //执行波次准备
@@ -111,7 +111,7 @@ public class WaveCore {
         //执行捡货模型,输出最小捡货单元
         this._executePickModel();
         //锁定集货区,记得发货的时候释放哟
-        for(BaseinfoLocation locaion : mapRoute2CollectRoad.values()) {
+        for (BaseinfoLocation locaion : mapRoute2CollectRoad.values()) {
             locationService.lockLocation(locaion.getLocationId());
         }
         //创建捡货任务
@@ -130,24 +130,24 @@ public class WaveCore {
             body.put("itemList", items.toArray());
             msg.setMsgBody(body);
             messageService.sendMessage(msg);
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             logger.warn("report wave info to redis fail");
         }
         return 0;
     }
 
-    private void _allocDock() throws BizCheckedException{
+    private void _allocDockByRoute() throws BizCheckedException {
         Map<Long, Long> mapCollectBinCount = new HashMap<Long, Long>();
         Map<Long, List<BaseinfoLocation>> mapCollectRoad2Bin = new HashMap<Long, List<BaseinfoLocation>>();
         int iUseIdx = 0;
-        for(ObdHeader order : orderList){
+        for (ObdHeader order : orderList) {
             Long collectAllocId = 0L;
             String rout = order.getTransPlan();
             BaseinfoLocation collecRoad = mapRoute2CollectRoad.get(rout);
-            if ( collecRoad == null ){
-                if(iUseIdx >= unUsedCollectionRoadList.size()){
-                    throw  new BizCheckedException("2040012");
+            if (collecRoad == null) {
+                if (iUseIdx >= unUsedCollectionRoadList.size()) {
+                    throw new BizCheckedException("2040012");
                 }
                 collecRoad = unUsedCollectionRoadList.get(iUseIdx);
                 iUseIdx++;
@@ -155,24 +155,24 @@ public class WaveCore {
                 mapCollectBinCount.put(collecRoad.getLocationId(), 0L);
             }
             long binIdx = mapCollectBinCount.get(collecRoad.getLocationId());
-            if(waveTemplate.getUseCollectBin() == 0){
+            if (waveTemplate.getUseCollectBin() == 0) {
                 //不使用精细的集货位
                 collectAllocId = collecRoad.getLocationId();
-            }else{
+            } else {
                 //使用精细的集货位
                 List<BaseinfoLocation> collectionBins = mapCollectRoad2Bin.get(collecRoad.getLocationId());
-                if(collectionBins == null){
-                    if(collecRoad.getIsLeaf()==1){
+                if (collectionBins == null) {
+                    if (collecRoad.getIsLeaf() == 1) {
                         //卧槽,已经是叶子节点了,没有集货位啊,怎么搞啊
                         collectionBins = new ArrayList<BaseinfoLocation>();
                     }
                     collectionBins = locationService.getChildrenLocationsByType(collecRoad.getLocationId(), LocationConstant.COLLECTION_BIN);
                     mapCollectRoad2Bin.put(collecRoad.getLocationId(), collectionBins);
                 }
-                if(order.getWaveIndex()>= collectionBins.size()){
+                if (order.getWaveIndex() >= collectionBins.size()) {
                     //卧槽,越界了,根本放不下啊,就放在道上将就将就吧
                     collectAllocId = collecRoad.getLocationId();
-                }else{
+                } else {
                     //哈哈,终于找到你拉兄弟
                     //不过这里我们不处理集货位的占用处理逻辑,TMS你不要瞎搞啊,否则就把我害惨了
                     collectAllocId = collectionBins.get(order.getWaveIndex()).getLocationId();
@@ -180,6 +180,43 @@ public class WaveCore {
             }
             mapOrder2CollectBin.put(order.getOrderId(), collectAllocId);
         }
+    }
+
+    private void _allocDockByCustomerStatic() throws BizCheckedException {
+        for (ObdHeader order : orderList) {
+            order.getOrderUser();
+            //如何获取这个设置呢,假设有了的话;
+            BaseinfoLocation collectLocation = null;
+            mapOrder2CollectBin.put(order.getOrderId(), collectLocation.getLocationId());
+
+        }
+    }
+
+    private void _allocDockByCustomerDynamic() throws BizCheckedException {
+        int iUseIdx = 0;
+        Map<String, BaseinfoLocation> mapUser2CollectLocation = new HashMap<String, BaseinfoLocation>();
+        for (ObdHeader order : orderList) {
+            BaseinfoLocation collectLocation = mapUser2CollectLocation.get(order.getOrderUser());
+            if(collectLocation == null){
+                if (iUseIdx >= unUsedCollectionRoadList.size()) {
+                    throw new BizCheckedException("2040012");
+                }
+                collectLocation = unUsedCollectionRoadList.get(iUseIdx);
+                iUseIdx++;
+                mapUser2CollectLocation.put(order.getOrderUser(), collectLocation);
+            }
+            mapOrder2CollectBin.put(order.getOrderId(), collectLocation.getLocationId());
+        }
+    }
+
+    private void _allocDock() throws BizCheckedException{
+        //按照线路动态划分集货道
+        this._allocDockByRoute();
+        //按照客户固定集货道
+        //this._allocDockByCustomerStatic();
+        //按照客户滚动集货道
+        //this._allocDockByCustomerDynamic();
+
     }
 
     private void _executePickModel() throws BizCheckedException{
@@ -276,11 +313,16 @@ public class WaveCore {
     }
 
     private BigDecimal _allocNormal(ObdDetail detail, PickZone zone, BaseinfoItem item, BaseinfoLocation location, BigDecimal leftAllocQty) throws BizCheckedException{
-        long pickLocationId = this._getPickLocation(item, location);
-        if (pickLocationId == 0) {
+        BaseinfoItemLocation pickItemLocation = this._getPickLocation(item, location);
+        if (pickItemLocation == null) {
             return leftAllocQty;
         }
+        Long pickLocationId = pickItemLocation.getPickLocationid();
         long pick_unit = zone.getPickUnit();
+        if(pickItemLocation.getPickLocationType() != 0){
+            pick_unit = pickItemLocation.getPickLocationType();
+            //特殊的,如果捡货位已经维护了单独的出货单位,则强制按照这个出货单位去走.
+        }
         BigDecimal pick_ea_num = null;
         String unitName = "";
         if (pick_unit == 1) {
@@ -367,6 +409,7 @@ public class WaveCore {
         }
         return leftAllocQty;
     }
+
     private void _alloc() throws BizCheckedException{
         //进行库存精确锁定
         //按捡货分区设置设定库存锁定粒度
@@ -424,7 +467,7 @@ public class WaveCore {
 
 
     private void _prepare() throws BizCheckedException{
-        mapItemAndPickZone2PickLocations = new HashMap<String, List<Long>>();
+        mapItemAndPickZone2PickLocations = new HashMap<String, List<BaseinfoItemLocation>>();
         mapItemAndPickZone2PickLocationRound = new HashMap<String, Long>();
         mapPickZoneLeftAllocQty = new HashMap<String, BigDecimal>();
         mapRoute2CollectRoad = new HashMap<String, BaseinfoLocation>();
@@ -547,40 +590,44 @@ public class WaveCore {
     private void _prepareX(){
     }
 
-    private long _getPickLocation(BaseinfoItem item, BaseinfoLocation location){
+    private BaseinfoItemLocation _getPickLocation(BaseinfoItem item, BaseinfoLocation location){
         /*
         这其实应该有一个捡货位分配算法.
         地堆区的捡货是个蛋疼的问题.
          */
         String key = String.format("%d-%d", item.getItemId(), location.getLocationId());
-        List<Long> pickLocationIds = mapItemAndPickZone2PickLocations.get(key);
-        if(pickLocationIds == null) {
-            List<Long> pickLocationIdList = new ArrayList<Long>();
+        List<BaseinfoItemLocation> pickLocations = mapItemAndPickZone2PickLocations.get(key);
+        if(pickLocations == null) {
+            List<BaseinfoItemLocation> pickLocationList = new ArrayList<BaseinfoItemLocation>();
             final List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationList(item.getItemId());
             //判断此区域是否有对应的捡货位
             for(BaseinfoItemLocation pickLocation : itemLocationList) {
                 if (pickLocation.getPickLocationid() >= location.getLeftRange()
                         && pickLocation.getPickLocationid() <= location.getRightRange()) {
-                    pickLocationIdList.add(pickLocation.getPickLocationid());
+                    pickLocationList.add(pickLocation);
                 }
             }
-            if(pickLocationIdList.size()==0 &&
+            if(pickLocationList.size()==0 &&
                     (location.getType() == LocationConstant.FLOOR || location.getType() == LocationConstant.FLOOR_BIN) ) {
                 //地堆区不设置也可以直接捡货
-                pickLocationIdList.add(location.getLocationId());
+                BaseinfoItemLocation itemLocation = new BaseinfoItemLocation();
+                itemLocation.setItemId(item.getItemId());
+                itemLocation.setPickLocationid(location.getLocationId());
+                itemLocation.setPickLocationType(0);
+                pickLocationList.add(itemLocation);
             }
-            mapItemAndPickZone2PickLocations.put(key, pickLocationIdList);
-            pickLocationIds = pickLocationIdList;
+            mapItemAndPickZone2PickLocations.put(key, pickLocationList);
+            pickLocations = pickLocationList;
         }
-        if(pickLocationIds.size()==0){
-            return 0;
+        if(pickLocations.size()==0){
+            return null;
         }
         if(mapItemAndPickZone2PickLocationRound.get(key) == null){
             mapItemAndPickZone2PickLocationRound.put(key, 0L);
         }
         Long round = mapItemAndPickZone2PickLocationRound.get(key);
         mapItemAndPickZone2PickLocationRound.put(key, round+1);
-        return pickLocationIds.get((int)(round%pickLocationIds.size()));
+        return pickLocations.get((int)(round%pickLocations.size()));
     }
 
     private BigDecimal _getPickZoneLeftAllocQty(BaseinfoItem item, BaseinfoLocation location){
