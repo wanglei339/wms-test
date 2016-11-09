@@ -32,6 +32,7 @@ import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.wave.WaveHead;
 import com.lsh.wms.model.wave.WaveRequest;
+import com.lsh.wms.model.wave.WaveTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -361,6 +362,48 @@ public class WaveRestService implements IWaveRestService {
     @Path("getWaveQcExceptionList")
     public String getWaveQcExceptionList(@QueryParam("waveId") long iWaveId) {
         return JsonUtils.SUCCESS(waveService.getExceptionsByWaveId(iWaveId));
+    }
+
+    @GET
+    @Path("getWaveTemplateList")
+    public String getWaveTemplateList(Map<String, Object> mapQuery){
+        return JsonUtils.SUCCESS(waveTemplateService.getWaveTemplateList(mapQuery));
+    }
+
+    @GET
+    @Path("getWaveTemplateList")
+    public String getWaveTemplateCount(Map<String, Object> mapQuery){
+        return JsonUtils.SUCCESS(waveTemplateService.getWaveTemplateCount(mapQuery));
+    }
+
+    @GET
+    @Path("getWaveTemplate")
+    public String getWaveTemplate(@QueryParam("waveTemplateId") long waveTemplateId ){
+        return JsonUtils.SUCCESS(waveTemplateService.getWaveTemplate(waveTemplateId));
+    }
+
+    @POST
+    @Path("createWaveTemplate")
+    public String createWaveTemplate(WaveTemplate tpl){
+        try{
+            waveTemplateService.createWaveTemplate(tpl);
+        }catch (Exception e ){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.EXCEPTION_ERROR("create failed");
+        }
+        return JsonUtils.SUCCESS();
+    }
+
+    @POST
+    @Path("updateWaveTemplate")
+    public String updateWaveTemplate(WaveTemplate tpl){
+        try{
+            waveTemplateService.updateWaveTemplate(tpl);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            JsonUtils.EXCEPTION_ERROR("update failed");
+        }
+        return JsonUtils.SUCCESS();
     }
 
     public static void main(String[] args) {

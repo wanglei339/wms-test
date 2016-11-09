@@ -1,9 +1,14 @@
 package com.lsh.wms.api.service.wave;
 
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.model.pick.*;
 import com.lsh.wms.model.wave.WaveRequest;
+import com.lsh.wms.model.wave.WaveTemplate;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import java.util.Map;
 
@@ -41,4 +46,12 @@ public interface IWaveRestService {
     String getWaveDetailList(long iWaveId);
 
     String getWaveQcExceptionList(long iWaveId);
+
+
+
+    String getWaveTemplateList(Map<String, Object> mapQuery);
+    String getWaveTemplateCount(Map<String, Object> mapQuery);
+    String getWaveTemplate(long waveTemplateId);
+    String createWaveTemplate(WaveTemplate tpl);
+    String updateWaveTemplate(WaveTemplate tpl);
 }
