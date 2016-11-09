@@ -3,6 +3,7 @@ package com.lsh.wms.core.service.so;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.constant.BusiConstant;
+import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.dao.so.ObdDetailDao;
 import com.lsh.wms.core.dao.so.ObdHeaderDao;
 import com.lsh.wms.model.so.ObdDetail;
@@ -69,6 +70,9 @@ public class SoOrderService {
         obdHeaderDao.insert(obdHeader);
 
         obdDetailDao.batchInsert(obdDetailList);
+        if(!obdHeader.getOrderType().equals(SoConstant.ORDER_TYPE_DIRECT)) {
+            soOrderRedisService.insertSoRedis(obdHeader, obdDetailList);
+        }
     }
 
     /**
