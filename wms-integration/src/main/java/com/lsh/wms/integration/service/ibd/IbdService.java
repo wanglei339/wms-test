@@ -23,12 +23,14 @@ import com.lsh.wms.api.service.po.IIbdService;
 import com.lsh.wms.api.service.po.IPoRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.wumart.IWuMartSap;
+import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.system.SysLogService;
 import com.lsh.wms.integration.service.back.DataBackService;
+import com.lsh.wms.integration.service.wumartsap.WuMart;
 import com.lsh.wms.integration.service.wumartsap.WuMartSap;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.po.IbdHeader;
@@ -79,6 +81,9 @@ public class IbdService implements IIbdService {
 //    private WuMartSap wuMartSap;
     @Reference
     private IWuMartSap wuMartSap;
+
+    @Autowired
+    private WuMart wuMart;
     @POST
     @Path("add")
     public BaseResponse add(IbdRequest request) throws BizCheckedException{
@@ -168,7 +173,7 @@ public class IbdService implements IIbdService {
             String obdOtherId = ibdObdRelation.getObdOtherId();
 
             if(!obdOtherIds.contains(obdOtherId)){
-                ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(obdOtherId);
+                ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherIdAndType(obdOtherId, SoConstant.ORDER_TYPE_DIRECT);
 
                 if(obdHeader == null){
                     SysLog sysLog = new SysLog();
@@ -197,43 +202,43 @@ public class IbdService implements IIbdService {
 
         }
         //查询该批关系表数据中门店订货信息是否完整
-        for(ObdHeader obdHeader : obdOtherIds){
-            //根据细单条目数量来判断是否完整
-            List<ObdDetail> obdDetails = soOrderService.getOutbSoDetailListByOrderId(obdHeader.getOrderId());
-            List<String> detailOtherIds = new ArrayList<String>();
-            for(ObdDetail obdDetail : obdDetails){
-                detailOtherIds.add(obdDetail.getDetailOtherId());
-            }
-            Map<String,Object> mapQuery = new HashMap<String, Object>();
-            mapQuery.put("obdOtherId",obdHeader.getOrderOtherId());
-            List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(mapQuery);
-            List<String> obddetailIds = new ArrayList<String>();
-            for(IbdObdRelation ibdObdRelation : ibdObdRelations){
-                obddetailIds.add(ibdObdRelation.getObdDetailId());
-            }
-
-            if(obdDetails.size() != ibdObdRelations.size()){
-                // TODO: 2016/10/18 对比每一条明细 确定哪条关系表缺失
-                detailOtherIds.removeAll(obddetailIds);
-                List<String> messages = new ArrayList<String>();
-                for(String detailOtherId : detailOtherIds){
-                    SysLog sysLog = new SysLog();
-                    //2770006表示关系表有缺失
-                    sysLog.setLogCode(2770006L);
-                    sysLog.setLogType(SysLogConstant.LOG_TYPE_FRET);
-                    String message = "obdOtherId:"+obdHeader.getOrderOtherRefId()
-                            + " obdDetailId :" + detailOtherId + "该obd订单明细没有对应的关系表记录!";
-                    sysLog.setLogMessage(message);
-                    messages.add(message);
-                    sysLogService.insertSysLog(sysLog);
-                }
-                throw new BizCheckedException("2770006",messages.toString());
-            }
-
-
-
-
-        }
+//        for(ObdHeader obdHeader : obdOtherIds){
+//            //根据细单条目数量来判断是否完整
+//            List<ObdDetail> obdDetails = soOrderService.getOutbSoDetailListByOrderId(obdHeader.getOrderId());
+//            List<String> detailOtherIds = new ArrayList<String>();
+//            for(ObdDetail obdDetail : obdDetails){
+//                detailOtherIds.add(obdDetail.getDetailOtherId());
+//            }
+//            Map<String,Object> mapQuery = new HashMap<String, Object>();
+//            mapQuery.put("obdOtherId",obdHeader.getOrderOtherId());
+//            List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(mapQuery);
+//            List<String> obddetailIds = new ArrayList<String>();
+//            for(IbdObdRelation ibdObdRelation : ibdObdRelations){
+//                obddetailIds.add(ibdObdRelation.getObdDetailId());
+//            }
+//
+//            if(obdDetails.size() != ibdObdRelations.size()){
+//                // TODO: 2016/10/18 对比每一条明细 确定哪条关系表缺失
+//                detailOtherIds.removeAll(obddetailIds);
+//                List<String> messages = new ArrayList<String>();
+//                for(String detailOtherId : detailOtherIds){
+//                    SysLog sysLog = new SysLog();
+//                    //2770006表示关系表有缺失
+//                    sysLog.setLogCode(2770006L);
+//                    sysLog.setLogType(SysLogConstant.LOG_TYPE_FRET);
+//                    String message = "obdOtherId:"+obdHeader.getOrderOtherRefId()
+//                            + " obdDetailId :" + detailOtherId + "该obd订单明细没有对应的关系表记录!";
+//                    sysLog.setLogMessage(message);
+//                    messages.add(message);
+//                    sysLogService.insertSysLog(sysLog);
+//                }
+//                throw new BizCheckedException("2770006",messages.toString());
+//            }
+//
+//
+//
+//
+//        }
 
         return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, null);
     }
@@ -325,23 +330,34 @@ public class IbdService implements IIbdService {
         List<CreateIbdDetail> details = new ArrayList<CreateIbdDetail>();
 
         CreateIbdDetail detail = new CreateIbdDetail();
-        detail.setDeliveQty(new BigDecimal(100));
+        detail.setDeliveQty(new BigDecimal("2.000"));
         detail.setPoItme("10");
-        detail.setPoNumber("4500027448");
+        detail.setPoNumber("4500027465");
         detail.setUnit("EA");
         detail.setMaterial("000000000000110978");
         details.add(detail);
 
         CreateIbdDetail detail1 = new CreateIbdDetail();
-        detail1.setDeliveQty(new BigDecimal(200));
+        detail1.setDeliveQty(new BigDecimal("2.000"));
         detail1.setPoItme("20");
-        detail1.setPoNumber("4500027448");
+        detail1.setPoNumber("4500027465");
         detail1.setUnit("EA");
         detail1.setMaterial("000000000000110809");
         details.add(detail1);
 
+//        CreateIbdDetail detail2 = new CreateIbdDetail();
+//        detail2.setDeliveQty(new BigDecimal("2.000"));
+//        detail2.setPoItme("30");
+//        detail2.setPoNumber("4500027465");
+//        detail2.setUnit("EA");
+//        detail2.setMaterial("000000000000110809");
+//        details.add(detail2);
+
         header.setItems(details);
-        return wuMartSap.ibd2Sap(header);
+        //return wuMartSap.ibd2Sap(header);
+        //return wuMartSap.ibd2SapAccount(header,null);
+        wuMart.sendIbd(header);
+        return null;
     }
 
     @GET
@@ -356,24 +372,37 @@ public class IbdService implements IIbdService {
 
         List<CreateObdDetail> details = new ArrayList<CreateObdDetail>();
         CreateObdDetail detail1 = new CreateObdDetail();
-        detail1.setRefDoc("4940031776");
+        detail1.setRefDoc("4900011207");
         detail1.setRefItem("10");
-        detail1.setDlvQty(new BigDecimal(2));
+        detail1.setDlvQty(new BigDecimal("500.00"));
         detail1.setSalesUnit("EA");
-        detail1.setMaterial("110510");
+        detail1.setMaterial("110978");
         details.add(detail1);
 
 
-//        CreateObdDetail detail2 = new CreateObdDetail();
-//        detail2.setRefDoc("4940031769");
-//        detail2.setRefItem("20");
-//        detail2.setDlvQty(new BigDecimal(2));
-//        detail2.setSalesUnit("EA");
-//        detail2.setMaterial("100150");
-//        details.add(detail2);
+        CreateObdDetail detail2 = new CreateObdDetail();
+        detail2.setRefDoc("4900011207");
+        detail2.setRefItem("20");
+        detail2.setDlvQty(new BigDecimal("500.00"));
+        detail2.setSalesUnit("EA");
+        detail2.setMaterial("110809");
+        details.add(detail2);
+
+        CreateObdDetail detail3 = new CreateObdDetail();
+        detail3.setRefDoc("4900011207");
+        detail3.setRefItem("30");
+        detail3.setDlvQty(new BigDecimal("500.00"));
+        detail3.setSalesUnit("EA");
+        detail3.setMaterial("138248");
+        details.add(detail3);
+
         header.setItems(details);
 
-        return wuMartSap.obd2Sap(header);
+        wuMart.sendObd(header);
+        //return wuMartSap.obd2Sap(header);
+        //return wuMartSap.obd2SapAccount(header);
+        return "success";
+
     }
 
 
