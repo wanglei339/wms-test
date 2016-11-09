@@ -11,6 +11,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.wms.api.service.inhouse.IStockTakingRpcService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.pick.IPickRestService;
 import com.lsh.wms.api.service.pick.IPickRpcService;
@@ -78,6 +79,8 @@ public class PickRestService implements IPickRestService {
     private StockQuantService stockQuantService;
     @Autowired
     private MessageService messageService;
+    @Reference
+    private IStockTakingRpcService iStockTakingRpcService;
 
     /**
      * 扫描拣货签(拣货任务id)
@@ -320,6 +323,8 @@ public class PickRestService implements IPickRestService {
                         BigDecimal subQty = pickDetail.getAllocQty().subtract(pickDetail.getPickQty());
                         splitWaveDetails.add(waveService.splitShelfWaveDetail(pickDetail, subQty, lastOrder));
                         lastOrder++;
+                        //捡货缺交，生成盘点任务
+                        iStockTakingRpcService.create(pickDetail.getRealPickLocation(),staffId);
                     }
                 }
                 if (!splitWaveDetails.isEmpty()) {
