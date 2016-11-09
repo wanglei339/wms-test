@@ -95,6 +95,10 @@ public class RedisKeyConstant {
      * 日志信息redis key
      */
     public static final String SYS_MSG = "sysLog:logId:{0}";
+    /**
+     * 盘点key
+     */
+    public static final String TAKING_KEY = "taking:Id:{0}";
 
 
 }

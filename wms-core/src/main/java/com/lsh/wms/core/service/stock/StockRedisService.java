@@ -33,9 +33,9 @@ public class StockRedisService {
 
     private static Logger logger = LoggerFactory.getLogger(StockRedisService.class);
 
-    private String getRedisKey(Long skuId) {
+    private String getRedisKey(Long itemId) {
         String warehouseName = "DC37";
-        String redisKey = StrUtils.formatString(RedisKeyConstant.WAREHOUSE_SKU_INVENTORY_QTY, warehouseName, skuId);
+        String redisKey = StrUtils.formatString(RedisKeyConstant.WAREHOUSE_SKU_INVENTORY_QTY, warehouseName, itemId);
         return redisKey;
     }
 
@@ -53,11 +53,11 @@ public class StockRedisService {
 
     }
 
-    public void outBound(Long skuId, BigDecimal qty) {
-        String redisKey = getRedisKey(skuId);
+    public void outBound(Long itemId, BigDecimal qty) {
+        String redisKey = getRedisKey(itemId);
         redisDao.decrease(redisKey, new Double(qty.toString()));
-        double availableQty =  inventoryRedisService.getAvailableSkuQty(skuId);
-        synStockService.synStock(skuId,availableQty);
+        double availableQty =  inventoryRedisService.getAvailableSkuQty(itemId);
+        synStockService.synStock(itemId,availableQty);
     }
 
 }

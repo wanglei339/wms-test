@@ -22,5 +22,5 @@ public interface IStockTakingRestService {
     String getItemList(Long supplierId);
     String getSupplierList(Long itemId);
     String cancel(Long takingId) throws BizCheckedException;
-    String getHead(@QueryParam("takingId") Long takingId) throws BizCheckedException;
+    String getHead(Long takingId) throws BizCheckedException;
 }
