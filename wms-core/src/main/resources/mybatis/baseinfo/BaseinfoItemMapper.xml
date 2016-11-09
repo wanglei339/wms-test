@@ -45,6 +45,8 @@
 		<result property="unitName" column="unit_name"/>
 		<result property="l2Name" column="l2_name"/>
 		<result property="packName" column="pack_name"/>
+		<result property="itemType" column="item_type"/>
+		<result property="isValuable" column="is_valuable"/>
 	</resultMap>
 
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoItem">
@@ -55,7 +57,7 @@
 		l2_unit,pack_length,pack_width,pack_height,pack_weight,pack_unit,
 		sale_unit,item_level,created_at,updated_at,produce_place,batch_needed,
 		floor_available,storage_temperature,safety_qty,pile_x,pile_y,pile_z,
-		item_id,status,unit_name,l2_name,pack_name
+		item_id,status,unit_name,l2_name,pack_name,item_type,is_valuable
 		) values (
 		#{skuId},#{ownerId},#{skuCode},#{skuName},#{codeType},#{code},
 		#{topCat},#{secondCat},#{thirdCat},#{shelfLife},#{length},#{width},
@@ -63,7 +65,7 @@
 		#{l2Unit},#{packLength},#{packWidth},#{packHeight},#{packWeight},#{packUnit},
 		#{saleUnit},#{itemLevel},#{createdAt},#{updatedAt},#{producePlace},#{batchNeeded},
 		#{floorAvailable},#{storageTemperature},#{safetyQty},#{pileX},#{pileY},#{pileZ},
-		#{itemId},#{status},#{unitName},#{l2Name},#{packName}
+		#{itemId},#{status},#{unitName},#{l2Name},#{packName},#{itemType},#{isValuable}
 		)
 	</insert>
 
@@ -110,6 +112,8 @@
 			<if test="unitName != null">unit_name=#{unitName},</if>
 			<if test="l2Name != null">l2_name=#{l2Name},</if>
 			<if test="packName != null">pack_name=#{packName},</if>
+			<if test="itemType != null">item_type=#{itemType},</if>
+			<if test="isValuable != null">is_valuable=#{isValuable},</if>
 		</set>
 		where item_id=#{itemId}
 	</update>
@@ -176,6 +180,8 @@
 			<if test="unitName != null">and unit_name=#{unitName}</if>
 			<if test="l2Name != null">and l2_name=#{l2Name}</if>
 			<if test="packName != null">and pack_name=#{packName}</if>
+			<if test="itemType != null">and item_type=#{itemType}</if>
+			<if test="isValuable != null">and is_valuable=#{isValuable}</if>
 		</where>
 	</sql>
 
