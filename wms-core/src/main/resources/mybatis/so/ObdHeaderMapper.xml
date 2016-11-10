@@ -13,6 +13,7 @@
 		<result property="deliveryCode" column="delivery_code"/>
 		<result property="ownerUid" column="owner_uid"/>
 		<result property="orderType" column="order_type"/>
+		<result property="waveOrderType" column="wave_order_type" />
 		<result property="waveId" column="wave_id"/>
 		<result property="transPlan" column="trans_plan"/>
 		<result property="waveIndex" column="wave_index"/>
@@ -27,11 +28,11 @@
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="ObdHeader">
 		insert into obd_header (
 		order_id,order_other_ref_id,order_other_id,order_user_code,order_user,delivery_name,
-		delivery_code,owner_uid,order_type,wave_id,trans_plan,wave_index,
+		delivery_code,owner_uid,order_type,wave_order_type,wave_id,trans_plan,wave_index,
 		trans_time,order_status,delivery_addrs,created_at,updated_at,supplier_no
 		) values (
 		#{orderId},#{orderOtherRefId},#{orderOtherId},#{orderUserCode},#{orderUser},#{deliveryName},
-		#{deliveryCode},#{ownerUid},#{orderType},#{waveId},#{transPlan},#{waveIndex},
+		#{deliveryCode},#{ownerUid},#{orderType},#{waveOrderType},#{waveId},#{transPlan},#{waveIndex},
 		#{transTime},#{orderStatus},#{deliveryAddrs},#{createdAt},#{updatedAt},#{supplierNo}
 		)
 	</insert>
@@ -48,6 +49,7 @@
 			<if test="deliveryCode != null">delivery_code=#{deliveryCode},</if>
 			<if test="ownerUid != null">owner_uid=#{ownerUid},</if>
 			<if test="orderType != null">order_type=#{orderType},</if>
+			<if test="waveOrderType != null">wave_order_type=#{waveOrderType},</if>
 			<if test="waveId != null">wave_id=#{waveId},</if>
 			<if test="transPlan != null">trans_plan=#{transPlan},</if>
 			<if test="waveIndex != null">wave_index=#{waveIndex},</if>
@@ -73,6 +75,7 @@
 			<if test="deliveryCode != null">delivery_code=#{deliveryCode},</if>
 			<if test="ownerUid != null">owner_uid=#{ownerUid},</if>
 			<if test="orderType != null">order_type=#{orderType},</if>
+			<if test="waveOrderType != null">wave_order_type=#{waveOrderType},</if>
 			<if test="waveId != null">wave_id=#{waveId},</if>
 			<if test="transPlan != null">trans_plan=#{transPlan},</if>
 			<if test="waveIndex != null">wave_index=#{waveIndex},</if>
@@ -123,6 +126,7 @@
 			<if test="deliveryCode != null">and delivery_code=#{deliveryCode}</if>
 			<if test="ownerUid != null">and owner_uid=#{ownerUid}</if>
 			<if test="orderType != null">and order_type=#{orderType}</if>
+			<if test="waveOrderType != null">and wave_order_type=#{waveOrderType}</if>
 			<if test="waveId != null">and wave_id=#{waveId}</if>
 			<if test="transPlan != null">and trans_plan=#{transPlan}</if>
 			<if test="waveIndex != null">and wave_index=#{waveIndex}</if>

@@ -79,11 +79,12 @@ public class WaveRpcService implements IWaveRpcService {
             if(so.getWaveId() > 0){
                 throw new BizCheckedException("2041001", orderId,"");
             }
-            if(order.get("transPlan") == null
+            /*if(order.get("transPlan") == null
                     || order.get("waveIndex") == null
                     || order.get("transTime") == null){
                 throw new BizCheckedException("2041002");
             }
+            */
         }
         if(orders.size()==0){
             throw new BizCheckedException("2041003");

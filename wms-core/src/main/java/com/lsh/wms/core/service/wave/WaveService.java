@@ -88,9 +88,15 @@ public class WaveService {
             ObdHeader obdHeader = new ObdHeader();
             obdHeader.setOrderId(Long.valueOf(so.get("orderId").toString()));
             //obdHeader.setOrderOtherId(so.get("orderId").toString());
-            obdHeader.setTransPlan(so.get("transPlan").toString());
-            obdHeader.setWaveIndex(Integer.valueOf(so.get("waveIndex").toString()));
-            obdHeader.setTransTime(DateUtils.parse(so.get("transTime").toString()));
+            if(so.get("transPlan")!=null) {
+                obdHeader.setTransPlan(so.get("transPlan").toString());
+            }
+            if(so.get("waveIndex")!=null) {
+                obdHeader.setWaveIndex(Integer.valueOf(so.get("waveIndex").toString()));
+            }
+            if(so.get("transTime")!=null) {
+                obdHeader.setTransTime(DateUtils.parse(so.get("transTime").toString()));
+            }
             obdHeader.setWaveId(iWaveId);
             obdHeader.setOrderStatus(2);
             soHeaderDao.updateByOrderOtherIdOrOrderId(obdHeader);
