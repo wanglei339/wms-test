@@ -54,4 +54,8 @@ public interface IWaveRestService {
     String getWaveTemplate(long waveTemplateId);
     String createWaveTemplate(WaveTemplate tpl);
     String updateWaveTemplate(WaveTemplate tpl);
+
+    //test
+    public String runWaveGenerator();
+    public String getWavePreviewList();
 }

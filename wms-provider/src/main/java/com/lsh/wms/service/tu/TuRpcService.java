@@ -393,7 +393,7 @@ public class TuRpcService implements ITuRpcService {
         TuHead tuHead = this.getHeadByTuId(tuId);
         //大店装车的前置条件是合板,小店是组盘完成
         Long mergedContainerId = null;  //需要存入detail的id, 大店是合板的id,小店是物理托盘码
-        Long boardNum = null;   //一板子多托的数量
+        BigDecimal boardNum = new BigDecimal("0.0000");   //一板子多托的数量
 
         if (TuConstant.SCALE_STORE.equals(tuHead.getScale())) {    //小店看组盘
             //QC+done+containerId 找到mergercontaierId
@@ -425,20 +425,20 @@ public class TuRpcService implements ITuRpcService {
         if (mergedContainerId.equals(containerId)) { //没合板
             mergedContainerId = containerId;
             waveDetails = waveService.getAliveDetailsByContainerId(mergedContainerId);
-            boardNum = 1L;  //没合板数量为1
+            boardNum = new BigDecimal("1");  //没合板数量为1
         } else {
             waveDetails = waveService.getWaveDetailsByMergedContainerId(mergedContainerId);   //已经合板
             //计费用的板子数量
-//            Map<String, Object> mergerQuery = new HashMap<String, Object>();
-//            mergerQuery.put("containerId", mergedContainerId);
-//            mergerQuery.put("type", TaskConstant.TYPE_MERGE);
-//            mergerQuery.put("status", TaskConstant.Done);
-//            List<TaskInfo> mergeInfos = baseTaskService.getTaskInfoList(mergerQuery);
-//            if (null == mergeInfos || mergeInfos.size() < 1){
-//                throw new BizCheckedException("2870038");
-//            }
-//            TaskInfo mergerInfo = mergeInfos.get(0);
-//            boardNum = mergerInfo.getBox
+            Map<String, Object> mergerQuery = new HashMap<String, Object>();
+            mergerQuery.put("containerId", mergedContainerId);
+            mergerQuery.put("type", TaskConstant.TYPE_MERGE);
+            mergerQuery.put("status", TaskConstant.Done);
+            List<TaskInfo> mergeInfos = baseTaskService.getTaskInfoList(mergerQuery);
+            if (null == mergeInfos || mergeInfos.size() < 1){
+                throw new BizCheckedException("2870038");
+            }
+            TaskInfo mergerInfo = mergeInfos.get(0);
+            boardNum = mergerInfo.getTaskBoardQty();
         }
         //一个板上的是一个门店的,只用来取店名字
         Long orderId = waveDetails.get(0).getOrderId();
@@ -500,8 +500,7 @@ public class TuRpcService implements ITuRpcService {
         result.put("storeId", storeId);
         result.put("isLoaded", isLoaded);
         result.put("containerId", mergedContainerId);   //板子码
-
-
+        result.put("taskBoardQty",boardNum);    //一个板子的板子数
         result.put("isRest", false); //非余货
         result.put("isExpensive", false);    //非贵品
         return result;

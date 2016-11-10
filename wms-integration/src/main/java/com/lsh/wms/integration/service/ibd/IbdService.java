@@ -15,6 +15,8 @@ import com.lsh.wms.api.model.base.ResponseConstant;
 import com.lsh.wms.api.model.po.*;
 import com.lsh.wms.api.model.so.ObdOfcBackRequest;
 import com.lsh.wms.api.model.so.ObdOfcItem;
+import com.lsh.wms.api.model.stock.StockItem;
+import com.lsh.wms.api.model.stock.StockRequest;
 import com.lsh.wms.api.model.wumart.CreateIbdDetail;
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
 import com.lsh.wms.api.model.wumart.CreateObdDetail;
@@ -23,6 +25,7 @@ import com.lsh.wms.api.service.po.IIbdService;
 import com.lsh.wms.api.service.po.IPoRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.wumart.IWuMartSap;
+import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.service.item.ItemService;
@@ -77,10 +80,10 @@ public class IbdService implements IIbdService {
     @Autowired
     private SysLogService sysLogService;
 
-//    @Autowired
-//    private WuMartSap wuMartSap;
-    @Reference
-    private IWuMartSap wuMartSap;
+    @Autowired
+    private WuMartSap wuMartSap;
+//    @Reference
+//    private IWuMartSap wuMartSap;
 
     @Autowired
     private WuMart wuMart;
@@ -257,6 +260,9 @@ public class IbdService implements IIbdService {
 //        item.setEntryUom("EA");
 //        items.add(item);
 //        request.setItems(items);
+//        return dataBackService.wmDataBackByPost(JSON.toJSONString(request), IntegrationConstan.URL_STOCKCHANGE,5);
+
+        return wuMartSap.ibd2SapBack(new CreateIbdHeader());
 
 //        OutbSoHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(214580861081622l);
 //        //组装OBD反馈信息
@@ -288,29 +294,29 @@ public class IbdService implements IIbdService {
 //        return ibdBackService.createOrderByPost(request, IntegrationConstan.URL_OBD);
 
 
-        ObdHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(76978698850361L);
-        //组装OBD反馈信息
-        ObdOfcBackRequest request = new ObdOfcBackRequest();
-        request.setDeliveryTime("2016-09-20");
-        request.setObdCode(soHeader.getOrderId().toString());
-        request.setSoCode(soHeader.getOrderOtherId());
-        //查询明细。
-        List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(76978698850361L);
-        List<ObdOfcItem> items = new ArrayList<ObdOfcItem>();
-
-        for(ObdDetail detail : soDetails){
-            ObdOfcItem item = new ObdOfcItem();
-            item.setPackNum(detail.getPackUnit());
-            item.setSkuQty(detail.getOrderQty());
-            item.setSupplySkuCode(detail.getSkuCode());
-            items.add(item);
-
-        }
-        request.setDetails(items);
-        String url = "http://api.ofc.lsh123.com/ofc/api/order/obd/push";
-        //return dataBackService.ofcDataBackByPost(request,url);
-
-        return "";
+//        ObdHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(76978698850361L);
+//        //组装OBD反馈信息
+//        ObdOfcBackRequest request = new ObdOfcBackRequest();
+//        request.setDeliveryTime("2016-09-20");
+//        request.setObdCode(soHeader.getOrderId().toString());
+//        request.setSoCode(soHeader.getOrderOtherId());
+//        //查询明细。
+//        List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(76978698850361L);
+//        List<ObdOfcItem> items = new ArrayList<ObdOfcItem>();
+//
+//        for(ObdDetail detail : soDetails){
+//            ObdOfcItem item = new ObdOfcItem();
+//            item.setPackNum(detail.getPackUnit());
+//            item.setSkuQty(detail.getOrderQty());
+//            item.setSupplySkuCode(detail.getSkuCode());
+//            items.add(item);
+//
+//        }
+//        request.setDetails(items);
+//        String url = "http://api.ofc.lsh123.com/ofc/api/order/obd/push";
+//        //return dataBackService.ofcDataBackByPost(request,url);
+//
+//        return "";
 
     }
 
@@ -330,34 +336,37 @@ public class IbdService implements IIbdService {
         List<CreateIbdDetail> details = new ArrayList<CreateIbdDetail>();
 
         CreateIbdDetail detail = new CreateIbdDetail();
-        detail.setDeliveQty(new BigDecimal("2.000"));
+        detail.setDeliveQty(new BigDecimal("1.000"));
         detail.setPoItme("10");
-        detail.setPoNumber("4500027465");
+        detail.setPoNumber("4500027508");
         detail.setUnit("EA");
         detail.setMaterial("000000000000110978");
+        detail.setOrderType(1);
         details.add(detail);
 
         CreateIbdDetail detail1 = new CreateIbdDetail();
-        detail1.setDeliveQty(new BigDecimal("2.000"));
-        detail1.setPoItme("20");
-        detail1.setPoNumber("4500027465");
+        detail1.setDeliveQty(new BigDecimal("1.000"));
+        detail1.setPoItme("10");
+        detail1.setPoNumber("4500027509");
         detail1.setUnit("EA");
-        detail1.setMaterial("000000000000110809");
+        detail1.setMaterial("000000000000110978");
+        detail.setOrderType(1);
         details.add(detail1);
 
 //        CreateIbdDetail detail2 = new CreateIbdDetail();
-//        detail2.setDeliveQty(new BigDecimal("2.000"));
-//        detail2.setPoItme("30");
-//        detail2.setPoNumber("4500027465");
+//        detail2.setDeliveQty(new BigDecimal("1.000"));
+//        detail2.setPoItme("20");
+//        detail2.setPoNumber("180011198");
 //        detail2.setUnit("EA");
-//        detail2.setMaterial("000000000000110809");
+//        //detail2.setMaterial("000000000000138248");
+//        detail.setOrderType(1);
 //        details.add(detail2);
 
         header.setItems(details);
-        //return wuMartSap.ibd2Sap(header);
+        return wuMartSap.ibd2Sap(header);
         //return wuMartSap.ibd2SapAccount(header,null);
-        wuMart.sendIbd(header);
-        return null;
+        //wuMart.sendIbd(header);
+        //wuMartSap.ibd2SapAccount(header,"");
     }
 
     @GET
@@ -372,29 +381,29 @@ public class IbdService implements IIbdService {
 
         List<CreateObdDetail> details = new ArrayList<CreateObdDetail>();
         CreateObdDetail detail1 = new CreateObdDetail();
-        detail1.setRefDoc("4900011207");
+        detail1.setRefDoc("4900011212");
         detail1.setRefItem("10");
-        detail1.setDlvQty(new BigDecimal("500.00"));
+        detail1.setDlvQty(new BigDecimal("2.00"));
         detail1.setSalesUnit("EA");
-        detail1.setMaterial("110978");
+        detail1.setMaterial("102742");
         details.add(detail1);
 
 
-        CreateObdDetail detail2 = new CreateObdDetail();
-        detail2.setRefDoc("4900011207");
-        detail2.setRefItem("20");
-        detail2.setDlvQty(new BigDecimal("500.00"));
-        detail2.setSalesUnit("EA");
-        detail2.setMaterial("110809");
-        details.add(detail2);
-
-        CreateObdDetail detail3 = new CreateObdDetail();
-        detail3.setRefDoc("4900011207");
-        detail3.setRefItem("30");
-        detail3.setDlvQty(new BigDecimal("500.00"));
-        detail3.setSalesUnit("EA");
-        detail3.setMaterial("138248");
-        details.add(detail3);
+//        CreateObdDetail detail2 = new CreateObdDetail();
+//        detail2.setRefDoc("4900011207");
+//        detail2.setRefItem("20");
+//        detail2.setDlvQty(new BigDecimal("500.00"));
+//        detail2.setSalesUnit("EA");
+//        detail2.setMaterial("110809");
+//        details.add(detail2);
+//
+//        CreateObdDetail detail3 = new CreateObdDetail();
+//        detail3.setRefDoc("4900011207");
+//        detail3.setRefItem("30");
+//        detail3.setDlvQty(new BigDecimal("500.00"));
+//        detail3.setSalesUnit("EA");
+//        detail3.setMaterial("138248");
+//        details.add(detail3);
 
         header.setItems(details);
 

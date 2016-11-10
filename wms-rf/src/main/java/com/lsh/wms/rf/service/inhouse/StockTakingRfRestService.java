@@ -256,7 +256,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         List<Long> taskIdList = new ArrayList<Long>();
         for(StockTakingTask takingtask:takingTasks){
             Map<String,Object> task =new HashMap<String, Object>();
-            task.put("taskId",takingtask.getTaskId());
+            task.put("taskId",takingtask.getTaskId().toString());
             taskIdList.add(takingtask.getTaskId());
             List<StockTakingDetail> details =stockTakingService.getDetailByTaskId(takingtask.getTaskId());
             if(details == null || details.size() == 0){
@@ -315,7 +315,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         String packName = (quantList==null ||quantList.size()==0) ? "" : quantList.get(0).getPackName();
         Map<String,Object> result = new HashMap<String, Object>();
         result.put("viewType",head.getViewType());
-        result.put("taskId",taskId);
+        result.put("taskId",taskId.toString());
         BaseinfoLocation location = locationService.getLocation(detail.getLocationId());
         BaseinfoItem item = itemService.getItem(detail.getItemId());
         result.put("locationCode",location==null ? "":location.getLocationCode());

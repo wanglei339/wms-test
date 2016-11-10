@@ -323,8 +323,14 @@ public class PickRestService implements IPickRestService {
                         BigDecimal subQty = pickDetail.getAllocQty().subtract(pickDetail.getPickQty());
                         splitWaveDetails.add(waveService.splitShelfWaveDetail(pickDetail, subQty, lastOrder));
                         lastOrder++;
-                        //捡货缺交，生成盘点任务
-                        iStockTakingRpcService.create(pickDetail.getRealPickLocation(),staffId);
+
+                        //捡货缺交，如果捡获数量比系统记载数量，则生成盘点任务
+                        Map<String,Object> queryMap = new HashMap<String, Object>();
+                        queryMap.put("locationId",pickDetail.getRealPickLocation());
+                        BigDecimal qty = stockQuantService.getQty(queryMap);
+                        if(qty.compareTo(pickDetail.getPickQty())>0) {
+                            iStockTakingRpcService.create(pickDetail.getRealPickLocation(), staffId);
+                        }
                     }
                 }
                 if (!splitWaveDetails.isEmpty()) {

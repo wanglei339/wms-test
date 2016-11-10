@@ -211,11 +211,7 @@ public class QCRestService implements IRFQCRestService {
 
             //判断是第几次的QC,只有QC过一遍,再次QC都是复核QC
             detail.put("qcTimes", waveDetail.getQcTimes());
-//            //todo 如果有异常的话,直流的也要qc
-//            if (isDirect) {
-//                detail.put("qcDone", true);
-//                detail.put("isFristTime", false);
-//            }
+          //todo 如果有异常的话,直流的也要qc
             undoDetails.add(detail);
         }
         allBoxNum = boxNum;

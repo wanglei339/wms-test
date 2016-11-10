@@ -81,6 +81,9 @@ public class WaveRestService implements IWaveRestService {
     @Autowired
     private SoDeliveryService soDeliveryService;
 
+    @Autowired
+    private WaveGenerator waveGenerator;
+
 //    @Reference
 //    private IWuMartSap wuMartSap;
 
@@ -411,6 +414,19 @@ public class WaveRestService implements IWaveRestService {
 
     public static void main(String[] args) {
         throw new BizCheckedException("2041001","1111111");
+    }
+
+    @GET
+    @Path("runWaveGenerator")
+    public String runWaveGenerator(){
+        waveGenerator.autoCluster();
+        return JsonUtils.SUCCESS();
+    }
+
+    @GET
+    @Path("getWavePreviewList")
+    public String getWavePreviewList(){
+        return JsonUtils.SUCCESS(waveGenerator.getWavePreviewList());
     }
 
 }
