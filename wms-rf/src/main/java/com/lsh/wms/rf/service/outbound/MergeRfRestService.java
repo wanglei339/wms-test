@@ -215,6 +215,15 @@ public class MergeRfRestService implements IMergeRfRestService {
             }
             resultDetails.add(resultDetail);
         }
+        Map<String, Object> taskQuery = new HashMap<String, Object>();
+        taskQuery.put("containerId", mergedContainerId);
+        taskQuery.put("type", TaskConstant.TYPE_MERGE);
+        List<TaskInfo> mergeTaskList = baseTaskService.getTaskInfoList(taskQuery);
+        BigDecimal taskBoardQty = BigDecimal.ONE;
+        if (containerIds.size() > 0) {
+            TaskInfo mergeTask = mergeTaskList.get(0);
+            taskBoardQty = mergeTask.getTaskBoardQty();
+        }
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("deliveryCode", deliveryCode);
         result.put("deliveryName", deliveryName);
@@ -222,6 +231,7 @@ public class MergeRfRestService implements IMergeRfRestService {
         result.put("packCount", packCount);
         result.put("turnoverBoxCount", turnoverBoxCount);
         result.put("details", resultDetails);
+        result.put("taskBoardQty", taskBoardQty);
         return JsonUtils.SUCCESS(result);
     }
 }
