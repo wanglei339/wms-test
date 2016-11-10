@@ -150,6 +150,14 @@ public class LocationRpcService implements ILocationRpcService {
         mapQuery.put("isValid", LocationConstant.IS_VALID);
         return locationService.getBaseinfoLocationList(mapQuery);
     }
+    /**
+     * 根仓库
+     *
+     * @return
+     */
+    public BaseinfoLocation getWarehouseLocation() {
+        return locationService.getWarehouseLocation();
+    }
 
     /**
      * 获取所有的拣货位

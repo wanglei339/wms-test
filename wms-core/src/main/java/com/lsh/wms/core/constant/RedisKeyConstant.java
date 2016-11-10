@@ -100,5 +100,11 @@ public class RedisKeyConstant {
      */
     public static final String TAKING_KEY = "taking:Id:{0}";
 
+    /**
+     * 波次预生成key
+     */
+
+    public static final String WAVE_PREVIEW_KEY = "wave:preview:static";
+
 
 }

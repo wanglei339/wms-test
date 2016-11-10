@@ -164,7 +164,16 @@ public class LocationRestService implements ILocationRestService {
 
         return JsonUtils.SUCCESS(targetList);
     }
-
+    /**
+     * 根仓库
+     *
+     * @return
+     */
+    @GET
+    @Path("getWarehouseLocation")
+    public BaseinfoLocation getWarehouseLocation() {
+        return locationRpcService.getWarehouseLocation();
+    }
     /**
      * 根据货架或者阁楼找bin
      *
