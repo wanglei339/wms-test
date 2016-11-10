@@ -16,6 +16,8 @@ public class ReceiveDetail implements Serializable {
     private String skuCode;
 	/** 商品名称 */
     private String skuName;
+	/** 标准唯一码*/
+	private String code;
 	/** 进货数 */
     private BigDecimal orderQty;
 	/** 包装名称 */
@@ -40,7 +42,7 @@ public class ReceiveDetail implements Serializable {
     private Long createdAt = 0l;
 	/**  */
     private Long updatedAt = 0l;
-	
+
 	public Long getId(){
 		return this.id;
 	}
@@ -176,6 +178,13 @@ public class ReceiveDetail implements Serializable {
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
-	
-	
+
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
 }
