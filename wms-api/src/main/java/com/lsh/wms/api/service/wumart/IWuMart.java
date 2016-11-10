@@ -9,4 +9,5 @@ import com.lsh.wms.api.model.wumart.CreateObdHeader;
 public interface IWuMart {
     void sendIbd(CreateIbdHeader createIbdHeader);
     void sendObd(CreateObdHeader createObdHeader);
+    String ibdAccountBack(String accountId,String accountDetailId);
 }
