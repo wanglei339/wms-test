@@ -191,9 +191,25 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                         logger.warn("ItemId:" + itemLocation.getItemId() + "缺货异常");
                         continue;
                     }
-                    StockQuant quant = quantList.get(0);
-                    //获取存储位该商品库存量
-                    BigDecimal total = stockQuantService.getQty(condition);
+
+                    //取库位中库存最小的
+                    BigDecimal total = BigDecimal.ZERO;
+                    StockQuant quant = null;
+                    Map<Long,Long> locationMap = new HashMap<Long, Long>();
+                    Map<String,Object> queryMap = new HashMap<String, Object>();
+                    for(StockQuant stockQuant:quantList) {
+                        if(locationMap.get(stockQuant.getLocationId())==null) {
+                            //获取存储位该商品库存量
+                            queryMap.put("locationId", stockQuant.getLocationId());
+                            BigDecimal one = stockQuantService.getQty(condition);
+                            if(total.compareTo(one)>0 || total.compareTo(BigDecimal.ZERO)==0){
+                                total = one;
+                                quant =  stockQuant;
+                            }
+                        }
+                        locationMap.put(stockQuant.getLocationId(),stockQuant.getLocationId());
+                    }
+
                     // 创建任务
                     StockTransferPlan plan = new StockTransferPlan();
                     plan.setPriority(getPackPriority(itemLocation.getItemId()));
