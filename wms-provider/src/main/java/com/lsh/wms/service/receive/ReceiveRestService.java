@@ -164,4 +164,11 @@ public class ReceiveRestService implements IReceiveRestService{
         }
         return JsonUtils.SUCCESS();
     }
+
+    @GET
+    @Path("accountBack")
+    public String accountBack(@QueryParam("receiveId") Long receiveId,@QueryParam("detailOtherId") String detailOtherId) {
+        ReceiveDetail detail = receiveService.getReceiveDetailByReceiveIdAnddetailOtherId(receiveId,detailOtherId);
+        return wuMart.ibdAccountBack(detail.getAccountId(),detail.getAccountDetailId());
+    }
 }

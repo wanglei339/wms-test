@@ -16,7 +16,7 @@ public interface IWuMartSap {
 
     String obd2SapAccount(CreateObdHeader createObdHeader);
 
-    String ibd2SapBack(CreateIbdHeader createIbdHeader);
+    String ibd2SapBack(String accountId,String accountDetailId);
 
 
 

@@ -17,4 +17,6 @@ public interface IReceiveRestService {
     String getReceiveDetailList(Long receiveId);
 
     String updateOrderStatus() throws BizCheckedException;
+
+    String accountBack(Long receiveId,String detailOtherId);
 }

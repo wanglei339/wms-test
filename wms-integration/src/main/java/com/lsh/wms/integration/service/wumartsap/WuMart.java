@@ -34,4 +34,10 @@ public class WuMart implements IWuMart {
         }
 
     }
+
+    public String ibdAccountBack(String accountId, String accountDetailId) {
+
+        String result = wuMartSap.ibd2SapBack(accountId,accountDetailId);
+        return result;
+    }
 }
