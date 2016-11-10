@@ -112,6 +112,8 @@ public class WaveCore {
         this._executePickModel();
         //锁定集货区,记得发货的时候释放哟
         for (BaseinfoLocation locaion : mapRoute2CollectRoad.values()) {
+            //虽然分配了,却未能占用,这就别锁了
+            //固定集货道模式,这也别锁了,锁了也没用
             locationService.lockLocation(locaion.getLocationId());
         }
         //创建捡货任务
@@ -155,7 +157,7 @@ public class WaveCore {
                 mapCollectBinCount.put(collecRoad.getLocationId(), 0L);
             }
             long binIdx = mapCollectBinCount.get(collecRoad.getLocationId());
-            if (waveTemplate.getUseCollectBin() == 0) {
+            if (waveTemplate.getCollectBinUse() == 0) {
                 //不使用精细的集货位
                 collectAllocId = collecRoad.getLocationId();
             } else {
