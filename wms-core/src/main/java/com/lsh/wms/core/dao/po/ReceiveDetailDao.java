@@ -15,6 +15,8 @@ public interface ReceiveDetailDao {
 
 	void update(ReceiveDetail receiveDetail);
 
+	void updateByReceiveIdAndDetailOtherId(ReceiveDetail receiveDetail);
+
 	void updateInboundQtyByReceiveIdAndDetailOtherId(Long inboundQty, Long receiveId,String detailOtherId);
 
 	void batchUpdateInboundQtyByReceiveIdAndDetailOtherId(List<ReceiveDetail> list);

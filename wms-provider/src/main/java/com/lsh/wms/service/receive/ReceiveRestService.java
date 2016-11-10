@@ -114,7 +114,7 @@ public class ReceiveRestService implements IReceiveRestService{
                 detail.setUnit(receiveDetail.getUnitName());
                 detail.setMaterial(receiveDetail.getSkuCode());
                 detail.setOrderType(receiveHeader.getOrderType());
-                detail.setVendMat(receiveHeader.getOrderId().toString());
+                detail.setVendMat(receiveHeader.getReceiveId().toString());
 
                 details.add(detail);
             }

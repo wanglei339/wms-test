@@ -8,13 +8,16 @@ import com.lsh.wms.api.model.wumart.CreateObdHeader;
  */
 public interface IWuMartSap {
 
-    String ibd2Sap(CreateIbdHeader createIbdHeader);
+    CreateIbdHeader ibd2Sap(CreateIbdHeader createIbdHeader);
 
     CreateObdHeader obd2Sap(CreateObdHeader createObdHeader);
 
-    String ibd2SapAccount(CreateIbdHeader createIbdHeader,String ibdId);
+    String ibd2SapAccount(CreateIbdHeader createIbdHeader);
 
     String obd2SapAccount(CreateObdHeader createObdHeader);
+
+    String ibd2SapBack(CreateIbdHeader createIbdHeader);
+
 
 
 }

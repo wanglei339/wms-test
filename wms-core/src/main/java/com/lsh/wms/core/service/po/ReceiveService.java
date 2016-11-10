@@ -144,6 +144,14 @@ public class ReceiveService {
         receiveHeaderDao.update(receiveHeader);
     }
 
+    /**
+     * 根据receive_id 与detail_other_id来修改receive_detail
+     */
+    @Transactional(readOnly = false)
+    public void updateByReceiveIdAndDetailOtherId(ReceiveDetail receiveDetail){
+        receiveDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
+        receiveDetailDao.updateByReceiveIdAndDetailOtherId(receiveDetail);
+    }
 
 
 
