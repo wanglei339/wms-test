@@ -13,20 +13,11 @@ import com.lsh.wms.api.model.so.ObdStreamDetail;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.seed.ISeedRpcService;
 import com.lsh.wms.core.constant.*;
-import com.lsh.wms.core.dao.redis.RedisStringDao;
-import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
-import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
-import com.lsh.wms.core.service.location.LocationDetailService;
-import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.po.PoReceiptService;
 import com.lsh.wms.core.service.po.ReceiveService;
-import com.lsh.wms.core.service.so.SoDeliveryService;
-import com.lsh.wms.core.service.staff.StaffService;
-import com.lsh.wms.core.service.stock.StockLotService;
-import com.lsh.wms.core.service.store.StoreService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
@@ -124,7 +115,7 @@ public class SeedRpcService implements ISeedRpcService {
             ReceiveHeader receiveHeader = receiveService.getReceiveHeader(ibdHeader.getOrderId());
             Long receiveId = 0l;
             if(receiveHeader == null){
-                receiveId = this.genReceive(ibdHeader);
+                receiveId = this.genReceive(ibdHeader,request.getItems());
 
             }else{
                 receiveId = receiveHeader.getReceiveId();
@@ -204,7 +195,16 @@ public class SeedRpcService implements ISeedRpcService {
         poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList,updateReceiveDetailList,obdStreamDetailList);
     }
 
-    public Long genReceive(IbdHeader ibdHeader){
+    public Long genReceive(IbdHeader ibdHeader,List<ReceiptItem> receiptItemList){
+        // TODO: 16/11/9 保存skucode和barcode的映射关系
+        Map<String,String> skuMap = new HashMap<String, String>();
+        for(ReceiptItem rt:receiptItemList){
+            BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), rt.getSkuId());
+            if(baseinfoItem == null){
+                continue;
+            }
+            skuMap.put(baseinfoItem.getSkuCode(),rt.getBarCode());
+        }
 
         //增加receiveHeader总单
         Long receiveId = RandomUtils.genId();
@@ -218,6 +218,7 @@ public class SeedRpcService implements ISeedRpcService {
         for (IbdDetail ibdDetail : ibdList){
             ReceiveDetail receiveDetail = new ReceiveDetail();
             ObjUtils.bean2bean(ibdDetail,receiveDetail);
+            receiveDetail.setCode(skuMap.get(ibdDetail.getSkuCode()));// TODO: 16/11/9 增加国条
             receiveDetail.setReceiveId(receiveId);
             receiveDetail.setCreatedAt(DateUtils.getCurrentSeconds());
             receiveDetails.add(receiveDetail);
