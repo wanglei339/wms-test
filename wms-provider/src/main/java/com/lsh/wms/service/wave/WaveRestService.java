@@ -367,14 +367,14 @@ public class WaveRestService implements IWaveRestService {
         return JsonUtils.SUCCESS(waveService.getExceptionsByWaveId(iWaveId));
     }
 
-    @GET
+    @POST
     @Path("getWaveTemplateList")
     public String getWaveTemplateList(Map<String, Object> mapQuery){
         return JsonUtils.SUCCESS(waveTemplateService.getWaveTemplateList(mapQuery));
     }
 
-    @GET
-    @Path("getWaveTemplateList")
+    @POST
+    @Path("getWaveTemplateCount")
     public String getWaveTemplateCount(Map<String, Object> mapQuery){
         return JsonUtils.SUCCESS(waveTemplateService.getWaveTemplateCount(mapQuery));
     }

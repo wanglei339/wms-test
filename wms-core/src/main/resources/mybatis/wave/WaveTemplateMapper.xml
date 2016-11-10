@@ -7,9 +7,18 @@
 		<result property="waveTemplateId" column="wave_template_id"/>
 		<result property="waveTemplateName" column="wave_template_name"/>
 		<result property="status" column="status"/>
+		<result property="waveOrderType" column="wave_order_type"/>
+		<result property="clusterRoute" column="cluster_route"/>
+		<result property="clusterCustomer" column="cluster_customer"/>
+		<result property="stgOrderSimilar" column="stg_order_similar"/>
+		<result property="orderLimit" column="order_limit"/>
+		<result property="autoRelease" column="auto_release"/>
+		<result property="releaseTimeList" column="release_time_list"/>
 		<result property="waveDest" column="wave_dest"/>
 		<result property="collectLocations" column="collect_locations"/>
-		<result property="useCollectBin" column="use_collect_bin"/>
+		<result property="collectDynamic" column="collect_dynamic"/>
+		<result property="collectAllocModel" column="collect_alloc_model"/>
+		<result property="collectBinUse" column="collect_bin_use"/>
 		<result property="pickModelTemplateId" column="pick_model_template_id"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
@@ -17,11 +26,13 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="WaveTemplate">
 		insert into wave_template (
-			wave_template_id,wave_template_name,status,wave_dest,collect_locations,use_collect_bin,
-			pick_model_template_id,created_at,updated_at
+			wave_template_id,wave_template_name,status,wave_order_type,cluster_route,cluster_customer,
+			stg_order_similar,order_limit,auto_release,release_time_list,wave_dest,collect_locations,
+			collect_dynamic,collect_alloc_model,collect_bin_use,pick_model_template_id,created_at,updated_at
     	) values (
-			#{waveTemplateId},#{waveTemplateName},#{status},#{waveDest},#{collectLocations},#{useCollectBin},
-			#{pickModelTemplateId},#{createdAt},#{updatedAt}
+			#{waveTemplateId},#{waveTemplateName},#{status},#{waveOrderType},#{clusterRoute},#{clusterCustomer},
+			#{stgOrderSimilar},#{orderLimit},#{autoRelease},#{releaseTimeList},#{waveDest},#{collectLocations},
+			#{collectDynamic},#{collectAllocModel},#{collectBinUse},#{pickModelTemplateId},#{createdAt},#{updatedAt}
     	)
 	</insert>
 
@@ -31,9 +42,18 @@
   			<if test="waveTemplateId != null">wave_template_id=#{waveTemplateId},</if>
   			<if test="waveTemplateName != null">wave_template_name=#{waveTemplateName},</if>
   			<if test="status != null">status=#{status},</if>
+  			<if test="waveOrderType != null">wave_order_type=#{waveOrderType},</if>
+  			<if test="clusterRoute != null">cluster_route=#{clusterRoute},</if>
+  			<if test="clusterCustomer != null">cluster_customer=#{clusterCustomer},</if>
+  			<if test="stgOrderSimilar != null">stg_order_similar=#{stgOrderSimilar},</if>
+  			<if test="orderLimit != null">order_limit=#{orderLimit},</if>
+  			<if test="autoRelease != null">auto_release=#{autoRelease},</if>
+  			<if test="releaseTimeList != null">release_time_list=#{releaseTimeList},</if>
   			<if test="waveDest != null">wave_dest=#{waveDest},</if>
   			<if test="collectLocations != null">collect_locations=#{collectLocations},</if>
-  			<if test="useCollectBin != null">use_collect_bin=#{useCollectBin},</if>
+  			<if test="collectDynamic != null">collect_dynamic=#{collectDynamic},</if>
+  			<if test="collectAllocModel != null">collect_alloc_model=#{collectAllocModel},</if>
+  			<if test="collectBinUse != null">collect_bin_use=#{collectBinUse},</if>
   			<if test="pickModelTemplateId != null">pick_model_template_id=#{pickModelTemplateId},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
@@ -65,9 +85,18 @@
 			<if test="waveTemplateId != null">and wave_template_id=#{waveTemplateId}</if>
 			<if test="waveTemplateName != null">and wave_template_name=#{waveTemplateName}</if>
 			<if test="status != null">and status=#{status}</if>
+			<if test="waveOrderType != null">and wave_order_type=#{waveOrderType}</if>
+			<if test="clusterRoute != null">and cluster_route=#{clusterRoute}</if>
+			<if test="clusterCustomer != null">and cluster_customer=#{clusterCustomer}</if>
+			<if test="stgOrderSimilar != null">and stg_order_similar=#{stgOrderSimilar}</if>
+			<if test="orderLimit != null">and order_limit=#{orderLimit}</if>
+			<if test="autoRelease != null">and auto_release=#{autoRelease}</if>
+			<if test="releaseTimeList != null">and release_time_list=#{releaseTimeList}</if>
 			<if test="waveDest != null">and wave_dest=#{waveDest}</if>
 			<if test="collectLocations != null">and collect_locations=#{collectLocations}</if>
-			<if test="useCollectBin != null">and use_collect_bin=#{useCollectBin}</if>
+			<if test="collectDynamic != null">and collect_dynamic=#{collectDynamic}</if>
+			<if test="collectAllocModel != null">and collect_alloc_model=#{collectAllocModel}</if>
+			<if test="collectBinUse != null">and collect_bin_use=#{collectBinUse}</if>
 			<if test="pickModelTemplateId != null">and pick_model_template_id=#{pickModelTemplateId}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>

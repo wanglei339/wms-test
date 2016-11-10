@@ -1,7 +1,12 @@
 package com.lsh.wms.service.wave;
 
+import com.lsh.wms.core.service.wave.WaveTemplateService;
+import com.lsh.wms.model.wave.WaveTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by zengwenjun on 16/11/8.
@@ -10,6 +15,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class WaveGenerator {
 
+    @Autowired
+    WaveTemplateService waveTemplateService;
     /*
     本质上来说是通过一组条件查询或者聚合出一组订单集合.
     条件可能性:
@@ -52,14 +59,14 @@ public class WaveGenerator {
     }
 
     //根据波次订单类型获取全量订单
-    private void _getUnWaveOrders(Long waveOrderType){
+    private void _getUnWaveOrders(String waveOrderType){
 
     }
 
     //执行波次规划器,进行波次聚合
-    private void _clusterWave(Long waveOrderType){
+    private void _clusterWave(WaveTemplate tpl){
         //获取订单列表
-        this._getUnWaveOrders(waveOrderType);
+        this._getUnWaveOrders(tpl.getWaveOrderType());
         //执行波次聚合引擎
         //保存redis
         /*结构:
@@ -83,9 +90,10 @@ public class WaveGenerator {
     private void _autoCluster(){
         this.setWaveOrderType();
         //获取配置好的订单类型列表
+        List<WaveTemplate> waveTemplateList = waveTemplateService.getWaveTemplateList(new HashMap<String, Object>());
         //遍历执行
-        for(;;){
-            this._clusterWave(0L);
+        for(WaveTemplate tpl : waveTemplateList){
+            this._clusterWave(tpl);
         }
         //redis中存储本次计算的日志,用于展示.
     }
