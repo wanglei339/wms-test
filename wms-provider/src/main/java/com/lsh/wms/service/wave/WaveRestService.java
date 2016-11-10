@@ -429,4 +429,23 @@ public class WaveRestService implements IWaveRestService {
         return JsonUtils.SUCCESS(waveGenerator.getWavePreviewList());
     }
 
+    @POST
+    @Path("createWaveByPreview")
+    public String createWaveByPreview(Map<String, Object> mapData){
+        List<Long> orderIds = waveGenerator.getOrderIdsByWavePreviewId(mapData.get("wavePreviewId").toString());
+        Long waveTemplateId = waveGenerator.getWaveTemplateIdByWavePreviewId(mapData.get("wavePreviewId").toString());
+
+        if(orderIds == null || waveTemplateId == null){
+            return JsonUtils.OTHER_EXCEPTION("未查询到相关信息,请刷新页面");
+        }
+        List<Map> orders = new LinkedList<Map>();
+        for(Long orderId : orderIds){
+            Map<String, Object> order = new HashMap<String, Object>();
+            order.put("orderId", orderId);
+            orders.add(order);
+        }
+        WaveRequest request = new WaveRequest(orders, Long.valueOf(WaveConstant.STATUS_NEW), "呵呵", "PREVIEW_HAND", waveTemplateId, 1L);
+        waveRpcService.createWave(request);
+        return JsonUtils.SUCCESS();
+    }
 }

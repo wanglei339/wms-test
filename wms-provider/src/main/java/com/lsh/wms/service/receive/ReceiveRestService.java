@@ -105,11 +105,12 @@ public class ReceiveRestService implements IReceiveRestService{
                 detail.setPoNumber(receiveHeader.getOrderOtherId());
                 detail.setPoItme(receiveDetail.getDetailOtherId());
                 BigDecimal inboudQty =  receiveDetail.getInboundQty();
-                if(inboudQty.compareTo(BigDecimal.ZERO) <= 0){
-                    continue;
-                }
+
                 BigDecimal orderQty = receiveDetail.getOrderQty();
                 BigDecimal deliveQty = receiveHeader.getOrderType().equals(3) ? orderQty : inboudQty;
+                if(deliveQty.compareTo(BigDecimal.ZERO) <= 0){
+                    continue;
+                }
                 detail.setDeliveQty(deliveQty.setScale(2,BigDecimal.ROUND_HALF_UP));
                 detail.setUnit(receiveDetail.getUnitName());
                 detail.setMaterial(receiveDetail.getSkuCode());
