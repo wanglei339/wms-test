@@ -54,6 +54,13 @@ public class WaveConstant {
     public static long QC_DONE_TO_COMBINATION = 1L;
     public static long QC_SKIP_TO_COMBINATION = 2L;
 
+    /**
+     * qcrf的case处理
+     */
+    public static int QC_RF_SKIP = 1;
+    public static int QC_RF_FALLBACK = 2;
+    public static int QC_RF_REPAIR = 3;
+
 
 
 

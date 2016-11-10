@@ -19,7 +19,13 @@ public interface IQCRpcService {
     List<Map<String, Object>> getGroupList(Map<String, Object> mapQuery) throws BizCheckedException;
     Integer countGroupList(Map<String, Object> mapQuery) throws BizCheckedException;
     public Map<Long, Map<String, Object>> getGroupDetailByStoreNo(String storeNo) throws BizCheckedException;
-    public List<TaskInfo> getQcDoneTaskInfoByStoreNo(String storeNo);
+    public List<TaskInfo> getQcDoneTaskInfoByWaveDetails(List<WaveDetail> waveDetails)throws BizCheckedException;
+    public List<WaveDetail> getQcWaveDetailsByStoreNo(String storeNo)throws BizCheckedException;
+
+    public boolean repairExceptionRf(Map<String, Object> request) throws BizCheckedException;
+    public boolean fallbackExceptionRf(Map<String, Object> request) throws BizCheckedException;
+    public boolean skipExceptionRf(Map<String, Object> request) throws BizCheckedException;
+
 
 
 

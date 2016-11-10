@@ -363,7 +363,8 @@ public class IbdService implements IIbdService {
 //        details.add(detail2);
 
         header.setItems(details);
-        return wuMartSap.ibd2Sap(header);
+//        return wuMartSap.ibd2Sap(header);
+        return "";
         //return wuMartSap.ibd2SapAccount(header,null);
         //wuMart.sendIbd(header);
         //wuMartSap.ibd2SapAccount(header,"");
