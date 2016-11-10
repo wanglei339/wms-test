@@ -1,6 +1,7 @@
 package com.lsh.wms.service.wave;
 
 import com.aliyun.oss.common.utils.DateUtil;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.RedisKeyConstant;
@@ -155,7 +156,7 @@ public class WaveGenerator {
             wave.put("orderCount", orderCount);
             wave.put("lineCount", lineCount);
             wave.put("orders", orderIdList);
-            wave.put("previewWaveId", String.format("%d%05d", waveTag, waveIdx));
+            wave.put("wavePreviewId", String.format("%d%05d", waveTag, waveIdx));
             wave.put("waveTemplateId", tpl.getWaveTemplateId());
             wave.put("waveTemplateName", tpl.getWaveTemplateName());
             wave.put("waveOrderType", tpl.getWaveOrderType());
@@ -210,9 +211,34 @@ public class WaveGenerator {
         return info;
     }
 
-    public void getOrderIdByWavePreviewId(){
+    public List<Long> getOrderIdsByWavePreviewId(String wavePreviewId){
         String info = redisStringDao.get(RedisKeyConstant.WAVE_PREVIEW_KEY);
+        Map<String, Object> previewInfo = JsonUtils.json2Obj(info, Map.class);
+        if(previewInfo == null || previewInfo.get("waves") == null){
+            return null;
+        }
+        List<Map> previewWaves = (List<Map>)previewInfo.get("waves");
+        for(Map<String, Object> wave : previewWaves){
+            if(wave.get("wavePreviewId").equals(wavePreviewId)){
+                return (List<Long>)wave.get("orders");
+            }
+        }
+        return null;
+    }
 
+    public Long getWaveTemplateIdByWavePreviewId(String wavePreviewId){
+        String info = redisStringDao.get(RedisKeyConstant.WAVE_PREVIEW_KEY);
+        Map<String, Object> previewInfo = JsonUtils.json2Obj(info, Map.class);
+        if(previewInfo == null || previewInfo.get("waves") == null){
+            return null;
+        }
+        List<Map> previewWaves = (List<Map>)previewInfo.get("waves");
+        for(Map<String, Object> wave : previewWaves){
+            if(wave.get("wavePreviewId").equals(wavePreviewId)){
+                return Long.valueOf(wave.get("waveTemplateId").toString());
+            }
+        }
+        return null;
     }
 
 }

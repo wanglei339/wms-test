@@ -18,6 +18,7 @@ import com.lsh.wms.api.service.so.ISoRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.CsiConstan;
+import com.lsh.wms.core.constant.PickConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.service.stock.StockQuantService;
@@ -211,7 +212,7 @@ public class QCRestService implements IRFQCRestService {
 
             //判断是第几次的QC,只有QC过一遍,再次QC都是复核QC
             detail.put("qcTimes", waveDetail.getQcTimes());
-          //todo 如果有异常的话,直流的也要qc
+            //todo 如果有异常的话,直流的也要qc
             undoDetails.add(detail);
         }
         allBoxNum = boxNum;
@@ -319,8 +320,8 @@ public class QCRestService implements IRFQCRestService {
                 throw new BizCheckedException("2120013");
             }
             int cmpRet = pickQty.compareTo(qty);    //拣货 - qc的数量
-            if (cmpRet > 0) exceptionType = WaveConstant.QC_EXCEPTION_LACK; //多货
-            if (cmpRet < 0) exceptionType = WaveConstant.QC_EXCEPTION_OVERFLOW; //少货
+            if (cmpRet > 0) exceptionType = WaveConstant.QC_EXCEPTION_LACK; //少货
+            if (cmpRet < 0) exceptionType = WaveConstant.QC_EXCEPTION_OVERFLOW; //多货
             BigDecimal curQty = new BigDecimal("0.0000");
             for (int i = 0; i < matchDetails.size(); ++i) {
                 WaveDetail detail = matchDetails.get(i);
@@ -338,12 +339,14 @@ public class QCRestService implements IRFQCRestService {
                         //设置成拣货人的责任
                         if (exceptionType == WaveConstant.QC_EXCEPTION_DEFECT) {
                             detail.setQcExceptionQty(exceptionQty);
-                            detail.setQcFaultQty(exceptionQty); //残次数量失误就是过失数量
+                            //残次不追责
+//                            detail.setQcFault(WaveConstant.QC_FAULT_NOMAL);
+//                            detail.setQcFaultQty(exceptionQty); //残次不记录责任
                         } else {
                             detail.setQcExceptionQty(qty.subtract(curQty));
                             detail.setQcFaultQty(qty.subtract(curQty).abs());   //少货或者多货取绝对值
+                            detail.setQcFault(WaveConstant.QC_FAULT_PICK); //永远是拣货人的责任,不修复的话
                         }
-                        detail.setQcFault(WaveConstant.QC_FAULT_PICK); //永远是拣货人的责任,不修复的话
                         // 以后做有残次不追责
                         detail.setQcExceptionDone(0L);
                         detail.setQcQty(qty.subtract(lastQty));
@@ -403,7 +406,6 @@ public class QCRestService implements IRFQCRestService {
         Map<String, Object> request = RequestUtils.getRequest();
         //前端跳过q明细字段,跳过,系统默认拣货量和qc量的一致
         Boolean skip = Boolean.valueOf(request.get("skip").toString());
-
         long qcTaskId = Long.valueOf(request.get("qcTaskId").toString());
         long boxNum = Long.valueOf(request.get("boxNum").toString());
         long turnoverBoxNum = Long.valueOf(request.get("turnoverBoxNum").toString());
@@ -463,9 +465,9 @@ public class QCRestService implements IRFQCRestService {
     }
 
 
-
     /**
      * 跳过异常
+     *
      * @return
      * @throws BizCheckedException
      */
@@ -475,39 +477,145 @@ public class QCRestService implements IRFQCRestService {
         Map<String, Object> request = RequestUtils.getRequest();
         Long containerId = Long.valueOf(request.get("containerId").toString());
         String code = request.get("code").toString();
+        BigDecimal qtyUom = new BigDecimal(request.get("uomQty").toString());   //可以是箱数或EA数量
+        BigDecimal pickQty = new BigDecimal("0.0000");  //拣货数量
         if (null == containerId || null == code) {
             throw new BizCheckedException("2120019");
         }
-        boolean result = iqcRpcService.skipExceptionRf(request);
+        CsiSku skuInfo = csiRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, code);
+        if (skuInfo == null) {
+            throw new BizCheckedException("2120001");
+        }
+        long skuId = skuInfo.getSkuId();
+        //以商品为维度,根据skuId和containerId找wave_detail的
+        List<WaveDetail> waveDetails = waveService.getDetailByContainerIdAndSkuId(containerId, skuId);
+        if (null == waveDetails || waveDetails.size() < 1) {
+            throw new BizCheckedException("2120018");
+        }
+        BigDecimal normalQty = new BigDecimal("0.0000");    //除了最后那条detail的正常的数量
+        //缺交判断
+        for (WaveDetail d : waveDetails) {
+            pickQty = pickQty.add(d.getPickQty());
+            if (d.getQcException() == WaveConstant.QC_EXCEPTION_NORMAL) {    //正常的
+                normalQty = normalQty.add(d.getQcQty());
+            }
+        }
+
+        BigDecimal qty = PackUtil.UomQty2EAQty(qtyUom, waveDetails.get(0).getAllocUnitName());
+        if (pickQty.compareTo(qty) <= 0) {   //多货或者数量相同
+            throw new BizCheckedException("2120021");
+        }
+
+        /**
+         * 忽略异常
+         * 数量写在有异常的那条
+         * 设置库存的qc的数量
+         * 残次不追责
+         */
+        for (WaveDetail detail : waveDetails) {
+            if (detail.getQcException() != WaveConstant.QC_EXCEPTION_NORMAL) {
+                //残次不追责
+                if (WaveConstant.QC_EXCEPTION_DEFECT == detail.getQcException()) {
+                    //设置qc数量
+                    detail.setQcFault(WaveConstant.QC_FAULT_NOMAL);
+                    detail.setQcFaultQty(new BigDecimal("0.0000"));
+                } else { //非残次拣货人的责任
+                    detail.setQcFault(WaveConstant.QC_FAULT_PICK);
+                    detail.setQcFaultQty(detail.getQcExceptionQty().abs());
+                }
+                detail.setQcQty(qty.subtract(normalQty));   //前面的都是正常的,有异常那条记录异常的数量
+                detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_SKIP);
+                waveService.updateDetail(detail);
+            }
+        }
+
+        //检验修复完毕
+        boolean result = true;
+        for (WaveDetail d : waveDetails) {
+            if (d.getQcExceptionDone() == WaveConstant.QC_EXCEPTION_STATUS_UNDO) {
+                result = false;
+            }
+        }
         Map<String, Object> resultMap = new HashMap<String, Object>();
-        resultMap.put("result", result);
+        resultMap.put("qcDone", result);
         return JsonUtils.SUCCESS(result);
     }
 
 
     /**
      * 跳过异常
+     *
      * @return
      * @throws BizCheckedException
      */
     @POST
-    @Path("skipException")
+    @Path("repairException")
     public String repairExceptionRf() throws BizCheckedException {
         Map<String, Object> request = RequestUtils.getRequest();
         Long containerId = Long.valueOf(request.get("containerId").toString());
+        BigDecimal qtyUom = new BigDecimal(request.get("uomQty").toString());   //复QC的数量
         String code = request.get("code").toString();
+        BigDecimal pickQty = new BigDecimal("0.0000");  //拣货数量
+
         if (null == containerId || null == code) {
             throw new BizCheckedException("2120019");
         }
-        boolean result = iqcRpcService.repairExceptionRf(request);
+        CsiSku skuInfo = csiRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, code);
+        if (skuInfo == null) {
+            throw new BizCheckedException("2120001");
+        }
+        long skuId = skuInfo.getSkuId();
+        //以商品为维度,根据skuId和containerId找wave_detail的
+        List<WaveDetail> waveDetails = waveService.getDetailByContainerIdAndSkuId(containerId, skuId);
+        if (null == waveDetails || waveDetails.size() < 1) {
+            throw new BizCheckedException("2120018");
+        }
+
+        //数量判断
+        for (WaveDetail d : waveDetails) {
+            pickQty = pickQty.add(d.getPickQty());
+        }
+        BigDecimal qty = PackUtil.UomQty2EAQty(qtyUom, waveDetails.get(0).getAllocUnitName());
+        if (pickQty.compareTo(qty) != 0) {   //多货或者数量相同
+            throw new BizCheckedException("2120022");
+        }
+
+        //责任变更,记录数量
+        for (WaveDetail d : waveDetails) {
+            if (d.getQcException() != WaveConstant.QC_EXCEPTION_NORMAL){
+                //残次不追责
+                if (WaveConstant.QC_EXCEPTION_DEFECT == d.getQcException()){
+                    //设置qc数量
+                    d.setQcFault(WaveConstant.QC_FAULT_NOMAL);
+                    d.setQcFaultQty(new BigDecimal("0.0000"));
+                }else {
+                    d.setQcFault(WaveConstant.QC_FAULT_PICK);
+                    d.setQcFaultQty(d.getQcExceptionQty().abs());
+                }
+                d.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_DONE);
+                d.setQcQty(d.getPickQty());
+                d.setQcExceptionQty(new BigDecimal("0.0000"));
+                d.setQcException(WaveConstant.QC_EXCEPTION_NORMAL);
+                waveService.updateDetail(d);
+            }
+        }
+
+        //检验修复完毕
+        boolean result = true;
+        for (WaveDetail d : waveDetails) {
+            if (d.getQcExceptionDone() == WaveConstant.QC_EXCEPTION_STATUS_UNDO) {
+                result = false;
+            }
+        }
         Map<String, Object> resultMap = new HashMap<String, Object>();
-        resultMap.put("result", result);
+        resultMap.put("qcDone", result);
         return JsonUtils.SUCCESS(result);
     }
 
 
     /**
      * 回滚异常
+     *
      * @return
      * @throws BizCheckedException
      */
@@ -516,13 +624,60 @@ public class QCRestService implements IRFQCRestService {
     public String fallbackExceptionRf() throws BizCheckedException {
         Map<String, Object> request = RequestUtils.getRequest();
         Long containerId = Long.valueOf(request.get("containerId").toString());
+        BigDecimal qtyUom = new BigDecimal(request.get("uomQty").toString());   //复QC的数量
         String code = request.get("code").toString();
+        BigDecimal pickQty = new BigDecimal("0.0000");  //拣货数量
+
         if (null == containerId || null == code) {
             throw new BizCheckedException("2120019");
         }
-        boolean result = iqcRpcService.fallbackExceptionRf(request);
+        CsiSku skuInfo = csiRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, code);
+        if (skuInfo == null) {
+            throw new BizCheckedException("2120001");
+        }
+        long skuId = skuInfo.getSkuId();
+        //以商品为维度,根据skuId和containerId找wave_detail的
+        List<WaveDetail> waveDetails = waveService.getDetailByContainerIdAndSkuId(containerId, skuId);
+        if (null == waveDetails || waveDetails.size() < 1) {
+            throw new BizCheckedException("2120018");
+        }
+
+        //数量判断
+        for (WaveDetail d : waveDetails) {
+            pickQty = pickQty.add(d.getPickQty());
+        }
+        BigDecimal qty = PackUtil.UomQty2EAQty(qtyUom, waveDetails.get(0).getAllocUnitName());
+        if (pickQty.compareTo(qty) != 0) {   //多货或者数量相同
+            throw new BizCheckedException("2120023");
+        }
+        //责任变更,记录数量
+        for (WaveDetail d : waveDetails) {
+            if (d.getQcException() != WaveConstant.QC_EXCEPTION_NORMAL){
+                //残次不追责
+                if (WaveConstant.QC_EXCEPTION_DEFECT == d.getQcException()){
+                    //设置qc数量
+                    d.setQcFault(WaveConstant.QC_FAULT_NOMAL);
+                    d.setQcFaultQty(new BigDecimal("0.0000"));
+                }else {
+                    d.setQcFault(WaveConstant.QC_FAULT_QC);
+                    d.setQcFaultQty(d.getQcExceptionQty().abs());
+                }
+                d.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_DONE);
+                d.setQcQty(d.getPickQty());
+                d.setQcExceptionQty(new BigDecimal("0.0000"));
+                d.setQcException(WaveConstant.QC_EXCEPTION_NORMAL);
+                waveService.updateDetail(d);
+            }
+        }
+        //检验修复完毕
+        boolean result = true;
+        for (WaveDetail d : waveDetails) {
+            if (d.getQcExceptionDone() == WaveConstant.QC_EXCEPTION_STATUS_UNDO) {
+                result = false;
+            }
+        }
         Map<String, Object> resultMap = new HashMap<String, Object>();
-        resultMap.put("result", result);
+        resultMap.put("qcDone", result);
         return JsonUtils.SUCCESS(result);
     }
 
@@ -655,58 +810,3 @@ public class QCRestService implements IRFQCRestService {
     }
 }
 
-
-//集货任务receipt_qty计算数量
-//        if (beforeTask.getType().equals(TaskConstant.TYPE_SET_GOODS)){
-//            for (WaveDetail d : details) {
-//                if (d.getQcTimes() == WaveConstant.QC_TIMES_FIRST) {   //一旦有第一遍没QC的,就不是复Q
-//                    isFirstQC = true;
-//                }
-//                if (mapItem2PickQty.get(d.getItemId()) == null) {
-//                    mapItem2PickQty.put(d.getItemId(), new BigDecimal(d.getReceiptQty().toString()));
-//                } else {
-//                    mapItem2PickQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getReceiptQty()));
-//                }
-//                mapItem2WaveDetail.put(d.getItemId(), d);
-//            }
-//        }
-//        //收货任务receipt_qty计算数量
-//        if (beforeTask.getType().equals(TaskConstant.TYPE_PO)){
-//            for (WaveDetail d : details) {
-//                if (d.getQcTimes() == WaveConstant.QC_TIMES_FIRST) {   //一旦有第一遍没QC的,就不是复Q
-//                    isFirstQC = true;
-//                }
-//                if (mapItem2PickQty.get(d.getItemId()) == null) {
-//                    mapItem2PickQty.put(d.getItemId(), new BigDecimal(d.getReceiptQty().toString()));
-//                } else {
-//                    mapItem2PickQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getPickQty()));
-//                }
-//                mapItem2WaveDetail.put(d.getItemId(), d);
-//            }
-//        }
-//拣货任务
-//        if (beforeTask.getType().equals(TaskConstant.TYPE_PICK)){
-//            for (WaveDetail d : details) {
-//                if (d.getQcTimes() == WaveConstant.QC_TIMES_FIRST) {   //一旦有第一遍没QC的,就不是复Q
-//                    isFirstQC = true;
-//                }
-//                if (mapItem2PickQty.get(d.getItemId()) == null) {
-//                    mapItem2PickQty.put(d.getItemId(), new BigDecimal(d.getPickQty().toString()));
-//                } else {
-//                    mapItem2PickQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getReceiptQty()));
-//                }
-//                mapItem2WaveDetail.put(d.getItemId(), d);
-//            }
-//        } if (beforeTask.getType().equals(TaskConstant.TYPE_PICK)){
-//            for (WaveDetail d : details) {
-//                if (d.getQcTimes() == WaveConstant.QC_TIMES_FIRST) {   //一旦有第一遍没QC的,就不是复Q
-//                    isFirstQC = true;
-//                }
-//                if (mapItem2PickQty.get(d.getItemId()) == null) {
-//                    mapItem2PickQty.put(d.getItemId(), new BigDecimal(d.getPickQty().toString()));
-//                } else {
-//                    mapItem2PickQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getReceiptQty()));
-//                }
-//                mapItem2WaveDetail.put(d.getItemId(), d);
-//            }
-//        }

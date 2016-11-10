@@ -25,6 +25,8 @@ public class ObdHeader implements Serializable {
 	private Long ownerUid;
 	/** 订单类型 1so单，2供商退货单 3调拨出库单 */
 	private Integer orderType;
+	/** 波次订单类型 */
+	private String waveOrderType;
 	/** 波次号 */
 	private Long waveId;
 	/** tms线路 */
@@ -126,6 +128,13 @@ public class ObdHeader implements Serializable {
 		this.orderType = orderType;
 	}
 
+	public String getWaveOrderType(){
+		return this.waveOrderType;
+	}
+
+	public void setWaveOrderType(String waveOrderType){
+		this.waveOrderType = waveOrderType;
+	}
 	public Long getWaveId(){
 		return this.waveId;
 	}
