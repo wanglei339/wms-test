@@ -92,9 +92,9 @@ public class BaseinfoItem implements Serializable {
 	/** 外包装名称 */
 	private String packName = "";
 	/**是否贵品 1贵品 2 非贵品*/
-	private Integer isValuable;
+	private Integer isValuable = 0;
 	/**商品类型*/
-	private Integer itemType;
+	private Integer itemType = 0;
 
 
 
