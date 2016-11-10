@@ -66,6 +66,7 @@ public interface ILocationRpcService {
      * @return
      */
     public List<BaseinfoLocation> getColletionBins();
+    BaseinfoLocation getWarehouseLocation();
 
     /**
      * 上锁
