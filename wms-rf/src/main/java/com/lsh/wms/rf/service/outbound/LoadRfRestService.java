@@ -31,6 +31,7 @@ import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.config.Task;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -68,6 +69,7 @@ public class LoadRfRestService implements ILoadRfRestService {
     private IStoreRpcService iStoreRpcService;
     @Reference
     private IQCRpcService iqcRpcService;
+
     /**
      * rf获取所有待装车或者已装车的结果集
      *
@@ -220,6 +222,19 @@ public class LoadRfRestService implements ILoadRfRestService {
                     Long storeId = iStoreRpcService.getStoreIdByCode(boardMap.get("storeNo").toString());
                     boardMap.put("isLoaded", isLoaded);
                     boardMap.put("storeId", storeId);
+
+                    //获取一板多托
+                    Map<String, Object> mergerMap = new HashMap<String, Object>();
+                    mergerMap.put("containerId", boardId);
+                    mergerMap.put("status", TaskConstant.Done);
+                    mergerMap.put("type", TaskConstant.TYPE_MERGE);
+                    List<TaskInfo> mergeInfos = baseTaskService.getTaskInfoList(mergerMap);
+                    if (null == mergeInfos || mergeInfos.size() < 1) {
+                        throw new BizCheckedException("2120020");
+                    }
+                    BigDecimal taskBoardQty = mergeInfos.get(0).getTaskBoardQty();
+                    Long boardNum = taskBoardQty.longValue();
+                    boardMap.put("taskBoardQty",boardNum);
                     //markContainerId是物理的通过它来看尾货的托盘
                     storeRestList.add(storesRestMap.get(key));
                 }
@@ -334,12 +349,15 @@ public class LoadRfRestService implements ILoadRfRestService {
         BigDecimal boxNum = new BigDecimal(containerDetailMap.get("boxNum").toString());
         Integer containerNum = Integer.valueOf(containerDetailMap.get("containerNum").toString());
         Long turnoverBoxNum = Long.valueOf(containerDetailMap.get("turnoverBoxNum").toString());
+        BigDecimal taskBoardQty = new BigDecimal(containerDetailMap.get("taskBoardQty").toString());
+        Long boardNum = taskBoardQty.longValue();
         TuDetail tuDetail = new TuDetail();
         tuDetail.setTuId(tuId);
         tuDetail.setMergedContainerId(Long.valueOf(containerDetailMap.get("containerId").toString()));
         tuDetail.setBoxNum(boxNum);
         tuDetail.setContainerNum(containerNum);
         tuDetail.setTurnoverBoxNum(turnoverBoxNum);
+        tuDetail.setBoardNum(boardNum); //一板多托数量
         tuDetail.setStoreId(storeId);
         tuDetail.setLoadAt(DateUtils.getCurrentSeconds());
         tuDetail.setIsValid(1);

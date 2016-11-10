@@ -1408,7 +1408,7 @@ public class LocationService {
     /**
      * 传入left和right查询 固定列区间的库位
      *
-     * @param params
+     * @param mapQuery
      * @return
      */
     public List<BaseinfoLocation> getRangeLocationList(Map<String, Object> mapQuery) {

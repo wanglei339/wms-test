@@ -43,6 +43,15 @@ public class ReceiveDetail implements Serializable {
 	/**  */
     private Long updatedAt = 0l;
 
+	/** 物美回传创建ibd号 */
+	private String ibdId = "";
+	/** 创建ibd 行项目号 */
+	private String ibdDetailId = "";
+	/** 物美过账成功后返回的凭证号 */
+	private String accountId = "";
+	/** 过账凭证明细 */
+	private String accountDetailId = "";
+
 	public Long getId(){
 		return this.id;
 	}
@@ -186,5 +195,37 @@ public class ReceiveDetail implements Serializable {
 
 	public void setCode(String code) {
 		this.code = code;
+	}
+
+	public String getAccountDetailId() {
+		return accountDetailId;
+	}
+
+	public void setAccountDetailId(String accountDetailId) {
+		this.accountDetailId = accountDetailId;
+	}
+
+	public String getAccountId() {
+		return accountId;
+	}
+
+	public void setAccountId(String accountId) {
+		this.accountId = accountId;
+	}
+
+	public String getIbdDetailId() {
+		return ibdDetailId;
+	}
+
+	public void setIbdDetailId(String ibdDetailId) {
+		this.ibdDetailId = ibdDetailId;
+	}
+
+	public String getIbdId() {
+		return ibdId;
+	}
+
+	public void setIbdId(String ibdId) {
+		this.ibdId = ibdId;
 	}
 }
