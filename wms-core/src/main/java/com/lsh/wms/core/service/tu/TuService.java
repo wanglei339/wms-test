@@ -147,10 +147,10 @@ public class TuService {
      * @param deliveryCode 门店号
      * @return
      */
-    public List<TuDetail> getTuDetailByStoreCode(String tuId, String deliveryCode) {
+    public List<TuDetail> getTuDetailByStoreCode(String tuId, Long storeId) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("tuId", tuId);
-        mapQuery.put("deliveryCode", deliveryCode);  //门店号
+        mapQuery.put("storeId", storeId);  //门店号
         mapQuery.put("isValid", 1);
         return this.getTuDeailList(mapQuery);
     }
