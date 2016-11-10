@@ -53,7 +53,7 @@ public interface ITuRpcService {
 
     public Integer countTuDetail(Map<String, Object> mapQuery) throws BizCheckedException;
 
-    public List<TuDetail> getTuDetailByStoreCode(String tuId, String deliveryCode) throws BizCheckedException;
+    public List<TuDetail> getTuDetailByStoreCode(String tuId, Long storeId) throws BizCheckedException;
 
     public TuHead changeTuHeadStatus(String tuId, Integer status) throws BizCheckedException;
 

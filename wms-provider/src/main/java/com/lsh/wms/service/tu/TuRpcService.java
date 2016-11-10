@@ -90,7 +90,7 @@ public class TuRpcService implements ITuRpcService {
     private PoOrderService poOrderService;
 
 
-//    @Reference
+    //    @Reference
 //    private IWuMartSap wuMartSap;
 //
     @Reference
@@ -218,11 +218,11 @@ public class TuRpcService implements ITuRpcService {
         return tuService.countTuDetail(mapQuery);
     }
 
-    public List<TuDetail> getTuDetailByStoreCode(String tuId, String deliveryCode) throws BizCheckedException {
-        if (null == tuId || null == deliveryCode) {
+    public List<TuDetail> getTuDetailByStoreCode(String tuId, Long storeId) throws BizCheckedException {
+        if (null == tuId || null == storeId) {
             throw new BizCheckedException("2990027");
         }
-        return tuService.getTuDetailByStoreCode(tuId, deliveryCode);
+        return tuService.getTuDetailByStoreCode(tuId, storeId);
     }
 
     public TuHead changeTuHeadStatus(String tuId, Integer status) throws BizCheckedException {
@@ -393,6 +393,8 @@ public class TuRpcService implements ITuRpcService {
         TuHead tuHead = this.getHeadByTuId(tuId);
         //大店装车的前置条件是合板,小店是组盘完成
         Long mergedContainerId = null;  //需要存入detail的id, 大店是合板的id,小店是物理托盘码
+        Long boardNum = null;   //一板子多托的数量
+
         if (TuConstant.SCALE_STORE.equals(tuHead.getScale())) {    //小店看组盘
             //QC+done+containerId 找到mergercontaierId
             Map<String, Object> qcMapQuery = new HashMap<String, Object>();
@@ -419,11 +421,24 @@ public class TuRpcService implements ITuRpcService {
         List<Map<String, Object>> stores = storeService.analyStoresIds2Stores(tuHead.getStoreIds());
         List<WaveDetail> waveDetails = null;    //查找板子的detail
         //板子聚类
+        //查看板子的数量
         if (mergedContainerId.equals(containerId)) { //没合板
             mergedContainerId = containerId;
             waveDetails = waveService.getAliveDetailsByContainerId(mergedContainerId);
+            boardNum = 1L;  //没合板数量为1
         } else {
             waveDetails = waveService.getWaveDetailsByMergedContainerId(mergedContainerId);   //已经合板
+            //计费用的板子数量
+//            Map<String, Object> mergerQuery = new HashMap<String, Object>();
+//            mergerQuery.put("containerId", mergedContainerId);
+//            mergerQuery.put("type", TaskConstant.TYPE_MERGE);
+//            mergerQuery.put("status", TaskConstant.Done);
+//            List<TaskInfo> mergeInfos = baseTaskService.getTaskInfoList(mergerQuery);
+//            if (null == mergeInfos || mergeInfos.size() < 1){
+//                throw new BizCheckedException("2870038");
+//            }
+//            TaskInfo mergerInfo = mergeInfos.get(0);
+//            boardNum = mergerInfo.getBox
         }
         //一个板上的是一个门店的,只用来取店名字
         Long orderId = waveDetails.get(0).getOrderId();
@@ -485,6 +500,8 @@ public class TuRpcService implements ITuRpcService {
         result.put("storeId", storeId);
         result.put("isLoaded", isLoaded);
         result.put("containerId", mergedContainerId);   //板子码
+
+
         result.put("isRest", false); //非余货
         result.put("isExpensive", false);    //非贵品
         return result;
@@ -544,8 +561,8 @@ public class TuRpcService implements ITuRpcService {
             deliveryDetail.setSkuName(item.getSkuName());
             deliveryDetail.setBarCode(item.getCode());
             deliveryDetail.setOrderQty(waveDetail.getReqQty());
-            //todo 箱子规则
-            deliveryDetail.setPackUnit(waveDetail.getAllocUnitQty());
+            //todo 箱子规则,使用工具
+            deliveryDetail.setPackUnit(PackUtil.Uom2PackUnit(waveDetail.getAllocUnitName()));
             //通过stock quant获取到对应的lot信息
             List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(waveDetail.getContainerId());
             StockQuant stockQuant = stockQuants.size() > 0 ? stockQuants.get(0) : null;
@@ -629,8 +646,8 @@ public class TuRpcService implements ITuRpcService {
         createObdHeader.setItems(createObdDetailList);
         CreateIbdHeader createIbdHeader = new CreateIbdHeader();
         createIbdHeader.setItems(createIbdDetailList);
-        logger.info("+++++++++++++++++++++++++++++++++maqidi+++++++++++++++++++++++"+JSON.toJSONString(createObdHeader));
-        logger.info("+++++++++++++++++++++++++++++++++maqidi++++++++++++++"+JSON.toJSONString(createObdHeader));
+        logger.info("+++++++++++++++++++++++++++++++++maqidi+++++++++++++++++++++++" + JSON.toJSONString(createObdHeader));
+        logger.info("+++++++++++++++++++++++++++++++++maqidi++++++++++++++" + JSON.toJSONString(createObdHeader));
 
         //鑫哥服务
 //        wuMartSap.ibd2Sap(createIbdHeader);

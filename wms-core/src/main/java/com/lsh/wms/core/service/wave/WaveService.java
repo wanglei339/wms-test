@@ -86,8 +86,8 @@ public class WaveService {
             //更新wave信息
             Map so = vOrders.get(i);
             ObdHeader obdHeader = new ObdHeader();
-            //obdHeader.setOrderId(Long.valueOf(so.get("orderId").toString()));
-            obdHeader.setOrderOtherId(so.get("orderId").toString());
+            obdHeader.setOrderId(Long.valueOf(so.get("orderId").toString()));
+            //obdHeader.setOrderOtherId(so.get("orderId").toString());
             obdHeader.setTransPlan(so.get("transPlan").toString());
             obdHeader.setWaveIndex(Integer.valueOf(so.get("waveIndex").toString()));
             obdHeader.setTransTime(DateUtils.parse(so.get("transTime").toString()));
@@ -149,6 +149,26 @@ public class WaveService {
             return null;
         }else {
             return waveDetails.get(0);
+        }
+    }
+
+    /**
+     * 通过托盘码和skuId获取detail
+     * @param containerId
+     * @param skuId
+     * @return
+     */
+    public List<WaveDetail> getDetailByContainerIdAndSkuId(Long containerId ,Long skuId){
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("containerId",containerId);
+        mapQuery.put("skuId", skuId);
+        mapQuery.put("isValid", 1);
+        mapQuery.put("isAlive", 1);
+        List<WaveDetail> waveDetails = detailDao.getWaveDetailList(mapQuery);
+        if(waveDetails== null || waveDetails.size()==0){
+            return null;
+        }else {
+            return waveDetails;
         }
     }
 

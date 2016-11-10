@@ -16,15 +16,18 @@
 		<result property="loadAt" column="load_at"/>
 		<result property="storeId" column="store_id"/>
 		<result property="isValid" column="is_valid"/>
+		<result property="boardNum" column="board_num"/>
 	</resultMap>
 
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TuDetail">
 		insert into tu_detail (
 			tu_id,merged_container_id,box_num,container_num,turnover_box_num,is_rest,
-			is_expensive,created_at,updated_at,load_at,store_id,is_valid
+			is_expensive,created_at,updated_at,load_at,store_id,is_valid,
+			board_num
     	) values (
 			#{tuId},#{mergedContainerId},#{boxNum},#{containerNum},#{turnoverBoxNum},#{isRest},
-			#{isExpensive},#{createdAt},#{updatedAt},#{loadAt},#{storeId},#{isValid}
+			#{isExpensive},#{createdAt},#{updatedAt},#{loadAt},#{storeId},#{isValid},
+			#{boardNum}
     	)
 	</insert>
 
@@ -42,7 +45,8 @@
   			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
   			<if test="loadAt != null">load_at=#{loadAt},</if>
   			<if test="storeId != null">store_id=#{storeId},</if>
-  			<if test="isValid != null">is_valid=#{isValid}</if>
+			<if test="isValid != null">is_valid=#{isValid},</if>
+			<if test="boardNum != null">board_num=#{boardNum}</if>
 		</set>
 		where merged_container_id=#{mergedContainerId}
 	</update>
@@ -80,6 +84,7 @@
 			<if test="loadAt != null">and load_at=#{loadAt}</if>
 			<if test="storeId != null">and store_id=#{storeId}</if>
 			<if test="isValid != null">and is_valid=#{isValid}</if>
+			<if test="boardNum != null">and board_num=#{boardNum}</if>
 		</where>
 	</sql>
    

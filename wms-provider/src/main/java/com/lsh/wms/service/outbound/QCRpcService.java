@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.api.service.csi.ICsiRpcService;
 import com.lsh.wms.api.service.pick.IQCRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
@@ -16,6 +17,7 @@ import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
+import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.tu.TuDetail;
@@ -45,6 +47,8 @@ public class QCRpcService implements IQCRpcService {
     private TuService tuService;
     @Reference
     private ITuRpcService iTuRpcService;
+    @Reference
+    private ICsiRpcService iCsiRpcService;
 
     public void skipException(long id) throws BizCheckedException {
         WaveDetail detail = waveService.getWaveDetailById(id);
@@ -225,5 +229,102 @@ public class QCRpcService implements IQCRpcService {
             }
         }
         return qcDoneInfos;
+    }
+
+    /**
+     * rf忽略异常
+     * 根据code(国条码) 找到sku,根据sku的wave_detail去修复该商品的异常
+     *
+     * @param params
+     * @return
+     * @throws BizCheckedException
+     */
+    public boolean skipExceptionRf(Map<String, Object> params) throws BizCheckedException {
+        //国条码
+        String code = params.get("code").toString();
+        Long containerId = Long.valueOf(params.get("containerId").toString());
+        CsiSku skuInfo = iCsiRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, code);
+        if (skuInfo == null) {
+            throw new BizCheckedException("2120001");
+        }
+        long skuId = skuInfo.getSkuId();
+        //以商品为维度,根据skuId和containerId找wave_detail的
+        List<WaveDetail> waveDetails = waveService.getDetailByContainerIdAndSkuId(containerId, skuId);
+        if (null == waveDetails || waveDetails.size() < 1) {
+            throw new BizCheckedException("2120018");
+        }
+        //忽略异常
+        for (WaveDetail detail : waveDetails) {
+            if (detail.getQcException() != WaveConstant.QC_EXCEPTION_NORMAL) {
+                detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_SKIP);
+                waveService.updateDetail(detail);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * rf修复商品的异常,源自拣货
+     * @param params 国条码 和托盘码
+     * @return
+     * @throws BizCheckedException
+     */
+    public boolean repairExceptionRf(Map<String, Object> params) throws BizCheckedException {
+        //国条码
+        String code = params.get("code").toString();
+        Long containerId = Long.valueOf(params.get("containerId").toString());
+        CsiSku skuInfo = iCsiRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, code);
+        if (skuInfo == null) {
+            throw new BizCheckedException("2120001");
+        }
+        long skuId = skuInfo.getSkuId();
+        //以商品为维度,根据skuId和containerId找wave_detail的
+        List<WaveDetail> waveDetails = waveService.getDetailByContainerIdAndSkuId(containerId, skuId);
+        if (null == waveDetails || waveDetails.size() < 1) {
+            throw new BizCheckedException("2120018");
+        }
+        //忽略异常
+        for (WaveDetail detail : waveDetails) {
+            if (detail.getQcException() != WaveConstant.QC_EXCEPTION_NORMAL) {
+                detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_DONE);
+                detail.setQcQty(detail.getPickQty());
+                detail.setQcExceptionQty(new BigDecimal("0.0000"));
+                detail.setQcException(WaveConstant.QC_EXCEPTION_NORMAL);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * rf修复商品的异常,源自qc,数错了
+     * @param params
+     * @return
+     * @throws BizCheckedException
+     */
+    public boolean fallbackExceptionRf(Map<String, Object> params) throws BizCheckedException {
+        //国条码
+        String code = params.get("code").toString();
+        Long containerId = Long.valueOf(params.get("containerId").toString());
+        CsiSku skuInfo = iCsiRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, code);
+        if (skuInfo == null) {
+            throw new BizCheckedException("2120001");
+        }
+        long skuId = skuInfo.getSkuId();
+        //以商品为维度,根据skuId和containerId找wave_detail的
+        List<WaveDetail> waveDetails = waveService.getDetailByContainerIdAndSkuId(containerId, skuId);
+        if (null == waveDetails || waveDetails.size() < 1) {
+            throw new BizCheckedException("2120018");
+        }
+        //忽略异常
+        for (WaveDetail detail : waveDetails) {
+            if (detail.getQcException() != WaveConstant.QC_EXCEPTION_NORMAL) {
+                detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_NORMAL);
+                detail.setQcQty(detail.getPickQty());
+                detail.setQcException(WaveConstant.QC_EXCEPTION_NORMAL);
+                detail.setQcExceptionQty(new BigDecimal("0.0000"));
+                waveService.updateDetail(detail);
+            }
+        }
+        return true;
     }
 }

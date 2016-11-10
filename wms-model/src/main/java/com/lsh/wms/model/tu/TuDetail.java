@@ -56,6 +56,10 @@ public class TuDetail implements Serializable {
      * 是否有效, 0否, 1是
      */
     private Integer isValid = 1;
+    /**
+     * 一板多板数字段默认1
+     */
+    private Long boardNum = 1L;
 
     public Long getId() {
         return this.id;
@@ -161,5 +165,11 @@ public class TuDetail implements Serializable {
         this.isValid = isValid;
     }
 
+    public Long getBoardNum() {
+        return boardNum;
+    }
 
+    public void setBoardNum(Long boardNum) {
+        this.boardNum = boardNum;
+    }
 }
