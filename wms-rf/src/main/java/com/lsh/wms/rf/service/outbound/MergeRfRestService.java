@@ -57,6 +57,8 @@ public class MergeRfRestService implements IMergeRfRestService {
     private SoOrderService soOrderService;
     @Autowired
     private IdGenerator idGenerator;
+    @Autowired
+    private BaseTaskService baseTaskService;
 
     @Reference
     private IMergeRpcService iMergeRpcService;
@@ -78,6 +80,10 @@ public class MergeRfRestService implements IMergeRfRestService {
         List<Long> containerIds = new ArrayList<Long>();
         List<Long> queryContainerIds = new ArrayList<Long>();
         queryContainerIds = JSON.parseArray(mapQuery.get("containerIds").toString(), Long.class);
+        BigDecimal taskBoardQty = BigDecimal.ONE;
+        if (mapQuery.get("taskBoardQty") != null) {
+            taskBoardQty = new BigDecimal(Integer.valueOf(mapQuery.get("taskBoardQty").toString())); // 板数校正值
+        }
         for (Object objContainerId: queryContainerIds) {
             Long containerId = Long.valueOf(objContainerId.toString());
             if (!containerIds.contains(containerId)) {
@@ -91,19 +97,31 @@ public class MergeRfRestService implements IMergeRfRestService {
         Long mergeTaskId = idGenerator.genId(idKey, true, true);
         // 合板
         Long mergedContainerId = mergeService.mergeContainers(containerIds, staffId, mergeTaskId);
-        // 写合板taskInfo,用于做操作记录
+        // 写合板taskInfo,用于做记录绩效
+        Map<String, Object> taskQuery = new HashMap<String, Object>();
+        taskQuery.put("containerId", mergedContainerId);
+        taskQuery.put("type", TaskConstant.TYPE_MERGE);
+        List<TaskInfo> mergeTaskList = baseTaskService.getTaskInfoList(taskQuery);
         TaskEntry taskEntry = new TaskEntry();
-        TaskInfo mergeTaskInfo = new TaskInfo();
-        mergeTaskInfo.setTaskId(mergeTaskId);
-        mergeTaskInfo.setType(TaskConstant.TYPE_MERGE);
-        mergeTaskInfo.setTaskName("合板任务[" + mergedContainerId + "]");
-        mergeTaskInfo.setContainerId(mergedContainerId);
-        mergeTaskInfo.setOperator(staffId);
-        mergeTaskInfo.setBusinessMode(TaskConstant.MODE_DIRECT);
-        taskEntry.setTaskInfo(mergeTaskInfo);
-        iTaskRpcService.create(TaskConstant.TYPE_MERGE, taskEntry);
-        // 直接完成
-        iTaskRpcService.done(mergeTaskId);
+        if (mergeTaskList.size() > 0) {
+            TaskInfo mergeTaskInfo = mergeTaskList.get(0);
+            mergeTaskInfo.setTaskBoardQty(taskBoardQty); // 一板多托
+            taskEntry.setTaskInfo(mergeTaskInfo);
+            iTaskRpcService.update(TaskConstant.TYPE_MERGE, taskEntry);
+        } else {
+            TaskInfo mergeTaskInfo = new TaskInfo();
+            mergeTaskInfo.setTaskId(mergeTaskId);
+            mergeTaskInfo.setType(TaskConstant.TYPE_MERGE);
+            mergeTaskInfo.setTaskName("合板任务[" + mergedContainerId + "]");
+            mergeTaskInfo.setContainerId(mergedContainerId);
+            mergeTaskInfo.setOperator(staffId);
+            mergeTaskInfo.setBusinessMode(TaskConstant.MODE_DIRECT);
+            mergeTaskInfo.setTaskBoardQty(taskBoardQty); // 一板多托
+            taskEntry.setTaskInfo(mergeTaskInfo);
+            iTaskRpcService.create(TaskConstant.TYPE_MERGE, taskEntry);
+            // 直接完成
+            iTaskRpcService.done(mergeTaskId);
+        }
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("response", true);
         return JsonUtils.SUCCESS(result);
