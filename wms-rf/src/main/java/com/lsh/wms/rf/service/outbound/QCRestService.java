@@ -338,12 +338,14 @@ public class QCRestService implements IRFQCRestService {
                         //设置成拣货人的责任
                         if (exceptionType == WaveConstant.QC_EXCEPTION_DEFECT) {
                             detail.setQcExceptionQty(exceptionQty);
-                            detail.setQcFaultQty(exceptionQty); //残次数量失误就是过失数量
+                            //残次不追责
+//                            detail.setQcFault(WaveConstant.QC_FAULT_NOMAL);
+//                            detail.setQcFaultQty(exceptionQty); //残次不记录责任
                         } else {
                             detail.setQcExceptionQty(qty.subtract(curQty));
                             detail.setQcFaultQty(qty.subtract(curQty).abs());   //少货或者多货取绝对值
+                            detail.setQcFault(WaveConstant.QC_FAULT_PICK); //永远是拣货人的责任,不修复的话
                         }
-                        detail.setQcFault(WaveConstant.QC_FAULT_PICK); //永远是拣货人的责任,不修复的话
                         // 以后做有残次不追责
                         detail.setQcExceptionDone(0L);
                         detail.setQcQty(qty.subtract(lastQty));
@@ -655,58 +657,3 @@ public class QCRestService implements IRFQCRestService {
     }
 }
 
-
-//集货任务receipt_qty计算数量
-//        if (beforeTask.getType().equals(TaskConstant.TYPE_SET_GOODS)){
-//            for (WaveDetail d : details) {
-//                if (d.getQcTimes() == WaveConstant.QC_TIMES_FIRST) {   //一旦有第一遍没QC的,就不是复Q
-//                    isFirstQC = true;
-//                }
-//                if (mapItem2PickQty.get(d.getItemId()) == null) {
-//                    mapItem2PickQty.put(d.getItemId(), new BigDecimal(d.getReceiptQty().toString()));
-//                } else {
-//                    mapItem2PickQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getReceiptQty()));
-//                }
-//                mapItem2WaveDetail.put(d.getItemId(), d);
-//            }
-//        }
-//        //收货任务receipt_qty计算数量
-//        if (beforeTask.getType().equals(TaskConstant.TYPE_PO)){
-//            for (WaveDetail d : details) {
-//                if (d.getQcTimes() == WaveConstant.QC_TIMES_FIRST) {   //一旦有第一遍没QC的,就不是复Q
-//                    isFirstQC = true;
-//                }
-//                if (mapItem2PickQty.get(d.getItemId()) == null) {
-//                    mapItem2PickQty.put(d.getItemId(), new BigDecimal(d.getReceiptQty().toString()));
-//                } else {
-//                    mapItem2PickQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getPickQty()));
-//                }
-//                mapItem2WaveDetail.put(d.getItemId(), d);
-//            }
-//        }
-//拣货任务
-//        if (beforeTask.getType().equals(TaskConstant.TYPE_PICK)){
-//            for (WaveDetail d : details) {
-//                if (d.getQcTimes() == WaveConstant.QC_TIMES_FIRST) {   //一旦有第一遍没QC的,就不是复Q
-//                    isFirstQC = true;
-//                }
-//                if (mapItem2PickQty.get(d.getItemId()) == null) {
-//                    mapItem2PickQty.put(d.getItemId(), new BigDecimal(d.getPickQty().toString()));
-//                } else {
-//                    mapItem2PickQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getReceiptQty()));
-//                }
-//                mapItem2WaveDetail.put(d.getItemId(), d);
-//            }
-//        } if (beforeTask.getType().equals(TaskConstant.TYPE_PICK)){
-//            for (WaveDetail d : details) {
-//                if (d.getQcTimes() == WaveConstant.QC_TIMES_FIRST) {   //一旦有第一遍没QC的,就不是复Q
-//                    isFirstQC = true;
-//                }
-//                if (mapItem2PickQty.get(d.getItemId()) == null) {
-//                    mapItem2PickQty.put(d.getItemId(), new BigDecimal(d.getPickQty().toString()));
-//                } else {
-//                    mapItem2PickQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getReceiptQty()));
-//                }
-//                mapItem2WaveDetail.put(d.getItemId(), d);
-//            }
-//        }
