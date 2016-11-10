@@ -11,23 +11,13 @@
 		<result property="orderId" column="order_id"/>
 		<result property="locationId" column="location_id"/>
 		<result property="skuId" column="sku_id"/>
-		<result property="ownerId" column="owner_id"/>
-		<result property="itemId" column="item_id"/>
-		<result property="fromLocationId" column="from_location_id"/>
-		<result property="toLocationId" column="to_location_id"/>
-		<result property="qty" column="qty"/>
-		<result property="realFromLocationId" column="real_from_location_id"/>
-		<result property="realToLocationId" column="real_to_location_id"/>
-		<result property="qtyDone" column="qty_done"/>
-		<result property="packUnit" column="pack_unit"/>
-		<result property="packName" column="pack_name"/>
 		<result property="containerId" column="container_id"/>
+		<result property="mergedContainerId" column="merged_container_id"/>
 		<result property="operator" column="operator"/>
 		<result property="planner" column="planner"/>
 		<result property="type" column="type"/>
 		<result property="subType" column="sub_type"/>
 		<result property="status" column="status"/>
-		<result property="isAllocated" column="is_allocated"/>
 		<result property="priority" column="priority"/>
 		<result property="draftTime" column="draft_time"/>
 		<result property="assignTime" column="assign_time"/>
@@ -45,15 +35,26 @@
 		<result property="ext9" column="ext9"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
-		<result property="taskPackQty" column="task_pack_qty"/>
+		<result property="ownerId" column="owner_id"/>
+		<result property="itemId" column="item_id"/>
+		<result property="fromLocationId" column="from_location_id"/>
+		<result property="toLocationId" column="to_location_id"/>
+		<result property="qty" column="qty"/>
+		<result property="packUnit" column="pack_unit"/>
+		<result property="packName" column="pack_name"/>
+		<result property="isAllocated" column="is_allocated"/>
+		<result property="realFromLocationId" column="real_from_location_id"/>
+		<result property="realToLocationId" column="real_to_location_id"/>
+		<result property="qtyDone" column="qty_done"/>
 		<result property="taskEaQty" column="task_ea_qty"/>
 		<result property="date" column="date"/>
 		<result property="transPlan" column="trans_plan"/>
-		<result property="mergedContainerId" column="merged_container_id"/>
+		<result property="taskPackQty" column="task_pack_qty"/>
+		<result property="taskBoardQty" column="task_board_qty"/>
 		<result property="step" column="step"/>
 		<result property="isShow" column="is_show"/>
-		<result property="taskOrder" column="task_order"/>
 		<result property="businessMode" column="business_mode"/>
+		<result property="taskOrder" column="task_order"/>
 		<result property="qcPreviousTaskId" column="qc_previous_task_id"/>
 		<result property="qcSkip" column="qc_skip"/>
 	</resultMap>
@@ -61,80 +62,81 @@
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TaskInfo">
 		insert into task_info (
 			task_id,task_name,plan_id,wave_id,order_id,location_id,
-			sku_id,owner_id,item_id,from_location_id,to_location_id,qty,
-			real_from_location_id, real_to_location_id, qty_done,
-			pack_unit,pack_name,container_id,operator,planner,type,
-			sub_type,status,is_allocated,priority,draft_time,assign_time,
-			due_time,finish_time,cancel_time,ext1,ext2,ext3,
-			ext4,ext5,ext6,ext7,ext8,ext9,
-			created_at,updated_at, task_pack_qty,
-			task_ea_qty, date, trans_plan,merged_container_id,step,is_show,task_order,business_mode,qc_previous_task_id,qc_skip
+			sku_id,container_id,merged_container_id,operator,planner,type,
+			sub_type,status,priority,draft_time,assign_time,due_time,
+			finish_time,cancel_time,ext1,ext2,ext3,ext4,
+			ext5,ext6,ext7,ext8,ext9,created_at,
+			updated_at,owner_id,item_id,from_location_id,to_location_id,qty,
+			pack_unit,pack_name,is_allocated,real_from_location_id,real_to_location_id,qty_done,
+			task_ea_qty,date,trans_plan,task_pack_qty,task_board_qty,step,
+			is_show,business_mode,task_order,qc_previous_task_id,qc_skip
     	) values (
 			#{taskId},#{taskName},#{planId},#{waveId},#{orderId},#{locationId},
-			#{skuId},#{ownerId},#{itemId},#{fromLocationId},#{toLocationId},#{qty},
-			#{realFromLocationId}, #{realToLocationId}, #{qtyDone},
-			#{packUnit},#{packName},#{containerId},#{operator},#{planner},#{type},
-			#{subType},#{status},#{isAllocated},#{priority},#{draftTime},#{assignTime},
-			#{dueTime},#{finishTime},#{cancelTime},#{ext1},#{ext2},#{ext3},
-			#{ext4},#{ext5},#{ext6},#{ext7},#{ext8},#{ext9},
-			#{createdAt},#{updatedAt},#{taskPackQty},
-			#{taskEaQty}, #{date},#{transPlan},#{mergedContainerId},#{step},#{isShow},#{taskOrder},#{businessMode},#{qcPreviousTaskId},#{qcSkip}
+			#{skuId},#{containerId},#{mergedContainerId},#{operator},#{planner},#{type},
+			#{subType},#{status},#{priority},#{draftTime},#{assignTime},#{dueTime},
+			#{finishTime},#{cancelTime},#{ext1},#{ext2},#{ext3},#{ext4},
+			#{ext5},#{ext6},#{ext7},#{ext8},#{ext9},#{createdAt},
+			#{updatedAt},#{ownerId},#{itemId},#{fromLocationId},#{toLocationId},#{qty},
+			#{packUnit},#{packName},#{isAllocated},#{realFromLocationId},#{realToLocationId},#{qtyDone},
+			#{taskEaQty},#{date},#{transPlan},#{taskPackQty},#{taskBoardQty},#{step},
+			#{isShow},#{businessMode},#{taskOrder},#{qcPreviousTaskId},#{qcSkip}
     	)
 	</insert>
 
 	<update id="update" parameterType="TaskInfo">
 		update task_info
-    	<set>
-  			<if test="taskId != null">task_id=#{taskId},</if>
-  			<if test="taskName != null">task_name=#{taskName},</if>
-  			<if test="planId != null">plan_id=#{planId},</if>
-  			<if test="waveId != null">wave_id=#{waveId},</if>
-  			<if test="orderId != null">order_id=#{orderId},</if>
-  			<if test="locationId != null">location_id=#{locationId},</if>
-  			<if test="skuId != null">sku_id=#{skuId},</if>
-  			<if test="ownerId != null">owner_id=#{ownerId},</if>
-  			<if test="itemId != null">item_id=#{itemId},</if>
-  			<if test="fromLocationId != null">from_location_id=#{fromLocationId},</if>
-  			<if test="toLocationId != null">to_location_id=#{toLocationId},</if>
-  			<if test="qty != null">qty=#{qty},</if>
+		<set>
+			<if test="taskId != null">task_id=#{taskId},</if>
+			<if test="taskName != null">task_name=#{taskName},</if>
+			<if test="planId != null">plan_id=#{planId},</if>
+			<if test="waveId != null">wave_id=#{waveId},</if>
+			<if test="orderId != null">order_id=#{orderId},</if>
+			<if test="locationId != null">location_id=#{locationId},</if>
+			<if test="skuId != null">sku_id=#{skuId},</if>
+			<if test="containerId != null">container_id=#{containerId},</if>
+			<if test="mergedContainerId != null">merged_container_id=#{mergedContainerId},</if>
+			<if test="operator != null">operator=#{operator},</if>
+			<if test="planner != null">planner=#{planner},</if>
+			<if test="type != null">type=#{type},</if>
+			<if test="subType != null">sub_type=#{subType},</if>
+			<if test="status != null">status=#{status},</if>
+			<if test="priority != null">priority=#{priority},</if>
+			<if test="draftTime != null">draft_time=#{draftTime},</if>
+			<if test="assignTime != null">assign_time=#{assignTime},</if>
+			<if test="dueTime != null">due_time=#{dueTime},</if>
+			<if test="finishTime != null">finish_time=#{finishTime},</if>
+			<if test="cancelTime != null">cancel_time=#{cancelTime},</if>
+			<if test="ext1 != null">ext1=#{ext1},</if>
+			<if test="ext2 != null">ext2=#{ext2},</if>
+			<if test="ext3 != null">ext3=#{ext3},</if>
+			<if test="ext4 != null">ext4=#{ext4},</if>
+			<if test="ext5 != null">ext5=#{ext5},</if>
+			<if test="ext6 != null">ext6=#{ext6},</if>
+			<if test="ext7 != null">ext7=#{ext7},</if>
+			<if test="ext8 != null">ext8=#{ext8},</if>
+			<if test="ext9 != null">ext9=#{ext9},</if>
+			<if test="createdAt != null">created_at=#{createdAt},</if>
+			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+			<if test="ownerId != null">owner_id=#{ownerId},</if>
+			<if test="itemId != null">item_id=#{itemId},</if>
+			<if test="fromLocationId != null">from_location_id=#{fromLocationId},</if>
+			<if test="toLocationId != null">to_location_id=#{toLocationId},</if>
+			<if test="qty != null">qty=#{qty},</if>
+			<if test="packUnit != null">pack_unit=#{packUnit},</if>
+			<if test="packName != null">pack_name=#{packName},</if>
+			<if test="isAllocated != null">is_allocated=#{isAllocated},</if>
 			<if test="realFromLocationId != null">real_from_location_id=#{realFromLocationId},</if>
 			<if test="realToLocationId != null">real_to_location_id=#{realToLocationId},</if>
 			<if test="qtyDone != null">qty_done=#{qtyDone},</if>
-  			<if test="packUnit != null">pack_unit=#{packUnit},</if>
-  			<if test="packName != null">pack_name=#{packName},</if>
-  			<if test="containerId != null">container_id=#{containerId},</if>
-  			<if test="operator != null">operator=#{operator},</if>
-  			<if test="planner != null">planner=#{planner},</if>
-  			<if test="type != null">type=#{type},</if>
-  			<if test="subType != null">sub_type=#{subType},</if>
-  			<if test="status != null">status=#{status},</if>
-  			<if test="isAllocated != null">is_allocated=#{isAllocated},</if>
-  			<if test="priority != null">priority=#{priority},</if>
-  			<if test="draftTime != null">draft_time=#{draftTime},</if>
-  			<if test="assignTime != null">assign_time=#{assignTime},</if>
-  			<if test="dueTime != null">due_time=#{dueTime},</if>
-  			<if test="finishTime != null">finish_time=#{finishTime},</if>
-  			<if test="cancelTime != null">cancel_time=#{cancelTime},</if>
-  			<if test="ext1 != null">ext1=#{ext1},</if>
-  			<if test="ext2 != null">ext2=#{ext2},</if>
-  			<if test="ext3 != null">ext3=#{ext3},</if>
-  			<if test="ext4 != null">ext4=#{ext4},</if>
-  			<if test="ext5 != null">ext5=#{ext5},</if>
-  			<if test="ext6 != null">ext6=#{ext6},</if>
-  			<if test="ext7 != null">ext7=#{ext7},</if>
-  			<if test="ext8 != null">ext8=#{ext8},</if>
-  			<if test="ext9 != null">ext9=#{ext9},</if>
-			<if test="taskPackQty != null">task_pack_qty=#{taskPackQty},</if>
 			<if test="taskEaQty != null">task_ea_qty=#{taskEaQty},</if>
 			<if test="date != null">date=#{date},</if>
 			<if test="transPlan != null">trans_plan=#{transPlan},</if>
-			<if test="mergedContainerId !=null">merged_container_id =#{mergedContainerId},</if>
-			<if test="step !=null">step =#{step},</if>
-			<if test="isShow !=null">is_show =#{isShow},</if>
-			<if test="taskOrder !=null">task_order =#{taskOrder},</if>
-			<if test="businessMode !=null">business_mode =#{businessMode},</if>
-			<if test="createdAt != null">created_at=#{createdAt},</if>
-  			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+			<if test="taskPackQty != null">task_pack_qty=#{taskPackQty},</if>
+			<if test="taskBoardQty != null">task_board_qty=#{taskBoardQty},</if>
+			<if test="step != null">step=#{step},</if>
+			<if test="isShow != null">is_show=#{isShow},</if>
+			<if test="businessMode != null">business_mode=#{businessMode},</if>
+			<if test="taskOrder != null">task_order=#{taskOrder},</if>
 			<if test="qcPreviousTaskId != null">qc_previous_task_id=#{qcPreviousTaskId},</if>
 			<if test="qcSkip != null">qc_skip=#{qcSkip}</if>
 		</set>
@@ -306,17 +308,28 @@
 			<if test="ext7 != null">and ext7=#{ext7}</if>
 			<if test="ext8 != null">and ext8=#{ext8}</if>
 			<if test="ext9 != null">and ext9=#{ext9}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="ownerId != null">and owner_id=#{ownerId}</if>
+			<if test="itemId != null">and item_id=#{itemId}</if>
+			<if test="fromLocationId != null">and from_location_id=#{fromLocationId}</if>
+			<if test="toLocationId != null">and to_location_id=#{toLocationId}</if>
+			<if test="qty != null">and qty=#{qty}</if>
+			<if test="packUnit != null">and pack_unit=#{packUnit}</if>
+			<if test="packName != null">and pack_name=#{packName}</if>
+			<if test="isAllocated != null">and is_allocated=#{isAllocated}</if>
+			<if test="realFromLocationId != null">and real_from_location_id=#{realFromLocationId}</if>
+			<if test="realToLocationId != null">and real_to_location_id=#{realToLocationId}</if>
+			<if test="qtyDone != null">and qty_done=#{qtyDone}</if>
+			<if test="taskEaQty != null">and task_ea_qty=#{taskEaQty}</if>
 			<if test="date != null">and date=#{date}</if>
 			<if test="transPlan != null">and trans_plan=#{transPlan}</if>
 			<if test="taskPackQty != null">and task_pack_qty=#{taskPackQty}</if>
-			<if test="taskEaQty != null">and task_ea_qty=#{taskEaQty}</if>
-			<if test="createdAt != null">and created_at=#{createdAt}</if>
-			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
-			<if test="mergedContainerId != null">and merged_container_id=#{mergedContainerId}</if>
+			<if test="taskBoardQty != null">and task_board_qty=#{taskBoardQty}</if>
 			<if test="step != null">and step=#{step}</if>
 			<if test="isShow != null">and is_show=#{isShow}</if>
-			<if test="taskOrder != null">and task_order=#{taskOrder}</if>
 			<if test="businessMode != null">and business_mode=#{businessMode}</if>
+			<if test="taskOrder != null">and task_order=#{taskOrder}</if>
 			<if test="qcPreviousTaskId != null">and qc_previous_task_id=#{qcPreviousTaskId}</if>
 			<if test="qcSkip != null">and qc_skip=#{qcSkip}</if>
 		</where>

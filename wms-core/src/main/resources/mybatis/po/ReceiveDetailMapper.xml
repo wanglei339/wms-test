@@ -8,6 +8,7 @@
 		<result property="receiveId" column="receive_id"/>
 		<result property="skuCode" column="sku_code"/>
 		<result property="skuName" column="sku_name"/>
+		<result property="code" column="code"/>
 		<result property="orderQty" column="order_qty"/>
 		<result property="packName" column="pack_name"/>
 		<result property="packUnit" column="pack_unit"/>
@@ -24,11 +25,11 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="ReceiveDetail">
 		insert into receive_detail (
-			detail_other_id,receive_id,sku_code,sku_name,order_qty,pack_name,
+			detail_other_id,receive_id,sku_code,sku_name,code,order_qty,pack_name,
 			pack_unit,unit_name,unit_qty,price,inbound_qty,lot_code,
 			exception_receipt,created_at,updated_at
     	) values (
-			#{detailOtherId},#{receiveId},#{skuCode},#{skuName},#{orderQty},#{packName},
+			#{detailOtherId},#{receiveId},#{skuCode},#{skuName},#{code},#{orderQty},#{packName},
 			#{packUnit},#{unitName},#{unitQty},#{price},#{inboundQty},#{lotCode},
 			#{exceptionReceipt},#{createdAt},#{updatedAt}
     	)
@@ -36,12 +37,12 @@
 
 	<insert id="batchInsert" parameterType="java.util.List">
 		insert into receive_detail (
-		detail_other_id,receive_id,sku_code,sku_name,order_qty,pack_name,
+		detail_other_id,receive_id,sku_code,sku_name,code,order_qty,pack_name,
 		pack_unit,unit_name,unit_qty,price,inbound_qty,lot_code,
 		exception_receipt,created_at,updated_at
 		) values
 		<foreach collection="list" item="item" index="index" separator="," >
-			(#{item.detailOtherId},#{item.receiveId},#{item.skuCode},#{item.skuName},#{item.orderQty},#{item.packName},#{item.packUnit},
+			(#{item.detailOtherId},#{item.receiveId},#{item.skuCode},#{item.skuName},#{item.code},#{item.orderQty},#{item.packName},#{item.packUnit},
 			#{item.unitName},#{item.unitQty},#{item.price},#{item.inboundQty},#{item.lotCode},#{item.exceptionReceipt},#{item.createdAt},#{item.updatedAt})
 		</foreach>
 	</insert>
@@ -53,6 +54,7 @@
   			<if test="receiveId != null">receive_id=#{receiveId},</if>
   			<if test="skuCode != null">sku_code=#{skuCode},</if>
   			<if test="skuName != null">sku_name=#{skuName},</if>
+			<if test="code != null">code=#{code},</if>
   			<if test="orderQty != null">order_qty=#{orderQty},</if>
   			<if test="packName != null">pack_name=#{packName},</if>
   			<if test="packUnit != null">pack_unit=#{packUnit},</if>
@@ -110,6 +112,7 @@
 			<if test="receiveId != null">and receive_id=#{receiveId}</if>
 			<if test="skuCode != null">and sku_code=#{skuCode}</if>
 			<if test="skuName != null">and sku_name=#{skuName}</if>
+			<if test="code != null">and code=#{code}</if>
 			<if test="orderQty != null">and order_qty=#{orderQty}</if>
 			<if test="packName != null">and pack_name=#{packName}</if>
 			<if test="packUnit != null">and pack_unit=#{packUnit}</if>

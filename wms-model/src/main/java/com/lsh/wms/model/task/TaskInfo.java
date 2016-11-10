@@ -201,6 +201,8 @@ public class TaskInfo implements Serializable {
      * 任务工作量(ea计算)
      */
     private BigDecimal taskEaQty = BigDecimal.ZERO;
+    /** 工作任务量（按照板数） */
+    private BigDecimal taskBoardQty;
 
     private BigDecimal taskQty = BigDecimal.ZERO;
 
@@ -605,6 +607,14 @@ public class TaskInfo implements Serializable {
 
     public void setTaskPackQty(BigDecimal taskPackQty) {
         this.taskPackQty = taskPackQty;
+    }
+
+    public BigDecimal getTaskBoardQty(){
+        return this.taskBoardQty;
+    }
+
+    public void setTaskBoardQty(BigDecimal taskBoardQty){
+        this.taskBoardQty = taskBoardQty;
     }
 
     public String getTransPlan() {

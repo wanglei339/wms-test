@@ -11,6 +11,7 @@ import com.lsh.wms.api.service.container.IContainerRpcService;
 import com.lsh.wms.api.service.csi.ICsiRpcService;
 import com.lsh.wms.api.service.item.IItemRpcService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
+import com.lsh.wms.api.service.pick.IQCRpcService;
 import com.lsh.wms.api.service.pick.IRFQCRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.so.ISoRpcService;
@@ -75,6 +76,8 @@ public class QCRestService implements IRFQCRestService {
     private ILocationRpcService iLocationRpcService;
     @Autowired
     private StockQuantService stockQuantService;
+    @Reference
+    private IQCRpcService iqcRpcService;
 
     /**
      * 扫码获取qc任务详情
@@ -115,17 +118,6 @@ public class QCRestService implements IRFQCRestService {
             containerId = Long.valueOf(mapRequest.get("containerId").toString());
             Map<String, Object> mapQuery = new HashMap<String, Object>();
             mapQuery.put("containerId", containerId);
-
-//            不去taskinfo中查,直接去detail中查
-//            List<TaskEntry> tasks = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_PICK, mapQuery);
-//            if (tasks.size() == 0) {
-//                throw new BizCheckedException("2060003");
-//            } else if (tasks.size() > 1) {
-//                //捡货任务冲突
-//                throw new BizCheckedException("2120012");
-//            }
-//            pickTaskInfo = tasks.get(0).getTaskInfo();
-//            pickTaskId = pickTaskInfo.getTaskId();  //可以不显示(小店播种和大店播种的都要进行明细的QC)
         }
         //获取QC任务
         Map<String, Object> mapQuery = new HashMap<String, Object>();
@@ -145,14 +137,6 @@ public class QCRestService implements IRFQCRestService {
         }
         qcTaskInfo = tasks.get(0);
 
-        //判断是否是直流模式的大店还是小店
-//        TaskInfo beforeQCtaskinfo = iTaskRpcService.getTaskInfo(qcTaskInfo.getQcPreviousTaskId());
-//        if (null == beforeQCtaskinfo) {
-//            throw new BizCheckedException("2120015");
-//        }
-        //大店门店收货 生成qc任务的是直流大店收货直流大店门店收货,QC的q明细不做(只组盘)
-
-
         if (qcTaskInfo.getStatus() == TaskConstant.Draft) {
             iTaskRpcService.assign(qcTaskInfo.getTaskId(), Long.valueOf(RequestUtils.getHeader("uid")));
         }                                                                               // todo 可以解决 加入任务流状态的标示,根据任务流状态和container取 detail中去取
@@ -161,8 +145,6 @@ public class QCRestService implements IRFQCRestService {
             //空托盘
             throw new BizCheckedException("2120005");
         }
-
-
         //merge item_id 2 pick  qty
         Map<Long, BigDecimal> mapItem2PickQty = new HashMap<Long, BigDecimal>();
         Map<Long, WaveDetail> mapItem2WaveDetail = new HashMap<Long, WaveDetail>();
@@ -175,31 +157,29 @@ public class QCRestService implements IRFQCRestService {
                 isFirstQC = true;
             }
             if (mapItem2PickQty.get(d.getItemId()) == null) {
-                // todo 如果是忽略异常,实际的箱子数量,需要按照qc的数量进行计算
                 mapItem2PickQty.put(d.getItemId(), new BigDecimal(d.getPickQty().toString()));
             } else {
-                // todo 如果是忽略异常,实际的箱子数量,需要按照qc的数量进行计算
                 mapItem2PickQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getPickQty()));
             }
             mapItem2WaveDetail.put(d.getItemId(), d);
             //跳过直流,一旦有组盘没有异常,就直接到组盘
             //一旦是直流大店的门店收货,需要忽略qc,直接进入
-            if (qcTaskInfo.getQcSkip().equals(TaskConstant.QC_SKIP) && !d.getQcException().equals(WaveConstant.QC_EXCEPTION_GROUP)) { //直流组盘不异常,跳过明细qc
-                //直流的大店门店收货跳过组盘的开关
-                isDirect = true;
-            }
+//            if (qcTaskInfo.getQcSkip().equals(TaskConstant.QC_SKIP) && !d.getQcException().equals(WaveConstant.QC_EXCEPTION_GROUP)) { //直流组盘不异常,跳过明细qc
+//                //直流的大店门店收货跳过组盘的开关
+//                isDirect = true;
+//            }
         }
 
-        //如果是直流所有的直接跳转为已经QC了
-        //todo 以后组盘有异常,还需都更新回来,根据qcTaskInfo.getQcSkip(),变更所有的qcDone更改,修改
-        if (isDirect) {
-            for (WaveDetail one : details) {
-                one.setQcExceptionDone(2L);
-                one.setQcQty(one.getPickQty()); //先默认qc数量是正常的
-                waveService.updateDetail(one);
-                isFirstQC = false;
-            }
-        }
+//        //如果是直流所有的直接跳转为已经QC了
+//        //todo 以后组盘有异常,还需都更新回来,根据qcTaskInfo.getQcSkip(),变更所有的qcDone更改,修改
+//        if (isDirect) {
+//            for (WaveDetail one : details) {
+//                one.setQcExceptionDone(2L);
+//                one.setQcQty(one.getPickQty()); //先默认qc数量是正常的
+//                waveService.updateDetail(one);
+//                isFirstQC = false;
+//            }
+//        }
 
         //找出有责任的得detail,现有流程是一个商品只有一个挂有异常,把异常的detail的id、和商品绑定起来,--->那个商品的哪个detail有问题,需要修复
         int boxNum = 0;
@@ -231,11 +211,11 @@ public class QCRestService implements IRFQCRestService {
 
             //判断是第几次的QC,只有QC过一遍,再次QC都是复核QC
             detail.put("qcTimes", waveDetail.getQcTimes());
-            //todo 如果有异常的话,直流的也要qc
-            if (isDirect) {
-                detail.put("qcDone", true);
-                detail.put("isFristTime", false);
-            }
+//            //todo 如果有异常的话,直流的也要qc
+//            if (isDirect) {
+//                detail.put("qcDone", true);
+//                detail.put("isFristTime", false);
+//            }
             undoDetails.add(detail);
         }
         allBoxNum = boxNum;
@@ -416,29 +396,36 @@ public class QCRestService implements IRFQCRestService {
 
     /**
      * 箱数boxNum 周转箱数是turnoverBoxNum   总箱数allboxNum= boxNum+turnoverBoxNum
+     * 跳过qc明细 skip字段为ture,系统默认拣货数量(待qc数量)和qc相同
      *
      * @return
      * @throws BizCheckedException
      */
-    //组盘(已经组盘和未组盘状态)
-    // todo 如果组盘有问题,以后的修复重新QC,需要重新更新detail,
     @POST
     @Path("confirm")
     public String confirm() throws BizCheckedException {
-        Map<String, Object> mapRequest = RequestUtils.getRequest();
         Map<String, Object> request = RequestUtils.getRequest();
+        //前端跳过q明细字段,跳过,系统默认拣货量和qc量的一致
+        Boolean skip = Boolean.valueOf(request.get("skip").toString());
+
         long qcTaskId = Long.valueOf(request.get("qcTaskId").toString());
         long boxNum = Long.valueOf(request.get("boxNum").toString());
-        //todo 按道理,系统的箱子数和实际的箱子数是相等的,周转箱不准
         long turnoverBoxNum = Long.valueOf(request.get("turnoverBoxNum").toString());
-        long wrongItemNum = 0L;
-        //long wrongItemNum = Long.valueOf(request.get("wrongItemNum").toString());
         //初始化QC任务
         TaskInfo qcTaskInfo = iTaskRpcService.getTaskInfo(qcTaskId);
         if (qcTaskInfo == null) {
             throw new BizCheckedException("2120007");
         }
         List<WaveDetail> details = waveService.getDetailsByContainerId(qcTaskInfo.getContainerId());
+
+        //跳过qc明细,系统默认拣货量和qc量相等
+        if (skip) {
+            for (WaveDetail detail : details) {
+                detail.setQcExceptionDone(1L);  // 正常不需要处理
+                detail.setQcQty(detail.getPickQty()); //先默认qc数量是正常的
+                waveService.updateDetail(detail);
+            }
+        }
         //校验qc任务是否完全完成;
         boolean bSucc = true;
         BigDecimal sumEAQty = new BigDecimal("0.0000");
@@ -461,14 +448,10 @@ public class QCRestService implements IRFQCRestService {
             //设置task的信息;
             qcTaskInfo.setTaskEaQty(sumEAQty);
             qcTaskInfo.setTaskPackQty(BigDecimal.valueOf(boxNum + turnoverBoxNum));     //总箱数
-            qcTaskInfo.setExt5(wrongItemNum);
             qcTaskInfo.setExt4(boxNum); //箱数
             qcTaskInfo.setExt3(turnoverBoxNum); //总周转箱数
             //设置合板的托盘
             qcTaskInfo.setMergedContainerId(qcTaskInfo.getContainerId());
-            if (wrongItemNum > 0) {
-                qcTaskInfo.setExt2(3L);
-            }
             TaskEntry entry = new TaskEntry();
             entry.setTaskInfo(qcTaskInfo);
             entry.setTaskDetailList((List<Object>) (List<?>) details);
@@ -481,6 +464,70 @@ public class QCRestService implements IRFQCRestService {
                 put("response", true);
             }
         });
+    }
+
+
+
+    /**
+     * 跳过异常
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("skipException")
+    public String skipExceptionRf() throws BizCheckedException {
+        Map<String, Object> request = RequestUtils.getRequest();
+        Long containerId = Long.valueOf(request.get("containerId").toString());
+        String code = request.get("code").toString();
+        if (null == containerId || null == code) {
+            throw new BizCheckedException("2120019");
+        }
+        boolean result = iqcRpcService.skipExceptionRf(request);
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+        resultMap.put("result", result);
+        return JsonUtils.SUCCESS(result);
+    }
+
+
+    /**
+     * 跳过异常
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("skipException")
+    public String repairExceptionRf() throws BizCheckedException {
+        Map<String, Object> request = RequestUtils.getRequest();
+        Long containerId = Long.valueOf(request.get("containerId").toString());
+        String code = request.get("code").toString();
+        if (null == containerId || null == code) {
+            throw new BizCheckedException("2120019");
+        }
+        boolean result = iqcRpcService.repairExceptionRf(request);
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+        resultMap.put("result", result);
+        return JsonUtils.SUCCESS(result);
+    }
+
+
+    /**
+     * 回滚异常
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("fallbackException")
+    public String fallbackExceptionRf() throws BizCheckedException {
+        Map<String, Object> request = RequestUtils.getRequest();
+        Long containerId = Long.valueOf(request.get("containerId").toString());
+        String code = request.get("code").toString();
+        if (null == containerId || null == code) {
+            throw new BizCheckedException("2120019");
+        }
+        boolean result = iqcRpcService.fallbackExceptionRf(request);
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+        resultMap.put("result", result);
+        return JsonUtils.SUCCESS(result);
     }
 
     /**

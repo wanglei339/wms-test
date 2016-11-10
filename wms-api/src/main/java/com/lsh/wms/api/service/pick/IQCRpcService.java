@@ -21,4 +21,10 @@ public interface IQCRpcService {
     public Map<Long, Map<String, Object>> getGroupDetailByStoreNo(String storeNo) throws BizCheckedException;
     public List<TaskInfo> getQcDoneTaskInfoByStoreNo(String storeNo);
 
+    //rf修复
+    boolean skipExceptionRf(Map<String,Object> params) throws BizCheckedException; //忽略qc异常,照常发货
+    boolean repairExceptionRf(Map<String,Object> params) throws BizCheckedException; //修复异常,会设置pick_qty=qc_qty,同时保留qc遗迹
+    boolean fallbackExceptionRf(Map<String,Object> params) throws BizCheckedException; //回退异常,qc自身错误,会设置pick_qty=qc_qty,同时保留qc遗迹
+
+
 }

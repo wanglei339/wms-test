@@ -310,7 +310,6 @@ public class LocationRestService implements ILocationRestService {
     /**
      * 获取一个location下一层的子节点
      *
-     * @param locationId
      * @return
      * @throws BizCheckedException
      */
