@@ -544,8 +544,8 @@ public class TuRpcService implements ITuRpcService {
             deliveryDetail.setSkuName(item.getSkuName());
             deliveryDetail.setBarCode(item.getCode());
             deliveryDetail.setOrderQty(waveDetail.getReqQty());
-            //todo 箱子规则
-            deliveryDetail.setPackUnit(waveDetail.getAllocUnitQty());
+            //todo 箱子规则,使用工具
+            deliveryDetail.setPackUnit(PackUtil.Uom2PackUnit(waveDetail.getAllocUnitName()));
             //通过stock quant获取到对应的lot信息
             List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(waveDetail.getContainerId());
             StockQuant stockQuant = stockQuants.size() > 0 ? stockQuants.get(0) : null;
