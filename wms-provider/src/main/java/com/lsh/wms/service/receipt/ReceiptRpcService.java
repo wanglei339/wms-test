@@ -15,6 +15,7 @@ import com.lsh.wms.api.model.so.ObdStreamDetail;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.po.IReceiptRpcService;
 import com.lsh.wms.api.service.store.IStoreRpcService;
+import com.lsh.wms.api.service.system.IExceptionCodeRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
@@ -115,6 +116,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
     @Reference
     private IStoreRpcService iStoreRpcService;
 
+    @Reference
+    private IExceptionCodeRpcService iexceptionCodeRpcService;
+
     @Autowired
     private RedisStringDao redisStringDao;
 
@@ -175,7 +179,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
         ReceiveHeader receiveHeader = receiveService.getReceiveHeader(ibdHeader.getOrderId());
         Long receiveId = 0l;
         if(receiveHeader == null){
-            receiveId = this.genReceive(ibdHeader);
+            receiveId = this.genReceive(ibdHeader,request.getItems());
         }else{
             receiveId = receiveHeader.getReceiveId();
         }
@@ -363,7 +367,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 }
 
                 //取出是否检验保质期字段 exceptionReceipt = 0 校验 = 1不校验
-                Integer exceptionReceipt = ibdDetail.getExceptionReceipt();
+                /*Integer exceptionReceipt = ibdDetail.getExceptionReceipt();
                 //调拨类型的单据不校验保质期
                 if(PoConstant.ORDER_TYPE_TRANSFERS != orderType){
                     if(exceptionReceipt != 1){
@@ -385,7 +389,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                             }
                         }
                     }
-                }
+                }*/
                 IbdDetail updateIbdDetail = new IbdDetail();
                 updateIbdDetail.setInboundQty(inbReceiptDetail.getInboundQty());
                 updateIbdDetail.setOrderId(inbReceiptDetail.getOrderId());
@@ -515,6 +519,37 @@ public class ReceiptRpcService implements IReceiptRpcService {
         }
 
 
+    }
+    //验证生产日期
+    public boolean checkProTime(BaseinfoItem baseinfoItem,Date proTime,String exceptionCode) throws BizCheckedException{
+        BigDecimal shelLife = baseinfoItem.getShelfLife();
+        String producePlace = baseinfoItem.getProducePlace();
+        Double shelLife_CN = Double.parseDouble(PropertyUtils.getString("shelLife_CN"));
+        Double shelLife_Not_CN = Double.parseDouble(PropertyUtils.getString("shelLife_Not_CN"));
+        String produceChina = PropertyUtils.getString("produceChina");
+        BigDecimal left_day = new BigDecimal(DateUtils.daysBetween(proTime, new Date()));
+        try {
+            if (producePlace.contains(produceChina)){
+                // TODO: 16/7/20  产地是否存的是CN
+                if (left_day.divide(shelLife, 2, ROUND_HALF_EVEN).doubleValue() >= shelLife_CN) {
+                    throw new BizCheckedException("2020003");
+                }
+            } else {
+                if (left_day.divide(shelLife, 2, ROUND_HALF_EVEN).doubleValue() > shelLife_Not_CN) {
+                    throw new BizCheckedException("2020003");
+                }
+            }
+        }catch (BizCheckedException e){
+            /* if("2020003".equals(e.getMessage())){
+                //超过保质期,保质期例外代码验证
+               String proTimeexceptionCode = iexceptionCodeRpcService.getExceptionCodeByName("receiveExpired");// FIXME: 16/11/9 获取保质期的例外代码
+                if(StringUtils.isBlank(exceptionCode) || !exceptionCode.equals(proTimeexceptionCode)){
+                    throw e;
+                }
+            }*/
+            throw e;
+        }
+        return true;
     }
 
 
@@ -692,7 +727,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             ReceiveHeader receiveHeader = receiveService.getReceiveHeader(ibdHeader.getOrderId());
             Long receiveId = 0l;
             if(receiveHeader == null){
-                receiveId = this.genReceive(ibdHeader);
+                receiveId = this.genReceive(ibdHeader,request.getItems());
 
             }else{
                 receiveId = receiveHeader.getReceiveId();
@@ -828,7 +863,16 @@ public class ReceiptRpcService implements IReceiptRpcService {
         }
     }
 
-    public Long genReceive(IbdHeader ibdHeader){
+    public Long genReceive(IbdHeader ibdHeader,List<ReceiptItem> receiptItemList){
+//        // TODO: 16/11/9 保存skucode和barcode的映射关系
+//        Map<String,String> skuMap = new HashMap<String, String>();
+//        for(ReceiptItem rt:receiptItemList){
+//            BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), rt.getSkuId());
+//            if(baseinfoItem == null){
+//                continue;
+//            }
+//            skuMap.put(baseinfoItem.getSkuCode(),rt.getBarCode());
+//        }
 
         //增加receiveHeader总单
         Long receiveId = RandomUtils.genId();
@@ -842,6 +886,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
         for (IbdDetail ibdDetail : ibdList){
             ReceiveDetail receiveDetail = new ReceiveDetail();
             ObjUtils.bean2bean(ibdDetail,receiveDetail);
+            //receiveDetail.setCode(skuMap.get(ibdDetail.getSkuCode()));// TODO: 16/11/9 增加国条
             receiveDetail.setReceiveId(receiveId);
             receiveDetail.setCreatedAt(DateUtils.getCurrentSeconds());
             receiveDetails.add(receiveDetail);

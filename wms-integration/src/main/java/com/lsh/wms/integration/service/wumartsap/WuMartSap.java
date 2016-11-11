@@ -3,6 +3,7 @@ package com.lsh.wms.integration.service.wumartsap;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.config.PropertyUtils;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.model.wumart.CreateIbdDetail;
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
 import com.lsh.wms.api.model.wumart.CreateObdDetail;
@@ -44,7 +45,7 @@ import java.util.*;
  * 物美ibd obd
  * Created by lixin-mac on 2016/10/28.
  */
-@Service(protocol = "dubbo",async=true)
+@Service(protocol = "dubbo")
 public class WuMartSap implements IWuMartSap{
 
     protected final Logger logger = Logger.getLogger(this.getClass());
@@ -101,12 +102,12 @@ public class WuMartSap implements IWuMartSap{
         TableOfBapireturn _return = factory.createTableOfBapireturn();
         Holder<String> efDelivery  = new Holder<String>();
         Holder<TableOfBbpInbdD> hItem = new Holder<TableOfBbpInbdD>(items);
-        logger.info("传入参数:header :" + JSON.toJSONString(header) + " hItem: " + JSON.toJSONString(hItem) + "  _return + "+ JSON.toJSONString(_return) + " efDelivery: "+JSON.toJSONString(efDelivery));
+        logger.info("ibd创建传入参数:header :" + JSON.toJSONString(header) + " hItem: " + JSON.toJSONString(hItem) + "  _return + "+ JSON.toJSONString(_return) + " efDelivery: "+JSON.toJSONString(efDelivery));
         TableOfBapireturn newReturn = zbinding.zbapiBbpInbIbd(header,hItem,_return,efDelivery);
-        logger.info("传出参数:header :" + JSON.toJSONString(header) + " hItem: " + JSON.toJSONString(hItem) + "  _return + "+ JSON.toJSONString(_return) + " efDelivery: "+JSON.toJSONString(efDelivery));
+        logger.info("ibd创建传出参数:header :" + JSON.toJSONString(header) + " hItem: " + JSON.toJSONString(hItem) + "  _return + "+ JSON.toJSONString(_return) + " efDelivery: "+JSON.toJSONString(efDelivery));
         String ref = com.alibaba.fastjson.JSON.toJSONString(newReturn.getItem());
         // TODO: 2016/11/1 结果记录到日志表中,将数据保存到redis中。以便失败之后重新下传。
-        logger.info("~~~~~~~~~~~~~~~~~~~~~ref:" + ref + "~~~~~~~~~~~~~~~~~~~~~~");
+        logger.info("~~~~~~~~~~~~~~~~~~~~~ibd创建返回值ref:" + ref + "~~~~~~~~~~~~~~~~~~~~~~");
 
         if(newReturn.getItem() == null && newReturn.getItem().size() <= 0){
             return null;
@@ -131,7 +132,7 @@ public class WuMartSap implements IWuMartSap{
                 }
                 CreateIbdDetail backDetail = new CreateIbdDetail();
                 backDetail.setOrderType(orderType);
-                backDetail.setDeliveQty(new BigDecimal(bapireturn1.getMessage()).setScale(2,BigDecimal.ROUND_HALF_UP));
+                backDetail.setDeliveQty(new BigDecimal(bapireturn1.getMessage().trim()).setScale(2,BigDecimal.ROUND_HALF_UP));
                 backDetail.setPoNumber(bapireturn1.getMessageV1());
                 backDetail.setPoItme(bapireturn1.getMessageV2());
                 backDetail.setVendMat(String.valueOf(receiveId));
@@ -219,14 +220,14 @@ public class WuMartSap implements IWuMartSap{
         ZMMOUTBOBD zbinding = new ZMMOUTBOBD_Service().getBindingSOAP12();
         this.auth((BindingProvider) zbinding);
 
-        logger.info("入口参数: createdItems :" + JSON.toJSONString(createdItems)+
+        logger.info("obd创建入口参数: createdItems :" + JSON.toJSONString(createdItems)+
                     " debugFlg : " + JSON.toJSONString(debugFlg)+
                     " deliveries : " + JSON.toJSONString(deliveries) +
                     " dueDate : " + JSON.toJSONString(date) +
                     " _return : " + JSON.toJSONString(_return) +
                     " stockTransItems :"+JSON.toJSONString(stockTransItems));
         TableOfBapiret2 newReturn = zbinding.zBapiOutbCreateObd(createdItems,debugFlg,deliveries,date,extensionIn,extensionOut,noDequeue,_return,serialNumbers,shipPoint,stockTransItems,delivery,numDeliveries);
-        logger.info("入口参数: createdItems :" + JSON.toJSONString(createdItems)+
+        logger.info("obd创建传出参数: createdItems :" + JSON.toJSONString(createdItems)+
                 " debugFlg : " + JSON.toJSONString(debugFlg)+
                 " deliveries : " + JSON.toJSONString(deliveries) +
                 " dueDate : " + JSON.toJSONString(date) +
@@ -234,9 +235,9 @@ public class WuMartSap implements IWuMartSap{
                 " stockTransItems :"+JSON.toJSONString(stockTransItems));
         String ref = com.alibaba.fastjson.JSON.toJSONString(newReturn.getItem());
 
-        logger.info("入口参数: createdItems :" + JSON.toJSONString(createdItems));
+        logger.info("obd创建传出参数: createdItems :" + JSON.toJSONString(createdItems));
 
-        logger.info("返回值 ref : " + ref);
+        logger.info("obd创建返回值 ref : " + ref);
 
         //循环返回值
         CreateObdHeader backDate = new CreateObdHeader();
@@ -325,7 +326,7 @@ public class WuMartSap implements IWuMartSap{
 
         com.lsh.wms.integration.wumart.ibdaccount.ZDELIVERYINBOUNDUPDATE zbinding = new com.lsh.wms.integration.wumart.ibdaccount.Service().getBindingSOAP12();
         this.auth((BindingProvider) zbinding);
-        logger.info("传入参数: pZIMPORT : " + JSON.toJSONString(pZIMPORT)+"~~~~~~~~~~~~~~");
+        logger.info("ibd过账传入参数: pZIMPORT : " + JSON.toJSONString(pZIMPORT)+"~~~~~~~~~~~~~~");
         com.lsh.wms.integration.wumart.ibdaccount.TABLEOFBAPIRET2 newReturn = zbinding.zDELIVERYINBOUNDUPDATE(itemCONTROL,itemDATA,prot,pZEXPORT,pZIMPORT,_return,return1,vbpokTAB);
         logger.info("参数 : pZIMPORT : " + JSON.toJSONString(pZIMPORT)
                 + " itemCONTROL : "+itemCONTROL
@@ -337,13 +338,19 @@ public class WuMartSap implements IWuMartSap{
                 + " return1 : " +JSON.toJSONString(return1)
                 + " vbpokTAB" + JSON.toJSONString(vbpokTAB));
 
-        logger.info("返回值 : newReturn : " + JSON.toJSONString(newReturn.getItem()));
+        logger.info("ibd过账返回值 : newReturn : " + JSON.toJSONString(newReturn.getItem()));
 
         // TODO: 2016/11/10 将返回的数据对应到相应的验收单中。
         if(newReturn == null){
             return null;
         }
+
+
         for(BAPIRET2 bapiret2 : newReturn.getItem()){
+            if("E".equals(bapiret2.getTYPE())){
+                return "E";
+            }
+
             if("02".equals(bapiret2.getID())){
                 if(orderType != PoConstant.ORDER_TYPE_CPO){
                     ReceiveDetail receiveDetail = new ReceiveDetail();
@@ -357,7 +364,7 @@ public class WuMartSap implements IWuMartSap{
 
         }
 
-        return JSON.toJSONString(newReturn.getItem());
+        return JsonUtils.SUCCESS();
     }
 
     public String obd2SapAccount(CreateObdHeader createObdHeader) {
@@ -403,10 +410,10 @@ public class WuMartSap implements IWuMartSap{
 
         com.lsh.wms.integration.wumart.obdaccount.ZDELIVERYOUTBOUNDUPDATE zbinding = new ZDELIVERYOUTBOUNDUPDATE_Service().getBindingSOAP12();
         this.auth((BindingProvider) zbinding);
-        logger.info("入参: pZEXPORT : " + JSON.toJSONString(pZEXPORT) + " pZIMPORT : " + JSON.toJSONString(pZIMPORT));
+        logger.info("obd过账入参: pZEXPORT : " + JSON.toJSONString(pZEXPORT) + " pZIMPORT : " + JSON.toJSONString(pZIMPORT));
         com.lsh.wms.integration.wumart.obdaccount.TABLEOFBAPIRET2 newReturn = zbinding.zDELIVERYOUTBOUNDUPDATE(itemCONTROL,itemDATA,prot,pZEXPORT,pZIMPORT,_return,return1,vbpokTAB);
 
-        logger.info("返回值 : newReturn : " + JSON.toJSONString(newReturn.getItem())
+        logger.info("obd过账返回值 : newReturn : " + JSON.toJSONString(newReturn.getItem())
                 + " itemCONTROL : " + JSON.toJSONString(itemCONTROL)
                 + " itemDATA : " + JSON.toJSONString(itemDATA)
                 + " prot : " + JSON.toJSONString(prot)
@@ -415,7 +422,7 @@ public class WuMartSap implements IWuMartSap{
         return JSON.toJSONString(newReturn.getItem());
     }
 
-    public String ibd2SapBack(CreateIbdHeader createIbdHeader) {
+    public String ibd2SapBack(String accountId,String accountDetailId) {
         Calendar calendar = Calendar.getInstance();
         XMLGregorianCalendar date = new XMLGregorianCalendarImpl();
         date.setYear(calendar.get(Calendar.YEAR));
@@ -423,7 +430,7 @@ public class WuMartSap implements IWuMartSap{
         date.setMonth(calendar.get(Calendar.MONTH) + 1);
 
         String pDOCYEAR =String.valueOf(calendar.get(Calendar.YEAR));
-        String pDOCUMENT = "5000104482";
+        String pDOCUMENT = accountId;
         String pUNAME = "";
         Holder<BAPI2017GMHEADRET> pHEADRET = new Holder<BAPI2017GMHEADRET>();
 
@@ -431,22 +438,18 @@ public class WuMartSap implements IWuMartSap{
         com.lsh.wms.integration.wumart.ibdback.TABLEOFBAPIRET2 _return = factory.createTABLEOFBAPIRET2();
 
 
-        List<CreateIbdDetail> details = createIbdHeader.getItems();
-
         TABLEOFBAPI2017GMITEM04 gmitem04s = factory.createTABLEOFBAPI2017GMITEM04();
-        //for(CreateIbdDetail createIbdDetail : details){
-            BAPI2017GMITEM04 gmitem04 = factory.createBAPI2017GMITEM04();
-            gmitem04.setMATDOCITEM("0001");
-            gmitem04s.getItem().add(gmitem04);
-        //}
+        BAPI2017GMITEM04 gmitem04 = factory.createBAPI2017GMITEM04();
+        gmitem04.setMATDOCITEM(accountDetailId);
+        gmitem04s.getItem().add(gmitem04);
 
         Holder<TABLEOFBAPI2017GMITEM04> pDOCITEM = new Holder<TABLEOFBAPI2017GMITEM04>(gmitem04s);
         ZBAPIGOODSMVTCANCEL zbinding = new ZBAPIGOODSMVTCANCEL_Service().getBindingSOAP12();
         this.auth((BindingProvider) zbinding);
 
-        logger.info("入参: pDOCITEM : " + JSON.toJSONString(pDOCITEM) + " pDOCUMENT : " + pDOCUMENT);
+        logger.info("ibd冲销入参: pDOCITEM : " + JSON.toJSONString(pDOCITEM) + " pDOCUMENT : " + pDOCUMENT);
         com.lsh.wms.integration.wumart.ibdback.TABLEOFBAPIRET2 newReturn = zbinding.zbapiGOODSMVTCANCEL(date,pDOCITEM,pDOCUMENT,pDOCYEAR,pUNAME,_return,pHEADRET);
-        logger.info("返回值: newReturn : " + JSON.toJSONString(newReturn));
+        logger.info("ibd冲销返回值: newReturn : " + JSON.toJSONString(newReturn));
 
         return JSON.toJSONString(newReturn);
     }

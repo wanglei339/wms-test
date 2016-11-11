@@ -154,5 +154,20 @@ public class ReceiveService {
     }
 
 
+    /**
+     * 根据OrderId及detailOtherId获取InbPoDetail
+     * @param receiveId
+     * @param detailOtherId
+     * @return
+     */
+    public ReceiveDetail getReceiveDetailByReceiveIdAnddetailOtherId(Long receiveId, String detailOtherId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+
+        params.put("receiveId", receiveId);
+        params.put("detailOtherId", detailOtherId);
+
+        return getReceiveDetail(params);
+    }
+
 
 }

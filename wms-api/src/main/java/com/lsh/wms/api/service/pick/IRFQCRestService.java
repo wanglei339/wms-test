@@ -18,8 +18,6 @@ public interface IRFQCRestService {
     public String confirm() throws BizCheckedException;
 
 
-    public String skipExceptionRf() throws BizCheckedException;
-    public String repairExceptionRf() throws BizCheckedException;
-    public String fallbackExceptionRf() throws BizCheckedException;
+    public String dealCase() throws BizCheckedException;
 
 }

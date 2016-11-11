@@ -15,6 +15,7 @@ import com.lsh.wms.api.model.po.ReceiptRequest;
 import com.lsh.wms.api.service.po.IReceiptRfService;
 import com.lsh.wms.api.service.po.IReceiptRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.api.service.system.IItemTypeRpcService;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.constant.RedisKeyConstant;
@@ -28,7 +29,7 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
-import com.lsh.wms.model.baseinfo.BaseinfoStaffInfo;
+import com.lsh.wms.model.baseinfo.BassinfoItemType;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
@@ -68,6 +69,9 @@ public class ReceiptRestService implements IReceiptRfService {
 
     @Reference
     private IReceiptRpcService iReceiptRpcService;
+
+    @Reference
+    private IItemTypeRpcService iItemTypeRpcService;
 
     @Autowired
     private PoOrderService poOrderService;
@@ -141,19 +145,42 @@ public class ReceiptRestService implements IReceiptRfService {
 
 
         for(ReceiptItem receiptItem : receiptRequest.getItems()) {
-            if(receiptItem.getProTime() == null) {
+            /*if(receiptItem.getProTime() == null) {
                 throw new BizCheckedException("2020008");
-            }
+            }*/
 
             //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
             CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, receiptItem.getBarCode());
 
             BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
 
+            // todo: 16/11/9 根据商品类型获取生产日期开关配置
+            BassinfoItemType bassinfoItemType = iItemTypeRpcService.getBassinfoItemTypeById(baseinfoItem.getItemType());
+            if(bassinfoItemType != null && 1== bassinfoItemType.getIsNeedProtime()){
+                // todo: 16/11/9 根据配置验证生产日期是否输入
+                if(receiptItem.getProTime() == null){
+                    throw new BizCheckedException("2020008");//生产日期不能为空
+                }
+            }
+
             IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(), baseinfoItem.getSkuCode());
 
             if(ibdDetail == null){
                 throw new BizCheckedException("2020001");
+            }
+            /*
+            验证保质期
+             */
+            //取出是否检验保质期字段 exceptionReceipt = 0 校验 = 1不校验
+            Integer exceptionReceipt = ibdDetail.getExceptionReceipt();
+            String exceptionCode = "";// FIXME: 16/11/10 从请求参数中获取例外代码
+            //调拨类型的单据不校验保质期
+            if(PoConstant.ORDER_TYPE_TRANSFERS != ibdHeader.getOrderType()){
+                if(exceptionReceipt != 1){
+                    // TODO: 16/7/20   商品信息是否完善,怎么排查.2,保质期例外怎么验证?
+                    //保质期判断,如果失败抛出异常
+                 //   iReceiptRpcService.checkProTime(baseinfoItem,receiptItem.getProTime(),exceptionCode);
+                }
             }
 
             receiptItem.setSkuName(ibdDetail.getSkuName());

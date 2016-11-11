@@ -212,7 +212,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
                     // 创建任务
                     StockTransferPlan plan = new StockTransferPlan();
-                    plan.setPriority(getPackPriority(itemLocation.getItemId()));
+                    plan.setPriority(this.getPackPriority(itemLocation.getItemId()));
                     plan.setContainerId(quant.getContainerId());
                     plan.setItemId(itemLocation.getItemId());
                     plan.setFromLocationId(quant.getLocationId());
@@ -310,7 +310,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         return taskId;
     }
     //创建阁楼补货任务
-    public void createLoftProcurement() throws BizCheckedException {
+    private void createLoftProcurement() throws BizCheckedException {
         //获取所有阁楼拣货位的位置信息
         List<BaseinfoLocation> loftPickLocationList = locationService.getLocationsByType(LocationConstant.LOFT_PICKING_BIN);
         //获取所有阁楼存货位的信息
@@ -336,11 +336,30 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                         continue;
                     }
                     BigDecimal requiredQty = new BigDecimal("3");
-                    for (StockQuant quant : quantList) {
-                        BigDecimal quantQty =  quant.getQty().divide(quant.getPackUnit());
+
+                    //取库位中库存最小的
+                    BigDecimal total = BigDecimal.ZERO;
+                    StockQuant quant = null;
+                    Map<Long,Long> locationMap = new HashMap<Long, Long>();
+                    Map<String,Object> queryMap = new HashMap<String, Object>();
+                    for(StockQuant stockQuant:quantList) {
+                        if(locationMap.get(stockQuant.getLocationId())==null) {
+                            //获取存储位该商品库存量
+                            queryMap.put("locationId", stockQuant.getLocationId());
+                            BigDecimal one = stockQuantService.getQty(condition);
+                            if((total.compareTo(one)>0 || total.compareTo(BigDecimal.ZERO)==0) && total.compareTo(requiredQty)>=0){
+                                total = one;
+                                quant =  stockQuant;
+                            }
+                        }
+                        locationMap.put(stockQuant.getLocationId(),stockQuant.getLocationId());
+                    }
+
+
+                    if(quant!=null){
                         // 创建任务
                         StockTransferPlan plan = new StockTransferPlan();
-                        plan.setPriority(1L);
+                        plan.setPriority(this.getPackPriority(itemLocation.getItemId()));
                         plan.setItemId(itemLocation.getItemId());
                         plan.setFromLocationId(quant.getLocationId());
                         plan.setToLocationId(itemLocation.getPickLocationid());
@@ -348,10 +367,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                         plan.setUomQty(requiredQty);
                         plan.setSubType(2L);
                         this.addProcurementPlan(plan);
-                        requiredQty = requiredQty.subtract(quantQty);
-                        if (quantQty.compareTo(BigDecimal.ZERO) <= 0) {
-                            break;
-                        }
                     }
                 }
             }
