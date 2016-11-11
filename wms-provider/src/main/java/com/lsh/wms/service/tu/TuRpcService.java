@@ -373,11 +373,11 @@ public class TuRpcService implements ITuRpcService {
      * @return
      * @throws BizCheckedException
      */
-    public boolean moveItemToConsumeArea(Long containerId) throws BizCheckedException {
-        if (null == containerId) {
+    public boolean moveItemToConsumeArea(Set<Long> containerIds ) throws BizCheckedException {
+        if (null == containerIds||containerIds.size()<1) {
             throw new BizCheckedException("2880010");
         }
-        stockMoveService.moveToConsume(containerId);
+        stockMoveService.moveToConsume(containerIds);
         return true;
     }
 
@@ -582,6 +582,17 @@ public class TuRpcService implements ITuRpcService {
                 detail.setDeliveryId(header.getDeliveryId());
             }
             soDeliveryService.insertOrder(header, details);
+        }
+        //回写发货单的单号
+        for(WaveDetail detail : totalWaveDetails){
+            if(detail.getDeliveryId()!=0) {
+                continue;
+            }
+            detail.setDeliveryId(mapHeader.get(detail.getOrderId()).getDeliveryId());
+            detail.setShipAt(DateUtils.getCurrentSeconds());
+            detail.setDeliveryQty(detail.getQcQty());
+            detail.setIsAlive(0L);
+            waveService.updateDetail(detail);
         }
     }
 

@@ -27,9 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Author 马启迪 maqidi@lsh123.com
@@ -123,6 +121,8 @@ public class TuRestService implements ITuRestService {
         }
         //大小店
         if (TuConstant.SCALE_STORE.equals(tuHead.getScale())) {  //小店 合板
+            //待销库存的totalDetails
+            Set<Long> totalContainers = new HashSet<Long>();
             for (TuDetail detail : details) {
                 String idKey = "task_" + TaskConstant.TYPE_DIRECT_SHIP.toString();
                 Long shipTaskId = idGenerator.genId(idKey, true, true);
@@ -139,16 +139,20 @@ public class TuRestService implements ITuRestService {
                 iTaskRpcService.create(TaskConstant.TYPE_DIRECT_SHIP, taskEntry);
                 // 直接完成
                 iTaskRpcService.done(shipTaskId);
-                //销库存移到consumer位置
-//                iTuRpcService.moveItemToConsumeArea(detail.getMergedContainerId());
+                totalContainers.add(detail.getMergedContainerId());
             }
-            //生成发货单
-            iTuRpcService.creatDeliveryOrderAndDetail(tuHead);
+            //销库存移到consumer位置
+//            iTuRpcService.moveItemToConsumeArea(totalContainers);
             //拼接物美sap
-            Map<String,Object> ibdObdMap = iTuRpcService.bulidSapDate(tuHead.getTuId());
+            Map<String, Object> ibdObdMap = iTuRpcService.bulidSapDate(tuHead.getTuId());
             wuMart.sendIbd((CreateIbdHeader) ibdObdMap.get("createIbdHeader"));
             wuMart.sendObd((CreateObdHeader) ibdObdMap.get("createObdHeader"));
+            //生成发货单 osd的托盘生命结束
+            iTuRpcService.creatDeliveryOrderAndDetail(tuHead);
+
         } else {
+            //待销库存的totalDetails
+            List<WaveDetail> totalDetails = new ArrayList<WaveDetail>();
             for (TuDetail detail : details) {
                 //贵品不记录绩效
                 if (detail.getIsExpensive().equals(TuConstant.IS_EXPENSIVE)) {
@@ -173,15 +177,18 @@ public class TuRestService implements ITuRestService {
                 if (null == waveDetails || waveDetails.size() < 1) {
                     waveDetails = waveService.getAliveDetailsByContainerId(detail.getMergedContainerId());
                 }
+                totalDetails.addAll(waveDetails);
                 //移库存 todo
 //                iTuRpcService.moveItemToConsumeArea(waveDetails);
             }
-            //生成发货单
-            iTuRpcService.creatDeliveryOrderAndDetail(tuHead);
+            //移库存下沉到一个事务中 todo
+//            iTuRpcService.moveItemToConsumeArea(totalDetails);
             //拼接物美SAP
-            Map<String,Object> ibdObdMap = iTuRpcService.bulidSapDate(tuHead.getTuId());
+            Map<String, Object> ibdObdMap = iTuRpcService.bulidSapDate(tuHead.getTuId());
             wuMart.sendIbd((CreateIbdHeader) ibdObdMap.get("createIbdHeader"));
             wuMart.sendObd((CreateObdHeader) ibdObdMap.get("createObdHeader"));
+            //生成发货单 osd的托盘生命结束
+            iTuRpcService.creatDeliveryOrderAndDetail(tuHead);
         }
         //改变发车状态
         tuHead.setStatus(TuConstant.SHIP_OVER);
@@ -213,6 +220,7 @@ public class TuRestService implements ITuRestService {
 
     /**
      * 改变rf的开关
+     *
      * @return
      * @throws BizCheckedException
      */
