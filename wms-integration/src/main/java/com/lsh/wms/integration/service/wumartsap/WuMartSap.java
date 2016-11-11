@@ -44,7 +44,7 @@ import java.util.*;
  * 物美ibd obd
  * Created by lixin-mac on 2016/10/28.
  */
-@Service(protocol = "dubbo",async=true)
+@Service(protocol = "dubbo")
 public class WuMartSap implements IWuMartSap{
 
     protected final Logger logger = Logger.getLogger(this.getClass());

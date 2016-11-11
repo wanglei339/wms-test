@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.baseinfo.BassinfoExceptionCodeDao" >
+
+	<resultMap id="bassinfoExceptionCodeResultMap" type="BassinfoExceptionCode">
+		<id property="id" column="id"/>
+		<result property="exceptionCode" column="exception_code"/>
+		<result property="exceptionExplain" column="exception_explain"/>
+		<result property="exceptionName" column="exception_name"/>
+		<result property="status" column="status"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BassinfoExceptionCode">
+		insert into bassinfo_exception_code (
+			exception_code,exception_name,exception_explain,status
+    	) values (
+			#{exceptionCode},#{exceptionName},#{exceptionExplain},#{status}
+    	)
+	</insert>
+
+	<update id="update" parameterType="BassinfoExceptionCode">
+		update bassinfo_exception_code
+    	<set>
+  			<if test="exceptionCode != null">exception_code=#{exceptionCode},</if>
+  			<if test="exceptionName != null">exception_name=#{exceptionName},</if>
+  			<if test="exceptionExplain != null">exception_explain=#{exceptionExplain},</if>
+  			<if test="status != null">status=#{status}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getBassinfoExceptionCodeById" parameterType="int" resultMap="bassinfoExceptionCodeResultMap">
+		select * from bassinfo_exception_code
+		where ID=#{id} 
+	</select>
+  
+	<select id="countBassinfoExceptionCode" parameterType="map" resultType="int">
+		select count(*) from bassinfo_exception_code
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getBassinfoExceptionCodeList" parameterType="map" resultMap="bassinfoExceptionCodeResultMap">
+		select * from bassinfo_exception_code
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="exceptionCode != null">and exception_code=#{exceptionCode}</if>
+			<if test="exceptionName != null">and exception_name=#{exceptionName}</if>
+			<if test="exceptionExplain != null">and exception_explain=#{exceptionExplain}</if>
+			<if test="status != null">and status=#{status}</if>
+		</where>
+	</sql>
+   
+</mapper>
