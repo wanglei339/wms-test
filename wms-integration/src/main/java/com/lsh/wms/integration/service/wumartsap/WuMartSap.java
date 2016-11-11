@@ -44,7 +44,7 @@ import java.util.*;
  * 物美ibd obd
  * Created by lixin-mac on 2016/10/28.
  */
-@Service(protocol = "dubbo",async=true)
+@Service(protocol = "dubbo")
 public class WuMartSap implements IWuMartSap{
 
     protected final Logger logger = Logger.getLogger(this.getClass());
@@ -131,7 +131,7 @@ public class WuMartSap implements IWuMartSap{
                 }
                 CreateIbdDetail backDetail = new CreateIbdDetail();
                 backDetail.setOrderType(orderType);
-                backDetail.setDeliveQty(new BigDecimal(bapireturn1.getMessage()).setScale(2,BigDecimal.ROUND_HALF_UP));
+                backDetail.setDeliveQty(new BigDecimal(bapireturn1.getMessage().trim()).setScale(2,BigDecimal.ROUND_HALF_UP));
                 backDetail.setPoNumber(bapireturn1.getMessageV1());
                 backDetail.setPoItme(bapireturn1.getMessageV2());
                 backDetail.setVendMat(String.valueOf(receiveId));
@@ -415,7 +415,7 @@ public class WuMartSap implements IWuMartSap{
         return JSON.toJSONString(newReturn.getItem());
     }
 
-    public String ibd2SapBack(CreateIbdHeader createIbdHeader) {
+    public String ibd2SapBack(String accountId,String accountDetailId) {
         Calendar calendar = Calendar.getInstance();
         XMLGregorianCalendar date = new XMLGregorianCalendarImpl();
         date.setYear(calendar.get(Calendar.YEAR));
@@ -423,7 +423,7 @@ public class WuMartSap implements IWuMartSap{
         date.setMonth(calendar.get(Calendar.MONTH) + 1);
 
         String pDOCYEAR =String.valueOf(calendar.get(Calendar.YEAR));
-        String pDOCUMENT = "5000104482";
+        String pDOCUMENT = accountId;
         String pUNAME = "";
         Holder<BAPI2017GMHEADRET> pHEADRET = new Holder<BAPI2017GMHEADRET>();
 
@@ -431,14 +431,10 @@ public class WuMartSap implements IWuMartSap{
         com.lsh.wms.integration.wumart.ibdback.TABLEOFBAPIRET2 _return = factory.createTABLEOFBAPIRET2();
 
 
-        List<CreateIbdDetail> details = createIbdHeader.getItems();
-
         TABLEOFBAPI2017GMITEM04 gmitem04s = factory.createTABLEOFBAPI2017GMITEM04();
-        //for(CreateIbdDetail createIbdDetail : details){
-            BAPI2017GMITEM04 gmitem04 = factory.createBAPI2017GMITEM04();
-            gmitem04.setMATDOCITEM("0001");
-            gmitem04s.getItem().add(gmitem04);
-        //}
+        BAPI2017GMITEM04 gmitem04 = factory.createBAPI2017GMITEM04();
+        gmitem04.setMATDOCITEM(accountDetailId);
+        gmitem04s.getItem().add(gmitem04);
 
         Holder<TABLEOFBAPI2017GMITEM04> pDOCITEM = new Holder<TABLEOFBAPI2017GMITEM04>(gmitem04s);
         ZBAPIGOODSMVTCANCEL zbinding = new ZBAPIGOODSMVTCANCEL_Service().getBindingSOAP12();

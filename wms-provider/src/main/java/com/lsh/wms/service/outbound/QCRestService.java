@@ -9,6 +9,7 @@ import com.lsh.wms.api.model.tu.GroupRestResponse;
 import com.lsh.wms.api.service.pick.IQCRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.model.wave.WaveDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.POST;
@@ -73,7 +74,8 @@ public class QCRestService implements IQCRestService {
     public String getGroupDetailByStoreNo() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         String storeNo = mapQuery.get("storeNo").toString();
-        List<TaskInfo> qcDoneTaskInfos = qcRpcService.getQcDoneTaskInfoByStoreNo(storeNo);
+        List<WaveDetail> waveDetails = qcRpcService.getQcWaveDetailsByStoreNo(storeNo);
+        List<TaskInfo> qcDoneTaskInfos = qcRpcService.getQcDoneTaskInfoByWaveDetails(waveDetails);
         List<GroupRestResponse> groupRestResponses = new ArrayList<GroupRestResponse>();
         if (qcDoneTaskInfos.size() > 0) {
             for (TaskInfo info : qcDoneTaskInfos) {

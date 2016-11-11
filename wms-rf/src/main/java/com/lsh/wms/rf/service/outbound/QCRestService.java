@@ -18,6 +18,7 @@ import com.lsh.wms.api.service.so.ISoRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.CsiConstan;
+import com.lsh.wms.core.constant.PickConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.service.stock.StockQuantService;
@@ -211,7 +212,7 @@ public class QCRestService implements IRFQCRestService {
 
             //判断是第几次的QC,只有QC过一遍,再次QC都是复核QC
             detail.put("qcTimes", waveDetail.getQcTimes());
-          //todo 如果有异常的话,直流的也要qc
+            //todo 如果有异常的话,直流的也要qc
             undoDetails.add(detail);
         }
         allBoxNum = boxNum;
@@ -319,8 +320,8 @@ public class QCRestService implements IRFQCRestService {
                 throw new BizCheckedException("2120013");
             }
             int cmpRet = pickQty.compareTo(qty);    //拣货 - qc的数量
-            if (cmpRet > 0) exceptionType = WaveConstant.QC_EXCEPTION_LACK; //多货
-            if (cmpRet < 0) exceptionType = WaveConstant.QC_EXCEPTION_OVERFLOW; //少货
+            if (cmpRet > 0) exceptionType = WaveConstant.QC_EXCEPTION_LACK; //少货
+            if (cmpRet < 0) exceptionType = WaveConstant.QC_EXCEPTION_OVERFLOW; //多货
             BigDecimal curQty = new BigDecimal("0.0000");
             for (int i = 0; i < matchDetails.size(); ++i) {
                 WaveDetail detail = matchDetails.get(i);
@@ -338,12 +339,14 @@ public class QCRestService implements IRFQCRestService {
                         //设置成拣货人的责任
                         if (exceptionType == WaveConstant.QC_EXCEPTION_DEFECT) {
                             detail.setQcExceptionQty(exceptionQty);
-                            detail.setQcFaultQty(exceptionQty); //残次数量失误就是过失数量
+                            //残次不追责
+//                            detail.setQcFault(WaveConstant.QC_FAULT_NOMAL);
+//                            detail.setQcFaultQty(exceptionQty); //残次不记录责任
                         } else {
-                            detail.setQcExceptionQty(qty.subtract(curQty));
+                            detail.setQcExceptionQty(qty.subtract(curQty).abs());   //取绝对值
                             detail.setQcFaultQty(qty.subtract(curQty).abs());   //少货或者多货取绝对值
+                            detail.setQcFault(WaveConstant.QC_FAULT_PICK); //永远是拣货人的责任,不修复的话
                         }
-                        detail.setQcFault(WaveConstant.QC_FAULT_PICK); //永远是拣货人的责任,不修复的话
                         // 以后做有残次不追责
                         detail.setQcExceptionDone(0L);
                         detail.setQcQty(qty.subtract(lastQty));
@@ -403,7 +406,6 @@ public class QCRestService implements IRFQCRestService {
         Map<String, Object> request = RequestUtils.getRequest();
         //前端跳过q明细字段,跳过,系统默认拣货量和qc量的一致
         Boolean skip = Boolean.valueOf(request.get("skip").toString());
-
         long qcTaskId = Long.valueOf(request.get("qcTaskId").toString());
         long boxNum = Long.valueOf(request.get("boxNum").toString());
         long turnoverBoxNum = Long.valueOf(request.get("turnoverBoxNum").toString());
@@ -463,68 +465,32 @@ public class QCRestService implements IRFQCRestService {
     }
 
 
-
     /**
      * 跳过异常
+     *
      * @return
      * @throws BizCheckedException
      */
     @POST
-    @Path("skipException")
-    public String skipExceptionRf() throws BizCheckedException {
+    @Path("dealCase")
+    public String dealCase() throws BizCheckedException {
         Map<String, Object> request = RequestUtils.getRequest();
-        Long containerId = Long.valueOf(request.get("containerId").toString());
-        String code = request.get("code").toString();
-        if (null == containerId || null == code) {
-            throw new BizCheckedException("2120019");
+        Integer type = Integer.valueOf(request.get("type").toString());
+        boolean result = false;
+        if (WaveConstant.QC_RF_SKIP == type) {
+            result = iqcRpcService.skipExceptionRf(request);
         }
-        boolean result = iqcRpcService.skipExceptionRf(request);
+        if (WaveConstant.QC_RF_FALLBACK == type){
+            result = iqcRpcService.fallbackExceptionRf(request);
+        }
+        if (WaveConstant.QC_RF_REPAIR == type){
+            result = iqcRpcService.repairExceptionRf(request);
+        }
         Map<String, Object> resultMap = new HashMap<String, Object>();
-        resultMap.put("result", result);
-        return JsonUtils.SUCCESS(result);
+        resultMap.put("qcDone", result);
+        return JsonUtils.SUCCESS(resultMap);
     }
 
-
-    /**
-     * 跳过异常
-     * @return
-     * @throws BizCheckedException
-     */
-    @POST
-    @Path("skipException")
-    public String repairExceptionRf() throws BizCheckedException {
-        Map<String, Object> request = RequestUtils.getRequest();
-        Long containerId = Long.valueOf(request.get("containerId").toString());
-        String code = request.get("code").toString();
-        if (null == containerId || null == code) {
-            throw new BizCheckedException("2120019");
-        }
-        boolean result = iqcRpcService.repairExceptionRf(request);
-        Map<String, Object> resultMap = new HashMap<String, Object>();
-        resultMap.put("result", result);
-        return JsonUtils.SUCCESS(result);
-    }
-
-
-    /**
-     * 回滚异常
-     * @return
-     * @throws BizCheckedException
-     */
-    @POST
-    @Path("fallbackException")
-    public String fallbackExceptionRf() throws BizCheckedException {
-        Map<String, Object> request = RequestUtils.getRequest();
-        Long containerId = Long.valueOf(request.get("containerId").toString());
-        String code = request.get("code").toString();
-        if (null == containerId || null == code) {
-            throw new BizCheckedException("2120019");
-        }
-        boolean result = iqcRpcService.fallbackExceptionRf(request);
-        Map<String, Object> resultMap = new HashMap<String, Object>();
-        resultMap.put("result", result);
-        return JsonUtils.SUCCESS(result);
-    }
 
     /**
      * 废弃了,呵呵
@@ -655,58 +621,3 @@ public class QCRestService implements IRFQCRestService {
     }
 }
 
-
-//集货任务receipt_qty计算数量
-//        if (beforeTask.getType().equals(TaskConstant.TYPE_SET_GOODS)){
-//            for (WaveDetail d : details) {
-//                if (d.getQcTimes() == WaveConstant.QC_TIMES_FIRST) {   //一旦有第一遍没QC的,就不是复Q
-//                    isFirstQC = true;
-//                }
-//                if (mapItem2PickQty.get(d.getItemId()) == null) {
-//                    mapItem2PickQty.put(d.getItemId(), new BigDecimal(d.getReceiptQty().toString()));
-//                } else {
-//                    mapItem2PickQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getReceiptQty()));
-//                }
-//                mapItem2WaveDetail.put(d.getItemId(), d);
-//            }
-//        }
-//        //收货任务receipt_qty计算数量
-//        if (beforeTask.getType().equals(TaskConstant.TYPE_PO)){
-//            for (WaveDetail d : details) {
-//                if (d.getQcTimes() == WaveConstant.QC_TIMES_FIRST) {   //一旦有第一遍没QC的,就不是复Q
-//                    isFirstQC = true;
-//                }
-//                if (mapItem2PickQty.get(d.getItemId()) == null) {
-//                    mapItem2PickQty.put(d.getItemId(), new BigDecimal(d.getReceiptQty().toString()));
-//                } else {
-//                    mapItem2PickQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getPickQty()));
-//                }
-//                mapItem2WaveDetail.put(d.getItemId(), d);
-//            }
-//        }
-//拣货任务
-//        if (beforeTask.getType().equals(TaskConstant.TYPE_PICK)){
-//            for (WaveDetail d : details) {
-//                if (d.getQcTimes() == WaveConstant.QC_TIMES_FIRST) {   //一旦有第一遍没QC的,就不是复Q
-//                    isFirstQC = true;
-//                }
-//                if (mapItem2PickQty.get(d.getItemId()) == null) {
-//                    mapItem2PickQty.put(d.getItemId(), new BigDecimal(d.getPickQty().toString()));
-//                } else {
-//                    mapItem2PickQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getReceiptQty()));
-//                }
-//                mapItem2WaveDetail.put(d.getItemId(), d);
-//            }
-//        } if (beforeTask.getType().equals(TaskConstant.TYPE_PICK)){
-//            for (WaveDetail d : details) {
-//                if (d.getQcTimes() == WaveConstant.QC_TIMES_FIRST) {   //一旦有第一遍没QC的,就不是复Q
-//                    isFirstQC = true;
-//                }
-//                if (mapItem2PickQty.get(d.getItemId()) == null) {
-//                    mapItem2PickQty.put(d.getItemId(), new BigDecimal(d.getPickQty().toString()));
-//                } else {
-//                    mapItem2PickQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getReceiptQty()));
-//                }
-//                mapItem2WaveDetail.put(d.getItemId(), d);
-//            }
-//        }

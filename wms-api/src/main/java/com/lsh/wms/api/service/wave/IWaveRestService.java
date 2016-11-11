@@ -58,4 +58,5 @@ public interface IWaveRestService {
     //test
     public String runWaveGenerator();
     public String getWavePreviewList();
+    public String createWaveByPreview(Map<String, Object> mapData);
 }

@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Created by lixin-mac on 2016/11/4.
  */
-@Service(protocol = "dubbo")
+@Service(protocol = "dubbo",async=true)
 public class WuMart implements IWuMart {
     private static Logger logger = LoggerFactory.getLogger(WuMart.class);
 
@@ -33,5 +33,11 @@ public class WuMart implements IWuMart {
             wuMartSap.obd2SapAccount(backDate);
         }
 
+    }
+
+    public String ibdAccountBack(String accountId, String accountDetailId) {
+
+        String result = wuMartSap.ibd2SapBack(accountId,accountDetailId);
+        return result;
     }
 }
