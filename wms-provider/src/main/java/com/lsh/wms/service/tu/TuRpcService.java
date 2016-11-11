@@ -270,6 +270,7 @@ public class TuRpcService implements ITuRpcService {
             details.add(detail);
         }
         result.put("tuId", tuId);
+        result.put("tuHead", JSON.toJSONString(tuHead));
         result.put("scale", tuHead.getScale().toString());
         result.put("tuDetails", JSON.toJSONString(details));
         String url = PropertyUtils.getString("tms_ship_over_url");
@@ -369,7 +370,6 @@ public class TuRpcService implements ITuRpcService {
     /**
      * 消除物理托盘的库存
      *
-     * @param containerId
      * @return
      * @throws BizCheckedException
      */
