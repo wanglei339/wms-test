@@ -46,7 +46,7 @@ public class TuRestService implements ITuRestService {
     private TuRpcService iTuRpcService;
     @Autowired
     private IdGenerator idGenerator;
-    @Autowired
+    @Reference
     private ITaskRpcService iTaskRpcService;
     @Autowired
     private WaveService waveService;
