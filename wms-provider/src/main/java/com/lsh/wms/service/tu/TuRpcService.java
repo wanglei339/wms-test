@@ -626,6 +626,9 @@ public class TuRpcService implements ITuRpcService {
             createObdDetail.setDlvQty(PackUtil.EAQty2UomQty(oneDetail.getQcQty(), obdDetail.getPackName()).setScale(2, BigDecimal.ROUND_HALF_UP));
             //sto obd detail detail_other_id
             createObdDetail.setRefItem(obdDetail.getDetailOtherId());
+
+            createObdDetail.setOrderType(obdHeader.getOrderType());
+
             createObdDetailList.add(createObdDetail);
 
             //找关系 sto和cpo

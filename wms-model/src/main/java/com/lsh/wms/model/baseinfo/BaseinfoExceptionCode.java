@@ -3,7 +3,7 @@ package com.lsh.wms.model.baseinfo;
 import java.io.Serializable;
 import java.util.Date;
 
-public class BassinfoExceptionCode implements Serializable {
+public class BaseinfoExceptionCode implements Serializable {
 
 	/**  */
     private Long id;

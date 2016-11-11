@@ -521,14 +521,24 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
     }
     //验证生产日期
-    public boolean checkProTime(BaseinfoItem baseinfoItem,Date proTime,String exceptionCode) throws BizCheckedException{
+    public boolean checkProTime(BaseinfoItem baseinfoItem,Date proTime,Date dueTime,String exceptionCode) throws BizCheckedException{
+        if(proTime == null && dueTime == null){
+            throw new BizCheckedException("2020008");//生产日期不能为空
+        }
+        //超过保质期,保质期例外代码验证
+        String proTimeexceptionCode = iexceptionCodeRpcService.getExceptionCodeByName("receiveExpired");// FIXME: 16/11/9 获取保质期的例外代码
+        if(StringUtils.isNotEmpty(exceptionCode) && exceptionCode.equals(proTimeexceptionCode)){
+            //例外代码匹配
+            return true;
+        }
         BigDecimal shelLife = baseinfoItem.getShelfLife();
         String producePlace = baseinfoItem.getProducePlace();
         Double shelLife_CN = Double.parseDouble(PropertyUtils.getString("shelLife_CN"));
         Double shelLife_Not_CN = Double.parseDouble(PropertyUtils.getString("shelLife_Not_CN"));
         String produceChina = PropertyUtils.getString("produceChina");
-        BigDecimal left_day = new BigDecimal(DateUtils.daysBetween(proTime, new Date()));
-        try {
+        if(proTime != null){
+            //根据生产日期判断
+            BigDecimal left_day = new BigDecimal(DateUtils.daysBetween(proTime, new Date()));
             if (producePlace.contains(produceChina)){
                 // TODO: 16/7/20  产地是否存的是CN
                 if (left_day.divide(shelLife, 2, ROUND_HALF_EVEN).doubleValue() >= shelLife_CN) {
@@ -539,16 +549,21 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     throw new BizCheckedException("2020003");
                 }
             }
-        }catch (BizCheckedException e){
-            /* if("2020003".equals(e.getMessage())){
-                //超过保质期,保质期例外代码验证
-               String proTimeexceptionCode = iexceptionCodeRpcService.getExceptionCodeByName("receiveExpired");// FIXME: 16/11/9 获取保质期的例外代码
-                if(StringUtils.isBlank(exceptionCode) || !exceptionCode.equals(proTimeexceptionCode)){
-                    throw e;
+        }else if(dueTime != null){
+            //根据到期日判断
+            BigDecimal right_day = new BigDecimal(DateUtils.daysBetween(new Date(),dueTime));
+            if (producePlace.contains(produceChina)){
+                // TODO: 16/7/20  产地是否存的是CN
+                if (right_day.divide(shelLife, 2, ROUND_HALF_EVEN).doubleValue() <= shelLife_CN) {
+                    throw new BizCheckedException("2020003");
                 }
-            }*/
-            throw e;
+            } else {
+                if (right_day.divide(shelLife, 2, ROUND_HALF_EVEN).doubleValue() < shelLife_Not_CN) {
+                    throw new BizCheckedException("2020003");
+                }
+            }
         }
+
         return true;
     }
 

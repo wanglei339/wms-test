@@ -3,7 +3,7 @@ package com.lsh.wms.rpc.service.system;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.wms.api.service.system.IExceptionCodeRpcService;
 import com.lsh.wms.core.service.baseinfo.ExceptionCodeService;
-import com.lsh.wms.model.baseinfo.BassinfoExceptionCode;
+import com.lsh.wms.model.baseinfo.BaseinfoExceptionCode;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
@@ -18,33 +18,33 @@ public class ExceptionCodeRpcService implements IExceptionCodeRpcService{
     @Autowired
     private ExceptionCodeService exceptionCodeService;
 
-    public void insert(BassinfoExceptionCode bassinfoExceptionCode){
+    public void insert(BaseinfoExceptionCode baseinfoExceptionCode){
 
-        exceptionCodeService.insert(bassinfoExceptionCode);
+        exceptionCodeService.insert(baseinfoExceptionCode);
     }
 
-    public void update(BassinfoExceptionCode bassinfoExceptionCode){
-        bassinfoExceptionCode.setExceptionName(null);//例外代码名称不可修改
-        exceptionCodeService.update(bassinfoExceptionCode);
+    public void update(BaseinfoExceptionCode baseinfoExceptionCode){
+        baseinfoExceptionCode.setExceptionName(null);//例外代码名称不可修改
+        exceptionCodeService.update(baseinfoExceptionCode);
     }
 
-    public BassinfoExceptionCode getBassinfoExceptionCodeById(Long id){
-        return exceptionCodeService.getBassinfoExceptionCodeById(id);
+    public BaseinfoExceptionCode getBaseinfoExceptionCodeById(Long id){
+        return exceptionCodeService.getBaseinfoExceptionCodeById(id);
     }
 
-    public Integer countBassinfoExceptionCode(Map<String, Object> params){
-        return exceptionCodeService.countBassinfoExceptionCode(params);
+    public Integer countBaseinfoExceptionCode(Map<String, Object> params){
+        return exceptionCodeService.countBaseinfoExceptionCode(params);
     }
 
-    public List<BassinfoExceptionCode> getBassinfoExceptionCodeList(Map<String, Object> params){
-        return exceptionCodeService.getBassinfoExceptionCodeList(params);
+    public List<BaseinfoExceptionCode> getBaseinfoExceptionCodeList(Map<String, Object> params){
+        return exceptionCodeService.getBaseinfoExceptionCodeList(params);
     }
 
     public String getExceptionCodeByName(String exceptioName){
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("exceptionName",exceptioName);
         params.put("status",1);
-        List<BassinfoExceptionCode> list = exceptionCodeService.getBassinfoExceptionCodeList(params);
+        List<BaseinfoExceptionCode> list = exceptionCodeService.getBaseinfoExceptionCodeList(params);
         if(list == null || list.size() == 0){
             return null;
         }else{

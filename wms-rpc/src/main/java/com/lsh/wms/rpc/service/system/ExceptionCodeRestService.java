@@ -4,7 +4,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.system.IExceptionCodeRestService;
-import com.lsh.wms.model.baseinfo.BassinfoExceptionCode;
+import com.lsh.wms.model.baseinfo.BaseinfoExceptionCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +28,9 @@ public class ExceptionCodeRestService implements IExceptionCodeRestService{
 
     @POST
     @Path("insertExceptonCode")
-    public String insert(BassinfoExceptionCode bassinfoExceptionCode) {
+    public String insert(BaseinfoExceptionCode baseinfoExceptionCode) {
         try {
-            exceptionCodeRpcService.insert(bassinfoExceptionCode);
+            exceptionCodeRpcService.insert(baseinfoExceptionCode);
         }catch (Exception e){
             logger.error(e.getMessage());
             return JsonUtils.EXCEPTION_ERROR("insert failed");
@@ -41,9 +41,9 @@ public class ExceptionCodeRestService implements IExceptionCodeRestService{
 
     @POST
     @Path("updateExceptonCode")
-    public String update(BassinfoExceptionCode bassinfoExceptionCode) {
+    public String update(BaseinfoExceptionCode baseinfoExceptionCode) {
         try {
-            exceptionCodeRpcService.update(bassinfoExceptionCode);
+            exceptionCodeRpcService.update(baseinfoExceptionCode);
         }catch (Exception e){
             logger.error(e.getMessage());
             return JsonUtils.EXCEPTION_ERROR("update failed");
@@ -54,11 +54,11 @@ public class ExceptionCodeRestService implements IExceptionCodeRestService{
     @POST
     @Path("getExceptonCodeList")
     public String getExceptonCodeList(Map<String, Object> mapQuery) {
-            return JsonUtils.SUCCESS(exceptionCodeRpcService.getBassinfoExceptionCodeList(mapQuery));
+            return JsonUtils.SUCCESS(exceptionCodeRpcService.getBaseinfoExceptionCodeList(mapQuery));
     }
     @POST
     @Path("getExceptonCodeListCount")
     public String  getExceptonCodeListCount(Map<String, Object> mapQuery) {
-        return JsonUtils.SUCCESS(exceptionCodeRpcService.countBassinfoExceptionCode(mapQuery));
+        return JsonUtils.SUCCESS(exceptionCodeRpcService.countBaseinfoExceptionCode(mapQuery));
     }
 }

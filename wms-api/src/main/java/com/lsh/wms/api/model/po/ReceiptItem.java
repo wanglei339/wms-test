@@ -59,6 +59,12 @@ public class ReceiptItem implements Serializable {
     @NotNull
     private Date proTime = new Date();
 
+    /** 到期日期 */
+    private Date dueTime ;// TODO: 16/11/11 新增 
+
+    /**例外代码*/
+    private String exceptionCode;// TODO: 16/11/11 新增 
+
     /** 拒收原因 */
     @Size(max=100)
     private String refuseReason ="";
@@ -70,7 +76,7 @@ public class ReceiptItem implements Serializable {
 
     }
 
-    public ReceiptItem(BigDecimal unitQty, BigDecimal arriveNum, String barCode, BigDecimal defectNum, BigDecimal inboundQty, String lotNum, String madein, Long orderId, String packName, BigDecimal packUnit, Date proTime, String refuseReason, Long skuId, String skuName) {
+    public ReceiptItem(BigDecimal unitQty, BigDecimal arriveNum, String barCode, BigDecimal defectNum, BigDecimal inboundQty, String lotNum, String madein, Long orderId, String packName, BigDecimal packUnit, Date proTime,Date dueTime, String refuseReason, Long skuId, String skuName,String exceptionCode) {
         this.unitQty = unitQty;
         this.arriveNum = arriveNum;
         this.barCode = barCode;
@@ -85,6 +91,8 @@ public class ReceiptItem implements Serializable {
         this.refuseReason = refuseReason;
         this.skuId = skuId;
         this.skuName = skuName;
+        this.exceptionCode =exceptionCode;
+        this.dueTime=dueTime;
     }
 
     public BigDecimal getArriveNum() {
@@ -197,5 +205,21 @@ public class ReceiptItem implements Serializable {
 
     public void setUnitQty(BigDecimal unitQty) {
         this.unitQty = unitQty;
+    }
+
+    public String getExceptionCode() {
+        return exceptionCode;
+    }
+
+    public void setExceptionCode(String exceptionCode) {
+        this.exceptionCode = exceptionCode;
+    }
+
+    public Date getDueTime() {
+        return dueTime;
+    }
+
+    public void setDueTime(Date dueTime) {
+        this.dueTime = dueTime;
     }
 }
