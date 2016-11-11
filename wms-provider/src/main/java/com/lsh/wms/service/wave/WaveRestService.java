@@ -15,10 +15,12 @@ import com.lsh.wms.api.service.wave.IWaveRestService;
 import com.lsh.wms.api.service.wumart.IWuMart;
 import com.lsh.wms.api.service.wumart.IWuMartSap;
 import com.lsh.wms.core.constant.IntegrationConstan;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.pick.PickModelService;
 import com.lsh.wms.core.service.pick.PickZoneService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
@@ -83,6 +85,9 @@ public class WaveRestService implements IWaveRestService {
 
     @Autowired
     private WaveGenerator waveGenerator;
+
+    @Autowired
+    private LocationService locationService;
 
 //    @Reference
 //    private IWuMartSap wuMartSap;
@@ -392,6 +397,13 @@ public class WaveRestService implements IWaveRestService {
     @Path("createWaveTemplate")
     public String createWaveTemplate(WaveTemplate tpl){
         try{
+            if(modelService.getPickModelTemplate(tpl.getPickModelTemplateId())==null){
+                return JsonUtils.EXCEPTION_ERROR("捡货模版id不存在");
+            }
+            if(locationService.getLocation(tpl.getCollectLocations())==null
+                    || locationService.getLocation(tpl.getCollectLocations()).getType() != LocationConstant.COLLECTION_ROAD_GROUP){
+                return JsonUtils.EXCEPTION_ERROR("集货道组配置不正确");
+            }
             waveTemplateService.createWaveTemplate(tpl);
         }catch (Exception e ){
             logger.error(e.getCause().getMessage());
@@ -404,6 +416,13 @@ public class WaveRestService implements IWaveRestService {
     @Path("updateWaveTemplate")
     public String updateWaveTemplate(WaveTemplate tpl){
         try{
+            if(modelService.getPickModelTemplate(tpl.getPickModelTemplateId())==null){
+                return JsonUtils.EXCEPTION_ERROR("捡货模版id不存在");
+            }
+            if(locationService.getLocation(tpl.getCollectLocations())==null
+                    || locationService.getLocation(tpl.getCollectLocations()).getType() != LocationConstant.COLLECTION_ROAD_GROUP){
+                return JsonUtils.EXCEPTION_ERROR("集货道组配置不正确");
+            }
             waveTemplateService.updateWaveTemplate(tpl);
         }catch (Exception e){
             logger.error(e.getCause().getMessage());
