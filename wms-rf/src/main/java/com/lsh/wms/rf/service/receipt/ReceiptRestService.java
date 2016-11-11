@@ -29,7 +29,7 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
-import com.lsh.wms.model.baseinfo.BassinfoItemType;
+import com.lsh.wms.model.baseinfo.BaseinfoItemType;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
@@ -142,7 +142,7 @@ public class ReceiptRestService implements IReceiptRfService {
         if(ibdHeader == null) {
             throw new BizCheckedException("2020001");
         }
-
+        Integer orderType = ibdHeader.getOrderType();
 
         for(ReceiptItem receiptItem : receiptRequest.getItems()) {
             /*if(receiptItem.getProTime() == null) {
@@ -153,15 +153,29 @@ public class ReceiptRestService implements IReceiptRfService {
             CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, receiptItem.getBarCode());
 
             BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
-
-            // todo: 16/11/9 根据商品类型获取生产日期开关配置
-            BassinfoItemType bassinfoItemType = iItemTypeRpcService.getBassinfoItemTypeById(baseinfoItem.getItemType());
-            if(bassinfoItemType != null && 1== bassinfoItemType.getIsNeedProtime()){
-                // todo: 16/11/9 根据配置验证生产日期是否输入
-                if(receiptItem.getProTime() == null){
-                    throw new BizCheckedException("2020008");//生产日期不能为空
+            /*
+            按配置验证生产日期/到期日是否输入
+             */
+            if(PoConstant.ORDER_TYPE_CPO == orderType){
+                //直流,需根据配置验证生产日期/到期日是否输入
+                // todo: 16/11/9 根据商品类型获取生产日期开关配置
+                BaseinfoItemType baseinfoItemType = iItemTypeRpcService.getBaseinfoItemTypeById(baseinfoItem.getItemType());
+                if(baseinfoItemType != null && 1== baseinfoItemType.getIsNeedProtime()){
+                    // todo: 16/11/9 根据配置验证生产日期是否输入
+                    if(receiptItem.getProTime() == null || receiptItem.getDueTime() == null){
+                        throw new BizCheckedException("2020008");//生产日期不能为空
+                    }
                 }
+            }else{
+                if (PoConstant.ORDER_TYPE_TRANSFERS != orderType){
+                    //在库,且不是调拨,生产日期/到期日,必须输入一个
+                    if(receiptItem.getProTime() == null || receiptItem.getDueTime() == null){
+                        throw new BizCheckedException("2020008");//生产日期不能为空
+                    }
+                }
+
             }
+
 
             IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(), baseinfoItem.getSkuCode());
 
@@ -169,10 +183,11 @@ public class ReceiptRestService implements IReceiptRfService {
                 throw new BizCheckedException("2020001");
             }
             /*
-            验证保质期
+            验证保质期是否有效
              */
             //取出是否检验保质期字段 exceptionReceipt = 0 校验 = 1不校验
             Integer exceptionReceipt = ibdDetail.getExceptionReceipt();
+<<<<<<< Updated upstream
             String exceptionCode = "";// FIXME: 16/11/10 从请求参数中获取例外代码
             //调拨类型的单据不校验保质期
             if(PoConstant.ORDER_TYPE_TRANSFERS != ibdHeader.getOrderType()){
@@ -180,9 +195,20 @@ public class ReceiptRestService implements IReceiptRfService {
                     // TODO: 16/7/20   商品信息是否完善,怎么排查.2,保质期例外怎么验证?
                     //保质期判断,如果失败抛出异常
                  //   iReceiptRpcService.checkProTime(baseinfoItem,receiptItem.getProTime(),exceptionCode);
+=======
+            String exceptionCode = receiptItem.getExceptionCode() == null ? "" :receiptItem.getExceptionCode();// TODO:16/11/10 从请求参数中获取例外代码
+            if(receiptItem.getProTime() != null || receiptItem.getDueTime() != null) {
+                //调拨类型的单据不校验保质期
+                if (PoConstant.ORDER_TYPE_TRANSFERS != ibdHeader.getOrderType()) {
+                    if (exceptionReceipt != 1) {
+                        // TODO: 16/7/20   商品信息是否完善,怎么排查.2,保质期例外怎么验证?
+                        //保质期判断,如果失败抛出异常
+                        iReceiptRpcService.checkProTime(baseinfoItem, receiptItem.getProTime(),receiptItem.getDueTime(), exceptionCode);
+                    }
+>>>>>>> Stashed changes
                 }
             }
-
+            receiptItem.setSkuId(csiSku.getSkuId());
             receiptItem.setSkuName(ibdDetail.getSkuName());
             receiptItem.setPackUnit(ibdDetail.getPackUnit());
             receiptItem.setPackName(ibdDetail.getPackName());
@@ -190,7 +216,7 @@ public class ReceiptRestService implements IReceiptRfService {
         }
 
         receiptRequest.setItems(receiptItemList);
-        Integer orderType = ibdHeader.getOrderType();
+
 
         if(PoConstant.ORDER_TYPE_CPO == orderType && receiptRequest.getStoreId() != null){
             iReceiptRpcService.addStoreReceipt(receiptRequest);
