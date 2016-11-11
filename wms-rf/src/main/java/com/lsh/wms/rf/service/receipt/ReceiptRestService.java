@@ -187,15 +187,6 @@ public class ReceiptRestService implements IReceiptRfService {
              */
             //取出是否检验保质期字段 exceptionReceipt = 0 校验 = 1不校验
             Integer exceptionReceipt = ibdDetail.getExceptionReceipt();
-<<<<<<< Updated upstream
-            String exceptionCode = "";// FIXME: 16/11/10 从请求参数中获取例外代码
-            //调拨类型的单据不校验保质期
-            if(PoConstant.ORDER_TYPE_TRANSFERS != ibdHeader.getOrderType()){
-                if(exceptionReceipt != 1){
-                    // TODO: 16/7/20   商品信息是否完善,怎么排查.2,保质期例外怎么验证?
-                    //保质期判断,如果失败抛出异常
-                 //   iReceiptRpcService.checkProTime(baseinfoItem,receiptItem.getProTime(),exceptionCode);
-=======
             String exceptionCode = receiptItem.getExceptionCode() == null ? "" :receiptItem.getExceptionCode();// TODO:16/11/10 从请求参数中获取例外代码
             if(receiptItem.getProTime() != null || receiptItem.getDueTime() != null) {
                 //调拨类型的单据不校验保质期
@@ -205,7 +196,6 @@ public class ReceiptRestService implements IReceiptRfService {
                         //保质期判断,如果失败抛出异常
                         iReceiptRpcService.checkProTime(baseinfoItem, receiptItem.getProTime(),receiptItem.getDueTime(), exceptionCode);
                     }
->>>>>>> Stashed changes
                 }
             }
             receiptItem.setSkuId(csiSku.getSkuId());
