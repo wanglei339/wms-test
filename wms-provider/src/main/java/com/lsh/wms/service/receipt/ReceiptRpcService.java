@@ -864,15 +864,15 @@ public class ReceiptRpcService implements IReceiptRpcService {
     }
 
     public Long genReceive(IbdHeader ibdHeader,List<ReceiptItem> receiptItemList){
-        // TODO: 16/11/9 保存skucode和barcode的映射关系
-        Map<String,String> skuMap = new HashMap<String, String>();
-        for(ReceiptItem rt:receiptItemList){
-            BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), rt.getSkuId());
-            if(baseinfoItem == null){
-                continue;
-            }
-            skuMap.put(baseinfoItem.getSkuCode(),rt.getBarCode());
-        }
+//        // TODO: 16/11/9 保存skucode和barcode的映射关系
+//        Map<String,String> skuMap = new HashMap<String, String>();
+//        for(ReceiptItem rt:receiptItemList){
+//            BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), rt.getSkuId());
+//            if(baseinfoItem == null){
+//                continue;
+//            }
+//            skuMap.put(baseinfoItem.getSkuCode(),rt.getBarCode());
+//        }
 
         //增加receiveHeader总单
         Long receiveId = RandomUtils.genId();
@@ -886,7 +886,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
         for (IbdDetail ibdDetail : ibdList){
             ReceiveDetail receiveDetail = new ReceiveDetail();
             ObjUtils.bean2bean(ibdDetail,receiveDetail);
-            receiveDetail.setCode(skuMap.get(ibdDetail.getSkuCode()));// TODO: 16/11/9 增加国条
+            //receiveDetail.setCode(skuMap.get(ibdDetail.getSkuCode()));// TODO: 16/11/9 增加国条
             receiveDetail.setReceiveId(receiveId);
             receiveDetail.setCreatedAt(DateUtils.getCurrentSeconds());
             receiveDetails.add(receiveDetail);
