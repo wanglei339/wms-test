@@ -7,6 +7,7 @@ import com.lsh.wms.model.wave.WaveDetail;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @Author 马启迪 maqidi@lsh123.com
@@ -67,7 +68,7 @@ public interface ITuRpcService {
 
     boolean moveItemToConsumeArea(List<WaveDetail> waveDetails) throws BizCheckedException;
 
-    boolean moveItemToConsumeArea(Long containerId) throws BizCheckedException;
+    boolean moveItemToConsumeArea(Set<Long> containerIds) throws BizCheckedException;
 
     Map<String,Object> getBoardDetailBycontainerId(Long containerId,String tuId) throws BizCheckedException;
 

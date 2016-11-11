@@ -220,7 +220,7 @@ public class MergeRfRestService implements IMergeRfRestService {
         taskQuery.put("type", TaskConstant.TYPE_MERGE);
         List<TaskInfo> mergeTaskList = baseTaskService.getTaskInfoList(taskQuery);
         BigDecimal taskBoardQty = BigDecimal.ONE;
-        if (containerIds.size() > 0) {
+        if (mergeTaskList.size() > 0) {
             TaskInfo mergeTask = mergeTaskList.get(0);
             taskBoardQty = mergeTask.getTaskBoardQty();
         }

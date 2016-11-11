@@ -94,9 +94,9 @@ public class SeedRpcService implements ISeedRpcService {
 
 
         for(ReceiptItem receiptItem : request.getItems()){
-            if(System.currentTimeMillis() - receiptItem.getProTime().getTime() <= 0) {
-                throw new BizCheckedException("2020009");
-            }
+//            if(System.currentTimeMillis() - receiptItem.getProTime().getTime() <= 0) {
+//                throw new BizCheckedException("2020009");
+//            }
 
             if(receiptItem.getInboundQty().compareTo(BigDecimal.ZERO) < 0) {
                 throw new BizCheckedException("2020007");

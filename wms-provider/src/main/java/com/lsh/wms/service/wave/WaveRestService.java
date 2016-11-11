@@ -186,11 +186,13 @@ public class WaveRestService implements IWaveRestService {
                     detail.setRefDoc(obdHeader.getOrderOtherId());
                     detail.setRefItem(obdDetail.getDetailOtherId());
                     detail.setSalesUnit(obdDetail.getUnitName());
+                    detail.setOrderType(obdHeader.getOrderType());
                     details.add(detail);
                 }
                 createObdHeader.setItems(details);
                 //wuMartSap.obd2Sap(createObdHeader);
-                wuMart.sendObd(createObdHeader);
+                //wuMart.sendObd(createObdHeader);
+                wuMart.sendSo2Sap(createObdHeader);
 
                 // TODO: 2016/11/3 回传WMSAP 组装信息
             }

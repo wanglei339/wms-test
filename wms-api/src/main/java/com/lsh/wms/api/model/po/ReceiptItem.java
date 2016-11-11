@@ -56,8 +56,8 @@ public class ReceiptItem implements Serializable {
     private BigDecimal defectNum = BigDecimal.ZERO;
 
     /** 生产日期 */
-    //@NotNull
-    private Date proTime ;//= new Date();
+    @NotNull
+    private Date proTime = new Date();
 
     /** 拒收原因 */
     @Size(max=100)
