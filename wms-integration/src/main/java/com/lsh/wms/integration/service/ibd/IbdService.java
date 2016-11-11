@@ -262,7 +262,7 @@ public class IbdService implements IIbdService {
 //        request.setItems(items);
 //        return dataBackService.wmDataBackByPost(JSON.toJSONString(request), IntegrationConstan.URL_STOCKCHANGE,5);
 
-        return wuMartSap.ibd2SapBack(new CreateIbdHeader());
+        //return wuMartSap.ibd2SapBack(new CreateIbdHeader());
 
 //        OutbSoHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(214580861081622l);
 //        //组装OBD反馈信息
@@ -316,7 +316,7 @@ public class IbdService implements IIbdService {
 //        String url = "http://api.ofc.lsh123.com/ofc/api/order/obd/push";
 //        //return dataBackService.ofcDataBackByPost(request,url);
 //
-//        return "";
+        return "";
 
     }
 
