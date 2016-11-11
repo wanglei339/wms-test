@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Created by lixin-mac on 2016/11/4.
  */
-@Service(protocol = "dubbo")
+@Service(protocol = "dubbo",async=true)
 public class WuMart implements IWuMart {
     private static Logger logger = LoggerFactory.getLogger(WuMart.class);
 
