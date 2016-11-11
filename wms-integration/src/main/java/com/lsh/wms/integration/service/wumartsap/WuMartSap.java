@@ -213,7 +213,7 @@ public class WuMartSap implements IWuMartSap{
         String noDequeue = "";
         TableOfBapiret2 _return = factory.createTableOfBapiret2();
         Holder<TableOfBapidlvserialnumber> serialNumbers = new Holder<TableOfBapidlvserialnumber>();
-        String shipPoint = "";
+        String shipPoint = PropertyUtils.getString("shipPoint");
         Holder<TableOfBapidlvreftosto> stockTransItems = new Holder<TableOfBapidlvreftosto>(stItems);
         Holder<String> delivery = new Holder<String>();
         Holder<String> numDeliveries = new Holder<String>();
