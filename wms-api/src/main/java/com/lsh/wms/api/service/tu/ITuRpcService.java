@@ -73,7 +73,7 @@ public interface ITuRpcService {
 
     void creatDeliveryOrderAndDetail(TuHead tuHead) throws BizCheckedException;
 
-    void bulidSapDate(String tuId) throws  BizCheckedException;
+    Map<String,Object> bulidSapDate(String tuId) throws  BizCheckedException;
 
     List<WaveDetail> combineWaveDetailsByTuId(String tuId)throws BizCheckedException;
 

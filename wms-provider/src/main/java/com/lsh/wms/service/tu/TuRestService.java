@@ -5,10 +5,13 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.wms.api.model.wumart.CreateIbdHeader;
+import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.api.service.tu.ITuRestService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
+import com.lsh.wms.api.service.wumart.IWuMart;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.utils.IdGenerator;
@@ -39,14 +42,16 @@ import java.util.Map;
 public class TuRestService implements ITuRestService {
 
     private static Logger logger = LoggerFactory.getLogger(TuRestService.class);
-    @Reference
-    private ITuRpcService iTuRpcService;
+    @Autowired
+    private TuRpcService iTuRpcService;
     @Autowired
     private IdGenerator idGenerator;
-    @Reference
+    @Autowired
     private ITaskRpcService iTaskRpcService;
     @Autowired
     private WaveService waveService;
+    @Reference
+    private IWuMart wuMart;
 
     @POST
     @Path("getTuheadList")
@@ -140,7 +145,9 @@ public class TuRestService implements ITuRestService {
             //生成发货单
             iTuRpcService.creatDeliveryOrderAndDetail(tuHead);
             //拼接物美sap
-            iTuRpcService.bulidSapDate(tuHead.getTuId());
+            Map<String,Object> ibdObdMap = iTuRpcService.bulidSapDate(tuHead.getTuId());
+            wuMart.sendIbd((CreateIbdHeader) ibdObdMap.get("createIbdHeader"));
+            wuMart.sendObd((CreateObdHeader) ibdObdMap.get("createObdHeader"));
         } else {
             for (TuDetail detail : details) {
                 //贵品不记录绩效
@@ -172,7 +179,9 @@ public class TuRestService implements ITuRestService {
             //生成发货单
             iTuRpcService.creatDeliveryOrderAndDetail(tuHead);
             //拼接物美SAP
-            iTuRpcService.bulidSapDate(tuHead.getTuId());
+            Map<String,Object> ibdObdMap = iTuRpcService.bulidSapDate(tuHead.getTuId());
+            wuMart.sendIbd((CreateIbdHeader) ibdObdMap.get("createIbdHeader"));
+            wuMart.sendObd((CreateObdHeader) ibdObdMap.get("createObdHeader"));
         }
         //改变发车状态
         tuHead.setStatus(TuConstant.SHIP_OVER);

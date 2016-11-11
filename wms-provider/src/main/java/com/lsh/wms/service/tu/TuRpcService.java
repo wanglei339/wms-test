@@ -591,7 +591,7 @@ public class TuRpcService implements ITuRpcService {
      * @param tuId
      * @throws BizCheckedException
      */
-    public void bulidSapDate(String tuId) throws BizCheckedException {
+    public Map<String,Object> bulidSapDate(String tuId) throws BizCheckedException {
 
         //找详情
         List<WaveDetail> totalWaveDetails = this.combineWaveDetailsByTuId(tuId);
@@ -651,8 +651,12 @@ public class TuRpcService implements ITuRpcService {
         //鑫哥服务
 //        wuMartSap.ibd2Sap(createIbdHeader);
 //        wuMartSap.obd2Sap(createObdHeader);
-        wuMart.sendIbd(createIbdHeader);
-        wuMart.sendObd(createObdHeader);
+        Map<String,Object> ibdObdMap = new HashMap<String, Object>();
+        ibdObdMap.put("createIbdHeader",createIbdHeader);
+        ibdObdMap.put("createObdHeader",createObdHeader);
+        return ibdObdMap;
+//        wuMart.sendIbd(createIbdHeader);
+//        wuMart.sendObd(createObdHeader);
     }
 
     /**
