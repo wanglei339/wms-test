@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.baseinfo.BaseinfoItemTypeRelationDao" >
+
+	<resultMap id="baseinfoItemTypeRelationResultMap" type="BaseinfoItemTypeRelation">
+		<id property="id" column="id"/>
+		<result property="itemTypeId" column="item_type_id"/>
+		<result property="itemMutexId" column="item_mutex_id"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoItemTypeRelation">
+		insert into baseinfo_item_type_relation (
+			item_type_id,item_mutex_id
+    	) values (
+			#{itemTypeId},#{itemMutexId}
+    	)
+	</insert>
+
+	<update id="update" parameterType="BaseinfoItemTypeRelation">
+		update baseinfo_item_type_relation
+    	<set>
+  			<if test="itemTypeId != null">item_type_id=#{itemTypeId},</if>
+  			<if test="itemMutexId != null">item_mutex_id=#{itemMutexId}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getBaseinfoItemTypeRelationById" parameterType="int" resultMap="baseinfoItemTypeRelationResultMap">
+		select * from baseinfo_item_type_relation
+		where ID=#{id} 
+	</select>
+  
+	<select id="countBaseinfoItemTypeRelation" parameterType="map" resultType="int">
+		select count(*) from baseinfo_item_type_relation
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getBaseinfoItemTypeRelationList" parameterType="map" resultMap="baseinfoItemTypeRelationResultMap">
+		select * from baseinfo_item_type_relation
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+	<select id="getBaseinfoItemTypeAllRelationList" parameterType="java.util.List" resultType="map">
+		select a.item_type_id as itemTypeId,group_concat(item_mutex_id ) as mutexIdStr from (
+			select b.item_type_id,b.item_mutex_id
+			from baseinfo_item_type_relation b
+			union
+			select d.item_mutex_id as item_type_id ,d.item_type_id as item_mutex_id
+			from baseinfo_item_type_relation d
+		)a
+		<where>
+			<if test="itemTypeId != null">and item_type_id=#{itemTypeId}</if>
+		</where>
+		group by a.item_type_id
+		<if test="start != null and limit != null">
+			limit #{start},#{limit}
+		</if>
+	</select>
+	<select id="countBaseinfoItemTypeAllRelationList" parameterType="map" resultType="int">
+		select count(1) FROM(
+			select * from(
+				select b.item_type_id,b.item_mutex_id
+				from baseinfo_item_type_relation b
+				union
+				select d.item_mutex_id as item_type_id ,d.item_type_id as item_mutex_id
+				from baseinfo_item_type_relation d
+				)a
+		<where>
+			<if test="itemTypeId != null">and item_type_id=#{itemTypeId}</if>
+		</where>
+		group by a.item_type_id)c
+
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="itemTypeId != null">and item_type_id=#{itemTypeId}</if>
+			<if test="itemMutexId != null">and item_mutex_id=#{itemMutexId}</if>
+		</where>
+	</sql>
+   
+</mapper>
