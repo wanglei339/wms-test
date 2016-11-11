@@ -540,13 +540,14 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 }
             }
         }catch (BizCheckedException e){
-            if("2020003".equals(e.getMessage())){
+            /* if("2020003".equals(e.getMessage())){
                 //超过保质期,保质期例外代码验证
-                String proTimeexceptionCode = iexceptionCodeRpcService.getExceptionCodeByName("receiveExpired");// FIXME: 16/11/9 获取保质期的例外代码
+               String proTimeexceptionCode = iexceptionCodeRpcService.getExceptionCodeByName("receiveExpired");// FIXME: 16/11/9 获取保质期的例外代码
                 if(StringUtils.isBlank(exceptionCode) || !exceptionCode.equals(proTimeexceptionCode)){
                     throw e;
                 }
-            }
+            }*/
+            throw e;
         }
         return true;
     }
