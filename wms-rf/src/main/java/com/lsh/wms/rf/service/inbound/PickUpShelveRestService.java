@@ -145,7 +145,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
 
         return JsonUtils.SUCCESS(new HashMap<String, Object>() {
             {
-                put("taskId", taskId);
+                put("taskId", taskId.toString());
             }
         });
     }
@@ -434,7 +434,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
                 detail.setQty(total);
             }
             Map<String, Object> map = new HashMap<String, Object>();
-            map.put("taskId", taskId);
+            map.put("taskId", taskId.toString());
             map.put("locationId", location.getLocationId());
             map.put("locationCode", location.getLocationCode());
             map.put("qty", detail.getQty());
