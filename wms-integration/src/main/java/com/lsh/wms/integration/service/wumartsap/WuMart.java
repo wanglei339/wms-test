@@ -1,6 +1,7 @@
 package com.lsh.wms.integration.service.wumartsap;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
@@ -51,6 +52,12 @@ public class WuMart implements IWuMart {
         if(!"E".equals(ibdResult) && ibdResult != null){
             this.sendObd((CreateObdHeader) ibdObdMap.get("createObdHeader"));
         }
-
     }
+
+    public String sendSo2Sap(CreateObdHeader createObdHeader) {
+        CreateObdHeader backDate = wuMartSap.obd2Sap(createObdHeader);
+        return JsonUtils.SUCCESS(backDate);
+    }
+
+
 }

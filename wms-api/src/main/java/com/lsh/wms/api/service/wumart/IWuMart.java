@@ -14,4 +14,6 @@ public interface IWuMart {
     String ibdAccountBack(String accountId,String accountDetailId);
 
     void sendSap(Map<String,Object> ibdObdMap);
+
+    String sendSo2Sap(CreateObdHeader createObdHeader);
 }
