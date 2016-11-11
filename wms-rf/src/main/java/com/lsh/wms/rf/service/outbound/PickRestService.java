@@ -377,12 +377,4 @@ public class PickRestService implements IPickRestService {
         }
         return JsonUtils.SUCCESS(result);
     }
-
-    @POST
-    @Path("")
-    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
-    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-    public String splitPickTask() throws BizCheckedException {
-        return JsonUtils.SUCCESS();
-    }
 }
