@@ -185,8 +185,9 @@ public class TuRestService implements ITuRestService {
 //            iTuRpcService.moveItemToConsumeArea(totalDetails);
             //拼接物美SAP
             Map<String, Object> ibdObdMap = iTuRpcService.bulidSapDate(tuHead.getTuId());
-            wuMart.sendIbd((CreateIbdHeader) ibdObdMap.get("createIbdHeader"));
-            wuMart.sendObd((CreateObdHeader) ibdObdMap.get("createObdHeader"));
+//            wuMart.sendIbd((CreateIbdHeader) ibdObdMap.get("createIbdHeader"));
+//            wuMart.sendObd((CreateObdHeader) ibdObdMap.get("createObdHeader"));
+            wuMart.sendSap(ibdObdMap);
             //生成发货单 osd的托盘生命结束
             iTuRpcService.creatDeliveryOrderAndDetail(tuHead);
         }
