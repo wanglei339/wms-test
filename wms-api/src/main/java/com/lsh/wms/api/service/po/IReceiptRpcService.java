@@ -2,10 +2,12 @@ package com.lsh.wms.api.service.po;
 
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.model.po.ReceiptRequest;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.InbReceiptHeader;
 
 import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -39,4 +41,6 @@ public interface IReceiptRpcService {
     void addStoreReceipt(ReceiptRequest request) throws BizCheckedException, ParseException;
 
     public List<InbReceiptDetail> getInbReceiptDetailListByOrderId(Long orderId);
+    //验证生产日期
+    boolean checkProTime(BaseinfoItem baseinfoItem, Date proTime, String exceptionCode)throws BizCheckedException;
 }

@@ -7,6 +7,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.model.base.BaseResponse;
@@ -363,7 +364,7 @@ public class IbdService implements IIbdService {
 //        details.add(detail2);
 
         header.setItems(details);
-        return wuMartSap.ibd2Sap(header);
+        return JsonUtils.SUCCESS(wuMartSap.ibd2Sap(header));
         //return wuMartSap.ibd2SapAccount(header,null);
         //wuMart.sendIbd(header);
         //wuMartSap.ibd2SapAccount(header,"");
