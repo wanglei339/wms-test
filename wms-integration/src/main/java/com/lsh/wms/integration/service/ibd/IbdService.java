@@ -383,21 +383,21 @@ public class IbdService implements IIbdService {
 
         List<CreateObdDetail> details = new ArrayList<CreateObdDetail>();
         CreateObdDetail detail1 = new CreateObdDetail();
-        detail1.setRefDoc("4900011212");
-        detail1.setRefItem("10");
-        detail1.setDlvQty(new BigDecimal("2.00"));
+        detail1.setRefDoc("4940031832");
+        detail1.setRefItem("70");
+        detail1.setDlvQty(new BigDecimal("1.00"));
         detail1.setSalesUnit("EA");
-        detail1.setMaterial("102742");
+        detail1.setMaterial("000000000000110978");
         details.add(detail1);
 
 
-//        CreateObdDetail detail2 = new CreateObdDetail();
-//        detail2.setRefDoc("4900011207");
-//        detail2.setRefItem("20");
-//        detail2.setDlvQty(new BigDecimal("500.00"));
-//        detail2.setSalesUnit("EA");
-//        detail2.setMaterial("110809");
-//        details.add(detail2);
+        CreateObdDetail detail2 = new CreateObdDetail();
+        detail2.setRefDoc("4940031832");
+        detail2.setRefItem("80");
+        detail2.setDlvQty(new BigDecimal("1.00"));
+        detail2.setSalesUnit("EA");
+        detail2.setMaterial("000000000000109787");
+        details.add(detail2);
 //
 //        CreateObdDetail detail3 = new CreateObdDetail();
 //        detail3.setRefDoc("4900011207");
@@ -409,8 +409,9 @@ public class IbdService implements IIbdService {
 
         header.setItems(details);
 
-        wuMart.sendObd(header);
-        //return wuMartSap.obd2Sap(header);
+       // wuMart.sendObd(header);
+        //wuMartSap.obd2SapAccount(header);
+         wuMartSap.obd2Sap(header);
         //return wuMartSap.obd2SapAccount(header);
         return "success";
 
