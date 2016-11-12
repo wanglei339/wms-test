@@ -57,13 +57,13 @@ public class ReceiptItem implements Serializable {
 
     /** 生产日期 */
     //@NotNull
-    private Date proTime ;// TODO: 16/11/12 生产日期直流根据配置判断是否要输入
+    private Date proTime = new Date() ;// TODO: 16/11/12 生产日期直流根据配置判断是否要输入
 
     /** 到期日期 */
-    private Date dueTime ;// TODO: 16/11/11 新增 
+    private Date dueTime  = new Date();// TODO: 16/11/11 新增
 
     /**例外代码*/
-    private String exceptionCode;// TODO: 16/11/11 新增 
+    private String exceptionCode = "";// TODO: 16/11/11 新增
 
     /** 拒收原因 */
     @Size(max=100)
