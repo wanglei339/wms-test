@@ -10,6 +10,7 @@ import com.lsh.wms.api.model.wumart.CreateObdDetail;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.wumart.IWuMartSap;
 import com.lsh.wms.core.constant.PoConstant;
+import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.service.po.ReceiveService;
 import com.lsh.wms.core.service.system.SysLogService;
@@ -184,6 +185,7 @@ public class WuMartSap implements IWuMartSap{
 
         //CREATED_ITEMS
         TableOfBapidlvitemcreated cItems = factory.createTableOfBapidlvitemcreated();
+        Integer orderType = 0;
 
         for(CreateObdDetail detail : details){
             Bapidlvreftosto bItem = factory.createBapidlvreftosto();
@@ -200,6 +202,7 @@ public class WuMartSap implements IWuMartSap{
             cItem.setRefDoc(detail.getRefDoc());
             cItem.setMaterial(detail.getMaterial());
             cItems.getItem().add(cItem);
+            orderType = detail.getOrderType();
         }
 
         //组装参数
@@ -213,7 +216,10 @@ public class WuMartSap implements IWuMartSap{
         String noDequeue = "";
         TableOfBapiret2 _return = factory.createTableOfBapiret2();
         Holder<TableOfBapidlvserialnumber> serialNumbers = new Holder<TableOfBapidlvserialnumber>();
-        String shipPoint = PropertyUtils.getString("shipPoint");
+        String shipPoint = "";
+        if(SoConstant.ORDER_TYPE_DIRECT == orderType){
+            shipPoint = PropertyUtils.getString("shipPoint");
+        }
         Holder<TableOfBapidlvreftosto> stockTransItems = new Holder<TableOfBapidlvreftosto>(stItems);
         Holder<String> delivery = new Holder<String>();
         Holder<String> numDeliveries = new Holder<String>();
@@ -225,7 +231,8 @@ public class WuMartSap implements IWuMartSap{
                     " deliveries : " + JSON.toJSONString(deliveries) +
                     " dueDate : " + JSON.toJSONString(date) +
                     " _return : " + JSON.toJSONString(_return) +
-                    " stockTransItems :"+JSON.toJSONString(stockTransItems));
+                    " stockTransItems :"+JSON.toJSONString(stockTransItems) +
+                    " shipPoint : " + shipPoint);
         TableOfBapiret2 newReturn = zbinding.zBapiOutbCreateObd(createdItems,debugFlg,deliveries,date,extensionIn,extensionOut,noDequeue,_return,serialNumbers,shipPoint,stockTransItems,delivery,numDeliveries);
         logger.info("obd创建传出参数: createdItems :" + JSON.toJSONString(createdItems)+
                 " debugFlg : " + JSON.toJSONString(debugFlg)+

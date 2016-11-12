@@ -388,6 +388,7 @@ public class IbdService implements IIbdService {
         detail1.setDlvQty(new BigDecimal("1.00"));
         detail1.setSalesUnit("EA");
         detail1.setMaterial("000000000000110978");
+        detail1.setOrderType(4);
         details.add(detail1);
 
 
@@ -397,6 +398,7 @@ public class IbdService implements IIbdService {
         detail2.setDlvQty(new BigDecimal("1.00"));
         detail2.setSalesUnit("EA");
         detail2.setMaterial("000000000000109787");
+        detail2.setOrderType(4);
         details.add(detail2);
 //
 //        CreateObdDetail detail3 = new CreateObdDetail();
