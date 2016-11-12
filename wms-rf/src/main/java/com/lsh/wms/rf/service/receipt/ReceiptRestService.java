@@ -169,7 +169,7 @@ public class ReceiptRestService implements IReceiptRfService {
             }else{
                 if (PoConstant.ORDER_TYPE_TRANSFERS != orderType){
                     //在库,且不是调拨,生产日期/到期日,必须输入一个
-                    if(receiptItem.getProTime() == null || receiptItem.getDueTime() == null){
+                    if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null){
                         throw new BizCheckedException("2020008");//生产日期不能为空
                     }
                 }
