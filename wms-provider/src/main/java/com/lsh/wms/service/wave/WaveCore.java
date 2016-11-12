@@ -273,6 +273,9 @@ public class WaveCore {
                 splitModel.init(model, splitNodes, mapItems);
                 splitModel.split(stopNodes);
                 splitNodes = splitModel.getSplitedNodes();
+                if(stopNodes.size()>0){
+                    logger.info("hehe");
+                }
             }
             if(splitNodes.size()>0){
                 //卧槽,这是怎么回事,出bug了?

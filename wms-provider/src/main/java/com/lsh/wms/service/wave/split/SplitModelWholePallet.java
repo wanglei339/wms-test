@@ -53,7 +53,7 @@ public class SplitModelWholePallet extends SplitModel{
                 }
                 if(details.size()>0){
                     node.details = details;
-                    stopNodes.add(node);
+                    this.dstNodes.add(node);
                 }
             }
         }

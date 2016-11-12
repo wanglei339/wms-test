@@ -1,5 +1,8 @@
 package com.lsh.wms.service.wave.split;
 
+import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.wms.core.constant.PickConstant;
+import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.wave.WaveDetail;
 
 import java.util.LinkedList;
@@ -22,17 +25,41 @@ public class SplitModelContainer extends SplitModel{
             List<WaveDetail> newDetails = new LinkedList<WaveDetail>();
             BigDecimal sumQty = new BigDecimal("0");
             for(WaveDetail detail : node.details){
+                if(detail.getAllocUnitQty().compareTo(BigDecimal.valueOf(this.model.getContainerUnitCapacity()))>0){
+                    //单商品就装不下了,我日哦
+                    final BigDecimal containerQty = PackUtil.Uom2PackUnit(detail.getAllocUnitName()).multiply(BigDecimal.valueOf(this.model.getContainerUnitCapacity()));
+                    int num = detail.getAllocQty().divide(containerQty, 0, BigDecimal.ROUND_FLOOR).intValue();
+                    for(int i = 0;i < num;++i){
+                        SplitNode newNode = new SplitNode();
+                        WaveDetail newDetail = new WaveDetail();
+                        ObjUtils.bean2bean(detail, newDetail);
+                        newDetail.setAllocQty(containerQty);
+                        newDetail.setAllocUnitQty(PackUtil.EAQty2UomQty(containerQty, detail.getAllocUnitName()));
+                        newNode.details.add(newDetail);
+                        newNode.iPickType = node.iPickType;
+                        stopNodes.add(newNode);
+                    }
+                    if(detail.getAllocQty().compareTo(containerQty.multiply(BigDecimal.valueOf((long)num)))>0){
+                        BigDecimal leftQty = detail.getAllocQty().subtract(containerQty.multiply(BigDecimal.valueOf((long)num)));
+                        detail.setAllocQty(leftQty);
+                        detail.setAllocUnitQty(PackUtil.EAQty2UomQty(leftQty, detail.getAllocUnitName()));
+                    }else{
+                        continue;
+                    }
+                }
+                if(sumQty.add(detail.getAllocUnitQty()).compareTo(BigDecimal.valueOf(this.model.getContainerUnitCapacity()))>0){
+                    //卧槽,多了,要分开
+                    if(newDetails.size()>0) {
+                        SplitNode newNode = new SplitNode();
+                        newNode.details = newDetails;
+                        newNode.iPickType = node.iPickType;
+                        stopNodes.add(newNode);
+                        newDetails = new LinkedList<WaveDetail>();
+                        sumQty = new BigDecimal("0");
+                    }
+                }
                 newDetails.add(detail);
                 sumQty = sumQty.add(detail.getAllocUnitQty()); // 这TM的是ea的,草勒,看来还得存个捡货单元单位量
-                if(sumQty.compareTo(BigDecimal.valueOf(this.model.getContainerUnitCapacity()))>0){
-                    //卧槽,多了,要分开
-                    SplitNode newNode = new SplitNode();
-                    newNode.details = newDetails;
-                    newNode.iPickType = node.iPickType;
-                    stopNodes.add(newNode);
-                    newDetails = new LinkedList<WaveDetail>();
-                    sumQty = new BigDecimal("0");
-                }
             }
             if(newDetails.size()>0){
                 SplitNode newNode = new SplitNode();
