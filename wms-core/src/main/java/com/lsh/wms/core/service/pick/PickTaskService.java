@@ -4,6 +4,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.core.constant.PickConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.wave.WaveDetailDao;
 import com.lsh.wms.core.dao.pick.PickTaskHeadDao;
@@ -199,13 +200,18 @@ public class PickTaskService {
         }
         TaskInfo taskInfo = baseTaskService.getTaskInfoById(taskId);
         result.put(resultKey, location.getLocationCode());
-        if (taskInfo.getSubType().equals(1L)) {
+        result.put("taskSubType", taskInfo.getSubType());
+        if (taskInfo.getSubType().equals(PickConstant.SHELF_TASK_TYPE)) {
             // 货架拣货时将EA转成箱数
             if (result.get("allocQty") != null && !result.get("allocQty").equals(BigDecimal.ZERO)) {
                 BigDecimal allocQty = new BigDecimal(result.get("allocQty").toString());
                 result.put("allocQty", PackUtil.EAQty2UomQty(allocQty, result.get("allocUnitName").toString()));
             }
             result.put("unitName", "箱");
+        } else if (taskInfo.getSubType().equals(PickConstant.SHELF_PALLET_TASK_TYPE)) {
+            // 整托拣货,固定为只捡一托
+            result.put("allocQty", 1);
+            result.put("unitName", "托");
         } else {
             result.put("unitName", "EA");
         }
