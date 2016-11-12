@@ -19,6 +19,7 @@ import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.staff.IStaffRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.PickConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.pick.PickTaskService;
@@ -251,7 +252,7 @@ public class PickRestService implements IPickRestService {
         }
         Long taskId = needPickDetail.getPickTaskId();
         PickTaskHead taskHead = pickTaskService.getPickTaskHead(taskId);
-        TaskInfo taskInfo = taskInfos.get(0);
+        TaskInfo taskInfo = baseTaskService.getTaskInfoById(taskId);
         Long containerId = taskHead.getContainerId();
         // 拣货并转移库存至托盘
         if (mapQuery.get("qty") != null) {
@@ -262,8 +263,12 @@ public class PickRestService implements IPickRestService {
             }
             BigDecimal qty = new BigDecimal(mapQuery.get("qty").toString());
             // 货架拣货箱数转成EA
-            if (taskInfo.getSubType().equals(1L)) {
+            if (taskInfo.getSubType().equals(PickConstant.SHELF_TASK_TYPE)) {
                 qty = PackUtil.UomQty2EAQty(qty, needPickDetail.getAllocUnitName());
+            }
+            // 整托拣货输入的必为一托,EA数则为waveDetail中分配的数量
+            if (taskInfo.getSubType().equals(PickConstant.SHELF_PALLET_TASK_TYPE)) {
+                qty = needPickDetail.getAllocQty();
             }
             Long allocLocationId = needPickDetail.getAllocPickLocation();
             // 判断是否与分配拣货位一致
@@ -281,10 +286,15 @@ public class PickRestService implements IPickRestService {
                 throw new BizCheckedException("2060006");
             }
             if (allocQty.compareTo(quantQty) == 1 && qty.compareTo(quantQty) == 1) {
-                throw new BizCheckedException("2060007", quantQty.toString());
+                // 整托拣货库存不足整托,则有多少捡多少
+                if (taskInfo.getSubType().equals(PickConstant.SHELF_PALLET_TASK_TYPE)) {
+                    qty = quantQty;
+                } else {
+                    throw new BizCheckedException("2060007", quantQty.toString());
+                }
             }
             // 存捡合一
-            if (taskInfo.getSubType().equals(3L) && quantQty.compareTo(allocQty) == -1) {
+            if (taskInfo.getSubType().equals(PickConstant.SPLIT_TASK_TYPE) && quantQty.compareTo(allocQty) == -1) {
                 BigDecimal splitQty = allocQty.subtract(quantQty);
                 waveService.splitWaveDetail(needPickDetail, splitQty);
             }
@@ -314,7 +324,7 @@ public class PickRestService implements IPickRestService {
         }
         if (nextPickDetail.getPickTaskId() == null || nextPickDetail.getPickTaskId().equals(0L) || nextPickDetail.getPickTaskId().equals("")) {
             // 货架补拣,只做一次
-            if (needPickDetail.getRefDetailId().equals(0L) && taskInfo.getSubType().equals(1L)) {
+            if (needPickDetail.getRefDetailId().equals(0L) && taskInfo.getSubType().equals(PickConstant.SHELF_TASK_TYPE)) {
                 List<WaveDetail> splitWaveDetails = new ArrayList<WaveDetail>();
                 Long lastOrder = needPickDetail.getPickOrder();
                 for (WaveDetail pickDetail: pickDetails) {
