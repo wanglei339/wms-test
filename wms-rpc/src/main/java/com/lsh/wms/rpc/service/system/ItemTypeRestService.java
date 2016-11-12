@@ -11,11 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -30,6 +28,12 @@ public class ItemTypeRestService implements IItemTypeRestService {
     private static Logger logger = LoggerFactory.getLogger(ItemTypeRestService.class);
     @Autowired
     private ItemTypeRpcService itemTypeRpcService;
+    @POST
+    @Path("getBaseinfoItemTypeList")
+    public String getBaseinfoItemTypeList() {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        return JsonUtils.SUCCESS(itemTypeRpcService.getBaseinfoItemTypeList(mapQuery));
+    }
     @POST
     @Path("getItemTypeList")
     public String getItemTypeList(Map<String, Object> mapQuery) {
@@ -50,6 +54,18 @@ public class ItemTypeRestService implements IItemTypeRestService {
             return JsonUtils.EXCEPTION_ERROR("insert failed");
         }
 
+        return JsonUtils.SUCCESS();
+    }
+    @GET
+    @Path("getItemTypeRelationList")
+    public String getItemTypeRelationList(@QueryParam("itemTypeId") String itemTypeId) {
+
+        return JsonUtils.SUCCESS(itemTypeRpcService.getItemTypeRelationListByItemTypeId(itemTypeId));
+    }
+    @GET
+    @Path("deleteItemTypeRelation")
+    public String deleteItemTypeRelation(@QueryParam("id") Long id) {
+        itemTypeRpcService.deleteItemTypeRelation(id);
         return JsonUtils.SUCCESS();
     }
 

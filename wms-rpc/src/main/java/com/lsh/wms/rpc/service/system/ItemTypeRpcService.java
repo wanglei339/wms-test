@@ -40,12 +40,12 @@ public class ItemTypeRpcService implements IItemTypeRpcService {
     public List<Object> getItemTypeList(Map<String, Object> params) {
         List<Map<String,Object>> relationList = itemTypeService.getBaseinfoItemTypeAllRelationList(params);
         List<BaseinfoItemType> itemTypeList = itemTypeService.getBaseinfoItemTypeList(params);
-        Map<String,String> itemNameMap = new HashMap<String, String>();
-        Map<String,String> itemStatusMap = new HashMap<String, String>();
+        Map<Long,String> itemNameMap = new HashMap<Long, String>();
+        Map<Long,String> itemStatusMap = new HashMap<Long, String>();
 
         for(BaseinfoItemType b :itemTypeList){
-            itemNameMap.put(b.getId()+"",b.getItemName());
-            itemStatusMap.put(b.getId()+"",b.getIsNeedProtime()+"");
+            itemNameMap.put(b.getId(),b.getItemName());
+            itemStatusMap.put(b.getId(),b.getIsNeedProtime()+"");
         }
         List<Object> returnList = new ArrayList<Object>();
         for(Map relationMap :relationList){
@@ -101,11 +101,38 @@ public class ItemTypeRpcService implements IItemTypeRpcService {
         itemTypeService.insertItemTypeRelation(baseinfoItemTypeRelation);
     }
 
+    public  void deleteItemTypeRelation(Long id){
+        itemTypeService.deleteItemTypeRelation(id);
+    }
+
+
     public BaseinfoItemTypeRelation getBaseinfoItemTypeRelationById(Long id){
         return itemTypeService.getBaseinfoItemTypeRelationById(id);
     }
 
-    public List<BaseinfoItemTypeRelation> getBaseinfoItemTypeRelationList(Map<String, Object> params){
-        return itemTypeService.getBaseinfoItemTypeRelationList(params);
+    public List<Map<String,Object>> getItemTypeRelationListByItemTypeId(String itemTypeId){
+        List<Map<String,Object>> returnList = new ArrayList<Map<String, Object>>();
+
+        List<BaseinfoItemTypeRelation> relationList = itemTypeService.getItemTypeRelationListByItemTypeId(itemTypeId);
+        if(relationList == null || relationList.size() == 0){
+            return returnList;
+        }
+        Map<String, Object> params = new HashMap<String, Object>();
+        List<BaseinfoItemType> itemTypeList = itemTypeService.getBaseinfoItemTypeList(params);
+        Map<Long,String> itemNameMap = new HashMap<Long, String>();
+
+        for(BaseinfoItemType b :itemTypeList){
+            itemNameMap.put(b.getId(),b.getItemName());
+        }
+         for(BaseinfoItemTypeRelation it : relationList){
+             Map<String,Object> itemTypeRelationMap = new HashMap<String, Object>();
+             itemTypeRelationMap.put("id",it.getId());
+             itemTypeRelationMap.put("itemTypeId",it.getItemTypeId());
+             itemTypeRelationMap.put("itemTypeName",itemNameMap.get(it.getItemTypeId()));
+             itemTypeRelationMap.put("itemMutexId",it.getItemMutexId());
+             itemTypeRelationMap.put("itemMutexName",itemNameMap.get(it.getItemMutexId()));
+             returnList.add(itemTypeRelationMap);
+         }
+        return returnList;
     }
 }
