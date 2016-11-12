@@ -27,6 +27,8 @@ public class BaseinfoStore implements Serializable {
     private String address;
 	/** 门店id-暂留 */
     private Long storeId =0L;
+	/** 播种顺序 */
+	private Integer seedQueue= 0;
 	
 	public Long getId(){
 		return this.id;
@@ -115,6 +117,12 @@ public class BaseinfoStore implements Serializable {
 	public void setStoreId(Long storeId){
 		this.storeId = storeId;
 	}
-	
-	
+
+	public Integer getSeedQueue() {
+		return seedQueue;
+	}
+
+	public void setSeedQueue(Integer seedQueue) {
+		this.seedQueue = seedQueue;
+	}
 }

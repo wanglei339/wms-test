@@ -68,25 +68,34 @@ public class StockTakingRpcService implements IStockTakingRpcService {
     private StockQuantService quantService;
     @Autowired
     private StockTakingService stockTakingService;
+    @Autowired
+    private BaseTaskService baseTaskService;
 
 
     public void create(Long locationId,Long uid) throws BizCheckedException {
-        StockTakingRequest request = new StockTakingRequest();
-        List<Long> longList = new ArrayList<Long>();
-        longList.add(locationId);
-        request.setLocationList(JSON.toJSONString(longList));
-        request.setPlanner(uid);
-        request.setTakingId(RandomUtils.genId());
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("type",TaskConstant.TYPE_STOCK_TAKING);
+        queryMap.put("valid",1);
+        queryMap.put("locationId",locationId);
+        List<TaskInfo> infos = baseTaskService.getTaskInfoList(queryMap);
+        if(infos!=null && infos.size()!=0) {
+            StockTakingRequest request = new StockTakingRequest();
+            List<Long> longList = new ArrayList<Long>();
+            longList.add(locationId);
+            request.setLocationList(JSON.toJSONString(longList));
+            request.setPlanner(uid);
+            request.setTakingId(RandomUtils.genId());
 
-        String key = StrUtils.formatString(RedisKeyConstant.TAKING_KEY, request.getTakingId());
-        redisStringDao.set(key,request.getTakingId(),24,TimeUnit.HOURS);
+            String key = StrUtils.formatString(RedisKeyConstant.TAKING_KEY, request.getTakingId());
+            redisStringDao.set(key, request.getTakingId(), 24, TimeUnit.HOURS);
 
 
-        StockTakingHead head = new StockTakingHead();
-        ObjUtils.bean2bean(request, head);
-        List<StockTakingDetail> detailList = prepareDetailList(head);
-        stockTakingService.insertHead(head);
-        this.createTask(head, detailList, 1L, head.getDueTime());
+            StockTakingHead head = new StockTakingHead();
+            ObjUtils.bean2bean(request, head);
+            List<StockTakingDetail> detailList = prepareDetailList(head);
+            stockTakingService.insertHead(head);
+            this.createTask(head, detailList, 1L, head.getDueTime());
+        }
     }
     public void createTask(StockTakingHead head, List<StockTakingDetail> detailList,Long round,Long dueTime) throws BizCheckedException{
         List<TaskEntry> taskEntryList=new ArrayList<TaskEntry>();
@@ -128,11 +137,15 @@ public class StockTakingRpcService implements IStockTakingRpcService {
         List<Long> locations=new ArrayList<Long>();
         if (locationList != null && locationList.size()!=0) {
             for(Long locationId:locationList) {
-                locations.add(locationId);
+                Map<String,Object> queryMap = new HashMap<String, Object>();
+                queryMap.put("type",TaskConstant.TYPE_STOCK_TAKING);
+                queryMap.put("valid",1);
+                queryMap.put("locationId",locationId);
+                List<TaskInfo> infos = baseTaskService.getTaskInfoList(queryMap);
+                if(infos==null ||infos.size()==0){
+                    locations.add(locationId);
+                }
             }
-        }else {
-            Long locationId = locationService.getWarehouseLocationId();
-            locations.addAll(locationService.getStoreLocationIds(locationId));
         }
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("locationIdList", locations);

@@ -14,15 +14,16 @@
 		<result property="updateAt" column="update_at"/>
 		<result property="address" column="address"/>
 		<result property="storeId" column="store_id"/>
+		<result property="seedQueue" column="seed_queue"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoStore">
 		insert into baseinfo_store (
 			store_no,store_name,region,scale,is_open,is_valid,
-			create_at,update_at,address,store_id
+			create_at,update_at,address,store_id,seed_queue
     	) values (
 			#{storeNo},#{storeName},#{region},#{scale},#{isOpen},#{isValid},
-			#{createAt},#{updateAt},#{address},#{storeId}
+			#{createAt},#{updateAt},#{address},#{storeId},#{seedQueue}
     	)
 	</insert>
 
@@ -38,7 +39,8 @@
   			<if test="createAt != null">create_at=#{createAt},</if>
   			<if test="updateAt != null">update_at=#{updateAt},</if>
   			<if test="address != null">address=#{address},</if>
-  			<if test="storeId != null">store_id=#{storeId}</if>
+  			<if test="storeId != null">store_id=#{storeId},</if>
+			<if test="seedQueue != null">seed_queue=#{seedQueue}</if>
 		</set>
 		where store_no=#{storeNo}
 	</update>
@@ -56,6 +58,7 @@
 	<select id="getBaseinfoStoreList" parameterType="map" resultMap="baseinfoStoreResultMap">
 		select * from baseinfo_store
 		<include refid="queryCondition"/>
+		  ORDER BY  seed_queue DESC
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
 		</if>
@@ -74,6 +77,7 @@
 			<if test="updateAt != null">and update_at=#{updateAt}</if>
 			<if test="address != null">and address=#{address}</if>
 			<if test="storeId != null">and store_id=#{storeId}</if>
+			<if test="seedQueue != null">and seed_queue=#{seedQueue}</if>
 		</where>
 	</sql>
    

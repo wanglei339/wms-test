@@ -6,6 +6,7 @@
 		<id property="id" column="id"/>
 		<result property="taskId" column="task_id"/>
 		<result property="storeNo" column="store_no"/>
+		<result property="orderId" column="order_id"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
 		<result property="requireQty" column="require_qty"/>
@@ -15,9 +16,9 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="SeedingTaskHead">
 		insert into seeding_task_head (
-			task_id,store_no,created_at,updated_at,require_qty,real_container_id,pack_unit
+			task_id,store_no,created_at,updated_at,require_qty,real_container_id,pack_unit.order_id
     	) values (
-			#{taskId},#{storeNo},#{createdAt},#{updatedAt},#{requireQty},#{realContainerId},#{packUnit}
+			#{taskId},#{storeNo},#{createdAt},#{updatedAt},#{requireQty},#{realContainerId},#{packUnit},#{orderId}
     	)
 	</insert>
 
@@ -30,7 +31,8 @@
   			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
   			<if test="requireQty != null">require_qty=#{requireQty},</if>
 			<if test="realContainerId != null">real_container_id=#{realContainerId},</if>
-			<if test="packUnit != null">pack_unit=#{packUnit}</if>
+			<if test="packUnit != null">pack_unit=#{packUnit},</if>
+			<if test="orderId != null">order_id=#{orderId}</if>
 
 		</set>
 		where id=#{id}
@@ -69,6 +71,7 @@
 			<if test="requireQty != null">and require_qty=#{requireQty}</if>
 			<if test="realContainerId != null"> and real_container_id=#{realContainerId}</if>
 			<if test="packUnit != null">and pack_unit=#{packUnit}</if>
+			<if test="orderId != null">and order_id=#{orderId}</if>
 		</where>
 	</sql>
    
