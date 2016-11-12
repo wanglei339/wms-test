@@ -198,6 +198,15 @@ public class ReceiptRestService implements IReceiptRfService {
                     }
                 }
             }
+            //如果没有输入生产日期和到期日
+            if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null) {
+                receiptItem.setProTime(new Date());
+            }else if(receiptItem.getProTime() == null && receiptItem.getDueTime() != null){
+                //根据到期日计算生产日期
+                receiptItem.setProTime(new Date());//// FIXME: 16/11/12 根据生产日期-保质期计算
+
+
+            }
             receiptItem.setSkuId(csiSku.getSkuId());
             receiptItem.setSkuName(ibdDetail.getSkuName());
             receiptItem.setPackUnit(ibdDetail.getPackUnit());
