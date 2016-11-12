@@ -63,10 +63,8 @@ public class StockTakingRpcService implements IStockTakingRpcService {
         queryMap.put("valid",1);
         queryMap.put("locationId",locationId);
         List<TaskInfo> infos = baseTaskService.getTaskInfoList(queryMap);
-        logger.info("-----------------"+locationId+"-------------");
-        logger.info("in taking create-------"+ JsonUtils.SUCCESS(infos));
 
-        if(infos!=null && infos.size()!=0) {
+        if(infos==null || infos.size()==0) {
             StockTakingRequest request = new StockTakingRequest();
             List<Long> longList = new ArrayList<Long>();
             longList.add(locationId);

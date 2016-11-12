@@ -194,6 +194,7 @@ public class SeedRestService implements ISeedRestService {
                     query.put("orderId",lot.getPoId());
                     query.put("barcode",csiSkuService.getSku(quant.getSkuId()).getCode());
                     query.put("containerId",containerId);
+                    query.put("type",mapQuery.get("type")==null ? 0 : 1);
                     taskId = rpcService.getTask(query);
                 }
                 if (taskId.compareTo(0L) == 0) {
@@ -530,7 +531,7 @@ public class SeedRestService implements ISeedRestService {
             return JsonUtils.TOKEN_ERROR("播种任务不存在");
         }
         List<SeedingTaskHead> heads = seedTaskHeadService.getHeadByOrderIdAndStoreNo(entry.getTaskInfo().getOrderId(), storeNo);
-        if(heads==null){
+        if(heads==null || heads.size()==0){
             return JsonUtils.TOKEN_ERROR("该门店不存在播种任务");
         }
         SeedingTaskHead head = heads.get(0);

@@ -200,6 +200,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
             head.setPackUnit(item.getPackUnit());
             head.setRequireQty(obdDetail.getOrderQty());
             head.setStoreNo(storeNo);
+            head.setOrderId(orderId);
             //无收货播种任务标示
             info.setSubType(subType);
             //门店播放规则
