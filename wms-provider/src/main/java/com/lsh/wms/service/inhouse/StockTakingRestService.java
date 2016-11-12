@@ -103,13 +103,6 @@ public class StockTakingRestService implements IStockTakingRestService {
         iStockTakingRpcService.createTask(head, detailList, 1L, head.getDueTime());
         return JsonUtils.SUCCESS();
     }
-    @GET
-    @Path("test")
-    public String create() throws BizCheckedException{
-        LocationListRequest request =  new LocationListRequest();
-        this.getLocationList(request);
-        return JsonUtils.SUCCESS();
-    }
     @POST
     @Path("update")
     public String update(StockTakingRequest request) throws BizCheckedException{
