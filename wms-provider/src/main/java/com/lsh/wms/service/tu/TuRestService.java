@@ -8,15 +8,20 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.api.service.tu.ITuRestService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.api.service.wumart.IWuMart;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.TuConstant;
+import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.tu.TuDetail;
@@ -28,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -53,6 +59,12 @@ public class TuRestService implements ITuRestService {
     private IWuMart wuMart;
     @Autowired
     private TuService tuService;
+    @Autowired
+    private StockQuantService stockQuantService;
+    @Reference
+    private IStockQuantRpcService stockQuantRpcService;
+    @Autowired
+    private LocationService locationService;
 
     @POST
     @Path("getTuheadList")
@@ -148,13 +160,40 @@ public class TuRestService implements ITuRestService {
                 totalContainers.add(detail.getMergedContainerId());
             }
 
+            //获取集货道,和集货位
+            Set<Long> locationIds = new HashSet<Long>();
+            for (Long containerId : totalContainers) {
+                List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(containerId);
+                if (null == stockQuants || stockQuants.size() < 1) {
+                    throw new BizCheckedException("2990043");
+                }
+                for (StockQuant stockQuant : stockQuants) {
+                    locationIds.add(stockQuant.getLocationId());
+                }
+            }
+
             //拼接物美sap
             ibdObdMap = iTuRpcService.bulidSapDate(tuHead.getTuId());
             //生成发货单 osd的托盘生命结束并销库存
-            Map<String,Object> map = new HashMap<String, Object>();
-            map.put("containerIds",totalContainers);
-            map.put("tuHead",tuHead);
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("containerIds", totalContainers);
+            map.put("tuHead", tuHead);
             tuService.createObdAndMoveStockQuant(map);
+
+            //释放集货道
+            //查库存,释放集货道
+            for (Long locationId : locationIds) {
+                StockQuantCondition condition = new StockQuantCondition();
+                condition.setLocationId(locationId);
+                java.math.BigDecimal qty = stockQuantRpcService.getQty(condition);
+                if (0 == qty.compareTo(BigDecimal.ZERO)) {
+                    //释放集货导
+                    locationService.unlockLocation(locationId);
+                    locationService.setLocationUnOccupied(locationId);
+                }
+            }
+
+
         } else {
             //待销库存的totalDetails
             List<WaveDetail> totalDetails = new ArrayList<WaveDetail>();
@@ -184,18 +223,46 @@ public class TuRestService implements ITuRestService {
                 }
                 totalDetails.addAll(waveDetails);
             }
+            //库存托盘
             Set<Long> containerIds = new HashSet<Long>();
             for (WaveDetail detail : totalDetails) {
                 containerIds.add(detail.getContainerId());
             }
+
+            //获取集货道,和集货位
+            Set<Long> locationIds = new HashSet<Long>();
+            for (Long containerId : containerIds) {
+                List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(containerId);
+                if (null == stockQuants || stockQuants.size() < 1) {
+                    throw new BizCheckedException("2990043");
+                }
+                for (StockQuant stockQuant : stockQuants) {
+                    locationIds.add(stockQuant.getLocationId());
+                }
+            }
+
             //拼接物美SAP
             ibdObdMap = iTuRpcService.bulidSapDate(tuHead.getTuId());
 
             //生成发货单 osd的托盘生命结束并销库存
-            Map<String,Object> map = new HashMap<String, Object>();
-            map.put("containerIds",containerIds);
-            map.put("tuHead",tuHead);
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put("containerIds", containerIds);
+            map.put("tuHead", tuHead);
             tuService.createObdAndMoveStockQuant(map);
+
+
+            //释放集货道
+            //查库存,释放集货道
+            for (Long locationId : locationIds) {
+                StockQuantCondition condition = new StockQuantCondition();
+                condition.setLocationId(locationId);
+                java.math.BigDecimal qty = stockQuantRpcService.getQty(condition);
+                if (0 == qty.compareTo(BigDecimal.ZERO)) {
+                    //释放集货导
+                    locationService.unlockLocation(locationId);
+                    locationService.setLocationUnOccupied(locationId);
+                }
+            }
         }
 
         //回传物美
@@ -203,6 +270,7 @@ public class TuRestService implements ITuRestService {
         //改变发车状态
         tuHead.setStatus(TuConstant.SHIP_OVER);
         iTuRpcService.update(tuHead);
+
         // 传给TMS运单发车信息,此过程可以重复调用
         Boolean postResult = iTuRpcService.postTuDetails(tuId);
         if (postResult) {
