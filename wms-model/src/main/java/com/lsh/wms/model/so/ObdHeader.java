@@ -26,7 +26,7 @@ public class ObdHeader implements Serializable {
 	/** 订单类型 1so单，2供商退货单 3调拨出库单 */
 	private Integer orderType;
 	/** 波次订单类型 */
-	private String waveOrderType;
+	private String waveOrderType = "";
 	/** 波次号 */
 	private Long waveId;
 	/** tms线路 */

@@ -6,6 +6,7 @@ import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.LocationConstant;
+import com.lsh.wms.core.constant.PickConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.service.item.ItemLocationService;
@@ -25,6 +26,7 @@ import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.pick.*;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.task.TaskMsg;
@@ -96,6 +98,7 @@ public class WaveCore {
     List<WaveAllocDetail> pickAllocDetailList;
     List<TaskEntry> entryList;
     Map<String, Map<Long, BigDecimal>> mapItemArea2LocationInventory;
+    Map<Long, BaseinfoItem> mapItems;
 
 
     public int release(long iWaveId) throws BizCheckedException {
@@ -256,6 +259,7 @@ public class WaveCore {
                     "SplitModelSet",
                     "SplitModelSmallItem",
                     "SplitModelOrder",
+                    "SplitModelWholePallet",
                     "SplitModelContainer", //这个必须是最后一个,否则就会出大问题.
             };
             for(String modelName : splitModelNames){
@@ -266,7 +270,7 @@ public class WaveCore {
                     logger.error("class init fail "+modelName);
                     throw  new BizCheckedException("");
                 }
-                splitModel.init(model, splitNodes);
+                splitModel.init(model, splitNodes, mapItems);
                 splitModel.split(stopNodes);
                 splitNodes = splitModel.getSplitedNodes();
             }
@@ -295,6 +299,10 @@ public class WaveCore {
                 info.setTaskName(String.format("波次[%d]-捡货任务[%d]", waveId, entryList.size()+1));
                 for(int j = 0; j < bestCutPlan[i]; j++){
                     SplitNode node = stopNodes.get(iChooseIdx+j);
+                    if(node.iPickType != 0)
+                    {
+                        info.setSubType(node.iPickType);
+                    }
                     for(int k = 0; k < node.details.size(); ++k){
                         WaveDetail detail = node.details.get(k);
                         detail.setPickZoneId(zone.getPickZoneId());
@@ -303,6 +311,30 @@ public class WaveCore {
                         info.setOrderId(detail.getOrderId());
                         info.setTransPlan(mapOrder2Head.get(detail.getOrderId()).getTransPlan());
                         head.setAllocCollectLocation(detail.getAllocCollectLocation());
+                        if(node.iPickType == PickConstant.SHELF_PALLET_TASK_TYPE) {
+                            //卧槽,这代码写成这样也真的是没脸见人了
+                            //来找找有没有货架上有库存的.
+                            if (zone.getPickType() != PickConstant.SHELF_TASK_TYPE) {
+                                info.setSubType(zone.getPickType());
+                            } else {
+                                Map<String, Object> queryMap = new HashMap<String, Object>();
+                                queryMap.put("location", locationService.getLocation(detail.getPickAreaLocation()));
+                                queryMap.put("itemId", detail.getItemId());
+                                List<StockQuant> quants = stockQuantService.getQuants(queryMap);
+                                boolean bFindShelfStore = false;
+                                for (StockQuant quant : quants) {
+                                    BaseinfoLocation loation = locationService.getLocation(quant.getLocationId());
+                                    if (loation.getType() == LocationConstant.SHELF_STORE_BIN) {
+                                        bFindShelfStore = true;
+                                        detail.setAllocPickLocation(loation.getLocationId());
+                                        break;
+                                    }
+                                }
+                                if (!bFindShelfStore) {
+                                    info.setSubType(zone.getPickType());
+                                }
+                            }
+                        }
                     }
                 }
                 iChooseIdx += bestCutPlan[i];
@@ -426,7 +458,11 @@ public class WaveCore {
                 ObdDetail detail = orderDetails.get(i);
                 int zone_idx = 0;
                 //获取商品的基本信息
-                BaseinfoItem item = itemService.getItem(mapOrder2Head.get(detail.getOrderId()).getOwnerUid(), detail.getSkuId());
+                BaseinfoItem item = mapItems.get(detail.getItemId());
+                if(item == null) {
+                    item = itemService.getItem(mapOrder2Head.get(detail.getOrderId()).getOwnerUid(), detail.getSkuId());
+                    mapItems.put(item.getItemId(), item);
+                }
                 if (item == null) {
                     logger.error("item get fail %d", detail.getSkuId());
                     throw new BizCheckedException("");
@@ -460,7 +496,7 @@ public class WaveCore {
                 }
             }
             //存储配货结果
-            waveService.storeAlloc(waveHead, pickAllocDetailList);
+            //waveService.storeAlloc(waveHead, pickAllocDetailList);
         }else{
             logger.info("skip to run alloc waveId[%d], load from db", waveId);
             pickAllocDetailList = allocService.getAllocDetailsByWaveId(waveId);
@@ -475,6 +511,7 @@ public class WaveCore {
         mapRoute2CollectRoad = new HashMap<String, BaseinfoLocation>();
         mapOrder2CollectBin = new HashMap<Long, Long>();
         mapItemArea2LocationInventory = new HashMap<String, Map<Long, BigDecimal>>();
+        mapItems = new HashMap<Long, BaseinfoItem>();
         this._prepareWave();
         this._prepareOrder();
         this._preparePickModel();

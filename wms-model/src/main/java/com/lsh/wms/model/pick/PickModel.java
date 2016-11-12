@@ -23,6 +23,8 @@ public class PickModel implements Serializable {
     private Long containerUnitCapacity;
 	/** 捡货过程中单个人单个任务可携带的容器数量-会影响单摘果和边拣边播方式 */
     private Long containerNumPerTask;
+	/** 是否开启整托盘出货策略 */
+	private Long strategyWholePallet;
 	/** 摘果播种式一段聚合规则－按集货组 */
     private Long fpmrSetGroupFalg;
 	/** 摘果播种式一段聚合规则－超过某个数量的商品直接单商品摘果（摘到多个集货道）, 0－无效 */
@@ -104,6 +106,14 @@ public class PickModel implements Serializable {
 	
 	public void setContainerNumPerTask(Long containerNumPerTask){
 		this.containerNumPerTask = containerNumPerTask;
+	}
+
+	public void setStrategyWholePallet(Long strategyWholePallet){
+		this.strategyWholePallet = strategyWholePallet;
+	}
+
+	public Long getStrategyWholePallet(){
+		return this.strategyWholePallet;
 	}
 	
 	public Long getFpmrSetGroupFalg(){

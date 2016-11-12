@@ -11,5 +11,5 @@ import java.util.List;
 public class SplitNode {
     public List<WaveDetail> details = new ArrayList<WaveDetail>();
     public int iStopType = 0;
-
+    public long iPickType = 0;
 }

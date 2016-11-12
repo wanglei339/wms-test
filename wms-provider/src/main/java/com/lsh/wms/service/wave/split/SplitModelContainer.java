@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 public class SplitModelContainer extends SplitModel{
     @Override
     public void split(List<SplitNode> stopNodes) {
-       //判断单个container能容纳的商品数量,这个商品数量和基本单位怎么转换呢?你妈了个大爷的
+        //判断单个container能容纳的商品数量,这个商品数量和基本单位怎么转换呢?你妈了个大爷的
         //按照如下规则分列
         // 1. 符合容纳限制的最小份数
         // 2. 相同商品尽量放在同一个里面
