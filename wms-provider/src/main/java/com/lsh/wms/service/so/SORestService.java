@@ -46,14 +46,14 @@ public class SORestService implements ISoRestService {
     @Autowired
     private SoOrderService soOrderService;
 
-    @POST
-    @Path("init")
-    public String init(String soOrderInfo) {
-        ObdHeader obdHeader = JSON.parseObject(soOrderInfo,ObdHeader.class);
-        List<ObdDetail> obdDetailList = JSON.parseArray((String) obdHeader.getOrderDetails(),ObdDetail.class);
-        soOrderService.insert(obdHeader, obdDetailList);
-        return JsonUtils.SUCCESS();
-    }
+//    @POST
+//    @Path("init")
+//    public String init(String soOrderInfo) {
+//        ObdHeader obdHeader = JSON.parseObject(soOrderInfo,ObdHeader.class);
+//        List<ObdDetail> obdDetailList = JSON.parseArray((String) obdHeader.getOrderDetails(),ObdDetail.class);
+//        soOrderService.insert(obdHeader, obdDetailList);
+//        return JsonUtils.SUCCESS();
+//    }
 
     @POST
     @Path("insert")
