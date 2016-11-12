@@ -162,7 +162,7 @@ public class ReceiptRestService implements IReceiptRfService {
                 BaseinfoItemType baseinfoItemType = iItemTypeRpcService.getBaseinfoItemTypeById(baseinfoItem.getItemType());
                 if(baseinfoItemType != null && 1== baseinfoItemType.getIsNeedProtime()){
                     // todo: 16/11/9 根据配置验证生产日期是否输入
-                    if(receiptItem.getProTime() == null || receiptItem.getDueTime() == null){
+                    if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null){
                         throw new BizCheckedException("2020008");//生产日期不能为空
                     }
                 }
