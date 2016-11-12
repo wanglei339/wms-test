@@ -11,6 +11,8 @@ public class SeedingTaskHead implements Serializable {
     private Long taskId;
 	/** 门店号 */
     private String storeNo;
+	/** poId */
+	private String orderId;
 	/**  */
     private Long createdAt;
 	/**  */
@@ -84,5 +86,13 @@ public class SeedingTaskHead implements Serializable {
 
 	public void setPackUnit(BigDecimal packUnit) {
 		this.packUnit = packUnit;
+	}
+
+	public String getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(String orderId) {
+		this.orderId = orderId;
 	}
 }

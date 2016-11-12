@@ -18,6 +18,7 @@ import com.lsh.wms.api.service.seed.ISeedProveiderRpcService;
 import com.lsh.wms.api.service.seed.ISeedRestService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.store.IStoreRpcService;
+import com.lsh.wms.api.service.system.IExceptionCodeRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.LocationConstant;
@@ -29,6 +30,7 @@ import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
+import com.lsh.wms.core.service.seed.SeedTaskHeadService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
@@ -126,6 +128,12 @@ public class SeedRestService implements ISeedRestService {
     @Autowired
     SoOrderService soOrderService;
 
+    @Autowired
+    SeedTaskHeadService seedTaskHeadService;
+    @Reference
+    IExceptionCodeRpcService iExceptionCodeRpcService;
+
+
     @POST
     @Path("assign")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
@@ -212,6 +220,7 @@ public class SeedRestService implements ISeedRestService {
 //            return JsonUtils.TOKEN_ERROR("系统繁忙");
 //        }
     }
+
     @POST
     @Path("scanContainer")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
@@ -238,18 +247,89 @@ public class SeedRestService implements ISeedRestService {
                 return JsonUtils.TOKEN_ERROR("播种任务不存在");
             }
 
+
+            TaskInfo info = entry.getTaskInfo();
+            //判断商品类型，如例外代码校验通过，则不校验
+              //校验例外代码
+            if(mapQuery.get("exceptionCode")!=null) {
+                String exceptionCode = iExceptionCodeRpcService.getExceptionCodeByName("seed");
+                if(!exceptionCode.equals(mapQuery.get("exceptionCode").toString())){
+                    return JsonUtils.TOKEN_ERROR("所输里外代码非法");
+                }
+            }else {
+                //校验商品类型
+                List<StockQuant> stockQuants = quantService.getQuantsByContainerId(containerId);
+                if(stockQuants!=null && stockQuants.size()!=0){
+                    StockQuant quant = stockQuants.get(0);
+                    BaseinfoItem oldItem = itemService.getItem(quant.getItemId());
+                    BaseinfoItem newItem = itemService.getItem(info.getItemId());
+                    if(oldItem.getItemType().compareTo(newItem.getItemType())!=0){
+                        return JsonUtils.TOKEN_ERROR("商品类型不一样，不能播种到统一托盘");
+                    }
+                }
+            }
+
+
             //判断是否已集货
             Map<String,Object> query = new HashMap<String, Object>();
             query.put("containerId",containerId);
             query.put("type",TaskConstant.TYPE_SET_GOODS);
             List<TaskInfo> infos = baseTaskService.getTaskInfoList(query);
             if(infos!=null && infos.size()!=0){
-                for(TaskInfo info: infos){
-                    if(info.getStep()==2){
+                for(TaskInfo taskInfo: infos){
+                    if(taskInfo.getStep()==2){
                         return JsonUtils.TOKEN_ERROR("该托盘已集货，不能播种到该托盘上");
                     }
                 }
             }
+
+
+
+            //手动播种
+            if(type.compareTo(1L)==1 ){
+                String storeNo =  mapQuery.get("storeNo").toString();
+                List<SeedingTaskHead> heads = seedTaskHeadService.getHeadByOrderIdAndStoreNo(info.getOrderId(),storeNo);
+                if(heads==null){
+                    return JsonUtils.TOKEN_ERROR("该门店不存在播种任务");
+                }
+                SeedingTaskHead head = heads.get(0);
+                if(head.getRequireQty().compareTo(qty)<0) {
+                    return JsonUtils.TOKEN_ERROR("播种数量超出门店订单数量");
+                }
+                info = iTaskRpcService.getTaskInfo(head.getTaskId());
+                if(head.getRequireQty().compareTo(qty)>0){
+                    info.setStep(1);
+                }
+                info.setQty(qty);
+                head.setRealContainerId(containerId);
+                entry.setTaskInfo(info);
+                entry.setTaskHead(head);
+                iTaskRpcService.update(TaskConstant.TYPE_SEED, entry);
+                iTaskRpcService.done(taskId);
+                if(head.getTaskId().compareTo(taskId)==0){
+                    mapQuery.put("orderId", info.getOrderId());
+                    CsiSku sku = csiSkuService.getSku(info.getSkuId());
+                    mapQuery.put("barcode", sku.getCode());
+                    mapQuery.put("containerId", info.getContainerId());
+                    taskId = rpcService.getTask(mapQuery);
+                    if(taskId ==null){
+                        return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+                            {
+                                put("response", true);
+                            }
+                        });
+                    }
+                    final String finalTaskId = taskId.toString();
+                    return JsonUtils.SUCCESS(new HashMap<String, String>() {
+                        {
+                            put("taskId", finalTaskId);
+                        }
+                    });
+                }
+            }
+
+
+
             SeedingTaskHead head = (SeedingTaskHead)(entry.getTaskHead());
             //判断输入门店，判断是不是系统提供的门店
             List<Long> quants = quantService.getLocationIdByContainerId(containerId);
@@ -260,8 +340,6 @@ public class SeedRestService implements ISeedRestService {
                     throw new BizCheckedException("2880006");
                 }
             }
-
-            TaskInfo info = entry.getTaskInfo();
 
             //(不收货播种)判断是否已经结束收货
             if(info.getSubType().compareTo(2L)==0){
@@ -299,7 +377,7 @@ public class SeedRestService implements ISeedRestService {
             info.setQty(qty);
             entry.setTaskInfo(info);
             entry.setTaskHead(head);
-            iTaskRpcService.update(TaskConstant.TYPE_SEED,entry);
+            iTaskRpcService.update(TaskConstant.TYPE_SEED, entry);
             iTaskRpcService.done(taskId);
             if(type.compareTo(2L)==0){
                if(qty.compareTo(head.getRequireQty())!=0) {
@@ -324,23 +402,15 @@ public class SeedRestService implements ISeedRestService {
                }
 
             }else if(type.compareTo(1L)==0){
-                HashMap<String,Object> map = new HashMap<String, Object>();
-                map.put("orderId", info.getOrderId());
-                map.put("status",TaskConstant.Draft);
-                map.put("type",TaskConstant.TYPE_SEED);
-                infos = baseTaskService.getTaskInfoList(map);
-                if(infos!=null && infos.size()!=0) {
-                    List<Long> taskList = new ArrayList<Long>();
-                    for (TaskInfo taskInfo : infos) {
-                        taskList.add(taskInfo.getTaskId());
-                    }
-                    iTaskRpcService.batchCancel(TaskConstant.TYPE_SEED, taskList);
-                }
                 return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
                     {
                         put("response", true);
                     }
                 });
+            }
+            if(type.compareTo(3L)==0){
+                info.setStep(1);
+                baseTaskService.update(info);
             }
             mapQuery.put("orderId", info.getOrderId());
             CsiSku sku = csiSkuService.getSku(info.getSkuId());
@@ -401,7 +471,7 @@ public class SeedRestService implements ISeedRestService {
         }
         // 检查是否有已分配的任务
         taskId = baseTaskService.getAssignTaskIdByOperatorAndType(uId, TaskConstant.TYPE_SEED);
-        if(taskId==null) {
+        if(taskId==null ) {
             return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
                 {
                     put("response", false);
@@ -410,7 +480,55 @@ public class SeedRestService implements ISeedRestService {
         }
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
         TaskInfo info = entry.getTaskInfo();
+        if(info.getIsShow()==0){
+            return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+                {
+                    put("response", false);
+                }
+            });
+        }
         SeedingTaskHead head = (SeedingTaskHead) entry.getTaskHead();
+        result.put("storeName", storeRpcService.getStoreByStoreNo(head.getStoreNo()).getStoreName());
+        result.put("storeNo", head.getStoreNo());
+        result.put("qty", head.getRequireQty());
+        result.put("taskId", taskId.toString());
+        result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
+        result.put("packName", info.getPackName());
+        result.put("itemId", info.getItemId());
+        return JsonUtils.SUCCESS(result);
+    }
+    /**
+     * 回溯任务
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("view")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String view() throws BizCheckedException {
+        Long taskId = 0L;
+        String storeNo = "";
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Map<String,Object> result = new HashMap<String, Object>();
+        try {
+            storeNo =  mapQuery.get("storeNo").toString();
+            taskId = Long.valueOf(mapQuery.get("taskId").toString());
+        }catch (Exception e) {
+            logger.error(e.getMessage());
+            return JsonUtils.TOKEN_ERROR("参数传递格式有误");
+        }
+
+        TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
+        if(entry==null){
+            return JsonUtils.TOKEN_ERROR("播种任务不存在");
+        }
+        List<SeedingTaskHead> heads = seedTaskHeadService.getHeadByOrderIdAndStoreNo(entry.getTaskInfo().getOrderId(), storeNo);
+        if(heads==null){
+            return JsonUtils.TOKEN_ERROR("该门店不存在播种任务");
+        }
+        SeedingTaskHead head = heads.get(0);
+        TaskInfo info = iTaskRpcService.getTaskInfo(head.getTaskId());
         result.put("storeName", storeRpcService.getStoreByStoreNo(head.getStoreNo()).getStoreName());
         result.put("storeNo", head.getStoreNo());
         result.put("qty", head.getRequireQty());

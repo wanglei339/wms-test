@@ -12,7 +12,9 @@ public interface BaseinfoItemTypeRelationDao {
 	void insert(BaseinfoItemTypeRelation baseinfoItemTypeRelation);
 	
 	void update(BaseinfoItemTypeRelation baseinfoItemTypeRelation);
-	
+
+	void delete(Long id);
+
 	BaseinfoItemTypeRelation getBaseinfoItemTypeRelationById(Long id);
 
     Integer countBaseinfoItemTypeRelation(Map<String, Object> params);

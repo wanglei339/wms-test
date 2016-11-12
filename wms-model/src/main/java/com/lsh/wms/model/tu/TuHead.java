@@ -90,7 +90,7 @@ public class TuHead implements Serializable {
     /**
      * 运单类型1-门店2-优供
      */
-    private Long type;
+    private Integer type;
 
     public Long getId() {
         return this.id;
@@ -268,11 +268,11 @@ public class TuHead implements Serializable {
         this.companyName = companyName;
     }
 
-    public Long getType() {
+    public Integer getType() {
         return type;
     }
 
-    public void setType(Long type) {
+    public void setType(Integer type) {
         this.type = type;
     }
 }

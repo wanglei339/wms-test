@@ -34,9 +34,9 @@ public class SoDeliveryService {
     private OutbDeliveryDetailDao outbDeliveryDetailDao;
 
 
-
     /**
      * 插入OutbDeliveryHeader及List<OutbDeliveryDetail>
+     *
      * @param outbDeliveryHeader
      * @param outbDeliveryDetailList
      */
@@ -49,6 +49,7 @@ public class SoDeliveryService {
 
     /**
      * 更新OutbDeliveryHeader
+     *
      * @param outbDeliveryHeader
      */
     @Transactional(readOnly = false)
@@ -58,6 +59,7 @@ public class SoDeliveryService {
 
     /**
      * 根据DeliveryId更新OutbDeliveryHeader
+     *
      * @param outbDeliveryHeader
      */
     @Transactional(readOnly = false)
@@ -69,6 +71,7 @@ public class SoDeliveryService {
 
     /**
      * 通过ID获取OutbDeliveryHeader
+     *
      * @param id
      * @return
      */
@@ -78,6 +81,7 @@ public class SoDeliveryService {
 
     /**
      * 根据参数获取OutbDeliveryHeader数量
+     *
      * @param params
      * @return
      */
@@ -87,15 +91,17 @@ public class SoDeliveryService {
 
     /**
      * 自定义参数获取List<OutbDeliveryHeader>
+     *
      * @param params
      * @return
      */
-    public List<OutbDeliveryHeader> getOutbDeliveryHeaderList(Map<String, Object> params){
+    public List<OutbDeliveryHeader> getOutbDeliveryHeaderList(Map<String, Object> params) {
         return outbDeliveryHeaderDao.getOutbDeliveryHeaderList(params);
     }
 
     /**
      * 通过ID获取OutbDeliveryDetail
+     *
      * @param id
      * @return
      */
@@ -105,6 +111,7 @@ public class SoDeliveryService {
 
     /**
      * 根据参数获取OutbDeliveryDetail数量
+     *
      * @param params
      * @return
      */
@@ -114,6 +121,7 @@ public class SoDeliveryService {
 
     /**
      * 自定义参数获取List<OutbDeliveryDetail>
+     *
      * @param params
      * @return
      */
@@ -123,22 +131,24 @@ public class SoDeliveryService {
 
     /**
      * 根据发货单ID列表获取
+     *
      * @param deliveryIdList
      * @return
      */
-    public List<OutbDeliveryDetail> getOutbDeliveryDetailList(List<Long> deliveryIdList){
+    public List<OutbDeliveryDetail> getOutbDeliveryDetailList(List<Long> deliveryIdList) {
         return outbDeliveryDetailDao.getOutbDeliveryDetailListById(deliveryIdList);
     }
 
     /**
      * 自定义参数获取OutbDeliveryHeader
+     *
      * @param params
      * @return
      */
     public OutbDeliveryHeader getOutbDeliveryHeaderByParams(Map<String, Object> params) {
         List<OutbDeliveryHeader> outbDeliveryHeaderList = getOutbDeliveryHeaderList(params);
 
-        if(outbDeliveryHeaderList.size() <=0 || outbDeliveryHeaderList.size() > 1) {
+        if (outbDeliveryHeaderList.size() <= 0 || outbDeliveryHeaderList.size() > 1) {
             return null;
         }
 
@@ -147,6 +157,7 @@ public class SoDeliveryService {
 
     /**
      * 根据DeliveryId获取OutbDeliveryHeader
+     *
      * @param deliveryId
      * @return
      */
@@ -159,6 +170,7 @@ public class SoDeliveryService {
 
     /**
      * 根据DeliveryId获取List<OutbDeliveryDetail>
+     *
      * @param deliveryId
      * @return
      */
@@ -171,20 +183,22 @@ public class SoDeliveryService {
 
     /**
      * List<OutbDeliveryHeader>填充OutbDeliveryDetail
+     *
      * @param outbDeliveryHeaderList
      */
     public void fillDetailToHeaderList(List<OutbDeliveryHeader> outbDeliveryHeaderList) {
-       for(OutbDeliveryHeader outbDeliveryHeader : outbDeliveryHeaderList) {
-           fillDetailToHeader(outbDeliveryHeader);
-       }
+        for (OutbDeliveryHeader outbDeliveryHeader : outbDeliveryHeaderList) {
+            fillDetailToHeader(outbDeliveryHeader);
+        }
     }
 
     /**
      * OutbDeliveryHeader填充OutbDeliveryDetail
+     *
      * @param outbDeliveryHeader
      */
     public void fillDetailToHeader(OutbDeliveryHeader outbDeliveryHeader) {
-        if(outbDeliveryHeader == null) {
+        if (outbDeliveryHeader == null) {
             return;
         }
 
@@ -195,6 +209,7 @@ public class SoDeliveryService {
 
     /**
      * 根据集货道编码获取List<OutbDeliveryHeader>
+     *
      * @param shippingAreaCode
      * @return
      */
@@ -213,18 +228,33 @@ public class SoDeliveryService {
 
     /**
      * 根据ORDER_ID、ITEM_ID获取OutbDeliveryDetail
-     * */
-    public OutbDeliveryDetail getOutbDeliveryDetail(Long orderId,Long itemId){
+     */
+    public OutbDeliveryDetail getOutbDeliveryDetail(Long orderId, Long itemId) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("orderId", orderId);
-        params.put("itemId",itemId);
+        params.put("itemId", itemId);
         List<OutbDeliveryDetail> lists = outbDeliveryDetailDao.getOutbDeliveryDetailList(params);
-        if(lists.size()>0){
+        if (lists.size() > 0) {
             return lists.get(0);
         }
         return null;
 
     }
 
-
+    /**
+     * 通过tms的运单id获取head
+     *
+     * @param tuId
+     * @return
+     */
+    public List<OutbDeliveryHeader> getOutbDeliveryHeaderByTmsId(String tuId) {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("transPlan", tuId);
+        List<OutbDeliveryHeader> headers = this.getOutbDeliveryHeaderList(mapQuery);
+        if (null == headers || headers.size() < 1) {
+            return null;
+        }else {
+            return headers;
+        }
+    }
 }

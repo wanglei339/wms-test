@@ -79,8 +79,8 @@ public class PickRestService implements IPickRestService {
     private StockQuantService stockQuantService;
     @Autowired
     private MessageService messageService;
-//    @Reference
-//    private IStockTakingRpcService iStockTakingRpcService;
+    @Reference
+    private IStockTakingRpcService iStockTakingRpcService;
 
     /**
      * 扫描拣货签(拣货任务id)
@@ -324,13 +324,13 @@ public class PickRestService implements IPickRestService {
                         splitWaveDetails.add(waveService.splitShelfWaveDetail(pickDetail, subQty, lastOrder));
                         lastOrder++;
 
-//                        //捡货缺交，如果捡获数量比系统记载数量，则生成盘点任务
-//                        Map<String,Object> queryMap = new HashMap<String, Object>();
-//                        queryMap.put("locationId",pickDetail.getRealPickLocation());
-//                        BigDecimal qty = stockQuantService.getQty(queryMap);
-//                        if(qty.compareTo(pickDetail.getPickQty())>0) {
-//                            iStockTakingRpcService.create(pickDetail.getRealPickLocation(), staffId);
-//                        }
+                        //捡货缺交，如果捡获数量比系统记载数量，则生成盘点任务
+                        Map<String,Object> queryMap = new HashMap<String, Object>();
+                        queryMap.put("locationId",pickDetail.getRealPickLocation());
+                        BigDecimal qty = stockQuantService.getQty(queryMap);
+                        if(qty.compareTo(pickDetail.getPickQty())>0) {
+                            iStockTakingRpcService.create(pickDetail.getRealPickLocation(), staffId);
+                        }
                     }
                 }
                 if (!splitWaveDetails.isEmpty()) {
@@ -375,6 +375,86 @@ public class PickRestService implements IPickRestService {
             result = new HashMap<String, Object>();
             result.put("response", false);
         }
+        return JsonUtils.SUCCESS(result);
+    }
+
+    /**
+     * 更新托盘,分裂出新的拣货任务
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("splitNewPickTask")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String splitNewPickTask() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long staffId = Long.valueOf(RequestUtils.getHeader("uid"));
+        Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
+        Long containerId = Long.valueOf(mapQuery.get("containerId").toString());
+        // 判断用户是否存在
+        SysUser sysUser = iSysUserRpcService.getSysUserById(staffId);
+        if (sysUser == null) {
+            throw new BizCheckedException("2000003");
+        }
+        TaskInfo oriTaskInfo = baseTaskService.getTaskInfoById(taskId);
+        if (!oriTaskInfo.getType().equals(TaskConstant.TYPE_PICK)) {
+            throw new BizCheckedException("2060003");
+        }
+        if (!oriTaskInfo.getStatus().equals(TaskConstant.Assigned)) {
+            throw new BizCheckedException("2060004");
+        }
+        if (!oriTaskInfo.getOperator().equals(staffId)) {
+            throw new BizCheckedException("2060014");
+        }
+        BaseinfoContainer container = containerService.getContainer(containerId);
+        if (container == null) {
+            throw new BizCheckedException("2000002");
+        }
+        // 检查container是否可用
+        if (containerService.isContainerInUse(containerId)) {
+            throw new BizCheckedException("2000002");
+        }
+        List<Long> taskIds = new ArrayList<Long>();
+        taskIds.add(taskId);
+        List<WaveDetail> unfinishedDetails = new ArrayList<WaveDetail>();
+        List<WaveDetail> pickDetails = waveService.getOrderedDetailsByPickTaskIds(taskIds);
+        // 获取未完成的detail
+        for (WaveDetail pickDetail: pickDetails) {
+            Long pickAt = pickDetail.getPickAt();
+            if (pickAt == null || pickAt.equals(0L) || pickAt.equals("")) {
+                unfinishedDetails.add(pickDetail);
+            }
+        }
+        if (unfinishedDetails.size() < 1) {
+            throw new BizCheckedException("2060015");
+        }
+        //unfinishedDetails = this.calcPickOrder(unfinishedDetails); // 重新排序
+        PickTaskHead oriTaskHead = pickTaskService.getPickTaskHead(taskId);
+        TaskEntry newTaskEntry = new TaskEntry();
+        TaskInfo newTaskInfo = new TaskInfo();
+        PickTaskHead newTaskHead = new PickTaskHead();
+        newTaskInfo.setTaskName(oriTaskInfo.getTaskName());
+        newTaskInfo.setPlanId(oriTaskInfo.getPlanId());
+        newTaskInfo.setWaveId(oriTaskInfo.getWaveId());
+        newTaskInfo.setOrderId(oriTaskInfo.getOrderId());
+        newTaskInfo.setType(TaskConstant.TYPE_PICK);
+        newTaskInfo.setSubType(oriTaskInfo.getSubType());
+        newTaskInfo.setTransPlan(oriTaskInfo.getTransPlan());
+        newTaskHead.setWaveId(oriTaskHead.getWaveId());
+        newTaskHead.setPickType(oriTaskHead.getPickType());
+        newTaskHead.setDeliveryId(oriTaskHead.getDeliveryId());
+        newTaskHead.setAllocCollectLocation(oriTaskHead.getAllocCollectLocation());
+        newTaskEntry.setTaskInfo(newTaskInfo);
+        newTaskEntry.setTaskHead(newTaskHead);
+        Long newTaskId = iTaskRpcService.create(TaskConstant.TYPE_PICK, newTaskEntry);
+        iTaskRpcService.assign(newTaskId, staffId, containerId); // 直接分配给该用户
+        for (WaveDetail unfinishedDetail: unfinishedDetails) {
+            unfinishedDetail.setPickTaskId(newTaskId);
+        }
+        waveService.updateDetails(unfinishedDetails); // 关联未完成的waveDetail到新的拣货任务上
+        Map<String, Object> result = new HashMap<String, Object>();
+        result.put("taskId", newTaskId);
         return JsonUtils.SUCCESS(result);
     }
 }

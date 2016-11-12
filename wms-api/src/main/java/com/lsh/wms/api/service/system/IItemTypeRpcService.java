@@ -25,9 +25,11 @@ public interface IItemTypeRpcService {
 
     void insertItemTypeRelation(BaseinfoItemTypeRelation baseinfoItemTypeRelation)throws BizCheckedException;
 
-    public void updateItemTypeRelation(BaseinfoItemTypeRelation baseinfoItemTypeRelation);
+    void updateItemTypeRelation(BaseinfoItemTypeRelation baseinfoItemTypeRelation);
 
-    public BaseinfoItemTypeRelation getBaseinfoItemTypeRelationById(Long id);
+    void deleteItemTypeRelation(Long id);
 
-    public List<BaseinfoItemTypeRelation> getBaseinfoItemTypeRelationList(Map<String, Object> params);
+    BaseinfoItemTypeRelation getBaseinfoItemTypeRelationById(Long id);
+
+    List<Map<String,Object>> getItemTypeRelationListByItemTypeId(String itemTypeId);
 }

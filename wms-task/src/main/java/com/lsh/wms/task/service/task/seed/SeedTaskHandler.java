@@ -24,10 +24,12 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.store.StoreService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoStore;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
@@ -97,6 +99,10 @@ public class SeedTaskHandler extends AbsTaskHandler {
     ISeedRpcService seedRpcService;
     @Autowired
     private StaffService staffService;
+    @Reference
+    private ITaskRpcService iTaskRpcService;
+    @Autowired
+    StoreService storeService;
 
     private static Logger logger = LoggerFactory.getLogger(SeedTaskHandler.class);
 
@@ -128,7 +134,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
 
         Long orderId = lot.getPoId();
         Map<String,Long> storeMap = new HashMap<String, Long>();
-        List<BaseinfoLocation> storeList = locationRpcService.sortSowLocationByStoreNo();
+        List<BaseinfoStore> storeList = storeService.getOpenedStoreList(new HashMap<String, Object>());
         if(storeList!=null && storeList.size()!=0) {
             for (int i = 0; i < storeList.size(); i++) {
                 storeMap.put(storeList.get(i).getStoreNo(), Long.valueOf(i));
@@ -145,6 +151,23 @@ public class SeedTaskHandler extends AbsTaskHandler {
         mapQuery.put("itemId",item.getItemId());
         List<TaskInfo> infos = baseTaskService.getTaskInfoList(mapQuery);
         if(infos!=null && infos.size()!=0){
+            TaskInfo info = infos.get(0);
+            mapQuery.put("step",1);
+            //查找未播种未够数量，却已完成播种的任务
+            infos = baseTaskService.getTaskInfoList(mapQuery);
+            for (TaskInfo taskInfo:infos){
+                TaskEntry entry = new TaskEntry();
+                SeedingTaskHead head = seedTaskHeadService.getHeadByTaskId(taskInfo.getTaskId());
+                info.setTaskId(0L);
+                info.setId(0L);
+                info.setStatus(TaskConstant.Draft);
+                info.setPlanId(0L);
+                info.setContainerId(0L);
+                head.setRequireQty(head.getRequireQty().subtract(info.getQty()));
+                entry.setTaskInfo(info);
+                entry.setTaskHead(head);
+                iTaskRpcService.create(TaskConstant.TYPE_SEED, entry);
+            }
             return;
         }
 

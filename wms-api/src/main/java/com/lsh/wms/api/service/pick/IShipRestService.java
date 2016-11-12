@@ -17,4 +17,11 @@ public interface IShipRestService {
     /*创建任务,临时*/
     public String createTask() throws BizCheckedException;
     public String releaseCollectionRoad() throws BizCheckedException;
+
+    /**
+     * 一键装车
+     * @return
+     * @throws BizCheckedException
+     */
+    public String quickLoad() throws BizCheckedException;
 }

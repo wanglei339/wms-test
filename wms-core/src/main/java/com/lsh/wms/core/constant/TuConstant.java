@@ -22,6 +22,11 @@ public class TuConstant {
     //是否余货
     public static final Integer IS_EXPENSIVE = 1;
     public static final Integer NOT_EXPENSIVE = 0;
+    //类型 1-门店 2-优供
+    public static final Integer TYPE_STORE = 1;
+    public static final Integer TYPE_YOUGONG = 2;
+    //仓库名字
+
 
 
 }

@@ -11,6 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * Created by mali on 16/7/14.
  */
@@ -34,7 +38,12 @@ public class SeedTaskHeadService {
         head.setUpdatedAt(DateUtils.getCurrentSeconds());
         headDao.update(head);
     }
-    @Transactional(readOnly = false)
+    public List<SeedingTaskHead> getHeadByOrderIdAndStoreNo(Long orderId,String storeNo ) {
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("orderId",orderId);
+        mapQuery.put("storeNo",storeNo);
+        return headDao.getSeedingTaskHeadList(mapQuery);
+    }
     public SeedingTaskHead getHeadByTaskId(Long  taskId) {
        return headDao.getSeedingTaskHeadByTaskId(taskId);
     }

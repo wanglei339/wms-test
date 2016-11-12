@@ -1,12 +1,22 @@
 package com.lsh.wms.rpc.service.pick;
 
 import com.alibaba.dubbo.common.utils.CollectionUtils;
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.service.pick.IPickRpcService;
+import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.pick.PickTaskService;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.pick.PickTaskHead;
+import com.lsh.wms.model.task.TaskEntry;
+import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +37,12 @@ public class PickRpcService implements IPickRpcService {
     private WaveService waveService;
     @Autowired
     private LocationService locationService;
+    @Autowired
+    private BaseTaskService baseTaskService;
+    @Autowired
+    private PickTaskService pickTaskService;
+    @Autowired
+    private ContainerService containerService;
 
     /**
      * 拣货顺序排序z型排序
