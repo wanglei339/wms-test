@@ -24,26 +24,18 @@ import java.util.concurrent.ConcurrentMap;
 @Transactional(readOnly = true)
 public class CsiCategoryService {
     private static final Logger logger = LoggerFactory.getLogger(CsiCategoryService.class);
-    private static final ConcurrentMap<Long, CsiCategory> m_CatCache = new ConcurrentHashMap<Long, CsiCategory>();
-    private static final ConcurrentMap<Long, List<CsiCategory>> m_CatChildCache = new ConcurrentHashMap<Long, List<CsiCategory>>();
-
     @Autowired
     private CsiCategoryDao catDao;
 
-    public CsiCategory getCatInfo(long iCatId){
-        CsiCategory cat = m_CatCache.get(iCatId);
-        if(cat == null){
-            Map<String, Object> mapQuery = new HashMap<String, Object>();
-            mapQuery.put("catId", iCatId);
-            List<CsiCategory> items = catDao.getCsiCategoryList(mapQuery);
-            if(items.size() == 1){
-                cat = items.get(0);
-                m_CatCache.put(iCatId, cat);
-            } else {
-                return null;
-            }
+    public CsiCategory getCatInfo(long iCatId) {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("catId", iCatId);
+        List<CsiCategory> cats = catDao.getCsiCategoryList(mapQuery);
+        if (cats.size() == 1) {
+            return cats.get(0);
+        } else {
+            return null;
         }
-        return cat;
     }
 
     public List<CsiCategory> getFullCatInfo(long iCatId){
@@ -75,21 +67,15 @@ public class CsiCategoryService {
         return list;
     }
 
-    public List<CsiCategory> getChilds(long iCatId){
-        List<CsiCategory> cats = m_CatChildCache.get(iCatId);
-        if(cats == null){
-            Map<String, Object> mapQuery = new HashMap<String, Object>();
-            mapQuery.put("fCatId", iCatId);
-            List<CsiCategory> items = catDao.getCsiCategoryList(mapQuery);
-            if(items.size() > 0){
-                cats = items;
-                m_CatChildCache.put(iCatId, cats);
-            } else {
-                return null;
-            }
+    public List<CsiCategory> getChilds(long iCatId) {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("fCatId", iCatId);
+        List<CsiCategory> cats = catDao.getCsiCategoryList(mapQuery);
+        if (cats.size() > 0) {
+            return cats;
+        } else {
+            return null;
         }
-        return cats;
-
     }
 
     @Transactional(readOnly = false)
@@ -98,18 +84,10 @@ public class CsiCategoryService {
         long iCatId = RandomUtils.genId();
         category.setCatId(iCatId);
         catDao.insert(category);
-        //更新缓存
-        m_CatCache.put(category.getCatId(),category);
-
     }
 
     @Transactional(readOnly = false)
     public void updateCategory(CsiCategory csiCategory){
         catDao.update(csiCategory);
-        //更新缓存
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("catId", csiCategory.getCatId());
-        CsiCategory newCategory = catDao.getCsiCategoryList(mapQuery).get(0);
-        m_CatCache.put(csiCategory.getCatId(),newCategory);
     }
 }
