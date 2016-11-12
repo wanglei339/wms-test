@@ -531,7 +531,7 @@ public class SeedRestService implements ISeedRestService {
             return JsonUtils.TOKEN_ERROR("播种任务不存在");
         }
         List<SeedingTaskHead> heads = seedTaskHeadService.getHeadByOrderIdAndStoreNo(entry.getTaskInfo().getOrderId(), storeNo);
-        if(heads==null){
+        if(heads==null || heads.size()==0){
             return JsonUtils.TOKEN_ERROR("该门店不存在播种任务");
         }
         SeedingTaskHead head = heads.get(0);
