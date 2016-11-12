@@ -25,26 +25,18 @@ import java.util.concurrent.ConcurrentMap;
 @Transactional(readOnly = true)
 public class CsiOwnerService {
     private static final Logger logger = LoggerFactory.getLogger(CsiOwnerService.class);
-    //将Integer改为long modify by lixin
-    private static final ConcurrentMap<Long, CsiOwner> m_OwnerCache = new ConcurrentHashMap<Long, CsiOwner>();
 
     @Autowired
     private CsiOwnerDao ownerDao;
-    //将int改为long modify by lixin
-    public CsiOwner getOwner(long iOwnerId){
-        CsiOwner cat = m_OwnerCache.get(iOwnerId);
-        if(cat == null){
-            Map<String, Object> mapQuery = new HashMap<String, Object>();
-            mapQuery.put("ownerId", iOwnerId);
-            List<CsiOwner> items = ownerDao.getCsiOwnerList(mapQuery);
-            if(items.size() == 1){
-                cat = items.get(0);
-                m_OwnerCache.put(iOwnerId, cat);
-            } else {
-                return null;
-            }
+    public CsiOwner getOwner(long iOwnerId) {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("ownerId", iOwnerId);
+        List<CsiOwner> items = ownerDao.getCsiOwnerList(mapQuery);
+        if (items.size() == 1) {
+            return items.get(0);
+        } else {
+            return null;
         }
-        return cat;
     }
 
     @Transactional(readOnly = false)
@@ -54,8 +46,6 @@ public class CsiOwnerService {
         //增加新增时间
         owner.setCreatedAt(DateUtils.getCurrentSeconds());
         ownerDao.insert(owner);
-        //更新缓存
-        m_OwnerCache.put(owner.getOwnerId(),owner);
     }
 
     @Transactional(readOnly = false)
@@ -63,13 +53,6 @@ public class CsiOwnerService {
         //增加更新时间
         owner.setUpdatedAt(DateUtils.getCurrentSeconds());
         ownerDao.update(owner);
-
-        //更新缓存中的数据
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-
-        mapQuery.put("ownerId", owner.getOwnerId());
-        CsiOwner newOwner = ownerDao.getCsiOwnerList(mapQuery).get(0);
-        m_OwnerCache.put(owner.getOwnerId(),newOwner);
     }
 
     public List<CsiOwner> getOwnerList(Map<String,Object> mapQuery){

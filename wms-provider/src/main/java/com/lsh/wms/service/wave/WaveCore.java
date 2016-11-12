@@ -9,12 +9,14 @@ import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.PickConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.WaveConstant;
+import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.pick.*;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.store.StoreService;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.core.service.wave.WaveAllocService;
@@ -23,6 +25,8 @@ import com.lsh.wms.core.service.wave.WaveTemplateService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoStore;
+import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.pick.*;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
@@ -77,6 +81,8 @@ public class WaveCore {
     private WaveTemplateService waveTemplateService;
     @Autowired
     private MessageService messageService;
+    @Autowired
+    private CsiCustomerService customerService;
 
     private WaveHead waveHead;
     List<ObdDetail> orderDetails;
@@ -84,7 +90,6 @@ public class WaveCore {
     Map<Long, ObdHeader> mapOrder2Head;
     WaveTemplate waveTemplate;
     List<BaseinfoLocation> unUsedCollectionRoadList;
-    Map<String, BaseinfoLocation> mapRoute2CollectRoad;
     Map<Long, Long> mapOrder2CollectBin;
     PickModelTemplate modelTpl;
     List<PickModel> modelList;
@@ -114,10 +119,16 @@ public class WaveCore {
         //执行捡货模型,输出最小捡货单元
         this._executePickModel();
         //锁定集货区,记得发货的时候释放哟
-        for (BaseinfoLocation locaion : mapRoute2CollectRoad.values()) {
-            //虽然分配了,却未能占用,这就别锁了
-            //固定集货道模式,这也别锁了,锁了也没用
-            locationService.lockLocation(locaion.getLocationId());
+        //虽然分配了,却未能占用,这就别锁了
+        //固定集货道模式,这也别锁了,锁了也没用
+        if(waveTemplate.getCollectDynamic()==1) {
+            Set<Long> collectLocations = new HashSet<Long>();
+            for(TaskEntry entry : entryList){
+                collectLocations.add(((PickTaskHead)entry.getTaskHead()).getAllocCollectLocation());
+            }
+            for(Object locationId : collectLocations.toArray()){
+                locationService.lockLocation((Long)locationId);
+            }
         }
         //创建捡货任务
         taskRpcService.batchCreate(TaskConstant.TYPE_PICK, entryList);
@@ -145,6 +156,7 @@ public class WaveCore {
     private void _allocDockByRoute() throws BizCheckedException {
         Map<Long, Long> mapCollectBinCount = new HashMap<Long, Long>();
         Map<Long, List<BaseinfoLocation>> mapCollectRoad2Bin = new HashMap<Long, List<BaseinfoLocation>>();
+        Map<String, BaseinfoLocation> mapRoute2CollectRoad = new HashMap<String, BaseinfoLocation>();
         int iUseIdx = 0;
         for (ObdHeader order : orderList) {
             Long collectAllocId = 0L;
@@ -214,9 +226,97 @@ public class WaveCore {
         }
     }
 
+    private void _allocDockNew() throws BizCheckedException{
+        Map<Long, Long> mapCollectBinCount = new HashMap<Long, Long>();
+        Map<Long, List<BaseinfoLocation>> mapCollectRoad2Bin = new HashMap<Long, List<BaseinfoLocation>>();
+        Map<String, BaseinfoLocation> mapCollectRoad = new HashMap<String, BaseinfoLocation>();
+        int iUseIdx = 0;
+        if(waveTemplate.getCollectBinUse() == 1){
+            //当面还不支持使用集货位,呵呵,开发中
+            throw new BizCheckedException("2040019");
+        }
+        for (ObdHeader order : orderList) {
+            Long collectAllocId = 0L;
+            String takeKey = "";
+            if(waveTemplate.getCollectAllocModel() == PickConstant.COLLECT_ALLOC_MODE_CUSTOMER){
+                takeKey = order.getDeliveryCode();
+            }else if (waveTemplate.getCollectAllocModel() == PickConstant.COLLECT_ALLOC_MODE_ROUTE){
+                takeKey = order.getTransPlan();
+            }else{
+                //不支持的分配模式
+                throw new BizCheckedException("2040019");
+            }
+            BaseinfoLocation collecRoad = mapCollectRoad.get(takeKey);
+            if (collecRoad == null) {
+                //分配集货道
+                if(waveTemplate.getCollectDynamic() == 1){
+                    //动态
+                    if (iUseIdx >= unUsedCollectionRoadList.size()) {
+                        throw new BizCheckedException("2040012");
+                    }
+                    collecRoad = unUsedCollectionRoadList.get(iUseIdx);
+                    iUseIdx++;
+                    mapCollectRoad.put(takeKey, collecRoad);
+                    mapCollectBinCount.put(collecRoad.getLocationId(), 0L);
+                }else{
+                    //静态
+                    if(waveTemplate.getCollectAllocModel() != PickConstant.COLLECT_ALLOC_MODE_CUSTOMER){
+                        //指定模式不支持静态分配集货道
+                        throw new BizCheckedException("2040019");
+                    }
+                    //go
+                    CsiCustomer customer = customerService.getCustomerByCustomerCode(order.getOwnerUid(), order.getDeliveryCode());
+                    if(customer == null){
+                        //门店找不到了哟草
+                        throw new BizCheckedException("2040020");
+                    }
+                    long collecRoadId = customer.getCollectRoadId();
+                    BaseinfoLocation location = locationService.getLocation(collecRoadId);
+                    if(location == null || location.getType() != LocationConstant.COLLECTION_ROAD){
+                        throw new BizCheckedException("2040021");
+                    }
+                    collecRoad = location;
+                    mapCollectRoad.put(takeKey, collecRoad);
+                    mapCollectBinCount.put(collecRoad.getLocationId(), 0L);
+                }
+            }
+            long binIdx = mapCollectBinCount.get(collecRoad.getLocationId());
+            if (waveTemplate.getCollectBinUse() == 0) {
+                //不使用精细的集货位
+                collectAllocId = collecRoad.getLocationId();
+            } else {
+                //使用精细的集货位
+                List<BaseinfoLocation> collectionBins = mapCollectRoad2Bin.get(collecRoad.getLocationId());
+                if (collectionBins == null) {
+                    if (collecRoad.getIsLeaf() == 1) {
+                        //卧槽,已经是叶子节点了,没有集货位啊,怎么搞啊
+                        collectionBins = new ArrayList<BaseinfoLocation>();
+                    }
+                    collectionBins = locationService.getChildrenLocationsByType(collecRoad.getLocationId(), LocationConstant.COLLECTION_BIN);
+                    mapCollectRoad2Bin.put(collecRoad.getLocationId(), collectionBins);
+                }
+                if (order.getWaveIndex() >= collectionBins.size()) {
+                    //卧槽,越界了,根本放不下啊,就放在道上将就将就吧
+                    collectAllocId = collecRoad.getLocationId();
+                } else {
+                    //哈哈,终于找到你拉兄弟
+                    //不过这里我们不处理集货位的占用处理逻辑,TMS你不要瞎搞啊,否则就把我害惨了
+                    collectAllocId = collectionBins.get(order.getWaveIndex()).getLocationId();
+                }
+            }
+            mapOrder2CollectBin.put(order.getOrderId(), collectAllocId);
+        }
+    }
+
     private void _allocDock() throws BizCheckedException{
+        /*
+        集货道分配模型分为:动态和静态
+        占用方式分为:按客户和按线路
+        集货位模式主要用于播种,暂时不支持
+         */
+        this._allocDockNew();
         //按照线路动态划分集货道
-        this._allocDockByRoute();
+        //this._allocDockByRoute();
         //按照客户固定集货道
         //this._allocDockByCustomerStatic();
         //按照客户滚动集货道
@@ -273,9 +373,6 @@ public class WaveCore {
                 splitModel.init(model, splitNodes, mapItems);
                 splitModel.split(stopNodes);
                 splitNodes = splitModel.getSplitedNodes();
-                if(stopNodes.size()>0){
-                    logger.info("hehe");
-                }
             }
             if(splitNodes.size()>0){
                 //卧槽,这是怎么回事,出bug了?
@@ -511,7 +608,6 @@ public class WaveCore {
         mapItemAndPickZone2PickLocations = new HashMap<String, List<BaseinfoItemLocation>>();
         mapItemAndPickZone2PickLocationRound = new HashMap<String, Long>();
         mapPickZoneLeftAllocQty = new HashMap<String, BigDecimal>();
-        mapRoute2CollectRoad = new HashMap<String, BaseinfoLocation>();
         mapOrder2CollectBin = new HashMap<Long, Long>();
         mapItemArea2LocationInventory = new HashMap<String, Map<Long, BigDecimal>>();
         mapItems = new HashMap<Long, BaseinfoItem>();
@@ -548,7 +644,7 @@ public class WaveCore {
         }
         //无可用的集货道
         if(unUsedCollectionRoadList.size()==0){
-            throw new BizCheckedException("2040011");
+            //throw new BizCheckedException("2040011");
         }
         //集货到分配排序
         //TODO collection sort
