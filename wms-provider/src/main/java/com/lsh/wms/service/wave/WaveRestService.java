@@ -397,7 +397,7 @@ public class WaveRestService implements IWaveRestService {
 
     @POST
     @Path("createWaveTemplate")
-    public String createWaveTemplate(WaveTemplate tpl){
+    public String createWaveTemplate(WaveTemplate tpl) throws BizCheckedException {
         try{
             if(modelService.getPickModelTemplate(tpl.getPickModelTemplateId())==null){
                 return JsonUtils.EXCEPTION_ERROR("捡货模版id不存在");
@@ -416,7 +416,7 @@ public class WaveRestService implements IWaveRestService {
 
     @POST
     @Path("updateWaveTemplate")
-    public String updateWaveTemplate(WaveTemplate tpl){
+    public String updateWaveTemplate(WaveTemplate tpl) throws BizCheckedException {
         try{
             if(modelService.getPickModelTemplate(tpl.getPickModelTemplateId())==null){
                 return JsonUtils.EXCEPTION_ERROR("捡货模版id不存在");
@@ -439,7 +439,7 @@ public class WaveRestService implements IWaveRestService {
 
     @GET
     @Path("runWaveGenerator")
-    public String runWaveGenerator(){
+    public String runWaveGenerator() throws BizCheckedException{
         waveGenerator.autoCluster();
         return JsonUtils.SUCCESS();
     }
@@ -452,7 +452,7 @@ public class WaveRestService implements IWaveRestService {
 
     @POST
     @Path("createWaveByPreview")
-    public String createWaveByPreview(Map<String, Object> mapData){
+    public String createWaveByPreview(Map<String, Object> mapData) throws BizCheckedException{
         List<Long> orderIds = waveGenerator.getOrderIdsByWavePreviewId(mapData.get("wavePreviewId").toString());
         Long waveTemplateId = waveGenerator.getWaveTemplateIdByWavePreviewId(mapData.get("wavePreviewId").toString());
 

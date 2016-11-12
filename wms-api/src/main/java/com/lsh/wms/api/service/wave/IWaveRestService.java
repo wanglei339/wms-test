@@ -52,11 +52,11 @@ public interface IWaveRestService {
     String getWaveTemplateList(Map<String, Object> mapQuery);
     String getWaveTemplateCount(Map<String, Object> mapQuery);
     String getWaveTemplate(long waveTemplateId);
-    String createWaveTemplate(WaveTemplate tpl);
-    String updateWaveTemplate(WaveTemplate tpl);
+    String createWaveTemplate(WaveTemplate tpl) throws BizCheckedException;
+    String updateWaveTemplate(WaveTemplate tpl) throws BizCheckedException;
 
     //test
-    public String runWaveGenerator();
+    public String runWaveGenerator() throws BizCheckedException;
     public String getWavePreviewList();
-    public String createWaveByPreview(Map<String, Object> mapData);
+    public String createWaveByPreview(Map<String, Object> mapData) throws BizCheckedException;
 }
