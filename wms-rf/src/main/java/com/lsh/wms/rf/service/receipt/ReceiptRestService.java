@@ -344,6 +344,9 @@ public class ReceiptRestService implements IReceiptRfService {
             throw new BizCheckedException("2000002");
         }
 
+        BaseinfoItem baseinfoItem = this.getItem(barCode,ibdHeader.getOwnerUid());
+
+
 
         //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
         CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barCode);
@@ -351,7 +354,7 @@ public class ReceiptRestService implements IReceiptRfService {
             throw new BizCheckedException("2020022");
         }
 
-        BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
+        //BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
 
         IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(),baseinfoItem.getSkuCode());
 
@@ -603,29 +606,26 @@ public class ReceiptRestService implements IReceiptRfService {
             }
         }
 
-        //商品是否存在
-        CsiSku csiSku=csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE,barCode);
-        if(null==csiSku||csiSku.getSkuId()==null){
-            throw new BizCheckedException("2020022");
-        }
-
-
         //po单是否存在
         IbdHeader ibdHeader=poOrderService.getInbPoHeaderByOrderOtherId(orderOtherId);
         if(ibdHeader==null){
             throw new BizCheckedException("2020001");
         }
+
+
+       BaseinfoItem baseinfoItem = this.getItem(barCode,ibdHeader.getOwnerUid());
+
+
+
+
+
         //是否可收货
         boolean isCanReceipt=ibdHeader.getOrderStatus()==PoConstant.ORDER_THROW||ibdHeader.getOrderStatus()==PoConstant.ORDER_RECTIPT_PART||ibdHeader.getOrderStatus()==PoConstant.ORDER_RECTIPTING;
         if(!isCanReceipt){
             throw new BizCheckedException("2020002");
         }
 
-        //获取货主商品信息
-        BaseinfoItem baseinfoItem=itemService.getItem(ibdHeader.getOwnerUid(),csiSku.getSkuId());
-        if(baseinfoItem==null){
-            throw new BizCheckedException("2900001");
-        }
+
         //查找保质期天数
         BigDecimal shelfLife=baseinfoItem.getShelfLife();
         //skucode
@@ -673,7 +673,7 @@ public class ReceiptRestService implements IReceiptRfService {
                     map2.put("location","J"+storeId);
                     map2.put("orderId",ibdHeader.getOrderId());
                     map2.put("barCode",barCode);
-                    map2.put("skuName",csiSku.getSkuName());
+                    map2.put("skuName",baseinfoItem.getSkuName());
                     map2.put("orderQty",obdDetail.getOrderQty());
                     map2.put("packName",ibdDetail.getPackName());
                     map2.put("packUnit",ibdDetail.getPackUnit());
@@ -713,6 +713,38 @@ public class ReceiptRestService implements IReceiptRfService {
             }
 
         });
+    }
+
+    private BaseinfoItem getItem(String barCode , Long ownerId){
+        BaseinfoItem baseinfoItem = new BaseinfoItem();
+        if (barCode.length() == 6 || barCode.length() == 9){
+
+            while (barCode.length() < 18){
+                StringBuffer sb = new StringBuffer();
+                sb.append("0").append(barCode);
+                barCode = sb.toString();
+            }
+            List<BaseinfoItem> items = itemService.getItemsBySkuCode(ownerId,barCode);
+            if(items.size() <= 0){
+                throw new BizCheckedException("2900001");
+            }
+            baseinfoItem = items.get(items.size()-1);
+
+        }else{
+            //商品是否存在
+            CsiSku csiSku=csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE,barCode);
+            if(null==csiSku||csiSku.getSkuId()==null){
+                throw new BizCheckedException("2020022");
+            }
+            //获取货主商品信息
+            baseinfoItem=itemService.getItem(ownerId,csiSku.getSkuId());
+            if(baseinfoItem==null){
+                throw new BizCheckedException("2900001");
+            }
+
+        }
+        return baseinfoItem;
+
     }
 
 }
