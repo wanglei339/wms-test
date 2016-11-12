@@ -2,6 +2,7 @@ package com.lsh.wms.service.wave;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.wave.IWaveRpcService;
@@ -37,6 +38,9 @@ public class WaveRpcService implements IWaveRpcService {
     WaveService waveService;
     @Autowired
     private WaveCore core;
+    @Autowired
+    private WaveGenerator waveGenerator;
+
 
 
     public Long decorateCreateWave(WaveRequest request) throws BizCheckedException {
@@ -138,5 +142,8 @@ public class WaveRpcService implements IWaveRpcService {
         }
     }
 
+    public void runWaveGenerator() throws BizCheckedException{
+        waveGenerator.autoCluster();
+    }
 
 }
