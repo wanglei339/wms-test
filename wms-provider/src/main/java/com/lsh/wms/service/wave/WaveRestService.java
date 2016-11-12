@@ -400,16 +400,16 @@ public class WaveRestService implements IWaveRestService {
     public String createWaveTemplate(WaveTemplate tpl) throws BizCheckedException {
         try{
             if(modelService.getPickModelTemplate(tpl.getPickModelTemplateId())==null){
-                return JsonUtils.EXCEPTION_ERROR("捡货模版id不存在");
+                throw new BizCheckedException("2040015");
             }
             if(locationService.getLocation(tpl.getCollectLocations())==null
                     || locationService.getLocation(tpl.getCollectLocations()).getType() != LocationConstant.COLLECTION_ROAD_GROUP){
-                return JsonUtils.EXCEPTION_ERROR("集货道组配置不正确");
+                throw new BizCheckedException("2040016");
             }
             waveTemplateService.createWaveTemplate(tpl);
         }catch (Exception e ){
             logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR("create failed");
+            throw new BizCheckedException("2040017");
         }
         return JsonUtils.SUCCESS();
     }
@@ -419,16 +419,16 @@ public class WaveRestService implements IWaveRestService {
     public String updateWaveTemplate(WaveTemplate tpl) throws BizCheckedException {
         try{
             if(modelService.getPickModelTemplate(tpl.getPickModelTemplateId())==null){
-                return JsonUtils.EXCEPTION_ERROR("捡货模版id不存在");
+                throw new BizCheckedException("2040015");
             }
             if(locationService.getLocation(tpl.getCollectLocations())==null
                     || locationService.getLocation(tpl.getCollectLocations()).getType() != LocationConstant.COLLECTION_ROAD_GROUP){
-                return JsonUtils.EXCEPTION_ERROR("集货道组配置不正确");
+                throw new BizCheckedException("2040016");
             }
             waveTemplateService.updateWaveTemplate(tpl);
         }catch (Exception e){
             logger.error(e.getCause().getMessage());
-            JsonUtils.EXCEPTION_ERROR("update failed");
+            throw new BizCheckedException("2040017");
         }
         return JsonUtils.SUCCESS();
     }
@@ -457,7 +457,7 @@ public class WaveRestService implements IWaveRestService {
         Long waveTemplateId = waveGenerator.getWaveTemplateIdByWavePreviewId(mapData.get("wavePreviewId").toString());
 
         if(orderIds == null || waveTemplateId == null){
-            return JsonUtils.OTHER_EXCEPTION("未查询到相关信息,请刷新页面");
+            throw new BizCheckedException("2040018");
         }
         List<Map> orders = new LinkedList<Map>();
         for(Long orderId : orderIds){
@@ -467,6 +467,12 @@ public class WaveRestService implements IWaveRestService {
         }
         WaveRequest request = new WaveRequest(orders, Long.valueOf(WaveConstant.STATUS_NEW), "呵呵", "PREVIEW_HAND", waveTemplateId, 1L);
         waveRpcService.createWave(request);
+        try{
+            //存储redis说这个哥们已经释放了
+
+        }catch (Exception e){
+
+        }
         return JsonUtils.SUCCESS();
     }
 }
