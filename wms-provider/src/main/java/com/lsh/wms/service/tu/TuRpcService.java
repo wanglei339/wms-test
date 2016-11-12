@@ -319,6 +319,7 @@ public class TuRpcService implements ITuRpcService {
         tuHead.setScale(Integer.valueOf(mapRequest.get("scale").toString()));
         tuHead.setWarehouseId(mapRequest.get("warehouse_id").toString());
         tuHead.setCompanyName(mapRequest.get("company_name").toString());
+        tuHead.setType(TuConstant.TYPE_STORE);  //直流门店
         tuHead.setStatus(TuConstant.UNLOAD);
         if (newTu) {
             tuService.create(tuHead);
@@ -338,47 +339,6 @@ public class TuRpcService implements ITuRpcService {
         tuHead.setRfSwitch(rfSwitch);
         this.update(tuHead);
         return tuHead;
-    }
-
-    /**
-     * 关闭尾货开关
-     *
-     * @param tuId
-     * @return
-     * @throws BizCheckedException
-     */
-
-    /**
-     * 移动板子库存到消费区   移动在一个事务中
-     *
-     * @param waveDetails
-     * @return
-     * @throws BizCheckedException
-     */
-    public boolean moveItemToConsumeArea(List<WaveDetail> waveDetails) throws BizCheckedException {
-        if (null == waveDetails || waveDetails.size() < 1) {
-            throw new BizCheckedException("2880012");
-        }
-        Set<Long> containerIds = new HashSet<Long>();
-        for (WaveDetail detail : waveDetails) {
-            containerIds.add(detail.getContainerId());
-        }
-        stockMoveService.moveToConsume(containerIds);
-        return true;
-    }
-
-    /**
-     * 消除物理托盘的库存
-     *
-     * @return
-     * @throws BizCheckedException
-     */
-    public boolean moveItemToConsumeArea(Set<Long> containerIds ) throws BizCheckedException {
-        if (null == containerIds||containerIds.size()<1) {
-            throw new BizCheckedException("2880010");
-        }
-        stockMoveService.moveToConsume(containerIds);
-        return true;
     }
 
     /**
@@ -560,7 +520,6 @@ public class TuRpcService implements ITuRpcService {
             deliveryDetail.setSkuName(item.getSkuName());
             deliveryDetail.setBarCode(item.getCode());
             deliveryDetail.setOrderQty(waveDetail.getReqQty());
-            //todo 箱子规则,使用工具
             deliveryDetail.setPackUnit(PackUtil.Uom2PackUnit(waveDetail.getAllocUnitName()));
             //通过stock quant获取到对应的lot信息
             List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(waveDetail.getContainerId());
@@ -703,5 +662,13 @@ public class TuRpcService implements ITuRpcService {
             totalWaveDetails.addAll(waveDetails);
         }
         return totalWaveDetails;
+    }
+
+    public void createBatchDetail(List<TuDetail> details) throws BizCheckedException {
+        tuService.createBatchDetail(details);
+    }
+
+    public void createBatchhead(List<TuHead> heads) throws BizCheckedException {
+        tuService.createBatchhead(heads);
     }
 }

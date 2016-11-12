@@ -7,6 +7,7 @@ import com.taobao.pamirs.schedule.TaskItemDefine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.List;
 /**
  * Created by zengwenjun on 16/11/12.
  */
+@Component
 public class WaveAutoGenerator implements IScheduleTaskDealSingle<String> {
     @Reference
     IWaveRpcService iWaveRpcService;
