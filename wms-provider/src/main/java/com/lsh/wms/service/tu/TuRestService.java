@@ -121,6 +121,10 @@ public class TuRestService implements ITuRestService {
         if (null == details || details.size() < 1) {
             throw new BizCheckedException("2990041");
         }
+
+        //物美obd数据格式
+        Map<String, Object> ibdObdMap = new HashMap<String, Object>();
+
         //大小店
         if (TuConstant.SCALE_STORE.equals(tuHead.getScale())) {  //小店 合板
             //待销库存的totalDetails
@@ -143,20 +147,14 @@ public class TuRestService implements ITuRestService {
                 iTaskRpcService.done(shipTaskId);
                 totalContainers.add(detail.getMergedContainerId());
             }
-            //销库存移到consumer位置
-//            iTuRpcService.moveItemToConsumeArea(totalContainers);
+
             //拼接物美sap
-            Map<String, Object> ibdObdMap = iTuRpcService.bulidSapDate(tuHead.getTuId());
-            wuMart.sendIbd((CreateIbdHeader) ibdObdMap.get("createIbdHeader"));
-            wuMart.sendObd((CreateObdHeader) ibdObdMap.get("createObdHeader"));
+            ibdObdMap = iTuRpcService.bulidSapDate(tuHead.getTuId());
             //生成发货单 osd的托盘生命结束并销库存
             Map<String,Object> map = new HashMap<String, Object>();
             map.put("containerIds",totalContainers);
             map.put("tuHead",tuHead);
             tuService.createObdAndMoveStockQuant(map);
-//            //生成发货单 osd的托盘生命结束
-//            iTuRpcService.creatDeliveryOrderAndDetail(tuHead);
-
         } else {
             //待销库存的totalDetails
             List<WaveDetail> totalDetails = new ArrayList<WaveDetail>();
@@ -190,20 +188,18 @@ public class TuRestService implements ITuRestService {
             for (WaveDetail detail : totalDetails) {
                 containerIds.add(detail.getContainerId());
             }
-            //移库存下沉到一个事务中
-//            iTuRpcService.moveItemToConsumeArea(containerIds);
             //拼接物美SAP
-            Map<String, Object> ibdObdMap = iTuRpcService.bulidSapDate(tuHead.getTuId());
-//            wuMart.sendIbd((CreateIbdHeader) ibdObdMap.get("createIbdHeader"));
-//            wuMart.sendObd((CreateObdHeader) ibdObdMap.get("createObdHeader"));
-            wuMart.sendSap(ibdObdMap);
+            ibdObdMap = iTuRpcService.bulidSapDate(tuHead.getTuId());
+
             //生成发货单 osd的托盘生命结束并销库存
             Map<String,Object> map = new HashMap<String, Object>();
             map.put("containerIds",containerIds);
             map.put("tuHead",tuHead);
             tuService.createObdAndMoveStockQuant(map);
-//            iTuRpcService.creatDeliveryOrderAndDetail(tuHead);
         }
+
+        //回传物美
+        wuMart.sendSap(ibdObdMap);
         //改变发车状态
         tuHead.setStatus(TuConstant.SHIP_OVER);
         iTuRpcService.update(tuHead);
