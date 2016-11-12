@@ -1,9 +1,9 @@
 package com.lsh.wms.core.service.baseinfo;
 
-import com.lsh.wms.core.dao.baseinfo.BassinfoItemTypeDao;
-import com.lsh.wms.core.dao.baseinfo.BassinfoItemTypeRelationDao;
-import com.lsh.wms.model.baseinfo.BassinfoItemType;
-import com.lsh.wms.model.baseinfo.BassinfoItemTypeRelation;
+import com.lsh.wms.core.dao.baseinfo.BaseinfoItemTypeDao;
+import com.lsh.wms.core.dao.baseinfo.BaseinfoItemTypeRelationDao;
+import com.lsh.wms.model.baseinfo.BaseinfoItemType;
+import com.lsh.wms.model.baseinfo.BaseinfoItemTypeRelation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,38 +19,45 @@ import java.util.Map;
 @Transactional(readOnly = true)
 public class ItemTypeService {
     @Autowired
-    private BassinfoItemTypeDao bassinfoItemTypeDao;
+    private BaseinfoItemTypeDao baseinfoItemTypeDao;
     @Autowired
-    private BassinfoItemTypeRelationDao bassinfoItemTypeRelationDao;
+    private BaseinfoItemTypeRelationDao baseinfoItemTypeRelationDao;
 
-    public  void insertItemType(BassinfoItemType bassinfoItemType){
-        bassinfoItemTypeDao.insert(bassinfoItemType);
-    }
-
-    public  void updateItemType(BassinfoItemType bassinfoItemType){
-        bassinfoItemTypeDao.update(bassinfoItemType);
+    public  void insertItemType(BaseinfoItemType baseinfoItemType){
+        baseinfoItemTypeDao.insert(baseinfoItemType);
     }
 
-    public BassinfoItemType getBassinfoItemTypeById(Integer id){
-        return bassinfoItemTypeDao.getBassinfoItemTypeById(id);
+    public  void updateItemType(BaseinfoItemType baseinfoItemType){
+        baseinfoItemTypeDao.update(baseinfoItemType);
     }
 
-    public List<BassinfoItemType> getBassinfoItemTypeList(Map<String, Object> params){
-        return bassinfoItemTypeDao.getBassinfoItemTypeList(params);
-    }
-    public void insertItemTypeRelation(BassinfoItemTypeRelation bassinfoItemTypeRelation){
-        bassinfoItemTypeRelationDao.insert(bassinfoItemTypeRelation);
+    public BaseinfoItemType getBaseinfoItemTypeById(Integer id){
+        return baseinfoItemTypeDao.getBaseinfoItemTypeById(id);
     }
 
-    public void updateItemTypeRelation(BassinfoItemTypeRelation bassinfoItemTypeRelation){
-        bassinfoItemTypeRelationDao.update(bassinfoItemTypeRelation);
+    public List<BaseinfoItemType> getBaseinfoItemTypeList(Map<String, Object> params){
+        return baseinfoItemTypeDao.getBaseinfoItemTypeList(params);
+    }
+    public void insertItemTypeRelation(BaseinfoItemTypeRelation baseinfoItemTypeRelation){
+        baseinfoItemTypeRelationDao.insert(baseinfoItemTypeRelation);
     }
 
-    public BassinfoItemTypeRelation getBassinfoItemTypeRelationById(Long id){
-        return bassinfoItemTypeRelationDao.getBassinfoItemTypeRelationById(id);
+    public void updateItemTypeRelation(BaseinfoItemTypeRelation baseinfoItemTypeRelation){
+        baseinfoItemTypeRelationDao.update(baseinfoItemTypeRelation);
     }
 
-    public List<BassinfoItemTypeRelation> getBassinfoItemTypeRelationList(Map<String, Object> params){
-        return bassinfoItemTypeRelationDao.getBassinfoItemTypeRelationList(params);
+    public BaseinfoItemTypeRelation getBaseinfoItemTypeRelationById(Long id){
+        return baseinfoItemTypeRelationDao.getBaseinfoItemTypeRelationById(id);
     }
+
+    public List<BaseinfoItemTypeRelation> getBaseinfoItemTypeRelationList(Map<String, Object> params){
+        return baseinfoItemTypeRelationDao.getBaseinfoItemTypeRelationList(params);
+    }
+    public List<Map<String, Object>> getBaseinfoItemTypeAllRelationList(Map<String, Object> params){
+        return baseinfoItemTypeRelationDao.getBaseinfoItemTypeAllRelationList(params);
+    }
+    public Integer countBaseinfoItemTypeAllRelationList(Map<String, Object> params){
+        return baseinfoItemTypeRelationDao.countBaseinfoItemTypeAllRelationList(params);
+    }
+
 }

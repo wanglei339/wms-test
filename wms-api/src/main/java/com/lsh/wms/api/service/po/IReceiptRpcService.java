@@ -42,5 +42,5 @@ public interface IReceiptRpcService {
 
     public List<InbReceiptDetail> getInbReceiptDetailListByOrderId(Long orderId);
     //验证生产日期
-    boolean checkProTime(BaseinfoItem baseinfoItem, Date proTime, String exceptionCode)throws BizCheckedException;
+    boolean checkProTime(BaseinfoItem baseinfoItem, Date proTime,Date dueTime, String exceptionCode)throws BizCheckedException;
 }

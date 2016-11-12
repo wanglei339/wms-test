@@ -40,7 +40,7 @@ public class LablePrintRestService implements ILablePrintRestService {
     public String getContainerCode(@QueryParam("number") Integer number,
                                    @QueryParam("containerCode") String containerCode) throws BizCheckedException{
 
-            if (number != null && number > 0 && number <= 100) {
+            if (number != null && number > 0) {
                 //批量生成
                 return JsonUtils.SUCCESS(lablePrintRpcService.getContainerCode(number));
             } else if (StringUtils.isNotEmpty(containerCode)) {

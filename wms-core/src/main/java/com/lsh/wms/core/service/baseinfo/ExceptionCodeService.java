@@ -1,7 +1,7 @@
 package com.lsh.wms.core.service.baseinfo;
 
-import com.lsh.wms.core.dao.baseinfo.BassinfoExceptionCodeDao;
-import com.lsh.wms.model.baseinfo.BassinfoExceptionCode;
+import com.lsh.wms.core.dao.baseinfo.BaseinfoExceptionCodeDao;
+import com.lsh.wms.model.baseinfo.BaseinfoExceptionCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,26 +17,26 @@ import java.util.Map;
 @Transactional(readOnly = true)
 public class ExceptionCodeService {
     @Autowired
-    private BassinfoExceptionCodeDao bassinfoExceptionCodeDao;
+    private BaseinfoExceptionCodeDao baseinfoExceptionCodeDao;
 
-    public void insert(BassinfoExceptionCode bassinfoExceptionCode){
-        bassinfoExceptionCodeDao.insert(bassinfoExceptionCode);
+    public void insert(BaseinfoExceptionCode baseinfoExceptionCode){
+        baseinfoExceptionCodeDao.insert(baseinfoExceptionCode);
     }
 
-    public void update(BassinfoExceptionCode bassinfoExceptionCode){
-        bassinfoExceptionCodeDao.update(bassinfoExceptionCode);
+    public void update(BaseinfoExceptionCode baseinfoExceptionCode){
+        baseinfoExceptionCodeDao.update(baseinfoExceptionCode);
     }
 
-    public BassinfoExceptionCode getBassinfoExceptionCodeById(Long id){
-        return bassinfoExceptionCodeDao.getBassinfoExceptionCodeById(id);
+    public BaseinfoExceptionCode getBaseinfoExceptionCodeById(Long id){
+        return baseinfoExceptionCodeDao.getBaseinfoExceptionCodeById(id);
     }
 
-    public Integer countBassinfoExceptionCode(Map<String, Object> params){
-        return bassinfoExceptionCodeDao.countBassinfoExceptionCode(params);
+    public Integer countBaseinfoExceptionCode(Map<String, Object> params){
+        return baseinfoExceptionCodeDao.countBaseinfoExceptionCode(params);
     }
 
-    public List<BassinfoExceptionCode> getBassinfoExceptionCodeList(Map<String, Object> params){
-        return bassinfoExceptionCodeDao.getBassinfoExceptionCodeList(params);
+    public List<BaseinfoExceptionCode> getBaseinfoExceptionCodeList(Map<String, Object> params){
+        return baseinfoExceptionCodeDao.getBaseinfoExceptionCodeList(params);
     }
 
 }

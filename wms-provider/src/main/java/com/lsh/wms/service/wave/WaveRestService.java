@@ -191,6 +191,7 @@ public class WaveRestService implements IWaveRestService {
                     detail.setRefDoc(obdHeader.getOrderOtherId());
                     detail.setRefItem(obdDetail.getDetailOtherId());
                     detail.setSalesUnit(obdDetail.getUnitName());
+                    detail.setOrderType(obdHeader.getOrderType());
                     details.add(detail);
                 }
                 createObdHeader.setItems(details);

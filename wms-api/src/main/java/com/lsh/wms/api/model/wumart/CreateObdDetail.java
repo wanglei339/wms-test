@@ -20,11 +20,15 @@ public class CreateObdDetail implements Serializable{
     /**物料号*/
     private String material;
 
+    /**订单类型*/
+    private Integer orderType;
+
     public CreateObdDetail(){}
 
-    public CreateObdDetail(BigDecimal dlvQty, String material, String refDoc, String refItem, String salesUnit) {
+    public CreateObdDetail(BigDecimal dlvQty, String material, Integer orderType, String refDoc, String refItem, String salesUnit) {
         this.dlvQty = dlvQty;
         this.material = material;
+        this.orderType = orderType;
         this.refDoc = refDoc;
         this.refItem = refItem;
         this.salesUnit = salesUnit;
@@ -36,6 +40,22 @@ public class CreateObdDetail implements Serializable{
 
     public void setDlvQty(BigDecimal dlvQty) {
         this.dlvQty = dlvQty;
+    }
+
+    public String getMaterial() {
+        return material;
+    }
+
+    public void setMaterial(String material) {
+        this.material = material;
+    }
+
+    public Integer getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(Integer orderType) {
+        this.orderType = orderType;
     }
 
     public String getRefDoc() {
@@ -60,13 +80,5 @@ public class CreateObdDetail implements Serializable{
 
     public void setSalesUnit(String salesUnit) {
         this.salesUnit = salesUnit;
-    }
-
-    public String getMaterial() {
-        return material;
-    }
-
-    public void setMaterial(String material) {
-        this.material = material;
     }
 }

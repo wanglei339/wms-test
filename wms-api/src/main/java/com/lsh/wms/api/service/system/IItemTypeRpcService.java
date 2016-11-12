@@ -1,7 +1,8 @@
 package com.lsh.wms.api.service.system;
 
-import com.lsh.wms.model.baseinfo.BassinfoItemType;
-import com.lsh.wms.model.baseinfo.BassinfoItemTypeRelation;
+import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.wms.model.baseinfo.BaseinfoItemType;
+import com.lsh.wms.model.baseinfo.BaseinfoItemTypeRelation;
 
 import java.util.List;
 import java.util.Map;
@@ -10,17 +11,23 @@ import java.util.Map;
  * Created by zhanghongling on 16/11/10.
  */
 public interface IItemTypeRpcService {
-    public  void insertItemType(BassinfoItemType bassinfoItemType);
+    //  void insertItemType(BaseinfoItemType baseinfoItemType);
 
-    public  void updateItemType(BassinfoItemType bassinfoItemType);
+    //  void updateItemType(BaseinfoItemType baseinfoItemType);
 
-    public BassinfoItemType getBassinfoItemTypeById(Integer id);
+    BaseinfoItemType getBaseinfoItemTypeById(Integer id);
 
-    public void insertItemTypeRelation(BassinfoItemTypeRelation bassinfoItemTypeRelation);
+    List<BaseinfoItemType> getBaseinfoItemTypeList(Map<String, Object> params);
 
-    public void updateItemTypeRelation(BassinfoItemTypeRelation bassinfoItemTypeRelation);
+    List<Object> getItemTypeList(Map<String, Object> params);
 
-    public BassinfoItemTypeRelation getBassinfoItemTypeRelationById(Long id);
+    Integer countItemTypeList(Map<String, Object> params);
 
-    public List<BassinfoItemTypeRelation> getBassinfoItemTypeRelationList(Map<String, Object> params);
+    void insertItemTypeRelation(BaseinfoItemTypeRelation baseinfoItemTypeRelation)throws BizCheckedException;
+
+    public void updateItemTypeRelation(BaseinfoItemTypeRelation baseinfoItemTypeRelation);
+
+    public BaseinfoItemTypeRelation getBaseinfoItemTypeRelationById(Long id);
+
+    public List<BaseinfoItemTypeRelation> getBaseinfoItemTypeRelationList(Map<String, Object> params);
 }

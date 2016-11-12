@@ -1,6 +1,6 @@
 package com.lsh.wms.api.service.system;
 
-import com.lsh.wms.model.baseinfo.BassinfoExceptionCode;
+import com.lsh.wms.model.baseinfo.BaseinfoExceptionCode;
 
 import java.util.List;
 import java.util.Map;
@@ -9,15 +9,15 @@ import java.util.Map;
  * Created by zhanghongling on 16/11/10.
  */
 public interface IExceptionCodeRpcService {
-     void insert(BassinfoExceptionCode bassinfoExceptionCode);
+     void insert(BaseinfoExceptionCode baseinfoExceptionCode);
 
-     void update(BassinfoExceptionCode bassinfoExceptionCode);
+     void update(BaseinfoExceptionCode baseinfoExceptionCode);
 
-     BassinfoExceptionCode getBassinfoExceptionCodeById(Long id);
+     BaseinfoExceptionCode getBaseinfoExceptionCodeById(Long id);
 
-     Integer countBassinfoExceptionCode(Map<String, Object> params);
+     Integer countBaseinfoExceptionCode(Map<String, Object> params);
 
-     List<BassinfoExceptionCode> getBassinfoExceptionCodeList(Map<String, Object> params);
+     List<BaseinfoExceptionCode> getBaseinfoExceptionCodeList(Map<String, Object> params);
 
      String  getExceptionCodeByName(String exceptioName);
 
