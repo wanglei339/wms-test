@@ -177,6 +177,7 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
                 info.setPlanId(0L);
                 info.setContainerId(0L);
                 head.setRequireQty(head.getRequireQty().subtract(info.getQty()));
+                head.setOrderId(orderId);
                 entry.setTaskInfo(info);
                 entry.setTaskHead(head);
                 iTaskRpcService.create(TaskConstant.TYPE_SEED, entry);
