@@ -40,12 +40,12 @@ public class ItemTypeRpcService implements IItemTypeRpcService {
     public List<Object> getItemTypeList(Map<String, Object> params) {
         List<Map<String,Object>> relationList = itemTypeService.getBaseinfoItemTypeAllRelationList(params);
         List<BaseinfoItemType> itemTypeList = itemTypeService.getBaseinfoItemTypeList(params);
-        Map<Long,String> itemNameMap = new HashMap<Long, String>();
-        Map<Long,String> itemStatusMap = new HashMap<Long, String>();
+        Map<String,String> itemNameMap = new HashMap<String, String>();
+        Map<String,String> itemStatusMap = new HashMap<String, String>();
 
         for(BaseinfoItemType b :itemTypeList){
-            itemNameMap.put(b.getId(),b.getItemName());
-            itemStatusMap.put(b.getId(),b.getIsNeedProtime()+"");
+            itemNameMap.put(b.getId()+"",b.getItemName());
+            itemStatusMap.put(b.getId()+"",b.getIsNeedProtime()+"");
         }
         List<Object> returnList = new ArrayList<Object>();
         for(Map relationMap :relationList){
@@ -58,13 +58,14 @@ public class ItemTypeRpcService implements IItemTypeRpcService {
             itemMap.put("itemTypeId",itemTypeId);
             itemMap.put("itemTypeName",itemNameMap.get(itemTypeId));
             itemMap.put("isNeedProtime",itemStatusMap.get(itemTypeId));
-            String []mutexArray = mutexType.split(",");
-            Map<String,Object> itemMutexMap = new HashMap<String, Object>();
 
-            for(String i :mutexArray){
-                itemMutexMap.put(i,itemNameMap.get(i));
+            String []mutexArray = mutexType.split(",");
+            String [] itemMutexArr = new String[mutexArray.length];
+
+            for(int i = 0;i<mutexArray.length;i++){
+                itemMutexArr[i] = itemNameMap.get(mutexArray[i]);
             }
-            itemMap.put("itemMutexType",itemMutexMap);
+            itemMap.put("itemMutexType",itemMutexArr);
             returnList.add(itemMap);
         }
         return returnList;
