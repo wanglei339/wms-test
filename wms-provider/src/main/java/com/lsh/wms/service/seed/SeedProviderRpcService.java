@@ -222,6 +222,7 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
             head.setPackUnit(item.getPackUnit());
             head.setRequireQty(obdDetail.getOrderQty());
             head.setStoreNo(storeNo);
+            head.setOrderId(orderId);
             //无收货播种任务标示
             info.setSubType(2L);
             //门店播放规则

@@ -194,6 +194,7 @@ public class SeedRestService implements ISeedRestService {
                     query.put("orderId",lot.getPoId());
                     query.put("barcode",csiSkuService.getSku(quant.getSkuId()).getCode());
                     query.put("containerId",containerId);
+                    query.put("type",mapQuery.get("type")==null ? 0 : 1);
                     taskId = rpcService.getTask(query);
                 }
                 if (taskId.compareTo(0L) == 0) {
