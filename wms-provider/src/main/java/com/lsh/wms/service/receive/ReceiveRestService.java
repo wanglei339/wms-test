@@ -3,6 +3,7 @@ package com.lsh.wms.service.receive;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.model.po.Header;
@@ -16,6 +17,7 @@ import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.wumart.IWuMart;
 import com.lsh.wms.api.service.wumart.IWuMartSap;
 import com.lsh.wms.core.constant.IntegrationConstan;
+import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
 import com.lsh.wms.core.service.po.ReceiveService;
@@ -167,8 +169,8 @@ public class ReceiveRestService implements IReceiveRestService{
 
     @GET
     @Path("accountBack")
-    public String accountBack(@QueryParam("receiveId") Long receiveId,@QueryParam("detailOtherId") String detailOtherId) {
-        ReceiveDetail detail = receiveService.getReceiveDetailByReceiveIdAnddetailOtherId(receiveId,detailOtherId);
-        return wuMart.ibdAccountBack(detail.getAccountId(),detail.getAccountDetailId());
+    public String accountBack(@QueryParam("receiveId") Long receiveId,@QueryParam("detailOtherId") String detailOtherId,@QueryParam("qty")BigDecimal qty) {
+        receiveRpcService.accountBack(receiveId,detailOtherId,qty);
+        return JsonUtils.SUCCESS();
     }
 }
