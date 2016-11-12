@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,10 +47,20 @@ public class ItemTypeService {
         baseinfoItemTypeRelationDao.update(baseinfoItemTypeRelation);
     }
 
+    public void deleteItemTypeRelation(Long id){
+        baseinfoItemTypeRelationDao.delete(id);
+    }
+
+
     public BaseinfoItemTypeRelation getBaseinfoItemTypeRelationById(Long id){
         return baseinfoItemTypeRelationDao.getBaseinfoItemTypeRelationById(id);
     }
 
+    public List<BaseinfoItemTypeRelation> getItemTypeRelationListByItemTypeId(String itemTypeId){
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("itemTypeId",itemTypeId);
+        return baseinfoItemTypeRelationDao.getBaseinfoItemTypeRelationList(params);
+    }
     public List<BaseinfoItemTypeRelation> getBaseinfoItemTypeRelationList(Map<String, Object> params){
         return baseinfoItemTypeRelationDao.getBaseinfoItemTypeRelationList(params);
     }
