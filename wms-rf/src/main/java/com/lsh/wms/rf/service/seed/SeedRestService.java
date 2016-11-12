@@ -153,9 +153,12 @@ public class SeedRestService implements ISeedRestService {
                 TaskEntry entry = iTaskRpcService.getTaskEntryById(assignTaskId);
                 SeedingTaskHead head = (SeedingTaskHead) (entry.getTaskHead());
                 TaskInfo info = entry.getTaskInfo();
+                result.put("taskId", assignTaskId.toString());
+                if(info.getIsShow()==0){
+                    return JsonUtils.SUCCESS(result);
+                }
                 result.put("storeName", storeRpcService.getStoreByStoreNo(head.getStoreNo()).getStoreName());
                 result.put("qty", head.getRequireQty());
-                result.put("taskId", assignTaskId.toString());
                 result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
                 result.put("packName", info.getPackName());
                 result.put("itemId", info.getItemId());
@@ -199,9 +202,12 @@ public class SeedRestService implements ISeedRestService {
                     TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
                     SeedingTaskHead head = (SeedingTaskHead) (entry.getTaskHead());
                     TaskInfo info = entry.getTaskInfo();
+                    result.put("taskId", taskId.toString());
+                    if(info.getIsShow()==0){
+                        return JsonUtils.SUCCESS(result);
+                    }
                     result.put("storeName", storeRpcService.getStoreByStoreNo(head.getStoreNo()).getStoreName());
                     result.put("qty", head.getRequireQty());
-                    result.put("taskId", taskId.toString());
                     result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
                     result.put("packName", info.getPackName());
                     result.put("itemId", info.getItemId());
@@ -286,7 +292,7 @@ public class SeedRestService implements ISeedRestService {
 
 
             //手动播种
-            if(type.compareTo(1L)==1 ){
+            if(info.getIsShow()==0 ){
                 String storeNo =  mapQuery.get("storeNo").toString();
                 List<SeedingTaskHead> heads = seedTaskHeadService.getHeadByOrderIdAndStoreNo(info.getOrderId(),storeNo);
                 if(heads==null){
