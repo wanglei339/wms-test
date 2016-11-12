@@ -69,6 +69,9 @@ public class SoRequest implements Serializable {
     @Size(max=1000)
     private String deliveryAddrs;
 
+    /** 波次订单类型 */
+    private String waveOrderType = "";
+
     /** 商品 */
     @Valid
     @Size(min=1)
@@ -77,7 +80,7 @@ public class SoRequest implements Serializable {
     public SoRequest() {
     }
 
-    public SoRequest(String deliveryAddrs, String deliveryCode, String deliveryName, List<SoItem> items, String orderOtherId, String orderOtherRefId, Integer orderType, String orderUser, String orderUserCode, Long ownerUid, String transPlan, Date transTime, Long waveId, Integer waveIndex) {
+    public SoRequest(String deliveryAddrs, String deliveryCode, String deliveryName, List<SoItem> items, String orderOtherId, String orderOtherRefId, Integer orderType, String orderUser, String orderUserCode, Long ownerUid, String transPlan, Date transTime, Long waveId, Integer waveIndex, String waveOrderType) {
         this.deliveryAddrs = deliveryAddrs;
         this.deliveryCode = deliveryCode;
         this.deliveryName = deliveryName;
@@ -92,6 +95,7 @@ public class SoRequest implements Serializable {
         this.transTime = transTime;
         this.waveId = waveId;
         this.waveIndex = waveIndex;
+        this.waveOrderType = waveOrderType;
     }
 
     public String getDeliveryAddrs() {
@@ -204,5 +208,13 @@ public class SoRequest implements Serializable {
 
     public void setWaveIndex(Integer waveIndex) {
         this.waveIndex = waveIndex;
+    }
+
+    public String getWaveOrderType() {
+        return waveOrderType;
+    }
+
+    public void setWaveOrderType(String waveOrderType) {
+        this.waveOrderType = waveOrderType;
     }
 }
