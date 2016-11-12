@@ -25,8 +25,13 @@ public class IdGeneratorContant {
             put("task_113", 23);
             put("task_114", 24);
             put("task_115", 25);
+            put("task_116", 26);    //TYPE_DIRECT_SHIP
+
             //uid
             put("uid",99);// uid
+
+            //tuId运单号
+            put("tuId", 30);
         }
     };
 

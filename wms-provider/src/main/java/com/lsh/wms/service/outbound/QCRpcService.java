@@ -267,8 +267,8 @@ public class QCRpcService implements IQCRpcService {
         }
 
         BigDecimal qty = PackUtil.UomQty2EAQty(qtyUom, waveDetails.get(0).getAllocUnitName());
-        if (pickQty.compareTo(qty) <= 0) {   //多货或者数量相同
-            throw new BizCheckedException("2120021");
+        if (pickQty.compareTo(qty) != 0) {   //多货或者数量相同
+            throw new BizCheckedException("2120022");
         }
 
         /**
@@ -389,7 +389,7 @@ public class QCRpcService implements IQCRpcService {
         }
 
         BigDecimal qty = PackUtil.UomQty2EAQty(qtyUom, waveDetails.get(0).getAllocUnitName());
-        if (pickQty.compareTo(qty) <= 0) {   //多货或者数量相同
+        if (pickQty.compareTo(qty) <= 0) {   //数量相同和多货不可以
             throw new BizCheckedException("2120021");
         }
 

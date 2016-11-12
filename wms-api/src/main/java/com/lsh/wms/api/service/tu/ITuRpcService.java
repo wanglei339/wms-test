@@ -66,16 +66,17 @@ public interface ITuRpcService {
 
     TuHead changeRfRestSwitch(Map<String, Object> mapRequest) throws BizCheckedException;
 
-    boolean moveItemToConsumeArea(List<WaveDetail> waveDetails) throws BizCheckedException;
-
-    boolean moveItemToConsumeArea(Set<Long> containerIds) throws BizCheckedException;
+//    boolean moveItemToConsumeArea(List<WaveDetail> waveDetails) throws BizCheckedException;
+//
+//    boolean moveItemToConsumeArea(Set<Long> containerIds) throws BizCheckedException;
 
     Map<String,Object> getBoardDetailBycontainerId(Long containerId,String tuId) throws BizCheckedException;
-
-    void creatDeliveryOrderAndDetail(TuHead tuHead) throws BizCheckedException;
 
     Map<String,Object> bulidSapDate(String tuId) throws  BizCheckedException;
 
     List<WaveDetail> combineWaveDetailsByTuId(String tuId)throws BizCheckedException;
+
+    void createBatchDetail(List<TuDetail> details) throws BizCheckedException;
+    void createBatchhead(List<TuHead> heads) throws BizCheckedException;
 
 }
