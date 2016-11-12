@@ -1,10 +1,7 @@
 package com.lsh.wms.api.service.csi;
 
 import com.alibaba.dubbo.config.annotation.Service;
-import com.lsh.wms.model.csi.CsiCategory;
-import com.lsh.wms.model.csi.CsiOwner;
-import com.lsh.wms.model.csi.CsiSku;
-import com.lsh.wms.model.csi.CsiSupplier;
+import com.lsh.wms.model.csi.*;
 
 import java.util.List;
 
@@ -37,5 +34,10 @@ public interface ICsiRpcService {
 
     void insertOwner(CsiOwner owner);
     void updateOwner(CsiOwner owner);
+
+
+    public CsiCustomer getCustomer(long customerId);
+
+    public CsiCustomer getCustomerByCode(long ownerId, String customerCode);
 
 }
