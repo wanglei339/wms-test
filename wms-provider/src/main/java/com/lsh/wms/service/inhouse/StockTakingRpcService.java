@@ -59,11 +59,11 @@ public class StockTakingRpcService implements IStockTakingRpcService {
 
     public void create(Long locationId,Long uid) throws BizCheckedException {
         Map<String,Object> queryMap = new HashMap<String, Object>();
-        queryMap.put("type",TaskConstant.TYPE_STOCK_TAKING);
-        queryMap.put("valid",1);
+        queryMap.put("type", TaskConstant.TYPE_STOCK_TAKING);
+        queryMap.put("valid", 1);
         queryMap.put("locationId",locationId);
         List<TaskInfo> infos = baseTaskService.getTaskInfoList(queryMap);
-
+        logger.info("-------------"+JsonUtils.SUCCESS(infos));
         if(infos==null || infos.size()==0) {
             StockTakingRequest request = new StockTakingRequest();
             List<Long> longList = new ArrayList<Long>();

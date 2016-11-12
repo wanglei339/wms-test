@@ -319,7 +319,7 @@ public class SeedRestService implements ISeedRestService {
                     mapQuery.put("barcode", sku.getCode());
                     mapQuery.put("containerId", info.getContainerId());
                     taskId = rpcService.getTask(mapQuery);
-                    if(taskId ==null){
+                    if(taskId ==null || taskId == 0L){
                         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
                             {
                                 put("response", true);
