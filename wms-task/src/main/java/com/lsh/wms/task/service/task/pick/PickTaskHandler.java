@@ -51,7 +51,7 @@ public class PickTaskHandler extends AbsTaskHandler {
     }
 
     public void create(TaskEntry taskEntry) {
-        TaskInfo taskInfo = taskEntry.getTaskInfo();
+        /*TaskInfo taskInfo = taskEntry.getTaskInfo();
         Long taskId = taskInfo.getTaskId();
         List<WaveDetail> pickTaskDetails = waveService.getDetailsByPickTaskId(taskId);
         BigDecimal qtyDone = BigDecimal.ZERO;
@@ -60,7 +60,7 @@ public class PickTaskHandler extends AbsTaskHandler {
             qtyDone = qtyDone.add(pickTaskDetail.getAllocQty());
         }
         taskInfo.setQtyDone(qtyDone);
-        taskEntry.setTaskInfo(taskInfo);
+        taskEntry.setTaskInfo(taskInfo);*/
 
         super.create(taskEntry);
     }
@@ -86,11 +86,14 @@ public class PickTaskHandler extends AbsTaskHandler {
         Long taskId = taskEntry.getTaskInfo().getTaskId();
         head.setTaskId(taskId);
         List<WaveDetail> details = (List<WaveDetail>)(List<?>)taskEntry.getTaskDetailList();
-        if (details.size() < 1) {
+        // 因为更新托盘时detail仍为空,所以注释掉了
+        /*if (details.size() < 1) {
             throw new BizCheckedException("2060002");
-        }
-        for(WaveDetail detail : details){
-            detail.setPickTaskId(taskId);
+        }*/
+        if (details != null) {
+            for (WaveDetail detail : details) {
+                detail.setPickTaskId(taskId);
+            }
         }
         pickTaskService.createPickTask(head, details);
     }
