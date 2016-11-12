@@ -19,6 +19,7 @@ import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.tu.TuDetail;
+import com.lsh.wms.model.tu.TuEntry;
 import com.lsh.wms.model.tu.TuHead;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
@@ -329,5 +330,19 @@ public class TuService {
         }
     }
 
+    /**
+     * 创建tuHead 和tuDetailList
+     *
+     * @param tuEntry
+     * @return
+     */
+    @Transactional(readOnly = false)
+    public TuEntry createTuEntry(TuEntry tuEntry) {
+        TuHead tuHead = tuEntry.getTuHead();
+        List<TuDetail> tuDetails = tuEntry.getTuDetails();
+        this.create(tuHead);
+        this.createBatchDetail(tuDetails);
+        return tuEntry;
+    }
 
 }

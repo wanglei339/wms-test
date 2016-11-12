@@ -78,6 +78,7 @@ public class StockTakingRpcService implements IStockTakingRpcService {
         queryMap.put("valid",1);
         queryMap.put("locationId",locationId);
         List<TaskInfo> infos = baseTaskService.getTaskInfoList(queryMap);
+
         if(infos!=null && infos.size()!=0) {
             StockTakingRequest request = new StockTakingRequest();
             List<Long> longList = new ArrayList<Long>();
@@ -135,18 +136,22 @@ public class StockTakingRpcService implements IStockTakingRpcService {
 
         List<Long> locationList= JSON.parseArray(head.getLocationList(), Long.class);
         List<Long> locations=new ArrayList<Long>();
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("type",TaskConstant.TYPE_STOCK_TAKING);
+        queryMap.put("valid",1);
+        List<TaskInfo> infos = baseTaskService.getTaskInfoList(queryMap);
+        List<Long> taskLocation =new ArrayList<Long>();
         if (locationList != null && locationList.size()!=0) {
             for(Long locationId:locationList) {
-                Map<String,Object> queryMap = new HashMap<String, Object>();
-                queryMap.put("type",TaskConstant.TYPE_STOCK_TAKING);
-                queryMap.put("valid",1);
-                queryMap.put("locationId",locationId);
-                List<TaskInfo> infos = baseTaskService.getTaskInfoList(queryMap);
-                if(infos==null ||infos.size()==0){
-                    locations.add(locationId);
-                }
+                locations.add(locationId);
             }
         }
+        if(infos!=null && infos.size()!=0){
+            for(TaskInfo info:infos){
+                taskLocation.add(info.getLocationId());
+            }
+        }
+        locations.removeAll(taskLocation);
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("locationIdList", locations);
         mapQuery.put("itemId", head.getItemId());

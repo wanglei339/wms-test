@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,6 +34,17 @@ public class ItemTypeRestService implements IItemTypeRestService {
     public String getBaseinfoItemTypeList() {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         return JsonUtils.SUCCESS(itemTypeRpcService.getBaseinfoItemTypeList(mapQuery));
+    }
+    @GET
+    @Path("getBaseinfoItemTypeByItemId")
+    public String getBaseinfoItemTypeByItemId(@QueryParam("itemTypeId") String itemTypeId) {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("itemTypeId",itemTypeId);
+        List<BaseinfoItemType> list = itemTypeRpcService.getBaseinfoItemTypeList(mapQuery);
+        if(list != null && list.size() >0){
+            return JsonUtils.SUCCESS(list.get(0));
+        }
+        return JsonUtils.SUCCESS();
     }
     @POST
     @Path("getItemTypeList")

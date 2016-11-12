@@ -103,6 +103,13 @@ public class StockTakingRestService implements IStockTakingRestService {
         iStockTakingRpcService.createTask(head, detailList, 1L, head.getDueTime());
         return JsonUtils.SUCCESS();
     }
+    @GET
+    @Path("test")
+    public String create() throws BizCheckedException{
+        LocationListRequest request =  new LocationListRequest();
+        this.getLocationList(request);
+        return JsonUtils.SUCCESS();
+    }
     @POST
     @Path("update")
     public String update(StockTakingRequest request) throws BizCheckedException{
@@ -240,19 +247,23 @@ public class StockTakingRestService implements IStockTakingRestService {
             queryMap.put("itemId", request.getItemId());
         }
         List<StockQuant>quantList = quantService.getQuants(queryMap);
-        List<Long> longs =new ArrayList<Long>();
-        Map<String,Object> loctionMap = new HashMap<String, Object>();
-        for(StockQuant quant:quantList){
-            if(!loctionMap.containsKey(quant.getLocationId())){
-                Map<String,Object> query = new HashMap<String, Object>();
-                query.put("type",TaskConstant.TYPE_STOCK_TAKING);
-                query.put("valid",1);
-                query.put("locationId",quant.getLocationId());
-                List<TaskInfo> infos = baseTaskService.getTaskInfoList(queryMap);
-                if(infos==null ||infos.size()==0){
-                    longs.add(quant.getLocationId());
-                }
+        Set<Long> longs = new HashSet<Long>();
+        List<Long> taskLocation =new ArrayList<Long>();
+
+        //取到盘点库位
+        Map<String,Object> query = new HashMap<String, Object>();
+        query.put("type",TaskConstant.TYPE_STOCK_TAKING);
+        query.put("valid",1);
+        List<TaskInfo> infos = baseTaskService.getTaskInfoList(query);
+        if(infos!=null && infos.size()!=0){
+            for(TaskInfo info:infos){
+                taskLocation.add(info.getLocationId());
             }
+        }
+
+
+        for(StockQuant quant:quantList){
+            longs.add(quant.getLocationId());
         }
         if(locationList!=null ){
             locationList.retainAll(longs);
@@ -288,7 +299,7 @@ public class StockTakingRestService implements IStockTakingRestService {
                 i++;
             }
         }
-
+        locations.removeAll(taskLocation);
         return JsonUtils.SUCCESS(locations);
     }
     @GET
@@ -355,15 +366,7 @@ public class StockTakingRestService implements IStockTakingRestService {
         for (Long oneType : regionType) {
             List<BaseinfoLocation> locationList = locationService.getSubLocationList(locationId, oneType);
             for(BaseinfoLocation location:locationList){
-                Map<String,Object> queryMap = new HashMap<String, Object>();
-                queryMap.put("type",TaskConstant.TYPE_STOCK_TAKING);
-                queryMap.put("valid",1);
-                queryMap.put("locationId",locationId);
-                List<TaskInfo> infos = baseTaskService.getTaskInfoList(queryMap);
-                if(infos==null ||infos.size()==0){
-                    targetList.add(location.getLocationId());
-                }
-
+                targetList.add(location.getLocationId());
             }
         }
         return targetList;
@@ -375,15 +378,7 @@ public class StockTakingRestService implements IStockTakingRestService {
         for (Long oneType : regionType) {
             List<BaseinfoLocation> locationList = locationService.getSubLocationList(locationId, oneType);
             for(BaseinfoLocation location:locationList){
-                Map<String,Object> queryMap = new HashMap<String, Object>();
-                queryMap.put("type",TaskConstant.TYPE_STOCK_TAKING);
-                queryMap.put("valid",1);
-                queryMap.put("locationId",locationId);
-                List<TaskInfo> infos = baseTaskService.getTaskInfoList(queryMap);
-                if(infos==null ||infos.size()==0){
-                    targetList.add(location.getLocationId());
-                }
-
+                targetList.add(location.getLocationId());
             }
         }
         return targetList;

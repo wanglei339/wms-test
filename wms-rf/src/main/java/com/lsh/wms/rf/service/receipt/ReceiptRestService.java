@@ -198,6 +198,25 @@ public class ReceiptRestService implements IReceiptRfService {
                     }
                 }
             }
+            //如果没有输入生产日期和到期日
+            if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null) {
+                receiptItem.setProTime(new Date());
+            }else if(receiptItem.getProTime() == null && receiptItem.getDueTime() != null){
+                //根据到期日计算生产日期  // TODO: 16/11/12  根据生产日期-保质期计算
+                BigDecimal shelfLife = baseinfoItem.getShelfLife();//保质期天数
+                if(shelfLife == null){
+                    receiptItem.setProTime(new Date());
+                }else{
+                    int onedayMs = 24 * 60 * 60 * 1000;
+                    BigDecimal shelfLifeMs = shelfLife.multiply(BigDecimal.valueOf(onedayMs));
+                    long betweenTime = receiptItem.getDueTime().getTime() - shelfLifeMs.longValue();
+                    receiptItem.setProTime(new Date(betweenTime));
+                }
+
+
+
+
+            }
             receiptItem.setSkuId(csiSku.getSkuId());
             receiptItem.setSkuName(ibdDetail.getSkuName());
             receiptItem.setPackUnit(ibdDetail.getPackUnit());
@@ -219,6 +238,7 @@ public class ReceiptRestService implements IReceiptRfService {
             }
         });
     }
+
 //    @POST
 //    @Path("addStoreReceipt")
 //    public String addStoreReceipt() throws BizCheckedException, ParseException {
