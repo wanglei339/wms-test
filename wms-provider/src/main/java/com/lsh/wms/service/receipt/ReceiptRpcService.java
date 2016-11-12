@@ -525,6 +525,12 @@ public class ReceiptRpcService implements IReceiptRpcService {
         if(proTime == null && dueTime == null){
             throw new BizCheckedException("2020008");//生产日期不能为空
         }
+        if(proTime != null && System.currentTimeMillis() - proTime.getTime() <= 0) {
+            throw new BizCheckedException("2020009");
+        }
+        if(dueTime != null && System.currentTimeMillis() - dueTime.getTime() >= 0) {
+            throw new BizCheckedException("2020102");//到期日期不能小于当前日期
+        }
         //超过保质期,保质期例外代码验证
         String proTimeexceptionCode = iexceptionCodeRpcService.getExceptionCodeByName("receiveExpired");// FIXME: 16/11/9 获取保质期的例外代码
         if(StringUtils.isNotEmpty(exceptionCode) && exceptionCode.equals(proTimeexceptionCode)){
@@ -721,10 +727,6 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //Long taskId = RandomUtils.genId();
 
         for(ReceiptItem receiptItem : request.getItems()){
-            if(System.currentTimeMillis() - receiptItem.getProTime().getTime() <= 0) {
-                throw new BizCheckedException("2020009");
-            }
-
             if(receiptItem.getInboundQty().compareTo(BigDecimal.ZERO) < 0) {
                 throw new BizCheckedException("2020007");
             }
