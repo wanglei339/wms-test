@@ -225,6 +225,7 @@ public class ReceiptRestService implements IReceiptRfService {
         }
 
         receiptRequest.setItems(receiptItemList);
+        receiptRequest.setOwnerId(ibdHeader.getOwnerUid());
 
 
         if(PoConstant.ORDER_TYPE_CPO == orderType && receiptRequest.getStoreId() != null){

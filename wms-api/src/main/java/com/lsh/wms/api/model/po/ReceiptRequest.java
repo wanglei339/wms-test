@@ -51,6 +51,9 @@ public class ReceiptRequest implements Serializable {
 
     /** 是否生成任务*/
     private int isCreateTask = 1;
+    /**货主*/
+    private Long ownerId ;
+
     /** 商品 */
     @Valid
     @Size(min=1)
@@ -62,11 +65,14 @@ public class ReceiptRequest implements Serializable {
 
     }
 
-    public ReceiptRequest(String bookingNum, Long containerId, List<ReceiptItem> items, String orderOtherId, Date receiptTime, String receiptUser, String receiptWharf, Long staffId, String storeId, Long warehouseId) {
+    public ReceiptRequest(String bookingNum, Long containerId, int isCreateTask, List<ReceiptItem> items, Map<String, Long> orderMap, String orderOtherId, Long ownerId, Date receiptTime, String receiptUser, String receiptWharf, Long staffId, String storeId, Long warehouseId) {
         this.bookingNum = bookingNum;
         this.containerId = containerId;
+        this.isCreateTask = isCreateTask;
         this.items = items;
+        this.orderMap = orderMap;
         this.orderOtherId = orderOtherId;
+        this.ownerId = ownerId;
         this.receiptTime = receiptTime;
         this.receiptUser = receiptUser;
         this.receiptWharf = receiptWharf;
@@ -91,6 +97,14 @@ public class ReceiptRequest implements Serializable {
         this.containerId = containerId;
     }
 
+    public int getIsCreateTask() {
+        return isCreateTask;
+    }
+
+    public void setIsCreateTask(int isCreateTask) {
+        this.isCreateTask = isCreateTask;
+    }
+
     public List<ReceiptItem> getItems() {
         return items;
     }
@@ -99,12 +113,28 @@ public class ReceiptRequest implements Serializable {
         this.items = items;
     }
 
+    public Map<String, Long> getOrderMap() {
+        return orderMap;
+    }
+
+    public void setOrderMap(Map<String, Long> orderMap) {
+        this.orderMap = orderMap;
+    }
+
     public String getOrderOtherId() {
         return orderOtherId;
     }
 
     public void setOrderOtherId(String orderOtherId) {
         this.orderOtherId = orderOtherId;
+    }
+
+    public Long getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
     }
 
     public Date getReceiptTime() {
@@ -153,21 +183,5 @@ public class ReceiptRequest implements Serializable {
 
     public void setWarehouseId(Long warehouseId) {
         this.warehouseId = warehouseId;
-    }
-
-    public int getIsCreateTask() {
-        return isCreateTask;
-    }
-
-    public void setIsCreateTask(int isCreateTask) {
-        this.isCreateTask = isCreateTask;
-    }
-
-    public Map<String, Long> getOrderMap() {
-        return orderMap;
-    }
-
-    public void setOrderMap(Map<String, Long> orderMap) {
-        this.orderMap = orderMap;
     }
 }
