@@ -398,16 +398,16 @@ public class WaveRestService implements IWaveRestService {
     @POST
     @Path("createWaveTemplate")
     public String createWaveTemplate(WaveTemplate tpl) throws BizCheckedException {
-        try{
-            if(modelService.getPickModelTemplate(tpl.getPickModelTemplateId())==null){
-                throw new BizCheckedException("2040015");
-            }
-            if(locationService.getLocation(tpl.getCollectLocations())==null
-                    || locationService.getLocation(tpl.getCollectLocations()).getType() != LocationConstant.COLLECTION_ROAD_GROUP){
-                throw new BizCheckedException("2040016");
-            }
+        if (modelService.getPickModelTemplate(tpl.getPickModelTemplateId()) == null) {
+            throw new BizCheckedException("2040015");
+        }
+        if (locationService.getLocation(tpl.getCollectLocations()) == null
+                || locationService.getLocation(tpl.getCollectLocations()).getType() != LocationConstant.COLLECTION_ROAD_GROUP) {
+            throw new BizCheckedException("2040016");
+        }
+        try {
             waveTemplateService.createWaveTemplate(tpl);
-        }catch (Exception e ){
+        } catch (Exception e) {
             logger.error(e.getCause().getMessage());
             throw new BizCheckedException("2040017");
         }
@@ -417,16 +417,16 @@ public class WaveRestService implements IWaveRestService {
     @POST
     @Path("updateWaveTemplate")
     public String updateWaveTemplate(WaveTemplate tpl) throws BizCheckedException {
-        try{
-            if(modelService.getPickModelTemplate(tpl.getPickModelTemplateId())==null){
-                throw new BizCheckedException("2040015");
-            }
-            if(locationService.getLocation(tpl.getCollectLocations())==null
-                    || locationService.getLocation(tpl.getCollectLocations()).getType() != LocationConstant.COLLECTION_ROAD_GROUP){
-                throw new BizCheckedException("2040016");
-            }
+        if (modelService.getPickModelTemplate(tpl.getPickModelTemplateId()) == null) {
+            throw new BizCheckedException("2040015");
+        }
+        if (locationService.getLocation(tpl.getCollectLocations()) == null
+                || locationService.getLocation(tpl.getCollectLocations()).getType() != LocationConstant.COLLECTION_ROAD_GROUP) {
+            throw new BizCheckedException("2040016");
+        }
+        try {
             waveTemplateService.updateWaveTemplate(tpl);
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error(e.getCause().getMessage());
             throw new BizCheckedException("2040017");
         }
