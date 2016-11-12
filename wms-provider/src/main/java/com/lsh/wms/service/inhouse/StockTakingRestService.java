@@ -22,6 +22,7 @@ import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.taking.StockTakingService;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.task.StockTakingTaskService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
@@ -72,6 +73,8 @@ public class StockTakingRestService implements IStockTakingRestService {
 
     @Reference
     private ITaskRpcService iTaskRpcService;
+    @Autowired
+    private BaseTaskService baseTaskService;
 
     @Autowired
     private StockTakingTaskService stockTakingTaskService;
@@ -237,16 +240,24 @@ public class StockTakingRestService implements IStockTakingRestService {
             queryMap.put("itemId", request.getItemId());
         }
         List<StockQuant>quantList = quantService.getQuants(queryMap);
-        Set<Long> locationSet =new HashSet<Long>();
+        List<Long> longs =new ArrayList<Long>();
+        Map<String,Object> loctionMap = new HashMap<String, Object>();
         for(StockQuant quant:quantList){
-            if(quant.getLocationId()!=null) {
-                locationSet.add(quant.getLocationId());
+            if(!loctionMap.containsKey(quant.getLocationId())){
+                Map<String,Object> query = new HashMap<String, Object>();
+                query.put("type",TaskConstant.TYPE_STOCK_TAKING);
+                query.put("valid",1);
+                query.put("locationId",quant.getLocationId());
+                List<TaskInfo> infos = baseTaskService.getTaskInfoList(queryMap);
+                if(infos==null ||infos.size()==0){
+                    longs.add(quant.getLocationId());
+                }
             }
         }
         if(locationList!=null ){
-            locationList.retainAll(new ArrayList<Long>(locationSet));
+            locationList.retainAll(longs);
         }else {
-            locationList =new ArrayList<Long>(locationSet);
+            locationList =new ArrayList<Long>(longs);
         }
 
         List<Long> locations = new ArrayList<Long>();
@@ -344,7 +355,15 @@ public class StockTakingRestService implements IStockTakingRestService {
         for (Long oneType : regionType) {
             List<BaseinfoLocation> locationList = locationService.getSubLocationList(locationId, oneType);
             for(BaseinfoLocation location:locationList){
-                targetList.add(location.getLocationId());
+                Map<String,Object> queryMap = new HashMap<String, Object>();
+                queryMap.put("type",TaskConstant.TYPE_STOCK_TAKING);
+                queryMap.put("valid",1);
+                queryMap.put("locationId",locationId);
+                List<TaskInfo> infos = baseTaskService.getTaskInfoList(queryMap);
+                if(infos==null ||infos.size()==0){
+                    targetList.add(location.getLocationId());
+                }
+
             }
         }
         return targetList;
@@ -356,7 +375,15 @@ public class StockTakingRestService implements IStockTakingRestService {
         for (Long oneType : regionType) {
             List<BaseinfoLocation> locationList = locationService.getSubLocationList(locationId, oneType);
             for(BaseinfoLocation location:locationList){
-                targetList.add(location.getLocationId());
+                Map<String,Object> queryMap = new HashMap<String, Object>();
+                queryMap.put("type",TaskConstant.TYPE_STOCK_TAKING);
+                queryMap.put("valid",1);
+                queryMap.put("locationId",locationId);
+                List<TaskInfo> infos = baseTaskService.getTaskInfoList(queryMap);
+                if(infos==null ||infos.size()==0){
+                    targetList.add(location.getLocationId());
+                }
+
             }
         }
         return targetList;

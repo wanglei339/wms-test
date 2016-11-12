@@ -162,14 +162,14 @@ public class ReceiptRestService implements IReceiptRfService {
                 BaseinfoItemType baseinfoItemType = iItemTypeRpcService.getBaseinfoItemTypeById(baseinfoItem.getItemType());
                 if(baseinfoItemType != null && 1== baseinfoItemType.getIsNeedProtime()){
                     // todo: 16/11/9 根据配置验证生产日期是否输入
-                    if(receiptItem.getProTime() == null || receiptItem.getDueTime() == null){
+                    if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null){
                         throw new BizCheckedException("2020008");//生产日期不能为空
                     }
                 }
             }else{
                 if (PoConstant.ORDER_TYPE_TRANSFERS != orderType){
                     //在库,且不是调拨,生产日期/到期日,必须输入一个
-                    if(receiptItem.getProTime() == null || receiptItem.getDueTime() == null){
+                    if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null){
                         throw new BizCheckedException("2020008");//生产日期不能为空
                     }
                 }

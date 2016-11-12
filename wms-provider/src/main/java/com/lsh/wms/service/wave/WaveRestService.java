@@ -15,10 +15,12 @@ import com.lsh.wms.api.service.wave.IWaveRestService;
 import com.lsh.wms.api.service.wumart.IWuMart;
 import com.lsh.wms.api.service.wumart.IWuMartSap;
 import com.lsh.wms.core.constant.IntegrationConstan;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.pick.PickModelService;
 import com.lsh.wms.core.service.pick.PickZoneService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
@@ -83,6 +85,9 @@ public class WaveRestService implements IWaveRestService {
 
     @Autowired
     private WaveGenerator waveGenerator;
+
+    @Autowired
+    private LocationService locationService;
 
 //    @Reference
 //    private IWuMartSap wuMartSap;
@@ -392,24 +397,38 @@ public class WaveRestService implements IWaveRestService {
 
     @POST
     @Path("createWaveTemplate")
-    public String createWaveTemplate(WaveTemplate tpl){
-        try{
+    public String createWaveTemplate(WaveTemplate tpl) throws BizCheckedException {
+        if (modelService.getPickModelTemplate(tpl.getPickModelTemplateId()) == null) {
+            throw new BizCheckedException("2040015");
+        }
+        if (locationService.getLocation(tpl.getCollectLocations()) == null
+                || locationService.getLocation(tpl.getCollectLocations()).getType() != LocationConstant.COLLECTION_ROAD_GROUP) {
+            throw new BizCheckedException("2040016");
+        }
+        try {
             waveTemplateService.createWaveTemplate(tpl);
-        }catch (Exception e ){
+        } catch (Exception e) {
             logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR("create failed");
+            throw new BizCheckedException("2040017");
         }
         return JsonUtils.SUCCESS();
     }
 
     @POST
     @Path("updateWaveTemplate")
-    public String updateWaveTemplate(WaveTemplate tpl){
-        try{
+    public String updateWaveTemplate(WaveTemplate tpl) throws BizCheckedException {
+        if (modelService.getPickModelTemplate(tpl.getPickModelTemplateId()) == null) {
+            throw new BizCheckedException("2040015");
+        }
+        if (locationService.getLocation(tpl.getCollectLocations()) == null
+                || locationService.getLocation(tpl.getCollectLocations()).getType() != LocationConstant.COLLECTION_ROAD_GROUP) {
+            throw new BizCheckedException("2040016");
+        }
+        try {
             waveTemplateService.updateWaveTemplate(tpl);
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error(e.getCause().getMessage());
-            JsonUtils.EXCEPTION_ERROR("update failed");
+            throw new BizCheckedException("2040017");
         }
         return JsonUtils.SUCCESS();
     }
@@ -420,7 +439,7 @@ public class WaveRestService implements IWaveRestService {
 
     @GET
     @Path("runWaveGenerator")
-    public String runWaveGenerator(){
+    public String runWaveGenerator() throws BizCheckedException{
         waveGenerator.autoCluster();
         return JsonUtils.SUCCESS();
     }
@@ -433,12 +452,12 @@ public class WaveRestService implements IWaveRestService {
 
     @POST
     @Path("createWaveByPreview")
-    public String createWaveByPreview(Map<String, Object> mapData){
+    public String createWaveByPreview(Map<String, Object> mapData) throws BizCheckedException{
         List<Long> orderIds = waveGenerator.getOrderIdsByWavePreviewId(mapData.get("wavePreviewId").toString());
         Long waveTemplateId = waveGenerator.getWaveTemplateIdByWavePreviewId(mapData.get("wavePreviewId").toString());
 
         if(orderIds == null || waveTemplateId == null){
-            return JsonUtils.OTHER_EXCEPTION("未查询到相关信息,请刷新页面");
+            throw new BizCheckedException("2040018");
         }
         List<Map> orders = new LinkedList<Map>();
         for(Long orderId : orderIds){
@@ -448,6 +467,12 @@ public class WaveRestService implements IWaveRestService {
         }
         WaveRequest request = new WaveRequest(orders, Long.valueOf(WaveConstant.STATUS_NEW), "呵呵", "PREVIEW_HAND", waveTemplateId, 1L);
         waveRpcService.createWave(request);
+        try{
+            //存储redis说这个哥们已经释放了
+
+        }catch (Exception e){
+
+        }
         return JsonUtils.SUCCESS();
     }
 }

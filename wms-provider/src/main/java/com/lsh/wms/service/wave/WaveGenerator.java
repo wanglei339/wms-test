@@ -70,8 +70,17 @@ public class WaveGenerator {
     @Autowired
     private RedisStringDao redisStringDao;
 
+    int sumOrderCount;
+    int sumLineCount;
+    List<Map> waves;
+    int waveIdx;
+
     public void _init(){
         mapOrderId2ObdDetails = new HashMap<Long, List<ObdDetail>>();
+        waves = new LinkedList<Map>();
+        sumLineCount = 0;
+        sumOrderCount = 0;
+        waveIdx = 0;
     }
 
     //波次类型判定器,取库中未判断波次类型的订单进行判定,可独立运行,由定时器触发.
@@ -136,11 +145,8 @@ public class WaveGenerator {
             }
         }
         //生成json结果
-        int sumOrderCount = 0;
-        int sumLineCount = 0;
-        List<Map> waves = new LinkedList<Map>();
+
         long waveTag = DateUtils.getCurrentSeconds();
-        int waveIdx = 0;
         for(List<ObdHeader> cluster : finalClusters){
             waveIdx++;
             int orderCount = cluster.size();
@@ -162,19 +168,21 @@ public class WaveGenerator {
             wave.put("waveOrderType", tpl.getWaveOrderType());
             waves.add(wave);
         }
-        Map<String, Object> waveJson = new HashMap<String, Object>();
-        waveJson.put("orderCount", sumOrderCount);
-        waveJson.put("lineCount", sumLineCount);
-        waveJson.put("waveCount", waves.size());
-        waveJson.put("waves", waves);
-        String rst = JsonUtils.obj2Json(waveJson);
-        try{
-            redisStringDao.set(RedisKeyConstant.WAVE_PREVIEW_KEY, rst,24, TimeUnit.HOURS);
-        }catch (Exception e){
-            e.printStackTrace();
-            logger.error("write wave preview to redis fail");
+        logger.info("end to run wave cluster "+tpl.getWaveTemplateName()+" wave count :"+finalClusters.size());
+    }
+
+    //批量执行波次规划期,可以独立运行,由定时器触发,结果将保存在redis中,前端页面直接从redis中读取结果
+    public void autoCluster(){
+        this._init();
+
+        this.setWaveOrderType();
+        //获取配置好的订单类型列表
+        List<WaveTemplate> waveTemplateList = waveTemplateService.getWaveTemplateList(new HashMap<String, Object>());
+        //遍历执行
+        for(WaveTemplate tpl : waveTemplateList){
+            this._clusterWave(tpl);
         }
-        //保存redis
+        //redis中存储本次计算的日志,用于展示.
         /*结构:
         {
             'orderCount' : 1 //订单数
@@ -190,20 +198,18 @@ public class WaveGenerator {
                ]
         }
         */
-        logger.info("end to run wave cluster "+tpl.getWaveTemplateName()+" wave count :"+waves.size());
-    }
-
-    //批量执行波次规划期,可以独立运行,由定时器触发,结果将保存在redis中,前端页面直接从redis中读取结果
-    public void autoCluster(){
-        this._init();
-        this.setWaveOrderType();
-        //获取配置好的订单类型列表
-        List<WaveTemplate> waveTemplateList = waveTemplateService.getWaveTemplateList(new HashMap<String, Object>());
-        //遍历执行
-        for(WaveTemplate tpl : waveTemplateList){
-            this._clusterWave(tpl);
+        Map<String, Object> waveJson = new HashMap<String, Object>();
+        waveJson.put("orderCount", sumOrderCount);
+        waveJson.put("lineCount", sumLineCount);
+        waveJson.put("waveCount", waves.size());
+        waveJson.put("waves", waves);
+        String rst = JsonUtils.obj2Json(waveJson);
+        try{
+            redisStringDao.set(RedisKeyConstant.WAVE_PREVIEW_KEY, rst,24, TimeUnit.HOURS);
+        }catch (Exception e){
+            e.printStackTrace();
+            logger.error("write wave preview to redis fail");
         }
-        //redis中存储本次计算的日志,用于展示.
     }
 
     public String getWavePreviewList(){

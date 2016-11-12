@@ -17,6 +17,7 @@ import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
+import com.lsh.wms.core.service.seed.SeedTaskHeadService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
@@ -79,11 +80,20 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
     BaseTaskService baseTaskService;
     @Autowired
     ContainerService containerService;
+    @Autowired
+    SeedTaskHeadService seedTaskHeadService;
+    @Reference
+    private ITaskRpcService iTaskRpcService;
 
     public Long getTask( Map<String, Object> mapQuery) throws BizCheckedException{
         String orderId = mapQuery.get("orderId").toString().trim();
         String barcode = mapQuery.get("barcode").toString().trim();
         Object containerId = mapQuery.get("containerId");
+        Long type=0L;
+        if(mapQuery.get("type")!=null){
+            type = Long.valueOf(mapQuery.get("type").toString());
+        }
+
         Long skuId = 0L;
         Map<String, Object> query = new HashMap<String, Object>();
         CsiSku sku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode);
@@ -113,6 +123,9 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
         }
         TaskEntry entry = entries.get(0);
         TaskInfo info = entry.getTaskInfo();
+        if(type.compareTo(1L)==0) {
+            info.setIsShow(0);
+        }
         info.setContainerId(Long.valueOf(containerId.toString().trim()));
         entry.setTaskInfo(info);
         taskRpcService.update(TaskConstant.TYPE_SEED,entry);
@@ -131,7 +144,6 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
         }catch (Exception e){
             throw new BizCheckedException("2880010");
         }
-
 
         CsiSku sku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode);
         if(sku==null){
@@ -152,6 +164,22 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
             TaskInfo info = infos.get(0);
             if(info.getSubType().compareTo(1L)==0){
                 throw new BizCheckedException("2880014");
+            }
+            mapQuery.put("step",1);
+            //查找未播种未够数量，却已完成播种的任务
+            infos = baseTaskService.getTaskInfoList(mapQuery);
+            for (TaskInfo taskInfo:infos){
+                TaskEntry entry = new TaskEntry();
+                SeedingTaskHead head = seedTaskHeadService.getHeadByTaskId(taskInfo.getTaskId());
+                info.setTaskId(0L);
+                info.setId(0L);
+                info.setStatus(TaskConstant.Draft);
+                info.setPlanId(0L);
+                info.setContainerId(0L);
+                head.setRequireQty(head.getRequireQty().subtract(info.getQty()));
+                entry.setTaskInfo(info);
+                entry.setTaskHead(head);
+                iTaskRpcService.create(TaskConstant.TYPE_SEED, entry);
             }
             return;
         }

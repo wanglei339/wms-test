@@ -24,6 +24,11 @@
 		</set>
 		where id=#{id}
 	</update>
+
+	<delete id="delete" parameterType="int">
+		delete from  baseinfo_item_type_relation
+		where id=#{id}
+	</delete>
   
 	<select id="getBaseinfoItemTypeRelationById" parameterType="int" resultMap="baseinfoItemTypeRelationResultMap">
 		select * from baseinfo_item_type_relation

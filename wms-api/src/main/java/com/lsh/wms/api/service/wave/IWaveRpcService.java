@@ -12,4 +12,5 @@ public interface IWaveRpcService {
     Long decorateCreateWave(WaveRequest request) throws BizCheckedException;
     public Long createWave(WaveRequest request) throws BizCheckedException;
     public void releaseWave(long iWaveId, long iUid) throws BizCheckedException;
+    public void runWaveGenerator() throws BizCheckedException;
 }

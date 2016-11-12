@@ -12,6 +12,7 @@
 		<result property="containerType" column="container_type"/>
 		<result property="containerUnitCapacity" column="container_unit_capacity"/>
 		<result property="containerNumPerTask" column="container_num_per_task"/>
+		<result property="strategyWholePallet" column="strategy_whole_pallet"/>
 		<result property="fpmrSetGroupFalg" column="fpmr_set_group_falg"/>
 		<result property="fpmrBigItemThreshold" column="fpmr_big_item_threshold"/>
 		<result property="fpmrSetFlag" column="fpmr_set_flag"/>
@@ -22,11 +23,11 @@
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PickModel">
 		insert into pick_model (
 			pick_model_id,pick_model_template,pick_zone_id,pick_model,pick_weight,container_type,
-			container_unit_capacity,container_num_per_task,fpmr_set_group_falg,fpmr_big_item_threshold,fpmr_set_flag,fpmr_small_item_threshold,
+			container_unit_capacity,container_num_per_task,strategy_whole_pallet,fpmr_set_group_falg,fpmr_big_item_threshold,fpmr_set_flag,fpmr_small_item_threshold,
 			fpmr_sow_method
     	) values (
 			#{pickModelId},#{pickModelTemplate},#{pickZoneId},#{pickModel},#{pickWeight},#{containerType},
-			#{containerUnitCapacity},#{containerNumPerTask},#{fpmrSetGroupFalg},#{fpmrBigItemThreshold},#{fpmrSetFlag},#{fpmrSmallItemThreshold},
+			#{containerUnitCapacity},#{containerNumPerTask},#{strategyWholePallet},#{fpmrSetGroupFalg},#{fpmrBigItemThreshold},#{fpmrSetFlag},#{fpmrSmallItemThreshold},
 			#{fpmrSowMethod}
     	)
 	</insert>
@@ -41,6 +42,7 @@
   			<if test="containerType != null">container_type=#{containerType},</if>
   			<if test="containerUnitCapacity != null">container_unit_capacity=#{containerUnitCapacity},</if>
   			<if test="containerNumPerTask != null">container_num_per_task=#{containerNumPerTask},</if>
+			<if test="strategyWholePallet != null">strategy_whole_pallet=#{strategyWholePallet},</if>
   			<if test="fpmrSetGroupFalg != null">fpmr_set_group_falg=#{fpmrSetGroupFalg},</if>
   			<if test="fpmrBigItemThreshold != null">fpmr_big_item_threshold=#{fpmrBigItemThreshold},</if>
   			<if test="fpmrSetFlag != null">fpmr_set_flag=#{fpmrSetFlag},</if>
@@ -79,6 +81,7 @@
 			<if test="containerType != null">and container_type=#{containerType}</if>
 			<if test="containerUnitCapacity != null">and container_unit_capacity=#{containerUnitCapacity}</if>
 			<if test="containerNumPerTask != null">and container_num_per_task=#{containerNumPerTask}</if>
+			<if test="strategyWholePallet != null">and strategy_whole_pallet=#{strategyWholePallet}</if>
 			<if test="fpmrSetGroupFalg != null">and fpmr_set_group_falg=#{fpmrSetGroupFalg}</if>
 			<if test="fpmrBigItemThreshold != null">and fpmr_big_item_threshold=#{fpmrBigItemThreshold}</if>
 			<if test="fpmrSetFlag != null">and fpmr_set_flag=#{fpmrSetFlag}</if>
