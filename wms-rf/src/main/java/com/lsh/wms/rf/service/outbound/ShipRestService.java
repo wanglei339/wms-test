@@ -18,6 +18,7 @@ import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
@@ -27,6 +28,7 @@ import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.tu.TuDetail;
+import com.lsh.wms.model.tu.TuEntry;
 import com.lsh.wms.model.tu.TuHead;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
@@ -66,6 +68,8 @@ public class ShipRestService implements IShipRestService {
     private ITuRpcService iTuRpcService;
     @Autowired
     protected IdGenerator idGenerator;
+    @Autowired
+    private TuService tuService;
 
     @Path("releaseCollectionRoad")
     @POST
@@ -164,7 +168,7 @@ public class ShipRestService implements IShipRestService {
         tuHead.setStoreIds("");
         tuHead.setCommitedAt(0L);
         tuHead.setLoadedAt(0L);
-        iTuRpcService.create(tuHead);
+//        iTuRpcService.create(tuHead);
 
         //装车数据插入
         List<TuDetail> tuDetails = new ArrayList<TuDetail>();
@@ -181,7 +185,15 @@ public class ShipRestService implements IShipRestService {
             tuDetail.setIsValid(1);
             tuDetails.add(tuDetail);
         }
-        iTuRpcService.createBatchDetail(tuDetails);
+
+//        iTuRpcService.createBatchDetail(tuDetails);
+        //创建tu
+        TuEntry tuEntry = new TuEntry();
+        tuEntry.setTuHead(tuHead);
+        tuEntry.setTuDetails(tuDetails);
+        tuService.createTuEntry(tuEntry);
+
+        //更新操作
         tuHead.setStatus(TuConstant.LOAD_OVER);
         tuHead.setLoadUid(loadUid);
         tuHead.setLoadedAt(DateUtils.getCurrentSeconds());
