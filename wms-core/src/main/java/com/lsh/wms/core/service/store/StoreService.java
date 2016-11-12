@@ -5,6 +5,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.base.q.Module.Base;
 import com.lsh.wms.core.constant.StoreConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoStoreDao;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
@@ -159,6 +160,15 @@ public class StoreService {
         map.put("isValid", 1);   //有效的
         List<BaseinfoStore> baseinfoStoreList = this.getBaseinfoStoreList(map);
         return baseinfoStoreList;
+    }
+
+    public BaseinfoStore getStoreByCode(String storeNo) {
+        List<BaseinfoStore> stores = this.getStoreIdByCode(storeNo);
+        if(stores.size()!=1){
+            return null;
+        }else{
+            return stores.get(0);
+        }
     }
 
     /**

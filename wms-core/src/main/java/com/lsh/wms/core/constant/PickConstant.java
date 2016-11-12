@@ -14,4 +14,7 @@ public class PickConstant {
     public static final Long QC_EXCEPTION_DONE_NORMAL = 1L;
     public static final Long QC_EXCEPTION_DONE_UNDO = 0L;
 
+    public static final Long COLLECT_ALLOC_MODE_ROUTE = 1L;
+    public static final Long COLLECT_ALLOC_MODE_CUSTOMER = 2L;
+
 }

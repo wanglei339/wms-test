@@ -51,6 +51,7 @@ public class TaskConstant {
     public static final Long TASK_DIRECT_LARGE_SHIP = 6L; //大店门店发货
 
 
+
     // 作业模式
     public static final Long MODE_INBOUND = 1L; // 在库
     public static final Long MODE_DIRECT = 2L; // 直流
