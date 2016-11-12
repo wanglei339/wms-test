@@ -316,10 +316,6 @@ public class ReceiptRpcService implements IReceiptRpcService {
         } else{
             for(ReceiptItem receiptItem : request.getItems()){
 
-                if(System.currentTimeMillis() - receiptItem.getProTime().getTime() <= 0) {
-                    throw new BizCheckedException("2020009");
-                }
-
                 if(receiptItem.getInboundQty().compareTo(BigDecimal.ZERO) < 0) {
                     throw new BizCheckedException("2020007");
                 }
