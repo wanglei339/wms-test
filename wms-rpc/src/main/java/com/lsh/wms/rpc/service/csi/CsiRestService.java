@@ -6,6 +6,7 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.csi.ICsiRestService;
+import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.csi.CsiOwnerService;
 import com.lsh.wms.core.service.csi.CsiSupplierService;
 import com.lsh.wms.model.csi.CsiCategory;
@@ -38,6 +39,8 @@ public class CsiRestService implements ICsiRestService {
     private CsiOwnerService ownerService;
     @Autowired
     private CsiSupplierService supplierService;
+    @Autowired
+    private CsiCustomerService customerService;
 
     @GET
     @Path("getCatInfo")
@@ -215,6 +218,18 @@ public class CsiRestService implements ICsiRestService {
     @Path("getSupplierCount")
     public String getSupplierCount(Map<String, Object> mapQuery){
         return JsonUtils.SUCCESS(supplierService.getSupplerCount(mapQuery));
+    }
+
+    @POST
+    @Path("getCustomerList")
+    public String getCustomerList(Map<String, Object> mapQuery){
+        return JsonUtils.SUCCESS(customerService.getCustomerList(mapQuery));
+    }
+
+    @POST
+    @Path("getCustomerCount")
+    public String getCustomerCount(Map<String, Object> mapQuery){
+        return JsonUtils.SUCCESS(customerService.getCustomerCount(mapQuery));
     }
 
 }

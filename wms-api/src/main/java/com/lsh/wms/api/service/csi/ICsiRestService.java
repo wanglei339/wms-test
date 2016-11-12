@@ -1,11 +1,14 @@
 package com.lsh.wms.api.service.csi;
 
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.model.csi.CsiCategory;
 import com.lsh.wms.model.csi.CsiOwner;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.csi.CsiSupplier;
 
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
 import java.util.List;
 import java.util.Map;
 
@@ -44,4 +47,9 @@ public interface ICsiRestService {
 
     String getSupplierList(Map<String, Object> mapQuery);
     String getSupplierCount(Map<String, Object> mapQuery);
+
+    public String getCustomerList(Map<String, Object> mapQuery);
+
+    public String getCustomerCount(Map<String, Object> mapQuery);
+
 }
