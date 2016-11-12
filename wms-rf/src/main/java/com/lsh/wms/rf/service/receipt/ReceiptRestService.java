@@ -202,8 +202,18 @@ public class ReceiptRestService implements IReceiptRfService {
             if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null) {
                 receiptItem.setProTime(new Date());
             }else if(receiptItem.getProTime() == null && receiptItem.getDueTime() != null){
-                //根据到期日计算生产日期
-                receiptItem.setProTime(new Date());//// FIXME: 16/11/12 根据生产日期-保质期计算
+                //根据到期日计算生产日期  // TODO: 16/11/12  根据生产日期-保质期计算
+                BigDecimal shelfLife = baseinfoItem.getShelfLife();//保质期天数
+                if(shelfLife == null){
+                    receiptItem.setProTime(new Date());
+                }else{
+                    int onedayMs = 24 * 60 * 60 * 1000;
+                    BigDecimal shelfLifeMs = shelfLife.multiply(BigDecimal.valueOf(onedayMs));
+                    long betweenTime = receiptItem.getDueTime().getTime() - shelfLifeMs.longValue();
+                    receiptItem.setProTime(new Date(betweenTime));
+                }
+
+
 
 
             }
@@ -228,6 +238,7 @@ public class ReceiptRestService implements IReceiptRfService {
             }
         });
     }
+
 //    @POST
 //    @Path("addStoreReceipt")
 //    public String addStoreReceipt() throws BizCheckedException, ParseException {
