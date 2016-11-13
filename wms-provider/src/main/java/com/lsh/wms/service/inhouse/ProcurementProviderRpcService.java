@@ -195,16 +195,27 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     //取库位中库存最小的
                     BigDecimal total = BigDecimal.ZERO;
                     StockQuant quant = null;
+                    StockQuant beginQuant = null;
                     Map<Long,Long> locationMap = new HashMap<Long, Long>();
                     Map<String,Object> queryMap = new HashMap<String, Object>();
                     for(StockQuant stockQuant:quantList) {
                         if(locationMap.get(stockQuant.getLocationId())==null) {
-                            //获取存储位该商品库存量
-                            queryMap.put("locationId", stockQuant.getLocationId());
-                            BigDecimal one = stockQuantService.getQty(condition);
-                            if(total.compareTo(one)>0 || total.compareTo(BigDecimal.ZERO)==0){
-                                total = one;
-                                quant =  stockQuant;
+                            if(beginQuant==null){
+                                beginQuant = stockQuant;
+                                quant = stockQuant;
+                            }
+                            if(beginQuant.getExpireDate().compareTo(stockQuant.getExpireDate())==0) {
+                                //获取存储位该商品库存量
+                                queryMap.put("locationId", stockQuant.getLocationId());
+                                BigDecimal one = stockQuantService.getQty(condition);
+                                if (total.compareTo(one) > 0 || total.compareTo(BigDecimal.ZERO) == 0) {
+                                    total = one;
+                                    quant = stockQuant;
+                                }
+                                beginQuant = quant;
+                            }else {
+                                quant = beginQuant;
+                                break;
                             }
                         }
                         locationMap.put(stockQuant.getLocationId(),stockQuant.getLocationId());
@@ -340,16 +351,27 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     //取库位中库存最小的
                     BigDecimal total = BigDecimal.ZERO;
                     StockQuant quant = null;
+                    StockQuant beginQuant = null;
                     Map<Long,Long> locationMap = new HashMap<Long, Long>();
                     Map<String,Object> queryMap = new HashMap<String, Object>();
                     for(StockQuant stockQuant:quantList) {
                         if(locationMap.get(stockQuant.getLocationId())==null) {
-                            //获取存储位该商品库存量
-                            queryMap.put("locationId", stockQuant.getLocationId());
-                            BigDecimal one = stockQuantService.getQty(condition);
-                            if((total.compareTo(one)>0 || total.compareTo(BigDecimal.ZERO)==0) && total.compareTo(requiredQty)>=0){
-                                total = one;
-                                quant =  stockQuant;
+                            if(beginQuant==null){
+                                beginQuant = stockQuant;
+                                quant = stockQuant;
+                            }
+                            if(beginQuant.getExpireDate().compareTo(stockQuant.getExpireDate())==0) {
+                                //获取存储位该商品库存量
+                                queryMap.put("locationId", stockQuant.getLocationId());
+                                BigDecimal one = stockQuantService.getQty(condition);
+                                if ((total.compareTo(one) > 0 || total.compareTo(BigDecimal.ZERO) == 0) && total.compareTo(requiredQty) >= 0) {
+                                    total = one;
+                                    quant = stockQuant;
+                                }
+                                beginQuant = stockQuant;
+                            }else {
+                                quant = beginQuant;
+                                break;
                             }
                         }
                         locationMap.put(stockQuant.getLocationId(),stockQuant.getLocationId());
