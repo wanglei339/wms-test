@@ -20,6 +20,7 @@ import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.container.ContainerService;
+import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
@@ -33,6 +34,7 @@ import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.*;
+import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.po.*;
 import com.lsh.wms.model.stock.StockLot;
@@ -124,6 +126,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
     @Autowired
     private ReceiveService receiveService;
+
+    @Autowired
+    private CsiCustomerService customerService;
 
     public Boolean throwOrder(String orderOtherId) throws BizCheckedException {
         IbdHeader ibdHeader = new IbdHeader();
@@ -521,10 +526,13 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         //超过保质期,保质期例外代码验证
         String proTimeexceptionCode = iexceptionCodeRpcService.getExceptionCodeByName("receiveExpired");// FIXME: 16/11/9 获取保质期的例外代码
+        logger.info("#############proTimeexceptionCode:"+proTimeexceptionCode);
+        logger.info("#############exceptionCode:"+exceptionCode);
         if(StringUtils.isNotEmpty(exceptionCode) && exceptionCode.equals(proTimeexceptionCode)){
             //例外代码匹配
             return true;
         }
+        logger.info("#############");
         if(proTime == null && dueTime == null){
             throw new BizCheckedException("2020008");//生产日期不能为空
         }
@@ -696,7 +704,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
         }
 
         //大店放在集货道 小店放到集货位
-        BaseinfoStore baseinfoStore = iStoreRpcService.getStoreByStoreNo(inbReceiptHeader.getStoreCode());
+        //BaseinfoStore baseinfoStore = iStoreRpcService.getStoreByStoreNo(inbReceiptHeader.getStoreCode());
+        CsiCustomer csiCustomer = customerService.getCustomerByCustomerCode(request.getOwnerId(),inbReceiptHeader.getStoreCode());
+
         List<BaseinfoLocation> list = locationRpcService.getCollectionByStoreNo(inbReceiptHeader.getStoreCode());
         if( list != null && list.size() >= 0 ){
             inbReceiptHeader.setLocation(list.get(0).getLocationId());
@@ -859,7 +869,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         //如果是大店 生成QC
         if(request.getIsCreateTask()==1) {
-            if(baseinfoStore.getScale() == 2){
+            if(csiCustomer.getCustomerType().equals(CustomerConstant.BiG_STORE)){
                 TaskEntry taskEntry = new TaskEntry();
                 TaskInfo taskInfo = new TaskInfo();
                 taskInfo.setTaskId(taskId);

@@ -15,7 +15,7 @@ import com.lsh.wms.api.model.so.SoRequest;
  */
 public interface ISoRestService {
 
-    public String init(String soOrderInfo);
+    //public String init(String soOrderInfo);
 
     public BaseResponse insertOrder(SoRequest request) throws BizCheckedException;
 

@@ -335,6 +335,7 @@ public class PickRestService implements IPickRestService {
                         lastOrder++;
 
                         //捡货缺交，如果捡获数量比系统记载数量，则生成盘点任务
+                        logger.info("-------- in create taking_task");
                         Map<String,Object> queryMap = new HashMap<String, Object>();
                         queryMap.put("locationId",pickDetail.getRealPickLocation());
                         BigDecimal qty = stockQuantService.getQty(queryMap);

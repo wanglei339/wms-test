@@ -10,6 +10,6 @@ import com.lsh.wms.api.model.wumart.CreateIbdHeader;
 
 public interface IDataBackService {
     String wmDataBackByPost(String request, String url , Integer type);
-//    String ofcDataBackByPost(Object request, String url);
+    String ofcDataBackByPost(String request, String url);
 //    Boolean erpDataBack(CreateIbdHeader createIbdHeader);
 }

@@ -3,6 +3,7 @@ package com.lsh.wms.api.service.po;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.model.po.ReceiveHeader;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -17,4 +18,6 @@ public interface IReceiveRpcService {
 
     ReceiveHeader getReceiveDetailList(Long receiveId);
     Boolean updateOrderStatus(Map<String, Object> map) throws BizCheckedException;
+
+    void accountBack(Long receiveId,String detailOtherId,BigDecimal qty) throws BizCheckedException;
 }

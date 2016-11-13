@@ -103,18 +103,18 @@ public class DataBackService implements IDataBackService {
 
     }
 
-//    public String ofcDataBackByPost(Object request, String url){
-//        String jsonPoCreate = this.initJson(request);
-//
-//        logger.info("order CreateOfcOrder json : " + jsonPoCreate);
-//        String jsonStr = HttpUtil.doPost(url,jsonPoCreate);
-//
-//        logger.info("order jsonStr :" + jsonStr +"~~~~");
-//        OrderResponse orderResponse = JSON.parseObject(jsonStr,OrderResponse.class);
-//        logger.info("orderResponse = " + JSON.toJSONString(orderResponse));
-//        return JSON.toJSONString(orderResponse);
-//
-//    }
+    public String ofcDataBackByPost(String request, String url){
+        String jsonPoCreate = this.initJson(request);
+
+        logger.info("order CreateOfcOrder json : " + jsonPoCreate);
+        String jsonStr = HttpUtil.doPost(url,jsonPoCreate);
+
+        logger.info("order jsonStr :" + jsonStr +"~~~~");
+        OrderResponse orderResponse = JSON.parseObject(jsonStr,OrderResponse.class);
+        logger.info("orderResponse = " + JSON.toJSONString(orderResponse));
+        return JSON.toJSONString(orderResponse);
+
+    }
 //
 //    public Boolean erpDataBack(CreateIbdHeader createIbdHeader){
 //        try {
