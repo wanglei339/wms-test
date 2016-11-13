@@ -2,6 +2,7 @@ package com.lsh.wms.api.service.inhouse;
 
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.transfer.StockTransferPlan;
 
 import java.util.List;

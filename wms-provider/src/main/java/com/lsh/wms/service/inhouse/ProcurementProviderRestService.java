@@ -8,6 +8,7 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.inhouse.IProcurementProviderRestService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;

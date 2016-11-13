@@ -17,6 +17,7 @@ import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.so.SoOrderService;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
@@ -46,6 +47,9 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
     @Reference
     private IStockQuantRpcService stockQuantService;
+
+    @Autowired
+    private StockQuantService quantService;
 
     @Reference
     private IProcurementRpcService rpcService;
@@ -207,7 +211,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                             if(beginQuant.getExpireDate().compareTo(stockQuant.getExpireDate())==0) {
                                 //获取存储位该商品库存量
                                 queryMap.put("locationId", stockQuant.getLocationId());
-                                BigDecimal one = stockQuantService.getQty(condition);
+                                BigDecimal one = quantService.getQty(queryMap);
                                 if (total.compareTo(one) > 0 || total.compareTo(BigDecimal.ZERO) == 0) {
                                     total = one;
                                     quant = stockQuant;
@@ -363,7 +367,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                             if(beginQuant.getExpireDate().compareTo(stockQuant.getExpireDate())==0) {
                                 //获取存储位该商品库存量
                                 queryMap.put("locationId", stockQuant.getLocationId());
-                                BigDecimal one = stockQuantService.getQty(condition);
+                                BigDecimal one = quantService.getQty(queryMap);
                                 if ((total.compareTo(one) > 0 || total.compareTo(BigDecimal.ZERO) == 0) && total.compareTo(requiredQty) >= 0) {
                                     total = one;
                                     quant = stockQuant;
@@ -593,5 +597,4 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         }
         return 0L;
     }
-
 }
