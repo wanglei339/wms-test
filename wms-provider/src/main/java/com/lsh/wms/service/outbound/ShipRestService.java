@@ -11,9 +11,11 @@ import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.api.service.wave.IShipRestService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.so.OutbDeliveryHeader;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -50,6 +52,8 @@ public class ShipRestService implements IShipRestService {
     IStockQuantRpcService stockQuantRpcService;
     @Autowired
     private LocationService locationService;
+    @Autowired
+    private SoDeliveryService soDeliveryService;
 
     /**
      * 波次的发货操作
@@ -103,7 +107,7 @@ public class ShipRestService implements IShipRestService {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("containerIds", totalContainers);
         map.put("tuHead", tuHead);
-        if (tuService.createObdAndMoveStockQuant(map)) {
+        if (tuService.createObdAndMoveStockQuant(map)) {    //销库存生成发货单
 
             //释放已经没有库存的集货道
             Set<Long> locationIds = new HashSet<Long>();
@@ -122,6 +126,10 @@ public class ShipRestService implements IShipRestService {
                 }
             }
         }
+
+        //获取发货单的header
+        List<OutbDeliveryHeader> outbDeliveryHeaders = soDeliveryService.getOutbDeliveryHeaderByTmsId(tuHead.getTuId());
+        //发货单的detail
 
         //同步库存 todo 力哥
         Set<Long> waveIds = new HashSet<Long>();
