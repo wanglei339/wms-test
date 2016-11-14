@@ -11,6 +11,7 @@ import com.lsh.wms.api.service.seed.ISetGoodsRestService;
 import com.lsh.wms.api.service.store.IStoreRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
@@ -52,8 +53,8 @@ public class SetGoodsRestService implements ISetGoodsRestService {
     SoOrderService soOrderService;
     @Autowired
     WaveService waveService;
-    @Reference
-    private IStoreRpcService storeRpcService;
+    @Autowired
+    CsiCustomerService csiCustomerService;
     @Reference
     private ILocationRpcService locationRpcService;
     /**
@@ -141,6 +142,7 @@ public class SetGoodsRestService implements ISetGoodsRestService {
             info.setType(TaskConstant.TYPE_SET_GOODS);
             info.setContainerId(containerId);
             info.setStep(1);
+            info.setOwnerId(header.getOwnerUid());
             info.setTaskName("集货任务[ " + containerId + "]");
             info.setStatus(TaskConstant.Draft);
             info.setPlanner(uId);
@@ -159,7 +161,7 @@ public class SetGoodsRestService implements ISetGoodsRestService {
         }
 
         Map<String,Object> result = new HashMap<String, Object>();
-        result.put("storeName",storeRpcService.getStoreByStoreNo(storeNo).getStoreName());
+        result.put("storeName",csiCustomerService.getCustomerByCustomerCode(info.getOwnerId(),storeNo).getCustomerName());
         result.put("locationCode",locations.get(0).getLocationCode());
         result.put("containerId",containerId);
         result.put("status",info.getStep());

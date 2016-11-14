@@ -7,6 +7,7 @@ import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoContainerDao;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.stock.StockQuant;
 import org.slf4j.Logger;
@@ -33,6 +34,8 @@ public class ContainerService {
     private StockQuantService stockQuantService;
     @Autowired
     private LocationService locationService;
+    @Autowired
+    private BaseTaskService baseTaskService;
 
     public BaseinfoContainer getContainer(Long containerId) {
         Map<String, Object> params = new HashMap<String, Object>();
@@ -93,13 +96,14 @@ public class ContainerService {
     public Boolean isContainerInUse(Long containerId) {
         List<StockQuant> quants = stockQuantService.getQuantsByContainerId(containerId);
         if (quants != null && quants.size() > 0) {
+
             return true;
         }
         return false;
     }
 
     /**
-     * 判断容器能否使用
+     * 判断容器能否使用,考虑库存和任务两个维度
      *
      * @param containerId
      * @return
@@ -107,7 +111,7 @@ public class ContainerService {
     public boolean isContainerCanUse(Long containerId) {
 //      是否存在托盘和是否在使用
         List<StockQuant> quants = stockQuantService.getQuantsByContainerId(containerId);
-        if (this.getContainer(containerId) != null && quants.size() <= 0) {
+        if (this.getContainer(containerId) != null && quants.size() <= 0 && baseTaskService.checkTaskByContainerId(containerId)) {
             return true;
         }
         return false;

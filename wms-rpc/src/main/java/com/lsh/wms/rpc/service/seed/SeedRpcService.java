@@ -105,6 +105,7 @@ public class SeedRpcService implements ISeedRpcService {
             InbReceiptDetail inbReceiptDetail = new InbReceiptDetail();
 
             ObjUtils.bean2bean(receiptItem, inbReceiptDetail);
+            inbReceiptDetail.setProTime(new Date());
 
             //根据request中的orderOtherId查询InbPoHeader
             IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(request.getOrderOtherId());

@@ -18,6 +18,7 @@ import org.apache.log4j.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.StringArrayPropertyEditor;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -230,6 +231,14 @@ public class CsiRestService implements ICsiRestService {
     @Path("getCustomerCount")
     public String getCustomerCount(Map<String, Object> mapQuery){
         return JsonUtils.SUCCESS(customerService.getCustomerCount(mapQuery));
+    }
+
+    @POST
+    @Path("getCustomer")
+    public String getCustomerByCustomerCode(Map<String, Object> mapQuery){
+        Long ownerId = Long.valueOf(mapQuery.get("ownerId").toString());
+        String customerCode = mapQuery.get("customerCode").toString();
+        return JsonUtils.SUCCESS(customerService.getCustomerByCustomerCode(ownerId, customerCode));
     }
 
 }
