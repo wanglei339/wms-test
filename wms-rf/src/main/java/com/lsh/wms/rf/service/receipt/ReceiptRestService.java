@@ -194,7 +194,7 @@ public class ReceiptRestService implements IReceiptRfService {
                     if (exceptionReceipt != 1) {
                         // TODO: 16/7/20   商品信息是否完善,怎么排查.2,保质期例外怎么验证?
                         //保质期判断,如果失败抛出异常
-                        iReceiptRpcService.checkProTime(baseinfoItem, receiptItem.getProTime(),receiptItem.getDueTime(), exceptionCode);
+                        //iReceiptRpcService.checkProTime(baseinfoItem, receiptItem.getProTime(),receiptItem.getDueTime(), exceptionCode);
                     }
                 }
             }
