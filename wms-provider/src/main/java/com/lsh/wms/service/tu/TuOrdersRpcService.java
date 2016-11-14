@@ -403,13 +403,55 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
 
         }
 
+        List<Object>returnList=new ArrayList<Object>();
         //整合订单和商品数据
-        for (Long orderId : orderGoodsInfoMap.keySet()) {
-            if (goodsListMap.get(orderId) != null) {
-                orderGoodsInfoMap.get(orderId).put("goodsList", goodsListMap.get(orderId));
+        for(Long orderId:orderGoodsInfoMap.keySet()){
+            if(goodsListMap.get(orderId)==null){
+                continue;
             }
+            //一个订单的商品列表
+            Map<Long,Map<String,Object>>goodsListMapByOrderId=goodsListMap.get(orderId);
+            //一个类型的商品
+            Map<Long,Map<String,Object>>goodsMapByItemType=new HashMap<Long,Map<String,Object>>();
+            //商品类型map
+            Map<Long,String>itemTypeMap=new HashMap<Long,String>();
 
-            //复制order的头
+            //将每个订单的商品按类型分组
+            for(Long itemId:goodsListMapByOrderId.keySet()){
+                Map<String,Object> goodsMap = goodsListMapByOrderId.get(itemId);
+
+                Long itemTypeId=Long.parseLong(goodsMap.get("itemType").toString());
+                if(goodsMapByItemType.get(itemTypeId)==null){
+                    Map<String,Object>goodsMapByItemTypeInit=new HashMap<String,Object>();
+                    goodsMapByItemTypeInit.put("goodsListByItemType",new ArrayList<Object>());
+                    goodsMapByItemTypeInit.put("itemTypeName","");
+                    goodsMapByItemType.put(itemTypeId,goodsMapByItemTypeInit);
+                }
+                if(itemTypeMap.get(itemTypeId)==null){
+                    BaseinfoItemType baseinfoItemType=itemTypeService.getBaseinfoItemTypeById(itemTypeId.intValue());
+                    if(baseinfoItemType!=null){
+                        itemTypeMap.put(itemTypeId,baseinfoItemType.getItemName());
+                    }else{
+                        itemTypeMap.put(itemTypeId,"");
+                    }
+                }
+                List<Object>tempLis=(List<Object>)goodsMapByItemType.get(itemTypeId).get("goodsListByItemType");
+                tempLis.add(goodsMap);
+                Map<String,Object>tempMap=goodsMapByItemType.get(itemTypeId);
+                tempMap.put("goodsListByItemType",tempLis);
+                goodsMapByItemType.put(itemTypeId,tempMap);
+            }
+            List<Object>goodsList=new ArrayList<Object>();
+            for(Long itemTypeId:goodsMapByItemType.keySet()){
+                goodsMapByItemType.get(itemTypeId).put("itemTypeName",itemTypeMap.get(itemTypeId));
+                goodsList.add(goodsMapByItemType.get(itemTypeId));
+
+            }
+            orderGoodsInfoMap.get(orderId).put("goodsList",goodsList);
+            returnList.add(orderGoodsInfoMap.get(orderId));
+
+
+           /* //复制order的头
             if (orderInfoMap.get(orderId) == null) {
                 Map<String, Object> oneOrderInfo = new HashMap<String, Object>();
                 oneOrderInfo.put("orderId", orderId);//订单号
@@ -468,13 +510,14 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
                     groupInfoListMapOneOrderMap.put(type, tempMap);
                 }
                 groupListMap.put(orderId, groupInfoListMapOneOrderMap);
-            }
+            }*/
         }
 
 
         Map<String, Object> returnData = new HashMap<String, Object>();
 //        returnData.put("data", orderGoodsInfoMap);
-        returnData.put("data", groupListMap);
+//        returnData.put("data", groupListMap);
+        returnData.put("data", returnList);
         return returnData;
     }
 
