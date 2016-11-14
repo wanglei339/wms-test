@@ -4,9 +4,11 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.merge.IMergeRpcService;
+import com.lsh.wms.core.constant.CustomerConstant;
 import com.lsh.wms.core.constant.StoreConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.TuConstant;
+import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.store.StoreService;
@@ -15,6 +17,7 @@ import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
+import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.tu.TuDetail;
@@ -38,7 +41,7 @@ public class MergeRpcService implements IMergeRpcService {
     private static Logger logger = LoggerFactory.getLogger(MergeRpcService.class);
 
     @Autowired
-    private StoreService storeService;
+    private CsiCustomerService csiCustomerService;
     @Autowired
     private BaseTaskService baseTaskService;
     @Autowired
@@ -57,15 +60,16 @@ public class MergeRpcService implements IMergeRpcService {
      * @throws BizCheckedException
      */
     public List<Map<String, Object>> getMergeList(Map<String, Object> mapQuery) throws BizCheckedException {
-        mapQuery.put("scale", StoreConstant.SCALE_HYPERMARKET); // 大店
-        List<BaseinfoStore> stores = storeService.getOpenedStoreList(mapQuery);
+        mapQuery.put("status", 1); // 生效状态的 TODO: 待改为constant
+        mapQuery.put("customerType", CustomerConstant.SUPER_MARKET); // 大店 TODO: 这个地方是字符串,目前数据量小先这样了,理论上应该为数字或者全部取出后遍历
+        List<CsiCustomer> customers = csiCustomerService.getCustomerList(mapQuery);
         List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
-        for (BaseinfoStore store: stores) {
+        for (CsiCustomer customer: customers) {
             Integer totalMergedContainers = 0; // 未装车总板数
             Integer restMergedContainers = 0; // 未装车余货总板数
-            String storeNo = store.getStoreNo();
+            String customerCode = customer.getCustomerCode();
             List<Long> countedContainerIds = new ArrayList<Long>();
-            List<WaveDetail> waveDetails = this.getWaveDetailByStoreNo(storeNo);
+            List<WaveDetail> waveDetails = this.getWaveDetailByCustomerCode(customerCode);
             if (waveDetails.size() > 0) {
                 for (WaveDetail waveDetail : waveDetails) {
                     Long mergedContainerId = waveDetail.getMergedContainerId();
@@ -102,9 +106,9 @@ public class MergeRpcService implements IMergeRpcService {
                 }
             }
             Map<String, Object> result = new HashMap<String, Object>();
-            result.put("storeNo", store.getStoreNo());
-            result.put("storeName", store.getStoreName());
-            result.put("address", store.getAddress());
+            result.put("customerCode", customer.getCustomerCode());
+            result.put("customerName", customer.getCustomerName());
+            result.put("address", customer.getAddress());
             result.put("totalMergedContainers", totalMergedContainers);
             result.put("restMergedContainers", restMergedContainers);
             results.add(result);
@@ -119,9 +123,9 @@ public class MergeRpcService implements IMergeRpcService {
      * @throws BizCheckedException
      */
     public Integer countMergeList(Map<String, Object> mapQuery) throws BizCheckedException {
-        mapQuery.put("scale", StoreConstant.SCALE_HYPERMARKET); // 大店
-        mapQuery.put("isOpen", 1);
-        Integer total = storeService.countBaseinfoStore(mapQuery);
+        mapQuery.put("status", 1); // 生效状态的
+        mapQuery.put("customerCode", CustomerConstant.SUPER_MARKET); // 大店
+        Integer total = csiCustomerService.getCustomerCount(mapQuery);
         return total;
     }
 
@@ -145,14 +149,14 @@ public class MergeRpcService implements IMergeRpcService {
 
     /**
      * 获取门店的合板详情
-     * @param storeNo
+     * @param customerCode
      * @return
      * @throws BizCheckedException
      */
-    public Map<Long, Map<String, Object>> getMergeDetailByStoreNo(String storeNo) throws BizCheckedException {
+    public Map<Long, Map<String, Object>> getMergeDetailByCustomerCode(String customerCode) throws BizCheckedException {
         Map<Long, Map<String, Object>> results = new HashMap<Long, Map<String, Object>>();
         List<Long> countedContainerIds = new ArrayList<Long>();
-        List<WaveDetail> waveDetails = this.getWaveDetailByStoreNo(storeNo);
+        List<WaveDetail> waveDetails = this.getWaveDetailByCustomerCode(customerCode);
         for (WaveDetail waveDetail: waveDetails) {
             if (!countedContainerIds.contains(waveDetail.getContainerId())) {
                 Long containerId = waveDetail.getMergedContainerId();
@@ -182,7 +186,7 @@ public class MergeRpcService implements IMergeRpcService {
                     result.put("packCount", new BigDecimal(Double.valueOf(result.get("packCount").toString())).add(qcCounts.get("packCount")));
                     result.put("turnoverBoxCount", new BigDecimal(Double.valueOf(result.get("turnoverBoxCount").toString())).add(qcCounts.get("turnoverBoxCount")));
                     result.put("containerCount", Integer.valueOf(result.get("containerCount").toString()) + 1);
-                    result.put("storeNo",storeNo);
+                    result.put("customerCode", customerCode);
                     // 是否是余货
                     if (waveDetail.getQcAt() < DateUtils.getTodayBeginSeconds()) {
                         result.put("isRest", true);
@@ -193,7 +197,7 @@ public class MergeRpcService implements IMergeRpcService {
                     result.put("containerCount", 1);
                     result.put("packCount", qcCounts.get("packCount"));
                     result.put("turnoverBoxCount", qcCounts.get("turnoverBoxCount"));
-                    result.put("storeNo",storeNo);
+                    result.put("customerCode", customerCode);
                     result.put("isExpensive", false);
                     if (waveDetail.getQcAt() < DateUtils.getTodayBeginSeconds()) {
                         result.put("isRest", true);
@@ -210,12 +214,12 @@ public class MergeRpcService implements IMergeRpcService {
     }
 
     /**
-     * 通过门店号获取osd
-     * @param storeNo
+     * 通过用户编号获取osd
+     * @param customerCode
      * @return
      */
-    public List<WaveDetail> getWaveDetailByStoreNo(String storeNo) {
-        List<BaseinfoLocation> locations = locationService.getCollectionByStoreNo(storeNo); // 门店对应的集货道
+    public List<WaveDetail> getWaveDetailByCustomerCode(String customerCode) {
+        List<BaseinfoLocation> locations = locationService.getCollectionByStoreNo(customerCode); // 门店对应的集货道
         List<WaveDetail> waveDetails = new ArrayList<WaveDetail>();
         for (BaseinfoLocation location: locations) {
             List<StockQuant> quants = stockQuantService.getQuantsByLocationId(location.getLocationId());
