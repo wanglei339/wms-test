@@ -117,7 +117,10 @@ public class ObdService implements IObdService{
             waveOrderType = "YouGong store";
         }else if(orderType == SoConstant.ORDER_TYPE_STO){
             CsiCustomer customer = customerService.getCustomerByCustomerCode(soRequest.getOwnerUid(),soRequest.getDeliveryCode());
-            waveOrderType = customer.getCustomerType();
+            if(customer != null){
+                waveOrderType = customer.getCustomerType();
+            }
+
         }
         soRequest.setWaveOrderType(waveOrderType);
 
