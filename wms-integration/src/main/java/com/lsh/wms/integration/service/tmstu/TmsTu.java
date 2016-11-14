@@ -13,9 +13,11 @@ import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.tmstu.ITmsTuService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.core.constant.TuConstant;
+import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.store.StoreService;
 import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
+import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.tu.TuDetail;
 import com.lsh.wms.model.tu.TuHead;
 import org.slf4j.Logger;
@@ -45,7 +47,7 @@ public class TmsTu implements ITmsTuService {
     @Autowired
     private TuService tuService;
     @Autowired
-    private StoreService storeService;
+    private CsiCustomerService csiCustomerService;
 
     @Reference
     private ITuRpcService iTuRpcService;
@@ -86,9 +88,9 @@ public class TmsTu implements ITmsTuService {
         List<Map<String, Object>> details = new ArrayList<Map<String, Object>>();
         for (TuDetail tuDetail : tuDetails) {
             Map<String, Object> detail = BeanMapTransUtils.Bean2map(tuDetail);
-            BaseinfoStore store = storeService.getBaseinfoStore(tuDetail.getStoreId());
-            detail.put("storeNo", store.getStoreNo());
-            detail.put("storeName", store.getStoreName());
+            CsiCustomer csiCustomer = csiCustomerService.getCustomerByCustomerId(tuDetail.getStoreId());
+            detail.put("customerCode", csiCustomer.getCustomerCode());
+            detail.put("ustomerName", csiCustomer.getCustomerName());
             details.add(detail);
         }
         result.put("tuId", tuId);
