@@ -876,7 +876,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         //如果是大店 生成QC
         if(request.getIsCreateTask()==1) {
-            if(csiCustomer.getCustomerType().equals(CustomerConstant.BiG_STORE)){
+            if(csiCustomer.getCustomerType().equals(CustomerConstant.SUPER_MARKET)){
                 TaskEntry taskEntry = new TaskEntry();
                 TaskInfo taskInfo = new TaskInfo();
                 taskInfo.setTaskId(taskId);

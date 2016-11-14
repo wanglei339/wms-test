@@ -6,6 +6,6 @@ package com.lsh.wms.core.constant;
 public class CustomerConstant {
 
 
-    public static final String BiG_STORE = "market";
-    public static final String SMALL_STORE = "store";
+    public static final String SUPER_MARKET = "super_market";
+    public static final String STORE = "store";
 }

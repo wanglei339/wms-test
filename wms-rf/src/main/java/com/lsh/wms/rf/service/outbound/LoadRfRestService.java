@@ -188,7 +188,7 @@ public class LoadRfRestService implements ILoadRfRestService {
             //循环门店获取尾货信息(没合板,合板日期就是零)
             for (Map<String, Object> store : stores) {
                 String storeNo = store.get("storeNo").toString();
-                Map<Long, Map<String, Object>> storeMap = iMergeRpcService.getMergeDetailByStoreNo(storeNo);
+                Map<Long, Map<String, Object>> storeMap = iMergeRpcService.getMergeDetailByCustomerCode(storeNo);
                 storesRestMap.putAll(storeMap);
             }
             List<Map<String, Object>> storeRestList = new ArrayList<Map<String, Object>>();
