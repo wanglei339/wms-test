@@ -4,12 +4,14 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.service.csi.CsiSupplierService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.pick.PickTaskService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.csi.CsiSupplier;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.pick.PickTaskHead;
@@ -45,6 +47,8 @@ public class PickTaskHandler extends AbsTaskHandler {
     private LocationService locationService;
     @Autowired
     private WaveService waveService;
+    @Autowired
+    private CsiSupplierService csiSupplierService;
 
     @PostConstruct
     public void postConstruct() {
@@ -155,6 +159,8 @@ public class PickTaskHandler extends AbsTaskHandler {
             }
             detail.put("allocQty", PackUtil.EAQty2UomQty(pickTaskDetail.getAllocQty(), pickTaskDetail.getAllocUnitName()));
             detail.put("pickQty", PackUtil.EAQty2UomQty(pickTaskDetail.getPickQty(), pickTaskDetail.getAllocUnitName()));
+            /*CsiSupplier supplier = csiSupplierService.getSupplier(pickTaskDetail.getSupplierId());
+            detail.put("supplierCode", supplier.getSupplierCode());*/
             details.add(detail);
             totalQty = totalQty.add(pickTaskDetail.getAllocQty());
         }
