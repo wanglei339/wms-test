@@ -233,7 +233,7 @@ public class CsiRestService implements ICsiRestService {
         return JsonUtils.SUCCESS(customerService.getCustomerCount(mapQuery));
     }
 
-    @POST
+    @GET
     @Path("getCustomer")
     public String getCustomerByCustomerCode(Long ownerId, String customerCode){
         return JsonUtils.SUCCESS(customerService.getCustomerByCustomerCode(ownerId, customerCode));
