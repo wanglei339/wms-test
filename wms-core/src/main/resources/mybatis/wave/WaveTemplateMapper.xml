@@ -39,7 +39,6 @@
 	<update id="update" parameterType="WaveTemplate">
 		update wave_template
     	<set>
-  			<if test="waveTemplateId != null">wave_template_id=#{waveTemplateId},</if>
   			<if test="waveTemplateName != null">wave_template_name=#{waveTemplateName},</if>
   			<if test="status != null">status=#{status},</if>
   			<if test="waveOrderType != null">wave_order_type=#{waveOrderType},</if>
@@ -58,7 +57,7 @@
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
-		where id=#{id}
+		where wave_template_id=#{waveTemplateId}
 	</update>
   
 	<select id="getWaveTemplateById" parameterType="int" resultMap="waveTemplateResultMap">

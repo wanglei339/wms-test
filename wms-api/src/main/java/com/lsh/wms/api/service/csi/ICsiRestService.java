@@ -2,10 +2,7 @@ package com.lsh.wms.api.service.csi;
 
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.wms.model.csi.CsiCategory;
-import com.lsh.wms.model.csi.CsiOwner;
-import com.lsh.wms.model.csi.CsiSku;
-import com.lsh.wms.model.csi.CsiSupplier;
+import com.lsh.wms.model.csi.*;
 
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -53,5 +50,9 @@ public interface ICsiRestService {
     public String getCustomerCount(Map<String, Object> mapQuery);
 
     String getCustomerByCustomerCode(Map<String, Object> mapQuery);
+
+    String updateCustomer(CsiCustomer csiCustomer);
+
+    public String getCustomerByCustomerId(Long customerId);
 
 }
