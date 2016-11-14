@@ -6,6 +6,7 @@ import com.lsh.wms.api.service.system.IItemTypeRpcService;
 import com.lsh.wms.core.service.baseinfo.ItemTypeService;
 import com.lsh.wms.model.baseinfo.BaseinfoItemType;
 import com.lsh.wms.model.baseinfo.BaseinfoItemTypeRelation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -42,30 +43,41 @@ public class ItemTypeRpcService implements IItemTypeRpcService {
         List<BaseinfoItemType> itemTypeList = itemTypeService.getBaseinfoItemTypeList(params);
         Map<String,String> itemNameMap = new HashMap<String, String>();
         Map<String,String> itemStatusMap = new HashMap<String, String>();
+        Map<String,String> itemRelationMap = new HashMap<String, String>();
 
         for(BaseinfoItemType b :itemTypeList){
             itemNameMap.put(b.getId()+"",b.getItemName());
             itemStatusMap.put(b.getId()+"",b.getIsNeedProtime()+"");
         }
-        List<Object> returnList = new ArrayList<Object>();
         for(Map relationMap :relationList){
-            Map<String,Object> itemMap = new HashMap<String, Object>();
             //类型ID
             String itemTypeId = String.valueOf(relationMap.get("itemTypeId"));
             //互斥类型列表
             String mutexType = String.valueOf(relationMap.get("mutexIdStr"));
 
+            itemRelationMap.put(itemTypeId,mutexType);
+        }
+        List<Object> returnList = new ArrayList<Object>();
+        for(BaseinfoItemType b :itemTypeList){
+            Map<String,Object> itemMap = new HashMap<String, Object>();
+           String itemTypeId =  b.getId()+"";
             itemMap.put("itemTypeId",itemTypeId);
             itemMap.put("itemTypeName",itemNameMap.get(itemTypeId));
             itemMap.put("isNeedProtime",itemStatusMap.get(itemTypeId));
+            String mutexTypeStr = itemRelationMap.get(itemTypeId);
+            if(StringUtils.isBlank(mutexTypeStr)){
+                //没有互斥类型
+                itemMap.put("itemMutexType","");
+            }else{
+                String []mutexArray = mutexTypeStr.split(",");
+                String [] itemMutexArr = new String[mutexArray.length];
 
-            String []mutexArray = mutexType.split(",");
-            String [] itemMutexArr = new String[mutexArray.length];
-
-            for(int i = 0;i<mutexArray.length;i++){
-                itemMutexArr[i] = itemNameMap.get(mutexArray[i]);
+                for(int i = 0;i<mutexArray.length;i++){
+                    itemMutexArr[i] = itemNameMap.get(mutexArray[i]);
+                }
+                itemMap.put("itemMutexType",itemMutexArr);
             }
-            itemMap.put("itemMutexType",itemMutexArr);
+
             returnList.add(itemMap);
         }
         return returnList;
