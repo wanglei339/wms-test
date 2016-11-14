@@ -19,6 +19,7 @@
 		<result property="priority" column="priority"/>
 		<result property="seedQueue" column="seed_queue"/>
 		<result property="collectRoadId" column="collect_road_id"/>
+		<result property="seedRoadId" column="seed_road_id"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
 	</resultMap>
@@ -27,11 +28,11 @@
 		insert into csi_customer (
 			owner_id,customer_id,customer_type,customer_name,customer_code,contry,
 			province,city,address,status,is_valid,trans_plan,
-			priority,seed_queue,collect_road_id,created_at,updated_at
+			priority,seed_queue,collect_road_id,created_at,updated_at,seed_road_id
     	) values (
 			#{ownerId},#{customerId},#{customerType},#{customerName},#{customerCode},#{contry},
 			#{province},#{city},#{address},#{status},#{isValid},#{transPlan},
-			#{priority},#{seedQueue},#{collectRoadId},#{createdAt},#{updatedAt}
+			#{priority},#{seedQueue},#{collectRoadId},#{createdAt},#{updatedAt},#{seedRoadId}
     	)
 	</insert>
 
@@ -54,7 +55,8 @@
   			<if test="seedQueue != null">seed_queue=#{seedQueue},</if>
   			<if test="collectRoadId != null">collect_road_id=#{collectRoadId},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
-  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+			<if test="seedRoadId != null">seed_road_id=#{seedRoadId}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -97,6 +99,7 @@
 			<if test="collectRoadId != null">and collect_road_id=#{collectRoadId}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="seedRoadId != null">and seed_road_id=#{seedRoadId}</if>
 		</where>
 	</sql>
    

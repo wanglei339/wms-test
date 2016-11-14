@@ -12,6 +12,7 @@
 		<result property="requireQty" column="require_qty"/>
 		<result property="realContainerId" column="real_container_id"/>
 		<result property="packUnit" column="pack_unit"/>
+		<result property="orderId" column="order_id"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="SeedingTaskHead">
