@@ -245,52 +245,6 @@ public class TuRpcService implements ITuRpcService {
     }
 
     /**
-     * 使用POST方式将TU发车
-     *
-     * @param tuId
-     * @throws BizCheckedException
-     */
-    public Boolean postTuDetails(String tuId) throws BizCheckedException {
-        TuHead tuHead = tuService.getHeadByTuId(tuId);
-        Map<String, String> result = new HashMap<String, String>();
-        String responseBody = "";
-        if (tuHead == null) {
-            throw new BizCheckedException("2990022");
-        }
-        if (!tuHead.getStatus().equals(TuConstant.SHIP_OVER)) {
-            throw new BizCheckedException("2990037");
-        }
-        List<TuDetail> tuDetails = tuService.getTuDeailListByTuId(tuId);
-        List<Map<String, Object>> details = new ArrayList<Map<String, Object>>();
-        for (TuDetail tuDetail : tuDetails) {
-            Map<String, Object> detail = BeanMapTransUtils.Bean2map(tuDetail);
-            BaseinfoStore store = storeService.getBaseinfoStore(tuDetail.getStoreId());
-            detail.put("storeNo", store.getStoreNo());
-            detail.put("storeName", store.getStoreName());
-            details.add(detail);
-        }
-        result.put("tuId", tuId);
-        result.put("tuHead", JSON.toJSONString(tuHead));
-        result.put("scale", tuHead.getScale().toString());
-        result.put("tuDetails", JSON.toJSONString(details));
-        String url = PropertyUtils.getString("tms_ship_over_url");
-        int timeout = PropertyUtils.getInt("tms_timeout");
-        String charset = PropertyUtils.getString("tms_charset");
-        Map<String, String> headMap = new HashMap<String, String>();
-        headMap.put("Content-type", "application/x-www-form-urlencoded; charset=utf-8");
-        headMap.put("Accept", "*/*");
-        logger.info("[SHIP OVER]Begin to transfer to TMS, " + "URL: " + url + ", Request body: " + JSON.toJSONString(result));
-        try {
-            responseBody = HttpClientUtils.post(url, result, timeout, charset, headMap);
-        } catch (Exception e) {
-            logger.info("[SHIP OVER]Transfer to TMS failed: " + responseBody);
-            return false;
-        }
-        logger.info("[SHIP OVER]Transfer to TMS success: " + responseBody);
-        return true;
-    }
-
-    /**
      * 接收TU头信息
      *
      * @param mapRequest
@@ -313,7 +267,7 @@ public class TuRpcService implements ITuRpcService {
         tuHead.setCellphone(mapRequest.get("cellphone").toString());
         tuHead.setName(mapRequest.get("name").toString());
         tuHead.setCarNumber(mapRequest.get("car_number").toString());
-        tuHead.setStoreIds(mapRequest.get("store_ids").toString());
+        tuHead.setStoreIds(mapRequest.get("customer_ids").toString());
         tuHead.setPreBoard(Long.valueOf(mapRequest.get("pre_board").toString()));
         tuHead.setCommitedAt(Long.valueOf(mapRequest.get("commited_at").toString()));
         tuHead.setScale(Integer.valueOf(mapRequest.get("scale").toString()));

@@ -16,7 +16,6 @@ import com.lsh.wms.core.service.po.ReceiveService;
 import com.lsh.wms.core.service.system.SysLogService;
 import com.lsh.wms.core.service.system.SysMsgService;
 import com.lsh.wms.integration.wumart.ibd.*;
-import com.lsh.wms.integration.wumart.ibd.ObjectFactory;
 import com.lsh.wms.integration.wumart.ibdaccount.*;
 import com.lsh.wms.integration.wumart.ibdaccount.BAPIRET2;
 import com.lsh.wms.integration.wumart.ibdaccount.TABLEOFBAPIRET2;
@@ -27,8 +26,10 @@ import com.lsh.wms.integration.wumart.ibdaccount.TABLEOFZDELIVERYIMPORT;
 import com.lsh.wms.integration.wumart.ibdaccount.ZDELIVERYEXPORT;
 import com.lsh.wms.integration.wumart.ibdaccount.ZDELIVERYIMPORT;
 import com.lsh.wms.integration.wumart.ibdback.*;
+import com.lsh.wms.integration.wumart.ibdback.ObjectFactory;
 import com.lsh.wms.integration.wumart.obd.*;
 import com.lsh.wms.integration.wumart.obdaccount.*;
+import com.lsh.wms.integration.wumart.soobd.*;
 import com.lsh.wms.model.po.ReceiveDetail;
 import com.lsh.wms.model.system.SysLog;
 import com.lsh.wms.model.system.SysMsg;
@@ -313,7 +314,7 @@ public class WuMartSap implements IWuMartSap{
                 pItem.setLGORT("0001");
             }
             //pItem.setLGORT("0001");
-            pItem.setWERKS("DC09");
+            pItem.setWERKS(PropertyUtils.getString("wumart.werks"));
             pItem.setVRKME(detail.getUnit());
             pItems.getItem().add(pItem);
             receiveId = Long.valueOf(detail.getVendMat());
@@ -397,7 +398,7 @@ public class WuMartSap implements IWuMartSap{
             zItem.setPIKMG(detail.getDlvQty());
             zItem.setWADATIST(date);
             zItem.setLGORT("0001");
-            zItem.setWERKS("DC09");
+            zItem.setWERKS(PropertyUtils.getString("wumart.werks"));
             zItem.setVRKME(detail.getSalesUnit());
             zItmes.getItem().add(zItem);
         }
@@ -459,6 +460,43 @@ public class WuMartSap implements IWuMartSap{
         logger.info("ibd冲销入参: pDOCITEM : " + JSON.toJSONString(pDOCITEM) + " pDOCUMENT : " + pDOCUMENT);
         com.lsh.wms.integration.wumart.ibdback.TABLEOFBAPIRET2 newReturn = zbinding.zbapiGOODSMVTCANCEL(date,pDOCITEM,pDOCUMENT,pDOCYEAR,pUNAME,_return,pHEADRET);
         logger.info("ibd冲销返回值: newReturn : " + JSON.toJSONString(newReturn));
+
+        return JSON.toJSONString(newReturn);
+    }
+
+    public String soObd2Sap(CreateObdHeader createObdHeader) {
+        com.lsh.wms.integration.wumart.soobd.ObjectFactory factory = new com.lsh.wms.integration.wumart.soobd.ObjectFactory();
+        //拼装header信息
+        TABLEOFZBAPIR2DELIVERYHEAD deliveryheads = factory.createTABLEOFZBAPIR2DELIVERYHEAD();
+        ZBAPIR2DELIVERYHEAD deliveryhead = factory.createZBAPIR2DELIVERYHEAD();
+        deliveryhead.setORDERSTYLE("1");
+        deliveryhead.setORDERNO(createObdHeader.getOrderOtherId());//so单号。
+        deliveryheads.getItem().add(deliveryhead);
+        //拼装detail信息
+        List<CreateObdDetail> details = createObdHeader.getItems();
+        TABLEOFZBAPIR2DELIVERYITEM deliveryitems = factory.createTABLEOFZBAPIR2DELIVERYITEM();
+
+        for (CreateObdDetail detail : details ){
+            ZBAPIR2DELIVERYITEM  item = factory.createZBAPIR2DELIVERYITEM();
+            item.setLFIMG(detail.getDlvQty());
+            item.setPOSNN(detail.getRefItem());
+            item.setMATNR(detail.getMaterial());//skuCode
+            deliveryitems.getItem().add(item);
+        }
+
+        Holder<TABLEOFZBAPIR2DELIVERYHEAD> obdheader = new Holder<TABLEOFZBAPIR2DELIVERYHEAD>(deliveryheads);
+        Holder<TABLEOFZBAPIR2DELIVERYITEM> obditem = new Holder<TABLEOFZBAPIR2DELIVERYITEM>(deliveryitems);
+        com.lsh.wms.integration.wumart.soobd.TABLEOFBAPIRET2 _return = factory.createTABLEOFBAPIRET2();
+
+
+        ZBAPIR2DELIVERYSO zbinding = new ZBAPIR2DELIVERYSO_Service().getBindingSOAP12();
+        this.auth((BindingProvider) zbinding);
+
+        logger.info("so obd创建 入口参数: obdheader : " + JSON.toJSONString(obdheader.value) + " obditem : " + JSON.toJSONString(obditem.value));
+        com.lsh.wms.integration.wumart.soobd.TABLEOFBAPIRET2 newReturn = zbinding.zBAPIR2DELIVERYSO(obdheader,obditem,_return);
+        logger.info("so obd创建 出口参数: obdheader : " + JSON.toJSONString(obdheader.value) + " obditem : " + JSON.toJSONString(obditem.value));
+        logger.info("返回值 newReturn : " + JSON.toJSONString(newReturn));
+
 
         return JSON.toJSONString(newReturn);
     }

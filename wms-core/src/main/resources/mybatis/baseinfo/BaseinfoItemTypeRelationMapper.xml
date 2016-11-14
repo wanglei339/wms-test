@@ -25,7 +25,7 @@
 		where id=#{id}
 	</update>
 
-	<delete id="delete" parameterType="int">
+	<delete id="delete" parameterType="long">
 		delete from  baseinfo_item_type_relation
 		where id=#{id}
 	</delete>

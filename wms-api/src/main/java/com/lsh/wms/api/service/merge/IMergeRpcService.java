@@ -14,6 +14,6 @@ public interface IMergeRpcService {
     List<Map<String, Object>> getMergeList(Map<String, Object> mapQuery) throws BizCheckedException;
     Integer countMergeList(Map<String, Object> mapQuery) throws BizCheckedException;
     Map<String, BigDecimal> getQcCountsByWaveDetail(WaveDetail waveDetail) throws BizCheckedException;
-    Map<Long, Map<String, Object>> getMergeDetailByStoreNo(String storeNo) throws BizCheckedException;
-    List<WaveDetail> getWaveDetailByStoreNo(String storeNo);
+    Map<Long, Map<String, Object>> getMergeDetailByCustomerCode(String customerCode) throws BizCheckedException;
+    List<WaveDetail> getWaveDetailByCustomerCode(String customerCode);
 }

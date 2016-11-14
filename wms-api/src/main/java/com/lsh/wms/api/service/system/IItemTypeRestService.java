@@ -1,5 +1,6 @@
 package com.lsh.wms.api.service.system;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.model.baseinfo.BaseinfoItemType;
 import com.lsh.wms.model.baseinfo.BaseinfoItemTypeRelation;
 
@@ -15,6 +16,6 @@ public interface IItemTypeRestService {
     String  getItemTypeListCount(Map<String, Object> mapQuery);
     String getItemTypeRelationList(String itemTypeId);
     String deleteItemTypeRelation(Long id);
-    String insertItemTypeRelation(BaseinfoItemTypeRelation baseinfoItemTypeRelation);
+    String insertItemTypeRelation(BaseinfoItemTypeRelation baseinfoItemTypeRelation)throws BizCheckedException;
     String update(BaseinfoItemType baseinfoItemType);
 }

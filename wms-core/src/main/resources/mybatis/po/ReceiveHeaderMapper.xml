@@ -70,6 +70,15 @@
 	<select id="getReceiveHeaderList" parameterType="map" resultMap="receiveHeaderResultMap">
 		select * from receive_header
 		<include refid="queryCondition"/>
+		<if test="orderBy == null or orderType == null">
+			ORDER BY created_at DESC
+		</if>
+		<if test='"endDeliveryDate".equals(orderBy)  and "desc".equals(orderType)'>
+			ORDER BY  end_delivery_date DESC
+		</if>
+		<if test=" 'endDeliveryDate'.equals(orderBy)  and 'asc'.equals(orderType)">
+			ORDER BY  end_delivery_date ASC
+		</if>
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
 		</if>

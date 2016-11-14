@@ -97,6 +97,8 @@ public class ItemTypeRpcService implements IItemTypeRpcService {
             temp = itemTypeId;
             itemTypeId = itemMutexTypeId;
             itemMutexTypeId = temp;
+        }else if(itemTypeId.compareTo(itemMutexTypeId) == 0){
+            throw new BizCheckedException("1990002");
         }
 
         Map<String, Object> params = new HashMap<String, Object>();
