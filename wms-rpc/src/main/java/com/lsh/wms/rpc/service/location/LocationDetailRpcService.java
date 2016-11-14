@@ -143,4 +143,15 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
     public List<BaseinfoLocation> getNextLevelLocations(Long locationId) throws BizCheckedException {
         return locationRpcService.getNextLevelLocations(locationId);
     }
+
+    /**
+     * 根据货架参数,批量生成整个货架的货位
+     * @param createCondition
+     * @return
+     * @throws BizCheckedException
+     */
+    public boolean batchCreateBinsInOneShelf(Map<String, Object> createCondition) throws BizCheckedException {
+        return false;
+    }
+
 }

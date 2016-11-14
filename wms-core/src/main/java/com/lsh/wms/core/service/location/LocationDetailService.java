@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -269,7 +270,7 @@ public class LocationDetailService {
             location.setIsLeaf(0);
             locationService.updateLocation(location);
         }
-        if (LocationConstant.SUPPLIER_RETURN_SHELF.equals(iBaseinfoLocaltionModel.getType())){
+        if (LocationConstant.SUPPLIER_RETURN_SHELF.equals(iBaseinfoLocaltionModel.getType())) {
             this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.SUPPLIER_RETURN_LEVEL);
             //将货架的叶子节点设置为0
             location.setIsLeaf(0);
@@ -479,4 +480,52 @@ public class LocationDetailService {
         istrategy.removeLocation(iBaseinfoLocaltionModel.getLocationId());
         return iBaseinfoLocaltionModel;
     }
+
+
+    /**
+     * 创根据规则批量生成一层的货位
+     *
+     * @param conditionMap 创建条件
+     * @return
+     */
+    @Transactional(readOnly = false)
+    public boolean batchCreateBinsInOneLevel(Map<String, Object> conditionMap) {
+        //一层的库位起始code
+        String startCode =conditionMap.get("startCode").toString();
+        //拣货位type还是集货位type
+        Long type = Long.valueOf(conditionMap.get("type").toString());
+        //typeName
+        String typeName = LocationConstant.LOCATION_TYPE_NAME.get(type);
+        //fatherId
+        Long fatherId = Long.valueOf(conditionMap.get("fatherId").toString());
+        //fatherType
+        Long fatherType = Long.valueOf(conditionMap.get("fatherType").toString());
+        //体积
+        BigDecimal volume = new BigDecimal(conditionMap.get("volume").toString());
+        //称重
+        BigDecimal weigh = new BigDecimal(conditionMap.get("weigh").toString());
+        //温区
+        Integer zoneType = Integer.valueOf(conditionMap.get("zoneType").toString());
+        //可用禁用上没上锁
+        Integer isLocked = Integer.valueOf(conditionMap.get("isLocked").toString());
+
+        //判断插入
+
+
+        return false;
+
+    }
+
+    /**
+     * 根据规则批量生成一个货架的货位
+     *
+     * @param iBaseinfoLocaltionModel
+     * @return
+     */
+    @Transactional(readOnly = false)
+    public boolean batchCreateBinsInOneLevel(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
+        return false;
+    }
+
+
 }

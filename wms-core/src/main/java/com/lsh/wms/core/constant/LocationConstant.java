@@ -1,5 +1,6 @@
 package com.lsh.wms.core.constant;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -77,16 +78,15 @@ public class LocationConstant {
     public static final Long VALUABLES_SHELF_BIN = 43L; //贵品存拣一体位
 
     //播种区
-    public static final Long SOW_AREA =44L;  //播种区
-    public static final Long SOW_BIN =45L;  //播种货位
+    public static final Long SOW_AREA = 44L;  //播种区
+    public static final Long SOW_BIN = 45L;  //播种货位
 
     //供商退货区
     public static final Long SUPPLIER_RETURN_AREA = 46L;    //供商退货区
     public static final Long SUPPLIER_RETURN_SHELF = 47L;   //供商退货货架
-    public static final Long SUPPLIER_RETURN_LEVEL= 48L;    //供商退货货架层
+    public static final Long SUPPLIER_RETURN_LEVEL = 48L;    //供商退货货架层
     public static final Long SUPPLIER_RETURN_IN_BIN = 49L;  //供商退货入库位置(货架一层,方便取货)
     public static final Long SUPPLIER_RETURN_STORE_BIN = 50L;   //供商退货存储位置(一层往上)
-
 
 
     //是否能存储
@@ -130,8 +130,8 @@ public class LocationConstant {
     public static final Integer IS_VALID = 1;
     public static final Integer NOT_VALID = 0;
     //是否上锁
-    public static final Integer IS_LOCKED=1;
-    public static final Integer UNLOCK=0;
+    public static final Integer IS_LOCKED = 1;
+    public static final Integer UNLOCK = 0;
     //关于classification,同属性分类
     public static final Integer CLASSIFICATION_AREAS = 1;
     public static final Integer CLASSIFICATION_BINS = 2;
@@ -154,15 +154,164 @@ public class LocationConstant {
     public static final Integer LIST_TYPE_SHELF = 5; //获取货架和阁楼的list方法
 
 
-
-    public static final Map<Long,String> LOCATION_TYPE_NAME = new HashMap<Long, String>(){
+    public static final Map<Long, String> LOCATION_TYPE_NAME = new HashMap<Long, String>() {
         {
-            put(27L,"货架层");
-            put(28L,"阁楼层");
-            put(34L,"拆零货架层");
-            put(42L,"贵品货架层");
-            put(48L,"退货货架层");
+            put(27L, "货架层");
+            put(28L, "阁楼层");
+            put(34L, "拆零货架层");
+            put(42L, "贵品货架层");
+            put(48L, "退货货架层");
+            put(36L, "货架层拣货块");
+            put(37L, "货架层存货块");
+            put(38L, "阁楼货架层拣货块");
+            put(39L, "阁楼货架层存货块");
+
         }
     };
+
+
+
+    /**
+     * todo 库区库位的配置 初始化使用
+     */
+    public static final Map<Long, Map<String, Object>> LOCATION_CONFIGS = new HashMap<Long, Map<String, Object>>() {
+        {
+            //虚拟区
+            put(REGION_AREA, new HashMap<String, Object>() {
+                {
+                    put("length", new BigDecimal("300.00"));
+                    put("width", new BigDecimal("300.00"));
+                    put("type", REGION_AREA);
+                    put("isValid", 1);
+                    put("typeName", "虚拟区");
+                    //ownerid自己设置
+                }
+            });
+            //通道
+            put(PASSAGE, new HashMap<String, Object>() {
+                {
+                    put("type", PASSAGE);
+                    put("length", new BigDecimal("50.00"));
+                    put("width", new BigDecimal("2.00"));
+                    put("direction", PASSAGE_EAST_WEST);
+                    put("typeName", "通道");
+                    put("isValid", 1);
+                }
+            });
+
+            //获取货架
+            put(SHELF, new HashMap<String, Object>() {
+                {
+                    put("depth", 1L);//一层深度
+                    put("type", SHELF);
+                    put("typeName", "货架区货架");
+                    put("isValid", 1);
+                }
+            });
+            //阁楼货架
+            put(LOFT, new HashMap<String, Object>() {
+                {
+                    put("depth", 1l);   //一层深度
+                    put("type", LOFT);
+                    put("typeName", "阁楼区货架");
+                    put("isValid", 1);
+                }
+            });
+
+            //拆零货架
+            put(SPLIT_SHELF, new HashMap<String, Object>() {
+                {
+                    put("depth", 1l);   //一层深度
+                    put("type", SPLIT_SHELF);
+                    put("typeName", "拆零区货架");
+                    put("isValid", 1);
+                }
+            });
+
+
+            //贵品区货架
+            put(VALUABLES_SHELF, new HashMap<String, Object>() {
+                {
+                    put("depth", 1l);   //一层深度
+                    put("type", VALUABLES_SHELF);
+                    put("typeName", "贵品区货架");
+                    put("isValid", 1);
+                }
+            });
+            //供商直流退货区货架
+            put(SUPPLIER_RETURN_SHELF, new HashMap<String, Object>() {
+                {
+                    put("depth", 1l);   //一层深度
+                    put("type", SUPPLIER_RETURN_SHELF);
+                    put("typeName", "供商直流退货货架");
+                    put("isValid", 1);
+                }
+            });
+            //货架层拣货块
+            put(SHELF_PICK_BLOCK, new HashMap<String, Object>() {
+                {
+                    put("type", SHELF_PICK_BLOCK);
+                    put("typeName", "货架层拣货块");
+                    put("isValid", 1);
+                }
+            });
+            //货架拣货位
+            put(SHELF_PICKING_BIN, new HashMap<String, Object>() {
+                {
+                    put("type", SHELF_PICKING_BIN);
+                    put("typeName", "货架拣货位");
+                    put("fatherType", SHELF_PICK_BLOCK);
+                    put("isValid", 1);
+                }
+            });
+            //货架层存货块
+            put(SHELF_STORE_BLOCK, new HashMap<String, Object>() {
+                {
+                    put("type", SHELF_STORE_BLOCK);
+                    put("typeName", "货架层存货块");
+                    put("isValid", 1);
+                }
+            });
+            //货架存货位
+            put(SHELF_STORE_BIN, new HashMap<String, Object>() {
+                {
+                    put("type", SHELF_STORE_BIN);
+                    put("typeName", "货架存货位");
+                    put("fatherType", SHELF_STORE_BLOCK);
+                    put("isValid", 1);
+                }
+            });
+            //阁楼货架层的拣货块
+            put(LOFT_PICK_BLOCK, new HashMap<String, Object>() {
+                {
+                    put("type", LOFT_PICK_BLOCK);
+                    put("typeName", "阁楼货架层的拣货块");
+                    put("isValid", 1);
+                }
+            });
+            //阁楼的拣货位
+            put(LOFT_PICKING_BIN, new HashMap<String, Object>() {
+                {
+                    put("type", LOFT_PICKING_BIN);
+                    put("typeName", "阁楼的拣货位");
+                    put("fatherType", LOFT_PICK_BLOCK);
+                    put("isValid", 1);
+                }
+            });
+            //阁楼货架层的存货块
+            put(LOFT_STORE_BLOCK, new HashMap<String, Object>() {
+                {
+                    put("type", LOFT_STORE_BLOCK);
+                    put("typeName", "阁楼货架层的存货块");
+                    put("isValid", 1);
+                }
+            });
+
+
+
+
+        }
+    };
+
 
 }
