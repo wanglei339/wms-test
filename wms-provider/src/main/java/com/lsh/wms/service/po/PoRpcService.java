@@ -80,7 +80,7 @@ public class PoRpcService implements IPoRpcService {
                 throw new BizCheckedException("2020001");
             }
         }else{
-            Long supplierCode = ibdHeader.getSupplierCode();
+            String supplierCode = ibdHeader.getSupplierCode();
             if(supplierCode == null){
                 throw new BizCheckedException("2020011");
             }
