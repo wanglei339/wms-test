@@ -4,15 +4,16 @@
 
 	<resultMap id="baseinfoItemTypeResultMap" type="BaseinfoItemType">
 		<id property="id" column="id"/>
+		<result property="itemTypeId" column="item_type_id"/>
 		<result property="itemName" column="item_name"/>
 		<result property="isNeedProtime" column="is_need_protime"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoItemType">
 		insert into baseinfo_item_type (
-			item_name,is_need_protime
+			item_type_id,item_name,is_need_protime
     	) values (
-			#{itemName},#{isNeedProtime}
+			#{itemTypeId},#{itemName},#{isNeedProtime}
     	)
 	</insert>
 
@@ -22,12 +23,16 @@
   			<if test="itemName != null">item_name=#{itemName},</if>
   			<if test="isNeedProtime != null">is_need_protime=#{isNeedProtime}</if>
 		</set>
-		where id=#{id}
+		where
+		<choose>
+		    <when test="id != null">id=#{id}</when>
+		    <when test="itemTypeId != null">item_type_id=#{itemTypeId}</when>
+        </choose>
 	</update>
   
-	<select id="getBaseinfoItemTypeById" parameterType="int" resultMap="baseinfoItemTypeResultMap">
+	<select id="getBaseinfoItemTypeByItemId" parameterType="int" resultMap="baseinfoItemTypeResultMap">
 		select * from baseinfo_item_type
-		where ID=#{id} 
+		where item_type_id=#{itemTypeId}
 	</select>
   
 	<select id="countBaseinfoItemType" parameterType="map" resultType="int">
@@ -46,6 +51,7 @@
 	<sql id="queryCondition">
 		<where>
 			<if test="id != null">id=#{id}</if>
+			<if test="itemTypeId != null">item_type_id=#{itemTypeId}</if>
 			<if test="itemName != null">and item_name=#{itemName}</if>
 			<if test="isNeedProtime != null">and is_need_protime=#{isNeedProtime}</if>
 		</where>

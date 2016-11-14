@@ -428,7 +428,7 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
                     goodsMapByItemType.put(itemTypeId,goodsMapByItemTypeInit);
                 }
                 if(itemTypeMap.get(itemTypeId)==null){
-                    BaseinfoItemType baseinfoItemType=itemTypeService.getBaseinfoItemTypeById(itemTypeId.intValue());
+                    BaseinfoItemType baseinfoItemType=itemTypeService.getBaseinfoItemTypeByItemId(itemTypeId.intValue());
                     if(baseinfoItemType!=null){
                         itemTypeMap.put(itemTypeId,baseinfoItemType.getItemName());
                     }else{
