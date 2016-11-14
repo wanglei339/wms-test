@@ -140,6 +140,7 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
         BigDecimal boxNumTotal = BigDecimal.ZERO;
         BigDecimal turnBoxNumTotal = BigDecimal.ZERO;
         BigDecimal containerNumTotal = BigDecimal.ZERO;
+        List<Object> storeCountInfoList = new ArrayList<Object>();
         for (String storeId : storeInfoMap.keySet()) {
             BigDecimal boxNum = BigDecimal.ZERO;
             BigDecimal turnBoxNum = BigDecimal.ZERO;
@@ -156,13 +157,13 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
             storeInfoMap.get(storeId).put("boxNum", boxNum);//箱数
             storeInfoMap.get(storeId).put("turnBoxNum", turnBoxNum);//周转箱数
             storeInfoMap.get(storeId).put("containerNum", containerNum);//板数
-
+            storeCountInfoList.add(storeInfoMap.get(storeId));
         }
         Map<String, Object> totalMap = new HashMap<String, Object>();
         totalMap.put("boxNum", boxNumTotal);//总箱数
         totalMap.put("turnBoxNum", turnBoxNumTotal);//总周转箱数
         totalMap.put("containerNum", containerNumTotal);//总板数
-        storeInfoMap.put("total", totalMap);
+
 
         //封装返回数据
         Map<String, Object> returnData = new HashMap<String, Object>();
@@ -172,7 +173,8 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
         returnData.put("companyName", tuHead.getCompanyName());//承运商
         returnData.put("name", tuHead.getName());//司机姓名
         returnData.put("cellphone", tuHead.getCellphone());//司机电话
-        returnData.put("storeCountInfo", storeInfoMap);//门店统计信息
+        returnData.put("storeCountInfo", storeCountInfoList);//门店统计信息
+        returnData.put("total", totalMap);
         returnData.put("storeDeliveryList", storeNoToDeliveryId);//门店发货单号信息
         return returnData;
     }
@@ -293,7 +295,7 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
 
         //封装订单信息
         Map<Long, Map<String, Object>> orderGoodsInfoMap = new HashMap<Long, Map<String, Object>>();
-        //封装订单的商品信息
+        //封装订单的商品信息 orderId ,itemId
         Map<Long, Map<Long, Map<String, Object>>> goodsListMap = new HashMap<Long, Map<Long, Map<String, Object>>>();
         //封装订单的头信息(库组分类共用)
         Map<Long, Map<String, Object>> orderInfoMap = new HashMap<Long, Map<String, Object>>();
