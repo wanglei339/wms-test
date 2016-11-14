@@ -267,7 +267,7 @@ public class TuRpcService implements ITuRpcService {
         tuHead.setCellphone(mapRequest.get("cellphone").toString());
         tuHead.setName(mapRequest.get("name").toString());
         tuHead.setCarNumber(mapRequest.get("car_number").toString());
-        tuHead.setStoreIds(mapRequest.get("store_ids").toString());
+        tuHead.setStoreIds(mapRequest.get("customer_ids").toString());
         tuHead.setPreBoard(Long.valueOf(mapRequest.get("pre_board").toString()));
         tuHead.setCommitedAt(Long.valueOf(mapRequest.get("commited_at").toString()));
         tuHead.setScale(Integer.valueOf(mapRequest.get("scale").toString()));
