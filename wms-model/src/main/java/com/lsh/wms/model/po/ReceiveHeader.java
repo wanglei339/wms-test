@@ -22,7 +22,7 @@ public class ReceiveHeader implements Serializable {
 	/** 1po单，2退货单，3调货单，4直流订单 */
     private Integer orderType;
 	/** 供商编码 */
-    private Long supplierCode;
+    private String supplierCode;
 	/** 供商名称 */
     private String supplierName;
 	/** 订单日期 */
@@ -106,11 +106,11 @@ public class ReceiveHeader implements Serializable {
 		this.orderType = orderType;
 	}
 	
-	public Long getSupplierCode(){
+	public String getSupplierCode(){
 		return this.supplierCode;
 	}
 	
-	public void setSupplierCode(Long supplierCode){
+	public void setSupplierCode(String supplierCode){
 		this.supplierCode = supplierCode;
 	}
 	
