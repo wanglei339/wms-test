@@ -171,6 +171,7 @@ public class ShipRestService implements IShipRestService {
                 Date date = new Date();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 String now = sdf.format(date);
+                request.setWms(2);//该字段写死 2
                 request.setDeliveryTime(now);
                 request.setObdCode(obdHeader.getOrderId().toString());
                 request.setSoCode(obdHeader.getOrderOtherId());
