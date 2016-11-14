@@ -8,6 +8,7 @@ import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.pick.PickTaskService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
@@ -152,6 +153,8 @@ public class PickTaskHandler extends AbsTaskHandler {
             } else {
                 detail.put("pickStatus", 0);
             }
+            detail.put("allocQty", PackUtil.EAQty2UomQty(pickTaskDetail.getAllocQty(), pickTaskDetail.getAllocUnitName()));
+            detail.put("pickQty", PackUtil.EAQty2UomQty(pickTaskDetail.getPickQty(), pickTaskDetail.getAllocUnitName()));
             details.add(detail);
             totalQty = totalQty.add(pickTaskDetail.getAllocQty());
         }
