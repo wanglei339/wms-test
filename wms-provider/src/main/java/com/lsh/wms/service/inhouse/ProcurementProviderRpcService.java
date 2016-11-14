@@ -17,6 +17,7 @@ import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.so.SoOrderService;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
@@ -46,6 +47,9 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
     @Reference
     private IStockQuantRpcService stockQuantService;
+
+    @Autowired
+    private StockQuantService quantService;
 
     @Reference
     private IProcurementRpcService rpcService;
@@ -195,16 +199,27 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     //取库位中库存最小的
                     BigDecimal total = BigDecimal.ZERO;
                     StockQuant quant = null;
+                    StockQuant beginQuant = null;
                     Map<Long,Long> locationMap = new HashMap<Long, Long>();
                     Map<String,Object> queryMap = new HashMap<String, Object>();
                     for(StockQuant stockQuant:quantList) {
                         if(locationMap.get(stockQuant.getLocationId())==null) {
-                            //获取存储位该商品库存量
-                            queryMap.put("locationId", stockQuant.getLocationId());
-                            BigDecimal one = stockQuantService.getQty(condition);
-                            if(total.compareTo(one)>0 || total.compareTo(BigDecimal.ZERO)==0){
-                                total = one;
-                                quant =  stockQuant;
+                            if(beginQuant==null){
+                                beginQuant = stockQuant;
+                                quant = stockQuant;
+                            }
+                            if(beginQuant.getExpireDate().compareTo(stockQuant.getExpireDate())==0) {
+                                //获取存储位该商品库存量
+                                queryMap.put("locationId", stockQuant.getLocationId());
+                                BigDecimal one = quantService.getQty(queryMap);
+                                if (total.compareTo(one) > 0 || total.compareTo(BigDecimal.ZERO) == 0) {
+                                    total = one;
+                                    quant = stockQuant;
+                                }
+                                beginQuant = quant;
+                            }else {
+                                quant = beginQuant;
+                                break;
                             }
                         }
                         locationMap.put(stockQuant.getLocationId(),stockQuant.getLocationId());
@@ -340,16 +355,27 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     //取库位中库存最小的
                     BigDecimal total = BigDecimal.ZERO;
                     StockQuant quant = null;
+                    StockQuant beginQuant = null;
                     Map<Long,Long> locationMap = new HashMap<Long, Long>();
                     Map<String,Object> queryMap = new HashMap<String, Object>();
                     for(StockQuant stockQuant:quantList) {
                         if(locationMap.get(stockQuant.getLocationId())==null) {
-                            //获取存储位该商品库存量
-                            queryMap.put("locationId", stockQuant.getLocationId());
-                            BigDecimal one = stockQuantService.getQty(condition);
-                            if((total.compareTo(one)>0 || total.compareTo(BigDecimal.ZERO)==0) && total.compareTo(requiredQty)>=0){
-                                total = one;
-                                quant =  stockQuant;
+                            if(beginQuant==null){
+                                beginQuant = stockQuant;
+                                quant = stockQuant;
+                            }
+                            if(beginQuant.getExpireDate().compareTo(stockQuant.getExpireDate())==0) {
+                                //获取存储位该商品库存量
+                                queryMap.put("locationId", stockQuant.getLocationId());
+                                BigDecimal one = quantService.getQty(queryMap);
+                                if ((total.compareTo(one) > 0 || total.compareTo(BigDecimal.ZERO) == 0) && total.compareTo(requiredQty) >= 0) {
+                                    total = one;
+                                    quant = stockQuant;
+                                }
+                                beginQuant = stockQuant;
+                            }else {
+                                quant = beginQuant;
+                                break;
                             }
                         }
                         locationMap.put(stockQuant.getLocationId(),stockQuant.getLocationId());
@@ -571,5 +597,4 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         }
         return 0L;
     }
-
 }

@@ -154,8 +154,13 @@ public class SeedRestService implements ISeedRestService {
                 SeedingTaskHead head = (SeedingTaskHead) (entry.getTaskHead());
                 TaskInfo info = entry.getTaskInfo();
                 result.put("taskId", assignTaskId.toString());
-                if(info.getIsShow()==0){
-                    return JsonUtils.SUCCESS(result);
+                if(mapQuery.get("type")!=null &&mapQuery.get("type").toString().equals("1")) {
+                    if (info.getIsShow() == 0) {
+                        return JsonUtils.SUCCESS(result);
+                    }
+                }else {
+                    info.setIsShow(1);
+                    baseTaskService.update(info);
                 }
                 result.put("storeName", storeRpcService.getStoreByStoreNo(head.getStoreNo()).getStoreName());
                 result.put("qty", head.getRequireQty());

@@ -375,7 +375,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             if (detail.getSkuId().equals(detail.getRealSkuId())) {
                 Long containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
                 StockMove move = new StockMove();
-                move.setTaskId(detail.getTakingId());
+                move.setTaskId(detail.getTaskId());
                 move.setSkuId(detail.getSkuId());
                 move.setItemId(detail.getItemId());
                 move.setStatus(TaskConstant.Done);

@@ -37,6 +37,8 @@ public class CsiCustomer implements Serializable {
     private Long seedQueue = 0L;
 	/** 指定集货道 */
     private Long collectRoadId = 0L;
+	/** 指定播种位 */
+	private Long seedRoadId = 0L;
 	/**  */
     private Long createdAt;
 	/**  */
@@ -185,6 +187,12 @@ public class CsiCustomer implements Serializable {
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
-	
-	
+
+	public Long getSeedRoadId() {
+		return seedRoadId;
+	}
+
+	public void setSeedRoadId(Long seedRoadId) {
+		this.seedRoadId = seedRoadId;
+	}
 }
