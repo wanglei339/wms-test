@@ -17,7 +17,6 @@ import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.core.constant.CustomerConstant;
 import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
-import com.lsh.wms.core.service.store.StoreService;
 import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
 import com.lsh.wms.model.csi.CsiCustomer;
