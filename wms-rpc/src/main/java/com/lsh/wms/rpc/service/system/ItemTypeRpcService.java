@@ -30,8 +30,8 @@ public class ItemTypeRpcService implements IItemTypeRpcService {
         itemTypeService.updateItemType(baseinfoItemType);
     }
 
-    public BaseinfoItemType getBaseinfoItemTypeById(Integer id){
-        return itemTypeService.getBaseinfoItemTypeById(id);
+    public BaseinfoItemType getBaseinfoItemTypeByItemId(Integer itemTypeId){
+        return itemTypeService.getBaseinfoItemTypeByItemId(itemTypeId);
     }
     public List<BaseinfoItemType> getBaseinfoItemTypeList(Map<String, Object> params){
         return itemTypeService.getBaseinfoItemTypeList(params);
@@ -46,8 +46,8 @@ public class ItemTypeRpcService implements IItemTypeRpcService {
         Map<String,String> itemRelationMap = new HashMap<String, String>();
 
         for(BaseinfoItemType b :itemTypeList){
-            itemNameMap.put(b.getId()+"",b.getItemName());
-            itemStatusMap.put(b.getId()+"",b.getIsNeedProtime()+"");
+            itemNameMap.put(b.getItemTypeId()+"",b.getItemName());
+            itemStatusMap.put(b.getItemTypeId()+"",b.getIsNeedProtime()+"");
         }
         for(Map relationMap :relationList){
             //类型ID
@@ -60,7 +60,7 @@ public class ItemTypeRpcService implements IItemTypeRpcService {
         List<Object> returnList = new ArrayList<Object>();
         for(BaseinfoItemType b :itemTypeList){
             Map<String,Object> itemMap = new HashMap<String, Object>();
-           String itemTypeId =  b.getId()+"";
+           String itemTypeId =  b.getItemTypeId()+"";
             itemMap.put("itemTypeId",itemTypeId);
             itemMap.put("itemTypeName",itemNameMap.get(itemTypeId));
             itemMap.put("isNeedProtime",itemStatusMap.get(itemTypeId));
@@ -135,7 +135,7 @@ public class ItemTypeRpcService implements IItemTypeRpcService {
         Map<Long,String> itemNameMap = new HashMap<Long, String>();
 
         for(BaseinfoItemType b :itemTypeList){
-            itemNameMap.put(b.getId(),b.getItemName());
+            itemNameMap.put(b.getItemTypeId(),b.getItemName());
         }
          for(BaseinfoItemTypeRelation it : relationList){
              Map<String,Object> itemTypeRelationMap = new HashMap<String, Object>();

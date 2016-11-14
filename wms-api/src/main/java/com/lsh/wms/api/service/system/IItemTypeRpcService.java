@@ -15,7 +15,7 @@ public interface IItemTypeRpcService {
 
     //  void updateItemType(BaseinfoItemType baseinfoItemType);
 
-    BaseinfoItemType getBaseinfoItemTypeById(Integer id);
+    BaseinfoItemType getBaseinfoItemTypeByItemId(Integer itemTypeId);
 
     List<BaseinfoItemType> getBaseinfoItemTypeList(Map<String, Object> params);
 

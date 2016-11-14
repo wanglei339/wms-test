@@ -159,7 +159,7 @@ public class ReceiptRestService implements IReceiptRfService {
             if(PoConstant.ORDER_TYPE_CPO == orderType){
                 //直流,需根据配置验证生产日期/到期日是否输入
                 // todo: 16/11/9 根据商品类型获取生产日期开关配置
-                BaseinfoItemType baseinfoItemType = iItemTypeRpcService.getBaseinfoItemTypeById(baseinfoItem.getItemType());
+                BaseinfoItemType baseinfoItemType = iItemTypeRpcService.getBaseinfoItemTypeByItemId(baseinfoItem.getItemType());
                 if(baseinfoItemType != null && 1== baseinfoItemType.getIsNeedProtime()){
                     // todo: 16/11/9 根据配置验证生产日期是否输入
                     if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null){

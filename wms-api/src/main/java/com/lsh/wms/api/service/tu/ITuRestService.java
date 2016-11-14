@@ -25,8 +25,6 @@ public interface ITuRestService {
     //确认发货
     public String shipTu() throws BizCheckedException;
 
-    String receiveTuHead() throws BizCheckedException;
-
     public String changeRfRestSwitch() throws BizCheckedException;
     /**
      * 移除板子
