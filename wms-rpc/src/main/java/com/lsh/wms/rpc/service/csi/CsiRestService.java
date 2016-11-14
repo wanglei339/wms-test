@@ -249,4 +249,10 @@ public class CsiRestService implements ICsiRestService {
         return JsonUtils.SUCCESS();
     }
 
+    @GET
+    @Path("getCustomerById")
+    public String getCustomerByCustomerId(Long customerId){
+        return JsonUtils.SUCCESS(customerService.getCustomerByCustomerId(customerId));
+    }
+
 }

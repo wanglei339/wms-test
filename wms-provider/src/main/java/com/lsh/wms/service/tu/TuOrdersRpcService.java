@@ -9,15 +9,16 @@ import com.lsh.wms.api.service.tu.ITuOrdersRpcService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.baseinfo.ItemTypeService;
+import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
-import com.lsh.wms.core.service.store.StoreService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemType;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
+import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
@@ -39,8 +40,6 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
     @Reference
     private ITuRpcService iTuRpcService;
     @Autowired
-    private StoreService storeService;
-    @Autowired
     private SoDeliveryService soDeliveryService;
     @Autowired
     private SoOrderService soOrderService;
@@ -54,6 +53,8 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
     private ItemService itemService;
     @Autowired
     private ItemTypeService itemTypeService;
+    @Autowired
+    private CsiCustomerService csiCustomerService;
 
     public Map<String, Object> getTuOrdersList(String tuId) throws BizCheckedException {
         //根据运单号获取发货信息
@@ -79,9 +80,8 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
         //店铺no集合
         Set<String> storeNoSet = new HashSet<String>();
         Map<String, Set<Long>> storeNoToDeliveryId = new HashMap<String, Set<Long>>();
+        Map<String, Long> storeNo2OwnerId = new HashMap<String, Long>();
         for (OutbDeliveryDetail oudd : outbDeliveryDetailList) {
-
-
             //根据订单ID获取店铺ID
             ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(oudd.getOrderId());
             if (obdHeader == null) {
@@ -97,23 +97,17 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
                 storeNoToDeliveryId.put(storeNo, new HashSet<Long>());
             }
             storeNoToDeliveryId.get(storeNo).add(oudd.getDeliveryId());
-
+            storeNo2OwnerId.put(storeNo, obdHeader.getOwnerUid());
         }
 
         //获取并封装店铺信息
         Map<String, Map<String, Object>> storeInfoMap = new HashMap<String, Map<String, Object>>();
         for (String storeNo : storeNoSet) {
-            List<BaseinfoStore> baseinfoStore = storeService.getStoreIdByCode(storeNo);
+            CsiCustomer customer = csiCustomerService.getCustomerByCustomerCode(storeNo2OwnerId.get(storeNo), storeNo);
             Map<String, Object> storeMap = new HashMap<String, Object>();
             storeMap.put("storeNo", storeNo);
             String storeId = "";
-            String storeName = "";
-            if (baseinfoStore != null || baseinfoStore.size() > 0) {
-                storeId = String.valueOf(baseinfoStore.get(0).getStoreId());
-                storeName = baseinfoStore.get(0).getStoreName();
-            }
-
-
+            String storeName = customer == null ? "" : customer.getCustomerName();
             storeMap.put("storeId", storeId);
             storeMap.put("storeName", storeName);
             storeInfoMap.put(storeId, storeMap);
@@ -232,11 +226,11 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
                 storeMap.put("storeTotalTurnoverBoxCount", storeTotalTurnoverBoxCount + tuDetail.getTurnoverBoxNum());
             } else {
                 //门店名,集货道list,门店id
-                BaseinfoStore store = storeService.getStoreByStoreId(storeId);
+                CsiCustomer store = csiCustomerService.getCustomerByCustomerId(storeId);
                 Map<String, Object> storeMap = new HashMap<String, Object>();
                 storeMap.put("storeId", storeId);
-                storeMap.put("storeName", store.getStoreName());
-                storeMap.put("collectionBins", iLocationRpcService.getCollectionByStoreNo(store.getStoreNo()));
+                storeMap.put("storeName", store.getCustomerName());
+                storeMap.put("collectionBins", iLocationRpcService.getCollectionByStoreNo(store.getCustomerCode()));
                 //托盘箱数统计集合
                 List<Map<String, Object>> containerList = new LinkedList<Map<String, Object>>();
                 Map<String, Object> container = new HashMap<String, Object>();
@@ -328,15 +322,15 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
                     orderMap.put("transBoxTotal", BigDecimal.ZERO);//装车周转箱数
 
                     //获取店铺信息
-                    BaseinfoStore baseinfoStore = storeService.getStoreByStoreId(storeId);
-                    if (baseinfoStore == null) {
+                    CsiCustomer customer = csiCustomerService.getCustomerByCustomerId(storeId);
+                    if (customer == null) {
                         orderMap.put("storeName", "");//收货门店
                         orderMap.put("storePhone", "");//联系电话
                         orderMap.put("storeAddress", "");//收货地址
                     } else {
-                        orderMap.put("storeName", baseinfoStore.getStoreName());//收货门店
+                        orderMap.put("storeName", customer.getCustomerName());//收货门店
                         orderMap.put("storePhone", "");//联系电话// FIXME: 16/11/7
-                        orderMap.put("storeAddress", baseinfoStore.getAddress());//收货地址
+                        orderMap.put("storeAddress", customer.getAddress());//收货地址
                     }
 
                     orderMap.put("goodsList", new HashMap<String, Object>());//订单商品信息

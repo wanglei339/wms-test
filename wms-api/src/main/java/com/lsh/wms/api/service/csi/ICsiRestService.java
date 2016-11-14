@@ -50,6 +50,9 @@ public interface ICsiRestService {
     public String getCustomerCount(Map<String, Object> mapQuery);
 
     String getCustomerByCustomerCode(Map<String, Object> mapQuery);
+
     String updateCustomer(CsiCustomer csiCustomer);
+
+    public String getCustomerByCustomerId(Long customerId);
 
 }
