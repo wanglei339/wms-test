@@ -142,6 +142,7 @@ public class SetGoodsRestService implements ISetGoodsRestService {
             info.setType(TaskConstant.TYPE_SET_GOODS);
             info.setContainerId(containerId);
             info.setStep(1);
+            info.setOwnerId(header.getOwnerUid());
             info.setTaskName("集货任务[ " + containerId + "]");
             info.setStatus(TaskConstant.Draft);
             info.setPlanner(uId);
