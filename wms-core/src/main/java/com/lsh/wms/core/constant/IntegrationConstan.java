@@ -17,6 +17,9 @@ public class IntegrationConstan {
     //obd
     public static final String URL_OBD = "http://service.wumart.com/wms/soobd";
 
+    //lshofc
+    public static final String URL_LSHOFC_OBD = "http://api.ofc.lsh123.com/ofc/api/order/obd/push";
+
 
 
 }

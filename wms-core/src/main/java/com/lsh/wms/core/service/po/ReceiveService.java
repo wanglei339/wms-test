@@ -1,14 +1,19 @@
 package com.lsh.wms.core.service.po;
 
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.core.dao.po.IbdDetailDao;
+import com.lsh.wms.core.dao.po.InbReceiptDetailDao;
 import com.lsh.wms.core.dao.po.ReceiveDetailDao;
 import com.lsh.wms.core.dao.po.ReceiveHeaderDao;
+import com.lsh.wms.model.po.IbdDetail;
+import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.ReceiveDetail;
 import com.lsh.wms.model.po.ReceiveHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +30,12 @@ public class ReceiveService {
 
     @Autowired
     private ReceiveDetailDao receiveDetailDao;
+
+    @Autowired
+    private InbReceiptDetailDao inbReceiptDetailDao;
+
+    @Autowired
+    private IbdDetailDao ibdDetailDao;
 
 
     /**
@@ -168,6 +179,32 @@ public class ReceiveService {
 
         return getReceiveDetail(params);
     }
+
+    @Transactional(readOnly = false)
+    public void updateQty(ReceiveDetail receiveDetail, IbdDetail ibdDetail, InbReceiptDetail inbReceiptDetail){
+        receiveDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
+        receiveDetailDao.update(receiveDetail);
+        ibdDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
+        ibdDetailDao.update(ibdDetail);
+        inbReceiptDetail.setUpdatetime(new Date());
+        inbReceiptDetailDao.update(inbReceiptDetail);
+
+    }
+
+
+    /**
+     *根据order_id获取receiveHeaderList
+     */
+    public List<ReceiveHeader> getReceiveHeaderList(Long orderId){
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("orderId",orderId);
+        List<ReceiveHeader> list = this.getReceiveHeaderList(mapQuery);
+        if(list.size() <= 0){
+            return null;
+        }
+        return list;
+    }
+
 
 
 }

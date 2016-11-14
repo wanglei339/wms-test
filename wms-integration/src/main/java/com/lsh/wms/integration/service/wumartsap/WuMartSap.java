@@ -93,8 +93,10 @@ public class WuMartSap implements IWuMartSap{
             item.setPoNumber(detail.getPoNumber());
             item.setPoItem(detail.getPoItme());
             item.setDelivQty(detail.getDeliveQty());
+            item.setVendMat(detail.getVendMat());
             items.getItem().add(item);
             receiveId =Long.valueOf(detail.getVendMat());
+
             orderType = detail.getOrderType();
         }
 

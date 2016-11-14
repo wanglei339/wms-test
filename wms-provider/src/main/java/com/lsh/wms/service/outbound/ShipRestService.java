@@ -2,19 +2,28 @@ package com.lsh.wms.service.outbound;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.wms.api.model.so.ObdOfcBackRequest;
+import com.lsh.wms.api.model.so.ObdOfcItem;
+import com.lsh.wms.api.service.back.IDataBackService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.api.service.wave.IShipRestService;
+import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
+import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.so.ObdDetail;
+import com.lsh.wms.model.so.ObdHeader;
+import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
@@ -29,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -54,6 +64,12 @@ public class ShipRestService implements IShipRestService {
     private LocationService locationService;
     @Autowired
     private SoDeliveryService soDeliveryService;
+
+    @Autowired
+    private SoOrderService soOrderService;
+
+    @Reference
+    private IDataBackService dataBackService;
 
     /**
      * 波次的发货操作
@@ -130,6 +146,58 @@ public class ShipRestService implements IShipRestService {
         //获取发货单的header
         List<OutbDeliveryHeader> outbDeliveryHeaders = soDeliveryService.getOutbDeliveryHeaderByTmsId(tuHead.getTuId());
         //发货单的detail
+        // TODO: 2016/11/14 回传obd
+        List<Long> deliveryIds = new ArrayList<Long>();
+        for(OutbDeliveryHeader header : outbDeliveryHeaders){
+            deliveryIds.add(header.getDeliveryId());
+        }
+
+        List<OutbDeliveryDetail> deliveryDetails = soDeliveryService.getOutbDeliveryDetailList(deliveryIds);
+        Set<Long> orderIds = new HashSet<Long>();
+        for(OutbDeliveryDetail deliveryDetail : deliveryDetails){
+            orderIds.add(deliveryDetail.getOrderId());
+        }
+
+        for(Long orderId : orderIds) {
+            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
+            //查询明细。
+            List<ObdDetail> obdDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
+            // TODO: 2016/9/23  组装OBD反馈信息 根据货主区分回传lsh或物美
+            if (obdHeader.getOwnerUid() == 1) {
+
+            }else if(obdHeader.getOwnerUid() == 2){
+                //组装OBD反馈信息
+                ObdOfcBackRequest request = new ObdOfcBackRequest();
+                Date date = new Date();
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                String now = sdf.format(date);
+                request.setDeliveryTime(now);
+                request.setObdCode(obdHeader.getOrderId().toString());
+                request.setSoCode(obdHeader.getOrderOtherId());
+                //查询明细。
+                List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
+                List<ObdOfcItem> items = new ArrayList<ObdOfcItem>();
+
+                for(ObdDetail detail : soDetails){
+
+                    ObdOfcItem item = new ObdOfcItem();
+                    item.setPackNum(detail.getPackUnit());
+                    //
+                    OutbDeliveryDetail deliveryDetail = soDeliveryService.getOutbDeliveryDetail(orderId,detail.getItemId());
+                    if(deliveryDetail == null){
+                        continue;
+                    }
+                    BigDecimal outQty = deliveryDetail.getDeliveryNum();
+                    item.setSkuQty(outQty);
+                    item.setSupplySkuCode(detail.getSkuCode());
+                    items.add(item);
+
+                }
+                request.setDetails(items);
+                return dataBackService.ofcDataBackByPost(JSON.toJSONString(request), IntegrationConstan.URL_LSHOFC_OBD);
+            }
+        }
+
 
         //同步库存 todo 力哥
         Set<Long> waveIds = new HashSet<Long>();

@@ -19,5 +19,7 @@ public interface IReceiveRpcService {
     ReceiveHeader getReceiveDetailList(Long receiveId);
     Boolean updateOrderStatus(Map<String, Object> map) throws BizCheckedException;
 
-    void accountBack(Long receiveId,String detailOtherId,BigDecimal qty) throws BizCheckedException;
+    void accountBack(Long receiveId,String detailOtherId) throws BizCheckedException;
+
+    void updateQty(Long receiveId,String detailOtherId,BigDecimal qty) throws BizCheckedException;
 }

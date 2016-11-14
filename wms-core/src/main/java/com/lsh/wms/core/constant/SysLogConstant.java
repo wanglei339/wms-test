@@ -20,6 +20,8 @@ public class SysLogConstant {
 
     public static final int LOG_TYPE_DIRECT_OBD = 7;
 
+    public static final int LOG_TYPE_OFC_OBD = 8;
+
 
     /**回调系统 1 wumart 2 链商OFC 3 erp*/
     public static final int LOG_TARGET_WUMART = 1;
