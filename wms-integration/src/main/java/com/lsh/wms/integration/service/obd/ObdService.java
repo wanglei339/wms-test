@@ -133,7 +133,6 @@ public class ObdService implements IObdService{
 //        map.put("orderOtherId",request.getOrderOtherId());
 //        map.put("orderOtherRefId",request.getOrderOtherRefId());
 
-
         return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, obdHeader);
     }
 }

@@ -351,17 +351,17 @@ public class IbdService implements IIbdService {
 //        date.setDay(calendar.get(Calendar.DATE));
 //        date.setMonth(calendar.get(Calendar.MONTH));
 //        header.setDeliveDate(date);
-        List<CreateIbdDetail> details = new ArrayList<CreateIbdDetail>();
-
-        CreateIbdDetail detail = new CreateIbdDetail();
-        detail.setDeliveQty(new BigDecimal("2.000"));
-        detail.setPoItme("10");
-        detail.setPoNumber("4500027501");
-        detail.setUnit("EA");
-        //detail.setMaterial("000000000000110978");
-        detail.setOrderType(4);
-        detail.setVendMat("222222");
-        details.add(detail);
+//        List<CreateIbdDetail> details = new ArrayList<CreateIbdDetail>();
+//
+//        CreateIbdDetail detail = new CreateIbdDetail();
+//        detail.setDeliveQty(new BigDecimal("2.000"));
+//        detail.setPoItme("10");
+//        detail.setPoNumber("4500027501");
+//        detail.setUnit("EA");
+//        //detail.setMaterial("000000000000110978");
+//        detail.setOrderType(4);
+//        detail.setVendMat("222222");
+//        details.add(detail);
 
 //        CreateIbdDetail detail1 = new CreateIbdDetail();
 //        detail1.setDeliveQty(new BigDecimal("1.000"));
@@ -381,8 +381,9 @@ public class IbdService implements IIbdService {
 //        detail.setOrderType(1);
 //        details.add(detail2);
 
-        header.setItems(details);
-        wuMartSap.ibd2Sap(header);
+//        header.setItems(details);
+//        wuMartSap.ibd2Sap(header);
+        wuMartSap.soObd2Sap(new CreateObdHeader());
         return "";
         //return wuMartSap.ibd2SapAccount(header,null);
         //wuMart.sendIbd(header);
