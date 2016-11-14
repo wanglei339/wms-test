@@ -9,10 +9,7 @@ import com.lsh.wms.api.service.csi.ICsiRestService;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.csi.CsiOwnerService;
 import com.lsh.wms.core.service.csi.CsiSupplierService;
-import com.lsh.wms.model.csi.CsiCategory;
-import com.lsh.wms.model.csi.CsiOwner;
-import com.lsh.wms.model.csi.CsiSku;
-import com.lsh.wms.model.csi.CsiSupplier;
+import com.lsh.wms.model.csi.*;
 import net.sf.json.util.JSONUtils;
 import org.apache.log4j.Category;
 import org.slf4j.Logger;
@@ -239,6 +236,17 @@ public class CsiRestService implements ICsiRestService {
         Long ownerId = Long.valueOf(mapQuery.get("ownerId").toString());
         String customerCode = mapQuery.get("customerCode").toString();
         return JsonUtils.SUCCESS(customerService.getCustomerByCustomerCode(ownerId, customerCode));
+    }
+    @POST
+    @Path("updateCustomer")
+    public String updateCustomer(CsiCustomer csiCustomer){
+        try{
+            customerService.update(csiCustomer);
+        }catch (Exception e){
+            logger.error(e.getCause().getMessage());
+            return JsonUtils.TOKEN_ERROR("failed");
+        }
+        return JsonUtils.SUCCESS();
     }
 
 }
