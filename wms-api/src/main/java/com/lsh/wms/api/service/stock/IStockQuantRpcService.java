@@ -20,6 +20,7 @@ public interface IStockQuantRpcService {
     String unfreeze(Map<String, Object> mapCondition) throws BizCheckedException;
     String toDefect(Map<String, Object> mapCondition) throws BizCheckedException;
     String toRefund(Map<String, Object> mapCondition) throws BizCheckedException;
+    void writeOffQuant(Long quantId, BigDecimal realQty)throws BizCheckedException;
 
     int getItemStockCount(Map<String, Object> mapQuery);
     Map<Long, Map<String, BigDecimal>>getItemStockList(Map<String, Object> mapQuery);

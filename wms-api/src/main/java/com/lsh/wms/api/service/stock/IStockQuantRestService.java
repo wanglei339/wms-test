@@ -19,7 +19,8 @@ public interface IStockQuantRestService {
     String unFreeze(Map<String, Object> mapCondition) throws BizCheckedException;
     String toDefect(Map<String, Object> mapCondition) throws BizCheckedException;
     String toRefund(Map<String, Object> mapCondition) throws BizCheckedException;
-    public String getHistory(Long quant_id);
+    String getHistory(Long quant_id);
+    String writeOffQuant(Long quantId, BigDecimal realQty);
 
     String getItemStockCount(Map<String, Object> mapQuery);
     String getItemStockList(Map<String, Object> mapQuery);

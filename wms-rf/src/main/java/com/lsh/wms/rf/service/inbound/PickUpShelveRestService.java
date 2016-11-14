@@ -25,6 +25,7 @@ import com.lsh.wms.core.service.location.BaseinfoLocationBinService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.shelve.AtticShelveTaskDetailService;
 import com.lsh.wms.core.service.stock.StockLotService;
+import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
@@ -82,6 +83,8 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
     private StockLotService lotService;
     @Autowired
     private ItemService itemService;
+    @Autowired
+    private StockMoveService moveService;
     @Autowired
     private ContainerService containerService;
     @Reference
@@ -353,7 +356,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         move.setFromContainerId(quant.getContainerId());
         move.setToContainerId(containerId);
         move.setTaskId(taskId);
-        stockQuantService.move(move);
+        moveService.move(move);
         locationService.unlockLocation(detail.getAllocLocationId());
         shelveTaskService.updateDetail(detail);
 

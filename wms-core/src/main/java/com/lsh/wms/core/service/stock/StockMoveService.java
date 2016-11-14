@@ -134,6 +134,18 @@ public class StockMoveService {
             }
         }
     }
+    @Transactional(readOnly = false)
+    public void move(StockMove move) throws BizCheckedException {
+            if (move.getQty().compareTo(BigDecimal.ZERO) <= 0) {
+                return;
+            }
+            this.create(move);
+            if (move.getLot() == null) {
+                quantService.move(move);
+            } else {
+                this.move(move, move.getLot());
+            }
+    }
 
     @Transactional(readOnly = false)
     public void moveToConsume(Long locationId, Long taskId, Long staffId) throws BizCheckedException {
