@@ -8,7 +8,6 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.seed.ISetGoodsRestService;
-import com.lsh.wms.api.service.store.IStoreRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
