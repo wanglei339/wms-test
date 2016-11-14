@@ -19,10 +19,12 @@ public class ExceptionCodeService {
     @Autowired
     private BaseinfoExceptionCodeDao baseinfoExceptionCodeDao;
 
+    @Transactional(readOnly = false)
     public void insert(BaseinfoExceptionCode baseinfoExceptionCode){
         baseinfoExceptionCodeDao.insert(baseinfoExceptionCode);
     }
 
+    @Transactional(readOnly = false)
     public void update(BaseinfoExceptionCode baseinfoExceptionCode){
         baseinfoExceptionCodeDao.update(baseinfoExceptionCode);
     }
