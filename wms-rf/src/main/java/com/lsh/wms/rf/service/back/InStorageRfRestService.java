@@ -8,7 +8,6 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.back.IInStorageRfRestService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
-import com.lsh.wms.api.service.store.IStoreRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
@@ -50,9 +49,6 @@ public class InStorageRfRestService  implements IInStorageRfRestService {
 
     @Autowired
     SoOrderService soOrderService;
-
-    @Reference
-    private IStoreRpcService storeRpcService;
 
     @Reference
     private ITaskRpcService iTaskRpcService;
