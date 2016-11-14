@@ -1354,7 +1354,8 @@ public class LocationService {
         mapQuery.put("storeNo", storeNo);
         List<BaseinfoLocation> list = this.getBaseinfoLocationList(mapQuery);
         if (null == list || list.size() < 1) {
-            throw new BizCheckedException("2180012");
+            //throw new BizCheckedException("2180012");
+            return new LinkedList<BaseinfoLocation>();
         }
         return list;
     }
@@ -1371,8 +1372,10 @@ public class LocationService {
         mapQuery.put("type", LocationConstant.SOW_BIN);
         List<BaseinfoLocation> list = this.getBaseinfoLocationList(mapQuery);
         if (null == list || list.size() < 1) {
-            throw new BizCheckedException("2180012");
+            //throw new BizCheckedException("2180012");
+            return new LinkedList<BaseinfoLocation>();
         }
+
         return list;
     }
 
