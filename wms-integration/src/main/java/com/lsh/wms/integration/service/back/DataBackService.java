@@ -71,7 +71,7 @@ public class DataBackService implements IDataBackService {
             logger.info("order wumart res " + jsonStr+"~~~~~~");
 
             orderResponse = JSON.parseObject(jsonStr, OrderResponse.class);
-            if(orderResponse.getCode() == 1){
+            if(Integer.valueOf(orderResponse.getCode()) == 1){
                 token = orderResponse.getGatewayToken();
                 redisStringDao.set(RedisKeyConstant.WM_BACK_TOKEN,token);
                 jsonStr = HttpUtil.doPost(url,jsonCreate,token);
@@ -84,7 +84,7 @@ public class DataBackService implements IDataBackService {
             sysLog.setLogMessage(orderResponse.getMessage());
             sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
             sysLog.setLogType(type);
-            sysLog.setLogCode(orderResponse.getCode().longValue());
+            sysLog.setLogCode(orderResponse.getCode());
             Long sysId = sysLogService.insertSysLog(sysLog);
 
             //将返回结果存入缓存,发生错误可以重新下传。
@@ -104,10 +104,10 @@ public class DataBackService implements IDataBackService {
     }
 
     public String ofcDataBackByPost(String request, String url){
-        String jsonCreate = this.initJson(request);
+        //String jsonCreate = this.initJson(request);
 
-        logger.info("order CreateOfcOrder json : " + jsonCreate);
-        String jsonStr = HttpUtil.doPost(url,jsonCreate);
+        logger.info("order CreateOfcOrder json : " + request);
+        String jsonStr = HttpUtil.doPost(url,request);
 
         logger.info("order jsonStr :" + jsonStr +"~~~~");
         OrderResponse orderResponse = JSON.parseObject(jsonStr,OrderResponse.class);
@@ -120,7 +120,7 @@ public class DataBackService implements IDataBackService {
         sysLog.setLogMessage(orderResponse.getMessage());
         sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
         sysLog.setLogType(SysLogConstant.LOG_TYPE_OFC_OBD);
-        sysLog.setLogCode(orderResponse.getCode().longValue());
+        sysLog.setLogCode(orderResponse.getCode());
         Long sysId = sysLogService.insertSysLog(sysLog);
 
         //将返回结果存入缓存,发生错误可以重新下传。
@@ -128,7 +128,7 @@ public class DataBackService implements IDataBackService {
         sysMsg.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
         sysMsg.setId(sysId);
         sysMsg.setType(SysLogConstant.LOG_TYPE_OFC_OBD);
-        sysMsg.setMsgBody(jsonCreate);
+        sysMsg.setMsgBody(request);
         sysMsgService.sendMessage(sysMsg);
         return JSON.toJSONString(orderResponse);
 
@@ -177,7 +177,7 @@ public class DataBackService implements IDataBackService {
 
         OrderResponse orderResponse = JSON.parseObject(jsonStr, OrderResponse.class);
 
-        if(orderResponse != null && orderResponse.getCode() == 1){
+        if(orderResponse != null && Integer.valueOf(orderResponse.getCode()) == 1){
             return orderResponse.getGatewayToken();
         }
 
