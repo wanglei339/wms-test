@@ -5,8 +5,10 @@ import java.util.Date;
 
 public class BaseinfoItemType implements Serializable {
 
-	/** 课组ID */
+	/** ID */
     private Long id;
+	/** 课组ID */
+	private Long itemTypeId;
 	/** 课组名称 */
     private String itemName;
 	/** 是否需要生产日期 0不需要 1需要 */
@@ -36,5 +38,13 @@ public class BaseinfoItemType implements Serializable {
 
 	public void setItemName(String itemName) {
 		this.itemName = itemName;
+	}
+
+	public Long getItemTypeId() {
+		return itemTypeId;
+	}
+
+	public void setItemTypeId(Long itemTypeId) {
+		this.itemTypeId = itemTypeId;
 	}
 }

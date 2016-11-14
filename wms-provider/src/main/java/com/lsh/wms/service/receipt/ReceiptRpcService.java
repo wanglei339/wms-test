@@ -22,6 +22,7 @@ import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
+import com.lsh.wms.core.service.csi.CsiSupplierService;
 import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationDetailService;
@@ -36,6 +37,7 @@ import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.*;
 import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.csi.CsiSku;
+import com.lsh.wms.model.csi.CsiSupplier;
 import com.lsh.wms.model.po.*;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
@@ -129,6 +131,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
     @Autowired
     private CsiCustomerService customerService;
+    @Autowired
+    private CsiSupplierService supplierService;
 
     public Boolean throwOrder(String orderOtherId) throws BizCheckedException {
         IbdHeader ibdHeader = new IbdHeader();
@@ -446,6 +450,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 //Long expireDate = inbReceiptDetail.getProTime().getTime() + baseinfoItem.getShelfLife().longValue(); // 生产日期+保质期=保质期失效时间
 
                 StockLot stockLot = new StockLot();
+                CsiSupplier supplier = supplierService.getSupplier(ibdHeader.getSupplierCode(),ibdHeader.getOwnerUid());
                 stockLot.setLotId(lotId);
                 stockLot.setPackUnit(ibdDetail.getPackUnit());
                 stockLot.setSkuId(inbReceiptDetail.getSkuId());
@@ -456,7 +461,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 stockLot.setExpireDate(expireDate);
                 stockLot.setReceiptId(inbReceiptHeader.getReceiptOrderId());
                 stockLot.setPoId(inbReceiptDetail.getOrderId());
-                stockLot.setSupplierId(ibdHeader.getSupplierCode());
+                stockLot.setSupplierId(supplier.getSupplierId());
                 stockLotList.add(stockLot);
 
                 StockMove move = new StockMove();
@@ -831,13 +836,15 @@ public class ReceiptRpcService implements IReceiptRpcService {
             StockLot stockLot = new StockLot();
             stockLot.setIsOld(true);
 
+            CsiSupplier supplier = supplierService.getSupplier(ibdHeader.getSupplierCode(),ibdHeader.getOwnerUid());
+
             stockLot.setPackUnit(ibdDetail.getPackUnit());
             stockLot.setSkuId(inbReceiptDetail.getSkuId());
             stockLot.setSerialNo(inbReceiptDetail.getLotNum());
             stockLot.setItemId(inbReceiptDetail.getItemId());
             stockLot.setReceiptId(inbReceiptHeader.getReceiptOrderId());
             stockLot.setPoId(inbReceiptDetail.getOrderId());
-            stockLot.setSupplierId(ibdHeader.getSupplierCode());
+            stockLot.setSupplierId(supplier.getSupplierId());
             stockLotList.add(stockLot);
 
             StockMove move = new StockMove();
@@ -869,7 +876,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         //如果是大店 生成QC
         if(request.getIsCreateTask()==1) {
-            if(csiCustomer.getCustomerType().equals(CustomerConstant.BiG_STORE)){
+            if(csiCustomer.getCustomerType().equals(CustomerConstant.SUPER_MARKET)){
                 TaskEntry taskEntry = new TaskEntry();
                 TaskInfo taskInfo = new TaskInfo();
                 taskInfo.setTaskId(taskId);

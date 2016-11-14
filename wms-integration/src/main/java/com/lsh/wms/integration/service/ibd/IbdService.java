@@ -27,8 +27,10 @@ import com.lsh.wms.api.service.po.IPoRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.wumart.IWuMartSap;
 import com.lsh.wms.core.constant.IntegrationConstan;
+import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.constant.SysLogConstant;
+import com.lsh.wms.core.service.csi.CsiSupplierService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
@@ -37,6 +39,7 @@ import com.lsh.wms.integration.service.back.DataBackService;
 import com.lsh.wms.integration.service.wumartsap.WuMart;
 import com.lsh.wms.integration.service.wumartsap.WuMartSap;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.csi.CsiSupplier;
 import com.lsh.wms.model.po.IbdHeader;
 import com.lsh.wms.model.po.IbdObdRelation;
 import com.lsh.wms.model.so.ObdDetail;
@@ -88,6 +91,10 @@ public class IbdService implements IIbdService {
 
     @Autowired
     private WuMart wuMart;
+
+    @Autowired
+    private CsiSupplierService supplierService;
+
     @POST
     @Path("add")
     public BaseResponse add(IbdRequest request) throws BizCheckedException{
@@ -133,6 +140,16 @@ public class IbdService implements IIbdService {
 
         poRequest.setItems(items);
 
+        if(poRequest.getOrderType() == PoConstant.ORDER_TYPE_PO){
+            CsiSupplier supplier = supplierService.getSupplier(poRequest.getSupplierCode().toString(),poRequest.getOwnerUid());
+            if(supplier == null){
+                throw new BizCheckedException("2021111");
+
+            }
+            poRequest.setSupplierName(supplier.getSupplierName());
+
+        }
+
         Long orderId = poRpcService.insertOrder(poRequest);
         Map<String,Object> map = new HashMap<String, Object>();
         map.put("orderId",orderId);
@@ -163,7 +180,7 @@ public class IbdService implements IIbdService {
                 if(ibdHeader == null){
                     SysLog sysLog = new SysLog();
                     //2770006表示关系表有缺失
-                    sysLog.setLogCode(2770004L);
+                    sysLog.setLogCode("2770004");
                     sysLog.setLogType(SysLogConstant.LOG_TYPE_FRET);
                     sysLog.setLogMessage
                             ("没有找到ibd订单号为:"+ibdOtherId+"的订单!");
@@ -182,7 +199,7 @@ public class IbdService implements IIbdService {
                 if(obdHeader == null){
                     SysLog sysLog = new SysLog();
                     //2770006表示关系表有缺失
-                    sysLog.setLogCode(2770005L);
+                    sysLog.setLogCode("2770005");
                     sysLog.setLogType(SysLogConstant.LOG_TYPE_FRET);
                     sysLog.setLogMessage("没有找到obd订单号为:"+obdOtherId+"的门店订货单");
                     throw new BizCheckedException("2770005","没有找到obd订单号为:"+obdOtherId+"的门店订货单");
@@ -295,29 +312,29 @@ public class IbdService implements IIbdService {
 //        return ibdBackService.createOrderByPost(request, IntegrationConstan.URL_OBD);
 
 
-//        ObdHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(76978698850361L);
-//        //组装OBD反馈信息
-//        ObdOfcBackRequest request = new ObdOfcBackRequest();
-//        request.setDeliveryTime("2016-09-20");
-//        request.setObdCode(soHeader.getOrderId().toString());
-//        request.setSoCode(soHeader.getOrderOtherId());
-//        //查询明细。
-//        List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(76978698850361L);
-//        List<ObdOfcItem> items = new ArrayList<ObdOfcItem>();
-//
-//        for(ObdDetail detail : soDetails){
-//            ObdOfcItem item = new ObdOfcItem();
-//            item.setPackNum(detail.getPackUnit());
-//            item.setSkuQty(detail.getOrderQty());
-//            item.setSupplySkuCode(detail.getSkuCode());
-//            items.add(item);
-//
-//        }
-//        request.setDetails(items);
-//        String url = "http://api.ofc.lsh123.com/ofc/api/order/obd/push";
-//        //return dataBackService.ofcDataBackByPost(request,url);
-//
-        return "";
+        ObdHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(76978698850361L);
+        //组装OBD反馈信息
+        ObdOfcBackRequest request = new ObdOfcBackRequest();
+        request.setDeliveryTime("2016-09-20");
+        request.setObdCode(soHeader.getOrderId().toString());
+        request.setSoCode(soHeader.getOrderOtherId());
+        //查询明细。
+        List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(76978698850361L);
+        List<ObdOfcItem> items = new ArrayList<ObdOfcItem>();
+
+        for(ObdDetail detail : soDetails){
+            ObdOfcItem item = new ObdOfcItem();
+            item.setPackNum(detail.getPackUnit());
+            item.setSkuQty(detail.getOrderQty());
+            item.setSupplySkuCode(detail.getSkuCode());
+            items.add(item);
+
+        }
+        request.setDetails(items);
+
+        return dataBackService.ofcDataBackByPost(JSON.toJSONString(request),IntegrationConstan.URL_LSHOFC_OBD);
+
+        //return "";
 
     }
 
@@ -334,25 +351,26 @@ public class IbdService implements IIbdService {
 //        date.setDay(calendar.get(Calendar.DATE));
 //        date.setMonth(calendar.get(Calendar.MONTH));
 //        header.setDeliveDate(date);
-        List<CreateIbdDetail> details = new ArrayList<CreateIbdDetail>();
+//        List<CreateIbdDetail> details = new ArrayList<CreateIbdDetail>();
+//
+//        CreateIbdDetail detail = new CreateIbdDetail();
+//        detail.setDeliveQty(new BigDecimal("2.000"));
+//        detail.setPoItme("10");
+//        detail.setPoNumber("4500027501");
+//        detail.setUnit("EA");
+//        //detail.setMaterial("000000000000110978");
+//        detail.setOrderType(4);
+//        detail.setVendMat("222222");
+//        details.add(detail);
 
-        CreateIbdDetail detail = new CreateIbdDetail();
-        detail.setDeliveQty(new BigDecimal("1.000"));
-        detail.setPoItme("10");
-        detail.setPoNumber("4500027508");
-        detail.setUnit("EA");
-        detail.setMaterial("000000000000110978");
-        detail.setOrderType(1);
-        details.add(detail);
-
-        CreateIbdDetail detail1 = new CreateIbdDetail();
-        detail1.setDeliveQty(new BigDecimal("1.000"));
-        detail1.setPoItme("10");
-        detail1.setPoNumber("4500027509");
-        detail1.setUnit("EA");
-        detail1.setMaterial("000000000000110978");
-        detail.setOrderType(1);
-        details.add(detail1);
+//        CreateIbdDetail detail1 = new CreateIbdDetail();
+//        detail1.setDeliveQty(new BigDecimal("1.000"));
+//        detail1.setPoItme("10");
+//        detail1.setPoNumber("4500027509");
+//        detail1.setUnit("EA");
+//        detail1.setMaterial("000000000000110978");
+//        detail.setOrderType(1);
+//        details.add(detail1);
 
 //        CreateIbdDetail detail2 = new CreateIbdDetail();
 //        detail2.setDeliveQty(new BigDecimal("1.000"));
@@ -363,8 +381,9 @@ public class IbdService implements IIbdService {
 //        detail.setOrderType(1);
 //        details.add(detail2);
 
-        header.setItems(details);
-//        return wuMartSap.ibd2Sap(header);
+//        header.setItems(details);
+//        wuMartSap.ibd2Sap(header);
+        wuMartSap.soObd2Sap(new CreateObdHeader());
         return "";
         //return wuMartSap.ibd2SapAccount(header,null);
         //wuMart.sendIbd(header);

@@ -140,6 +140,7 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
         BigDecimal boxNumTotal = BigDecimal.ZERO;
         BigDecimal turnBoxNumTotal = BigDecimal.ZERO;
         BigDecimal containerNumTotal = BigDecimal.ZERO;
+        List<Object> storeCountInfoList = new ArrayList<Object>();
         for (String storeId : storeInfoMap.keySet()) {
             BigDecimal boxNum = BigDecimal.ZERO;
             BigDecimal turnBoxNum = BigDecimal.ZERO;
@@ -156,13 +157,13 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
             storeInfoMap.get(storeId).put("boxNum", boxNum);//箱数
             storeInfoMap.get(storeId).put("turnBoxNum", turnBoxNum);//周转箱数
             storeInfoMap.get(storeId).put("containerNum", containerNum);//板数
-
+            storeCountInfoList.add(storeInfoMap.get(storeId));
         }
         Map<String, Object> totalMap = new HashMap<String, Object>();
         totalMap.put("boxNum", boxNumTotal);//总箱数
         totalMap.put("turnBoxNum", turnBoxNumTotal);//总周转箱数
         totalMap.put("containerNum", containerNumTotal);//总板数
-        storeInfoMap.put("total", totalMap);
+
 
         //封装返回数据
         Map<String, Object> returnData = new HashMap<String, Object>();
@@ -172,7 +173,8 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
         returnData.put("companyName", tuHead.getCompanyName());//承运商
         returnData.put("name", tuHead.getName());//司机姓名
         returnData.put("cellphone", tuHead.getCellphone());//司机电话
-        returnData.put("storeCountInfo", storeInfoMap);//门店统计信息
+        returnData.put("storeCountInfo", storeCountInfoList);//门店统计信息
+        returnData.put("total", totalMap);
         returnData.put("storeDeliveryList", storeNoToDeliveryId);//门店发货单号信息
         return returnData;
     }
@@ -293,7 +295,7 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
 
         //封装订单信息
         Map<Long, Map<String, Object>> orderGoodsInfoMap = new HashMap<Long, Map<String, Object>>();
-        //封装订单的商品信息
+        //封装订单的商品信息 orderId ,itemId
         Map<Long, Map<Long, Map<String, Object>>> goodsListMap = new HashMap<Long, Map<Long, Map<String, Object>>>();
         //封装订单的头信息(库组分类共用)
         Map<Long, Map<String, Object>> orderInfoMap = new HashMap<Long, Map<String, Object>>();
@@ -401,13 +403,55 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
 
         }
 
+        List<Object>returnList=new ArrayList<Object>();
         //整合订单和商品数据
-        for (Long orderId : orderGoodsInfoMap.keySet()) {
-            if (goodsListMap.get(orderId) != null) {
-                orderGoodsInfoMap.get(orderId).put("goodsList", goodsListMap.get(orderId));
+        for(Long orderId:orderGoodsInfoMap.keySet()){
+            if(goodsListMap.get(orderId)==null){
+                continue;
             }
+            //一个订单的商品列表
+            Map<Long,Map<String,Object>>goodsListMapByOrderId=goodsListMap.get(orderId);
+            //一个类型的商品
+            Map<Long,Map<String,Object>>goodsMapByItemType=new HashMap<Long,Map<String,Object>>();
+            //商品类型map
+            Map<Long,String>itemTypeMap=new HashMap<Long,String>();
 
-            //复制order的头
+            //将每个订单的商品按类型分组
+            for(Long itemId:goodsListMapByOrderId.keySet()){
+                Map<String,Object> goodsMap = goodsListMapByOrderId.get(itemId);
+
+                Long itemTypeId=Long.parseLong(goodsMap.get("itemType").toString());
+                if(goodsMapByItemType.get(itemTypeId)==null){
+                    Map<String,Object>goodsMapByItemTypeInit=new HashMap<String,Object>();
+                    goodsMapByItemTypeInit.put("goodsListByItemType",new ArrayList<Object>());
+                    goodsMapByItemTypeInit.put("itemTypeName","");
+                    goodsMapByItemType.put(itemTypeId,goodsMapByItemTypeInit);
+                }
+                if(itemTypeMap.get(itemTypeId)==null){
+                    BaseinfoItemType baseinfoItemType=itemTypeService.getBaseinfoItemTypeByItemId(itemTypeId.intValue());
+                    if(baseinfoItemType!=null){
+                        itemTypeMap.put(itemTypeId,baseinfoItemType.getItemName());
+                    }else{
+                        itemTypeMap.put(itemTypeId,"");
+                    }
+                }
+                List<Object>tempLis=(List<Object>)goodsMapByItemType.get(itemTypeId).get("goodsListByItemType");
+                tempLis.add(goodsMap);
+                Map<String,Object>tempMap=goodsMapByItemType.get(itemTypeId);
+                tempMap.put("goodsListByItemType",tempLis);
+                goodsMapByItemType.put(itemTypeId,tempMap);
+            }
+            List<Object>goodsList=new ArrayList<Object>();
+            for(Long itemTypeId:goodsMapByItemType.keySet()){
+                goodsMapByItemType.get(itemTypeId).put("itemTypeName",itemTypeMap.get(itemTypeId));
+                goodsList.add(goodsMapByItemType.get(itemTypeId));
+
+            }
+            orderGoodsInfoMap.get(orderId).put("goodsList",goodsList);
+            returnList.add(orderGoodsInfoMap.get(orderId));
+
+
+           /* //复制order的头
             if (orderInfoMap.get(orderId) == null) {
                 Map<String, Object> oneOrderInfo = new HashMap<String, Object>();
                 oneOrderInfo.put("orderId", orderId);//订单号
@@ -466,13 +510,14 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
                     groupInfoListMapOneOrderMap.put(type, tempMap);
                 }
                 groupListMap.put(orderId, groupInfoListMapOneOrderMap);
-            }
+            }*/
         }
 
 
         Map<String, Object> returnData = new HashMap<String, Object>();
 //        returnData.put("data", orderGoodsInfoMap);
-        returnData.put("data", groupListMap);
+//        returnData.put("data", groupListMap);
+        returnData.put("data", returnList);
         return returnData;
     }
 

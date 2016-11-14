@@ -49,8 +49,8 @@ public class MergeRestService implements IMergeRestService {
     @Path("getMergeDetail")
     public String getMergeDetail() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
-        String storeNo = mapQuery.get("storeNo").toString();
-        return JsonUtils.SUCCESS(mergeRpcService.getMergeDetailByStoreNo(storeNo));
+        String customerCode = mapQuery.get("customerCode").toString();
+        return JsonUtils.SUCCESS(mergeRpcService.getMergeDetailByCustomerCode(customerCode));
     }
 
     @GET

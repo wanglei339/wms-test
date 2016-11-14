@@ -81,16 +81,16 @@ public class ReceiveRpcService implements IReceiveRpcService{
         //查询ibdHeader 修改实收数量
         //IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(receiveHeader.getOrderId());
         IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndDetailOtherId(receiveHeader.getOrderId(),detailOtherId);
-        if(ibdDetail.getInboundQty().add(subQty).compareTo(ibdDetail.getOrderQty()) > 0){
+        if(ibdDetail.getInboundQty().subtract(subQty).compareTo(ibdDetail.getOrderQty()) > 0){
             throw new BizCheckedException("2020005");
         }
-        ibdDetail.setInboundQty(ibdDetail.getInboundQty().add(subQty));
+        ibdDetail.setInboundQty(ibdDetail.getInboundQty().subtract(subQty));
 
-        List<InbReceiptDetail> receiptDetails = receiptService.getInbReceiptDetailListByOrderId(receiveHeader.getOrderId());
+        List<InbReceiptDetail> receiptDetails = receiptService.getInbReceiptDetailListByOrderIdAndCode(receiveHeader.getOrderId(),receiveDetail.getCode());
         InbReceiptDetail inbReceiptDetail = new InbReceiptDetail();
         for(InbReceiptDetail detail : receiptDetails){
             BigDecimal receiptQty = detail.getInboundQty();
-            if(detail.getInboundQty().add(subQty).compareTo(BigDecimal.ZERO) < 0 ){
+            if(detail.getInboundQty().subtract(subQty).compareTo(BigDecimal.ZERO) < 0 ){
                 continue;
             }else{
                 detail.setInboundQty(receiptQty.add(subQty));

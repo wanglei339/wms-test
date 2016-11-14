@@ -11,14 +11,19 @@ public class CreateObdHeader implements Serializable{
 
 //    /**交货时间*/
 //    private XMLGregorianCalendar dueDate;
+    /**
+     * 订单号
+     */
+    private String orderOtherId;
 
     /**商品明细*/
     private List<CreateObdDetail> items;
 
     public CreateObdHeader(){}
 
-    public CreateObdHeader(List<CreateObdDetail> items) {
+    public CreateObdHeader(List<CreateObdDetail> items, String orderOtherId) {
         this.items = items;
+        this.orderOtherId = orderOtherId;
     }
 
     public List<CreateObdDetail> getItems() {
@@ -27,5 +32,13 @@ public class CreateObdHeader implements Serializable{
 
     public void setItems(List<CreateObdDetail> items) {
         this.items = items;
+    }
+
+    public String getOrderOtherId() {
+        return orderOtherId;
+    }
+
+    public void setOrderOtherId(String orderOtherId) {
+        this.orderOtherId = orderOtherId;
     }
 }

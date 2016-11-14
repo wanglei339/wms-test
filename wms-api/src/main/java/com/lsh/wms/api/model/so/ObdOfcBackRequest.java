@@ -7,6 +7,9 @@ import java.util.List;
  * Created by lixin-mac on 16/9/18.
  */
 public class ObdOfcBackRequest implements Serializable{
+    /**wms类型*/
+    private Integer wms;
+
     /**	SO单号*/
     private String soCode;
     /**obd单号*/
@@ -18,11 +21,12 @@ public class ObdOfcBackRequest implements Serializable{
 
     public ObdOfcBackRequest(){}
 
-    public ObdOfcBackRequest(String deliveryTime, List<ObdOfcItem> details, String obdCode, String soCode) {
+    public ObdOfcBackRequest(String deliveryTime, List<ObdOfcItem> details, String obdCode, String soCode, Integer wms) {
         this.deliveryTime = deliveryTime;
         this.details = details;
         this.obdCode = obdCode;
         this.soCode = soCode;
+        this.wms = wms;
     }
 
     public String getDeliveryTime() {
@@ -55,5 +59,13 @@ public class ObdOfcBackRequest implements Serializable{
 
     public void setSoCode(String soCode) {
         this.soCode = soCode;
+    }
+
+    public Integer getWms() {
+        return wms;
+    }
+
+    public void setWms(Integer wms) {
+        this.wms = wms;
     }
 }

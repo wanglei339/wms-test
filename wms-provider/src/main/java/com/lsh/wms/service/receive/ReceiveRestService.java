@@ -177,7 +177,7 @@ public class ReceiveRestService implements IReceiveRestService{
 
     @GET
     @Path("updateQty")
-    public String updateQty(@QueryParam("receiveId") Long receiveId, @QueryParam("detailOtherId") String detailOtherId, @QueryParam("qty")BigDecimal qty) throws BizCheckedException {
+        public String updateQty(@QueryParam("receiveId") Long receiveId, @QueryParam("detailOtherId") String detailOtherId, @QueryParam("qty")BigDecimal qty) throws BizCheckedException {
         receiveRpcService.updateQty(receiveId,detailOtherId,qty);
         return JsonUtils.SUCCESS();
     }

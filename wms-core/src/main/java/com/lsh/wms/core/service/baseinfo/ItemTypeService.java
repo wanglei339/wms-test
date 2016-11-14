@@ -33,8 +33,8 @@ public class ItemTypeService {
         baseinfoItemTypeDao.update(baseinfoItemType);
     }
 
-    public BaseinfoItemType getBaseinfoItemTypeById(Integer id){
-        return baseinfoItemTypeDao.getBaseinfoItemTypeById(id);
+    public BaseinfoItemType getBaseinfoItemTypeByItemId(Integer itemTypeId){
+        return baseinfoItemTypeDao.getBaseinfoItemTypeByItemId(itemTypeId);
     }
 
     public List<BaseinfoItemType> getBaseinfoItemTypeList(Map<String, Object> params){

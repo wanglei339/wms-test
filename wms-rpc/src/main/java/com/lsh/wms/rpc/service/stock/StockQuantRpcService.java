@@ -4,12 +4,17 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
+import com.lsh.wms.core.constant.ContainerConstant;
+import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -42,9 +47,13 @@ public class StockQuantRpcService implements IStockQuantRpcService {
 
     @Autowired
     private ItemService itemService;
+    @Autowired
+    private ContainerService containerService;
 
     @Autowired
     private InventoryRedisService inventoryRedisService;
+    @Autowired
+    private StockLotService lotService;
 
     private Map<String, Object> getQueryCondition(StockQuantCondition condition) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
@@ -145,7 +154,33 @@ public class StockQuantRpcService implements IStockQuantRpcService {
 
         return JsonUtils.SUCCESS();
     }
+    public void writeOffQuant(Long quantId, BigDecimal realQty)throws BizCheckedException{
+        StockQuant quant = quantService.getQuantById(quantId);
+        StockMove move = new StockMove();
+        if(quant.getQty().compareTo(realQty)>0) {
+            move.setTaskId(100001l);
+            move.setSkuId(quant.getSkuId());
+            move.setItemId(quant.getItemId());
+            move.setStatus(TaskConstant.Done);
 
+            move.setQty(quant.getQty().subtract(realQty));
+            move.setFromLocationId(quant.getLocationId());
+            move.setToLocationId(locationService.getInventoryLostLocationId());
+            move.setToContainerId(containerService.createContainerByType(ContainerConstant.CAGE).getContainerId());
+        }else {
+            move.setTaskId(100001l);
+            move.setSkuId(quant.getSkuId());
+            move.setItemId(quant.getItemId());
+            move.setStatus(TaskConstant.Done);
+
+            move.setQty(realQty.subtract(quant.getQty()));
+            move.setFromLocationId(locationService.getInventoryLostLocationId());
+            move.setToLocationId(quant.getLocationId());
+            move.setToContainerId(containerService.createContainerByType(ContainerConstant.CAGE).getContainerId());
+            move.setLot(lotService.getStockLotByLotId(quant.getLotId()));
+        }
+        moveService.move(move);
+    }
     public int getItemStockCount(Map<String, Object> mapQuery) {
         return itemService.countItem(mapQuery);
     }

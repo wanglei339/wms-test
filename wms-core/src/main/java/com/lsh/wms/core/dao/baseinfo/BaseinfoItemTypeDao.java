@@ -14,7 +14,7 @@ public interface BaseinfoItemTypeDao {
 	
 	void update(BaseinfoItemType baseinfoItemType);
 	
-	BaseinfoItemType getBaseinfoItemTypeById(Integer id);
+	BaseinfoItemType getBaseinfoItemTypeByItemId(Integer itemTypeId);
 
     Integer countBaseinfoItemType(Map<String, Object> params);
 

@@ -36,7 +36,7 @@ public class PoRequest implements Serializable {
 
     /** 供商编码 */
     @NotNull
-    private Long supplierCode = 0L;
+    private String supplierCode = "";
 
     /** 供商名称 */
     @Size(max=50)
@@ -66,7 +66,7 @@ public class PoRequest implements Serializable {
 
     }
 
-    public PoRequest(Date deliveryDate, Date endDeliveryDate, List<PoItem> items, String orderOtherId, String orderOtherRefId, Date orderTime, Integer orderType, String orderUser, Long ownerUid, String stockCode, Long supplierCode, String supplierName) {
+    public PoRequest(Date deliveryDate, Date endDeliveryDate, List<PoItem> items, String orderOtherId, String orderOtherRefId, Date orderTime, Integer orderType, String orderUser, Long ownerUid, String stockCode, String supplierCode, String supplierName) {
         this.deliveryDate = deliveryDate;
         this.endDeliveryDate = endDeliveryDate;
         this.items = items;
@@ -161,11 +161,11 @@ public class PoRequest implements Serializable {
         this.stockCode = stockCode;
     }
 
-    public Long getSupplierCode() {
+    public String getSupplierCode() {
         return supplierCode;
     }
 
-    public void setSupplierCode(Long supplierCode) {
+    public void setSupplierCode(String supplierCode) {
         this.supplierCode = supplierCode;
     }
 

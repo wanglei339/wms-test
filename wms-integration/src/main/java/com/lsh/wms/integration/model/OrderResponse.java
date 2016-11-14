@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class OrderResponse implements Serializable {
 
-    private Integer code;
+    private String code;
 
     private String gatewayToken;//gatewayToken
 
@@ -12,11 +12,11 @@ public class OrderResponse implements Serializable {
 
     private String message;
 
-    public Integer getCode() {
+    public String getCode() {
         return code;
     }
 
-    public void setCode(Integer code) {
+    public void setCode(String code) {
         this.code = code;
     }
 
