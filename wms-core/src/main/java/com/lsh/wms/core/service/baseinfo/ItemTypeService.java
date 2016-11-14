@@ -24,10 +24,11 @@ public class ItemTypeService {
     @Autowired
     private BaseinfoItemTypeRelationDao baseinfoItemTypeRelationDao;
 
+    @Transactional(readOnly = false)
     public  void insertItemType(BaseinfoItemType baseinfoItemType){
         baseinfoItemTypeDao.insert(baseinfoItemType);
     }
-
+    @Transactional(readOnly = false)
     public  void updateItemType(BaseinfoItemType baseinfoItemType){
         baseinfoItemTypeDao.update(baseinfoItemType);
     }
@@ -39,14 +40,15 @@ public class ItemTypeService {
     public List<BaseinfoItemType> getBaseinfoItemTypeList(Map<String, Object> params){
         return baseinfoItemTypeDao.getBaseinfoItemTypeList(params);
     }
+    @Transactional(readOnly = false)
     public void insertItemTypeRelation(BaseinfoItemTypeRelation baseinfoItemTypeRelation){
         baseinfoItemTypeRelationDao.insert(baseinfoItemTypeRelation);
     }
-
+    @Transactional(readOnly = false)
     public void updateItemTypeRelation(BaseinfoItemTypeRelation baseinfoItemTypeRelation){
         baseinfoItemTypeRelationDao.update(baseinfoItemTypeRelation);
     }
-
+    @Transactional(readOnly = false)
     public void deleteItemTypeRelation(Long id){
         baseinfoItemTypeRelationDao.delete(id);
     }
