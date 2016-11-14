@@ -90,6 +90,7 @@
 	<select id="getIbdHeaderList" parameterType="map" resultMap="ibdHeaderResultMap">
 		select * from ibd_header
 		<include refid="queryCondition"/>
+		ORDER BY  order_time DESC
 		<if test="start != null and limit != null">
 			limit #{start},#{limit}
 		</if>

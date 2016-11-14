@@ -7,12 +7,15 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.model.so.ObdOfcBackRequest;
 import com.lsh.wms.api.model.so.ObdOfcItem;
+import com.lsh.wms.api.model.wumart.CreateObdDetail;
+import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.back.IDataBackService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.api.service.wave.IShipRestService;
+import com.lsh.wms.api.service.wumart.IWuMart;
 import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.location.LocationService;
@@ -70,6 +73,9 @@ public class ShipRestService implements IShipRestService {
 
     @Reference
     private IDataBackService dataBackService;
+
+    @Reference
+    private IWuMart wuMart;
 
     /**
      * 波次的发货操作
@@ -163,40 +169,59 @@ public class ShipRestService implements IShipRestService {
             //查询明细。
             List<ObdDetail> obdDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
             // TODO: 2016/9/23  组装OBD反馈信息 根据货主区分回传lsh或物美
-            if (obdHeader.getOwnerUid() == 1) {
 
-            }else if(obdHeader.getOwnerUid() == 2){
-                //组装OBD反馈信息
-                ObdOfcBackRequest request = new ObdOfcBackRequest();
-                Date date = new Date();
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                String now = sdf.format(date);
-                request.setWms(2);//该字段写死 2
-                request.setDeliveryTime(now);
-                request.setObdCode(obdHeader.getOrderId().toString());
-                request.setSoCode(obdHeader.getOrderOtherId());
-                //查询明细。
-                List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
-                List<ObdOfcItem> items = new ArrayList<ObdOfcItem>();
+            //组装ofc OBD反馈信息
+            ObdOfcBackRequest request = new ObdOfcBackRequest();
+            Date date = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String now = sdf.format(date);
+            request.setWms(2);//该字段写死 2
+            request.setDeliveryTime(now);
+            request.setObdCode(obdHeader.getOrderId().toString());
+            request.setSoCode(obdHeader.getOrderOtherId());
 
-                for(ObdDetail detail : soDetails){
+            //组装物美反馈信息
+            CreateObdHeader createObdHeader = new CreateObdHeader();
+            createObdHeader.setOrderOtherId(obdHeader.getOrderOtherId());
+            //查询明细。
+            List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
+            List<ObdOfcItem> items = new ArrayList<ObdOfcItem>();
 
-                    ObdOfcItem item = new ObdOfcItem();
-                    item.setPackNum(detail.getPackUnit());
-                    //
-                    OutbDeliveryDetail deliveryDetail = soDeliveryService.getOutbDeliveryDetail(orderId,detail.getItemId());
-                    if(deliveryDetail == null){
-                        continue;
-                    }
-                    BigDecimal outQty = deliveryDetail.getDeliveryNum();
-                    item.setSkuQty(outQty);
-                    item.setSupplySkuCode(detail.getSkuCode());
-                    items.add(item);
+            List<CreateObdDetail> createObdDetails = new ArrayList<CreateObdDetail>();
 
+            for(ObdDetail detail : soDetails){
+
+                ObdOfcItem item = new ObdOfcItem();
+
+                CreateObdDetail createObdDetail = new CreateObdDetail();
+
+                item.setPackNum(detail.getPackUnit());
+                //
+                OutbDeliveryDetail deliveryDetail = soDeliveryService.getOutbDeliveryDetail(orderId,detail.getItemId());
+                if(deliveryDetail == null){
+                    continue;
                 }
-                request.setDetails(items);
-                return dataBackService.ofcDataBackByPost(JSON.toJSONString(request), IntegrationConstan.URL_LSHOFC_OBD);
+                BigDecimal outQty = deliveryDetail.getDeliveryNum();
+                item.setSkuQty(outQty);
+
+                //ea转换为包装数量。
+                createObdDetail.setDlvQty(outQty.divide(detail.getPackUnit()));
+                createObdDetail.setRefItem(detail.getDetailOtherId());
+                createObdDetail.setMaterial(detail.getSkuCode());
+                createObdDetails.add(createObdDetail);
+
+                item.setSupplySkuCode(detail.getSkuCode());
+                items.add(item);
             }
+            request.setDetails(items);
+            if(obdHeader.getOwnerUid() == 1){
+                wuMart.sendSo2Sap(createObdHeader);
+            }
+            else if(obdHeader.getOwnerUid() == 2){
+                dataBackService.ofcDataBackByPost(JSON.toJSONString(request), IntegrationConstan.URL_LSHOFC_OBD);
+            }
+
+
         }
 
 
