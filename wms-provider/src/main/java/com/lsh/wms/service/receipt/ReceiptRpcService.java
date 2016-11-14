@@ -14,7 +14,6 @@ import com.lsh.wms.api.model.po.ReceiptRequest;
 import com.lsh.wms.api.model.so.ObdStreamDetail;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.po.IReceiptRpcService;
-import com.lsh.wms.api.service.store.IStoreRpcService;
 import com.lsh.wms.api.service.system.IExceptionCodeRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.*;
@@ -116,9 +115,6 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
     @Autowired
     private IdGenerator idGenerator;
-
-    @Reference
-    private IStoreRpcService iStoreRpcService;
 
     @Reference
     private IExceptionCodeRpcService iexceptionCodeRpcService;
