@@ -5,25 +5,18 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.base.common.utils.StrUtils;
-import com.lsh.wms.api.model.po.ReceiptItem;
-import com.lsh.wms.api.model.po.ReceiptRequest;
-import com.lsh.wms.api.service.inhouse.IProcurementProveiderRpcService;
-import com.lsh.wms.api.service.inhouse.IProcurementRestService;
-import com.lsh.wms.api.service.item.IItemRpcService;
+import com.lsh.wms.api.service.csi.ICsiRpcService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.po.IReceiptRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.seed.ISeedProveiderRpcService;
 import com.lsh.wms.api.service.seed.ISeedRestService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
-import com.lsh.wms.api.service.store.IStoreRpcService;
 import com.lsh.wms.api.service.system.IExceptionCodeRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.PoConstant;
-import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.container.ContainerService;
@@ -40,11 +33,8 @@ import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
-import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
-import com.lsh.wms.model.po.IbdObdRelation;
 import com.lsh.wms.model.seed.SeedingTaskHead;
-import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
@@ -61,7 +51,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by wuhao on 16/9/28.
@@ -94,7 +87,7 @@ public class SeedRestService implements ISeedRestService {
     private ISysUserRpcService iSysUserRpcService;
 
     @Reference
-    private IStoreRpcService storeRpcService;
+    private ICsiRpcService csiRpcService;
 
     @Autowired
     private BaseTaskService baseTaskService;
@@ -162,7 +155,7 @@ public class SeedRestService implements ISeedRestService {
                     info.setIsShow(1);
                     baseTaskService.update(info);
                 }
-                result.put("storeName", storeRpcService.getStoreByStoreNo(head.getStoreNo()).getStoreName());
+                result.put("storeName", csiRpcService.getCustomerByCode(info.getOwnerId(), head.getStoreNo()).getCustomerName());
                 result.put("qty", head.getRequireQty());
                 result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
                 result.put("packName", info.getPackName());
@@ -212,7 +205,7 @@ public class SeedRestService implements ISeedRestService {
                     if(info.getIsShow()==0){
                         return JsonUtils.SUCCESS(result);
                     }
-                    result.put("storeName", storeRpcService.getStoreByStoreNo(head.getStoreNo()).getStoreName());
+                    result.put("storeName", csiRpcService.getCustomerByCode(info.getOwnerId(), head.getStoreNo()).getCustomerName());
                     result.put("qty", head.getRequireQty());
                     result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
                     result.put("packName", info.getPackName());
@@ -434,7 +427,7 @@ public class SeedRestService implements ISeedRestService {
                 entry = iTaskRpcService.getTaskEntryById(taskId);
                 head = (SeedingTaskHead) (entry.getTaskHead());
                 info = entry.getTaskInfo();
-                result.put("storeName", storeRpcService.getStoreByStoreNo(head.getStoreNo()).getStoreName());
+                result.put("storeName", csiRpcService.getCustomerByCode(info.getOwnerId(), head.getStoreNo()).getCustomerName());
                 result.put("qty", head.getRequireQty());
                 result.put("taskId", taskId.toString());
                 result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
@@ -500,7 +493,7 @@ public class SeedRestService implements ISeedRestService {
             });
         }
         SeedingTaskHead head = (SeedingTaskHead) entry.getTaskHead();
-        result.put("storeName", storeRpcService.getStoreByStoreNo(head.getStoreNo()).getStoreName());
+        result.put("storeName", csiRpcService.getCustomerByCode(info.getOwnerId(), head.getStoreNo()).getCustomerName());
         result.put("storeNo", head.getStoreNo());
         result.put("qty", head.getRequireQty());
         result.put("taskId", taskId.toString());
@@ -541,7 +534,7 @@ public class SeedRestService implements ISeedRestService {
         }
         SeedingTaskHead head = heads.get(0);
         TaskInfo info = iTaskRpcService.getTaskInfo(head.getTaskId());
-        result.put("storeName", storeRpcService.getStoreByStoreNo(head.getStoreNo()).getStoreName());
+        result.put("storeName", csiRpcService.getCustomerByCode(info.getOwnerId(),head.getStoreNo()).getCustomerName());
         result.put("storeNo", head.getStoreNo());
         result.put("qty", head.getRequireQty());
         result.put("taskId", taskId.toString());
