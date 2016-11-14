@@ -15,7 +15,7 @@ public class SysLog implements Serializable {
 	/**回调系统 1 wumart 2 链商OFC 3 erp*/
 	private Integer targetSystem;
 	/** 异常码 */
-    private Long logCode;
+    private String logCode;
 	/** 异常信息 */
     private String logMessage;
 	/** 产生时间 */
@@ -37,11 +37,11 @@ public class SysLog implements Serializable {
 		this.logType = logType;
 	}
 	
-	public Long getLogCode(){
+	public String getLogCode(){
 		return this.logCode;
 	}
 	
-	public void setLogCode(Long logCode){
+	public void setLogCode(String logCode){
 		this.logCode = logCode;
 	}
 	
