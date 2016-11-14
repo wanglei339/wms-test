@@ -16,7 +16,6 @@ import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.pick.*;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockQuantService;
-import com.lsh.wms.core.service.store.StoreService;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.core.service.wave.WaveAllocService;

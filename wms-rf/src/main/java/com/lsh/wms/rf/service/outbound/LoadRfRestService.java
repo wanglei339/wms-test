@@ -17,11 +17,13 @@ import com.lsh.wms.api.service.tu.ILoadRfRestService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.TuConstant;
+import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.store.StoreService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.task.TaskHandler;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
+import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -54,8 +56,6 @@ public class LoadRfRestService implements ILoadRfRestService {
     @Reference
     private ITuRpcService iTuRpcService;
     @Autowired
-    private StoreService storeService;
-    @Autowired
     private WaveService waveService;
     @Reference
     private ISoRpcService iSoRpcService;
@@ -66,9 +66,9 @@ public class LoadRfRestService implements ILoadRfRestService {
     @Reference
     private IMergeRpcService iMergeRpcService;
     @Reference
-    private IStoreRpcService iStoreRpcService;
-    @Reference
     private IQCRpcService iqcRpcService;
+    @Autowired
+    private CsiCustomerService csiCustomerService;
 
     /**
      * rf获取所有待装车或者已装车的结果集
@@ -124,7 +124,7 @@ public class LoadRfRestService implements ILoadRfRestService {
                 one.put("driverName", headList.get(i).getName());   //预装板数
                 //门店信息
                 //List<map<"code":,"name">>
-                List<Map<String, Object>> storeList = storeService.analyStoresIds2Stores(headList.get(i).getStoreIds());
+                List<Map<String, Object>> storeList = csiCustomerService.ParseCustomerIds2Customers(headList.get(i).getStoreIds());
                 one.put("stores", storeList);
                 resultList.add(one);
             }
@@ -152,7 +152,7 @@ public class LoadRfRestService implements ILoadRfRestService {
                 one.put("driverName", tuHeads.get(i).getName());   //预装板数
                 //门店
                 //List<map<"code":,"name">>
-                List<Map<String, Object>> storeList = storeService.analyStoresIds2Stores(tuHeads.get(i).getStoreIds());
+                List<Map<String, Object>> storeList = csiCustomerService.ParseCustomerIds2Customers(tuHeads.get(i).getStoreIds());
                 one.put("stores", storeList);
                 resultList.add(one);
             }
@@ -179,7 +179,7 @@ public class LoadRfRestService implements ILoadRfRestService {
         tuHead.setLoadUid(loadUid);
         iTuRpcService.changeTuHeadStatus(tuHead, TuConstant.IN_LOADING);    //改成装车中
         //门店信息
-        List<Map<String, Object>> stores = storeService.analyStoresIds2Stores(tuHead.getStoreIds());
+        List<Map<String, Object>> stores = csiCustomerService.ParseCustomerIds2Customers(tuHead.getStoreIds());
         //rf结果
         Map<String, Object> resultMap = new HashMap<String, Object>();
         //大门店还是小门店
@@ -187,7 +187,7 @@ public class LoadRfRestService implements ILoadRfRestService {
             Map<Long, Map<String, Object>> storesRestMap = new HashMap<Long, Map<String, Object>>();
             //循环门店获取尾货信息(没合板,合板日期就是零)
             for (Map<String, Object> store : stores) {
-                String storeNo = store.get("storeNo").toString();
+                String storeNo = store.get("customerCode").toString();
                 Map<Long, Map<String, Object>> storeMap = iMergeRpcService.getMergeDetailByCustomerCode(storeNo);
                 storesRestMap.putAll(storeMap);
             }
@@ -219,9 +219,7 @@ public class LoadRfRestService implements ILoadRfRestService {
                         isLoaded = true;
                         continue;   //已装车尾货不显示
                     }
-                    Long storeId = iStoreRpcService.getStoreIdByCode(boardMap.get("storeNo").toString());
                     boardMap.put("isLoaded", isLoaded);
-                    boardMap.put("storeId", storeId);
 
                     //获取一板多托
                     Map<String, Object> mergerMap = new HashMap<String, Object>();
@@ -245,7 +243,7 @@ public class LoadRfRestService implements ILoadRfRestService {
             //循环门店获取尾货信息(没合板,合板日期就是零)
             Map<Long, Map<String, Object>> storesRestMap = new HashMap<Long, Map<String, Object>>();
             for (Map<String, Object> store : stores) {
-                String storeNo = store.get("storeNo").toString();
+                String storeNo = store.get("customerCode").toString();
                 Map<Long, Map<String, Object>> storeMap = iqcRpcService.getGroupDetailByStoreNo(storeNo);
                 storesRestMap.putAll(storeMap);
             }
@@ -276,9 +274,7 @@ public class LoadRfRestService implements ILoadRfRestService {
                         isLoaded = true;
                         continue;   //已装车尾货不显示
                     }
-                    Long storeId = iStoreRpcService.getStoreIdByCode(boardMap.get("storeNo").toString());
                     boardMap.put("isLoaded", isLoaded);
-                    boardMap.put("storeId", storeId);
                     //markContainerId是物理的通过它来看尾货的托盘
                     storeRestList.add(storesRestMap.get(key));
                 }
@@ -338,7 +334,7 @@ public class LoadRfRestService implements ILoadRfRestService {
         if (containerDetailMap == null || containerDetailMap.isEmpty()) {
             throw new BizCheckedException("2990036");
         }
-        Long storeId = Long.valueOf(containerDetailMap.get("storeId").toString());
+        Long storeId = Long.valueOf(containerDetailMap.get("customerId").toString());
         Long uid = Long.valueOf(RequestUtils.getHeader("uid"));
         Boolean isLoaded = Boolean.valueOf(containerDetailMap.get("isLoaded").toString());
         Boolean isRest = Boolean.valueOf(containerDetailMap.get("isRest").toString());
