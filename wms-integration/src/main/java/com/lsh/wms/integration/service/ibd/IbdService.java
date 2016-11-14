@@ -27,8 +27,10 @@ import com.lsh.wms.api.service.po.IPoRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.wumart.IWuMartSap;
 import com.lsh.wms.core.constant.IntegrationConstan;
+import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.constant.SysLogConstant;
+import com.lsh.wms.core.service.csi.CsiSupplierService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
@@ -37,6 +39,7 @@ import com.lsh.wms.integration.service.back.DataBackService;
 import com.lsh.wms.integration.service.wumartsap.WuMart;
 import com.lsh.wms.integration.service.wumartsap.WuMartSap;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.csi.CsiSupplier;
 import com.lsh.wms.model.po.IbdHeader;
 import com.lsh.wms.model.po.IbdObdRelation;
 import com.lsh.wms.model.so.ObdDetail;
@@ -88,6 +91,10 @@ public class IbdService implements IIbdService {
 
     @Autowired
     private WuMart wuMart;
+
+    @Autowired
+    private CsiSupplierService supplierService;
+
     @POST
     @Path("add")
     public BaseResponse add(IbdRequest request) throws BizCheckedException{
@@ -132,6 +139,16 @@ public class IbdService implements IIbdService {
         }
 
         poRequest.setItems(items);
+
+        if(poRequest.getOrderType() == PoConstant.ORDER_TYPE_PO){
+            CsiSupplier supplier = supplierService.getSupplier(poRequest.getSupplierCode().toString(),poRequest.getOwnerUid());
+            if(supplier == null){
+                throw new BizCheckedException("2021111");
+
+            }
+            poRequest.setSupplierName(supplier.getSupplierName());
+
+        }
 
         Long orderId = poRpcService.insertOrder(poRequest);
         Map<String,Object> map = new HashMap<String, Object>();
