@@ -1,6 +1,7 @@
 package com.lsh.wms.api.model.po;
 
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -36,9 +37,11 @@ public class IbdRequest implements Serializable {
 
     /** 订单日期 */
     @NotNull
+    @DateTimeFormat
     private Date orderTime = new Date();
 
     /** 截止收货时间 */
+    @DateTimeFormat
     private Date endDeliveryDate = new Date();
 
     /** 商品 */

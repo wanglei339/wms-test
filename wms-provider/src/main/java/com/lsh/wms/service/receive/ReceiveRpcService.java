@@ -4,16 +4,15 @@ import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.po.IReceiptRpcService;
 import com.lsh.wms.api.service.po.IReceiveRpcService;
 import com.lsh.wms.api.service.wumart.IWuMart;
 import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.service.po.PoOrderService;
+import com.lsh.wms.core.service.po.PoReceiptService;
 import com.lsh.wms.core.service.po.ReceiveService;
-import com.lsh.wms.model.po.IbdDetail;
-import com.lsh.wms.model.po.IbdHeader;
-import com.lsh.wms.model.po.ReceiveDetail;
-import com.lsh.wms.model.po.ReceiveHeader;
+import com.lsh.wms.model.po.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
@@ -34,6 +33,9 @@ public class ReceiveRpcService implements IReceiveRpcService{
 
     @Autowired
     private PoOrderService poOrderService;
+
+    @Autowired
+    private PoReceiptService receiptService;
 
     public List<ReceiveHeader> getReceiveHeaderList(Map<String, Object> params) {
         return receiveService.getReceiveHeaderList(params);
@@ -65,16 +67,45 @@ public class ReceiveRpcService implements IReceiveRpcService{
         return true;
     }
 
-    public void accountBack(Long receiveId, String detailOtherId, BigDecimal qty) throws BizCheckedException {
+
+    public void updateQty(Long receiveId, String detailOtherId, BigDecimal qty) throws BizCheckedException {
+
         //获取receiveHeader
         ReceiveHeader receiveHeader = receiveService.getReceiveHeaderByReceiveId(receiveId);
-        ReceiveDetail detail = receiveService.getReceiveDetailByReceiveIdAnddetailOtherId(receiveId,detailOtherId);
+        ReceiveDetail receiveDetail = receiveService.getReceiveDetailByReceiveIdAnddetailOtherId(receiveId,detailOtherId);
 
-        detail.setInboundQty(qty);
-
+        //原数量 inboundqty
+        BigDecimal inBoundQty = receiveDetail.getInboundQty();
+        receiveDetail.setInboundQty(qty);
+        BigDecimal subQty = inBoundQty.subtract(qty);
         //查询ibdHeader 修改实收数量
         //IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(receiveHeader.getOrderId());
         IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndDetailOtherId(receiveHeader.getOrderId(),detailOtherId);
+        if(ibdDetail.getInboundQty().subtract(subQty).compareTo(ibdDetail.getOrderQty()) > 0){
+            throw new BizCheckedException("2020005");
+        }
+        ibdDetail.setInboundQty(ibdDetail.getInboundQty().subtract(subQty));
+
+        List<InbReceiptDetail> receiptDetails = receiptService.getInbReceiptDetailListByOrderIdAndCode(receiveHeader.getOrderId(),receiveDetail.getCode());
+        InbReceiptDetail inbReceiptDetail = new InbReceiptDetail();
+        for(InbReceiptDetail detail : receiptDetails){
+            BigDecimal receiptQty = detail.getInboundQty();
+            if(detail.getInboundQty().subtract(subQty).compareTo(BigDecimal.ZERO) < 0 ){
+                continue;
+            }else{
+                detail.setInboundQty(receiptQty.add(subQty));
+                ObjUtils.bean2bean(detail,inbReceiptDetail);
+                break;
+            }
+        }
+        receiveService.updateQty(receiveDetail,ibdDetail,inbReceiptDetail);
+
+    }
+
+    public void accountBack(Long receiveId, String detailOtherId) throws BizCheckedException {
+        //获取receiveHeader
+        ReceiveHeader receiveHeader = receiveService.getReceiveHeaderByReceiveId(receiveId);
+        ReceiveDetail detail = receiveService.getReceiveDetailByReceiveIdAnddetailOtherId(receiveId,detailOtherId);
 
         if (receiveHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_ALL){
             wuMart.ibdAccountBack(detail.getAccountId(),detail.getAccountDetailId());

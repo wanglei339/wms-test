@@ -104,14 +104,32 @@ public class DataBackService implements IDataBackService {
     }
 
     public String ofcDataBackByPost(String request, String url){
-        String jsonPoCreate = this.initJson(request);
+        String jsonCreate = this.initJson(request);
 
-        logger.info("order CreateOfcOrder json : " + jsonPoCreate);
-        String jsonStr = HttpUtil.doPost(url,jsonPoCreate);
+        logger.info("order CreateOfcOrder json : " + jsonCreate);
+        String jsonStr = HttpUtil.doPost(url,jsonCreate);
 
         logger.info("order jsonStr :" + jsonStr +"~~~~");
         OrderResponse orderResponse = JSON.parseObject(jsonStr,OrderResponse.class);
         logger.info("orderResponse = " + JSON.toJSONString(orderResponse));
+
+        //存入sys_log
+        //Long sysId = RandomUtils.genId();
+        SysLog sysLog = new SysLog();
+        //sysLog.setLogId(sysId);
+        sysLog.setLogMessage(orderResponse.getMessage());
+        sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
+        sysLog.setLogType(SysLogConstant.LOG_TYPE_OFC_OBD);
+        sysLog.setLogCode(orderResponse.getCode().longValue());
+        Long sysId = sysLogService.insertSysLog(sysLog);
+
+        //将返回结果存入缓存,发生错误可以重新下传。
+        SysMsg sysMsg = new SysMsg();
+        sysMsg.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
+        sysMsg.setId(sysId);
+        sysMsg.setType(SysLogConstant.LOG_TYPE_OFC_OBD);
+        sysMsg.setMsgBody(jsonCreate);
+        sysMsgService.sendMessage(sysMsg);
         return JSON.toJSONString(orderResponse);
 
     }

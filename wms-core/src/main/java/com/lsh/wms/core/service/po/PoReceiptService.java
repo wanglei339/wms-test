@@ -291,4 +291,17 @@ public class PoReceiptService {
 
         inbReceiptHeader.setReceiptDetails(inbReceiptDetailList);
     }
+
+    /**
+     * 根据OrderId获取List<InbReceiptDetail>
+     * @param orderId
+     * @return
+     */
+    public List<InbReceiptDetail> getInbReceiptDetailListByOrderIdAndCode(Long orderId,String barCode) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("orderId", orderId);
+        params.put("barCode",barCode);
+
+        return getInbReceiptDetailList(params);
+    }
 }

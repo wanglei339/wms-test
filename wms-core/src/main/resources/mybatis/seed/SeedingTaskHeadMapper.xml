@@ -12,11 +12,12 @@
 		<result property="requireQty" column="require_qty"/>
 		<result property="realContainerId" column="real_container_id"/>
 		<result property="packUnit" column="pack_unit"/>
+		<result property="orderId" column="order_id"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="SeedingTaskHead">
 		insert into seeding_task_head (
-			task_id,store_no,created_at,updated_at,require_qty,real_container_id,pack_unit.order_id
+			task_id,store_no,created_at,updated_at,require_qty,real_container_id,pack_unit,order_id
     	) values (
 			#{taskId},#{storeNo},#{createdAt},#{updatedAt},#{requireQty},#{realContainerId},#{packUnit},#{orderId}
     	)
