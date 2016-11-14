@@ -118,14 +118,14 @@ public class DataBackService implements IDataBackService {
         SysLog sysLog = new SysLog();
         //sysLog.setLogId(sysId);
         sysLog.setLogMessage(orderResponse.getMessage());
-        sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
+        sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_LSHOFC);
         sysLog.setLogType(SysLogConstant.LOG_TYPE_OFC_OBD);
         sysLog.setLogCode(orderResponse.getCode());
         Long sysId = sysLogService.insertSysLog(sysLog);
 
         //将返回结果存入缓存,发生错误可以重新下传。
         SysMsg sysMsg = new SysMsg();
-        sysMsg.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
+        sysMsg.setTargetSystem(SysLogConstant.LOG_TARGET_LSHOFC);
         sysMsg.setId(sysId);
         sysMsg.setType(SysLogConstant.LOG_TYPE_OFC_OBD);
         sysMsg.setMsgBody(request);
