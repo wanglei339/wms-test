@@ -10,6 +10,7 @@ import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.api.service.tmstu.ITmsTuService;
 import com.lsh.wms.api.service.tu.ITuRestService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.api.service.wumart.IWuMart;
@@ -51,20 +52,23 @@ public class TuRestService implements ITuRestService {
     private TuRpcService iTuRpcService;
     @Autowired
     private IdGenerator idGenerator;
-    @Reference
-    private ITaskRpcService iTaskRpcService;
     @Autowired
     private WaveService waveService;
-    @Reference
-    private IWuMart wuMart;
     @Autowired
     private TuService tuService;
     @Autowired
     private StockQuantService stockQuantService;
-    @Reference
-    private IStockQuantRpcService stockQuantRpcService;
     @Autowired
     private LocationService locationService;
+
+    @Reference
+    private IStockQuantRpcService stockQuantRpcService;
+    @Reference
+    private ITaskRpcService iTaskRpcService;
+    @Reference
+    private ITmsTuService iTmsTuService;
+    @Reference
+    private IWuMart wuMart;
 
     @POST
     @Path("getTuheadList")
@@ -123,7 +127,7 @@ public class TuRestService implements ITuRestService {
         }
         //事务成功 tms失败
         if (TuConstant.SHIP_OVER.equals(tuHead.getStatus())) {
-            Boolean postResult = iTuRpcService.postTuDetails(tuId);
+            Boolean postResult = iTmsTuService.postTuDetails(tuId);
             Map<String, Boolean> resultMap = new HashMap<String, Boolean>();
             resultMap.put("response", postResult);
             return JsonUtils.SUCCESS(resultMap);
@@ -272,7 +276,7 @@ public class TuRestService implements ITuRestService {
         iTuRpcService.update(tuHead);
 
         // 传给TMS运单发车信息,此过程可以重复调用
-        Boolean postResult = iTuRpcService.postTuDetails(tuId);
+        Boolean postResult = iTmsTuService.postTuDetails(tuId);
         if (postResult) {
             Map<String, Boolean> resultMap = new HashMap<String, Boolean>();
             resultMap.put("response", postResult);
@@ -280,20 +284,6 @@ public class TuRestService implements ITuRestService {
         } else {
             throw new BizCheckedException("2990042");
         }
-    }
-
-    /**
-     * 接收TU头信息
-     *
-     * @return
-     * @throws BizCheckedException
-     */
-    @POST
-    @Path("receiveTuHead")
-    public String receiveTuHead() throws BizCheckedException {
-        Map<String, Object> mapRequest = RequestUtils.getRequest();
-        TuHead tuHead = iTuRpcService.receiveTuHead(mapRequest);
-        return JsonUtils.SUCCESS("");
     }
 
     /**
