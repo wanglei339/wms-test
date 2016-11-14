@@ -9,6 +9,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.net.HttpClientUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
+import com.lsh.wms.api.service.merge.IMergeRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.tmstu.ITmsTuService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
@@ -51,6 +52,9 @@ public class TmsTu implements ITmsTuService {
 
     @Reference
     private ITuRpcService iTuRpcService;
+    @Reference
+    private IMergeRpcService iMergeRpcService;
+
 
     /**
      * 接收TU头信息
@@ -112,5 +116,31 @@ public class TmsTu implements ITmsTuService {
         }
         logger.info("[SHIP OVER]Transfer to TMS success: " + responseBody);
         return true;
+    }
+
+    /**
+     * 大店的未装车板数列表
+     *
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("superMarketUnloadList")
+    public String superMarketUnloadList() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(iMergeRpcService.getMergeList(mapQuery));
+    }
+
+    /**
+     * 小店的未装车箱数列表
+     *
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("storeUnloadList")
+    public String storeUnloadList() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(iMergeRpcService.getMergeList(mapQuery));
     }
 }
