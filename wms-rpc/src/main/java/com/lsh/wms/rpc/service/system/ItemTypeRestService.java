@@ -2,6 +2,7 @@ package com.lsh.wms.rpc.service.system;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.system.IItemTypeRestService;
 import com.lsh.wms.model.baseinfo.BaseinfoExceptionCode;
@@ -83,13 +84,9 @@ public class ItemTypeRestService implements IItemTypeRestService {
 
     @POST
     @Path("insertItemTypeRelation")
-    public String insertItemTypeRelation(BaseinfoItemTypeRelation baseinfoItemTypeRelation) {
-        try {
-            itemTypeRpcService.insertItemTypeRelation(baseinfoItemTypeRelation);
-        }catch (Exception e){
-            logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("insert failed");
-        }
+    public String insertItemTypeRelation(BaseinfoItemTypeRelation baseinfoItemTypeRelation)throws BizCheckedException {
+
+        itemTypeRpcService.insertItemTypeRelation(baseinfoItemTypeRelation);
 
         return JsonUtils.SUCCESS();
     }
