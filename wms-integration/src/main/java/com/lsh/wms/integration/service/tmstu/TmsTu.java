@@ -90,7 +90,7 @@ public class TmsTu implements ITmsTuService {
             Map<String, Object> detail = BeanMapTransUtils.Bean2map(tuDetail);
             CsiCustomer csiCustomer = csiCustomerService.getCustomerByCustomerId(tuDetail.getStoreId());
             detail.put("customerCode", csiCustomer.getCustomerCode());
-            detail.put("ustomerName", csiCustomer.getCustomerName());
+            detail.put("customerName", csiCustomer.getCustomerName());
             details.add(detail);
         }
         result.put("tuId", tuId);
