@@ -2,14 +2,8 @@ package com.lsh.wms.rpc.service.csi;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.wms.api.service.csi.ICsiRpcService;
-import com.lsh.wms.core.service.csi.CsiCategoryService;
-import com.lsh.wms.core.service.csi.CsiOwnerService;
-import com.lsh.wms.core.service.csi.CsiSkuService;
-import com.lsh.wms.core.service.csi.CsiSupplierService;
-import com.lsh.wms.model.csi.CsiCategory;
-import com.lsh.wms.model.csi.CsiOwner;
-import com.lsh.wms.model.csi.CsiSku;
-import com.lsh.wms.model.csi.CsiSupplier;
+import com.lsh.wms.core.service.csi.*;
+import com.lsh.wms.model.csi.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +26,8 @@ public class CsiRpcService implements ICsiRpcService {
     private CsiOwnerService ownerService;
     @Autowired
     private CsiSupplierService supplierService;
+    @Autowired
+    private CsiCustomerService customerService;
 
     public CsiCategory getCatInfo(long iCatId) {
         return categoryService.getCatInfo(iCatId);
@@ -100,5 +96,12 @@ public class CsiRpcService implements ICsiRpcService {
         ownerService.updateOwner(owner);
     }
 
+    public CsiCustomer getCustomer(long customerId){
+        return customerService.getCustomerByCustomerId(customerId);
+    }
+
+    public CsiCustomer getCustomerByCode(long ownerId, String customerCode){
+        return customerService.getCustomerByCustomerCode(ownerId, customerCode);
+    }
 
 }

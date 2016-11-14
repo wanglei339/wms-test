@@ -177,6 +177,7 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
                 info.setPlanId(0L);
                 info.setContainerId(0L);
                 head.setRequireQty(head.getRequireQty().subtract(info.getQty()));
+                head.setOrderId(orderId);
                 entry.setTaskInfo(info);
                 entry.setTaskHead(head);
                 iTaskRpcService.create(TaskConstant.TYPE_SEED, entry);
@@ -222,6 +223,7 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
             head.setPackUnit(item.getPackUnit());
             head.setRequireQty(obdDetail.getOrderQty());
             head.setStoreNo(storeNo);
+            head.setOrderId(orderId);
             //无收货播种任务标示
             info.setSubType(2L);
             //门店播放规则

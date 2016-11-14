@@ -14,9 +14,12 @@ import com.lsh.wms.api.model.so.SoItem;
 import com.lsh.wms.api.model.so.SoRequest;
 import com.lsh.wms.api.service.so.IObdService;
 import com.lsh.wms.api.service.so.ISoRpcService;
+import com.lsh.wms.core.constant.SoConstant;
+import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import org.slf4j.Logger;
@@ -50,6 +53,11 @@ public class ObdService implements IObdService{
     private SoOrderService soOrderService;
     @Autowired
     private ItemService itemService;
+    @Autowired
+    private CsiCustomerService customerService;
+
+
+
     private static Logger logger = LoggerFactory.getLogger(ObdService.class);
 
 
@@ -103,6 +111,16 @@ public class ObdService implements IObdService{
         if(lists.size() > 0){
             throw new BizCheckedException("2020099");
         }
+        //添加waveOrderType
+        String waveOrderType = "";
+        if(orderType == SoConstant.ORDER_TYPE_SO){
+            waveOrderType = "YouGong store";
+        }else if(orderType == SoConstant.ORDER_TYPE_STO){
+            CsiCustomer customer = customerService.getCustomerByCustomerCode(soRequest.getOwnerUid(),soRequest.getDeliveryCode());
+            waveOrderType = customer.getCustomerType();
+        }
+        soRequest.setWaveOrderType(waveOrderType);
+
         //soRequest.setWarehouseId(1l);
         logger.info("---------"+ JsonUtils.SUCCESS(soRequest));
         Long orderId = soRpcService.insertOrder(soRequest);
