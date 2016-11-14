@@ -115,6 +115,12 @@ public class StockQuantRestService implements IStockQuantRestService {
         List<StockQuantMoveRel> moveRels = stockQuantService.getHistoryById(quant_id);
         return JsonUtils.SUCCESS(moveRels);
     }
+    @GET
+    @Path("writeOffQuant")
+    public String writeOffQuant(@QueryParam("quantId") Long quantId,@QueryParam("realQty") BigDecimal realQty) {
+        stockQuantRpcService.writeOffQuant(quantId,realQty);
+        return JsonUtils.SUCCESS();
+    }
 
     @POST
     @Path("getItemStockCount")
