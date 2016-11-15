@@ -5,6 +5,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.model.so.ObdOfcBackRequest;
 import com.lsh.wms.api.model.so.ObdOfcItem;
 import com.lsh.wms.api.model.wumart.CreateObdDetail;
@@ -18,6 +19,7 @@ import com.lsh.wms.api.service.wave.IShipRestService;
 import com.lsh.wms.api.service.wumart.IWuMart;
 import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
@@ -230,6 +232,10 @@ public class ShipRestService implements IShipRestService {
         for (WaveDetail detail : totalWaveDetails) {
             waveIds.add(detail.getWaveId());
         }
+        //设置发货人和发货时间
+        tuHead.setDeliveryAt(DateUtils.getCurrentSeconds());
+        tuHead.setStatus(TuConstant.SHIP_OVER);
+        iTuRpcService.update(tuHead);
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("response", true);
         return JsonUtils.SUCCESS(result);

@@ -5,6 +5,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.request.RequestUtils;
@@ -272,6 +273,7 @@ public class TuRestService implements ITuRestService {
         //回传物美
         wuMart.sendSap(ibdObdMap);
         //改变发车状态
+        tuHead.setDeliveryAt(DateUtils.getCurrentSeconds());    //发车时间
         tuHead.setStatus(TuConstant.SHIP_OVER);
         iTuRpcService.update(tuHead);
 
