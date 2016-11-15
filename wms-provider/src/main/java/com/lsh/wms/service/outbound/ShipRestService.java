@@ -103,6 +103,7 @@ public class ShipRestService implements IShipRestService {
             throw new BizCheckedException("2990041");
         }
         Set<Long> totalContainers = new HashSet<Long>();
+        Map<Long, Object> containerInfo = new HashMap<Long, Object>();
         List<WaveDetail> totalWaveDetails = new ArrayList<WaveDetail>();
         for (TuDetail detail : details) {
             Long containerId = detail.getMergedContainerId();
@@ -112,7 +113,43 @@ public class ShipRestService implements IShipRestService {
             }
             totalWaveDetails.addAll(waveDetails);
             totalContainers.add(containerId);
+            //在库不组盘
+            Map<String, Object> containerMap = new HashMap<String, Object>();
+            containerMap.put("boxNum", detail.getBoxNum());
+            containerMap.put("turnoverBoxNum", detail.getTurnoverBoxNum());
+            containerInfo.put(containerId, containerMap);
         }
+
+        //结果集里按照orderId聚类托盘,给出箱子数
+        Map<Long, Set<Long>> orderContainerSet = new HashMap<Long, Set<Long>>();
+        for (WaveDetail waveDetail : totalWaveDetails) {
+            if (orderContainerSet.containsKey(waveDetail.getOrderId())) {
+                orderContainerSet.get(waveDetail.getOrderId()).add(waveDetail.getContainerId());
+            } else {
+                Set<Long> contaienrIds = new HashSet<Long>();
+                contaienrIds.add(waveDetail.getContainerId());
+                orderContainerSet.put(waveDetail.getOrderId(), contaienrIds);
+            }
+        }
+        //封装so单子和箱子数
+        Map<Long, Map<String, Object>> orderBoxInfo = new HashMap<Long, Map<String, Object>>();
+        //按照
+        for (Long key : orderContainerSet.keySet()) {
+
+            Set<Long> containersInOneOrder = orderContainerSet.get(key);
+            BigDecimal boxNum = new BigDecimal("0");
+            Long turnoverBoxNum = 0L;
+            for (Long one : containersInOneOrder) {
+                Map<String, Object> oneContainer = (Map<String, Object>) containerInfo.get(one);
+                boxNum = boxNum.add(new BigDecimal(oneContainer.get("boxNum").toString()));
+                turnoverBoxNum += Long.valueOf(oneContainer.get("turnoverBoxNum").toString());
+            }
+            Map<String,Object> orderBoxMap = new HashMap<String, Object>();
+            orderBoxMap.put("boxNum", boxNum);
+            orderBoxMap.put("turnoverBoxNum", turnoverBoxNum);
+            orderBoxInfo.put(key, orderBoxMap);
+        }
+
 
         //创建发货任务
         TaskEntry taskEntry = new TaskEntry();
@@ -156,17 +193,17 @@ public class ShipRestService implements IShipRestService {
         //发货单的detail
         // TODO: 2016/11/14 回传obd
         List<Long> deliveryIds = new ArrayList<Long>();
-        for(OutbDeliveryHeader header : outbDeliveryHeaders){
+        for (OutbDeliveryHeader header : outbDeliveryHeaders) {
             deliveryIds.add(header.getDeliveryId());
         }
 
         List<OutbDeliveryDetail> deliveryDetails = soDeliveryService.getOutbDeliveryDetailList(deliveryIds);
         Set<Long> orderIds = new HashSet<Long>();
-        for(OutbDeliveryDetail deliveryDetail : deliveryDetails){
+        for (OutbDeliveryDetail deliveryDetail : deliveryDetails) {
             orderIds.add(deliveryDetail.getOrderId());
         }
 
-        for(Long orderId : orderIds) {
+        for (Long orderId : orderIds) {
             ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
             //查询明细。
             List<ObdDetail> obdDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
@@ -191,7 +228,7 @@ public class ShipRestService implements IShipRestService {
 
             List<CreateObdDetail> createObdDetails = new ArrayList<CreateObdDetail>();
 
-            for(ObdDetail detail : soDetails){
+            for (ObdDetail detail : soDetails) {
 
                 ObdOfcItem item = new ObdOfcItem();
 
@@ -199,8 +236,8 @@ public class ShipRestService implements IShipRestService {
 
                 item.setPackNum(detail.getPackUnit());
                 //
-                OutbDeliveryDetail deliveryDetail = soDeliveryService.getOutbDeliveryDetail(orderId,detail.getItemId());
-                if(deliveryDetail == null){
+                OutbDeliveryDetail deliveryDetail = soDeliveryService.getOutbDeliveryDetail(orderId, detail.getItemId());
+                if (deliveryDetail == null) {
                     continue;
                 }
                 BigDecimal outQty = deliveryDetail.getDeliveryNum();
@@ -216,10 +253,9 @@ public class ShipRestService implements IShipRestService {
                 items.add(item);
             }
             request.setDetails(items);
-            if(obdHeader.getOwnerUid() == 1){
+            if (obdHeader.getOwnerUid() == 1) {
                 wuMart.sendSo2Sap(createObdHeader);
-            }
-            else if(obdHeader.getOwnerUid() == 2){
+            } else if (obdHeader.getOwnerUid() == 2) {
                 dataBackService.ofcDataBackByPost(JSON.toJSONString(request), IntegrationConstan.URL_LSHOFC_OBD);
             }
 
