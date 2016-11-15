@@ -8,6 +8,7 @@ import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.tu.ITuOrdersRpcService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.baseinfo.ItemTypeService;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.item.ItemService;
@@ -216,7 +217,8 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
                 container.put("containerId", tuDetail.getMergedContainerId());
                 container.put("packCount", tuDetail.getBoxNum());
                 container.put("turnoverBoxCount", tuDetail.getTurnoverBoxNum());
-                container.put("isRest", tuDetail.getIsExpensive()); //余货(这个逻辑需要)
+                container.put("isRest", tuDetail.getIsRest() == TuConstant.IS_REST); //余货(这个逻辑需要)
+                container.put("isExpensive", tuDetail.getIsExpensive() == TuConstant.IS_EXPENSIVE); //余货(这个逻辑需要)
                 containerList.add(container);
                 //单门店总箱数
                 BigDecimal storeTotalPackCount = (BigDecimal) storeMap.get("storeTotalPackCount");
@@ -237,7 +239,8 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
                 container.put("containerId", tuDetail.getMergedContainerId());
                 container.put("packCount", tuDetail.getBoxNum());
                 container.put("turnoverBoxCount", tuDetail.getTurnoverBoxNum());
-                container.put("isRest", tuDetail.getIsRest()); //余货
+                container.put("isRest", tuDetail.getIsRest() == TuConstant.IS_REST); //余货(这个逻辑需要)
+                container.put("isExpensive", tuDetail.getIsExpensive() == TuConstant.IS_EXPENSIVE); //余货(这个逻辑需要)
                 containerList.add(container);
                 //托盘list
                 storeMap.put("containerList", containerList);
@@ -255,11 +258,11 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
         List<Map<String, Object>> date = new ArrayList<Map<String, Object>>();
         //循环放入list
         for (Long key : stores.keySet()) {
-             Map<String,Object> storeInfoMap = stores.get(key);
+            Map<String, Object> storeInfoMap = stores.get(key);
             date.add(storeInfoMap);
         }
 //        params.put("stores", stores);
-        params.put("stores",date);
+        params.put("stores", date);
         params.put("totalPackCount", totalPackCount);
         params.put("totalTurnoverBoxCount", totalTurnoverBoxCount);
         return params;
