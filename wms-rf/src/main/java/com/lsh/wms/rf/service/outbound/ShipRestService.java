@@ -168,6 +168,7 @@ public class ShipRestService implements IShipRestService {
         tuHead.setStoreIds("");
         tuHead.setCommitedAt(0L);
         tuHead.setLoadedAt(0L);
+        tuHead.setLoadedAt(DateUtils.getCurrentSeconds());  //修改时间
 //        iTuRpcService.create(tuHead);
 
         //装车数据插入
