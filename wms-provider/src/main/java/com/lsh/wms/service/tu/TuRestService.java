@@ -229,7 +229,9 @@ public class TuRestService implements ITuRestService {
                 if (null == waveDetails || waveDetails.size() < 1) {
                     waveDetails = waveService.getAliveDetailsByContainerId(detail.getMergedContainerId());
                 }
-                totalDetails.addAll(waveDetails);
+                if(waveDetails != null) {
+                    totalDetails.addAll(waveDetails);
+                }
             }
             //库存托盘
             Set<Long> containerIds = new HashSet<Long>();
