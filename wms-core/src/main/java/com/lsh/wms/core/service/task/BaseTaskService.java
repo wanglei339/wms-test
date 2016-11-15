@@ -224,6 +224,10 @@ public class BaseTaskService {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("containerId", containerId);
         List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
+        if(taskInfos == null || taskInfos.size() <= 0){
+            return true;
+
+        }
         for (TaskInfo taskInfo : taskInfos) {
             if (!taskInfo.getStatus().equals(TaskConstant.Done) && !taskInfo.getStatus().equals(TaskConstant.Cancel)) {
                 return true;

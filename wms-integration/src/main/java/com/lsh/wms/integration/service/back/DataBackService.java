@@ -117,7 +117,16 @@ public class DataBackService implements IDataBackService {
         //Long sysId = RandomUtils.genId();
         SysLog sysLog = new SysLog();
         //sysLog.setLogId(sysId);
-        sysLog.setLogMessage(orderResponse.getMessage());
+        String message = "";
+        if(orderResponse == null){
+            message = "请求接口无返回";
+        }else{
+            message = orderResponse.getMessage();
+        }
+
+
+
+        sysLog.setLogMessage(message);
         sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_LSHOFC);
         sysLog.setLogType(SysLogConstant.LOG_TYPE_OFC_OBD);
         sysLog.setLogCode(orderResponse.getCode());
