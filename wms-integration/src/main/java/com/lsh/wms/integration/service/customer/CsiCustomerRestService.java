@@ -21,21 +21,34 @@ import java.util.Map;
  */
 @Service(protocol = "rest")
 @Path("customer")
-@Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+@Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-public class CsiCustomerRestService implements ICsiCustomerRestService{
+public class CsiCustomerRestService implements ICsiCustomerRestService {
     @Autowired
     private CsiCustomerService customerService;
 
     @POST
     @Path("getCustomerList")
-    public String getCustomerList(Map<String, Object> mapQuery) throws BizCheckedException{
+    public String getCustomerList(Map<String, Object> mapQuery) throws BizCheckedException {
+        if (null != mapQuery.get("start")) {
+            mapQuery.put("start",Integer.valueOf(mapQuery.get("start").toString()));
+        }
+        if (null != mapQuery.get("limit")) {
+            mapQuery.put("limit",Integer.valueOf(mapQuery.get("limit").toString()));
+        }
+
         return JsonUtils.SUCCESS(customerService.getCustomerList(mapQuery));
     }
 
     @POST
     @Path("getCustomerCount")
-    public String getCustomerCount(Map<String, Object> mapQuery) throws BizCheckedException{
+    public String getCustomerCount(Map<String, Object> mapQuery) throws BizCheckedException {
+        if (null != mapQuery.get("start")) {
+            mapQuery.put("start",Integer.valueOf(mapQuery.get("start").toString()));
+        }
+        if (null != mapQuery.get("limit")) {
+            mapQuery.put("limit",Integer.valueOf(mapQuery.get("limit").toString()));
+        }
         return JsonUtils.SUCCESS(customerService.getCustomerCount(mapQuery));
     }
 }
