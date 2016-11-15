@@ -106,4 +106,8 @@ public class PoRestService implements IPoRestService {
     public String canReceipt() {
         return null;
     }
+
+    public String getStoreInfo(Long orderId, String detailOtherId) {
+        return null;
+    }
 }

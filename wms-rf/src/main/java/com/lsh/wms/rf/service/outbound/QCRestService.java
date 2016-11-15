@@ -138,6 +138,9 @@ public class QCRestService implements IRFQCRestService {
         }
         qcTaskInfo = tasks.get(0);
 
+        //显示qc的进行状态
+        int step = qcTaskInfo.getStep();
+
         if (qcTaskInfo.getStatus() == TaskConstant.Draft) {
             iTaskRpcService.assign(qcTaskInfo.getTaskId(), Long.valueOf(RequestUtils.getHeader("uid")));
         }                                                                               // todo 可以解决 加入任务流状态的标示,根据任务流状态和container取 detail中去取
@@ -254,6 +257,7 @@ public class QCRestService implements IRFQCRestService {
         rstMap.put("qcTaskDone", qcTaskInfo.getStatus() == TaskConstant.Done);
         rstMap.put("qcTaskId", qcTaskInfo.getTaskId().toString());
         rstMap.put("isFristQc", isFirstQC);
+        rstMap.put("step", step);
         return JsonUtils.SUCCESS(rstMap);
     }
 

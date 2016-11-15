@@ -22,6 +22,7 @@ import com.lsh.wms.model.tu.TuDetail;
 import com.lsh.wms.model.tu.TuEntry;
 import com.lsh.wms.model.tu.TuHead;
 import com.lsh.wms.model.wave.WaveDetail;
+import com.sun.javafx.binding.StringFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -308,6 +309,7 @@ public class TuService {
             detail.setIsAlive(0L);
             waveService.updateDetail(detail);
         }
+
         //todo 更新wave有波次,更新波次的状态
 //        this.setStatus(waveHead.getWaveId(), WaveConstant.STATUS_SUCC);
         return true;
