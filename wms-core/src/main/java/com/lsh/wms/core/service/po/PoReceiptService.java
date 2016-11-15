@@ -304,4 +304,21 @@ public class PoReceiptService {
 
         return getInbReceiptDetailList(params);
     }
+
+    /**
+     * 根据OrderId获取List<InbReceiptDetail>
+     * @param receiptId
+     * @return
+     */
+    public InbReceiptDetail getInbReceiptDetailListByReceiptIdAndCode(Long receiptId,String barCode) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("receiptOrderId", receiptId);
+        params.put("barCode",barCode);
+        List<InbReceiptDetail> list = getInbReceiptDetailList(params);
+        if(list.size() <= 0){
+            return null;
+        }
+
+        return list.get(0);
+    }
 }
