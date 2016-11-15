@@ -65,7 +65,6 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
     }
 
     public BaseinfoLocation insertLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException {
-        try {
             //一个通道只能插入两个货架子,加入校验判断
             if (baseinfoLocation.getClassification().equals(LocationConstant.LOFT_SHELF)) {
                 Map<String, Object> mapQuery = new HashMap<String, Object>();
@@ -77,13 +76,7 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
                 }
             }
             locationDetailService.insert(baseinfoLocation);
-        } catch (BizCheckedException e) {
-            throw e;
-        } catch (Exception e) {
-            logger.error(e.getMessage());
             return baseinfoLocation;
-        }
-        return baseinfoLocation;
     }
 
     public BaseinfoLocation updateLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException {

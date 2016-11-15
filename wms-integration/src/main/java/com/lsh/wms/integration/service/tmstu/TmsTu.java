@@ -18,6 +18,7 @@ import com.lsh.wms.core.constant.CustomerConstant;
 import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.tu.TuService;
+import com.lsh.wms.core.service.utils.HttpUtils;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
 import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.tu.TuDetail;
@@ -84,7 +85,7 @@ public class TmsTu implements ITmsTuService {
      */
     public Boolean postTuDetails(String tuId) throws BizCheckedException {
         TuHead tuHead = tuService.getHeadByTuId(tuId);
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, Object> result = new HashMap<String, Object>();
         String responseBody = "";
         if (tuHead == null) {
             throw new BizCheckedException("2990022");
@@ -106,14 +107,15 @@ public class TmsTu implements ITmsTuService {
         result.put("scale", tuHead.getScale().toString());
         result.put("tuDetails", JSON.toJSONString(details));
         String url = PropertyUtils.getString("tms_ship_over_url");
-        int timeout = PropertyUtils.getInt("tms_timeout");
+        /*int timeout = PropertyUtils.getInt("tms_timeout");
         String charset = PropertyUtils.getString("tms_charset");
         Map<String, String> headMap = new HashMap<String, String>();
-        headMap.put("Content-type", "application/x-www-form-urlencoded; charset=utf-8");
-        headMap.put("Accept", "*/*");
+        headMap.put("Content-type", "application/x-www-form-urlencoded; charset=utf-8");*/
+        // headMap.put("Accept", "**/*//*");
         logger.info("[SHIP OVER]Begin to transfer to TMS, " + "URL: " + url + ", Request body: " + JSON.toJSONString(result));
         try {
-            responseBody = HttpClientUtils.post(url, result, timeout, charset, headMap);
+            // responseBody = HttpClientUtils.post(url, result, timeout, charset, headMap);
+            responseBody = HttpUtils.doPostByForm(url, result);
         } catch (Exception e) {
             logger.info("[SHIP OVER]Transfer to TMS failed: " + responseBody);
             return false;
@@ -146,7 +148,7 @@ public class TmsTu implements ITmsTuService {
     public String storeUnloadList() throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("status", 1); // 生效状态的 TODO: 待改为constant
-        mapQuery.put("customerType", CustomerConstant.SUPER_MARKET); // 大店 TODO: 这个地方是字符串,目前数据量小先这样了,理论上应该为数字或者全部取出后遍历
+        mapQuery.put("customerType", CustomerConstant.STORE); // 大店 TODO: 这个地方是字符串,目前数据量小先这样了,理论上应该为数字或者全部取出后遍历
         List<CsiCustomer> customers = csiCustomerService.getCustomerList(mapQuery);
         List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
         for (CsiCustomer customer: customers) {

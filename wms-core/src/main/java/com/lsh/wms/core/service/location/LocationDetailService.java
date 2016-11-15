@@ -1,6 +1,7 @@
 package com.lsh.wms.core.service.location;
 
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.targetlist.*;
@@ -491,7 +492,9 @@ public class LocationDetailService {
     @Transactional(readOnly = false)
     public boolean batchCreateBinsInOneLevel(Map<String, Object> conditionMap) {
         //一层的库位起始code
-        String startCode =conditionMap.get("startCode").toString();
+        String startCode = conditionMap.get("startCode").toString();
+        //一层插入的个数
+        Integer numInOneLevel = Integer.getInteger(conditionMap.get("startCode").toString());
         //拣货位type还是集货位type
         Long type = Long.valueOf(conditionMap.get("type").toString());
         //typeName
@@ -499,7 +502,7 @@ public class LocationDetailService {
         //fatherId
         Long fatherId = Long.valueOf(conditionMap.get("fatherId").toString());
         //fatherType
-        Long fatherType = Long.valueOf(conditionMap.get("fatherType").toString());
+        Long fatherType = Long.valueOf(LocationConstant.LOCATION_CONFIGS.get(type).get("fatherType").toString());
         //体积
         BigDecimal volume = new BigDecimal(conditionMap.get("volume").toString());
         //称重
@@ -508,8 +511,33 @@ public class LocationDetailService {
         Integer zoneType = Integer.valueOf(conditionMap.get("zoneType").toString());
         //可用禁用上没上锁
         Integer isLocked = Integer.valueOf(conditionMap.get("isLocked").toString());
-        //判断插入
+        //当前层
+        Integer curLevel = Integer.valueOf(conditionMap.get("curLevel").toString());
+        //当前区的命名
+        String code = conditionMap.get("regionCode").toString();
+        //第几个货架
+        Integer shelfNum = Integer.valueOf(conditionMap.get("shelfNum").toString());
+        //批量插入
+        for (int i = 1; i <= numInOneLevel; i++) {
 
+            String binCode = code + "-" + shelfNum + "-" + i + "-" + curLevel;
+            BaseinfoLocationBin bin = new BaseinfoLocationBin();
+            bin.setCreatedAt(DateUtils.getCurrentSeconds());
+            bin.setUpdatedAt(DateUtils.getCurrentSeconds());
+            bin.setVolume(volume);
+            bin.setType(type);
+            bin.setTypeName(typeName);
+            bin.setZoneType(zoneType);
+            bin.setIsValid(1);
+            //主表字段
+            bin.setClassification(LocationConstant.CLASSIFICATION_BINS);
+            bin.setCanStore(LocationConstant.CAN_STORE);
+            bin.setContainerVol(1L);
+            bin.setBinPositionNo(new Long(i));
+//            bin.setRegionNo();
+
+
+        }
 
         return false;
 

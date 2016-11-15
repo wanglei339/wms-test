@@ -686,7 +686,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         //查询inbReceiptHeader是否存在 根据托盘查询
         Map<String,Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("containerId",request.getContainerId());
+        Long containerId = request.getContainerId();
+        mapQuery.put("containerId",containerId);
         InbReceiptHeader inbReceiptHeader = poReceiptService.getInbReceiptHeaderByParams(mapQuery);
         if(inbReceiptHeader == null){
             //初始化InbReceiptHeader
@@ -757,6 +758,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 receiveId = receiveHeader.getReceiveId();
             }
 
+
             //设置receiptOrderId
             inbReceiptDetail.setReceiptOrderId(inbReceiptHeader.getReceiptOrderId());
             inbReceiptDetail.setOrderOtherId(ibdHeader.getOrderOtherId());
@@ -781,6 +783,15 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
             //写入InbReceiptDetail中的OrderQty
             inbReceiptDetail.setOrderQty(ibdDetail.getOrderQty());
+
+            //剩余数量存入redis po订单号 托盘码 barcode作为key
+            String qtyKey = StrUtils.formatString(RedisKeyConstant.STORE_QTY,ibdHeader.getOrderId(),containerId,inbReceiptDetail.getBarCode());
+            BigDecimal obdQty = new BigDecimal(redisStringDao.get(qtyKey));
+
+            if(obdQty.compareTo(inbReceiptDetail.getInboundQty()) < 0){
+                throw new BizCheckedException("2022222");
+
+            }
 
             // 判断是否超过订单总数
             BigDecimal poInboundQty = null != ibdDetail.getInboundQty() ? ibdDetail.getInboundQty() : new BigDecimal(0);
