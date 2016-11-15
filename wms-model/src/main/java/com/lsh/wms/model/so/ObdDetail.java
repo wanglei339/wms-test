@@ -22,6 +22,8 @@ public class ObdDetail implements Serializable {
 	private String skuName;
 	/** 订货数 */
 	private BigDecimal orderQty;
+	/** 原始订货数 */
+	private BigDecimal oriOrderQty;
 	/** 基本单位数量 */
 	private BigDecimal unitQty;
 	/** 包装单位 */
@@ -85,6 +87,14 @@ public class ObdDetail implements Serializable {
 
 	public void setOrderQty(BigDecimal orderQty){
 		this.orderQty = orderQty;
+	}
+
+	public BigDecimal getOriOrderQty() {
+		return oriOrderQty;
+	}
+
+	public void setOriOrderQty(BigDecimal oriOrderQty) {
+		this.oriOrderQty = oriOrderQty;
 	}
 
 	public BigDecimal getUnitQty(){

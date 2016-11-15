@@ -12,15 +12,20 @@ import com.lsh.wms.api.model.so.SoRequest;
 import com.lsh.wms.api.service.so.ISoRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.BusiConstant;
+import com.lsh.wms.core.constant.SoConstant;
+import com.lsh.wms.core.service.csi.CsiOwnerService;
+import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.csi.CsiOwner;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -45,6 +50,12 @@ public class SoRpcService implements ISoRpcService {
 
     @Autowired
     private ItemService itemService;
+
+    @Autowired
+    private CsiOwnerService csiOwnerService;
+
+    @Autowired
+    private InventoryRedisService inventoryRedisService;
 
     @Reference
     private ITaskRpcService iTaskRpcService;
@@ -92,6 +103,29 @@ public class SoRpcService implements ISoRpcService {
             obdDetail.setSkuName(baseinfoItemList.get(0).getSkuName());
             //设置新增时间
             obdDetail.setCreatedAt(DateUtils.getCurrentSeconds());
+            //设置订单数量
+            obdDetail.setOriOrderQty(soItem.getOrderQty());
+            CsiOwner owner = csiOwnerService.getOwner(baseinfoItemList.get(0).getOwnerId());
+            if (owner == null) {
+                throw new BizCheckedException("2900008");
+            }
+            if (obdHeader.getOrderType().equals(SoConstant.ORDER_TYPE_DIRECT) ||
+                    owner.getSoCheckStrategy().equals(SoConstant.STOCK_NOT_CHECK)) {
+                // 直流订单或者不需要做库存检查
+                obdDetail.setOriOrderQty(soItem.getOrderQty());
+            } else {
+                Double avQty = inventoryRedisService.getAvailableSkuQty(obdDetail.getItemId());
+                if (avQty.compareTo(obdDetail.getOriOrderQty().doubleValue()) <= 0 ) {
+                    if (owner.getSoCheckStrategy().equals(SoConstant.STOCK_HARD_CHECK)) {
+                        throw new BizCheckedException("2900009");
+                    }
+                    if (owner.getSoCheckStrategy().equals(SoConstant.STOCK_SOFT_CHECK)) {
+                        obdDetail.setOrderQty(new BigDecimal(avQty));
+                    }
+                } else {
+                    obdDetail.setOriOrderQty(soItem.getOrderQty());
+                }
+            }
 
             obdDetailList.add(obdDetail);
         }

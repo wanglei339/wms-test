@@ -3,7 +3,7 @@ package com.lsh.wms.core.service.tu;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
-import com.lsh.wms.core.constant.WaveConstant;
+import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.core.dao.tu.TuDetailDao;
 import com.lsh.wms.core.dao.tu.TuHeadDao;
 import com.lsh.wms.core.service.item.ItemService;
@@ -55,6 +55,8 @@ public class TuService {
     private SoDeliveryService soDeliveryService;
     @Autowired
     private SoOrderService soOrderService;
+    @Autowired
+    private InventoryRedisService inventoryRedisService;
 
     @Transactional(readOnly = false)
     public void create(TuHead head) {
@@ -308,6 +310,8 @@ public class TuService {
             detail.setIsAlive(0L);
             waveService.updateDetail(detail);
         }
+        // 调用库存同步服务
+        inventoryRedisService.onDelivery(totalWaveDetails);
         //todo 更新wave有波次,更新波次的状态
 //        this.setStatus(waveHead.getWaveId(), WaveConstant.STATUS_SUCC);
         return true;

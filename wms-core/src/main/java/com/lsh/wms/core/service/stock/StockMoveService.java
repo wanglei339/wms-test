@@ -115,36 +115,40 @@ public class StockMoveService {
 
     @Transactional(readOnly = false)
     public void move(List<StockMove> moveList) throws BizCheckedException {
-        SortedSet<Long> locationSet = new TreeSet<Long>();
+//        SortedSet<Long> locationSet = new TreeSet<Long>();
+//        for (StockMove move : moveList) {
+//            locationSet.add(move.getFromLocationId());
+//        }
+//        for (Long locationId : locationSet) {
+//            locationService.lockLocationById(locationId);
+//        }
+//        for (StockMove move : moveList) {
+//            if (move.getQty().compareTo(BigDecimal.ZERO) <= 0) {
+//                continue;
+//            }
+//            this.create(move);
+//            if (move.getLot() == null) {
+//                quantService.move(move);
+//            } else {
+//                this.move(move, move.getLot());
+//            }
+//        }
         for (StockMove move : moveList) {
-            locationSet.add(move.getFromLocationId());
+            this.move(move);
         }
-        for (Long locationId : locationSet) {
-            locationService.lockLocationById(locationId);
-        }
-        for (StockMove move : moveList) {
-            if (move.getQty().compareTo(BigDecimal.ZERO) <= 0) {
-                continue;
-            }
-            this.create(move);
-            if (move.getLot() == null) {
-                quantService.move(move);
-            } else {
-                this.move(move, move.getLot());
-            }
-        }
-    }
+     }
     @Transactional(readOnly = false)
     public void move(StockMove move) throws BizCheckedException {
-            if (move.getQty().compareTo(BigDecimal.ZERO) <= 0) {
-                return;
-            }
-            this.create(move);
-            if (move.getLot() == null) {
-                quantService.move(move);
-            } else {
-                this.move(move, move.getLot());
-            }
+        if (move.getQty().compareTo(BigDecimal.ZERO) <= 0) {
+            return;
+        }
+        locationService.lockLocationById(move.getFromLocationId());
+        this.create(move);
+        if (move.getLot() == null) {
+            quantService.move(move);
+        } else {
+            this.move(move, move.getLot());
+        }
     }
 
     @Transactional(readOnly = false)

@@ -11,6 +11,7 @@
 		<result property="skuCode" column="sku_code"/>
 		<result property="skuName" column="sku_name"/>
 		<result property="orderQty" column="order_qty"/>
+		<result property="oriOrderQty" column="ori_order_qty"/>
 		<result property="unitQty" column="unit_qty"/>
 		<result property="packUnit" column="pack_unit"/>
 		<result property="packName" column="pack_name"/>
@@ -23,11 +24,11 @@
 
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="ObdDetail">
 		insert into obd_detail (
-		detail_other_id,order_id,item_id,sku_id,sku_code,sku_name,order_qty,unit_qty,
+		detail_other_id,order_id,item_id,sku_id,sku_code,sku_name,order_qty,ori_order_qty,unit_qty,
 		pack_unit,pack_name,unit_name,price,lot_code,created_at,
 		updated_at
 		) values (
-		#{detailOtherId},#{orderId},#{itemId},#{skuId},#{skuCode},#{skuName},#{orderQty},#{unitQty},
+		#{detailOtherId},#{orderId},#{itemId},#{skuId},#{skuCode},#{skuName},#{orderQty},#{oriOrderQty},#{unitQty},
 		#{packUnit},#{packName},#{unitName},#{price},#{lotCode},#{createdAt},
 		#{updatedAt}
 		)
@@ -35,12 +36,12 @@
 
 	<insert id="batchInsert" parameterType="java.util.List">
 		insert into obd_detail (
-		detail_other_id,order_id,item_id,sku_id,sku_code,sku_name,order_qty,unit_qty,
+		detail_other_id,order_id,item_id,sku_id,sku_code,sku_name,order_qty,ori_order_qty,unit_qty,
 		pack_unit,pack_name,unit_name,price,lot_code,created_at,
 		updated_at
 		) values
 		<foreach collection="list" item="item" index="index" separator="," >
-			(#{item.detailOtherId},#{item.orderId},#{item.itemId},#{item.skuId},#{item.skuCode},#{item.skuName},#{item.orderQty},#{item.unitQty},
+			(#{item.detailOtherId},#{item.orderId},#{item.itemId},#{item.skuId},#{item.skuCode},#{item.skuName},#{item.orderQty},#{item.oriOrderQty},#{item.unitQty},
 			#{item.packUnit},#{item.packName},#{item.unitName},#{item.price},#{item.lotCode},#{item.createdAt},#{item.updatedAt})
 		</foreach>
 	</insert>
@@ -55,6 +56,7 @@
 			<if test="skuCode != null">sku_code=#{skuCode},</if>
 			<if test="skuName != null">sku_name=#{skuName},</if>
 			<if test="orderQty != null">order_qty=#{orderQty},</if>
+			<if test="oriOrderQty != null">ori_order_qty=#{oriOrderQty},</if>
 			<if test="unitQty != null">unit_qty=#{unitQty},</if>
 			<if test="packUnit != null">pack_unit=#{packUnit},</if>
 			<if test="packName != null">pack_name=#{packName},</if>
@@ -95,6 +97,7 @@
 			<if test="skuCode != null">and sku_code=#{skuCode}</if>
 			<if test="skuName != null">and sku_name=#{skuName}</if>
 			<if test="orderQty != null">and order_qty=#{orderQty}</if>
+			<if test="oriOrderQty != null">and ori_order_qty=#{oriOrderQty}</if>
 			<if test="unitQty != null">and unit_qty=#{unitQty}</if>
 			<if test="packUnit != null">and pack_unit=#{packUnit}</if>
 			<if test="packName != null">and pack_name=#{packName}</if>

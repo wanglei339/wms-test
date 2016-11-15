@@ -1194,10 +1194,11 @@ public class LocationService {
 
     @Transactional(readOnly = false)
     public void lockLocationById(Long locationId) {
-        if (null == this.getLocation(locationId)) {
+        BaseinfoLocation location = this.getLocation(locationId);
+        if (null == location) {
             throw new BizCheckedException("2180002");
         }
-        locationDao.lock(locationId);
+        locationDao.lock(location.getId());
     }
 
     @Transactional(readOnly = false)
