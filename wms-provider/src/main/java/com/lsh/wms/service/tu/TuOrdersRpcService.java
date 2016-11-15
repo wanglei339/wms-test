@@ -83,7 +83,7 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
         Map<String, Set<Long>> storeNoToDeliveryId = new HashMap<String, Set<Long>>();
         Map<String, Long> storeNo2OwnerId = new HashMap<String, Long>();
         for (OutbDeliveryDetail oudd : outbDeliveryDetailList) {
-            //根据订单ID获取店铺ID
+            //根据订单ID获取店铺no
             ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(oudd.getOrderId());
             if (obdHeader == null) {
                 continue;
@@ -102,20 +102,27 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
         }
 
         //获取并封装店铺信息
+        //storeid key
         Map<String, Map<String, Object>> storeInfoMap = new HashMap<String, Map<String, Object>>();
         for (String storeNo : storeNoSet) {
             CsiCustomer customer = csiCustomerService.getCustomerByCustomerCode(storeNo2OwnerId.get(storeNo), storeNo);
             Map<String, Object> storeMap = new HashMap<String, Object>();
             storeMap.put("storeNo", storeNo);
             String storeId = "";
-            String storeName = customer == null ? "" : customer.getCustomerName();
+            if(customer == null){
+
+                storeMap.put("storeName", "");
+            }else{
+                storeId = customer.getCustomerId()+"";
+                storeMap.put("storeName", customer.getCustomerName());
+            }
             storeMap.put("storeId", storeId);
-            storeMap.put("storeName", storeName);
+
             storeInfoMap.put(storeId, storeMap);
         }
 
         List<TuDetail> tuDetailList = iTuRpcService.getTuDeailListByTuId(tuId);
-        //统计店铺其他数据
+        //统计店铺其他数据 , 以店铺ID 进行统计
         Map<String, Map<String, BigDecimal>> storeInfoCountMap = new HashMap<String, Map<String, BigDecimal>>();
         for (TuDetail td : tuDetailList) {
             String storeId = String.valueOf(td.getStoreId());
