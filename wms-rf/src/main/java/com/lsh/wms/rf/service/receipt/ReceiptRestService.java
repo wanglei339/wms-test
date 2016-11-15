@@ -378,6 +378,8 @@ public class ReceiptRestService implements IReceiptRfService {
         BigDecimal orderQty = ibdDetail.getOrderQty().subtract(ibdDetail.getInboundQty());
         orderInfoMap.put("orderQty", orderQty);// todo 剩余待收货数
         orderInfoMap.put("batchNeeded", baseinfoItem.getBatchNeeded());
+        //码盘规则
+        orderInfoMap.put("pile",baseinfoItem.getPileX()+ "*" + baseinfoItem.getPileY() + "*" + baseinfoItem.getPileZ());
 
         return JsonUtils.SUCCESS(orderInfoMap);
     }
@@ -678,6 +680,7 @@ public class ReceiptRestService implements IReceiptRfService {
                     map2.put("orderQty",obdDetail.getOrderQty());
                     map2.put("packName",ibdDetail.getPackName());
                     map2.put("packUnit",ibdDetail.getPackUnit());
+                    map2.put("pile",baseinfoItem.getPileX()+ "*" + baseinfoItem.getPileY() + "*" + baseinfoItem.getPileZ());
 
                     //将obdorderId存入redis
                     String key=StrUtils.formatString(RedisKeyConstant.PO_STORE,ibdHeader.getOrderId(),storeId);
