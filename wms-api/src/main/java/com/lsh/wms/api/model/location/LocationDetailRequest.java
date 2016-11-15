@@ -134,6 +134,16 @@ public class LocationDetailRequest implements Serializable {
      * 用途，0-进货，1-出货
      */
     private Integer dockApplication;
+
+    private Integer regionStrategy=0;
+
+    public Integer getRegionStrategy() {
+        return regionStrategy;
+    }
+
+    public void setRegionStrategy(Integer regionStrategy) {
+        this.regionStrategy = regionStrategy;
+    }
     //==============================================通道和码头共有direction,插入操作可以用type区分
     /**
      * 方位，0-东，1-南，2-西，3-北
