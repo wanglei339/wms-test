@@ -746,12 +746,16 @@ public class LocationService {
         for (BaseinfoLocation temp : locations) {
             //存货位,为空没上锁
             if (temp.getType().equals(type) && this.shelfBinLocationIsEmptyAndUnlock(temp)) {
-                //放入location和距离
-                Long distance = (temp.getBinPositionNo() - pickingLocation.getBinPositionNo()) * (temp.getBinPositionNo() - pickingLocation.getBinPositionNo()) + (temp.getShelfLevelNo() - pickingLocation.getShelfLevelNo()) * (temp.getShelfLevelNo() - pickingLocation.getShelfLevelNo());
-                Map<String, Object> distanceMap = new HashMap<String, Object>();
-                distanceMap.put("location", temp);
-                distanceMap.put("distance", distance);
-                storeBinDistanceList.add(distanceMap);
+                // 考虑库存,无库存的货架位才能放入商品
+                List<StockQuant> quants = stockQuantService.getQuantsByLocationId(temp.getLocationId());
+                if (quants.size() < 1) {
+                    //放入location和距离
+                    Long distance = (temp.getBinPositionNo() - pickingLocation.getBinPositionNo()) * (temp.getBinPositionNo() - pickingLocation.getBinPositionNo()) + (temp.getShelfLevelNo() - pickingLocation.getShelfLevelNo()) * (temp.getShelfLevelNo() - pickingLocation.getShelfLevelNo());
+                    Map<String, Object> distanceMap = new HashMap<String, Object>();
+                    distanceMap.put("location", temp);
+                    distanceMap.put("distance", distance);
+                    storeBinDistanceList.add(distanceMap);
+                }
             }
         }
         //遍历距离的list,根据map的ditance的取出最小的
