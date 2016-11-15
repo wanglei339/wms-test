@@ -50,6 +50,9 @@ public class InbReceiptDetail implements Serializable {
     private Date inserttime;
 	/**  */
     private Date updatetime;
+	/**是否例外收货 1是 2否 默认不是例外收货*/
+	private Integer isException = 2;
+
 
 
 	public BigDecimal getArriveNum() {
@@ -228,4 +231,11 @@ public class InbReceiptDetail implements Serializable {
 		this.packName = packName;
 	}
 
+	public Integer getIsException() {
+		return isException;
+	}
+
+	public void setIsException(Integer isException) {
+		this.isException = isException;
+	}
 }

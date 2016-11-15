@@ -27,6 +27,8 @@ public class BaseinfoLocationRegion extends BaseinfoLocation implements Serializ
 	private Long ownerid;
 	/** 是否可用1可用，0删除 */
 	private Integer isValid;
+	/** 区域策略 */
+	private Integer regionStrategy=0;
 
 	@Override
 	public Long getType() {
@@ -110,5 +112,13 @@ public class BaseinfoLocationRegion extends BaseinfoLocation implements Serializ
 	@Override
 	public void setIsValid(Integer isValid) {
 		this.isValid = isValid;
+	}
+
+	public Integer getRegionStrategy() {
+		return regionStrategy;
+	}
+
+	public void setRegionStrategy(Integer regionStrategy) {
+		this.regionStrategy = regionStrategy;
 	}
 }

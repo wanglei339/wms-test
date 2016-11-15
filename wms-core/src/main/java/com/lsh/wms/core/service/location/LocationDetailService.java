@@ -508,7 +508,6 @@ public class LocationDetailService {
         Integer zoneType = Integer.valueOf(conditionMap.get("zoneType").toString());
         //可用禁用上没上锁
         Integer isLocked = Integer.valueOf(conditionMap.get("isLocked").toString());
-
         //判断插入
 
 
