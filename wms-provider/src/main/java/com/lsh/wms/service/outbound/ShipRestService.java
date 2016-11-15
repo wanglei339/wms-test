@@ -5,16 +5,21 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.model.so.ObdOfcBackRequest;
 import com.lsh.wms.api.model.so.ObdOfcItem;
+import com.lsh.wms.api.model.wumart.CreateObdDetail;
+import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.back.IDataBackService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.api.service.wave.IShipRestService;
+import com.lsh.wms.api.service.wumart.IWuMart;
 import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
@@ -71,6 +76,9 @@ public class ShipRestService implements IShipRestService {
     @Reference
     private IDataBackService dataBackService;
 
+    @Reference
+    private IWuMart wuMart;
+
     /**
      * 波次的发货操作
      * 1.托盘 2.销库存 3.生成发货单 4.todo 回传物美obd
@@ -95,6 +103,7 @@ public class ShipRestService implements IShipRestService {
             throw new BizCheckedException("2990041");
         }
         Set<Long> totalContainers = new HashSet<Long>();
+        Map<Long, Object> containerInfo = new HashMap<Long, Object>();
         List<WaveDetail> totalWaveDetails = new ArrayList<WaveDetail>();
         for (TuDetail detail : details) {
             Long containerId = detail.getMergedContainerId();
@@ -104,7 +113,43 @@ public class ShipRestService implements IShipRestService {
             }
             totalWaveDetails.addAll(waveDetails);
             totalContainers.add(containerId);
+            //在库不组盘
+            Map<String, Object> containerMap = new HashMap<String, Object>();
+            containerMap.put("boxNum", detail.getBoxNum());
+            containerMap.put("turnoverBoxNum", detail.getTurnoverBoxNum());
+            containerInfo.put(containerId, containerMap);
         }
+
+        //结果集里按照orderId聚类托盘,给出箱子数
+        Map<Long, Set<Long>> orderContainerSet = new HashMap<Long, Set<Long>>();
+        for (WaveDetail waveDetail : totalWaveDetails) {
+            if (orderContainerSet.containsKey(waveDetail.getOrderId())) {
+                orderContainerSet.get(waveDetail.getOrderId()).add(waveDetail.getContainerId());
+            } else {
+                Set<Long> contaienrIds = new HashSet<Long>();
+                contaienrIds.add(waveDetail.getContainerId());
+                orderContainerSet.put(waveDetail.getOrderId(), contaienrIds);
+            }
+        }
+        //封装so单子和箱子数
+        Map<Long, Map<String, Object>> orderBoxInfo = new HashMap<Long, Map<String, Object>>();
+        //按照
+        for (Long key : orderContainerSet.keySet()) {
+
+            Set<Long> containersInOneOrder = orderContainerSet.get(key);
+            BigDecimal boxNum = new BigDecimal("0");
+            Long turnoverBoxNum = 0L;
+            for (Long one : containersInOneOrder) {
+                Map<String, Object> oneContainer = (Map<String, Object>) containerInfo.get(one);
+                boxNum = boxNum.add(new BigDecimal(oneContainer.get("boxNum").toString()));
+                turnoverBoxNum += Long.valueOf(oneContainer.get("turnoverBoxNum").toString());
+            }
+            Map<String,Object> orderBoxMap = new HashMap<String, Object>();
+            orderBoxMap.put("boxNum", boxNum);
+            orderBoxMap.put("turnoverBoxNum", turnoverBoxNum);
+            orderBoxInfo.put(key, orderBoxMap);
+        }
+
 
         //创建发货任务
         TaskEntry taskEntry = new TaskEntry();
@@ -148,55 +193,73 @@ public class ShipRestService implements IShipRestService {
         //发货单的detail
         // TODO: 2016/11/14 回传obd
         List<Long> deliveryIds = new ArrayList<Long>();
-        for(OutbDeliveryHeader header : outbDeliveryHeaders){
+        for (OutbDeliveryHeader header : outbDeliveryHeaders) {
             deliveryIds.add(header.getDeliveryId());
         }
 
         List<OutbDeliveryDetail> deliveryDetails = soDeliveryService.getOutbDeliveryDetailList(deliveryIds);
         Set<Long> orderIds = new HashSet<Long>();
-        for(OutbDeliveryDetail deliveryDetail : deliveryDetails){
+        for (OutbDeliveryDetail deliveryDetail : deliveryDetails) {
             orderIds.add(deliveryDetail.getOrderId());
         }
 
-        for(Long orderId : orderIds) {
+        for (Long orderId : orderIds) {
             ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
             //查询明细。
             List<ObdDetail> obdDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
             // TODO: 2016/9/23  组装OBD反馈信息 根据货主区分回传lsh或物美
-            if (obdHeader.getOwnerUid() == 1) {
 
-            }else if(obdHeader.getOwnerUid() == 2){
-                //组装OBD反馈信息
-                ObdOfcBackRequest request = new ObdOfcBackRequest();
-                Date date = new Date();
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                String now = sdf.format(date);
-                request.setWms(2);//该字段写死 2
-                request.setDeliveryTime(now);
-                request.setObdCode(obdHeader.getOrderId().toString());
-                request.setSoCode(obdHeader.getOrderOtherId());
-                //查询明细。
-                List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
-                List<ObdOfcItem> items = new ArrayList<ObdOfcItem>();
+            //组装ofc OBD反馈信息
+            ObdOfcBackRequest request = new ObdOfcBackRequest();
+            Date date = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String now = sdf.format(date);
+            request.setWms(2);//该字段写死 2
+            request.setDeliveryTime(now);
+            request.setObdCode(obdHeader.getOrderId().toString());
+            request.setSoCode(obdHeader.getOrderOtherId());
 
-                for(ObdDetail detail : soDetails){
+            //组装物美反馈信息
+            CreateObdHeader createObdHeader = new CreateObdHeader();
+            createObdHeader.setOrderOtherId(obdHeader.getOrderOtherId());
+            //查询明细。
+            List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
+            List<ObdOfcItem> items = new ArrayList<ObdOfcItem>();
 
-                    ObdOfcItem item = new ObdOfcItem();
-                    item.setPackNum(detail.getPackUnit());
-                    //
-                    OutbDeliveryDetail deliveryDetail = soDeliveryService.getOutbDeliveryDetail(orderId,detail.getItemId());
-                    if(deliveryDetail == null){
-                        continue;
-                    }
-                    BigDecimal outQty = deliveryDetail.getDeliveryNum();
-                    item.setSkuQty(outQty);
-                    item.setSupplySkuCode(detail.getSkuCode());
-                    items.add(item);
+            List<CreateObdDetail> createObdDetails = new ArrayList<CreateObdDetail>();
 
+            for (ObdDetail detail : soDetails) {
+
+                ObdOfcItem item = new ObdOfcItem();
+
+                CreateObdDetail createObdDetail = new CreateObdDetail();
+
+                item.setPackNum(detail.getPackUnit());
+                //
+                OutbDeliveryDetail deliveryDetail = soDeliveryService.getOutbDeliveryDetail(orderId, detail.getItemId());
+                if (deliveryDetail == null) {
+                    continue;
                 }
-                request.setDetails(items);
-                return dataBackService.ofcDataBackByPost(JSON.toJSONString(request), IntegrationConstan.URL_LSHOFC_OBD);
+                BigDecimal outQty = deliveryDetail.getDeliveryNum();
+                item.setSkuQty(outQty);
+
+                //ea转换为包装数量。
+                createObdDetail.setDlvQty(outQty.divide(detail.getPackUnit()));
+                createObdDetail.setRefItem(detail.getDetailOtherId());
+                createObdDetail.setMaterial(detail.getSkuCode());
+                createObdDetails.add(createObdDetail);
+
+                item.setSupplySkuCode(detail.getSkuCode());
+                items.add(item);
             }
+            request.setDetails(items);
+            if (obdHeader.getOwnerUid() == 1) {
+                wuMart.sendSo2Sap(createObdHeader);
+            } else if (obdHeader.getOwnerUid() == 2) {
+                dataBackService.ofcDataBackByPost(JSON.toJSONString(request), IntegrationConstan.URL_LSHOFC_OBD);
+            }
+
+
         }
 
 
@@ -205,6 +268,10 @@ public class ShipRestService implements IShipRestService {
         for (WaveDetail detail : totalWaveDetails) {
             waveIds.add(detail.getWaveId());
         }
+        //设置发货人和发货时间
+        tuHead.setDeliveryAt(DateUtils.getCurrentSeconds());
+        tuHead.setStatus(TuConstant.SHIP_OVER);
+        iTuRpcService.update(tuHead);
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("response", true);
         return JsonUtils.SUCCESS(result);

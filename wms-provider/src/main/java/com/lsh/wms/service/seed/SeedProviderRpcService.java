@@ -14,6 +14,7 @@ import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.container.ContainerService;
+import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
@@ -23,6 +24,7 @@ import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
@@ -84,6 +86,8 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
     SeedTaskHeadService seedTaskHeadService;
     @Reference
     private ITaskRpcService iTaskRpcService;
+    @Autowired
+    CsiCustomerService csiCustomerService;
 
     public Long getTask( Map<String, Object> mapQuery) throws BizCheckedException{
         String orderId = mapQuery.get("orderId").toString().trim();
@@ -188,10 +192,11 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
         BaseinfoItem item = itemService.getItem(ibdHeader.getOwnerUid(), sku.getSkuId());
 
         Map<String,Long> storeMap = new HashMap<String, Long>();
-        List<BaseinfoLocation> storeList = locationRpcService.sortSowLocationByStoreNo();
+        List<CsiCustomer> storeList = csiCustomerService.getCustomerList(new HashMap<String, Object>());
         if(storeList!=null && storeList.size()!=0) {
             for (int i = 0; i < storeList.size(); i++) {
-                storeMap.put(storeList.get(i).getStoreNo(), Long.valueOf(i));
+                CsiCustomer csiCustomer = storeList.get(i);
+                storeMap.put(csiCustomer.getCustomerCode(), csiCustomer.getSeedQueue());
             }
         }
 
@@ -234,6 +239,7 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
             info.setItemId(item.getItemId());
             info.setSkuId(sku.getSkuId());
             info.setOrderId(orderId);
+            info.setOwnerId(ibdHeader.getOwnerUid());
             info.setPackUnit(item.getPackUnit());
             info.setType(TaskConstant.TYPE_SEED);
             info.setPackName(item.getPackName());

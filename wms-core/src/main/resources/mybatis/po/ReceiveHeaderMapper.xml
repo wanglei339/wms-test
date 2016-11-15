@@ -70,6 +70,7 @@
 	<select id="getReceiveHeaderList" parameterType="map" resultMap="receiveHeaderResultMap">
 		select * from receive_header
 		<include refid="queryCondition"/>
+		order by id desc
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
 		</if>

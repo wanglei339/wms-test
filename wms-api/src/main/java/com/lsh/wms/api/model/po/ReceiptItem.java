@@ -57,13 +57,18 @@ public class ReceiptItem implements Serializable {
 
     /** 生产日期 */
     //@NotNull
-    private Date proTime = new Date() ;// TODO: 16/11/12 生产日期直流根据配置判断是否要输入
+    //不允许赋默认值
+    private Date proTime;// TODO: 16/11/12 生产日期直流根据配置判断是否要输入
 
     /** 到期日期 */
-    private Date dueTime  = new Date();// TODO: 16/11/11 新增
+    //不允许赋默认值
+    private Date dueTime;// TODO: 16/11/11 新增
 
     /**例外代码*/
     private String exceptionCode = "";// TODO: 16/11/11 新增
+
+    /**是否例外收货 1是 2否 默认不是例外收货*/
+    private Integer isException = 2;
 
     /** 拒收原因 */
     @Size(max=100)
@@ -76,12 +81,14 @@ public class ReceiptItem implements Serializable {
 
     }
 
-    public ReceiptItem(BigDecimal unitQty, BigDecimal arriveNum, String barCode, BigDecimal defectNum, BigDecimal inboundQty, String lotNum, String madein, Long orderId, String packName, BigDecimal packUnit, Date proTime,Date dueTime, String refuseReason, Long skuId, String skuName,String exceptionCode) {
-        this.unitQty = unitQty;
+    public ReceiptItem(BigDecimal arriveNum, String barCode, BigDecimal defectNum, Date dueTime, String exceptionCode, BigDecimal inboundQty, Integer isException, String lotNum, String madein, Long orderId, String packName, BigDecimal packUnit, Date proTime, String refuseReason, Long skuId, String skuName, BigDecimal unitQty) {
         this.arriveNum = arriveNum;
         this.barCode = barCode;
         this.defectNum = defectNum;
+        this.dueTime = dueTime;
+        this.exceptionCode = exceptionCode;
         this.inboundQty = inboundQty;
+        this.isException = isException;
         this.lotNum = lotNum;
         this.madein = madein;
         this.orderId = orderId;
@@ -91,8 +98,7 @@ public class ReceiptItem implements Serializable {
         this.refuseReason = refuseReason;
         this.skuId = skuId;
         this.skuName = skuName;
-        this.exceptionCode =exceptionCode;
-        this.dueTime=dueTime;
+        this.unitQty = unitQty;
     }
 
     public BigDecimal getArriveNum() {
@@ -119,12 +125,36 @@ public class ReceiptItem implements Serializable {
         this.defectNum = defectNum;
     }
 
+    public Date getDueTime() {
+        return dueTime;
+    }
+
+    public void setDueTime(Date dueTime) {
+        this.dueTime = dueTime;
+    }
+
+    public String getExceptionCode() {
+        return exceptionCode;
+    }
+
+    public void setExceptionCode(String exceptionCode) {
+        this.exceptionCode = exceptionCode;
+    }
+
     public BigDecimal getInboundQty() {
         return inboundQty;
     }
 
     public void setInboundQty(BigDecimal inboundQty) {
         this.inboundQty = inboundQty;
+    }
+
+    public Integer getIsException() {
+        return isException;
+    }
+
+    public void setIsException(Integer isException) {
+        this.isException = isException;
     }
 
     public String getLotNum() {
@@ -205,21 +235,5 @@ public class ReceiptItem implements Serializable {
 
     public void setUnitQty(BigDecimal unitQty) {
         this.unitQty = unitQty;
-    }
-
-    public String getExceptionCode() {
-        return exceptionCode;
-    }
-
-    public void setExceptionCode(String exceptionCode) {
-        this.exceptionCode = exceptionCode;
-    }
-
-    public Date getDueTime() {
-        return dueTime;
-    }
-
-    public void setDueTime(Date dueTime) {
-        this.dueTime = dueTime;
     }
 }

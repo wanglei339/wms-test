@@ -312,14 +312,15 @@ public class IbdService implements IIbdService {
 //        return ibdBackService.createOrderByPost(request, IntegrationConstan.URL_OBD);
 
 
-        ObdHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(76978698850361L);
+        ObdHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(175578263067222L);
         //组装OBD反馈信息
         ObdOfcBackRequest request = new ObdOfcBackRequest();
         request.setDeliveryTime("2016-09-20");
         request.setObdCode(soHeader.getOrderId().toString());
         request.setSoCode(soHeader.getOrderOtherId());
+        request.setWms(2);
         //查询明细。
-        List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(76978698850361L);
+        List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(175578263067222L);
         List<ObdOfcItem> items = new ArrayList<ObdOfcItem>();
 
         for(ObdDetail detail : soDetails){
@@ -351,17 +352,17 @@ public class IbdService implements IIbdService {
 //        date.setDay(calendar.get(Calendar.DATE));
 //        date.setMonth(calendar.get(Calendar.MONTH));
 //        header.setDeliveDate(date);
-        List<CreateIbdDetail> details = new ArrayList<CreateIbdDetail>();
-
-        CreateIbdDetail detail = new CreateIbdDetail();
-        detail.setDeliveQty(new BigDecimal("2.000"));
-        detail.setPoItme("10");
-        detail.setPoNumber("4500027501");
-        detail.setUnit("EA");
-        //detail.setMaterial("000000000000110978");
-        detail.setOrderType(4);
-        detail.setVendMat("222222");
-        details.add(detail);
+//        List<CreateIbdDetail> details = new ArrayList<CreateIbdDetail>();
+//
+//        CreateIbdDetail detail = new CreateIbdDetail();
+//        detail.setDeliveQty(new BigDecimal("2.000"));
+//        detail.setPoItme("10");
+//        detail.setPoNumber("4500027501");
+//        detail.setUnit("EA");
+//        //detail.setMaterial("000000000000110978");
+//        detail.setOrderType(4);
+//        detail.setVendMat("222222");
+//        details.add(detail);
 
 //        CreateIbdDetail detail1 = new CreateIbdDetail();
 //        detail1.setDeliveQty(new BigDecimal("1.000"));
@@ -381,8 +382,9 @@ public class IbdService implements IIbdService {
 //        detail.setOrderType(1);
 //        details.add(detail2);
 
-        header.setItems(details);
-        wuMartSap.ibd2Sap(header);
+//        header.setItems(details);
+//        wuMartSap.ibd2Sap(header);
+        wuMartSap.soObd2Sap(new CreateObdHeader());
         return "";
         //return wuMartSap.ibd2SapAccount(header,null);
         //wuMart.sendIbd(header);
@@ -435,6 +437,12 @@ public class IbdService implements IIbdService {
         //return wuMartSap.obd2SapAccount(header);
         return "success";
 
+    }
+
+    public static void main(String[] args) {
+        String str = "00000010";
+        String newStr = str.replaceAll("^(0+)", "");
+        System.out.println(newStr);
     }
 
 

@@ -4,14 +4,16 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.q.Module.Base;
+import com.lsh.wms.core.constant.CustomerConstant;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.StoreConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
+import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.stock.StockQuantService;
-import com.lsh.wms.core.service.store.StoreService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
+import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.stock.StockQuant;
 import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
@@ -39,7 +41,7 @@ public class LocationService {
     @Autowired
     private LocationRedisService locationRedisService;
     @Autowired
-    private StoreService storeService;
+    private CsiCustomerService csiCustomerService;
 
 
     /**
@@ -744,12 +746,16 @@ public class LocationService {
         for (BaseinfoLocation temp : locations) {
             //存货位,为空没上锁
             if (temp.getType().equals(type) && this.shelfBinLocationIsEmptyAndUnlock(temp)) {
-                //放入location和距离
-                Long distance = (temp.getBinPositionNo() - pickingLocation.getBinPositionNo()) * (temp.getBinPositionNo() - pickingLocation.getBinPositionNo()) + (temp.getShelfLevelNo() - pickingLocation.getShelfLevelNo()) * (temp.getShelfLevelNo() - pickingLocation.getShelfLevelNo());
-                Map<String, Object> distanceMap = new HashMap<String, Object>();
-                distanceMap.put("location", temp);
-                distanceMap.put("distance", distance);
-                storeBinDistanceList.add(distanceMap);
+                // 考虑库存,无库存的货架位才能放入商品
+                List<StockQuant> quants = stockQuantService.getQuantsByLocationId(temp.getLocationId());
+                if (quants.size() < 1) {
+                    //放入location和距离
+                    Long distance = (temp.getBinPositionNo() - pickingLocation.getBinPositionNo()) * (temp.getBinPositionNo() - pickingLocation.getBinPositionNo()) + (temp.getShelfLevelNo() - pickingLocation.getShelfLevelNo()) * (temp.getShelfLevelNo() - pickingLocation.getShelfLevelNo());
+                    Map<String, Object> distanceMap = new HashMap<String, Object>();
+                    distanceMap.put("location", temp);
+                    distanceMap.put("distance", distance);
+                    storeBinDistanceList.add(distanceMap);
+                }
             }
         }
         //遍历距离的list,根据map的ditance的取出最小的
@@ -1334,27 +1340,27 @@ public class LocationService {
 
     /**
      * 查找指定门店号的集货位置,集货道|集货位
-     *
+     *  todo 放入集货道
      * @param storeNo
      * @return
      */
     public List<BaseinfoLocation> getCollectionByStoreNo(String storeNo) throws BizCheckedException {
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-        List<BaseinfoStore> storeList = storeService.getStoreIdByCode(storeNo);
-        if (null == storeList || storeList.size() < 1) {
-            throw new BizCheckedException("2180012");
-        }
-        BaseinfoStore store = storeList.get(0);
-        if (StoreConstant.SCALE_STORE.equals(store.getScale())) { //小店
-            mapQuery.put("type", LocationConstant.COLLECTION_BIN);
-
-        } else {
-            mapQuery.put("type", LocationConstant.COLLECTION_ROAD);
-        }
+        //CsiCustomer csiCustomer = csiCustomerService.getCustomerByCustomerCode(ownerId,storeNo);
+        //if (null == csiCustomer) {
+        //    throw new BizCheckedException("2180012");
+        //}
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        //if (CustomerConstant.STORE.equals(csiCustomer.getCustomerType())) { //小店
+        //    mapQuery.put("type", LocationConstant.COLLECTION_BIN);
+//
+  //      } else {
+    //        mapQuery.put("type", LocationConstant.COLLECTION_ROAD);
+      //  }
         mapQuery.put("storeNo", storeNo);
         List<BaseinfoLocation> list = this.getBaseinfoLocationList(mapQuery);
         if (null == list || list.size() < 1) {
-            throw new BizCheckedException("2180012");
+            //throw new BizCheckedException("2180012");
+            return new LinkedList<BaseinfoLocation>();
         }
         return list;
     }
@@ -1371,8 +1377,10 @@ public class LocationService {
         mapQuery.put("type", LocationConstant.SOW_BIN);
         List<BaseinfoLocation> list = this.getBaseinfoLocationList(mapQuery);
         if (null == list || list.size() < 1) {
-            throw new BizCheckedException("2180012");
+            //throw new BizCheckedException("2180012");
+            return new LinkedList<BaseinfoLocation>();
         }
+
         return list;
     }
 

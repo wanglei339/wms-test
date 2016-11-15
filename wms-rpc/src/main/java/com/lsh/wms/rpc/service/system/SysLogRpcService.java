@@ -74,6 +74,8 @@ public class SysLogRpcService implements ISysLogRpcService{
                 url = IntegrationConstan.URL_OBD;
             }
             dataBackService.wmDataBackByPost(json,url,syslog.getLogType());
+        }else if(syslog.getTargetSystem() == SysLogConstant.LOG_TARGET_LSHOFC){
+            dataBackService.ofcDataBackByPost(json,IntegrationConstan.URL_LSHOFC_OBD);
         }
 
     }

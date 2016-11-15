@@ -25,6 +25,7 @@
 		<result property="inserttime" column="INSERTTIME"/>
 		<result property="updatetime" column="UPDATETIME"/>
 		<result property="packName" column="PACK_NAME"/>
+		<result property="isException" column="IS_EXCEPTION"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="InbReceiptDetail">
@@ -32,12 +33,12 @@
 			RECEIPT_ORDER_ID,ORDER_ID,ORDER_OTHER_ID,LOT_NUM,SKU_ID,ITEM_ID,SKU_NAME,
 			BAR_CODE,ORDER_QTY,PACK_UNIT,MADEIN,INBOUND_QTY,ARRIVE_NUM,
 			DEFECT_NUM,PRO_TIME,REFUSE_REASON,INSERTBY,UPDATEBY,INSERTTIME,
-			UPDATETIME,PACK_NAME
+			UPDATETIME,PACK_NAME,IS_EXCEPTION
     	) values (
 			#{receiptOrderId},#{orderId},#{orderOtherId},#{lotNum},#{skuId},#{itemId},#{skuName},
 			#{barCode},#{orderQty},#{packUnit},#{madein},#{inboundQty},#{arriveNum},
 			#{defectNum},#{proTime},#{refuseReason},#{insertby},#{updateby},#{inserttime},
-			#{updatetime},#{packName}
+			#{updatetime},#{packName},#{isException}
     	)
 	</insert>
 
@@ -45,12 +46,12 @@
 		insert into INB_RECEIPT_DETAIL (
 		RECEIPT_ORDER_ID,ORDER_ID,ORDER_OTHER_ID,LOT_NUM,SKU_ID,ITEM_ID,SKU_NAME,BAR_CODE,
 		ORDER_QTY,PACK_UNIT,MADEIN,INBOUND_QTY,ARRIVE_NUM,DEFECT_NUM,
-		PRO_TIME,REFUSE_REASON,INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME,PACK_NAME
+		PRO_TIME,REFUSE_REASON,INSERTBY,UPDATEBY,INSERTTIME,UPDATETIME,PACK_NAME,IS_EXCEPTION
 		) values
 		<foreach collection="list" item="item" index="index" separator="," >
 			(#{item.receiptOrderId},#{item.orderId},#{item.orderOtherId},#{item.lotNum},#{item.skuId},#{item.itemId},#{item.skuName},#{item.barCode},
 			#{item.orderQty},#{item.packUnit},#{item.madein},#{item.inboundQty},#{item.arriveNum},#{item.defectNum},
-			#{item.proTime},#{item.refuseReason},#{item.insertby},#{item.updateby},now(),#{item.updatetime},#{item.packName})
+			#{item.proTime},#{item.refuseReason},#{item.insertby},#{item.updateby},now(),#{item.updatetime},#{item.packName},#{item.isException})
 		</foreach>
 	</insert>
 
@@ -76,6 +77,7 @@
   			<if test="insertby != null">INSERTBY=#{insertby},</if>
   			<if test="updateby != null">UPDATEBY=#{updateby},</if>
 			<if test="packName != null">PACK_NAME=#{packName},</if>
+			<if test="isException != null">IS_EXCEPTION=#{isException},</if>
   			<if test="inserttime != null">INSERTTIME=#{inserttime},</if>
   			<if test="updatetime != null">UPDATETIME=#{updatetime}</if>
 		</set>
@@ -124,6 +126,7 @@
 			<if test="inserttime != null">and INSERTTIME=#{inserttime}</if>
 			<if test="updatetime != null">and UPDATETIME=#{updatetime}</if>
 			<if test="packName != null">and PACK_NAME=#{packName}</if>
+			<if test="isException != null">and IS_EXCEPTION=#{isException}</if>
 		</where>
 	</sql>
    

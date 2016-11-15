@@ -10,15 +10,16 @@ import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.core.constant.*;
+import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
-import com.lsh.wms.core.service.store.StoreService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
+import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskInfo;
@@ -38,8 +39,6 @@ public class QCRpcService implements IQCRpcService {
     @Autowired
     private WaveService waveService;
     @Autowired
-    private StoreService storeService;
-    @Autowired
     private BaseTaskService baseTaskService;
     @Autowired
     private LocationService locationService;
@@ -51,6 +50,8 @@ public class QCRpcService implements IQCRpcService {
     private ITuRpcService iTuRpcService;
     @Reference
     private ICsiRpcService csiRpcService;
+    @Autowired
+    private CsiCustomerService csiCustomerService;
 
     public void skipException(long id) throws BizCheckedException {
         WaveDetail detail = waveService.getWaveDetailById(id);
@@ -94,13 +95,15 @@ public class QCRpcService implements IQCRpcService {
      * @throws BizCheckedException
      */
     public List<Map<String, Object>> getGroupList(Map<String, Object> mapQuery) throws BizCheckedException {
-        mapQuery.put("scale", StoreConstant.SCALE_STORE); // 小店不合板
-        List<BaseinfoStore> stores = storeService.getOpenedStoreList(mapQuery);
+        mapQuery.put("scale", CustomerConstant.STORE); // 小店不合板
+        mapQuery.put("isValid", 1); // 正常
+        mapQuery.put("status", 1); // 正常
+        List<CsiCustomer> csiCustomers = csiCustomerService.getCustomerList(mapQuery);
         List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
-        for (BaseinfoStore store : stores) {
+        for (CsiCustomer customer : csiCustomers) {
             BigDecimal totalBoxes = new BigDecimal("0.0000"); // 该门店未装车总箱子
             BigDecimal restBoxes = new BigDecimal("0.0000"); // 该门店未装车余货箱子
-            String storeNo = store.getStoreNo();
+            String storeNo = customer.getCustomerCode();
             List<Long> countedContainerIds = new ArrayList<Long>();
             List<WaveDetail> waveDetails = this.getQcWaveDetailsByStoreNo(storeNo);
             List<TaskInfo> qcDoneInfos = this.getQcDoneTaskInfoByWaveDetails(waveDetails);
@@ -118,9 +121,9 @@ public class QCRpcService implements IQCRpcService {
                 }
             }
             Map<String, Object> result = new HashMap<String, Object>();
-            result.put("storeNo", store.getStoreNo());
-            result.put("storeName", store.getStoreName());
-            result.put("address", store.getAddress());
+            result.put("storeNo", customer.getCustomerCode());
+            result.put("storeName", customer.getCustomerName());
+            result.put("address", customer.getAddress());
             result.put("totalBoxes", totalBoxes);
             result.put("restBoxes", restBoxes);
             results.add(result);
@@ -136,9 +139,10 @@ public class QCRpcService implements IQCRpcService {
      * @throws BizCheckedException
      */
     public Integer countGroupList(Map<String, Object> mapQuery) throws BizCheckedException {
-        mapQuery.put("scale", StoreConstant.SCALE_STORE); // 小店
-        mapQuery.put("isOpen", 1);
-        Integer total = storeService.countBaseinfoStore(mapQuery);
+        mapQuery.put("customerType", CustomerConstant.STORE); // 小店
+        mapQuery.put("status", 1);
+        mapQuery.put("isValid", 1);
+        Integer total = csiCustomerService.getCustomerCount(mapQuery);
         return total;
     }
 
@@ -220,8 +224,8 @@ public class QCRpcService implements IQCRpcService {
         return qcDoneInfos;
     }
 
-    public List<WaveDetail> getQcWaveDetailsByStoreNo(String storeNo) {
-        List<BaseinfoLocation> locations = locationService.getCollectionByStoreNo(storeNo); // 门店对应的集货道
+    public List<WaveDetail> getQcWaveDetailsByStoreNo(String customerCode) {
+        List<BaseinfoLocation> locations = locationService.getCollectionByStoreNo(customerCode); // 门店对应的集货道
         List<TaskInfo> qcDoneInfos = new ArrayList<TaskInfo>();
         //先去集货位拿到所有的托盘的wave_detailList
         List<WaveDetail> waveDetailList = new ArrayList<WaveDetail>();

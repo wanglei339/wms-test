@@ -7,11 +7,9 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.back.IBackShelveRfRestService;
-import com.lsh.wms.api.service.back.IInStorageRfRestService;
 import com.lsh.wms.api.service.inhouse.IProcurementProveiderRpcService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
-import com.lsh.wms.api.service.store.IStoreRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.LocationConstant;
@@ -21,10 +19,7 @@ import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
-import com.lsh.wms.model.back.BackTaskDetail;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.so.ObdDetail;
-import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -38,7 +33,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,9 +50,6 @@ public class BackShelveRfRestService implements IBackShelveRfRestService {
 
     @Autowired
     SoOrderService soOrderService;
-
-    @Reference
-    private IStoreRpcService storeRpcService;
 
     @Reference
     private ITaskRpcService iTaskRpcService;

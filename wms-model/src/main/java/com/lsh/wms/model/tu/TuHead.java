@@ -82,11 +82,11 @@ public class TuHead implements Serializable {
     /**
      * 仓库ID传输
      */
-    private String warehouseId;
+    private String warehouseId="TJ";
     /**
      * 承运商名称
      */
-    private String companyName;
+    private String companyName="";
     /**
      * 运单类型1-门店2-优供
      */

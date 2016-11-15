@@ -28,8 +28,8 @@ public class StockRedisService {
     @Autowired
     private InventoryRedisService inventoryRedisService;
 
-    @Autowired
-    private SynStockService synStockService;
+//    @Autowired
+//    private SynStockService synStockService;
 
     private static Logger logger = LoggerFactory.getLogger(StockRedisService.class);
 
@@ -49,7 +49,7 @@ public class StockRedisService {
         String redisKey = getRedisKey(itemId);
         redisDao.increase(redisKey, new Double(qty.toString()));
         double availableQty =    inventoryRedisService.getAvailableSkuQty(itemId);
-        synStockService.synStock(itemId,availableQty);
+      //  synStockService.synStock(itemId,availableQty);
 
     }
 
@@ -57,7 +57,7 @@ public class StockRedisService {
         String redisKey = getRedisKey(itemId);
         redisDao.decrease(redisKey, new Double(qty.toString()));
         double availableQty =  inventoryRedisService.getAvailableSkuQty(itemId);
-        synStockService.synStock(itemId,availableQty);
+        //synStockService.synStock(itemId,availableQty);
     }
 
 }

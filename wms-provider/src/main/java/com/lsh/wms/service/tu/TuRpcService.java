@@ -20,6 +20,7 @@ import com.lsh.wms.api.service.wumart.IWuMart;
 import com.lsh.wms.api.service.wumart.IWuMartSap;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.TuConstant;
+import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.po.PoOrderService;
@@ -27,13 +28,13 @@ import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
-import com.lsh.wms.core.service.store.StoreService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
+import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
 import com.lsh.wms.model.po.IbdObdRelation;
@@ -72,8 +73,6 @@ public class TuRpcService implements ITuRpcService {
     private BaseTaskService baseTaskService;
     @Autowired
     private WaveService waveService;
-    @Autowired
-    private StoreService storeService;
     @Reference
     private ISoRpcService iSoRpcService;
     @Autowired
@@ -88,6 +87,8 @@ public class TuRpcService implements ITuRpcService {
     private SoOrderService soOrderService;
     @Autowired
     private PoOrderService poOrderService;
+    @Autowired
+    private CsiCustomerService csiCustomerService;
 
 
     //    @Reference
@@ -267,7 +268,7 @@ public class TuRpcService implements ITuRpcService {
         tuHead.setCellphone(mapRequest.get("cellphone").toString());
         tuHead.setName(mapRequest.get("name").toString());
         tuHead.setCarNumber(mapRequest.get("car_number").toString());
-        tuHead.setStoreIds(mapRequest.get("store_ids").toString());
+        tuHead.setStoreIds(mapRequest.get("customer_ids").toString());
         tuHead.setPreBoard(Long.valueOf(mapRequest.get("pre_board").toString()));
         tuHead.setCommitedAt(Long.valueOf(mapRequest.get("commited_at").toString()));
         tuHead.setScale(Integer.valueOf(mapRequest.get("scale").toString()));
@@ -332,7 +333,7 @@ public class TuRpcService implements ITuRpcService {
             mergedContainerId = qcInfos.get(0).getMergedContainerId();
         }
         //获取门店信息
-        List<Map<String, Object>> stores = storeService.analyStoresIds2Stores(tuHead.getStoreIds());
+        List<Map<String, Object>> customers = csiCustomerService.ParseCustomerIds2Customers(tuHead.getStoreIds());
         List<WaveDetail> waveDetails = null;    //查找板子的detail
         //板子聚类
         //查看板子的数量
@@ -348,7 +349,7 @@ public class TuRpcService implements ITuRpcService {
             mergerQuery.put("type", TaskConstant.TYPE_MERGE);
             mergerQuery.put("status", TaskConstant.Done);
             List<TaskInfo> mergeInfos = baseTaskService.getTaskInfoList(mergerQuery);
-            if (null == mergeInfos || mergeInfos.size() < 1){
+            if (null == mergeInfos || mergeInfos.size() < 1) {
                 throw new BizCheckedException("2870038");
             }
             TaskInfo mergerInfo = mergeInfos.get(0);
@@ -361,10 +362,13 @@ public class TuRpcService implements ITuRpcService {
             throw new BizCheckedException("2870006");
         }
         String storeCode = obdHeader.getDeliveryCode();
-        Long storeId = storeService.getStoreIdByCode(storeCode).get(0).getStoreId();    //获取storeId
+        Long ownerId = obdHeader.getOwnerUid();
+        //货主
+        CsiCustomer csiCustomer = csiCustomerService.getCustomerByCustomerCode(ownerId, storeCode);    //获取storeId
         boolean isSameStrore = false;
-        for (Map<String, Object> store : stores) {
-            if (store.get("storeNo").toString().equals(storeCode)) {  //相同门店
+        for (Map<String, Object> customer : customers) {
+                String code = customer.get("customerCode").toString();
+            if (customer.get("customerCode").toString().equals(storeCode)) {  //相同门店
                 isSameStrore = true;
                 break;
             }
@@ -411,10 +415,10 @@ public class TuRpcService implements ITuRpcService {
         if (null != tuDetail) {
             isLoaded = true;
         }
-        result.put("storeId", storeId);
+        result.put("customerId", csiCustomer.getCustomerId());
         result.put("isLoaded", isLoaded);
         result.put("containerId", mergedContainerId);   //板子码
-        result.put("taskBoardQty",boardNum);    //一个板子的板子数
+        result.put("taskBoardQty", boardNum);    //一个板子的板子数
         result.put("isRest", false); //非余货
         result.put("isExpensive", false);    //非贵品
         return result;
@@ -497,8 +501,8 @@ public class TuRpcService implements ITuRpcService {
             soDeliveryService.insertOrder(header, details);
         }
         //回写发货单的单号
-        for(WaveDetail detail : totalWaveDetails){
-            if(detail.getDeliveryId()!=0) {
+        for (WaveDetail detail : totalWaveDetails) {
+            if (detail.getDeliveryId() != 0) {
                 continue;
             }
             detail.setDeliveryId(mapHeader.get(detail.getOrderId()).getDeliveryId());
@@ -515,7 +519,7 @@ public class TuRpcService implements ITuRpcService {
      * @param tuId
      * @throws BizCheckedException
      */
-    public Map<String,Object> bulidSapDate(String tuId) throws BizCheckedException {
+    public Map<String, Object> bulidSapDate(String tuId) throws BizCheckedException {
 
         //找详情
         List<WaveDetail> totalWaveDetails = this.combineWaveDetailsByTuId(tuId);
@@ -578,9 +582,9 @@ public class TuRpcService implements ITuRpcService {
         //鑫哥服务
 //        wuMartSap.ibd2Sap(createIbdHeader);
 //        wuMartSap.obd2Sap(createObdHeader);
-        Map<String,Object> ibdObdMap = new HashMap<String, Object>();
-        ibdObdMap.put("createIbdHeader",createIbdHeader);
-        ibdObdMap.put("createObdHeader",createObdHeader);
+        Map<String, Object> ibdObdMap = new HashMap<String, Object>();
+        ibdObdMap.put("createIbdHeader", createIbdHeader);
+        ibdObdMap.put("createObdHeader", createObdHeader);
         return ibdObdMap;
 //        wuMart.sendIbd(createIbdHeader);
 //        wuMart.sendObd(createObdHeader);

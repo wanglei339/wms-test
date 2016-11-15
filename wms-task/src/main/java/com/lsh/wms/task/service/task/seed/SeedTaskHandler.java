@@ -15,6 +15,7 @@ import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.container.ContainerService;
+import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
@@ -24,12 +25,12 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
-import com.lsh.wms.core.service.store.StoreService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
+import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
@@ -102,7 +103,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
     @Reference
     private ITaskRpcService iTaskRpcService;
     @Autowired
-    StoreService storeService;
+    CsiCustomerService csiCustomerService;
 
     private static Logger logger = LoggerFactory.getLogger(SeedTaskHandler.class);
 
@@ -134,10 +135,11 @@ public class SeedTaskHandler extends AbsTaskHandler {
 
         Long orderId = lot.getPoId();
         Map<String,Long> storeMap = new HashMap<String, Long>();
-        List<BaseinfoStore> storeList = storeService.getOpenedStoreList(new HashMap<String, Object>());
+        List<CsiCustomer> storeList = csiCustomerService.getCustomerList(new HashMap<String, Object>());
         if(storeList!=null && storeList.size()!=0) {
             for (int i = 0; i < storeList.size(); i++) {
-                storeMap.put(storeList.get(i).getStoreNo(), Long.valueOf(i));
+                CsiCustomer csiCustomer = storeList.get(i);
+                storeMap.put(csiCustomer.getCustomerCode(), csiCustomer.getSeedQueue());
             }
         }
 
@@ -210,6 +212,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
             info.setItemId(item.getItemId());
             info.setSkuId(quant.getSkuId());
             info.setOrderId(orderId);
+            info.setOwnerId(ibdHeader.getOwnerUid());
             info.setTaskName("播种任务[ " + storeNo + "]");
             info.setPackUnit(item.getPackUnit());
             info.setType(TaskConstant.TYPE_SEED);

@@ -14,7 +14,6 @@ import com.lsh.wms.api.model.po.ReceiptRequest;
 import com.lsh.wms.api.model.so.ObdStreamDetail;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.po.IReceiptRpcService;
-import com.lsh.wms.api.service.store.IStoreRpcService;
 import com.lsh.wms.api.service.system.IExceptionCodeRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.*;
@@ -116,9 +115,6 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
     @Autowired
     private IdGenerator idGenerator;
-
-    @Reference
-    private IStoreRpcService iStoreRpcService;
 
     @Reference
     private IExceptionCodeRpcService iexceptionCodeRpcService;
@@ -534,8 +530,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
         logger.info("#############proTimeexceptionCode:"+proTimeexceptionCode);
         logger.info("#############exceptionCode:"+exceptionCode);
         if(StringUtils.isNotEmpty(exceptionCode) && exceptionCode.equals(proTimeexceptionCode)){
-            //例外代码匹配
-            return true;
+            throw new BizCheckedException("2020103"); //例外代码不匹配
         }
         logger.info("#############");
         if(proTime == null && dueTime == null){
@@ -876,7 +871,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         //如果是大店 生成QC
         if(request.getIsCreateTask()==1) {
-            if(csiCustomer.getCustomerType().equals(CustomerConstant.BiG_STORE)){
+            if(csiCustomer.getCustomerType().equals(CustomerConstant.SUPER_MARKET)){
                 TaskEntry taskEntry = new TaskEntry();
                 TaskInfo taskInfo = new TaskInfo();
                 taskInfo.setTaskId(taskId);
@@ -895,15 +890,15 @@ public class ReceiptRpcService implements IReceiptRpcService {
     }
 
     public Long genReceive(IbdHeader ibdHeader,List<ReceiptItem> receiptItemList){
-//        // TODO: 16/11/9 保存skucode和barcode的映射关系
-//        Map<String,String> skuMap = new HashMap<String, String>();
-//        for(ReceiptItem rt:receiptItemList){
-//            BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), rt.getSkuId());
-//            if(baseinfoItem == null){
-//                continue;
-//            }
-//            skuMap.put(baseinfoItem.getSkuCode(),rt.getBarCode());
-//        }
+        // TODO: 16/11/9 保存skucode和barcode的映射关系
+        Map<String,String> skuMap = new HashMap<String, String>();
+        for(ReceiptItem rt:receiptItemList){
+            BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), rt.getSkuId());
+            if(baseinfoItem == null){
+                continue;
+            }
+           skuMap.put(baseinfoItem.getSkuCode(),rt.getBarCode());
+        }
 
         //增加receiveHeader总单
         Long receiveId = RandomUtils.genId();
@@ -917,7 +912,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
         for (IbdDetail ibdDetail : ibdList){
             ReceiveDetail receiveDetail = new ReceiveDetail();
             ObjUtils.bean2bean(ibdDetail,receiveDetail);
-            //receiveDetail.setCode(skuMap.get(ibdDetail.getSkuCode()));// TODO: 16/11/9 增加国条
+            receiveDetail.setCode(skuMap.get(ibdDetail.getSkuCode()));// TODO: 16/11/9 增加国条
             receiveDetail.setReceiveId(receiveId);
             receiveDetail.setCreatedAt(DateUtils.getCurrentSeconds());
             receiveDetails.add(receiveDetail);

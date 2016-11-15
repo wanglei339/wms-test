@@ -55,8 +55,7 @@ public class WuMart implements IWuMart {
     }
 
     public String sendSo2Sap(CreateObdHeader createObdHeader) {
-        CreateObdHeader backDate = wuMartSap.obd2Sap(createObdHeader);
-        return JsonUtils.SUCCESS(backDate);
+        return JsonUtils.SUCCESS(wuMartSap.soObd2Sap(createObdHeader));
     }
 
 

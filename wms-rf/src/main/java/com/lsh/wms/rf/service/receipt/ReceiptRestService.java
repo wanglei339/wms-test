@@ -188,13 +188,16 @@ public class ReceiptRestService implements IReceiptRfService {
             //取出是否检验保质期字段 exceptionReceipt = 0 校验 = 1不校验
             Integer exceptionReceipt = ibdDetail.getExceptionReceipt();
             String exceptionCode = receiptItem.getExceptionCode() == null ? "" :receiptItem.getExceptionCode();// TODO:16/11/10 从请求参数中获取例外代码
+            if(StringUtils.isNotEmpty(exceptionCode)){
+                receiptItem.setIsException(1);//1表示例外收货
+            }
             if(receiptItem.getProTime() != null || receiptItem.getDueTime() != null) {
                 //调拨类型的单据不校验保质期
                 if (PoConstant.ORDER_TYPE_TRANSFERS != ibdHeader.getOrderType()) {
                     if (exceptionReceipt != 1) {
                         // TODO: 16/7/20   商品信息是否完善,怎么排查.2,保质期例外怎么验证?
                         //保质期判断,如果失败抛出异常
-                        //iReceiptRpcService.checkProTime(baseinfoItem, receiptItem.getProTime(),receiptItem.getDueTime(), exceptionCode);
+                        iReceiptRpcService.checkProTime(baseinfoItem, receiptItem.getProTime(),receiptItem.getDueTime(), exceptionCode);
                     }
                 }
             }
@@ -378,6 +381,8 @@ public class ReceiptRestService implements IReceiptRfService {
         BigDecimal orderQty = ibdDetail.getOrderQty().subtract(ibdDetail.getInboundQty());
         orderInfoMap.put("orderQty", orderQty);// todo 剩余待收货数
         orderInfoMap.put("batchNeeded", baseinfoItem.getBatchNeeded());
+        //码盘规则
+        orderInfoMap.put("pile",baseinfoItem.getPileX()+ "*" + baseinfoItem.getPileY() + "*" + baseinfoItem.getPileZ());
 
         return JsonUtils.SUCCESS(orderInfoMap);
     }
@@ -678,6 +683,7 @@ public class ReceiptRestService implements IReceiptRfService {
                     map2.put("orderQty",obdDetail.getOrderQty());
                     map2.put("packName",ibdDetail.getPackName());
                     map2.put("packUnit",ibdDetail.getPackUnit());
+                    map2.put("pile",baseinfoItem.getPileX()+ "*" + baseinfoItem.getPileY() + "*" + baseinfoItem.getPileZ());
 
                     //将obdorderId存入redis
                     String key=StrUtils.formatString(RedisKeyConstant.PO_STORE,ibdHeader.getOrderId(),storeId);
