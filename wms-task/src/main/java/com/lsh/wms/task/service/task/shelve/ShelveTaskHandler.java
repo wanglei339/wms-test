@@ -159,11 +159,15 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         if (taskHead == null) {
             throw new BizCheckedException("2030009");
         }
+        Long lotId = taskHead.getLotId();
         BaseinfoLocation realLocation = locationService.getLocation(locationId);
+        if (realLocation == null) {
+            throw new BizCheckedException("2030006");
+        }
         // 实际上架位置和分配位置不一致
         if (!locationId.equals(taskHead.getAllocLocationId())) {
-            if (realLocation == null) {
-                throw new BizCheckedException("2030006");
+            if (realLocation.getType().equals(LocationConstant.SHELF_PICKING_BIN)) {
+                throw new BizCheckedException("2030017");
             }
             // 检查位置锁定状态
             if (locationService.checkLocationLockStatus(locationId)) {
