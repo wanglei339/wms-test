@@ -104,21 +104,31 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
         //获取并封装店铺信息
         //storeid key
         Map<String, Map<String, Object>> storeInfoMap = new HashMap<String, Map<String, Object>>();
+        //封装门店发货单号
+        List<Object> storeDeliveryList = new ArrayList<Object>();
         for (String storeNo : storeNoSet) {
             CsiCustomer customer = csiCustomerService.getCustomerByCustomerCode(storeNo2OwnerId.get(storeNo), storeNo);
             Map<String, Object> storeMap = new HashMap<String, Object>();
             storeMap.put("storeNo", storeNo);
             String storeId = "";
-            if(customer == null){
-
-                storeMap.put("storeName", "");
-            }else{
+            String storeName = "";
+            if(customer != null){
+                storeName = customer.getCustomerName();
                 storeId = customer.getCustomerId()+"";
-                storeMap.put("storeName", customer.getCustomerName());
             }
             storeMap.put("storeId", storeId);
+            storeMap.put("storeName", storeName);
 
             storeInfoMap.put(storeId, storeMap);
+
+            //将店铺名称放入店铺发货单关系中
+            Map<String,Object> temp = new HashMap<String, Object>();
+            temp.put("storeName",storeName);
+            temp.put("list",storeNoToDeliveryId.get(storeNo));
+            //storeNo key
+            Map<String,Object> storeDeliveryIdInfoMap = new HashMap<String, Object>();
+            storeDeliveryIdInfoMap.put(storeNo,temp);
+            storeDeliveryList.add(storeDeliveryIdInfoMap);
         }
 
         List<TuDetail> tuDetailList = iTuRpcService.getTuDeailListByTuId(tuId);
@@ -177,7 +187,7 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
         returnData.put("cellphone", tuHead.getCellphone());//司机电话
         returnData.put("storeCountInfo", storeCountInfoList);//门店统计信息
         returnData.put("total", totalMap);
-        returnData.put("storeDeliveryList", storeNoToDeliveryId);//门店发货单号信息
+        returnData.put("storeDeliveryList", storeDeliveryList);//门店发货单号信息
         return returnData;
     }
 
@@ -331,7 +341,7 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
                     //封装订单信息
                     Map<String, Object> orderMap = new HashMap<String, Object>();
                     orderMap.put("orderId", orderId);//订单号
-                    orderMap.put("printDate", new Date());//打印日期// FIXME: 16/11/7
+                    orderMap.put("printDate", DateUtils.FORMAT_DATE_WITH_BAR.format(new Date()));//打印日期
                     orderMap.put("tuId", tuId);//运单号
                     orderMap.put("deliveryId", wd.getDeliveryId());//发货单号
                     orderMap.put("driverName", tuHead.getName());//司机姓名
@@ -467,7 +477,7 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
             if (orderInfoMap.get(orderId) == null) {
                 Map<String, Object> oneOrderInfo = new HashMap<String, Object>();
                 oneOrderInfo.put("orderId", orderId);//订单号
-                oneOrderInfo.put("printDate", new Date());//打印日期// FIXME: 16/11/7
+                oneOrderInfo.put("printDate", DateUtils.FORMAT_DATE_WITH_BAR.format(new Date()));//打印日期// FIXME: 16/11/7
                 oneOrderInfo.put("tuId", orderGoodsInfoMap.get(orderId).get("tuId").toString());//运单号
                 oneOrderInfo.put("deliveryId", Long.valueOf(orderGoodsInfoMap.get(orderId).get("deliveryId").toString()));//发货单号
                 oneOrderInfo.put("driverName", tuHead.getName());//司机姓名
