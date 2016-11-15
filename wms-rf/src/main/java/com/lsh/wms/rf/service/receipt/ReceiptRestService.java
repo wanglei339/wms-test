@@ -188,6 +188,9 @@ public class ReceiptRestService implements IReceiptRfService {
             //取出是否检验保质期字段 exceptionReceipt = 0 校验 = 1不校验
             Integer exceptionReceipt = ibdDetail.getExceptionReceipt();
             String exceptionCode = receiptItem.getExceptionCode() == null ? "" :receiptItem.getExceptionCode();// TODO:16/11/10 从请求参数中获取例外代码
+            if(exceptionCode != null){
+                receiptItem.setIsException(1);//1表示例外收货
+            }
             if(receiptItem.getProTime() != null || receiptItem.getDueTime() != null) {
                 //调拨类型的单据不校验保质期
                 if (PoConstant.ORDER_TYPE_TRANSFERS != ibdHeader.getOrderType()) {
