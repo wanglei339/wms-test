@@ -530,8 +530,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
         logger.info("#############proTimeexceptionCode:"+proTimeexceptionCode);
         logger.info("#############exceptionCode:"+exceptionCode);
         if(StringUtils.isNotEmpty(exceptionCode) && exceptionCode.equals(proTimeexceptionCode)){
-            //例外代码匹配
-            return true;
+            throw new BizCheckedException("2020103"); //例外代码不匹配
         }
         logger.info("#############");
         if(proTime == null && dueTime == null){
