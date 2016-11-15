@@ -1,5 +1,7 @@
 package com.lsh.wms.api.service.csi;
 
+import com.lsh.base.common.exception.BizCheckedException;
+
 import java.util.Map;
 
 /**
@@ -7,8 +9,8 @@ import java.util.Map;
  * @Date 2016/11/15 上午12:48
  */
 public interface ICsiCustomerRestService {
-    public String getCustomerList(Map<String, Object> mapQuery);
+    public String getCustomerList(Map<String, Object> mapQuery) throws BizCheckedException;
 
-    public String getCustomerCount(Map<String, Object> mapQuery);
+    public String getCustomerCount(Map<String, Object> mapQuery)throws BizCheckedException;
 
 }
