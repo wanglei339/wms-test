@@ -147,6 +147,14 @@ public class PORestService implements IPoRestService {
         return JsonUtils.SUCCESS();
     }
 
+
+    @GET
+    @Path("getStoreInfo")
+    public String getStoreInfo(@QueryParam("orderId") Long orderId, @QueryParam("detailOtherId") String detailOtherId) {
+
+        return JsonUtils.SUCCESS(poRpcService.getStoreInfo(orderId,detailOtherId));
+    }
+
     @POST
     @Path("getPoHeaderList")
     public String getPoHeaderList() {
@@ -173,4 +181,7 @@ public class PORestService implements IPoRestService {
         Map<String, Object> params = RequestUtils.getRequest();
         return JsonUtils.SUCCESS(poRpcService.getPoDetailList(params));
     }
+
+
+
 }
