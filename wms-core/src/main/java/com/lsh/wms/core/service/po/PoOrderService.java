@@ -314,6 +314,17 @@ public class PoOrderService {
         return ibdObdRelationDao.getIbdObdRelationList(params);
     }
 
+    /**
+     *
+     */
+
+    public List<IbdObdRelation> getIbdObdRelationListByIbd(String ibdOtherId,String ibdDetailOtherId){
+        Map<String,Object> params = new HashMap<String, Object>();
+        params.put("ibdOtherId",ibdOtherId);
+        params.put("ibdDetailId",ibdDetailOtherId);
+        return ibdObdRelationDao.getIbdObdRelationList(params);
+    }
+
 
     /**
      * 传入orderIds
