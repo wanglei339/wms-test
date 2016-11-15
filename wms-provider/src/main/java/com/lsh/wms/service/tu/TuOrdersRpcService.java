@@ -8,6 +8,7 @@ import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.tu.ITuOrdersRpcService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.baseinfo.ItemTypeService;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.item.ItemService;
@@ -216,7 +217,8 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
                 container.put("containerId", tuDetail.getMergedContainerId());
                 container.put("packCount", tuDetail.getBoxNum());
                 container.put("turnoverBoxCount", tuDetail.getTurnoverBoxNum());
-                container.put("isRest", tuDetail.getIsExpensive()); //余货(这个逻辑需要)
+                container.put("isRest", tuDetail.getIsRest() == TuConstant.IS_REST); //余货(这个逻辑需要)
+                container.put("isExpensive", tuDetail.getIsExpensive() == TuConstant.IS_EXPENSIVE); //余货(这个逻辑需要)
                 containerList.add(container);
                 //单门店总箱数
                 BigDecimal storeTotalPackCount = (BigDecimal) storeMap.get("storeTotalPackCount");
@@ -237,7 +239,8 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
                 container.put("containerId", tuDetail.getMergedContainerId());
                 container.put("packCount", tuDetail.getBoxNum());
                 container.put("turnoverBoxCount", tuDetail.getTurnoverBoxNum());
-                container.put("isRest", tuDetail.getIsRest()); //余货
+                container.put("isRest", tuDetail.getIsRest() == TuConstant.IS_REST); //余货(这个逻辑需要)
+                container.put("isExpensive", tuDetail.getIsExpensive() == TuConstant.IS_EXPENSIVE); //余货(这个逻辑需要)
                 containerList.add(container);
                 //托盘list
                 storeMap.put("containerList", containerList);
@@ -251,7 +254,15 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
             totalTurnoverBoxCount = totalTurnoverBoxCount + tuDetail.getTurnoverBoxNum();
 
         }
-        params.put("stores", stores);
+        //放入list中
+        List<Map<String, Object>> date = new ArrayList<Map<String, Object>>();
+        //循环放入list
+        for (Long key : stores.keySet()) {
+            Map<String, Object> storeInfoMap = stores.get(key);
+            date.add(storeInfoMap);
+        }
+//        params.put("stores", stores);
+        params.put("stores", date);
         params.put("totalPackCount", totalPackCount);
         params.put("totalTurnoverBoxCount", totalTurnoverBoxCount);
         return params;
@@ -397,51 +408,51 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
 
         }
 
-        List<Object>returnList=new ArrayList<Object>();
+        List<Object> returnList = new ArrayList<Object>();
         //整合订单和商品数据
-        for(Long orderId:orderGoodsInfoMap.keySet()){
-            if(goodsListMap.get(orderId)==null){
+        for (Long orderId : orderGoodsInfoMap.keySet()) {
+            if (goodsListMap.get(orderId) == null) {
                 continue;
             }
             //一个订单的商品列表
-            Map<Long,Map<String,Object>>goodsListMapByOrderId=goodsListMap.get(orderId);
+            Map<Long, Map<String, Object>> goodsListMapByOrderId = goodsListMap.get(orderId);
             //一个类型的商品
-            Map<Long,Map<String,Object>>goodsMapByItemType=new HashMap<Long,Map<String,Object>>();
+            Map<Long, Map<String, Object>> goodsMapByItemType = new HashMap<Long, Map<String, Object>>();
             //商品类型map
-            Map<Long,String>itemTypeMap=new HashMap<Long,String>();
+            Map<Long, String> itemTypeMap = new HashMap<Long, String>();
 
             //将每个订单的商品按类型分组
-            for(Long itemId:goodsListMapByOrderId.keySet()){
-                Map<String,Object> goodsMap = goodsListMapByOrderId.get(itemId);
+            for (Long itemId : goodsListMapByOrderId.keySet()) {
+                Map<String, Object> goodsMap = goodsListMapByOrderId.get(itemId);
 
-                Long itemTypeId=Long.parseLong(goodsMap.get("itemType").toString());
-                if(goodsMapByItemType.get(itemTypeId)==null){
-                    Map<String,Object>goodsMapByItemTypeInit=new HashMap<String,Object>();
-                    goodsMapByItemTypeInit.put("goodsListByItemType",new ArrayList<Object>());
-                    goodsMapByItemTypeInit.put("itemTypeName","");
-                    goodsMapByItemType.put(itemTypeId,goodsMapByItemTypeInit);
+                Long itemTypeId = Long.parseLong(goodsMap.get("itemType").toString());
+                if (goodsMapByItemType.get(itemTypeId) == null) {
+                    Map<String, Object> goodsMapByItemTypeInit = new HashMap<String, Object>();
+                    goodsMapByItemTypeInit.put("goodsListByItemType", new ArrayList<Object>());
+                    goodsMapByItemTypeInit.put("itemTypeName", "");
+                    goodsMapByItemType.put(itemTypeId, goodsMapByItemTypeInit);
                 }
-                if(itemTypeMap.get(itemTypeId)==null){
-                    BaseinfoItemType baseinfoItemType=itemTypeService.getBaseinfoItemTypeByItemId(itemTypeId.intValue());
-                    if(baseinfoItemType!=null){
-                        itemTypeMap.put(itemTypeId,baseinfoItemType.getItemName());
-                    }else{
-                        itemTypeMap.put(itemTypeId,"");
+                if (itemTypeMap.get(itemTypeId) == null) {
+                    BaseinfoItemType baseinfoItemType = itemTypeService.getBaseinfoItemTypeByItemId(itemTypeId.intValue());
+                    if (baseinfoItemType != null) {
+                        itemTypeMap.put(itemTypeId, baseinfoItemType.getItemName());
+                    } else {
+                        itemTypeMap.put(itemTypeId, "");
                     }
                 }
-                List<Object>tempLis=(List<Object>)goodsMapByItemType.get(itemTypeId).get("goodsListByItemType");
+                List<Object> tempLis = (List<Object>) goodsMapByItemType.get(itemTypeId).get("goodsListByItemType");
                 tempLis.add(goodsMap);
-                Map<String,Object>tempMap=goodsMapByItemType.get(itemTypeId);
-                tempMap.put("goodsListByItemType",tempLis);
-                goodsMapByItemType.put(itemTypeId,tempMap);
+                Map<String, Object> tempMap = goodsMapByItemType.get(itemTypeId);
+                tempMap.put("goodsListByItemType", tempLis);
+                goodsMapByItemType.put(itemTypeId, tempMap);
             }
-            List<Object>goodsList=new ArrayList<Object>();
-            for(Long itemTypeId:goodsMapByItemType.keySet()){
-                goodsMapByItemType.get(itemTypeId).put("itemTypeName",itemTypeMap.get(itemTypeId));
+            List<Object> goodsList = new ArrayList<Object>();
+            for (Long itemTypeId : goodsMapByItemType.keySet()) {
+                goodsMapByItemType.get(itemTypeId).put("itemTypeName", itemTypeMap.get(itemTypeId));
                 goodsList.add(goodsMapByItemType.get(itemTypeId));
 
             }
-            orderGoodsInfoMap.get(orderId).put("goodsList",goodsList);
+            orderGoodsInfoMap.get(orderId).put("goodsList", goodsList);
             returnList.add(orderGoodsInfoMap.get(orderId));
 
 
