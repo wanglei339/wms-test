@@ -149,7 +149,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         }
         taskService.assign(taskId, staffId, targetLocation.getLocationId());
         // 锁location
-        locationService.lockLocation(targetLocation.getFatherId());
+        locationService.lockLocation(targetLocation.getLocationId());
         // move到仓库location_id
         iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, taskInfo.getFromLocationId(), locationService.getWarehouseLocationId());
     }
