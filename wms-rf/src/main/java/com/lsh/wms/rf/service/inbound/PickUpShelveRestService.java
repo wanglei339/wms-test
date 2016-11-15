@@ -397,7 +397,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         if(baseinfoLocations!=null && baseinfoLocations.size()!=0){
             BaseinfoLocation location = baseinfoLocations.get(0);
             BaseinfoLocationRegion region = (BaseinfoLocationRegion) regionService.getBaseinfoItemLocationModelById(location.getLocationId());
-            if(region.getRegionStrategy().compareTo(LocationConstant.LOCATION_CAN_ADD)==0){
+            if(LocationConstant.LOCATION_CAN_ADD.compareTo(region.getRegionStrategy())==0){
                 Map<String,Object> query = new HashMap<String, Object>();
                 query.put("location",location);
                 query.put("itemId",info.getItemId());
@@ -410,7 +410,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
                         if (qty.compareTo(BigDecimal.ONE) <= 0) {
                             continue;
                         } else {
-                            locationId = quant.getLocationId();
+                            locationId = stockQuant.getLocationId();
                             break;
                         }
                     }
