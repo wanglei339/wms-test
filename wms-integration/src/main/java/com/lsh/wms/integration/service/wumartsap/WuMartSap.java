@@ -129,7 +129,8 @@ public class WuMartSap implements IWuMartSap{
                 if(orderType != PoConstant.ORDER_TYPE_CPO){
                     ReceiveDetail receiveDetail = new ReceiveDetail();
                     receiveDetail.setReceiveId(receiveId);
-                    receiveDetail.setDetailOtherId(bapireturn1.getMessageV4());
+                    String detailOtherId = bapireturn1.getMessageV4().replaceAll("^(0+)", "");
+                    receiveDetail.setDetailOtherId(detailOtherId);
                     receiveDetail.setIbdId(bapireturn1.getMessageV1());
                     receiveDetail.setIbdDetailId(bapireturn1.getMessageV2());
                     receiveService.updateByReceiveIdAndDetailOtherId(receiveDetail);
@@ -365,7 +366,8 @@ public class WuMartSap implements IWuMartSap{
                 if(orderType != PoConstant.ORDER_TYPE_CPO){
                     ReceiveDetail receiveDetail = new ReceiveDetail();
                     receiveDetail.setReceiveId(receiveId);
-                    receiveDetail.setDetailOtherId(bapiret2.getMESSAGEV2());
+                    String detailOtherId = bapiret2.getMESSAGEV2().replaceAll("^(0+)", "");
+                    receiveDetail.setDetailOtherId(detailOtherId);
                     receiveDetail.setAccountId(bapiret2.getMESSAGEV3());
                     receiveDetail.setAccountDetailId(bapiret2.getMESSAGEV4());
                     receiveService.updateByReceiveIdAndDetailOtherId(receiveDetail);
