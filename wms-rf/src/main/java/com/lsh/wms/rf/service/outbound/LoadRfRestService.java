@@ -101,6 +101,7 @@ public class LoadRfRestService implements ILoadRfRestService {
             //待装车的
             Map<String, Object> mapQuery = new HashMap<String, Object>();
             mapQuery.put("status", TuConstant.UNLOAD);
+            mapQuery.put("type",1L);
             mapQuery.put("orderBy", "createdAt");    //按照createAt排序
             mapQuery.put("orderType", "asc");    //按照createAt排序
             tuHeads = iTuRpcService.getTuHeadList(mapQuery);   //时间的降序
@@ -128,6 +129,7 @@ public class LoadRfRestService implements ILoadRfRestService {
             Map<String, Object> mapQuery = new HashMap<String, Object>();
             mapQuery.put("status", TuConstant.LOAD_OVER);
             mapQuery.put("loadUid", loadUid);   //该人的装车记录
+            mapQuery.put("type",1L);
             mapQuery.put("orderBy", "loadedAt");    //按照createAt排序
             mapQuery.put("orderType", "asc");    //按照loadedAt排序
             tuHeads = iTuRpcService.getTuHeadList(mapQuery);

@@ -25,15 +25,14 @@ import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
+import com.lsh.wms.core.service.po.PoReceiptService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemType;
 import com.lsh.wms.model.csi.CsiSku;
-import com.lsh.wms.model.po.IbdDetail;
-import com.lsh.wms.model.po.IbdHeader;
-import com.lsh.wms.model.po.IbdObdRelation;
+import com.lsh.wms.model.po.*;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.system.SysUser;
@@ -92,6 +91,9 @@ public class ReceiptRestService implements IReceiptRfService {
     private RedisStringDao redisStringDao;
     @Autowired
     private SysUserService sysUserService;
+
+    @Autowired
+    private PoReceiptService poReceiptService;
 
 
 
@@ -676,14 +678,30 @@ public class ReceiptRestService implements IReceiptRfService {
                 //该商品是否在门店订货范围内
                 isGoods=baseinfoItem.getItemId().equals(obdDetail.getItemId());
                 if(isGoods){
+                    //查询inbReceiptHeader是否存在 根据托盘查询
+                    Map<String,Object> mapQuery = new HashMap<String, Object>();
+                    mapQuery.put("containerId",containerId);
+                    InbReceiptHeader inbReceiptHeader = poReceiptService.getInbReceiptHeaderByParams(mapQuery);
+                    BigDecimal orderQty = obdDetail.getOrderQty();
+                    if(inbReceiptHeader != null ){
+                        Long receiptId = inbReceiptHeader.getReceiptOrderId();
+                        InbReceiptDetail inbReceiptDetail = poReceiptService.getInbReceiptDetailListByReceiptIdAndCode(receiptId,barCode);
+                        if(inbReceiptDetail != null){
+                            BigDecimal inboundQty = inbReceiptDetail.getInboundQty();
+                            orderQty = orderQty.subtract(inboundQty);
+                        }
+                    }
                     map2.put("location","J"+storeId);
                     map2.put("orderId",ibdHeader.getOrderId());
                     map2.put("barCode",barCode);
                     map2.put("skuName",baseinfoItem.getSkuName());
-                    map2.put("orderQty",obdDetail.getOrderQty());
+                    map2.put("orderQty",orderQty);
                     map2.put("packName",ibdDetail.getPackName());
                     map2.put("packUnit",ibdDetail.getPackUnit());
                     map2.put("pile",baseinfoItem.getPileX()+ "*" + baseinfoItem.getPileY() + "*" + baseinfoItem.getPileZ());
+                    //剩余数量存入redis po订单号 托盘码 barcode作为key
+                    String qtyKey = StrUtils.formatString(RedisKeyConstant.STORE_QTY,ibdHeader.getOrderId(),containerId,barCode);
+                    redisStringDao.set(qtyKey,orderQty);
 
                     //将obdorderId存入redis
                     String key=StrUtils.formatString(RedisKeyConstant.PO_STORE,ibdHeader.getOrderId(),storeId);

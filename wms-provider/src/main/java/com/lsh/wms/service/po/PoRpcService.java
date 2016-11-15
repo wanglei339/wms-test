@@ -21,6 +21,7 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
 import com.lsh.wms.model.po.IbdObdRelation;
+import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -257,6 +258,32 @@ public class PoRpcService implements IPoRpcService {
         }
 
         return obdSet;
+    }
+
+    public List<Map<String,Object>> getStoreInfo(Long orderId, String detailOtherId) {
+        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(orderId);
+
+        String orderOtherId = ibdHeader.getOrderOtherId();
+        List<IbdObdRelation> relations = poOrderService.getIbdObdRelationListByIbd(orderOtherId,detailOtherId);
+
+        List<Map<String,Object>> list = new ArrayList<Map<String, Object>>();
+        for(IbdObdRelation ibdObdRelation : relations){
+            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherIdAndType(ibdObdRelation.getObdOtherId(),SoConstant.ORDER_TYPE_DIRECT);
+
+            ObdDetail obdDetail = soOrderService.getObdDetailByOrderIdAndDetailOtherId(obdHeader.getOrderId(),ibdObdRelation.getObdDetailId());
+
+            Map<String,Object> map = new HashMap<String, Object>();
+            map.put("skuName",obdDetail.getSkuName());
+            map.put("skuCode",obdDetail.getSkuCode());
+            map.put("storeCode",obdHeader.getDeliveryCode());
+            map.put("storeName",obdHeader.getDeliveryName());
+            map.put("orderQty",obdDetail.getOrderQty());
+            map.put("packName",obdDetail.getPackName());
+            map.put("unitQty",obdDetail.getUnitQty());
+            list.add(map);
+
+        }
+        return list;
     }
 
 }

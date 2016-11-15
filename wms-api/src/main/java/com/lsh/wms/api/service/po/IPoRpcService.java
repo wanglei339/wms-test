@@ -38,4 +38,6 @@ public interface IPoRpcService {
 
     Set<ObdHeader> getObdHeader(String ibdOtherId);
 
+    List<Map<String,Object>> getStoreInfo(Long orderId,String detailOtherId);
+
 }
