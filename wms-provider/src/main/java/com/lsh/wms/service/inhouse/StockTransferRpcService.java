@@ -155,8 +155,8 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (fromLocationId.compareTo(toLocationId) == 0) {
             throw new BizCheckedException("2550017");
         }
-        BaseinfoLocation fromLocation = locationService.getLocation(fromLocationId),
-                toLocation = locationService.getLocation(toLocationId);
+        BaseinfoLocation fromLocation = locationService.getLocation(fromLocationId);
+        BaseinfoLocation toLocation = locationService.getLocation(toLocationId);
         if (fromLocation == null || toLocation == null) {
             throw new BizCheckedException("2550016");
         }

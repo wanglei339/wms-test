@@ -120,7 +120,6 @@ public class ObdService implements IObdService{
             if(customer != null){
                 waveOrderType = customer.getCustomerType();
             }
-
         }
         soRequest.setWaveOrderType(waveOrderType);
 
