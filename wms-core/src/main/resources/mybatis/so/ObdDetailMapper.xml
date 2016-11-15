@@ -16,6 +16,7 @@
 		<result property="packName" column="pack_name"/>
 		<result property="unitName" column="unit_name"/>
 		<result property="price" column="price"/>
+		<result property="sowQty" column="sow_qty"/>
 		<result property="lotCode" column="lot_code"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
@@ -24,11 +25,11 @@
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="ObdDetail">
 		insert into obd_detail (
 		detail_other_id,order_id,item_id,sku_id,sku_code,sku_name,order_qty,unit_qty,
-		pack_unit,pack_name,unit_name,price,lot_code,created_at,
+		pack_unit,pack_name,unit_name,price,lot_code,created_at,sow_qty,
 		updated_at
 		) values (
 		#{detailOtherId},#{orderId},#{itemId},#{skuId},#{skuCode},#{skuName},#{orderQty},#{unitQty},
-		#{packUnit},#{packName},#{unitName},#{price},#{lotCode},#{createdAt},
+		#{packUnit},#{packName},#{unitName},#{price},#{lotCode},#{createdAt},#{sowQty},
 		#{updatedAt}
 		)
 	</insert>
@@ -36,12 +37,12 @@
 	<insert id="batchInsert" parameterType="java.util.List">
 		insert into obd_detail (
 		detail_other_id,order_id,item_id,sku_id,sku_code,sku_name,order_qty,unit_qty,
-		pack_unit,pack_name,unit_name,price,lot_code,created_at,
+		pack_unit,pack_name,unit_name,price,lot_code,created_at,sow_qty,
 		updated_at
 		) values
 		<foreach collection="list" item="item" index="index" separator="," >
 			(#{item.detailOtherId},#{item.orderId},#{item.itemId},#{item.skuId},#{item.skuCode},#{item.skuName},#{item.orderQty},#{item.unitQty},
-			#{item.packUnit},#{item.packName},#{item.unitName},#{item.price},#{item.lotCode},#{item.createdAt},#{item.updatedAt})
+			#{item.packUnit},#{item.packName},#{item.unitName},#{item.price},#{item.lotCode},#{item.createdAt},#{item.sowQty},#{item.updatedAt})
 		</foreach>
 	</insert>
 
@@ -60,6 +61,7 @@
 			<if test="packName != null">pack_name=#{packName},</if>
 			<if test="unitName != null">unit_name=#{unitName},</if>
 			<if test="price != null">price=#{price},</if>
+			<if test="sowQty != null">sow_qty=#{sowQty},</if>
 			<if test="lotCode != null">lot_code=#{lotCode},</if>
 			<if test="createdAt != null">created_at=#{createdAt},</if>
 			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
@@ -100,6 +102,7 @@
 			<if test="packName != null">and pack_name=#{packName}</if>
 			<if test="unitName != null">and unit_name=#{unitName}</if>
 			<if test="price != null">and price=#{price}</if>
+			<if test="sowQty != null">and sow_qty=#{sowQty}</if>
 			<if test="lotCode != null">and lot_code=#{lotCode}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>

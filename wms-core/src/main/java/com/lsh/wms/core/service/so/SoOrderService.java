@@ -326,4 +326,15 @@ public class SoOrderService {
         return obdHeader;
     }
 
+    /**
+     * 更新obddetail
+     *
+     * @param obdDetail
+     */
+    @Transactional(readOnly = false)
+    public void updateObdDetail(ObdDetail obdDetail) {
+        obdDetailDao.update(obdDetail);
+    }
+
+
 }
