@@ -22,7 +22,11 @@ public class WuMart implements IWuMart {
     @Autowired
     private WuMartSap wuMartSap;
 
-
+    /**
+     * 收货创建sap ibd 并过账接口
+     * @param createIbdHeader
+     * @return
+     */
     public String sendIbd(CreateIbdHeader createIbdHeader) {
         CreateIbdHeader backDate = wuMartSap.ibd2Sap(createIbdHeader);
         if(backDate != null) {
@@ -31,6 +35,11 @@ public class WuMart implements IWuMart {
         return null;
     }
 
+    /**
+     * 发货sto 创建sap obd并过账接口
+     * @param createObdHeader
+     * @return
+     */
     public String sendObd(CreateObdHeader createObdHeader) {
         CreateObdHeader backDate = wuMartSap.obd2Sap(createObdHeader);
         if(backDate != null){
@@ -39,12 +48,23 @@ public class WuMart implements IWuMart {
         return null;
     }
 
+    /**
+     * ibd冲销过账接口
+     * @param accountId
+     * @param accountDetailId
+     * @return
+     */
     public String ibdAccountBack(String accountId, String accountDetailId) {
 
         String result = wuMartSap.ibd2SapBack(accountId,accountDetailId);
         return result;
     }
 
+
+    /**
+     * 直流创建 sap ibd创建并过账 以及obd创建并过账
+     * @param ibdObdMap
+     */
     public void sendSap(Map<String,Object> ibdObdMap){
 
         String ibdResult = this.sendIbd((CreateIbdHeader) ibdObdMap.get("createIbdHeader"));
@@ -54,6 +74,11 @@ public class WuMart implements IWuMart {
         }
     }
 
+    /**
+     * 在库so obd创建接口。
+     * @param createObdHeader
+     * @return
+     */
     public String sendSo2Sap(CreateObdHeader createObdHeader) {
         return JsonUtils.SUCCESS(wuMartSap.soObd2Sap(createObdHeader));
     }
