@@ -52,6 +52,7 @@ public class LocationConstant {
     public static final Long MARKET_RETURN_AREA = 29L;
     //集货道组和集货道
     public static final Long COLLECTION_ROAD_GROUP = 30L;
+
     public static final Long COLLECTION_ROAD = 31L;
     //拆零区
     public static final Long SPLIT_AREA = 32L;
@@ -142,9 +143,8 @@ public class LocationConstant {
     public static final String REMOVE_STORE_NO = "0";
 
 
-    // location_id划分相关
-    public static final Integer CHILDREN_RANGE = 128; //每个节点的子节点数
-    public static final Integer LOCATION_LEVEL = 8; // 整棵树的最大层数
+    // location_id区域策略
+    public static final Integer LOCATION_CAN_ADD = 1; //能追加存入货位
 
     //与获取的targetList的方法相关
     public static final Integer LIST_TYPE_AREA = 1; //获取大区的list方法
@@ -152,6 +152,11 @@ public class LocationConstant {
     public static final Integer LIST_TYPE_PASSAGE = 3;   //获取通道list方法
     public static final Integer LIST_TYPE_SHELFREGION = 4;   //获取货架区和阁楼区的list方法
     public static final Integer LIST_TYPE_SHELF = 5; //获取货架和阁楼的list方法
+
+    // location_id划分相关
+    public static final Integer CHILDREN_RANGE = 128; //每个节点的子节点数
+    public static final Integer LOCATION_LEVEL = 8; // 整棵树的最大层数
+
 
 
     public static final Map<Long, String> LOCATION_TYPE_NAME = new HashMap<Long, String>() {

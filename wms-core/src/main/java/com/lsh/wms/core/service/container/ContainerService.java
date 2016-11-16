@@ -111,7 +111,7 @@ public class ContainerService {
     public boolean isContainerCanUse(Long containerId) {
 //      是否存在托盘和是否在使用
         List<StockQuant> quants = stockQuantService.getQuantsByContainerId(containerId);
-        if (this.getContainer(containerId) != null && quants.size() <= 0 && baseTaskService.checkTaskByContainerId(containerId)) {
+        if (this.getContainer(containerId) != null && quants.size() <= 0 && !baseTaskService.checkTaskByContainerId(containerId)) {
             return true;
         }
         return false;
