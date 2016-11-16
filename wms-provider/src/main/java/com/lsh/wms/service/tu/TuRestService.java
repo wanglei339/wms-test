@@ -128,10 +128,15 @@ public class TuRestService implements ITuRestService {
         }
         //事务成功 tms失败
         if (TuConstant.SHIP_OVER.equals(tuHead.getStatus())) {
-            Boolean postResult = iTmsTuService.postTuDetails(tuId);
-            Map<String, Boolean> resultMap = new HashMap<String, Boolean>();
-            resultMap.put("response", postResult);
-            return JsonUtils.SUCCESS(resultMap);
+            try {
+                Boolean postResult = iTmsTuService.postTuDetails(tuId);
+                Map<String, Boolean> resultMap = new HashMap<String, Boolean>();
+                resultMap.put("response", postResult);
+                return JsonUtils.SUCCESS(resultMap);
+            }catch (Exception e){
+                e.printStackTrace();
+                throw new BizCheckedException("2990042");
+            }
         }
         List<TuDetail> details = iTuRpcService.getTuDeailListByTuId(tuId);
         //事务操作,创建任务,发车状态改变 生成任务群
@@ -183,7 +188,7 @@ public class TuRestService implements ITuRestService {
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("containerIds", totalContainers);
             map.put("tuHead", tuHead);
-            tuService.createObdAndMoveStockQuant(map);
+            tuService.createObdAndMoveStockQuant(wuMart, map, ibdObdMap);
 
             //释放集货道
             //查库存,释放集货道
@@ -197,8 +202,6 @@ public class TuRestService implements ITuRestService {
                     locationService.setLocationUnOccupied(locationId);
                 }
             }
-
-
         } else {
             //待销库存的totalDetails
             List<WaveDetail> totalDetails = new ArrayList<WaveDetail>();
@@ -226,7 +229,9 @@ public class TuRestService implements ITuRestService {
                 if (null == waveDetails || waveDetails.size() < 1) {
                     waveDetails = waveService.getAliveDetailsByContainerId(detail.getMergedContainerId());
                 }
-                totalDetails.addAll(waveDetails);
+                if(waveDetails != null) {
+                    totalDetails.addAll(waveDetails);
+                }
             }
             //库存托盘
             Set<Long> containerIds = new HashSet<Long>();
@@ -253,7 +258,7 @@ public class TuRestService implements ITuRestService {
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("containerIds", containerIds);
             map.put("tuHead", tuHead);
-            tuService.createObdAndMoveStockQuant(map);
+            tuService.createObdAndMoveStockQuant(wuMart, map, ibdObdMap);
 
 
             //释放集货道
@@ -270,22 +275,20 @@ public class TuRestService implements ITuRestService {
             }
         }
 
-        //回传物美
-        wuMart.sendSap(ibdObdMap);
-        //改变发车状态
-        tuHead.setDeliveryAt(DateUtils.getCurrentSeconds());    //发车时间
-        tuHead.setStatus(TuConstant.SHIP_OVER);
-        iTuRpcService.update(tuHead);
-
-        // 传给TMS运单发车信息,此过程可以重复调用
-        Boolean postResult = iTmsTuService.postTuDetails(tuId);
-        if (postResult) {
-            Map<String, Boolean> resultMap = new HashMap<String, Boolean>();
-            resultMap.put("response", postResult);
-            return JsonUtils.SUCCESS(resultMap);
-        } else {
+        try {
+            // 传给TMS运单发车信息,此过程可以重复调用
+            Boolean postResult = iTmsTuService.postTuDetails(tuId);
+            if (postResult) {
+                Map<String, Boolean> resultMap = new HashMap<String, Boolean>();
+                resultMap.put("response", postResult);
+                return JsonUtils.SUCCESS(resultMap);
+            } else {
+                throw new BizCheckedException("2990042");
+            }
+        }catch (Exception e){
             throw new BizCheckedException("2990042");
         }
+
     }
 
     /**

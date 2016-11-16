@@ -25,15 +25,14 @@ import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
+import com.lsh.wms.core.service.po.PoReceiptService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemType;
 import com.lsh.wms.model.csi.CsiSku;
-import com.lsh.wms.model.po.IbdDetail;
-import com.lsh.wms.model.po.IbdHeader;
-import com.lsh.wms.model.po.IbdObdRelation;
+import com.lsh.wms.model.po.*;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.system.SysUser;
@@ -92,6 +91,9 @@ public class ReceiptRestService implements IReceiptRfService {
     private RedisStringDao redisStringDao;
     @Autowired
     private SysUserService sysUserService;
+
+    @Autowired
+    private PoReceiptService poReceiptService;
 
 
 
@@ -156,8 +158,8 @@ public class ReceiptRestService implements IReceiptRfService {
             /*
             按配置验证生产日期/到期日是否输入
              */
-            if(PoConstant.ORDER_TYPE_CPO == orderType){
-                //直流,需根据配置验证生产日期/到期日是否输入
+            if(PoConstant.ORDER_TYPE_CPO == orderType && receiptRequest.getStoreId() != null){
+                //直流门店,需根据配置验证生产日期/到期日是否输入
                 // todo: 16/11/9 根据商品类型获取生产日期开关配置
                 BaseinfoItemType baseinfoItemType = iItemTypeRpcService.getBaseinfoItemTypeByItemId(baseinfoItem.getItemType());
                 if(baseinfoItemType != null && 1== baseinfoItemType.getIsNeedProtime()){
@@ -168,7 +170,7 @@ public class ReceiptRestService implements IReceiptRfService {
                 }
             }else{
                 if (PoConstant.ORDER_TYPE_TRANSFERS != orderType){
-                    //在库,且不是调拨,生产日期/到期日,必须输入一个
+                    //在库或直流订单,且不是调拨,生产日期/到期日,必须输入一个
                     if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null){
                         throw new BizCheckedException("2020008");//生产日期不能为空
                     }
@@ -676,18 +678,44 @@ public class ReceiptRestService implements IReceiptRfService {
                 //该商品是否在门店订货范围内
                 isGoods=baseinfoItem.getItemId().equals(obdDetail.getItemId());
                 if(isGoods){
+//                    //查询inbReceiptHeader是否存在 根据托盘查询
+//                    Map<String,Object> mapQuery = new HashMap<String, Object>();
+//                    mapQuery.put("containerId",containerId);
+//                    InbReceiptHeader inbReceiptHeader = poReceiptService.getInbReceiptHeaderByParams(mapQuery);
+//
+//                    if(inbReceiptHeader != null ){
+//                        Long receiptId = inbReceiptHeader.getReceiptOrderId();
+//                        InbReceiptDetail inbReceiptDetail = poReceiptService.getInbReceiptDetailListByReceiptIdAndCode(receiptId,barCode);
+//                        if(inbReceiptDetail != null){
+//                            BigDecimal inboundQty = inbReceiptDetail.getInboundQty();
+//                            orderQty = orderQty.subtract(inboundQty);
+//                        }
+//                    }
+                    //实际播种的数量。
+                    BigDecimal sowQty = obdDetail.getSowQty();
+                    BigDecimal orderQty = obdDetail.getOrderQty();
                     map2.put("location","J"+storeId);
                     map2.put("orderId",ibdHeader.getOrderId());
                     map2.put("barCode",barCode);
                     map2.put("skuName",baseinfoItem.getSkuName());
-                    map2.put("orderQty",obdDetail.getOrderQty());
+                    //剩余数量。
+                    map2.put("orderQty",orderQty.subtract(sowQty));
                     map2.put("packName",ibdDetail.getPackName());
                     map2.put("packUnit",ibdDetail.getPackUnit());
                     map2.put("pile",baseinfoItem.getPileX()+ "*" + baseinfoItem.getPileY() + "*" + baseinfoItem.getPileZ());
+                    BaseinfoItemType baseinfoItemType = iItemTypeRpcService.getBaseinfoItemTypeByItemId(baseinfoItem.getItemType());
+                    if(baseinfoItemType != null){
+                        map2.put("isNeedProTime",baseinfoItemType.getIsNeedProtime());// TODO: 16/11/15 是否需要输入生产日期
+                    }else{
+                        map2.put("isNeedProTime",0);
+                    }
+//                    //剩余数量存入redis po订单号 托盘码 barcode作为key
+//                    String qtyKey = StrUtils.formatString(RedisKeyConstant.STORE_QTY,ibdHeader.getOrderId(),containerId,barCode);
+//                    redisStringDao.set(qtyKey,orderQty);
 
                     //将obdorderId存入redis
                     String key=StrUtils.formatString(RedisKeyConstant.PO_STORE,ibdHeader.getOrderId(),storeId);
-                    redisStringDao.set(key,obdHeader.getOrderId());
+                    redisStringDao.set(key,obdHeader.getOrderId()+","+obdDetail.getDetailOtherId());
                     break;
                 }
 

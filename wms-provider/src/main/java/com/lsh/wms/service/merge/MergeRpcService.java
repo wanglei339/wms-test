@@ -78,11 +78,16 @@ public class MergeRpcService implements IMergeRpcService {
                     if (!countedContainerIds.contains(mergedContainerId)) {
                         countedContainerIds.add(mergedContainerId);
                         List<TuDetail> tuDetails = tuService.getTuDeailListByMergedContainerId(mergedContainerId);
+                        TaskInfo taskInfo = baseTaskService.getTaskInfoById(waveDetail.getMergeTaskId());
+                        Integer containerIncrement = 1;
+                        if (taskInfo != null) {
+                            containerIncrement = taskInfo.getTaskBoardQty().intValue();
+                        }
                         if (tuDetails.size() == 0) {
-                            totalMergedContainers++;
+                            totalMergedContainers += containerIncrement;
                             // 是否是余货
                             if (waveDetail.getQcAt() < DateUtils.getTodayBeginSeconds()) {
-                                restMergedContainers++;
+                                restMergedContainers += containerIncrement;
                             }
                         } else {
                             Boolean needCount = true;
@@ -95,9 +100,9 @@ public class MergeRpcService implements IMergeRpcService {
                                 }
                             }
                             if (needCount) {
-                                totalMergedContainers++;
+                                totalMergedContainers += containerIncrement;
                                 if (waveDetail.getQcAt() < DateUtils.getTodayBeginSeconds()) {
-                                    restMergedContainers++;
+                                    restMergedContainers += containerIncrement;
                                 }
                             }
                         }
@@ -191,6 +196,7 @@ public class MergeRpcService implements IMergeRpcService {
                         result.put("isRest", true);
                     }
                 } else {
+                    TaskInfo taskInfo = baseTaskService.getTaskInfoById(waveDetail.getMergeTaskId());
                     result.put("containerId", containerId);
                     result.put("markContainerId",waveDetail.getContainerId());  //当前作为查找板子码标识的物理托盘码,随机选的
                     result.put("containerCount", 1);
@@ -202,6 +208,11 @@ public class MergeRpcService implements IMergeRpcService {
                         result.put("isRest", true);
                     } else {
                         result.put("isRest", false);
+                    }
+                    if (taskInfo.getTaskBoardQty().compareTo(BigDecimal.ONE) > 0) {
+                        result.put("isMulBoard", true);
+                    } else {
+                        result.put("isMulBoard", false);
                     }
                     result.put("mergedTime", waveDetail.getMergeAt());
                 }

@@ -15,13 +15,17 @@ import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
+import com.lsh.wms.core.service.item.ItemService;
+import com.lsh.wms.core.service.location.BaseinfoLocationBinService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoLocationBin;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
@@ -79,6 +83,11 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     private SoOrderService soOrderService;
     @Autowired
     private WaveService waveService;
+    @Autowired
+    private ItemService itemService;
+    @Autowired
+    private BaseinfoLocationBinService locationBinService;
+
     //生成补货任务
     public boolean addProcurementPlan(StockTransferPlan plan){
         //系统自动创建的任务,无需进行任务检查,不可抛异常
@@ -596,5 +605,27 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             priority--;
         }
         return 0L;
+    }
+    public BigDecimal getQty(){
+                StockQuant quant = quantService.getQuantById(1526l);
+        Long itemId = 130682969935503l;
+        Long locationId = 26630691244183l;
+        BigDecimal qty = quantService.getQuantQtyByLocationIdAndItemId(locationId, itemId);
+        //获取仓位体积
+        BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(locationId);
+        BigDecimal pickVolume = bin.getVolume();
+        BaseinfoItem item = itemService.getItem(itemId);
+        BigDecimal bulk = BigDecimal.ONE;
+
+
+        //计算包装单位的体积
+        bulk = bulk.multiply(item.getPackLength());
+        bulk = bulk.multiply(item.getPackHeight());
+        bulk = bulk.multiply(item.getPackWidth());
+
+
+        BigDecimal num = pickVolume.divide(bulk, 0, BigDecimal.ROUND_UP);
+
+        return num.subtract(qty.divide(quant.getPackUnit(),0,BigDecimal.ROUND_UP));
     }
 }

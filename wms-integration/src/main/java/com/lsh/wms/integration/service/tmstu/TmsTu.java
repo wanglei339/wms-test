@@ -148,7 +148,7 @@ public class TmsTu implements ITmsTuService {
     public String storeUnloadList() throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("status", 1); // 生效状态的 TODO: 待改为constant
-        mapQuery.put("customerType", CustomerConstant.SUPER_MARKET); // 大店 TODO: 这个地方是字符串,目前数据量小先这样了,理论上应该为数字或者全部取出后遍历
+        mapQuery.put("customerType", CustomerConstant.STORE); // 大店 TODO: 这个地方是字符串,目前数据量小先这样了,理论上应该为数字或者全部取出后遍历
         List<CsiCustomer> customers = csiCustomerService.getCustomerList(mapQuery);
         List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
         for (CsiCustomer customer: customers) {

@@ -114,7 +114,7 @@ public class WaveCore {
         this._allocDock();
         //执行配货
         this._alloc();
-        logger.info("begin to run outbound model");
+        logger.info("begin to run outbound model "+iWaveId);
         //执行捡货模型,输出最小捡货单元
         this._executePickModel();
         //锁定集货区,记得发货的时候释放哟
@@ -476,6 +476,17 @@ public class WaveCore {
         }
         //获取分拣分区下的可分配库存数量,怎么获取?
         BigDecimal zone_qty = this._getPickZoneLeftAllocQty(item, location);
+        logger.info(String.format("wave %d item %d[%s] packunit %d-%s-%s leftQty %s zone %s pickArea %s getCanAllocQty %s",
+                waveId,
+                item.getItemId(),
+                item.getSkuCode(),
+                pick_unit,
+                pick_ea_num.toString(),
+                unitName,
+                leftAllocQty.toString(),
+                zone.getPickZoneName(),
+                location.getLocationCode(),
+                zone_qty.toString()));
         if (zone_qty.compareTo(BigDecimal.ZERO) <= 0) {
             return leftAllocQty;
         }
@@ -504,6 +515,7 @@ public class WaveCore {
         allocDetail.setPickAreaLocation(location.getLocationId());
         pickAllocDetailList.add(allocDetail);
         leftAllocQty = leftAllocQty.subtract(alloc_qty);
+        logger.info(String.format("get real qty %s", alloc_qty.toString()));
         return leftAllocQty;
     }
 
@@ -538,7 +550,17 @@ public class WaveCore {
             allocDetail.setAllocUnitName("EA");
             allocDetail.setPickAreaLocation(location.getLocationId());
             pickAllocDetailList.add(allocDetail);
+            logger.info(String.format("wave %d item %d[%s] packunit -1-EA leftQty %s zone %s pickArea %s getCanAllocQty %s sotrePickSame %s",
+                    waveId,
+                    item.getItemId(),
+                    item.getSkuCode(),
+                    leftAllocQty.toString(),
+                    zone.getPickZoneName(),
+                    location.getLocationCode(),
+                    info.get("allocQty").toString(),
+                    info.get("locationId").toString()));
             leftAllocQty = leftAllocQty.subtract((BigDecimal) info.get("allocQty"));
+            logger.info(String.format("get real qty %s", info.get("allocQty").toString()));
         }
         return leftAllocQty;
     }
@@ -567,7 +589,7 @@ public class WaveCore {
                     throw new BizCheckedException("");
                 }
                 //获取商品的捡货位
-                BigDecimal leftAllocQty = detail.getOrderQty();
+                BigDecimal leftAllocQty = detail.getUnitQty();
                 for (PickModel model : modelList) {
                     if (leftAllocQty.compareTo(BigDecimal.ZERO) <= 0) {
                         break;
@@ -590,9 +612,17 @@ public class WaveCore {
                         }
                     }
                 }
-                if (leftAllocQty.compareTo(BigDecimal.ZERO) > 0) {
-                    logger.error("alloc "+item.getItemId()+" left "+leftAllocQty.toString());
-                }
+                //if (leftAllocQty.compareTo(BigDecimal.ZERO) > 0) {
+                    logger.error(String.format("GOD WAVE %d order %d idx[%s] item[%d][%s] needQty[%s] leftQty[%s] %s",
+                        waveId,
+                        detail.getOrderId(),
+                        detail.getDetailOtherId(),
+                        item.getItemId(),
+                        item.getSkuCode(),
+                        detail.getUnitQty().toString(),
+                        leftAllocQty.toString(),
+                            leftAllocQty.compareTo(BigDecimal.ZERO)>0?"QUEJIAO":"NORMAL"));
+                //}
             }
             //存储配货结果
             //waveService.storeAlloc(waveHead, pickAllocDetailList);

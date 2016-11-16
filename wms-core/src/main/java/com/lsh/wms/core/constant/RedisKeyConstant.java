@@ -79,6 +79,12 @@ public class RedisKeyConstant {
      */
 
     public static final String PO_STORE = "po_id:{0}:store_no:{1}";
+
+    /**
+     * 直流门店收货剩余数量redis key   sort set
+     */
+
+    public static final String STORE_QTY = "poId:{0}:containerId:{1}:barCode:{2}";
     /**
      * 门店收货托盘对应店铺 redis string,值为对应店铺ID
      */

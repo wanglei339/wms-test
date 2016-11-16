@@ -24,12 +24,12 @@ import com.lsh.wms.core.service.seed.SeedTaskHeadService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
+import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.baseinfo.BaseinfoStore;
 import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.po.IbdDetail;
@@ -47,14 +47,12 @@ import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.task.service.handler.AbsTaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
-import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -100,12 +98,12 @@ public class SeedTaskHandler extends AbsTaskHandler {
     ISeedRpcService seedRpcService;
     @Autowired
     private StaffService staffService;
+    @Autowired
+    private StockMoveService moveService;
     @Reference
     private ITaskRpcService iTaskRpcService;
     @Autowired
     CsiCustomerService csiCustomerService;
-
-    private static Logger logger = LoggerFactory.getLogger(SeedTaskHandler.class);
 
 
     @PostConstruct
@@ -308,11 +306,11 @@ public class SeedTaskHandler extends AbsTaskHandler {
             lot.setPackUnit(info.getPackUnit());
             lot.setSkuId(info.getSkuId());
             lot.setPackName(info.getPackName());
-            quantService.move(move, lot);
+            moveService.move(move, lot);
             ReceiptRequest receiptRequest = this.fillReceipt(entry);
             seedRpcService.insertReceipt(receiptRequest);
         }else {
-            quantService.move(move);
+            moveService.move(move);
         }
     }
     public void updteConcrete(TaskEntry entry) {

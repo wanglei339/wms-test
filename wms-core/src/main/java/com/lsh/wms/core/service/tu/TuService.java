@@ -1,12 +1,24 @@
 package com.lsh.wms.core.service.tu;
 
+import com.alibaba.dubbo.config.annotation.Reference;
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.service.inventory.InventoryRedisService;
+import com.lsh.wms.api.model.so.ObdOfcBackRequest;
+import com.lsh.wms.api.model.so.ObdOfcItem;
+import com.lsh.wms.api.model.wumart.CreateObdDetail;
+import com.lsh.wms.api.model.wumart.CreateObdHeader;
+import com.lsh.wms.api.service.back.IDataBackService;
+import com.lsh.wms.api.service.wumart.IWuMart;
+import com.lsh.wms.core.constant.IntegrationConstan;
+import com.lsh.wms.core.constant.TuConstant;
+import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.dao.tu.TuDetailDao;
 import com.lsh.wms.core.dao.tu.TuHeadDao;
 import com.lsh.wms.core.service.item.ItemService;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockMoveService;
@@ -14,6 +26,7 @@ import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
@@ -28,6 +41,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -57,6 +72,8 @@ public class TuService {
     private SoOrderService soOrderService;
     @Autowired
     private InventoryRedisService inventoryRedisService;
+    @Autowired
+    private LocationService locationService;
 
     @Transactional(readOnly = false)
     public void create(TuHead head) {
@@ -324,14 +341,125 @@ public class TuService {
      * @return
      */
     @Transactional(readOnly = false)
-    public boolean createObdAndMoveStockQuant(Map<String, Object> map) {
+    public void createObdAndMoveStockQuant(IWuMart wuMart, Map<String, Object> map, Map<String, Object> ibdObdMap) {
         Set<Long> containerIds = (Set<Long>) map.get("containerIds");
         TuHead tuHead = (TuHead) map.get("tuHead");
-        if (this.moveItemToConsumeArea(containerIds) && this.creatDeliveryOrderAndDetail(tuHead)) {
-            return true;
-        } else {
-            return false;
+        this.moveItemToConsumeArea(containerIds);
+        this.creatDeliveryOrderAndDetail(tuHead);
+        wuMart.sendSap(ibdObdMap);
+        //改变发车状态
+        tuHead.setDeliveryAt(DateUtils.getCurrentSeconds());    //发车时间
+        tuHead.setStatus(TuConstant.SHIP_OVER);
+        this.update(tuHead);
+
+    }
+
+
+    @Transactional(readOnly = false)
+    public void createObdAndMoveStockQuantV2(IDataBackService dataBackService, IWuMart wuMart, Map<String, Object> map, List<WaveDetail> totalWaveDetails) {
+        Set<Long> containerIds = (Set<Long>) map.get("containerIds");
+        TuHead tuHead = (TuHead) map.get("tuHead");
+        this.moveItemToConsumeArea(containerIds);
+        this.creatDeliveryOrderAndDetail(tuHead);
+
+        //释放已经没有库存的集货道
+        Set<Long> locationIds = new HashSet<Long>();
+        for (WaveDetail detail : totalWaveDetails) {
+            locationIds.add(detail.getRealCollectLocation());
         }
+        //查库存,释放集货道
+        for (Long locationId : locationIds) {
+            Map<String, Object> mapQuery = new HashMap<String, Object>();
+            mapQuery.put("locationId", locationId);
+            java.math.BigDecimal qty = stockQuantService.getQty(mapQuery);
+            if (0 == qty.compareTo(BigDecimal.ZERO)) {
+                //释放集货导
+                locationService.unlockLocation(locationId);
+                locationService.setLocationUnOccupied(locationId);
+            }
+        }
+        //获取发货单的header
+        List<OutbDeliveryHeader> outbDeliveryHeaders = soDeliveryService.getOutbDeliveryHeaderByTmsId(tuHead.getTuId());
+        //发货单的detail
+        // TODO: 2016/11/14 回传obd
+        List<Long> deliveryIds = new ArrayList<Long>();
+        for (OutbDeliveryHeader header : outbDeliveryHeaders) {
+            deliveryIds.add(header.getDeliveryId());
+        }
+
+        List<OutbDeliveryDetail> deliveryDetails = soDeliveryService.getOutbDeliveryDetailList(deliveryIds);
+        Set<Long> orderIds = new HashSet<Long>();
+        for (OutbDeliveryDetail deliveryDetail : deliveryDetails) {
+            orderIds.add(deliveryDetail.getOrderId());
+        }
+
+        for (Long orderId : orderIds) {
+            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
+            //查询明细。
+            List<ObdDetail> obdDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
+            // TODO: 2016/9/23  组装OBD反馈信息 根据货主区分回传lsh或物美
+
+            //组装ofc OBD反馈信息
+            ObdOfcBackRequest request = new ObdOfcBackRequest();
+            Date date = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String now = sdf.format(date);
+            request.setWms(2);//该字段写死 2
+            request.setDeliveryTime(now);
+            request.setObdCode(obdHeader.getOrderId().toString());
+            request.setSoCode(obdHeader.getOrderOtherId());
+
+            //组装物美反馈信息
+            CreateObdHeader createObdHeader = new CreateObdHeader();
+            createObdHeader.setOrderOtherId(obdHeader.getOrderOtherId());
+            //查询明细。
+            List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
+            List<ObdOfcItem> items = new ArrayList<ObdOfcItem>();
+
+            List<CreateObdDetail> createObdDetails = new ArrayList<CreateObdDetail>();
+
+            for (ObdDetail detail : soDetails) {
+
+                ObdOfcItem item = new ObdOfcItem();
+
+                CreateObdDetail createObdDetail = new CreateObdDetail();
+
+                item.setPackNum(detail.getPackUnit());
+                //
+                OutbDeliveryDetail deliveryDetail = soDeliveryService.getOutbDeliveryDetail(orderId, detail.getItemId());
+                if (deliveryDetail == null) {
+                    continue;
+                }
+                BigDecimal outQty = deliveryDetail.getDeliveryNum();
+                item.setSkuQty(outQty);
+
+                //ea转换为包装数量。
+                createObdDetail.setDlvQty(PackUtil.EAQty2UomQty(outQty, detail.getPackUnit()));
+                createObdDetail.setRefItem(detail.getDetailOtherId());
+                createObdDetail.setMaterial(detail.getSkuCode());
+                createObdDetails.add(createObdDetail);
+
+                item.setSupplySkuCode(detail.getSkuCode());
+                items.add(item);
+            }
+            request.setDetails(items);
+            //TODO 瞎逼判断
+            if (obdHeader.getOwnerUid() == 1) {
+                wuMart.sendSo2Sap(createObdHeader);
+            } else if (obdHeader.getOwnerUid() == 2) {
+                dataBackService.ofcDataBackByPost(JSON.toJSONString(request), IntegrationConstan.URL_LSHOFC_OBD);
+            }
+        }
+
+        //同步库存 todo 力哥
+        Set<Long> waveIds = new HashSet<Long>();
+        for (WaveDetail detail : totalWaveDetails) {
+            waveIds.add(detail.getWaveId());
+        }
+        //设置发货人和发货时间
+        tuHead.setDeliveryAt(DateUtils.getCurrentSeconds());
+        tuHead.setStatus(TuConstant.SHIP_OVER);
+        this.update(tuHead);
     }
 
     /**

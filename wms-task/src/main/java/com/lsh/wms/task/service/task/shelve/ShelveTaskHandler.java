@@ -159,18 +159,49 @@ public class ShelveTaskHandler extends AbsTaskHandler {
 
     public void doneConcrete(Long taskId, Long locationId) throws BizCheckedException{
         ShelveTaskHead taskHead = taskService.getShelveTaskHead(taskId);
+        TaskInfo taskInfo = baseTaskService.getTaskInfoById(taskId);
         if (taskHead == null) {
             throw new BizCheckedException("2030009");
         }
+        Long lotId = taskHead.getLotId();
+        Long itemId = taskInfo.getItemId();
         BaseinfoLocation realLocation = locationService.getLocation(locationId);
+        if (realLocation == null) {
+            throw new BizCheckedException("2030006");
+        }
         // 实际上架位置和分配位置不一致
         if (!locationId.equals(taskHead.getAllocLocationId())) {
-            if (realLocation == null) {
-                throw new BizCheckedException("2030006");
+            // 拣货位
+            if (realLocation.getType().equals(LocationConstant.SHELF_PICKING_BIN)) {
+                // 检查是否是该商品的拣货位
+                Map<String, Object> params = new HashMap<String, Object>();
+                params.put("itemId", itemId);
+                params.put("pickLocationid", locationId);
+                params.put("userstatus", 1);
+                List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocation(params);
+                if (itemLocations.size() < 1) {
+                    throw new BizCheckedException("2030017");
+                }
             }
-            // 检查位置锁定状态
-            if (locationService.checkLocationLockStatus(locationId)) {
-                throw new BizCheckedException("2030011");
+            // 存货位
+            if (realLocation.getType().equals(LocationConstant.SHELF_STORE_BIN)) {
+                // 检查是否有库存
+                List<StockQuant> stockQuants = stockQuantService.getQuantsByLocationId(locationId);
+                if (stockQuants.size() > 0) {
+                    throw new BizCheckedException("2030018");
+                }
+                // 检查位置锁定状态
+                if (locationService.checkLocationLockStatus(locationId)) {
+                    throw new BizCheckedException("2030011");
+                }
+            }
+            // 地堆
+            if (realLocation.getType().equals(LocationConstant.FLOOR)) {
+                // 判断是否为同一批次的
+                List<StockQuant> stockQuants = stockQuantService.getQuantsByLocationId(locationId);
+                if (!lotId.equals(stockQuants.get(0).getLotId())) {
+                    throw new BizCheckedException("2030019");
+                }
             }
             // 检查位置使用状态
             if (realLocation.getCanUse().equals(0)) {
