@@ -430,7 +430,7 @@ public class TuService {
                 item.setSkuQty(outQty);
 
                 //ea转换为包装数量。
-                createObdDetail.setDlvQty(outQty.divide(detail.getPackUnit()));
+                createObdDetail.setDlvQty(PackUtil.EAQty2UomQty(outQty, detail.getPackUnit()));
                 createObdDetail.setRefItem(detail.getDetailOtherId());
                 createObdDetail.setMaterial(detail.getSkuCode());
                 createObdDetails.add(createObdDetail);
