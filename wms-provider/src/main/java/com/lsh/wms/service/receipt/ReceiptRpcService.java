@@ -412,6 +412,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 updateReceiveDetail.setDetailOtherId(receiveDetail.getDetailOtherId());
                 updateReceiveDetail.setReceiveId(receiveDetail.getReceiveId());
                 updateReceiveDetail.setInboundQty(inbReceiptDetail.getInboundQty());
+                updateReceiveDetail.setUpdatedAt(DateUtils.getCurrentSeconds());//更新时间
                 updateReceiveDetailList.add(updateReceiveDetail);
 
                 if(ibdHeader.getOrderType() == PoConstant.ORDER_TYPE_CPO){
@@ -843,6 +844,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             updateReceiveDetail.setDetailOtherId(receiveDetail.getDetailOtherId());
             updateReceiveDetail.setReceiveId(receiveDetail.getReceiveId());
             updateReceiveDetail.setInboundQty(inbReceiptDetail.getInboundQty());
+            updateReceiveDetail.setUpdatedAt(DateUtils.getCurrentSeconds());//更新时间
             updateReceiveDetailList.add(updateReceiveDetail);
 
             //生成出库detail信息
