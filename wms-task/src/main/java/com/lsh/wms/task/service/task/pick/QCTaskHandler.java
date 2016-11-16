@@ -71,6 +71,7 @@ public class QCTaskHandler extends AbsTaskHandler {
             qcTaskinfo.setQty(new BigDecimal(setItem.size()));    //创建QC任务不设定QC需要的QC数量,而是实际输出来的数量和上面的任务操作数量比对
             qcTaskinfo.setWaveId(details.get(0).getWaveId());
             qcTaskinfo.setPlanId(qcTaskinfo.getPlanId());
+            qcTaskinfo.setLocationId(details.get(0).getRealCollectLocation());
             TaskEntry taskEntry = new TaskEntry();
             taskEntry.setTaskDetailList((List<Object>) (List<?>) details);
             taskEntry.setTaskInfo(qcTaskinfo);
