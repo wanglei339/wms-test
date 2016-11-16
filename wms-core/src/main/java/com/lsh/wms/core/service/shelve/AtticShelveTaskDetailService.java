@@ -3,7 +3,11 @@ package com.lsh.wms.core.service.shelve;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.shelve.AtticShelveTaskDetailDao;
+import com.lsh.wms.core.service.location.BaseinfoLocationService;
+import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.model.shelve.AtticShelveTaskDetail;
+import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -21,6 +25,10 @@ import java.util.Map;
 public class AtticShelveTaskDetailService {
     @Autowired
     private AtticShelveTaskDetailDao detailDao;
+    @Autowired
+    private StockMoveService moveService;
+    @Autowired
+    private LocationService locationService;
 
     @Transactional(readOnly = false)
     public void create(AtticShelveTaskDetail detail) {
@@ -69,6 +77,14 @@ public class AtticShelveTaskDetailService {
     }
     @Transactional(readOnly = false)
     public void updateDetail(AtticShelveTaskDetail detail) {
+        detail.setUpdatedAt(DateUtils.getCurrentSeconds());
+        detailDao.update(detail);
+
+    }
+    @Transactional(readOnly = false)
+    public void doneDetail(AtticShelveTaskDetail detail,StockMove move) {
+        moveService.move(move);
+        locationService.unlockLocation(detail.getAllocLocationId());
         detail.setUpdatedAt(DateUtils.getCurrentSeconds());
         detailDao.update(detail);
 

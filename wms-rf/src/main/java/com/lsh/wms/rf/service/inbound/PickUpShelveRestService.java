@@ -324,7 +324,19 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             if(locationService.checkLocationUseStatus(realLocationId) && realLocationId.compareTo(detail.getAllocLocationId())!=0){
                 return JsonUtils.TOKEN_ERROR("扫描库位已被占用");
             }
+            //判断能不能放到的已有库存的库位上
+            List<BaseinfoLocation> baseinfoLocations = locationService.getLocationsByType(LocationConstant.SPLIT_AREA);
+            BaseinfoLocationRegion region = (BaseinfoLocationRegion) regionService.getBaseinfoItemLocationModelById(baseinfoLocations.get(0).getLocationId());
+            List<StockQuant> stockQuants = stockQuantService.getQuantsByLocationId(realLocationId);
+            if(LocationConstant.LOCATION_CAN_ADD.compareTo(region.getRegionStrategy())==0){
+                for(StockQuant realQuant:stockQuants){
+                    if(realQuant.getItemId().compareTo(info.getItemId())!=0){
+                        return JsonUtils.TOKEN_ERROR("该库位所存商品不是上架商品");
+                    }
+                }
+            }else {
 
+            }
             if(detail ==null){
                 return JsonUtils.TOKEN_ERROR("系统库位参数错误");
             }
@@ -353,9 +365,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         move.setFromContainerId(quant.getContainerId());
         move.setToContainerId(containerId);
         move.setTaskId(taskId);
-        moveService.move(move);
-        locationService.unlockLocation(detail.getAllocLocationId());
-        shelveTaskService.updateDetail(detail);
+        shelveTaskService.doneDetail(detail,move);
 
 
         Map result = this.getResultMap(taskId);
@@ -397,7 +407,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         if(baseinfoLocations!=null && baseinfoLocations.size()!=0){
             BaseinfoLocation location = baseinfoLocations.get(0);
             BaseinfoLocationRegion region = (BaseinfoLocationRegion) regionService.getBaseinfoItemLocationModelById(location.getLocationId());
-            if(region.getRegionStrategy().compareTo(LocationConstant.LOCATION_CAN_ADD)==0){
+            if(LocationConstant.LOCATION_CAN_ADD.compareTo(region.getRegionStrategy())==0){
                 Map<String,Object> query = new HashMap<String, Object>();
                 query.put("location",location);
                 query.put("itemId",info.getItemId());
@@ -410,7 +420,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
                         if (qty.compareTo(BigDecimal.ONE) <= 0) {
                             continue;
                         } else {
-                            locationId = quant.getLocationId();
+                            locationId = stockQuant.getLocationId();
                             break;
                         }
                     }
@@ -517,7 +527,6 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
 
 
         BigDecimal num = pickVolume.divide(bulk, 0, BigDecimal.ROUND_UP);
-
 
         return num.subtract(qty.divide(quant.getPackUnit(),0,BigDecimal.ROUND_UP));
     }
