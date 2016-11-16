@@ -174,7 +174,6 @@ public class SeedRpcService implements ISeedRpcService {
             updateReceiveDetailList.add(updateReceiveDetail);
 
             //生成出库detail信息
-            //获取redis中的orderId
             String key = StrUtils.formatString(RedisKeyConstant.PO_STORE, ibdHeader.getOrderId(), inbReceiptHeader.getStoreCode());
 
             Long obdOrderId = orderMap.get(key);
