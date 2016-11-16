@@ -158,8 +158,8 @@ public class ReceiptRestService implements IReceiptRfService {
             /*
             按配置验证生产日期/到期日是否输入
              */
-            if(PoConstant.ORDER_TYPE_CPO == orderType){
-                //直流,需根据配置验证生产日期/到期日是否输入
+            if(PoConstant.ORDER_TYPE_CPO == orderType && receiptRequest.getStoreId() != null){
+                //直流门店,需根据配置验证生产日期/到期日是否输入
                 // todo: 16/11/9 根据商品类型获取生产日期开关配置
                 BaseinfoItemType baseinfoItemType = iItemTypeRpcService.getBaseinfoItemTypeByItemId(baseinfoItem.getItemType());
                 if(baseinfoItemType != null && 1== baseinfoItemType.getIsNeedProtime()){
@@ -170,7 +170,7 @@ public class ReceiptRestService implements IReceiptRfService {
                 }
             }else{
                 if (PoConstant.ORDER_TYPE_TRANSFERS != orderType){
-                    //在库,且不是调拨,生产日期/到期日,必须输入一个
+                    //在库或直流订单,且不是调拨,生产日期/到期日,必须输入一个
                     if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null){
                         throw new BizCheckedException("2020008");//生产日期不能为空
                     }
@@ -703,6 +703,12 @@ public class ReceiptRestService implements IReceiptRfService {
                     map2.put("packName",ibdDetail.getPackName());
                     map2.put("packUnit",ibdDetail.getPackUnit());
                     map2.put("pile",baseinfoItem.getPileX()+ "*" + baseinfoItem.getPileY() + "*" + baseinfoItem.getPileZ());
+                    BaseinfoItemType baseinfoItemType = iItemTypeRpcService.getBaseinfoItemTypeByItemId(baseinfoItem.getItemType());
+                    if(baseinfoItemType != null){
+                        map2.put("isNeedProTime",baseinfoItemType.getIsNeedProtime());// TODO: 16/11/15 是否需要输入生产日期
+                    }else{
+                        map2.put("isNeedProTime",0);
+                    }
 //                    //剩余数量存入redis po订单号 托盘码 barcode作为key
 //                    String qtyKey = StrUtils.formatString(RedisKeyConstant.STORE_QTY,ibdHeader.getOrderId(),containerId,barCode);
 //                    redisStringDao.set(qtyKey,orderQty);
