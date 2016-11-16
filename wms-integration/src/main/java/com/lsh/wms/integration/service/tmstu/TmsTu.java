@@ -78,53 +78,6 @@ public class TmsTu implements ITmsTuService {
     }
 
     /**
-     * 使用POST方式将TU发车
-     *
-     * @param tuId
-     * @throws BizCheckedException
-     */
-    public Boolean postTuDetails(String tuId) throws BizCheckedException {
-        TuHead tuHead = tuService.getHeadByTuId(tuId);
-        Map<String, Object> result = new HashMap<String, Object>();
-        String responseBody = "";
-        if (tuHead == null) {
-            throw new BizCheckedException("2990022");
-        }
-        if (!tuHead.getStatus().equals(TuConstant.SHIP_OVER)) {
-            throw new BizCheckedException("2990037");
-        }
-        List<TuDetail> tuDetails = tuService.getTuDeailListByTuId(tuId);
-        List<Map<String, Object>> details = new ArrayList<Map<String, Object>>();
-        for (TuDetail tuDetail : tuDetails) {
-            Map<String, Object> detail = BeanMapTransUtils.Bean2map(tuDetail);
-            CsiCustomer csiCustomer = csiCustomerService.getCustomerByCustomerId(tuDetail.getStoreId());
-            detail.put("customerCode", csiCustomer.getCustomerCode());
-            detail.put("customerName", csiCustomer.getCustomerName());
-            details.add(detail);
-        }
-        result.put("tuId", tuId);
-        result.put("tuHead", JSON.toJSONString(tuHead));
-        result.put("scale", tuHead.getScale().toString());
-        result.put("tuDetails", JSON.toJSONString(details));
-        String url = PropertyUtils.getString("tms_ship_over_url");
-        /*int timeout = PropertyUtils.getInt("tms_timeout");
-        String charset = PropertyUtils.getString("tms_charset");
-        Map<String, String> headMap = new HashMap<String, String>();
-        headMap.put("Content-type", "application/x-www-form-urlencoded; charset=utf-8");*/
-        // headMap.put("Accept", "**/*//*");
-        logger.info("[SHIP OVER]Begin to transfer to TMS, " + "URL: " + url + ", Request body: " + JSON.toJSONString(result));
-        try {
-            // responseBody = HttpClientUtils.post(url, result, timeout, charset, headMap);
-            responseBody = HttpUtils.doPostByForm(url, result);
-        } catch (Exception e) {
-            logger.info("[SHIP OVER]Transfer to TMS failed: " + responseBody);
-            return false;
-        }
-        logger.info("[SHIP OVER]Transfer to TMS success: " + responseBody);
-        return true;
-    }
-
-    /**
      * 大店的未装车板数列表
      *
      * @return

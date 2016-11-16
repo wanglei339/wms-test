@@ -11,6 +11,7 @@ import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.api.service.tmstu.ITmsTuRpcService;
 import com.lsh.wms.api.service.tmstu.ITmsTuService;
 import com.lsh.wms.api.service.tu.ITuRestService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
@@ -67,7 +68,7 @@ public class TuRestService implements ITuRestService {
     @Reference
     private ITaskRpcService iTaskRpcService;
     @Reference
-    private ITmsTuService iTmsTuService;
+    private ITmsTuRpcService iTmsTuRpcService;
     @Reference
     private IWuMart wuMart;
 
@@ -129,7 +130,7 @@ public class TuRestService implements ITuRestService {
         //事务成功 tms失败
         if (TuConstant.SHIP_OVER.equals(tuHead.getStatus())) {
             try {
-                Boolean postResult = iTmsTuService.postTuDetails(tuId);
+                Boolean postResult = iTmsTuRpcService.postTuDetails(tuId);
                 Map<String, Boolean> resultMap = new HashMap<String, Boolean>();
                 resultMap.put("response", postResult);
                 return JsonUtils.SUCCESS(resultMap);
@@ -277,7 +278,7 @@ public class TuRestService implements ITuRestService {
 
         try {
             // 传给TMS运单发车信息,此过程可以重复调用
-            Boolean postResult = iTmsTuService.postTuDetails(tuId);
+            Boolean postResult = iTmsTuRpcService.postTuDetails(tuId);
             if (postResult) {
                 Map<String, Boolean> resultMap = new HashMap<String, Boolean>();
                 resultMap.put("response", postResult);
