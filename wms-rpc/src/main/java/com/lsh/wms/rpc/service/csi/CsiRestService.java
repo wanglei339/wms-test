@@ -6,9 +6,11 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.csi.ICsiRestService;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.csi.CsiOwnerService;
 import com.lsh.wms.core.service.csi.CsiSupplierService;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.csi.*;
 import net.sf.json.util.JSONUtils;
 import org.apache.log4j.Category;
@@ -39,6 +41,8 @@ public class CsiRestService implements ICsiRestService {
     private CsiSupplierService supplierService;
     @Autowired
     private CsiCustomerService customerService;
+    @Autowired
+    private LocationService locationService;
 
     @GET
     @Path("getCatInfo")
@@ -237,10 +241,16 @@ public class CsiRestService implements ICsiRestService {
         String customerCode = mapQuery.get("customerCode").toString();
         return JsonUtils.SUCCESS(customerService.getCustomerByCustomerCode(ownerId, customerCode));
     }
+
     @POST
     @Path("updateCustomer")
     public String updateCustomer(CsiCustomer csiCustomer)throws BizCheckedException{
         try{
+            if(csiCustomer.getCollectRoadId() != 0
+                    && (locationService.getLocation(csiCustomer.getCollectRoadId()) == null
+                        || locationService.getLocation(csiCustomer.getCollectRoadId()).getType() != LocationConstant.COLLECTION_ROAD)){
+                throw new BizCheckedException("2180011");
+            }
             customerService.update(csiCustomer);
         }catch (Exception e){
             logger.error(e.getCause().getMessage());

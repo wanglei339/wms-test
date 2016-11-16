@@ -30,6 +30,7 @@ import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.po.PoReceiptService;
 import com.lsh.wms.core.service.po.ReceiveService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
+import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.utils.IdGenerator;
@@ -38,6 +39,8 @@ import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.csi.CsiSupplier;
 import com.lsh.wms.model.po.*;
+import com.lsh.wms.model.so.ObdDetail;
+import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
@@ -129,6 +132,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
     private CsiCustomerService customerService;
     @Autowired
     private CsiSupplierService supplierService;
+
+    @Autowired
+    private SoOrderService soOrderService;
 
     public Boolean throwOrder(String orderOtherId) throws BizCheckedException {
         IbdHeader ibdHeader = new IbdHeader();
@@ -730,6 +736,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
         Map<Long,Long> locationMap = new HashMap<Long, Long>();
         List<StockTransferPlan> planList = new ArrayList<StockTransferPlan>();
 
+        List<ObdDetail> obdDetails = new ArrayList<ObdDetail>();
+
         String idKey = "task_" + TaskConstant.TYPE_PO.toString();
         Long taskId = idGenerator.genId(idKey, true, true);
         //Long taskId = RandomUtils.genId();
@@ -784,14 +792,32 @@ public class ReceiptRpcService implements IReceiptRpcService {
             //写入InbReceiptDetail中的OrderQty
             inbReceiptDetail.setOrderQty(ibdDetail.getOrderQty());
 
-            //剩余数量存入redis po订单号 托盘码 barcode作为key
-            String qtyKey = StrUtils.formatString(RedisKeyConstant.STORE_QTY,ibdHeader.getOrderId(),containerId,inbReceiptDetail.getBarCode());
-            BigDecimal obdQty = new BigDecimal(redisStringDao.get(qtyKey));
+//            //剩余数量存入redis po订单号 托盘码 barcode作为key
+//            String qtyKey = StrUtils.formatString(RedisKeyConstant.STORE_QTY,ibdHeader.getOrderId(),containerId,inbReceiptDetail.getBarCode());
+//            BigDecimal obdQty = new BigDecimal(redisStringDao.get(qtyKey));
+//
+//            if(obdQty.compareTo(inbReceiptDetail.getInboundQty()) < 0){
+//                throw new BizCheckedException("2022222");
+//
+//            }
 
-            if(obdQty.compareTo(inbReceiptDetail.getInboundQty()) < 0){
+            //获取redis中的orderId
+            String key = StrUtils.formatString(RedisKeyConstant.PO_STORE, ibdHeader.getOrderId(), inbReceiptHeader.getStoreCode());
+
+            String values = redisStringDao.get(key);
+
+            Long obdOrderId = Long.valueOf(values.split(",")[0]);
+            String detailOtherId = values.split(",")[1];
+            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(obdOrderId);
+            ObdDetail obdDetail = soOrderService.getObdDetailByOrderIdAndDetailOtherId(obdOrderId,detailOtherId);
+            BigDecimal sowQty = obdDetail.getSowQty();
+            //判断是否超过门店收货的数量
+            if(sowQty.add(inbReceiptDetail.getInboundQty()).compareTo(obdDetail.getOrderQty()) > 0){
                 throw new BizCheckedException("2022222");
-
             }
+            obdDetail.setSowQty(sowQty.add(inbReceiptDetail.getInboundQty()));
+            obdDetails.add(obdDetail);
+
 
             // 判断是否超过订单总数
             BigDecimal poInboundQty = null != ibdDetail.getInboundQty() ? ibdDetail.getInboundQty() : new BigDecimal(0);
@@ -820,11 +846,6 @@ public class ReceiptRpcService implements IReceiptRpcService {
             updateReceiveDetailList.add(updateReceiveDetail);
 
             //生成出库detail信息
-            //获取redis中的orderId
-            String key = StrUtils.formatString(RedisKeyConstant.PO_STORE, ibdHeader.getOrderId(), inbReceiptHeader.getStoreCode());
-
-            Long obdOrderId = Long.valueOf(redisStringDao.get(key));
-
 
             ObdStreamDetail obdStreamDetail = new ObdStreamDetail();
             obdStreamDetail.setItemId(inbReceiptDetail.getItemId());

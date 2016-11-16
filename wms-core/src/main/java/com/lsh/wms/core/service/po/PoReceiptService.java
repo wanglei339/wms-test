@@ -6,6 +6,7 @@ import com.lsh.wms.core.dao.po.IbdDetailDao;
 import com.lsh.wms.core.dao.po.InbReceiptDetailDao;
 import com.lsh.wms.core.dao.po.InbReceiptHeaderDao;
 import com.lsh.wms.core.dao.po.ReceiveDetailDao;
+import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.wave.WaveService;
@@ -13,6 +14,7 @@ import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.InbReceiptHeader;
 import com.lsh.wms.model.po.ReceiveDetail;
+import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.wave.WaveDetail;
@@ -63,6 +65,9 @@ public class PoReceiptService {
     @Autowired
     private WaveService waveService;
 
+    @Autowired
+    private SoOrderService soOrderService;
+
     /**
      * 插入InbReceiptHeader及List<InbReceiptDetail>
      * @param inbReceiptHeader
@@ -86,7 +91,7 @@ public class PoReceiptService {
     @Transactional(readOnly = false)
     public void insertOrder(InbReceiptHeader inbReceiptHeader, List<InbReceiptDetail> inbReceiptDetailList,
                             List<IbdDetail> updateIbdDetailList, List<Map<String, Object>> moveList,
-                            List<ReceiveDetail> updateReceiveDetailList,List<ObdStreamDetail> obdStreamDetailList,int isMove) {
+                            List<ReceiveDetail> updateReceiveDetailList, List<ObdStreamDetail> obdStreamDetailList, int isMove, List<ObdDetail> obdDetails) {
 
         //插入订单
         inbReceiptHeader.setInserttime(new Date());
@@ -107,6 +112,10 @@ public class PoReceiptService {
             WaveDetail waveDetail = new WaveDetail();
             ObjUtils.bean2bean(obdStreamDetailList.get(0),waveDetail);
             waveService.insertDetail(waveDetail);
+        }
+
+        if(obdDetails.size() > 0){
+            soOrderService.updateObdDetail(obdDetails.get(0));
         }
 
         if(isMove==1) {
