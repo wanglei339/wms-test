@@ -488,7 +488,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         //插入订单
         //poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList,stockQuantList,stockLotList);
-        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList,updateReceiveDetailList,obdStreamDetailList,request.getIsCreateTask());
+        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList,updateReceiveDetailList,obdStreamDetailList,request.getIsCreateTask(),null);
 
         if(PoConstant.ORDER_TYPE_PO == orderType || PoConstant.ORDER_TYPE_TRANSFERS == orderType || PoConstant.ORDER_TYPE_CPO == orderType){
             TaskEntry taskEntry = new TaskEntry();
@@ -896,7 +896,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         //插入订单
         //poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList,stockQuantList,stockLotList);
-        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList,updateReceiveDetailList,obdStreamDetailList,request.getIsCreateTask());
+        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList,updateReceiveDetailList,obdStreamDetailList,request.getIsCreateTask(),obdDetails);
 
 
 
