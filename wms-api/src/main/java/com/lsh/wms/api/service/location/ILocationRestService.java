@@ -4,6 +4,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.model.location.LocationDetailRequest;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 
+import javax.ws.rs.QueryParam;
 import java.util.Map;
 
 /**
@@ -98,4 +99,12 @@ public interface ILocationRestService {
      * @throws BizCheckedException
      */
     public String getNextLevelLocations() throws BizCheckedException;
+
+    /**
+     * 获取位置类型,是货架还是阁楼
+     * @param locationId
+     * @return
+     * @throws BizCheckedException
+     */
+    String getLocationType(@QueryParam("locationId") String locationId) throws BizCheckedException;
 }

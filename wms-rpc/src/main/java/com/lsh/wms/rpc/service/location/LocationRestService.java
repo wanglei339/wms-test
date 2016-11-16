@@ -336,5 +336,24 @@ public class LocationRestService implements ILocationRestService {
         }
         return JsonUtils.SUCCESS(locations);
     }
+    @GET
+    @Path("getLocationType")
+    //0:其他 1:货架  2:阁楼
+    public String getLocationType(@QueryParam("locationId") String locationId) throws BizCheckedException {
+        Long locaId = Long.parseLong(locationId);
+        BaseinfoLocation baseinfoLocation1 = locationService.getFatherByType(locaId, LocationConstant.SHELF);
+        int locationType = 0;
+        if (baseinfoLocation1 != null) {
+            locationType = 1;//货架
+        } else {
+            BaseinfoLocation baseinfoLocation2 = locationService.getFatherByType(locaId, LocationConstant.LOFT);
+            if (baseinfoLocation2 != null) {
+                locationType = 2;//阁楼
+            }
+        }
+        Map<String,Object> locationMap = new HashMap<String, Object>();
+        locationMap.put("locationType",locationType);
+        return JsonUtils.SUCCESS(locationMap);
+     }
 
-}
+    }
