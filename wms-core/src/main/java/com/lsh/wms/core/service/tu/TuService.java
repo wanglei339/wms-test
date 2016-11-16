@@ -30,12 +30,10 @@ import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
 import com.lsh.wms.model.stock.StockQuant;
-import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.tu.TuDetail;
 import com.lsh.wms.model.tu.TuEntry;
 import com.lsh.wms.model.tu.TuHead;
 import com.lsh.wms.model.wave.WaveDetail;
-import com.sun.javafx.binding.StringFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,12 +69,8 @@ public class TuService {
     private SoDeliveryService soDeliveryService;
     @Autowired
     private SoOrderService soOrderService;
-    @Reference
-    private IWuMart wuMart;
     @Autowired
     private LocationService locationService;
-    @Reference
-    private IDataBackService dataBackService;
 
     @Transactional(readOnly = false)
     public void create(TuHead head) {
@@ -343,7 +337,7 @@ public class TuService {
      * @return
      */
     @Transactional(readOnly = false)
-    public void createObdAndMoveStockQuant(Map<String, Object> map, Map<String, Object> ibdObdMap) {
+    public void createObdAndMoveStockQuant(IWuMart wuMart, Map<String, Object> map, Map<String, Object> ibdObdMap) {
         Set<Long> containerIds = (Set<Long>) map.get("containerIds");
         TuHead tuHead = (TuHead) map.get("tuHead");
         this.moveItemToConsumeArea(containerIds);
@@ -358,7 +352,7 @@ public class TuService {
 
 
     @Transactional(readOnly = false)
-    public void createObdAndMoveStockQuantV2(Map<String, Object> map, List<WaveDetail> totalWaveDetails) {
+    public void createObdAndMoveStockQuantV2(IDataBackService dataBackService, IWuMart wuMart, Map<String, Object> map, List<WaveDetail> totalWaveDetails) {
         Set<Long> containerIds = (Set<Long>) map.get("containerIds");
         TuHead tuHead = (TuHead) map.get("tuHead");
         this.moveItemToConsumeArea(containerIds);
