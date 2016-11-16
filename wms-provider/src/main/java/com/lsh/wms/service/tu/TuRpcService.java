@@ -355,6 +355,9 @@ public class TuRpcService implements ITuRpcService {
             TaskInfo mergerInfo = mergeInfos.get(0);
             boardNum = mergerInfo.getTaskBoardQty();
         }
+        if(waveDetails == null || waveDetails.size() == 0){
+            throw new BizCheckedException("2870040");
+        }
         //一个板上的是一个门店的,只用来取店名字
         Long orderId = waveDetails.get(0).getOrderId();
         ObdHeader obdHeader = iSoRpcService.getOutbSoHeaderDetailByOrderId(orderId);
@@ -418,7 +421,7 @@ public class TuRpcService implements ITuRpcService {
         result.put("customerId", csiCustomer.getCustomerId());
         result.put("isLoaded", isLoaded);
         result.put("containerId", mergedContainerId);   //板子码
-        result.put("taskBoardQty", boardNum);    //一个板子的板子数
+        result.put("taskBoardQty", (int)boardNum.floatValue());    //一个板子的板子数
         result.put("isRest", false); //非余货
         result.put("isExpensive", false);    //非贵品
         return result;
