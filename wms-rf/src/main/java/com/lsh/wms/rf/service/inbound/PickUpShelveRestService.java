@@ -335,7 +335,9 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
                     }
                 }
             }else {
-
+                if(stockQuants!=null && stockQuants.size()!=0){
+                    return JsonUtils.TOKEN_ERROR("该库位已有库存");
+                }
             }
             if(detail ==null){
                 return JsonUtils.TOKEN_ERROR("系统库位参数错误");
