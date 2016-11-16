@@ -18,6 +18,7 @@ import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemType;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
 import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.so.ObdHeader;
@@ -249,8 +250,14 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
                 Map<String, Object> storeMap = new HashMap<String, Object>();
                 storeMap.put("storeId", storeId);
                 storeMap.put("storeName", store.getCustomerName());
-                // TODO: 16/11/16 下行代码不知何用途,注释掉 
-                //storeMap.put("collectionBins", iLocationRpcService.getCollectionByStoreNo(store.getCustomerCode()));
+                // TODO: 16/11/16 修改店铺集货位
+                //获取门店下所有的集货位
+                List<BaseinfoLocation> collectionBinsList = iLocationRpcService.getCollectionByStoreNo(store.getCustomerCode());
+                if(collectionBinsList != null && collectionBinsList.size() > 0){
+                    storeMap.put("collectionBins", collectionBinsList.get(0).getLocationCode());
+                }else{
+                    storeMap.put("collectionBins", "");
+                }
                 //托盘箱数统计集合
                 List<Map<String, Object>> containerList = new LinkedList<Map<String, Object>>();
                 Map<String, Object> container = new HashMap<String, Object>();
