@@ -5,6 +5,7 @@ import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.transfer.StockTransferPlan;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,4 +23,5 @@ public interface IProcurementProveiderRpcService {
     boolean checkAndFillPlan(StockTransferPlan plan) throws BizCheckedException;
     boolean checkPlan(StockTransferPlan plan) throws BizCheckedException;
     Set<Long> getOutBoundLocation(Long itemId,Long locationId);
+    BigDecimal getQty();
 }

@@ -34,6 +34,8 @@ public class ObdDetail implements Serializable {
 	private BigDecimal price;
 	/** 批次号 */
 	private String lotCode;
+	/**直流收货的实际播种数量*/
+	private BigDecimal sowQty = BigDecimal.ZERO;
 	/**  */
 	private Long createdAt = 0l;
 	/**  */
@@ -165,5 +167,13 @@ public class ObdDetail implements Serializable {
 
 	public void setSkuId(Long skuId) {
 		this.skuId = skuId;
+	}
+
+	public BigDecimal getSowQty() {
+		return sowQty;
+	}
+
+	public void setSowQty(BigDecimal sowQty) {
+		this.sowQty = sowQty;
 	}
 }
