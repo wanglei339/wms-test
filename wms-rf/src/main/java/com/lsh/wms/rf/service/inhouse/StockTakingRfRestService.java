@@ -3,14 +3,14 @@ package com.lsh.wms.rf.service.inhouse;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.model.stock.StockItem;
 import com.lsh.wms.api.model.stock.StockRequest;
 import com.lsh.wms.api.service.back.IDataBackService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
-import com.lsh.wms.core.constant.ContainerConstant;
-import com.lsh.wms.core.constant.IntegrationConstan;
+import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
 import com.lsh.wms.core.service.stock.StockLotService;
@@ -24,8 +24,6 @@ import com.lsh.wms.api.service.inhouse.IStockTakingRfRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
-import com.lsh.wms.core.constant.CsiConstan;
-import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
@@ -92,8 +90,8 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
     @Autowired
     private ContainerService containerService;
 
-//    @Reference
-//    private IDataBackService dataBackService;
+    @Reference
+    private IDataBackService dataBackService;
 
 
     @POST
@@ -436,23 +434,23 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             throw  new BizCheckedException("2550099");
         }
         stockTakingService.updateHead(head);
-//        //组装信息 回传物美
-//        BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) baseinfoLocationWarehouseService.getBaseinfoItemLocationModelById(1L);
-//        String warehouseName = warehouse.getWarehouseName();
-//
-//        if(itemsLoss.size()>0){
-//            request.setItems(itemsLoss);
-//            request.setMoveType(String.valueOf(IntegrationConstan.LOSS));
-//            request.setPlant(warehouseName);
-//            dataBackService.wmDataBackByPost(request,IntegrationConstan.URL_STOCKCHANGE);
-//        }
-//
-//        if (itemsWin.size()>0){
-//            request.setItems(itemsWin);
-//            request.setMoveType(String.valueOf(IntegrationConstan.WIN));
-//            request.setPlant(warehouseName);
-//            dataBackService.wmDataBackByPost(request,IntegrationConstan.URL_STOCKCHANGE);
-//        }
+        //组装信息 回传物美
+        BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) baseinfoLocationWarehouseService.getBaseinfoItemLocationModelById(1L);
+        String warehouseName = warehouse.getWarehouseName();
+
+        if(itemsLoss.size()>0){
+            request.setItems(itemsLoss);
+            request.setMoveType(String.valueOf(IntegrationConstan.LOSS));
+            request.setPlant(warehouseName);
+            dataBackService.wmDataBackByPost(JSON.toJSONString(request),IntegrationConstan.URL_STOCKCHANGE, SysLogConstant.LOG_TYPE_LOSS);
+        }
+
+        if (itemsWin.size()>0){
+            request.setItems(itemsWin);
+            request.setMoveType(String.valueOf(IntegrationConstan.WIN));
+            request.setPlant(warehouseName);
+            dataBackService.wmDataBackByPost(JSON.toJSONString(request),IntegrationConstan.URL_STOCKCHANGE,SysLogConstant.LOG_TYPE_WIN);
+        }
 
 
     }
