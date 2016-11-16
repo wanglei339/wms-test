@@ -352,9 +352,11 @@ public class TuService {
 
 
     @Transactional(readOnly = false)
-    public void createObdAndMoveStockQuantV2(IDataBackService dataBackService, IWuMart wuMart, Map<String, Object> map, List<WaveDetail> totalWaveDetails) {
-        Set<Long> containerIds = (Set<Long>) map.get("containerIds");
-        TuHead tuHead = (TuHead) map.get("tuHead");
+    public void createObdAndMoveStockQuantV2(IDataBackService dataBackService,
+                                             IWuMart wuMart,
+                                             Set<Long> containerIds,
+                                             TuHead tuHead,
+                                             List<WaveDetail> totalWaveDetails) {
         this.moveItemToConsumeArea(containerIds);
         this.creatDeliveryOrderAndDetail(tuHead);
 
@@ -370,8 +372,8 @@ public class TuService {
             java.math.BigDecimal qty = stockQuantService.getQty(mapQuery);
             if (0 == qty.compareTo(BigDecimal.ZERO)) {
                 //释放集货导
-                locationService.unlockLocation(locationId);
                 locationService.setLocationUnOccupied(locationId);
+                locationService.unlockLocation(locationId);
             }
         }
         //获取发货单的header
