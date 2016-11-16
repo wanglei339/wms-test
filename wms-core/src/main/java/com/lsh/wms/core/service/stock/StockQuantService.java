@@ -185,6 +185,7 @@ public class StockQuantService {
             throw new BizCheckedException("2180001");
         } else {
             Long currentVol = new Long(this.getContainerQty(locationId));
+            logger.warn("currentVol is " + currentVol);
             locationService.refreshContainerVol(locationId, currentVol);
         }
     }

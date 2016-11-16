@@ -249,7 +249,8 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
                 Map<String, Object> storeMap = new HashMap<String, Object>();
                 storeMap.put("storeId", storeId);
                 storeMap.put("storeName", store.getCustomerName());
-                storeMap.put("collectionBins", iLocationRpcService.getCollectionByStoreNo(store.getCustomerCode()));
+                // TODO: 16/11/16 下行代码不知何用途,注释掉 
+                //storeMap.put("collectionBins", iLocationRpcService.getCollectionByStoreNo(store.getCustomerCode()));
                 //托盘箱数统计集合
                 List<Map<String, Object>> containerList = new LinkedList<Map<String, Object>>();
                 Map<String, Object> container = new HashMap<String, Object>();

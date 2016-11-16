@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.api.model.so.ObdOfcBackRequest;
 import com.lsh.wms.api.model.so.ObdOfcItem;
 import com.lsh.wms.api.model.wumart.CreateObdDetail;
@@ -69,6 +70,8 @@ public class TuService {
     private SoDeliveryService soDeliveryService;
     @Autowired
     private SoOrderService soOrderService;
+    @Autowired
+    private InventoryRedisService inventoryRedisService;
     @Autowired
     private LocationService locationService;
 
@@ -324,7 +327,8 @@ public class TuService {
             detail.setIsAlive(0L);
             waveService.updateDetail(detail);
         }
-
+        // 调用库存同步服务
+        inventoryRedisService.onDelivery(totalWaveDetails);
         //todo 更新wave有波次,更新波次的状态
 //        this.setStatus(waveHead.getWaveId(), WaveConstant.STATUS_SUCC);
         return true;
@@ -430,7 +434,7 @@ public class TuService {
                 item.setSkuQty(outQty);
 
                 //ea转换为包装数量。
-                createObdDetail.setDlvQty(outQty.divide(detail.getPackUnit()));
+                createObdDetail.setDlvQty(PackUtil.EAQty2UomQty(outQty, detail.getPackUnit()));
                 createObdDetail.setRefItem(detail.getDetailOtherId());
                 createObdDetail.setMaterial(detail.getSkuCode());
                 createObdDetails.add(createObdDetail);

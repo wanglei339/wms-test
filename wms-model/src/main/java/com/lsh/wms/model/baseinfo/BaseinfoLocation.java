@@ -98,15 +98,18 @@ public class BaseinfoLocation implements Serializable, IBaseinfoLocaltionModel {
     /**
      * 当前容器的数量
      */
-    private Long curContainerVol = 0L;
+    //private Long curContainerVol = 0L;
+    private Long curContainerVol;
     /**
      * 门店号用于直流操作，0是库内操作1-99是区分门店的
      */
-    private String storeNo = "0";
+    //private String storeNo = "0";
+    private String storeNo;
     /**
      * 供商号用于退货操作
      */
-    private String supplierNo = "";
+    //private String supplierNo = "";
+    private String supplierNo;
 
     public Long getCurContainerVol() {
         return curContainerVol;

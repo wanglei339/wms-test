@@ -61,7 +61,9 @@ public class SynStockService implements ISynStockInventory{
 //            logger.error("库存同步异常"); // TODO: 16/9/10 库存同步
 //            logger.error(ex.getMessage());
 //        }
-       
+
+
+
 
     }
 }

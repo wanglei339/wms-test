@@ -63,7 +63,7 @@ public class StockQuant implements Serializable,Cloneable {
 	private Long isNormal = 1L;
 
 	public Long getIsNormal() {
-		return isNormal;
+		return isRefund *  isDefect *  isFrozen;
 	}
 
 	public void setIsNormal(Long isNormal) {
