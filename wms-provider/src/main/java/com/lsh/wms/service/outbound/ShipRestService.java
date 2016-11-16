@@ -157,7 +157,7 @@ public class ShipRestService implements IShipRestService {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("containerIds", totalContainers);
         map.put("tuHead", tuHead);
-        tuService.createObdAndMoveStockQuantV2(map, totalWaveDetails);
+        tuService.createObdAndMoveStockQuantV2(dataBackService, wuMart, map, totalWaveDetails);
 
         //创建发货任务
         TaskEntry taskEntry = new TaskEntry();

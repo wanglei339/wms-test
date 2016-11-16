@@ -188,7 +188,7 @@ public class TuRestService implements ITuRestService {
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("containerIds", totalContainers);
             map.put("tuHead", tuHead);
-            tuService.createObdAndMoveStockQuant(map, ibdObdMap);
+            tuService.createObdAndMoveStockQuant(wuMart, map, ibdObdMap);
 
             //释放集货道
             //查库存,释放集货道
@@ -258,7 +258,7 @@ public class TuRestService implements ITuRestService {
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("containerIds", containerIds);
             map.put("tuHead", tuHead);
-            tuService.createObdAndMoveStockQuant(map, ibdObdMap);
+            tuService.createObdAndMoveStockQuant(wuMart, map, ibdObdMap);
 
 
             //释放集货道
