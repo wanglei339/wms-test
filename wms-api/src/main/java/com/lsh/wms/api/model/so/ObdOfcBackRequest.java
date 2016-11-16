@@ -24,15 +24,19 @@ public class ObdOfcBackRequest implements Serializable{
     /**周转箱数*/
     private Integer turnoverBoxNum;
 
+    /**地域编码*/
+    private String warehouseCode;
+
     private List<ObdOfcItem> details;
 
     public ObdOfcBackRequest(){}
 
-    public ObdOfcBackRequest(Integer boxNum, String deliveryTime, List<ObdOfcItem> details, String obdCode, String soCode, Integer turnoverBoxNum, String waybillCode, Integer wms) {
+    public ObdOfcBackRequest(Integer boxNum, String deliveryTime, List<ObdOfcItem> details, String obdCode, String warehouseCode, String soCode, Integer turnoverBoxNum, String waybillCode, Integer wms) {
         this.boxNum = boxNum;
         this.deliveryTime = deliveryTime;
         this.details = details;
         this.obdCode = obdCode;
+        this.warehouseCode = warehouseCode;
         this.soCode = soCode;
         this.turnoverBoxNum = turnoverBoxNum;
         this.waybillCode = waybillCode;
@@ -85,6 +89,14 @@ public class ObdOfcBackRequest implements Serializable{
 
     public void setTurnoverBoxNum(Integer turnoverBoxNum) {
         this.turnoverBoxNum = turnoverBoxNum;
+    }
+
+    public String getWarehouseCode() {
+        return warehouseCode;
+    }
+
+    public void setWarehouseCode(String warehouseCode) {
+        this.warehouseCode = warehouseCode;
     }
 
     public String getWaybillCode() {
