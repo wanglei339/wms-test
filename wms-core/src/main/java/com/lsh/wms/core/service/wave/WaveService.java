@@ -130,6 +130,8 @@ public class WaveService {
     public List<WaveDetail> getWaveDetailsByMergedContainerId (Long mergedContainerId) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("mergedContainerId", mergedContainerId);
+        mapQuery.put("isValid", 1);
+        mapQuery.put("isAlive", 1);
         List<WaveDetail> details = detailDao.getWaveDetailList(mapQuery);
         return details.size() == 0 ? null : details;
     }
