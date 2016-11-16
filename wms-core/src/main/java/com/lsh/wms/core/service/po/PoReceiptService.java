@@ -108,13 +108,13 @@ public class PoReceiptService {
         receiveDetailDao.batchUpdateInboundQtyByReceiveIdAndDetailOtherId(updateReceiveDetailList);
 
         //直流生成waveDetail
-        if(obdStreamDetailList.size() > 0){
+        if(obdStreamDetailList != null && obdStreamDetailList.size() > 0){
             WaveDetail waveDetail = new WaveDetail();
             ObjUtils.bean2bean(obdStreamDetailList.get(0),waveDetail);
             waveService.insertDetail(waveDetail);
         }
 
-        if(obdDetails.size() > 0){
+        if(obdDetails != null && obdDetails.size() > 0){
             soOrderService.updateObdDetail(obdDetails.get(0));
         }
 
