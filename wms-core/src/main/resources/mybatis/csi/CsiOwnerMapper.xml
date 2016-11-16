@@ -11,6 +11,7 @@
 		<result property="province" column="province"/>
 		<result property="city" column="city"/>
 		<result property="address" column="address"/>
+		<result property="soCheckStrategy" column="so_check_strategy"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
 	</resultMap>
@@ -18,10 +19,10 @@
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="CsiOwner">
 		insert into csi_owner (
 			owner_id,owner_name,owner_desc,country,province,city,
-			address,created_at,updated_at
+			address,created_at,updated_at,so_check_strategy
     	) values (
 			#{ownerId},#{ownerName},#{ownerDesc},#{country},#{province},#{city},
-			#{address},#{createdAt},#{updatedAt}
+			#{address},#{createdAt},#{updatedAt},#{soCheckStrategy}
     	)
 	</insert>
 	<!--修改where条件为ownerId-->
@@ -36,6 +37,7 @@
   			<if test="address != null">address=#{address},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+			<if test="soCheckStrategy != null">so_check_strategy=#{soCheckStrategy}</if>
 		</set>
 		where owner_id=#{ownerId}
 	</update>
@@ -70,6 +72,7 @@
 			<if test="address != null">and address=#{address}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="soCheckStrategy != null">and so_check_strategy =#{soCheckStrategy}</if>
 		</where>
 	</sql>
    

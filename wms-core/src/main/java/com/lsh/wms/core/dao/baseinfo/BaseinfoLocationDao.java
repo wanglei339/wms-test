@@ -28,7 +28,7 @@ public interface BaseinfoLocationDao{
 	//码头dock的计数
 	Integer countDockList(Map<String, Object> params);
 
-	List<BaseinfoLocation> lock(Long locationId);
+	List<BaseinfoLocation> lock(Long id);
 	//按门店号获取升序播种位置
 	List<BaseinfoLocation> sortLocationByStoreNoAndType(Map<String, Object> params);
 

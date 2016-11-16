@@ -142,41 +142,41 @@ public class DataBackService implements IDataBackService {
         return JSON.toJSONString(orderResponse);
 
     }
-//
-//    public Boolean erpDataBack(CreateIbdHeader createIbdHeader){
-//        try {
-//            final XmlRpcClient models = new XmlRpcClient() {{
-//                setConfig(new XmlRpcClientConfigImpl() {{
-//                    setServerURL(new URL(String.format("%s/xmlrpc/2/object", url)));
-//                }});
-//            }};
-//            //原订单ID
-//            Integer orderOtherId = Integer.valueOf(createIbdHeader.getItems().get(0).getPoNumber());
-//            List<HashMap<String,Object>> list = new ArrayList<HashMap<String, Object>>();
-//            for(CreateIbdDetail item : createIbdHeader.getItems()){
-//                HashMap<String,Object> map = new HashMap<String, Object>();
-//                map.put("product_id",Integer.valueOf(item.getMaterial()));
-//                map.put("qty_done",item.getDeliveQty().intValue());
-//                list.add(map);
-//
-//            }
-//            logger.info("~~~~~~~list : " + list + " ~~~~~~~~~~~");
-//            final Boolean ret1  = (Boolean)models.execute("execute_kw", Arrays.asList(
-//                    db, uid, password,
-//                    "purchase.order", "lsh_action_wms_receive",
-//                    Arrays.asList(Arrays.asList(orderOtherId),list)
-//
-//            ));
-//            //// TODO: 16/9/19 传入的参数
-//            logger.info("~~~~~~~~ret1 :" + ret1 + "~~~~~~~~~~~~~");
-//
-//
-//        }
-//        catch (Exception e) {
-//            logger.info(e.getCause().getMessage());
-//        }
-//        return false;
-//    }
+
+    public Boolean erpDataBack(CreateIbdHeader createIbdHeader){
+        try {
+            final XmlRpcClient models = new XmlRpcClient() {{
+                setConfig(new XmlRpcClientConfigImpl() {{
+                    setServerURL(new URL(String.format("%s/xmlrpc/2/object", url)));
+                }});
+            }};
+            //原订单ID
+            Integer orderOtherId = Integer.valueOf(createIbdHeader.getItems().get(0).getPoNumber());
+            List<HashMap<String,Object>> list = new ArrayList<HashMap<String, Object>>();
+            for(CreateIbdDetail item : createIbdHeader.getItems()){
+                HashMap<String,Object> map = new HashMap<String, Object>();
+                map.put("product_id",Integer.valueOf(item.getMaterial()));
+                map.put("qty_done",item.getDeliveQty().intValue());
+                list.add(map);
+
+            }
+            logger.info("~~~~~~~list : " + list + " ~~~~~~~~~~~");
+            final Boolean ret1  = (Boolean)models.execute("execute_kw", Arrays.asList(
+                    db, uid, password,
+                    "purchase.order", "lsh_action_wms_receive",
+                    Arrays.asList(Arrays.asList(orderOtherId),list)
+
+            ));
+            //// TODO: 16/9/19 传入的参数
+            logger.info("~~~~~~~~ret1 :" + ret1 + "~~~~~~~~~~~~~");
+
+
+        }
+        catch (Exception e) {
+            logger.info(e.getCause().getMessage());
+        }
+        return false;
+    }
 
 
 

@@ -11,4 +11,7 @@ public class SoConstant {
     public static final int ORDER_TYPE_STO = 3;
     public static final int ORDER_TYPE_DIRECT = 4;
 
+    public static final Long STOCK_NOT_CHECK = 0L;
+    public static final Long STOCK_SOFT_CHECK = 1L;
+    public static final Long STOCK_HARD_CHECK = 2L;
 }

@@ -300,7 +300,7 @@ public class PickRestService implements IPickRestService {
             }
             // 库移
             pickTaskService.pickOne(needPickDetail, locationId, containerId, qty, staffId);
-            // 发送缺货消息
+            // 发送缺货消息(拣货缺交)
             if (allocQty.compareTo(quantQty) == 1) {
                 TaskMsg msg = new TaskMsg();
                 msg.setType(TaskConstant.EVENT_OUT_OF_STOCK);
@@ -309,6 +309,14 @@ public class PickRestService implements IPickRestService {
                 body.put("locationId", locationId);
                 msg.setMsgBody(body);
                 messageService.sendMessage(msg);
+                //捡货缺交，如果捡获数量比系统记载数量，则生成盘点任务
+                logger.info("-------- in create taking_task");
+                Map<String,Object> queryMap = new HashMap<String, Object>();
+                queryMap.put("locationId",needPickDetail.getRealPickLocation());
+                BigDecimal stockQty = stockQuantService.getQty(queryMap);
+                if(stockQty.compareTo(needPickDetail.getPickQty())>0) {
+                    iStockTakingRpcService.create(needPickDetail.getRealPickLocation(), staffId);
+                }
             }
         }
         // 获取下一个wave_detail,如已做完则获取集货位id
@@ -322,26 +330,18 @@ public class PickRestService implements IPickRestService {
                 break;
             }
         }
+        // 正常拣货的最后一步
         if (nextPickDetail.getPickTaskId() == null || nextPickDetail.getPickTaskId().equals(0L) || nextPickDetail.getPickTaskId().equals("")) {
             // 货架补拣,只做一次
             if (needPickDetail.getRefDetailId().equals(0L) && taskInfo.getSubType().equals(PickConstant.SHELF_TASK_TYPE)) {
                 List<WaveDetail> splitWaveDetails = new ArrayList<WaveDetail>();
                 Long lastOrder = needPickDetail.getPickOrder();
                 for (WaveDetail pickDetail: pickDetails) {
-                    // 判断是否缺交
+                    // 判断是否少拣
                     if (pickDetail.getAllocQty().compareTo(pickDetail.getPickQty()) == 1) {
                         BigDecimal subQty = pickDetail.getAllocQty().subtract(pickDetail.getPickQty());
                         splitWaveDetails.add(waveService.splitShelfWaveDetail(pickDetail, subQty, lastOrder));
                         lastOrder++;
-
-                        //捡货缺交，如果捡获数量比系统记载数量，则生成盘点任务
-                        logger.info("-------- in create taking_task");
-                        Map<String,Object> queryMap = new HashMap<String, Object>();
-                        queryMap.put("locationId",pickDetail.getRealPickLocation());
-                        BigDecimal qty = stockQuantService.getQty(queryMap);
-                        if(qty.compareTo(pickDetail.getPickQty())>0) {
-                            iStockTakingRpcService.create(pickDetail.getRealPickLocation(), staffId);
-                        }
                     }
                 }
                 if (!splitWaveDetails.isEmpty()) {

@@ -17,16 +17,34 @@ public class ObdOfcBackRequest implements Serializable{
     /**发货时间*/
     private String deliveryTime;
 
+    /**运单号*/
+    private String waybillCode;
+    /**箱数*/
+    private Integer boxNum;
+    /**周转箱数*/
+    private Integer turnoverBoxNum;
+
     private List<ObdOfcItem> details;
 
     public ObdOfcBackRequest(){}
 
-    public ObdOfcBackRequest(String deliveryTime, List<ObdOfcItem> details, String obdCode, String soCode, Integer wms) {
+    public ObdOfcBackRequest(Integer boxNum, String deliveryTime, List<ObdOfcItem> details, String obdCode, String soCode, Integer turnoverBoxNum, String waybillCode, Integer wms) {
+        this.boxNum = boxNum;
         this.deliveryTime = deliveryTime;
         this.details = details;
         this.obdCode = obdCode;
         this.soCode = soCode;
+        this.turnoverBoxNum = turnoverBoxNum;
+        this.waybillCode = waybillCode;
         this.wms = wms;
+    }
+
+    public Integer getBoxNum() {
+        return boxNum;
+    }
+
+    public void setBoxNum(Integer boxNum) {
+        this.boxNum = boxNum;
     }
 
     public String getDeliveryTime() {
@@ -59,6 +77,22 @@ public class ObdOfcBackRequest implements Serializable{
 
     public void setSoCode(String soCode) {
         this.soCode = soCode;
+    }
+
+    public Integer getTurnoverBoxNum() {
+        return turnoverBoxNum;
+    }
+
+    public void setTurnoverBoxNum(Integer turnoverBoxNum) {
+        this.turnoverBoxNum = turnoverBoxNum;
+    }
+
+    public String getWaybillCode() {
+        return waybillCode;
+    }
+
+    public void setWaybillCode(String waybillCode) {
+        this.waybillCode = waybillCode;
     }
 
     public Integer getWms() {
