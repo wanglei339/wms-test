@@ -18,6 +18,7 @@ import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
+import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
 import com.lsh.wms.model.po.IbdObdRelation;
@@ -54,6 +55,8 @@ public class PoRpcService implements IPoRpcService {
 
     @Reference
     private ITaskRpcService iTaskRpcService;
+    @Autowired
+    protected IdGenerator idGenerator;
 
     @Reference
     private IBackInStorageProviderRpcService backInStorageProviderRpcService;
@@ -90,7 +93,8 @@ public class PoRpcService implements IPoRpcService {
 
 
         //设置orderId
-        ibdHeader.setOrderId(RandomUtils.genId());
+        String idKey = "ibd_id";
+        ibdHeader.setOrderId(idGenerator.genId(idKey, true, true));
 
         //初始化List<InbPoDetail>
         List<IbdDetail> ibdDetailList = new ArrayList<IbdDetail>();
