@@ -7,4 +7,6 @@ public interface IBuildDataRpcService {
 
     void BuildIbdData(Long receiveId);
 
+    void BuildInventoryData(Long taskingId);
+
 }
