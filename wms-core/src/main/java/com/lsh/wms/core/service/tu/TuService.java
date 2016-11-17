@@ -244,6 +244,8 @@ public class TuService {
      * @param tuHead tu头
      * @return
      */
+    //作废
+    /*
     @Transactional(readOnly = false)
     public boolean creatDeliveryOrderAndDetail(TuHead tuHead) {
         List<TuDetail> tuDetails = this.getTuDeailListByTuId(tuHead.getTuId());
@@ -335,6 +337,149 @@ public class TuService {
 //        this.setStatus(waveHead.getWaveId(), WaveConstant.STATUS_SUCC);
         return true;
     }
+    */
+
+    //获取订单级别的箱数数据
+    private static  Map<Long, Map<String, Object>>  _getOrderBoxInfo(List<TuDetail> tuDetails, List<WaveDetail> totalWaveDetails){
+        Map<Long, Object> containerInfo = new HashMap<Long, Object>();
+        for (TuDetail detail : tuDetails) {
+            Long containerId = detail.getMergedContainerId();
+            Map<String, Object> containerMap = new HashMap<String, Object>();
+            containerMap.put("boxNum", detail.getBoxNum());
+            containerMap.put("turnoverBoxNum", detail.getTurnoverBoxNum());
+            containerInfo.put(containerId, containerMap);
+        }
+
+        //结果集里按照orderId聚类托盘,给出箱子数
+        //这里看下,扫码的是哪个.
+        Map<Long, Set<Long>> orderContainerSet = new HashMap<Long, Set<Long>>();
+        for (WaveDetail waveDetail : totalWaveDetails) {
+            Long containerId = waveDetail.getContainerId();
+            if(containerInfo.get(containerId) == null){
+                containerId = waveDetail.getMergedContainerId();
+            }
+            if(containerInfo.get(containerId) == null){
+                //出大事了,这个是怎么来的?jb不可能啊.
+                continue;
+            }
+            if (orderContainerSet.containsKey(waveDetail.getOrderId())) {
+                orderContainerSet.get(waveDetail.getOrderId()).add(containerId);
+            } else {
+                Set<Long> contaienrIds = new HashSet<Long>();
+                contaienrIds.add(containerId);
+                orderContainerSet.put(waveDetail.getOrderId(), contaienrIds);
+            }
+        }
+        //封装so单子和箱子数
+        Map<Long, Map<String, Object>> orderBoxInfo = new HashMap<Long, Map<String, Object>>();
+        //按照
+        for (Long key : orderContainerSet.keySet()) {
+            Set<Long> containersInOneOrder = orderContainerSet.get(key);
+            BigDecimal boxNum = new BigDecimal("0");
+            Long turnoverBoxNum = 0L;
+            for (Long one : containersInOneOrder) {
+                Map<String, Object> oneContainer = (Map<String, Object>) containerInfo.get(one);
+                boxNum = boxNum.add(new BigDecimal(oneContainer.get("boxNum").toString()));
+                turnoverBoxNum += Long.valueOf(oneContainer.get("turnoverBoxNum").toString());
+            }
+            Map<String,Object> orderBoxMap = new HashMap<String, Object>();
+            orderBoxMap.put("boxNum", (int)boxNum.floatValue());
+            orderBoxMap.put("turnoverBoxNum", turnoverBoxNum);
+            orderBoxInfo.put(key, orderBoxMap);
+        }
+        return orderBoxInfo;
+    }
+
+    @Transactional(readOnly = false)
+    public boolean creatDeliveryOrderAndDetailV2(TuHead tuHead,
+                                                 List<TuDetail> tuDetails,
+                                                 List<WaveDetail> totalWaveDetails) {
+        //计算订单级别的箱数信息
+        //这个的前提基本上是要一个出库托盘上只能有一个container,呵呵,这里是有可能会出错的,但是其实不要紧,我门还可以接受.
+        Map<Long, Map<String, Object>> orderBoxInfo = this._getOrderBoxInfo(tuDetails, totalWaveDetails);
+        //订单维度聚类
+        Map<Long, OutbDeliveryHeader> mapHeader = new HashMap<Long, OutbDeliveryHeader>();
+        Map<Long, List<OutbDeliveryDetail>> mapDetails = new HashMap<Long, List<OutbDeliveryDetail>>();
+        for (WaveDetail waveDetail : totalWaveDetails) {    //没生成
+            if (null == mapHeader.get(waveDetail.getOrderId())) {
+                OutbDeliveryHeader header = new OutbDeliveryHeader();
+                header.setWarehouseId(0L);
+                header.setShippingAreaCode("" + waveDetail.getRealCollectLocation());
+                header.setWaveId(0L);
+                header.setTransPlan(tuHead.getTuId());
+                header.setTransTime(new Date());
+                ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(waveDetail.getOrderId());
+                if (null == obdHeader) {
+                    throw new BizCheckedException("2900007");
+                }
+                header.setDeliveryCode(obdHeader.getDeliveryCode());
+                header.setDeliveryUser(tuHead.getLoadUid().toString());
+                header.setDeliveryType(1);
+                header.setDeliveryTime(new Date());
+                header.setInserttime(new Date());
+                header.setOrderId(waveDetail.getOrderId());
+                header.setTuId(tuHead.getTuId());
+                Map<String, Object> boxInfo = orderBoxInfo.get(waveDetail.getOrderId());
+                if(boxInfo != null){
+                    header.setBoxNum(Long.valueOf(boxInfo.get("boxNum").toString()));
+                    header.setTurnoverBoxNum(Long.valueOf(boxInfo.get("turnoverBoxNum").toString()));
+                }else{
+                    header.setBoxNum(0L);
+                    header.setTurnoverBoxNum(0L);
+                }
+                mapHeader.put(waveDetail.getOrderId(), header);
+                mapDetails.put(waveDetail.getOrderId(), new LinkedList<OutbDeliveryDetail>());
+            }
+            List<OutbDeliveryDetail> deliveryDetails = mapDetails.get(waveDetail.getOrderId());
+            //同订单聚合detail
+            OutbDeliveryDetail deliveryDetail = new OutbDeliveryDetail();
+            deliveryDetail.setOrderId(waveDetail.getOrderId());
+            deliveryDetail.setItemId(waveDetail.getItemId());
+            deliveryDetail.setSkuId(waveDetail.getSkuId());
+            BaseinfoItem item = itemService.getItem(waveDetail.getItemId());
+            deliveryDetail.setSkuName(item.getSkuName());
+            deliveryDetail.setBarCode(item.getCode());
+            deliveryDetail.setOrderQty(waveDetail.getReqQty()); //todo 哪里会写入
+            deliveryDetail.setPackUnit(PackUtil.Uom2PackUnit(waveDetail.getAllocUnitName()));
+            //通过stock quant获取到对应的lot信息
+            List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(waveDetail.getContainerId());
+            StockQuant stockQuant = stockQuants.size() > 0 ? stockQuants.get(0) : null;
+            deliveryDetail.setLotId(stockQuant == null ? 0L : stockQuant.getLotId());
+            deliveryDetail.setLotNum(stockQuant == null ? "" : stockQuant.getLotCode());
+            deliveryDetail.setDeliveryNum(waveDetail.getQcQty());
+            deliveryDetail.setInserttime(new Date());
+            deliveryDetails.add(deliveryDetail);
+        }
+        for (Long key : mapHeader.keySet()) {
+            OutbDeliveryHeader header = mapHeader.get(key);
+            List<OutbDeliveryDetail> details = mapDetails.get(key);
+            if (details.size() == 0) {
+                continue;
+            }
+            header.setDeliveryId(RandomUtils.genId());
+            for (OutbDeliveryDetail detail : details) {
+                detail.setDeliveryId(header.getDeliveryId());
+            }
+            soDeliveryService.insertOrder(header, details);
+        }
+        //回写发货单的单号
+        for (WaveDetail detail : totalWaveDetails) {
+            if (detail.getDeliveryId() != 0) {
+                continue;
+            }
+            detail.setDeliveryId(mapHeader.get(detail.getOrderId()).getDeliveryId());
+            detail.setShipAt(DateUtils.getCurrentSeconds());
+            detail.setDeliveryQty(detail.getQcQty());
+            detail.setIsAlive(0L);
+            waveService.updateDetail(detail);
+        }
+        // 调用库存同步服务
+        inventoryRedisService.onDelivery(totalWaveDetails);
+        //todo 更新wave有波次,更新波次的状态
+//        this.setStatus(waveHead.getWaveId(), WaveConstant.STATUS_SUCC);
+        return true;
+    }
+
 
     /**
      * 生成发货单,效库存
@@ -342,6 +487,9 @@ public class TuService {
      * @param map
      * @return
      */
+    /*
+    作废
+
     @Transactional(readOnly = false)
     public void createObdAndMoveStockQuant(IWuMart wuMart, Map<String, Object> map, Map<String, Object> ibdObdMap) {
         Set<Long> containerIds = (Set<Long>) map.get("containerIds");
@@ -355,16 +503,29 @@ public class TuService {
         this.update(tuHead);
 
     }
+    */
 
 
     @Transactional(readOnly = false)
-    public void createObdAndMoveStockQuantV2(IDataBackService dataBackService,
-                                             IWuMart wuMart,
-                                             Set<Long> containerIds,
-                                             TuHead tuHead,
-                                             List<WaveDetail> totalWaveDetails,Map<Long, Map<String, Object>> orderBoxInfo) {
-        this.moveItemToConsumeArea(containerIds);
-        this.creatDeliveryOrderAndDetail(tuHead);
+    public List<WaveDetail>  createObdAndMoveStockQuantV2(TuHead tuHead,
+                                             List<TuDetail> tuDetails) {
+        Set<Long> totalContainers = new HashSet<Long>();
+        //获取全量的wave_detail
+        List<WaveDetail> totalWaveDetails = new ArrayList<WaveDetail>();
+        for (TuDetail detail : tuDetails) {
+            List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(detail.getMergedContainerId());
+            if (null == waveDetails || waveDetails.size() < 1) {
+                waveDetails = waveService.getWaveDetailsByMergedContainerId(detail.getMergedContainerId());
+            }
+            if (waveDetails != null) {
+                totalWaveDetails.addAll(waveDetails);
+                for (WaveDetail waveDetail : waveDetails) {
+                    totalContainers.add(waveDetail.getContainerId());
+                }
+            }
+        }
+        this.moveItemToConsumeArea(totalContainers);
+        this.creatDeliveryOrderAndDetailV2(tuHead, tuDetails, totalWaveDetails);
 
         //释放已经没有库存的集货道
         Set<Long> locationIds = new HashSet<Long>();
@@ -382,6 +543,16 @@ public class TuService {
                 locationService.unlockLocation(locationId);
             }
         }
+        //设置发货人和发货时间
+        tuHead.setDeliveryAt(DateUtils.getCurrentSeconds());
+        tuHead.setStatus(TuConstant.SHIP_OVER);
+        this.update(tuHead);
+        //返回
+        return totalWaveDetails;
+
+
+        /*
+        //回传拼装,迁走了哟,呵呵,因为这里不合理嘛
         //获取发货单的header
         List<OutbDeliveryHeader> outbDeliveryHeaders = soDeliveryService.getOutbDeliveryHeaderByTmsId(tuHead.getTuId());
         //发货单的detail
@@ -463,10 +634,7 @@ public class TuService {
         for (WaveDetail detail : totalWaveDetails) {
             waveIds.add(detail.getWaveId());
         }
-        //设置发货人和发货时间
-        tuHead.setDeliveryAt(DateUtils.getCurrentSeconds());
-        tuHead.setStatus(TuConstant.SHIP_OVER);
-        this.update(tuHead);
+        */
     }
 
     /**

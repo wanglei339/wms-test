@@ -8,18 +8,33 @@ public class SysLog implements Serializable {
 	/**  */
     private Long id;
 
+	/** 流水号 */
 	private Long logId;
+
+	/** 业务id, 用于追查问题使用 */
+	private Long businessId;
+
+	/** 状态类型 0-新建，1-处理中，2-处理完成 */
+	private Long status;
+
+	/** 业务内部处理阶段, 为解决多步骤重传问题 */
+	private Long step;
 
 	/** 日志类型 1 ibd，2 obd 3 fret */
     private Integer logType;
 	/**回调系统 1 wumart 2 链商OFC 3 erp*/
 	private Integer targetSystem;
+	/** 系统异常码 */
+	private String sysCode;
+	/** 系统异常信息*/
+	private String SYSMessage;
 	/** 异常码 */
     private String logCode;
 	/** 异常信息 */
     private String logMessage;
 	/** 产生时间 */
     private Long createdAt;
+	private Long updatedAt;
 	
 	public Long getId(){
 		return this.id;
@@ -76,5 +91,53 @@ public class SysLog implements Serializable {
 
 	public void setTargetSystem(Integer targetSystem) {
 		this.targetSystem = targetSystem;
+	}
+
+	public Long getBusinessId() {
+		return businessId;
+	}
+
+	public void setBusinessId(Long businessId) {
+		this.businessId = businessId;
+	}
+
+	public Long getStatus() {
+		return status;
+	}
+
+	public void setStatus(Long status) {
+		this.status = status;
+	}
+
+	public Long getStep() {
+		return step;
+	}
+
+	public void setStep(Long step) {
+		this.step = step;
+	}
+
+	public String getSysCode() {
+		return sysCode;
+	}
+
+	public void setSysCode(String sysCode) {
+		this.sysCode = sysCode;
+	}
+
+	public String getSYSMessage() {
+		return SYSMessage;
+	}
+
+	public void setSYSMessage(String SYSMessage) {
+		this.SYSMessage = SYSMessage;
+	}
+
+	public Long getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(Long updatedAt) {
+		this.updatedAt = updatedAt;
 	}
 }

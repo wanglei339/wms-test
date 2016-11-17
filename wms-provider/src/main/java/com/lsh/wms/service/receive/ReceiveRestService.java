@@ -90,15 +90,7 @@ public class ReceiveRestService implements IReceiveRestService{
         //确认收货之后将验收单回传到上游系统
         if("5".equals(map.get("orderStatus").toString())){
             List<ReceiveDetail> receiveDetails = receiveService.getReceiveDetailListByReceiveId((Long) map.get("receiveId"));
-            //ReceiveHeader ibdHeader = poOrderService.getInbPoHeaderById((Long) map.get("orderId"));
             ReceiveHeader receiveHeader = receiveService.getReceiveHeaderByReceiveId((Long) map.get("receiveId"));
-//            //回传类型
-//            String docType = receiveHeader.getOrderType().equals(3) ? "08" : "02";
-//            String docStyle = receiveHeader.getOrderType().equals(3) ? "02" : "00";
-//            header.setDocStyle(docStyle);
-//            header.setDocType(docType);
-//            header.setPoNumber(receiveHeader.getOrderOtherId());
-//            header.setDelivNumber(receiveHeader.getOrderOtherRefId());
             // TODO: 2016/11/3 回传WMSAP 组装信息
             CreateIbdHeader createIbdHeader = new CreateIbdHeader();
             List<CreateIbdDetail> details = new ArrayList<CreateIbdDetail>();
@@ -129,40 +121,6 @@ public class ReceiveRestService implements IReceiveRestService{
             }else{
                 dataBackService.erpDataBack(JSON.toJSONString(createIbdHeader));
             }
-
-
-            // TODO: 2016/11/3  回传WMSAP 组装信息
-
-//
-//
-//            List<IbdItem>  items = new ArrayList<IbdItem>();
-//            for(ReceiveDetail receiveDetail : receiveDetails){
-//                IbdItem ibdItem = new IbdItem();
-//                //转成ea
-//                BigDecimal inboudQty =  receiveDetail.getInboundQty().multiply(receiveDetail.getPackUnit()).setScale(3);
-//                if(inboudQty.compareTo(BigDecimal.ZERO) <= 0){
-//                    continue;
-//                }
-//                BigDecimal orderQty = receiveDetail.getOrderQty().multiply(receiveDetail.getPackUnit()).setScale(3);
-//                BigDecimal entryQnt = receiveHeader.getOrderType().equals(3) ? orderQty : inboudQty;
-//                ibdItem.setEntryQnt(entryQnt);
-//                ibdItem.setMaterialNo(receiveDetail.getSkuCode());
-//                ibdItem.setDelivItem(receiveDetail.getDetailOtherId());
-//                ibdItem.setPoItem(receiveDetail.getDetailOtherId());
-//                //回传baseinfo_item中的unitName
-//                //ibdItem.setPackName(inbPoDetail.getPackName());
-//                //String unitName = itemService.getItem(ibdHeader.getOwnerUid(),inbPoDetail.getSkuId()).getUnitName().toUpperCase();
-//                ibdItem.setPackName(receiveDetail.getUnitName());
-//                items.add(ibdItem);
-//            }
-//            ibdBackRequest.setItems(items);
-//            ibdBackRequest.setHeader(header);
-//            if(receiveHeader.getOwnerUid() == 1){
-//                dataBackService.wmDataBackByPost(ibdBackRequest, IntegrationConstan.URL_IBD, SysLogConstant.LOG_TYPE_WUMART_IBD);
-//            }else{
-//                dataBackService.erpDataBack(ibdBackRequest);
-//            }
-
         }
         return JsonUtils.SUCCESS();
     }
