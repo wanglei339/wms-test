@@ -36,6 +36,7 @@ import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.tu.TuDetail;
 import com.lsh.wms.model.tu.TuHead;
 import com.lsh.wms.model.wave.WaveDetail;
+import com.lsh.wms.service.tu.TuRpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,12 +88,17 @@ public class ShipRestService implements IShipRestService {
      * @return
      * @throws BizCheckedException
      */
+
+
     @POST
     @Path("shipTu")
     public String ShipTu() throws BizCheckedException {
         Map<String, Object> mapRequest = RequestUtils.getRequest();
         String tuId = mapRequest.get("tuId").toString();
+        Set<Long> totalContainers = new HashSet<Long>();
         TuHead tuHead = iTuRpcService.getHeadByTuId(tuId);
+        //拿tuhead,判断状态
+        //TODO 但是这里其实是可能出错的,当网络异常,在前一个请求没有完成数据库更新的时候,这里是可以运行第二次的,非常的危险.
         if (null == tuHead) {
             throw new BizCheckedException("2990022");
         }
@@ -105,75 +111,23 @@ public class ShipRestService implements IShipRestService {
         if (null == details || details.size() < 1) {
             throw new BizCheckedException("2990041");
         }
-        Set<Long> totalContainers = new HashSet<Long>();
-        Map<Long, Object> containerInfo = new HashMap<Long, Object>();
-        List<WaveDetail> totalWaveDetails = new ArrayList<WaveDetail>();
-        for (TuDetail detail : details) {
-            Long containerId = detail.getMergedContainerId();
-            List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(containerId);
-            if (null == waveDetails || waveDetails.size() < 1) {
-                waveDetails = waveService.getAliveDetailsByContainerId(detail.getMergedContainerId());
-            }
-            if(waveDetails != null) {
-                totalWaveDetails.addAll(waveDetails);
-            }
-            //在库不组盘
-            Map<String, Object> containerMap = new HashMap<String, Object>();
-            containerMap.put("boxNum", detail.getBoxNum());
-            containerMap.put("turnoverBoxNum", detail.getTurnoverBoxNum());
-            containerInfo.put(containerId, containerMap);
-        }
-
-        //结果集里按照orderId聚类托盘,给出箱子数
-        Map<Long, Set<Long>> orderContainerSet = new HashMap<Long, Set<Long>>();
-        for (WaveDetail waveDetail : totalWaveDetails) {
-            if (orderContainerSet.containsKey(waveDetail.getOrderId())) {
-                orderContainerSet.get(waveDetail.getOrderId()).add(waveDetail.getContainerId());
-            } else {
-                Set<Long> contaienrIds = new HashSet<Long>();
-                contaienrIds.add(waveDetail.getContainerId());
-                orderContainerSet.put(waveDetail.getOrderId(), contaienrIds);
-            }
-            totalContainers.add(waveDetail.getContainerId());
-        }
-        //封装so单子和箱子数
-        Map<Long, Map<String, Object>> orderBoxInfo = new HashMap<Long, Map<String, Object>>();
-        //按照
-        for (Long key : orderContainerSet.keySet()) {
-
-            Set<Long> containersInOneOrder = orderContainerSet.get(key);
-            BigDecimal boxNum = new BigDecimal("0");
-            Long turnoverBoxNum = 0L;
-            for (Long one : containersInOneOrder) {
-                Map<String, Object> oneContainer = (Map<String, Object>) containerInfo.get(one);
-                boxNum = boxNum.add(new BigDecimal(oneContainer.get("boxNum").toString()));
-                turnoverBoxNum += Long.valueOf(oneContainer.get("turnoverBoxNum").toString());
-            }
-            Map<String,Object> orderBoxMap = new HashMap<String, Object>();
-            orderBoxMap.put("boxNum", boxNum);
-            orderBoxMap.put("turnoverBoxNum", turnoverBoxNum);
-            orderBoxInfo.put(key, orderBoxMap);
-        }
-
-        //销库存 写在同个事务中,生成发货单 osd的托盘生命结束
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put("containerIds", totalContainers);
-        map.put("tuHead", tuHead);
-        tuService.createObdAndMoveStockQuantV2(dataBackService, wuMart, totalContainers, tuHead, totalWaveDetails,orderBoxInfo);
+        //销库存 写在同个事务中,生成发货单 osd的托盘生命结束,因此只能运行一次
+        List<WaveDetail> totalWaveDetails = tuService.createObdAndMoveStockQuantV2(tuHead, details);
 
         //创建发货任务
-        TaskEntry taskEntry = new TaskEntry();
-        TaskInfo shipTaskInfo = new TaskInfo();
-        shipTaskInfo.setType(TaskConstant.TYPE_DIRECT_SHIP);
-        shipTaskInfo.setTaskName("优供的发货任务[" + totalWaveDetails.get(0).getContainerId() + "]");
-        shipTaskInfo.setContainerId(totalWaveDetails.get(0).getContainerId()); //小店没和板子,就是原来了物理托盘码
-        shipTaskInfo.setOperator(tuHead.getLoadUid()); //一个人装车
-        shipTaskInfo.setBusinessMode(TaskConstant.MODE_INBOUND);
-        shipTaskInfo.setLocationId(totalWaveDetails.get(0).getRealCollectLocation());
-        taskEntry.setTaskInfo(shipTaskInfo);
-        taskEntry.setTaskDetailList((List<Object>) (List<?>) totalWaveDetails);
-        Long taskId = iTaskRpcService.create(TaskConstant.TYPE_SHIP, taskEntry);
-
+        {
+            TaskEntry taskEntry = new TaskEntry();
+            TaskInfo shipTaskInfo = new TaskInfo();
+            shipTaskInfo.setType(TaskConstant.TYPE_DIRECT_SHIP);
+            shipTaskInfo.setTaskName("优供的发货任务[" + totalWaveDetails.get(0).getContainerId() + "]");
+            shipTaskInfo.setContainerId(totalWaveDetails.get(0).getContainerId()); //小店没和板子,就是原来了物理托盘码
+            shipTaskInfo.setOperator(tuHead.getLoadUid()); //一个人装车
+            shipTaskInfo.setBusinessMode(TaskConstant.MODE_INBOUND);
+            shipTaskInfo.setLocationId(totalWaveDetails.get(0).getRealCollectLocation());
+            taskEntry.setTaskInfo(shipTaskInfo);
+            taskEntry.setTaskDetailList((List<Object>) (List<?>) totalWaveDetails);
+            Long taskId = iTaskRpcService.create(TaskConstant.TYPE_SHIP, taskEntry);
+        }
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("response", true);
         return JsonUtils.SUCCESS(result);
