@@ -109,9 +109,7 @@ public class StockMoveService {
             BaseinfoLocation location = locationService.getLocation(move.getToLocationId());
             if (location.getType().compareTo(LocationConstant.CONSUME_AREA) != 0) {
                 quantService.unReserveById(quant.getId());
-                logger.warn("xxxx yyyyy ");
             }
-            logger.warn("wtf xxxxxx the fuck lcoation is " + locationService.getLocation(move.getToLocationId()).getCurContainerVol());
         }
 
     }
