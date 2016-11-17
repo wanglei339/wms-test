@@ -20,7 +20,6 @@ import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
 import com.lsh.wms.model.system.SysLog;
-import javafx.geometry.Pos;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;

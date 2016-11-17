@@ -149,7 +149,7 @@ public class StockMoveService {
     public void move(List<StockMove> moveList,Long stockTakingId) throws BizCheckedException{
         this.move(moveList);
 
-        persistenceProxy.doOne(SysLogConstant.LOG_TYPE_WIN,stockTakingId);
+        persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN,stockTakingId);
 
     }
 
