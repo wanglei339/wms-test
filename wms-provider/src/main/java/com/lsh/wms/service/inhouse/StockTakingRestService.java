@@ -99,7 +99,6 @@ public class StockTakingRestService implements IStockTakingRestService {
         StockTakingHead head = new StockTakingHead();
         ObjUtils.bean2bean(request, head);
         List<StockTakingDetail> detailList = iStockTakingRpcService.prepareDetailList(head);
-        stockTakingService.insertHead(head);
         iStockTakingRpcService.createTask(head, detailList, 1L, head.getDueTime());
         return JsonUtils.SUCCESS();
     }

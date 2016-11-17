@@ -25,9 +25,7 @@ import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
-import com.lsh.wms.core.service.po.PoReceiptService;
 import com.lsh.wms.core.service.so.SoOrderService;
-import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemType;
@@ -83,8 +81,6 @@ public class ReceiptRestService implements IReceiptRfService {
     private ContainerService containerService;
 
     @Autowired
-    private StaffService staffService;
-    @Autowired
     private SoOrderService soOrderService;
 
     @Autowired
@@ -92,8 +88,8 @@ public class ReceiptRestService implements IReceiptRfService {
     @Autowired
     private SysUserService sysUserService;
 
-    @Autowired
-    private PoReceiptService poReceiptService;
+   // @Autowired
+   // private PoReceiptService poReceiptService;
 
 
 
@@ -152,9 +148,12 @@ public class ReceiptRestService implements IReceiptRfService {
             }*/
 
             //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
-            CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, receiptItem.getBarCode());
+            //CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, receiptItem.getBarCode());
 
-            BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
+            //BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
+            BaseinfoItem baseinfoItem = this.getItem(receiptItem.getBarCode(),ibdHeader.getOwnerUid());
+            // TODO: 16/11/17  因用户输入的可能是物美码,此处为国条重新赋值
+            receiptItem.setBarCode(baseinfoItem.getCode());
             /*
             按配置验证生产日期/到期日是否输入
              */
@@ -222,7 +221,7 @@ public class ReceiptRestService implements IReceiptRfService {
 
 
             }
-            receiptItem.setSkuId(csiSku.getSkuId());
+            receiptItem.setSkuId(baseinfoItem.getSkuId());
             receiptItem.setSkuName(ibdDetail.getSkuName());
             receiptItem.setPackUnit(ibdDetail.getPackUnit());
             receiptItem.setPackName(ibdDetail.getPackName());
@@ -352,7 +351,9 @@ public class ReceiptRestService implements IReceiptRfService {
 
         BaseinfoItem baseinfoItem = this.getItem(barCode,ibdHeader.getOwnerUid());
 
-
+        if(baseinfoItem.getIsInfoIntact() == 0){
+            throw new BizCheckedException("2020104");//商品信息不完整,不能收货
+        }
 
         //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
         CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barCode);
@@ -601,7 +602,7 @@ public class ReceiptRestService implements IReceiptRfService {
         *判断托盘是否可用
         */
 
-        String containerStoreKey=RedisKeyConstant.CONTAINER_STORE.replace("{0}",containerId+"");
+        String containerStoreKey=StrUtils.formatString(RedisKeyConstant.CONTAINER_STORE,containerId);
         //从缓存中获取该托盘对应的店铺信息
         String oldStoreId=redisStringDao.get(containerStoreKey);
         if(!storeId.equals(oldStoreId)){
@@ -623,9 +624,9 @@ public class ReceiptRestService implements IReceiptRfService {
 
        BaseinfoItem baseinfoItem = this.getItem(barCode,ibdHeader.getOwnerUid());
 
-
-
-
+       if(baseinfoItem.getIsInfoIntact() == 0){
+           throw new BizCheckedException("2020104");//商品信息不完整,不能收货
+       }
 
         //是否可收货
         boolean isCanReceipt=ibdHeader.getOrderStatus()==PoConstant.ORDER_THROW||ibdHeader.getOrderStatus()==PoConstant.ORDER_RECTIPT_PART||ibdHeader.getOrderStatus()==PoConstant.ORDER_RECTIPTING;
@@ -750,10 +751,16 @@ public class ReceiptRestService implements IReceiptRfService {
         });
     }
 
+    /**
+     * 判断物美码还是国条,来获取对应商品信息
+     * @param barCode 值为物美码或国条
+     * @param ownerId
+     * @return
+     */
     private BaseinfoItem getItem(String barCode , Long ownerId){
         BaseinfoItem baseinfoItem = new BaseinfoItem();
         if (barCode.length() == 6 || barCode.length() == 9){
-
+            //barCode的值为物美码
             while (barCode.length() < 18){
                 StringBuffer sb = new StringBuffer();
                 sb.append("0").append(barCode);
@@ -766,6 +773,7 @@ public class ReceiptRestService implements IReceiptRfService {
             baseinfoItem = items.get(items.size()-1);
 
         }else{
+            //barCode值为国条
             //商品是否存在
             CsiSku csiSku=csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE,barCode);
             if(null==csiSku||csiSku.getSkuId()==null){
