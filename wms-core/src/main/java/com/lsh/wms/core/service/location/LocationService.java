@@ -1496,7 +1496,7 @@ public class LocationService {
                 conf.put("passageNo", passageNo);
                 if (conf.get("shelfLevelNo") != null) {
                     shelfLevelNo = Long.valueOf(conf.get("shelfLevelNo").toString());
-                    if (conf.get("isLevel") != conf.get("isLevel") && Boolean.parseBoolean(conf.get("isLevel").toString())) {
+                    if (conf.get("isLevel") != null && Boolean.parseBoolean(conf.get("isLevel").toString())) {
                         shelfLevelNo++;
                     }
                 }
