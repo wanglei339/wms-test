@@ -30,6 +30,7 @@ public class BaseinfoLocationShelfService implements IStrategy {
 
     @Transactional(readOnly = false)
     public void insert(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
+        iBaseinfoLocaltionModel.setClassification(LocationConstant.CLASSIFICATION_SHELFS);
         baseinfoLocationShelfDao.insert((BaseinfoLocationShelf) iBaseinfoLocaltionModel);
     }
 
