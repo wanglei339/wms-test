@@ -4,6 +4,8 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
+import com.lsh.wms.core.service.taking.StockTakingService;
+import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,8 @@ public class BaseTaskService {
 
     @Autowired
     private TaskInfoDao taskInfoDao;
+    @Autowired
+    private StockTakingService stockTakingService;
 
     @Transactional(readOnly = false)
     public void create(TaskEntry taskEntry, TaskHandler taskHandler) throws BizCheckedException {
@@ -45,6 +49,19 @@ public class BaseTaskService {
 
     @Transactional(readOnly = false)
     public void batchCreate(List<TaskEntry> taskEntries, TaskHandler taskHandler) throws BizCheckedException {
+        for(TaskEntry taskEntry : taskEntries) {
+            TaskInfo taskInfo = taskEntry.getTaskInfo();
+            taskInfo.setDraftTime(DateUtils.getCurrentSeconds());
+            taskInfo.setStatus(TaskConstant.Draft);
+            taskInfo.setCreatedAt(DateUtils.getCurrentSeconds());
+            taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+            taskInfoDao.insert(taskInfo);
+            taskHandler.createConcrete(taskEntry);
+        }
+    }
+    @Transactional(readOnly = false)
+    public void batchCreate(StockTakingHead head,List<TaskEntry> taskEntries, TaskHandler taskHandler) throws BizCheckedException {
+        stockTakingService.insertHead(head);
         for(TaskEntry taskEntry : taskEntries) {
             TaskInfo taskInfo = taskEntry.getTaskInfo();
             taskInfo.setDraftTime(DateUtils.getCurrentSeconds());
