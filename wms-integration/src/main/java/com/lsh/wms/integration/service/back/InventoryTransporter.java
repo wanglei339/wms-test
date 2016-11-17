@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * Created by lixin-mac on 2016/11/17.
  */
-public class InventoryLossTransporter implements ITransporter{
+public class InventoryTransporter implements ITransporter{
 
     @Autowired
     private DataBackService dataBackService;

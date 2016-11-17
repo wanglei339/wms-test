@@ -57,7 +57,7 @@ public class InventoryWinTransporter implements ITransporter {
         if(itemsWin != null || itemsWin.size() > 0 ){
             request.setMoveType(String.valueOf(IntegrationConstan.WIN));
             request.setItems(itemsWin);
-            dataBackService.wmDataBackByPost(JSON.toJSONString(request),IntegrationConstan.URL_STOCKCHANGE,SysLogConstant.LOG_TYPE_WIN);
+            dataBackService.wmDataBackByPost(JSON.toJSONString(request),IntegrationConstan.URL_STOCKCHANGE,SysLogConstant.LOG_TYPE_LOSS_WIN);
         }
 
     }

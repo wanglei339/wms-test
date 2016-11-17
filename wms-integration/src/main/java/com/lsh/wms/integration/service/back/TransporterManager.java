@@ -7,13 +7,10 @@ import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.po.ReceiveHeader;
 import com.lsh.wms.model.so.ObdHeader;
-import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
 import com.lsh.wms.model.system.SysLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 /**
  * Created by mali on 16/11/17.
@@ -64,7 +61,7 @@ public class TransporterManager {
                 }
                 break;
             case SysLogConstant.LOG_TYPE_LOSS_WIN:
-                transporter = new InventoryLossTransporter();
+                transporter = new InventoryTransporter();
                 break;
 //            case SysLogConstant.LOG_TYPE_WIN:
 //                transporter = new InventoryWinTransporter();
