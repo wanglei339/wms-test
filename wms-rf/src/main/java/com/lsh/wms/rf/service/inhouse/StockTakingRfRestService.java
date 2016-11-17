@@ -360,16 +360,16 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         StockTakingHead head = stockTakingService.getHeadById(stockTakingId);
         head.setStatus(3L);
         List<StockMove> moveList = new ArrayList<StockMove>();
-        //盘亏 盘盈的分成两个list items为盘亏 items1盘盈
-        List<StockItem> itemsLoss = new ArrayList<StockItem>();
-        List<StockItem> itemsWin = new ArrayList<StockItem>();
-        StockRequest request = new StockRequest();
+//        //盘亏 盘盈的分成两个list items为盘亏 items1盘盈
+//        List<StockItem> itemsLoss = new ArrayList<StockItem>();
+//        List<StockItem> itemsWin = new ArrayList<StockItem>();
+//        StockRequest request = new StockRequest();
 
         for (StockTakingDetail detail : detailList) {
             if(detail.getItemId()==0L){
                 continue;
             }
-            StockItem stockItem = new StockItem();
+            //StockItem stockItem = new StockItem();
             if (detail.getSkuId().equals(detail.getRealSkuId())) {
                 Long containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
                 StockMove move = new StockMove();
@@ -387,11 +387,11 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
                     move.setToContainerId(containerId);
                     //组装回传物美的数据
 
-                    stockItem.setEntryQnt(detail.getTheoreticalQty().subtract(detail.getRealQty()).toString());
-                    stockItem.setEntryUom("EA");
-
-                    stockItem.setMaterialNo(item.getSkuCode());
-                    itemsLoss.add(stockItem);
+//                    stockItem.setEntryQnt(detail.getTheoreticalQty().subtract(detail.getRealQty()).toString());
+//                    stockItem.setEntryUom("EA");
+//
+//                    stockItem.setMaterialNo(item.getSkuCode());
+//                    itemsLoss.add(stockItem);
                 } else {
                     StockLot lot = lotService.getStockLotByLotId(detail.getLotId());
                     move.setLot(lot);
@@ -400,10 +400,10 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
                     move.setToLocationId(detail.getLocationId());
                     move.setToContainerId(detail.getContainerId());
 
-                    stockItem.setEntryQnt(detail.getRealQty().subtract(detail.getTheoreticalQty()).toString());
-                    stockItem.setMaterialNo(item.getSkuCode());
-                    stockItem.setEntryUom("EA");
-                    itemsWin.add(stockItem);
+//                    stockItem.setEntryQnt(detail.getRealQty().subtract(detail.getTheoreticalQty()).toString());
+//                    stockItem.setMaterialNo(item.getSkuCode());
+//                    stockItem.setEntryUom("EA");
+//                    itemsWin.add(stockItem);
                 }
                 moveList.add(move);
             } else {
@@ -426,7 +426,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             }
         }
         try {
-            moveService.move(moveList);
+            moveService.move(moveList,stockTakingId);
         }catch (Exception e) {
             head.setStatus(4L);
             stockTakingService.updateHead(head);
@@ -434,23 +434,23 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             throw  new BizCheckedException("2550099");
         }
         stockTakingService.updateHead(head);
-        //组装信息 回传物美
-        BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) baseinfoLocationWarehouseService.getBaseinfoItemLocationModelById(1L);
-        String warehouseName = warehouse.getWarehouseName();
-
-        if(itemsLoss.size()>0){
-            request.setItems(itemsLoss);
-            request.setMoveType(String.valueOf(IntegrationConstan.LOSS));
-            request.setPlant(warehouseName);
-            dataBackService.wmDataBackByPost(JSON.toJSONString(request),IntegrationConstan.URL_STOCKCHANGE, SysLogConstant.LOG_TYPE_LOSS);
-        }
-
-        if (itemsWin.size()>0){
-            request.setItems(itemsWin);
-            request.setMoveType(String.valueOf(IntegrationConstan.WIN));
-            request.setPlant(warehouseName);
-            dataBackService.wmDataBackByPost(JSON.toJSONString(request),IntegrationConstan.URL_STOCKCHANGE,SysLogConstant.LOG_TYPE_WIN);
-        }
+//        //组装信息 回传物美
+//        BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) baseinfoLocationWarehouseService.getBaseinfoItemLocationModelById(1L);
+//        String warehouseName = warehouse.getWarehouseName();
+//
+//        if(itemsLoss.size()>0){
+//            request.setItems(itemsLoss);
+//            request.setMoveType(String.valueOf(IntegrationConstan.LOSS));
+//            request.setPlant(warehouseName);
+//            dataBackService.wmDataBackByPost(JSON.toJSONString(request),IntegrationConstan.URL_STOCKCHANGE, SysLogConstant.LOG_TYPE_LOSS);
+//        }
+//
+//        if (itemsWin.size()>0){
+//            request.setItems(itemsWin);
+//            request.setMoveType(String.valueOf(IntegrationConstan.WIN));
+//            request.setPlant(warehouseName);
+//            dataBackService.wmDataBackByPost(JSON.toJSONString(request),IntegrationConstan.URL_STOCKCHANGE,SysLogConstant.LOG_TYPE_WIN);
+//        }
 
 
     }

@@ -26,18 +26,23 @@ public class TransportService implements ITransportService{
 
         logger.info(StrUtils.formatString("begin deal with sysLogId[{0}]]", sysLogId));
 
-        SysLog sysLog = sysLogService.getSysLogById(sysLogId);
+        try {
+            SysLog sysLog = sysLogService.getSysLogById(sysLogId);
 
-        if(sysLog == null) {
-            logger.warn(StrUtils.formatString("cannot find syslog for log_id[{0}]", sysLogId));
-            return;
+            if (sysLog == null) {
+                logger.warn(StrUtils.formatString("cannot find syslog for log_id[{0}]", sysLogId));
+                return;
+            }
+
+            logger.info(StrUtils.formatString("begin send data back [logId:{0},businessId:{1}]", sysLogId, sysLog.getBusinessId()));
+            transporterManager.dealOne(sysLog);
+
+            logger.info(StrUtils.formatString("begin update sysLogInfo[logId:{0},businessId:{1}] ", sysLogId, sysLog.getBusinessId()));
+            sysLogService.updateSysLog(sysLog);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            logger.error(StrUtils.formatString("Exception ocurred during deail with SysLog[{}]", sysLogId));
         }
 
-        logger.info(StrUtils.formatString("begin send data back [logId:{0},businessId:{1}]", sysLogId, sysLog.getBusinessId()));
-        transporterManager.dealOne(sysLog);
-
-
-        logger.info(StrUtils.formatString("begin update sysLogInfo[logId:{0},businessId:{1}] ", sysLogId, sysLog.getBusinessId()));
-        sysLogService.updateSysLog(sysLog);
     }
 }

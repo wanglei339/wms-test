@@ -149,26 +149,26 @@ public class WuMartSap implements IWuMartSap{
         backDate.setItems(backDetails);
 
 
-        //存入sys_log
-        //Long sysId = RandomUtils.genId();
-        SysLog sysLog = new SysLog();
-        //sysLog.setLogId(sysId);
-        //记录返回日志
-        sysLog.setLogMessage(newReturn.getItem().get(0).getMessage());
-        sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
-        sysLog.setLogType(SysLogConstant.LOG_TYPE_DIRECT_IBD);
-        //sysLog.setLogCode(newReturn.getItem().get(0).getCode());
-        sysLog.setLogCode(newReturn.getItem().get(0).getCode());
-        Long sysId = sysLogService.insertSysLog(sysLog);
-
-        //将返回结果存入缓存,发生错误可以重新下传。
-        SysMsg sysMsg = new SysMsg();
-        sysMsg.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
-        sysMsg.setId(sysId);
-        sysMsg.setType(SysLogConstant.LOG_TYPE_DIRECT_IBD);
-
-        sysMsg.setMsgBody(JSON.toJSONString(createIbdHeader));
-        sysMsgService.sendMessage(sysMsg);
+//        //存入sys_log
+//        //Long sysId = RandomUtils.genId();
+//        SysLog sysLog = new SysLog();
+//        //sysLog.setLogId(sysId);
+//        //记录返回日志
+//        sysLog.setLogMessage(newReturn.getItem().get(0).getMessage());
+//        sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
+//        sysLog.setLogType(SysLogConstant.LOG_TYPE_DIRECT_IBD);
+//        //sysLog.setLogCode(newReturn.getItem().get(0).getCode());
+//        sysLog.setLogCode(newReturn.getItem().get(0).getCode());
+//        Long sysId = sysLogService.insertSysLog(sysLog);
+//
+//        //将返回结果存入缓存,发生错误可以重新下传。
+//        SysMsg sysMsg = new SysMsg();
+//        sysMsg.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
+//        sysMsg.setId(sysId);
+//        sysMsg.setType(SysLogConstant.LOG_TYPE_DIRECT_IBD);
+//
+//        sysMsg.setMsgBody(JSON.toJSONString(createIbdHeader));
+//        sysMsgService.sendMessage(sysMsg);
 
         return backDate;
     }

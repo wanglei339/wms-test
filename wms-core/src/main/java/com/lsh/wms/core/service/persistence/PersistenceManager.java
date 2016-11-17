@@ -21,12 +21,12 @@ public class PersistenceManager {
         try {
             sysLog.setLogType(type);
             switch (type) {
-                case SysLogConstant.LOG_TYPE_LOSS:
-                    getStockChangeLog(data, sysLog);
-                    break;
-                case SysLogConstant.LOG_TYPE_WIN:
-                    getStockChangeLog(data, sysLog);
-                    break;
+//                case SysLogConstant.LOG_TYPE_LOSS:
+//                    getStockChangeLog(data, sysLog);
+//                    break;
+//                case SysLogConstant.LOG_TYPE_WIN:
+//                    getStockChangeLog(data, sysLog);
+//                    break;
                 default:
                     getDefaultLog(data, sysLog);
             }

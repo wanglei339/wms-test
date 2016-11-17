@@ -6,7 +6,7 @@ import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
-import com.lsh.wms.core.constant.SoConstant;
+import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.api.model.so.ObdOfcBackRequest;
 import com.lsh.wms.api.model.so.ObdOfcItem;
@@ -14,13 +14,12 @@ import com.lsh.wms.api.model.wumart.CreateObdDetail;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.back.IDataBackService;
 import com.lsh.wms.api.service.wumart.IWuMart;
-import com.lsh.wms.core.constant.IntegrationConstan;
-import com.lsh.wms.core.constant.TuConstant;
-import com.lsh.wms.core.constant.WaveConstant;
 import com.lsh.wms.core.dao.tu.TuDetailDao;
 import com.lsh.wms.core.dao.tu.TuHeadDao;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.persistence.PersistenceManager;
+import com.lsh.wms.core.service.persistence.PersistenceProxy;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockMoveService;
@@ -76,6 +75,11 @@ public class TuService {
     private InventoryRedisService inventoryRedisService;
     @Autowired
     private LocationService locationService;
+
+    @Autowired
+    private PersistenceManager persistenceManager;
+    @Autowired
+    private PersistenceProxy persistenceProxy;
 
     @Transactional(readOnly = false)
     public void create(TuHead head) {
@@ -461,6 +465,7 @@ public class TuService {
                 detail.setDeliveryId(header.getDeliveryId());
             }
             soDeliveryService.insertOrder(header, details);
+            persistenceProxy.doOne(SysLogConstant.LOG_TYPE_OBD,header.getDeliveryId());
         }
         //回写发货单的单号
         for (WaveDetail detail : totalWaveDetails) {
@@ -473,6 +478,7 @@ public class TuService {
             detail.setIsAlive(0L);
             waveService.updateDetail(detail);
         }
+
         // 调用库存同步服务
         inventoryRedisService.onDelivery(totalWaveDetails);
         //todo 更新wave有波次,更新波次的状态
