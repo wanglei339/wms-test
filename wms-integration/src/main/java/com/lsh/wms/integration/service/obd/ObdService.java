@@ -6,18 +6,23 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.base.q.Utilities.Json.JSONObject;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
 import com.lsh.wms.api.model.so.ObdRequest;
 import com.lsh.wms.api.model.so.SoItem;
 import com.lsh.wms.api.model.so.SoRequest;
+import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.so.IObdService;
 import com.lsh.wms.api.service.so.ISoRpcService;
+import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.so.SoOrderService;
+import com.lsh.wms.integration.service.common.utils.HttpUtil;
+import com.lsh.wms.integration.service.wumartsap.WuMartSap;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.so.ObdDetail;
@@ -46,6 +51,7 @@ import java.util.Map;
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class ObdService implements IObdService{
 
+    private static Logger logger = LoggerFactory.getLogger(ObdService.class);
     @Reference
     private ISoRpcService soRpcService;
 
@@ -55,11 +61,8 @@ public class ObdService implements IObdService{
     private ItemService itemService;
     @Autowired
     private CsiCustomerService customerService;
-
-
-
-    private static Logger logger = LoggerFactory.getLogger(ObdService.class);
-
+    @Autowired
+    private WuMartSap wuMartSap;
 
     @POST
     @Path("add")
@@ -70,6 +73,14 @@ public class ObdService implements IObdService{
 
         List<com.lsh.wms.api.model.so.ObdDetail> newDetails = new ArrayList<com.lsh.wms.api.model.so.ObdDetail>();
         List<SoItem> items = new ArrayList<SoItem>();
+
+        if(request.getWarehouseCode().equals("DC41")){
+            String jsonStr = HttpUtil.doPost(IntegrationConstan.URL_SO,request);
+            JSONObject obj = new JSONObject(jsonStr);
+            BaseResponse response = new BaseResponse();
+            ObjUtils.bean2bean(obj,response);
+            return response;
+        }
 
         for(com.lsh.wms.api.model.so.ObdDetail obdDetail : details){
             List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(request.getOwnerUid(),obdDetail.getSkuCode());
@@ -136,5 +147,16 @@ public class ObdService implements IObdService{
 //        map.put("orderOtherRefId",request.getOrderOtherRefId());
 
         return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, obdHeader);
+    }
+
+    @POST
+    @Path("bdSendObd2Sap")
+    public String bdSendObd2Sap(CreateObdHeader createObdHeader) {
+
+        String type = wuMartSap.soObd2Sap(createObdHeader);
+        if("E".equals(type)){
+            return JsonUtils.EXCEPTION_ERROR("创建obd失败");
+        }
+        return JsonUtils.SUCCESS("创建obd并过账成功");
     }
 }
