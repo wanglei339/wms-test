@@ -66,11 +66,6 @@ public class WuMart implements IWuMart {
      * @param ibdObdMap
      */
     public void sendSap(Map<String,Object> ibdObdMap){
-
-        //门店sto发送sap
-        if((CreateObdHeader) ibdObdMap.get("createStoObdHeader") != null){
-            this.sendObd((CreateObdHeader) ibdObdMap.get("createStoObdHeader"));
-        }
         String ibdResult = this.sendIbd((CreateIbdHeader) ibdObdMap.get("createIbdHeader"));
 
         if(!"E".equals(ibdResult) && ibdResult != null){

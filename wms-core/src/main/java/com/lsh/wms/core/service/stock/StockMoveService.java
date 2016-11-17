@@ -3,10 +3,12 @@ package com.lsh.wms.core.service.stock;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.LocationConstant;
+import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
 import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.persistence.PersistenceProxy;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
@@ -42,6 +44,9 @@ public class StockMoveService {
 
     @Autowired
     private StockQuantMoveRelDao relDao;
+
+    @Autowired
+    private PersistenceProxy persistenceProxy;
 
     public StockMove getMoveById(Long moveId) {
         return moveDao.getStockMoveById(moveId);
@@ -134,10 +139,20 @@ public class StockMoveService {
 //                this.move(move, move.getLot());
 //            }
 //        }
+
         for (StockMove move : moveList) {
             this.move(move);
         }
+
      }
+    @Transactional()
+    public void move(List<StockMove> moveList,Long stockTakingId) throws BizCheckedException{
+        this.move(moveList);
+
+        persistenceProxy.doOne(SysLogConstant.LOG_TYPE_WIN,stockTakingId);
+
+    }
+
     @Transactional(readOnly = false)
     public void move(StockMove move) throws BizCheckedException {
         if (move.getQty().compareTo(BigDecimal.ZERO) <= 0) {

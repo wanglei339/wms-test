@@ -63,6 +63,25 @@
 		limit #{start},#{limit}
 		</if>
 	</select>
+
+	<select id="getTodoList" parameterType="map" resultMap="sysLogResultMap">
+		select * from sys_log
+		<where>
+			log_type=#{logType}
+			and ( (status = 0) or (status = 2 and retry_times &lt;= #{retryTimes} and sys_code != 0) )
+		</where>
+		<if test="start != null and limit != null">
+			limit #{start},#{limit}
+		</if>
+	</select>
+
+	<update id="lockSysLogList" parameterType="java.util.List">
+		update sys_log set status = 1
+		where log_id in
+		<foreach collection="list" item="item" index="index" open="(" separator=","  close=")">
+			#{item}
+		</foreach>
+	</update>
   
 	<sql id="queryCondition">
 		<where>
