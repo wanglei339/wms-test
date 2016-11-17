@@ -104,7 +104,7 @@ public class BuildDataRpcService implements IBuildDataRpcService {
             //wuMart.sendIbd(createIbdHeader);
 
         }else{
-            dataBackService.erpDataBack(JSON.toJSONString(createIbdHeader));
+//            dataBackService.erpDataBack(JSON.toJSONString(createIbdHeader));
         }
     }
 
