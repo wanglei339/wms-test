@@ -11,9 +11,10 @@
 		<result property="cellphone" column="cellphone"/>
 		<result property="contactPhone" column="contact_phone"/>
 		<result property="contactAddress" column="contact_address"/>
-		<result property="groupId" column="group_id"/>
-		<result property="levelId" column="level_id"/>
 		<result property="entryTime" column="entry_time"/>
+		<result property="departmentName" column="department_name"/>
+		<result property="levelName" column="level_name"/>
+		<result property="groupName" column="group_name"/>
 		<result property="status" column="status"/>
 		<result property="recordStatus" column="record_status"/>
 		<result property="createdAt" column="created_at"/>
@@ -23,27 +24,29 @@
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoStaffInfo">
 		insert into baseinfo_staff_info (
 			staff_id,staff_no,name,sex,cellphone,contact_phone,
-			contact_address,group_id,level_id,entry_time,status,record_status,
-			created_at,updated_at
+			contact_address,entry_time,department_name,level_name,group_name,status,
+			record_status,created_at,updated_at
     	) values (
 			#{staffId},#{staffNo},#{name},#{sex},#{cellphone},#{contactPhone},
-			#{contactAddress},#{groupId},#{levelId},#{entryTime},#{status},#{recordStatus},
-			#{createdAt},#{updatedAt}
+			#{contactAddress},#{entryTime},#{departmentName},#{levelName},#{groupName},#{status},
+			#{recordStatus},#{createdAt},#{updatedAt}
     	)
 	</insert>
 
 	<update id="update" parameterType="BaseinfoStaffInfo">
 		update baseinfo_staff_info
     	<set>
+  			<if test="staffId != null">staff_id=#{staffId},</if>
   			<if test="staffNo != null">staff_no=#{staffNo},</if>
   			<if test="name != null">name=#{name},</if>
   			<if test="sex != null">sex=#{sex},</if>
   			<if test="cellphone != null">cellphone=#{cellphone},</if>
   			<if test="contactPhone != null">contact_phone=#{contactPhone},</if>
   			<if test="contactAddress != null">contact_address=#{contactAddress},</if>
-  			<if test="groupId != null">group_id=#{groupId},</if>
-  			<if test="levelId != null">level_id=#{levelId},</if>
   			<if test="entryTime != null">entry_time=#{entryTime},</if>
+  			<if test="departmentName != null">department_name=#{departmentName},</if>
+  			<if test="levelName != null">level_name=#{levelName},</if>
+  			<if test="groupName != null">group_name=#{groupName},</if>
   			<if test="status != null">status=#{status},</if>
   			<if test="recordStatus != null">record_status=#{recordStatus},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
@@ -52,9 +55,9 @@
 		where staff_id=#{staffId}
 	</update>
   
-	<select id="getBaseinfoStaffInfoById" parameterType="Long" resultMap="baseinfoStaffInfoResultMap">
+	<select id="getBaseinfoStaffInfoById" parameterType="int" resultMap="baseinfoStaffInfoResultMap">
 		select * from baseinfo_staff_info
-		where staff_id=#{staffId}
+		where ID=#{id} 
 	</select>
   
 	<select id="countBaseinfoStaffInfo" parameterType="map" resultType="int">
@@ -80,9 +83,10 @@
 			<if test="cellphone != null">and cellphone=#{cellphone}</if>
 			<if test="contactPhone != null">and contact_phone=#{contactPhone}</if>
 			<if test="contactAddress != null">and contact_address=#{contactAddress}</if>
-			<if test="groupId != null">and group_id=#{groupId}</if>
-			<if test="levelId != null">and level_id=#{levelId}</if>
 			<if test="entryTime != null">and entry_time=#{entryTime}</if>
+			<if test="departmentName != null">and department_name=#{departmentName}</if>
+			<if test="levelName != null">and level_name=#{levelName}</if>
+			<if test="groupName != null">and group_name=#{groupName}</if>
 			<if test="status != null">and status=#{status}</if>
 			<if test="recordStatus != null">and record_status=#{recordStatus}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>

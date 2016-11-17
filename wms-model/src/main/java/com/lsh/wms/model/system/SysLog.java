@@ -32,6 +32,9 @@ public class SysLog implements Serializable {
     private String logCode;
 	/** 异常信息 */
     private String logMessage;
+	/**尝试发送次数*/
+	private Long retryTimes;
+
 	/** 产生时间 */
     private Long createdAt;
 	private Long updatedAt;
@@ -139,5 +142,13 @@ public class SysLog implements Serializable {
 
 	public void setUpdatedAt(Long updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+
+	public Long getRetryTimes() {
+		return retryTimes;
+	}
+
+	public void setRetryTimes(Long retryTimes) {
+		this.retryTimes = retryTimes;
 	}
 }
