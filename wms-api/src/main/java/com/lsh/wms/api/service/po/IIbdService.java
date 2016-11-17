@@ -25,5 +25,7 @@ public interface IIbdService {
 
     String sendSapObd();
 
+    String seachSoBackStatus();
+
 
 }

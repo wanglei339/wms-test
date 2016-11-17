@@ -15,6 +15,7 @@ import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
 import com.lsh.wms.api.model.po.*;
+import com.lsh.wms.api.model.po.IbdDetail;
 import com.lsh.wms.api.model.so.ObdOfcBackRequest;
 import com.lsh.wms.api.model.so.ObdOfcItem;
 import com.lsh.wms.api.model.stock.StockItem;
@@ -42,8 +43,7 @@ import com.lsh.wms.integration.service.wumartsap.WuMart;
 import com.lsh.wms.integration.service.wumartsap.WuMartSap;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.csi.CsiSupplier;
-import com.lsh.wms.model.po.IbdHeader;
-import com.lsh.wms.model.po.IbdObdRelation;
+import com.lsh.wms.model.po.*;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.system.SysLog;
@@ -469,10 +469,15 @@ public class IbdService implements IIbdService {
 
     }
 
-    public static void main(String[] args) {
-        String str = "00000010";
-        String newStr = str.replaceAll("^(0+)", "");
-        System.out.println(newStr);
+    @POST
+    @Path("seachSoBack")
+    public String seachSoBackStatus() {
+        Map<String, Object> request = RequestUtils.getRequest();
+        String orderOtherId = (String) request.get("orderOtherId");
+        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(orderOtherId);
+        List<com.lsh.wms.model.po.IbdDetail> ibdDetails = poOrderService.getInbPoDetailListByOrderId(ibdHeader.getOrderId());
+        ibdHeader.setOrderDetails(ibdDetails);
+        return JsonUtils.SUCCESS(ibdHeader);
     }
 
 
