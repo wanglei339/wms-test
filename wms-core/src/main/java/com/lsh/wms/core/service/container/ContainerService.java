@@ -8,6 +8,7 @@ import com.lsh.wms.core.dao.baseinfo.BaseinfoContainerDao;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.stock.StockQuant;
 import org.slf4j.Logger;
@@ -36,6 +37,8 @@ public class ContainerService {
     private LocationService locationService;
     @Autowired
     private BaseTaskService baseTaskService;
+    @Autowired
+    private IdGenerator idGenerator;
 
     public BaseinfoContainer getContainer(Long containerId) {
         Map<String, Object> params = new HashMap<String, Object>();
@@ -77,8 +80,9 @@ public class ContainerService {
         if (config == null || config.isEmpty()) {
             return null;
         }
+
         BaseinfoContainer container = BeanMapTransUtils.map2Bean(config, BaseinfoContainer.class);
-        container.setContainerId(RandomUtils.genId());
+        container.setContainerId(idGenerator.genId("containerCode",false,false));
         container.setContainerCode(container.getContainerId().toString());
         container.setCreatedAt(DateUtils.getCurrentSeconds());
         container.setUpdatedAt(DateUtils.getCurrentSeconds());
