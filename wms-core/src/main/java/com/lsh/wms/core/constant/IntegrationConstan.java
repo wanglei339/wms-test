@@ -20,6 +20,10 @@ public class IntegrationConstan {
     //lshofc
     public static final String URL_LSHOFC_OBD = "http://test.api.ofc.lsh123.com/ofc/api/obd/push";
 
+    //转发黑狗
+    public static final String URL_PO = "http://test.wms.lsh123.com/API/V1/openApi/saveIbd";
+
+    public static final String URL_SO = "http://test.wms.lsh123.com/API/V1/openApi/saveObd";
 
 
 }

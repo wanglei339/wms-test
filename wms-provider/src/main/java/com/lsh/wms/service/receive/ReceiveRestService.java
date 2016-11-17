@@ -57,8 +57,8 @@ public class ReceiveRestService implements IReceiveRestService{
 
 //    @Reference
 //    private IWuMartSap wuMartSap;
-    @Reference
-    private IWuMart wuMart;
+//    @Reference
+//    private IWuMart wuMart;
 
     @POST
     @Path("getReceiveHeaderList")
@@ -88,40 +88,40 @@ public class ReceiveRestService implements IReceiveRestService{
         receiveRpcService.updateOrderStatus(map);
 
         //确认收货之后将验收单回传到上游系统
-        if("5".equals(map.get("orderStatus").toString())){
-            List<ReceiveDetail> receiveDetails = receiveService.getReceiveDetailListByReceiveId((Long) map.get("receiveId"));
-            ReceiveHeader receiveHeader = receiveService.getReceiveHeaderByReceiveId((Long) map.get("receiveId"));
-            // TODO: 2016/11/3 回传WMSAP 组装信息
-            CreateIbdHeader createIbdHeader = new CreateIbdHeader();
-            List<CreateIbdDetail> details = new ArrayList<CreateIbdDetail>();
-            for(ReceiveDetail receiveDetail : receiveDetails){
-                CreateIbdDetail detail = new CreateIbdDetail();
-                detail.setPoNumber(receiveHeader.getOrderOtherId());
-                detail.setPoItme(receiveDetail.getDetailOtherId());
-                BigDecimal inboudQty =  receiveDetail.getInboundQty();
-
-                BigDecimal orderQty = receiveDetail.getOrderQty();
-                BigDecimal deliveQty = receiveHeader.getOrderType().equals(3) ? orderQty : inboudQty;
-                if(deliveQty.compareTo(BigDecimal.ZERO) <= 0){
-                    continue;
-                }
-                detail.setDeliveQty(deliveQty.setScale(2,BigDecimal.ROUND_HALF_UP));
-                detail.setUnit(receiveDetail.getUnitName());
-                detail.setMaterial(receiveDetail.getSkuCode());
-                detail.setOrderType(receiveHeader.getOrderType());
-                detail.setVendMat(receiveHeader.getReceiveId().toString());
-
-                details.add(detail);
-            }
-            createIbdHeader.setItems(details);
-
-            if(receiveHeader.getOwnerUid() == 1){
-                wuMart.sendIbd(createIbdHeader);
-
-            }else{
-                dataBackService.erpDataBack(JSON.toJSONString(createIbdHeader));
-            }
-        }
+//        if("5".equals(map.get("orderStatus").toString())){
+//            List<ReceiveDetail> receiveDetails = receiveService.getReceiveDetailListByReceiveId((Long) map.get("receiveId"));
+//            ReceiveHeader receiveHeader = receiveService.getReceiveHeaderByReceiveId((Long) map.get("receiveId"));
+//            // TODO: 2016/11/3 回传WMSAP 组装信息
+//            CreateIbdHeader createIbdHeader = new CreateIbdHeader();
+//            List<CreateIbdDetail> details = new ArrayList<CreateIbdDetail>();
+//            for(ReceiveDetail receiveDetail : receiveDetails){
+//                CreateIbdDetail detail = new CreateIbdDetail();
+//                detail.setPoNumber(receiveHeader.getOrderOtherId());
+//                detail.setPoItme(receiveDetail.getDetailOtherId());
+//                BigDecimal inboudQty =  receiveDetail.getInboundQty();
+//
+//                BigDecimal orderQty = receiveDetail.getOrderQty();
+//                BigDecimal deliveQty = receiveHeader.getOrderType().equals(3) ? orderQty : inboudQty;
+//                if(deliveQty.compareTo(BigDecimal.ZERO) <= 0){
+//                    continue;
+//                }
+//                detail.setDeliveQty(deliveQty.setScale(2,BigDecimal.ROUND_HALF_UP));
+//                detail.setUnit(receiveDetail.getUnitName());
+//                detail.setMaterial(receiveDetail.getSkuCode());
+//                detail.setOrderType(receiveHeader.getOrderType());
+//                detail.setVendMat(receiveHeader.getReceiveId().toString());
+//
+//                details.add(detail);
+//            }
+//            createIbdHeader.setItems(details);
+//
+//            if(receiveHeader.getOwnerUid() == 1){
+//                wuMart.sendIbd(createIbdHeader);
+//
+//            }else{
+//                dataBackService.erpDataBack(JSON.toJSONString(createIbdHeader));
+//            }
+//        }
         return JsonUtils.SUCCESS();
     }
 

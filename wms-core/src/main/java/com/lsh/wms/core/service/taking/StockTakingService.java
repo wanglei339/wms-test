@@ -5,6 +5,7 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.taking.StockTakingDetailDao;
 import com.lsh.wms.core.dao.taking.StockTakingHeadDao;
+import com.lsh.wms.core.service.persistence.PersistenceProxy;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
 import org.slf4j.Logger;
@@ -29,6 +30,9 @@ public class StockTakingService {
     @Autowired
     private StockTakingDetailDao detailDao;
 
+    @Autowired
+    private PersistenceProxy persistenceProxy;
+
     @Transactional (readOnly = false)
     public void insertHead(StockTakingHead head) {
         head.setCreatedAt(DateUtils.getCurrentSeconds());
@@ -39,6 +43,7 @@ public class StockTakingService {
     @Transactional (readOnly = false)
     public void updateHead(StockTakingHead head) {
         head.setUpdatedAt(DateUtils.getCurrentSeconds());
+
         headDao.update(head);
     }
 

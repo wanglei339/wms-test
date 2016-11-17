@@ -1453,6 +1453,14 @@ public class LocationService {
             if (conf.get("counts") != null) {
                 counts = Integer.valueOf(conf.get("counts").toString());
             }
+            Integer counter = 1;
+            Integer step = 1;
+            if (conf.get("startCounter") != null) {
+                counter = Integer.valueOf(conf.get("startCounter").toString());
+            }
+            if (conf.get("step") != null) {
+                step = Integer.valueOf(conf.get("step").toString());
+            }
             for (Integer i = 1; i <= counts; i++) {
                 Long type = Long.valueOf(conf.get("type").toString());
                 String typeName = "";
@@ -1460,10 +1468,10 @@ public class LocationService {
                 detailRequest.setLocationCode(conf.get("locationCode").toString());
                 if (father != null) {
                     String code = "";
-                    if (father.getType().equals(LocationConstant.WAREHOUSE) || father.getType().equals(LocationConstant.REGION_AREA)) {
-                        code = String.format(conf.get("locationCode").toString(), i);
+                    if (father.getType().equals(LocationConstant.WAREHOUSE) || father.getType().equals(LocationConstant.REGION_AREA) || (conf.get("withoutFatherCode") != null && Boolean.parseBoolean(conf.get("withoutFatherCode").toString()))) {
+                        code = String.format(conf.get("locationCode").toString(), counter);
                     } else {
-                        code = father.getLocationCode() + String.format(conf.get("locationCode").toString(), i);
+                        code = father.getLocationCode() + String.format(conf.get("locationCode").toString(), counter);
                     }
                     detailRequest.setLocationCode(code);
                 }
@@ -1496,7 +1504,7 @@ public class LocationService {
                 conf.put("passageNo", passageNo);
                 if (conf.get("shelfLevelNo") != null) {
                     shelfLevelNo = Long.valueOf(conf.get("shelfLevelNo").toString());
-                    if (conf.get("isLevel") != conf.get("isLevel") && Boolean.parseBoolean(conf.get("isLevel").toString())) {
+                    if (conf.get("isLevel") != null && Boolean.parseBoolean(conf.get("isLevel").toString())) {
                         shelfLevelNo++;
                     }
                 }
@@ -1539,6 +1547,7 @@ public class LocationService {
                         this.initLocationTree(child, location.getLocationId());
                     }
                 }
+                counter += step;
             }
             father = location;
         }
