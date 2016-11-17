@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,8 +61,8 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
         }
         List<BaseinfoLocation> baseinfoLocationList = locationDetailService.getIBaseinfoLocaltionModelListByType(params);
         //抛异常
-        if (null == baseinfoLocationList) {
-            throw new BizCheckedException("2180002");
+        if (null == baseinfoLocationList || baseinfoLocationList.size() < 1) {
+            return new ArrayList<BaseinfoLocation>();
         }
         return baseinfoLocationList;
     }
@@ -92,8 +93,8 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
         }
         try {
             locationDetailService.insert(request);
-        }catch (Exception e){
-            logger.error("insertLocationError"+e.getMessage());
+        } catch (Exception e) {
+            logger.error("insertLocationError" + e.getMessage());
             throw new BizCheckedException("2180020");
         }
     }
@@ -105,8 +106,8 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
         try {
             locationDetailService.update(baseinfoLocation);
         } catch (Exception e) {
-            logger.error(e.getMessage());
-            return baseinfoLocation;
+            logger.error("updateLocation  ERROR " + e.getMessage());
+            throw new BizCheckedException("2180022");
         }
         return baseinfoLocation;
     }

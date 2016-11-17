@@ -1,6 +1,7 @@
 package com.lsh.wms.core.service.stock;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.service.inventory.ISynInventory;
 import com.lsh.wms.core.constant.RedisKeyConstant;
@@ -28,13 +29,13 @@ public class StockRedisService {
     @Autowired
     private InventoryRedisService inventoryRedisService;
 
-//    @Autowired
-//    private SynStockService synStockService;
+    @Autowired
+    private SynStockService synStockService;
 
     private static Logger logger = LoggerFactory.getLogger(StockRedisService.class);
 
     private String getRedisKey(Long itemId) {
-        String warehouseName = "DC37";
+        String warehouseName = PropertyUtils.getString("warehouseId");
         String redisKey = StrUtils.formatString(RedisKeyConstant.WAREHOUSE_SKU_INVENTORY_QTY, warehouseName, itemId);
         return redisKey;
     }
@@ -49,7 +50,7 @@ public class StockRedisService {
         String redisKey = getRedisKey(itemId);
         redisDao.increase(redisKey, new Double(qty.toString()));
         double availableQty =    inventoryRedisService.getAvailableSkuQty(itemId);
-      //  synStockService.synStock(itemId,availableQty);
+        synStockService.synStock(itemId,availableQty);
 
     }
 
@@ -57,7 +58,7 @@ public class StockRedisService {
         String redisKey = getRedisKey(itemId);
         redisDao.decrease(redisKey, new Double(qty.toString()));
         double availableQty =  inventoryRedisService.getAvailableSkuQty(itemId);
-        //synStockService.synStock(itemId,availableQty);
+        synStockService.synStock(itemId,availableQty);
     }
 
 }

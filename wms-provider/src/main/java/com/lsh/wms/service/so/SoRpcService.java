@@ -109,11 +109,13 @@ public class SoRpcService implements ISoRpcService {
             if (owner == null) {
                 throw new BizCheckedException("2900008");
             }
-            if (obdHeader.getOrderType().equals(SoConstant.ORDER_TYPE_DIRECT) ||
+
+            if ( obdHeader.getOrderType().equals(SoConstant.ORDER_TYPE_DIRECT) ||
                     owner.getSoCheckStrategy().equals(SoConstant.STOCK_NOT_CHECK)) {
                 // 直流订单或者不需要做库存检查
                 obdDetail.setOriOrderQty(soItem.getOrderQty());
             } else {
+                obdDetail.setOriOrderQty(soItem.getOrderQty());
                 Double avQty = inventoryRedisService.getAvailableSkuQty(obdDetail.getItemId());
                 if (avQty.compareTo(obdDetail.getOriOrderQty().doubleValue()) <= 0 ) {
                     if (owner.getSoCheckStrategy().equals(SoConstant.STOCK_HARD_CHECK)) {
@@ -122,8 +124,6 @@ public class SoRpcService implements ISoRpcService {
                     if (owner.getSoCheckStrategy().equals(SoConstant.STOCK_SOFT_CHECK)) {
                         obdDetail.setOrderQty(new BigDecimal(avQty));
                     }
-                } else {
-                    obdDetail.setOriOrderQty(soItem.getOrderQty());
                 }
             }
 

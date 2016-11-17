@@ -264,5 +264,11 @@ public class CsiRestService implements ICsiRestService {
     public String getCustomerByCustomerId(@QueryParam("customerId")Long customerId) throws BizCheckedException{
         return JsonUtils.SUCCESS(customerService.getCustomerByCustomerId(customerId));
     }
+    @POST
+    @Path("insertCustomer")
+    public String insertCustomer(CsiCustomer csiCustomer) throws BizCheckedException{
+        customerService.insertCustomer(csiCustomer);
+        return JsonUtils.SUCCESS();
+    }
 
 }

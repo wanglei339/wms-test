@@ -5,6 +5,6 @@ package com.lsh.wms.core.constant;
  */
 public class PickLocationConstant {
     //拣货位类型
-    public static final int PICK_LOCATION_TYPE_BOX = 1;//按箱
-    public static final int PICK_LOCATION_TYPE_EA = 2;//按个
+    public static final int PICK_LOCATION_TYPE_BOX = 2;//按箱
+    public static final int PICK_LOCATION_TYPE_EA = 1;//按个
 }

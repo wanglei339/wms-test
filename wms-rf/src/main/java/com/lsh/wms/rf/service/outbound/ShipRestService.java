@@ -117,8 +117,11 @@ public class ShipRestService implements IShipRestService {
             throw new BizCheckedException("2180008");
         }
         BaseinfoLocation collection = iLocationRpcService.getLocationByCode(locationCode);
+        if(collection == null || collection.getType() != LocationConstant.COLLECTION_ROAD){
+            throw new BizCheckedException("");
+        }
         Long collectionId = collection.getLocationId();
-                //获取库存
+        //获取库存
         List<StockQuant> stockQuants = stockQuantService.getQuantsByLocationId(collectionId);
         if (null == stockQuants || stockQuants.size() < 1) {
             throw new BizCheckedException("2130013");
@@ -128,28 +131,36 @@ public class ShipRestService implements IShipRestService {
         for (StockQuant quant : stockQuants) {
             containterIds.add(quant.getContainerId());
         }
-        //判断是否组盘完成,先去listdetail总找组盘
-        List<WaveDetail> totalWaveDetails = new ArrayList<WaveDetail>();
+
+        List<TaskInfo> qcInfos = new ArrayList<TaskInfo>();
+        Set<Long> qcTaskIdDup = new HashSet<Long>();
         for (Long containerId : containterIds) {
+            //首先判断这个container是否已经被被的运单装走了
+            List<TuDetail> tuDetails = tuService.getTuDeailListByMergedContainerId(containerId);
+            if(tuDetails != null && tuDetails.size() > 0){
+                throw new BizCheckedException("2130014");
+            }
+            //判断是否组盘完成,先去listdetail总找组盘
             List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(containerId);
             if (null == waveDetails || waveDetails.size() < 1) {
                 throw new BizCheckedException("2880012");
             }
-            totalWaveDetails.addAll(waveDetails);
-        }
-        //校验组盘完成
-        List<TaskInfo> qcInfos = new ArrayList<TaskInfo>();
-        for (WaveDetail detail : totalWaveDetails) {
-            Long qcTaskId = detail.getQcTaskId();
-            if (qcTaskId.equals(0L)) {
-                throw new BizCheckedException("2870034");
+            for(WaveDetail detail : waveDetails) {
+                if (detail.getQcTaskId() == 0) {
+                    throw new BizCheckedException("2870034");
+                }
+                if (qcTaskIdDup.contains(detail.getQcTaskId())) {
+                    continue;
+                }else{
+                    TaskInfo qcInfo = iTaskRpcService.getTaskInfo(detail.getQcTaskId());
+                    //没qc完成
+                    if (null == qcInfo || !TaskConstant.Done.equals(qcInfo.getStatus())) {
+                        throw new BizCheckedException("2870034");
+                    }
+                    qcInfos.add(qcInfo);
+                    qcTaskIdDup.add(detail.getQcTaskId());
+                }
             }
-            TaskInfo qcInfo = iTaskRpcService.getTaskInfo(qcTaskId);
-            //没qc完成
-            if (null == qcInfo || !TaskConstant.Done.equals(qcInfo.getStatus())) {
-                throw new BizCheckedException("2870034");
-            }
-            qcInfos.add(qcInfo);
         }
 
         //创建TU运单的head
@@ -159,17 +170,16 @@ public class ShipRestService implements IShipRestService {
         tuHead.setTuId(tuIdStr.toString());
         tuHead.setType(TuConstant.TYPE_YOUGONG);
         tuHead.setScale(0);
-        tuHead.setStatus(TuConstant.UNLOAD);
+        tuHead.setStatus(TuConstant.LOAD_OVER);
         tuHead.setCarNumber("");
         tuHead.setCellphone("");
-        tuHead.setTransUid(0L);
+        tuHead.setTransUid(loadUid);
         tuHead.setName("");
         tuHead.setPreBoard(0L);
         tuHead.setStoreIds("");
-        tuHead.setCommitedAt(0L);
-        tuHead.setLoadedAt(0L);
-        tuHead.setLoadedAt(DateUtils.getCurrentSeconds());  //修改时间
-//        iTuRpcService.create(tuHead);
+        tuHead.setCommitedAt(DateUtils.getCurrentSeconds());
+        tuHead.setLoadUid(loadUid);
+        tuHead.setLoadedAt(DateUtils.getCurrentSeconds());
 
         //装车数据插入
         List<TuDetail> tuDetails = new ArrayList<TuDetail>();
@@ -187,18 +197,11 @@ public class ShipRestService implements IShipRestService {
             tuDetails.add(tuDetail);
         }
 
-//        iTuRpcService.createBatchDetail(tuDetails);
-        //创建tu
         TuEntry tuEntry = new TuEntry();
         tuEntry.setTuHead(tuHead);
         tuEntry.setTuDetails(tuDetails);
         tuService.createTuEntry(tuEntry);
 
-        //更新操作
-        tuHead.setStatus(TuConstant.LOAD_OVER);
-        tuHead.setLoadUid(loadUid);
-        tuHead.setLoadedAt(DateUtils.getCurrentSeconds());
-        iTuRpcService.update(tuHead);
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("response", true);
         return JsonUtils.SUCCESS(result);

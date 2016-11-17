@@ -31,6 +31,12 @@ public class SysLogService {
         return sysLog.getLogId();
     }
 
+    @Transactional(readOnly = false)
+    public void updateSysLog(SysLog sysLog) {
+        sysLog.setUpdatedAt(DateUtils.getCurrentSeconds());
+        sysLogDao.update(sysLog);
+    }
+
     public List<SysLog> getSysLogList(Map<String, Object> params){
         return sysLogDao.getSysLogList(params);
     }

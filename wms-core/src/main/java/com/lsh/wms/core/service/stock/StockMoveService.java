@@ -109,9 +109,7 @@ public class StockMoveService {
             BaseinfoLocation location = locationService.getLocation(move.getToLocationId());
             if (location.getType().compareTo(LocationConstant.CONSUME_AREA) != 0) {
                 quantService.unReserveById(quant.getId());
-                logger.warn("xxxx yyyyy ");
             }
-            logger.warn("wtf xxxxxx the fuck lcoation is " + locationService.getLocation(move.getToLocationId()).getCurContainerVol());
         }
 
     }
@@ -158,7 +156,9 @@ public class StockMoveService {
     public void moveToConsume(Long locationId, Long taskId, Long staffId) throws BizCheckedException {
 
         List<StockQuant> quants = quantService.getQuantsByLocationId(locationId);
-
+        if(quants==null){
+            return;
+        }
         BaseinfoLocation location = locationService.getLocationsByType(LocationConstant.CONSUME_AREA).get(0);
 
         //存储已经生成move的ContainerId
@@ -177,11 +177,13 @@ public class StockMoveService {
 
         List<StockQuant> quants = quantService.getQuantsByContainerId(containerId);
 
+        if(quants==null){
+            return;
+        }
         BaseinfoLocation location = locationService.getLocationsByType(LocationConstant.CONSUME_AREA).get(0);
 
         //存储已经生成move的ContainerId
         Map<Long, Integer> isMovedMap = new HashMap<Long, Integer>();
-
         for (StockQuant quant : quants) {
             if (!isMovedMap.containsKey(quant.getContainerId())) {
                 this.moveWholeContainer(quant.getContainerId(), 0L, 0L, quant.getLocationId(), location.getLocationId());
@@ -195,6 +197,9 @@ public class StockMoveService {
         List<StockQuant> stockQuants = new ArrayList<StockQuant>();
         for (Long containerId : containerIds) {
             List<StockQuant> quants = quantService.getQuantsByContainerId(containerId);
+            if(quants==null){
+                continue;
+            }
             stockQuants.addAll(quants);
         }
         BaseinfoLocation location = locationService.getLocationsByType(LocationConstant.CONSUME_AREA).get(0);

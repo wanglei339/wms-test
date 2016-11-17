@@ -73,30 +73,6 @@ public class LocationService {
         return locations;
     }
 
-    public BaseinfoLocation getLocation2(Long locationId) throws BizCheckedException {
-        logger.error("getLocation2 started!");
-        if (null == locationId) {
-            throw new BizCheckedException("2180001");
-        }
-        logger.error("begin fuck you 2 ");
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("locationId", locationId);
-        params.put("isValid", LocationConstant.IS_VALID);
-        //params.put("type", 17L);
-        logger.error("you say what2");
-        List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
-        logger.error("say again fuck2");
-        //redis中没有,放入redis
-        if (locations != null && locations.size() > 0) {
-//            //将没读入redis的写入redis(直接调用接口写入redis)
-//            locationRedisService.insertLocationRedis(locations.get(0));
-            logger.error("getLocaton eneded2");
-            return locations.get(0);
-        } else {
-            return null;
-        }
-    }
-
     /**
      * 根据locationId获取location
      *
@@ -108,7 +84,6 @@ public class LocationService {
         if (null == locationId) {
             throw new BizCheckedException("2180001");
         }
-        logger.error("begin fuck you ");
         //先从redis中取数据,没有去数据库中取
 //        Map<String, String> locationMap = locationRedisService.getRedisLocation(locationId);
 //        if (locationMap != null && !locationMap.isEmpty()) {
@@ -143,14 +118,11 @@ public class LocationService {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("locationId", locationId);
         params.put("isValid", LocationConstant.IS_VALID);
-        logger.error("you say what");
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
-        logger.error("say again fuck");
         //redis中没有,放入redis
         if (locations != null && locations.size() > 0) {
-//            //将没读入redis的写入redis(直接调用接口写入redis)
-//            locationRedisService.insertLocationRedis(locations.get(0));
-            logger.error("getLocaton eneded");
+            //将没读入redis的写入redis(直接调用接口写入redis)
+            locationRedisService.insertLocationRedis(locations.get(0));
             return locations.get(0);
         } else {
             return null;
@@ -778,6 +750,7 @@ public class LocationService {
             //存货位,为空没上锁
             if (temp.getType().equals(type) && this.shelfBinLocationIsEmptyAndUnlock(temp)) {
                 // 考虑库存,无库存的货架位才能放入商品
+                // todo 可以用location的curContainer字段
                 List<StockQuant> quants = stockQuantService.getQuantsByLocationId(temp.getLocationId());
                 if (quants.size() < 1) {
                     //放入location和距离
@@ -1131,16 +1104,12 @@ public class LocationService {
      */
     @Transactional(readOnly = false)
     public BaseinfoLocation unlockLocation(Long locationId) {
-        logger.error("begin fuck you unlockLocatoin");
-        BaseinfoLocation location = this.getLocation2(locationId);
-        logger.error("this fucked really hard");
+        BaseinfoLocation location = this.getLocation(locationId);
         if (location == null) {
             throw new BizCheckedException("2180001");
         }
         location.setIsLocked(0);    //解锁
-        logger.error("begin fuck you update location");
         this.updateLocation(location);
-        logger.error("unlock location finished");
         return location;
     }
 
@@ -1272,7 +1241,6 @@ public class LocationService {
             location.setCanUse(1);
         }
         this.updateLocation(location);
-        logger.warn("fuck commit");
         return location;
     }
 

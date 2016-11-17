@@ -386,7 +386,7 @@ public class LocationDetailService {
             levelLocation.setType(type); //设置类型
             levelLocation.setShelfLevelNo(Long.parseLong(Integer.toString(i)));
             levelLocation.setTypeName(LocationConstant.LOCATION_TYPE_NAME.get(type));
-            levelLocation.setClassification(LocationConstant.CLASSIFICATION_OTHERS);
+            levelLocation.setClassification(LocationConstant.CLASSIFICATION_OTHERS);    //其他分类
             locationService.insertLocation(levelLocation);
         }
     }
