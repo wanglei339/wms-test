@@ -52,7 +52,7 @@ public class IbdSapTransporter implements ITransporter {
             details.add(detail);
         }
         createIbdHeader.setItems(details);
-        wuMart.sendIbd(createIbdHeader);
+        wuMart.sendIbd(createIbdHeader,sysLog);
 
     }
 }

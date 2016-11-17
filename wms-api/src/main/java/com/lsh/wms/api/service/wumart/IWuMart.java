@@ -12,7 +12,7 @@ import java.util.Map;
 public interface IWuMart {
     String sendIbd(CreateIbdHeader createIbdHeader, SysLog sysLog);
     String sendObd(CreateObdHeader createObdHeader, SysLog sysLog);
-    String ibdAccountBack(String accountId,String accountDetailId, SysLog sysLog);
+    String ibdAccountBack(String accountId,String accountDetailId);
 
     void sendSap(Map<String,Object> ibdObdMap, SysLog sysLog);
 

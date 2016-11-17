@@ -53,7 +53,7 @@ public class DataBackService implements IDataBackService {
     @Autowired
     private SysLogService sysLogService;
 
-    public String wmDataBackByPost(String request, String url , Integer type){
+    public String wmDataBackByPost(String request, String url , Integer type,SysLog sysLog){
         String jsonCreate = request;
 
 
@@ -79,23 +79,8 @@ public class DataBackService implements IDataBackService {
                 jsonStr = HttpUtil.doPost(url,jsonCreate,token);
                 orderResponse = JSON.parseObject(jsonStr,OrderResponse.class);
             }
-            //存入sys_log
-            //Long sysId = RandomUtils.genId();
-            SysLog sysLog = new SysLog();
-            //sysLog.setLogId(sysId);
-            sysLog.setLogMessage(orderResponse.getMessage());
-            sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
-            sysLog.setLogType(type);
-            sysLog.setLogCode(orderResponse.getCode());
-            Long sysId = sysLogService.insertSysLog(sysLog);
 
-            //将返回结果存入缓存,发生错误可以重新下传。
-            SysMsg sysMsg = new SysMsg();
-            sysMsg.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
-            sysMsg.setId(sysId);
-            sysMsg.setType(type);
-            sysMsg.setMsgBody(jsonCreate);
-            sysMsgService.sendMessage(sysMsg);
+
 
             logger.info("orderResponse = " + JSON.toJSONString(orderResponse));
         }else{
@@ -105,7 +90,7 @@ public class DataBackService implements IDataBackService {
 
     }
 
-    public String ofcDataBackByPost(String request, String url){
+    public String ofcDataBackByPost(String request, String url,SysLog sysLog){
         //String jsonCreate = this.initJson(request);
 
         logger.info("order CreateOfcOrder json : " + request);
@@ -114,38 +99,23 @@ public class DataBackService implements IDataBackService {
         logger.info("order jsonStr :" + jsonStr +"~~~~");
         OrderResponse orderResponse = JSON.parseObject(jsonStr,OrderResponse.class);
         logger.info("orderResponse = " + JSON.toJSONString(orderResponse));
-
-        //存入sys_log
-        //Long sysId = RandomUtils.genId();
-        SysLog sysLog = new SysLog();
-        //sysLog.setLogId(sysId);
-        String message = "";
-        if(orderResponse == null){
-            message = "请求接口无返回";
+        if(orderResponse.getCode().equals("0000")){
+            sysLog.setLogCode(orderResponse.getCode());
+            sysLog.setLogMessage("回传lshOFC成功");
+            sysLog.setStatus(2l);
         }else{
-            message = orderResponse.getMessage();
+            sysLog.setLogMessage(orderResponse.getMessage());
+            sysLog.setStatus(3l);
+            sysLog.setLogCode(orderResponse.getCode());
         }
+        sysLog.setRetryTimes(sysLog.getRetryTimes()+1);
+        sysLogService.updateSysLog(sysLog);
 
-
-
-        sysLog.setLogMessage(message);
-        sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_LSHOFC);
-        sysLog.setLogType(SysLogConstant.LOG_TYPE_OFC_OBD);
-        sysLog.setLogCode(orderResponse.getCode());
-        Long sysId = sysLogService.insertSysLog(sysLog);
-
-        //将返回结果存入缓存,发生错误可以重新下传。
-        SysMsg sysMsg = new SysMsg();
-        sysMsg.setTargetSystem(SysLogConstant.LOG_TARGET_LSHOFC);
-        sysMsg.setId(sysId);
-        sysMsg.setType(SysLogConstant.LOG_TYPE_OFC_OBD);
-        sysMsg.setMsgBody(request);
-        sysMsgService.sendMessage(sysMsg);
         return JSON.toJSONString(orderResponse);
 
     }
 
-    public Boolean erpDataBack(String json){
+    public Boolean erpDataBack(String json,SysLog sysLog){
         try {
             //入口将字符串转为对象 CreateIbdHeader
             JSONObject obj = new JSONObject(json);
@@ -180,27 +150,16 @@ public class DataBackService implements IDataBackService {
             ));
             //// TODO: 16/9/19 传入的参数
             logger.info("~~~~~~~~ret1 :" + ret1 + "~~~~~~~~~~~~~");
-            //存入sys_log
-            SysLog sysLog = new SysLog();
-            String message = "";
-            if(ret1 ){
-                message = "success";
+            if(ret1){
+                sysLog.setStatus(2l);
+                sysLog.setLogMessage("回传erp成功");
             }else{
-                message = "failed";
+                sysLog.setStatus(3l);
+                sysLog.setLogMessage("回传erp失败");
             }
-            sysLog.setLogMessage(message);
-            sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_ERP);
-            sysLog.setLogType(SysLogConstant.LOG_TYPE_ERP_IBD);
-            sysLog.setLogCode("0");
-            Long sysId = sysLogService.insertSysLog(sysLog);
+            sysLog.setRetryTimes(sysLog.getRetryTimes()+1);
+            sysLogService.updateSysLog(sysLog);
 
-            //将返回结果存入缓存,发生错误可以重新下传。
-            SysMsg sysMsg = new SysMsg();
-            sysMsg.setTargetSystem(SysLogConstant.LOG_TARGET_ERP);
-            sysMsg.setId(sysId);
-            sysMsg.setType(SysLogConstant.LOG_TYPE_ERP_IBD);
-            sysMsg.setMsgBody(JSON.toJSONString(createIbdHeader));
-            sysMsgService.sendMessage(sysMsg);
         }
         catch (Exception e) {
             logger.info(e.getCause().getMessage());
