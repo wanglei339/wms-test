@@ -104,36 +104,32 @@ public class LocationDetailRequest implements Serializable {
     /**
      * 商品的id
      */
-    private Long itemId;
+    private Long itemId = 0L;
     /**
      * 仓位体积
      */
-    private BigDecimal volume;
+    private BigDecimal volume = BigDecimal.ZERO;
     /**
      * 承重，默认单位kg，默认0，能承受东西很轻
      */
-    private BigDecimal weigh;
+    private BigDecimal weigh = BigDecimal.ZERO;
     /**
      * 货位所在温区
      */
-    private Integer zoneType;
+    private Integer zoneType = 1;
     //..................................Dock独有的
-    /**
-     * 位置类型/码头区域 0-A区
-     */
-    private Long dockType;
     /**
      * 码头名
      */
-    private String dockName;
+    private String dockName = "";
     /**
      * 是否存在地秤
      */
-    private Integer haveScales;
+    private Integer haveScales = 0;
     /**
      * 用途，0-进货，1-出货
      */
-    private Integer dockApplication;
+    private Integer dockApplication = 0;
 
     private Integer regionStrategy=0;
 
@@ -148,16 +144,16 @@ public class LocationDetailRequest implements Serializable {
     /**
      * 方位，0-东，1-南，2-西，3-北
      */
-    private Integer direction;
+    private Integer direction = 0;
     //==============================================
     /**
      * 长度默认单位 米
      */
-    private BigDecimal width;
+    private BigDecimal width = BigDecimal.ZERO;
     /**
      * 高度默认单位 米
      */
-    private BigDecimal height;
+    private BigDecimal height = BigDecimal.ZERO;
     //.................................通道独有的.................
     //方位，0-南北，1-东西  同码头
 
@@ -167,7 +163,7 @@ public class LocationDetailRequest implements Serializable {
     /**
      * 区域的货主概念
      */
-    private Long ownerid;
+    private Long ownerid = 0L;
 
     public Long getOwnerid() {
         return ownerid;
@@ -180,28 +176,28 @@ public class LocationDetailRequest implements Serializable {
     /**
      * 货架层数
      */
-    private Long level;
+    private Long level = 0L;
     /**
      * 货架进深
      */
-    private Long depth;
+    private Long depth = 1L;
 
     //........................仓库
     /**
      * 仓库名
      */
-    private String warehouseName;
+    private String warehouseName = "";
     /**
      * 地址
      */
-    private String address;
+    private String address = "";
     /**
      * 电话
      */
-    private String phoneNo;
+    private String phoneNo = "";
 
     /** 长度默认单位 米 */
-    private BigDecimal length;
+    private BigDecimal length = BigDecimal.ZERO;
 
     public Long getId() {
         return id;
@@ -265,10 +261,6 @@ public class LocationDetailRequest implements Serializable {
 
     public Integer getZoneType() {
         return zoneType;
-    }
-
-    public Long getDockType() {
-        return dockType;
     }
 
     public String getDockName() {
@@ -413,10 +405,6 @@ public class LocationDetailRequest implements Serializable {
 
     public void setZoneType(Integer zoneType) {
         this.zoneType = zoneType;
-    }
-
-    public void setDockType(Long dockType) {
-        this.dockType = dockType;
     }
 
     public void setDockName(String dockName) {

@@ -100,4 +100,8 @@ public class BaseinfoLocationShelf extends BaseinfoLocation implements Serializa
 	public void setIsValid(Integer isValid) {
 		this.isValid = isValid;
 	}
+
+	public void setDefaultClassification() {
+		this.classification = 4;
+	}
 }

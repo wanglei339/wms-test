@@ -12,6 +12,8 @@ import java.util.Map;
  */
 public interface IItemTypeRestService {
     String getBaseinfoItemTypeList();
+    String getBaseinfoItemTypeByItemId(String itemTypeId);
+    String insertItemType(BaseinfoItemType baseinfoItemType);
     String getItemTypeList(Map<String, Object> mapQuery);
     String  getItemTypeListCount(Map<String, Object> mapQuery);
     String getItemTypeRelationList(String itemTypeId);
