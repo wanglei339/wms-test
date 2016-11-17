@@ -183,6 +183,12 @@ public class ReceiptRestService implements IReceiptRfService {
             if(ibdDetail == null){
                 throw new BizCheckedException("2020001");
             }
+
+            //验证箱规是否一至
+            if(baseinfoItem.getPackUnit().compareTo(ibdDetail.getPackUnit()) != 0){
+                throw new BizCheckedException("2020105");//箱规不一致,不能收货
+            }
+
             /*
             验证保质期是否有效
              */

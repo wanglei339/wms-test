@@ -530,10 +530,24 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
     }
     //验证是否可收货
-    public boolean canReceipt(){
+    /*private boolean canReceipt(BaseinfoItem baseinfoItem,IbdHeader ibdHeader,IbdDetail ibdDetail)throws BizCheckedException{
+
+        //商品信息是否完整
+        if(baseinfoItem.getIsInfoIntact() == 0){
+            throw new BizCheckedException("2020104");//商品信息不完整,不能收货
+        }
+        //验证箱规是否一至
+        if(baseinfoItem.getPackUnit().compareTo(ibdDetail.getPackUnit()) != 0){
+            throw new BizCheckedException("2020105");//箱规不一致,不能收货
+        }
+        //验证状态是否可收货
+        boolean isCanReceipt = ibdHeader.getOrderStatus() == PoConstant.ORDER_THROW || ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART || ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPTING;
+        if (!isCanReceipt) {
+            throw new BizCheckedException("2020002");
+        }
 
         return true;
-    }
+    }*/
 
     //验证生产日期
     public boolean checkProTime(BaseinfoItem baseinfoItem,Date proTime,Date dueTime,String exceptionCode) throws BizCheckedException{
