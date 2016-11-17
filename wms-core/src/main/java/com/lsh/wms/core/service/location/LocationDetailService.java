@@ -314,7 +314,9 @@ public class LocationDetailService {
         iBaseinfoLocaltionModel.setUpdatedAt(baseinfoLocation.getUpdatedAt());
         //根据model选择service
         IStrategy iStrategy = locationDetailServiceFactory.getIstrategy(iBaseinfoLocaltionModel.getType());
-        iStrategy.insert(iBaseinfoLocaltionModel);
+        if (iStrategy != null) {
+            iStrategy.insert(iBaseinfoLocaltionModel);
+        }
         //将father的叶子节点变为0
         //如果插入的是仓库
         if (location.getFatherId() == -1L) {
