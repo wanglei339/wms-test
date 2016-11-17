@@ -12,6 +12,10 @@ public class OutbDeliveryHeader implements Serializable {
     private Long warehouseId;
 	/** 出货单ID */
 	private Long deliveryId;
+	/** 订单ID */
+	private Long orderId;
+	/** tu id */
+	private String  tuId;
 	/** 集货区编码 */
     private String shippingAreaCode;
 	/** 波次号 */
@@ -28,6 +32,10 @@ public class OutbDeliveryHeader implements Serializable {
     private Integer deliveryType;
 	/** 出库时间 */
     private Date deliveryTime;
+	/** 装车箱数 */
+	private Long boxNum;
+	/** 装车周转箱数 */
+	private Long turnoverBoxNum;
 	/**  */
     private String insertby;
 	/**  */
@@ -57,6 +65,22 @@ public class OutbDeliveryHeader implements Serializable {
 
 	public void setDeliveryId(Long deliveryId) {
 		this.deliveryId = deliveryId;
+	}
+
+	public Long getOrderId(){
+		return this.orderId;
+	}
+
+	public void setOrderId(Long orderId){
+		this.orderId = orderId;
+	}
+
+	public String getTuId(){
+		return this.tuId;
+	}
+
+	public void setTuId(String tuId){
+		this.tuId = tuId;
 	}
 
 	public void setWarehouseId(Long warehouseId){
@@ -125,6 +149,22 @@ public class OutbDeliveryHeader implements Serializable {
 	
 	public void setDeliveryTime(Date deliveryTime){
 		this.deliveryTime = deliveryTime;
+	}
+
+	public Long getBoxNum(){
+		return this.boxNum;
+	}
+
+	public void setBoxNum(Long boxNum){
+		this.boxNum = boxNum;
+	}
+
+	public Long getTurnoverBoxNum() {
+		return this.turnoverBoxNum;
+	}
+
+	public void setTurnoverBoxNum(Long turnoverBoxNum){
+		this.turnoverBoxNum = turnoverBoxNum;
 	}
 	
 	public String getInsertby(){
