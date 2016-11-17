@@ -367,15 +367,15 @@ public class LocationRestService implements ILocationRestService {
     @POST
     @Path("initLocationTree")
     public String initLocationTree() {
-        Map<String, Object> mapQuery = RequestUtils.getRequest(); // 参数,暂时先建立满树
+        //Map<String, Object> mapQuery = RequestUtils.getRequest(); // 参数,暂时先建立满树
         // 判断表中是否为空,必须为空表时才能构建
         Map<String, Object> params = new HashMap<String, Object>();
         Integer count = locationService.countLocation(params);
         if (count > 0) {
             return JsonUtils.FAIL("123321", "库位表不为空,不能进行初始化构建");
         }
-        //Map<String, Object> config = JsonUtils.json2Obj("{\"type\":1,\"containerVol\":999999999,\"locationCode\":\"DC40\",\"regionNo\":0,\"passageNo\":0,\"shelfLevelNo\":0,\"binPositionNo\":0,\"children\":[{\"type\":2,\"containerVol\":999999999,\"locationCode\":\"DC40\",\"regionNo\":2,\"children\":[{\"type\":7,\"containerVol\":999999999,\"locationCode\":\"A1\"},{\"type\":8,\"containerVol\":999999999,\"locationCode\":\"A2\"},{\"type\":9,\"containerVol\":999999999,\"locationCode\":\"A3\"},{\"type\":5,\"containerVol\":999999999,\"locationCode\":\"A4\",\"isPassage\":true,\"children\":[{\"levels\":[{\"type\":3,\"containerVol\":0,\"locationCode\":\"-P%d\",\"canStore\":0,\"counts\":2,\"children\":[{\"type\":13,\"containerVol\":0,\"locationCode\":\"-%03d\",\"canStore\":0,\"counts\":3}]}]}]},{\"type\":12,\"containerVol\":999999999,\"locationCode\":\"A5\"},{\"type\":12,\"containerVol\":999999999,\"locationCode\":\"A6\"},{\"type\":6,\"containerVol\":999999999,\"locationCode\":\"A7\"},{\"type\":32,\"containerVol\":999999999,\"locationCode\":\"A8\"}]}]}", Map.class);
-        Map<String, Object> config = JsonUtils.json2Obj(mapQuery.get("config").toString(), Map.class);
+        Map<String, Object> config = JsonUtils.json2Obj("{\"type\":1,\"containerVol\":999999999,\"locationCode\":\"DC40\",\"regionNo\":0,\"passageNo\":0,\"shelfLevelNo\":0,\"binPositionNo\":0,\"children\":[{\"type\":2,\"containerVol\":999999999,\"locationCode\":\"DC40\",\"regionNo\":2,\"children\":[{\"type\":7,\"containerVol\":999999999,\"locationCode\":\"A1\"},{\"type\":8,\"containerVol\":999999999,\"locationCode\":\"A2\"},{\"type\":9,\"containerVol\":999999999,\"locationCode\":\"A3\"},{\"type\":5,\"containerVol\":999999999,\"locationCode\":\"A4\",\"isPassage\":true,\"children\":[{\"levels\":[{\"type\":3,\"containerVol\":0,\"locationCode\":\"-P%d\",\"canStore\":0,\"counts\":2,\"children\":[{\"type\":13,\"containerVol\":0,\"locationCode\":\"-%03d\",\"canStore\":0,\"counts\":3}]}]}]},{\"type\":5,\"containerVol\":999999999,\"locationCode\":\"A5\",\"isPassage\":true,\"children\":[{\"levels\":[{\"type\":3,\"containerVol\":0,\"locationCode\":\"-P%d\",\"canStore\":0,\"counts\":2,\"startCounter\":2,\"step\":2,\"children\":[{\"type\":13,\"containerVol\":0,\"locationCode\":\"abc-%03d\",\"canStore\":0,\"counts\":3,\"withoutFatherCode\":true}]}]}]},{\"type\":12,\"containerVol\":999999999,\"locationCode\":\"A6\"},{\"type\":12,\"containerVol\":999999999,\"locationCode\":\"A7\"},{\"type\":6,\"containerVol\":999999999,\"locationCode\":\"A8\"},{\"type\":32,\"containerVol\":999999999,\"locationCode\":\"A9\"}]}]}", Map.class);
+        //Map<String, Object> config = JsonUtils.json2Obj(mapQuery.get("config").toString(), Map.class);
         locationService.initLocationTree(config, -1L);
         return JsonUtils.SUCCESS(config);
     }
