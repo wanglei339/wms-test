@@ -333,9 +333,9 @@ public class IbdService implements IIbdService {
         }
         request.setDetails(items);
 
-        return dataBackService.ofcDataBackByPost(JSON.toJSONString(request),IntegrationConstan.URL_LSHOFC_OBD);
+        //return dataBackService.ofcDataBackByPost(JSON.toJSONString(request),IntegrationConstan.URL_LSHOFC_OBD);
 
-        //return "";
+        return "";
 
     }
 
