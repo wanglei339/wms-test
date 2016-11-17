@@ -73,7 +73,7 @@ public class LocationDetailRequest implements Serializable {
     @NotNull
     private Long curContainerVol;
     @NotNull
-    private Long supplierNo;
+    private String supplierNo;
     @NotNull
     private String storeNo;
 
@@ -85,11 +85,11 @@ public class LocationDetailRequest implements Serializable {
         this.storeNo = storeNo;
     }
 
-    public Long getSupplierNo() {
+    public String getSupplierNo() {
         return supplierNo;
     }
 
-    public void setSupplierNo(Long supplierNo) {
+    public void setSupplierNo(String supplierNo) {
         this.supplierNo = supplierNo;
     }
 

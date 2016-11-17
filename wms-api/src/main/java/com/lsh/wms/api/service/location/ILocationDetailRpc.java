@@ -18,7 +18,7 @@ public interface ILocationDetailRpc {
 
     public List<BaseinfoLocation> getLocationDetailList(Map<String, Object> params) throws BizCheckedException;
 
-    public BaseinfoLocation insertLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException;
+    public void insertLocationDetailByType(LocationDetailRequest request) throws BizCheckedException;
 
     public BaseinfoLocation updateLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException;
 
