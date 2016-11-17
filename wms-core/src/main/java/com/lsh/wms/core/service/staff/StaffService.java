@@ -117,6 +117,7 @@ public class StaffService {
             BaseinfoStaffJob job = new BaseinfoStaffJob();
             job.setJobId(id);
             job.setJobName(StaffConstant.JOB_NAMES.get(id));
+            jobs.add(job);
         }
         return jobs;
     }
