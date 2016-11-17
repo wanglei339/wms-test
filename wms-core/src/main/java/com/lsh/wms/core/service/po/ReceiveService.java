@@ -1,14 +1,18 @@
 package com.lsh.wms.core.service.po;
 
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.dao.po.IbdDetailDao;
 import com.lsh.wms.core.dao.po.InbReceiptDetailDao;
 import com.lsh.wms.core.dao.po.ReceiveDetailDao;
 import com.lsh.wms.core.dao.po.ReceiveHeaderDao;
+import com.lsh.wms.core.service.persistence.PersistenceManager;
+import com.lsh.wms.core.service.persistence.PersistenceProxy;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.ReceiveDetail;
 import com.lsh.wms.model.po.ReceiveHeader;
+import com.lsh.wms.model.system.SysLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +40,12 @@ public class ReceiveService {
 
     @Autowired
     private IbdDetailDao ibdDetailDao;
+
+    @Autowired
+    private PersistenceProxy persistenceProxy;
+
+    @Autowired
+    private PersistenceManager persistenceManager;
 
 
     /**
@@ -153,6 +163,7 @@ public class ReceiveService {
     public void updateStatus(ReceiveHeader receiveHeader){
         receiveHeader.setUpdatedAt(DateUtils.getCurrentSeconds());
         receiveHeaderDao.update(receiveHeader);
+        persistenceProxy.doOne(SysLogConstant.LOG_TYPE_IBD,receiveHeader.getReceiveId());
     }
 
     /**

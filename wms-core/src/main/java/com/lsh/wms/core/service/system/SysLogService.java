@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,20 @@ public class SysLogService {
             return null;
         }
         return list.get(0);
+    }
+
+    @Transactional(readOnly = false)
+    public List<Long> getAndLockSysLogByType(Long type) {
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("logType",type);
+        mapQuery.put("retryTimes", 10);;
+        List<SysLog> list = sysLogDao.getTodoList(mapQuery);
+        List<Long> logIdList = new ArrayList<Long>();
+        for(SysLog log : list){
+            logIdList.add(log.getLogId());
+        }
+        sysLogDao.lockSysLogList(logIdList);
+        return logIdList;
     }
 
 }

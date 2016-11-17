@@ -6,6 +6,7 @@ import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.wumart.IWuMart;
+import com.lsh.wms.model.system.SysLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ public class WuMart implements IWuMart {
      * @param createIbdHeader
      * @return
      */
-    public String sendIbd(CreateIbdHeader createIbdHeader) {
+    public String sendIbd(CreateIbdHeader createIbdHeader, SysLog sysLog) {
         CreateIbdHeader backDate = wuMartSap.ibd2Sap(createIbdHeader);
         if(backDate != null) {
             return wuMartSap.ibd2SapAccount(backDate);
@@ -40,7 +41,7 @@ public class WuMart implements IWuMart {
      * @param createObdHeader
      * @return
      */
-    public String sendObd(CreateObdHeader createObdHeader) {
+    public String sendObd(CreateObdHeader createObdHeader, SysLog sysLog) {
         CreateObdHeader backDate = wuMartSap.obd2Sap(createObdHeader);
         if(backDate != null){
             wuMartSap.obd2SapAccount(backDate);
@@ -54,7 +55,7 @@ public class WuMart implements IWuMart {
      * @param accountDetailId
      * @return
      */
-    public String ibdAccountBack(String accountId, String accountDetailId) {
+    public String ibdAccountBack(String accountId, String accountDetailId, SysLog sysLog) {
 
         String result = wuMartSap.ibd2SapBack(accountId,accountDetailId);
         return result;
@@ -65,16 +66,11 @@ public class WuMart implements IWuMart {
      * 直流创建 sap ibd创建并过账 以及obd创建并过账
      * @param ibdObdMap
      */
-    public void sendSap(Map<String,Object> ibdObdMap){
-
-        //门店sto发送sap
-        if((CreateObdHeader) ibdObdMap.get("createStoObdHeader") != null){
-            this.sendObd((CreateObdHeader) ibdObdMap.get("createStoObdHeader"));
-        }
-        String ibdResult = this.sendIbd((CreateIbdHeader) ibdObdMap.get("createIbdHeader"));
+    public void sendSap(Map<String,Object> ibdObdMap, SysLog sysLog){
+        String ibdResult = this.sendIbd((CreateIbdHeader) ibdObdMap.get("createIbdHeader"),sysLog);
 
         if(!"E".equals(ibdResult) && ibdResult != null){
-            this.sendObd((CreateObdHeader) ibdObdMap.get("createObdHeader"));
+            this.sendObd((CreateObdHeader) ibdObdMap.get("createObdHeader"),sysLog);
         }
     }
 
@@ -83,7 +79,7 @@ public class WuMart implements IWuMart {
      * @param createObdHeader
      * @return
      */
-    public String sendSo2Sap(CreateObdHeader createObdHeader) {
+    public String sendSo2Sap(CreateObdHeader createObdHeader , SysLog sysLog) {
         return JsonUtils.SUCCESS(wuMartSap.soObd2Sap(createObdHeader));
     }
 
