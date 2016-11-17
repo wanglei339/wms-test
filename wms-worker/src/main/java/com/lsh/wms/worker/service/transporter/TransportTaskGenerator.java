@@ -43,6 +43,7 @@ public class TransportTaskGenerator implements IScheduleTaskDealSingle<Long> {
     public List<Long> selectTasks(String taskParameter, String ownSign, int taskItemNum, List<TaskItemDefine> taskItemList, int eachFetchDataNum) throws Exception {
         List<Long> list  = new ArrayList<Long>();
         for (TaskItemDefine item : taskItemList) {
+            logger.info("this label is new");
             logger.info(StrUtils.formatString("begin get SYSLog of type {0}",  item.getTaskItemId()));
             List<Long> sysLogList = sysLogService.getAndLockSysLogByType(Long.valueOf(item.getTaskItemId()));
             for (Long id : sysLogList) {

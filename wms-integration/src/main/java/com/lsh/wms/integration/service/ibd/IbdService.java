@@ -10,6 +10,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.base.q.Utilities.Json.JSONObject;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
@@ -36,6 +37,7 @@ import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.system.SysLogService;
 import com.lsh.wms.integration.service.back.DataBackService;
+import com.lsh.wms.integration.service.common.utils.HttpUtil;
 import com.lsh.wms.integration.service.wumartsap.WuMart;
 import com.lsh.wms.integration.service.wumartsap.WuMartSap;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
@@ -46,6 +48,7 @@ import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.system.SysLog;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
+import net.sf.json.util.JSONUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,7 +108,11 @@ public class IbdService implements IIbdService {
         List<PoItem> items = new ArrayList<PoItem>();
 
         if(request.getWarehouseCode().equals("DC41")){
-
+            String jsonStr = HttpUtil.doPost(IntegrationConstan.URL_PO,request);
+            JSONObject obj = new JSONObject(jsonStr);
+            BaseResponse response = new BaseResponse();
+            ObjUtils.bean2bean(obj,response);
+            return response;
         }
 
         for(IbdDetail ibdDetail : details){
@@ -266,6 +273,25 @@ public class IbdService implements IIbdService {
 //        }
 
         return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, null);
+    }
+
+
+    @POST
+    @Path("bdSendIbd2Sap")
+    public String bdSendIbd2Sap(CreateIbdHeader createIbdHeader) {
+        CreateIbdHeader backData = wuMartSap.ibd2Sap(createIbdHeader);
+        String mess = "";
+        if(backData != null){
+            mess =  wuMartSap.ibd2SapAccount(backData);
+            if("E".equals(mess)){
+                JsonUtils.EXCEPTION_ERROR("创建ibd成功,过账失败");
+            }else{
+                mess = "创建并过账成功";
+            }
+        }else{
+            return JsonUtils.EXCEPTION_ERROR("创建ibd失败");
+        }
+        return JsonUtils.SUCCESS(mess);
     }
 
     @POST

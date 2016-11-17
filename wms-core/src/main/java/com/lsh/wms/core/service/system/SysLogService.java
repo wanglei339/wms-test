@@ -71,7 +71,9 @@ public class SysLogService {
         for(SysLog log : list){
             logIdList.add(log.getLogId());
         }
-        sysLogDao.lockSysLogList(logIdList);
+        if (! logIdList.isEmpty()) {
+            sysLogDao.lockSysLogList(logIdList);
+        }
         return logIdList;
     }
 
