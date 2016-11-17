@@ -17,7 +17,7 @@ public class LocationConstant {
     public static final Long SHELFS = 5L;     //货架区
     public static final Long LOFTS = 6L;       //阁楼区(指的是阁楼的一层为一个阁楼区,有四层就是四个阁楼区)
     //功能区
-    public static final Long FLOOR = 7l;
+    public static final Long FLOOR = 7L;
     public static final Long TEMPORARY = 8L;
     public static final Long COLLECTION_AREA = 9L; //集货区
     public static final Long BACK_AREA = 10L;
