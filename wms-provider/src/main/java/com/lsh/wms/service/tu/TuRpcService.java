@@ -528,6 +528,8 @@ public class TuRpcService implements ITuRpcService {
         List<WaveDetail> totalWaveDetails = this.combineWaveDetailsByTuId(tuId);
         List<CreateObdDetail> createObdDetailList = new ArrayList<CreateObdDetail>();
         List<CreateIbdDetail> createIbdDetailList = new ArrayList<CreateIbdDetail>();
+
+        List<CreateObdDetail>  createStoObdDetails = new ArrayList<CreateObdDetail>();
         for (WaveDetail oneDetail : totalWaveDetails) {
             Long itemId = oneDetail.getItemId();
             Long orderId = oneDetail.getOrderId();
@@ -537,8 +539,14 @@ public class TuRpcService implements ITuRpcService {
             if (null == obdDetail) {
                 throw new BizCheckedException("2900004");
             }
+
+
             //sto obd order_other_id
             ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(obdDetail.getOrderId());
+
+
+
+
             createObdDetail.setRefDoc(obdHeader.getOrderOtherId());
             //销售单位
             createObdDetail.setSalesUnit(obdDetail.getPackName());
@@ -549,13 +557,17 @@ public class TuRpcService implements ITuRpcService {
 
             createObdDetail.setOrderType(obdHeader.getOrderType());
 
-            createObdDetailList.add(createObdDetail);
 
             //找关系 sto和cpo
             List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationListByObd(obdHeader.getOrderOtherId(), obdDetail.getDetailOtherId());
             if (null == ibdObdRelations || ibdObdRelations.size() < 1) {
-                throw new BizCheckedException("2900005");
+                createStoObdDetails.add(createObdDetail);
+                continue;
+                //throw new BizCheckedException("2900005");
             }
+            createObdDetailList.add(createObdDetail);
+
+
             IbdObdRelation ibdObdRelation = ibdObdRelations.get(0);
             IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(ibdObdRelation.getIbdOtherId());
             IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndDetailOtherId(ibdHeader.getOrderId(), ibdObdRelation.getIbdDetailId());
@@ -579,6 +591,8 @@ public class TuRpcService implements ITuRpcService {
         createObdHeader.setItems(createObdDetailList);
         CreateIbdHeader createIbdHeader = new CreateIbdHeader();
         createIbdHeader.setItems(createIbdDetailList);
+        CreateObdHeader createStoObdHeader = new CreateObdHeader();
+
         logger.info("+++++++++++++++++++++++++++++++++maqidi+++++++++++++++++++++++" + JSON.toJSONString(createObdHeader));
         logger.info("+++++++++++++++++++++++++++++++++maqidi++++++++++++++" + JSON.toJSONString(createObdHeader));
 
@@ -588,6 +602,7 @@ public class TuRpcService implements ITuRpcService {
         Map<String, Object> ibdObdMap = new HashMap<String, Object>();
         ibdObdMap.put("createIbdHeader", createIbdHeader);
         ibdObdMap.put("createObdHeader", createObdHeader);
+        ibdObdMap.put("createStoObdHeader", createStoObdHeader);
         return ibdObdMap;
 //        wuMart.sendIbd(createIbdHeader);
 //        wuMart.sendObd(createObdHeader);

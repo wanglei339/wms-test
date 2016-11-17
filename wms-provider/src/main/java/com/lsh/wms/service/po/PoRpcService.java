@@ -76,7 +76,8 @@ public class PoRpcService implements IPoRpcService {
             if(orderUser == null){
                 throw new BizCheckedException("2020010");
             }
-            ObdHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(Long.parseLong(ibdHeader.getOrderOtherId()));
+            //使用so orderOtherId 与 type确定so
+            ObdHeader soHeader = soOrderService.getOutbSoHeaderByOrderOtherIdAndType(ibdHeader.getOrderOtherId(),SoConstant.ORDER_TYPE_SO);
             if(null == soHeader){
                 throw new BizCheckedException("2020001");
             }
