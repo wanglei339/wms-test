@@ -65,20 +65,20 @@ public class SysLogRpcService implements ISysLogRpcService{
         //Object request = BeanMapTransUtils.map2Bean(map, Object.class);
 
         SysLog syslog = sysLogService.getSysLogById(logId);
-        if(syslog.getTargetSystem() == SysLogConstant.LOG_TARGET_WUMART){
-            // TODO: 2016/10/24 根据type来确定回传的url 先加了ibd obd 还需要报损 报溢
-            String url;
-            if(syslog.getLogType() == SysLogConstant.LOG_TYPE_WUMART_IBD){
-                url = IntegrationConstan.URL_IBD;
-            }else{
-                url = IntegrationConstan.URL_OBD;
-            }
-            dataBackService.wmDataBackByPost(json,url,syslog.getLogType());
-        }else if(syslog.getTargetSystem() == SysLogConstant.LOG_TARGET_LSHOFC){
-            dataBackService.ofcDataBackByPost(json,IntegrationConstan.URL_LSHOFC_OBD);
-        }else if(syslog.getTargetSystem() == SysLogConstant.LOG_TARGET_ERP){
-            dataBackService.erpDataBack(json);
-        }
+//        if(syslog.getTargetSystem() == SysLogConstant.LOG_TARGET_WUMART){
+//            // TODO: 2016/10/24 根据type来确定回传的url 先加了ibd obd 还需要报损 报溢
+//            String url;
+//            if(syslog.getLogType() == SysLogConstant.LOG_TYPE_WUMART_IBD){
+//                url = IntegrationConstan.URL_IBD;
+//            }else{
+//                url = IntegrationConstan.URL_OBD;
+//            }
+//            dataBackService.wmDataBackByPost(json,url,syslog.getLogType());
+//        }else if(syslog.getTargetSystem() == SysLogConstant.LOG_TARGET_LSHOFC){
+//            dataBackService.ofcDataBackByPost(json,IntegrationConstan.URL_LSHOFC_OBD);
+//        }else if(syslog.getTargetSystem() == SysLogConstant.LOG_TARGET_ERP){
+//            dataBackService.erpDataBack(json);
+//        }
 
     }
 }

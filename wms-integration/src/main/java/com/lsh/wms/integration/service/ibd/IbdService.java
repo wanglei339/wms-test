@@ -104,6 +104,10 @@ public class IbdService implements IIbdService {
 //        List<IbdDetail> newDetails = new ArrayList<IbdDetail>();
         List<PoItem> items = new ArrayList<PoItem>();
 
+        if(request.getWarehouseCode().equals("DC41")){
+
+        }
+
         for(IbdDetail ibdDetail : details){
             List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(request.getOwnerUid(),ibdDetail.getSkuCode());
             if(baseinfoItemList == null || baseinfoItemList.size() <= 0) {
@@ -333,9 +337,9 @@ public class IbdService implements IIbdService {
         }
         request.setDetails(items);
 
-        return dataBackService.ofcDataBackByPost(JSON.toJSONString(request),IntegrationConstan.URL_LSHOFC_OBD);
+        //return dataBackService.ofcDataBackByPost(JSON.toJSONString(request),IntegrationConstan.URL_LSHOFC_OBD);
 
-        //return "";
+        return "";
 
     }
 

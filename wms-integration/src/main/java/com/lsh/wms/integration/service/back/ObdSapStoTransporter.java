@@ -70,6 +70,6 @@ public class ObdSapStoTransporter implements ITransporter{
             createObdHeader.setOrderOtherId(obdHeader.getOrderOtherId());
         }
         createObdHeader.setItems(createObdDetails);
-        wuMart.sendObd(createObdHeader);
+        wuMart.sendObd(createObdHeader,sysLog);
     }
 }
