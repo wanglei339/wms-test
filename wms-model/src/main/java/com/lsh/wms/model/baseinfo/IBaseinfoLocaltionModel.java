@@ -12,5 +12,7 @@ public interface IBaseinfoLocaltionModel {
     public void setUpdatedAt(Long updatedAt);
     public Long getUpdatedAt();
     public Long getLocationId();
+    public void setClassification(Integer classification);
+    public Integer getClassification();
 
 }

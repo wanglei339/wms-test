@@ -71,6 +71,30 @@ public class LocationService {
         return locations;
     }
 
+    public BaseinfoLocation getLocation2(Long locationId) throws BizCheckedException {
+        logger.error("getLocation2 started!");
+        if (null == locationId) {
+            throw new BizCheckedException("2180001");
+        }
+        logger.error("begin fuck you 2 ");
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("locationId", locationId);
+        params.put("isValid", LocationConstant.IS_VALID);
+        //params.put("type", 17L);
+        logger.error("you say what2");
+        List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
+        logger.error("say again fuck2");
+        //redis中没有,放入redis
+        if (locations != null && locations.size() > 0) {
+//            //将没读入redis的写入redis(直接调用接口写入redis)
+//            locationRedisService.insertLocationRedis(locations.get(0));
+            logger.error("getLocaton eneded2");
+            return locations.get(0);
+        } else {
+            return null;
+        }
+    }
+
     /**
      * 根据locationId获取location
      *
@@ -78,9 +102,11 @@ public class LocationService {
      * @return BaseinfoLocation
      */
     public BaseinfoLocation getLocation(Long locationId) throws BizCheckedException {
+        logger.error("getLocation started!");
         if (null == locationId) {
             throw new BizCheckedException("2180001");
         }
+        logger.error("begin fuck you ");
         //先从redis中取数据,没有去数据库中取
 //        Map<String, String> locationMap = locationRedisService.getRedisLocation(locationId);
 //        if (locationMap != null && !locationMap.isEmpty()) {
@@ -115,11 +141,14 @@ public class LocationService {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("locationId", locationId);
         params.put("isValid", LocationConstant.IS_VALID);
+        logger.error("you say what");
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
+        logger.error("say again fuck");
         //redis中没有,放入redis
         if (locations != null && locations.size() > 0) {
 //            //将没读入redis的写入redis(直接调用接口写入redis)
 //            locationRedisService.insertLocationRedis(locations.get(0));
+            logger.error("getLocaton eneded");
             return locations.get(0);
         } else {
             return null;
@@ -154,9 +183,9 @@ public class LocationService {
     @Transactional(readOnly = false)
     public BaseinfoLocation updateLocation(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
         BaseinfoLocation baseinfoLocation = (BaseinfoLocation) iBaseinfoLocaltionModel;
-        if (this.getLocation(baseinfoLocation.getLocationId()) == null) {
-            return null;
-        }
+//        if (this.getLocation(baseinfoLocation.getLocationId()) == null) {
+//            return null;
+//        }
         long updatedAt = DateUtils.getCurrentSeconds();
         baseinfoLocation.setUpdatedAt(updatedAt);
         locationDao.update(baseinfoLocation);
@@ -1100,12 +1129,16 @@ public class LocationService {
      */
     @Transactional(readOnly = false)
     public BaseinfoLocation unlockLocation(Long locationId) {
-        BaseinfoLocation location = this.getLocation(locationId);
+        logger.error("begin fuck you unlockLocatoin");
+        BaseinfoLocation location = this.getLocation2(locationId);
+        logger.error("this fucked really hard");
         if (location == null) {
             throw new BizCheckedException("2180001");
         }
         location.setIsLocked(0);    //解锁
+        logger.error("begin fuck you update location");
         this.updateLocation(location);
+        logger.error("unlock location finished");
         return location;
     }
 
@@ -1200,10 +1233,11 @@ public class LocationService {
 
     @Transactional(readOnly = false)
     public void lockLocationById(Long locationId) {
-        if (null == this.getLocation(locationId)) {
+        BaseinfoLocation location = this.getLocation(locationId);
+        if (null == location) {
             throw new BizCheckedException("2180002");
         }
-        locationDao.lock(locationId);
+        locationDao.lock(location.getId());
     }
 
     @Transactional(readOnly = false)
@@ -1236,6 +1270,7 @@ public class LocationService {
             location.setCanUse(1);
         }
         this.updateLocation(location);
+        logger.warn("fuck commit");
         return location;
     }
 

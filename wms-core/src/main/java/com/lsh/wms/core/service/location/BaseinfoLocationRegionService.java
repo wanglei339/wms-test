@@ -35,6 +35,7 @@ public class BaseinfoLocationRegionService implements IStrategy {
 
     @Transactional(readOnly = false)
     public void insert(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
+        iBaseinfoLocaltionModel.setClassification(LocationConstant.CLASSIFICATION_AREAS);
         baseinfoLocationRegionDao.insert((BaseinfoLocationRegion) iBaseinfoLocaltionModel);
     }
 

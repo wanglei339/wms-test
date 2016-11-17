@@ -2,9 +2,12 @@ package com.lsh.wms.core.service.inventory;
 
 import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.core.constant.RedisKeyConstant;
+import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.dao.redis.RedisSortedSetDao;
 import com.lsh.wms.core.service.so.SoOrderRedisService;
+import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockRedisService;
+import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +33,14 @@ import java.util.Set;
  */
 @Component
 public class InventoryRedisService {
+    private static Logger logger = LoggerFactory.getLogger(InventoryRedisService.class);
+
     @Autowired
     private SoOrderRedisService soOrderRedisService;
     @Autowired
     private StockRedisService stockRedisService;
-    private static Logger logger = LoggerFactory.getLogger(InventoryRedisService.class);
+    @Autowired
+    private SoOrderService soOrderService;
 
     public double soOrderSkuQty(Long itemId){
         Set<ZSetOperations.TypedTuple<String>>  skuQtys=  soOrderRedisService.getSoSkuQty(itemId);
@@ -62,8 +68,14 @@ public class InventoryRedisService {
     @Transactional(readOnly = false)
     public void onDelivery(List<WaveDetail> waveDetailList) {
         for (WaveDetail detail : waveDetailList) {
-            soOrderRedisService.delSoRedis(detail.getOrderId(), detail.getItemId());
-            stockRedisService.outBound(detail.getItemId(), detail.getQcQty());
+            ObdHeader header = soOrderService.getOutbSoHeaderByOrderId(detail.getOrderId());
+            if (header == null) {
+                continue;
+            }
+            if (header.getOrderType().equals(SoConstant.ORDER_TYPE_SO) || header.getOrderType().equals(SoConstant.ORDER_TYPE_STO)) {
+                soOrderRedisService.delSoRedis(detail.getOrderId(), detail.getItemId());
+                stockRedisService.outBound(detail.getItemId(), detail.getQcQty());
+            }
         }
     }
 }

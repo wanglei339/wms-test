@@ -33,6 +33,7 @@ public class BaseinfoLocationBinService implements IStrategy {
      */
     @Transactional(readOnly = false)
     public void insert(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
+        iBaseinfoLocaltionModel.setClassification(LocationConstant.CLASSIFICATION_BINS);
         baseinfoLocationBinDao.insert((BaseinfoLocationBin) iBaseinfoLocaltionModel);
     }
 

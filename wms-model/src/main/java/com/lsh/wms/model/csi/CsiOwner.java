@@ -22,6 +22,8 @@ public class CsiOwner implements Serializable {
     private String city;
 	/** 地址 */
     private String address;
+	/** SO下发时库存检查策略。0-不做检查，1-柔性检查，2-硬性检查 */
+	private Long soCheckStrategy = 0L;
 	/**  */
     private Long createdAt = 0L;
 	/**  */
@@ -90,7 +92,15 @@ public class CsiOwner implements Serializable {
 	public void setAddress(String address){
 		this.address = address;
 	}
-	
+
+	public Long getSoCheckStrategy() {
+		return soCheckStrategy;
+	}
+
+	public void setSoCheckStrategy(Long soCheckStrategy) {
+		this.soCheckStrategy = soCheckStrategy;
+	}
+
 	public Long getCreatedAt(){
 		return this.createdAt;
 	}

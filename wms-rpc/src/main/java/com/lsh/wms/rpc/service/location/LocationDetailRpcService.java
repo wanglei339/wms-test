@@ -2,6 +2,8 @@ package com.lsh.wms.rpc.service.location;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.wms.api.model.location.LocationDetailRequest;
 import com.lsh.wms.api.service.location.ILocationDetailRpc;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.LocationDetailService;
@@ -64,19 +66,37 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
         return baseinfoLocationList;
     }
 
-    public BaseinfoLocation insertLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException {
-            //一个通道只能插入两个货架子,加入校验判断
-            if (baseinfoLocation.getClassification().equals(LocationConstant.LOFT_SHELF)) {
-                Map<String, Object> mapQuery = new HashMap<String, Object>();
-                mapQuery.put("fatherId", baseinfoLocation.getFatherId());
-                int size = locationService.getBaseinfoLocationList(mapQuery).size();
-                if (size >= 2) {
-                    //一个通道放两个以上的货架是不可以的
-                    throw new BizCheckedException("2180006");
-                }
+    //    public BaseinfoLocation insertLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException {
+//            //一个通道只能插入两个货架子,加入校验判断
+//            if (baseinfoLocation.getClassification().equals(LocationConstant.LOFT_SHELF)) {
+//                Map<String, Object> mapQuery = new HashMap<String, Object>();
+//                mapQuery.put("fatherId", baseinfoLocation.getFatherId());
+//                int size = locationService.getBaseinfoLocationList(mapQuery).size();
+//                if (size >= 2) {
+//                    //一个通道放两个以上的货架是不可以的
+//                    throw new BizCheckedException("2180006");
+//                }
+//            }
+//            locationDetailService.insert(baseinfoLocation);
+//            return baseinfoLocation;
+//    }
+    public void insertLocationDetailByType(LocationDetailRequest request) throws BizCheckedException {
+        //一个通道只能插入两个货架子,加入校验判断
+        if (request.getClassification().equals(LocationConstant.LOFT_SHELF)) {
+            Map<String, Object> mapQuery = new HashMap<String, Object>();
+            mapQuery.put("fatherId", request.getFatherId());
+            int size = locationService.getBaseinfoLocationList(mapQuery).size();
+            if (size >= 2) {
+                //一个通道放两个以上的货架是不可以的
+                throw new BizCheckedException("2180006");
             }
-            locationDetailService.insert(baseinfoLocation);
-            return baseinfoLocation;
+        }
+        try {
+            locationDetailService.insert(request);
+        }catch (Exception e){
+            logger.error("insertLocationError"+e.getMessage());
+            throw new BizCheckedException("2180020");
+        }
     }
 
     public BaseinfoLocation updateLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException {
@@ -139,6 +159,7 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
 
     /**
      * 根据货架参数,批量生成整个货架的货位
+     *
      * @param createCondition
      * @return
      * @throws BizCheckedException

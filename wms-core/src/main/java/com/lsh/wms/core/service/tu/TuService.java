@@ -2,9 +2,12 @@ package com.lsh.wms.core.service.tu;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
+import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.wms.core.constant.SoConstant;
+import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.api.model.so.ObdOfcBackRequest;
 import com.lsh.wms.api.model.so.ObdOfcItem;
 import com.lsh.wms.api.model.wumart.CreateObdDetail;
@@ -69,6 +72,8 @@ public class TuService {
     private SoDeliveryService soDeliveryService;
     @Autowired
     private SoOrderService soOrderService;
+    @Autowired
+    private InventoryRedisService inventoryRedisService;
     @Autowired
     private LocationService locationService;
 
@@ -324,7 +329,8 @@ public class TuService {
             detail.setIsAlive(0L);
             waveService.updateDetail(detail);
         }
-
+        // 调用库存同步服务
+        inventoryRedisService.onDelivery(totalWaveDetails);
         //todo 更新wave有波次,更新波次的状态
 //        this.setStatus(waveHead.getWaveId(), WaveConstant.STATUS_SUCC);
         return true;
@@ -352,9 +358,11 @@ public class TuService {
 
 
     @Transactional(readOnly = false)
-    public void createObdAndMoveStockQuantV2(IDataBackService dataBackService, IWuMart wuMart, Map<String, Object> map, List<WaveDetail> totalWaveDetails) {
-        Set<Long> containerIds = (Set<Long>) map.get("containerIds");
-        TuHead tuHead = (TuHead) map.get("tuHead");
+    public void createObdAndMoveStockQuantV2(IDataBackService dataBackService,
+                                             IWuMart wuMart,
+                                             Set<Long> containerIds,
+                                             TuHead tuHead,
+                                             List<WaveDetail> totalWaveDetails,Map<Long, Map<String, Object>> orderBoxInfo) {
         this.moveItemToConsumeArea(containerIds);
         this.creatDeliveryOrderAndDetail(tuHead);
 
@@ -370,8 +378,8 @@ public class TuService {
             java.math.BigDecimal qty = stockQuantService.getQty(mapQuery);
             if (0 == qty.compareTo(BigDecimal.ZERO)) {
                 //释放集货导
-                locationService.unlockLocation(locationId);
                 locationService.setLocationUnOccupied(locationId);
+                locationService.unlockLocation(locationId);
             }
         }
         //获取发货单的header
@@ -404,7 +412,11 @@ public class TuService {
             request.setDeliveryTime(now);
             request.setObdCode(obdHeader.getOrderId().toString());
             request.setSoCode(obdHeader.getOrderOtherId());
-
+            request.setWaybillCode(tuHead.getTuId());//运单号
+            Map<String, Object> map = orderBoxInfo.get(orderId);
+            request.setBoxNum((Integer) map.get("boxNum"));
+            request.setTurnoverBoxNum((Integer) map.get("turnoverBoxNum"));
+            request.setWarehouseCode("DC40");
             //组装物美反馈信息
             CreateObdHeader createObdHeader = new CreateObdHeader();
             createObdHeader.setOrderOtherId(obdHeader.getOrderOtherId());
@@ -442,9 +454,8 @@ public class TuService {
             //TODO 瞎逼判断
             if (obdHeader.getOwnerUid() == 1) {
                 wuMart.sendSo2Sap(createObdHeader);
-            } else if (obdHeader.getOwnerUid() == 2) {
-                dataBackService.ofcDataBackByPost(JSON.toJSONString(request), IntegrationConstan.URL_LSHOFC_OBD);
             }
+            dataBackService.ofcDataBackByPost(JSON.toJSONString(request), IntegrationConstan.URL_LSHOFC_OBD);
         }
 
         //同步库存 todo 力哥

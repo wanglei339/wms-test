@@ -7,7 +7,6 @@ import com.lsh.base.common.exception.BizCheckedException;
  */
 public interface ITmsTuService {
     String receiveTuHead() throws BizCheckedException;
-    Boolean postTuDetails(String tuId) throws BizCheckedException;
     String superMarketUnloadList() throws BizCheckedException;
     String storeUnloadList() throws BizCheckedException;
 }

@@ -112,10 +112,11 @@ public class ShipRestService implements IShipRestService {
             Long containerId = detail.getMergedContainerId();
             List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(containerId);
             if (null == waveDetails || waveDetails.size() < 1) {
-                throw new BizCheckedException("2120018");
+                waveDetails = waveService.getAliveDetailsByContainerId(detail.getMergedContainerId());
             }
-            totalWaveDetails.addAll(waveDetails);
-            totalContainers.add(containerId);
+            if(waveDetails != null) {
+                totalWaveDetails.addAll(waveDetails);
+            }
             //在库不组盘
             Map<String, Object> containerMap = new HashMap<String, Object>();
             containerMap.put("boxNum", detail.getBoxNum());
@@ -133,6 +134,7 @@ public class ShipRestService implements IShipRestService {
                 contaienrIds.add(waveDetail.getContainerId());
                 orderContainerSet.put(waveDetail.getOrderId(), contaienrIds);
             }
+            totalContainers.add(waveDetail.getContainerId());
         }
         //封装so单子和箱子数
         Map<Long, Map<String, Object>> orderBoxInfo = new HashMap<Long, Map<String, Object>>();
@@ -157,7 +159,7 @@ public class ShipRestService implements IShipRestService {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("containerIds", totalContainers);
         map.put("tuHead", tuHead);
-        tuService.createObdAndMoveStockQuantV2(dataBackService, wuMart, map, totalWaveDetails);
+        tuService.createObdAndMoveStockQuantV2(dataBackService, wuMart, totalContainers, tuHead, totalWaveDetails,orderBoxInfo);
 
         //创建发货任务
         TaskEntry taskEntry = new TaskEntry();

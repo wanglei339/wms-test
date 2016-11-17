@@ -3,6 +3,7 @@ package com.lsh.wms.core.service.location;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.wms.api.model.location.LocationDetailRequest;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.targetlist.*;
 import com.lsh.wms.model.baseinfo.*;
@@ -130,6 +131,7 @@ public class LocationDetailService {
         locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_LEVEL, baseinfoLocationLevelService);
         locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_IN_BIN, baseinfoLocationBinService);
         locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_STORE_BIN, baseinfoLocationBinService);
+        //todo 功能块的服务注入 locationService没继承,没有功能块,集货道,集货道组的detail服务
     }
 
     /**
@@ -169,7 +171,6 @@ public class LocationDetailService {
         //功能bin
         locationDetailModelFactory.register(LocationConstant.FLOOR_BIN, new BaseinfoLocationBin());
         locationDetailModelFactory.register(LocationConstant.TEMPORARY_BIN, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.COLLECTION_BIN, new BaseinfoLocationBin());
         locationDetailModelFactory.register(LocationConstant.BACK_BIN, new BaseinfoLocationBin());
         locationDetailModelFactory.register(LocationConstant.DEFECTIVE_BIN, new BaseinfoLocationBin());
         //货架和阁楼层
@@ -199,6 +200,17 @@ public class LocationDetailService {
         locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_LEVEL, new BaseinfoLocation());
         locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_IN_BIN, new BaseinfoLocationBin());
         locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_STORE_BIN, new BaseinfoLocationBin());
+        //集货道、集货道组、集货位
+        locationDetailModelFactory.register(LocationConstant.COLLECTION_ROAD_GROUP, new BaseinfoLocation());
+        locationDetailModelFactory.register(LocationConstant.COLLECTION_ROAD, new BaseinfoLocation());
+        locationDetailModelFactory.register(LocationConstant.COLLECTION_BIN, new BaseinfoLocationBin());
+        //阁楼或货架的货架块,
+        locationDetailModelFactory.register(LocationConstant.SHELF_PICK_BLOCK, new BaseinfoLocation());
+        locationDetailModelFactory.register(LocationConstant.SHELF_STORE_BLOCK, new BaseinfoLocation());
+        locationDetailModelFactory.register(LocationConstant.LOFT_PICK_BLOCK, new BaseinfoLocation());
+        locationDetailModelFactory.register(LocationConstant.LOFT_STORE_BLOCK, new BaseinfoLocation());
+
+
 
     }
 
@@ -218,14 +230,77 @@ public class LocationDetailService {
      * Location的细节表插入
      * location的主表也插入
      *
-     * @param iBaseinfoLocaltionModel location的父类对象
+     * @param request    前端的请求
      */
+//    @Transactional(readOnly = false)
+//    public void insert(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
+//        //校验
+//        if (null == iBaseinfoLocaltionModel) {
+//            throw new RuntimeException("插入和Location对象为空");
+//        }
+//        //转化成父类,插入
+//        BaseinfoLocation location = new BaseinfoLocation();
+//        ObjUtils.bean2bean(iBaseinfoLocaltionModel, location);
+//        //先插入主表(并获得主表的location)
+//        BaseinfoLocation baseinfoLocation = locationService.insertLocation(location);
+//        //拷贝插入过主表后的location数据(时间和id)
+//        iBaseinfoLocaltionModel.setLocationId(baseinfoLocation.getLocationId());
+//        iBaseinfoLocaltionModel.setCreatedAt(baseinfoLocation.getCreatedAt());
+//        iBaseinfoLocaltionModel.setUpdatedAt(baseinfoLocation.getUpdatedAt());
+//        //根据model选择service
+//        IStrategy iStrategy = locationDetailServiceFactory.getIstrategy(iBaseinfoLocaltionModel.getType());
+//        iStrategy.insert(iBaseinfoLocaltionModel);
+//        //将father的叶子节点变为0
+//        //如果插入的是仓库
+//        if (location.getFatherId() == -1L) {
+//            return;
+//        }
+//        //如果是货架个体,插入指定层的货架层
+//        // todo 如果单插入阁楼层的话,会出现插入两次主表的问题(货架和层一起插就不会),因为阁楼|货架层service注入了原来的locationService
+//        if (LocationConstant.SHELF.equals(iBaseinfoLocaltionModel.getType())) {
+//            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.SHELF_LEVELS);
+//            //将货架的叶子节点设置为0
+//            location.setIsLeaf(0);
+//            locationService.updateLocation(location);
+//        }
+//        //  如果是阁楼个体,插入指定层的阁楼层
+//        if (LocationConstant.LOFT.equals(iBaseinfoLocaltionModel.getType())) {
+//            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.LOFT_LEVELS);
+//            //将货架的叶子节点设置为0
+//            location.setIsLeaf(0);
+//            locationService.updateLocation(location);
+//        }
+//        if (LocationConstant.SPLIT_SHELF.equals(iBaseinfoLocaltionModel.getType())) {
+//            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.SPLIT_SHELF_LEVEL);
+//            //将货架的叶子节点设置为0
+//            location.setIsLeaf(0);
+//            locationService.updateLocation(location);
+//        }
+//        //贵品区的货架
+//        if (LocationConstant.VALUABLES_SHELF.equals(iBaseinfoLocaltionModel.getType())) {
+//            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.VALUABLES_SHELF_LEVEL);
+//            //将货架的叶子节点设置为0
+//            location.setIsLeaf(0);
+//            locationService.updateLocation(location);
+//        }
+//        if (LocationConstant.SUPPLIER_RETURN_SHELF.equals(iBaseinfoLocaltionModel.getType())) {
+//            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.SUPPLIER_RETURN_LEVEL);
+//            //将货架的叶子节点设置为0
+//            location.setIsLeaf(0);
+//            locationService.updateLocation(location);
+//        }
+//        //其他type处理方式
+//        BaseinfoLocation fatherLocation = locationService.getFatherLocation(location.getLocationId());
+//        fatherLocation.setIsLeaf(0);
+//        locationService.updateLocation(fatherLocation);
+//    }
+
     @Transactional(readOnly = false)
-    public void insert(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
-        //校验
-        if (null == iBaseinfoLocaltionModel) {
-            throw new RuntimeException("插入和Location对象为空");
-        }
+    public void insert(LocationDetailRequest request) {
+        //根据type类型,将父类转为子类
+        IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationDetailModelFactory.getLocationModel(Long.valueOf(request.getType().toString()));
+        //转成子类
+        ObjUtils.bean2bean(request, iBaseinfoLocaltionModel);
         //转化成父类,插入
         BaseinfoLocation location = new BaseinfoLocation();
         ObjUtils.bean2bean(iBaseinfoLocaltionModel, location);
