@@ -2,6 +2,7 @@ package com.lsh.wms.integration.service.back;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.utils.StrUtils;
+import com.lsh.wms.api.service.back.ITransportService;
 import com.lsh.wms.core.service.system.SysLogService;
 import com.lsh.wms.model.system.SysLog;
 import org.slf4j.Logger;
@@ -12,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * Created by mali on 16/11/17.
  */
 @Service(protocol = "dubbo")
-public class TransportService {
+public class TransportService implements ITransportService{
     private static final Logger logger = LoggerFactory.getLogger(TransportService.class);
 
     @Autowired

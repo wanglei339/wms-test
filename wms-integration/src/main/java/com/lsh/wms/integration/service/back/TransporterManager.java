@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class TransporterManager {
 
-    @Autowired
+    //@Autowired
     public void dealOne(SysLog sysLog) {
         ITransporter transporter = new ITransporter() {
             public void process(SysLog sysLog) {
