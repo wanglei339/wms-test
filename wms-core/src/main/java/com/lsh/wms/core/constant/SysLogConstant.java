@@ -22,9 +22,9 @@ public class SysLogConstant {
 
     public static final int LOG_TYPE_OFC_OBD = 8;
 
-    public static final int LOG_TYPE_LOSS = 9;
+    public static final int LOG_TYPE_LOSS_WIN = 9;
 
-    public static final int LOG_TYPE_WIN = 10;
+    //public static final int LOG_TYPE_WIN = 10;
 
     public static final int LOG_TYPE_ERP_IBD = 11;
 
