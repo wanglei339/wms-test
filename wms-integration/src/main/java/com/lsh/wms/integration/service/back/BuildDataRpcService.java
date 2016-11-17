@@ -3,6 +3,9 @@ package com.lsh.wms.integration.service.back;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.config.PropertyUtils;
+import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.wms.api.model.so.ObdOfcBackRequest;
+import com.lsh.wms.api.model.so.ObdOfcItem;
 import com.lsh.wms.api.model.stock.StockItem;
 import com.lsh.wms.api.model.stock.StockRequest;
 import com.lsh.wms.api.model.wumart.CreateIbdDetail;
@@ -59,9 +62,6 @@ public class BuildDataRpcService implements IBuildDataRpcService {
 
     @Autowired
     private StockTakingService stockTakingService;
-
-    @Autowired
-    private ItemService itemService;
 
     @Autowired
     private SoDeliveryService soDeliveryService;
