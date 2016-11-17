@@ -68,6 +68,7 @@
 	<select id="getBaseinfoStaffInfoList" parameterType="map" resultMap="baseinfoStaffInfoResultMap">
 		select * from baseinfo_staff_info
 		<include refid="queryCondition"/>
+		ORDER BY id desc
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
 		</if>

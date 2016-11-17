@@ -100,12 +100,12 @@ public class BuildDataRpcService implements IBuildDataRpcService {
         }
         createIbdHeader.setItems(details);
 
-        /*if(receiveHeader.getOwnerUid() == 1){
+        if(receiveHeader.getOwnerUid() == 1){
             //wuMart.sendIbd(createIbdHeader);
 
         }else{
-            dataBackService.erpDataBack(JSON.toJSONString(createIbdHeader));
-        }*/
+//            dataBackService.erpDataBack(JSON.toJSONString(createIbdHeader));
+        }
     }
 
 //    public void BuildInventoryData(Long taskingId) {
