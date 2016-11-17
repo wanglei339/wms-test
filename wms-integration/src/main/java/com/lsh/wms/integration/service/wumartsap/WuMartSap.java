@@ -332,7 +332,6 @@ public class WuMartSap implements IWuMartSap{
             if("E".equals(bapiret2.getTYPE())){
                 return "E";
             }
-
             if("02".equals(bapiret2.getID())){
                 if(orderType != PoConstant.ORDER_TYPE_CPO){
                     ReceiveDetail receiveDetail = new ReceiveDetail();
@@ -347,7 +346,7 @@ public class WuMartSap implements IWuMartSap{
 
         }
 
-        return JsonUtils.SUCCESS();
+        return "S";
     }
 
     public String obd2SapAccount(CreateObdHeader createObdHeader) {
@@ -402,7 +401,13 @@ public class WuMartSap implements IWuMartSap{
                 + " prot : " + JSON.toJSONString(prot)
                 + " pZEXPORT: " + JSON.toJSONString(pZEXPORT)
                 + " pZIMPORT : " + JSON.toJSONString(pZIMPORT));
-        return JSON.toJSONString(newReturn.getItem());
+        for(com.lsh.wms.integration.wumart.obdaccount.BAPIRET2 bapiret2 : newReturn.getItem()){
+            if(bapiret2.getTYPE().equals("E")){
+                return "E";
+            }
+        }
+
+        return "S";
     }
 
     public String ibd2SapBack(String accountId,String accountDetailId) {
