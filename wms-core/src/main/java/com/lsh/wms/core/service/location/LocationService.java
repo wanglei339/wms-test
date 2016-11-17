@@ -776,6 +776,7 @@ public class LocationService {
             //存货位,为空没上锁
             if (temp.getType().equals(type) && this.shelfBinLocationIsEmptyAndUnlock(temp)) {
                 // 考虑库存,无库存的货架位才能放入商品
+                // todo 可以用location的curContainer字段
                 List<StockQuant> quants = stockQuantService.getQuantsByLocationId(temp.getLocationId());
                 if (quants.size() < 1) {
                     //放入location和距离
