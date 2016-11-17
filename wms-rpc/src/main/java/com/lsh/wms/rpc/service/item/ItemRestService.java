@@ -122,11 +122,16 @@ public class ItemRestService implements IItemRestService {
         mapQuery.put("skuCode",item.getSkuCode());
         mapQuery.put("ownerId",item.getOwnerId());
         mapQuery.put("status",1);
-        List<BaseinfoItem> items = itemService.searchItem(mapQuery);
-        if(items.size() > 0){
-           return JsonUtils.SUCCESS();
+        if(!(item.getCode()!=null && (item.equals("")))) {
+
+            List<BaseinfoItem> items = itemService.searchItem(mapQuery);
+            if (items.size() > 0) {
+                return JsonUtils.SUCCESS();
+            }
+            itemRpcService.insertItem(item);
+        }else {
+            itemRpcService.insertItem(item);
         }
-        itemRpcService.insertItem(item);
 
         return JsonUtils.SUCCESS();
     }

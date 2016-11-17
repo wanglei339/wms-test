@@ -6,6 +6,7 @@ import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.task.TaskHandler;
 import com.lsh.wms.core.service.utils.IdGenerator;
+import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,9 @@ public class AbsTaskHandler implements TaskHandler {
     }
     public void batchAssign(List<Long> tasks,Long staffId) throws BizCheckedException {
         baseTaskService.batchAssign(tasks, staffId, this);
+    }
+    public void batchCreate(StockTakingHead head,List<TaskEntry> taskEntries) throws BizCheckedException {
+        baseTaskService.batchCreate(head,taskEntries, this);
     }
     public void batchCancel(List<Long> tasks) throws BizCheckedException {
         baseTaskService.batchCancel(tasks, this);

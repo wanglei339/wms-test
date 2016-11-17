@@ -4,9 +4,11 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.q.Module.Base;
+import com.lsh.wms.api.model.location.LocationDetailRequest;
 import com.lsh.wms.core.constant.CustomerConstant;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.StoreConstant;
+import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.stock.StockQuantService;
@@ -71,30 +73,6 @@ public class LocationService {
         return locations;
     }
 
-    public BaseinfoLocation getLocation2(Long locationId) throws BizCheckedException {
-        logger.error("getLocation2 started!");
-        if (null == locationId) {
-            throw new BizCheckedException("2180001");
-        }
-        logger.error("begin fuck you 2 ");
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("locationId", locationId);
-        params.put("isValid", LocationConstant.IS_VALID);
-        //params.put("type", 17L);
-        logger.error("you say what2");
-        List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
-        logger.error("say again fuck2");
-        //redis中没有,放入redis
-        if (locations != null && locations.size() > 0) {
-//            //将没读入redis的写入redis(直接调用接口写入redis)
-//            locationRedisService.insertLocationRedis(locations.get(0));
-            logger.error("getLocaton eneded2");
-            return locations.get(0);
-        } else {
-            return null;
-        }
-    }
-
     /**
      * 根据locationId获取location
      *
@@ -106,7 +84,6 @@ public class LocationService {
         if (null == locationId) {
             throw new BizCheckedException("2180001");
         }
-        logger.error("begin fuck you ");
         //先从redis中取数据,没有去数据库中取
 //        Map<String, String> locationMap = locationRedisService.getRedisLocation(locationId);
 //        if (locationMap != null && !locationMap.isEmpty()) {
@@ -141,14 +118,11 @@ public class LocationService {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("locationId", locationId);
         params.put("isValid", LocationConstant.IS_VALID);
-        logger.error("you say what");
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
-        logger.error("say again fuck");
         //redis中没有,放入redis
         if (locations != null && locations.size() > 0) {
-//            //将没读入redis的写入redis(直接调用接口写入redis)
-//            locationRedisService.insertLocationRedis(locations.get(0));
-            logger.error("getLocaton eneded");
+            //将没读入redis的写入redis(直接调用接口写入redis)
+            locationRedisService.insertLocationRedis(locations.get(0));
             return locations.get(0);
         } else {
             return null;
@@ -776,6 +750,7 @@ public class LocationService {
             //存货位,为空没上锁
             if (temp.getType().equals(type) && this.shelfBinLocationIsEmptyAndUnlock(temp)) {
                 // 考虑库存,无库存的货架位才能放入商品
+                // todo 可以用location的curContainer字段
                 List<StockQuant> quants = stockQuantService.getQuantsByLocationId(temp.getLocationId());
                 if (quants.size() < 1) {
                     //放入location和距离
@@ -1129,16 +1104,12 @@ public class LocationService {
      */
     @Transactional(readOnly = false)
     public BaseinfoLocation unlockLocation(Long locationId) {
-        logger.error("begin fuck you unlockLocatoin");
-        BaseinfoLocation location = this.getLocation2(locationId);
-        logger.error("this fucked really hard");
+        BaseinfoLocation location = this.getLocation(locationId);
         if (location == null) {
             throw new BizCheckedException("2180001");
         }
         location.setIsLocked(0);    //解锁
-        logger.error("begin fuck you update location");
         this.updateLocation(location);
-        logger.error("unlock location finished");
         return location;
     }
 
@@ -1270,7 +1241,6 @@ public class LocationService {
             location.setCanUse(1);
         }
         this.updateLocation(location);
-        logger.warn("fuck commit");
         return location;
     }
 
@@ -1458,5 +1428,119 @@ public class LocationService {
         mapQuery.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocation> locations = locationDao.getRangeLocationList(mapQuery);
         return locations;
+    }
+
+    /**
+     * 初始化构建整棵location树结构
+     */
+    @Transactional(readOnly = false)
+    public void initLocationTree(Map<String, Object> config, Long fatherId) {
+        LocationDetailRequest detailRequest = new LocationDetailRequest();
+        BaseinfoLocation father = this.getLocation(fatherId);
+        List<Map<String, Object>> levels = new ArrayList<Map<String, Object>>();
+        Long regionNo = 0L;
+        Long passageNo = 0L;
+        Long shelfLevelNo = 0L;
+        Long binPositionNo = 0L;
+        if (config.get("levels") != null) {
+            levels = (List<Map<String,Object>>)config.get("levels");
+        } else {
+            levels.add(config);
+        }
+        for (Map<String, Object> conf: levels) {
+            Integer counts = 1;
+            BaseinfoLocation location = new BaseinfoLocation();
+            if (conf.get("counts") != null) {
+                counts = Integer.valueOf(conf.get("counts").toString());
+            }
+            for (Integer i = 1; i <= counts; i++) {
+                Long type = Long.valueOf(conf.get("type").toString());
+                String typeName = "";
+                detailRequest.setType(type);
+                detailRequest.setLocationCode(conf.get("locationCode").toString());
+                if (father != null) {
+                    String code = "";
+                    if (father.getType().equals(LocationConstant.WAREHOUSE) || father.getType().equals(LocationConstant.REGION_AREA)) {
+                        code = String.format(conf.get("locationCode").toString(), i);
+                    } else {
+                        code = father.getLocationCode() + String.format(conf.get("locationCode").toString(), i);
+                    }
+                    detailRequest.setLocationCode(code);
+                }
+                detailRequest.setFatherId(fatherId);
+                Integer classification = 3;
+                if (type.equals(LocationConstant.REGION_AREA)) {
+                    classification = LocationConstant.CLASSIFICATION_AREAS;
+                }
+                if (LocationConstant.LOCATION_TYPE_NAME.get(type) != null) {
+                    typeName = LocationConstant.LOCATION_TYPE_NAME.get(type);
+                }
+                Integer canStore = 1;
+                if (conf.get("canStore") != null) {
+                    canStore = Integer.valueOf(conf.get("canStore").toString());
+                }
+                detailRequest.setTypeName(typeName);
+                detailRequest.setIsLeaf(0);
+                detailRequest.setIsValid(1);
+                detailRequest.setCanStore(canStore);
+                if (conf.get("regionNo") != null) {
+                    regionNo = Long.valueOf(conf.get("regionNo").toString());
+                }
+                conf.put("regionNo", regionNo);
+                if (conf.get("passageNo") != null) {
+                    passageNo = Long.valueOf(conf.get("passageNo").toString());
+                    if (conf.get("isPassage") != null && Boolean.parseBoolean(conf.get("isPassage").toString())) {
+                        passageNo++;
+                    }
+                }
+                conf.put("passageNo", passageNo);
+                if (conf.get("shelfLevelNo") != null) {
+                    shelfLevelNo = Long.valueOf(conf.get("shelfLevelNo").toString());
+                    if (conf.get("isLevel") != conf.get("isLevel") && Boolean.parseBoolean(conf.get("isLevel").toString())) {
+                        shelfLevelNo++;
+                    }
+                }
+                conf.put("shelfLevelNo", shelfLevelNo);
+                if (conf.get("binPositionNo") != null) {
+                    binPositionNo = Long.valueOf(conf.get("binPositionNo").toString());
+                    if (conf.get("isBin") != null && Boolean.parseBoolean(conf.get("isBin").toString())) {
+                        binPositionNo++;
+                    }
+                }
+                conf.put("binPositionNo", binPositionNo);
+                detailRequest.setContainerVol(Long.valueOf(conf.get("containerVol").toString()));
+                detailRequest.setRegionNo(Long.valueOf(conf.get("regionNo").toString()));
+                detailRequest.setPassageNo(Long.valueOf(conf.get("passageNo").toString()));
+                detailRequest.setShelfLevelNo(Long.valueOf(conf.get("shelfLevelNo").toString()));
+                detailRequest.setBinPositionNo(Long.valueOf(conf.get("binPositionNo").toString()));
+                detailRequest.setDescription("");
+                detailRequest.setClassification(LocationConstant.CLASSIFICATION_OTHERS);
+                detailRequest.setCanUse(1);
+                detailRequest.setIsLocked(0);
+                detailRequest.setCurContainerVol(0L);
+                detailRequest.setStoreNo("");
+                detailRequest.setSupplierNo("");
+                location = locationDetailService.insert(detailRequest);
+                if (conf.get("children") != null) {
+                    List<Map<String, Object>> children = (List<Map<String, Object>>) conf.get("children");
+                    for (Map<String, Object> child : children) {
+                        if (child.get("regionNo") == null) {
+                            child.put("regionNo", location.getRegionNo());
+                        }
+                        if (child.get("passageNo") == null) {
+                            child.put("passageNo", location.getPassageNo());
+                        }
+                        if (child.get("shelfLevelNo") == null) {
+                            child.put("shelfLevelNo", location.getShelfLevelNo());
+                        }
+                        if (child.get("binPositionNo") == null) {
+                            child.put("binPositionNo", location.getBinPositionNo());
+                        }
+                        this.initLocationTree(child, location.getLocationId());
+                    }
+                }
+            }
+            father = location;
+        }
     }
 }

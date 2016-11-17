@@ -1,6 +1,8 @@
 package com.lsh.wms.api.service.task;
 
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.wms.model.seed.SeedingTaskHead;
+import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 
@@ -13,6 +15,7 @@ import java.util.Map;
 public interface ITaskRpcService {
     Long create(Long taskType, TaskEntry taskEntry) throws BizCheckedException;
     List<Long> batchCreate(Long taskType, List<TaskEntry> taskEntries) throws BizCheckedException;
+    List<Long> batchCreate(StockTakingHead head, List<TaskEntry> taskEntries) throws BizCheckedException;
     Long getTaskTypeById(Long taskId) throws BizCheckedException;
     TaskEntry getTaskEntryById(Long taskId) throws BizCheckedException;
     void assign(Long taskId, Long staffId) throws BizCheckedException;

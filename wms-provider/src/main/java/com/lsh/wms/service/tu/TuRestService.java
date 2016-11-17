@@ -134,7 +134,7 @@ public class TuRestService implements ITuRestService {
                 Map<String, Boolean> resultMap = new HashMap<String, Boolean>();
                 resultMap.put("response", postResult);
                 return JsonUtils.SUCCESS(resultMap);
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 throw new BizCheckedException("2990042");
             }
@@ -144,138 +144,31 @@ public class TuRestService implements ITuRestService {
         if (null == details || details.size() < 1) {
             throw new BizCheckedException("2990041");
         }
-
-        //物美obd数据格式
-        Map<String, Object> ibdObdMap = new HashMap<String, Object>();
-
-        //大小店
-        if (TuConstant.SCALE_STORE.equals(tuHead.getScale())) {  //小店 合板
-            //待销库存的totalDetails
-            Set<Long> totalContainers = new HashSet<Long>();
-            for (TuDetail detail : details) {
-                String idKey = "task_" + TaskConstant.TYPE_DIRECT_SHIP.toString();
-                Long shipTaskId = idGenerator.genId(idKey, true, true);
-                TaskEntry taskEntry = new TaskEntry();
-                TaskInfo shipTaskInfo = new TaskInfo();
-                shipTaskInfo.setTaskId(shipTaskId);
-                shipTaskInfo.setType(TaskConstant.TYPE_DIRECT_SHIP);
-                shipTaskInfo.setTaskName("小店直流发货任务[" + detail.getMergedContainerId() + "]");
-                shipTaskInfo.setContainerId(detail.getMergedContainerId()); //小店没和板子,就是原来了物理托盘码
-                shipTaskInfo.setOperator(tuHead.getLoadUid()); //一个人装车
-                shipTaskInfo.setBusinessMode(TaskConstant.MODE_DIRECT);
-                shipTaskInfo.setSubType(TaskConstant.TASK_DIRECT_SMALL_SHIP);
-                taskEntry.setTaskInfo(shipTaskInfo);
-                iTaskRpcService.create(TaskConstant.TYPE_DIRECT_SHIP, taskEntry);
-                // 直接完成
-                iTaskRpcService.done(shipTaskId);
-                totalContainers.add(detail.getMergedContainerId());
+        //生成发货单 osd的托盘生命结束并销库存
+        tuService.createObdAndMoveStockQuantV2(tuHead, details);
+        //TODO 后面一旦失败,用户的绩效就记不住了,这里是非常不严谨的
+        for (TuDetail detail : details) {
+            //贵品不记录绩效
+            if (detail.getIsExpensive().equals(TuConstant.IS_EXPENSIVE)) {
+                continue;   //贵品不记录绩效
             }
+            String idKey = "task_" + TaskConstant.TYPE_DIRECT_SHIP.toString();
+            Long shipTaskId = idGenerator.genId(idKey, true, true);
+            TaskEntry taskEntry = new TaskEntry();
+            TaskInfo shipTaskInfo = new TaskInfo();
+            shipTaskInfo.setTaskId(shipTaskId);
+            shipTaskInfo.setType(TaskConstant.TYPE_DIRECT_SHIP);
+            shipTaskInfo.setTaskName("门店发货任务[" + detail.getMergedContainerId() + "]");
+            shipTaskInfo.setContainerId(detail.getMergedContainerId()); //小店没和板子,就是原来了物理托盘码
+            shipTaskInfo.setOperator(tuHead.getLoadUid()); //一个人装车
+            shipTaskInfo.setBusinessMode(TaskConstant.MODE_DIRECT);
+            shipTaskInfo.setSubType(TuConstant.SCALE_STORE.equals(tuHead.getScale()) ? TaskConstant.TASK_DIRECT_SMALL_SHIP : TaskConstant.TASK_DIRECT_LARGE_SHIP);
+            taskEntry.setTaskInfo(shipTaskInfo);
+            iTaskRpcService.create(TaskConstant.TYPE_DIRECT_SHIP, taskEntry);
+            // 直接完成
+            iTaskRpcService.done(shipTaskId);
 
-            //获取集货道,和集货位
-            Set<Long> locationIds = new HashSet<Long>();
-            for (Long containerId : totalContainers) {
-                List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(containerId);
-                if (null == stockQuants || stockQuants.size() < 1) {
-                    throw new BizCheckedException("2990043");
-                }
-                for (StockQuant stockQuant : stockQuants) {
-                    locationIds.add(stockQuant.getLocationId());
-                }
-            }
-
-            //拼接物美sap
-            ibdObdMap = iTuRpcService.bulidSapDate(tuHead.getTuId());
-            //生成发货单 osd的托盘生命结束并销库存
-            Map<String, Object> map = new HashMap<String, Object>();
-            map.put("containerIds", totalContainers);
-            map.put("tuHead", tuHead);
-            tuService.createObdAndMoveStockQuant(wuMart, map, ibdObdMap);
-
-            //释放集货道
-            //查库存,释放集货道
-            for (Long locationId : locationIds) {
-                StockQuantCondition condition = new StockQuantCondition();
-                condition.setLocationId(locationId);
-                java.math.BigDecimal qty = stockQuantRpcService.getQty(condition);
-                if (0 == qty.compareTo(BigDecimal.ZERO)) {
-                    //释放集货导
-                    locationService.unlockLocation(locationId);
-                    locationService.setLocationUnOccupied(locationId);
-                }
-            }
-        } else {
-            //待销库存的totalDetails
-            List<WaveDetail> totalDetails = new ArrayList<WaveDetail>();
-            for (TuDetail detail : details) {
-                //贵品不记录绩效
-                if (detail.getIsExpensive().equals(TuConstant.IS_EXPENSIVE)) {
-                    continue;   //贵品不记录绩效
-                }
-                String idKey = "task_" + TaskConstant.TYPE_DIRECT_SHIP.toString();
-                Long shipTaskId = idGenerator.genId(idKey, true, true);
-                TaskEntry taskEntry = new TaskEntry();
-                TaskInfo shipTaskInfo = new TaskInfo();
-                shipTaskInfo.setTaskId(shipTaskId);
-                shipTaskInfo.setType(TaskConstant.TYPE_DIRECT_SHIP);
-                shipTaskInfo.setTaskName("大店直流发货任务[" + detail.getMergedContainerId() + "]");
-                shipTaskInfo.setContainerId(detail.getMergedContainerId());
-                shipTaskInfo.setOperator(tuHead.getLoadUid()); //一个人装车
-                shipTaskInfo.setBusinessMode(TaskConstant.MODE_DIRECT);
-                shipTaskInfo.setSubType(TaskConstant.TASK_DIRECT_LARGE_SHIP);
-                taskEntry.setTaskInfo(shipTaskInfo);
-                iTaskRpcService.create(TaskConstant.TYPE_DIRECT_SHIP, taskEntry);
-                // 直接完成
-                iTaskRpcService.done(shipTaskId);
-                List<WaveDetail> waveDetails = waveService.getWaveDetailsByMergedContainerId(detail.getMergedContainerId());
-                if (null == waveDetails || waveDetails.size() < 1) {
-                    waveDetails = waveService.getAliveDetailsByContainerId(detail.getMergedContainerId());
-                }
-                if(waveDetails != null) {
-                    totalDetails.addAll(waveDetails);
-                }
-            }
-            //库存托盘
-            Set<Long> containerIds = new HashSet<Long>();
-            for (WaveDetail detail : totalDetails) {
-                containerIds.add(detail.getContainerId());
-            }
-
-            //获取集货道,和集货位
-            Set<Long> locationIds = new HashSet<Long>();
-            for (Long containerId : containerIds) {
-                List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(containerId);
-                if (null == stockQuants || stockQuants.size() < 1) {
-                    throw new BizCheckedException("2990043");
-                }
-                for (StockQuant stockQuant : stockQuants) {
-                    locationIds.add(stockQuant.getLocationId());
-                }
-            }
-
-            //拼接物美SAP
-            ibdObdMap = iTuRpcService.bulidSapDate(tuHead.getTuId());
-
-            //生成发货单 osd的托盘生命结束并销库存
-            Map<String, Object> map = new HashMap<String, Object>();
-            map.put("containerIds", containerIds);
-            map.put("tuHead", tuHead);
-            tuService.createObdAndMoveStockQuant(wuMart, map, ibdObdMap);
-
-
-            //释放集货道
-            //查库存,释放集货道
-            for (Long locationId : locationIds) {
-                StockQuantCondition condition = new StockQuantCondition();
-                condition.setLocationId(locationId);
-                java.math.BigDecimal qty = stockQuantRpcService.getQty(condition);
-                if (0 == qty.compareTo(BigDecimal.ZERO)) {
-                    //释放集货导
-                    locationService.unlockLocation(locationId);
-                    locationService.setLocationUnOccupied(locationId);
-                }
-            }
         }
-
         try {
             // 传给TMS运单发车信息,此过程可以重复调用
             Boolean postResult = iTmsTuRpcService.postTuDetails(tuId);
@@ -286,7 +179,7 @@ public class TuRestService implements ITuRestService {
             } else {
                 throw new BizCheckedException("2990042");
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new BizCheckedException("2990042");
         }
 
