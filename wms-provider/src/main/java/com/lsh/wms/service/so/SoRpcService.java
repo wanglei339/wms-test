@@ -17,6 +17,7 @@ import com.lsh.wms.core.service.csi.CsiOwnerService;
 import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.so.SoOrderService;
+import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.csi.CsiOwner;
 import com.lsh.wms.model.so.ObdDetail;
@@ -59,6 +60,8 @@ public class SoRpcService implements ISoRpcService {
 
     @Reference
     private ITaskRpcService iTaskRpcService;
+    @Autowired
+    protected IdGenerator idGenerator;
 
     public Long insertOrder(SoRequest request) throws BizCheckedException {
         //OutbSoHeader
@@ -72,7 +75,8 @@ public class SoRpcService implements ISoRpcService {
         obdHeader.setCreatedAt(DateUtils.getCurrentSeconds());
 
         //设置orderId
-        Long orderId = RandomUtils.genId();
+        String idKey = "obd_id";
+        Long orderId = idGenerator.genId(idKey, true, true);
         obdHeader.setOrderId(orderId);
 
         //初始化List<OutbSoDetail>

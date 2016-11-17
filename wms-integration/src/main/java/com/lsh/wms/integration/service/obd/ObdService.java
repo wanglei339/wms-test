@@ -124,7 +124,6 @@ public class ObdService implements IObdService{
         soRequest.setWaveOrderType(waveOrderType);
 
         //soRequest.setWarehouseId(1l);
-        logger.info("---------"+ JsonUtils.SUCCESS(soRequest));
         Long orderId = soRpcService.insertOrder(soRequest);
         ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
         List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
