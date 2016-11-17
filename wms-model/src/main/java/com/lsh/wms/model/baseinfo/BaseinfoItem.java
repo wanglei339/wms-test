@@ -95,9 +95,8 @@ public class BaseinfoItem implements Serializable {
 	private Integer isValuable = 0;
 	/**商品类型*/
 	private Integer itemType = 0;
-
-
-
+	/**商品信息是否完整 0不完整 1完整*/
+	private Integer isInfoIntact = 0;
 
 
 	public Long getId(){
@@ -451,5 +450,13 @@ public class BaseinfoItem implements Serializable {
 
 	public void setItemType(Integer itemType) {
 		this.itemType = itemType;
+	}
+
+	public Integer getIsInfoIntact() {
+		return isInfoIntact;
+	}
+
+	public void setIsInfoIntact(Integer isInfoIntact) {
+		this.isInfoIntact = isInfoIntact;
 	}
 }
