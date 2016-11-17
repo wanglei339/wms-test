@@ -63,4 +63,6 @@ public interface ICsiRestService {
 
     public String getCustomerByCustomerId(Long customerId)throws BizCheckedException;
 
+    String insertCustomer(CsiCustomer csiCustomer) throws BizCheckedException;
+
 }
