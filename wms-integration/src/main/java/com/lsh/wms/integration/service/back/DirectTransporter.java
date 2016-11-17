@@ -116,7 +116,7 @@ public class DirectTransporter implements ITransporter{
         ibdObdMap.put("createObdHeader", createObdHeader);
         //ibdObdMap.put("createStoObdHeader", createStoObdHeader);
 
-        wuMart.sendSap(ibdObdMap);
+        wuMart.sendSap(ibdObdMap,sysLog);
 
 
     }

@@ -14,21 +14,23 @@ public class BaseinfoStaffInfo implements Serializable {
 	/** 姓名 */
     private String name;
 	/** 1-男 2-女 */
-    private String sex;
+    private Integer sex;
 	/** 手机号码 */
     private String cellphone;
 	/** 联系电话 */
     private String contactPhone;
 	/** 联系地址 */
     private String contactAddress;
-	/** 组别id */
-    private Long groupId;
-	/** 职级id */
-    private Long levelId;
 	/** 入职时间 */
     private Long entryTime;
+	/** 部门 */
+    private String departmentName;
+	/** 职级 */
+    private String levelName;
+	/** 组别 */
+    private String groupName;
 	/** 1-在职 2-离职 */
-    private String status;
+    private Integer status;
 	/** 1-正常 2-删除 */
     private Integer recordStatus;
 	/**  */
@@ -68,11 +70,11 @@ public class BaseinfoStaffInfo implements Serializable {
 		this.name = name;
 	}
 	
-	public String getSex(){
+	public Integer getSex(){
 		return this.sex;
 	}
 	
-	public void setSex(String sex){
+	public void setSex(Integer sex){
 		this.sex = sex;
 	}
 	
@@ -100,22 +102,6 @@ public class BaseinfoStaffInfo implements Serializable {
 		this.contactAddress = contactAddress;
 	}
 	
-	public Long getGroupId(){
-		return this.groupId;
-	}
-	
-	public void setGroupId(Long groupId){
-		this.groupId = groupId;
-	}
-	
-	public Long getLevelId(){
-		return this.levelId;
-	}
-	
-	public void setLevelId(Long levelId){
-		this.levelId = levelId;
-	}
-	
 	public Long getEntryTime(){
 		return this.entryTime;
 	}
@@ -124,11 +110,35 @@ public class BaseinfoStaffInfo implements Serializable {
 		this.entryTime = entryTime;
 	}
 	
-	public String getStatus(){
+	public String getDepartmentName(){
+		return this.departmentName;
+	}
+	
+	public void setDepartmentName(String departmentName){
+		this.departmentName = departmentName;
+	}
+	
+	public String getLevelName(){
+		return this.levelName;
+	}
+	
+	public void setLevelName(String levelName){
+		this.levelName = levelName;
+	}
+	
+	public String getGroupName(){
+		return this.groupName;
+	}
+	
+	public void setGroupName(String groupName){
+		this.groupName = groupName;
+	}
+	
+	public Integer getStatus(){
 		return this.status;
 	}
 	
-	public void setStatus(String status){
+	public void setStatus(Integer status){
 		this.status = status;
 	}
 	

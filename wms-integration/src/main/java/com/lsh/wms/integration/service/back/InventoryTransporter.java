@@ -63,13 +63,13 @@ public class InventoryTransporter implements ITransporter{
         if( itemsLoss != null || itemsLoss.size() >0 ){
             request.setMoveType(String.valueOf(IntegrationConstan.LOSS));
             request.setItems(itemsLoss);
-            dataBackService.wmDataBackByPost(JSON.toJSONString(request),IntegrationConstan.URL_STOCKCHANGE, SysLogConstant.LOG_TYPE_LOSS_WIN);
+            dataBackService.wmDataBackByPost(JSON.toJSONString(request),IntegrationConstan.URL_STOCKCHANGE, SysLogConstant.LOG_TYPE_LOSS_WIN,sysLog);
         }
 
         if(itemsWin != null || itemsWin.size() > 0 ){
             request.setMoveType(String.valueOf(IntegrationConstan.WIN));
             request.setItems(itemsWin);
-            dataBackService.wmDataBackByPost(JSON.toJSONString(request),IntegrationConstan.URL_STOCKCHANGE,SysLogConstant.LOG_TYPE_LOSS_WIN);
+            dataBackService.wmDataBackByPost(JSON.toJSONString(request),IntegrationConstan.URL_STOCKCHANGE,SysLogConstant.LOG_TYPE_LOSS_WIN,sysLog);
         }
     }
 }
