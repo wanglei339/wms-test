@@ -27,7 +27,7 @@ public class SysLog implements Serializable {
 	/** 系统异常码 */
 	private String sysCode;
 	/** 系统异常信息*/
-	private String SYSMessage;
+	private String SysMessage;
 	/** 异常码 */
     private String logCode;
 	/** 异常信息 */
@@ -125,12 +125,12 @@ public class SysLog implements Serializable {
 		this.sysCode = sysCode;
 	}
 
-	public String getSYSMessage() {
-		return SYSMessage;
+	public String getSysMessage() {
+		return SysMessage;
 	}
 
-	public void setSYSMessage(String SYSMessage) {
-		this.SYSMessage = SYSMessage;
+	public void setSysMessage(String SYSMessage) {
+		this.SysMessage = SYSMessage;
 	}
 
 	public Long getUpdatedAt() {

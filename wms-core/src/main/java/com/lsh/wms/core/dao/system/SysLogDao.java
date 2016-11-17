@@ -15,8 +15,13 @@ public interface SysLogDao {
 	
 	SysLog getSysLogById(Long id);
 
+
     Integer countSysLog(Map<String, Object> params);
 
     List<SysLog> getSysLogList(Map<String, Object> params);
+
+	List<SysLog> getTodoList(Map<String, Object> params);
+
+	void lockSysLogList(List<Long> sysLogIdList);
 	
 }
