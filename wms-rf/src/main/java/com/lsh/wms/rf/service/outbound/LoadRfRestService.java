@@ -101,7 +101,7 @@ public class LoadRfRestService implements ILoadRfRestService {
             //待装车的
             Map<String, Object> mapQuery = new HashMap<String, Object>();
             mapQuery.put("status", TuConstant.UNLOAD);
-            mapQuery.put("type",1L);
+            mapQuery.put("type", 1L);
             mapQuery.put("orderBy", "createdAt");    //按照createAt排序
             mapQuery.put("orderType", "asc");    //按照createAt排序
             tuHeads = iTuRpcService.getTuHeadList(mapQuery);   //时间的降序
@@ -129,7 +129,7 @@ public class LoadRfRestService implements ILoadRfRestService {
             Map<String, Object> mapQuery = new HashMap<String, Object>();
             mapQuery.put("status", TuConstant.LOAD_OVER);
             mapQuery.put("loadUid", loadUid);   //该人的装车记录
-            mapQuery.put("type",1L);
+            mapQuery.put("type", 1L);
             mapQuery.put("orderBy", "loadedAt");    //按照createAt排序
             mapQuery.put("orderType", "asc");    //按照loadedAt排序
             tuHeads = iTuRpcService.getTuHeadList(mapQuery);
@@ -228,7 +228,7 @@ public class LoadRfRestService implements ILoadRfRestService {
                     }
                     BigDecimal taskBoardQty = mergeInfos.get(0).getTaskBoardQty();
                     Long boardNum = taskBoardQty.longValue();
-                    boardMap.put("taskBoardQty",boardNum);
+                    boardMap.put("taskBoardQty", boardNum);
                     //markContainerId是物理的通过它来看尾货的托盘
                     storeRestList.add(storesRestMap.get(key));
                 }
@@ -349,7 +349,7 @@ public class LoadRfRestService implements ILoadRfRestService {
         tuDetail.setBoxNum(boxNum);
         tuDetail.setContainerNum(containerNum);
         tuDetail.setTurnoverBoxNum(turnoverBoxNum);
-        tuDetail.setBoardNum(boardNum); //一板多托数量
+        tuDetail.setBoardNum(boardNum); //一板多托数量 todo 贵品不算板数
         tuDetail.setStoreId(storeId);
         tuDetail.setLoadAt(DateUtils.getCurrentSeconds());
         tuDetail.setIsValid(1);
@@ -419,7 +419,11 @@ public class LoadRfRestService implements ILoadRfRestService {
         if (null == tuDetails || tuDetails.size() < 1) {    //什么也没装
             throw new BizCheckedException("2990033");
         }
-        Long realBoardNum = Long.valueOf(String.valueOf(tuDetails.size()));
+        //实际装车板数
+        Long realBoardNum = 0L;
+        for (TuDetail tuDetail : tuDetails) {
+            realBoardNum += tuDetail.getBoardNum();
+        }
         tuHead.setRealBoard(realBoardNum);
         iTuRpcService.update(tuHead);
 
