@@ -100,6 +100,13 @@ public class StockTakingService {
         return detailDao.getStockTakingDetailList(queryMap);
 
     }
+    public List<StockTakingDetail> getDetailByTakingId(Long takingId){
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("takingId", takingId);
+        return detailDao.getStockTakingDetailList(queryMap);
+    }
+
+
     public Integer countHead(Map queryMap) {
         return headDao.countStockTakingHead(queryMap);
 
