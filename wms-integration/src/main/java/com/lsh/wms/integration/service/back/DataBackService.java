@@ -3,6 +3,8 @@ package com.lsh.wms.integration.service.back;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
+import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.base.q.Utilities.Json.JSONObject;
 import com.lsh.wms.api.model.po.IbdBackRequest;
 import com.lsh.wms.api.model.po.IbdItem;
 import com.lsh.wms.api.model.wumart.CreateIbdDetail;
@@ -143,8 +145,13 @@ public class DataBackService implements IDataBackService {
 
     }
 
-    public Boolean erpDataBack(CreateIbdHeader createIbdHeader){
+    public Boolean erpDataBack(String json){
         try {
+            //入口将字符串转为对象 CreateIbdHeader
+            JSONObject obj = new JSONObject(json);
+            CreateIbdHeader createIbdHeader = new CreateIbdHeader();
+            ObjUtils.bean2bean(obj,createIbdHeader);
+
             final XmlRpcClient models = new XmlRpcClient() {{
                 setConfig(new XmlRpcClientConfigImpl() {{
                     setServerURL(new URL(String.format("%s/xmlrpc/2/object", url)));
@@ -152,10 +159,14 @@ public class DataBackService implements IDataBackService {
             }};
             //原订单ID
             Integer orderOtherId = Integer.valueOf(createIbdHeader.getItems().get(0).getPoNumber());
+
+
+            Long receiveId = Long.valueOf(createIbdHeader.getItems().get(0).getVendMat());
+
             List<HashMap<String,Object>> list = new ArrayList<HashMap<String, Object>>();
             for(CreateIbdDetail item : createIbdHeader.getItems()){
                 HashMap<String,Object> map = new HashMap<String, Object>();
-                map.put("product_id",Integer.valueOf(item.getMaterial()));
+                map.put("product_code",item.getMaterial());
                 map.put("qty_done",item.getDeliveQty().intValue());
                 list.add(map);
 
@@ -164,13 +175,32 @@ public class DataBackService implements IDataBackService {
             final Boolean ret1  = (Boolean)models.execute("execute_kw", Arrays.asList(
                     db, uid, password,
                     "purchase.order", "lsh_action_wms_receive",
-                    Arrays.asList(Arrays.asList(orderOtherId),list)
+                    Arrays.asList(Arrays.asList(orderOtherId),list,Arrays.asList(receiveId))
 
             ));
             //// TODO: 16/9/19 传入的参数
             logger.info("~~~~~~~~ret1 :" + ret1 + "~~~~~~~~~~~~~");
+            //存入sys_log
+            SysLog sysLog = new SysLog();
+            String message = "";
+            if(ret1 ){
+                message = "success";
+            }else{
+                message = "failed";
+            }
+            sysLog.setLogMessage(message);
+            sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_ERP);
+            sysLog.setLogType(SysLogConstant.LOG_TYPE_ERP_IBD);
+            sysLog.setLogCode("0");
+            Long sysId = sysLogService.insertSysLog(sysLog);
 
-
+            //将返回结果存入缓存,发生错误可以重新下传。
+            SysMsg sysMsg = new SysMsg();
+            sysMsg.setTargetSystem(SysLogConstant.LOG_TARGET_ERP);
+            sysMsg.setId(sysId);
+            sysMsg.setType(SysLogConstant.LOG_TYPE_ERP_IBD);
+            sysMsg.setMsgBody(JSON.toJSONString(createIbdHeader));
+            sysMsgService.sendMessage(sysMsg);
         }
         catch (Exception e) {
             logger.info(e.getCause().getMessage());
@@ -198,6 +228,9 @@ public class DataBackService implements IDataBackService {
 
 
         return JSON.toJSONString(request);
+    }
+
+    public static void main(String[] args) {
     }
 
 
