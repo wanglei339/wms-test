@@ -117,7 +117,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         Map<String, Object> params = RequestUtils.getRequest();
         List<BaseinfoLocation> locations = locationDetailRpcService.getLocationDetailList(params);
         if (locations == null) {
-            throw new BizCheckedException("2180001");   // 位置不存在
+            locations = new ArrayList<BaseinfoLocation>();
         }
         return JsonUtils.SUCCESS(locations);
     }

@@ -121,4 +121,8 @@ public class BaseinfoLocationRegion extends BaseinfoLocation implements Serializ
 	public void setRegionStrategy(Integer regionStrategy) {
 		this.regionStrategy = regionStrategy;
 	}
+
+	public void setDefaultClassification() {
+		this.classification = 1;
+	}
 }

@@ -14,5 +14,5 @@ public interface IBaseinfoLocaltionModel {
     public Long getLocationId();
     public void setClassification(Integer classification);
     public Integer getClassification();
-
+    public void setDefaultClassification();
 }

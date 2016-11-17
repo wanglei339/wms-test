@@ -30,7 +30,7 @@ public class ItemTypeRestService implements IItemTypeRestService {
     private static Logger logger = LoggerFactory.getLogger(ItemTypeRestService.class);
     @Autowired
     private ItemTypeRpcService itemTypeRpcService;
-    @POST
+    @GET
     @Path("getBaseinfoItemTypeList")
     public String getBaseinfoItemTypeList() {
         Map<String, Object> mapQuery = new HashMap<String, Object>();

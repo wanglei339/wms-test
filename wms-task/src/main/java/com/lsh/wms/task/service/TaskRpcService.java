@@ -13,6 +13,8 @@ import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.core.service.task.TaskTriggerService;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.seed.SeedingTaskHead;
+import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.core.service.task.TaskHandler;
 import com.lsh.wms.model.task.TaskInfo;
@@ -85,6 +87,16 @@ public class TaskRpcService implements ITaskRpcService {
         }
         return idList;
     }
+    public List<Long> batchCreate(StockTakingHead head, List<TaskEntry> taskEntries) throws BizCheckedException{
+        TaskHandler handler = handlerFactory.getTaskHandler(TaskConstant.TYPE_STOCK_TAKING);
+        handler.batchCreate(head,taskEntries);
+        List<Long> idList = new LinkedList<Long>();
+        for(TaskEntry entry : taskEntries) {
+            idList.add(entry.getTaskInfo().getTaskId());
+        }
+        return idList;
+    }
+
     public void batchAssign(Long taskType,List<Long> tasks,Long staffId) throws BizCheckedException {
         TaskHandler handler = handlerFactory.getTaskHandler(taskType);
         handler.batchAssign(tasks, staffId);

@@ -109,4 +109,8 @@ public class BaseinfoLocationBin extends BaseinfoLocation implements Serializabl
 	public void setIsValid(Integer isValid) {
 		this.isValid = isValid;
 	}
+
+	public void setDefaultClassification() {
+		this.classification = 2;
+	}
 }

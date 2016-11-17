@@ -296,11 +296,13 @@ public class LocationDetailService {
 //    }
 
     @Transactional(readOnly = false)
-    public void insert(LocationDetailRequest request) {
+    public BaseinfoLocation insert(LocationDetailRequest request) {
         //根据type类型,将父类转为子类
         IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationDetailModelFactory.getLocationModel(Long.valueOf(request.getType().toString()));
         //转成子类
         ObjUtils.bean2bean(request, iBaseinfoLocaltionModel);
+        //设置classification
+        iBaseinfoLocaltionModel.setDefaultClassification();
         //转化成父类,插入
         BaseinfoLocation location = new BaseinfoLocation();
         ObjUtils.bean2bean(iBaseinfoLocaltionModel, location);
@@ -316,7 +318,7 @@ public class LocationDetailService {
         //将father的叶子节点变为0
         //如果插入的是仓库
         if (location.getFatherId() == -1L) {
-            return;
+            return baseinfoLocation;
         }
         //如果是货架个体,插入指定层的货架层
         // todo 如果单插入阁楼层的话,会出现插入两次主表的问题(货架和层一起插就不会),因为阁楼|货架层service注入了原来的locationService
@@ -356,6 +358,8 @@ public class LocationDetailService {
         BaseinfoLocation fatherLocation = locationService.getFatherLocation(location.getLocationId());
         fatherLocation.setIsLeaf(0);
         locationService.updateLocation(fatherLocation);
+
+        return baseinfoLocation;
     }
 
     /**
@@ -382,7 +386,7 @@ public class LocationDetailService {
             levelLocation.setType(type); //设置类型
             levelLocation.setShelfLevelNo(Long.parseLong(Integer.toString(i)));
             levelLocation.setTypeName(LocationConstant.LOCATION_TYPE_NAME.get(type));
-            levelLocation.setClassification(3);
+            levelLocation.setClassification(LocationConstant.CLASSIFICATION_OTHERS);    //其他分类
             locationService.insertLocation(levelLocation);
         }
     }
