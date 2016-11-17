@@ -287,6 +287,10 @@ public class BaseinfoLocation implements Serializable, IBaseinfoLocaltionModel {
         this.classification = classification;
     }
 
+    public void setDefaultClassification() {
+        this.classification = 3;
+    }
+
     public Integer getCanUse() {
         return this.canUse;
     }
