@@ -41,6 +41,8 @@ public class LocationRestService implements ILocationRestService {
     @Autowired
     private LocationService locationService;
     @Autowired
+    private LocationDetailRpcService locationDetailRpcService;
+    @Autowired
     private PickRpcService pickRpcService;
     @Autowired
     private WaveService waveService;
@@ -336,6 +338,7 @@ public class LocationRestService implements ILocationRestService {
         }
         return JsonUtils.SUCCESS(locations);
     }
+
     @GET
     @Path("getLocationType")
     //0:其他 1:货架  2:阁楼
@@ -354,6 +357,26 @@ public class LocationRestService implements ILocationRestService {
         Map<String,Object> locationMap = new HashMap<String, Object>();
         locationMap.put("locationType",locationType);
         return JsonUtils.SUCCESS(locationMap);
-     }
-
     }
+
+    /**
+     * 初始化构建整棵location树结构
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("initLocationTree")
+    public String initLocationTree() {
+        Map<String, Object> mapQuery = RequestUtils.getRequest(); // 参数,暂时先建立满树
+        // 判断表中是否为空,必须为空表时才能构建
+        Map<String, Object> params = new HashMap<String, Object>();
+        Integer count = locationService.countLocation(params);
+        if (count > 0) {
+            return JsonUtils.FAIL("123321", "库位表不为空,不能进行初始化构建");
+        }
+        //Map<String, Object> config = JsonUtils.json2Obj("{\"type\":1,\"containerVol\":999999999,\"locationCode\":\"DC40\",\"regionNo\":0,\"passageNo\":0,\"shelfLevelNo\":0,\"binPositionNo\":0,\"children\":[{\"type\":2,\"containerVol\":999999999,\"locationCode\":\"DC40\",\"regionNo\":2,\"children\":[{\"type\":7,\"containerVol\":999999999,\"locationCode\":\"A1\"},{\"type\":8,\"containerVol\":999999999,\"locationCode\":\"A2\"},{\"type\":9,\"containerVol\":999999999,\"locationCode\":\"A3\"},{\"type\":5,\"containerVol\":999999999,\"locationCode\":\"A4\",\"isPassage\":true,\"children\":[{\"levels\":[{\"type\":3,\"containerVol\":0,\"locationCode\":\"-P%d\",\"canStore\":0,\"counts\":2,\"children\":[{\"type\":13,\"containerVol\":0,\"locationCode\":\"-%03d\",\"canStore\":0,\"counts\":3}]}]}]},{\"type\":12,\"containerVol\":999999999,\"locationCode\":\"A5\"},{\"type\":12,\"containerVol\":999999999,\"locationCode\":\"A6\"},{\"type\":6,\"containerVol\":999999999,\"locationCode\":\"A7\"},{\"type\":32,\"containerVol\":999999999,\"locationCode\":\"A8\"}]}]}", Map.class);
+        Map<String, Object> config = JsonUtils.json2Obj(params.get("config").toString(), Map.class);
+        locationService.initLocationTree(config, -1L);
+        return JsonUtils.SUCCESS(config);
+    }
+}
