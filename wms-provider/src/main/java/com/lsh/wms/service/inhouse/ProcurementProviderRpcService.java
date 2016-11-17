@@ -606,26 +606,4 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         }
         return 0L;
     }
-    public BigDecimal getQty(){
-                StockQuant quant = quantService.getQuantById(1526l);
-        Long itemId = 130682969935503l;
-        Long locationId = 26630691244183l;
-        BigDecimal qty = quantService.getQuantQtyByLocationIdAndItemId(locationId, itemId);
-        //获取仓位体积
-        BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(locationId);
-        BigDecimal pickVolume = bin.getVolume();
-        BaseinfoItem item = itemService.getItem(itemId);
-        BigDecimal bulk = BigDecimal.ONE;
-
-
-        //计算包装单位的体积
-        bulk = bulk.multiply(item.getPackLength());
-        bulk = bulk.multiply(item.getPackHeight());
-        bulk = bulk.multiply(item.getPackWidth());
-
-
-        BigDecimal num = pickVolume.divide(bulk, 0, BigDecimal.ROUND_UP);
-
-        return num.subtract(qty.divide(quant.getPackUnit(),0,BigDecimal.ROUND_UP));
-    }
 }

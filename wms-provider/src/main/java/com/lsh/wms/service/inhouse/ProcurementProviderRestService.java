@@ -125,9 +125,4 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
         }
         return JsonUtils.SUCCESS();
     }
-    @GET
-    @Path("test")
-    public String test()  throws BizCheckedException {
-       return  JsonUtils.SUCCESS(rpcService.getQty());
-    }
 }
