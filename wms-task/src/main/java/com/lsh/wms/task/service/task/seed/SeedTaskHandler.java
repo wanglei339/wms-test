@@ -207,14 +207,14 @@ public class SeedTaskHandler extends AbsTaskHandler {
             if(storeMap.containsKey(storeNo)) {
                 info.setTaskOrder(storeMap.get(storeNo));
             }
-            info.setItemId(item.getItemId());
+            info.setItemId(obdDetail.getItemId());
             info.setSkuId(quant.getSkuId());
             info.setOrderId(orderId);
             info.setOwnerId(ibdHeader.getOwnerUid());
             info.setTaskName("播种任务[ " + storeNo + "]");
-            info.setPackUnit(item.getPackUnit());
+            info.setPackUnit(obdDetail.getPackUnit());
             info.setType(TaskConstant.TYPE_SEED);
-            info.setPackName(item.getPackName());
+            info.setPackName(obdDetail.getPackName());
             entry.setTaskHead(head);
             entry.setTaskInfo(info);
             entries.add(entry);

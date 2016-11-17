@@ -156,7 +156,9 @@ public class StockMoveService {
     public void moveToConsume(Long locationId, Long taskId, Long staffId) throws BizCheckedException {
 
         List<StockQuant> quants = quantService.getQuantsByLocationId(locationId);
-
+        if(quants==null){
+            return;
+        }
         BaseinfoLocation location = locationService.getLocationsByType(LocationConstant.CONSUME_AREA).get(0);
 
         //存储已经生成move的ContainerId
@@ -175,11 +177,13 @@ public class StockMoveService {
 
         List<StockQuant> quants = quantService.getQuantsByContainerId(containerId);
 
+        if(quants==null){
+            return;
+        }
         BaseinfoLocation location = locationService.getLocationsByType(LocationConstant.CONSUME_AREA).get(0);
 
         //存储已经生成move的ContainerId
         Map<Long, Integer> isMovedMap = new HashMap<Long, Integer>();
-
         for (StockQuant quant : quants) {
             if (!isMovedMap.containsKey(quant.getContainerId())) {
                 this.moveWholeContainer(quant.getContainerId(), 0L, 0L, quant.getLocationId(), location.getLocationId());
@@ -193,6 +197,9 @@ public class StockMoveService {
         List<StockQuant> stockQuants = new ArrayList<StockQuant>();
         for (Long containerId : containerIds) {
             List<StockQuant> quants = quantService.getQuantsByContainerId(containerId);
+            if(quants==null){
+                continue;
+            }
             stockQuants.addAll(quants);
         }
         BaseinfoLocation location = locationService.getLocationsByType(LocationConstant.CONSUME_AREA).get(0);

@@ -23,5 +23,4 @@ public interface IProcurementProveiderRpcService {
     boolean checkAndFillPlan(StockTransferPlan plan) throws BizCheckedException;
     boolean checkPlan(StockTransferPlan plan) throws BizCheckedException;
     Set<Long> getOutBoundLocation(Long itemId,Long locationId);
-    BigDecimal getQty();
 }
