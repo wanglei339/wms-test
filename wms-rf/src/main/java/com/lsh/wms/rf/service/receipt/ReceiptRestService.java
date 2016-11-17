@@ -352,7 +352,9 @@ public class ReceiptRestService implements IReceiptRfService {
 
         BaseinfoItem baseinfoItem = this.getItem(barCode,ibdHeader.getOwnerUid());
 
-
+        if(baseinfoItem.getIsInfoIntact() == 0){
+            throw new BizCheckedException("2020104");//商品信息不完整,不能收货
+        }
 
         //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
         CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barCode);
@@ -623,9 +625,9 @@ public class ReceiptRestService implements IReceiptRfService {
 
        BaseinfoItem baseinfoItem = this.getItem(barCode,ibdHeader.getOwnerUid());
 
-
-
-
+       if(baseinfoItem.getIsInfoIntact() == 0){
+           throw new BizCheckedException("2020104");//商品信息不完整,不能收货
+       }
 
         //是否可收货
         boolean isCanReceipt=ibdHeader.getOrderStatus()==PoConstant.ORDER_THROW||ibdHeader.getOrderStatus()==PoConstant.ORDER_RECTIPT_PART||ibdHeader.getOrderStatus()==PoConstant.ORDER_RECTIPTING;
