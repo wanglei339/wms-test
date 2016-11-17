@@ -236,13 +236,13 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
                 info.setTaskOrder(Long.valueOf(storeMap.get(storeNo)));
             }
             info.setTaskName("播种任务[ " + storeNo + "]");
-            info.setItemId(item.getItemId());
-            info.setSkuId(sku.getSkuId());
+            info.setItemId(obdDetail.getItemId());
+            info.setSkuId(obdDetail.getSkuId());
             info.setOrderId(orderId);
             info.setOwnerId(ibdHeader.getOwnerUid());
-            info.setPackUnit(item.getPackUnit());
+            info.setPackUnit(obdDetail.getPackUnit());
             info.setType(TaskConstant.TYPE_SEED);
-            info.setPackName(item.getPackName());
+            info.setPackName(obdDetail.getPackName());
             entry.setTaskHead(head);
             entry.setTaskInfo(info);
             entries.add(entry);
