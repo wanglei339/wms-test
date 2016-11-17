@@ -41,6 +41,8 @@ public class LocationRestService implements ILocationRestService {
     @Autowired
     private LocationService locationService;
     @Autowired
+    private LocationDetailRpcService locationDetailRpcService;
+    @Autowired
     private PickRpcService pickRpcService;
     @Autowired
     private WaveService waveService;
@@ -336,6 +338,7 @@ public class LocationRestService implements ILocationRestService {
         }
         return JsonUtils.SUCCESS(locations);
     }
+
     @GET
     @Path("getLocationType")
     //0:其他 1:货架  2:阁楼
@@ -354,6 +357,24 @@ public class LocationRestService implements ILocationRestService {
         Map<String,Object> locationMap = new HashMap<String, Object>();
         locationMap.put("locationType",locationType);
         return JsonUtils.SUCCESS(locationMap);
-     }
-
     }
+
+    /**
+     * 初始化构建整棵location树结构
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("initLocationTree")
+    public String initLocationTree() throws BizCheckedException {
+        //Map<String, Object> mapQuery = RequestUtils.getRequest(); // 参数,暂时先建立满树
+        // 判断表中是否为空,必须为空表时才能构建
+        Map<String, Object> params = new HashMap<String, Object>();
+        Integer count = locationService.countLocation(params);
+        if (count > 0) {
+            return JsonUtils.FAIL("123321", "库位表不为空,不能进行初始化构建");
+        }
+
+        return JsonUtils.SUCCESS(count);
+    }
+}
