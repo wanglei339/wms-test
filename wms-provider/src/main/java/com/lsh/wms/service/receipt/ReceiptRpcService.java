@@ -529,6 +529,12 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
 
     }
+    //验证是否可收货
+    public boolean canReceipt(){
+
+        return true;
+    }
+
     //验证生产日期
     public boolean checkProTime(BaseinfoItem baseinfoItem,Date proTime,Date dueTime,String exceptionCode) throws BizCheckedException{
 
