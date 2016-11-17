@@ -117,7 +117,6 @@ public class ShipRestService implements IShipRestService {
             if(waveDetails != null) {
                 totalWaveDetails.addAll(waveDetails);
             }
-            totalContainers.add(containerId);
             //在库不组盘
             Map<String, Object> containerMap = new HashMap<String, Object>();
             containerMap.put("boxNum", detail.getBoxNum());
@@ -135,6 +134,7 @@ public class ShipRestService implements IShipRestService {
                 contaienrIds.add(waveDetail.getContainerId());
                 orderContainerSet.put(waveDetail.getOrderId(), contaienrIds);
             }
+            totalContainers.add(waveDetail.getContainerId());
         }
         //封装so单子和箱子数
         Map<Long, Map<String, Object>> orderBoxInfo = new HashMap<Long, Map<String, Object>>();
