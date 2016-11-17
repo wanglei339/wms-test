@@ -45,82 +45,7 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     private LocationDetailRpcService locationDetailRpcService;
     @Autowired
     private LocationRpcService locationRpcService;
-    //设置bin的Type集合,用于判断type是否是bin,然后设置
 
-
-    //构造之后,实例化之前,注入各种model
-
-    /**
-     * 将所有的bin的type注册到工厂中
-     */
-    @PostConstruct
-    public void postConstruct() {
-        //仓库
-        locationDetailModelFactory.register(LocationConstant.WAREHOUSE, new BaseinfoLocationWarehouse());
-        //区域
-        locationDetailModelFactory.register(LocationConstant.REGION_AREA, new BaseinfoLocationRegion());
-        //注入过道
-        locationDetailModelFactory.register(LocationConstant.PASSAGE, new BaseinfoLocationPassage());
-
-        //注入阁楼区和货架区
-        locationDetailModelFactory.register(LocationConstant.SHELFS, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.LOFTS, new BaseinfoLocationRegion());
-        //注入区域
-        locationDetailModelFactory.register(LocationConstant.INVENTORYLOST, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.FLOOR, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.TEMPORARY, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.COLLECTION_AREA, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.BACK_AREA, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.DEFECTIVE_AREA, new BaseinfoLocationRegion());
-        //货架和阁楼
-        locationDetailModelFactory.register(LocationConstant.SHELF, new BaseinfoLocationShelf());
-        locationDetailModelFactory.register(LocationConstant.LOFT, new BaseinfoLocationShelf());
-        //注入码头
-        locationDetailModelFactory.register(LocationConstant.DOCK_AREA, new BaseinfoLocationDock());
-        //货位
-        locationDetailModelFactory.register(LocationConstant.BIN, new BaseinfoLocationBin());
-        //货架和阁楼的货位
-        locationDetailModelFactory.register(LocationConstant.SHELF_PICKING_BIN, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.SHELF_STORE_BIN, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.LOFT_PICKING_BIN, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.LOFT_STORE_BIN, new BaseinfoLocationBin());
-        //功能bin
-        locationDetailModelFactory.register(LocationConstant.FLOOR_BIN, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.TEMPORARY_BIN, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.COLLECTION_BIN, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.BACK_BIN, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.DEFECTIVE_BIN, new BaseinfoLocationBin());
-        //注入虚拟货区
-        locationDetailModelFactory.register(LocationConstant.CONSUME_AREA, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.SUPPLIER_AREA, new BaseinfoLocationRegion());
-        //阁楼个体层和货架个体层
-        locationDetailModelFactory.register(LocationConstant.SHELF_LEVELS, new BaseinfoLocation());
-        locationDetailModelFactory.register(LocationConstant.LOFT_LEVELS, new BaseinfoLocation());
-        //返仓区
-        locationDetailModelFactory.register(LocationConstant.MARKET_RETURN_AREA, new BaseinfoLocationRegion());
-        //集货道和集货道组
-        locationDetailModelFactory.register(LocationConstant.COLLECTION_ROAD_GROUP, new BaseinfoLocation());
-        locationDetailModelFactory.register(LocationConstant.COLLECTION_ROAD, new BaseinfoLocation());
-        //拆零区、拆零货架、拆零货架层、拆零存储一体货位
-        locationDetailModelFactory.register(LocationConstant.SPLIT_AREA, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.SPLIT_SHELF, new BaseinfoLocationShelf());
-        locationDetailModelFactory.register(LocationConstant.SPLIT_SHELF_LEVEL, new BaseinfoLocation());
-        locationDetailModelFactory.register(LocationConstant.SPLIT_SHELF_BIN, new BaseinfoLocationBin());
-        //注入贵品区、贵品货架、贵品货架层级、贵品存拣货位
-        locationDetailModelFactory.register(LocationConstant.VALUABLES_AREA, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.VALUABLES_SHELF, new BaseinfoLocationShelf());
-        locationDetailModelFactory.register(LocationConstant.VALUABLES_SHELF_LEVEL, new BaseinfoLocation());
-        locationDetailModelFactory.register(LocationConstant.VALUABLES_SHELF_BIN, new BaseinfoLocationBin());
-        //注入播种区和播种货位
-        locationDetailModelFactory.register(LocationConstant.SOW_AREA, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.SOW_BIN, new BaseinfoLocationBin());
-        //注入 供商退货区、供商退货货架、供商退货货架层、供商退货入库位置、供商退货存储位置
-        locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_AREA, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_SHELF, new BaseinfoLocationShelf());
-        locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_LEVEL, new BaseinfoLocation());
-        locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_IN_BIN, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_STORE_BIN, new BaseinfoLocationBin());
-    }
 
 
     /**
@@ -151,11 +76,15 @@ public class LocationDetailRestService implements ILocationDetailRestService {
     @Path("insertLocation")
     public String insertLocationDetailByType(LocationDetailRequest request) throws BizCheckedException {
         //根据type类型,将父类转为子类
-        IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationDetailModelFactory.getLocationModel(Long.valueOf(request.getType().toString()));
+//        IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationDetailModelFactory.getLocationModel(Long.valueOf(request.getType().toString()));
         //转成子类
-        ObjUtils.bean2bean(request, iBaseinfoLocaltionModel);
+//        ObjUtils.bean2bean(request, iBaseinfoLocaltionModel);
         //插入是否成功
-        return JsonUtils.SUCCESS(locationDetailRpcService.insertLocationDetailByType((BaseinfoLocation) iBaseinfoLocaltionModel));
+        if (null == request) {
+            throw new BizCheckedException("2180021");
+        }
+        locationDetailRpcService.insertLocationDetailByType(request);
+        return JsonUtils.SUCCESS();
 
     }
 
