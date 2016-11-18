@@ -68,7 +68,7 @@
 		select * from sys_log
 		<where>
 			log_type=#{logType}
-			and ( (status = 0) or (status = 2 and retry_times &lt;= #{retryTimes} and sys_code != 0) )
+			and ( (status = 0) or (status = 4 and retry_times &lt;= #{retryTimes}) )
 		</where>
 		<if test="start != null and limit != null">
 			limit #{start},#{limit}

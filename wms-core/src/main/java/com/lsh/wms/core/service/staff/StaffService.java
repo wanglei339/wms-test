@@ -12,10 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by wulin on 16/7/9.
@@ -114,11 +111,19 @@ public class StaffService {
     }
 
     public List<BaseinfoStaffJob> getJobList(Map<String, Object> mapQuery) {
-        return jobDao.getBaseinfoStaffJobList(mapQuery);
+        //return jobDao.getBaseinfoStaffJobList(mapQuery);
+        List<BaseinfoStaffJob> jobs = new LinkedList<BaseinfoStaffJob>();
+        for(Long id : StaffConstant.JOB_NAMES.keySet()){
+            BaseinfoStaffJob job = new BaseinfoStaffJob();
+            job.setJobId(id);
+            job.setJobName(StaffConstant.JOB_NAMES.get(id));
+            jobs.add(job);
+        }
+        return jobs;
     }
 
     public Integer countBaseinfoStaffJob(Map<String, Object> params) {
-        return jobDao.countBaseinfoStaffJob(params);
+        return StaffConstant.JOB_NAMES.size();
     }
 
     @Transactional(readOnly = false)

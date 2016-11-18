@@ -15,7 +15,9 @@ public class StockTakingDetail implements Serializable {
 	/** 盘点行项目编号 */
     private Long detailId = 0L;
 	/** 第几轮盘点的结果 */
-    private Long round = 1L ;
+	private Long round = 1L ;
+	/** 是否是最终盘点任务 */
+	private Integer isFinal = 0 ;
 	/** 实际值 */
     private BigDecimal realQty = BigDecimal.ZERO;
 	/** 理论值 */
@@ -215,5 +217,13 @@ public class StockTakingDetail implements Serializable {
 
 	public void setPackUnit(BigDecimal packUnit) {
 		this.packUnit = packUnit;
+	}
+
+	public Integer getIsFinal() {
+		return isFinal;
+	}
+
+	public void setIsFinal(Integer isFinal) {
+		this.isFinal = isFinal;
 	}
 }
