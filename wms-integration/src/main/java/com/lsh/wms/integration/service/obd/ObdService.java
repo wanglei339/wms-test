@@ -1,5 +1,6 @@
 package com.lsh.wms.integration.service.obd;
 
+import com.alibaba.dubbo.common.json.JSON;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
@@ -74,8 +75,11 @@ public class ObdService implements IObdService{
         List<com.lsh.wms.api.model.so.ObdDetail> newDetails = new ArrayList<com.lsh.wms.api.model.so.ObdDetail>();
         List<SoItem> items = new ArrayList<SoItem>();
 
+
         if(request.getWarehouseCode().equals("DC41")){
-            String jsonStr = HttpUtil.doPost(IntegrationConstan.URL_SO,request);
+            logger.info("~~~~~~~~~~下发黑狗数据 request : " + com.alibaba.fastjson.JSON.toJSONString(request) + "~~~~~~~~~");
+            String jsonStr = HttpUtil.doPost(IntegrationConstan.URL_SO, com.alibaba.fastjson.JSON.toJSONString(request));
+            logger.info("~~~~~~~~~~下发黑狗返回数据 jsonStr : " + jsonStr + "~~~~~~~~~");
             if(jsonStr == null || jsonStr.equals("")){
                 return ResUtils.getResponse(ResponseConstant.RES_CODE_0, ResponseConstant.RES_MSG_ERROR, null);
             }

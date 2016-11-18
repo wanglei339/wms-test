@@ -109,7 +109,9 @@ public class IbdService implements IIbdService {
 
         if(request.getWarehouseCode().equals("DC41")){
 
-            String jsonStr = HttpUtil.doPost(IntegrationConstan.URL_PO,request);
+            logger.info("~~~~~~~~~~下发黑狗数据 request : " + JSON.toJSONString(request) + "~~~~~~~~~");
+            String jsonStr = HttpUtil.doPost(IntegrationConstan.URL_PO,JSON.toJSONString(request));
+            logger.info("~~~~~~~~~~下发黑狗返回数据 jsonStr : " + jsonStr + "~~~~~~~~~");
             if(jsonStr == null || jsonStr.equals("")){
                 return ResUtils.getResponse(ResponseConstant.RES_CODE_0, ResponseConstant.RES_MSG_ERROR, null);
             }
