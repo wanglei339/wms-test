@@ -24,17 +24,18 @@
 		<result property="isValid" column="is_valid"/>
 		<result property="packUnit" column="pack_unit"/>
 		<result property="packName" column="pack_name"/>
+		<result property="isFinal" column="is_final"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="StockTakingDetail">
 		insert into stock_taking_detail (
 			taking_id,detail_id,round,real_qty,theoretical_qty,container_id,
 			lot_id,sku_id,real_sku_id,location_id,operator,created_at,updated_at,task_id,item_id,real_item_id,owner_id,is_valid,
-			pack_unit,pack_name
+			pack_unit,pack_name,is_final
     	) values (
 			#{takingId},#{detailId},#{round},#{realQty},#{theoreticalQty},#{containerId},
 			#{lotId},#{skuId},#{realSkuId},#{locationId},#{operator},#{createdAt},
-			#{updatedAt},#{taskId},#{itemId},#{realItemId},#{ownerId},#{isValid},#{packUnit},#{packName}
+			#{updatedAt},#{taskId},#{itemId},#{realItemId},#{ownerId},#{isValid},#{packUnit},#{packName},#{isFinal}
     	)
 	</insert>
 
@@ -42,12 +43,13 @@
 		insert into stock_taking_detail (
 		taking_id,detail_id,round,real_qty,theoretical_qty,container_id,
 		lot_id,sku_id,real_sku_id,location_id,operator,created_at,
-		updated_at,task_id,item_id,real_item_id,owner_id,is_valid,pack_unit,pack_name
+		updated_at,task_id,item_id,real_item_id,owner_id,is_valid,pack_unit,pack_name,is_final
 		) values
 		<foreach collection="list" item="item" index="index" separator="," >
 			(#{item.takingId},#{item.detailId},#{item.round},#{item.realQty},#{item.theoreticalQty},#{item.containerId},
 			#{item.lotId},#{item.skuId},#{item.realSkuId},#{item.locationId},#{item.operator},#{item.createdAt},
-			#{item.updatedAt},#{item.taskId},#{item.itemId},#{item.realItemId},#{item.ownerId},#{item.isValid},#{item.packUnit},#{item.packName})
+			#{item.updatedAt},#{item.taskId},#{item.itemId},#{item.realItemId},#{item.ownerId},#{item.isValid},#{item.packUnit},#{item.packName},#{item.isFinal}
+			)
 		</foreach>
 	</insert>
 
@@ -73,7 +75,8 @@
 			<if test="ownerId !=null">owner_id=#{ownerId},</if>
 			<if test="isValid !=null">is_valid=#{isValid},</if>
 			<if test="packUnit !=null">pack_unit=#{packUnit},</if>
-			<if test="packName !=null">pack_name=#{packName}</if>
+			<if test="packName !=null">pack_name=#{packName},</if>
+			<if test="isFinal !=null">is_final=#{isFinal}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -119,6 +122,7 @@
 			<if test="isValid !=null"> and is_valid=#{isValid}</if>
 			<if test="packUnit !=null"> and pack_unit=#{packUnit}</if>
 			<if test="packName !=null"> and pack_name=#{packName}</if>
+			<if test="isFinal !=null"> and is_final=#{isFinal}</if>
 		</where>
 	</sql>
    

@@ -10,22 +10,20 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.base.q.Utilities.Json.JSONObject;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
 import com.lsh.wms.api.model.po.*;
+import com.lsh.wms.api.model.po.IbdDetail;
 import com.lsh.wms.api.model.so.ObdOfcBackRequest;
 import com.lsh.wms.api.model.so.ObdOfcItem;
-import com.lsh.wms.api.model.stock.StockItem;
-import com.lsh.wms.api.model.stock.StockRequest;
-import com.lsh.wms.api.model.wumart.CreateIbdDetail;
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
 import com.lsh.wms.api.model.wumart.CreateObdDetail;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.po.IIbdService;
 import com.lsh.wms.api.service.po.IPoRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
-import com.lsh.wms.api.service.wumart.IWuMartSap;
 import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.constant.SoConstant;
@@ -35,25 +33,22 @@ import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.system.SysLogService;
+import com.lsh.wms.core.service.utils.HttpUtils;
 import com.lsh.wms.integration.service.back.DataBackService;
 import com.lsh.wms.integration.service.wumartsap.WuMart;
 import com.lsh.wms.integration.service.wumartsap.WuMartSap;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.csi.CsiSupplier;
-import com.lsh.wms.model.po.IbdHeader;
-import com.lsh.wms.model.po.IbdObdRelation;
+import com.lsh.wms.model.po.*;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.system.SysLog;
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -106,6 +101,16 @@ public class IbdService implements IIbdService {
 
         if(request.getWarehouseCode().equals("DC41")){
 
+            logger.info("~~~~~~~~~~下发黑狗数据 request : " + JSON.toJSONString(request) + "~~~~~~~~~");
+            String jsonStr = HttpUtils.doPostByForm(IntegrationConstan.URL_PO,BeanMapTransUtils.Bean2map(request));
+            logger.info("~~~~~~~~~~下发黑狗返回数据 jsonStr : " + jsonStr + "~~~~~~~~~");
+            if(jsonStr == null || jsonStr.equals("")){
+                return ResUtils.getResponse(ResponseConstant.RES_CODE_0, ResponseConstant.RES_MSG_ERROR, null);
+            }
+            JSONObject obj = new JSONObject(jsonStr);
+            BaseResponse response = new BaseResponse();
+            ObjUtils.bean2bean(obj,response);
+            return response;
         }
 
         for(IbdDetail ibdDetail : details){
@@ -266,6 +271,25 @@ public class IbdService implements IIbdService {
 //        }
 
         return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, null);
+    }
+
+
+    @POST
+    @Path("bdSendIbd2Sap")
+    public String bdSendIbd2Sap(CreateIbdHeader createIbdHeader) {
+        CreateIbdHeader backData = wuMartSap.ibd2Sap(createIbdHeader);
+        String mess = "";
+        if(backData != null){
+            mess =  wuMartSap.ibd2SapAccount(backData);
+            if("E".equals(mess)){
+                JsonUtils.EXCEPTION_ERROR("创建ibd成功,过账失败");
+            }else{
+                mess = "创建并过账成功";
+            }
+        }else{
+            return JsonUtils.EXCEPTION_ERROR("创建ibd失败");
+        }
+        return JsonUtils.SUCCESS(mess);
     }
 
     @POST
@@ -443,10 +467,15 @@ public class IbdService implements IIbdService {
 
     }
 
-    public static void main(String[] args) {
-        String str = "00000010";
-        String newStr = str.replaceAll("^(0+)", "");
-        System.out.println(newStr);
+    @POST
+    @Path("seachSoBack")
+    public String seachSoBackStatus() {
+        Map<String, Object> request = RequestUtils.getRequest();
+        String orderOtherId = (String) request.get("orderOtherId");
+        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(orderOtherId);
+        List<com.lsh.wms.model.po.IbdDetail> ibdDetails = poOrderService.getInbPoDetailListByOrderId(ibdHeader.getOrderId());
+        ibdHeader.setOrderDetails(ibdDetails);
+        return JsonUtils.SUCCESS(ibdHeader);
     }
 
 

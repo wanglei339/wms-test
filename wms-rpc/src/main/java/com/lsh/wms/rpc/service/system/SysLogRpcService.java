@@ -1,5 +1,7 @@
 package com.lsh.wms.rpc.service.system;
 
+import com.alibaba.dubbo.common.logger.Logger;
+import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
@@ -8,6 +10,7 @@ import com.lsh.wms.api.model.po.IbdBackRequest;
 import com.lsh.wms.api.model.so.ObdBackRequest;
 import com.lsh.wms.api.model.so.ObdDetail;
 import com.lsh.wms.api.service.back.IDataBackService;
+import com.lsh.wms.api.service.back.ITransportService;
 import com.lsh.wms.api.service.system.ISysLogRpcService;
 import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.constant.RedisKeyConstant;
@@ -31,14 +34,13 @@ import java.util.Map;
 @Service(protocol = "dubbo")
 public class SysLogRpcService implements ISysLogRpcService{
 
+    public static final Logger logger = LoggerFactory.getLogger(SysLogRpcService.class);
+
     @Autowired
     private SysLogService sysLogService;
 
     @Reference
-    private IDataBackService dataBackService;
-
-    @Autowired
-    private SysMsgService sysMsgService;
+    private ITransportService iTransportService;
 
 
     public List<SysLog> getSysLogList(Map<String, Object> params) {
@@ -53,32 +55,7 @@ public class SysLogRpcService implements ISysLogRpcService{
      *回传失败的订单重新回传
      */
     public void retransmission(Long logId) throws BizCheckedException{
-        String key = StrUtils.formatString(RedisKeyConstant.SYS_MSG,logId);
-        SysMsg sysMsg = sysMsgService.getMessage(key);
-        // TODO: 2016/10/24 日志表中还需要记录当时存在问题单据的ID 防止没有生成redis记录造成无法再次回传 
-        if (sysMsg == null) {
-            throw new BizCheckedException("2771000");
-        }
-        String json = sysMsg.getMsgBody();
-
-
-        //Object request = BeanMapTransUtils.map2Bean(map, Object.class);
-
-        SysLog syslog = sysLogService.getSysLogById(logId);
-//        if(syslog.getTargetSystem() == SysLogConstant.LOG_TARGET_WUMART){
-//            // TODO: 2016/10/24 根据type来确定回传的url 先加了ibd obd 还需要报损 报溢
-//            String url;
-//            if(syslog.getLogType() == SysLogConstant.LOG_TYPE_WUMART_IBD){
-//                url = IntegrationConstan.URL_IBD;
-//            }else{
-//                url = IntegrationConstan.URL_OBD;
-//            }
-//            dataBackService.wmDataBackByPost(json,url,syslog.getLogType());
-//        }else if(syslog.getTargetSystem() == SysLogConstant.LOG_TARGET_LSHOFC){
-//            dataBackService.ofcDataBackByPost(json,IntegrationConstan.URL_LSHOFC_OBD);
-//        }else if(syslog.getTargetSystem() == SysLogConstant.LOG_TARGET_ERP){
-//            dataBackService.erpDataBack(json);
-//        }
-
+        logger.info(StrUtils.formatString("retransmit SysLog : {0}", logId));
+        iTransportService.dealOne(logId);
     }
 }
