@@ -11,14 +11,17 @@ public class CreateIbdHeader implements Serializable{
 //
 //    /**交货时间*/
 //    private XMLGregorianCalendar deliveDate;
+    /**仓库编码*/
+    private String warehouseCode = "";
 
     /**商品明细*/
     private List<CreateIbdDetail> items;
 
     public CreateIbdHeader(){}
 
-    public CreateIbdHeader(List<CreateIbdDetail> items) {
+    public CreateIbdHeader(List<CreateIbdDetail> items, String warehouseCode) {
         this.items = items;
+        this.warehouseCode = warehouseCode;
     }
 
     public List<CreateIbdDetail> getItems() {
@@ -27,5 +30,13 @@ public class CreateIbdHeader implements Serializable{
 
     public void setItems(List<CreateIbdDetail> items) {
         this.items = items;
+    }
+
+    public String getWarehouseCode() {
+        return warehouseCode;
+    }
+
+    public void setWarehouseCode(String warehouseCode) {
+        this.warehouseCode = warehouseCode;
     }
 }

@@ -77,9 +77,14 @@ public class WuMartSap implements IWuMartSap{
         BbpInbdL header = factory.createBbpInbdL();
         header.setDelivDate(date);
 
+        String warehouseCode = createIbdHeader.getWarehouseCode();
+        Long receiveId = 0l;
+        if(PropertyUtils.getString("warehousegg").equals(warehouseCode)){
+            receiveId = Long.valueOf(details.get(0).getVendMat());
+        }
+
         //items
         TableOfBbpInbdD items = factory.createTableOfBbpInbdD();
-        Long receiveId = 0l;
         Integer orderType = 0;
         for (CreateIbdDetail detail : details){
             BbpInbdD item = factory.createBbpInbdD();
@@ -90,8 +95,6 @@ public class WuMartSap implements IWuMartSap{
             item.setDelivQty(detail.getDeliveQty());
             item.setVendMat(detail.getVendMat());
             items.getItem().add(item);
-            receiveId =Long.valueOf(detail.getVendMat());
-
             orderType = detail.getOrderType();
         }
 
@@ -119,7 +122,7 @@ public class WuMartSap implements IWuMartSap{
                 return null;
             }
             if("03".equals(bapireturn1.getCode())){
-                if(orderType != PoConstant.ORDER_TYPE_CPO){
+                if(orderType != PoConstant.ORDER_TYPE_CPO && receiveId != 0l){
                     ReceiveDetail receiveDetail = new ReceiveDetail();
                     receiveDetail.setReceiveId(receiveId);
                     String detailOtherId = bapireturn1.getMessageV4().replaceAll("^(0+)", "");

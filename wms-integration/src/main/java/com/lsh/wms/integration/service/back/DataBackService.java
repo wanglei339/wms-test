@@ -111,7 +111,7 @@ public class DataBackService implements IDataBackService {
             sysLog.setLogCode(orderResponse.getCode());
         }
         sysLog.setRetryTimes(sysLog.getRetryTimes()+1);
-        sysLogService.updateSysLog(sysLog);
+        //sysLogService.updateSysLog(sysLog);
 
         return JSON.toJSONString(orderResponse);
 
@@ -160,7 +160,7 @@ public class DataBackService implements IDataBackService {
                 sysLog.setLogMessage("回传erp失败");
             }
             sysLog.setRetryTimes(sysLog.getRetryTimes()+1);
-            sysLogService.updateSysLog(sysLog);
+            //sysLogService.updateSysLog(sysLog);
 
         }
         catch (Exception e) {

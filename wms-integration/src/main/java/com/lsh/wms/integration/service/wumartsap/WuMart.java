@@ -55,7 +55,7 @@ public class WuMart implements IWuMart {
             sysLog.setLogCode("ibd创建失败");
         }
         sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
-        sysLogService.updateSysLog(sysLog);
+        //sysLogService.updateSysLog(sysLog);
 
         return null;
     }
@@ -86,7 +86,7 @@ public class WuMart implements IWuMart {
             sysLog.setLogCode("ibd创建失败");
         }
         sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
-        sysLogService.updateSysLog(sysLog);
+        //sysLogService.updateSysLog(sysLog);
         return null;
     }
 
@@ -149,7 +149,7 @@ public class WuMart implements IWuMart {
             sysLog.setLogCode("ibd创建失败");
         }
         sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
-        sysLogService.updateSysLog(sysLog);
+        //sysLogService.updateSysLog(sysLog);
 //        String ibdResult = this.sendIbd((CreateIbdHeader) ibdObdMap.get("createIbdHeader"),sysLog);
 //
 //        if(!"E".equals(ibdResult) && ibdResult != null){
