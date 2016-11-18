@@ -90,14 +90,9 @@ public class ObdService implements IObdService{
             headerMap.put("api-version", "1.1");
             headerMap.put("random", RandomUtils.randomStr2(32));
             headerMap.put("platform", "1");
-//            Map<Integer,List<Map<String,Long>>> consignSaleDict  = new HashMap<Integer,List<Map<String,Long>>>();
-//            Long atpBeginTime = System.currentTimeMillis();
             String res  = HttpClientUtils.postBody(IntegrationConstan.URL_SO,  requestBody,dc41_timeout , dc41_charset, headerMap);
             logger.info("~~~~~~~~~~下发黑狗数据 request : " + JSON.toJSONString(request) + "~~~~~~~~~");
-            JSONObject obj = new JSONObject(res);
-            BaseResponse response = new BaseResponse();
-            ObjUtils.bean2bean(obj,response);
-            return response;
+            return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, res);
         }
 
         for(com.lsh.wms.api.model.so.ObdDetail obdDetail : details){
