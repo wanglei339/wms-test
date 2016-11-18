@@ -327,7 +327,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
         } else{
             for(ReceiptItem receiptItem : request.getItems()){
 
-                if(receiptItem.getInboundQty().compareTo(BigDecimal.ZERO) < 0) {
+                if(receiptItem.getInboundQty().compareTo(BigDecimal.ZERO) <= 0) {
                     throw new BizCheckedException("2020007");
                 }
 
@@ -469,7 +469,11 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 stockLotList.add(stockLot);
 
                 StockMove move = new StockMove();
-                move.setFromLocationId(locationService.getLocationsByType(LocationConstant.SUPPLIER_AREA).get(0).getLocationId());
+                List<BaseinfoLocation> locationList = locationService.getLocationsByType(LocationConstant.SUPPLIER_AREA);
+                if(locationList == null || locationList.size() == 0){
+                    throw new BizCheckedException("2020107");//没有供货区
+                }
+                move.setFromLocationId(locationList.get(0).getLocationId());
                 move.setToLocationId(inbReceiptHeader.getLocation());
                 move.setOperator(inbReceiptHeader.getStaffId());
                 move.setToContainerId(inbReceiptHeader.getContainerId());
@@ -741,10 +745,16 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //BaseinfoStore baseinfoStore = iStoreRpcService.getStoreByStoreNo(inbReceiptHeader.getStoreCode());
         CsiCustomer csiCustomer = customerService.getCustomerByCustomerCode(request.getOwnerId(),inbReceiptHeader.getStoreCode());
 
-        List<BaseinfoLocation> list = locationRpcService.getCollectionByStoreNo(inbReceiptHeader.getStoreCode());
+        Long collectRoadId =csiCustomer.getCollectRoadId();
+        if(collectRoadId == null || collectRoadId == 0){
+            throw new BizCheckedException("2020108");//店铺没有设置集货道
+        }
+        inbReceiptHeader.setLocation(collectRoadId);
+
+        /*List<BaseinfoLocation> list = locationRpcService.getCollectionByStoreNo(inbReceiptHeader.getStoreCode());
         if( list != null && list.size() >= 0 ){
             inbReceiptHeader.setLocation(list.get(0).getLocationId());
-        }
+        }*/
 //        BaseinfoLocation baseinfoLocation = locationRpcService.assignTemporary();
 //        inbReceiptHeader.setLocation(baseinfoLocation.getLocationId());// TODO: 16/7/20  暂存区信息
 
@@ -770,7 +780,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //Long taskId = RandomUtils.genId();
 
         for(ReceiptItem receiptItem : request.getItems()){
-            if(receiptItem.getInboundQty().compareTo(BigDecimal.ZERO) < 0) {
+            if(receiptItem.getInboundQty().compareTo(BigDecimal.ZERO) <= 0) {
                 throw new BizCheckedException("2020007");
             }
 
