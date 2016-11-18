@@ -245,7 +245,8 @@ public class TuService {
     /**
      * 销库存,出库
      *
-     * @param tuHead tu头
+     * @param tuDetails
+     * @param totalWaveDetails
      * @return
      */
     //作废
@@ -490,7 +491,8 @@ public class TuService {
     /**
      * 生成发货单,效库存
      *
-     * @param map
+     * @param tuHead
+     * @param tuDetails
      * @return
      */
     /*

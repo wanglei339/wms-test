@@ -3,21 +3,31 @@ package com.lsh.wms.integration.service.obd;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.alibaba.fastjson.JSON;
+import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.net.HttpClientUtils;
+import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.base.q.Utilities.Json.JSONObject;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
 import com.lsh.wms.api.model.so.ObdRequest;
 import com.lsh.wms.api.model.so.SoItem;
 import com.lsh.wms.api.model.so.SoRequest;
+import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.so.IObdService;
 import com.lsh.wms.api.service.so.ISoRpcService;
+import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.so.SoOrderService;
+import com.lsh.wms.core.service.utils.HttpUtils;
+import com.lsh.wms.integration.service.wumartsap.WuMartSap;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.so.ObdDetail;
@@ -46,6 +56,7 @@ import java.util.Map;
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class ObdService implements IObdService{
 
+    private static Logger logger = LoggerFactory.getLogger(ObdService.class);
     @Reference
     private ISoRpcService soRpcService;
 
@@ -55,11 +66,8 @@ public class ObdService implements IObdService{
     private ItemService itemService;
     @Autowired
     private CsiCustomerService customerService;
-
-
-
-    private static Logger logger = LoggerFactory.getLogger(ObdService.class);
-
+    @Autowired
+    private WuMartSap wuMartSap;
 
     @POST
     @Path("add")
@@ -70,6 +78,22 @@ public class ObdService implements IObdService{
 
         List<com.lsh.wms.api.model.so.ObdDetail> newDetails = new ArrayList<com.lsh.wms.api.model.so.ObdDetail>();
         List<SoItem> items = new ArrayList<SoItem>();
+
+
+        if(request.getWarehouseCode().equals("DC41")){
+            String requestBody = JsonUtils.obj2Json(request);
+            int dc41_timeout = PropertyUtils.getInt("dc41_timeout");
+            String dc41_charset = PropertyUtils.getString("dc41_charset");
+            Map<String, String> headerMap = new HashMap<String, String>();
+            headerMap.put("Content-type", "application/json; charset=utf-8");
+            headerMap.put("Accept", "application/json");
+            headerMap.put("api-version", "1.1");
+            headerMap.put("random", RandomUtils.randomStr2(32));
+            headerMap.put("platform", "1");
+            String res  = HttpClientUtils.postBody(IntegrationConstan.URL_SO,  requestBody,dc41_timeout , dc41_charset, headerMap);
+            logger.info("~~~~~~~~~~下发黑狗数据 request : " + JSON.toJSONString(request) + "~~~~~~~~~");
+            return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, res);
+        }
 
         for(com.lsh.wms.api.model.so.ObdDetail obdDetail : details){
             List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(request.getOwnerUid(),obdDetail.getSkuCode());
@@ -124,7 +148,6 @@ public class ObdService implements IObdService{
         soRequest.setWaveOrderType(waveOrderType);
 
         //soRequest.setWarehouseId(1l);
-        logger.info("---------"+ JsonUtils.SUCCESS(soRequest));
         Long orderId = soRpcService.insertOrder(soRequest);
         ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
         List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
@@ -136,5 +159,17 @@ public class ObdService implements IObdService{
 //        map.put("orderOtherRefId",request.getOrderOtherRefId());
 
         return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, obdHeader);
+    }
+
+    @POST
+    @Path("bdSendObd2Sap")
+    public String bdSendObd2Sap(CreateObdHeader createObdHeader) {
+
+        logger.info(" 黑狗创建obd 入口参数 : createObdHeader : " + JSON.toJSONString(createObdHeader));
+        String type = wuMartSap.soObd2Sap(createObdHeader);
+        if("E".equals(type)){
+            return JsonUtils.EXCEPTION_ERROR("创建obd失败");
+        }
+        return JsonUtils.SUCCESS("创建obd并过账成功");
     }
 }

@@ -171,6 +171,7 @@ public class SeedRpcService implements ISeedRpcService {
             updateReceiveDetail.setDetailOtherId(receiveDetail.getDetailOtherId());
             updateReceiveDetail.setReceiveId(receiveDetail.getReceiveId());
             updateReceiveDetail.setInboundQty(inbReceiptDetail.getInboundQty());
+            updateReceiveDetail.setCode(baseinfoItem.getCode());//更新国条码
             updateReceiveDetailList.add(updateReceiveDetail);
 
             //生成出库detail信息

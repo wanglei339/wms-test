@@ -327,7 +327,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
         } else{
             for(ReceiptItem receiptItem : request.getItems()){
 
-                if(receiptItem.getInboundQty().compareTo(BigDecimal.ZERO) < 0) {
+                if(receiptItem.getInboundQty().compareTo(BigDecimal.ZERO) <= 0) {
                     throw new BizCheckedException("2020007");
                 }
 
@@ -413,6 +413,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 updateReceiveDetail.setReceiveId(receiveDetail.getReceiveId());
                 updateReceiveDetail.setInboundQty(inbReceiptDetail.getInboundQty());
                 updateReceiveDetail.setUpdatedAt(DateUtils.getCurrentSeconds());//更新时间
+                updateReceiveDetail.setCode(baseinfoItem.getCode());//更新国条
                 updateReceiveDetailList.add(updateReceiveDetail);
 
                 if(ibdHeader.getOrderType() == PoConstant.ORDER_TYPE_CPO){
@@ -468,7 +469,11 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 stockLotList.add(stockLot);
 
                 StockMove move = new StockMove();
-                move.setFromLocationId(locationService.getLocationsByType(LocationConstant.SUPPLIER_AREA).get(0).getLocationId());
+                List<BaseinfoLocation> locationList = locationService.getLocationsByType(LocationConstant.SUPPLIER_AREA);
+                if(locationList == null || locationList.size() == 0){
+                    throw new BizCheckedException("2020107");//没有供货区
+                }
+                move.setFromLocationId(locationList.get(0).getLocationId());
                 move.setToLocationId(inbReceiptHeader.getLocation());
                 move.setOperator(inbReceiptHeader.getStaffId());
                 move.setToContainerId(inbReceiptHeader.getContainerId());
@@ -530,22 +535,38 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
     }
     //验证是否可收货
-    public boolean canReceipt(){
+    /*private boolean canReceipt(BaseinfoItem baseinfoItem,IbdHeader ibdHeader,IbdDetail ibdDetail)throws BizCheckedException{
+
+        //商品信息是否完整
+        if(baseinfoItem.getIsInfoIntact() == 0){
+            throw new BizCheckedException("2020104");//商品信息不完整,不能收货
+        }
+        //验证箱规是否一至
+        if(baseinfoItem.getPackUnit().compareTo(ibdDetail.getPackUnit()) != 0){
+            throw new BizCheckedException("2020105");//箱规不一致,不能收货
+        }
+        //验证状态是否可收货
+        boolean isCanReceipt = ibdHeader.getOrderStatus() == PoConstant.ORDER_THROW || ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART || ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPTING;
+        if (!isCanReceipt) {
+            throw new BizCheckedException("2020002");
+        }
 
         return true;
-    }
+    }*/
 
     //验证生产日期
     public boolean checkProTime(BaseinfoItem baseinfoItem,Date proTime,Date dueTime,String exceptionCode) throws BizCheckedException{
-
-        //超过保质期,保质期例外代码验证
-        String proTimeexceptionCode = iexceptionCodeRpcService.getExceptionCodeByName("receiveExpired");// FIXME: 16/11/9 获取保质期的例外代码
-        logger.info("#############proTimeexceptionCode:"+proTimeexceptionCode);
-        logger.info("#############exceptionCode:"+exceptionCode);
-        if(StringUtils.isNotEmpty(exceptionCode) && exceptionCode.equals(proTimeexceptionCode)){
-            throw new BizCheckedException("2020103"); //例外代码不匹配
+        if(StringUtils.isNotEmpty(exceptionCode) ){
+            //验证例外代码
+            //超过保质期,保质期例外代码验证
+            String proTimeexceptionCode = iexceptionCodeRpcService.getExceptionCodeByName("receiveExpired");// 获取保质期的例外代码
+            if(exceptionCode.equals(proTimeexceptionCode)){
+                return true;
+            }else{
+                throw new BizCheckedException("2020103"); //例外代码不匹配
+            }
         }
-        logger.info("#############");
+        logger.info("#############exceptionCode" + exceptionCode);
         if(proTime == null && dueTime == null){
             throw new BizCheckedException("2020008");//生产日期不能为空
         }
@@ -556,6 +577,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
             throw new BizCheckedException("2020102");//到期日期不能小于当前日期
         }
         BigDecimal shelLife = baseinfoItem.getShelfLife();
+        if(shelLife.compareTo(BigDecimal.ZERO) <= 0){
+            throw new BizCheckedException("2020106");//保质期必须大于0
+        }
         String producePlace = baseinfoItem.getProducePlace();
         Double shelLife_CN = Double.parseDouble(PropertyUtils.getString("shelLife_CN"));
         Double shelLife_Not_CN = Double.parseDouble(PropertyUtils.getString("shelLife_Not_CN"));
@@ -721,10 +745,16 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //BaseinfoStore baseinfoStore = iStoreRpcService.getStoreByStoreNo(inbReceiptHeader.getStoreCode());
         CsiCustomer csiCustomer = customerService.getCustomerByCustomerCode(request.getOwnerId(),inbReceiptHeader.getStoreCode());
 
-        List<BaseinfoLocation> list = locationRpcService.getCollectionByStoreNo(inbReceiptHeader.getStoreCode());
+        Long collectRoadId =csiCustomer.getCollectRoadId();
+        if(collectRoadId == null || collectRoadId == 0){
+            throw new BizCheckedException("2020108");//店铺没有设置集货道
+        }
+        inbReceiptHeader.setLocation(collectRoadId);
+
+        /*List<BaseinfoLocation> list = locationRpcService.getCollectionByStoreNo(inbReceiptHeader.getStoreCode());
         if( list != null && list.size() >= 0 ){
             inbReceiptHeader.setLocation(list.get(0).getLocationId());
-        }
+        }*/
 //        BaseinfoLocation baseinfoLocation = locationRpcService.assignTemporary();
 //        inbReceiptHeader.setLocation(baseinfoLocation.getLocationId());// TODO: 16/7/20  暂存区信息
 
@@ -750,7 +780,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //Long taskId = RandomUtils.genId();
 
         for(ReceiptItem receiptItem : request.getItems()){
-            if(receiptItem.getInboundQty().compareTo(BigDecimal.ZERO) < 0) {
+            if(receiptItem.getInboundQty().compareTo(BigDecimal.ZERO) <= 0) {
                 throw new BizCheckedException("2020007");
             }
 

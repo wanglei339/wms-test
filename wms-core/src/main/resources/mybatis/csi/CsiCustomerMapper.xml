@@ -74,6 +74,12 @@
 	<select id="getCsiCustomerList" parameterType="map" resultMap="csiCustomerResultMap">
 		select * from csi_customer
 		<include refid="queryCondition"/>
+		<if test=" 'seedQueue'.equals(orderBy)  and  'desc'.equals(orderType)">
+			ORDER BY  seed_queue DESC
+		</if>
+		<if test=" 'seedQueue'.equals(orderBy)  and  'asc'.equals(orderType)">
+			ORDER BY  seed_queue ASC
+		</if>
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
 		</if>

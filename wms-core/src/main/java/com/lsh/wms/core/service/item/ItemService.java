@@ -123,6 +123,7 @@ public class ItemService {
             item.setSkuId(skuId);
         }
         //gen itemId
+
         item.setItemId(RandomUtils.genId());
         item.setCreatedAt(DateUtils.getCurrentSeconds());
         //创建商品

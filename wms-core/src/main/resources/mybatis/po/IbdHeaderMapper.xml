@@ -71,7 +71,9 @@
 			<if test="stockCode != null">stock_code=#{stockCode},</if>
 			<if test="deliveryDate != null">delivery_date=#{deliveryDate},</if>
 			<if test="endDeliveryDate != null">end_delivery_date=#{endDeliveryDate},</if>
+<!--
 			<if test="createdAt != null">created_at=#{createdAt},</if>
+-->
 			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
 		where order_other_id=#{orderOtherId} or order_id=#{orderId}

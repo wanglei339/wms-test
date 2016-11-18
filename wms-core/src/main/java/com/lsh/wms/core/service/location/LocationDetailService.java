@@ -60,8 +60,6 @@ public class LocationDetailService {
     private ShelfListService shelfListService;
     @Autowired
     private ShelfRegionListService shelfRegionListService;
-    @Autowired
-    private BaseinfoLocationLevelService baseinfoLocationLevelService;
 
     /**
      * 将所有的Service注册到工厂中
@@ -104,9 +102,8 @@ public class LocationDetailService {
         locationDetailServiceFactory.register(LocationConstant.COLLECTION_BIN, baseinfoLocationBinService);
         locationDetailServiceFactory.register(LocationConstant.BACK_BIN, baseinfoLocationBinService);
         locationDetailServiceFactory.register(LocationConstant.DEFECTIVE_BIN, baseinfoLocationBinService);
-        //注入location的层级的服务
-        locationDetailServiceFactory.register(LocationConstant.SHELF_LEVELS, baseinfoLocationLevelService);
-        locationDetailServiceFactory.register(LocationConstant.LOFT_LEVELS, baseinfoLocationLevelService);
+        //注入location的层级的服务 就是主要的服务
+
         //注入超市返仓区服务
         locationDetailServiceFactory.register(LocationConstant.MARKET_RETURN_AREA, baseinfoLocationRegionService);
         //注入CONSUME_AREA和SUPPLIER_AREA
@@ -115,12 +112,10 @@ public class LocationDetailService {
         //注入拆零区、拆零货架、拆零层级、拆零存储一体货位
         locationDetailServiceFactory.register(LocationConstant.SPLIT_AREA, baseinfoLocationRegionService);
         locationDetailServiceFactory.register(LocationConstant.SPLIT_SHELF, baseinfoLocationShelfService);
-        locationDetailServiceFactory.register(LocationConstant.SPLIT_SHELF_LEVEL, baseinfoLocationLevelService);
         locationDetailServiceFactory.register(LocationConstant.SPLIT_SHELF_BIN, baseinfoLocationBinService);
         //注入贵品区、贵品货架、贵品货架层级、贵品存拣货位
         locationDetailServiceFactory.register(LocationConstant.VALUABLES_AREA, baseinfoLocationRegionService);
         locationDetailServiceFactory.register(LocationConstant.VALUABLES_SHELF, baseinfoLocationShelfService);
-        locationDetailServiceFactory.register(LocationConstant.VALUABLES_SHELF_LEVEL, baseinfoLocationLevelService);
         locationDetailServiceFactory.register(LocationConstant.VALUABLES_SHELF_BIN, baseinfoLocationBinService);
         //注入播种区、播种货位
         locationDetailServiceFactory.register(LocationConstant.SOW_AREA, baseinfoLocationRegionService);
@@ -128,7 +123,6 @@ public class LocationDetailService {
         //注入 供商退货区、供商退货货架、供商退货货架层、供商退货入库位置、供商退货存储位置
         locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_AREA, baseinfoLocationRegionService);
         locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_SHELF, baseinfoLocationShelfService);
-        locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_LEVEL, baseinfoLocationLevelService);
         locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_IN_BIN, baseinfoLocationBinService);
         locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_STORE_BIN, baseinfoLocationBinService);
         //todo 功能块的服务注入 locationService没继承,没有功能块,集货道,集货道组的detail服务
@@ -314,7 +308,9 @@ public class LocationDetailService {
         iBaseinfoLocaltionModel.setUpdatedAt(baseinfoLocation.getUpdatedAt());
         //根据model选择service
         IStrategy iStrategy = locationDetailServiceFactory.getIstrategy(iBaseinfoLocaltionModel.getType());
-        iStrategy.insert(iBaseinfoLocaltionModel);
+        if (iStrategy != null) {
+            iStrategy.insert(iBaseinfoLocaltionModel);
+        }
         //将father的叶子节点变为0
         //如果插入的是仓库
         if (location.getFatherId() == -1L) {
@@ -441,6 +437,9 @@ public class LocationDetailService {
             //从结果集中去子类的表中去查,并处理结果集
             for (BaseinfoLocation location : baseinfoLocationList) {
                 IStrategy istrategy = locationDetailServiceFactory.getIstrategy(location.getType());
+                if (null==istrategy){
+                    continue;
+                }
                 //就是子
                 BaseinfoLocation son = istrategy.getBaseinfoItemLocationModelById(location.getLocationId());
                 //拷贝主表的信息

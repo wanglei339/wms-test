@@ -146,7 +146,7 @@ public class TuRestService implements ITuRestService {
         }
         //生成发货单 osd的托盘生命结束并销库存
         tuService.createObdAndMoveStockQuantV2(tuHead, details);
-        //TODO 后面一旦失败,用户的绩效就记不住了,这里是非常不严谨的
+        //TODO 后面一旦失败,用户的绩效就记不住了,这里是非常不严谨的 <写成一个任务,记个数字以后> 其实这也是个事务
         for (TuDetail detail : details) {
             //贵品不记录绩效
             if (detail.getIsExpensive().equals(TuConstant.IS_EXPENSIVE)) {

@@ -15,29 +15,29 @@ public class SysLog implements Serializable {
 	private Long businessId;
 
 	/** 状态类型 0-新建，1-处理中，2-处理完成 */
-	private Long status;
+	private Long status = 0l;
 
 	/** 业务内部处理阶段, 为解决多步骤重传问题 */
-	private Long step;
+	private Long step = 0l;
 
 	/** 日志类型 1 ibd，2 obd 3 fret */
     private Integer logType;
 	/**回调系统 1 wumart 2 链商OFC 3 erp*/
-	private Integer targetSystem;
+	private Integer targetSystem = 0;
 	/** 系统异常码 */
-	private String sysCode;
+	private String sysCode = "";
 	/** 系统异常信息*/
-	private String SysMessage;
+	private String SysMessage = "";
 	/** 异常码 */
-    private String logCode;
+    private String logCode = "";
 	/** 异常信息 */
-    private String logMessage;
+    private String logMessage = "";
 	/**尝试发送次数*/
-	private Long retryTimes;
+	private Long retryTimes = 0l;
 
 	/** 产生时间 */
-    private Long createdAt;
-	private Long updatedAt;
+    private Long createdAt = 0l;
+	private Long updatedAt = 0l;
 	
 	public Long getId(){
 		return this.id;

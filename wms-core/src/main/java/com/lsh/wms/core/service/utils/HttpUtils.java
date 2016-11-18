@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.utils;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -67,7 +68,7 @@ public class HttpUtils {
     public static Part[] getParts(Map<String,Object> params) {
         List<Part> partList = new ArrayList<Part>();
         for(String key:params.keySet()){
-            partList.add(new StringPart(key,params.get(key).toString(),"UTF-8"));
+            partList.add(new StringPart(key, JSON.toJSONString(params.get(key)),"UTF-8"));
         }
         int size = partList.size();
         return partList.toArray(new Part[size]);

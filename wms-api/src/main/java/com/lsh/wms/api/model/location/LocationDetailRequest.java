@@ -32,29 +32,21 @@ public class LocationDetailRequest implements Serializable {
     @NotBlank
     private String typeName;
     /** 是否为叶子位置节点 */
-    @NotNull
-    private Integer isLeaf;
+    private Integer isLeaf=0;
     /** 是否可用 */
-    @NotNull
-    private Integer isValid;
+    private Integer isValid=1;
     /** 是否是存储用位置 */
-    @NotNull
-    private Integer canStore;
+    private Integer canStore=1;
     /** 可容纳容器数量 */
-    @NotNull
-    private Long containerVol;
+    private Long containerVol=0L;
     /** 区域坐标，四维坐标-区位坐标 */
-    @NotNull
-    private Long regionNo;
+    private Long regionNo=0L;
     /** 通道坐标，四维坐标-通道坐标 */
-    @NotNull
-    private Long passageNo;
+    private Long passageNo=0L;
     /** 货架层坐标，四维坐标-层数坐标 */
-    @NotNull
-    private Long shelfLevelNo;
+    private Long shelfLevelNo=0L;
     /** 货位同层坐标，四维坐标-同层 */
-    @NotNull
-    private Long binPositionNo;
+    private Long binPositionNo=0L;
     /** 描述 */
     private String description;
     /** 创建日期 */
@@ -62,20 +54,16 @@ public class LocationDetailRequest implements Serializable {
     /** 更新日期 */
     private Long updatedAt;
     /** 区别库区库位-0为其他1-为库区-2为库位 */
-    @NotNull
-    private Integer classification;
+    private Integer classification = 1;
     /** 是否现在可用0-不可用1-可用 */
-    @NotNull
-    private Integer canUse;
+    private Integer canUse=1;
     /** 0-未上锁1-上锁 */
-    @NotNull
     private Integer isLocked;
-    @NotNull
     private Long curContainerVol;
-    @NotNull
-    private String supplierNo;
-    @NotNull
-    private String storeNo;
+
+    private String supplierNo ="0";
+
+    private String storeNo="0";
 
     public String getStoreNo() {
         return storeNo;

@@ -13,4 +13,5 @@ public interface ResponseConstant {
     public final static Integer RES_CODE_0 = 0;
     public final static Integer RES_CODE_1 = 1;
     public final static String RES_MSG_OK = "OK";
+    public final static String RES_MSG_ERROR = "ERROR";
 }
