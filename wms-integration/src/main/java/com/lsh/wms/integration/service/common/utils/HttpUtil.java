@@ -183,7 +183,7 @@ public class HttpUtil {
 
 
 			httpPost.setConfig(requestConfig);
-			StringEntity stringEntity = new StringEntity(json.toString(), "UTF-8");// 解决中文乱码问题
+			StringEntity stringEntity = new StringEntity(JSON.toJSONString(json), "UTF-8");// 解决中文乱码问题
 			stringEntity.setContentEncoding("UTF-8");
 			stringEntity.setContentType("application/json");
 			httpPost.setEntity(stringEntity);
