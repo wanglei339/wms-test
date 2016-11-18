@@ -52,23 +52,12 @@ public class RedisStringDao extends RedisBaseDao {
 
     }
 
-
     public void increase(String key, double val) {
-        valOp_w.increment(key, val);
+        valOp_r.increment(key, val);
     }
+
     public void decrease(String key, double val) {
-        valOp_w.increment(key, 0-val);
+        valOp_r.increment(key, 0-val);
     }
-
-    public Double decreaseV2(String key, double val) {
-        return valOp_w.increment(key, 0-val);
-    }
-
-    public Long increment2(String key,Long inc) {
-        return valOp_r.increment(key, inc);
-    }
-
-    public double incrementD2(String key,double inc) {
-        return valOp_r.increment(key, inc);
-    }
+    
 }

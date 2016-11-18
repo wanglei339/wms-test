@@ -68,7 +68,7 @@ public class RedisKeyConstant {
      * 库内可用库存redis key   sort set
      */
 
-    public static final String WAREHOUSE_SKU_AVAILABLE_QTY = "wms:inventory:zone:{0}:warehouse{1}:owner:{2}";
+    public static final String WAREHOUSE_SKU_AVAILABLE_QTY = "wms:inventory:zone:{0}:warehouse:{1}:owner:{2}";
 
     /**
      * 库区区位占用resid key  hash
