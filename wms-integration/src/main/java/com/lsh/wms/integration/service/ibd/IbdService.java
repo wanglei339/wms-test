@@ -6,10 +6,13 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
+import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.net.HttpClientUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.base.q.Utilities.Json.JSONObject;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
@@ -18,16 +21,12 @@ import com.lsh.wms.api.model.po.*;
 import com.lsh.wms.api.model.po.IbdDetail;
 import com.lsh.wms.api.model.so.ObdOfcBackRequest;
 import com.lsh.wms.api.model.so.ObdOfcItem;
-import com.lsh.wms.api.model.stock.StockItem;
-import com.lsh.wms.api.model.stock.StockRequest;
-import com.lsh.wms.api.model.wumart.CreateIbdDetail;
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
 import com.lsh.wms.api.model.wumart.CreateObdDetail;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.po.IIbdService;
 import com.lsh.wms.api.service.po.IPoRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
-import com.lsh.wms.api.service.wumart.IWuMartSap;
 import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.constant.SoConstant;
@@ -37,8 +36,8 @@ import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.system.SysLogService;
+import com.lsh.wms.core.service.utils.HttpUtils;
 import com.lsh.wms.integration.service.back.DataBackService;
-import com.lsh.wms.integration.service.common.utils.HttpUtil;
 import com.lsh.wms.integration.service.wumartsap.WuMart;
 import com.lsh.wms.integration.service.wumartsap.WuMartSap;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
@@ -47,16 +46,12 @@ import com.lsh.wms.model.po.*;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.system.SysLog;
-import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
-import net.sf.json.util.JSONUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -108,11 +103,18 @@ public class IbdService implements IIbdService {
         List<PoItem> items = new ArrayList<PoItem>();
 
         if(request.getWarehouseCode().equals("DC41")){
-            String jsonStr = HttpUtil.doPost(IntegrationConstan.URL_PO,request);
-            JSONObject obj = new JSONObject(jsonStr);
-            BaseResponse response = new BaseResponse();
-            ObjUtils.bean2bean(obj,response);
-            return response;
+            String requestBody = JsonUtils.obj2Json(request);
+            int dc41_timeout = PropertyUtils.getInt("dc41_timeout");
+            String dc41_charset = PropertyUtils.getString("dc41_charset");
+            Map<String, String> headerMap = new HashMap<String, String>();
+            headerMap.put("Content-type", "application/json; charset=utf-8");
+            headerMap.put("Accept", "application/json");
+            headerMap.put("api-version", "1.1");
+            headerMap.put("random", RandomUtils.randomStr2(32));
+            headerMap.put("platform", "1");
+            String res  = HttpClientUtils.postBody(IntegrationConstan.URL_PO,  requestBody,dc41_timeout , dc41_charset, headerMap);
+            logger.info("~~~~~~~~~~下发黑狗数据 request : " + JSON.toJSONString(request) + "~~~~~~~~~");
+            return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, res);
         }
 
         for(IbdDetail ibdDetail : details){
@@ -279,12 +281,13 @@ public class IbdService implements IIbdService {
     @POST
     @Path("bdSendIbd2Sap")
     public String bdSendIbd2Sap(CreateIbdHeader createIbdHeader) {
+        logger.info("黑狗创建Ibd 入口参数:createIbdHeader" + JSON.toJSONString(createIbdHeader));
         CreateIbdHeader backData = wuMartSap.ibd2Sap(createIbdHeader);
         String mess = "";
         if(backData != null){
             mess =  wuMartSap.ibd2SapAccount(backData);
             if("E".equals(mess)){
-                JsonUtils.EXCEPTION_ERROR("创建ibd成功,过账失败");
+                return JsonUtils.EXCEPTION_ERROR("创建ibd成功,过账失败");
             }else{
                 mess = "创建并过账成功";
             }
