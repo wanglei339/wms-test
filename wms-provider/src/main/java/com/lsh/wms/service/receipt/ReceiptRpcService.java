@@ -745,6 +745,20 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //BaseinfoStore baseinfoStore = iStoreRpcService.getStoreByStoreNo(inbReceiptHeader.getStoreCode());
         CsiCustomer csiCustomer = customerService.getCustomerByCustomerCode(request.getOwnerId(),inbReceiptHeader.getStoreCode());
 
+<<<<<<< HEAD
+        //获取location的id
+        if (null == csiCustomer) {
+            throw new BizCheckedException("2180023");
+        }
+        if (null == csiCustomer.getCollectRoadId()) {
+            throw new BizCheckedException("2180024");
+        }
+        BaseinfoLocation location = locationService.getLocation(csiCustomer.getCollectRoadId());
+
+        if( location != null){
+            inbReceiptHeader.setLocation(location.getLocationId());
+        }
+=======
         Long collectRoadId =csiCustomer.getCollectRoadId();
         if(collectRoadId == null || collectRoadId == 0){
             throw new BizCheckedException("2020108");//店铺没有设置集货道
@@ -755,6 +769,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
         if( list != null && list.size() >= 0 ){
             inbReceiptHeader.setLocation(list.get(0).getLocationId());
         }*/
+>>>>>>> b7c6b68b626dc14c455486c520cdb12446564c7f
 //        BaseinfoLocation baseinfoLocation = locationRpcService.assignTemporary();
 //        inbReceiptHeader.setLocation(baseinfoLocation.getLocationId());// TODO: 16/7/20  暂存区信息
 

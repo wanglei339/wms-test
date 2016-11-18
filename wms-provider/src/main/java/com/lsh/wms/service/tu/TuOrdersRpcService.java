@@ -246,15 +246,23 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
                 storeMap.put("storeTotalTurnoverBoxCount", storeTotalTurnoverBoxCount + tuDetail.getTurnoverBoxNum());
             } else {
                 //门店名,集货道list,门店id
-                CsiCustomer store = csiCustomerService.getCustomerByCustomerId(storeId);
+                CsiCustomer customer = csiCustomerService.getCustomerByCustomerId(storeId);
                 Map<String, Object> storeMap = new HashMap<String, Object>();
                 storeMap.put("storeId", storeId);
-                storeMap.put("storeName", store.getCustomerName());
+                storeMap.put("storeName", customer.getCustomerName());
                 // TODO: 16/11/16 修改店铺集货位
                 //获取门店下所有的集货位
-                List<BaseinfoLocation> collectionBinsList = iLocationRpcService.getCollectionByStoreNo(store.getCustomerCode());
-                if(collectionBinsList != null && collectionBinsList.size() > 0){
-                    storeMap.put("collectionBins", collectionBinsList.get(0).getLocationCode());
+                //获取location的id
+                if (null == customer) {
+                    throw new BizCheckedException("2180023");
+                }
+                if (null == customer.getCollectRoadId()) {
+                    throw new BizCheckedException("2180024");
+                }
+                BaseinfoLocation collectionLocation = iLocationRpcService.getLocation(customer.getCollectRoadId());
+
+                if(collectionLocation != null){
+                    storeMap.put("collectionBins", collectionLocation.getLocationCode());
                 }else{
                     storeMap.put("collectionBins", "");
                 }

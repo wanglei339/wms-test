@@ -1343,52 +1343,6 @@ public class LocationService {
     }
 
     /**
-     * 查找指定门店号的集货位置,集货道|集货位
-     *  todo 放入集货道
-     * @param storeNo
-     * @return
-     */
-    public List<BaseinfoLocation> getCollectionByStoreNo(String storeNo) throws BizCheckedException {
-        //CsiCustomer csiCustomer = csiCustomerService.getCustomerByCustomerCode(ownerId,storeNo);
-        //if (null == csiCustomer) {
-        //    throw new BizCheckedException("2180012");
-        //}
-        Map<String,Object> mapQuery = new HashMap<String, Object>();
-        //if (CustomerConstant.STORE.equals(csiCustomer.getCustomerType())) { //小店
-        //    mapQuery.put("type", LocationConstant.COLLECTION_BIN);
-//
-  //      } else {
-    //        mapQuery.put("type", LocationConstant.COLLECTION_ROAD);
-      //  }
-        mapQuery.put("storeNo", storeNo);
-        List<BaseinfoLocation> list = this.getBaseinfoLocationList(mapQuery);
-        if (null == list || list.size() < 1) {
-            //throw new BizCheckedException("2180012");
-            return new LinkedList<BaseinfoLocation>();
-        }
-        return list;
-    }
-
-    /**
-     * 查找指定门店号的播种位置
-     *
-     * @param storeNo
-     * @return
-     */
-    public List<BaseinfoLocation> getSowByStoreNo(String storeNo) throws BizCheckedException {
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("storeNo", storeNo);
-        mapQuery.put("type", LocationConstant.SOW_BIN);
-        List<BaseinfoLocation> list = this.getBaseinfoLocationList(mapQuery);
-        if (null == list || list.size() < 1) {
-            //throw new BizCheckedException("2180012");
-            return new LinkedList<BaseinfoLocation>();
-        }
-
-        return list;
-    }
-
-    /**
      * 获取按门店号升序排序好的位置
      *
      * @param type 门店位置(播种货位|集货货位)

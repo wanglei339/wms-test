@@ -291,8 +291,19 @@ public class SeedTaskHandler extends AbsTaskHandler {
         }
         List<StockQuant> quantList = quantService.getQuantsByContainerId(head.getRealContainerId());
         if(quantList ==null || quantList.size()==0){
-            List<BaseinfoLocation> locations = locationService.getSowByStoreNo(head.getStoreNo());
-            move.setToLocationId(locations.get(0).getLocationId());
+
+
+            //获取location的id
+            CsiCustomer customer = csiCustomerService.getCustomerByCustomerCode(head.getStoreNo()); // 门店对应的集货道
+            if (null == customer) {
+                throw new BizCheckedException("2180023");
+            }
+            if (null == customer.getSeedRoadId()) {
+                throw new BizCheckedException("2180025");
+            }
+            BaseinfoLocation location = locationService.getLocation(customer.getCollectRoadId());
+
+            move.setToLocationId(location.getLocationId());
         }else {
             move.setToLocationId(quantList.get(0).getLocationId());
         }
