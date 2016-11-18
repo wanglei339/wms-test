@@ -343,7 +343,7 @@ public class LocationService {
         // 判断是否已为子节点
         BaseinfoLocation curLocation = this.getLocation(locationId);
         if (curLocation.getIsLeaf() == 1) {
-            return null;
+            return new ArrayList<BaseinfoLocation>();
         }
         params.put("fatherId", locationId);
         params.put("isValid", LocationConstant.IS_VALID);
@@ -439,7 +439,7 @@ public class LocationService {
             return baseinfoLocationList;
         }
         if (fatherId == 0) {
-            return null;
+            return new ArrayList<BaseinfoLocation>();
         }
         return this.getFatherList(fatherId);
     }
@@ -488,13 +488,13 @@ public class LocationService {
      */
     public List<BaseinfoLocation> getLocationsByType(Long type) {
         if (type == null) {
-            return null;
+            return new ArrayList<BaseinfoLocation>();
         }
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("type", type);
         params.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
-        return locations;
+        return locations != null && locations.size() > 0 ? locations : new ArrayList<BaseinfoLocation>();
     }
 
     /**
@@ -504,7 +504,7 @@ public class LocationService {
      */
     public BaseinfoLocation getWarehouseLocation() {
         List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.WAREHOUSE);
-        if (locations.size() > 0) {
+        if (locations != null && locations.size() > 0) {
             return locations.get(0);
         } else {
             return null;
@@ -528,7 +528,7 @@ public class LocationService {
      */
     public BaseinfoLocation getInventoryLostLocation() {
         List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.INVENTORYLOST);
-        if (locations.size() > 0) {
+        if (locations != null && locations.size() > 0) {
             return locations.get(0);
         } else {
             return null;
@@ -552,7 +552,7 @@ public class LocationService {
      */
     public BaseinfoLocation getDefectiveLocation() {
         List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.DEFECTIVE_AREA);
-        if (locations.size() > 0) {
+        if (locations != null && locations.size() > 0) {
             return locations.get(0);
         } else {
             return null;
@@ -576,7 +576,7 @@ public class LocationService {
      */
     public BaseinfoLocation getBackLocation() {
         List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.BACK_AREA);
-        if (locations.size() > 0) {
+        if (locations != null && locations.size() > 0) {
             return locations.get(0);
         } else {
             return null;
@@ -601,7 +601,7 @@ public class LocationService {
      */
     public BaseinfoLocation getAvailableLocationByType(Long type) {
         List<BaseinfoLocation> locations = this.getLocationsByType(type);
-        if (locations.size() > 0) {
+        if (null != locations && locations.size() > 0) {
             for (BaseinfoLocation location : locations) {
                 if (location.getCanUse().equals(1) && !this.checkLocationLockStatus(location.getLocationId())) {
                     return location;
@@ -618,7 +618,7 @@ public class LocationService {
      */
     public BaseinfoLocation getAvailableFloorLocation(Long lotId) {
         List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.FLOOR);
-        if (locations.size() > 0) {
+        if (null != locations && locations.size() > 0) {
             for (BaseinfoLocation location : locations) {
                 Long locationId = location.getLocationId();
                 if (location.getCanUse().equals(1) && !this.checkLocationLockStatus(locationId)) {
@@ -672,7 +672,7 @@ public class LocationService {
     // TODO 分配节点以后在调整怎么分配
     public BaseinfoLocation getDockLocation() {
         List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.DOCK_AREA);
-        if (locations.size() > 0) {
+        if (null != locations && locations.size() > 0) {
             return locations.get(0);
         } else {
             return null;
@@ -842,7 +842,7 @@ public class LocationService {
         params.put("locationId", locationId);
         params.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocation> baseinfoLocationList = locationDao.getBaseinfoLocationList(params);
-        if (baseinfoLocationList.size() > 0) {
+        if (null != baseinfoLocationList && baseinfoLocationList.size() > 0) {
             code = baseinfoLocationList.get(0).getLocationCode();
         }
         return code;
@@ -857,16 +857,16 @@ public class LocationService {
     public Long getLocationIdByCode(String code) {
         Long locationId = 0L;
         //先从redis中取code-locaitonId
-        locationId = locationRedisService.getRedisLocationIdByCode(code);
-        if (null != locationId) {
-            return locationId;
-        }
+//        locationId = locationRedisService.getRedisLocationIdByCode(code);
+//        if (null != locationId) {
+//            return locationId;
+//        }
         //redis没有去mysql中查
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("locationCode", code);
         params.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocation> baseinfoLocations = locationDao.getLocationbyCode(params);
-        if (baseinfoLocations.size() > 0) {
+        if (null != baseinfoLocations && baseinfoLocations.size() > 0) {
             locationId = baseinfoLocations.get(0).getLocationId();
         }
         return locationId;
@@ -1027,7 +1027,7 @@ public class LocationService {
      */
     public BaseinfoLocation getlocationIsEmptyAndUnlockByType(Long type) {
         List<BaseinfoLocation> locations = this.getLocationsByType(type);
-        if (locations.size() > 0) {
+        if (null != locations && locations.size() > 0) {
             for (BaseinfoLocation location : locations) {
                 if (this.locationIsEmptyAndUnlock(location)) {
                     return location;
@@ -1283,7 +1283,6 @@ public class LocationService {
     }
 
 
-
     /**
      * 根据供商号，获取位置
      *
@@ -1297,7 +1296,7 @@ public class LocationService {
         mapQuery.put("isValid", LocationConstant.IS_VALID);
         mapQuery.put("supplierNo", supplierNo);
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(mapQuery);
-        return locations;
+        return locations != null && locations.size() > 0 ? locations : new ArrayList<BaseinfoLocation>();
     }
 
     /**
@@ -1325,11 +1324,11 @@ public class LocationService {
         Long shelfLevelNo = 0L;
         Long binPositionNo = 0L;
         if (config.get("levels") != null) {
-            levels = (List<Map<String,Object>>)config.get("levels");
+            levels = (List<Map<String, Object>>) config.get("levels");
         } else {
             levels.add(config);
         }
-        for (Map<String, Object> conf: levels) {
+        for (Map<String, Object> conf : levels) {
             Integer counts = 1;
             BaseinfoLocation location = new BaseinfoLocation();
             if (conf.get("counts") != null) {
