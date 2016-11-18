@@ -32,6 +32,10 @@ public class IdGeneratorContant {
 
             //tuId运单号
             put("tuId", 30);
+
+            //托盘码
+            put("containerCode",1);//前缀1
+
         }
     };
 

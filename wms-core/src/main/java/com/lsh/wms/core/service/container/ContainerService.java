@@ -82,7 +82,7 @@ public class ContainerService {
         }
 
         BaseinfoContainer container = BeanMapTransUtils.map2Bean(config, BaseinfoContainer.class);
-        container.setContainerId(idGenerator.genId("containerCode",false,false));
+        container.setContainerId(idGenerator.genId("containerCode",false,true));
         container.setContainerCode(container.getContainerId().toString());
         container.setCreatedAt(DateUtils.getCurrentSeconds());
         container.setUpdatedAt(DateUtils.getCurrentSeconds());
