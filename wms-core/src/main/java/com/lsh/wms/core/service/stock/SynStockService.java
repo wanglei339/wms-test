@@ -6,6 +6,8 @@ import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.service.inventory.ISynStockInventory;
 import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.dao.redis.RedisSortedSetDao;
+import com.lsh.wms.core.service.item.ItemService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,17 +31,24 @@ public class SynStockService implements ISynStockInventory{
     @Autowired
     private RedisSortedSetDao redisSortedSetDao;
 
-    private String getRedisKey() {
+    @Autowired
+    private ItemService itemService;
+
+    private String getRedisKey(Long ownerId) {
         String warehouseCode = PropertyUtils.getString("warehouseId");
         String zoneCode = PropertyUtils.getString("zone");
-        String redisKey = StrUtils.formatString(RedisKeyConstant.WAREHOUSE_SKU_AVAILABLE_QTY, warehouseCode, zoneCode);
+        String redisKey = StrUtils.formatString(RedisKeyConstant.WAREHOUSE_SKU_AVAILABLE_QTY,  zoneCode, warehouseCode, ownerId);
         return redisKey;
     }
 
     public void synStock(Long itemId, Double avQty) {
-        String redisKey = this.getRedisKey();
-        logger.error("redisKey is " + redisKey);
-        logger.error(StrUtils.formatString("Item[{0}] avQty had change to {1}", itemId, avQty));
-        redisSortedSetDao.add(redisKey, itemId.toString(), avQty.doubleValue());
+        BaseinfoItem item = itemService.getItem(itemId);
+        if (item == null) {
+            logger.warn(StrUtils.formatString("invalid item_id {0}", itemId));
+            return;
+        }
+        String redisKey = this.getRedisKey(item.getOwnerId());
+        logger.info(StrUtils.formatString("Item[{0}] avQty had change to {1}", itemId, avQty));
+        redisSortedSetDao.add(redisKey, item.getSkuCode(), avQty.doubleValue());
     }
 }
