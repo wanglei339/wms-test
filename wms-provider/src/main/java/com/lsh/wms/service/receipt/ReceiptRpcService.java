@@ -741,9 +741,17 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //BaseinfoStore baseinfoStore = iStoreRpcService.getStoreByStoreNo(inbReceiptHeader.getStoreCode());
         CsiCustomer csiCustomer = customerService.getCustomerByCustomerCode(request.getOwnerId(),inbReceiptHeader.getStoreCode());
 
-        List<BaseinfoLocation> list = locationRpcService.getCollectionByStoreNo(inbReceiptHeader.getStoreCode());
-        if( list != null && list.size() >= 0 ){
-            inbReceiptHeader.setLocation(list.get(0).getLocationId());
+        //获取location的id
+        if (null == csiCustomer) {
+            throw new BizCheckedException("2180023");
+        }
+        if (null == csiCustomer.getCollectRoadId()) {
+            throw new BizCheckedException("2180024");
+        }
+        BaseinfoLocation location = locationService.getLocation(csiCustomer.getCollectRoadId());
+
+        if( location != null){
+            inbReceiptHeader.setLocation(location.getLocationId());
         }
 //        BaseinfoLocation baseinfoLocation = locationRpcService.assignTemporary();
 //        inbReceiptHeader.setLocation(baseinfoLocation.getLocationId());// TODO: 16/7/20  暂存区信息

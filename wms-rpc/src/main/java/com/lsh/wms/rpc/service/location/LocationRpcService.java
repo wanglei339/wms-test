@@ -287,34 +287,6 @@ public class LocationRpcService implements ILocationRpcService {
         return targetLocation;
     }
 
-    /**
-     * 将门店位置下的所有集货位置拿出来
-     *
-     * @param storeNo 门店号
-     * @return
-     * @throws BizCheckedException
-     */
-    public List<BaseinfoLocation> getCollectionByStoreNo(String storeNo) throws BizCheckedException {
-        if (null == storeNo) {
-            throw new BizCheckedException("2180010");
-        }
-        List<BaseinfoLocation> locations = locationService.getCollectionByStoreNo(storeNo);
-        return locations;
-    }
-    /**
-     * 将门店位置下的所有播种位置拿出来
-     *
-     * @param storeNo 门店号
-     * @return
-     * @throws BizCheckedException
-     */
-    public List<BaseinfoLocation> getSowByStoreNo(String storeNo) throws BizCheckedException {
-        if (null == storeNo) {
-            throw new BizCheckedException("2180010");
-        }
-        List<BaseinfoLocation> locations = locationService.getSowByStoreNo(storeNo);
-        return locations;
-    }
 
     /**
      * 根据库位的左右范围获取指定库位
