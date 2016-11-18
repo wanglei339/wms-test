@@ -552,20 +552,17 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
     //验证生产日期
     public boolean checkProTime(BaseinfoItem baseinfoItem,Date proTime,Date dueTime,String exceptionCode) throws BizCheckedException{
-
-        //超过保质期,保质期例外代码验证
-        String proTimeexceptionCode = iexceptionCodeRpcService.getExceptionCodeByName("receiveExpired");// FIXME: 16/11/9 获取保质期的例外代码
-        logger.info("#############proTimeexceptionCode:"+proTimeexceptionCode);
-        logger.info("#############exceptionCode:"+exceptionCode);
         if(StringUtils.isNotEmpty(exceptionCode) ){
             //验证例外代码
+            //超过保质期,保质期例外代码验证
+            String proTimeexceptionCode = iexceptionCodeRpcService.getExceptionCodeByName("receiveExpired");// 获取保质期的例外代码
             if(exceptionCode.equals(proTimeexceptionCode)){
                 return true;
             }else{
                 throw new BizCheckedException("2020103"); //例外代码不匹配
             }
         }
-        logger.info("#############");
+        logger.info("#############exceptionCode" + exceptionCode);
         if(proTime == null && dueTime == null){
             throw new BizCheckedException("2020008");//生产日期不能为空
         }
@@ -576,6 +573,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
             throw new BizCheckedException("2020102");//到期日期不能小于当前日期
         }
         BigDecimal shelLife = baseinfoItem.getShelfLife();
+        if(shelLife.compareTo(BigDecimal.ZERO) <= 0){
+            throw new BizCheckedException("2020106");//保质期必须大于0
+        }
         String producePlace = baseinfoItem.getProducePlace();
         Double shelLife_CN = Double.parseDouble(PropertyUtils.getString("shelLife_CN"));
         Double shelLife_Not_CN = Double.parseDouble(PropertyUtils.getString("shelLife_Not_CN"));
