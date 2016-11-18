@@ -1282,79 +1282,7 @@ public class LocationService {
         }
     }
 
-    /**
-     * 设置门店号
-     *
-     * @param location 位置
-     * @param storeNo  设置的门店号
-     * @return 设置门店号的位置
-     * @throws BizCheckedException
-     */
-    @Transactional(readOnly = false)
-    public BaseinfoLocation setStoreNoOnRoad(BaseinfoLocation location, String storeNo) throws BizCheckedException {
-        location.setStoreNo(storeNo);
-        this.updateLocation(location);
-        return location;
-    }
 
-    /**
-     * 设置门店号
-     *
-     * @param locationId 位置编号
-     * @param storeNo    设置的门店号
-     * @return 设置门店号的位置
-     * @throws BizCheckedException
-     */
-    @Transactional(readOnly = false)
-    public BaseinfoLocation setStoreNoOnRoad(Long locationId, String storeNo) throws BizCheckedException {
-        BaseinfoLocation location = this.getLocation(locationId);
-        location.setStoreNo(storeNo);
-        this.updateLocation(location);
-        return location;
-    }
-
-    /**
-     * 移除集货道|集货位的门店号,将门店号置为0
-     *
-     * @param location 位置
-     * @return
-     * @throws BizCheckedException
-     */
-    @Transactional(readOnly = false)
-    public BaseinfoLocation removeStoreNoOnRoad(BaseinfoLocation location) throws BizCheckedException {
-        location.setStoreNo(LocationConstant.REMOVE_STORE_NO);
-        this.updateLocation(location);
-        return location;
-    }
-
-    /**
-     * 移除集货道|集货位的门店号,将门店号置为0
-     *
-     * @param locationId 库位id
-     * @return
-     * @throws BizCheckedException
-     */
-    @Transactional(readOnly = false)
-    public BaseinfoLocation removeStoreNoOnRoad(Long locationId) throws BizCheckedException {
-        BaseinfoLocation location = this.getLocation(locationId);
-        location.setStoreNo(LocationConstant.REMOVE_STORE_NO);
-        this.updateLocation(location);
-        return location;
-    }
-
-    /**
-     * 获取按门店号升序排序好的位置
-     *
-     * @param type 门店位置(播种货位|集货货位)
-     * @return
-     */
-    public List<BaseinfoLocation> sortLocationByStoreNo(Long type) {
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("type", type);
-        mapQuery.put("storeNo", LocationConstant.REMOVE_STORE_NO);   //这里使用的mapper是 storeNO>0, 0是在库的代号
-        List<BaseinfoLocation> locations = locationDao.sortLocationByStoreNoAndType(mapQuery); //0不是门店的位置,查找的是大于0的结果
-        return locations;
-    }
 
     /**
      * 根据供商号，获取位置

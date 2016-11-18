@@ -66,6 +66,7 @@ public interface ILocationRpcService {
      * @return
      */
     public List<BaseinfoLocation> getColletionBins();
+
     BaseinfoLocation getWarehouseLocation();
 
     /**
@@ -91,6 +92,7 @@ public interface ILocationRpcService {
 
     /**
      * 查找最近的通道
+     *
      * @param location
      * @return
      */
@@ -101,25 +103,10 @@ public interface ILocationRpcService {
      */
     public void syncRedisAll();
 
-    /**
-     * 设置集货道或集货位的位置id
-     * @param locationId  位置
-     * @param storeNo     门店编号
-     * @return
-     */
-    public BaseinfoLocation setStoreNoOnRoad(Long locationId,String storeNo)throws BizCheckedException;
-
-    /**
-     * 移除集货道的门店号,将其置为0
-     * @param locationId
-     * @return
-     * @throws BizCheckedException
-     */
-    public BaseinfoLocation removeStoreNoOnRoad(Long locationId) throws  BizCheckedException;
-
 
     /**
      * 根据库位的左右范围获取指定库位
+     *
      * @param params
      * @return
      * @throws BizCheckedException

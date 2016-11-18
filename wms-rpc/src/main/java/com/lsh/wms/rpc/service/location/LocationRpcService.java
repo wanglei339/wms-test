@@ -269,24 +269,6 @@ public class LocationRpcService implements ILocationRpcService {
         locationService.syncRedisAll();
     }
 
-    /**
-     * @param locationId 位置
-     * @param storeNo    门店编号
-     * @return
-     * @throws BizCheckedException
-     */
-    public BaseinfoLocation setStoreNoOnRoad(Long locationId, String storeNo) throws BizCheckedException {
-        if (null == storeNo) {
-            throw new BizCheckedException("2180010");
-        }
-        BaseinfoLocation location = this.getLocation(locationId);
-        if (!location.getType().equals(LocationConstant.COLLECTION_BIN) && !location.getType().equals(LocationConstant.COLLECTION_ROAD)) {
-            throw new BizCheckedException("2180011");
-        }
-        BaseinfoLocation targetLocation = locationService.setStoreNoOnRoad(location, storeNo);
-        return targetLocation;
-    }
-
 
     /**
      * 根据库位的左右范围获取指定库位
@@ -296,30 +278,6 @@ public class LocationRpcService implements ILocationRpcService {
      */
     public List<BaseinfoLocation> getRangeLocationList(Map<String, Object> params) throws BizCheckedException {
         List<BaseinfoLocation> locations = locationService.getRangeLocationList(params);
-        return locations;
-    }
-
-    /**
-     * 移除集货道的门店号,将其置为0
-     * @param locationId
-     * @return
-     * @throws BizCheckedException
-     */
-    public BaseinfoLocation removeStoreNoOnRoad(Long locationId) throws BizCheckedException {
-        if (null == locationId) {
-            throw new BizCheckedException("2180001");
-        }
-        BaseinfoLocation location = locationService.removeStoreNoOnRoad(locationId);
-        return location;
-    }
-
-    /**
-     * 获取所有的门店升序排列的播种位置
-     * @return
-     * @throws BizCheckedException
-     */
-    public List<BaseinfoLocation> sortSowLocationByStoreNo() throws BizCheckedException {
-        List<BaseinfoLocation> locations = locationService.sortLocationByStoreNo(LocationConstant.SOW_BIN);
         return locations;
     }
 
