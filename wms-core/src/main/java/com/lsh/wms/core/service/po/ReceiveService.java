@@ -17,10 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by lixin-mac on 2016/10/21.
@@ -82,7 +79,7 @@ public class ReceiveService {
         Map<String,Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("receiveId",receiveId);
         List<ReceiveHeader> list = this.getReceiveHeaderList(mapQuery);
-        if(list.size() <= 0){
+        if(list == null){
             return null;
         }
         return list.get(0);
@@ -135,8 +132,8 @@ public class ReceiveService {
         Map<String,Object> map = new HashMap<String, Object>();
         map.put("receiveId",receiveId);
         List<ReceiveDetail> receiveDetails = receiveDetailDao.getReceiveDetailList(map);
-        if (receiveDetails.size() <=0 ) {
-            return null;
+        if (receiveDetails == null) {
+            return new ArrayList<ReceiveDetail>();
         }
         return receiveDetails;
     }
