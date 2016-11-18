@@ -557,7 +557,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
         String proTimeexceptionCode = iexceptionCodeRpcService.getExceptionCodeByName("receiveExpired");// FIXME: 16/11/9 获取保质期的例外代码
         logger.info("#############proTimeexceptionCode:"+proTimeexceptionCode);
         logger.info("#############exceptionCode:"+exceptionCode);
-        if(StringUtils.isNotEmpty(exceptionCode) && exceptionCode.equals(proTimeexceptionCode)){
+        if(StringUtils.isNotEmpty(exceptionCode) && !exceptionCode.equals(proTimeexceptionCode)){
             throw new BizCheckedException("2020103"); //例外代码不匹配
         }
         logger.info("#############");
