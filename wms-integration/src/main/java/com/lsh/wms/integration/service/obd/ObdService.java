@@ -5,6 +5,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.q.Utilities.Json.JSONObject;
 import com.lsh.wms.api.model.base.BaseResponse;
@@ -21,7 +22,7 @@ import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.so.SoOrderService;
-import com.lsh.wms.integration.service.common.utils.HttpUtil;
+import com.lsh.wms.core.service.utils.HttpUtils;
 import com.lsh.wms.integration.service.wumartsap.WuMartSap;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.csi.CsiCustomer;
@@ -77,7 +78,7 @@ public class ObdService implements IObdService{
 
         if(request.getWarehouseCode().equals("DC41")){
             logger.info("~~~~~~~~~~下发黑狗数据 request : " + com.alibaba.fastjson.JSON.toJSONString(request) + "~~~~~~~~~");
-            String jsonStr = HttpUtil.doPost(IntegrationConstan.URL_SO, request);
+            String jsonStr = HttpUtils.doPostByForm(IntegrationConstan.URL_SO, BeanMapTransUtils.Bean2map(request));
             logger.info("~~~~~~~~~~下发黑狗返回数据 jsonStr : " + jsonStr + "~~~~~~~~~");
             if(jsonStr == null || jsonStr.equals("")){
                 return ResUtils.getResponse(ResponseConstant.RES_CODE_0, ResponseConstant.RES_MSG_ERROR, null);
