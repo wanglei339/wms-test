@@ -185,9 +185,9 @@ public class ReceiptRestService implements IReceiptRfService {
             }
 
             //验证箱规是否一至
-            if(baseinfoItem.getPackUnit().compareTo(ibdDetail.getPackUnit()) != 0){
+            /*if(baseinfoItem.getPackUnit().compareTo(ibdDetail.getPackUnit()) != 0){
                 throw new BizCheckedException("2020105");//箱规不一致,不能收货
-            }
+            }*/
 
             /*
             验证保质期是否有效
@@ -362,7 +362,7 @@ public class ReceiptRestService implements IReceiptRfService {
         }
 
         //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
-        CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barCode);
+        CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, baseinfoItem.getCode());
         if (null == csiSku || csiSku.getSkuId() == null) {
             throw new BizCheckedException("2020022");
         }
