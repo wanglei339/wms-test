@@ -881,6 +881,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             updateReceiveDetail.setReceiveId(receiveDetail.getReceiveId());
             updateReceiveDetail.setInboundQty(inbReceiptDetail.getInboundQty());
             updateReceiveDetail.setUpdatedAt(DateUtils.getCurrentSeconds());//更新时间
+            updateReceiveDetail.setCode(baseinfoItem.getCode());//更新国条
             updateReceiveDetailList.add(updateReceiveDetail);
 
             //生成出库detail信息
@@ -903,6 +904,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
             CsiSupplier supplier = supplierService.getSupplier(ibdHeader.getSupplierCode(),ibdHeader.getOwnerUid());
 
+            if(supplier == null){
+                throw new BizCheckedException("2020109");//供应商不存在
+            }
             stockLot.setPackUnit(ibdDetail.getPackUnit());
             stockLot.setSkuId(inbReceiptDetail.getSkuId());
             stockLot.setSerialNo(inbReceiptDetail.getLotNum());
