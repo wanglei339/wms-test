@@ -76,6 +76,9 @@ public class ObdService implements IObdService{
 
         if(request.getWarehouseCode().equals("DC41")){
             String jsonStr = HttpUtil.doPost(IntegrationConstan.URL_SO,request);
+            if(jsonStr == null || jsonStr.equals("")){
+                return ResUtils.getResponse(ResponseConstant.RES_CODE_0, ResponseConstant.RES_MSG_ERROR, null);
+            }
             JSONObject obj = new JSONObject(jsonStr);
             BaseResponse response = new BaseResponse();
             ObjUtils.bean2bean(obj,response);
