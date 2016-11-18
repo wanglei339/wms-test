@@ -55,7 +55,7 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
             List<BaseinfoLocation> baseinfoLocationList = locationDetailService.getDockListByType(params);
             //抛异常
             if (null == baseinfoLocationList) {
-                throw new BizCheckedException("2180002");
+                return new ArrayList<BaseinfoLocation>();
             }
             return baseinfoLocationList;
         }

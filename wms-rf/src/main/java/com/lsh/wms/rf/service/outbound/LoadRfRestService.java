@@ -80,7 +80,9 @@ public class LoadRfRestService implements ILoadRfRestService {
         if (null == status || null == loadUid) {
             throw new BizCheckedException("2990028");
         }
-        if (!TuConstant.UNLOAD.equals(status) && !TuConstant.LOAD_OVER.equals(status)) {
+        if (!TuConstant.UNLOAD.equals(status)
+                && !TuConstant.LOAD_OVER.equals(status)
+                && !TuConstant.IN_LOADING.equals(status)) {
             throw new BizCheckedException("2990029");
         }
         List<TuHead> tuHeads = null;
@@ -93,15 +95,17 @@ public class LoadRfRestService implements ILoadRfRestService {
             //将该人的状态是装车中的也列出来
             Map<String, Object> tuMapQuery = new HashMap<String, Object>();
             tuMapQuery.put("loadUid", loadUid);
+            tuMapQuery.put("type", TuConstant.TYPE_STORE);
             tuMapQuery.put("status", TuConstant.IN_LOADING);
             List<TuHead> doingHeads = iTuRpcService.getTuHeadList(tuMapQuery);
             if (null != doingHeads && doingHeads.size() > 0) {
                 headList.addAll(doingHeads);
             }
+        }
             //待装车的
             Map<String, Object> mapQuery = new HashMap<String, Object>();
-            mapQuery.put("status", TuConstant.UNLOAD);
-            mapQuery.put("type", 1L);
+            mapQuery.put("status", status);
+            mapQuery.put("type", TuConstant.TYPE_STORE);
             mapQuery.put("orderBy", "createdAt");    //按照createAt排序
             mapQuery.put("orderType", "asc");    //按照createAt排序
             tuHeads = iTuRpcService.getTuHeadList(mapQuery);   //时间的降序
@@ -123,36 +127,6 @@ public class LoadRfRestService implements ILoadRfRestService {
                 one.put("stores", storeList);
                 resultList.add(one);
             }
-        }
-        //已装车代发货
-        if (TuConstant.LOAD_OVER.equals(status)) {
-            Map<String, Object> mapQuery = new HashMap<String, Object>();
-            mapQuery.put("status", TuConstant.LOAD_OVER);
-            mapQuery.put("loadUid", loadUid);   //该人的装车记录
-            mapQuery.put("type", 1L);
-            mapQuery.put("orderBy", "loadedAt");    //按照createAt排序
-            mapQuery.put("orderType", "asc");    //按照loadedAt排序
-            tuHeads = iTuRpcService.getTuHeadList(mapQuery);
-            //无tu单
-            if (null == tuHeads || tuHeads.size() < 1) {
-                resultMap.put("result", resultList);
-                return JsonUtils.SUCCESS(resultMap);
-            }
-            for (int i = 0; i < tuHeads.size(); i++) {
-                Map<String, Object> one = new HashMap<String, Object>();
-                one.put("number", i + 1);   //序号
-                one.put("tu", tuHeads.get(i).getTuId());
-                one.put("cellphone", tuHeads.get(i).getCellphone()); //司机的电话号
-                one.put("realBoard", tuHeads.get(i).getRealBoard());
-                one.put("carNumber", tuHeads.get(i).getCarNumber());   //预装板数
-                one.put("driverName", tuHeads.get(i).getName());   //预装板数
-                //门店
-                //List<map<"code":,"name">>
-                List<Map<String, Object>> storeList = csiCustomerService.ParseCustomerIds2Customers(tuHeads.get(i).getStoreIds());
-                one.put("stores", storeList);
-                resultList.add(one);
-            }
-        }
         resultMap.put("result", resultList);
         return JsonUtils.SUCCESS(resultMap);
     }
@@ -175,7 +149,7 @@ public class LoadRfRestService implements ILoadRfRestService {
         tuHead.setLoadUid(loadUid);
         iTuRpcService.changeTuHeadStatus(tuHead, TuConstant.IN_LOADING);    //改成装车中
         //门店信息
-        List<Map<String, Object>> stores = csiCustomerService.ParseCustomerIds2Customers(tuHead.getStoreIds());
+        List<Map<String, Object>> stores = csiCustomerService.ParseCustomerIds2Customers(tuHead.getStoreIds()); //少用map不易解读
         //rf结果
         Map<String, Object> resultMap = new HashMap<String, Object>();
         //大门店还是小门店

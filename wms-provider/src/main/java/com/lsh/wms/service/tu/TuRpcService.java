@@ -309,7 +309,7 @@ public class TuRpcService implements ITuRpcService {
         //大店装车的前置条件是合板,小店是组盘完成
         Long mergedContainerId = null;  //需要存入detail的id, 大店是合板的id,小店是物理托盘码
         BigDecimal boardNum = new BigDecimal("0.0000");   //一板子多托的数量
-
+        // todo 这里要改成同一都一组盘为前置条件
         if (TuConstant.SCALE_STORE.equals(tuHead.getScale())) {    //小店看组盘
             //QC+done+containerId 找到mergercontaierId
             Map<String, Object> qcMapQuery = new HashMap<String, Object>();
@@ -336,7 +336,7 @@ public class TuRpcService implements ITuRpcService {
         List<Map<String, Object>> customers = csiCustomerService.ParseCustomerIds2Customers(tuHead.getStoreIds());
         List<WaveDetail> waveDetails = null;    //查找板子的detail
         //板子聚类
-        //查看板子的数量
+        //查看板子的数量 写的有点臃肿,可优化
         if (mergedContainerId.equals(containerId)) { //没合板
             mergedContainerId = containerId;
             waveDetails = waveService.getAliveDetailsByContainerId(mergedContainerId);
@@ -358,7 +358,7 @@ public class TuRpcService implements ITuRpcService {
         if(waveDetails == null || waveDetails.size() == 0){
             throw new BizCheckedException("2870040");
         }
-        //一个板上的是一个门店的,只用来取店名字
+        //一个板上的是一个门店的,只用来取店名字(托盘上和板子上只能是相同货主)
         Long orderId = waveDetails.get(0).getOrderId();
         ObdHeader obdHeader = iSoRpcService.getOutbSoHeaderDetailByOrderId(orderId);
         if (null == obdHeader) {

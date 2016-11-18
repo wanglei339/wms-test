@@ -72,10 +72,10 @@ public class LocationDetailRequest implements Serializable {
     private Integer isLocked;
     @NotNull
     private Long curContainerVol;
-    @NotNull
-    private String supplierNo;
-    @NotNull
-    private String storeNo;
+
+    private String supplierNo ="0";
+
+    private String storeNo="0";
 
     public String getStoreNo() {
         return storeNo;

@@ -437,6 +437,9 @@ public class LocationDetailService {
             //从结果集中去子类的表中去查,并处理结果集
             for (BaseinfoLocation location : baseinfoLocationList) {
                 IStrategy istrategy = locationDetailServiceFactory.getIstrategy(location.getType());
+                if (null==istrategy){
+                    continue;
+                }
                 //就是子
                 BaseinfoLocation son = istrategy.getBaseinfoItemLocationModelById(location.getLocationId());
                 //拷贝主表的信息

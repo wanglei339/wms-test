@@ -161,11 +161,15 @@ public class LocationRestService implements ILocationRestService {
         List<Long> regionType = Arrays.asList(LocationConstant.SHELF, LocationConstant.LOFT, LocationConstant.SPLIT_SHELF);
         for (Long oneType : regionType) {
             List<BaseinfoLocation> locationList = locationService.getChildrenLocationsByType(locationId, oneType);
+            if (null == locationList || locationList.size() < 1) {
+                continue;
+            }
             targetList.addAll(locationList);
         }
 
         return JsonUtils.SUCCESS(targetList);
     }
+
     /**
      * 根仓库
      *
@@ -176,6 +180,7 @@ public class LocationRestService implements ILocationRestService {
     public BaseinfoLocation getWarehouseLocation() {
         return locationRpcService.getWarehouseLocation();
     }
+
     /**
      * 根据货架或者阁楼找bin
      *
@@ -354,13 +359,14 @@ public class LocationRestService implements ILocationRestService {
                 locationType = 2;//阁楼
             }
         }
-        Map<String,Object> locationMap = new HashMap<String, Object>();
-        locationMap.put("locationType",locationType);
+        Map<String, Object> locationMap = new HashMap<String, Object>();
+        locationMap.put("locationType", locationType);
         return JsonUtils.SUCCESS(locationMap);
     }
 
     /**
      * 初始化构建整棵location树结构
+     *
      * @return
      * @throws BizCheckedException
      */
