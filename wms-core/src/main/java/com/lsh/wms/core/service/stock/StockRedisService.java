@@ -24,7 +24,7 @@ import java.util.Set;
 @Component
 public class StockRedisService {
     @Autowired
-    private RedisStringDao redisDao;
+    private RedisStringDao redisStringDao;
 
     @Autowired
     private InventoryRedisService inventoryRedisService;
@@ -42,21 +42,20 @@ public class StockRedisService {
 
     public Double getSkuQty(Long itemId){
         String redistKey = getRedisKey(itemId);
-        String val = redisDao.get(redistKey);
+        String val = redisStringDao.get(redistKey);
         return null == val ?  0.0 :new Double(val);
     }
 
     public void inBound(Long itemId, BigDecimal qty) {
         String redisKey = getRedisKey(itemId);
-        redisDao.increase(redisKey, new Double(qty.toString()));
-        double availableQty =    inventoryRedisService.getAvailableSkuQty(itemId);
-        synStockService.synStock(itemId,availableQty);
-
+        redisStringDao.increase(redisKey, qty.doubleValue());
+        double availableQty =  inventoryRedisService.getAvailableSkuQty(itemId);
+        synStockService.synStock(itemId, availableQty);
     }
 
     public void outBound(Long itemId, BigDecimal qty) {
         String redisKey = getRedisKey(itemId);
-        redisDao.decrease(redisKey, new Double(qty.toString()));
+        redisStringDao.decrease(redisKey, new Double(qty.toString()));
         double availableQty =  inventoryRedisService.getAvailableSkuQty(itemId);
         synStockService.synStock(itemId,availableQty);
     }
