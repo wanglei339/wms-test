@@ -413,6 +413,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 updateReceiveDetail.setReceiveId(receiveDetail.getReceiveId());
                 updateReceiveDetail.setInboundQty(inbReceiptDetail.getInboundQty());
                 updateReceiveDetail.setUpdatedAt(DateUtils.getCurrentSeconds());//更新时间
+                updateReceiveDetail.setCode(baseinfoItem.getCode());//更新国条
                 updateReceiveDetailList.add(updateReceiveDetail);
 
                 if(ibdHeader.getOrderType() == PoConstant.ORDER_TYPE_CPO){
