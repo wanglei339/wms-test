@@ -48,16 +48,16 @@ public class RedisStringDao extends RedisBaseDao {
         if (StringUtils.isBlank(valueStr)) {
             valueStr = NULL_STR;
         }
-        valOp_w.set(key,valueStr,time, timeUnit);
+        valOp_w.set(key, valueStr, time, timeUnit);
 
     }
 
-
     public void increase(String key, double val) {
-        valOp_w.increment(key, val);
+        valOp_r.increment(key, val);
     }
 
     public void decrease(String key, double val) {
-        valOp_w.increment(key, 0-val);
+        valOp_r.increment(key, 0-val);
     }
+    
 }

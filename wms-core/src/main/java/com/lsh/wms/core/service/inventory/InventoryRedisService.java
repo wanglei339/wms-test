@@ -52,6 +52,8 @@ public class InventoryRedisService {
     }
 
     public double getAvailableSkuQty(Long itemId) {
+        logger.error(StrUtils.formatString("fuck sku order is {0}", stockRedisService.getSkuQty(itemId)));
+        logger.error(StrUtils.formatString("fuck sku so order is {0}", this.soOrderSkuQty(itemId)));
         return stockRedisService.getSkuQty(itemId) - this.soOrderSkuQty(itemId);
     }
 

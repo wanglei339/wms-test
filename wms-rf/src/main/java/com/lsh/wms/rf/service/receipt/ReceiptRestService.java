@@ -146,7 +146,9 @@ public class ReceiptRestService implements IReceiptRfService {
             /*if(receiptItem.getProTime() == null) {
                 throw new BizCheckedException("2020008");
             }*/
-
+            if(receiptItem.getInboundQty().compareTo(BigDecimal.ZERO) <= 0){
+                throw new BizCheckedException("2020007");//收货数量必须大于0
+            }
             //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
             //CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, receiptItem.getBarCode());
 

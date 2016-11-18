@@ -27,7 +27,7 @@ public class ReceiveDetail implements Serializable {
 	/** 基本单位名称 */
     private String unitName;
 	/** 基本单位数量 */
-    private String unitQty;
+    private BigDecimal unitQty;
 	/** 价格 */
     private BigDecimal price;
 	/** 实际收货数 */
@@ -124,11 +124,11 @@ public class ReceiveDetail implements Serializable {
 		this.unitName = unitName;
 	}
 	
-	public String getUnitQty(){
+	public BigDecimal getUnitQty(){
 		return this.unitQty;
 	}
 	
-	public void setUnitQty(String unitQty){
+	public void setUnitQty(BigDecimal unitQty){
 		this.unitQty = unitQty;
 	}
 	
