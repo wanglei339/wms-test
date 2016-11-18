@@ -1468,7 +1468,7 @@ public class LocationService {
                 detailRequest.setLocationCode(conf.get("locationCode").toString());
                 if (father != null) {
                     String code = "";
-                    if (father.getType().equals(LocationConstant.WAREHOUSE) || father.getType().equals(LocationConstant.REGION_AREA) || (conf.get("withoutFatherCode") != null && Boolean.parseBoolean(conf.get("withoutFatherCode").toString()))) {
+                    if (conf.get("withoutFatherCode") != null && Boolean.parseBoolean(conf.get("withoutFatherCode").toString())) {
                         code = String.format(conf.get("locationCode").toString(), counter);
                     } else {
                         code = father.getLocationCode() + String.format(conf.get("locationCode").toString(), counter);
