@@ -244,16 +244,16 @@ public class CsiRestService implements ICsiRestService {
 
     @POST
     @Path("updateCustomer")
-    public String updateCustomer(CsiCustomer csiCustomer)throws BizCheckedException{
-        try{
-            if(csiCustomer.getCollectRoadId() != 0
-                    && (locationService.getLocation(csiCustomer.getCollectRoadId()) == null
-                        || locationService.getLocation(csiCustomer.getCollectRoadId()).getType() != LocationConstant.COLLECTION_ROAD)){
-                throw new BizCheckedException("2180011");
-            }
+    public String updateCustomer(CsiCustomer csiCustomer)throws BizCheckedException {
+        if (csiCustomer.getCollectRoadId() != 0
+                && (locationService.getLocation(csiCustomer.getCollectRoadId()) == null
+                || locationService.getLocation(csiCustomer.getCollectRoadId()).getType() != LocationConstant.COLLECTION_ROAD)) {
+            throw new BizCheckedException("2180011");
+        }
+        try {
             customerService.update(csiCustomer);
-        }catch (Exception e){
-            logger.error(e.getCause().getMessage());
+        } catch (Exception e) {
+            logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("failed");
         }
         return JsonUtils.SUCCESS();
