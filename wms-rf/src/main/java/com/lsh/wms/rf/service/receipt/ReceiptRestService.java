@@ -183,6 +183,12 @@ public class ReceiptRestService implements IReceiptRfService {
             if(ibdDetail == null){
                 throw new BizCheckedException("2020001");
             }
+
+            //验证箱规是否一至
+            /*if(baseinfoItem.getPackUnit().compareTo(ibdDetail.getPackUnit()) != 0){
+                throw new BizCheckedException("2020105");//箱规不一致,不能收货
+            }*/
+
             /*
             验证保质期是否有效
              */
@@ -356,7 +362,7 @@ public class ReceiptRestService implements IReceiptRfService {
         }
 
         //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
-        CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barCode);
+        CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, baseinfoItem.getCode());
         if (null == csiSku || csiSku.getSkuId() == null) {
             throw new BizCheckedException("2020022");
         }
@@ -624,9 +630,12 @@ public class ReceiptRestService implements IReceiptRfService {
 
        BaseinfoItem baseinfoItem = this.getItem(barCode,ibdHeader.getOwnerUid());
 
+        logger.info("1111111111~~~~~~~~~~~~~~~~~~~~~ baeseinfo_item  : " + JSON.toJSONString(baseinfoItem) +" ~~~~~~~~~~~~~~~~");
        if(baseinfoItem.getIsInfoIntact() == 0){
+           logger.info("22222222222~~~~~~~~~~~~~~~~ IsInfoIntact : " + baseinfoItem.getIsInfoIntact());
            throw new BizCheckedException("2020104");//商品信息不完整,不能收货
        }
+        logger.info("33333333333333333");
 
         //是否可收货
         boolean isCanReceipt=ibdHeader.getOrderStatus()==PoConstant.ORDER_THROW||ibdHeader.getOrderStatus()==PoConstant.ORDER_RECTIPT_PART||ibdHeader.getOrderStatus()==PoConstant.ORDER_RECTIPTING;

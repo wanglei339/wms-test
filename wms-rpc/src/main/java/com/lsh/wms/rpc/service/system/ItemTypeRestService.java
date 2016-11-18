@@ -59,14 +59,9 @@ public class ItemTypeRestService implements IItemTypeRestService {
     }
     @POST
     @Path("insertItemType")
-    public String insertItemType(BaseinfoItemType baseinfoItemType) {
-        try {
-            itemTypeRpcService.insertItemType(baseinfoItemType);
-        }catch (Exception e){
-            logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("insert failed");
-        }
+    public String insertItemType(BaseinfoItemType baseinfoItemType)throws BizCheckedException{
 
+        itemTypeRpcService.insertItemType(baseinfoItemType);
         return JsonUtils.SUCCESS();
     }
     @GET

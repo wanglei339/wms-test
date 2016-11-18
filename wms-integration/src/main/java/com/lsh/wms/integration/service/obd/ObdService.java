@@ -3,9 +3,14 @@ package com.lsh.wms.integration.service.obd;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.alibaba.fastjson.JSON;
+import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.net.HttpClientUtils;
+import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.base.q.Utilities.Json.JSONObject;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
@@ -21,7 +26,7 @@ import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.so.SoOrderService;
-import com.lsh.wms.integration.service.common.utils.HttpUtil;
+import com.lsh.wms.core.service.utils.HttpUtils;
 import com.lsh.wms.integration.service.wumartsap.WuMartSap;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.csi.CsiCustomer;
@@ -74,9 +79,22 @@ public class ObdService implements IObdService{
         List<com.lsh.wms.api.model.so.ObdDetail> newDetails = new ArrayList<com.lsh.wms.api.model.so.ObdDetail>();
         List<SoItem> items = new ArrayList<SoItem>();
 
+
         if(request.getWarehouseCode().equals("DC41")){
-            String jsonStr = HttpUtil.doPost(IntegrationConstan.URL_SO,request);
-            JSONObject obj = new JSONObject(jsonStr);
+            String requestBody = JsonUtils.obj2Json(request);
+            int dc41_timeout = PropertyUtils.getInt("dc41_timeout");
+            String dc41_charset = PropertyUtils.getString("dc41_charset");
+            Map<String, String> headerMap = new HashMap<String, String>();
+            headerMap.put("Content-type", "application/json; charset=utf-8");
+            headerMap.put("Accept", "application/json");
+            headerMap.put("api-version", "1.1");
+            headerMap.put("random", RandomUtils.randomStr2(32));
+            headerMap.put("platform", "1");
+//            Map<Integer,List<Map<String,Long>>> consignSaleDict  = new HashMap<Integer,List<Map<String,Long>>>();
+//            Long atpBeginTime = System.currentTimeMillis();
+            String res  = HttpClientUtils.postBody(IntegrationConstan.URL_SO,  requestBody,dc41_timeout , dc41_charset, headerMap);
+            logger.info("~~~~~~~~~~下发黑狗数据 request : " + JSON.toJSONString(request) + "~~~~~~~~~");
+            JSONObject obj = new JSONObject(res);
             BaseResponse response = new BaseResponse();
             ObjUtils.bean2bean(obj,response);
             return response;

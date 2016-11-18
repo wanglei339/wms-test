@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.service.system.IItemTypeRpcService;
 import com.lsh.wms.core.service.baseinfo.ItemTypeService;
+import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.BaseinfoItemType;
 import com.lsh.wms.model.baseinfo.BaseinfoItemTypeRelation;
 import org.apache.commons.lang3.StringUtils;
@@ -21,8 +22,11 @@ import java.util.Map;
 public class ItemTypeRpcService implements IItemTypeRpcService {
     @Autowired
     private ItemTypeService itemTypeService;
+    @Autowired
+    private IdGenerator idGenerator;
 
     public  void insertItemType(BaseinfoItemType baseinfoItemType){
+        baseinfoItemType.setItemTypeId(idGenerator.genId("itemTypeId", false, false));
         itemTypeService.insertItemType(baseinfoItemType);
     }
 
