@@ -281,12 +281,13 @@ public class IbdService implements IIbdService {
     @POST
     @Path("bdSendIbd2Sap")
     public String bdSendIbd2Sap(CreateIbdHeader createIbdHeader) {
+        logger.info("黑狗创建Ibd 入口参数:createIbdHeader" + JSON.toJSONString(createIbdHeader));
         CreateIbdHeader backData = wuMartSap.ibd2Sap(createIbdHeader);
         String mess = "";
         if(backData != null){
             mess =  wuMartSap.ibd2SapAccount(backData);
             if("E".equals(mess)){
-                JsonUtils.EXCEPTION_ERROR("创建ibd成功,过账失败");
+                return JsonUtils.EXCEPTION_ERROR("创建ibd成功,过账失败");
             }else{
                 mess = "创建并过账成功";
             }
