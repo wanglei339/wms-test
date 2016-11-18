@@ -630,9 +630,12 @@ public class ReceiptRestService implements IReceiptRfService {
 
        BaseinfoItem baseinfoItem = this.getItem(barCode,ibdHeader.getOwnerUid());
 
+        logger.info("1111111111~~~~~~~~~~~~~~~~~~~~~ baeseinfo_item  : " + JSON.toJSONString(baseinfoItem) +" ~~~~~~~~~~~~~~~~");
        if(baseinfoItem.getIsInfoIntact() == 0){
+           logger.info("22222222222~~~~~~~~~~~~~~~~ IsInfoIntact : " + baseinfoItem.getIsInfoIntact());
            throw new BizCheckedException("2020104");//商品信息不完整,不能收货
        }
+        logger.info("33333333333333333");
 
         //是否可收货
         boolean isCanReceipt=ibdHeader.getOrderStatus()==PoConstant.ORDER_THROW||ibdHeader.getOrderStatus()==PoConstant.ORDER_RECTIPT_PART||ibdHeader.getOrderStatus()==PoConstant.ORDER_RECTIPTING;
