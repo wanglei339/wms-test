@@ -165,6 +165,7 @@ public class ObdService implements IObdService{
     @Path("bdSendObd2Sap")
     public String bdSendObd2Sap(CreateObdHeader createObdHeader) {
 
+        logger.info(" 黑狗创建obd 入口参数 : createObdHeader : " + JSON.toJSONString(createObdHeader));
         String type = wuMartSap.soObd2Sap(createObdHeader);
         if("E".equals(type)){
             return JsonUtils.EXCEPTION_ERROR("创建obd失败");
