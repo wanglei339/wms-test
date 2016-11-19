@@ -13,6 +13,7 @@ import com.lsh.wms.model.system.SysLog;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.List;
 /**
  * Created by lixin-mac on 2016/11/17.
  */
+@Component
 public class InventoryWinTransporter implements ITransporter {
     @Autowired
     private DataBackService dataBackService;

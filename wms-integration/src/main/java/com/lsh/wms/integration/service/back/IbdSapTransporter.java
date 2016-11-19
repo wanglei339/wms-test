@@ -9,6 +9,7 @@ import com.lsh.wms.model.po.ReceiveDetail;
 import com.lsh.wms.model.po.ReceiveHeader;
 import com.lsh.wms.model.system.SysLog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.List;
 /**
  * Created by mali on 16/11/17.
  */
+@Component
 public class IbdSapTransporter implements ITransporter {
 
     @Autowired

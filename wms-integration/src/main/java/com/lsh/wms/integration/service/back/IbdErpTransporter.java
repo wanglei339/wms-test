@@ -8,6 +8,7 @@ import com.lsh.wms.model.po.ReceiveDetail;
 import com.lsh.wms.model.po.ReceiveHeader;
 import com.lsh.wms.model.system.SysLog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.List;
 /**
  * Created by lixin-mac on 2016/11/17.
  */
+@Component
 public class IbdErpTransporter implements ITransporter{
 
     @Autowired
@@ -26,9 +28,10 @@ public class IbdErpTransporter implements ITransporter{
 
 
     public void process(SysLog sysLog) {
+        Long receiveId = sysLog.getBusinessId();
+        ReceiveHeader receiveHeader = receiveService.getReceiveHeaderByReceiveId(receiveId);
+        List<ReceiveDetail> receiveDetails = receiveService.getReceiveDetailListByReceiveId(receiveId);
 
-        List<ReceiveDetail> receiveDetails = receiveService.getReceiveDetailListByReceiveId(sysLog.getBusinessId());
-        ReceiveHeader receiveHeader = receiveService.getReceiveHeaderByReceiveId(sysLog.getBusinessId());
         // TODO: 2016/11/3 回传WMSAP 组装信息
         CreateIbdHeader createIbdHeader = new CreateIbdHeader();
         List<CreateIbdDetail> details = new ArrayList<CreateIbdDetail>();
