@@ -46,7 +46,7 @@ public class IbdErpTransporter implements ITransporter{
             if(deliveQty.compareTo(BigDecimal.ZERO) <= 0){
                 continue;
             }
-            detail.setDeliveQty(deliveQty.setScale(2,BigDecimal.ROUND_HALF_UP));
+            detail.setDeliveQty(deliveQty.multiply(receiveDetail.getPackUnit()).setScale(2,BigDecimal.ROUND_HALF_UP));
             detail.setUnit(receiveDetail.getUnitName());
             detail.setMaterial(receiveDetail.getSkuCode());
             detail.setOrderType(receiveHeader.getOrderType());

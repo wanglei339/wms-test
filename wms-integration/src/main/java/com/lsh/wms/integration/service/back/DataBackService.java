@@ -148,7 +148,7 @@ public class DataBackService implements IDataBackService {
             params.put("details",list);
             logger.info("~~~~~~~params : " + params + " ~~~~~~~~~~~");
             final Boolean ret1  = (Boolean)models.execute("execute_kw", Arrays.asList(
-                    db, uid, password,
+                    db, Integer.valueOf(uid), password,
                     "purchase.order", "lsh_action_wms_receive",
                     Arrays.asList(params)
             ));
