@@ -61,6 +61,14 @@ public class AbsTaskHandler implements TaskHandler {
         baseTaskService.batchAssign(tasks, staffId, this);
     }
     public void batchCreate(StockTakingHead head,List<TaskEntry> taskEntries) throws BizCheckedException {
+        for(TaskEntry taskEntry:taskEntries){
+            TaskInfo taskInfo = taskEntry.getTaskInfo();
+            Long taskType = taskInfo.getType();
+            String idKey = "task_" + taskType.toString();
+            Long taskId = idGenerator.genId(idKey, true, true);
+            taskInfo.setTaskId(taskId);
+            taskEntry.setTaskInfo(taskInfo);
+        }
         baseTaskService.batchCreate(head,taskEntries, this);
     }
     public void batchCancel(List<Long> tasks) throws BizCheckedException {
