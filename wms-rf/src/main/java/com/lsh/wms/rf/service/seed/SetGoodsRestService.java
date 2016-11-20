@@ -15,6 +15,7 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -28,6 +29,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -151,17 +153,29 @@ public class SetGoodsRestService implements ISetGoodsRestService {
         }else {
             info = infos.get(0);
         }
-        String storeNo = header.getDeliveryCode();
+        String customerCode = header.getDeliveryCode();
 
         //获得集货区信息
-        List<BaseinfoLocation> locations = locationRpcService.getCollectionByStoreNo(storeNo);
-        if(locations == null || locations.size()==0 ){
+        CsiCustomer customer = csiCustomerService.getCustomerByCustomerCode( info.getOwnerId(),customerCode); // 门店对应的集货道
+        if (null == customer) {
+            throw new BizCheckedException("2180023");
+        }
+        if (null == customer.getCollectRoadId()) {
+            throw new BizCheckedException("2180024");
+        }
+        BaseinfoLocation location = locationRpcService.getLocation(customer.getCollectRoadId());
+
+        //获取location的id
+
+
+        List<WaveDetail> waveDetails = new ArrayList<WaveDetail>();
+        if(location == null ){
             return JsonUtils.TOKEN_ERROR("该托盘对应门店无集货信息");
         }
 
         Map<String,Object> result = new HashMap<String, Object>();
-        result.put("storeName",csiCustomerService.getCustomerByCustomerCode(info.getOwnerId(),storeNo).getCustomerName());
-        result.put("locationCode",locations.get(0).getLocationCode());
+        result.put("storeName",csiCustomerService.getCustomerByCustomerCode(info.getOwnerId(),customerCode).getCustomerName());
+        result.put("locationCode",location.getLocationCode());
         result.put("containerId",containerId);
         result.put("status",info.getStep());
         return JsonUtils.SUCCESS(result);

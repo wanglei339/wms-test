@@ -40,7 +40,7 @@ public class TransportService implements ITransportService{
             logger.info(StrUtils.formatString("begin update sysLogInfo[logId:{0},businessId:{1}] ", sysLogId, sysLog.getBusinessId()));
             sysLogService.updateSysLog(sysLog);
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("Exception", e);
             logger.error(StrUtils.formatString("Exception ocurred during deail with SysLog[{}]", sysLogId));
         }
 

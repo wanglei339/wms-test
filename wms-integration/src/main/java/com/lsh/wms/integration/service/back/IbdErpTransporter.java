@@ -8,6 +8,7 @@ import com.lsh.wms.model.po.ReceiveDetail;
 import com.lsh.wms.model.po.ReceiveHeader;
 import com.lsh.wms.model.system.SysLog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.List;
 /**
  * Created by lixin-mac on 2016/11/17.
  */
+@Component
 public class IbdErpTransporter implements ITransporter{
 
     @Autowired
@@ -26,9 +28,10 @@ public class IbdErpTransporter implements ITransporter{
 
 
     public void process(SysLog sysLog) {
+        Long receiveId = sysLog.getBusinessId();
+        ReceiveHeader receiveHeader = receiveService.getReceiveHeaderByReceiveId(receiveId);
+        List<ReceiveDetail> receiveDetails = receiveService.getReceiveDetailListByReceiveId(receiveId);
 
-        List<ReceiveDetail> receiveDetails = receiveService.getReceiveDetailListByReceiveId(sysLog.getBusinessId());
-        ReceiveHeader receiveHeader = receiveService.getReceiveHeaderByReceiveId(sysLog.getBusinessId());
         // TODO: 2016/11/3 回传WMSAP 组装信息
         CreateIbdHeader createIbdHeader = new CreateIbdHeader();
         List<CreateIbdDetail> details = new ArrayList<CreateIbdDetail>();
@@ -43,7 +46,7 @@ public class IbdErpTransporter implements ITransporter{
             if(deliveQty.compareTo(BigDecimal.ZERO) <= 0){
                 continue;
             }
-            detail.setDeliveQty(deliveQty.setScale(2,BigDecimal.ROUND_HALF_UP));
+            detail.setDeliveQty(deliveQty.multiply(receiveDetail.getPackUnit()).setScale(2,BigDecimal.ROUND_HALF_UP));
             detail.setUnit(receiveDetail.getUnitName());
             detail.setMaterial(receiveDetail.getSkuCode());
             detail.setOrderType(receiveHeader.getOrderType());
@@ -52,7 +55,7 @@ public class IbdErpTransporter implements ITransporter{
             details.add(detail);
         }
         createIbdHeader.setItems(details);
-        dataBackService.erpDataBack(JSON.toJSONString(createIbdHeader),sysLog);
+        dataBackService.erpDataBack(createIbdHeader,sysLog);
 
     }
 }

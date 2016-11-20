@@ -26,10 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by lixin-mac on 16/9/6.
@@ -111,18 +108,18 @@ public class DataBackService implements IDataBackService {
             sysLog.setLogCode(orderResponse.getCode());
         }
         sysLog.setRetryTimes(sysLog.getRetryTimes()+1);
-        sysLogService.updateSysLog(sysLog);
+        //sysLogService.updateSysLog(sysLog);
 
         return JSON.toJSONString(orderResponse);
 
     }
 
-    public Boolean erpDataBack(String json,SysLog sysLog){
+    public Boolean erpDataBack(CreateIbdHeader createIbdHeader,SysLog sysLog){
         try {
             //入口将字符串转为对象 CreateIbdHeader
-            JSONObject obj = new JSONObject(json);
-            CreateIbdHeader createIbdHeader = new CreateIbdHeader();
-            ObjUtils.bean2bean(obj,createIbdHeader);
+//            JSONObject obj = new JSONObject(json);
+//            CreateIbdHeader createIbdHeader = new CreateIbdHeader();
+//            ObjUtils.bean2bean(obj,createIbdHeader);
 
             final XmlRpcClient models = new XmlRpcClient() {{
                 setConfig(new XmlRpcClientConfigImpl() {{
@@ -135,6 +132,11 @@ public class DataBackService implements IDataBackService {
 
             Long receiveId = Long.valueOf(createIbdHeader.getItems().get(0).getVendMat());
 
+            Map<String,Object> params = new HashMap<String, Object>();
+            params.put("order_id",orderOtherId);
+            params.put("receive_code",receiveId.toString());
+
+
             List<HashMap<String,Object>> list = new ArrayList<HashMap<String, Object>>();
             for(CreateIbdDetail item : createIbdHeader.getItems()){
                 HashMap<String,Object> map = new HashMap<String, Object>();
@@ -143,12 +145,12 @@ public class DataBackService implements IDataBackService {
                 list.add(map);
 
             }
-            logger.info("~~~~~~~list : " + list + " ~~~~~~~~~~~");
+            params.put("details",list);
+            logger.info("~~~~~~~params : " + params + " ~~~~~~~~~~~");
             final Boolean ret1  = (Boolean)models.execute("execute_kw", Arrays.asList(
-                    db, uid, password,
+                    db, Integer.valueOf(uid), password,
                     "purchase.order", "lsh_action_wms_receive",
-                    Arrays.asList(Arrays.asList(orderOtherId),list,Arrays.asList(receiveId))
-
+                    Arrays.asList(params)
             ));
             //// TODO: 16/9/19 传入的参数
             logger.info("~~~~~~~~ret1 :" + ret1 + "~~~~~~~~~~~~~");
@@ -160,7 +162,7 @@ public class DataBackService implements IDataBackService {
                 sysLog.setLogMessage("回传erp失败");
             }
             sysLog.setRetryTimes(sysLog.getRetryTimes()+1);
-            sysLogService.updateSysLog(sysLog);
+            //sysLogService.updateSysLog(sysLog);
 
         }
         catch (Exception e) {

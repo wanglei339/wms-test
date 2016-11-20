@@ -2,18 +2,25 @@ package com.lsh.wms.task.service.task.seed;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.stock.IStockMoveRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.csi.CsiCustomer;
+import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.task.service.handler.AbsTaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +49,13 @@ public class SetGoodsTaskHandler extends AbsTaskHandler {
     @Reference
     private IStockMoveRpcService moveRpcService;
 
+    @Autowired
+    SoOrderService soOrderService;
+    @Autowired
+    WaveService waveService;
+    @Autowired
+    private CsiCustomerService csiCustomerService;
+
 
     @PostConstruct
     public void postConstruct() {
@@ -52,24 +66,26 @@ public class SetGoodsTaskHandler extends AbsTaskHandler {
         TaskEntry entry = taskRpcService.getTaskEntryById(taskId);
         TaskInfo info = entry.getTaskInfo();
         Long containerId = info.getContainerId();
-        StockQuantCondition condition = new StockQuantCondition();
-        condition.setContainerId(containerId);
-        List<StockQuant> quants = stockQuantRpcService.getQuantList(condition);
-        if(quants== null || quants.size()==0 ){
+
+
+        List<WaveDetail> details = waveService.getAliveDetailsByContainerId(containerId);
+        if(details==null || details.size()==0){
             throw new BizCheckedException("2880003");
         }
+        ObdHeader header = soOrderService.getOutbSoHeaderByOrderId(details.get(0).getOrderId());
 
-        BaseinfoLocation location = locationService.getLocation(quants.get(0).getLocationId());
-        String storeNo = location.getStoreNo();
-
-        //获得集货区信息
-        List<BaseinfoLocation> locations = locationRpcService.getCollectionByStoreNo(storeNo);
-        if(locations == null || locations.size()==0 ){
-            throw new BizCheckedException("2880010");
+        //获取location的id
+        CsiCustomer customer = csiCustomerService.getCustomerByCustomerCode(header.getDeliveryCode()); // 门店对应的集货道
+        if (null == customer) {
+            throw new BizCheckedException("2180023");
         }
+        if (null == customer.getCollectRoadId()) {
+            throw new BizCheckedException("2180024");
+        }
+        BaseinfoLocation location = locationService.getLocation(customer.getCollectRoadId());
 
         //移动库存
-        moveRpcService.moveWholeContainer(containerId, taskId, info.getOperator(), location.getLocationId(), locations.get(0).getLocationId());
+        moveRpcService.moveWholeContainer(containerId, taskId, info.getOperator(), location.getLocationId(), location.getLocationId());
 
     }
 }

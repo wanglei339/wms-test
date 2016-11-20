@@ -1,19 +1,13 @@
 package com.lsh.wms.api.model.location;
 
-import org.hibernate.validator.constraints.NotBlank;
-
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
- * 前端校验 创建的时候使用
- *
  * @Author 马启迪 maqidi@lsh123.com
- * @Date 16/7/24 下午8:16
+ * @Date 2016/11/20 下午12:19
  */
-public class LocationDetailRequest implements Serializable {
-
+public class LocationDetailUpdateRequest implements Serializable {
     /**  */
     private Long id;
     /** 位置id */
@@ -27,21 +21,21 @@ public class LocationDetailRequest implements Serializable {
     /** 类型名 */
     private String typeName;
     /** 是否为叶子位置节点 */
-    private Integer isLeaf=0;
+    private Integer isLeaf;
     /** 是否可用 */
-    private Integer isValid=1;
+    private Integer isValid;
     /** 是否是存储用位置 */
-    private Integer canStore=1;
+    private Integer canStore;
     /** 可容纳容器数量 */
-    private Long containerVol=0L;
+    private Long containerVol;
     /** 区域坐标，四维坐标-区位坐标 */
-    private Long regionNo=0L;
+    private Long regionNo;
     /** 通道坐标，四维坐标-通道坐标 */
-    private Long passageNo=0L;
+    private Long passageNo;
     /** 货架层坐标，四维坐标-层数坐标 */
-    private Long shelfLevelNo=0L;
+    private Long shelfLevelNo;
     /** 货位同层坐标，四维坐标-同层 */
-    private Long binPositionNo=0L;
+    private Long binPositionNo;
     /** 描述 */
     private String description;
     /** 创建日期 */
@@ -49,16 +43,16 @@ public class LocationDetailRequest implements Serializable {
     /** 更新日期 */
     private Long updatedAt;
     /** 区别库区库位-0为其他1-为库区-2为库位 */
-    private Integer classification = 1;
+    private Integer classification;
     /** 是否现在可用0-不可用1-可用 */
-    private Integer canUse=1;
+    private Integer canUse;
     /** 0-未上锁1-上锁 */
     private Integer isLocked;
     private Long curContainerVol;
 
-    private String supplierNo ="0";
+    private String supplierNo;
 
-    private String storeNo="0";
+    private String storeNo;
 
     public String getStoreNo() {
         return storeNo;
@@ -87,34 +81,34 @@ public class LocationDetailRequest implements Serializable {
     /**
      * 商品的id
      */
-    private Long itemId = 0L;
+    private Long itemId;
     /**
      * 仓位体积
      */
-    private BigDecimal volume = BigDecimal.ZERO;
+    private BigDecimal volume;
     /**
      * 承重，默认单位kg，默认0，能承受东西很轻
      */
-    private BigDecimal weigh = BigDecimal.ZERO;
+    private BigDecimal weigh;
     /**
      * 货位所在温区
      */
-    private Integer zoneType = 1;
+    private Integer zoneType;
     //..................................Dock独有的
     /**
      * 码头名
      */
-    private String dockName = "";
+    private String dockName;
     /**
      * 是否存在地秤
      */
-    private Integer haveScales = 0;
+    private Integer haveScales;
     /**
      * 用途，0-进货，1-出货
      */
-    private Integer dockApplication = 0;
+    private Integer dockApplication;
 
-    private Integer regionStrategy=0;
+    private Integer regionStrategy;
 
     public Integer getRegionStrategy() {
         return regionStrategy;
@@ -127,16 +121,16 @@ public class LocationDetailRequest implements Serializable {
     /**
      * 方位，0-东，1-南，2-西，3-北
      */
-    private Integer direction = 0;
+    private Integer direction;
     //==============================================
     /**
      * 长度默认单位 米
      */
-    private BigDecimal width = BigDecimal.ZERO;
+    private BigDecimal width;
     /**
      * 高度默认单位 米
      */
-    private BigDecimal height = BigDecimal.ZERO;
+    private BigDecimal height;
     //.................................通道独有的.................
     //方位，0-南北，1-东西  同码头
 
@@ -146,7 +140,7 @@ public class LocationDetailRequest implements Serializable {
     /**
      * 区域的货主概念
      */
-    private Long ownerid = 0L;
+    private Long ownerid;
 
     public Long getOwnerid() {
         return ownerid;
@@ -159,28 +153,28 @@ public class LocationDetailRequest implements Serializable {
     /**
      * 货架层数
      */
-    private Long level = 0L;
+    private Long level;
     /**
      * 货架进深
      */
-    private Long depth = 1L;
+    private Long depth;
 
     //........................仓库
     /**
      * 仓库名
      */
-    private String warehouseName = "";
+    private String warehouseName;
     /**
      * 地址
      */
-    private String address = "";
+    private String address;
     /**
      * 电话
      */
-    private String phoneNo = "";
+    private String phoneNo;
 
     /** 长度默认单位 米 */
-    private BigDecimal length = BigDecimal.ZERO;
+    private BigDecimal length;
 
     public Long getId() {
         return id;

@@ -21,6 +21,7 @@ import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
 import com.lsh.wms.model.system.SysLog;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -28,6 +29,7 @@ import java.util.*;
 /**
  * Created by lixin-mac on 2016/11/17.
  */
+@Component
 public class DirectTransporter implements ITransporter{
 
     @Autowired

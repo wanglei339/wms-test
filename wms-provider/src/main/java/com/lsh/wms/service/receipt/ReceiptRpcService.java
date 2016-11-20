@@ -745,6 +745,19 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //BaseinfoStore baseinfoStore = iStoreRpcService.getStoreByStoreNo(inbReceiptHeader.getStoreCode());
         CsiCustomer csiCustomer = customerService.getCustomerByCustomerCode(request.getOwnerId(),inbReceiptHeader.getStoreCode());
 
+        //获取location的id
+        if (null == csiCustomer) {
+            throw new BizCheckedException("2180023");
+        }
+        if (null == csiCustomer.getCollectRoadId()) {
+            throw new BizCheckedException("2180024");
+        }
+        BaseinfoLocation location = locationService.getLocation(csiCustomer.getCollectRoadId());
+
+        if( location != null){
+            inbReceiptHeader.setLocation(location.getLocationId());
+        }
+
         Long collectRoadId =csiCustomer.getCollectRoadId();
         if(collectRoadId == null || collectRoadId == 0){
             throw new BizCheckedException("2020108");//店铺没有设置集货道
@@ -881,6 +894,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             updateReceiveDetail.setReceiveId(receiveDetail.getReceiveId());
             updateReceiveDetail.setInboundQty(inbReceiptDetail.getInboundQty());
             updateReceiveDetail.setUpdatedAt(DateUtils.getCurrentSeconds());//更新时间
+            updateReceiveDetail.setCode(baseinfoItem.getCode());//更新国条
             updateReceiveDetailList.add(updateReceiveDetail);
 
             //生成出库detail信息
@@ -903,6 +917,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
             CsiSupplier supplier = supplierService.getSupplier(ibdHeader.getSupplierCode(),ibdHeader.getOwnerUid());
 
+            if(supplier == null){
+                throw new BizCheckedException("2020109");//供应商不存在
+            }
             stockLot.setPackUnit(ibdDetail.getPackUnit());
             stockLot.setSkuId(inbReceiptDetail.getSkuId());
             stockLot.setSerialNo(inbReceiptDetail.getLotNum());

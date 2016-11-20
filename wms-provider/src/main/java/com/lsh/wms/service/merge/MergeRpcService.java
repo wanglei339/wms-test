@@ -54,6 +54,7 @@ public class MergeRpcService implements IMergeRpcService {
 
     /**
      * 门店维度的未装车板数列表
+     *
      * @param mapQuery
      * @return
      * @throws BizCheckedException
@@ -63,7 +64,7 @@ public class MergeRpcService implements IMergeRpcService {
         mapQuery.put("customerType", CustomerConstant.SUPER_MARKET); // 大店 TODO: 这个地方是字符串,目前数据量小先这样了,理论上应该为数字或者全部取出后遍历
         List<CsiCustomer> customers = csiCustomerService.getCustomerList(mapQuery);
         List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
-        for (CsiCustomer customer: customers) {
+        for (CsiCustomer customer : customers) {
             Integer totalMergedContainers = 0; // 未装车总板数
             Integer restMergedContainers = 0; // 未装车余货总板数
             String customerCode = customer.getCustomerCode();
@@ -122,6 +123,7 @@ public class MergeRpcService implements IMergeRpcService {
 
     /**
      * 列表total
+     *
      * @param mapQuery
      * @return
      * @throws BizCheckedException
@@ -135,6 +137,7 @@ public class MergeRpcService implements IMergeRpcService {
 
     /**
      * 通过osd获取组盘完成记录的统计数
+     *
      * @param waveDetail
      * @return
      * @throws BizCheckedException
@@ -153,6 +156,7 @@ public class MergeRpcService implements IMergeRpcService {
 
     /**
      * 获取门店的合板详情
+     *
      * @param customerCode
      * @return
      * @throws BizCheckedException
@@ -161,7 +165,7 @@ public class MergeRpcService implements IMergeRpcService {
         Map<Long, Map<String, Object>> results = new HashMap<Long, Map<String, Object>>();
         List<Long> countedContainerIds = new ArrayList<Long>();
         List<WaveDetail> waveDetails = this.getWaveDetailByCustomerCode(customerCode);
-        for (WaveDetail waveDetail: waveDetails) {
+        for (WaveDetail waveDetail : waveDetails) {
             if (!countedContainerIds.contains(waveDetail.getContainerId())) {
                 Long containerId = waveDetail.getMergedContainerId();
                 if (waveDetail.getMergedContainerId().equals(0L)) {
@@ -170,7 +174,7 @@ public class MergeRpcService implements IMergeRpcService {
                 // 未装车的
                 List<TuDetail> tuDetails = tuService.getTuDeailListByMergedContainerId(containerId);
                 Boolean needCount = true;
-                if (tuDetails.size() > 0 ){
+                if (tuDetails.size() > 0) {
                     for (TuDetail tuDetail : tuDetails) {
                         String tuId = tuDetail.getTuId();
                         TuHead tuHead = tuService.getHeadByTuId(tuId);
@@ -198,7 +202,7 @@ public class MergeRpcService implements IMergeRpcService {
                 } else {
                     TaskInfo taskInfo = baseTaskService.getTaskInfoById(waveDetail.getMergeTaskId());
                     result.put("containerId", containerId);
-                    result.put("markContainerId",waveDetail.getContainerId());  //当前作为查找板子码标识的物理托盘码,随机选的
+                    result.put("markContainerId", waveDetail.getContainerId());  //当前作为查找板子码标识的物理托盘码,随机选的
                     result.put("containerCount", 1);
                     result.put("packCount", qcCounts.get("packCount"));
                     result.put("turnoverBoxCount", qcCounts.get("turnoverBoxCount"));
@@ -225,27 +229,36 @@ public class MergeRpcService implements IMergeRpcService {
 
     /**
      * 通过用户编号获取osd
+     *
      * @param customerCode
      * @return
      */
     public List<WaveDetail> getWaveDetailByCustomerCode(String customerCode) {
-        List<BaseinfoLocation> locations = locationService.getCollectionByStoreNo(customerCode); // 门店对应的集货道
+        //获取location的id
+        CsiCustomer customer = csiCustomerService.getCustomerByCustomerCode(customerCode); // 门店对应的集货道
+        if (null == customer) {
+            throw new BizCheckedException("2180023");
+        }
+        if (null == customer.getCollectRoadId()) {
+            throw new BizCheckedException("2180024");
+        }
+        BaseinfoLocation location = locationService.getLocation(customer.getCollectRoadId());
+
         List<WaveDetail> waveDetails = new ArrayList<WaveDetail>();
-        for (BaseinfoLocation location: locations) {
-            List<StockQuant> quants = stockQuantService.getQuantsByLocationId(location.getLocationId());
-            for (StockQuant quant: quants) {
-                Long containerId = quant.getContainerId();
-                Map<String, Object> params = new HashMap<String, Object>();
-                params.put("containerId", containerId);
-                params.put("type", TaskConstant.TYPE_QC);
-                params.put("status", TaskConstant.Done);
-                params.put("businessMode", TaskConstant.MODE_DIRECT);
-                List<TaskInfo> taskInfos = baseTaskService.getTaskInfoList(params);
-                if (taskInfos.size() > 0) {
-                    TaskInfo taskInfo = taskInfos.get(0);
-                    Long qcTaskId = taskInfo.getTaskId();
-                    waveDetails.addAll(waveService.getDetailsByQCTaskId(qcTaskId));
-                }
+
+        List<StockQuant> quants = stockQuantService.getQuantsByLocationId(location.getLocationId());
+        for (StockQuant quant : quants) {
+            Long containerId = quant.getContainerId();
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("containerId", containerId);
+            params.put("type", TaskConstant.TYPE_QC);
+            params.put("status", TaskConstant.Done);
+            params.put("businessMode", TaskConstant.MODE_DIRECT);
+            List<TaskInfo> taskInfos = baseTaskService.getTaskInfoList(params);
+            if (taskInfos.size() > 0) {
+                TaskInfo taskInfo = taskInfos.get(0);
+                Long qcTaskId = taskInfo.getTaskId();
+                waveDetails.addAll(waveService.getDetailsByQCTaskId(qcTaskId));
             }
         }
         return waveDetails;

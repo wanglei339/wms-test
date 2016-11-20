@@ -95,7 +95,7 @@ public class QCRpcService implements IQCRpcService {
      * @throws BizCheckedException
      */
     public List<Map<String, Object>> getGroupList(Map<String, Object> mapQuery) throws BizCheckedException {
-        mapQuery.put("scale", CustomerConstant.STORE); // 小店不合板
+        mapQuery.put("customerType", CustomerConstant.STORE); // 小店不合板
         mapQuery.put("isValid", 1); // 正常
         mapQuery.put("status", 1); // 正常
         List<CsiCustomer> csiCustomers = csiCustomerService.getCustomerList(mapQuery);
@@ -156,7 +156,7 @@ public class QCRpcService implements IQCRpcService {
     public Map<Long, Map<String, Object>> getGroupDetailByStoreNo(String storeNo) throws BizCheckedException {
         Map<Long, Map<String, Object>> results = new HashMap<Long, Map<String, Object>>();
         List<WaveDetail> waveDetails = this.getQcWaveDetailsByStoreNo(storeNo);
-         List<TaskInfo> qcDoneTaskinfos = this.getQcDoneTaskInfoByWaveDetails(waveDetails);
+        List<TaskInfo> qcDoneTaskinfos = this.getQcDoneTaskInfoByWaveDetails(waveDetails);
         if (null == qcDoneTaskinfos || qcDoneTaskinfos.size() < 1) {
             return results;
         }
@@ -225,11 +225,19 @@ public class QCRpcService implements IQCRpcService {
     }
 
     public List<WaveDetail> getQcWaveDetailsByStoreNo(String customerCode) {
-        List<BaseinfoLocation> locations = locationService.getCollectionByStoreNo(customerCode); // 门店对应的集货道
+        //获取location的id
+        CsiCustomer customer = csiCustomerService.getCustomerByCustomerCode(customerCode); // 门店对应的集货道
+        if (null == customer) {
+            throw new BizCheckedException("2180023");
+        }
+        if (null == customer.getCollectRoadId()) {
+            throw new BizCheckedException("2180024");
+        }
+        BaseinfoLocation location = locationService.getLocation(customer.getCollectRoadId());
+
         List<TaskInfo> qcDoneInfos = new ArrayList<TaskInfo>();
         //先去集货位拿到所有的托盘的wave_detailList
         List<WaveDetail> waveDetailList = new ArrayList<WaveDetail>();
-        for (BaseinfoLocation location : locations) {
             List<StockQuant> quants = stockQuantService.getQuantsByLocationId(location.getLocationId());
             for (StockQuant quant : quants) {
                 Long containerId = quant.getContainerId();
@@ -239,7 +247,6 @@ public class QCRpcService implements IQCRpcService {
                 }
                 waveDetailList.addAll(waveDetails);
             }
-        }
         return waveDetailList;
     }
 
@@ -338,13 +345,13 @@ public class QCRpcService implements IQCRpcService {
         }
         //责任变更,记录数量
         for (WaveDetail d : waveDetails) {
-            if (d.getQcException() != WaveConstant.QC_EXCEPTION_NORMAL){
+            if (d.getQcException() != WaveConstant.QC_EXCEPTION_NORMAL) {
                 //残次不追责
-                if (WaveConstant.QC_EXCEPTION_DEFECT == d.getQcException()){
+                if (WaveConstant.QC_EXCEPTION_DEFECT == d.getQcException()) {
                     //设置qc数量
                     d.setQcFault(WaveConstant.QC_FAULT_NOMAL);
                     d.setQcFaultQty(new BigDecimal("0.0000"));
-                }else {
+                } else {
                     d.setQcFault(WaveConstant.QC_FAULT_QC);
                     d.setQcFaultQty(d.getQcExceptionQty().abs());
                 }

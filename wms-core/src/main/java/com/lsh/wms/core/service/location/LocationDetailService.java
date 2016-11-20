@@ -205,7 +205,6 @@ public class LocationDetailService {
         locationDetailModelFactory.register(LocationConstant.LOFT_STORE_BLOCK, new BaseinfoLocation());
 
 
-
     }
 
     /**
@@ -224,7 +223,7 @@ public class LocationDetailService {
      * Location的细节表插入
      * location的主表也插入
      *
-     * @param request    前端的请求
+     * @param request 前端的请求
      */
 //    @Transactional(readOnly = false)
 //    public void insert(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
@@ -288,7 +287,6 @@ public class LocationDetailService {
 //        fatherLocation.setIsLeaf(0);
 //        locationService.updateLocation(fatherLocation);
 //    }
-
     @Transactional(readOnly = false)
     public BaseinfoLocation insert(LocationDetailRequest request) {
         //根据type类型,将父类转为子类
@@ -413,7 +411,7 @@ public class LocationDetailService {
 
         BaseinfoLocation baseinfoLocation = locationService.getLocation(locationId);
         if (baseinfoLocation == null) {
-            throw new BizCheckedException("2180001");
+            return null;
         }
         IStrategy iStrategy = locationDetailServiceFactory.getIstrategy(Long.valueOf(baseinfoLocation.getType()));
         IBaseinfoLocaltionModel iBaseinfoLocaltionModel = iStrategy.getBaseinfoItemLocationModelById(locationId);
@@ -437,7 +435,7 @@ public class LocationDetailService {
             //从结果集中去子类的表中去查,并处理结果集
             for (BaseinfoLocation location : baseinfoLocationList) {
                 IStrategy istrategy = locationDetailServiceFactory.getIstrategy(location.getType());
-                if (null==istrategy){
+                if (null == istrategy) {
                     continue;
                 }
                 //就是子
@@ -518,7 +516,7 @@ public class LocationDetailService {
 
     /**
      * 获取超市返仓区,里面的货主区分,通过BaseinfoLocationRegion类中的。通过货主owerid查返仓位置
-     * Todo 前端的页面没有货主的概念
+     * Todo 前端的页面没有货主的概念 需要更改   本身不合理的设置后续讨论
      *
      * @return
      */
@@ -529,6 +527,9 @@ public class LocationDetailService {
         IBaseinfoLocaltionModel marketLocation = null;
         for (BaseinfoLocation location : locationList) {
             marketLocation = this.getIBaseinfoLocaltionModelById(location.getLocationId());
+            if (null == marketLocation) {
+                continue;
+            }
             iBaseinfoLocaltionModels.add(marketLocation);
         }
         //过滤货主
