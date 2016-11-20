@@ -5,10 +5,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.task.ITaskRpcService;
-import com.lsh.wms.core.constant.LocationConstant;
-import com.lsh.wms.core.constant.PickConstant;
-import com.lsh.wms.core.constant.TaskConstant;
-import com.lsh.wms.core.constant.WaveConstant;
+import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
@@ -423,7 +420,8 @@ public class WaveCore {
                                 boolean bFindShelfStore = false;
                                 for (StockQuant quant : quants) {
                                     BaseinfoLocation loation = locationService.getLocation(quant.getLocationId());
-                                    if (loation.getType() == LocationConstant.SHELF_STORE_BIN) {
+                                    BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(loation.getLocationId(), 1);
+                                    if (fatherLocation.getType().equals(LocationConstant.SHELF) && loation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)) {
                                         bFindShelfStore = true;
                                         detail.setAllocPickLocation(loation.getLocationId());
                                         break;
@@ -600,10 +598,8 @@ public class WaveCore {
                         if (leftAllocQty.compareTo(BigDecimal.ZERO) <= 0) {
                             break;
                         }
-                        if(location.getType() == LocationConstant.SPLIT_AREA
-                                || location.getType() == LocationConstant.SPLIT_SHELF
-                                || location.getType() == LocationConstant.SPLIT_SHELF_BIN
-                                || location.getType() == LocationConstant.SPLIT_SHELF_LEVEL)
+                        BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId(),1);
+                        if(fatherLocation.getType().equals(LocationConstant.SPLIT_AREA))
                         {
                             leftAllocQty = this._allocStockPickSame(detail, zone, item, location, leftAllocQty);
                         } else {

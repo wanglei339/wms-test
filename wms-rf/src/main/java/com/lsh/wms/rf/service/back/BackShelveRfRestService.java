@@ -102,9 +102,9 @@ public class BackShelveRfRestService implements IBackShelveRfRestService {
                 }
             }
             if (info == null) {
-                if (location.getType().compareTo(LocationConstant.SUPPLIER_RETURN_IN_BIN) != 0) {
-                    return JsonUtils.TOKEN_ERROR("扫描库位非法");
-                }
+//                if (location.getType().compareTo(LocationConstant.SUPPLIER_RETURN_IN_BIN) != 0) {
+//                    return JsonUtils.TOKEN_ERROR("扫描库位非法");
+//                }
                 info = new TaskInfo();
                 info.setTaskName("退货上架任务[ " + locationCode + "]");
                 info.setStatus(TaskConstant.Draft);
@@ -124,13 +124,13 @@ public class BackShelveRfRestService implements IBackShelveRfRestService {
             info =  baseTaskService.getTaskInfoById(Long.valueOf(fromTaskId.toString().trim()));
         }
         if(info.getStep()==1){
-            if(location.getType().compareTo(LocationConstant.SUPPLIER_RETURN_IN_BIN)!=0){
-                return JsonUtils.TOKEN_ERROR("扫描库位非法");
-            }
+//            if(location.getType().compareTo(LocationConstant.SUPPLIER_RETURN_IN_BIN)!=0){
+//                return JsonUtils.TOKEN_ERROR("扫描库位非法");
+//            }
         }else {
-            if(location.getType().compareTo(LocationConstant.SUPPLIER_RETURN_STORE_BIN)!=0){
-                return JsonUtils.TOKEN_ERROR("扫描库位非法");
-            }
+//            if(location.getType().compareTo(LocationConstant.SUPPLIER_RETURN_STORE_BIN)!=0){
+//                return JsonUtils.TOKEN_ERROR("扫描库位非法");
+//            }
         }
         if(info.getStep()==1) {
             params.put("uid", uId);

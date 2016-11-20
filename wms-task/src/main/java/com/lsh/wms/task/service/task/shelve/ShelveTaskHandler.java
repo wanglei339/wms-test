@@ -8,6 +8,7 @@ import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.shelve.IShelveRpcService;
 import com.lsh.wms.api.service.stock.IStockMoveRestService;
 import com.lsh.wms.api.service.stock.IStockMoveRpcService;
+import com.lsh.wms.core.constant.BinUsageConstant;
 import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
@@ -172,7 +173,8 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         // 实际上架位置和分配位置不一致
         if (!locationId.equals(taskHead.getAllocLocationId())) {
             // 拣货位
-            if (realLocation.getType().equals(LocationConstant.SHELF_PICKING_BIN)) {
+            BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(realLocation.getLocationId(), 1);
+            if (fatherLocation.getType().equals(LocationConstant.SHELF) && realLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)) {
                 // 检查是否是该商品的拣货位
                 Map<String, Object> params = new HashMap<String, Object>();
                 params.put("itemId", itemId);
@@ -184,7 +186,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
                 }
             }
             // 存货位
-            if (realLocation.getType().equals(LocationConstant.SHELF_STORE_BIN)) {
+            if (fatherLocation.getType().equals(LocationConstant.SHELF) && realLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)) {
                 // 检查是否有库存
                 List<StockQuant> stockQuants = stockQuantService.getQuantsByLocationId(locationId);
                 if (stockQuants.size() > 0) {
