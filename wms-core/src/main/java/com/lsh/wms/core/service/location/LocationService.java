@@ -1284,6 +1284,7 @@ public class LocationService {
 
 
     /**
+     * todo 供商退货区不应该在位置处配置
      * 根据供商号，获取位置
      *
      * @param type       (退货存储货位|入库货位)
