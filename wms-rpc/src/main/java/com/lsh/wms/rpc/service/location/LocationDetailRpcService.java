@@ -99,17 +99,17 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
         }
     }
 
-    public BaseinfoLocation updateLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException {
-        if (locationDetailService.getIBaseinfoLocaltionModelById(baseinfoLocation.getLocationId()) == null) {
+    public IBaseinfoLocaltionModel updateLocationDetailByType(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) throws BizCheckedException {
+        if (locationDetailService.getIBaseinfoLocaltionModelById(iBaseinfoLocaltionModel.getLocationId()) == null) {
             throw new BizCheckedException("2180001");
         }
         try {
-            locationDetailService.update(baseinfoLocation);
+            locationDetailService.update(iBaseinfoLocaltionModel);
         } catch (Exception e) {
             logger.error("updateLocation  ERROR " + e.getMessage());
             throw new BizCheckedException("2180022");
         }
-        return baseinfoLocation;
+        return iBaseinfoLocaltionModel;
     }
 
     public Integer countLocationDetailByType(Map<String, Object> mapQuery) throws BizCheckedException {
