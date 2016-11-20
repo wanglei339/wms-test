@@ -357,6 +357,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
 
     public void confirmDifference(Long stockTakingId, long roundTime) {
         List<StockTakingDetail> detailList = stockTakingService.getDetailListByRound(stockTakingId, roundTime);
+        stockTakingService.done(detailList);
         StockTakingHead head = stockTakingService.getHeadById(stockTakingId);
         head.setStatus(3L);
         List<StockMove> moveList = new ArrayList<StockMove>();

@@ -76,6 +76,13 @@ public class StockTakingService {
         List<StockTakingDetail> detailList = detailDao.getStockTakingDetailList(mapQuery);
         return detailList;
     }
+    public void done(List<StockTakingDetail> stockTakingDetails) {
+        for(StockTakingDetail stockTakingDetail:stockTakingDetails){
+            stockTakingDetail.setIsFinal(1);
+            this.updateDetail(stockTakingDetail);
+        }
+        return;
+    }
 
     public StockTakingHead getHeadById(Long takingId) {
         return headDao.getStockTakingHeadById(takingId);
