@@ -132,10 +132,14 @@ public class WaveRpcService implements IWaveRpcService {
                 logger.error("wave release fail, ret %d", ret);
                 throw new BizCheckedException("", "wave release fail");
             }
-        }catch (BizCheckedException e){
+        } catch (BizCheckedException e){
             logger.error("Wave release fail, wave id %d msg %s", iWaveId, e.getMessage());
             throw e;
-        } finally {
+        } catch (Exception e){
+            logger.error("Wave release fail, wave id %d msg %s", iWaveId, e.getMessage());
+            e.printStackTrace();
+            throw new BizCheckedException("2041004");
+        }  finally {
             if(bNeedRollBack) {
                 waveService.setStatus(iWaveId, WaveConstant.STATUS_RELEASE_FAIL);
             }
