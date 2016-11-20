@@ -328,6 +328,46 @@ public class LocationService {
         return locationDao.getChildrenLocationList(params);
     }
 
+    /**
+     * 根据type和库位类型找到下面的子库位,获取指定库位的方法,存货位还是拣货位,type传LocationConstant.BIN
+     *
+     * @param locationId
+     * @param type
+     * @return
+     */
+    public List<BaseinfoLocation> getChildrenLocationsByType(Long fatherLocationId, Long sonType, Integer binUsage) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        BaseinfoLocation location = this.getLocation(fatherLocationId);
+        params.put("leftRange", location.getLeftRange());
+        params.put("rightRange", location.getRightRange());
+        params.put("type", sonType);
+        params.put("binUsage", binUsage);
+        params.put("isValid", LocationConstant.IS_VALID);
+        return locationDao.getChildrenLocationList(params);
+    }
+
+    /**
+     * 获取当前区域下的货位
+     *
+     * @param fatherType 父亲type
+     * @param binUsage  库位用途
+     * @return
+     */
+    public List<BaseinfoLocation> getChildrenLocationsByFatherTypeAndChildrenTypeAndUsage(Long fatherType, Integer binUsage) {
+        List<BaseinfoLocation> fatherLocations = this.getLocationsByType(fatherType);
+        List<BaseinfoLocation> sonLocation = new ArrayList<BaseinfoLocation>();
+        if (null == fatherLocations || fatherLocations.size() < 1) {
+            return new ArrayList<BaseinfoLocation>();
+        }
+        for (BaseinfoLocation father : fatherLocations) {
+            List<BaseinfoLocation> sons = this.getChildrenLocationsByType(father.getLocationId(),LocationConstant.BIN, binUsage);
+            if (null != sons && sons.size() > 0){
+                sonLocation.addAll(sons);
+            }
+        }
+        return sonLocation;
+    }
+
 
     /**
      * 获取一个location下一层的子节点
@@ -422,6 +462,26 @@ public class LocationService {
     }
 
     /**
+     * 根据所在位置的locationId
+     * 获取指定到区级别的方法
+     *
+     * @param locationId 所在位置id
+     * @param classfication  分类
+     * @return
+     */
+    public BaseinfoLocation getFatherRegionByClassfication(Long locationId) {
+        BaseinfoLocation curLocation = this.getLocation(locationId);
+        Long fatherId = curLocation.getFatherId();
+        if (curLocation.getClassification().equals(LocationConstant.CLASSIFICATION_AREAS)) {
+            return curLocation;
+        }
+        if (fatherId == 0) {
+            return null;
+        }
+        return this.getFatherRegionByClassfication(fatherId);
+    }
+
+    /**
      * 找全路径
      *
      * @param locationId
@@ -454,6 +514,7 @@ public class LocationService {
         BaseinfoLocation fatherLocation = this.getFatherByType(locationId, type);
         return fatherLocation.getLocationId();
     }
+
 
     /**
      * 获取父级区域所有大区的节点
@@ -490,6 +551,24 @@ public class LocationService {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("type", type);
         params.put("isValid", LocationConstant.IS_VALID);
+        List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
+        return locations != null && locations.size() > 0 ? locations : new ArrayList<BaseinfoLocation>();
+    }
+
+    /**
+     * 按类型获取location节点
+     *
+     * @param type
+     * @return
+     */
+    public List<BaseinfoLocation> getLocationsByType(Long type, Integer binUsage) {
+        if (type == null) {
+            return new ArrayList<BaseinfoLocation>();
+        }
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("type", type);
+        params.put("isValid", LocationConstant.IS_VALID);
+        params.put("binUsage", binUsage);
         List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
         return locations != null && locations.size() > 0 ? locations : new ArrayList<BaseinfoLocation>();
     }
