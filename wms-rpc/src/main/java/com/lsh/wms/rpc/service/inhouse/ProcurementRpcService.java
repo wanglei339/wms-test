@@ -112,7 +112,12 @@ public class ProcurementRpcService implements IProcurementRpcService{
         sum = sum.multiply(new BigDecimal(item.getPileY()));
         sum = sum.multiply(new BigDecimal(item.getPileZ()));
         //计算库位能存多少商品
-        BigDecimal num = pickVolume.divide(bulk,0,BigDecimal.ROUND_UP);
+        BigDecimal num = BigDecimal.ZERO;
+        if(bulk.compareTo(BigDecimal.ZERO)==0){
+            num = pickVolume;
+        }else {
+            num = pickVolume.divide(bulk, 0, BigDecimal.ROUND_UP);
+        }
         return num.subtract(sum);
     }
 
