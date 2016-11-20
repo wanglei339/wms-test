@@ -161,8 +161,9 @@ public class ReceiveService {
     public void updateStatus(ReceiveHeader receiveHeader){
         receiveHeader.setUpdatedAt(DateUtils.getCurrentSeconds());
         receiveHeaderDao.update(receiveHeader);
-        //正常po以及sto单加入日志表
-        if(receiveHeader.getOrderType() == PoConstant.ORDER_TYPE_PO || receiveHeader.getOrderType() == PoConstant.ORDER_TYPE_TRANSFERS){
+        //查询验收单 正常po以及sto单加入日志表
+        ReceiveHeader receiveHeader1 = this.getReceiveHeaderByReceiveId(receiveHeader.getReceiveId());
+        if(receiveHeader1.getOrderType() == PoConstant.ORDER_TYPE_PO || receiveHeader1.getOrderType() == PoConstant.ORDER_TYPE_TRANSFERS){
             persistenceProxy.doOne(SysLogConstant.LOG_TYPE_IBD,receiveHeader.getReceiveId());
         }
 
