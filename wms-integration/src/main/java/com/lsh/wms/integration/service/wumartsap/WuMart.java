@@ -174,6 +174,7 @@ public class WuMart implements IWuMart {
             sysLog.setStep(4l);
             sysLog.setLogMessage("obd过账成功");
         }
+        sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
 
         return JsonUtils.SUCCESS();
     }

@@ -55,7 +55,7 @@ public class IbdErpTransporter implements ITransporter{
             details.add(detail);
         }
         createIbdHeader.setItems(details);
-        dataBackService.erpDataBack(JSON.toJSONString(createIbdHeader),sysLog);
+        dataBackService.erpDataBack(createIbdHeader,sysLog);
 
     }
 }
