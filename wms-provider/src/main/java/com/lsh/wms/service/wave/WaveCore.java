@@ -420,11 +420,16 @@ public class WaveCore {
                                 boolean bFindShelfStore = false;
                                 for (StockQuant quant : quants) {
                                     BaseinfoLocation loation = locationService.getLocation(quant.getLocationId());
-                                    BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(loation.getLocationId(), 1);
+                                    BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(loation.getLocationId());
                                     if (fatherLocation.getType().equals(LocationConstant.SHELF) && loation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)) {
+                                        //TODO 这里会有问题,我先注销了,明天再改.
+                                    /*
+                                    if (loation.getType() == LocationConstant.SHELF_STORE_BIN) {
                                         bFindShelfStore = true;
                                         detail.setAllocPickLocation(loation.getLocationId());
                                         break;
+                                    }
+                                    */
                                     }
                                 }
                                 if (!bFindShelfStore) {
@@ -598,9 +603,14 @@ public class WaveCore {
                         if (leftAllocQty.compareTo(BigDecimal.ZERO) <= 0) {
                             break;
                         }
-                        BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId(),1);
-                        if(fatherLocation.getType().equals(LocationConstant.SPLIT_AREA))
-                        {
+                        BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId());
+                        if(fatherLocation.getType().equals(LocationConstant.SPLIT_AREA)){
+//                        if(location.getType() == LocationConstant.SPLIT_AREA
+//                                || location.getType() == LocationConstant.SPLIT_SHELF
+//                                //TODO 这里有遗漏的风险,还没来得及改
+//                                //|| location.getType() == LocationConstant.SPLIT_SHELF_BIN
+//                                || location.getType() == LocationConstant.SPLIT_SHELF_LEVEL)
+//                        {
                             leftAllocQty = this._allocStockPickSame(detail, zone, item, location, leftAllocQty);
                         } else {
                             //有补货机制的区域,不考虑捡货位货量,只考虑区域货量

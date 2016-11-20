@@ -42,7 +42,8 @@ public class SoOrderRedisService {
     public void insertSoRedis(ObdHeader obdHeader, List<ObdDetail> obdDetailList){
         Long orderId = obdHeader.getOrderId();
         for (ObdDetail obdDetail : obdDetailList) {
-            String redistKey = StrUtils.formatString(RedisKeyConstant.SO_SKU_INVENTORY_QTY, obdDetail.getSkuId());
+            //将skuId改为itemId
+            String redistKey = StrUtils.formatString(RedisKeyConstant.SO_SKU_INVENTORY_QTY, obdDetail.getItemId());
             redisSortedSetDao.add(redistKey, orderId.toString(), obdDetail.getOrderQty().doubleValue());
             Long itemId = obdDetail.getItemId();
             synStockService.synStock(itemId, inventoryRedisService.getAvailableSkuQty(itemId));

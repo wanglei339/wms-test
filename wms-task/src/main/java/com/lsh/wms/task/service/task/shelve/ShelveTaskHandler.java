@@ -173,7 +173,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         // 实际上架位置和分配位置不一致
         if (!locationId.equals(taskHead.getAllocLocationId())) {
             // 拣货位
-            BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(realLocation.getLocationId(), 1);
+            BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(realLocation.getLocationId());
             if (fatherLocation.getType().equals(LocationConstant.SHELF) && realLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)) {
                 // 检查是否是该商品的拣货位
                 Map<String, Object> params = new HashMap<String, Object>();

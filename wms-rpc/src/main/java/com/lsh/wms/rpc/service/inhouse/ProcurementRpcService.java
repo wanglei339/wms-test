@@ -163,8 +163,8 @@ public class ProcurementRpcService implements IProcurementRpcService{
         Long toLocationId = plan.getToLocationId();
         BaseinfoLocation fromLocation = locationRpcService.getLocation(fromLocationId);
         BaseinfoLocation toLocation = locationRpcService.getLocation(toLocationId);
-        BaseinfoLocation fromFatherLocation = locationService.getFatherRegionByClassfication(fromLocation.getLocationId(), 1);
-        BaseinfoLocation toFatherLocation = locationService.getFatherRegionByClassfication(toLocation.getLocationId(), 1);
+        BaseinfoLocation fromFatherLocation = locationService.getFatherRegionByClassfication(fromLocation.getLocationId());
+        BaseinfoLocation toFatherLocation = locationService.getFatherRegionByClassfication(toLocation.getLocationId());
 
 
         //货架捡货位只能在货架存货位取货，阁楼捡货位只能在阁楼捡货位取货

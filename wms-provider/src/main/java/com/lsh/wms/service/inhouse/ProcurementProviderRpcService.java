@@ -428,8 +428,8 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         BaseinfoLocation fromLocation = locationRpcService.getLocation(fromLocationId);
         BaseinfoLocation toLocation = locationRpcService.getLocation(toLocationId);
         //货架捡货位只能在货架存货位取货，阁楼捡货位只能在阁楼捡货位取货
-        BaseinfoLocation fromFatherLocation = locationService.getFatherRegionByClassfication(fromLocation.getLocationId(),1);
-        BaseinfoLocation toFatherLocation = locationService.getFatherRegionByClassfication(toLocation.getLocationId(),1);
+        BaseinfoLocation fromFatherLocation = locationService.getFatherRegionByClassfication(fromLocation.getLocationId());
+        BaseinfoLocation toFatherLocation = locationService.getFatherRegionByClassfication(toLocation.getLocationId());
 
         if(fromLocation!=null && toLocation!=null && fromFatherLocation.getType().equals(toFatherLocation.getType())){
             condition.setLocationId(fromLocationId);
@@ -495,8 +495,8 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             return false;
         }
 
-        BaseinfoLocation fromFatherLocation = locationService.getFatherRegionByClassfication(fromLocation.getLocationId(), 1);
-        BaseinfoLocation toFatherLocation = locationService.getFatherRegionByClassfication(toLocation.getLocationId(), 1);
+        BaseinfoLocation fromFatherLocation = locationService.getFatherRegionByClassfication(fromLocation.getLocationId());
+        BaseinfoLocation toFatherLocation = locationService.getFatherRegionByClassfication(toLocation.getLocationId());
 
         if(!fromFatherLocation.getType().equals(toFatherLocation.getType())){
             return false;
@@ -555,13 +555,13 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         condition.setItemId(itemId);
 
         BaseinfoLocation pickLocation = locationService.getLocation(locationId);
-        BaseinfoLocation pickFatherLocation = locationService.getFatherRegionByClassfication(pickLocation.getLocationId(), 1);
+        BaseinfoLocation pickFatherLocation = locationService.getFatherRegionByClassfication(pickLocation.getLocationId());
 
         if(pickFatherLocation.getType().compareTo(LocationConstant.LOFT)==0){
             List<StockQuant> quants = stockQuantService.getQuantList(condition);
             for(StockQuant quant:quants){
                 BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
-                BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId(), 1);
+                BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId());
                 if(fatherLocation.getType().compareTo(LocationConstant.LOFT)==0 && location.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE) ){
                     outBondLocations.add(location.getLocationId());
                 }
@@ -570,7 +570,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             List<StockQuant> quants = stockQuantService.getQuantList(condition);
             for(StockQuant quant:quants){
                 BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
-                BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId(), 1);
+                BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId());
                 if(fatherLocation.getType().compareTo(LocationConstant.SHELF)==0 && location.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)){
                     outBondLocations.add(location.getLocationId());
                 }

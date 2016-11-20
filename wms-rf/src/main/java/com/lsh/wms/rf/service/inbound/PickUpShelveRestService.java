@@ -318,7 +318,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         if(realLocation ==null){
             return JsonUtils.TOKEN_ERROR("库位不存在");
         }
-        BaseinfoLocation realFatherLocation = locationService.getFatherRegionByClassfication(realLocation.getLocationId(),1);
+        BaseinfoLocation realFatherLocation = locationService.getFatherRegionByClassfication(realLocation.getLocationId());
         AtticShelveTaskDetail detail = shelveTaskService.getShelveTaskDetail(taskId,TaskConstant.Draft);
         //判断扫描库位是不是存储合一库位
         if(realFatherLocation.getType().compareTo(LocationConstant.SPLIT_AREA)==0 && realLocation.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE) ){

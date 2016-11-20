@@ -89,7 +89,7 @@ public class TaskFinishEventHandler extends AbsEventHandler implements IEventHan
         }
         Long pickLocationId = itemLocations.get(0).getPickLocationid();
         BaseinfoLocation pickLocation = locationService.getLocation(pickLocationId);
-        BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(pickLocation.getLocationId(), 1);
+        BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(pickLocation.getLocationId());
 
         if (fatherLocation.getType().equals(LocationConstant.LOFT)) {
             // 阁楼上架任务

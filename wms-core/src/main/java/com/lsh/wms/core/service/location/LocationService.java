@@ -479,13 +479,13 @@ public class LocationService {
 
     /**
      * 根据所在位置的locationId
-     * 获取指定type祖先级(包含上一级)的location节点
+     * 获取指定到区级别的方法
      *
      * @param locationId 所在位置id
      * @param classfication  分类
      * @return
      */
-    public BaseinfoLocation getFatherRegionByClassfication(Long locationId, Integer classfication) {
+    public BaseinfoLocation getFatherRegionByClassfication(Long locationId) {
         BaseinfoLocation curLocation = this.getLocation(locationId);
         Long fatherId = curLocation.getFatherId();
         if (curLocation.getClassification().equals(LocationConstant.CLASSIFICATION_AREAS)) {
@@ -494,7 +494,7 @@ public class LocationService {
         if (fatherId == 0) {
             return null;
         }
-        return this.getFatherRegionByClassfication(fatherId, classfication);
+        return this.getFatherRegionByClassfication(fatherId);
     }
 
     /**

@@ -123,7 +123,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             if (location == null) {
                 throw new BizCheckedException("2060012");
             }
-            BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId(),1);
+            BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId());
             if (!(fatherLocation.getType().equals(LocationConstant.SHELF) || fatherLocation.getType().equals(LocationConstant.SPLIT_AREA))) {
                 throw new BizCheckedException("2550041");
             }
@@ -201,7 +201,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             plan.setFromLocationId(locationId);
             plan.setItemId(quant.getItemId());
             Long subType = 2L;
-            BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId(),1);
+            BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId());
             if (fatherLocation.getType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
                 subType = 3L;
             }
@@ -266,7 +266,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             StockQuant quant = quantList.get(0);
             plan.setItemId(quant.getItemId());
             Long subType = 2L;
-            BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId(),1);
+            BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId());
             if (fatherLocation.getType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
                 subType = 3L;
             }
@@ -330,7 +330,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             StockQuant quant = quantList.get(0);
             plan.setItemId(quant.getItemId());
             Long subType = 2L;
-            BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId(),1);
+            BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId());
             if (fatherLocation.getType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
                 subType = 3L;
             }

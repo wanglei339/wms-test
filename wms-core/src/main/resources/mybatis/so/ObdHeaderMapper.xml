@@ -91,7 +91,7 @@
 
 	<select id="getObdHeaderById" parameterType="int" resultMap="obdHeaderResultMap">
 		select * from obd_header
-		where ID=#{id}
+		where id=#{id}
 	</select>
 
 	<select id="countObdHeader" parameterType="map" resultType="int">
@@ -102,6 +102,7 @@
 	<select id="getObdHeaderList" parameterType="map" resultMap="obdHeaderResultMap">
 		select * from obd_header
 		<include refid="queryCondition"/>
+		ORDER BY id DESC
 		<if test="start != null and limit != null">
 			limit #{start},#{limit}
 		</if>
