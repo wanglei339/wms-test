@@ -2,6 +2,7 @@ package com.lsh.wms.api.service.location;
 
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.model.location.LocationDetailRequest;
+import com.lsh.wms.api.model.location.LocationDetailUpdateRequest;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
@@ -16,7 +17,7 @@ public interface ILocationDetailRestService {
 
     public java.lang.String insertLocationDetailByType(LocationDetailRequest request) throws BizCheckedException;
 
-    public java.lang.String updateLocationDetailByType(LocationDetailRequest request) throws BizCheckedException;
+    public java.lang.String updateLocationDetailByType(LocationDetailUpdateRequest locationDetailUpdateRequest) throws BizCheckedException;
 
     public String countLocationDetailByType() throws BizCheckedException;
 

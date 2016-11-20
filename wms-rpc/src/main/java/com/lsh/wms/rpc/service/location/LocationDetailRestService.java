@@ -8,6 +8,7 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.model.location.LocationDetailRequest;
 import com.lsh.wms.api.model.location.LocationDetailResponse;
+import com.lsh.wms.api.model.location.LocationDetailUpdateRequest;
 import com.lsh.wms.api.service.location.ILocationDetailRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.constant.LocationConstant;
@@ -91,15 +92,19 @@ public class LocationDetailRestService implements ILocationDetailRestService {
 
     @POST
     @Path("updateLocation")
-    public String updateLocationDetailByType(LocationDetailRequest request) throws BizCheckedException {
-        Long locationId = Long.parseLong(request.getLocationId().toString());
-        IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationDetailRpcService.getLocationDetailById(locationId);
-        ObjUtils.bean2bean(request, iBaseinfoLocaltionModel);
+    public String updateLocationDetailByType(LocationDetailUpdateRequest locationDetailUpdateRequest) throws BizCheckedException {
+//        Map<String, Object> beanMap = RequestUtils.getRequest();
+//        Long locationId = Long.parseLong(request.getLocationId().toString());
+        IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationDetailRpcService.getLocationDetailById(locationDetailUpdateRequest.getLocationId());
+        if (null==iBaseinfoLocaltionModel){
+            throw new BizCheckedException("2180001");
+        }
+        ObjUtils.bean2bean(locationDetailUpdateRequest, iBaseinfoLocaltionModel);
 
         //添加更新时间
         long updatedAt = DateUtils.getCurrentSeconds();
         iBaseinfoLocaltionModel.setUpdatedAt(updatedAt);
-        return JsonUtils.SUCCESS(locationDetailRpcService.updateLocationDetailByType((BaseinfoLocation) iBaseinfoLocaltionModel));
+        return JsonUtils.SUCCESS(locationDetailRpcService.updateLocationDetailByType(iBaseinfoLocaltionModel));
 
     }
 
