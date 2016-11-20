@@ -17,19 +17,14 @@ public class LocationDetailRequest implements Serializable {
     /**  */
     private Long id;
     /** 位置id */
-    @NotNull
     private Long locationId;
     /** 位置编码 */
-    @NotBlank
     private String locationCode;
     /** 父级位置id */
-    @NotNull
     private Long fatherId;
     /** 位置类型 */
-    @NotNull
     private Long type;
     /** 类型名 */
-    @NotBlank
     private String typeName;
     /** 是否为叶子位置节点 */
     private Integer isLeaf=0;
