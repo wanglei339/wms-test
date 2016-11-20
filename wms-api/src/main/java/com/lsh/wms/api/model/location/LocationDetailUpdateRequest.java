@@ -53,6 +53,12 @@ public class LocationDetailUpdateRequest implements Serializable {
     private String supplierNo;
 
     private String storeNo;
+    /** 库位的用途1-拣货2-存货 */
+    private Integer binUsage;
+
+    public Integer getBinUsage() {
+        return binUsage;
+    }
 
     public String getStoreNo() {
         return storeNo;

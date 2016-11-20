@@ -90,10 +90,10 @@ public class LocationDetailService {
         //货位
         locationDetailServiceFactory.register(LocationConstant.BIN, baseinfoLocationBinService);
         //货架和阁楼的货位
-        locationDetailServiceFactory.register(LocationConstant.SHELF_PICKING_BIN, baseinfoLocationBinService);
-        locationDetailServiceFactory.register(LocationConstant.SHELF_STORE_BIN, baseinfoLocationBinService);
-        locationDetailServiceFactory.register(LocationConstant.LOFT_PICKING_BIN, baseinfoLocationBinService);
-        locationDetailServiceFactory.register(LocationConstant.LOFT_STORE_BIN, baseinfoLocationBinService);
+//        locationDetailServiceFactory.register(LocationConstant.SHELF_PICKING_BIN, baseinfoLocationBinService);
+//        locationDetailServiceFactory.register(LocationConstant.SHELF_STORE_BIN, baseinfoLocationBinService);
+//        locationDetailServiceFactory.register(LocationConstant.LOFT_PICKING_BIN, baseinfoLocationBinService);
+//        locationDetailServiceFactory.register(LocationConstant.LOFT_STORE_BIN, baseinfoLocationBinService);
 
 
         //添加各种功能bin的service服务
@@ -112,19 +112,19 @@ public class LocationDetailService {
         //注入拆零区、拆零货架、拆零层级、拆零存储一体货位
         locationDetailServiceFactory.register(LocationConstant.SPLIT_AREA, baseinfoLocationRegionService);
         locationDetailServiceFactory.register(LocationConstant.SPLIT_SHELF, baseinfoLocationShelfService);
-        locationDetailServiceFactory.register(LocationConstant.SPLIT_SHELF_BIN, baseinfoLocationBinService);
+//        locationDetailServiceFactory.register(LocationConstant.SPLIT_SHELF_BIN, baseinfoLocationBinService);
         //注入贵品区、贵品货架、贵品货架层级、贵品存拣货位
         locationDetailServiceFactory.register(LocationConstant.VALUABLES_AREA, baseinfoLocationRegionService);
         locationDetailServiceFactory.register(LocationConstant.VALUABLES_SHELF, baseinfoLocationShelfService);
-        locationDetailServiceFactory.register(LocationConstant.VALUABLES_SHELF_BIN, baseinfoLocationBinService);
+//        locationDetailServiceFactory.register(LocationConstant.VALUABLES_SHELF_BIN, baseinfoLocationBinService);
         //注入播种区、播种货位
         locationDetailServiceFactory.register(LocationConstant.SOW_AREA, baseinfoLocationRegionService);
         locationDetailServiceFactory.register(LocationConstant.SOW_BIN, baseinfoLocationBinService);
         //注入 供商退货区、供商退货货架、供商退货货架层、供商退货入库位置、供商退货存储位置
         locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_AREA, baseinfoLocationRegionService);
         locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_SHELF, baseinfoLocationShelfService);
-        locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_IN_BIN, baseinfoLocationBinService);
-        locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_STORE_BIN, baseinfoLocationBinService);
+//        locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_IN_BIN, baseinfoLocationBinService);
+//        locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_STORE_BIN, baseinfoLocationBinService);
         //todo 功能块的服务注入 locationService没继承,没有功能块,集货道,集货道组的detail服务
     }
 
@@ -158,10 +158,10 @@ public class LocationDetailService {
         //货位
         locationDetailModelFactory.register(LocationConstant.BIN, new BaseinfoLocationBin());
         //货架和阁楼的货位
-        locationDetailModelFactory.register(LocationConstant.SHELF_PICKING_BIN, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.SHELF_STORE_BIN, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.LOFT_PICKING_BIN, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.LOFT_STORE_BIN, new BaseinfoLocationBin());
+//        locationDetailModelFactory.register(LocationConstant.SHELF_PICKING_BIN, new BaseinfoLocationBin());
+//        locationDetailModelFactory.register(LocationConstant.SHELF_STORE_BIN, new BaseinfoLocationBin());
+//        locationDetailModelFactory.register(LocationConstant.LOFT_PICKING_BIN, new BaseinfoLocationBin());
+//        locationDetailModelFactory.register(LocationConstant.LOFT_STORE_BIN, new BaseinfoLocationBin());
         //功能bin
         locationDetailModelFactory.register(LocationConstant.FLOOR_BIN, new BaseinfoLocationBin());
         locationDetailModelFactory.register(LocationConstant.TEMPORARY_BIN, new BaseinfoLocationBin());
@@ -179,12 +179,12 @@ public class LocationDetailService {
         locationDetailModelFactory.register(LocationConstant.SPLIT_AREA, new BaseinfoLocationRegion());
         locationDetailModelFactory.register(LocationConstant.SPLIT_SHELF, new BaseinfoLocationShelf());
         locationDetailModelFactory.register(LocationConstant.SPLIT_SHELF_LEVEL, new BaseinfoLocation());
-        locationDetailModelFactory.register(LocationConstant.SPLIT_SHELF_BIN, new BaseinfoLocationBin());
+//        locationDetailModelFactory.register(LocationConstant.SPLIT_SHELF_BIN, new BaseinfoLocationBin());
         //注入贵品区、贵品货架、贵品货架层级、贵品存拣货位
         locationDetailModelFactory.register(LocationConstant.VALUABLES_AREA, new BaseinfoLocationRegion());
         locationDetailModelFactory.register(LocationConstant.VALUABLES_SHELF, new BaseinfoLocationShelf());
         locationDetailModelFactory.register(LocationConstant.VALUABLES_SHELF_LEVEL, new BaseinfoLocation());
-        locationDetailModelFactory.register(LocationConstant.VALUABLES_SHELF_BIN, new BaseinfoLocationBin());
+//        locationDetailModelFactory.register(LocationConstant.VALUABLES_SHELF_BIN, new BaseinfoLocationBin());
         //注入播种区和播种货位
         locationDetailModelFactory.register(LocationConstant.SOW_AREA, new BaseinfoLocationRegion());
         locationDetailModelFactory.register(LocationConstant.SOW_BIN, new BaseinfoLocationBin());
@@ -192,8 +192,8 @@ public class LocationDetailService {
         locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_AREA, new BaseinfoLocationRegion());
         locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_SHELF, new BaseinfoLocationShelf());
         locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_LEVEL, new BaseinfoLocation());
-        locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_IN_BIN, new BaseinfoLocationBin());
-        locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_STORE_BIN, new BaseinfoLocationBin());
+//        locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_IN_BIN, new BaseinfoLocationBin());
+//        locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_STORE_BIN, new BaseinfoLocationBin());
         //集货道、集货道组、集货位
         locationDetailModelFactory.register(LocationConstant.COLLECTION_ROAD_GROUP, new BaseinfoLocation());
         locationDetailModelFactory.register(LocationConstant.COLLECTION_ROAD, new BaseinfoLocation());

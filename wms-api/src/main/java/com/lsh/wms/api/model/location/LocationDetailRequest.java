@@ -60,6 +60,13 @@ public class LocationDetailRequest implements Serializable {
 
     private String storeNo="0";
 
+    /** 库位的用途1-拣货2-存货 */
+    private Integer binUsage=1;
+
+    public Integer getBinUsage() {
+        return binUsage;
+    }
+
     public String getStoreNo() {
         return storeNo;
     }
