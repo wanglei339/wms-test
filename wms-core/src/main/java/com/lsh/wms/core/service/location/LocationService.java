@@ -5,10 +5,7 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.q.Module.Base;
 import com.lsh.wms.api.model.location.LocationDetailRequest;
-import com.lsh.wms.core.constant.CustomerConstant;
-import com.lsh.wms.core.constant.LocationConstant;
-import com.lsh.wms.core.constant.StoreConstant;
-import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.stock.StockQuantService;
@@ -729,7 +726,7 @@ public class LocationService {
         allNearShelfSubs = this.getStoreLocations(passage.getLocationId());
         tempLocations.addAll(allNearShelfSubs);
         //筛选相邻两货架间距离当前拣货位最近的存货位
-        BaseinfoLocation nearestLocation = this.filterNearestBinAlgorithm(tempLocations, pickingLocation, shelfLocationSelf, LocationConstant.SHELF_STORE_BIN);
+        BaseinfoLocation nearestLocation = this.filterNearestBinAlgorithm(tempLocations, pickingLocation, shelfLocationSelf, BinUsageConstant.BIN_UASGE_STORE);
         return nearestLocation;
     }
 
@@ -740,15 +737,15 @@ public class LocationService {
      * @param locations         筛选的存储位置集合
      * @param pickingLocation   拣货位的位置
      * @param shelfLocationSelf 拣货位所在货架(用于判断是否是同一货架)
-     * @param type              查找的指定location的集合
+     * @param binUsage          存还是拣货
      * @return
      */
-    public BaseinfoLocation filterNearestBinAlgorithm(List<BaseinfoLocation> locations, BaseinfoLocation pickingLocation, BaseinfoLocation shelfLocationSelf, Long type) {
+    public BaseinfoLocation filterNearestBinAlgorithm(List<BaseinfoLocation> locations, BaseinfoLocation pickingLocation, BaseinfoLocation shelfLocationSelf, Integer binUsage) {
         List<Map<String, Object>> storeBinDistanceList = new ArrayList<Map<String, Object>>();
         //放入location和当前location到目标位置的距离
         for (BaseinfoLocation temp : locations) {
             //存货位,为空没上锁
-            if (temp.getType().equals(type) && this.shelfBinLocationIsEmptyAndUnlock(temp)) {
+            if (temp.getBinUsage().equals(binUsage) && this.shelfBinLocationIsEmptyAndUnlock(temp)) {
                 // 考虑库存,无库存的货架位才能放入商品
                 // todo 可以用location的curContainer字段
                 List<StockQuant> quants = stockQuantService.getQuantsByLocationId(temp.getLocationId());
@@ -805,7 +802,7 @@ public class LocationService {
         passage = passageList.get(0);
         allNearShelfSubs = this.getStoreLocations(passage.getLocationId());
         tempLocations.addAll(allNearShelfSubs);
-        BaseinfoLocation neareatLocation = this.filterNearestBinAlgorithm(tempLocations, pickingLocation, shelfLocationSelf, LocationConstant.SPLIT_SHELF_BIN);
+        BaseinfoLocation neareatLocation = this.filterNearestBinAlgorithm(tempLocations, pickingLocation, shelfLocationSelf, BinUsageConstant.BIN_UASGE_PICK);
         return neareatLocation;
     }
 
@@ -830,7 +827,7 @@ public class LocationService {
         passage = passageList.get(0);
         allNearShelfSubs = this.getStoreLocations(passage.getLocationId());
         tempLocations.addAll(allNearShelfSubs);
-        BaseinfoLocation neareatLocation = this.filterNearestBinAlgorithm(tempLocations, pickingLocation, shelfLocationSelf, LocationConstant.LOFT_STORE_BIN);
+        BaseinfoLocation neareatLocation = this.filterNearestBinAlgorithm(tempLocations, pickingLocation, shelfLocationSelf, BinUsageConstant.BIN_UASGE_STORE);
         return neareatLocation;
     }
 

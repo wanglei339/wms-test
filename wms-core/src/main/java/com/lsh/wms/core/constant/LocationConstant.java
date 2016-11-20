@@ -30,11 +30,11 @@ public class LocationConstant {
     public static final Long BIN = 15L;
     //所有的货位
     //货架拣货位和存货位
-    public static final Long SHELF_PICKING_BIN = 16L;
-    public static final Long SHELF_STORE_BIN = 17L;
+//    public static final Long SHELF_PICKING_BIN = 16L;
+//    public static final Long SHELF_STORE_BIN = 17L;
     //阁楼拣货位和存货位
-    public static final Long LOFT_PICKING_BIN = 18L;
-    public static final Long LOFT_STORE_BIN = 19L;
+//    public static final Long LOFT_PICKING_BIN = 18L;
+//    public static final Long LOFT_STORE_BIN = 19L;
     //功能区的货位
     public static final Long FLOOR_BIN = 20L;
     public static final Long TEMPORARY_BIN = 21L;
@@ -61,13 +61,13 @@ public class LocationConstant {
     //拆零货架的层
     public static final Long SPLIT_SHELF_LEVEL = 34L;
     //拆零存储一体货位
-    public static final Long SPLIT_SHELF_BIN = 35L;
+//    public static final Long SPLIT_SHELF_BIN = 35L;
 
     //贵品区
     public static final Long VALUABLES_AREA = 40L;      //贵品区
     public static final Long VALUABLES_SHELF = 41L;     //贵品货架个体
     public static final Long VALUABLES_SHELF_LEVEL = 42L;   //贵品货架的货架层
-    public static final Long VALUABLES_SHELF_BIN = 43L; //贵品存拣一体位
+//    public static final Long VALUABLES_SHELF_BIN = 43L; //贵品存拣一体位
 
     //播种区
     public static final Long SOW_AREA = 44L;  //播种区
@@ -77,8 +77,8 @@ public class LocationConstant {
     public static final Long SUPPLIER_RETURN_AREA = 46L;    //供商退货区
     public static final Long SUPPLIER_RETURN_SHELF = 47L;   //供商退货货架
     public static final Long SUPPLIER_RETURN_LEVEL = 48L;    //供商退货货架层
-    public static final Long SUPPLIER_RETURN_IN_BIN = 49L;  //供商退货入库位置(货架一层,方便取货)
-    public static final Long SUPPLIER_RETURN_STORE_BIN = 50L;   //供商退货存储位置(一层往上)
+//    public static final Long SUPPLIER_RETURN_IN_BIN = 49L;  //供商退货入库位置(货架一层,方便取货)
+//    public static final Long SUPPLIER_RETURN_STORE_BIN = 50L;   //供商退货存储位置(一层往上)
 
 
     //是否能存储
@@ -147,6 +147,9 @@ public class LocationConstant {
     // location_id划分相关
     public static final Integer CHILDREN_RANGE = 128; //每个节点的子节点数
     public static final Integer LOCATION_LEVEL = 8; // 整棵树的最大层数
+
+
+
 
 
 
@@ -296,18 +299,6 @@ public class LocationConstant {
 //                    put("isValid", 1);
 //                }
 //            });
-            //货架拣货位
-            put(SHELF_PICKING_BIN, new HashMap<String, Object>() {
-                {
-                    put("type", SHELF_PICKING_BIN);
-                    put("typeName", "货架拣货位");
-//                    put("fatherType", SHELF_PICK_BLOCK);
-                    put("fatherType",SHELF_LEVELS);
-                    put("regionNo", SHELFS);
-                    put("regionCode","A");
-                    put("isValid", 1);
-                }
-            });
             //货架层存货块
 //            put(SHELF_STORE_BLOCK, new HashMap<String, Object>() {
 //                {
@@ -318,17 +309,6 @@ public class LocationConstant {
 //                    put("isValid", 1);
 //                }
 //            });
-            //货架存货位
-            put(SHELF_STORE_BIN, new HashMap<String, Object>() {
-                {
-                    put("type", SHELF_STORE_BIN);
-                    put("typeName", "货架存货位");
-//                    put("fatherType", SHELF_STORE_BLOCK);
-                    put("regionCode","A");
-                    put("regionNo", SHELFS);
-                    put("isValid", 1);
-                }
-            });
 //            //阁楼货架层的拣货块
 //            put(LOFT_PICK_BLOCK, new HashMap<String, Object>() {
 //                {
@@ -339,17 +319,6 @@ public class LocationConstant {
 //                    put("isValid", 1);
 //                }
 //            });
-            //阁楼的拣货位
-            put(LOFT_PICKING_BIN, new HashMap<String, Object>() {
-                {
-                    put("type", LOFT_PICKING_BIN);
-                    put("typeName", "阁楼的拣货位");
-//                    put("fatherType", LOFT_PICK_BLOCK);
-                    put("regionCode","B");
-                    put("regionNo", LOFTS);
-                    put("isValid", 1);
-                }
-            });
 //            //阁楼货架层的存货块
 //            put(LOFT_STORE_BLOCK, new HashMap<String, Object>() {
 //                {
@@ -360,17 +329,6 @@ public class LocationConstant {
 //                    put("isValid", 1);
 //                }
 //            });
-            //阁楼的拣货位
-            put(LOFT_STORE_BIN, new HashMap<String, Object>() {
-                {
-                    put("type", LOFT_STORE_BIN);
-                    put("typeName", "阁楼的存货位");
-//                    put("fatherType", LOFT_STORE_BLOCK);
-                    put("regionNo", LOFTS);
-                    put("regionCode","B");
-                    put("isValid", 1);
-                }
-            });
 
 
 

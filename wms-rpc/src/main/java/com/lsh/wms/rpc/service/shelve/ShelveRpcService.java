@@ -5,6 +5,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.shelve.IShelveRpcService;
+import com.lsh.wms.core.constant.BinUsageConstant;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
@@ -118,7 +119,7 @@ public class ShelveRpcService implements IShelveRpcService {
             Long pickingLocationId = itemLocation.getPickLocationid();
             BaseinfoLocation pickingLocation = locationService.getLocation(pickingLocationId);
             // 是否是拣货位
-            if (!pickingLocation.getType().equals(LocationConstant.SHELF_PICKING_BIN)) {
+            if (!pickingLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)) {
                 throw new BizCheckedException("2030002");
             }
             // 判断该拣货位是否符合拣货标准

@@ -110,6 +110,16 @@ public class BaseinfoLocation implements Serializable, IBaseinfoLocaltionModel {
      */
     //private String supplierNo = "";
     private String supplierNo;
+    /** 库位的用途1-拣货2-存货 */
+    private Integer binUsage;
+
+    public Integer getBinUsage() {
+        return binUsage;
+    }
+
+    public void setBinUsage(Integer binUsage) {
+        this.binUsage = binUsage;
+    }
 
     public Long getCurContainerVol() {
         return curContainerVol;

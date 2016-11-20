@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.location.ILocationRpcService;
+import com.lsh.wms.core.constant.BinUsageConstant;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
@@ -167,26 +168,32 @@ public class LocationRpcService implements ILocationRpcService {
     public List<BaseinfoLocation> getColletionBins() {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
-        //放入阁楼拣货位
-        mapQuery.put("type", LocationConstant.LOFT_PICKING_BIN);
+//        //放入阁楼拣货位
+//        mapQuery.put("type", LocationConstant.LOFT_PICKING_BIN);
+//        mapQuery.put("isValid", LocationConstant.IS_VALID);
+//        List<BaseinfoLocation> loftColletionBins = locationService.getLocationListByType(mapQuery);
+//        targetList.addAll(loftColletionBins);
+//        //货架拣货位
+//        mapQuery.put("type", LocationConstant.SHELF_PICKING_BIN);
+//        mapQuery.put("isValid", LocationConstant.IS_VALID);
+//        List<BaseinfoLocation> shelfColletionBins = locationService.getLocationListByType(mapQuery);
+//        targetList.addAll(shelfColletionBins);
+//        //贵品区一体位置
+//        mapQuery.put("type", LocationConstant.VALUABLES_SHELF_BIN);
+//        mapQuery.put("isValid", LocationConstant.IS_VALID);
+//        List<BaseinfoLocation> valuablesShelfBins = locationService.getBaseinfoLocationList(mapQuery);
+//        targetList.addAll(valuablesShelfBins);
+//        //存拣货一体位置
+//        mapQuery.put("type", LocationConstant.SPLIT_SHELF_BIN);
+//        mapQuery.put("isValid", LocationConstant.IS_VALID);
+//        List<BaseinfoLocation> splitShelfBins = locationService.getBaseinfoLocationList(mapQuery);
+//        targetList.addAll(splitShelfBins);
+        mapQuery.put("binUsage", BinUsageConstant.BIN_UASGE_PICK);
         mapQuery.put("isValid", LocationConstant.IS_VALID);
-        List<BaseinfoLocation> loftColletionBins = locationService.getLocationListByType(mapQuery);
-        targetList.addAll(loftColletionBins);
-        //货架拣货位
-        mapQuery.put("type", LocationConstant.SHELF_PICKING_BIN);
-        mapQuery.put("isValid", LocationConstant.IS_VALID);
-        List<BaseinfoLocation> shelfColletionBins = locationService.getLocationListByType(mapQuery);
-        targetList.addAll(shelfColletionBins);
-        //贵品区一体位置
-        mapQuery.put("type", LocationConstant.VALUABLES_SHELF_BIN);
-        mapQuery.put("isValid", LocationConstant.IS_VALID);
-        List<BaseinfoLocation> valuablesShelfBins = locationService.getBaseinfoLocationList(mapQuery);
-        targetList.addAll(valuablesShelfBins);
-        //存拣货一体位置
-        mapQuery.put("type", LocationConstant.SPLIT_SHELF_BIN);
-        mapQuery.put("isValid", LocationConstant.IS_VALID);
-        List<BaseinfoLocation> splitShelfBins = locationService.getBaseinfoLocationList(mapQuery);
-        targetList.addAll(splitShelfBins);
+        mapQuery.put("isLocked", LocationConstant.UNLOCK);
+        List<BaseinfoLocation> pickBins = locationService.getLocationListByType(mapQuery);
+        targetList.addAll(pickBins);
+
         return targetList;
     }
 
