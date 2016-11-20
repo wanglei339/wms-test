@@ -156,11 +156,12 @@ public class IbdService implements IIbdService {
         if(poRequest.getOrderType() == PoConstant.ORDER_TYPE_PO){
             CsiSupplier supplier = supplierService.getSupplier(poRequest.getSupplierCode().toString(),poRequest.getOwnerUid());
             if(supplier == null){
-                throw new BizCheckedException("2021111");
+                //throw new BizCheckedException("2021111");
+                poRequest.setSupplierName("");
 
+            }else{
+                poRequest.setSupplierName(supplier.getSupplierName());
             }
-            poRequest.setSupplierName(supplier.getSupplierName());
-
         }
 
         Long orderId = poRpcService.insertOrder(poRequest);

@@ -133,7 +133,7 @@ public class ObdService implements IObdService{
         mapQuery.put("orderType",orderType);
         List<ObdHeader> lists = soOrderService.getOutbSoHeaderList(mapQuery);
         if(lists.size() > 0){
-            throw new BizCheckedException("2020099");
+            throw new BizCheckedException("2020099",orderOtherId,"");
         }
         //添加waveOrderType
         String waveOrderType = "";

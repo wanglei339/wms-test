@@ -1,5 +1,6 @@
 package com.lsh.wms.integration.service.back;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.service.po.ReceiveService;
@@ -25,6 +26,29 @@ public class TransporterManager {
     @Autowired
     private ReceiveService receiveService;
 
+//    @Reference
+//    private ITransporter transporter;
+    @Autowired
+    private IbdErpTransporter ibdErpTransporter;
+
+    @Autowired
+    private DirectTransporter directTransporter;
+
+    @Autowired
+    private ObdSapStoTransporter obdSapStoTransporter;
+
+    @Autowired
+    private ObdSapTransporter obdSapTransporter;
+
+    @Autowired
+    private ObdOfcTransporter obdOfcTransporter;
+
+    @Autowired
+    private IbdSapTransporter ibdSapTransporter;
+
+    @Autowired
+    private InventoryTransporter inventoryTransporter;
+
 
     //@Autowired
     public void dealOne(SysLog sysLog) {
@@ -41,27 +65,27 @@ public class TransporterManager {
                 ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(deliveryHeader.getOrderId());
                 if(obdHeader.getOwnerUid() == 1){
                     if(obdHeader.getOrderType() == SoConstant.ORDER_TYPE_DIRECT){
-                        transporter = new DirectTransporter();
+                        transporter = directTransporter;
                     }else if (obdHeader.getOrderType() == SoConstant.ORDER_TYPE_STO) {
-                        transporter = new ObdSapStoTransporter();
+                        transporter = obdSapStoTransporter;
                     }else {
-                        transporter = new ObdSapTransporter();
+                        transporter = obdSapTransporter;
                     }
                 }else {
-                    transporter = new ObdOfcTransporter();
+                    transporter = obdOfcTransporter;
                 }
                 break;
             case SysLogConstant.LOG_TYPE_IBD:
                 Long receiveId = sysLog.getBusinessId();
                 ReceiveHeader receiveHeader = receiveService.getReceiveHeaderByReceiveId(receiveId);
                 if(receiveHeader.getOwnerUid() == 1){
-                    transporter = new IbdSapTransporter();
+                    transporter = ibdSapTransporter;
                 }else{
-                    transporter = new IbdErpTransporter();
+                    transporter = ibdErpTransporter;
                 }
                 break;
             case SysLogConstant.LOG_TYPE_LOSS_WIN:
-                transporter = new InventoryTransporter();
+                transporter = inventoryTransporter;
                 break;
 //            case SysLogConstant.LOG_TYPE_WIN:
 //                transporter = new InventoryWinTransporter();

@@ -20,7 +20,7 @@ public interface ILocationDetailRpc {
 
     public void insertLocationDetailByType(LocationDetailRequest request) throws BizCheckedException;
 
-    public BaseinfoLocation updateLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException;
+    public IBaseinfoLocaltionModel updateLocationDetailByType(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) throws BizCheckedException;
 
     public Integer countLocationDetailByType(Map<String, Object> mapQuery) throws BizCheckedException;
 
