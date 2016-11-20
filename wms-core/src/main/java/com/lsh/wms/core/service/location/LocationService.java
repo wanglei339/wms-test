@@ -347,8 +347,9 @@ public class LocationService {
     /**
      * 根据type和库位类型找到下面的子库位,获取指定库位的方法,存货位还是拣货位,type传LocationConstant.BIN
      *
-     * @param locationId
-     * @param type
+     * @param fatherLocationId
+     * @param sonType
+     * @param binUsage
      * @return
      */
     public List<BaseinfoLocation> getChildrenLocationsByType(Long fatherLocationId, Long sonType, Integer binUsage) {

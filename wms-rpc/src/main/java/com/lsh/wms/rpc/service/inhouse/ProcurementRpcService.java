@@ -5,6 +5,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.inhouse.IProcurementRpcService;
+import com.lsh.wms.core.constant.BinUsageConstant;
 import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
@@ -169,7 +170,7 @@ public class ProcurementRpcService implements IProcurementRpcService{
 
         //货架捡货位只能在货架存货位取货，阁楼捡货位只能在阁楼捡货位取货
         if(fromLocation!=null && toLocation!=null &&
-                ( fromFatherLocation.getType().equals(toFatherLocation.getType()))){
+                ( fromFatherLocation.getType().equals(toFatherLocation.getType()) && fromLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE) && toLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK))){
             condition.setLocationId(fromLocationId);
             List<StockQuant> quants = stockQuantService.getQuantList(condition);
             List<BaseinfoItemLocation> itemLocations = itemRpcService.getItemLocationByLocationID(toLocationId);
