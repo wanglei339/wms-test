@@ -169,7 +169,7 @@ public class QCRpcService implements IQCRpcService {
             if (null != tuDetail) {    //一旦能查到就是装车了
                 needCount = false;
             }
-            if (!needCount) {
+            if (!needCount) {   //不需要计数
                 continue;
             }
             // todo贵品
