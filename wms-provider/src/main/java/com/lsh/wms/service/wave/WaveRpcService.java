@@ -52,8 +52,11 @@ public class WaveRpcService implements IWaveRpcService {
             if(so == null){
                 throw new BizCheckedException("2041000", orderOtherId,"");
             }
-            Map<String,Long> map = new HashMap<String, Long>();
+            Map<String,Object> map = new HashMap<String, Object>();
             map.put("orderId",so.getOrderId());
+            map.put("transPlan",order.get("transPlan"));
+            map.put("waveIndex",order.get("waveIndex"));
+            map.put("transTime",order.get("transTime"));
             newOrders.add(map);
         }
         request.setOrders(newOrders);
