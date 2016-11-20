@@ -53,6 +53,10 @@ public interface ILocationRestService {
      * @return
      */
     public String getAllColletionBins();
+    /*
+     * 获取可用拣货位
+     */
+    String getColletionBinsCanUse();
 
     /**
      * 获取全货架

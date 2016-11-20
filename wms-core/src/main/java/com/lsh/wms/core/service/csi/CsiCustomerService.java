@@ -104,11 +104,11 @@ public class CsiCustomerService {
 
     public CsiCustomer getCustomerByCustomerCode(Long ownerId, String customerCode) {
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put("ownerId", ownerId);
+        //map.put("ownerId", ownerId);
         map.put("customerCode", customerCode);
         map.put("isValid", 1);   //有效的
         List<CsiCustomer> customers = this.getCustomerList(map);
-        if(customers.size()!=1){
+        if(customers.size()==0){
             return null;
         }else{
             return customers.get(0);
