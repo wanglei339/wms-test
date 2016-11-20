@@ -59,5 +59,5 @@ public class RedisStringDao extends RedisBaseDao {
     public void decrease(String key, double val) {
         valOp_r.increment(key, 0-val);
     }
-    
+
 }

@@ -116,4 +116,7 @@ public class RedisSortedSetDao extends RedisBaseDao {
         return zSetOp_r.rank(key, value) != null;
     }
 
+    public double decrease(String key, String value, double score) {
+        return zSetOp_w.incrementScore(key, value, 0 - score);
+    }
 }
