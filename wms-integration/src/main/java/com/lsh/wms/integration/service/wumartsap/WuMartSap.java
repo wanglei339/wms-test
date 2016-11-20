@@ -79,7 +79,7 @@ public class WuMartSap implements IWuMartSap{
 
         String warehouseCode = createIbdHeader.getWarehouseCode();
         Long receiveId = 0l;
-        if(PropertyUtils.getString("warehousegg").equals(warehouseCode)){
+        if(PropertyUtils.getString("wumart.werks").equals(warehouseCode)){
             receiveId = Long.valueOf(details.get(0).getVendMat());
         }
 
@@ -143,6 +143,7 @@ public class WuMartSap implements IWuMartSap{
         }
 
         backDate.setItems(backDetails);
+        backDate.setWarehouseCode(createIbdHeader.getWarehouseCode());
 
         return backDate;
     }
@@ -327,7 +328,7 @@ public class WuMartSap implements IWuMartSap{
 
         // TODO: 2016/11/10 将返回的数据对应到相应的验收单中。
         if(newReturn == null){
-            return null;
+            return "E";
         }
 
 
