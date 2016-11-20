@@ -15,10 +15,10 @@ public class SysLog implements Serializable {
 	private Long businessId;
 
 	/** 状态类型 0-新建，1-处理中，2-处理完成 */
-	private Long status = 0l;
+	private Integer status = 0;
 
 	/** 业务内部处理阶段, 为解决多步骤重传问题 */
-	private Long step = 0l;
+	private Integer step = 0;
 
 	/** 日志类型 1 ibd，2 obd 3 fret */
     private Integer logType;
@@ -104,19 +104,19 @@ public class SysLog implements Serializable {
 		this.businessId = businessId;
 	}
 
-	public Long getStatus() {
+	public Integer getStatus() {
 		return status;
 	}
 
-	public void setStatus(Long status) {
+	public void setStatus(Integer status) {
 		this.status = status;
 	}
 
-	public Long getStep() {
+	public Integer getStep() {
 		return step;
 	}
 
-	public void setStep(Long step) {
+	public void setStep(Integer step) {
 		this.step = step;
 	}
 

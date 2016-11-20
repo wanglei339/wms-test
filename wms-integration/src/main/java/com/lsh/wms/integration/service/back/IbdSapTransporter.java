@@ -46,7 +46,7 @@ public class IbdSapTransporter implements ITransporter {
                 continue;
             }
             detail.setDeliveQty(deliveQty.setScale(2,BigDecimal.ROUND_HALF_UP));
-            detail.setUnit(receiveDetail.getUnitName());
+            detail.setUnit(receiveDetail.getPackName());
             detail.setMaterial(receiveDetail.getSkuCode());
             detail.setOrderType(receiveHeader.getOrderType());
             detail.setVendMat(receiveHeader.getReceiveId().toString());

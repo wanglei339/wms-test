@@ -1,6 +1,7 @@
 package com.lsh.wms.core.service.po;
 
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.dao.po.IbdDetailDao;
 import com.lsh.wms.core.dao.po.InbReceiptDetailDao;
@@ -160,7 +161,11 @@ public class ReceiveService {
     public void updateStatus(ReceiveHeader receiveHeader){
         receiveHeader.setUpdatedAt(DateUtils.getCurrentSeconds());
         receiveHeaderDao.update(receiveHeader);
-        persistenceProxy.doOne(SysLogConstant.LOG_TYPE_IBD,receiveHeader.getReceiveId());
+        //正常po以及sto单加入日志表
+        if(receiveHeader.getOrderType() == PoConstant.ORDER_TYPE_PO || receiveHeader.getOrderType() == PoConstant.ORDER_TYPE_TRANSFERS){
+            persistenceProxy.doOne(SysLogConstant.LOG_TYPE_IBD,receiveHeader.getReceiveId());
+        }
+
     }
 
     /**

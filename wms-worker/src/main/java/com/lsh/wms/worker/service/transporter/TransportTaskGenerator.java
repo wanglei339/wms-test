@@ -31,6 +31,7 @@ public class TransportTaskGenerator implements IScheduleTaskDealSingle<Long> {
 
     public boolean execute(Long sysLogId, String ownSign) throws Exception {
         try {
+            logger.info("in execute:"+sysLogId);
             iTransportService.dealOne(sysLogId);
         }catch (Exception e){
             logger.error(e.getMessage());
@@ -49,6 +50,7 @@ public class TransportTaskGenerator implements IScheduleTaskDealSingle<Long> {
             for (Long id : sysLogList) {
                 logger.info(StrUtils.formatString("insert into {0}", id));
             }
+            logger.info("list:"+sysLogList.toString());
             list.addAll(sysLogList);
         }
 

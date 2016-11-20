@@ -4,6 +4,8 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.system.SysLogDao;
 import com.lsh.wms.model.system.SysLog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,8 @@ public class SysLogService {
 
     @Autowired
     private SysLogDao sysLogDao;
+    private static Logger logger = LoggerFactory.getLogger(SysLogService.class);
+
 
 
     @Transactional(readOnly = false)
@@ -68,12 +72,15 @@ public class SysLogService {
         mapQuery.put("retryTimes", 10);;
         List<SysLog> list = sysLogDao.getTodoList(mapQuery);
         List<Long> logIdList = new ArrayList<Long>();
+        logger.info("one:"+logIdList.toString());
         for(SysLog log : list){
             logIdList.add(log.getLogId());
         }
+        logger.info("two:"+logIdList.toString());
         if (! logIdList.isEmpty()) {
             sysLogDao.lockSysLogList(logIdList);
         }
+        logger.info("three:"+logIdList.toString());
         return logIdList;
     }
 
