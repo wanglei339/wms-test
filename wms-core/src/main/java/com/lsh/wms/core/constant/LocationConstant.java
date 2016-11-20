@@ -63,15 +63,6 @@ public class LocationConstant {
     //拆零存储一体货位
     public static final Long SPLIT_SHELF_BIN = 35L;
 
-    //货架层的拣货块
-    public static final Long SHELF_PICK_BLOCK = 36L; // TODO 在生成层的过程,生成拣货块,不会进行联动
-    //货架层的存货块
-    public static final Long SHELF_STORE_BLOCK = 37L;
-    //阁楼货架层的拣货块
-    public static final Long LOFT_PICK_BLOCK = 38L;
-    //阁楼货架层的拣货块
-    public static final Long LOFT_STORE_BLOCK = 39L;
-
     //贵品区
     public static final Long VALUABLES_AREA = 40L;      //贵品区
     public static final Long VALUABLES_SHELF = 41L;     //贵品货架个体
@@ -161,15 +152,56 @@ public class LocationConstant {
 
     public static final Map<Long, String> LOCATION_TYPE_NAME = new HashMap<Long, String>() {
         {
-            put(27L, "货架层");
-            put(28L, "阁楼层");
+            put(1L, "仓库");
+            put(2L, "大区");
+            put(3L, "通道");
+            put(4L, "盘亏盘盈区");
+            put(5L, "货架区");
+            put(6L, "阁楼区");
+            put(7L, "地堆区");
+            put(8L, "暂存区");
+            put(9L, "集货区");
+            put(10L, "退货区");
+            put(11L, "残次区");
+            put(12L, "码头区");
+            put(14L, "货架区货架");
+            put(15L, "阁楼区货架");
+            put(16L, "货架拣货位");
+            put(17L, "货架存货位");
+            put(18L, "阁楼拣货位");
+            put(19L, "阁楼存货位");
+            put(20L, "地堆货位");
+            put(21L, "暂存货位");
+            put(22L, "集货货位");
+            put(23L, "退货货位");
+            put(24L, "残次货位");
+            put(25L, "消费虚拟区");
+            put(26L, "供货虚拟区");
+            put(27L, "货架层级");
+            put(28L, "阁楼货架层级");
+            put(29L, "返仓区");
+            put(30L, "集货道组");
+            put(31L, "集货道");
+            put(32L, "拆零区");
+            put(33L, "拆零货架");
             put(34L, "拆零货架层");
-            put(42L, "贵品货架层");
-            put(48L, "退货货架层");
+            put(35L, "存储一体货位");
             put(36L, "货架层拣货块");
             put(37L, "货架层存货块");
             put(38L, "阁楼货架层拣货块");
             put(39L, "阁楼货架层存货块");
+            put(40L, "贵品区");
+            put(41L, "贵品货架");
+            put(42L, "贵品货架层级");
+            put(43L, "贵品货位");
+            put(44L, "播种区");
+            put(45L, "播种货位");
+            put(46L, "供商直流退货区");
+            put(47L, "供商直流退货货架");
+            put(48L, "直流退货货架层");
+            put(49L, "退货入库位");
+            put(50L, "退货存储位");
+
 
         }
     };
@@ -255,84 +287,85 @@ public class LocationConstant {
                     put("isValid", 1);
                 }
             });
-            //货架层拣货块
-            put(SHELF_PICK_BLOCK, new HashMap<String, Object>() {
-                {
-                    put("type", SHELF_PICK_BLOCK);
-                    put("typeName", "货架层拣货块");
-                    put("regionNo", SHELFS);
-                    put("isValid", 1);
-                }
-            });
+//            //货架层拣货块
+//            put(SHELF_PICK_BLOCK, new HashMap<String, Object>() {
+//                {
+//                    put("type", SHELF_PICK_BLOCK);
+//                    put("typeName", "货架层拣货块");
+//                    put("regionNo", SHELFS);
+//                    put("isValid", 1);
+//                }
+//            });
             //货架拣货位
             put(SHELF_PICKING_BIN, new HashMap<String, Object>() {
                 {
                     put("type", SHELF_PICKING_BIN);
                     put("typeName", "货架拣货位");
-                    put("fatherType", SHELF_PICK_BLOCK);
+//                    put("fatherType", SHELF_PICK_BLOCK);
+                    put("fatherType",SHELF_LEVELS);
                     put("regionNo", SHELFS);
                     put("regionCode","A");
                     put("isValid", 1);
                 }
             });
             //货架层存货块
-            put(SHELF_STORE_BLOCK, new HashMap<String, Object>() {
-                {
-                    put("type", SHELF_STORE_BLOCK);
-                    put("typeName", "货架层存货块");
-                    put("regionCode","A");
-                    put("regionNo", SHELFS);
-                    put("isValid", 1);
-                }
-            });
+//            put(SHELF_STORE_BLOCK, new HashMap<String, Object>() {
+//                {
+//                    put("type", SHELF_STORE_BLOCK);
+//                    put("typeName", "货架层存货块");
+//                    put("regionCode","A");
+//                    put("regionNo", SHELFS);
+//                    put("isValid", 1);
+//                }
+//            });
             //货架存货位
             put(SHELF_STORE_BIN, new HashMap<String, Object>() {
                 {
                     put("type", SHELF_STORE_BIN);
                     put("typeName", "货架存货位");
-                    put("fatherType", SHELF_STORE_BLOCK);
+//                    put("fatherType", SHELF_STORE_BLOCK);
                     put("regionCode","A");
                     put("regionNo", SHELFS);
                     put("isValid", 1);
                 }
             });
-            //阁楼货架层的拣货块
-            put(LOFT_PICK_BLOCK, new HashMap<String, Object>() {
-                {
-                    put("type", LOFT_PICK_BLOCK);
-                    put("typeName", "阁楼货架层的拣货块");
-                    put("regionCode","B");
-                    put("regionNo", LOFTS);
-                    put("isValid", 1);
-                }
-            });
+//            //阁楼货架层的拣货块
+//            put(LOFT_PICK_BLOCK, new HashMap<String, Object>() {
+//                {
+//                    put("type", LOFT_PICK_BLOCK);
+//                    put("typeName", "阁楼货架层的拣货块");
+//                    put("regionCode","B");
+//                    put("regionNo", LOFTS);
+//                    put("isValid", 1);
+//                }
+//            });
             //阁楼的拣货位
             put(LOFT_PICKING_BIN, new HashMap<String, Object>() {
                 {
                     put("type", LOFT_PICKING_BIN);
                     put("typeName", "阁楼的拣货位");
-                    put("fatherType", LOFT_PICK_BLOCK);
+//                    put("fatherType", LOFT_PICK_BLOCK);
                     put("regionCode","B");
                     put("regionNo", LOFTS);
                     put("isValid", 1);
                 }
             });
-            //阁楼货架层的存货块
-            put(LOFT_STORE_BLOCK, new HashMap<String, Object>() {
-                {
-                    put("type", LOFT_STORE_BLOCK);
-                    put("typeName", "阁楼货架层的存货块");
-                    put("regionCode","B");
-                    put("regionNo", LOFTS);
-                    put("isValid", 1);
-                }
-            });
+//            //阁楼货架层的存货块
+//            put(LOFT_STORE_BLOCK, new HashMap<String, Object>() {
+//                {
+//                    put("type", LOFT_STORE_BLOCK);
+//                    put("typeName", "阁楼货架层的存货块");
+//                    put("regionCode","B");
+//                    put("regionNo", LOFTS);
+//                    put("isValid", 1);
+//                }
+//            });
             //阁楼的拣货位
             put(LOFT_STORE_BIN, new HashMap<String, Object>() {
                 {
                     put("type", LOFT_STORE_BIN);
                     put("typeName", "阁楼的存货位");
-                    put("fatherType", LOFT_STORE_BLOCK);
+//                    put("fatherType", LOFT_STORE_BLOCK);
                     put("regionNo", LOFTS);
                     put("regionCode","B");
                     put("isValid", 1);

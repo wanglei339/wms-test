@@ -199,10 +199,10 @@ public class LocationDetailService {
         locationDetailModelFactory.register(LocationConstant.COLLECTION_ROAD, new BaseinfoLocation());
         locationDetailModelFactory.register(LocationConstant.COLLECTION_BIN, new BaseinfoLocationBin());
         //阁楼或货架的货架块,
-        locationDetailModelFactory.register(LocationConstant.SHELF_PICK_BLOCK, new BaseinfoLocation());
-        locationDetailModelFactory.register(LocationConstant.SHELF_STORE_BLOCK, new BaseinfoLocation());
-        locationDetailModelFactory.register(LocationConstant.LOFT_PICK_BLOCK, new BaseinfoLocation());
-        locationDetailModelFactory.register(LocationConstant.LOFT_STORE_BLOCK, new BaseinfoLocation());
+//        locationDetailModelFactory.register(LocationConstant.SHELF_PICK_BLOCK, new BaseinfoLocation());
+//        locationDetailModelFactory.register(LocationConstant.SHELF_STORE_BLOCK, new BaseinfoLocation());
+//        locationDetailModelFactory.register(LocationConstant.LOFT_PICK_BLOCK, new BaseinfoLocation());
+//        locationDetailModelFactory.register(LocationConstant.LOFT_STORE_BLOCK, new BaseinfoLocation());
 
 
     }
