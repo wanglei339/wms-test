@@ -423,11 +423,14 @@ public class WaveCore {
                                 boolean bFindShelfStore = false;
                                 for (StockQuant quant : quants) {
                                     BaseinfoLocation loation = locationService.getLocation(quant.getLocationId());
+                                    //TODO 这里会有问题,我先注销了,明天再改.
+                                    /*
                                     if (loation.getType() == LocationConstant.SHELF_STORE_BIN) {
                                         bFindShelfStore = true;
                                         detail.setAllocPickLocation(loation.getLocationId());
                                         break;
                                     }
+                                    */
                                 }
                                 if (!bFindShelfStore) {
                                     info.setSubType(zone.getPickType());
@@ -602,7 +605,8 @@ public class WaveCore {
                         }
                         if(location.getType() == LocationConstant.SPLIT_AREA
                                 || location.getType() == LocationConstant.SPLIT_SHELF
-                                || location.getType() == LocationConstant.SPLIT_SHELF_BIN
+                                //TODO 这里有遗漏的风险,还没来得及改
+                                //|| location.getType() == LocationConstant.SPLIT_SHELF_BIN
                                 || location.getType() == LocationConstant.SPLIT_SHELF_LEVEL)
                         {
                             leftAllocQty = this._allocStockPickSame(detail, zone, item, location, leftAllocQty);
