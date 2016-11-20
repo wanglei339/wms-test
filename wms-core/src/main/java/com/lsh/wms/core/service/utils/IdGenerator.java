@@ -36,10 +36,10 @@ public class IdGenerator {
         String idKey = prefix; // 计数器的key
         String dateValue = ""; // 日期格式
 
-        // 使用日期格式时设置key的格式: prefix+yyyyMMdd
+        // 使用日期格式时设置key的格式: prefix+yyMMdd
         if (useDateFormat) {
             Date date = new Date();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyMMdd");
             dateValue = dateFormat.format(date);
             idKey += dateValue;
         }
@@ -66,7 +66,7 @@ public class IdGenerator {
         if (addPrefixNum) {
             Integer prefixNum = IdGeneratorContant.PREFIX_CONFIG.get(prefix);
             if (prefixNum != null) {
-                value += Long.valueOf(prefixNum.toString() + String.format("%016d", 0));
+                value += Long.valueOf(prefixNum.toString() + String.format("%014d", 0));
             }
         }
 
