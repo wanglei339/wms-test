@@ -263,7 +263,7 @@ public class SeedRestService implements ISeedRestService {
             if(mapQuery.get("exceptionCode")!=null) {
                 String exceptionCode = iExceptionCodeRpcService.getExceptionCodeByName("seed");
                 if(!exceptionCode.equals(mapQuery.get("exceptionCode").toString())){
-                    return JsonUtils.TOKEN_ERROR("所输里外代码非法");
+                    return JsonUtils.TOKEN_ERROR("所输例外代码非法");
                 }
             }else {
                 //校验商品类型
@@ -273,7 +273,7 @@ public class SeedRestService implements ISeedRestService {
                     BaseinfoItem oldItem = itemService.getItem(quant.getItemId());
                     BaseinfoItem newItem = itemService.getItem(info.getItemId());
                     if(oldItem.getItemType().compareTo(newItem.getItemType())!=0){
-                        return JsonUtils.TOKEN_ERROR("商品类型不一样，不能播种到统一托盘");
+                        return JsonUtils.TOKEN_ERROR("商品类型不一样，不能播种到同一托盘");
                     }
                 }
             }
