@@ -95,7 +95,7 @@ public class QCRpcService implements IQCRpcService {
      * @throws BizCheckedException
      */
     public List<Map<String, Object>> getGroupList(Map<String, Object> mapQuery) throws BizCheckedException {
-        mapQuery.put("customerType", CustomerConstant.STORE); // 小店不合板
+//        mapQuery.put("customerType", CustomerConstant.STORE); // 小店不合板(大小点都显示)
         mapQuery.put("isValid", 1); // 正常
         mapQuery.put("status", 1); // 正常
         List<CsiCustomer> csiCustomers = csiCustomerService.getCustomerList(mapQuery);
@@ -121,8 +121,8 @@ public class QCRpcService implements IQCRpcService {
                 }
             }
             Map<String, Object> result = new HashMap<String, Object>();
-            result.put("storeNo", customer.getCustomerCode());
-            result.put("storeName", customer.getCustomerName());
+            result.put("customerCode", customer.getCustomerCode());
+            result.put("customerName", customer.getCustomerName());
             result.put("address", customer.getAddress());
             result.put("totalBoxes", totalBoxes);
             result.put("restBoxes", restBoxes);
@@ -139,7 +139,7 @@ public class QCRpcService implements IQCRpcService {
      * @throws BizCheckedException
      */
     public Integer countGroupList(Map<String, Object> mapQuery) throws BizCheckedException {
-        mapQuery.put("customerType", CustomerConstant.STORE); // 小店
+//        mapQuery.put("customerType", CustomerConstant.STORE); // 小店
         mapQuery.put("status", 1);
         mapQuery.put("isValid", 1);
         Integer total = csiCustomerService.getCustomerCount(mapQuery);
