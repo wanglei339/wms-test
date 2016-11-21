@@ -327,6 +327,7 @@ public class LocationService {
         params.put("isValid", LocationConstant.IS_VALID);
         return locationDao.getChildrenLocationList(params);
     }
+
     /**
      * 根据type获取子节点
      *
@@ -367,7 +368,7 @@ public class LocationService {
      * 获取当前区域下的货位
      *
      * @param fatherType 父亲type
-     * @param binUsage  库位用途
+     * @param binUsage   库位用途
      * @return
      */
     public List<BaseinfoLocation> getChildrenLocationsByFatherTypeAndChildrenTypeAndUsage(Long fatherType, Integer binUsage) {
@@ -377,8 +378,8 @@ public class LocationService {
             return new ArrayList<BaseinfoLocation>();
         }
         for (BaseinfoLocation father : fatherLocations) {
-            List<BaseinfoLocation> sons = this.getChildrenLocationsByType(father.getLocationId(),LocationConstant.BIN, binUsage);
-            if (null != sons && sons.size() > 0){
+            List<BaseinfoLocation> sons = this.getChildrenLocationsByType(father.getLocationId(), LocationConstant.BIN, binUsage);
+            if (null != sons && sons.size() > 0) {
                 sonLocation.addAll(sons);
             }
         }
@@ -487,6 +488,9 @@ public class LocationService {
      */
     public BaseinfoLocation getFatherRegionByClassfication(Long locationId) {
         BaseinfoLocation curLocation = this.getLocation(locationId);
+        if (null == curLocation) {
+            return null;
+        }
         Long fatherId = curLocation.getFatherId();
         if (curLocation.getClassification().equals(LocationConstant.CLASSIFICATION_AREAS)) {
             return curLocation;
@@ -823,7 +827,7 @@ public class LocationService {
         //筛选相邻两货架间距离当前拣货位最近的存货位
         BaseinfoLocation nearestLocation = this.filterNearestBinAlgorithm(tempLocations, pickingLocation, shelfLocationSelf, BinUsageConstant.BIN_UASGE_STORE);
         return nearestLocation;
-}
+    }
 
 
     /**
