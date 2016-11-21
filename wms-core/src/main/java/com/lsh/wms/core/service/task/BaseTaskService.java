@@ -61,7 +61,11 @@ public class BaseTaskService {
     }
     @Transactional(readOnly = false)
     public void batchCreate(StockTakingHead head,List<TaskEntry> taskEntries, TaskHandler taskHandler) throws BizCheckedException {
-        stockTakingService.insertHead(head);
+        if(stockTakingService.getHeadById(head.getTakingId())!=null){
+            stockTakingService.updateHead(head);
+        }else {
+            stockTakingService.insertHead(head);
+        }
         for(TaskEntry taskEntry : taskEntries) {
             TaskInfo taskInfo = taskEntry.getTaskInfo();
             taskInfo.setDraftTime(DateUtils.getCurrentSeconds());
