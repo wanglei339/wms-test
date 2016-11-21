@@ -174,9 +174,9 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     //创建货架补货任务
     private void createShelfProcurement() throws BizCheckedException {
         //获取所有货架拣货位的位置信息
-        List<BaseinfoLocation> shelfLocationList = locationService.getChildrenLocationsByFatherTypeAndChildrenTypeAndUsage(LocationConstant.SHELF, BinUsageConstant.BIN_UASGE_PICK);
+        List<BaseinfoLocation> shelfLocationList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.SHELF, BinUsageConstant.BIN_UASGE_PICK);
         //获取所有货架的存储位
-        List<BaseinfoLocation> shelfList = locationService.getChildrenLocationsByFatherTypeAndChildrenTypeAndUsage(LocationConstant.SHELF, BinUsageConstant.BIN_UASGE_STORE);
+        List<BaseinfoLocation> shelfList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.SHELF, BinUsageConstant.BIN_UASGE_STORE);
 
         for (BaseinfoLocation shelfCollectionBin : shelfLocationList) {
             //获取该拣货位存放的商品ID,目前逻辑,一个拣货位只能对应一种商品
@@ -334,9 +334,9 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     //创建阁楼补货任务
     private void createLoftProcurement() throws BizCheckedException {
         //获取所有阁楼拣货位的位置信息
-        List<BaseinfoLocation> loftPickLocationList = locationService.getChildrenLocationsByFatherTypeAndChildrenTypeAndUsage(LocationConstant.LOFT, BinUsageConstant.BIN_UASGE_PICK);
+        List<BaseinfoLocation> loftPickLocationList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.LOFT, BinUsageConstant.BIN_UASGE_PICK);
         //获取所有阁楼存货位的信息
-        List<BaseinfoLocation> loftList = locationService.getChildrenLocationsByFatherTypeAndChildrenTypeAndUsage(LocationConstant.LOFT, BinUsageConstant.BIN_UASGE_STORE);
+        List<BaseinfoLocation> loftList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.LOFT, BinUsageConstant.BIN_UASGE_STORE);
 
         for (BaseinfoLocation loftPick : loftPickLocationList) {
             List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationByLocationID(loftPick.getLocationId());

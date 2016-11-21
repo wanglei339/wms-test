@@ -441,7 +441,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             bulk = bulk.multiply(item.getPackWidth());
 
 
-            List<BaseinfoLocation> locationList = locationService.getChildrenLocationsByFatherTypeAndChildrenTypeAndUsage(LocationConstant.SPLIT_AREA, BinUsageConstant.BIN_PICK_STORE);
+            List<BaseinfoLocation> locationList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.SPLIT_AREA, BinUsageConstant.BIN_PICK_STORE);
 
             if(locationList==null ||locationList.size()==0) {
                 throw new BizCheckedException("2030015");

@@ -5,7 +5,6 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.model.location.LocationDetailRequest;
 import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
-import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
@@ -34,8 +33,6 @@ public class LocationService {
     private LocationDetailService locationDetailService;
     @Autowired
     private LocationRedisService locationRedisService;
-    @Autowired
-    private CsiCustomerService csiCustomerService;
 
 
     /**
@@ -350,7 +347,7 @@ public class LocationService {
      * @param binUsage
      * @return
      */
-    public List<BaseinfoLocation> getChildrenLocationsByType(Long fatherLocationId, Long sonType, Integer binUsage) {
+    public List<BaseinfoLocation> getBinsByIdAndTypeUsage(Long fatherLocationId, Long sonType, Integer binUsage) {
         Map<String, Object> params = new HashMap<String, Object>();
         BaseinfoLocation location = this.getLocation(fatherLocationId);
         params.put("leftRange", location.getLeftRange());
@@ -369,14 +366,14 @@ public class LocationService {
      * @param binUsage   库位用途
      * @return
      */
-    public List<BaseinfoLocation> getChildrenLocationsByFatherTypeAndChildrenTypeAndUsage(Long fatherType, Integer binUsage) {
+    public List<BaseinfoLocation> getBinsByFatherTypeAndUsage(Long fatherType, Integer binUsage) {
         List<BaseinfoLocation> fatherLocations = this.getLocationsByType(fatherType);
         List<BaseinfoLocation> sonLocation = new ArrayList<BaseinfoLocation>();
         if (null == fatherLocations || fatherLocations.size() < 1) {
             return new ArrayList<BaseinfoLocation>();
         }
         for (BaseinfoLocation father : fatherLocations) {
-            List<BaseinfoLocation> sons = this.getChildrenLocationsByType(father.getLocationId(), LocationConstant.BIN, binUsage);
+            List<BaseinfoLocation> sons = this.getBinsByIdAndTypeUsage(father.getLocationId(), LocationConstant.BIN, binUsage);
             if (null != sons && sons.size() > 0) {
                 sonLocation.addAll(sons);
             }
