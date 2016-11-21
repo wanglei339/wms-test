@@ -23,6 +23,7 @@ import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
+import com.lsh.wms.core.service.csi.CsiSupplierService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
@@ -30,6 +31,7 @@ import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemType;
 import com.lsh.wms.model.csi.CsiSku;
+import com.lsh.wms.model.csi.CsiSupplier;
 import com.lsh.wms.model.po.*;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
@@ -76,6 +78,8 @@ public class ReceiptRestService implements IReceiptRfService {
     @Autowired
     private CsiSkuService csiSkuService;
     @Autowired
+    private CsiSupplierService csiSupplierService;
+    @Autowired
     private ItemService itemService;
     @Autowired
     private ContainerService containerService;
@@ -118,8 +122,10 @@ public class ReceiptRestService implements IReceiptRfService {
         //员工ID
         Long staffId = null;
 
+
         Map<String,Object> map = new HashMap<String, Object>();
         map.put("uid",RequestUtils.getHeader("uid"));
+        //TODO 这种接口应该封装一下在下面,很多地方会用到
         List<SysUser> userList =  sysUserService.getSysUserList(map);
 
         if(userList != null && userList.size() > 0){
@@ -136,10 +142,13 @@ public class ReceiptRestService implements IReceiptRfService {
 
         receiptRequest.setReceiptTime(new Date());
 
+
+        //TODO 这里根据other order id去查理论上可能会有冲突,是唯一键吗?
         IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(receiptRequest.getOrderOtherId());
         if(ibdHeader == null) {
             throw new BizCheckedException("2020001");
         }
+        receiptRequest.setOrderId(ibdHeader.getOrderId());
         Integer orderType = ibdHeader.getOrderType();
 
         for(ReceiptItem receiptItem : receiptRequest.getItems()) {
@@ -154,17 +163,17 @@ public class ReceiptRestService implements IReceiptRfService {
 
             //BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
             BaseinfoItem baseinfoItem = this.getItem(receiptItem.getBarCode(),ibdHeader.getOwnerUid());
-            // TODO: 16/11/17  因用户输入的可能是物美码,此处为国条重新赋值
+            //  16/11/17  因用户输入的可能是物美码,此处为国条重新赋值
             receiptItem.setBarCode(baseinfoItem.getCode());
             /*
             按配置验证生产日期/到期日是否输入
              */
             if(PoConstant.ORDER_TYPE_CPO == orderType && receiptRequest.getStoreId() != null){
                 //直流门店,需根据配置验证生产日期/到期日是否输入
-                // todo: 16/11/9 根据商品类型获取生产日期开关配置
+                //  16/11/9 根据商品类型获取生产日期开关配置
                 BaseinfoItemType baseinfoItemType = iItemTypeRpcService.getBaseinfoItemTypeByItemId(baseinfoItem.getItemType());
                 if(baseinfoItemType != null && 1== baseinfoItemType.getIsNeedProtime()){
-                    // todo: 16/11/9 根据配置验证生产日期是否输入
+                    //  16/11/9 根据配置验证生产日期是否输入
                     if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null){
                         throw new BizCheckedException("2020008");//生产日期不能为空
                     }
@@ -180,12 +189,13 @@ public class ReceiptRestService implements IReceiptRfService {
             }
 
 
+            //TODO 这里也是有风险的,没有地方限制了订单里一个商品只能有一行,尤其是直流里面一个CPO对应一个门店2个STO就会出错。
             IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(), baseinfoItem.getSkuCode());
-
             if(ibdDetail == null){
                 throw new BizCheckedException("2020001");
             }
 
+            //TODO 这里有问题没调通,然后其实真实逻辑因该是非EA的情况下做这个限制,是可以EA收货的
             //验证箱规是否一至
             /*if(baseinfoItem.getPackUnit().compareTo(ibdDetail.getPackUnit()) != 0){
                 throw new BizCheckedException("2020105");//箱规不一致,不能收货
@@ -196,7 +206,7 @@ public class ReceiptRestService implements IReceiptRfService {
              */
             //取出是否检验保质期字段 exceptionReceipt = 0 校验 = 1不校验
             Integer exceptionReceipt = ibdDetail.getExceptionReceipt();
-            String exceptionCode = receiptItem.getExceptionCode() == null ? "" :receiptItem.getExceptionCode();// TODO:16/11/10 从请求参数中获取例外代码
+            String exceptionCode = receiptItem.getExceptionCode() == null ? "" :receiptItem.getExceptionCode();// 16/11/10 从请求参数中获取例外代码
             if(StringUtils.isNotEmpty(exceptionCode)){
                 receiptItem.setIsException(1);//1表示例外收货
             }
@@ -204,36 +214,50 @@ public class ReceiptRestService implements IReceiptRfService {
                 //调拨类型的单据不校验保质期
                 if (PoConstant.ORDER_TYPE_TRANSFERS != ibdHeader.getOrderType()) {
                     if (exceptionReceipt != 1) {
-                        // TODO: 16/7/20   商品信息是否完善,怎么排查.2,保质期例外怎么验证?
+                        // 16/7/20   商品信息是否完善,怎么排查.2,保质期例外怎么验证?
                         //保质期判断,如果失败抛出异常
                         iReceiptRpcService.checkProTime(baseinfoItem, receiptItem.getProTime(),receiptItem.getDueTime(), exceptionCode);
                     }
                 }
             }
             //如果没有输入生产日期和到期日
-            if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null) {
+            //TODO 没有输入生产日期的不能填现在的日期,逻辑不合理,而且容易对后面的先进先出逻辑造成困扰
+           /* if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null) {
                 receiptItem.setProTime(new Date());
-            }else if(receiptItem.getProTime() == null && receiptItem.getDueTime() != null){
-                //根据到期日计算生产日期  // TODO: 16/11/12  根据生产日期-保质期计算
+            }else */
+            if(receiptItem.getProTime() == null && receiptItem.getDueTime() != null){
+                //根据到期日计算生产日期  //  16/11/12  根据生产日期-保质期计算
                 BigDecimal shelfLife = baseinfoItem.getShelfLife();//保质期天数
-                if(shelfLife == null){
-                    receiptItem.setProTime(new Date());
+                if(shelfLife == null || shelfLife.compareTo(BigDecimal.ZERO)<=0){
+                    throw new BizCheckedException("2020106");
                 }else{
                     int onedayMs = 24 * 60 * 60 * 1000;
                     BigDecimal shelfLifeMs = shelfLife.multiply(BigDecimal.valueOf(onedayMs));
                     long betweenTime = receiptItem.getDueTime().getTime() - shelfLifeMs.longValue();
                     receiptItem.setProTime(new Date(betweenTime));
                 }
-
-
-
-
             }
             receiptItem.setSkuId(baseinfoItem.getSkuId());
             receiptItem.setSkuName(ibdDetail.getSkuName());
             receiptItem.setPackUnit(ibdDetail.getPackUnit());
             receiptItem.setPackName(ibdDetail.getPackName());
             receiptItem.setMadein(baseinfoItem.getProducePlace());
+        }
+
+        //TODO check list
+        /*
+            只是判断了商品级别的
+            没有判断订单级别的一些数据
+            比如:
+                供商是否正确维护 OK
+                直流的门店信息是否维护
+                直流的集货道没有维护会有什么问题?
+             。。。。。。
+         */
+        String supplierCode = ibdHeader.getSupplierCode();//供商编码
+        CsiSupplier csiSupplier = csiSupplierService.getSupplier(supplierCode,ibdHeader.getOwnerUid());
+        if(csiSupplier == null){
+            throw new BizCheckedException("2020109");//供商信息不存在
         }
 
         receiptRequest.setItems(receiptItemList);

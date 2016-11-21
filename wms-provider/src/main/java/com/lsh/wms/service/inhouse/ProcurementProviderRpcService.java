@@ -498,7 +498,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         BaseinfoLocation fromFatherLocation = locationService.getFatherRegionByClassfication(fromLocation.getLocationId());
         BaseinfoLocation toFatherLocation = locationService.getFatherRegionByClassfication(toLocation.getLocationId());
 
-        if(!fromFatherLocation.getType().equals(toFatherLocation.getType())){
+        if(!fromFatherLocation.getType().equals(toFatherLocation.getType()) && fromLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE) && toLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)){
             return false;
         }
 

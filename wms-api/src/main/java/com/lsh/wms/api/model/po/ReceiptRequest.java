@@ -20,6 +20,9 @@ public class ReceiptRequest implements Serializable {
     @Size(max=100)
     private String orderOtherId;
 
+    /** 订单id */
+    private Long orderId;
+
     /** 仓库ID */
     @NotNull
     private Long warehouseId = 1L;
@@ -49,8 +52,6 @@ public class ReceiptRequest implements Serializable {
     /**门店编码*/
     private String storeId;
 
-    /** 是否生成任务*/
-    private int isCreateTask = 1;
     /**货主*/
     private Long ownerId ;
 
@@ -65,10 +66,10 @@ public class ReceiptRequest implements Serializable {
 
     }
 
-    public ReceiptRequest(String bookingNum, Long containerId, int isCreateTask, List<ReceiptItem> items, Map<String, Long> orderMap, String orderOtherId, Long ownerId, Date receiptTime, String receiptUser, String receiptWharf, Long staffId, String storeId, Long warehouseId) {
+    public ReceiptRequest(String bookingNum, Long containerId, Long orderId, List<ReceiptItem> items, Map<String, Long> orderMap, String orderOtherId, Long ownerId, Date receiptTime, String receiptUser, String receiptWharf, Long staffId, String storeId, Long warehouseId) {
         this.bookingNum = bookingNum;
         this.containerId = containerId;
-        this.isCreateTask = isCreateTask;
+        this.orderId = orderId;
         this.items = items;
         this.orderMap = orderMap;
         this.orderOtherId = orderOtherId;
@@ -95,14 +96,6 @@ public class ReceiptRequest implements Serializable {
 
     public void setContainerId(Long containerId) {
         this.containerId = containerId;
-    }
-
-    public int getIsCreateTask() {
-        return isCreateTask;
-    }
-
-    public void setIsCreateTask(int isCreateTask) {
-        this.isCreateTask = isCreateTask;
     }
 
     public List<ReceiptItem> getItems() {
@@ -183,5 +176,13 @@ public class ReceiptRequest implements Serializable {
 
     public void setWarehouseId(Long warehouseId) {
         this.warehouseId = warehouseId;
+    }
+
+    public Long getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
     }
 }

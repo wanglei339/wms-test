@@ -156,6 +156,7 @@ public class StockQuantService {
     @Transactional(readOnly = false)
     public void create(StockQuant quant) {
         String packName = "";
+        //TODO 这个代码有问题,箱规这么取不严格
         if (quant.getPackUnit().equals(BigDecimal.ONE)) {
             packName = "EA";
         } else {

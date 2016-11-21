@@ -91,13 +91,14 @@ public class PoReceiptService {
     @Transactional(readOnly = false)
     public void insertOrder(InbReceiptHeader inbReceiptHeader, List<InbReceiptDetail> inbReceiptDetailList,
                             List<IbdDetail> updateIbdDetailList, List<Map<String, Object>> moveList,
-                            List<ReceiveDetail> updateReceiveDetailList, List<ObdStreamDetail> obdStreamDetailList, int isMove, List<ObdDetail> obdDetails) {
+                            List<ReceiveDetail> updateReceiveDetailList, List<ObdStreamDetail> obdStreamDetailList, List<ObdDetail> obdDetails) {
 
         //插入订单
         inbReceiptHeader.setInserttime(new Date());
 
         Map<String,Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("containerId",inbReceiptHeader.getContainerId());
+        //TODO 啥意思?
         InbReceiptHeader oldInbReceiptHeader = this.getInbReceiptHeaderByParams(mapQuery);
         if(oldInbReceiptHeader == null) {
             inbReceiptHeaderDao.insert(inbReceiptHeader);
@@ -107,6 +108,7 @@ public class PoReceiptService {
 
         receiveDetailDao.batchUpdateInboundQtyByReceiveIdAndDetailOtherId(updateReceiveDetailList);
 
+        //TODO 这种代码串的太长了,不应该放在这,一个收货的开发人员还管你出库怎么玩????
         //直流生成waveDetail
         if(obdStreamDetailList != null && obdStreamDetailList.size() > 0){
             WaveDetail waveDetail = new WaveDetail();
@@ -114,18 +116,17 @@ public class PoReceiptService {
             waveService.insertDetail(waveDetail);
         }
 
+        //TODO 干什么的?
         if(obdDetails != null && obdDetails.size() > 0){
             soOrderService.updateObdDetail(obdDetails.get(0));
         }
 
-        if(isMove==1) {
-            for (Map<String, Object> moveInfo : moveList) {
-                StockLot lot = (StockLot) moveInfo.get("lot");
-                if (! lot.isOld()) {
-                    stockLotService.insertLot(lot);
-                }
-                stockQuantService.move((StockMove) moveInfo.get("move"), lot);
+        for (Map<String, Object> moveInfo : moveList) {
+            StockLot lot = (StockLot) moveInfo.get("lot");
+            if (! lot.isOld()) {
+                stockLotService.insertLot(lot);
             }
+            stockQuantService.move((StockMove) moveInfo.get("move"), lot);
         }
     }
 
