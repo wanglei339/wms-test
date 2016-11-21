@@ -23,6 +23,7 @@ public class WaveAutoGenerator implements IScheduleTaskDealSingle<String> {
 
     public boolean execute(String s, String s2) throws Exception {
         try {
+            logger.info("in waveAutoGenerator:"+s);
             iWaveRpcService.runWaveGenerator();
         }catch (Exception e){
             logger.error(e.getMessage());

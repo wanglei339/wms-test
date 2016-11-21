@@ -133,7 +133,7 @@ public class ObdService implements IObdService{
         mapQuery.put("orderType",orderType);
         List<ObdHeader> lists = soOrderService.getOutbSoHeaderList(mapQuery);
         if(lists.size() > 0){
-            throw new BizCheckedException("2020099");
+            throw new BizCheckedException("2020099",orderOtherId,"");
         }
         //添加waveOrderType
         String waveOrderType = "";
@@ -168,7 +168,7 @@ public class ObdService implements IObdService{
         logger.info(" 黑狗创建obd 入口参数 : createObdHeader : " + JSON.toJSONString(createObdHeader));
         String type = wuMartSap.soObd2Sap(createObdHeader);
         if("E".equals(type)){
-            return JsonUtils.EXCEPTION_ERROR("创建obd失败");
+            return JsonUtils.TOKEN_ERROR("创建obd失败");
         }
         return JsonUtils.SUCCESS("创建obd并过账成功");
     }

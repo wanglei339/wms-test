@@ -11,6 +11,7 @@ import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.shelve.IAtticShelveRestService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.BinUsageConstant;
 import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
@@ -153,7 +154,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         if(qty.compareTo(BigDecimal.ZERO)<=0 || realQty.compareTo(BigDecimal.ZERO)<=0){
             return JsonUtils.TOKEN_ERROR("上架详情数量异常");
         }
-        if(!this.chargeLocation(allocLocationId,LocationConstant.LOFT_STORE_BIN) || !this.chargeLocation(realLocationId,LocationConstant.LOFT_STORE_BIN)){
+        if(!this.chargeLocation(allocLocationId,LocationConstant.LOFT,BinUsageConstant.BIN_UASGE_STORE) || !this.chargeLocation(realLocationId,LocationConstant.LOFT,BinUsageConstant.BIN_UASGE_STORE)){
             return JsonUtils.TOKEN_ERROR("库位状态异常");
         }
 
@@ -219,7 +220,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         if(qty.compareTo(BigDecimal.ZERO)<=0 || realQty.compareTo(BigDecimal.ZERO)<=0){
             return JsonUtils.TOKEN_ERROR("上架详情数量异常");
         }
-        if(!this.chargeLocation(allocLocationId,LocationConstant.LOFT_STORE_BIN) || !this.chargeLocation(realLocationId,LocationConstant.LOFT_STORE_BIN)){
+        if(!this.chargeLocation(allocLocationId,LocationConstant.LOFT, BinUsageConstant.BIN_UASGE_STORE) || !this.chargeLocation(realLocationId,LocationConstant.LOFT,BinUsageConstant.BIN_UASGE_STORE)){
             return JsonUtils.TOKEN_ERROR("库位状态异常");
         }
         AtticShelveTaskDetail detail = shelveTaskService.getDetailById(detailId);
@@ -535,12 +536,16 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         locationService.unlockLocation(detail.getAllocLocationId());
         shelveTaskService.updateDetail(detail);
     }
-    public boolean chargeLocation(Long locationId,Long type) {
+    public boolean chargeLocation(Long locationId,Long type,Integer binUsage) {
         BaseinfoLocation location = locationService.getLocation(locationId);
+        BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(locationId);
         if(location==null){
             throw new BizCheckedException("2030013");
         }
-        if(location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN)==0) {
+        if(!fatherLocation.getType().equals(type)){
+            return false;
+        }
+        if(location.getBinUsage().compareTo(binUsage)==0) {
             return true;
         }
         if (location.getType().compareTo(type) != 0 || location.getIsLocked().compareTo(1) == 0) {

@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.location.ILocationRpcService;
+import com.lsh.wms.core.constant.BinUsageConstant;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
@@ -167,26 +168,32 @@ public class LocationRpcService implements ILocationRpcService {
     public List<BaseinfoLocation> getColletionBins() {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
-        //放入阁楼拣货位
-        mapQuery.put("type", LocationConstant.LOFT_PICKING_BIN);
+//        //放入阁楼拣货位
+//        mapQuery.put("type", LocationConstant.LOFT_PICKING_BIN);
+//        mapQuery.put("isValid", LocationConstant.IS_VALID);
+//        List<BaseinfoLocation> loftColletionBins = locationService.getLocationListByType(mapQuery);
+//        targetList.addAll(loftColletionBins);
+//        //货架拣货位
+//        mapQuery.put("type", LocationConstant.SHELF_PICKING_BIN);
+//        mapQuery.put("isValid", LocationConstant.IS_VALID);
+//        List<BaseinfoLocation> shelfColletionBins = locationService.getLocationListByType(mapQuery);
+//        targetList.addAll(shelfColletionBins);
+//        //贵品区一体位置
+//        mapQuery.put("type", LocationConstant.VALUABLES_SHELF_BIN);
+//        mapQuery.put("isValid", LocationConstant.IS_VALID);
+//        List<BaseinfoLocation> valuablesShelfBins = locationService.getBaseinfoLocationList(mapQuery);
+//        targetList.addAll(valuablesShelfBins);
+//        //存拣货一体位置
+//        mapQuery.put("type", LocationConstant.SPLIT_SHELF_BIN);
+//        mapQuery.put("isValid", LocationConstant.IS_VALID);
+//        List<BaseinfoLocation> splitShelfBins = locationService.getBaseinfoLocationList(mapQuery);
+//        targetList.addAll(splitShelfBins);
+        mapQuery.put("binUsage", BinUsageConstant.BIN_UASGE_PICK);
         mapQuery.put("isValid", LocationConstant.IS_VALID);
-        List<BaseinfoLocation> loftColletionBins = locationService.getLocationListByType(mapQuery);
-        targetList.addAll(loftColletionBins);
-        //货架拣货位
-        mapQuery.put("type", LocationConstant.SHELF_PICKING_BIN);
-        mapQuery.put("isValid", LocationConstant.IS_VALID);
-        List<BaseinfoLocation> shelfColletionBins = locationService.getLocationListByType(mapQuery);
-        targetList.addAll(shelfColletionBins);
-        //贵品区一体位置
-        mapQuery.put("type", LocationConstant.VALUABLES_SHELF_BIN);
-        mapQuery.put("isValid", LocationConstant.IS_VALID);
-        List<BaseinfoLocation> valuablesShelfBins = locationService.getBaseinfoLocationList(mapQuery);
-        targetList.addAll(valuablesShelfBins);
-        //存拣货一体位置
-        mapQuery.put("type", LocationConstant.SPLIT_SHELF_BIN);
-        mapQuery.put("isValid", LocationConstant.IS_VALID);
-        List<BaseinfoLocation> splitShelfBins = locationService.getBaseinfoLocationList(mapQuery);
-        targetList.addAll(splitShelfBins);
+        mapQuery.put("isLocked", LocationConstant.UNLOCK);
+        List<BaseinfoLocation> pickBins = locationService.getLocationListByType(mapQuery);
+        targetList.addAll(pickBins);
+
         return targetList;
     }
 
@@ -269,52 +276,6 @@ public class LocationRpcService implements ILocationRpcService {
         locationService.syncRedisAll();
     }
 
-    /**
-     * @param locationId 位置
-     * @param storeNo    门店编号
-     * @return
-     * @throws BizCheckedException
-     */
-    public BaseinfoLocation setStoreNoOnRoad(Long locationId, String storeNo) throws BizCheckedException {
-        if (null == storeNo) {
-            throw new BizCheckedException("2180010");
-        }
-        BaseinfoLocation location = this.getLocation(locationId);
-        if (!location.getType().equals(LocationConstant.COLLECTION_BIN) && !location.getType().equals(LocationConstant.COLLECTION_ROAD)) {
-            throw new BizCheckedException("2180011");
-        }
-        BaseinfoLocation targetLocation = locationService.setStoreNoOnRoad(location, storeNo);
-        return targetLocation;
-    }
-
-    /**
-     * 将门店位置下的所有集货位置拿出来
-     *
-     * @param storeNo 门店号
-     * @return
-     * @throws BizCheckedException
-     */
-    public List<BaseinfoLocation> getCollectionByStoreNo(String storeNo) throws BizCheckedException {
-        if (null == storeNo) {
-            throw new BizCheckedException("2180010");
-        }
-        List<BaseinfoLocation> locations = locationService.getCollectionByStoreNo(storeNo);
-        return locations;
-    }
-    /**
-     * 将门店位置下的所有播种位置拿出来
-     *
-     * @param storeNo 门店号
-     * @return
-     * @throws BizCheckedException
-     */
-    public List<BaseinfoLocation> getSowByStoreNo(String storeNo) throws BizCheckedException {
-        if (null == storeNo) {
-            throw new BizCheckedException("2180010");
-        }
-        List<BaseinfoLocation> locations = locationService.getSowByStoreNo(storeNo);
-        return locations;
-    }
 
     /**
      * 根据库位的左右范围获取指定库位
@@ -324,30 +285,6 @@ public class LocationRpcService implements ILocationRpcService {
      */
     public List<BaseinfoLocation> getRangeLocationList(Map<String, Object> params) throws BizCheckedException {
         List<BaseinfoLocation> locations = locationService.getRangeLocationList(params);
-        return locations;
-    }
-
-    /**
-     * 移除集货道的门店号,将其置为0
-     * @param locationId
-     * @return
-     * @throws BizCheckedException
-     */
-    public BaseinfoLocation removeStoreNoOnRoad(Long locationId) throws BizCheckedException {
-        if (null == locationId) {
-            throw new BizCheckedException("2180001");
-        }
-        BaseinfoLocation location = locationService.removeStoreNoOnRoad(locationId);
-        return location;
-    }
-
-    /**
-     * 获取所有的门店升序排列的播种位置
-     * @return
-     * @throws BizCheckedException
-     */
-    public List<BaseinfoLocation> sortSowLocationByStoreNo() throws BizCheckedException {
-        List<BaseinfoLocation> locations = locationService.sortLocationByStoreNo(LocationConstant.SOW_BIN);
         return locations;
     }
 

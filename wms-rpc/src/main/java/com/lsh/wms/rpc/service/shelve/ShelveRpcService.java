@@ -5,6 +5,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.shelve.IShelveRpcService;
+import com.lsh.wms.core.constant.BinUsageConstant;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
@@ -118,14 +119,14 @@ public class ShelveRpcService implements IShelveRpcService {
             Long pickingLocationId = itemLocation.getPickLocationid();
             BaseinfoLocation pickingLocation = locationService.getLocation(pickingLocationId);
             // 是否是拣货位
-            if (!pickingLocation.getType().equals(LocationConstant.SHELF_PICKING_BIN)) {
+            if (!pickingLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)) {
                 throw new BizCheckedException("2030002");
             }
             // 判断该拣货位是否符合拣货标准
             // TODO 不找拣货位了,调度器创建任务时传过来
             if (procurementRpcService.needProcurement(pickingLocationId, itemId)) {
                 // 对比保质期差额阈值
-                if (this.checkShelfLifeThreshold(quant, pickingLocation, LocationConstant.SHELF_STORE_BIN)) {
+                if (this.checkShelfLifeThreshold(quant, pickingLocation,BinUsageConstant.BIN_UASGE_STORE)) {
                     return pickingLocation;
                 } else {
                     // 查找补货任务
@@ -178,13 +179,13 @@ public class ShelveRpcService implements IShelveRpcService {
      * @param location
      * @return
      */
-    public Boolean checkShelfLifeThreshold (StockQuant quant, BaseinfoLocation location, Long locationType) {
+    public Boolean checkShelfLifeThreshold (StockQuant quant, BaseinfoLocation location,Integer binUsage) {
         Long expireDate = quant.getExpireDate();
         Map<String, Object> params = new HashMap<String, Object>();
         // 获取到拣货位的库区id
         BaseinfoLocation areaLocation = locationService.getFatherByClassification(location.getLocationId());
         // 获取该库区下所有的货架位
-        List<BaseinfoLocation> storeLocations = locationService.getChildrenLocationsByType(areaLocation.getLocationId(), locationType);
+        List<BaseinfoLocation> storeLocations = locationService.getChildrenLocationsByType(areaLocation.getLocationId(), LocationConstant.BIN, binUsage);
         if (storeLocations.size() < 1) {
             return false;
         }

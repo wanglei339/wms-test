@@ -102,12 +102,12 @@ public class InStorageRfRestService  implements IInStorageRfRestService {
         iTaskRpcService.assign(info.getTaskId(), uId);
         Map<String,Object> result = new HashMap<String, Object>();
         result.put("taskId", info.getTaskId().toString());
-        List<BaseinfoLocation> locations = locationService.getLocationBySupplierNo(LocationConstant.SUPPLIER_RETURN_IN_BIN, header.getSupplierNo());
-        if(locations==null || locations.size()==0){
-            return JsonUtils.TOKEN_ERROR("该供商没有配入库位");
-        }
-        result.put("supplierName",supplierService.getSuppler(header.getSupplierNo(),header.getOwnerUid()).getSupplierName());
-        result.put("locationCode",locations.get(0).getLocationCode());
+//        List<BaseinfoLocation> locations = locationService.getLocationBySupplierNo(LocationConstant.SUPPLIER_RETURN_IN_BIN, header.getSupplierNo());
+//        if(locations==null || locations.size()==0){
+//            return JsonUtils.TOKEN_ERROR("该供商没有配入库位");
+//        }
+//        result.put("supplierName",supplierService.getSuppler(header.getSupplierNo(),header.getOwnerUid()).getSupplierName());
+//        result.put("locationCode",locations.get(0).getLocationCode());
         return JsonUtils.SUCCESS(result);
     }
     /**
@@ -129,9 +129,9 @@ public class InStorageRfRestService  implements IInStorageRfRestService {
             return JsonUtils.TOKEN_ERROR("任务不存在");
         }
         ObdHeader header = soOrderService.getOutbSoHeaderByOrderId(info.getOrderId());
-        if(!location.getSupplierNo().equals(header.getSupplierNo()) || location.getType().compareTo(LocationConstant.SUPPLIER_RETURN_IN_BIN)!=0) {
-            return JsonUtils.TOKEN_ERROR("扫描库位不属于该供商入库位");
-        }
+//        if(!location.getSupplierNo().equals(header.getSupplierNo()) || location.getType().compareTo(LocationConstant.SUPPLIER_RETURN_IN_BIN)!=0) {
+//            return JsonUtils.TOKEN_ERROR("扫描库位不属于该供商入库位");
+//        }
         Map<String,Object> query = new HashMap<String, Object>();
         query.put("orderId",header.getOrderId());
         List<ObdDetail> details = soOrderService.getOutbSoDetailList(query);

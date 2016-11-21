@@ -14,6 +14,7 @@ import com.lsh.wms.api.service.shelve.IAtticShelveRfRestService;
 import com.lsh.wms.api.service.shelve.IShelveRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.BinUsageConstant;
 import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
@@ -323,16 +324,19 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             return JsonUtils.TOKEN_ERROR("上架详情异常");
         }
         BaseinfoLocation location = locationService.getLocation(detail.getAllocLocationId());
-        if(location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN)==0){
+        BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId());
+        BaseinfoLocation realFatherLocation = locationService.getFatherRegionByClassfication(realLocation.getLocationId());
+
+        if(fatherLocation.getType().compareTo(LocationConstant.LOFT)==0 && location.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)){
             if(realLocationId.compareTo(location.getLocationId())!=0){
                 return JsonUtils.TOKEN_ERROR("扫描货位与系统所提供货位不符");
             }
 
-        }else if(realLocation.getType().compareTo(LocationConstant.LOFT_STORE_BIN)==0 ){
+        }else if(realFatherLocation.getType().compareTo(LocationConstant.LOFT)==0 && realLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE) ){
             if(locationService.checkLocationUseStatus(realLocationId) && realLocationId.compareTo(detail.getAllocLocationId())!=0 ){
                 return JsonUtils.TOKEN_ERROR("扫描库位已被占用");
             }
-            if(location.getType().compareTo((LocationConstant.LOFT_STORE_BIN))!=0){
+            if(fatherLocation.getType().compareTo((LocationConstant.LOFT))!=0 || !location.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)){
                 return JsonUtils.TOKEN_ERROR("提供扫描库位类型不符");
             }
 
@@ -407,8 +411,9 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             for (BaseinfoItemLocation itemLocation : locations) {
                 //对比货架商品和新进商品保质期是否到达阀值
                 BaseinfoLocation location = locationService.getLocation(itemLocation.getPickLocationid());
-                if(shelveRpcService.checkShelfLifeThreshold(quant,location,LocationConstant.LOFT_STORE_BLOCK)) {
-                    if (location.getType().compareTo(LocationConstant.LOFT_PICKING_BIN) == 0) {
+                BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId());
+                if(shelveRpcService.checkShelfLifeThreshold(quant,location,BinUsageConstant.BIN_UASGE_STORE)) {
+                    if (fatherLocation.getType().compareTo(LocationConstant.LOFT) == 0) {
                         if (rpcService.needProcurement(itemLocation.getPickLocationid(), itemLocation.getItemId())) {
                             Map<String, Object> checkTask = new HashMap<String, Object>();
                             checkTask.put("toLocationId", location.getLocationId());
@@ -466,7 +471,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         bulk = bulk.multiply(item.getPackWidth());
 
 
-        List<BaseinfoLocation> locationList = locationService.getLocationsByType(LocationConstant.LOFT_STORE_BIN);
+        List<BaseinfoLocation> locationList = locationService.getChildrenLocationsByFatherTypeAndChildrenTypeAndUsage(LocationConstant.LOFT, BinUsageConstant.BIN_UASGE_STORE);
 
         if(locationList==null ||locationList.size()==0) {
             throw new BizCheckedException("2030015");

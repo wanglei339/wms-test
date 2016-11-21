@@ -753,6 +753,19 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //BaseinfoStore baseinfoStore = iStoreRpcService.getStoreByStoreNo(inbReceiptHeader.getStoreCode());
         CsiCustomer csiCustomer = customerService.getCustomerByCustomerCode(request.getOwnerId(),inbReceiptHeader.getStoreCode());
 
+        //获取location的id
+        if (null == csiCustomer) {
+            throw new BizCheckedException("2180023");
+        }
+        if (null == csiCustomer.getCollectRoadId()) {
+            throw new BizCheckedException("2180024");
+        }
+        BaseinfoLocation location = locationService.getLocation(csiCustomer.getCollectRoadId());
+
+        if( location != null){
+            inbReceiptHeader.setLocation(location.getLocationId());
+        }
+
         Long collectRoadId =csiCustomer.getCollectRoadId();
         if(collectRoadId == null || collectRoadId == 0){
             throw new BizCheckedException("2020108");//店铺没有设置集货道

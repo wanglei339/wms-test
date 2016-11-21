@@ -52,8 +52,11 @@ public class WaveRpcService implements IWaveRpcService {
             if(so == null){
                 throw new BizCheckedException("2041000", orderOtherId,"");
             }
-            Map<String,Long> map = new HashMap<String, Long>();
+            Map<String,Object> map = new HashMap<String, Object>();
             map.put("orderId",so.getOrderId());
+            map.put("transPlan",order.get("transPlan"));
+            map.put("waveIndex",order.get("waveIndex"));
+            map.put("transTime",order.get("transTime"));
             newOrders.add(map);
         }
         request.setOrders(newOrders);
@@ -132,10 +135,14 @@ public class WaveRpcService implements IWaveRpcService {
                 logger.error("wave release fail, ret %d", ret);
                 throw new BizCheckedException("", "wave release fail");
             }
-        }catch (BizCheckedException e){
+        } catch (BizCheckedException e){
             logger.error("Wave release fail, wave id %d msg %s", iWaveId, e.getMessage());
             throw e;
-        } finally {
+        } catch (Exception e){
+            logger.error("Wave release fail, wave id %d msg %s", iWaveId, e.getMessage());
+            e.printStackTrace();
+            throw new BizCheckedException("2041004");
+        }  finally {
             if(bNeedRollBack) {
                 waveService.setStatus(iWaveId, WaveConstant.STATUS_RELEASE_FAIL);
             }

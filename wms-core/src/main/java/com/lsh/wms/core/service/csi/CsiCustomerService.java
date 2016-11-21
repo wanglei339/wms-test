@@ -108,7 +108,7 @@ public class CsiCustomerService {
         map.put("customerCode", customerCode);
         map.put("isValid", 1);   //有效的
         List<CsiCustomer> customers = this.getCustomerList(map);
-        if(customers.size()==0){
+        if(customers.size()!=1){
             return null;
         }else{
             return customers.get(0);

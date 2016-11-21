@@ -25,6 +25,7 @@ public class ProcurementTaskDeal implements IScheduleTaskDealSingle<String> {
 
     public boolean execute(String task, String ownSign) throws Exception {
         try {
+            logger.info("in 11111"+task);
             iProcurementProveiderRpcService.createProcurement();
         }catch (Exception e){
             logger.error(e.getMessage());

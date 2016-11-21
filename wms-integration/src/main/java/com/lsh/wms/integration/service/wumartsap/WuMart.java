@@ -6,6 +6,7 @@ import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.wumart.IWuMart;
+import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.service.system.SysLogService;
 import com.lsh.wms.model.system.SysLog;
 import org.slf4j.Logger;
@@ -39,24 +40,23 @@ public class WuMart implements IWuMart {
             String mess =  wuMartSap.ibd2SapAccount(backDate);
             if("E".equals(mess)){
                 sysLog.setLogMessage("ibd过账失败!");
-                sysLog.setStatus(3l);//3表示失败
+                sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
                 sysLog.setLogCode("ibd过账失败");
                 //0表示初始 1ibd创建成功 2ibd过账成功
-                sysLog.setStep(1l);
+                sysLog.setStep(SysLogConstant.LOG_STEP_IBDCREATE);
             }else{
-                sysLog.setStatus(2l);
-                sysLog.setStep(2l);
+                sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
+                sysLog.setStep(SysLogConstant.LOG_STEP_IBDFINISH);
                 sysLog.setLogMessage("过账成功");
             }
 
         }else {
             sysLog.setLogMessage("创建失败!");
-            sysLog.setStatus(3l);//3表示失败
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
             sysLog.setLogCode("ibd创建失败");
         }
         sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
-        sysLogService.updateSysLog(sysLog);
-
+        //sysLogService.updateSysLog(sysLog);
         return null;
     }
 
@@ -71,22 +71,22 @@ public class WuMart implements IWuMart {
             String type = wuMartSap.obd2SapAccount(backDate);
             if ("E".equals(type)){
                 sysLog.setLogMessage("obd过账失败!");
-                sysLog.setStatus(3l);//3表示失败
+                sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
                 sysLog.setLogCode("obd过账失败");
                 //0表示初始 1ibd创建成功 2ibd过账成功,3obd创建成功 4 obd过账成功
-                sysLog.setStep(3l);
+                sysLog.setStep(SysLogConstant.LOG_STEP_OBDCREATE);
             }else{
-                sysLog.setStatus(2l);
-                sysLog.setStep(2l);
-                sysLog.setLogMessage("过账成功");
+                sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
+                sysLog.setStep(SysLogConstant.LOG_STEP_OBDFINISH);
+                sysLog.setLogMessage("obd过账成功");
             }
         }else {
             sysLog.setLogMessage("创建失败!");
-            sysLog.setStatus(3l);//3表示失败
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
             sysLog.setLogCode("ibd创建失败");
         }
         sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
-        sysLogService.updateSysLog(sysLog);
+        //sysLogService.updateSysLog(sysLog);
         return null;
     }
 
@@ -115,41 +115,41 @@ public class WuMart implements IWuMart {
             String mess =  wuMartSap.ibd2SapAccount(backDate);
             if("E".equals(mess)){
                 sysLog.setLogMessage("ibd过账失败!");
-                sysLog.setStatus(3l);//3表示失败
+                sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
                 sysLog.setLogCode("ibd过账失败");
                 //0表示初始 1ibd创建成功 2ibd过账成功
-                sysLog.setStep(1l);
+                sysLog.setStep(SysLogConstant.LOG_STEP_IBDCREATE);
             }else{
-                sysLog.setStatus(2l);
-                sysLog.setStep(2l);
+                sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
+                sysLog.setStep(SysLogConstant.LOG_STEP_IBDFINISH);
                 sysLog.setLogMessage("ibd过账成功");
                 CreateObdHeader obdBackDate = wuMartSap.obd2Sap((CreateObdHeader) ibdObdMap.get("createObdHeader"));
                 if(backDate != null){
                     String type = wuMartSap.obd2SapAccount(obdBackDate);
                     if ("E".equals(type)){
                         sysLog.setLogMessage("obd过账失败!");
-                        sysLog.setStatus(3l);//3表示失败
+                        sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
                         sysLog.setLogCode("obd过账失败");
                         //0表示初始 1ibd创建成功 2ibd过账成功,3obd创建成功 4 obd过账成功
-                        sysLog.setStep(3l);
+                        sysLog.setStep(SysLogConstant.LOG_STEP_OBDCREATE);
                     }else{
-                        sysLog.setStatus(2l);
-                        sysLog.setStep(4l);
+                        sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
+                        sysLog.setStep(SysLogConstant.LOG_STEP_OBDFINISH);
                         sysLog.setLogMessage("obd过账成功");
                     }
                 }else {
                     sysLog.setLogMessage("obd创建失败!");
-                    sysLog.setStatus(3l);//3表示失败
+                    sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
                     sysLog.setLogCode("obd创建失败");
                 }
             }
         }else {
             sysLog.setLogMessage("ibd创建失败!");
-            sysLog.setStatus(3l);//3表示失败
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
             sysLog.setLogCode("ibd创建失败");
         }
         sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
-        sysLogService.updateSysLog(sysLog);
+        //sysLogService.updateSysLog(sysLog);
 //        String ibdResult = this.sendIbd((CreateIbdHeader) ibdObdMap.get("createIbdHeader"),sysLog);
 //
 //        if(!"E".equals(ibdResult) && ibdResult != null){
@@ -167,13 +167,14 @@ public class WuMart implements IWuMart {
         String type = wuMartSap.soObd2Sap(createObdHeader);
         if("E".equals(type)){
             sysLog.setLogMessage("obd创建失败!");
-            sysLog.setStatus(3l);//3表示失败
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
             sysLog.setLogCode("obd创建失败");
         }else{
-            sysLog.setStatus(2l);
-            sysLog.setStep(4l);
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
+            sysLog.setStep(SysLogConstant.LOG_STEP_OBDFINISH);
             sysLog.setLogMessage("obd过账成功");
         }
+        sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
 
         return JsonUtils.SUCCESS();
     }

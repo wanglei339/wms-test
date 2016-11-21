@@ -1,6 +1,7 @@
 package com.lsh.wms.core.service.po;
 
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.dao.po.IbdDetailDao;
 import com.lsh.wms.core.dao.po.InbReceiptDetailDao;
@@ -17,10 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by lixin-mac on 2016/10/21.
@@ -82,7 +80,7 @@ public class ReceiveService {
         Map<String,Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("receiveId",receiveId);
         List<ReceiveHeader> list = this.getReceiveHeaderList(mapQuery);
-        if(list.size() <= 0){
+        if(list == null){
             return null;
         }
         return list.get(0);
@@ -135,8 +133,8 @@ public class ReceiveService {
         Map<String,Object> map = new HashMap<String, Object>();
         map.put("receiveId",receiveId);
         List<ReceiveDetail> receiveDetails = receiveDetailDao.getReceiveDetailList(map);
-        if (receiveDetails.size() <=0 ) {
-            return null;
+        if (receiveDetails == null) {
+            return new ArrayList<ReceiveDetail>();
         }
         return receiveDetails;
     }
@@ -163,7 +161,12 @@ public class ReceiveService {
     public void updateStatus(ReceiveHeader receiveHeader){
         receiveHeader.setUpdatedAt(DateUtils.getCurrentSeconds());
         receiveHeaderDao.update(receiveHeader);
-        persistenceProxy.doOne(SysLogConstant.LOG_TYPE_IBD,receiveHeader.getReceiveId());
+        //查询验收单 正常po以及sto单加入日志表
+        ReceiveHeader receiveHeader1 = this.getReceiveHeaderByReceiveId(receiveHeader.getReceiveId());
+        if(receiveHeader1.getOrderType() == PoConstant.ORDER_TYPE_PO || receiveHeader1.getOrderType() == PoConstant.ORDER_TYPE_TRANSFERS){
+            persistenceProxy.doOne(SysLogConstant.LOG_TYPE_IBD,receiveHeader.getReceiveId());
+        }
+
     }
 
     /**

@@ -155,7 +155,7 @@ public class LoadRfRestService implements ILoadRfRestService {
         //大门店还是小门店
         if (TuConstant.SCALE_HYPERMARKET.equals(tuHead.getScale())) {   //大店尾货
             Map<Long, Map<String, Object>> storesRestMap = new HashMap<Long, Map<String, Object>>();
-            //循环门店获取尾货信息(没合板,合板日期就是零)
+            //循环门店获取尾货信息(没合板,合板日期就是零)  todo 未合板的贵品也可能是尾货
             for (Map<String, Object> store : stores) {
                 String storeNo = store.get("customerCode").toString();
                 Map<Long, Map<String, Object>> storeMap = iMergeRpcService.getMergeDetailByCustomerCode(storeNo);
@@ -191,7 +191,7 @@ public class LoadRfRestService implements ILoadRfRestService {
                     }
                     boardMap.put("isLoaded", isLoaded);
 
-                    //获取一板多托
+                    //获取一板多托(这里一板多托盘的需要都是合板以后的)
                     Map<String, Object> mergerMap = new HashMap<String, Object>();
                     mergerMap.put("containerId", boardId);
                     mergerMap.put("status", TaskConstant.Done);

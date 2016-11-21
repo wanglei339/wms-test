@@ -85,7 +85,7 @@ public class CsiSupplierService {
         mapQuery.put("ownerId", ownerId);
         List<CsiSupplier> suppliers = supplierDao.getCsiSupplierList(mapQuery);
         if(suppliers==null || suppliers.size()!=1){
-            throw new BizCheckedException("2180020");
+            throw new BizCheckedException("2180023");
         }
         return suppliers.get(0);
     }
