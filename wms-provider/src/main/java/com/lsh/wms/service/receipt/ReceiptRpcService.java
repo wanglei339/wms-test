@@ -153,32 +153,34 @@ public class ReceiptRpcService implements IReceiptRpcService {
         inbReceiptHeader.setReceiptOrderId(RandomUtils.genId());
 
         //设置托盘码,暂存区,分配库位;实际库位由他人写入
-        // TODO: 16/8/19 退货类型的单据 虚拟容器,放入退货区
+
         //根据request中的orderOtherId查询InbPoHeader
-        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(request.getOrderOtherId());
-        if (ibdHeader == null) {
+        // 按理说上游因该吧订单转换好,这里就不要用外部id运算了 FIXED: 16/11/20
+        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(request.getOrderId());
+        /*  外层已验证
+         if (ibdHeader == null) {
             throw new BizCheckedException("2020001");
-        }
+        }*/
         //判断PO订单类型  虚拟容器,放入退货区
         Integer orderType = ibdHeader.getOrderType();
         if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
             //新增container
+            //TODO 这种虚拟的根据货主的container和locaiton的处理方法很蛋疼,已经让人蒙蔽了。。。。。
+            //  16/8/19 退货类型的单据 虚拟容器,放入退货区
             Long containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
             inbReceiptHeader.setContainerId(containerId);
-            // TODO: 16/8/19 设置退货区
-
+            // : 16/8/19 设置退货区
             List<BaseinfoLocationRegion> lists = locationDetailService.getMarketReturnList(ibdHeader.getOwnerUid());
             Long location = lists.get(0).getLocationId();
             inbReceiptHeader.setLocation(location);
-            inbReceiptHeader.setReceiptType(1);
-
             //设置收货类型
             inbReceiptHeader.setReceiptType(ReceiptContant.RECEIPT_TYPE_NORMAL);
 
         }else{
             BaseinfoLocation baseinfoLocation = locationRpcService.assignTemporary();
-            inbReceiptHeader.setLocation(baseinfoLocation.getLocationId());// TODO: 16/7/20  暂存区信息
+            inbReceiptHeader.setLocation(baseinfoLocation.getLocationId());//16/7/20  暂存区信息
             if(PoConstant.ORDER_TYPE_CPO == orderType){
+                //TODO 这个类型的定义根本看不懂啊
                 inbReceiptHeader.setReceiptType(ReceiptContant.RECEIPT_TYPE_ORDER);
             }else{
                 inbReceiptHeader.setReceiptType(ReceiptContant.RECEIPT_TYPE_NORMAL);
@@ -186,10 +188,12 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         }
 
-        // TODO: 2016/10/8 查询验收单是否存在,如果不存在,则根据ibd重新生成
+        // 2016/10/8 查询验收单是否存在,如果不存在,则根据ibd重新生成
+        //TODO 这个方法定义的太蛋疼了,谁知道你是拿了个指定状态的玩意?
         ReceiveHeader receiveHeader = receiveService.getReceiveHeader(ibdHeader.getOrderId());
         Long receiveId = 0l;
         if(receiveHeader == null){
+            //TODO 这里会有问题,后面失败了,这就sb了
             receiveId = this.genReceive(ibdHeader,request.getItems());
         }else{
             receiveId = receiveHeader.getReceiveId();
@@ -342,7 +346,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 //设置receiptOrderId
                 inbReceiptDetail.setReceiptOrderId(inbReceiptHeader.getReceiptOrderId());
                 inbReceiptDetail.setOrderOtherId(request.getOrderOtherId());
-                boolean isCanReceipt = ibdHeader.getOrderStatus() == PoConstant.ORDER_THROW || ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART || ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPTING;
+                boolean isCanReceipt = ibdHeader.getOrderStatus() == PoConstant.ORDER_THROW
+                        || ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART
+                        || ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPTING;
                 if (!isCanReceipt) {
                     throw new BizCheckedException("2020002");
                 }
@@ -398,6 +404,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     }
                 }*/
                 IbdDetail updateIbdDetail = new IbdDetail();
+                //TODO 这里是啥玩意,直接设置了,不做加法?
                 updateIbdDetail.setInboundQty(inbReceiptDetail.getInboundQty());
                 updateIbdDetail.setOrderId(inbReceiptDetail.getOrderId());
                 //updateIbdDetail.setSkuId(inbReceiptDetail.getSkuId());
@@ -494,8 +501,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         //插入订单
         //poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList,stockQuantList,stockLotList);
-        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList,updateReceiveDetailList,obdStreamDetailList,request.getIsCreateTask(),null);
+        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList,updateReceiveDetailList,obdStreamDetailList,null);
 
+        //TODO 这后面的东西风险是极高的,一旦出错,便不能修复,不能重入。
         if(PoConstant.ORDER_TYPE_PO == orderType || PoConstant.ORDER_TYPE_TRANSFERS == orderType || PoConstant.ORDER_TYPE_CPO == orderType){
             TaskEntry taskEntry = new TaskEntry();
             TaskInfo taskInfo = new TaskInfo();
@@ -938,28 +946,26 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         //插入订单
         //poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList,stockQuantList,stockLotList);
-        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList,updateReceiveDetailList,obdStreamDetailList,request.getIsCreateTask(),obdDetails);
+        poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList,updateReceiveDetailList,obdStreamDetailList,obdDetails);
 
 
 
 
         //如果是大店 生成QC
-        if(request.getIsCreateTask()==1) {
-            if(csiCustomer.getCustomerType().equals(CustomerConstant.SUPER_MARKET)){
-                TaskEntry taskEntry = new TaskEntry();
-                TaskInfo taskInfo = new TaskInfo();
-                taskInfo.setTaskId(taskId);
-                taskInfo.setType(TaskConstant.TYPE_PO);
-                taskInfo.setSubType(TaskConstant.TASK_STORE_DIRECT);
-                taskInfo.setBusinessMode(TaskConstant.MODE_DIRECT);
-                taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
-                taskInfo.setContainerId(inbReceiptHeader.getContainerId());
-                taskInfo.setItemId(inbReceiptDetailList.get(0).getItemId());
-                taskInfo.setOperator(inbReceiptHeader.getStaffId());
-                taskEntry.setTaskInfo(taskInfo);
-                taskId = iTaskRpcService.create(TaskConstant.TYPE_PO, taskEntry);
-                iTaskRpcService.done(taskId);
-            }
+        if(csiCustomer.getCustomerType().equals(CustomerConstant.SUPER_MARKET)){
+            TaskEntry taskEntry = new TaskEntry();
+            TaskInfo taskInfo = new TaskInfo();
+            taskInfo.setTaskId(taskId);
+            taskInfo.setType(TaskConstant.TYPE_PO);
+            taskInfo.setSubType(TaskConstant.TASK_STORE_DIRECT);
+            taskInfo.setBusinessMode(TaskConstant.MODE_DIRECT);
+            taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
+            taskInfo.setContainerId(inbReceiptHeader.getContainerId());
+            taskInfo.setItemId(inbReceiptDetailList.get(0).getItemId());
+            taskInfo.setOperator(inbReceiptHeader.getStaffId());
+            taskEntry.setTaskInfo(taskInfo);
+            taskId = iTaskRpcService.create(TaskConstant.TYPE_PO, taskEntry);
+            iTaskRpcService.done(taskId);
         }
     }
 
