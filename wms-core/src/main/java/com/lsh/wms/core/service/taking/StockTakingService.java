@@ -95,6 +95,7 @@ public class StockTakingService {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("takingId", stockTakingId);
         mapQuery.put("round", round);
+        mapQuery.put("isValid", 1);
         List<StockTakingDetail> detailList = detailDao.getStockTakingDetailList(mapQuery);
         return detailList;
     }

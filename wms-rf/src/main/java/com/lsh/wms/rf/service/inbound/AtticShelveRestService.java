@@ -471,7 +471,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         bulk = bulk.multiply(item.getPackWidth());
 
 
-        List<BaseinfoLocation> locationList = locationService.getChildrenLocationsByFatherTypeAndChildrenTypeAndUsage(LocationConstant.LOFT, BinUsageConstant.BIN_UASGE_STORE);
+        List<BaseinfoLocation> locationList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.LOFT, BinUsageConstant.BIN_UASGE_STORE);
 
         if(locationList==null ||locationList.size()==0) {
             throw new BizCheckedException("2030015");

@@ -2,8 +2,6 @@ package com.lsh.wms.rpc.service.shelve;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.base.common.json.JsonUtils;
-import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.shelve.IShelveRpcService;
 import com.lsh.wms.core.constant.BinUsageConstant;
 import com.lsh.wms.core.constant.CsiConstan;
@@ -27,9 +25,7 @@ import com.lsh.wms.rpc.service.location.LocationRpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.parsing.Location;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -185,7 +181,7 @@ public class ShelveRpcService implements IShelveRpcService {
         // 获取到拣货位的库区id
         BaseinfoLocation areaLocation = locationService.getFatherByClassification(location.getLocationId());
         // 获取该库区下所有的货架位
-        List<BaseinfoLocation> storeLocations = locationService.getChildrenLocationsByType(areaLocation.getLocationId(), LocationConstant.BIN, binUsage);
+        List<BaseinfoLocation> storeLocations = locationService.getBinsByIdAndTypeUsage(areaLocation.getLocationId(), LocationConstant.BIN, binUsage);
         if (storeLocations.size() < 1) {
             return false;
         }
