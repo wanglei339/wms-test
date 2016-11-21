@@ -30,6 +30,7 @@
         <result property="storeNo" column="store_no"/>
         <result property="supplierNo" column="supplier_no"/>
         <result property="binUsage" column="bin_usage"/>
+        <result property="regionType" column="region_type"/>
     </resultMap>
 
     <select id="lock" parameterType="map" resultMap="baseinfoLocationResultMap">
@@ -49,13 +50,13 @@
 			type,type_name,is_leaf,is_valid,can_store,container_vol,
 			region_no,passage_no,shelf_level_no,bin_position_no,description,created_at,
 			updated_at,classification,can_use,is_locked,cur_container_vol,store_no,
-			supplier_no,bin_usage
+			supplier_no,bin_usage,region_type
     	) values (
 			#{locationId},#{locationCode},#{fatherId},#{leftRange},#{rightRange},#{level},
 			#{type},#{typeName},#{isLeaf},#{isValid},#{canStore},#{containerVol},
 			#{regionNo},#{passageNo},#{shelfLevelNo},#{binPositionNo},#{description},#{createdAt},
 			#{updatedAt},#{classification},#{canUse},#{isLocked},#{curContainerVol},#{storeNo},
-			#{supplierNo},#{binUsage}
+			#{supplierNo},#{binUsage},#{regionType}
     	)
 	</insert>
 
@@ -87,7 +88,8 @@
             <if test="curContainerVol != null">cur_container_vol=#{curContainerVol},</if>
             <if test="storeNo != null">store_no=#{storeNo},</if>
             <if test="supplierNo != null">supplier_no=#{supplierNo},</if>
-            <if test="binUsage != null">bin_usage=#{binUsage}</if>
+            <if test="binUsage != null">bin_usage=#{binUsage},</if>
+            <if test="regionType != null">region_type=#{regionType}</if>
         </set>
         where location_id=#{locationId} and is_valid=1
     </update>
@@ -140,6 +142,7 @@
             <if test="storeNo != null">and store_no=#{storeNo}</if>
             <if test="supplierNo != null">and supplier_no=#{supplierNo}</if>
             <if test="binUsage != null">and bin_usage=#{binUsage}</if>
+            <if test="regionType != null">and region_type=#{regionType}</if>
         </where>
         <if test="start != null and limit != null">
             limit #{start},#{limit}
@@ -187,6 +190,7 @@
             <if test="storeNo != null">and store_no=#{storeNo}</if>
             <if test="supplierNo != null">and supplier_no=#{supplierNo}</if>
             <if test="binUsage != null">and bin_usage=#{binUsage}</if>
+            <if test="regionType != null">and region_type=#{regionType}</if>
         </where>
     </sql>
 
@@ -286,6 +290,7 @@
             <if test="storeNo != null">and store_no=#{storeNo}</if>
             <if test="supplierNo != null">and supplier_no=#{supplierNo}</if>
             <if test="binUsage != null">and bin_usage=#{binUsage}</if>
+            <if test="regionType != null">and region_type=#{regionType}</if>
         </where>
         <if test="start != null and limit != null">
             limit #{start},#{limit}
