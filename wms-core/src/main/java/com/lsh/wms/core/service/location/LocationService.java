@@ -327,12 +327,29 @@ public class LocationService {
         params.put("isValid", LocationConstant.IS_VALID);
         return locationDao.getChildrenLocationList(params);
     }
+    /**
+     * 根据type获取子节点
+     *
+     * @param locationId
+     * @param binUsage
+     * @return
+     */
+    public List<BaseinfoLocation> getChildrenLocationsByBinUsage(Long locationId, Integer binUsage) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        BaseinfoLocation location = this.getLocation(locationId);
+        params.put("leftRange", location.getLeftRange());
+        params.put("rightRange", location.getRightRange());
+        params.put("binUsage", binUsage);
+        params.put("isValid", LocationConstant.IS_VALID);
+        return locationDao.getChildrenLocationList(params);
+    }
 
     /**
      * 根据type和库位类型找到下面的子库位,获取指定库位的方法,存货位还是拣货位,type传LocationConstant.BIN
      *
-     * @param locationId
-     * @param type
+     * @param fatherLocationId
+     * @param sonType
+     * @param binUsage
      * @return
      */
     public List<BaseinfoLocation> getChildrenLocationsByType(Long fatherLocationId, Long sonType, Integer binUsage) {

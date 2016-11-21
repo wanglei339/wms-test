@@ -294,7 +294,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
 
 
             //获取location的id
-            CsiCustomer customer = csiCustomerService.getCustomerByCustomerCode(head.getStoreNo()); // 门店对应的集货道
+            CsiCustomer customer = csiCustomerService.getCustomerByCustomerCode(info.getOwnerId(),head.getStoreNo()); // 门店对应的集货道
             if (null == customer) {
                 throw new BizCheckedException("2180023");
             }
@@ -378,7 +378,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
         receiptRequest.setOrderOtherId(ibdHeader.getOrderOtherId());
         receiptRequest.setContainerId(head.getRealContainerId());
         receiptRequest.setStoreId(head.getStoreNo().toString());
-        receiptRequest.setIsCreateTask(0);
+        //receiptRequest.setIsCreateTask(0);
         receiptRequest.setReceiptUser("");
 
 

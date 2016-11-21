@@ -9,9 +9,9 @@ import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.inhouse.IProcurementRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.shelve.IPickUpShelveRestService;
-import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.BinUsageConstant;
 import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
@@ -154,7 +154,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
         if(qty.compareTo(BigDecimal.ZERO)<=0 || realQty.compareTo(BigDecimal.ZERO)<=0){
             return JsonUtils.TOKEN_ERROR("上架详情数量异常");
         }
-        if(!this.chargeLocation(allocLocationId, LocationConstant.SPLIT_SHELF_BIN) || !this.chargeLocation(realLocationId,LocationConstant.SPLIT_SHELF_BIN)){
+        if(!this.chargeLocation(allocLocationId, LocationConstant.SPLIT_AREA,BinUsageConstant.BIN_PICK_STORE) || !this.chargeLocation(realLocationId,LocationConstant.SPLIT_AREA,BinUsageConstant.BIN_PICK_STORE)){
             return JsonUtils.TOKEN_ERROR("库位状态异常");
         }
 
@@ -220,7 +220,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
         if(qty.compareTo(BigDecimal.ZERO)<=0 || realQty.compareTo(BigDecimal.ZERO)<=0){
             return JsonUtils.TOKEN_ERROR("上架详情数量异常");
         }
-        if(!this.chargeLocation(allocLocationId,LocationConstant.SPLIT_SHELF_BIN) || !this.chargeLocation(realLocationId,LocationConstant.SPLIT_SHELF_BIN)){
+        if(!this.chargeLocation(allocLocationId,LocationConstant.SPLIT_AREA, BinUsageConstant.BIN_PICK_STORE) || !this.chargeLocation(realLocationId,LocationConstant.SPLIT_AREA,BinUsageConstant.BIN_PICK_STORE)){
             return JsonUtils.TOKEN_ERROR("库位状态异常");
         }
         AtticShelveTaskDetail detail = shelveTaskService.getDetailById(detailId);
@@ -527,14 +527,16 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
         locationService.unlockLocation(detail.getAllocLocationId());
         shelveTaskService.updateDetail(detail);
     }
-    public boolean chargeLocation(Long locationId,Long type) {
+    public boolean chargeLocation(Long locationId,Long type,Integer binUsage) {
         BaseinfoLocation location = locationService.getLocation(locationId);
         if(location==null){
             throw new BizCheckedException("2030013");
         }
-        if (location.getType().compareTo(type) != 0 || location.getIsLocked().compareTo(1) == 0) {
-            return false;
+        BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId());
+        if (fatherLocation.getType().compareTo(type) == 0  && location.getIsLocked().compareTo(1) != 0 &&
+                location.getBinUsage().equals(binUsage)) {
+            return true;
         }
-        return true;
+        return false;
     }
 }

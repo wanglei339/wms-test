@@ -13,10 +13,12 @@ import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.BinUsageConstant;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.stock.StockQuant;
@@ -65,6 +67,8 @@ public class StockTransferRestService implements IStockTransferRestService {
 
     @Reference
     private IStockQuantRpcService stockQuantRpcService;
+    @Autowired
+    private LocationService locationService;
 
     @Autowired
     private TaskInfoDao taskInfoDao;
@@ -119,10 +123,8 @@ public class StockTransferRestService implements IStockTransferRestService {
             if (location == null) {
                 throw new BizCheckedException("2060012");
             }
-            if (!(location.getType().equals(LocationConstant.SHELF_PICKING_BIN) ||
-                    location.getType().equals(LocationConstant.SHELF_STORE_BIN) ||
-                    location.getType().equals(LocationConstant.SPLIT_SHELF_BIN))
-                    ) {
+            BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId());
+            if (!(fatherLocation.getType().equals(LocationConstant.SHELF) || fatherLocation.getType().equals(LocationConstant.SPLIT_AREA))) {
                 throw new BizCheckedException("2550041");
             }
             StockQuantCondition condition = new StockQuantCondition();
@@ -141,7 +143,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             condition.setLotId(quant.getLotId());
             condition.setReserveTaskId(0L);
             BigDecimal qty = stockQuantRpcService.getQty(condition);
-            if (location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
+            if (fatherLocation.getType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
                 result.put("packName", "EA");
                 result.put("uomQty", qty);
             } else {
@@ -199,7 +201,8 @@ public class StockTransferRestService implements IStockTransferRestService {
             plan.setFromLocationId(locationId);
             plan.setItemId(quant.getItemId());
             Long subType = 2L;
-            if (location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
+            BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId());
+            if (fatherLocation.getType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
                 subType = 3L;
             }
             plan.setSubType(subType);
@@ -263,7 +266,8 @@ public class StockTransferRestService implements IStockTransferRestService {
             StockQuant quant = quantList.get(0);
             plan.setItemId(quant.getItemId());
             Long subType = 2L;
-            if (location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
+            BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId());
+            if (fatherLocation.getType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
                 subType = 3L;
             }
             plan.setSubType(subType);
@@ -326,7 +330,8 @@ public class StockTransferRestService implements IStockTransferRestService {
             StockQuant quant = quantList.get(0);
             plan.setItemId(quant.getItemId());
             Long subType = 2L;
-            if (location.getType().equals(LocationConstant.SPLIT_SHELF_BIN)) {
+            BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId());
+            if (fatherLocation.getType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
                 subType = 3L;
             }
             plan.setSubType(subType);
