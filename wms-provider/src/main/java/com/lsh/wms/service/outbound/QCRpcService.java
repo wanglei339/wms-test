@@ -226,7 +226,7 @@ public class QCRpcService implements IQCRpcService {
 
     public List<WaveDetail> getQcWaveDetailsByStoreNo(String customerCode) {
         //获取location的id
-        CsiCustomer customer = csiCustomerService.getCustomerByCustomerCode(null,customerCode); // 门店对应的集货道
+        CsiCustomer customer = csiCustomerService.getCustomerByCustomerCode(customerCode); // 门店对应的集货道
         if (null == customer) {
             throw new BizCheckedException("2180023");
         }

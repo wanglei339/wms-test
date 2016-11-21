@@ -261,7 +261,7 @@ public class WaveCore {
                         throw new BizCheckedException("2040019");
                     }
                     //go
-                    CsiCustomer customer = customerService.getCustomerByCustomerCode(order.getOwnerUid(), order.getDeliveryCode());
+                    CsiCustomer customer = customerService.getCustomerByCustomerCode(order.getDeliveryCode());
                     if(customer == null){
                         //门店找不到了哟草
                         throw new BizCheckedException("2040020");
@@ -421,15 +421,11 @@ public class WaveCore {
                                 for (StockQuant quant : quants) {
                                     BaseinfoLocation loation = locationService.getLocation(quant.getLocationId());
                                     BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(loation.getLocationId());
-                                    if (fatherLocation.getType().equals(LocationConstant.SHELF) && loation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)) {
-                                        //TODO 这里会有问题,我先注销了,明天再改.
-                                    /*
-                                    if (loation.getType() == LocationConstant.SHELF_STORE_BIN) {
+                                    if (fatherLocation.getType().equals(LocationConstant.SHELF)
+                                            && loation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)) {
                                         bFindShelfStore = true;
                                         detail.setAllocPickLocation(loation.getLocationId());
                                         break;
-                                    }
-                                    */
                                     }
                                 }
                                 if (!bFindShelfStore) {

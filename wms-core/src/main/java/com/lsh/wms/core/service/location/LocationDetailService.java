@@ -351,6 +351,10 @@ public class LocationDetailService {
         //其他type处理方式
         BaseinfoLocation fatherLocation = locationService.getFatherLocation(location.getLocationId());
         fatherLocation.setIsLeaf(0);
+        //父亲是在原库位插入子库位
+        if (fatherLocation.getType().equals(LocationConstant.BIN)){
+            fatherLocation.setCanStore(LocationConstant.CANNOT_STORE);
+        }
         locationService.updateLocation(fatherLocation);
 
         return baseinfoLocation;

@@ -327,6 +327,7 @@ public class LocationService {
         params.put("isValid", LocationConstant.IS_VALID);
         return locationDao.getChildrenLocationList(params);
     }
+
     /**
      * 根据type获取子节点
      *
@@ -367,7 +368,7 @@ public class LocationService {
      * 获取当前区域下的货位
      *
      * @param fatherType 父亲type
-     * @param binUsage  库位用途
+     * @param binUsage   库位用途
      * @return
      */
     public List<BaseinfoLocation> getChildrenLocationsByFatherTypeAndChildrenTypeAndUsage(Long fatherType, Integer binUsage) {
@@ -377,8 +378,8 @@ public class LocationService {
             return new ArrayList<BaseinfoLocation>();
         }
         for (BaseinfoLocation father : fatherLocations) {
-            List<BaseinfoLocation> sons = this.getChildrenLocationsByType(father.getLocationId(),LocationConstant.BIN, binUsage);
-            if (null != sons && sons.size() > 0){
+            List<BaseinfoLocation> sons = this.getChildrenLocationsByType(father.getLocationId(), LocationConstant.BIN, binUsage);
+            if (null != sons && sons.size() > 0) {
                 sonLocation.addAll(sons);
             }
         }
@@ -483,11 +484,13 @@ public class LocationService {
      * 获取指定到区级别的方法
      *
      * @param locationId 所在位置id
-     * @param classfication  分类
      * @return
      */
     public BaseinfoLocation getFatherRegionByClassfication(Long locationId) {
         BaseinfoLocation curLocation = this.getLocation(locationId);
+        if (null == curLocation) {
+            return null;
+        }
         Long fatherId = curLocation.getFatherId();
         if (curLocation.getClassification().equals(LocationConstant.CLASSIFICATION_AREAS)) {
             return curLocation;
@@ -572,23 +575,23 @@ public class LocationService {
         return locations != null && locations.size() > 0 ? locations : new ArrayList<BaseinfoLocation>();
     }
 
-    /**
-     * 按类型获取location节点
-     *
-     * @param type
-     * @return
-     */
-    public List<BaseinfoLocation> getLocationsByType(Long type, Integer binUsage) {
-        if (type == null) {
-            return new ArrayList<BaseinfoLocation>();
-        }
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("type", type);
-        params.put("isValid", LocationConstant.IS_VALID);
-        params.put("binUsage", binUsage);
-        List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
-        return locations != null && locations.size() > 0 ? locations : new ArrayList<BaseinfoLocation>();
-    }
+//    /**
+//     * 按类型获取location节点
+//     *
+//     * @param type
+//     * @return
+//     */
+//    public List<BaseinfoLocation> getLocationsByType(Long type, Integer binUsage) {
+//        if (type == null) {
+//            return new ArrayList<BaseinfoLocation>();
+//        }
+//        Map<String, Object> params = new HashMap<String, Object>();
+//        params.put("type", type);
+//        params.put("isValid", LocationConstant.IS_VALID);
+//        params.put("binUsage", binUsage);
+//        List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
+//        return locations != null && locations.size() > 0 ? locations : new ArrayList<BaseinfoLocation>();
+//    }
 
     /**
      * 获取可用仓库根节点
@@ -844,8 +847,9 @@ public class LocationService {
             if (temp.getBinUsage().equals(binUsage) && this.shelfBinLocationIsEmptyAndUnlock(temp)) {
                 // 考虑库存,无库存的货架位才能放入商品
                 // todo 可以用location的curContainer字段
-                List<StockQuant> quants = stockQuantService.getQuantsByLocationId(temp.getLocationId());
-                if (quants.size() < 1) {
+//                List<StockQuant> quants = stockQuantService.getQuantsByLocationId(temp.getLocationId());
+                Long curContainerVol = temp.getCurContainerVol();
+                if (curContainerVol < 1) {
                     //放入location和距离
                     Long distance = (temp.getBinPositionNo() - pickingLocation.getBinPositionNo()) * (temp.getBinPositionNo() - pickingLocation.getBinPositionNo()) + (temp.getShelfLevelNo() - pickingLocation.getShelfLevelNo()) * (temp.getShelfLevelNo() - pickingLocation.getShelfLevelNo());
                     Map<String, Object> distanceMap = new HashMap<String, Object>();
@@ -995,36 +999,23 @@ public class LocationService {
         return list;
     }
 
-    /**
-     * 判断位置上是否有库存, 判断占用情况应该使用location.getCanUse(),即位置上是否是空的
-     *
-     * @param locationId
-     * @return
-     */
-    public Boolean isQuantInLocation(Long locationId) {
-        List<StockQuant> quants = stockQuantService.getQuantsByLocationId(locationId);
-        if (quants.size() > 0) {
-            return true;
-        }
-        return false;
-    }
 
-    /**
-     * 设置location被占用
-     *
-     * @param locationId
-     * @return
-     */
-    @Transactional(readOnly = false)
-    public BaseinfoLocation setLocationIsOccupied(Long locationId) {
-        BaseinfoLocation location = this.getLocation(locationId);
-        if (location == null) {
-            throw new BizCheckedException("2180001");
-        }
-        location.setCanUse(2);    //被占用
-        this.updateLocation(location);
-        return location;
-    }
+//    /**
+//     * 设置location被占用
+//     *
+//     * @param locationId
+//     * @return
+//     */
+//    @Transactional(readOnly = false)
+//    public BaseinfoLocation setLocationIsOccupied(Long locationId) {
+//        BaseinfoLocation location = this.getLocation(locationId);
+//        if (location == null) {
+//            throw new BizCheckedException("2180001");
+//        }
+//        location.setCanUse(2);    //被占用
+//        this.updateLocation(location);
+//        return location;
+//    }
 
     /**
      * 设置位置没有被占用
@@ -1128,27 +1119,6 @@ public class LocationService {
             }
         }
         return null;
-    }
-
-    /**
-     * 根据当前的locationId获取,指定type的子集
-     * 如果fatherId不是locationId,那就是祖先的id
-     *
-     * @param locationId
-     * @param type       指定的位置type
-     * @return
-     */
-    public List<BaseinfoLocation> getSubLocationList(Long locationId, Long type) {
-        List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
-        //遍历整棵树
-        List<BaseinfoLocation> subList = this.getStoreLocations(locationId);
-        //然后然后遍历这颗子树,找出指定的type的list
-        for (BaseinfoLocation baseinfoLocation : subList) {
-            if (baseinfoLocation.getType().equals(type)) {
-                targetList.add(baseinfoLocation);
-            }
-        }
-        return targetList;
     }
 
     /**

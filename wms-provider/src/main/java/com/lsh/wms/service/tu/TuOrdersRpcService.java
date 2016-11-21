@@ -108,7 +108,7 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
         //封装门店发货单号
         List<Object> storeDeliveryList = new ArrayList<Object>();
         for (String storeNo : storeNoSet) {
-            CsiCustomer customer = csiCustomerService.getCustomerByCustomerCode(storeNo2OwnerId.get(storeNo), storeNo);
+            CsiCustomer customer = csiCustomerService.getCustomerByCustomerCode(storeNo);
             Map<String, Object> storeMap = new HashMap<String, Object>();
             storeMap.put("storeNo", storeNo);
             String storeId = "";
