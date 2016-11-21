@@ -68,6 +68,7 @@ public class ObdSapTransporter implements ITransporter{
             createObdHeader.setOrderOtherId(obdHeader.getOrderOtherId());
         }
         createObdHeader.setWarehouseCode(PropertyUtils.getString("wumart.werks"));
+        createObdHeader.setTuId(header.getTuId());
         createObdHeader.setItems(createObdDetails);
         wuMart.sendSo2Sap(createObdHeader,sysLog);
     }
