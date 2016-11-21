@@ -75,7 +75,7 @@ public class SetGoodsTaskHandler extends AbsTaskHandler {
         ObdHeader header = soOrderService.getOutbSoHeaderByOrderId(details.get(0).getOrderId());
 
         //获取location的id
-        CsiCustomer customer = csiCustomerService.getCustomerByCustomerCode(header.getOwnerUid(),header.getDeliveryCode()); // 门店对应的集货道
+        CsiCustomer customer = csiCustomerService.getCustomerByCustomerCode(header.getDeliveryCode()); // 门店对应的集货道
         if (null == customer) {
             throw new BizCheckedException("2180023");
         }

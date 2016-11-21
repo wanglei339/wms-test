@@ -261,7 +261,7 @@ public class WaveCore {
                         throw new BizCheckedException("2040019");
                     }
                     //go
-                    CsiCustomer customer = customerService.getCustomerByCustomerCode(order.getOwnerUid(), order.getDeliveryCode());
+                    CsiCustomer customer = customerService.getCustomerByCustomerCode(order.getDeliveryCode());
                     if(customer == null){
                         //门店找不到了哟草
                         throw new BizCheckedException("2040020");

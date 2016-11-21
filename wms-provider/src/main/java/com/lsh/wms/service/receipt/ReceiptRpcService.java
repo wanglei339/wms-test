@@ -751,7 +751,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         //大店放在集货道 小店放到集货位
         //BaseinfoStore baseinfoStore = iStoreRpcService.getStoreByStoreNo(inbReceiptHeader.getStoreCode());
-        CsiCustomer csiCustomer = customerService.getCustomerByCustomerCode(request.getOwnerId(),inbReceiptHeader.getStoreCode());
+        CsiCustomer csiCustomer = customerService.getCustomerByCustomerCode(inbReceiptHeader.getStoreCode());
 
         //获取location的id
         if (null == csiCustomer) {
