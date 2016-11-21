@@ -288,12 +288,12 @@ public class IbdService implements IIbdService {
         if(backData != null){
             mess =  wuMartSap.ibd2SapAccount(backData);
             if("E".equals(mess)){
-                return JsonUtils.EXCEPTION_ERROR("创建ibd成功,过账失败");
+                return JsonUtils.TOKEN_ERROR("创建ibd成功,过账失败");
             }else{
                 mess = "创建并过账成功";
             }
         }else{
-            return JsonUtils.EXCEPTION_ERROR("创建ibd失败");
+            return JsonUtils.TOKEN_ERROR("创建ibd失败");
         }
         return JsonUtils.SUCCESS(mess);
     }

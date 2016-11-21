@@ -140,7 +140,7 @@ public class ObdService implements IObdService{
         if(orderType == SoConstant.ORDER_TYPE_SO){
             waveOrderType = "YouGong store";
         }else if(orderType == SoConstant.ORDER_TYPE_STO){
-            CsiCustomer customer = customerService.getCustomerByCustomerCode(soRequest.getOwnerUid(),soRequest.getDeliveryCode());
+            CsiCustomer customer = customerService.getCustomerByCustomerCode(soRequest.getDeliveryCode());
             if(customer != null){
                 waveOrderType = customer.getCustomerType();
             }
@@ -168,7 +168,7 @@ public class ObdService implements IObdService{
         logger.info(" 黑狗创建obd 入口参数 : createObdHeader : " + JSON.toJSONString(createObdHeader));
         String type = wuMartSap.soObd2Sap(createObdHeader);
         if("E".equals(type)){
-            return JsonUtils.EXCEPTION_ERROR("创建obd失败");
+            return JsonUtils.TOKEN_ERROR("创建obd失败");
         }
         return JsonUtils.SUCCESS("创建obd并过账成功");
     }

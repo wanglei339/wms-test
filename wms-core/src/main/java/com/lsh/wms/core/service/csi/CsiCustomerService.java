@@ -59,7 +59,7 @@ public class CsiCustomerService {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("customerId", customerId);
         List<CsiCustomer> customers = customerDao.getCsiCustomerList(mapQuery);
-        if (customers.size() != 1) {
+        if (customers.size() !=  1) {
             throw new BizCheckedException("2180013");
         }
         return customers.get(0);
@@ -102,27 +102,15 @@ public class CsiCustomerService {
         return customerDao.countCsiCustomer(params);
     }
 
-    public CsiCustomer getCustomerByCustomerCode(Long ownerId, String customerCode) {
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put("ownerId", ownerId);
-        map.put("customerCode", customerCode);
-        map.put("isValid", 1);   //有效的
-        List<CsiCustomer> customers = this.getCustomerList(map);
-        if (customers.size() != 1) {
-            return null;
-        } else {
-            return customers.get(0);
-        }
-    }
-
     public CsiCustomer getCustomerByCustomerCode(String customerCode) {
         Map<String, Object> map = new HashMap<String, Object>();
+        //map.put("ownerId", ownerId);
         map.put("customerCode", customerCode);
         map.put("isValid", 1);   //有效的
         List<CsiCustomer> customers = this.getCustomerList(map);
-        if (customers == null || customers.size() == 0) {
+        if(customers.size()!=1){
             return null;
-        } else {
+        }else{
             return customers.get(0);
         }
     }
@@ -130,15 +118,14 @@ public class CsiCustomerService {
     /**
      * 将customerIds的json字符串解析成id,并查处
      * id1 | id2 |id3
-     *
-     * @param customerIds id集合
-     * @return 结果集合
+     * @param customerIds  id集合
+     * @return  结果集合
      */
-    public List<Map<String, Object>> ParseCustomerIds2Customers(String customerIds) throws BizCheckedException {
+    public List<Map<String, Object>> ParseCustomerIds2Customers(String customerIds) throws BizCheckedException{
         //json的拆分
-        List<Map<String, Object>> customerIdsMapList = JsonUtils.json2Obj(customerIds, List.class);
+        List<Map<String,Object>> customerIdsMapList = JsonUtils.json2Obj(customerIds,List.class);
         List<Map<String, Object>> customerList = new ArrayList<Map<String, Object>>();
-        for (Map<String, Object> oneMap : customerIdsMapList) {
+        for (Map<String,Object> oneMap : customerIdsMapList) {
             Long customerId = Long.valueOf(oneMap.get("customerId").toString());
             CsiCustomer customer = this.getCustomerByCustomerId(customerId);
             if (null == customer) {
@@ -149,7 +136,7 @@ public class CsiCustomerService {
             customerMap.put("customerCode", customer.getCustomerCode());
             customerMap.put("customerName", customer.getCustomerName());
             customerMap.put("customerId", customer.getCustomerId());
-            customerMap.put("customerType", customer.getCustomerType());
+            customerMap.put("customerType",customer.getCustomerType());
             customerList.add(customerMap);
         }
         return customerList;

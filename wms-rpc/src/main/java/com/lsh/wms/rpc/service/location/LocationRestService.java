@@ -224,6 +224,31 @@ public class LocationRestService implements ILocationRestService {
     }
 
     /**
+     * 获取可用的所有的货架和阁楼的拣货位
+     *
+     * @return
+     */
+    @GET
+    @Path("getColletionBinsCanUse")
+    public String getColletionBinsCanUse() {
+        //获取所有商品已使用的拣货位
+        List<BaseinfoItemLocation> baseinfoItemLocations = itemLocationService.getItemLocation(null);
+        List<Long> locationList = new ArrayList<Long>();
+        for(BaseinfoItemLocation b :baseinfoItemLocations){
+            locationList.add(b.getPickLocationid());
+        }
+        //获取所有拣货位
+        List<BaseinfoLocation> collectionBins = locationRpcService.getColletionBins();
+        List<BaseinfoLocation> newList = new ArrayList<BaseinfoLocation>();
+        for(BaseinfoLocation b : collectionBins){
+            if(!locationList.contains(b.getLocationId())){
+                newList.add(b);
+            }
+        }
+        return JsonUtils.SUCCESS(newList);
+    }
+
+    /**
      * 获取全货架(阁楼)
      *
      * @return

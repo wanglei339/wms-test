@@ -156,7 +156,7 @@ public class SetGoodsRestService implements ISetGoodsRestService {
         String customerCode = header.getDeliveryCode();
 
         //获得集货区信息
-        CsiCustomer customer = csiCustomerService.getCustomerByCustomerCode( info.getOwnerId(),customerCode); // 门店对应的集货道
+        CsiCustomer customer = csiCustomerService.getCustomerByCustomerCode(customerCode); // 门店对应的集货道
         if (null == customer) {
             throw new BizCheckedException("2180023");
         }
@@ -174,7 +174,7 @@ public class SetGoodsRestService implements ISetGoodsRestService {
         }
 
         Map<String,Object> result = new HashMap<String, Object>();
-        result.put("storeName",csiCustomerService.getCustomerByCustomerCode(info.getOwnerId(),customerCode).getCustomerName());
+        result.put("storeName",csiCustomerService.getCustomerByCustomerCode(customerCode).getCustomerName());
         result.put("locationCode",location.getLocationCode());
         result.put("containerId",containerId);
         result.put("status",info.getStep());

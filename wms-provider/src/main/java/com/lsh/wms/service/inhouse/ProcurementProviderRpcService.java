@@ -3,7 +3,6 @@ package com.lsh.wms.service.inhouse;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.inhouse.IProcurementProveiderRpcService;
 import com.lsh.wms.api.service.inhouse.IProcurementRpcService;
@@ -11,6 +10,7 @@ import com.lsh.wms.api.service.item.IItemRpcService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.BinUsageConstant;
 import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
@@ -22,10 +22,8 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.baseinfo.BaseinfoLocationBin;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
@@ -176,9 +174,9 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     //创建货架补货任务
     private void createShelfProcurement() throws BizCheckedException {
         //获取所有货架拣货位的位置信息
-        List<BaseinfoLocation> shelfLocationList = locationService.getLocationsByType(LocationConstant.SHELF_PICKING_BIN);
+        List<BaseinfoLocation> shelfLocationList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.SHELF, BinUsageConstant.BIN_UASGE_PICK);
         //获取所有货架的存储位
-        List<BaseinfoLocation> shelfList = locationService.getLocationsByType(LocationConstant.SHELF_STORE_BIN);
+        List<BaseinfoLocation> shelfList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.SHELF, BinUsageConstant.BIN_UASGE_STORE);
 
         for (BaseinfoLocation shelfCollectionBin : shelfLocationList) {
             //获取该拣货位存放的商品ID,目前逻辑,一个拣货位只能对应一种商品
@@ -336,9 +334,9 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     //创建阁楼补货任务
     private void createLoftProcurement() throws BizCheckedException {
         //获取所有阁楼拣货位的位置信息
-        List<BaseinfoLocation> loftPickLocationList = locationService.getLocationsByType(LocationConstant.LOFT_PICKING_BIN);
+        List<BaseinfoLocation> loftPickLocationList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.LOFT, BinUsageConstant.BIN_UASGE_PICK);
         //获取所有阁楼存货位的信息
-        List<BaseinfoLocation> loftList = locationService.getLocationsByType(LocationConstant.LOFT_STORE_BIN);
+        List<BaseinfoLocation> loftList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.LOFT, BinUsageConstant.BIN_UASGE_STORE);
 
         for (BaseinfoLocation loftPick : loftPickLocationList) {
             List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationByLocationID(loftPick.getLocationId());
@@ -427,9 +425,10 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         BaseinfoLocation fromLocation = locationRpcService.getLocation(fromLocationId);
         BaseinfoLocation toLocation = locationRpcService.getLocation(toLocationId);
         //货架捡货位只能在货架存货位取货，阁楼捡货位只能在阁楼捡货位取货
-        if(fromLocation!=null && toLocation!=null &&
-                (fromLocation.getType().equals(LocationConstant.LOFT_STORE_BIN) && toLocation.getType().equals(LocationConstant.LOFT_PICKING_BIN))
-                || (fromLocation.getType().equals(LocationConstant.SHELF_STORE_BIN) && toLocation.getType().equals(LocationConstant.SHELF_PICKING_BIN))){
+        BaseinfoLocation fromFatherLocation = locationService.getFatherRegionBySonId(fromLocation.getLocationId());
+        BaseinfoLocation toFatherLocation = locationService.getFatherRegionBySonId(toLocation.getLocationId());
+
+        if(fromLocation!=null && toLocation!=null && fromFatherLocation.getType().equals(toFatherLocation.getType())){
             condition.setLocationId(fromLocationId);
             List<StockQuant> quants = stockQuantService.getQuantList(condition);
             List<BaseinfoItemLocation> itemLocations = itemRpcService.getItemLocationByLocationID(toLocationId);
@@ -492,11 +491,11 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         if(fromLocation == null || toLocation == null ){
             return false;
         }
-        //阁楼捡货位只能在阁楼捡货位取货
-        boolean loftCheck = fromLocation.getType().equals(LocationConstant.LOFT_STORE_BIN) && toLocation.getType().equals(LocationConstant.LOFT_PICKING_BIN);
-        //货架捡货位只能在货架存货位取货
-        boolean shelfCheck = fromLocation.getType().equals(LocationConstant.SHELF_STORE_BIN) && toLocation.getType().equals(LocationConstant.SHELF_PICKING_BIN);
-        if(!(loftCheck || shelfCheck)){
+
+        BaseinfoLocation fromFatherLocation = locationService.getFatherRegionBySonId(fromLocation.getLocationId());
+        BaseinfoLocation toFatherLocation = locationService.getFatherRegionBySonId(toLocation.getLocationId());
+
+        if(!fromFatherLocation.getType().equals(toFatherLocation.getType()) && fromLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE) && toLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)){
             return false;
         }
 
@@ -551,20 +550,25 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         StockQuantCondition condition = new StockQuantCondition();
         Set<Long> outBondLocations = new HashSet<Long>();
         condition.setItemId(itemId);
+
         BaseinfoLocation pickLocation = locationService.getLocation(locationId);
-        if(pickLocation.getType().compareTo(LocationConstant.LOFT_PICKING_BIN)==0){
+        BaseinfoLocation pickFatherLocation = locationService.getFatherRegionBySonId(pickLocation.getLocationId());
+
+        if(pickFatherLocation.getType().compareTo(LocationConstant.LOFT)==0){
             List<StockQuant> quants = stockQuantService.getQuantList(condition);
             for(StockQuant quant:quants){
                 BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
-                if(location.getType().compareTo(LocationConstant.LOFT_STORE_BIN)==0 && location.getIsLocked().compareTo(1)!=0){
+                BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());
+                if(fatherLocation.getType().compareTo(LocationConstant.LOFT)==0 && location.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE) ){
                     outBondLocations.add(location.getLocationId());
                 }
             }
-        }else if(pickLocation.getType().compareTo(LocationConstant.SHELF_PICKING_BIN) ==0){
+        }else if(pickFatherLocation.getType().compareTo(LocationConstant.SHELF) ==0){
             List<StockQuant> quants = stockQuantService.getQuantList(condition);
             for(StockQuant quant:quants){
                 BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
-                if(location.getType().compareTo(LocationConstant.SHELF_STORE_BIN)==0 && location.getIsLocked().compareTo(1)!=0){
+                BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());
+                if(fatherLocation.getType().compareTo(LocationConstant.SHELF)==0 && location.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)){
                     outBondLocations.add(location.getLocationId());
                 }
             }

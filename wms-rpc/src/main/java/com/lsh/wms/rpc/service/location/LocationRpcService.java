@@ -191,6 +191,7 @@ public class LocationRpcService implements ILocationRpcService {
         mapQuery.put("binUsage", BinUsageConstant.BIN_UASGE_PICK);
         mapQuery.put("isValid", LocationConstant.IS_VALID);
         mapQuery.put("isLocked", LocationConstant.UNLOCK);
+        mapQuery.put("canStore", LocationConstant.CAN_STORE);
         List<BaseinfoLocation> pickBins = locationService.getLocationListByType(mapQuery);
         targetList.addAll(pickBins);
 

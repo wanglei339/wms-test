@@ -101,7 +101,7 @@ public class CsiRpcService implements ICsiRpcService {
     }
 
     public CsiCustomer getCustomerByCode(long ownerId, String customerCode){
-        return customerService.getCustomerByCustomerCode(ownerId, customerCode);
+        return customerService.getCustomerByCustomerCode(customerCode);
     }
 
 }

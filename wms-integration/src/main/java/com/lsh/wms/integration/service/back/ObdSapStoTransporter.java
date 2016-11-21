@@ -1,6 +1,7 @@
 package com.lsh.wms.integration.service.back;
 
 import com.alibaba.fastjson.JSON;
+import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.model.wumart.CreateIbdDetail;
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
@@ -71,6 +72,8 @@ public class ObdSapStoTransporter implements ITransporter{
             createObdDetails.add(createObdDetail);
             createObdHeader.setOrderOtherId(obdHeader.getOrderOtherId());
         }
+        createObdHeader.setWarehouseCode(PropertyUtils.getString("wumart.werks"));
+        createObdHeader.setTuId(header.getTuId());
         createObdHeader.setItems(createObdDetails);
         wuMart.sendObd(createObdHeader,sysLog);
     }
