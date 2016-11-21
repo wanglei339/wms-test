@@ -212,9 +212,8 @@ public class StockTransferCore {
             }
             if (taskInfo.getType().compareTo(TaskConstant.TYPE_STOCK_TRANSFER) == 0) {
                 BaseinfoLocation toLocation = locationService.getLocation(toLocationId);
-                BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(toLocation.getLocationId());
-                if (fatherLocation.getType().equals(LocationConstant.SHELF)||
-                        fatherLocation.getType().equals(LocationConstant.SPLIT_AREA)
+                if (toLocation.getRegionType().equals(LocationConstant.SHELFS)||
+                        toLocation.getRegionType().equals(LocationConstant.SPLIT_AREA)
                         ) {
                     BigDecimal freeVolume = this.getThreshold(toLocationId, taskInfo.getItemId(), taskInfo.getSubType(), qtyDone);
                     if (freeVolume.compareTo(BigDecimal.ZERO) < 0) {
