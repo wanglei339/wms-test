@@ -6,6 +6,7 @@
 		<id property="id" column="ID"/>
 		<result property="deliveryId" column="DELIVERY_ID"/>
 		<result property="orderId" column="ORDER_ID"/>
+		<result property="refDetailOtherId" column="REF_DETAIL_OTHER_ID"/>
 		<result property="itemId" column="ITEM_ID"/>
 		<result property="skuId" column="SKU_ID"/>
 		<result property="skuName" column="SKU_NAME"/>
@@ -23,11 +24,11 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="OutbDeliveryDetail">
 		insert into OUTB_DELIVERY_DETAIL (
-			DELIVERY_ID,ORDER_ID,ITEM_ID,SKU_ID,SKU_NAME,BAR_CODE,
+			DELIVERY_ID,ORDER_ID,REF_DETAIL_OTHER_ID,ITEM_ID,SKU_ID,SKU_NAME,BAR_CODE,
 			ORDER_QTY,PACK_UNIT,LOT_NUM,DELIVERY_NUM,INSERTBY,UPDATEBY,
 			INSERTTIME,UPDATETIME,LOT_ID
     	) values (
-			#{deliveryId},#{orderId},#{itemId},#{skuId},#{skuName},#{barCode},
+			#{deliveryId},#{orderId},#{refDetailOtherId},#{itemId},#{skuId},#{skuName},#{barCode},
 			#{orderQty},#{packUnit},#{lotNum},#{deliveryNum},#{insertby},#{updateby},
 			#{inserttime},#{updatetime},#{lotId}
     	)
@@ -35,12 +36,12 @@
 
 	<insert id="batchInsert" parameterType="java.util.List">
 		insert into OUTB_DELIVERY_DETAIL (
-		DELIVERY_ID,ORDER_ID,ITEM_ID,SKU_ID,SKU_NAME,BAR_CODE,
+		DELIVERY_ID,ORDER_ID,REF_DETAIL_OTHER_ID,ITEM_ID,SKU_ID,SKU_NAME,BAR_CODE,
 		ORDER_QTY,PACK_UNIT,LOT_NUM,DELIVERY_NUM,INSERTBY,UPDATEBY,
 		INSERTTIME,UPDATETIME,LOT_ID
 		) values
 		<foreach collection="list" item="item" index="index" separator="," >
-			(#{item.deliveryId},#{item.orderId},#{item.itemId},#{item.skuId},#{item.skuName},#{item.barCode},
+			(#{item.deliveryId},#{item.orderId},#{item.refDetailOtherId},#{item.itemId},#{item.skuId},#{item.skuName},#{item.barCode},
 			#{item.orderQty},#{item.packUnit},#{item.lotNum},#{item.deliveryNum},#{item.insertby},#{item.updateby},
 			now(),#{item.updatetime},#{item.lotId})
 		</foreach>
@@ -50,6 +51,7 @@
 		update OUTB_DELIVERY_DETAIL
     	<set>
   			<if test="deliveryId != null">DELIVERY_ID=#{deliveryId},</if>
+			<if test="refDetailOtherId != null">REF_DETAIL_OTHER_ID=#{refDetailOtherId},</if>
   			<if test="orderId != null">ORDER_ID=#{orderId},</if>
   			<if test="itemId != null">ITEM_ID=#{itemId},</if>
   			<if test="skuId != null">SKU_ID=#{skuId},</if>
@@ -97,6 +99,7 @@
 		<where>
 			<if test="id != null">ID=#{id}</if>
 			<if test="deliveryId != null">and DELIVERY_ID=#{deliveryId}</if>
+			<if test="refDetailOtherId != null">and REF_DETAIL_OTHER_ID=#{refDetailOtherId}</if>
 			<if test="orderId != null">and ORDER_ID=#{orderId}</if>
 			<if test="itemId != null">and ITEM_ID=#{itemId}</if>
 			<if test="skuId != null">and SKU_ID=#{skuId}</if>

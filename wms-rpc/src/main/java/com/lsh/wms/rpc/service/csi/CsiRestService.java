@@ -250,6 +250,11 @@ public class CsiRestService implements ICsiRestService {
                 || locationService.getLocation(csiCustomer.getCollectRoadId()).getType() != LocationConstant.COLLECTION_ROAD)) {
             throw new BizCheckedException("2180011");
         }
+        if (csiCustomer.getSeedRoadId() != 0
+                && (locationService.getLocation(csiCustomer.getSeedRoadId()) == null
+                || locationService.getLocation(csiCustomer.getSeedRoadId()).getType() != LocationConstant.SOW_BIN)) {
+            throw new BizCheckedException("2180026");
+        }
         try {
             customerService.update(csiCustomer);
         } catch (Exception e) {

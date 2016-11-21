@@ -257,4 +257,12 @@ public class SoDeliveryService {
             return headers;
         }
     }
+
+    public List<OutbDeliveryDetail> getOutbDeliveryDetailsByOrderId(Long orderId){
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("orderId", orderId);
+
+        return getOutbDeliveryDetailList(params);
+    }
+
 }
