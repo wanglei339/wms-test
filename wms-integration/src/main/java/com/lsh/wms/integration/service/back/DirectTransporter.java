@@ -2,6 +2,7 @@ package com.lsh.wms.integration.service.back;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.eventbus.AllowConcurrentEvents;
+import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.model.wumart.CreateIbdDetail;
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
@@ -102,10 +103,13 @@ public class DirectTransporter implements ITransporter{
             createIbdDetailList.add(createIbdDetail);
         }
         CreateObdHeader createObdHeader = new CreateObdHeader();
+        createObdHeader.setTuId(header.getTuId());
+        createObdHeader.setWarehouseCode(PropertyUtils.getString("wumart.werks"));
         createObdHeader.setItems(createObdDetailList);
         CreateIbdHeader createIbdHeader = new CreateIbdHeader();
+        createIbdHeader.setWarehouseCode(PropertyUtils.getString("wumart.werks"));
         createIbdHeader.setItems(createIbdDetailList);
-        CreateObdHeader createStoObdHeader = new CreateObdHeader();
+        //CreateObdHeader createStoObdHeader = new CreateObdHeader();
 
 //        logger.info("+++++++++++++++++++++++++++++++++maqidi+++++++++++++++++++++++" + JSON.toJSONString(createObdHeader));
 //        logger.info("+++++++++++++++++++++++++++++++++maqidi++++++++++++++" + JSON.toJSONString(createObdHeader));

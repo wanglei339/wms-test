@@ -454,6 +454,7 @@ public class QCRestService implements IRFQCRestService {
             qcTaskInfo.setExt3(turnoverBoxNum); //总周转箱数
             //设置合板的托盘
             qcTaskInfo.setMergedContainerId(qcTaskInfo.getContainerId());
+            qcTaskInfo.setExt2(WaveConstant.QC_EXCEPTION_NORMAL);
             TaskEntry entry = new TaskEntry();
             entry.setTaskInfo(qcTaskInfo);
             entry.setTaskDetailList((List<Object>) (List<?>) details);

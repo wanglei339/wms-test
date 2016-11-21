@@ -2,11 +2,8 @@ package com.lsh.wms.task.service.task.shelve;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.base.common.json.JsonUtils;
-import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.shelve.IShelveRpcService;
-import com.lsh.wms.api.service.stock.IStockMoveRestService;
 import com.lsh.wms.api.service.stock.IStockMoveRpcService;
 import com.lsh.wms.core.constant.BinUsageConstant;
 import com.lsh.wms.core.constant.ContainerConstant;
@@ -14,13 +11,11 @@ import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.item.ItemLocationService;
-import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.shelve.ShelveTaskHead;
@@ -35,10 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -173,7 +166,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         // 实际上架位置和分配位置不一致
         if (!locationId.equals(taskHead.getAllocLocationId())) {
             // 拣货位
-            BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(realLocation.getLocationId());
+            BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(realLocation.getLocationId());
             if (fatherLocation.getType().equals(LocationConstant.SHELF) && realLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)) {
                 // 检查是否是该商品的拣货位
                 Map<String, Object> params = new HashMap<String, Object>();

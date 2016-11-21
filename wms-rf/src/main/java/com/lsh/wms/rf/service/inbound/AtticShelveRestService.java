@@ -324,8 +324,8 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             return JsonUtils.TOKEN_ERROR("上架详情异常");
         }
         BaseinfoLocation location = locationService.getLocation(detail.getAllocLocationId());
-        BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId());
-        BaseinfoLocation realFatherLocation = locationService.getFatherRegionByClassfication(realLocation.getLocationId());
+        BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());
+        BaseinfoLocation realFatherLocation = locationService.getFatherRegionBySonId(realLocation.getLocationId());
 
         if(fatherLocation.getType().compareTo(LocationConstant.LOFT)==0 && location.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)){
             if(realLocationId.compareTo(location.getLocationId())!=0){
@@ -411,7 +411,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             for (BaseinfoItemLocation itemLocation : locations) {
                 //对比货架商品和新进商品保质期是否到达阀值
                 BaseinfoLocation location = locationService.getLocation(itemLocation.getPickLocationid());
-                BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId());
+                BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());
                 if(shelveRpcService.checkShelfLifeThreshold(quant,location,BinUsageConstant.BIN_UASGE_STORE)) {
                     if (fatherLocation.getType().compareTo(LocationConstant.LOFT) == 0) {
                         if (rpcService.needProcurement(itemLocation.getPickLocationid(), itemLocation.getItemId())) {
@@ -471,7 +471,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         bulk = bulk.multiply(item.getPackWidth());
 
 
-        List<BaseinfoLocation> locationList = locationService.getChildrenLocationsByFatherTypeAndChildrenTypeAndUsage(LocationConstant.LOFT, BinUsageConstant.BIN_UASGE_STORE);
+        List<BaseinfoLocation> locationList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.LOFT, BinUsageConstant.BIN_UASGE_STORE);
 
         if(locationList==null ||locationList.size()==0) {
             throw new BizCheckedException("2030015");
