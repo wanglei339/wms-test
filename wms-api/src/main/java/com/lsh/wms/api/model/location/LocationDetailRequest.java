@@ -61,7 +61,21 @@ public class LocationDetailRequest implements Serializable {
     private String storeNo="0";
 
     /** 库位的用途1-拣货2-存货 */
-    private Integer binUsage=1;
+    private Integer binUsage=0;
+    /** 所在库区type */
+    private Long regionType=0L;
+
+    public Long getRegionType() {
+        return regionType;
+    }
+
+    public void setBinUsage(Integer binUsage) {
+        this.binUsage = binUsage;
+    }
+
+    public void setRegionType(Long regionType) {
+        this.regionType = regionType;
+    }
 
     public Integer getBinUsage() {
         return binUsage;

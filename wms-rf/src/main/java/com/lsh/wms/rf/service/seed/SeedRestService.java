@@ -20,6 +20,7 @@ import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.container.ContainerService;
+import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
@@ -32,6 +33,7 @@ import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.po.IbdHeader;
 import com.lsh.wms.model.seed.SeedingTaskHead;
@@ -82,6 +84,8 @@ public class SeedRestService implements ISeedRestService {
 
     @Autowired
     private CsiSkuService csiSkuService;
+    @Autowired
+    private CsiCustomerService csiCustomerService;
 
     @Reference
     private ISysUserRpcService iSysUserRpcService;
@@ -259,7 +263,7 @@ public class SeedRestService implements ISeedRestService {
             if(mapQuery.get("exceptionCode")!=null) {
                 String exceptionCode = iExceptionCodeRpcService.getExceptionCodeByName("seed");
                 if(!exceptionCode.equals(mapQuery.get("exceptionCode").toString())){
-                    return JsonUtils.TOKEN_ERROR("所输里外代码非法");
+                    return JsonUtils.TOKEN_ERROR("所输例外代码非法");
                 }
             }else {
                 //校验商品类型
@@ -269,7 +273,7 @@ public class SeedRestService implements ISeedRestService {
                     BaseinfoItem oldItem = itemService.getItem(quant.getItemId());
                     BaseinfoItem newItem = itemService.getItem(info.getItemId());
                     if(oldItem.getItemType().compareTo(newItem.getItemType())!=0){
-                        return JsonUtils.TOKEN_ERROR("商品类型不一样，不能播种到统一托盘");
+                        return JsonUtils.TOKEN_ERROR("商品类型不一样，不能播种到同一托盘");
                     }
                 }
             }
@@ -289,7 +293,6 @@ public class SeedRestService implements ISeedRestService {
             }
 
 
-
             //手动播种
             if(info.getIsShow()==0 ){
                 String storeNo =  mapQuery.get("storeNo").toString();
@@ -301,6 +304,17 @@ public class SeedRestService implements ISeedRestService {
                 if(head.getRequireQty().compareTo(qty)<0) {
                     return JsonUtils.TOKEN_ERROR("播种数量超出门店订单数量");
                 }
+
+                //判断输入门店，判断是不是系统提供的门店
+                List<Long> quants = quantService.getLocationIdByContainerId(containerId);
+                if(quants != null && quants.size()!=0){
+                    BaseinfoLocation location = locationRpcService.getLocation(quants.get(0));
+                    CsiCustomer csiCustomer = csiCustomerService.getCustomerByseedRoadId(location.getLocationId());
+                    if(!csiCustomer.getCustomerCode().equals(head.getStoreNo())){
+                        throw new BizCheckedException("2880006");
+                    }
+                }
+
                 info = iTaskRpcService.getTaskInfo(head.getTaskId());
                 if(head.getRequireQty().compareTo(qty)>0){
                     info.setStep(1);
@@ -333,18 +347,17 @@ public class SeedRestService implements ISeedRestService {
                 }
             }
 
-
-
             SeedingTaskHead head = (SeedingTaskHead)(entry.getTaskHead());
             //判断输入门店，判断是不是系统提供的门店
             List<Long> quants = quantService.getLocationIdByContainerId(containerId);
             if(quants != null && quants.size()!=0){
                 BaseinfoLocation location = locationRpcService.getLocation(quants.get(0));
-                String storeNo = location.getStoreNo();
-                if(!storeNo.equals(head.getStoreNo())){
+                CsiCustomer csiCustomer = csiCustomerService.getCustomerByseedRoadId(location.getLocationId());
+                if(!csiCustomer.getCustomerCode().equals(head.getStoreNo())){
                     throw new BizCheckedException("2880006");
                 }
             }
+
 
             //(不收货播种)判断是否已经结束收货
             if(info.getSubType().compareTo(2L)==0){

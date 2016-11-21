@@ -1,5 +1,8 @@
 package com.lsh.wms.core.dao.redis;
 
+import com.alibaba.dubbo.common.logger.Logger;
+import com.alibaba.dubbo.common.logger.LoggerFactory;
+import com.lsh.base.common.utils.StrUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Repository;
@@ -12,6 +15,8 @@ import java.util.Set;
  */
 @Repository
 public class RedisSortedSetDao extends RedisBaseDao {
+
+    public static final Logger logger = LoggerFactory.getLogger(RedisSortedSetDao.class);
 
     @Resource(name = "redisTemplate_r")
     private ZSetOperations<String, String> zSetOp_r;
@@ -117,7 +122,8 @@ public class RedisSortedSetDao extends RedisBaseDao {
     }
 
     public double decrease(String key, String value, double score) {
-        return zSetOp_r.incrementScore(key, value, 0 - score);
-        //return zSetOp_w.incrementScore(key, value, 0 - score);
+        logger.info(StrUtils.formatString("key {0}, value {1}, score {2}, finalscore {3}", key, value, score, 0 - score));
+        //return zSetOp_r.incrementScore(key, value, 0 - score);
+        return zSetOp_w.incrementScore(key, value, 0 - score);
     }
 }

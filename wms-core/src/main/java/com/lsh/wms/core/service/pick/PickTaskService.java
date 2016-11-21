@@ -201,12 +201,12 @@ public class PickTaskService {
         TaskInfo taskInfo = baseTaskService.getTaskInfoById(taskId);
         result.put(resultKey, location.getLocationCode());
         result.put("taskSubType", taskInfo.getSubType());
+        // 按照箱规转换数量
+        if (result.get("allocQty") != null && !result.get("allocQty").equals(BigDecimal.ZERO)) {
+            BigDecimal allocQty = new BigDecimal(result.get("allocQty").toString());
+            result.put("allocQty", PackUtil.EAQty2UomQty(allocQty, result.get("allocUnitName").toString()));
+        }
         if (taskInfo.getSubType().equals(PickConstant.SHELF_TASK_TYPE)) {
-            // 货架拣货时将EA转成箱数
-            if (result.get("allocQty") != null && !result.get("allocQty").equals(BigDecimal.ZERO)) {
-                BigDecimal allocQty = new BigDecimal(result.get("allocQty").toString());
-                result.put("allocQty", PackUtil.EAQty2UomQty(allocQty, result.get("allocUnitName").toString()));
-            }
             result.put("unitName", "箱");
         } else if (taskInfo.getSubType().equals(PickConstant.SHELF_PALLET_TASK_TYPE)) {
             // 整托拣货,固定为只捡一托

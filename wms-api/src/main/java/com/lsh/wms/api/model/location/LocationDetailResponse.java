@@ -58,6 +58,16 @@ public class LocationDetailResponse implements Serializable {
     private Long supplierNo;
 
     private String storeNo;
+    /** 所在库区type */
+    private Long regionType;
+
+    public Long getRegionType() {
+        return regionType;
+    }
+
+    public void setRegionType(Long regionType) {
+        this.regionType = regionType;
+    }
 
     public String getStoreNo() {
         return storeNo;

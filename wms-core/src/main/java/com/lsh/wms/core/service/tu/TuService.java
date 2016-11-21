@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.service.inventory.InventoryRedisService;
@@ -42,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -234,9 +236,8 @@ public class TuService {
      */
     @Transactional(readOnly = false)
     public boolean moveItemToConsumeArea(Set<Long> containerIds) {
-
-        if (null == containerIds || containerIds.size() < 1) {
-            throw new BizCheckedException("2880010");
+        if (containerIds.size() == 0 ){
+            return true;
         }
         stockMoveService.moveToConsume(containerIds);
         return true;
@@ -404,7 +405,8 @@ public class TuService {
         Map<Long, Map<String, Object>> orderBoxInfo = this._getOrderBoxInfo(tuDetails, totalWaveDetails);
         //订单维度聚类
         Map<Long, OutbDeliveryHeader> mapHeader = new HashMap<Long, OutbDeliveryHeader>();
-        Map<Long, List<OutbDeliveryDetail>> mapDetails = new HashMap<Long, List<OutbDeliveryDetail>>();
+        //Map<Long, List<OutbDeliveryDetail>> mapDetails = new HashMap<Long, List<OutbDeliveryDetail>>();
+        Map<Long, Map<String, OutbDeliveryDetail>> mapMergedDeliveryDetails = new HashMap<Long, Map<String, OutbDeliveryDetail>>();
         for (WaveDetail waveDetail : totalWaveDetails) {    //没生成
             if (null == mapHeader.get(waveDetail.getOrderId())) {
                 OutbDeliveryHeader header = new OutbDeliveryHeader();
@@ -433,39 +435,112 @@ public class TuService {
                     header.setTurnoverBoxNum(0L);
                 }
                 mapHeader.put(waveDetail.getOrderId(), header);
-                mapDetails.put(waveDetail.getOrderId(), new LinkedList<OutbDeliveryDetail>());
+                //mapDetails.put(waveDetail.getOrderId(), new LinkedList<OutbDeliveryDetail>());
+                mapMergedDeliveryDetails.put(waveDetail.getOrderId(), new HashMap<String, OutbDeliveryDetail>());
             }
-            List<OutbDeliveryDetail> deliveryDetails = mapDetails.get(waveDetail.getOrderId());
-            //同订单聚合detail
-            OutbDeliveryDetail deliveryDetail = new OutbDeliveryDetail();
-            deliveryDetail.setOrderId(waveDetail.getOrderId());
-            deliveryDetail.setItemId(waveDetail.getItemId());
-            deliveryDetail.setSkuId(waveDetail.getSkuId());
-            BaseinfoItem item = itemService.getItem(waveDetail.getItemId());
-            deliveryDetail.setSkuName(item.getSkuName());
-            deliveryDetail.setBarCode(item.getCode());
-            deliveryDetail.setOrderQty(waveDetail.getReqQty()); //todo 哪里会写入
-            deliveryDetail.setPackUnit(PackUtil.Uom2PackUnit(waveDetail.getAllocUnitName()));
-            //通过stock quant获取到对应的lot信息
-            List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(waveDetail.getContainerId());
-            StockQuant stockQuant = stockQuants.size() > 0 ? stockQuants.get(0) : null;
-            deliveryDetail.setLotId(stockQuant == null ? 0L : stockQuant.getLotId());
-            deliveryDetail.setLotNum(stockQuant == null ? "" : stockQuant.getLotCode());
-            deliveryDetail.setDeliveryNum(waveDetail.getQcQty());
-            deliveryDetail.setInserttime(new Date());
-            deliveryDetails.add(deliveryDetail);
+            //List<OutbDeliveryDetail> deliveryDetails = mapDetails.get(waveDetail.getOrderId());
+            Map<String, OutbDeliveryDetail> rowDeliverys = mapMergedDeliveryDetails.get(waveDetail.getOrderId());
+            String key = waveDetail.getItemId().toString();
+            OutbDeliveryDetail deliveryDetail = rowDeliverys.get(key);
+            if(deliveryDetail == null) {
+                //同订单聚合detail
+                deliveryDetail = new OutbDeliveryDetail();
+                deliveryDetail.setOrderId(waveDetail.getOrderId());
+                deliveryDetail.setItemId(waveDetail.getItemId());
+                deliveryDetail.setSkuId(waveDetail.getSkuId());
+                //BaseinfoItem item = itemService.getItem(waveDetail.getItemId());
+                //deliveryDetail.setSkuName(item.getSkuName());
+                //deliveryDetail.setBarCode(item.getCode());
+                //deliveryDetail.setOrderQty(waveDetail.getReqQty());
+                deliveryDetail.setOrderQty(BigDecimal.valueOf(0L));
+                deliveryDetail.setPackUnit(BigDecimal.valueOf(1L));
+                deliveryDetail.setSkuName("");
+                deliveryDetail.setBarCode("");
+                //TODO 现在直接干成"EA"吧.
+                //deliveryDetail.setPackUnit(PackUtil.Uom2PackUnit(waveDetail.getAllocUnitName()));
+                //通过stock quant获取到对应的lot信息
+                List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(waveDetail.getContainerId());
+                StockQuant stockQuant = stockQuants.size() > 0 ? stockQuants.get(0) : null;
+                deliveryDetail.setLotId(stockQuant == null ? 0L : stockQuant.getLotId());
+                deliveryDetail.setLotNum(stockQuant == null ? "" : stockQuant.getLotCode());
+                //deliveryDetail.setDeliveryNum(waveDetail.getQcQty());
+                deliveryDetail.setDeliveryNum(BigDecimal.valueOf(0L));
+                deliveryDetail.setInserttime(new Date());
+            }
+            deliveryDetail.setDeliveryNum(waveDetail.getQcQty().add(deliveryDetail.getDeliveryNum()));
+            rowDeliverys.put(key, deliveryDetail);
+
+            //deliveryDetails.add(deliveryDetail);
         }
         for (Long key : mapHeader.keySet()) {
             OutbDeliveryHeader header = mapHeader.get(key);
-            List<OutbDeliveryDetail> details = mapDetails.get(key);
+            List<OutbDeliveryDetail> realDetails = new LinkedList<OutbDeliveryDetail>();
+            Map<String, OutbDeliveryDetail> details = mapMergedDeliveryDetails.get(key);
+            //List<OutbDeliveryDetail> details = mapDetails.get(key);
             if (details.size() == 0) {
                 continue;
             }
             header.setDeliveryId(RandomUtils.genId());
-            for (OutbDeliveryDetail detail : details) {
+            List<ObdDetail> orderDetails = soOrderService.getOutbSoDetailListByOrderId(header.getOrderId());
+            Collections.sort(orderDetails, new Comparator<ObdDetail>() {
+                //此处可以设定一个排序规则,对波次中的订单优先级进行排序
+                public int compare(ObdDetail o1, ObdDetail o2) {
+                    return o1.getId().compareTo(o2.getId());
+                }
+            });
+            for (String itemKey : details.keySet()) {
+                OutbDeliveryDetail detail = details.get(itemKey);
                 detail.setDeliveryId(header.getDeliveryId());
+                //进行运算,首先取得订单里的item订货列表信息
+                List<ObdDetail> itemOrderList = new LinkedList<ObdDetail>();
+                for (ObdDetail obdDetail : orderDetails) {
+                    if (obdDetail.getItemId() == detail.getItemId()) {
+                        itemOrderList.add(obdDetail);
+                    }
+                }
+                //再从发货单里取得曾经发过货的详情,因为可能又多次发货问题,这是需要处理的.
+                List<OutbDeliveryDetail> oldDeliverys = soDeliveryService.getOutbDeliveryDetailsByOrderId(header.getOrderId());
+                if(oldDeliverys == null) oldDeliverys = new LinkedList<OutbDeliveryDetail>();
+                BigDecimal oldDeliveryQty = new BigDecimal("0.0000");
+                for(OutbDeliveryDetail oldDelivery : oldDeliverys){
+                    oldDeliveryQty.add(oldDelivery.getDeliveryNum());
+                }
+                BigDecimal leftQty = detail.getDeliveryNum();
+                int idx = 0;
+                for (ObdDetail obdDetail : itemOrderList) {
+                    idx++;
+                    OutbDeliveryDetail newDetail = new OutbDeliveryDetail();
+                    ObjUtils.bean2bean(detail, newDetail);
+                    BigDecimal orderQty = obdDetail.getOrderQty().multiply(obdDetail.getPackUnit());
+                    //这里先来先得,先把老的除去先
+                    if(orderQty.compareTo(oldDeliveryQty)<=0){
+                        oldDeliveryQty = oldDeliveryQty.subtract(orderQty);
+                        continue;
+                    }else{
+                        orderQty = orderQty.subtract(oldDeliveryQty);
+                    }
+                    BigDecimal qty =  null;
+                    if( idx == itemOrderList.size() || leftQty.compareTo(orderQty) <= 0 ){
+                        qty = leftQty;
+                    }else{
+                        qty = orderQty;
+                    }
+                    newDetail.setDeliveryNum(qty);
+                    newDetail.setRefDetailOtherId(obdDetail.getDetailOtherId());
+                    leftQty = leftQty.subtract(qty);
+                    realDetails.add(newDetail);
+                    if(leftQty.compareTo(BigDecimal.ZERO)==0){
+                        break;
+                    }
+                }
+                if(leftQty.compareTo(BigDecimal.ZERO)!=0){
+                    //出事了,怎么来的?
+                    logger.error(String.format("delivery item out of bound order[%d] item[%d] qty[%d]",
+                            header.getOrderId(), detail.getItemId(), detail.getDeliveryNum()));
+                    throw new BizCheckedException("2990045");
+                }
             }
-            soDeliveryService.insertOrder(header, details);
+            soDeliveryService.insertOrder(header, realDetails);
             persistenceProxy.doOne(SysLogConstant.LOG_TYPE_OBD,header.getDeliveryId());
         }
         //回写发货单的单号
