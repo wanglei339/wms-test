@@ -113,6 +113,17 @@ public class BaseinfoLocation implements Serializable, IBaseinfoLocaltionModel {
     /** 库位的用途1-拣货2-存货 */
     private Integer binUsage;
 
+    /** 所在库区type */
+    private Long regionType;
+
+    public Long getRegionType() {
+        return regionType;
+    }
+
+    public void setRegionType(Long regionType) {
+        this.regionType = regionType;
+    }
+
     public Integer getBinUsage() {
         return binUsage;
     }

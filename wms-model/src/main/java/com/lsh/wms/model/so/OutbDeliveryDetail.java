@@ -12,6 +12,8 @@ public class OutbDeliveryDetail implements Serializable {
     private Long deliveryId;
 	/** 订单ID */
     private Long orderId;
+	/** 参考上游细单id */
+	private String refDetailOtherId;
 	/** 商品ID */
     private Long itemId;
 	/** 仓库商品编码 */
@@ -39,6 +41,14 @@ public class OutbDeliveryDetail implements Serializable {
     private Date inserttime;
 	/**  */
     private Date updatetime;
+
+	public String getRefDetailOtherId(){
+		return this.refDetailOtherId;
+	}
+
+	public void setRefDetailOtherId(String refDetailOtherId){
+		this.refDetailOtherId = refDetailOtherId;
+	}
 
 	public String getBarCode() {
 		return barCode;
