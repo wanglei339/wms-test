@@ -103,6 +103,7 @@ public class DirectTransporter implements ITransporter{
             createIbdDetailList.add(createIbdDetail);
         }
         CreateObdHeader createObdHeader = new CreateObdHeader();
+        createObdHeader.setTuId(header.getTuId());
         createObdHeader.setWarehouseCode(PropertyUtils.getString("wumart.werks"));
         createObdHeader.setItems(createObdDetailList);
         CreateIbdHeader createIbdHeader = new CreateIbdHeader();

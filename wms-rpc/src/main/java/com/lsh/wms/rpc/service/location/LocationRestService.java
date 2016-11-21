@@ -222,6 +222,7 @@ public class LocationRestService implements ILocationRestService {
 
         return JsonUtils.SUCCESS(locationRpcService.getColletionBins());
     }
+
     /**
      * 获取可用的所有的货架和阁楼的拣货位
      *
@@ -246,6 +247,7 @@ public class LocationRestService implements ILocationRestService {
         }
         return JsonUtils.SUCCESS(newList);
     }
+
     /**
      * 获取全货架(阁楼)
      *
@@ -408,5 +410,4 @@ public class LocationRestService implements ILocationRestService {
         locationService.initLocationTree(config, -1L);
         return JsonUtils.SUCCESS(config);
     }
-
 }

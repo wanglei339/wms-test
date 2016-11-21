@@ -1,20 +1,14 @@
 package com.lsh.wms.core.service.location;
 
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
-import com.lsh.base.q.Module.Base;
 import com.lsh.wms.api.model.location.LocationDetailRequest;
 import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
-import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.baseinfo.BaseinfoStore;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
-import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.stock.StockQuant;
-import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +33,6 @@ public class LocationService {
     private LocationDetailService locationDetailService;
     @Autowired
     private LocationRedisService locationRedisService;
-    @Autowired
-    private CsiCustomerService csiCustomerService;
 
 
     /**
@@ -315,32 +307,34 @@ public class LocationService {
      * 根据type获取子节点
      *
      * @param locationId
-     * @param type
+     * @param sonType
      * @return
      */
-    public List<BaseinfoLocation> getChildrenLocationsByType(Long locationId, Long type) {
+    public List<BaseinfoLocation> getChildrenLocationsByType(Long locationId, Long sonType) {
         Map<String, Object> params = new HashMap<String, Object>();
         BaseinfoLocation location = this.getLocation(locationId);
         params.put("leftRange", location.getLeftRange());
         params.put("rightRange", location.getRightRange());
-        params.put("type", type);
+        params.put("type", sonType);
         params.put("isValid", LocationConstant.IS_VALID);
         return locationDao.getChildrenLocationList(params);
     }
 
     /**
-     * 根据type获取子节点
+     * 根据区域的id和bin的用途,获取该区域下的某种用途的货位
      *
-     * @param locationId
+     * @param regionId
      * @param binUsage
      * @return
      */
-    public List<BaseinfoLocation> getChildrenLocationsByBinUsage(Long locationId, Integer binUsage) {
+    public List<BaseinfoLocation> getBinsByRegionIdAndBinUsage(Long regionId, Integer binUsage) {
         Map<String, Object> params = new HashMap<String, Object>();
-        BaseinfoLocation location = this.getLocation(locationId);
+        BaseinfoLocation location = this.getLocation(regionId);
         params.put("leftRange", location.getLeftRange());
         params.put("rightRange", location.getRightRange());
+        params.put("type",LocationConstant.BIN);
         params.put("binUsage", binUsage);
+        params.put("canStore", LocationConstant.CAN_STORE);
         params.put("isValid", LocationConstant.IS_VALID);
         return locationDao.getChildrenLocationList(params);
     }
@@ -353,13 +347,14 @@ public class LocationService {
      * @param binUsage
      * @return
      */
-    public List<BaseinfoLocation> getChildrenLocationsByType(Long fatherLocationId, Long sonType, Integer binUsage) {
+    public List<BaseinfoLocation> getBinsByIdAndTypeUsage(Long fatherLocationId, Long sonType, Integer binUsage) {
         Map<String, Object> params = new HashMap<String, Object>();
         BaseinfoLocation location = this.getLocation(fatherLocationId);
         params.put("leftRange", location.getLeftRange());
         params.put("rightRange", location.getRightRange());
         params.put("type", sonType);
         params.put("binUsage", binUsage);
+        params.put("canStore", LocationConstant.CAN_STORE);
         params.put("isValid", LocationConstant.IS_VALID);
         return locationDao.getChildrenLocationList(params);
     }
@@ -371,14 +366,14 @@ public class LocationService {
      * @param binUsage   库位用途
      * @return
      */
-    public List<BaseinfoLocation> getChildrenLocationsByFatherTypeAndChildrenTypeAndUsage(Long fatherType, Integer binUsage) {
+    public List<BaseinfoLocation> getBinsByFatherTypeAndUsage(Long fatherType, Integer binUsage) {
         List<BaseinfoLocation> fatherLocations = this.getLocationsByType(fatherType);
         List<BaseinfoLocation> sonLocation = new ArrayList<BaseinfoLocation>();
         if (null == fatherLocations || fatherLocations.size() < 1) {
             return new ArrayList<BaseinfoLocation>();
         }
         for (BaseinfoLocation father : fatherLocations) {
-            List<BaseinfoLocation> sons = this.getChildrenLocationsByType(father.getLocationId(), LocationConstant.BIN, binUsage);
+            List<BaseinfoLocation> sons = this.getBinsByIdAndTypeUsage(father.getLocationId(), LocationConstant.BIN, binUsage);
             if (null != sons && sons.size() > 0) {
                 sonLocation.addAll(sons);
             }
@@ -486,7 +481,7 @@ public class LocationService {
      * @param locationId 所在位置id
      * @return
      */
-    public BaseinfoLocation getFatherRegionByClassfication(Long locationId) {
+    public BaseinfoLocation getFatherRegionBySonId(Long locationId) {
         BaseinfoLocation curLocation = this.getLocation(locationId);
         if (null == curLocation) {
             return null;
@@ -498,7 +493,7 @@ public class LocationService {
         if (fatherId == 0) {
             return null;
         }
-        return this.getFatherRegionByClassfication(fatherId);
+        return this.getFatherRegionBySonId(fatherId);
     }
 
     /**

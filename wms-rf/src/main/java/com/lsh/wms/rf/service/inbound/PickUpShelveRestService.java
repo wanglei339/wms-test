@@ -10,7 +10,6 @@ import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.inhouse.IProcurementRpcService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
-import com.lsh.wms.api.service.shelve.IAtticShelveRfRestService;
 import com.lsh.wms.api.service.shelve.IPickUpShelveRfRestService;
 import com.lsh.wms.api.service.shelve.IShelveRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
@@ -20,7 +19,6 @@ import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
-import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.BaseinfoLocationBinService;
 import com.lsh.wms.core.service.location.BaseinfoLocationRegionService;
@@ -318,7 +316,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         if(realLocation ==null){
             return JsonUtils.TOKEN_ERROR("库位不存在");
         }
-        BaseinfoLocation realFatherLocation = locationService.getFatherRegionByClassfication(realLocation.getLocationId());
+        BaseinfoLocation realFatherLocation = locationService.getFatherRegionBySonId(realLocation.getLocationId());
         AtticShelveTaskDetail detail = shelveTaskService.getShelveTaskDetail(taskId,TaskConstant.Draft);
         //判断扫描库位是不是存储合一库位
         if(realFatherLocation.getType().compareTo(LocationConstant.SPLIT_AREA)==0 && realLocation.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE) ){
@@ -443,7 +441,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             bulk = bulk.multiply(item.getPackWidth());
 
 
-            List<BaseinfoLocation> locationList = locationService.getChildrenLocationsByFatherTypeAndChildrenTypeAndUsage(LocationConstant.SPLIT_AREA, BinUsageConstant.BIN_PICK_STORE);
+            List<BaseinfoLocation> locationList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.SPLIT_AREA, BinUsageConstant.BIN_PICK_STORE);
 
             if(locationList==null ||locationList.size()==0) {
                 throw new BizCheckedException("2030015");

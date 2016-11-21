@@ -47,18 +47,20 @@ public class SoOrderRedisService {
             redisSortedSetDao.add(redistKey, orderId.toString(), obdDetail.getOrderQty().doubleValue());
             Long itemId = obdDetail.getItemId();
             synStockService.synStock(itemId, inventoryRedisService.getAvailableSkuQty(itemId));
+            logger.info(StrUtils.formatString("SO[{0}] inserted, reserve itemId[{1}] with qty is {2}", orderId, itemId, obdDetail.getOrderQty()));
         }
     }
 
-    public void delSoRedis(Long orderId,Long skuId, BigDecimal deliverQty){
-        String redistKey = StrUtils.formatString(RedisKeyConstant.SO_SKU_INVENTORY_QTY, skuId);
+    public void delSoRedis(Long orderId, Long itemId, BigDecimal deliverQty){
+        String redistKey = StrUtils.formatString(RedisKeyConstant.SO_SKU_INVENTORY_QTY, itemId);
+        logger.info(StrUtils.formatString("SO[{0}] ship out, qty is {1}", orderId, deliverQty));
         if ( redisSortedSetDao.decrease(redistKey, orderId.toString(), deliverQty.doubleValue()) <= 0) {
             redisSortedSetDao.remove(redistKey, orderId.toString());
         }
     }
 
-    public Set<ZSetOperations.TypedTuple<String>> getSoSkuQty(Long skuId){
-        String redistKey = StrUtils.formatString(RedisKeyConstant.SO_SKU_INVENTORY_QTY, skuId);
+    public Set<ZSetOperations.TypedTuple<String>> getSoSkuQty(Long itemId){
+        String redistKey = StrUtils.formatString(RedisKeyConstant.SO_SKU_INVENTORY_QTY, itemId);
         return  redisSortedSetDao.rangeWithScores(redistKey,0,-1);
     }
 
