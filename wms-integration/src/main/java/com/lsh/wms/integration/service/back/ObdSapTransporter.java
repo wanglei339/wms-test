@@ -1,5 +1,6 @@
 package com.lsh.wms.integration.service.back;
 
+import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.model.wumart.CreateObdDetail;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
@@ -66,6 +67,7 @@ public class ObdSapTransporter implements ITransporter{
             createObdDetails.add(createObdDetail);
             createObdHeader.setOrderOtherId(obdHeader.getOrderOtherId());
         }
+        createObdHeader.setWarehouseCode(PropertyUtils.getString("wumart.werks"));
         createObdHeader.setItems(createObdDetails);
         wuMart.sendSo2Sap(createObdHeader,sysLog);
     }
