@@ -298,6 +298,17 @@ public class LocationDetailService {
         //转化成父类,插入
         BaseinfoLocation location = new BaseinfoLocation();
         ObjUtils.bean2bean(iBaseinfoLocaltionModel, location);
+        //查看父亲的region的传下去
+        BaseinfoLocation fatherLocation = locationService.getLocation(location.getFatherId());
+
+        //仓库所有区域写入自己的regionType
+        if (location.getClassification().equals(LocationConstant.CLASSIFICATION_AREAS) || location.getType().equals(LocationConstant.WAREHOUSE)) {
+            location.setRegionType(location.getType());
+        } else {
+            location.setRegionType(fatherLocation.getRegionType());
+        }
+
+
         //先插入主表(并获得主表的location)
         BaseinfoLocation baseinfoLocation = locationService.insertLocation(location);
         //拷贝插入过主表后的location数据(时间和id)
@@ -316,43 +327,42 @@ public class LocationDetailService {
         }
         //如果是货架个体,插入指定层的货架层
         // todo 如果单插入阁楼层的话,会出现插入两次主表的问题(货架和层一起插就不会),因为阁楼|货架层service注入了原来的locationService
-        if (LocationConstant.SHELF.equals(iBaseinfoLocaltionModel.getType())) {
-            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.SHELF_LEVELS);
-            //将货架的叶子节点设置为0
-            location.setIsLeaf(0);
-            locationService.updateLocation(location);
-        }
-        //  如果是阁楼个体,插入指定层的阁楼层
-        if (LocationConstant.LOFT.equals(iBaseinfoLocaltionModel.getType())) {
-            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.LOFT_LEVELS);
-            //将货架的叶子节点设置为0
-            location.setIsLeaf(0);
-            locationService.updateLocation(location);
-        }
-        if (LocationConstant.SPLIT_SHELF.equals(iBaseinfoLocaltionModel.getType())) {
-            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.SPLIT_SHELF_LEVEL);
-            //将货架的叶子节点设置为0
-            location.setIsLeaf(0);
-            locationService.updateLocation(location);
-        }
-        //贵品区的货架
-        if (LocationConstant.VALUABLES_SHELF.equals(iBaseinfoLocaltionModel.getType())) {
-            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.VALUABLES_SHELF_LEVEL);
-            //将货架的叶子节点设置为0
-            location.setIsLeaf(0);
-            locationService.updateLocation(location);
-        }
-        if (LocationConstant.SUPPLIER_RETURN_SHELF.equals(iBaseinfoLocaltionModel.getType())) {
-            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.SUPPLIER_RETURN_LEVEL);
-            //将货架的叶子节点设置为0
-            location.setIsLeaf(0);
-            locationService.updateLocation(location);
-        }
-        //其他type处理方式
-        BaseinfoLocation fatherLocation = locationService.getFatherLocation(location.getLocationId());
+//        if (LocationConstant.SHELF.equals(iBaseinfoLocaltionModel.getType())) {
+//            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.SHELF_LEVELS);
+//            //将货架的叶子节点设置为0
+//            location.setIsLeaf(0);
+//            locationService.updateLocation(location);
+//        }
+//        //  如果是阁楼个体,插入指定层的阁楼层
+//        if (LocationConstant.LOFT.equals(iBaseinfoLocaltionModel.getType())) {
+//            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.LOFT_LEVELS);
+//            //将货架的叶子节点设置为0
+//            location.setIsLeaf(0);
+//            locationService.updateLocation(location);
+//        }
+//        if (LocationConstant.SPLIT_SHELF.equals(iBaseinfoLocaltionModel.getType())) {
+//            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.SPLIT_SHELF_LEVEL);
+//            //将货架的叶子节点设置为0
+//            location.setIsLeaf(0);
+//            locationService.updateLocation(location);
+//        }
+//        //贵品区的货架
+//        if (LocationConstant.VALUABLES_SHELF.equals(iBaseinfoLocaltionModel.getType())) {
+//            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.VALUABLES_SHELF_LEVEL);
+//            //将货架的叶子节点设置为0
+//            location.setIsLeaf(0);
+//            locationService.updateLocation(location);
+//        }
+//        if (LocationConstant.SUPPLIER_RETURN_SHELF.equals(iBaseinfoLocaltionModel.getType())) {
+//            this.insertShelflevelsByShelf(baseinfoLocation, iBaseinfoLocaltionModel, LocationConstant.SUPPLIER_RETURN_LEVEL);
+//            //将货架的叶子节点设置为0
+//            location.setIsLeaf(0);
+//            locationService.updateLocation(location);
+//        }
+        //更新父亲
         fatherLocation.setIsLeaf(0);
         //父亲是在原库位插入子库位
-        if (fatherLocation.getType().equals(LocationConstant.BIN)){
+        if (fatherLocation.getType().equals(LocationConstant.BIN)) {
             fatherLocation.setCanStore(LocationConstant.CANNOT_STORE);
         }
         locationService.updateLocation(fatherLocation);

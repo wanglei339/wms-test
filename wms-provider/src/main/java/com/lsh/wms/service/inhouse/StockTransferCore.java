@@ -212,7 +212,7 @@ public class StockTransferCore {
             }
             if (taskInfo.getType().compareTo(TaskConstant.TYPE_STOCK_TRANSFER) == 0) {
                 BaseinfoLocation toLocation = locationService.getLocation(toLocationId);
-                BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(toLocation.getLocationId());
+                BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(toLocation.getLocationId());
                 if (fatherLocation.getType().equals(LocationConstant.SHELF)||
                         fatherLocation.getType().equals(LocationConstant.SPLIT_AREA)
                         ) {

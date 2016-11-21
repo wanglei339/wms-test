@@ -87,8 +87,8 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     private RedisStringDao redisStringDao;
 
     public boolean checkLocation(BaseinfoLocation fromLication, BaseinfoLocation toLication) throws BizCheckedException {
-        BaseinfoLocation fromFationLocation = locationService.getFatherRegionByClassfication(fromLication.getLocationId());
-        BaseinfoLocation toFationLocation = locationService.getFatherRegionByClassfication(toLication.getLocationId());
+        BaseinfoLocation fromFationLocation = locationService.getFatherRegionBySonId(fromLication.getLocationId());
+        BaseinfoLocation toFationLocation = locationService.getFatherRegionBySonId(toLication.getLocationId());
 
         if (fromFationLocation.getType().equals(LocationConstant.SHELF) && fromLication.getBinUsage().compareTo(BinUsageConstant.BIN_UASGE_STORE)==0) {
             return ((toFationLocation.getType().equals(LocationConstant.SHELF) && toLication.getBinUsage().compareTo(BinUsageConstant.BIN_UASGE_STORE)==0) ||
@@ -170,7 +170,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (plan.getSubType().equals(1L)) {
             throw new BizCheckedException("2550040");
         }
-        BaseinfoLocation fromFationLocation = locationService.getFatherRegionByClassfication(fromLocation.getLocationId());
+        BaseinfoLocation fromFationLocation = locationService.getFatherRegionBySonId(fromLocation.getLocationId());
         if ((fromFationLocation.getType().equals(LocationConstant.SPLIT_AREA) && fromLocation.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE))) {
             if (!plan.getSubType().equals(3L)) {
                 throw new BizCheckedException("2550038");
@@ -210,7 +210,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             }
         }
         List<StockQuant> toQuants = quantService.getQuantsByLocationId(toLocationId);
-        BaseinfoLocation toFationLocation = locationService.getFatherRegionByClassfication(toLocation.getLocationId());
+        BaseinfoLocation toFationLocation = locationService.getFatherRegionBySonId(toLocation.getLocationId());
 
         // 拣货位
         if (toFationLocation.getType().compareTo(LocationConstant.SHELF) == 0 && toLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)) {
@@ -507,7 +507,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
                 plan.setQty(quant.getQty().divide(quant.getPackUnit(), 0, BigDecimal.ROUND_DOWN));
                 plan.setItemId(quant.getItemId());
                 Long subType = 2L;
-                BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId());;
+                BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());;
                 if (fatherLocation.getType().equals(LocationConstant.SPLIT_AREA) && location.equals(BinUsageConstant.BIN_PICK_STORE)) {
                     subType = 3L;
                     plan.setQty(quant.getQty());
@@ -536,7 +536,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
                 plan.setItemId(quant.getItemId());
                 plan.setQty(quant.getQty().divide(quant.getPackUnit(), 0, BigDecimal.ROUND_DOWN));
                 Long subType = 2L;
-                BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId());
+                BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());
                 if (fatherLocation.getType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
                     subType = 3L;
                     plan.setQty(quant.getQty());
@@ -565,7 +565,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         params.put("isLocked", LocationConstant.UNLOCK);
         params.put("type", location.getType());
         List<BaseinfoLocation> toLocationList = locationService.getBaseinfoLocationList(params);
-        BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId());
+        BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());
         if (fatherLocation.getType().equals(LocationConstant.SHELF) && location.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)) {
             List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationList(quant.getItemId());
             List<Long> locationIdList = new ArrayList<Long>();

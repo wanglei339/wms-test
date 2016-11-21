@@ -122,7 +122,7 @@ public class DataBackService implements IDataBackService {
         logger.info("order jsonStr :" + res +"~~~~");
         OrderResponse orderResponse = JSON.parseObject(res,OrderResponse.class);
         logger.info("orderResponse = " + JSON.toJSONString(orderResponse));
-        if(orderResponse.getCode().equals("0000")){
+        if(orderResponse != null && orderResponse.getCode().equals("0000")){
             sysLog.setLogCode(orderResponse.getCode());
             sysLog.setLogMessage("回传lshOFC成功");
             sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);

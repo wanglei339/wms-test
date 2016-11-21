@@ -75,7 +75,8 @@ public class InventoryRedisService {
                 continue;
             }
             if (header.getOrderType().equals(SoConstant.ORDER_TYPE_SO) || header.getOrderType().equals(SoConstant.ORDER_TYPE_STO)) {
-                soOrderRedisService.delSoRedis(detail.getOrderId(), detail.getItemId(), detail.getDeliveryQty());
+                logger.error(StrUtils.formatString("xxxx fuck onDelivery orderId{0}, itemId{1}, qty{2}", detail.getOrderId(), detail.getItemId(), detail.getQcQty()));
+                soOrderRedisService.delSoRedis(detail.getOrderId(), detail.getItemId(), detail.getQcQty());
                 stockRedisService.outBound(detail.getItemId(), detail.getQcQty());
             }
         }

@@ -532,7 +532,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
         if(location==null){
             throw new BizCheckedException("2030013");
         }
-        BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId());
+        BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());
         if (fatherLocation.getType().compareTo(type) == 0  && location.getIsLocked().compareTo(1) != 0 &&
                 location.getBinUsage().equals(binUsage)) {
             return true;

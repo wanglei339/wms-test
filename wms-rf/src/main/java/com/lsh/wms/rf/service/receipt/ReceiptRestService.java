@@ -137,11 +137,10 @@ public class ReceiptRestService implements IReceiptRfService {
         }
 
         receiptRequest.setStaffId(staffId);
-
+        receiptRequest.setReceiptUser(userList.get(0).getUid().toString());
 
 
         receiptRequest.setReceiptTime(new Date());
-
 
         //TODO 这里根据other order id去查理论上可能会有冲突,是唯一键吗?
         IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(receiptRequest.getOrderOtherId());
