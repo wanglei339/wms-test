@@ -426,7 +426,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         BaseinfoLocation toLocation = locationRpcService.getLocation(toLocationId);
         //货架捡货位只能在货架存货位取货，阁楼捡货位只能在阁楼捡货位取货
 
-        if(fromLocation!=null && toLocation!=null && fromLocation.getRegionType().equals(toLocation.getRegionNo())){
+        if(fromLocation!=null && toLocation!=null && fromLocation.getRegionType().equals(toLocation.getRegionType())){
             condition.setLocationId(fromLocationId);
             List<StockQuant> quants = stockQuantService.getQuantList(condition);
             List<BaseinfoItemLocation> itemLocations = itemRpcService.getItemLocationByLocationID(toLocationId);
@@ -491,7 +491,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         }
 
 
-        if(!fromLocation.getRegionType().equals(toLocation.getRegionNo()) && fromLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE) && toLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)){
+        if(!fromLocation.getRegionType().equals(toLocation.getRegionType()) && fromLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE) && toLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)){
             return false;
         }
 
