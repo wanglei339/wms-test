@@ -1,13 +1,11 @@
 package com.lsh.wms.rpc.service.inhouse;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.inhouse.IProcurementRpcService;
 import com.lsh.wms.core.constant.BinUsageConstant;
 import com.lsh.wms.core.constant.ContainerConstant;
-import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.item.ItemService;
@@ -164,8 +162,8 @@ public class ProcurementRpcService implements IProcurementRpcService{
         Long toLocationId = plan.getToLocationId();
         BaseinfoLocation fromLocation = locationRpcService.getLocation(fromLocationId);
         BaseinfoLocation toLocation = locationRpcService.getLocation(toLocationId);
-        BaseinfoLocation fromFatherLocation = locationService.getFatherRegionByClassfication(fromLocation.getLocationId());
-        BaseinfoLocation toFatherLocation = locationService.getFatherRegionByClassfication(toLocation.getLocationId());
+        BaseinfoLocation fromFatherLocation = locationService.getFatherRegionBySonId(fromLocation.getLocationId());
+        BaseinfoLocation toFatherLocation = locationService.getFatherRegionBySonId(toLocation.getLocationId());
 
 
         //货架捡货位只能在货架存货位取货，阁楼捡货位只能在阁楼捡货位取货

@@ -538,7 +538,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
     }
     public boolean chargeLocation(Long locationId,Long type,Integer binUsage) {
         BaseinfoLocation location = locationService.getLocation(locationId);
-        BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(locationId);
+        BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(locationId);
         if(location==null){
             throw new BizCheckedException("2030013");
         }

@@ -21,7 +21,6 @@ import com.lsh.wms.core.service.wave.WaveTemplateService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.baseinfo.BaseinfoStore;
 import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.pick.*;
 import com.lsh.wms.model.so.ObdDetail;
@@ -420,7 +419,7 @@ public class WaveCore {
                                 boolean bFindShelfStore = false;
                                 for (StockQuant quant : quants) {
                                     BaseinfoLocation loation = locationService.getLocation(quant.getLocationId());
-                                    BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(loation.getLocationId());
+                                    BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(loation.getLocationId());
                                     if (fatherLocation.getType().equals(LocationConstant.SHELF)
                                             && loation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)) {
                                         bFindShelfStore = true;
@@ -599,7 +598,7 @@ public class WaveCore {
                         if (leftAllocQty.compareTo(BigDecimal.ZERO) <= 0) {
                             break;
                         }
-                        BaseinfoLocation fatherLocation = locationService.getFatherRegionByClassfication(location.getLocationId());
+                        BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());
                         if(fatherLocation.getType().equals(LocationConstant.SPLIT_AREA)){
 //                        if(location.getType() == LocationConstant.SPLIT_AREA
 //                                || location.getType() == LocationConstant.SPLIT_SHELF
