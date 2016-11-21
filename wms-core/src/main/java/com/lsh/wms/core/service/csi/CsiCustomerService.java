@@ -102,7 +102,7 @@ public class CsiCustomerService {
         return customerDao.countCsiCustomer(params);
     }
 
-    public CsiCustomer getCustomerByCustomerCode(Long ownerId, String customerCode) {
+    public CsiCustomer getCustomerByCustomerCode(String customerCode) {
         Map<String, Object> map = new HashMap<String, Object>();
         //map.put("ownerId", ownerId);
         map.put("customerCode", customerCode);

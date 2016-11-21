@@ -367,7 +367,7 @@ public class TuRpcService implements ITuRpcService {
         String storeCode = obdHeader.getDeliveryCode();
         Long ownerId = obdHeader.getOwnerUid();
         //货主
-        CsiCustomer csiCustomer = csiCustomerService.getCustomerByCustomerCode(ownerId, storeCode);    //获取storeId
+        CsiCustomer csiCustomer = csiCustomerService.getCustomerByCustomerCode(storeCode);    //获取storeId
         boolean isSameStrore = false;
         for (Map<String, Object> customer : customers) {
                 String code = customer.get("customerCode").toString();

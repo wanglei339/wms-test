@@ -239,7 +239,7 @@ public class CsiRestService implements ICsiRestService {
     public String getCustomerByCustomerCode(Map<String, Object> mapQuery)throws BizCheckedException{
         //Long ownerId = Long.valueOf(mapQuery.get("ownerId").toString());
         String customerCode = mapQuery.get("customerCode").toString();
-        return JsonUtils.SUCCESS(customerService.getCustomerByCustomerCode(null, customerCode));
+        return JsonUtils.SUCCESS(customerService.getCustomerByCustomerCode(customerCode));
     }
 
     @POST

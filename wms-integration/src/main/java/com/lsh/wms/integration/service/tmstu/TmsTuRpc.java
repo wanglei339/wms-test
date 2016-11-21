@@ -60,9 +60,9 @@ public class TmsTuRpc implements ITmsTuRpcService{
             details.add(detail);
         }
         result.put("tuId", tuId);
-        result.put("tuHead", JSON.toJSONString(tuHead));
+        result.put("tuHead", tuHead);
         result.put("scale", tuHead.getScale().toString());
-        result.put("tuDetails", JSON.toJSONString(details));
+        result.put("tuDetails", details);
         String url = PropertyUtils.getString("tms_ship_over_url");
         /*int timeout = PropertyUtils.getInt("tms_timeout");
         String charset = PropertyUtils.getString("tms_charset");
