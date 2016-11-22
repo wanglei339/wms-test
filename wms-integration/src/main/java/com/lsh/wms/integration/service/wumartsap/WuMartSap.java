@@ -332,7 +332,7 @@ public class WuMartSap implements IWuMartSap{
         }
         map.put("type","P");
         String message = sb.toString();
-        if(message != null && message.length() >0){
+        if(sb != null && sb.length() > 0){
             map.put("message",message.substring(0,message.length()-1));
         }
 
