@@ -332,7 +332,7 @@ public class LocationService {
         BaseinfoLocation location = this.getLocation(regionId);
         params.put("leftRange", location.getLeftRange());
         params.put("rightRange", location.getRightRange());
-        params.put("type",LocationConstant.BIN);
+        params.put("type", LocationConstant.BIN);
         params.put("binUsage", binUsage);
         params.put("canStore", LocationConstant.CAN_STORE);
         params.put("isValid", LocationConstant.IS_VALID);
@@ -947,7 +947,7 @@ public class LocationService {
      * @return
      */
     public Long getLocationIdByCode(String code) {
-        Long locationId = 0L;
+        Long locationId = null;
         //先从redis中取code-locaitonId
 //        locationId = locationRedisService.getRedisLocationIdByCode(code);
 //        if (null != locationId) {
