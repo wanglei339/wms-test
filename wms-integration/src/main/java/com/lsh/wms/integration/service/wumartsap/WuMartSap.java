@@ -268,7 +268,7 @@ public class WuMartSap implements IWuMartSap{
             }else{
                 pItem.setLGORT("0001");
             }
-            pItem.setWERKS(PropertyUtils.getString("wumart.werks"));
+            pItem.setWERKS(createIbdHeader.getWarehouseCode());
             pItem.setVRKME(detail.getUnit());
             pItems.getItem().add(pItem);
             receiveId = Long.valueOf(detail.getVendMat());
