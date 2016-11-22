@@ -239,13 +239,29 @@ public class LocationRestService implements ILocationRestService {
         }
         //获取所有拣货位
         List<BaseinfoLocation> collectionBins = locationRpcService.getColletionBins();
-        List<BaseinfoLocation> newList = new ArrayList<BaseinfoLocation>();
+        //货架拣货位
+        List<BaseinfoLocation> shelfsList = new ArrayList<BaseinfoLocation>();
+        //阁楼拣货位
+        List<BaseinfoLocation> loftsList = new ArrayList<BaseinfoLocation>();
+
         for(BaseinfoLocation b : collectionBins){
-            if(!locationList.contains(b.getLocationId())){
-                newList.add(b);
+            if(locationList.contains(b.getLocationId())){
+                //拣货位已被使用
+                continue;
+            }
+            if(LocationConstant.SHELFS.compareTo(b.getRegionType())==0){
+                //货架
+                shelfsList.add(b);
+            }else if(LocationConstant.LOFTS.compareTo(b.getRegionType())==0){
+                //阁楼
+                loftsList.add(b);
+
             }
         }
-        return JsonUtils.SUCCESS(newList);
+        Map<String,Object> returnMap = new HashMap<String, Object>();
+        returnMap.put("shelfsList",shelfsList);
+        returnMap.put("loftsList",loftsList);
+        return JsonUtils.SUCCESS(returnMap);
     }
 
     /**

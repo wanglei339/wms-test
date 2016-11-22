@@ -482,6 +482,7 @@ public class TuService {
             }
             header.setDeliveryId(RandomUtils.genId());
             List<ObdDetail> orderDetails = soOrderService.getOutbSoDetailListByOrderId(header.getOrderId());
+            logger.info("size1 "+orderDetails.size());
             Collections.sort(orderDetails, new Comparator<ObdDetail>() {
                 //此处可以设定一个排序规则,对波次中的订单优先级进行排序
                 public int compare(ObdDetail o1, ObdDetail o2) {
@@ -494,10 +495,12 @@ public class TuService {
                 //进行运算,首先取得订单里的item订货列表信息
                 List<ObdDetail> itemOrderList = new LinkedList<ObdDetail>();
                 for (ObdDetail obdDetail : orderDetails) {
-                    if (obdDetail.getItemId() == detail.getItemId()) {
+                    logger.info("caogod "+obdDetail.getItemId()+" "+detail.getItemId());
+                    if (obdDetail.getItemId().equals(detail.getItemId())) {
                         itemOrderList.add(obdDetail);
                     }
                 }
+                logger.info("size2 "+itemOrderList.size());
                 //再从发货单里取得曾经发过货的详情,因为可能又多次发货问题,这是需要处理的.
                 List<OutbDeliveryDetail> oldDeliverys = soDeliveryService.getOutbDeliveryDetailsByOrderId(header.getOrderId());
                 if(oldDeliverys == null) oldDeliverys = new LinkedList<OutbDeliveryDetail>();
@@ -505,6 +508,7 @@ public class TuService {
                 for(OutbDeliveryDetail oldDelivery : oldDeliverys){
                     oldDeliveryQty.add(oldDelivery.getDeliveryNum());
                 }
+                logger.info("cao3 "+oldDeliveryQty);
                 BigDecimal leftQty = detail.getDeliveryNum();
                 int idx = 0;
                 for (ObdDetail obdDetail : itemOrderList) {
@@ -512,6 +516,7 @@ public class TuService {
                     OutbDeliveryDetail newDetail = new OutbDeliveryDetail();
                     ObjUtils.bean2bean(detail, newDetail);
                     BigDecimal orderQty = obdDetail.getOrderQty().multiply(obdDetail.getPackUnit());
+                    logger.info("cao4 "+orderQty+" "+oldDeliveryQty);
                     //这里先来先得,先把老的除去先
                     if(orderQty.compareTo(oldDeliveryQty)<=0){
                         oldDeliveryQty = oldDeliveryQty.subtract(orderQty);
@@ -525,9 +530,11 @@ public class TuService {
                     }else{
                         qty = orderQty;
                     }
+                    logger.info("cao "+qty+" "+leftQty+" "+orderQty);
                     newDetail.setDeliveryNum(qty);
                     newDetail.setRefDetailOtherId(obdDetail.getDetailOtherId());
                     leftQty = leftQty.subtract(qty);
+                    logger.info("cao2 "+qty+" "+leftQty+" "+orderQty);
                     realDetails.add(newDetail);
                     if(leftQty.compareTo(BigDecimal.ZERO)==0){
                         break;
@@ -535,8 +542,8 @@ public class TuService {
                 }
                 if(leftQty.compareTo(BigDecimal.ZERO)!=0){
                     //出事了,怎么来的?
-                    logger.error(String.format("delivery item out of bound order[%d] item[%d] qty[%d]",
-                            header.getOrderId(), detail.getItemId(), detail.getDeliveryNum()));
+                    logger.error(String.format("delivery item out of bound order[%d] item[%d] qty[%s]",
+                            header.getOrderId(), detail.getItemId(), detail.getDeliveryNum().toString()));
                     throw new BizCheckedException("2990045");
                 }
             }
