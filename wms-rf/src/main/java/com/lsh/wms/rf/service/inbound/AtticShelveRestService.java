@@ -324,19 +324,16 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             return JsonUtils.TOKEN_ERROR("上架详情异常");
         }
         BaseinfoLocation location = locationService.getLocation(detail.getAllocLocationId());
-        BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());
-        BaseinfoLocation realFatherLocation = locationService.getFatherRegionBySonId(realLocation.getLocationId());
-
-        if(fatherLocation.getType().compareTo(LocationConstant.LOFT)==0 && location.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)){
+        if(location.getRegionType().compareTo(LocationConstant.LOFTS)==0 && location.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)){
             if(realLocationId.compareTo(location.getLocationId())!=0){
                 return JsonUtils.TOKEN_ERROR("扫描货位与系统所提供货位不符");
             }
 
-        }else if(realFatherLocation.getType().compareTo(LocationConstant.LOFT)==0 && realLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE) ){
+        }else if(realLocation.getRegionType().compareTo(LocationConstant.LOFTS)==0 && realLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE) ){
             if(locationService.checkLocationUseStatus(realLocationId) && realLocationId.compareTo(detail.getAllocLocationId())!=0 ){
                 return JsonUtils.TOKEN_ERROR("扫描库位已被占用");
             }
-            if(fatherLocation.getType().compareTo((LocationConstant.LOFT))!=0 || !location.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)){
+            if(location.getRegionType().compareTo((LocationConstant.LOFTS))!=0 || !location.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)){
                 return JsonUtils.TOKEN_ERROR("提供扫描库位类型不符");
             }
 
@@ -411,9 +408,8 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             for (BaseinfoItemLocation itemLocation : locations) {
                 //对比货架商品和新进商品保质期是否到达阀值
                 BaseinfoLocation location = locationService.getLocation(itemLocation.getPickLocationid());
-                BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());
                 if(shelveRpcService.checkShelfLifeThreshold(quant,location,BinUsageConstant.BIN_UASGE_STORE)) {
-                    if (fatherLocation.getType().compareTo(LocationConstant.LOFT) == 0) {
+                    if (location.getRegionType().compareTo(LocationConstant.LOFTS) == 0) {
                         if (rpcService.needProcurement(itemLocation.getPickLocationid(), itemLocation.getItemId())) {
                             Map<String, Object> checkTask = new HashMap<String, Object>();
                             checkTask.put("toLocationId", location.getLocationId());

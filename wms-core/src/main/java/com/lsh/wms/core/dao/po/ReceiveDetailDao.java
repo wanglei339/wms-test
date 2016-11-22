@@ -3,6 +3,7 @@ package com.lsh.wms.core.dao.po;
 import com.lsh.wms.core.dao.MyBatisRepository;
 import com.lsh.wms.model.po.ReceiveDetail;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +18,7 @@ public interface ReceiveDetailDao {
 
 	void updateByReceiveIdAndDetailOtherId(ReceiveDetail receiveDetail);
 
-	void updateInboundQtyByReceiveIdAndDetailOtherId(Long inboundQty, Long receiveId,String detailOtherId);
+	void updateInboundQtyByReceiveIdAndDetailOtherId(BigDecimal inboundQty, Long receiveId, String detailOtherId);
 
 	void batchUpdateInboundQtyByReceiveIdAndDetailOtherId(List<ReceiveDetail> list);
 	

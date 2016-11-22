@@ -6,13 +6,17 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.pick.PickTaskService;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.pick.PickTaskHead;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.task.service.handler.AbsTaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.config.Task;
 import org.springframework.stereotype.Component;
@@ -33,11 +37,17 @@ public class QCTaskHandler extends AbsTaskHandler {
     private WaveService waveService;
     @Reference
     private ITaskRpcService iTaskRpcService;
+    @Autowired
+    private StockQuantService stockQuantService;
+
+    private static Logger logger = LoggerFactory.getLogger(QCTaskHandler.class);
 
     @PostConstruct
     public void postConstruct() {
         handlerFactory.register(TaskConstant.TYPE_QC, this);
     }
+
+
 
     public void create(Long taskId) throws BizCheckedException {    //创建到另一张表中,然后CRUD操作在新表中进行
         //todo 一个同一个托盘,只能生成一个qc任务,如果QC存在了之前的qc任务,那么qc任务就更新
@@ -96,6 +106,17 @@ public class QCTaskHandler extends AbsTaskHandler {
         for (WaveDetail detail : details) {
             setItem.add(detail.getItemId());
         }
+        //查库存,找locationId
+        List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(containerId);
+        if (null == stockQuants || stockQuants.size() < 1) {
+            logger.info(" WARNING THIS container "+containerId +" has no stockQuant ");
+            return;
+        }
+        //设置当前的托盘位置
+        Long locationId = stockQuants.get(0).getLocationId();
+        logger.info(String.format("create qc container %d location %d", containerId, locationId));
+        info.setLocationId(locationId);
+
         info.setSubType(pickEntry.getTaskInfo().getBusinessMode());  //沿用上面的直流还是在库
         info.setQty(new BigDecimal(setItem.size()));    //创建QC任务不设定QC需要的QC数量,而是实际输出来的数量和上面的任务操作数量比对
         info.setWaveId(details.get(0).getWaveId());

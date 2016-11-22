@@ -12,6 +12,8 @@ public class OutbDeliveryDetail implements Serializable {
     private Long deliveryId;
 	/** 订单ID */
     private Long orderId;
+	/** 参考上游细单id */
+	private String refDetailOtherId;
 	/** 商品ID */
     private Long itemId;
 	/** 仓库商品编码 */
@@ -29,6 +31,9 @@ public class OutbDeliveryDetail implements Serializable {
 	/** 批号ID */
 	private Long lotId;
 
+	/**回传状态 1未过账 2过账成功*/
+	private Integer backStatus;
+
 	/** 出货数 */
     private BigDecimal deliveryNum;
 	/**  */
@@ -39,6 +44,14 @@ public class OutbDeliveryDetail implements Serializable {
     private Date inserttime;
 	/**  */
     private Date updatetime;
+
+	public String getRefDetailOtherId(){
+		return this.refDetailOtherId;
+	}
+
+	public void setRefDetailOtherId(String refDetailOtherId){
+		this.refDetailOtherId = refDetailOtherId;
+	}
 
 	public String getBarCode() {
 		return barCode;
@@ -166,5 +179,13 @@ public class OutbDeliveryDetail implements Serializable {
 
 	public void setUpdatetime(Date updatetime) {
 		this.updatetime = updatetime;
+	}
+
+	public Integer getBackStatus() {
+		return backStatus;
+	}
+
+	public void setBackStatus(Integer backStatus) {
+		this.backStatus = backStatus;
 	}
 }

@@ -6,6 +6,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
@@ -13,7 +14,6 @@ import com.lsh.base.common.net.HttpClientUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
-import com.lsh.base.q.Utilities.Json.JSONObject;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
@@ -114,6 +114,8 @@ public class IbdService implements IIbdService {
             headerMap.put("platform", "1");
             String res  = HttpClientUtils.postBody(IntegrationConstan.URL_PO,  requestBody,dc41_timeout , dc41_charset, headerMap);
             logger.info("~~~~~~~~~~下发黑狗数据 request : " + JSON.toJSONString(request) + "~~~~~~~~~");
+//            JSONObject jsonObject = JSON.parseObject(res);
+//            //jsonObject.get("body");
             return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, res);
         }
 
@@ -286,11 +288,13 @@ public class IbdService implements IIbdService {
         CreateIbdHeader backData = wuMartSap.ibd2Sap(createIbdHeader);
         String mess = "";
         if(backData != null){
-            mess =  wuMartSap.ibd2SapAccount(backData);
-            if("E".equals(mess)){
-                return JsonUtils.TOKEN_ERROR("创建ibd成功,过账失败");
+            Map<String,Object> map =  wuMartSap.ibd2SapAccount(backData);
+            if("E".equals(map.get("type"))){
+                return JsonUtils.TOKEN_ERROR("ibd过账sap返回为空");
+            }else if("P".equals(map.get("Type")) && map.get("message") == null){
+                mess = "ibd创建并过账成功";
             }else{
-                mess = "创建并过账成功";
+                return JsonUtils.TOKEN_ERROR("部分过账成功;sap返回信息:" + map.get("message"));
             }
         }else{
             return JsonUtils.TOKEN_ERROR("创建ibd失败");
@@ -437,37 +441,42 @@ public class IbdService implements IIbdService {
 
         List<CreateObdDetail> details = new ArrayList<CreateObdDetail>();
         CreateObdDetail detail1 = new CreateObdDetail();
-        detail1.setRefDoc("4940031832");
-        detail1.setRefItem("70");
-        detail1.setDlvQty(new BigDecimal("1.00"));
+        detail1.setRefDoc("4900011271");
+        detail1.setRefItem("10");
+        detail1.setDlvQty(new BigDecimal("2.00"));
         detail1.setSalesUnit("EA");
-        detail1.setMaterial("000000000000110978");
-        detail1.setOrderType(4);
+        detail1.setMaterial("581951");
+        detail1.setOrderType(3);
         details.add(detail1);
 
 
         CreateObdDetail detail2 = new CreateObdDetail();
-        detail2.setRefDoc("4940031832");
-        detail2.setRefItem("80");
-        detail2.setDlvQty(new BigDecimal("1.00"));
+        detail2.setRefDoc("4900011271");
+        detail2.setRefItem("20");
+        detail2.setDlvQty(new BigDecimal("2.00"));
         detail2.setSalesUnit("EA");
-        detail2.setMaterial("000000000000109787");
-        detail2.setOrderType(4);
+        detail2.setMaterial("582555");
+        detail2.setOrderType(3);
         details.add(detail2);
-//
-//        CreateObdDetail detail3 = new CreateObdDetail();
-//        detail3.setRefDoc("4900011207");
-//        detail3.setRefItem("30");
-//        detail3.setDlvQty(new BigDecimal("500.00"));
-//        detail3.setSalesUnit("EA");
-//        detail3.setMaterial("138248");
-//        details.add(detail3);
+
+        CreateObdDetail detail3 = new CreateObdDetail();
+        detail3.setRefDoc("4900011271");
+        detail3.setRefItem("30");
+        detail3.setDlvQty(new BigDecimal("2.00"));
+        detail3.setSalesUnit("EA");
+        detail3.setMaterial("582556");
+        detail3.setOrderType(3);
+        details.add(detail3);
+        header.setTuId("1111");
+        header.setWarehouseCode("DC41");
+
 
         header.setItems(details);
 
        // wuMart.sendObd(header);
         //wuMartSap.obd2SapAccount(header);
-         wuMartSap.obd2Sap(header);
+        CreateObdHeader createObdHeader = wuMartSap.obd2Sap(header);
+        wuMartSap.obd2SapAccount(createObdHeader);
         //return wuMartSap.obd2SapAccount(header);
         return "success";
 

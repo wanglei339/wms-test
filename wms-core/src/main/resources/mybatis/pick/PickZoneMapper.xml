@@ -17,10 +17,10 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PickZone">
 		insert into pick_zone (
-			pick_zone_id,pick_zone_code,pick_zone_name,locations,pick_type,pick_model_support,
+			pick_zone_id,pick_zone_code,pick_zone_name,locations,pick_type,pick_unit,pick_model_support,
 			created_at,updated_at
     	) values (
-			#{pickZoneId},#{pickZoneCode},#{pickZoneName},#{locations},#{pickType}#{pickUnit},#{pickModelSupport},
+			#{pickZoneId},#{pickZoneCode},#{pickZoneName},#{locations},#{pickType},#{pickUnit},#{pickModelSupport},
 			#{createdAt},#{updatedAt}
     	)
 	</insert>

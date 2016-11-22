@@ -239,13 +239,29 @@ public class LocationRestService implements ILocationRestService {
         }
         //获取所有拣货位
         List<BaseinfoLocation> collectionBins = locationRpcService.getColletionBins();
-        List<BaseinfoLocation> newList = new ArrayList<BaseinfoLocation>();
+        //货架拣货位
+        List<BaseinfoLocation> shelfsList = new ArrayList<BaseinfoLocation>();
+        //阁楼拣货位
+        List<BaseinfoLocation> loftsList = new ArrayList<BaseinfoLocation>();
+
         for(BaseinfoLocation b : collectionBins){
-            if(!locationList.contains(b.getLocationId())){
-                newList.add(b);
+            if(locationList.contains(b.getLocationId())){
+                //拣货位已被使用
+                continue;
+            }
+            if(LocationConstant.SHELFS.compareTo(b.getRegionType())==0){
+                //货架
+                shelfsList.add(b);
+            }else if(LocationConstant.LOFTS.compareTo(b.getRegionType())==0){
+                //阁楼
+                loftsList.add(b);
+
             }
         }
-        return JsonUtils.SUCCESS(newList);
+        Map<String,Object> returnMap = new HashMap<String, Object>();
+        returnMap.put("shelfsList",shelfsList);
+        returnMap.put("loftsList",loftsList);
+        return JsonUtils.SUCCESS(returnMap);
     }
 
     /**
@@ -258,6 +274,7 @@ public class LocationRestService implements ILocationRestService {
     public String getAllShelfs() {
         return JsonUtils.SUCCESS(locationRpcService.getAllShelfs());
 //          return JsonUtils.SUCCESS(locationRpcService.sortSowLocationByStoreNo());
+//        return JsonUtils.SUCCESS(locationService.getLocation(-1L));
 //        return JsonUtils.SUCCESS(locationRpcService.removeStoreNoOnRoad(26736205236244L));
 //        return JsonUtils.SUCCESS(locationRpcService.getLocationIdByCode("DC10-N-002-XXX"));
 //        Long locationId = Long.parseLong("9073135487256");
@@ -405,7 +422,7 @@ public class LocationRestService implements ILocationRestService {
         if (count > 0) {
             return JsonUtils.FAIL("123321", "库位表不为空,不能进行初始化构建");
         }
-        //Map<String, Object> config = JsonUtils.json2Obj("{\"type\":1,\"containerVol\":999999999,\"locationCode\":\"DC40\",\"regionNo\":0,\"passageNo\":0,\"shelfLevelNo\":0,\"binPositionNo\":0,\"children\":[{\"type\":2,\"containerVol\":999999999,\"locationCode\":\"DC40-Q1\",\"regionNo\":1,\"children\":[{\"type\":4,\"containerVol\":999999999,\"locationCode\":\"PKPY\"},{\"type\":5,\"containerVol\":999999999,\"locationCode\":\"A1\",\"isPassage\":true,\"children\":[{\"levels\":[{\"type\":3,\"containerVol\":0,\"locationCode\":\"-P%d\",\"canStore\":0,\"counts\":8,\"children\":[{\"type\":13,\"containerVol\":0,\"locationCode\":\"-%03d\",\"canStore\":0,\"counts\":16,\"children\":[{\"type\":27,\"containerVol\":0,\"locationCode\":\"-%03d\",\"canStore\":0,\"isLevel\":true,\"counts\":1,\"children\":[{\"type\":36,\"containerVol\":0,\"locationCode\":\"-%03d\",\"canStore\":0,\"isLevel\":true,\"counts\":10,\"children\":[{\"type\":16,\"containerVol\":999999999,\"locationCode\":\"-%03d\",\"counts\":10},{\"type\":27,\"containerVol\":0,\"locationCode\":\"-%03d\",\"canStore\":0,\"isLevel\":true,\"counts\":5}]}]}]}]}]}]}]}]}", Map.class);
+        //Map<String, Object> config = JsonUtils.json2Obj("{\"type\":1,\"containerVol\":999999999,\"locationCode\":\"DC40\",\"regionNo\":0,\"passageNo\":0,\"shelfLevelNo\":0,\"binPositionNo\":0,\"children\":[{\"type\":3,\"containerVol\":0,\"locationCode\":\"A1\",\"isPassage\":true,\"withoutFatherCode\":true,\"canStore\":0,\"children\":[{\"type\":27,\"containerVol\":0,\"locationCode\":\"-%02d\",\"canStore\":0,\"isBin\":true,\"startCounter\":1,\"step\":2,\"counts\":2,\"children\":[{\"type\":15,\"containerVol\":999999999,\"locationCode\":\"-%d0\",\"counts\":2,\"isLevel\":true}]}]}]}", Map.class);
         Map<String, Object> config = JsonUtils.json2Obj(mapQuery.get("config").toString(), Map.class);
         locationService.initLocationTree(config, -1L);
         return JsonUtils.SUCCESS(config);

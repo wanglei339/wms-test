@@ -90,7 +90,7 @@ public class DataBackService implements IDataBackService {
                 sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
                 sysLog.setLogCode(orderResponse.getCode());
             }
-            sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
+            //sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
 
 
 
@@ -131,7 +131,7 @@ public class DataBackService implements IDataBackService {
             sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
             sysLog.setLogCode(orderResponse.getCode());
         }
-        sysLog.setRetryTimes(sysLog.getRetryTimes()+1);
+        //sysLog.setRetryTimes(sysLog.getRetryTimes()+1);
         //sysLogService.updateSysLog(sysLog);
 
         return JSON.toJSONString(orderResponse);
@@ -185,7 +185,7 @@ public class DataBackService implements IDataBackService {
                 sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
                 sysLog.setLogMessage("回传erp失败");
             }
-            sysLog.setRetryTimes(sysLog.getRetryTimes()+1);
+            //sysLog.setRetryTimes(sysLog.getRetryTimes()+1);
             //sysLogService.updateSysLog(sysLog);
 
         }

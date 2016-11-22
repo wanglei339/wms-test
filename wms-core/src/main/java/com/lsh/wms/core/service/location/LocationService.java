@@ -44,6 +44,12 @@ public class LocationService {
      */
     public int countLocation(Map<String, Object> params) {
         params.put("isValid", LocationConstant.IS_VALID);
+        //locationCode
+        String locationCode = (String) params.get("locationCode");
+        if (locationCode != null) {
+            locationCode = locationCode + "%";
+            params.put("locationCode", locationCode);
+        }
         return locationDao.countBaseinfoLocation(params);
     }
 
@@ -111,7 +117,7 @@ public class LocationService {
         //redis中没有,放入redis
         if (locations != null && locations.size() > 0) {
             //将没读入redis的写入redis(直接调用接口写入redis)
-            locationRedisService.insertLocationRedis(locations.get(0));
+//            locationRedisService.insertLocationRedis(locations.get(0));
             return locations.get(0);
         } else {
             return null;
@@ -332,7 +338,7 @@ public class LocationService {
         BaseinfoLocation location = this.getLocation(regionId);
         params.put("leftRange", location.getLeftRange());
         params.put("rightRange", location.getRightRange());
-        params.put("type",LocationConstant.BIN);
+        params.put("type", LocationConstant.BIN);
         params.put("binUsage", binUsage);
         params.put("canStore", LocationConstant.CAN_STORE);
         params.put("isValid", LocationConstant.IS_VALID);
@@ -947,7 +953,7 @@ public class LocationService {
      * @return
      */
     public Long getLocationIdByCode(String code) {
-        Long locationId = 0L;
+        Long locationId = null;
         //先从redis中取code-locaitonId
 //        locationId = locationRedisService.getRedisLocationIdByCode(code);
 //        if (null != locationId) {
@@ -1058,34 +1064,6 @@ public class LocationService {
     }
 
     /**
-     * 货架位置为空并且没上锁(没占用+没上锁)
-     * 一库位一托盘码
-     *
-     * @param locationId
-     * @return
-     */
-    public boolean shelfBinLocationIsEmptyAndUnlock(Long locationId) {
-        BaseinfoLocation location = this.getLocation(locationId);
-        if ((location.getCanUse().equals(1)) && location.getIsLocked().equals(0)) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * 判断位置上当前没托盘切没有被任务锁定
-     *
-     * @param locationId
-     * @return
-     */
-    public boolean locationIsEmptyAndUnlock(Long locationId) {
-        if (this.getLocation(locationId).getCurContainerVol().equals(0L) && !this.checkLocationLockStatus(locationId)) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * 提供空的可用位置,位置上当前没托盘切没有被任务锁定
      *
      * @param location
@@ -1096,24 +1074,6 @@ public class LocationService {
             return true;
         }
         return false;
-    }
-
-    /**
-     * 分配可用可用location
-     *
-     * @param type
-     * @return
-     */
-    public BaseinfoLocation getlocationIsEmptyAndUnlockByType(Long type) {
-        List<BaseinfoLocation> locations = this.getLocationsByType(type);
-        if (null != locations && locations.size() > 0) {
-            for (BaseinfoLocation location : locations) {
-                if (this.locationIsEmptyAndUnlock(location)) {
-                    return location;
-                }
-            }
-        }
-        return null;
     }
 
     /**
@@ -1472,18 +1432,10 @@ public class LocationService {
                 if (conf.get("children") != null) {
                     List<Map<String, Object>> children = (List<Map<String, Object>>) conf.get("children");
                     for (Map<String, Object> child : children) {
-                        if (child.get("regionNo") == null) {
-                            child.put("regionNo", location.getRegionNo());
-                        }
-                        if (child.get("passageNo") == null) {
-                            child.put("passageNo", location.getPassageNo());
-                        }
-                        if (child.get("shelfLevelNo") == null) {
-                            child.put("shelfLevelNo", location.getShelfLevelNo());
-                        }
-                        if (child.get("binPositionNo") == null) {
-                            child.put("binPositionNo", location.getBinPositionNo());
-                        }
+                        child.put("regionNo", location.getRegionNo());
+                        child.put("passageNo", location.getPassageNo());
+                        child.put("shelfLevelNo", location.getShelfLevelNo());
+                        child.put("binPositionNo", location.getBinPositionNo());
                         this.initLocationTree(child, location.getLocationId());
                     }
                 }

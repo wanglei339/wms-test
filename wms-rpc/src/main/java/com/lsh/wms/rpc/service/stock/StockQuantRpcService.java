@@ -157,7 +157,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
     public void writeOffQuant(Long quantId, BigDecimal realQty)throws BizCheckedException{
         StockQuant quant = quantService.getQuantById(quantId);
         StockMove move = new StockMove();
-        if(quant.getQty().compareTo(realQty)>0) {
+        if(quant==null || quant.getQty().compareTo(realQty)>0) {
             move.setTaskId(100001l);
             move.setSkuId(quant.getSkuId());
             move.setItemId(quant.getItemId());
@@ -176,7 +176,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             move.setQty(realQty.subtract(quant.getQty()));
             move.setFromLocationId(locationService.getInventoryLostLocationId());
             move.setToLocationId(quant.getLocationId());
-            move.setToContainerId(containerService.createContainerByType(ContainerConstant.CAGE).getContainerId());
+            move.setToContainerId(quant.getContainerId());
             move.setLot(lotService.getStockLotByLotId(quant.getLotId()));
         }
         moveService.move(move);

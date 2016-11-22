@@ -419,8 +419,7 @@ public class WaveCore {
                                 boolean bFindShelfStore = false;
                                 for (StockQuant quant : quants) {
                                     BaseinfoLocation loation = locationService.getLocation(quant.getLocationId());
-                                    BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(loation.getLocationId());
-                                    if (fatherLocation.getType().equals(LocationConstant.SHELF)
+                                    if (loation.getRegionType().equals(LocationConstant.SHELFS)
                                             && loation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)) {
                                         bFindShelfStore = true;
                                         detail.setAllocPickLocation(loation.getLocationId());
@@ -587,7 +586,7 @@ public class WaveCore {
                     throw new BizCheckedException("");
                 }
                 //获取商品的捡货位
-                BigDecimal leftAllocQty = detail.getUnitQty();
+                BigDecimal leftAllocQty = detail.getOrderQty().multiply(detail.getPackUnit());
                 for (PickModel model : modelList) {
                     if (leftAllocQty.compareTo(BigDecimal.ZERO) <= 0) {
                         break;
@@ -598,8 +597,7 @@ public class WaveCore {
                         if (leftAllocQty.compareTo(BigDecimal.ZERO) <= 0) {
                             break;
                         }
-                        BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());
-                        if(fatherLocation.getType().equals(LocationConstant.SPLIT_AREA)){
+                        if(location.getRegionType().equals(LocationConstant.SPLIT_AREA)){
 //                        if(location.getType() == LocationConstant.SPLIT_AREA
 //                                || location.getType() == LocationConstant.SPLIT_SHELF
 //                                //TODO 这里有遗漏的风险,还没来得及改

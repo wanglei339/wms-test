@@ -162,13 +162,10 @@ public class ProcurementRpcService implements IProcurementRpcService{
         Long toLocationId = plan.getToLocationId();
         BaseinfoLocation fromLocation = locationRpcService.getLocation(fromLocationId);
         BaseinfoLocation toLocation = locationRpcService.getLocation(toLocationId);
-        BaseinfoLocation fromFatherLocation = locationService.getFatherRegionBySonId(fromLocation.getLocationId());
-        BaseinfoLocation toFatherLocation = locationService.getFatherRegionBySonId(toLocation.getLocationId());
-
 
         //货架捡货位只能在货架存货位取货，阁楼捡货位只能在阁楼捡货位取货
         if(fromLocation!=null && toLocation!=null &&
-                ( fromFatherLocation.getType().equals(toFatherLocation.getType()) && fromLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE) && toLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK))){
+                ( fromLocation.getRegionType().equals(toLocation.getRegionType()) && fromLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE) && toLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK))){
             condition.setLocationId(fromLocationId);
             List<StockQuant> quants = stockQuantService.getQuantList(condition);
             List<BaseinfoItemLocation> itemLocations = itemRpcService.getItemLocationByLocationID(toLocationId);

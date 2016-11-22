@@ -15,6 +15,8 @@ public class CreateObdHeader implements Serializable{
      * 订单号
      */
     private String orderOtherId;
+    /**发货单Id*/
+    private Long deliveryId;
     /**仓库编码*/
     private String warehouseCode = "";
 
@@ -27,11 +29,20 @@ public class CreateObdHeader implements Serializable{
 
     public CreateObdHeader(){}
 
-    public CreateObdHeader(List<CreateObdDetail> items, String orderOtherId, String tuId, String warehouseCode) {
+    public CreateObdHeader(Long deliveryId, List<CreateObdDetail> items, String orderOtherId, String tuId, String warehouseCode) {
+        this.deliveryId = deliveryId;
         this.items = items;
         this.orderOtherId = orderOtherId;
         this.tuId = tuId;
         this.warehouseCode = warehouseCode;
+    }
+
+    public Long getDeliveryId() {
+        return deliveryId;
+    }
+
+    public void setDeliveryId(Long deliveryId) {
+        this.deliveryId = deliveryId;
     }
 
     public List<CreateObdDetail> getItems() {

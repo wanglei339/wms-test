@@ -123,8 +123,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             if (location == null) {
                 throw new BizCheckedException("2060012");
             }
-            BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());
-            if (!(fatherLocation.getType().equals(LocationConstant.SHELF) || fatherLocation.getType().equals(LocationConstant.SPLIT_AREA))) {
+            if (!(location.getRegionType().equals(LocationConstant.SHELFS) || location.getRegionType().equals(LocationConstant.SPLIT_AREA))) {
                 throw new BizCheckedException("2550041");
             }
             StockQuantCondition condition = new StockQuantCondition();
@@ -143,7 +142,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             condition.setLotId(quant.getLotId());
             condition.setReserveTaskId(0L);
             BigDecimal qty = stockQuantRpcService.getQty(condition);
-            if (fatherLocation.getType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
+            if (location.getRegionType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
                 result.put("packName", "EA");
                 result.put("uomQty", qty);
             } else {
@@ -201,8 +200,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             plan.setFromLocationId(locationId);
             plan.setItemId(quant.getItemId());
             Long subType = 2L;
-            BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());
-            if (fatherLocation.getType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
+            if (location.getRegionType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
                 subType = 3L;
             }
             plan.setSubType(subType);
@@ -266,8 +264,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             StockQuant quant = quantList.get(0);
             plan.setItemId(quant.getItemId());
             Long subType = 2L;
-            BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());
-            if (fatherLocation.getType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
+            if (location.getRegionType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
                 subType = 3L;
             }
             plan.setSubType(subType);
@@ -330,8 +327,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             StockQuant quant = quantList.get(0);
             plan.setItemId(quant.getItemId());
             Long subType = 2L;
-            BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());
-            if (fatherLocation.getType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
+            if (location.getRegionType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
                 subType = 3L;
             }
             plan.setSubType(subType);
@@ -358,7 +354,7 @@ public class StockTransferRestService implements IStockTransferRestService {
         Map<String, Object> result;
         Long type = Long.valueOf(params.get("type").toString());
         logger.info(params.toString());
-        try {
+//        try {
             Long uid;
             try {
                 uid = iSysUserRpcService.getSysUserById(Long.valueOf(RequestUtils.getHeader("uid"))).getUid();
@@ -379,12 +375,12 @@ public class StockTransferRestService implements IStockTransferRestService {
             } else {
                 result = iStockTransferRpcService.scanToLocation(params);
             }
-        } catch (BizCheckedException e) {
-            throw e;
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return JsonUtils.TOKEN_ERROR(e.getMessage());
-        }
+//        } catch (BizCheckedException e) {
+//            throw e;
+//        } catch (Exception e) {
+//            logger.error(e.getMessage());
+//            return JsonUtils.TOKEN_ERROR(e.getMessage());
+//        }
         return JsonUtils.SUCCESS(result);
     }
 
@@ -415,7 +411,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             final Long locationId, type;
             final BigDecimal uomQty;
             //outbound
-            if (taskInfo.getExt3().equals(0L)) {
+            if (taskInfo.getStep()==0) {
                 type = 1L;
                 locationId = taskInfo.getFromLocationId();
                 uomQty = taskInfo.getQty();

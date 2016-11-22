@@ -6,6 +6,7 @@
 		<id property="id" column="ID"/>
 		<result property="deliveryId" column="DELIVERY_ID"/>
 		<result property="orderId" column="ORDER_ID"/>
+		<result property="refDetailOtherId" column="REF_DETAIL_OTHER_ID"/>
 		<result property="itemId" column="ITEM_ID"/>
 		<result property="skuId" column="SKU_ID"/>
 		<result property="skuName" column="SKU_NAME"/>
@@ -14,6 +15,7 @@
 		<result property="packUnit" column="PACK_UNIT"/>
 		<result property="lotNum" column="LOT_NUM"/>
 		<result property="lotId" column="LOT_ID"/>
+		<result property="backStatus" column="BACK_STATUS"/>
 		<result property="deliveryNum" column="DELIVERY_NUM"/>
 		<result property="insertby" column="INSERTBY"/>
 		<result property="updateby" column="UPDATEBY"/>
@@ -23,24 +25,24 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="OutbDeliveryDetail">
 		insert into OUTB_DELIVERY_DETAIL (
-			DELIVERY_ID,ORDER_ID,ITEM_ID,SKU_ID,SKU_NAME,BAR_CODE,
+			DELIVERY_ID,ORDER_ID,REF_DETAIL_OTHER_ID,ITEM_ID,SKU_ID,SKU_NAME,BAR_CODE,
 			ORDER_QTY,PACK_UNIT,LOT_NUM,DELIVERY_NUM,INSERTBY,UPDATEBY,
-			INSERTTIME,UPDATETIME,LOT_ID
+			INSERTTIME,UPDATETIME,LOT_ID,BACK_STATUS
     	) values (
-			#{deliveryId},#{orderId},#{itemId},#{skuId},#{skuName},#{barCode},
+			#{deliveryId},#{orderId},#{refDetailOtherId},#{itemId},#{skuId},#{skuName},#{barCode},
 			#{orderQty},#{packUnit},#{lotNum},#{deliveryNum},#{insertby},#{updateby},
-			#{inserttime},#{updatetime},#{lotId}
+			#{inserttime},#{updatetime},#{lotId},#{backStatus}
     	)
 	</insert>
 
 	<insert id="batchInsert" parameterType="java.util.List">
 		insert into OUTB_DELIVERY_DETAIL (
-		DELIVERY_ID,ORDER_ID,ITEM_ID,SKU_ID,SKU_NAME,BAR_CODE,
+		DELIVERY_ID,ORDER_ID,REF_DETAIL_OTHER_ID,ITEM_ID,SKU_ID,SKU_NAME,BAR_CODE,
 		ORDER_QTY,PACK_UNIT,LOT_NUM,DELIVERY_NUM,INSERTBY,UPDATEBY,
 		INSERTTIME,UPDATETIME,LOT_ID
 		) values
 		<foreach collection="list" item="item" index="index" separator="," >
-			(#{item.deliveryId},#{item.orderId},#{item.itemId},#{item.skuId},#{item.skuName},#{item.barCode},
+			(#{item.deliveryId},#{item.orderId},#{item.refDetailOtherId},#{item.itemId},#{item.skuId},#{item.skuName},#{item.barCode},
 			#{item.orderQty},#{item.packUnit},#{item.lotNum},#{item.deliveryNum},#{item.insertby},#{item.updateby},
 			now(),#{item.updatetime},#{item.lotId})
 		</foreach>
@@ -50,6 +52,7 @@
 		update OUTB_DELIVERY_DETAIL
     	<set>
   			<if test="deliveryId != null">DELIVERY_ID=#{deliveryId},</if>
+			<if test="refDetailOtherId != null">REF_DETAIL_OTHER_ID=#{refDetailOtherId},</if>
   			<if test="orderId != null">ORDER_ID=#{orderId},</if>
   			<if test="itemId != null">ITEM_ID=#{itemId},</if>
   			<if test="skuId != null">SKU_ID=#{skuId},</if>
@@ -59,6 +62,7 @@
   			<if test="packUnit != null">PACK_UNIT=#{packUnit},</if>
   			<if test="lotNum != null">LOT_NUM=#{lotNum},</if>
 			<if test="lotId != null">LOT_ID=#{lotId},</if>
+			<if test="backStatus != null">BACK_STATUS=#{backStatus},</if>
   			<if test="deliveryNum != null">DELIVERY_NUM=#{deliveryNum},</if>
   			<if test="insertby != null">INSERTBY=#{insertby},</if>
   			<if test="updateby != null">UPDATEBY=#{updateby},</if>
@@ -97,6 +101,7 @@
 		<where>
 			<if test="id != null">ID=#{id}</if>
 			<if test="deliveryId != null">and DELIVERY_ID=#{deliveryId}</if>
+			<if test="refDetailOtherId != null">and REF_DETAIL_OTHER_ID=#{refDetailOtherId}</if>
 			<if test="orderId != null">and ORDER_ID=#{orderId}</if>
 			<if test="itemId != null">and ITEM_ID=#{itemId}</if>
 			<if test="skuId != null">and SKU_ID=#{skuId}</if>
@@ -106,6 +111,7 @@
 			<if test="packUnit != null">and PACK_UNIT=#{packUnit}</if>
 			<if test="lotNum != null">and LOT_NUM=#{lotNum}</if>
 			<if test="lotId != null">and LOT_ID=#{lotId}</if>
+			<if test="backStatus != null">and BACK_STATUS=#{backStatus}</if>
 			<if test="deliveryNum != null">and DELIVERY_NUM=#{deliveryNum}</if>
 			<if test="insertby != null">and INSERTBY=#{insertby}</if>
 			<if test="updateby != null">and UPDATEBY=#{updateby}</if>
