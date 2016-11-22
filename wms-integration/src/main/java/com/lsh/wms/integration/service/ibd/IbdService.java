@@ -6,6 +6,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
@@ -13,7 +14,6 @@ import com.lsh.base.common.net.HttpClientUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
-import com.lsh.base.q.Utilities.Json.JSONObject;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.ResUtils;
 import com.lsh.wms.api.model.base.ResponseConstant;
@@ -114,7 +114,9 @@ public class IbdService implements IIbdService {
             headerMap.put("platform", "1");
             String res  = HttpClientUtils.postBody(IntegrationConstan.URL_PO,  requestBody,dc41_timeout , dc41_charset, headerMap);
             logger.info("~~~~~~~~~~下发黑狗数据 request : " + JSON.toJSONString(request) + "~~~~~~~~~");
-            return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, res);
+            JSONObject jsonObject = JSON.parseObject(res);
+            //jsonObject.get("body");
+            return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, jsonObject.get("body"));
         }
 
         for(IbdDetail ibdDetail : details){
