@@ -330,14 +330,15 @@ public class WuMartSap implements IWuMartSap{
             }
 
         }
-        map.put("type","P");
-        String message = sb.toString();
+
         if(sb != null && sb.length() > 0){
+            map.put("type","P");
+            String message = sb.toString();
             map.put("message",message.substring(0,message.length()-1));
+        }else{
+            map.put("type","S");
         }
 
-
-        //return "S";
         return map;
     }
 

@@ -100,7 +100,7 @@ public class QCRestService implements IRFQCRestService {
         //pickTaskId拣货签12开头,18位的长度
         String code = (String) mapRequest.get("code");
         String firstTwoCode = code.substring(0, 2);
-        if (code.toString().length() == 18 && firstTwoCode.equals("12")) {
+        if (code.toString().length() == 16 && firstTwoCode.equals("12")) {
             mapRequest.put("pickTaskId", code);
         } else {
             mapRequest.put("containerId", code);
