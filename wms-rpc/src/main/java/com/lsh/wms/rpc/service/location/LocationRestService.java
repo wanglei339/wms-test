@@ -243,6 +243,8 @@ public class LocationRestService implements ILocationRestService {
         List<BaseinfoLocation> shelfsList = new ArrayList<BaseinfoLocation>();
         //阁楼拣货位
         List<BaseinfoLocation> loftsList = new ArrayList<BaseinfoLocation>();
+        //拆零区拣货位
+        List<BaseinfoLocation> splitList = new ArrayList<BaseinfoLocation>();
 
         for(BaseinfoLocation b : collectionBins){
             if(locationList.contains(b.getLocationId())){
@@ -256,11 +258,15 @@ public class LocationRestService implements ILocationRestService {
                 //阁楼
                 loftsList.add(b);
 
+            }else if(LocationConstant.SPLIT_AREA.compareTo(b.getRegionType())==0){
+                //拆零区
+                splitList.add(b);
             }
         }
         Map<String,Object> returnMap = new HashMap<String, Object>();
         returnMap.put("shelfsList",shelfsList);
         returnMap.put("loftsList",loftsList);
+        returnMap.put("splitList",splitList);
         return JsonUtils.SUCCESS(returnMap);
     }
 
