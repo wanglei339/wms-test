@@ -271,7 +271,7 @@ public class WuMartSap implements IWuMartSap{
             pItem.setWERKS(createIbdHeader.getWarehouseCode());
             pItem.setVRKME(detail.getUnit());
             pItems.getItem().add(pItem);
-            receiveId = Long.valueOf(detail.getVendMat());
+            //receiveId = Long.valueOf(detail.getVendMat());
             orderType = detail.getOrderType();
         }
         TABLEOFZDELIVERYEXPORT eItems = factory.createTABLEOFZDELIVERYEXPORT();
