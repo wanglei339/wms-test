@@ -166,8 +166,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         // 实际上架位置和分配位置不一致
         if (!locationId.equals(taskHead.getAllocLocationId())) {
             // 拣货位
-            BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(realLocation.getLocationId());
-            if (fatherLocation.getType().equals(LocationConstant.SHELF) && realLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)) {
+            if (realLocation.getRegionType().equals(LocationConstant.SHELFS) && realLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)) {
                 // 检查是否是该商品的拣货位
                 Map<String, Object> params = new HashMap<String, Object>();
                 params.put("itemId", itemId);
@@ -179,7 +178,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
                 }
             }
             // 存货位
-            if (fatherLocation.getType().equals(LocationConstant.SHELF) && realLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)) {
+            if (realLocation.getRegionType().equals(LocationConstant.SHELFS) && realLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)) {
                 // 检查是否有库存
                 List<StockQuant> stockQuants = stockQuantService.getQuantsByLocationId(locationId);
                 if (stockQuants.size() > 0) {
