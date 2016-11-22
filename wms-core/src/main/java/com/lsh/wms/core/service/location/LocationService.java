@@ -111,7 +111,7 @@ public class LocationService {
         //redis中没有,放入redis
         if (locations != null && locations.size() > 0) {
             //将没读入redis的写入redis(直接调用接口写入redis)
-            locationRedisService.insertLocationRedis(locations.get(0));
+//            locationRedisService.insertLocationRedis(locations.get(0));
             return locations.get(0);
         } else {
             return null;
