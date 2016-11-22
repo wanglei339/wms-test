@@ -463,7 +463,7 @@ public class IbdService implements IIbdService {
         detail3.setDlvQty(new BigDecimal("2.00"));
         detail3.setSalesUnit("EA");
         detail3.setMaterial("582556");
-        detail2.setOrderType(4);
+        detail3.setOrderType(4);
         details.add(detail3);
         header.setTuId("1111");
         header.setWarehouseCode("DC41");
