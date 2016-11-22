@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.wms.api.model.wumart.CreateIbdDetail;
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
+import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.service.po.ReceiveService;
 import com.lsh.wms.integration.service.wumartsap.WuMart;
 import com.lsh.wms.model.po.ReceiveDetail;
@@ -43,7 +44,7 @@ public class IbdSapTransporter implements ITransporter {
 
             BigDecimal orderQty = receiveDetail.getOrderQty();
             BigDecimal deliveQty = receiveHeader.getOrderType().equals(3) ? orderQty : inboudQty;
-            if(deliveQty.compareTo(BigDecimal.ZERO) <= 0){
+            if(deliveQty.compareTo(BigDecimal.ZERO) <= 0 || receiveDetail.getBackStatus() == PoConstant.RECEIVE_DETAIL_STATUS_SUCCESS){
                 continue;
             }
             detail.setDeliveQty(deliveQty.setScale(2,BigDecimal.ROUND_HALF_UP));

@@ -77,7 +77,7 @@ public class WuMartSap implements IWuMartSap{
         BbpInbdL header = factory.createBbpInbdL();
         header.setDelivDate(date);
 
-        String warehouseCode = createIbdHeader.getWarehouseCode();
+        String warehouseCode =  createIbdHeader.getWarehouseCode();
         Long receiveId = 0l;
         if(PropertyUtils.getString("wumart.werks").equals(warehouseCode)){
             receiveId = Long.valueOf(details.get(0).getVendMat());
@@ -122,15 +122,6 @@ public class WuMartSap implements IWuMartSap{
                 return null;
             }
             if("03".equals(bapireturn1.getCode())){
-                if(orderType != PoConstant.ORDER_TYPE_CPO && receiveId != 0l){
-                    ReceiveDetail receiveDetail = new ReceiveDetail();
-                    receiveDetail.setReceiveId(receiveId);
-                    String detailOtherId = bapireturn1.getMessageV4().replaceAll("^(0+)", "");
-                    receiveDetail.setDetailOtherId(detailOtherId);
-                    receiveDetail.setIbdId(bapireturn1.getMessageV1());
-                    receiveDetail.setIbdDetailId(bapireturn1.getMessageV2());
-                    receiveService.updateByReceiveIdAndDetailOtherId(receiveDetail);
-                }
                 CreateIbdDetail backDetail = new CreateIbdDetail();
                 backDetail.setOrderType(orderType);
                 backDetail.setDeliveQty(new BigDecimal(bapireturn1.getMessage().trim()).setScale(2,BigDecimal.ROUND_HALF_UP));
@@ -139,12 +130,9 @@ public class WuMartSap implements IWuMartSap{
                 backDetail.setVendMat(String.valueOf(receiveId));
                 backDetails.add(backDetail);
             }
-
         }
-
         backDate.setItems(backDetails);
         backDate.setWarehouseCode(createIbdHeader.getWarehouseCode());
-
         return backDate;
     }
 
@@ -155,17 +143,12 @@ public class WuMartSap implements IWuMartSap{
         date.setDay(calendar.get(Calendar.DATE));
         date.setMonth(calendar.get(Calendar.MONTH) + 1);
         List<CreateObdDetail> details = createObdHeader.getItems();
-
         com.lsh.wms.integration.wumart.obd.ObjectFactory factory = new com.lsh.wms.integration.wumart.obd.ObjectFactory();
-
-
         //STOCK_TRANS_ITEMS
         TableOfBapidlvreftosto stItems = factory.createTableOfBapidlvreftosto();
-
         //CREATED_ITEMS
         TableOfBapidlvitemcreated cItems = factory.createTableOfBapidlvitemcreated();
         Integer orderType = 0;
-
         for(CreateObdDetail detail : details){
             Bapidlvreftosto bItem = factory.createBapidlvreftosto();
             bItem.setRefDoc(detail.getRefDoc());
@@ -173,7 +156,6 @@ public class WuMartSap implements IWuMartSap{
             bItem.setDlvQty(detail.getDlvQty());
             bItem.setSalesUnit(String.valueOf(detail.getSalesUnit()));
             stItems.getItem().add(bItem);
-
             Bapidlvitemcreated cItem = factory.createBapidlvitemcreated();
             cItem.setSalesUnit(String.valueOf(detail.getSalesUnit()));
             cItem.setDlvQty(detail.getDlvQty());
@@ -183,17 +165,18 @@ public class WuMartSap implements IWuMartSap{
             cItems.getItem().add(cItem);
             orderType = detail.getOrderType();
         }
-
         //组装参数
-
         Holder<TableOfBapidlvitemcreated> createdItems = new Holder<TableOfBapidlvitemcreated>(cItems);
         String debugFlg = "";
         Holder<TableOfBapishpdelivnumb> deliveries = new Holder<TableOfBapishpdelivnumb>();
-
         Holder<TableOfBapiparex> extensionIn = new Holder<TableOfBapiparex>();
         Holder<TableOfBapiparex> extensionOut = new Holder<TableOfBapiparex>();
         String noDequeue = "";
         TableOfBapiret2 _return = factory.createTableOfBapiret2();
+        Bapiret2 inBapiret2 = factory.createBapiret2();
+        inBapiret2.setMessage(createObdHeader.getTuId());
+        _return.getItem().add(inBapiret2);
+
         Holder<TableOfBapidlvserialnumber> serialNumbers = new Holder<TableOfBapidlvserialnumber>();
         String shipPoint = "";
         if(SoConstant.ORDER_TYPE_DIRECT == orderType){
@@ -204,7 +187,6 @@ public class WuMartSap implements IWuMartSap{
         Holder<String> numDeliveries = new Holder<String>();
         ZMMOUTBOBD zbinding = new ZMMOUTBOBD_Service().getBindingSOAP12();
         this.auth((BindingProvider) zbinding);
-
         logger.info("obd创建入口参数: createdItems :" + JSON.toJSONString(createdItems)+
                     " debugFlg : " + JSON.toJSONString(debugFlg)+
                     " deliveries : " + JSON.toJSONString(deliveries) +
@@ -220,14 +202,17 @@ public class WuMartSap implements IWuMartSap{
                 " _return : " + JSON.toJSONString(_return) +
                 " stockTransItems :"+JSON.toJSONString(stockTransItems));
         String ref = com.alibaba.fastjson.JSON.toJSONString(newReturn.getItem());
-
         logger.info("obd创建传出参数: createdItems :" + JSON.toJSONString(createdItems));
-
         logger.info("obd创建返回值 ref : " + ref);
-
         //循环返回值
         CreateObdHeader backDate = new CreateObdHeader();
         List<CreateObdDetail> list = new ArrayList<CreateObdDetail>();
+
+        // TODO: 2016/11/21 依据返回值判断是否创建成功
+
+
+        Map<String,Object> map = new HashMap<String, Object>();
+
         if(newReturn.getItem() == null && newReturn.getItem().size() <=0){
             return null;
         }else{
@@ -248,14 +233,12 @@ public class WuMartSap implements IWuMartSap{
                 list.add(backDetail);
             }
             backDate.setItems(list);
+            backDate.setDeliveryId(createObdHeader.getDeliveryId());
         }
-
-
-        // TODO: 2016/11/7 返回单号
         return backDate;
     }
 
-    public String ibd2SapAccount(CreateIbdHeader createIbdHeader) {
+    public Map ibd2SapAccount(CreateIbdHeader createIbdHeader) {
         //当前时间转成XMLGregorianCalendar类型
         Calendar calendar = Calendar.getInstance();
         XMLGregorianCalendar date = new XMLGregorianCalendarImpl();
@@ -265,14 +248,12 @@ public class WuMartSap implements IWuMartSap{
         date.setMonth(calendar.get(Calendar.MONTH)+1);
         //注册工厂
         com.lsh.wms.integration.wumart.ibdaccount.ObjectFactory factory = new com.lsh.wms.integration.wumart.ibdaccount.ObjectFactory();
-
         TABLEOFZDELIVERYIMPORT pItems = factory.createTABLEOFZDELIVERYIMPORT();
-
         List<CreateIbdDetail> details = createIbdHeader.getItems();
-
-
-
         Long receiveId = 0l;
+        if(PropertyUtils.getString("wumart.werks").equals(createIbdHeader.getWarehouseCode())){
+            receiveId = Long.valueOf(details.get(0).getVendMat());
+        }
         Integer orderType = 0;
         for(CreateIbdDetail detail :details){
             ZDELIVERYIMPORT pItem = factory.createZDELIVERYIMPORT();
@@ -282,14 +263,11 @@ public class WuMartSap implements IWuMartSap{
             pItem.setLFIMG(detail.getDeliveQty());
             pItem.setPIKMG(detail.getDeliveQty());
             pItem.setWADATIST(date);
-            // TODO: 2016/11/6  在库OOO1直流0005
-            //pItem.setLGORT();
             if(detail.getOrderType() == PoConstant.ORDER_TYPE_CPO){
                 pItem.setLGORT("0005");
             }else{
                 pItem.setLGORT("0001");
             }
-            //pItem.setLGORT("0001");
             pItem.setWERKS(PropertyUtils.getString("wumart.werks"));
             pItem.setVRKME(detail.getUnit());
             pItems.getItem().add(pItem);
@@ -323,34 +301,41 @@ public class WuMartSap implements IWuMartSap{
                 + " _return  : " +JSON.toJSONString(_return)
                 + " return1 : " +JSON.toJSONString(return1)
                 + " vbpokTAB" + JSON.toJSONString(vbpokTAB));
-
         logger.info("ibd过账返回值 : newReturn : " + JSON.toJSONString(newReturn.getItem()));
-
         // TODO: 2016/11/10 将返回的数据对应到相应的验收单中。
+        Map<String,Object> map = new HashMap<String, Object>();
+
+
+        //E表示返回值为空 S表示成功 P表示有返回值。
         if(newReturn == null){
-            return "E";
+            map.put("type","E");
+            return map;
         }
-
-
+        StringBuffer sb = new StringBuffer();
         for(BAPIRET2 bapiret2 : newReturn.getItem()){
             if("E".equals(bapiret2.getTYPE())){
-                return "E";
+                //将错误记录下来
+                sb.append(bapiret2.getMESSAGEV2()).append(";");
+
             }
-            if("02".equals(bapiret2.getID())){
+            if("02".equals(bapiret2.getID()) && createIbdHeader.getWarehouseCode().equals("wumart.werks")){
                 if(orderType != PoConstant.ORDER_TYPE_CPO){
                     ReceiveDetail receiveDetail = new ReceiveDetail();
                     receiveDetail.setReceiveId(receiveId);
                     String detailOtherId = bapiret2.getMESSAGEV2().replaceAll("^(0+)", "");
                     receiveDetail.setDetailOtherId(detailOtherId);
-                    receiveDetail.setAccountId(bapiret2.getMESSAGEV3());
-                    receiveDetail.setAccountDetailId(bapiret2.getMESSAGEV4());
+                    receiveDetail.setBackStatus(PoConstant.RECEIVE_DETAIL_STATUS_SUCCESS);
                     receiveService.updateByReceiveIdAndDetailOtherId(receiveDetail);
                 }
             }
 
         }
+        map.put("type","P");
+        String message = sb.toString();
+        map.put("message",message.substring(0,message.length()-1));
 
-        return "S";
+        //return "S";
+        return map;
     }
 
     public String obd2SapAccount(CreateObdHeader createObdHeader) {
@@ -457,7 +442,6 @@ public class WuMartSap implements IWuMartSap{
         //拼装detail信息
         List<CreateObdDetail> details = createObdHeader.getItems();
         TABLEOFZBAPIR2DELIVERYITEM deliveryitems = factory.createTABLEOFZBAPIR2DELIVERYITEM();
-
         for (CreateObdDetail detail : details ){
             ZBAPIR2DELIVERYITEM  item = factory.createZBAPIR2DELIVERYITEM();
             item.setLFIMG(detail.getDlvQty());
@@ -465,12 +449,12 @@ public class WuMartSap implements IWuMartSap{
             item.setMATNR(detail.getMaterial());//skuCode
             deliveryitems.getItem().add(item);
         }
-
         Holder<TABLEOFZBAPIR2DELIVERYHEAD> obdheader = new Holder<TABLEOFZBAPIR2DELIVERYHEAD>(deliveryheads);
         Holder<TABLEOFZBAPIR2DELIVERYITEM> obditem = new Holder<TABLEOFZBAPIR2DELIVERYITEM>(deliveryitems);
         com.lsh.wms.integration.wumart.soobd.TABLEOFBAPIRET2 _return = factory.createTABLEOFBAPIRET2();
-
-
+        com.lsh.wms.integration.wumart.soobd.BAPIRET2 bapiret2 = factory.createBAPIRET2();
+        bapiret2.setMESSAGE(createObdHeader.getTuId());
+        _return.getItem().add(bapiret2);
         ZBAPIR2DELIVERYSO zbinding = new ZBAPIR2DELIVERYSO_Service().getBindingSOAP12();
         this.auth((BindingProvider) zbinding);
 

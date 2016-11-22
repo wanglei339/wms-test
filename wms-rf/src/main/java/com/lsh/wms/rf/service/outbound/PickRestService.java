@@ -298,6 +298,21 @@ public class PickRestService implements IPickRestService {
                 BigDecimal splitQty = allocQty.subtract(quantQty);
                 waveService.splitWaveDetail(needPickDetail, splitQty);
             }
+
+
+
+            if(allocQty.compareTo(qty)<0){
+                //捡货缺交，如果捡获数量比系统记载数量，则生成盘点任务
+                logger.info("-------- in create taking_task");
+                Map<String,Object> queryMap = new HashMap<String, Object>();
+                queryMap.put("locationId",needPickDetail.getRealPickLocation());
+                BigDecimal stockQty = stockQuantService.getQty(queryMap);
+                if(stockQty.compareTo(needPickDetail.getPickQty())>0) {
+                    iStockTakingRpcService.create(needPickDetail.getRealPickLocation(), staffId);
+                }
+            }
+
+
             // 库移
             pickTaskService.pickOne(needPickDetail, locationId, containerId, qty, staffId);
             // 发送缺货消息(拣货缺交)
@@ -309,14 +324,6 @@ public class PickRestService implements IPickRestService {
                 body.put("locationId", locationId);
                 msg.setMsgBody(body);
                 messageService.sendMessage(msg);
-                //捡货缺交，如果捡获数量比系统记载数量，则生成盘点任务
-                logger.info("-------- in create taking_task");
-                Map<String,Object> queryMap = new HashMap<String, Object>();
-                queryMap.put("locationId",needPickDetail.getRealPickLocation());
-                BigDecimal stockQty = stockQuantService.getQty(queryMap);
-                if(stockQty.compareTo(needPickDetail.getPickQty())>0) {
-                    iStockTakingRpcService.create(needPickDetail.getRealPickLocation(), staffId);
-                }
             }
         }
         // 获取下一个wave_detail,如已做完则获取集货位id
