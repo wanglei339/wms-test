@@ -121,13 +121,13 @@ public class ReceiptRestService implements IReceiptRfService {
         //员工ID
         Long staffId = null;
 
-        if(request.get("uid") == null){
+        /*if(RequestUtils.getHeader("uid") == null){
             throw new BizCheckedException("1020001", "参数不能为空");
-        }
-        receiptRequest.setReceiptUser(request.get("uid").toString());
+        }*/
+        receiptRequest.setReceiptUser(RequestUtils.getHeader("uid"));
 
         Map<String,Object> map = new HashMap<String, Object>();
-        map.put("uid",request.get("uid"));
+        map.put("uid",RequestUtils.getHeader("uid"));
         //TODO 这种接口应该封装一下在下面,很多地方会用到
         List<SysUser> userList =  sysUserService.getSysUserList(map);
 
