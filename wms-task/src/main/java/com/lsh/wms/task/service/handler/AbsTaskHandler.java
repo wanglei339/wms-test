@@ -155,6 +155,7 @@ public class AbsTaskHandler implements TaskHandler {
         baseTaskService.done(taskId, this);
         //this.doneConcrete(taskId);
     }
+
     public void done(TaskEntry taskEntry) {
         baseTaskService.done(taskEntry, this);
     }
