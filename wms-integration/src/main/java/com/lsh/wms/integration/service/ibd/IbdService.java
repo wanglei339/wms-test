@@ -443,8 +443,8 @@ public class IbdService implements IIbdService {
         detail1.setRefItem("10");
         detail1.setDlvQty(new BigDecimal("2.00"));
         detail1.setSalesUnit("EA");
-        detail1.setMaterial("000000000000581951");
-        detail1.setOrderType(4);
+        detail1.setMaterial("581951");
+        detail1.setOrderType(3);
         details.add(detail1);
 
 
@@ -453,8 +453,8 @@ public class IbdService implements IIbdService {
         detail2.setRefItem("20");
         detail2.setDlvQty(new BigDecimal("2.00"));
         detail2.setSalesUnit("EA");
-        detail2.setMaterial("000000000000582555");
-        detail2.setOrderType(4);
+        detail2.setMaterial("582555");
+        detail2.setOrderType(3);
         details.add(detail2);
 
         CreateObdDetail detail3 = new CreateObdDetail();
@@ -463,7 +463,7 @@ public class IbdService implements IIbdService {
         detail3.setDlvQty(new BigDecimal("2.00"));
         detail3.setSalesUnit("EA");
         detail3.setMaterial("582556");
-        detail3.setOrderType(4);
+        detail3.setOrderType(3);
         details.add(detail3);
         header.setTuId("1111");
         header.setWarehouseCode("DC41");

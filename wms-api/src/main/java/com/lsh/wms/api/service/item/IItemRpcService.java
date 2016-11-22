@@ -19,7 +19,7 @@ public interface IItemRpcService {
     public CsiSku getSkuByCode(int iCodeType, String sCode);
     public List<BaseinfoItem> getItemsBySkuCode(long iOwnerId, String sSkuCode);
     public List<BaseinfoItem> searchItem(Map<String, Object> mapQuery);
-    void insertItem(BaseinfoItem item);
+    BaseinfoItem insertItem(BaseinfoItem item);
 
     BaseinfoItem updateItem(BaseinfoItem item);
 

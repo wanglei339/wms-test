@@ -66,9 +66,9 @@ public class ItemRpcService implements IItemRpcService {
     }
 
 
-    public void insertItem(BaseinfoItem item){
+    public BaseinfoItem insertItem(BaseinfoItem item){
         //生成baseinfoItem表
-        itemService.insertItem(item);
+       return itemService.insertItem(item);
     }
 
     public BaseinfoItem updateItem(BaseinfoItem item) {
