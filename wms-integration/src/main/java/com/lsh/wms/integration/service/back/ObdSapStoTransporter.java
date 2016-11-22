@@ -7,6 +7,7 @@ import com.lsh.wms.api.model.wumart.CreateIbdDetail;
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
 import com.lsh.wms.api.model.wumart.CreateObdDetail;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
+import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
@@ -63,6 +64,9 @@ public class ObdSapStoTransporter implements ITransporter{
             if (null == obdDetail) {
                 throw new BizCheckedException("2900004");
             }
+            if(detail.getBackStatus() == SoConstant.DELIVERY_DETAIL_STATUS_SUCCESS){
+                continue;
+            }
             BigDecimal outQty = detail.getDeliveryNum();
             //ea转换为包装数量。
             ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(detail.getOrderId());
@@ -73,6 +77,7 @@ public class ObdSapStoTransporter implements ITransporter{
             createObdHeader.setOrderOtherId(obdHeader.getOrderOtherId());
         }
         createObdHeader.setWarehouseCode(PropertyUtils.getString("wumart.werks"));
+        createObdHeader.setDeliveryId(sysLog.getBusinessId());
         createObdHeader.setTuId(header.getTuId());
         createObdHeader.setItems(createObdDetails);
         wuMart.sendObd(createObdHeader,sysLog);

@@ -52,6 +52,9 @@ public class ReceiveDetail implements Serializable {
 	/** 过账凭证明细 */
 	private String accountDetailId = "";
 
+	/**回传状态 1未过账 2过账成功*/
+	private Integer backStatus = 1;
+
 	public Long getId(){
 		return this.id;
 	}
@@ -227,5 +230,13 @@ public class ReceiveDetail implements Serializable {
 
 	public void setIbdId(String ibdId) {
 		this.ibdId = ibdId;
+	}
+
+	public Integer getBackStatus() {
+		return backStatus;
+	}
+
+	public void setBackStatus(Integer backStatus) {
+		this.backStatus = backStatus;
 	}
 }
