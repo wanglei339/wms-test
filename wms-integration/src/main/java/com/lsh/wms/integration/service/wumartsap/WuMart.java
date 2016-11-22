@@ -58,7 +58,7 @@ public class WuMart implements IWuMart {
             sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
             sysLog.setLogCode("ibd创建失败");
         }
-        sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
+        //sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
         //sysLogService.updateSysLog(sysLog);
         return null;
     }
@@ -88,7 +88,7 @@ public class WuMart implements IWuMart {
             sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
             sysLog.setLogCode("ibd创建失败");
         }
-        sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
+        //sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
         //sysLogService.updateSysLog(sysLog);
         return null;
     }
@@ -145,7 +145,7 @@ public class WuMart implements IWuMart {
                 sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
                 sysLog.setLogCode("ibd创建失败");
             }
-            sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
+            //sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
 
         }
 
@@ -169,7 +169,7 @@ public class WuMart implements IWuMart {
             sysLog.setStep(SysLogConstant.LOG_STEP_OBDFINISH);
             sysLog.setLogMessage("obd过账成功");
         }
-        sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
+        //sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
 
         return JsonUtils.SUCCESS();
     }
