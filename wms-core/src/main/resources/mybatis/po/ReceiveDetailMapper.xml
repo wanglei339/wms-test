@@ -124,9 +124,9 @@
 		<foreach collection="list" item="item" index="index"  open="" close=""  separator=";">
 			update receive_detail
 			<set>
-				inbound_qty=inbound_qty + #{item.inboundQty}
-				<!--<if test="item.updatedAt != null">updated_at=#{item.updatedAt},</if>
-				<if test="item.code != null">code=#{item.code},</if>-->
+				<if test="item.inboundQty != null">inbound_qty=inbound_qty + #{item.inboundQty},</if>
+				<if test="item.updatedAt != null">updated_at=#{item.updatedAt},</if>
+				<if test="item.code != null">code=#{item.code},</if>
 			</set>
 			where receive_id=#{item.receiveId} AND detail_other_id=#{item.detailOtherId} AND order_qty >= inbound_qty + #{item.inboundQty}
 		</foreach>
