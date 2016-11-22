@@ -1271,10 +1271,10 @@ public class LocationService {
      */
     //判断当前容器的是否达到上限
     public boolean isOnThreshold(BaseinfoLocation location, Long containerVol) {
-        if (location.getContainerVol() - containerVol > 0) {
-            return false;
-        } else {
+        if (location.getContainerVol() - containerVol < 0) {
             return true;
+        } else {
+            return false;
         }
     }
 
