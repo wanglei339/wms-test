@@ -106,7 +106,12 @@ public class PoReceiptService {
         inbReceiptDetailDao.batchInsert(inbReceiptDetailList);
         ibdDetailDao.batchUpdateInboundQtyByOrderIdAndDetailOtherId(updateIbdDetailList);
 
-        receiveDetailDao.batchUpdateInboundQtyByReceiveIdAndDetailOtherId(updateReceiveDetailList);
+        //receiveDetailDao.batchUpdateInboundQtyByReceiveIdAndDetailOtherId(updateReceiveDetailList);
+        if(updateReceiveDetailList != null && updateReceiveDetailList.size() > 0){
+            ReceiveDetail receiveDetail = updateReceiveDetailList.get(0);
+            receiveDetailDao.updateInboundQtyByReceiveIdAndDetailOtherId(receiveDetail.getInboundQty(),receiveDetail.getReceiveId(),receiveDetail.getDetailOtherId());
+        }
+
 
         //TODO 这种代码串的太长了,不应该放在这,一个收货的开发人员还管你出库怎么玩????
         //直流生成waveDetail
