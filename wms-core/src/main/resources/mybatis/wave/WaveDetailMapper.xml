@@ -237,6 +237,10 @@
 			<if test="pickLocationObj != null">
 				and ( ${pickLocationObj.getLocationId()} &lt;= alloc_pick_location and alloc_pick_location &lt;= ${pickLocationObj.getRightRange()})
 			</if>
+			<if test="collectLocationObj != null">
+				and ( ( ${collectLocationObj.getLocationId()} &lt;= alloc_collect_location and alloc_collect_location &lt;= ${collectLocationObj.getRightRange()} )
+					or ( ${collectLocationObj.getLocationId()} &lt;= real_collect_location and real_collect_location &lt;= ${collectLocationObj.getRightRange()} ) )
+			</if>
 		</where>
 	</sql>
    

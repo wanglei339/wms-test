@@ -264,6 +264,15 @@ public class WaveService {
         return detailDao.getWaveDetailList(mapQuery);
     }
 
+    @Transactional(readOnly = true)
+    public List<WaveDetail> getDetailsByCollectionLocation(BaseinfoLocation collectLocation){
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("collectLocationObj", collectLocation);
+        mapQuery.put("isValid", 1);
+        mapQuery.put("isAlive", 1);
+        return detailDao.getWaveDetailList(mapQuery);
+    }
+
     @Transactional(readOnly = false)
     public void insertDetail(WaveDetail detail){
         detail.setUpdatedAt(DateUtils.getCurrentSeconds());
