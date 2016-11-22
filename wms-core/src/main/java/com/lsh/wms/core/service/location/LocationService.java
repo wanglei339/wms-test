@@ -1472,18 +1472,10 @@ public class LocationService {
                 if (conf.get("children") != null) {
                     List<Map<String, Object>> children = (List<Map<String, Object>>) conf.get("children");
                     for (Map<String, Object> child : children) {
-                        if (child.get("regionNo") == null) {
-                            child.put("regionNo", location.getRegionNo());
-                        }
-                        if (child.get("passageNo") == null) {
-                            child.put("passageNo", location.getPassageNo());
-                        }
-                        if (child.get("shelfLevelNo") == null) {
-                            child.put("shelfLevelNo", location.getShelfLevelNo());
-                        }
-                        if (child.get("binPositionNo") == null) {
-                            child.put("binPositionNo", location.getBinPositionNo());
-                        }
+                        child.put("regionNo", location.getRegionNo());
+                        child.put("passageNo", location.getPassageNo());
+                        child.put("shelfLevelNo", location.getShelfLevelNo());
+                        child.put("binPositionNo", location.getBinPositionNo());
                         this.initLocationTree(child, location.getLocationId());
                     }
                 }
