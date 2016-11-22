@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -50,6 +51,7 @@ public class SoOrderRedisService {
             logger.info(StrUtils.formatString("SO[{0}] inserted, reserve itemId[{1}] with qty is {2}", orderId, itemId, obdDetail.getOrderQty()));
         }
     }
+
 
     public void delSoRedis(Long orderId, Long itemId, BigDecimal deliverQty){
         String redistKey = StrUtils.formatString(RedisKeyConstant.SO_SKU_INVENTORY_QTY, itemId);

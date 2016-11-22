@@ -2,10 +2,12 @@ package com.lsh.wms.core.dao.redis;
 
 import com.alibaba.dubbo.common.logger.Logger;
 import com.alibaba.dubbo.common.logger.LoggerFactory;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.StrUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Set;
@@ -122,8 +124,7 @@ public class RedisSortedSetDao extends RedisBaseDao {
     }
 
     public double decrease(String key, String value, double score) {
-        logger.info(StrUtils.formatString("key {0}, value {1}, score {2}, finalscore {3}", key, value, score, 0 - score));
-        //return zSetOp_r.incrementScore(key, value, 0 - score);
-        return zSetOp_w.incrementScore(key, value, 0 - score);
+        double res = zSetOp_w.incrementScore(key, value, 0 - score);
+        return res;
     }
 }

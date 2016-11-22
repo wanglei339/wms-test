@@ -44,6 +44,12 @@ public class LocationService {
      */
     public int countLocation(Map<String, Object> params) {
         params.put("isValid", LocationConstant.IS_VALID);
+        //locationCode
+        String locationCode = (String) params.get("locationCode");
+        if (locationCode != null) {
+            locationCode = locationCode + "%";
+            params.put("locationCode", locationCode);
+        }
         return locationDao.countBaseinfoLocation(params);
     }
 
@@ -1058,34 +1064,6 @@ public class LocationService {
     }
 
     /**
-     * 货架位置为空并且没上锁(没占用+没上锁)
-     * 一库位一托盘码
-     *
-     * @param locationId
-     * @return
-     */
-    public boolean shelfBinLocationIsEmptyAndUnlock(Long locationId) {
-        BaseinfoLocation location = this.getLocation(locationId);
-        if ((location.getCanUse().equals(1)) && location.getIsLocked().equals(0)) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * 判断位置上当前没托盘切没有被任务锁定
-     *
-     * @param locationId
-     * @return
-     */
-    public boolean locationIsEmptyAndUnlock(Long locationId) {
-        if (this.getLocation(locationId).getCurContainerVol().equals(0L) && !this.checkLocationLockStatus(locationId)) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * 提供空的可用位置,位置上当前没托盘切没有被任务锁定
      *
      * @param location
@@ -1096,24 +1074,6 @@ public class LocationService {
             return true;
         }
         return false;
-    }
-
-    /**
-     * 分配可用可用location
-     *
-     * @param type
-     * @return
-     */
-    public BaseinfoLocation getlocationIsEmptyAndUnlockByType(Long type) {
-        List<BaseinfoLocation> locations = this.getLocationsByType(type);
-        if (null != locations && locations.size() > 0) {
-            for (BaseinfoLocation location : locations) {
-                if (this.locationIsEmptyAndUnlock(location)) {
-                    return location;
-                }
-            }
-        }
-        return null;
     }
 
     /**

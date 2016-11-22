@@ -405,7 +405,7 @@ public class LocationDetailService {
             }
             return subList;
         }
-        return null;
+        return new ArrayList<BaseinfoLocation>();
     }
 
     /**

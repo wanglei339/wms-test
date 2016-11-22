@@ -114,7 +114,6 @@ public class ReceiptRestService implements IReceiptRfService {
             receiptRequest.setWarehouseId((Long) session.getAttribute("wareHouseId"));
         }
 
-        receiptRequest.setReceiptUser(RequestUtils.getHeader("uid"));
 
         /*
          *根据用户ID获取员工ID
@@ -122,6 +121,10 @@ public class ReceiptRestService implements IReceiptRfService {
         //员工ID
         Long staffId = null;
 
+        /*if(RequestUtils.getHeader("uid") == null){
+            throw new BizCheckedException("1020001", "参数不能为空");
+        }*/
+        receiptRequest.setReceiptUser(RequestUtils.getHeader("uid"));
 
         Map<String,Object> map = new HashMap<String, Object>();
         map.put("uid",RequestUtils.getHeader("uid"));
@@ -137,7 +140,6 @@ public class ReceiptRestService implements IReceiptRfService {
         }
 
         receiptRequest.setStaffId(staffId);
-        receiptRequest.setReceiptUser(userList.get(0).getUid().toString());
 
 
         receiptRequest.setReceiptTime(new Date());
@@ -735,8 +737,8 @@ public class ReceiptRestService implements IReceiptRfService {
                     map2.put("skuName",baseinfoItem.getSkuName());
                     //剩余数量。
                     map2.put("orderQty",orderQty.subtract(sowQty));
-                    map2.put("packName",ibdDetail.getPackName());
-                    map2.put("packUnit",ibdDetail.getPackUnit());
+                    map2.put("packName",obdDetail.getPackName());
+                    map2.put("packUnit",obdDetail.getPackUnit());
                     map2.put("pile",baseinfoItem.getPileX()+ "*" + baseinfoItem.getPileY() + "*" + baseinfoItem.getPileZ());
                     BaseinfoItemType baseinfoItemType = iItemTypeRpcService.getBaseinfoItemTypeByItemId(baseinfoItem.getItemType());
                     if(baseinfoItemType != null){

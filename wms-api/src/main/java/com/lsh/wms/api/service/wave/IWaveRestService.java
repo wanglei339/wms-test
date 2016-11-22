@@ -59,4 +59,7 @@ public interface IWaveRestService {
     public String runWaveGenerator() throws BizCheckedException;
     public String getWavePreviewList();
     public String createWaveByPreview(Map<String, Object> mapData) throws BizCheckedException;
+
+
+    public String getWaveDetailListByLocation(String collectLocationCode);
 }

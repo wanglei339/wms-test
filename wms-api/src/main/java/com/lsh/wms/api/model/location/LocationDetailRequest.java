@@ -27,13 +27,13 @@ public class LocationDetailRequest implements Serializable {
     /** 类型名 */
     private String typeName;
     /** 是否为叶子位置节点 */
-    private Integer isLeaf=0;
+    private Integer isLeaf=1;
     /** 是否可用 */
     private Integer isValid=1;
     /** 是否是存储用位置 */
     private Integer canStore=1;
     /** 可容纳容器数量 */
-    private Long containerVol=0L;
+    private Long containerVol=1L;
     /** 区域坐标，四维坐标-区位坐标 */
     private Long regionNo=0L;
     /** 通道坐标，四维坐标-通道坐标 */
@@ -53,7 +53,7 @@ public class LocationDetailRequest implements Serializable {
     /** 是否现在可用0-不可用1-可用 */
     private Integer canUse=1;
     /** 0-未上锁1-上锁 */
-    private Integer isLocked;
+    private Integer isLocked ;
     private Long curContainerVol;
 
     private String supplierNo ="0";

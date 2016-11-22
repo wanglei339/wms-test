@@ -247,12 +247,12 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 inbReceiptDetail.setOrderQty(ibdDetail.getOrderQty());
 
                 IbdDetail updateIbdDetail = new IbdDetail();
-                updateIbdDetail.setInboundQty(inbReceiptDetail.getInboundQty());
+                //inboundQty改为 ea的数量
+                BigDecimal inboundUnitQty = inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit());
+                updateIbdDetail.setInboundQty(inboundUnitQty);
                 updateIbdDetail.setOrderId(inbReceiptDetail.getOrderId());
-                //updateIbdDetail.setSkuId(inbReceiptDetail.getSkuId());
                 updateIbdDetail.setDetailOtherId(ibdDetail.getDetailOtherId());
                 updateIbdDetailList.add(updateIbdDetail);
-                //inbReceiptDetailList.add(inbReceiptDetail);
 
 
                 // TODO: 16/8/19 找原so单对应货品的批号,从出库单找
@@ -280,19 +280,20 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 Date date = format.parse(d);
                 inbReceiptDetail.setProTime(date);
                 //将inbReceiptDetail填入inbReceiptDetailList中
+                inbReceiptDetail.setInboundQty(inboundUnitQty);
                 inbReceiptDetailList.add(inbReceiptDetail);
 
 
                 BigDecimal inboundQty = inbReceiptDetail.getInboundQty();
 
                 //qty转化为ea
-                BigDecimal qty = inboundQty.multiply(inbReceiptDetail.getPackUnit());
+                //BigDecimal qty = inboundQty.multiply(inbReceiptDetail.getPackUnit());
 
                 StockMove move = new StockMove();
                 move.setToLocationId(inbReceiptHeader.getLocation());
                 move.setToContainerId(inbReceiptHeader.getContainerId());
                 //move.setQty(inbReceiptDetail.getInboundQty());
-                move.setQty(qty);
+                move.setQty(inboundUnitQty);
                 move.setItemId(inbReceiptDetail.getItemId());
                 move.setOperator(inbReceiptHeader.getStaffId());
                 move.setTaskId(taskId);
@@ -404,8 +405,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     }
                 }*/
                 IbdDetail updateIbdDetail = new IbdDetail();
-                //TODO 这里是啥玩意,直接设置了,不做加法?
-                updateIbdDetail.setInboundQty(inbReceiptDetail.getInboundQty());
+                //转成ea
+                BigDecimal inboundUnitQty = inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit());
+                updateIbdDetail.setInboundQty(inboundUnitQty);
                 updateIbdDetail.setOrderId(inbReceiptDetail.getOrderId());
                 //updateIbdDetail.setSkuId(inbReceiptDetail.getSkuId());
                 updateIbdDetail.setDetailOtherId(ibdDetail.getDetailOtherId());
@@ -418,7 +420,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 ReceiveDetail updateReceiveDetail = new ReceiveDetail();
                 updateReceiveDetail.setDetailOtherId(receiveDetail.getDetailOtherId());
                 updateReceiveDetail.setReceiveId(receiveDetail.getReceiveId());
-                updateReceiveDetail.setInboundQty(inbReceiptDetail.getInboundQty());
+                //改为ea的数量
+                updateReceiveDetail.setInboundQty(inboundUnitQty);
                 updateReceiveDetail.setUpdatedAt(DateUtils.getCurrentSeconds());//更新时间
                 updateReceiveDetail.setCode(baseinfoItem.getCode());//更新国条
                 updateReceiveDetailList.add(updateReceiveDetail);
@@ -436,6 +439,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     obdStreamDetailList.add(obdStreamDetail);
 
                 }
+                inbReceiptDetail.setInboundQty(inboundUnitQty);
                 inbReceiptDetailList.add(inbReceiptDetail);
 
 
@@ -484,10 +488,10 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 move.setToLocationId(inbReceiptHeader.getLocation());
                 move.setOperator(inbReceiptHeader.getStaffId());
                 move.setToContainerId(inbReceiptHeader.getContainerId());
-                //qty转化为ea
-                BigDecimal qty = inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit());
+//                //qty转化为ea
+//                BigDecimal qty = inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit());
 
-                move.setQty(qty);
+                move.setQty(inboundUnitQty);
                 move.setItemId(inbReceiptDetail.getItemId());
                 move.setTaskId(taskId);
 
@@ -886,9 +890,10 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
             // 批量修改ibd 实收数量
             IbdDetail updateIbdDetail = new IbdDetail();
-            updateIbdDetail.setInboundQty(inbReceiptDetail.getInboundQty());
+            //转为ea
+            BigDecimal inboundUnitQty = inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit());
+            updateIbdDetail.setInboundQty(inboundUnitQty);
             updateIbdDetail.setOrderId(inbReceiptDetail.getOrderId());
-            //updateIbdDetail.setSkuId(inbReceiptDetail.getSkuId());
             updateIbdDetail.setDetailOtherId(ibdDetail.getDetailOtherId());
             updateIbdDetailList.add(updateIbdDetail);
 
@@ -900,7 +905,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
             ReceiveDetail updateReceiveDetail = new ReceiveDetail();
             updateReceiveDetail.setDetailOtherId(receiveDetail.getDetailOtherId());
             updateReceiveDetail.setReceiveId(receiveDetail.getReceiveId());
-            updateReceiveDetail.setInboundQty(inbReceiptDetail.getInboundQty());
+            //改为ea
+            updateReceiveDetail.setInboundQty(inboundUnitQty);
             updateReceiveDetail.setUpdatedAt(DateUtils.getCurrentSeconds());//更新时间
             updateReceiveDetail.setCode(baseinfoItem.getCode());//更新国条
             updateReceiveDetailList.add(updateReceiveDetail);
@@ -918,6 +924,10 @@ public class ReceiptRpcService implements IReceiptRpcService {
             obdStreamDetailList.add(obdStreamDetail);
             obdStreamDetail.setOrderId(obdOrderId);
 
+
+
+            //将数量转为ea
+            inbReceiptDetail.setInboundQty(inboundUnitQty);
             inbReceiptDetailList.add(inbReceiptDetail);
 
             StockLot stockLot = new StockLot();
@@ -942,10 +952,10 @@ public class ReceiptRpcService implements IReceiptRpcService {
             move.setToLocationId(inbReceiptHeader.getLocation());
             move.setOperator(inbReceiptHeader.getStaffId());
             move.setToContainerId(inbReceiptHeader.getContainerId());
-            //qty转化为ea
-            BigDecimal qty = inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit());
+//            //qty转化为ea
+//            BigDecimal qty = inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit());
 
-            move.setQty(qty);
+            move.setQty(inboundUnitQty);
             move.setItemId(inbReceiptDetail.getItemId());
             move.setTaskId(taskId);
 
