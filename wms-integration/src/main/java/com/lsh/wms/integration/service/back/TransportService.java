@@ -38,6 +38,7 @@ public class TransportService implements ITransportService{
             transporterManager.dealOne(sysLog);
 
             logger.info(StrUtils.formatString("begin update sysLogInfo[logId:{0},businessId:{1}] ", sysLogId, sysLog.getBusinessId()));
+            sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
             sysLogService.updateSysLog(sysLog);
         } catch (Exception e) {
             logger.error("Exception", e);

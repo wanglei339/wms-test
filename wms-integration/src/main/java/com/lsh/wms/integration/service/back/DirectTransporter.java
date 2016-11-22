@@ -8,6 +8,7 @@ import com.lsh.wms.api.model.wumart.CreateIbdDetail;
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
 import com.lsh.wms.api.model.wumart.CreateObdDetail;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
+import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
@@ -67,6 +68,9 @@ public class DirectTransporter implements ITransporter{
             if (null == obdDetail) {
                 throw new BizCheckedException("2900004");
             }
+            if(detail.getBackStatus() == SoConstant.DELIVERY_DETAIL_STATUS_SUCCESS){
+                continue;
+            }
             //sto obd order_other_id
             ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(obdDetail.getOrderId());
             createObdDetail.setRefDoc(obdHeader.getOrderOtherId());
@@ -103,6 +107,7 @@ public class DirectTransporter implements ITransporter{
             createIbdDetailList.add(createIbdDetail);
         }
         CreateObdHeader createObdHeader = new CreateObdHeader();
+        createObdHeader.setDeliveryId(sysLog.getBusinessId());
         createObdHeader.setTuId(header.getTuId());
         createObdHeader.setWarehouseCode(PropertyUtils.getString("wumart.werks"));
         createObdHeader.setItems(createObdDetailList);
