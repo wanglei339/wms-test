@@ -505,6 +505,7 @@ public class TuService {
                 for(OutbDeliveryDetail oldDelivery : oldDeliverys){
                     oldDeliveryQty.add(oldDelivery.getDeliveryNum());
                 }
+                logger.info("cao3 "+oldDeliveryQty);
                 BigDecimal leftQty = detail.getDeliveryNum();
                 int idx = 0;
                 for (ObdDetail obdDetail : itemOrderList) {
@@ -512,6 +513,7 @@ public class TuService {
                     OutbDeliveryDetail newDetail = new OutbDeliveryDetail();
                     ObjUtils.bean2bean(detail, newDetail);
                     BigDecimal orderQty = obdDetail.getOrderQty().multiply(obdDetail.getPackUnit());
+                    logger.info("cao4 "+orderQty+" "+oldDeliveryQty);
                     //这里先来先得,先把老的除去先
                     if(orderQty.compareTo(oldDeliveryQty)<=0){
                         oldDeliveryQty = oldDeliveryQty.subtract(orderQty);
@@ -525,9 +527,11 @@ public class TuService {
                     }else{
                         qty = orderQty;
                     }
+                    logger.info("cao "+qty+" "+leftQty+" "+orderQty);
                     newDetail.setDeliveryNum(qty);
                     newDetail.setRefDetailOtherId(obdDetail.getDetailOtherId());
                     leftQty = leftQty.subtract(qty);
+                    logger.info("cao2 "+qty+" "+leftQty+" "+orderQty);
                     realDetails.add(newDetail);
                     if(leftQty.compareTo(BigDecimal.ZERO)==0){
                         break;
