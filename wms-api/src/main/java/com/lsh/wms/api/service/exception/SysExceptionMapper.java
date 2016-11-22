@@ -1,5 +1,7 @@
 package com.lsh.wms.api.service.exception;
 
+import com.alibaba.dubbo.common.logger.Logger;
+import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.base.Head;
@@ -19,11 +21,13 @@ import java.util.Date;
  * desc:类功能描述
  */
 public class SysExceptionMapper implements ExceptionMapper<Throwable> {
+    private static Logger logger = LoggerFactory.getLogger(SysExceptionMapper.class);
     public  Response toResponse(Throwable throwable) {
         StringBuffer msg = new StringBuffer();
         msg.append(throwable.getMessage());
         msg.append(" case by :");
         msg.append(throwable.getCause()!=null?throwable.getCause().getMessage():"");
+        logger.info(msg.toString());
         BaseResponse responseBaseVo = ResUtils.getResponse(ExceptionConstant.RES_CODE_500,msg.toString(),null);
         Response response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(responseBaseVo).type(ContentType.APPLICATION_JSON_UTF_8).build();
         return  response;
