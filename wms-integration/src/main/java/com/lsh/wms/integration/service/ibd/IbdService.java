@@ -114,9 +114,9 @@ public class IbdService implements IIbdService {
             headerMap.put("platform", "1");
             String res  = HttpClientUtils.postBody(IntegrationConstan.URL_PO,  requestBody,dc41_timeout , dc41_charset, headerMap);
             logger.info("~~~~~~~~~~下发黑狗数据 request : " + JSON.toJSONString(request) + "~~~~~~~~~");
-            JSONObject jsonObject = JSON.parseObject(res);
-            //jsonObject.get("body");
-            return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, jsonObject.get("body"));
+//            JSONObject jsonObject = JSON.parseObject(res);
+//            //jsonObject.get("body");
+            return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, res);
         }
 
         for(IbdDetail ibdDetail : details){
