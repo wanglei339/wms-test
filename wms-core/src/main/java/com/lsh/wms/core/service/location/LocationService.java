@@ -44,6 +44,12 @@ public class LocationService {
      */
     public int countLocation(Map<String, Object> params) {
         params.put("isValid", LocationConstant.IS_VALID);
+        //locationCode
+        String locationCode = (String) params.get("locationCode");
+        if (locationCode != null) {
+            locationCode = locationCode + "%";
+            params.put("locationCode", locationCode);
+        }
         return locationDao.countBaseinfoLocation(params);
     }
 
