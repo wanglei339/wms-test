@@ -154,7 +154,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         if(qty.compareTo(BigDecimal.ZERO)<=0 || realQty.compareTo(BigDecimal.ZERO)<=0){
             return JsonUtils.TOKEN_ERROR("上架详情数量异常");
         }
-        if(!this.chargeLocation(allocLocationId,LocationConstant.LOFT,BinUsageConstant.BIN_UASGE_STORE) || !this.chargeLocation(realLocationId,LocationConstant.LOFT,BinUsageConstant.BIN_UASGE_STORE)){
+        if(!this.chargeLocation(allocLocationId,LocationConstant.LOFTS,BinUsageConstant.BIN_UASGE_STORE) || !this.chargeLocation(realLocationId,LocationConstant.LOFTS,BinUsageConstant.BIN_UASGE_STORE)){
             return JsonUtils.TOKEN_ERROR("库位状态异常");
         }
 
@@ -220,7 +220,7 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         if(qty.compareTo(BigDecimal.ZERO)<=0 || realQty.compareTo(BigDecimal.ZERO)<=0){
             return JsonUtils.TOKEN_ERROR("上架详情数量异常");
         }
-        if(!this.chargeLocation(allocLocationId,LocationConstant.LOFT, BinUsageConstant.BIN_UASGE_STORE) || !this.chargeLocation(realLocationId,LocationConstant.LOFT,BinUsageConstant.BIN_UASGE_STORE)){
+        if(!this.chargeLocation(allocLocationId,LocationConstant.LOFTS, BinUsageConstant.BIN_UASGE_STORE) || !this.chargeLocation(realLocationId,LocationConstant.LOFTS,BinUsageConstant.BIN_UASGE_STORE)){
             return JsonUtils.TOKEN_ERROR("库位状态异常");
         }
         AtticShelveTaskDetail detail = shelveTaskService.getDetailById(detailId);
@@ -538,11 +538,10 @@ public class AtticShelveRestService implements IAtticShelveRestService{
     }
     public boolean chargeLocation(Long locationId,Long type,Integer binUsage) {
         BaseinfoLocation location = locationService.getLocation(locationId);
-        BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(locationId);
         if(location==null){
             throw new BizCheckedException("2030013");
         }
-        if(!fatherLocation.getType().equals(type)){
+        if(!location.getRegionType().equals(type)){
             return false;
         }
         if(location.getBinUsage().compareTo(binUsage)==0) {

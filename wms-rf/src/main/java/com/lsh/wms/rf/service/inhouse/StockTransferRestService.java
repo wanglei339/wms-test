@@ -123,8 +123,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             if (location == null) {
                 throw new BizCheckedException("2060012");
             }
-            BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());
-            if (!(fatherLocation.getType().equals(LocationConstant.SHELF) || fatherLocation.getType().equals(LocationConstant.SPLIT_AREA))) {
+            if (!(location.getRegionType().equals(LocationConstant.SHELFS) || location.getRegionType().equals(LocationConstant.SPLIT_AREA))) {
                 throw new BizCheckedException("2550041");
             }
             StockQuantCondition condition = new StockQuantCondition();
@@ -143,7 +142,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             condition.setLotId(quant.getLotId());
             condition.setReserveTaskId(0L);
             BigDecimal qty = stockQuantRpcService.getQty(condition);
-            if (fatherLocation.getType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
+            if (location.getRegionType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
                 result.put("packName", "EA");
                 result.put("uomQty", qty);
             } else {
@@ -201,8 +200,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             plan.setFromLocationId(locationId);
             plan.setItemId(quant.getItemId());
             Long subType = 2L;
-            BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());
-            if (fatherLocation.getType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
+            if (location.getRegionType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
                 subType = 3L;
             }
             plan.setSubType(subType);
@@ -266,8 +264,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             StockQuant quant = quantList.get(0);
             plan.setItemId(quant.getItemId());
             Long subType = 2L;
-            BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());
-            if (fatherLocation.getType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
+            if (location.getRegionType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
                 subType = 3L;
             }
             plan.setSubType(subType);
@@ -330,8 +327,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             StockQuant quant = quantList.get(0);
             plan.setItemId(quant.getItemId());
             Long subType = 2L;
-            BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());
-            if (fatherLocation.getType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
+            if (location.getRegionType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
                 subType = 3L;
             }
             plan.setSubType(subType);

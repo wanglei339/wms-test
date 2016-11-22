@@ -114,6 +114,7 @@ public class QCTaskHandler extends AbsTaskHandler {
         }
         //设置当前的托盘位置
         Long locationId = stockQuants.get(0).getLocationId();
+        logger.info(String.format("create qc container %d location %d", containerId, locationId));
         info.setLocationId(locationId);
 
         info.setSubType(pickEntry.getTaskInfo().getBusinessMode());  //沿用上面的直流还是在库

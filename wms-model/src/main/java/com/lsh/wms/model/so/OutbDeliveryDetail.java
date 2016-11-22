@@ -31,6 +31,9 @@ public class OutbDeliveryDetail implements Serializable {
 	/** 批号ID */
 	private Long lotId;
 
+	/**回传状态 1未过账 2过账成功*/
+	private Integer backStatus;
+
 	/** 出货数 */
     private BigDecimal deliveryNum;
 	/**  */
@@ -176,5 +179,13 @@ public class OutbDeliveryDetail implements Serializable {
 
 	public void setUpdatetime(Date updatetime) {
 		this.updatetime = updatetime;
+	}
+
+	public Integer getBackStatus() {
+		return backStatus;
+	}
+
+	public void setBackStatus(Integer backStatus) {
+		this.backStatus = backStatus;
 	}
 }

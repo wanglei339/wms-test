@@ -105,15 +105,16 @@ public class ItemRestService implements IItemRestService {
             if(status == 1)
                 throw new BizCheckedException("2050002");
         }
+        BaseinfoItem newItem = null;
         try{
-            itemRpcService.insertItem(item);
+            newItem = itemRpcService.insertItem(item);
         }catch (BizCheckedException e) {
             throw e;
         }catch (Exception e){
             logger.error(e.getMessage());
             return JsonUtils.EXCEPTION_ERROR("Create failed");
         }
-        return JsonUtils.SUCCESS();
+        return JsonUtils.SUCCESS(newItem.getItemId());
     }
     @POST
     @Path("insertItems")

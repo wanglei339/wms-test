@@ -87,41 +87,39 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     private RedisStringDao redisStringDao;
 
     public boolean checkLocation(BaseinfoLocation fromLication, BaseinfoLocation toLication) throws BizCheckedException {
-        BaseinfoLocation fromFationLocation = locationService.getFatherRegionBySonId(fromLication.getLocationId());
-        BaseinfoLocation toFationLocation = locationService.getFatherRegionBySonId(toLication.getLocationId());
 
-        if (fromFationLocation.getType().equals(LocationConstant.SHELF) && fromLication.getBinUsage().compareTo(BinUsageConstant.BIN_UASGE_STORE)==0) {
-            return ((toFationLocation.getType().equals(LocationConstant.SHELF) && toLication.getBinUsage().compareTo(BinUsageConstant.BIN_UASGE_STORE)==0) ||
-                    toFationLocation.getType().equals(LocationConstant.BACK_AREA) ||
-                    toFationLocation.getType().equals(LocationConstant.DEFECTIVE_AREA) ||
-                    (toFationLocation.getType().equals(LocationConstant.SHELF) && toLication.getBinUsage().compareTo(BinUsageConstant.BIN_UASGE_PICK)==0)
+        if (fromLication.getRegionType().equals(LocationConstant.SHELFS) && fromLication.getBinUsage().compareTo(BinUsageConstant.BIN_UASGE_STORE)==0) {
+            return ((toLication.getRegionType().equals(LocationConstant.SHELFS) && toLication.getBinUsage().compareTo(BinUsageConstant.BIN_UASGE_STORE)==0) ||
+                    toLication.getType().equals(LocationConstant.BACK_AREA) ||
+                    toLication.getType().equals(LocationConstant.DEFECTIVE_AREA) ||
+                    (toLication.getRegionType().equals(LocationConstant.SHELFS) && toLication.getBinUsage().compareTo(BinUsageConstant.BIN_UASGE_PICK)==0)
             );
-        } else if (fromFationLocation.getType().equals(LocationConstant.SHELF) && fromLication.getBinUsage().compareTo(BinUsageConstant.BIN_UASGE_STORE)==0)  {
-            return ((toFationLocation.getType().equals(LocationConstant.SPLIT_AREA) && toLication.getBinUsage().compareTo(BinUsageConstant.BIN_PICK_STORE)==0) ||
-                    toFationLocation.getType().equals(LocationConstant.BACK_AREA) ||
-                    toFationLocation.getType().equals(LocationConstant.DEFECTIVE_AREA)
+        } else if (fromLication.getRegionType().equals(LocationConstant.SHELFS) && fromLication.getBinUsage().compareTo(BinUsageConstant.BIN_UASGE_STORE)==0)  {
+            return ((toLication.getRegionType().equals(LocationConstant.SPLIT_AREA) && toLication.getBinUsage().compareTo(BinUsageConstant.BIN_PICK_STORE)==0) ||
+                    toLication.getType().equals(LocationConstant.BACK_AREA) ||
+                    toLication.getType().equals(LocationConstant.DEFECTIVE_AREA)
             );
-        } else if (fromFationLocation.getType().equals(LocationConstant.BACK_AREA)) {
-            return ((toFationLocation.getType().equals(LocationConstant.SHELF) && toLication.getBinUsage().compareTo(BinUsageConstant.BIN_UASGE_STORE)==0)||
-                    (toFationLocation.getType().equals(LocationConstant.SPLIT_AREA)&& toLication.equals(BinUsageConstant.BIN_PICK_STORE)) ||
-                    toFationLocation.getType().equals(LocationConstant.DEFECTIVE_AREA) ||
-                    (toFationLocation.equals(LocationConstant.SHELF) && toLication.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK))
+        } else if (fromLication.getType().equals(LocationConstant.BACK_AREA)) {
+            return ((toLication.getRegionType().equals(LocationConstant.SHELFS) && toLication.getBinUsage().compareTo(BinUsageConstant.BIN_UASGE_STORE)==0)||
+                    (toLication.getRegionType().equals(LocationConstant.SPLIT_AREA)&& toLication.equals(BinUsageConstant.BIN_PICK_STORE)) ||
+                    toLication.getType().equals(LocationConstant.DEFECTIVE_AREA) ||
+                    (toLication.getRegionType().equals(LocationConstant.SHELFS) && toLication.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK))
             );
-        } else if (fromFationLocation.getType().equals(LocationConstant.DEFECTIVE_AREA)) {
-            return ((toFationLocation.getType().equals(LocationConstant.SHELF) && toLication.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)) ||
-                    (toFationLocation.getType().equals(LocationConstant.SPLIT_AREA) && toLication.equals(BinUsageConstant.BIN_PICK_STORE)) ||
-                    toFationLocation.getType().equals(LocationConstant.BACK_AREA) ||
-                    (toFationLocation.getType().equals(LocationConstant.SHELF) && toLication.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK))
+        } else if (fromLication.getType().equals(LocationConstant.DEFECTIVE_AREA)) {
+            return ((toLication.getRegionType().equals(LocationConstant.SHELFS) && toLication.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)) ||
+                    (toLication.getRegionType().equals(LocationConstant.SPLIT_AREA) && toLication.equals(BinUsageConstant.BIN_PICK_STORE)) ||
+                    toLication.getType().equals(LocationConstant.BACK_AREA) ||
+                    (toLication.getRegionType().equals(LocationConstant.SHELFS) && toLication.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK))
             );
-        } else if (fromFationLocation.getType().equals(LocationConstant.MARKET_RETURN_AREA)) {
-            return ((toFationLocation.getType().equals(LocationConstant.SHELF) && toLication.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)) ||
-                    (toFationLocation.getType().equals(LocationConstant.SPLIT_AREA) && toLication.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE))
+        } else if (fromLication.getType().equals(LocationConstant.MARKET_RETURN_AREA)) {
+            return ((toLication.getRegionType().equals(LocationConstant.SHELFS) && toLication.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)) ||
+                    (toLication.getRegionType().equals(LocationConstant.SPLIT_AREA) && toLication.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE))
             );
-        } else if ((fromFationLocation.getType().equals(LocationConstant.SHELF) && fromLication.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE))) {
-            return ((toFationLocation.getType().equals(LocationConstant.SHELF) && toLication.equals(BinUsageConstant.BIN_UASGE_PICK))||
-                    toFationLocation.getType().equals(LocationConstant.BACK_AREA) ||
-                    toFationLocation.getType().equals(LocationConstant.DEFECTIVE_AREA) ||
-                    (toFationLocation.getType().equals(LocationConstant.SHELF) && toLication.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE))
+        } else if ((fromLication.getRegionType().equals(LocationConstant.SHELFS) && fromLication.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE))) {
+            return ((toLication.getRegionType().equals(LocationConstant.SHELFS) && toLication.equals(BinUsageConstant.BIN_UASGE_PICK))||
+                    toLication.getType().equals(LocationConstant.BACK_AREA) ||
+                    toLication.getType().equals(LocationConstant.DEFECTIVE_AREA) ||
+                    (toLication.getRegionType().equals(LocationConstant.SHELFS) && toLication.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE))
             );
         }
         return false;
@@ -170,12 +168,11 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (plan.getSubType().equals(1L)) {
             throw new BizCheckedException("2550040");
         }
-        BaseinfoLocation fromFationLocation = locationService.getFatherRegionBySonId(fromLocation.getLocationId());
-        if ((fromFationLocation.getType().equals(LocationConstant.SPLIT_AREA) && fromLocation.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE))) {
+        if ((fromLocation.getRegionType().equals(LocationConstant.SPLIT_AREA) && fromLocation.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE))) {
             if (!plan.getSubType().equals(3L)) {
                 throw new BizCheckedException("2550038");
             }
-        } else if ((fromFationLocation.getType().equals(LocationConstant.SHELF) && fromLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)) || (fromFationLocation.getType().equals(LocationConstant.SHELF) && fromLocation.equals(BinUsageConstant.BIN_UASGE_STORE))) {
+        } else if ((fromLocation.getRegionType().equals(LocationConstant.SHELFS) && fromLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)) || (fromLocation.getRegionType().equals(LocationConstant.SHELFS) && fromLocation.equals(BinUsageConstant.BIN_UASGE_STORE))) {
             if (!plan.getSubType().equals(2L)) {
                 throw new BizCheckedException("2550039");
             }
@@ -210,17 +207,16 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             }
         }
         List<StockQuant> toQuants = quantService.getQuantsByLocationId(toLocationId);
-        BaseinfoLocation toFationLocation = locationService.getFatherRegionBySonId(toLocation.getLocationId());
 
         // 拣货位
-        if (toFationLocation.getType().compareTo(LocationConstant.SHELF) == 0 && toLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)) {
+        if (toLocation.getRegionType().compareTo(LocationConstant.SHELFS) == 0 && toLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)) {
             List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toLocationId);
             if (itemLocations.size() > 0 && itemLocations.get(0).getItemId().compareTo(itemId) != 0) {
                 throw new BizCheckedException("2550004");
             }
         } else if (toQuants != null && toQuants.size() > 0
-                && toFationLocation.getType().compareTo(LocationConstant.BACK_AREA) != 0
-                && toFationLocation.getType().compareTo(LocationConstant.DEFECTIVE_AREA) != 0) {
+                && toLocation.getType().compareTo(LocationConstant.BACK_AREA) != 0
+                && toLocation.getType().compareTo(LocationConstant.DEFECTIVE_AREA) != 0) {
             //其余货位
             if (toQuants.get(0).getItemId().compareTo(itemId) != 0) {
                 throw new BizCheckedException("2550004");
@@ -507,8 +503,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
                 plan.setQty(quant.getQty().divide(quant.getPackUnit(), 0, BigDecimal.ROUND_DOWN));
                 plan.setItemId(quant.getItemId());
                 Long subType = 2L;
-                BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());;
-                if (fatherLocation.getType().equals(LocationConstant.SPLIT_AREA) && location.equals(BinUsageConstant.BIN_PICK_STORE)) {
+                if (location.getRegionType().equals(LocationConstant.SPLIT_AREA) && location.equals(BinUsageConstant.BIN_PICK_STORE)) {
                     subType = 3L;
                     plan.setQty(quant.getQty());
                 }
@@ -536,8 +531,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
                 plan.setItemId(quant.getItemId());
                 plan.setQty(quant.getQty().divide(quant.getPackUnit(), 0, BigDecimal.ROUND_DOWN));
                 Long subType = 2L;
-                BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());
-                if (fatherLocation.getType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
+                if (location.getRegionType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
                     subType = 3L;
                     plan.setQty(quant.getQty());
                 }
@@ -565,8 +559,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         params.put("isLocked", LocationConstant.UNLOCK);
         params.put("type", location.getType());
         List<BaseinfoLocation> toLocationList = locationService.getBaseinfoLocationList(params);
-        BaseinfoLocation fatherLocation = locationService.getFatherRegionBySonId(location.getLocationId());
-        if (fatherLocation.getType().equals(LocationConstant.SHELF) && location.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)) {
+        if (location.getRegionType().equals(LocationConstant.SHELFS) && location.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)) {
             List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationList(quant.getItemId());
             List<Long> locationIdList = new ArrayList<Long>();
             for (BaseinfoLocation baseinfoLocation : toLocationList) {

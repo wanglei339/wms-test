@@ -261,6 +261,7 @@ public class WaveRestService implements IWaveRestService {
     @POST
     @Path("createPickzone")
     public String createPickzone(PickZone zone) {
+        logger.info("zone pickType "+zone.getPickType());
         return JsonUtils.SUCCESS(zoneService.insertPickZone(zone));
     }
 

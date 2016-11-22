@@ -30,6 +30,7 @@ public class PickZoneService {
         zone.setPickZoneId(RandomUtils.genId());
         zone.setCreatedAt(DateUtils.getCurrentSeconds());
         zone.setUpdatedAt(DateUtils.getCurrentSeconds());
+        logger.info("zone pickType "+zone.getPickType());
         zoneDao.insert(zone);
         return 0;
     }
