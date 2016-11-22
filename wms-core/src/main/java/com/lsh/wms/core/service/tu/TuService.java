@@ -482,6 +482,7 @@ public class TuService {
             }
             header.setDeliveryId(RandomUtils.genId());
             List<ObdDetail> orderDetails = soOrderService.getOutbSoDetailListByOrderId(header.getOrderId());
+            logger.info("size1 "+orderDetails.size());
             Collections.sort(orderDetails, new Comparator<ObdDetail>() {
                 //此处可以设定一个排序规则,对波次中的订单优先级进行排序
                 public int compare(ObdDetail o1, ObdDetail o2) {
@@ -494,10 +495,12 @@ public class TuService {
                 //进行运算,首先取得订单里的item订货列表信息
                 List<ObdDetail> itemOrderList = new LinkedList<ObdDetail>();
                 for (ObdDetail obdDetail : orderDetails) {
-                    if (obdDetail.getItemId() == detail.getItemId()) {
+                    logger.info("caogod "+obdDetail.getItemId()+" "+detail.getItemId());
+                    if (obdDetail.getItemId().equals(detail.getItemId())) {
                         itemOrderList.add(obdDetail);
                     }
                 }
+                logger.info("size2 "+itemOrderList.size());
                 //再从发货单里取得曾经发过货的详情,因为可能又多次发货问题,这是需要处理的.
                 List<OutbDeliveryDetail> oldDeliverys = soDeliveryService.getOutbDeliveryDetailsByOrderId(header.getOrderId());
                 if(oldDeliverys == null) oldDeliverys = new LinkedList<OutbDeliveryDetail>();
