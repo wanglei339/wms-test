@@ -286,11 +286,13 @@ public class IbdService implements IIbdService {
         CreateIbdHeader backData = wuMartSap.ibd2Sap(createIbdHeader);
         String mess = "";
         if(backData != null){
-            mess =  wuMartSap.ibd2SapAccount(backData);
-            if("E".equals(mess)){
-                return JsonUtils.TOKEN_ERROR("创建ibd成功,过账失败");
+            Map<String,Object> map =  wuMartSap.ibd2SapAccount(backData);
+            if("E".equals(map.get("type"))){
+                return JsonUtils.TOKEN_ERROR("ibd过账sap返回为空");
+            }else if("P".equals(map.get("Type")) && map.get("message") == null){
+                mess = "ibd创建并过账成功";
             }else{
-                mess = "创建并过账成功";
+                return JsonUtils.TOKEN_ERROR("部分过账成功;sap返回信息:" + map.get("message"));
             }
         }else{
             return JsonUtils.TOKEN_ERROR("创建ibd失败");
