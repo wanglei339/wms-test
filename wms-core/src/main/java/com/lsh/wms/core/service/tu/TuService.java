@@ -535,8 +535,8 @@ public class TuService {
                 }
                 if(leftQty.compareTo(BigDecimal.ZERO)!=0){
                     //出事了,怎么来的?
-                    logger.error(String.format("delivery item out of bound order[%d] item[%d] qty[%d]",
-                            header.getOrderId(), detail.getItemId(), detail.getDeliveryNum()));
+                    logger.error(String.format("delivery item out of bound order[%d] item[%d] qty[%s]",
+                            header.getOrderId(), detail.getItemId(), detail.getDeliveryNum().toString()));
                     throw new BizCheckedException("2990045");
                 }
             }
