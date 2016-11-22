@@ -108,8 +108,9 @@ public class PoReceiptService {
 
         //receiveDetailDao.batchUpdateInboundQtyByReceiveIdAndDetailOtherId(updateReceiveDetailList);
         if(updateReceiveDetailList != null && updateReceiveDetailList.size() > 0){
-            ReceiveDetail receiveDetail = updateReceiveDetailList.get(0);
-            receiveDetailDao.updateInboundQtyByReceiveIdAndDetailOtherId(receiveDetail.getInboundQty(),receiveDetail.getReceiveId(),receiveDetail.getDetailOtherId());
+//            ReceiveDetail receiveDetail = updateReceiveDetailList.get(0);
+//            receiveDetailDao.updateInboundQtyByReceiveIdAndDetailOtherId(receiveDetail.getInboundQty(),receiveDetail.getReceiveId(),receiveDetail.getDetailOtherId());
+            receiveDetailDao.batchUpdateInboundQtyByReceiveIdAndDetailOtherId(updateReceiveDetailList);
         }
 
 
