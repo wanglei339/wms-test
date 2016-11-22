@@ -354,7 +354,7 @@ public class StockTransferRestService implements IStockTransferRestService {
         Map<String, Object> result;
         Long type = Long.valueOf(params.get("type").toString());
         logger.info(params.toString());
-        try {
+//        try {
             Long uid;
             try {
                 uid = iSysUserRpcService.getSysUserById(Long.valueOf(RequestUtils.getHeader("uid"))).getUid();
@@ -375,12 +375,12 @@ public class StockTransferRestService implements IStockTransferRestService {
             } else {
                 result = iStockTransferRpcService.scanToLocation(params);
             }
-        } catch (BizCheckedException e) {
-            throw e;
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return JsonUtils.TOKEN_ERROR(e.getMessage());
-        }
+//        } catch (BizCheckedException e) {
+//            throw e;
+//        } catch (Exception e) {
+//            logger.error(e.getMessage());
+//            return JsonUtils.TOKEN_ERROR(e.getMessage());
+//        }
         return JsonUtils.SUCCESS(result);
     }
 
@@ -411,7 +411,7 @@ public class StockTransferRestService implements IStockTransferRestService {
             final Long locationId, type;
             final BigDecimal uomQty;
             //outbound
-            if (taskInfo.getExt3().equals(0L)) {
+            if (taskInfo.getStep()==0) {
                 type = 1L;
                 locationId = taskInfo.getFromLocationId();
                 uomQty = taskInfo.getQty();
