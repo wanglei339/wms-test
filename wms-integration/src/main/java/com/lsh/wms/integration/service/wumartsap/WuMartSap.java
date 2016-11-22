@@ -268,10 +268,10 @@ public class WuMartSap implements IWuMartSap{
             }else{
                 pItem.setLGORT("0001");
             }
-            pItem.setWERKS(PropertyUtils.getString("wumart.werks"));
+            pItem.setWERKS(createIbdHeader.getWarehouseCode());
             pItem.setVRKME(detail.getUnit());
             pItems.getItem().add(pItem);
-            receiveId = Long.valueOf(detail.getVendMat());
+            //receiveId = Long.valueOf(detail.getVendMat());
             orderType = detail.getOrderType();
         }
         TABLEOFZDELIVERYEXPORT eItems = factory.createTABLEOFZDELIVERYEXPORT();
@@ -332,7 +332,10 @@ public class WuMartSap implements IWuMartSap{
         }
         map.put("type","P");
         String message = sb.toString();
-        map.put("message",message.substring(0,message.length()-1));
+        if(sb != null && sb.length() > 0){
+            map.put("message",message.substring(0,message.length()-1));
+        }
+
 
         //return "S";
         return map;
