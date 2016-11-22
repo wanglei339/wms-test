@@ -94,7 +94,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
                     toLication.getType().equals(LocationConstant.DEFECTIVE_AREA) ||
                     (toLication.getRegionType().equals(LocationConstant.SHELFS) && toLication.getBinUsage().compareTo(BinUsageConstant.BIN_UASGE_PICK)==0)
             );
-        } else if (fromLication.getRegionType().equals(LocationConstant.SHELFS) && fromLication.getBinUsage().compareTo(BinUsageConstant.BIN_UASGE_STORE)==0)  {
+        } else if (fromLication.getRegionType().equals(LocationConstant.SPLIT_AREA) && fromLication.getBinUsage().compareTo(BinUsageConstant.BIN_PICK_STORE)==0)  {
             return ((toLication.getRegionType().equals(LocationConstant.SPLIT_AREA) && toLication.getBinUsage().compareTo(BinUsageConstant.BIN_PICK_STORE)==0) ||
                     toLication.getType().equals(LocationConstant.BACK_AREA) ||
                     toLication.getType().equals(LocationConstant.DEFECTIVE_AREA)
@@ -115,7 +115,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             return ((toLication.getRegionType().equals(LocationConstant.SHELFS) && toLication.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)) ||
                     (toLication.getRegionType().equals(LocationConstant.SPLIT_AREA) && toLication.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE))
             );
-        } else if ((fromLication.getRegionType().equals(LocationConstant.SHELFS) && fromLication.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE))) {
+        } else if ((fromLication.getRegionType().equals(LocationConstant.SHELFS) && fromLication.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK))) {
             return ((toLication.getRegionType().equals(LocationConstant.SHELFS) && toLication.equals(BinUsageConstant.BIN_UASGE_PICK))||
                     toLication.getType().equals(LocationConstant.BACK_AREA) ||
                     toLication.getType().equals(LocationConstant.DEFECTIVE_AREA) ||

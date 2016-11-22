@@ -378,6 +378,9 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         List<StockTakingDetail> oldDetails =stockTakingService.getDetailListByRound(stockTakingId, round - 1);
         List<StockTakingDetail> details = stockTakingService.getDetailListByRound(stockTakingId, round);
         Map<String,BigDecimal> compareMap = new HashMap<String, BigDecimal>();
+        if(details.size()!=oldDetails.size()){
+            return false;
+        }
         for(StockTakingDetail detail:oldDetails){
             String key = "l:"+detail.getLocationId()+"i:"+detail.getItemId();
             compareMap.put(key,detail.getRealQty().subtract(detail.getTheoreticalQty()));
