@@ -291,7 +291,7 @@ public class IbdService implements IIbdService {
             Map<String,Object> map =  wuMartSap.ibd2SapAccount(backData);
             if("E".equals(map.get("type"))){
                 return JsonUtils.TOKEN_ERROR("ibd过账sap返回为空");
-            }else if("P".equals(map.get("Type")) && map.get("message") == null){
+            }else if("S".equals(map.get("type")) ){
                 mess = "ibd创建并过账成功";
             }else{
                 return JsonUtils.TOKEN_ERROR("部分过账成功;sap返回信息:" + map.get("message"));
