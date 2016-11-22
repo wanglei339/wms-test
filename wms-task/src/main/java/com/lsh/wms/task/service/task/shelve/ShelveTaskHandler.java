@@ -5,20 +5,19 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.shelve.IShelveRpcService;
 import com.lsh.wms.api.service.stock.IStockMoveRpcService;
-import com.lsh.wms.core.constant.BinUsageConstant;
-import com.lsh.wms.core.constant.ContainerConstant;
-import com.lsh.wms.core.constant.LocationConstant;
-import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.shelve.ShelveTaskHead;
+import com.lsh.wms.model.stock.StockDelta;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
@@ -32,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +62,8 @@ public class ShelveTaskHandler extends AbsTaskHandler {
     private IShelveRpcService iShelveRpcService;
     @Reference
     private IStockMoveRpcService iStockMoveRpcService;
+    @Autowired
+    private StockSummaryService stockSummaryService;
 
     @PostConstruct
     public void postConstruct() {
@@ -228,6 +230,17 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         taskService.done(taskId, locationId);
         // 释放分配的location
         locationService.unlockLocation(taskHead.getAllocLocationId());
+
+        // 更新可用库存
+        List<StockQuant> quantList = stockQuantService.getQuantsByContainerId(taskHead.getContainerId());
+        for(StockQuant quant : quantList) {
+            StockDelta delta = new StockDelta();
+            delta.setInhouseQty(quant.getQty());
+            delta.setBusinessId(taskId);
+            delta.setType(StockConstant.TYPE_SHELVE);
+            stockSummaryService.changeStock(delta);
+        }
+
     }
 
     public void getConcrete(TaskEntry taskEntry) {

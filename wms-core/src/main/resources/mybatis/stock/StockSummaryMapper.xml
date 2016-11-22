@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.stock.StockSummaryDao" >
+
+    <resultMap id="stockSummaryResultMap" type="StockSummary">
+        <id property="id" column="id"/>
+        <result property="itemId" column="item_id"/>
+        <result property="skuCode" column="sku_code"/>
+        <result property="ownerId" column="owner_id"/>
+        <result property="inhouseQty" column="inhouse_qty"/>
+        <result property="allocQty" column="alloc_qty"/>
+        <result property="availQty" column="avail_qty"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <update id="changeStock" parameterType="StockSummary">
+        insert into stock_summary
+        (item_id,sku_code,owner_id,inhouse_qty,alloc_qty,created_at,updated_at,avail_qty)
+        values
+        (#{itemId},#{skuCode},#{ownerId},#{inhouseQty},#{allocQty},#{createdAt},#{updatedAt}, inhouse_qty - alloc_qty)
+        on duplicate key UPDATE
+        inhouse_qty = inhouse_qty + values(inhouse_qty),
+        alloc_qty = alloc_qty + values(alloc_qty),
+        avail_qty = inhouse_qty - alloc_qty,
+        updated_at = values(updated_at)
+    </update>
+
+    <select id="getStockSummary" parameterType="int" resultMap="stockSummaryResultMap">
+        select * from obd_detail
+        where itemId=#{item_id}
+    </select>
+
+    <select id="countStockSummary" parameterType="map" resultType="int">
+        select count(*) from stock_summary
+        <include refid="queryCondition"/>
+    </select>
+
+    <select id="getStockSummaryList" parameterType="map" resultMap="stockSummaryResultMap">
+        select * from stock_summary
+        <include refid="queryCondition"/>
+        <if test="start != null and limit != null">
+            limit #{start},#{limit}
+        </if>
+    </select>
+
+    <sql id="queryCondition">
+        <where>
+            <if test="id != null">id=#{id}</if>
+            <if test="itemId != null">and item_id=#{itemId}</if>
+            <if test="skuCode != null">and sku_code=#{skuCode}</if>
+            <if test="ownerId != null">and onwer_id=#{ownerId}</if>
+        </where>
+    </sql>
+
+</mapper>

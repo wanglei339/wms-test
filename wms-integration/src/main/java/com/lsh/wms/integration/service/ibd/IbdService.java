@@ -114,9 +114,9 @@ public class IbdService implements IIbdService {
             headerMap.put("platform", "1");
             String res  = HttpClientUtils.postBody(IntegrationConstan.URL_PO,  requestBody,dc41_timeout , dc41_charset, headerMap);
             logger.info("~~~~~~~~~~下发黑狗数据 request : " + JSON.toJSONString(request) + "~~~~~~~~~");
-            JSONObject jsonObject = JSON.parseObject(res);
-            //jsonObject.get("body");
-            return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, jsonObject.get("body"));
+//            JSONObject jsonObject = JSON.parseObject(res);
+//            //jsonObject.get("body");
+            return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, res);
         }
 
         for(IbdDetail ibdDetail : details){
@@ -291,7 +291,7 @@ public class IbdService implements IIbdService {
             Map<String,Object> map =  wuMartSap.ibd2SapAccount(backData);
             if("E".equals(map.get("type"))){
                 return JsonUtils.TOKEN_ERROR("ibd过账sap返回为空");
-            }else if("P".equals(map.get("Type")) && map.get("message") == null){
+            }else if("S".equals(map.get("type")) ){
                 mess = "ibd创建并过账成功";
             }else{
                 return JsonUtils.TOKEN_ERROR("部分过账成功;sap返回信息:" + map.get("message"));
