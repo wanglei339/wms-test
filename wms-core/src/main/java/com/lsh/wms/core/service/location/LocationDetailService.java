@@ -226,6 +226,18 @@ public class LocationDetailService {
         IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationDetailModelFactory.getLocationModel(Long.valueOf(request.getType().toString()));
         //转成子类
         ObjUtils.bean2bean(request, iBaseinfoLocaltionModel);
+        //插入的locationCode
+        Long type = iBaseinfoLocaltionModel.getType();
+        //todo 货位的插入需要
+        if (LocationConstant.BIN.equals(type) && null != request.getLocationCode()) {
+            //查找货位code是否相同
+            BaseinfoLocation baseinfoLocation = locationService.getLocationByCode(request.getLocationCode());
+            if (null != baseinfoLocation) {
+                throw new BizCheckedException("2180027");
+            }
+        }
+
+
         //设置classification
         iBaseinfoLocaltionModel.setDefaultClassification();
         //转化成父类,插入
