@@ -37,4 +37,8 @@ public class PoConstant {
     public static final int ORDER_TYPE_TRANSFERS = 3;
     public static final int ORDER_TYPE_CPO = 4;
 
+    /**回传状态 1未过账 2过账成功*/
+    public static final int RECEIVE_DETAIL_STATUS_FAILED = 1;
+    public static final int RECEIVE_DETAIL_STATUS_SUCCESS = 2;
+
 }

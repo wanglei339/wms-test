@@ -36,7 +36,7 @@ public class SysLogConstant {
 
     public static final int LOG_TARGET_ERP = 3;
 
-    /**当前处理状态,0-新建,1-处理中,2-处理完成,3-失败*/
+    /**当前处理状态,0-新建,1-处理中,2-处理完成,3-失败 4-部分成功*/
 
     public static final int LOG_STATUS_CREATE = 0;
 
@@ -46,7 +46,11 @@ public class SysLogConstant {
 
     public static final int LOG_STATUS_FAILED = 3;
 
+    public static final int LOG_STATUS_PART_FINISH = 4;
+
     /** step 1 ibd创建成功 2 ibd过账成功 3 obd创建成功 4 obd过账成功 */
+    public static final int LOG_STEP_INIT = 0;
+
     public static final int LOG_STEP_IBDCREATE = 1;
 
     public static final int LOG_STEP_IBDFINISH = 2;

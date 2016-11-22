@@ -73,8 +73,8 @@ public class QCRestService implements IQCRestService {
     @Path("getGroupDetailByStoreNo")
     public String getGroupDetailByStoreNo() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
-        String storeNo = mapQuery.get("storeNo").toString();
-        List<WaveDetail> waveDetails = qcRpcService.getQcWaveDetailsByStoreNo(storeNo);
+        String customerCode = mapQuery.get("customerCode").toString();
+        List<WaveDetail> waveDetails = qcRpcService.getQcWaveDetailsByStoreNo(customerCode);
         List<TaskInfo> qcDoneTaskInfos = qcRpcService.getQcDoneTaskInfoByWaveDetails(waveDetails);
         List<GroupRestResponse> groupRestResponses = new ArrayList<GroupRestResponse>();
         if (qcDoneTaskInfos.size() > 0) {
