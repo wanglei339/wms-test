@@ -4,8 +4,11 @@ import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.service.so.SoOrderRedisService;
 import com.lsh.wms.core.service.so.SoOrderService;
+import com.lsh.wms.core.service.stock.StockAllocService;
 import com.lsh.wms.core.service.stock.StockRedisService;
+import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.model.so.ObdHeader;
+import com.lsh.wms.model.stock.StockSummary;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,9 +39,12 @@ public class InventoryRedisService {
     @Autowired
     private SoOrderRedisService soOrderRedisService;
     @Autowired
-    private StockRedisService stockRedisService;
+    private StockAllocService stockAllocService;
     @Autowired
     private SoOrderService soOrderService;
+    @Autowired
+    private StockSummaryService stockSummaryService;
+
 
     public double soOrderSkuQty(Long itemId){
         Set<ZSetOperations.TypedTuple<String>>  skuQtys=  soOrderRedisService.getSoSkuQty(itemId);
@@ -50,19 +56,11 @@ public class InventoryRedisService {
     }
 
     public double getAvailableSkuQty(Long itemId) {
-        logger.error(StrUtils.formatString("fuck sku order is {0}", stockRedisService.getSkuQty(itemId)));
-        logger.error(StrUtils.formatString("fuck sku so order is {0}", this.soOrderSkuQty(itemId)));
-        return stockRedisService.getSkuQty(itemId) - this.soOrderSkuQty(itemId);
-    }
-
-    public Map<String, BigDecimal> getInventoryInfo(Long itemId) {
-        BigDecimal total = new BigDecimal(stockRedisService.getSkuQty(itemId));
-        BigDecimal soQty =  new BigDecimal(soOrderSkuQty(itemId));
-        Map<String, BigDecimal> inventoryInfo = new HashMap<String, BigDecimal>();
-        inventoryInfo.put("total", total);
-        inventoryInfo.put("soQty", soQty);
-        inventoryInfo.put("available", total.subtract(soQty));
-        return inventoryInfo;
+        StockSummary stockSummary = stockSummaryService.getStockSummaryByItemId(itemId);
+        if (stockSummary == null) {
+            return 0.0;
+        }
+        return stockSummary.getAvailQty().doubleValue();
     }
 
     @Transactional(readOnly = false)
@@ -73,9 +71,7 @@ public class InventoryRedisService {
                 continue;
             }
             if (header.getOrderType().equals(SoConstant.ORDER_TYPE_SO) || header.getOrderType().equals(SoConstant.ORDER_TYPE_STO)) {
-                logger.error(StrUtils.formatString("xxxx fuck onDelivery orderId{0}, itemId{1}, qty{2}", detail.getOrderId(), detail.getItemId(), detail.getQcQty()));
-                soOrderRedisService.delSoRedis(detail.getOrderId(), detail.getItemId(), detail.getQcQty());
-                stockRedisService.outBound(detail.getItemId(), detail.getQcQty());
+                stockAllocService.realease(detail);
             }
         }
     }

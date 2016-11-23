@@ -120,16 +120,26 @@ public class DataBackService implements IDataBackService {
         //String jsonStr = HttpUtil.doPost(url,request);
 
         logger.info("order jsonStr :" + res +"~~~~");
-        OrderResponse orderResponse = JSON.parseObject(res,OrderResponse.class);
-        logger.info("orderResponse = " + JSON.toJSONString(orderResponse));
-        if(orderResponse != null && orderResponse.getCode().equals("0000")){
-            sysLog.setLogCode(orderResponse.getCode());
-            sysLog.setLogMessage("回传lshOFC成功");
-            sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
-        }else{
-            sysLog.setLogMessage(orderResponse.getMessage());
-            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
-            sysLog.setLogCode(orderResponse.getCode());
+        OrderResponse orderResponse = new OrderResponse();
+        try{
+            orderResponse = JSON.parseObject(res,OrderResponse.class);
+            logger.info("orderResponse = " + JSON.toJSONString(orderResponse));
+            if(orderResponse != null && orderResponse.getCode().equals("0000")){
+                sysLog.setLogCode(orderResponse.getCode());
+                sysLog.setLogMessage("回传lshOFC成功");
+                sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
+            }else{
+                sysLog.setLogMessage(orderResponse.getMessage());
+                sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
+                sysLog.setLogCode(orderResponse.getCode());
+            }
+        }catch (Exception ex){
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_CREATE);
+            logger.info("抛出异常 ex:" + ex);
+            sysLog.setLogCode("回传异常");
+            sysLog.setLogMessage(ex.getMessage());
+            sysLog.setSysCode("回传异常");
+            sysLog.setSysMessage(ex.getMessage());
         }
         //sysLog.setRetryTimes(sysLog.getRetryTimes()+1);
         //sysLogService.updateSysLog(sysLog);
