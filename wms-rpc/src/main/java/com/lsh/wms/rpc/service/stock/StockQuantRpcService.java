@@ -13,10 +13,12 @@ import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
+import com.lsh.wms.model.stock.StockSummary;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +56,8 @@ public class StockQuantRpcService implements IStockQuantRpcService {
     private InventoryRedisService inventoryRedisService;
     @Autowired
     private StockLotService lotService;
+    @Autowired
+    private StockSummaryService stockSummaryService;
 
     private Map<String, Object> getQueryCondition(StockQuantCondition condition) throws BizCheckedException {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
@@ -200,31 +204,36 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         if (itemIdList.isEmpty()) {
             return itemQuant;
         }
-        // get all quant
+
+        // get all defect quant
         HashMap<String, Object> mapCondition = new HashMap<String, Object>();
         mapCondition.put("itemList", itemIdList);
-        mapCondition.put("isInhouse", 1L);
+        mapCondition.put("locationId", locationService.getDefectiveLocationId());
         List<StockQuant> quantList = quantService.getQuants(mapCondition);
-
         for (StockQuant quant : quantList) {
             Long itemId = quant.getItemId();
             BigDecimal qty = quant.getQty();
+            mapDefect.put(itemId, mapDefect.get(itemId).add(qty));
+        }
 
-            if (quant.getIsRefund().equals(1L)) {
-                mapRefund.put(itemId, mapRefund.get(itemId).add(qty));
-            }
-            if (quant.getIsDefect().equals(1L)) {
-                mapDefect.put(itemId, mapDefect.get(itemId).add(qty));
-            }
+        // get all inventory loss quant
+        mapCondition = new HashMap<String, Object>();
+        mapCondition.put("itemList", itemIdList);
+        mapCondition.put("locationId", locationService.getBackLocation().getLocationId());
+        quantList = quantService.getQuants(mapCondition);
+        for (StockQuant quant : quantList) {
+            Long itemId = quant.getItemId();
+            BigDecimal qty = quant.getQty();
+            mapRefund.put(itemId, mapRefund.get(itemId).add(qty));
         }
 
         for (int i = 0; i < itemList.size(); i++) {
             Long itemId = itemIdList.get(i);
-            Map<String, BigDecimal> info = inventoryRedisService.getInventoryInfo(itemId);
+            StockSummary summary = stockSummaryService.getStockSummaryByItemId(itemId);
             Map<String, BigDecimal> result = new HashMap<String, BigDecimal>();
-            result.put("total", info.get("total"));
-            result.put("reserved", info.get("soQty"));
-            result.put("available", info.get("available"));
+            result.put("total", summary == null ? BigDecimal.ZERO : summary.getInhouseQty());
+            result.put("reserved", summary == null ? BigDecimal.ZERO : summary.getAllocQty());
+            result.put("available", summary == null ? BigDecimal.ZERO : summary.getAvailQty());
             result.put("defect", mapDefect.get(itemId));
             result.put("refund", mapRefund.get(itemId));
             itemQuant.put(itemId, result);
