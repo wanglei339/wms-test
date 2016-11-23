@@ -57,6 +57,7 @@ public class QCTaskHandler extends AbsTaskHandler {
         //区wave_detail中找该托盘是否已存在QC(wave_detail中的托盘有生命周期,task中没有,可能托盘复用)
         List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(containerId);
         if (null == waveDetails || waveDetails.size() < 1) {
+            logger.info(" WARNING THIS container "+containerId +" has no wave_deatil ");
             return;
         }
         //同一托盘多商品,多收货任务,一个qc任务,之前生成的qc任务更新
@@ -66,9 +67,6 @@ public class QCTaskHandler extends AbsTaskHandler {
         //是收货任务
         if (pickEntry.getTaskInfo().getType() == TaskConstant.TYPE_PO && qcTaskinfo != null) {
             List<WaveDetail> details = waveDetails;
-            if (details.size() == 0) {
-                return;
-            }
             // todo setEXt1字段设置的是QC的上一个任务,这里可以是 pickTaskId 和 直流集货任务id 等等
             qcTaskinfo.setQcPreviousTaskId(pickEntry.getTaskInfo().getTaskId());
             qcTaskinfo.setOrderId(details.get(0).getOrderId());
