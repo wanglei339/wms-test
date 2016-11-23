@@ -100,9 +100,9 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
     }
 
     public IBaseinfoLocaltionModel updateLocationDetailByType(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) throws BizCheckedException {
-        if (locationDetailService.getIBaseinfoLocaltionModelById(iBaseinfoLocaltionModel.getLocationId()) == null) {
-            throw new BizCheckedException("2180001");
-        }
+//        if (locationDetailService.getIBaseinfoLocaltionModelById(iBaseinfoLocaltionModel.getLocationId()) == null) {
+//            throw new BizCheckedException("2180001");
+//        }
         try {
             locationDetailService.update(iBaseinfoLocaltionModel);
         } catch (Exception e) {

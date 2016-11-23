@@ -70,6 +70,8 @@ public class QCRpcService implements IQCRpcService {
         detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_SKIP);
         waveService.updateDetail(detail);
 
+
+        //todo 吴昊的方法提供
         //库存操作
         //差异库存移到盘亏盘盈区
         Long itemId = detail.getItemId();
@@ -473,6 +475,7 @@ public class QCRpcService implements IQCRpcService {
             }
         }
 
+        //todo 吴昊的方法提供
         //差异库存移到盘亏盘盈区
         Long itemId = waveDetails.get(0).getItemId();
         Long qcTaskId = waveDetails.get(0).getQcTaskId();
