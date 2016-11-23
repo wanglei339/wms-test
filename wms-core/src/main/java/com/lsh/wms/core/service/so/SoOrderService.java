@@ -6,6 +6,7 @@ import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.dao.so.ObdDetailDao;
 import com.lsh.wms.core.dao.so.ObdHeaderDao;
+import com.lsh.wms.core.service.stock.StockAllocService;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,26 +41,7 @@ public class SoOrderService {
     private ObdDetailDao obdDetailDao;
 
     @Autowired
-    private SoOrderRedisService soOrderRedisService;
-
-    /**
-     * 插入OutbSoHeader及OutbSoDetail
-     *
-     * @param obdHeader
-     * @param obdDetailList
-     */
-    @Transactional(readOnly = false)
-    public void insert(ObdHeader obdHeader, List<ObdDetail> obdDetailList) {
-        obdHeader.setCreatedAt(DateUtils.getCurrentSeconds());
-        obdHeader.setOrderId(RandomUtils.genId());
-        obdHeader.setOrderStatus(BusiConstant.EFFECTIVE_YES);
-        obdHeaderDao.insert(obdHeader);
-        for (ObdDetail obdDetail : obdDetailList) {
-            obdDetail.setOrderId(obdHeader.getOrderId());
-        }
-        obdDetailDao.batchInsert(obdDetailList);
-        soOrderRedisService.insertSoRedis(obdHeader, obdDetailList);
-    }
+    private StockAllocService stockAllocService;
 
     /**
      * 插入OutbSoHeader及OutbSoDetail
@@ -73,7 +55,7 @@ public class SoOrderService {
 
         obdDetailDao.batchInsert(obdDetailList);
         if(!obdHeader.getOrderType().equals(SoConstant.ORDER_TYPE_DIRECT)) {
-            soOrderRedisService.insertSoRedis(obdHeader, obdDetailList);
+            stockAllocService.alloc(obdHeader, obdDetailList);
         }
     }
 

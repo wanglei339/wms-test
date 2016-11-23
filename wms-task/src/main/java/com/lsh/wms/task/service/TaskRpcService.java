@@ -89,7 +89,7 @@ public class TaskRpcService implements ITaskRpcService {
     }
     public List<Long> batchCreate(StockTakingHead head, List<TaskEntry> taskEntries) throws BizCheckedException{
         TaskHandler handler = handlerFactory.getTaskHandler(TaskConstant.TYPE_STOCK_TAKING);
-        handler.batchCreate(head,taskEntries);
+        handler.batchCreate(head, taskEntries);
         List<Long> idList = new LinkedList<Long>();
         for(TaskEntry entry : taskEntries) {
             idList.add(entry.getTaskInfo().getTaskId());

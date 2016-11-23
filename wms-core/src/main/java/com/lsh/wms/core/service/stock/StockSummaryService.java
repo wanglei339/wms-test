@@ -54,4 +54,8 @@ public class StockSummaryService {
         synStockService.synStock(stockSummary.getItemId(), stockSummary.getAvailQty().doubleValue());
     }
 
+    public StockSummary getStockSummaryByItemId(Long itemId) {
+        return stockSummaryDao.getStockSummaryByItemId(itemId);
+    }
+
 }
