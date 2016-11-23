@@ -235,6 +235,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         List<StockQuant> quantList = stockQuantService.getQuantsByContainerId(taskHead.getContainerId());
         for(StockQuant quant : quantList) {
             StockDelta delta = new StockDelta();
+            delta.setItemId(quant.getItemId());
             delta.setInhouseQty(quant.getQty());
             delta.setBusinessId(taskId);
             delta.setType(StockConstant.TYPE_SHELVE);
