@@ -6,7 +6,7 @@ package com.lsh.wms.core.constant;
  */
 public class BinUsageConstant {
     /**
-     * 货位的用途 1 拣货位 2 存货位
+     * 货位的用途 1 拣货位 2 存货位 3.存拣一体
      */
     public static final Integer BIN_UASGE_PICK = 1;
     public static final Integer BIN_UASGE_STORE = 2;
