@@ -10,10 +10,12 @@ public class WaveDetail implements Serializable {
 
 	/**  */
     private Long id;
+	/** 关联出库订单中的上游id, 不存在数据库中,现在还没有 */
+	private String refObdDetailOtherId;
 	/** 0代表生命周期结束了,也即是否在一个有效的波次周期内，波次完成或者取消这个值要标记为无效,否则会有问题 */
+    private Long isAlive = 1L;
 	/** 参考detail—id，分裂使用 */
 	private Long refDetailId = 0L;
-    private Long isAlive = 1L;
 	/** 是否有效，比如被合盘的情况下，原记录被标记为无效 */
     private Long isValid = 1L;
 	/** 波次id */
@@ -120,6 +122,14 @@ public class WaveDetail implements Serializable {
 
 	public void setId(Long id){
 		this.id = id;
+	}
+
+	public void setRefObdDetailOtherId(String refObdDetailOtherId){
+		this.refObdDetailOtherId = refObdDetailOtherId;
+	}
+
+	public String getRefObdDetailOtherId(){
+		return this.refObdDetailOtherId;
 	}
 
 	public Long getRefDetailId(){

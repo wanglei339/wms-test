@@ -119,7 +119,7 @@ public class LocationDetailService {
 //        locationDetailServiceFactory.register(LocationConstant.VALUABLES_SHELF_BIN, baseinfoLocationBinService);
         //注入播种区、播种货位
         locationDetailServiceFactory.register(LocationConstant.SOW_AREA, baseinfoLocationRegionService);
-        locationDetailServiceFactory.register(LocationConstant.SOW_BIN, baseinfoLocationBinService);
+//        locationDetailServiceFactory.register(LocationConstant.SOW_BIN, baseinfoLocationBinService);
         //注入 供商退货区、供商退货货架、供商退货货架层、供商退货入库位置、供商退货存储位置
         locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_AREA, baseinfoLocationRegionService);
         locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_SHELF, baseinfoLocationShelfService);
@@ -187,7 +187,7 @@ public class LocationDetailService {
 //        locationDetailModelFactory.register(LocationConstant.VALUABLES_SHELF_BIN, new BaseinfoLocationBin());
         //注入播种区和播种货位
         locationDetailModelFactory.register(LocationConstant.SOW_AREA, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.SOW_BIN, new BaseinfoLocationBin());
+//        locationDetailModelFactory.register(LocationConstant.SOW_BIN, new BaseinfoLocationBin());
         //注入 供商退货区、供商退货货架、供商退货货架层、供商退货入库位置、供商退货存储位置
         locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_AREA, new BaseinfoLocationRegion());
         locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_SHELF, new BaseinfoLocationShelf());
@@ -221,7 +221,7 @@ public class LocationDetailService {
 
 
     @Transactional(readOnly = false)
-    public BaseinfoLocation insert(LocationDetailRequest request) {
+    public BaseinfoLocation insert(LocationDetailRequest request) throws BizCheckedException{
         //根据type类型,将父类转为子类
         IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationDetailModelFactory.getLocationModel(Long.valueOf(request.getType().toString()));
         //转成子类
@@ -229,7 +229,7 @@ public class LocationDetailService {
         //插入的locationCode
         Long type = iBaseinfoLocaltionModel.getType();
         //todo 货位的插入需要
-        if (LocationConstant.BIN.equals(type) && null != request.getLocationCode()) {
+        if (LocationConstant.BIN.equals(type) && null != request.getLocationCode()) {   //分布式事务,core抛了异常
             //查找货位code是否相同
             BaseinfoLocation baseinfoLocation = locationService.getLocationByCode(request.getLocationCode());
             if (null != baseinfoLocation) {

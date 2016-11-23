@@ -16,6 +16,7 @@
 		<result property="packUnit" column="pack_unit"/>
 		<result property="packName" column="pack_name"/>
 		<result property="unitName" column="unit_name"/>
+		<result property="releaseQty" column="release_qty"/>
 		<result property="price" column="price"/>
 		<result property="sowQty" column="sow_qty"/>
 		<result property="lotCode" column="lot_code"/>
@@ -62,6 +63,7 @@
 			<if test="packName != null">pack_name=#{packName},</if>
 			<if test="unitName != null">unit_name=#{unitName},</if>
 			<if test="price != null">price=#{price},</if>
+			<if test="releaseQty != null">release_qty=#{releaseQty},</if>
 			<if test="sowQty != null">sow_qty=#{sowQty},</if>
 			<if test="lotCode != null">lot_code=#{lotCode},</if>
 			<if test="createdAt != null">created_at=#{createdAt},</if>
@@ -110,5 +112,11 @@
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 		</where>
 	</sql>
+
+	<update id="increaseReleaseQty" parameterType="ObdDetail">
+		update obd_detail
+		SET release_qty=release_qty + #{releaseQty}
+		where order_id=#{orderId} AND detail_other_id=#{detailOtherId}
+	</update>
 
 </mapper>

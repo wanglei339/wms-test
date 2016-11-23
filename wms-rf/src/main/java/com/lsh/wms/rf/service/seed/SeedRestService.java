@@ -188,7 +188,7 @@ public class SeedRestService implements ISeedRestService {
                     if(location.getType().compareTo(LocationConstant.TEMPORARY)!=0){
                         return JsonUtils.TOKEN_ERROR("该托盘不在暂存区，不能播种");
                     }
-                    if(location.getType().compareTo(LocationConstant.SOW_BIN)==0||location.getType().compareTo(LocationConstant.SOW_AREA)==0){
+                    if(location.getRegionType().compareTo(LocationConstant.SOW_AREA)==0||location.getType().compareTo(LocationConstant.SOW_AREA)==0){
                         return JsonUtils.TOKEN_ERROR("该托盘在播种区，不能播种");
                     }
                     StockLot lot = lotService.getStockLotByLotId(quant.getLotId());

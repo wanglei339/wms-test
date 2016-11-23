@@ -26,10 +26,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by zengwenjun on 16/7/23.
@@ -84,6 +81,15 @@ public class PickTaskHandler extends AbsTaskHandler {
             taskEntry.setTaskInfo(taskInfo);
         }
         super.batchCreate(taskEntries);
+        /*
+        这之后我会把来源obd里的数据的release做加法操作
+         */
+        List<WaveDetail> details = new LinkedList<WaveDetail>();
+        for(TaskEntry taskEntry : taskEntries){
+            details.addAll((List<WaveDetail>)(List<?>)taskEntry.getTaskDetailList());
+
+        }
+        waveService.increaseReleaseQtyByWaveDeTails(details);
     }
 
     public void createConcrete(TaskEntry taskEntry) throws BizCheckedException {
