@@ -83,7 +83,7 @@ public class QCRpcService implements IQCRpcService {
             throw new BizCheckedException("2180002");
         }
 
-        List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(containerId);
+        List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(detail.getContainerId());
         if (null == stockQuants || stockQuants.size() < 1) {
             throw new BizCheckedException("2990043");
         }
