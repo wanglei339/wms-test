@@ -34,6 +34,8 @@ public class ObdDetail implements Serializable {
 	private String unitName;
 	/** 商品单价,未税 */
 	private BigDecimal price;
+	/** 释放数量-基本单位级别 */
+	private BigDecimal releaseQty;
 	/** 批次号 */
 	private String lotCode;
 	/**直流收货的实际播种数量*/
@@ -185,5 +187,13 @@ public class ObdDetail implements Serializable {
 
 	public void setSowQty(BigDecimal sowQty) {
 		this.sowQty = sowQty;
+	}
+
+	public void setReleaseQty(BigDecimal releaseQty){
+		this.releaseQty = releaseQty;
+	}
+
+	public BigDecimal getReleaseQty(){
+		return this.releaseQty;
 	}
 }

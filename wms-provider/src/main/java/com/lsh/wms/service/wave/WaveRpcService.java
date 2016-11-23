@@ -110,7 +110,9 @@ public class WaveRpcService implements IWaveRpcService {
         if(head==null){
             throw new BizCheckedException("2040001");
         }
-        if(head.getStatus() == WaveConstant.STATUS_NEW
+        if(
+                head.getStatus() == WaveConstant.STATUS_RELEASE_SUCC
+                || head.getStatus() == WaveConstant.STATUS_NEW
                 || head.getStatus() == WaveConstant.STATUS_RELEASE_FAIL
                 || (head.getStatus() == WaveConstant.STATUS_RELEASE_START && DateUtils.getCurrentSeconds()-head.getReleaseAt() > 300))
         {
