@@ -1,15 +1,20 @@
 package com.lsh.wms.task.service.task.transfer;
 
 import com.lsh.wms.core.constant.LocationConstant;
+import com.lsh.wms.core.constant.StockConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.transfer.StockTransferTaskService;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.stock.StockDelta;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.task.service.TaskRpcService;
 import com.lsh.wms.task.service.handler.AbsTaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
+import com.lsh.wms.task.service.task.back.BackInStorageTaskHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,6 +41,9 @@ public class StockTransferTaskHandler extends AbsTaskHandler {
     @Autowired
     private TaskRpcService taskRpcService;
 
+    @Autowired
+    private StockSummaryService stockSummaryService;
+
     @PostConstruct
     public void postConstruct() {
         handlerFactory.register(TaskConstant.TYPE_STOCK_TRANSFER, this);
@@ -59,6 +67,25 @@ public class StockTransferTaskHandler extends AbsTaskHandler {
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         locationService.unlockLocation(taskInfo.getToLocationId());
 //        quantService.unReserve(taskInfo.getTaskId());
+
+        int type = 0;
+        BaseinfoLocation toLocation = locationService.getLocation(taskInfo.getToLocationId());
+        if (toLocation.getType().equals(LocationConstant.DEFECTIVE_AREA)
+                || toLocation.getType().equals(LocationConstant.DEFECTIVE_BIN)) {
+            type = StockConstant.TYPE_TO_DEFECT;
+        } else if  ( toLocation.getType().equals(LocationConstant.BACK_AREA)
+                || toLocation.getType().equals(LocationConstant.BACK_BIN)) {
+            type = StockConstant.TYPE_TO_REFUND;
+        }
+
+        if (0 != type) {
+            StockDelta stockDelta = new StockDelta();
+            stockDelta.setItemId(taskInfo.getItemId());
+            stockDelta.setInhouseQty(BigDecimal.ZERO.subtract(taskInfo.getTaskEaQty()));
+            stockDelta.setType(type);
+            stockDelta.setBusinessId(taskId);
+            stockSummaryService.changeStock(stockDelta);
+        }
     }
 
     public void cancelConcrete(Long taskId) {
