@@ -22,10 +22,6 @@ public class MessageService {
     private RedisStringDao dao;
     private static final String key = "msg_queue";
 
-    @Autowired
-    private MessageService msgService;
-
-
     public void sendMessage(TaskMsg msg) throws BizCheckedException {
         String value = JsonUtils.obj2Json(msg);
         redisListDao.leftPush(MessageService.key, JsonUtils.obj2Json(msg));
