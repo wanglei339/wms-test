@@ -128,8 +128,13 @@ public class PickRestService implements IPickRestService {
                 throw new BizCheckedException("2000002");
             }
             List<StockQuant> quants = stockQuantService.getQuantsByContainerId(containerId);
+            Long draftTaskId = baseTaskService.getDraftTaskIdByContainerId(containerId);
+            Long assignTaskId = baseTaskService.getAssignTaskIdByContainerId(containerId);
             if (quants != null && quants.size() > 0) {
                 throw new BizCheckedException("2060016");
+            }
+            if (draftTaskId != null || assignTaskId != null) {
+                throw new BizCheckedException("2060017");
             }
             TaskInfo taskInfo = baseTaskService.getTaskInfoById(taskId);
             PickTaskHead taskHead = pickTaskService.getPickTaskHead(taskId);
