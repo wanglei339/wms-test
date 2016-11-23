@@ -189,6 +189,7 @@ public class LocationRpcService implements ILocationRpcService {
 //        List<BaseinfoLocation> splitShelfBins = locationService.getBaseinfoLocationList(mapQuery);
 //        targetList.addAll(splitShelfBins);
         mapQuery.put("binUsage", BinUsageConstant.BIN_UASGE_PICK);
+        mapQuery.put("type", LocationConstant.BIN);
         mapQuery.put("isValid", LocationConstant.IS_VALID);
         mapQuery.put("isLocked", LocationConstant.UNLOCK);
         mapQuery.put("canStore", LocationConstant.CAN_STORE);
