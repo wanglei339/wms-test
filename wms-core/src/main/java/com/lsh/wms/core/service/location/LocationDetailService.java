@@ -119,7 +119,7 @@ public class LocationDetailService {
 //        locationDetailServiceFactory.register(LocationConstant.VALUABLES_SHELF_BIN, baseinfoLocationBinService);
         //注入播种区、播种货位
         locationDetailServiceFactory.register(LocationConstant.SOW_AREA, baseinfoLocationRegionService);
-        locationDetailServiceFactory.register(LocationConstant.SOW_BIN, baseinfoLocationBinService);
+//        locationDetailServiceFactory.register(LocationConstant.SOW_BIN, baseinfoLocationBinService);
         //注入 供商退货区、供商退货货架、供商退货货架层、供商退货入库位置、供商退货存储位置
         locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_AREA, baseinfoLocationRegionService);
         locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_SHELF, baseinfoLocationShelfService);
@@ -187,7 +187,7 @@ public class LocationDetailService {
 //        locationDetailModelFactory.register(LocationConstant.VALUABLES_SHELF_BIN, new BaseinfoLocationBin());
         //注入播种区和播种货位
         locationDetailModelFactory.register(LocationConstant.SOW_AREA, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.SOW_BIN, new BaseinfoLocationBin());
+//        locationDetailModelFactory.register(LocationConstant.SOW_BIN, new BaseinfoLocationBin());
         //注入 供商退货区、供商退货货架、供商退货货架层、供商退货入库位置、供商退货存储位置
         locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_AREA, new BaseinfoLocationRegion());
         locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_SHELF, new BaseinfoLocationShelf());

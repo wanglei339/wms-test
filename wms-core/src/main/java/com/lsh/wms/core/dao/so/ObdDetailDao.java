@@ -5,6 +5,7 @@ import com.lsh.wms.model.so.ObdDetail;
 
 import java.util.List;
 import java.util.Map;
+import java.math.BigDecimal;
 
 @MyBatisRepository
 public interface ObdDetailDao {
@@ -20,4 +21,6 @@ public interface ObdDetailDao {
 	Integer countObdDetail(Map<String, Object> params);
 
 	List<ObdDetail> getObdDetailList(Map<String, Object> params);
+
+	void increaseReleaseQty(ObdDetail obdDetail);
 }

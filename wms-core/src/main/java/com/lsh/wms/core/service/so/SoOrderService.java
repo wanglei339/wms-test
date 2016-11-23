@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.math.BigDecimal;
 import java.rmi.MarshalledObject;
 import java.util.Date;
 import java.util.HashMap;
@@ -316,6 +318,16 @@ public class SoOrderService {
     @Transactional(readOnly = false)
     public void updateObdDetail(ObdDetail obdDetail) {
         obdDetailDao.update(obdDetail);
+    }
+
+
+    @Transactional(readOnly = false)
+    public void increaseReleaseQty(BigDecimal releaseQty, Long orderId, String detailOtherId){
+        ObdDetail detail = new ObdDetail();
+        detail.setReleaseQty(releaseQty);
+        detail.setOrderId(orderId);
+        detail.setDetailOtherId(detailOtherId);
+        obdDetailDao.increaseReleaseQty(detail);
     }
 
 

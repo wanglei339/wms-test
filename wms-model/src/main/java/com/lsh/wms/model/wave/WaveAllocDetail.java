@@ -8,6 +8,8 @@ public class WaveAllocDetail implements Serializable {
 
 	/**  */
     private Long id;
+	/** 关联出库订单中的上游id, 不存在数据库中,现在还没有 */
+	private String refObdDetailOtherId;
 	/** 波次id */
     private Long waveId;
 	/** 订单id */
@@ -48,7 +50,16 @@ public class WaveAllocDetail implements Serializable {
 	public void setId(Long id){
 		this.id = id;
 	}
-	
+
+	public void setRefObdDetailOtherId(String refObdDetailOtherId){
+		this.refObdDetailOtherId = refObdDetailOtherId;
+	}
+
+	public String getRefObdDetailOtherId(){
+		return this.refObdDetailOtherId;
+	}
+
+
 	public Long getWaveId(){
 		return this.waveId;
 	}
