@@ -129,7 +129,7 @@ public class BackInStorageTaskHandler extends AbsTaskHandler {
             queryMap.put("obdOtherId",header.getOrderOtherId());
             List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(queryMap);
             IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(ibdObdRelations.get(0).getIbdOtherId());
-            CsiSupplier supplier = supplierService.getSuppler(header.getSupplierNo(), header.getOwnerUid());
+            CsiSupplier supplier = supplierService.getSupplier(header.getSupplierNo(), header.getOwnerUid());
             lot.setPoId(ibdHeader.getOrderId());
             lot.setPackUnit(obdDetail.getPackUnit());
             lot.setSkuId(obdDetail.getSkuId());
