@@ -190,17 +190,22 @@ public class MergeRpcService implements IMergeRpcService {
                 Map<String, BigDecimal> qcCounts = this.getQcCountsByWaveDetail(waveDetail);
                 Map<String, Object> result = new HashMap<String, Object>();
                 if (results.containsKey(containerId)) {
+                    List<Long> containersList = (List<Long>)result.get("containersList");
+                    containersList.add(waveDetail.getContainerId());
                     result = results.get(containerId);
                     result.put("packCount", new BigDecimal(Double.valueOf(result.get("packCount").toString())).add(qcCounts.get("packCount")));
                     result.put("turnoverBoxCount", new BigDecimal(Double.valueOf(result.get("turnoverBoxCount").toString())).add(qcCounts.get("turnoverBoxCount")));
                     result.put("containerCount", Integer.valueOf(result.get("containerCount").toString()) + 1);
                     result.put("customerCode", customerCode);
+                    result.put("containersList", containersList);
                     // 是否是余货
                     if (waveDetail.getQcAt() < DateUtils.getTodayBeginSeconds()) {
                         result.put("isRest", true);
                     }
                 } else {
                     TaskInfo taskInfo = baseTaskService.getTaskInfoById(waveDetail.getMergeTaskId());
+                    List<Long> containersList = new ArrayList<Long>();
+                    containersList.add(waveDetail.getContainerId());
                     result.put("containerId", containerId);
                     result.put("markContainerId", waveDetail.getContainerId());  //当前作为查找板子码标识的物理托盘码,随机选的
                     result.put("containerCount", 1);
@@ -208,6 +213,7 @@ public class MergeRpcService implements IMergeRpcService {
                     result.put("turnoverBoxCount", qcCounts.get("turnoverBoxCount"));
                     result.put("customerCode", customerCode);
                     result.put("isExpensive", false);
+                    result.put("containersList", containersList);
                     if (waveDetail.getQcAt() < DateUtils.getTodayBeginSeconds()) {
                         result.put("isRest", true);
                     } else {
