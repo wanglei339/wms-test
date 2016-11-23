@@ -111,7 +111,9 @@ public class ShelveRpcService implements IShelveRpcService {
         if (itemLocations.size() < 1) {
             throw new BizCheckedException("2030010");
         }
+        Integer counter = 0;
         for (BaseinfoItemLocation itemLocation : itemLocations) {
+            counter++;
             Long pickingLocationId = itemLocation.getPickLocationid();
             BaseinfoLocation pickingLocation = locationService.getLocation(pickingLocationId);
             // 是否是拣货位
@@ -131,8 +133,12 @@ public class ShelveRpcService implements IShelveRpcService {
                         TaskInfo procurementTask = procurementTaskList.get(0);
                         // 补货任务已领取
                         if (procurementTask.getStatus().equals(TaskConstant.Assigned)) {
-                            // 上货架位
-                            return assignShelfLocation(container, pickingLocation);
+                            if (counter < itemLocations.size()) {
+                                continue;
+                            } else {
+                                // 上货架位
+                                return assignShelfLocation(container, pickingLocation);
+                            }
                         } else {
                             // 取消补货任务
                             TaskMsg msg = new TaskMsg();
@@ -148,8 +154,12 @@ public class ShelveRpcService implements IShelveRpcService {
                     return pickingLocation;
                 }
             } else {
-                // 上货架位
-                return assignShelfLocation(container, pickingLocation);
+                if (counter < itemLocations.size()) {
+                    continue;
+                } else {
+                    // 上货架位
+                    return assignShelfLocation(container, pickingLocation);
+                }
             }
         }
         return null;
