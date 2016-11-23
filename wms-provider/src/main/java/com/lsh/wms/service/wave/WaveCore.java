@@ -100,10 +100,12 @@ public class WaveCore {
     List<TaskEntry> entryList;
     Map<String, Map<Long, BigDecimal>> mapItemArea2LocationInventory;
     Map<Long, BaseinfoItem> mapItems;
+    boolean bAllocAll;
 
 
     public int release(long iWaveId) throws BizCheckedException {
         //获取波次信息
+        bAllocAll = true;
         waveId = iWaveId;
         //执行波次准备
         this._prepare();
@@ -148,7 +150,7 @@ public class WaveCore {
         }
 
         //标记成功,这里有风险,就是捡货任务已经创建了,但是这里标记失败了,看咋搞????
-        waveService.setStatus(waveId, WaveConstant.STATUS_RELEASE_SUCC);
+        waveService.setStatus(waveId, WaveConstant.STATUS_RELEASE_SUCC, bAllocAll);
         return 0;
     }
 
@@ -621,6 +623,9 @@ public class WaveCore {
                             leftAllocQty = this._allocNormal(detail, zone, item, location, leftAllocQty);
                         }
                     }
+                }
+                if(leftAllocQty.compareTo(BigDecimal.ZERO)>0){
+                    bAllocAll = false;
                 }
                 //if (leftAllocQty.compareTo(BigDecimal.ZERO) > 0) {
                     logger.error(String.format("GOD WAVE %d order %d idx[%s] item[%d][%s] needQty[%s] releasedQty[%s] leftQty[%s] %s",
