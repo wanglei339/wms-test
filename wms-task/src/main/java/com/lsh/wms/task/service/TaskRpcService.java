@@ -198,20 +198,14 @@ public class TaskRpcService implements ITaskRpcService {
     }
 
     public void afterDone(Long taskId) throws BizCheckedException {
-//        try {
-//            TaskMsg msg = new TaskMsg();
-//            msg.setSourceTaskId(taskId);
-//            msg.setType(TaskConstant.EVENT_TASK_FINISH);
-//            messageService.sendMessage(msg);
-
-//        } catch (Exception e){
-//            logger.error("AfterDone Exception", e);
-//        }
-        TaskMsg msg = new TaskMsg();
-        msg.setSourceTaskId(taskId);
-        msg.setType(TaskConstant.EVENT_TASK_FINISH);
-        IEventHandler handler = eventHandlerFactory.getEventHandler(msg.getType());
-        handler.process(msg);
+        try {
+            TaskMsg msg = new TaskMsg();
+            msg.setSourceTaskId(taskId);
+            msg.setType(TaskConstant.EVENT_TASK_FINISH);
+            messageService.sendMessage(msg);
+        } catch (Exception e){
+            logger.error("AfterDone Exception", e);
+        }
     }
 
     public List<Map<String,Object>> getPerformance(Map<String, Object> condition) {
