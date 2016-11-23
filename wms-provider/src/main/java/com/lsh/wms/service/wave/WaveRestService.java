@@ -27,6 +27,7 @@ import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.core.service.wave.WaveTemplateService;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationWarehouse;
 import com.lsh.wms.model.pick.*;
 import com.lsh.wms.model.so.ObdDetail;
@@ -370,6 +371,16 @@ public class WaveRestService implements IWaveRestService {
     @Path("getWaveDetailList")
     public String getWaveDetailList(@QueryParam("waveId") long iWaveId){
         return JsonUtils.SUCCESS(waveService.getDetailsByWaveId(iWaveId));
+    }
+
+    @GET
+    @Path("getWaveDetailListByCollectLocation")
+    public String getWaveDetailListByLocation(@QueryParam("collectLocationCode") String collectLocationCode){
+        BaseinfoLocation location = locationService.getLocationByCode(collectLocationCode);
+        if(location == null){
+            return JsonUtils.TOKEN_ERROR("集货道不存在");
+        }
+        return JsonUtils.SUCCESS(waveService.getDetailsByCollectionLocation(location));
     }
 
     @GET

@@ -233,9 +233,9 @@ public class WaveCore {
         for (ObdHeader order : orderList) {
             Long collectAllocId = 0L;
             String takeKey = "";
-            if(waveTemplate.getCollectAllocModel() == PickConstant.COLLECT_ALLOC_MODE_CUSTOMER){
+            if(waveTemplate.getCollectAllocModel().equals(PickConstant.COLLECT_ALLOC_MODE_CUSTOMER)){
                 takeKey = order.getDeliveryCode();
-            }else if (waveTemplate.getCollectAllocModel() == PickConstant.COLLECT_ALLOC_MODE_ROUTE){
+            }else if (waveTemplate.getCollectAllocModel().equals(PickConstant.COLLECT_ALLOC_MODE_ROUTE)){
                 takeKey = order.getTransPlan();
             }else{
                 //不支持的分配模式
@@ -255,7 +255,7 @@ public class WaveCore {
                     mapCollectBinCount.put(collecRoad.getLocationId(), 0L);
                 }else{
                     //静态
-                    if(waveTemplate.getCollectAllocModel() != PickConstant.COLLECT_ALLOC_MODE_CUSTOMER){
+                    if(!waveTemplate.getCollectAllocModel().equals(PickConstant.COLLECT_ALLOC_MODE_CUSTOMER)){
                         //指定模式不支持静态分配集货道
                         throw new BizCheckedException("2040019");
                     }
@@ -267,7 +267,7 @@ public class WaveCore {
                     }
                     long collecRoadId = customer.getCollectRoadId();
                     BaseinfoLocation location = locationService.getLocation(collecRoadId);
-                    if(location == null || location.getType() != LocationConstant.COLLECTION_ROAD){
+                    if(location == null || !location.getType().equals(LocationConstant.COLLECTION_ROAD)){
                         throw new BizCheckedException("2040021");
                     }
                     collecRoad = location;
@@ -331,7 +331,7 @@ public class WaveCore {
                 SplitNode node = new SplitNode();
                 node.details = new ArrayList<WaveDetail>();
                 for (WaveAllocDetail ad : pickAllocDetailList) {
-                    if(ad.getPickZoneId() != zone.getPickZoneId()){
+                    if(!ad.getPickZoneId().equals(zone.getPickZoneId())){
                         continue;
                     }
                     WaveDetail detail = new WaveDetail();
@@ -409,7 +409,7 @@ public class WaveCore {
                         if(node.iPickType == PickConstant.SHELF_PALLET_TASK_TYPE) {
                             //卧槽,这代码写成这样也真的是没脸见人了
                             //来找找有没有货架上有库存的.
-                            if (zone.getPickType() != PickConstant.SHELF_TASK_TYPE) {
+                            if (!zone.getPickType().equals(PickConstant.SHELF_TASK_TYPE)) {
                                 info.setSubType(zone.getPickType());
                             } else {
                                 Map<String, Object> queryMap = new HashMap<String, Object>();
@@ -739,10 +739,12 @@ public class WaveCore {
             Collections.sort(locationList, new Comparator<BaseinfoLocation>() {
                 //地堆区在前面
                 public int compare(BaseinfoLocation o1, BaseinfoLocation o2) {
-                    if(o1.getType() == LocationConstant.FLOOR_BIN || o1.getType() == LocationConstant.FLOOR){
+                    if(o1.getType().equals(LocationConstant.FLOOR_BIN)
+                            || o1.getType().equals(LocationConstant.FLOOR)){
                         //01在前
                         return -1;
-                    }else if (o2.getType() == LocationConstant.FLOOR_BIN || o2.getType() == LocationConstant.FLOOR){
+                    }else if (o2.getType().equals(LocationConstant.FLOOR_BIN)
+                            || o2.getType().equals(LocationConstant.FLOOR)){
                         return 1;
                     }else{
                         return 0;
@@ -774,7 +776,8 @@ public class WaveCore {
                 }
             }
             if(pickLocationList.size()==0 &&
-                    (location.getType() == LocationConstant.FLOOR || location.getType() == LocationConstant.FLOOR_BIN) ) {
+                    (location.getType().equals(LocationConstant.FLOOR)
+                            || location.getType().equals(LocationConstant.FLOOR_BIN)) ) {
                 //地堆区不设置也可以直接捡货
                 BaseinfoItemLocation itemLocation = new BaseinfoItemLocation();
                 itemLocation.setItemId(item.getItemId());

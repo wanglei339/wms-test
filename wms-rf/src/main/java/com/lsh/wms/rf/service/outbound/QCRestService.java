@@ -91,41 +91,58 @@ public class QCRestService implements IRFQCRestService {
     @Path("scan")
     public String scan() throws BizCheckedException {
         Map<String, Object> mapRequest = RequestUtils.getRequest();
-        Long pickTaskId = 0L;
+        Long pickTaskId = null;
         TaskInfo pickTaskInfo = null;
-        Long containerId = 0L;
+        Long containerId = null;
         TaskInfo qcTaskInfo = null;
         boolean isDirect = false;   //直流跳过明细qc的开关,true是跳过
         //判断是拣货签还是托盘码
         //pickTaskId拣货签12开头,18位的长度
         String code = (String) mapRequest.get("code");
-        String firstTwoCode = code.substring(0, 2);
-        if (code.toString().length() == 16 && firstTwoCode.equals("12")) {
-            mapRequest.put("pickTaskId", code);
-        } else {
-            mapRequest.put("containerId", code);
-        }
+//        String firstTwoCode = code.substring(0, 2);
+//        if (code.toString().length() == 16 && firstTwoCode.equals("12")) {
+//            mapRequest.put("pickTaskId", code);
+//        } else {
+//            mapRequest.put("containerId", code);
+//        }
         //参数获取和初始化
-        if (mapRequest.get("pickTaskId") != null && mapRequest.get("pickTaskId").toString().compareTo("") != 0) {
-            //根据捡货签做初始化
-            pickTaskId = Long.valueOf(mapRequest.get("pickTaskId").toString());
-            pickTaskInfo = iTaskRpcService.getTaskInfo(pickTaskId);
-            if (pickTaskInfo == null) {
-                throw new BizCheckedException("2060003");
-            }
-            containerId = pickTaskInfo.getContainerId();
-        } else {
-            //根据托盘码做初始化
-            containerId = Long.valueOf(mapRequest.get("containerId").toString());
-            Map<String, Object> mapQuery = new HashMap<String, Object>();
-            mapQuery.put("containerId", containerId);
-        }
+
+//        if (mapRequest.get("pickTaskId") != null && mapRequest.get("pickTaskId").toString().compareTo("") != 0) {
+//            //根据捡货签做初始化
+//            pickTaskId = Long.valueOf(mapRequest.get("pickTaskId").toString());
+//            pickTaskInfo = iTaskRpcService.getTaskInfo(pickTaskId);
+//            if (pickTaskInfo == null) {
+//                throw new BizCheckedException("2060003");
+//            }
+//            containerId = pickTaskInfo.getContainerId();
+//        } else {
+//            //根据托盘码做初始化
+//            containerId = Long.valueOf(mapRequest.get("containerId").toString());
+//            Map<String, Object> mapQuery = new HashMap<String, Object>();
+//            mapQuery.put("containerId", containerId);
+//        }
+        //查两次 当托盘或者拣货签查一次(目前托盘码15位,任务号16位)
+
+
         //获取QC任务
         Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("containerId", containerId);
+        mapQuery.put("containerId", Long.valueOf(code));
         mapQuery.put("type", TaskConstant.TYPE_QC);
 //        List<TaskEntry> tasks = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_QC, mapQuery);
         List<TaskInfo> tasks = baseTaskService.getTaskInfoList(mapQuery);
+        if (null == tasks || tasks.size() < 1) {
+            pickTaskId = Long.valueOf(code);
+            pickTaskInfo = baseTaskService.getTaskInfoById(pickTaskId);
+            if (null == pickTaskInfo) {
+                throw new BizCheckedException("2120007");
+            }
+
+            Map<String, Object> params = new HashMap<String, Object>();
+            params.put("containerId", pickTaskInfo.getContainerId());
+            params.put("type", TaskConstant.TYPE_QC);
+            tasks = baseTaskService.getTaskInfoList(params);
+
+        }
         //商品集合中需要记住有异常的wave_detail的id
         //扫托盘肯定不是拣货了,也有可能
         //根据container和QC的type 找出QC任务,并根据QC任务记录的前一个任务的taskid,找到具体的需要找到数
@@ -137,6 +154,8 @@ public class QCRestService implements IRFQCRestService {
             throw new BizCheckedException("2120006");
         }
         qcTaskInfo = tasks.get(0);
+        pickTaskId = qcTaskInfo.getTaskId();
+        containerId = qcTaskInfo.getContainerId();
 
         //显示qc的进行状态
         int step = qcTaskInfo.getStep();
@@ -485,10 +504,10 @@ public class QCRestService implements IRFQCRestService {
         if (WaveConstant.QC_RF_SKIP == type) {
             result = iqcRpcService.skipExceptionRf(request);
         }
-        if (WaveConstant.QC_RF_FALLBACK == type){
+        if (WaveConstant.QC_RF_FALLBACK == type) {
             result = iqcRpcService.fallbackExceptionRf(request);
         }
-        if (WaveConstant.QC_RF_REPAIR == type){
+        if (WaveConstant.QC_RF_REPAIR == type) {
             result = iqcRpcService.repairExceptionRf(request);
         }
         Map<String, Object> resultMap = new HashMap<String, Object>();

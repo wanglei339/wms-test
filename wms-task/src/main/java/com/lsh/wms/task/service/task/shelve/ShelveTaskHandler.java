@@ -10,6 +10,7 @@ import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockLotService;
+import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.task.BaseTaskService;
@@ -56,6 +57,8 @@ public class ShelveTaskHandler extends AbsTaskHandler {
     private StockQuantService stockQuantService;
     @Autowired
     private StockLotService stockLotService;
+    @Autowired
+    private StockMoveService stockMoveService;
     @Autowired
     private ItemLocationService itemLocationService;
     @Reference
@@ -150,7 +153,8 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         // 锁location
         locationService.lockLocation(targetLocation.getLocationId());
         // move到仓库location_id
-        iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, taskInfo.getFromLocationId(), locationService.getWarehouseLocationId());
+        stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, taskInfo.getFromLocationId(), locationService.getWarehouseLocationId());
+        //iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, taskInfo.getFromLocationId(), locationService.getWarehouseLocationId());
     }
 
     public void doneConcrete(Long taskId, Long locationId) throws BizCheckedException{
@@ -209,10 +213,12 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         if (realLocation.getType().equals(LocationConstant.BIN) && realLocation.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
             List<StockQuant> quants = stockQuantService.getQuantsByLocationId(locationId);
             if (quants.isEmpty()) {
-                iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
+                stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
+                //iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
             } else {
                 Long containerId = quants.get(0).getContainerId();
-                iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), containerId, taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
+                stockMoveService.moveWholeContainer(taskHead.getContainerId(), containerId, taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
+                //iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), containerId, taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
             }
         } else if (realLocation.getType().equals(LocationConstant.FLOOR)) {
             // 地堆区需要合盘
@@ -223,9 +229,11 @@ public class ShelveTaskHandler extends AbsTaskHandler {
             } else {
                 containerId = quants.get(0).getContainerId();
             }
-            iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), containerId, taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
+            stockMoveService.moveWholeContainer(taskHead.getContainerId(), containerId, taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
+            //iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), containerId, taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
         } else {
-            iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
+            stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
+            //iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
         }
         taskService.done(taskId, locationId);
         // 释放分配的location
@@ -235,6 +243,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         List<StockQuant> quantList = stockQuantService.getQuantsByContainerId(taskHead.getContainerId());
         for(StockQuant quant : quantList) {
             StockDelta delta = new StockDelta();
+            delta.setItemId(quant.getItemId());
             delta.setInhouseQty(quant.getQty());
             delta.setBusinessId(taskId);
             delta.setType(StockConstant.TYPE_SHELVE);
