@@ -193,22 +193,6 @@ public class StockQuantService {
 
     @Transactional(readOnly = false)
     public void move(StockMove move) throws BizCheckedException {
-        boolean moveInhouse = false;
-        boolean moveOutHouse = false;
-        if ((!move.getToLocationId().equals(0L)) &&
-                (baseTaskService.getTaskTypeById(move.getTaskId()).equals(TaskConstant.TYPE_SHELVE)   ||
-                        baseTaskService.getTaskTypeById(move.getTaskId()).equals(TaskConstant.TYPE_ATTIC_SHELVE) ||
-                        baseTaskService.getTaskTypeById(move.getTaskId()).equals(TaskConstant.TYPE_PICK_UP_SHELVE)
-                )
-                ) {
-            moveInhouse = true;
-        }
-        if (locationService.getLocation(move.getFromLocationId()).getType().equals(LocationConstant.INVENTORYLOST)) {
-            moveInhouse = true;
-        }
-        if (locationService.getLocation(move.getToLocationId()).getType().equals(LocationConstant.INVENTORYLOST)) {
-            moveOutHouse = true;
-        }
 
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("itemId", move.getItemId());
@@ -226,12 +210,6 @@ public class StockQuantService {
             this.split(quant, qtyDone);
             quant.setLocationId(move.getToLocationId());
             quant.setContainerId(move.getToContainerId());
-            if (moveInhouse) {
-                quant.setIsInhouse(1L);
-            }
-            if (moveOutHouse) {
-                quant.setIsInhouse(0L);
-            }
 
             this.update(quant);
             // 新建 quant move历史记录
@@ -262,13 +240,6 @@ public class StockQuantService {
         }
         this.updateLocationStatus(move.getFromLocationId());
         this.updateLocationStatus(move.getToLocationId());
-
-        if (moveInhouse) {
-            stockRedisService.inBound(move.getItemId(), move.getQty());
-        }
-        if (moveOutHouse) {
-            stockRedisService.outBound(move.getItemId(), move.getQty());
-        }
     }
 
     @Transactional(readOnly = false)
@@ -361,7 +332,6 @@ public class StockQuantService {
             stockRedisService.outBound(quant.getItemId(), quant.getQty());
         }
         stockQuantDao.update(quant);
-        stockRedisService.outBound(quant.getItemId(), quant.getQty());
     }
 
 
@@ -373,7 +343,6 @@ public class StockQuantService {
         quant.setIsNormal(1L);
         quant.setIsInhouse(1L);
         stockQuantDao.update(quant);
-        stockRedisService.inBound(quant.getItemId(), quant.getQty());
     }
 
     @Transactional(readOnly = false)
@@ -536,13 +505,6 @@ public class StockQuantService {
         relDao.insert(moveRel);
 
         this.updateLocationStatus(move.getToLocationId());
-
-        if (locationService.getLocation(move.getFromLocationId()).getType().equals(LocationConstant.INVENTORYLOST)) {
-            stockRedisService.inBound(move.getItemId(), move.getQty());
-        }
-        if (locationService.getLocation(move.getToLocationId()).getType().equals(LocationConstant.INVENTORYLOST)) {
-            stockRedisService.outBound(move.getItemId(), move.getQty());
-        }
     }
 
 }

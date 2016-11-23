@@ -121,30 +121,12 @@ public class StockMoveService {
 
     @Transactional(readOnly = false)
     public void move(List<StockMove> moveList) throws BizCheckedException {
-//        SortedSet<Long> locationSet = new TreeSet<Long>();
-//        for (StockMove move : moveList) {
-//            locationSet.add(move.getFromLocationId());
-//        }
-//        for (Long locationId : locationSet) {
-//            locationService.lockLocationById(locationId);
-//        }
-//        for (StockMove move : moveList) {
-//            if (move.getQty().compareTo(BigDecimal.ZERO) <= 0) {
-//                continue;
-//            }
-//            this.create(move);
-//            if (move.getLot() == null) {
-//                quantService.move(move);
-//            } else {
-//                this.move(move, move.getLot());
-//            }
-//        }
-
         for (StockMove move : moveList) {
             this.move(move);
         }
 
      }
+
     @Transactional()
     public void move(List<StockMove> moveList,Long stockTakingId) throws BizCheckedException{
         this.move(moveList);

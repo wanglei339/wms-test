@@ -4,6 +4,7 @@ import com.alibaba.dubbo.common.logger.Logger;
 import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.core.dao.stock.StockDeltaDao;
 import com.lsh.wms.core.dao.stock.StockSummaryDao;
 import com.lsh.wms.core.service.item.ItemService;
@@ -31,8 +32,12 @@ public class StockSummaryService {
     @Autowired
     private ItemService itemService;
 
+    @Autowired
+    private SynStockService synStockService;
+
     @Transactional(readOnly = false)
     public void changeStock(StockDelta delta) throws BizCheckedException {
+        logger.info(StrUtils.formatString("change stock summery for item[{0}] : inhouse delta is [{1}], alloc delta is [{2}]", delta.getItemId(), delta.getInhouseQty(), delta.getAllocQty()));
         stockDeltaDao.insert(delta);
         StockSummary summary = new StockSummary();
         ObjUtils.bean2bean(delta, summary);
@@ -43,6 +48,10 @@ public class StockSummaryService {
         summary.setSkuCode(item.getSkuCode());
         summary.setOwnerId(item.getOwnerId());
         stockSummaryDao.changeStock(summary);
+
+        // TODO 上线后删掉
+        StockSummary stockSummary = stockSummaryDao.getStockSummaryByItemId(delta.getItemId());
+        synStockService.synStock(stockSummary.getItemId(), stockSummary.getAvailQty().doubleValue());
     }
 
 }

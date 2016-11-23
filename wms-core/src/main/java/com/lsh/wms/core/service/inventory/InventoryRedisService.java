@@ -1,9 +1,7 @@
 package com.lsh.wms.core.service.inventory;
 
 import com.lsh.base.common.utils.StrUtils;
-import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.constant.SoConstant;
-import com.lsh.wms.core.dao.redis.RedisSortedSetDao;
 import com.lsh.wms.core.service.so.SoOrderRedisService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockRedisService;

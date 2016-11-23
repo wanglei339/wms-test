@@ -9,4 +9,5 @@ public class StockConstant {
     public static final int TYPE_SO_DELIVERY = 3;
     public static final int TYPE_TO_DEFECT = 4;
     public static final int TYPE_TO_REFUND = 5;
+    public static final int TYPE_STOCK_TAKING = 6;
 }
