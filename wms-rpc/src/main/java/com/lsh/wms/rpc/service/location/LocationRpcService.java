@@ -2,15 +2,12 @@ package com.lsh.wms.rpc.service.location;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.core.constant.BinUsageConstant;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 import com.lsh.wms.model.stock.StockQuant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -171,12 +168,12 @@ public class LocationRpcService implements ILocationRpcService {
 //        //放入阁楼拣货位
 //        mapQuery.put("type", LocationConstant.LOFT_PICKING_BIN);
 //        mapQuery.put("isValid", LocationConstant.IS_VALID);
-//        List<BaseinfoLocation> loftColletionBins = locationService.getLocationListByType(mapQuery);
+//        List<BaseinfoLocation> loftColletionBins = locationService.getLocationList(mapQuery);
 //        targetList.addAll(loftColletionBins);
 //        //货架拣货位
 //        mapQuery.put("type", LocationConstant.SHELF_PICKING_BIN);
 //        mapQuery.put("isValid", LocationConstant.IS_VALID);
-//        List<BaseinfoLocation> shelfColletionBins = locationService.getLocationListByType(mapQuery);
+//        List<BaseinfoLocation> shelfColletionBins = locationService.getLocationList(mapQuery);
 //        targetList.addAll(shelfColletionBins);
 //        //贵品区一体位置
 //        mapQuery.put("type", LocationConstant.VALUABLES_SHELF_BIN);
@@ -194,7 +191,7 @@ public class LocationRpcService implements ILocationRpcService {
         mapQuery.put("isLocked", LocationConstant.UNLOCK);
         mapQuery.put("canStore", LocationConstant.CAN_STORE);
         mapQuery.put("canUse",LocationConstant.CAN_USE);
-        List<BaseinfoLocation> pickBins = locationService.getLocationListByType(mapQuery);
+        List<BaseinfoLocation> pickBins = locationService.getBaseinfoLocationList(mapQuery);
         targetList.addAll(pickBins);
 
         return targetList;

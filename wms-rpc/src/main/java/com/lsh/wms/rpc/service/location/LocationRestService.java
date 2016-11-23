@@ -278,7 +278,8 @@ public class LocationRestService implements ILocationRestService {
     @GET
     @Path("getAllShelfs")
     public String getAllShelfs() {
-        return JsonUtils.SUCCESS(locationRpcService.getAllShelfs());
+//        return JsonUtils.SUCCESS(locationRpcService.getAllShelfs());
+        return JsonUtils.SUCCESS(locationRpcService.getColletionBins());
 //          return JsonUtils.SUCCESS(locationRpcService.sortSowLocationByStoreNo());
 //        return JsonUtils.SUCCESS(locationService.getLocation(-1L));
 //        return JsonUtils.SUCCESS(locationRpcService.removeStoreNoOnRoad(26736205236244L));
