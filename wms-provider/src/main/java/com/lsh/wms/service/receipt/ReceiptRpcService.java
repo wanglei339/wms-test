@@ -882,16 +882,20 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
 
             // 判断是否超过订单总数
+            // 数量改为ea来判断
+
+
             BigDecimal poInboundQty = null != ibdDetail.getInboundQty() ? ibdDetail.getInboundQty() : new BigDecimal(0);
 
-            if (poInboundQty.add(inbReceiptDetail.getInboundQty()).compareTo(ibdDetail.getOrderQty()) > 0) {
+            if (poInboundQty.add(inbReceiptDetail.getInboundQty().multiply(obdDetail.getPackUnit()))
+                    .compareTo(ibdDetail.getOrderQty().multiply(ibdDetail.getPackUnit())) > 0) {
                 throw new BizCheckedException("2020005");
             }
 
             // 批量修改ibd 实收数量
             IbdDetail updateIbdDetail = new IbdDetail();
             //转为ea
-            BigDecimal inboundUnitQty = inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit());
+            BigDecimal inboundUnitQty = inbReceiptDetail.getInboundQty().multiply(obdDetail.getPackUnit());
             updateIbdDetail.setInboundQty(inboundUnitQty);
             updateIbdDetail.setOrderId(inbReceiptDetail.getOrderId());
             updateIbdDetail.setDetailOtherId(ibdDetail.getDetailOtherId());
