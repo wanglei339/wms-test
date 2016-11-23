@@ -643,4 +643,13 @@ public class WaveService {
         }
     }
 
+    @Transactional(readOnly = false)
+    public void increaseReleaseQtyByWaveDeTails(List<WaveDetail> details){
+        for(WaveDetail detail : details){
+            if(detail.getRefObdDetailOtherId() != null) {
+                soOrderService.increaseReleaseQty(detail.getAllocQty(), detail.getOrderId(), detail.getRefObdDetailOtherId());
+            }
+        }
+    }
+
 }
