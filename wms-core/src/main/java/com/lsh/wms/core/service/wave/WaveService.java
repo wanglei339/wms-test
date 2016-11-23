@@ -189,6 +189,15 @@ public class WaveService {
     }
 
     @Transactional(readOnly = false)
+    public void setStatus(long iWaveId, int iStatus, boolean isAllAlloc){
+        WaveHead head = this.getWave(iWaveId);
+        if(head == null) return ;
+        head.setIsAllAlloc(isAllAlloc ? 1L : 0L);
+        head.setStatus((long) iStatus);
+        this.update(head);
+    }
+
+    @Transactional(readOnly = false)
     public void storeAlloc(WaveHead head, List<WaveAllocDetail> details){
         head.setIsResAlloc(1L);
         this.update(head);

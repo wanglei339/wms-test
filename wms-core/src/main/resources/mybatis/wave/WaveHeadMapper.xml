@@ -8,6 +8,7 @@
 		<result property="waveName" column="wave_name"/>
 		<result property="status" column="status"/>
 		<result property="isResAlloc" column="is_res_alloc"/>
+		<result property="isAllAlloc" column="is_all_alloc"/>
 		<result property="waveType" column="wave_type"/>
 		<result property="waveTemplateId" column="wave_template_id"/>
 		<result property="waveSource" column="wave_source"/>
@@ -37,6 +38,7 @@
   			<if test="waveName != null">wave_name=#{waveName},</if>
   			<if test="status != null">status=#{status},</if>
   			<if test="isResAlloc != null">is_res_alloc=#{isResAlloc},</if>
+			<if test="isAllAlloc != null">is_all_alloc=#{isAllAlloc},</if>
   			<if test="waveType != null">wave_type=#{waveType},</if>
   			<if test="waveTemplateId != null">wave_template_id=#{waveTemplateId},</if>
   			<if test="waveSource != null">wave_source=#{waveSource},</if>
@@ -97,6 +99,7 @@
 			<if test="waveName != null">and wave_name=#{waveName}</if>
 			<if test="status != null">and status=#{status}</if>
 			<if test="isResAlloc != null">and is_res_alloc=#{isResAlloc}</if>
+			<if test="isAllAlloc != null">and is_all_alloc=#{isAllAlloc}</if>
 			<if test="waveType != null">and wave_type=#{waveType}</if>
 			<if test="waveTemplateId != null">and wave_template_id=#{waveTemplateId}</if>
 			<if test="waveSource != null">and wave_source=#{waveSource}</if>
