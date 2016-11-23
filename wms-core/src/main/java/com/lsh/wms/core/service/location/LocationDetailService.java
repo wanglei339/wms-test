@@ -221,7 +221,7 @@ public class LocationDetailService {
 
 
     @Transactional(readOnly = false)
-    public BaseinfoLocation insert(LocationDetailRequest request) throws BizCheckedException{
+    public BaseinfoLocation insert(LocationDetailRequest request) {
         //根据type类型,将父类转为子类
         IBaseinfoLocaltionModel iBaseinfoLocaltionModel = locationDetailModelFactory.getLocationModel(Long.valueOf(request.getType().toString()));
         //转成子类
@@ -229,7 +229,7 @@ public class LocationDetailService {
         //插入的locationCode
         Long type = iBaseinfoLocaltionModel.getType();
         //todo 货位的插入需要
-        if (LocationConstant.BIN.equals(type) && null != request.getLocationCode()) {   //分布式事务,core抛了异常
+        if (LocationConstant.BIN.equals(type) && null != request.getLocationCode()) {
             //查找货位code是否相同
             BaseinfoLocation baseinfoLocation = locationService.getLocationByCode(request.getLocationCode());
             if (null != baseinfoLocation) {
