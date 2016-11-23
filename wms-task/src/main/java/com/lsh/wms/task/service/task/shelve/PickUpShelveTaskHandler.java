@@ -5,13 +5,16 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.shelve.IShelveRpcService;
 import com.lsh.wms.api.service.stock.IStockMoveRpcService;
+import com.lsh.wms.core.constant.StockConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.shelve.AtticShelveTaskDetailService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.model.stock.StockDelta;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
@@ -48,6 +51,8 @@ public class PickUpShelveTaskHandler extends AbsTaskHandler {
     private IShelveRpcService iShelveRpcService;
     @Reference
     private IStockMoveRpcService iStockMoveRpcService;
+    @Autowired
+    private StockSummaryService stockSummaryService;
 
     @Autowired
     StockLotService lotService;
@@ -100,4 +105,19 @@ public class PickUpShelveTaskHandler extends AbsTaskHandler {
         taskInfo.setTaskPackQty(taskInfo.getTaskQty().divide(taskInfo.getPackUnit(),2,BigDecimal.ROUND_DOWN));
         taskInfo.setQtyDone(taskInfo.getQty().divide(taskInfo.getPackUnit(), 2, BigDecimal.ROUND_DOWN));
     }
+
+    public void  doneConcrete(Long taskId) {
+        Long containerId = this.getTask(taskId).getTaskInfo().getContainerId();
+        // 更新可用库存
+        List<StockQuant> quantList = stockQuantService.getQuantsByContainerId(containerId);
+        for(StockQuant quant : quantList) {
+            StockDelta delta = new StockDelta();
+            delta.setItemId(quant.getItemId());
+            delta.setInhouseQty(quant.getQty());
+            delta.setBusinessId(taskId);
+            delta.setType(StockConstant.TYPE_SHELVE);
+            stockSummaryService.changeStock(delta);
+        }
+    }
+
 }

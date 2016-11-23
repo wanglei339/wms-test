@@ -86,6 +86,7 @@ public class WaveCore {
     WaveTemplate waveTemplate;
     List<BaseinfoLocation> unUsedCollectionRoadList;
     Map<Long, Long> mapOrder2CollectBin;
+    Map<Long, Long> mapOldOrder2CollectBin;
     PickModelTemplate modelTpl;
     List<PickModel> modelList;
     List<PickZone> zoneList;
@@ -99,10 +100,12 @@ public class WaveCore {
     List<TaskEntry> entryList;
     Map<String, Map<Long, BigDecimal>> mapItemArea2LocationInventory;
     Map<Long, BaseinfoItem> mapItems;
+    boolean bAllocAll;
 
 
     public int release(long iWaveId) throws BizCheckedException {
         //获取波次信息
+        bAllocAll = true;
         waveId = iWaveId;
         //执行波次准备
         this._prepare();
@@ -126,25 +129,28 @@ public class WaveCore {
             }
         }
         //创建捡货任务
-        taskRpcService.batchCreate(TaskConstant.TYPE_PICK, entryList);
-        //标记成功,这里有风险,就是捡货任务已经创建了,但是这里标记失败了,看咋搞????
-        waveService.setStatus(waveId, WaveConstant.STATUS_RELEASE_SUCC);
-        //发给调度创建纪录,调度器可能需要做些处理
-        try {
-            Set<Long> items = new HashSet<Long>();
-            for (ObdDetail detail : orderDetails) {
-                items.add(detail.getItemId());
+        if(entryList.size()>0) {
+            taskRpcService.batchCreate(TaskConstant.TYPE_PICK, entryList);
+            //发给调度创建纪录,调度器可能需要做些处理
+            try {
+                Set<Long> items = new HashSet<Long>();
+                for (ObdDetail detail : orderDetails) {
+                    items.add(detail.getItemId());
+                }
+                TaskMsg msg = new TaskMsg();
+                msg.setType(TaskConstant.EVENT_WAVE_RELEASE);
+                Map<String, Object> body = new HashMap<String, Object>();
+                body.put("itemList", items.toArray());
+                msg.setMsgBody(body);
+                messageService.sendMessage(msg);
+            } catch (Exception e) {
+                e.printStackTrace();
+                logger.warn("report wave info to redis fail");
             }
-            TaskMsg msg = new TaskMsg();
-            msg.setType(TaskConstant.EVENT_WAVE_RELEASE);
-            Map<String, Object> body = new HashMap<String, Object>();
-            body.put("itemList", items.toArray());
-            msg.setMsgBody(body);
-            messageService.sendMessage(msg);
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.warn("report wave info to redis fail");
         }
+
+        //标记成功,这里有风险,就是捡货任务已经创建了,但是这里标记失败了,看咋搞????
+        waveService.setStatus(waveId, WaveConstant.STATUS_RELEASE_SUCC, bAllocAll);
         return 0;
     }
 
@@ -231,6 +237,11 @@ public class WaveCore {
             throw new BizCheckedException("2040019");
         }
         for (ObdHeader order : orderList) {
+            if(mapOldOrder2CollectBin.get(order.getOrderId())!=null){
+                //已经释放过了,应该是第二次释放了,就用第一次的配置就行了.
+                mapOrder2CollectBin.put(order.getOrderId(), mapOldOrder2CollectBin.get(order.getOrderId()));
+                continue;
+            }
             Long collectAllocId = 0L;
             String takeKey = "";
             if(waveTemplate.getCollectAllocModel().equals(PickConstant.COLLECT_ALLOC_MODE_CUSTOMER)){
@@ -510,6 +521,7 @@ public class WaveCore {
         allocDetail.setAllocUnitQty(BigDecimal.valueOf(alloc_x));
         allocDetail.setAllocUnitName(unitName);
         allocDetail.setPickAreaLocation(location.getLocationId());
+        allocDetail.setRefObdDetailOtherId(detail.getDetailOtherId());
         pickAllocDetailList.add(allocDetail);
         leftAllocQty = leftAllocQty.subtract(alloc_qty);
         logger.info(String.format("get real qty %s", alloc_qty.toString()));
@@ -546,6 +558,7 @@ public class WaveCore {
             allocDetail.setAllocUnitQty((BigDecimal) info.get("allocQty"));
             allocDetail.setAllocUnitName("EA");
             allocDetail.setPickAreaLocation(location.getLocationId());
+            allocDetail.setRefObdDetailOtherId(detail.getDetailOtherId());
             pickAllocDetailList.add(allocDetail);
             logger.info(String.format("wave %d item %d[%s] packunit -1-EA leftQty %s zone %s pickArea %s getCanAllocQty %s sotrePickSame %s",
                     waveId,
@@ -586,7 +599,7 @@ public class WaveCore {
                     throw new BizCheckedException("");
                 }
                 //获取商品的捡货位
-                BigDecimal leftAllocQty = detail.getOrderQty().multiply(detail.getPackUnit());
+                BigDecimal leftAllocQty = (detail.getOrderQty().multiply(detail.getPackUnit())).subtract(detail.getReleaseQty());
                 for (PickModel model : modelList) {
                     if (leftAllocQty.compareTo(BigDecimal.ZERO) <= 0) {
                         break;
@@ -611,14 +624,18 @@ public class WaveCore {
                         }
                     }
                 }
+                if(leftAllocQty.compareTo(BigDecimal.ZERO)>0){
+                    bAllocAll = false;
+                }
                 //if (leftAllocQty.compareTo(BigDecimal.ZERO) > 0) {
-                    logger.error(String.format("GOD WAVE %d order %d idx[%s] item[%d][%s] needQty[%s] leftQty[%s] %s",
+                    logger.error(String.format("GOD WAVE %d order %d idx[%s] item[%d][%s] needQty[%s] releasedQty[%s] leftQty[%s] %s",
                         waveId,
                         detail.getOrderId(),
                         detail.getDetailOtherId(),
                         item.getItemId(),
                         item.getSkuCode(),
-                        detail.getUnitQty().toString(),
+                        detail.getOrderQty().multiply(detail.getPackUnit()).toString(),
+                            detail.getReleaseQty().toString(),
                         leftAllocQty.toString(),
                             leftAllocQty.compareTo(BigDecimal.ZERO)>0?"QUEJIAO":"NORMAL"));
                 //}
@@ -637,6 +654,7 @@ public class WaveCore {
         mapItemAndPickZone2PickLocationRound = new HashMap<String, Long>();
         mapPickZoneLeftAllocQty = new HashMap<String, BigDecimal>();
         mapOrder2CollectBin = new HashMap<Long, Long>();
+        mapOldOrder2CollectBin = new HashMap<Long, Long>();
         mapItemArea2LocationInventory = new HashMap<String, Map<Long, BigDecimal>>();
         mapItems = new HashMap<Long, BaseinfoItem>();
         this._prepareWave();
@@ -676,6 +694,11 @@ public class WaveCore {
         }
         //集货到分配排序
         //TODO collection sort
+
+        List<WaveDetail> releasedWaveList = waveService.getDetailsByWaveId(waveId);
+        for(WaveDetail detail : releasedWaveList){
+            mapOldOrder2CollectBin.put(detail.getOrderId(), detail.getAllocCollectLocation());
+        }
     }
     
     private void _prepareOrder() throws BizCheckedException{
@@ -690,10 +713,19 @@ public class WaveCore {
                 return o1.getId().compareTo(o2.getId());
             }
         });
+        boolean bAllAlloc = true;
         for(int i = 0;i  < orderList.size(); ++i){
             mapOrder2Head.put(orderList.get(i).getOrderId(), orderList.get(i));
             List<ObdDetail> details = orderService.getOutbSoDetailListByOrderId(orderList.get(i).getOrderId());
+            for(ObdDetail detail : details){
+                if(detail.getReleaseQty().compareTo(detail.getOrderQty().multiply(detail.getPackUnit()))<0){
+                    bAllAlloc = false;
+                }
+            }
             orderDetails.addAll(details);
+        }
+        if(bAllAlloc){
+            throw new BizCheckedException("2040022");
         }
     }
 

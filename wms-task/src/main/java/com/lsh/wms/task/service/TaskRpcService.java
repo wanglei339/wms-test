@@ -89,7 +89,7 @@ public class TaskRpcService implements ITaskRpcService {
     }
     public List<Long> batchCreate(StockTakingHead head, List<TaskEntry> taskEntries) throws BizCheckedException{
         TaskHandler handler = handlerFactory.getTaskHandler(TaskConstant.TYPE_STOCK_TAKING);
-        handler.batchCreate(head,taskEntries);
+        handler.batchCreate(head, taskEntries);
         List<Long> idList = new LinkedList<Long>();
         for(TaskEntry entry : taskEntries) {
             idList.add(entry.getTaskInfo().getTaskId());
@@ -198,14 +198,20 @@ public class TaskRpcService implements ITaskRpcService {
     }
 
     public void afterDone(Long taskId) throws BizCheckedException {
-        try {
-            TaskMsg msg = new TaskMsg();
-            msg.setSourceTaskId(taskId);
-            msg.setType(TaskConstant.EVENT_TASK_FINISH);
-            messageService.sendMessage(msg);
-        } catch (Exception e){
-            logger.error("AfterDone Exception", e);
-        }
+//        try {
+//            TaskMsg msg = new TaskMsg();
+//            msg.setSourceTaskId(taskId);
+//            msg.setType(TaskConstant.EVENT_TASK_FINISH);
+//            messageService.sendMessage(msg);
+
+//        } catch (Exception e){
+//            logger.error("AfterDone Exception", e);
+//        }
+        TaskMsg msg = new TaskMsg();
+        msg.setSourceTaskId(taskId);
+        msg.setType(TaskConstant.EVENT_TASK_FINISH);
+        IEventHandler handler = eventHandlerFactory.getEventHandler(msg.getType());
+        handler.process(msg);
     }
 
     public List<Map<String,Object>> getPerformance(Map<String, Object> condition) {

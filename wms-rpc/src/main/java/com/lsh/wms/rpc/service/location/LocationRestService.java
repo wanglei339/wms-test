@@ -248,7 +248,7 @@ public class LocationRestService implements ILocationRestService {
         mapQuery.put("canStore", LocationConstant.CAN_STORE);
         mapQuery.put("regionType",LocationConstant.SPLIT_AREA);
         mapQuery.put("type",LocationConstant.BIN);
-        List<BaseinfoLocation> pickstoreBins = locationService.getLocationListByType(mapQuery);
+        List<BaseinfoLocation> pickstoreBins = locationService.getBaseinfoLocationList(mapQuery);
         collectionBins.addAll(pickstoreBins);
         //货架拣货位
         List<BaseinfoLocation> shelfsList = new ArrayList<BaseinfoLocation>();
@@ -290,6 +290,7 @@ public class LocationRestService implements ILocationRestService {
     @Path("getAllShelfs")
     public String getAllShelfs() {
         return JsonUtils.SUCCESS(locationRpcService.getAllShelfs());
+//        return JsonUtils.SUCCESS(locationRpcService.getColletionBins());
 //          return JsonUtils.SUCCESS(locationRpcService.sortSowLocationByStoreNo());
 //        return JsonUtils.SUCCESS(locationService.getLocation(-1L));
 //        return JsonUtils.SUCCESS(locationRpcService.removeStoreNoOnRoad(26736205236244L));

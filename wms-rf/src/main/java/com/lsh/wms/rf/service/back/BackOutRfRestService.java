@@ -177,7 +177,7 @@ public class BackOutRfRestService implements IBackOutRfRestService {
         List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(queryMap);
         IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(ibdObdRelations.get(0).getIbdOtherId());
         ObdHeader header = soOrderService.getOutbSoHeaderByOrderOtherId(orderOtherId);
-        Long supplierId = supplierService.getSuppler(header.getSupplierNo(),header.getOwnerUid()).getSupplierId();
+        Long supplierId = supplierService.getSupplier(header.getSupplierNo(),header.getOwnerUid()).getSupplierId();
         StockLot lot = lotService.getLotBySupplierAndPoId(supplierId,ibdHeader.getOrderId());
         return  quantService.getLocationBylot(lot.getLotId());
     }

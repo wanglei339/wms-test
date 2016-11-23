@@ -47,7 +47,7 @@ public class IbdSapTransporter implements ITransporter {
             if(deliveQty.compareTo(BigDecimal.ZERO) <= 0 || receiveDetail.getBackStatus() == PoConstant.RECEIVE_DETAIL_STATUS_SUCCESS){
                 continue;
             }
-            detail.setDeliveQty(deliveQty.setScale(2,BigDecimal.ROUND_HALF_UP));
+            detail.setDeliveQty(deliveQty.multiply(receiveDetail.getPackUnit()).setScale(2,BigDecimal.ROUND_HALF_UP));
             detail.setUnit(receiveDetail.getPackName());
             detail.setMaterial(receiveDetail.getSkuCode());
             detail.setOrderType(receiveHeader.getOrderType());
