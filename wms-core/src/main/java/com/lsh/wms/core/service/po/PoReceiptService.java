@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.po;
 
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.model.so.ObdStreamDetail;
 import com.lsh.wms.core.dao.po.IbdDetailDao;
@@ -104,16 +105,16 @@ public class PoReceiptService {
             inbReceiptHeaderDao.insert(inbReceiptHeader);
         }
         inbReceiptDetailDao.batchInsert(inbReceiptDetailList);
+        logger.info("~~~~~~~~~~~~~~~~~~~~~~~~~111111111111111detail : " + JSON.toJSONString(updateIbdDetailList) + "~~~~~~~~~~~~~~~11111111111");
         ibdDetailDao.batchUpdateInboundQtyByOrderIdAndDetailOtherId(updateIbdDetailList);
 
         //receiveDetailDao.batchUpdateInboundQtyByReceiveIdAndDetailOtherId(updateReceiveDetailList);
         if(updateReceiveDetailList != null && updateReceiveDetailList.size() > 0){
-//            ReceiveDetail receiveDetail = updateReceiveDetailList.get(0);
-//            receiveDetailDao.updateInboundQtyByReceiveIdAndDetailOtherId(receiveDetail.getInboundQty(),receiveDetail.getReceiveId(),receiveDetail.getDetailOtherId());
+            logger.info("~~~~~~~~~~~~~~~2222222222222receive : " + JSON.toJSONString(updateReceiveDetailList) + "~~~~~~~~~~~~~~~22222222222222");
             receiveDetailDao.batchUpdateInboundQtyByReceiveIdAndDetailOtherId(updateReceiveDetailList);
+            logger.info("~~~~~~~~~~~~~~3333333333333333 update : " + updateReceiveDetailList + "~~~~~~~~~~~~~~~~~~~~33333333333");
+
         }
-
-
         //TODO 这种代码串的太长了,不应该放在这,一个收货的开发人员还管你出库怎么玩????
         //直流生成waveDetail
         if(obdStreamDetailList != null && obdStreamDetailList.size() > 0){
