@@ -25,10 +25,8 @@ public class TransportService implements ITransportService{
     public void dealOne(Long sysLogId) {
 
         logger.info(StrUtils.formatString("begin deal with sysLogId[{0}]]", sysLogId));
-
+        SysLog sysLog = sysLogService.getSysLogById(sysLogId);
         try {
-            SysLog sysLog = sysLogService.getSysLogById(sysLogId);
-
             if (sysLog == null) {
                 logger.warn(StrUtils.formatString("cannot find syslog for log_id[{0}]", sysLogId));
                 return;
@@ -41,7 +39,10 @@ public class TransportService implements ITransportService{
             sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
             sysLogService.updateSysLog(sysLog);
         } catch (Exception e) {
+            //异常在transporterManager中处理了
             logger.error("Exception", e);
+//            sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
+//            sysLogService.updateSysLog(sysLog);
             logger.error(StrUtils.formatString("Exception ocurred during deail with SysLog[{}]", sysLogId));
         }
 
