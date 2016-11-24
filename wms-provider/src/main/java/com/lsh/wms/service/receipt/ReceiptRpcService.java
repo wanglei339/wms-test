@@ -725,12 +725,19 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         for(IbdDetail ibdDetail : ibdDetails){
             ReceiptItem item = new ReceiptItem();
+
+            List<BaseinfoItem> baseinfoItems = itemService.getItemsBySkuCode(ibdHeader.getOwnerUid(),ibdDetail.getSkuCode());
+            if(items.size() <= 0){
+                throw new BizCheckedException("2900001");
+            }
+            BaseinfoItem baseinfoItem = baseinfoItems.get(items.size()-1);
+
             item.setArriveNum(ibdDetail.getOrderQty());
-            //item.setBarCode(ibdDetail.getBarCode());
+            item.setBarCode(baseinfoItem.getCode());
             item.setInboundQty(ibdDetail.getOrderQty());
             item.setPackName(ibdDetail.getPackName());
             item.setPackUnit(ibdDetail.getPackUnit());
-            //item.setSkuId(ibdDetail.getSkuId());
+            item.setSkuId(baseinfoItem.getSkuId());
             item.setSkuName(ibdDetail.getSkuName());
             items.add(item);
         }
@@ -1032,6 +1039,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             ObjUtils.bean2bean(ibdDetail,receiveDetail);
             receiveDetail.setCode(skuMap.get(ibdDetail.getSkuCode()));// TODO: 16/11/9 增加国条
             receiveDetail.setReceiveId(receiveId);
+            receiveDetail.setInboundQty(BigDecimal.ZERO);
             receiveDetail.setCreatedAt(DateUtils.getCurrentSeconds());
             receiveDetails.add(receiveDetail);
         }
