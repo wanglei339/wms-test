@@ -37,11 +37,11 @@ public class IbdRequest implements Serializable {
 
     /** 订单日期 */
     @NotNull
-    @DateTimeFormat
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date orderTime;
 
     /** 截止收货时间 */
-    @DateTimeFormat
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date endDeliveryDate = new Date();
 
     /** 返仓客户 */
