@@ -225,5 +225,10 @@ public class StockTakingService {
         return detailDao.getStockTakingDetailList(queryMap);
 
     }
+    @Transactional (readOnly = false)
+    public void confirmDifference(Long stockTakingId, long roundTime) {
+        List<StockTakingDetail> detailList = this.getDetailListByRound(stockTakingId, roundTime);
+        this.done(stockTakingId, detailList);
+    }
 }
 
