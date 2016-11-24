@@ -37,8 +37,7 @@ public class IbdRequest implements Serializable {
 
     /** 订单日期 */
     @NotNull
-    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private Date orderTime;
+    private String orderTime;
 
     /** 截止收货时间 */
     @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
@@ -55,7 +54,7 @@ public class IbdRequest implements Serializable {
 
     public IbdRequest() {}
 
-    public IbdRequest(List<IbdDetail> detailList, Date endDeliveryDate, String orderOtherId, String orderOtherRefId, Date orderTime, Integer orderType, String orderUser, Long ownerUid, String supplierCode, String warehouseCode) {
+    public IbdRequest(List<IbdDetail> detailList, Date endDeliveryDate, String orderOtherId, String orderOtherRefId, String orderTime, Integer orderType, String orderUser, Long ownerUid, String supplierCode, String warehouseCode) {
         this.detailList = detailList;
         this.endDeliveryDate = endDeliveryDate;
         this.orderOtherId = orderOtherId;
@@ -100,11 +99,11 @@ public class IbdRequest implements Serializable {
         this.orderOtherRefId = orderOtherRefId;
     }
 
-    public Date getOrderTime() {
+    public String getOrderTime() {
         return orderTime;
     }
 
-    public void setOrderTime(Date orderTime) {
+    public void setOrderTime(String orderTime) {
         this.orderTime = orderTime;
     }
 
