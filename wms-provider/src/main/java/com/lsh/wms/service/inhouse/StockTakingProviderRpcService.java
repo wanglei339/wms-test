@@ -9,7 +9,7 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.base.common.utils.StrUtils;
-import com.lsh.wms.api.service.inhouse.IStockTakingRpcService;
+import com.lsh.wms.api.service.inhouse.IStockTakingProviderRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.constant.TaskConstant;
@@ -40,8 +40,8 @@ import java.util.concurrent.TimeUnit;
  */
 
 @Service(protocol = "dubbo")
-public class StockTakingRpcService implements IStockTakingRpcService {
-    private static final Logger logger = LoggerFactory.getLogger(StockTakingRpcService.class);
+public class StockTakingProviderRpcService implements IStockTakingProviderRpcService {
+    private static final Logger logger = LoggerFactory.getLogger(StockTakingProviderRpcService.class);
 
     @Reference
     private ITaskRpcService iTaskRpcService;
@@ -73,7 +73,6 @@ public class StockTakingRpcService implements IStockTakingRpcService {
 
             String key = StrUtils.formatString(RedisKeyConstant.TAKING_KEY, request.getTakingId());
             redisStringDao.set(key, request.getTakingId(), 24, TimeUnit.HOURS);
-
 
             StockTakingHead head = new StockTakingHead();
             ObjUtils.bean2bean(request, head);
