@@ -23,4 +23,6 @@ public interface ISysUserRestService {
     public String getSysUserByUsername(Map<String, Object> params)throws BizCheckedException;
 
     String getSysUserById(Long iUid);
+
+    public String updatePassword() throws BizCheckedException;
 }

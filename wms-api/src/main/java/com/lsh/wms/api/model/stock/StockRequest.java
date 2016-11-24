@@ -13,13 +13,16 @@ public class StockRequest implements Serializable{
     private String storageLocation = "0001";
     /**类型551报损552报溢*/
     private String moveType;
+    /**移动原因 moveReason 写死0001*/
+    private String moveReason = "0001";
 
     private List<StockItem> items;
 
     public StockRequest(){}
 
-    public StockRequest(List<StockItem> items, String moveType, String plant, String storageLocation) {
+    public StockRequest(List<StockItem> items, String moveReason, String moveType, String plant, String storageLocation) {
         this.items = items;
+        this.moveReason = moveReason;
         this.moveType = moveType;
         this.plant = plant;
         this.storageLocation = storageLocation;
@@ -31,6 +34,14 @@ public class StockRequest implements Serializable{
 
     public void setItems(List<StockItem> items) {
         this.items = items;
+    }
+
+    public String getMoveReason() {
+        return moveReason;
+    }
+
+    public void setMoveReason(String moveReason) {
+        this.moveReason = moveReason;
     }
 
     public String getMoveType() {

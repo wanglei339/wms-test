@@ -239,7 +239,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     plan.setItemId(itemLocation.getItemId());
                     plan.setFromLocationId(quant.getLocationId());
                     plan.setToLocationId(itemLocation.getPickLocationid());
-                    plan.setPackName("pallet");
+                    plan.setPackName(quant.getPackName());
                     plan.setPackUnit(quant.getPackUnit());
                     plan.setSubType(1L);//整托
                     plan.setQty(total.divide(quant.getPackUnit(), 0, BigDecimal.ROUND_DOWN));

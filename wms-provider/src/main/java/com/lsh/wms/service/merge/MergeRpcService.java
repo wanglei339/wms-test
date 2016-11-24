@@ -1,7 +1,9 @@
 package com.lsh.wms.service.merge;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.merge.IMergeRpcService;
 import com.lsh.wms.core.constant.CustomerConstant;
@@ -190,8 +192,8 @@ public class MergeRpcService implements IMergeRpcService {
                 Map<String, BigDecimal> qcCounts = this.getQcCountsByWaveDetail(waveDetail);
                 Map<String, Object> result = new HashMap<String, Object>();
                 if (results.containsKey(containerId)) {
-                    List<Long> containersList = (List<Long>)result.get("containersList");
-                    containersList.add(waveDetail.getContainerId());
+                    List<String> containersList = (ArrayList<String>)results.get(containerId).get("containersList");
+                    containersList.add(waveDetail.getContainerId().toString());
                     result = results.get(containerId);
                     result.put("packCount", new BigDecimal(Double.valueOf(result.get("packCount").toString())).add(qcCounts.get("packCount")));
                     result.put("turnoverBoxCount", new BigDecimal(Double.valueOf(result.get("turnoverBoxCount").toString())).add(qcCounts.get("turnoverBoxCount")));
@@ -204,8 +206,8 @@ public class MergeRpcService implements IMergeRpcService {
                     }
                 } else {
                     TaskInfo taskInfo = baseTaskService.getTaskInfoById(waveDetail.getMergeTaskId());
-                    List<Long> containersList = new ArrayList<Long>();
-                    containersList.add(waveDetail.getContainerId());
+                    List<String> containersList = new ArrayList<String>();
+                    containersList.add(waveDetail.getContainerId().toString());
                     result.put("containerId", containerId);
                     result.put("markContainerId", waveDetail.getContainerId());  //当前作为查找板子码标识的物理托盘码,随机选的
                     result.put("containerCount", 1);

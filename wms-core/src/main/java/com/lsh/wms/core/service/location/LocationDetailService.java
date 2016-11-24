@@ -479,30 +479,14 @@ public class LocationDetailService {
      *
      * @return
      */
-    public List<BaseinfoLocationRegion> getMarketReturnList(Long ownerid) throws BizCheckedException {
+    public List<BaseinfoLocation> getMarketReturnList() throws BizCheckedException {
         Map<String, Object> params = new HashMap<String, Object>();
         List<BaseinfoLocation> locationList = locationService.getTargetLocationListByType(LocationConstant.MARKET_RETURN_AREA);
-        List<IBaseinfoLocaltionModel> iBaseinfoLocaltionModels = new ArrayList<IBaseinfoLocaltionModel>();
-        IBaseinfoLocaltionModel marketLocation = null;
-        for (BaseinfoLocation location : locationList) {
-            marketLocation = this.getIBaseinfoLocaltionModelById(location.getLocationId());
-            if (null == marketLocation) {
-                continue;
-            }
-            iBaseinfoLocaltionModels.add(marketLocation);
-        }
         //过滤货主
-        List<BaseinfoLocationRegion> regions = (List<BaseinfoLocationRegion>) (List<?>) iBaseinfoLocaltionModels;
-        List<BaseinfoLocationRegion> targetReturn = new ArrayList<BaseinfoLocationRegion>();
-        for (BaseinfoLocationRegion one : regions) {
-            if (one.getOwnerid().equals(ownerid)) {
-                targetReturn.add(one);
-            }
-        }
-        if (targetReturn.size() > 0) {
-            return targetReturn;
+        if (locationList != null || locationList.size() > 0) {
+            return locationList;
         } else {
-            throw new BizCheckedException("2180005");
+            return new ArrayList<BaseinfoLocation>();
         }
     }
 
