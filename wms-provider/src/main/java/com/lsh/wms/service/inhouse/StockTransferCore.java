@@ -227,7 +227,7 @@ public class StockTransferCore {
         }
         moveList.add(move);
         taskInfo.setToLocationId(toLocation.getLocationId());
-        taskRpcService.done(taskInfo.getTaskId());
+        taskRpcService.done(taskInfo.getTaskId(), moveList);
     }
 
 

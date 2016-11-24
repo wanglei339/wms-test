@@ -198,7 +198,7 @@ public class TaskRpcService implements ITaskRpcService {
         this.afterDone(taskId);
     }
 
-    public void done(Long taskId, List<StockMove> moveList){
+    public void done(Long taskId, List<StockMove> moveList) throws BizCheckedException{
         Long taskType = this.getTaskTypeById(taskId);
         TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
         taskHandler.done(taskId, moveList);

@@ -181,7 +181,7 @@ public class AbsTaskHandler implements TaskHandler {
     public void doneConcrete(Long taskId, Long locationId, Long staffId) throws BizCheckedException{
     }
 
-    public void doneConcrete(Long taskId, List<StockMove> moveList){
+    public void doneConcrete(Long taskId, List<StockMove> moveList) throws BizCheckedException{
     }
 
     public void cancel(Long taskId) {
