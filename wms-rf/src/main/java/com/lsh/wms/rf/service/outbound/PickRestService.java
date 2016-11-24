@@ -442,6 +442,10 @@ public class PickRestService implements IPickRestService {
         if (unfinishedDetails.size() < 1) {
             throw new BizCheckedException("2060015");
         }
+        // 一个都没拣时不允许更新托盘,会造成原拣货任务无法完成
+        if (unfinishedDetails.size() == pickDetails.size()) {
+            throw new BizCheckedException("2060018");
+        }
         //unfinishedDetails = this.calcPickOrder(unfinishedDetails); // 重新排序
         PickTaskHead oriTaskHead = pickTaskService.getPickTaskHead(taskId);
         TaskEntry newTaskEntry = new TaskEntry();

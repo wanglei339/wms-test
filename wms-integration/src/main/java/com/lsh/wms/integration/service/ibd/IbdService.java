@@ -55,6 +55,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -97,7 +98,7 @@ public class IbdService implements IIbdService {
 
     @POST
     @Path("add")
-    public BaseResponse add(IbdRequest request) throws BizCheckedException{
+    public BaseResponse add(IbdRequest request) throws BizCheckedException, java.text.ParseException {
         //数量做转换 ea转化为外包装箱数
         List<IbdDetail> details = request.getDetailList();
 
@@ -141,8 +142,14 @@ public class IbdService implements IIbdService {
         if (StringUtils.isContains(request.getSupplierCode(), "DC")) {
             request.setSupplierCode(request.getSupplierCode().substring(2));
         }
+        //将下单时间转为Date类型
+        String orderTime = request.getOrderTime();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = sdf.parse(orderTime);
+
         PoRequest poRequest = new PoRequest();
         ObjUtils.bean2bean(request,poRequest);
+        poRequest.setOrderTime(date);
         //将IbdDetail转化为poItem
         // TODO: 16/9/5  warehouseCode 转换为warehouseId 如何转化 重复的order_other_id 校验
         String orderOtherId = request.getOrderOtherId();
