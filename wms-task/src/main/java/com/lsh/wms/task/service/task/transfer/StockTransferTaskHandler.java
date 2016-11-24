@@ -4,11 +4,13 @@ import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.StockConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.transfer.StockTransferTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockDelta;
+import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.task.service.TaskRpcService;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * Created by mali on 16/7/25.
@@ -43,6 +46,9 @@ public class StockTransferTaskHandler extends AbsTaskHandler {
 
     @Autowired
     private StockSummaryService stockSummaryService;
+
+    @Autowired
+    private StockMoveService stockMoveService;
 
     @PostConstruct
     public void postConstruct() {
@@ -86,6 +92,21 @@ public class StockTransferTaskHandler extends AbsTaskHandler {
             stockDelta.setBusinessId(taskId);
             stockSummaryService.changeStock(stockDelta);
         }
+    }
+
+    public void doneConcrete(Long taskId, List<StockMove> moveList){
+        for(StockMove move : moveList){
+            if(move.getMoveHole() == 1L){
+                stockMoveService.moveWholeContainer(move.getFromContainerId(),
+                        move.getTaskId(),
+                        move.getOperator(),
+                        move.getFromLocationId(),
+                        move.getToLocationId());
+            }else{
+                stockMoveService.move(move);
+            }
+        }
+        this.doneConcrete(taskId);
     }
 
     public void cancelConcrete(Long taskId) {

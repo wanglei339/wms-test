@@ -1,6 +1,7 @@
 package com.lsh.wms.core.service.task;
 
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -34,12 +35,14 @@ public interface TaskHandler {
     void done(TaskEntry taskEntry);
     void done(Long taskId, Long locationId) throws BizCheckedException;
     void done(Long taskId, Long locationId, Long staffId) throws BizCheckedException;
+    void done(Long taskId, List<StockMove> moveList) throws BizCheckedException;
     void cancel(Long taskId);
     void update(TaskEntry taskEntry);
 
     void doneConcrete(Long taskId);
     void doneConcrete(Long taskId, Long locationId);
     void doneConcrete(Long taskId, Long locationId, Long staffId);
+    void doneConcrete(Long taskId, List<StockMove> moveList);
     void cancelConcrete(Long taskId);
     void allocateConcrete(Long taskId);
     void updteConcrete(TaskEntry taskEntry);

@@ -147,6 +147,10 @@
 		select * from task_info
 		where task_id=#{taskId}
 	</select>
+
+	<select id="lockById" parameterType="Long" resultMap="taskInfoResultMap">
+		select task_id from task_info where task_id=#{taskId} for update
+	</select>
   
 	<select id="countTaskInfo" parameterType="map" resultType="int">
 		select count(*) from task_info

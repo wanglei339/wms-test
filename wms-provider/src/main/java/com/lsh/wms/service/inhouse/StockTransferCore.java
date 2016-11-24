@@ -165,7 +165,7 @@ public class StockTransferCore {
         Long containerId = taskInfo.getContainerId();
         Long toLocationId = locationService.getWarehouseLocationId();
         if (taskInfo.getSubType().compareTo(1L) == 0) {
-            moveRpcService.moveWholeContainer(containerId, taskInfo.getTaskId(), taskInfo.getOperator(), fromLocation.getLocationId(), toLocationId);
+            stockMoveService.moveWholeContainer(containerId, taskInfo.getTaskId(), taskInfo.getOperator(), fromLocation.getLocationId(), toLocationId);
         } else {
             StockMove move = new StockMove();
             ObjUtils.bean2bean(taskInfo, move);
@@ -195,13 +195,20 @@ public class StockTransferCore {
         Long fromLocationId = locationService.getWarehouseLocationId();
         //坑啊,卧槽我发现数据库里根本没这个字段,上面存了没有屌用
         taskInfo.setQtyDoneUom(PackUtil.EAQty2UomQty(taskInfo.getQtyDone(), taskInfo.getPackName()));
+        List<StockMove> moveList = new ArrayList<StockMove>();
+        StockMove move = new StockMove();
         if (taskInfo.getSubType().compareTo(1L) == 0) {
-            moveRpcService.moveWholeContainer(containerId, taskInfo.getTaskId(), taskInfo.getOperator(), fromLocationId, toLocation.getLocationId());
+            move.setFromContainerId(containerId);
+            move.setTaskId(taskInfo.getTaskId());
+            move.setOperator(taskInfo.getOperator());
+            move.setFromLocationId(fromLocationId);
+            move.setToLocationId(toLocation.getLocationId());
+            //moveRpcService.moveWholeContainer(containerId, taskInfo.getTaskId(), taskInfo.getOperator(), fromLocationId, toLocation.getLocationId());
         } else {
             if (taskInfo.getQtyDoneUom().compareTo(BigDecimal.ZERO) <= 0) {
                 throw new BizCheckedException("2550034");
             }
-            StockMove move = new StockMove();
+
             ObjUtils.bean2bean(taskInfo, move);
             move.setQty(taskInfo.getQtyDone());
             move.setFromLocationId(fromLocationId);
@@ -218,10 +225,9 @@ public class StockTransferCore {
             move.setToContainerId(toContainerId);
             move.setSkuId(taskInfo.getSkuId());
             move.setOwnerId(taskInfo.getOwnerId());
-            List<StockMove> moveList = new ArrayList<StockMove>();
-            moveList.add(move);
-            stockMoveService.move(moveList);
+            //stockMoveService.move(moveList);
         }
+        moveList.add(move);
         taskInfo.setToLocationId(toLocation.getLocationId());
         taskRpcService.done(taskInfo.getTaskId());
     }

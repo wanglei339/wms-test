@@ -6,6 +6,7 @@ import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.task.TaskHandler;
 import com.lsh.wms.core.service.utils.IdGenerator;
+import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -167,6 +168,10 @@ public class AbsTaskHandler implements TaskHandler {
         baseTaskService.done(taskId, locationId, staffId, this);
     }
 
+    public void done(Long taskId, List<StockMove> moveList) throws BizCheckedException {
+        baseTaskService.done(taskId, moveList, this);
+    }
+
     public void doneConcrete(Long taskId) {
     }
 
@@ -174,6 +179,9 @@ public class AbsTaskHandler implements TaskHandler {
     }
 
     public void doneConcrete(Long taskId, Long locationId, Long staffId) throws BizCheckedException{
+    }
+
+    public void doneConcrete(Long taskId, List<StockMove> moveList){
     }
 
     public void cancel(Long taskId) {
