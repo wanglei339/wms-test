@@ -52,9 +52,6 @@ public class StockTransferCore {
     @Reference
     private IItemRpcService itemRpcService;
 
-    @Reference
-    private IStockMoveRpcService moveRpcService;
-
     @Autowired
     private StockMoveService stockMoveService;
 
@@ -176,9 +173,7 @@ public class StockTransferCore {
             move.setToContainerId(containerId);
             move.setSkuId(taskInfo.getSkuId());
             move.setOwnerId(taskInfo.getOwnerId());
-            List<StockMove> moveList = new ArrayList<StockMove>();
-            moveList.add(move);
-            stockMoveService.move(moveList);
+            stockMoveService.move(move);
             taskInfo.setQtyDone(qty);
         }
         taskInfo.setStep(2);
@@ -233,6 +228,7 @@ public class StockTransferCore {
     }
 
 
+    @Transactional(readOnly = false)
     public void outbound(Map<String, Object> params) throws BizCheckedException {
         Long uid = 0L;
         Long taskId = Long.valueOf(params.get("taskId").toString().trim());
@@ -244,9 +240,7 @@ public class StockTransferCore {
             throw new BizCheckedException("2550013");
         }
         TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
-        if (taskEntry == null) {
-            throw new BizCheckedException("2550005");
-        }
+
         if (!taskEntry.getTaskInfo().getOperator().equals(uid)) {
             throw new BizCheckedException("2550031");
         }
@@ -272,7 +266,7 @@ public class StockTransferCore {
         Long containerId = taskInfo.getContainerId();
         Long toLocationId = locationService.getWarehouseLocationId();
         if (taskInfo.getSubType().compareTo(1L) == 0) {
-            moveRpcService.moveWholeContainer(containerId, taskId, uid, fromLocationId, toLocationId);
+            stockMoveService.moveWholeContainer(containerId, taskId, uid, fromLocationId, toLocationId);
         } else {
             BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString().trim());
             if (qtyDone.compareTo(BigDecimal.ZERO) <= 0 ||
@@ -298,10 +292,9 @@ public class StockTransferCore {
             move.setOwnerId(taskInfo.getOwnerId());
             List<StockMove> moveList = new ArrayList<StockMove>();
             moveList.add(move);
-            moveRpcService.move(moveList);
+            stockMoveService.move(moveList);
             taskInfo.setQtyDone(qtyDone);
         }
-        //taskInfo.setStatus(TaskConstant.Doing);
         taskInfo.setStep(2);
         taskInfoDao.update(taskInfo);
     }
@@ -311,73 +304,30 @@ public class StockTransferCore {
         Long taskId = Long.valueOf(params.get("taskId").toString().trim());
         String locationCode = params.get("locationCode").toString().trim();
         Long toLocationId = locationRpcService.getLocationIdByCode(locationCode);
+        TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
         try {
             uid = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uid").toString())).getUid();
         } catch (Exception e) {
             throw new BizCheckedException("2550013");
         }
-        TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
+
         if (taskEntry == null) {
             throw new BizCheckedException("2550005");
         }
         if (!taskEntry.getTaskInfo().getOperator().equals(uid)) {
             throw new BizCheckedException("2550031");
         }
+
+
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         if(taskInfo.getType().compareTo(113l)!=0) {
             if (taskInfo.getToLocationId().compareTo(toLocationId) != 0) {
                 throw new BizCheckedException("2040007");
             }
         }
-        Long containerId = taskInfo.getContainerId();
-        Long fromLocationId = locationService.getWarehouseLocationId();
 
-        if (taskInfo.getSubType().compareTo(1L) == 0) {
-            moveRpcService.moveWholeContainer(containerId, taskId, uid, fromLocationId, toLocationId);
-        } else {
+        if (taskInfo.getSubType().compareTo(1L) != 0) {
             BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString().trim());
-            if (qtyDone.compareTo(BigDecimal.ZERO) <= 0 ||
-                    qtyDone.setScale(0, BigDecimal.ROUND_DOWN).compareTo(qtyDone) != 0) {
-                throw new BizCheckedException("2550034");
-            }
-            if (taskInfo.getQtyDone().compareTo(qtyDone) != 0) {
-                throw new BizCheckedException("2550014");
-            }
-            if (taskInfo.getType().compareTo(TaskConstant.TYPE_STOCK_TRANSFER) == 0) {
-                BaseinfoLocation toLocation = locationService.getLocation(toLocationId);
-                if (toLocation.getRegionType().equals(LocationConstant.SHELFS)||
-                        toLocation.getRegionType().equals(LocationConstant.SPLIT_AREA)
-                        ) {
-                    BigDecimal freeVolume = this.getThreshold(toLocationId, taskInfo.getItemId(), taskInfo.getSubType(), qtyDone);
-                    if (freeVolume.compareTo(BigDecimal.ZERO) < 0) {
-                        throw new BizCheckedException("2550006");
-                    }
-                }
-            }
-            StockMove move = new StockMove();
-            ObjUtils.bean2bean(taskInfo, move);
-            if (taskInfo.getSubType().compareTo(2L) == 0) {
-                move.setQty(qtyDone.multiply(taskInfo.getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP));
-            } else if (taskInfo.getSubType().compareTo(3L) == 0) {
-                move.setQty(qtyDone);
-            }
-            move.setFromLocationId(fromLocationId);
-            move.setToLocationId(toLocationId);
-            Long newContainerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
-            Long toContainerId= containerService.getContaierIdByLocationId(toLocationId);
-            Long locationType = locationService.getLocation(toLocationId).getType();
-            if (toContainerId.equals(0L)) {
-                toContainerId = newContainerId;
-            } else if (locationType.equals(LocationConstant.BACK_AREA) || locationType.equals(LocationConstant.DEFECTIVE_AREA)){
-                toContainerId = newContainerId;
-            }
-            move.setFromContainerId(containerId);
-            move.setToContainerId(toContainerId);
-            move.setSkuId(taskInfo.getSkuId());
-            move.setOwnerId(taskInfo.getOwnerId());
-            List<StockMove> moveList = new ArrayList<StockMove>();
-            moveList.add(move);
-            moveRpcService.move(moveList);
             taskInfo.setQtyDone(qtyDone);
             taskInfoDao.update(taskInfo);
         }

@@ -54,7 +54,8 @@ public class DataBackService implements IDataBackService {
     @Autowired
     private SysLogService sysLogService;
 
-    public void wmDataBackByPost(String request, String url , Integer type,SysLog sysLog){
+    public String wmDataBackByPost(String request, String url , Integer type,SysLog sysLog){
+        OrderResponse orderResponse = new OrderResponse();
         try{
             String jsonCreate = request;
             //获取redis中缓存的token
@@ -63,7 +64,7 @@ public class DataBackService implements IDataBackService {
                 token = this.getToken(url);
                 redisStringDao.set(RedisKeyConstant.WM_BACK_TOKEN,token);
             }
-            OrderResponse orderResponse = new OrderResponse();
+
             if(token != null && !token.equals("")){
                 logger.info("order wumart CreateOrder json : " + jsonCreate);
                 String jsonStr = HttpUtil.doPost(url,jsonCreate,token);
@@ -99,7 +100,7 @@ public class DataBackService implements IDataBackService {
             sysLog.setSysMessage(ex.getMessage());
 
         }
-
+        return JSON.toJSONString(orderResponse);
     }
 
     public String ofcDataBackByPost(String request, String url,SysLog sysLog){

@@ -441,4 +441,14 @@ public class BaseTaskService {
         BigDecimal sum = taskInfoDao.getQty(condition);
         return sum == null ? BigDecimal.ZERO : sum;
     }
+    public TaskInfo getTaskByTaskId (Long taskId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("taskId", taskId);
+        List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
+        if(taskInfos==null || taskInfos.size()==0){
+            return null;
+        }else {
+            return taskInfos.get(0);
+        }
+    }
 }

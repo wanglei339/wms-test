@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.stock.OverLossReportDao" >
+
+	<resultMap id="overLossReportResultMap" type="OverLossReport">
+		<id property="id" column="id"/>
+		<result property="lossReportId" column="loss_report_id"/>
+		<result property="itemId" column="item_id"/>
+		<result property="lotId" column="lot_id"/>
+		<result property="refTaskId" column="ref_task_id"/>
+		<result property="storageLocation" column="storage_location"/>
+		<result property="moveType" column="move_type"/>
+		<result property="moveReason" column="move_reason"/>
+		<result property="skuCode" column="sku_code"/>
+		<result property="packName" column="pack_name"/>
+		<result property="qty" column="qty"/>
+		<result property="ownerId" column="owner_id"/>
+		<result property="isValid" column="is_valid"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="OverLossReport">
+		insert into over_loss_report
+		<trim prefix="(" suffixOverrides="," suffix=")">
+        <if test="id != null">id,</if>
+        <if test="lossReportId != null">loss_report_id,</if>
+        <if test="itemId != null">item_id,</if>
+        <if test="lotId != null">lot_id,</if>
+        <if test="refTaskId != null">ref_task_id,</if>
+        <if test="storageLocation != null">storage_location,</if>
+        <if test="moveType != null">move_type,</if>
+        <if test="moveReason != null">move_reason,</if>
+        <if test="skuCode != null">sku_code,</if>
+        <if test="packName != null">pack_name,</if>
+        <if test="qty != null">qty,</if>
+        <if test="isValid != null">is_valid,</if>
+        <if test="createdAt != null">created_at,</if>
+			<if test="ownerId != null">owner_id,</if>
+        <if test="updatedAt != null">updated_at,</if>
+        </trim>
+    	values
+    	<trim prefix="(" suffixOverrides="," suffix=")">
+        <if test="id != null">#{id},</if>
+        <if test="lossReportId != null">#{lossReportId},</if>
+        <if test="itemId != null">#{itemId},</if>
+        <if test="lotId != null">#{lotId},</if>
+        <if test="refTaskId != null">#{refTaskId},</if>
+        <if test="storageLocation != null">#{storageLocation},</if>
+        <if test="moveType != null">#{moveType},</if>
+        <if test="moveReason != null">#{moveReason},</if>
+        <if test="skuCode != null">#{skuCode},</if>
+        <if test="packName != null">#{packName},</if>
+        <if test="qty != null">#{qty},</if>
+        <if test="isValid != null">#{isValid},</if>
+        <if test="createdAt != null">#{createdAt},</if>
+			<if test="ownerId != null">#{owner_id},</if>
+        <if test="updatedAt != null">#{updatedAt},</if>
+		</trim>
+	</insert>
+
+	<update id="update" parameterType="OverLossReport">
+		update over_loss_report
+    	<set>
+  			<if test="lossReportId != null">loss_report_id=#{lossReportId},</if>
+  			<if test="itemId != null">item_id=#{itemId},</if>
+  			<if test="lotId != null">lot_id=#{lotId},</if>
+  			<if test="refTaskId != null">ref_task_id=#{refTaskId},</if>
+  			<if test="storageLocation != null">storage_location=#{storageLocation},</if>
+  			<if test="moveType != null">move_type=#{moveType},</if>
+  			<if test="moveReason != null">move_reason=#{moveReason},</if>
+  			<if test="skuCode != null">sku_code=#{skuCode},</if>
+  			<if test="packName != null">pack_name=#{packName},</if>
+  			<if test="qty != null">qty=#{qty},</if>
+  			<if test="isValid != null">is_valid=#{isValid},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+			<if test="ownerId != null">owner_id=#{ownerId},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getOverLossReportById" parameterType="int" resultMap="overLossReportResultMap">
+		select * from over_loss_report
+		where ID=#{id} 
+	</select>
+  
+	<select id="countOverLossReport" parameterType="map" resultType="int">
+		select count(*) from over_loss_report
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getOverLossReportList" parameterType="map" resultMap="overLossReportResultMap">
+		select * from over_loss_report
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="lossReportId != null">and loss_report_id=#{lossReportId}</if>
+			<if test="itemId != null">and item_id=#{itemId}</if>
+			<if test="lotId != null">and lot_id=#{lotId}</if>
+			<if test="refTaskId != null">and ref_task_id=#{refTaskId}</if>
+			<if test="storageLocation != null">and storage_location=#{storageLocation}</if>
+			<if test="moveType != null">and move_type=#{moveType}</if>
+			<if test="moveReason != null">and move_reason=#{moveReason}</if>
+			<if test="skuCode != null">and sku_code=#{skuCode}</if>
+			<if test="packName != null">and pack_name=#{packName}</if>
+			<if test="qty != null">and qty=#{qty}</if>
+			<if test="isValid != null">and is_valid=#{isValid}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="ownerId != null">and owner_id=#{ownerId}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>

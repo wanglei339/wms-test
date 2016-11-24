@@ -5,7 +5,9 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.constant.ContainerConstant;
+import com.lsh.wms.core.constant.OverLossConstant;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.dao.stock.OverLossReportDao;
 import com.lsh.wms.core.dao.taking.StockTakingDetailDao;
 import com.lsh.wms.core.dao.taking.StockTakingHeadDao;
 import com.lsh.wms.core.service.container.ContainerService;
@@ -16,8 +18,10 @@ import com.lsh.wms.core.service.persistence.PersistenceProxy;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.stock.OverLossReport;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
 import org.slf4j.Logger;
@@ -26,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -54,6 +59,8 @@ public class StockTakingService {
     private ContainerService containerService;
     @Autowired
     private LocationService locationService;
+    @Autowired
+    private OverLossReportDao overLossReportDao;
 
     @Transactional (readOnly = false)
     public void insertHead(StockTakingHead head) {
@@ -112,11 +119,12 @@ public class StockTakingService {
 //        List<StockItem> itemsLoss = new ArrayList<StockItem>();
 //        List<StockItem> itemsWin = new ArrayList<StockItem>();
 //        StockRequest request = new StockRequest();
-
+        List<OverLossReport> overLossReports = new ArrayList<OverLossReport>();
         for (StockTakingDetail detail : stockTakingDetails) {
             if(detail.getItemId()==0L){
                 continue;
             }
+            OverLossReport overLossReport = new OverLossReport();
             //StockItem stockItem = new StockItem();
             if (detail.getSkuId().equals(detail.getRealSkuId())) {
                 Long containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
@@ -126,33 +134,39 @@ public class StockTakingService {
                 move.setItemId(detail.getItemId());
                 move.setStatus(TaskConstant.Done);
 
-
                 BaseinfoItem item = itemService.getItem(move.getItemId());
+                overLossReport.setItemId(detail.getItemId());
+                overLossReport.setOwnerId(detail.getOwnerId());
+                overLossReport.setLotId(detail.getLotId());
+                overLossReport.setPackName(detail.getPackName());
+                overLossReport.setSkuCode(item.getSkuCode());
+                overLossReport.setRefTaskId(detail.getTaskId());
+
                 if (detail.getTheoreticalQty().compareTo(detail.getRealQty()) > 0) {
-                    move.setQty(detail.getTheoreticalQty().subtract(detail.getRealQty()));
+                    BigDecimal qty = detail.getTheoreticalQty().subtract(detail.getRealQty());
+                    overLossReport.setMoveType(OverLossConstant.LOSS_REPORT);
+                    overLossReport.setQty(qty);
+
+
+                    move.setQty(qty);
                     move.setFromLocationId(detail.getLocationId());
                     move.setToLocationId(locationService.getInventoryLostLocationId());
                     move.setToContainerId(containerId);
                     //组装回传物美的数据
 
-//                    stockItem.setEntryQnt(detail.getTheoreticalQty().subtract(detail.getRealQty()).toString());
-//                    stockItem.setEntryUom("EA");
-//
-//                    stockItem.setMaterialNo(item.getSkuCode());
-//                    itemsLoss.add(stockItem);
                 } else {
+                    BigDecimal qty = detail.getRealQty().subtract(detail.getTheoreticalQty());
+                    overLossReport.setMoveType(OverLossConstant.OVER_REPORT);
+                    overLossReport.setQty(qty);
+
                     StockLot lot = lotService.getStockLotByLotId(detail.getLotId());
                     move.setLot(lot);
-                    move.setQty(detail.getRealQty().subtract(detail.getTheoreticalQty()));
+                    move.setQty(qty);
                     move.setFromLocationId(locationService.getInventoryLostLocationId());
                     move.setToLocationId(detail.getLocationId());
                     move.setToContainerId(detail.getContainerId());
-
-//                    stockItem.setEntryQnt(detail.getRealQty().subtract(detail.getTheoreticalQty()).toString());
-//                    stockItem.setMaterialNo(item.getSkuCode());
-//                    stockItem.setEntryUom("EA");
-//                    itemsWin.add(stockItem);
                 }
+                overLossReports.add(overLossReport);
                 moveList.add(move);
             } else {
                 StockMove moveWin = new StockMove();
@@ -173,6 +187,7 @@ public class StockTakingService {
             }
         }
         try {
+            this.insertLossOrOver(overLossReports);
             moveService.move(moveList,stockTakingId);
         }catch (Exception e) {
             logger.error(e.getMessage());
@@ -229,6 +244,15 @@ public class StockTakingService {
     public void confirmDifference(Long stockTakingId, long roundTime) {
         List<StockTakingDetail> detailList = this.getDetailListByRound(stockTakingId, roundTime);
         this.done(stockTakingId, detailList);
+    }
+    @Transactional (readOnly = false)
+    public void insertLossOrOver(List<OverLossReport> overLossReports) {
+        for(OverLossReport overLossReport :overLossReports){
+            overLossReport.setLossReportId(RandomUtils.genId());
+            overLossReport.setUpdatedAt(DateUtils.getCurrentSeconds());
+            overLossReport.setCreatedAt(DateUtils.getCurrentSeconds());
+            overLossReportDao.insert(overLossReport);
+        }
     }
 }
 
