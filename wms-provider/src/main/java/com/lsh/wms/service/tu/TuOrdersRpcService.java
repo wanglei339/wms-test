@@ -7,6 +7,7 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.tu.ITuOrdersRpcService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
+import com.lsh.wms.core.constant.ItemConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.baseinfo.ItemTypeService;
@@ -418,7 +419,7 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
                     goodsCountMap.put("boxNum", BigDecimal.ZERO);//箱数
                     goodsCountMap.put("eaNum", BigDecimal.ZERO);//件数
                     goodsCountMap.put("unitName", "EA");//箱规,默认EA
-                    goodsCountMap.put("isExpensive", item.getIsValuable() == 1L);   //1是贵品,2不是贵品
+                    goodsCountMap.put("isExpensive", item.getIsValuable() == ItemConstant.TYPE_IS_VALUABLE);   //1是贵品,2不是贵品
                     goodsListMap.get(orderId).put(itemId, goodsCountMap);
                 }
 
