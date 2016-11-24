@@ -7,6 +7,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.system.ISysUserRestService;
 import com.lsh.wms.model.system.SysUser;
 import org.slf4j.Logger;
@@ -79,5 +80,19 @@ public class SysUserRestService implements ISysUserRestService {
     @Path("getSysUserById")
     public String getSysUserById(@QueryParam("uid") Long iUid){
         return JsonUtils.SUCCESS(sysUserRpcService.getSysUserById(iUid));
+    }
+
+    @POST
+    @Path("updatePassword")
+    public String updatePassword() throws BizCheckedException {
+        Map<String, Object> request = RequestUtils.getRequest();
+        Long uid = (Long) request.get("uid");
+        String sourcePassword = (String) request.get("sourcePassword");
+        String newPassword = (String) request.get("newPassword");
+        String confirmPassWord = (String) request.get("confirmPassWord");
+
+        sysUserRpcService.updatePassword(uid,sourcePassword,newPassword,confirmPassWord);
+
+        return JsonUtils.SUCCESS();
     }
 }
