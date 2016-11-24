@@ -414,7 +414,7 @@ public class ReceiptRestService implements IReceiptRfService {
         orderInfoMap.put("skuName", ibdDetail.getSkuName());
         //orderInfoMap.put("packName", "H01");
         orderInfoMap.put("packName", ibdDetail.getPackName());
-        BigDecimal orderQty = ibdDetail.getOrderQty().subtract(ibdDetail.getInboundQty());
+        BigDecimal orderQty = ibdDetail.getOrderQty().subtract(ibdDetail.getInboundQty().divide(ibdDetail.getPackUnit()));
         orderInfoMap.put("orderQty", orderQty);// todo 剩余待收货数
         orderInfoMap.put("batchNeeded", baseinfoItem.getBatchNeeded());
         //码盘规则
