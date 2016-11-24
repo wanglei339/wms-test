@@ -3,11 +3,11 @@ package com.lsh.wms.integration.service.back;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.net.HttpClientUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
-import com.lsh.base.q.Utilities.Json.JSONObject;
 import com.lsh.wms.api.model.po.IbdBackRequest;
 import com.lsh.wms.api.model.po.IbdItem;
 import com.lsh.wms.api.model.wumart.CreateIbdDetail;
@@ -78,8 +78,10 @@ public class DataBackService implements IDataBackService {
                 token = orderResponse.getGatewayToken();
                 redisStringDao.set(RedisKeyConstant.WM_BACK_TOKEN,token);
                 jsonStr = HttpUtil.doPost(url,jsonCreate,token);
+
                 orderResponse = JSON.parseObject(jsonStr,OrderResponse.class);
             }
+            //JSONObject json = JSON.parseObject(jsonStr);
 
             if(orderResponse.isSucccess()){
                 sysLog.setLogCode(orderResponse.getCode());
@@ -201,6 +203,9 @@ public class DataBackService implements IDataBackService {
         }
         catch (Exception e) {
             logger.info(e.getCause().getMessage());
+            sysLog.setSysMessage(e.getMessage());
+            sysLog.setSysCode("回传ERP异常");
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
         }
         return false;
     }
