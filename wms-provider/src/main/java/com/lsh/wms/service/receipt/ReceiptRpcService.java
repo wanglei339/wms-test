@@ -170,14 +170,22 @@ public class ReceiptRpcService implements IReceiptRpcService {
             Long containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
             inbReceiptHeader.setContainerId(containerId);
             // : 16/8/19 设置退货区
-            List<BaseinfoLocationRegion> lists = locationDetailService.getMarketReturnList(ibdHeader.getOwnerUid());
-            Long location = lists.get(0).getLocationId();
-            inbReceiptHeader.setLocation(location);
+            List<BaseinfoLocation> lists = locationDetailService.getMarketReturnList();
+            if(lists != null || lists.size() >0){
+                Long location = lists.get(0).getLocationId();
+                inbReceiptHeader.setLocation(location);
+            }else{
+                throw new BizCheckedException("2022223");
+            }
+
             //设置收货类型
             inbReceiptHeader.setReceiptType(ReceiptContant.RECEIPT_TYPE_NORMAL);
 
         }else{
             BaseinfoLocation baseinfoLocation = locationRpcService.assignTemporary();
+            if(baseinfoLocation == null){
+                throw new BizCheckedException("2022223");
+            }
             inbReceiptHeader.setLocation(baseinfoLocation.getLocationId());//16/7/20  暂存区信息
             if(PoConstant.ORDER_TYPE_CPO == orderType){
                 //TODO 这个类型的定义根本看不懂啊
