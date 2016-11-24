@@ -704,7 +704,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
         List<IbdDetail> ibdDetails = poOrderService.getInbPoDetailListByOrderId(orderId);
         ReceiptRequest request = new ReceiptRequest();
 
-        request.setOrderOtherId(ibdHeader.getOrderOtherId());
+        //转换成orderId
+        //request.setOrderOtherId(ibdHeader.getOrderOtherId());
+        request.setOrderId(orderId);
         Map<String , Object> map = new HashMap<String, Object>();
         map.put("staffId",staffId);
         request.setReceiptUser(staffService.getStaffList(map).get(0).getName());
