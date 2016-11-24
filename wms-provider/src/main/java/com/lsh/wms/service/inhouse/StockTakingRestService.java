@@ -3,15 +3,13 @@ package com.lsh.wms.service.inhouse;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
-import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.service.inhouse.IStockTakingRestService;
-import com.lsh.wms.api.service.inhouse.IStockTakingRpcService;
+import com.lsh.wms.api.service.inhouse.IStockTakingProviderRpcService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.LocationConstant;
@@ -88,7 +86,7 @@ public class StockTakingRestService implements IStockTakingRestService {
     @Autowired
     protected IdGenerator idGenerator;
     @Reference
-    private IStockTakingRpcService iStockTakingRpcService;
+    private IStockTakingProviderRpcService iStockTakingProviderRpcService;
 
     @POST
     @Path("create")
@@ -101,8 +99,8 @@ public class StockTakingRestService implements IStockTakingRestService {
         redisStringDao.set(key,request.getTakingId(),24,TimeUnit.HOURS);
         StockTakingHead head = new StockTakingHead();
         ObjUtils.bean2bean(request, head);
-        List<StockTakingDetail> detailList = iStockTakingRpcService.prepareDetailList(head);
-        iStockTakingRpcService.createTask(head, detailList, 1L, head.getDueTime());
+        List<StockTakingDetail> detailList = iStockTakingProviderRpcService.prepareDetailList(head);
+        iStockTakingProviderRpcService.createTask(head, detailList, 1L, head.getDueTime());
         return JsonUtils.SUCCESS();
     }
     @POST
@@ -340,8 +338,8 @@ public class StockTakingRestService implements IStockTakingRestService {
         this.cancelTask(head.getTakingId());
         head.setId(oldHead.getId());
         stockTakingService.updateHead(head);
-        List<StockTakingDetail> detailList = iStockTakingRpcService.prepareDetailList(head);
-        iStockTakingRpcService.createTask(head, detailList, 1L, head.getDueTime());
+        List<StockTakingDetail> detailList = iStockTakingProviderRpcService.prepareDetailList(head);
+        iStockTakingProviderRpcService.createTask(head, detailList, 1L, head.getDueTime());
     }
     public String cancelTask(Long takingId) throws BizCheckedException {
         Map<String,Object> queryMap = new HashMap<String, Object>();

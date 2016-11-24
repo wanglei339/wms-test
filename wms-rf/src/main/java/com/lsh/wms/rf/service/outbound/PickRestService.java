@@ -6,42 +6,33 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
-import com.lsh.base.common.utils.ObjUtils;
-import com.lsh.wms.api.service.inhouse.IStockTakingRpcService;
+import com.lsh.wms.api.service.inhouse.IStockTakingProviderRpcService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.pick.IPickRestService;
 import com.lsh.wms.api.service.pick.IPickRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
-import com.lsh.wms.api.service.staff.IStaffRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.PickConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.pick.PickTaskService;
-import com.lsh.wms.core.service.staff.StaffService;
-import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
-import com.lsh.wms.model.baseinfo.BaseinfoStaffInfo;
 import com.lsh.wms.model.pick.PickTaskHead;
-import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.task.TaskMsg;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.config.Task;
-import org.w3c.dom.ls.LSException;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -81,7 +72,7 @@ public class PickRestService implements IPickRestService {
     @Autowired
     private MessageService messageService;
     @Reference
-    private IStockTakingRpcService iStockTakingRpcService;
+    private IStockTakingProviderRpcService iStockTakingProviderRpcService;
 
     /**
      * 扫描拣货签(拣货任务id)
@@ -325,7 +316,7 @@ public class PickRestService implements IPickRestService {
                 queryMap.put("locationId",needPickDetail.getRealPickLocation());
                 BigDecimal stockQty = stockQuantService.getQty(queryMap);
                 if(stockQty.compareTo(needPickDetail.getPickQty())>0) {
-                    iStockTakingRpcService.create(needPickDetail.getRealPickLocation(), staffId);
+                    iStockTakingProviderRpcService.create(needPickDetail.getRealPickLocation(), staffId);
                 }
             }
         }

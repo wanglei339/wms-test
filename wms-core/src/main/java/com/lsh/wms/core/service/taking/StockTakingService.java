@@ -5,8 +5,6 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.constant.ContainerConstant;
-import com.lsh.wms.core.constant.LocationConstant;
-import com.lsh.wms.core.constant.StockConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.taking.StockTakingDetailDao;
 import com.lsh.wms.core.dao.taking.StockTakingHeadDao;
@@ -17,9 +15,7 @@ import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.persistence.PersistenceProxy;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockMoveService;
-import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
-import com.lsh.wms.model.stock.StockDelta;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.taking.StockTakingDetail;
@@ -30,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -59,8 +54,6 @@ public class StockTakingService {
     private ContainerService containerService;
     @Autowired
     private LocationService locationService;
-    @Autowired
-    private StockSummaryService stockSummaryService;
 
     @Transactional (readOnly = false)
     public void insertHead(StockTakingHead head) {
@@ -106,7 +99,6 @@ public class StockTakingService {
         List<StockTakingDetail> detailList = detailDao.getStockTakingDetailList(mapQuery);
         return detailList;
     }
-
     @Transactional (readOnly = false)
     public void done(Long stockTakingId,List<StockTakingDetail> stockTakingDetails) {
         for(StockTakingDetail stockTakingDetail:stockTakingDetails){
@@ -182,20 +174,6 @@ public class StockTakingService {
         }
         try {
             moveService.move(moveList,stockTakingId);
-            for (StockMove move : moveList) {
-                StockDelta delta = new StockDelta();
-                delta.setItemId(move.getItemId());
-                BigDecimal qty = BigDecimal.ZERO;
-                if (locationService.getLocation(move.getFromLocationId()).getType().equals(LocationConstant.INVENTORYLOST)) {
-                    qty = move.getQty();
-                } else {
-                    qty = qty.subtract(move.getQty());
-                }
-                delta.setInhouseQty(qty);
-                delta.setBusinessId(stockTakingId);
-                delta.setType(StockConstant.TYPE_STOCK_TAKING);
-                stockSummaryService.changeStock(delta);
-            }
         }catch (Exception e) {
             logger.error(e.getMessage());
             throw  new BizCheckedException("2550099");
@@ -246,6 +224,11 @@ public class StockTakingService {
     public List queryTakingDetail(Map queryMap) {
         return detailDao.getStockTakingDetailList(queryMap);
 
+    }
+    @Transactional (readOnly = false)
+    public void confirmDifference(Long stockTakingId, long roundTime) {
+        List<StockTakingDetail> detailList = this.getDetailListByRound(stockTakingId, roundTime);
+        this.done(stockTakingId, detailList);
     }
 }
 
