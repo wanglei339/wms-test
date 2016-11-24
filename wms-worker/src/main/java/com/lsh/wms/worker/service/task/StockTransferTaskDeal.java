@@ -25,7 +25,7 @@ public class StockTransferTaskDeal implements IScheduleTaskDealSingle<String> {
 
     public boolean execute(String task, String ownSign) throws Exception {
         try {
-            iStockTransferRpcService.createStockTransfer();
+            //iStockTransferRpcService.createStockTransfer();
         } catch (Exception e) {
             logger.error(e.getMessage());
             return false;

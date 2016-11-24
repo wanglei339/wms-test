@@ -15,10 +15,15 @@ import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.container.ContainerService;
+import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.BaseinfoLocationBinService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.stock.StockMoveService;
+import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationBin;
 import com.lsh.wms.model.stock.StockMove;
@@ -31,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -47,10 +53,10 @@ public class StockTransferCore {
     private IItemRpcService itemRpcService;
 
     @Reference
-    private IStockQuantRpcService stockQuantRpcService;
-
-    @Reference
     private IStockMoveRpcService moveRpcService;
+
+    @Autowired
+    private StockMoveService stockMoveService;
 
     @Reference
     private ITaskRpcService taskRpcService;
@@ -79,26 +85,147 @@ public class StockTransferCore {
     @Autowired
     private ItemService itemService;
 
-    public void fillTransferPlan(StockTransferPlan plan) throws BizCheckedException {
-        StockQuantCondition condition = new StockQuantCondition();
-        condition.setLocationId(plan.getFromLocationId());
-        condition.setItemId(plan.getItemId());
-        List<StockQuant> quants = stockQuantRpcService.getQuantList(condition);
-        if (quants == null || quants.size() == 0) {
-            logger.error("error plan:" + plan.toString());
-            return;
+    @Reference
+    private IStockQuantRpcService stockQuantRpcService;
+
+    @Autowired
+    private StockQuantService quantService;
+
+    @Autowired
+    private ItemLocationService itemLocationService;
+
+    public boolean checkToLocation(Long itemId, BaseinfoLocation toLocation) throws  BizCheckedException {
+        if (!(toLocation.getRegionType() == LocationConstant.SHELFS
+                || toLocation.getRegionType() == LocationConstant.BACK_AREA
+                || toLocation.getRegionType() == LocationConstant.DEFECTIVE_AREA
+                || toLocation.getRegionType() == LocationConstant.SPLIT_AREA
+                || toLocation.getRegionType() == LocationConstant.LOFTS
+                || toLocation.getRegionType() == LocationConstant.FLOOR
+        )) {
+            throw new BizCheckedException("2550044");
         }
-        StockQuant quant = quants.get(0);
-        plan.setPackUnit(quant.getPackUnit());
-        plan.setPackName(quant.getPackName());
-        plan.setQty(plan.getUomQty());
-        if (plan.getSubType().compareTo(1L) == 0) {
-            BigDecimal total = stockQuantRpcService.getQty(condition);
-            plan.setQty(total.divide(quant.getPackUnit(), 0, BigDecimal.ROUND_DOWN));
-        } else if (plan.getSubType().compareTo(3L) == 0) {
-            plan.setPackName("EA");
+        //check to location
+        List<StockQuant> toQuants = quantService.getQuantsByLocationId(toLocation.getLocationId());
+        // 拣货位
+        if (toLocation.getBinUsage() > 0) {
+            List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toLocation.getLocationId());
+            if (itemLocations.size() > 0 && itemLocations.get(0).getItemId().compareTo(itemId) != 0) {
+                throw new BizCheckedException("2550004");
+            }
+        } else if (toQuants != null && toQuants.size() > 0
+                && toLocation.getType().compareTo(LocationConstant.BACK_AREA) != 0
+                && toLocation.getType().compareTo(LocationConstant.DEFECTIVE_AREA) != 0) {
+            //其余货位
+            if (toQuants.get(0).getItemId().compareTo(itemId) != 0) {
+                throw new BizCheckedException("2550004");
+            }
+            /*
+            if (toQuants.get(0).getLotId().compareTo(quantList.get(0).getLotId()) != 0) {
+                throw new BizCheckedException("2550003");
+            }
+            */
         }
+        return true;
     }
+
+    public List<StockQuant> checkFromLocation(Long itemId, BaseinfoLocation fromLocation, BigDecimal qty){
+        //检查移出库位
+        if(!(fromLocation.getRegionType() == LocationConstant.SHELFS
+                || fromLocation.getRegionType() == LocationConstant.BACK_AREA
+                || fromLocation.getRegionType() == LocationConstant.DEFECTIVE_AREA
+                || fromLocation.getRegionType() == LocationConstant.SPLIT_AREA
+                || fromLocation.getRegionType() == LocationConstant.LOFTS
+                || fromLocation.getRegionType() == LocationConstant.FLOOR
+        )){
+            throw new BizCheckedException("2550037");
+        }
+        if (qty.compareTo(BigDecimal.ZERO) <= 0){
+            throw new BizCheckedException("2550034");
+        }
+        StockQuantCondition condition = new StockQuantCondition();
+        condition.setLocationId(fromLocation.getLocationId());
+        condition.setItemId(itemId);
+        condition.setReserveTaskId(0L);
+        BigDecimal total = stockQuantRpcService.getQty(condition);
+        List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
+        if (quantList.isEmpty()) {
+            throw new BizCheckedException("2550032");
+        }
+        if (qty.compareTo(total) > 0) {
+            throw new BizCheckedException("2550002");
+        }
+        return quantList;
+    }
+
+    @Transactional(readOnly = false)
+    public void outbound(TaskEntry taskEntry, BaseinfoLocation fromLocation, BigDecimal uomQty, String uom) {
+        BigDecimal qty = PackUtil.UomQty2EAQty(uomQty, uom);
+        List<StockQuant> quants = this.checkFromLocation(taskEntry.getTaskInfo().getItemId(), fromLocation, qty);
+        TaskInfo taskInfo = taskEntry.getTaskInfo();
+        Long containerId = taskInfo.getContainerId();
+        Long toLocationId = locationService.getWarehouseLocationId();
+        if (taskInfo.getSubType().compareTo(1L) == 0) {
+            moveRpcService.moveWholeContainer(containerId, taskInfo.getTaskId(), taskInfo.getOperator(), fromLocation.getLocationId(), toLocationId);
+        } else {
+            StockMove move = new StockMove();
+            ObjUtils.bean2bean(taskInfo, move);
+            move.setQty(PackUtil.UomQty2EAQty(uomQty, uom));
+            move.setFromLocationId(fromLocation.getLocationId());
+            move.setToLocationId(toLocationId);
+            move.setFromContainerId(quants.get(0).getContainerId());
+            move.setToContainerId(containerId);
+            move.setSkuId(taskInfo.getSkuId());
+            move.setOwnerId(taskInfo.getOwnerId());
+            List<StockMove> moveList = new ArrayList<StockMove>();
+            moveList.add(move);
+            stockMoveService.move(moveList);
+            taskInfo.setQtyDone(qty);
+        }
+        taskInfo.setStep(2);
+        taskInfo.setQtyDone(qty);
+        taskInfo.setQtyDoneUom(uomQty);
+        taskInfoDao.update(taskInfo);
+    }
+
+    @Transactional(readOnly = false)
+    public void inbound(TaskEntry taskEntry, BaseinfoLocation toLocation) throws BizCheckedException {
+        TaskInfo taskInfo = taskEntry.getTaskInfo();
+        this.checkToLocation(taskInfo.getItemId(), toLocation);
+        Long containerId = taskInfo.getContainerId();
+        Long fromLocationId = locationService.getWarehouseLocationId();
+        //坑啊,卧槽我发现数据库里根本没这个字段,上面存了没有屌用
+        taskInfo.setQtyDoneUom(PackUtil.EAQty2UomQty(taskInfo.getQtyDone(), taskInfo.getPackName()));
+        if (taskInfo.getSubType().compareTo(1L) == 0) {
+            moveRpcService.moveWholeContainer(containerId, taskInfo.getTaskId(), taskInfo.getOperator(), fromLocationId, toLocation.getLocationId());
+        } else {
+            if (taskInfo.getQtyDoneUom().compareTo(BigDecimal.ZERO) <= 0) {
+                throw new BizCheckedException("2550034");
+            }
+            StockMove move = new StockMove();
+            ObjUtils.bean2bean(taskInfo, move);
+            move.setQty(taskInfo.getQtyDone());
+            move.setFromLocationId(fromLocationId);
+            move.setToLocationId(toLocation.getLocationId());
+            Long newContainerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
+            Long toContainerId= containerService.getContaierIdByLocationId(toLocation.getLocationId());
+            Long locationType = locationService.getLocation(toLocation.getLocationId()).getType();
+            if (toContainerId.equals(0L)) {
+                toContainerId = newContainerId;
+            } else if (locationType.equals(LocationConstant.BACK_AREA) || locationType.equals(LocationConstant.DEFECTIVE_AREA)){
+                toContainerId = newContainerId;
+            }
+            move.setFromContainerId(containerId);
+            move.setToContainerId(toContainerId);
+            move.setSkuId(taskInfo.getSkuId());
+            move.setOwnerId(taskInfo.getOwnerId());
+            List<StockMove> moveList = new ArrayList<StockMove>();
+            moveList.add(move);
+            stockMoveService.move(moveList);
+        }
+        taskInfo.setToLocationId(toLocation.getLocationId());
+        taskRpcService.done(taskInfo.getTaskId());
+    }
+
 
     public void outbound(Map<String, Object> params) throws BizCheckedException {
         Long uid = 0L;
