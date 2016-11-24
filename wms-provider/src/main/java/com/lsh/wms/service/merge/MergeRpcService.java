@@ -1,7 +1,9 @@
 package com.lsh.wms.service.merge;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.merge.IMergeRpcService;
 import com.lsh.wms.core.constant.CustomerConstant;
@@ -190,7 +192,7 @@ public class MergeRpcService implements IMergeRpcService {
                 Map<String, BigDecimal> qcCounts = this.getQcCountsByWaveDetail(waveDetail);
                 Map<String, Object> result = new HashMap<String, Object>();
                 if (results.containsKey(containerId)) {
-                    List<Long> containersList = (List<Long>)result.get("containersList");
+                    List<Long> containersList = (ArrayList<Long>)results.get(containerId).get("containersList");
                     containersList.add(waveDetail.getContainerId());
                     result = results.get(containerId);
                     result.put("packCount", new BigDecimal(Double.valueOf(result.get("packCount").toString())).add(qcCounts.get("packCount")));
