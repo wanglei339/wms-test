@@ -26,6 +26,8 @@ public interface IQCRpcService {
     public boolean fallbackExceptionRf(Map<String, Object> request) throws BizCheckedException;
     public boolean skipExceptionRf(Map<String, Object> request) throws BizCheckedException;
 
+    public Map<Long,Map<String,Object>> getQcDoneExpensiveMapByCustmerCode(String custmerCode) throws BizCheckedException;
+
 
 
 

@@ -21,6 +21,8 @@ import com.lsh.wms.api.model.po.*;
 import com.lsh.wms.api.model.po.IbdDetail;
 import com.lsh.wms.api.model.so.ObdOfcBackRequest;
 import com.lsh.wms.api.model.so.ObdOfcItem;
+import com.lsh.wms.api.model.stock.StockItem;
+import com.lsh.wms.api.model.stock.StockRequest;
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
 import com.lsh.wms.api.model.wumart.CreateObdDetail;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
@@ -112,7 +114,7 @@ public class IbdService implements IIbdService {
             headerMap.put("api-version", "1.1");
             headerMap.put("random", RandomUtils.randomStr2(32));
             headerMap.put("platform", "1");
-            String res  = HttpClientUtils.postBody(IntegrationConstan.URL_PO,  requestBody,dc41_timeout , dc41_charset, headerMap);
+            String res  = HttpClientUtils.postBody(PropertyUtils.getString("url_po"),  requestBody,dc41_timeout , dc41_charset, headerMap);
             logger.info("~~~~~~~~~~下发黑狗数据 request : " + JSON.toJSONString(request) + "~~~~~~~~~");
 //            JSONObject jsonObject = JSON.parseObject(res);
 //            //jsonObject.get("body");
@@ -305,18 +307,19 @@ public class IbdService implements IIbdService {
     @POST
     @Path("test")
     public String Test() {
-//        StockRequest request = new StockRequest();
-//        request.setPlant("DC37");
-//        request.setMoveType("551");
-//        request.setStorageLocation("0001");
-//        List<StockItem> items = new ArrayList<StockItem>();
-//        StockItem item = new StockItem();
-//        item.setEntryQnt("5");
-//        item.setMaterialNo("000000000000207274");
-//        item.setEntryUom("EA");
-//        items.add(item);
-//        request.setItems(items);
-//        return dataBackService.wmDataBackByPost(JSON.toJSONString(request), IntegrationConstan.URL_STOCKCHANGE,5);
+        StockRequest request = new StockRequest();
+        request.setPlant("DC40");
+        request.setMoveType("551");
+        request.setStorageLocation("0001");
+        List<StockItem> items = new ArrayList<StockItem>();
+        StockItem item = new StockItem();
+        item.setEntryQnt("5.000");
+        item.setMaterialNo("000000000000581951");
+        item.setEntryUom("EA");
+        items.add(item);
+        request.setItems(items);
+        SysLog sysLog = new SysLog();
+        return dataBackService.wmDataBackByPost(JSON.toJSONString(request), IntegrationConstan.URL_STOCKCHANGE,5,sysLog);
 
         //return wuMartSap.ibd2SapBack(new CreateIbdHeader());
 
@@ -350,30 +353,30 @@ public class IbdService implements IIbdService {
 //        return ibdBackService.createOrderByPost(request, IntegrationConstan.URL_OBD);
 
 
-        ObdHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(175578263067222L);
-        //组装OBD反馈信息
-        ObdOfcBackRequest request = new ObdOfcBackRequest();
-        request.setDeliveryTime("2016-09-20");
-        request.setObdCode(soHeader.getOrderId().toString());
-        request.setSoCode(soHeader.getOrderOtherId());
-        request.setWms(2);
-        //查询明细。
-        List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(175578263067222L);
-        List<ObdOfcItem> items = new ArrayList<ObdOfcItem>();
-
-        for(ObdDetail detail : soDetails){
-            ObdOfcItem item = new ObdOfcItem();
-            item.setPackNum(detail.getPackUnit());
-            item.setSkuQty(detail.getOrderQty());
-            item.setSupplySkuCode(detail.getSkuCode());
-            items.add(item);
-
-        }
-        request.setDetails(items);
+//        ObdHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(175578263067222L);
+//        //组装OBD反馈信息
+//        ObdOfcBackRequest request = new ObdOfcBackRequest();
+//        request.setDeliveryTime("2016-09-20");
+//        request.setObdCode(soHeader.getOrderId().toString());
+//        request.setSoCode(soHeader.getOrderOtherId());
+//        request.setWms(2);
+//        //查询明细。
+//        List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(175578263067222L);
+//        List<ObdOfcItem> items = new ArrayList<ObdOfcItem>();
+//
+//        for(ObdDetail detail : soDetails){
+//            ObdOfcItem item = new ObdOfcItem();
+//            item.setPackNum(detail.getPackUnit());
+//            item.setSkuQty(detail.getOrderQty());
+//            item.setSupplySkuCode(detail.getSkuCode());
+//            items.add(item);
+//
+//        }
+//        request.setDetails(items);
 
         //return dataBackService.ofcDataBackByPost(JSON.toJSONString(request),IntegrationConstan.URL_LSHOFC_OBD);
 
-        return "";
+        //return "";
 
     }
 
