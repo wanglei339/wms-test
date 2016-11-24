@@ -23,4 +23,6 @@ public interface ISysUserRpcService {
     public SysUser getSysUserById(Long iUid) throws BizCheckedException;
 
     Boolean checkLogin(String username, String password) throws BizCheckedException;
+
+    void updatePassword(Long uid,String sourcePassword,String newPassword,String confirmPassWord) throws BizCheckedException;
 }
