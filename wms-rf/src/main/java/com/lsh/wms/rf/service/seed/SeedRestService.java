@@ -317,16 +317,29 @@ public class SeedRestService implements ISeedRestService {
                 }
 
                 info = iTaskRpcService.getTaskInfo(head.getTaskId());
-                if(head.getRequireQty().compareTo(qty)>0){
-                    info.setStep(1);
-                }
+
+
                 info.setQty(qty);
                 head.setRealContainerId(containerId);
                 entry.setTaskInfo(info);
                 entry.setTaskHead(head);
                 iTaskRpcService.update(TaskConstant.TYPE_SEED, entry);
+
+                if(head.getRequireQty().compareTo(qty)>0){
+                    //创建剩余数量门店任务
+                    info.setTaskId(0L);
+                    info.setId(0L);
+                    info.setStatus(TaskConstant.Draft);
+                    info.setPlanId(uid);
+                    info.setContainerId(info.getContainerId());
+                    head.setRequireQty(head.getRequireQty().subtract(info.getQty()));
+                    entry.setTaskInfo(info);
+                    entry.setTaskHead(head);
+                    iTaskRpcService.create(TaskConstant.TYPE_SEED, entry);
+                }
                 iTaskRpcService.done(taskId);
                 if(head.getTaskId().compareTo(taskId)==0) {
+                    mapQuery.put("type",1);
                     mapQuery.put("orderId", info.getOrderId());
                     CsiSku sku = csiSkuService.getSku(info.getSkuId());
                     mapQuery.put("barcode", sku.getCode());
