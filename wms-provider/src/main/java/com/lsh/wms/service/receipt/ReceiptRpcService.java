@@ -727,7 +727,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             ReceiptItem item = new ReceiptItem();
 
             List<BaseinfoItem> baseinfoItems = itemService.getItemsBySkuCode(ibdHeader.getOwnerUid(),ibdDetail.getSkuCode());
-            if(items.size() <= 0){
+            if(baseinfoItems.size() <= 0){
                 throw new BizCheckedException("2900001");
             }
             BaseinfoItem baseinfoItem = baseinfoItems.get(items.size()-1);
