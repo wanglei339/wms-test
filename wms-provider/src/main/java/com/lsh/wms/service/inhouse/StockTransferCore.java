@@ -156,9 +156,13 @@ public class StockTransferCore {
 
     @Transactional(readOnly = false)
     public void outbound(TaskEntry taskEntry, BaseinfoLocation fromLocation, BigDecimal uomQty, String uom) {
+        TaskInfo taskInfo = taskEntry.getTaskInfo();
+        TaskInfo info = taskInfoDao.lockById(taskInfo.getTaskId());
+        if(info.getStep()==2){
+            throw new BizCheckedException("");
+        }
         BigDecimal qty = PackUtil.UomQty2EAQty(uomQty, uom);
         List<StockQuant> quants = this.checkFromLocation(taskEntry.getTaskInfo().getItemId(), fromLocation, qty);
-        TaskInfo taskInfo = taskEntry.getTaskInfo();
         Long containerId = taskInfo.getContainerId();
         Long toLocationId = locationService.getWarehouseLocationId();
         if (taskInfo.getSubType().compareTo(1L) == 0) {
@@ -203,7 +207,6 @@ public class StockTransferCore {
             if (taskInfo.getQtyDoneUom().compareTo(BigDecimal.ZERO) <= 0) {
                 throw new BizCheckedException("2550034");
             }
-
             ObjUtils.bean2bean(taskInfo, move);
             move.setQty(taskInfo.getQtyDone());
             move.setFromLocationId(fromLocationId);
