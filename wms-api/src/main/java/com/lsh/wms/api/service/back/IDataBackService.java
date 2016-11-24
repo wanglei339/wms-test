@@ -10,7 +10,7 @@ import com.lsh.wms.model.system.SysLog;
  */
 
 public interface IDataBackService {
-    String wmDataBackByPost(String request, String url , Integer type,SysLog sysLog);
+    void wmDataBackByPost(String request, String url , Integer type,SysLog sysLog);
     String ofcDataBackByPost(String request, String url,SysLog sysLog);
     Boolean erpDataBack(CreateIbdHeader createIbdHeader,SysLog sysLog);
 }

@@ -170,14 +170,22 @@ public class ReceiptRpcService implements IReceiptRpcService {
             Long containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
             inbReceiptHeader.setContainerId(containerId);
             // : 16/8/19 设置退货区
-            List<BaseinfoLocationRegion> lists = locationDetailService.getMarketReturnList(ibdHeader.getOwnerUid());
-            Long location = lists.get(0).getLocationId();
-            inbReceiptHeader.setLocation(location);
+            List<BaseinfoLocation> lists = locationDetailService.getMarketReturnList();
+            if(lists != null || lists.size() >0){
+                Long location = lists.get(0).getLocationId();
+                inbReceiptHeader.setLocation(location);
+            }else{
+                throw new BizCheckedException("2022223");
+            }
+
             //设置收货类型
             inbReceiptHeader.setReceiptType(ReceiptContant.RECEIPT_TYPE_NORMAL);
 
         }else{
             BaseinfoLocation baseinfoLocation = locationRpcService.assignTemporary();
+            if(baseinfoLocation == null){
+                throw new BizCheckedException("2022223");
+            }
             inbReceiptHeader.setLocation(baseinfoLocation.getLocationId());//16/7/20  暂存区信息
             if(PoConstant.ORDER_TYPE_CPO == orderType){
                 //TODO 这个类型的定义根本看不懂啊
@@ -268,9 +276,11 @@ public class ReceiptRpcService implements IReceiptRpcService {
                  * itemId
                  *
                  */
+
+                ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(ibdHeader.getOrderOtherRefId());
                 //查供应商、生产日期、失效日期
                 Long lotId =
-                        soDeliveryService.getOutbDeliveryDetail(Long.parseLong(ibdHeader.getOrderOtherId()),baseinfoItem.getItemId()).getLotId();
+                        soDeliveryService.getOutbDeliveryDetail(obdHeader.getOrderId(),baseinfoItem.getItemId()).getLotId();
                 StockLot stockLot = stockLotService.getStockLotByLotId(lotId);
                 stockLot.setIsOld(true);
 
@@ -704,7 +714,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
         List<IbdDetail> ibdDetails = poOrderService.getInbPoDetailListByOrderId(orderId);
         ReceiptRequest request = new ReceiptRequest();
 
-        request.setOrderOtherId(ibdHeader.getOrderOtherId());
+        //转换成orderId
+        //request.setOrderOtherId(ibdHeader.getOrderOtherId());
+        request.setOrderId(orderId);
         Map<String , Object> map = new HashMap<String, Object>();
         map.put("staffId",staffId);
         request.setReceiptUser(staffService.getStaffList(map).get(0).getName());
@@ -715,12 +727,19 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         for(IbdDetail ibdDetail : ibdDetails){
             ReceiptItem item = new ReceiptItem();
+
+            List<BaseinfoItem> baseinfoItems = itemService.getItemsBySkuCode(ibdHeader.getOwnerUid(),ibdDetail.getSkuCode());
+            if(baseinfoItems.size() <= 0){
+                throw new BizCheckedException("2900001");
+            }
+            BaseinfoItem baseinfoItem = baseinfoItems.get(baseinfoItems.size()-1);
+
             item.setArriveNum(ibdDetail.getOrderQty());
-            //item.setBarCode(ibdDetail.getBarCode());
+            item.setBarCode(baseinfoItem.getCode());
             item.setInboundQty(ibdDetail.getOrderQty());
             item.setPackName(ibdDetail.getPackName());
             item.setPackUnit(ibdDetail.getPackUnit());
-            //item.setSkuId(ibdDetail.getSkuId());
+            item.setSkuId(baseinfoItem.getSkuId());
             item.setSkuName(ibdDetail.getSkuName());
             items.add(item);
         }
@@ -1022,6 +1041,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             ObjUtils.bean2bean(ibdDetail,receiveDetail);
             receiveDetail.setCode(skuMap.get(ibdDetail.getSkuCode()));// TODO: 16/11/9 增加国条
             receiveDetail.setReceiveId(receiveId);
+            receiveDetail.setInboundQty(BigDecimal.ZERO);
             receiveDetail.setCreatedAt(DateUtils.getCurrentSeconds());
             receiveDetails.add(receiveDetail);
         }

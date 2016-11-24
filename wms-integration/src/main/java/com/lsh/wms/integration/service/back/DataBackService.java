@@ -3,11 +3,11 @@ package com.lsh.wms.integration.service.back;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.net.HttpClientUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
-import com.lsh.base.q.Utilities.Json.JSONObject;
 import com.lsh.wms.api.model.po.IbdBackRequest;
 import com.lsh.wms.api.model.po.IbdItem;
 import com.lsh.wms.api.model.wumart.CreateIbdDetail;
@@ -54,51 +54,51 @@ public class DataBackService implements IDataBackService {
     @Autowired
     private SysLogService sysLogService;
 
-    public String wmDataBackByPost(String request, String url , Integer type,SysLog sysLog){
-        String jsonCreate = request;
-
-
-        //获取redis中缓存的token
-        String token = redisStringDao.get(RedisKeyConstant.WM_BACK_TOKEN);
-
-
-        if (token == null || token.equals("")){
-            token = this.getToken(url);
-            redisStringDao.set(RedisKeyConstant.WM_BACK_TOKEN,token);
-        }
-
-        OrderResponse orderResponse = new OrderResponse();
-        if(token != null && !token.equals("")){
-            logger.info("order wumart CreateOrder json : " + jsonCreate);
-            String jsonStr = HttpUtil.doPost(url,jsonCreate,token);
-            logger.info("order wumart res " + jsonStr+"~~~~~~");
-
-            orderResponse = JSON.parseObject(jsonStr, OrderResponse.class);
-            if(Integer.valueOf(orderResponse.getCode()) == 1){
-                token = orderResponse.getGatewayToken();
+    public void wmDataBackByPost(String request, String url , Integer type,SysLog sysLog){
+        try{
+            String jsonCreate = request;
+            //获取redis中缓存的token
+            String token = redisStringDao.get(RedisKeyConstant.WM_BACK_TOKEN);
+            if (token == null || token.equals("")){
+                token = this.getToken(url);
                 redisStringDao.set(RedisKeyConstant.WM_BACK_TOKEN,token);
-                jsonStr = HttpUtil.doPost(url,jsonCreate,token);
-                orderResponse = JSON.parseObject(jsonStr,OrderResponse.class);
             }
+            OrderResponse orderResponse = new OrderResponse();
+            if(token != null && !token.equals("")){
+                logger.info("order wumart CreateOrder json : " + jsonCreate);
+                String jsonStr = HttpUtil.doPost(url,jsonCreate,token);
+                logger.info("order wumart res " + jsonStr+"~~~~~~");
 
-            if(orderResponse.isSucccess()){
-                sysLog.setLogCode(orderResponse.getCode());
-                sysLog.setLogMessage(orderResponse.getMessage());
-                sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
+                orderResponse = JSON.parseObject(jsonStr, OrderResponse.class);
+                if(Integer.valueOf(orderResponse.getCode()) == 1){
+                    token = orderResponse.getGatewayToken();
+                    redisStringDao.set(RedisKeyConstant.WM_BACK_TOKEN,token);
+                    jsonStr = HttpUtil.doPost(url,jsonCreate,token);
+
+                    orderResponse = JSON.parseObject(jsonStr,OrderResponse.class);
+                }
+                JSONObject json = JSON.parseObject(jsonStr);
+
+                if((Boolean) json.get("success")){
+                    sysLog.setLogCode(orderResponse.getCode());
+                    sysLog.setLogMessage(orderResponse.getMessage());
+                    sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
+                }else{
+                    sysLog.setLogMessage(orderResponse.getMessage());
+                    sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
+                    sysLog.setLogCode(orderResponse.getCode());
+                }
+                logger.info("orderResponse = " + JSON.toJSONString(orderResponse));
             }else{
-                sysLog.setLogMessage(orderResponse.getMessage());
-                sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
-                sysLog.setLogCode(orderResponse.getCode());
+                logger.info("************** token is null ");
             }
-            //sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
+        }catch (Exception ex){
+            logger.info("回传物美OFC异常 ex : " + ex.fillInStackTrace());
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
+            sysLog.setSysCode("回传物美OFC异常");
+            sysLog.setSysMessage(ex.getMessage());
 
-
-
-            logger.info("orderResponse = " + JSON.toJSONString(orderResponse));
-        }else{
-            logger.info("************** token is null ");
         }
-        return JSON.toJSONString(orderResponse);
 
     }
 
@@ -150,11 +150,6 @@ public class DataBackService implements IDataBackService {
 
     public Boolean erpDataBack(CreateIbdHeader createIbdHeader,SysLog sysLog){
         try {
-            //入口将字符串转为对象 CreateIbdHeader
-//            JSONObject obj = new JSONObject(json);
-//            CreateIbdHeader createIbdHeader = new CreateIbdHeader();
-//            ObjUtils.bean2bean(obj,createIbdHeader);
-
             final XmlRpcClient models = new XmlRpcClient() {{
                 setConfig(new XmlRpcClientConfigImpl() {{
                     setServerURL(new URL(String.format("%s/xmlrpc/2/object", url)));
@@ -162,22 +157,16 @@ public class DataBackService implements IDataBackService {
             }};
             //原订单ID
             Integer orderOtherId = Integer.valueOf(createIbdHeader.getItems().get(0).getPoNumber());
-
-
             Long receiveId = Long.valueOf(createIbdHeader.getItems().get(0).getVendMat());
-
             Map<String,Object> params = new HashMap<String, Object>();
             params.put("order_id",orderOtherId);
             params.put("receive_code",receiveId.toString());
-
-
             List<HashMap<String,Object>> list = new ArrayList<HashMap<String, Object>>();
             for(CreateIbdDetail item : createIbdHeader.getItems()){
                 HashMap<String,Object> map = new HashMap<String, Object>();
                 map.put("product_code",item.getMaterial());
                 map.put("qty_done",item.getDeliveQty().intValue());
                 list.add(map);
-
             }
             params.put("details",list);
             logger.info("~~~~~~~params : " + params + " ~~~~~~~~~~~");
@@ -201,6 +190,9 @@ public class DataBackService implements IDataBackService {
         }
         catch (Exception e) {
             logger.info(e.getCause().getMessage());
+            sysLog.setSysMessage(e.getMessage());
+            sysLog.setSysCode("回传ERP异常");
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
         }
         return false;
     }
@@ -210,13 +202,10 @@ public class DataBackService implements IDataBackService {
     private String getToken(String url){
         String jsonStr = HttpUtil.doPostToken(url);
         System.out.println(jsonStr);
-
         OrderResponse orderResponse = JSON.parseObject(jsonStr, OrderResponse.class);
-
         if(orderResponse != null && Integer.valueOf(orderResponse.getCode()) == 1){
             return orderResponse.getGatewayToken();
         }
-
         return null;
     }
 
@@ -228,6 +217,14 @@ public class DataBackService implements IDataBackService {
     }
 
     public static void main(String[] args) {
+
+        String json =  "{\"message\":\"调用成功!\",\"code\":200,\"success\":true}";
+        OrderResponse  orderResponse = JSON.parseObject(json,OrderResponse.class);
+        JSONObject jsonObject = JSON.parseObject(json);
+        if((Boolean) jsonObject.get("success")){
+            System.out.println("~~~~~~");
+        }
+        System.out.println(JSON.toJSONString(orderResponse));
     }
 
 

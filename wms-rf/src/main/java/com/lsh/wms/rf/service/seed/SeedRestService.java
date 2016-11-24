@@ -144,6 +144,7 @@ public class SeedRestService implements ISeedRestService {
             Object barcode = mapQuery.get("barcode");
             //实际是orderOtherId
             Object orderId = mapQuery.get("orderId");
+            logger.info("params:"+mapQuery);
 
             Long assignTaskId = baseTaskService.getAssignTaskIdByOperatorAndType(uid, TaskConstant.TYPE_SEED);
             if(assignTaskId!=null){
@@ -316,35 +317,49 @@ public class SeedRestService implements ISeedRestService {
                 }
 
                 info = iTaskRpcService.getTaskInfo(head.getTaskId());
-                if(head.getRequireQty().compareTo(qty)>0){
-                    info.setStep(1);
-                }
+
+
                 info.setQty(qty);
                 head.setRealContainerId(containerId);
                 entry.setTaskInfo(info);
                 entry.setTaskHead(head);
                 iTaskRpcService.update(TaskConstant.TYPE_SEED, entry);
+
+                if(head.getRequireQty().compareTo(qty)>0){
+                    //创建剩余数量门店任务
+                    info.setTaskId(0L);
+                    info.setId(0L);
+                    info.setStatus(TaskConstant.Draft);
+                    info.setPlanId(uid);
+                    info.setContainerId(info.getContainerId());
+                    head.setRequireQty(head.getRequireQty().subtract(info.getQty()));
+                    entry.setTaskInfo(info);
+                    entry.setTaskHead(head);
+                    iTaskRpcService.create(TaskConstant.TYPE_SEED, entry);
+                }
                 iTaskRpcService.done(taskId);
-                if(head.getTaskId().compareTo(taskId)==0){
+                if(head.getTaskId().compareTo(taskId)==0) {
+                    mapQuery.put("type",1);
                     mapQuery.put("orderId", info.getOrderId());
                     CsiSku sku = csiSkuService.getSku(info.getSkuId());
                     mapQuery.put("barcode", sku.getCode());
                     mapQuery.put("containerId", info.getContainerId());
                     taskId = rpcService.getTask(mapQuery);
-                    if(taskId ==null || taskId == 0L){
+                    if (taskId == null || taskId == 0L) {
                         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
                             {
                                 put("response", true);
                             }
                         });
                     }
-                    final String finalTaskId = taskId.toString();
-                    return JsonUtils.SUCCESS(new HashMap<String, String>() {
-                        {
-                            put("taskId", finalTaskId);
-                        }
-                    });
                 }
+                final String finalTaskId = taskId.toString();
+                return JsonUtils.SUCCESS(new HashMap<String, String>() {
+                    {
+                        put("taskId", finalTaskId);
+                    }
+                });
+
             }
 
             SeedingTaskHead head = (SeedingTaskHead)(entry.getTaskHead());
@@ -362,7 +377,7 @@ public class SeedRestService implements ISeedRestService {
             //(不收货播种)判断是否已经结束收货
             if(info.getSubType().compareTo(2L)==0){
                 IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(info.getOrderId());
-                if(ibdHeader.getOrderStatus().compareTo(PoConstant.ORDER_THROW)!=0){
+                if(ibdHeader.getOrderStatus().compareTo(PoConstant.ORDER_RECTIPT_ALL)==0){
                     HashMap<String,Object> map = new HashMap<String, Object>();
                     map.put("orderId", info.getOrderId());
                     map.put("status",TaskConstant.Draft);

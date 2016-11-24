@@ -197,6 +197,7 @@ public class PickTaskService {
             taskId = Long.valueOf(result.get("pickTaskId").toString());
         } else {
             taskId = Long.valueOf(result.get("taskId").toString());
+            result.put("pickTaskId", taskId);
         }
         TaskInfo taskInfo = baseTaskService.getTaskInfoById(taskId);
         result.put(resultKey, location.getLocationCode());
@@ -219,6 +220,7 @@ public class PickTaskService {
             BaseinfoItem item = itemService.getItem(Long.valueOf(result.get("itemId").toString()));
             result.put("skuName", item.getSkuName());
         }
+        result.put("containerId", taskInfo.getContainerId().toString());
         return result;
     }
 }

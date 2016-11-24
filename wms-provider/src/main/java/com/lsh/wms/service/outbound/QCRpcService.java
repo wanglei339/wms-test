@@ -12,6 +12,7 @@ import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
@@ -20,6 +21,7 @@ import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
 import com.lsh.wms.model.csi.CsiCustomer;
@@ -60,6 +62,8 @@ public class QCRpcService implements IQCRpcService {
     private StockMoveService stockMoveService;
     @Reference
     private IContainerRpcService iContainerRpcService;
+    @Autowired
+    private ItemService itemService;
 
     public void skipException(long id) throws BizCheckedException {
         WaveDetail detail = waveService.getWaveDetailById(id);
@@ -513,5 +517,92 @@ public class QCRpcService implements IQCRpcService {
             }
         }
         return result;
+    }
+
+    /**
+     * 获取该门店所有的完成的qc的托盘明细,并写入贵品的标识
+     *
+     * @param customerCode
+     * @return
+     * @throws BizCheckedException
+     */
+    public Map<Long, Map<String, Object>> getQcDoneExpensiveMapByCustmerCode(String customerCode) throws BizCheckedException {
+        List<WaveDetail> waveDetails = this.getQcWaveDetailsByStoreNo(customerCode);
+        if (null == waveDetails || waveDetails.size() < 1) {
+            return new HashMap<Long, Map<String, Object>>();
+        }
+        //qc完成校验
+        Map<Long, Long> containerQcIdMap = new HashMap<Long, Long>();
+        for (WaveDetail detail : waveDetails) {
+            if (detail.getQcTaskId().equals(0L)) {
+                continue;
+            }
+
+            containerQcIdMap.put(detail.getContainerId(), detail.getQcTaskId());
+
+        }
+        //拿id查task,因为托盘可能复用
+        Set<Long> qcDoneContainerIds = new HashSet<Long>();
+        Map<Long, TaskInfo> qcTaskInfosMap = new HashMap<Long, TaskInfo>();
+
+        for (Long key : containerQcIdMap.keySet()) {
+            Long qcTaskId = containerQcIdMap.get(key);
+            TaskInfo qcInfo = baseTaskService.getTaskInfoById(qcTaskId);
+            if (qcInfo == null || !qcInfo.getStatus().equals(TaskConstant.Done)) {
+                continue;
+            }
+            //已将装车的不给出
+
+            qcDoneContainerIds.add(qcInfo.getContainerId());
+            qcTaskInfosMap.put(qcTaskId, qcInfo);
+        }
+        //完成qc的detailList 判断贵品
+        //todo 找到当前的所有贵品,是按照有一个贵品就是贵品
+        Map<Long, Map<String, Object>> qcDoneDetailMap = new HashMap<Long, Map<String, Object>>();
+        for (WaveDetail oneDetail : waveDetails) {
+
+            if (qcDoneContainerIds.contains(oneDetail.getContainerId())) {   //已经完成
+                //看商品是否是贵品
+                BaseinfoItem item = itemService.getItem(oneDetail.getItemId());
+                if (null == item) { //不想报错
+                    continue;
+                }
+
+                if (qcDoneDetailMap.get(oneDetail.getContainerId()) == null) {
+                    Map<String, Object> qcDoneMap = new HashMap<String, Object>();
+                    List<WaveDetail> containerDetails = new ArrayList<WaveDetail>();
+                    qcDoneMap.put("containerDetails", containerDetails);
+                    qcDoneMap.put("containerId", oneDetail.getContainerId());
+                    qcDoneMap.put("isExpensive", false);
+                    qcDoneMap.put("qcDoneInfo", qcTaskInfosMap.get(oneDetail.getQcTaskId()));
+                    qcDoneMap.put("customerCode", customerCode);
+                    qcDoneDetailMap.put(oneDetail.getContainerId(), qcDoneMap);
+                }
+
+
+                //加入
+                Map<String, Object> qcDoneMap = qcDoneDetailMap.get(oneDetail.getContainerId());
+                List<WaveDetail> qcDetailList = (List<WaveDetail>) qcDoneMap.get("containerDetails");
+                qcDetailList.add(oneDetail);
+                //贵品的判断
+                if (item.getIsValuable().equals(ItemConstant.TYPE_IS_VALUABLE)) {
+                    qcDoneMap.put("isExpensive", true);
+                }
+                qcDoneDetailMap.put(oneDetail.getContainerId(), qcDoneMap);
+            }
+        }
+
+        if (qcDoneDetailMap.isEmpty()) {
+            return new HashMap<Long, Map<String, Object>>();
+        }
+        Map<Long, Map<String, Object>> dateMap = new HashMap<Long, Map<String, Object>>();
+        //贵品过滤
+        for (Long key : qcDoneDetailMap.keySet()) {
+            boolean isExpensive = Boolean.valueOf(qcDoneDetailMap.get(key).get("isExpensive").toString());
+            if (isExpensive) {
+                dateMap.put(key, qcDoneDetailMap.get(key));
+            }
+        }
+        return dateMap;
     }
 }
