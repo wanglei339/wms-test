@@ -159,7 +159,7 @@ public class StockTransferCore {
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         TaskInfo info = taskInfoDao.lockById(taskInfo.getTaskId());
         if(info.getStep()==2){
-            throw new BizCheckedException("");
+            throw new BizCheckedException("2550045");
         }
         BigDecimal qty = PackUtil.UomQty2EAQty(uomQty, uom);
         List<StockQuant> quants = this.checkFromLocation(taskEntry.getTaskInfo().getItemId(), fromLocation, qty);
