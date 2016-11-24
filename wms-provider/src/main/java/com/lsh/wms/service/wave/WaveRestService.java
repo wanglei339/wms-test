@@ -477,7 +477,7 @@ public class WaveRestService implements IWaveRestService {
             order.put("orderId", orderId);
             orders.add(order);
         }
-        WaveRequest request = new WaveRequest(orders, Long.valueOf(WaveConstant.STATUS_NEW), "呵呵", "PREVIEW_HAND", waveTemplateId, 1L);
+        WaveRequest request = new WaveRequest(orders, Long.valueOf(WaveConstant.STATUS_NEW), "", "PREVIEW", waveTemplateId, 1L);
         waveRpcService.createWave(request);
         try{
             //存储redis说这个哥们已经释放了

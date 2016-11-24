@@ -1,11 +1,9 @@
 package com.lsh.wms.core.service.taking;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
-import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.taking.StockTakingDetailDao;
@@ -17,22 +15,17 @@ import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.persistence.PersistenceProxy;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockMoveService;
-import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
-import com.lsh.wms.model.task.StockTakingTask;
-import com.lsh.wms.model.task.TaskEntry;
-import com.lsh.wms.model.task.TaskInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -48,8 +41,7 @@ public class StockTakingService {
 
     @Autowired
     private StockTakingDetailDao detailDao;
-    @Autowired
-    private StockQuantService quantService;
+
     @Autowired
     private PersistenceProxy persistenceProxy;
     @Autowired
@@ -62,8 +54,6 @@ public class StockTakingService {
     private ContainerService containerService;
     @Autowired
     private LocationService locationService;
-    @Reference
-    private ITaskRpcService iTaskRpcService;
 
     @Transactional (readOnly = false)
     public void insertHead(StockTakingHead head) {
@@ -235,11 +225,5 @@ public class StockTakingService {
         return detailDao.getStockTakingDetailList(queryMap);
 
     }
-    @Transactional (readOnly = false)
-    public void confirmDifference(Long stockTakingId, long roundTime) {
-        List<StockTakingDetail> detailList = this.getDetailListByRound(stockTakingId, roundTime);
-        this.done(stockTakingId, detailList);
-    }
-
 }
 

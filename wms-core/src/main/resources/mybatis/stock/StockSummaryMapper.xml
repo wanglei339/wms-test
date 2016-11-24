@@ -26,9 +26,10 @@
         updated_at = values(updated_at)
     </update>
 
-    <select id="getStockSummary" parameterType="int" resultMap="stockSummaryResultMap">
-        select * from obd_detail
-        where itemId=#{item_id}
+    <select id="getStockSummaryByItemId" parameterType="Long" resultMap="stockSummaryResultMap">
+        select * from stock_summary
+        where item_id=#{itemId}
+        limit 1
     </select>
 
     <select id="countStockSummary" parameterType="map" resultType="int">

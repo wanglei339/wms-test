@@ -170,14 +170,22 @@ public class ReceiptRpcService implements IReceiptRpcService {
             Long containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
             inbReceiptHeader.setContainerId(containerId);
             // : 16/8/19 设置退货区
-            List<BaseinfoLocationRegion> lists = locationDetailService.getMarketReturnList(ibdHeader.getOwnerUid());
-            Long location = lists.get(0).getLocationId();
-            inbReceiptHeader.setLocation(location);
+            List<BaseinfoLocation> lists = locationDetailService.getMarketReturnList();
+            if(lists != null || lists.size() >0){
+                Long location = lists.get(0).getLocationId();
+                inbReceiptHeader.setLocation(location);
+            }else{
+                throw new BizCheckedException("2022223");
+            }
+
             //设置收货类型
             inbReceiptHeader.setReceiptType(ReceiptContant.RECEIPT_TYPE_NORMAL);
 
         }else{
             BaseinfoLocation baseinfoLocation = locationRpcService.assignTemporary();
+            if(baseinfoLocation == null){
+                throw new BizCheckedException("2022223");
+            }
             inbReceiptHeader.setLocation(baseinfoLocation.getLocationId());//16/7/20  暂存区信息
             if(PoConstant.ORDER_TYPE_CPO == orderType){
                 //TODO 这个类型的定义根本看不懂啊
@@ -376,7 +384,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 // 判断是否超过订单总数
                 BigDecimal poInboundQty = null != ibdDetail.getInboundQty() ? ibdDetail.getInboundQty() : new BigDecimal(0);
 
-                if (poInboundQty.add(inbReceiptDetail.getInboundQty()).compareTo(ibdDetail.getOrderQty()) > 0) {
+                if (poInboundQty.add(inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit()))
+                        .compareTo(ibdDetail.getOrderQty().multiply(ibdDetail.getPackUnit())) > 0) {
                     throw new BizCheckedException("2020005");
                 }
 
@@ -703,7 +712,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
         List<IbdDetail> ibdDetails = poOrderService.getInbPoDetailListByOrderId(orderId);
         ReceiptRequest request = new ReceiptRequest();
 
-        request.setOrderOtherId(ibdHeader.getOrderOtherId());
+        //转换成orderId
+        //request.setOrderOtherId(ibdHeader.getOrderOtherId());
+        request.setOrderId(orderId);
         Map<String , Object> map = new HashMap<String, Object>();
         map.put("staffId",staffId);
         request.setReceiptUser(staffService.getStaffList(map).get(0).getName());
@@ -714,12 +725,19 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         for(IbdDetail ibdDetail : ibdDetails){
             ReceiptItem item = new ReceiptItem();
+
+            List<BaseinfoItem> baseinfoItems = itemService.getItemsBySkuCode(ibdHeader.getOwnerUid(),ibdDetail.getSkuCode());
+            if(baseinfoItems.size() <= 0){
+                throw new BizCheckedException("2900001");
+            }
+            BaseinfoItem baseinfoItem = baseinfoItems.get(baseinfoItems.size()-1);
+
             item.setArriveNum(ibdDetail.getOrderQty());
-            //item.setBarCode(ibdDetail.getBarCode());
+            item.setBarCode(baseinfoItem.getCode());
             item.setInboundQty(ibdDetail.getOrderQty());
             item.setPackName(ibdDetail.getPackName());
             item.setPackUnit(ibdDetail.getPackUnit());
-            //item.setSkuId(ibdDetail.getSkuId());
+            item.setSkuId(baseinfoItem.getSkuId());
             item.setSkuName(ibdDetail.getSkuName());
             items.add(item);
         }
@@ -882,16 +900,20 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
 
             // 判断是否超过订单总数
+            // 数量改为ea来判断
+
+
             BigDecimal poInboundQty = null != ibdDetail.getInboundQty() ? ibdDetail.getInboundQty() : new BigDecimal(0);
 
-            if (poInboundQty.add(inbReceiptDetail.getInboundQty()).compareTo(ibdDetail.getOrderQty()) > 0) {
+            if (poInboundQty.add(inbReceiptDetail.getInboundQty().multiply(obdDetail.getPackUnit()))
+                    .compareTo(ibdDetail.getOrderQty().multiply(ibdDetail.getPackUnit())) > 0) {
                 throw new BizCheckedException("2020005");
             }
 
             // 批量修改ibd 实收数量
             IbdDetail updateIbdDetail = new IbdDetail();
             //转为ea
-            BigDecimal inboundUnitQty = inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit());
+            BigDecimal inboundUnitQty = inbReceiptDetail.getInboundQty().multiply(obdDetail.getPackUnit());
             updateIbdDetail.setInboundQty(inboundUnitQty);
             updateIbdDetail.setOrderId(inbReceiptDetail.getOrderId());
             updateIbdDetail.setDetailOtherId(ibdDetail.getDetailOtherId());
@@ -1017,6 +1039,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             ObjUtils.bean2bean(ibdDetail,receiveDetail);
             receiveDetail.setCode(skuMap.get(ibdDetail.getSkuCode()));// TODO: 16/11/9 增加国条
             receiveDetail.setReceiveId(receiveId);
+            receiveDetail.setInboundQty(BigDecimal.ZERO);
             receiveDetail.setCreatedAt(DateUtils.getCurrentSeconds());
             receiveDetails.add(receiveDetail);
         }

@@ -80,7 +80,7 @@ public class PoRpcService implements IPoRpcService {
                 throw new BizCheckedException("2020010");
             }
             //使用so orderOtherId 与 type确定so
-            ObdHeader soHeader = soOrderService.getOutbSoHeaderByOrderOtherIdAndType(ibdHeader.getOrderOtherId(),SoConstant.ORDER_TYPE_SO);
+            ObdHeader soHeader = soOrderService.getOutbSoHeaderByOrderOtherIdAndType(ibdHeader.getOrderOtherRefId(),SoConstant.ORDER_TYPE_SO);
             if(null == soHeader){
                 throw new BizCheckedException("2020001");
             }
@@ -142,13 +142,6 @@ public class PoRpcService implements IPoRpcService {
 
         //插入订单
         poOrderService.insertOrder(ibdHeader, ibdDetailList);
-
-//        TaskEntry taskEntry = new TaskEntry();
-//        TaskInfo taskInfo = new TaskInfo();
-//        taskInfo.setType(TaskConstant.TYPE_PO);
-//        taskInfo.setOrderId(ibdHeader.getOrderId());
-//        taskEntry.setTaskInfo(taskInfo);
-//        iTaskRpcService.create(TaskConstant.TYPE_PO,taskEntry);
         return ibdHeader.getOrderId();
 
     }

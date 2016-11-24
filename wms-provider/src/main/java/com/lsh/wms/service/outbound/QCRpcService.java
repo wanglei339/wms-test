@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.api.service.container.IContainerRpcService;
 import com.lsh.wms.api.service.csi.ICsiRpcService;
 import com.lsh.wms.api.service.pick.IQCRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
@@ -12,15 +13,18 @@ import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
 import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.csi.CsiSku;
+import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.tu.TuDetail;
@@ -52,6 +56,10 @@ public class QCRpcService implements IQCRpcService {
     private ICsiRpcService csiRpcService;
     @Autowired
     private CsiCustomerService csiCustomerService;
+    @Autowired
+    private StockMoveService stockMoveService;
+    @Reference
+    private IContainerRpcService iContainerRpcService;
 
     public void skipException(long id) throws BizCheckedException {
         WaveDetail detail = waveService.getWaveDetailById(id);
@@ -61,6 +69,38 @@ public class QCRpcService implements IQCRpcService {
         //必须要进行库存操作
         detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_SKIP);
         waveService.updateDetail(detail);
+
+
+        //todo 吴昊的方法提供
+        //库存操作
+        //差异库存移到盘亏盘盈区
+        Long itemId = detail.getItemId();
+        Long qcTaskId = detail.getQcTaskId();
+        StockMove move = new StockMove();
+        BaseinfoLocation toLocation = locationService.getInventoryLostLocation();
+        BaseinfoContainer toContainer = iContainerRpcService.createTray();
+        //差异数量
+        BigDecimal diffQty = detail.getPickQty().subtract(detail.getQcQty()).abs();
+        if (null == toLocation) {
+            throw new BizCheckedException("2180002");
+        }
+
+        List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(detail.getContainerId());
+        if (null == stockQuants || stockQuants.size() < 1) {
+            throw new BizCheckedException("2990043");
+        }
+
+        Long locationId = stockQuants.get(0).getLocationId();
+
+        move.setItemId(itemId);
+        move.setSkuId(detail.getSkuId());
+        move.setFromContainerId(detail.getContainerId());
+        move.setFromLocationId(locationId);
+        move.setToContainerId(toContainer.getContainerId());
+        move.setToLocationId(toLocation.getLocationId());
+        move.setQty(diffQty);
+        move.setTaskId(qcTaskId);
+        stockMoveService.move(move);
     }
 
     public void repairException(long id) throws BizCheckedException {
@@ -73,6 +113,7 @@ public class QCRpcService implements IQCRpcService {
         detail.setQcExceptionQty(new BigDecimal("0.0000"));
         detail.setQcException(WaveConstant.QC_EXCEPTION_NORMAL);
         waveService.updateDetail(detail);
+
     }
 
     public void fallbackException(long id) throws BizCheckedException {
@@ -238,15 +279,15 @@ public class QCRpcService implements IQCRpcService {
         List<TaskInfo> qcDoneInfos = new ArrayList<TaskInfo>();
         //先去集货位拿到所有的托盘的wave_detailList
         List<WaveDetail> waveDetailList = new ArrayList<WaveDetail>();
-            List<StockQuant> quants = stockQuantService.getQuantsByLocationId(location.getLocationId());
-            for (StockQuant quant : quants) {
-                Long containerId = quant.getContainerId();
-                List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(containerId);
-                if (null == waveDetails || waveDetails.size() < 1) {
-                    continue;
-                }
-                waveDetailList.addAll(waveDetails);
+        List<StockQuant> quants = stockQuantService.getQuantsByLocationId(location.getLocationId());
+        for (StockQuant quant : quants) {
+            Long containerId = quant.getContainerId();
+            List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(containerId);
+            if (null == waveDetails || waveDetails.size() < 1) {
+                continue;
             }
+            waveDetailList.addAll(waveDetails);
+        }
         return waveDetailList;
     }
 
@@ -372,6 +413,13 @@ public class QCRpcService implements IQCRpcService {
         return result;
     }
 
+    /**
+     * 丢掉的库存放在盘亏盘盈区
+     *
+     * @param request
+     * @return
+     * @throws BizCheckedException
+     */
     public boolean skipExceptionRf(Map<String, Object> request) throws BizCheckedException {
         Long containerId = Long.valueOf(request.get("containerId").toString());
         String code = request.get("code").toString();
@@ -426,6 +474,36 @@ public class QCRpcService implements IQCRpcService {
                 waveService.updateDetail(detail);
             }
         }
+
+        //todo 吴昊的方法提供
+        //差异库存移到盘亏盘盈区
+        Long itemId = waveDetails.get(0).getItemId();
+        Long qcTaskId = waveDetails.get(0).getQcTaskId();
+        StockMove move = new StockMove();
+        BaseinfoLocation toLocation = locationService.getInventoryLostLocation();
+        BaseinfoContainer toContainer = iContainerRpcService.createTray();
+        //差异数量
+        BigDecimal diffQty = pickQty.subtract(qty).abs();
+        if (null == toLocation) {
+            throw new BizCheckedException("2180002");
+        }
+        List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(containerId);
+        if (null == stockQuants || stockQuants.size() < 1) {
+            throw new BizCheckedException("2990043");
+        }
+        Long locationId = stockQuants.get(0).getLocationId();
+
+
+        move.setItemId(itemId);
+        move.setSkuId(skuId);
+        move.setFromContainerId(containerId);
+        move.setFromLocationId(locationId);
+        move.setToContainerId(toContainer.getContainerId());
+        move.setToLocationId(toLocation.getLocationId());
+        move.setQty(diffQty);
+        move.setTaskId(qcTaskId);
+        stockMoveService.move(move);
+
 
         //检验修复完毕
         boolean result = true;

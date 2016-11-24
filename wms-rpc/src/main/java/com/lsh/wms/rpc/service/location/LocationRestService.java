@@ -10,6 +10,7 @@ import com.lsh.wms.api.model.location.LocationDetailRequest;
 import com.lsh.wms.api.service.item.IItemRpcService;
 import com.lsh.wms.api.service.location.ILocationRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.core.constant.BinUsageConstant;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.wave.WaveService;
@@ -239,6 +240,16 @@ public class LocationRestService implements ILocationRestService {
         }
         //获取所有拣货位
         List<BaseinfoLocation> collectionBins = locationRpcService.getColletionBins();
+        //获取存拣合一拣货位
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("binUsage", BinUsageConstant.BIN_PICK_STORE);
+        mapQuery.put("isValid", LocationConstant.IS_VALID);
+        mapQuery.put("isLocked", LocationConstant.UNLOCK);
+        mapQuery.put("canStore", LocationConstant.CAN_STORE);
+        mapQuery.put("regionType",LocationConstant.SPLIT_AREA);
+        mapQuery.put("type",LocationConstant.BIN);
+        List<BaseinfoLocation> pickstoreBins = locationService.getBaseinfoLocationList(mapQuery);
+        collectionBins.addAll(pickstoreBins);
         //货架拣货位
         List<BaseinfoLocation> shelfsList = new ArrayList<BaseinfoLocation>();
         //阁楼拣货位
@@ -279,6 +290,7 @@ public class LocationRestService implements ILocationRestService {
     @Path("getAllShelfs")
     public String getAllShelfs() {
         return JsonUtils.SUCCESS(locationRpcService.getAllShelfs());
+//        return JsonUtils.SUCCESS(locationRpcService.getColletionBins());
 //          return JsonUtils.SUCCESS(locationRpcService.sortSowLocationByStoreNo());
 //        return JsonUtils.SUCCESS(locationService.getLocation(-1L));
 //        return JsonUtils.SUCCESS(locationRpcService.removeStoreNoOnRoad(26736205236244L));

@@ -32,7 +32,7 @@ public class IbdRequest implements Serializable {
     private Integer orderType;
 
     /** 供商编码 */
-    @NotNull
+    //@NotNull
     private String supplierCode = "";
 
     /** 订单日期 */
@@ -44,6 +44,10 @@ public class IbdRequest implements Serializable {
     @DateTimeFormat
     private Date endDeliveryDate = new Date();
 
+    /** 返仓客户 */
+    @Size(max=64)
+    private String orderUser = "";
+
     /** 商品 */
     @Valid
     @Size(min=1)
@@ -51,27 +55,33 @@ public class IbdRequest implements Serializable {
 
     public IbdRequest() {}
 
-    public IbdRequest(String warehouseCode, String orderOtherId, String orderOtherRefId,
-                      Long ownerUid, Integer orderType,
-                      String supplierCode, Date orderTime,
-                      Date endDeliveryDate, List<IbdDetail> detailList) {
-        this.warehouseCode = warehouseCode;
+    public IbdRequest(List<IbdDetail> detailList, Date endDeliveryDate, String orderOtherId, String orderOtherRefId, Date orderTime, Integer orderType, String orderUser, Long ownerUid, String supplierCode, String warehouseCode) {
+        this.detailList = detailList;
+        this.endDeliveryDate = endDeliveryDate;
         this.orderOtherId = orderOtherId;
         this.orderOtherRefId = orderOtherRefId;
-        this.ownerUid = ownerUid;
-        this.orderType = orderType;
-        this.supplierCode = supplierCode;
         this.orderTime = orderTime;
-        this.endDeliveryDate = endDeliveryDate;
+        this.orderType = orderType;
+        this.orderUser = orderUser;
+        this.ownerUid = ownerUid;
+        this.supplierCode = supplierCode;
+        this.warehouseCode = warehouseCode;
+    }
+
+    public List<IbdDetail> getDetailList() {
+        return detailList;
+    }
+
+    public void setDetailList(List<IbdDetail> detailList) {
         this.detailList = detailList;
     }
 
-    public String getWarehouseCode() {
-        return warehouseCode;
+    public Date getEndDeliveryDate() {
+        return endDeliveryDate;
     }
 
-    public void setWarehouseCode(String warehouseCode) {
-        this.warehouseCode = warehouseCode;
+    public void setEndDeliveryDate(Date endDeliveryDate) {
+        this.endDeliveryDate = endDeliveryDate;
     }
 
     public String getOrderOtherId() {
@@ -90,12 +100,12 @@ public class IbdRequest implements Serializable {
         this.orderOtherRefId = orderOtherRefId;
     }
 
-    public Long getOwnerUid() {
-        return ownerUid;
+    public Date getOrderTime() {
+        return orderTime;
     }
 
-    public void setOwnerUid(Long ownerUid) {
-        this.ownerUid = ownerUid;
+    public void setOrderTime(Date orderTime) {
+        this.orderTime = orderTime;
     }
 
     public Integer getOrderType() {
@@ -106,6 +116,22 @@ public class IbdRequest implements Serializable {
         this.orderType = orderType;
     }
 
+    public String getOrderUser() {
+        return orderUser;
+    }
+
+    public void setOrderUser(String orderUser) {
+        this.orderUser = orderUser;
+    }
+
+    public Long getOwnerUid() {
+        return ownerUid;
+    }
+
+    public void setOwnerUid(Long ownerUid) {
+        this.ownerUid = ownerUid;
+    }
+
     public String getSupplierCode() {
         return supplierCode;
     }
@@ -114,28 +140,11 @@ public class IbdRequest implements Serializable {
         this.supplierCode = supplierCode;
     }
 
-    public Date getOrderTime() {
-        return orderTime;
+    public String getWarehouseCode() {
+        return warehouseCode;
     }
 
-    public void setOrderTime(Date orderTime) {
-        this.orderTime = orderTime;
+    public void setWarehouseCode(String warehouseCode) {
+        this.warehouseCode = warehouseCode;
     }
-
-    public Date getEndDeliveryDate() {
-        return endDeliveryDate;
-    }
-
-    public void setEndDeliveryDate(Date endDeliveryDate) {
-        this.endDeliveryDate = endDeliveryDate;
-    }
-
-    public List<IbdDetail> getDetailList() {
-        return detailList;
-    }
-
-    public void setDetailList(List<IbdDetail> detailList) {
-        this.detailList = detailList;
-    }
-
 }

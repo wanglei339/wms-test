@@ -989,36 +989,6 @@ public class LocationService {
 
 
     /**
-     * 根据type,isvalid和或者code获取location的集合,主要和查询有关
-     *
-     * @param mapQuery 前端传过来的map参数
-     * @return
-     */
-    public List<BaseinfoLocation> getLocationListByType(Map<String, Object> mapQuery) {
-        mapQuery.put("isValid", LocationConstant.IS_VALID);
-        List<BaseinfoLocation> list = locationDao.getBaseinfoLocationList(mapQuery);
-        return list;
-    }
-
-
-//    /**
-//     * 设置location被占用
-//     *
-//     * @param locationId
-//     * @return
-//     */
-//    @Transactional(readOnly = false)
-//    public BaseinfoLocation setLocationIsOccupied(Long locationId) {
-//        BaseinfoLocation location = this.getLocation(locationId);
-//        if (location == null) {
-//            throw new BizCheckedException("2180001");
-//        }
-//        location.setCanUse(2);    //被占用
-//        this.updateLocation(location);
-//        return location;
-//    }
-
-    /**
      * 设置位置没有被占用
      *
      * @param locationId

@@ -488,6 +488,7 @@ public class IbdService implements IIbdService {
         Map<String, Object> request = RequestUtils.getRequest();
         String orderOtherId = (String) request.get("orderOtherId");
         IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(orderOtherId);
+
         List<com.lsh.wms.model.po.IbdDetail> ibdDetails = poOrderService.getInbPoDetailListByOrderId(ibdHeader.getOrderId());
         ibdHeader.setOrderDetails(ibdDetails);
         return JsonUtils.SUCCESS(ibdHeader);

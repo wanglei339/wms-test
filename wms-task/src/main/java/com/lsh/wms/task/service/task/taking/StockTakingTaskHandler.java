@@ -217,5 +217,4 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
         }
     }
 
-
 }

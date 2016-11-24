@@ -247,12 +247,15 @@ public class CsiRestService implements ICsiRestService {
     public String updateCustomer(CsiCustomer csiCustomer)throws BizCheckedException {
         if (csiCustomer.getCollectRoadId() != 0
                 && (locationService.getLocation(csiCustomer.getCollectRoadId()) == null
-                || locationService.getLocation(csiCustomer.getCollectRoadId()).getType() != LocationConstant.COLLECTION_ROAD)) {
+                || (locationService.getLocation(csiCustomer.getCollectRoadId()).getType() != LocationConstant.COLLECTION_ROAD
+                    && locationService.getLocation(csiCustomer.getCollectRoadId()).getType() != LocationConstant.COLLECTION_BIN))) {
             throw new BizCheckedException("2180011");
         }
         if (csiCustomer.getSeedRoadId() != 0
                 && (locationService.getLocation(csiCustomer.getSeedRoadId()) == null
-                || locationService.getLocation(csiCustomer.getSeedRoadId()).getType() != LocationConstant.SOW_BIN)) {
+                || (locationService.getLocation(csiCustomer.getSeedRoadId()).getRegionType() != LocationConstant.SOW_AREA
+                    && locationService.getLocation(csiCustomer.getSeedRoadId()).getType() != LocationConstant.COLLECTION_ROAD))) {
+            //不是播种区下的位置
             throw new BizCheckedException("2180026");
         }
         try {

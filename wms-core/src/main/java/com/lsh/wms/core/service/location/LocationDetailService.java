@@ -119,7 +119,7 @@ public class LocationDetailService {
 //        locationDetailServiceFactory.register(LocationConstant.VALUABLES_SHELF_BIN, baseinfoLocationBinService);
         //注入播种区、播种货位
         locationDetailServiceFactory.register(LocationConstant.SOW_AREA, baseinfoLocationRegionService);
-        locationDetailServiceFactory.register(LocationConstant.SOW_BIN, baseinfoLocationBinService);
+//        locationDetailServiceFactory.register(LocationConstant.SOW_BIN, baseinfoLocationBinService);
         //注入 供商退货区、供商退货货架、供商退货货架层、供商退货入库位置、供商退货存储位置
         locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_AREA, baseinfoLocationRegionService);
         locationDetailServiceFactory.register(LocationConstant.SUPPLIER_RETURN_SHELF, baseinfoLocationShelfService);
@@ -187,7 +187,7 @@ public class LocationDetailService {
 //        locationDetailModelFactory.register(LocationConstant.VALUABLES_SHELF_BIN, new BaseinfoLocationBin());
         //注入播种区和播种货位
         locationDetailModelFactory.register(LocationConstant.SOW_AREA, new BaseinfoLocationRegion());
-        locationDetailModelFactory.register(LocationConstant.SOW_BIN, new BaseinfoLocationBin());
+//        locationDetailModelFactory.register(LocationConstant.SOW_BIN, new BaseinfoLocationBin());
         //注入 供商退货区、供商退货货架、供商退货货架层、供商退货入库位置、供商退货存储位置
         locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_AREA, new BaseinfoLocationRegion());
         locationDetailModelFactory.register(LocationConstant.SUPPLIER_RETURN_SHELF, new BaseinfoLocationShelf());
@@ -479,30 +479,14 @@ public class LocationDetailService {
      *
      * @return
      */
-    public List<BaseinfoLocationRegion> getMarketReturnList(Long ownerid) throws BizCheckedException {
+    public List<BaseinfoLocation> getMarketReturnList() throws BizCheckedException {
         Map<String, Object> params = new HashMap<String, Object>();
         List<BaseinfoLocation> locationList = locationService.getTargetLocationListByType(LocationConstant.MARKET_RETURN_AREA);
-        List<IBaseinfoLocaltionModel> iBaseinfoLocaltionModels = new ArrayList<IBaseinfoLocaltionModel>();
-        IBaseinfoLocaltionModel marketLocation = null;
-        for (BaseinfoLocation location : locationList) {
-            marketLocation = this.getIBaseinfoLocaltionModelById(location.getLocationId());
-            if (null == marketLocation) {
-                continue;
-            }
-            iBaseinfoLocaltionModels.add(marketLocation);
-        }
         //过滤货主
-        List<BaseinfoLocationRegion> regions = (List<BaseinfoLocationRegion>) (List<?>) iBaseinfoLocaltionModels;
-        List<BaseinfoLocationRegion> targetReturn = new ArrayList<BaseinfoLocationRegion>();
-        for (BaseinfoLocationRegion one : regions) {
-            if (one.getOwnerid().equals(ownerid)) {
-                targetReturn.add(one);
-            }
-        }
-        if (targetReturn.size() > 0) {
-            return targetReturn;
+        if (locationList != null || locationList.size() > 0) {
+            return locationList;
         } else {
-            throw new BizCheckedException("2180005");
+            return new ArrayList<BaseinfoLocation>();
         }
     }
 

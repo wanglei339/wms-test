@@ -34,30 +34,42 @@ public class WuMart implements IWuMart {
      * @return
      */
     public String sendIbd(CreateIbdHeader createIbdHeader, SysLog sysLog) {
-        CreateIbdHeader backDate = wuMartSap.ibd2Sap(createIbdHeader);
-
-        if(backDate != null) {
-            Map<String,Object> map =  wuMartSap.ibd2SapAccount(backDate);
-            if("E".equals(map.get("Type"))){
-                sysLog.setLogMessage("ibd过账返回结果为空!");
+        try{
+            CreateIbdHeader backDate = wuMartSap.ibd2Sap(createIbdHeader);
+            if(backDate != null) {
+                Map<String,Object> map =  wuMartSap.ibd2SapAccount(backDate);
+                if("E".equals(map.get("Type"))){
+                    sysLog.setLogMessage("ibd过账返回结果为空!");
+                    sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
+                    sysLog.setLogCode("ibd过账返回结果为空!");
+                    //0表示初始 1ibd创建成功 2ibd过账成功
+                    sysLog.setStep(SysLogConstant.LOG_STEP_IBDCREATE);
+                }else if("S".equals(map.get("Type"))){
+                    sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
+                    sysLog.setStep(SysLogConstant.LOG_STEP_IBDFINISH);
+                    sysLog.setLogMessage("ibd过账成功");
+                    sysLog.setLogCode("ibd过账成功");
+                }else{
+                    sysLog.setLogMessage((String) map.get("message"));
+                    sysLog.setStatus(SysLogConstant.LOG_STATUS_PART_FINISH);//部分过账成功
+                    sysLog.setStep(SysLogConstant.LOG_STEP_IBDCREATE);
+                }
+            }else {
+                sysLog.setLogMessage("ibd创建失败!");
                 sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
-                sysLog.setLogCode("ibd过账返回结果为空!");
-                //0表示初始 1ibd创建成功 2ibd过账成功
-                sysLog.setStep(SysLogConstant.LOG_STEP_IBDCREATE);
-            }else if("P".equals(map.get("Type")) && map.get("message") == null){
-                sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
-                sysLog.setStep(SysLogConstant.LOG_STEP_IBDFINISH);
-                sysLog.setLogMessage("ibd过账成功");
-            }else{
-                sysLog.setLogMessage((String) map.get("message"));
-                sysLog.setStatus(SysLogConstant.LOG_STATUS_PART_FINISH);//部分过账成功
-                sysLog.setStep(SysLogConstant.LOG_STEP_IBDCREATE);
+                sysLog.setLogCode("ibd创建失败");
             }
-        }else {
+
+        }catch (Exception ex) {
+            sysLog.setSysCode("接口抛出异常");//异常
+            logger.info("抛出异常信息: ex : " + ex.fillInStackTrace());
+            sysLog.setSysMessage(ex.getMessage());
             sysLog.setLogMessage("ibd创建失败!");
-            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
             sysLog.setLogCode("ibd创建失败");
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
+
         }
+
         //sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
         //sysLogService.updateSysLog(sysLog);
         return null;
@@ -69,25 +81,36 @@ public class WuMart implements IWuMart {
      * @return
      */
     public String sendObd(CreateObdHeader createObdHeader, SysLog sysLog) {
-        CreateObdHeader backDate = wuMartSap.obd2Sap(createObdHeader);
-        if(backDate != null){
-            String type = wuMartSap.obd2SapAccount(backDate);
-            if ("E".equals(type)){
-                sysLog.setLogMessage("obd过账失败!");
+        try {
+            CreateObdHeader backDate = wuMartSap.obd2Sap(createObdHeader);
+            if(backDate != null){
+                String type = wuMartSap.obd2SapAccount(backDate);
+                if ("E".equals(type)){
+                    sysLog.setLogMessage("obd过账失败!");
+                    sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
+                    sysLog.setLogCode("obd过账失败");
+                    //0表示初始 1ibd创建成功 2ibd过账成功,3obd创建成功 4 obd过账成功
+                    sysLog.setStep(SysLogConstant.LOG_STEP_OBDCREATE);
+                }else{
+                    sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
+                    sysLog.setStep(SysLogConstant.LOG_STEP_OBDFINISH);
+                    sysLog.setLogMessage("obd过账成功");
+                }
+            }else {
+                sysLog.setLogMessage("创建失败!");
                 sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
-                sysLog.setLogCode("obd过账失败");
-                //0表示初始 1ibd创建成功 2ibd过账成功,3obd创建成功 4 obd过账成功
-                sysLog.setStep(SysLogConstant.LOG_STEP_OBDCREATE);
-            }else{
-                sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
-                sysLog.setStep(SysLogConstant.LOG_STEP_OBDFINISH);
-                sysLog.setLogMessage("obd过账成功");
+                sysLog.setLogCode("ibd创建失败");
             }
-        }else {
-            sysLog.setLogMessage("创建失败!");
-            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
-            sysLog.setLogCode("ibd创建失败");
+        }catch (Exception ex){
+            sysLog.setSysCode("接口抛出异常");//异常
+            logger.info("抛出异常信息: ex : " + ex.fillInStackTrace());
+            sysLog.setSysMessage(ex.getMessage());
+            sysLog.setLogMessage("obd创建失败!");
+            sysLog.setLogCode("obd创建失败");
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
         }
+
+
         //sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
         //sysLogService.updateSysLog(sysLog);
         return null;
@@ -108,46 +131,62 @@ public class WuMart implements IWuMart {
      * @param ibdObdMap
      */
     public void sendSap(Map<String,Object> ibdObdMap, SysLog sysLog){
-
-        // TODO: 2016/11/21 根据step来创建对应的 初始的从创建ibd开始
-        if(sysLog.getStep() == SysLogConstant.LOG_STEP_INIT){
-            CreateIbdHeader backDate = wuMartSap.ibd2Sap((CreateIbdHeader) ibdObdMap.get("createIbdHeader"));
-            if(backDate != null) {
-                Map<String,Object> map =  wuMartSap.ibd2SapAccount(backDate);
-                if("E".equals(map.get("type"))){
-                    sysLog.setLogMessage("直流ibd过账SAP返回值为空!");
-                    sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
-                    sysLog.setLogCode("直流ibd过账SAP返回值为空!");
-                }else if("P".equals(map.get("Type")) && map.get("message") == null){
-                    CreateObdHeader obdBackDate = wuMartSap.obd2Sap((CreateObdHeader) ibdObdMap.get("createObdHeader"));
-                    if(backDate != null){
-                        String type = wuMartSap.obd2SapAccount(obdBackDate);
-                        if ("E".equals(type)){
-                            sysLog.setLogMessage("obd过账失败!");
-                            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
-                            sysLog.setLogCode("obd过账失败");
-                            //0表示初始 1ibd创建成功 2ibd过账成功,3obd创建成功 4 obd过账成功
-                            sysLog.setStep(SysLogConstant.LOG_STEP_OBDCREATE);
-                        }else{
-                            sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
-                            sysLog.setStep(SysLogConstant.LOG_STEP_OBDFINISH);
-                            sysLog.setLogMessage("obd过账成功");
-                        }
-                    }else {
-                        sysLog.setStep(SysLogConstant.LOG_STEP_IBDFINISH);
-                        sysLog.setLogMessage("ibd过账成功,obd创建失败!");
+        try{
+            // TODO: 2016/11/21 根据step来创建对应的 初始的从创建ibd开始
+            if(sysLog.getStep() == SysLogConstant.LOG_STEP_INIT){
+                CreateIbdHeader backDate = wuMartSap.ibd2Sap((CreateIbdHeader) ibdObdMap.get("createIbdHeader"));
+                if(backDate != null) {
+                    Map<String,Object> map =  wuMartSap.ibd2SapAccount(backDate);
+                    if("E".equals(map.get("type"))){
+                        sysLog.setLogMessage("直流ibd过账SAP返回值为空!");
                         sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
-                        sysLog.setLogCode("ibd过账成功,obd创建失败");
+                        sysLog.setLogCode("直流ibd过账SAP返回值为空!");
+                    }else if("S".equals(map.get("Type"))){
+                        CreateObdHeader obdBackDate = wuMartSap.obd2Sap((CreateObdHeader) ibdObdMap.get("createObdHeader"));
+                        if(backDate != null){
+                            String type = wuMartSap.obd2SapAccount(obdBackDate);
+                            if ("E".equals(type)){
+                                sysLog.setLogMessage("直流obd过账失败!");
+                                sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
+                                sysLog.setLogCode("直流obd过账失败");
+                                //0表示初始 1ibd创建成功 2ibd过账成功,3obd创建成功 4 obd过账成功
+                                sysLog.setStep(SysLogConstant.LOG_STEP_OBDCREATE);
+                            }else{
+                                sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
+                                sysLog.setStep(SysLogConstant.LOG_STEP_OBDFINISH);
+                                sysLog.setLogMessage("直流obd过账成功");
+                            }
+                        }else {
+                            sysLog.setStep(SysLogConstant.LOG_STEP_IBDFINISH);
+                            sysLog.setLogMessage("ibd过账成功,obd创建失败!");
+                            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
+                            sysLog.setLogCode("ibd过账成功,obd创建失败");
+                        }
+                    }else{
+                        sysLog.setStep(SysLogConstant.LOG_STEP_IBDCREATE);
+                        sysLog.setLogMessage("ibd创建成功,过账失败");
+                        sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
+                        sysLog.setLogCode("ibd创建成功,过账失败");
                     }
+                }else {
+                    sysLog.setLogMessage("ibd创建失败!");
+                    sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
+                    sysLog.setLogCode("ibd创建失败");
                 }
-            }else {
-                sysLog.setLogMessage("ibd创建失败!");
-                sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
-                sysLog.setLogCode("ibd创建失败");
-            }
-            //sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
+                //sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
 
+            }
+        }catch (Exception ex){
+            sysLog.setSysCode("接口抛出异常");//异常
+            logger.info("抛出异常信息: ex : " + ex.fillInStackTrace());
+            sysLog.setSysMessage(ex.getMessage());
+            sysLog.setLogMessage("直流回传失败,sap抛异常");
+            sysLog.setLogCode("直流回传失败");
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
         }
+
+
+
 
 
     }
@@ -159,18 +198,25 @@ public class WuMart implements IWuMart {
      */
     public String sendSo2Sap(CreateObdHeader createObdHeader , SysLog sysLog) {
 
-        String type = wuMartSap.soObd2Sap(createObdHeader);
-        if("E".equals(type)){
-            sysLog.setLogMessage("obd创建失败!");
-            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
-            sysLog.setLogCode("obd创建失败");
-        }else{
-            sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
-            sysLog.setStep(SysLogConstant.LOG_STEP_OBDFINISH);
-            sysLog.setLogMessage("obd过账成功");
+        try{
+            String type = wuMartSap.soObd2Sap(createObdHeader);
+            if("E".equals(type)){
+                sysLog.setLogMessage("obd创建失败!");
+                sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
+                sysLog.setLogCode("obd创建失败");
+            }else{
+                sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
+                sysLog.setStep(SysLogConstant.LOG_STEP_OBDFINISH);
+                sysLog.setLogMessage("obd过账成功");
+            }
+        }catch (Exception ex){
+            sysLog.setSysCode("接口抛出异常");//异常
+            logger.info("抛出异常信息: ex : " + ex.fillInStackTrace());
+            sysLog.setSysMessage(ex.getMessage());
+            sysLog.setLogMessage("在库so回传失败,sap抛异常");
+            sysLog.setLogCode("在库so回传失败");
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
         }
-        //sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
-
         return JsonUtils.SUCCESS();
     }
 

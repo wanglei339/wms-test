@@ -15,6 +15,8 @@ public class WaveHead implements Serializable {
     private Long status = 10L;
 	/** 波次是否已成功进行资源分配 */
     private Long isResAlloc = 0L;
+	/** */
+	private Long isAllAlloc;
 	/** 波次类型 */
     private Long waveType = 0L;
 	/** 波次模版id */
@@ -72,6 +74,14 @@ public class WaveHead implements Serializable {
 	
 	public void setIsResAlloc(Long isResAlloc){
 		this.isResAlloc = isResAlloc;
+	}
+
+	public Long getIsAllAlloc(){
+		return this.isAllAlloc;
+	}
+
+	public void setIsAllAlloc(Long isAllAlloc){
+		this.isAllAlloc = isAllAlloc;
 	}
 	
 	public Long getWaveType(){
