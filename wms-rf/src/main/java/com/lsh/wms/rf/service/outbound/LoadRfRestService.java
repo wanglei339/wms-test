@@ -6,6 +6,7 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.merge.IMergeRpcService;
 import com.lsh.wms.api.service.pick.IQCRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
@@ -16,8 +17,10 @@ import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.tu.TuDetail;
@@ -64,6 +67,8 @@ public class LoadRfRestService implements ILoadRfRestService {
     private IQCRpcService iqcRpcService;
     @Autowired
     private CsiCustomerService csiCustomerService;
+    @Reference
+    private ILocationRpcService iLocationRpcService;
 
     /**
      * rf获取所有待装车或者已装车的结果集
@@ -496,6 +501,9 @@ public class LoadRfRestService implements ILoadRfRestService {
             expensiveInfo.put("mergedTime", 0);
             expensiveInfo.put("turnoverBoxCount", qcInfo.getExt3());
             CsiCustomer store = csiCustomerService.getCustomerByCustomerCode(tempMap.get("customerCode").toString());
+            //获取位置
+            BaseinfoLocation location = iLocationRpcService.getLocation(store.getCollectRoadId());
+            expensiveInfo.put("locationCode", location.getLocationCode());
             expensiveInfo.put("storeId", store.getCustomerId());
             expensiveInfo.put("packCount", qcInfo.getTaskPackQty());
             expensiveInfo.put("containerId", qcInfo.getContainerId());  //物理托盘码
