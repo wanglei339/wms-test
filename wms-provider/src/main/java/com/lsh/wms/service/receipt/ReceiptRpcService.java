@@ -730,7 +730,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             if(baseinfoItems.size() <= 0){
                 throw new BizCheckedException("2900001");
             }
-            BaseinfoItem baseinfoItem = baseinfoItems.get(items.size()-1);
+            BaseinfoItem baseinfoItem = baseinfoItems.get(baseinfoItems.size()-1);
 
             item.setArriveNum(ibdDetail.getOrderQty());
             item.setBarCode(baseinfoItem.getCode());
