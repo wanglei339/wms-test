@@ -1,20 +1,20 @@
 package com.lsh.wms.rpc.service.inhouse;
 
 import com.alibaba.dubbo.config.annotation.Service;
-import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+import com.lsh.wms.api.service.inhouse.IStockTakingRpcService;
+import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.taking.StockTakingService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Created by mali on 16/7/22.
  */
-//@Service(protocol = "rest")
-//@Path("inhouse")
-//@Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
-//@Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-public class StockTakingRpcService {
+@Service(protocol = "dubbo")
+public class StockTakingRpcService implements IStockTakingRpcService {
+
+    @Autowired
+    private StockTakingService stockTakingService;
+    @Autowired
+    private StockQuantService quantService;
 
 }

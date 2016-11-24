@@ -55,11 +55,35 @@ public class LocationDetailResponse implements Serializable {
     private Integer canUse;
     /** 0-未上锁1-上锁 */
     private Integer isLocked;
+
+    /**
+     * 当前容器数量
+     */
+    private Long curContainerVol;
+
     private Long supplierNo;
 
     private String storeNo;
     /** 所在库区type */
     private Long regionType;
+
+    private Integer binUsage;
+
+    public Long getCurContainerVol() {
+        return curContainerVol;
+    }
+
+    public void setCurContainerVol(Long curContainerVol) {
+        this.curContainerVol = curContainerVol;
+    }
+
+    public Integer getBinUsage() {
+        return binUsage;
+    }
+
+    public void setBinUsage(Integer binUsage) {
+        this.binUsage = binUsage;
+    }
 
     public Long getRegionType() {
         return regionType;

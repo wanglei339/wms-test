@@ -276,9 +276,11 @@ public class ReceiptRpcService implements IReceiptRpcService {
                  * itemId
                  *
                  */
+
+                ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(ibdHeader.getOrderOtherRefId());
                 //查供应商、生产日期、失效日期
                 Long lotId =
-                        soDeliveryService.getOutbDeliveryDetail(Long.parseLong(ibdHeader.getOrderOtherId()),baseinfoItem.getItemId()).getLotId();
+                        soDeliveryService.getOutbDeliveryDetail(obdHeader.getOrderId(),baseinfoItem.getItemId()).getLotId();
                 StockLot stockLot = stockLotService.getStockLotByLotId(lotId);
                 stockLot.setIsOld(true);
 
@@ -730,7 +732,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             if(baseinfoItems.size() <= 0){
                 throw new BizCheckedException("2900001");
             }
-            BaseinfoItem baseinfoItem = baseinfoItems.get(items.size()-1);
+            BaseinfoItem baseinfoItem = baseinfoItems.get(baseinfoItems.size()-1);
 
             item.setArriveNum(ibdDetail.getOrderQty());
             item.setBarCode(baseinfoItem.getCode());

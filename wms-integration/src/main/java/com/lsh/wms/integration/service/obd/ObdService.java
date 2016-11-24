@@ -90,7 +90,7 @@ public class ObdService implements IObdService{
             headerMap.put("api-version", "1.1");
             headerMap.put("random", RandomUtils.randomStr2(32));
             headerMap.put("platform", "1");
-            String res  = HttpClientUtils.postBody(IntegrationConstan.URL_SO,  requestBody,dc41_timeout , dc41_charset, headerMap);
+            String res  = HttpClientUtils.postBody(PropertyUtils.getString("url_so"),  requestBody,dc41_timeout , dc41_charset, headerMap);
             logger.info("~~~~~~~~~~下发黑狗数据 request : " + JSON.toJSONString(request) + "~~~~~~~~~");
             JSONObject jsonObject = JSON.parseObject(res);
 

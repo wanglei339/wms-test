@@ -86,7 +86,7 @@ public class SysUserRestService implements ISysUserRestService {
     @Path("updatePassword")
     public String updatePassword() throws BizCheckedException {
         Map<String, Object> request = RequestUtils.getRequest();
-        Long uid = (Long) request.get("uid");
+        Long uid = Long.valueOf(request.get("uid").toString());
         String sourcePassword = (String) request.get("sourcePassword");
         String newPassword = (String) request.get("newPassword");
         String confirmPassWord = (String) request.get("confirmPassWord");
