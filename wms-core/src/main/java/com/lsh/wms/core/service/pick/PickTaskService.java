@@ -219,7 +219,7 @@ public class PickTaskService {
             BaseinfoItem item = itemService.getItem(Long.valueOf(result.get("itemId").toString()));
             result.put("skuName", item.getSkuName());
         }
-        result.put("containerId", taskInfo.getContainerId());
+        result.put("containerId", taskInfo.getContainerId().toString());
         return result;
     }
 }
