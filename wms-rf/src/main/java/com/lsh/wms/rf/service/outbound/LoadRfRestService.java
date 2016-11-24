@@ -18,6 +18,7 @@ import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.tu.TuDetail;
 import com.lsh.wms.model.tu.TuHead;
@@ -123,7 +124,7 @@ public class LoadRfRestService implements ILoadRfRestService {
             one.put("driverName", headList.get(i).getName());   //预装板数
             //门店信息
             //List<map<"code":,"name">>
-            List<Map<String, Object>> storeList = csiCustomerService.ParseCustomerIds2Customers(headList.get(i).getStoreIds());
+            List<CsiCustomer> storeList = csiCustomerService.ParseCustomerIds2Customers(headList.get(i).getStoreIds());
             one.put("stores", storeList);
             resultList.add(one);
         }
@@ -153,15 +154,15 @@ public class LoadRfRestService implements ILoadRfRestService {
             throw new BizCheckedException("2990044");
         }
         //门店信息
-        List<Map<String, Object>> stores = csiCustomerService.ParseCustomerIds2Customers(tuHead.getStoreIds()); //少用map不易解读
+        List<CsiCustomer> stores = csiCustomerService.ParseCustomerIds2Customers(tuHead.getStoreIds()); //少用map不易解读
         //rf结果
         Map<String, Object> resultMap = new HashMap<String, Object>();
         //大门店还是小门店
         if (TuConstant.SCALE_HYPERMARKET.equals(tuHead.getScale())) {   //大店尾货
             Map<Long, Map<String, Object>> storesRestMap = new HashMap<Long, Map<String, Object>>();
             //循环门店获取尾货信息(没合板,合板日期就是零)  todo 未合板的贵品也可能是尾货
-            for (Map<String, Object> store : stores) {
-                String storeNo = store.get("customerCode").toString();
+            for (CsiCustomer store : stores) {
+                String storeNo = store.getCustomerCode();
                 Map<Long, Map<String, Object>> storeMap = iMergeRpcService.getMergeDetailByCustomerCode(storeNo);
                 storesRestMap.putAll(storeMap);
             }
@@ -216,8 +217,8 @@ public class LoadRfRestService implements ILoadRfRestService {
             //小店组盘未装车的叫尾货   markContainer和container相同
             //循环门店获取尾货信息(没合板,合板日期就是零)
             Map<Long, Map<String, Object>> storesRestMap = new HashMap<Long, Map<String, Object>>();
-            for (Map<String, Object> store : stores) {
-                String storeNo = store.get("customerCode").toString();
+            for (CsiCustomer store : stores) {
+                String storeNo = store.getCustomerCode();
                 Map<Long, Map<String, Object>> storeMap = iqcRpcService.getGroupDetailByStoreNo(storeNo);
                 storesRestMap.putAll(storeMap);
             }
@@ -331,9 +332,8 @@ public class LoadRfRestService implements ILoadRfRestService {
         tuDetail.setStoreId(storeId);
         tuDetail.setLoadAt(DateUtils.getCurrentSeconds());
         tuDetail.setIsValid(1);
-        // todo 贵品还是余货插入
-        tuDetail.setIsRest(isExpensive ? 1 : 0);    //贵品为1
-        tuDetail.setIsExpensive(isRest ? 1 : 0);    //余货为1
+        tuDetail.setIsRest(isExpensive ? TuConstant.IS_REST : TuConstant.NOT_REST);
+        tuDetail.setIsExpensive(isRest ? TuConstant.IS_EXPENSIVE : TuConstant.NOT_EXPENSIVE);
         iTuRpcService.create(tuDetail);
 
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
@@ -438,6 +438,74 @@ public class LoadRfRestService implements ILoadRfRestService {
                 put("chooseDone", true);
             }
         });
+    }
+
+    /**
+     * 获取贵品的托盘list
+     *
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("expensiveList")
+    public String expensiveList() throws BizCheckedException {
+        Map<String, Object> mapRequest = RequestUtils.getRequest();
+        String tuId = mapRequest.get("tuId").toString();
+        TuHead tuHead = iTuRpcService.getHeadByTuId(tuId);
+        List<CsiCustomer> stores = csiCustomerService.ParseCustomerIds2Customers(tuHead.getStoreIds()); //少用map不易解读
+        //获取该门店的所有贵品 结果集封装 key是containerId
+        Map<Long, Map<String, Object>> expensiveInfoMap = new HashMap<Long, Map<String, Object>>();
+        //托盘没装车的过滤
+        for (CsiCustomer customer : stores) {
+            Map<Long, Map<String, Object>> oneStoreInfoMap = iqcRpcService.getQcDoneExpensiveMapByCustmerCode(customer.getCustomerCode());
+            if (oneStoreInfoMap.isEmpty()) {
+                continue;
+            }
+            for (Long key : oneStoreInfoMap.keySet()) {
+                //已装车托盘过滤
+                TuDetail tuDetail = iTuRpcService.getDetailByBoardId(key);
+                if (tuDetail != null) {
+                    continue;
+                }
+                expensiveInfoMap.put(key, oneStoreInfoMap.get(key));
+            }
+        }
+
+        //结果的map
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+
+        if (expensiveInfoMap.isEmpty()) {
+            resultMap.put("result", new ArrayList<Map<String, Object>>());
+            return JsonUtils.SUCCESS(resultMap);
+        }
+        //封装结果集的list
+        List<Map<String, Object>> storeRestList = new ArrayList<Map<String, Object>>();
+
+        for (Long key : expensiveInfoMap.keySet()) {
+            Map<String, Object> expensiveInfo = new HashMap<String, Object>();
+            Map<String, Object> tempMap = expensiveInfoMap.get(key);
+            TaskInfo qcInfo = (TaskInfo) tempMap.get("qcDoneInfo");
+
+            expensiveInfo.put("containerCount", 1);
+            expensiveInfo.put("isRest", false);
+            expensiveInfo.put("boxNum", qcInfo.getTaskPackQty());
+            expensiveInfo.put("turnoverBoxNum", qcInfo.getExt3());      //周转箱
+            expensiveInfo.put("taskBoardQty", 0);                   //板数算为0
+            expensiveInfo.put("storeNo", tempMap.get("customerCode").toString());
+            expensiveInfo.put("isExpensive", Boolean.valueOf(tempMap.get("isExpensive").toString()));
+            expensiveInfo.put("mergedTime", 0);
+            expensiveInfo.put("turnoverBoxCount", qcInfo.getExt3());
+            CsiCustomer store = csiCustomerService.getCustomerByCustomerCode(tempMap.get("customerCode").toString());
+            expensiveInfo.put("storeId", store.getCustomerId());
+            expensiveInfo.put("packCount", qcInfo.getTaskPackQty());
+            expensiveInfo.put("containerId", qcInfo.getContainerId());  //物理托盘码
+            expensiveInfo.put("markContainerId", qcInfo.getContainerId());  //物理托盘码 = 虚拟托盘码
+            expensiveInfo.put("isLoaded", false);
+
+            storeRestList.add(expensiveInfo);
+        }
+        resultMap.put("result", storeRestList);
+        return JsonUtils.SUCCESS(resultMap);
     }
 
 

@@ -65,6 +65,13 @@ public interface ILoadRfRestService {
      */
     public String reloadByTuId() throws BizCheckedException;
 
+    /**
+     * 获取贵品list托盘页
+     * @return
+     * @throws BizCheckedException
+     */
+    public String expensiveList() throws BizCheckedException;
+
 
 
 }
