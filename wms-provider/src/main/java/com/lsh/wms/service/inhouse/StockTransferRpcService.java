@@ -133,11 +133,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if(toLocation != null) {
             //检查移入库位
             core.checkToLocation(plan.getItemId(), toLocation);
-            if(plan.getSubType() == 1){
-                if(toLocation.getRegionType() != LocationConstant.SHELFS || toLocation.getBinUsage() != BinUsageConstant.BIN_UASGE_STORE){
-                    throw new BizCheckedException("2550047");
-                }
-            }
         }
         /*
         if (toLocation.getCanStore() != 1) {
