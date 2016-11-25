@@ -244,6 +244,7 @@ public class SeedRestService implements ISeedRestService {
             Long taskId = 0L;
             Long containerId = 0L;
             Long type = 0L;
+            Boolean is_use_code = false;
             try{
                 qty = new BigDecimal(mapQuery.get("qty").toString().trim());
                 taskId = Long.valueOf(mapQuery.get("taskId").toString().trim());
@@ -266,6 +267,7 @@ public class SeedRestService implements ISeedRestService {
                 if(!exceptionCode.equals(mapQuery.get("exceptionCode").toString())){
                     return JsonUtils.TOKEN_ERROR("所输例外代码非法");
                 }
+                is_use_code = true;
             }else {
                 //校验商品类型
                 List<StockQuant> stockQuants = quantService.getQuantsByContainerId(containerId);
@@ -321,6 +323,7 @@ public class SeedRestService implements ISeedRestService {
 
                 info.setQty(qty);
                 head.setRealContainerId(containerId);
+                head.setIsUseExceptionCode(is_use_code==true?1:0);
                 entry.setTaskInfo(info);
                 entry.setTaskHead(head);
                 iTaskRpcService.update(TaskConstant.TYPE_SEED, entry);
@@ -407,6 +410,7 @@ public class SeedRestService implements ISeedRestService {
                 }
             }
             head.setRealContainerId(containerId);
+            head.setIsUseExceptionCode(is_use_code==true?1:0);
             info.setQty(qty);
             entry.setTaskInfo(info);
             entry.setTaskHead(head);

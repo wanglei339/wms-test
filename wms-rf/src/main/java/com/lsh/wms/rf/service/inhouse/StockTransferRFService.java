@@ -20,6 +20,7 @@ import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.utils.PackUtil;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.stock.StockQuant;
@@ -100,7 +101,9 @@ public class StockTransferRFService implements IStockTransferRFService{
             result.put("locationId", location.getLocationId());
             result.put("locationCode", location.getLocationCode());
             result.put("itemId", quant.getItemId());
-            result.put("itemName", itemRpcService.getItem(quant.getItemId()).getSkuName());
+            BaseinfoItem item = itemRpcService.getItem(quant.getItemId());
+            result.put("itemName", item.getSkuName());
+            result.put("barcode", item.getCode());
             result.put("lotId", quant.getLotId());
             condition.setItemId(quant.getItemId());
             condition.setLotId(quant.getLotId());

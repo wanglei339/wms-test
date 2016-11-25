@@ -186,7 +186,6 @@ public class StockTransferCore {
         taskInfoDao.update(taskInfo);
     }
 
-    @Transactional(readOnly = false)
     public void inbound(TaskEntry taskEntry, BaseinfoLocation toLocation) throws BizCheckedException {
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         this.checkToLocation(taskInfo.getItemId(), toLocation);
