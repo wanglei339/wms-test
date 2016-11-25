@@ -154,12 +154,27 @@ public class ReceiptRestService implements IReceiptRfService {
         Integer orderType = ibdHeader.getOrderType();
 
         for(ReceiptItem receiptItem : receiptRequest.getItems()) {
+
+            //将数量转换成EA
+            String packName = receiptItem.getPackName();
+            BigDecimal inboundQty = receiptItem.getInboundQty();
+            BigDecimal scatterQty = receiptItem.getScatterQty();
+
+            if("EA".equals(packName) && inboundQty.compareTo(BigDecimal.ZERO) > 0){
+                throw new BizCheckedException("收货单位为EA,不能填写包装数量");
+            }
+            BigDecimal inboundUnitQty = PackUtil.UomQty2EAQty(inboundQty,packName).add(scatterQty);
+            receiptItem.setInboundQty(inboundUnitQty);
+            if(inboundUnitQty.compareTo(BigDecimal.ZERO) <= 0){
+                throw new BizCheckedException("2020007");
+            }
+
             /*if(receiptItem.getProTime() == null) {
                 throw new BizCheckedException("2020008");
             }*/
-            if(receiptItem.getInboundQty().compareTo(BigDecimal.ZERO) <= 0 && receiptItem.getScatterQty().compareTo(BigDecimal.ZERO) <= 0){
-                throw new BizCheckedException("2020007");//收货数量必须大于0
-            }
+//            if(receiptItem.getInboundQty().compareTo(BigDecimal.ZERO) <= 0 && receiptItem.getScatterQty().compareTo(BigDecimal.ZERO) <= 0){
+//                throw new BizCheckedException("2020007");//收货数量必须大于0
+//            }
             //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
             //CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, receiptItem.getBarCode());
 
@@ -240,17 +255,9 @@ public class ReceiptRestService implements IReceiptRfService {
                 }
             }
 
-            //将数量转换成EA
-            String packName = receiptItem.getPackName();
-            BigDecimal inboundQty = receiptItem.getInboundQty();
-            BigDecimal scatterQty = receiptItem.getScatterQty();
 
-            if("EA".equals(packName) && inboundQty.compareTo(BigDecimal.ZERO) > 0){
-                throw new BizCheckedException("收货单位为EA,不能填写包装数量");
-            }
 
-            BigDecimal inboundUnitQty = PackUtil.UomQty2EAQty(inboundQty,packName).add(scatterQty);
-            receiptItem.setInboundQty(inboundUnitQty);
+
 
             receiptItem.setSkuId(baseinfoItem.getSkuId());
             receiptItem.setSkuName(ibdDetail.getSkuName());
