@@ -205,6 +205,8 @@ public class StockTransferCore {
             move.setOperator(taskInfo.getOperator());
             move.setFromLocationId(fromLocationId);
             move.setToLocationId(toLocation.getLocationId());
+            logger.info("cao zhengtuo : "+move.toString());
+            move.setMoveHole(1L);
             //moveRpcService.moveWholeContainer(containerId, taskInfo.getTaskId(), taskInfo.getOperator(), fromLocationId, toLocation.getLocationId());
         } else {
             if (taskInfo.getQtyDoneUom().compareTo(BigDecimal.ZERO) <= 0) {
