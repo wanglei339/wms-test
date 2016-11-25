@@ -262,19 +262,23 @@ public class StockTakingService {
     @Transactional (readOnly = false)
     public void insertLossOrOver(List<OverLossReport> overLossReports) {
         for(OverLossReport overLossReport :overLossReports){
-            overLossReport.setLossReportId(RandomUtils.genId());
+            Long reportId = RandomUtils.genId();
+            overLossReport.setLossReportId(reportId);
             overLossReport.setUpdatedAt(DateUtils.getCurrentSeconds());
             overLossReport.setCreatedAt(DateUtils.getCurrentSeconds());
             overLossReportDao.insert(overLossReport);
+            persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN,reportId);
         }
     }
 
     @Transactional(readOnly = false)
     public void insertLossOrOver(OverLossReport overLossReport) {
-        overLossReport.setLossReportId(RandomUtils.genId());
+        Long reportId = RandomUtils.genId();
+        overLossReport.setLossReportId(reportId);
         overLossReport.setUpdatedAt(DateUtils.getCurrentSeconds());
         overLossReport.setCreatedAt(DateUtils.getCurrentSeconds());
         overLossReportDao.insert(overLossReport);
+        persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN,reportId);
     }
 
     @Transactional(readOnly = false)
