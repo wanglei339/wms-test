@@ -56,6 +56,10 @@ public class LocationRpcService implements ILocationRpcService {
         return locationService.getFatherByType(locationId, type);
     }
 
+    public BaseinfoLocation getFatherRegionBySonId(Long locationId) throws BizCheckedException {
+        return locationService.getFatherRegionBySonId(locationId);
+    }
+
     //提供位置能否存储存
     public boolean canStore(Long locationId) throws BizCheckedException {
         BaseinfoLocation baseinfoLocation = locationService.getLocation(locationId);

@@ -35,6 +35,8 @@ public interface ILocationRestService {
 
     String getItemLocation()throws BizCheckedException;
 
+    String getFatherRegion() throws BizCheckedException;
+
     //仓库找货区
     public String getRegionByWareHouseId();
 

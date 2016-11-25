@@ -28,6 +28,7 @@ import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.system.SysUserService;
+import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemType;
 import com.lsh.wms.model.csi.CsiSku;
@@ -238,10 +239,23 @@ public class ReceiptRestService implements IReceiptRfService {
                     receiptItem.setProTime(new Date(betweenTime));
                 }
             }
+
+            //将数量转换成EA
+            String packName = receiptItem.getPackName();
+            BigDecimal inboundQty = receiptItem.getInboundQty();
+            BigDecimal scatterQty = receiptItem.getScatterQty();
+
+            if("EA".equals(packName) && inboundQty.compareTo(BigDecimal.ZERO) > 0){
+                throw new BizCheckedException("收货单位为EA,不能填写包装数量");
+            }
+
+            BigDecimal inboundUnitQty = PackUtil.UomQty2EAQty(inboundQty,packName).add(scatterQty);
+            receiptItem.setInboundQty(inboundUnitQty);
+
             receiptItem.setSkuId(baseinfoItem.getSkuId());
             receiptItem.setSkuName(ibdDetail.getSkuName());
             receiptItem.setPackUnit(ibdDetail.getPackUnit());
-            receiptItem.setPackName(ibdDetail.getPackName());
+            //receiptItem.setPackName(ibdDetail.getPackName());
             receiptItem.setMadein(baseinfoItem.getProducePlace());
         }
 

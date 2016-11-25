@@ -614,9 +614,8 @@ public class TuService {
                 }
             }
         }
-        this.moveItemToConsumeArea(totalContainers);
         this.creatDeliveryOrderAndDetailV2(tuHead, tuDetails, totalWaveDetails);
-
+        this.moveItemToConsumeArea(totalContainers);
         //释放已经没有库存的集货道
         Set<Long> locationIds = new HashSet<Long>();
         for (WaveDetail detail : totalWaveDetails) {
