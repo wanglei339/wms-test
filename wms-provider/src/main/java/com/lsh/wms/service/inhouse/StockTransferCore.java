@@ -91,7 +91,7 @@ public class StockTransferCore {
     @Autowired
     private ItemLocationService itemLocationService;
 
-    public boolean checkToLocation(Long itemId, BaseinfoLocation toLocation) throws  BizCheckedException {
+    public List<StockQuant> checkToLocation(Long itemId, BaseinfoLocation toLocation) throws  BizCheckedException {
         if (!(toLocation.getRegionType() == LocationConstant.SHELFS
                 || toLocation.getRegionType() == LocationConstant.BACK_AREA
                 || toLocation.getRegionType() == LocationConstant.DEFECTIVE_AREA
@@ -122,7 +122,7 @@ public class StockTransferCore {
             }
             */
         }
-        return true;
+        return toQuants;
     }
 
     public List<StockQuant> checkFromLocation(Long itemId, BaseinfoLocation fromLocation, BigDecimal qty){
@@ -188,7 +188,7 @@ public class StockTransferCore {
 
     public void inbound(TaskEntry taskEntry, BaseinfoLocation toLocation) throws BizCheckedException {
         TaskInfo taskInfo = taskEntry.getTaskInfo();
-        this.checkToLocation(taskInfo.getItemId(), toLocation);
+        List<StockQuant> toQuants = this.checkToLocation(taskInfo.getItemId(), toLocation);
         Long containerId = taskInfo.getContainerId();
         Long fromLocationId = locationService.getWarehouseLocationId();
         //坑啊,卧槽我发现数据库里根本没这个字段,上面存了没有屌用
@@ -196,6 +196,10 @@ public class StockTransferCore {
         List<StockMove> moveList = new ArrayList<StockMove>();
         StockMove move = new StockMove();
         if (taskInfo.getSubType().compareTo(1L) == 0) {
+            //我其实需要判断一下目标到底有没有商品
+            if(toQuants.size() > 0 ){
+                throw new BizCheckedException("2550046");
+            }
             move.setFromContainerId(containerId);
             move.setTaskId(taskInfo.getTaskId());
             move.setOperator(taskInfo.getOperator());
