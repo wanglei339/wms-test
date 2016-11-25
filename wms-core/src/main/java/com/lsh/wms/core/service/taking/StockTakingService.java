@@ -6,6 +6,7 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.OverLossConstant;
+import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.stock.OverLossReportDao;
 import com.lsh.wms.core.dao.taking.StockTakingDetailDao;
@@ -115,17 +116,12 @@ public class StockTakingService {
         StockTakingHead head = this.getHeadById(stockTakingId);
         head.setStatus(3L);
         List<StockMove> moveList = new ArrayList<StockMove>();
-//        //盘亏 盘盈的分成两个list items为盘亏 items1盘盈
-//        List<StockItem> itemsLoss = new ArrayList<StockItem>();
-//        List<StockItem> itemsWin = new ArrayList<StockItem>();
-//        StockRequest request = new StockRequest();
         List<OverLossReport> overLossReports = new ArrayList<OverLossReport>();
         for (StockTakingDetail detail : stockTakingDetails) {
             if(detail.getItemId()==0L){
                 continue;
             }
             OverLossReport overLossReport = new OverLossReport();
-            //StockItem stockItem = new StockItem();
             if (detail.getSkuId().equals(detail.getRealSkuId())) {
                 Long containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
                 StockMove move = new StockMove();
@@ -152,7 +148,6 @@ public class StockTakingService {
                     move.setFromLocationId(detail.getLocationId());
                     move.setToLocationId(locationService.getInventoryLostLocationId());
                     move.setToContainerId(containerId);
-                    //组装回传物美的数据
 
                 } else {
                     BigDecimal qty = detail.getRealQty().subtract(detail.getTheoreticalQty());
@@ -248,9 +243,11 @@ public class StockTakingService {
     @Transactional (readOnly = false)
     public void insertLossOrOver(List<OverLossReport> overLossReports) {
         for(OverLossReport overLossReport :overLossReports){
-            overLossReport.setLossReportId(RandomUtils.genId());
+            Long reportId = RandomUtils.genId();
+            overLossReport.setLossReportId(reportId);
             overLossReport.setUpdatedAt(DateUtils.getCurrentSeconds());
             overLossReport.setCreatedAt(DateUtils.getCurrentSeconds());
+            persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN,reportId);
             overLossReportDao.insert(overLossReport);
         }
     }
