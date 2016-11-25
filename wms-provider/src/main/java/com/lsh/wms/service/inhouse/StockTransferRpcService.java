@@ -24,6 +24,7 @@ import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
@@ -35,10 +36,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -178,44 +176,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
             taskEntry.getTaskInfo().setStatus(TaskConstant.Cancel);
         }
         core.outbound(taskEntry, location, uomQty, uom);
-        /*
-        Map<String, Object> next = new HashMap<String, Object>();
-        Long nextLocationId, nextItem, subType;
-        String packName;
-        BigDecimal qty;
-        //inbound
-        if (nextOutTask == 0) {
-            Long nextInTask = core.getFirstInbound(taskEntry.getTaskInfo().getOperator());
-            TaskInfo nextInfo = taskRpcService.getTaskEntryById(nextInTask).getTaskInfo();
-            nextLocationId = nextInfo.getToLocationId();
-            nextItem = nextInfo.getItemId();
-            packName = nextInfo.getPackName();
-            subType = nextInfo.getSubType();
-            qty = nextInfo.getQtyDone();
-            next.put("type", 2);
-            next.put("taskId", nextInTask.toString());
-        } else {//outbound
-            TaskInfo nextInfo = taskRpcService.getTaskEntryById(nextOutTask).getTaskInfo();
-            nextLocationId = nextInfo.getFromLocationId();
-            nextItem = nextInfo.getItemId();
-            packName = nextInfo.getPackName();
-            subType = nextInfo.getSubType();
-            qty = nextInfo.getQty();
-            next.put("type", 1);
-            next.put("taskId", nextOutTask.toString());
-        }
-        next.put("locationId", nextLocationId);
-        next.put("locationCode", locationService.getLocation(nextLocationId).getLocationCode());
-        next.put("itemId", nextItem);
-        next.put("itemName", itemRpcService.getItem(nextItem).getSkuName());
-        next.put("packName", packName);
-        next.put("uomQty", qty);
-        if (subType.compareTo(1L) == 0) {
-            next.put("uomQty", "整托");
-        }
-        next.put("subType", subType);
-        return next;
-        */
     }
 
     public void scanToLocation(TaskEntry taskEntry, BaseinfoLocation location) throws BizCheckedException {
@@ -234,31 +194,13 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         List<TaskEntry> list = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQuery);
         //task exist
         if (!list.isEmpty()) {
-            mapQuery.put("ext3", 0L);
-            List<TaskEntry> entryList = taskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TRANSFER, mapQuery);
-            //outbound
-            if (!entryList.isEmpty()) {
-                TaskEntry nextEntry = entryList.get(0);
-                Long ext1 = nextEntry.getTaskInfo().getExt1();
-                for (TaskEntry entry : entryList) {
-                    Long nextExt1 = entry.getTaskInfo().getExt1();
-                    if (nextExt1.compareTo(ext1) < 0) {
-                        nextEntry = entry;
-                        ext1 = nextExt1;
-                    }
+            Collections.sort(list, new Comparator<TaskEntry>() {
+                //此处可以设定一个排序规则,对波次中的订单优先级进行排序
+                public int compare(TaskEntry o1, TaskEntry o2) {
+                    return o2.getTaskInfo().getUpdatedAt().compareTo(o1.getTaskInfo().getUpdatedAt());
                 }
-                return nextEntry.getTaskInfo().getTaskId();
-            }
-            TaskEntry nextEntry = list.get(0);
-            Long ext2 = nextEntry.getTaskInfo().getExt2();
-            for (TaskEntry entry : list) {
-                Long nextExt2 = entry.getTaskInfo().getExt2();
-                if (nextExt2.compareTo(ext2) < 0) {
-                    nextEntry = entry;
-                    ext2 = nextExt2;
-                }
-            }
-            return nextEntry.getTaskInfo().getTaskId();
+            });
+            return list.get(0).getTaskInfo().getTaskId();
         }
         //get new task
         mapQuery.clear();
@@ -267,10 +209,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (list.isEmpty()) {
             return 0L;
         }
-//        List<Long> taskList = core.getMoreTasks(list);
-//        for (Long task : taskList) {
-//            taskRpcService.assign(task, staffId);
-//        }
         taskRpcService.assign(list.get(0).getTaskInfo().getTaskId(), staffId);
         return Long.valueOf(this.sortTask(staffId).get("taskId").toString());
     }
