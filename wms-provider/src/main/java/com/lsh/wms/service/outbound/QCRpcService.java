@@ -16,6 +16,7 @@ import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.core.service.utils.PackUtil;
@@ -64,6 +65,8 @@ public class QCRpcService implements IQCRpcService {
     private IContainerRpcService iContainerRpcService;
     @Autowired
     private ItemService itemService;
+    @Autowired
+    private StockTakingService stockTakingService;
 
     public void skipException(long id) throws BizCheckedException {
         WaveDetail detail = waveService.getWaveDetailById(id);
@@ -104,7 +107,11 @@ public class QCRpcService implements IQCRpcService {
         move.setToLocationId(toLocation.getLocationId());
         move.setQty(diffQty);
         move.setTaskId(qcTaskId);
-        stockMoveService.move(move);
+        move.setOwnerId(detail.getOwnerId());
+
+        //移到盘亏盘盈区,销库存
+        stockTakingService.doQcPickDifference(move);
+
     }
 
     public void repairException(long id) throws BizCheckedException {
@@ -497,7 +504,7 @@ public class QCRpcService implements IQCRpcService {
         }
         Long locationId = stockQuants.get(0).getLocationId();
 
-
+        move.setOwnerId(waveDetails.get(0).getOwnerId());
         move.setItemId(itemId);
         move.setSkuId(skuId);
         move.setFromContainerId(containerId);
@@ -506,8 +513,8 @@ public class QCRpcService implements IQCRpcService {
         move.setToLocationId(toLocation.getLocationId());
         move.setQty(diffQty);
         move.setTaskId(qcTaskId);
-        stockMoveService.move(move);
-
+        //移到盘亏盘盈区,销库存
+        stockTakingService.doQcPickDifference(move);
 
         //检验修复完毕
         boolean result = true;
