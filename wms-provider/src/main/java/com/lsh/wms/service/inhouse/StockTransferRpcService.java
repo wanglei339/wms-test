@@ -101,16 +101,43 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (fromLocation == null) {
             throw new BizCheckedException("2550016");
         }
-        //检查移入库位
-        plan.setQty(PackUtil.UomQty2EAQty(plan.getUomQty(), plan.getPackName()));
-        plan.setPackUnit(PackUtil.Uom2PackUnit(plan.getPackName()));
+        if (plan.getSubType() == 1) {
+            //整托
+            //计算数量和单位
+            StockQuantCondition condition = new StockQuantCondition();
+            condition.setLocationId(fromLocation.getLocationId());
+            condition.setItemId(plan.getItemId());
+            condition.setReserveTaskId(0L);
+            BigDecimal total = stockQuantRpcService.getQty(condition);
+            List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
+            if (quantList.isEmpty()) {
+                throw new BizCheckedException("2550032");
+            }
+            plan.setQty(total);
+            plan.setPackUnit(quantList.get(0).getPackUnit());
+            plan.setPackName(quantList.get(0).getPackName());
+            plan.setUomQty(PackUtil.EAQty2UomQty(total, plan.getPackName()));
+            plan.setContainerId(quantList.get(0).getContainerId());
+        } else {
+            plan.setQty(PackUtil.UomQty2EAQty(plan.getUomQty(), plan.getPackName()));
+            plan.setPackUnit(PackUtil.Uom2PackUnit(plan.getPackName()));
+        }
         //检查移出库位库存量
         core.checkFromLocation(plan.getItemId(), fromLocation, plan.getQty());
-        if(toLocation != null) {
-            core.checkToLocation(plan.getItemId(), toLocation);
+        //补充验证移出库位
+        if(plan.getSubType() == 1){
+            if(fromLocation.getRegionType() != LocationConstant.SHELFS || fromLocation.getBinUsage() != BinUsageConstant.BIN_UASGE_STORE){
+                throw new BizCheckedException("2550047");
+            }
         }
-        if (plan.getSubType().equals(1L)) {
-            throw new BizCheckedException("2550040");
+        if(toLocation != null) {
+            //检查移入库位
+            core.checkToLocation(plan.getItemId(), toLocation);
+            if(plan.getSubType() == 1){
+                if(toLocation.getRegionType() != LocationConstant.SHELFS || toLocation.getBinUsage() != BinUsageConstant.BIN_UASGE_STORE){
+                    throw new BizCheckedException("2550047");
+                }
+            }
         }
         /*
         if (toLocation.getCanStore() != 1) {
@@ -119,7 +146,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         */
         Long containerId = plan.getContainerId();
         //移库单位是箱或ea时,生成新的托盘ID
-        if (plan.getSubType().compareTo(2L) == 0 || plan.getSubType().compareTo(3L) == 0) {
+        if (plan.getSubType() != 1) {
             containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
         }
         TaskEntry taskEntry = new TaskEntry();
@@ -197,6 +224,11 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     }
 
     public void scanToLocation(TaskEntry taskEntry, BaseinfoLocation location) throws BizCheckedException {
+        if(taskEntry.getTaskInfo().getSubType() == 1){
+            if(location.getRegionType() != LocationConstant.SHELFS || location.getBinUsage() != BinUsageConstant.BIN_UASGE_STORE){
+                throw new BizCheckedException("2550047");
+            }
+        }
         core.inbound(taskEntry, location);
     }
 
