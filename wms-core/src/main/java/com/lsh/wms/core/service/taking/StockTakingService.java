@@ -317,7 +317,7 @@ public class StockTakingService {
             stockSummaryService.changeStock(delta);
         } catch (Exception e) {
             logger.error(e.getMessage());
-            throw new BizCheckedException("2550046");
+            throw new BizCheckedException("2550051");
         }
 
     }

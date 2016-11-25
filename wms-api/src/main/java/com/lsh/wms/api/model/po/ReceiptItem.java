@@ -42,15 +42,17 @@ public class ReceiptItem implements Serializable {
 
     /** 实际收货数 */
     @NotNull
-    private BigDecimal inboundQty = new BigDecimal(0);
+    private BigDecimal inboundQty = BigDecimal.ZERO;
 
     /** 实际散件收货数 */
     @NotNull
-    private BigDecimal unitQty = new BigDecimal(0);
+    private BigDecimal unitQty = BigDecimal.ZERO;
+
+    private BigDecimal scatterQty = BigDecimal.ZERO;
 
     /** 到货数 */
     @NotNull
-    private BigDecimal arriveNum= new BigDecimal(0);
+    private BigDecimal arriveNum= BigDecimal.ZERO;
 
     /** 残次数 */
     private BigDecimal defectNum = BigDecimal.ZERO;
@@ -81,7 +83,7 @@ public class ReceiptItem implements Serializable {
 
     }
 
-    public ReceiptItem(BigDecimal arriveNum, String barCode, BigDecimal defectNum, Date dueTime, String exceptionCode, BigDecimal inboundQty, Integer isException, String lotNum, String madein, Long orderId, String packName, BigDecimal packUnit, Date proTime, String refuseReason, Long skuId, String skuName, BigDecimal unitQty) {
+    public ReceiptItem(BigDecimal arriveNum, String barCode, BigDecimal defectNum, Date dueTime, String exceptionCode, BigDecimal inboundQty, Integer isException, String lotNum, String madein, Long orderId, String packName, BigDecimal packUnit, Date proTime, String refuseReason, BigDecimal scatterQty, Long skuId, String skuName, BigDecimal unitQty) {
         this.arriveNum = arriveNum;
         this.barCode = barCode;
         this.defectNum = defectNum;
@@ -96,6 +98,7 @@ public class ReceiptItem implements Serializable {
         this.packUnit = packUnit;
         this.proTime = proTime;
         this.refuseReason = refuseReason;
+        this.scatterQty = scatterQty;
         this.skuId = skuId;
         this.skuName = skuName;
         this.unitQty = unitQty;
@@ -211,6 +214,14 @@ public class ReceiptItem implements Serializable {
 
     public void setRefuseReason(String refuseReason) {
         this.refuseReason = refuseReason;
+    }
+
+    public BigDecimal getScatterQty() {
+        return scatterQty;
+    }
+
+    public void setScatterQty(BigDecimal scatterQty) {
+        this.scatterQty = scatterQty;
     }
 
     public Long getSkuId() {

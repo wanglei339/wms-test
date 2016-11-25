@@ -197,7 +197,7 @@ public class SeedRestService implements ISeedRestService {
                     query.put("orderId",lot.getPoId());
                     query.put("barcode",csiSkuService.getSku(quant.getSkuId()).getCode());
                     query.put("containerId",containerId);
-                    query.put("type",mapQuery.get("type")==null ? 0 : 1);
+                    query.put("type",mapQuery.get("type"));
                     taskId = rpcService.getTask(query);
                 }
                 if (taskId.compareTo(0L) == 0) {
@@ -206,6 +206,9 @@ public class SeedRestService implements ISeedRestService {
                     TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
                     SeedingTaskHead head = (SeedingTaskHead) (entry.getTaskHead());
                     TaskInfo info = entry.getTaskInfo();
+                    iTaskRpcService.assign(taskId, uid);
+
+
                     result.put("taskId", taskId.toString());
                     if(info.getIsShow()==0){
                         return JsonUtils.SUCCESS(result);
@@ -216,7 +219,6 @@ public class SeedRestService implements ISeedRestService {
                     result.put("packName", info.getPackName());
                     result.put("itemId", info.getItemId());
                     result.put("storeNo", head.getStoreNo());
-                    iTaskRpcService.assign(taskId, uid);
                     return JsonUtils.SUCCESS(result);
                 }
             }else {

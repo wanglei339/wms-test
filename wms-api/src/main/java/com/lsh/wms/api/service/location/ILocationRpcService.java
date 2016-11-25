@@ -113,4 +113,6 @@ public interface ILocationRpcService {
      */
     public List<BaseinfoLocation> getRangeLocationList(Map<String, Object> params) throws BizCheckedException;
 
+    BaseinfoLocation getFatherRegionBySonId(Long locationId) throws BizCheckedException;
+
 }

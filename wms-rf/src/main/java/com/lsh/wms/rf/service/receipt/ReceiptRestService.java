@@ -28,6 +28,7 @@ import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.system.SysUserService;
+import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemType;
 import com.lsh.wms.model.csi.CsiSku;
@@ -153,12 +154,27 @@ public class ReceiptRestService implements IReceiptRfService {
         Integer orderType = ibdHeader.getOrderType();
 
         for(ReceiptItem receiptItem : receiptRequest.getItems()) {
+
+            //将数量转换成EA
+            String packName = receiptItem.getPackName();
+            BigDecimal inboundQty = receiptItem.getInboundQty();
+            BigDecimal scatterQty = receiptItem.getScatterQty();
+
+            if("EA".equals(packName) && inboundQty.compareTo(BigDecimal.ZERO) > 0){
+                throw new BizCheckedException("收货单位为EA,不能填写包装数量");
+            }
+            BigDecimal inboundUnitQty = PackUtil.UomQty2EAQty(inboundQty,packName).add(scatterQty);
+            receiptItem.setInboundQty(inboundUnitQty);
+            if(inboundUnitQty.compareTo(BigDecimal.ZERO) <= 0){
+                throw new BizCheckedException("2020007");
+            }
+
             /*if(receiptItem.getProTime() == null) {
                 throw new BizCheckedException("2020008");
             }*/
-            if(receiptItem.getInboundQty().compareTo(BigDecimal.ZERO) <= 0){
-                throw new BizCheckedException("2020007");//收货数量必须大于0
-            }
+//            if(receiptItem.getInboundQty().compareTo(BigDecimal.ZERO) <= 0 && receiptItem.getScatterQty().compareTo(BigDecimal.ZERO) <= 0){
+//                throw new BizCheckedException("2020007");//收货数量必须大于0
+//            }
             //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
             //CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, receiptItem.getBarCode());
 
@@ -238,10 +254,15 @@ public class ReceiptRestService implements IReceiptRfService {
                     receiptItem.setProTime(new Date(betweenTime));
                 }
             }
+
+
+
+
+
             receiptItem.setSkuId(baseinfoItem.getSkuId());
             receiptItem.setSkuName(ibdDetail.getSkuName());
             receiptItem.setPackUnit(ibdDetail.getPackUnit());
-            receiptItem.setPackName(ibdDetail.getPackName());
+            //receiptItem.setPackName(ibdDetail.getPackName());
             receiptItem.setMadein(baseinfoItem.getProducePlace());
         }
 
@@ -736,9 +757,19 @@ public class ReceiptRestService implements IReceiptRfService {
                     map2.put("barCode",barCode);
                     map2.put("skuName",baseinfoItem.getSkuName());
                     //剩余数量。
-                    map2.put("orderQty",orderQty.subtract(sowQty));
-                    map2.put("packName",obdDetail.getPackName());
-                    map2.put("packUnit",obdDetail.getPackUnit());
+                    //判断是否为整箱
+                    BigDecimal subQty = orderQty.multiply(obdDetail.getPackUnit()).subtract(sowQty);
+                    if(subQty.divideAndRemainder(obdDetail.getPackUnit())[1].compareTo(BigDecimal.ZERO) == 0) {
+                        map2.put("orderQty",orderQty.subtract(PackUtil.EAQty2UomQty(sowQty,obdDetail.getPackUnit())));
+                        map2.put("packName",obdDetail.getPackName());
+                        map2.put("packUnit",obdDetail.getPackUnit());
+                    }else{
+                        map2.put("orderQty",PackUtil.UomQty2EAQty(orderQty,obdDetail.getPackUnit()).subtract(sowQty));
+                        map2.put("packName","EA");
+                        map2.put("packUnit",1);
+                    }
+
+
                     map2.put("pile",baseinfoItem.getPileX()+ "*" + baseinfoItem.getPileY() + "*" + baseinfoItem.getPileZ());
                     BaseinfoItemType baseinfoItemType = iItemTypeRpcService.getBaseinfoItemTypeByItemId(baseinfoItem.getItemType());
                     if(baseinfoItemType != null){
