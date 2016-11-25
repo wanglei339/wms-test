@@ -13,8 +13,10 @@ import com.lsh.wms.api.service.merge.IMergeRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.ContainerConstant;
+import com.lsh.wms.core.constant.ItemConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.merge.MergeService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.task.BaseTaskService;
@@ -22,6 +24,7 @@ import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -64,15 +67,18 @@ public class MergeRfRestService implements IMergeRfRestService {
     private IMergeRpcService iMergeRpcService;
     @Reference
     private ITaskRpcService iTaskRpcService;
+    @Autowired
+    private ItemService itemService;
 
     /**
      * 扫描托盘码进行合板
+     *
      * @return
      * @throws BizCheckedException
      */
     @POST
     @Path("mergeContainers")
-    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String mergeContainers() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
@@ -84,7 +90,7 @@ public class MergeRfRestService implements IMergeRfRestService {
         if (mapQuery.get("taskBoardQty") != null) {
             taskBoardQty = new BigDecimal(Integer.valueOf(mapQuery.get("taskBoardQty").toString())); // 板数校正值
         }
-        for (Object objContainerId: queryContainerIds) {
+        for (Object objContainerId : queryContainerIds) {
             Long containerId = Long.valueOf(objContainerId.toString());
             if (!containerIds.contains(containerId)) {
                 containerIds.add(containerId);
@@ -93,6 +99,22 @@ public class MergeRfRestService implements IMergeRfRestService {
         if (containerIds.size() < 1) {
             throw new BizCheckedException("2870005");
         }
+
+//        //判断贵品,贵品不合板
+//        List<WaveDetail> waveDetails = new ArrayList<WaveDetail>();
+//        for (Long containerId : containerIds) {
+//            List<WaveDetail> details = waveService.getAliveDetailsByContainerId(containerId);
+//            waveDetails.addAll(details);
+//        }
+//        for (WaveDetail detail : waveDetails) {
+//            BaseinfoItem item = itemService.getItem(detail.getOwnerId(), detail.getItemId());
+//            if (item != null) {
+//                if (item.getIsValuable().equals(ItemConstant.TYPE_IS_VALUABLE)){
+//                    throw new BizCheckedException("2870042");
+//                }
+//            }
+//        }
+
         String idKey = "task_" + TaskConstant.TYPE_MERGE.toString();
         Long mergeTaskId = idGenerator.genId(idKey, true, true);
         // 合板
@@ -129,19 +151,20 @@ public class MergeRfRestService implements IMergeRfRestService {
 
     /**
      * 检查合板托盘并返回明细
+     *
      * @return
      * @throws BizCheckedException
      */
     @POST
     @Path("checkMergeContainers")
-    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String checkMergeContainers() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         List<Long> containerIds = new ArrayList<Long>();
         List<Long> queryContainerIds = new ArrayList<Long>();
         queryContainerIds = JSON.parseArray(mapQuery.get("containerIds").toString(), Long.class);
-        for (Object queryContainerId: queryContainerIds) {
+        for (Object queryContainerId : queryContainerIds) {
             Long containerId = Long.valueOf(queryContainerId.toString());
             if (!containerIds.contains(containerId)) {
                 containerIds.add(containerId);
@@ -150,6 +173,22 @@ public class MergeRfRestService implements IMergeRfRestService {
         if (containerIds.size() < 1) {
             throw new BizCheckedException("2870005");
         }
+
+//        //判断贵品,贵品不合板
+//        List<WaveDetail> detailArrayList = new ArrayList<WaveDetail>();
+//        for (Long containerId : containerIds) {
+//            List<WaveDetail> details = waveService.getAliveDetailsByContainerId(containerId);
+//            detailArrayList.addAll(details);
+//        }
+//        for (WaveDetail detail : detailArrayList) {
+//            BaseinfoItem item = itemService.getItem(detail.getOwnerId(), detail.getItemId());
+//            if (item != null) {
+//                if (item.getIsValuable().equals(ItemConstant.TYPE_IS_VALUABLE)){
+//                    throw new BizCheckedException("2870042");
+//                }
+//            }
+//        }
+
         Long mergedContainerId = 0L;
         String deliveryCode = "";
         String deliveryName = "";
@@ -158,7 +197,7 @@ public class MergeRfRestService implements IMergeRfRestService {
         BigDecimal turnoverBoxCount = BigDecimal.ZERO; // 总周转箱箱数
         List<Object> resultDetails = new ArrayList<Object>();
         List<Long> countedContainerIds = new ArrayList<Long>();
-        for (Long containerId: containerIds) {
+        for (Long containerId : containerIds) {
             List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(containerId);
             if (waveDetails == null) {
                 throw new BizCheckedException("2870002");
@@ -168,7 +207,7 @@ public class MergeRfRestService implements IMergeRfRestService {
             resultDetail.put("packCount", BigDecimal.ZERO);
             resultDetail.put("turnoverBoxCount", BigDecimal.ZERO);
             resultDetail.put("isMerged", false);
-            for (WaveDetail waveDetail: waveDetails) {
+            for (WaveDetail waveDetail : waveDetails) {
                 // 已分别合过板的托盘不能合在一起
                 if (!waveDetail.getMergedContainerId().equals(0L)) {
                     if (!mergedContainerId.equals(0L) && !waveDetail.getMergedContainerId().equals(mergedContainerId)) {
@@ -177,7 +216,7 @@ public class MergeRfRestService implements IMergeRfRestService {
                     // 已合过的
                     resultDetail.put("isMerged", true);
                     List<WaveDetail> mergedWaveDetails = waveService.getWaveDetailsByMergedContainerId(waveDetail.getMergedContainerId());
-                    for (WaveDetail mergedWaveDetail: mergedWaveDetails) {
+                    for (WaveDetail mergedWaveDetail : mergedWaveDetails) {
                         Map<String, BigDecimal> qcCounts = iMergeRpcService.getQcCountsByWaveDetail(mergedWaveDetail);
                         if (!countedContainerIds.contains(mergedWaveDetail.getContainerId())) {
                             countedContainerIds.add(mergedWaveDetail.getContainerId());
