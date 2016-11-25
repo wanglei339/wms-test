@@ -148,6 +148,7 @@ public class ShelveRpcService implements IShelveRpcService {
                             body.put("taskId", procurementTask.getTaskId());
                             msg.setMsgBody(body);
                             messageService.sendMessage(msg);
+                            logger.info("[Shelve] Send message: cancel procurement task: " + procurementTask.getTaskId());
                             return pickingLocation;
                         }
                     }
