@@ -14,6 +14,7 @@ import com.lsh.wms.core.service.task.TaskTriggerService;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.seed.SeedingTaskHead;
+import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.core.service.task.TaskHandler;
@@ -194,6 +195,13 @@ public class TaskRpcService implements ITaskRpcService {
         Long taskType = this.getTaskTypeById(taskId);
         TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
         taskHandler.done(taskId, locationId, staffId);
+        this.afterDone(taskId);
+    }
+
+    public void done(Long taskId, List<StockMove> moveList) throws BizCheckedException{
+        Long taskType = this.getTaskTypeById(taskId);
+        TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
+        taskHandler.done(taskId, moveList);
         this.afterDone(taskId);
     }
 

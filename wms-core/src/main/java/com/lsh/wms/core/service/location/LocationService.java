@@ -75,7 +75,6 @@ public class LocationService {
      * @return BaseinfoLocation
      */
     public BaseinfoLocation getLocation(Long locationId) throws BizCheckedException {
-        logger.error("getLocation started!");
         if (null == locationId) {
             throw new BizCheckedException("2180001");
         }
