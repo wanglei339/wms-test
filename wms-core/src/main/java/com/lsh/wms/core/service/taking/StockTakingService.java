@@ -281,6 +281,16 @@ public class StockTakingService {
         persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN,reportId);
     }
 
+    public OverLossReport getOverLossReportById(Long reportId){
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("lossReportId",reportId);
+        List<OverLossReport> list = overLossReportDao.getOverLossReportList(map);
+        if(list == null || list.size() == 0 ){
+            return null;
+        }
+        return list.get(0);
+    }
+
     @Transactional(readOnly = false)
     public void doQcPickDifference(StockMove move) {
         OverLossReport overLossReport = new OverLossReport();
