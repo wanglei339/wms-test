@@ -214,7 +214,9 @@ public class MergeRpcService implements IMergeRpcService {
                     result.put("packCount", qcCounts.get("packCount"));
                     result.put("turnoverBoxCount", qcCounts.get("turnoverBoxCount"));
                     result.put("customerCode", customerCode);
+                    //加入贵品的判断
                     result.put("isExpensive", false);
+
                     result.put("containersList", containersList);
                     if (waveDetail.getQcAt() < DateUtils.getTodayBeginSeconds()) {
                         result.put("isRest", true);
