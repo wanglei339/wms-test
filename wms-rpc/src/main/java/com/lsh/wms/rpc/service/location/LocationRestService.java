@@ -78,6 +78,15 @@ public class LocationRestService implements ILocationRestService {
         return JsonUtils.SUCCESS(location);
     }
 
+    @POST
+    @Path("getFatherRegion")
+    public String getFatherRegion() throws BizCheckedException {
+        Map<String, Object> request = RequestUtils.getRequest();
+        Long locationId = Long.valueOf(request.get("locationId").toString());
+        BaseinfoLocation location = locationRpcService.getFatherRegionBySonId(locationId);
+        return JsonUtils.SUCCESS(location);
+    }
+
     @GET
     @Path("getWarehouseLocationId")
     public String getWarehouseLocationId() {

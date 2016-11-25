@@ -154,7 +154,9 @@ public class StockTransferRFService implements IStockTransferRFService{
             final BigDecimal uomQty;
             //outbound
             final String fromLocationCode = locationRpcService.getLocation(taskInfo.getFromLocationId()).getLocationCode();
-
+            final String toLocationDesc = String.format("%s%s",
+                    taskInfo.getToLocationId()!=0?locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode():"",
+                    taskInfo.getExt9());
             if (taskInfo.getStep()==0) {
                 type = 1L;
                 uomQty = taskInfo.getQty();
@@ -166,7 +168,7 @@ public class StockTransferRFService implements IStockTransferRFService{
                 {
                     put("type", type);
                     put("taskId", taskId.toString());
-                    put("locationCode", fromLocationCode);
+                    put("locationCode", type == 1 ? fromLocationCode : toLocationDesc);
                     put("itemId", taskInfo.getItemId());
                     put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
                     put("packName", taskInfo.getPackName());
@@ -206,17 +208,24 @@ public class StockTransferRFService implements IStockTransferRFService{
         Long taskId = Long.valueOf(params.get("taskId").toString());
         if(taskId == 0 && type == 1){
             //创建一个任务
-            uomQty = new BigDecimal(params.get("uomQty").toString());
-            StockTransferPlan plan = new StockTransferPlan();
             if (location == null) {
                 throw new BizCheckedException("2060012");
             }
+            String barCode = params.get("barcode").toString();
+            Long subType = params.get("subType")!=null ? Long.valueOf(params.get("subType").toString()) : 2L;
+            StockTransferPlan plan = new StockTransferPlan();
             plan.setFromLocationId(location.getLocationId());
             plan.setToLocationId(0L);
             plan.setTargetDesc("");
-            plan.setUomQty(uomQty);
-            plan.setPackName(params.get("uom").toString());
-            String barCode = params.get("barcode").toString();
+            if(subType != 1) {
+                uomQty = new BigDecimal(params.get("uomQty").toString());
+                String uom = params.get("uom").toString();
+                plan.setUomQty(uomQty);
+                plan.setPackName(uom);
+                if (location.getRegionType().equals(LocationConstant.SPLIT_AREA)) {
+                    subType = 3L;
+                }
+            }
             CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barCode);
             if (csiSku == null) {
                 throw new BizCheckedException("2550032");
@@ -230,10 +239,6 @@ public class StockTransferRFService implements IStockTransferRFService{
             }
             StockQuant quant = quantList.get(0);
             plan.setItemId(quant.getItemId());
-            Long subType = 2L;
-            if (location.getRegionType().equals(LocationConstant.SPLIT_AREA)) {
-                subType = 3L;
-            }
             plan.setSubType(subType);
             taskId = iStockTransferRpcService.addPlan(plan);
             iTaskRpcService.assign(taskId, uid);
