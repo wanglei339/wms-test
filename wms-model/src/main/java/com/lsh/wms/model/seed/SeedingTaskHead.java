@@ -23,6 +23,8 @@ public class SeedingTaskHead implements Serializable {
 	private Long realContainerId = 0L;
 	/** 订单箱规 */
 	private BigDecimal packUnit;
+	/** 是否使用例外代码*/
+	private Integer isUseExceptionCode = 0;
 	
 	public Long getId(){
 		return this.id;
@@ -94,5 +96,13 @@ public class SeedingTaskHead implements Serializable {
 
 	public void setOrderId(Long orderId) {
 		this.orderId = orderId;
+	}
+
+	public Integer getIsUseExceptionCode() {
+		return isUseExceptionCode;
+	}
+
+	public void setIsUseExceptionCode(Integer isUseExceptionCode) {
+		this.isUseExceptionCode = isUseExceptionCode;
 	}
 }

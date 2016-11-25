@@ -12,14 +12,15 @@
 		<result property="requireQty" column="require_qty"/>
 		<result property="realContainerId" column="real_container_id"/>
 		<result property="packUnit" column="pack_unit"/>
+		<result property="isUseExceptionCode" column="is_use_exception_code"/>
 		<result property="orderId" column="order_id"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="SeedingTaskHead">
 		insert into seeding_task_head (
-			task_id,store_no,created_at,updated_at,require_qty,real_container_id,pack_unit,order_id
+			task_id,store_no,created_at,updated_at,require_qty,real_container_id,pack_unit,order_id,is_use_exception_code
     	) values (
-			#{taskId},#{storeNo},#{createdAt},#{updatedAt},#{requireQty},#{realContainerId},#{packUnit},#{orderId}
+			#{taskId},#{storeNo},#{createdAt},#{updatedAt},#{requireQty},#{realContainerId},#{packUnit},#{orderId},#{is_use_exception_code}
     	)
 	</insert>
 
@@ -33,7 +34,8 @@
   			<if test="requireQty != null">require_qty=#{requireQty},</if>
 			<if test="realContainerId != null">real_container_id=#{realContainerId},</if>
 			<if test="packUnit != null">pack_unit=#{packUnit},</if>
-			<if test="orderId != null">order_id=#{orderId}</if>
+			<if test="orderId != null">order_id=#{orderId},</if>
+			<if test="isUseExceptionCode != null">is_use_exception_code=#{isUseExceptionCode}</if>
 
 		</set>
 		where id=#{id}
@@ -73,6 +75,8 @@
 			<if test="realContainerId != null"> and real_container_id=#{realContainerId}</if>
 			<if test="packUnit != null">and pack_unit=#{packUnit}</if>
 			<if test="orderId != null">and order_id=#{orderId}</if>
+			<if test="isUseExceptionCode != null"> and is_use_exception_code=#{isUseExceptionCode}</if>
+
 		</where>
 	</sql>
    
