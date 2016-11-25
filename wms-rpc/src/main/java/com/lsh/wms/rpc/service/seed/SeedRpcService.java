@@ -221,6 +221,7 @@ public class SeedRpcService implements ISeedRpcService {
             ObjUtils.bean2bean(ibdDetail,receiveDetail);
             receiveDetail.setCode(skuMap.get(ibdDetail.getSkuCode()));// TODO: 16/11/9 增加国条
             receiveDetail.setReceiveId(receiveId);
+            receiveDetail.setInboundQty(BigDecimal.ZERO);
             receiveDetail.setCreatedAt(DateUtils.getCurrentSeconds());
             receiveDetails.add(receiveDetail);
         }
