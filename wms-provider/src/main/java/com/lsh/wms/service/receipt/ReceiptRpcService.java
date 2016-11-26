@@ -3,6 +3,7 @@ package com.lsh.wms.service.receipt;
 import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
@@ -284,7 +285,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 Long lotId =
                         soDeliveryService.getOutbDeliveryDetail(obdHeader.getOrderId(),baseinfoItem.getItemId()).getLotId();
                 StockLot stockLot = stockLotService.getStockLotByLotId(lotId);
+                logger.info("~~~~~~~~~~~11111111111 查找批号信息  stocklot : " + JSON.toJSONString(stockLot));
                 stockLot.setIsOld(true);
+                logger.info("~~~~~~~~~~~~222222222222 stocklot : " + JSON.toJSONString(stockLot));
 
                 //将收货细单中的生产日期改为该lot下的生产日期。
                 SimpleDateFormat format =   new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
