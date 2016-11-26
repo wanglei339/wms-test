@@ -119,30 +119,25 @@ public class ReceiptRestService implements IReceiptRfService {
         /*
          *根据用户ID获取员工ID
          */
-        //员工ID
-        Long staffId = null;
+
 
         /*if(RequestUtils.getHeader("uid") == null){
             throw new BizCheckedException("1020001", "参数不能为空");
         }*/
-        receiptRequest.setReceiptUser(RequestUtils.getHeader("uid"));
 
-        Map<String,Object> map = new HashMap<String, Object>();
-        map.put("uid",RequestUtils.getHeader("uid"));
-        //TODO 这种接口应该封装一下在下面,很多地方会用到
-        List<SysUser> userList =  sysUserService.getSysUserList(map);
-
-        if(userList != null && userList.size() > 0){
-            staffId = userList.get(0).getStaffId();
-        }
-        if(staffId == null){
+        String uid = RequestUtils.getHeader("uid");
+        SysUser sysUser =  sysUserService.getSysUserByUid(uid);
+        //员工ID
+        Long staffId = null;
+        if(sysUser != null){
+            staffId = sysUser.getStaffId();
+        }else{
             //用户不存在
             throw new BizCheckedException("2000003");
         }
 
         receiptRequest.setStaffId(staffId);
-
-
+        receiptRequest.setReceiptUser(uid);
         receiptRequest.setReceiptTime(new Date());
 
         //TODO 这里根据other order id去查理论上可能会有冲突,是唯一键吗?
@@ -161,7 +156,7 @@ public class ReceiptRestService implements IReceiptRfService {
             BigDecimal scatterQty = receiptItem.getScatterQty();
 
             if("EA".equals(packName) && inboundQty.compareTo(BigDecimal.ZERO) > 0){
-                throw new BizCheckedException("收货单位为EA,不能填写包装数量");
+                throw new BizCheckedException("2021111");
             }
             BigDecimal inboundUnitQty = PackUtil.UomQty2EAQty(inboundQty,packName).add(scatterQty);
             receiptItem.setInboundQty(inboundUnitQty);

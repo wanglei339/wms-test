@@ -6,16 +6,15 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.merge.IMergeRpcService;
-import com.lsh.wms.core.constant.CustomerConstant;
-import com.lsh.wms.core.constant.StoreConstant;
-import com.lsh.wms.core.constant.TaskConstant;
-import com.lsh.wms.core.constant.TuConstant;
+import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoStore;
 import com.lsh.wms.model.csi.CsiCustomer;
@@ -53,6 +52,8 @@ public class MergeRpcService implements IMergeRpcService {
     private WaveService waveService;
     @Autowired
     private TuService tuService;
+    @Autowired
+    private ItemService itemService;
 
     /**
      * 门店维度的未装车板数列表
@@ -189,10 +190,16 @@ public class MergeRpcService implements IMergeRpcService {
                 if (!needCount) {
                     continue;
                 }
+                BaseinfoItem item = itemService.getItem(waveDetail.getItemId());
+                if (null == item) {
+                    throw new BizCheckedException("2870041");
+                }
+                boolean isExpensive = (ItemConstant.TYPE_IS_VALUABLE == item.getIsValuable());
+
                 Map<String, BigDecimal> qcCounts = this.getQcCountsByWaveDetail(waveDetail);
                 Map<String, Object> result = new HashMap<String, Object>();
                 if (results.containsKey(containerId)) {
-                    List<String> containersList = (ArrayList<String>)results.get(containerId).get("containersList");
+                    List<String> containersList = (ArrayList<String>) results.get(containerId).get("containersList");
                     containersList.add(waveDetail.getContainerId().toString());
                     result = results.get(containerId);
                     result.put("packCount", new BigDecimal(Double.valueOf(result.get("packCount").toString())).add(qcCounts.get("packCount")));
@@ -204,6 +211,12 @@ public class MergeRpcService implements IMergeRpcService {
                     if (waveDetail.getQcAt() < DateUtils.getTodayBeginSeconds()) {
                         result.put("isRest", true);
                     }
+                    //是否贵品
+                    Boolean curIsExpensive = Boolean.valueOf(result.get("isExpensive").toString());
+                    if (!curIsExpensive && isExpensive) { //不是贵品状态,转为贵品
+                        result.put("isExpensive", isExpensive);
+                    }
+
                 } else {
                     TaskInfo taskInfo = baseTaskService.getTaskInfoById(waveDetail.getMergeTaskId());
                     List<String> containersList = new ArrayList<String>();
@@ -215,7 +228,7 @@ public class MergeRpcService implements IMergeRpcService {
                     result.put("turnoverBoxCount", qcCounts.get("turnoverBoxCount"));
                     result.put("customerCode", customerCode);
                     //加入贵品的判断
-                    result.put("isExpensive", false);
+                    result.put("isExpensive", isExpensive);
 
                     result.put("containersList", containersList);
                     if (waveDetail.getQcAt() < DateUtils.getTodayBeginSeconds()) {
