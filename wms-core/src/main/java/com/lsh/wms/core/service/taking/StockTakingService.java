@@ -4,9 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
-import com.lsh.wms.core.constant.ContainerConstant;
-import com.lsh.wms.core.constant.OverLossConstant;
-import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.dao.stock.OverLossReportDao;
 import com.lsh.wms.core.dao.taking.StockTakingDetailDao;
 import com.lsh.wms.core.dao.taking.StockTakingHeadDao;
@@ -17,11 +15,9 @@ import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.persistence.PersistenceProxy;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockMoveService;
+import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
-import com.lsh.wms.model.stock.OverLossReport;
-import com.lsh.wms.model.stock.StockLot;
-import com.lsh.wms.model.stock.StockMove;
-import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.stock.*;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
 import org.slf4j.Logger;
@@ -61,6 +57,10 @@ public class StockTakingService {
     private LocationService locationService;
     @Autowired
     private OverLossReportDao overLossReportDao;
+    @Autowired
+    private StockMoveService stockMoveService;
+    @Autowired
+    private StockSummaryService stockSummaryService;
 
     @Transactional (readOnly = false)
     public void insertHead(StockTakingHead head) {
@@ -188,10 +188,24 @@ public class StockTakingService {
         }
         try {
             this.insertLossOrOver(overLossReports);
-            moveService.move(moveList,stockTakingId);
-        }catch (Exception e) {
+            moveService.move(moveList, stockTakingId);
+            for (StockMove move : moveList) {
+                StockDelta delta = new StockDelta();
+                delta.setItemId(move.getItemId());
+                BigDecimal qty = BigDecimal.ZERO;
+                if (locationService.getLocation(move.getFromLocationId()).getType().equals(LocationConstant.INVENTORYLOST)) {
+                    qty = move.getQty();
+                } else {
+                    qty = qty.subtract(move.getQty());
+                }
+                delta.setInhouseQty(qty);
+                delta.setBusinessId(stockTakingId);
+                delta.setType(StockConstant.TYPE_STOCK_TAKING);
+                stockSummaryService.changeStock(delta);
+            }
+        } catch (Exception e) {
             logger.error(e.getMessage());
-            throw  new BizCheckedException("2550099");
+            throw new BizCheckedException("2550099");
         }
         this.updateHead(head);
         return;
@@ -202,15 +216,15 @@ public class StockTakingService {
     }
     public Long chargeTime(Long stockTakingId) {
         Map queryMap = new HashMap();
-        queryMap.put("takingId",stockTakingId);
+        queryMap.put("takingId", stockTakingId);
         queryMap.put("round", 3L);
         int i = detailDao.countStockTakingDetail(queryMap);
-        if (i!=0){
+        if (i != 0) {
             return 3L;
-        }else {
-            queryMap.put("round",2L);
-            i=detailDao.countStockTakingDetail(queryMap);
-            if (i!=0){
+        } else {
+            queryMap.put("round", 2L);
+            i = detailDao.countStockTakingDetail(queryMap);
+            if (i != 0) {
                 return 2L;
             }
             return 1L;
@@ -248,11 +262,69 @@ public class StockTakingService {
     @Transactional (readOnly = false)
     public void insertLossOrOver(List<OverLossReport> overLossReports) {
         for(OverLossReport overLossReport :overLossReports){
-            overLossReport.setLossReportId(RandomUtils.genId());
+            Long reportId = RandomUtils.genId();
+            overLossReport.setLossReportId(reportId);
             overLossReport.setUpdatedAt(DateUtils.getCurrentSeconds());
             overLossReport.setCreatedAt(DateUtils.getCurrentSeconds());
             overLossReportDao.insert(overLossReport);
+            persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN,reportId);
         }
+    }
+
+    @Transactional(readOnly = false)
+    public void insertLossOrOver(OverLossReport overLossReport) {
+        Long reportId = RandomUtils.genId();
+        overLossReport.setLossReportId(reportId);
+        overLossReport.setUpdatedAt(DateUtils.getCurrentSeconds());
+        overLossReport.setCreatedAt(DateUtils.getCurrentSeconds());
+        overLossReportDao.insert(overLossReport);
+        persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN,reportId);
+    }
+
+    public OverLossReport getOverLossReportById(Long reportId){
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("lossReportId",reportId);
+        List<OverLossReport> list = overLossReportDao.getOverLossReportList(map);
+        if(list == null || list.size() == 0 ){
+            return null;
+        }
+        return list.get(0);
+    }
+
+    @Transactional(readOnly = false)
+    public void doQcPickDifference(StockMove move) {
+        OverLossReport overLossReport = new OverLossReport();
+        //插入报损
+        BaseinfoItem item = itemService.getItem(move.getItemId());
+        overLossReport.setItemId(item.getItemId());
+        overLossReport.setOwnerId(item.getOwnerId());
+        overLossReport.setLotId(0L);
+        overLossReport.setPackName(item.getPackName());
+        overLossReport.setSkuCode(item.getSkuCode());
+        overLossReport.setRefTaskId(move.getTaskId());
+        overLossReport.setMoveType(OverLossConstant.LOSS_REPORT);
+        overLossReport.setQty(move.getQty());
+        overLossReport.setStorageLocation(move.getFromLocationId().toString());
+
+        try {
+            this.insertLossOrOver(overLossReport);
+            moveService.move(move);
+            //移到盘亏盘盈区
+            stockMoveService.move(move);
+            StockDelta delta = new StockDelta();
+            delta.setItemId(move.getItemId());
+            BigDecimal qty = new BigDecimal(move.getQty().toString());
+            //拣货缺交的,是负数
+            qty = BigDecimal.ZERO.subtract(qty.abs());
+            delta.setInhouseQty(qty);
+            delta.setBusinessId(move.getTaskId());
+            delta.setType(StockConstant.TYPE_PICK_DEFECT);
+            stockSummaryService.changeStock(delta);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new BizCheckedException("2550051");
+        }
+
     }
 }
 

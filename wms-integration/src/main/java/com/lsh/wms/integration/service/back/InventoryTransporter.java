@@ -9,6 +9,7 @@ import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.stock.OverLossReport;
 import com.lsh.wms.model.system.SysLog;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
@@ -33,45 +34,25 @@ public class InventoryTransporter implements ITransporter{
     private ItemService itemService;
 
 
+
     public void process(SysLog sysLog) {
-        StockTakingHead stockTakingHead = stockTakingService.getHeadById(sysLog.getBusinessId());
-        List<StockTakingDetail> stockTakingDetails = stockTakingService.getDetailByTakingId(sysLog.getBusinessId());
-        //盘亏 盘盈的分成两个list itemsLoss为盘亏 itemsWin盘盈
+        OverLossReport overLossReport = stockTakingService.getOverLossReportById(sysLog.getBusinessId());
+
         StockRequest request = new StockRequest();
-        List<StockItem> itemsLoss = new ArrayList<StockItem>();
-        List<StockItem> itemsWin = new ArrayList<StockItem>();
-
-
-        for(StockTakingDetail stockTakingDetail : stockTakingDetails){
-            StockItem item = new StockItem();
-            BaseinfoItem baseinfoItem = itemService.getItem(stockTakingDetail.getItemId());
-            if(baseinfoItem.getOwnerId() == 1){
-
-                item.setEntryUom("EA");
-                item.setMaterialNo(baseinfoItem.getSkuCode());
-                //实际值大于理论值 报溢
-                if(stockTakingDetail.getRealQty().compareTo(stockTakingDetail.getTheoreticalQty()) > 0){
-                    item.setEntryQnt(stockTakingDetail.getTheoreticalQty().subtract(stockTakingDetail.getRealQty()).toString());
-                    itemsWin.add(item);
-                }
-                //实际值小于理论值 报损
-                else if (stockTakingDetail.getRealQty().compareTo(stockTakingDetail.getTheoreticalQty()) < 0){
-                    item.setEntryQnt(stockTakingDetail.getTheoreticalQty().subtract(stockTakingDetail.getRealQty()).toString());
-                    itemsLoss.add(item);
-                }
-            }
-        }
+        request.setMoveType(overLossReport.getMoveType().toString());
         request.setPlant(PropertyUtils.getString("wumart.werks"));
-        if( itemsLoss != null || itemsLoss.size() >0 ){
-            request.setMoveType(String.valueOf(IntegrationConstan.LOSS));
-            request.setItems(itemsLoss);
-            dataBackService.wmDataBackByPost(JSON.toJSONString(request),IntegrationConstan.URL_STOCKCHANGE, SysLogConstant.LOG_TYPE_LOSS_WIN,sysLog);
-        }
-
-        if(itemsWin != null || itemsWin.size() > 0 ){
+        request.setMoveReason(overLossReport.getMoveReason());
+        StockItem item = new StockItem();
+        List<StockItem> list = new ArrayList<StockItem>();
+        if(overLossReport.getOwnerId() == 1){
+            item.setEntryUom(overLossReport.getPackName());
+            item.setEntryQnt(overLossReport.getQty().toString());
+            item.setMaterialNo(overLossReport.getSkuCode());
+            list.add(item);
             request.setMoveType(String.valueOf(IntegrationConstan.WIN));
-            request.setItems(itemsWin);
+            request.setItems(list);
             dataBackService.wmDataBackByPost(JSON.toJSONString(request),IntegrationConstan.URL_STOCKCHANGE,SysLogConstant.LOG_TYPE_LOSS_WIN,sysLog);
         }
+
     }
 }
