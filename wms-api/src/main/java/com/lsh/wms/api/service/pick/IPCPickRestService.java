@@ -1,5 +1,7 @@
 package com.lsh.wms.api.service.pick;
 
+import com.lsh.base.common.exception.BizCheckedException;
+
 import java.util.Map;
 
 /**
@@ -7,4 +9,7 @@ import java.util.Map;
  */
 public interface IPCPickRestService {
     public String getPickTaskInfo(Map<String, Object> mapInput);
+
+    public String getContainerExpensiveGoods(Long containerId)throws BizCheckedException;
+
 }

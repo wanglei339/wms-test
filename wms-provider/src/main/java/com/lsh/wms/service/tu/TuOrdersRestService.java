@@ -59,11 +59,6 @@ public class TuOrdersRestService implements ITuOrdersRestService {
         }
     }
 
-    @GET
-    @Path("getContainerExpensiveGoods")
-    public String getContainerExpensiveGoods(@QueryParam("containerId") Long containerId) throws BizCheckedException {
-        return JsonUtils.SUCCESS(iTuOrdersRpcService.getContainerExpensiveGoods(containerId));
-    }
 
 
 }
