@@ -156,7 +156,7 @@ public class ReceiptRestService implements IReceiptRfService {
             BigDecimal scatterQty = receiptItem.getScatterQty();
 
             if("EA".equals(packName) && inboundQty.compareTo(BigDecimal.ZERO) > 0){
-                throw new BizCheckedException("收货单位为EA,不能填写包装数量");
+                throw new BizCheckedException("2021111");
             }
             BigDecimal inboundUnitQty = PackUtil.UomQty2EAQty(inboundQty,packName).add(scatterQty);
             receiptItem.setInboundQty(inboundUnitQty);
