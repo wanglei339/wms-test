@@ -62,14 +62,14 @@ public class StockTakingService {
     @Autowired
     private StockSummaryService stockSummaryService;
 
-    @Transactional(readOnly = false)
+    @Transactional (readOnly = false)
     public void insertHead(StockTakingHead head) {
         head.setCreatedAt(DateUtils.getCurrentSeconds());
         head.setUpdatedAt(DateUtils.getCurrentSeconds());
         headDao.insert(head);
     }
 
-    @Transactional(readOnly = false)
+    @Transactional (readOnly = false)
     public void updateHead(StockTakingHead head) {
         head.setUpdatedAt(DateUtils.getCurrentSeconds());
 
@@ -77,7 +77,7 @@ public class StockTakingService {
     }
 
 
-    @Transactional(readOnly = false)
+    @Transactional (readOnly = false)
     public void insertDetailList(List<StockTakingDetail> detailList) {
         for (StockTakingDetail detail : detailList) {
             detail.setCreatedAt(DateUtils.getCurrentSeconds());
@@ -85,9 +85,8 @@ public class StockTakingService {
         }
         detailDao.batchInsert(detailList);
     }
-
-    @Transactional(readOnly = false)
-    public void insertDetail(StockTakingDetail detail) {
+    @Transactional (readOnly = false)
+     public void insertDetail(StockTakingDetail detail) {
         detail.setCreatedAt(DateUtils.getCurrentSeconds());
         detail.setUpdatedAt(DateUtils.getCurrentSeconds());
         detailDao.insert(detail);
@@ -107,10 +106,9 @@ public class StockTakingService {
         List<StockTakingDetail> detailList = detailDao.getStockTakingDetailList(mapQuery);
         return detailList;
     }
-
-    @Transactional(readOnly = false)
-    public void done(Long stockTakingId, List<StockTakingDetail> stockTakingDetails) {
-        for (StockTakingDetail stockTakingDetail : stockTakingDetails) {
+    @Transactional (readOnly = false)
+    public void done(Long stockTakingId,List<StockTakingDetail> stockTakingDetails) {
+        for(StockTakingDetail stockTakingDetail:stockTakingDetails){
             stockTakingDetail.setIsFinal(1);
             this.updateDetail(stockTakingDetail);
         }
@@ -123,7 +121,7 @@ public class StockTakingService {
 //        StockRequest request = new StockRequest();
         List<OverLossReport> overLossReports = new ArrayList<OverLossReport>();
         for (StockTakingDetail detail : stockTakingDetails) {
-            if (detail.getItemId() == 0L) {
+            if(detail.getItemId()==0L){
                 continue;
             }
             OverLossReport overLossReport = new OverLossReport();
@@ -216,7 +214,6 @@ public class StockTakingService {
     public StockTakingHead getHeadById(Long takingId) {
         return headDao.getStockTakingHeadById(takingId);
     }
-
     public Long chargeTime(Long stockTakingId) {
         Map queryMap = new HashMap();
         queryMap.put("takingId", stockTakingId);
@@ -233,20 +230,17 @@ public class StockTakingService {
             return 1L;
         }
     }
-
     public List<StockTakingHead> queryTakingHead(Map queryMap) {
         return headDao.getStockTakingHeadList(queryMap);
     }
-
-    public List<StockTakingDetail> getDetailByTaskId(Long taskId) {
-        Map<String, Object> queryMap = new HashMap<String, Object>();
+    public List<StockTakingDetail> getDetailByTaskId(Long taskId){
+        Map<String,Object> queryMap = new HashMap<String, Object>();
         queryMap.put("taskId", taskId);
         return detailDao.getStockTakingDetailList(queryMap);
 
     }
-
-    public List<StockTakingDetail> getDetailByTakingId(Long takingId) {
-        Map<String, Object> queryMap = new HashMap<String, Object>();
+    public List<StockTakingDetail> getDetailByTakingId(Long takingId){
+        Map<String,Object> queryMap = new HashMap<String, Object>();
         queryMap.put("takingId", takingId);
         return detailDao.getStockTakingDetailList(queryMap);
     }
@@ -256,34 +250,45 @@ public class StockTakingService {
         return headDao.countStockTakingHead(queryMap);
 
     }
-
     public List queryTakingDetail(Map queryMap) {
         return detailDao.getStockTakingDetailList(queryMap);
 
     }
-
-    @Transactional(readOnly = false)
+    @Transactional (readOnly = false)
     public void confirmDifference(Long stockTakingId, long roundTime) {
         List<StockTakingDetail> detailList = this.getDetailListByRound(stockTakingId, roundTime);
         this.done(stockTakingId, detailList);
     }
-
-    @Transactional(readOnly = false)
+    @Transactional (readOnly = false)
     public void insertLossOrOver(List<OverLossReport> overLossReports) {
-        for (OverLossReport overLossReport : overLossReports) {
-            overLossReport.setLossReportId(RandomUtils.genId());
+        for(OverLossReport overLossReport :overLossReports){
+            Long reportId = RandomUtils.genId();
+            overLossReport.setLossReportId(reportId);
             overLossReport.setUpdatedAt(DateUtils.getCurrentSeconds());
             overLossReport.setCreatedAt(DateUtils.getCurrentSeconds());
             overLossReportDao.insert(overLossReport);
+            persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN,reportId);
         }
     }
 
     @Transactional(readOnly = false)
     public void insertLossOrOver(OverLossReport overLossReport) {
-        overLossReport.setLossReportId(RandomUtils.genId());
+        Long reportId = RandomUtils.genId();
+        overLossReport.setLossReportId(reportId);
         overLossReport.setUpdatedAt(DateUtils.getCurrentSeconds());
         overLossReport.setCreatedAt(DateUtils.getCurrentSeconds());
         overLossReportDao.insert(overLossReport);
+        persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN,reportId);
+    }
+
+    public OverLossReport getOverLossReportById(Long reportId){
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("lossReportId",reportId);
+        List<OverLossReport> list = overLossReportDao.getOverLossReportList(map);
+        if(list == null || list.size() == 0 ){
+            return null;
+        }
+        return list.get(0);
     }
 
     @Transactional(readOnly = false)
