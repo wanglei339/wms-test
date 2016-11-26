@@ -64,9 +64,9 @@ public class LocationConstant {
 //    public static final Long SPLIT_SHELF_BIN = 35L;
 
     //贵品区
-    public static final Long VALUABLES_AREA = 40L;      //贵品区
-    public static final Long VALUABLES_SHELF = 41L;     //贵品货架个体
-    public static final Long VALUABLES_SHELF_LEVEL = 42L;   //贵品货架的货架层
+//    public static final Long VALUABLES_AREA = 40L;      //贵品区
+//    public static final Long VALUABLES_SHELF = 41L;     //贵品货架个体
+//    public static final Long VALUABLES_SHELF_LEVEL = 42L;   //贵品货架的货架层
 //    public static final Long VALUABLES_SHELF_BIN = 43L; //贵品存拣一体位
 
     //播种区
@@ -270,16 +270,16 @@ public class LocationConstant {
             });
 
 
-            //贵品区货架
-            put(VALUABLES_SHELF, new HashMap<String, Object>() {
-                {
-                    put("depth", 1l);   //一层深度
-                    put("type", VALUABLES_SHELF);
-                    put("regionNo", VALUABLES_AREA);
-                    put("typeName", "贵品区货架");
-                    put("isValid", 1);
-                }
-            });
+//            //贵品区货架
+//            put(VALUABLES_SHELF, new HashMap<String, Object>() {
+//                {
+//                    put("depth", 1l);   //一层深度
+//                    put("type", VALUABLES_SHELF);
+//                    put("regionNo", VALUABLES_AREA);
+//                    put("typeName", "贵品区货架");
+//                    put("isValid", 1);
+//                }
+//            });
             //供商直流退货区货架
             put(SUPPLIER_RETURN_SHELF, new HashMap<String, Object>() {
                 {
