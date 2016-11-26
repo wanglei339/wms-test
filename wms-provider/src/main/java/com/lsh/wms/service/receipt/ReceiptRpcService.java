@@ -327,15 +327,15 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     }
                 }
 
-                StockTransferPlan plan = new StockTransferPlan();
-                plan.setItemId(baseinfoItem.getItemId());
-                //返仓区Id
-                plan.setFromLocationId(inbReceiptHeader.getLocation());
-                plan.setToLocationId(locationMap.get(baseinfoItem.getItemId()));
-                //// TODO: 16/8/20 数量 转换为包装数量
-                plan.setUomQty(PackUtil.EAQty2UomQty(inboundUnitQty,inbReceiptDetail.getPackUnit()));
-                planList.add(plan);
-                //stockTransferRpcService.addPlan(plan);
+//                StockTransferPlan plan = new StockTransferPlan();
+//                plan.setItemId(baseinfoItem.getItemId());
+//                //返仓区Id
+//                plan.setFromLocationId(inbReceiptHeader.getLocation());
+//                plan.setToLocationId(locationMap.get(baseinfoItem.getItemId()));
+//                //// TODO: 16/8/20 数量 转换为包装数量
+//                plan.setUomQty(PackUtil.EAQty2UomQty(inboundUnitQty,inbReceiptDetail.getPackUnit()));
+//                planList.add(plan);
+//                //stockTransferRpcService.addPlan(plan);
             }
 
         } else{
@@ -539,15 +539,15 @@ public class ReceiptRpcService implements IReceiptRpcService {
             taskId = iTaskRpcService.create(TaskConstant.TYPE_PO, taskEntry);
             iTaskRpcService.done(taskId);
         }else if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
-            for(StockTransferPlan plan : planList){
-                BaseinfoItem item  =  itemService.getItem(plan.getItemId());
-                String skuCode = item.getSkuCode();
-                IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(),skuCode);
-                taskId = stockTransferRpcService.addPlan(plan);
-                ibdDetail.setTaskId(taskId);
-
-                poOrderService.updateInbPoDetail(ibdDetail);
-            }
+//            for(StockTransferPlan plan : planList){
+//                BaseinfoItem item  =  itemService.getItem(plan.getItemId());
+//                String skuCode = item.getSkuCode();
+//                IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(),skuCode);
+//                taskId = stockTransferRpcService.addPlan(plan);
+//                ibdDetail.setTaskId(taskId);
+//
+//                poOrderService.updateInbPoDetail(ibdDetail);
+//            }
             //返仓单生成移库单之后 将状态改为收货完成
             ibdHeader.setOrderStatus(PoConstant.ORDER_RECTIPT_ALL);
             poOrderService.updateInbPoHeader(ibdHeader);
