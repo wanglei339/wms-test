@@ -223,7 +223,7 @@ public class ProcurementRestService implements IProcurementRestService {
         if(entries!=null && entries.size()!=0){
             TaskEntry entry = entries.get(0);
             final TaskInfo info = entry.getTaskInfo();
-            if(info.getStep()==1){
+            if(info.getStep()==2){
                 return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                     {
                         put("taskId", info.getTaskId().toString());

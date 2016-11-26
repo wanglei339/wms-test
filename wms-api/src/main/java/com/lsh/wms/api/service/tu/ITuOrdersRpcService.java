@@ -20,7 +20,7 @@ public interface ITuOrdersRpcService {
 
     public TaskInfo getTaskInfoByWaveDetail(WaveDetail waveDetail) throws BizCheckedException;
 
-    public Map<String, Object> getContainerExpensiveGoods(Long contaienrId) throws BizCheckedException;
+    public List<Map<String, Object>> getContainerExpensiveGoods(Long contaienrId) throws BizCheckedException;
 
 
 }
