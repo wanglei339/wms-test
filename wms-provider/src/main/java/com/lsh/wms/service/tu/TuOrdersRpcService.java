@@ -5,6 +5,8 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.location.ILocationRpcService;
+import com.lsh.wms.api.service.so.ISoRpcService;
+import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.tu.ITuOrdersRpcService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.core.constant.ItemConstant;
@@ -13,18 +15,19 @@ import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.baseinfo.ItemTypeService;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.item.ItemService;
+import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
-import com.lsh.wms.model.baseinfo.BaseinfoItem;
-import com.lsh.wms.model.baseinfo.BaseinfoItemType;
-import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.baseinfo.BaseinfoStore;
+import com.lsh.wms.model.baseinfo.*;
 import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
+import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.tu.TuDetail;
 import com.lsh.wms.model.tu.TuHead;
@@ -58,6 +61,12 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
     private ItemTypeService itemTypeService;
     @Autowired
     private CsiCustomerService csiCustomerService;
+    @Reference
+    private IStockQuantRpcService iStockQuantRpcService;
+    @Autowired
+    private BaseinfoLocationWarehouseService warehouseService;
+    @Reference
+    private ISoRpcService iSoRpcService;
 
     public Map<String, Object> getTuOrdersList(String tuId) throws BizCheckedException {
         //根据运单号获取发货信息
@@ -325,12 +334,52 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
      * @return
      * @throws BizCheckedException
      */
-    public Map<String, Object> getContainerExpensiveGoods(Long contaienrId) throws BizCheckedException {
+    public List<Map<String, Object>> getContainerExpensiveGoods(Long contaienrId) throws BizCheckedException {
         //获取wave_detail
         //todo
-//        List<WaveDetail> waveDetails =
+        TuDetail tuDetail = iTuRpcService.getDetailByBoardId(contaienrId);
+        if (null == tuDetail) {
+            throw new BizCheckedException("2990039");
+        }
+        //合板或者不和板
+        List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(contaienrId);
+        if (null == waveDetails || waveDetails.size() < 1) {
+            waveDetails = waveService.getWaveDetailsByMergedContainerId(contaienrId);
+        }
+        if (null == waveDetails || waveDetails.size() < 1) {
+            throw new BizCheckedException("2870041");
+        }
 
-        return null;
+        //封装商品的结果集
+        List<Map<String, Object>> goodList = new ArrayList<Map<String, Object>>();
+        for (WaveDetail detail : waveDetails) {
+            BaseinfoItem item = itemService.getItem(detail.getItemId());
+            if (ItemConstant.TYPE_IS_VALUABLE == item.getIsValuable()) {
+                Map<String, Object> goodInfo = new HashMap<String, Object>();
+                goodInfo.put("item", item);
+                goodInfo.put("unitName", detail.getAllocUnitName());
+                goodInfo.put("qty", detail.getQcQty());
+                goodInfo.put("orderId", detail.getOrderId());
+
+                //供货方和收货方的提供 拿托盘,找库存,找供商
+                BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) warehouseService.getBaseinfoItemLocationModelById(0L);
+                goodInfo.put("warehouseName", warehouse.getWarehouseName());
+
+                Long orderId = detail.getOrderId();
+                ObdHeader obdHeader = iSoRpcService.getOutbSoHeaderDetailByOrderId(orderId);
+                if (null == obdHeader) {
+                    throw new BizCheckedException("2870006");
+                }
+
+                String customerCode = obdHeader.getDeliveryCode();
+                Long ownerId = obdHeader.getOwnerUid();
+                CsiCustomer csiCustomer = csiCustomerService.getCustomerByCustomerCode(customerCode);
+                goodInfo.put("customerName", csiCustomer.getCustomerName());
+                goodInfo.put("customerAddress", csiCustomer.getAddress());
+                goodList.add(goodInfo);
+            }
+        }
+        return goodList;
     }
 
     /**
