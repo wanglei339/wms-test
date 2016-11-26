@@ -3,6 +3,7 @@ package com.lsh.wms.service.receipt;
 import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
@@ -247,6 +248,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
                 BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), inbReceiptDetail.getSkuId());
                 inbReceiptDetail.setItemId(baseinfoItem.getItemId());
+                inbReceiptDetail.setBarCode(baseinfoItem.getCode());
 
 
                 //根据OrderId及SkuCode获取InbPoDetail
@@ -284,7 +286,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 Long lotId =
                         soDeliveryService.getOutbDeliveryDetail(obdHeader.getOrderId(),baseinfoItem.getItemId()).getLotId();
                 StockLot stockLot = stockLotService.getStockLotByLotId(lotId);
+                logger.info("~~~~~~~~~~~11111111111 查找批号信息  stocklot : " + JSON.toJSONString(stockLot));
                 stockLot.setIsOld(true);
+                logger.info("~~~~~~~~~~~~222222222222 stocklot : " + JSON.toJSONString(stockLot));
 
                 //将收货细单中的生产日期改为该lot下的生产日期。
                 SimpleDateFormat format =   new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
@@ -327,15 +331,15 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     }
                 }
 
-                StockTransferPlan plan = new StockTransferPlan();
-                plan.setItemId(baseinfoItem.getItemId());
-                //返仓区Id
-                plan.setFromLocationId(inbReceiptHeader.getLocation());
-                plan.setToLocationId(locationMap.get(baseinfoItem.getItemId()));
-                //// TODO: 16/8/20 数量 转换为包装数量
-                plan.setUomQty(PackUtil.EAQty2UomQty(inboundUnitQty,inbReceiptDetail.getPackUnit()));
-                planList.add(plan);
-                //stockTransferRpcService.addPlan(plan);
+//                StockTransferPlan plan = new StockTransferPlan();
+//                plan.setItemId(baseinfoItem.getItemId());
+//                //返仓区Id
+//                plan.setFromLocationId(inbReceiptHeader.getLocation());
+//                plan.setToLocationId(locationMap.get(baseinfoItem.getItemId()));
+//                //// TODO: 16/8/20 数量 转换为包装数量
+//                plan.setUomQty(PackUtil.EAQty2UomQty(inboundUnitQty,inbReceiptDetail.getPackUnit()));
+//                planList.add(plan);
+//                //stockTransferRpcService.addPlan(plan);
             }
 
         } else{
@@ -539,15 +543,15 @@ public class ReceiptRpcService implements IReceiptRpcService {
             taskId = iTaskRpcService.create(TaskConstant.TYPE_PO, taskEntry);
             iTaskRpcService.done(taskId);
         }else if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
-            for(StockTransferPlan plan : planList){
-                BaseinfoItem item  =  itemService.getItem(plan.getItemId());
-                String skuCode = item.getSkuCode();
-                IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(),skuCode);
-                taskId = stockTransferRpcService.addPlan(plan);
-                ibdDetail.setTaskId(taskId);
-
-                poOrderService.updateInbPoDetail(ibdDetail);
-            }
+//            for(StockTransferPlan plan : planList){
+//                BaseinfoItem item  =  itemService.getItem(plan.getItemId());
+//                String skuCode = item.getSkuCode();
+//                IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(),skuCode);
+//                taskId = stockTransferRpcService.addPlan(plan);
+//                ibdDetail.setTaskId(taskId);
+//
+//                poOrderService.updateInbPoDetail(ibdDetail);
+//            }
             //返仓单生成移库单之后 将状态改为收货完成
             ibdHeader.setOrderStatus(PoConstant.ORDER_RECTIPT_ALL);
             poOrderService.updateInbPoHeader(ibdHeader);
@@ -722,23 +726,34 @@ public class ReceiptRpcService implements IReceiptRpcService {
         request.setWarehouseId(0l);
         request.setStaffId(staffId);
 
+        //根据返仓单中的orderOtherRefId找到对应的出库单
+        ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(ibdHeader.getOrderOtherRefId());
+
         List<ReceiptItem> items = new ArrayList<ReceiptItem>();
 
         for(IbdDetail ibdDetail : ibdDetails){
             ReceiptItem item = new ReceiptItem();
 
-            List<BaseinfoItem> baseinfoItems = itemService.getItemsBySkuCode(ibdHeader.getOwnerUid(),ibdDetail.getSkuCode());
-            if(baseinfoItems.size() <= 0){
-                throw new BizCheckedException("2900001");
+            //这里从obd订单中取skuId
+//            List<BaseinfoItem> baseinfoItems = itemService.getItemsBySkuCode(ibdHeader.getOwnerUid(),ibdDetail.getSkuCode());
+//            if(baseinfoItems.size() <= 0){
+//                throw new BizCheckedException("2900001");
+//            }
+//            BaseinfoItem baseinfoItem = baseinfoItems.get(baseinfoItems.size()-1);
+            Map<String,Object> mapQuery = new HashMap<String, Object>();
+            mapQuery.put("orderId", obdHeader.getOrderId());
+            mapQuery.put("skuCode",ibdDetail.getSkuCode());
+            List<ObdDetail> obdDetails = soOrderService.getOutbSoDetailList(mapQuery);
+            if(obdDetails == null || obdDetails.size() <= 0){
+                throw new BizCheckedException("2022224");
             }
-            BaseinfoItem baseinfoItem = baseinfoItems.get(baseinfoItems.size()-1);
-
+            ObdDetail obdDetail = obdDetails.get(0);
             item.setArriveNum(ibdDetail.getOrderQty());
-            item.setBarCode(baseinfoItem.getCode());
+            //item.setBarCode(obdDetail);
             item.setInboundQty(ibdDetail.getOrderQty());
             item.setPackName(ibdDetail.getPackName());
             item.setPackUnit(ibdDetail.getPackUnit());
-            item.setSkuId(baseinfoItem.getSkuId());
+            item.setSkuId(obdDetail.getSkuId());
             item.setSkuName(ibdDetail.getSkuName());
             items.add(item);
         }

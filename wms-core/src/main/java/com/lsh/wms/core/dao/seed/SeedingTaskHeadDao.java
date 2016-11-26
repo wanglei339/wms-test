@@ -19,6 +19,10 @@ public interface SeedingTaskHeadDao {
 
     Integer countSeedingTaskHead(Map<String, Object> params);
 
+	Integer countDistinctTaskHead(Map<String, Object> params);
+
     List<SeedingTaskHead> getSeedingTaskHeadList(Map<String, Object> params);
+
+	List<SeedingTaskHead> getDistinctTaskHeadList(Map<String, Object> params);
 	
 }

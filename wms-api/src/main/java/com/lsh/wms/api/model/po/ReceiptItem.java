@@ -48,6 +48,7 @@ public class ReceiptItem implements Serializable {
     @NotNull
     private BigDecimal unitQty = BigDecimal.ZERO;
 
+    /**本次收货 ea的数量*/
     private BigDecimal scatterQty = BigDecimal.ZERO;
 
     /** 到货数 */
