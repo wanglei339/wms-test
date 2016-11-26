@@ -434,6 +434,21 @@ public class LocationRestService implements ILocationRestService {
     }
 
     /**
+     * 拆分货位
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("splitBin")
+    public String splitBin() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long locationId = Long.valueOf(mapQuery.get("locationId").toString());
+        String locationCode = mapQuery.get("locationCode").toString();
+        BaseinfoLocation newLocation = locationRpcService.splitBin(locationId, locationCode);
+        return JsonUtils.SUCCESS(newLocation);
+    }
+
+    /**
      * 初始化构建整棵location树结构
      *
      * @return

@@ -2,6 +2,7 @@ package com.lsh.wms.core.service.location;
 
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.model.location.LocationDetailRequest;
 import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
@@ -11,6 +12,7 @@ import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 import com.lsh.wms.model.stock.StockQuant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -575,6 +577,18 @@ public class LocationService {
         return locations != null && locations.size() > 0 ? locations : new ArrayList<BaseinfoLocation>();
     }
 
+    public List<BaseinfoLocation> getBinLocationsByBinUsage(Integer binUsage) {
+        if (binUsage == null) {
+            return new ArrayList<BaseinfoLocation>();
+        }
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("type", LocationConstant.BIN);
+        params.put("binUsage", binUsage);
+        params.put("isValid", LocationConstant.IS_VALID);
+        List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
+        return locations != null && locations.size() > 0 ? locations : new ArrayList<BaseinfoLocation>();
+    }
+
 //    /**
 //     * 按类型获取location节点
 //     *
@@ -713,7 +727,7 @@ public class LocationService {
      * @return
      */
     public BaseinfoLocation getAvailableFloorLocation(Long lotId) {
-        List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.FLOOR);
+        List<BaseinfoLocation> locations = this.getBinLocationsByBinUsage(BinUsageConstant.BIN_FLOOR_STORE);
         if (null != locations && locations.size() > 0) {
             for (BaseinfoLocation location : locations) {
                 Long locationId = location.getLocationId();
@@ -1412,5 +1426,49 @@ public class LocationService {
             }
             father = location;
         }
+    }
+
+    /**
+     * 拆分货位
+     * @param location
+     * @return
+     * @throws BizCheckedException
+     */
+    @Transactional(readOnly = false)
+    public BaseinfoLocation splitBin(BaseinfoLocation location, String locationCode) throws BizCheckedException {
+        if (location == null) {
+            throw new BizCheckedException("2180001");
+        }
+        if (!LocationConstant.BIN.equals(location.getType()) || !location.getIsLeaf().equals(1)) {
+            throw new BizCheckedException("2180028");
+        }
+        if (location.getCanUse().equals(0)) {
+            throw new BizCheckedException("2180029");
+        }
+        if (LocationConstant.IS_LOCKED.equals(location.getIsLocked())) {
+            throw new BizCheckedException("2180031");
+        }
+        List<StockQuant> stockQuants = stockQuantService.getQuantsByLocationId(location.getLocationId());
+        if (stockQuants.size() > 0) {
+            throw new BizCheckedException("2180032");
+        }
+        BaseinfoLocation newLocation = new BaseinfoLocation();
+        BaseinfoLocation fatherLocation = this.getFatherLocation(location.getLocationId());
+        LocationDetailRequest detailRequest = new LocationDetailRequest();
+        ObjUtils.bean2bean(location, detailRequest);
+        detailRequest.setId(null);
+        detailRequest.setLocationId(null);
+        // 同一位置已有多个货位,则直接扩展
+        // 同一位置只有一个货位,向下级扩展拆分,地堆只做一级
+        if (!LocationConstant.BIN.equals(fatherLocation.getType()) && !LocationConstant.FLOOR.equals(fatherLocation.getType())) {
+            detailRequest.setFatherId(location.getLocationId());
+            detailRequest.setLocationCode(location.getLocationCode());
+            location.setLocationCode(location.getLocationCode() + "X"); // 为避免code重复占位用
+            this.updateLocation(location);
+            locationDetailService.insert(detailRequest);
+        }
+        detailRequest.setLocationCode(locationCode);
+        newLocation = locationDetailService.insert(detailRequest);
+        return newLocation;
     }
 }
