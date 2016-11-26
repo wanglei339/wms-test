@@ -12,14 +12,15 @@
 		<result property="requireQty" column="require_qty"/>
 		<result property="realContainerId" column="real_container_id"/>
 		<result property="packUnit" column="pack_unit"/>
+		<result property="isUseExceptionCode" column="is_use_exception_code"/>
 		<result property="orderId" column="order_id"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="SeedingTaskHead">
 		insert into seeding_task_head (
-			task_id,store_no,created_at,updated_at,require_qty,real_container_id,pack_unit,order_id
+			task_id,store_no,created_at,updated_at,require_qty,real_container_id,pack_unit,order_id,is_use_exception_code
     	) values (
-			#{taskId},#{storeNo},#{createdAt},#{updatedAt},#{requireQty},#{realContainerId},#{packUnit},#{orderId}
+			#{taskId},#{storeNo},#{createdAt},#{updatedAt},#{requireQty},#{realContainerId},#{packUnit},#{orderId},#{isUseExceptionCode}
     	)
 	</insert>
 
@@ -33,8 +34,8 @@
   			<if test="requireQty != null">require_qty=#{requireQty},</if>
 			<if test="realContainerId != null">real_container_id=#{realContainerId},</if>
 			<if test="packUnit != null">pack_unit=#{packUnit},</if>
-			<if test="orderId != null">order_id=#{orderId}</if>
-
+			<if test="orderId != null">order_id=#{orderId},</if>
+			<if test="isUseExceptionCode != null">is_use_exception_code=#{isUseExceptionCode}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -53,12 +54,23 @@
 		select count(*) from seeding_task_head
 		<include refid="queryCondition"/>
 	</select>
+	<select id="countDistinctTaskHead" parameterType="map" resultType="int">
+		select count(distinct store_no,real_container_id,is_use_exception_code) from seeding_task_head
+		<include refid="queryCondition"/>
+	</select>
   
 	<select id="getSeedingTaskHeadList" parameterType="map" resultMap="seedingTaskHeadResultMap">
 		select * from seeding_task_head
 		<include refid="queryCondition"/>
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
+		</if>
+	</select>
+	<select id="getDistinctTaskHeadList" parameterType="map" resultMap="seedingTaskHeadResultMap">
+		select distinct store_no,real_container_id,is_use_exception_code from seeding_task_head
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+			limit #{start},#{limit}
 		</if>
 	</select>
   
@@ -73,6 +85,8 @@
 			<if test="realContainerId != null"> and real_container_id=#{realContainerId}</if>
 			<if test="packUnit != null">and pack_unit=#{packUnit}</if>
 			<if test="orderId != null">and order_id=#{orderId}</if>
+			<if test="isUseExceptionCode != null"> and is_use_exception_code=#{isUseExceptionCode}</if>
+			<if test="valid != null"> and real_container_id != 0</if>
 		</where>
 	</sql>
    

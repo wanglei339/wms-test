@@ -129,10 +129,19 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
         TaskInfo info = entry.getTaskInfo();
         if(type.compareTo(1L)==0) {
             info.setIsShow(0);
+        }else {
+            info.setIsShow(1);
         }
         info.setContainerId(Long.valueOf(containerId.toString().trim()));
         entry.setTaskInfo(info);
         taskRpcService.update(TaskConstant.TYPE_SEED,entry);
+
+        //设置收获中
+        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(info.getOrderId());
+        if(ibdHeader.getOrderStatus().compareTo(PoConstant.ORDER_THROW)==0){
+            ibdHeader.setOrderStatus(PoConstant.ORDER_RECTIPTING);
+            poOrderService.updateInbPoHeader(ibdHeader);
+        }
         return entries.get(0).getTaskInfo().getTaskId();
 
     }
@@ -158,8 +167,11 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
         if(ibdHeader ==null){
             throw new BizCheckedException("2880004");
         }
-        if(ibdHeader.getOrderStatus().compareTo(PoConstant.ORDER_THROW)!=0){
+        if(ibdHeader.getOrderStatus().compareTo(PoConstant.ORDER_THROW)==0){
             throw new BizCheckedException("2880015");
+        }
+        if(ibdHeader.getOrderStatus().compareTo(PoConstant.ORDER_RECTIPT_ALL)==0){
+            throw new BizCheckedException("2880016");
         }
         mapQuery.put("type", TaskConstant.TYPE_SEED);
         mapQuery.put("skuId",sku.getSkuId());
@@ -180,6 +192,7 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
                 info.setStatus(TaskConstant.Draft);
                 info.setPlanId(0L);
                 info.setContainerId(0L);
+                info.setStep(0);
                 head.setRequireQty(head.getRequireQty().subtract(info.getQty()));
                 head.setOrderId(orderId);
                 entry.setTaskInfo(info);
@@ -202,6 +215,9 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
 
         String orderOtherId = ibdHeader.getOrderOtherId();
         IbdDetail ibdDetail= poOrderService.getInbPoDetailByOrderIdAndSkuCode(orderId, item.getSkuCode());
+        if(ibdDetail==null){
+
+        }
         Map<String,Object> queryMap = new HashMap<String, Object>();
         queryMap.put("ibdOtherId",orderOtherId);
         queryMap.put("ibdDetailId",ibdDetail.getDetailOtherId());

@@ -99,8 +99,9 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         if (null==iBaseinfoLocaltionModel){
             throw new BizCheckedException("2180001");
         }
+        Long type =iBaseinfoLocaltionModel.getType();
         ObjUtils.bean2bean(locationDetailUpdateRequest, iBaseinfoLocaltionModel);
-
+        iBaseinfoLocaltionModel.setType(type);
         //添加更新时间
         long updatedAt = DateUtils.getCurrentSeconds();
         iBaseinfoLocaltionModel.setUpdatedAt(updatedAt);

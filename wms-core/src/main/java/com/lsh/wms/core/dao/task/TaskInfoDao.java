@@ -30,4 +30,6 @@ public interface TaskInfoDao {
 
     BigDecimal getQty(Map<String, Object> params);
 
+    TaskInfo lockById(Long taskId);
+
 }

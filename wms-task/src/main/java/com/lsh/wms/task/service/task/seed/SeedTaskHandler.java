@@ -163,6 +163,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
                 info.setStatus(TaskConstant.Draft);
                 info.setPlanId(0L);
                 info.setContainerId(0L);
+                info.setStep(0);
                 head.setRequireQty(head.getRequireQty().subtract(info.getQty()));
                 entry.setTaskInfo(info);
                 entry.setTaskHead(head);
@@ -221,6 +222,11 @@ public class SeedTaskHandler extends AbsTaskHandler {
         }
         taskRpcService.batchCreate(TaskConstant.TYPE_SEED,entries);
 
+    }
+    public void getHeadConcrete(TaskEntry entry){
+        TaskInfo info = entry.getTaskInfo();
+        SeedingTaskHead head = seedTaskHeadService.getHeadByTaskId(info.getTaskId());
+        entry.setTaskHead(head);
     }
     public void createConcrete(TaskEntry taskEntry) {
         SeedingTaskHead head = (SeedingTaskHead) taskEntry.getTaskHead();

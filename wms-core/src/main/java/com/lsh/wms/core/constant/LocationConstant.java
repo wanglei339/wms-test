@@ -71,7 +71,7 @@ public class LocationConstant {
 
     //播种区
     public static final Long SOW_AREA = 44L;  //播种区
-//    public static final Long SOW_BIN = 45L;  //播种货位
+    public static final Long SOW_BIN = 45L;  //播种货位
 
     //供商退货区
     public static final Long SUPPLIER_RETURN_AREA = 46L;    //供商退货区

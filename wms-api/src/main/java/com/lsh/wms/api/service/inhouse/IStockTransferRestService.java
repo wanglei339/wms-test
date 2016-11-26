@@ -5,6 +5,8 @@ import com.lsh.wms.model.transfer.StockTransferPlan;
 /**
  * Created by mali on 16/7/26.
  */
+
+//作废 by 曾文军 @2016.11.24
 public interface IStockTransferRestService {
     String taskView() throws BizCheckedException;
     String viewLocation() throws BizCheckedException;

@@ -34,7 +34,6 @@ public class StockTransferPlan implements Serializable {
     private BigDecimal packUnit = BigDecimal.ONE;
 	/** 以包装单位计量的库移数量 */
 	@NotNull
-	@Size(min=1)
     private BigDecimal uomQty = BigDecimal.ZERO;
 	/**优先级*/
 	private Long priority =2L;
@@ -44,6 +43,8 @@ public class StockTransferPlan implements Serializable {
 	private Long planner = 0L;
 	/**任务截止时间*/
 	private Long dueTime = 0L;
+	/**任务目标描述*/
+	private String targetDesc = "";
 
 
 	public Long getDueTime() {
@@ -156,6 +157,14 @@ public class StockTransferPlan implements Serializable {
 
 	public void setSubType(Long subType) {
 		this.subType = subType;
+	}
+
+	public void setTargetDesc(String targetDesc){
+		this.targetDesc = targetDesc;
+	}
+
+	public String getTargetDesc(){
+		return this.targetDesc;
 	}
 
 

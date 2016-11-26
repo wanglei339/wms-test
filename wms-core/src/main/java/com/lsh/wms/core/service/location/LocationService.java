@@ -75,7 +75,6 @@ public class LocationService {
      * @return BaseinfoLocation
      */
     public BaseinfoLocation getLocation(Long locationId) throws BizCheckedException {
-        logger.error("getLocation started!");
         if (null == locationId) {
             throw new BizCheckedException("2180001");
         }
@@ -868,7 +867,7 @@ public class LocationService {
             minDistanceMap.put("location", location);
             minDistanceMap.put("distance", minDistance);
             for (Map<String, Object> distanceMap : storeBinDistanceList) {
-                if ((Long.valueOf(((Long) distanceMap.get("distance")).toString()) == Long.valueOf(((Long) minDistanceMap.get("distance")).toString())) && (this.getShelfByClassification(((BaseinfoLocation) distanceMap.get("location")).getLocationId())).getLocationId().equals(shelfLocationSelf.getLocationId())) {
+                if ((Long.valueOf(((Long) distanceMap.get("distance")).toString()).equals(Long.valueOf(((Long) minDistanceMap.get("distance")).toString()))) && (this.getShelfByClassification(((BaseinfoLocation) distanceMap.get("location")).getLocationId())).getLocationId().equals(shelfLocationSelf.getLocationId())) {
                     //位置相同,同货架优先,同货架位置相同,给一个就行
                     minDistanceMap = distanceMap;
                 } else if (Long.valueOf(((Long) distanceMap.get("distance")).toString()) < Long.valueOf(((Long) minDistanceMap.get("distance")).toString())) {

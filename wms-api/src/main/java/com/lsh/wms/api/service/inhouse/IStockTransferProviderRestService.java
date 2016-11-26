@@ -10,6 +10,5 @@ import java.util.List;
  */
 public interface IStockTransferProviderRestService {
     String addPlan(StockTransferPlan plan) throws BizCheckedException;
-    String updatePlan(StockTransferPlan plan) throws BizCheckedException;
     String cancelPlan(Long taskId) throws BizCheckedException;
 }

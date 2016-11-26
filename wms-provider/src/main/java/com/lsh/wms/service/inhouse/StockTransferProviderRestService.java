@@ -5,6 +5,9 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.inhouse.IStockTransferProviderRestService;
+import com.lsh.wms.core.service.item.ItemService;
+import com.lsh.wms.core.service.utils.PackUtil;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.transfer.StockTransferPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.math.BigDecimal;
 
 /**
  * Created by mali on 16/8/1.
@@ -25,26 +29,23 @@ public class StockTransferProviderRestService implements IStockTransferProviderR
 
     @Autowired
     private StockTransferRpcService rpcService;
+    @Autowired
+    private ItemService itemService;
 
     @POST
     @Path("add")
     public String addPlan(StockTransferPlan plan) throws BizCheckedException {
         try {
+            if(plan.getSubType() == 3){
+                plan.setPackName("EA");
+                plan.setPackUnit(BigDecimal.valueOf(1L));
+            }else if (plan.getSubType() == 2){
+                plan.setPackUnit(itemService.getItem(plan.getItemId()).getPackUnit());
+                plan.setPackName(PackUtil.PackUnit2Uom(plan.getPackUnit(), "EA"));
+            }else{
+                return JsonUtils.TOKEN_ERROR("不合法的单位类型");
+            }
             rpcService.addPlan(plan);
-        } catch (BizCheckedException e) {
-            throw e;
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return JsonUtils.TOKEN_ERROR(e.getMessage());
-        }
-        return JsonUtils.SUCCESS();
-    }
-
-    @POST
-    @Path("update")
-    public String updatePlan(StockTransferPlan plan) throws BizCheckedException {
-        try {
-            rpcService.updatePlan(plan);
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {

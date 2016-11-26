@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public interface IIbdService {
 
-    BaseResponse add(IbdRequest request)throws BizCheckedException;
+    BaseResponse add(IbdRequest request) throws BizCheckedException, java.text.ParseException;
 
     BaseResponse addRelation() throws BizCheckedException, ParseException;
 

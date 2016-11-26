@@ -40,6 +40,8 @@ public class StockMove implements Serializable {
 
 	private StockLot lot;
 
+	private Long moveHole = 0L;
+
 	public Long getId() {
 		return id;
 	}
@@ -166,6 +168,14 @@ public class StockMove implements Serializable {
 
 	public void setLot(StockLot lot) {
 		this.lot = lot;
+	}
+
+	public void setMoveHole(Long moveHole){
+		this.moveHole = moveHole;
+	}
+
+	public Long getMoveHole(){
+		return this.moveHole;
 	}
 
 	@Override

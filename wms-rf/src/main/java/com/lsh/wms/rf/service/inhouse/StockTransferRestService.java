@@ -43,6 +43,10 @@ import java.util.Map;
 /**
  * Created by mali on 16/8/1.
  */
+public class StockTransferRestService{
+
+}
+/*
 @Service(protocol = "rest")
 @Path("inhouse/stock_transfer")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
@@ -192,11 +196,7 @@ public class StockTransferRestService implements IStockTransferRestService {
                 throw new BizCheckedException("2550032");
             }
             StockQuant quant = quantList.get(0);
-            Long toLocationId = iStockTransferRpcService.allocateToLocationId(quant);
-            if (toLocationId.equals(0L)) {
-                throw new BizCheckedException("2550036");
-            }
-            plan.setToLocationId(toLocationId);
+            plan.setToLocationId(0L);
             plan.setFromLocationId(locationId);
             plan.setItemId(quant.getItemId());
             Long subType = 2L;
@@ -354,34 +354,46 @@ public class StockTransferRestService implements IStockTransferRestService {
         Map<String, Object> result;
         Long type = Long.valueOf(params.get("type").toString());
         logger.info(params.toString());
-//        try {
-            Long uid;
-            try {
-                uid = iSysUserRpcService.getSysUserById(Long.valueOf(RequestUtils.getHeader("uid"))).getUid();
-            } catch (Exception e) {
-                throw new BizCheckedException("2550013");
+        Long uid;
+        try {
+            uid = iSysUserRpcService.getSysUserById(Long.valueOf(RequestUtils.getHeader("uid"))).getUid();
+        } catch (Exception e) {
+            throw new BizCheckedException("2550013");
+        }
+        params.put("uid", uid);
+        Long taskId = Long.valueOf(params.get("taskId").toString());
+        TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
+        if (taskEntry == null) {
+            throw new BizCheckedException("3040001");
+        }
+        if (!taskEntry.getTaskInfo().getType().equals(TaskConstant.TYPE_STOCK_TRANSFER)) {
+            throw new BizCheckedException("2550021");
+        }
+        Map<String, Object> next = new HashMap<String, Object>();
+        if (type.equals(1L)) {
+            uomQty = new BigDecimal(params.get("uomQty").toString());
+            iStockTransferRpcService.scanFromLocation(taskEntry, location, uomQty);
+            final TaskInfo taskInfo = taskEntry.getTaskInfo();
+            if(taskInfo.getStatus() == TaskConstant.Cancel){
+                next.put("response", true);
+            }else{
+                final String toLocationDesc = String.format("%s%s",
+                        taskInfo.getToLocationId()!=0?locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode():"",
+                        taskInfo.getExt9());
+                next.put("type", 2L);
+                next.put("taskId", taskId.toString());
+                next.put("locationCode", toLocationDesc);
+                next.put("itemId", taskInfo.getItemId());
+                next.put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
+                next.put("packName", taskInfo.getPackName());
+                next.put("uomQty", taskInfo.getSubType().compareTo(1L) == 0 ? "整托" : taskInfo.getQtyUom());
+                next.put("subType", taskInfo.getSubType());
             }
-            params.put("uid", uid);
-            Long taskId = Long.valueOf(params.get("taskId").toString());
-            TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
-            if (taskEntry == null) {
-                throw new BizCheckedException("3040001");
-            }
-            if (!taskEntry.getTaskInfo().getType().equals(TaskConstant.TYPE_STOCK_TRANSFER)) {
-                throw new BizCheckedException("2550021");
-            }
-            if (type.equals(1L)) {
-                result = iStockTransferRpcService.scanFromLocation(params);
-            } else {
-                result = iStockTransferRpcService.scanToLocation(params);
-            }
-//        } catch (BizCheckedException e) {
-//            throw e;
-//        } catch (Exception e) {
-//            logger.error(e.getMessage());
-//            return JsonUtils.TOKEN_ERROR(e.getMessage());
-//        }
-        return JsonUtils.SUCCESS(result);
+        } else {
+            iStockTransferRpcService.scanToLocation(taskEntry, location);
+            next.put("response", true);
+        }
+        return JsonUtils.SUCCESS(next);
     }
 
     @POST
@@ -442,3 +454,4 @@ public class StockTransferRestService implements IStockTransferRestService {
         }
     }
 }
+*/

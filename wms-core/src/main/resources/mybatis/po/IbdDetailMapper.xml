@@ -73,7 +73,7 @@
 	<update id="updateInboundQtyByOrderIdAndDetailOtherId">
 		update ibd_detail
 		SET inbound_qty=inbound_qty + #{inboundQty}
-		where order_id=#{orderId} AND detail_other_id=#{detailOtherId} AND order_qty >= inbound_qty + #{inboundQty}
+		where order_id=#{orderId} AND detail_other_id=#{detailOtherId} AND order_qty*pack_unit >= inbound_qty + #{inboundQty}
 	</update>
 
 	<update id="batchUpdateInboundQtyByOrderIdAndDetailOtherId" parameterType="java.util.List">
@@ -82,7 +82,7 @@
 			<set>
 				inbound_qty=inbound_qty + #{item.inboundQty}
 			</set>
-			where order_id=#{item.orderId} AND detail_other_id=#{item.detailOtherId} AND order_qty >= inbound_qty + #{item.inboundQty}
+			where order_id=#{item.orderId} AND detail_other_id=#{item.detailOtherId} AND order_qty*pack_unit >= inbound_qty + #{item.inboundQty}
 		</foreach>
 	</update>
 

@@ -163,9 +163,9 @@ public class SetGoodsRestService implements ISetGoodsRestService {
         if (null == customer.getCollectRoadId()) {
             throw new BizCheckedException("2180024");
         }
-        BaseinfoLocation location = locationRpcService.getLocation(customer.getCollectRoadId());
-
+        taskRpcService.assign(info.getTaskId(),uId);
         //获取location的id
+        BaseinfoLocation location = locationRpcService.getLocation(customer.getCollectRoadId());
 
 
         List<WaveDetail> waveDetails = new ArrayList<WaveDetail>();

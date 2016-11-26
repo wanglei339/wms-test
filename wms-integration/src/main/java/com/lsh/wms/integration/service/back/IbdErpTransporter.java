@@ -41,12 +41,12 @@ public class IbdErpTransporter implements ITransporter{
             detail.setPoItme(receiveDetail.getDetailOtherId());
             BigDecimal inboudQty =  receiveDetail.getInboundQty();
 
-            BigDecimal orderQty = receiveDetail.getOrderQty();
-            BigDecimal deliveQty = receiveHeader.getOrderType().equals(3) ? orderQty : inboudQty;
+            //BigDecimal orderQty = receiveDetail.getOrderQty();
+            BigDecimal deliveQty = inboudQty;
             if(deliveQty.compareTo(BigDecimal.ZERO) <= 0){
                 continue;
             }
-            detail.setDeliveQty(deliveQty.multiply(receiveDetail.getPackUnit()).setScale(2,BigDecimal.ROUND_HALF_UP));
+            detail.setDeliveQty(deliveQty.setScale(2,BigDecimal.ROUND_HALF_UP));
             detail.setUnit(receiveDetail.getPackName());
             detail.setMaterial(receiveDetail.getSkuCode());
             detail.setOrderType(receiveHeader.getOrderType());

@@ -48,6 +48,7 @@ public class WuMart implements IWuMart {
                     sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
                     sysLog.setStep(SysLogConstant.LOG_STEP_IBDFINISH);
                     sysLog.setLogMessage("ibd过账成功");
+                    sysLog.setLogCode("ibd过账成功");
                 }else{
                     sysLog.setLogMessage((String) map.get("message"));
                     sysLog.setStatus(SysLogConstant.LOG_STATUS_PART_FINISH);//部分过账成功
@@ -130,7 +131,6 @@ public class WuMart implements IWuMart {
      * @param ibdObdMap
      */
     public void sendSap(Map<String,Object> ibdObdMap, SysLog sysLog){
-
         try{
             // TODO: 2016/11/21 根据step来创建对应的 初始的从创建ibd开始
             if(sysLog.getStep() == SysLogConstant.LOG_STEP_INIT){
@@ -141,7 +141,7 @@ public class WuMart implements IWuMart {
                         sysLog.setLogMessage("直流ibd过账SAP返回值为空!");
                         sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
                         sysLog.setLogCode("直流ibd过账SAP返回值为空!");
-                    }else if("P".equals(map.get("Type")) && map.get("message") == null){
+                    }else if("S".equals(map.get("Type"))){
                         CreateObdHeader obdBackDate = wuMartSap.obd2Sap((CreateObdHeader) ibdObdMap.get("createObdHeader"));
                         if(backDate != null){
                             String type = wuMartSap.obd2SapAccount(obdBackDate);
@@ -162,6 +162,11 @@ public class WuMart implements IWuMart {
                             sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
                             sysLog.setLogCode("ibd过账成功,obd创建失败");
                         }
+                    }else{
+                        sysLog.setStep(SysLogConstant.LOG_STEP_IBDCREATE);
+                        sysLog.setLogMessage("ibd创建成功,过账失败");
+                        sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
+                        sysLog.setLogCode("ibd创建成功,过账失败");
                     }
                 }else {
                     sysLog.setLogMessage("ibd创建失败!");

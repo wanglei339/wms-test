@@ -112,4 +112,19 @@ public class SysUserRpcService implements ISysUserRpcService {
         }
 
     }
+
+    public void updatePassword(Long uid,String sourcePassword, String newPassword, String confirmPassWord) throws BizCheckedException {
+        //校验旧密码
+        SysUser user = this.getSysUserById(uid);
+        if(checkLogin(user.getUsername(),sourcePassword)){
+            if(newPassword.equals(confirmPassWord)){
+                String salt = RandomUtils.randomStr(10);
+                user.setSalt(salt);
+                user.setPassword(genPwd(confirmPassWord, salt));
+                sysUserService.updateSysUser(user);
+            }else{
+                throw new BizCheckedException("2660006");
+            }
+        }
+    }
 }

@@ -132,23 +132,17 @@ public class CsiCustomerService {
      * @param customerIds  id集合
      * @return  结果集合
      */
-    public List<Map<String, Object>> ParseCustomerIds2Customers(String customerIds) throws BizCheckedException{
+    public List<CsiCustomer> ParseCustomerIds2Customers(String customerIds) throws BizCheckedException{
         //json的拆分
         List<Map<String,Object>> customerIdsMapList = JsonUtils.json2Obj(customerIds,List.class);
-        List<Map<String, Object>> customerList = new ArrayList<Map<String, Object>>();
+        List<CsiCustomer> customerList = new ArrayList<CsiCustomer>();
         for (Map<String,Object> oneMap : customerIdsMapList) {
             Long customerId = Long.valueOf(oneMap.get("customerId").toString());
             CsiCustomer customer = this.getCustomerByCustomerId(customerId);
             if (null == customer) {
                 throw new BizCheckedException("2180018");
             }
-            Map<String, Object> customerMap = new HashMap<String, Object>();
-            customerMap.put("ownerId", customer.getOwnerId());
-            customerMap.put("customerCode", customer.getCustomerCode());
-            customerMap.put("customerName", customer.getCustomerName());
-            customerMap.put("customerId", customer.getCustomerId());
-            customerMap.put("customerType",customer.getCustomerType());
-            customerList.add(customerMap);
+            customerList.add(customer);
         }
         return customerList;
     }

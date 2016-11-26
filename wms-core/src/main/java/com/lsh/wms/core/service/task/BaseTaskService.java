@@ -5,10 +5,12 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.taking.StockTakingService;
+import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.config.Task;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,11 @@ public class BaseTaskService {
     private TaskInfoDao taskInfoDao;
     @Autowired
     private StockTakingService stockTakingService;
+
+    @Transactional(readOnly = false)
+    public TaskInfo lockById(Long taskId){
+        return taskInfoDao.lockById(taskId);
+    }
 
     @Transactional(readOnly = false)
     public void create(TaskEntry taskEntry, TaskHandler taskHandler) throws BizCheckedException {
@@ -116,7 +123,10 @@ public class BaseTaskService {
 
     @Transactional(readOnly = false)
     public void assign(Long taskId, Long staffId, TaskHandler taskHandler) throws BizCheckedException {
-        TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
+        TaskInfo taskInfo = taskInfoDao.lockById(taskId);
+        if(!taskInfo.getStatus().equals(TaskConstant.Draft)){
+            throw new BizCheckedException("3000001");
+        }
         taskInfo.setOperator(staffId);
         taskInfo.setStatus(TaskConstant.Assigned);
         taskInfo.setAssignTime(DateUtils.getCurrentSeconds());
@@ -128,7 +138,10 @@ public class BaseTaskService {
     @Transactional(readOnly = false)
     public void assignMul(List<Map<String, Long>> params, TaskHandler taskHandler) throws BizCheckedException {
         for (Map<String, Long> param: params) {
-            TaskInfo taskInfo = taskInfoDao.getTaskInfoById(param.get("taskId"));
+            TaskInfo taskInfo = taskInfoDao.lockById(param.get("taskId"));
+            if(!taskInfo.getStatus().equals(TaskConstant.Draft)){
+                throw new BizCheckedException("3000001");
+            }
             taskInfo.setOperator(param.get("staffId"));
             taskInfo.setStatus(TaskConstant.Assigned);
             taskInfo.setAssignTime(DateUtils.getCurrentSeconds());
@@ -148,7 +161,10 @@ public class BaseTaskService {
     @Transactional(readOnly = false)
     public void batchAssign(List<Long> taskList,  Long staffId,TaskHandler taskHandler) {
         for(Long taskId:taskList) {
-            TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
+            TaskInfo taskInfo = taskInfoDao.lockById(taskId);
+            if(!taskInfo.getStatus().equals(TaskConstant.Draft)){
+                throw new BizCheckedException("3000001");
+            }
             taskInfo.setOperator(staffId);
             taskInfo.setStatus(TaskConstant.Assigned);
             taskInfo.setAssignTime(DateUtils.getCurrentSeconds());
@@ -160,7 +176,10 @@ public class BaseTaskService {
 
     @Transactional(readOnly = false)
     public void assign(Long taskId, Long staffId, Long containerId, TaskHandler taskHandler) {
-        TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
+        TaskInfo taskInfo = taskInfoDao.lockById(taskId);
+        if(!taskInfo.getStatus().equals(TaskConstant.Draft)){
+            throw new BizCheckedException("3000001");
+        }
         taskInfo.setOperator(staffId);
         taskInfo.setStatus(TaskConstant.Assigned);
         taskInfo.setAssignTime(DateUtils.getCurrentSeconds());
@@ -173,7 +192,11 @@ public class BaseTaskService {
 
     @Transactional(readOnly = false)
     public void baseDone(Long taskId, TaskHandler taskHandler) {
-        TaskInfo taskInfo = taskInfoDao.getTaskInfoById(taskId);
+        //先加锁
+        TaskInfo taskInfo = taskInfoDao.lockById(taskId);
+        if(taskInfo.getStatus().equals(TaskConstant.Done)){
+            throw new BizCheckedException("3000002");
+        }
         taskInfo.setStatus(TaskConstant.Done);
         taskInfo.setFinishTime(DateUtils.getCurrentSeconds());
         taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
@@ -212,6 +235,12 @@ public class BaseTaskService {
     public void done(Long taskId, Long locationId, Long staffId, TaskHandler taskHandler) {
         this.baseDone(taskId, taskHandler);
         taskHandler.doneConcrete(taskId, locationId, staffId);
+    }
+
+    @Transactional(readOnly = false)
+    public void done(Long taskId, List<StockMove> moveList, TaskHandler taskHandler){
+        this.baseDone(taskId, taskHandler);
+        taskHandler.doneConcrete(taskId, moveList);
     }
 
     @Transactional(readOnly = false)
@@ -411,5 +440,15 @@ public class BaseTaskService {
     public BigDecimal getQty (Map<String, Object> condition) {
         BigDecimal sum = taskInfoDao.getQty(condition);
         return sum == null ? BigDecimal.ZERO : sum;
+    }
+    public TaskInfo getTaskByTaskId (Long taskId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("taskId", taskId);
+        List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
+        if(taskInfos==null || taskInfos.size()==0){
+            return null;
+        }else {
+            return taskInfos.get(0);
+        }
     }
 }

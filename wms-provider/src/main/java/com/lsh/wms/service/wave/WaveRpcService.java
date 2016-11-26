@@ -74,6 +74,7 @@ public class WaveRpcService implements IWaveRpcService {
         }
         pickWaveHead.setPickModelTemplateId(tpl.getPickModelTemplateId());
         pickWaveHead.setWaveDest(tpl.getWaveDest());
+        String waveName = "";
         List<Map> orders = request.getOrders();
         for(Map order : orders){
             Long orderId = Long.valueOf(order.get("orderId").toString());
@@ -92,7 +93,10 @@ public class WaveRpcService implements IWaveRpcService {
                 throw new BizCheckedException("2041002");
             }
             */
+            waveName = so.getDeliveryCode()+"..";
         }
+        waveName = String.format("%s[%s]", tpl.getWaveTemplateName(), waveName);
+        pickWaveHead.setWaveName(waveName);
         if(orders.size()==0){
             throw new BizCheckedException("2041003");
         }

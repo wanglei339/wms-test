@@ -3,6 +3,7 @@ package com.lsh.wms.service.receipt;
 import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
@@ -34,6 +35,7 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.utils.IdGenerator;
+import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.*;
 import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.csi.CsiSku;
@@ -170,14 +172,22 @@ public class ReceiptRpcService implements IReceiptRpcService {
             Long containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
             inbReceiptHeader.setContainerId(containerId);
             // : 16/8/19 设置退货区
-            List<BaseinfoLocationRegion> lists = locationDetailService.getMarketReturnList(ibdHeader.getOwnerUid());
-            Long location = lists.get(0).getLocationId();
-            inbReceiptHeader.setLocation(location);
+            List<BaseinfoLocation> lists = locationDetailService.getMarketReturnList();
+            if(lists != null || lists.size() >0){
+                Long location = lists.get(0).getLocationId();
+                inbReceiptHeader.setLocation(location);
+            }else{
+                throw new BizCheckedException("2022223");
+            }
+
             //设置收货类型
             inbReceiptHeader.setReceiptType(ReceiptContant.RECEIPT_TYPE_NORMAL);
 
         }else{
             BaseinfoLocation baseinfoLocation = locationRpcService.assignTemporary();
+            if(baseinfoLocation == null){
+                throw new BizCheckedException("2022223");
+            }
             inbReceiptHeader.setLocation(baseinfoLocation.getLocationId());//16/7/20  暂存区信息
             if(PoConstant.ORDER_TYPE_CPO == orderType){
                 //TODO 这个类型的定义根本看不懂啊
@@ -238,6 +248,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
                 BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), inbReceiptDetail.getSkuId());
                 inbReceiptDetail.setItemId(baseinfoItem.getItemId());
+                inbReceiptDetail.setBarCode(baseinfoItem.getCode());
 
 
                 //根据OrderId及SkuCode获取InbPoDetail
@@ -248,7 +259,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
                 IbdDetail updateIbdDetail = new IbdDetail();
                 //inboundQty改为 ea的数量
-                BigDecimal inboundUnitQty = inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit());
+                //BigDecimal inboundUnitQty = inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit());
+                BigDecimal inboundUnitQty = inbReceiptDetail.getInboundQty();
                 updateIbdDetail.setInboundQty(inboundUnitQty);
                 updateIbdDetail.setOrderId(inbReceiptDetail.getOrderId());
                 updateIbdDetail.setDetailOtherId(ibdDetail.getDetailOtherId());
@@ -268,11 +280,22 @@ public class ReceiptRpcService implements IReceiptRpcService {
                  * itemId
                  *
                  */
+
+                ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(ibdHeader.getOrderOtherRefId());
                 //查供应商、生产日期、失效日期
                 Long lotId =
-                        soDeliveryService.getOutbDeliveryDetail(Long.parseLong(ibdHeader.getOrderOtherId()),baseinfoItem.getItemId()).getLotId();
+                        soDeliveryService.getOutbDeliveryDetail(obdHeader.getOrderId(),baseinfoItem.getItemId()).getLotId();
                 StockLot stockLot = stockLotService.getStockLotByLotId(lotId);
+                logger.info("~~~~~~~~~~~11111111111 查找批号信息  stocklot : " + JSON.toJSONString(stockLot));
                 stockLot.setIsOld(true);
+                logger.info("~~~~~~~~~~~~222222222222 stocklot : " + JSON.toJSONString(stockLot));
+
+                StockLot newStockLot = new StockLot();
+                ObjUtils.bean2bean(stockLot,newStockLot);
+                Long newLotId = RandomUtils.genId();
+                newStockLot.setPoId(ibdHeader.getOrderId());
+                newStockLot.setLotId(newLotId);
+
 
                 //将收货细单中的生产日期改为该lot下的生产日期。
                 SimpleDateFormat format =   new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
@@ -280,11 +303,11 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 Date date = format.parse(d);
                 inbReceiptDetail.setProTime(date);
                 //将inbReceiptDetail填入inbReceiptDetailList中
-                inbReceiptDetail.setInboundQty(inboundUnitQty);
+                //inbReceiptDetail.setInboundQty(inboundUnitQty);
                 inbReceiptDetailList.add(inbReceiptDetail);
 
 
-                BigDecimal inboundQty = inbReceiptDetail.getInboundQty();
+                //BigDecimal inboundQty = inbReceiptDetail.getInboundQty();
 
                 //qty转化为ea
                 //BigDecimal qty = inboundQty.multiply(inbReceiptDetail.getPackUnit());
@@ -299,7 +322,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 move.setTaskId(taskId);
 
                 Map<String, Object> moveInfo = new HashMap<String, Object>();
-                moveInfo.put("lot", stockLot);
+                moveInfo.put("lot", newStockLot);
                 moveInfo.put("move", move);
                 moveList.add(moveInfo);
 
@@ -315,21 +338,19 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     }
                 }
 
-                StockTransferPlan plan = new StockTransferPlan();
-                plan.setItemId(baseinfoItem.getItemId());
-                //返仓区Id
-                plan.setFromLocationId(inbReceiptHeader.getLocation());
-                plan.setToLocationId(locationMap.get(baseinfoItem.getItemId()));
-                //// TODO: 16/8/20 数量
-                plan.setUomQty(inboundQty);
-
-
-                planList.add(plan);
-                //stockTransferRpcService.addPlan(plan);
-
+//                StockTransferPlan plan = new StockTransferPlan();
+//                plan.setItemId(baseinfoItem.getItemId());
+//                //返仓区Id
+//                plan.setFromLocationId(inbReceiptHeader.getLocation());
+//                plan.setToLocationId(locationMap.get(baseinfoItem.getItemId()));
+//                //// TODO: 16/8/20 数量 转换为包装数量
+//                plan.setUomQty(PackUtil.EAQty2UomQty(inboundUnitQty,inbReceiptDetail.getPackUnit()));
+//                planList.add(plan);
+//                //stockTransferRpcService.addPlan(plan);
             }
 
         } else{
+
             for(ReceiptItem receiptItem : request.getItems()){
 
                 if(receiptItem.getInboundQty().compareTo(BigDecimal.ZERO) <= 0) {
@@ -376,8 +397,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 // 判断是否超过订单总数
                 BigDecimal poInboundQty = null != ibdDetail.getInboundQty() ? ibdDetail.getInboundQty() : new BigDecimal(0);
 
-                if (poInboundQty.add(inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit()))
-                        .compareTo(ibdDetail.getOrderQty().multiply(ibdDetail.getPackUnit())) > 0) {
+                if (poInboundQty.add(inbReceiptDetail.getInboundQty()).compareTo(ibdDetail.getOrderQty().multiply(ibdDetail.getPackUnit())) > 0) {
                     throw new BizCheckedException("2020005");
                 }
 
@@ -407,7 +427,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 }*/
                 IbdDetail updateIbdDetail = new IbdDetail();
                 //转成ea
-                BigDecimal inboundUnitQty = inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit());
+                BigDecimal inboundUnitQty = inbReceiptDetail.getInboundQty();
                 updateIbdDetail.setInboundQty(inboundUnitQty);
                 updateIbdDetail.setOrderId(inbReceiptDetail.getOrderId());
                 //updateIbdDetail.setSkuId(inbReceiptDetail.getSkuId());
@@ -433,9 +453,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     obdStreamDetail.setContainerId(inbReceiptHeader.getContainerId());
                     obdStreamDetail.setOwnerId(ibdHeader.getOwnerUid());
                     //统一放到pickQty中
-                    obdStreamDetail.setPickQty(inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit()));
+                    obdStreamDetail.setPickQty(inboundUnitQty);
                     obdStreamDetail.setAllocUnitName(inbReceiptDetail.getPackName());
-                    obdStreamDetail.setAllocUnitQty(inbReceiptDetail.getInboundQty());
+                    obdStreamDetail.setAllocUnitQty(PackUtil.EAQty2UomQty(inboundUnitQty,inbReceiptDetail.getPackName()));
                     obdStreamDetail.setSkuId(inbReceiptDetail.getSkuId());
                     obdStreamDetailList.add(obdStreamDetail);
 
@@ -530,15 +550,15 @@ public class ReceiptRpcService implements IReceiptRpcService {
             taskId = iTaskRpcService.create(TaskConstant.TYPE_PO, taskEntry);
             iTaskRpcService.done(taskId);
         }else if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
-            for(StockTransferPlan plan : planList){
-                BaseinfoItem item  =  itemService.getItem(plan.getItemId());
-                String skuCode = item.getSkuCode();
-                IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(),skuCode);
-                taskId = stockTransferRpcService.addPlan(plan);
-                ibdDetail.setTaskId(taskId);
-
-                poOrderService.updateInbPoDetail(ibdDetail);
-            }
+//            for(StockTransferPlan plan : planList){
+//                BaseinfoItem item  =  itemService.getItem(plan.getItemId());
+//                String skuCode = item.getSkuCode();
+//                IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(),skuCode);
+//                taskId = stockTransferRpcService.addPlan(plan);
+//                ibdDetail.setTaskId(taskId);
+//
+//                poOrderService.updateInbPoDetail(ibdDetail);
+//            }
             //返仓单生成移库单之后 将状态改为收货完成
             ibdHeader.setOrderStatus(PoConstant.ORDER_RECTIPT_ALL);
             poOrderService.updateInbPoHeader(ibdHeader);
@@ -704,23 +724,45 @@ public class ReceiptRpcService implements IReceiptRpcService {
         List<IbdDetail> ibdDetails = poOrderService.getInbPoDetailListByOrderId(orderId);
         ReceiptRequest request = new ReceiptRequest();
 
-        request.setOrderOtherId(ibdHeader.getOrderOtherId());
+        //转换成orderId
+        //request.setOrderOtherId(ibdHeader.getOrderOtherId());
+        request.setOrderId(orderId);
         Map<String , Object> map = new HashMap<String, Object>();
         map.put("staffId",staffId);
         request.setReceiptUser(staffService.getStaffList(map).get(0).getName());
         request.setWarehouseId(0l);
         request.setStaffId(staffId);
+        request.setOrderOtherId(ibdHeader.getOrderOtherId());
+        request.setOwnerId(ibdHeader.getOwnerUid());
+
+        //根据返仓单中的orderOtherRefId找到对应的出库单
+        ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(ibdHeader.getOrderOtherRefId());
 
         List<ReceiptItem> items = new ArrayList<ReceiptItem>();
 
         for(IbdDetail ibdDetail : ibdDetails){
             ReceiptItem item = new ReceiptItem();
+
+            //这里从obd订单中取skuId
+//            List<BaseinfoItem> baseinfoItems = itemService.getItemsBySkuCode(ibdHeader.getOwnerUid(),ibdDetail.getSkuCode());
+//            if(baseinfoItems.size() <= 0){
+//                throw new BizCheckedException("2900001");
+//            }
+//            BaseinfoItem baseinfoItem = baseinfoItems.get(baseinfoItems.size()-1);
+            Map<String,Object> mapQuery = new HashMap<String, Object>();
+            mapQuery.put("orderId", obdHeader.getOrderId());
+            mapQuery.put("skuCode",ibdDetail.getSkuCode());
+            List<ObdDetail> obdDetails = soOrderService.getOutbSoDetailList(mapQuery);
+            if(obdDetails == null || obdDetails.size() <= 0){
+                throw new BizCheckedException("2022224");
+            }
+            ObdDetail obdDetail = obdDetails.get(0);
             item.setArriveNum(ibdDetail.getOrderQty());
-            //item.setBarCode(ibdDetail.getBarCode());
+            //item.setBarCode(obdDetail);
             item.setInboundQty(ibdDetail.getOrderQty());
             item.setPackName(ibdDetail.getPackName());
             item.setPackUnit(ibdDetail.getPackUnit());
-            //item.setSkuId(ibdDetail.getSkuId());
+            item.setSkuId(obdDetail.getSkuId());
             item.setSkuName(ibdDetail.getSkuName());
             items.add(item);
         }
@@ -875,7 +917,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             ObdDetail obdDetail = soOrderService.getObdDetailByOrderIdAndDetailOtherId(obdOrderId,detailOtherId);
             BigDecimal sowQty = obdDetail.getSowQty();
             //判断是否超过门店收货的数量
-            if(sowQty.add(inbReceiptDetail.getInboundQty()).compareTo(obdDetail.getOrderQty()) > 0){
+            if(sowQty.add(inbReceiptDetail.getInboundQty()).compareTo(obdDetail.getOrderQty().multiply(obdDetail.getPackUnit())) > 0){
                 throw new BizCheckedException("2022222");
             }
             obdDetail.setSowQty(sowQty.add(inbReceiptDetail.getInboundQty()));
@@ -888,7 +930,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
             BigDecimal poInboundQty = null != ibdDetail.getInboundQty() ? ibdDetail.getInboundQty() : new BigDecimal(0);
 
-            if (poInboundQty.add(inbReceiptDetail.getInboundQty().multiply(obdDetail.getPackUnit()))
+            if (poInboundQty.add(inbReceiptDetail.getInboundQty())
                     .compareTo(ibdDetail.getOrderQty().multiply(ibdDetail.getPackUnit())) > 0) {
                 throw new BizCheckedException("2020005");
             }
@@ -896,7 +938,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             // 批量修改ibd 实收数量
             IbdDetail updateIbdDetail = new IbdDetail();
             //转为ea
-            BigDecimal inboundUnitQty = inbReceiptDetail.getInboundQty().multiply(obdDetail.getPackUnit());
+            BigDecimal inboundUnitQty = inbReceiptDetail.getInboundQty();
             updateIbdDetail.setInboundQty(inboundUnitQty);
             updateIbdDetail.setOrderId(inbReceiptDetail.getOrderId());
             updateIbdDetail.setDetailOtherId(ibdDetail.getDetailOtherId());
@@ -922,19 +964,15 @@ public class ReceiptRpcService implements IReceiptRpcService {
             obdStreamDetail.setItemId(inbReceiptDetail.getItemId());
             obdStreamDetail.setContainerId(inbReceiptHeader.getContainerId());
             obdStreamDetail.setOwnerId(ibdHeader.getOwnerUid());
-            obdStreamDetail.setPickQty(inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit()));
-            obdStreamDetail.setAllocUnitQty(inbReceiptDetail.getInboundQty());
+            obdStreamDetail.setPickQty(inboundUnitQty);
+            obdStreamDetail.setAllocUnitQty(PackUtil.EAQty2UomQty(inboundUnitQty,inbReceiptDetail.getPackName()));
             obdStreamDetail.setAllocUnitName(inbReceiptDetail.getPackName());
             obdStreamDetail.setSkuId(inbReceiptDetail.getSkuId());
             obdStreamDetailList.add(obdStreamDetail);
             obdStreamDetail.setOrderId(obdOrderId);
-
-
-
             //将数量转为ea
-            inbReceiptDetail.setInboundQty(inboundUnitQty);
+            //inbReceiptDetail.setInboundQty(inboundUnitQty);
             inbReceiptDetailList.add(inbReceiptDetail);
-
             StockLot stockLot = new StockLot();
             stockLot.setIsOld(true);
 
@@ -1022,6 +1060,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             ObjUtils.bean2bean(ibdDetail,receiveDetail);
             receiveDetail.setCode(skuMap.get(ibdDetail.getSkuCode()));// TODO: 16/11/9 增加国条
             receiveDetail.setReceiveId(receiveId);
+            receiveDetail.setInboundQty(BigDecimal.ZERO);
             receiveDetail.setCreatedAt(DateUtils.getCurrentSeconds());
             receiveDetails.add(receiveDetail);
         }
