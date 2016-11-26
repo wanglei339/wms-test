@@ -319,6 +319,9 @@ public class SeedRestService implements ISeedRestService {
                         throw new BizCheckedException("2880006");
                     }
                 }
+                if(TaskConstant.Done.compareTo(info.getStatus())==0){
+                    return JsonUtils.TOKEN_ERROR("该门店已播种完成");
+                }
 
                 info = iTaskRpcService.getTaskInfo(head.getTaskId());
 
@@ -410,6 +413,9 @@ public class SeedRestService implements ISeedRestService {
                 if(container==null){
                     throw new BizCheckedException("2880013");
                 }
+            }
+            if(TaskConstant.Done.compareTo(info.getStatus())==0){
+                return JsonUtils.TOKEN_ERROR("该门店已播种完成");
             }
             head.setRealContainerId(containerId);
             head.setIsUseExceptionCode(is_use_code==true?1:0);
