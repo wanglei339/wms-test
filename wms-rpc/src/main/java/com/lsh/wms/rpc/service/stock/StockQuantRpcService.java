@@ -6,6 +6,7 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.constant.WriteOffConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.core.service.item.ItemService;
@@ -14,11 +15,9 @@ import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
+import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
-import com.lsh.wms.model.stock.StockMove;
-import com.lsh.wms.model.stock.StockQuant;
-import com.lsh.wms.model.stock.StockQuantCondition;
-import com.lsh.wms.model.stock.StockSummary;
+import com.lsh.wms.model.stock.*;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +42,8 @@ public class StockQuantRpcService implements IStockQuantRpcService {
 
     @Autowired
     private StockMoveService moveService;
+    @Autowired
+    private StockTakingService stockTakingService;
 
     @Autowired
     private LocationService locationService;
@@ -161,29 +162,33 @@ public class StockQuantRpcService implements IStockQuantRpcService {
     public void writeOffQuant(Long quantId, BigDecimal realQty)throws BizCheckedException{
         StockQuant quant = quantService.getQuantById(quantId);
         StockMove move = new StockMove();
-        if(quant==null || quant.getQty().compareTo(realQty)>0) {
-            move.setTaskId(100001l);
+        StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
+        if(quant.getQty().compareTo(realQty) > 0) {
+            move.setTaskId(WriteOffConstant.WRITE_OFF_TASK_ID);
             move.setSkuId(quant.getSkuId());
             move.setItemId(quant.getItemId());
+            move.setOwnerId(quant.getOwnerId());
             move.setStatus(TaskConstant.Done);
+            move.setLot(lot);
 
             move.setQty(quant.getQty().subtract(realQty));
             move.setFromLocationId(quant.getLocationId());
             move.setToLocationId(locationService.getInventoryLostLocationId());
             move.setToContainerId(containerService.createContainerByType(ContainerConstant.CAGE).getContainerId());
         }else {
-            move.setTaskId(100001l);
+            move.setTaskId(WriteOffConstant.WRITE_OFF_TASK_ID);
             move.setSkuId(quant.getSkuId());
             move.setItemId(quant.getItemId());
+            move.setOwnerId(quant.getOwnerId());
             move.setStatus(TaskConstant.Done);
 
             move.setQty(realQty.subtract(quant.getQty()));
             move.setFromLocationId(locationService.getInventoryLostLocationId());
             move.setToLocationId(quant.getLocationId());
             move.setToContainerId(quant.getContainerId());
-            move.setLot(lotService.getStockLotByLotId(quant.getLotId()));
+            move.setLot(lot);
         }
-        moveService.move(move);
+        stockTakingService.writeOffQuant(move);
     }
     public int getItemStockCount(Map<String, Object> mapQuery) {
         return itemService.countItem(mapQuery);

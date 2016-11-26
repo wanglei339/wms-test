@@ -196,7 +196,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
                 }
             }
             // 地堆
-            if (realLocation.getType().equals(LocationConstant.FLOOR)) {
+            if (realLocation.getType().equals(LocationConstant.BIN) && realLocation.getBinUsage().equals(BinUsageConstant.BIN_FLOOR_STORE)) {
                 // 判断是否为同一批次的
                 List<StockQuant> stockQuants = stockQuantService.getQuantsByLocationId(locationId);
                 if (!lotId.equals(stockQuants.get(0).getLotId())) {
@@ -220,7 +220,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
                 stockMoveService.moveWholeContainer(taskHead.getContainerId(), containerId, taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
                 //iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), containerId, taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
             }
-        } else if (realLocation.getType().equals(LocationConstant.FLOOR)) {
+        } else if (realLocation.getType().equals(LocationConstant.BIN) && realLocation.getBinUsage().equals(BinUsageConstant.BIN_FLOOR_STORE)) {
             // 地堆区需要合盘
             List<StockQuant> quants = stockQuantService.getQuantsByLocationId(locationId);
             Long containerId = 0L;

@@ -577,6 +577,18 @@ public class LocationService {
         return locations != null && locations.size() > 0 ? locations : new ArrayList<BaseinfoLocation>();
     }
 
+    public List<BaseinfoLocation> getBinLocationsByBinUsage(Integer binUsage) {
+        if (binUsage == null) {
+            return new ArrayList<BaseinfoLocation>();
+        }
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("type", LocationConstant.BIN);
+        params.put("binUsage", binUsage);
+        params.put("isValid", LocationConstant.IS_VALID);
+        List<BaseinfoLocation> locations = locationDao.getBaseinfoLocationList(params);
+        return locations != null && locations.size() > 0 ? locations : new ArrayList<BaseinfoLocation>();
+    }
+
 //    /**
 //     * 按类型获取location节点
 //     *
@@ -715,7 +727,7 @@ public class LocationService {
      * @return
      */
     public BaseinfoLocation getAvailableFloorLocation(Long lotId) {
-        List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.FLOOR);
+        List<BaseinfoLocation> locations = this.getBinLocationsByBinUsage(BinUsageConstant.BIN_FLOOR_STORE);
         if (null != locations && locations.size() > 0) {
             for (BaseinfoLocation location : locations) {
                 Long locationId = location.getLocationId();
@@ -1447,8 +1459,8 @@ public class LocationService {
         detailRequest.setId(null);
         detailRequest.setLocationId(null);
         // 同一位置已有多个货位,则直接扩展
-        // 同一位置只有一个货位,向下级扩展拆分
-        if (!LocationConstant.BIN.equals(fatherLocation.getType())) {
+        // 同一位置只有一个货位,向下级扩展拆分,地堆只做一级
+        if (!LocationConstant.BIN.equals(fatherLocation.getType()) && !LocationConstant.FLOOR.equals(fatherLocation.getType())) {
             detailRequest.setFatherId(location.getLocationId());
             detailRequest.setLocationCode(location.getLocationCode());
             location.setLocationCode(location.getLocationCode() + "X"); // 为避免code重复占位用
