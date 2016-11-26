@@ -59,7 +59,7 @@
                 #{createdAt},
             </if>
             <if test="updatedAt != null">
-                #{updatedAt},
+                #{updatedAt, jdbcType=BINT},
             </if>
         </trim>
     </insert>
