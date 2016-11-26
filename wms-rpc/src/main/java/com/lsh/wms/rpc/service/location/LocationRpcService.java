@@ -292,5 +292,18 @@ public class LocationRpcService implements ILocationRpcService {
         return locations;
     }
 
-
+    /**
+     * 拆分货位
+     * @param locationId
+     * @return
+     * @throws BizCheckedException
+     */
+    public BaseinfoLocation splitBin(Long locationId, String locationCode) throws BizCheckedException {
+        BaseinfoLocation location = locationService.getLocation(locationId);
+        if (location == null) {
+            throw new BizCheckedException("2180001");
+        }
+        BaseinfoLocation newLocation = locationService.splitBin(location, locationCode);
+        return newLocation;
+    }
 }

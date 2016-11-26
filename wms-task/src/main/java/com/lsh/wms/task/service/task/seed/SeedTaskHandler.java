@@ -17,6 +17,7 @@ import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
+import com.lsh.wms.core.service.csi.CsiSupplierService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.po.PoOrderService;
@@ -32,6 +33,7 @@ import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.csi.CsiSku;
+import com.lsh.wms.model.csi.CsiSupplier;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
 import com.lsh.wms.model.po.IbdObdRelation;
@@ -64,6 +66,8 @@ public class SeedTaskHandler extends AbsTaskHandler {
     private TaskHandlerFactory handlerFactory;
     @Autowired
     StockLotService lotService;
+    @Autowired
+    CsiSupplierService csiSupplierService;
     @Autowired
     SeedTaskHeadService seedTaskHeadService;
     @Reference
@@ -239,6 +243,12 @@ public class SeedTaskHandler extends AbsTaskHandler {
         TaskInfo info = entry.getTaskInfo();
         SeedingTaskHead head = (SeedingTaskHead)entry.getTaskHead();
         StockMove move = new StockMove();
+
+        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(info.getOrderId());
+        if(ibdHeader == null) {
+            throw new BizCheckedException("2020001");
+        }
+
         //收货播种
         if(info.getSubType().compareTo(1L)==0){
             StockQuantCondition condition = new StockQuantCondition();
@@ -259,11 +269,6 @@ public class SeedTaskHandler extends AbsTaskHandler {
             Long soOrderId = 0L;
 
             CsiSku sku = csiSkuService.getSku(info.getSkuId());
-            IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(info.getOrderId());
-
-            if(ibdHeader == null) {
-                throw new BizCheckedException("2020001");
-            }
 
             WaveDetail detail =  waveService.getDetailByContainerIdAndItemId(info.getContainerId(), info.getItemId());
 
@@ -318,11 +323,13 @@ public class SeedTaskHandler extends AbsTaskHandler {
         move.setTaskId(taskId);
         if(info.getSubType().compareTo(2L)==0) {
             StockLot lot =new StockLot();
+            CsiSupplier supplier = csiSupplierService.getSupplier(ibdHeader.getSupplierCode(),ibdHeader.getOwnerUid());
             lot.setItemId(info.getItemId());
             lot.setPoId(info.getOrderId());
             lot.setPackUnit(info.getPackUnit());
             lot.setSkuId(info.getSkuId());
             lot.setPackName(info.getPackName());
+            lot.setSupplierId(supplier.getSupplierId());
             moveService.move(move, lot);
             ReceiptRequest receiptRequest = this.fillReceipt(entry);
             seedRpcService.insertReceipt(receiptRequest);
@@ -386,7 +393,6 @@ public class SeedTaskHandler extends AbsTaskHandler {
         receiptRequest.setStoreId(head.getStoreNo().toString());
         //receiptRequest.setIsCreateTask(0);
         receiptRequest.setReceiptUser("");
-
 
         receiptItem.setOrderId(info.getOrderId());
         receiptItem.setSkuId(info.getSkuId());
