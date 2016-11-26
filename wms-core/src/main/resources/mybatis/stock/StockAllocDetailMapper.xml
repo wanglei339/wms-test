@@ -6,7 +6,7 @@
         <id property="id" column="id"/>
         <result property="itemId" column="item_id"/>
         <result property="obdId" column="obd_id"/>
-        <result property="odbDetailId" column="obd_detail_id"/>
+        <result property="obdDetailId" column="obd_detail_id"/>
         <result property="qty" column="qty"/>
         <result property="status" column="status"/>
         <result property="createdAt" column="created_at"/>
@@ -59,7 +59,7 @@
                 #{createdAt},
             </if>
             <if test="updatedAt != null">
-                #{updatedAt},
+                #{updatedAt, jdbcType=BINT},
             </if>
         </trim>
     </insert>
@@ -79,12 +79,12 @@
         where id=#{id}
     </update>
 
-    <select id="getStockDetailByItemId" parameterType="Long" resultMap="stockAllocDetailResultMap">
+    <select id="getStockAllocDetailByItemId" parameterType="Long" resultMap="stockAllocDetailResultMap">
         select * from stock_alloc_detail
         where item_id=#{itemId}
     </select>
 
-    <select id="getStockDetailByObdDetail" parameterType="Long" resultMap="stockAllocDetailResultMap">
+    <select id="getStockAllocDetailByObdId" parameterType="Long" resultMap="stockAllocDetailResultMap">
         select * from stock_alloc_detail
         where obd_id=#{obdId}
     </select>

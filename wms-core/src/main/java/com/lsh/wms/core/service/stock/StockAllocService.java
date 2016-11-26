@@ -61,7 +61,7 @@ public class StockAllocService {
 
     @Transactional(readOnly = false)
     public void realease(WaveDetail waveDetail) {
-        List<StockAllocDetail> stockAllocDetailList = stockAllocDetailDao.getStockAllocDetailByObdDetail(waveDetail.getOrderId());
+        List<StockAllocDetail> stockAllocDetailList = stockAllocDetailDao.getStockAllocDetailByObdId(waveDetail.getOrderId());
         if (stockAllocDetailList == null || stockAllocDetailList.isEmpty()) {
             logger.error(StrUtils.formatString("So [{0}] not Found in alloc detail", waveDetail.getOrderId()));
             return;

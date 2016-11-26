@@ -105,7 +105,6 @@ public class ReceiptRestService implements IReceiptRfService {
 
         List<ReceiptItem> receiptItemList = JSON.parseArray((String)request.get("items"), ReceiptItem.class);
         request.put("items", receiptItemList);
-
         ReceiptRequest receiptRequest = BeanMapTransUtils.map2Bean(request, ReceiptRequest.class);
 
         HttpSession session = RequestUtils.getSession();

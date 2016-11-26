@@ -7,8 +7,10 @@ import com.lsh.wms.api.service.pick.IPCPickRestService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.pick.PickZoneService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.pick.PickTaskHead;
+import com.lsh.wms.model.pick.PickZone;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
@@ -33,6 +35,9 @@ public class PickRestService implements IPCPickRestService{
     LocationService locationService;
     @Autowired
     SoOrderService orderService;
+    @Autowired
+    PickZoneService pickZoneService;
+
     @POST
     @Path("getPickTaskInfo")
     public String getPickTaskInfo(Map<String, Object> mapInput){
@@ -50,6 +55,7 @@ public class PickRestService implements IPCPickRestService{
             }
         }
         List<Map<String, Object>> taskInfoList = new LinkedList<Map<String, Object>>();
+        Map<Long, PickZone> mapZone = new HashMap<Long, PickZone>();
         for(Object id : pickTaskIds){
             Long taskId = Long.valueOf(id.toString());
             TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
@@ -57,6 +63,13 @@ public class PickRestService implements IPCPickRestService{
             Map<String, Object> head = (Map<String, Object>)entry.getTaskHead();
             head.put("lineCount", details.size());
             head.put("deliveryName", orderService.getOutbSoHeaderByOrderId(Long.valueOf(details.get(0).get("orderId").toString())).getDeliveryName());
+            Long pickZoneId = head.get("pickZonId") == null ? 0 : Long.valueOf(head.get("pickZonId").toString());
+            PickZone zone = mapZone.get(pickZoneId);
+            if(pickZoneId!=0 && zone == null){
+                zone = pickZoneService.getPickZone(pickZoneId);
+                mapZone.put(pickZoneId, zone);
+            }
+            head.put("pickZoneName", zone == null ? "" : zone.getPickZoneName());
             taskInfoList.add(head);
         }
         return JsonUtils.SUCCESS(taskInfoList);
