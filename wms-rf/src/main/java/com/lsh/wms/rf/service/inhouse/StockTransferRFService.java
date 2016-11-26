@@ -157,7 +157,7 @@ public class StockTransferRFService implements IStockTransferRFService{
             final String toLocationDesc = String.format("%s%s",
                     taskInfo.getToLocationId()!=0?locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode():"",
                     taskInfo.getExt9());
-            if (taskInfo.getStep()==0) {
+            if (taskInfo.getStep()==1) {
                 type = 1L;
                 uomQty = taskInfo.getQty();
             } else {
