@@ -397,6 +397,7 @@ public class WaveCore {
                 List<Object> pickTaskDetails = new LinkedList<Object>();
                 info.setType(TaskConstant.TYPE_PICK);
                 info.setSubType(zone.getPickType());
+                info.setExt1(zone.getPickZoneId());
                 PickTaskHead head = new PickTaskHead();
                 head.setWaveId(waveId);
                 head.setPickType(1);
