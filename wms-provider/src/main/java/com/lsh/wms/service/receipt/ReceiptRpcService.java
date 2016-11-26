@@ -248,6 +248,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
                 BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), inbReceiptDetail.getSkuId());
                 inbReceiptDetail.setItemId(baseinfoItem.getItemId());
+                inbReceiptDetail.setBarCode(baseinfoItem.getCode());
 
 
                 //根据OrderId及SkuCode获取InbPoDetail
@@ -725,23 +726,34 @@ public class ReceiptRpcService implements IReceiptRpcService {
         request.setWarehouseId(0l);
         request.setStaffId(staffId);
 
+        //根据返仓单中的orderOtherRefId找到对应的出库单
+        ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(ibdHeader.getOrderOtherRefId());
+
         List<ReceiptItem> items = new ArrayList<ReceiptItem>();
 
         for(IbdDetail ibdDetail : ibdDetails){
             ReceiptItem item = new ReceiptItem();
 
-            List<BaseinfoItem> baseinfoItems = itemService.getItemsBySkuCode(ibdHeader.getOwnerUid(),ibdDetail.getSkuCode());
-            if(baseinfoItems.size() <= 0){
-                throw new BizCheckedException("2900001");
+            //这里从obd订单中取skuId
+//            List<BaseinfoItem> baseinfoItems = itemService.getItemsBySkuCode(ibdHeader.getOwnerUid(),ibdDetail.getSkuCode());
+//            if(baseinfoItems.size() <= 0){
+//                throw new BizCheckedException("2900001");
+//            }
+//            BaseinfoItem baseinfoItem = baseinfoItems.get(baseinfoItems.size()-1);
+            Map<String,Object> mapQuery = new HashMap<String, Object>();
+            mapQuery.put("orderId", obdHeader.getOrderId());
+            mapQuery.put("skuCode",ibdDetail.getSkuCode());
+            List<ObdDetail> obdDetails = soOrderService.getOutbSoDetailList(mapQuery);
+            if(obdDetails == null || obdDetails.size() <= 0){
+                throw new BizCheckedException("2022224");
             }
-            BaseinfoItem baseinfoItem = baseinfoItems.get(baseinfoItems.size()-1);
-
+            ObdDetail obdDetail = obdDetails.get(0);
             item.setArriveNum(ibdDetail.getOrderQty());
-            item.setBarCode(baseinfoItem.getCode());
+            //item.setBarCode(obdDetail);
             item.setInboundQty(ibdDetail.getOrderQty());
             item.setPackName(ibdDetail.getPackName());
             item.setPackUnit(ibdDetail.getPackUnit());
-            item.setSkuId(baseinfoItem.getSkuId());
+            item.setSkuId(obdDetail.getSkuId());
             item.setSkuName(ibdDetail.getSkuName());
             items.add(item);
         }
