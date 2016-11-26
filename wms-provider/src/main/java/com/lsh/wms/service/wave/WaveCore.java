@@ -772,11 +772,11 @@ public class WaveCore {
             Collections.sort(locationList, new Comparator<BaseinfoLocation>() {
                 //地堆区在前面
                 public int compare(BaseinfoLocation o1, BaseinfoLocation o2) {
-                    if(o1.getType().equals(LocationConstant.FLOOR_BIN)
+                    if((o1.getType().equals(LocationConstant.BIN) && o1.getBinUsage().equals(BinUsageConstant.BIN_FLOOR_STORE))
                             || o1.getType().equals(LocationConstant.FLOOR)){
                         //01在前
                         return -1;
-                    }else if (o2.getType().equals(LocationConstant.FLOOR_BIN)
+                    }else if ((o2.getType().equals(LocationConstant.BIN) && o2.getBinUsage().equals(BinUsageConstant.BIN_FLOOR_STORE)) || o2.getType().equals(LocationConstant.FLOOR_BIN)
                             || o2.getType().equals(LocationConstant.FLOOR)){
                         return 1;
                     }else{
@@ -809,7 +809,7 @@ public class WaveCore {
                 }
             }
             if(pickLocationList.size()==0 &&
-                    (location.getType().equals(LocationConstant.FLOOR)
+                    ((location.getType().equals(LocationConstant.BIN) && location.getBinUsage().equals(BinUsageConstant.BIN_FLOOR_STORE)) || location.getType().equals(LocationConstant.FLOOR)
                             || location.getType().equals(LocationConstant.FLOOR_BIN)) ) {
                 //地堆区不设置也可以直接捡货
                 BaseinfoItemLocation itemLocation = new BaseinfoItemLocation();
