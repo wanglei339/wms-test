@@ -84,7 +84,7 @@
         where item_id=#{itemId}
     </select>
 
-    <select id="getStockDetailByObdDetail" parameterType="Long" resultMap="stockAllocDetailResultMap">
+    <select id="getStockDetailByObdId" parameterType="Long" resultMap="stockAllocDetailResultMap">
         select * from stock_alloc_detail
         where obd_id=#{obdId}
     </select>

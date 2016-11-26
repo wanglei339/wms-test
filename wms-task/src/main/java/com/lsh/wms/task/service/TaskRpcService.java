@@ -24,7 +24,6 @@ import com.lsh.wms.model.task.TaskTrigger;
 import com.lsh.wms.task.service.event.EventHandlerFactory;
 import com.lsh.wms.task.service.event.IEventHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
-import com.sun.javafx.tk.Toolkit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
