@@ -118,6 +118,11 @@ public class StockTransferRFService implements IStockTransferRFService{
                 result.put("uom", quant.getPackName());
                 result.put("uomQty", PackUtil.EAQty2UomQty(qty, quant.getPackName()));
             }
+            //是否需要扫描商品码才能确定准确的商品.
+            long needScanBarcode = (location.getRegionType() == LocationConstant.FLOOR
+                    || location.getRegionType() == LocationConstant.BACK_AREA
+                    || location.getRegionType() == LocationConstant.DEFECTIVE_AREA) ? 1 : 0;
+            result.put("needScanBarcode", needScanBarcode);
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
@@ -164,10 +169,15 @@ public class StockTransferRFService implements IStockTransferRFService{
             } else {
                 type = 2L;
             }
-            final long needScanCode = (type == 1
-                                        && (fromLocation.getRegionType() == LocationConstant.FLOOR
+            //是否需要扫描商品码才能确定准确的商品.
+            final long needScanBarcode = (fromLocation.getRegionType() == LocationConstant.FLOOR
                                              || fromLocation.getRegionType() == LocationConstant.BACK_AREA
-                                             || fromLocation.getRegionType() == LocationConstant.DEFECTIVE_AREA)) ? 1 : 0;
+                                             || fromLocation.getRegionType() == LocationConstant.DEFECTIVE_AREA) ? 1 : 0;
+            //是否需要扫描托盘码才能做移出操作.
+            final long needScanContainer = (taskInfo.getSubType() == 1 &&
+                    (fromLocation.getRegionType() == LocationConstant.FLOOR
+                            || fromLocation.getRegionType() == LocationConstant.BACK_AREA
+                            || fromLocation.getRegionType() == LocationConstant.DEFECTIVE_AREA)) ? 1 : 0;
             uomQty = PackUtil.EAQty2UomQty(taskInfo.getQty(), taskInfo.getPackName());
             return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                 {
@@ -180,7 +190,8 @@ public class StockTransferRFService implements IStockTransferRFService{
                     put("uom", taskInfo.getPackName());
                     put("uomQty", taskInfo.getSubType().compareTo(1L) == 0 ? "整托" : uomQty);
                     put("subType", taskInfo.getSubType());
-                    put("needScanCode", needScanCode);
+                    put("needScanBarcode", needScanBarcode);
+                    put("needScanContainer", needScanContainer);
                 }
             });
         } catch (BizCheckedException e) {
@@ -259,8 +270,17 @@ public class StockTransferRFService implements IStockTransferRFService{
         Map<String, Object> next = new HashMap<String, Object>();
         if (type.equals(1L)) {
             uomQty = new BigDecimal(params.get("uomQty").toString());
-            iStockTransferRpcService.scanFromLocation(taskEntry, location, uomQty);
             final TaskInfo taskInfo = taskEntry.getTaskInfo();
+            BaseinfoLocation fromLocation =  locationRpcService.getLocation(taskInfo.getFromLocationId());
+            if(taskInfo.getSubType() == 1 && (fromLocation.getRegionType() == LocationConstant.FLOOR
+                    || fromLocation.getRegionType() == LocationConstant.BACK_AREA
+                    || fromLocation.getRegionType() == LocationConstant.DEFECTIVE_AREA)){
+                //虚拟区域,需要用一个托盘码
+                //Long containerId = Long.valueOf(params.get("containerId").toString());
+                //我TM的不支持该行了吧
+                return JsonUtils.TOKEN_ERROR("当前不支持此区域的整托移动");
+            }
+            iStockTransferRpcService.scanFromLocation(taskEntry, location, uomQty);
             if(taskInfo.getStatus() == TaskConstant.Cancel){
                 next.put("response", true);
             }else{
