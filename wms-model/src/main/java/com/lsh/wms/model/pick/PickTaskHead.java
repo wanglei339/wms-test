@@ -21,6 +21,8 @@ public class PickTaskHead implements Serializable {
 	private Long allocCollectLocation = 0L;
 	/** 实际的集货位 */
 	private Long realCollectLocation = 0L;
+	/** 分拣区id */
+	private Long pickZoneId = 0L;
 	/** 拣货完成时间 */
     private Long pickAt = 0L;
 	/**  */
@@ -90,6 +92,14 @@ public class PickTaskHead implements Serializable {
 
 	public void setRealCollectLocation(Long realCollectLocation){
 		this.realCollectLocation = realCollectLocation;
+	}
+
+	public void setPickZoneId(Long pickZoneId){
+		this.pickZoneId = pickZoneId;
+	}
+
+	public Long getPickZoneId(){
+		return this.pickZoneId;
 	}
 	
 	public Long getPickAt(){

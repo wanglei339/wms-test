@@ -400,6 +400,7 @@ public class WaveCore {
                 PickTaskHead head = new PickTaskHead();
                 head.setWaveId(waveId);
                 head.setPickType(1);
+                head.setPickZoneId(zone.getPickZoneId());
                 //head.setTransPlan("");
                 //head.setDeliveryId(1L);
                 info.setTaskName(String.format("波次[%d]-捡货任务[%d]", waveId, entryList.size()+1));
