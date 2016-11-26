@@ -159,10 +159,10 @@ public class StockTransferRFService implements IStockTransferRFService{
                     taskInfo.getExt9());
             if (taskInfo.getStep()==1) {
                 type = 1L;
-                uomQty = taskInfo.getQty();
+                uomQty = PackUtil.EAQty2UomQty(taskInfo.getQty(), taskInfo.getPackName());
             } else {
                 type = 2L;
-                uomQty = taskInfo.getQtyDone();
+                uomQty = taskInfo.getQtyDoneUom();
             }
             return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                 {
