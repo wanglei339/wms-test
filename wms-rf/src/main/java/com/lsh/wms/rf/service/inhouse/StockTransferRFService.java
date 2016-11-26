@@ -266,8 +266,8 @@ public class StockTransferRFService implements IStockTransferRFService{
                 next.put("locationCode", toLocationDesc);
                 next.put("itemId", taskInfo.getItemId());
                 next.put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
-                next.put("packName", taskInfo.getPackName());
-                next.put("uomQty", taskInfo.getSubType().compareTo(1L) == 0 ? "整托" : taskInfo.getQtyUom());
+                next.put("packName", taskInfo.getSubType().compareTo(1L) == 0 ? "整托" : taskInfo.getPackName());
+                next.put("uomQty", taskInfo.getSubType().compareTo(1L) == 0 ? "整托" : taskInfo.getQtyDoneUom());
                 next.put("subType", taskInfo.getSubType());
             }
         } else {
