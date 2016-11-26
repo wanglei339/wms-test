@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.task.TaskMsgDao" >
+
+	<resultMap id="taskMsgResultMap" type="TaskMsg">
+		<id property="id" column="id"/>
+		<result property="sourceTaskId" column="source_task_id"/>
+		<result property="type" column="type"/>
+		<result property="status" column="status"/>
+		<result property="businessId" column="business_id"/>
+		<result property="errorCode" column="error_code"/>
+		<result property="errorMsg" column="error_msg"/>
+		<result property="msgContent" column="msg_content"/>
+		<result property="timestamp" column="timestamp"/>
+		<result property="priority" column="priority"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TaskMsg">
+		insert into task_msg
+		<trim prefix="(" suffixOverrides="," suffix=")">
+        <if test="id != null">id,</if>
+        <if test="sourceTaskId != null">source_task_id,</if>
+        <if test="type != null">type,</if>
+        <if test="status != null">status,</if>
+        <if test="businessId != null">business_id,</if>
+        <if test="errorCode != null">error_code,</if>
+        <if test="errorMsg != null">error_msg,</if>
+        <if test="msgContent != null">msg_content,</if>
+        <if test="timestamp != null">timestamp,</if>
+        <if test="priority != null">priority,</if>
+        <if test="createdAt != null">created_at,</if>
+        <if test="updatedAt != null">updated_at,</if>
+        </trim>
+    	values
+    	<trim prefix="(" suffixOverrides="," suffix=")">
+        <if test="id != null">#{id},</if>
+        <if test="sourceTaskId != null">#{sourceTaskId},</if>
+        <if test="type != null">#{type},</if>
+        <if test="status != null">#{status},</if>
+        <if test="businessId != null">#{businessId},</if>
+        <if test="errorCode != null">#{errorCode},</if>
+        <if test="errorMsg != null">#{errorMsg},</if>
+        <if test="msgContent != null">#{msgContent},</if>
+        <if test="timestamp != null">#{timestamp},</if>
+        <if test="priority != null">#{priority},</if>
+        <if test="createdAt != null">#{createdAt},</if>
+        <if test="updatedAt != null">#{updatedAt},</if>
+		</trim>
+	</insert>
+
+	<update id="update" parameterType="TaskMsg">
+		update task_msg
+    	<set>
+  			<if test="sourceTaskId != null">source_task_id=#{sourceTaskId},</if>
+  			<if test="type != null">type=#{type},</if>
+  			<if test="status != null">status=#{status},</if>
+  			<if test="businessId != null">business_id=#{businessId},</if>
+  			<if test="errorCode != null">error_code=#{errorCode},</if>
+  			<if test="errorMsg != null">error_msg=#{errorMsg},</if>
+  			<if test="msgContent != null">msg_content=#{msgContent},</if>
+  			<if test="timestamp != null">timestamp=#{timestamp},</if>
+  			<if test="priority != null">priority=#{priority},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getTaskMsgByBusinessId" parameterType="Long" resultMap="taskMsgResultMap">
+		select * from task_msg
+		where business_id=#{businessId}
+		limit 1
+	</select>
+  
+	<select id="countTaskMsg" parameterType="map" resultType="int">
+		select count(*) from task_msg
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getTaskMsgList" parameterType="map" resultMap="taskMsgResultMap">
+		select * from task_msg
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="sourceTaskId != null">and source_task_id=#{sourceTaskId}</if>
+			<if test="type != null">and type=#{type}</if>
+			<if test="status != null">and status=#{status}</if>
+			<if test="businessId != null">and business_id=#{businessId}</if>
+			<if test="errorCode != null">and error_code=#{errorCode}</if>
+			<if test="errorMsg != null">and error_msg=#{errorMsg}</if>
+			<if test="msgContent != null">and msg_content=#{msgContent}</if>
+			<if test="timestamp != null">and timestamp=#{timestamp}</if>
+			<if test="priority != null">and priority=#{priority}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>

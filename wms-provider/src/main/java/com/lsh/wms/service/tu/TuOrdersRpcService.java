@@ -107,16 +107,16 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
         //storeid key
         Map<String, Map<String, Object>> storeInfoMap = new HashMap<String, Map<String, Object>>();
         //封装门店发货单号
-        List<Object> storeDeliveryList = new ArrayList<Object>();
+        List<Map<String, Object>> storeDeliveryList = new ArrayList<Map<String, Object>>();
         for (String storeNo : storeNoSet) {
             CsiCustomer customer = csiCustomerService.getCustomerByCustomerCode(storeNo);
             Map<String, Object> storeMap = new HashMap<String, Object>();
             storeMap.put("storeNo", storeNo);
             String storeId = "";
             String storeName = "";
-            if(customer != null){
+            if (customer != null) {
                 storeName = customer.getCustomerName();
-                storeId = customer.getCustomerId()+"";
+                storeId = customer.getCustomerId() + "";
             }
             storeMap.put("storeId", storeId);
             storeMap.put("storeName", storeName);
@@ -124,12 +124,12 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
             storeInfoMap.put(storeId, storeMap);
 
             //将店铺名称放入店铺发货单关系中
-            Map<String,Object> temp = new HashMap<String, Object>();
-            temp.put("storeName",storeName);
-            temp.put("list",storeNoToDeliveryId.get(storeNo));
+            Map<String, Object> temp = new HashMap<String, Object>();
+            temp.put("storeName", storeName);
+            temp.put("list", storeNoToDeliveryId.get(storeNo));
             //storeNo key
-            Map<String,Object> storeDeliveryIdInfoMap = new HashMap<String, Object>();
-            storeDeliveryIdInfoMap.put(storeNo,temp);
+            Map<String, Object> storeDeliveryIdInfoMap = new HashMap<String, Object>();
+            storeDeliveryIdInfoMap.put(storeNo, temp);
             storeDeliveryList.add(storeDeliveryIdInfoMap);
         }
 
@@ -262,9 +262,9 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
                 }
                 BaseinfoLocation collectionLocation = iLocationRpcService.getLocation(customer.getCollectRoadId());
 
-                if(collectionLocation != null){
+                if (collectionLocation != null) {
                     storeMap.put("collectionBins", collectionLocation.getLocationCode());
-                }else{
+                } else {
                     storeMap.put("collectionBins", "");
                 }
                 //托盘箱数统计集合
@@ -315,6 +315,21 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
         if (TaskConstant.Done.equals(qcInfo.getStatus())) {
             return qcInfo;
         }
+        return null;
+    }
+
+    /**
+     * 获取托盘上的贵品的详情,用作贵品交付单
+     *
+     * @param contaienrId
+     * @return
+     * @throws BizCheckedException
+     */
+    public Map<String, Object> getContainerExpensiveGoods(Long contaienrId) throws BizCheckedException {
+        //获取wave_detail
+        //todo
+//        List<WaveDetail> waveDetails =
+
         return null;
     }
 
@@ -559,5 +574,6 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
         returnData.put("data", returnList);
         return returnData;
     }
+
 
 }

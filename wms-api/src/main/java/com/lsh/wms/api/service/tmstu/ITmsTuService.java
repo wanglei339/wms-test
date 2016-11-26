@@ -9,4 +9,5 @@ public interface ITmsTuService {
     String receiveTuHead() throws BizCheckedException;
     String superMarketUnloadList() throws BizCheckedException;
     String storeUnloadList() throws BizCheckedException;
+
 }

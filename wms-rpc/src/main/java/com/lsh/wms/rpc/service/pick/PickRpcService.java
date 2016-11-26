@@ -50,7 +50,7 @@ public class PickRpcService implements IPickRpcService {
      * @param pickDetails
      */
     public List<WaveDetail> calcPickOrder(List<WaveDetail> pickDetails) throws BizCheckedException {
-        if (null == pickDetails && pickDetails.size() <= 0) {
+        if (null == pickDetails || pickDetails.size() <= 0) {
             throw new BizCheckedException("2040010");
         }
         List<Map<String, Object>> pickList = new ArrayList<Map<String, Object>>();

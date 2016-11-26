@@ -109,7 +109,8 @@ public class StockTransferCore {
             if (itemLocations.size() > 0 && itemLocations.get(0).getItemId().compareTo(itemId) != 0) {
                 throw new BizCheckedException("2550004");
             }
-        } else if (toQuants != null && toQuants.size() > 0
+        }
+        if (toQuants != null && toQuants.size() > 0
                 && toLocation.getType().compareTo(LocationConstant.BACK_AREA) != 0
                 && toLocation.getType().compareTo(LocationConstant.DEFECTIVE_AREA) != 0) {
             //其余货位
@@ -170,7 +171,7 @@ public class StockTransferCore {
         } else {
             StockMove move = new StockMove();
             ObjUtils.bean2bean(taskInfo, move);
-            move.setQty(PackUtil.UomQty2EAQty(uomQty, uom));
+            //move.setQty(PackUtil.UomQty2EAQty(uomQty, uom));
             move.setFromLocationId(fromLocation.getLocationId());
             move.setToLocationId(toLocationId);
             move.setFromContainerId(quants.get(0).getContainerId());
@@ -213,7 +214,7 @@ public class StockTransferCore {
                 throw new BizCheckedException("2550034");
             }
             ObjUtils.bean2bean(taskInfo, move);
-            move.setQty(taskInfo.getQtyDone());
+            //move.setQty(taskInfo.getQtyDone());
             move.setFromLocationId(fromLocationId);
             move.setToLocationId(toLocation.getLocationId());
             Long newContainerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();

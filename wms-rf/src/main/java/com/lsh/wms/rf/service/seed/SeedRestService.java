@@ -305,7 +305,18 @@ public class SeedRestService implements ISeedRestService {
                 if(heads==null){
                     return JsonUtils.TOKEN_ERROR("该门店不存在播种任务");
                 }
-                SeedingTaskHead head = heads.get(0);
+                SeedingTaskHead head = null;
+                for(SeedingTaskHead seedingTaskHead:heads){
+                    info = iTaskRpcService.getTaskInfo(seedingTaskHead.getTaskId());
+                    if(info.getStatus().compareTo(TaskConstant.Draft)!=0 && info.getStatus().compareTo(TaskConstant.Assigned)!=0){
+                        continue;
+                    }
+                    head = seedingTaskHead;
+                }
+                if(head==null){
+                    return JsonUtils.TOKEN_ERROR("该门店已播种完成");
+                }
+
                 if(head.getRequireQty().compareTo(qty)<0) {
                     return JsonUtils.TOKEN_ERROR("播种数量超出门店订单数量");
                 }
@@ -322,6 +333,14 @@ public class SeedRestService implements ISeedRestService {
 
                 info = iTaskRpcService.getTaskInfo(head.getTaskId());
 
+                //(不收货播种)判断是否已经结束收货
+                if(info.getSubType().compareTo(2L)==0){
+                    IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(info.getOrderId());
+                    if(ibdHeader.getOrderStatus().compareTo(PoConstant.ORDER_RECTIPT_ALL)==0){
+
+                        return JsonUtils.TOKEN_ERROR("该po单已结束收货");
+                    }
+                }
 
                 info.setQty(qty);
                 head.setRealContainerId(containerId);
@@ -383,19 +402,7 @@ public class SeedRestService implements ISeedRestService {
             if(info.getSubType().compareTo(2L)==0){
                 IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(info.getOrderId());
                 if(ibdHeader.getOrderStatus().compareTo(PoConstant.ORDER_RECTIPT_ALL)==0){
-                    HashMap<String,Object> map = new HashMap<String, Object>();
-                    map.put("orderId", info.getOrderId());
-                    map.put("status",TaskConstant.Draft);
-                    map.put("type",TaskConstant.TYPE_SEED);
-                    infos = baseTaskService.getTaskInfoList(map);
-                    List<Long> taskList = new ArrayList<Long>();
-                    taskList.add(info.getTaskId());
-                    if(infos!=null && infos.size()!=0) {
-                        for (TaskInfo taskInfo : infos) {
-                            taskList.add(taskInfo.getTaskId());
-                        }
-                        iTaskRpcService.batchCancel(TaskConstant.TYPE_SEED, taskList);
-                    }
+
                     return JsonUtils.TOKEN_ERROR("该po单已结束收货");
                 }
             }
@@ -410,6 +417,9 @@ public class SeedRestService implements ISeedRestService {
                 if(container==null){
                     throw new BizCheckedException("2880013");
                 }
+            }
+            if(TaskConstant.Done.compareTo(info.getStatus())==0){
+                return JsonUtils.TOKEN_ERROR("该门店已播种完成");
             }
             head.setRealContainerId(containerId);
             head.setIsUseExceptionCode(is_use_code==true?1:0);
