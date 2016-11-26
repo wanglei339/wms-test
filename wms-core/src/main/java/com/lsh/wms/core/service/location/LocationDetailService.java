@@ -483,7 +483,7 @@ public class LocationDetailService {
         Map<String, Object> params = new HashMap<String, Object>();
         List<BaseinfoLocation> locationList = locationService.getTargetLocationListByType(LocationConstant.MARKET_RETURN_AREA);
         //过滤货主
-        if (locationList != null || locationList.size() > 0) {
+        if (locationList != null && locationList.size() > 0) {
             return locationList;
         } else {
             return new ArrayList<BaseinfoLocation>();

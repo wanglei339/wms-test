@@ -104,12 +104,15 @@ public class MergeRfRestService implements IMergeRfRestService {
 //        List<WaveDetail> waveDetails = new ArrayList<WaveDetail>();
 //        for (Long containerId : containerIds) {
 //            List<WaveDetail> details = waveService.getAliveDetailsByContainerId(containerId);
+//            if (null == details || details.size() < 1) {
+//                throw new BizCheckedException("2870041");
+//            }
 //            waveDetails.addAll(details);
 //        }
 //        for (WaveDetail detail : waveDetails) {
 //            BaseinfoItem item = itemService.getItem(detail.getOwnerId(), detail.getItemId());
 //            if (item != null) {
-//                if (item.getIsValuable().equals(ItemConstant.TYPE_IS_VALUABLE)){
+//                if (item.getIsValuable().equals(ItemConstant.TYPE_IS_VALUABLE)) {
 //                    throw new BizCheckedException("2870042");
 //                }
 //            }
@@ -177,13 +180,16 @@ public class MergeRfRestService implements IMergeRfRestService {
 //        //判断贵品,贵品不合板
 //        List<WaveDetail> detailArrayList = new ArrayList<WaveDetail>();
 //        for (Long containerId : containerIds) {
-//            List<WaveDetail> details = waveService.getAliveDetailsByContainerId(containerId);
+//            List<WaveDetail> details = waveService.getAliveDetailsByContainerId(containerId);   //肯定能查到
+//            if (null == details || details.size() < 1) {
+//                throw new BizCheckedException("2870041");
+//            }
 //            detailArrayList.addAll(details);
 //        }
 //        for (WaveDetail detail : detailArrayList) {
 //            BaseinfoItem item = itemService.getItem(detail.getOwnerId(), detail.getItemId());
 //            if (item != null) {
-//                if (item.getIsValuable().equals(ItemConstant.TYPE_IS_VALUABLE)){
+//                if (item.getIsValuable().equals(ItemConstant.TYPE_IS_VALUABLE)) {
 //                    throw new BizCheckedException("2870042");
 //                }
 //            }

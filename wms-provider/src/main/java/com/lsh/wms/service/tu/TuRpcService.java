@@ -387,7 +387,7 @@ public class TuRpcService implements ITuRpcService {
         for (WaveDetail one : waveDetails) {
             //商品判断
             itemIds.add(one.getItemId());
-            if (one.getQcAt() < DateUtils.getTodayBeginSeconds()){
+            if (one.getQcAt() < DateUtils.getTodayBeginSeconds()) {
                 isRest = true;
             }
         }
@@ -400,12 +400,10 @@ public class TuRpcService implements ITuRpcService {
             if (null == item) {
                 throw new BizCheckedException("2870041");
             }
-            if (item.getIsValuable().equals(ItemConstant.TYPE_IS_VALUABLE)){
+            if (item.getIsValuable().equals(ItemConstant.TYPE_IS_VALUABLE)) {
                 isExpensive = true;
             }
         }
-
-
 
 
         //聚类板子的箱数,以QC聚类
@@ -432,11 +430,18 @@ public class TuRpcService implements ITuRpcService {
         //预估剩余板数,预装-已装
         Long preBoards = tuHead.getPreBoard();
         Long preRestBoard = null;   //预估剩余可装板子数
+        Long curBoards = 0L;
         List<TuDetail> tuDetails = this.getTuDeailListByTuId(tuId);
         if (null == tuDetails || tuDetails.size() < 1) {  //一个板子都没装
             preRestBoard = preBoards;
+        } else {
+            for (TuDetail one : tuDetails) {
+                curBoards += one.getBoardNum();
+            }
         }
-        preRestBoard = preBoards - tuDetails.size();
+
+
+        preRestBoard = preBoards - curBoards;
         result.put("preRestBoard", preRestBoard);    //预估剩余板数
         result.put("containerNum", containerNum);
         result.put("boxNum", allboxNum);    //总箱数

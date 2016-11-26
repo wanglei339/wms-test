@@ -725,6 +725,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
         request.setReceiptUser(staffService.getStaffList(map).get(0).getName());
         request.setWarehouseId(0l);
         request.setStaffId(staffId);
+        request.setOrderOtherId(ibdHeader.getOrderOtherId());
+        request.setOwnerId(ibdHeader.getOwnerUid());
 
         //根据返仓单中的orderOtherRefId找到对应的出库单
         ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(ibdHeader.getOrderOtherRefId());
