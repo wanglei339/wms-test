@@ -115,4 +115,6 @@ public interface ILocationRpcService {
 
     BaseinfoLocation getFatherRegionBySonId(Long locationId) throws BizCheckedException;
 
+    BaseinfoLocation splitBin(Long locationId, String locationCode) throws BizCheckedException;
+
 }
