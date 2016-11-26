@@ -10,5 +10,5 @@ import java.util.Map;
 public interface ISeedProveiderRestService {
     String getSeedTask();
     String countSeedTask();
-    String getSeedTask( Long realContainerId);
+    String getSeedTaskByContainerId(Long realContainerId);
 }

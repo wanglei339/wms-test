@@ -43,7 +43,7 @@ public class SeedProviderRestService implements ISeedProveiderRestService{
     }
     @GET
     @Path("getSeedTaskByContainerId")
-    public String getSeedTask(@QueryParam("realContainerId") Long realContainerId) {
+    public String getSeedTaskByContainerId(@QueryParam("realContainerId") Long realContainerId) {
         return JsonUtils.SUCCESS(seedTaskHeadService.getTaskByRealContainerId(realContainerId));
     }
 
