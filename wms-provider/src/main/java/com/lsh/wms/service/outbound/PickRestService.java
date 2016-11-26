@@ -19,8 +19,10 @@ import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -81,9 +83,9 @@ public class PickRestService implements IPCPickRestService {
         return JsonUtils.SUCCESS(taskInfoList);
     }
 
-    @POST
+    @GET
     @Path("expensiveGoodsList")
-    public String getContainerExpensiveGoods(Long containerId) throws BizCheckedException {
+    public String getContainerExpensiveGoods(@QueryParam("containerId") Long containerId) throws BizCheckedException {
         return JsonUtils.SUCCESS(ipcPickRpcService.getContainerExpensiveGoods(containerId));
     }
 
