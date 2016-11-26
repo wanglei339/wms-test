@@ -20,7 +20,7 @@ import org.jsoup.helper.StringUtil;
 @Path("outbound/tuOrders")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
-public class TuOrdersRestService implements ITuOrdersRestService{
+public class TuOrdersRestService implements ITuOrdersRestService {
     //private static Logger logger = LoggerFactory.getLogger(TuOrdersRestService.class);
     @Reference
     private ITuOrdersRpcService iTuOrdersRpcService;
@@ -28,10 +28,10 @@ public class TuOrdersRestService implements ITuOrdersRestService{
     @GET
     @Path("getTuOrdersList")
     //获取大店直流行程单数据
-    public String getTuOrdersList(@QueryParam("tuId") String tuId) throws BizCheckedException{
-        if(StringUtil.isBlank(tuId)){
+    public String getTuOrdersList(@QueryParam("tuId") String tuId) throws BizCheckedException {
+        if (StringUtil.isBlank(tuId)) {
             throw new BizCheckedException("2990021");
-        }else{
+        } else {
             return JsonUtils.SUCCESS(iTuOrdersRpcService.getTuOrdersList(tuId));
         }
 
@@ -40,22 +40,25 @@ public class TuOrdersRestService implements ITuOrdersRestService{
     @GET
     @Path("getDeliveryOrderList")
     //获取大店直流发货单数据
-    public String getDeliveryOrdersList(@QueryParam("tuId") String tuId) throws BizCheckedException{
-        if(StringUtil.isBlank(tuId)){
+    public String getDeliveryOrdersList(@QueryParam("tuId") String tuId) throws BizCheckedException {
+        if (StringUtil.isBlank(tuId)) {
             return JsonUtils.FAIL("failed! param error:" + tuId);
-        }else{
+        } else {
             return JsonUtils.SUCCESS(iTuOrdersRpcService.getDeliveryOrdersList(tuId));
         }
 
     }
+
     @GET
     @Path("getSendCarOrdersList")
     public String getSendCarOrdersList(@QueryParam("tuId") String tuId) throws BizCheckedException {
-        if(StringUtil.isBlank(tuId)){
+        if (StringUtil.isBlank(tuId)) {
             return JsonUtils.FAIL("failed! param error:" + tuId);
-        }else{
+        } else {
             return JsonUtils.SUCCESS(iTuOrdersRpcService.getSendCarOrdersList(tuId));
         }
     }
+
+
 
 }

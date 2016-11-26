@@ -11,4 +11,5 @@ public class BinUsageConstant {
     public static final Integer BIN_UASGE_PICK = 1;
     public static final Integer BIN_UASGE_STORE = 2;
     public static final Integer BIN_PICK_STORE = 3;
+    public static final Integer BIN_FLOOR_STORE = 4;
 }
