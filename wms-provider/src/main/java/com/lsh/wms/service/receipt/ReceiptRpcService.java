@@ -290,6 +290,13 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 stockLot.setIsOld(true);
                 logger.info("~~~~~~~~~~~~222222222222 stocklot : " + JSON.toJSONString(stockLot));
 
+                StockLot newStockLot = new StockLot();
+                ObjUtils.bean2bean(stockLot,newStockLot);
+                Long newLotId = RandomUtils.genId();
+                newStockLot.setPoId(ibdHeader.getOrderId());
+                newStockLot.setLotId(newLotId);
+
+
                 //将收货细单中的生产日期改为该lot下的生产日期。
                 SimpleDateFormat format =   new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss" );
                 String d = format.format(stockLot.getProductDate());
@@ -315,7 +322,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 move.setTaskId(taskId);
 
                 Map<String, Object> moveInfo = new HashMap<String, Object>();
-                moveInfo.put("lot", stockLot);
+                moveInfo.put("lot", newStockLot);
                 moveInfo.put("move", move);
                 moveList.add(moveInfo);
 
