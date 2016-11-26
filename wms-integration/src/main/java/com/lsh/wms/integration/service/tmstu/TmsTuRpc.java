@@ -85,7 +85,7 @@ public class TmsTuRpc implements ITmsTuRpcService{
             detail.put("customerName", csiCustomer.getCustomerName());
             details.add(detail);
         }
-        result.put("tuId", Long.valueOf(tuId)); //先转成long
+        result.put("tuId", tuId); //先转成long
         result.put("tuHead", tuHead);
         result.put("scale", tuHead.getScale());
         result.put("tuDetails", details);
@@ -99,7 +99,7 @@ public class TmsTuRpc implements ITmsTuRpcService{
         logger.info("[SHIP OVER]Begin to transfer to TMS, " + "URL: " + url + ", Request body: " + JSON.toJSONString(result));
         try {
             // responseBody = HttpClientUtils.post(url, result, timeout, charset, headMap);
-            responseBody = HttpUtils.doPostByForm(url, result);
+            responseBody = HttpUtils.doPost(url, result);
         } catch (Exception e) {
             logger.info("[SHIP OVER]Transfer to TMS failed: " + responseBody);
             return false;
@@ -180,7 +180,7 @@ public class TmsTuRpc implements ITmsTuRpcService{
 
             //将店铺名称放入店铺发货单关系中
             Map<String, Object> temp = new HashMap<String, Object>();
-            temp.put("storeName", customerName);
+            temp.put("customerName", customerName);
             temp.put("customerId", customerId);
             temp.put("list", storeNoToDeliveryId.get(customerCode));
             //storeNo key

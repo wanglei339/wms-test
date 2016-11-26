@@ -109,7 +109,8 @@ public class StockTransferCore {
             if (itemLocations.size() > 0 && itemLocations.get(0).getItemId().compareTo(itemId) != 0) {
                 throw new BizCheckedException("2550004");
             }
-        } else if (toQuants != null && toQuants.size() > 0
+        }
+        if (toQuants != null && toQuants.size() > 0
                 && toLocation.getType().compareTo(LocationConstant.BACK_AREA) != 0
                 && toLocation.getType().compareTo(LocationConstant.DEFECTIVE_AREA) != 0) {
             //其余货位
