@@ -2,8 +2,11 @@ package com.lsh.wms.service.outbound;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.pick.IPCPickRestService;
+import com.lsh.wms.api.service.pick.IPCPickRpcService;
+import com.lsh.wms.api.service.pick.IPickRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.location.LocationService;
@@ -28,7 +31,7 @@ import java.util.Map;
  */
 @Service(protocol = "rest")
 @Path("outbound/pick")
-public class PickRestService implements IPCPickRestService{
+public class PickRestService implements IPCPickRestService {
     @Reference
     ITaskRpcService iTaskRpcService;
     @Autowired
@@ -37,35 +40,38 @@ public class PickRestService implements IPCPickRestService{
     SoOrderService orderService;
     @Autowired
     PickZoneService pickZoneService;
+    @Reference
+    IPCPickRpcService ipcPickRpcService;
+
 
     @POST
     @Path("getPickTaskInfo")
-    public String getPickTaskInfo(Map<String, Object> mapInput){
+    public String getPickTaskInfo(Map<String, Object> mapInput) {
         long waveId = Long.valueOf(mapInput.get("waveId").toString());
         long pickType = Long.valueOf(mapInput.get("pickType").toString());
-        List pickTaskIds = (List)mapInput.get("pickTaskIds");
-        if(waveId != 0){
+        List pickTaskIds = (List) mapInput.get("pickTaskIds");
+        if (waveId != 0) {
             Map<String, Object> mapQuery = new HashMap<String, Object>();
             mapQuery.put("waveId", waveId);
             //if(pickType)
             List<TaskEntry> taskHeadList = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_PICK, mapQuery);
             pickTaskIds = new LinkedList();
-            for(TaskEntry entry : taskHeadList){
+            for (TaskEntry entry : taskHeadList) {
                 pickTaskIds.add(entry.getTaskInfo().getTaskId());
             }
         }
         List<Map<String, Object>> taskInfoList = new LinkedList<Map<String, Object>>();
         Map<Long, PickZone> mapZone = new HashMap<Long, PickZone>();
-        for(Object id : pickTaskIds){
+        for (Object id : pickTaskIds) {
             Long taskId = Long.valueOf(id.toString());
             TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
-            List<Map<String, Object>> details = (List<Map<String, Object>>)(List<?>)entry.getTaskDetailList();
-            Map<String, Object> head = (Map<String, Object>)entry.getTaskHead();
+            List<Map<String, Object>> details = (List<Map<String, Object>>) (List<?>) entry.getTaskDetailList();
+            Map<String, Object> head = (Map<String, Object>) entry.getTaskHead();
             head.put("lineCount", details.size());
             head.put("deliveryName", orderService.getOutbSoHeaderByOrderId(Long.valueOf(details.get(0).get("orderId").toString())).getDeliveryName());
             Long pickZoneId = head.get("pickZonId") == null ? 0 : Long.valueOf(head.get("pickZonId").toString());
             PickZone zone = mapZone.get(pickZoneId);
-            if(pickZoneId!=0 && zone == null){
+            if (pickZoneId != 0 && zone == null) {
                 zone = pickZoneService.getPickZone(pickZoneId);
                 mapZone.put(pickZoneId, zone);
             }
@@ -73,6 +79,12 @@ public class PickRestService implements IPCPickRestService{
             taskInfoList.add(head);
         }
         return JsonUtils.SUCCESS(taskInfoList);
+    }
+
+    @POST
+    @Path("expensiveGoodsList")
+    public String getContainerExpensiveGoods(Long containerId) throws BizCheckedException {
+        return JsonUtils.SUCCESS(ipcPickRpcService.getContainerExpensiveGoods(containerId));
     }
 
 }
