@@ -329,7 +329,9 @@ public class SeedTaskHandler extends AbsTaskHandler {
             lot.setPackUnit(info.getPackUnit());
             lot.setSkuId(info.getSkuId());
             lot.setPackName(info.getPackName());
-            lot.setSupplierId(supplier.getSupplierId());
+            if(supplier!=null) {
+                lot.setSupplierId(supplier.getSupplierId());
+            }
             moveService.move(move, lot);
             ReceiptRequest receiptRequest = this.fillReceipt(entry);
             seedRpcService.insertReceipt(receiptRequest);
@@ -391,7 +393,6 @@ public class SeedTaskHandler extends AbsTaskHandler {
         receiptRequest.setOrderOtherId(ibdHeader.getOrderOtherId());
         receiptRequest.setContainerId(head.getRealContainerId());
         receiptRequest.setStoreId(head.getStoreNo().toString());
-        //receiptRequest.setIsCreateTask(0);
         receiptRequest.setReceiptUser("");
 
         receiptItem.setOrderId(info.getOrderId());

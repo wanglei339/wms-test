@@ -54,7 +54,7 @@
         <if test="qty != null">#{qty},</if>
         <if test="isValid != null">#{isValid},</if>
         <if test="createdAt != null">#{createdAt},</if>
-			<if test="ownerId != null">#{owner_id},</if>
+			<if test="ownerId != null">#{ownerId},</if>
         <if test="updatedAt != null">#{updatedAt},</if>
 		</trim>
 	</insert>
