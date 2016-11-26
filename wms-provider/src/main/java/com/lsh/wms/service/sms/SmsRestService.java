@@ -5,6 +5,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.model.so.ObdDetail;
 import com.lsh.wms.api.service.sms.ISmsRestService;
 import com.lsh.wms.core.constant.StockConstant;
@@ -15,16 +16,20 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockAllocService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.stock.SynStockService;
+import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockDelta;
 import com.lsh.wms.model.stock.StockSummary;
+import com.lsh.wms.model.task.TaskMsg;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service(protocol = "rest")
 @Path("sms")
@@ -58,6 +63,9 @@ public class SmsRestService implements ISmsRestService {
     @Autowired
     private StockAllocService stockAllocService;
 
+    @Autowired
+    private MessageService messageService;
+
     @GET
     @Path("sendMsg")
     public String sendMsg(@QueryParam("phone") String phone,
@@ -73,15 +81,30 @@ public class SmsRestService implements ISmsRestService {
 //  stockSummaryService.changeStock(delta);
         //ObdHeader header = soOrderService.getOutbSoHeaderByOrderOtherId("19682122499");
         //List<com.lsh.wms.model.so.ObdDetail> detailList = soOrderService.getOutbSoDetailListByOrderId(header.getOrderId());
+//
+//        WaveDetail waveDetail = new WaveDetail();
+//        waveDetail.setItemId(152578713218622L);
+//        waveDetail.setOrderId(2016111800000022L);
+//        waveDetail.setDeliveryId(1001L);
+//        waveDetail.setQcQty(BigDecimal.ONE);
+//        stockAllocService.realease(waveDetail);
+//        //stockAllocService.alloc(header, detailList);
 
-        WaveDetail waveDetail = new WaveDetail();
-        waveDetail.setItemId(152578713218622L);
-        waveDetail.setOrderId(2016111800000022L);
-        waveDetail.setDeliveryId(1001L);
-        waveDetail.setQcQty(BigDecimal.ONE);
-        stockAllocService.realease(waveDetail);
-        //stockAllocService.alloc(header, detailList);
-        return JsonUtils.SUCCESS();
+        TaskMsg message = new TaskMsg();
+        message.setSourceTaskId(1001L);
+        message.setBusinessId(201011L);
+        Map<String, Object> msgBody = new HashMap<String, Object>();
+        msgBody.put("xx", 1);
+        msgBody.put("zz", 2);
+        message.setMsgBody(msgBody);
+        message.setType(1L);
+        message.setErrorMsg("fuck you");
+        message.setCreatedAt(DateUtils.getCurrentSeconds());
+        messageService.saveMessage(message);
+
+        Long businessId = 201011L;
+        message = messageService.getMessage(businessId);
+        return JsonUtils.SUCCESS(message);
     }
 
 }

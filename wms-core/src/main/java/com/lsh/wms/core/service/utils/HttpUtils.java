@@ -74,7 +74,7 @@ public class HttpUtils {
         //设置Http Post数据
         if (params != null) {
             try {
-                method.setRequestEntity(new StringRequestEntity(JSON.toJSONString(params),"application/json","utf-8"));
+                method.setRequestEntity(new MultipartRequestEntity(getParts(params), method.getParams()));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -103,6 +103,14 @@ public class HttpUtils {
         List<Part> partList = new ArrayList<Part>();
         for(String key:params.keySet()){
             partList.add(new StringPart(key, JSON.toJSONString(params.get(key)),"UTF-8"));
+        }
+        int size = partList.size();
+        return partList.toArray(new Part[size]);
+    }
+    public static Part[] getPart(Map<String,Object> params) {
+        List<Part> partList = new ArrayList<Part>();
+        for(String key:params.keySet()){
+            partList.add(new StringPart(key, params.get(key).toString(),"UTF-8"));
         }
         int size = partList.size();
         return partList.toArray(new Part[size]);

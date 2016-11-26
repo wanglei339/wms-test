@@ -59,7 +59,7 @@
                 #{createdAt},
             </if>
             <if test="updatedAt != null">
-                #{updatedAt},
+                #{updatedAt, jdbcType=BINT},
             </if>
         </trim>
     </insert>
@@ -79,12 +79,12 @@
         where id=#{id}
     </update>
 
-    <select id="getStockDetailByItemId" parameterType="Long" resultMap="stockAllocDetailResultMap">
+    <select id="getStockAllocDetailByItemId" parameterType="Long" resultMap="stockAllocDetailResultMap">
         select * from stock_alloc_detail
         where item_id=#{itemId}
     </select>
 
-    <select id="getStockDetailByObdDetail" parameterType="Long" resultMap="stockAllocDetailResultMap">
+    <select id="getStockAllocDetailByObdId" parameterType="Long" resultMap="stockAllocDetailResultMap">
         select * from stock_alloc_detail
         where obd_id=#{obdId}
     </select>

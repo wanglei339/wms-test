@@ -210,6 +210,8 @@ public class TaskRpcService implements ITaskRpcService {
             TaskMsg msg = new TaskMsg();
             msg.setSourceTaskId(taskId);
             msg.setType(TaskConstant.EVENT_TASK_FINISH);
+            TaskInfo taskInfo = this.getTaskInfo(taskId);
+            msg.setBusinessId(taskInfo.getContainerId());
             messageService.sendMessage(msg);
         } catch (Exception e){
             logger.error("AfterDone Exception", e);
