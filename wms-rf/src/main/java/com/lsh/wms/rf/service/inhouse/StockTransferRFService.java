@@ -106,7 +106,7 @@ public class StockTransferRFService implements IStockTransferRFService{
             result.put("barcode", item.getCode());
             result.put("lotId", quant.getLotId());
             condition.setItemId(quant.getItemId());
-            condition.setLotId(quant.getLotId());
+            //condition.setLotId(quant.getLotId());
             condition.setReserveTaskId(0L);
             BigDecimal qty = stockQuantRpcService.getQty(condition);
             if (location.getRegionType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
