@@ -333,6 +333,14 @@ public class SeedRestService implements ISeedRestService {
 
                 info = iTaskRpcService.getTaskInfo(head.getTaskId());
 
+                //(不收货播种)判断是否已经结束收货
+                if(info.getSubType().compareTo(2L)==0){
+                    IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(info.getOrderId());
+                    if(ibdHeader.getOrderStatus().compareTo(PoConstant.ORDER_RECTIPT_ALL)==0){
+
+                        return JsonUtils.TOKEN_ERROR("该po单已结束收货");
+                    }
+                }
 
                 info.setQty(qty);
                 head.setRealContainerId(containerId);
@@ -394,19 +402,7 @@ public class SeedRestService implements ISeedRestService {
             if(info.getSubType().compareTo(2L)==0){
                 IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(info.getOrderId());
                 if(ibdHeader.getOrderStatus().compareTo(PoConstant.ORDER_RECTIPT_ALL)==0){
-                    HashMap<String,Object> map = new HashMap<String, Object>();
-                    map.put("orderId", info.getOrderId());
-                    map.put("status",TaskConstant.Draft);
-                    map.put("type",TaskConstant.TYPE_SEED);
-                    infos = baseTaskService.getTaskInfoList(map);
-                    List<Long> taskList = new ArrayList<Long>();
-                    taskList.add(info.getTaskId());
-                    if(infos!=null && infos.size()!=0) {
-                        for (TaskInfo taskInfo : infos) {
-                            taskList.add(taskInfo.getTaskId());
-                        }
-                        iTaskRpcService.batchCancel(TaskConstant.TYPE_SEED, taskList);
-                    }
+
                     return JsonUtils.TOKEN_ERROR("该po单已结束收货");
                 }
             }
