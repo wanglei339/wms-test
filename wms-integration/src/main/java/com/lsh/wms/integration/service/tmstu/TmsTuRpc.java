@@ -99,7 +99,7 @@ public class TmsTuRpc implements ITmsTuRpcService{
         logger.info("[SHIP OVER]Begin to transfer to TMS, " + "URL: " + url + ", Request body: " + JSON.toJSONString(result));
         try {
             // responseBody = HttpClientUtils.post(url, result, timeout, charset, headMap);
-            responseBody = HttpUtils.doPostByForm(url, result);
+            responseBody = HttpUtils.doPost(url, result);
         } catch (Exception e) {
             logger.info("[SHIP OVER]Transfer to TMS failed: " + responseBody);
             return false;
