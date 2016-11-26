@@ -328,6 +328,7 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
     public Map<String, Object> getContainerExpensiveGoods(Long contaienrId) throws BizCheckedException {
         //获取wave_detail
         //todo
+//        List<WaveDetail> waveDetails =
 
         return null;
     }

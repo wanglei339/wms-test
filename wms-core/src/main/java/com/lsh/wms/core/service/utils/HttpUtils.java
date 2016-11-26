@@ -74,7 +74,7 @@ public class HttpUtils {
         //设置Http Post数据
         if (params != null) {
             try {
-                method.setRequestEntity(new MultipartRequestEntity(getPart(params), method.getParams()));
+                method.setRequestEntity(new MultipartRequestEntity(getParts(params), method.getParams()));
             } catch (Exception e) {
                 e.printStackTrace();
             }
