@@ -1459,8 +1459,8 @@ public class LocationService {
         detailRequest.setId(null);
         detailRequest.setLocationId(null);
         // 同一位置已有多个货位,则直接扩展
-        // 同一位置只有一个货位,向下级扩展拆分
-        if (!LocationConstant.BIN.equals(fatherLocation.getType())) {
+        // 同一位置只有一个货位,向下级扩展拆分,地堆只做一级
+        if (!LocationConstant.BIN.equals(fatherLocation.getType()) && !LocationConstant.FLOOR.equals(fatherLocation.getType())) {
             detailRequest.setFatherId(location.getLocationId());
             detailRequest.setLocationCode(location.getLocationCode());
             location.setLocationCode(location.getLocationCode() + "X"); // 为避免code重复占位用
