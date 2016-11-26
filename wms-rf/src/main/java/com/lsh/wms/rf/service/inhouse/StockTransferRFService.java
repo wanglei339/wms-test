@@ -153,7 +153,8 @@ public class StockTransferRFService implements IStockTransferRFService{
             final Long locationId, type;
             final BigDecimal uomQty;
             //outbound
-            final String fromLocationCode = locationRpcService.getLocation(taskInfo.getFromLocationId()).getLocationCode();
+            BaseinfoLocation fromLocation =  locationRpcService.getLocation(taskInfo.getFromLocationId());
+            final String fromLocationCode = fromLocation.getLocationCode();
             final String toLocationDesc = String.format("%s%s",
                     taskInfo.getToLocationId()!=0?locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode():"",
                     taskInfo.getExt9());
@@ -163,6 +164,10 @@ public class StockTransferRFService implements IStockTransferRFService{
             } else {
                 type = 2L;
             }
+            final long needScanCode = (type == 1
+                                        && (fromLocation.getRegionType() == LocationConstant.FLOOR
+                                             || fromLocation.getRegionType() == LocationConstant.BACK_AREA
+                                             || fromLocation.getRegionType() == LocationConstant.DEFECTIVE_AREA)) ? 1 : 0;
             uomQty = PackUtil.EAQty2UomQty(taskInfo.getQty(), taskInfo.getPackName());
             return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                 {
@@ -175,6 +180,7 @@ public class StockTransferRFService implements IStockTransferRFService{
                     put("uom", taskInfo.getPackName());
                     put("uomQty", taskInfo.getSubType().compareTo(1L) == 0 ? "整托" : uomQty);
                     put("subType", taskInfo.getSubType());
+                    put("needScanCode", needScanCode);
                 }
             });
         } catch (BizCheckedException e) {
