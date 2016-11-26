@@ -157,12 +157,12 @@ public class StockTransferRFService implements IStockTransferRFService{
             final String toLocationDesc = String.format("%s%s",
                     taskInfo.getToLocationId()!=0?locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode():"",
                     taskInfo.getExt9());
-            if (taskInfo.getStep()==0) {
+            if (taskInfo.getStep()==1) {
                 type = 1L;
-                uomQty = taskInfo.getQty();
+                uomQty = PackUtil.EAQty2UomQty(taskInfo.getQty(), taskInfo.getPackName());
             } else {
                 type = 2L;
-                uomQty = taskInfo.getQtyDone();
+                uomQty = taskInfo.getQtyDoneUom();
             }
             return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                 {
