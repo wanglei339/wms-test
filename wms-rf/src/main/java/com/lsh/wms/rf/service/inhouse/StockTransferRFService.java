@@ -118,10 +118,9 @@ public class StockTransferRFService implements IStockTransferRFService{
                 items.add(stockQuant.getItemId());
                 owners.add(stockQuant.getOwnerId());
             }
-            if(items.size()>1) {
-                result.put("needBarcode", items.size() > 1 ? 1 : 0);
-                result.put("needOwner", owners.size() > 1 ? 1 : 0);
-            } /*else*/ {
+            result.put("needBarcode", items.size() > 1 ? 1 : 0);
+            result.put("needOwner", owners.size() > 1 ? 1 : 0);
+            {
                 StockQuant quant = quantList.get(0);
                 result.put("locationId", location.getLocationId());
                 result.put("locationCode", location.getLocationCode());
