@@ -305,7 +305,18 @@ public class SeedRestService implements ISeedRestService {
                 if(heads==null){
                     return JsonUtils.TOKEN_ERROR("该门店不存在播种任务");
                 }
-                SeedingTaskHead head = heads.get(0);
+                SeedingTaskHead head = null;
+                for(SeedingTaskHead seedingTaskHead:heads){
+                    info = iTaskRpcService.getTaskInfo(seedingTaskHead.getTaskId());
+                    if(info.getStatus().compareTo(TaskConstant.Draft)!=0 && info.getStatus().compareTo(TaskConstant.Assigned)!=0){
+                        continue;
+                    }
+                    head = seedingTaskHead;
+                }
+                if(head==null){
+                    return JsonUtils.TOKEN_ERROR("该门店已播种完成");
+                }
+
                 if(head.getRequireQty().compareTo(qty)<0) {
                     return JsonUtils.TOKEN_ERROR("播种数量超出门店订单数量");
                 }
@@ -318,9 +329,6 @@ public class SeedRestService implements ISeedRestService {
                     if(!csiCustomer.getCustomerCode().equals(head.getStoreNo())){
                         throw new BizCheckedException("2880006");
                     }
-                }
-                if(TaskConstant.Done.compareTo(info.getStatus())==0){
-                    return JsonUtils.TOKEN_ERROR("该门店已播种完成");
                 }
 
                 info = iTaskRpcService.getTaskInfo(head.getTaskId());

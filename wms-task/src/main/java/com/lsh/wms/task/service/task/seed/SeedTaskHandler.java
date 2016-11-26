@@ -223,6 +223,11 @@ public class SeedTaskHandler extends AbsTaskHandler {
         taskRpcService.batchCreate(TaskConstant.TYPE_SEED,entries);
 
     }
+    public void getHeadConcrete(TaskEntry entry){
+        TaskInfo info = entry.getTaskInfo();
+        SeedingTaskHead head = seedTaskHeadService.getHeadByTaskId(info.getTaskId());
+        entry.setTaskHead(head);
+    }
     public void createConcrete(TaskEntry taskEntry) {
         SeedingTaskHead head = (SeedingTaskHead) taskEntry.getTaskHead();
         Long taskId=taskEntry.getTaskInfo().getTaskId();

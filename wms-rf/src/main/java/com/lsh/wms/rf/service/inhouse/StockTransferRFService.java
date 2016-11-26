@@ -159,11 +159,11 @@ public class StockTransferRFService implements IStockTransferRFService{
                     taskInfo.getExt9());
             if (taskInfo.getStep()==1) {
                 type = 1L;
-                uomQty = PackUtil.EAQty2UomQty(taskInfo.getQty(), taskInfo.getPackName());
+
             } else {
                 type = 2L;
-                uomQty = taskInfo.getQtyDoneUom();
             }
+            uomQty = PackUtil.EAQty2UomQty(taskInfo.getQty(), taskInfo.getPackName());
             return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                 {
                     put("type", type);
@@ -267,7 +267,7 @@ public class StockTransferRFService implements IStockTransferRFService{
                 next.put("itemId", taskInfo.getItemId());
                 next.put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
                 next.put("packName", taskInfo.getSubType().compareTo(1L) == 0 ? "整托" : taskInfo.getPackName());
-                next.put("uomQty", taskInfo.getSubType().compareTo(1L) == 0 ? "整托" : taskInfo.getQtyDoneUom());
+                next.put("uomQty", taskInfo.getSubType().compareTo(1L) == 0 ? "整托" : PackUtil.EAQty2UomQty(taskInfo.getQtyDone(), taskInfo.getPackName()));
                 next.put("subType", taskInfo.getSubType());
             }
         } else {
