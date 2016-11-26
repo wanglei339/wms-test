@@ -324,7 +324,42 @@ public class StockTakingService {
             logger.error(e.getMessage());
             throw new BizCheckedException("2550051");
         }
+    }
+    @Transactional(readOnly = false)
+    public void writeOffQuant(StockMove move) {
+        OverLossReport overLossReport = new OverLossReport();
+        //插入报损
+        BaseinfoItem item = itemService.getItem(move.getItemId());
+        overLossReport.setItemId(item.getItemId());
+        overLossReport.setOwnerId(item.getOwnerId());
+        overLossReport.setLotId(move.getLot().getLotId());
+        overLossReport.setPackName(item.getPackName());
+        overLossReport.setSkuCode(item.getSkuCode());
+        overLossReport.setRefTaskId(move.getTaskId());
+        overLossReport.setMoveType(OverLossConstant.LOSS_REPORT);
+        overLossReport.setQty(move.getQty());
+        overLossReport.setStorageLocation(move.getFromLocationId().toString());
 
+        try {
+            this.insertLossOrOver(overLossReport);
+            Long locationId = locationService.getInventoryLostLocationId();
+            moveService.move(move);
+            //移到盘亏盘盈区
+            stockMoveService.move(move);
+            StockDelta delta = new StockDelta();
+            delta.setItemId(move.getItemId());
+            BigDecimal qty = new BigDecimal(move.getQty().toString());
+            if(move.getToLocationId().compareTo(locationId)==0){
+                qty = BigDecimal.ZERO.subtract(qty);
+            }
+            delta.setInhouseQty(qty);
+            delta.setBusinessId(move.getTaskId());
+            delta.setType(StockConstant.TYPE_WRITE_OFF);
+            stockSummaryService.changeStock(delta);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new BizCheckedException("2550051");
+        }
     }
 }
 
