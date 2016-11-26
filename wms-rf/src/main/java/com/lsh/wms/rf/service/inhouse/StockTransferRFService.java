@@ -1,10 +1,12 @@
 package com.lsh.wms.rf.service.inhouse;
 
+import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.wms.api.service.csi.ICsiRpcService;
 import com.lsh.wms.api.service.inhouse.IStockTransferRFService;
 import com.lsh.wms.api.service.inhouse.IStockTransferRpcService;
 import com.lsh.wms.api.service.item.IItemRpcService;
@@ -38,9 +40,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.security.acl.Owner;
+import java.util.*;
 
 /**
  * Created by zengwenjun on 16/11/24.
@@ -78,6 +79,9 @@ public class StockTransferRFService implements IStockTransferRFService{
     @Reference
     private ITaskRpcService iTaskRpcService;
 
+    @Reference
+    private ICsiRpcService iCsiRpcService;
+
     @POST
     @Path("viewLocation")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON})
@@ -93,36 +97,54 @@ public class StockTransferRFService implements IStockTransferRFService{
             }
             StockQuantCondition condition = new StockQuantCondition();
             condition.setLocationId(location.getLocationId());
+            if(params.get("barcode")!=null && params.get("barcode").toString().trim().length()>0){
+                CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, params.get("barcode").toString().trim());
+                if (csiSku == null) {
+                    throw new BizCheckedException("2550032");
+                }
+                condition.setSkuId(csiSku.getSkuId());
+            }
+            if(params.get("ownerId")!=null && StringUtils.isNumeric(params.get("ownerId").toString().trim())){
+                condition.setOwnerId(Long.valueOf(params.get("ownerId").toString().trim()));
+            }
             List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
             if (quantList == null || quantList.isEmpty()) {
-                throw new BizCheckedException("2550032");
-            }
-            StockQuant quant = quantList.get(0);
-            result.put("locationId", location.getLocationId());
-            result.put("locationCode", location.getLocationCode());
-            result.put("itemId", quant.getItemId());
-            BaseinfoItem item = itemRpcService.getItem(quant.getItemId());
-            result.put("itemName", item.getSkuName());
-            result.put("barcode", item.getCode());
-            result.put("lotId", quant.getLotId());
-            condition.setItemId(quant.getItemId());
-            //condition.setLotId(quant.getLotId());
-            condition.setReserveTaskId(0L);
-            BigDecimal qty = stockQuantRpcService.getQty(condition);
-            if (location.getRegionType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
-                result.put("packName", "EA");
-                result.put("uom", "EA");
-                result.put("uomQty", qty);
-            } else {
-                result.put("packName", quant.getPackName());
-                result.put("uom", quant.getPackName());
-                result.put("uomQty", PackUtil.EAQty2UomQty(qty, quant.getPackName()));
+                return JsonUtils.TOKEN_ERROR("查询不到商品库存");
             }
             //是否需要扫描商品码才能确定准确的商品.
-            long needScanBarcode = (location.getRegionType() == LocationConstant.FLOOR
-                    || location.getRegionType() == LocationConstant.BACK_AREA
-                    || location.getRegionType() == LocationConstant.DEFECTIVE_AREA) ? 1 : 0;
-            result.put("needScanBarcode", needScanBarcode);
+            Set<Long> items = new HashSet<Long>();
+            Set<Long> owners = new HashSet<Long>();
+            for(StockQuant stockQuant : quantList){
+                items.add(stockQuant.getItemId());
+                owners.add(stockQuant.getOwnerId());
+            }
+            if(items.size()>1) {
+                result.put("needBarcode", items.size() > 1 ? 1 : 0);
+                result.put("needOwner", owners.size() > 1 ? 1 : 0);
+            } else {
+                StockQuant quant = quantList.get(0);
+                result.put("locationId", location.getLocationId());
+                result.put("locationCode", location.getLocationCode());
+                result.put("itemId", quant.getItemId());
+                BaseinfoItem item = itemRpcService.getItem(quant.getItemId());
+                result.put("itemName", item.getSkuName());
+                result.put("barcode", item.getCode());
+                result.put("lotId", quant.getLotId());
+                condition.setItemId(quant.getItemId());
+                //condition.setLotId(quant.getLotId());
+                condition.setReserveTaskId(0L);
+                BigDecimal qty = stockQuantRpcService.getQty(condition);
+                if (location.getRegionType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
+                    result.put("packName", "EA");
+                    result.put("uom", "EA");
+                    result.put("uomQty", qty);
+                } else {
+                    result.put("packName", quant.getPackName());
+                    result.put("uom", quant.getPackName());
+                    result.put("uomQty", PackUtil.EAQty2UomQty(qty, quant.getPackName()));
+                }
+                result.put("owner", String.format("%d[%s]", quant.getOwnerId(), iCsiRpcService.getOwner(quant.getOwnerId()).getOwnerName()));
+            }
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
@@ -169,29 +191,27 @@ public class StockTransferRFService implements IStockTransferRFService{
             } else {
                 type = 2L;
             }
-            //是否需要扫描商品码才能确定准确的商品.
-            final long needScanBarcode = (fromLocation.getRegionType() == LocationConstant.FLOOR
-                                             || fromLocation.getRegionType() == LocationConstant.BACK_AREA
-                                             || fromLocation.getRegionType() == LocationConstant.DEFECTIVE_AREA) ? 1 : 0;
             //是否需要扫描托盘码才能做移出操作.
             final long needScanContainer = (taskInfo.getSubType() == 1 &&
                     (fromLocation.getRegionType() == LocationConstant.FLOOR
                             || fromLocation.getRegionType() == LocationConstant.BACK_AREA
                             || fromLocation.getRegionType() == LocationConstant.DEFECTIVE_AREA)) ? 1 : 0;
             uomQty = PackUtil.EAQty2UomQty(taskInfo.getQty(), taskInfo.getPackName());
+            final BaseinfoItem item = itemRpcService.getItem(taskInfo.getItemId());
             return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                 {
                     put("type", type);
                     put("taskId", taskId.toString());
                     put("locationCode", type == 1 ? fromLocationCode : toLocationDesc);
                     put("itemId", taskInfo.getItemId());
-                    put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
+                    put("itemName", item.getSkuName());
+                    put("barcode", item.getCode());
                     put("packName", taskInfo.getPackName());
                     put("uom", taskInfo.getPackName());
                     put("uomQty", taskInfo.getSubType().compareTo(1L) == 0 ? "整托" : uomQty);
                     put("subType", taskInfo.getSubType());
-                    put("needScanBarcode", needScanBarcode);
                     put("needScanContainer", needScanContainer);
+                    put("owner", String.format("%d[%s]",taskInfo.getOwnerId(),iCsiRpcService.getOwner(taskInfo.getOwnerId()).getOwnerName()));
                 }
             });
         } catch (BizCheckedException e) {
@@ -250,9 +270,20 @@ public class StockTransferRFService implements IStockTransferRFService{
             StockQuantCondition condition = new StockQuantCondition();
             condition.setLocationId(location.getLocationId());
             condition.setSkuId(csiSku.getSkuId());
+            if(params.get("ownerId")!=null && StringUtils.isNumeric(params.get("ownerId").toString().trim())){
+                Long ownerId = Long.valueOf(params.get("ownerId").toString().trim());
+                condition.setOwnerId(ownerId);
+            }
             List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
             if (quantList == null || quantList.isEmpty()) {
                 throw new BizCheckedException("2550032");
+            }
+            Set<Long> owners = new HashSet<Long>();
+            for(StockQuant stockQuant : quantList){
+                owners.add(stockQuant.getOwnerId());
+            }
+            if(owners.size()>1) {
+                return JsonUtils.TOKEN_ERROR("需要输入正确货主编号");
             }
             StockQuant quant = quantList.get(0);
             plan.setItemId(quant.getItemId());
@@ -281,6 +312,7 @@ public class StockTransferRFService implements IStockTransferRFService{
                 return JsonUtils.TOKEN_ERROR("当前不支持此区域的整托移动");
             }
             iStockTransferRpcService.scanFromLocation(taskEntry, location, uomQty);
+            final BaseinfoItem item = itemRpcService.getItem(taskInfo.getItemId());
             if(taskInfo.getStatus() == TaskConstant.Cancel){
                 next.put("response", true);
             }else{
@@ -291,10 +323,12 @@ public class StockTransferRFService implements IStockTransferRFService{
                 next.put("taskId", taskId.toString());
                 next.put("locationCode", toLocationDesc);
                 next.put("itemId", taskInfo.getItemId());
-                next.put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
+                next.put("itemName", item.getSkuName());
+                next.put("barcode", item.getCode());
                 next.put("packName", taskInfo.getSubType().compareTo(1L) == 0 ? "整托" : taskInfo.getPackName());
                 next.put("uomQty", taskInfo.getSubType().compareTo(1L) == 0 ? "整托" : PackUtil.EAQty2UomQty(taskInfo.getQtyDone(), taskInfo.getPackName()));
                 next.put("subType", taskInfo.getSubType());
+                next.put("owner", String.format("%d[%s]",taskInfo.getOwnerId(),iCsiRpcService.getOwner(taskInfo.getOwnerId()).getOwnerName()));
             }
         } else {
             iStockTransferRpcService.scanToLocation(taskEntry, location);
