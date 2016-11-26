@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
@@ -41,6 +42,39 @@ public class HttpUtils {
         if (params != null) {
             try {
                 method.setRequestEntity(new MultipartRequestEntity(getParts(params), method.getParams()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            client.executeMethod(method);
+            if (method.getStatusCode() == HttpStatus.SC_OK) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(method.getResponseBodyAsStream(), "UTF-8"));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (true)
+                        response.append(line).append(System.getProperty("line.separator"));
+                    else
+                        response.append(line);
+                }
+                reader.close();
+            }
+        } catch (IOException e) {
+            log.error("执行HTTP Post请求" + url + "时，发生异常！", e);
+        } finally {
+            method.releaseConnection();
+        }
+        return response.toString();
+    }
+    public static String doPost(String url, Map<String, Object> params) {
+        StringBuffer response = new StringBuffer();
+        HttpClient client = new HttpClient();
+        PostMethod method = new PostMethod(url);
+        client.getParams().setParameter(HttpMethodParams.HTTP_CONTENT_CHARSET, "UTF-8");
+        //设置Http Post数据
+        if (params != null) {
+            try {
+                method.setRequestEntity(new StringRequestEntity(JSON.toJSONString(params),"application/json","utf-8"));
             } catch (Exception e) {
                 e.printStackTrace();
             }
