@@ -6,7 +6,7 @@
         <id property="id" column="id"/>
         <result property="itemId" column="item_id"/>
         <result property="obdId" column="obd_id"/>
-        <result property="odbDetailId" column="obd_detail_id"/>
+        <result property="obdDetailId" column="obd_detail_id"/>
         <result property="qty" column="qty"/>
         <result property="status" column="status"/>
         <result property="createdAt" column="created_at"/>
