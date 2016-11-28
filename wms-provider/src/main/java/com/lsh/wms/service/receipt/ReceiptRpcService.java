@@ -457,6 +457,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     obdStreamDetail.setAllocUnitName(inbReceiptDetail.getPackName());
                     obdStreamDetail.setAllocUnitQty(PackUtil.EAQty2UomQty(inboundUnitQty,inbReceiptDetail.getPackName()));
                     obdStreamDetail.setSkuId(inbReceiptDetail.getSkuId());
+                    obdStreamDetail.setAllocQty(inboundUnitQty);
                     obdStreamDetailList.add(obdStreamDetail);
 
                 }
