@@ -466,6 +466,7 @@ public class TuService {
                 //deliveryDetail.setDeliveryNum(waveDetail.getQcQty());
                 deliveryDetail.setDeliveryNum(BigDecimal.valueOf(0L));
                 deliveryDetail.setInserttime(new Date());
+                deliveryDetail.setUpdatetime(new Date());
             }
             deliveryDetail.setDeliveryNum(waveDetail.getQcQty().add(deliveryDetail.getDeliveryNum()));
             rowDeliverys.put(key, deliveryDetail);

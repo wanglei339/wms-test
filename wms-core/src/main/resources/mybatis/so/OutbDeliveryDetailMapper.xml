@@ -39,12 +39,12 @@
 		insert into OUTB_DELIVERY_DETAIL (
 		DELIVERY_ID,ORDER_ID,REF_DETAIL_OTHER_ID,ITEM_ID,SKU_ID,SKU_NAME,BAR_CODE,
 		ORDER_QTY,PACK_UNIT,LOT_NUM,DELIVERY_NUM,INSERTBY,UPDATEBY,
-		INSERTTIME,UPDATETIME,LOT_ID
+		INSERTTIME,UPDATETIME,LOT_ID,BACK_STATUS
 		) values
 		<foreach collection="list" item="item" index="index" separator="," >
 			(#{item.deliveryId},#{item.orderId},#{item.refDetailOtherId},#{item.itemId},#{item.skuId},#{item.skuName},#{item.barCode},
 			#{item.orderQty},#{item.packUnit},#{item.lotNum},#{item.deliveryNum},#{item.insertby},#{item.updateby},
-			now(),#{item.updatetime},#{item.lotId})
+			#{inserttime},#{item.updatetime},#{item.lotId},#{item.backStatus})
 		</foreach>
 	</insert>
 

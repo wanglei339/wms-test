@@ -134,6 +134,7 @@ public class WaveRpcService implements IWaveRpcService {
         }
         boolean bNeedRollBack = true;
         try {
+            //加锁
             int ret = core.release(iWaveId);
             if ( ret == 0 ) {
                 bNeedRollBack = false;
@@ -153,6 +154,7 @@ public class WaveRpcService implements IWaveRpcService {
             if(bNeedRollBack) {
                 waveService.setStatus(iWaveId, WaveConstant.STATUS_RELEASE_FAIL);
             }
+            //释放锁
         }
     }
 
