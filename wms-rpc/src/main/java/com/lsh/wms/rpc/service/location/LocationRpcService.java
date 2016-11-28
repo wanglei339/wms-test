@@ -264,7 +264,9 @@ public class LocationRpcService implements ILocationRpcService {
         //按距离排序,升序
         Collections.sort(passageDistanceList, new Comparator<Map<String, Object>>() {
             public int compare(Map<String, Object> o1, Map<String, Object> o2) {
-                return (Long) o1.get("passageDisance") > (Long) o2.get("passageDisance") ? 1 : ((Long) o1.get("passageDisance") == (Long) o2.get("passageDisance") ? 0 : -1);
+                return ((Long) o1.get("passageDisance")).compareTo((Long) o2.get("passageDisance")) > 0 ?
+                        1 :
+                        (((Long) o1.get("passageDisance")).compareTo((Long) o2.get("passageDisance")) == 0 ? 0 : -1);
             }
         });
         //结果放入List
