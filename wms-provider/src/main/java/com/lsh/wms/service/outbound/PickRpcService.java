@@ -98,7 +98,11 @@ public class PickRpcService implements IPCPickRpcService {
         //结果map展示
         //head头
         if (goodList.isEmpty()) {
-            return new HashMap<String, Object>();
+            Map<String, Object> headMap = new HashMap<String, Object>();
+            Map<String,Object> result = new HashMap<String, Object>();
+            result.put("headInfo",headMap);
+            result.put("goodList",goodList);
+            return result;
         }
         Map<String, Object> headMap = new HashMap<String, Object>();
         //时间

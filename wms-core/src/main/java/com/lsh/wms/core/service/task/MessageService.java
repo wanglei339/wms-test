@@ -36,7 +36,7 @@ public class MessageService {
     private TaskMsgDao taskMsgDao;
 
     public void sendMessage(TaskMsg msg) throws BizCheckedException {
-        String value = JsonUtils.obj2Json(msg);
+        // String value = JsonUtils.obj2Json(msg);
         redisListDao.leftPush(MessageService.key, JsonUtils.obj2Json(msg));
     }
 

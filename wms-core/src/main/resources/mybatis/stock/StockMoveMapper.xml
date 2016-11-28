@@ -69,6 +69,12 @@
 		</if>
 	</select>
 
+	<select id="traceQuant" parameterType="long" resultMap="stockMoveResultMap">
+		select * from stock_move
+		 where id in (select move_id from stock_quant_move_rel where quant_id = #{quantId})
+		 order by id desc
+	</select>
+
 	<sql id="queryCondition">
 		<where>
 			<if test="id != null">id=#{id}</if>

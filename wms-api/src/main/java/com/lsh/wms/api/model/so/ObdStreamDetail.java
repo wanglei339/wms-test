@@ -42,7 +42,9 @@ public class ObdStreamDetail {
 
     public ObdStreamDetail(){}
 
-    public ObdStreamDetail(String allocUnitName, BigDecimal allocUnitQty, Long containerId, Long ibdOrderType, Long itemId, Long locId, Long orderId, Long ownerId, BigDecimal pickQty, Long skuId, Long status) {
+    public ObdStreamDetail(Long allocCollectLocation, BigDecimal allocQty, String allocUnitName, BigDecimal allocUnitQty, Long containerId, Long ibdOrderType, Long itemId, Long locId, Long orderId, Long ownerId, BigDecimal pickQty, Long realCollectLocation, Long skuId, Long status) {
+        this.allocCollectLocation = allocCollectLocation;
+        this.allocQty = allocQty;
         this.allocUnitName = allocUnitName;
         this.allocUnitQty = allocUnitQty;
         this.containerId = containerId;
@@ -52,6 +54,7 @@ public class ObdStreamDetail {
         this.orderId = orderId;
         this.ownerId = ownerId;
         this.pickQty = pickQty;
+        this.realCollectLocation = realCollectLocation;
         this.skuId = skuId;
         this.status = status;
     }

@@ -11,15 +11,18 @@ import com.lsh.wms.api.service.sms.ISmsRestService;
 import com.lsh.wms.core.constant.StockConstant;
 import com.lsh.wms.core.dao.redis.RedisSortedSetDao;
 import com.lsh.wms.core.dao.stock.StockSummaryDao;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.so.SoOrderRedisService;
 import com.lsh.wms.core.service.so.SoOrderService;
-import com.lsh.wms.core.service.stock.StockAllocService;
-import com.lsh.wms.core.service.stock.StockSummaryService;
-import com.lsh.wms.core.service.stock.SynStockService;
+import com.lsh.wms.core.service.stock.*;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockDelta;
+import com.lsh.wms.model.stock.StockMove;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockSummary;
+import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.task.TaskMsg;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +42,15 @@ public class SmsRestService implements ISmsRestService {
 
     @Autowired
     private SmsService smsService;
+
+    @Autowired
+    private StockMoveService stockMoveService;
+
+    @Autowired
+    private LocationService locationService;
+
+    @Autowired
+    private StockQuantService stockQuantService;
 
     @Autowired
     private SynStockService synStockService;
@@ -66,10 +78,13 @@ public class SmsRestService implements ISmsRestService {
     @Autowired
     private MessageService messageService;
 
+    @Autowired
+    private BaseTaskService baseTaskService;
+
     @GET
     @Path("sendMsg")
-    public String sendMsg(@QueryParam("phone") String phone,
-                          @QueryParam("msg") String msg) {
+    public String sendMsg (@QueryParam("item_id") String itemId,
+                          @QueryParam("location_code") String locationCode) throws BizCheckedException  {
 //        //synStockService.synStock(123L,2.3);
 //        WaveDetail detail = new WaveDetail();
 //        detail.setItemId(1L);
@@ -90,21 +105,27 @@ public class SmsRestService implements ISmsRestService {
 //        stockAllocService.realease(waveDetail);
 //        //stockAllocService.alloc(header, detailList);
 
-        TaskMsg message = new TaskMsg();
-        message.setSourceTaskId(1001L);
-        message.setBusinessId(201011L);
-        Map<String, Object> msgBody = new HashMap<String, Object>();
-        msgBody.put("xx", 1);
-        msgBody.put("zz", 2);
-        message.setMsgBody(msgBody);
-        message.setType(1L);
-        message.setErrorMsg("fuck you");
-        message.setCreatedAt(DateUtils.getCurrentSeconds());
-        messageService.saveMessage(message);
+//        TaskMsg message = new TaskMsg();
+//        message.setSourceTaskId(1001L);
+//        message.setBusinessId(201011L);
+//        Map<String, Object> msgBody = new HashMap<String, Object>();
+//        msgBody.put("xx", 1);
+//        msgBody.put("zz", 2);
+//        message.setMsgBody(msgBody);
+//        message.setType(1L);
+//        message.setErrorMsg("fuck you");
+//        message.setCreatedAt(DateUtils.getCurrentSeconds());
+//        messageService.saveMessage(message);
+//
+//        Long businessId = 201011L;
+//        message = messageService.getMessage(businessId);
 
-        Long businessId = 201011L;
-        message = messageService.getMessage(businessId);
-        return JsonUtils.SUCCESS(message);
+//        Map<String,Object> mapQuery = new HashMap<String, Object>();
+//        mapQuery.put("itemId", Long.valueOf(itemId));
+//        mapQuery.put("locationId", locationService.getLocationIdByCode(locationCode));
+//        List<StockQuant> list = stockQuantService.getItemLocationList(mapQuery);
+        List<StockMove> list = stockMoveService.traceQuant(Long.valueOf(itemId));
+        return JsonUtils.SUCCESS(list);
     }
 
 }
