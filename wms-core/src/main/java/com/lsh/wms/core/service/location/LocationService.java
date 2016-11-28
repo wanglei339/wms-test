@@ -1136,7 +1136,7 @@ public class LocationService {
      * @return
      */
     public Boolean checkLocationLockStatus(BaseinfoLocation location) {
-        if (location.getIsLocked().equals(1)) {
+        if (location.getIsLocked().equals(LocationConstant.IS_LOCKED)) {
             return true;
         }
         return false;
