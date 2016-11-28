@@ -167,6 +167,12 @@ public class StockTransferCore {
         Long containerId = taskInfo.getContainerId();
         Long toLocationId = locationService.getWarehouseLocationId();
         if (taskInfo.getSubType().compareTo(1L) == 0) {
+            StockQuantCondition condition = new StockQuantCondition();
+            condition.setLocationId(fromLocation.getLocationId());
+            condition.setItemId(taskEntry.getTaskInfo().getItemId());
+            condition.setReserveTaskId(0L);
+            qty = stockQuantRpcService.getQty(condition);
+            uomQty = PackUtil.EAQty2UomQty(qty, uom);
             stockMoveService.moveWholeContainer(containerId, taskInfo.getTaskId(), taskInfo.getOperator(), fromLocation.getLocationId(), toLocationId);
         } else {
             StockMove move = new StockMove();
@@ -179,11 +185,10 @@ public class StockTransferCore {
             move.setSkuId(taskInfo.getSkuId());
             move.setOwnerId(taskInfo.getOwnerId());
             stockMoveService.move(move);
-            taskInfo.setQtyDone(qty);
         }
-        taskInfo.setStep(2);
         taskInfo.setQtyDone(qty);
         taskInfo.setQtyDoneUom(uomQty);
+        taskInfo.setStep(2);
         taskInfoDao.update(taskInfo);
     }
 
