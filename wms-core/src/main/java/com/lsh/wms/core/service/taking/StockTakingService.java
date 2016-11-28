@@ -16,10 +16,12 @@ import com.lsh.wms.core.service.persistence.PersistenceProxy;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.stock.*;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
+import com.lsh.wms.model.task.TaskInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +61,8 @@ public class StockTakingService {
     private OverLossReportDao overLossReportDao;
     @Autowired
     private StockSummaryService stockSummaryService;
+    @Autowired
+    private BaseTaskService baseTaskService;
 
     @Transactional(readOnly = false)
     public void insertHead(StockTakingHead head) {
@@ -299,7 +303,7 @@ public class StockTakingService {
     }
 
     @Transactional(readOnly = false)
-    public void doQcPickDifference(StockMove move) {
+    public void doQcPickDifference(StockMove move) throws BizCheckedException {
         OverLossReport overLossReport = new OverLossReport();
         //插入报损
         BaseinfoItem item = itemService.getItem(move.getItemId());
@@ -312,6 +316,7 @@ public class StockTakingService {
         overLossReport.setMoveType(OverLossConstant.LOSS_REPORT);
         overLossReport.setQty(move.getQty());
         overLossReport.setStorageLocation(move.getFromLocationId().toString());
+        TaskInfo qcInfo = baseTaskService.getTaskInfoById(move.getTaskId());
 
         try {
             this.insertLossOrOver(overLossReport);
@@ -326,7 +331,11 @@ public class StockTakingService {
             delta.setInhouseQty(qty);
             delta.setBusinessId(move.getTaskId());
             delta.setType(StockConstant.TYPE_PICK_DEFECT);
-            stockSummaryService.changeStock(delta);
+            //同步库存判断是直流还是在库的
+            Long businessMode = qcInfo.getBusinessMode();
+            if (TaskConstant.MODE_INBOUND.equals(businessMode)){
+                stockSummaryService.changeStock(delta);
+            }
         } catch (Exception e) {
             logger.error("MOVE STOCK FAIL , containerId is " + move.getToContainerId() + "taskId is " + move.getTaskId() + e.getMessage());
             throw new BizCheckedException("2550051");
@@ -334,7 +343,7 @@ public class StockTakingService {
     }
 
     @Transactional(readOnly = false)
-    public void writeOffQuant(StockMove move) {
+    public void writeOffQuant(StockMove move,StockQuant quant) {
         OverLossReport overLossReport = new OverLossReport();
         //插入报损
         BaseinfoItem item = itemService.getItem(move.getItemId());
@@ -360,10 +369,12 @@ public class StockTakingService {
             if (move.getToLocationId().compareTo(locationId) == 0) {
                 qty = BigDecimal.ZERO.subtract(qty);
             }
-            delta.setInhouseQty(qty);
-            delta.setBusinessId(move.getTaskId());
-            delta.setType(StockConstant.TYPE_WRITE_OFF);
-            stockSummaryService.changeStock(delta);
+            if(quant.getIsInhouse().compareTo(1L)==0) {
+                delta.setInhouseQty(qty);
+                delta.setBusinessId(move.getTaskId());
+                delta.setType(StockConstant.TYPE_WRITE_OFF);
+                stockSummaryService.changeStock(delta);
+            }
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new BizCheckedException("2550051");

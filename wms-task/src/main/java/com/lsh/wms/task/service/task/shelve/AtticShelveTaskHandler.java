@@ -96,17 +96,17 @@ public class AtticShelveTaskHandler extends AbsTaskHandler {
         taskInfo.setTaskQty(taskInfo.getQty().divide(taskInfo.getPackUnit(),2,BigDecimal.ROUND_DOWN));
     }
 
-    public void  doneConcrete(Long taskId) {
-        Long containerId = this.getTask(taskId).getTaskInfo().getContainerId();
-        // 更新可用库存
-        List<StockQuant> quantList = stockQuantService.getQuantsByContainerId(containerId);
-        for(StockQuant quant : quantList) {
-            StockDelta delta = new StockDelta();
-            delta.setItemId(quant.getItemId());
-            delta.setInhouseQty(quant.getQty());
-            delta.setBusinessId(taskId);
-            delta.setType(StockConstant.TYPE_SHELVE);
-            stockSummaryService.changeStock(delta);
-        }
-    }
+//    public void  doneConcrete(Long taskId) {
+//        Long containerId = this.getTask(taskId).getTaskInfo().getContainerId();
+//        // 更新可用库存
+//        List<StockQuant> quantList = stockQuantService.getQuantsByContainerId(containerId);
+//        for(StockQuant quant : quantList) {
+//            StockDelta delta = new StockDelta();
+//            delta.setItemId(quant.getItemId());
+//            delta.setInhouseQty(quant.getQty());
+//            delta.setBusinessId(taskId);
+//            delta.setType(StockConstant.TYPE_SHELVE);
+//            stockSummaryService.changeStock(delta);
+//        }
+//    }
 }

@@ -188,7 +188,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             move.setToContainerId(quant.getContainerId());
             move.setLot(lot);
         }
-        stockTakingService.writeOffQuant(move);
+        stockTakingService.writeOffQuant(move,quant);
     }
     public int getItemStockCount(Map<String, Object> mapQuery) {
         return itemService.countItem(mapQuery);
