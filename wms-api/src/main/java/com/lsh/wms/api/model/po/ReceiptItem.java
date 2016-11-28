@@ -21,8 +21,14 @@ public class ReceiptItem implements Serializable {
     /**orderId*/
     private Long orderId = 0l;
 
+    /** itemId */
+    private Long itemId;
+
     /** skuId */
     private Long skuId;
+
+    /** skuCode */
+    private String skuCode;
 
     /** 商品名称 */
     @Size(max=50)
@@ -247,5 +253,21 @@ public class ReceiptItem implements Serializable {
 
     public void setUnitQty(BigDecimal unitQty) {
         this.unitQty = unitQty;
+    }
+
+    public Long getItemId() {
+        return itemId;
+    }
+
+    public void setItemId(Long itemId) {
+        this.itemId = itemId;
+    }
+
+    public String getSkuCode() {
+        return skuCode;
+    }
+
+    public void setSkuCode(String skuCode) {
+        this.skuCode = skuCode;
     }
 }

@@ -31,6 +31,8 @@ public interface IReceiptRestService {
 
     public String getPoReceiptDetailByOrderId(Long orderId) throws BizCheckedException;
 
+    String getPoReceiptDetail(Map<String,Object> param) throws BizCheckedException;
+
     public String countInbPoReceiptHeader();
 
     public String getPoReceiptDetailList();
