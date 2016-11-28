@@ -59,6 +59,7 @@
 	<select id="getSysLogList" parameterType="map" resultMap="sysLogResultMap">
 		select * from sys_log
 		<include refid="queryCondition"/>
+		order by id desc
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
 		</if>
