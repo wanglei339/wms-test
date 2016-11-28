@@ -550,6 +550,9 @@ public class TuService {
                     throw new BizCheckedException("2990045");
                 }
             }
+            if(realDetails.size()==0){
+                throw new BizCheckedException("2990038");
+            }
             soDeliveryService.insertOrder(header, realDetails);
             persistenceProxy.doOne(SysLogConstant.LOG_TYPE_OBD,header.getDeliveryId());
         }
