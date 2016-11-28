@@ -347,8 +347,13 @@ public class PickRestService implements IPickRestService {
                     }
                 }
                 if (!splitWaveDetails.isEmpty()) {
-                    pickDone = false;
-                    result.put("next_detail", pickTaskService.renderResult(BeanMapTransUtils.Bean2map(splitWaveDetails.get(0)), "allocPickLocation", "allocPickLocationCode"));
+                    if (splitWaveDetails.size() == 1 && (splitWaveDetails.get(0).getPickTaskId() == null || splitWaveDetails.get(0).getPickTaskId().equals(0L))) {
+                        pickDone = true;
+                        result.put("next_detail", pickTaskService.renderResult(BeanMapTransUtils.Bean2map(pickTaskService.getPickTaskHead(taskIds.get(0))), "allocCollectLocation", "allocCollectLocationCode")); // 补拣返回值会是空
+                    } else {
+                        pickDone = false;
+                        result.put("next_detail", pickTaskService.renderResult(BeanMapTransUtils.Bean2map(splitWaveDetails.get(0)), "allocPickLocation", "allocPickLocationCode"));
+                    }
                 } else {
                     pickDone = true;
                     result.put("next_detail", pickTaskService.renderResult(BeanMapTransUtils.Bean2map(pickTaskService.getPickTaskHead(taskIds.get(0))), "allocCollectLocation", "allocCollectLocationCode")); // 返回第一个任务的头信息用于集货位分配
