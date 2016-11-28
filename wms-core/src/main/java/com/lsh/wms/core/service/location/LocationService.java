@@ -1090,10 +1090,12 @@ public class LocationService {
     @Transactional(readOnly = false)
     public BaseinfoLocation lockLocation(Long locationId) {
         BaseinfoLocation location = this.getLocation(locationId);
+        //表加行锁
+        locationDao.lock(location.getId());
         if (location == null) {
             throw new BizCheckedException("2180001");
         }
-        location.setIsLocked(1);    //上锁
+        location.setIsLocked(LocationConstant.IS_LOCKED);    //上锁
         this.updateLocation(location);
         return location;
     }
@@ -1107,6 +1109,8 @@ public class LocationService {
     @Transactional(readOnly = false)
     public BaseinfoLocation unlockLocation(Long locationId) {
         BaseinfoLocation location = this.getLocation(locationId);
+        //表加行锁
+        locationDao.lock(location.getId());
         if (location == null) {
             throw new BizCheckedException("2180001");
         }
@@ -1123,7 +1127,7 @@ public class LocationService {
      */
     public Boolean checkLocationLockStatus(Long locationId) {
         BaseinfoLocation location = this.getLocation(locationId);
-        if (location.getIsLocked().equals(1)) {
+        if (location.getIsLocked().equals(LocationConstant.IS_LOCKED)) {
             return true;
         }
         return false;
@@ -1136,7 +1140,7 @@ public class LocationService {
      * @return
      */
     public Boolean checkLocationLockStatus(BaseinfoLocation location) {
-        if (location.getIsLocked().equals(1)) {
+        if (location.getIsLocked().equals(LocationConstant.IS_LOCKED)) {
             return true;
         }
         return false;
