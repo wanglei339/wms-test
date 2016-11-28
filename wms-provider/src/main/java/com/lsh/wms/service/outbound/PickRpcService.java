@@ -87,8 +87,7 @@ public class PickRpcService implements IPCPickRpcService{
                 String customerCode = obdHeader.getDeliveryCode();
                 Long ownerId = obdHeader.getOwnerUid();
                 CsiCustomer csiCustomer = csiCustomerService.getCustomerByCustomerCode(customerCode);
-                goodInfo.put("customerName", csiCustomer.getCustomerName());
-                goodInfo.put("customerAddress", csiCustomer.getAddress());
+                goodInfo.put("customer", csiCustomer);
                 goodList.add(goodInfo);
             }
         }
