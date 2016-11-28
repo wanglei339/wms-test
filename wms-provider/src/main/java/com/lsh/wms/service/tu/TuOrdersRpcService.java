@@ -24,6 +24,7 @@ import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.*;
 import com.lsh.wms.model.csi.CsiCustomer;
+import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
@@ -440,6 +441,7 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
 
             for(OutbDeliveryDetail detail : details){
                 Long itemId = detail.getItemId();
+                ObdDetail obdDetail = soOrderService.getObdDetailByOrderIdAndDetailOtherId(detail.getOrderId(),detail.getRefDetailOtherId());
                 /*
                 封装订单对应的商品信息
                  */
@@ -455,9 +457,9 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
                     goodsCountMap.put("itemId", item.getItemId());
                     goodsCountMap.put("itemType", item.getItemType());   //课组
                     goodsCountMap.put("goodsName", item.getSkuName());
-                    goodsCountMap.put("boxNum", PackUtil.EAQty2UomQty(detail.getDeliveryNum(),detail.getPackUnit()));//箱数
+                    goodsCountMap.put("boxNum", PackUtil.EAQty2UomQty(detail.getDeliveryNum(),obdDetail.getPackUnit()));//箱数
                     goodsCountMap.put("eaNum", detail.getDeliveryNum());//件数
-                    goodsCountMap.put("unitName", item.getPackName());//箱规,默认EA
+                    goodsCountMap.put("unitName", obdDetail.getPackName());//箱规,默认EA
                     goodsCountMap.put("isExpensive", item.getIsValuable() == ItemConstant.TYPE_IS_VALUABLE);   //1是贵品,2不是贵品
                     goodsListMap.get(orderId).put(itemId, goodsCountMap);
                 }
