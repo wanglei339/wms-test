@@ -511,8 +511,8 @@ public class TuService {
                         oldDeliveryQty = oldDeliveryQty.add(oldDelivery.getDeliveryNum());
                     }
                 }
-                logger.info("cao3 "+oldDeliveryQty);
                 BigDecimal leftQty = detail.getDeliveryNum();
+                logger.info("cao3 "+oldDeliveryQty+" now qty "+leftQty);
                 int idx = 0;
                 for (ObdDetail obdDetail : itemOrderList) {
                     idx++;
@@ -543,7 +543,7 @@ public class TuService {
                         break;
                     }
                 }
-                if(leftQty.compareTo(BigDecimal.ZERO)!=0){
+                if(leftQty.compareTo(BigDecimal.ZERO)>0){
                     //出事了,怎么来的?
                     logger.error(String.format("delivery item out of bound order[%d] item[%d] qty[%s]",
                             header.getOrderId(), detail.getItemId(), detail.getDeliveryNum().toString()));
