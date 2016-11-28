@@ -727,6 +727,7 @@ public class WaveCore {
             orderDetails.addAll(details);
         }
         if(bAllAlloc){
+            waveService.setStatus(waveId, WaveConstant.STATUS_RELEASE_SUCC, true);
             throw new BizCheckedException("2040022");
         }
     }
