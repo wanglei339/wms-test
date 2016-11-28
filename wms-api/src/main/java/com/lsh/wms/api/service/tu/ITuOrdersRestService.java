@@ -9,5 +9,4 @@ public interface ITuOrdersRestService {
     public String getTuOrdersList(String tuId) throws BizCheckedException;
     public String getDeliveryOrdersList(String tuId) throws BizCheckedException;
     public String getSendCarOrdersList(String tuId) throws BizCheckedException;
-    public String getContainerExpensiveGoods(Long containerId) throws BizCheckedException;
 }

@@ -319,7 +319,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         AtticShelveTaskDetail detail = shelveTaskService.getShelveTaskDetail(taskId,TaskConstant.Draft);
         //判断扫描库位是不是存储合一库位
         if(realLocation.getRegionType().compareTo(LocationConstant.SPLIT_AREA)==0 && realLocation.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE) ){
-            if(locationService.checkLocationUseStatus(realLocationId) && realLocationId.compareTo(detail.getAllocLocationId())!=0){
+            if(realLocation.getIsLocked().compareTo(LocationConstant.IS_LOCKED)==0 && !locationService.checkLocationUseStatus(realLocationId) && realLocationId.compareTo(detail.getAllocLocationId())!=0){
                 return JsonUtils.TOKEN_ERROR("扫描库位已被占用");
             }
             //判断能不能放到的已有库存的库位上
@@ -447,6 +447,10 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             }
 
             for(BaseinfoLocation location:locationList) {
+
+                if(!locationService.locationIsEmptyAndUnlock(location)){
+                    continue;
+                }
 
                 BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(location.getLocationId());
                 //体积的80%为有效体积

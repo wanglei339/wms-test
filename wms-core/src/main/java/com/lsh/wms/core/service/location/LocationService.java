@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.parsing.Location;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -713,7 +714,7 @@ public class LocationService {
         List<BaseinfoLocation> locations = this.getLocationsByType(type);
         if (null != locations && locations.size() > 0) {
             for (BaseinfoLocation location : locations) {
-                if (location.getCanUse().equals(1) && !this.checkLocationLockStatus(location.getLocationId())) {
+                if (location.getCanUse().equals(LocationConstant.CAN_USE) && !this.checkLocationLockStatus(location.getLocationId())) {
                     return location;
                 }
             }
@@ -731,7 +732,7 @@ public class LocationService {
         if (null != locations && locations.size() > 0) {
             for (BaseinfoLocation location : locations) {
                 Long locationId = location.getLocationId();
-                if (location.getCanUse().equals(1) && !this.checkLocationLockStatus(locationId)) {
+                if (location.getCanUse().equals(LocationConstant.CAN_USE) && !this.checkLocationLockStatus(locationId)) {
                     List<StockQuant> quants = stockQuantService.getQuantsByLocationId(locationId);
                     if (quants.isEmpty()) {
                         return location;
@@ -1013,7 +1014,7 @@ public class LocationService {
         if (location == null) {
             throw new BizCheckedException("2180001");
         }
-        location.setCanUse(1);    //被未被使用
+        location.setCanUse(LocationConstant.CAN_USE);    //被未被使用
         this.updateLocation(location);
         return location;
     }
@@ -1026,7 +1027,7 @@ public class LocationService {
      */
     public Boolean checkLocationUseStatus(Long locationId) {
         BaseinfoLocation location = this.getLocation(locationId);
-        if (location.getCanUse().equals(1)) {
+        if (location.getCanUse().equals(LocationConstant.CAN_USE)) {
             return true;
         }
         return false;
@@ -1040,7 +1041,7 @@ public class LocationService {
      * @return
      */
     public boolean shelfBinLocationIsEmptyAndUnlock(BaseinfoLocation location) {
-        if ((location.getCanUse().equals(1)) && location.getIsLocked().equals(0)) {
+        if ((location.getCanUse().equals(LocationConstant.CAN_USE)) && location.getIsLocked().equals(LocationConstant.UNLOCK)) {
             return true;
         }
         return false;
@@ -1089,10 +1090,12 @@ public class LocationService {
     @Transactional(readOnly = false)
     public BaseinfoLocation lockLocation(Long locationId) {
         BaseinfoLocation location = this.getLocation(locationId);
+        //表加行锁
+        locationDao.lock(location.getId());
         if (location == null) {
             throw new BizCheckedException("2180001");
         }
-        location.setIsLocked(1);    //上锁
+        location.setIsLocked(LocationConstant.IS_LOCKED);    //上锁
         this.updateLocation(location);
         return location;
     }
@@ -1106,6 +1109,8 @@ public class LocationService {
     @Transactional(readOnly = false)
     public BaseinfoLocation unlockLocation(Long locationId) {
         BaseinfoLocation location = this.getLocation(locationId);
+        //表加行锁
+        locationDao.lock(location.getId());
         if (location == null) {
             throw new BizCheckedException("2180001");
         }
@@ -1122,7 +1127,7 @@ public class LocationService {
      */
     public Boolean checkLocationLockStatus(Long locationId) {
         BaseinfoLocation location = this.getLocation(locationId);
-        if (location.getIsLocked().equals(1)) {
+        if (location.getIsLocked().equals(LocationConstant.IS_LOCKED)) {
             return true;
         }
         return false;
@@ -1135,7 +1140,7 @@ public class LocationService {
      * @return
      */
     public Boolean checkLocationLockStatus(BaseinfoLocation location) {
-        if (location.getIsLocked().equals(1)) {
+        if (location.getIsLocked().equals(LocationConstant.IS_LOCKED)) {
             return true;
         }
         return false;
@@ -1237,9 +1242,9 @@ public class LocationService {
         location.setCurContainerVol(containerVol);    //被占用
         //设置状态
         if (this.isOnThreshold(location, containerVol)) {
-            location.setCanUse(2);
+            location.setCanUse(LocationConstant.CANNOT_USE);
         } else {
-            location.setCanUse(1);
+            location.setCanUse(LocationConstant.CAN_USE);
         }
         this.updateLocation(location);
         return location;
@@ -1406,7 +1411,7 @@ public class LocationService {
                 detailRequest.setBinPositionNo(Long.valueOf(conf.get("binPositionNo").toString()));
                 detailRequest.setDescription("");
                 detailRequest.setClassification(LocationConstant.CLASSIFICATION_OTHERS);
-                detailRequest.setCanUse(1);
+                detailRequest.setCanUse(LocationConstant.CAN_USE);
                 detailRequest.setIsLocked(0);
                 detailRequest.setCurContainerVol(0L);
                 detailRequest.setStoreNo("");
@@ -1442,7 +1447,7 @@ public class LocationService {
         if (!LocationConstant.BIN.equals(location.getType()) || !location.getIsLeaf().equals(1)) {
             throw new BizCheckedException("2180028");
         }
-        if (location.getCanUse().equals(0)) {
+        if (location.getCanUse().equals(LocationConstant.CANNOT_USE)) {
             throw new BizCheckedException("2180029");
         }
         if (LocationConstant.IS_LOCKED.equals(location.getIsLocked())) {

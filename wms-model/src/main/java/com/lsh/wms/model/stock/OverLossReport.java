@@ -21,7 +21,7 @@ public class OverLossReport implements Serializable {
 	/** 库存地 */
     private String storageLocation =  "0001";
 	/** 类型551报损552报溢 */
-    private Long moveType;
+	private Long moveType;
 	/** 移动原因 */
     private String moveReason = "0001";
 	/** 物美码  */

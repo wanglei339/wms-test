@@ -11,4 +11,5 @@ public class StockConstant {
     public static final int TYPE_TO_REFUND = 5;
     public static final int TYPE_STOCK_TAKING = 6;
     public static final int TYPE_PICK_DEFECT = 7;
+    public static final int TYPE_WRITE_OFF = 8;
 }
