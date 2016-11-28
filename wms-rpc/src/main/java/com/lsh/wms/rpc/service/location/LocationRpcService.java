@@ -98,6 +98,7 @@ public class LocationRpcService implements ILocationRpcService {
         }
         return locationId;
     }
+
     public BaseinfoLocation getLocationByCode(String code) throws BizCheckedException {
         if (null == code || "".equals(code)) {
             throw new BizCheckedException("2180008");
@@ -152,6 +153,7 @@ public class LocationRpcService implements ILocationRpcService {
         mapQuery.put("isValid", LocationConstant.IS_VALID);
         return locationService.getBaseinfoLocationList(mapQuery);
     }
+
     /**
      * 根仓库
      *
@@ -194,7 +196,7 @@ public class LocationRpcService implements ILocationRpcService {
         mapQuery.put("isValid", LocationConstant.IS_VALID);
         mapQuery.put("isLocked", LocationConstant.UNLOCK);
         mapQuery.put("canStore", LocationConstant.CAN_STORE);
-        mapQuery.put("canUse",LocationConstant.CAN_USE);
+        mapQuery.put("canUse", LocationConstant.CAN_USE);
         List<BaseinfoLocation> pickBins = locationService.getBaseinfoLocationList(mapQuery);
         targetList.addAll(pickBins);
 
@@ -235,7 +237,7 @@ public class LocationRpcService implements ILocationRpcService {
         }
         Collections.sort(locations, new Comparator<BaseinfoLocation>() {
             public int compare(BaseinfoLocation o1, BaseinfoLocation o2) {
-                return (o1.getBinPositionNo() > o2.getBinPositionNo()) ? 1 : ((o1.getBinPositionNo() == o2.getBinPositionNo()) ? 0 : -1);
+                return (o1.getBinPositionNo() > o2.getBinPositionNo()) ? 1 : ((o1.getBinPositionNo().equals(o2.getBinPositionNo())) ? 0 : -1);
             }
         });
         return locations;
@@ -283,6 +285,7 @@ public class LocationRpcService implements ILocationRpcService {
 
     /**
      * 根据库位的左右范围获取指定库位
+     *
      * @param params
      * @return
      * @throws BizCheckedException
@@ -294,6 +297,7 @@ public class LocationRpcService implements ILocationRpcService {
 
     /**
      * 拆分货位
+     *
      * @param locationId
      * @return
      * @throws BizCheckedException
