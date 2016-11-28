@@ -343,7 +343,7 @@ public class StockTakingService {
     }
 
     @Transactional(readOnly = false)
-    public void writeOffQuant(StockMove move) {
+    public void writeOffQuant(StockMove move,StockQuant quant) {
         OverLossReport overLossReport = new OverLossReport();
         //插入报损
         BaseinfoItem item = itemService.getItem(move.getItemId());
@@ -369,10 +369,12 @@ public class StockTakingService {
             if (move.getToLocationId().compareTo(locationId) == 0) {
                 qty = BigDecimal.ZERO.subtract(qty);
             }
-            delta.setInhouseQty(qty);
-            delta.setBusinessId(move.getTaskId());
-            delta.setType(StockConstant.TYPE_WRITE_OFF);
-            stockSummaryService.changeStock(delta);
+            if(quant.getIsInhouse().compareTo(1L)==0) {
+                delta.setInhouseQty(qty);
+                delta.setBusinessId(move.getTaskId());
+                delta.setType(StockConstant.TYPE_WRITE_OFF);
+                stockSummaryService.changeStock(delta);
+            }
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new BizCheckedException("2550051");
