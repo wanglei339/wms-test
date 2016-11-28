@@ -24,6 +24,7 @@ import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.csi.CsiOwner;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
@@ -217,6 +218,7 @@ public class StockTransferRFService implements IStockTransferRFService{
             throw e;
         } catch (Exception e) {
             logger.error(e.getMessage());
+            e.printStackTrace();
             return JsonUtils.TOKEN_ERROR(e.getMessage());
         }
     }
@@ -299,8 +301,11 @@ public class StockTransferRFService implements IStockTransferRFService{
         }
         Map<String, Object> next = new HashMap<String, Object>();
         if (type.equals(1L)) {
-            uomQty = new BigDecimal(params.get("uomQty").toString());
             final TaskInfo taskInfo = taskEntry.getTaskInfo();
+            uomQty = new BigDecimal(params.get("uomQty").toString());
+            if(params.get("subType")!=null && StringUtils.isNumeric(params.get("subType").toString())){
+                taskInfo.setSubType(Long.valueOf(params.get("subType").toString()));
+            }
             BaseinfoLocation fromLocation =  locationRpcService.getLocation(taskInfo.getFromLocationId());
             if(taskInfo.getSubType() == 1 && (fromLocation.getRegionType() == LocationConstant.FLOOR
                     || fromLocation.getRegionType() == LocationConstant.BACK_AREA

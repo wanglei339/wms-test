@@ -895,70 +895,70 @@ public class LocationService {
         }
     }
 
+//
+//    /**
+//     * todo 因为阁楼和拆零区的货位不是整托,会有同一批次的商品继续分配相同的货位,现阶段用库存为零判断,以后加入其它判断(待产品经理给规则)
+//     *
+//     * @param pickingLocation
+//     * @return
+//     */
+//    public BaseinfoLocation getNearestBinInSpiltByPicking(BaseinfoLocation pickingLocation) {
+//        //获取相邻货架的所有拣货位,先获取当前货架,获取通道,货物相邻货架,然后获取
+//        BaseinfoLocation shelfLocationSelf = this.getShelfByClassification(pickingLocation.getLocationId());
+//        //通道
+//        Map<String, Object> params = new HashMap<String, Object>();
+//        params.put("locationId", shelfLocationSelf.getFatherId());
+//        List<BaseinfoLocation> passageList = this.getBaseinfoLocationList(params);
+//        BaseinfoLocation passage = null;
+//        //将本货架的所有位置放在一个集合中
+//        List<BaseinfoLocation> tempLocations = new ArrayList<BaseinfoLocation>();
+//        List<BaseinfoLocation> allNearShelfSubs = null;
+//        //无论是否存在相邻货架,将一个通道下的所有位置拿出来(必须保证货架个体的father必须是通道)
+//        passage = passageList.get(0);
+//        allNearShelfSubs = this.getStoreLocations(passage.getLocationId());
+//        tempLocations.addAll(allNearShelfSubs);
+//        BaseinfoLocation neareatLocation = this.filterNearestBinAlgorithm(tempLocations, pickingLocation, shelfLocationSelf, BinUsageConstant.BIN_UASGE_PICK);
+//        return neareatLocation;
+//    }
 
-    /**
-     * todo 因为阁楼和拆零区的货位不是整托,会有同一批次的商品继续分配相同的货位,现阶段用库存为零判断,以后加入其它判断(待产品经理给规则)
-     *
-     * @param pickingLocation
-     * @return
-     */
-    public BaseinfoLocation getNearestBinInSpiltByPicking(BaseinfoLocation pickingLocation) {
-        //获取相邻货架的所有拣货位,先获取当前货架,获取通道,货物相邻货架,然后获取
-        BaseinfoLocation shelfLocationSelf = this.getShelfByClassification(pickingLocation.getLocationId());
-        //通道
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("locationId", shelfLocationSelf.getFatherId());
-        List<BaseinfoLocation> passageList = this.getBaseinfoLocationList(params);
-        BaseinfoLocation passage = null;
-        //将本货架的所有位置放在一个集合中
-        List<BaseinfoLocation> tempLocations = new ArrayList<BaseinfoLocation>();
-        List<BaseinfoLocation> allNearShelfSubs = null;
-        //无论是否存在相邻货架,将一个通道下的所有位置拿出来(必须保证货架个体的father必须是通道)
-        passage = passageList.get(0);
-        allNearShelfSubs = this.getStoreLocations(passage.getLocationId());
-        tempLocations.addAll(allNearShelfSubs);
-        BaseinfoLocation neareatLocation = this.filterNearestBinAlgorithm(tempLocations, pickingLocation, shelfLocationSelf, BinUsageConstant.BIN_UASGE_PICK);
-        return neareatLocation;
-    }
-
-    /**
-     * 获取阁楼拣货位的最近的存货位,不关心当前的托盘数,没达到上线,可以一直放,放什么商品不关心
-     *
-     * @param pickingLocation 阁楼货架的拣货位
-     * @return
-     */
-    public BaseinfoLocation getNearestBinInLoftByPicking(BaseinfoLocation pickingLocation) {
-        //获取相邻货架的所有拣货位,先获取当前货架,获取通道,货物相邻货架,然后获取
-        BaseinfoLocation shelfLocationSelf = this.getShelfByClassification(pickingLocation.getLocationId());
-        //通道
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("locationId", shelfLocationSelf.getFatherId());
-        List<BaseinfoLocation> passageList = this.getBaseinfoLocationList(params);
-        BaseinfoLocation passage = null;
-        //将本货架的所有位置放在一个集合中
-        List<BaseinfoLocation> tempLocations = new ArrayList<BaseinfoLocation>();
-        List<BaseinfoLocation> allNearShelfSubs = null;
-        //无论是否存在相邻货架,将一个通道下的所有位置拿出来(必须保证货架个体的father必须是通道)
-        passage = passageList.get(0);
-        allNearShelfSubs = this.getStoreLocations(passage.getLocationId());
-        tempLocations.addAll(allNearShelfSubs);
-        BaseinfoLocation neareatLocation = this.filterNearestBinAlgorithm(tempLocations, pickingLocation, shelfLocationSelf, BinUsageConstant.BIN_UASGE_STORE);
-        return neareatLocation;
-    }
+//    /**
+//     * 获取阁楼拣货位的最近的存货位,不关心当前的托盘数,没达到上线,可以一直放,放什么商品不关心
+//     *
+//     * @param pickingLocation 阁楼货架的拣货位
+//     * @return
+//     */
+//    public BaseinfoLocation getNearestBinInLoftByPicking(BaseinfoLocation pickingLocation) {
+//        //获取相邻货架的所有拣货位,先获取当前货架,获取通道,货物相邻货架,然后获取
+//        BaseinfoLocation shelfLocationSelf = this.getShelfByClassification(pickingLocation.getLocationId());
+//        //通道
+//        Map<String, Object> params = new HashMap<String, Object>();
+//        params.put("locationId", shelfLocationSelf.getFatherId());
+//        List<BaseinfoLocation> passageList = this.getBaseinfoLocationList(params);
+//        BaseinfoLocation passage = null;
+//        //将本货架的所有位置放在一个集合中
+//        List<BaseinfoLocation> tempLocations = new ArrayList<BaseinfoLocation>();
+//        List<BaseinfoLocation> allNearShelfSubs = null;
+//        //无论是否存在相邻货架,将一个通道下的所有位置拿出来(必须保证货架个体的father必须是通道)
+//        passage = passageList.get(0);
+//        allNearShelfSubs = this.getStoreLocations(passage.getLocationId());
+//        tempLocations.addAll(allNearShelfSubs);
+//        BaseinfoLocation neareatLocation = this.filterNearestBinAlgorithm(tempLocations, pickingLocation, shelfLocationSelf, BinUsageConstant.BIN_UASGE_STORE);
+//        return neareatLocation;
+//    }
 
 
-    //获取code
-    public String getCodeById(Long locationId) {
-        String code = null;
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("locationId", locationId);
-        params.put("isValid", LocationConstant.IS_VALID);
-        List<BaseinfoLocation> baseinfoLocationList = locationDao.getBaseinfoLocationList(params);
-        if (null != baseinfoLocationList && baseinfoLocationList.size() > 0) {
-            code = baseinfoLocationList.get(0).getLocationCode();
-        }
-        return code;
-    }
+//    //获取code
+//    public String getCodeById(Long locationId) {
+//        String code = null;
+//        Map<String, Object> params = new HashMap<String, Object>();
+//        params.put("locationId", locationId);
+//        params.put("isValid", LocationConstant.IS_VALID);
+//        List<BaseinfoLocation> baseinfoLocationList = locationDao.getBaseinfoLocationList(params);
+//        if (null != baseinfoLocationList && baseinfoLocationList.size() > 0) {
+//            code = baseinfoLocationList.get(0).getLocationCode();
+//        }
+//        return code;
+//    }
 
     /**
      * 通过位置编码,返回为位置的id
@@ -1114,7 +1114,7 @@ public class LocationService {
         if (location == null) {
             throw new BizCheckedException("2180001");
         }
-        location.setIsLocked(0);    //解锁
+        location.setIsLocked(LocationConstant.UNLOCK);    //解锁
         this.updateLocation(location);
         return location;
     }

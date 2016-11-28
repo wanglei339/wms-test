@@ -3,6 +3,7 @@ package com.lsh.wms.rf.service.seed;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.csi.ICsiRpcService;
@@ -241,6 +242,7 @@ public class SeedRestService implements ISeedRestService {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Map<String,Object> result =  new HashMap<String, Object>();
         Long uid = Long.valueOf(RequestUtils.getHeader("uid"));
+        logger.info("params:"+ JSON.toJSONString(mapQuery));
         try {
             BigDecimal qty = BigDecimal.ZERO;
             Long taskId = 0L;

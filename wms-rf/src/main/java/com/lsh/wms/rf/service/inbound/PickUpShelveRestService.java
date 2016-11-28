@@ -448,13 +448,9 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
 
             for(BaseinfoLocation location:locationList) {
 
-                if(!locationService.locationIsEmptyAndUnlock(location)){
-                    continue;
-                }
-
                 BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(location.getLocationId());
                 //体积的80%为有效体积
-                BigDecimal valum = bin.getVolume().multiply(new BigDecimal(0.8));
+                BigDecimal valum = bin.getVolume().multiply(BigDecimal.valueOf(0.8));
 
                 if (valum.compareTo(bulk) < 0 || (!locationService.locationIsEmptyAndUnlock(location))) {
                     continue;

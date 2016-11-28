@@ -137,7 +137,32 @@
 		<if test="start != null and limit != null">
 			limit #{start},#{limit}
 		</if>
+	</select>
 
+	<select id="getItemLocationList" parameterType="map" resultMap="stockQuantResultMap">
+		select id, sku_id,
+		location_id,
+		container_id,
+		sum(qty) as qty,
+		reserve_task_id,
+		value,
+		cost,
+		pack_unit,
+		pack_name,
+		is_frozen,supplier_id,owner_id,lot_id,
+		in_date,expire_date,created_at,updated_at,item_id,is_defect,is_refund,is_normal,is_inhouse,lot_code
+		from stock_quant
+		<include refid="queryCondition"/>
+		  group by item_id, location_id
+		<if test="start != null and limit != null">
+			limit #{start},#{limit}
+		</if>
+	</select>
+
+	<select id="countItemLocation" parameterType="map" resultType="int">
+		select count(*) from stock_quant
+		<include refid="queryCondition"/>
+		  group by item_id, location_id
 	</select>
 
 	<select id="lock" parameterType="map" resultMap="stockQuantResultMap">
@@ -189,5 +214,7 @@
 			</if>
 		</where>
 	</sql>
-   
+
+
+
 </mapper>

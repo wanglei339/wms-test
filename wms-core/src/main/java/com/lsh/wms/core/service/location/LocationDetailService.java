@@ -480,7 +480,7 @@ public class LocationDetailService {
      * @return
      */
     public List<BaseinfoLocation> getMarketReturnList() throws BizCheckedException {
-        Map<String, Object> params = new HashMap<String, Object>();
+        // Map<String, Object> params = new HashMap<String, Object>();
         List<BaseinfoLocation> locationList = locationService.getTargetLocationListByType(LocationConstant.MARKET_RETURN_AREA);
         //过滤货主
         if (locationList != null && locationList.size() > 0) {

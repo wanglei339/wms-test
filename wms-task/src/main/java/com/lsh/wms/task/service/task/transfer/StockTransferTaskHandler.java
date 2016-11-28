@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * Created by mali on 16/7/25.
@@ -82,12 +83,17 @@ public class StockTransferTaskHandler extends AbsTaskHandler {
         } else if  ( toLocation.getType().equals(LocationConstant.BACK_AREA)
                 || toLocation.getType().equals(LocationConstant.BACK_BIN)) {
             type = StockConstant.TYPE_TO_REFUND;
+        } else if (locationService.getLocation(taskInfo.getFromLocationId()).equals(LocationConstant.MARKET_RETURN_AREA)) {
+            type = StockConstant.TYPE_MARKET_RETURN;
         }
 
         if (0 != type) {
             StockDelta stockDelta = new StockDelta();
             stockDelta.setItemId(taskInfo.getItemId());
             stockDelta.setInhouseQty(BigDecimal.ZERO.subtract(taskInfo.getTaskEaQty()));
+            if (type == StockConstant.TYPE_MARKET_RETURN) {
+                stockDelta.setInhouseQty(taskInfo.getTaskEaQty());
+            }
             stockDelta.setType(type);
             stockDelta.setBusinessId(taskId);
             stockSummaryService.changeStock(stockDelta);

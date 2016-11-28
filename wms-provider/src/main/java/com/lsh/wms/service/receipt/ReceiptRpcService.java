@@ -457,6 +457,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     obdStreamDetail.setAllocUnitName(inbReceiptDetail.getPackName());
                     obdStreamDetail.setAllocUnitQty(PackUtil.EAQty2UomQty(inboundUnitQty,inbReceiptDetail.getPackName()));
                     obdStreamDetail.setSkuId(inbReceiptDetail.getSkuId());
+                    obdStreamDetail.setAllocQty(inboundUnitQty);
                     obdStreamDetailList.add(obdStreamDetail);
 
                 }
@@ -988,8 +989,12 @@ public class ReceiptRpcService implements IReceiptRpcService {
             obdStreamDetail.setAllocUnitQty(PackUtil.EAQty2UomQty(inboundUnitQty,inbReceiptDetail.getPackName()));
             obdStreamDetail.setAllocUnitName(inbReceiptDetail.getPackName());
             obdStreamDetail.setSkuId(inbReceiptDetail.getSkuId());
-            obdStreamDetailList.add(obdStreamDetail);
             obdStreamDetail.setOrderId(obdOrderId);
+            obdStreamDetail.setAllocCollectLocation(collectRoadId);
+            obdStreamDetail.setRealCollectLocation(collectRoadId);
+            obdStreamDetail.setAllocQty(inboundUnitQty);
+            obdStreamDetailList.add(obdStreamDetail);
+
             //将数量转为ea
             //inbReceiptDetail.setInboundQty(inboundUnitQty);
             inbReceiptDetailList.add(inbReceiptDetail);

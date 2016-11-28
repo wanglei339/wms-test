@@ -2,6 +2,7 @@ package com.lsh.wms.core.service.stock;
 
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.api.model.so.ObdDetail;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
@@ -505,6 +506,14 @@ public class StockQuantService {
         relDao.insert(moveRel);
 
         this.updateLocationStatus(move.getToLocationId());
+    }
+
+    public List<StockQuant> getItemLocationList(Map<String, Object> mapQuery) {
+        return stockQuantDao.getItemLocationList(mapQuery);
+    }
+
+    public Integer countItemLocationList(Map<String, Object> mapQuery) {
+        return stockQuantDao.countItemLocation(mapQuery);
     }
 
 }

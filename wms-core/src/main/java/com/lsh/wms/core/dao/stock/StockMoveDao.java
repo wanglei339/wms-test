@@ -19,4 +19,6 @@ public interface StockMoveDao {
 
 		List<StockMove> getStockMoveList(Map<String, Object> params);
 
+		List<StockMove> traceQuant(Long quantId);
+
 	}

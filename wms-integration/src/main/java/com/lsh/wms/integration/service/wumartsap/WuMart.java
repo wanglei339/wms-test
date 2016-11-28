@@ -34,6 +34,7 @@ public class WuMart implements IWuMart {
      * @return
      */
     public String sendIbd(CreateIbdHeader createIbdHeader, SysLog sysLog) {
+        sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
         try{
             CreateIbdHeader backDate = wuMartSap.ibd2Sap(createIbdHeader);
             if(backDate != null) {
@@ -81,6 +82,7 @@ public class WuMart implements IWuMart {
      * @return
      */
     public String sendObd(CreateObdHeader createObdHeader, SysLog sysLog) {
+        sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
         try {
             CreateObdHeader backDate = wuMartSap.obd2Sap(createObdHeader);
             if(backDate != null){
@@ -131,6 +133,7 @@ public class WuMart implements IWuMart {
      * @param ibdObdMap
      */
     public void sendSap(Map<String,Object> ibdObdMap, SysLog sysLog){
+        sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
         try{
             // TODO: 2016/11/21 根据step来创建对应的 初始的从创建ibd开始
             if(sysLog.getStep() == SysLogConstant.LOG_STEP_INIT){
@@ -197,7 +200,7 @@ public class WuMart implements IWuMart {
      * @return
      */
     public String sendSo2Sap(CreateObdHeader createObdHeader , SysLog sysLog) {
-
+        sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
         try{
             String type = wuMartSap.soObd2Sap(createObdHeader);
             if("E".equals(type)){

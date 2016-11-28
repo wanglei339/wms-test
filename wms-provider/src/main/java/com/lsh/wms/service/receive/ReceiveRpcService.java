@@ -93,7 +93,7 @@ public class ReceiveRpcService implements IReceiveRpcService{
             if(detail.getInboundQty().subtract(subQty).compareTo(BigDecimal.ZERO) < 0 ){
                 continue;
             }else{
-                detail.setInboundQty(receiptQty.add(subQty));
+                detail.setInboundQty(receiptQty.subtract(subQty));
                 ObjUtils.bean2bean(detail,inbReceiptDetail);
                 break;
             }

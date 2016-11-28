@@ -12,33 +12,35 @@ public class PackUtil {
         }else if (eachUnitName.compareTo("KG") == 0){
             return String.format("H%.4fK", packUit.floatValue());
         }else if (eachUnitName.compareTo("G") == 0){
-            return String.format("H%.4G", packUit.floatValue());
+            return String.format("H%.4fG", packUit.floatValue());
         }else{
-            return String.format("H%.4N", packUit.floatValue());
+            return String.format("H%.4fN", packUit.floatValue());
         }
     }
 
     public static BigDecimal Uom2PackUnit(String uom){
-        byte[] bytes = uom.getBytes();
-        if(uom.compareTo("EA") == 0){
+        // byte[] bytes = uom.getBytes();
+        if(uom.equals("EA")){
             return new BigDecimal("1");
         }
-        if(bytes[0] != 'H'){
+
+        if(!uom.substring(0,1).equals("H")){
             return null;
         }
-        if(bytes[bytes.length-1] == 'K' || bytes[bytes.length-1] == 'G' || bytes[bytes.length-1] == 'N'){
-            return new BigDecimal(uom.substring(1, bytes.length-1));
+        if(uom.substring(uom.length()-1).equals("K") || uom.substring(uom.length()-1).equals("G") || uom.substring(uom.length()-1).equals("N")){
+            return new BigDecimal(uom.substring(1, uom.length()-1));
         }else{
             return new BigDecimal(uom.substring(1));
         }
     }
 
     public static String Uom2EachUnitName(String uom){
-        byte[] bytes = uom.getBytes();
-        if(bytes.length==0){
+        // byte[] bytes = uom.getBytes();
+        if(uom.length()==0){
             return "UNKNOWN";
         }
-        switch (bytes[bytes.length-1]){
+        char[] uomChar = uom.toCharArray();
+        switch (uomChar[uomChar.length-1]){
             case 'K':
                 return "KG";
             case 'G':

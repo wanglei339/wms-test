@@ -119,11 +119,12 @@ public class IbdService implements IIbdService {
             logger.info("~~~~~~~~~~下发黑狗数据 request : " + JSON.toJSONString(request) + "~~~~~~~~~");
 
             JSONObject jsonObject = JSON.parseObject(res);
-            if ("1".equals(((Map)jsonObject.get("head")).get("status"))){
-                return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, jsonObject.get("body"));
-            }else{
-                return ResUtils.getResponse(ResponseConstant.RES_CODE_0, ResponseConstant.RES_MSG_OK, res);
-            }
+            //logger.info(" ~~~~~~~~~~~~~ 11111111 status : " + ((Map)jsonObject.get("head")).get("status"));
+//            if ("1".equals(((Map)jsonObject.get("head")).get("status"))){
+                return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, res);
+//            }else{
+//                return ResUtils.getResponse(ResponseConstant.RES_CODE_0, ResponseConstant.RES_MSG_ERROR, jsonObject.get("body"));
+//            }
 
 
         }
