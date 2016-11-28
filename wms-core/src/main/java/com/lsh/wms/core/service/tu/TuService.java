@@ -506,7 +506,7 @@ public class TuService {
                 if(oldDeliverys == null) oldDeliverys = new LinkedList<OutbDeliveryDetail>();
                 BigDecimal oldDeliveryQty = new BigDecimal("0.0000");
                 for(OutbDeliveryDetail oldDelivery : oldDeliverys){
-                    oldDeliveryQty.add(oldDelivery.getDeliveryNum());
+                    oldDeliveryQty = oldDeliveryQty.add(oldDelivery.getDeliveryNum());
                 }
                 logger.info("cao3 "+oldDeliveryQty);
                 BigDecimal leftQty = detail.getDeliveryNum();

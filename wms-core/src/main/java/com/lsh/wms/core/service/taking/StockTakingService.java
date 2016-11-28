@@ -16,10 +16,12 @@ import com.lsh.wms.core.service.persistence.PersistenceProxy;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.stock.*;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
+import com.lsh.wms.model.task.TaskInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,18 +60,18 @@ public class StockTakingService {
     @Autowired
     private OverLossReportDao overLossReportDao;
     @Autowired
-    private StockMoveService stockMoveService;
-    @Autowired
     private StockSummaryService stockSummaryService;
+    @Autowired
+    private BaseTaskService baseTaskService;
 
-    @Transactional (readOnly = false)
+    @Transactional(readOnly = false)
     public void insertHead(StockTakingHead head) {
         head.setCreatedAt(DateUtils.getCurrentSeconds());
         head.setUpdatedAt(DateUtils.getCurrentSeconds());
         headDao.insert(head);
     }
 
-    @Transactional (readOnly = false)
+    @Transactional(readOnly = false)
     public void updateHead(StockTakingHead head) {
         head.setUpdatedAt(DateUtils.getCurrentSeconds());
 
@@ -77,7 +79,7 @@ public class StockTakingService {
     }
 
 
-    @Transactional (readOnly = false)
+    @Transactional(readOnly = false)
     public void insertDetailList(List<StockTakingDetail> detailList) {
         for (StockTakingDetail detail : detailList) {
             detail.setCreatedAt(DateUtils.getCurrentSeconds());
@@ -85,8 +87,9 @@ public class StockTakingService {
         }
         detailDao.batchInsert(detailList);
     }
-    @Transactional (readOnly = false)
-     public void insertDetail(StockTakingDetail detail) {
+
+    @Transactional(readOnly = false)
+    public void insertDetail(StockTakingDetail detail) {
         detail.setCreatedAt(DateUtils.getCurrentSeconds());
         detail.setUpdatedAt(DateUtils.getCurrentSeconds());
         detailDao.insert(detail);
@@ -106,9 +109,10 @@ public class StockTakingService {
         List<StockTakingDetail> detailList = detailDao.getStockTakingDetailList(mapQuery);
         return detailList;
     }
-    @Transactional (readOnly = false)
-    public void done(Long stockTakingId,List<StockTakingDetail> stockTakingDetails) {
-        for(StockTakingDetail stockTakingDetail:stockTakingDetails){
+
+    @Transactional(readOnly = false)
+    public void done(Long stockTakingId, List<StockTakingDetail> stockTakingDetails) {
+        for (StockTakingDetail stockTakingDetail : stockTakingDetails) {
             stockTakingDetail.setIsFinal(1);
             this.updateDetail(stockTakingDetail);
         }
@@ -121,7 +125,7 @@ public class StockTakingService {
 //        StockRequest request = new StockRequest();
         List<OverLossReport> overLossReports = new ArrayList<OverLossReport>();
         for (StockTakingDetail detail : stockTakingDetails) {
-            if(detail.getItemId()==0L){
+            if (detail.getItemId() == 0L) {
                 continue;
             }
             OverLossReport overLossReport = new OverLossReport();
@@ -214,6 +218,7 @@ public class StockTakingService {
     public StockTakingHead getHeadById(Long takingId) {
         return headDao.getStockTakingHeadById(takingId);
     }
+
     public Long chargeTime(Long stockTakingId) {
         Map queryMap = new HashMap();
         queryMap.put("takingId", stockTakingId);
@@ -230,17 +235,20 @@ public class StockTakingService {
             return 1L;
         }
     }
+
     public List<StockTakingHead> queryTakingHead(Map queryMap) {
         return headDao.getStockTakingHeadList(queryMap);
     }
-    public List<StockTakingDetail> getDetailByTaskId(Long taskId){
-        Map<String,Object> queryMap = new HashMap<String, Object>();
+
+    public List<StockTakingDetail> getDetailByTaskId(Long taskId) {
+        Map<String, Object> queryMap = new HashMap<String, Object>();
         queryMap.put("taskId", taskId);
         return detailDao.getStockTakingDetailList(queryMap);
 
     }
-    public List<StockTakingDetail> getDetailByTakingId(Long takingId){
-        Map<String,Object> queryMap = new HashMap<String, Object>();
+
+    public List<StockTakingDetail> getDetailByTakingId(Long takingId) {
+        Map<String, Object> queryMap = new HashMap<String, Object>();
         queryMap.put("takingId", takingId);
         return detailDao.getStockTakingDetailList(queryMap);
     }
@@ -250,24 +258,27 @@ public class StockTakingService {
         return headDao.countStockTakingHead(queryMap);
 
     }
+
     public List queryTakingDetail(Map queryMap) {
         return detailDao.getStockTakingDetailList(queryMap);
 
     }
-    @Transactional (readOnly = false)
+
+    @Transactional(readOnly = false)
     public void confirmDifference(Long stockTakingId, long roundTime) {
         List<StockTakingDetail> detailList = this.getDetailListByRound(stockTakingId, roundTime);
         this.done(stockTakingId, detailList);
     }
-    @Transactional (readOnly = false)
+
+    @Transactional(readOnly = false)
     public void insertLossOrOver(List<OverLossReport> overLossReports) {
-        for(OverLossReport overLossReport :overLossReports){
+        for (OverLossReport overLossReport : overLossReports) {
             Long reportId = RandomUtils.genId();
             overLossReport.setLossReportId(reportId);
             overLossReport.setUpdatedAt(DateUtils.getCurrentSeconds());
             overLossReport.setCreatedAt(DateUtils.getCurrentSeconds());
             overLossReportDao.insert(overLossReport);
-            persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN,reportId);
+            persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN, reportId);
         }
     }
 
@@ -278,21 +289,21 @@ public class StockTakingService {
         overLossReport.setUpdatedAt(DateUtils.getCurrentSeconds());
         overLossReport.setCreatedAt(DateUtils.getCurrentSeconds());
         overLossReportDao.insert(overLossReport);
-        persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN,reportId);
+        persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN, reportId);
     }
 
-    public OverLossReport getOverLossReportById(Long reportId){
-        Map<String,Object> map = new HashMap<String, Object>();
-        map.put("lossReportId",reportId);
+    public OverLossReport getOverLossReportById(Long reportId) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("lossReportId", reportId);
         List<OverLossReport> list = overLossReportDao.getOverLossReportList(map);
-        if(list == null || list.size() == 0 ){
+        if (list == null || list.size() == 0) {
             return null;
         }
         return list.get(0);
     }
 
     @Transactional(readOnly = false)
-    public void doQcPickDifference(StockMove move) {
+    public void doQcPickDifference(StockMove move) throws BizCheckedException {
         OverLossReport overLossReport = new OverLossReport();
         //插入报损
         BaseinfoItem item = itemService.getItem(move.getItemId());
@@ -305,12 +316,13 @@ public class StockTakingService {
         overLossReport.setMoveType(OverLossConstant.LOSS_REPORT);
         overLossReport.setQty(move.getQty());
         overLossReport.setStorageLocation(move.getFromLocationId().toString());
+        TaskInfo qcInfo = baseTaskService.getTaskInfoById(move.getTaskId());
 
         try {
             this.insertLossOrOver(overLossReport);
-            moveService.move(move);
             //移到盘亏盘盈区
-            stockMoveService.move(move);
+            moveService.move(move);
+
             StockDelta delta = new StockDelta();
             delta.setItemId(move.getItemId());
             BigDecimal qty = new BigDecimal(move.getQty().toString());
@@ -319,14 +331,19 @@ public class StockTakingService {
             delta.setInhouseQty(qty);
             delta.setBusinessId(move.getTaskId());
             delta.setType(StockConstant.TYPE_PICK_DEFECT);
-            stockSummaryService.changeStock(delta);
+            //同步库存判断是直流还是在库的
+            Long businessMode = qcInfo.getBusinessMode();
+            if (TaskConstant.MODE_INBOUND.equals(businessMode)){
+                stockSummaryService.changeStock(delta);
+            }
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("MOVE STOCK FAIL , containerId is " + move.getToContainerId() + "taskId is " + move.getTaskId() + e.getMessage());
             throw new BizCheckedException("2550051");
         }
     }
+
     @Transactional(readOnly = false)
-    public void writeOffQuant(StockMove move) {
+    public void writeOffQuant(StockMove move,StockQuant quant) {
         OverLossReport overLossReport = new OverLossReport();
         //插入报损
         BaseinfoItem item = itemService.getItem(move.getItemId());
@@ -343,19 +360,21 @@ public class StockTakingService {
         try {
             this.insertLossOrOver(overLossReport);
             Long locationId = locationService.getInventoryLostLocationId();
-            moveService.move(move);
             //移到盘亏盘盈区
-            stockMoveService.move(move);
+            moveService.move(move);
+//            stockMoveService.move(move);
             StockDelta delta = new StockDelta();
             delta.setItemId(move.getItemId());
             BigDecimal qty = new BigDecimal(move.getQty().toString());
-            if(move.getToLocationId().compareTo(locationId)==0){
+            if (move.getToLocationId().compareTo(locationId) == 0) {
                 qty = BigDecimal.ZERO.subtract(qty);
             }
-            delta.setInhouseQty(qty);
-            delta.setBusinessId(move.getTaskId());
-            delta.setType(StockConstant.TYPE_WRITE_OFF);
-            stockSummaryService.changeStock(delta);
+            if(quant.getIsInhouse().compareTo(1L)==0) {
+                delta.setInhouseQty(qty);
+                delta.setBusinessId(move.getTaskId());
+                delta.setType(StockConstant.TYPE_WRITE_OFF);
+                stockSummaryService.changeStock(delta);
+            }
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new BizCheckedException("2550051");

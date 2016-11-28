@@ -802,22 +802,19 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         //获取location的id
         if (null == csiCustomer) {
-            throw new BizCheckedException("2180023");
+            throw new BizCheckedException("2180023");//输入编码有误,查找客户不存在
         }
-        if (null == csiCustomer.getCollectRoadId()) {
-            throw new BizCheckedException("2180024");
-        }
-        BaseinfoLocation location = locationService.getLocation(csiCustomer.getCollectRoadId());
-
-        if( location != null){
-            inbReceiptHeader.setLocation(location.getLocationId());
-        }
-
         Long collectRoadId =csiCustomer.getCollectRoadId();
         if(collectRoadId == null || collectRoadId == 0){
-            throw new BizCheckedException("2020108");//店铺没有设置集货道
+            throw new BizCheckedException("2180024");//该客户未配置集货道
         }
         inbReceiptHeader.setLocation(collectRoadId);
+
+        BaseinfoLocation location = locationService.getLocation(collectRoadId);
+        if( location == null){
+            throw new BizCheckedException("2180012");//查找的门店位置不存在,请重新输入或设置该门店的集货位置
+        }
+
 
         /*List<BaseinfoLocation> list = locationRpcService.getCollectionByStoreNo(inbReceiptHeader.getStoreCode());
         if( list != null && list.size() >= 0 ){

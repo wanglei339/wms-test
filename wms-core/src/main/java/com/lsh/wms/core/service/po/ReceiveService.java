@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.po;
 
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.constant.SysLogConstant;
@@ -14,6 +15,8 @@ import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.ReceiveDetail;
 import com.lsh.wms.model.po.ReceiveHeader;
 import com.lsh.wms.model.system.SysLog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +29,7 @@ import java.util.*;
 @Component
 @Transactional(readOnly = true)
 public class ReceiveService {
+    private static final Logger logger = LoggerFactory.getLogger(ReceiveService.class);
 
     @Autowired
     private ReceiveHeaderDao receiveHeaderDao;
@@ -197,10 +201,14 @@ public class ReceiveService {
     @Transactional(readOnly = false)
     public void updateQty(ReceiveDetail receiveDetail, IbdDetail ibdDetail, InbReceiptDetail inbReceiptDetail){
         receiveDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
+        logger.info("~~~~~~~~~~~~~~~~~~~1111111 receiveDetail : " + JSON.toJSONString(receiveDetail));
         receiveDetailDao.update(receiveDetail);
         ibdDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
+        logger.info("~~~~~~~~~~~~~~~~~~~~2222222 ibdDetail :" + JSON.toJSONString(ibdDetail));
         ibdDetailDao.update(ibdDetail);
         inbReceiptDetail.setUpdatetime(new Date());
+
+        logger.info("~~~~~~~~~~~~~~~~~~~~333333 inbReceiptDetail : " + JSON.toJSONString(inbReceiptDetail));
         inbReceiptDetailDao.update(inbReceiptDetail);
 
     }
