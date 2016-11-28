@@ -11,15 +11,16 @@ import com.lsh.wms.api.service.sms.ISmsRestService;
 import com.lsh.wms.core.constant.StockConstant;
 import com.lsh.wms.core.dao.redis.RedisSortedSetDao;
 import com.lsh.wms.core.dao.stock.StockSummaryDao;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.so.SoOrderRedisService;
 import com.lsh.wms.core.service.so.SoOrderService;
-import com.lsh.wms.core.service.stock.StockAllocService;
-import com.lsh.wms.core.service.stock.StockSummaryService;
-import com.lsh.wms.core.service.stock.SynStockService;
+import com.lsh.wms.core.service.stock.*;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockDelta;
+import com.lsh.wms.model.stock.StockMove;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockSummary;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.task.TaskMsg;
@@ -41,6 +42,15 @@ public class SmsRestService implements ISmsRestService {
 
     @Autowired
     private SmsService smsService;
+
+    @Autowired
+    private StockMoveService stockMoveService;
+
+    @Autowired
+    private LocationService locationService;
+
+    @Autowired
+    private StockQuantService stockQuantService;
 
     @Autowired
     private SynStockService synStockService;
@@ -73,8 +83,8 @@ public class SmsRestService implements ISmsRestService {
 
     @GET
     @Path("sendMsg")
-    public String sendMsg(@QueryParam("phone") String phone,
-                          @QueryParam("msg") String msg) {
+    public String sendMsg (@QueryParam("item_id") String itemId,
+                          @QueryParam("location_code") String locationCode) throws BizCheckedException  {
 //        //synStockService.synStock(123L,2.3);
 //        WaveDetail detail = new WaveDetail();
 //        detail.setItemId(1L);
@@ -110,9 +120,11 @@ public class SmsRestService implements ISmsRestService {
 //        Long businessId = 201011L;
 //        message = messageService.getMessage(businessId);
 
-        Map<String,Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("containerId", 201011);
-        List<TaskInfo> list = baseTaskService.getTaskInfoList(mapQuery);
+//        Map<String,Object> mapQuery = new HashMap<String, Object>();
+//        mapQuery.put("itemId", Long.valueOf(itemId));
+//        mapQuery.put("locationId", locationService.getLocationIdByCode(locationCode));
+//        List<StockQuant> list = stockQuantService.getItemLocationList(mapQuery);
+        List<StockMove> list = stockMoveService.traceQuant(Long.valueOf(itemId));
         return JsonUtils.SUCCESS(list);
     }
 

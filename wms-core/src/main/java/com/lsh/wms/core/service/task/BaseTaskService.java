@@ -10,8 +10,9 @@ import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.task.TaskMsg;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.config.Task;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ import java.util.*;
 @Transactional(readOnly = true)
 public class BaseTaskService {
 
+    private static final Logger logger = LoggerFactory.getLogger(BaseTaskService.class);
     @Autowired
     private TaskInfoDao taskInfoDao;
     @Autowired

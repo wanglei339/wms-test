@@ -252,4 +252,8 @@ public class StockQuantRpcService implements IStockQuantRpcService {
     public List<StockQuant> getLocationStockList(Map<String, Object> mapQuery) {
         return quantService.getQuants(mapQuery);
     }
+
+    public List<StockMove> traceQuant(Long quantId) {
+        return moveService.traceQuant(quantId);
+    }
 }
