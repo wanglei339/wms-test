@@ -197,7 +197,8 @@
 		count(distinct container_id) as containerQty, sum(task_ea_qty) as taskEaQty,
 		sum(task_pack_qty) as taskPackQty,ifnull(sum(task_board_qty),0) as taskBoardQty,date from task_info
 		<where>
-			<if test="type != null">type = #{type}</if>
+			status = 4
+			<if test="type != null"> and type = #{type}</if>
 			<if test="date != null"> and date = #{date}</if>
 			<if test="uid != null"> and operator = #{uid}</if>
 			<if test="uidList != null">
