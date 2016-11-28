@@ -71,7 +71,7 @@ public class PickRestService implements IPCPickRestService {
             Map<String, Object> head = (Map<String, Object>) entry.getTaskHead();
             head.put("lineCount", details.size());
             head.put("deliveryName", orderService.getOutbSoHeaderByOrderId(Long.valueOf(details.get(0).get("orderId").toString())).getDeliveryName());
-            Long pickZoneId = head.get("pickZonId") == null ? 0 : Long.valueOf(head.get("pickZonId").toString());
+            Long pickZoneId = head.get("pickZoneId") == null ? 0 : Long.valueOf(head.get("pickZoneId").toString());
             PickZone zone = mapZone.get(pickZoneId);
             if (pickZoneId != 0 && zone == null) {
                 zone = pickZoneService.getPickZone(pickZoneId);
