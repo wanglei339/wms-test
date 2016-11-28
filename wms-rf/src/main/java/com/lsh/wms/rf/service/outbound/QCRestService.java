@@ -184,13 +184,14 @@ public class QCRestService implements IRFQCRestService {
             } else {
                 mapItem2PickQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getPickQty()));
             }
-            mapItem2WaveDetail.put(d.getItemId(), d);
-            //跳过直流,一旦有组盘没有异常,就直接到组盘
-            //一旦是直流大店的门店收货,需要忽略qc,直接进入
-//            if (qcTaskInfo.getQcSkip().equals(TaskConstant.QC_SKIP) && !d.getQcException().equals(WaveConstant.QC_EXCEPTION_GROUP)) { //直流组盘不异常,跳过明细qc
-//                //直流的大店门店收货跳过组盘的开关
-//                isDirect = true;
-//            }
+            //如果同种商品,同种货物的出货的包装单位不同,按照EA算
+            if (mapItem2WaveDetail.get(d.getItemId()) != null) {
+                if (mapItem2WaveDetail.get(d.getItemId()).getAllocUnitName().equals("EA")) {
+                    continue;
+                }
+            } else {
+                mapItem2WaveDetail.put(d.getItemId(), d);
+            }
         }
 
 //        //如果是直流所有的直接跳转为已经QC了

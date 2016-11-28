@@ -466,6 +466,7 @@ public class TuService {
                 //deliveryDetail.setDeliveryNum(waveDetail.getQcQty());
                 deliveryDetail.setDeliveryNum(BigDecimal.valueOf(0L));
                 deliveryDetail.setInserttime(new Date());
+                deliveryDetail.setUpdatetime(new Date());
             }
             deliveryDetail.setDeliveryNum(waveDetail.getQcQty().add(deliveryDetail.getDeliveryNum()));
             rowDeliverys.put(key, deliveryDetail);
@@ -506,10 +507,12 @@ public class TuService {
                 if(oldDeliverys == null) oldDeliverys = new LinkedList<OutbDeliveryDetail>();
                 BigDecimal oldDeliveryQty = new BigDecimal("0.0000");
                 for(OutbDeliveryDetail oldDelivery : oldDeliverys){
-                    oldDeliveryQty = oldDeliveryQty.add(oldDelivery.getDeliveryNum());
+                    if(oldDelivery.getItemId().equals(detail.getItemId())) {
+                        oldDeliveryQty = oldDeliveryQty.add(oldDelivery.getDeliveryNum());
+                    }
                 }
-                logger.info("cao3 "+oldDeliveryQty);
                 BigDecimal leftQty = detail.getDeliveryNum();
+                logger.info("cao3 "+oldDeliveryQty+" now qty "+leftQty);
                 int idx = 0;
                 for (ObdDetail obdDetail : itemOrderList) {
                     idx++;
@@ -540,12 +543,15 @@ public class TuService {
                         break;
                     }
                 }
-                if(leftQty.compareTo(BigDecimal.ZERO)!=0){
+                if(leftQty.compareTo(BigDecimal.ZERO)>0){
                     //出事了,怎么来的?
                     logger.error(String.format("delivery item out of bound order[%d] item[%d] qty[%s]",
                             header.getOrderId(), detail.getItemId(), detail.getDeliveryNum().toString()));
                     throw new BizCheckedException("2990045");
                 }
+            }
+            if(realDetails.size()==0){
+                throw new BizCheckedException("2990038");
             }
             soDeliveryService.insertOrder(header, realDetails);
             persistenceProxy.doOne(SysLogConstant.LOG_TYPE_OBD,header.getDeliveryId());
