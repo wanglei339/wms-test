@@ -55,6 +55,9 @@ public class ReceiptRequest implements Serializable {
     /**货主*/
     private Long ownerId ;
 
+    /** 供应商id */
+    private Long supplierId;
+
     /** 商品 */
     @Valid
     @Size(min=1)
@@ -184,5 +187,13 @@ public class ReceiptRequest implements Serializable {
 
     public void setOrderId(Long orderId) {
         this.orderId = orderId;
+    }
+
+    public Long getSupplierId() {
+        return supplierId;
+    }
+
+    public void setSupplierId(Long supplierId) {
+        this.supplierId = supplierId;
     }
 }
