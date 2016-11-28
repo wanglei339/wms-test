@@ -33,9 +33,18 @@ public class ObdStreamDetail {
     /**收货的数量*/
     private BigDecimal pickQty = BigDecimal.ZERO;
 
+    /** 分配的集货位 */
+    private Long allocCollectLocation = 0L;
+    /** 实际的集货位 */
+    private Long realCollectLocation = 0L;
+    /** 配货库存量 */
+    private BigDecimal allocQty = BigDecimal.ZERO;
+
     public ObdStreamDetail(){}
 
-    public ObdStreamDetail(String allocUnitName, BigDecimal allocUnitQty, Long containerId, Long ibdOrderType, Long itemId, Long locId, Long orderId, Long ownerId, BigDecimal pickQty, Long skuId, Long status) {
+    public ObdStreamDetail(Long allocCollectLocation, BigDecimal allocQty, String allocUnitName, BigDecimal allocUnitQty, Long containerId, Long ibdOrderType, Long itemId, Long locId, Long orderId, Long ownerId, BigDecimal pickQty, Long realCollectLocation, Long skuId, Long status) {
+        this.allocCollectLocation = allocCollectLocation;
+        this.allocQty = allocQty;
         this.allocUnitName = allocUnitName;
         this.allocUnitQty = allocUnitQty;
         this.containerId = containerId;
@@ -45,8 +54,25 @@ public class ObdStreamDetail {
         this.orderId = orderId;
         this.ownerId = ownerId;
         this.pickQty = pickQty;
+        this.realCollectLocation = realCollectLocation;
         this.skuId = skuId;
         this.status = status;
+    }
+
+    public Long getAllocCollectLocation() {
+        return allocCollectLocation;
+    }
+
+    public void setAllocCollectLocation(Long allocCollectLocation) {
+        this.allocCollectLocation = allocCollectLocation;
+    }
+
+    public BigDecimal getAllocQty() {
+        return allocQty;
+    }
+
+    public void setAllocQty(BigDecimal allocQty) {
+        this.allocQty = allocQty;
     }
 
     public String getAllocUnitName() {
@@ -119,6 +145,14 @@ public class ObdStreamDetail {
 
     public void setPickQty(BigDecimal pickQty) {
         this.pickQty = pickQty;
+    }
+
+    public Long getRealCollectLocation() {
+        return realCollectLocation;
+    }
+
+    public void setRealCollectLocation(Long realCollectLocation) {
+        this.realCollectLocation = realCollectLocation;
     }
 
     public Long getSkuId() {
