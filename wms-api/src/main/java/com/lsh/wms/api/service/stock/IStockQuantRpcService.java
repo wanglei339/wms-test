@@ -1,6 +1,7 @@
 package com.lsh.wms.api.service.stock;
 
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskInfo;
@@ -26,5 +27,5 @@ public interface IStockQuantRpcService {
     Map<Long, Map<String, BigDecimal>>getItemStockList(Map<String, Object> mapQuery);
     int getLocationStockCount(Map<String, Object> mapQuery);
     List<StockQuant> getLocationStockList(Map<String, Object> mapQuery);
-
+    List<StockMove> traceQuant(Long quantId);
 }

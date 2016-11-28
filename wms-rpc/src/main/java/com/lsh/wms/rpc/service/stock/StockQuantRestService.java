@@ -149,7 +149,7 @@ public class StockQuantRestService implements IStockQuantRestService {
 
     @GET
     @Path("traceQuant")
-    public String tranceQuant(@QueryParam("quantId") Long quantId) {
+    public String traceQuant(@QueryParam("quantId") Long quantId) {
         return JsonUtils.SUCCESS(stockQuantRpcService.traceQuant(quantId));
     }
 
