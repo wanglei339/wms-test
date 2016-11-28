@@ -353,8 +353,11 @@ public class QCRpcService implements IQCRpcService {
                 }
                 detail.setQcQty(qty.subtract(normalQty));   //前面的都是正常的,有异常那条记录异常的数量
                 detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_SKIP);
-                waveService.updateDetail(detail);
+//                waveService.updateDetail(detail);
+            }else {
+                detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_NORMAL);
             }
+            waveService.updateDetail(detail);
         }
 
         //检验修复完毕
@@ -411,8 +414,11 @@ public class QCRpcService implements IQCRpcService {
                 d.setQcQty(d.getPickQty());
                 d.setQcExceptionQty(new BigDecimal("0.0000"));
                 d.setQcException(WaveConstant.QC_EXCEPTION_NORMAL);
-                waveService.updateDetail(d);
+//                waveService.updateDetail(d);
+            }else {
+                d.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_NORMAL);
             }
+            waveService.updateDetail(d);
         }
         //检验修复完毕
         boolean result = true;
@@ -479,11 +485,14 @@ public class QCRpcService implements IQCRpcService {
                 } else { //非残次拣货人的责任
                     detail.setQcFault(WaveConstant.QC_FAULT_PICK);
                     detail.setQcFaultQty(detail.getQcExceptionQty().abs());
+                    detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_SKIP);
                 }
                 detail.setQcQty(qty.subtract(normalQty));   //前面的都是正常的,有异常那条记录异常的数量
                 detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_SKIP);
-                waveService.updateDetail(detail);
+            }else {
+                detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_NORMAL);
             }
+            waveService.updateDetail(detail);
         }
 
         //todo 吴昊的方法提供
