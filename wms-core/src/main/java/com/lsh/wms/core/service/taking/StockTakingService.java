@@ -58,8 +58,6 @@ public class StockTakingService {
     @Autowired
     private OverLossReportDao overLossReportDao;
     @Autowired
-    private StockMoveService stockMoveService;
-    @Autowired
     private StockSummaryService stockSummaryService;
 
     @Transactional (readOnly = false)
@@ -308,9 +306,9 @@ public class StockTakingService {
 
         try {
             this.insertLossOrOver(overLossReport);
-            moveService.move(move);
             //移到盘亏盘盈区
-            stockMoveService.move(move);
+            moveService.move(move);
+
             StockDelta delta = new StockDelta();
             delta.setItemId(move.getItemId());
             BigDecimal qty = new BigDecimal(move.getQty().toString());
@@ -343,9 +341,9 @@ public class StockTakingService {
         try {
             this.insertLossOrOver(overLossReport);
             Long locationId = locationService.getInventoryLostLocationId();
-            moveService.move(move);
             //移到盘亏盘盈区
-            stockMoveService.move(move);
+            moveService.move(move);
+//            stockMoveService.move(move);
             StockDelta delta = new StockDelta();
             delta.setItemId(move.getItemId());
             BigDecimal qty = new BigDecimal(move.getQty().toString());
