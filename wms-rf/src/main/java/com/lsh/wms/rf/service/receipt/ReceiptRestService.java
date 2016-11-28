@@ -208,9 +208,10 @@ public class ReceiptRestService implements IReceiptRfService {
 
             //TODO 这里有问题没调通,然后其实真实逻辑因该是非EA的情况下做这个限制,是可以EA收货的
             //验证箱规是否一至
-            /*if(baseinfoItem.getPackUnit().compareTo(ibdDetail.getPackUnit()) != 0){
+            if(ibdDetail.getPackUnit().compareTo(BigDecimal.ONE) != 0 &&
+                    baseinfoItem.getPackUnit().compareTo(ibdDetail.getPackUnit()) != 0){
                 throw new BizCheckedException("2020105");//箱规不一致,不能收货
-            }*/
+            }
 
             /*
             验证保质期是否有效
@@ -249,10 +250,8 @@ public class ReceiptRestService implements IReceiptRfService {
                 }
             }
 
-
-
-
-
+            receiptItem.setSkuCode(baseinfoItem.getSkuCode());
+            receiptItem.setItemId(baseinfoItem.getItemId());
             receiptItem.setSkuId(baseinfoItem.getSkuId());
             receiptItem.setSkuName(ibdDetail.getSkuName());
             receiptItem.setPackUnit(ibdDetail.getPackUnit());
@@ -275,7 +274,7 @@ public class ReceiptRestService implements IReceiptRfService {
         if(csiSupplier == null){
             throw new BizCheckedException("2020109");//供商信息不存在
         }
-
+        receiptRequest.setSupplierId(csiSupplier.getSupplierId());
         receiptRequest.setItems(receiptItemList);
         receiptRequest.setOwnerId(ibdHeader.getOwnerUid());
 
