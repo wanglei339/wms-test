@@ -43,10 +43,11 @@ public class TaskEventService {
             public void run() {
 				/*锁住此刷新线程，否则容易出现重复刷新，即第一次刷新还没有操作完，第二次刷新又开始了。造成资源同步问题 */
                 lock.lock();
+                TaskMsg msg = new TaskMsg();
                 try {
                     while (true) {
                         logger.debug("begin to detail one");
-                        TaskMsg msg = msgService.getMessage();
+                        msg = msgService.getMessage();
                         if (null == msg) {
                             logger.debug("nothing to do, go sleep");
                             break;
@@ -57,9 +58,14 @@ public class TaskEventService {
                         logger.debug("msg is done");
                     }
                 } catch (BizCheckedException ex) {
-                    logger.error("----刷新路由缓存的异常信息为：----"+ex.getMessage()+"------",ex);
+                    logger.error("----业务异常信息----"+ex.getMessage()+"------",ex);
+                    msg.setErrorCode(ex.getCode());
+                    msg.setErrorMsg(ex.getMessage());
+                    msgService.saveMessage(msg);
                 } catch (Exception e) {
                     logger.error("Exception",e);
+                    msgService.sendMessage(msg);
+                    logger.error("遇到系统错误，将消息重新塞回队列");
                 }
                 finally{
                     lock.unlock();

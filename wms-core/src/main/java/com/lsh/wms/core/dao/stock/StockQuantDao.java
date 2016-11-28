@@ -35,4 +35,8 @@ public interface StockQuantDao {
     void remove(Long id);
 
     List<Long >getLotByLocationId(Long locationId);
+
+    List<StockQuant> getItemLocationList(Map<String, Object> mapQuery);
+
+    Integer countItemLocation(Map<String, Object> mapQuery);
 }

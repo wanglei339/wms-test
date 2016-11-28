@@ -9,8 +9,10 @@ import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.model.task.TaskMsg;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.config.Task;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,10 +26,13 @@ import java.util.*;
 @Transactional(readOnly = true)
 public class BaseTaskService {
 
+    private static final Logger logger = LoggerFactory.getLogger(BaseTaskService.class);
     @Autowired
     private TaskInfoDao taskInfoDao;
     @Autowired
     private StockTakingService stockTakingService;
+    @Autowired
+    private MessageService messageService;
 
     @Transactional(readOnly = false)
     public TaskInfo lockById(Long taskId){
@@ -88,8 +93,17 @@ public class BaseTaskService {
         return taskInfoDao.getTaskInfoById(taskId);
     }
 
-    public List<TaskInfo> getTaskInfoList(Map<String, Object> mapQuery) {
-        return taskInfoDao.getTaskInfoList(mapQuery);
+    public List<TaskInfo> getTaskInfoList(Map<String, Object> mapQuery) throws BizCheckedException {
+        List<TaskInfo> taskInfoList = taskInfoDao.getTaskInfoList(mapQuery);
+        if (taskInfoList == null || taskInfoList.isEmpty()) {
+            if (mapQuery.get("businessId") != null) {
+                TaskMsg msg = messageService.getMessage(Long.valueOf(mapQuery.get("businessId").toString()));
+                if (msg != null) {
+                    throw new BizCheckedException(msg.getErrorCode());
+                }
+            }
+        }
+        return taskInfoList;
     }
 
 
@@ -273,7 +287,8 @@ public class BaseTaskService {
     public Boolean checkTaskByContainerId (Long containerId) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("containerId", containerId);
-        List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
+        params.put("businessId", containerId);
+        List<TaskInfo> taskInfos = this.getTaskInfoList(params);
         for (TaskInfo taskInfo : taskInfos) {
             if (!taskInfo.getStatus().equals(TaskConstant.Done) && !taskInfo.getStatus().equals(TaskConstant.Cancel)) {
                 return true;
@@ -285,8 +300,9 @@ public class BaseTaskService {
     public boolean checkTaskByToLocation(Long toLocationId, Long taskType) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("toLocationId", toLocationId);
+        params.put("businessId", toLocationId);
         params.put("taskType", taskType);
-        List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
+        List<TaskInfo> taskInfos = this.getTaskInfoList(params);
         for (TaskInfo taskInfo : taskInfos) {
             if (!taskInfo.getStatus().equals(TaskConstant.Done) && !taskInfo.getStatus().equals(TaskConstant.Cancel)) {
                 return true;
@@ -304,6 +320,7 @@ public class BaseTaskService {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("containerId", containerId);
         params.put("status", TaskConstant.Draft);
+        params.put("businessId", containerId);
         List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
         if (taskInfos.size() == 0) {
             return null;
@@ -321,6 +338,7 @@ public class BaseTaskService {
         params.put("containerId", containerId);
         params.put("status", TaskConstant.Draft);
         params.put("type",taskType);
+        params.put("businessId", containerId);
         List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
         if (taskInfos.size() == 0) {
             return null;
@@ -336,6 +354,7 @@ public class BaseTaskService {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("locationId", locationId);
         params.put("status", TaskConstant.Draft);
+        params.put("businessId", locationId);
         List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
         if (taskInfos.size() == 0) {
             return null;
@@ -350,6 +369,7 @@ public class BaseTaskService {
     public TaskInfo getTaskIdBylocationId (Long locationId) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("locationId", locationId);
+        params.put("businessId", locationId);
         List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
         if (taskInfos.size() == 0) {
             return null;
@@ -365,6 +385,7 @@ public class BaseTaskService {
     public Long getAssignTaskIdByContainerId (Long containerId) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("containerId", containerId);
+        params.put("businessId", containerId);
         params.put("status", TaskConstant.Assigned);
         List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
         if (taskInfos.size() == 0) {
@@ -400,6 +421,7 @@ public class BaseTaskService {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("locationId", locationId);
         params.put("type", type);
+        params.put("businessId", locationId);
         List<TaskInfo> taskInfos = taskInfoDao.getTaskInfoList(params);
         List<TaskInfo> retTaskInfos = new ArrayList<TaskInfo>();
         for (TaskInfo taskInfo : taskInfos) {

@@ -83,6 +83,10 @@ public class StockMoveService {
         return moveDao.getStockMoveList(mapQuery);
     }
 
+    public List<StockMove> traceQuant(Long quantId) {
+        return moveDao.traceQuant(quantId);
+    }
+
     public List<StockQuantMoveRel> getHistoryById(Long moveId) {
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("moveId", moveId);
@@ -109,6 +113,9 @@ public class StockMoveService {
             move.setItemId(quant.getItemId());
             move.setQty(quant.getQty());
             move.setOperator(staffId);
+            if (move.getQty().compareTo(BigDecimal.ZERO) <= 0) {
+                throw new BizCheckedException("1550001");
+            }
             this.create(move);
             quantService.move(move);
             BaseinfoLocation location = locationService.getLocation(move.getToLocationId());
@@ -122,6 +129,9 @@ public class StockMoveService {
     @Transactional(readOnly = false)
     public void move(List<StockMove> moveList) throws BizCheckedException {
         for (StockMove move : moveList) {
+            if (move.getQty().compareTo(BigDecimal.ZERO) <= 0) {
+                throw new BizCheckedException("4000001");
+            }
             this.move(move);
         }
 
@@ -138,7 +148,7 @@ public class StockMoveService {
     @Transactional(readOnly = false)
     public void move(StockMove move) throws BizCheckedException {
         if (move.getQty().compareTo(BigDecimal.ZERO) <= 0) {
-            return;
+            throw new BizCheckedException("1550001");
         }
         locationService.lockLocationById(move.getFromLocationId());
         this.create(move);
