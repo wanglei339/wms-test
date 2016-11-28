@@ -16,10 +16,12 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockAllocService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.stock.SynStockService;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockDelta;
 import com.lsh.wms.model.stock.StockSummary;
+import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.task.TaskMsg;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +68,9 @@ public class SmsRestService implements ISmsRestService {
     @Autowired
     private MessageService messageService;
 
+    @Autowired
+    private BaseTaskService baseTaskService;
+
     @GET
     @Path("sendMsg")
     public String sendMsg(@QueryParam("phone") String phone,
@@ -90,21 +95,25 @@ public class SmsRestService implements ISmsRestService {
 //        stockAllocService.realease(waveDetail);
 //        //stockAllocService.alloc(header, detailList);
 
-        TaskMsg message = new TaskMsg();
-        message.setSourceTaskId(1001L);
-        message.setBusinessId(201011L);
-        Map<String, Object> msgBody = new HashMap<String, Object>();
-        msgBody.put("xx", 1);
-        msgBody.put("zz", 2);
-        message.setMsgBody(msgBody);
-        message.setType(1L);
-        message.setErrorMsg("fuck you");
-        message.setCreatedAt(DateUtils.getCurrentSeconds());
-        messageService.saveMessage(message);
+//        TaskMsg message = new TaskMsg();
+//        message.setSourceTaskId(1001L);
+//        message.setBusinessId(201011L);
+//        Map<String, Object> msgBody = new HashMap<String, Object>();
+//        msgBody.put("xx", 1);
+//        msgBody.put("zz", 2);
+//        message.setMsgBody(msgBody);
+//        message.setType(1L);
+//        message.setErrorMsg("fuck you");
+//        message.setCreatedAt(DateUtils.getCurrentSeconds());
+//        messageService.saveMessage(message);
+//
+//        Long businessId = 201011L;
+//        message = messageService.getMessage(businessId);
 
-        Long businessId = 201011L;
-        message = messageService.getMessage(businessId);
-        return JsonUtils.SUCCESS(message);
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("containerId", 201011);
+        List<TaskInfo> list = baseTaskService.getTaskInfoList(mapQuery);
+        return JsonUtils.SUCCESS(list);
     }
 
 }
