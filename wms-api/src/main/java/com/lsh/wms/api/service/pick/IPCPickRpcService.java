@@ -9,5 +9,5 @@ import java.util.Map;
  * Created by zengwenjun on 16/11/12.
  */
 public interface IPCPickRpcService {
-    public List<Map<String, Object>> getContainerExpensiveGoods(Long contaienrId) throws BizCheckedException;
+    public Map<String,Object> getContainerExpensiveGoods(Long contaienrId) throws BizCheckedException;
 }

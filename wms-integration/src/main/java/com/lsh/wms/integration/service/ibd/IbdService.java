@@ -122,7 +122,7 @@ public class IbdService implements IIbdService {
             if ("1".equals(((Map)jsonObject.get("head")).get("status"))){
                 return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, jsonObject.get("body"));
             }else{
-                return ResUtils.getResponse(ResponseConstant.RES_CODE_0, ResponseConstant.RES_MSG_OK, res);
+                return ResUtils.getResponse(ResponseConstant.RES_CODE_0, ResponseConstant.RES_MSG_ERROR, jsonObject.get("body"));
             }
 
 
