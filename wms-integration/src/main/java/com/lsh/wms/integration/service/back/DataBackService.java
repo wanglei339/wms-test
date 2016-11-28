@@ -56,6 +56,7 @@ public class DataBackService implements IDataBackService {
 
     public String wmDataBackByPost(String request, String url , Integer type,SysLog sysLog){
         OrderResponse orderResponse = new OrderResponse();
+        sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
         try{
             String jsonCreate = request;
             //获取redis中缓存的token
@@ -105,7 +106,7 @@ public class DataBackService implements IDataBackService {
 
     public String ofcDataBackByPost(String request, String url,SysLog sysLog){
         //String jsonCreate = this.initJson(request);
-
+        sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_LSHOFC);
         logger.info("order CreateOfcOrder json : " + request);
         int dc41_timeout = PropertyUtils.getInt("dc41_timeout");
         String dc41_charset = PropertyUtils.getString("dc41_charset");
@@ -150,6 +151,7 @@ public class DataBackService implements IDataBackService {
     }
 
     public Boolean erpDataBack(CreateIbdHeader createIbdHeader,SysLog sysLog){
+        sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_ERP);
         try {
             final XmlRpcClient models = new XmlRpcClient() {{
                 setConfig(new XmlRpcClientConfigImpl() {{

@@ -541,7 +541,7 @@ public class WaveCore {
             locationInventory = waveService.getLocationUnAllocQty(pickArea, item.getItemId());
             mapItemArea2LocationInventory.put(key, locationInventory);
         }
-        List<WaveDetail> splitDetails = new ArrayList<WaveDetail>();
+        // List<WaveDetail> splitDetails = new ArrayList<WaveDetail>();
         List<Map> allocInfos = waveService.allocByLocation(locationInventory, leftAllocQty, 0L);
         for (Map info : allocInfos) {
             WaveAllocDetail allocDetail = new WaveAllocDetail();

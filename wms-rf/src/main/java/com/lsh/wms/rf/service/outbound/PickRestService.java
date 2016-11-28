@@ -346,7 +346,7 @@ public class PickRestService implements IPickRestService {
                         lastOrder++;
                     }
                 }
-                if (!splitWaveDetails.isEmpty()) {
+                if (!splitWaveDetails.isEmpty() && splitWaveDetails.get(0).getPickTaskId() != null && !splitWaveDetails.get(0).getPickTaskId().equals(0L)) {
                     pickDone = false;
                     result.put("next_detail", pickTaskService.renderResult(BeanMapTransUtils.Bean2map(splitWaveDetails.get(0)), "allocPickLocation", "allocPickLocationCode"));
                 } else {
