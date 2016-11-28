@@ -20,6 +20,8 @@ public class ObdStreamDetail {
     private Long ownerId =0L;
     /** 批次id */
     private Long locId = 0L;
+    /** 分配数量 */
+    private BigDecimal allocQty = BigDecimal.ZERO;
     /** 0-新建，呵呵，冗余一下，以后看用不用吧 */
     private Long status = 1L;
     /** 分配库存单位名称 */
@@ -32,6 +34,11 @@ public class ObdStreamDetail {
 
     /**收货的数量*/
     private BigDecimal pickQty = BigDecimal.ZERO;
+
+    /** 分配的集货位 */
+    private Long allocCollectLocation = 0L;
+    /** 实际的集货位 */
+    private Long realCollectLocation = 0L;
 
     public ObdStreamDetail(){}
 
@@ -135,5 +142,29 @@ public class ObdStreamDetail {
 
     public void setStatus(Long status) {
         this.status = status;
+    }
+
+    public BigDecimal getAllocQty() {
+        return allocQty;
+    }
+
+    public void setAllocQty(BigDecimal allocQty) {
+        this.allocQty = allocQty;
+    }
+
+    public Long getAllocCollectLocation() {
+        return allocCollectLocation;
+    }
+
+    public void setAllocCollectLocation(Long allocCollectLocation) {
+        this.allocCollectLocation = allocCollectLocation;
+    }
+
+    public Long getRealCollectLocation() {
+        return realCollectLocation;
+    }
+
+    public void setRealCollectLocation(Long realCollectLocation) {
+        this.realCollectLocation = realCollectLocation;
     }
 }

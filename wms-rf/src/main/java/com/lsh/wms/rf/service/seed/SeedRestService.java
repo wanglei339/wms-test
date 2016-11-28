@@ -31,6 +31,7 @@ import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
@@ -244,13 +245,15 @@ public class SeedRestService implements ISeedRestService {
         Long uid = Long.valueOf(RequestUtils.getHeader("uid"));
         logger.info("params:"+ JSON.toJSONString(mapQuery));
         try {
-            BigDecimal qty = BigDecimal.ZERO;
+            BigDecimal inboundQty = BigDecimal.ZERO;
+            BigDecimal scatterQty = BigDecimal.ZERO;
             Long taskId = 0L;
             Long containerId = 0L;
             Long type = 0L;
             Boolean is_use_code = false;
             try{
-                qty = new BigDecimal(mapQuery.get("qty").toString().trim());
+                inboundQty = new BigDecimal(mapQuery.get("inboundQty").toString().trim());
+                scatterQty = new BigDecimal(mapQuery.get("scatterQty").toString().trim());
                 taskId = Long.valueOf(mapQuery.get("taskId").toString().trim());
                 containerId = Long.valueOf(mapQuery.get("containerId").toString().trim());
                 type = Long.valueOf(mapQuery.get("type").toString().trim());
@@ -314,13 +317,32 @@ public class SeedRestService implements ISeedRestService {
                         continue;
                     }
                     head = seedingTaskHead;
+                    break;
                 }
                 if(head==null){
                     return JsonUtils.TOKEN_ERROR("该门店已播种完成");
                 }
 
-                if(head.getRequireQty().compareTo(qty)<0) {
+                //将数量转换成EA
+                String packName = info.getPackName();
+
+                if("EA".equals(packName) && inboundQty.compareTo(BigDecimal.ZERO) > 0){
+                    throw new BizCheckedException("2021111");
+                }
+                BigDecimal inboundUnitQty = PackUtil.UomQty2EAQty(inboundQty, packName).add(scatterQty);
+
+                if(inboundUnitQty.compareTo(BigDecimal.ZERO) <= 0){
+                    throw new BizCheckedException("2020007");
+                }
+
+                if(head.getRequireQty().compareTo(inboundUnitQty)<0) {
                     return JsonUtils.TOKEN_ERROR("播种数量超出门店订单数量");
+                }
+
+                //判断箱规是否一致
+                BaseinfoItem item = itemService.getItem(info.getItemId());
+                if(!(head.getPackUnit().compareTo(BigDecimal.ONE)==0) &&item.getPackUnit().compareTo(head.getPackUnit())!=0){
+                    return JsonUtils.TOKEN_ERROR("下发包装单位和系统记载单位不一致");
                 }
 
                 //判断输入门店，判断是不是系统提供的门店
@@ -344,14 +366,14 @@ public class SeedRestService implements ISeedRestService {
                     }
                 }
 
-                info.setQty(qty);
+                info.setQty(inboundUnitQty);
                 head.setRealContainerId(containerId);
                 head.setIsUseExceptionCode(is_use_code==true?1:0);
                 entry.setTaskInfo(info);
                 entry.setTaskHead(head);
                 iTaskRpcService.update(TaskConstant.TYPE_SEED, entry);
 
-                if(head.getRequireQty().compareTo(qty)>0){
+                if(head.getRequireQty().compareTo(inboundUnitQty)>0){
                     //创建剩余数量门店任务
                     info.setTaskId(0L);
                     info.setId(0L);
@@ -399,6 +421,12 @@ public class SeedRestService implements ISeedRestService {
                 }
             }
 
+            //判断箱规是否一致
+            BaseinfoItem item = itemService.getItem(info.getItemId());
+            if(!(head.getPackUnit().compareTo(BigDecimal.ONE)==0) &&item.getPackUnit().compareTo(head.getPackUnit())!=0){
+                return JsonUtils.TOKEN_ERROR("下发包装单位和系统记载单位不一致");
+            }
+
 
             //(不收货播种)判断是否已经结束收货
             if(info.getSubType().compareTo(2L)==0){
@@ -409,8 +437,16 @@ public class SeedRestService implements ISeedRestService {
                 }
             }
 
+            //将数量转换成EA
+            String packName = info.getPackName();
 
-            if(head.getRequireQty().compareTo(qty)<0) {
+            if("EA".equals(packName) && inboundQty.compareTo(BigDecimal.ZERO) > 0){
+                throw new BizCheckedException("2021111");
+            }
+            BigDecimal inboundUnitQty = PackUtil.UomQty2EAQty(inboundQty, packName).add(scatterQty);
+
+
+            if(head.getRequireQty().compareTo(inboundUnitQty)<0) {
                 return JsonUtils.TOKEN_ERROR("播种数量超出门店订单数量");
             }
             // type 2:继续播，1:剩余门店不播了 ,3:跳过当前任务，播下一个任务
@@ -425,13 +461,13 @@ public class SeedRestService implements ISeedRestService {
             }
             head.setRealContainerId(containerId);
             head.setIsUseExceptionCode(is_use_code==true?1:0);
-            info.setQty(qty);
+            info.setQty(inboundUnitQty);
             entry.setTaskInfo(info);
             entry.setTaskHead(head);
             iTaskRpcService.update(TaskConstant.TYPE_SEED, entry);
             iTaskRpcService.done(taskId);
             if(type.compareTo(2L)==0){
-               if(qty.compareTo(head.getRequireQty())!=0) {
+               if(inboundUnitQty.compareTo(head.getRequireQty())!=0) {
                    //创建剩余数量门店任务
 
                    info.setTaskId(0L);
@@ -473,11 +509,17 @@ public class SeedRestService implements ISeedRestService {
                 entry = iTaskRpcService.getTaskEntryById(taskId);
                 head = (SeedingTaskHead) (entry.getTaskHead());
                 info = entry.getTaskInfo();
+                BigDecimal [] decimals = head.getRequireQty().divideAndRemainder(info.getPackUnit());
                 result.put("storeName", csiRpcService.getCustomerByCode(info.getOwnerId(), head.getStoreNo()).getCustomerName());
-                result.put("qty", head.getRequireQty());
+                if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
+                    result.put("qty", decimals[0]);
+                    result.put("packName", info.getPackName());
+                }else {
+                    result.put("qty", head.getRequireQty());
+                    result.put("packName", "EA");
+                }
                 result.put("taskId", taskId.toString());
                 result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
-                result.put("packName", info.getPackName());
                 result.put("storeNo", head.getStoreNo());
                 result.put("itemId", info.getItemId());
                 iTaskRpcService.assign(taskId, uid);
@@ -541,10 +583,16 @@ public class SeedRestService implements ISeedRestService {
         SeedingTaskHead head = (SeedingTaskHead) entry.getTaskHead();
         result.put("storeName", csiRpcService.getCustomerByCode(info.getOwnerId(), head.getStoreNo()).getCustomerName());
         result.put("storeNo", head.getStoreNo());
-        result.put("qty", head.getRequireQty());
+        BigDecimal [] decimals = head.getRequireQty().divideAndRemainder(info.getPackUnit());
+        if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
+            result.put("qty", decimals[0]);
+            result.put("packName", info.getPackName());
+        }else {
+            result.put("qty", head.getRequireQty());
+            result.put("packName", "EA");
+        }
         result.put("taskId", taskId.toString());
         result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
-        result.put("packName", info.getPackName());
         result.put("itemId", info.getItemId());
         return JsonUtils.SUCCESS(result);
     }
@@ -580,12 +628,20 @@ public class SeedRestService implements ISeedRestService {
         }
         SeedingTaskHead head = heads.get(0);
         TaskInfo info = iTaskRpcService.getTaskInfo(head.getTaskId());
+
+        //判断能否整除
+        BigDecimal [] decimals = head.getRequireQty().divideAndRemainder(info.getPackUnit());
+        if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
+            result.put("qty", decimals[0]);
+            result.put("packName", info.getPackName());
+        }else {
+            result.put("qty", head.getRequireQty());
+            result.put("packName", "EA");
+        }
         result.put("storeName", csiRpcService.getCustomerByCode(info.getOwnerId(),head.getStoreNo()).getCustomerName());
         result.put("storeNo", head.getStoreNo());
-        result.put("qty", head.getRequireQty());
         result.put("taskId", taskId.toString());
         result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
-        result.put("packName", info.getPackName());
         result.put("itemId", info.getItemId());
         return JsonUtils.SUCCESS(result);
     }
