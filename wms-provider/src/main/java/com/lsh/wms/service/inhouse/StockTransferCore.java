@@ -173,6 +173,8 @@ public class StockTransferCore {
             condition.setReserveTaskId(0L);
             qty = stockQuantRpcService.getQty(condition);
             uomQty = PackUtil.EAQty2UomQty(qty, uom);
+            containerId = quants.get(0).getContainerId();
+            taskInfo.setContainerId(containerId);
             stockMoveService.moveWholeContainer(containerId, taskInfo.getTaskId(), taskInfo.getOperator(), fromLocation.getLocationId(), toLocationId);
         } else {
             StockMove move = new StockMove();
