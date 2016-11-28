@@ -467,8 +467,11 @@ public class WuMartSap implements IWuMartSap{
         logger.info("so obd创建 出口参数: obdheader : " + JSON.toJSONString(obdheader.value) + " obditem : " + JSON.toJSONString(obditem.value));
         logger.info("返回值 newReturn : " + JSON.toJSONString(newReturn));
 
-
-        return JSON.toJSONString(newReturn);
+        if(newReturn == null){
+            return "S";
+        }else{
+            return "E";
+        }
     }
 
     protected void auth(BindingProvider provider) {

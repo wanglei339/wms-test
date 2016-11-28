@@ -81,7 +81,7 @@ public class ReceiveRpcService implements IReceiveRpcService{
         //查询ibdHeader 修改实收数量
         //IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(receiveHeader.getOrderId());
         IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndDetailOtherId(receiveHeader.getOrderId(),detailOtherId);
-        if(ibdDetail.getInboundQty().subtract(subQty).compareTo(ibdDetail.getOrderQty()) > 0){
+        if(ibdDetail.getInboundQty().subtract(subQty).compareTo(ibdDetail.getOrderQty().multiply(ibdDetail.getPackUnit())) > 0){
             throw new BizCheckedException("2020005");
         }
         ibdDetail.setInboundQty(ibdDetail.getInboundQty().subtract(subQty));
@@ -93,7 +93,7 @@ public class ReceiveRpcService implements IReceiveRpcService{
             if(detail.getInboundQty().subtract(subQty).compareTo(BigDecimal.ZERO) < 0 ){
                 continue;
             }else{
-                detail.setInboundQty(receiptQty.add(subQty));
+                detail.setInboundQty(receiptQty.subtract(subQty));
                 ObjUtils.bean2bean(detail,inbReceiptDetail);
                 break;
             }
