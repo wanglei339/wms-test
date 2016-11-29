@@ -51,8 +51,6 @@ public class DirectTransporter implements ITransporter{
 
     public void process(SysLog sysLog) {
 
-        logger.info("~~~~~~~~~~syslog : " + JSON.toJSONString(sysLog));
-
         OutbDeliveryHeader header = soDeliveryService.getOutbDeliveryHeaderByDeliveryId(sysLog.getBusinessId());
         List<OutbDeliveryDetail> details = soDeliveryService.getOutbDeliveryDetailListByDeliveryId(sysLog.getBusinessId());
         if(header == null){
@@ -119,18 +117,10 @@ public class DirectTransporter implements ITransporter{
         CreateIbdHeader createIbdHeader = new CreateIbdHeader();
         createIbdHeader.setWarehouseCode(PropertyUtils.getString("wumart.werks"));
         createIbdHeader.setItems(createIbdDetailList);
-        //CreateObdHeader createStoObdHeader = new CreateObdHeader();
 
-//        logger.info("+++++++++++++++++++++++++++++++++maqidi+++++++++++++++++++++++" + JSON.toJSONString(createObdHeader));
-//        logger.info("+++++++++++++++++++++++++++++++++maqidi++++++++++++++" + JSON.toJSONString(createObdHeader));
-
-        //鑫哥服务
-//        wuMartSap.ibd2Sap(createIbdHeader);
-//        wuMartSap.obd2Sap(createObdHeader);
         Map<String, Object> ibdObdMap = new HashMap<String, Object>();
         ibdObdMap.put("createIbdHeader", createIbdHeader);
         ibdObdMap.put("createObdHeader", createObdHeader);
-        //ibdObdMap.put("createStoObdHeader", createStoObdHeader);
 
         wuMart.sendSap(ibdObdMap,sysLog);
 
