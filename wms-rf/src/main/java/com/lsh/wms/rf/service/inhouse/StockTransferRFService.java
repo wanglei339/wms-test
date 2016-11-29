@@ -316,11 +316,11 @@ public class StockTransferRFService implements IStockTransferRFService{
                 return JsonUtils.TOKEN_ERROR("当前不支持此区域的整托移动");
             }
             iStockTransferRpcService.scanFromLocation(taskEntry, location, uomQty);
-            final BaseinfoItem item = itemRpcService.getItem(taskInfo.getItemId());
+            BaseinfoItem item = itemRpcService.getItem(taskInfo.getItemId());
             if(taskInfo.getStatus() == TaskConstant.Cancel){
                 next.put("response", true);
             }else{
-                final String toLocationDesc = String.format("%s%s",
+                String toLocationDesc = String.format("%s%s",
                         taskInfo.getToLocationId()!=0?locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode():"",
                         taskInfo.getExt9());
                 next.put("type", 2L);
