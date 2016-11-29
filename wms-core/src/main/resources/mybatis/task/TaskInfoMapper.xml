@@ -211,6 +211,7 @@
 			<if test="endDate != null">and date &lt;= #{endDate}</if>
 		</where>
 		 	group by operator, date, type, sub_type
+			order by date desc
 		<if test="start != null and limit != null">
 			limit #{start},#{limit}
 		</if>
