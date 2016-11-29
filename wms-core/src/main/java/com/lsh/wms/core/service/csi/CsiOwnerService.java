@@ -3,6 +3,7 @@ package com.lsh.wms.core.service.csi;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.csi.CsiOwnerDao;
+import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.csi.CsiCategory;
 import com.lsh.wms.model.csi.CsiOwner;
 import org.slf4j.Logger;
@@ -25,7 +26,8 @@ import java.util.concurrent.ConcurrentMap;
 @Transactional(readOnly = true)
 public class CsiOwnerService {
     private static final Logger logger = LoggerFactory.getLogger(CsiOwnerService.class);
-
+    @Autowired
+    private IdGenerator idGenerator;
     @Autowired
     private CsiOwnerDao ownerDao;
     public CsiOwner getOwner(long iOwnerId) {
@@ -41,7 +43,7 @@ public class CsiOwnerService {
 
     @Transactional(readOnly = false)
     public void insertOwner(CsiOwner owner){
-        long iOwnerid = RandomUtils.genId();
+        long iOwnerid = idGenerator.genId("csi_owner", false, false);
         owner.setOwnerId(iOwnerid);
         //增加新增时间
         owner.setCreatedAt(DateUtils.getCurrentSeconds());

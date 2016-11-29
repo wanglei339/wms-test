@@ -185,7 +185,7 @@
 			ORDER BY  status ASC
 		</if>
 		<if test=" 'taskOrder'.equals(orderBy)  and  'asc'.equals(orderType)">
-			ORDER BY  status ASC
+			ORDER BY  taskOrder ASC
 		</if>
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}

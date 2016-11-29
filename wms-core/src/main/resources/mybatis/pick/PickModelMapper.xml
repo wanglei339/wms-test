@@ -35,7 +35,6 @@
 	<update id="update" parameterType="PickModel">
 		update pick_model
     	<set>
-  			<if test="pickModelTemplate != null">pick_model_template=#{pickModelTemplate},</if>
   			<if test="pickZoneId != null">pick_zone_id=#{pickZoneId},</if>
   			<if test="pickModel != null">pick_model=#{pickModel},</if>
   			<if test="pickWeight != null">pick_weight=#{pickWeight},</if>

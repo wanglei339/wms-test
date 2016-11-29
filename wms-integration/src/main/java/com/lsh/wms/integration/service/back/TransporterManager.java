@@ -1,5 +1,7 @@
 package com.lsh.wms.integration.service.back;
 
+import com.alibaba.dubbo.common.logger.Logger;
+import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.constant.SysLogConstant;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class TransporterManager {
+    public static final Logger logger = LoggerFactory.getLogger(TransporterManager.class);
 
     @Autowired
     private SoDeliveryService soDeliveryService;
@@ -63,6 +66,7 @@ public class TransporterManager {
                 Long obdId = sysLog.getBusinessId();
                 OutbDeliveryHeader deliveryHeader = soDeliveryService.getOutbDeliveryHeaderByDeliveryId(obdId);
                 ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(deliveryHeader.getOrderId());
+
                 if(obdHeader.getOwnerUid() == 1){
                     if(obdHeader.getOrderType() == SoConstant.ORDER_TYPE_DIRECT){
                         transporter = directTransporter;
@@ -87,6 +91,8 @@ public class TransporterManager {
             case SysLogConstant.LOG_TYPE_LOSS_WIN:
                 transporter = inventoryTransporter;
                 break;
+            case SysLogConstant.LOG_TYPE_DIRECT:
+                transporter = directTransporter;
 //            case SysLogConstant.LOG_TYPE_WIN:
 //                transporter = new InventoryWinTransporter();
         }

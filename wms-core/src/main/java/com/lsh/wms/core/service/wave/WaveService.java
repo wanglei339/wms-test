@@ -78,9 +78,10 @@ public class WaveService {
     @Transactional(readOnly = false)
     public void createWave(WaveHead head, List<Map> vOrders){
         //gen waveId
-        long waveId = RandomUtils.genId();
         head.setWaveId(idGenerator.genId("wave", true, false));
         head.setCreatedAt(DateUtils.getCurrentSeconds());
+        head.setUpdatedAt(DateUtils.getCurrentSeconds());
+        head.setReleaseAt(0L);
         waveHeadDao.insert(head);
         this.addToWave(head.getWaveId(), vOrders);
     }
@@ -190,6 +191,9 @@ public class WaveService {
         WaveHead head = this.getWave(iWaveId);
         if(head == null) return ;
         head.setStatus((long) iStatus);
+        if(iStatus == WaveConstant.STATUS_RELEASE_SUCC){
+            head.setReleaseAt(DateUtils.getCurrentSeconds());
+        }
         this.update(head);
     }
 
