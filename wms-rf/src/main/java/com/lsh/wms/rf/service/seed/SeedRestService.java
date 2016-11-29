@@ -495,8 +495,9 @@ public class SeedRestService implements ISeedRestService {
                 });
             }
             if(type.compareTo(3L)==0){
-                info.setStep(1);
-                baseTaskService.update(info);
+                TaskInfo oldInfo = baseTaskService.getTaskInfoById(info.getTaskId());
+                oldInfo.setStep(1);
+                baseTaskService.update(oldInfo);
             }
             mapQuery.put("orderId", info.getOrderId());
             CsiSku sku = csiSkuService.getSku(info.getSkuId());
