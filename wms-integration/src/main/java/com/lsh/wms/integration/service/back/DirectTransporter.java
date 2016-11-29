@@ -68,7 +68,7 @@ public class DirectTransporter implements ITransporter{
             if (null == obdDetail) {
                 throw new BizCheckedException("2900004");
             }
-            if(detail.getBackStatus() == SoConstant.DELIVERY_DETAIL_STATUS_SUCCESS){
+            if(detail.getBackStatus() != null && detail.getBackStatus() == SoConstant.DELIVERY_DETAIL_STATUS_SUCCESS){
                 continue;
             }
             //sto obd order_other_id
