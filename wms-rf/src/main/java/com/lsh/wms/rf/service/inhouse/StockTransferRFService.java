@@ -301,7 +301,7 @@ public class StockTransferRFService implements IStockTransferRFService{
         }
         Map<String, Object> next = new HashMap<String, Object>();
         if (type.equals(1L)) {
-            final TaskInfo taskInfo = taskEntry.getTaskInfo();
+            TaskInfo taskInfo = taskEntry.getTaskInfo();
             uomQty = new BigDecimal(params.get("uomQty").toString());
             if(params.get("subType")!=null && StringUtils.isNumeric(params.get("subType").toString())){
                 taskInfo.setSubType(Long.valueOf(params.get("subType").toString()));
