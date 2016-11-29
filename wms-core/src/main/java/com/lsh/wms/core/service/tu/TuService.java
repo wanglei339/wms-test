@@ -554,9 +554,11 @@ public class TuService {
                 throw new BizCheckedException("2990038");
             }
             soDeliveryService.insertOrder(header, realDetails);
+            waveService.updateOrderStatus(header.getOrderId());
             persistenceProxy.doOne(SysLogConstant.LOG_TYPE_OBD,header.getDeliveryId());
         }
         //回写发货单的单号
+        Set<Long> waveIds = new HashSet<Long>();
         for (WaveDetail detail : totalWaveDetails) {
             if (detail.getDeliveryId() != 0) {
                 continue;
@@ -566,12 +568,18 @@ public class TuService {
             detail.setDeliveryQty(detail.getQcQty());
             detail.setIsAlive(0L);
             waveService.updateDetail(detail);
+            waveIds.add(detail.getWaveId());
         }
 
         // 调用库存同步服务
         inventoryRedisService.onDelivery(totalWaveDetails);
         //todo 更新wave有波次,更新波次的状态
-//        this.setStatus(waveHead.getWaveId(), WaveConstant.STATUS_SUCC);
+        for(Object waveId : waveIds.toArray()) {
+            Long iWaveId = (Long)waveId;
+            if(iWaveId>1) {
+                waveService.updateWaveStatus(iWaveId);
+            }
+        }
         return true;
     }
 
