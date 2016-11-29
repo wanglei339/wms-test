@@ -45,7 +45,9 @@ public class InventoryTransporter implements ITransporter{
         StockItem item = new StockItem();
         List<StockItem> list = new ArrayList<StockItem>();
         if(overLossReport.getOwnerId() == 1){
-            item.setEntryUom(overLossReport.getPackName());
+            //item.setEntryUom(overLossReport.getPackName());
+            //修改为EA
+            item.setEntryUom("EA");
             item.setEntryQnt(overLossReport.getQty().toString());
             item.setMaterialNo(overLossReport.getSkuCode());
             list.add(item);
