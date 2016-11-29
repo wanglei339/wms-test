@@ -3,6 +3,7 @@ package com.lsh.wms.core.service.wave;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.wave.WaveTemplateDao;
+import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.wave.WaveHead;
 import com.lsh.wms.model.wave.WaveTemplate;
 import org.slf4j.Logger;
@@ -25,13 +26,15 @@ public class WaveTemplateService {
 
     @Autowired
     private WaveTemplateDao waveTemplateDao;
+    @Autowired
+    private IdGenerator idGenerator;
 
     @Transactional(readOnly = false)
     public void createWaveTemplate(WaveTemplate tpl)
     {
         tpl.setCreatedAt(DateUtils.getCurrentSeconds());
         tpl.setUpdatedAt(DateUtils.getCurrentSeconds());
-        tpl.setWaveTemplateId(RandomUtils.genId());
+        tpl.setWaveTemplateId(idGenerator.genId("wave_template", false, false));
         waveTemplateDao.insert(tpl);
     }
 

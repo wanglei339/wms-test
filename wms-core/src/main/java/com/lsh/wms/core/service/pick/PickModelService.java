@@ -4,6 +4,7 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.pick.PickModelDao;
 import com.lsh.wms.core.dao.pick.PickModelTemplateDao;
+import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.pick.PickModel;
 import com.lsh.wms.model.pick.PickModelTemplate;
 import org.slf4j.Logger;
@@ -28,16 +29,19 @@ public class PickModelService {
     PickModelDao modelDao;
     @Autowired
     PickModelTemplateDao modelTemplateDao;
+    @Autowired
+    private IdGenerator idGenerator;
+
     @Transactional(readOnly = false)
     public void createPickModelTemplate(PickModelTemplate tpl){
-        tpl.setPickModelTemplateId(RandomUtils.genId());
+        tpl.setPickModelTemplateId(idGenerator.genId("pick_model_tpl", false, false));
         tpl.setCreatedAt(DateUtils.getCurrentSeconds());
         tpl.setUpdatedAt(DateUtils.getCurrentSeconds());
         modelTemplateDao.insert(tpl);
     }
     @Transactional(readOnly = false)
     public void createPickModel(PickModel model){
-        model.setPickModelId(RandomUtils.genId());
+        model.setPickModelId(idGenerator.genId("pick_model", false, false));
         modelDao.insert(model);
     }
 
