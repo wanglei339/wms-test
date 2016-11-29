@@ -86,7 +86,7 @@ public class PickRestService implements IPCPickRestService {
     @GET
     @Path("expensiveGoodsList")
     public String getContainerExpensiveGoods(@QueryParam("containerId") Long containerId) throws BizCheckedException {
-        return JsonUtils.SUCCESS(ipcPickRpcService.getContainerExpensiveGoods(containerId));
+        return JsonUtils.SUCCESS(ipcPickRpcService.getContainerGoods(containerId));
     }
 
 }

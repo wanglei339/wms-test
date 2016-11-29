@@ -58,7 +58,7 @@ public class PickRpcService implements IPCPickRpcService {
      * @return
      * @throws BizCheckedException
      */
-    public Map<String, Object> getContainerExpensiveGoods(Long contaienrId) throws BizCheckedException {
+    public Map<String, Object> getContainerGoods(Long contaienrId) throws BizCheckedException {
         //合板或者不和板
         List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(contaienrId);
         if (null == waveDetails || waveDetails.size() < 1) {
@@ -72,7 +72,8 @@ public class PickRpcService implements IPCPickRpcService {
         List<Map<String, Object>> goodList = new ArrayList<Map<String, Object>>();
         for (WaveDetail detail : waveDetails) {
             BaseinfoItem item = itemService.getItem(detail.getItemId());
-            if (ItemConstant.TYPE_IS_VALUABLE == item.getIsValuable()) {
+            //现在没做限制,以后有贵品需求,在显示
+//            if (ItemConstant.TYPE_IS_VALUABLE == item.getIsValuable()) {
                 Map<String, Object> goodInfo = new HashMap<String, Object>();
                 goodInfo.put("item", item);
                 goodInfo.put("unitName", detail.getAllocUnitName());
@@ -94,7 +95,7 @@ public class PickRpcService implements IPCPickRpcService {
                 goodInfo.put("customer", csiCustomer);
                 goodList.add(goodInfo);
             }
-        }
+//        }
         //结果map展示
         //head头
         Map<String, Object> headMap = new HashMap<String, Object>();
