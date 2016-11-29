@@ -28,6 +28,7 @@ import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
@@ -202,8 +203,8 @@ public class SeedTaskHandler extends AbsTaskHandler {
             SeedingTaskHead head = new SeedingTaskHead();
             TaskInfo info = new TaskInfo();
             TaskEntry entry = new TaskEntry();
-            head.setPackUnit(item.getPackUnit());
-            head.setRequireQty(obdDetail.getOrderQty());
+            head.setPackUnit(obdDetail.getPackUnit());
+            head.setRequireQty(obdDetail.getUnitQty());
             head.setStoreNo(storeNo);
             head.setOrderId(orderId);
             //无收货播种任务标示
@@ -217,7 +218,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
             info.setOrderId(orderId);
             info.setOwnerId(ibdHeader.getOwnerUid());
             info.setTaskName("播种任务[ " + storeNo + "]");
-            info.setPackUnit(obdDetail.getPackUnit());
+            info.setPackUnit(item.getPackUnit());
             info.setType(TaskConstant.TYPE_SEED);
             info.setPackName(obdDetail.getPackName());
             entry.setTaskHead(head);
@@ -291,7 +292,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
                     soOrderId = obdHeader.getOrderId();
                 }
             }
-            waveService.splitWaveDetail(detail,info.getQty(),head.getRealContainerId(),soOrderId,head.getPackUnit());
+            waveService.splitWaveDetail(detail,info.getQty(),head.getRealContainerId(),soOrderId,info.getPackUnit(),head.getStoreNo());
 
 
         }else {
@@ -312,14 +313,14 @@ public class SeedTaskHandler extends AbsTaskHandler {
             if (null == customer.getSeedRoadId()) {
                 throw new BizCheckedException("2180025");
             }
-            BaseinfoLocation location = locationService.getLocation(customer.getCollectRoadId());
+            BaseinfoLocation location = locationService.getLocation(customer.getSeedRoadId());
 
             move.setToLocationId(location.getLocationId());
         }else {
             move.setToLocationId(quantList.get(0).getLocationId());
         }
         move.setToContainerId(head.getRealContainerId());
-        move.setQty(info.getQty().multiply(head.getPackUnit()));
+        move.setQty(info.getQty());
         move.setTaskId(taskId);
         if(info.getSubType().compareTo(2L)==0) {
             StockLot lot =new StockLot();
@@ -401,7 +402,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
         receiptItem.setBarCode(sku.getCode());
         receiptItem.setPackUnit(info.getPackUnit());
         receiptItem.setInboundQty(info.getQty());
-        receiptItem.setPackName(info.getPackName());
+        receiptItem.setPackName(PackUtil.PackUnit2Uom(info.getPackUnit(),"EA"));
         List<ReceiptItem> items = new ArrayList<ReceiptItem>();
         items.add(receiptItem);
         receiptRequest.setItems(items);

@@ -241,8 +241,8 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
             SeedingTaskHead head = new SeedingTaskHead();
             TaskInfo info = new TaskInfo();
             TaskEntry entry = new TaskEntry();
-            head.setPackUnit(item.getPackUnit());
-            head.setRequireQty(obdDetail.getOrderQty());
+            head.setPackUnit(obdDetail.getPackUnit());
+            head.setRequireQty(obdDetail.getUnitQty());
             head.setStoreNo(storeNo);
             head.setOrderId(orderId);
             //无收货播种任务标示
@@ -256,7 +256,8 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
             info.setSkuId(obdDetail.getSkuId());
             info.setOrderId(orderId);
             info.setOwnerId(ibdHeader.getOwnerUid());
-            info.setPackUnit(obdDetail.getPackUnit());
+            logger.info("-------"+JsonUtils.SUCCESS(item));
+            info.setPackUnit(item.getPackUnit());
             info.setType(TaskConstant.TYPE_SEED);
             info.setPackName(obdDetail.getPackName());
             entry.setTaskHead(head);

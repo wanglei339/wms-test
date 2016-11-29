@@ -13,15 +13,19 @@ import com.lsh.wms.api.model.so.ObdStreamDetail;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.seed.ISeedRpcService;
 import com.lsh.wms.core.constant.*;
+import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.po.PoReceiptService;
 import com.lsh.wms.core.service.po.ReceiveService;
+import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.po.*;
+import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.transfer.StockTransferPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +50,8 @@ public class SeedRpcService implements ISeedRpcService {
 
     @Autowired
     private PoOrderService poOrderService;
+    @Autowired
+    SoOrderService soOrderService;
 
     @Reference
     private ILocationRpcService locationRpcService;
@@ -55,6 +61,8 @@ public class SeedRpcService implements ISeedRpcService {
 
     @Autowired
     private ReceiveService receiveService;
+    @Autowired
+    private CsiCustomerService csiCustomerService;
 
     public void insertReceipt(ReceiptRequest request) throws BizCheckedException {
         //查询inbReceiptHeader是否存在 根据托盘查询
@@ -177,15 +185,29 @@ public class SeedRpcService implements ISeedRpcService {
             //生成出库detail信息
             String key = StrUtils.formatString(RedisKeyConstant.PO_STORE, ibdHeader.getOrderId(), inbReceiptHeader.getStoreCode());
 
+
+            BigDecimal [] decimals = inbReceiptDetail.getInboundQty().divideAndRemainder(inbReceiptDetail.getPackUnit());
+
             Long obdOrderId = orderMap.get(key);
+            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(obdOrderId);
+            CsiCustomer csiCustomer = csiCustomerService.getCustomerByCustomerCode(obdHeader.getDeliveryCode());
             ObdStreamDetail obdStreamDetail = new ObdStreamDetail();
             obdStreamDetail.setItemId(inbReceiptDetail.getItemId());
             obdStreamDetail.setContainerId(inbReceiptHeader.getContainerId());
             obdStreamDetail.setOwnerId(ibdHeader.getOwnerUid());
-            obdStreamDetail.setPickQty(inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit()));
-            obdStreamDetail.setAllocUnitQty(inbReceiptDetail.getInboundQty());
+            obdStreamDetail.setAllocQty(inbReceiptDetail.getInboundQty());
+            obdStreamDetail.setPickQty(inbReceiptDetail.getInboundQty());
+            obdStreamDetail.setAllocCollectLocation(csiCustomer.getCollectRoadId());
+            obdStreamDetail.setRealCollectLocation(csiCustomer.getCollectRoadId());
+            if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
+                obdStreamDetail.setAllocUnitQty(decimals[0]);
+                obdStreamDetail.setAllocUnitName(inbReceiptDetail.getPackName());
+            }else {
+                obdStreamDetail.setAllocUnitQty(inbReceiptDetail.getInboundQty());
+                obdStreamDetail.setAllocUnitName("EA");
+            }
+
             obdStreamDetail.setSkuId(inbReceiptDetail.getSkuId());
-            obdStreamDetail.setAllocUnitName(inbReceiptDetail.getPackName());
             obdStreamDetailList.add(obdStreamDetail);
             obdStreamDetail.setOrderId(obdOrderId);
 
