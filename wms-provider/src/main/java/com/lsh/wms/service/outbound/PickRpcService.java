@@ -58,7 +58,7 @@ public class PickRpcService implements IPCPickRpcService {
      * @return
      * @throws BizCheckedException
      */
-    public Map<String, Object> getContainerExpensiveGoods(Long contaienrId) throws BizCheckedException {
+    public Map<String, Object> getContainerGoods(Long contaienrId) throws BizCheckedException {
         //合板或者不和板
         List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(contaienrId);
         if (null == waveDetails || waveDetails.size() < 1) {
@@ -72,29 +72,43 @@ public class PickRpcService implements IPCPickRpcService {
         List<Map<String, Object>> goodList = new ArrayList<Map<String, Object>>();
         for (WaveDetail detail : waveDetails) {
             BaseinfoItem item = itemService.getItem(detail.getItemId());
-            if (ItemConstant.TYPE_IS_VALUABLE == item.getIsValuable()) {
-                Map<String, Object> goodInfo = new HashMap<String, Object>();
-                goodInfo.put("item", item);
-                goodInfo.put("unitName", detail.getAllocUnitName());
-                goodInfo.put("qty", detail.getQcQty());
-                goodInfo.put("orderId", detail.getOrderId());
-                ObdHeader obdHeader = iSoRpcService.getOutbSoHeaderDetailByOrderId(detail.getOrderId());
-                if (null == obdHeader) {
-                    throw new BizCheckedException("2870006");
-                }
-                //时间、托盘码
-                goodInfo.put("orderTime", obdHeader.getCreatedAt());    //时间戳
-                goodInfo.put("containerId", detail.getContainerId());
-                //出库的方式
-                goodInfo.put("orderTypeName", SoConstant.ORDER_TYPE_NAME_MAP.get(obdHeader.getOrderType()));
-                //供货方和收货方的提供 拿托盘,找库存,找供商
-                String customerCode = obdHeader.getDeliveryCode();
-                Long ownerId = obdHeader.getOwnerUid();
-                CsiCustomer csiCustomer = csiCustomerService.getCustomerByCustomerCode(customerCode);
-                goodInfo.put("customer", csiCustomer);
-                goodList.add(goodInfo);
+            //现在没做限制,以后有贵品需求,在显示
+//            if (ItemConstant.TYPE_IS_VALUABLE == item.getIsValuable()) {
+            Map<String, Object> goodInfo = new HashMap<String, Object>();
+            goodInfo.put("item", item);
+            goodInfo.put("unitName", detail.getAllocUnitName());
+            goodInfo.put("qty", detail.getQcQty());
+            goodInfo.put("orderId", detail.getOrderId());
+            ObdHeader obdHeader = iSoRpcService.getOutbSoHeaderDetailByOrderId(detail.getOrderId());
+            if (null == obdHeader) {
+                throw new BizCheckedException("2870006");
             }
+
+            //时间、托盘码
+            goodInfo.put("orderTime", obdHeader.getCreatedAt());    //时间戳
+            goodInfo.put("containerId", detail.getContainerId());
+            //出库的方式
+            goodInfo.put("orderTypeName", SoConstant.ORDER_TYPE_NAME_MAP.get(obdHeader.getOrderType()));
+            //送达方门店和小超市的区别, todo 物美的下传单子delivery_name写的也是编码delivery_code也是
+            //如果delivery_name和delivery_code相同 就是傻逼物美的单子
+            CsiCustomer csiCustomer = new CsiCustomer();
+            if (obdHeader.getDeliveryName().equals(obdHeader.getDeliveryCode())) {
+                String customerCode = obdHeader.getDeliveryCode();
+                csiCustomer = csiCustomerService.getCustomerByCustomerCode(customerCode);
+            }else {
+                String customerCode = obdHeader.getDeliveryCode();
+                String customerName = obdHeader.getDeliveryName();
+                String address = obdHeader.getDeliveryAddrs();
+                csiCustomer.setCustomerCode(customerCode);
+                csiCustomer.setCustomerName(customerName);
+                csiCustomer.setAddress(address);
+            }
+            //供货方和收货方的提供 拿托盘,找库存,找供商
+//            Long ownerId = obdHeader.getOwnerUid();
+            goodInfo.put("customer", csiCustomer);
+            goodList.add(goodInfo);
         }
+//        }
         //结果map展示
         //head头
         Map<String, Object> headMap = new HashMap<String, Object>();

@@ -84,9 +84,13 @@ public class DataBackService implements IDataBackService {
                 if((Boolean) json.get("success")){
                     sysLog.setLogCode(orderResponse.getCode());
                     sysLog.setLogMessage(orderResponse.getMessage());
+                    sysLog.setSysCode("");
+                    sysLog.setSysMessage("");
                     sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
                 }else{
                     sysLog.setLogMessage(orderResponse.getMessage());
+                    sysLog.setSysCode("");
+                    sysLog.setSysMessage("");
                     sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
                     sysLog.setLogCode(orderResponse.getCode());
                 }
@@ -129,10 +133,14 @@ public class DataBackService implements IDataBackService {
             if(orderResponse != null && orderResponse.getCode().equals("0000")){
                 sysLog.setLogCode(orderResponse.getCode());
                 sysLog.setLogMessage("回传lshOFC成功");
+                sysLog.setSysCode("");
+                sysLog.setSysMessage("");
                 sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
             }else{
                 sysLog.setLogMessage(orderResponse.getMessage());
                 sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
+                sysLog.setSysCode("");
+                sysLog.setSysMessage("");
                 sysLog.setLogCode(orderResponse.getCode());
             }
         }catch (Exception ex){
@@ -183,6 +191,8 @@ public class DataBackService implements IDataBackService {
             if(ret1){
                 sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
                 sysLog.setLogMessage("回传erp成功");
+                sysLog.setSysCode("");
+                sysLog.setSysMessage("");
             }else{
                 sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
                 sysLog.setLogMessage("回传erp失败");

@@ -71,8 +71,8 @@ public class SoRpcService implements ISoRpcService {
         //设置订单状态
         obdHeader.setOrderStatus(BusiConstant.EFFECTIVE_YES);
 
-        //设置订单插入时间
-        obdHeader.setCreatedAt(DateUtils.getCurrentSeconds());
+//        //设置订单插入时间
+//        obdHeader.setCreatedAt(DateUtils.getCurrentSeconds());
 
         //设置orderId
         String idKey = "obd_id";

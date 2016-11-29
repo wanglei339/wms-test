@@ -167,7 +167,7 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
         if(ibdHeader ==null){
             throw new BizCheckedException("2880004");
         }
-        if(ibdHeader.getOrderStatus().compareTo(PoConstant.ORDER_THROW)==0){
+        if(ibdHeader.getOrderStatus().compareTo(PoConstant.ORDER_DELIVERY)==0){
             throw new BizCheckedException("2880015");
         }
         if(ibdHeader.getOrderStatus().compareTo(PoConstant.ORDER_RECTIPT_ALL)==0){

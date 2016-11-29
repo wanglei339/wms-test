@@ -51,6 +51,7 @@ public class SoOrderService {
      */
     @Transactional
     public void insertOrder(ObdHeader obdHeader, List<ObdDetail> obdDetailList) {
+        obdHeader.setCreatedAt(DateUtils.getCurrentSeconds());
         obdHeaderDao.insert(obdHeader);
 
         obdDetailDao.batchInsert(obdDetailList);
