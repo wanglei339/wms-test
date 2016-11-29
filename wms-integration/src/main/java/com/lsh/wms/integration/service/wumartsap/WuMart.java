@@ -26,9 +26,6 @@ public class WuMart implements IWuMart {
     @Autowired
     private WuMartSap wuMartSap;
 
-    @Autowired
-    private SysLogService sysLogService;
-
     /**
      * 收货创建sap ibd 并过账接口
      * @param createIbdHeader
