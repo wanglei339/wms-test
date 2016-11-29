@@ -134,7 +134,7 @@ public class ShelveRestService implements IShelveRestService {
         }
         // 回溯
         List<TaskInfo> taskInfos = baseTaskService.getAssignedTaskByOperator(staffId, TaskConstant.TYPE_SHELVE);
-        if (!taskInfos.isEmpty() && taskInfos != null) {
+        if (taskInfos != null && !taskInfos.isEmpty()) {
             TaskInfo taskInfo = taskInfos.get(0);
             if (taskInfo.getContainerId().equals(containerId)) {
                 ShelveTaskHead taskHead = shelveTaskService.getShelveTaskHead(taskInfos.get(0).getTaskId());

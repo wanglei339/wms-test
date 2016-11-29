@@ -468,10 +468,11 @@ public class LoadRfRestService implements ILoadRfRestService {
             }
             for (Long key : oneStoreInfoMap.keySet()) {
                 //已装车托盘过滤
-                TuDetail tuDetail = iTuRpcService.getDetailByBoardId(key);
-                if (tuDetail != null) {
-                    continue;
-                }
+//                TuDetail tuDetail = iTuRpcService.getDetailByBoardId(key);
+//                if (tuDetail != null) {
+//                    continue;
+//                }
+                //key是物理托盘码
                 expensiveInfoMap.put(key, oneStoreInfoMap.get(key));
             }
         }
@@ -506,8 +507,18 @@ public class LoadRfRestService implements ILoadRfRestService {
             expensiveInfo.put("locationCode", location.getLocationCode());
             expensiveInfo.put("storeId", store.getCustomerId());
             expensiveInfo.put("packCount", qcInfo.getTaskPackQty());
-            expensiveInfo.put("containerId", qcInfo.getContainerId());  //物理托盘码
-            expensiveInfo.put("markContainerId", qcInfo.getContainerId());  //物理托盘码 = 虚拟托盘码
+            //如果合板,放入板子码
+            List<WaveDetail> waveDetailList = waveService.getAliveDetailsByContainerId(key);
+            if (null == waveDetailList || waveDetailList.size() < 1) {
+                throw new BizCheckedException("2990039");
+            }
+            if (waveDetailList.get(0).getMergedContainerId().equals(0L)) {
+                expensiveInfo.put("containerId", qcInfo.getContainerId());  //物理托盘码
+            } else {
+                expensiveInfo.put("containerId", waveDetailList.get(0).getMergedContainerId());  //物理托盘码
+            }
+
+            expensiveInfo.put("markContainerId", qcInfo.getContainerId());  //未来贵品也可以合板
             expensiveInfo.put("isLoaded", false);
 
             storeRestList.add(expensiveInfo);

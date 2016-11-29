@@ -130,7 +130,7 @@ public class PickRestService implements IPickRestService {
             }
             TaskInfo taskInfo = baseTaskService.getTaskInfoById(taskId);
             PickTaskHead taskHead = pickTaskService.getPickTaskHead(taskId);
-            if (!taskInfo.getStatus().equals(TaskConstant.Draft)) {
+            if (!TaskConstant.Draft.equals(taskInfo.getStatus())) {
                 throw new BizCheckedException("2060001");
             }
             if (taskInfo == null || !taskInfo.getType().equals(taskType)) {
@@ -435,7 +435,7 @@ public class PickRestService implements IPickRestService {
         // 获取未完成的detail
         for (WaveDetail pickDetail: pickDetails) {
             Long pickAt = pickDetail.getPickAt();
-            if (pickAt == null || pickAt.equals(0L) || pickAt.equals("")) {
+            if (pickAt == null || pickAt.equals(0L)) {
                 unfinishedDetails.add(pickDetail);
             }
         }

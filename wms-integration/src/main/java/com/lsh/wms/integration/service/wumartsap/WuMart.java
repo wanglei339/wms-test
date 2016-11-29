@@ -26,9 +26,6 @@ public class WuMart implements IWuMart {
     @Autowired
     private WuMartSap wuMartSap;
 
-    @Autowired
-    private SysLogService sysLogService;
-
     /**
      * 收货创建sap ibd 并过账接口
      * @param createIbdHeader
@@ -61,7 +58,8 @@ public class WuMart implements IWuMart {
                 sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
                 sysLog.setLogCode("ibd创建失败");
             }
-
+            sysLog.setSysCode("");
+            sysLog.setSysMessage("");
         }catch (Exception ex) {
             sysLog.setSysCode("接口抛出异常");//异常
             logger.info("抛出异常信息: ex : " + ex.fillInStackTrace());
@@ -104,6 +102,8 @@ public class WuMart implements IWuMart {
                 sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
                 sysLog.setLogCode("ibd创建失败");
             }
+            sysLog.setSysCode("");
+            sysLog.setSysMessage("");
         }catch (Exception ex){
             sysLog.setSysCode("接口抛出异常");//异常
             logger.info("抛出异常信息: ex : " + ex.fillInStackTrace());
@@ -136,10 +136,8 @@ public class WuMart implements IWuMart {
     public void sendSap(Map<String,Object> ibdObdMap, SysLog sysLog){
         sysLog.setLogType(SysLogConstant.LOG_TYPE_DIRECT);
         sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
-        logger.info("~~~~~~~~~~~~~~~~~~1111111111111 参数ibdObdMap : " + JSON.toJSONString(ibdObdMap));
         try{
             if(sysLog.getStep() == SysLogConstant.LOG_STEP_INIT){
-                logger.info("~~~~~~~~~~~~~~~~~~22222222222222 syslog : " + JSON.toJSONString(sysLog));
                 CreateIbdHeader backDate = wuMartSap.ibd2Sap((CreateIbdHeader) ibdObdMap.get("createIbdHeader"));
                 if(backDate != null) {
                     Map<String,Object> map =  wuMartSap.ibd2SapAccount(backDate);
@@ -174,6 +172,7 @@ public class WuMart implements IWuMart {
                     }else{
                         sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
                         sysLog.setStep(SysLogConstant.LOG_STEP_OBDFINISH);
+                        sysLog.setLogCode("直流obd过账成功");
                         sysLog.setLogMessage("直流obd过账成功");
                     }
                 }else {
@@ -182,7 +181,10 @@ public class WuMart implements IWuMart {
                     sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
                     sysLog.setLogCode("ibd过账成功,obd创建失败");
                 }
+
             }
+            sysLog.setSysCode("");
+            sysLog.setSysMessage("");
         }catch (Exception ex){
             sysLog.setSysCode("接口抛出异常");//异常
             logger.info("抛出异常信息: ex : " + ex.fillInStackTrace());
@@ -211,6 +213,8 @@ public class WuMart implements IWuMart {
                 sysLog.setStep(SysLogConstant.LOG_STEP_OBDFINISH);
                 sysLog.setLogMessage("obd过账成功");
             }
+            sysLog.setSysCode("");
+            sysLog.setSysMessage("");
         }catch (Exception ex){
             sysLog.setSysCode("接口抛出异常");//异常
             logger.info("抛出异常信息: ex : " + ex.fillInStackTrace());

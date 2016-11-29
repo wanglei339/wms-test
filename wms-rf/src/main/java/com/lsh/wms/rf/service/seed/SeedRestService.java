@@ -269,7 +269,7 @@ public class SeedRestService implements ISeedRestService {
             TaskInfo info = entry.getTaskInfo();
             //判断商品类型，如例外代码校验通过，则不校验
               //校验例外代码
-            if(mapQuery.get("exceptionCode")!=null) {
+            if(mapQuery.get("exceptionCode")!=null && !mapQuery.get("exceptionCode").toString().equals("")) {
                 String exceptionCode = iExceptionCodeRpcService.getExceptionCodeByName("seed");
                 if(!exceptionCode.equals(mapQuery.get("exceptionCode").toString())){
                     return JsonUtils.TOKEN_ERROR("所输例外代码非法");
@@ -416,7 +416,7 @@ public class SeedRestService implements ISeedRestService {
             if(quants != null && quants.size()!=0){
                 BaseinfoLocation location = locationRpcService.getLocation(quants.get(0));
                 CsiCustomer csiCustomer = csiCustomerService.getCustomerByseedRoadId(location.getLocationId());
-                if(!csiCustomer.getCustomerCode().equals(head.getStoreNo())){
+                if(csiCustomer==null || !csiCustomer.getCustomerCode().equals(head.getStoreNo())){
                     throw new BizCheckedException("2880006");
                 }
             }
@@ -432,7 +432,6 @@ public class SeedRestService implements ISeedRestService {
             if(info.getSubType().compareTo(2L)==0){
                 IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(info.getOrderId());
                 if(ibdHeader.getOrderStatus().compareTo(PoConstant.ORDER_RECTIPT_ALL)==0){
-
                     return JsonUtils.TOKEN_ERROR("该po单已结束收货");
                 }
             }
@@ -496,8 +495,9 @@ public class SeedRestService implements ISeedRestService {
                 });
             }
             if(type.compareTo(3L)==0){
-                info.setStep(1);
-                baseTaskService.update(info);
+                TaskInfo oldInfo = baseTaskService.getTaskInfoById(info.getTaskId());
+                oldInfo.setStep(1);
+                baseTaskService.update(oldInfo);
             }
             mapQuery.put("orderId", info.getOrderId());
             CsiSku sku = csiSkuService.getSku(info.getSkuId());

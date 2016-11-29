@@ -56,6 +56,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -242,6 +243,9 @@ public class SeedTaskHandler extends AbsTaskHandler {
     public void doneConcrete(Long taskId) {
         TaskEntry entry = taskRpcService.getTaskEntryById(taskId);
         TaskInfo info = entry.getTaskInfo();
+        if(info.getQty().compareTo(BigDecimal.ZERO)==0){
+            return;
+        }
         SeedingTaskHead head = (SeedingTaskHead)entry.getTaskHead();
         StockMove move = new StockMove();
 
@@ -384,10 +388,10 @@ public class SeedTaskHandler extends AbsTaskHandler {
             String obdOtherId = ibdObdRelation.getObdOtherId();
             ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherIdAndType(obdOtherId, SoConstant.ORDER_TYPE_DIRECT);
 
-            if(obdHeader.getDeliveryCode().equals(head.getStoreNo().toString())) {
-                String key = StrUtils.formatString(RedisKeyConstant.PO_STORE, info.getOrderId(), head.getStoreNo());
-                orderMap.put(key,obdHeader.getOrderId());
-            }
+//            if(obdHeader.getDeliveryCode().equals(head.getStoreNo().toString())) {
+            String key = StrUtils.formatString(RedisKeyConstant.PO_STORE, info.getOrderId(), head.getStoreNo());
+            orderMap.put(key,obdHeader.getOrderId());
+//            }
         }
 
 
