@@ -5,7 +5,7 @@ package com.lsh.wms.core.constant;
  */
 public class SysLogConstant {
 
-    /** 日志类型 1 ibd，2 obd 3 fret 4回传wumart ibd 5回传wumart obd 6直流ibd 7直流obd 8回传ofc obd 9报损 10报溢 11回传erp*/
+    /** 日志类型 1 ibd，2 obd 3 fret 4回传wumart ibd 5回传wumart obd 6直流回传 7直流obd 8回传ofc obd 9报损 10报溢 11回传erp*/
     public static final int LOG_TYPE_IBD = 1;
 
     public static final int LOG_TYPE_OBD = 2;
@@ -16,7 +16,7 @@ public class SysLogConstant {
 
     public static final int LOG_TYPE_WUMART_OBD = 5;
 
-    public static final int LOG_TYPE_DIRECT_IBD = 6;
+    public static final int LOG_TYPE_DIRECT = 6;
 
     public static final int LOG_TYPE_DIRECT_OBD = 7;
 
