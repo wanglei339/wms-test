@@ -407,6 +407,19 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
                     goodsCountMap.put("unitName", obdDetail.getPackName());//箱规,默认EA
                     goodsCountMap.put("isExpensive", item.getIsValuable() == ItemConstant.TYPE_IS_VALUABLE);   //1是贵品,2不是贵品
                     goodsListMap.get(orderId).put(itemId, goodsCountMap);
+                }else{
+                    //一个订单里,有多条itemId相同的记录时,统计总件数,总箱数
+                    Map<String, Object> goodsCountMap = goodsListMap.get(orderId).get(itemId);
+                    BigDecimal eaNum = BigDecimal.ZERO;
+                    if(goodsCountMap.get("eaNum") != null){
+                        eaNum = BigDecimal.valueOf(Double.valueOf(goodsCountMap.get("eaNum").toString()));
+                    }
+                    BigDecimal eaNumTotal = eaNum.add(detail.getDeliveryNum());
+                    goodsCountMap.put("boxNum",PackUtil.EAQty2UomQty(eaNumTotal,obdDetail.getPackUnit()));//箱数
+                    goodsCountMap.put("eaNum",eaNumTotal);
+                    goodsListMap.get(orderId).put(itemId, goodsCountMap);
+
+
                 }
             }
 
