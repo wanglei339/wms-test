@@ -703,25 +703,25 @@ public class ReceiptRpcService implements IReceiptRpcService {
         return inbReceiptHeaderList;
     }
 
-    public List<InbReceiptHeader> getPoReceiptDetail(Map<String,Object> param) throws BizCheckedException {
-
-        List<InbReceiptDetail> inbReceiptDetailList = poReceiptService.getInbReceiptDetailList(param);
-
+    public List<InbReceiptHeader> getInbReceiptDetailList(Map<String,Object> param) throws BizCheckedException {
+        //封装返回数据
         List<InbReceiptHeader> inbReceiptHeaderList = new ArrayList<InbReceiptHeader>();
+        //查询收货详情
+        List<InbReceiptDetail> detailList = poReceiptService.getInbReceiptDetailList(param);
+        //记录收货ID,避免重复查询
+        Set<Long> receiptOrderIdSet = new HashSet<Long>() ;
 
-        for (InbReceiptDetail inbReceiptDetail : inbReceiptDetailList) {
+        for(InbReceiptDetail inbReceiptDetail : detailList){
+           if(receiptOrderIdSet.contains(inbReceiptDetail.getReceiptOrderId())){
+               continue;
+           }
             param.put("receiptOrderId",inbReceiptDetail.getReceiptOrderId());
             InbReceiptHeader inbReceiptHeader = poReceiptService.getInbReceiptHeaderByParams(param);
-            if(inbReceiptHeader == null){
-                continue;
-            }
-            // TODO:InbReceiptHeader与当前时间比较
-
-            poReceiptService.fillDetailToHeader(inbReceiptHeader);
-
+            inbReceiptHeader.setReceiptDetails(detailList);
             inbReceiptHeaderList.add(inbReceiptHeader);
-        }
 
+            receiptOrderIdSet.add(inbReceiptDetail.getReceiptOrderId());
+        }
         return inbReceiptHeaderList;
     }
     public List<InbReceiptDetail> getInbReceiptDetailListByOrderId(Long orderId){

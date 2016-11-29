@@ -98,9 +98,9 @@ public class ReceiptRestService implements IReceiptRestService {
         return JsonUtils.SUCCESS(inbReceiptHeaderList);
     }
     @POST
-    @Path("getPoReceiptDetail")
-    public String getPoReceiptDetail(Map<String,Object> param) throws BizCheckedException {
-        List<InbReceiptHeader> inbReceiptHeaderList = receiptRpcService.getPoReceiptDetail(param);
+    @Path("getInbReceiptDetailList")
+    public String getInbReceiptDetailList(Map<String,Object> param) throws BizCheckedException {
+        List<InbReceiptHeader> inbReceiptHeaderList = receiptRpcService.getInbReceiptDetailList(param);
         return JsonUtils.SUCCESS(inbReceiptHeaderList);
     }
 
@@ -124,6 +124,7 @@ public class ReceiptRestService implements IReceiptRestService {
         Map<String, Object> params = RequestUtils.getRequest();
         return JsonUtils.SUCCESS(receiptRpcService.getPoReceiptDetailList(params));
     }
+
 
     @GET
     @Path("insertPoReceipt")
