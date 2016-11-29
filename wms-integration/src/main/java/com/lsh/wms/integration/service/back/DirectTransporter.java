@@ -22,6 +22,8 @@ import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
 import com.lsh.wms.model.system.SysLog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +35,7 @@ import java.util.*;
  */
 @Component
 public class DirectTransporter implements ITransporter{
+    private static Logger logger = LoggerFactory.getLogger(DirectTransporter.class);
 
     @Autowired
     private SoDeliveryService soDeliveryService;
@@ -114,18 +117,10 @@ public class DirectTransporter implements ITransporter{
         CreateIbdHeader createIbdHeader = new CreateIbdHeader();
         createIbdHeader.setWarehouseCode(PropertyUtils.getString("wumart.werks"));
         createIbdHeader.setItems(createIbdDetailList);
-        //CreateObdHeader createStoObdHeader = new CreateObdHeader();
 
-//        logger.info("+++++++++++++++++++++++++++++++++maqidi+++++++++++++++++++++++" + JSON.toJSONString(createObdHeader));
-//        logger.info("+++++++++++++++++++++++++++++++++maqidi++++++++++++++" + JSON.toJSONString(createObdHeader));
-
-        //鑫哥服务
-//        wuMartSap.ibd2Sap(createIbdHeader);
-//        wuMartSap.obd2Sap(createObdHeader);
         Map<String, Object> ibdObdMap = new HashMap<String, Object>();
         ibdObdMap.put("createIbdHeader", createIbdHeader);
         ibdObdMap.put("createObdHeader", createObdHeader);
-        //ibdObdMap.put("createStoObdHeader", createStoObdHeader);
 
         wuMart.sendSap(ibdObdMap,sysLog);
 

@@ -3,6 +3,7 @@ package com.lsh.wms.core.service.csi;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.csi.CsiSkuDao;
+import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.csi.CsiSku;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,8 @@ public class CsiSkuService {
     private static final Logger logger = LoggerFactory.getLogger(CsiSkuService.class);
     @Autowired
     private CsiSkuDao skuDao;
+    @Autowired
+    private IdGenerator idGenerator;
 
     public CsiSku getSku(long iSkuId) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
@@ -52,7 +55,7 @@ public class CsiSkuService {
     }
     @Transactional(readOnly = false)
     public void insertSku(CsiSku sku){
-        long iSkuId = RandomUtils.genId();
+        long iSkuId = idGenerator.genId("csi_sku", false, false);
         sku.setSkuId(iSkuId);
         //增加新增时间
         sku.setCreatedAt(DateUtils.getCurrentSeconds());

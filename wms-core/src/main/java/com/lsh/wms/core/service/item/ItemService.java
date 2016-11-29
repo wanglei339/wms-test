@@ -6,6 +6,8 @@ import com.lsh.wms.core.dao.baseinfo.BaseinfoItemDao;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoItemQuantRangeDao;
 import com.lsh.wms.core.dao.csi.CsiSkuDao;
 import com.lsh.wms.core.dao.stock.StockQuantDao;
+import com.lsh.wms.core.service.csi.CsiSkuService;
+import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemQuantRange;
 import com.lsh.wms.model.csi.CsiSku;
@@ -35,9 +37,12 @@ public class ItemService {
     private BaseinfoItemDao itemDao;
     @Autowired
     private BaseinfoItemQuantRangeDao rangeDao;
-
     @Autowired
-    private CsiSkuDao skuDao;
+    private CsiSkuService csiSkuService;
+    @Autowired
+    private CsiSkuDao csiSkuDao;
+    @Autowired
+    private IdGenerator idGenerator;
 
 
     public BaseinfoItem getItem(long iOwnerId, long iSkuId){
@@ -101,13 +106,11 @@ public class ItemService {
         Map<String,Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("code",item.getCode());
         mapQuery.put("codeType",item.getCodeType());
-        List<CsiSku> skus = skuDao.getCsiSkuList(mapQuery);
+        List<CsiSku> skus = csiSkuDao.getCsiSkuList(mapQuery);
         if(skus.size() > 0){
             item.setSkuId(skus.get(0).getSkuId());
         }else{
             CsiSku sku = new CsiSku();
-            long skuId = RandomUtils.genId();
-            sku.setSkuId(skuId);
             String code = item.getCode();
             sku.setCode(code);
             sku.setCodeType(item.getCodeType().toString());
@@ -119,12 +122,12 @@ public class ItemService {
             sku.setWeight(item.getWeight());
             sku.setCreatedAt(DateUtils.getCurrentSeconds());
             //生成csi_sku表
-            skuDao.insert(sku);
-            item.setSkuId(skuId);
+            csiSkuService.insertSku(sku);
+            item.setSkuId(sku.getSkuId());
         }
         //gen itemId
 
-        item.setItemId(RandomUtils.genId());
+        item.setItemId(idGenerator.genId("item_main", false, false));
         item.setCreatedAt(DateUtils.getCurrentSeconds());
         //创建商品
         itemDao.insert(item);

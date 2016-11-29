@@ -170,7 +170,7 @@
 			ORDER BY  priority DESC
 		</if>
 		<if test=' "taskOrder".equals(orderBy)  and  "desc".equals(orderType)'>
-			ORDER BY  priority DESC
+			ORDER BY  task_order DESC
 		</if>
 		<if test=" 'status'.equals(orderBy)  and 'desc'.equals(orderType)">
 			ORDER BY  status DESC
@@ -185,7 +185,7 @@
 			ORDER BY  status ASC
 		</if>
 		<if test=" 'taskOrder'.equals(orderBy)  and  'asc'.equals(orderType)">
-			ORDER BY  status ASC
+			ORDER BY  task_order ASC
 		</if>
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
@@ -211,6 +211,7 @@
 			<if test="endDate != null">and date &lt;= #{endDate}</if>
 		</where>
 		 	group by operator, date, type, sub_type
+			order by date desc
 		<if test="start != null and limit != null">
 			limit #{start},#{limit}
 		</if>
