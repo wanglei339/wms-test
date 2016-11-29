@@ -63,7 +63,7 @@ public class LocationRpcService implements ILocationRpcService {
     //提供位置能否存储存
     public boolean canStore(Long locationId) throws BizCheckedException {
         BaseinfoLocation baseinfoLocation = locationService.getLocation(locationId);
-        if (baseinfoLocation.getCanStore() != 0) {
+        if (LocationConstant.CAN_STORE.equals(baseinfoLocation.getCanStore())) {
             return true;
         }
         return false;
@@ -128,7 +128,7 @@ public class LocationRpcService implements ILocationRpcService {
      */
     public List<BaseinfoLocation> getAllRegion() {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("classification", 1);
+        mapQuery.put("classification", LocationConstant.CLASSIFICATION_AREAS);
         return locationService.getBaseinfoLocationList(mapQuery);
     }
 
@@ -149,7 +149,7 @@ public class LocationRpcService implements ILocationRpcService {
      */
     public List<BaseinfoLocation> getAllBin() {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("classification", 2);
+        mapQuery.put("classification", LocationConstant.CLASSIFICATION_BINS);
         mapQuery.put("isValid", LocationConstant.IS_VALID);
         return locationService.getBaseinfoLocationList(mapQuery);
     }
@@ -232,12 +232,12 @@ public class LocationRpcService implements ILocationRpcService {
      */
     public List<BaseinfoLocation> sortLocationInOnePassage(List<BaseinfoLocation> locations) throws BizCheckedException {
         //sort位置排序
-        if (locations == null || locations.isEmpty()) {
+        if (null == locations || locations.isEmpty()) {
             throw new BizCheckedException("2180007");
         }
         Collections.sort(locations, new Comparator<BaseinfoLocation>() {
             public int compare(BaseinfoLocation o1, BaseinfoLocation o2) {
-                return (o1.getBinPositionNo() > o2.getBinPositionNo()) ? 1 : ((o1.getBinPositionNo().equals(o2.getBinPositionNo())) ? 0 : -1);
+                return (o1.getBinPositionNo().compareTo(o2.getBinPositionNo()) > 0) ? 1 : ((o1.getBinPositionNo().equals(o2.getBinPositionNo())) ? 0 : -1);
             }
         });
         return locations;
@@ -306,7 +306,7 @@ public class LocationRpcService implements ILocationRpcService {
      */
     public BaseinfoLocation splitBin(Long locationId, String locationCode) throws BizCheckedException {
         BaseinfoLocation location = locationService.getLocation(locationId);
-        if (location == null) {
+        if (null == location) {
             throw new BizCheckedException("2180001");
         }
         BaseinfoLocation newLocation = locationService.splitBin(location, locationCode);

@@ -354,7 +354,7 @@ public class QCRpcService implements IQCRpcService {
                 detail.setQcQty(qty.subtract(normalQty));   //前面的都是正常的,有异常那条记录异常的数量
                 detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_SKIP);
 //                waveService.updateDetail(detail);
-            }else {
+            } else {
                 detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_NORMAL);
             }
             waveService.updateDetail(detail);
@@ -415,7 +415,7 @@ public class QCRpcService implements IQCRpcService {
                 d.setQcExceptionQty(new BigDecimal("0.0000"));
                 d.setQcException(WaveConstant.QC_EXCEPTION_NORMAL);
 //                waveService.updateDetail(d);
-            }else {
+            } else {
                 d.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_NORMAL);
             }
             waveService.updateDetail(d);
@@ -489,7 +489,7 @@ public class QCRpcService implements IQCRpcService {
                 }
                 detail.setQcQty(qty.subtract(normalQty));   //前面的都是正常的,有异常那条记录异常的数量
                 detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_SKIP);
-            }else {
+            } else {
                 detail.setQcExceptionDone(PickConstant.QC_EXCEPTION_DONE_NORMAL);
             }
             waveService.updateDetail(detail);
@@ -553,7 +553,19 @@ public class QCRpcService implements IQCRpcService {
             if (detail.getQcTaskId().equals(0L)) {
                 continue;
             }
+            Long containerId = null;
+            //已装车的不给出
+            if (detail.getMergedContainerId().equals(0L)) {
 
+                containerId = detail.getContainerId();
+            } else {
+
+                containerId = detail.getMergedContainerId();
+            }
+            TuDetail tuDetail = tuService.getDetailByBoardId(containerId);
+            if (null != tuDetail) {
+                continue;
+            }
             containerQcIdMap.put(detail.getContainerId(), detail.getQcTaskId());
 
         }

@@ -12,9 +12,7 @@ import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 import com.lsh.wms.model.stock.StockQuant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.parsing.Location;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -400,7 +398,7 @@ public class LocationService {
         Map<String, Object> params = new HashMap<String, Object>();
         // 判断是否已为子节点
         BaseinfoLocation curLocation = this.getLocation(locationId);
-        if (curLocation.getIsLeaf() == 1) {
+        if (curLocation.getIsLeaf().equals(1)) {
             return new ArrayList<BaseinfoLocation>();
         }
         params.put("fatherId", locationId);
@@ -456,7 +454,7 @@ public class LocationService {
     public BaseinfoLocation getFatherLocation(Long locationId) {
         BaseinfoLocation curLocation = this.getLocation(locationId);
         Long fatherId = curLocation.getFatherId();
-        if (fatherId.equals(0)) {
+        if (fatherId.equals(0L)) {
             return null;
         }
         return this.getLocation(fatherId);
@@ -473,7 +471,7 @@ public class LocationService {
     public BaseinfoLocation getFatherByType(Long locationId, Long type) {
         BaseinfoLocation curLocation = this.getLocation(locationId);
         Long fatherId = curLocation.getFatherId();
-        if (curLocation.getType().equals(type)) {
+        if (type.equals(curLocation.getType())) {
             return curLocation;
         }
         if (fatherId == 0) {
@@ -495,10 +493,10 @@ public class LocationService {
             return null;
         }
         Long fatherId = curLocation.getFatherId();
-        if (curLocation.getClassification().equals(LocationConstant.CLASSIFICATION_AREAS)) {
+        if (LocationConstant.CLASSIFICATION_AREAS.equals(curLocation.getClassification())) {
             return curLocation;
         }
-        if (fatherId == 0) {
+        if (fatherId.equals(0L)) {
             return null;
         }
         return this.getFatherRegionBySonId(fatherId);
@@ -514,11 +512,11 @@ public class LocationService {
         List<BaseinfoLocation> baseinfoLocationList = new ArrayList<BaseinfoLocation>();
         BaseinfoLocation curLocation = this.getLocation(locationId);
         Long fatherId = curLocation.getFatherId();
-        if (curLocation.getType().equals(LocationConstant.WAREHOUSE)) {
+        if (LocationConstant.WAREHOUSE.equals(curLocation.getType())) {
             baseinfoLocationList.add(curLocation);
             return baseinfoLocationList;
         }
-        if (fatherId == 0) {
+        if (fatherId.equals(0L)) {
             return new ArrayList<BaseinfoLocation>();
         }
         return this.getFatherList(fatherId);
@@ -714,7 +712,7 @@ public class LocationService {
         List<BaseinfoLocation> locations = this.getLocationsByType(type);
         if (null != locations && locations.size() > 0) {
             for (BaseinfoLocation location : locations) {
-                if (location.getCanUse().equals(LocationConstant.CAN_USE) && !this.checkLocationLockStatus(location.getLocationId())) {
+                if (LocationConstant.CAN_USE.equals(location.getCanUse()) && !this.checkLocationLockStatus(location.getLocationId())) {
                     return location;
                 }
             }
@@ -732,7 +730,7 @@ public class LocationService {
         if (null != locations && locations.size() > 0) {
             for (BaseinfoLocation location : locations) {
                 Long locationId = location.getLocationId();
-                if (location.getCanUse().equals(LocationConstant.CAN_USE) && !this.checkLocationLockStatus(locationId)) {
+                if (LocationConstant.CAN_USE.equals(location.getCanUse()) && !this.checkLocationLockStatus(locationId)) {
                     List<StockQuant> quants = stockQuantService.getQuantsByLocationId(locationId);
                     if (quants.isEmpty()) {
                         return location;
@@ -826,7 +824,7 @@ public class LocationService {
      */
     public BaseinfoLocation getNearestStorageByPicking(BaseinfoLocation pickingLocation) {
         //获取相邻货架的所有拣货位,先获取当前货架,获取通道,货物相邻货架,然后获取
-        BaseinfoLocation shelfLocationSelf = this.getShelfByClassification(pickingLocation.getLocationId());    //获取货架
+        BaseinfoLocation shelfLocationSelf = this.getShelfByLocationId(pickingLocation.getLocationId());    //获取货架
         //通道
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("locationId", shelfLocationSelf.getFatherId());
@@ -882,7 +880,7 @@ public class LocationService {
             minDistanceMap.put("location", location);
             minDistanceMap.put("distance", minDistance);
             for (Map<String, Object> distanceMap : storeBinDistanceList) {
-                if ((Long.valueOf(((Long) distanceMap.get("distance")).toString()).equals(Long.valueOf(((Long) minDistanceMap.get("distance")).toString()))) && (this.getShelfByClassification(((BaseinfoLocation) distanceMap.get("location")).getLocationId())).getLocationId().equals(shelfLocationSelf.getLocationId())) {
+                if ((Long.valueOf(((Long) distanceMap.get("distance")).toString()).equals(Long.valueOf(((Long) minDistanceMap.get("distance")).toString()))) && (this.getShelfByLocationId(((BaseinfoLocation) distanceMap.get("location")).getLocationId())).getLocationId().equals(shelfLocationSelf.getLocationId())) {
                     //位置相同,同货架优先,同货架位置相同,给一个就行
                     minDistanceMap = distanceMap;
                 } else if (Long.valueOf(((Long) distanceMap.get("distance")).toString()) < Long.valueOf(((Long) minDistanceMap.get("distance")).toString())) {
@@ -904,7 +902,7 @@ public class LocationService {
 //     */
 //    public BaseinfoLocation getNearestBinInSpiltByPicking(BaseinfoLocation pickingLocation) {
 //        //获取相邻货架的所有拣货位,先获取当前货架,获取通道,货物相邻货架,然后获取
-//        BaseinfoLocation shelfLocationSelf = this.getShelfByClassification(pickingLocation.getLocationId());
+//        BaseinfoLocation shelfLocationSelf = this.getShelfByLocationId(pickingLocation.getLocationId());
 //        //通道
 //        Map<String, Object> params = new HashMap<String, Object>();
 //        params.put("locationId", shelfLocationSelf.getFatherId());
@@ -929,7 +927,7 @@ public class LocationService {
 //     */
 //    public BaseinfoLocation getNearestBinInLoftByPicking(BaseinfoLocation pickingLocation) {
 //        //获取相邻货架的所有拣货位,先获取当前货架,获取通道,货物相邻货架,然后获取
-//        BaseinfoLocation shelfLocationSelf = this.getShelfByClassification(pickingLocation.getLocationId());
+//        BaseinfoLocation shelfLocationSelf = this.getShelfByLocationId(pickingLocation.getLocationId());
 //        //通道
 //        Map<String, Object> params = new HashMap<String, Object>();
 //        params.put("locationId", shelfLocationSelf.getFatherId());
@@ -1027,7 +1025,7 @@ public class LocationService {
      */
     public Boolean checkLocationUseStatus(Long locationId) {
         BaseinfoLocation location = this.getLocation(locationId);
-        if (location.getCanUse().equals(LocationConstant.CAN_USE)) {
+        if (LocationConstant.CAN_USE.equals(location.getCanUse())) {
             return true;
         }
         return false;
@@ -1159,7 +1157,7 @@ public class LocationService {
         if (curLocation.getClassification().equals(LocationConstant.REGION_TYPE)) {
             return curLocation;
         }
-        if (fatherId == 0) {
+        if (fatherId.equals(0L)) {
             return null;
         }
         return this.getFatherByClassification(fatherId);
@@ -1170,7 +1168,7 @@ public class LocationService {
         if (location.getClassification().equals(LocationConstant.REGION_TYPE)) {
             return location;
         }
-        if (fatherId == 0) {
+        if (fatherId.equals(0L)) {
             return null;
         }
         return this.getFatherByClassification(fatherId);
@@ -1184,16 +1182,16 @@ public class LocationService {
      * @param locationId
      * @return
      */
-    public BaseinfoLocation getShelfByClassification(Long locationId) {
+    public BaseinfoLocation getShelfByLocationId(Long locationId) {
         BaseinfoLocation curLocation = this.getLocation(locationId);
         Long fatherId = curLocation.getFatherId();
         if (curLocation.getClassification().equals(LocationConstant.LOFT_SHELF)) {
             return curLocation;
         }
-        if (fatherId == 0) {
+        if (fatherId.equals(0L)) {
             return null;
         }
-        return this.getShelfByClassification(fatherId);
+        return this.getShelfByLocationId(fatherId);
     }
 
     /**
@@ -1364,7 +1362,7 @@ public class LocationService {
                     detailRequest.setLocationCode(code);
                 }
                 detailRequest.setFatherId(fatherId);
-                Integer classification = 3;
+                Integer classification = LocationConstant.CLASSIFICATION_OTHERS;
                 if (type.equals(LocationConstant.REGION_AREA)) {
                     classification = LocationConstant.CLASSIFICATION_AREAS;
                 }
@@ -1435,6 +1433,7 @@ public class LocationService {
 
     /**
      * 拆分货位
+     *
      * @param location
      * @return
      * @throws BizCheckedException
@@ -1447,7 +1446,7 @@ public class LocationService {
         if (!LocationConstant.BIN.equals(location.getType()) || !location.getIsLeaf().equals(1)) {
             throw new BizCheckedException("2180028");
         }
-        if (location.getCanUse().equals(LocationConstant.CANNOT_USE)) {
+        if (LocationConstant.CANNOT_USE.equals(location.getCanUse())) {
             throw new BizCheckedException("2180029");
         }
         if (LocationConstant.IS_LOCKED.equals(location.getIsLocked())) {
