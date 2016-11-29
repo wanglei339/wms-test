@@ -153,10 +153,10 @@ public class LoadRfRestService implements ILoadRfRestService {
         TuHead tuHead = iTuRpcService.getHeadByTuId(tuId);
         tuHead.setLoadedAt(DateUtils.getCurrentSeconds());
         tuHead.setLoadUid(loadUid);
-        if (tuHead.getStatus().equals(TuConstant.IN_LOADING) || tuHead.getStatus().equals(TuConstant.UNLOAD) || tuHead.equals(TuConstant.LOAD_OVER)) {
-            iTuRpcService.changeTuHeadStatus(tuHead, TuConstant.IN_LOADING);    //改成装车中
-        } else {
+        if (TuConstant.SHIP_OVER.equals(tuHead.getStatus())) {  //发货后不能流转
             throw new BizCheckedException("2990044");
+        } else {
+            iTuRpcService.changeTuHeadStatus(tuHead, TuConstant.IN_LOADING);    //改成装车中
         }
         //门店信息
         List<CsiCustomer> stores = csiCustomerService.ParseCustomerIds2Customers(tuHead.getStoreIds()); //少用map不易解读
