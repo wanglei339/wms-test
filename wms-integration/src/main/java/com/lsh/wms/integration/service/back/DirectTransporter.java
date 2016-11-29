@@ -22,6 +22,8 @@ import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
 import com.lsh.wms.model.system.SysLog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +35,7 @@ import java.util.*;
  */
 @Component
 public class DirectTransporter implements ITransporter{
+    private static Logger logger = LoggerFactory.getLogger(DirectTransporter.class);
 
     @Autowired
     private SoDeliveryService soDeliveryService;
@@ -47,6 +50,8 @@ public class DirectTransporter implements ITransporter{
 
 
     public void process(SysLog sysLog) {
+
+        logger.info("~~~~~~~~~~syslog : " + JSON.toJSONString(sysLog));
 
         OutbDeliveryHeader header = soDeliveryService.getOutbDeliveryHeaderByDeliveryId(sysLog.getBusinessId());
         List<OutbDeliveryDetail> details = soDeliveryService.getOutbDeliveryDetailListByDeliveryId(sysLog.getBusinessId());

@@ -340,6 +340,7 @@ public class WuMartSap implements IWuMartSap{
         }else{
             map.put("type","S");
         }
+        logger.info("~~~~~~~~~~~~~~~Map :" + JSON.toJSONString(map));
 
         return map;
     }
