@@ -24,12 +24,14 @@ import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.csi.CsiSupplierService;
+import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoItemType;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.csi.CsiSupplier;
@@ -82,6 +84,8 @@ public class ReceiptRestService implements IReceiptRfService {
     private CsiSupplierService csiSupplierService;
     @Autowired
     private ItemService itemService;
+    @Autowired
+    private ItemLocationService itemLocationService;
     @Autowired
     private ContainerService containerService;
 
@@ -162,7 +166,6 @@ public class ReceiptRestService implements IReceiptRfService {
             if(inboundUnitQty.compareTo(BigDecimal.ZERO) <= 0){
                 throw new BizCheckedException("2020007");
             }
-
             /*if(receiptItem.getProTime() == null) {
                 throw new BizCheckedException("2020008");
             }*/
@@ -176,6 +179,13 @@ public class ReceiptRestService implements IReceiptRfService {
             BaseinfoItem baseinfoItem = this.getItem(receiptItem.getBarCode(),ibdHeader.getOwnerUid());
             //  16/11/17  因用户输入的可能是物美码,此处为国条重新赋值
             receiptItem.setBarCode(baseinfoItem.getCode());
+            /*
+              验证商品是否配置了拣货位
+             */
+            List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationList(baseinfoItem.getItemId());
+            if(itemLocationList == null || itemLocationList.size() == 0){
+                throw new BizCheckedException("2030010");//该商品没有拣货位
+            }
             /*
             按配置验证生产日期/到期日是否输入
              */

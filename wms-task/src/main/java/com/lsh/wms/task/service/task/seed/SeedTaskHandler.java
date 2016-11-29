@@ -56,6 +56,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -242,6 +243,9 @@ public class SeedTaskHandler extends AbsTaskHandler {
     public void doneConcrete(Long taskId) {
         TaskEntry entry = taskRpcService.getTaskEntryById(taskId);
         TaskInfo info = entry.getTaskInfo();
+        if(info.getQty().compareTo(BigDecimal.ZERO)==0){
+            return;
+        }
         SeedingTaskHead head = (SeedingTaskHead)entry.getTaskHead();
         StockMove move = new StockMove();
 
