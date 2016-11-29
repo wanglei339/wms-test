@@ -1,6 +1,7 @@
 package com.lsh.wms.integration.service.wumartsap;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
@@ -135,7 +136,9 @@ public class WuMart implements IWuMart {
     public void sendSap(Map<String,Object> ibdObdMap, SysLog sysLog){
         sysLog.setLogType(SysLogConstant.LOG_TYPE_DIRECT);
         sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
+        logger.info("~~~~~~~~~~~~~~~~~~1111111111111 参数ibdObdMap : " + JSON.toJSONString(ibdObdMap));
         try{
+            logger.info("~~~~~~~~~~~~~~~~~~22222222222222 syslog : " + JSON.toJSONString(sysLog));
             CreateIbdHeader backDate = wuMartSap.ibd2Sap((CreateIbdHeader) ibdObdMap.get("createIbdHeader"));
             if(backDate != null) {
                 Map<String,Object> map =  wuMartSap.ibd2SapAccount(backDate);
