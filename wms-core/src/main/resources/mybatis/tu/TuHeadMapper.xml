@@ -126,12 +126,7 @@
     <select id="getTuHeadListOnPc" parameterType="map" resultMap="tuHeadResultMap">
         select * from tu_head
         <include refid="pcQueryCondition"/>
-        <if test='"createdAt".equals(orderBy)  and "asc".equals(orderType)'>
-            ORDER BY  created_at ASC
-        </if>
-        <if test='"loadedAt".equals(orderBy)  and "asc".equals(orderType)'>
-            ORDER BY  loaded_at ASC
-        </if>
+            ORDER BY  created_at DESC
         <if test="start != null and limit != null">
             limit #{start},#{limit}
         </if>

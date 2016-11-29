@@ -577,11 +577,12 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             List<BaseinfoLocation> locations = locationRpcService.getNearestPassage(passageLocation);
             for(BaseinfoLocation location:locations){
                 queryMap.put("status",TaskConstant.Draft);
+                queryMap.put("locationObj",location);
                 List<TaskEntry> entries = taskRpcService.getTaskList(TaskConstant.TYPE_PROCUREMENT,queryMap);
                 if(entries==null || entries.size()==0) {
                     continue;
                 }
-                queryMap.put("locationObj",location);
+
                 queryMap.put("status", TaskConstant.Assigned);
                 List<TaskEntry> taskEntryList = taskRpcService.getTaskList(TaskConstant.TYPE_PROCUREMENT,queryMap);
                 if(taskEntryList==null || taskEntryList.size()==0){

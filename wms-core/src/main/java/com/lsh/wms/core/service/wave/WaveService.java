@@ -9,6 +9,7 @@ import com.lsh.wms.core.dao.so.ObdHeaderDao;
 import com.lsh.wms.core.dao.wave.WaveDetailDao;
 import com.lsh.wms.core.dao.wave.WaveHeadDao;
 import com.lsh.wms.core.dao.wave.WaveQcExceptionDao;
+import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
@@ -16,8 +17,10 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.utils.IdGenerator;
+import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
 import com.lsh.wms.model.so.ObdHeader;
@@ -69,6 +72,8 @@ public class WaveService {
     private StockMoveService stockMoveService;
     @Autowired
     private SoOrderService soOrderService;
+    @Autowired
+    private CsiCustomerService csiCustomerService;
 
     @Transactional(readOnly = false)
     public void createWave(WaveHead head, List<Map> vOrders){
@@ -396,13 +401,13 @@ public class WaveService {
         return splitDetails;
     }
     @Transactional(readOnly = false)
-    public void splitWaveDetail(WaveDetail detail, BigDecimal requiredQty,Long containerId,Long soOrderId,BigDecimal packUnit){
+    public void splitWaveDetail(WaveDetail detail, BigDecimal requiredQty,Long containerId,Long soOrderId,BigDecimal packUnit,String storeNo){
         Map<String,Object> queryMap = new HashMap<String, Object>();
         queryMap.put("itemId", detail.getItemId());
         queryMap.put("containerId",detail.getContainerId());
         List<WaveDetail> details = detailDao.getOrderedWaveDetailList(queryMap);
         for(WaveDetail waveDetail:details){
-            this.split(waveDetail,requiredQty,containerId,soOrderId,packUnit);
+            this.split(waveDetail,requiredQty,containerId,soOrderId,packUnit,storeNo);
             requiredQty = requiredQty.subtract(waveDetail.getPickQty());
             if(requiredQty.compareTo(BigDecimal.ZERO)<=0){
                 break;
@@ -413,21 +418,43 @@ public class WaveService {
         }
     }
     @Transactional(readOnly = false)
-    public void split(WaveDetail detail, BigDecimal splitQty , Long containerId,Long soOrderId,BigDecimal packUnit) {
-        if(detail.getAllocUnitQty().compareTo(splitQty)<=0)
+    public void split(WaveDetail detail, BigDecimal splitQty , Long containerId,Long soOrderId,BigDecimal packUnit,String storeNo) {
+        CsiCustomer customer = csiCustomerService.getCustomerByCustomerCode(storeNo); // 门店对应的集货道
+
+        if(detail.getPickQty().compareTo(splitQty)<=0)
         {
             detail.setContainerId(containerId);
             detail.setOrderId(soOrderId);
-
+            detail.setAllocCollectLocation(customer.getCollectRoadId());
+            detail.setRealCollectLocation(customer.getCollectRoadId());
         }else {
+            BigDecimal [] decimals = splitQty.divideAndRemainder(packUnit);
             WaveDetail newDetail = new WaveDetail();
             ObjUtils.bean2bean(detail, newDetail);
             newDetail.setContainerId(containerId);
             newDetail.setOrderId(soOrderId);
-            newDetail.setPickQty(splitQty.multiply(packUnit));
-            newDetail.setAllocUnitQty(splitQty);
-            detail.setPickQty(detail.getPickQty().subtract(splitQty.multiply(packUnit)));
-            detail.setAllocUnitQty(detail.getAllocQty().subtract(splitQty));
+            newDetail.setPickQty(splitQty);
+            newDetail.setAllocQty(splitQty);
+
+            if(decimals[1].compareTo(BigDecimal.ZERO)!=0){
+                newDetail.setAllocUnitName("EA");
+                newDetail.setAllocUnitQty(splitQty);
+
+                detail.setAllocUnitQty(detail.getPickQty().subtract(splitQty));
+                detail.setAllocUnitName("EA");
+            }else {
+                newDetail.setAllocUnitQty(decimals[1]);
+                if(detail.getAllocUnitName().equals("EA")){
+                    detail.setAllocUnitQty(detail.getAllocQty().subtract(splitQty));
+                }else {
+                    newDetail.setAllocUnitName(PackUtil.PackUnit2Uom(packUnit,"EA"));
+                    detail.setAllocUnitQty(detail.getAllocQty().subtract(decimals[0]));
+                }
+            }
+
+
+            detail.setPickQty(detail.getPickQty().subtract(splitQty));
+            detail.setAllocQty(detail.getAllocQty().subtract(splitQty));
             detailDao.insert(newDetail);
         }
         detailDao.update(detail);
