@@ -412,7 +412,7 @@ public class TuService {
                 OutbDeliveryHeader header = new OutbDeliveryHeader();
                 header.setWarehouseId(0L);
                 header.setShippingAreaCode("" + waveDetail.getRealCollectLocation());
-                header.setWaveId(0L);
+                header.setWaveId(waveDetail.getWaveId());
                 header.setTransPlan(tuHead.getTuId());
                 header.setTransTime(new Date());
                 ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(waveDetail.getOrderId());
@@ -421,7 +421,7 @@ public class TuService {
                 }
                 header.setDeliveryCode(obdHeader.getDeliveryCode());
                 header.setDeliveryUser(tuHead.getLoadUid().toString());
-                header.setDeliveryType(1);
+                header.setDeliveryType(obdHeader.getOrderType());
                 header.setDeliveryTime(new Date());
                 header.setInserttime(new Date());
                 header.setOrderId(waveDetail.getOrderId());
