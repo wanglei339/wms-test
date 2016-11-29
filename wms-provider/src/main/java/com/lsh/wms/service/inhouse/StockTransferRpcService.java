@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.inhouse.IStockTransferRpcService;
 import com.lsh.wms.api.service.item.IItemRpcService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
@@ -80,7 +81,8 @@ public class StockTransferRpcService implements IStockTransferRpcService {
     @Reference
     private IStockQuantRpcService stockQuantService;
 
-
+    @Autowired
+    private ItemLocationService itemLocationService;
 
     @Autowired
     private TaskInfoDao taskInfoDao;
@@ -131,6 +133,25 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if(toLocation != null) {
             //检查移入库位
             core.checkToLocation(plan.getItemId(), toLocation);
+        }else{
+            /* 看是否要推荐一个库位,推荐策略 */
+            //退货区/反仓区/残次区,推荐捡货位
+            if(fromLocation.getRegionType() == LocationConstant.BACK_AREA
+                    || fromLocation.getRegionType() == LocationConstant.DEFECTIVE_AREA
+                    || fromLocation.getRegionType() == LocationConstant.MARKET_RETURN_AREA) {
+                List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationList(plan.getItemId());
+                if (itemLocations.size() > 0 ){
+                    //直接取第一个,虽然看起来不合理,但是似乎没有别的更好的办法.
+                    plan.setToLocationId(itemLocations.get(0).getPickLocationid());
+                }
+            }
+            //地堆区,类似于上架逻辑.
+            //或者是捡货位调整后的货架整理类移库,则复用上架逻辑
+            //但这里存在不少的问题,去重等问题没有得到有效处理,所以暂时实现不了.
+            if(fromLocation.getRegionType() == LocationConstant.FLOOR
+                    || false){
+                //god dammit;
+            }
         }
         /*
         if (toLocation.getCanStore() != 1) {
