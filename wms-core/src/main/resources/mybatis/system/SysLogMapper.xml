@@ -13,6 +13,7 @@
 		<result property="updatedAt" column="updated_at"/>
 		<result property="status" column="status"/>
 		<result property="step" column="step"/>
+		<result property="retryTimes" column="retry_times"/>
 		<result property="sysCode" column="sys_code"/>
 		<result property="sysMessage" column="sys_message"/>
 		<result property="businessId" column="business_id"/>
@@ -20,10 +21,10 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="SysLog">
 		insert into sys_log (
-			log_id,log_type,target_system,log_code,log_message,created_at,updated_at,status,step,sys_code,sys_message,business_id
+			log_id,log_type,target_system,log_code,log_message,created_at,updated_at,status,step,sys_code,sys_message,business_id,retry_times
     	) values (
 			#{logId},#{logType},#{targetSystem},#{logCode},#{logMessage},#{createdAt},#{updatedAt},#{status},#{step},
-			#{sysCode},#{sysMessage},#{businessId}
+			#{sysCode},#{sysMessage},#{businessId},#{retryTimes}
     	)
 	</insert>
 
@@ -40,6 +41,7 @@
 			<if test="sysMessage != null">sys_message=#{sysMessage},</if>
 			<if test="sysCode != null">sys_code=#{sysCode},</if>
 			<if test="businessId != null">business_id=#{businessId},</if>
+			<if test="retryTimes != null">retry_times=#{retryTimes},</if>
 			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
   			<if test="createdAt != null">created_at=#{createdAt}</if>
 		</set>
@@ -97,6 +99,7 @@
 			<if test="sysCode != null">and sys_code=#{sysCode}</if>
 			<if test="sysMessage != null">and sys_message=#{sysMessage}</if>
 			<if test="businessId != null">and business_id=#{businessId}</if>
+			<if test="retryTimes != null">and retry_times=#{retryTimes}</if>
 			<if test="status != null">and status=#{status}</if>
 			<if test="step != null">and step=#{step}</if>
 		</where>
