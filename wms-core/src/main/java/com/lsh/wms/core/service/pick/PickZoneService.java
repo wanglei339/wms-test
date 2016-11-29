@@ -3,6 +3,7 @@ package com.lsh.wms.core.service.pick;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.pick.PickZoneDao;
+import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.pick.PickZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +26,12 @@ public class PickZoneService {
 
     @Autowired
     PickZoneDao zoneDao;
+    @Autowired
+    private IdGenerator idGenerator;
+
     @Transactional(readOnly = false)
     public int insertPickZone(PickZone zone){
-        zone.setPickZoneId(RandomUtils.genId());
+        zone.setPickZoneId(idGenerator.genId("pick_zone", false, false));
         zone.setCreatedAt(DateUtils.getCurrentSeconds());
         zone.setUpdatedAt(DateUtils.getCurrentSeconds());
         logger.info("zone pickType "+zone.getPickType());

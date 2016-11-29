@@ -5,6 +5,7 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.csi.CsiOwnerDao;
 import com.lsh.wms.core.dao.csi.CsiSupplierDao;
+import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.csi.CsiOwner;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.csi.CsiSupplier;
@@ -30,6 +31,8 @@ public class CsiSupplierService {
     private static final Logger logger = LoggerFactory.getLogger(CsiSupplierService.class);
     @Autowired
     private CsiSupplierDao supplierDao;
+    @Autowired
+    private IdGenerator idGenerator;
 
     public CsiSupplier getSupplier(long iSupplierId) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
@@ -57,7 +60,7 @@ public class CsiSupplierService {
     @Transactional(readOnly = false)
     public void insertSupplier(CsiSupplier supplier) {
         //gen supplier_id
-        long iSupplierId = RandomUtils.genId();
+        long iSupplierId = idGenerator.genId("csi_supplier", false, false);
         supplier.setSupplierId(iSupplierId);
         //新增时间
         supplier.setCreatedAt(DateUtils.getCurrentSeconds());
