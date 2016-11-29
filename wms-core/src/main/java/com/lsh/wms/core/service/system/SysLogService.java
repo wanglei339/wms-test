@@ -38,6 +38,7 @@ public class SysLogService {
 
     @Transactional(readOnly = false)
     public void updateSysLog(SysLog sysLog) {
+        sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
         sysLog.setUpdatedAt(DateUtils.getCurrentSeconds());
         sysLogDao.update(sysLog);
     }
