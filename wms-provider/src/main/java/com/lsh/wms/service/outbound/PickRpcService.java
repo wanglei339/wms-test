@@ -97,17 +97,18 @@ public class PickRpcService implements IPCPickRpcService {
         }
         //结果map展示
         //head头
+        Map<String, Object> headMap = new HashMap<String, Object>();
+        //结果集
+        Map<String, Object> result = new HashMap<String, Object>();
+
         if (goodList.isEmpty()) {
-            Map<String, Object> headMap = new HashMap<String, Object>();
-            Map<String,Object> result = new HashMap<String, Object>();
-            result.put("headInfo",headMap);
-            result.put("goodList",goodList);
+            result.put("headInfo", headMap);
+            result.put("goodList", goodList);
             return result;
         }
-        Map<String, Object> headMap = new HashMap<String, Object>();
-        //时间
-        headMap.put("printTime",DateUtils.getCurrentSeconds());
 
+        //时间
+        headMap.put("printTime", DateUtils.getCurrentSeconds());
         BaseinfoLocationWarehouse warehouse = (BaseinfoLocationWarehouse) warehouseService.getBaseinfoItemLocationModelById(0L);
         //供货方
         headMap.put("warehouseName", warehouse.getWarehouseName());
@@ -117,9 +118,8 @@ public class PickRpcService implements IPCPickRpcService {
         headMap.put("customer", goodList.get(0).get("customer"));
 
         //结果map
-        Map<String,Object> result = new HashMap<String, Object>();
-        result.put("headInfo",headMap);
-        result.put("goodList",goodList);
+        result.put("headInfo", headMap);
+        result.put("goodList", goodList);
         return result;
     }
 }
