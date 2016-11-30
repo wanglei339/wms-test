@@ -58,7 +58,7 @@ public class QCTaskHandler extends AbsTaskHandler {
         List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(containerId);
         if (null == waveDetails || waveDetails.size() < 1) {
             logger.info(" WARNING THIS container "+containerId +" has no wave_deatil ");
-            return;
+            throw new BizCheckedException("2880012");
         }
         //同一托盘多商品,多收货任务,一个qc任务,之前生成的qc任务更新
         Long preQcTaskId = waveDetails.get(0).getQcTaskId();
@@ -89,26 +89,22 @@ public class QCTaskHandler extends AbsTaskHandler {
         }
 
 
-        List<WaveDetail> details = waveService.getDetailsByContainerId(containerId);
-        if (details.size() == 0) {
-            return;
-        }
         TaskInfo info = new TaskInfo();
         info.setType(TaskConstant.TYPE_QC);
         info.setContainerId(containerId);
         // todo setEXt1字段设置的是QC的上一个任务,这里可以是 pickTaskId 和 直流集货任务id 等等
         info.setQcPreviousTaskId(pickEntry.getTaskInfo().getTaskId());
-        info.setOrderId(details.get(0).getOrderId());
+        info.setOrderId(waveDetails.get(0).getOrderId());
         info.setBusinessMode(pickEntry.getTaskInfo().getBusinessMode());
         Set<Long> setItem = new HashSet<Long>();
-        for (WaveDetail detail : details) {
+        for (WaveDetail detail : waveDetails) {
             setItem.add(detail.getItemId());
         }
         //查库存,找locationId
         List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(containerId);
         if (null == stockQuants || stockQuants.size() < 1) {
             logger.info(" WARNING THIS container "+containerId +" has no stockQuant ");
-            return;
+            throw new BizCheckedException("2550052");
         }
         //设置当前的托盘位置
         Long locationId = stockQuants.get(0).getLocationId();
@@ -117,14 +113,14 @@ public class QCTaskHandler extends AbsTaskHandler {
 
         info.setSubType(pickEntry.getTaskInfo().getBusinessMode());  //沿用上面的直流还是在库
         info.setQty(new BigDecimal(setItem.size()));    //创建QC任务不设定QC需要的QC数量,而是实际输出来的数量和上面的任务操作数量比对
-        info.setWaveId(details.get(0).getWaveId());
+        info.setWaveId(waveDetails.get(0).getWaveId());
         info.setPlanId(info.getPlanId());
         //如果收货任务的大店收货任务才生成QC,大店收货可以跳过QC,task_info的qc_skip置为1,大店收货收到集货道
         if (pickEntry.getTaskInfo().getType() == TaskConstant.TYPE_PO) {
             info.setQcSkip(TaskConstant.QC_SKIP);
         }
         TaskEntry taskEntry = new TaskEntry();
-        taskEntry.setTaskDetailList((List<Object>) (List<?>) details);
+        taskEntry.setTaskDetailList((List<Object>) (List<?>) waveDetails);
         taskEntry.setTaskInfo(info);
         this.create(taskEntry);
     }

@@ -156,7 +156,7 @@ public class LocationConstant {
 
 
 
-    public static final Map<Long, String> LOCATION_TYPE_NAME = new HashMap<Long, String>() {
+    public final static  Map<Long, String> LOCATION_TYPE_NAME = new HashMap<Long, String>() {
         {
             put(1L, "仓库");
             put(2L, "大区");
