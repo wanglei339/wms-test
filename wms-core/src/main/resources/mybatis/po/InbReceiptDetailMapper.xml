@@ -102,6 +102,7 @@
 	<select id="getInbReceiptDetailList" parameterType="map" resultMap="inbReceiptDetailResultMap">
 		select * from INB_RECEIPT_DETAIL
 		<include refid="queryCondition"/>
+		ORDER BY  inserttime DESC
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
 		</if>

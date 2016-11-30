@@ -45,25 +45,27 @@ public class ContainerService {
         BaseinfoContainer container;
         params.put("containerId", containerId);
         List<BaseinfoContainer> containers = containerDao.getBaseinfoContainerList(params);
-        if (containers!=null && containers.size() == 1) {
+        if (containers != null && containers.size() == 1) {
             container = containers.get(0);
         } else {
             return null;
         }
         return container;
     }
+
     public BaseinfoContainer getContainerByCode(String containerCode) {
         Map<String, Object> params = new HashMap<String, Object>();
         BaseinfoContainer container;
         params.put("containerCode", containerCode);
         List<BaseinfoContainer> containers = containerDao.getBaseinfoContainerList(params);
-        if (containers!=null && containers.size() == 1) {
+        if (containers != null && containers.size() == 1) {
             container = containers.get(0);
         } else {
             return null;
         }
         return container;
     }
+
     @Transactional(readOnly = false)
     public void insertContainer(BaseinfoContainer container) {
         containerDao.insert(container);
@@ -82,7 +84,7 @@ public class ContainerService {
         }
 
         BaseinfoContainer container = BeanMapTransUtils.map2Bean(config, BaseinfoContainer.class);
-        container.setContainerId(idGenerator.genId("containerCode",false,true));
+        container.setContainerId(idGenerator.genId("containerCode", false, true));
         container.setContainerCode(container.getContainerId().toString());
         container.setCreatedAt(DateUtils.getCurrentSeconds());
         container.setUpdatedAt(DateUtils.getCurrentSeconds());
@@ -127,7 +129,7 @@ public class ContainerService {
         Map<String, Object> condition = new HashMap<String, Object>();
         condition.put("locationId", locationId);
         List<StockQuant> quantList = stockQuantService.getQuants(condition);
-        return (quantList == null || quantList.isEmpty()) ? 0L : quantList.get(0).getContainerId();
+        return (quantList == null || quantList.isEmpty()) ? null : quantList.get(0).getContainerId();
     }
 }
 
