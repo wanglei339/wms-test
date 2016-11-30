@@ -17,7 +17,6 @@ import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.rpc.service.pick.PickRpcService;
-import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,7 +104,7 @@ public class LocationRestService implements ILocationRestService {
     @GET
     @Path("getinventoryLostLocationId")
     public String getInventoryLostLocationId() {
-        Long locationId = locationService.getInventoryLostLocationId();
+        Long locationId = locationService.getInventoryLostLocation().getLocationId();
         return JsonUtils.SUCCESS(locationId);
     }
 

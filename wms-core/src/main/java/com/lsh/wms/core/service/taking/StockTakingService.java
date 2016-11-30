@@ -154,7 +154,7 @@ public class StockTakingService {
 
                     move.setQty(qty);
                     move.setFromLocationId(detail.getLocationId());
-                    move.setToLocationId(locationService.getInventoryLostLocationId());
+                    move.setToLocationId(locationService.getInventoryLostLocation().getLocationId());
                     move.setToContainerId(containerId);
                     //组装回传物美的数据
 
@@ -166,7 +166,7 @@ public class StockTakingService {
                     StockLot lot = lotService.getStockLotByLotId(detail.getLotId());
                     move.setLot(lot);
                     move.setQty(qty);
-                    move.setFromLocationId(locationService.getInventoryLostLocationId());
+                    move.setFromLocationId(locationService.getInventoryLostLocation().getLocationId());
                     move.setToLocationId(detail.getLocationId());
                     move.setToContainerId(detail.getContainerId());
                 }
@@ -176,7 +176,7 @@ public class StockTakingService {
                 StockMove moveWin = new StockMove();
                 moveWin.setTaskId(detail.getTakingId());
                 moveWin.setSkuId(detail.getSkuId());
-                moveWin.setToLocationId(locationService.getInventoryLostLocationId());
+                moveWin.setToLocationId(locationService.getInventoryLostLocation().getLocationId());
                 moveWin.setFromLocationId(detail.getLocationId());
                 moveWin.setQty(detail.getRealQty());
                 moveList.add(moveWin);
@@ -184,7 +184,7 @@ public class StockTakingService {
                 StockMove moveLoss = new StockMove();
                 moveLoss.setTaskId(detail.getTakingId());
                 moveLoss.setSkuId(detail.getSkuId());
-                moveLoss.setFromLocationId(locationService.getInventoryLostLocationId());
+                moveLoss.setFromLocationId(locationService.getInventoryLostLocation().getLocationId());
                 moveLoss.setToLocationId(detail.getLocationId());
                 moveLoss.setQty(detail.getRealQty());
                 moveList.add(moveLoss);
@@ -366,7 +366,7 @@ public class StockTakingService {
 
         try {
             this.insertLossOrOver(overLossReport);
-            Long locationId = locationService.getInventoryLostLocationId();
+            Long locationId = locationService.getInventoryLostLocation().getLocationId();
             //移到盘亏盘盈区
             moveService.move(move);
 //            stockMoveService.move(move);
