@@ -133,10 +133,17 @@ public class ReceiveRestService implements IReceiveRestService{
         return JsonUtils.SUCCESS();
     }
 
-    @GET
+    @POST
     @Path("updateQty")
-        public String updateQty(@QueryParam("receiveId") Long receiveId, @QueryParam("detailOtherId") String detailOtherId, @QueryParam("qty")BigDecimal qty) throws BizCheckedException {
-        receiveRpcService.updateQty(receiveId,detailOtherId,qty);
+    public String updateQty() throws BizCheckedException {
+        Map<String, Object> request = RequestUtils.getRequest();
+        Long uid = Long.valueOf(request.get("uid").toString());
+        Long receiveId = (Long) request.get("receiveId");
+        String detailOtherId = (String) request.get("detailOtherId");
+        String qty = request.get("qty").toString();
+        BigDecimal realQty = new BigDecimal(qty);
+
+        receiveRpcService.updateQty(receiveId,detailOtherId,realQty,uid);
         return JsonUtils.SUCCESS();
     }
 }
