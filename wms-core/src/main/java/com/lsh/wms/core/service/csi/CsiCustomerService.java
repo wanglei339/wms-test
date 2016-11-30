@@ -132,7 +132,7 @@ public class CsiCustomerService {
      * @param customerIds  id集合
      * @return  结果集合
      */
-    public List<CsiCustomer> ParseCustomerIds2Customers(String customerIds) throws BizCheckedException{
+    public List<CsiCustomer> parseCustomerIds2Customers(String customerIds) throws BizCheckedException{
         //json的拆分
         List<Map<String,Object>> customerIdsMapList = JsonUtils.json2Obj(customerIds,List.class);
         List<CsiCustomer> customerList = new ArrayList<CsiCustomer>();

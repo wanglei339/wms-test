@@ -192,7 +192,7 @@ public class StockTakingService {
         }
         try {
             this.insertLossOrOver(overLossReports);
-            moveService.move(moveList, stockTakingId);
+            moveService.move(moveList);
             for (StockMove move : moveList) {
                 StockDelta delta = new StockDelta();
                 delta.setItemId(move.getItemId());
