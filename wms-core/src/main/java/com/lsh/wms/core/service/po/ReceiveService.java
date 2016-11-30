@@ -199,7 +199,7 @@ public class ReceiveService {
     }
 
     @Transactional(readOnly = false)
-    public void updateQty(ReceiveDetail receiveDetail, IbdDetail ibdDetail, List<InbReceiptDetail> updateReceiptDetails){
+    public void updateQty(ReceiveDetail receiveDetail, IbdDetail ibdDetail, List<InbReceiptDetail> updateReceiptDetails,List<InbReceiptDetail> addReceiptDetails){
         receiveDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
         logger.info("~~~~~~~~~~~~~~~~~~~1111111 receiveDetail : " + JSON.toJSONString(receiveDetail));
         receiveDetailDao.update(receiveDetail);
@@ -210,6 +210,8 @@ public class ReceiveService {
             inbReceiptDetail.setUpdatetime(new Date());
             inbReceiptDetailDao.update(inbReceiptDetail);
         }
+        //重新生成receiptDetail
+        inbReceiptDetailDao.batchInsert(addReceiptDetails);
     }
 
 
