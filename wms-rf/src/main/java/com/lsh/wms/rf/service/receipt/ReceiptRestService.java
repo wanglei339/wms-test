@@ -438,9 +438,21 @@ public class ReceiptRestService implements IReceiptRfService {
         Map<String, Object> orderInfoMap = new HashMap<String, Object>();
         orderInfoMap.put("skuName", ibdDetail.getSkuName());
         //orderInfoMap.put("packName", "H01");
-        orderInfoMap.put("packName", ibdDetail.getPackName());
-        BigDecimal orderQty = ibdDetail.getOrderQty().subtract(ibdDetail.getInboundQty().divide(ibdDetail.getPackUnit()));
-        orderInfoMap.put("orderQty", orderQty);// todo 剩余待收货数
+        //orderInfoMap.put("packName", ibdDetail.getPackName());
+
+        //剩余数量。
+        //判断是否为整箱
+        BigDecimal inboundQty = ibdDetail.getInboundQty();
+        if(inboundQty.divideAndRemainder(ibdDetail.getPackUnit())[1].compareTo(BigDecimal.ZERO) == 0) {
+            orderInfoMap.put("orderQty",ibdDetail.getOrderQty().subtract(ibdDetail.getInboundQty().divide(ibdDetail.getPackUnit())));
+            orderInfoMap.put("packName",ibdDetail.getPackName());
+        }else{
+            orderInfoMap.put("orderQty",PackUtil.UomQty2EAQty(ibdDetail.getOrderQty(),ibdDetail.getPackUnit()).subtract(inboundQty));
+            orderInfoMap.put("packName","EA");
+        }
+
+//        BigDecimal orderQty = ibdDetail.getOrderQty().subtract(ibdDetail.getInboundQty().divide(ibdDetail.getPackUnit()));
+//        orderInfoMap.put("orderQty", orderQty);
         orderInfoMap.put("batchNeeded", baseinfoItem.getBatchNeeded());
         //码盘规则
         orderInfoMap.put("pile",baseinfoItem.getPileX()+ "*" + baseinfoItem.getPileY() + "*" + baseinfoItem.getPileZ());

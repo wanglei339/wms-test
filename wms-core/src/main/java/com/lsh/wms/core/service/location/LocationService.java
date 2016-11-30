@@ -683,6 +683,23 @@ public class LocationService {
 
         return locationDao.getBaseinfoLocationList(mapQuery);
     }
+    /**
+     * PC展示查找位置,通过code排序
+     *
+     * @param mapQuery
+     * @return
+     */
+    public List<BaseinfoLocation> getBaseinfoLocationListPC(Map<String, Object> mapQuery) {
+        mapQuery.put("isValid", LocationConstant.IS_VALID);
+        //locationCode
+        String locationCode = (String) mapQuery.get("locationCode");
+        if (locationCode != null) {
+            locationCode = locationCode + "%";
+            mapQuery.put("locationCode", locationCode);
+        }
+
+        return locationDao.getBaseinfoLocationListPC(mapQuery);
+    }
 
     /**
      * 根据货架的拣货位获取货架的最近存货位
