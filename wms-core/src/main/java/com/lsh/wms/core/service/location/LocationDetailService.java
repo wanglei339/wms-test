@@ -379,7 +379,7 @@ public class LocationDetailService {
     }
 
     /**
-     * 根据前端map返回Location的detail信息
+     * 根据PC前端map返回Location的detail信息
      *
      * @param params 传入的是getList的map参数集合
      * @return locationDetail的model
@@ -388,7 +388,7 @@ public class LocationDetailService {
         ///////////////////////////////////////////
         //如果传入的参数只有locationId,那么,先查主表,再查子表,此处先查主表
         //1.先查主表
-        List<BaseinfoLocation> baseinfoLocationList = locationService.getBaseinfoLocationList(params);
+        List<BaseinfoLocation> baseinfoLocationList = locationService.getBaseinfoLocationListPC(params);
         if (baseinfoLocationList.size() > 0) {
             List<BaseinfoLocation> subList = new ArrayList<BaseinfoLocation>();
             //从结果集中去子类的表中去查,并处理结果集
