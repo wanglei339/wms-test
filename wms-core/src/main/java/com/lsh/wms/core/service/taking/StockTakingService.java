@@ -131,6 +131,11 @@ public class StockTakingService {
             OverLossReport overLossReport = new OverLossReport();
             //StockItem stockItem = new StockItem();
             if (detail.getSkuId().equals(detail.getRealSkuId())) {
+
+                if(detail.getTheoreticalQty().compareTo(detail.getRealQty())==0){
+                    continue;
+                }
+
                 Long containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
                 StockMove move = new StockMove();
                 move.setTaskId(detail.getTaskId());
