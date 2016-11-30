@@ -100,14 +100,14 @@ public class QCTaskHandler extends AbsTaskHandler {
         for (WaveDetail detail : waveDetails) {
             setItem.add(detail.getItemId());
         }
-        //查库存,找locationId
-        List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(containerId);
-        if (null == stockQuants || stockQuants.size() < 1) {
-            logger.info(" WARNING THIS container "+containerId +" has no stockQuant ");
-            throw new BizCheckedException("2550052");
-        }
+
+//        List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(containerId);
+//        if (null == stockQuants || stockQuants.size() < 1) {
+//            logger.info(" WARNING THIS container "+containerId +" has no stockQuant ");
+//            throw new BizCheckedException("2550052");
+//        }
         //设置当前的托盘位置
-        Long locationId = stockQuants.get(0).getLocationId();
+        Long locationId = waveDetails.get(0).getAllocCollectLocation();
         logger.info(String.format("create qc container %d location %d", containerId, locationId));
         info.setLocationId(locationId);
 
