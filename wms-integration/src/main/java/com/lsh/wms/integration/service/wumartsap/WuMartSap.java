@@ -211,7 +211,7 @@ public class WuMartSap implements IWuMartSap{
         // TODO: 2016/11/21 依据返回值判断是否创建成功
 
 
-        Map<String,Object> map = new HashMap<String, Object>();
+        //Map<String,Object> map = new HashMap<String, Object>();
 
         if(newReturn.getItem() == null && newReturn.getItem().size() <=0){
             return null;
