@@ -447,6 +447,8 @@ public class QCRestService implements IRFQCRestService {
             for (WaveDetail detail : details) {
                 detail.setQcExceptionDone(1L);  // 正常不需要处理
                 detail.setQcQty(detail.getPickQty()); //先默认qc数量是正常的
+                detail.setQcTimes(WaveConstant.QC_TIMES_MORE);
+
                 waveService.updateDetail(detail);
             }
         }
