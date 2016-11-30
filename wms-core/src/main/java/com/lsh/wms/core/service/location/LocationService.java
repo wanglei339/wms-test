@@ -7,7 +7,9 @@ import com.lsh.base.q.Module.Base;
 import com.lsh.wms.api.model.location.LocationDetailRequest;
 import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoLocationDao;
+import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.baseinfo.IBaseinfoLocaltionModel;
 import com.lsh.wms.model.stock.StockQuant;
@@ -35,6 +37,8 @@ public class LocationService {
     private LocationDetailService locationDetailService;
     @Autowired
     private LocationRedisService locationRedisService;
+    @Autowired
+    private ItemLocationService itemLocationService;
 
 
     /**
@@ -1279,7 +1283,15 @@ public class LocationService {
             detailRequest.setLocationCode(location.getLocationCode());
             location.setLocationCode(location.getLocationCode() + "X"); // 为避免code重复占位用
             this.updateLocation(location);
-            locationDetailService.insert(detailRequest);
+            BaseinfoLocation splitLocation = locationDetailService.insert(detailRequest);
+            // 更新被拆分后的商品拣货位配置为同code的拣货位
+            List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(location.getLocationId());
+            if (itemLocations != null && itemLocations.size() > 0) {
+                for (BaseinfoItemLocation itemLocation: itemLocations) {
+                    itemLocation.setPickLocationid(splitLocation.getLocationId());
+                    itemLocationService.updateItemLocation(itemLocation);
+                }
+            }
         }
         detailRequest.setLocationCode(locationCode);
         BaseinfoLocation newLocation = locationDetailService.insert(detailRequest);

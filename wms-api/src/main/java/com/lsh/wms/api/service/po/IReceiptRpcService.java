@@ -31,11 +31,10 @@ public interface IReceiptRpcService {
     public InbReceiptHeader getPoReceiptDetailByReceiptId(Long receiptId) throws BizCheckedException;
 
     public List<InbReceiptHeader> getPoReceiptDetailByOrderId(Long orderId) throws BizCheckedException;
-    List<InbReceiptHeader> getInbReceiptDetailList(Map<String,Object> param) throws BizCheckedException;
 
     public Integer countInbPoReceiptHeader(Map<String, Object> params);
 
-    public List<InbReceiptHeader> getPoReceiptDetailList(Map<String, Object> params);
+    public List<InbReceiptHeader> getInbReceiptHeaderList(Map<String, Object> params);
 
     void insertReceipt(Long orderId,Long staffId) throws BizCheckedException, ParseException;
 
@@ -44,4 +43,11 @@ public interface IReceiptRpcService {
     public List<InbReceiptDetail> getInbReceiptDetailListByOrderId(Long orderId);
     //验证生产日期
     boolean checkProTime(BaseinfoItem baseinfoItem, Date proTime,Date dueTime, String exceptionCode)throws BizCheckedException;
+
+    List<InbReceiptHeader> getInbReceiptHeaderDetailList(Map<String,Object> param) throws BizCheckedException;
+
+    List<InbReceiptDetail> getInbReceiptDetailList(Map<String,Object> param) throws BizCheckedException;
+
+    Integer countInbPoReceiptDetail(Map<String, Object> params);
+
 }

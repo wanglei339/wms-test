@@ -31,13 +31,20 @@ public interface IReceiptRestService {
 
     public String getPoReceiptDetailByOrderId(Long orderId) throws BizCheckedException;
 
-    String getInbReceiptDetailList(Map<String,Object> param) throws BizCheckedException;
-
     public String countInbPoReceiptHeader();
 
     public String getPoReceiptDetailList();
     String insertReceipt(Long orderId,Long staffId) throws BizCheckedException, ParseException;
 
     String getCpoReceiptDetailByOrderId(Long orderId) throws BizCheckedException;
+
+    String getInbReceiptHeaderDetailList() throws BizCheckedException;
+
+    String getInbReceiptHeaderList() throws BizCheckedException;
+
+    String getInbReceiptDetailList() throws BizCheckedException;
+
+    String countInbPoReceiptDetail();
+
 
 }
