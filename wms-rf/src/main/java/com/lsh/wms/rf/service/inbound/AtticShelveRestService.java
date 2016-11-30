@@ -337,10 +337,6 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
                 return JsonUtils.TOKEN_ERROR("提供扫描库位类型不符");
             }
 
-
-            if(detail ==null){
-                return JsonUtils.TOKEN_ERROR("系统库位参数错误");
-            }
             detail.setRealQty(realQty.multiply(quant.getPackUnit()));
             detail.setRealLocationId(realLocationId);
             detail.setShelveAt(DateUtils.getCurrentSeconds());
