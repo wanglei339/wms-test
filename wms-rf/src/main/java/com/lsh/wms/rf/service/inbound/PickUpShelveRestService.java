@@ -291,6 +291,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         Long realLocationId = 0L;
         String realLocationCode ="";
         BigDecimal realQty = BigDecimal.ZERO;
+        logger.info("params:"+mapQuery);
         try {
             taskId= Long.valueOf(mapQuery.get("taskId").toString().trim());
             realLocationCode = mapQuery.get("realLocationCode").toString().trim();
