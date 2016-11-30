@@ -53,7 +53,7 @@ public class InventoryTransporter implements ITransporter{
             list.add(item);
             request.setMoveType(String.valueOf(IntegrationConstan.WIN));
             request.setItems(list);
-            dataBackService.wmDataBackByPost(JSON.toJSONString(request),IntegrationConstan.URL_STOCKCHANGE,SysLogConstant.LOG_TYPE_LOSS_WIN,sysLog);
+            dataBackService.wmDataBackByPost(JSON.toJSONString(request),PropertyUtils.getString("url_stockchange"),SysLogConstant.LOG_TYPE_LOSS_WIN,sysLog);
         }
 
     }
