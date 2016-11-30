@@ -123,4 +123,10 @@ public class TaskRestService implements ITaskRestService {
 //        messageService.sendMessage(msg);
         return JsonUtils.SUCCESS();
     }
+
+    @GET
+    @Path("getTaskInfo")
+    public String getTaskInfo(@QueryParam("taskId") long taskId) throws BizCheckedException{
+        return JsonUtils.SUCCESS(taskRpcService.getTaskInfo(taskId));
+    }
 }
