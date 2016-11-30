@@ -16,6 +16,7 @@ import com.lsh.wms.model.po.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -68,7 +69,7 @@ public class ReceiveRpcService implements IReceiveRpcService{
     }
 
 
-    public void updateQty(Long receiveId, String detailOtherId, BigDecimal qty) throws BizCheckedException {
+    public void updateQty(Long receiveId, String detailOtherId, BigDecimal qty,Long uid) throws BizCheckedException {
 
         //获取receiveHeader
         ReceiveHeader receiveHeader = receiveService.getReceiveHeaderByReceiveId(receiveId);
@@ -87,18 +88,33 @@ public class ReceiveRpcService implements IReceiveRpcService{
         ibdDetail.setInboundQty(ibdDetail.getInboundQty().subtract(subQty));
 
         List<InbReceiptDetail> receiptDetails = receiptService.getInbReceiptDetailListByOrderIdAndCode(receiveHeader.getOrderId(),receiveDetail.getCode());
-        InbReceiptDetail inbReceiptDetail = new InbReceiptDetail();
+        List<InbReceiptDetail> updateReceiptDetails = new ArrayList<InbReceiptDetail>();
+
         for(InbReceiptDetail detail : receiptDetails){
+            InbReceiptDetail inbReceiptDetail = new InbReceiptDetail();
             BigDecimal receiptQty = detail.getInboundQty();
-            if(detail.getInboundQty().subtract(subQty).compareTo(BigDecimal.ZERO) < 0 ){
-                continue;
+            BigDecimal sourceQty = detail.getInboundQty();
+            if(sourceQty.subtract(subQty).compareTo(BigDecimal.ZERO) < 0 ){
+                detail.setInboundQty(BigDecimal.ZERO);
+                ObjUtils.bean2bean(detail,inbReceiptDetail);
+                subQty = subQty.subtract(sourceQty);
+                updateReceiptDetails.add(inbReceiptDetail);
             }else{
                 detail.setInboundQty(receiptQty.subtract(subQty));
                 ObjUtils.bean2bean(detail,inbReceiptDetail);
+                updateReceiptDetails.add(inbReceiptDetail);
                 break;
             }
+//            if(detail.getInboundQty().subtract(subQty).compareTo(BigDecimal.ZERO) < 0 ){
+//                continue;
+//            }else{
+//                detail.setInboundQty(receiptQty.subtract(subQty));
+//                ObjUtils.bean2bean(detail,inbReceiptDetail);
+//                break;
+//            }
         }
-        receiveService.updateQty(receiveDetail,ibdDetail,inbReceiptDetail);
+
+        receiveService.updateQty(receiveDetail,ibdDetail,updateReceiptDetails);
 
     }
 

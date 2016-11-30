@@ -21,5 +21,5 @@ public interface IReceiveRpcService {
 
     void accountBack(Long receiveId,String detailOtherId) throws BizCheckedException;
 
-    void updateQty(Long receiveId,String detailOtherId,BigDecimal qty) throws BizCheckedException;
+    void updateQty(Long receiveId,String detailOtherId,BigDecimal qty,Long uid) throws BizCheckedException;
 }

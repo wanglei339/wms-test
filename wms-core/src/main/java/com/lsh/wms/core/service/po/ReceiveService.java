@@ -199,18 +199,17 @@ public class ReceiveService {
     }
 
     @Transactional(readOnly = false)
-    public void updateQty(ReceiveDetail receiveDetail, IbdDetail ibdDetail, InbReceiptDetail inbReceiptDetail){
+    public void updateQty(ReceiveDetail receiveDetail, IbdDetail ibdDetail, List<InbReceiptDetail> updateReceiptDetails){
         receiveDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
         logger.info("~~~~~~~~~~~~~~~~~~~1111111 receiveDetail : " + JSON.toJSONString(receiveDetail));
         receiveDetailDao.update(receiveDetail);
         ibdDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
         logger.info("~~~~~~~~~~~~~~~~~~~~2222222 ibdDetail :" + JSON.toJSONString(ibdDetail));
         ibdDetailDao.update(ibdDetail);
-        inbReceiptDetail.setUpdatetime(new Date());
-
-        logger.info("~~~~~~~~~~~~~~~~~~~~333333 inbReceiptDetail : " + JSON.toJSONString(inbReceiptDetail));
-        inbReceiptDetailDao.update(inbReceiptDetail);
-
+        for (InbReceiptDetail inbReceiptDetail : updateReceiptDetails){
+            inbReceiptDetail.setUpdatetime(new Date());
+            inbReceiptDetailDao.update(inbReceiptDetail);
+        }
     }
 
 
