@@ -106,7 +106,7 @@ public class StockMoveService {
         for (StockQuant quant : quantList) {
             StockMove move = new StockMove();
             move.setTaskId(taskId);
-            move.setFromLocationId(fromLocationId);
+            move.setFromLocationId(quant.getLocationId());
             move.setToLocationId(toLocationId);
             move.setFromContainerId(fromContainerId);
             move.setToContainerId(toContainerId);
