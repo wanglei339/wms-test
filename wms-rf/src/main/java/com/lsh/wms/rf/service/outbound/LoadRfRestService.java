@@ -17,7 +17,6 @@ import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
-import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
@@ -129,7 +128,7 @@ public class LoadRfRestService implements ILoadRfRestService {
             one.put("driverName", headList.get(i).getName());   //预装板数
             //门店信息
             //List<map<"code":,"name">>
-            List<CsiCustomer> storeList = csiCustomerService.ParseCustomerIds2Customers(headList.get(i).getStoreIds());
+            List<CsiCustomer> storeList = csiCustomerService.parseCustomerIds2Customers(headList.get(i).getStoreIds());
             one.put("stores", storeList);
             resultList.add(one);
         }
@@ -159,7 +158,7 @@ public class LoadRfRestService implements ILoadRfRestService {
             iTuRpcService.changeTuHeadStatus(tuHead, TuConstant.IN_LOADING);    //改成装车中
         }
         //门店信息
-        List<CsiCustomer> stores = csiCustomerService.ParseCustomerIds2Customers(tuHead.getStoreIds()); //少用map不易解读
+        List<CsiCustomer> stores = csiCustomerService.parseCustomerIds2Customers(tuHead.getStoreIds()); //少用map不易解读
         //rf结果
         Map<String, Object> resultMap = new HashMap<String, Object>();
         //大门店还是小门店
@@ -457,7 +456,7 @@ public class LoadRfRestService implements ILoadRfRestService {
         Map<String, Object> mapRequest = RequestUtils.getRequest();
         String tuId = mapRequest.get("tuId").toString();
         TuHead tuHead = iTuRpcService.getHeadByTuId(tuId);
-        List<CsiCustomer> stores = csiCustomerService.ParseCustomerIds2Customers(tuHead.getStoreIds()); //少用map不易解读
+        List<CsiCustomer> stores = csiCustomerService.parseCustomerIds2Customers(tuHead.getStoreIds()); //少用map不易解读
         //获取该门店的所有贵品 结果集封装 key是containerId
         Map<Long, Map<String, Object>> expensiveInfoMap = new HashMap<Long, Map<String, Object>>();
         //托盘没装车的过滤

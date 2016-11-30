@@ -683,6 +683,7 @@ public class LocationService {
 
         return locationDao.getBaseinfoLocationList(mapQuery);
     }
+
     /**
      * PC展示查找位置,通过code排序
      *
@@ -765,10 +766,10 @@ public class LocationService {
             minDistanceMap.put("location", location);
             minDistanceMap.put("distance", minDistance);
             for (Map<String, Object> distanceMap : storeBinDistanceList) {
-                if ((Long.valueOf(((Long) distanceMap.get("distance")).toString()).equals(Long.valueOf(((Long) minDistanceMap.get("distance")).toString()))) && (this.getShelfByLocationId(((BaseinfoLocation) distanceMap.get("location")).getLocationId())).getLocationId().equals(shelfLocationSelf.getLocationId())) {
+                if ((Long.parseLong(((Long) distanceMap.get("distance")).toString()) == (Long.parseLong(((Long) minDistanceMap.get("distance")).toString()))) && (this.getShelfByLocationId(((BaseinfoLocation) distanceMap.get("location")).getLocationId())).getLocationId().equals(shelfLocationSelf.getLocationId())) {
                     //位置相同,同货架优先,同货架位置相同,给一个就行
                     minDistanceMap = distanceMap;
-                } else if (Long.valueOf(((Long) distanceMap.get("distance")).toString()) < Long.valueOf(((Long) minDistanceMap.get("distance")).toString())) {
+                } else if (Long.parseLong(((Long) distanceMap.get("distance")).toString()) < Long.parseLong(((Long) minDistanceMap.get("distance")).toString())) {
                     minDistanceMap = distanceMap;
                 }
             }
@@ -909,10 +910,10 @@ public class LocationService {
     public BaseinfoLocation lockLocation(Long locationId) {
         BaseinfoLocation location = this.getLocation(locationId);
         //表加行锁
-        locationDao.lock(location.getId());
         if (location == null) {
             throw new BizCheckedException("2180001");
         }
+        locationDao.lock(location.getId());
         location.setIsLocked(LocationConstant.IS_LOCKED);    //上锁
         this.updateLocation(location);
         return location;
@@ -928,10 +929,10 @@ public class LocationService {
     public BaseinfoLocation unlockLocation(Long locationId) {
         BaseinfoLocation location = this.getLocation(locationId);
         //表加行锁
-        locationDao.lock(location.getId());
         if (location == null) {
             throw new BizCheckedException("2180001");
         }
+        locationDao.lock(location.getId());
         location.setIsLocked(LocationConstant.UNLOCK);    //解锁
         this.updateLocation(location);
         return location;
@@ -1265,7 +1266,7 @@ public class LocationService {
         if (stockQuants.size() > 0) {
             throw new BizCheckedException("2180032");
         }
-        BaseinfoLocation newLocation = new BaseinfoLocation();
+//        BaseinfoLocation newLocation = new BaseinfoLocation();
         BaseinfoLocation fatherLocation = this.getFatherLocation(location.getLocationId());
         LocationDetailRequest detailRequest = new LocationDetailRequest();
         ObjUtils.bean2bean(location, detailRequest);
@@ -1281,7 +1282,7 @@ public class LocationService {
             locationDetailService.insert(detailRequest);
         }
         detailRequest.setLocationCode(locationCode);
-        newLocation = locationDetailService.insert(detailRequest);
+        BaseinfoLocation newLocation = locationDetailService.insert(detailRequest);
         return newLocation;
     }
 }
