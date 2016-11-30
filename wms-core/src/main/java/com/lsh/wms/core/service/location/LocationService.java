@@ -639,7 +639,7 @@ public class LocationService {
                 Long locationId = location.getLocationId();
                 if (LocationConstant.CAN_USE.equals(location.getCanUse()) && !this.checkLocationLockStatus(locationId)) {
                     List<StockQuant> quants = stockQuantService.getQuantsByLocationId(locationId);
-                    if (quants.isEmpty()) {
+                    if (null == quants || quants.isEmpty()) {
                         return location;
                     } else {
                         StockQuant quant = quants.get(0);
@@ -1166,7 +1166,6 @@ public class LocationService {
                     canStore = Integer.valueOf(conf.get("canStore").toString());
                 }
                 detailRequest.setTypeName(typeName);
-                detailRequest.setIsLeaf(0);
                 detailRequest.setIsValid(1);
                 detailRequest.setCanStore(canStore);
                 if (conf.get("regionNo") != null) {
