@@ -133,7 +133,7 @@ public class PickTaskHandler extends AbsTaskHandler {
         }
         // 移动库存,实际移动库存为0时则不移动
         if (realTotalQty.compareTo(new BigDecimal(0)) == 1) {
-            stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, locationService.getWarehouseLocationId(), locationId);
+            stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, locationService.getWarehouseLocation().getLocationId(), locationId);
         }
         //--------------稍微注意一下下面两个操作会不会影响到性能,严格来讲,其实最好是异步的,呵呵.
         //更新订单状态

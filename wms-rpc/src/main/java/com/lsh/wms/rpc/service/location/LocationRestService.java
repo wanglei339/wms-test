@@ -90,7 +90,7 @@ public class LocationRestService implements ILocationRestService {
     @GET
     @Path("getWarehouseLocationId")
     public String getWarehouseLocationId() {
-        Long locationId = locationService.getWarehouseLocationId();
+        Long locationId = locationService.getWarehouseLocation().getLocationId();
         return JsonUtils.SUCCESS(locationId);
     }
 

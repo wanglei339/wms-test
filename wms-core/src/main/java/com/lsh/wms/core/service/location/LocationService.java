@@ -260,7 +260,7 @@ public class LocationService {
             for (Long levelLocationId : levelLocationIds) {
                 BaseinfoLocation tmpLocation = this.getLocation(levelLocationId);
                 // 如果已分配过但是逻辑删除了,则复用该id
-                if (tmpLocation == null || tmpLocation.getIsValid() == 0) { //一旦集合比较大,选择没有分配过的location即null,进入方法设置locationId和左右范围
+                if (tmpLocation == null || LocationConstant.NOT_VALID.equals(tmpLocation.getIsValid())) { //一旦集合比较大,选择没有分配过的location即null,进入方法设置locationId和左右范围
                     location.setLocationId(levelLocationId);
                     location.setLeftRange(levelLocationId + 1);
                     location.setLevel(level);
@@ -273,7 +273,7 @@ public class LocationService {
                 }
             }
             // id已分配至上限,不可继续分配
-            if (location.getLocationId().equals(0) || location.getLocationId() == null) {
+            if (location.getLocationId().equals(0L) || location.getLocationId() == null) {
                 throw new BizCheckedException("2600001");
             }
         }
@@ -326,24 +326,24 @@ public class LocationService {
         return locationDao.getChildrenLocationList(params);
     }
 
-    /**
-     * 根据区域的id和bin的用途,获取该区域下的某种用途的货位
-     *
-     * @param regionId
-     * @param binUsage
-     * @return
-     */
-    public List<BaseinfoLocation> getBinsByRegionIdAndBinUsage(Long regionId, Integer binUsage) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        BaseinfoLocation location = this.getLocation(regionId);
-        params.put("leftRange", location.getLeftRange());
-        params.put("rightRange", location.getRightRange());
-        params.put("type", LocationConstant.BIN);
-        params.put("binUsage", binUsage);
-        params.put("canStore", LocationConstant.CAN_STORE);
-        params.put("isValid", LocationConstant.IS_VALID);
-        return locationDao.getChildrenLocationList(params);
-    }
+//    /**
+//     * 根据区域的id和bin的用途,获取该区域下的某种用途的货位
+//     *
+//     * @param regionId
+//     * @param binUsage
+//     * @return
+//     */
+//    public List<BaseinfoLocation> getBinsByRegionIdAndBinUsage(Long regionId, Integer binUsage) {
+//        Map<String, Object> params = new HashMap<String, Object>();
+//        BaseinfoLocation location = this.getLocation(regionId);
+//        params.put("leftRange", location.getLeftRange());
+//        params.put("rightRange", location.getRightRange());
+//        params.put("type", LocationConstant.BIN);
+//        params.put("binUsage", binUsage);
+//        params.put("canStore", LocationConstant.CAN_STORE);
+//        params.put("isValid", LocationConstant.IS_VALID);
+//        return locationDao.getChildrenLocationList(params);
+//    }
 
     /**
      * 根据type和库位类型找到下面的子库位,获取指定库位的方法,存货位还是拣货位,type传LocationConstant.BIN
@@ -389,7 +389,7 @@ public class LocationService {
 
 
     /**
-     * 获取一个location下一层的子节点
+     * 获取一个location下一层的子节点,非叶子节点
      *
      * @param locationId
      * @return
@@ -398,7 +398,7 @@ public class LocationService {
         Map<String, Object> params = new HashMap<String, Object>();
         // 判断是否已为子节点
         BaseinfoLocation curLocation = this.getLocation(locationId);
-        if (curLocation.getIsLeaf().equals(1)) {
+        if (LocationConstant.IS_LEAF.equals(curLocation.getIsLeaf())) {
             return new ArrayList<BaseinfoLocation>();
         }
         params.put("fatherId", locationId);
@@ -407,16 +407,16 @@ public class LocationService {
         return locations;
     }
 
-    /**
-     * 获取一个location下一层的子节点id
-     *
-     * @param locationId
-     * @return
-     */
-    public List<Long> getNextLevelLocationIds(Long locationId) {
-        List<BaseinfoLocation> locations = this.getNextLevelLocations(locationId);
-        return this.getLocationIds(locations);
-    }
+//    /**
+//     * 获取一个location下一层的子节点id
+//     *
+//     * @param locationId
+//     * @return
+//     */
+//    public List<Long> getNextLevelLocationIds(Long locationId) {
+//        List<BaseinfoLocation> locations = this.getNextLevelLocations(locationId);
+//        return this.getLocationIds(locations);
+//    }
 
     /**
      * 获取一个location下所有是存储位的子节点
@@ -474,7 +474,7 @@ public class LocationService {
         if (type.equals(curLocation.getType())) {
             return curLocation;
         }
-        if (fatherId == 0) {
+        if (fatherId.equals(0L)) {
             return null;
         }
         return this.getFatherByType(fatherId, type);
@@ -502,39 +502,39 @@ public class LocationService {
         return this.getFatherRegionBySonId(fatherId);
     }
 
-    /**
-     * 找全路径
-     *
-     * @param locationId
-     * @return
-     */
-    public List<BaseinfoLocation> getFatherList(Long locationId) {
-        List<BaseinfoLocation> baseinfoLocationList = new ArrayList<BaseinfoLocation>();
-        BaseinfoLocation curLocation = this.getLocation(locationId);
-        Long fatherId = curLocation.getFatherId();
-        if (LocationConstant.WAREHOUSE.equals(curLocation.getType())) {
-            baseinfoLocationList.add(curLocation);
-            return baseinfoLocationList;
-        }
-        if (fatherId.equals(0L)) {
-            return new ArrayList<BaseinfoLocation>();
-        }
-        return this.getFatherList(fatherId);
-    }
+//    /**
+//     * 找全路径
+//     *
+//     * @param locationId
+//     * @return
+//     */
+//    public List<BaseinfoLocation> getFatherList(Long locationId) {
+//        List<BaseinfoLocation> baseinfoLocationList = new ArrayList<BaseinfoLocation>();
+//        BaseinfoLocation curLocation = this.getLocation(locationId);
+//        Long fatherId = curLocation.getFatherId();
+//        if (LocationConstant.WAREHOUSE.equals(curLocation.getType())) {
+//            baseinfoLocationList.add(curLocation);
+//            return baseinfoLocationList;
+//        }
+//        if (fatherId.equals(0L)) {
+//            return new ArrayList<BaseinfoLocation>();
+//        }
+//        return this.getFatherList(fatherId);
+//    }
 
 
-    /**
-     * 获取祖先级别的区域location节点id
-     * 根据指定的祖先级别的type
-     *
-     * @param locationId
-     * @param type
-     * @return
-     */
-    public Long getFatherIdByType(Long locationId, Long type) {
-        BaseinfoLocation fatherLocation = this.getFatherByType(locationId, type);
-        return fatherLocation.getLocationId();
-    }
+//    /**
+//     * 获取祖先级别的区域location节点id
+//     * 根据指定的祖先级别的type
+//     *
+//     * @param locationId
+//     * @param type
+//     * @return
+//     */
+//    public Long getFatherIdByType(Long locationId, Long type) {
+//        BaseinfoLocation fatherLocation = this.getFatherByType(locationId, type);
+//        return fatherLocation.getLocationId();
+//    }
 
 
     /**
@@ -548,16 +548,16 @@ public class LocationService {
         return areaFather;
     }
 
-    /**
-     * 获取父级区域节点id
-     *
-     * @param locationId
-     * @return
-     */
-    public Long getAreaFatherId(Long locationId) {
-        BaseinfoLocation areaFatherId = this.getAreaFather(locationId);
-        return areaFatherId.getLocationId();
-    }
+//    /**
+//     * 获取父级区域节点id
+//     *
+//     * @param locationId
+//     * @return
+//     */
+//    public Long getAreaFatherId(Long locationId) {
+//        BaseinfoLocation areaFatherId = this.getAreaFather(locationId);
+//        return areaFatherId.getLocationId();
+//    }
 
     /**
      * 按类型获取location节点
@@ -620,15 +620,15 @@ public class LocationService {
         }
     }
 
-    /**
-     * 获取可用仓库根节点id
-     *
-     * @return
-     */
-    public Long getWarehouseLocationId() {
-        BaseinfoLocation location = this.getWarehouseLocation();
-        return location.getLocationId();
-    }
+//    /**
+//     * 获取可用仓库根节点id
+//     *
+//     * @return
+//     */
+//    public Long getWarehouseLocationId() {
+//        BaseinfoLocation location = this.getWarehouseLocation();
+//        return location.getLocationId();
+//    }
 
     /**
      * 获取可用盘亏盘盈节点

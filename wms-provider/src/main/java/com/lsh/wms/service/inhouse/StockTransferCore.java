@@ -165,7 +165,7 @@ public class StockTransferCore {
         BigDecimal qty = PackUtil.UomQty2EAQty(uomQty, uom);
         List<StockQuant> quants = this.checkFromLocation(taskEntry.getTaskInfo().getItemId(), fromLocation, qty);
         Long containerId = taskInfo.getContainerId();
-        Long toLocationId = locationService.getWarehouseLocationId();
+        Long toLocationId = locationService.getWarehouseLocation().getLocationId();
         if (taskInfo.getSubType().compareTo(1L) == 0) {
             StockQuantCondition condition = new StockQuantCondition();
             condition.setLocationId(fromLocation.getLocationId());
@@ -198,7 +198,7 @@ public class StockTransferCore {
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         List<StockQuant> toQuants = this.checkToLocation(taskInfo.getItemId(), toLocation);
         Long containerId = taskInfo.getContainerId();
-        Long fromLocationId = locationService.getWarehouseLocationId();
+        Long fromLocationId = locationService.getWarehouseLocation().getLocationId();
         //坑啊,卧槽我发现数据库里根本没这个字段,上面存了没有屌用
         taskInfo.setQtyDoneUom(PackUtil.EAQty2UomQty(taskInfo.getQtyDone(), taskInfo.getPackName()));
         List<StockMove> moveList = new ArrayList<StockMove>();
@@ -281,7 +281,7 @@ public class StockTransferCore {
             }
         }
         Long containerId = taskInfo.getContainerId();
-        Long toLocationId = locationService.getWarehouseLocationId();
+        Long toLocationId = locationService.getWarehouseLocation().getLocationId();
         if (taskInfo.getSubType().compareTo(1L) == 0) {
             stockMoveService.moveWholeContainer(containerId, taskId, uid, fromLocationId, toLocationId);
         } else {
@@ -506,8 +506,8 @@ public class StockTransferCore {
     public List<TaskEntry> getMoreTasks(TaskEntry entry) {
         Long fromLocationId = entry.getTaskInfo().getFromLocationId(),
                 toLocationId = entry.getTaskInfo().getToLocationId(),
-                fromPassage = locationService.getFatherIdByType(fromLocationId, LocationConstant.PASSAGE),
-                toPassage = locationService.getFatherIdByType(toLocationId, LocationConstant.PASSAGE);
+                fromPassage = locationService.getFatherByType(fromLocationId, LocationConstant.PASSAGE).getLocationId(),
+                toPassage = locationService.getFatherByType(toLocationId, LocationConstant.PASSAGE).getLocationId();
         List<Long> fromLocationIdList = locationService.getStoreLocationIds(fromPassage),
                 toLocationIdList = locationService.getStoreLocationIds(toPassage);
         List<TaskEntry> taskList = new ArrayList<TaskEntry>();

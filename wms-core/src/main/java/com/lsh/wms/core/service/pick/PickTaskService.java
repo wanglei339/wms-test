@@ -120,7 +120,7 @@ public class PickTaskService {
             StockQuant quant = quants.get(0);
             Long fromContainerId = quant.getContainerId();
             // 移动库存
-            moveService.moveToContainer(itemId, staffId, fromContainerId, containerId, locationService.getWarehouseLocationId(), qty);
+            moveService.moveToContainer(itemId, staffId, fromContainerId, containerId, locationService.getWarehouseLocation().getLocationId(), qty);
         }
         // 更新wave_detail
         pickDetail.setContainerId(containerId);

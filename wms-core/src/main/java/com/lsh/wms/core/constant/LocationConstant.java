@@ -147,6 +147,9 @@ public class LocationConstant {
     // location_id划分相关
     public static final Integer CHILDREN_RANGE = 128; //每个节点的子节点数
     public static final Integer LOCATION_LEVEL = 8; // 整棵树的最大层数
+    //location的树相关,1-是 0-不是
+    public static final Integer IS_LEAF = 1;
+    public static final Integer NOT_LEAF = 0;
 
 
 
