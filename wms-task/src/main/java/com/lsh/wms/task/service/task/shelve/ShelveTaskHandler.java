@@ -153,7 +153,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         // 锁location
         locationService.lockLocation(targetLocation.getLocationId());
         // move到仓库location_id
-        stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, taskInfo.getFromLocationId(), locationService.getWarehouseLocationId());
+        stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, taskInfo.getFromLocationId(), locationService.getWarehouseLocation().getLocationId());
         //iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, taskInfo.getFromLocationId(), locationService.getWarehouseLocationId());
     }
 
@@ -213,11 +213,11 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         if (realLocation.getType().equals(LocationConstant.BIN) && realLocation.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
             List<StockQuant> quants = stockQuantService.getQuantsByLocationId(locationId);
             if (quants.isEmpty()) {
-                stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
+                stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), locationService.getWarehouseLocation().getLocationId(), locationId);
                 //iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
             } else {
                 Long containerId = quants.get(0).getContainerId();
-                stockMoveService.moveWholeContainer(taskHead.getContainerId(), containerId, taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
+                stockMoveService.moveWholeContainer(taskHead.getContainerId(), containerId, taskId, taskHead.getOperator(), locationService.getWarehouseLocation().getLocationId(), locationId);
                 //iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), containerId, taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
             }
         } else if (realLocation.getType().equals(LocationConstant.BIN) && realLocation.getBinUsage().equals(BinUsageConstant.BIN_FLOOR_STORE)) {
@@ -229,10 +229,10 @@ public class ShelveTaskHandler extends AbsTaskHandler {
             } else {
                 containerId = quants.get(0).getContainerId();
             }
-            stockMoveService.moveWholeContainer(taskHead.getContainerId(), containerId, taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
+            stockMoveService.moveWholeContainer(taskHead.getContainerId(), containerId, taskId, taskHead.getOperator(), locationService.getWarehouseLocation().getLocationId(), locationId);
             //iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), containerId, taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
         } else {
-            stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
+            stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), locationService.getWarehouseLocation().getLocationId(), locationId);
             //iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
         }
         taskService.done(taskId, locationId);
