@@ -336,8 +336,8 @@ public class LoadRfRestService implements ILoadRfRestService {
         tuDetail.setStoreId(storeId);
         tuDetail.setLoadAt(DateUtils.getCurrentSeconds());
         tuDetail.setIsValid(1);
-        tuDetail.setIsRest(isExpensive ? TuConstant.IS_REST : TuConstant.NOT_REST);
-        tuDetail.setIsExpensive(isRest ? TuConstant.IS_EXPENSIVE : TuConstant.NOT_EXPENSIVE);
+        tuDetail.setIsRest(isRest ? TuConstant.IS_REST : TuConstant.NOT_REST);
+        tuDetail.setIsExpensive(isExpensive ? TuConstant.IS_EXPENSIVE : TuConstant.NOT_EXPENSIVE);
         iTuRpcService.create(tuDetail);
 
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
@@ -492,7 +492,7 @@ public class LoadRfRestService implements ILoadRfRestService {
             TaskInfo qcInfo = (TaskInfo) tempMap.get("qcDoneInfo");
 
             expensiveInfo.put("containerCount", 1);
-            expensiveInfo.put("isRest", false);
+            expensiveInfo.put("isRest", qcInfo.getFinishTime() < DateUtils.getTodayBeginSeconds()); //小于今天最早的时间
             expensiveInfo.put("boxNum", qcInfo.getTaskPackQty());
             expensiveInfo.put("turnoverBoxNum", qcInfo.getExt3());      //周转箱
             expensiveInfo.put("taskBoardQty", 0);                   //板数算为0
