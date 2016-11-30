@@ -11,9 +11,9 @@ import java.util.Map;
 public interface BaseinfoLocationDao{
 
 	void insert(BaseinfoLocation baseinfoLocation);
-	
+
 	void update(BaseinfoLocation baseinfoLocation);
-	
+
 	BaseinfoLocation getBaseinfoLocationById(Long id);
 
     Integer countBaseinfoLocation(Map<String, Object> params);
@@ -35,6 +35,8 @@ public interface BaseinfoLocationDao{
 	 * @return
 	 */
 	List<BaseinfoLocation> getRangeLocationList(Map<String, Object> params);
+
+	List<BaseinfoLocation> getBaseinfoLocationListPC(Map<String, Object> params);
 
 
 }

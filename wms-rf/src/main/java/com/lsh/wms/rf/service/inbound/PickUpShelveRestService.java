@@ -177,6 +177,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             return JsonUtils.TOKEN_ERROR("用户不存在");
         }
 
+
          //检查是否有已分配的任务
         if (taskId == null) {
             //查看是否有已经执行的任务
@@ -290,6 +291,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         Long realLocationId = 0L;
         String realLocationCode ="";
         BigDecimal realQty = BigDecimal.ZERO;
+        logger.info("params:"+mapQuery);
         try {
             taskId= Long.valueOf(mapQuery.get("taskId").toString().trim());
             realLocationCode = mapQuery.get("realLocationCode").toString().trim();
@@ -466,7 +468,6 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
                 detail.setReceiptId(lot.getReceiptId());
                 detail.setOrderId(lot.getPoId());
                 detail.setAllocLocationId(location.getLocationId());
-                detail.setRealLocationId(location.getLocationId());
 
                 BigDecimal num = valum.divide(bulk,0,BigDecimal.ROUND_DOWN);
                 if (total.subtract(num).compareTo(BigDecimal.ZERO) >= 0) {
@@ -494,9 +495,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             detail.setTaskId(taskId);
             detail.setReceiptId(lot.getReceiptId());
             detail.setOrderId(lot.getPoId());
-            detail.setAllocLocationId(location.getLocationId());
-            detail.setRealLocationId(location.getLocationId());
-            detail.setQty(qty.compareTo(total)>0 ?total:qty);
+            detail.setAllocLocationId(location.getLocationId());detail.setQty(qty.compareTo(total)>0 ?total:qty);
 
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("taskId", taskId.toString());

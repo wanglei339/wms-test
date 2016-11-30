@@ -308,10 +308,11 @@ public class PoReceiptService {
      * @param orderId
      * @return
      */
-    public List<InbReceiptDetail> getInbReceiptDetailListByOrderIdAndCode(Long orderId,String barCode) {
+    public List<InbReceiptDetail> getInbReceiptDetailListByOrderIdAndCode(Long orderId,String barCode,Integer isValid) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("orderId", orderId);
         params.put("barCode",barCode);
+        params.put("isValid",isValid);
 
         return getInbReceiptDetailList(params);
     }

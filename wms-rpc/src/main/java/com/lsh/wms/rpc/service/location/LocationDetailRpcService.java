@@ -44,7 +44,7 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
     }
 
     /**
-     * 查找location明细
+     * PC端查找location明细专用
      *
      * @param params
      * @return

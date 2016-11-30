@@ -109,7 +109,7 @@ public class WuMartSap implements IWuMartSap{
         String ref = com.alibaba.fastjson.JSON.toJSONString(newReturn.getItem());
         logger.info("~~~~~~~~~~~~~~~~~~~~~ibd创建返回值ref:" + ref + "~~~~~~~~~~~~~~~~~~~~~~");
 
-        if(newReturn.getItem() == null && newReturn.getItem().size() <= 0){
+        if(newReturn.getItem() == null || newReturn.getItem().size() <= 0){
             return null;
 
         }

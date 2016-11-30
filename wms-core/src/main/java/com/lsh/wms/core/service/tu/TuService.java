@@ -386,7 +386,7 @@ public class TuService {
             for (Long one : containersInOneOrder) {
                 Map<String, Object> oneContainer = (Map<String, Object>) containerInfo.get(one);
                 boxNum = boxNum.add(new BigDecimal(oneContainer.get("boxNum").toString()));
-                turnoverBoxNum += Long.valueOf(oneContainer.get("turnoverBoxNum").toString());
+                turnoverBoxNum += Long.parseLong(oneContainer.get("turnoverBoxNum").toString());
             }
             Map<String,Object> orderBoxMap = new HashMap<String, Object>();
             orderBoxMap.put("boxNum", (int)boxNum.floatValue());

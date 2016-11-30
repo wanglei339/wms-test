@@ -112,6 +112,15 @@
         </if>
     </select>
 
+    <select id="getBaseinfoLocationListPC" parameterType="map" resultMap="baseinfoLocationResultMap">
+        select * from baseinfo_location
+        <include refid="queryCondition"/>
+        ORDER BY location_code ASC
+        <if test="start != null and limit != null">
+            limit #{start},#{limit}
+        </if>
+    </select>
+
     <select id="getChildrenLocationList" parameterType="map" resultMap="baseinfoLocationResultMap">
         select * from baseinfo_location
         <where>
