@@ -69,7 +69,7 @@ public class LocationRpcService implements ILocationRpcService {
         return false;
     }
 
-    // todo 插入集货道和集货道组,需要用此insert方法,因为只是插入主表
+
     public BaseinfoLocation insertLocation(BaseinfoLocation location) throws BizCheckedException {
         return locationService.insertLocation(location);
     }
@@ -83,7 +83,7 @@ public class LocationRpcService implements ILocationRpcService {
         return locationService.getAvailableLocationByType(LocationConstant.TEMPORARY);
     }
 
-    // 分配地堆区location TODO 多个地堆分配哪个(现在返回的是一个)
+    // 分配地堆区location
     public BaseinfoLocation assignFloor(StockQuant quant) throws BizCheckedException {
         return locationService.getAvailableFloorLocation(quant.getLotId());
     }
