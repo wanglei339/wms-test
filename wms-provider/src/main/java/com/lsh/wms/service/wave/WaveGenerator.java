@@ -125,6 +125,8 @@ public class WaveGenerator {
                 clusters.put(key, new LinkedList<ObdHeader>());
             }
             clusters.get(key).add(header);
+            logger.info(String.format("cluster key %s t %s c %s size %d",
+                    key, header.getTransPlan(), header.getDeliveryCode(), clusters.get(key).size()));
         }
         //跑策略
         //后期复杂策略,先不实现
