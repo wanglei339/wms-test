@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -228,19 +229,5 @@ public class DataBackService implements IDataBackService {
 
         return JSON.toJSONString(request);
     }
-
-    public static void main(String[] args) {
-
-        String json =  "{\"message\":\"调用成功!\",\"code\":200,\"success\":true}";
-        OrderResponse  orderResponse = JSON.parseObject(json,OrderResponse.class);
-        JSONObject jsonObject = JSON.parseObject(json);
-        if((Boolean) jsonObject.get("success")){
-            System.out.println("~~~~~~");
-        }
-        System.out.println(JSON.toJSONString(orderResponse));
-    }
-
-
-
 
 }

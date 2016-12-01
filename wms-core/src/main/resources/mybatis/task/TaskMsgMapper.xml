@@ -13,6 +13,7 @@
 		<result property="msgContent" column="msg_content"/>
 		<result property="timestamp" column="timestamp"/>
 		<result property="priority" column="priority"/>
+		<result property="retryTimes" column="retry_times"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
 	</resultMap>
@@ -30,6 +31,7 @@
         <if test="msgContent != null">msg_content,</if>
         <if test="timestamp != null">timestamp,</if>
         <if test="priority != null">priority,</if>
+		<if test="retryTimes != null">retry_times,</if>
         <if test="createdAt != null">created_at,</if>
         <if test="updatedAt != null">updated_at,</if>
         </trim>
@@ -45,6 +47,7 @@
         <if test="msgContent != null">#{msgContent},</if>
         <if test="timestamp != null">#{timestamp},</if>
         <if test="priority != null">#{priority},</if>
+		<if test="retryTimes != null">#{retryTimes},</if>
         <if test="createdAt != null">#{createdAt},</if>
         <if test="updatedAt != null">#{updatedAt},</if>
 		</trim>
@@ -62,11 +65,17 @@
   			<if test="msgContent != null">msg_content=#{msgContent},</if>
   			<if test="timestamp != null">timestamp=#{timestamp},</if>
   			<if test="priority != null">priority=#{priority},</if>
+			<if test="retryTimes != null">retry_times=#{retryTimes},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
 		where id=#{id}
 	</update>
+
+	<select id="getTaskMsgById" parameterType="Long" resultMap="taskMsgResultMap">
+		select * from task_msg
+		where id=#{id}
+	</select>
   
 	<select id="getTaskMsgByBusinessId" parameterType="Long" resultMap="taskMsgResultMap">
 		select * from task_msg
@@ -82,6 +91,9 @@
 	<select id="getTaskMsgList" parameterType="map" resultMap="taskMsgResultMap">
 		select * from task_msg
 		<include refid="queryCondition"/>
+		<if test="retryTimes !=null">
+			retry_times &lt; #{retryTimes}
+		</if>>
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
 		</if>
@@ -89,7 +101,8 @@
   
 	<sql id="queryCondition">
 		<where>
-			<if test="id != null">id=#{id}</if>
+			status = 0
+			<if test="id != null">and id=#{id}</if>
 			<if test="sourceTaskId != null">and source_task_id=#{sourceTaskId}</if>
 			<if test="type != null">and type=#{type}</if>
 			<if test="status != null">and status=#{status}</if>
@@ -99,6 +112,7 @@
 			<if test="msgContent != null">and msg_content=#{msgContent}</if>
 			<if test="timestamp != null">and timestamp=#{timestamp}</if>
 			<if test="priority != null">and priority=#{priority}</if>
+			<if test="retryTimes != null">and retry_times=#{retryTimes}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 		</where>
