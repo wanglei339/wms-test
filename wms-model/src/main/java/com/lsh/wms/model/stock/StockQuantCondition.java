@@ -39,8 +39,6 @@ public class StockQuantCondition implements Serializable {
     private Long isDefect;
     /** 0-非退货，1-退货 */
     private Long isRefund;
-    /** 例外库位列表 */
-    private String excludeLocation;
 
     private List<Long> locationIdList;
 
@@ -203,13 +201,5 @@ public class StockQuantCondition implements Serializable {
 
     public void setLocationIdList(List<Long> locationIdList) {
         this.locationIdList = locationIdList;
-    }
-
-    public String getExcludeLocation() {
-        return excludeLocation;
-    }
-
-    public void setExcludeLocation(String excludeLocation) {
-        this.excludeLocation = excludeLocation;
     }
 }

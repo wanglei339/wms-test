@@ -37,13 +37,13 @@ public class WuMart implements IWuMart {
             CreateIbdHeader backDate = wuMartSap.ibd2Sap(createIbdHeader);
             if(backDate != null) {
                 Map<String,Object> map =  wuMartSap.ibd2SapAccount(backDate);
-                if("E".equals(map.get("type"))){
+                if("E".equals(map.get("Type"))){
                     sysLog.setLogMessage("ibd过账返回结果为空!");
                     sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
                     sysLog.setLogCode("ibd过账返回结果为空!");
                     //0表示初始 1ibd创建成功 2ibd过账成功
                     sysLog.setStep(SysLogConstant.LOG_STEP_IBDCREATE);
-                }else if("S".equals(map.get("type"))){
+                }else if("S".equals(map.get("Type"))){
                     sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
                     sysLog.setStep(SysLogConstant.LOG_STEP_IBDFINISH);
                     sysLog.setLogMessage("ibd过账成功");
@@ -147,10 +147,8 @@ public class WuMart implements IWuMart {
 //                        sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
 //                        sysLog.setLogCode("直流ibd过账SAP返回值为空!");
 //                    }else
-                    if("S".equals(map.get("type"))){
-                        logger.info("~~~~~~~~~~~~~~~~~~map : " + JSON.toJSONString(map));
+                    if("S".equals(map.get("Type"))){
                         sysLog.setStep(SysLogConstant.LOG_STEP_IBDFINISH);
-                        logger.info("~~~~~~~~~~~~~~~~~~sysLog : " + JSON.toJSONString(sysLog));
                     }else{
                         sysLog.setStep(SysLogConstant.LOG_STEP_INIT);
                         sysLog.setLogMessage("直流过账失败");
@@ -163,7 +161,6 @@ public class WuMart implements IWuMart {
                     sysLog.setLogCode("ibd创建失败");
                 }
             }
-            logger.info("~~~~~~~~~~~~~222222222222syslog: " + JSON.toJSONString(sysLog));
             if(sysLog.getStep() == SysLogConstant.LOG_STEP_IBDFINISH){
                 CreateObdHeader obdBackDate = wuMartSap.obd2Sap((CreateObdHeader) ibdObdMap.get("createObdHeader"));
                 if(obdBackDate != null){

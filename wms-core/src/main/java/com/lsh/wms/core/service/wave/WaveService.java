@@ -218,7 +218,6 @@ public class WaveService {
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("pickTaskId", pickTaskId);
         mapQuery.put("isValid", 1);
-        mapQuery.put("isAlive", 1);
         return detailDao.getWaveDetailList(mapQuery);
     }
 
@@ -227,7 +226,6 @@ public class WaveService {
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("pickTaskIds", pickTaskIds);
         mapQuery.put("isValid", 1);
-        mapQuery.put("isAlive", 1);
         return detailDao.getOrderedWaveDetailList(mapQuery);
     }
 
@@ -240,11 +238,6 @@ public class WaveService {
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("waveId", waveId);
         mapQuery.put("isValid", 1);
-        mapQuery.put("isAlive", 1);
-        return detailDao.getWaveDetailList(mapQuery);
-    }
-
-    public List<WaveDetail> getDetailsSpecial(HashMap<String, Object> mapQuery){
         return detailDao.getWaveDetailList(mapQuery);
     }
 
@@ -254,7 +247,6 @@ public class WaveService {
         mapQuery.put("pickTaskId", pickTaskId);
         mapQuery.put("pickOrder", pickOrder);
         mapQuery.put("isValid", 1);
-        mapQuery.put("isAlive", 1);
         return detailDao.getOrderedWaveDetailList(mapQuery).get(0);
     }
 
@@ -263,7 +255,6 @@ public class WaveService {
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("qcTaskId", qcTaskId);
         mapQuery.put("isValid", 1);
-        mapQuery.put("isAlive", 1);
         return detailDao.getWaveDetailList(mapQuery);
     }
 
@@ -272,7 +263,6 @@ public class WaveService {
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("containerId", containerId);
         mapQuery.put("isValid", 1);
-        mapQuery.put("isAlive", 1);
         return detailDao.getWaveDetailList(mapQuery);
     }
 
@@ -281,7 +271,6 @@ public class WaveService {
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("shipTaskId", shipTaskId);
         mapQuery.put("isValid", 1);
-        mapQuery.put("isAlive", 1);
         return detailDao.getWaveDetailList(mapQuery);
     }
 
@@ -290,7 +279,6 @@ public class WaveService {
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("locationId", locationId);
         mapQuery.put("isValid", 1);
-        mapQuery.put("isAlive", 1);
         return detailDao.getWaveDetailList(mapQuery);
     }
 
@@ -412,7 +400,6 @@ public class WaveService {
             //-detail
             BigDecimal allocQty = detail.getAllocQty();
             detail.setAllocQty(allocQty.subtract(realSplitQty));
-            detail.setAllocUnitQty(PackUtil.EAQty2UomQty(detail.getAllocQty(), detail.getAllocUnitName()));
             this.updateDetail(detail);
         }
         return splitDetails;
@@ -498,7 +485,6 @@ public class WaveService {
             splitDetail.setPickQty(BigDecimal.ZERO);
             this.insertDetail(splitDetail);
             detail.setAllocQty(detail.getPickQty());
-            detail.setAllocUnitQty(PackUtil.EAQty2UomQty(detail.getAllocQty(), detail.getAllocUnitName()));
             this.updateDetail(detail);
         }
         return splitDetail;
@@ -616,7 +602,6 @@ public class WaveService {
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("orderId", orderId);
         mapQuery.put("isValid", 1);
-        mapQuery.put("isAlive", 1);
         List<WaveDetail> details = detailDao.getWaveDetailList(mapQuery);
         if(details.size()==0){
             //配货失败,理论上可以细化

@@ -55,7 +55,6 @@ public class StockQuantRestService implements IStockQuantRestService {
     @POST
     @Path("getList")
     public String getList(StockQuantCondition condition) throws BizCheckedException {
-        condition.setExcludeLocation("INVENTORY LOSS");
         List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
         return JsonUtils.SUCCESS(quantList);
     }
