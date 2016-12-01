@@ -295,7 +295,7 @@ public class TuRpcService implements ITuRpcService {
         TuHead tuHead = this.getHeadByTuId(tuId);
         //大店装车的前置条件是合板,小店是组盘完成
         Long mergedContainerId = null;  //需要存入detail的id, 大店是合板的id,小店是物理托盘码
-        BigDecimal boardNum = new BigDecimal("0.0000");   //一板子多托的数量
+        BigDecimal boardNum = BigDecimal.ZERO;   //一板子多托的数量
         // 这里要改成同一都一组盘为前置条件
         if (TuConstant.SCALE_STORE.equals(tuHead.getScale())) {    //小店看组盘
             //QC+done+containerId 找到mergercontaierId
@@ -390,6 +390,9 @@ public class TuRpcService implements ITuRpcService {
                 isExpensive = true;
             }
         }
+        if (isExpensive){
+            boardNum = BigDecimal.ZERO;
+        }
 
 
         //聚类板子的箱数,以QC聚类
@@ -401,8 +404,8 @@ public class TuRpcService implements ITuRpcService {
         if (null == taskInfos || taskInfos.size() < 1) {
             throw new BizCheckedException("2870034");
         }
-        BigDecimal allboxNum = new BigDecimal("0.00");
-        Long turnoverBoxNum = new Long("0");
+        BigDecimal allboxNum = BigDecimal.ZERO;
+        Long turnoverBoxNum = 0L;
         Set<Long> containerSet = new HashSet<Long>();   //可以是板子也可以是托盘
         for (TaskInfo taskinfo : taskInfos) {
             BigDecimal one = taskinfo.getTaskPackQty(); //总箱数

@@ -15,7 +15,6 @@ import com.lsh.wms.api.service.pick.IQCRpcService;
 import com.lsh.wms.api.service.pick.IRFQCRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.so.ISoRpcService;
-import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.PickConstant;
@@ -75,8 +74,6 @@ public class QCRestService implements IRFQCRestService {
     private ISoRpcService iSoRpcService;
     @Reference
     private ILocationRpcService iLocationRpcService;
-    @Autowired
-    private StockQuantService stockQuantService;
     @Reference
     private IQCRpcService iqcRpcService;
 
@@ -245,7 +242,6 @@ public class QCRestService implements IRFQCRestService {
         //送达方的信息
         rstMap.put("customerId", soInfo.getDeliveryCode().toString());
         rstMap.put("customerName", soInfo.getDeliveryName());
-        //todo 集货道可以去stockQuent中拿
         rstMap.put("collectionRoadCode", collectLocaion.getLocationCode());
         rstMap.put("itemLineNum", mapItem2PickQty.size());
         //TODO BOX NUM
@@ -432,10 +428,9 @@ public class QCRestService implements IRFQCRestService {
         //校验qc任务是否完全完成;
         boolean bSucc = true;
         BigDecimal sumEAQty = new BigDecimal("0.0000");
-        //直接走组盘,没有必须要进行判断是否QC异常完毕的东西,或者这里的异常是组盘异常,任务才不结束
         //不能组盘的时候,PC忽略异常
         for (WaveDetail d : details) {
-            if (d.getQcExceptionDone() == 0) {
+            if (d.getQcExceptionDone().equals(WaveConstant.QC_EXCEPTION_STATUS_UNDO)) {
                 bSucc = false;
                 break;
             }
