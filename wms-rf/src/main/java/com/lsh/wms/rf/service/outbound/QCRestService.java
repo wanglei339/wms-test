@@ -415,6 +415,7 @@ public class QCRestService implements IRFQCRestService {
         }
         List<WaveDetail> details = waveService.getDetailsByContainerId(qcTaskInfo.getContainerId());
 
+
         //跳过qc明细,系统默认拣货量和qc量相等
         if (skip) {
             for (WaveDetail detail : details) {
