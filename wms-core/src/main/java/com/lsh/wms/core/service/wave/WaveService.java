@@ -680,6 +680,11 @@ public class WaveService {
                 ship_num++;
             }
         }
+        logger.info(String.format("set status all[%d] pick[%d] qc[%d] delivery[%d]",
+                details.size(),
+                pick_num,
+                qc_num,
+                ship_num));
         int status = 30;
         if(ship_num==details.size()){
             status = 50;

@@ -561,6 +561,7 @@ public class TuService {
         Set<Long> waveIds = new HashSet<Long>();
         for (WaveDetail detail : totalWaveDetails) {
             if (detail.getDeliveryId() != 0) {
+                logger.info("delivery not not 0 "+detail.getId());
                 continue;
             }
             detail.setDeliveryId(mapHeader.get(detail.getOrderId()).getDeliveryId());
@@ -578,6 +579,9 @@ public class TuService {
             Long iWaveId = (Long)waveId;
             if(iWaveId>1) {
                 waveService.updateWaveStatus(iWaveId);
+                //trik
+                //TODO HEHE
+                waveService.setStatus(iWaveId, WaveConstant.STATUS_SUCC);
             }
         }
         return true;
