@@ -43,47 +43,52 @@ public class ItemTypeRpcService implements IItemTypeRpcService {
 
     //类型列表
     public List<Object> getItemTypeList(Map<String, Object> params) {
-        Map<Long, ArrayList<Long>> relationMap = itemTypeService.getBaseinfoItemTypeAllRelationList(params);
+        List<Map<String,Object>> relationList = itemTypeService.getBaseinfoItemTypeAllRelationList(params);
         List<BaseinfoItemType> itemTypeList = itemTypeService.getBaseinfoItemTypeList(params);
-        List<Object> returnList = new ArrayList<Object>();
+        Map<String,String> itemNameMap = new HashMap<String, String>();
+        Map<String,String> itemStatusMap = new HashMap<String, String>();
+        Map<String,String> itemRelationMap = new HashMap<String, String>();
 
-        Map<Long,String> itemNameMap = new HashMap<Long, String>();
-        Map<Long,String> itemStatusMap = new HashMap<Long, String>();
-        if(relationMap == null || relationMap.size() <= 0){
-            return returnList;
-        }
-        if(itemTypeList == null || itemTypeList.size() <= 0){
-            return returnList;
-        }
         for(BaseinfoItemType b :itemTypeList){
-            itemNameMap.put(b.getItemTypeId(),b.getItemName());
-            itemStatusMap.put(b.getItemTypeId(),b.getIsNeedProtime()+"");
+            itemNameMap.put(b.getItemTypeId()+"",b.getItemName());
+            itemStatusMap.put(b.getItemTypeId()+"",b.getIsNeedProtime()+"");
         }
+        for(Map relationMap :relationList){
+            //类型ID
+            String itemTypeId = String.valueOf(relationMap.get("itemTypeId"));
+            //互斥类型列表
+            String mutexType = String.valueOf(relationMap.get("mutexIdStr"));
 
+            itemRelationMap.put(itemTypeId,mutexType);
+        }
+        List<Object> returnList = new ArrayList<Object>();
         for(BaseinfoItemType b :itemTypeList){
             Map<String,Object> itemMap = new HashMap<String, Object>();
-           Long itemTypeId =  b.getItemTypeId();
+           String itemTypeId =  b.getItemTypeId()+"";
             itemMap.put("itemTypeId",itemTypeId);
             itemMap.put("itemTypeName",itemNameMap.get(itemTypeId));
             itemMap.put("isNeedProtime",itemStatusMap.get(itemTypeId));
-            //将互斥类型ID转为类型名称
-            if(relationMap.get(itemTypeId) == null){
+            String mutexTypeStr = itemRelationMap.get(itemTypeId);
+            if(StringUtils.isBlank(mutexTypeStr)){
+                //没有互斥类型
                 itemMap.put("itemMutexType","");
             }else{
-                ArrayList<Long> itemMutexTypeArray = relationMap.get(itemTypeId);
-                ArrayList<String> itemMutexNameArray = new ArrayList<String>();
-                for(Long mutexType : itemMutexTypeArray){
-                    itemMutexNameArray.add(itemNameMap.get(mutexType));
+                String []mutexArray = mutexTypeStr.split(",");
+                String [] itemMutexArr = new String[mutexArray.length];
+
+                for(int i = 0;i<mutexArray.length;i++){
+                    itemMutexArr[i] = itemNameMap.get(mutexArray[i]);
                 }
-                itemMap.put("itemMutexType",itemMutexNameArray);
+                itemMap.put("itemMutexType",itemMutexArr);
             }
+
             returnList.add(itemMap);
         }
         return returnList;
     }
 
     public Integer countItemTypeList(Map<String, Object> params) {
-        return itemTypeService.countItemtypeList(params);
+        return itemTypeService.countBaseinfoItemTypeAllRelationList(params);
     }
 
 
