@@ -114,9 +114,9 @@ public class WuMart implements IWuMart {
 //                    sysLog.setLogMessage("obd过账成功");
 //                }
             }else {
-                sysLog.setLogMessage("创建失败!");
+                sysLog.setLogMessage("obd创建失败!");
                 sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
-                sysLog.setLogCode("ibd创建失败");
+                sysLog.setLogCode("obd创建失败");
             }
             sysLog.setSysCode("");
             sysLog.setSysMessage("");
