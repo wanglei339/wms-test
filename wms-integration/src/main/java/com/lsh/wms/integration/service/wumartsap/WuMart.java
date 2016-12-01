@@ -83,7 +83,9 @@ public class WuMart implements IWuMart {
     public String sendObd(CreateObdHeader createObdHeader, SysLog sysLog) {
         sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
         try {
+            logger.info("~~~~~111111111syslog : " + JSON.toJSONString(sysLog));
             CreateObdHeader obdBackDate = wuMartSap.obd2Sap(createObdHeader);
+            logger.info("~~~~~~~~~222222obdBackDate:" + JSON.toJSONString(obdBackDate));
             if(obdBackDate != null){
                 String type = wuMartSap.obd2SapAccount(obdBackDate);
                 if ("E".equals(type)){
