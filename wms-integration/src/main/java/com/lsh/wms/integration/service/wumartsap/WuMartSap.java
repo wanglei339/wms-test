@@ -319,8 +319,11 @@ public class WuMartSap implements IWuMartSap{
                 sb.append(bapiret2.getMESSAGEV2()).append(";");
 
             }
+
+            logger.info("~~~~ibd过账1111 id :"+bapiret2.getID() + "   DC :" + createIbdHeader.getWarehouseCode());
             if("02".equals(bapiret2.getID()) && createIbdHeader.getWarehouseCode().equals("wumart.werks")){
                 if(orderType != PoConstant.ORDER_TYPE_CPO){
+                    logger.info("~~~~~2222 ordertype : " + orderType);
                     ReceiveDetail receiveDetail = new ReceiveDetail();
                     receiveDetail.setReceiveId(receiveId);
                     String detailOtherId = bapiret2.getMESSAGEV2().replaceAll("^(0+)", "");
