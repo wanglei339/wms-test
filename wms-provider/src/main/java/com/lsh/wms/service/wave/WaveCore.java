@@ -806,6 +806,7 @@ public class WaveCore {
                     pickLocationList.add(pickLocation);
                 }
             }
+            /*
             if(pickLocationList.size()==0 &&
                     ((location.getType().equals(LocationConstant.BIN) && location.getBinUsage().equals(BinUsageConstant.BIN_FLOOR_STORE)) || location.getType().equals(LocationConstant.FLOOR)
                             || location.getType().equals(LocationConstant.FLOOR_BIN)) ) {
@@ -815,7 +816,7 @@ public class WaveCore {
                 itemLocation.setPickLocationid(location.getLocationId());
                 itemLocation.setPickLocationType(0);
                 pickLocationList.add(itemLocation);
-            }
+            }*/
             mapItemAndPickZone2PickLocations.put(key, pickLocationList);
             pickLocations = pickLocationList;
         }
