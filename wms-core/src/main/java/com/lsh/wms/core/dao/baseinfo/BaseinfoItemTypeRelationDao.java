@@ -21,8 +21,5 @@ public interface BaseinfoItemTypeRelationDao {
 
     List<BaseinfoItemTypeRelation> getBaseinfoItemTypeRelationList(Map<String, Object> params);
 
-	List<Map<String, Object>> getBaseinfoItemTypeAllRelationList(Map<String, Object> params);
-
-	Integer countBaseinfoItemTypeAllRelationList(Map<String, Object> params);
 	
 }

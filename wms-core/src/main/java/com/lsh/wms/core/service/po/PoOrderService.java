@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -234,6 +235,14 @@ public class PoOrderService {
      * @param skuCode
      * @return
      */
+    public List<IbdDetail> getInbPoDetailListByOrderIdAndSkuCode(Long orderId, String skuCode) {
+        Map<String, Object> params = new HashMap<String, Object>();
+
+        params.put("orderId", orderId);
+        params.put("skuCode", skuCode);
+
+        return getInbPoDetailList(params);
+    }
     public IbdDetail getInbPoDetailByOrderIdAndSkuCode(Long orderId, String skuCode) {
         Map<String, Object> params = new HashMap<String, Object>();
 
@@ -294,6 +303,21 @@ public class PoOrderService {
         Map<String,Object> map = new HashMap<String, Object>();
         map.put("ibdOtherId",ibdOtherId);
         List<IbdObdRelation> list = ibdObdRelationDao.getIbdObdRelationList(map);
+        return list;
+    }
+    public List<IbdObdRelation> getIbdObdRelationByIbdOtherId(String ibdOtherId, HashSet<String> ibdDetailIdSet){
+        List<IbdObdRelation> list = getIbdObdRelationByIbdOtherId(ibdOtherId);
+        if(list == null){
+            return null;
+        }
+        if(ibdDetailIdSet == null){
+            return list;
+        }
+        for(IbdObdRelation ibdObdRelation : list){
+            if(ibdDetailIdSet.contains(ibdObdRelation.getIbdDetailId())){
+                list.remove(ibdObdRelation);
+            }
+        }
         return list;
     }
     /**
