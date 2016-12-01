@@ -50,7 +50,7 @@ public class WuMart implements IWuMart {
                     sysLog.setLogCode("ibd过账成功");
                 }else{
                     sysLog.setLogMessage((String) map.get("message"));
-                    sysLog.setStatus(SysLogConstant.LOG_STATUS_PART_FINISH);//部分过账成功
+                    sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//部分过账成功
                     sysLog.setStep(SysLogConstant.LOG_STEP_IBDCREATE);
                 }
             }else {
