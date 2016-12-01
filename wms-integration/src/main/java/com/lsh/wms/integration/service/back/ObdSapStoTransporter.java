@@ -75,6 +75,7 @@ public class ObdSapStoTransporter implements ITransporter{
             createObdDetail.setRefItem(obdDetail.getDetailOtherId());
             createObdDetail.setMaterial(obdDetail.getSkuCode());
             createObdDetail.setOrderType(obdHeader.getOrderType());
+            createObdDetail.setSalesUnit(obdDetail.getPackName());
             createObdDetails.add(createObdDetail);
             createObdHeader.setOrderOtherId(obdHeader.getOrderOtherId());
 
