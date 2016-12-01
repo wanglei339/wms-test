@@ -214,7 +214,17 @@ public class QCRpcService implements IQCRpcService {
         if (null == waveDetails || waveDetails.isEmpty()) {
             return results;
         }
-        List<TaskInfo> qcDoneTaskinfos = this.getQcDoneTaskInfoByWaveDetails(waveDetails);
+        //合板后的组盘托盘不在组盘中显示
+        List<WaveDetail> totalWaveDetails = new ArrayList<WaveDetail>();
+
+        for (WaveDetail detail : waveDetails) {
+            if (!detail.getMergedContainerId().equals(0L)) {  //合板了
+                continue;
+            }
+            totalWaveDetails.add(detail);
+        }
+
+        List<TaskInfo> qcDoneTaskinfos = this.getQcDoneTaskInfoByWaveDetails(totalWaveDetails);
         if (null == qcDoneTaskinfos || qcDoneTaskinfos.size() < 1) {
             return results;
         }
