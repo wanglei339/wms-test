@@ -67,8 +67,6 @@ public class TuRpcService implements ITuRpcService {
     @Autowired
     private ItemService itemService;
     @Autowired
-    private StockQuantService stockQuantService;
-    @Autowired
     private SoDeliveryService soDeliveryService;
     @Autowired
     private LocationService locationService;
@@ -329,7 +327,7 @@ public class TuRpcService implements ITuRpcService {
         if (mergedContainerId.equals(containerId)) { //没合板
             mergedContainerId = containerId;
             waveDetails = waveService.getAliveDetailsByContainerId(mergedContainerId);
-            boardNum = new BigDecimal("1");  //没合板数量为1
+            boardNum = new BigDecimal("1");  //托盘拣货就缺交 没合板数量为1
         } else {
             waveDetails = waveService.getWaveDetailsByMergedContainerId(mergedContainerId);   //已经合板
             //计费用的板子数量
