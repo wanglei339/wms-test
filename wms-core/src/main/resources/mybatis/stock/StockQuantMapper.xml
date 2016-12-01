@@ -215,7 +215,7 @@
 			<if test="excludeLocationList != null">
 				and
 				<foreach collection="excludeLocationList"  item="item" index="index" open="(" separator="and"  close=")">
-					( ${item.getLocationId()} &gt;= location_id or location_id &gt;= ${item.getRightRange()} )
+					( ${item.getLocationId()} &gt; location_id or location_id &gt; ${item.getRightRange()} )
 				</foreach>
 			</if>
 		</where>
