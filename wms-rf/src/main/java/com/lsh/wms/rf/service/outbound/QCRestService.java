@@ -15,7 +15,6 @@ import com.lsh.wms.api.service.pick.IQCRpcService;
 import com.lsh.wms.api.service.pick.IRFQCRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.so.ISoRpcService;
-import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.PickConstant;
@@ -75,8 +74,6 @@ public class QCRestService implements IRFQCRestService {
     private ISoRpcService iSoRpcService;
     @Reference
     private ILocationRpcService iLocationRpcService;
-    @Autowired
-    private StockQuantService stockQuantService;
     @Reference
     private IQCRpcService iqcRpcService;
 
@@ -245,7 +242,6 @@ public class QCRestService implements IRFQCRestService {
         //送达方的信息
         rstMap.put("customerId", soInfo.getDeliveryCode().toString());
         rstMap.put("customerName", soInfo.getDeliveryName());
-        //todo 集货道可以去stockQuent中拿
         rstMap.put("collectionRoadCode", collectLocaion.getLocationCode());
         rstMap.put("itemLineNum", mapItem2PickQty.size());
         //TODO BOX NUM

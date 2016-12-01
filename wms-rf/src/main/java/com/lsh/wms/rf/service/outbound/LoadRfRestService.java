@@ -365,6 +365,10 @@ public class LoadRfRestService implements ILoadRfRestService {
         if (null == tuHead) {
             throw new BizCheckedException("2990022");
         }
+        List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(containerId);
+        if (null == waveDetails || waveDetails.isEmpty()) {
+            throw new BizCheckedException("2130015");
+        }
         Map<String, Object> result = iTuRpcService.getBoardDetailBycontainerId(containerId, tuId);
         return JsonUtils.SUCCESS(result);
     }
