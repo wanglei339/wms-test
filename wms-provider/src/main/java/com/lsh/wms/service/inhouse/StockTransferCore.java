@@ -98,7 +98,6 @@ public class StockTransferCore {
                 || toLocation.getRegionType() == LocationConstant.SPLIT_AREA
                 || toLocation.getRegionType() == LocationConstant.LOFTS
                 || toLocation.getRegionType() == LocationConstant.FLOOR
-                || toLocation.getRegionType() == LocationConstant.MARKET_RETURN_AREA
         )) {
             throw new BizCheckedException("2550044");
         }
@@ -135,6 +134,7 @@ public class StockTransferCore {
                 || fromLocation.getRegionType() == LocationConstant.SPLIT_AREA
                 || fromLocation.getRegionType() == LocationConstant.LOFTS
                 || fromLocation.getRegionType() == LocationConstant.FLOOR
+                || fromLocation.getRegionType() == LocationConstant.MARKET_RETURN_AREA
         )){
             throw new BizCheckedException("2550037");
         }
