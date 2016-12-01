@@ -265,7 +265,7 @@ public class CsiRestService implements ICsiRestService {
             if(!csiCustomer.getCollectRoadId().equals(0l)) {
                CsiCustomer customer = customerService.getCustomerByCollectRoadId(csiCustomer.getCollectRoadId());
                 if(customer!=null){
-                    if(!csiCustomer.getCollectRoadId().equals(customer.getCollectRoadId())) {
+                    if(!csiCustomer.getCustomerCode().equals(customer.getCustomerCode())) {
                         return JsonUtils.TOKEN_ERROR("该集货位(道)已被占用");
                     }
                 }
@@ -273,7 +273,7 @@ public class CsiRestService implements ICsiRestService {
             if(!csiCustomer.getSeedRoadId().equals(0l)) {
                 CsiCustomer customer = customerService.getCustomerByseedRoadId(csiCustomer.getSeedRoadId());
                 if(customer!=null){
-                    if(!csiCustomer.getSeedRoadId().equals(customer.getSeedRoadId())) {
+                    if(!csiCustomer.getCustomerCode().equals(customer.getCustomerCode())) {
                         return JsonUtils.TOKEN_ERROR("该播种位已被占用");
                     }
                 }
