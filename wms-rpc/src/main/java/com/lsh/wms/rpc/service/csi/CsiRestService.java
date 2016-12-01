@@ -265,13 +265,17 @@ public class CsiRestService implements ICsiRestService {
             if(!csiCustomer.getCollectRoadId().equals(0l)) {
                CsiCustomer customer = customerService.getCustomerByCollectRoadId(csiCustomer.getCollectRoadId());
                 if(customer!=null){
-                    return JsonUtils.TOKEN_ERROR("该集货位(道)已被占用");
+                    if(!csiCustomer.getCollectRoadId().equals(customer.getCollectRoadId())) {
+                        return JsonUtils.TOKEN_ERROR("该集货位(道)已被占用");
+                    }
                 }
             }
             if(!csiCustomer.getSeedRoadId().equals(0l)) {
                 CsiCustomer customer = customerService.getCustomerByseedRoadId(csiCustomer.getSeedRoadId());
                 if(customer!=null){
-                    return JsonUtils.TOKEN_ERROR("该播种位已被占用");
+                    if(!csiCustomer.getSeedRoadId().equals(customer.getSeedRoadId())) {
+                        return JsonUtils.TOKEN_ERROR("该播种位已被占用");
+                    }
                 }
             }
             customerService.update(csiCustomer);
