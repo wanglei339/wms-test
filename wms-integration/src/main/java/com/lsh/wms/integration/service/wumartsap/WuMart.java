@@ -148,7 +148,9 @@ public class WuMart implements IWuMart {
 //                        sysLog.setLogCode("直流ibd过账SAP返回值为空!");
 //                    }else
                     if("S".equals(map.get("Type"))){
+                        logger.info("~~~~~~~~~~~~~~~~~~map : " + JSON.toJSONString(map));
                         sysLog.setStep(SysLogConstant.LOG_STEP_IBDFINISH);
+                        logger.info("~~~~~~~~~~~~~~~~~~sysLog : " + JSON.toJSONString(sysLog));
                     }else{
                         sysLog.setStep(SysLogConstant.LOG_STEP_INIT);
                         sysLog.setLogMessage("直流过账失败");
@@ -161,6 +163,7 @@ public class WuMart implements IWuMart {
                     sysLog.setLogCode("ibd创建失败");
                 }
             }
+            logger.info("~~~~~~~~~~~~~222222222222syslog: " + JSON.toJSONString(sysLog));
             if(sysLog.getStep() == SysLogConstant.LOG_STEP_IBDFINISH){
                 CreateObdHeader obdBackDate = wuMartSap.obd2Sap((CreateObdHeader) ibdObdMap.get("createObdHeader"));
                 if(obdBackDate != null){
