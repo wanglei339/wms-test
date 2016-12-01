@@ -370,7 +370,9 @@ public class WaveRestService implements IWaveRestService {
     @GET
     @Path("getWaveDetailList")
     public String getWaveDetailList(@QueryParam("waveId") long iWaveId){
-        return JsonUtils.SUCCESS(waveService.getDetailsByWaveId(iWaveId));
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("waveId", iWaveId);
+        return JsonUtils.SUCCESS(waveService.getDetailsSpecial(mapQuery));
     }
 
     @GET
