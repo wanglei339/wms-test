@@ -179,6 +179,7 @@ public class WuMartSap implements IWuMartSap{
 
         Holder<TableOfBapidlvserialnumber> serialNumbers = new Holder<TableOfBapidlvserialnumber>();
         String shipPoint = "";
+        logger.info("");
         if(SoConstant.ORDER_TYPE_DIRECT == orderType){
             shipPoint = PropertyUtils.getString("shipPoint");
         }
