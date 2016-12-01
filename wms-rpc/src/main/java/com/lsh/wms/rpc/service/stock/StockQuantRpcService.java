@@ -17,6 +17,7 @@ import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.*;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
@@ -246,6 +247,10 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         return itemQuant;
     }
     public int getLocationStockCount(Map<String, Object> mapQuery) {
+        BaseinfoLocation location = locationService.getInventoryLostLocation();
+        List<BaseinfoLocation> excludeLocationList = new ArrayList<BaseinfoLocation>();
+        excludeLocationList.add(location);
+        mapQuery.put("excludeLocationList", excludeLocationList);
         return quantService.countStockQuant(mapQuery);
     }
 
