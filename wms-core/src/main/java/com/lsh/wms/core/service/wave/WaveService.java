@@ -401,9 +401,6 @@ public class WaveService {
             BigDecimal allocQty = detail.getAllocQty();
             detail.setAllocQty(allocQty.subtract(realSplitQty));
             detail.setAllocUnitQty(PackUtil.EAQty2UomQty(detail.getAllocQty(), detail.getAllocUnitName()));
-            if(detail.getAllocQty().compareTo(BigDecimal.ZERO)<=0){
-                detail.setIsAlive(0L);
-            }
             this.updateDetail(detail);
         }
         return splitDetails;
@@ -490,9 +487,6 @@ public class WaveService {
             this.insertDetail(splitDetail);
             detail.setAllocQty(detail.getPickQty());
             detail.setAllocUnitQty(PackUtil.EAQty2UomQty(detail.getAllocQty(), detail.getAllocUnitName()));
-            if(detail.getAllocQty().compareTo(BigDecimal.ZERO)<=0){
-                detail.setIsAlive(0L);
-            }
             this.updateDetail(detail);
         }
         return splitDetail;
