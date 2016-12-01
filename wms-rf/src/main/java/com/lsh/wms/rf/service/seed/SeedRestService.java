@@ -399,7 +399,7 @@ public class SeedRestService implements ISeedRestService {
                     entry.setTaskHead(head);
                     iTaskRpcService.create(TaskConstant.TYPE_SEED, entry);
                 }
-                iTaskRpcService.done(taskId);
+                iTaskRpcService.done(head.getTaskId());
                 if(head.getTaskId().compareTo(taskId)==0) {
                     mapQuery.put("type",1);
                     mapQuery.put("orderId", info.getOrderId());

@@ -134,6 +134,7 @@ public class StockTransferCore {
                 || fromLocation.getRegionType() == LocationConstant.SPLIT_AREA
                 || fromLocation.getRegionType() == LocationConstant.LOFTS
                 || fromLocation.getRegionType() == LocationConstant.FLOOR
+                || fromLocation.getRegionType() == LocationConstant.MARKET_RETURN_AREA
         )){
             throw new BizCheckedException("2550037");
         }
