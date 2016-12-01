@@ -114,13 +114,13 @@ public class WaveGenerator {
         Map<String, List<ObdHeader>> clusters = new HashMap<String, List<ObdHeader>>();
         for(ObdHeader header : orderHeaders){
             String [] keys = { "0", "0" };
-            if(tpl.getClusterRoute() == 1 ){
+            if(tpl.getClusterRoute().equals(1) ){
                 keys[0] = header.getTransPlan();
             }
-            if(tpl.getClusterCustomer() == 1){
-                keys[1] = header.getOrderUser();
+            if(tpl.getClusterCustomer().equals(1)){
+                keys[1] = header.getDeliveryCode();
             }
-            String key = "";
+            String key = keys[0]+"_"+keys[1];
             if(clusters.get(key) == null){
                 clusters.put(key, new LinkedList<ObdHeader>());
             }
