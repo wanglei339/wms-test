@@ -372,6 +372,10 @@ public class LoadRfRestService implements ILoadRfRestService {
             throw new BizCheckedException("2130015");
         }
         Map<String, Object> result = iTuRpcService.getBoardDetailBycontainerId(containerId, tuId);
+        boolean isLoaded = Boolean.parseBoolean(result.get("isLoaded").toString());
+        if (isLoaded){
+            throw new BizCheckedException("2990031");
+        }
         return JsonUtils.SUCCESS(result);
     }
 
