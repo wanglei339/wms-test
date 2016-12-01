@@ -65,17 +65,21 @@ public class ObdSapStoTransporter implements ITransporter{
             if (null == obdDetail) {
                 throw new BizCheckedException("2900004");
             }
-            if(detail.getBackStatus() == SoConstant.DELIVERY_DETAIL_STATUS_SUCCESS){
-                continue;
-            }
+//            if(detail.getBackStatus() == SoConstant.DELIVERY_DETAIL_STATUS_SUCCESS){
+//                continue;
+//            }
             BigDecimal outQty = detail.getDeliveryNum();
             //ea转换为包装数量。
             ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(detail.getOrderId());
-            createObdDetail.setDlvQty(PackUtil.EAQty2UomQty(outQty, detail.getPackUnit()));
+            createObdDetail.setDlvQty(PackUtil.EAQty2UomQty(outQty, detail.getPackUnit()).setScale(2,BigDecimal.ROUND_HALF_UP));
+            createObdDetail.setRefDoc(obdHeader.getOrderOtherId());
             createObdDetail.setRefItem(obdDetail.getDetailOtherId());
             createObdDetail.setMaterial(obdDetail.getSkuCode());
+            createObdDetail.setOrderType(obdHeader.getOrderType());
+            createObdDetail.setSalesUnit(obdDetail.getPackName());
             createObdDetails.add(createObdDetail);
             createObdHeader.setOrderOtherId(obdHeader.getOrderOtherId());
+
         }
         createObdHeader.setWarehouseCode(PropertyUtils.getString("wumart.werks"));
         createObdHeader.setDeliveryId(sysLog.getBusinessId());

@@ -73,15 +73,12 @@ public class SysLogService {
         mapQuery.put("retryTimes", 10);;
         List<SysLog> list = sysLogDao.getTodoList(mapQuery);
         List<Long> logIdList = new ArrayList<Long>();
-        logger.info("one:"+logIdList.toString());
         for(SysLog log : list){
             logIdList.add(log.getLogId());
         }
-        logger.info("two:"+logIdList.toString());
         if (! logIdList.isEmpty()) {
             sysLogDao.lockSysLogList(logIdList);
         }
-        logger.info("three:"+logIdList.toString());
         return logIdList;
     }
 

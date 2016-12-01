@@ -3,6 +3,7 @@ package com.lsh.wms.integration.service.back;
 import com.alibaba.dubbo.common.logger.Logger;
 import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.alibaba.fastjson.JSON;
 import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.service.po.ReceiveService;
@@ -60,6 +61,7 @@ public class TransporterManager {
 
             }
         };
+        ITransporter transporter2 = null;
 
         switch (sysLog.getLogType()){
             case SysLogConstant.LOG_TYPE_OBD:
@@ -74,6 +76,7 @@ public class TransporterManager {
                         transporter = obdSapStoTransporter;
                     }else {
                         transporter = obdSapTransporter;
+                        transporter2 = obdOfcTransporter;
                     }
                 }else {
                     transporter = obdOfcTransporter;
@@ -96,6 +99,14 @@ public class TransporterManager {
 //            case SysLogConstant.LOG_TYPE_WIN:
 //                transporter = new InventoryWinTransporter();
         }
+        logger.info("~~~~begin back ofc ~~~~~~");
+        if(transporter2 != null){
+            logger.info("~~~~~~~~~111111syslog " + JSON.toJSONString(sysLog) + "~~~~~~");
+            transporter2.process(sysLog);
+            logger.info("~~~~~~~~~~222222222syslog :" + JSON.toJSONString(sysLog) + "~~~~~~`");
+        }
         transporter.process(sysLog);
+        logger.info("~~~~~~~~~~~3333333syslog" + JSON.toJSONString(sysLog));
+
     }
 }

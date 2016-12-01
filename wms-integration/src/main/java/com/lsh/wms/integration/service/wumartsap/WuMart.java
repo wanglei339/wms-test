@@ -83,30 +83,45 @@ public class WuMart implements IWuMart {
     public String sendObd(CreateObdHeader createObdHeader, SysLog sysLog) {
         sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
         try {
-            CreateObdHeader backDate = wuMartSap.obd2Sap(createObdHeader);
-            if(backDate != null){
-                String type = wuMartSap.obd2SapAccount(backDate);
+            CreateObdHeader obdBackDate = wuMartSap.obd2Sap(createObdHeader);
+            if(obdBackDate != null){
+                String type = wuMartSap.obd2SapAccount(obdBackDate);
                 if ("E".equals(type)){
                     sysLog.setLogMessage("obd过账失败!");
-                    sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
+                    sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
                     sysLog.setLogCode("obd过账失败");
-                    //0表示初始 1ibd创建成功 2ibd过账成功,3obd创建成功 4 obd过账成功
-                    sysLog.setStep(SysLogConstant.LOG_STEP_OBDCREATE);
                 }else{
                     sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
-                    sysLog.setStep(SysLogConstant.LOG_STEP_OBDFINISH);
+                    sysLog.setLogCode("obd过账成功");
                     sysLog.setLogMessage("obd过账成功");
                 }
+
+
+//            CreateObdHeader backDate = wuMartSap.obd2Sap(createObdHeader);
+//            if(backDate != null){
+//                String type = wuMartSap.obd2SapAccount(backDate);
+//                if ("E".equals(type)){
+//                    sysLog.setLogMessage("obd过账失败!");
+//                    sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
+//                    sysLog.setLogCode("obd过账失败");
+//                    //0表示初始 1ibd创建成功 2ibd过账成功,3obd创建成功 4 obd过账成功
+//                    sysLog.setStep(SysLogConstant.LOG_STEP_OBDCREATE);
+//                }else{
+//                    sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
+//                    sysLog.setStep(SysLogConstant.LOG_STEP_OBDFINISH);
+//                    sysLog.setLogMessage("obd过账成功");
+//                }
             }else {
-                sysLog.setLogMessage("创建失败!");
+                sysLog.setLogMessage("obd创建失败!");
                 sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
-                sysLog.setLogCode("ibd创建失败");
+                sysLog.setLogCode("obd创建失败");
             }
             sysLog.setSysCode("");
             sysLog.setSysMessage("");
         }catch (Exception ex){
             sysLog.setSysCode("接口抛出异常");//异常
             logger.info("抛出异常信息: ex : " + ex.fillInStackTrace());
+            logger.info(ex.getMessage());
             sysLog.setSysMessage(ex.getMessage());
             sysLog.setLogMessage("obd创建失败!");
             sysLog.setLogCode("obd创建失败");
