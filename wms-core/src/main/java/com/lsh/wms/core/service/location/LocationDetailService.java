@@ -372,14 +372,14 @@ public class LocationDetailService {
         if (baseinfoLocation == null) {
             return null;
         }
-        IStrategy iStrategy = locationDetailServiceFactory.getIstrategy(Long.valueOf(baseinfoLocation.getType()));
+        IStrategy iStrategy = locationDetailServiceFactory.getIstrategy(baseinfoLocation.getType());
         IBaseinfoLocaltionModel iBaseinfoLocaltionModel = iStrategy.getBaseinfoItemLocationModelById(locationId);
         ObjUtils.bean2bean(baseinfoLocation, iBaseinfoLocaltionModel);
         return iBaseinfoLocaltionModel;
     }
 
     /**
-     * 根据前端map返回Location的detail信息
+     * 根据PC前端map返回Location的detail信息
      *
      * @param params 传入的是getList的map参数集合
      * @return locationDetail的model
@@ -388,7 +388,7 @@ public class LocationDetailService {
         ///////////////////////////////////////////
         //如果传入的参数只有locationId,那么,先查主表,再查子表,此处先查主表
         //1.先查主表
-        List<BaseinfoLocation> baseinfoLocationList = locationService.getBaseinfoLocationList(params);
+        List<BaseinfoLocation> baseinfoLocationList = locationService.getBaseinfoLocationListPC(params);
         if (baseinfoLocationList.size() > 0) {
             List<BaseinfoLocation> subList = new ArrayList<BaseinfoLocation>();
             //从结果集中去子类的表中去查,并处理结果集
@@ -511,59 +511,59 @@ public class LocationDetailService {
      * @param conditionMap 创建条件
      * @return
      */
-    @Transactional(readOnly = false)
-    public boolean batchCreateBinsInOneLevel(Map<String, Object> conditionMap) {
-        //一层的库位起始code
-        String startCode = conditionMap.get("startCode").toString();
-        //一层插入的个数
-        Integer numInOneLevel = Integer.getInteger(conditionMap.get("startCode").toString());
-        //拣货位type还是集货位type
-        Long type = Long.valueOf(conditionMap.get("type").toString());
-        //typeName
-        String typeName = LocationConstant.LOCATION_TYPE_NAME.get(type);
-        //fatherId
-        Long fatherId = Long.valueOf(conditionMap.get("fatherId").toString());
-        //fatherType
-        Long fatherType = Long.valueOf(LocationConstant.LOCATION_CONFIGS.get(type).get("fatherType").toString());
-        //体积
-        BigDecimal volume = new BigDecimal(conditionMap.get("volume").toString());
-        //称重
-        BigDecimal weigh = new BigDecimal(conditionMap.get("weigh").toString());
-        //温区
-        Integer zoneType = Integer.valueOf(conditionMap.get("zoneType").toString());
-        //可用禁用上没上锁
-        Integer isLocked = Integer.valueOf(conditionMap.get("isLocked").toString());
-        //当前层
-        Integer curLevel = Integer.valueOf(conditionMap.get("curLevel").toString());
-        //当前区的命名
-        String code = conditionMap.get("regionCode").toString();
-        //第几个货架
-        Integer shelfNum = Integer.valueOf(conditionMap.get("shelfNum").toString());
-        //批量插入
-        for (int i = 1; i <= numInOneLevel; i++) {
-
-            String binCode = code + "-" + shelfNum + "-" + i + "-" + curLevel;
-            BaseinfoLocationBin bin = new BaseinfoLocationBin();
-            bin.setCreatedAt(DateUtils.getCurrentSeconds());
-            bin.setUpdatedAt(DateUtils.getCurrentSeconds());
-            bin.setVolume(volume);
-            bin.setType(type);
-            bin.setTypeName(typeName);
-            bin.setZoneType(zoneType);
-            bin.setIsValid(1);
-            //主表字段
-            bin.setClassification(LocationConstant.CLASSIFICATION_BINS);
-            bin.setCanStore(LocationConstant.CAN_STORE);
-            bin.setContainerVol(1L);
-            bin.setBinPositionNo(new Long(i));
-//            bin.setRegionNo();
-
-
-        }
-
-        return false;
-
-    }
+//    @Transactional(readOnly = false)
+//    public boolean batchCreateBinsInOneLevel(Map<String, Object> conditionMap) {
+//        //一层的库位起始code
+//        String startCode = conditionMap.get("startCode").toString();
+//        //一层插入的个数
+//        Integer numInOneLevel = Integer.getInteger(conditionMap.get("startCode").toString());
+//        //拣货位type还是集货位type
+//        Long type = Long.valueOf(conditionMap.get("type").toString());
+//        //typeName
+//        String typeName = LocationConstant.LOCATION_TYPE_NAME.get(type);
+//        //fatherId
+//        Long fatherId = Long.valueOf(conditionMap.get("fatherId").toString());
+//        //fatherType
+//        Long fatherType = Long.valueOf(LocationConstant.LOCATION_CONFIGS.get(type).get("fatherType").toString());
+//        //体积
+//        BigDecimal volume = new BigDecimal(conditionMap.get("volume").toString());
+//        //称重
+//        BigDecimal weigh = new BigDecimal(conditionMap.get("weigh").toString());
+//        //温区
+//        Integer zoneType = Integer.valueOf(conditionMap.get("zoneType").toString());
+//        //可用禁用上没上锁
+//        Integer isLocked = Integer.valueOf(conditionMap.get("isLocked").toString());
+//        //当前层
+//        Integer curLevel = Integer.valueOf(conditionMap.get("curLevel").toString());
+//        //当前区的命名
+//        String code = conditionMap.get("regionCode").toString();
+//        //第几个货架
+//        Integer shelfNum = Integer.valueOf(conditionMap.get("shelfNum").toString());
+//        //批量插入
+//        for (int i = 1; i <= numInOneLevel; i++) {
+//
+//            String binCode = code + "-" + shelfNum + "-" + i + "-" + curLevel;
+//            BaseinfoLocationBin bin = new BaseinfoLocationBin();
+//            bin.setCreatedAt(DateUtils.getCurrentSeconds());
+//            bin.setUpdatedAt(DateUtils.getCurrentSeconds());
+//            bin.setVolume(volume);
+//            bin.setType(type);
+//            bin.setTypeName(typeName);
+//            bin.setZoneType(zoneType);
+//            bin.setIsValid(1);
+//            //主表字段
+//            bin.setClassification(LocationConstant.CLASSIFICATION_BINS);
+//            bin.setCanStore(LocationConstant.CAN_STORE);
+//            bin.setContainerVol(1L);
+//            bin.setBinPositionNo(new Long(i));
+////            bin.setRegionNo();
+//
+//
+//        }
+//
+//        return false;
+//
+//    }
 
     /**
      * 根据规则批量生成一个货架的货位

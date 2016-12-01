@@ -149,7 +149,8 @@ public class SetGoodsRestService implements ISetGoodsRestService {
             info.setPlanner(uId);
             info.setBusinessMode(2L);
             entry.setTaskInfo(info);
-            taskRpcService.create(TaskConstant.TYPE_SET_GOODS,entry);
+            Long taskId = taskRpcService.create(TaskConstant.TYPE_SET_GOODS,entry);
+            info.setTaskId(taskId);
         }else {
             info = infos.get(0);
         }
@@ -163,12 +164,10 @@ public class SetGoodsRestService implements ISetGoodsRestService {
         if (null == customer.getCollectRoadId()) {
             throw new BizCheckedException("2180024");
         }
-        taskRpcService.assign(info.getTaskId(),uId);
+        //taskRpcService.assign(info.getTaskId(),uId);
         //获取location的id
         BaseinfoLocation location = locationRpcService.getLocation(customer.getCollectRoadId());
 
-
-        List<WaveDetail> waveDetails = new ArrayList<WaveDetail>();
         if(location == null ){
             return JsonUtils.TOKEN_ERROR("该托盘对应门店无集货信息");
         }

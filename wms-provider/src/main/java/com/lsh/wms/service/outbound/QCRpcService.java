@@ -585,7 +585,7 @@ public class QCRpcService implements IQCRpcService {
             qcTaskInfosMap.put(qcTaskId, qcInfo);
         }
         //完成qc的detailList 判断贵品
-        //todo 找到当前的所有贵品,是按照有一个贵品就是贵品
+        //找到当前的所有贵品,是按照有一个贵品就是贵品
         Map<Long, Map<String, Object>> qcDoneDetailMap = new HashMap<Long, Map<String, Object>>();
         for (WaveDetail oneDetail : waveDetails) {
 

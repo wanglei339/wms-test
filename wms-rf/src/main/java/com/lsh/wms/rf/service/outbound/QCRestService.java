@@ -253,11 +253,13 @@ public class QCRestService implements IRFQCRestService {
             throw new BizCheckedException("2120016");
         }
         //获取集货道信息去库存表中查位置,   系统设计 一个托盘只能在一个位置上
-        List<Long> locationIds = stockQuantService.getLocationIdByContainerId(containerInfo.getContainerId());
-        if (null == locationIds || locationIds.size() < 1) {
-            throw new BizCheckedException("2180040");
-        }
-        BaseinfoLocation collectLocaion = iLocationRpcService.getLocation(locationIds.get(0));
+//        List<Long> locationIds = stockQuantService.getLocationIdByContainerId(containerInfo.getContainerId());
+//        if (null == locationIds || locationIds.size() < 1) {
+//            throw new BizCheckedException("2180040");
+//        }
+        //使用wave_detail查位置
+        Long locationId = details.get(0).getAllocCollectLocation();
+        BaseinfoLocation collectLocaion = iLocationRpcService.getLocation(locationId);
         Map<String, Object> rstMap = new HashMap<String, Object>();
         rstMap.put("qcList", undoDetails);
         rstMap.put("isDirect", isDirect);
@@ -445,6 +447,8 @@ public class QCRestService implements IRFQCRestService {
             for (WaveDetail detail : details) {
                 detail.setQcExceptionDone(1L);  // 正常不需要处理
                 detail.setQcQty(detail.getPickQty()); //先默认qc数量是正常的
+                detail.setQcTimes(WaveConstant.QC_TIMES_MORE);
+
                 waveService.updateDetail(detail);
             }
         }

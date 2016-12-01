@@ -52,6 +52,10 @@ public class InbReceiptDetail implements Serializable {
     private Date updatetime;
 	/**是否例外收货 1是 2否 默认不是例外收货*/
 	private Integer isException = 2;
+	/**是否可用 1 可用 2 不可用*/
+	private Integer isValid = 1;
+	/**备注*/
+	private String remark="";
 
 
 
@@ -237,5 +241,21 @@ public class InbReceiptDetail implements Serializable {
 
 	public void setIsException(Integer isException) {
 		this.isException = isException;
+	}
+
+	public Integer getIsValid() {
+		return isValid;
+	}
+
+	public void setIsValid(Integer isValid) {
+		this.isValid = isValid;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
 }

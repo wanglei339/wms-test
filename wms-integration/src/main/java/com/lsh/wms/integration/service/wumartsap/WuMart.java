@@ -141,18 +141,19 @@ public class WuMart implements IWuMart {
                 CreateIbdHeader backDate = wuMartSap.ibd2Sap((CreateIbdHeader) ibdObdMap.get("createIbdHeader"));
                 if(backDate != null) {
                     Map<String,Object> map =  wuMartSap.ibd2SapAccount(backDate);
-                    if("E".equals(map.get("type"))){
-                        sysLog.setLogMessage("直流ibd过账SAP返回值为空!");
-                        sysLog.setStep(SysLogConstant.LOG_STEP_INIT);
-                        sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
-                        sysLog.setLogCode("直流ibd过账SAP返回值为空!");
-                    }else if("S".equals(map.get("Type"))){
+//                    if("E".equals(map.get("type"))){
+//                        sysLog.setLogMessage("直流ibd过账SAP返回值为空!");
+//                        sysLog.setStep(SysLogConstant.LOG_STEP_INIT);
+//                        sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
+//                        sysLog.setLogCode("直流ibd过账SAP返回值为空!");
+//                    }else
+                    if("S".equals(map.get("Type"))){
                         sysLog.setStep(SysLogConstant.LOG_STEP_IBDFINISH);
                     }else{
                         sysLog.setStep(SysLogConstant.LOG_STEP_INIT);
-                        sysLog.setLogMessage("ibd创建成功,过账失败");
+                        sysLog.setLogMessage("直流过账失败");
                         sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
-                        sysLog.setLogCode("ibd创建成功,过账失败");
+                        sysLog.setLogCode("直流ibd过账失败");
                     }
                 }else {
                     sysLog.setLogMessage("ibd创建失败!");

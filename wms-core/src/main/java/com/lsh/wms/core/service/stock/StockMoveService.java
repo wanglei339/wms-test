@@ -106,7 +106,7 @@ public class StockMoveService {
         for (StockQuant quant : quantList) {
             StockMove move = new StockMove();
             move.setTaskId(taskId);
-            move.setFromLocationId(fromLocationId);
+            move.setFromLocationId(quant.getLocationId());
             move.setToLocationId(toLocationId);
             move.setFromContainerId(fromContainerId);
             move.setToContainerId(toContainerId);
@@ -135,13 +135,6 @@ public class StockMoveService {
         }
      }
 
-    @Transactional()
-    public void move(List<StockMove> moveList,Long stockTakingId) throws BizCheckedException{
-        this.move(moveList);
-
-        persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN,stockTakingId);
-
-    }
 
     @Transactional(readOnly = false)
     public void move(StockMove move) throws BizCheckedException {

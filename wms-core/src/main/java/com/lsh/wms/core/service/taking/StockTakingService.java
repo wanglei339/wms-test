@@ -131,6 +131,11 @@ public class StockTakingService {
             OverLossReport overLossReport = new OverLossReport();
             //StockItem stockItem = new StockItem();
             if (detail.getSkuId().equals(detail.getRealSkuId())) {
+
+                if(detail.getTheoreticalQty().compareTo(detail.getRealQty())==0){
+                    continue;
+                }
+
                 Long containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
                 StockMove move = new StockMove();
                 move.setTaskId(detail.getTaskId());
@@ -192,7 +197,7 @@ public class StockTakingService {
         }
         try {
             this.insertLossOrOver(overLossReports);
-            moveService.move(moveList, stockTakingId);
+            moveService.move(moveList);
             for (StockMove move : moveList) {
                 StockDelta delta = new StockDelta();
                 delta.setItemId(move.getItemId());

@@ -202,7 +202,7 @@ public class LocationRestService implements ILocationRestService {
         List<BaseinfoLocation> targetList = new ArrayList<BaseinfoLocation>();
 //        List<Long> regionType = Arrays.asList(LocationConstant.SHELF_PICKING_BIN, LocationConstant.SHELF_STORE_BIN, LocationConstant.LOFT_PICKING_BIN, LocationConstant.LOFT_STORE_BIN, LocationConstant.SPLIT_SHELF_BIN);
 //        for (Long oneType : regionType) {
-            List<BaseinfoLocation> locationList = locationService.getChildrenLocationsByType(locationId, LocationConstant.BIN);
+        List<BaseinfoLocation> locationList = locationService.getChildrenLocationsByType(locationId, LocationConstant.BIN);
 //            targetList.addAll(locationList);
 //        }
 
@@ -243,7 +243,7 @@ public class LocationRestService implements ILocationRestService {
         //获取所有商品已使用的拣货位
         List<BaseinfoItemLocation> baseinfoItemLocations = itemLocationService.getItemLocation(null);
         List<Long> locationList = new ArrayList<Long>();
-        for(BaseinfoItemLocation b :baseinfoItemLocations){
+        for (BaseinfoItemLocation b : baseinfoItemLocations) {
             locationList.add(b.getPickLocationid());
         }
         //获取所有拣货位
@@ -254,8 +254,8 @@ public class LocationRestService implements ILocationRestService {
         mapQuery.put("isValid", LocationConstant.IS_VALID);
         mapQuery.put("isLocked", LocationConstant.UNLOCK);
         mapQuery.put("canStore", LocationConstant.CAN_STORE);
-        mapQuery.put("regionType",LocationConstant.SPLIT_AREA);
-        mapQuery.put("type",LocationConstant.BIN);
+        mapQuery.put("regionType", LocationConstant.SPLIT_AREA);
+        mapQuery.put("type", LocationConstant.BIN);
         List<BaseinfoLocation> pickstoreBins = locationService.getBaseinfoLocationList(mapQuery);
         collectionBins.addAll(pickstoreBins);
         //货架拣货位
@@ -265,27 +265,27 @@ public class LocationRestService implements ILocationRestService {
         //拆零区拣货位
         List<BaseinfoLocation> splitList = new ArrayList<BaseinfoLocation>();
 
-        for(BaseinfoLocation b : collectionBins){
-            if(locationList.contains(b.getLocationId())){
+        for (BaseinfoLocation b : collectionBins) {
+            if (locationList.contains(b.getLocationId())) {
                 //拣货位已被使用
                 continue;
             }
-            if(LocationConstant.SHELFS.compareTo(b.getRegionType())==0){
+            if (LocationConstant.SHELFS.compareTo(b.getRegionType()) == 0) {
                 //货架
                 shelfsList.add(b);
-            }else if(LocationConstant.LOFTS.compareTo(b.getRegionType())==0){
+            } else if (LocationConstant.LOFTS.compareTo(b.getRegionType()) == 0) {
                 //阁楼
                 loftsList.add(b);
 
-            }else if(LocationConstant.SPLIT_AREA.compareTo(b.getRegionType())==0){
+            } else if (LocationConstant.SPLIT_AREA.compareTo(b.getRegionType()) == 0) {
                 //拆零区
                 splitList.add(b);
             }
         }
-        Map<String,Object> returnMap = new HashMap<String, Object>();
-        returnMap.put("shelfsList",shelfsList);
-        returnMap.put("loftsList",loftsList);
-        returnMap.put("splitList",splitList);
+        Map<String, Object> returnMap = new HashMap<String, Object>();
+        returnMap.put("shelfsList", shelfsList);
+        returnMap.put("loftsList", loftsList);
+        returnMap.put("splitList", splitList);
         return JsonUtils.SUCCESS(returnMap);
     }
 
@@ -434,6 +434,7 @@ public class LocationRestService implements ILocationRestService {
 
     /**
      * 拆分货位
+     *
      * @return
      * @throws BizCheckedException
      */
@@ -445,6 +446,32 @@ public class LocationRestService implements ILocationRestService {
         String locationCode = mapQuery.get("locationCode").toString();
         BaseinfoLocation newLocation = locationRpcService.splitBin(locationId, locationCode);
         return JsonUtils.SUCCESS(newLocation);
+    }
+
+    /**
+     * 通过制定的type获取位置
+     *
+     * @param type
+     * @return
+     * @throws BizCheckedException
+     */
+    @GET
+    @Path("getLocationByType")
+    public String getLocationByType(@QueryParam("type") Long type) throws BizCheckedException {
+        return JsonUtils.SUCCESS(locationService.getLocationsByType(type));
+    }
+
+    /**
+     * 根据祖先id和子孙的type,获取指定位置
+     *
+     * @param sonType
+     * @return
+     * @throws BizCheckedException
+     */
+    @GET
+    @Path("getChildrenLocationsByFatherIdAndType")
+    public String getChildrenLocationsByFatherIdAndType(@QueryParam("fatherLocationId")Long fatherLocationId, @QueryParam("sonType")Long sonType) throws BizCheckedException {
+        return JsonUtils.SUCCESS(locationService.getChildrenLocationsByType(fatherLocationId, sonType));
     }
 
     /**

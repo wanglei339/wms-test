@@ -535,7 +535,7 @@ public class StockTransferCore {
         BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(locationId);
         BigDecimal pickVolume = bin.getVolume();
         //取容积的80%
-        pickVolume = pickVolume.multiply(new BigDecimal(0.8)).setScale(0, BigDecimal.ROUND_HALF_UP);
+        pickVolume = pickVolume.multiply(BigDecimal.valueOf(0.8)).setScale(0, BigDecimal.ROUND_HALF_UP);
         BaseinfoItem item = itemService.getItem(itemId);
 
         BigDecimal bulk = BigDecimal.ONE;
