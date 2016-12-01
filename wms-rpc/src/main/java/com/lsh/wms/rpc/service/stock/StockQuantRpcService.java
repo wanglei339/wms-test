@@ -17,6 +17,7 @@ import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.*;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
@@ -79,6 +80,12 @@ public class StockQuantRpcService implements IStockQuantRpcService {
 
     public List<StockQuant> getQuantList(StockQuantCondition condition) throws BizCheckedException {
         Map<String, Object> mapQuery = this.getQueryCondition(condition);
+        if (condition.getExcludeLocation() != null) {
+            BaseinfoLocation location = locationService.getInventoryLostLocation();
+            List<BaseinfoLocation> excludeLocationList = new ArrayList<BaseinfoLocation>();
+            excludeLocationList.add(location);
+            mapQuery.put("excludeLocationList", excludeLocationList);
+        }
         List<StockQuant> quantList = quantService.getQuants(mapQuery);
         return quantList == null ? new ArrayList<StockQuant>() : quantList;
     }

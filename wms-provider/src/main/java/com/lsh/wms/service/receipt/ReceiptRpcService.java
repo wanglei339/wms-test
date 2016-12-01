@@ -519,7 +519,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
             taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
             taskInfo.setContainerId(inbReceiptHeader.getContainerId());
             taskInfo.setItemId(inbReceiptDetailList.get(0).getItemId());
-            taskInfo.setOperator(inbReceiptHeader.getStaffId());
+            //存uid
+            taskInfo.setOperator(Long.valueOf(inbReceiptHeader.getReceiptUser()));
             taskEntry.setTaskInfo(taskInfo);
             taskId = iTaskRpcService.create(TaskConstant.TYPE_PO, taskEntry);
             iTaskRpcService.done(taskId);
