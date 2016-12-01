@@ -332,6 +332,9 @@ public class LoadRfRestService implements ILoadRfRestService {
         tuDetail.setBoxNum(boxNum);
         tuDetail.setContainerNum(containerNum);
         tuDetail.setTurnoverBoxNum(turnoverBoxNum);
+        if (isExpensive){
+            boardNum = 0L;
+        }
         tuDetail.setBoardNum(boardNum); //一板多托数量 todo 贵品不算板数
         tuDetail.setStoreId(storeId);
         tuDetail.setLoadAt(DateUtils.getCurrentSeconds());
@@ -365,6 +368,10 @@ public class LoadRfRestService implements ILoadRfRestService {
         Long containerId = Long.valueOf(request.get("containerId").toString());
         if (null == tuHead) {
             throw new BizCheckedException("2990022");
+        }
+        List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(containerId);
+        if (null == waveDetails || waveDetails.isEmpty()) {
+            throw new BizCheckedException("2130015");
         }
         Map<String, Object> result = iTuRpcService.getBoardDetailBycontainerId(containerId, tuId);
         return JsonUtils.SUCCESS(result);
