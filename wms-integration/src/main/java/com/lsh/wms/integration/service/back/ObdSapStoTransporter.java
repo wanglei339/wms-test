@@ -74,8 +74,10 @@ public class ObdSapStoTransporter implements ITransporter{
             createObdDetail.setDlvQty(PackUtil.EAQty2UomQty(outQty, detail.getPackUnit()));
             createObdDetail.setRefItem(obdDetail.getDetailOtherId());
             createObdDetail.setMaterial(obdDetail.getSkuCode());
+            createObdDetail.setOrderType(obdHeader.getOrderType());
             createObdDetails.add(createObdDetail);
             createObdHeader.setOrderOtherId(obdHeader.getOrderOtherId());
+
         }
         createObdHeader.setWarehouseCode(PropertyUtils.getString("wumart.werks"));
         createObdHeader.setDeliveryId(sysLog.getBusinessId());
