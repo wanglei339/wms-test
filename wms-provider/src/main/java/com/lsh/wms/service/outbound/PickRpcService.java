@@ -65,7 +65,7 @@ public class PickRpcService implements IPCPickRpcService {
             waveDetails = waveService.getWaveDetailsByMergedContainerId(contaienrId);
         }
         if (null == waveDetails || waveDetails.size() < 1) {
-            throw new BizCheckedException("2870042");
+            throw new BizCheckedException("2870044");
         }
 
         //封装商品的结果集
