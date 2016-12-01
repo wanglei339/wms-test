@@ -92,12 +92,14 @@ public class QCRpcService implements IQCRpcService {
             throw new BizCheckedException("2180002");
         }
 
-        List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(detail.getContainerId());
-        if (null == stockQuants || stockQuants.size() < 1) {
-            throw new BizCheckedException("2990043");
-        }
+//        List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(detail.getContainerId());
+//        if (null == stockQuants || stockQuants.size() < 1) {
+//            throw new BizCheckedException("2990043");
+//        }
+        //拣货0 没有库存
+        BaseinfoLocation location = locationService.getLocation(detail.getAllocCollectLocation());
 
-        Long locationId = stockQuants.get(0).getLocationId();
+        Long locationId = location.getLocationId();
 
         move.setItemId(itemId);
         move.setSkuId(detail.getSkuId());
@@ -520,11 +522,12 @@ public class QCRpcService implements IQCRpcService {
         }
         //拣货缺交真的没有没有stockQuant
 
-        List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(containerId);
-        if (null == stockQuants || stockQuants.size() < 1) {
-            throw new BizCheckedException("2990043");
-        }
-        Long locationId = stockQuants.get(0).getLocationId();
+//        List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(containerId);
+//        if (null == stockQuants || stockQuants.size() < 1) {
+//            throw new BizCheckedException("2990043");
+//        }
+        BaseinfoLocation location = locationService.getLocation(waveDetails.get(0).getAllocCollectLocation());
+        Long locationId = location.getLocationId();
 
         move.setOwnerId(waveDetails.get(0).getOwnerId());
         move.setItemId(itemId);
