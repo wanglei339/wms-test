@@ -214,8 +214,10 @@ public class BaseTaskService {
         taskInfo.setStatus(TaskConstant.Done);
         taskInfo.setFinishTime(DateUtils.getCurrentSeconds());
         taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
-        Long date = org.apache.commons.lang.time.DateUtils.round(Calendar.getInstance(), Calendar.DATE).getTimeInMillis() / 1000L;
-        taskInfo.setDate(date);
+
+        //Long date = org.apache.commons.lang.time.DateUtils.round(Calendar.getInstance(), Calendar.DATE).getTimeInMillis() / 1000L;
+        //先修改为DateUtils.getCurrentSeconds()
+        taskInfo.setDate(DateUtils.getCurrentSeconds());
         taskHandler.calcPerformance(taskInfo);
         taskInfoDao.update(taskInfo);
     }
