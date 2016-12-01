@@ -390,10 +390,6 @@ public class TuRpcService implements ITuRpcService {
                 isExpensive = true;
             }
         }
-        if (isExpensive){
-            boardNum = BigDecimal.ZERO;
-        }
-
 
         //聚类板子的箱数,以QC聚类
         Map<String, Object> taskQuery = new HashMap<String, Object>();
@@ -441,6 +437,11 @@ public class TuRpcService implements ITuRpcService {
         if (null != tuDetail) {
             isLoaded = true;
         }
+
+        if (isExpensive) {
+            boardNum = BigDecimal.ZERO;
+        }
+
         result.put("customerId", csiCustomer.getCustomerId());
         result.put("isLoaded", isLoaded);
         result.put("containerId", mergedContainerId);   //板子码
