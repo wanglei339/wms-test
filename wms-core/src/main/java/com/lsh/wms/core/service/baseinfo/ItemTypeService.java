@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,9 @@ public class ItemTypeService {
     public List<BaseinfoItemType> getBaseinfoItemTypeList(Map<String, Object> params){
         return baseinfoItemTypeDao.getBaseinfoItemTypeList(params);
     }
+    public Integer countItemtypeList(Map<String, Object> params){
+        return baseinfoItemTypeDao.countBaseinfoItemType(params);
+    }
     @Transactional(readOnly = false)
     public void insertItemTypeRelation(BaseinfoItemTypeRelation baseinfoItemTypeRelation){
         baseinfoItemTypeRelationDao.insert(baseinfoItemTypeRelation);
@@ -66,11 +70,35 @@ public class ItemTypeService {
     public List<BaseinfoItemTypeRelation> getBaseinfoItemTypeRelationList(Map<String, Object> params){
         return baseinfoItemTypeRelationDao.getBaseinfoItemTypeRelationList(params);
     }
-    public List<Map<String, Object>> getBaseinfoItemTypeAllRelationList(Map<String, Object> params){
-        return baseinfoItemTypeRelationDao.getBaseinfoItemTypeAllRelationList(params);
-    }
-    public Integer countBaseinfoItemTypeAllRelationList(Map<String, Object> params){
-        return baseinfoItemTypeRelationDao.countBaseinfoItemTypeAllRelationList(params);
+    public Map<Long, ArrayList<Long>> getBaseinfoItemTypeAllRelationList(Map<String, Object> params){
+        List<BaseinfoItemTypeRelation> list = getBaseinfoItemTypeRelationList(params);
+        if(list == null || list.size() <= 0){
+            return null;
+        }
+        Map<Long, ArrayList<Long>> returnMap = new HashMap<Long, ArrayList<Long>>();
+        for(BaseinfoItemTypeRelation b : list){
+            if(returnMap.get(b.getItemTypeId()) == null){
+                ArrayList<Long> mutexList= new ArrayList<Long>();
+                mutexList.add(b.getItemMutexId());
+                returnMap.put(b.getItemTypeId(),mutexList);
+            }else{
+                ArrayList<Long> mutexList = returnMap.get(b.getItemTypeId());
+                mutexList.add(b.getItemMutexId());
+                returnMap.put(b.getItemTypeId(),mutexList);
+            }
+            if(returnMap.get(b.getItemMutexId()) == null){
+                ArrayList<Long> mutexList= new ArrayList<Long>();
+                mutexList.add(b.getItemTypeId());
+                returnMap.put(b.getItemMutexId(),mutexList);
+            }else{
+                ArrayList<Long> mutexList = returnMap.get(b.getItemMutexId());
+                mutexList.add(b.getItemTypeId());
+                returnMap.put(b.getItemMutexId(),mutexList);
+            }
+
+        }
+
+        return returnMap;
     }
 
 }

@@ -21,6 +21,9 @@ public class ReceiptItem implements Serializable {
     /**orderId*/
     private Long orderId = 0l;
 
+    /** 上游细单id */
+    private String detailOtherId;
+
     /** itemId */
     private Long itemId;
 
@@ -85,6 +88,9 @@ public class ReceiptItem implements Serializable {
 
     /**包装名称*/
     private String packName;
+
+    /** 保质期天数 */
+    private BigDecimal shelfLife = BigDecimal.ZERO;
 
     public ReceiptItem() {
 
@@ -269,5 +275,21 @@ public class ReceiptItem implements Serializable {
 
     public void setSkuCode(String skuCode) {
         this.skuCode = skuCode;
+    }
+
+    public String getDetailOtherId() {
+        return detailOtherId;
+    }
+
+    public void setDetailOtherId(String detailOtherId) {
+        this.detailOtherId = detailOtherId;
+    }
+
+    public BigDecimal getShelfLife() {
+        return shelfLife;
+    }
+
+    public void setShelfLife(BigDecimal shelfLife) {
+        this.shelfLife = shelfLife;
     }
 }

@@ -97,8 +97,8 @@ public class ReceiptRestService implements IReceiptRfService {
     @Autowired
     private SysUserService sysUserService;
 
-   // @Autowired
-   // private PoReceiptService poReceiptService;
+    // @Autowired
+    // private PoReceiptService poReceiptService;
 
 
 
@@ -148,9 +148,24 @@ public class ReceiptRestService implements IReceiptRfService {
         if(ibdHeader == null) {
             throw new BizCheckedException("2020001");
         }
+        //TODO check list
+        /*
+           订单级别判断
+            比如:
+                供商是否正确维护 OK
+                直流的门店信息是否维护
+                直流的集货道没有维护会有什么问题?
+             。。。。。。
+         */
+        String supplierCode = ibdHeader.getSupplierCode();//供商编码
+        CsiSupplier csiSupplier = csiSupplierService.getSupplier(supplierCode,ibdHeader.getOwnerUid());
+        if(csiSupplier == null){
+            throw new BizCheckedException("2020109");//供商信息不存在
+        }
+
         receiptRequest.setOrderId(ibdHeader.getOrderId());
         Integer orderType = ibdHeader.getOrderType();
-
+        List<ReceiptItem> itemsList = new ArrayList<ReceiptItem>();
         for(ReceiptItem receiptItem : receiptRequest.getItems()) {
 
             //将数量转换成EA
@@ -175,7 +190,6 @@ public class ReceiptRestService implements IReceiptRfService {
             //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
             //CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, receiptItem.getBarCode());
 
-            //BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
             BaseinfoItem baseinfoItem = this.getItem(receiptItem.getBarCode(),ibdHeader.getOwnerUid());
             //  16/11/17  因用户输入的可能是物美码,此处为国条重新赋值
             receiptItem.setBarCode(baseinfoItem.getCode());
@@ -211,24 +225,34 @@ public class ReceiptRestService implements IReceiptRfService {
 
 
             //TODO 这里也是有风险的,没有地方限制了订单里一个商品只能有一行,尤其是直流里面一个CPO对应一个门店2个STO就会出错。
-            IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(), baseinfoItem.getSkuCode());
-            if(ibdDetail == null){
+            List<IbdDetail> ibdDetailList = poOrderService.getInbPoDetailListByOrderIdAndSkuCode(ibdHeader.getOrderId(), baseinfoItem.getSkuCode());
+            if(ibdDetailList == null || ibdDetailList.size() <= 0){
                 throw new BizCheckedException("2020001");
             }
 
 
             //这里有问题没调通,然后其实真实逻辑因该是非EA的情况下做这个限制,是可以EA收货的
             //验证箱规是否一致
-            if(ibdDetail.getPackUnit().compareTo(BigDecimal.ONE) != 0 &&
-                    baseinfoItem.getPackUnit().compareTo(ibdDetail.getPackUnit()) != 0){
-                throw new BizCheckedException("2020105");//箱规不一致,不能收货
+            boolean isContainEa = false;//箱规中是否包含ea
+            for(IbdDetail ibdDetail : ibdDetailList){
+                if(!isContainEa && ibdDetail.getPackUnit().compareTo(BigDecimal.ONE) == 0 ){
+                    receiptItem.setPackUnit(ibdDetail.getPackUnit());
+                    isContainEa = true;
+                }
+                if(ibdDetail.getPackUnit().compareTo(BigDecimal.ONE) != 0 &&
+                        baseinfoItem.getPackUnit().compareTo(ibdDetail.getPackUnit()) != 0){
+                    throw new BizCheckedException("2020105");//箱规不一致,不能收货
+                }
             }
-
+            if(!isContainEa){
+                //不包含ea
+                receiptItem.setPackUnit(ibdDetailList.get(0).getPackUnit());
+            }
             /*
             验证保质期是否有效
              */
             //取出是否检验保质期字段 exceptionReceipt = 0 校验 = 1不校验
-            Integer exceptionReceipt = ibdDetail.getExceptionReceipt();
+            Integer exceptionReceipt = ibdDetailList.get(0).getExceptionReceipt();
             String exceptionCode = receiptItem.getExceptionCode() == null ? "" :receiptItem.getExceptionCode();// 16/11/10 从请求参数中获取例外代码
             if(StringUtils.isNotEmpty(exceptionCode)){
                 receiptItem.setIsException(1);//1表示例外收货
@@ -244,7 +268,7 @@ public class ReceiptRestService implements IReceiptRfService {
                 }
             }
             //如果没有输入生产日期和到期日
-            //TODO 没有输入生产日期的不能填现在的日期,逻辑不合理,而且容易对后面的先进先出逻辑造成困扰
+            //没有输入生产日期的不能填现在的日期,逻辑不合理,而且容易对后面的先进先出逻辑造成困扰
            /* if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null) {
                 receiptItem.setProTime(new Date());
             }else */
@@ -260,33 +284,22 @@ public class ReceiptRestService implements IReceiptRfService {
                     receiptItem.setProTime(new Date(betweenTime));
                 }
             }
-
+            receiptItem.setShelfLife(baseinfoItem.getShelfLife());
             receiptItem.setSkuCode(baseinfoItem.getSkuCode());
             receiptItem.setItemId(baseinfoItem.getItemId());
             receiptItem.setSkuId(baseinfoItem.getSkuId());
-            receiptItem.setSkuName(ibdDetail.getSkuName());
-            receiptItem.setPackUnit(ibdDetail.getPackUnit());
+            receiptItem.setSkuName(ibdDetailList.get(0).getSkuName());
             //receiptItem.setPackName(ibdDetail.getPackName());
             receiptItem.setMadein(baseinfoItem.getProducePlace());
+            for(IbdDetail ibdDetail : ibdDetailList){
+                receiptItem.setDetailOtherId(ibdDetail.getDetailOtherId());
+                itemsList.add(receiptItem);
+            }
         }
 
-        //TODO check list
-        /*
-            只是判断了商品级别的
-            没有判断订单级别的一些数据
-            比如:
-                供商是否正确维护 OK
-                直流的门店信息是否维护
-                直流的集货道没有维护会有什么问题?
-             。。。。。。
-         */
-        String supplierCode = ibdHeader.getSupplierCode();//供商编码
-        CsiSupplier csiSupplier = csiSupplierService.getSupplier(supplierCode,ibdHeader.getOwnerUid());
-        if(csiSupplier == null){
-            throw new BizCheckedException("2020109");//供商信息不存在
-        }
+
         receiptRequest.setSupplierId(csiSupplier.getSupplierId());
-        receiptRequest.setItems(receiptItemList);
+        receiptRequest.setItems(itemsList);
         receiptRequest.setOwnerId(ibdHeader.getOwnerUid());
 
 
@@ -421,9 +434,9 @@ public class ReceiptRestService implements IReceiptRfService {
 
         //BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
 
-        IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(),baseinfoItem.getSkuCode());
+        List<IbdDetail> ibdDetailList = poOrderService.getInbPoDetailListByOrderIdAndSkuCode(ibdHeader.getOrderId(),baseinfoItem.getSkuCode());
 
-        if (ibdDetail == null) {
+        if (ibdDetailList == null || ibdDetailList.size() <= 0) {
             throw new BizCheckedException("2020004");
         }
 
@@ -436,23 +449,19 @@ public class ReceiptRestService implements IReceiptRfService {
 
 
         Map<String, Object> orderInfoMap = new HashMap<String, Object>();
-        orderInfoMap.put("skuName", ibdDetail.getSkuName());
-        //orderInfoMap.put("packName", "H01");
-        //orderInfoMap.put("packName", ibdDetail.getPackName());
-
-        //剩余数量。
-        //判断是否为整箱
-        BigDecimal inboundQty = ibdDetail.getInboundQty();
-        if(inboundQty.divideAndRemainder(ibdDetail.getPackUnit())[1].compareTo(BigDecimal.ZERO) == 0) {
-            orderInfoMap.put("orderQty",ibdDetail.getOrderQty().subtract(ibdDetail.getInboundQty().divide(ibdDetail.getPackUnit())));
-            orderInfoMap.put("packName",ibdDetail.getPackName());
-        }else{
-            orderInfoMap.put("orderQty",PackUtil.UomQty2EAQty(ibdDetail.getOrderQty(),ibdDetail.getPackUnit()).subtract(inboundQty));
-            orderInfoMap.put("packName","EA");
+        orderInfoMap.put("skuName", ibdDetailList.get(0).getSkuName());
+        //剩余待收货数
+        BigDecimal orderQty = BigDecimal.ZERO;
+        for(IbdDetail ibdDetail : ibdDetailList){
+            orderInfoMap.put("packName", ibdDetail.getPackName());
+            //箱规不一致时
+            if(ibdDetail.getPackName().equals(orderInfoMap.get("packName"))){
+                orderInfoMap.put("packName", "EA");
+            }
+            orderQty = orderQty.add(ibdDetail.getOrderQty().subtract(ibdDetail.getInboundQty().divide(ibdDetail.getPackUnit())));
         }
-
-//        BigDecimal orderQty = ibdDetail.getOrderQty().subtract(ibdDetail.getInboundQty().divide(ibdDetail.getPackUnit()));
-//        orderInfoMap.put("orderQty", orderQty);
+       // BigDecimal orderQty = ibdDetail.getOrderQty().subtract(ibdDetail.getInboundQty().divide(ibdDetail.getPackUnit()));
+        orderInfoMap.put("orderQty", orderQty);// todo 剩余待收货数
         orderInfoMap.put("batchNeeded", baseinfoItem.getBatchNeeded());
         //码盘规则
         orderInfoMap.put("pile",baseinfoItem.getPileX()+ "*" + baseinfoItem.getPileY() + "*" + baseinfoItem.getPileZ());
@@ -680,7 +689,7 @@ public class ReceiptRestService implements IReceiptRfService {
             if(!containerService.isContainerCanUse(containerId)){
                 throw new BizCheckedException("2000002");
             }else{
-            //可用,存入缓存
+                //可用,存入缓存
                 redisStringDao.set(containerStoreKey,storeId,2,TimeUnit.DAYS);
             }
         }
@@ -692,13 +701,13 @@ public class ReceiptRestService implements IReceiptRfService {
         }
 
 
-       BaseinfoItem baseinfoItem = this.getItem(barCode,ibdHeader.getOwnerUid());
+        BaseinfoItem baseinfoItem = this.getItem(barCode,ibdHeader.getOwnerUid());
 
         logger.info("1111111111~~~~~~~~~~~~~~~~~~~~~ baeseinfo_item  : " + JSON.toJSONString(baseinfoItem) +" ~~~~~~~~~~~~~~~~");
-       if(baseinfoItem.getIsInfoIntact() == 0){
-           logger.info("22222222222~~~~~~~~~~~~~~~~ IsInfoIntact : " + baseinfoItem.getIsInfoIntact());
-           throw new BizCheckedException("2020104");//商品信息不完整,不能收货
-       }
+        if(baseinfoItem.getIsInfoIntact() == 0){
+            logger.info("22222222222~~~~~~~~~~~~~~~~ IsInfoIntact : " + baseinfoItem.getIsInfoIntact());
+            throw new BizCheckedException("2020104");//商品信息不完整,不能收货
+        }
         logger.info("33333333333333333");
 
         //是否可收货
@@ -713,16 +722,18 @@ public class ReceiptRestService implements IReceiptRfService {
         //skucode
         String skuCode=baseinfoItem.getSkuCode();
 
-        IbdDetail ibdDetail=poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(),skuCode);
-        if(ibdDetail==null){
+        //一个po单中可能存在多条相同商品的行项目
+        List<IbdDetail> ibdDetailList = poOrderService.getInbPoDetailListByOrderIdAndSkuCode(ibdHeader.getOrderId(),skuCode);
+        if(ibdDetailList==null || ibdDetailList.size() <= 0){
             throw new BizCheckedException("2020004");
         }
-        //查询对应的ibdobdrelation
-        Map<String,Object>params=new HashMap<String,Object>();
-        params.put("ibdOtherId",orderOtherId);
-        params.put("ibdDetailId",ibdDetail.getDetailOtherId());
 
-        List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(params);
+        HashSet<String> ibdDetailIdSet = new HashSet<String>();
+        for(IbdDetail ibdDetail:ibdDetailList){
+            ibdDetailIdSet.add(ibdDetail.getDetailOtherId());
+        }
+        //查询对应的ibdobdrelation
+        List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationByIbdOtherId(orderOtherId,ibdDetailIdSet);
         if(ibdObdRelations!=null&&ibdObdRelations.size()<=0){
             throw new BizCheckedException("2021000");
         }
