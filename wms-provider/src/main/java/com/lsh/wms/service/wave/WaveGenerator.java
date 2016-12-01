@@ -113,20 +113,24 @@ public class WaveGenerator {
         //CLUSTER_KEY "路线__客户"
         Map<String, List<ObdHeader>> clusters = new HashMap<String, List<ObdHeader>>();
         for(ObdHeader header : orderHeaders){
-            String [] keys = { "0", "0" };
-            if(tpl.getClusterRoute().equals(1) ){
-                keys[0] = header.getTransPlan();
+            String key = "";
+            if(tpl.getClusterRoute().equals(1L) ){
+                key += header.getTransPlan();
             }
-            if(tpl.getClusterCustomer().equals(1)){
-                keys[1] = header.getDeliveryCode();
+            key += "_";
+            if(tpl.getClusterCustomer().equals(1L)){
+                key += header.getDeliveryCode();
+                logger.info("cao a ");
             }
-            String key = keys[0]+"_"+keys[1];
             if(clusters.get(key) == null){
                 clusters.put(key, new LinkedList<ObdHeader>());
             }
             clusters.get(key).add(header);
-            logger.info(String.format("cluster key %s t %s c %s size %d",
-                    key, header.getTransPlan(), header.getDeliveryCode(), clusters.get(key).size()));
+            logger.info(String.format("cluster key %s t[%d] %s c[%d] %s size %d",
+                    key,
+                    tpl.getClusterRoute(), header.getTransPlan(),
+                    tpl.getClusterCustomer(), header.getDeliveryCode(),
+                    clusters.get(key).size()));
         }
         //跑策略
         //后期复杂策略,先不实现
