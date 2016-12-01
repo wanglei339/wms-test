@@ -460,7 +460,7 @@ public class TuService {
                 //deliveryDetail.setPackUnit(PackUtil.Uom2PackUnit(waveDetail.getAllocUnitName()));
                 //通过stock quant获取到对应的lot信息
                 List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(waveDetail.getContainerId());
-                StockQuant stockQuant = stockQuants.size() > 0 ? stockQuants.get(0) : null;
+                StockQuant stockQuant = (null != stockQuants && stockQuants.size() > 0) ? stockQuants.get(0) : null;
                 deliveryDetail.setLotId(stockQuant == null ? 0L : stockQuant.getLotId());
                 deliveryDetail.setLotNum(stockQuant == null ? "" : stockQuant.getLotCode());
                 //deliveryDetail.setDeliveryNum(waveDetail.getQcQty());
@@ -483,7 +483,7 @@ public class TuService {
             }
             header.setDeliveryId(RandomUtils.genId());
             List<ObdDetail> orderDetails = soOrderService.getOutbSoDetailListByOrderId(header.getOrderId());
-            logger.info("size1 "+orderDetails.size());
+            logger.info("size1 " +orderDetails.size());
             Collections.sort(orderDetails, new Comparator<ObdDetail>() {
                 //此处可以设定一个排序规则,对波次中的订单优先级进行排序
                 public int compare(ObdDetail o1, ObdDetail o2) {
