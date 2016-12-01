@@ -227,7 +227,7 @@ public class StockTransferCore {
             Long newContainerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
             Long toContainerId= containerService.getContaierIdByLocationId(toLocation.getLocationId());
             Long locationType = locationService.getLocation(toLocation.getLocationId()).getType();
-            if (toContainerId.equals(0L)) {
+            if (toContainerId == null || toContainerId.equals(0L)) {
                 toContainerId = newContainerId;
             } else if (locationType.equals(LocationConstant.BACK_AREA) || locationType.equals(LocationConstant.DEFECTIVE_AREA)){
                 toContainerId = newContainerId;

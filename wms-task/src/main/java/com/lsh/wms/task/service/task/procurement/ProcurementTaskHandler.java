@@ -61,7 +61,7 @@ public class ProcurementTaskHandler extends AbsTaskHandler {
             move.setToLocationId(info.getToLocationId());
             Long newContainerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
             Long toContainerId= containerService.getContaierIdByLocationId(info.getToLocationId());
-            if (toContainerId.equals(0L)) {
+            if (toContainerId == null || toContainerId.equals(0L)) {
                 toContainerId = newContainerId;
             }
             move.setFromContainerId(info.getContainerId());
