@@ -2,25 +2,19 @@ package com.lsh.wms.task.service;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.task.ITaskRpcService;
-import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.core.service.task.TaskTriggerService;
-import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
-import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.seed.SeedingTaskHead;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.core.service.task.TaskHandler;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.task.TaskMsg;
-import com.lsh.wms.model.task.TaskTrigger;
 import com.lsh.wms.task.service.event.EventHandlerFactory;
 import com.lsh.wms.task.service.event.IEventHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
@@ -28,8 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.beans.EventHandler;
-import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -225,4 +218,37 @@ public class TaskRpcService implements ITaskRpcService {
     public TaskInfo getTaskInfo(Long taskId) throws BizCheckedException {
         return baseTaskService.getTaskInfoById(taskId);
     }
+
+    public List<TaskMsg> getTaskMsgList(Map<String, Object> mapQuery) throws BizCheckedException {
+        List<TaskMsg> result = messageService.getTaskMsgList(mapQuery);
+        if (result == null) {
+            return new ArrayList<TaskMsg>();
+        }
+        return result;
+    }
+
+    public int countTaskMsg(Map<String, Object> mapQuery) throws BizCheckedException {
+        return messageService.countTaskMsgList(mapQuery);
+    }
+
+    public void processTaskMsg(Long id) throws BizCheckedException {
+        TaskMsg msg = messageService.getMessageById(id);
+        if (msg == null) {
+            throw new BizCheckedException("2000001");
+        }
+        msg.setRetryTimes(msg.getRetryTimes() + 1L);
+        try {
+            IEventHandler handler = eventHandlerFactory.getEventHandler(msg.getType());
+            handler.process(msg);
+            msg.setErrorCode("0");
+            msg.setStatus(1L);
+            messageService.update(msg);
+        } catch (BizCheckedException bex) {
+            msg.setErrorCode(bex.getCode());
+            messageService.update(msg);
+        } catch (Exception ex) {
+            logger.error("process TaskMsg error", ex);
+        }
+    }
+
 }

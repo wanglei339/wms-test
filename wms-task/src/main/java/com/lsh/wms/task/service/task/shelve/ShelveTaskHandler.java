@@ -240,15 +240,12 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         locationService.unlockLocation(taskHead.getAllocLocationId());
 
         // 更新可用库存
-        List<StockQuant> quantList = stockQuantService.getQuantsByContainerId(taskHead.getContainerId());
-        for(StockQuant quant : quantList) {
-            StockDelta delta = new StockDelta();
-            delta.setItemId(quant.getItemId());
-            delta.setInhouseQty(quant.getQty());
-            delta.setBusinessId(taskId);
-            delta.setType(StockConstant.TYPE_SHELVE);
-            stockSummaryService.changeStock(delta);
-        }
+        StockDelta delta = new StockDelta();
+        delta.setItemId(taskInfo.getItemId());
+        delta.setInhouseQty(taskInfo.getQty());
+        delta.setBusinessId(taskId);
+        delta.setType(StockConstant.TYPE_SHELVE);
+        stockSummaryService.changeStock(delta);
 
     }
 

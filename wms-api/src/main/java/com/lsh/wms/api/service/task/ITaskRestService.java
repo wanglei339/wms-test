@@ -2,6 +2,7 @@ package com.lsh.wms.api.service.task;
 
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.model.task.TaskEntry;
+import com.lsh.wms.model.task.TaskMsg;
 
 import javax.ws.rs.QueryParam;
 import java.util.List;
@@ -20,4 +21,8 @@ public interface ITaskRestService {
     String getPerformance(Map<String, Object> condition) throws BizCheckedException;
     String sendMsg(Map<String, Object> mapQuery) throws BizCheckedException;
     String getTaskInfo(long taskId) throws BizCheckedException;
+    String processTaskMsg(Long id) throws BizCheckedException;
+    String countTaskMsg(Map<String, Object> mapQuery) throws BizCheckedException;
+    String getTaskMsgList(Map<String, Object> mapQuery) throws BizCheckedException;
+
 }
