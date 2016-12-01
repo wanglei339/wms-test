@@ -451,6 +451,9 @@ public class PickRestService implements IPickRestService {
         TaskEntry newTaskEntry = new TaskEntry();
         TaskInfo newTaskInfo = new TaskInfo();
         PickTaskHead newTaskHead = new PickTaskHead();
+        //拣货分区 继承
+        newTaskInfo.setExt1(oriTaskInfo.getExt1());
+
         newTaskInfo.setTaskName(oriTaskInfo.getTaskName());
         newTaskInfo.setPlanId(oriTaskInfo.getPlanId());
         newTaskInfo.setWaveId(oriTaskInfo.getWaveId());
