@@ -16,7 +16,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by mali on 16/11/23.
@@ -61,7 +63,10 @@ public class StockAllocService {
 
     @Transactional(readOnly = false)
     public void realease(WaveDetail waveDetail) {
-        List<StockAllocDetail> stockAllocDetailList = stockAllocDetailDao.getStockAllocDetailByObdId(waveDetail.getOrderId());
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("itemId", waveDetail.getItemId());
+        mapQuery.put("obdId", waveDetail.getOrderId());
+        List<StockAllocDetail> stockAllocDetailList = stockAllocDetailDao.getStockAllocDetailList(mapQuery);
         if (stockAllocDetailList == null || stockAllocDetailList.isEmpty()) {
             logger.error(StrUtils.formatString("So [{0}] not Found in alloc detail", waveDetail.getOrderId()));
             return;
