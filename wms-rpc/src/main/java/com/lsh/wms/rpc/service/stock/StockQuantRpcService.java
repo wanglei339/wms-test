@@ -80,10 +80,12 @@ public class StockQuantRpcService implements IStockQuantRpcService {
 
     public List<StockQuant> getQuantList(StockQuantCondition condition) throws BizCheckedException {
         Map<String, Object> mapQuery = this.getQueryCondition(condition);
+        logger.error("fuck the condition is" + mapQuery.get("excludeLocation").toString());
         if (condition.getExcludeLocation() != null) {
             BaseinfoLocation location = locationService.getInventoryLostLocation();
             List<BaseinfoLocation> excludeLocationList = new ArrayList<BaseinfoLocation>();
             excludeLocationList.add(location);
+            logger.error("fuck i put inventory here");
             mapQuery.put("excludeLocationList", excludeLocationList);
         }
         List<StockQuant> quantList = quantService.getQuants(mapQuery);
