@@ -157,8 +157,7 @@ public class SeedRpcService implements ISeedRpcService {
 
             // 判断是否超过订单总数
             BigDecimal poInboundQty = null != ibdDetail.getInboundQty() ? ibdDetail.getInboundQty() : new BigDecimal(0);
-
-            if (poInboundQty.add(inbReceiptDetail.getInboundQty()).compareTo(ibdDetail.getOrderQty()) > 0) {
+            if (poInboundQty.add(inbReceiptDetail.getInboundQty()).compareTo(ibdDetail.getUnitQty()) > 0) {
                 throw new BizCheckedException("2020005");
             }
 
