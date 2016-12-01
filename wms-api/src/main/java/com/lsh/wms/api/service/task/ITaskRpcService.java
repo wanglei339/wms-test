@@ -6,6 +6,7 @@ import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.model.task.TaskMsg;
 
 import java.util.List;
 import java.util.Map;
@@ -36,4 +37,8 @@ public interface ITaskRpcService {
     void batchCancel(Long taskType,List<Long> tasks) throws BizCheckedException;
     List<Map<String, Object>> getPerformance(Map<String, Object> condition) throws BizCheckedException;
     TaskInfo getTaskInfo(Long taskId) throws BizCheckedException;
+    void processTaskMsg(Long id) throws BizCheckedException;
+    int countTaskMsg(Map<String, Object> mapQuery) throws BizCheckedException;
+    List<TaskMsg> getTaskMsgList(Map<String, Object> mapQuery) throws BizCheckedException;
+
 }

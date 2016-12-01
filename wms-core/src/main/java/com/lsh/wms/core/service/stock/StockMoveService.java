@@ -123,18 +123,16 @@ public class StockMoveService {
                 quantService.unReserveById(quant.getId());
             }
         }
-
     }
 
     @Transactional(readOnly = false)
     public void move(List<StockMove> moveList) throws BizCheckedException {
         for (StockMove move : moveList) {
             if (move.getQty().compareTo(BigDecimal.ZERO) <= 0) {
-                throw new BizCheckedException("4000001");
+                throw new BizCheckedException("1550001");
             }
             this.move(move);
         }
-
      }
 
 

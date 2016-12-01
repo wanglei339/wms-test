@@ -8,6 +8,7 @@ import com.alibaba.dubbo.common.logger.Logger;
 import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.dao.redis.RedisListDao;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.dao.task.TaskMsgDao;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -53,6 +55,29 @@ public class MessageService {
     public TaskMsg getMessage(Long businessId) throws BizCheckedException {
         TaskMsg taskMsg =  taskMsgDao.getTaskMsgByBusinessId(businessId);
         return taskMsg;
+    }
+
+    public List<TaskMsg> getTaskMsgList(Map<String, Object> mapQuery) throws BizCheckedException {
+        return taskMsgDao.getTaskMsgList(mapQuery);
+    }
+
+    public Integer countTaskMsgList(Map<String, Object> mapQuery) throws BizCheckedException {
+        return taskMsgDao.countTaskMsg(mapQuery);
+    }
+
+    public TaskMsg getMessageById(Long id) {
+        return taskMsgDao.getTaskMsgById(id);
+    }
+
+    @Transactional(readOnly = false)
+    public void update(TaskMsg taskMsg) {
+        TaskMsg msgBase = new TaskMsg();
+        msgBase.setId(taskMsg.getId());
+        msgBase.setUpdatedAt(DateUtils.getCurrentSeconds());
+        msgBase.setErrorCode(taskMsg.getErrorCode());
+        msgBase.setRetryTimes(taskMsg.getRetryTimes());
+        msgBase.setStatus(taskMsg.getStatus());
+        taskMsgDao.update(msgBase);
     }
 
     @Transactional(readOnly = false)
