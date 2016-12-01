@@ -35,6 +35,7 @@ import com.lsh.wms.model.wave.WaveHead;
 import com.lsh.wms.model.wave.WaveTemplate;
 import com.lsh.wms.service.wave.split.SplitModel;
 import com.lsh.wms.service.wave.split.SplitNode;
+import org.apache.tools.ant.taskdefs.Pack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -557,8 +558,8 @@ public class WaveCore {
             allocDetail.setItemId(item.getItemId());
             //allocDetail.setSupplierId(mapOrder2Head.get(detail.getOrderId()).get); ??
             allocDetail.setWaveId(waveId);
-            allocDetail.setAllocUnitQty((BigDecimal) info.get("allocQty"));
-            allocDetail.setAllocUnitName("EA");
+            allocDetail.setAllocUnitName(location.getRegionType()==LocationConstant.FLOOR ? item.getPackName() : "EA");
+            allocDetail.setAllocUnitQty(PackUtil.EAQty2UomQty(allocDetail.getAllocQty(), allocDetail.getAllocUnitName()));
             allocDetail.setPickAreaLocation(location.getLocationId());
             allocDetail.setRefObdDetailOtherId(detail.getDetailOtherId());
             pickAllocDetailList.add(allocDetail);
@@ -612,13 +613,8 @@ public class WaveCore {
                         if (leftAllocQty.compareTo(BigDecimal.ZERO) <= 0) {
                             break;
                         }
-                        if(location.getRegionType().equals(LocationConstant.SPLIT_AREA)){
-//                        if(location.getType() == LocationConstant.SPLIT_AREA
-//                                || location.getType() == LocationConstant.SPLIT_SHELF
-//                                //TODO 这里有遗漏的风险,还没来得及改
-//                                //|| location.getType() == LocationConstant.SPLIT_SHELF_BIN
-//                                || location.getType() == LocationConstant.SPLIT_SHELF_LEVEL)
-//                        {
+                        if(location.getRegionType().equals(LocationConstant.SPLIT_AREA)
+                                || location.getRegionType().equals(LocationConstant.FLOOR)){
                             leftAllocQty = this._allocStockPickSame(detail, zone, item, location, leftAllocQty);
                         } else {
                             //有补货机制的区域,不考虑捡货位货量,只考虑区域货量
