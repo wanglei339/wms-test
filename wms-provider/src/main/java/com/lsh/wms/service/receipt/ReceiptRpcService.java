@@ -454,8 +454,14 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     obdStreamDetail.setOwnerId(ibdHeader.getOwnerUid());
                     //统一放到pickQty中
                     obdStreamDetail.setPickQty(inboundUnitQty);
-                    obdStreamDetail.setAllocUnitName(inbReceiptDetail.getPackName());
-                    obdStreamDetail.setAllocUnitQty(PackUtil.EAQty2UomQty(inboundUnitQty,inbReceiptDetail.getPackName()));
+                    //如果单位不为ea 判断下是否为整件
+                    if(inboundUnitQty.divideAndRemainder(ibdDetail.getPackUnit())[1].compareTo(BigDecimal.ZERO) == 0) {
+                        obdStreamDetail.setAllocUnitName(inbReceiptDetail.getPackName());
+                        obdStreamDetail.setAllocUnitQty(PackUtil.EAQty2UomQty(inboundUnitQty,inbReceiptDetail.getPackName()));
+                    }else{
+                        obdStreamDetail.setAllocUnitName("EA");
+                        obdStreamDetail.setAllocUnitQty(inboundUnitQty);
+                    }
                     obdStreamDetail.setSkuId(inbReceiptDetail.getSkuId());
                     obdStreamDetail.setAllocQty(inboundUnitQty);
                     obdStreamDetailList.add(obdStreamDetail);
@@ -1009,8 +1015,14 @@ public class ReceiptRpcService implements IReceiptRpcService {
             obdStreamDetail.setContainerId(inbReceiptHeader.getContainerId());
             obdStreamDetail.setOwnerId(ibdHeader.getOwnerUid());
             obdStreamDetail.setPickQty(inboundUnitQty);
-            obdStreamDetail.setAllocUnitQty(PackUtil.EAQty2UomQty(inboundUnitQty,inbReceiptDetail.getPackName()));
-            obdStreamDetail.setAllocUnitName(inbReceiptDetail.getPackName());
+            if(inboundUnitQty.divideAndRemainder(ibdDetail.getPackUnit())[1].compareTo(BigDecimal.ZERO) == 0) {
+                obdStreamDetail.setAllocUnitQty(PackUtil.EAQty2UomQty(inboundUnitQty,inbReceiptDetail.getPackName()));
+                obdStreamDetail.setAllocUnitName(inbReceiptDetail.getPackName());
+            }else{
+                obdStreamDetail.setAllocUnitQty(inboundUnitQty);
+                obdStreamDetail.setAllocUnitName("EA");
+            }
+
             obdStreamDetail.setSkuId(inbReceiptDetail.getSkuId());
             obdStreamDetail.setOrderId(obdOrderId);
             obdStreamDetail.setAllocCollectLocation(collectRoadId);

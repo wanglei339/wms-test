@@ -195,7 +195,7 @@ public class StockMoveService {
         List<StockQuant> stockQuants = new ArrayList<StockQuant>();
         for (Long containerId : containerIds) {
             List<StockQuant> quants = quantService.getQuantsByContainerId(containerId);
-            if(quants==null){
+            if (quants == null || quants.isEmpty()) {
                 continue;
             }
             stockQuants.addAll(quants);

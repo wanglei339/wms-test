@@ -338,6 +338,7 @@
 			<if test="taskOrder != null">and task_order=#{taskOrder}</if>
 			<if test="qcPreviousTaskId != null">and qc_previous_task_id=#{qcPreviousTaskId}</if>
 			<if test="qcSkip != null">and qc_skip=#{qcSkip}</if>
+			<if test="mergedContainerId != null">and merged_container_id=#{mergedContainerId}</if>
 			<if test="valid !=null"> and status in (1,2)</if>
 		</where>
 	</sql>
