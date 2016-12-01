@@ -245,20 +245,35 @@ public class CsiRestService implements ICsiRestService {
     @POST
     @Path("updateCustomer")
     public String updateCustomer(CsiCustomer csiCustomer)throws BizCheckedException {
-        if (csiCustomer.getCollectRoadId() != 0
+        if (!csiCustomer.getCollectRoadId().equals(0l)
                 && (locationService.getLocation(csiCustomer.getCollectRoadId()) == null
-                || (locationService.getLocation(csiCustomer.getCollectRoadId()).getType() != LocationConstant.COLLECTION_ROAD
-                    && locationService.getLocation(csiCustomer.getCollectRoadId()).getType() != LocationConstant.COLLECTION_BIN))) {
+                    || (locationService.getLocation(csiCustomer.getCollectRoadId()).getType() != LocationConstant.COLLECTION_ROAD
+                        && locationService.getLocation(csiCustomer.getCollectRoadId()).getType() != LocationConstant.COLLECTION_BIN
+                        )
+                    )
+                ) {
             throw new BizCheckedException("2180011");
         }
-        if (csiCustomer.getSeedRoadId() != 0
+        if (!csiCustomer.getSeedRoadId().equals(0l)
                 && (locationService.getLocation(csiCustomer.getSeedRoadId()) == null
-                || (locationService.getLocation(csiCustomer.getSeedRoadId()).getRegionType() != LocationConstant.SOW_AREA
-                    && locationService.getLocation(csiCustomer.getSeedRoadId()).getType() != LocationConstant.COLLECTION_ROAD))) {
+                || (locationService.getLocation(csiCustomer.getSeedRoadId()).getRegionType() != LocationConstant.SOW_BIN
+                  ))){
             //不是播种区下的位置
             throw new BizCheckedException("2180026");
         }
         try {
+            if(!csiCustomer.getCollectRoadId().equals(0l)) {
+               CsiCustomer customer = customerService.getCustomerByCollectRoadId(csiCustomer.getCollectRoadId());
+                if(customer!=null){
+                    return JsonUtils.TOKEN_ERROR("该集货位(道)已被占用");
+                }
+            }
+            if(!csiCustomer.getSeedRoadId().equals(0l)) {
+                CsiCustomer customer = customerService.getCustomerByseedRoadId(csiCustomer.getSeedRoadId());
+                if(customer!=null){
+                    return JsonUtils.TOKEN_ERROR("该播种位已被占用");
+                }
+            }
             customerService.update(csiCustomer);
         } catch (Exception e) {
             logger.error(e.getMessage());
