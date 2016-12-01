@@ -54,7 +54,8 @@ public class ObdSapTransporter implements ITransporter{
         for (OutbDeliveryDetail detail : details) {
             CreateObdDetail createObdDetail = new CreateObdDetail();
             //TODO 这段代码是非常危险的,根据itemid去获取唯一的一条 有问题,稍后review影响
-            ObdDetail obdDetail = soOrderService.getObdDetailByOrderIdAndItemId(detail.getOrderId(), detail.getItemId());
+            //ObdDetail obdDetail = soOrderService.getObdDetailByOrderIdAndItemId(detail.getOrderId(), detail.getItemId());
+            ObdDetail obdDetail = soOrderService.getObdDetailByOrderIdAndDetailOtherId(detail.getOrderId(),detail.getRefDetailOtherId());
             if (null == obdDetail) {
                 throw new BizCheckedException("2900004");
             }
