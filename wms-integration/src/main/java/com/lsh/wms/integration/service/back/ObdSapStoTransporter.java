@@ -65,9 +65,9 @@ public class ObdSapStoTransporter implements ITransporter{
             if (null == obdDetail) {
                 throw new BizCheckedException("2900004");
             }
-            if(detail.getBackStatus() == SoConstant.DELIVERY_DETAIL_STATUS_SUCCESS){
-                continue;
-            }
+//            if(detail.getBackStatus() == SoConstant.DELIVERY_DETAIL_STATUS_SUCCESS){
+//                continue;
+//            }
             BigDecimal outQty = detail.getDeliveryNum();
             //ea转换为包装数量。
             ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(detail.getOrderId());
