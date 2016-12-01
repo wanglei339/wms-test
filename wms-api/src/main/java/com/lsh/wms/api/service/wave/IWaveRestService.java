@@ -10,7 +10,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -44,7 +43,7 @@ public interface IWaveRestService {
     String updatePickModel(PickModel model);
     String deletePickModel(long iPickModelId);
 
-    String getWaveDetailList(HashMap<String, Object> mapQuery);
+    String getWaveDetailList(long iWaveId);
 
     String getWaveQcExceptionList(long iWaveId);
 

@@ -47,38 +47,7 @@
 		limit #{start},#{limit}
 		</if>
 	</select>
-	<select id="getBaseinfoItemTypeAllRelationList" parameterType="java.util.List" resultType="map">
-		select a.item_type_id as itemTypeId,group_concat(item_mutex_id ) as mutexIdStr from (
-			select b.item_type_id,b.item_mutex_id
-			from baseinfo_item_type_relation b
-			union
-			select d.item_mutex_id as item_type_id ,d.item_type_id as item_mutex_id
-			from baseinfo_item_type_relation d
-		)a
-		<where>
-			<if test="itemTypeId != null">and item_type_id=#{itemTypeId}</if>
-		</where>
-		group by a.item_type_id
-		<if test="start != null and limit != null">
-			limit #{start},#{limit}
-		</if>
-	</select>
-	<select id="countBaseinfoItemTypeAllRelationList" parameterType="map" resultType="int">
-		select count(1) FROM(
-			select * from(
-				select b.item_type_id,b.item_mutex_id
-				from baseinfo_item_type_relation b
-				union
-				select d.item_mutex_id as item_type_id ,d.item_type_id as item_mutex_id
-				from baseinfo_item_type_relation d
-				)a
-		<where>
-			<if test="itemTypeId != null">and item_type_id=#{itemTypeId}</if>
-		</where>
-		group by a.item_type_id)c
 
-	</select>
-  
 	<sql id="queryCondition">
 		<where>
 			<if test="id != null">id=#{id}</if>

@@ -8,7 +8,6 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.model.so.ObdDetail;
 import com.lsh.wms.api.service.sms.ISmsRestService;
-import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.core.constant.StockConstant;
 import com.lsh.wms.core.dao.redis.RedisSortedSetDao;
 import com.lsh.wms.core.dao.stock.StockSummaryDao;
@@ -19,7 +18,10 @@ import com.lsh.wms.core.service.stock.*;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.model.so.ObdHeader;
-import com.lsh.wms.model.stock.*;
+import com.lsh.wms.model.stock.StockDelta;
+import com.lsh.wms.model.stock.StockMove;
+import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.stock.StockSummary;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.task.TaskMsg;
 import com.lsh.wms.model.wave.WaveDetail;
@@ -43,9 +45,6 @@ public class SmsRestService implements ISmsRestService {
 
     @Autowired
     private StockMoveService stockMoveService;
-
-    @Reference
-    private IStockQuantRpcService iStockQuantRpcService;
 
     @Autowired
     private LocationService locationService;
@@ -125,11 +124,8 @@ public class SmsRestService implements ISmsRestService {
 //        mapQuery.put("itemId", Long.valueOf(itemId));
 //        mapQuery.put("locationId", locationService.getLocationIdByCode(locationCode));
 //        List<StockQuant> list = stockQuantService.getItemLocationList(mapQuery);
-        StockQuantCondition condition = new StockQuantCondition();
-        condition.setItemId(160502927868589L);
-        condition.setExcludeLocation("INVENTORY LOSS");
-        List<StockQuant> quantList = iStockQuantRpcService.getQuantList(condition);
-        return JsonUtils.SUCCESS(quantList);
+        List<StockMove> list = stockMoveService.traceQuant(Long.valueOf(itemId));
+        return JsonUtils.SUCCESS(list);
     }
 
 }
