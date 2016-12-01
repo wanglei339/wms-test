@@ -428,10 +428,9 @@ public class QCRestService implements IRFQCRestService {
         //校验qc任务是否完全完成;
         boolean bSucc = true;
         BigDecimal sumEAQty = new BigDecimal("0.0000");
-        //直接走组盘,没有必须要进行判断是否QC异常完毕的东西,或者这里的异常是组盘异常,任务才不结束
         //不能组盘的时候,PC忽略异常
         for (WaveDetail d : details) {
-            if (d.getQcExceptionDone() == 0) {
+            if (d.getQcExceptionDone().equals(WaveConstant.QC_EXCEPTION_STATUS_UNDO)) {
                 bSucc = false;
                 break;
             }

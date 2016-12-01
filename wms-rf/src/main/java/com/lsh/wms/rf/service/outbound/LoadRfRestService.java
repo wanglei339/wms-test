@@ -331,6 +331,9 @@ public class LoadRfRestService implements ILoadRfRestService {
         tuDetail.setBoxNum(boxNum);
         tuDetail.setContainerNum(containerNum);
         tuDetail.setTurnoverBoxNum(turnoverBoxNum);
+        if (isExpensive){
+            boardNum = 0L;
+        }
         tuDetail.setBoardNum(boardNum); //一板多托数量 todo 贵品不算板数
         tuDetail.setStoreId(storeId);
         tuDetail.setLoadAt(DateUtils.getCurrentSeconds());
