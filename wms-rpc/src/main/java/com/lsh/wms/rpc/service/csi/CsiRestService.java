@@ -256,7 +256,7 @@ public class CsiRestService implements ICsiRestService {
         }
         if (!csiCustomer.getSeedRoadId().equals(0l)
                 && (locationService.getLocation(csiCustomer.getSeedRoadId()) == null
-                || (locationService.getLocation(csiCustomer.getSeedRoadId()).getRegionType() != LocationConstant.SOW_BIN
+                || (locationService.getLocation(csiCustomer.getSeedRoadId()).getRegionType() != LocationConstant.SOW_AREA
                   ))){
             //不是播种区下的位置
             throw new BizCheckedException("2180026");

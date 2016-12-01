@@ -106,8 +106,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
     @Autowired
     private ItemLocationService itemLocationService;
 
-    //@Autowired
-    // StockTransferRpcService stockTransferRpcService;
+    @Autowired
+    private StockTransferRpcService stockTransferRpcService;
 
     @Autowired
     private LocationService locationService;
@@ -159,7 +159,10 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //根据request中的orderOtherId查询InbPoHeader
         // 按理说上游因该吧订单转换好,这里就不要用外部id运算了 FIXED: 16/11/20
         IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(request.getOrderId());
-
+        /*  外层已验证
+         if (ibdHeader == null) {
+            throw new BizCheckedException("2020001");
+        }*/
         //判断PO订单类型  虚拟容器,放入退货区
         Integer orderType = ibdHeader.getOrderType();
         if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
@@ -243,13 +246,13 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 inbReceiptDetail.setOrderId(ibdHeader.getOrderId());
 
                 //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
-                //BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), inbReceiptDetail.getSkuId());
-                inbReceiptDetail.setItemId(receiptItem.getItemId());
-                inbReceiptDetail.setBarCode(receiptItem.getBarCode());
+                BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), inbReceiptDetail.getSkuId());
+                inbReceiptDetail.setItemId(baseinfoItem.getItemId());
+                inbReceiptDetail.setBarCode(baseinfoItem.getCode());
 
 
                 //根据OrderId及SkuCode获取InbPoDetail
-                IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndDetailOtherId(inbReceiptDetail.getOrderId(),receiptItem.getDetailOtherId());
+                IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(inbReceiptDetail.getOrderId(), baseinfoItem.getSkuCode());
 
                 //写入InbReceiptDetail中的OrderQty
                 inbReceiptDetail.setOrderQty(ibdDetail.getOrderQty());
@@ -281,7 +284,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherId(ibdHeader.getOrderOtherRefId());
                 //查供应商、生产日期、失效日期
                 Long lotId =
-                        soDeliveryService.getOutbDeliveryDetail(obdHeader.getOrderId(),receiptItem.getItemId()).getLotId();
+                        soDeliveryService.getOutbDeliveryDetail(obdHeader.getOrderId(),baseinfoItem.getItemId()).getLotId();
                 StockLot stockLot = stockLotService.getStockLotByLotId(lotId);
                 logger.info("~~~~~~~~~~~11111111111 查找批号信息  stocklot : " + JSON.toJSONString(stockLot));
                 stockLot.setIsOld(true);
@@ -324,13 +327,13 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 moveList.add(moveInfo);
 
                 // TODO: 16/8/19 找货品对应的拣货位
-                List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationList(receiptItem.getItemId());
+                List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationList(baseinfoItem.getItemId());
                 for(BaseinfoItemLocation itemLocation : itemLocations){
                     // TODO: 16/8/19  判断拣货位是否可用
                     BaseinfoLocation location = locationService.getLocation(itemLocation.getPickLocationid());
 
                     if((location.getCanUse().equals(1)) && location.getIsLocked().equals(0)){
-                        locationMap.put(receiptItem.getItemId(),itemLocation.getPickLocationid());
+                        locationMap.put(baseinfoItem.getItemId(),itemLocation.getPickLocationid());
                         break;
                     }
                 }
@@ -377,16 +380,16 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
 
                 //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
-                /*CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, inbReceiptDetail.getBarCode());
+                CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, inbReceiptDetail.getBarCode());
                 if (null == csiSku || csiSku.getSkuId() == null) {
                     throw new BizCheckedException("2020022");
-                }*/
-                inbReceiptDetail.setSkuId(receiptItem.getSkuId());
-                //BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
-                inbReceiptDetail.setItemId(receiptItem.getItemId());
+                }
+                inbReceiptDetail.setSkuId(csiSku.getSkuId());
+                BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
+                inbReceiptDetail.setItemId(baseinfoItem.getItemId());
 
                 //根据OrderId及SkuId获取InbPoDetail
-                IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndDetailOtherId(receiptItem.getOrderId(), receiptItem.getDetailOtherId());
+                IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(inbReceiptDetail.getOrderId(), baseinfoItem.getSkuCode());
 
                 //写入InbReceiptDetail中的OrderQty
                 inbReceiptDetail.setOrderQty(ibdDetail.getOrderQty());
@@ -398,6 +401,30 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     throw new BizCheckedException("2020005");
                 }
 
+                //取出是否检验保质期字段 exceptionReceipt = 0 校验 = 1不校验
+                /*Integer exceptionReceipt = ibdDetail.getExceptionReceipt();
+                //调拨类型的单据不校验保质期
+                if(PoConstant.ORDER_TYPE_TRANSFERS != orderType){
+                    if(exceptionReceipt != 1){
+                        // TODO: 16/7/20   商品信息是否完善,怎么排查.2,保质期例外怎么验证?
+                        //保质期判断,如果失败抛出异常
+                        BigDecimal shelLife = baseinfoItem.getShelfLife();
+                        String producePlace = baseinfoItem.getProducePlace();
+                        Double shelLife_CN = Double.parseDouble(PropertyUtils.getString("shelLife_CN"));
+                        Double shelLife_Not_CN = Double.parseDouble(PropertyUtils.getString("shelLife_Not_CN"));
+                        String produceChina = PropertyUtils.getString("produceChina");
+                        BigDecimal left_day = new BigDecimal(DateUtils.daysBetween(inbReceiptDetail.getProTime(), new Date()));
+                        if (producePlace.contains(produceChina)) { // TODO: 16/7/20  产地是否存的是CN
+                            if (left_day.divide(shelLife, 2, ROUND_HALF_EVEN).doubleValue() >= shelLife_CN) {
+                                throw new BizCheckedException("2020003");
+                            }
+                        } else {
+                            if (left_day.divide(shelLife, 2, ROUND_HALF_EVEN).doubleValue() > shelLife_Not_CN) {
+                                throw new BizCheckedException("2020003");
+                            }
+                        }
+                    }
+                }*/
                 IbdDetail updateIbdDetail = new IbdDetail();
                 //转成ea
                 BigDecimal inboundUnitQty = inbReceiptDetail.getInboundQty();
@@ -408,7 +435,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 updateIbdDetailList.add(updateIbdDetail);
 
                 //根据receiveId及SkuCode获取receiveDetail
-                ReceiveDetail receiveDetail = receiveService.getReceiveDetailByReceiveIdAndSkuCode(receiveId, receiptItem.getSkuCode());
+                ReceiveDetail receiveDetail = receiveService.getReceiveDetailByReceiveIdAndSkuCode(receiveId, baseinfoItem.getSkuCode());
 
                 //批量修改receive 实收数量
                 ReceiveDetail updateReceiveDetail = new ReceiveDetail();
@@ -417,7 +444,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 //改为ea的数量
                 updateReceiveDetail.setInboundQty(inboundUnitQty);
                 updateReceiveDetail.setUpdatedAt(DateUtils.getCurrentSeconds());//更新时间
-                updateReceiveDetail.setCode(receiptItem.getBarCode());//更新国条
+                updateReceiveDetail.setCode(baseinfoItem.getCode());//更新国条
                 updateReceiveDetailList.add(updateReceiveDetail);
 
                 if(ibdHeader.getOrderType() == PoConstant.ORDER_TYPE_CPO){
@@ -454,7 +481,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 //修改失效日期
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(inbReceiptDetail.getProTime());
-                calendar.add(calendar.DAY_OF_YEAR,receiptItem.getShelfLife().intValue());
+                calendar.add(calendar.DAY_OF_YEAR,baseinfoItem.getShelfLife().intValue());
                 Long expireDate = calendar.getTime().getTime()/1000;
 
                 //Long expireDate = inbReceiptDetail.getProTime().getTime() + baseinfoItem.getShelfLife().longValue(); // 生产日期+保质期=保质期失效时间
@@ -700,10 +727,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
             detailMap.put(receiptOrderId,inbReceiptDetailList);
         }
         for(Long receiptOrderId :receiptOrderIdSet){
-            param.put("receiptOrderId",receiptOrderId);
-            param.put("start",null);
-            param.put("limit",null);
-            InbReceiptHeader inbReceiptHeader = poReceiptService.getInbReceiptHeaderByParams(param);
+            Map<String,Object> newparam = new HashMap<String, Object>();
+            newparam.put("receiptOrderId",receiptOrderId);
+            InbReceiptHeader inbReceiptHeader = poReceiptService.getInbReceiptHeaderByParams(newparam);
             if(inbReceiptHeader == null){
                 continue;
             }
@@ -777,7 +803,6 @@ public class ReceiptRpcService implements IReceiptRpcService {
             ObdDetail obdDetail = obdDetails.get(0);
             item.setArriveNum(ibdDetail.getOrderQty());
             //item.setBarCode(obdDetail);
-            item.setDetailOtherId(ibdDetail.getDetailOtherId());
             item.setInboundQty(ibdDetail.getOrderQty());
             item.setPackName(ibdDetail.getPackName());
             item.setPackUnit(ibdDetail.getPackUnit());
@@ -816,6 +841,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
         }
 
         //大店放在集货道 小店放到集货位
+        //BaseinfoStore baseinfoStore = iStoreRpcService.getStoreByStoreNo(inbReceiptHeader.getStoreCode());
         CsiCustomer csiCustomer = customerService.getCustomerByCustomerCode(inbReceiptHeader.getStoreCode());
 
         //获取location的id
@@ -901,16 +927,16 @@ public class ReceiptRpcService implements IReceiptRpcService {
             }
 
             //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
-            /*CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, inbReceiptDetail.getBarCode());
+            CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, inbReceiptDetail.getBarCode());
             if (null == csiSku || csiSku.getSkuId() == null) {
                 throw new BizCheckedException("2020022");
-            }*/
-            inbReceiptDetail.setSkuId(receiptItem.getSkuId());
-            //BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), receiptItem.getSkuId());
-            inbReceiptDetail.setItemId(receiptItem.getItemId());
+            }
+            inbReceiptDetail.setSkuId(csiSku.getSkuId());
+            BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
+            inbReceiptDetail.setItemId(baseinfoItem.getItemId());
 
             //根据OrderId及SkuCode获取InbPoDetail
-            IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndDetailOtherId(receiptItem.getOrderId(), receiptItem.getDetailOtherId());
+            IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(), baseinfoItem.getSkuCode());
 
             //写入InbReceiptDetail中的OrderQty
             inbReceiptDetail.setOrderQty(ibdDetail.getOrderQty());
@@ -931,7 +957,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
             Long obdOrderId = Long.valueOf(values.split(",")[0]);
             String detailOtherId = values.split(",")[1];
-            //ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(obdOrderId);
+            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(obdOrderId);
             ObdDetail obdDetail = soOrderService.getObdDetailByOrderIdAndDetailOtherId(obdOrderId,detailOtherId);
             BigDecimal sowQty = obdDetail.getSowQty();
             //判断是否超过门店收货的数量
@@ -963,7 +989,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             updateIbdDetailList.add(updateIbdDetail);
 
             //根据receiveId及SkuCode获取receiveDetail
-            ReceiveDetail receiveDetail = receiveService.getReceiveDetailByReceiveIdAndSkuCode(receiveId, receiptItem.getSkuCode());
+            ReceiveDetail receiveDetail = receiveService.getReceiveDetailByReceiveIdAndSkuCode(receiveId, baseinfoItem.getSkuCode());
 
 
             //批量修改receive 实收数量
@@ -973,7 +999,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             //改为ea
             updateReceiveDetail.setInboundQty(inboundUnitQty);
             updateReceiveDetail.setUpdatedAt(DateUtils.getCurrentSeconds());//更新时间
-            updateReceiveDetail.setCode(receiptItem.getBarCode());//更新国条
+            updateReceiveDetail.setCode(baseinfoItem.getCode());//更新国条
             updateReceiveDetailList.add(updateReceiveDetail);
 
             //生成出库detail信息
@@ -998,18 +1024,18 @@ public class ReceiptRpcService implements IReceiptRpcService {
             StockLot stockLot = new StockLot();
             stockLot.setIsOld(true);
 
-            /*CsiSupplier supplier = supplierService.getSupplier(ibdHeader.getSupplierCode(),ibdHeader.getOwnerUid());
+            CsiSupplier supplier = supplierService.getSupplier(ibdHeader.getSupplierCode(),ibdHeader.getOwnerUid());
 
             if(supplier == null){
                 throw new BizCheckedException("2020109");//供应商不存在
-            }*/
+            }
             stockLot.setPackUnit(ibdDetail.getPackUnit());
             stockLot.setSkuId(inbReceiptDetail.getSkuId());
             stockLot.setSerialNo(inbReceiptDetail.getLotNum());
             stockLot.setItemId(inbReceiptDetail.getItemId());
             stockLot.setReceiptId(inbReceiptHeader.getReceiptOrderId());
             stockLot.setPoId(inbReceiptDetail.getOrderId());
-            stockLot.setSupplierId(request.getSupplierId());
+            stockLot.setSupplierId(supplier.getSupplierId());
             stockLotList.add(stockLot);
 
             StockMove move = new StockMove();
