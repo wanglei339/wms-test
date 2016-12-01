@@ -728,10 +728,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
             detailMap.put(receiptOrderId,inbReceiptDetailList);
         }
         for(Long receiptOrderId :receiptOrderIdSet){
-            param.put("receiptOrderId",receiptOrderId);
-            param.put("start",null);
-            param.put("limit",null);
-            InbReceiptHeader inbReceiptHeader = poReceiptService.getInbReceiptHeaderByParams(param);
+            Map<String,Object> newparam = new HashMap<String, Object>();
+            newparam.put("receiptOrderId",receiptOrderId);
+            InbReceiptHeader inbReceiptHeader = poReceiptService.getInbReceiptHeaderByParams(newparam);
             if(inbReceiptHeader == null){
                 continue;
             }

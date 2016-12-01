@@ -133,7 +133,7 @@ public class StockMoveService {
             }
             this.move(move);
         }
-     }
+    }
 
 
     @Transactional(readOnly = false)
@@ -154,7 +154,7 @@ public class StockMoveService {
     public void moveToConsume(Long locationId, Long taskId, Long staffId) throws BizCheckedException {
 
         List<StockQuant> quants = quantService.getQuantsByLocationId(locationId);
-        if(quants==null){
+        if (quants == null) {
             return;
         }
         BaseinfoLocation location = locationService.getLocationsByType(LocationConstant.CONSUME_AREA).get(0);
@@ -175,7 +175,7 @@ public class StockMoveService {
 
         List<StockQuant> quants = quantService.getQuantsByContainerId(containerId);
 
-        if(quants==null){
+        if (quants == null) {
             return;
         }
         BaseinfoLocation location = locationService.getLocationsByType(LocationConstant.CONSUME_AREA).get(0);
@@ -195,7 +195,7 @@ public class StockMoveService {
         List<StockQuant> stockQuants = new ArrayList<StockQuant>();
         for (Long containerId : containerIds) {
             List<StockQuant> quants = quantService.getQuantsByContainerId(containerId);
-            if(quants==null){
+            if (quants == null || quants.isEmpty()) {
                 continue;
             }
             stockQuants.addAll(quants);
