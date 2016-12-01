@@ -67,7 +67,9 @@ public class DirectTransporter implements ITransporter{
             Long orderId = detail.getOrderId();
             CreateObdDetail createObdDetail = new CreateObdDetail();
             //obd的detail
-            ObdDetail obdDetail = soOrderService.getObdDetailByOrderIdAndItemId(orderId, itemId);
+            //根据ref查询
+            ObdDetail obdDetail = soOrderService.getObdDetailByOrderIdAndDetailOtherId(orderId,detail.getRefDetailOtherId());
+            //ObdDetail obdDetail = soOrderService.getObdDetailByOrderIdAndItemId(orderId, itemId);
             if (null == obdDetail) {
                 throw new BizCheckedException("2900004");
             }

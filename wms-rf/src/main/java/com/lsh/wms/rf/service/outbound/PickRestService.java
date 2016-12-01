@@ -237,6 +237,9 @@ public class PickRestService implements IPickRestService {
             List<WaveDetail> collectWaveDetails = waveService.getDetailsByPickTaskId(taskId);
             for (WaveDetail collectWaveDetail: collectWaveDetails) {
                 collectWaveDetail.setRealCollectLocation(locationId);
+                if (collectWaveDetail.getPickQty().compareTo(BigDecimal.ZERO) == 0) {
+                    collectWaveDetail.setIsAlive(0L); // 对于只捡了0个的,不需要qc,直接将wave_detail置为完成
+                }
                 waveService.updateDetail(collectWaveDetail);
             }
             iTaskRpcService.done(taskId, locationId, staffId);
@@ -451,6 +454,9 @@ public class PickRestService implements IPickRestService {
         TaskEntry newTaskEntry = new TaskEntry();
         TaskInfo newTaskInfo = new TaskInfo();
         PickTaskHead newTaskHead = new PickTaskHead();
+        //拣货分区 继承
+        newTaskInfo.setExt1(oriTaskInfo.getExt1());
+
         newTaskInfo.setTaskName(oriTaskInfo.getTaskName());
         newTaskInfo.setPlanId(oriTaskInfo.getPlanId());
         newTaskInfo.setWaveId(oriTaskInfo.getWaveId());
