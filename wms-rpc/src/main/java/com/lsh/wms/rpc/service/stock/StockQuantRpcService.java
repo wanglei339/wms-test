@@ -250,6 +250,10 @@ public class StockQuantRpcService implements IStockQuantRpcService {
     }
 
     public List<StockQuant> getLocationStockList(Map<String, Object> mapQuery) {
+        BaseinfoLocation location = locationService.getInventoryLostLocation();
+        List<BaseinfoLocation> excludeLocationList = new ArrayList<BaseinfoLocation>();
+        excludeLocationList.add(location);
+        mapQuery.put("excludeLocationList", excludeLocationList);
         return quantService.getQuants(mapQuery);
     }
 
