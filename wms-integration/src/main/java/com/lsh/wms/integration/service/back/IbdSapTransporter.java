@@ -38,7 +38,8 @@ public class IbdSapTransporter implements ITransporter {
         List<CreateIbdDetail> details = new ArrayList<CreateIbdDetail>();
         for(ReceiveDetail receiveDetail : receiveDetails){
             CreateIbdDetail detail = new CreateIbdDetail();
-            detail.setPoNumber(receiveHeader.getOrderOtherId());
+            String poNumber = receiveHeader.getOrderType().equals(3) ? receiveHeader.getOrderOtherRefId() : receiveHeader.getOrderOtherId();
+            detail.setPoNumber(poNumber);
             detail.setPoItme(receiveDetail.getDetailOtherId());
             BigDecimal inboudQty =  receiveDetail.getInboundQty();
 
