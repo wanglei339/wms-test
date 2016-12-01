@@ -114,17 +114,19 @@ public class WaveGenerator {
         Map<String, List<ObdHeader>> clusters = new HashMap<String, List<ObdHeader>>();
         for(ObdHeader header : orderHeaders){
             String [] keys = { "0", "0" };
-            if(tpl.getClusterRoute() == 1 ){
+            if(tpl.getClusterRoute().equals(1) ){
                 keys[0] = header.getTransPlan();
             }
-            if(tpl.getClusterCustomer() == 1){
-                keys[1] = header.getOrderUser();
+            if(tpl.getClusterCustomer().equals(1)){
+                keys[1] = header.getDeliveryCode();
             }
-            String key = "";
+            String key = keys[0]+"_"+keys[1];
             if(clusters.get(key) == null){
                 clusters.put(key, new LinkedList<ObdHeader>());
             }
             clusters.get(key).add(header);
+            logger.info(String.format("cluster key %s t %s c %s size %d",
+                    key, header.getTransPlan(), header.getDeliveryCode(), clusters.get(key).size()));
         }
         //跑策略
         //后期复杂策略,先不实现

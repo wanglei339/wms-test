@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -33,8 +34,11 @@ public class WaveAutoGenerator implements IScheduleTaskDealSingle<String> {
         return true;
     }
 
-    public List<String> selectTasks(String s, String s1, int i, List<TaskItemDefine> list, int i1) throws Exception {
-        return null;
+    public List<String> selectTasks(String taskParameter, String ownSign, int taskItemNum, List<TaskItemDefine> taskItemList, int eachFetchDataNum) throws Exception{
+        List<String> list = new ArrayList<String>();
+        String id = taskItemList.get(0).getTaskItemId();
+        list.add("[" + id + "]111");
+        return list;
     }
 
     public Comparator<String> getComparator() {

@@ -279,7 +279,9 @@ public class WaveCore {
                     }
                     long collecRoadId = customer.getCollectRoadId();
                     BaseinfoLocation location = locationService.getLocation(collecRoadId);
-                    if(location == null || !location.getType().equals(LocationConstant.COLLECTION_ROAD)){
+                    if(location == null
+                            || (!location.getType().equals(LocationConstant.COLLECTION_ROAD)
+                                && !location.getType().equals(LocationConstant.COLLECTION_BIN))){
                         throw new BizCheckedException("2040021");
                     }
                     collecRoad = location;

@@ -171,7 +171,7 @@ public class IbdService implements IIbdService {
 
         poRequest.setItems(items);
 
-        if(poRequest.getOrderType() == PoConstant.ORDER_TYPE_PO){
+        if(poRequest.getOrderType() == PoConstant.ORDER_TYPE_PO || poRequest.getOrderType() == PoConstant.ORDER_TYPE_CPO){
             CsiSupplier supplier = supplierService.getSupplier(poRequest.getSupplierCode().toString(),poRequest.getOwnerUid());
             if(supplier == null){
                 //throw new BizCheckedException("2021111");

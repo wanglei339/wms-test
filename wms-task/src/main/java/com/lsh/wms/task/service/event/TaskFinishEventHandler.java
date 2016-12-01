@@ -62,7 +62,6 @@ public class TaskFinishEventHandler extends AbsEventHandler implements IEventHan
             //退货上架完成，生成出库任务
             taskHandlerFactory.getTaskHandler(TaskConstant.TYPE_BACK_OUT).create(msg.getSourceTaskId());
         }
-
     }
 
     private void createShelveTask(Long taskId) throws BizCheckedException {
