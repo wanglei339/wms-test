@@ -8,6 +8,7 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.model.so.ObdDetail;
 import com.lsh.wms.api.service.sms.ISmsRestService;
+import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.core.constant.StockConstant;
 import com.lsh.wms.core.dao.redis.RedisSortedSetDao;
 import com.lsh.wms.core.dao.stock.StockSummaryDao;
@@ -81,6 +82,9 @@ public class SmsRestService implements ISmsRestService {
     @Autowired
     private BaseTaskService baseTaskService;
 
+    @Reference
+    private IStockQuantRpcService iStockQuantRpcService;
+
     @GET
     @Path("sendMsg")
     public String sendMsg (@QueryParam("item_id") String itemId,
@@ -124,7 +128,9 @@ public class SmsRestService implements ISmsRestService {
 //        mapQuery.put("itemId", Long.valueOf(itemId));
 //        mapQuery.put("locationId", locationService.getLocationIdByCode(locationCode));
 //        List<StockQuant> list = stockQuantService.getItemLocationList(mapQuery);
-        List<StockMove> list = stockMoveService.traceQuant(Long.valueOf(itemId));
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("itemId", 160502927868589L);
+        List<StockQuant> list = iStockQuantRpcService.getLocationStockList(mapQuery);
         return JsonUtils.SUCCESS(list);
     }
 
