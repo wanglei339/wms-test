@@ -128,10 +128,10 @@
 		select * from stock_quant
 		<include refid="queryCondition"/>
 		<choose>
-			<when test=" strategy == 'FIFO' ">ORDER BY ITEM_ID, IN_DATE</when>
-			<when test=" strategy == 'FEFO' ">ORDER BY ITEM_ID, EXPIRE_DATE</when>
+			<when test=" strategy == 'FIFO' ">ORDER BY IN_DATE</when>
+			<when test=" strategy == 'FEFO' ">ORDER BY EXPIRE_DATE</when>
 			<otherwise>
-				ORDER BY ITEM_ID, EXPIRE_DATE
+				ORDER BY EXPIRE_DATE
 			</otherwise>
 		</choose>
 		<if test="start != null and limit != null">
@@ -210,12 +210,6 @@
 				and location_id not in
 				<foreach collection="abnormalList"  item="item" index="index" open="(" separator=","  close=")">
 					#{item}
-				</foreach>
-			</if>
-			<if test="excludeLocationList != null">
-				and
-				<foreach collection="excludeLocationList"  item="item" index="index" open="(" separator="and"  close=")">
-					( ${item.getLocationId()} &gt; location_id or location_id &gt; ${item.getRightRange()} )
 				</foreach>
 			</if>
 		</where>
