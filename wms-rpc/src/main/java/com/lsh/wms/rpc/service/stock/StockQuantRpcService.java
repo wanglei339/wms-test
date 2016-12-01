@@ -17,6 +17,7 @@ import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.*;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
@@ -79,6 +80,14 @@ public class StockQuantRpcService implements IStockQuantRpcService {
 
     public List<StockQuant> getQuantList(StockQuantCondition condition) throws BizCheckedException {
         Map<String, Object> mapQuery = this.getQueryCondition(condition);
+        logger.error("fuck the condition is" + mapQuery.get("excludeLocation").toString());
+        if (condition.getExcludeLocation() != null) {
+            BaseinfoLocation location = locationService.getInventoryLostLocation();
+            List<BaseinfoLocation> excludeLocationList = new ArrayList<BaseinfoLocation>();
+            excludeLocationList.add(location);
+            logger.error("fuck i put inventory here");
+            mapQuery.put("excludeLocationList", excludeLocationList);
+        }
         List<StockQuant> quantList = quantService.getQuants(mapQuery);
         return quantList == null ? new ArrayList<StockQuant>() : quantList;
     }
@@ -173,7 +182,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
 
             move.setQty(quant.getQty().subtract(realQty));
             move.setFromLocationId(quant.getLocationId());
-            move.setToLocationId(locationService.getInventoryLostLocationId());
+            move.setToLocationId(locationService.getInventoryLostLocation().getLocationId());
             move.setToContainerId(containerService.createContainerByType(ContainerConstant.CAGE).getContainerId());
         }else {
             move.setTaskId(WriteOffConstant.WRITE_OFF_TASK_ID);
@@ -183,7 +192,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             move.setStatus(TaskConstant.Done);
 
             move.setQty(realQty.subtract(quant.getQty()));
-            move.setFromLocationId(locationService.getInventoryLostLocationId());
+            move.setFromLocationId(locationService.getInventoryLostLocation().getLocationId());
             move.setToLocationId(quant.getLocationId());
             move.setToContainerId(quant.getContainerId());
             move.setLot(lot);
@@ -213,7 +222,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         // get all defect quant
         HashMap<String, Object> mapCondition = new HashMap<String, Object>();
         mapCondition.put("itemList", itemIdList);
-        mapCondition.put("locationId", locationService.getDefectiveLocationId());
+        mapCondition.put("locationId", locationService.getDefectiveLocation().getLocationId());
         List<StockQuant> quantList = quantService.getQuants(mapCondition);
         for (StockQuant quant : quantList) {
             Long itemId = quant.getItemId();

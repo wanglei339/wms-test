@@ -123,8 +123,7 @@ public class ItemLocationService {
     public List<BaseinfoItemLocation> getItemLocationList(long itemId){
         Map<String,Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("itemId",itemId);
-        List<BaseinfoItemLocation> list =
-                itemLocationDao.getBaseinfoItemLocationList(mapQuery);
+        List<BaseinfoItemLocation> list = itemLocationDao.getBaseinfoItemLocationList(mapQuery);
         return list;
     }
 

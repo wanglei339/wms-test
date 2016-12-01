@@ -99,29 +99,6 @@ public class QCRestService implements IRFQCRestService {
         //判断是拣货签还是托盘码
         //pickTaskId拣货签12开头,18位的长度
         String code = (String) mapRequest.get("code");
-//        String firstTwoCode = code.substring(0, 2);
-//        if (code.toString().length() == 16 && firstTwoCode.equals("12")) {
-//            mapRequest.put("pickTaskId", code);
-//        } else {
-//            mapRequest.put("containerId", code);
-//        }
-        //参数获取和初始化
-
-//        if (mapRequest.get("pickTaskId") != null && mapRequest.get("pickTaskId").toString().compareTo("") != 0) {
-//            //根据捡货签做初始化
-//            pickTaskId = Long.valueOf(mapRequest.get("pickTaskId").toString());
-//            pickTaskInfo = iTaskRpcService.getTaskInfo(pickTaskId);
-//            if (pickTaskInfo == null) {
-//                throw new BizCheckedException("2060003");
-//            }
-//            containerId = pickTaskInfo.getContainerId();
-//        } else {
-//            //根据托盘码做初始化
-//            containerId = Long.valueOf(mapRequest.get("containerId").toString());
-//            Map<String, Object> mapQuery = new HashMap<String, Object>();
-//            mapQuery.put("containerId", containerId);
-//        }
-        //查两次 当托盘或者拣货签查一次(目前托盘码15位,任务号16位)
 
 
         //获取QC任务
@@ -253,11 +230,13 @@ public class QCRestService implements IRFQCRestService {
             throw new BizCheckedException("2120016");
         }
         //获取集货道信息去库存表中查位置,   系统设计 一个托盘只能在一个位置上
-        List<Long> locationIds = stockQuantService.getLocationIdByContainerId(containerInfo.getContainerId());
-        if (null == locationIds || locationIds.size() < 1) {
-            throw new BizCheckedException("2180040");
-        }
-        BaseinfoLocation collectLocaion = iLocationRpcService.getLocation(locationIds.get(0));
+//        List<Long> locationIds = stockQuantService.getLocationIdByContainerId(containerInfo.getContainerId());
+//        if (null == locationIds || locationIds.size() < 1) {
+//            throw new BizCheckedException("2180040");
+//        }
+        //使用wave_detail查位置
+        Long locationId = details.get(0).getAllocCollectLocation();
+        BaseinfoLocation collectLocaion = iLocationRpcService.getLocation(locationId);
         Map<String, Object> rstMap = new HashMap<String, Object>();
         rstMap.put("qcList", undoDetails);
         rstMap.put("isDirect", isDirect);
@@ -443,8 +422,10 @@ public class QCRestService implements IRFQCRestService {
         //跳过qc明细,系统默认拣货量和qc量相等
         if (skip) {
             for (WaveDetail detail : details) {
-                detail.setQcExceptionDone(1L);  // 正常不需要处理
                 detail.setQcQty(detail.getPickQty()); //先默认qc数量是正常的
+                detail.setQcTimes(WaveConstant.QC_TIMES_MORE);
+                detail.setQcExceptionDone(WaveConstant.QC_EXCEPTION_STATUS_NORMAL);
+                detail.setQcException(WaveConstant.QC_EXCEPTION_NORMAL);  // 正常不需要处理
                 waveService.updateDetail(detail);
             }
         }

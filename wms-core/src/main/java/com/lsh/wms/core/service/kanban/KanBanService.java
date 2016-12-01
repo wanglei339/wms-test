@@ -54,7 +54,7 @@ public class KanBanService {
     public List<Map<String, Object>> getPoDetailKanBanCount(Long orderType){
         List<IbdHeader> headers = ibdHeaderDao.getPoDayCount(orderType);
         Map<Long,Integer> fMap = new HashMap<Long, Integer>();
-        BigDecimal sumQty = new BigDecimal(0);
+        BigDecimal sumQty = null; //new BigDecimal(0);
 
         Map<String,Object> newMap = new HashMap<String, Object>();
 

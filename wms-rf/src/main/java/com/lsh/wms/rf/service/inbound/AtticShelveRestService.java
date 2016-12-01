@@ -337,10 +337,6 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
                 return JsonUtils.TOKEN_ERROR("提供扫描库位类型不符");
             }
 
-
-            if(detail ==null){
-                return JsonUtils.TOKEN_ERROR("系统库位参数错误");
-            }
             detail.setRealQty(realQty.multiply(quant.getPackUnit()));
             detail.setRealLocationId(realLocationId);
             detail.setShelveAt(DateUtils.getCurrentSeconds());
@@ -477,7 +473,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
 
             BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(location.getLocationId());
             //体积的80%为有效体积
-            BigDecimal valum = bin.getVolume().multiply(new BigDecimal(0.8));
+            BigDecimal valum = bin.getVolume().multiply(BigDecimal.valueOf(0.8));
             if (valum.compareTo(bulk) < 0 || (!locationService.locationIsEmptyAndUnlock(location))) {
                 continue;
             }

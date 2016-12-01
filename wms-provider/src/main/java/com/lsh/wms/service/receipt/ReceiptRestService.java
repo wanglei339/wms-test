@@ -97,12 +97,6 @@ public class ReceiptRestService implements IReceiptRestService {
         List<InbReceiptHeader> inbReceiptHeaderList = receiptRpcService.getPoReceiptDetailByOrderId(orderId);
         return JsonUtils.SUCCESS(inbReceiptHeaderList);
     }
-    @POST
-    @Path("getInbReceiptDetailList")
-    public String getInbReceiptDetailList(Map<String,Object> param) throws BizCheckedException {
-        List<InbReceiptHeader> inbReceiptHeaderList = receiptRpcService.getInbReceiptDetailList(param);
-        return JsonUtils.SUCCESS(inbReceiptHeaderList);
-    }
 
     @GET
     @Path("getCpoReceiptDetailByOrderId")
@@ -118,11 +112,12 @@ public class ReceiptRestService implements IReceiptRestService {
         return JsonUtils.SUCCESS(receiptRpcService.countInbPoReceiptHeader(params));
     }
 
+
     @POST
     @Path("getPoReceiptDetailList")
     public String getPoReceiptDetailList() {
         Map<String, Object> params = RequestUtils.getRequest();
-        return JsonUtils.SUCCESS(receiptRpcService.getPoReceiptDetailList(params));
+        return JsonUtils.SUCCESS(receiptRpcService.getInbReceiptHeaderList(params));
     }
 
 
@@ -132,5 +127,32 @@ public class ReceiptRestService implements IReceiptRestService {
         receiptRpcService.insertReceipt(orderId,staffId);
         return JsonUtils.SUCCESS();
     }
+
+    @POST
+    @Path("getInbReceiptHeaderDetailList")
+    public String getInbReceiptHeaderDetailList() throws BizCheckedException {
+        Map<String, Object> params = RequestUtils.getRequest();
+        List<InbReceiptHeader> inbReceiptHeaderList = receiptRpcService.getInbReceiptHeaderDetailList(params);
+        return JsonUtils.SUCCESS(inbReceiptHeaderList);
+    }
+    @POST
+    @Path("getInbReceiptHeaderList")
+    public String getInbReceiptHeaderList() {
+        Map<String, Object> params = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(receiptRpcService.getInbReceiptHeaderList(params));
+    }
+    @POST
+    @Path("getInbReceiptDetailList")
+    public String getInbReceiptDetailList() {
+        Map<String, Object> params = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(receiptRpcService.getInbReceiptDetailList(params));
+    }
+    @POST
+    @Path("countInbPoReceiptDetail")
+    public String countInbPoReceiptDetail(){
+        Map<String, Object> params = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(receiptRpcService.countInbPoReceiptDetail(params));
+    }
+
 
 }

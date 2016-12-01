@@ -208,10 +208,15 @@ public class QCRpcService implements IQCRpcService {
     public Map<Long, Map<String, Object>> getGroupDetailByStoreNo(String storeNo) throws BizCheckedException {
         Map<Long, Map<String, Object>> results = new HashMap<Long, Map<String, Object>>();
         List<WaveDetail> waveDetails = this.getQcWaveDetailsByStoreNo(storeNo);
+
+        if (null == waveDetails || waveDetails.isEmpty()) {
+            return results;
+        }
         List<TaskInfo> qcDoneTaskinfos = this.getQcDoneTaskInfoByWaveDetails(waveDetails);
         if (null == qcDoneTaskinfos || qcDoneTaskinfos.size() < 1) {
             return results;
         }
+
         //taskinfo里面的qc托盘码唯一
         for (TaskInfo info : qcDoneTaskinfos) {
             Long containerId = info.getContainerId(); //获取托盘
@@ -291,6 +296,12 @@ public class QCRpcService implements IQCRpcService {
         //先去集货位拿到所有的托盘的wave_detailList
         List<WaveDetail> waveDetailList = new ArrayList<WaveDetail>();
         List<StockQuant> quants = stockQuantService.getQuantsByLocationId(location.getLocationId());
+
+        //集货道没有库存,拣货缺交为0
+        if (null == quants || quants.isEmpty()) {
+            return new ArrayList<WaveDetail>();
+        }
+
         for (StockQuant quant : quants) {
             Long containerId = quant.getContainerId();
             List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(containerId);
@@ -507,6 +518,8 @@ public class QCRpcService implements IQCRpcService {
         if (null == toLocation) {
             throw new BizCheckedException("2180002");
         }
+        //拣货缺交真的没有没有stockQuant
+
         List<StockQuant> stockQuants = stockQuantService.getQuantsByContainerId(containerId);
         if (null == stockQuants || stockQuants.size() < 1) {
             throw new BizCheckedException("2990043");
@@ -585,7 +598,7 @@ public class QCRpcService implements IQCRpcService {
             qcTaskInfosMap.put(qcTaskId, qcInfo);
         }
         //完成qc的detailList 判断贵品
-        //todo 找到当前的所有贵品,是按照有一个贵品就是贵品
+        //找到当前的所有贵品,是按照有一个贵品就是贵品
         Map<Long, Map<String, Object>> qcDoneDetailMap = new HashMap<Long, Map<String, Object>>();
         for (WaveDetail oneDetail : waveDetails) {
 

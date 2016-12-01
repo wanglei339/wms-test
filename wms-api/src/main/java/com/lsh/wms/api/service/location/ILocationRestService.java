@@ -115,4 +115,8 @@ public interface ILocationRestService {
     String getLocationType(@QueryParam("locationId") String locationId) throws BizCheckedException;
     String initLocationTree();
     String splitBin() throws BizCheckedException;
+
+    String getLocationByType(Long type) throws BizCheckedException;
+
+    String getChildrenLocationsByFatherIdAndType(Long fatherLocationId, Long sonType)throws BizCheckedException;
 }

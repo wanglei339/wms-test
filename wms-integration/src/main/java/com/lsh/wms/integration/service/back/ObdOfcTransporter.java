@@ -75,7 +75,7 @@ public class ObdOfcTransporter implements ITransporter{
         }
         request.setDetails(items);
 
-        dataBackService.ofcDataBackByPost(JSON.toJSONString(request), IntegrationConstan.URL_LSHOFC_OBD,sysLog);
+        dataBackService.ofcDataBackByPost(JSON.toJSONString(request), PropertyUtils.getString("url_lshofc_obd"),sysLog);
 
 
 

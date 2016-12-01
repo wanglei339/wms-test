@@ -546,7 +546,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
             taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
             taskInfo.setContainerId(inbReceiptHeader.getContainerId());
             taskInfo.setItemId(inbReceiptDetailList.get(0).getItemId());
-            taskInfo.setOperator(inbReceiptHeader.getStaffId());
+            //存uid
+            taskInfo.setOperator(Long.valueOf(inbReceiptHeader.getReceiptUser()));
             taskEntry.setTaskInfo(taskInfo);
             taskId = iTaskRpcService.create(TaskConstant.TYPE_PO, taskEntry);
             iTaskRpcService.done(taskId);
@@ -703,27 +704,47 @@ public class ReceiptRpcService implements IReceiptRpcService {
         return inbReceiptHeaderList;
     }
 
-    public List<InbReceiptHeader> getInbReceiptDetailList(Map<String,Object> param) throws BizCheckedException {
+    public List<InbReceiptHeader> getInbReceiptHeaderDetailList(Map<String,Object> param) throws BizCheckedException {
         //封装返回数据
         List<InbReceiptHeader> inbReceiptHeaderList = new ArrayList<InbReceiptHeader>();
         //查询收货详情
         List<InbReceiptDetail> detailList = poReceiptService.getInbReceiptDetailList(param);
+        if(detailList == null){
+            return new ArrayList<InbReceiptHeader>();
+        }
         //记录收货ID,避免重复查询
         Set<Long> receiptOrderIdSet = new HashSet<Long>() ;
 
+        Map<Long,List<InbReceiptDetail>> detailMap = new HashMap<Long, List<InbReceiptDetail>>();
         for(InbReceiptDetail inbReceiptDetail : detailList){
-           if(receiptOrderIdSet.contains(inbReceiptDetail.getReceiptOrderId())){
-               continue;
-           }
-            param.put("receiptOrderId",inbReceiptDetail.getReceiptOrderId());
-            InbReceiptHeader inbReceiptHeader = poReceiptService.getInbReceiptHeaderByParams(param);
-            inbReceiptHeader.setReceiptDetails(detailList);
-            inbReceiptHeaderList.add(inbReceiptHeader);
+            Long receiptOrderId = inbReceiptDetail.getReceiptOrderId();
+            receiptOrderIdSet.add(receiptOrderId);
+            List<InbReceiptDetail> inbReceiptDetailList = detailMap.get(receiptOrderId);
+            if(inbReceiptDetailList == null){
+                inbReceiptDetailList = new ArrayList<InbReceiptDetail>();
 
-            receiptOrderIdSet.add(inbReceiptDetail.getReceiptOrderId());
+            }
+            inbReceiptDetailList.add(inbReceiptDetail);
+            detailMap.put(receiptOrderId,inbReceiptDetailList);
+        }
+        for(Long receiptOrderId :receiptOrderIdSet){
+            param.put("receiptOrderId",receiptOrderId);
+            param.put("start",null);
+            param.put("limit",null);
+            InbReceiptHeader inbReceiptHeader = poReceiptService.getInbReceiptHeaderByParams(param);
+            if(inbReceiptHeader == null){
+                continue;
+            }
+            inbReceiptHeader.setReceiptDetails(detailMap.get(receiptOrderId));
+            inbReceiptHeaderList.add(inbReceiptHeader);
         }
         return inbReceiptHeaderList;
     }
+
+    public List<InbReceiptDetail> getInbReceiptDetailList(Map<String,Object> param) throws BizCheckedException{
+        return poReceiptService.getInbReceiptDetailList(param);
+    }
+
     public List<InbReceiptDetail> getInbReceiptDetailListByOrderId(Long orderId){
         if (orderId == null) {
             throw new BizCheckedException("1020001", "参数不能为空");
@@ -736,7 +757,11 @@ public class ReceiptRpcService implements IReceiptRpcService {
         return poReceiptService.countInbReceiptHeader(params);
     }
 
-    public List<InbReceiptHeader> getPoReceiptDetailList(Map<String, Object> params) {
+    public Integer countInbPoReceiptDetail(Map<String, Object> params) {
+        return poReceiptService.countInbReceiptDetail(params);
+    }
+
+    public List<InbReceiptHeader> getInbReceiptHeaderList(Map<String, Object> params) {
         return poReceiptService.getInbReceiptHeaderList(params);
     }
 

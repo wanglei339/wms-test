@@ -5,17 +5,23 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.service.po.IReceiptRpcService;
 import com.lsh.wms.api.service.po.IReceiveRpcService;
 import com.lsh.wms.api.service.wumart.IWuMart;
 import com.lsh.wms.core.constant.PoConstant;
+import com.lsh.wms.core.constant.ReceiptContant;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.po.PoReceiptService;
 import com.lsh.wms.core.service.po.ReceiveService;
+import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.model.po.*;
+import com.lsh.wms.model.system.SysUser;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +42,9 @@ public class ReceiveRpcService implements IReceiveRpcService{
 
     @Autowired
     private PoReceiptService receiptService;
+
+    @Autowired
+    private SysUserService sysUserService;
 
     public List<ReceiveHeader> getReceiveHeaderList(Map<String, Object> params) {
         return receiveService.getReceiveHeaderList(params);
@@ -68,7 +77,9 @@ public class ReceiveRpcService implements IReceiveRpcService{
     }
 
 
-    public void updateQty(Long receiveId, String detailOtherId, BigDecimal qty) throws BizCheckedException {
+    public void updateQty(Long receiveId, String detailOtherId, BigDecimal qty,Long uid) throws BizCheckedException {
+
+        SysUser user = sysUserService.getSysUserByUid(uid.toString());
 
         //获取receiveHeader
         ReceiveHeader receiveHeader = receiveService.getReceiveHeaderByReceiveId(receiveId);
@@ -86,19 +97,44 @@ public class ReceiveRpcService implements IReceiveRpcService{
         }
         ibdDetail.setInboundQty(ibdDetail.getInboundQty().subtract(subQty));
 
-        List<InbReceiptDetail> receiptDetails = receiptService.getInbReceiptDetailListByOrderIdAndCode(receiveHeader.getOrderId(),receiveDetail.getCode());
-        InbReceiptDetail inbReceiptDetail = new InbReceiptDetail();
+        //查询有效的收货明细
+        List<InbReceiptDetail> receiptDetails = receiptService.getInbReceiptDetailListByOrderIdAndCode(receiveHeader.getOrderId(),receiveDetail.getCode(),ReceiptContant.RECEIPT_YES);
+        List<InbReceiptDetail> updateReceiptDetails = new ArrayList<InbReceiptDetail>();
+
+        List<InbReceiptDetail> addReceiptDetails = new ArrayList<InbReceiptDetail>();
+
         for(InbReceiptDetail detail : receiptDetails){
+            InbReceiptDetail inbReceiptDetail = new InbReceiptDetail();
             BigDecimal receiptQty = detail.getInboundQty();
-            if(detail.getInboundQty().subtract(subQty).compareTo(BigDecimal.ZERO) < 0 ){
-                continue;
-            }else{
-                detail.setInboundQty(receiptQty.subtract(subQty));
+            BigDecimal sourceQty = detail.getInboundQty();
+            String remark = StrUtils.formatString("用户{0}修改数量,将收货单{1}下明细作废作废,重新生成",user.getUsername(),detail.getReceiptOrderId());
+            detail.setIsValid(ReceiptContant.RECEIPT_CANCLE);
+            //detail.setInboundQty(BigDecimal.ZERO);
+            detail.setUpdateby(uid.toString());
+            detail.setUpdatetime(new Date());
+            detail.setRemark(remark);
+            updateReceiptDetails.add(detail);
+            if(sourceQty.subtract(subQty).compareTo(BigDecimal.ZERO) < 0 ){
                 ObjUtils.bean2bean(detail,inbReceiptDetail);
+                remark = StrUtils.formatString("用户{0}修改数量,重新生成",user.getUsername());
+                inbReceiptDetail.setRemark(remark);
+                inbReceiptDetail.setInboundQty(BigDecimal.ZERO);
+                inbReceiptDetail.setIsValid(ReceiptContant.RECEIPT_YES);
+                subQty = subQty.subtract(sourceQty);
+                addReceiptDetails.add(inbReceiptDetail);
+            }else{
+                ObjUtils.bean2bean(detail,inbReceiptDetail);
+                remark = StrUtils.formatString("用户{0}修改数量,重新生成",user.getUsername());
+                inbReceiptDetail.setRemark(remark);
+                inbReceiptDetail.setInboundQty(BigDecimal.ZERO);
+                inbReceiptDetail.setIsValid(ReceiptContant.RECEIPT_YES);
+                inbReceiptDetail.setInboundQty(receiptQty.subtract(subQty));
+                addReceiptDetails.add(inbReceiptDetail);
                 break;
             }
         }
-        receiveService.updateQty(receiveDetail,ibdDetail,inbReceiptDetail);
+
+        receiveService.updateQty(receiveDetail,ibdDetail,updateReceiptDetails,addReceiptDetails);
 
     }
 

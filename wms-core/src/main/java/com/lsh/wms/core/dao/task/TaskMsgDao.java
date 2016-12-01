@@ -15,6 +15,8 @@ public interface TaskMsgDao {
 	
 	TaskMsg getTaskMsgByBusinessId(Long businessId);
 
+	TaskMsg getTaskMsgById(Long id);
+
     Integer countTaskMsg(Map<String, Object> params);
 
     List<TaskMsg> getTaskMsgList(Map<String, Object> params);

@@ -55,10 +55,10 @@ public class SqlStatementInterceptor implements Interceptor{
         long end = System.currentTimeMillis();
         long time = (end - start);
 
-        if (time > 1) {
+        //if (time > 1) {
             String sql = getSql(configuration, boundSql, sqlId, time);
             logger.info(sql);
-        }
+        //}
 
         return returnValue;
     }

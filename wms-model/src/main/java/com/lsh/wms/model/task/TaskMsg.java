@@ -28,6 +28,8 @@ public class TaskMsg implements Serializable {
     private String msgContent;
 	/** 消息生成时间 */
     private Long timestamp;
+	/** 重试次数 */
+	private Long retryTimes;
 	/** 优先级 */
     private Long priority;
 	/**  */
@@ -143,5 +145,13 @@ public class TaskMsg implements Serializable {
         this.msgBody = msgBody;
         this.msgContent = JsonUtils.obj2Json(msgBody);
     }
+
+	public Long getRetryTimes() {
+		return retryTimes;
+	}
+
+	public void setRetryTimes(Long retryTimes) {
+		this.retryTimes = retryTimes;
+	}
 
 }

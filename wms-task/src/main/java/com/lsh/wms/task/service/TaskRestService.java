@@ -115,12 +115,6 @@ public class TaskRestService implements ITaskRestService {
     @POST
     @Path("sendMsg")
     public String sendMsg(Map<String, Object> mapQuery) {
-        quantService.getQuantQtyByLocationIdAndItemId(88653814975646L,4716171821967L );
-//        Long type =(Long.valueOf(mapQuery.get("type").toString()));
-//        TaskMsg msg = new TaskMsg();
-//        msg.setType(Long.valueOf(mapQuery.get("type").toString()));
-//        msg.setMsgBody(mapQuery);
-//        messageService.sendMessage(msg);
         return JsonUtils.SUCCESS();
     }
 
@@ -129,4 +123,26 @@ public class TaskRestService implements ITaskRestService {
     public String getTaskInfo(@QueryParam("taskId") long taskId) throws BizCheckedException{
         return JsonUtils.SUCCESS(taskRpcService.getTaskInfo(taskId));
     }
+
+    @POST
+    @Path("getMsgList")
+    public String getTaskMsgList(Map<String, Object> mapQuery) throws BizCheckedException {
+        List<TaskMsg> taskMsgList = taskRpcService.getTaskMsgList(mapQuery);
+        return JsonUtils.SUCCESS(taskMsgList);
+    }
+
+    @POST
+    @Path("getMsgCount")
+    public String countTaskMsg(Map<String, Object> mapQuery) throws BizCheckedException {
+        int count = taskRpcService.countTaskMsg(mapQuery);
+        return JsonUtils.SUCCESS(count);
+    }
+
+    @GET
+    @Path("processMsg")
+    public String processTaskMsg(@QueryParam("taskMsgId") Long taskMsgId) {
+        taskRpcService.processTaskMsg(taskMsgId);
+        return JsonUtils.SUCCESS();
+    }
+
 }

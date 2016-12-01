@@ -17,7 +17,6 @@ import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
-import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
@@ -129,7 +128,7 @@ public class LoadRfRestService implements ILoadRfRestService {
             one.put("driverName", headList.get(i).getName());   //预装板数
             //门店信息
             //List<map<"code":,"name">>
-            List<CsiCustomer> storeList = csiCustomerService.ParseCustomerIds2Customers(headList.get(i).getStoreIds());
+            List<CsiCustomer> storeList = csiCustomerService.parseCustomerIds2Customers(headList.get(i).getStoreIds());
             one.put("stores", storeList);
             resultList.add(one);
         }
@@ -159,7 +158,7 @@ public class LoadRfRestService implements ILoadRfRestService {
             iTuRpcService.changeTuHeadStatus(tuHead, TuConstant.IN_LOADING);    //改成装车中
         }
         //门店信息
-        List<CsiCustomer> stores = csiCustomerService.ParseCustomerIds2Customers(tuHead.getStoreIds()); //少用map不易解读
+        List<CsiCustomer> stores = csiCustomerService.parseCustomerIds2Customers(tuHead.getStoreIds()); //少用map不易解读
         //rf结果
         Map<String, Object> resultMap = new HashMap<String, Object>();
         //大门店还是小门店
@@ -196,7 +195,6 @@ public class LoadRfRestService implements ILoadRfRestService {
                     boolean isLoaded = false;
                     TuDetail tuDetail = iTuRpcService.getDetailByBoardId(Long.valueOf(boardMap.get("containerId").toString()));
                     if (null != tuDetail) {
-                        isLoaded = true;
                         continue;   //已装车尾货不显示
                     }
                     boardMap.put("isLoaded", isLoaded);
@@ -337,8 +335,8 @@ public class LoadRfRestService implements ILoadRfRestService {
         tuDetail.setStoreId(storeId);
         tuDetail.setLoadAt(DateUtils.getCurrentSeconds());
         tuDetail.setIsValid(1);
-        tuDetail.setIsRest(isExpensive ? TuConstant.IS_REST : TuConstant.NOT_REST);
-        tuDetail.setIsExpensive(isRest ? TuConstant.IS_EXPENSIVE : TuConstant.NOT_EXPENSIVE);
+        tuDetail.setIsRest(isRest ? TuConstant.IS_REST : TuConstant.NOT_REST);
+        tuDetail.setIsExpensive(isExpensive ? TuConstant.IS_EXPENSIVE : TuConstant.NOT_EXPENSIVE);
         iTuRpcService.create(tuDetail);
 
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
@@ -457,7 +455,7 @@ public class LoadRfRestService implements ILoadRfRestService {
         Map<String, Object> mapRequest = RequestUtils.getRequest();
         String tuId = mapRequest.get("tuId").toString();
         TuHead tuHead = iTuRpcService.getHeadByTuId(tuId);
-        List<CsiCustomer> stores = csiCustomerService.ParseCustomerIds2Customers(tuHead.getStoreIds()); //少用map不易解读
+        List<CsiCustomer> stores = csiCustomerService.parseCustomerIds2Customers(tuHead.getStoreIds()); //少用map不易解读
         //获取该门店的所有贵品 结果集封装 key是containerId
         Map<Long, Map<String, Object>> expensiveInfoMap = new HashMap<Long, Map<String, Object>>();
         //托盘没装车的过滤
@@ -493,7 +491,7 @@ public class LoadRfRestService implements ILoadRfRestService {
             TaskInfo qcInfo = (TaskInfo) tempMap.get("qcDoneInfo");
 
             expensiveInfo.put("containerCount", 1);
-            expensiveInfo.put("isRest", false);
+            expensiveInfo.put("isRest", qcInfo.getFinishTime() < DateUtils.getTodayBeginSeconds()); //小于今天最早的时间
             expensiveInfo.put("boxNum", qcInfo.getTaskPackQty());
             expensiveInfo.put("turnoverBoxNum", qcInfo.getExt3());      //周转箱
             expensiveInfo.put("taskBoardQty", 0);                   //板数算为0

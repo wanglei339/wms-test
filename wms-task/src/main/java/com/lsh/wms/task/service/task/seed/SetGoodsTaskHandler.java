@@ -23,6 +23,8 @@ import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.task.service.handler.AbsTaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -56,6 +58,9 @@ public class SetGoodsTaskHandler extends AbsTaskHandler {
     @Autowired
     private CsiCustomerService csiCustomerService;
 
+    private static Logger logger = LoggerFactory.getLogger(SetGoodsTaskHandler.class);
+
+
 
     @PostConstruct
     public void postConstruct() {
@@ -84,8 +89,14 @@ public class SetGoodsTaskHandler extends AbsTaskHandler {
         }
         BaseinfoLocation location = locationService.getLocation(customer.getCollectRoadId());
 
+        StockQuantCondition condition = new StockQuantCondition();
+        condition.setContainerId(containerId);
+        List<StockQuant> quants= stockQuantRpcService.getQuantList(condition);
+        if(quants==null || quants.size()==0){
+            return;
+        }
         //移动库存
-        moveRpcService.moveWholeContainer(containerId, taskId, info.getOperator(), location.getLocationId(), location.getLocationId());
+        moveRpcService.moveWholeContainer(containerId, taskId, info.getOperator(), quants.get(0).getLocationId(), location.getLocationId());
 
     }
 }

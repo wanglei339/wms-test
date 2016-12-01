@@ -10,4 +10,9 @@ public class ReceiptContant {
     public static final int RECEIPT_TYPE_ORDER = 2;
 
     public static final int RECEIPT_TYPE_STORE = 3;
+
+    /** 是否使用 1正常使用 2作废*/
+    public static final int RECEIPT_YES = 1;
+
+    public static final int RECEIPT_CANCLE = 2;
 }

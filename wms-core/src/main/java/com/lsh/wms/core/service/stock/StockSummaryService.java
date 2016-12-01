@@ -37,7 +37,7 @@ public class StockSummaryService {
 
     @Transactional(readOnly = false)
     public void changeStock(StockDelta delta) throws BizCheckedException {
-        logger.info(StrUtils.formatString("change stock summery for item[{0}] : inhouse delta is [{1}], alloc delta is [{2}]", delta.getItemId(), delta.getInhouseQty(), delta.getAllocQty()));
+        logger.info(StrUtils.formatString("change stock summary for item[{0}] : inhouse delta is [{1}], alloc delta is [{2}]", delta.getItemId(), delta.getInhouseQty(), delta.getAllocQty()));
         stockDeltaDao.insert(delta);
         StockSummary summary = new StockSummary();
         ObjUtils.bean2bean(delta, summary);

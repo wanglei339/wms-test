@@ -55,7 +55,7 @@ public class StockAllocService {
             stockSummaryService.changeStock(delta);
 
             Long itemId = obdDetail.getItemId();
-            logger.info(StrUtils.formatString("SO[{0}] DetailId[{1}] inserted, reserve itemId[{1}] with qty is {2}", orderId, obdDetail.getDetailOtherId(), itemId, obdDetail.getOrderQty()));
+            logger.info(StrUtils.formatString("SO[{0}] DetailId[{1}] inserted, reserve itemId[{2}] with qty is {3}", orderId, obdDetail.getDetailOtherId(), itemId, obdDetail.getOrderQty()));
         }
     }
 
