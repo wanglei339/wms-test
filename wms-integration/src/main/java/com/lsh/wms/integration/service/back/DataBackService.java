@@ -215,7 +215,7 @@ public class DataBackService implements IDataBackService {
 
     private String getToken(String url){
         String jsonStr = HttpUtil.doPostToken(url);
-        System.out.println(jsonStr);
+        // System.out.println(jsonStr);
         OrderResponse orderResponse = JSON.parseObject(jsonStr, OrderResponse.class);
         if(orderResponse != null && Integer.valueOf(orderResponse.getCode()) == 1){
             return orderResponse.getGatewayToken();

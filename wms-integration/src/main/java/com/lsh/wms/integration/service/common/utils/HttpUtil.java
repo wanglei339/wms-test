@@ -17,6 +17,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -29,7 +31,7 @@ import java.util.Map;
  * Created by lixin-mac on 16/9/6.
  */
 public class HttpUtil {
-
+    private static final Logger logger = LoggerFactory.getLogger(HttpUtil.class);
     private static PoolingHttpClientConnectionManager connMgr;
     private static RequestConfig requestConfig;
     private static final int MAX_TIMEOUT = 70000;
@@ -89,14 +91,14 @@ public class HttpUtil {
             HttpResponse response = httpclient.execute(httpPost);
             int statusCode = response.getStatusLine().getStatusCode();
 
-            System.out.println("执行状态码 : " + statusCode);
+            // System.out.println("执行状态码 : " + statusCode);
 
             HttpEntity entity = response.getEntity();
             if (entity != null) {
                 result = EntityUtils.toString(entity);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
         }
         return result;
     }
@@ -136,24 +138,24 @@ public class HttpUtil {
             }
             httpPost.setEntity(new UrlEncodedFormEntity(pairList, Charset.forName("UTF-8")));
             response = httpClient.execute(httpPost);
-            System.out.println(response.toString());
+            // System.out.println(response.toString());
             HttpEntity entity = response.getEntity();
             httpStr = EntityUtils.toString(entity, "UTF-8");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
         } finally {
             if (response != null) {
                 try {
                     EntityUtils.consume(response.getEntity());
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
                 }
             }
 
             try {
                 httpClient.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             }
         }
         return httpStr;
@@ -192,13 +194,13 @@ public class HttpUtil {
 //			System.out.println(response.getStatusLine().getStatusCode());
 			httpStr = EntityUtils.toString(entity, "UTF-8");
 		} catch (IOException e) {
-			e.printStackTrace();
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
 		} finally {
 			if (response != null) {
 				try {
 					EntityUtils.consume(response.getEntity());
 				} catch (IOException e) {
-					e.printStackTrace();
+                    logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
 				}
 			}
 		}
@@ -237,13 +239,13 @@ public class HttpUtil {
 //			System.out.println(response.getStatusLine().getStatusCode());
             httpStr = EntityUtils.toString(entity, "UTF-8");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
         } finally {
             if (response != null) {
                 try {
                     EntityUtils.consume(response.getEntity());
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
                 }
             }
         }

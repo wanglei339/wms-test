@@ -217,8 +217,7 @@ public class StockTransferRFService implements IStockTransferRFService{
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
-            logger.error(e.getMessage());
-            e.printStackTrace();
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             return JsonUtils.TOKEN_ERROR(e.getMessage());
         }
     }

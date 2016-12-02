@@ -84,11 +84,6 @@
         where item_id=#{itemId}
     </select>
 
-    <select id="getStockAllocDetailByObdId" parameterType="Long" resultMap="stockAllocDetailResultMap">
-        select * from stock_alloc_detail
-        where obd_id=#{obdId}
-    </select>
-
     <select id="countStockAllocDetail" parameterType="map" resultType="int">
         select count(*) from stock_alloc_detail
         <include refid="queryCondition"/>

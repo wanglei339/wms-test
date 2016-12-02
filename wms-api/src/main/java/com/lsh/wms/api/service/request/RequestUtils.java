@@ -67,7 +67,7 @@ public class RequestUtils {
                     logger.debug(req);
                     requestMap = JsonUtils.json2Obj(req, Map.class);
                 }catch (IOException ex){
-                    ex.printStackTrace();
+                    logger.error(ex.getCause()!=null ? ex.getCause().getMessage():ex.getMessage());
                 }
             }else {
                 paramMap = request.getParameterMap();

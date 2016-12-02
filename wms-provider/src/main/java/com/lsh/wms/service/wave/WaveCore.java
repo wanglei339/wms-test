@@ -145,12 +145,12 @@ public class WaveCore {
                 msg.setMsgBody(body);
                 messageService.sendMessage(msg);
             } catch (Exception e) {
-                e.printStackTrace();
-                logger.warn("report wave info to redis fail");
+                logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
+                logger.error("report wave info to redis fail");
             }
         }
 
-        //标记成功,这里有风险,就是捡货任务已经创建了,但是这里标记失败了,看咋搞????
+        //todo 标记成功,这里有风险,就是捡货任务已经创建了,但是这里标记失败了,看咋搞????
         waveService.setStatus(waveId, WaveConstant.STATUS_RELEASE_SUCC, bAllocAll);
         return 0;
     }
