@@ -69,7 +69,7 @@ public class UserRestService implements IUserRestService {
         Map<String,Object> request = RequestUtils.getRequest();
         String userName = (String) request.get("userName");
         String passwd = (String) request.get("passwd");
-        System.out.println("userName : " + userName + "passwd : "+passwd);
+        // System.out.println("userName : " + userName + "passwd : "+passwd);
         Map<String,Object> map = userRpcService.login(userName,passwd);
         //
 //        HttpServletResponse response = (HttpServletResponse)RpcContext.getContext().getResponse();

@@ -89,7 +89,7 @@ public class HttpUtil {
             HttpResponse response = httpclient.execute(httpPost);
             int statusCode = response.getStatusLine().getStatusCode();
 
-            System.out.println("执行状态码 : " + statusCode);
+            // System.out.println("执行状态码 : " + statusCode);
 
             HttpEntity entity = response.getEntity();
             if (entity != null) {
@@ -136,7 +136,7 @@ public class HttpUtil {
             }
             httpPost.setEntity(new UrlEncodedFormEntity(pairList, Charset.forName("UTF-8")));
             response = httpClient.execute(httpPost);
-            System.out.println(response.toString());
+            // System.out.println(response.toString());
             HttpEntity entity = response.getEntity();
             httpStr = EntityUtils.toString(entity, "UTF-8");
         } catch (IOException e) {
