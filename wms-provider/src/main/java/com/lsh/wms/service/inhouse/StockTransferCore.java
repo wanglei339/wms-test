@@ -134,6 +134,7 @@ public class StockTransferCore {
                 || fromLocation.getRegionType() == LocationConstant.SPLIT_AREA
                 || fromLocation.getRegionType() == LocationConstant.LOFTS
                 || fromLocation.getRegionType() == LocationConstant.FLOOR
+                || fromLocation.getRegionType() == LocationConstant.MARKET_RETURN_AREA
         )){
             throw new BizCheckedException("2550037");
         }
@@ -359,7 +360,7 @@ public class StockTransferCore {
                     //sort fromLocationId
                     return info1.getFromLocationId().compareTo(info2.getFromLocationId());
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
                     return 0;
                 }
             }
@@ -380,7 +381,7 @@ public class StockTransferCore {
                     //sort toLocationId
                     return info1.getToLocationId().compareTo(info2.getToLocationId());
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
                     return 0;
                 }
             }
@@ -485,7 +486,7 @@ public class StockTransferCore {
                     }
                     return info1.getFromLocationId().compareTo(info2.getFromLocationId());
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
                     return 0;
                 }
             }

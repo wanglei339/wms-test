@@ -32,7 +32,7 @@ public class SysMsgService {
     public SysMsg getMessage(String key) throws BizCheckedException {
         SysMsg msg = null;
         String value = redisListDao.range(key,0,-1).get(0);
-        System.out.println(value);
+        // System.out.println(value);
         if (null != value){
             JSONObject obj = new JSONObject().fromObject(value);
             msg = (SysMsg) JSONObject.toBean(obj,SysMsg.class);

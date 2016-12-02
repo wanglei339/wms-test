@@ -62,7 +62,7 @@ public class ObdSapTransporter implements ITransporter{
             BigDecimal outQty = detail.getDeliveryNum();
             //ea转换为包装数量。
             ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(detail.getOrderId());
-            createObdDetail.setDlvQty(PackUtil.EAQty2UomQty(outQty, detail.getPackUnit()));
+            createObdDetail.setDlvQty(PackUtil.EAQty2UomQty(outQty, detail.getPackUnit()).setScale(2,BigDecimal.ROUND_HALF_UP));
             createObdDetail.setRefItem(obdDetail.getDetailOtherId());
             createObdDetail.setMaterial(obdDetail.getSkuCode());
             createObdDetails.add(createObdDetail);

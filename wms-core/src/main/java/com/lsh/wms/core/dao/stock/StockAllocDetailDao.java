@@ -18,7 +18,5 @@ public interface StockAllocDetailDao {
 
     List<StockAllocDetail> getStockAllocDetailByItemId(Long itemId);
 
-    List<StockAllocDetail> getStockAllocDetailByObdId(Long obdId);
-
     List<StockAllocDetail> getStockAllocDetailList(Map<String, Object> params);
 }

@@ -45,7 +45,7 @@ public class StockTransferTaskDeal implements IScheduleTaskDealSingle<String> {
     }
 
     public Comparator<String> getComparator() {
-        System.out.println(Thread.currentThread().getName());
+        // System.out.println(Thread.currentThread().getName());
         return new Comparator<String>() {
             public int compare(String o1, String o2) {
                 return 0;

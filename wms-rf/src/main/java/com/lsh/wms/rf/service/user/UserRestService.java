@@ -69,7 +69,7 @@ public class UserRestService implements IUserRestService {
         Map<String,Object> request = RequestUtils.getRequest();
         String userName = (String) request.get("userName");
         String passwd = (String) request.get("passwd");
-        System.out.println("userName : " + userName + "passwd : "+passwd);
+        // System.out.println("userName : " + userName + "passwd : "+passwd);
         Map<String,Object> map = userRpcService.login(userName,passwd);
         //
 //        HttpServletResponse response = (HttpServletResponse)RpcContext.getContext().getResponse();
@@ -147,7 +147,8 @@ public class UserRestService implements IUserRestService {
             rst.put("menuRfList",menuRfList);
             return JsonUtils.SUCCESS(rst);
         } catch (IOException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             return JsonUtils.TOKEN_ERROR("配置读取错误");
         }
     }

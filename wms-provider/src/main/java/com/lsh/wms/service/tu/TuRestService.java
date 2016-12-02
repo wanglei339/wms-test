@@ -135,7 +135,7 @@ public class TuRestService implements ITuRestService {
                 resultMap.put("response", postResult);
                 return JsonUtils.SUCCESS(resultMap);
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
                 throw new BizCheckedException("2990042");
             }
         }

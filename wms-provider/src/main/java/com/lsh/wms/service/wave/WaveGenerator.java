@@ -213,7 +213,7 @@ public class WaveGenerator {
         try{
             redisStringDao.set(RedisKeyConstant.WAVE_PREVIEW_KEY, rst,24, TimeUnit.HOURS);
         }catch (Exception e){
-            e.printStackTrace();
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             logger.error("write wave preview to redis fail");
         }
     }
