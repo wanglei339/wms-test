@@ -147,7 +147,8 @@ public class UserRestService implements IUserRestService {
             rst.put("menuRfList",menuRfList);
             return JsonUtils.SUCCESS(rst);
         } catch (IOException e) {
-            e.printStackTrace();
+            // e.printStackTrace();
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             return JsonUtils.TOKEN_ERROR("配置读取错误");
         }
     }

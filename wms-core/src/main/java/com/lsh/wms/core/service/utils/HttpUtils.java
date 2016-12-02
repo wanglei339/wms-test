@@ -43,7 +43,7 @@ public class HttpUtils {
             try {
                 method.setRequestEntity(new MultipartRequestEntity(getParts(params), method.getParams()));
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             }
         }
         try {
@@ -60,7 +60,8 @@ public class HttpUtils {
                 reader.close();
             }
         } catch (IOException e) {
-            log.error("执行HTTP Post请求" + url + "时，发生异常！", e);
+            log.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
+            log.error("执行HTTP Post请求" + url + "时，发生异常！{0}", e);
         } finally {
             method.releaseConnection();
         }
@@ -76,7 +77,7 @@ public class HttpUtils {
             try {
                 method.setRequestEntity(new MultipartRequestEntity(getParts(params), method.getParams()));
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             }
         }
         try {

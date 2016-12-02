@@ -27,7 +27,7 @@ public class SmsService implements ISmsService {
         try {
             demoService.create(taskInfo);
         }catch (Exception ex){
-            ex.printStackTrace();
+            logger.error(ex.getCause()!=null ? ex.getCause().getMessage():ex.getMessage());
         }
 
         return "sendMsg success!";

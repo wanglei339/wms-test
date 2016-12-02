@@ -65,9 +65,9 @@ public class ItemService {
         try {
             org.apache.commons.beanutils.BeanUtils.copyProperties(new_item, item);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
         } catch (InvocationTargetException e) {
-            e.printStackTrace();
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
         }
         return new_item;
     }
