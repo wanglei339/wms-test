@@ -7,8 +7,6 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.container.IContainerRpcService;
 import com.lsh.wms.api.service.csi.ICsiRpcService;
 import com.lsh.wms.api.service.pick.IQCRpcService;
-import com.lsh.wms.api.service.request.RequestUtils;
-import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.api.service.tu.ITuRpcService;
 import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
@@ -24,14 +22,12 @@ import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.baseinfo.BaseinfoStore;
 import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.tu.TuDetail;
-import com.lsh.wms.model.tu.TuHead;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -159,11 +155,21 @@ public class QCRpcService implements IQCRpcService {
             BigDecimal restBoxes = new BigDecimal("0.0000"); // 该门店未装车余货箱子
             String storeNo = customer.getCustomerCode();
             List<Long> countedContainerIds = new ArrayList<Long>();
+            //全量的waveDetail包含合板的
             List<WaveDetail> waveDetails = this.getQcWaveDetailsByStoreNo(storeNo);
             List<TaskInfo> qcDoneInfos = this.getQcDoneTaskInfoByWaveDetails(waveDetails);
+
             if (qcDoneInfos.size() > 0) {
+
                 for (TaskInfo info : qcDoneInfos) {
-                    TuDetail tuDetail = iTuRpcService.getDetailByBoardId(info.getContainerId());
+                    //合板后数据不展示
+                    Long tempContainerId = info.getContainerId();
+                    if (!tempContainerId.equals(info.getMergedContainerId())) {
+                        continue;
+                    }
+
+                    //校验装车
+                    TuDetail tuDetail = iTuRpcService.getDetailByBoardId(tempContainerId);
                     if (null != tuDetail) {     //查到tudetail就是撞车了
                         continue;
                     }
@@ -216,12 +222,22 @@ public class QCRpcService implements IQCRpcService {
         }
         //合板后的组盘托盘不在组盘中显示
         List<WaveDetail> totalWaveDetails = new ArrayList<WaveDetail>();
+        //封装托盘码
+        Map<Long, List<WaveDetail>> containerDetails = new HashMap<Long, List<WaveDetail>>();
 
         for (WaveDetail detail : waveDetails) {
             if (!detail.getMergedContainerId().equals(0L)) {  //合板了
                 continue;
             }
             totalWaveDetails.add(detail);
+
+
+            if (null == containerDetails.get(detail.getContainerId())) {
+                containerDetails.put(detail.getContainerId(), new ArrayList<WaveDetail>());
+            }
+            List<WaveDetail> detailList = containerDetails.get(detail.getContainerId());
+            detailList.add(detail);
+            containerDetails.put(detail.getContainerId(), detailList);
         }
 
         List<TaskInfo> qcDoneTaskinfos = this.getQcDoneTaskInfoByWaveDetails(totalWaveDetails);
@@ -249,12 +265,42 @@ public class QCRpcService implements IQCRpcService {
             result.put("packCount", info.getTaskPackQty()); //总箱数
             result.put("turnoverBoxCount", info.getExt3()); //周转箱
             result.put("storeNo", storeNo);
-            result.put("isExpensive", false);   //贵品默认是部署的
+
+
+            result.put("finishTime", info.getFinishTime());   //贵品默认是部署的
             if (info.getFinishTime() < DateUtils.getTodayBeginSeconds()) {
                 result.put("isRest", true);
             } else {
                 result.put("isRest", false);
             }
+
+
+            //贵品处理
+            result.put("isExpensive", false);   //贵品默认是部署的
+            List<WaveDetail> qcWaveDetail = containerDetails.get(containerId);
+            if (null == qcWaveDetail || qcWaveDetail.isEmpty()) {
+                results.put(containerId, result);
+                continue;
+            }
+
+            //赵贵品
+            Set<Long> itemIds = new HashSet<Long>();
+            for (WaveDetail oneDetail : qcWaveDetail) {
+                itemIds.add(oneDetail.getItemId());
+            }
+
+
+            for (Long itemId : itemIds) {
+                BaseinfoItem item = itemService.getItem(itemId);
+                if (null == item) { //不想报错
+                    continue;
+                }
+                if (item.getIsValuable().equals(ItemConstant.TYPE_IS_VALUABLE)) {
+                    result.put("isExpensive", true);   //贵品
+                }
+            }
+
+
             results.put(containerId, result);
         }
         return results;
@@ -304,7 +350,6 @@ public class QCRpcService implements IQCRpcService {
         }
         BaseinfoLocation location = locationService.getLocation(customer.getCollectRoadId());
 
-        List<TaskInfo> qcDoneInfos = new ArrayList<TaskInfo>();
         //先去集货位拿到所有的托盘的wave_detailList
         List<WaveDetail> waveDetailList = new ArrayList<WaveDetail>();
         List<StockQuant> quants = stockQuantService.getQuantsByLocationId(location.getLocationId());
