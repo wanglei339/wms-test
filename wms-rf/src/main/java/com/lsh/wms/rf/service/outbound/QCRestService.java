@@ -428,6 +428,10 @@ public class QCRestService implements IRFQCRestService {
                 detail.setQcException(WaveConstant.QC_EXCEPTION_NORMAL);  // 正常不需要处理
                 waveService.updateDetail(detail);
             }
+            //qc的方式  qc的类型  显示 PC的列表页   QC 的状态   只组盘 未QC加组盘
+            qcTaskInfo.setSubType(TaskConstant.QC_TYPE_ONLY_GROUP);
+        }else {
+            qcTaskInfo.setSubType(TaskConstant.QC_TYPE_QC_GROUP);
         }
         //校验qc任务是否完全完成;
         boolean bSucc = true;
