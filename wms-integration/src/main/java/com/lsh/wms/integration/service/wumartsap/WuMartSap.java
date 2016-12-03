@@ -319,8 +319,12 @@ public class WuMartSap implements IWuMartSap{
                 sb.append(bapiret2.getMESSAGEV2()).append(";");
 
             }
-            if("02".equals(bapiret2.getID()) && createIbdHeader.getWarehouseCode().equals("wumart.werks")){
+
+            logger.info("~~~~ibd过账1111 id :"+bapiret2.getID() + "   DC :" + createIbdHeader.getWarehouseCode());
+            if("02".equals(bapiret2.getID()) && createIbdHeader.getWarehouseCode().equals(PropertyUtils.getString("wumart.werks"))){
+                logger.info(" ~~~~~~2222类型 orderType : " + orderType );
                 if(orderType != PoConstant.ORDER_TYPE_CPO){
+                    logger.info("~~~~~333 ordertype : " + orderType);
                     ReceiveDetail receiveDetail = new ReceiveDetail();
                     receiveDetail.setReceiveId(receiveId);
                     String detailOtherId = bapiret2.getMESSAGEV2().replaceAll("^(0+)", "");
@@ -471,7 +475,7 @@ public class WuMartSap implements IWuMartSap{
         logger.info("so obd创建 出口参数: obdheader : " + JSON.toJSONString(obdheader.value) + " obditem : " + JSON.toJSONString(obditem.value));
         logger.info("返回值 newReturn : " + JSON.toJSONString(newReturn));
 
-        if(newReturn == null){
+        if(newReturn.getItem() == null){
             return "S";
         }else{
             return "E";

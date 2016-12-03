@@ -17,6 +17,6 @@ public class StockTakingtest {
             head=new StockTakingHead();
             list.add(head);
         }
-        System.out.println(JSON.toJSON(list).toString());
+        // System.out.println(JSON.toJSON(list).toString());
     }
 }

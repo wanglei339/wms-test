@@ -122,13 +122,13 @@ public class StockTransferTaskHandler extends AbsTaskHandler {
 //        quantService.unReserve(taskInfo.getTaskId());
     }
 
-    public void calcPerformance(TaskInfo taskInfo) {
-        if (taskInfo.getPackName().equals("EA")) {
-            taskInfo.setTaskPackQty(taskInfo.getQtyDone().divide(taskInfo.getPackUnit(), 2, BigDecimal.ROUND_DOWN));
-            taskInfo.setTaskEaQty(taskInfo.getQtyDone());
-        } else {
-            taskInfo.setTaskPackQty(taskInfo.getQtyDone());
-            taskInfo.setTaskEaQty(taskInfo.getQtyDone().multiply(taskInfo.getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP));
-        }
-    }
+//    public void calcPerformance(TaskInfo taskInfo) {
+//        if (taskInfo.getPackName().equals("EA")) {
+//            taskInfo.setTaskPackQty(taskInfo.getQtyDone().divide(taskInfo.getPackUnit(), 2, BigDecimal.ROUND_DOWN));
+//            taskInfo.setTaskEaQty(taskInfo.getQtyDone());
+//        } else {
+//            taskInfo.setTaskPackQty(taskInfo.getQtyDone());
+//            taskInfo.setTaskEaQty(taskInfo.getQtyDone().multiply(taskInfo.getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP));
+//        }
+//    }
 }
