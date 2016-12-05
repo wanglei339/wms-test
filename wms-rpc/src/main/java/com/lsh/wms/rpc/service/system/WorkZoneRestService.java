@@ -57,6 +57,7 @@ public class WorkZoneRestService implements IWorkZoneRestService{
             workZoneService.updateWorkZone(zone);
         }catch (Exception e){
             e.printStackTrace();
+            logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("更新错误");
         }
         return JsonUtils.SUCCESS();
@@ -69,6 +70,7 @@ public class WorkZoneRestService implements IWorkZoneRestService{
             workZoneService.deleteWorkZone(zoneId);
         }catch (Exception e){
             e.printStackTrace();
+            logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("删除错误");
         }
         return JsonUtils.SUCCESS();

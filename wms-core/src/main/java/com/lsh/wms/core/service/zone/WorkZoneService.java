@@ -52,6 +52,7 @@ public class WorkZoneService {
 
     @Transactional(readOnly = false)
     public void updateWorkZone(WorkZone zone){
+        zone.setUpdatedAt(DateUtils.getCurrentSeconds());
         workZoneDao.update(zone);
     }
 
@@ -59,6 +60,7 @@ public class WorkZoneService {
         WorkZone zone = new WorkZone();
         zone.setZoneId(zoneId);
         zone.setIsValid(0L);
+        zone.setUpdatedAt(DateUtils.getCurrentSeconds());
         workZoneDao.update(zone);
     }
 
