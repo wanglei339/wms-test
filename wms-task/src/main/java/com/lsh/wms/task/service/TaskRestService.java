@@ -81,6 +81,13 @@ public class TaskRestService implements ITaskRestService {
         TaskEntry entry = taskRpcService.getTaskEntryById(taskId);
         return JsonUtils.SUCCESS(entry);
     }
+    @GET
+    @Path("getOldTask")
+    public String getOldTask(@QueryParam("taskId")long taskId) throws BizCheckedException {
+        TaskEntry entry = taskRpcService.getOldTaskEntryById(taskId);
+        return JsonUtils.SUCCESS(entry);
+    }
+
 
     @GET
     @Path("getTaskMove")

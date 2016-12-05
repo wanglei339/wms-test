@@ -133,6 +133,14 @@ public class WaveService {
         return details.size() == 0 ? null : details;
     }
 
+    public List<WaveDetail> getAliveDetailsByContainerIdPc (Long containerId) {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("containerId", containerId);
+        mapQuery.put("isValid", 1);
+        List<WaveDetail> details = detailDao.getWaveDetailList(mapQuery);
+        return details.size() == 0 ? null : details;
+    }
+
     public List<WaveDetail> getWaveDetailsByMergedContainerId (Long mergedContainerId) {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("mergedContainerId", mergedContainerId);
@@ -141,6 +149,15 @@ public class WaveService {
         List<WaveDetail> details = detailDao.getWaveDetailList(mapQuery);
         return details.size() == 0 ? null : details;
     }
+
+    public List<WaveDetail> getWaveDetailsByMergedContainerIdPc (Long mergedContainerId) {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("mergedContainerId", mergedContainerId);
+        mapQuery.put("isValid", 1);
+        List<WaveDetail> details = detailDao.getWaveDetailList(mapQuery);
+        return details.size() == 0 ? null : details;
+    }
+
     public List<WaveDetail> getWaveDetails (Map<String, Object> mapQuery) {
         List<WaveDetail> details = detailDao.getWaveDetailList(mapQuery);
         return details.size() == 0 ? null : details;
@@ -223,6 +240,14 @@ public class WaveService {
     }
 
     @Transactional(readOnly = true)
+    public List<WaveDetail> getDetailsByPickTaskIdPc(long pickTaskId){
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("pickTaskId", pickTaskId);
+        mapQuery.put("isValid", 1);
+        return detailDao.getWaveDetailList(mapQuery);
+    }
+
+    @Transactional(readOnly = true)
     public List<WaveDetail> getOrderedDetailsByPickTaskIds(List<Long> pickTaskIds){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("pickTaskIds", pickTaskIds);
@@ -268,6 +293,14 @@ public class WaveService {
     }
 
     @Transactional(readOnly = true)
+    public List<WaveDetail> getDetailsByQCTaskIdPc(long qcTaskId){
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("qcTaskId", qcTaskId);
+        mapQuery.put("isValid", 1);
+        return detailDao.getWaveDetailList(mapQuery);
+    }
+
+    @Transactional(readOnly = true)
     public List<WaveDetail> getDetailsByContainerId(long containerId){
         HashMap<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("containerId", containerId);
@@ -282,6 +315,14 @@ public class WaveService {
         mapQuery.put("shipTaskId", shipTaskId);
         mapQuery.put("isValid", 1);
         mapQuery.put("isAlive", 1);
+        return detailDao.getWaveDetailList(mapQuery);
+    }
+
+    @Transactional(readOnly = true)
+    public List<WaveDetail> getDetailsByShipTaskIdPc(long shipTaskId){
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("shipTaskId", shipTaskId);
+        mapQuery.put("isValid", 1);
         return detailDao.getWaveDetailList(mapQuery);
     }
 
