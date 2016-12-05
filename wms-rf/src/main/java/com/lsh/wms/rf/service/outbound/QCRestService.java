@@ -192,8 +192,8 @@ public class QCRestService implements IRFQCRestService {
             detail.put("itemId", item.getItemId());
             detail.put("code", item.getCode());
             detail.put("codeType", item.getCodeType());
-            //显示六位吗
-//            detail.put("skuCode", item.getSkuCode().substring(item.getSkuCode().length() - 6, item.getSkuCode().length()));
+            //显示六位码
+            detail.put("skuCode", item.getSkuCode());
 
             BigDecimal uomQty = PackUtil.EAQty2UomQty(mapItem2PickQty.get(itemId), waveDetail.getAllocUnitName());
             if (waveDetail.getAllocUnitName().compareTo("EA") == 0) {
