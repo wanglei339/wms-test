@@ -37,6 +37,8 @@ public class IbdHeader implements Serializable {
 	private Long createdAt = 0l;
 	/**  */
 	private Long updatedAt = 0l;
+	/** 投单时间 */
+	private Long throwAt;
 
 	private Object orderDetails;
 
@@ -176,5 +178,14 @@ public class IbdHeader implements Serializable {
 
 	public void setOrderDetails(Object orderDetails) {
 		this.orderDetails = orderDetails;
+	}
+
+
+	public Long getThrowAt() {
+		return throwAt;
+	}
+
+	public void setThrowAt(Long throwAt) {
+		this.throwAt = throwAt;
 	}
 }
