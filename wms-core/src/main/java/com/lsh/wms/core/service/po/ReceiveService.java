@@ -50,6 +50,7 @@ public class ReceiveService {
     private PersistenceManager persistenceManager;
 
 
+
     /**
      * 根据参数获取receiveHeaderList
      */
@@ -168,7 +169,7 @@ public class ReceiveService {
         //查询验收单 正常po以及sto单加入日志表
         ReceiveHeader receiveHeader1 = this.getReceiveHeaderByReceiveId(receiveHeader.getReceiveId());
         if(receiveHeader1.getOrderType() == PoConstant.ORDER_TYPE_PO || receiveHeader1.getOrderType() == PoConstant.ORDER_TYPE_TRANSFERS){
-            persistenceProxy.doOne(SysLogConstant.LOG_TYPE_IBD,receiveHeader.getReceiveId());
+            persistenceProxy.doOne(SysLogConstant.LOG_TYPE_IBD,receiveHeader.getReceiveId(),0);
         }
 
     }
@@ -226,6 +227,12 @@ public class ReceiveService {
             return null;
         }
         return list;
+    }
+
+    @Transactional(readOnly = false)
+    public void accountBack(ReceiveHeader receiveHeader,ReceiveDetail detail){
+
+
     }
 
 

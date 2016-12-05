@@ -285,7 +285,7 @@ public class StockTakingService {
             overLossReportDao.insert(overLossReport);
             //物美的商品 增加日志
             if(1 == overLossReport.getOwnerId()){
-                persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN, reportId);
+                persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN, reportId,0);
             }
 
         }
@@ -300,7 +300,7 @@ public class StockTakingService {
         overLossReportDao.insert(overLossReport);
         //物美的商品 增加日志
         if(1 == overLossReport.getOwnerId()){
-            persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN, reportId);
+            persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN, reportId,0);
         }
     }
 
