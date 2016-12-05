@@ -70,16 +70,20 @@ public class TransporterManager {
                 OutbDeliveryHeader deliveryHeader = soDeliveryService.getOutbDeliveryHeaderByDeliveryId(obdId);
                 ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(deliveryHeader.getOrderId());
 
-                if(CsiConstan.OWNER_WUMART == obdHeader.getOwnerUid()  && sysLog.getTargetSystem() == 0){
+                if(CsiConstan.OWNER_WUMART == obdHeader.getOwnerUid()){
                     if(obdHeader.getOrderType() == SoConstant.ORDER_TYPE_DIRECT){
                         transporter = directTransporter;
                     }else if (obdHeader.getOrderType() == SoConstant.ORDER_TYPE_STO) {
                         transporter = obdSapStoTransporter;
                     }else {
-                        transporter = obdSapTransporter;
-                        //transporter2 = obdOfcTransporter;
+                        if(sysLog.getTargetSystem() == SysLogConstant.LOG_TARGET_LSHOFC){
+                            transporter = obdOfcTransporter;
+                        }else {
+                            transporter = obdSapTransporter;
+                        }
+
                     }
-                }else {
+                }else{
                     transporter = obdOfcTransporter;
                 }
                 break;
