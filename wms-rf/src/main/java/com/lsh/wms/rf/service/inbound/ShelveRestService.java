@@ -13,6 +13,7 @@ import com.lsh.wms.api.service.shelve.IShelveRestService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.shelve.ShelveTaskService;
@@ -20,6 +21,7 @@ import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.shelve.ShelveTaskHead;
 import com.lsh.wms.model.stock.StockLot;
@@ -31,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +65,8 @@ public class ShelveRestService implements IShelveRestService {
     private LocationService locationService;
     @Autowired
     private ItemService itemService;
+    @Autowired
+    private ItemLocationService itemLocationService;
 
     private Long taskType = TaskConstant.TYPE_SHELVE;
 
@@ -145,6 +150,7 @@ public class ShelveRestService implements IShelveRestService {
                 result.put("allocLocationCode", allocLocation.getLocationCode());
                 result.put("itemId", item.getItemId());
                 result.put("skuName", item.getSkuName());
+                result.put("pickLocationIdList", itemLocationService.getPickLocationsByItemId(item.getItemId()));
                 return JsonUtils.SUCCESS(result);
             } else {
                 throw new BizCheckedException("2030016");
@@ -169,6 +175,7 @@ public class ShelveRestService implements IShelveRestService {
         result.put("allocLocationCode", allocLocation.getLocationCode());
         result.put("itemId", item.getItemId());
         result.put("skuName", item.getSkuName());
+        result.put("pickLocationIdList", itemLocationService.getPickLocationsByItemId(item.getItemId()));
         return JsonUtils.SUCCESS(result);
     }
 
@@ -226,6 +233,30 @@ public class ShelveRestService implements IShelveRestService {
         result.put("allocLocationCode", allocLocation.getLocationCode());
         result.put("itemId", item.getItemId());
         result.put("skuName", item.getSkuName());
+        result.put("pickLocationIdList", itemLocationService.getPickLocationsByItemId(item.getItemId()));
+        return JsonUtils.SUCCESS(result);
+    }
+
+    /**
+     * 返回下一个指定上架货位
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("getNextAllocLocation")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String getNextAllocLocation() throws BizCheckedException {
+        Long staffId = Long.valueOf(RequestUtils.getHeader("uid"));
+        List<TaskInfo> taskInfos = baseTaskService.getAssignedTaskByOperator(staffId, TaskConstant.TYPE_SHELVE);
+        Map<String, Object> result = new HashMap<String, Object>();
+        if (taskInfos == null || taskInfos.isEmpty()) {
+            result.put("response", false);
+        } else {
+            BaseinfoLocation nextLocation = shelveTaskService.getNextAllocLocation(taskInfos.get(0).getTaskId());
+            result.put("nextLocationId", nextLocation.getLocationId().toString());
+            result.put("nextLocationCode", nextLocation.getLocationCode());
+        }
         return JsonUtils.SUCCESS(result);
     }
 }
