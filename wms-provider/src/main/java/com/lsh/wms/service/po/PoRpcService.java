@@ -288,9 +288,5 @@ public class PoRpcService implements IPoRpcService {
         return list;
     }
 
-    public void updateState(){
-
-    }
-
 
 }
