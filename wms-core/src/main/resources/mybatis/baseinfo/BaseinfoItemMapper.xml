@@ -48,6 +48,7 @@
 		<result property="itemType" column="item_type"/>
 		<result property="isValuable" column="is_valuable"/>
 		<result property="isInfoIntact" column="is_info_intact"/>
+		<result property="isShelfLifeValid" column="is_shelfLife_valid"/>
 
 	</resultMap>
 
@@ -59,7 +60,7 @@
 		l2_unit,pack_length,pack_width,pack_height,pack_weight,pack_unit,
 		sale_unit,item_level,created_at,updated_at,produce_place,batch_needed,
 		floor_available,storage_temperature,safety_qty,pile_x,pile_y,pile_z,
-		item_id,status,unit_name,l2_name,pack_name,item_type,is_valuable,is_info_intact
+		item_id,status,unit_name,l2_name,pack_name,item_type,is_valuable,is_info_intact,is_shelfLife_valid
 		) values (
 		#{skuId},#{ownerId},#{skuCode},#{skuName},#{codeType},#{code},
 		#{topCat},#{secondCat},#{thirdCat},#{shelfLife},#{length},#{width},
@@ -67,7 +68,7 @@
 		#{l2Unit},#{packLength},#{packWidth},#{packHeight},#{packWeight},#{packUnit},
 		#{saleUnit},#{itemLevel},#{createdAt},#{updatedAt},#{producePlace},#{batchNeeded},
 		#{floorAvailable},#{storageTemperature},#{safetyQty},#{pileX},#{pileY},#{pileZ},
-		#{itemId},#{status},#{unitName},#{l2Name},#{packName},#{itemType},#{isValuable},#{isInfoIntact}
+		#{itemId},#{status},#{unitName},#{l2Name},#{packName},#{itemType},#{isValuable},#{isInfoIntact},#{isShelfLifeValid}
 		)
 	</insert>
 
@@ -117,6 +118,7 @@
 			<if test="itemType != null">item_type=#{itemType},</if>
 			<if test="isValuable != null">is_valuable=#{isValuable},</if>
 			<if test="isInfoIntact != null">is_info_intact=#{isInfoIntact}</if>
+			<if test="isShelfLifeValid != null">is_shelfLife_valid=#{isShelfLifeValid}</if>
 		</set>
 		where item_id=#{itemId}
 	</update>
@@ -186,6 +188,7 @@
 			<if test="itemType != null">and item_type=#{itemType}</if>
 			<if test="isValuable != null">and is_valuable=#{isValuable}</if>
 			<if test="isInfoIntact != null">and is_info_intact=#{isInfoIntact}</if>
+			<if test="isShelfLifeValid != null">and is_shelfLife_valid=#{isShelfLifeValid}</if>
 
 		</where>
 	</sql>
