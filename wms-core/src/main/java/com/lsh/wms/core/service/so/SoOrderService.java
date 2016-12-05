@@ -285,7 +285,19 @@ public class SoOrderService {
         }
         return detailList.get(0);
     }
-
+    /**
+     * 根据OrderId及SkuId获取InbPoDetail
+     *
+     * @param orderId
+     * @param itemId
+     * @return
+     */
+    public List<ObdDetail> getObdDetailListByOrderIdAndItemId(Long orderId, Long itemId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("orderId", orderId);
+        params.put("itemId", itemId);
+        return getOutbSoDetailList(params);
+    }
     /**
      * 根据orderOtherId获取OutbSoHeader
      *

@@ -4,6 +4,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.model.base.BaseResponse;
 import com.lsh.wms.api.model.po.ReceiptRequest;
 
+import javax.ws.rs.FormParam;
 import javax.ws.rs.QueryParam;
 import java.text.ParseException;
 
@@ -26,4 +27,6 @@ public interface IReceiptRfService {
 
 
     String getStoreInfo(String storeId,Long containerId, String barCode,String orderOtherId) throws BizCheckedException;
+
+    String getOrderOtherIdList(String storeId, String barCode)throws BizCheckedException;
 }
