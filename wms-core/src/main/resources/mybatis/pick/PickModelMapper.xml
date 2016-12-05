@@ -5,8 +5,10 @@
 	<resultMap id="pickModelResultMap" type="PickModel">
 		<id property="id" column="id"/>
 		<result property="pickModelId" column="pick_model_id"/>
+		<result property="isValid" column="is_valid"/>
 		<result property="pickModelTemplate" column="pick_model_template"/>
 		<result property="pickZoneId" column="pick_zone_id"/>
+		<result property="pickType" column="pick_type"/>
 		<result property="pickModel" column="pick_model"/>
 		<result property="pickWeight" column="pick_weight"/>
 		<result property="containerType" column="container_type"/>
@@ -24,11 +26,11 @@
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="PickModel">
 		insert into pick_model (
-			pick_model_id,pick_model_template,pick_zone_id,pick_model,pick_weight,container_type,
+			pick_model_id,pick_model_template,pick_zone_id,pick_type,pick_model,pick_weight,container_type,
 			container_unit_capacity,container_capacity_cm3,container_num_per_task,strategy_whole_pallet,strategy_whole_package,fpmr_set_group_falg,fpmr_big_item_threshold,fpmr_set_flag,fpmr_small_item_threshold,
 			fpmr_sow_method
     	) values (
-			#{pickModelId},#{pickModelTemplate},#{pickZoneId},#{pickModel},#{pickWeight},#{containerType},
+			#{pickModelId},#{pickModelTemplate},#{pickZoneId},#{pickType},#{pickModel},#{pickWeight},#{containerType},
 			#{containerUnitCapacity},#{containerCapacityCm3},#{containerNumPerTask},#{strategyWholePallet},#{strategyWholePackage},#{fpmrSetGroupFalg},#{fpmrBigItemThreshold},#{fpmrSetFlag},#{fpmrSmallItemThreshold},
 			#{fpmrSowMethod}
     	)
@@ -37,7 +39,9 @@
 	<update id="update" parameterType="PickModel">
 		update pick_model
     	<set>
+			<if test="isValid != null">is_valid=#{isValid},</if>
   			<if test="pickZoneId != null">pick_zone_id=#{pickZoneId},</if>
+			<if test="pickType != null">pick_type=#{pickType},</if>
   			<if test="pickModel != null">pick_model=#{pickModel},</if>
   			<if test="pickWeight != null">pick_weight=#{pickWeight},</if>
   			<if test="containerType != null">container_type=#{containerType},</if>
@@ -77,8 +81,10 @@
 		<where>
 			<if test="id != null">id=#{id}</if>
 			<if test="pickModelId != null">and pick_model_id=#{pickModelId}</if>
+			<if test="isValid != null">and is_valid=#{isValid}</if>
 			<if test="pickModelTemplate != null">and pick_model_template=#{pickModelTemplate}</if>
 			<if test="pickZoneId != null">and pick_zone_id=#{pickZoneId}</if>
+			<if test="pickType != null">and pick_type=#{pickType}</if>
 			<if test="pickModel != null">and pick_model=#{pickModel}</if>
 			<if test="pickWeight != null">and pick_weight=#{pickWeight}</if>
 			<if test="containerType != null">and container_type=#{containerType}</if>

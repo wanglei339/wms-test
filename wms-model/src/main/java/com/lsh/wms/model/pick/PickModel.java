@@ -11,10 +11,14 @@ public class PickModel implements Serializable {
     private Long id;
 	/** 捡货规则id */
     private Long pickModelId;
+	/** 是否有效 */
+	private Long isValid;
 	/** 捡货模型模版id */
     private Long pickModelTemplate;
 	/** 捡货分区id */
     private Long pickZoneId;
+	/** 1-货架,2-阁楼,3-存捡合一拆零货架 */
+	private Long pickType;
 	/** 拣货模式：1-按单拣，2-按单边拣边播, 3-先摘果后播种 */
     private Long pickModel;
 	/** 配货权重，值越大表示越优先出货 */
@@ -57,6 +61,14 @@ public class PickModel implements Serializable {
 	public void setPickModelId(Long pickModelId){
 		this.pickModelId = pickModelId;
 	}
+
+	public Long getIsValid(){
+		return this.isValid;
+	}
+
+	public void setIsValid(Long isValid){
+		this.isValid = isValid;
+	}
 	
 	public Long getPickModelTemplate(){
 		return this.pickModelTemplate;
@@ -72,6 +84,14 @@ public class PickModel implements Serializable {
 	
 	public void setPickZoneId(Long pickZoneId){
 		this.pickZoneId = pickZoneId;
+	}
+
+	public Long getPickType(){
+		return this.pickType;
+	}
+
+	public void setPickType(Long pickType){
+		this.pickType = pickType;
 	}
 	
 	public Long getPickModel(){
