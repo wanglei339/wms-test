@@ -445,6 +445,8 @@ public class TuRpcService implements ITuRpcService {
         }
 
         result.put("customerId", csiCustomer.getCustomerId());
+        result.put("storeNo", csiCustomer.getCustomerCode());
+        result.put("storeName", csiCustomer.getCustomerName());
         result.put("isLoaded", isLoaded);
         result.put("containerId", mergedContainerId);   //板子码
         result.put("taskBoardQty", (int) boardNum.floatValue());    //一个板子的板子数
