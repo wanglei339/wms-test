@@ -332,7 +332,7 @@ public class StockTakingService {
 
         try {
             this.insertLossOrOver(overLossReport);
-            //移到盘亏盘盈区
+            //移到差异区
             moveService.move(move);
 
             StockDelta delta = new StockDelta();

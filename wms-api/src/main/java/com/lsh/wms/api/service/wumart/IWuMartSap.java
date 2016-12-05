@@ -22,6 +22,7 @@ public interface IWuMartSap {
 
     String soObd2Sap(CreateObdHeader createObdHeader);
 
+    String stockMoving2Sap();
 
 
 

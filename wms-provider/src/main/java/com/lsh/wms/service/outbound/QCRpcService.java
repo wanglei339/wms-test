@@ -80,7 +80,7 @@ public class QCRpcService implements IQCRpcService {
         Long itemId = detail.getItemId();
         Long qcTaskId = detail.getQcTaskId();
         StockMove move = new StockMove();
-        BaseinfoLocation toLocation = locationService.getInventoryLostLocation();
+        BaseinfoLocation toLocation = locationService.getDiffAreaLocation();
         BaseinfoContainer toContainer = iContainerRpcService.createTray();
         //差异数量
         BigDecimal diffQty = detail.getPickQty().subtract(detail.getQcQty()).abs();
@@ -568,7 +568,7 @@ public class QCRpcService implements IQCRpcService {
         Long itemId = waveDetails.get(0).getItemId();
         Long qcTaskId = waveDetails.get(0).getQcTaskId();
         StockMove move = new StockMove();
-        BaseinfoLocation toLocation = locationService.getInventoryLostLocation();
+        BaseinfoLocation toLocation = locationService.getDiffAreaLocation();
         BaseinfoContainer toContainer = iContainerRpcService.createTray();
         //差异数量
         BigDecimal diffQty = pickQty.subtract(qty).abs();
