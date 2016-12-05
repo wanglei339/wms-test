@@ -20,6 +20,7 @@ public interface ITaskRpcService {
     List<Long> batchCreate(StockTakingHead head, List<TaskEntry> taskEntries) throws BizCheckedException;
     Long getTaskTypeById(Long taskId) throws BizCheckedException;
     TaskEntry getTaskEntryById(Long taskId) throws BizCheckedException;
+    TaskEntry getOldTaskEntryById(Long taskId) throws BizCheckedException;
     void assign(Long taskId, Long staffId) throws BizCheckedException;
     void assign(Long taskId, Long staffId, Long containerId) throws BizCheckedException;
     void assignMul(List<Map<String, Long>> params) throws BizCheckedException;

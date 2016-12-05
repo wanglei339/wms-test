@@ -4,6 +4,7 @@ import com.alibaba.dubbo.common.logger.Logger;
 import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
+import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.service.po.ReceiveService;
@@ -61,7 +62,7 @@ public class TransporterManager {
 
             }
         };
-        ITransporter transporter2 = null;
+        //ITransporter transporter2 = null;
 
         switch (sysLog.getLogType()){
             case SysLogConstant.LOG_TYPE_OBD:
@@ -69,16 +70,20 @@ public class TransporterManager {
                 OutbDeliveryHeader deliveryHeader = soDeliveryService.getOutbDeliveryHeaderByDeliveryId(obdId);
                 ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(deliveryHeader.getOrderId());
 
-                if(obdHeader.getOwnerUid() == 1){
+                if(CsiConstan.OWNER_WUMART == obdHeader.getOwnerUid()){
                     if(obdHeader.getOrderType() == SoConstant.ORDER_TYPE_DIRECT){
                         transporter = directTransporter;
                     }else if (obdHeader.getOrderType() == SoConstant.ORDER_TYPE_STO) {
                         transporter = obdSapStoTransporter;
                     }else {
-                        transporter = obdSapTransporter;
-                        transporter2 = obdOfcTransporter;
+                        if(sysLog.getTargetSystem() == SysLogConstant.LOG_TARGET_LSHOFC){
+                            transporter = obdOfcTransporter;
+                        }else {
+                            transporter = obdSapTransporter;
+                        }
+
                     }
-                }else {
+                }else{
                     transporter = obdOfcTransporter;
                 }
                 break;
@@ -99,14 +104,15 @@ public class TransporterManager {
 //            case SysLogConstant.LOG_TYPE_WIN:
 //                transporter = new InventoryWinTransporter();
         }
-        logger.info("~~~~begin back ofc ~~~~~~");
-        if(transporter2 != null){
-            logger.info("~~~~~~~~~111111syslog " + JSON.toJSONString(sysLog) + "~~~~~~");
-            transporter2.process(sysLog);
-            logger.info("~~~~~~~~~~222222222syslog :" + JSON.toJSONString(sysLog) + "~~~~~~`");
-        }
+//        logger.info("~~~~begin back ofc ~~~~~~");
+//        if(transporter2 != null){
+//            logger.info("~~~~~~~~~111111syslog " + JSON.toJSONString(sysLog) + "~~~~~~");
+//            transporter2.process(sysLog);
+//            logger.info("~~~~~~~~~~222222222syslog :" + JSON.toJSONString(sysLog) + "~~~~~~`");
+//        }
+
+
         transporter.process(sysLog);
-        logger.info("~~~~~~~~~~~3333333syslog" + JSON.toJSONString(sysLog));
 
     }
 }

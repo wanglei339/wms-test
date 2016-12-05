@@ -285,7 +285,7 @@ public class StockTakingService {
             overLossReportDao.insert(overLossReport);
             //物美的商品 增加日志
             if(1 == overLossReport.getOwnerId()){
-                persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN, reportId);
+                persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN, reportId,0);
             }
 
         }
@@ -300,7 +300,7 @@ public class StockTakingService {
         overLossReportDao.insert(overLossReport);
         //物美的商品 增加日志
         if(1 == overLossReport.getOwnerId()){
-            persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN, reportId);
+            persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN, reportId,0);
         }
     }
 
@@ -332,7 +332,7 @@ public class StockTakingService {
 
         try {
             this.insertLossOrOver(overLossReport);
-            //移到盘亏盘盈区
+            //移到差异区
             moveService.move(move);
 
             StockDelta delta = new StockDelta();

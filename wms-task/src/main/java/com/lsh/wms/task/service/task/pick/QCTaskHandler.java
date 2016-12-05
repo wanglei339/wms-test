@@ -153,6 +153,9 @@ public class QCTaskHandler extends AbsTaskHandler {
     protected void getConcrete(TaskEntry taskEntry) {
         taskEntry.setTaskDetailList((List<Object>) (List<?>) waveService.getDetailsByQCTaskId(taskEntry.getTaskInfo().getTaskId()));
     }
+    protected void getOldConcrete(TaskEntry taskEntry) {
+        taskEntry.setTaskDetailList((List<Object>) (List<?>) waveService.getDetailsByQCTaskIdPc(taskEntry.getTaskInfo().getTaskId()));
+    }
 
     public void doneConcrete(Long taskId) {
         //这里做一些处理,做些啥呢?

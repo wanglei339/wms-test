@@ -88,6 +88,13 @@ public class AbsTaskHandler implements TaskHandler {
         return taskEntry;
     }
 
+    public TaskEntry getOldTask(Long taskId) {
+        TaskEntry taskEntry = new TaskEntry();
+        taskEntry.setTaskInfo(baseTaskService.getTaskInfoById(taskId));
+        this.getOldConcrete(taskEntry);
+        return taskEntry;
+    }
+
 
     public List<TaskEntry> getTaskList(Map<String, Object> condition) {
         List<TaskInfo> taskInfoList = baseTaskService.getTaskInfoList(condition);
@@ -119,6 +126,9 @@ public class AbsTaskHandler implements TaskHandler {
     }
 
     protected void getConcrete(TaskEntry taskEntry) {
+    }
+
+    protected void getOldConcrete(TaskEntry taskEntry) {
     }
 
     protected void getHeadConcrete(TaskEntry taskEntry) {

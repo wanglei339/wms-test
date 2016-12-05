@@ -162,9 +162,9 @@ public class LoadRfRestService implements ILoadRfRestService {
         //rf结果
         Map<String, Object> resultMap = new HashMap<String, Object>();
         //大门店还是小门店
-        if (TuConstant.SCALE_HYPERMARKET.equals(tuHead.getScale())) {   //大店尾货
+        if (TuConstant.SCALE_HYPERMARKET.equals(tuHead.getScale())) {   //大店尾货 FIXME 16/12/2 不和合板的余货
             Map<Long, Map<String, Object>> storesRestMap = new HashMap<Long, Map<String, Object>>();
-            //循环门店获取尾货信息(没合板,合板日期就是零)  todo 未合板的贵品也可能是尾货
+            //循环门店获取尾货信息(没合板,合板日期就是零)
             for (CsiCustomer store : stores) {
                 String storeNo = store.getCustomerCode();
                 Map<Long, Map<String, Object>> storeMap = iMergeRpcService.getMergeDetailByCustomerCode(storeNo);
@@ -284,18 +284,18 @@ public class LoadRfRestService implements ILoadRfRestService {
         //物理托盘码(扫码的)
         Long realContainerId = Long.valueOf(request.get("realContainerId").toString());
         //直流的大店小店的校验区别,直流大店,没合板,不许发货
-        if (TuConstant.SCALE_HYPERMARKET.equals(tuHead.getScale())) {//大店可能是托盘码或者板子码
-            //大店传板子或者托盘码
-            //QC+done+containerId 未合板子,taskinfo中板子码和托盘码相同,能查到就是组盘了
-            Map<String, Object> qcMapQuery = new HashMap<String, Object>();
-            qcMapQuery.put("containerId", realContainerId);
-            qcMapQuery.put("type", TaskConstant.TYPE_QC);
-            qcMapQuery.put("status", TaskConstant.Done);
-            List<TaskInfo> qcInfos = baseTaskService.getTaskInfoList(qcMapQuery);
-            if (null == qcInfos || qcInfos.size() < 1) {
-                throw new BizCheckedException("2870034");
-            }
-        } else {
+//        if (TuConstant.SCALE_HYPERMARKET.equals(tuHead.getScale())) {//大店可能是托盘码或者板子码
+//            //大店传板子或者托盘码
+//            //QC+done+containerId 未合板子,taskinfo中板子码和托盘码相同,能查到就是组盘了
+//            Map<String, Object> qcMapQuery = new HashMap<String, Object>();
+//            qcMapQuery.put("containerId", realContainerId);
+//            qcMapQuery.put("type", TaskConstant.TYPE_QC);
+//            qcMapQuery.put("status", TaskConstant.Done);
+//            List<TaskInfo> qcInfos = baseTaskService.getTaskInfoList(qcMapQuery);
+//            if (null == qcInfos || qcInfos.size() < 1) {
+//                throw new BizCheckedException("2870034");
+//            }
+//        } else {
             //QC+done+containerId 找到mergercontaierId
             Map<String, Object> qcMapQuery = new HashMap<String, Object>();
             qcMapQuery.put("containerId", realContainerId);   //小店,不合板
@@ -305,7 +305,7 @@ public class LoadRfRestService implements ILoadRfRestService {
             if (null == qcInfos || qcInfos.size() < 1) {
                 throw new BizCheckedException("2870034");
             }
-        }
+//        }
         //传物理托盘码
         Map<String, Object> containerDetailMap = iTuRpcService.getBoardDetailBycontainerId(realContainerId, tuId);
         if (containerDetailMap == null || containerDetailMap.isEmpty()) {

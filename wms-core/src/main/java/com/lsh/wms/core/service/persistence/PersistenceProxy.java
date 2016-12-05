@@ -26,8 +26,8 @@ public class PersistenceProxy {
     private PersistenceManager persistenceManager;
 
     @Transactional(readOnly = false)
-    public void doOne(int msgType, Object data) throws BizCheckedException {
-        SysLog sysLog = persistenceManager.getSysLog(msgType, data);
+    public void doOne(int msgType, Object data,Integer targetSystem) throws BizCheckedException {
+        SysLog sysLog = persistenceManager.getSysLog(msgType, data,targetSystem);
         sysLogService.insertSysLog(sysLog);
     }
 }

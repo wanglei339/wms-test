@@ -42,6 +42,9 @@ public class ShipTaskHandler extends AbsTaskHandler {
     protected void getConcrete(TaskEntry taskEntry) {
         taskEntry.setTaskDetailList((List<Object>)(List<?>)waveService.getDetailsByShipTaskId(taskEntry.getTaskInfo().getTaskId()));
     }
+    protected void getOldConcrete(TaskEntry taskEntry) {
+        taskEntry.setTaskDetailList((List<Object>)(List<?>)waveService.getDetailsByShipTaskIdPc(taskEntry.getTaskInfo().getTaskId()));
+    }
 
     public void doneConcrete(Long taskId){
         //这里做一些处理,如集货区释放等,但这个怎么才能具有一定的通用性呢?
