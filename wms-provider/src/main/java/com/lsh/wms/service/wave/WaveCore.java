@@ -369,6 +369,7 @@ public class WaveCore {
                     "SplitModelSmallItem",
                     "SplitModelOrder",
                     "SplitModelWholePallet",
+                    "SplitModelWholePackage",
                     "SplitModelContainer", //这个必须是最后一个,否则就会出大问题.
             };
             for(String modelName : splitModelNames){
