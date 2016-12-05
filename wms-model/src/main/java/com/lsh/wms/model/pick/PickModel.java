@@ -2,6 +2,8 @@ package com.lsh.wms.model.pick;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.math.BigDecimal;
+
 
 public class PickModel implements Serializable {
 
@@ -21,10 +23,14 @@ public class PickModel implements Serializable {
     private Long containerType;
 	/** 单个容器容纳的按捡货/出货单位计算的数量,比如几个订单,几个ea，几箱，几个托盘 */
     private Long containerUnitCapacity;
+	/** 单个容器的容量体积-CM3单位 */
+	private BigDecimal containerCapacityCm3;
 	/** 捡货过程中单个人单个任务可携带的容器数量-会影响单摘果和边拣边播方式 */
     private Long containerNumPerTask;
 	/** 是否开启整托盘出货策略 */
 	private Long strategyWholePallet;
+	/** 是否开启整箱出货策略 */
+	private Long strategyWholePackage;
 	/** 摘果播种式一段聚合规则－按集货组 */
     private Long fpmrSetGroupFalg;
 	/** 摘果播种式一段聚合规则－超过某个数量的商品直接单商品摘果（摘到多个集货道）, 0－无效 */
@@ -99,6 +105,14 @@ public class PickModel implements Serializable {
 	public void setContainerUnitCapacity(Long containerUnitCapacity){
 		this.containerUnitCapacity = containerUnitCapacity;
 	}
+
+	public BigDecimal getContainerCapacityCm3(){
+		return this.containerCapacityCm3;
+	}
+
+	public void setContainerCapacityCm3(BigDecimal containerCapacityCm3){
+		this.containerCapacityCm3 = containerCapacityCm3;
+	}
 	
 	public Long getContainerNumPerTask(){
 		return this.containerNumPerTask;
@@ -115,7 +129,16 @@ public class PickModel implements Serializable {
 	public Long getStrategyWholePallet(){
 		return this.strategyWholePallet;
 	}
-	
+
+	public Long getStrategyWholePackage(){
+		return this.strategyWholePackage;
+	}
+
+	public void setStrategyWholePackage(Long strategyWholePackage){
+		this.strategyWholePackage = strategyWholePackage;
+	}
+
+
 	public Long getFpmrSetGroupFalg(){
 		return this.fpmrSetGroupFalg;
 	}
