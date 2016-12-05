@@ -209,6 +209,7 @@ public class LocationConstant {
             put(48L, "直流退货货架层");
             put(49L, "退货入库位");
             put(50L, "退货存储位");
+            put(51L, "差异区");
 
 
         }
