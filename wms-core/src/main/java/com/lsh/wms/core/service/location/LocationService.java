@@ -599,6 +599,19 @@ public class LocationService {
     }
 
     /**
+     * 获取差异区,一个仓库就一个
+     * @return
+     */
+    public BaseinfoLocation getDiffAreaLocation(){
+        List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.DIFF_AREA);
+        if (locations != null && locations.size() > 0) {
+            return locations.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * 根据库位的type和区域regionType查找
      *
      * @param type
