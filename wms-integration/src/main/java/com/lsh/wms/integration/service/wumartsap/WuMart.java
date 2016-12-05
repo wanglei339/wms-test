@@ -66,7 +66,7 @@ public class WuMart implements IWuMart {
             sysLog.setSysMessage(ex.getMessage());
             sysLog.setLogMessage("ibd创建失败!");
             sysLog.setLogCode("ibd创建失败");
-            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_THROW);
 
         }
 
@@ -125,7 +125,7 @@ public class WuMart implements IWuMart {
             sysLog.setSysMessage(ex.getMessage());
             sysLog.setLogMessage("obd创建失败!");
             sysLog.setLogCode("obd创建失败");
-            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_THROW);
         }
 
 
@@ -207,7 +207,7 @@ public class WuMart implements IWuMart {
             sysLog.setSysMessage(ex.getMessage());
             sysLog.setLogMessage("直流回传失败,sap抛异常");
             sysLog.setLogCode("直流回传失败");
-            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_THROW);
         }
     }
 
@@ -237,7 +237,7 @@ public class WuMart implements IWuMart {
             sysLog.setSysMessage(ex.getMessage());
             sysLog.setLogMessage("在库so回传失败,sap抛异常");
             sysLog.setLogCode("在库so回传失败");
-            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_THROW);
         }
         return JsonUtils.SUCCESS();
     }
