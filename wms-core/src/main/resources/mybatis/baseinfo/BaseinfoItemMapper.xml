@@ -117,7 +117,7 @@
 			<if test="packName != null">pack_name=#{packName},</if>
 			<if test="itemType != null">item_type=#{itemType},</if>
 			<if test="isValuable != null">is_valuable=#{isValuable},</if>
-			<if test="isInfoIntact != null">is_info_intact=#{isInfoIntact}</if>
+			<if test="isInfoIntact != null">is_info_intact=#{isInfoIntact},</if>
 			<if test="isShelfLifeValid != null">is_shelfLife_valid=#{isShelfLifeValid}</if>
 		</set>
 		where item_id=#{itemId}
