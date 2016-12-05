@@ -5,7 +5,6 @@ import com.lsh.wms.core.constant.PickConstant;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.wave.WaveDetail;
-import com.sun.xml.internal.bind.v2.runtime.reflect.Lister;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
