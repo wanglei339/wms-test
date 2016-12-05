@@ -182,6 +182,10 @@ public class PoRpcService implements IPoRpcService {
             ibdHeader.setOrderId(Long.valueOf(String.valueOf(map.get("orderId"))));
         }
         ibdHeader.setOrderStatus(Integer.valueOf(String.valueOf(map.get("orderStatus"))));
+        if(ibdHeader.getOrderStatus() == PoConstant.ORDER_THROW){
+            //投单时,记录投单时间
+            ibdHeader.setThrowAt(DateUtils.getCurrentSeconds());
+        }
         poOrderService.updateInbPoHeaderByOrderOtherIdOrOrderId(ibdHeader);
 
         return true;
@@ -283,5 +287,10 @@ public class PoRpcService implements IPoRpcService {
         }
         return list;
     }
+
+    public void updateState(){
+
+    }
+
 
 }
