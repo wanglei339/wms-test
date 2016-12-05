@@ -10,4 +10,5 @@ public interface IShelveRestService {
     String scanContainer() throws BizCheckedException;
     String scanTargetLocation() throws BizCheckedException;
     String restore() throws BizCheckedException;
+    String getNextAllocLocation() throws BizCheckedException;
 }
