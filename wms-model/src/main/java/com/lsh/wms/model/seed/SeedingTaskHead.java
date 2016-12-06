@@ -23,8 +23,18 @@ public class SeedingTaskHead implements Serializable {
 	private Long realContainerId = 0L;
 	/** 订单箱规 */
 	private BigDecimal packUnit;
+	/** po详情id */
+	private String ibdDetailId;
+	/** so详情id */
+	private String obdDetailId;
 	/** 是否使用例外代码*/
 	private Integer isUseExceptionCode = 0;
+	/** 门店类型*/
+	private String storeType = "";
+	/** 任务状态*/
+	private Long status = 1l;
+	/** 商品id*/
+	private Long skuId = 0l;
 	
 	public Long getId(){
 		return this.id;
@@ -104,5 +114,66 @@ public class SeedingTaskHead implements Serializable {
 
 	public void setIsUseExceptionCode(Integer isUseExceptionCode) {
 		this.isUseExceptionCode = isUseExceptionCode;
+	}
+
+	public String getIbdDetailId() {
+		return ibdDetailId;
+	}
+
+	public void setIbdDetailId(String ibdDetailId) {
+		this.ibdDetailId = ibdDetailId;
+	}
+
+	public String getObdDetailId() {
+		return obdDetailId;
+	}
+
+	public void setObdDetailId(String obdDetailId) {
+		this.obdDetailId = obdDetailId;
+	}
+
+	public String getStoreType() {
+		return storeType;
+	}
+
+	public void setStoreType(String storeType) {
+		this.storeType = storeType;
+	}
+
+	public Long getStatus() {
+		return status;
+	}
+
+	public void setStatus(Long status) {
+		this.status = status;
+	}
+
+	public Long getSkuId() {
+		return skuId;
+	}
+
+	public void setSkuId(Long skuId) {
+		this.skuId = skuId;
+	}
+
+	@Override
+	public String toString() {
+		return "SeedingTaskHead{" +
+				"id=" + id +
+				", taskId=" + taskId +
+				", storeNo='" + storeNo + '\'' +
+				", orderId=" + orderId +
+				", createdAt=" + createdAt +
+				", updatedAt=" + updatedAt +
+				", requireQty=" + requireQty +
+				", realContainerId=" + realContainerId +
+				", packUnit=" + packUnit +
+				", ibdDetailId='" + ibdDetailId + '\'' +
+				", obdDetailId='" + obdDetailId + '\'' +
+				", isUseExceptionCode=" + isUseExceptionCode +
+				", storeType='" + storeType + '\'' +
+				", status=" + status +
+				", skuId=" + skuId +
+				'}';
 	}
 }

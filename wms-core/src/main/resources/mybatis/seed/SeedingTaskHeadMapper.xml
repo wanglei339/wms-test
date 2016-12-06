@@ -12,15 +12,20 @@
 		<result property="requireQty" column="require_qty"/>
 		<result property="realContainerId" column="real_container_id"/>
 		<result property="packUnit" column="pack_unit"/>
+		<result property="ibdDetailId" column="ibd_detail_id"/>
+		<result property="obdDetailId" column="obd_detail_id"/>
 		<result property="isUseExceptionCode" column="is_use_exception_code"/>
 		<result property="orderId" column="order_id"/>
+		<result property="status" column="status"/>
+		<result property="skuId" column="sku_id"/>
+		<result property="storeType" column="store_type"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="SeedingTaskHead">
 		insert into seeding_task_head (
-			task_id,store_no,created_at,updated_at,require_qty,real_container_id,pack_unit,order_id,is_use_exception_code
+			task_id,store_no,created_at,updated_at,require_qty,real_container_id,pack_unit,order_id,is_use_exception_code,ibd_detail_id,status,store_type,sku_id,obd_detail_id
     	) values (
-			#{taskId},#{storeNo},#{createdAt},#{updatedAt},#{requireQty},#{realContainerId},#{packUnit},#{orderId},#{isUseExceptionCode}
+			#{taskId},#{storeNo},#{createdAt},#{updatedAt},#{requireQty},#{realContainerId},#{packUnit},#{orderId},#{isUseExceptionCode},#{ibdDetailId},#{status},#{storeType},#{skuId},#{obdDetailId}
     	)
 	</insert>
 
@@ -35,6 +40,11 @@
 			<if test="realContainerId != null">real_container_id=#{realContainerId},</if>
 			<if test="packUnit != null">pack_unit=#{packUnit},</if>
 			<if test="orderId != null">order_id=#{orderId},</if>
+			<if test="ibdDetailId != null">ibd_detail_id=#{ibdDetailId},</if>
+			<if test="obdDetailId != null">obd_detail_id=#{obdDetailId},</if>
+			<if test="status != null">status=#{status},</if>
+			<if test="storeType != null">store_type=#{storeType},</if>
+			<if test="skuId != null">sku_id=#{skuId},</if>
 			<if test="isUseExceptionCode != null">is_use_exception_code=#{isUseExceptionCode}</if>
 		</set>
 		where id=#{id}
@@ -86,7 +96,12 @@
 			<if test="packUnit != null">and pack_unit=#{packUnit}</if>
 			<if test="orderId != null">and order_id=#{orderId}</if>
 			<if test="isUseExceptionCode != null"> and is_use_exception_code=#{isUseExceptionCode}</if>
+			<if test="ibdDetailId != null"> and ibd_detail_id=#{ibdDetailId}</if>
+			<if test="obdDetailId != null"> and obd_detail_id=#{obdDetailId}</if>
 			<if test="valid != null"> and real_container_id != 0</if>
+			<if test="status != null"> and status=#{status}</if>
+			<if test="skuId != null"> and sku_id=#{skuId}</if>
+			<if test="storeType != null"> and store_type=#{storeType}</if>
 		</where>
 	</sql>
    

@@ -39,7 +39,7 @@ public class SeedProviderRestService implements ISeedProveiderRestService{
     public String getSeedTask() {
         Map<String,Object> request = RequestUtils.getRequest();
 
-        return JsonUtils.SUCCESS(seedTaskHeadService.getHeadList(request));
+        return JsonUtils.SUCCESS(seedTaskHeadService.getDistinctHeadList(request));
     }
     @GET
     @Path("getSeedTaskByContainerId")
