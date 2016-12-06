@@ -189,12 +189,12 @@ public class ReceiptRestService implements IReceiptRfService {
             /*
             按配置验证生产日期/到期日是否输入
              */
-            if(PoConstant.ORDER_TYPE_CPO == orderType && receiptRequest.getStoreId() != null){
-                //直流门店,需根据配置验证生产日期/到期日是否输入
+            if(PoConstant.ORDER_TYPE_CPO == orderType){
+                //直流,需根据配置验证生产日期/到期日是否输入
                 //  16/11/9 根据商品类型获取生产日期开关配置
                 BaseinfoItemType baseinfoItemType = iItemTypeRpcService.getBaseinfoItemTypeByItemId(baseinfoItem.getItemType());
-                //商品所属类型需要输入生产日期,且该商品保质期有效
-                if(baseinfoItemType != null && 1== baseinfoItemType.getIsNeedProtime() && baseinfoItem.getIsShelfLifeValid() == 1){
+                //商品所属类型需要输入生产日期
+                if(baseinfoItemType != null && 1== baseinfoItemType.getIsNeedProtime()){
                     //  16/11/9 根据配置验证生产日期是否输入
                     if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null){
                         throw new BizCheckedException("2020008");//生产日期不能为空
@@ -202,8 +202,8 @@ public class ReceiptRestService implements IReceiptRfService {
                 }
             }else{
                 if (PoConstant.ORDER_TYPE_TRANSFERS != orderType){
-                    //在库或直流订单,且不是调拨,生产日期/到期日,必须输入一个
-                    if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null){
+                    //在库,且不是调拨,根据商品主数据,有保质期时,生产日期/到期日,必须输入一个
+                    if(baseinfoItem.getIsShelfLifeValid() == 1 && receiptItem.getProTime() == null && receiptItem.getDueTime() == null){
                         throw new BizCheckedException("2020008");//生产日期不能为空
                     }
                 }
@@ -460,6 +460,23 @@ public class ReceiptRestService implements IReceiptRfService {
         orderInfoMap.put("batchNeeded", baseinfoItem.getBatchNeeded());
         //码盘规则
         orderInfoMap.put("pile",baseinfoItem.getPileX()+ "*" + baseinfoItem.getPileY() + "*" + baseinfoItem.getPileZ());
+        Integer orderType = ibdHeader.getOrderStatus();
+        if(orderType == PoConstant.ORDER_TYPE_CPO){
+            //直流,根据商品类型判断是否需要输入
+            BaseinfoItemType baseinfoItemType = iItemTypeRpcService.getBaseinfoItemTypeByItemId(baseinfoItem.getItemType());
+            if(baseinfoItemType != null && baseinfoItemType.getIsNeedProtime() == 1){
+                orderInfoMap.put("isNeedProTime",1);//16/12/6  需要输入生产日期
+            }else{
+                orderInfoMap.put("isNeedProTime",0);//否
+            }
+        }else if (PoConstant.ORDER_TYPE_TRANSFERS != orderType){
+            //非直流,非调拨单 根据商品是否有保质期判断是否需要输入
+            if(baseinfoItem.getIsShelfLifeValid() == 1){
+                orderInfoMap.put("isNeedProTime",1);//16/12/6  需要输入生产日期
+            }else{
+                orderInfoMap.put("isNeedProTime",0);//否
+            }
+        }
 
         return JsonUtils.SUCCESS(orderInfoMap);
     }
@@ -793,7 +810,7 @@ public class ReceiptRestService implements IReceiptRfService {
 
                     map2.put("pile",baseinfoItem.getPileX()+ "*" + baseinfoItem.getPileY() + "*" + baseinfoItem.getPileZ());
                     BaseinfoItemType baseinfoItemType = iItemTypeRpcService.getBaseinfoItemTypeByItemId(baseinfoItem.getItemType());
-                    if(baseinfoItemType != null && baseinfoItemType.getIsNeedProtime() == 1 && baseinfoItem.getIsShelfLifeValid() == 1){
+                    if(baseinfoItemType != null && baseinfoItemType.getIsNeedProtime() == 1){
                         map2.put("isNeedProTime",1);// TODO: 16/11/15 是否需要输入生产日期
                     }else{
                         map2.put("isNeedProTime",0);
