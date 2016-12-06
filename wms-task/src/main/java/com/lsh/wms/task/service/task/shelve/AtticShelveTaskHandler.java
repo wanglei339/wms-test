@@ -1,10 +1,13 @@
 package com.lsh.wms.task.service.task.shelve;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.shelve.IShelveRpcService;
 import com.lsh.wms.api.service.stock.IStockMoveRpcService;
+import com.lsh.wms.core.constant.BinUsageConstant;
 import com.lsh.wms.core.constant.StockConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
@@ -14,6 +17,9 @@ import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.shelve.ShelveTaskHead;
 import com.lsh.wms.model.stock.StockDelta;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
@@ -23,9 +29,11 @@ import com.lsh.wms.task.service.handler.AbsTaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 /**

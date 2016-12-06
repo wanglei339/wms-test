@@ -128,6 +128,10 @@ public class LocationDetailService {
 
         //差异区
         locationDetailServiceFactory.register(LocationConstant.DIFF_AREA, baseinfoLocationRegionService);
+        //so订单占用区(在库)
+        locationDetailServiceFactory.register(LocationConstant.SO_INBOUND_AREA, baseinfoLocationRegionService);
+        //so订单占用区(直流)
+        locationDetailServiceFactory.register(LocationConstant.SO_DIRECT_AREA, baseinfoLocationRegionService);
     }
 
     /**
@@ -206,6 +210,8 @@ public class LocationDetailService {
 //        locationDetailModelFactory.register(LocationConstant.LOFT_PICK_BLOCK, new BaseinfoLocation());
 //        locationDetailModelFactory.register(LocationConstant.LOFT_STORE_BLOCK, new BaseinfoLocation());
         locationDetailModelFactory.register(LocationConstant.DIFF_AREA, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.SO_INBOUND_AREA, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.SO_DIRECT_AREA, new BaseinfoLocationRegion());
 
     }
 
