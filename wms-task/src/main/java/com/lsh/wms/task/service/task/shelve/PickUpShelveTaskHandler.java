@@ -81,7 +81,7 @@ public class PickUpShelveTaskHandler extends AbsTaskHandler {
             throw new BizCheckedException("2030001");
         }
         StockQuant quant = quants.get(0);
-         StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
+        StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
         TaskInfo taskInfo = new TaskInfo();
 
         ObjUtils.bean2bean(quant, taskInfo);
@@ -90,9 +90,10 @@ public class PickUpShelveTaskHandler extends AbsTaskHandler {
 
         taskInfo.setOrderId(lot.getPoId());
         taskInfo.setPriority(1L);
+        taskInfo.setSubType(1L);
         taskInfo.setExt9(quant.getSupplierId().toString());
-        taskInfo.setTaskName("拆零上架任务[ " + taskInfo.getContainerId() + "]");
-        taskInfo.setType(TaskConstant.TYPE_PICK_UP_SHELVE);
+        taskInfo.setTaskName("上架任务[ " + taskInfo.getContainerId() + "]");
+        taskInfo.setType(TaskConstant.TYPE_ATTIC_SHELVE);
         taskInfo.setFromLocationId(quant.getLocationId());
         taskInfo.setQtyDone(taskInfo.getQty().divide(taskInfo.getPackUnit(), 2, BigDecimal.ROUND_DOWN));
 
