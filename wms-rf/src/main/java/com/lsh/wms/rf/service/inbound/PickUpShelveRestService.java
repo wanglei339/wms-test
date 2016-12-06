@@ -23,12 +23,17 @@ import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.BaseinfoLocationBinService;
 import com.lsh.wms.core.service.location.BaseinfoLocationRegionService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.shelve.AtticShelveTaskDetailService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
-import com.lsh.wms.model.baseinfo.*;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoLocationBin;
+import com.lsh.wms.model.baseinfo.BaseinfoLocationRegion;
+import com.lsh.wms.model.po.IbdHeader;
 import com.lsh.wms.model.shelve.AtticShelveTaskDetail;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
@@ -52,7 +57,7 @@ import java.util.*;
  * Created by wuhao on 16/8/16.
  */
 @Service(protocol = "rest")
-@Path("inbound/pick_up_shelve")
+@Path("inbound/pick_up")
 @Consumes({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
 public class PickUpShelveRestService implements IPickUpShelveRfRestService {
@@ -87,6 +92,8 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
     private ISysUserRpcService iSysUserRpcService;
     @Reference
     private ILocationRpcService locationRpcService;
+    @Autowired
+    private PoOrderService poOrderService;
 
     private Long taskType = TaskConstant.TYPE_PICK_UP_SHELVE;
 
@@ -199,13 +206,21 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             }
             BaseinfoLocation location = locationService.getLocation(detail.getAllocLocationId());
             Map<String, Object> map = new HashMap<String, Object>();
+
+            BaseinfoItem item = itemService.getItem(info.getItemId());
+            IbdHeader header = poOrderService.getInbPoHeaderByOrderId(detail.getOrderId());
+
+
             map.put("taskId", taskId.toString());
             map.put("locationId", location.getLocationId());
             map.put("locationCode", location.getLocationCode());
             map.put("qty", detail.getQty());
             map.put("packName", info.getPackName());
             map.put("itemId",info.getItemId());
-            map.put("skuName",itemService.getItem(info.getItemId()).getSkuName());
+            map.put("skuName",item.getSkuName());
+            map.put("skuCode",item.getSkuCode());
+            map.put("orderId",header.getOrderId());
+
             return JsonUtils.SUCCESS(map);
         }else {
             TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
@@ -264,13 +279,20 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         }
         BaseinfoLocation location = locationService.getLocation(detail.getAllocLocationId());
         Map<String, Object> map = new HashMap<String, Object>();
+
+        BaseinfoItem item = itemService.getItem(info.getItemId());
+        IbdHeader header = poOrderService.getInbPoHeaderByOrderId(detail.getOrderId());
+
         map.put("taskId", taskId.toString());
         map.put("locationId", location.getLocationId());
         map.put("locationCode", location.getLocationCode());
         map.put("qty", detail.getQty());
         map.put("packName", info.getPackName());
-        map.put("itemId",info.getItemId());
-        map.put("skuName",itemService.getItem(info.getItemId()).getSkuName());
+        map.put("itemId", info.getItemId());
+        map.put("skuName", item.getSkuName());
+        map.put("skuCode", item.getSkuCode());
+        map.put("orderId",header.getOrderId());
+
         return JsonUtils.SUCCESS(map);
 
     }
@@ -318,7 +340,7 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
         if(realLocation ==null){
             return JsonUtils.TOKEN_ERROR("库位不存在");
         }
-        AtticShelveTaskDetail detail = shelveTaskService.getShelveTaskDetail(taskId,TaskConstant.Draft);
+        AtticShelveTaskDetail detail = shelveTaskService.getShelveTaskDetail(taskId, TaskConstant.Draft);
         //判断扫描库位是不是存储合一库位
         if(realLocation.getRegionType().compareTo(LocationConstant.SPLIT_AREA)==0 && realLocation.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE) ){
             if(realLocation.getIsLocked().compareTo(LocationConstant.IS_LOCKED)==0 && !locationService.checkLocationUseStatus(realLocationId) && realLocationId.compareTo(detail.getAllocLocationId())!=0){
@@ -476,13 +498,19 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
                     detail.setQty(total);
                 }
                 Map<String, Object> map = new HashMap<String, Object>();
+
+                IbdHeader header = poOrderService.getInbPoHeaderByOrderId(detail.getOrderId());
+
+
                 map.put("taskId", taskId.toString());
                 map.put("locationId", location.getLocationId());
                 map.put("locationCode", location.getLocationCode());
                 map.put("qty", detail.getQty());
                 map.put("packName", quant.getPackName());
                 map.put("itemId",quant.getItemId());
-                map.put("skuName",itemService.getItem(quant.getItemId()).getSkuName());
+                map.put("skuName",item.getSkuName());
+                map.put("skuCode",item.getSkuCode());
+                map.put("orderId",header.getOrderId());
                 shelveTaskService.create(detail);
                 return map;
             }
@@ -495,7 +523,10 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             detail.setTaskId(taskId);
             detail.setReceiptId(lot.getReceiptId());
             detail.setOrderId(lot.getPoId());
-            detail.setAllocLocationId(location.getLocationId());detail.setQty(qty.compareTo(total)>0 ?total:qty);
+            detail.setAllocLocationId(location.getLocationId());detail.setQty(qty.compareTo(total) > 0 ? total : qty);
+            BaseinfoItem item = itemService.getItem(quant.getItemId());
+
+            IbdHeader header = poOrderService.getInbPoHeaderByOrderId(detail.getOrderId());
 
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("taskId", taskId.toString());
@@ -504,7 +535,9 @@ public class PickUpShelveRestService implements IPickUpShelveRfRestService {
             map.put("qty", detail.getQty());
             map.put("packName", quant.getPackName());
             map.put("itemId", quant.getItemId());
-            map.put("skuName", itemService.getItem(quant.getItemId()).getSkuName());
+            map.put("skuName", item.getSkuName());
+            map.put("skuCode", item.getSkuCode());
+            map.put("orderId",header.getOrderId());
             shelveTaskService.create(detail);
             return map;
         }
