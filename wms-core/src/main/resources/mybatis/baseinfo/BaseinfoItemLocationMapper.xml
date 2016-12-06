@@ -7,14 +7,16 @@
 		<result property="pickLocationid" column="pick_locationid"/>
 		<result property="userstatus" column="userstatus"/>
 		<result property="itemId" column="item_id"/>
+		<result property="minQty" column="min_qty"/>
+		<result property="maxQty" column="max_qty"/>
 		<result property="pickLocationType" column="pick_location_type"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoItemLocation">
 		insert into baseinfo_item_location (
-			pick_locationid,userstatus,item_id,pick_location_type
+			pick_locationid,userstatus,item_id,pick_location_type,min_qty,max_qty
     	) values (
-			#{pickLocationid},#{userstatus},#{itemId},#{pickLocationType}
+			#{pickLocationid},#{userstatus},#{itemId},#{pickLocationType},#{minQty},#{maxQty}
     	)
 	</insert>
 
@@ -22,8 +24,10 @@
 		update baseinfo_item_location
     	<set>
   			<if test="pickLocationid != null">pick_locationid=#{pickLocationid},</if>
-  			<if test="userstatus != null">userstatus=#{userstatus}</if>
-			<if test="itemId != null">item_id=#{itemId}</if>
+  			<if test="userstatus != null">userstatus=#{userstatus},</if>
+			<if test="itemId != null">item_id=#{itemId},</if>
+			<if test="minQty != null">min_qty=#{minQty},</if>
+			<if test="maxQty != null">max_qty=#{maxQty},</if>
 			<if test="pickLocationType != null">pick_location_type=#{pickLocationType}</if>
 		</set>
 		where id=#{id}
@@ -32,8 +36,10 @@
 		update baseinfo_item_location
 		<set>
 			<if test="pickLocationid != null">pick_locationid=#{pickLocationid},</if>
-			<if test="userstatus != null">userstatus=#{userstatus}</if>
-			<if test="itemId != null">item_id=#{itemId}</if>
+			<if test="userstatus != null">userstatus=#{userstatus},</if>
+			<if test="itemId != null">item_id=#{itemId},</if>
+			<if test="minQty != null">min_qty=#{minQty},</if>
+			<if test="maxQty != null">max_qty=#{maxQty},</if>
 			<if test="pickLocationType != null">pick_location_type=#{pickLocationType}</if>
 		</set>
 		where pick_locationid=#{pickLocationid} and item_id=#{itemId}
@@ -68,6 +74,8 @@
 			<if test="pickLocationid != null">and pick_locationid=#{pickLocationid}</if>
 			<if test="userstatus != null">and userstatus=#{userstatus}</if>
 			<if test="itemId != null">and item_id=#{itemId}</if>
+			<if test="minQty != null"> and min_qty=#{minQty}</if>
+			<if test="maxQty != null">and max_qty=#{maxQty}</if>
 			<if test="pickLocationType != null">and pick_location_type=#{pickLocationType}</if>
 		</where>
 	</sql>
