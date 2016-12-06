@@ -170,6 +170,8 @@ public class ProcurementRestService implements IProcurementRestService {
                         }
                     });
                 }
+                //判断能否整除
+                final BigDecimal [] decimals = info.getQty().divideAndRemainder(info.getPackUnit());
                 iProcurementProveiderRpcService.scanFromLocation(params);
                 return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                     {
@@ -180,13 +182,13 @@ public class ProcurementRestService implements IProcurementRestService {
                         put("locationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
                         put("itemId", info.getItemId());
                         put("itemName", itemRpcService.getItem(info.getItemId()).getSkuName());
-                        put("packName", info.getPackName());
-                        if(info.getSubType().compareTo(1L)==0){
-                            put("uomQty","整托");
+                        if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
+                            put("qty", decimals[0]);
+                            put("packName", info.getPackName());
                         }else {
-                            put("uomQty", info.getQtyDone());
+                            put("qty", info.getQty());
+                            put("packName", "EA");
                         }
-
                     }
                 });
             }else {
@@ -223,6 +225,7 @@ public class ProcurementRestService implements IProcurementRestService {
         if(entries!=null && entries.size()!=0){
             TaskEntry entry = entries.get(0);
             final TaskInfo info = entry.getTaskInfo();
+            final BigDecimal [] decimals = info.getQty().divideAndRemainder(info.getPackUnit());
             if(info.getStep()==2){
                 return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                     {
@@ -232,14 +235,14 @@ public class ProcurementRestService implements IProcurementRestService {
                         put("locationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
                         put("itemId", info.getItemId());
                         put("itemName", itemRpcService.getItem(info.getItemId()).getSkuName());
-                        put("packName", info.getPackName());
                         put("subType",info.getSubType());
-                        if(info.getSubType().compareTo(1L)==0){
-                            put("uomQty","整托");
+                        if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
+                            put("qty", decimals[0]);
+                            put("packName", info.getPackName());
                         }else {
-                            put("uomQty", info.getQtyDone());
+                            put("qty", info.getQty());
+                            put("packName", "EA");
                         }
-
                     }
                 });
             }else {
@@ -251,12 +254,13 @@ public class ProcurementRestService implements IProcurementRestService {
                         put("locationCode", locationRpcService.getLocation(info.getFromLocationId()).getLocationCode());
                         put("itemId", info.getItemId());
                         put("itemName", itemRpcService.getItem(info.getItemId()).getSkuName());
-                        put("packName", info.getPackName());
                         put("subType",info.getSubType());
-                        if(info.getSubType().compareTo(1L)==0){
-                            put("uomQty","整托");
+                        if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
+                            put("qty", decimals[0]);
+                            put("packName", info.getPackName());
                         }else {
-                            put("uomQty", info.getQty());
+                            put("qty", info.getQty());
+                            put("packName", "EA");
                         }
                     }
                 });
@@ -271,6 +275,7 @@ public class ProcurementRestService implements IProcurementRestService {
             throw new BizCheckedException("2040001");
         }
         final TaskInfo taskInfo = taskEntry.getTaskInfo();
+        final BigDecimal [] decimals = taskInfo.getQty().divideAndRemainder(taskInfo.getPackUnit());
         final Long fromLocationId = taskInfo.getFromLocationId();
         final String fromLocationCode = locationRpcService.getLocation(fromLocationId).getLocationCode();
         return JsonUtils.SUCCESS(new HashMap<String, Object>() {
@@ -282,11 +287,12 @@ public class ProcurementRestService implements IProcurementRestService {
                 put("itemId", taskInfo.getItemId());
                 put("subType",taskInfo.getSubType());
                 put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
-                put("packName", taskInfo.getPackName());
-                if(taskInfo.getSubType().compareTo(1L)==0){
-                    put("uomQty","整托");
+                if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
+                    put("qty", decimals[0]);
+                    put("packName", taskInfo.getPackName());
                 }else {
-                    put("uomQty", taskInfo.getQty());
+                    put("qty", taskInfo.getQty());
+                    put("packName", "EA");
                 }
             }
         });

@@ -421,7 +421,7 @@ public class StockQuantService {
         queryMap.put("itemId", itemId);
         this.prepareQuery(queryMap);
         List<StockQuant> stockQuants = stockQuantDao.getQuants(queryMap);
-        BigDecimal qty = new BigDecimal(0L);
+        BigDecimal qty = BigDecimal.ZERO;
         for (StockQuant quant : stockQuants) {
             qty = qty.add(quant.getQty());
         }
@@ -433,7 +433,7 @@ public class StockQuantService {
         queryMap.put("containerId", containerId);
         this.prepareQuery(queryMap);
         List<StockQuant> stockQuants = stockQuantDao.getQuants(queryMap);
-        BigDecimal qty = new BigDecimal(0L);
+        BigDecimal qty = BigDecimal.ZERO;
         for (StockQuant quant : stockQuants) {
             qty = qty.add(quant.getQty());
         }
