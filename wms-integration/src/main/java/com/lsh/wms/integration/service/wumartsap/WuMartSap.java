@@ -493,7 +493,7 @@ public class WuMartSap implements IWuMartSap{
 
         //写死 为 BAPI 货物移动分配事务代码 4
         Bapi2017GmCode goodsmvtCode = factory.createBapi2017GmCode();
-        goodsmvtCode.setGmCode("4");
+        goodsmvtCode.setGmCode("04");
         //BAPI 通讯结构：物料凭证抬头数据
         Bapi2017GmHead01 goodsmvtHeader = factory.createBapi2017GmHead01();
 
@@ -510,7 +510,7 @@ public class WuMartSap implements IWuMartSap{
         //BAPI2017_GM_ITEM_CREATE
         TableOfBapi2017GmItemCreate gmItemCreates = factory.createTableOfBapi2017GmItemCreate();
         Bapi2017GmItemCreate gmItemCreate = factory.createBapi2017GmItemCreate();
-        gmItemCreate.setMaterial("582553");
+        gmItemCreate.setMaterial("000000000000582553");
         gmItemCreate.setPlant(PropertyUtils.getString("wumart.werks"));
         //被移转的库存地
         gmItemCreate.setStgeLoc("0001");
@@ -519,7 +519,7 @@ public class WuMartSap implements IWuMartSap{
         gmItemCreate.setEntryQnt(BigDecimal.ONE);
         gmItemCreate.setEntryUom("EA");
         //需要移转的物料号
-        gmItemCreate.setMoveMat("582553");
+        gmItemCreate.setMoveMat("000000000000582553");
         gmItemCreate.setMovePlant(PropertyUtils.getString("wumart.werks"));
         //暂时写0003
         gmItemCreate.setMoveStloc("0003");
