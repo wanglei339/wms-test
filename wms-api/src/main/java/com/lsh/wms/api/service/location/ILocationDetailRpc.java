@@ -43,5 +43,13 @@ public interface ILocationDetailRpc {
      */
     public List<BaseinfoLocation> getNextLevelLocations(Long locationId) throws BizCheckedException;
 
+    /**
+     * 插入一个区域
+     * @param request
+     * @throws BizCheckedException
+     */
+    public void insertRegion(LocationDetailRequest request) throws BizCheckedException;
+
+
 
 }

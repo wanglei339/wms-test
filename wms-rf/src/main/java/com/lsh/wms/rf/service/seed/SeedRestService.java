@@ -174,8 +174,12 @@ public class SeedRestService implements ISeedRestService {
                     result.put("qty", head.getRequireQty());
                     result.put("packName", "EA");
                 }
+                BaseinfoItem item = itemService.getItem(info.getItemId());
                 result.put("storeName", csiRpcService.getCustomerByCode(info.getOwnerId(), head.getStoreNo()).getCustomerName());
                 result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
+                result.put("storeNo", head.getStoreNo());
+                result.put("barcode",item.getCode());
+                result.put("skuCode",item.getSkuCode());
                 result.put("itemId", info.getItemId());
                 return JsonUtils.SUCCESS(result);
             }
@@ -234,10 +238,13 @@ public class SeedRestService implements ISeedRestService {
                         result.put("qty", head.getRequireQty());
                         result.put("packName", "EA");
                     }
+                    BaseinfoItem item = itemService.getItem(info.getItemId());
                     result.put("storeName", csiRpcService.getCustomerByCode(info.getOwnerId(), head.getStoreNo()).getCustomerName());
                     result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
                     result.put("itemId", info.getItemId());
                     result.put("storeNo", head.getStoreNo());
+                    result.put("barcode",item.getCode());
+                    result.put("skuCode",item.getSkuCode());
                     return JsonUtils.SUCCESS(result);
                 }
             }else {
@@ -553,10 +560,13 @@ public class SeedRestService implements ISeedRestService {
                     result.put("qty", head.getRequireQty());
                     result.put("packName", "EA");
                 }
+
                 result.put("taskId", taskId.toString());
                 result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
                 result.put("storeNo", head.getStoreNo());
                 result.put("itemId", info.getItemId());
+                result.put("barcode",item.getCode());
+                result.put("skuCode",item.getSkuCode());
                 iTaskRpcService.assign(taskId, uid);
                 return JsonUtils.SUCCESS(result);
             }
@@ -626,9 +636,12 @@ public class SeedRestService implements ISeedRestService {
             result.put("qty", head.getRequireQty());
             result.put("packName", "EA");
         }
+        BaseinfoItem item = itemService.getItem(info.getItemId());
         result.put("taskId", taskId.toString());
         result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
         result.put("itemId", info.getItemId());
+        result.put("barcode",item.getCode());
+        result.put("skuCode",item.getSkuCode());
         return JsonUtils.SUCCESS(result);
     }
     /**
@@ -688,11 +701,14 @@ public class SeedRestService implements ISeedRestService {
             result.put("qty", head.getRequireQty());
             result.put("packName", "EA");
         }
+        BaseinfoItem item = itemService.getItem(info.getItemId());
         result.put("storeName", csiRpcService.getCustomerByCode(info.getOwnerId(),head.getStoreNo()).getCustomerName());
         result.put("storeNo", head.getStoreNo());
         result.put("taskId", taskId.toString());
         result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
         result.put("itemId", info.getItemId());
+        result.put("barcode",item.getCode());
+        result.put("skuCode",item.getSkuCode());
         return JsonUtils.SUCCESS(result);
     }
     /**

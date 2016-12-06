@@ -221,129 +221,48 @@ public class LocationConstant {
         }
     };
 
-
-
     /**
-     * todo 库区库位的配置 初始化使用
+     * classfication的配置
      */
-    public static final Map<Long, Map<String, Object>> LOCATION_CONFIGS = new HashMap<Long, Map<String, Object>>() {
+    public final static  Map<Long, Integer> LOCATION_CLASSFICATION_TYPE = new HashMap<Long, Integer>() {
         {
-            //虚拟区
-            put(REGION_AREA, new HashMap<String, Object>() {
-                {
-                    put("length", new BigDecimal("300.00"));
-                    put("width", new BigDecimal("300.00"));
-                    put("type", REGION_AREA);
-                    put("isValid", 1);
-                    put("typeName", "虚拟区");
-                    //ownerid自己设置
-                }
-            });
-            //通道
-            put(PASSAGE, new HashMap<String, Object>() {
-                {
-                    put("type", PASSAGE);
-                    put("length", new BigDecimal("50.00"));
-                    put("width", new BigDecimal("2.00"));
-                    put("direction", PASSAGE_EAST_WEST);
-                    put("typeName", "通道");
-                    put("isValid", 1);
-                }
-            });
-
-            //获取货架
-            put(SHELF, new HashMap<String, Object>() {
-                {
-                    put("depth", 1L);//一层深度
-                    put("type", SHELF);
-                    put("typeName", "货架区货架");
-                    put("isValid", 1);
-                }
-            });
-            //阁楼货架
-            put(LOFT, new HashMap<String, Object>() {
-                {
-                    put("depth", 1l);   //一层深度
-                    put("type", LOFT);
-                    put("typeName", "阁楼区货架");
-                    put("isValid", 1);
-                }
-            });
-
-            //拆零货架
-            put(SPLIT_SHELF, new HashMap<String, Object>() {
-                {
-                    put("depth", 1l);   //一层深度
-                    put("type", SPLIT_SHELF);
-                    put("type", SPLIT_AREA);
-                    put("typeName", "拆零区货架");
-                    put("isValid", 1);
-                }
-            });
-
-
-//            //贵品区货架
-//            put(VALUABLES_SHELF, new HashMap<String, Object>() {
-//                {
-//                    put("depth", 1l);   //一层深度
-//                    put("type", VALUABLES_SHELF);
-//                    put("regionNo", VALUABLES_AREA);
-//                    put("typeName", "贵品区货架");
-//                    put("isValid", 1);
-//                }
-//            });
-            //供商直流退货区货架
-            put(SUPPLIER_RETURN_SHELF, new HashMap<String, Object>() {
-                {
-                    put("depth", 1l);   //一层深度
-                    put("type", SUPPLIER_RETURN_SHELF);
-                    put("regionNo", SHELFS);
-                    put("typeName", "供商直流退货货架");
-                    put("isValid", 1);
-                }
-            });
-//            //货架层拣货块
-//            put(SHELF_PICK_BLOCK, new HashMap<String, Object>() {
-//                {
-//                    put("type", SHELF_PICK_BLOCK);
-//                    put("typeName", "货架层拣货块");
-//                    put("regionNo", SHELFS);
-//                    put("isValid", 1);
-//                }
-//            });
-            //货架层存货块
-//            put(SHELF_STORE_BLOCK, new HashMap<String, Object>() {
-//                {
-//                    put("type", SHELF_STORE_BLOCK);
-//                    put("typeName", "货架层存货块");
-//                    put("regionCode","A");
-//                    put("regionNo", SHELFS);
-//                    put("isValid", 1);
-//                }
-//            });
-//            //阁楼货架层的拣货块
-//            put(LOFT_PICK_BLOCK, new HashMap<String, Object>() {
-//                {
-//                    put("type", LOFT_PICK_BLOCK);
-//                    put("typeName", "阁楼货架层的拣货块");
-//                    put("regionCode","B");
-//                    put("regionNo", LOFTS);
-//                    put("isValid", 1);
-//                }
-//            });
-//            //阁楼货架层的存货块
-//            put(LOFT_STORE_BLOCK, new HashMap<String, Object>() {
-//                {
-//                    put("type", LOFT_STORE_BLOCK);
-//                    put("typeName", "阁楼货架层的存货块");
-//                    put("regionCode","B");
-//                    put("regionNo", LOFTS);
-//                    put("isValid", 1);
-//                }
-//            });
-
-
-
+            put(WAREHOUSE, CLASSIFICATION_AREAS);
+            put(REGION_AREA, CLASSIFICATION_AREAS);
+            put(PASSAGE, CLASSIFICATION_OTHERS);
+            put(INVENTORYLOST, CLASSIFICATION_AREAS);
+            put(SHELFS, CLASSIFICATION_AREAS);
+            put(LOFTS, CLASSIFICATION_AREAS);
+            put(FLOOR, CLASSIFICATION_AREAS);
+            put(TEMPORARY, CLASSIFICATION_AREAS);
+            put(COLLECTION_AREA, CLASSIFICATION_AREAS);
+            put(BACK_AREA, CLASSIFICATION_AREAS);
+            put(DEFECTIVE_AREA, CLASSIFICATION_AREAS);
+            put(DOCK_AREA, CLASSIFICATION_AREAS);
+            put(SHELF, CLASSIFICATION_SHELFS);
+            put(LOFT, CLASSIFICATION_SHELFS);
+            put(BIN, CLASSIFICATION_BINS);
+            put(FLOOR_BIN, CLASSIFICATION_BINS);
+            put(TEMPORARY_BIN, CLASSIFICATION_BINS);
+            put(COLLECTION_BIN, CLASSIFICATION_BINS);
+            put(BACK_BIN, CLASSIFICATION_BINS);
+            put(DEFECTIVE_BIN, CLASSIFICATION_BINS);
+            put(CONSUME_AREA, CLASSIFICATION_AREAS);
+            put(SUPPLIER_AREA, CLASSIFICATION_AREAS);
+            put(SHELF_COLUMN, CLASSIFICATION_OTHERS);
+            put(LOFT_COLUMN, CLASSIFICATION_OTHERS);
+            put(MARKET_RETURN_AREA, CLASSIFICATION_AREAS);
+            put(COLLECTION_ROAD_GROUP, CLASSIFICATION_OTHERS);
+            put(COLLECTION_ROAD, CLASSIFICATION_OTHERS);
+            put(SPLIT_AREA, CLASSIFICATION_AREAS);
+            put(SPLIT_SHELF, CLASSIFICATION_SHELFS);
+            put(SOW_AREA, CLASSIFICATION_AREAS);
+            put(SOW_BIN, CLASSIFICATION_BINS);
+            put(SUPPLIER_RETURN_AREA, CLASSIFICATION_AREAS);
+            put(SUPPLIER_RETURN_SHELF, CLASSIFICATION_SHELFS);
+            put(SUPPLIER_RETURN_LEVEL, CLASSIFICATION_OTHERS);
+            put(DIFF_AREA, CLASSIFICATION_AREAS);
+            put(SO_INBOUND_AREA, CLASSIFICATION_AREAS);
+            put(SO_DIRECT_AREA, CLASSIFICATION_AREAS);
 
         }
     };

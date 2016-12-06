@@ -44,6 +44,11 @@
         ORDER BY store_no ASC
     </select>
 
+    <select id="getLocationBinByType" parameterType="map" resultType="long">
+        select location_id from baseinfo_location
+        WHERE type=#{type} AND is_leaf=#{isLeaf}
+    </select>
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="BaseinfoLocation">
 		insert into baseinfo_location (
 			location_id,location_code,father_id,left_range,right_range,level,
@@ -305,6 +310,55 @@
             limit #{start},#{limit}
         </if>
     </select>
+
+    <select id="getSortLocationsByFatherId" parameterType="map" resultMap="baseinfoLocationResultMap">
+        select * from baseinfo_location
+        <include refid="sortQueryCondition"/>
+        <if test="regionNoDESC != null">ORDER BY region_no DESC</if>
+        <if test="passageNoDESC != null">ORDER BY passage_no DESC</if>
+        <if test="shelfLevelNoDESC != null">ORDER BY shelf_level_no DESC</if>
+        <if test="binPositionNoDESC != null">ORDER BY bin_position_no DESC</if>
+        <if test="regionNoASC != null">ORDER BY region_no ASC</if>
+        <if test="passageNoASC != null">ORDER BY passage_no ASC</if>
+        <if test="shelfLevelNoASC != null">ORDER BY shelf_level_no ASC</if>
+        <if test="binPositionNoASC != null">ORDER BY bin_position_no ASC</if>
+        <if test="start != null and limit != null">
+            limit #{start},#{limit}
+        </if>
+    </select>
+
+    <sql id="sortQueryCondition">
+        <where>
+            <if test="id != null">id=#{id}</if>
+            <if test="locationId != null">and location_id=#{locationId}</if>
+            <if test="locationCode != null">and location_code=#{locationCode}</if>
+            <if test="fatherId != null">and father_id=#{fatherId}</if>
+            <if test="leftRange != null">and left_range&gt;=#{leftRange}</if>
+            <if test="rightRange != null">and right_range&lt;=#{rightRange}</if>
+            <if test="level != null">and level=#{level}</if>
+            <if test="type != null">and type=#{type}</if>
+            <if test="typeName != null">and type_name=#{typeName}</if>
+            <if test="isLeaf != null">and is_leaf=#{isLeaf}</if>
+            <if test="isValid != null">and is_valid=#{isValid}</if>
+            <if test="canStore != null">and can_store=#{canStore}</if>
+            <if test="containerVol != null">and container_vol=#{containerVol}</if>
+            <if test="regionNo != null">and region_no=#{regionNo}</if>
+            <if test="passageNo != null">and passage_no=#{passageNo}</if>
+            <if test="shelfLevelNo != null">and shelf_level_no=#{shelfLevelNo}</if>
+            <if test="binPositionNo != null">and bin_position_no=#{binPositionNo}</if>
+            <if test="description != null">and description=#{description}</if>
+            <if test="createdAt != null">and created_at=#{createdAt}</if>
+            <if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+            <if test="classification != null">and classification=#{classification}</if>
+            <if test="canUse != null">and can_use=#{canUse}</if>
+            <if test="isLocked != null">and is_locked=#{isLocked}</if>
+            <if test="curContainerVol != null">and cur_container_vol=#{curContainerVol}</if>
+            <if test="storeNo != null">and store_no=#{storeNo}</if>
+            <if test="supplierNo != null">and supplier_no=#{supplierNo}</if>
+            <if test="binUsage != null">and bin_usage=#{binUsage}</if>
+            <if test="regionType != null">and region_type=#{regionType}</if>
+        </where>
+    </sql>
 
 
 </mapper>

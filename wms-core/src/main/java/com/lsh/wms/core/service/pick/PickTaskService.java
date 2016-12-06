@@ -118,40 +118,46 @@ public class PickTaskService {
     public void pickOne(WaveDetail pickDetail, Long locationId, Long containerId, BigDecimal qty, Long staffId) {
         Long taskId = pickDetail.getPickTaskId();
         Long itemId = pickDetail.getItemId();
+        PickTaskHead pickTaskHead = this.getPickTaskHead(taskId);
+        Map<String, Object> quantParams = new HashMap<String, Object>();
+        quantParams.put("locationId", locationId);
+        quantParams.put("itemId", itemId);
+        List<StockQuant> quants = stockQuantService.getQuants(quantParams);
+        if (quants.size() < 1) {
+            throw new BizCheckedException("2550009");
+        }
+        StockQuant quant = quants.get(0);
+        // 拣货数量为0不移库存
         if (qty.compareTo(new BigDecimal(0)) == 1) {
-            PickTaskHead pickTaskHead = this.getPickTaskHead(taskId);
-            Map<String, Object> quantParams = new HashMap<String, Object>();
-            quantParams.put("locationId", locationId);
-            quantParams.put("itemId", itemId);
-            List<StockQuant> quants = stockQuantService.getQuants(quantParams);
-            if (quants.size() < 1) {
-                throw new BizCheckedException("2550009");
-            }
             BaseinfoLocation collectRegionLocation = locationService.getFatherRegionBySonId(pickTaskHead.getAllocCollectLocation());
             if (collectRegionLocation == null) {
                 throw new BizCheckedException("2060019");
             }
-            StockQuant quant = quants.get(0);
             Long fromContainerId = quant.getContainerId();
             // 移动库存
             moveService.moveToContainer(itemId, staffId, fromContainerId, containerId, collectRegionLocation.getLocationId(), qty);
-            // 存在库存差异时移动差异库存至差异区
-            if (pickDetail.getAllocQty().compareTo(qty) == 1 && quant.getQty().compareTo(qty) == 1) {
-                StockMove move = new StockMove();
-                BaseinfoLocation toLocation = locationService.getDiffAreaLocation();
-                BaseinfoContainer toContainer = containerService.createContainerByType(ContainerConstant.PALLET);
-                move.setItemId(itemId);
-                move.setSkuId(pickDetail.getSkuId());
-                move.setFromContainerId(pickDetail.getContainerId());
-                move.setFromLocationId(locationId);
-                move.setToContainerId(toContainer.getContainerId());
-                move.setToLocationId(toLocation.getLocationId());
-                move.setQty(quant.getQty().subtract(qty));
-                move.setTaskId(taskId);
-                move.setOwnerId(pickDetail.getOwnerId());
-                stockMoveService.move(move);
+        }
+        // 存在库存差异时移动差异库存至差异区
+        if (pickDetail.getAllocQty().compareTo(qty) == 1 && quant.getQty().compareTo(qty) == 1) {
+            StockMove move = new StockMove();
+            BaseinfoLocation toLocation = locationService.getDiffAreaLocation();
+            BaseinfoContainer toContainer = containerService.createContainerByType(ContainerConstant.PALLET);
+            BigDecimal moveQty = BigDecimal.ZERO;
+            if (quant.getQty().compareTo(pickDetail.getAllocQty()) >= 0) {
+                moveQty = pickDetail.getAllocQty().subtract(qty);
+            } else {
+                moveQty = quant.getQty().subtract(qty);
             }
-
+            move.setItemId(itemId);
+            move.setSkuId(pickDetail.getSkuId());
+            move.setFromContainerId(pickDetail.getContainerId());
+            move.setFromLocationId(locationId);
+            move.setToContainerId(toContainer.getContainerId());
+            move.setToLocationId(toLocation.getLocationId());
+            move.setQty(moveQty);
+            move.setTaskId(taskId);
+            move.setOwnerId(pickDetail.getOwnerId());
+            stockMoveService.move(move);
         }
         // 更新wave_detail
         pickDetail.setContainerId(containerId);

@@ -134,6 +134,13 @@ public class BaseTaskService {
     {   info.setUpdatedAt(DateUtils.getCurrentSeconds());
         taskInfoDao.update(info);
     }
+    @Transactional(readOnly = false)
+    public void batchUpdate(List<TaskInfo> infos) {
+        for(TaskInfo info:infos) {
+            info.setUpdatedAt(DateUtils.getCurrentSeconds());
+            taskInfoDao.update(info);
+        }
+    }
 
     @Transactional(readOnly = false)
     public void assign(Long taskId, Long staffId, TaskHandler taskHandler) throws BizCheckedException {

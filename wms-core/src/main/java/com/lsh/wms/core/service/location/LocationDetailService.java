@@ -573,16 +573,6 @@ public class LocationDetailService {
 //
 //    }
 
-    /**
-     * 根据规则批量生成一个货架的货位
-     *
-     * @param iBaseinfoLocaltionModel
-     * @return
-     */
-    @Transactional(readOnly = false)
-    public boolean batchCreateBinsInOneLevel(IBaseinfoLocaltionModel iBaseinfoLocaltionModel) {
-        return false;
-    }
 
 
 }
