@@ -212,6 +212,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             map.put("packName", info.getPackName());
             map.put("itemId",info.getItemId());
             map.put("skuName",itemService.getItem(info.getItemId()).getSkuName());
+            map.put("pickLocationIdList", itemLocationService.getPickLocationsByItemId(info.getItemId()));
             return JsonUtils.SUCCESS(map);
         }else {
             Map result = null;
@@ -280,6 +281,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         map.put("packName", info.getPackName());
         map.put("itemId", info.getItemId());
         map.put("skuName", itemService.getItem(info.getItemId()).getSkuName());
+        map.put("pickLocationIdList", itemLocationService.getPickLocationsByItemId(info.getItemId()));
         return JsonUtils.SUCCESS(map);
 
     }
@@ -331,7 +333,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             return JsonUtils.TOKEN_ERROR("上架详情异常");
         }
         BaseinfoLocation location = locationService.getLocation(detail.getAllocLocationId());
-        if(info.getSubType().equals(1L)) {
+        if(info.getSubType().equals(2L)) {
             if (location.getRegionType().compareTo(LocationConstant.LOFTS) == 0 && location.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)) {
                 if (realLocationId.compareTo(location.getLocationId()) != 0) {
                     return JsonUtils.TOKEN_ERROR("扫描货位与系统所提供货位不符");
@@ -499,6 +501,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
                             map.put("packName", quant.getPackName());
                             map.put("itemId",quant.getItemId());
                             map.put("skuName",itemService.getItem(quant.getItemId()).getSkuName());
+                            map.put("pickLocationIdList", itemLocationService.getPickLocationsByItemId(item.getItemId()));
 
                             shelveTaskService.create(detail);
                             return map;
@@ -514,44 +517,44 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             throw new BizCheckedException("2030015");
         }
 
-        for(BaseinfoLocation location:locationList) {
+        BaseinfoLocation targetLocation = locationService.getNearestStorageByPicking(pickLocation);
 
-            BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(location.getLocationId());
-
-            if (bin.getVolume().compareTo(bulk) < 0 || (!locationService.locationIsEmptyAndUnlock(location))) {
-                continue;
-            }
-
-            //锁Location
-            locationService.lockLocation(location.getLocationId());
-            //插detail
-            AtticShelveTaskDetail detail = new AtticShelveTaskDetail();
-            StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
-            ObjUtils.bean2bean(quant, detail);
-            detail.setTaskId(taskId);
-            detail.setReceiptId(lot.getReceiptId());
-            detail.setOrderId(lot.getPoId());
-            detail.setAllocLocationId(location.getLocationId());
-            detail.setRealLocationId(location.getLocationId());
-
-            BigDecimal num = bin.getVolume().divide(bulk,0,BigDecimal.ROUND_DOWN);
-            if (total.subtract(num).compareTo(BigDecimal.ZERO) >= 0) {
-                detail.setQty(num);
-            } else {
-                detail.setQty(total);
-            }
-            Map<String, Object> map = new HashMap<String, Object>();
-            map.put("taskId", taskId);
-            map.put("locationId", location.getLocationId());
-            map.put("locationCode", location.getLocationCode());
-            map.put("qty", detail.getQty());
-            map.put("packName", quant.getPackName());
-            map.put("itemId",quant.getItemId());
-            map.put("skuName",itemService.getItem(quant.getItemId()).getSkuName());
-            shelveTaskService.create(detail);
-            return map;
+        if(targetLocation==null){
+            return null;
         }
-        return null;
+
+        BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(targetLocation.getLocationId());
+
+        //锁Location
+        locationService.lockLocation(targetLocation.getLocationId());
+        //插detail
+        AtticShelveTaskDetail detail = new AtticShelveTaskDetail();
+        StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
+        ObjUtils.bean2bean(quant, detail);
+        detail.setTaskId(taskId);
+        detail.setReceiptId(lot.getReceiptId());
+        detail.setOrderId(lot.getPoId());
+        detail.setAllocLocationId(targetLocation.getLocationId());
+        detail.setRealLocationId(targetLocation.getLocationId());
+
+        BigDecimal num = bin.getVolume().divide(bulk,0,BigDecimal.ROUND_DOWN);
+        if (total.subtract(num).compareTo(BigDecimal.ZERO) >= 0) {
+            detail.setQty(num);
+        } else {
+            detail.setQty(total);
+        }
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("taskId", taskId);
+        map.put("locationId", targetLocation.getLocationId());
+        map.put("locationCode", targetLocation.getLocationCode());
+        map.put("qty", detail.getQty());
+        map.put("packName", quant.getPackName());
+        map.put("itemId",quant.getItemId());
+        map.put("skuName",itemService.getItem(quant.getItemId()).getSkuName());
+        map.put("pickLocationIdList", itemLocationService.getPickLocationsByItemId(item.getItemId()));
+        shelveTaskService.create(detail);
+        return map;
+
     }
     private Map getPickUpResultMap(Long taskId) {
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
@@ -567,7 +570,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         StockQuant quant = quants.get(0);
         Map<String,Object> queryMap = new HashMap<String, Object>();
         queryMap.put("containerId",quant.getContainerId());
-        BigDecimal total = stockQuantService.getQty(queryMap).divide(quant.getPackUnit(),0,BigDecimal.ROUND_DOWN);
+        BigDecimal total = stockQuantService.getQty(queryMap).divide(quant.getPackUnit(), 0, BigDecimal.ROUND_DOWN);
 
         List<BaseinfoLocation> baseinfoLocations = locationService.getLocationsByType(LocationConstant.SPLIT_AREA);
 
@@ -654,6 +657,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
                 map.put("itemId",quant.getItemId());
                 map.put("skuName",item.getSkuName());
                 map.put("skuCode",item.getSkuCode());
+                map.put("pickLocationIdList", itemLocationService.getPickLocationsByItemId(item.getItemId()));
                 shelveTaskService.create(detail);
                 return map;
             }
@@ -678,13 +682,14 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             map.put("itemId", quant.getItemId());
             map.put("skuName", item.getSkuName());
             map.put("skuCode", item.getSkuCode());
+            map.put("pickLocationIdList", itemLocationService.getPickLocationsByItemId(item.getItemId()));
             shelveTaskService.create(detail);
             return map;
         }
         return null;
     }
     public BigDecimal getQty(Long locationId,Long itemId,StockQuant quant){
-        BigDecimal qty = stockQuantService.getQuantQtyByLocationIdAndItemId(locationId,itemId);
+        BigDecimal qty = stockQuantService.getQuantQtyByLocationIdAndItemId(locationId, itemId);
         //获取仓位体积
         BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(locationId);
         BigDecimal pickVolume = bin.getVolume();
@@ -701,6 +706,29 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         BigDecimal num = pickVolume.divide(bulk, 0, BigDecimal.ROUND_UP);
 
         return num.subtract(qty.divide(quant.getPackUnit(),0,BigDecimal.ROUND_UP));
+    }
+
+    /**
+     * 返回下一个指定上架货位
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("getNextAllocLocation")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String getNextAllocLocation() throws BizCheckedException {
+        Long staffId = Long.valueOf(RequestUtils.getHeader("uid"));
+        List<TaskInfo> taskInfos = baseTaskService.getAssignedTaskByOperator(staffId, TaskConstant.TYPE_ATTIC_SHELVE);
+        Map<String, Object> result = new HashMap<String, Object>();
+        if (taskInfos == null || taskInfos.isEmpty()) {
+            result.put("response", false);
+        } else {
+            BaseinfoLocation nextLocation = shelveTaskService.getNextAllocLocation(taskInfos.get(0).getTaskId());
+            result.put("nextLocationId", nextLocation.getLocationId().toString());
+            result.put("nextLocationCode", nextLocation.getLocationCode());
+        }
+        return JsonUtils.SUCCESS(result);
     }
 
 }
