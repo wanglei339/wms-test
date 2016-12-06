@@ -604,7 +604,6 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
 
         if(locationId.compareTo(0L)==0){
 
-            //将上架货物存到阁楼存货位上
             BaseinfoItem item = itemService.getItem(quant.getItemId());
             BigDecimal bulk = BigDecimal.ONE;
             //计算包装单位的体积
@@ -618,7 +617,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             if(locationList==null ||locationList.size()==0) {
                 throw new BizCheckedException("2030015");
             }
-
+            AtticShelveTaskDetail detail = null;
             for(BaseinfoLocation location:locationList) {
 
                 BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(location.getLocationId());
@@ -632,7 +631,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
                 //锁Location
                 locationService.lockLocation(location.getLocationId());
                 //插detail
-                AtticShelveTaskDetail detail = new AtticShelveTaskDetail();
+                detail = new AtticShelveTaskDetail();
                 StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
                 ObjUtils.bean2bean(quant, detail);
                 detail.setTaskId(taskId);
@@ -660,6 +659,9 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
                 map.put("pickLocationIdList", itemLocationService.getPickLocationsByItemId(item.getItemId()));
                 shelveTaskService.create(detail);
                 return map;
+            }
+            if(detail==null){
+                throw new BizCheckedException("2880020");
             }
         }else {
             BaseinfoLocation location = locationService.getLocation(locationId);
