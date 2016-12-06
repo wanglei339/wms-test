@@ -480,4 +480,23 @@ public class PickRestService implements IPickRestService {
         result.put("taskId", newTaskId);
         return JsonUtils.SUCCESS(result);
     }
+
+    /**
+     * 获取拣货位库存详情
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("getPickQuantQty")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String getPickQuantQty() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long itemId = Long.valueOf(mapQuery.get("itemId").toString());
+        Long locationId = Long.valueOf(mapQuery.get("locationId").toString());
+        BigDecimal qty = stockQuantService.getQuantQtyByLocationIdAndItemId(locationId, itemId);
+        Map<String, Object> result = new HashMap<String, Object>();
+        result.put("qty", qty);
+        return JsonUtils.SUCCESS(result);
+    }
 }

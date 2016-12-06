@@ -1,14 +1,17 @@
 package com.lsh.wms.core.service.pick;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.PickConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.wave.WaveDetailDao;
 import com.lsh.wms.core.dao.pick.PickTaskHeadDao;
 import com.lsh.wms.core.dao.wave.WaveDetailDao;
+import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockMoveService;
@@ -16,9 +19,11 @@ import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.pick.PickTaskHead;
+import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
@@ -58,6 +63,10 @@ public class PickTaskService {
     private BaseTaskService baseTaskService;
     @Autowired
     private ItemService itemService;
+    @Autowired
+    private StockMoveService stockMoveService;
+    @Autowired
+    private ContainerService containerService;
 
     @Transactional(readOnly = false)
     public Boolean createPickTask(PickTaskHead head, List<WaveDetail> details){
@@ -126,6 +135,23 @@ public class PickTaskService {
             Long fromContainerId = quant.getContainerId();
             // 移动库存
             moveService.moveToContainer(itemId, staffId, fromContainerId, containerId, collectRegionLocation.getLocationId(), qty);
+            // 存在库存差异时移动差异库存至差异区
+            if (pickDetail.getAllocQty().compareTo(qty) == 1 && quant.getQty().compareTo(qty) == 1) {
+                StockMove move = new StockMove();
+                BaseinfoLocation toLocation = locationService.getDiffAreaLocation();
+                BaseinfoContainer toContainer = containerService.createContainerByType(ContainerConstant.PALLET);
+                move.setItemId(itemId);
+                move.setSkuId(pickDetail.getSkuId());
+                move.setFromContainerId(pickDetail.getContainerId());
+                move.setFromLocationId(locationId);
+                move.setToContainerId(toContainer.getContainerId());
+                move.setToLocationId(toLocation.getLocationId());
+                move.setQty(quant.getQty().subtract(qty));
+                move.setTaskId(taskId);
+                move.setOwnerId(pickDetail.getOwnerId());
+                stockMoveService.move(move);
+            }
+
         }
         // 更新wave_detail
         pickDetail.setContainerId(containerId);
