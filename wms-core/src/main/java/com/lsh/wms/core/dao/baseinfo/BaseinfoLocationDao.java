@@ -38,5 +38,9 @@ public interface BaseinfoLocationDao{
 
 	List<BaseinfoLocation> getBaseinfoLocationListPC(Map<String, Object> params);
 
+	List<BaseinfoLocation> getSortLocationsByFatherId(Map<String, Object> params);
+
+	List<Long> getLocationBinByType(Map<String, Object> params);
+
 
 }

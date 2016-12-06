@@ -28,4 +28,8 @@ public interface ILocationDetailRestService {
     public String getTargetListByListType(Integer listType) throws BizCheckedException;
 
     public String getNextLevelLocations(Long locationId) throws BizCheckedException;
+
+    public String insertRegion(LocationDetailRequest request) throws BizCheckedException;
+
+    public String insertPassage(LocationDetailRequest request) throws BizCheckedException;
 }
