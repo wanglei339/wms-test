@@ -110,6 +110,7 @@ public class PickTaskService {
         Long taskId = pickDetail.getPickTaskId();
         Long itemId = pickDetail.getItemId();
         if (qty.compareTo(new BigDecimal(0)) == 1) {
+            PickTaskHead pickTaskHead = this.getPickTaskHead(taskId);
             Map<String, Object> quantParams = new HashMap<String, Object>();
             quantParams.put("locationId", locationId);
             quantParams.put("itemId", itemId);
@@ -117,10 +118,14 @@ public class PickTaskService {
             if (quants.size() < 1) {
                 throw new BizCheckedException("2550009");
             }
+            BaseinfoLocation collectRegionLocation = locationService.getFatherRegionBySonId(pickTaskHead.getAllocCollectLocation());
+            if (collectRegionLocation == null) {
+                throw new BizCheckedException("2060019");
+            }
             StockQuant quant = quants.get(0);
             Long fromContainerId = quant.getContainerId();
             // 移动库存
-            moveService.moveToContainer(itemId, staffId, fromContainerId, containerId, locationService.getWarehouseLocation().getLocationId(), qty);
+            moveService.moveToContainer(itemId, staffId, fromContainerId, containerId, collectRegionLocation.getLocationId(), qty);
         }
         // 更新wave_detail
         pickDetail.setContainerId(containerId);

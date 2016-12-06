@@ -15,7 +15,7 @@ import javax.xml.ws.Service;
  * 
  */
 @WebServiceClient(name = "ZBAPI_GOODSMVT_CREATE_01", 
-                  wsdlLocation = "file:/Users/lixin-mac/Documents/1234.wsdl",
+                  wsdlLocation = "file:/home/work/wumart/1234.wsdl",
                   targetNamespace = "urn:sap-com:document:sap:soap:functions:mc-style") 
 public class ZBAPIGOODSMVTCREATE01_Service extends Service {
 
@@ -27,7 +27,7 @@ public class ZBAPIGOODSMVTCREATE01_Service extends Service {
     static {
         URL url = null;
         try {
-            url = new URL("file:/Users/lixin-mac/Documents/1234.wsdl");
+            url = new URL("file:/home/work/wumart/1234.wsdl");
         } catch (MalformedURLException e) {
             java.util.logging.Logger.getLogger(ZBAPIGOODSMVTCREATE01_Service.class.getName())
                 .log(java.util.logging.Level.INFO, 
