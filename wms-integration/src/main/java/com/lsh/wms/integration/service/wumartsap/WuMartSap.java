@@ -588,7 +588,7 @@ public class WuMartSap implements IWuMartSap{
         logger.info("传入参数: material : " + material + " plant" + plant + " valuationarea : " + valuationarea);
         com.lsh.wms.integration.wumart.account.Bapireturn newReturn = zbinding.materialGetDetail(material,materialEvg,plant,valuationarea,valuationtype,materialGeneralData,materialplantdata,materialvaluationdata);
         logger.info("传出参数: material : " + material + " plant" + plant + " valuationarea : " + valuationarea);
-        logger.info("返回值: newReturn " + newReturn);
+        logger.info("返回值: newReturn " + newReturn + " materialGeneralData" + JSON.toJSONString(materialGeneralData));
 
         return JSON.toJSONString(newReturn);
     }
