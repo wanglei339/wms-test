@@ -97,6 +97,8 @@ public class BaseinfoItem implements Serializable {
 	private Integer itemType = 0;
 	/**商品信息是否完整 0不完整 1完整*/
 	private Integer isInfoIntact = 0;
+	/**是否有保质期  0没有 1有*/
+	private Integer isShelfLifeValid = 1;
 
 
 	public Long getId(){
@@ -458,5 +460,14 @@ public class BaseinfoItem implements Serializable {
 
 	public void setIsInfoIntact(Integer isInfoIntact) {
 		this.isInfoIntact = isInfoIntact;
+	}
+
+
+	public Integer getIsShelfLifeValid() {
+		return isShelfLifeValid;
+	}
+
+	public void setIsShelfLifeValid(Integer isShelfLifeValid) {
+		this.isShelfLifeValid = isShelfLifeValid;
 	}
 }
