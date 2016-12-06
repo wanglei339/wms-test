@@ -561,6 +561,7 @@ public class WuMartSap implements IWuMartSap{
                 +" goodsmvtHeader :" + JSON.toJSONString(goodsmvtHeader) + " gmItemCreates : " + JSON.toJSONString(gmItemCreates));
 
         logger.info("返回值 : testrun" + testrun + " _return" + JSON.toJSONString(_return));
+        logger.info("  返回信息 materialdocument : " + JSON.toJSONString(materialdocument));
 
         logger.info("");
 
@@ -590,6 +591,7 @@ public class WuMartSap implements IWuMartSap{
         logger.info("传出参数: material : " + material + " plant" + plant + " valuationarea : " + valuationarea);
         logger.info("返回值: newReturn " + newReturn + " materialGeneralData" + JSON.toJSONString(materialGeneralData));
 
+        logger.info(" 商品信息 materialvaluationdata : " + JSON.toJSONString(materialvaluationdata));
         return JSON.toJSONString(newReturn);
     }
 
