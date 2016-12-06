@@ -15,7 +15,9 @@ import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.service.po.ReceiveService;
 import com.lsh.wms.core.service.system.SysLogService;
 import com.lsh.wms.core.service.system.SysMsgService;
+import com.lsh.wms.integration.wumart.account.*;
 import com.lsh.wms.integration.wumart.ibd.*;
+import com.lsh.wms.integration.wumart.ibd.Bapireturn;
 import com.lsh.wms.integration.wumart.ibd.ObjectFactory;
 import com.lsh.wms.integration.wumart.ibdaccount.*;
 import com.lsh.wms.integration.wumart.ibdaccount.BAPIRET2;
@@ -560,9 +562,35 @@ public class WuMartSap implements IWuMartSap{
 
         logger.info("返回值 : testrun" + testrun + " _return" + JSON.toJSONString(_return));
 
+        logger.info("");
+
 
 
         return "";
+    }
+
+    public String map2Sap() {
+        com.lsh.wms.integration.wumart.account.ObjectFactory factory = new com.lsh.wms.integration.wumart.account.ObjectFactory();
+
+        String material = "000000000000581951";
+        Bapimgvmatnr materialEvg = factory.createBapimgvmatnr();
+
+        String plant = PropertyUtils.getString("wumart.werks");
+        String valuationarea = PropertyUtils.getString("wumart.werks");
+        String valuationtype = "";
+        Holder<Bapimatdoa> materialGeneralData = new Holder<Bapimatdoa>();
+        Holder<Bapimatdoc> materialplantdata = new Holder<Bapimatdoc>();
+        Holder<Bapimatdobew> materialvaluationdata = new Holder<Bapimatdobew>();
+
+        ZBAPIMATERIALGETDETAIL zbinding = new ZBAPIMATERIALGETDETAIL_Service().getBindingSOAP12();
+        this.auth((BindingProvider) zbinding);
+
+        logger.info("传入参数: material : " + material + " plant" + plant + " valuationarea : " + valuationarea);
+        com.lsh.wms.integration.wumart.account.Bapireturn newReturn = zbinding.materialGetDetail(material,materialEvg,plant,valuationarea,valuationtype,materialGeneralData,materialplantdata,materialvaluationdata);
+        logger.info("传出参数: material : " + material + " plant" + plant + " valuationarea : " + valuationarea);
+        logger.info("返回值: newReturn " + newReturn);
+
+        return JSON.toJSONString(newReturn);
     }
 
 
