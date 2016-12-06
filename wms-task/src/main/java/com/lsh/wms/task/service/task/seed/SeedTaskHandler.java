@@ -111,6 +111,8 @@ public class SeedTaskHandler extends AbsTaskHandler {
     @Autowired
     CsiCustomerService csiCustomerService;
 
+    private static Logger logger = LoggerFactory.getLogger(SeedTaskHandler.class);
+
 
     @PostConstruct
     public void postConstruct() {
@@ -119,8 +121,8 @@ public class SeedTaskHandler extends AbsTaskHandler {
 
     public void calcPerformance(TaskInfo taskInfo) {
 
-        taskInfo.setTaskPackQty(taskInfo.getQty());
-        taskInfo.setTaskEaQty(taskInfo.getQty().multiply(taskInfo.getPackUnit()));
+        taskInfo.setTaskPackQty(taskInfo.getQty().divide(taskInfo.getPackUnit(),0,BigDecimal.ROUND_DOWN));
+        taskInfo.setTaskEaQty(taskInfo.getQty());
 
 
     }
@@ -179,52 +181,66 @@ public class SeedTaskHandler extends AbsTaskHandler {
         }
 
         String orderOtherId = ibdHeader.getOrderOtherId();
-        IbdDetail ibdDetail= poOrderService.getInbPoDetailByOrderIdAndSkuCode(orderId, item.getSkuCode());
-        Map<String,Object> queryMap = new HashMap<String, Object>();
-        queryMap.put("ibdOtherId",orderOtherId);
-        queryMap.put("ibdDetailId",ibdDetail.getDetailOtherId());
-
-        List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(queryMap);
+        List<IbdDetail> ibdDetails= poOrderService.getInbPoDetailByOrderAndSkuCode(orderId, item.getSkuCode());
         List<TaskEntry> entries = new ArrayList<TaskEntry>();
+        for(IbdDetail ibdDetail:ibdDetails) {
+            Map<String, Object> queryMap = new HashMap<String, Object>();
+            queryMap.put("ibdOtherId", orderOtherId);
+            queryMap.put("ibdDetailId", ibdDetail.getDetailOtherId());
 
-        for(IbdObdRelation ibdObdRelation :ibdObdRelations){
-            String obdOtherId = ibdObdRelation.getObdOtherId();
-            String obdDetailId = ibdObdRelation.getObdDetailId();
+            List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(queryMap);
 
+            for (IbdObdRelation ibdObdRelation : ibdObdRelations) {
+                String obdOtherId = ibdObdRelation.getObdOtherId();
+                String obdDetailId = ibdObdRelation.getObdDetailId();
 
-            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherIdAndType(obdOtherId, SoConstant.ORDER_TYPE_DIRECT);
-            String storeNo = obdHeader.getDeliveryCode();
-            Long obdOrderId = obdHeader.getOrderId();
-            Map<String,Object> map = new HashMap<String, Object>();
-            map.put("orderId",obdOrderId);
-            map.put("detailOtherId",obdDetailId);
-            ObdDetail obdDetail = soOrderService.getOutbSoDetailList(map).get(0);
+                ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherIdAndType(obdOtherId, SoConstant.ORDER_TYPE_DIRECT);
+                String storeNo = obdHeader.getDeliveryCode();
+                Long obdOrderId = obdHeader.getOrderId();
+                Map<String, Object> map = new HashMap<String, Object>();
+                map.put("orderId", obdOrderId);
+                map.put("detailOtherId", obdDetailId);
+                List<ObdDetail> obdDetails = soOrderService.getOutbSoDetailList(map);
+                for(ObdDetail obdDetail:obdDetails) {
 
-            //拼装任务
-            SeedingTaskHead head = new SeedingTaskHead();
-            TaskInfo info = new TaskInfo();
-            TaskEntry entry = new TaskEntry();
-            head.setPackUnit(obdDetail.getPackUnit());
-            head.setRequireQty(obdDetail.getUnitQty());
-            head.setStoreNo(storeNo);
-            head.setOrderId(orderId);
-            //无收货播种任务标示
-            info.setSubType(subType);
-            //门店播放规则
-            if(storeMap.containsKey(storeNo)) {
-                info.setTaskOrder(storeMap.get(storeNo));
+                    //拼装任务
+                    SeedingTaskHead head = new SeedingTaskHead();
+                    TaskInfo info = new TaskInfo();
+                    TaskEntry entry = new TaskEntry();
+
+                    CsiCustomer csiCustomer = csiCustomerService.getCustomerByCustomerCode(storeNo);
+                    if(csiCustomer==null){
+                        logger.error("门店:"+storeNo+",未在系统维护");
+                        throw new BizCheckedException("2880018",storeNo,"");
+                    }
+                    head.setPackUnit(obdDetail.getPackUnit());
+                    head.setRequireQty(obdDetail.getUnitQty());
+                    head.setStoreNo(storeNo);
+                    head.setOrderId(orderId);
+                    head.setIbdDetailId(ibdDetail.getDetailOtherId());
+                    head.setObdDetailId(obdDetail.getDetailOtherId());
+                    head.setStoreType(csiCustomer.getCustomerType());
+                    head.setSkuId(obdDetail.getSkuId());
+                    //无收货播种任务标示
+                    info.setSubType(subType);
+                    //门店播放规则
+                    if (storeMap.containsKey(storeNo)) {
+                        info.setTaskOrder(storeMap.get(storeNo));
+                    }
+                    info.setItemId(obdDetail.getItemId());
+                    info.setSkuId(quant.getSkuId());
+                    info.setOrderId(orderId);
+                    info.setIsShow(0);
+                    info.setOwnerId(ibdHeader.getOwnerUid());
+                    info.setTaskName("播种任务[ " + storeNo + "]");
+                    info.setPackUnit(item.getPackUnit());
+                    info.setType(TaskConstant.TYPE_SEED);
+                    info.setPackName(obdDetail.getPackName());
+                    entry.setTaskHead(head);
+                    entry.setTaskInfo(info);
+                    entries.add(entry);
+                }
             }
-            info.setItemId(obdDetail.getItemId());
-            info.setSkuId(quant.getSkuId());
-            info.setOrderId(orderId);
-            info.setOwnerId(ibdHeader.getOwnerUid());
-            info.setTaskName("播种任务[ " + storeNo + "]");
-            info.setPackUnit(item.getPackUnit());
-            info.setType(TaskConstant.TYPE_SEED);
-            info.setPackName(obdDetail.getPackName());
-            entry.setTaskHead(head);
-            entry.setTaskInfo(info);
-            entries.add(entry);
         }
         taskRpcService.batchCreate(TaskConstant.TYPE_SEED,entries);
 
@@ -247,6 +263,9 @@ public class SeedTaskHandler extends AbsTaskHandler {
             return;
         }
         SeedingTaskHead head = (SeedingTaskHead)entry.getTaskHead();
+        head.setStatus(TaskConstant.Done);
+        seedTaskHeadService.update(head);
+
         StockMove move = new StockMove();
 
         IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(info.getOrderId());
@@ -283,7 +302,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
             BaseinfoItem item = itemService.getItem(ibdHeader.getOwnerUid(), sku.getSkuId());
 
             String orderOtherId = ibdHeader.getOrderOtherId();
-            IbdDetail ibdDetail= poOrderService.getInbPoDetailByOrderIdAndSkuCode(info.getOrderId(), item.getSkuCode());
+            IbdDetail ibdDetail= poOrderService.getInbPoDetailByOrderIdAndDetailId(info.getOrderId(), head.getIbdDetailId());
             Map<String,Object> queryMap = new HashMap<String, Object>();
             queryMap.put("ibdOtherId", orderOtherId);
             queryMap.put("ibdDetailId", ibdDetail.getDetailOtherId());
@@ -376,10 +395,8 @@ public class SeedTaskHandler extends AbsTaskHandler {
             throw new BizCheckedException("2020001");
         }
 
-        BaseinfoItem item = itemService.getItem(ibdHeader.getOwnerUid(), sku.getSkuId());
-
         String orderOtherId = ibdHeader.getOrderOtherId();
-        IbdDetail ibdDetail= poOrderService.getInbPoDetailByOrderIdAndSkuCode(info.getOrderId(), item.getSkuCode());
+        IbdDetail ibdDetail= poOrderService.getInbPoDetailByOrderIdAndDetailId(info.getOrderId(), head.getIbdDetailId());
         Map<String,Object> queryMap = new HashMap<String, Object>();
         queryMap.put("ibdOtherId", orderOtherId);
         queryMap.put("ibdDetailId", ibdDetail.getDetailOtherId());
@@ -404,6 +421,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
         receiptItem.setSkuId(info.getSkuId());
         receiptItem.setSkuName(sku.getSkuName());
         receiptItem.setBarCode(sku.getCode());
+        receiptItem.setDetailotherId(head.getIbdDetailId());
         receiptItem.setPackUnit(info.getPackUnit());
         receiptItem.setInboundQty(info.getQty());
         receiptItem.setPackName(PackUtil.PackUnit2Uom(info.getPackUnit(),"EA"));

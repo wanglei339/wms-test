@@ -16,10 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.rmi.MarshalledObject;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Project Name: lsh-wms
@@ -139,7 +136,11 @@ public class SoOrderService {
      * @return
      */
     public List<ObdDetail> getOutbSoDetailList(Map<String, Object> params) {
-        return obdDetailDao.getObdDetailList(params);
+        List<ObdDetail> details = obdDetailDao.getObdDetailList(params);
+        if(details==null){
+            return new ArrayList<ObdDetail>();
+        }
+        return details;
     }
 
     /**
@@ -285,7 +286,19 @@ public class SoOrderService {
         }
         return detailList.get(0);
     }
-
+    /**
+     * 根据OrderId及SkuId获取InbPoDetail
+     *
+     * @param orderId
+     * @param itemId
+     * @return
+     */
+    public List<ObdDetail> getObdDetailListByOrderIdAndItemId(Long orderId, Long itemId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("orderId", orderId);
+        params.put("itemId", itemId);
+        return getOutbSoDetailList(params);
+    }
     /**
      * 根据orderOtherId获取OutbSoHeader
      *

@@ -75,7 +75,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
     @Reference
     private ISysUserRpcService iSysUserRpcService;
 
-    private Long taskType = TaskConstant.TYPE_PICK_UP_SHELVE;
+    private Long taskType = TaskConstant.TYPE_ATTIC_SHELVE;
 
     /**
      * 创建上架任务
@@ -187,7 +187,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
 
 
         entry.setTaskInfo(info);
-        iTaskRpcService.update(TaskConstant.TYPE_PICK_UP_SHELVE,entry);
+        iTaskRpcService.update(TaskConstant.TYPE_ATTIC_SHELVE,entry);
 
 
         return JsonUtils.SUCCESS();
@@ -293,7 +293,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
         TaskInfo info = entry.getTaskInfo();
         info.setStep(2); //pc创建任务详情标示  0: 未创建详情 1:已创建详情 2:已执行中
         entry.setTaskInfo(info);
-        iTaskRpcService.update(TaskConstant.TYPE_PICK_UP_SHELVE, entry);
+        iTaskRpcService.update(TaskConstant.TYPE_ATTIC_SHELVE, entry);
 
         return JsonUtils.SUCCESS();
     }
@@ -345,7 +345,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
     public String getTaskList() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         List<Map> resultList = new ArrayList<Map>();
-        List<TaskEntry> entries = iTaskRpcService.getTaskList(TaskConstant.TYPE_PICK_UP_SHELVE, mapQuery);
+        List<TaskEntry> entries = iTaskRpcService.getTaskList(TaskConstant.TYPE_ATTIC_SHELVE, mapQuery);
         for(TaskEntry entry :entries){
             Long canEdit=0L;
             Map<String,Object> one =  new HashMap<String, Object>();
@@ -425,7 +425,7 @@ public class pickUpShelveRestService implements IPickUpShelveRestService {
         info.setOperator(operator);
         entry.setTaskInfo(info);
         logger.info(JsonUtils.SUCCESS(entry));
-        iTaskRpcService.update(TaskConstant.TYPE_PICK_UP_SHELVE, entry);
+        iTaskRpcService.update(TaskConstant.TYPE_ATTIC_SHELVE, entry);
         return JsonUtils.SUCCESS();
     }
     /**

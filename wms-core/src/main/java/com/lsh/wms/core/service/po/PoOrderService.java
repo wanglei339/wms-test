@@ -1,14 +1,19 @@
 package com.lsh.wms.core.service.po;
 
+import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.dao.po.*;
 import com.lsh.wms.model.po.*;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.system.SysLog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +30,8 @@ import java.util.Map;
 @Component
 @Transactional(readOnly = true)
 public class PoOrderService {
+
+    private static Logger logger = LoggerFactory.getLogger(PoOrderService.class);
 
     @Autowired
     private IbdHeaderDao ibdHeaderDao;
@@ -234,6 +241,14 @@ public class PoOrderService {
      * @param skuCode
      * @return
      */
+    public List<IbdDetail> getInbPoDetailListByOrderIdAndSkuCode(Long orderId, String skuCode) {
+        Map<String, Object> params = new HashMap<String, Object>();
+
+        params.put("orderId", orderId);
+        params.put("skuCode", skuCode);
+
+        return getInbPoDetailList(params);
+    }
     public IbdDetail getInbPoDetailByOrderIdAndSkuCode(Long orderId, String skuCode) {
         Map<String, Object> params = new HashMap<String, Object>();
 
@@ -241,6 +256,38 @@ public class PoOrderService {
         params.put("skuCode", skuCode);
 
         return getInbPoDetailByParams(params);
+    }
+    /**
+     * 根据OrderId及ibdDetailId获取InbPoDetail
+     * @param orderId
+     * @param detailOtherId
+     * @return
+     */
+    public IbdDetail getInbPoDetailByOrderIdAndDetailId(Long orderId, String detailOtherId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+
+        params.put("orderId", orderId);
+        params.put("detailOtherId", detailOtherId);
+
+        return getInbPoDetailByParams(params);
+    }
+    /**
+     * 根据OrderId及skuCode获取InbPoDetail
+     * @param orderId
+     * @param skuCode
+     * @return
+     */
+    public List<IbdDetail> getInbPoDetailByOrderAndSkuCode(Long orderId, String skuCode) {
+        Map<String, Object> params = new HashMap<String, Object>();
+
+        params.put("orderId", orderId);
+        params.put("skuCode", skuCode);
+
+        List<IbdDetail> ibdDetails =  ibdDetailDao.getIbdDetailList(params);
+        if(ibdDetails ==null){
+            return new ArrayList<IbdDetail>();
+        }
+        return ibdDetails;
     }
 //    public IbdDetail getInbPoDetailByOrderIdAndBarCode(Long orderId, String barCode) {
 //        Map<String, Object> params = new HashMap<String, Object>();
@@ -296,12 +343,24 @@ public class PoOrderService {
         List<IbdObdRelation> list = ibdObdRelationDao.getIbdObdRelationList(map);
         return list;
     }
+    public List<IbdObdRelation> getIbdObdRelationList(String ibdOtherId, ArrayList<String> ibdDetailIdList){
+        List<IbdObdRelation> relationList = new ArrayList<IbdObdRelation>();
+
+        Map<String,Object> params = new HashMap<String, Object>();
+        params.put("ibdOtherId",ibdOtherId);
+        for(String ibdDetailOtherId : ibdDetailIdList){
+            params.put("ibdDetailId",ibdDetailOtherId);
+            relationList.addAll(ibdObdRelationDao.getIbdObdRelationList(params));
+        }
+        return relationList;
+    }
     /**
      * 根据传入参数获取IbdObdRelation列表
      */
     public List<IbdObdRelation> getIbdObdRelationList(Map<String,Object> params){
         return ibdObdRelationDao.getIbdObdRelationList(params);
     }
+
 
     /**
      *
@@ -351,7 +410,39 @@ public class PoOrderService {
         }
     }
 
+    @Transactional(readOnly = false)
+    public void updateStatusTOthrow(Integer oldStatus,Integer newStatue,Long intervalTime){
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("oldOrderStatus", oldStatus);
+        params.put("newOrderStatus",newStatue);
+        params.put("throwAt",intervalTime);
+        ibdHeaderDao.updateStatusTOthrow(params);
+    }
 
+    /**
+     * 根据barcode查询order
+     * @param skuCode
+     */
+    public List<IbdHeader> getHeaderBySku(String  skuCode){
+        Map<String, Object> param = new HashMap<String, Object>();
+        List<IbdHeader> ibdHeaders = new ArrayList<IbdHeader>();
+        param.put("skuCode",skuCode);
+        List<IbdDetail> details = ibdDetailDao.getIbdDetailList(param);
+        Map<Long,Long> containerOrderMap = new HashMap<Long, Long>();
+        if(details!=null){
+            for(IbdDetail detail:details){
+                if(containerOrderMap.containsKey(detail.getOrderId())){
+                    continue;
+                }
+                containerOrderMap.put(detail.getOrderId(),detail.getOrderId());
+                IbdHeader header = this.getInbPoHeaderByOrderId(detail.getOrderId());
+                if(header.getOrderStatus().equals(PoConstant.ORDER_THROW)){
+                    ibdHeaders.add(header);
+                }
+            }
+        }
 
+        return ibdHeaders;
+    }
 
 }

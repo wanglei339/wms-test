@@ -15,6 +15,7 @@ import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.stock.StockDelta;
+import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -52,6 +53,8 @@ public class AtticShelveTaskHandler extends AbsTaskHandler {
     private IStockMoveRpcService iStockMoveRpcService;
     @Autowired
     private StockSummaryService stockSummaryService;
+    @Autowired
+    StockLotService lotService;
 
     @PostConstruct
     public void postConstruct() {
@@ -77,16 +80,20 @@ public class AtticShelveTaskHandler extends AbsTaskHandler {
             throw new BizCheckedException("2030001");
         }
         StockQuant quant = quants.get(0);
+        StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
 
         TaskInfo taskInfo = new TaskInfo();
 
         ObjUtils.bean2bean(quant, taskInfo);
 
         taskInfo.setTaskName("阁楼上架任务[ " + taskInfo.getContainerId() + "]");
-        taskInfo.setTaskQty(taskInfo.getQty().divide(taskInfo.getPackUnit(),2, BigDecimal.ROUND_DOWN));
+        taskInfo.setTaskQty(taskInfo.getQty().divide(taskInfo.getPackUnit(), 2, BigDecimal.ROUND_DOWN));
         taskInfo.setType(TaskConstant.TYPE_ATTIC_SHELVE);
         taskInfo.setFromLocationId(quant.getLocationId());
+        taskInfo.setExt9(quant.getSupplierId().toString());
         taskInfo.setPriority(1L);
+        taskInfo.setSubType(2L);
+        taskInfo.setOrderId(lot.getPoId());
 
         taskEntry.setTaskInfo(taskInfo);
 

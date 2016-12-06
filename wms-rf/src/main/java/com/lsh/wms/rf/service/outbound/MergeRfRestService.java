@@ -16,6 +16,7 @@ import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.ItemConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
+import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.merge.MergeService;
 import com.lsh.wms.core.service.so.SoOrderService;
@@ -25,6 +26,7 @@ import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -69,6 +71,8 @@ public class MergeRfRestService implements IMergeRfRestService {
     private ITaskRpcService iTaskRpcService;
     @Autowired
     private ItemService itemService;
+    @Autowired
+    private CsiCustomerService csiCustomerService;
 
     /**
      * 扫描托盘码进行合板
@@ -271,7 +275,12 @@ public class MergeRfRestService implements IMergeRfRestService {
         }
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("deliveryCode", deliveryCode);
-        result.put("deliveryName", deliveryName);
+        //门店合板的名称 从csi_customer中取,因为物美 deliveryCode 和 deliveryName传的相同
+        CsiCustomer csiCustomer = csiCustomerService.getCustomerByCustomerCode(deliveryCode);   //FIXME 因为物美数据传输,先这么写,一旦优供也合板,之后修正
+        if (null == csiCustomer) {
+            throw new BizCheckedException("2870043");
+        }
+        result.put("deliveryName", csiCustomer.getCustomerName());
         result.put("containerCount", containerCount);
         result.put("packCount", packCount);
         result.put("turnoverBoxCount", turnoverBoxCount);
