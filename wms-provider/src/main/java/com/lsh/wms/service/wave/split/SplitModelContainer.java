@@ -46,7 +46,7 @@ public class SplitModelContainer extends SplitModel{
                                 .multiply(BigDecimal.valueOf(this.model.getContainerUnitCapacity()));
                     }
                     if(containerQty.compareTo(BigDecimal.ZERO)<=0){
-                        containerQty = BigDecimal.valueOf(1L);
+                        containerQty = BigDecimal.valueOf(1L).multiply(PackUtil.Uom2PackUnit(detail.getAllocUnitName()));
                     }
                     int num = detail.getAllocQty().divide(containerQty, 0, BigDecimal.ROUND_FLOOR).intValue();
                     for(int i = 0;i < num;++i){
