@@ -104,23 +104,23 @@ public class MergeRfRestService implements IMergeRfRestService {
             throw new BizCheckedException("2870005");
         }
 
-//        //判断贵品,贵品不合板
-//        List<WaveDetail> waveDetails = new ArrayList<WaveDetail>();
-//        for (Long containerId : containerIds) {
-//            List<WaveDetail> details = waveService.getAliveDetailsByContainerId(containerId);
-//            if (null == details || details.size() < 1) {
-//                throw new BizCheckedException("2870041");
-//            }
-//            waveDetails.addAll(details);
-//        }
-//        for (WaveDetail detail : waveDetails) {
-//            BaseinfoItem item = itemService.getItem(detail.getOwnerId(), detail.getItemId());
-//            if (item != null) {
-//                if (item.getIsValuable().equals(ItemConstant.TYPE_IS_VALUABLE)) {
-//                    throw new BizCheckedException("2870042");
-//                }
-//            }
-//        }
+        //判断贵品,贵品不合板
+        /*List<WaveDetail> waveDetails = new ArrayList<WaveDetail>();
+        for (Long containerId : containerIds) {
+            List<WaveDetail> details = waveService.getAliveDetailsByContainerId(containerId);
+            if (null == details || details.size() < 1) {
+                throw new BizCheckedException("2870041");
+            }
+            waveDetails.addAll(details);
+        }
+        for (WaveDetail detail : waveDetails) {
+            BaseinfoItem item = itemService.getItem(detail.getOwnerId(), detail.getItemId());
+            if (item != null) {
+                if (item.getIsValuable().equals(ItemConstant.TYPE_IS_VALUABLE)) {
+                    throw new BizCheckedException("2870042");
+                }
+            }
+        }*/
 
         String idKey = "task_" + TaskConstant.TYPE_MERGE.toString();
         Long mergeTaskId = idGenerator.genId(idKey, true, true);
@@ -181,23 +181,23 @@ public class MergeRfRestService implements IMergeRfRestService {
             throw new BizCheckedException("2870005");
         }
 
-//        //判断贵品,贵品不合板
-//        List<WaveDetail> detailArrayList = new ArrayList<WaveDetail>();
-//        for (Long containerId : containerIds) {
-//            List<WaveDetail> details = waveService.getAliveDetailsByContainerId(containerId);   //肯定能查到
-//            if (null == details || details.size() < 1) {
-//                throw new BizCheckedException("2870041");
-//            }
-//            detailArrayList.addAll(details);
-//        }
-//        for (WaveDetail detail : detailArrayList) {
-//            BaseinfoItem item = itemService.getItem(detail.getOwnerId(), detail.getItemId());
-//            if (item != null) {
-//                if (item.getIsValuable().equals(ItemConstant.TYPE_IS_VALUABLE)) {
-//                    throw new BizCheckedException("2870042");
-//                }
-//            }
-//        }
+        //判断贵品,贵品不合板
+        /*List<WaveDetail> detailArrayList = new ArrayList<WaveDetail>();
+        for (Long containerId : containerIds) {
+            List<WaveDetail> details = waveService.getAliveDetailsByContainerId(containerId);   //肯定能查到
+            if (null == details || details.size() < 1) {
+                throw new BizCheckedException("2870041");
+            }
+            detailArrayList.addAll(details);
+        }
+        for (WaveDetail detail : detailArrayList) {
+            BaseinfoItem item = itemService.getItem(detail.getOwnerId(), detail.getItemId());
+            if (item != null) {
+                if (item.getIsValuable().equals(ItemConstant.TYPE_IS_VALUABLE)) {
+                    throw new BizCheckedException("2870042");
+                }
+            }
+        }*/
 
         Long mergedContainerId = 0L;
         String deliveryCode = "";
@@ -286,6 +286,31 @@ public class MergeRfRestService implements IMergeRfRestService {
         result.put("turnoverBoxCount", turnoverBoxCount);
         result.put("details", resultDetails);
         result.put("taskBoardQty", taskBoardQty);
+        return JsonUtils.SUCCESS(result);
+    }
+
+    /**
+     * 检查托盘合板状态
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("checkMergeStatus")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String checkMergeStatus() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long containerId = Long.valueOf(mapQuery.get("containerId").toString());
+        List<WaveDetail> details = waveService.getAliveDetailsByContainerId(containerId);
+        if (details == null) {
+            throw new BizCheckedException("2870002");
+        }
+        Map<String, Object> result = new HashMap<String, Object>();
+        if (details.get(0).getMergedContainerId().equals(0L)) {
+            result.put("isMerged", false);
+        } else {
+            result.put("isMerged", true);
+        }
         return JsonUtils.SUCCESS(result);
     }
 }

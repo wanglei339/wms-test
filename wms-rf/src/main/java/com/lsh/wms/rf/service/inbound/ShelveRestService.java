@@ -254,8 +254,12 @@ public class ShelveRestService implements IShelveRestService {
             result.put("response", false);
         } else {
             BaseinfoLocation nextLocation = shelveTaskService.getNextAllocLocation(taskInfos.get(0).getTaskId());
-            result.put("nextLocationId", nextLocation.getLocationId().toString());
-            result.put("nextLocationCode", nextLocation.getLocationCode());
+            if (nextLocation == null) {
+                result.put("response", false);
+            } else {
+                result.put("nextLocationId", nextLocation.getLocationId().toString());
+                result.put("nextLocationCode", nextLocation.getLocationCode());
+            }
         }
         return JsonUtils.SUCCESS(result);
     }
