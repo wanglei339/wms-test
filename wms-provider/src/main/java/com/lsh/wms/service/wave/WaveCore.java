@@ -751,7 +751,7 @@ public class WaveCore {
             WorkZone zone = workZoneService.getWorkZone(modelList.get(i).getPickZoneId());
             if(zone == null){
                 logger.error("get outbound zone fail %d", modelList.get(i).getPickZoneId());
-                throw new BizCheckedException("");
+                throw new BizCheckedException("2040023");
             }
             zoneList.add(zone);
             mapZone.put(zone.getZoneId(), zone);
@@ -767,7 +767,7 @@ public class WaveCore {
             for(String loc : pickLocations) {
                 if(loc.trim().compareTo("")==0){
                     logger.error("hee");
-                    throw new BizCheckedException("");
+                    throw new BizCheckedException("2040023");
                 }
                 locationList.add(locationService.getLocation(Long.valueOf(loc)));
             }
