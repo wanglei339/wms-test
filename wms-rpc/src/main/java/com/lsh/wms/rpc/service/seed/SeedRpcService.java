@@ -150,7 +150,7 @@ public class SeedRpcService implements ISeedRpcService {
             inbReceiptDetail.setItemId(baseinfoItem.getItemId());
 
             //根据OrderId及SkuCode获取InbPoDetail
-            IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(), baseinfoItem.getSkuCode());
+            IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndDetailId(ibdHeader.getOrderId(), receiptItem.getDetailotherId());
 
             //写入InbReceiptDetail中的OrderQty
             inbReceiptDetail.setOrderQty(ibdDetail.getOrderQty());
