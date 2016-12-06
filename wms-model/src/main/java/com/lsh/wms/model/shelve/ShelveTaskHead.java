@@ -29,6 +29,8 @@ public class ShelveTaskHead implements Serializable {
     private Long containerId = 0L;
 	/** 上架人员id */
     private Long operator = 0L;
+	/** 已计算过的货架位 */
+	private String calcLocationIds;
 	/** 上架时间 */
     private Long shelveAt = 0L;
 	/**  */
@@ -130,6 +132,14 @@ public class ShelveTaskHead implements Serializable {
 	
 	public void setOperator(Long operator){
 		this.operator = operator;
+	}
+
+	public String getCalcLocationIds(){
+		return this.calcLocationIds;
+	}
+
+	public void setCalcLocationIds(String calcLocationId){
+		this.calcLocationIds = calcLocationId;
 	}
 	
 	public Long getShelveAt(){
