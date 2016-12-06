@@ -1,6 +1,7 @@
 package com.lsh.wms.core.service.po;
 
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.dao.po.*;
 import com.lsh.wms.model.po.*;
 import com.lsh.wms.model.so.ObdDetail;
@@ -371,8 +372,13 @@ public class PoOrderService {
             ibdObdRelationDao.insert(ibdObdRelation);
         }
     }
-
-
-
+    @Transactional(readOnly = false)
+    public void updateStatusTOthrow(Integer oldStatus,Integer newStatue,Long intervalTime){
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("oldOrderStatus", oldStatus);
+        params.put("newOrderStatus",newStatue);
+        params.put("throwAt",intervalTime);
+        ibdHeaderDao.updateStatusTOthrow(params);
+    }
 
 }
