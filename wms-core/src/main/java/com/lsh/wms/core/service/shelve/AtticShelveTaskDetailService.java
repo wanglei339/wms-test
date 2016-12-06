@@ -160,7 +160,7 @@ public class AtticShelveTaskDetailService {
         StockQuant quant = quants.get(0);
         Long itemId = quant.getItemId();
         List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationList(itemId);
-        if (itemLocations.size() < 1) {
+        if (itemLocations==null || itemLocations.size() < 1) {
             throw new BizCheckedException("2030010");
         }
         Long pickLocationId = itemLocations.get(0).getPickLocationid();
