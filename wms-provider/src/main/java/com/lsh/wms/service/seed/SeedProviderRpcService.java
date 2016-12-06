@@ -257,6 +257,7 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
                     if (storeMap.containsKey(storeNo)) {
                         info.setTaskOrder(Long.valueOf(storeMap.get(storeNo)));
                     }
+                    head.setTaskOrder(info.getTaskOrder());
                     info.setTaskName("播种任务[ " + storeNo + "]");
                     info.setItemId(obdDetail.getItemId());
                     info.setSkuId(obdDetail.getSkuId());
@@ -303,6 +304,8 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
     public List<Map> getStoreList(Map<String, Object> mapQuery) throws BizCheckedException {
         List<Map> storeList = new ArrayList<Map>();
         mapQuery.put("status", TaskConstant.Draft);
+        mapQuery.put("orderBy","taskOrder");
+        mapQuery.put("orderType", "asc");
         List<SeedingTaskHead> heads = seedTaskHeadService.getHeadList(mapQuery);
         for(SeedingTaskHead head:heads){
             CsiCustomer csiCustomer = csiCustomerService.getCustomerByCustomerCode(head.getStoreNo());
