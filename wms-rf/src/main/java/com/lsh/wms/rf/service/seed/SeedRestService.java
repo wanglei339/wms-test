@@ -174,8 +174,12 @@ public class SeedRestService implements ISeedRestService {
                     result.put("qty", head.getRequireQty());
                     result.put("packName", "EA");
                 }
+                BaseinfoItem item = itemService.getItem(info.getItemId());
                 result.put("storeName", csiRpcService.getCustomerByCode(info.getOwnerId(), head.getStoreNo()).getCustomerName());
                 result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
+                result.put("storeNo", head.getStoreNo());
+                result.put("barcode",item.getCode());
+                result.put("skuCode",item.getSkuCode());
                 result.put("itemId", info.getItemId());
                 return JsonUtils.SUCCESS(result);
             }
