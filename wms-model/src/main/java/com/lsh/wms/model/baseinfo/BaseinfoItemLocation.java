@@ -21,9 +21,9 @@ public class BaseinfoItemLocation implements Serializable {
 	/** 拣货位类型*///// TODO: 16/11/2 add 
 	private Integer pickLocationType;
 	/** 最小存货量 */
-	private BigDecimal minQty;
+	private BigDecimal minQty = BigDecimal.ZERO;
 	/** 最大存货量 */
-	private BigDecimal maxQty;
+	private BigDecimal maxQty = BigDecimal.ZERO;
 
 	public Long getItemId() {
 		return itemId;
