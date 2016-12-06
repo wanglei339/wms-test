@@ -174,6 +174,9 @@ public class AtticShelveTaskDetailService {
             calcLocationIds = new ArrayList<Long>();
         }
         BaseinfoLocation nextLocation = locationService.getNearestStorageByPicking(pickingLocation, calcLocationIds);
+        if(nextLocation==null){
+            throw new BizCheckedException("2880020");
+        }
         calcLocationIds.add(nextLocation.getLocationId());
         info.setExt8(JSON.toJSONString(calcLocationIds));
         baseTaskService.update(info);
