@@ -40,4 +40,6 @@ public interface IPoRpcService {
 
     List<Map<String,Object>> getStoreInfo(Long orderId,String detailOtherId);
 
+    void updateStatusTOthrow(Long intervalTime);
+
 }

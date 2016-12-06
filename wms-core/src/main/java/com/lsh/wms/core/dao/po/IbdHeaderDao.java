@@ -27,6 +27,6 @@ public interface IbdHeaderDao {
 
 	List<IbdHeader> getIbdListOrderByDate(String orderIds);
 
-
+	void updateStatusTOthrow(Map<String, Object> params);
 	
 }

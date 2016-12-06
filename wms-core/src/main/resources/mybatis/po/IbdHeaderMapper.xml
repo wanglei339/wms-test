@@ -19,17 +19,18 @@
 		<result property="endDeliveryDate" column="end_delivery_date"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
+		<result property="throwAt" column="throw_at"/>
 	</resultMap>
 
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="IbdHeader">
 		insert into ibd_header (
 		order_other_ref_id,order_other_id,order_id,order_user,owner_uid,order_type,
 		supplier_code,supplier_name,order_time,order_status,stock_code,delivery_date,
-		end_delivery_date,created_at,updated_at
+		end_delivery_date,created_at,updated_at,throw_at
 		) values (
 		#{orderOtherRefId},#{orderOtherId},#{orderId},#{orderUser},#{ownerUid},#{orderType},
 		#{supplierCode},#{supplierName},#{orderTime},#{orderStatus},#{stockCode},#{deliveryDate},
-		#{endDeliveryDate},#{createdAt},#{updatedAt}
+		#{endDeliveryDate},#{createdAt},#{updatedAt},#{throwAt}
 		)
 	</insert>
 
@@ -50,7 +51,8 @@
 			<if test="deliveryDate != null">delivery_date=#{deliveryDate},</if>
 			<if test="endDeliveryDate != null">end_delivery_date=#{endDeliveryDate},</if>
 			<if test="createdAt != null">created_at=#{createdAt},</if>
-			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+			<if test="throwAt != null">throw_at=#{throwAt}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -74,7 +76,8 @@
 <!--
 			<if test="createdAt != null">created_at=#{createdAt},</if>
 -->
-			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
+			<if test="throwAt != null">throw_at=#{throwAt}</if>
 		</set>
 		where order_other_id=#{orderOtherId} or order_id=#{orderId}
 	</update>
@@ -113,7 +116,11 @@
 		select * from ibd_header where order_id in (#{orderIds}) order by order_time
 	</select>
 
-
+	<update id="updateStatusTOthrow" parameterType="map">
+	 update ibd_header set order_status=#{newOrderStatus}
+	  where unix_timestamp() <![CDATA[ >= throw_at+#{throwAt} ]]>
+	  AND order_status = #{oldOrderStatus}
+    </update>
 	<sql id="queryCondition">
 		<where>
 			<if test="id != null">id=#{id}</if>

@@ -18,6 +18,7 @@ import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.core.service.wave.WaveAllocService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.core.service.wave.WaveTemplateService;
+import com.lsh.wms.core.service.zone.WorkZoneService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
@@ -33,6 +34,7 @@ import com.lsh.wms.model.wave.WaveAllocDetail;
 import com.lsh.wms.model.wave.WaveDetail;
 import com.lsh.wms.model.wave.WaveHead;
 import com.lsh.wms.model.wave.WaveTemplate;
+import com.lsh.wms.model.zone.WorkZone;
 import com.lsh.wms.service.wave.split.SplitModel;
 import com.lsh.wms.service.wave.split.SplitNode;
 import org.apache.tools.ant.taskdefs.Pack;
@@ -60,7 +62,7 @@ public class WaveCore {
     @Autowired
     PickModelService modelService;
     @Autowired
-    PickZoneService zoneService;
+    WorkZoneService workZoneService;
     @Autowired
     SoOrderService orderService;
     @Autowired
@@ -90,8 +92,8 @@ public class WaveCore {
     Map<Long, Long> mapOldOrder2CollectBin;
     PickModelTemplate modelTpl;
     List<PickModel> modelList;
-    List<PickZone> zoneList;
-    Map<Long, PickZone> mapZone;
+    List<WorkZone> zoneList;
+    Map<Long, WorkZone> mapZone;
     Map<Long, List<BaseinfoLocation>> mapZone2StoreLocations;
     private long waveId;
     Map<String, List<BaseinfoItemLocation>> mapItemAndPickZone2PickLocations;
@@ -337,15 +339,15 @@ public class WaveCore {
         //List<PickTaskHead> taskHeads = new LinkedList<PickTaskHead>();
         //List<WaveDetail> taskDetails = new LinkedList<WaveDetail>();
         entryList = new LinkedList<TaskEntry>();
-        for(int zidx = 0; zidx < zoneList.size(); ++zidx){
-            PickZone zone = zoneList.get(zidx);
+        for(int zidx = 0; zidx < modelList.size(); ++zidx){
+            PickModel model = modelList.get(zidx);
             List<SplitNode> splitNodes = new LinkedList<SplitNode>();
             {
                 //初始化分裂数据
                 SplitNode node = new SplitNode();
                 node.details = new ArrayList<WaveDetail>();
                 for (WaveAllocDetail ad : pickAllocDetailList) {
-                    if(!ad.getPickZoneId().equals(zone.getPickZoneId())){
+                    if(!ad.getPickZoneId().equals(model.getPickZoneId())){
                         continue;
                     }
                     WaveDetail detail = new WaveDetail();
@@ -361,7 +363,6 @@ public class WaveCore {
                 continue;
             }
             List<SplitNode> stopNodes = new LinkedList<SplitNode>();
-            PickModel model = modelList.get(zidx);
             String splitModelNames[] = {
                     "SplitModelSetGroup",
                     "SplitModelBigItem",
@@ -400,12 +401,12 @@ public class WaveCore {
                 info.setWaveId(waveId);
                 List<Object> pickTaskDetails = new LinkedList<Object>();
                 info.setType(TaskConstant.TYPE_PICK);
-                info.setSubType(zone.getPickType());
-                info.setExt1(zone.getPickZoneId());
+                info.setSubType(model.getPickType());
+                info.setExt1(model.getPickZoneId());
                 PickTaskHead head = new PickTaskHead();
                 head.setWaveId(waveId);
                 head.setPickType(1);
-                head.setPickZoneId(zone.getPickZoneId());
+                head.setPickZoneId(model.getPickZoneId());
                 //head.setTransPlan("");
                 //head.setDeliveryId(1L);
                 info.setTaskName(String.format("波次[%d]-捡货任务[%d]", waveId, entryList.size()+1));
@@ -417,7 +418,7 @@ public class WaveCore {
                     }
                     for(int k = 0; k < node.details.size(); ++k){
                         WaveDetail detail = node.details.get(k);
-                        detail.setPickZoneId(zone.getPickZoneId());
+                        detail.setPickZoneId(model.getPickZoneId());
                         pickTaskDetails.add(detail);
                         head.setDeliveryId(detail.getOrderId());
                         info.setOrderId(detail.getOrderId());
@@ -426,8 +427,8 @@ public class WaveCore {
                         if(node.iPickType == PickConstant.SHELF_PALLET_TASK_TYPE) {
                             //卧槽,这代码写成这样也真的是没脸见人了
                             //来找找有没有货架上有库存的.
-                            if (!zone.getPickType().equals(PickConstant.SHELF_TASK_TYPE)) {
-                                info.setSubType(zone.getPickType());
+                            if (!model.getPickType().equals(PickConstant.SHELF_TASK_TYPE)) {
+                                info.setSubType(model.getPickType());
                             } else {
                                 Map<String, Object> queryMap = new HashMap<String, Object>();
                                 queryMap.put("location", locationService.getLocation(detail.getPickAreaLocation()));
@@ -444,7 +445,7 @@ public class WaveCore {
                                     }
                                 }
                                 if (!bFindShelfStore) {
-                                    info.setSubType(zone.getPickType());
+                                    info.setSubType(model.getPickType());
                                 }
                             }
                         }
@@ -459,13 +460,13 @@ public class WaveCore {
         }
     }
 
-    private BigDecimal _allocNormal(ObdDetail detail, PickZone zone, BaseinfoItem item, BaseinfoLocation location, BigDecimal leftAllocQty) throws BizCheckedException{
+    private BigDecimal _allocNormal(ObdDetail detail, PickModel model, BaseinfoItem item, BaseinfoLocation location, BigDecimal leftAllocQty) throws BizCheckedException{
         BaseinfoItemLocation pickItemLocation = this._getPickLocation(item, location);
         if (pickItemLocation == null) {
             return leftAllocQty;
         }
         Long pickLocationId = pickItemLocation.getPickLocationid();
-        long pick_unit = zone.getPickUnit();
+        long pick_unit = model.getPickUnit();
         if(pickItemLocation.getPickLocationType() != 0){
             pick_unit = pickItemLocation.getPickLocationType();
             //特殊的,如果捡货位已经维护了单独的出货单位,则强制按照这个出货单位去走.
@@ -498,7 +499,7 @@ public class WaveCore {
                 pick_ea_num.toString(),
                 unitName,
                 leftAllocQty.toString(),
-                zone.getPickZoneName(),
+                model.getZone().getZoneName(),
                 location.getLocationCode(),
                 zone_qty.toString()));
         if (zone_qty.compareTo(BigDecimal.ZERO) <= 0) {
@@ -518,7 +519,7 @@ public class WaveCore {
         //allocDetail.setLocId(detail.getLotNum()); ??
         allocDetail.setOrderId(detail.getOrderId());
         allocDetail.setOwnerId(mapOrder2Head.get(detail.getOrderId()).getOwnerUid());
-        allocDetail.setPickZoneId(zone.getPickZoneId());
+        allocDetail.setPickZoneId(model.getPickZoneId());
         allocDetail.setReqQty(new BigDecimal(0));
         allocDetail.setAllocPickLocation(pickLocationId);
         allocDetail.setItemId(item.getItemId());
@@ -534,7 +535,7 @@ public class WaveCore {
         return leftAllocQty;
     }
 
-    private BigDecimal _allocStockPickSame(ObdDetail detail, PickZone zone, BaseinfoItem item, BaseinfoLocation location, BigDecimal leftAllocQty) throws BizCheckedException{
+    private BigDecimal _allocStockPickSame(ObdDetail detail, PickModel model, BaseinfoItem item, BaseinfoLocation location, BigDecimal leftAllocQty) throws BizCheckedException{
         //没补货机制的区域,存捡合一,得精细计算到每个货位
         String key = String.format("%d-%d", item.getItemId(), location.getLocationId());
         Map<Long, BigDecimal> locationInventory = mapItemArea2LocationInventory.get(key);
@@ -555,7 +556,7 @@ public class WaveCore {
             //allocDetail.setLocId(detail.getLotNum()); ??
             allocDetail.setOrderId(detail.getOrderId());
             allocDetail.setOwnerId(mapOrder2Head.get(detail.getOrderId()).getOwnerUid());
-            allocDetail.setPickZoneId(zone.getPickZoneId());
+            allocDetail.setPickZoneId(model.getPickZoneId());
             allocDetail.setReqQty(new BigDecimal(0));
             allocDetail.setAllocPickLocation((Long) info.get("locationId"));
             allocDetail.setItemId(item.getItemId());
@@ -571,7 +572,7 @@ public class WaveCore {
                     item.getItemId(),
                     item.getSkuCode(),
                     leftAllocQty.toString(),
-                    zone.getPickZoneName(),
+                    model.getZone().getZoneName(),
                     location.getLocationCode(),
                     info.get("allocQty").toString(),
                     info.get("locationId").toString()));
@@ -610,18 +611,17 @@ public class WaveCore {
                     if (leftAllocQty.compareTo(BigDecimal.ZERO) <= 0) {
                         break;
                     }
-                    PickZone zone = mapZone.get(model.getPickZoneId());
-                    List<BaseinfoLocation> locationList = mapZone2StoreLocations.get(zone.getPickZoneId());
+                    List<BaseinfoLocation> locationList = mapZone2StoreLocations.get(model.getPickZoneId());
                     for(BaseinfoLocation location : locationList) {
                         if (leftAllocQty.compareTo(BigDecimal.ZERO) <= 0) {
                             break;
                         }
                         if(location.getRegionType().equals(LocationConstant.SPLIT_AREA)
                                 || location.getRegionType().equals(LocationConstant.FLOOR)){
-                            leftAllocQty = this._allocStockPickSame(detail, zone, item, location, leftAllocQty);
+                            leftAllocQty = this._allocStockPickSame(detail, model, item, location, leftAllocQty);
                         } else {
                             //有补货机制的区域,不考虑捡货位货量,只考虑区域货量
-                            leftAllocQty = this._allocNormal(detail, zone, item, location, leftAllocQty);
+                            leftAllocQty = this._allocNormal(detail, model, item, location, leftAllocQty);
                         }
                     }
                 }
@@ -745,28 +745,29 @@ public class WaveCore {
             }
         });
         //获取分区信息
-        zoneList = new LinkedList<PickZone>();
-        mapZone = new HashMap<Long, PickZone>();
+        zoneList = new LinkedList<WorkZone>();
+        mapZone = new HashMap<Long, WorkZone>();
         for(int i = 0; i < modelList.size(); ++i){
-            PickZone zone = zoneService.getPickZone(modelList.get(i).getPickZoneId());
+            WorkZone zone = workZoneService.getWorkZone(modelList.get(i).getPickZoneId());
             if(zone == null){
                 logger.error("get outbound zone fail %d", modelList.get(i).getPickZoneId());
-                throw new BizCheckedException("");
+                throw new BizCheckedException("2040023");
             }
             zoneList.add(zone);
-            mapZone.put(zone.getPickZoneId(), zone);
+            mapZone.put(zone.getZoneId(), zone);
+            modelList.get(i).setZone(zone);
         }
         //将捡货分区location详细信息
         mapZone2StoreLocations = new HashMap<Long, List<BaseinfoLocation>>();
         for(PickModel model : modelList) {
-            PickZone zone = mapZone.get(model.getPickZoneId());
+            WorkZone zone = mapZone.get(model.getPickZoneId());
             String[] pickLocations = zone.getLocations().split(",");
 
             List<BaseinfoLocation> locationList = new LinkedList<BaseinfoLocation>();
             for(String loc : pickLocations) {
                 if(loc.trim().compareTo("")==0){
                     logger.error("hee");
-                    throw new BizCheckedException("");
+                    throw new BizCheckedException("2040023");
                 }
                 locationList.add(locationService.getLocation(Long.valueOf(loc)));
             }
@@ -785,7 +786,7 @@ public class WaveCore {
                     }
                 }
             });
-            mapZone2StoreLocations.put(zone.getPickZoneId(), locationList);
+            mapZone2StoreLocations.put(zone.getZoneId(), locationList);
         }
     }
 
