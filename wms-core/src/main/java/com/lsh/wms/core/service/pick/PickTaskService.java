@@ -58,8 +58,6 @@ public class PickTaskService {
     private BaseTaskService baseTaskService;
     @Autowired
     private ItemService itemService;
-    @Autowired
-    private PickTaskService pickTaskService;
 
     @Transactional(readOnly = false)
     public Boolean createPickTask(PickTaskHead head, List<WaveDetail> details){
@@ -112,7 +110,7 @@ public class PickTaskService {
         Long taskId = pickDetail.getPickTaskId();
         Long itemId = pickDetail.getItemId();
         if (qty.compareTo(new BigDecimal(0)) == 1) {
-            PickTaskHead pickTaskHead = pickTaskService.getPickTaskHead(taskId);
+            PickTaskHead pickTaskHead = this.getPickTaskHead(taskId);
             Map<String, Object> quantParams = new HashMap<String, Object>();
             quantParams.put("locationId", locationId);
             quantParams.put("itemId", itemId);
