@@ -17,7 +17,7 @@ import javax.xml.ws.WebServiceFeature;
  * Generated source version: 2.2
  * 
  */
-@WebServiceClient(name = "ZBAPI_MATERIAL_GET_DETAIL", targetNamespace = "urn:sap-com:document:sap:soap:functions:mc-style", wsdlLocation = "file:/Users/lixin-mac/Documents/account.wsdl")
+@WebServiceClient(name = "ZBAPI_MATERIAL_GET_DETAIL", targetNamespace = "urn:sap-com:document:sap:soap:functions:mc-style", wsdlLocation = "file:/home/work/wumart/account.wsdl")
 public class ZBAPIMATERIALGETDETAIL_Service
     extends Service
 {
@@ -30,7 +30,7 @@ public class ZBAPIMATERIALGETDETAIL_Service
         URL url = null;
         WebServiceException e = null;
         try {
-            url = new URL("file:/Users/lixin-mac/Documents/account.wsdl");
+            url = new URL("file:/home/work/wumart/account.wsdl");
         } catch (MalformedURLException ex) {
             e = new WebServiceException(ex);
         }
