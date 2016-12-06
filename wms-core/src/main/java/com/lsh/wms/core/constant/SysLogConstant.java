@@ -46,7 +46,7 @@ public class SysLogConstant {
 
     public static final int LOG_STATUS_FAILED = 3;
 
-    public static final int LOG_STATUS_PART_FINISH = 4;
+    public static final int LOG_STATUS_THROW = 4;
 
     /** step 1 ibd创建成功 2 ibd过账成功 3 obd创建成功 4 obd过账成功 */
     public static final int LOG_STEP_INIT = 0;

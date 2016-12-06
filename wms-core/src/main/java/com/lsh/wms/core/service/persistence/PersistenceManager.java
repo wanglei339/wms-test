@@ -16,10 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class PersistenceManager {
     private static final Logger logger = LoggerFactory.getLogger(PersistenceManager.class);
 
-    public SysLog getSysLog(int type, Object data) throws BizCheckedException {
+    public SysLog getSysLog(int type, Object data,Integer targetSystem) throws BizCheckedException {
         SysLog sysLog = new SysLog();
         try {
             sysLog.setLogType(type);
+            sysLog.setTargetSystem(targetSystem);
             switch (type) {
 //                case SysLogConstant.LOG_TYPE_LOSS:
 //                    getStockChangeLog(data, sysLog);

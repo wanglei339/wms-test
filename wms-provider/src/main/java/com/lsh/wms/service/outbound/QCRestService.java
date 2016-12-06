@@ -74,25 +74,31 @@ public class QCRestService implements IQCRestService {
     public String getGroupDetailByStoreNo() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         String customerCode = mapQuery.get("customerCode").toString();
-        List<WaveDetail> waveDetails = qcRpcService.getQcWaveDetailsByStoreNo(customerCode);
-        List<TaskInfo> qcDoneTaskInfos = qcRpcService.getQcDoneTaskInfoByWaveDetails(waveDetails);
-        List<GroupRestResponse> groupRestResponses = new ArrayList<GroupRestResponse>();
-        if (qcDoneTaskInfos.size() > 0) {
-            for (TaskInfo info : qcDoneTaskInfos) {
-                GroupRestResponse response = new GroupRestResponse();
-                ObjUtils.bean2bean(info, response);
-                //余货
-                if (info.getFinishTime() < DateUtils.getTodayBeginSeconds()) {
-                    response.setIsRest(true);
-                }else {
-                    response.setIsRest(false);
-                }
-                //todo 贵品
-                response.setIsExpensive(false);
-                groupRestResponses.add(response);
-            }
+//        List<WaveDetail> waveDetails = qcRpcService.getQcWaveDetailsByStoreNo(customerCode);
+//        List<TaskInfo> qcDoneTaskInfos = qcRpcService.getQcDoneTaskInfoByWaveDetails(waveDetails);
+//        List<GroupRestResponse> groupRestResponses = new ArrayList<GroupRestResponse>();
+//        if (qcDoneTaskInfos.size() > 0) {
+//            for (TaskInfo info : qcDoneTaskInfos) {
+//                GroupRestResponse response = new GroupRestResponse();
+//                ObjUtils.bean2bean(info, response);
+//                //余货
+//                if (info.getFinishTime() < DateUtils.getTodayBeginSeconds()) {
+//                    response.setIsRest(true);
+//                }else {
+//                    response.setIsRest(false);
+//                }
+//                //todo 贵品
+//                response.setIsExpensive(false);
+//                groupRestResponses.add(response);
+//            }
+//        }
+//        return JsonUtils.SUCCESS(groupRestResponses);
+        Map<Long, Map<String, Object>> groupDetailByStoreNo = qcRpcService.getGroupDetailByStoreNo(customerCode);
+        List<Map<String, Object>> storeInfoContainerList = new ArrayList<Map<String, Object>>();
+        for (Long key : groupDetailByStoreNo.keySet()) {
+            storeInfoContainerList.add(groupDetailByStoreNo.get(key));
         }
-        return JsonUtils.SUCCESS(groupRestResponses);
+        return JsonUtils.SUCCESS(storeInfoContainerList);
     }
 
 

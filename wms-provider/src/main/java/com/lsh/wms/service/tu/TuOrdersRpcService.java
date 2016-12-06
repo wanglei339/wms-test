@@ -28,14 +28,11 @@ import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
-import com.lsh.wms.model.stock.StockQuant;
-import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.tu.TuDetail;
 import com.lsh.wms.model.tu.TuHead;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.config.Task;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -159,7 +156,7 @@ public class TuOrdersRpcService implements ITuOrdersRpcService {
             Map<String, BigDecimal> countMap = storeInfoCountMap.get(storeId);
             countMap.put("boxNum", countMap.get("boxNum").add(td.getBoxNum()));
             countMap.put("turnBoxNum", countMap.get("turnBoxNum").add(BigDecimal.valueOf(td.getTurnoverBoxNum())));
-            countMap.put("containerNum", countMap.get("containerNum").add(BigDecimal.ONE));//有一条记录,板数加1
+            countMap.put("containerNum", countMap.get("containerNum").add(BigDecimal.valueOf(td.getBoardNum())));//有一条记录,板数加1
         }
         //合并统计数据,重新封装店铺信息
         BigDecimal boxNumTotal = BigDecimal.ZERO;

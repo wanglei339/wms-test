@@ -33,6 +33,7 @@ import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.system.SysLog;
 import com.lsh.wms.model.tu.TuDetail;
 import com.lsh.wms.model.tu.TuEntry;
 import com.lsh.wms.model.tu.TuHead;
@@ -555,7 +556,13 @@ public class TuService {
             }
             soDeliveryService.insertOrder(header, realDetails);
             waveService.updateOrderStatus(header.getOrderId());
-            persistenceProxy.doOne(SysLogConstant.LOG_TYPE_OBD,header.getDeliveryId());
+            persistenceProxy.doOne(SysLogConstant.LOG_TYPE_OBD,header.getDeliveryId(),0);
+            //如果是物美的so单 则新增一条日志
+            Integer type = header.getDeliveryType();
+            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(header.getOrderId());
+            if(SoConstant.ORDER_TYPE_SO == type && CsiConstan.OWNER_WUMART == obdHeader.getOwnerUid()){
+                persistenceProxy.doOne(SysLogConstant.LOG_TYPE_OBD,header.getDeliveryId(), SysLogConstant.LOG_TARGET_LSHOFC);
+            }
         }
         //回写发货单的单号
         Set<Long> waveIds = new HashSet<Long>();

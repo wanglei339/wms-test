@@ -599,6 +599,19 @@ public class LocationService {
     }
 
     /**
+     * 获取差异区,一个仓库就一个
+     * @return
+     */
+    public BaseinfoLocation getDiffAreaLocation(){
+        List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.DIFF_AREA);
+        if (locations != null && locations.size() > 0) {
+            return locations.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * 根据库位的type和区域regionType查找
      *
      * @param type
@@ -713,6 +726,16 @@ public class LocationService {
      * @return
      */
     public BaseinfoLocation getNearestStorageByPicking(BaseinfoLocation pickingLocation) {
+        return this.getNearestStorageByPicking(pickingLocation, null);
+    }
+
+    /**
+     * 根据货架的拣货位获取货架的最近存货位,排除已计算过的locationId
+     * @param pickingLocation
+     * @param calcLocationIds
+     * @return
+     */
+    public BaseinfoLocation getNearestStorageByPicking(BaseinfoLocation pickingLocation, List<Long> calcLocationIds) {
         //获取相邻货架的所有拣货位,先获取当前货架,获取通道,货物相邻货架,然后获取
         BaseinfoLocation shelfLocationSelf = this.getShelfByLocationId(pickingLocation.getLocationId());    //获取货架
         //通道
@@ -726,7 +749,16 @@ public class LocationService {
         //无论是否存在相邻货架,将一个通道下的所有位置拿出来(必须保证货架个体的father必须是通道)
         passage = passageList.get(0);   //获取通道
         allNearShelfSubs = this.getStoreLocations(passage.getLocationId());
-        tempLocations.addAll(allNearShelfSubs);
+        // 排除已计算过的位置
+        if (calcLocationIds != null) {
+            for (BaseinfoLocation location: allNearShelfSubs) {
+                if (!calcLocationIds.contains(location.getLocationId())) {
+                    tempLocations.add(location);
+                }
+            }
+        } else {
+            tempLocations.addAll(allNearShelfSubs);
+        }
         //筛选相邻两货架间距离当前拣货位最近的存货位
         BaseinfoLocation nearestLocation = this.filterNearestBinAlgorithm(tempLocations, pickingLocation, shelfLocationSelf, BinUsageConstant.BIN_UASGE_STORE);
         return nearestLocation;

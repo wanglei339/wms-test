@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.zone.WorkZoneDao" >
+
+	<resultMap id="workZoneResultMap" type="WorkZone">
+		<id property="id" column="id"/>
+		<result property="zoneId" column="zone_id"/>
+		<result property="zoneCode" column="zone_code"/>
+		<result property="zoneName" column="zone_name"/>
+		<result property="locations" column="locations"/>
+		<result property="type" column="type"/>
+		<result property="status" column="status"/>
+		<result property="isValid" column="is_valid"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="WorkZone">
+		insert into work_zone (
+			zone_id,zone_code,zone_name,locations,type,status,
+			is_valid,created_at,updated_at
+    	) values (
+			#{zoneId},#{zoneCode},#{zoneName},#{locations},#{type},#{status},
+			#{isValid},#{createdAt},#{updatedAt}
+    	)
+	</insert>
+
+	<update id="update" parameterType="WorkZone">
+		update work_zone
+    	<set>
+  			<if test="zoneCode != null">zone_code=#{zoneCode},</if>
+  			<if test="zoneName != null">zone_name=#{zoneName},</if>
+  			<if test="locations != null">locations=#{locations},</if>
+  			<if test="type != null">type=#{type},</if>
+  			<if test="status != null">status=#{status},</if>
+  			<if test="isValid != null">is_valid=#{isValid},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where zone_id=#{zoneId}
+	</update>
+  
+	<select id="getWorkZoneById" parameterType="int" resultMap="workZoneResultMap">
+		select * from work_zone
+		where ID=#{id} 
+	</select>
+  
+	<select id="countWorkZone" parameterType="map" resultType="int">
+		select count(*) from work_zone
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getWorkZoneList" parameterType="map" resultMap="workZoneResultMap">
+		select * from work_zone
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="zoneId != null">and zone_id=#{zoneId}</if>
+			<if test="zoneCode != null">and zone_code=#{zoneCode}</if>
+			<if test="zoneName != null">and zone_name=#{zoneName}</if>
+			<if test="locations != null">and locations=#{locations}</if>
+			<if test="type != null">and type=#{type}</if>
+			<if test="status != null">and status=#{status}</if>
+			<if test="isValid != null">and is_valid=#{isValid}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>

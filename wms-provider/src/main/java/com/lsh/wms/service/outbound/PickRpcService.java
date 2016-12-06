@@ -52,7 +52,7 @@ public class PickRpcService implements IPCPickRpcService {
     private BaseTaskService baseTaskService;
 
     /**
-     * 获取托盘上的贵品的详情,用作贵品交付单
+     * 获取托盘上的贵品的详情,用作贵品交付单 PC 端 不涉及生命周期
      *
      * @param contaienrId
      * @return
@@ -60,9 +60,9 @@ public class PickRpcService implements IPCPickRpcService {
      */
     public Map<String, Object> getContainerGoods(Long contaienrId) throws BizCheckedException {
         //合板或者不和板
-        List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(contaienrId);
+        List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerIdPc(contaienrId);
         if (null == waveDetails || waveDetails.size() < 1) {
-            waveDetails = waveService.getWaveDetailsByMergedContainerId(contaienrId);
+            waveDetails = waveService.getWaveDetailsByMergedContainerIdPc(contaienrId);
         }
         if (null == waveDetails || waveDetails.size() < 1) {
             throw new BizCheckedException("2870044");

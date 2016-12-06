@@ -321,76 +321,22 @@ public class IbdService implements IIbdService {
     @POST
     @Path("test")
     public String Test() {
-        StockRequest request = new StockRequest();
-        request.setPlant("DC40");
-        request.setMoveType("551");
-        request.setStorageLocation("0001");
-        List<StockItem> items = new ArrayList<StockItem>();
-        StockItem item = new StockItem();
-        item.setEntryQnt("5.000");
-        item.setMaterialNo("000000000000581951");
-        item.setEntryUom("EA");
-        items.add(item);
-        request.setItems(items);
-        SysLog sysLog = new SysLog();
-        return dataBackService.wmDataBackByPost(JSON.toJSONString(request), IntegrationConstan.URL_STOCKCHANGE,5,sysLog);
-
-        //return wuMartSap.ibd2SapBack(new CreateIbdHeader());
-
-//        OutbSoHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(214580861081622l);
-//        //组装OBD反馈信息
-//        ObdBackRequest request = new ObdBackRequest();
-//        request.setPlant("DC37");//仓库
-//        request.setBusinessId(soHeader.getOrderOtherId());
-//        request.setOfcId(soHeader.getOrderOtherRefId());//参考单号
-//        request.setAgPartnNumber(soHeader.getOrderUserCode());//用户
-//
-//        //查询明细。
-//        List<OutbSoDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(214580861081622l);
-//        List<ObdItem> items = new ArrayList<ObdItem>();
-//
-//
-//        for (OutbSoDetail soDetail : soDetails){
-//            ObdItem soItem = new ObdItem();
-//            soItem.setMaterialNo(soDetail.getSkuCode());//skuCode
-//            soItem.setMeasuringUnit("EA");
-//            //soItem.setPrice(soDetail.getPrice());
-//            //转化成ea
-//            soItem.setQuantity(soDetail.getOrderQty().multiply(soDetail.getPackUnit()).setScale(3));
-//            soItem.setSendQuantity(soDetail.getOrderQty());
-//            //查询waveDetail找出实际出库的数量
-//            items.add(soItem);
-//        }
-//        //查询waveDetail找出实际出库的数量
+//        StockRequest request = new StockRequest();
+//        request.setPlant("DC40");
+//        request.setMoveType("551");
+//        request.setStorageLocation("0001");
+//        List<StockItem> items = new ArrayList<StockItem>();
+//        StockItem item = new StockItem();
+//        item.setEntryQnt("5.000");
+//        item.setMaterialNo("000000000000581951");
+//        item.setEntryUom("EA");
+//        items.add(item);
 //        request.setItems(items);
-//
-//        return ibdBackService.createOrderByPost(request, IntegrationConstan.URL_OBD);
+//        SysLog sysLog = new SysLog();
+//        return dataBackService.wmDataBackByPost(JSON.toJSONString(request), IntegrationConstan.URL_STOCKCHANGE,5,sysLog);
 
-
-//        ObdHeader soHeader = soOrderService.getOutbSoHeaderByOrderId(175578263067222L);
-//        //组装OBD反馈信息
-//        ObdOfcBackRequest request = new ObdOfcBackRequest();
-//        request.setDeliveryTime("2016-09-20");
-//        request.setObdCode(soHeader.getOrderId().toString());
-//        request.setSoCode(soHeader.getOrderOtherId());
-//        request.setWms(2);
-//        //查询明细。
-//        List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(175578263067222L);
-//        List<ObdOfcItem> items = new ArrayList<ObdOfcItem>();
-//
-//        for(ObdDetail detail : soDetails){
-//            ObdOfcItem item = new ObdOfcItem();
-//            item.setPackNum(detail.getPackUnit());
-//            item.setSkuQty(detail.getOrderQty());
-//            item.setSupplySkuCode(detail.getSkuCode());
-//            items.add(item);
-//
-//        }
-//        request.setDetails(items);
-
-        //return dataBackService.ofcDataBackByPost(JSON.toJSONString(request),IntegrationConstan.URL_LSHOFC_OBD);
-
-        //return "";
+        wuMartSap.stockMoving2Sap();
+        return null;
 
     }
 

@@ -176,6 +176,32 @@ public class PickTaskHandler extends AbsTaskHandler {
         taskEntry.setTaskDetailList((List<Object>)(List<?>)details);
     }
 
+    public void getOldConcrete(TaskEntry taskEntry) {
+        List<WaveDetail> pickTaskDetails = waveService.getDetailsByPickTaskIdPc(taskEntry.getTaskInfo().getTaskId());
+        List<Map<String, Object>> details = new ArrayList<Map<String, Object>>();
+
+        BigDecimal totalQty = new BigDecimal(0);
+
+        for (WaveDetail pickTaskDetail: pickTaskDetails) {
+            Map<String, Object> detail = BeanMapTransUtils.Bean2map(pickTaskDetail);
+            if (Long.valueOf(detail.get("pickAt").toString()) > 0) {
+                detail.put("pickStatus", 1);
+            } else {
+                detail.put("pickStatus", 0);
+            }
+            detail.put("allocQty", PackUtil.EAQty2UomQty(pickTaskDetail.getAllocQty(), pickTaskDetail.getAllocUnitName()));
+            detail.put("pickQty", PackUtil.EAQty2UomQty(pickTaskDetail.getPickQty(), pickTaskDetail.getAllocUnitName()));
+            /*CsiSupplier supplier = csiSupplierService.getSupplier(pickTaskDetail.getSupplierId());
+            detail.put("supplierCode", supplier.getSupplierCode());*/
+            details.add(detail);
+            totalQty = totalQty.add(pickTaskDetail.getAllocQty());
+        }
+        Map<String, Object> head = BeanMapTransUtils.Bean2map(pickTaskService.getPickTaskHead(taskEntry.getTaskInfo().getTaskId()));
+        head.put("totalQty", totalQty);
+        taskEntry.setTaskHead(head);
+        taskEntry.setTaskDetailList((List<Object>)(List<?>)details);
+    }
+
     public void getHeadConcrete(TaskEntry taskEntry) {
         taskEntry.setTaskHead(pickTaskService.getPickTaskHead(taskEntry.getTaskInfo().getTaskId()));
     }

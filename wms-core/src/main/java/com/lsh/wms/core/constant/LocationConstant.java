@@ -45,9 +45,9 @@ public class LocationConstant {
     public static final Long CONSUME_AREA = 25L;
     public static final Long SUPPLIER_AREA = 26L;
 
-    //货架层和阁楼货架层
-    public static final Long SHELF_LEVELS = 27L;
-    public static final Long LOFT_LEVELS = 28L;
+    //货架列和阁楼货架列
+    public static final Long SHELF_COLUMN = 27L;
+    public static final Long LOFT_COLUMN = 28L;
     //返仓区
     public static final Long MARKET_RETURN_AREA = 29L;
     //集货道组和集货道
@@ -58,8 +58,8 @@ public class LocationConstant {
     public static final Long SPLIT_AREA = 32L;
     //拆零货架
     public static final Long SPLIT_SHELF = 33L;
-    //拆零货架的层
-    public static final Long SPLIT_SHELF_LEVEL = 34L;
+    //拆零货架的列
+    public static final Long SPLIT_SHELF_COLUMN = 34L;
     //拆零存储一体货位
 //    public static final Long SPLIT_SHELF_BIN = 35L;
 
@@ -79,6 +79,8 @@ public class LocationConstant {
     public static final Long SUPPLIER_RETURN_LEVEL = 48L;    //供商退货货架层
 //    public static final Long SUPPLIER_RETURN_IN_BIN = 49L;  //供商退货入库位置(货架一层,方便取货)
 //    public static final Long SUPPLIER_RETURN_STORE_BIN = 50L;   //供商退货存储位置(一层往上)
+    //差异区 51
+    public static final Long DIFF_AREA = 51L;   //差异区
 
 
     //是否能存储
@@ -183,30 +185,31 @@ public class LocationConstant {
             put(24L, "残次货位");
             put(25L, "消费虚拟区");
             put(26L, "供货虚拟区");
-            put(27L, "货架层级");
-            put(28L, "阁楼货架层级");
+            put(27L, "货架列");
+            put(28L, "阁楼货架列");
             put(29L, "返仓区");
             put(30L, "集货道组");
             put(31L, "集货道");
             put(32L, "拆零区");
             put(33L, "拆零货架");
-            put(34L, "拆零货架层");
+            put(34L, "拆零货架列");
             put(35L, "存储一体货位");
-            put(36L, "货架层拣货块");
-            put(37L, "货架层存货块");
-            put(38L, "阁楼货架层拣货块");
-            put(39L, "阁楼货架层存货块");
-            put(40L, "贵品区");
-            put(41L, "贵品货架");
-            put(42L, "贵品货架层级");
-            put(43L, "贵品货位");
+//            put(36L, "货架层拣货块");
+//            put(37L, "货架层存货块");
+//            put(38L, "阁楼货架层拣货块");
+//            put(39L, "阁楼货架层存货块");
+//            put(40L, "贵品区");
+//            put(41L, "贵品货架");
+//            put(42L, "贵品货架层级");
+//            put(43L, "贵品货位");
             put(44L, "播种区");
             put(45L, "播种货位");
             put(46L, "供商直流退货区");
             put(47L, "供商直流退货货架");
-            put(48L, "直流退货货架层");
+            put(48L, "直流退货货架列");
             put(49L, "退货入库位");
             put(50L, "退货存储位");
+            put(51L, "差异区");
 
 
         }

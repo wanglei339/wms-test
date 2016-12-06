@@ -192,6 +192,10 @@ public class QCRestService implements IRFQCRestService {
             detail.put("itemId", item.getItemId());
             detail.put("code", item.getCode());
             detail.put("codeType", item.getCodeType());
+            //显示六位吗
+            detail.put("skuCode", item.getSkuCode());
+
+
             BigDecimal uomQty = PackUtil.EAQty2UomQty(mapItem2PickQty.get(itemId), waveDetail.getAllocUnitName());
             if (waveDetail.getAllocUnitName().compareTo("EA") == 0) {
                 hasEA = true;
@@ -417,6 +421,7 @@ public class QCRestService implements IRFQCRestService {
 
 
         //跳过qc明细,系统默认拣货量和qc量相等
+        qcTaskInfo.setSubType(TaskConstant.QC_TYPE_QC_GROUP);
         if (skip) {
             for (WaveDetail detail : details) {
                 detail.setQcQty(detail.getPickQty()); //先默认qc数量是正常的
@@ -425,6 +430,8 @@ public class QCRestService implements IRFQCRestService {
                 detail.setQcException(WaveConstant.QC_EXCEPTION_NORMAL);  // 正常不需要处理
                 waveService.updateDetail(detail);
             }
+            //qc的方式  qc的类型  显示 PC的列表页   QC 的状态   只组盘 未QC加组盘
+            qcTaskInfo.setSubType(TaskConstant.QC_TYPE_ONLY_GROUP);
         }
         //校验qc任务是否完全完成;
         boolean bSucc = true;

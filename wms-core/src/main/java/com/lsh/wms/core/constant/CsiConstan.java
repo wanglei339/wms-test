@@ -23,4 +23,12 @@ public class CsiConstan {
      * 货架商品保质期阈值
      */
     public static final Long SHELF_LIFE_THRESHOLD = 100L;
+
+    /**
+     * 货主 1 wumart 2 lsh
+     */
+    public static final Long OWNER_WUMART = 1L;
+
+    public static final Long OWNER_LSH = 1L;
+
 }

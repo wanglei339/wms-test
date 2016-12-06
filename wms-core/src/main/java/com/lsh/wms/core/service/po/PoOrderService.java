@@ -241,6 +241,14 @@ public class PoOrderService {
      * @param skuCode
      * @return
      */
+    public List<IbdDetail> getInbPoDetailListByOrderIdAndSkuCode(Long orderId, String skuCode) {
+        Map<String, Object> params = new HashMap<String, Object>();
+
+        params.put("orderId", orderId);
+        params.put("skuCode", skuCode);
+
+        return getInbPoDetailList(params);
+    }
     public IbdDetail getInbPoDetailByOrderIdAndSkuCode(Long orderId, String skuCode) {
         Map<String, Object> params = new HashMap<String, Object>();
 
@@ -335,12 +343,24 @@ public class PoOrderService {
         List<IbdObdRelation> list = ibdObdRelationDao.getIbdObdRelationList(map);
         return list;
     }
+    public List<IbdObdRelation> getIbdObdRelationList(String ibdOtherId, ArrayList<String> ibdDetailIdList){
+        List<IbdObdRelation> relationList = new ArrayList<IbdObdRelation>();
+
+        Map<String,Object> params = new HashMap<String, Object>();
+        params.put("ibdOtherId",ibdOtherId);
+        for(String ibdDetailOtherId : ibdDetailIdList){
+            params.put("ibdDetailId",ibdDetailOtherId);
+            relationList.addAll(ibdObdRelationDao.getIbdObdRelationList(params));
+        }
+        return relationList;
+    }
     /**
      * 根据传入参数获取IbdObdRelation列表
      */
     public List<IbdObdRelation> getIbdObdRelationList(Map<String,Object> params){
         return ibdObdRelationDao.getIbdObdRelationList(params);
     }
+
 
     /**
      *

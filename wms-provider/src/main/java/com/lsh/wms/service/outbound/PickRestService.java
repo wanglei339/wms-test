@@ -66,7 +66,7 @@ public class PickRestService implements IPCPickRestService {
         Map<Long, PickZone> mapZone = new HashMap<Long, PickZone>();
         for (Object id : pickTaskIds) {
             Long taskId = Long.valueOf(id.toString());
-            TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
+            TaskEntry entry = iTaskRpcService.getOldTaskEntryById(taskId);  //FIXME 前端展示使用,不考虑生命周期
             List<Map<String, Object>> details = (List<Map<String, Object>>) (List<?>) entry.getTaskDetailList();
             Map<String, Object> head = (Map<String, Object>) entry.getTaskHead();
             head.put("lineCount", details.size());
