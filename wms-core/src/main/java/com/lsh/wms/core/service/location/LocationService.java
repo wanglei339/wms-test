@@ -612,6 +612,31 @@ public class LocationService {
     }
 
     /**
+     * 获取so订单占用区(在库),一个仓库就一个
+     * @return
+     */
+    public BaseinfoLocation getSoAreaInbound(){
+        List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.SO_INBOUND_AREA);
+        if (locations != null && locations.size() > 0) {
+            return locations.get(0);
+        } else {
+            return null;
+        }
+    }
+    /**
+     * 获取so订单占用区(直流),一个仓库就一个
+     * @return
+     */
+    public BaseinfoLocation getSoAreaDirect(){
+        List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.SO_DIRECT_AREA);
+        if (locations != null && locations.size() > 0) {
+            return locations.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * 根据库位的type和区域regionType查找
      *
      * @param type

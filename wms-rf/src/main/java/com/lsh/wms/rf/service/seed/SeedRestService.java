@@ -16,6 +16,7 @@ import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.system.IExceptionCodeRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.constant.TaskConstant;
@@ -126,6 +127,8 @@ public class SeedRestService implements ISeedRestService {
 
     @Autowired
     SoOrderService soOrderService;
+    @Autowired
+    CsiSkuService skuService;
 
     @Autowired
     SeedTaskHeadService seedTaskHeadService;
@@ -283,6 +286,7 @@ public class SeedRestService implements ISeedRestService {
             TaskInfo info = entry.getTaskInfo();
             //判断商品类型，如例外代码校验通过，则不校验
               //校验例外代码
+            List<StockQuant> stockQuants = quantService.getQuantsByContainerId(containerId);
             if(mapQuery.get("exceptionCode")!=null && !mapQuery.get("exceptionCode").toString().equals("")) {
                 String exceptionCode = iExceptionCodeRpcService.getExceptionCodeByName("seed");
                 if(!exceptionCode.equals(mapQuery.get("exceptionCode").toString())){
@@ -291,7 +295,7 @@ public class SeedRestService implements ISeedRestService {
                 is_use_code = true;
             }else {
                 //校验商品类型
-                List<StockQuant> stockQuants = quantService.getQuantsByContainerId(containerId);
+
                 if(stockQuants!=null && stockQuants.size()!=0){
                     StockQuant quant = stockQuants.get(0);
                     BaseinfoItem oldItem = itemService.getItem(quant.getItemId());
@@ -299,6 +303,16 @@ public class SeedRestService implements ISeedRestService {
                     if(oldItem.getItemType().compareTo(newItem.getItemType())!=0){
                         return JsonUtils.TOKEN_ERROR("商品类型不一样，不能播种到同一托盘");
                     }
+                }
+            }
+
+            //校验贵品
+            if(stockQuants!=null && stockQuants.size()!=0){
+                StockQuant quant = stockQuants.get(0);
+                BaseinfoItem oldItem = itemService.getItem(quant.getItemId());
+                BaseinfoItem newItem = itemService.getItem(info.getItemId());
+                if(oldItem.getIsValuable().compareTo(newItem.getIsValuable())!=0){
+                    return JsonUtils.TOKEN_ERROR("贵品和普通商品不能播种到同一托盘");
                 }
             }
 
@@ -318,7 +332,7 @@ public class SeedRestService implements ISeedRestService {
 
 
             //手动播种
-            if(info.getIsShow()==0 ){
+            if(info.getIsShow()==0){
                 String storeNo =  mapQuery.get("storeNo").toString();
                 List<SeedingTaskHead> heads = seedTaskHeadService.getHeadByOrderIdAndStoreNo(info.getOrderId(),storeNo);
                 if(heads==null){
@@ -400,27 +414,34 @@ public class SeedRestService implements ISeedRestService {
                     iTaskRpcService.create(TaskConstant.TYPE_SEED, entry);
                 }
                 iTaskRpcService.done(head.getTaskId());
-                if(head.getTaskId().compareTo(taskId)==0) {
-                    mapQuery.put("type",1);
-                    mapQuery.put("orderId", info.getOrderId());
-                    CsiSku sku = csiSkuService.getSku(info.getSkuId());
-                    mapQuery.put("barcode", sku.getCode());
-                    mapQuery.put("containerId", info.getContainerId());
-                    taskId = rpcService.getTask(mapQuery);
-                    if (taskId == null || taskId == 0L) {
-                        return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
-                            {
-                                put("response", true);
-                            }
-                        });
-                    }
-                }
-                final String finalTaskId = taskId.toString();
-                return JsonUtils.SUCCESS(new HashMap<String, String>() {
-                    {
-                        put("taskId", finalTaskId);
-                    }
-                });
+
+//                if(head.getTaskId().compareTo(taskId)==0) {
+//                    mapQuery.put("type",1);
+//                    mapQuery.put("orderId", info.getOrderId());
+//                    CsiSku sku = csiSkuService.getSku(info.getSkuId());
+//                    mapQuery.put("barcode", sku.getCode());
+//                    mapQuery.put("containerId", info.getContainerId());
+//                    taskId = rpcService.getTask(mapQuery);
+//                    if (taskId == null || taskId == 0L) {
+//                        return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+//                            {
+//                                put("response", true);
+//                            }
+//                        });
+//                    }
+//                }
+//                final String finalTaskId = taskId.toString();
+//                return JsonUtils.SUCCESS(new HashMap<String, String>() {
+//                    {
+//                        put("taskId", finalTaskId);
+//                    }
+//                });
+                Map<String,Object> params = new HashMap<String, Object>();
+                params.put("orderId",head.getOrderId());
+                params.put("skuId",head.getSkuId());
+                List<Map> taskInfo =  seedProveiderRpcService.getStoreList(params);
+                result.put("storeInfo",taskInfo);
+                return JsonUtils.SUCCESS(result);
 
             }
 
@@ -621,28 +642,43 @@ public class SeedRestService implements ISeedRestService {
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String view() throws BizCheckedException {
         Long taskId = 0L;
-        String storeNo = "";
+        Long containerId = 0L;
+        Long uId = 0L;
         Map<String, Object> mapQuery = RequestUtils.getRequest();
-        Map<String,Object> result = new HashMap<String, Object>();
+        Map<String, Object> result = new HashMap<String, Object>();
         try {
-            storeNo =  mapQuery.get("storeNo").toString();
+            containerId = Long.valueOf(mapQuery.get("containerId").toString());
             taskId = Long.valueOf(mapQuery.get("taskId").toString());
-        }catch (Exception e) {
+            uId = Long.valueOf(RequestUtils.getHeader("uid"));
+        } catch (Exception e) {
             logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("参数传递格式有误");
         }
 
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
-        if(entry==null){
+        if (entry == null) {
             return JsonUtils.TOKEN_ERROR("播种任务不存在");
         }
-        List<SeedingTaskHead> heads = seedTaskHeadService.getHeadByOrderIdAndStoreNo(entry.getTaskInfo().getOrderId(), storeNo);
-        if(heads==null || heads.size()==0){
+        SeedingTaskHead head = seedTaskHeadService.getHeadByTaskId(taskId);
+        if (head == null) {
             return JsonUtils.TOKEN_ERROR("该门店不存在播种任务");
         }
-        SeedingTaskHead head = heads.get(0);
         TaskInfo info = iTaskRpcService.getTaskInfo(head.getTaskId());
-
+        if(info.getSubType().equals(1)) {
+            if (containerId.equals(0L)) {
+                Map<String, Object> queryMap = new HashMap<String, Object>();
+                queryMap.put("operator", uId);
+                queryMap.put("status", TaskConstant.Done);
+                queryMap.put("orderBy", "finishTime");
+                queryMap.put("orderType", "desc");
+                List<TaskInfo> infos = baseTaskService.getTaskInfoList(queryMap);
+                info.setContainerId(infos.get(0).getContainerId());
+            } else {
+                info.setContainerId(info.getContainerId());
+            }
+            baseTaskService.update(info);
+        }
+        iTaskRpcService.assign(info.getTaskId(),uId);
         //判断能否整除
         BigDecimal [] decimals = head.getRequireQty().divideAndRemainder(info.getPackUnit());
         if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
@@ -657,6 +693,90 @@ public class SeedRestService implements ISeedRestService {
         result.put("taskId", taskId.toString());
         result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
         result.put("itemId", info.getItemId());
+        return JsonUtils.SUCCESS(result);
+    }
+    /**
+     * 根据国条查找未投单的订单
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("getOrderList")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String getOrderList() throws BizCheckedException {
+        String barcode = "";
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Map<String,Object> result = new HashMap<String, Object>();
+        try {
+           barcode =  mapQuery.get("barcode").toString().trim();
+        }catch (Exception e) {
+            logger.error(e.getMessage());
+            return JsonUtils.TOKEN_ERROR("参数传递格式有误");
+        }
+        List<String> orderList = seedProveiderRpcService.getOrderList(barcode);
+        result.put("orderList",orderList);
+        return JsonUtils.SUCCESS(result);
+    }
+    /**
+     * 根据国条和orderId,和大小店类型查找需要播种的门店
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("getStoreList")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String getStoreList() throws BizCheckedException {
+        Long containerId = 0l;
+        //实际是orderOtherId
+        String orderId = "";
+        String barcode = "";
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Map<String,Object> result = new HashMap<String, Object>();
+        try {
+            orderId =  mapQuery.get("orderId").toString().trim();
+            if(mapQuery.containsKey("containerId")){
+                containerId = Long.valueOf(mapQuery.get("containerId").toString().trim());
+            }
+            barcode =  mapQuery.get("barcode").toString().trim();
+        }catch (Exception e) {
+            logger.error(e.getMessage());
+            return JsonUtils.TOKEN_ERROR("参数传递格式有误");
+        }
+        if(containerId.equals(0L)) {
+            IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(orderId.toString().trim());
+            if (ibdHeader == null) {
+                throw new BizCheckedException("2020001");
+            }
+            CsiSku sku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode);
+            if(sku==null){
+                throw new BizCheckedException("2880001");
+            }
+            mapQuery.put("orderId", ibdHeader.getOrderId());
+            mapQuery.put("skuId",sku.getSkuId());
+            seedProveiderRpcService.createTask(mapQuery);
+        }else {
+            StockQuantCondition condition = new StockQuantCondition();
+            condition.setContainerId(containerId);
+            List<StockQuant> quants = quantRpcService.getQuantList(condition);
+            if(quants==null || quants.size()==0){
+                throw new BizCheckedException("2880003");
+            }
+            StockQuant quant = quants.get(0);
+            BaseinfoLocation location = locationRpcService.getLocation(quant.getLocationId());
+            if(location.getType().compareTo(LocationConstant.TEMPORARY)!=0){
+                return JsonUtils.TOKEN_ERROR("该托盘不在暂存区，不能播种");
+            }
+            if(location.getRegionType().compareTo(LocationConstant.SOW_AREA)==0||location.getType().compareTo(LocationConstant.SOW_AREA)==0){
+                return JsonUtils.TOKEN_ERROR("该托盘在播种区，不能播种");
+            }
+            StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
+            mapQuery.put("orderId",lot.getPoId());
+            mapQuery.put("skuId",quant.getSkuId());
+        }
+        List<Map> taskInfo =  seedProveiderRpcService.getStoreList(mapQuery);
+        result.put("storeInfo",taskInfo);
         return JsonUtils.SUCCESS(result);
     }
 }

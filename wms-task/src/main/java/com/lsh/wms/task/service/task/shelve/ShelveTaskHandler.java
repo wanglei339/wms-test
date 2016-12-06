@@ -152,9 +152,8 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         taskService.assign(taskId, staffId, targetLocation.getLocationId());
         // 锁location
         locationService.lockLocation(targetLocation.getLocationId());
-        // move到仓库location_id
-        stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, taskInfo.getFromLocationId(), locationService.getWarehouseLocation().getLocationId());
-        //iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, taskInfo.getFromLocationId(), locationService.getWarehouseLocationId());
+        // move到仓库location_id(移动中占用暂存区,注释掉)
+        //stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, staffId, taskInfo.getFromLocationId(), locationService.getWarehouseLocation().getLocationId());
     }
 
     public void doneConcrete(Long taskId, Long locationId) throws BizCheckedException{
@@ -171,8 +170,8 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         }
         // 实际上架位置和分配位置不一致
         if (!locationId.equals(taskHead.getAllocLocationId())) {
-            // 拣货位
             if (realLocation.getRegionType().equals(LocationConstant.SHELFS) && realLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)) {
+                // 拣货位
                 // 检查是否是该商品的拣货位
                 Map<String, Object> params = new HashMap<String, Object>();
                 params.put("itemId", itemId);
@@ -182,9 +181,8 @@ public class ShelveTaskHandler extends AbsTaskHandler {
                 if (itemLocations.size() < 1) {
                     throw new BizCheckedException("2030017");
                 }
-            }
-            // 存货位
-            if (realLocation.getRegionType().equals(LocationConstant.SHELFS) && realLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)) {
+            } else if (realLocation.getRegionType().equals(LocationConstant.SHELFS) && realLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)) {
+                // 存货位
                 // 检查是否有库存
                 List<StockQuant> stockQuants = stockQuantService.getQuantsByLocationId(locationId);
                 if (stockQuants.size() > 0) {
@@ -194,14 +192,16 @@ public class ShelveTaskHandler extends AbsTaskHandler {
                 if (locationService.checkLocationLockStatus(locationId)) {
                     throw new BizCheckedException("2030011");
                 }
-            }
-            // 地堆
-            if (realLocation.getType().equals(LocationConstant.BIN) && realLocation.getBinUsage().equals(BinUsageConstant.BIN_FLOOR_STORE)) {
+            } else if (realLocation.getType().equals(LocationConstant.BIN) && realLocation.getBinUsage().equals(BinUsageConstant.BIN_FLOOR_STORE)) {
+                // 地堆
                 // 判断是否为同一批次的
                 List<StockQuant> stockQuants = stockQuantService.getQuantsByLocationId(locationId);
                 if (!lotId.equals(stockQuants.get(0).getLotId())) {
                     throw new BizCheckedException("2030019");
                 }
+            } else {
+                // 其他位置不可上架
+                throw new BizCheckedException("2030020");
             }
             // 检查位置使用状态
             if (realLocation.getCanUse().equals(0)) {
@@ -213,11 +213,11 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         if (realLocation.getType().equals(LocationConstant.BIN) && realLocation.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
             List<StockQuant> quants = stockQuantService.getQuantsByLocationId(locationId);
             if (quants.isEmpty()) {
-                stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), locationService.getWarehouseLocation().getLocationId(), locationId);
+                stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), taskInfo.getFromLocationId(), locationId);
                 //iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
             } else {
                 Long containerId = quants.get(0).getContainerId();
-                stockMoveService.moveWholeContainer(taskHead.getContainerId(), containerId, taskId, taskHead.getOperator(), locationService.getWarehouseLocation().getLocationId(), locationId);
+                stockMoveService.moveWholeContainer(taskHead.getContainerId(), containerId, taskId, taskHead.getOperator(), taskInfo.getFromLocationId(), locationId);
                 //iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), containerId, taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
             }
         } else if (realLocation.getType().equals(LocationConstant.BIN) && realLocation.getBinUsage().equals(BinUsageConstant.BIN_FLOOR_STORE)) {
@@ -229,10 +229,10 @@ public class ShelveTaskHandler extends AbsTaskHandler {
             } else {
                 containerId = quants.get(0).getContainerId();
             }
-            stockMoveService.moveWholeContainer(taskHead.getContainerId(), containerId, taskId, taskHead.getOperator(), locationService.getWarehouseLocation().getLocationId(), locationId);
+            stockMoveService.moveWholeContainer(taskHead.getContainerId(), containerId, taskId, taskHead.getOperator(), taskInfo.getFromLocationId(), locationId);
             //iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), containerId, taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
         } else {
-            stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), locationService.getWarehouseLocation().getLocationId(), locationId);
+            stockMoveService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), taskInfo.getFromLocationId(), locationId);
             //iStockMoveRpcService.moveWholeContainer(taskHead.getContainerId(), taskId, taskHead.getOperator(), locationService.getWarehouseLocationId(), locationId);
         }
         taskService.done(taskId, locationId);

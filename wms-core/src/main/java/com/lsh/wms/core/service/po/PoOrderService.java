@@ -409,6 +409,16 @@ public class PoOrderService {
             ibdObdRelationDao.insert(ibdObdRelation);
         }
     }
+
+    @Transactional(readOnly = false)
+    public void updateStatusTOthrow(Integer oldStatus,Integer newStatue,Long intervalTime){
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("oldOrderStatus", oldStatus);
+        params.put("newOrderStatus",newStatue);
+        params.put("throwAt",intervalTime);
+        ibdHeaderDao.updateStatusTOthrow(params);
+    }
+
     /**
      * 根据barcode查询order
      * @param skuCode
@@ -434,8 +444,5 @@ public class PoOrderService {
 
         return ibdHeaders;
     }
-
-
-
 
 }

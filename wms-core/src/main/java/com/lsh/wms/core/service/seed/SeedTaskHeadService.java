@@ -49,9 +49,21 @@ public class SeedTaskHeadService {
         mapQuery.put("storeNo", storeNo);
         return headDao.getSeedingTaskHeadList(mapQuery);
     }
+    public List<SeedingTaskHead> getDistinctHeadList(Map<String,Object> queryMap) {
+
+        List<SeedingTaskHead> heads  = headDao.getDistinctTaskHeadList(queryMap);
+        if(heads==null){
+            return new ArrayList<SeedingTaskHead>();
+        }
+        return heads;
+    }
     public List<SeedingTaskHead> getHeadList(Map<String,Object> queryMap) {
 
-        return headDao.getDistinctTaskHeadList(queryMap);
+        List<SeedingTaskHead> heads  = headDao.getSeedingTaskHeadList(queryMap);
+        if(heads==null){
+            return new ArrayList<SeedingTaskHead>();
+        }
+        return heads;
     }
     public Integer countHead(Map<String,Object> mapQuery) {
         return headDao.countDistinctTaskHead(mapQuery);

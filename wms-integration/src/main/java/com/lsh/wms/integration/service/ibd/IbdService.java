@@ -385,8 +385,10 @@ public class IbdService implements IIbdService {
 
 //        header.setItems(details);
 //        wuMartSap.ibd2Sap(header);
-        wuMartSap.soObd2Sap(new CreateObdHeader());
-        return "";
+//        wuMartSap.soObd2Sap(new CreateObdHeader());
+//        return "";
+        return wuMartSap.map2Sap();
+
         //return wuMartSap.ibd2SapAccount(header,null);
         //wuMart.sendIbd(header);
         //wuMartSap.ibd2SapAccount(header,"");
