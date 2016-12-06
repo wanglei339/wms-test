@@ -81,6 +81,10 @@ public class LocationConstant {
 //    public static final Long SUPPLIER_RETURN_STORE_BIN = 50L;   //供商退货存储位置(一层往上)
     //差异区 51
     public static final Long DIFF_AREA = 51L;   //差异区
+    //so订单占用区(在库) 52
+    public static final Long SO_INBOUND_AREA = 52L;
+    //so订单占用区(直流) 53
+    public static final Long SO_DIRECT_AREA = 53L;
 
 
     //是否能存储
@@ -210,6 +214,8 @@ public class LocationConstant {
             put(49L, "退货入库位");
             put(50L, "退货存储位");
             put(51L, "差异区");
+            put(52L, "so订单占用区(在库)");
+            put(53L, "so订单占用区(直流)");
 
 
         }

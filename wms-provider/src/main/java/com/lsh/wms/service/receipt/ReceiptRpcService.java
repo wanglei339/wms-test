@@ -318,7 +318,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 //move.setQty(inbReceiptDetail.getInboundQty());
                 move.setQty(inboundUnitQty);
                 move.setItemId(inbReceiptDetail.getItemId());
-                move.setOperator(inbReceiptHeader.getStaffId());
+                move.setOperator(Long.valueOf(inbReceiptHeader.getReceiptUser()));
                 move.setTaskId(taskId);
 
                 Map<String, Object> moveInfo = new HashMap<String, Object>();
@@ -514,7 +514,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 }
                 move.setFromLocationId(locationList.get(0).getLocationId());
                 move.setToLocationId(inbReceiptHeader.getLocation());
-                move.setOperator(inbReceiptHeader.getStaffId());
+                move.setOperator(Long.valueOf(inbReceiptHeader.getReceiptUser()));
                 move.setToContainerId(inbReceiptHeader.getContainerId());
 //                //qty转化为ea
 //                BigDecimal qty = inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit());
@@ -1054,7 +1054,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             StockMove move = new StockMove();
             move.setFromLocationId(locationService.getLocationsByType(LocationConstant.SUPPLIER_AREA).get(0).getLocationId());
             move.setToLocationId(inbReceiptHeader.getLocation());
-            move.setOperator(inbReceiptHeader.getStaffId());
+            move.setOperator(Long.valueOf(inbReceiptHeader.getReceiptUser()));
             move.setToContainerId(inbReceiptHeader.getContainerId());
 //            //qty转化为ea
 //            BigDecimal qty = inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit());
@@ -1089,7 +1089,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
             taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
             taskInfo.setContainerId(inbReceiptHeader.getContainerId());
             taskInfo.setItemId(inbReceiptDetailList.get(0).getItemId());
-            taskInfo.setOperator(inbReceiptHeader.getStaffId());
+            //改为uid
+            taskInfo.setOperator(Long.valueOf(inbReceiptHeader.getReceiptUser()));
             taskEntry.setTaskInfo(taskInfo);
             taskId = iTaskRpcService.create(TaskConstant.TYPE_PO, taskEntry);
             iTaskRpcService.done(taskId);
