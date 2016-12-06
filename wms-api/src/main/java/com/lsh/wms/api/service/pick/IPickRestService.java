@@ -10,4 +10,5 @@ public interface IPickRestService {
     String scanPickLocation() throws BizCheckedException;
     String restore() throws BizCheckedException;
     String splitNewPickTask() throws BizCheckedException;
+    String getPickQuantQty() throws BizCheckedException;
 }

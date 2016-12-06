@@ -114,9 +114,11 @@ public class ShelveTaskService extends BaseTaskService {
             calcLocationIds = new ArrayList<Long>();
         }
         BaseinfoLocation nextLocation = locationService.getNearestStorageByPicking(pickingLocation, calcLocationIds);
-        calcLocationIds.add(nextLocation.getLocationId());
-        taskHead.setCalcLocationIds(JSON.toJSONString(calcLocationIds));
-        taskHeadDao.update(taskHead);
+        if (nextLocation != null) {
+            calcLocationIds.add(nextLocation.getLocationId());
+            taskHead.setCalcLocationIds(JSON.toJSONString(calcLocationIds));
+            taskHeadDao.update(taskHead);
+        }
         return nextLocation;
     }
 }

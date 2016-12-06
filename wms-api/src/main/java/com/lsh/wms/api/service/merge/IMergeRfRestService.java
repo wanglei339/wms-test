@@ -8,4 +8,5 @@ import com.lsh.base.common.exception.BizCheckedException;
 public interface IMergeRfRestService {
     String mergeContainers() throws BizCheckedException;
     String checkMergeContainers() throws BizCheckedException;
+    String checkMergeStatus() throws BizCheckedException;
 }
