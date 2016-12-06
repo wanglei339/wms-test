@@ -172,6 +172,9 @@
 		<if test=' "taskOrder".equals(orderBy)  and  "desc".equals(orderType)'>
 			ORDER BY  task_order DESC
 		</if>
+		<if test=' "finishTime".equals(orderBy)  and  "desc".equals(orderType)'>
+			ORDER BY  finish_time DESC
+		</if>
 		<if test=" 'status'.equals(orderBy)  and 'desc'.equals(orderType)">
 			ORDER BY  status DESC
 		</if>
@@ -186,6 +189,9 @@
 		</if>
 		<if test=" 'taskOrder'.equals(orderBy)  and  'asc'.equals(orderType)">
 			ORDER BY  task_order ASC
+		</if>
+		<if test=" 'finishTime'.equals(orderBy)  and  'asc'.equals(orderType)">
+			ORDER BY  finish_time ASC
 		</if>
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}

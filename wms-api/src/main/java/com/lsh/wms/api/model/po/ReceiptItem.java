@@ -46,6 +46,8 @@ public class ReceiptItem implements Serializable {
     @Size(max=100)
     private String madein = "";
 
+    private String detailotherId;
+
     /** 实际收货数 */
     @NotNull
     private BigDecimal inboundQty = BigDecimal.ZERO;
@@ -269,5 +271,13 @@ public class ReceiptItem implements Serializable {
 
     public void setSkuCode(String skuCode) {
         this.skuCode = skuCode;
+    }
+
+    public String getDetailotherId() {
+        return detailotherId;
+    }
+
+    public void setDetailotherId(String detailotherId) {
+        this.detailotherId = detailotherId;
     }
 }

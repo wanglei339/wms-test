@@ -23,7 +23,7 @@ import java.util.Map;
 @Component
 @Transactional(readOnly = true)
 public class PickModelService {
-    private static final Logger logger = LoggerFactory.getLogger(PickZoneService.class);
+    private static final Logger logger = LoggerFactory.getLogger(PickModelService.class);
 
     @Autowired
     PickModelDao modelDao;

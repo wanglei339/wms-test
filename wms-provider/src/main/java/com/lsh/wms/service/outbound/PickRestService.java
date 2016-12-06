@@ -10,10 +10,10 @@ import com.lsh.wms.api.service.pick.IPickRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.location.LocationService;
-import com.lsh.wms.core.service.pick.PickZoneService;
+import com.lsh.wms.core.service.zone.WorkZoneService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.model.pick.PickTaskHead;
-import com.lsh.wms.model.pick.PickZone;
+import com.lsh.wms.model.zone.WorkZone;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
@@ -41,7 +41,7 @@ public class PickRestService implements IPCPickRestService {
     @Autowired
     SoOrderService orderService;
     @Autowired
-    PickZoneService pickZoneService;
+    WorkZoneService workZoneService;
     @Reference
     IPCPickRpcService ipcPickRpcService;
 
@@ -63,7 +63,7 @@ public class PickRestService implements IPCPickRestService {
             }
         }
         List<Map<String, Object>> taskInfoList = new LinkedList<Map<String, Object>>();
-        Map<Long, PickZone> mapZone = new HashMap<Long, PickZone>();
+        Map<Long, WorkZone> mapZone = new HashMap<Long, WorkZone>();
         for (Object id : pickTaskIds) {
             Long taskId = Long.valueOf(id.toString());
             TaskEntry entry = iTaskRpcService.getOldTaskEntryById(taskId);  //FIXME 前端展示使用,不考虑生命周期
@@ -72,12 +72,12 @@ public class PickRestService implements IPCPickRestService {
             head.put("lineCount", details.size());
             head.put("deliveryName", orderService.getOutbSoHeaderByOrderId(Long.valueOf(details.get(0).get("orderId").toString())).getDeliveryName());
             Long pickZoneId = head.get("pickZoneId") == null ? 0 : Long.valueOf(head.get("pickZoneId").toString());
-            PickZone zone = mapZone.get(pickZoneId);
+            WorkZone zone = mapZone.get(pickZoneId);
             if (pickZoneId != 0 && zone == null) {
-                zone = pickZoneService.getPickZone(pickZoneId);
+                zone = workZoneService.getWorkZone(pickZoneId);
                 mapZone.put(pickZoneId, zone);
             }
-            head.put("pickZoneName", zone == null ? "" : zone.getPickZoneName());
+            head.put("pickZoneName", zone == null ? "" : zone.getZoneName());
             taskInfoList.add(head);
         }
         return JsonUtils.SUCCESS(taskInfoList);

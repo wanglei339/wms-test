@@ -182,6 +182,10 @@ public class PoRpcService implements IPoRpcService {
             ibdHeader.setOrderId(Long.valueOf(String.valueOf(map.get("orderId"))));
         }
         ibdHeader.setOrderStatus(Integer.valueOf(String.valueOf(map.get("orderStatus"))));
+        if(ibdHeader.getOrderStatus() == PoConstant.ORDER_THROW){
+            //投单时,记录投单时间
+            ibdHeader.setThrowAt(DateUtils.getCurrentSeconds());
+        }
         poOrderService.updateInbPoHeaderByOrderOtherIdOrOrderId(ibdHeader);
 
         return true;
@@ -282,6 +286,14 @@ public class PoRpcService implements IPoRpcService {
 
         }
         return list;
+    }
+    /**
+      修改投单状态,由待收货改为待投单
+     intervalTime 修改间隔时间,单位小时
+     */
+    public void updateStatusTOthrow(Long intervalTime){
+        Long time = intervalTime * 60 * 60;
+        poOrderService.updateStatusTOthrow(PoConstant.ORDER_THROW,PoConstant.ORDER_DELIVERY,time);
     }
 
 }

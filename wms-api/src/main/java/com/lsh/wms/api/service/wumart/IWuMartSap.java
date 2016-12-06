@@ -24,6 +24,8 @@ public interface IWuMartSap {
 
     String stockMoving2Sap();
 
+    String map2Sap();
+
 
 
 

@@ -10,4 +10,6 @@ public interface ISeedRestService {
     String scanContainer() throws BizCheckedException;
     String restore() throws BizCheckedException;
     String view() throws BizCheckedException;
+    String getOrderList() throws BizCheckedException;
+    String getStoreList() throws BizCheckedException;
 }
