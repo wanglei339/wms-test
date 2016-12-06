@@ -22,7 +22,7 @@ import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.pick.PickModelService;
-import com.lsh.wms.core.service.pick.PickZoneService;
+import com.lsh.wms.core.service.zone.WorkZoneService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.wave.WaveService;
@@ -65,7 +65,7 @@ public class WaveRestService implements IWaveRestService {
     @Autowired
     private SoOrderService soOrderService;
     @Autowired
-    private PickZoneService zoneService;
+    private WorkZoneService workZoneService;
     @Autowired
     private PickModelService modelService;
     @Autowired
@@ -242,43 +242,6 @@ public class WaveRestService implements IWaveRestService {
     }
 
     @POST
-    @Path("getPickzoneList")
-    public String getPickzoneList(Map<String, Object> mapQuery) {
-        return JsonUtils.SUCCESS(zoneService.getPickZoneList(mapQuery));
-    }
-
-    @POST
-    @Path("getPickzoneCount")
-    public String getPickzoneCount(Map<String, Object> mapQuery) {
-        return JsonUtils.SUCCESS(zoneService.getPickZoneCount(mapQuery));
-    }
-
-    @GET
-    @Path("getPickzone")
-    public String getPickzone(@QueryParam("pickZoneId") long iPickZoneId) {
-        return JsonUtils.SUCCESS(zoneService.getPickZone(iPickZoneId));
-    }
-
-    @POST
-    @Path("createPickzone")
-    public String createPickzone(PickZone zone) {
-        logger.info("zone pickType "+zone.getPickType());
-        return JsonUtils.SUCCESS(zoneService.insertPickZone(zone));
-    }
-
-    @POST
-    @Path("updatePickzone")
-    public String updatePickzone(PickZone zone) {
-        try{
-            zoneService.updatePickZone(zone);
-        }catch (Exception e){
-            logger.error(e.getCause().getMessage());
-            return JsonUtils.EXCEPTION_ERROR("Update failed");
-        }
-        return JsonUtils.SUCCESS();
-    }
-
-    @POST
     @Path("getPickModelTplList")
     public String getPickModelTplList(Map<String, Object> mapQuery) {
         return JsonUtils.SUCCESS(modelService.getPickModelTemplateList(mapQuery));
@@ -337,7 +300,7 @@ public class WaveRestService implements IWaveRestService {
     public String createPickModel(PickModel model) throws BizCheckedException {
         //检查该PickZone是否存在
         long zoneId = model.getPickZoneId();
-        if(zoneService.getPickZone(zoneId) == null){
+        if(workZoneService.getWorkZone(zoneId) == null){
             throw new BizCheckedException("2040004");
         }
         try{

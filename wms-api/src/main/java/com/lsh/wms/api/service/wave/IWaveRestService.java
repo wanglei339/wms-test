@@ -26,12 +26,6 @@ public interface IWaveRestService {
     String createWave(WaveRequest request);
     String setStatus(long iWaveId, int iStatus);
 
-    String getPickzoneList(Map<String, Object> mapQuery);
-    String getPickzoneCount(Map<String, Object> mapQuery);
-    String getPickzone(long iPickZoneId);
-    String createPickzone(PickZone zone);
-    String updatePickzone(PickZone zone);
-
     String getPickModelTplList(Map<String, Object> mapQuery);
     String getPickModelTplCount(Map<String, Object> mapQuery);
     String getPickModelTpl(long iPickModelTplId);
