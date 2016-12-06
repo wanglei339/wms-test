@@ -142,13 +142,19 @@ public class PickTaskService {
             StockMove move = new StockMove();
             BaseinfoLocation toLocation = locationService.getDiffAreaLocation();
             BaseinfoContainer toContainer = containerService.createContainerByType(ContainerConstant.PALLET);
+            BigDecimal moveQty = BigDecimal.ZERO;
+            if (quant.getQty().compareTo(pickDetail.getAllocQty()) >= 0) {
+                moveQty = pickDetail.getAllocQty().subtract(qty);
+            } else {
+                moveQty = quant.getQty().subtract(qty);
+            }
             move.setItemId(itemId);
             move.setSkuId(pickDetail.getSkuId());
             move.setFromContainerId(pickDetail.getContainerId());
             move.setFromLocationId(locationId);
             move.setToContainerId(toContainer.getContainerId());
             move.setToLocationId(toLocation.getLocationId());
-            move.setQty(quant.getQty().subtract(qty));
+            move.setQty(moveQty);
             move.setTaskId(taskId);
             move.setOwnerId(pickDetail.getOwnerId());
             stockMoveService.move(move);
