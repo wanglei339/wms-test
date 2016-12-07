@@ -290,7 +290,7 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
             for(BaseinfoItem item:items){
                 List<IbdHeader> ibdHeaders = poOrderService.getHeaderBySku(item.getSkuCode());
                 for(IbdHeader ibdHeader:ibdHeaders){
-                    if(containerOrderMap.containsKey(ibdHeader.getOrderId())){
+                    if(containerOrderMap.containsKey(ibdHeader.getOrderId()) || !ibdHeader.getOrderType().equals(PoConstant.ORDER_TYPE_CPO)){
                         continue;
                     }
                     containerOrderMap.put(ibdHeader.getOrderId(),ibdHeader.getOrderId());

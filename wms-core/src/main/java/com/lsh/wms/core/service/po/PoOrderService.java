@@ -436,7 +436,7 @@ public class PoOrderService {
                 }
                 containerOrderMap.put(detail.getOrderId(),detail.getOrderId());
                 IbdHeader header = this.getInbPoHeaderByOrderId(detail.getOrderId());
-                if(header.getOrderStatus().equals(PoConstant.ORDER_THROW)){
+                if(header.getOrderStatus().equals(PoConstant.ORDER_THROW) || header.getOrderStatus().equals(PoConstant.ORDER_RECTIPTING)){
                     ibdHeaders.add(header);
                 }
             }
