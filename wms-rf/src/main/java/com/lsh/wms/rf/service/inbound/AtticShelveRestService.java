@@ -666,7 +666,6 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
                 map.put("skuName",item.getSkuName());
                 map.put("skuCode",item.getSkuCode());
                 map.put("barcode",item.getCode());
-                map.put("skuCode",item.getSkuCode());
                 map.put("pickLocationIdList", itemLocationService.getPickLocationsByItemId(item.getItemId()));
                 shelveTaskService.create(detail);
                 return map;
@@ -696,7 +695,6 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             map.put("skuName", item.getSkuName());
             map.put("skuCode", item.getSkuCode());
             map.put("barcode",item.getCode());
-            map.put("skuCode",item.getSkuCode());
             map.put("pickLocationIdList", itemLocationService.getPickLocationsByItemId(item.getItemId()));
             shelveTaskService.create(detail);
             return map;
