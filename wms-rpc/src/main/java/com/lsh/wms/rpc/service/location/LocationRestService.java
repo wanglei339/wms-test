@@ -266,8 +266,9 @@ public class LocationRestService implements ILocationRestService {
         List<BaseinfoLocation> splitList = new ArrayList<BaseinfoLocation>();
 
         for (BaseinfoLocation b : collectionBins) {
-            if (locationList.contains(b.getLocationId())) {
-                //拣货位已被使用
+            if (LocationConstant.SPLIT_AREA.compareTo(b.getRegionType()) != 0 &&
+                    locationList.contains(b.getLocationId())) {
+                //拣货位已被使用,存拣合一类型不去重
                 continue;
             }
             if (LocationConstant.SHELFS.compareTo(b.getRegionType()) == 0) {

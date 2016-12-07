@@ -8,6 +8,7 @@ import com.lsh.wms.core.constant.BinUsageConstant;
 import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
+import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.BaseinfoLocationBinService;
 import com.lsh.wms.core.service.location.LocationService;
@@ -53,10 +54,13 @@ public class ProcurementRpcService implements IProcurementRpcService{
     private LocationService locationService;
     @Autowired
     private ItemService itemService;
+    @Autowired
+    private ItemLocationService itemLocationService;
 
     private static Logger logger = LoggerFactory.getLogger(ProcurementRpcService.class);
     //判断商品是否需要补货
     public boolean needProcurement(Long locationId, Long itemId) throws BizCheckedException {
+       BaseinfoItemLocation baseinfoItemLocation = itemLocationService.getItemLocationByLocationID(locationId).get(0);
         StockQuantCondition condition = new StockQuantCondition();
         condition.setItemId(itemId);
         condition.setLocationId(locationId);
@@ -68,6 +72,12 @@ public class ProcurementRpcService implements IProcurementRpcService{
         }
         StockQuant quant = quantService.getQuantList(condition).get(0);
         qty = qty.divide(quant.getPackUnit(),0,BigDecimal.ROUND_DOWN);
+
+        if(baseinfoItemLocation.getMinQty().compareTo(qty)>0){
+            return true;
+        }else {
+            return false;
+        }
         //       BaseinfoItem itemInfo = itemService.getItem(itemId);
 //        if (itemInfo.getItemLevel() == 1) {
 //            return qty.compareTo(new BigDecimal(5.0)) >= 0 ? false : true;
@@ -79,13 +89,13 @@ public class ProcurementRpcService implements IProcurementRpcService{
 //            return false;
 //        }
         //获取该商品的存货范围
-        BaseinfoItemQuantRange range = itemService.getItemRange(itemId);
-        if(range==null){
-            return qty.compareTo(this.getThreshold(locationId, itemId)) < 0;
-        }else {
-            BigDecimal minQty = range.getMinQty();
-            return qty.compareTo(minQty) < 0;
-        }
+//        BaseinfoItemQuantRange range = itemService.getItemRange(itemId);
+//        if(range==null){
+//            return qty.compareTo(this.getThreshold(locationId, itemId)) < 0;
+//        }else {
+//            BigDecimal minQty = range.getMinQty();
+//            return qty.compareTo(minQty) < 0;
+//        }
     }
 
     public BigDecimal getProcurementQty(BaseinfoItemLocation itemLocation) throws BizCheckedException {

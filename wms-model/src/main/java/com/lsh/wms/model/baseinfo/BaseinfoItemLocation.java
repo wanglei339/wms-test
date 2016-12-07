@@ -1,6 +1,7 @@
 package com.lsh.wms.model.baseinfo;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class BaseinfoItemLocation implements Serializable {
@@ -19,6 +20,10 @@ public class BaseinfoItemLocation implements Serializable {
     private Integer userstatus;
 	/** 拣货位类型*///// TODO: 16/11/2 add 
 	private Integer pickLocationType;
+	/** 最小存货量 */
+	private BigDecimal minQty = BigDecimal.ZERO;
+	/** 最大存货量 */
+	private BigDecimal maxQty = BigDecimal.ZERO;
 
 	public Long getItemId() {
 		return itemId;
@@ -75,5 +80,21 @@ public class BaseinfoItemLocation implements Serializable {
 
 	public void setPickLocationType(Integer pickLocationType) {
 		this.pickLocationType = pickLocationType;
+	}
+
+	public BigDecimal getMinQty() {
+		return minQty;
+	}
+
+	public void setMinQty(BigDecimal minQty) {
+		this.minQty = minQty;
+	}
+
+	public BigDecimal getMaxQty() {
+		return maxQty;
+	}
+
+	public void setMaxQty(BigDecimal maxQty) {
+		this.maxQty = maxQty;
 	}
 }

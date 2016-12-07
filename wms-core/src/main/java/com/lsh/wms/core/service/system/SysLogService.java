@@ -70,7 +70,7 @@ public class SysLogService {
     public List<Long> getAndLockSysLogByType(Long type) {
         Map<String,Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("logType",type);
-        mapQuery.put("retryTimes", 10);;
+        mapQuery.put("retryTimes", 10);
         List<SysLog> list = sysLogDao.getTodoList(mapQuery);
         List<Long> logIdList = new ArrayList<Long>();
         for(SysLog log : list){

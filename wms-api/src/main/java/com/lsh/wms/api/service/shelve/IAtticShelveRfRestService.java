@@ -10,4 +10,5 @@ public interface IAtticShelveRfRestService {
     String scanContainer() throws BizCheckedException;
     String createTask() throws BizCheckedException;
     String restore() throws BizCheckedException;
+    String getNextAllocLocation() throws BizCheckedException;
 }

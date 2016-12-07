@@ -39,9 +39,8 @@ public class ProcurementTaskHandler extends AbsTaskHandler {
     }
 
     public void calcPerformance(TaskInfo taskInfo) {
-
-        taskInfo.setTaskPackQty(taskInfo.getQtyDone());
-        taskInfo.setTaskEaQty(taskInfo.getQtyDone().multiply(taskInfo.getPackUnit()));
+        taskInfo.setTaskPackQty(taskInfo.getQty().divide(taskInfo.getPackUnit(),0,BigDecimal.ROUND_HALF_DOWN));
+        taskInfo.setTaskEaQty(taskInfo.getQty());
     }
     public void doneConcrete(Long taskId){
         TaskInfo info = baseTaskService.getTaskByTaskId(taskId);
@@ -52,7 +51,7 @@ public class ProcurementTaskHandler extends AbsTaskHandler {
             StockMove move = new StockMove();
             ObjUtils.bean2bean(info, move);
             if (info.getSubType().compareTo(2L) == 0) {
-                move.setQty(info.getQtyDone().multiply(info.getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP));
+                move.setQty(info.getQty());
             }
             move.setFromLocationId(fromLocationId);
             move.setToLocationId(info.getToLocationId());

@@ -22,8 +22,10 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoLocationBin;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
@@ -126,7 +128,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         taskInfo.setTaskName("补货任务[ " + taskInfo.getFromLocationId() + " => " + taskInfo.getToLocationId() + "]");
         taskInfo.setType(TaskConstant.TYPE_PROCUREMENT);
         taskInfo.setContainerId(plan.getContainerId());
-        taskInfo.setQtyDone(taskInfo.getQty());
         taskInfo.setStep(1);
 
         TaskEntry taskEntry = new TaskEntry();
@@ -173,6 +174,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     }
     //创建货架补货任务
     private void createShelfProcurement() throws BizCheckedException {
+        Map<String,Object> queryMap = new HashMap<String, Object>();
         //获取所有货架拣货位的位置信息
         List<BaseinfoLocation> shelfLocationList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.SHELF, BinUsageConstant.BIN_UASGE_PICK);
         //获取所有货架的存储位
@@ -203,48 +205,67 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                         continue;
                     }
 
-                    //取库位中库存最小的
-                    BigDecimal total = BigDecimal.ZERO;
-                    StockQuant quant = null;
-                    StockQuant beginQuant = null;
-                    Map<Long,Long> locationMap = new HashMap<Long, Long>();
-                    Map<String,Object> queryMap = new HashMap<String, Object>();
-                    for(StockQuant stockQuant:quantList) {
-                        if(locationMap.get(stockQuant.getLocationId())==null) {
-                            if(beginQuant==null){
-                                beginQuant = stockQuant;
-                                quant = stockQuant;
-                            }
-                            if(beginQuant.getExpireDate().compareTo(stockQuant.getExpireDate())==0) {
-                                //获取存储位该商品库存量
-                                queryMap.put("locationId", stockQuant.getLocationId());
-                                BigDecimal one = quantService.getQty(queryMap);
-                                if (total.compareTo(one) > 0 || total.compareTo(BigDecimal.ZERO) == 0) {
-                                    total = one;
-                                    quant = stockQuant;
-                                }
-                                beginQuant = quant;
-                            }else {
-                                quant = beginQuant;
-                                break;
-                            }
-                        }
-                        locationMap.put(stockQuant.getLocationId(),stockQuant.getLocationId());
-                    }
+                    BigDecimal maxQty = itemLocation.getMaxQty();
+                    queryMap.put("locationId", itemLocation.getPickLocationid());
+                    BigDecimal nowQuant = quantService.getQty(queryMap);
 
-                    // 创建任务
-                    StockTransferPlan plan = new StockTransferPlan();
-                    plan.setPriority(this.getPackPriority(itemLocation.getItemId()));
-                    plan.setContainerId(quant.getContainerId());
-                    plan.setItemId(itemLocation.getItemId());
-                    plan.setFromLocationId(quant.getLocationId());
-                    plan.setToLocationId(itemLocation.getPickLocationid());
-                    plan.setPackName(quant.getPackName());
-                    plan.setPackUnit(quant.getPackUnit());
-                    plan.setSubType(1L);//整托
-                    plan.setQty(total.divide(quant.getPackUnit(), 0, BigDecimal.ROUND_DOWN));
-                    plan.setUomQty(BigDecimal.ONE);
-                    this.addProcurementPlan(plan);
+//                    //取库位中库存最小的
+//                    BigDecimal total = BigDecimal.ZERO;
+//                    StockQuant quant = null;
+//                    StockQuant beginQuant = null;
+//                    Map<Long,Long> locationMap = new HashMap<Long, Long>();
+//                    Map<String,Object> queryMap = new HashMap<String, Object>();
+//                    for(StockQuant stockQuant:quantList) {
+//                        if(locationMap.get(stockQuant.getLocationId())==null) {
+//                            if(beginQuant==null){
+//                                beginQuant = stockQuant;
+//                                quant = stockQuant;
+//                            }
+//                            if(beginQuant.getExpireDate().compareTo(stockQuant.getExpireDate())==0) {
+//                                //获取存储位该商品库存量
+//                                queryMap.put("locationId", stockQuant.getLocationId());
+//                                BigDecimal one = quantService.getQty(queryMap);
+//                                if (total.compareTo(one) > 0 || total.compareTo(BigDecimal.ZERO) == 0) {
+//                                    total = one;
+//                                    quant = stockQuant;
+//                                }
+//                                beginQuant = quant;
+//                            }else {
+//                                quant = beginQuant;
+//                                break;
+//                            }
+//                        }
+//                        locationMap.put(stockQuant.getLocationId(),stockQuant.getLocationId());
+//                    }
+                    //根据库存数量和过期时间排序
+                    List<StockQuant> sortQuants = this.sortQuant(quantList);
+
+                    for(StockQuant quant:sortQuants) {
+                        queryMap.put("locationId", quant.getLocationId());
+                        BigDecimal qty = quantService.getQty(queryMap);
+                        if (nowQuant.compareTo(maxQty) < 0) {
+                            // 创建任务
+                            nowQuant = nowQuant.add(qty);
+
+                            StockTransferPlan plan = new StockTransferPlan();
+                            plan.setContainerId(quant.getContainerId());
+                            plan.setPackUnit(quant.getPackUnit());
+                            plan.setPackName(quant.getPackName());
+
+
+                            plan.setPriority(this.getPackPriority(itemLocation.getItemId()));
+                            plan.setContainerId(quant.getContainerId());
+                            plan.setItemId(itemLocation.getItemId());
+                            plan.setFromLocationId(quant.getLocationId());
+                            plan.setToLocationId(itemLocation.getPickLocationid());
+                            plan.setPackName(quant.getPackName());
+                            plan.setPackUnit(quant.getPackUnit());
+                            plan.setSubType(1L);//整托
+                            plan.setUomQty(qty);
+                            this.checkAndFillPlan(plan);
+                            this.addProcurementPlan(plan);
+                        }
+                    }
                 }
             }
         }
@@ -333,6 +354,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     }
     //创建阁楼补货任务
     private void createLoftProcurement() throws BizCheckedException {
+        Map<String,Object> queryMap = new HashMap<String, Object>();
         //获取所有阁楼拣货位的位置信息
         List<BaseinfoLocation> loftPickLocationList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.LOFT, BinUsageConstant.BIN_UASGE_PICK);
         //获取所有阁楼存货位的信息
@@ -357,49 +379,62 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                         logger.warn("ItemId:" + itemLocation.getItemId() + "缺货异常");
                         continue;
                     }
-                    BigDecimal requiredQty = new BigDecimal("3");
+                    BigDecimal maxQty = itemLocation.getMaxQty();
+                    BaseinfoItem item = itemService.getItem(itemLocation.getItemId());
+                    queryMap.put("locationId", itemLocation.getPickLocationid());
+                    BigDecimal nowQuant = quantService.getQty(queryMap);
+                    //根据库存数量和过期时间排序
+                    List<StockQuant> sortQuants = this.sortQuant(quantList);
+                    for(StockQuant quant:sortQuants) {
+                        queryMap.put("locationId",quant.getLocationId());
+                        BigDecimal qty = quantService.getQty(queryMap);
+                        if (nowQuant.compareTo(maxQty)<0) {
+                            nowQuant = nowQuant.add(qty);
+                            // 创建任务
 
-                    //取库位中库存最小的
-                    BigDecimal total = BigDecimal.ZERO;
-                    StockQuant quant = null;
-                    StockQuant beginQuant = null;
-                    Map<Long,Long> locationMap = new HashMap<Long, Long>();
-                    Map<String,Object> queryMap = new HashMap<String, Object>();
-                    for(StockQuant stockQuant:quantList) {
-                        if(locationMap.get(stockQuant.getLocationId())==null) {
-                            if(beginQuant==null){
-                                beginQuant = stockQuant;
-                                quant = stockQuant;
-                            }
-                            if(beginQuant.getExpireDate().compareTo(stockQuant.getExpireDate())==0) {
-                                //获取存储位该商品库存量
-                                queryMap.put("locationId", stockQuant.getLocationId());
-                                BigDecimal one = quantService.getQty(queryMap);
-                                if ((total.compareTo(one) > 0 || total.compareTo(BigDecimal.ZERO) == 0) && total.compareTo(requiredQty) >= 0) {
-                                    total = one;
-                                    quant = stockQuant;
-                                }
-                                beginQuant = stockQuant;
+//                            BigDecimal bulk = BigDecimal.ONE;
+//                            //计算包装单位的体积
+//                            bulk = bulk.multiply(item.getPackLength());
+//                            bulk = bulk.multiply(item.getPackHeight());
+//                            bulk = bulk.multiply(item.getPackWidth());
+//
+//                            BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(itemLocation.getPickLocationid());
+//
+//                            //80%为有效体积
+//                            BigDecimal volume = bin.getVolume().multiply(BigDecimal.valueOf(0.8));
+//
+//                            BigDecimal num = volume.divide(bulk, 0, BigDecimal.ROUND_DOWN);
+//                            if (total.subtract(num).compareTo(BigDecimal.ZERO) >= 0) {
+//                                requiredQty = num;
+//                            } else {
+//                                requiredQty = total;
+//                            }
+//
+//                            //减掉已有库存
+//                            BigDecimal unitQty = quantService.getQuantQtyByLocationIdAndItemId(itemLocation.getPickLocationid(), quant.getItemId());
+//                            BigDecimal umoQty = unitQty.divide(quant.getPackUnit(), 0, BigDecimal.ROUND_UP);
+
+                            StockTransferPlan plan = new StockTransferPlan();
+
+                            Long containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
+                            plan.setContainerId(containerId);
+                            plan.setPackUnit(quant.getPackUnit());
+                            plan.setPackName(quant.getPackName());
+
+                            plan.setPriority(this.getPackPriority(itemLocation.getItemId()));
+                            plan.setItemId(itemLocation.getItemId());
+                            plan.setFromLocationId(quant.getLocationId());
+                            plan.setToLocationId(itemLocation.getPickLocationid());
+                            plan.setPackName(quant.getPackName());
+                            if(nowQuant.compareTo(maxQty)>0){
+                                plan.setQty(maxQty.subtract(nowQuant.subtract(qty)));
                             }else {
-                                quant = beginQuant;
-                                break;
+                                plan.setQty(qty);
                             }
+                            plan.setPriority(this.getPackPriority(itemLocation.getItemId()));
+                            plan.setSubType(2L);
+                            this.addProcurementPlan(plan);
                         }
-                        locationMap.put(stockQuant.getLocationId(),stockQuant.getLocationId());
-                    }
-
-
-                    if(quant!=null){
-                        // 创建任务
-                        StockTransferPlan plan = new StockTransferPlan();
-                        plan.setPriority(this.getPackPriority(itemLocation.getItemId()));
-                        plan.setItemId(itemLocation.getItemId());
-                        plan.setFromLocationId(quant.getLocationId());
-                        plan.setToLocationId(itemLocation.getPickLocationid());
-                        plan.setPackName(quant.getPackName());
-                        plan.setUomQty(requiredQty);
-                        plan.setSubType(2L);
-                        this.addProcurementPlan(plan);
                     }
                 }
             }
@@ -408,7 +443,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
     public void createProcurement() throws BizCheckedException {
         this.createShelfProcurement();
-        //this.createLoftProcurement();
+        this.createLoftProcurement();
     }
 
     public void scanFromLocation(Map<String, Object> params) throws BizCheckedException {
@@ -536,8 +571,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         plan.setQty(plan.getUomQty());
         if (plan.getSubType().compareTo(1L) == 0) {
             plan.setQty(total.divide(quant.getPackUnit(), 0, BigDecimal.ROUND_DOWN));
-        } else if (plan.getSubType().compareTo(3L) == 0) {
-            plan.setPackName("EA");
         }
 
         return true;
@@ -603,5 +636,37 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             priority--;
         }
         return 0L;
+    }
+    List<StockQuant> sortQuant(List<StockQuant> quants){
+        List<StockQuant> quantList = new ArrayList<StockQuant>();
+        Map<Long,Long> locationMap = new HashMap<Long, Long>();
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        Map<Long,BigDecimal> qtyMap = new HashMap<Long, BigDecimal>();
+       for(StockQuant quant:quants){
+           if(locationMap.containsKey(quant.getLocationId())){
+               continue;
+           }
+           locationMap.put(quant.getLocationId(),quant.getLocationId());
+
+           for(int i=0;i<quantList.size();i++){
+               StockQuant sortQuant = quantList.get(0);
+               if(sortQuant.getExpireDate().compareTo(quant.getExpireDate())==0) {
+                   //获取存储位该商品库存量
+                   queryMap.put("locationId", quant.getLocationId());
+                   BigDecimal one = quantService.getQty(queryMap);
+
+                   qtyMap.put(quant.getLocationId(),one);
+                   if (qtyMap.get(sortQuant.getLocationId()).compareTo(one) > 0) {
+                       quantList.add(i,quant);
+                   }
+               }else {
+                   queryMap.put("locationId", quant.getLocationId());
+                   BigDecimal one = quantService.getQty(queryMap);
+                   qtyMap.put(quant.getLocationId(),one);
+                   quantList.add(quant);
+               }
+           }
+       }
+        return quantList;
     }
 }

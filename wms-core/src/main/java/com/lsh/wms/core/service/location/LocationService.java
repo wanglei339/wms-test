@@ -600,9 +600,10 @@ public class LocationService {
 
     /**
      * 获取差异区,一个仓库就一个
+     *
      * @return
      */
-    public BaseinfoLocation getDiffAreaLocation(){
+    public BaseinfoLocation getDiffAreaLocation() {
         List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.DIFF_AREA);
         if (locations != null && locations.size() > 0) {
             return locations.get(0);
@@ -613,9 +614,10 @@ public class LocationService {
 
     /**
      * 获取so订单占用区(在库),一个仓库就一个
+     *
      * @return
      */
-    public BaseinfoLocation getSoAreaInbound(){
+    public BaseinfoLocation getSoAreaInbound() {
         List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.SO_INBOUND_AREA);
         if (locations != null && locations.size() > 0) {
             return locations.get(0);
@@ -623,11 +625,13 @@ public class LocationService {
             return null;
         }
     }
+
     /**
      * 获取so订单占用区(直流),一个仓库就一个
+     *
      * @return
      */
-    public BaseinfoLocation getSoAreaDirect(){
+    public BaseinfoLocation getSoAreaDirect() {
         List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.SO_DIRECT_AREA);
         if (locations != null && locations.size() > 0) {
             return locations.get(0);
@@ -756,6 +760,7 @@ public class LocationService {
 
     /**
      * 根据货架的拣货位获取货架的最近存货位,排除已计算过的locationId
+     *
      * @param pickingLocation
      * @param calcLocationIds
      * @return
@@ -776,7 +781,7 @@ public class LocationService {
         allNearShelfSubs = this.getStoreLocations(passage.getLocationId());
         // 排除已计算过的位置
         if (calcLocationIds != null) {
-            for (BaseinfoLocation location: allNearShelfSubs) {
+            for (BaseinfoLocation location : allNearShelfSubs) {
                 if (!calcLocationIds.contains(location.getLocationId())) {
                     tempLocations.add(location);
                 }
@@ -1344,7 +1349,7 @@ public class LocationService {
             // 更新被拆分后的商品拣货位配置为同code的拣货位
             List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(location.getLocationId());
             if (itemLocations != null && itemLocations.size() > 0) {
-                for (BaseinfoItemLocation itemLocation: itemLocations) {
+                for (BaseinfoItemLocation itemLocation : itemLocations) {
                     itemLocation.setPickLocationid(splitLocation.getLocationId());
                     itemLocationService.updateItemLocation(itemLocation);
                 }
@@ -1354,4 +1359,31 @@ public class LocationService {
         BaseinfoLocation newLocation = locationDetailService.insert(detailRequest);
         return newLocation;
     }
+
+    /**
+     * 根据指定的坐标排序方式,获取指定的位置集合
+     *
+     * @param params
+     * @return
+     */
+    public List<BaseinfoLocation> getSortLocations(Map<String, Object> params) {
+        params.put("isValid", LocationConstant.IS_VALID);
+        List<BaseinfoLocation> locations = locationDao.getSortLocationsByFatherId(params);
+        return locations != null && locations.size() > 1 ? locations : new ArrayList<BaseinfoLocation>();
+    }
+
+    /**
+     * 获取底层节点的货位
+     *
+     * @param type 货位的type
+     * @return
+     */
+    public List<Long> getLocationBinByType(Long type) {
+        Map<String, Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("isLeaf", LocationConstant.IS_LEAF);
+        queryMap.put("type", type);
+        List<Long> locationIds = locationDao.getLocationBinByType(queryMap);
+        return locationIds != null && locationIds.size() > 0 ? locationIds : new ArrayList<Long>();
+    }
+
 }

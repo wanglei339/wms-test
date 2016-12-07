@@ -100,7 +100,7 @@ public class ShelveTaskService extends BaseTaskService {
         StockQuant quant = quants.get(0);
         Long itemId = quant.getItemId();
         List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationList(itemId);
-        if (itemLocations.size() < 1) {
+        if (itemLocations==null || itemLocations.size() < 1) {
             throw new BizCheckedException("2030010");
         }
         Long pickLocationId = itemLocations.get(0).getPickLocationid();
@@ -114,9 +114,11 @@ public class ShelveTaskService extends BaseTaskService {
             calcLocationIds = new ArrayList<Long>();
         }
         BaseinfoLocation nextLocation = locationService.getNearestStorageByPicking(pickingLocation, calcLocationIds);
-        calcLocationIds.add(nextLocation.getLocationId());
-        taskHead.setCalcLocationIds(JSON.toJSONString(calcLocationIds));
-        taskHeadDao.update(taskHead);
+        if (nextLocation != null) {
+            calcLocationIds.add(nextLocation.getLocationId());
+            taskHead.setCalcLocationIds(JSON.toJSONString(calcLocationIds));
+            taskHeadDao.update(taskHead);
+        }
         return nextLocation;
     }
 }

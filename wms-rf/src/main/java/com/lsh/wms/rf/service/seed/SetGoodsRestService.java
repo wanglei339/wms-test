@@ -176,6 +176,7 @@ public class SetGoodsRestService implements ISetGoodsRestService {
         result.put("storeName",csiCustomerService.getCustomerByCustomerCode(customerCode).getCustomerName());
         result.put("locationCode",location.getLocationCode());
         result.put("containerId",containerId);
+        result.put("storeNo",customerCode);
         result.put("status",info.getStep());
         return JsonUtils.SUCCESS(result);
     }

@@ -286,8 +286,9 @@ public class StockTransferCore {
             stockMoveService.moveWholeContainer(containerId, taskId, uid, fromLocationId, toLocationId);
         } else {
             BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString().trim());
-            if (qtyDone.compareTo(BigDecimal.ZERO) <= 0 ||
-                    qtyDone.setScale(0, BigDecimal.ROUND_DOWN).compareTo(qtyDone) != 0) {
+            BigDecimal scatterQty = new BigDecimal(params.get("scatterQty").toString().trim());
+            BigDecimal inboundUnitQty = PackUtil.UomQty2EAQty(qtyDone, taskInfo.getPackName()).add(scatterQty);
+            if (inboundUnitQty.compareTo(BigDecimal.ZERO) <= 0) {
                 throw new BizCheckedException("2550034");
             }
             BigDecimal total = stockQuantRpcService.getQty(condition);
@@ -296,20 +297,14 @@ public class StockTransferCore {
             }
             StockMove move = new StockMove();
             ObjUtils.bean2bean(taskInfo, move);
-            if (taskInfo.getSubType().compareTo(2L) == 0) {
-                move.setQty(qtyDone.multiply(quants.get(0).getPackUnit()).setScale(0, BigDecimal.ROUND_HALF_UP));
-            } else if (taskInfo.getSubType().compareTo(3L) == 0) {
-                move.setQty(qtyDone);
-            }
+            move.setQty(inboundUnitQty);
             move.setFromLocationId(fromLocationId);
             move.setToLocationId(toLocationId);
             move.setFromContainerId(quants.get(0).getContainerId());
             move.setToContainerId(containerId);
             move.setSkuId(taskInfo.getSkuId());
             move.setOwnerId(taskInfo.getOwnerId());
-            List<StockMove> moveList = new ArrayList<StockMove>();
-            moveList.add(move);
-            stockMoveService.move(moveList);
+            stockMoveService.move(move);
             taskInfo.setQtyDone(qtyDone);
         }
         taskInfo.setStep(2);
@@ -344,8 +339,7 @@ public class StockTransferCore {
         }
 
         if (taskInfo.getSubType().compareTo(1L) != 0) {
-            BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString().trim());
-            taskInfo.setQtyDone(qtyDone);
+            taskInfo.setQtyDone(taskInfo.getQty().divide(taskInfo.getPackUnit(),0,BigDecimal.ROUND_HALF_DOWN));
             taskInfoDao.update(taskInfo);
         }
         taskRpcService.done(taskId);

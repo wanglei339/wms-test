@@ -66,6 +66,7 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
         }
         return baseinfoLocationList;
     }
+
     //    public BaseinfoLocation insertLocationDetailByType(BaseinfoLocation baseinfoLocation) throws BizCheckedException {
 //            //一个通道只能插入两个货架子,加入校验判断
 //            if (baseinfoLocation.getClassification().equals(LocationConstant.LOFT_SHELF)) {
@@ -158,14 +159,79 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
     }
 
     /**
-     * 根据货架参数,批量生成整个货架的货位
+     * 插入一个区保证区的坐标完整
+     * 1.获取父节点
+     * 2.type
+     * 3.classfication
+     * 4.获取当前最大的regionNo,横向生长
+     * 5.locationCode(前端给)
      *
-     * @param createCondition
-     * @return
+     * @param request
      * @throws BizCheckedException
      */
-    public boolean batchCreateBinsInOneShelf(Map<String, Object> createCondition) throws BizCheckedException {
-        return false;
+    public void insertRegion(LocationDetailRequest request) throws BizCheckedException {
+        Long fatherId = request.getFatherId();
+        BaseinfoLocation fatherLocation = locationService.getLocation(fatherId);
+        if (null == fatherLocation) {
+            throw new BizCheckedException("2180033");
+        }
+        //获取大区下的区坐标最大的一个
+        Map<String, Object> sortQuery = new HashMap<String, Object>();
+        sortQuery.put("leftRange", fatherLocation.getLeftRange());
+        sortQuery.put("rightRange", fatherLocation.getRightRange());
+        sortQuery.put("classification", LocationConstant.CLASSIFICATION_AREAS);
+        sortQuery.put("isValid", LocationConstant.IS_VALID);
+        sortQuery.put("regionNoDESC", "");
+        List<BaseinfoLocation> locations = locationService.getSortLocations(sortQuery);
+        //坐标初始化
+        if (null == locations || locations.isEmpty()) {
+            request.setRegionNo(0L);
+        } else {
+            request.setRegionNo(locations.get(0).getRegionNo() + 1L);
+        }
+        request.setPassageNo(0L);
+        request.setShelfLevelNo(0L);
+        request.setBinPositionNo(0L);
+        request.setTypeName(LocationConstant.LOCATION_TYPE_NAME.get(request.getType()));
+//        locationDetailService.insert(request);
     }
+
+    /**
+     * 插入一个通道保证通道的坐标正确性
+     * 1.获取父节点
+     * 2.type
+     * 3.classfication
+     * 4.继承父亲regionNo,passage获取最大的自增
+     * 5.locationCode(前端给)
+     *
+     * @param request
+     * @throws BizCheckedException
+     */
+    public void insertPassage(LocationDetailRequest request) throws BizCheckedException {
+        Long fatherId = request.getFatherId();
+        BaseinfoLocation fatherLocation = locationService.getLocation(fatherId);
+        if (null == fatherLocation) {
+            throw new BizCheckedException("2180033");
+        }
+        //获取大区下的区坐标最大的一个
+        Map<String, Object> sortQuery = new HashMap<String, Object>();
+        sortQuery.put("leftRange", fatherLocation.getLeftRange());
+        sortQuery.put("rightRange", fatherLocation.getRightRange());
+        sortQuery.put("type", LocationConstant.PASSAGE);
+        sortQuery.put("isValid", LocationConstant.IS_VALID);
+        sortQuery.put("passageNoDESC", "");
+        List<BaseinfoLocation> locations = locationService.getSortLocations(sortQuery);
+        //坐标初始化
+        if (null == locations || locations.isEmpty()) {
+            request.setPassageNo(1L);
+        } else {
+            request.setPassageNo(locations.get(0).getPassageNo() + 1L);
+        }
+        request.setShelfLevelNo(0L);
+        request.setBinPositionNo(0L);
+        request.setTypeName(LocationConstant.LOCATION_TYPE_NAME.get(request.getType()));
+//        locationDetailService.insert(request);
+    }
+
 
 }
