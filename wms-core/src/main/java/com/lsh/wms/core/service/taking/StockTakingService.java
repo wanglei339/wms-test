@@ -339,6 +339,7 @@ public class StockTakingService {
         differenceZoneReport.setSourceType(ReportConstant.SOURCE_TYPE_QC);
         differenceZoneReport.setUnitName("EA");
         differenceZoneReport.setQty(move.getQty().abs());
+        differenceZoneReport.setDirect(ReportConstant.DIRECT_IN);
         TaskInfo qcInfo = baseTaskService.getTaskInfoById(move.getTaskId());
         differenceZoneReport.setOperator(qcInfo.getOperator());
 
