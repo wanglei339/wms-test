@@ -340,24 +340,8 @@ public class SeedRestService implements ISeedRestService {
 
             //手动播种
             if(info.getIsShow()==0){
-                String storeNo =  mapQuery.get("storeNo").toString();
-                List<SeedingTaskHead> heads = seedTaskHeadService.getHeadByOrderIdAndStoreNo(info.getOrderId(),storeNo);
-                if(heads==null){
-                    return JsonUtils.TOKEN_ERROR("该门店不存在播种任务");
-                }
-                SeedingTaskHead head = null;
-                for(SeedingTaskHead seedingTaskHead:heads){
-                    info = iTaskRpcService.getTaskInfo(seedingTaskHead.getTaskId());
-                    if(info.getStatus().compareTo(TaskConstant.Draft)!=0 && info.getStatus().compareTo(TaskConstant.Assigned)!=0){
-                        continue;
-                    }
-                    head = seedingTaskHead;
-                    break;
-                }
-                if(head==null){
-                    return JsonUtils.TOKEN_ERROR("该门店已播种完成");
-                }
 
+                SeedingTaskHead head = seedTaskHeadService.getHeadByTaskId(taskId);
                 //将数量转换成EA
                 String packName = info.getPackName();
 
