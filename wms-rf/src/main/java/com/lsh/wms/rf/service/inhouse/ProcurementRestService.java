@@ -332,8 +332,8 @@ public class ProcurementRestService implements IProcurementRestService {
         {
             //改成从补货策略服务上获取任务
             //获取到的任务需要立即给指定的人
-            //如果因为系统异常导致的错误,补货策略服务讲在10秒(一个指定的时间后)扫描恢复到任务队列中
-            //另外,如果一个任务长时间未执行(一个指定的时间),补货策略服务也会从新调度到队列中并赋给其他人
+            //如果因为系统异常导致的错误未能assign成功,补货策略服务讲在一个指定的时间(如10秒)后扫描恢复到任务队列中
+            //另外,如果一个任务长时间未执行(一个指定的时间),补货策略服务也会从新调度到队列中可赋给其他人
             Map<String, Object> query = new HashMap<String, Object>();
             query.put("uid", uid);
             query.put("cmd", "fetchTask");
