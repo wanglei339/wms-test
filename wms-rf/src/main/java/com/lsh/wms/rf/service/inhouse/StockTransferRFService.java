@@ -129,6 +129,7 @@ public class StockTransferRFService implements IStockTransferRFService{
                 BaseinfoItem item = itemRpcService.getItem(quant.getItemId());
                 result.put("itemName", item.getSkuName());
                 result.put("barcode", item.getCode());
+                result.put("skuCode", item.getSkuCode());
                 result.put("lotId", quant.getLotId());
                 condition.setItemId(quant.getItemId());
                 //condition.setLotId(quant.getLotId());
@@ -206,6 +207,7 @@ public class StockTransferRFService implements IStockTransferRFService{
                     put("itemId", taskInfo.getItemId());
                     put("itemName", item.getSkuName());
                     put("barcode", item.getCode());
+                    put("skuCode", item.getSkuCode());
                     put("packName", taskInfo.getPackName());
                     put("uom", taskInfo.getPackName());
                     put("uomQty", taskInfo.getSubType().compareTo(1L) == 0 ? "整托" : uomQty);
@@ -328,6 +330,7 @@ public class StockTransferRFService implements IStockTransferRFService{
                 next.put("itemId", taskInfo.getItemId());
                 next.put("itemName", item.getSkuName());
                 next.put("barcode", item.getCode());
+                next.put("skuCode", item.getSkuCode());
                 next.put("packName", taskInfo.getSubType().compareTo(1L) == 0 ? "整托" : taskInfo.getPackName());
                 next.put("uomQty", taskInfo.getSubType().compareTo(1L) == 0 ? "整托" : PackUtil.EAQty2UomQty(taskInfo.getQtyDone(), taskInfo.getPackName()));
                 next.put("subType", taskInfo.getSubType());

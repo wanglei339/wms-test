@@ -244,7 +244,7 @@ public class QCRestService implements IRFQCRestService {
         rstMap.put("containerType", containerInfo.getType());
         rstMap.put("pickTaskId", qcTaskInfo.getQcPreviousTaskId().toString());
         //送达方的信息
-        rstMap.put("customerId", soInfo.getDeliveryCode().toString());
+        rstMap.put("customerCode", soInfo.getDeliveryCode().toString());
         rstMap.put("customerName", soInfo.getDeliveryName());
         rstMap.put("collectionRoadCode", collectLocaion.getLocationCode());
         rstMap.put("itemLineNum", mapItem2PickQty.size());
