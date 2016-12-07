@@ -314,6 +314,16 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
             taskInfo.put("storeNo",head.getStoreNo());
             taskInfo.put("taskId",head.getTaskId());
             taskInfo.put("storeName", csiCustomer.getCustomerName());
+            TaskInfo info = baseTaskService.getTaskInfoById(head.getTaskId());
+            //判断能否整除
+            BigDecimal [] decimals = head.getRequireQty().divideAndRemainder(head.getPackUnit());
+            if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
+                taskInfo.put("qty", decimals[0]);
+                taskInfo.put("packName", info.getPackName());
+            }else {
+                taskInfo.put("qty", head.getRequireQty());
+                taskInfo.put("packName", "EA");
+            }
 
             storeList.add(taskInfo);
         }
