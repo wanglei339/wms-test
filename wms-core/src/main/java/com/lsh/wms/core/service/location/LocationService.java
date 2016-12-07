@@ -1006,13 +1006,13 @@ public class LocationService {
      * @return
      */
     @Transactional(readOnly = false)
-    public BaseinfoLocation unlockLocationAndSetCanUse(Long locationId) {
-        BaseinfoLocation location = this.getLocation(locationId);
+    public BaseinfoLocation unlockLocationAndSetCanUse(BaseinfoLocation location) {
+        BaseinfoLocation templocation = this.getLocation(location.getLocationId());
         //表加行锁
-        if (location == null) {
+        if (templocation == null) {
             throw new BizCheckedException("2180001");
         }
-        locationDao.lock(location.getId());
+        locationDao.lock(templocation.getId());
         location.setIsLocked(LocationConstant.UNLOCK);    //解锁
         location.setCanUse(LocationConstant.CAN_USE);    //设置可用
         this.updateLocation(location);
