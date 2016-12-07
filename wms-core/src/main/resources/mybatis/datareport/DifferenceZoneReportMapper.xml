@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.datareport.DifferenceZoneReportDao" >
+
+	<resultMap id="differenceZoneReportResultMap" type="DifferenceZoneReport">
+		<id property="id" column="id"/>
+		<result property="differenceId" column="difference_id"/>
+		<result property="itemId" column="item_id"/>
+		<result property="skuCode" column="sku_code"/>
+		<result property="fromLocationId" column="from_location_id"/>
+		<result property="sourceType" column="source_type"/>
+		<result property="unitName" column="unit_name"/>
+		<result property="qty" column="qty"/>
+		<result property="operator" column="operator"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="DifferenceZoneReport">
+		insert into difference_zone_report (
+			difference_id,item_id,sku_code,from_location_id,source_type,unit_name,
+			qty,operator,created_at,updated_at
+    	) values (
+			#{differenceId},#{itemId},#{skuCode},#{fromLocationId},#{sourceType},#{unitName},
+			#{qty},#{operator},#{createdAt},#{updatedAt}
+    	)
+	</insert>
+
+	<update id="update" parameterType="DifferenceZoneReport">
+		update difference_zone_report
+    	<set>
+  			<if test="differenceId != null">difference_id=#{differenceId},</if>
+  			<if test="itemId != null">item_id=#{itemId},</if>
+  			<if test="skuCode != null">sku_code=#{skuCode},</if>
+  			<if test="fromLocationId != null">from_location_id=#{fromLocationId},</if>
+  			<if test="sourceType != null">source_type=#{sourceType},</if>
+  			<if test="unitName != null">unit_name=#{unitName},</if>
+  			<if test="qty != null">qty=#{qty},</if>
+  			<if test="operator != null">operator=#{operator},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getDifferenceZoneReportById" parameterType="int" resultMap="differenceZoneReportResultMap">
+		select * from difference_zone_report
+		where ID=#{id} 
+	</select>
+  
+	<select id="countDifferenceZoneReport" parameterType="map" resultType="int">
+		select count(*) from difference_zone_report
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getDifferenceZoneReportList" parameterType="map" resultMap="differenceZoneReportResultMap">
+		select * from difference_zone_report
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="differenceId != null">and difference_id=#{differenceId}</if>
+			<if test="itemId != null">and item_id=#{itemId}</if>
+			<if test="skuCode != null">and sku_code=#{skuCode}</if>
+			<if test="fromLocationId != null">and from_location_id=#{fromLocationId}</if>
+			<if test="sourceType != null">and source_type=#{sourceType}</if>
+			<if test="unitName != null">and unit_name=#{unitName}</if>
+			<if test="qty != null">and qty=#{qty}</if>
+			<if test="operator != null">and operator=#{operator}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>
