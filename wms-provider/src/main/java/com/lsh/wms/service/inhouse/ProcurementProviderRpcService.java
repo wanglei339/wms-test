@@ -352,6 +352,8 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         taskRpcService.assign(taskId, staffId);
         return taskId;
     }
+
+
     //创建阁楼补货任务
     private void createLoftProcurement() throws BizCheckedException {
         Map<String,Object> queryMap = new HashMap<String, Object>();
