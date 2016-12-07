@@ -5,32 +5,20 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.base.common.utils.DateUtils;
-import com.lsh.wms.api.model.so.ObdDetail;
 import com.lsh.wms.api.service.sms.ISmsRestService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.core.constant.StockConstant;
 import com.lsh.wms.core.dao.redis.RedisSortedSetDao;
-import com.lsh.wms.core.dao.stock.StockSummaryDao;
 import com.lsh.wms.core.service.location.LocationService;
-import com.lsh.wms.core.service.so.SoOrderRedisService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.*;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.task.MessageService;
-import com.lsh.wms.model.so.ObdHeader;
-import com.lsh.wms.model.stock.StockDelta;
-import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
-import com.lsh.wms.model.stock.StockSummary;
-import com.lsh.wms.model.task.TaskInfo;
-import com.lsh.wms.model.task.TaskMsg;
-import com.lsh.wms.model.wave.WaveDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,12 +42,6 @@ public class SmsRestService implements ISmsRestService {
     private StockQuantService stockQuantService;
 
     @Autowired
-    private SynStockService synStockService;
-
-    @Autowired
-    private SoOrderRedisService soOrderRedisService;
-
-    @Autowired
     private StockSummaryService stockSummaryService;
 
     public void setSmsService(SmsService smsService) {
@@ -72,10 +54,6 @@ public class SmsRestService implements ISmsRestService {
 
     @Autowired
     private SoOrderService soOrderService;
-
-    @Autowired
-    private StockAllocService stockAllocService;
-
     @Autowired
     private MessageService messageService;
 

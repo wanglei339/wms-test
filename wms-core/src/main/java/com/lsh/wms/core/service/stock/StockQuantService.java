@@ -49,9 +49,6 @@ public class StockQuantService {
     private ItemService itemService;
 
     @Autowired
-    private StockRedisService stockRedisService;
-
-    @Autowired
     private BaseTaskService baseTaskService;
 
     @Autowired StockLotService lotService;
@@ -187,7 +184,6 @@ public class StockQuantService {
             throw new BizCheckedException("2180001");
         } else {
             Long currentVol = new Long(this.getContainerQty(locationId));
-            logger.warn("currentVol is " + currentVol);
             locationService.refreshContainerVol(locationId, currentVol);
         }
     }
@@ -330,7 +326,6 @@ public class StockQuantService {
         if (quant.getIsNormal() == 1) {
             quant.setIsNormal(0L);
             quant.setIsInhouse(0L);
-            stockRedisService.outBound(quant.getItemId(), quant.getQty());
         }
         stockQuantDao.update(quant);
     }
@@ -354,7 +349,6 @@ public class StockQuantService {
         if (quant.getIsNormal() == 1) {
             quant.setIsNormal(0L);
             quant.setIsInhouse(0L);
-            stockRedisService.outBound(quant.getItemId(), quant.getQty());
         }
         stockQuantDao.update(quant);
     }
@@ -367,7 +361,6 @@ public class StockQuantService {
         if (quant.getIsNormal() == 1) {
             quant.setIsNormal(0L);
             quant.setIsInhouse(0L);
-            stockRedisService.outBound(quant.getItemId(), quant.getQty());
         }
         stockQuantDao.update(quant);
     }

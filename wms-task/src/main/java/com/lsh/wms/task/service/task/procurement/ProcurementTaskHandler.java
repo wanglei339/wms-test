@@ -1,10 +1,7 @@
 package com.lsh.wms.task.service.task.procurement;
 
-import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.base.common.utils.ObjUtils;
-import com.lsh.wms.api.service.stock.IStockMoveRpcService;
 import com.lsh.wms.core.constant.ContainerConstant;
-import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.location.LocationService;

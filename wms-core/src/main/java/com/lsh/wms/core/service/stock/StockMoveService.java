@@ -1,19 +1,19 @@
 package com.lsh.wms.core.service.stock;
 
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.LocationConstant;
+import com.lsh.wms.core.constant.StockConstant;
 import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
 import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.persistence.PersistenceProxy;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.stock.StockLot;
-import com.lsh.wms.model.stock.StockMove;
-import com.lsh.wms.model.stock.StockQuant;
-import com.lsh.wms.model.stock.StockQuantMoveRel;
+import com.lsh.wms.model.stock.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,24 +46,13 @@ public class StockMoveService {
     private StockQuantMoveRelDao relDao;
 
     @Autowired
-    private PersistenceProxy persistenceProxy;
-
-    public StockMove getMoveById(Long moveId) {
-        return moveDao.getStockMoveById(moveId);
-    }
+    private StockSummaryService stockSummaryService;
 
     @Transactional(readOnly = false)
     public void create(StockMove move) {
         move.setCreatedAt(DateUtils.getCurrentSeconds());
         move.setUpdatedAt(DateUtils.getCurrentSeconds());
         moveDao.insert(move);
-    }
-
-    @Transactional(readOnly = false)
-    public void create(List<StockMove> moveList) {
-        for (StockMove move : moveList) {
-            this.create(move);
-        }
     }
 
     @Transactional(readOnly = false)
@@ -77,10 +66,6 @@ public class StockMoveService {
         StockMove move = moveDao.getStockMoveById(moveId);
         move.setStatus(TaskConstant.Done);
         this.update(move);
-    }
-
-    public List<StockMove> getMoveList(Map<String, Object> mapQuery) {
-        return moveDao.getStockMoveList(mapQuery);
     }
 
     public List<StockMove> traceQuant(Long quantId) {
@@ -165,26 +150,6 @@ public class StockMoveService {
         for (StockQuant quant : quants) {
             if (!isMovedMap.containsKey(quant.getContainerId())) {
                 this.moveWholeContainer(quant.getContainerId(), taskId, staffId, quant.getLocationId(), location.getLocationId());
-                isMovedMap.put(quant.getContainerId(), 1);
-            }
-        }
-    }
-
-    @Transactional(readOnly = false)
-    public void moveToConsume(Long containerId) throws BizCheckedException {
-
-        List<StockQuant> quants = quantService.getQuantsByContainerId(containerId);
-
-        if(quants==null){
-            return;
-        }
-        BaseinfoLocation location = locationService.getLocationsByType(LocationConstant.CONSUME_AREA).get(0);
-
-        //存储已经生成move的ContainerId
-        Map<Long, Integer> isMovedMap = new HashMap<Long, Integer>();
-        for (StockQuant quant : quants) {
-            if (!isMovedMap.containsKey(quant.getContainerId())) {
-                this.moveWholeContainer(quant.getContainerId(), 0L, 0L, quant.getLocationId(), location.getLocationId());
                 isMovedMap.put(quant.getContainerId(), 1);
             }
         }

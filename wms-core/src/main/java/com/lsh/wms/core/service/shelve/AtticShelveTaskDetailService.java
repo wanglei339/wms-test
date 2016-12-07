@@ -1,10 +1,8 @@
 package com.lsh.wms.core.service.shelve;
 
-import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.StockConstant;
 import com.lsh.wms.core.dao.shelve.AtticShelveTaskDetailDao;
-import com.lsh.wms.core.service.location.BaseinfoLocationService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
@@ -12,7 +10,6 @@ import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.shelve.AtticShelveTaskDetail;
 import com.lsh.wms.model.stock.StockDelta;
 import com.lsh.wms.model.stock.StockMove;
-import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -94,13 +91,6 @@ public class AtticShelveTaskDetailService {
     public void doneDetail(AtticShelveTaskDetail detail,StockMove move) {
 
         TaskInfo info = baseTaskService.getTaskByTaskId(detail.getTaskId());
-        // 更新可用库存
-        StockDelta delta = new StockDelta();
-        delta.setItemId(info.getItemId());
-        delta.setInhouseQty(detail.getRealQty());
-        delta.setBusinessId(detail.getTaskId());
-        delta.setType(StockConstant.TYPE_SHELVE);
-        stockSummaryService.changeStock(delta);
 
         moveService.move(move);
         locationService.unlockLocation(detail.getAllocLocationId());

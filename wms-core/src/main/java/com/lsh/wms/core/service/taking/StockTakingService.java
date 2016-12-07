@@ -198,20 +198,6 @@ public class StockTakingService {
         try {
             this.insertLossOrOver(overLossReports);
             moveService.move(moveList);
-            for (StockMove move : moveList) {
-                StockDelta delta = new StockDelta();
-                delta.setItemId(move.getItemId());
-                BigDecimal qty = BigDecimal.ZERO;
-                if (locationService.getLocation(move.getFromLocationId()).getType().equals(LocationConstant.INVENTORYLOST)) {
-                    qty = move.getQty();
-                } else {
-                    qty = qty.subtract(move.getQty());
-                }
-                delta.setInhouseQty(qty);
-                delta.setBusinessId(stockTakingId);
-                delta.setType(StockConstant.TYPE_STOCK_TAKING);
-                stockSummaryService.changeStock(delta);
-            }
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new BizCheckedException("2550099");
@@ -334,19 +320,10 @@ public class StockTakingService {
             this.insertLossOrOver(overLossReport);
             //移到差异区
             moveService.move(move);
-
-            StockDelta delta = new StockDelta();
-            delta.setItemId(move.getItemId());
-            BigDecimal qty = new BigDecimal(move.getQty().toString());
-            //拣货缺交的,是负数
-            qty = BigDecimal.ZERO.subtract(qty.abs());
-            delta.setInhouseQty(qty);
-            delta.setBusinessId(move.getTaskId());
-            delta.setType(StockConstant.TYPE_PICK_DEFECT);
             //同步库存判断是直流还是在库的
             Long businessMode = qcInfo.getBusinessMode();
-            if (TaskConstant.MODE_INBOUND.equals(businessMode)){
-                stockSummaryService.changeStock(delta);
+            if (TaskConstant.MODE_DIRECT.equals(businessMode)){
+                stockSummaryService.eliminateDiff(move);
             }
         } catch (Exception e) {
             logger.error("MOVE STOCK FAIL , containerId is " + move.getToContainerId() + "taskId is " + move.getTaskId() + e.getMessage());
@@ -374,19 +351,6 @@ public class StockTakingService {
             Long locationId = locationService.getInventoryLostLocation().getLocationId();
             //移到盘亏盘盈区
             moveService.move(move);
-//            stockMoveService.move(move);
-            StockDelta delta = new StockDelta();
-            delta.setItemId(move.getItemId());
-            BigDecimal qty = new BigDecimal(move.getQty().toString());
-            if (move.getToLocationId().compareTo(locationId) == 0) {
-                qty = BigDecimal.ZERO.subtract(qty);
-            }
-            if(quant.getIsInhouse().compareTo(1L)==0) {
-                delta.setInhouseQty(qty);
-                delta.setBusinessId(move.getTaskId());
-                delta.setType(StockConstant.TYPE_WRITE_OFF);
-                stockSummaryService.changeStock(delta);
-            }
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new BizCheckedException("2550051");
