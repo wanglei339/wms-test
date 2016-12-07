@@ -748,20 +748,28 @@ public class SeedRestService implements ISeedRestService {
         //实际是orderOtherId
         String orderId = "";
         String barcode = "";
+        Object orderObj = "";
+        Object barcodeObj = "";
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Map<String,Object> result = new HashMap<String, Object>();
         try {
-            orderId =  mapQuery.get("orderId").toString().trim();
+            orderObj =  mapQuery.get("orderId");
             if(mapQuery.containsKey("containerId")){
                 containerId = Long.valueOf(mapQuery.get("containerId").toString().trim());
             }
-            barcode =  mapQuery.get("barcode").toString().trim();
+            barcodeObj =  mapQuery.get("barcode");
         }catch (Exception e) {
             logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("参数传递格式有误");
         }
         if(containerId.equals(0L)) {
-            IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(orderId.toString().trim());
+            if(orderObj==null || barcodeObj ==null ){
+                return JsonUtils.TOKEN_ERROR("订单或国条为空");
+            }
+            barcode = barcodeObj.toString().trim();
+            orderId = orderObj.toString().trim();
+
+            IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(orderId);
             if (ibdHeader == null) {
                 throw new BizCheckedException("2020001");
             }
