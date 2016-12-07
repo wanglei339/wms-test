@@ -313,6 +313,7 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
             Map<String,Object> taskInfo = new HashMap<String, Object>();
             taskInfo.put("storeNo",head.getStoreNo());
             taskInfo.put("taskId",head.getTaskId());
+            taskInfo.put("storeType",head.getStoreType());
             taskInfo.put("storeName", csiCustomer.getCustomerName());
             TaskInfo info = baseTaskService.getTaskInfoById(head.getTaskId());
             //判断能否整除
