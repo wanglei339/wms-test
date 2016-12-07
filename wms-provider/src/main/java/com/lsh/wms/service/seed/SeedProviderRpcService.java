@@ -311,10 +311,10 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
             CsiCustomer csiCustomer = csiCustomerService.getCustomerByCustomerCode(head.getStoreNo());
 
             Map<String,Object> taskInfo = new HashMap<String, Object>();
-            taskInfo.put("storeNo",head.getStoreNo());
+            taskInfo.put("customerCode",head.getStoreNo());
             taskInfo.put("taskId",head.getTaskId());
             taskInfo.put("storeType",head.getStoreType());
-            taskInfo.put("storeName", csiCustomer.getCustomerName());
+            taskInfo.put("customerName", csiCustomer.getCustomerName());
             TaskInfo info = baseTaskService.getTaskInfoById(head.getTaskId());
             //判断能否整除
             BigDecimal [] decimals = head.getRequireQty().divideAndRemainder(head.getPackUnit());
