@@ -28,6 +28,8 @@ public class DifferenceZoneReport implements Serializable {
     private Long createdAt = 0L;
 	/**  */
     private Long updatedAt = 0L;
+	/** 报表插入方向1-正向2-负 */
+	private Integer direct;
 	
 	public Long getId(){
 		return this.id;
@@ -116,6 +118,12 @@ public class DifferenceZoneReport implements Serializable {
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
-	
-	
+
+	public Integer getDirect() {
+		return direct;
+	}
+
+	public void setDirect(Integer direct) {
+		this.direct = direct;
+	}
 }
