@@ -3,11 +3,13 @@ package com.lsh.wms.service.inhouse;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.inhouse.IProcurementProviderRestService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.dao.utils.NsHeadClient;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -15,10 +17,13 @@ import com.lsh.wms.model.transfer.StockTransferPlan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -35,6 +40,19 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
     private ProcurementProviderRpcService rpcService;
     @Reference
     private ITaskRpcService taskRpcService;
+
+    @GET
+    @Path("fetchTask")
+    public String fetchTask(@QueryParam("uid")long uid, @QueryParam("zoneId")long zoneId) throws BizCheckedException{
+        Map<String, Object> query = new HashMap<String, Object>();
+        query.put("uid", uid);
+        query.put("cmd", "fetchTask");
+        query.put("zone_id", zoneId);
+        String ip = PropertyUtils.getString("replenish_svr_ip");
+        int port = PropertyUtils.getInt("replenish_svr_port");
+        String rst = NsHeadClient.jsonCall(ip, port, JsonUtils.obj2Json(query));
+        return JsonUtils.SUCCESS(rst);
+    }
 
     @POST
     @Path("add")

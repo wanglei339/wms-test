@@ -344,6 +344,15 @@ public class WaveService {
         return detailDao.getWaveDetailList(mapQuery);
     }
 
+    @Transactional(readOnly = true)
+    public List<Long> getPickLocationsByPickTimeRegion(Long beginAt, Long endAt){
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("pickBeginAt", beginAt);
+        mapQuery.put("pickEndAt", endAt);
+        mapQuery.put("isValid", 1);
+        return detailDao.getPickLocationsByPickTimeRegion(mapQuery);
+    }
+
     @Transactional(readOnly = false)
     public void insertDetail(WaveDetail detail){
         detail.setUpdatedAt(DateUtils.getCurrentSeconds());
