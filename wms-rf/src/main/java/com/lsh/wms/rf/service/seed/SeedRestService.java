@@ -689,9 +689,10 @@ public class SeedRestService implements ISeedRestService {
             } else {
                 info.setContainerId(info.getContainerId());
             }
+            info.setOperator(uId);
             baseTaskService.update(info);
         }
-        iTaskRpcService.assign(info.getTaskId(),uId);
+        //iTaskRpcService.assign(info.getTaskId(),uId);
         //判断能否整除
         BigDecimal [] decimals = head.getRequireQty().divideAndRemainder(info.getPackUnit());
         if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
