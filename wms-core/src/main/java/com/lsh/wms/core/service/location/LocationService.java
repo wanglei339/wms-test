@@ -900,23 +900,6 @@ public class LocationService {
 
 
     /**
-     * 设置位置没有被占用
-     *
-     * @param locationId
-     * @return
-     */
-    @Transactional(readOnly = false)
-    public BaseinfoLocation setLocationUnOccupied(Long locationId) {
-        BaseinfoLocation location = this.getLocation(locationId);
-        if (location == null) {
-            throw new BizCheckedException("2180001");
-        }
-        location.setCanUse(LocationConstant.CAN_USE);    //被未被使用
-        this.updateLocation(location);
-        return location;
-    }
-
-    /**
      * 查看位置现在是否能继续使用,(没上满|没库存的)都是能继续使用的,对于库位
      *
      * @param locationId
@@ -1015,6 +998,28 @@ public class LocationService {
         this.updateLocation(location);
         return location;
     }
+
+    /**
+     * 释放锁,并设置可用
+     *
+     * @param locationId
+     * @return
+     */
+    @Transactional(readOnly = false)
+    public BaseinfoLocation unlockLocationAndSetCanUse(BaseinfoLocation location) {
+        BaseinfoLocation templocation = this.getLocation(location.getLocationId());
+        //表加行锁
+        if (templocation == null) {
+            throw new BizCheckedException("2180001");
+        }
+        locationDao.lock(templocation.getId());
+        location.setIsLocked(LocationConstant.UNLOCK);    //解锁
+        location.setCanUse(LocationConstant.CAN_USE);    //设置可用
+        this.updateLocation(location);
+        return location;
+    }
+
+
 
     /**
      * 检查位置的锁状态
@@ -1122,6 +1127,7 @@ public class LocationService {
     @Transactional(readOnly = false)
     public BaseinfoLocation refreshContainerVol(Long locationId, Long containerVol) {
         BaseinfoLocation location = this.getLocation(locationId);
+        locationDao.lock(location.getId());
         if (location == null) {
             throw new BizCheckedException("2180001");
         }

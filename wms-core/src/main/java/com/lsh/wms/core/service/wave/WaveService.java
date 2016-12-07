@@ -541,6 +541,7 @@ public class WaveService {
             }
             ObjUtils.bean2bean(detail, splitDetail);
             splitDetail.setAllocQty(realSplitQty);
+            splitDetail.setAllocUnitQty(PackUtil.EAQty2UomQty(realSplitQty, detail.getAllocUnitName()));
             splitDetail.setRefDetailId(detail.getId());
             splitDetail.setPickOrder(order + 1);
             splitDetail.setPickAt(0L);

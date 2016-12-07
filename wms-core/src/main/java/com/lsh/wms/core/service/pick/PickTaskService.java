@@ -154,7 +154,7 @@ public class PickTaskService {
                     }
                     move.setItemId(itemId);
                     move.setSkuId(pickDetail.getSkuId());
-                    move.setFromContainerId(pickDetail.getContainerId());
+                    move.setFromContainerId(quant.getContainerId());
                     move.setFromLocationId(locationId);
                     move.setToContainerId(toContainer.getContainerId());
                     move.setToLocationId(toLocation.getLocationId());
