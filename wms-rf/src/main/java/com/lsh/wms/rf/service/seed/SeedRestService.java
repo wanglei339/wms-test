@@ -687,7 +687,7 @@ public class SeedRestService implements ISeedRestService {
                 List<TaskInfo> infos = baseTaskService.getTaskInfoList(queryMap);
                 info.setContainerId(infos.get(0).getContainerId());
             } else {
-                info.setContainerId(info.getContainerId());
+                info.setContainerId(containerId);
             }
             info.setOperator(uId);
             baseTaskService.update(info);
