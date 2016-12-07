@@ -1,6 +1,7 @@
 package com.lsh.wms.core.service.item;
 
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoItemLocationDao;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
@@ -91,15 +92,19 @@ public class ItemLocationService {
 //        }
         long itemId = itemLocation.getItemId();
         long locationId = itemLocation.getPickLocationid();
-        List<BaseinfoItemLocation> newList = this.getItemLocationByLocationID(locationId);
-        if(newList.size()>0){
-            throw new BizCheckedException("2990001");
+        BaseinfoLocation newLocation = locationService.getLocation(locationId);
+        if(LocationConstant.SPLIT_AREA.compareTo(newLocation.getRegionType()) != 0){
+            //拆零区,验证拣货位是否被占用
+            List<BaseinfoItemLocation> newList = this.getItemLocationByLocationID(locationId);
+            if(newList.size()>0){
+                throw new BizCheckedException("2990001");//该拣货位已被占用
+            }
         }
+
         List<BaseinfoItemLocation> oldList = this.getItemLocationList(itemId);
         if(oldList.size()>0){
             BaseinfoItemLocation oldItemList = oldList.get(0);
             BaseinfoLocation oldLocation = locationService.getLocation(oldItemList.getPickLocationid());
-            BaseinfoLocation newLocation = locationService.getLocation(locationId);
             if(!oldLocation.getType().equals(newLocation.getType())){
                 throw new BizCheckedException("2990002");
             }
