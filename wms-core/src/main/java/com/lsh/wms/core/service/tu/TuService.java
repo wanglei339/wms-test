@@ -653,8 +653,7 @@ public class TuService {
             java.math.BigDecimal qty = stockQuantService.getQty(mapQuery);
             if (0 == qty.compareTo(BigDecimal.ZERO)) {
                 //释放集货导
-                locationService.setLocationUnOccupied(locationId);
-                locationService.unlockLocation(locationId);
+                locationService.unlockLocationAndSetCanUse(locationId);
             }
         }
         //设置发货人和发货时间

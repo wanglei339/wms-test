@@ -91,8 +91,7 @@ public class ShipRestService implements IShipRestService {
             throw new BizCheckedException("2130010");
         } else {
             //释放集货导
-            iLocationRpcService.unlockLocation(locationId);
-            locationService.setLocationUnOccupied(locationId);
+            locationService.unlockLocationAndSetCanUse(locationId);
         }
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {
