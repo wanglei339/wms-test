@@ -174,8 +174,12 @@ public class SeedRestService implements ISeedRestService {
                     result.put("qty", head.getRequireQty());
                     result.put("packName", "EA");
                 }
+                BaseinfoItem item = itemService.getItem(info.getItemId());
                 result.put("storeName", csiRpcService.getCustomerByCode(info.getOwnerId(), head.getStoreNo()).getCustomerName());
                 result.put("skuName", csiSkuService.getSku(info.getSkuId()).getSkuName());
+                result.put("storeNo", head.getStoreNo());
+                result.put("barcode",item.getCode());
+                result.put("skuCode",item.getSkuCode());
                 result.put("itemId", info.getItemId());
                 return JsonUtils.SUCCESS(result);
             }
@@ -683,11 +687,12 @@ public class SeedRestService implements ISeedRestService {
                 List<TaskInfo> infos = baseTaskService.getTaskInfoList(queryMap);
                 info.setContainerId(infos.get(0).getContainerId());
             } else {
-                info.setContainerId(info.getContainerId());
+                info.setContainerId(containerId);
             }
+            info.setOperator(uId);
             baseTaskService.update(info);
         }
-        iTaskRpcService.assign(info.getTaskId(),uId);
+        //iTaskRpcService.assign(info.getTaskId(),uId);
         //判断能否整除
         BigDecimal [] decimals = head.getRequireQty().divideAndRemainder(info.getPackUnit());
         if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
@@ -744,20 +749,28 @@ public class SeedRestService implements ISeedRestService {
         //实际是orderOtherId
         String orderId = "";
         String barcode = "";
+        Object orderObj = "";
+        Object barcodeObj = "";
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Map<String,Object> result = new HashMap<String, Object>();
         try {
-            orderId =  mapQuery.get("orderId").toString().trim();
+            orderObj =  mapQuery.get("orderId");
             if(mapQuery.containsKey("containerId")){
                 containerId = Long.valueOf(mapQuery.get("containerId").toString().trim());
             }
-            barcode =  mapQuery.get("barcode").toString().trim();
+            barcodeObj =  mapQuery.get("barcode");
         }catch (Exception e) {
             logger.error(e.getMessage());
             return JsonUtils.TOKEN_ERROR("参数传递格式有误");
         }
         if(containerId.equals(0L)) {
-            IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(orderId.toString().trim());
+            if(orderObj==null || barcodeObj ==null ){
+                return JsonUtils.TOKEN_ERROR("订单或国条为空");
+            }
+            barcode = barcodeObj.toString().trim();
+            orderId = orderObj.toString().trim();
+
+            IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(orderId);
             if (ibdHeader == null) {
                 throw new BizCheckedException("2020001");
             }

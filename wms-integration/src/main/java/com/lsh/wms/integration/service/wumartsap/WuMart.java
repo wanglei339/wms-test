@@ -184,7 +184,7 @@ public class WuMart implements IWuMart {
                         sysLog.setLogMessage("直流obd过账失败!");
                         sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
                         sysLog.setLogCode("直流obd过账失败");
-                        sysLog.setStep(SysLogConstant.LOG_STEP_OBDCREATE);
+                        sysLog.setStep(SysLogConstant.LOG_STEP_IBDFINISH);
                     }else{
                         sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
                         sysLog.setStep(SysLogConstant.LOG_STEP_OBDFINISH);

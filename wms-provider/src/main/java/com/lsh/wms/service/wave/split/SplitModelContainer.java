@@ -5,6 +5,8 @@ import com.lsh.wms.core.constant.PickConstant;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.wave.WaveDetail;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -14,6 +16,8 @@ import java.math.BigDecimal;
  * Created by zengwenjun on 16/7/15.
  */
 public class SplitModelContainer extends SplitModel{
+    private static Logger logger = LoggerFactory.getLogger(SplitModelContainer.class);
+
     @Override
     public void split(List<SplitNode> stopNodes) {
         //判断单个container能容纳的商品数量,这个商品数量和基本单位怎么转换呢?你妈了个大爷的
@@ -41,6 +45,12 @@ public class SplitModelContainer extends SplitModel{
                         containerQty = this.model.getContainerCapacityCm3()
                                 .divide(eachCapacity, 0, BigDecimal.ROUND_FLOOR)
                                 .multiply(PackUtil.Uom2PackUnit(detail.getAllocUnitName()));
+                        logger.info(String.format("item %d[%s] cq %s cm3 %s each %s",
+                                item.getItemId(),
+                                item.getSkuName(),
+                                containerQty.toString(),
+                                this.model.getContainerCapacityCm3().toString(),
+                                eaCapacity.toString()));
                     }else{
                         containerQty = PackUtil.Uom2PackUnit(detail.getAllocUnitName())
                                 .multiply(BigDecimal.valueOf(this.model.getContainerUnitCapacity()));
@@ -49,6 +59,7 @@ public class SplitModelContainer extends SplitModel{
                         containerQty = BigDecimal.valueOf(1L).multiply(PackUtil.Uom2PackUnit(detail.getAllocUnitName()));
                     }
                     int num = detail.getAllocQty().divide(containerQty, 0, BigDecimal.ROUND_FLOOR).intValue();
+                    logger.info("num cao "+num+" "+containerQty+" "+detail.getAllocQty());
                     for(int i = 0;i < num;++i){
                         SplitNode newNode = new SplitNode();
                         WaveDetail newDetail = new WaveDetail();
