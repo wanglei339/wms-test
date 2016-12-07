@@ -9,6 +9,7 @@ import com.lsh.wms.core.dao.stock.OverLossReportDao;
 import com.lsh.wms.core.dao.taking.StockTakingDetailDao;
 import com.lsh.wms.core.dao.taking.StockTakingHeadDao;
 import com.lsh.wms.core.service.container.ContainerService;
+import com.lsh.wms.core.service.datareport.DifferenceZoneReportService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.BaseinfoLocationService;
 import com.lsh.wms.core.service.location.LocationService;
@@ -18,6 +19,7 @@ import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.datareport.DifferenceZoneReport;
 import com.lsh.wms.model.stock.*;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
@@ -63,6 +65,8 @@ public class StockTakingService {
     private StockSummaryService stockSummaryService;
     @Autowired
     private BaseTaskService baseTaskService;
+    @Autowired
+    private DifferenceZoneReportService differenceZoneReportService;
 
     @Transactional(readOnly = false)
     public void insertHead(StockTakingHead head) {
@@ -316,22 +320,31 @@ public class StockTakingService {
 
     @Transactional(readOnly = false)
     public void doQcPickDifference(StockMove move) throws BizCheckedException {
-        OverLossReport overLossReport = new OverLossReport();
-        //插入报损
+//        OverLossReport overLossReport = new OverLossReport();
+        DifferenceZoneReport differenceZoneReport = new DifferenceZoneReport();
+        //插入差异报表
         BaseinfoItem item = itemService.getItem(move.getItemId());
-        overLossReport.setItemId(item.getItemId());
-        overLossReport.setOwnerId(item.getOwnerId());
-        overLossReport.setLotId(0L);
-        overLossReport.setPackName(item.getPackName());
-        overLossReport.setSkuCode(item.getSkuCode());
-        overLossReport.setRefTaskId(move.getTaskId());
-        overLossReport.setMoveType(OverLossConstant.LOSS_REPORT);
-        overLossReport.setQty(move.getQty());
-        overLossReport.setStorageLocation(move.getFromLocationId().toString());
+//        overLossReport.setItemId(item.getItemId());
+//        overLossReport.setOwnerId(item.getOwnerId());
+//        overLossReport.setLotId(0L);
+//        overLossReport.setPackName(item.getPackName());
+//        overLossReport.setSkuCode(item.getSkuCode());
+//        overLossReport.setRefTaskId(move.getTaskId());
+//        overLossReport.setMoveType(OverLossConstant.LOSS_REPORT);
+//        overLossReport.setQty(move.getQty());
+//        overLossReport.setStorageLocation(move.getFromLocationId().toString());
+        differenceZoneReport.setItemId(item.getItemId());
+        differenceZoneReport.setSkuCode(item.getSkuCode());
+        differenceZoneReport.setFromLocationId(move.getFromLocationId());
+        differenceZoneReport.setSourceType(ReportConstant.SOURCE_TYPE_QC);
+        differenceZoneReport.setUnitName("EA");
+        differenceZoneReport.setQty(move.getQty().abs());
         TaskInfo qcInfo = baseTaskService.getTaskInfoById(move.getTaskId());
+        differenceZoneReport.setOperator(qcInfo.getOperator());
 
         try {
-            this.insertLossOrOver(overLossReport);
+            //插入差异表
+            differenceZoneReportService.insertReport(differenceZoneReport);
             //移到差异区
             moveService.move(move);
 
