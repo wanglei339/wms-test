@@ -150,6 +150,8 @@ public class ShelveRestService implements IShelveRestService {
                 result.put("allocLocationCode", allocLocation.getLocationCode());
                 result.put("itemId", item.getItemId());
                 result.put("skuName", item.getSkuName());
+                result.put("skuCode", item.getSkuCode());
+                result.put("barcode", item.getCode());
                 result.put("pickLocationIdList", itemLocationService.getPickLocationsByItemId(item.getItemId()));
                 return JsonUtils.SUCCESS(result);
             } else {
@@ -175,6 +177,8 @@ public class ShelveRestService implements IShelveRestService {
         result.put("allocLocationCode", allocLocation.getLocationCode());
         result.put("itemId", item.getItemId());
         result.put("skuName", item.getSkuName());
+        result.put("skuCode", item.getSkuCode());
+        result.put("barcode", item.getCode());
         result.put("pickLocationIdList", itemLocationService.getPickLocationsByItemId(item.getItemId()));
         return JsonUtils.SUCCESS(result);
     }
@@ -233,6 +237,8 @@ public class ShelveRestService implements IShelveRestService {
         result.put("allocLocationCode", allocLocation.getLocationCode());
         result.put("itemId", item.getItemId());
         result.put("skuName", item.getSkuName());
+        result.put("skuCode", item.getSkuCode());
+        result.put("barcode", item.getCode());
         result.put("pickLocationIdList", itemLocationService.getPickLocationsByItemId(item.getItemId()));
         return JsonUtils.SUCCESS(result);
     }
