@@ -669,22 +669,6 @@ public class LocationService {
 
 
     /**
-     * 根据库位的type和区域regionType查找
-     *
-     * @param type
-     * @param regionType
-     * @return
-     */
-    public List<BaseinfoLocation> getLocationsByTypeAndRegionType(Long type, Long regionType) {
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("type", type);
-        params.put("regionType", regionType);
-        params.put("isValid", LocationConstant.IS_VALID);
-        List<BaseinfoLocation> locations = this.getBaseinfoLocationList(params);
-        return (null != locations && locations.size() > 1) ? locations : new ArrayList<BaseinfoLocation>();
-    }
-
-    /**
      * 分配可用可用location
      *
      * @param type
@@ -1401,15 +1385,29 @@ public class LocationService {
     }
 
     /**
-     * 获取底层节点的货位
+     * 获取指定区域下的bin
      *
-     * @param type 货位的type
+     * @param regionType    区域的type
      * @return
      */
-    public List<Long> getLocationBinByType(Long type) {
+    public List<Long> getLocationBinsByRegionType(Long regionType) {
         Map<String, Object> queryMap = new HashMap<String, Object>();
         queryMap.put("isLeaf", LocationConstant.IS_LEAF);
-        queryMap.put("type", type);
+        queryMap.put("type", LocationConstant.BIN);
+        queryMap.put("regionType", regionType);
+        List<Long> locationIds = locationDao.getLocationBinByType(queryMap);
+        return locationIds != null && locationIds.size() > 0 ? locationIds : new ArrayList<Long>();
+    }
+
+    /**
+     * 获取全库位
+     *
+     * @return
+     */
+    public List<Long> getALLBins() {
+        Map<String, Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("isLeaf", LocationConstant.IS_LEAF);
+        queryMap.put("type", LocationConstant.BIN);
         List<Long> locationIds = locationDao.getLocationBinByType(queryMap);
         return locationIds != null && locationIds.size() > 0 ? locationIds : new ArrayList<Long>();
     }

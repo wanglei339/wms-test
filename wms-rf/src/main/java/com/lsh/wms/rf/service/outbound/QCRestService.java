@@ -255,6 +255,7 @@ public class QCRestService implements IRFQCRestService {
         rstMap.put("turnoverBoxNum", hasEA ? 1 : 0);
         rstMap.put("qcTaskDone", qcTaskInfo.getStatus() == TaskConstant.Done);
         rstMap.put("qcTaskId", qcTaskInfo.getTaskId().toString());
+        rstMap.put("containerId", qcTaskInfo.getContainerId());
         rstMap.put("isFristQc", isFirstQC);
         rstMap.put("step", step);
         return JsonUtils.SUCCESS(rstMap);

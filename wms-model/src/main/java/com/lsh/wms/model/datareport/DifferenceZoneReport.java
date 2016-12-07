@@ -19,7 +19,7 @@ public class DifferenceZoneReport implements Serializable {
 	/** 来源类型 1 拣货 2 QC 3 补货 */
     private Integer sourceType;
 	/** 基本单位名称 EA */
-    private String unitName;
+    private String unitName="EA";
 	/** 数量 */
     private BigDecimal qty;
 	/** 操作人 */
