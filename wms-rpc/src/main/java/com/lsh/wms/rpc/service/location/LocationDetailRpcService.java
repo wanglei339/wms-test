@@ -227,6 +227,45 @@ public class LocationDetailRpcService implements ILocationDetailRpc {
         } else {
             request.setPassageNo(locations.get(0).getPassageNo() + 1L);
         }
+        request.setRegionNo(fatherLocation.getRegionNo());
+        request.setShelfLevelNo(0L);
+        request.setBinPositionNo(0L);
+        request.setTypeName(LocationConstant.LOCATION_TYPE_NAME.get(request.getType()));
+//        locationDetailService.insert(request);
+    }
+
+    /**
+     * 在通道插入一个货架
+     * 1.获取父节点
+     * 2.type
+     * 3.classfication
+     * 4.继承父亲regionNo,passage
+     * 5.locationCode(前端给)
+     *
+     * @param request
+     * @throws BizCheckedException
+     */
+    public void insertShelf(LocationDetailRequest request) throws BizCheckedException {
+        Long fatherId = request.getFatherId();
+        BaseinfoLocation fatherLocation = locationService.getLocation(fatherId);
+        if (null == fatherLocation) {
+            throw new BizCheckedException("2180033");
+        }
+        //获取大区下的区坐标最大的一个
+        Map<String, Object> sortQuery = new HashMap<String, Object>();
+        sortQuery.put("leftRange", fatherLocation.getLeftRange());
+        sortQuery.put("rightRange", fatherLocation.getRightRange());
+        sortQuery.put("classification", LocationConstant.CLASSIFICATION_SHELFS);
+        sortQuery.put("isValid", LocationConstant.IS_VALID);
+        sortQuery.put("passageNoDESC", "");
+        List<BaseinfoLocation> locations = locationService.getSortLocations(sortQuery);
+        //坐标初始化
+        if (null == locations || locations.isEmpty()) {
+            request.setPassageNo(1L);
+        } else {
+            request.setPassageNo(locations.get(0).getPassageNo() + 1L);
+        }
+        request.setRegionNo(fatherLocation.getRegionNo());
         request.setShelfLevelNo(0L);
         request.setBinPositionNo(0L);
         request.setTypeName(LocationConstant.LOCATION_TYPE_NAME.get(request.getType()));

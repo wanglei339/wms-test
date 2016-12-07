@@ -279,7 +279,7 @@ public class SoDeliveryService {
             return deliveryQty;
         }
         for(OutbDeliveryDetail detail: list) {
-            deliveryQty.add(detail.getDeliveryNum());
+            deliveryQty = deliveryQty.add(detail.getDeliveryNum());
         }
         return deliveryQty;
     }

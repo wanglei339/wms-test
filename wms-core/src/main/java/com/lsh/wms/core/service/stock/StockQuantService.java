@@ -462,7 +462,7 @@ public class StockQuantService {
     }
 
     @Transactional(readOnly = false)
-    public void move(StockMove move, StockLot lot) {
+    protected void move(StockMove move, StockLot lot) {
         // 创建move
         moveDao.insert(move);
 

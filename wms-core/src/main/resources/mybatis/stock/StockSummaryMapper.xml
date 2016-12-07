@@ -36,11 +36,11 @@
         <if test="itemId != null">item_id,</if>
         <if test="skuCode != null">sku_code,</if>
         <if test="ownerId != null">owner_id,</if>
-        inhouseQty = shelf_qty + split_qty + attic_qty + floor_qty +  collection_qty + dock_qty + sow_qty,
+        inhouse_qty,
         <if test="allocQty != null">alloc_qty,</if>
-        avail_qty = shelf_qty + split_qty + attic_qty + floor_qty + collection_qty + dock_qty + sow_qty - alloc_qty - presaleQty
         <if test="presaleQty != null">presale_qty,</if>
-        <if test="inventoryLossQty != null">inventory_loss_qty,</if>
+		avail_qty,
+		<if test="inventoryLossQty != null">inventory_loss_qty,</if>
         <if test="shelfQty != null">shelf_qty,</if>
         <if test="splitQty != null">split_qty,</if>
         <if test="atticQty != null">attic_qty,</if>
@@ -63,8 +63,10 @@
         <if test="itemId != null">#{itemId},</if>
         <if test="skuCode != null">#{skuCode},</if>
         <if test="ownerId != null">#{ownerId},</if>
+		shelf_qty + split_qty + attic_qty + floor_qty +  collection_qty + dock_qty + sow_qty,
         <if test="allocQty != null">#{allocQty},</if>
         <if test="presaleQty != null">#{presaleQty},</if>
+		shelf_qty + split_qty + attic_qty + floor_qty + collection_qty + dock_qty + sow_qty - alloc_qty - presale_qty,
         <if test="inventoryLossQty != null">#{inventoryLossQty},</if>
         <if test="shelfQty != null">#{shelfQty},</if>
         <if test="splitQty != null">#{splitQty},</if>
@@ -93,14 +95,14 @@
 		temporary_qty = temporary_qty + values(temporary_qty),
 		collection_qty = collection_qty + values(collection_qty),
 		back_qty = back_qty + values(back_qty),
-		defect_aty = defect_qty + values(defect_qty),
+		defect_qty = defect_qty + values(defect_qty),
 		market_return_qty = market_return_qty + values(market_return_qty),
 		sow_qty = sow_qty + values(sow_qty),
 		supplier_return_qty = supplier_return_qty + values(supplier_return_qty),
 		diff_qty = diff_qty + values(diff_qty),
-		inhouseQty = shelf_qty + split_qty + attic_qty + floor_qty + collection_qty + dock_qty + sow_qty,
+		inhouse_qty = shelf_qty + split_qty + attic_qty + floor_qty + collection_qty + dock_qty + sow_qty,
 		avail_qty = inhouse_qty - alloc_qty - presale_qty,
-		udpated_at = values(updated_at)
+		updated_at = values(updated_at)
 	</update>
   
 	<select id="getStockSummaryByItemId" parameterType="long" resultMap="stockSummaryResultMap">

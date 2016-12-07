@@ -12,7 +12,6 @@ import com.lsh.wms.api.service.wave.IWaveRestService;
 import com.lsh.wms.api.service.wumart.IWuMart;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.WaveConstant;
-import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.pick.PickModelService;
@@ -63,8 +62,6 @@ public class WaveRestService implements IWaveRestService {
     private WaveTemplateService waveTemplateService;
     @Autowired
     private WaveRpcService waveRpcService;
-    @Autowired
-    private InventoryRedisService inventoryRedisService;
 
     @Autowired
     private BaseinfoLocationWarehouseService baseinfoLocationWarehouseService;

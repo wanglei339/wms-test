@@ -175,6 +175,12 @@
 		limit #{start},#{limit}
 		</if>
 	</select>
+
+	<select id="getPickLocationsByPickTimeRegion" parameterType="map" resultType="long">
+		select distinct(real_pick_location) from wave_detail
+		<include refid="queryCondition"/>
+	</select>
+
   
 	<sql id="queryCondition">
 		<where>
@@ -241,6 +247,8 @@
 				and ( ( ${collectLocationObj.getLocationId()} &lt;= alloc_collect_location and alloc_collect_location &lt;= ${collectLocationObj.getRightRange()} )
 					or ( ${collectLocationObj.getLocationId()} &lt;= real_collect_location and real_collect_location &lt;= ${collectLocationObj.getRightRange()} ) )
 			</if>
+			<if test="pickBeginAt != null">and pick_at >= #{pickBeginAt}</if>
+			<if test="pickEndAt != null">and #{pickEndAt} >= pick_at </if>
 		</where>
 	</sql>
    

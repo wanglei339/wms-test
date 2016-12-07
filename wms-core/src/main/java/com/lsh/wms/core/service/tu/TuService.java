@@ -16,6 +16,8 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
@@ -220,7 +222,7 @@ public class TuService {
      */
     @Transactional(readOnly = false)
     public boolean moveItemToConsumeArea(Set<Long> containerIds) {
-        if (containerIds.size() == 0 ){
+        if (containerIds.size() == 0) {
             return true;
         }
         stockMoveService.moveToConsume(containerIds);
@@ -330,7 +332,7 @@ public class TuService {
     */
 
     //获取订单级别的箱数数据
-    private static  Map<Long, Map<String, Object>>  _getOrderBoxInfo(List<TuDetail> tuDetails, List<WaveDetail> totalWaveDetails){
+    private static Map<Long, Map<String, Object>> _getOrderBoxInfo(List<TuDetail> tuDetails, List<WaveDetail> totalWaveDetails) {
         Map<Long, Object> containerInfo = new HashMap<Long, Object>();
         for (TuDetail detail : tuDetails) {
             Long containerId = detail.getMergedContainerId();
@@ -345,10 +347,10 @@ public class TuService {
         Map<Long, Set<Long>> orderContainerSet = new HashMap<Long, Set<Long>>();
         for (WaveDetail waveDetail : totalWaveDetails) {
             Long containerId = waveDetail.getContainerId();
-            if(containerInfo.get(containerId) == null){
+            if (containerInfo.get(containerId) == null) {
                 containerId = waveDetail.getMergedContainerId();
             }
-            if(containerInfo.get(containerId) == null){
+            if (containerInfo.get(containerId) == null) {
                 //出大事了,这个是怎么来的?jb不可能啊.
                 continue;
             }
@@ -372,8 +374,8 @@ public class TuService {
                 boxNum = boxNum.add(new BigDecimal(oneContainer.get("boxNum").toString()));
                 turnoverBoxNum += Long.parseLong(oneContainer.get("turnoverBoxNum").toString());
             }
-            Map<String,Object> orderBoxMap = new HashMap<String, Object>();
-            orderBoxMap.put("boxNum", (int)boxNum.floatValue());
+            Map<String, Object> orderBoxMap = new HashMap<String, Object>();
+            orderBoxMap.put("boxNum", (int) boxNum.floatValue());
             orderBoxMap.put("turnoverBoxNum", turnoverBoxNum);
             orderBoxInfo.put(key, orderBoxMap);
         }
@@ -411,10 +413,10 @@ public class TuService {
                 header.setOrderId(waveDetail.getOrderId());
                 header.setTuId(tuHead.getTuId());
                 Map<String, Object> boxInfo = orderBoxInfo.get(waveDetail.getOrderId());
-                if(boxInfo != null){
+                if (boxInfo != null) {
                     header.setBoxNum(Long.valueOf(boxInfo.get("boxNum").toString()));
                     header.setTurnoverBoxNum(Long.valueOf(boxInfo.get("turnoverBoxNum").toString()));
-                }else{
+                } else {
                     header.setBoxNum(0L);
                     header.setTurnoverBoxNum(0L);
                 }
@@ -426,7 +428,7 @@ public class TuService {
             Map<String, OutbDeliveryDetail> rowDeliverys = mapMergedDeliveryDetails.get(waveDetail.getOrderId());
             String key = waveDetail.getItemId().toString();
             OutbDeliveryDetail deliveryDetail = rowDeliverys.get(key);
-            if(deliveryDetail == null) {
+            if (deliveryDetail == null) {
                 //同订单聚合detail
                 deliveryDetail = new OutbDeliveryDetail();
                 deliveryDetail.setOrderId(waveDetail.getOrderId());
@@ -467,7 +469,7 @@ public class TuService {
             }
             header.setDeliveryId(RandomUtils.genId());
             List<ObdDetail> orderDetails = soOrderService.getOutbSoDetailListByOrderId(header.getOrderId());
-            logger.info("size1 " +orderDetails.size());
+            logger.info("size1 " + orderDetails.size());
             Collections.sort(orderDetails, new Comparator<ObdDetail>() {
                 //此处可以设定一个排序规则,对波次中的订单优先级进行排序
                 public int compare(ObdDetail o1, ObdDetail o2) {
@@ -480,78 +482,78 @@ public class TuService {
                 //进行运算,首先取得订单里的item订货列表信息
                 List<ObdDetail> itemOrderList = new LinkedList<ObdDetail>();
                 for (ObdDetail obdDetail : orderDetails) {
-                    logger.info("caogod "+obdDetail.getItemId()+" "+detail.getItemId());
+                    logger.info("caogod " + obdDetail.getItemId() + " " + detail.getItemId());
                     if (obdDetail.getItemId().equals(detail.getItemId())) {
                         itemOrderList.add(obdDetail);
                     }
                 }
-                logger.info("size2 "+itemOrderList.size());
+                logger.info("size2 " + itemOrderList.size());
                 //再从发货单里取得曾经发过货的详情,因为可能又多次发货问题,这是需要处理的.
                 List<OutbDeliveryDetail> oldDeliverys = soDeliveryService.getOutbDeliveryDetailsByOrderId(header.getOrderId());
-                if(oldDeliverys == null) oldDeliverys = new LinkedList<OutbDeliveryDetail>();
+                if (oldDeliverys == null) oldDeliverys = new LinkedList<OutbDeliveryDetail>();
                 BigDecimal oldDeliveryQty = new BigDecimal("0.0000");
-                for(OutbDeliveryDetail oldDelivery : oldDeliverys){
-                    if(oldDelivery.getItemId().equals(detail.getItemId())) {
+                for (OutbDeliveryDetail oldDelivery : oldDeliverys) {
+                    if (oldDelivery.getItemId().equals(detail.getItemId())) {
                         oldDeliveryQty = oldDeliveryQty.add(oldDelivery.getDeliveryNum());
                     }
                 }
                 BigDecimal leftQty = detail.getDeliveryNum();
-                logger.info("cao3 "+oldDeliveryQty+" now qty "+leftQty);
+                logger.info("cao3 " + oldDeliveryQty + " now qty " + leftQty);
                 int idx = 0;
                 for (ObdDetail obdDetail : itemOrderList) {
                     idx++;
                     OutbDeliveryDetail newDetail = new OutbDeliveryDetail();
                     ObjUtils.bean2bean(detail, newDetail);
                     BigDecimal orderQty = obdDetail.getOrderQty().multiply(obdDetail.getPackUnit());
-                    logger.info("cao4 "+orderQty+" "+oldDeliveryQty);
+                    logger.info("cao4 " + orderQty + " " + oldDeliveryQty);
                     //这里先来先得,先把老的除去先
-                    if(orderQty.compareTo(oldDeliveryQty)<=0){
+                    if (orderQty.compareTo(oldDeliveryQty) <= 0) {
                         oldDeliveryQty = oldDeliveryQty.subtract(orderQty);
                         continue;
-                    }else{
+                    } else {
                         orderQty = orderQty.subtract(oldDeliveryQty);
                     }
-                    BigDecimal qty =  null;
-                    if( idx == itemOrderList.size() || leftQty.compareTo(orderQty) <= 0 ){
+                    BigDecimal qty = null;
+                    if (idx == itemOrderList.size() || leftQty.compareTo(orderQty) <= 0) {
                         qty = leftQty;
-                    }else{
+                    } else {
                         qty = orderQty;
                     }
-                    logger.info("cao "+qty+" "+leftQty+" "+orderQty);
+                    logger.info("cao " + qty + " " + leftQty + " " + orderQty);
                     newDetail.setDeliveryNum(qty);
                     newDetail.setRefDetailOtherId(obdDetail.getDetailOtherId());
                     leftQty = leftQty.subtract(qty);
-                    logger.info("cao2 "+qty+" "+leftQty+" "+orderQty);
+                    logger.info("cao2 " + qty + " " + leftQty + " " + orderQty);
                     realDetails.add(newDetail);
-                    if(leftQty.compareTo(BigDecimal.ZERO)==0){
+                    if (leftQty.compareTo(BigDecimal.ZERO) == 0) {
                         break;
                     }
                 }
-                if(leftQty.compareTo(BigDecimal.ZERO)>0){
+                if (leftQty.compareTo(BigDecimal.ZERO) > 0) {
                     //出事了,怎么来的?
                     logger.error(String.format("delivery item out of bound order[%d] item[%d] qty[%s]",
                             header.getOrderId(), detail.getItemId(), detail.getDeliveryNum().toString()));
                     throw new BizCheckedException("2990045");
                 }
             }
-            if(realDetails.size()==0){
+            if (realDetails.size() == 0) {
                 throw new BizCheckedException("2990038");
             }
             soDeliveryService.insertOrder(header, realDetails);
             waveService.updateOrderStatus(header.getOrderId());
-            persistenceProxy.doOne(SysLogConstant.LOG_TYPE_OBD,header.getDeliveryId(),0);
+            persistenceProxy.doOne(SysLogConstant.LOG_TYPE_OBD, header.getDeliveryId(), 0);
             //如果是物美的so单 则新增一条日志
             Integer type = header.getDeliveryType();
             ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(header.getOrderId());
-            if(SoConstant.ORDER_TYPE_SO == type && CsiConstan.OWNER_WUMART == obdHeader.getOwnerUid()){
-                persistenceProxy.doOne(SysLogConstant.LOG_TYPE_OBD,header.getDeliveryId(), SysLogConstant.LOG_TARGET_LSHOFC);
+            if (SoConstant.ORDER_TYPE_SO == type && CsiConstan.OWNER_WUMART == obdHeader.getOwnerUid()) {
+                persistenceProxy.doOne(SysLogConstant.LOG_TYPE_OBD, header.getDeliveryId(), SysLogConstant.LOG_TARGET_LSHOFC);
             }
         }
         //回写发货单的单号
         Set<Long> waveIds = new HashSet<Long>();
         for (WaveDetail detail : totalWaveDetails) {
             if (detail.getDeliveryId() != 0) {
-                logger.info("delivery not not 0 "+detail.getId());
+                logger.info("delivery not not 0 " + detail.getId());
                 continue;
             }
             detail.setDeliveryId(mapHeader.get(detail.getOrderId()).getDeliveryId());
@@ -563,9 +565,9 @@ public class TuService {
         }
 
         //todo 更新wave有波次,更新波次的状态
-        for(Object waveId : waveIds.toArray()) {
-            Long iWaveId = (Long)waveId;
-            if(iWaveId>1) {
+        for (Object waveId : waveIds.toArray()) {
+            Long iWaveId = (Long) waveId;
+            if (iWaveId > 1) {
                 waveService.updateWaveStatus(iWaveId);
                 //trik
                 //TODO HEHE
@@ -600,11 +602,9 @@ public class TuService {
 
     }
     */
-
-
     @Transactional(readOnly = false)
-    public List<WaveDetail>  createObdAndMoveStockQuantV2(TuHead tuHead,
-                                             List<TuDetail> tuDetails) {
+    public List<WaveDetail> createObdAndMoveStockQuantV2(TuHead tuHead,
+                                                         List<TuDetail> tuDetails) {
         Set<Long> totalContainers = new HashSet<Long>();
         //获取全量的wave_detail
         List<WaveDetail> totalWaveDetails = new ArrayList<WaveDetail>();
@@ -634,8 +634,9 @@ public class TuService {
             java.math.BigDecimal qty = stockQuantService.getQty(mapQuery);
             if (0 == qty.compareTo(BigDecimal.ZERO)) {
                 //释放集货导
-                locationService.setLocationUnOccupied(locationId);
-                locationService.unlockLocation(locationId);
+                BaseinfoLocation curLocation = new BaseinfoLocation();
+                curLocation.setLocationId(locationId);
+                locationService.unlockLocationAndSetCanUse(curLocation);
             }
         }
         //设置发货人和发货时间

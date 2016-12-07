@@ -26,4 +26,6 @@ public interface WaveDetailDao {
 
     List<WaveDetail> getOrderedWaveDetailList(Map<String, Object> params);
 
+	List<Long> getPickLocationsByPickTimeRegion(Map<String, Object> params);
+
 }

@@ -200,8 +200,8 @@ public class MergeRfRestService implements IMergeRfRestService {
         }*/
 
         Long mergedContainerId = 0L;
-        String deliveryCode = "";
-        String deliveryName = "";
+        String customerCode = "";
+        String customerName = "";
         Integer containerCount = 0; // 合板总托盘数
         BigDecimal packCount = BigDecimal.ZERO; // 总箱数
         BigDecimal turnoverBoxCount = BigDecimal.ZERO; // 总周转箱箱数
@@ -254,11 +254,11 @@ public class MergeRfRestService implements IMergeRfRestService {
                 if (obdHeader == null) {
                     throw new BizCheckedException("2870006");
                 }
-                if (deliveryCode.equals("")) {
-                    deliveryCode = obdHeader.getDeliveryCode();
-                    deliveryName = obdHeader.getDeliveryName();
+                if (customerCode.equals("")) {
+                    customerCode = obdHeader.getDeliveryCode();
+                    customerName = obdHeader.getDeliveryName();
                 }
-                if (!deliveryCode.equals(obdHeader.getDeliveryCode())) {
+                if (!customerCode.equals(obdHeader.getDeliveryCode())) {
                     throw new BizCheckedException("2870007");
                 }
             }
@@ -274,13 +274,13 @@ public class MergeRfRestService implements IMergeRfRestService {
             taskBoardQty = mergeTask.getTaskBoardQty();
         }
         Map<String, Object> result = new HashMap<String, Object>();
-        result.put("deliveryCode", deliveryCode);
-        //门店合板的名称 从csi_customer中取,因为物美 deliveryCode 和 deliveryName传的相同
-        CsiCustomer csiCustomer = csiCustomerService.getCustomerByCustomerCode(deliveryCode);   //FIXME 因为物美数据传输,先这么写,一旦优供也合板,之后修正
+        result.put("customerCode", customerCode);
+        //门店合板的名称 从csi_customer中取,因为物美 customerCode 和 customerName传的相同
+        CsiCustomer csiCustomer = csiCustomerService.getCustomerByCustomerCode(customerCode);   //FIXME 因为物美数据传输,先这么写,一旦优供也合板,之后修正
         if (null == csiCustomer) {
             throw new BizCheckedException("2870043");
         }
-        result.put("deliveryName", csiCustomer.getCustomerName());
+        result.put("customerName", csiCustomer.getCustomerName());
         result.put("containerCount", containerCount);
         result.put("packCount", packCount);
         result.put("turnoverBoxCount", turnoverBoxCount);

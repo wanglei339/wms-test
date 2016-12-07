@@ -48,11 +48,6 @@ public class PickUpShelveTaskHandler extends AbsTaskHandler {
     private StockLotService stockLotService;
     @Reference
     private IShelveRpcService iShelveRpcService;
-    @Reference
-    private IStockMoveRpcService iStockMoveRpcService;
-    @Autowired
-    private StockSummaryService stockSummaryService;
-
     @Autowired
     StockLotService lotService;
 

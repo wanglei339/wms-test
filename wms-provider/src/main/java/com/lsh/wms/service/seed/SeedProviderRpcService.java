@@ -290,7 +290,7 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
             for(BaseinfoItem item:items){
                 List<IbdHeader> ibdHeaders = poOrderService.getHeaderBySku(item.getSkuCode());
                 for(IbdHeader ibdHeader:ibdHeaders){
-                    if(containerOrderMap.containsKey(ibdHeader.getOrderId())){
+                    if(containerOrderMap.containsKey(ibdHeader.getOrderId()) || !ibdHeader.getOrderType().equals(PoConstant.ORDER_TYPE_CPO)){
                         continue;
                     }
                     containerOrderMap.put(ibdHeader.getOrderId(),ibdHeader.getOrderId());
@@ -311,9 +311,10 @@ public class SeedProviderRpcService implements ISeedProveiderRpcService {
             CsiCustomer csiCustomer = csiCustomerService.getCustomerByCustomerCode(head.getStoreNo());
 
             Map<String,Object> taskInfo = new HashMap<String, Object>();
-            taskInfo.put("storeNo",head.getStoreNo());
+            taskInfo.put("customerCode",head.getStoreNo());
             taskInfo.put("taskId",head.getTaskId());
-            taskInfo.put("storeName", csiCustomer.getCustomerName());
+            taskInfo.put("storeType",head.getStoreType());
+            taskInfo.put("customerName", csiCustomer.getCustomerName());
             TaskInfo info = baseTaskService.getTaskInfoById(head.getTaskId());
             //判断能否整除
             BigDecimal [] decimals = head.getRequireQty().divideAndRemainder(head.getPackUnit());

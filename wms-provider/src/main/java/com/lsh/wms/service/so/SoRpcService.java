@@ -13,9 +13,9 @@ import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.service.csi.CsiOwnerService;
-import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.so.SoOrderService;
+import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.csi.CsiOwner;
@@ -53,13 +53,12 @@ public class SoRpcService implements ISoRpcService {
     @Autowired
     private CsiOwnerService csiOwnerService;
 
-    @Autowired
-    private InventoryRedisService inventoryRedisService;
-
     @Reference
     private ITaskRpcService iTaskRpcService;
     @Autowired
     protected IdGenerator idGenerator;
+    @Autowired
+    private StockSummaryService stockSummaryService;
 
     public Long insertOrder(SoRequest request) throws BizCheckedException {
         //OutbSoHeader
@@ -118,7 +117,7 @@ public class SoRpcService implements ISoRpcService {
                 obdDetail.setOriOrderQty(soItem.getOrderQty());
             } else {
                 obdDetail.setOriOrderQty(soItem.getOrderQty());
-                Double avQty = inventoryRedisService.getAvailableSkuQty(obdDetail.getItemId());
+                Double avQty = stockSummaryService.getStockSummaryByItemId(obdDetail.getItemId()).getAvailQty().doubleValue();
                 if (avQty.compareTo(obdDetail.getOriOrderQty().doubleValue()) <= 0 ) {
                     if (owner.getSoCheckStrategy().equals(SoConstant.STOCK_HARD_CHECK)) {
                         throw new BizCheckedException("2900009");

@@ -8,7 +8,6 @@ import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.WriteOffConstant;
 import com.lsh.wms.core.service.container.ContainerService;
-import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockLotService;
@@ -54,8 +53,6 @@ public class StockQuantRpcService implements IStockQuantRpcService {
     @Autowired
     private ContainerService containerService;
 
-    @Autowired
-    private InventoryRedisService inventoryRedisService;
     @Autowired
     private StockLotService lotService;
     @Autowired

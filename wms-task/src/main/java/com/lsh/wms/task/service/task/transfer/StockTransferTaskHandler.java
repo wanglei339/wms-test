@@ -72,30 +72,6 @@ public class StockTransferTaskHandler extends AbsTaskHandler {
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         locationService.unlockLocation(taskInfo.getToLocationId());
 //        quantService.unReserve(taskInfo.getTaskId());
-
-        int type = 0;
-        BaseinfoLocation toLocation = locationService.getLocation(taskInfo.getToLocationId());
-        if (toLocation.getType().equals(LocationConstant.DEFECTIVE_AREA)
-                || toLocation.getType().equals(LocationConstant.DEFECTIVE_BIN)) {
-            type = StockConstant.TYPE_TO_DEFECT;
-        } else if  ( toLocation.getType().equals(LocationConstant.BACK_AREA)
-                || toLocation.getType().equals(LocationConstant.BACK_BIN)) {
-            type = StockConstant.TYPE_TO_REFUND;
-        } else if (locationService.getLocation(taskInfo.getFromLocationId()).equals(LocationConstant.MARKET_RETURN_AREA)) {
-            type = StockConstant.TYPE_MARKET_RETURN;
-        }
-
-        if (0 != type) {
-            StockDelta stockDelta = new StockDelta();
-            stockDelta.setItemId(taskInfo.getItemId());
-            stockDelta.setInhouseQty(BigDecimal.ZERO.subtract(taskInfo.getTaskEaQty()));
-            if (type == StockConstant.TYPE_MARKET_RETURN) {
-                stockDelta.setInhouseQty(taskInfo.getTaskEaQty());
-            }
-            stockDelta.setType(type);
-            stockDelta.setBusinessId(taskId);
-            stockSummaryService.changeStock(stockDelta);
-        }
     }
 
     public void doneConcrete(Long taskId, List<StockMove> moveList){
@@ -107,7 +83,8 @@ public class StockTransferTaskHandler extends AbsTaskHandler {
                         move.getFromLocationId(),
                         move.getToLocationId());
             }else{
-                stockMoveService.move(move);
+                stockMoveService.move(moveList);
+                break;
             }
         }
         this.doneConcrete(taskId);

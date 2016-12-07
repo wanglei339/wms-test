@@ -11,13 +11,18 @@ import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.service.inhouse.IStockTakingProviderRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.constant.WorkZoneConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.wave.WaveService;
+import com.lsh.wms.core.service.zone.WorkZoneService;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
@@ -25,14 +30,12 @@ import com.lsh.wms.model.taking.StockTakingRequest;
 import com.lsh.wms.model.task.StockTakingTask;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.model.zone.WorkZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -55,6 +58,10 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
     private StockTakingService stockTakingService;
     @Autowired
     private BaseTaskService baseTaskService;
+    @Autowired
+    private WorkZoneService workZoneService;
+    @Autowired
+    private WaveService waveService;
 
 
     public void create(Long locationId,Long uid) throws BizCheckedException {
@@ -207,5 +214,93 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         }
         logger.info(JsonUtils.SUCCESS(detailList));
         return detailList;
+    }
+
+
+    public void createPlanWarehouse(){
+        //get zone list;
+        List<WorkZone> zoneList = workZoneService.getWorkZoneByType(WorkZoneConstant.ZONE_STOCK_TAKING);
+        if(zoneList.size()==0){
+            //抛异常也行
+            return;
+        }
+        //get all location list;
+        List<Long> binLocations = locationService.getALLBins();
+        //cluster by zone;计算量稍微有点大,会不会超时啊?
+        Set<Long> setBinDup = new HashSet<Long>();
+        List<List<Long>> zoneBinArrs = new LinkedList<List<Long>>();
+        for (WorkZone zone : zoneList) {
+            List<Long> zoneBinLocations = new ArrayList<Long>();
+            if (zone.getLocations().trim().compareTo("") != 0) {
+
+                String[] locationIdStrs = zone.getLocations().split(",");
+                for (String locationIdStr : locationIdStrs) {
+                    Long locationId = Long.valueOf(locationIdStr);
+                    BaseinfoLocation location = locationService.getLocation(locationId);
+                    if (location == null) {
+                        //抛异常也行
+                        continue;
+                    }
+                    for (Long bin : binLocations) {
+                        if (location.getLocationId() <= bin && bin <= location.getRightRange()) {
+                            //hehe in the zone;
+                            if (!setBinDup.contains(bin)) {
+                                zoneBinLocations.add(bin);
+                                setBinDup.add(bin);
+                            }
+                        }
+                    }
+                }
+            } else {
+                //抛异常也行
+            }
+            zoneBinArrs.add(zoneBinLocations);
+        }
+        //call create
+        //这里数据库插入量非常高,非常容易超时,看怎么处理.
+    }
+
+    public void createPlanSales(){
+        //get zone list;
+        List<WorkZone> zoneList = workZoneService.getWorkZoneByType(WorkZoneConstant.ZONE_STOCK_TAKING);
+        if(zoneList.size()==0){
+            //抛异常也行
+            return;
+        }
+        //get all location list;
+        List<Long> binLocations = locationService.getALLBins();
+        //拉取动销库位,从wavedetail里面去拿,通过picklocation
+        long begin_at = 0;
+        long end_at = 0;
+        List<Long> pickLocations = waveService.getPickLocationsByPickTimeRegion(begin_at, end_at);
+        Set<Long> setBinDup = new HashSet<Long>();
+        List<List<Long>> zoneBinArrs = new LinkedList<List<Long>>();
+        for (WorkZone zone : zoneList) {
+            List<Long> zoneBinLocations = new ArrayList<Long>();
+            if (zone.getLocations().trim().compareTo("") != 0) {
+                String[] locationIdStrs = zone.getLocations().split(",");
+                for (String locationIdStr : locationIdStrs) {
+                    Long locationId = Long.valueOf(locationIdStr);
+                    BaseinfoLocation location = locationService.getLocation(locationId);
+                    if (location == null) {
+                        //抛异常也行
+                        continue;
+                    }
+                    for (Long bin : pickLocations) {
+                        if (location.getLocationId() <= bin && bin <= location.getRightRange()) {
+                            //hehe in the zone;
+                            if (!setBinDup.contains(location.getLocationId())) {
+                                zoneBinLocations.add(bin);
+                                setBinDup.add(bin);
+                            }
+                        }
+                    }
+                }
+            } else {
+                //抛异常也行
+            }
+            zoneBinArrs.add(zoneBinLocations);
+        }
+        //create;
     }
 }

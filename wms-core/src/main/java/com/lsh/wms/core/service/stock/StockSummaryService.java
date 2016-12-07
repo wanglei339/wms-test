@@ -5,6 +5,7 @@ import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.constant.StockConstant;
@@ -52,6 +53,7 @@ public class StockSummaryService {
 
     @Transactional(readOnly = false)
     public void changeStock(StockMove move) throws BizCheckedException {
+        logger.error("fuck entry heer" + move.toString());
         BaseinfoLocation fromRegion = locationService.getLocation(move.getFromLocationId());
         Long fromRegionType = fromRegion.getRegionType();
         BaseinfoLocation toRegion   = locationService.getLocation(move.getToLocationId());
@@ -71,12 +73,15 @@ public class StockSummaryService {
         summary.setOwnerId(item.getOwnerId());
         summary.setCreatedAt(DateUtils.getCurrentSeconds());
         summary.setUpdatedAt(DateUtils.getCurrentSeconds());
+        logger.error("change stock: " + summary);
         stockSummaryDao.changeStock(summary);
 
+        logger.error(StrUtils.formatString("FromRegionType:{0}, toRegionType{1}", fromRegionType, toRegionType));
         if ( toRegionType.equals(LocationConstant.SOW_AREA) &&
                 (fromRegionType.equals(LocationConstant.SUPPLIER_AREA) || fromRegionType.equals(LocationConstant.TEMPORARY)))
         {
             // 供商区||暂存区 => 播种区，以为着直流收货。需要插入预售订单来对冲。
+            logger.error("I am in here");
             allocPresale(move);
         }
     }
@@ -85,8 +90,8 @@ public class StockSummaryService {
     private void allocPresale(StockMove move) {
         StockMove presale = new StockMove();
         presale.setItemId(move.getItemId());
-        presale.setFromContainerId(locationService.getLocationsByType(LocationConstant.CONSUME_AREA).get(0).getLocationId());
-        presale.setToContainerId(locationService.getSoAreaInbound().getLocationId());
+        presale.setFromLocationId(locationService.getLocationsByType(LocationConstant.CONSUME_AREA).get(0).getLocationId());
+        presale.setToLocationId(locationService.getSoAreaInbound().getLocationId());
         presale.setQty(move.getQty());
         presale.setTaskId(move.getTaskId());
         stockMoveDao.insert(presale);

@@ -246,10 +246,9 @@ public class ReceiptRestService implements IReceiptRfService {
             }
             //如果没有输入生产日期和到期日
             //TODO 没有输入生产日期的不能填现在的日期,逻辑不合理,而且容易对后面的先进先出逻辑造成困扰
-           /* if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null) {
+            if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null) {
                 receiptItem.setProTime(new Date());
-            }else */
-            if(receiptItem.getProTime() == null && receiptItem.getDueTime() != null){
+            }else if(receiptItem.getProTime() == null && receiptItem.getDueTime() != null){
                 //根据到期日计算生产日期  //  16/11/12  根据生产日期-保质期计算
                 BigDecimal shelfLife = baseinfoItem.getShelfLife();//保质期天数
                 if(shelfLife == null || shelfLife.compareTo(BigDecimal.ZERO)<=0){
