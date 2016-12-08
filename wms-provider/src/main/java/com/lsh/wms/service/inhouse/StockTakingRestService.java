@@ -25,6 +25,7 @@ import com.lsh.wms.core.service.task.StockTakingTaskService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
+import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.stock.ItemAndSupplierRelation;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
@@ -38,6 +39,7 @@ import com.lsh.wms.model.task.TaskInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.jpa.vendor.OpenJpaDialect;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -128,6 +130,31 @@ public class StockTakingRestService implements IStockTakingRestService {
         StockTakingHead head = stockTakingService.getHeadById(takingId);
         return JsonUtils.SUCCESS(head);
     }
+
+    @POST
+    @Path("createPlanWarehouse")
+    public String createPlanWarehouse(Map<String,Object> mapQuery) throws BizCheckedException {
+        List zoneIds = (List)(mapQuery.get("zoneIds"));
+        for(int i = 0; i < zoneIds.size(); ++i){
+            zoneIds.set(i, Long.valueOf(zoneIds.get(i).toString()));
+        }
+        Long planner = Long.valueOf(mapQuery.get("uid").toString());
+        iStockTakingProviderRpcService.createPlanWarehouse(zoneIds, planner);
+        return JsonUtils.SUCCESS();
+    }
+
+    @POST
+    @Path("createPlanSales")
+    public String createPlanSales(Map<String,Object> mapQuery) throws BizCheckedException {
+        List zoneIds = (List)(mapQuery.get("zoneIds"));
+        for(int i = 0; i < zoneIds.size(); ++i){
+            zoneIds.set(i, Long.valueOf(zoneIds.get(i).toString()));
+        }
+        Long planner = Long.valueOf(mapQuery.get("uid").toString());
+        iStockTakingProviderRpcService.createPlanSales(zoneIds, planner);
+        return JsonUtils.SUCCESS();
+    }
+
     @GET
     @Path("genId")
     public String genId(@QueryParam("taskType") Long taskType){

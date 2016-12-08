@@ -26,4 +26,6 @@ public interface IStockTakingRestService {
     String getTakingLocation(StockTakingRequest request);
     String createTaking(StockTakingRequest request);
     String test();
+    String createPlanWarehouse(Map<String,Object> mapQuery) throws BizCheckedException;
+    String createPlanSales(Map<String,Object> mapQuery) throws BizCheckedException;
 }

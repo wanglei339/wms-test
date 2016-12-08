@@ -354,7 +354,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
 
     }
 
-    public void createPlanWarehouse(List<Long> zoneIds){
+    public void createPlanWarehouse(List<Long> zoneIds, Long planer) throws BizCheckedException {
         List<WorkZone> zoneList = this.getSelectedZones(zoneIds);
         //get all location list;
         List<Long> binLocations = locationService.getALLBins();
@@ -385,10 +385,13 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             } else {
                 //抛异常也行
             }
-            mapZoneBinArrs.put(zone.getZoneId(), zoneBinLocations);
+            if(zoneBinLocations.size()>0) {
+                mapZoneBinArrs.put(zone.getZoneId(), zoneBinLocations);
+            }
         }
         //call create
         //这里数据库插入量非常高,非常容易超时,看怎么处理.
+        this.batchCreateStockTaking(mapZoneBinArrs, StockTakingConstant.TYPE_PLAN, planer);
     }
 
     public List<WorkZone> getSelectedZones(List<Long> zoneIds){
@@ -406,7 +409,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         return selectedZoneList;
     }
 
-    public void createPlanSales(List<Long> zoneIds){
+    public void createPlanSales(List<Long> zoneIds, Long planer) throws BizCheckedException{
         //get zone list;
         List<WorkZone> zoneList = this.getSelectedZones(zoneIds);
         //get all location list;
@@ -441,8 +444,11 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             } else {
                 //抛异常也行
             }
-            mapZoneBinArrs.put(zone.getZoneId(), zoneBinLocations);
+            if(zoneBinLocations.size()>0) {
+                mapZoneBinArrs.put(zone.getZoneId(), zoneBinLocations);
+            }
         }
+        this.batchCreateStockTaking(mapZoneBinArrs, StockTakingConstant.TYPE_MOVE_OFF, planer);
     }
     public void createStockTaking(List<Long> locations,Long zoneId,Long takingType,Long planner) throws BizCheckedException {
         List<Object> details = new ArrayList<Object>();
@@ -477,6 +483,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         entry.setTaskDetailList(details);
         iTaskRpcService.createTask(head, entry);
     }
+
     public void batchCreateStockTaking(Map<Long,List<Long>> takingMap,Long takingType,Long planner) throws BizCheckedException {
         StockTakingHead head = new StockTakingHead();
         head.setPlanType(takingType);
