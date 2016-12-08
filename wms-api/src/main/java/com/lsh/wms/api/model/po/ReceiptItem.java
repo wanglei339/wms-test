@@ -21,6 +21,9 @@ public class ReceiptItem implements Serializable {
     /**orderId*/
     private Long orderId = 0l;
 
+    /** 上游细单id */
+    private String detailOtherId;//反仓单有值
+
     /** itemId */
     private Long itemId;
 
@@ -279,5 +282,13 @@ public class ReceiptItem implements Serializable {
 
     public void setDetailotherId(String detailotherId) {
         this.detailotherId = detailotherId;
+    }
+
+    public String getDetailOtherId() {
+        return detailOtherId;
+    }
+
+    public void setDetailOtherId(String detailOtherId) {
+        this.detailOtherId = detailOtherId;
     }
 }
