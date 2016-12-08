@@ -187,6 +187,12 @@ public class StockTakingRestService implements IStockTakingRestService {
         return JsonUtils.SUCCESS(stockTakingService.getDetails(mapQuery));
     }
 
+    @POST
+    @Path("getItemList")
+    public String getItemList(Map<String,Object> mapQuery) throws BizCheckedException{
+        return JsonUtils.SUCCESS(stockTakingService.getItemList(mapQuery));
+    }
+
 
     @GET
     @Path("getDetail")
