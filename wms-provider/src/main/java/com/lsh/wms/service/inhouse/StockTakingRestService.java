@@ -244,15 +244,9 @@ public class StockTakingRestService implements IStockTakingRestService {
         return JsonUtils.SUCCESS(locations);
     }
     @POST
-    @Path("createTaking")
-    public String createTaking(StockTakingRequest request) {
-        if(request.getPlanType().equals(StockTakingConstant.TYPE_TEMPOARY)){
-            iStockTakingProviderRpcService.createTemporary(request);
-        }else if(request.getPlanType().equals(StockTakingConstant.TYPE_MOVE_OFF)){
-            iStockTakingProviderRpcService.createPlanSales(request.getZoneList());
-        }else {
-            iStockTakingProviderRpcService.createPlanWarehouse(request.getZoneList());
-        }
+    @Path("createTemporary")
+    public String createTemporary(StockTakingRequest request) {
+        iStockTakingProviderRpcService.createTemporary(request);
         return JsonUtils.SUCCESS();
     }
     @GET
