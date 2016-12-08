@@ -319,9 +319,6 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             locationList = JSON.parseArray(request.getLocationList(), Long.class);
         }
 
-        long begin_at = 0;
-        long end_at = 0;
-
         Set<Long> setBinDup = new HashSet<Long>();
         Map<Long, List<Long>> mapZoneBinArrs = new HashMap<Long, List<Long>>();
         for (WorkZone zone : zoneList) {
@@ -460,15 +457,13 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         WorkZone zone = workZoneService.getWorkZone(zoneId);
         TaskEntry entry = new TaskEntry();
         TaskInfo info = new TaskInfo();
-        Long idx = 0l ;
         for(Long locationId:locations){
             StockTakingDetail detail = new StockTakingDetail();
             detail.setLocationId(locationId);
-            detail.setDetailId(idx);
+            detail.setDetailId(RandomUtils.genId());
             detail.setTakingId(head.getTakingId());
             details.add(detail);
             detail.setZoneId(zoneId);
-            idx ++;
         }
         if(zone==null){
             info.setTaskName("");
@@ -500,15 +495,13 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             List<Object> details = new ArrayList<Object>();
             TaskEntry taskEntry = new TaskEntry();
             TaskInfo info = new TaskInfo();
-            Long idx = 0l;
             for (Long locationId : locations) {
                 StockTakingDetail detail = new StockTakingDetail();
                 detail.setLocationId(locationId);
-                detail.setDetailId(idx);
+                detail.setDetailId(RandomUtils.genId());
                 detail.setTakingId(head.getTakingId());
                 details.add(detail);
                 detail.setZoneId(zoneId);
-                idx++;
             }
             if(zone==null){
                 info.setTaskName("");
