@@ -11,10 +11,7 @@ import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.service.inhouse.IStockTakingProviderRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
-import com.lsh.wms.core.constant.LocationConstant;
-import com.lsh.wms.core.constant.RedisKeyConstant;
-import com.lsh.wms.core.constant.TaskConstant;
-import com.lsh.wms.core.constant.WorkZoneConstant;
+import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
@@ -76,13 +73,14 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             longList.add(locationId);
             request.setLocationList(JSON.toJSONString(longList));
             request.setPlanner(uid);
-            request.setTakingId(RandomUtils.genId());
+            Long takingId = RandomUtils.genId();
 
-            String key = StrUtils.formatString(RedisKeyConstant.TAKING_KEY, request.getTakingId());
-            redisStringDao.set(key, request.getTakingId(), 24, TimeUnit.HOURS);
+            String key = StrUtils.formatString(RedisKeyConstant.TAKING_KEY, takingId);
+            redisStringDao.set(key, takingId, 24, TimeUnit.HOURS);
 
             StockTakingHead head = new StockTakingHead();
             ObjUtils.bean2bean(request, head);
+            head.setTakingId(takingId);
             List<StockTakingDetail> detailList = prepareDetailList(head);
             stockTakingService.insertHead(head);
             this.createTask(head, detailList, 1L, head.getDueTime());
@@ -215,24 +213,157 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         logger.info(JsonUtils.SUCCESS(detailList));
         return detailList;
     }
+    public List<Long> getTakingLocation(StockTakingRequest request){
+        List<Long> locationList = new ArrayList<Long>();
+        Long locationId = 0L;
+        //根据，区，通道，货架，层 筛选出location
+        if (!request.getShelfLayerId().equals(0L)) {
+            locationId = request.getShelfLayerId();
+        } else if (!request.getStorageId().equals(0L)) {
+            locationId = request.getStorageId();
+        } else if (!request.getPassageId().equals(0L)) {
+            locationId = request.getPassageId();
+        } else if (!request.getAreaId().equals(0L)) {
+            locationId = request.getAreaId();
+        }
+        List<BaseinfoLocation> baseinfoLocations = locationService.getChildrenLocationsByType(locationId, LocationConstant.BIN);
+        for(BaseinfoLocation baseinfoLocation:baseinfoLocations) {
+            locationList.add(baseinfoLocation.getLocationId());
+        }
 
+        //商品,供应商得到库位
+        Map<String,Object> queryMap =new HashMap<String, Object>();
+        if(request.getSupplierId().compareTo(0L)!=0) {
+            queryMap.put("supplierId", request.getSupplierId());
+        }
+        if(request.getItemId().compareTo(0L)!=0) {
+            queryMap.put("itemId", request.getItemId());
+        }
+        List<StockQuant>quantList = quantService.getQuants(queryMap);
+        Set<Long> longs = new HashSet<Long>();
+        List<Long> taskLocation =new ArrayList<Long>();
 
-    public void createPlanWarehouse(){
+        //取到盘点库位
+        Map<String,Object> query = new HashMap<String, Object>();
+        List<StockTakingDetail> details = stockTakingService.getValidDetailList();
+        if(details!=null && details.size()!=0){
+            for(StockTakingDetail detail:details){
+                taskLocation.add(detail.getLocationId());
+            }
+        }
+
+        for(StockQuant quant:quantList){
+            BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
+            if(location.getType().compareTo(LocationConstant.SHELFS)==0 ||location.getType().compareTo(LocationConstant.LOFTS)==0  ||location.getType().compareTo(LocationConstant.SPLIT_AREA)==0 ||location.getType().compareTo(LocationConstant.FLOOR)==0 || (location.getType().equals(LocationConstant.BIN) && location.getBinUsage().equals(BinUsageConstant.BIN_FLOOR_STORE))) {
+                longs.add(quant.getLocationId());
+            }
+        }
+
+        locationList.retainAll(longs);
+        return locationList;
+    }
+
+    public void createTemporary(StockTakingRequest request){
         //get zone list;
         List<WorkZone> zoneList = workZoneService.getWorkZoneByType(WorkZoneConstant.ZONE_STOCK_TAKING);
         if(zoneList.size()==0){
             //抛异常也行
             return;
         }
+        List<Long> locationList = new ArrayList<Long>();
+        if( request.getLocationList().equals("")) {
+            Long locationId = 0L;
+            //根据，区，通道，货架，层 筛选出location
+            if (!request.getShelfLayerId().equals(0L)) {
+                locationId = request.getShelfLayerId();
+            } else if (!request.getStorageId().equals(0L)) {
+                locationId = request.getStorageId();
+            } else if (!request.getPassageId().equals(0L)) {
+                locationId = request.getPassageId();
+            } else if (!request.getAreaId().equals(0L)) {
+                locationId = request.getAreaId();
+            }
+            List<BaseinfoLocation> baseinfoLocations = locationService.getChildrenLocationsByType(locationId, LocationConstant.BIN);
+            for (BaseinfoLocation baseinfoLocation : baseinfoLocations) {
+                locationList.add(baseinfoLocation.getLocationId());
+            }
+            //商品,供应商得到库位
+            Map<String, Object> queryMap = new HashMap<String, Object>();
+            if (request.getSupplierId().compareTo(0L) != 0) {
+                queryMap.put("supplierId", request.getSupplierId());
+            }
+            if (request.getItemId().compareTo(0L) != 0) {
+                queryMap.put("itemId", request.getItemId());
+            }
+            List<StockQuant> quantList = quantService.getQuants(queryMap);
+            Set<Long> longs = new HashSet<Long>();
+            List<Long> taskLocation = new ArrayList<Long>();
+
+            //取到盘点库位
+            Map<String, Object> query = new HashMap<String, Object>();
+            List<StockTakingDetail> details = stockTakingService.getValidDetailList();
+            if (details != null && details.size() != 0) {
+                for (StockTakingDetail detail : details) {
+                    taskLocation.add(detail.getLocationId());
+                }
+            }
+
+            for (StockQuant quant : quantList) {
+                BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
+                if (location.getType().compareTo(LocationConstant.SHELFS) == 0 || location.getType().compareTo(LocationConstant.LOFTS) == 0 || location.getType().compareTo(LocationConstant.SPLIT_AREA) == 0 || location.getType().compareTo(LocationConstant.FLOOR) == 0 || (location.getType().equals(LocationConstant.BIN) && location.getBinUsage().equals(BinUsageConstant.BIN_FLOOR_STORE))) {
+                    longs.add(quant.getLocationId());
+                }
+            }
+            locationList.retainAll(longs);
+        }else {
+            locationList = JSON.parseArray(request.getLocationList(), Long.class);
+        }
+
+        long begin_at = 0;
+        long end_at = 0;
+
+        Set<Long> setBinDup = new HashSet<Long>();
+        Map<Long, List<Long>> mapZoneBinArrs = new HashMap<Long, List<Long>>();
+        for (WorkZone zone : zoneList) {
+            List<Long> zoneBinLocations = new ArrayList<Long>();
+            if (zone.getLocations().trim().compareTo("") != 0) {
+                String[] locationIdStrs = zone.getLocations().split(",");
+                for (String locationIdStr : locationIdStrs) {
+                    Long locationId = Long.valueOf(locationIdStr);
+                    BaseinfoLocation location = locationService.getLocation(locationId);
+                    if (location == null) {
+                        //抛异常也行
+                        continue;
+                    }
+                    for (Long bin : locationList) {
+                        if (location.getLocationId() <= bin && bin <= location.getRightRange()) {
+                            //hehe in the zone;
+                            if (!setBinDup.contains(location.getLocationId())) {
+                                zoneBinLocations.add(bin);
+                                setBinDup.add(bin);
+                            }
+                        }
+                    }
+                }
+            } else {
+                //抛异常也行
+            }
+            mapZoneBinArrs.put(zone.getZoneId(), zoneBinLocations);
+        }
+        this.batchCreateStockTaking(mapZoneBinArrs,request.getPlanType(),request.getPlanner());
+
+    }
+
+    public void createPlanWarehouse(List<Long> zoneIds, Long planer) throws BizCheckedException {
+        List<WorkZone> zoneList = this.getSelectedZones(zoneIds);
         //get all location list;
         List<Long> binLocations = locationService.getALLBins();
         //cluster by zone;计算量稍微有点大,会不会超时啊?
         Set<Long> setBinDup = new HashSet<Long>();
-        List<List<Long>> zoneBinArrs = new LinkedList<List<Long>>();
+        Map<Long, List<Long>> mapZoneBinArrs = new HashMap<Long, List<Long>>();
         for (WorkZone zone : zoneList) {
             List<Long> zoneBinLocations = new ArrayList<Long>();
             if (zone.getLocations().trim().compareTo("") != 0) {
-
                 String[] locationIdStrs = zone.getLocations().split(",");
                 for (String locationIdStr : locationIdStrs) {
                     Long locationId = Long.valueOf(locationIdStr);
@@ -254,19 +385,33 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             } else {
                 //抛异常也行
             }
-            zoneBinArrs.add(zoneBinLocations);
+            if(zoneBinLocations.size()>0) {
+                mapZoneBinArrs.put(zone.getZoneId(), zoneBinLocations);
+            }
         }
         //call create
         //这里数据库插入量非常高,非常容易超时,看怎么处理.
+        this.batchCreateStockTaking(mapZoneBinArrs, StockTakingConstant.TYPE_PLAN, planer);
     }
 
-    public void createPlanSales(){
-        //get zone list;
+    public List<WorkZone> getSelectedZones(List<Long> zoneIds){
+        List<WorkZone> selectedZoneList = new LinkedList<WorkZone>();
         List<WorkZone> zoneList = workZoneService.getWorkZoneByType(WorkZoneConstant.ZONE_STOCK_TAKING);
-        if(zoneList.size()==0){
-            //抛异常也行
-            return;
+        Set<Long> setIds = new HashSet<Long>();
+        for(Long id : zoneIds){
+            setIds.add(id);
         }
+        for(WorkZone zone : zoneList){
+            if(setIds.contains(zone.getZoneId())){
+                selectedZoneList.add(zone);
+            }
+        }
+        return selectedZoneList;
+    }
+
+    public void createPlanSales(List<Long> zoneIds, Long planer) throws BizCheckedException{
+        //get zone list;
+        List<WorkZone> zoneList = this.getSelectedZones(zoneIds);
         //get all location list;
         List<Long> binLocations = locationService.getALLBins();
         //拉取动销库位,从wavedetail里面去拿,通过picklocation
@@ -274,7 +419,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         long end_at = 0;
         List<Long> pickLocations = waveService.getPickLocationsByPickTimeRegion(begin_at, end_at);
         Set<Long> setBinDup = new HashSet<Long>();
-        List<List<Long>> zoneBinArrs = new LinkedList<List<Long>>();
+        Map<Long, List<Long>> mapZoneBinArrs = new HashMap<Long, List<Long>>();
         for (WorkZone zone : zoneList) {
             List<Long> zoneBinLocations = new ArrayList<Long>();
             if (zone.getLocations().trim().compareTo("") != 0) {
@@ -299,8 +444,85 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             } else {
                 //抛异常也行
             }
-            zoneBinArrs.add(zoneBinLocations);
+            if(zoneBinLocations.size()>0) {
+                mapZoneBinArrs.put(zone.getZoneId(), zoneBinLocations);
+            }
         }
-        //create;
+        this.batchCreateStockTaking(mapZoneBinArrs, StockTakingConstant.TYPE_MOVE_OFF, planer);
+    }
+    public void createStockTaking(List<Long> locations,Long zoneId,Long takingType,Long planner) throws BizCheckedException {
+        List<Object> details = new ArrayList<Object>();
+        StockTakingHead head = new StockTakingHead();
+        head.setPlanType(takingType);
+        head.setTakingId(RandomUtils.genId());
+        head.setPlanner(planner);
+        head.setStatus(StockTakingConstant.Assigned);
+        WorkZone zone = workZoneService.getWorkZone(zoneId);
+        TaskEntry entry = new TaskEntry();
+        TaskInfo info = new TaskInfo();
+        Long idx = 0l ;
+        for(Long locationId:locations){
+            StockTakingDetail detail = new StockTakingDetail();
+            detail.setLocationId(locationId);
+            detail.setDetailId(idx);
+            detail.setTakingId(head.getTakingId());
+            details.add(detail);
+            detail.setZoneId(zoneId);
+            idx ++;
+        }
+        if(zone==null){
+            info.setTaskName("");
+        }else {
+            info.setTaskName(zone.getZoneName());
+        }
+        info.setType(TaskConstant.TYPE_STOCK_TAKING);
+        info.setSubType(takingType);
+        info.setPlanner(planner);
+        info.setPlanId(head.getTakingId());
+        entry.setTaskInfo(info);
+        entry.setTaskDetailList(details);
+        iTaskRpcService.createTask(head, entry);
+    }
+
+    public void batchCreateStockTaking(Map<Long,List<Long>> takingMap,Long takingType,Long planner) throws BizCheckedException {
+        StockTakingHead head = new StockTakingHead();
+        head.setPlanType(takingType);
+        head.setTakingId(RandomUtils.genId());
+        head.setPlanner(planner);
+        head.setStatus(StockTakingConstant.Assigned);
+        Iterator<Map.Entry<Long, List<Long>>> entries = takingMap.entrySet().iterator();
+        List<TaskEntry> taskEntries = new ArrayList<TaskEntry>();
+        while (entries.hasNext()) {
+            Map.Entry<Long, List<Long>> entry = entries.next();
+            Long zoneId = entry.getKey();
+            WorkZone zone = workZoneService.getWorkZone(zoneId);
+            List<Long> locations = entry.getValue();
+            List<Object> details = new ArrayList<Object>();
+            TaskEntry taskEntry = new TaskEntry();
+            TaskInfo info = new TaskInfo();
+            Long idx = 0l;
+            for (Long locationId : locations) {
+                StockTakingDetail detail = new StockTakingDetail();
+                detail.setLocationId(locationId);
+                detail.setDetailId(idx);
+                detail.setTakingId(head.getTakingId());
+                details.add(detail);
+                detail.setZoneId(zoneId);
+                idx++;
+            }
+            if(zone==null){
+                info.setTaskName("");
+            }else {
+                info.setTaskName(zone.getZoneName());
+            }
+            info.setType(TaskConstant.TYPE_STOCK_TAKING);
+            info.setSubType(takingType);
+            info.setPlanner(planner);
+            info.setPlanId(head.getTakingId());
+            taskEntry.setTaskInfo(info);
+            taskEntry.setTaskDetailList(details);
+            taskEntries.add(taskEntry);
+        }
+        iTaskRpcService.batchCreate(head, taskEntries);
     }
 }

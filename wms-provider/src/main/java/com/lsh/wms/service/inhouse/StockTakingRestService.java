@@ -3,6 +3,7 @@ package com.lsh.wms.service.inhouse;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
@@ -12,10 +13,7 @@ import com.lsh.wms.api.service.inhouse.IStockTakingRestService;
 import com.lsh.wms.api.service.inhouse.IStockTakingProviderRpcService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
-import com.lsh.wms.core.constant.BinUsageConstant;
-import com.lsh.wms.core.constant.LocationConstant;
-import com.lsh.wms.core.constant.RedisKeyConstant;
-import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.location.LocationService;
@@ -27,6 +25,7 @@ import com.lsh.wms.core.service.task.StockTakingTaskService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
+import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.stock.ItemAndSupplierRelation;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
@@ -40,6 +39,7 @@ import com.lsh.wms.model.task.TaskInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.jpa.vendor.OpenJpaDialect;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -130,6 +130,31 @@ public class StockTakingRestService implements IStockTakingRestService {
         StockTakingHead head = stockTakingService.getHeadById(takingId);
         return JsonUtils.SUCCESS(head);
     }
+
+    @POST
+    @Path("createPlanWarehouse")
+    public String createPlanWarehouse(Map<String,Object> mapQuery) throws BizCheckedException {
+        List zoneIds = (List)(mapQuery.get("zoneIds"));
+        for(int i = 0; i < zoneIds.size(); ++i){
+            zoneIds.set(i, Long.valueOf(zoneIds.get(i).toString()));
+        }
+        Long planner = Long.valueOf(mapQuery.get("uid").toString());
+        iStockTakingProviderRpcService.createPlanWarehouse(zoneIds, planner);
+        return JsonUtils.SUCCESS();
+    }
+
+    @POST
+    @Path("createPlanSales")
+    public String createPlanSales(Map<String,Object> mapQuery) throws BizCheckedException {
+        List zoneIds = (List)(mapQuery.get("zoneIds"));
+        for(int i = 0; i < zoneIds.size(); ++i){
+            zoneIds.set(i, Long.valueOf(zoneIds.get(i).toString()));
+        }
+        Long planner = Long.valueOf(mapQuery.get("uid").toString());
+        iStockTakingProviderRpcService.createPlanSales(zoneIds, planner);
+        return JsonUtils.SUCCESS();
+    }
+
     @GET
     @Path("genId")
     public String genId(@QueryParam("taskType") Long taskType){
@@ -148,12 +173,21 @@ public class StockTakingRestService implements IStockTakingRestService {
         List<StockTakingHead> heads = stockTakingService.queryTakingHead(mapQuery);
         return JsonUtils.SUCCESS(heads);
     }
+
     @POST
     @Path("getCount")
     public String getCount(Map<String,Object> mapQuery) {
         Integer count = stockTakingService.countHead(mapQuery);
         return JsonUtils.SUCCESS(count);
     }
+
+    @POST
+    @Path("getDetails")
+    public String getDetails(Map<String,Object> mapQuery) throws BizCheckedException{
+        return JsonUtils.SUCCESS(stockTakingService.getDetails(mapQuery));
+    }
+
+
     @GET
     @Path("getDetail")
     public String getDetail(@QueryParam("takingId") long takingId) throws BizCheckedException{
@@ -202,6 +236,31 @@ public class StockTakingRestService implements IStockTakingRestService {
         }
         resultMap.put("result", result);
         return JsonUtils.SUCCESS(resultMap);
+    }
+    @POST
+    @Path("getTakingLocation")
+    public String getTakingLocation(StockTakingRequest request) {
+        List<Long> locations = iStockTakingProviderRpcService.getTakingLocation(request);
+        return JsonUtils.SUCCESS(locations);
+    }
+    @POST
+    @Path("createTemporary")
+    public String createTemporary(StockTakingRequest request) {
+        iStockTakingProviderRpcService.createTemporary(request);
+        return JsonUtils.SUCCESS();
+    }
+    @GET
+    @Path("test")
+    public String test() {
+        StockTakingRequest request = new StockTakingRequest();
+        request.setPlanType(StockTakingConstant.TYPE_TEMPOARY);
+        List<Long> tmp = new ArrayList<Long>();
+        tmp.add(1l);
+        request.setLocationList(JSON.toJSONString(tmp));
+        request.setPlanner(123l);
+        iStockTakingProviderRpcService.createStockTaking(tmp, 5l, StockTakingConstant.TYPE_TEMPOARY,12l);
+
+        return JsonUtils.SUCCESS();
     }
     @POST
     @Path("getLocationList")
@@ -387,5 +446,6 @@ public class StockTakingRestService implements IStockTakingRestService {
         }
         return targetList;
     }
+
 
 }

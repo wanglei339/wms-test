@@ -2,6 +2,7 @@ package com.lsh.wms.core.service.stock;
 
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.BeanMapTransUtils;
+import com.lsh.base.common.utils.CollectionUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.StockConstant;
@@ -252,5 +253,16 @@ public class StockMoveService {
     public void move(StockMove move, StockLot lot) {
         move.setLot(lot);
         this.move(move);
+    }
+
+    public StockMove getStockMoveByTaskId(Long taskId){
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("taskId",taskId);
+        List<StockMove> lists = moveDao.getStockMoveList(map);
+        if (CollectionUtils.isEmpty(lists)){
+            return null;
+        }
+        return lists.get(0);
+
     }
 }

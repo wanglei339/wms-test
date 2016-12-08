@@ -256,5 +256,9 @@ public class TaskRpcService implements ITaskRpcService {
             logger.error("process TaskMsg error", ex);
         }
     }
+    public void createTask(StockTakingHead head,TaskEntry entry) throws BizCheckedException {
+        TaskHandler handler = handlerFactory.getTaskHandler(entry.getTaskInfo().getType());
+        handler.createTask(head,entry);
+    }
 
 }

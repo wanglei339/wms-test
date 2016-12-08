@@ -47,6 +47,8 @@ public class WorkZoneRestService implements IWorkZoneRestService{
     @Path("createWorkZone")
     @POST
     public String createWorkZone(WorkZone zone) {
+        zone.setIsValid(1L);
+        zone.setStatus(1L);
         return JsonUtils.SUCCESS(workZoneService.insertWorkZone(zone));
     }
 
