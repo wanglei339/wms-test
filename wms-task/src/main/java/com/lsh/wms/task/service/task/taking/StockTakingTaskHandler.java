@@ -52,61 +52,41 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
     }
 
     public void createConcrete(TaskEntry taskEntry) {
-        StockTakingTask task = (StockTakingTask) taskEntry.getTaskHead();
         Long taskId=taskEntry.getTaskInfo().getTaskId();
-        task.setTaskId(taskId);
         List<Object> stockTakingDetails = taskEntry.getTaskDetailList();
         for(Object detail:stockTakingDetails){
             StockTakingDetail stockTakingDetail =(StockTakingDetail)detail;
             stockTakingDetail.setTaskId(taskId);
-            stockTakingDetail.setTakingId(task.getTakingId());
             stockTakingService.insertDetail(stockTakingDetail);
         }
-        stockTakingTaskService.create(task);
     }
     public void getConcrete(TaskEntry taskEntry) {
-        taskEntry.setTaskHead(stockTakingTaskService.getTakingTaskByTaskId(taskEntry.getTaskInfo().getTaskId()));
         taskEntry.setTaskDetailList((List<Object>) (List<?>) stockTakingService.getDetailByTaskId(taskEntry.getTaskInfo().getTaskId()));
     }
-    public void getHeadConcrete(TaskEntry taskEntry) {
-        taskEntry.setTaskHead(stockTakingTaskService.getTakingTaskByTaskId(taskEntry.getTaskInfo().getTaskId()));
-    }
     public void assignConcrete(Long taskId, Long staffId) throws BizCheckedException {
-        StockTakingTask stockTakingTask = stockTakingTaskService.getTakingTaskByTaskId(taskId);
         List<StockTakingDetail> details = stockTakingService.getDetailByTaskId(taskId);
-        if(details!=null && details.size()!=0){
-            StockTakingDetail detail = details.get(0);
-            detail.setOperator(staffId);
-            stockTakingService.updateDetail(detail);
-        }
-        if(stockTakingTask!=null) {
-            StockTakingHead head = stockTakingService.getHeadById(stockTakingTask.getTakingId());
-            head.setStatus(2L);
-            head.setUpdatedAt(DateUtils.getCurrentSeconds());
-            stockTakingService.updateHead(head);
+        if(details!=null){
+            for(StockTakingDetail detail:details) {
+                detail.setOperator(staffId);
+                detail.setStatus(TaskConstant.Assigned);
+                stockTakingService.updateDetail(detail);
+            }
         }
     }
     public void doneConcrete(Long taskId) {
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
-        StockTakingTask task = (StockTakingTask) (entry.getTaskHead());
-        Map<String, Object> queryMap = new HashMap<String, Object>();
-        queryMap.put("planId", task.getTakingId());
-        queryMap.put("status", 2L);
-        List<TaskEntry> entries = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_STOCK_TAKING, queryMap);
-        if (entries == null || entries.size() == 0) {
-            this.confirm(task.getTakingId());
+        TaskInfo info = entry.getTaskInfo();
+        List<StockTakingDetail> details = stockTakingService.getDetailByTakingIdAndStatus(info.getTaskId(), TaskConstant.Draft);
+        if (details == null || details.size() == 0) {
+            this.confirm(info.getTaskId());
         }
     }
     public void cancelConcrete(Long taskId) {
-        StockTakingTask task = stockTakingTaskService.getTakingTaskByTaskId(taskId);
-        task.setIsValid(0);
-        stockTakingTaskService.updateTakingTask(task);
-        Map<String,Object> queryMap = new HashMap<String, Object>();
-        queryMap.put("takingId", task.getTakingId());
-        queryMap.put("taskId" , task.getTaskId());
-        List<StockTakingDetail> details= stockTakingService.queryTakingDetail(queryMap);
-        for(StockTakingDetail detail:details){
-            detail.setIsValid(0);
+        TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
+        List<Object> details = entry.getTaskDetailList();
+        for(Object obj:details){
+            StockTakingDetail detail = (StockTakingDetail)obj;
+            detail.setStatus(TaskConstant.Cancel);
             stockTakingService.updateDetail(detail);
         }
     }
@@ -134,34 +114,36 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
         }
         this.createTask(head, detailList, roundTime + 1, head.getDueTime());
     }
-    public void confirm(Long stockTakingId) throws BizCheckedException {
-        // 获取stockingHead
-        // 如果是临时盘点, 直接调用confirmDifference
-        // 计划盘点,
-        //      如果ruund == 1, 发起新一轮盘点
-        //      如果round == 2, 获取第一轮,第二轮的差异明细列表, 如果非空, 发起第三轮盘点
-        //      如果round == 3, 直接调用confirmDiffence
+    //TODO 盘点完成，需不需要做动作
 
-        StockTakingHead head = stockTakingService.getHeadById(stockTakingId);
-        if (head.getPlanType() == 1) {
-            stockTakingService.confirmDifference(stockTakingId, 1L);
-        } else {
-            Long times = stockTakingService.chargeTime(stockTakingId);
-            if (times == 1) {
-                this.createNextDetail(stockTakingId, times);
-            } else {
-                if (times == 2) {
-                    boolean isSame = this.chargeDifference(stockTakingId, times);
-                    if (isSame) {
-                        stockTakingService.confirmDifference(stockTakingId, times);
-                    } else {
-                        this.createNextDetail(stockTakingId, times);
-                    }
-                } else {
-                    stockTakingService.confirmDifference(stockTakingId, times);
-                }
-            }
-        }
+    public void confirm(Long taskId) throws BizCheckedException {
+//        // 获取stockingHead
+//        // 如果是临时盘点, 直接调用confirmDifference
+//        // 计划盘点,
+//        //      如果ruund == 1, 发起新一轮盘点
+//        //      如果round == 2, 获取第一轮,第二轮的差异明细列表, 如果非空, 发起第三轮盘点
+//        //      如果round == 3, 直接调用confirmDiffence
+//
+//        StockTakingHead head = stockTakingService.getHeadById(stockTakingId);
+//        if (head.getPlanType() == 1) {
+//            stockTakingService.confirmDifference(stockTakingId, 1L);
+//        } else {
+//            Long times = stockTakingService.chargeTime(stockTakingId);
+//            if (times == 1) {
+//                this.createNextDetail(stockTakingId, times);
+//            } else {
+//                if (times == 2) {
+//                    boolean isSame = this.chargeDifference(stockTakingId, times);
+//                    if (isSame) {
+//                        stockTakingService.confirmDifference(stockTakingId, times);
+//                    } else {
+//                        this.createNextDetail(stockTakingId, times);
+//                    }
+//                } else {
+//                    stockTakingService.confirmDifference(stockTakingId, times);
+//                }
+//            }
+//        }
     }
     private boolean chargeDifference(Long stockTakingId, Long round) {
         List<StockTakingDetail> oldDetails =stockTakingService.getDetailListByRound(stockTakingId, round - 1);

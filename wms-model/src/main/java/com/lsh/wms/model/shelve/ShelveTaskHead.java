@@ -30,7 +30,7 @@ public class ShelveTaskHead implements Serializable {
 	/** 上架人员id */
     private Long operator = 0L;
 	/** 已计算过的货架位 */
-	private String calcLocationIds;
+	private String calcLocationIds = "";
 	/** 上架时间 */
     private Long shelveAt = 0L;
 	/**  */
