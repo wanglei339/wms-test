@@ -11,4 +11,18 @@ public class StockTakingConstant {
     public static final Integer TYPE_TEMPOARY= 1;//临时
     public static final Integer TYPE_MOVE_OFF = 2;//动销
     public static final Integer TYPE_PLAN = 3;//计划
+
+
+    /**
+     * 盘点状态
+     */
+    public static final Long Draft = 1L;
+
+    public static final Long Assigned = 2L;
+
+    public static final Long PendingAudit = 3L;
+
+    public static final Long Done = 4L;
+
+    public static final Long Cancel = 5L;
 }

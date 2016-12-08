@@ -113,6 +113,12 @@ public class StockTakingService {
         List<StockTakingDetail> detailList = detailDao.getStockTakingDetailList(mapQuery);
         return detailList;
     }
+    public List<StockTakingDetail> getValidDetailList() {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("valid", 1);
+        List<StockTakingDetail> detailList = detailDao.getStockTakingDetailList(mapQuery);
+        return detailList;
+    }
 
     @Transactional(readOnly = false)
     public void done(Long stockTakingId, List<StockTakingDetail> stockTakingDetails) {
@@ -245,6 +251,12 @@ public class StockTakingService {
     public List<StockTakingDetail> getDetailByTakingId(Long takingId) {
         Map<String, Object> queryMap = new HashMap<String, Object>();
         queryMap.put("takingId", takingId);
+        return detailDao.getStockTakingDetailList(queryMap);
+    }
+    public List<StockTakingDetail> getDetailByTakingIdAndStatus(Long takingId,Long status) {
+        Map<String, Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("takingId", takingId);
+        queryMap.put("status", status);
         return detailDao.getStockTakingDetailList(queryMap);
     }
 

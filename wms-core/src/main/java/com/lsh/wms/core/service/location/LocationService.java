@@ -639,6 +639,7 @@ public class LocationService {
             return null;
         }
     }
+
     /**
      * 获取消费虚拟区
      *
@@ -652,6 +653,7 @@ public class LocationService {
             return null;
         }
     }
+
     /**
      * 获取供货虚拟区
      *
@@ -665,7 +667,6 @@ public class LocationService {
             return null;
         }
     }
-
 
 
     /**
@@ -1002,7 +1003,7 @@ public class LocationService {
     /**
      * 释放锁,并设置可用
      *
-     * @param locationId
+     * @param location
      * @return
      */
     @Transactional(readOnly = false)
@@ -1018,7 +1019,6 @@ public class LocationService {
         this.updateLocation(location);
         return location;
     }
-
 
 
     /**
@@ -1393,7 +1393,7 @@ public class LocationService {
     /**
      * 获取指定区域下的bin
      *
-     * @param regionType    区域的type
+     * @param regionType 区域的type
      * @return
      */
     public List<Long> getLocationBinsByRegionType(Long regionType) {
@@ -1420,8 +1420,9 @@ public class LocationService {
 
     /**
      * 同一区域下,根据通道、列、层(可选),进行蛇形排序
-     * @param locations  同区域的list
-     * @param needLevelSort  是否需要按照层升序排序
+     *
+     * @param locations     同区域的list
+     * @param needLevelSort 是否需要按照层升序排序
      * @return
      */
     public List<BaseinfoLocation> calcZwayOrder(List<BaseinfoLocation> locations, boolean needLevelSort) {
@@ -1476,31 +1477,41 @@ public class LocationService {
 
             //同列的层排序
             if (needLevelSort) {
-                samePassage = new LinkedHashMap<Long, List<BaseinfoLocation>>();
-                //按列分组
-                for (BaseinfoLocation one : tempList) {
-                    if (!samePassage.containsKey(one.getBinPositionNo())) {
-                        samePassage.put(one.getBinPositionNo(), new ArrayList<BaseinfoLocation>());
-                    }
-                    List<BaseinfoLocation> columnList = samePassage.get(one.getBinPositionNo());
-                    columnList.add(one);
-                    samePassage.put(one.getBinPositionNo(), columnList);
-                }
-
-                //同通道|不同列的list 层排序
-                for (Long binNo : samePassage.keySet()) {
-                    List<BaseinfoLocation> binColumn = samePassage.get(binNo);
-                    Collections.sort(binColumn, new Comparator<BaseinfoLocation>() {
-                        public int compare(BaseinfoLocation o1, BaseinfoLocation o2) {
+//                samePassage = new LinkedHashMap<Long, List<BaseinfoLocation>>();
+//                //按列分组
+//                for (BaseinfoLocation one : tempList) {
+//                    if (!samePassage.containsKey(one.getBinPositionNo())) {
+//                        samePassage.put(one.getBinPositionNo(), new ArrayList<BaseinfoLocation>());
+//                    }
+//                    List<BaseinfoLocation> columnList = samePassage.get(one.getBinPositionNo());
+//                    columnList.add(one);
+//                    samePassage.put(one.getBinPositionNo(), columnList);
+//                }
+//
+//                //同通道|不同列的list 层排序
+//                for (Long binNo : samePassage.keySet()) {
+//                    List<BaseinfoLocation> binColumn = samePassage.get(binNo);
+//                    Collections.sort(binColumn, new Comparator<BaseinfoLocation>() {
+//                        public int compare(BaseinfoLocation o1, BaseinfoLocation o2) {
+//                            return o1.getShelfLevelNo().compareTo(o2.getShelfLevelNo()) > 0 ? 1 : (o1.getShelfLevelNo().compareTo(o2.getShelfLevelNo()) == 0 ? 0 : -1);
+//                        }
+//                    });
+//                    if (!binColumn.isEmpty()){
+//                        resultList.addAll(binColumn);
+//                    }
+//                }
+                Collections.sort(tempList, new Comparator<BaseinfoLocation>() {
+                    public int compare(BaseinfoLocation o1, BaseinfoLocation o2) {
+                        if (o1.getRegionType().equals(o2.getRegionType()) && o1.getPassageNo().equals(o2.getPassageNo()) && o1.getBinPositionNo().equals(o2.getBinPositionNo())) {
                             return o1.getShelfLevelNo().compareTo(o2.getShelfLevelNo()) > 0 ? 1 : (o1.getShelfLevelNo().compareTo(o2.getShelfLevelNo()) == 0 ? 0 : -1);
+                        } else {
+                            return 0;
                         }
-                    });
-                    if (!binColumn.isEmpty()){
-                        resultList.addAll(binColumn);
                     }
-                }
+                });
+            }
 
-            } else if (!tempList.isEmpty()) {
+            if (!tempList.isEmpty()) {
                 resultList.addAll(tempList);
             }
 
