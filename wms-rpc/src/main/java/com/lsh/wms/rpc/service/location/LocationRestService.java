@@ -298,7 +298,7 @@ public class LocationRestService implements ILocationRestService {
     @GET
     @Path("getAllShelfs")
     public String getAllShelfs() {
-        return JsonUtils.SUCCESS(locationRpcService.getAllShelfs());
+//        return JsonUtils.SUCCESS(locationRpcService.getAllShelfs());
 //        return JsonUtils.SUCCESS(locationRpcService.getColletionBins());
 //          return JsonUtils.SUCCESS(locationRpcService.sortSowLocationByStoreNo());
 //        return JsonUtils.SUCCESS(locationService.getLocation(-1L));
@@ -322,6 +322,12 @@ public class LocationRestService implements ILocationRestService {
 //        pickDetails.add(waveService.getWaveDetailById(151));
 //        pickDetails.add(waveService.getWaveDetailById(152));
 //        pickRpcService.calcPickOrder(pickDetails);
+        List<BaseinfoLocation> temp = locationService.getChildrenLocationsByType(4432676798596L,LocationConstant.BIN);
+        List<BaseinfoLocation> locations = locationService.getChildrenLocationsByType(4467307086085L,LocationConstant.BIN);
+        List<BaseinfoLocation> locations2 = locationService.getChildrenLocationsByType(4501937373574L,LocationConstant.BIN);
+        temp.addAll(locations);
+        temp.addAll(locations2);
+        return JsonUtils.SUCCESS(locationService.calcZwayOrder(temp,true));
 //
 //        return "yes";
     }
