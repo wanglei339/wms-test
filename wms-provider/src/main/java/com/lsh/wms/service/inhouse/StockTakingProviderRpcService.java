@@ -478,7 +478,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         info.setType(TaskConstant.TYPE_STOCK_TAKING);
         info.setSubType(takingType);
         info.setPlanner(planner);
-        info.setPlanId(zoneId);
+        info.setPlanId(head.getTakingId());
         entry.setTaskInfo(info);
         entry.setTaskDetailList(details);
         iTaskRpcService.createTask(head, entry);
@@ -518,7 +518,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             info.setType(TaskConstant.TYPE_STOCK_TAKING);
             info.setSubType(takingType);
             info.setPlanner(planner);
-            info.setPlanId(zoneId);
+            info.setPlanId(head.getTakingId());
             taskEntry.setTaskInfo(info);
             taskEntry.setTaskDetailList(details);
             taskEntries.add(taskEntry);
