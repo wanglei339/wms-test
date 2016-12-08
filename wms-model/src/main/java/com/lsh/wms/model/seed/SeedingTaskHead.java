@@ -35,6 +35,8 @@ public class SeedingTaskHead implements Serializable {
 	private Long status = 1l;
 	/** 商品id*/
 	private Long skuId = 0l;
+	/** 播种顺序*/
+	private Long taskOrder = 0l;
 	
 	public Long getId(){
 		return this.id;
@@ -156,6 +158,14 @@ public class SeedingTaskHead implements Serializable {
 		this.skuId = skuId;
 	}
 
+	public Long getTaskOrder() {
+		return taskOrder;
+	}
+
+	public void setTaskOrder(Long taskOrder) {
+		this.taskOrder = taskOrder;
+	}
+
 	@Override
 	public String toString() {
 		return "SeedingTaskHead{" +
@@ -174,6 +184,7 @@ public class SeedingTaskHead implements Serializable {
 				", storeType='" + storeType + '\'' +
 				", status=" + status +
 				", skuId=" + skuId +
+				", taskOrder=" + taskOrder +
 				'}';
 	}
 }

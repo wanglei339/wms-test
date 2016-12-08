@@ -4,11 +4,9 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.ObjUtils;
-import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.inhouse.IStockTransferRpcService;
 import com.lsh.wms.api.service.item.IItemRpcService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
-import com.lsh.wms.api.service.stock.IStockMoveRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.BinUsageConstant;
@@ -25,20 +23,17 @@ import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
-import org.apache.tools.ant.taskdefs.Pack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by mali on 16/7/26.
@@ -62,9 +57,6 @@ public class StockTransferRpcService implements IStockTransferRpcService {
 
     @Autowired
     private LocationService locationService;
-
-    @Reference
-    private IStockMoveRpcService moveRpcService;
 
     @Autowired
     private ContainerService containerService;

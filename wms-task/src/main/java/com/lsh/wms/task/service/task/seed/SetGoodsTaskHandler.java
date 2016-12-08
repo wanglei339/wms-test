@@ -2,7 +2,6 @@ package com.lsh.wms.task.service.task.seed;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.stock.IStockMoveRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
@@ -11,6 +10,7 @@ import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.so.SoOrderService;
+import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
@@ -48,8 +48,8 @@ public class SetGoodsTaskHandler extends AbsTaskHandler {
     ILocationRpcService locationRpcService;
     @Autowired
     LocationService locationService;
-    @Reference
-    private IStockMoveRpcService moveRpcService;
+    @Autowired
+    private StockMoveService moveService;
 
     @Autowired
     SoOrderService soOrderService;
@@ -96,7 +96,7 @@ public class SetGoodsTaskHandler extends AbsTaskHandler {
             return;
         }
         //移动库存
-        moveRpcService.moveWholeContainer(containerId, taskId, info.getOperator(), quants.get(0).getLocationId(), location.getLocationId());
+        moveService.moveWholeContainer(containerId, taskId, info.getOperator(), quants.get(0).getLocationId(), location.getLocationId());
 
     }
 }

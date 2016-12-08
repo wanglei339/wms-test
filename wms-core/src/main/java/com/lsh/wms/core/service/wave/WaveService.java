@@ -344,6 +344,15 @@ public class WaveService {
         return detailDao.getWaveDetailList(mapQuery);
     }
 
+    @Transactional(readOnly = true)
+    public List<Long> getPickLocationsByPickTimeRegion(Long beginAt, Long endAt){
+        HashMap<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("pickBeginAt", beginAt);
+        mapQuery.put("pickEndAt", endAt);
+        mapQuery.put("isValid", 1);
+        return detailDao.getPickLocationsByPickTimeRegion(mapQuery);
+    }
+
     @Transactional(readOnly = false)
     public void insertDetail(WaveDetail detail){
         detail.setUpdatedAt(DateUtils.getCurrentSeconds());
@@ -532,6 +541,7 @@ public class WaveService {
             }
             ObjUtils.bean2bean(detail, splitDetail);
             splitDetail.setAllocQty(realSplitQty);
+            splitDetail.setAllocUnitQty(PackUtil.EAQty2UomQty(realSplitQty, detail.getAllocUnitName()));
             splitDetail.setRefDetailId(detail.getId());
             splitDetail.setPickOrder(order + 1);
             splitDetail.setPickAt(0L);

@@ -287,7 +287,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                         soDeliveryService.getOutbDeliveryDetail(obdHeader.getOrderId(),baseinfoItem.getItemId()).getLotId();
                 StockLot stockLot = stockLotService.getStockLotByLotId(lotId);
                 logger.info("~~~~~~~~~~~11111111111 查找批号信息  stocklot : " + JSON.toJSONString(stockLot));
-                stockLot.setIsOld(true);
+                //stockLot.setIsOld(true);
                 logger.info("~~~~~~~~~~~~222222222222 stocklot : " + JSON.toJSONString(stockLot));
 
                 StockLot newStockLot = new StockLot();

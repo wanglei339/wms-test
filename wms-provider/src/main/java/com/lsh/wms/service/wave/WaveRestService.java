@@ -5,20 +5,13 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.wms.api.model.so.ObdBackRequest;
-import com.lsh.wms.api.model.so.ObdItem;
-import com.lsh.wms.api.model.wumart.CreateIbdHeader;
 import com.lsh.wms.api.model.wumart.CreateObdDetail;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.back.IDataBackService;
 import com.lsh.wms.api.service.wave.IWaveRestService;
 import com.lsh.wms.api.service.wumart.IWuMart;
-import com.lsh.wms.api.service.wumart.IWuMartSap;
-import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.constant.LocationConstant;
-import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.constant.WaveConstant;
-import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.core.service.location.BaseinfoLocationWarehouseService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.pick.PickModelService;
@@ -28,7 +21,6 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.core.service.wave.WaveTemplateService;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.baseinfo.BaseinfoLocationWarehouse;
 import com.lsh.wms.model.pick.*;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
@@ -43,8 +35,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -72,8 +62,6 @@ public class WaveRestService implements IWaveRestService {
     private WaveTemplateService waveTemplateService;
     @Autowired
     private WaveRpcService waveRpcService;
-    @Autowired
-    private InventoryRedisService inventoryRedisService;
 
     @Autowired
     private BaseinfoLocationWarehouseService baseinfoLocationWarehouseService;

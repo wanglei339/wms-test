@@ -17,10 +17,6 @@ import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.task.BaseTaskService;
-import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
-import com.lsh.wms.model.baseinfo.BaseinfoLocation;
-import com.lsh.wms.model.shelve.ShelveTaskHead;
-import com.lsh.wms.model.stock.StockDelta;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
@@ -29,11 +25,9 @@ import com.lsh.wms.task.service.handler.AbsTaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -57,10 +51,6 @@ public class AtticShelveTaskHandler extends AbsTaskHandler {
     private StockLotService stockLotService;
     @Reference
     private IShelveRpcService iShelveRpcService;
-    @Reference
-    private IStockMoveRpcService iStockMoveRpcService;
-    @Autowired
-    private StockSummaryService stockSummaryService;
     @Autowired
     StockLotService lotService;
 

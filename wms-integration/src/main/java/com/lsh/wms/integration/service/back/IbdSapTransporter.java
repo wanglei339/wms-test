@@ -44,14 +44,14 @@ public class IbdSapTransporter implements ITransporter {
             String poNumber = receiveHeader.getOrderType().equals(3) ? receiveHeader.getOrderOtherRefId() : receiveHeader.getOrderOtherId();
             detail.setPoNumber(poNumber);
             detail.setPoItme(receiveDetail.getDetailOtherId());
-            BigDecimal inboudQty =  receiveDetail.getInboundQty();
+            BigDecimal inboudQty =  receiveDetail.getInboundQty().divide(receiveDetail.getPackUnit()).setScale(2,BigDecimal.ROUND_HALF_UP);
 
             BigDecimal orderQty = receiveDetail.getOrderQty();
             BigDecimal deliveQty = receiveHeader.getOrderType().equals(3) ? orderQty : inboudQty;
             if(deliveQty.compareTo(BigDecimal.ZERO) <= 0 || receiveDetail.getBackStatus() == PoConstant.RECEIVE_DETAIL_STATUS_SUCCESS){
                 continue;
             }
-            detail.setDeliveQty(deliveQty.multiply(receiveDetail.getPackUnit()).setScale(2,BigDecimal.ROUND_HALF_UP));
+            detail.setDeliveQty(deliveQty);
             detail.setUnit(receiveDetail.getPackName());
             detail.setMaterial(receiveDetail.getSkuCode());
             detail.setOrderType(receiveHeader.getOrderType());

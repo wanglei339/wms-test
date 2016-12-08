@@ -19,13 +19,14 @@
 		<result property="status" column="status"/>
 		<result property="skuId" column="sku_id"/>
 		<result property="storeType" column="store_type"/>
+		<result property="taskOrder" column="task_order"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="SeedingTaskHead">
 		insert into seeding_task_head (
-			task_id,store_no,created_at,updated_at,require_qty,real_container_id,pack_unit,order_id,is_use_exception_code,ibd_detail_id,status,store_type,sku_id,obd_detail_id
+			task_id,store_no,created_at,updated_at,require_qty,real_container_id,pack_unit,order_id,is_use_exception_code,ibd_detail_id,status,store_type,sku_id,obd_detail_id,task_order
     	) values (
-			#{taskId},#{storeNo},#{createdAt},#{updatedAt},#{requireQty},#{realContainerId},#{packUnit},#{orderId},#{isUseExceptionCode},#{ibdDetailId},#{status},#{storeType},#{skuId},#{obdDetailId}
+			#{taskId},#{storeNo},#{createdAt},#{updatedAt},#{requireQty},#{realContainerId},#{packUnit},#{orderId},#{isUseExceptionCode},#{ibdDetailId},#{status},#{storeType},#{skuId},#{obdDetailId},#{taskOrder}
     	)
 	</insert>
 
@@ -45,6 +46,7 @@
 			<if test="status != null">status=#{status},</if>
 			<if test="storeType != null">store_type=#{storeType},</if>
 			<if test="skuId != null">sku_id=#{skuId},</if>
+			<if test="taskOrder != null">task_order=#{taskOrder},</if>
 			<if test="isUseExceptionCode != null">is_use_exception_code=#{isUseExceptionCode}</if>
 		</set>
 		where id=#{id}
@@ -72,6 +74,12 @@
 	<select id="getSeedingTaskHeadList" parameterType="map" resultMap="seedingTaskHeadResultMap">
 		select * from seeding_task_head
 		<include refid="queryCondition"/>
+		<if test=" 'taskOrder'.equals(orderBy)  and  'asc'.equals(orderType)">
+			ORDER BY  task_order ASC
+		</if>
+		<if test=" 'taskOrder'.equals(orderBy)  and  'desc'.equals(orderType)">
+			ORDER BY  task_order DESC
+		</if>
 		<if test="start != null and limit != null">
 		limit #{start},#{limit}
 		</if>
@@ -101,6 +109,7 @@
 			<if test="valid != null"> and real_container_id != 0</if>
 			<if test="status != null"> and status=#{status}</if>
 			<if test="skuId != null"> and sku_id=#{skuId}</if>
+			<if test="taskOrder != null"> and task_order=#{taskOrder}</if>
 			<if test="storeType != null"> and store_type=#{storeType}</if>
 		</where>
 	</sql>

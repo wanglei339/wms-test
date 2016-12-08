@@ -1,14 +1,17 @@
 package com.lsh.wms.core.service.taking;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.dao.stock.OverLossReportDao;
 import com.lsh.wms.core.dao.taking.StockTakingDetailDao;
 import com.lsh.wms.core.dao.taking.StockTakingHeadDao;
 import com.lsh.wms.core.service.container.ContainerService;
+import com.lsh.wms.core.service.datareport.DifferenceZoneReportService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.BaseinfoLocationService;
 import com.lsh.wms.core.service.location.LocationService;
@@ -18,9 +21,11 @@ import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.datareport.DifferenceZoneReport;
 import com.lsh.wms.model.stock.*;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
+import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +44,8 @@ import java.util.*;
 public class StockTakingService {
     private static final Logger logger = LoggerFactory.getLogger(StockTakingDetail.class);
 
+    @Reference
+    private ITaskRpcService iTaskRpcService;
     @Autowired
     private StockTakingHeadDao headDao;
 
@@ -63,6 +70,9 @@ public class StockTakingService {
     private StockSummaryService stockSummaryService;
     @Autowired
     private BaseTaskService baseTaskService;
+    @Autowired
+    private DifferenceZoneReportService differenceZoneReportService;
+
 
     @Transactional(readOnly = false)
     public void insertHead(StockTakingHead head) {
@@ -106,6 +116,12 @@ public class StockTakingService {
         mapQuery.put("takingId", stockTakingId);
         mapQuery.put("round", round);
         mapQuery.put("isValid", 1);
+        List<StockTakingDetail> detailList = detailDao.getStockTakingDetailList(mapQuery);
+        return detailList;
+    }
+    public List<StockTakingDetail> getValidDetailList() {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("valid", 1);
         List<StockTakingDetail> detailList = detailDao.getStockTakingDetailList(mapQuery);
         return detailList;
     }
@@ -198,20 +214,6 @@ public class StockTakingService {
         try {
             this.insertLossOrOver(overLossReports);
             moveService.move(moveList);
-            for (StockMove move : moveList) {
-                StockDelta delta = new StockDelta();
-                delta.setItemId(move.getItemId());
-                BigDecimal qty = BigDecimal.ZERO;
-                if (locationService.getLocation(move.getFromLocationId()).getType().equals(LocationConstant.INVENTORYLOST)) {
-                    qty = move.getQty();
-                } else {
-                    qty = qty.subtract(move.getQty());
-                }
-                delta.setInhouseQty(qty);
-                delta.setBusinessId(stockTakingId);
-                delta.setType(StockConstant.TYPE_STOCK_TAKING);
-                stockSummaryService.changeStock(delta);
-            }
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new BizCheckedException("2550099");
@@ -257,6 +259,17 @@ public class StockTakingService {
         queryMap.put("takingId", takingId);
         return detailDao.getStockTakingDetailList(queryMap);
     }
+    public List<StockTakingDetail> getDetailByTakingIdAndStatus(Long takingId,Long status) {
+        Map<String, Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("takingId", takingId);
+        queryMap.put("status", status);
+        return detailDao.getStockTakingDetailList(queryMap);
+    }
+
+    public List<StockTakingDetail> getDetails(Map<String, Object> queryMap) {
+        return detailDao.getStockTakingDetailList(queryMap);
+    }
+
 
 
     public Integer countHead(Map queryMap) {
@@ -316,37 +329,38 @@ public class StockTakingService {
 
     @Transactional(readOnly = false)
     public void doQcPickDifference(StockMove move) throws BizCheckedException {
-        OverLossReport overLossReport = new OverLossReport();
-        //插入报损
+//        OverLossReport overLossReport = new OverLossReport();
+        DifferenceZoneReport differenceZoneReport = new DifferenceZoneReport();
+        //插入差异报表
         BaseinfoItem item = itemService.getItem(move.getItemId());
-        overLossReport.setItemId(item.getItemId());
-        overLossReport.setOwnerId(item.getOwnerId());
-        overLossReport.setLotId(0L);
-        overLossReport.setPackName(item.getPackName());
-        overLossReport.setSkuCode(item.getSkuCode());
-        overLossReport.setRefTaskId(move.getTaskId());
-        overLossReport.setMoveType(OverLossConstant.LOSS_REPORT);
-        overLossReport.setQty(move.getQty());
-        overLossReport.setStorageLocation(move.getFromLocationId().toString());
+//        overLossReport.setItemId(item.getItemId());
+//        overLossReport.setOwnerId(item.getOwnerId());
+//        overLossReport.setLotId(0L);
+//        overLossReport.setPackName(item.getPackName());
+//        overLossReport.setSkuCode(item.getSkuCode());
+//        overLossReport.setRefTaskId(move.getTaskId());
+//        overLossReport.setMoveType(OverLossConstant.LOSS_REPORT);
+//        overLossReport.setQty(move.getQty());
+//        overLossReport.setStorageLocation(move.getFromLocationId().toString());
+        differenceZoneReport.setItemId(item.getItemId());
+        differenceZoneReport.setSkuCode(item.getSkuCode());
+        differenceZoneReport.setFromLocationId(move.getFromLocationId());
+        differenceZoneReport.setSourceType(ReportConstant.SOURCE_TYPE_QC);
+        differenceZoneReport.setUnitName("EA");
+        differenceZoneReport.setQty(move.getQty().abs());
+        differenceZoneReport.setDirect(ReportConstant.DIRECT_IN);
         TaskInfo qcInfo = baseTaskService.getTaskInfoById(move.getTaskId());
+        differenceZoneReport.setOperator(qcInfo.getOperator());
 
         try {
-            this.insertLossOrOver(overLossReport);
+            //插入差异表
+            differenceZoneReportService.insertReport(differenceZoneReport);
             //移到差异区
             moveService.move(move);
-
-            StockDelta delta = new StockDelta();
-            delta.setItemId(move.getItemId());
-            BigDecimal qty = new BigDecimal(move.getQty().toString());
-            //拣货缺交的,是负数
-            qty = BigDecimal.ZERO.subtract(qty.abs());
-            delta.setInhouseQty(qty);
-            delta.setBusinessId(move.getTaskId());
-            delta.setType(StockConstant.TYPE_PICK_DEFECT);
             //同步库存判断是直流还是在库的
             Long businessMode = qcInfo.getBusinessMode();
-            if (TaskConstant.MODE_INBOUND.equals(businessMode)){
-                stockSummaryService.changeStock(delta);
+            if (TaskConstant.MODE_DIRECT.equals(businessMode)){
+                stockSummaryService.eliminateDiff(move);
             }
         } catch (Exception e) {
             logger.error("MOVE STOCK FAIL , containerId is " + move.getToContainerId() + "taskId is " + move.getTaskId() + e.getMessage());
@@ -374,19 +388,6 @@ public class StockTakingService {
             Long locationId = locationService.getInventoryLostLocation().getLocationId();
             //移到盘亏盘盈区
             moveService.move(move);
-//            stockMoveService.move(move);
-            StockDelta delta = new StockDelta();
-            delta.setItemId(move.getItemId());
-            BigDecimal qty = new BigDecimal(move.getQty().toString());
-            if (move.getToLocationId().compareTo(locationId) == 0) {
-                qty = BigDecimal.ZERO.subtract(qty);
-            }
-            if(quant.getIsInhouse().compareTo(1L)==0) {
-                delta.setInhouseQty(qty);
-                delta.setBusinessId(move.getTaskId());
-                delta.setType(StockConstant.TYPE_WRITE_OFF);
-                stockSummaryService.changeStock(delta);
-            }
         } catch (Exception e) {
             logger.error(e.getMessage());
             throw new BizCheckedException("2550051");

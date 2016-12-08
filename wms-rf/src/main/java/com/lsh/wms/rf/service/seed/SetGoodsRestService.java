@@ -173,10 +173,10 @@ public class SetGoodsRestService implements ISetGoodsRestService {
         }
 
         Map<String,Object> result = new HashMap<String, Object>();
-        result.put("storeName",csiCustomerService.getCustomerByCustomerCode(customerCode).getCustomerName());
+        result.put("customerName",csiCustomerService.getCustomerByCustomerCode(customerCode).getCustomerName());
         result.put("locationCode",location.getLocationCode());
         result.put("containerId",containerId);
-        result.put("storeNo",customerCode);
+        result.put("customerCode",customerCode);
         result.put("status",info.getStep());
         return JsonUtils.SUCCESS(result);
     }

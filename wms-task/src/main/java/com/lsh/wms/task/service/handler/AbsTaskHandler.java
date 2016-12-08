@@ -32,6 +32,21 @@ public class AbsTaskHandler implements TaskHandler {
     public void create(Long taskId) throws BizCheckedException{
     }
 
+    public void createTask(StockTakingHead head, TaskEntry entry) {
+        // 插入标准任务信息
+        TaskInfo taskInfo = entry.getTaskInfo();
+        Long taskId = taskInfo.getTaskId();
+        if (taskId.equals(0L) || baseTaskService.getTaskInfoById(taskId) != null) {
+            Long taskType = taskInfo.getType();
+            String idKey = "task_" + taskType.toString();
+            taskId = idGenerator.genId(idKey, true, true);
+            //Long taskId = RandomUtils.genId();
+            taskInfo.setTaskId(taskId);
+        }
+        entry.setTaskInfo(taskInfo);
+        baseTaskService.create(entry,head, this);
+    }
+
     public void create(TaskEntry taskEntry) throws BizCheckedException{
         // 插入标准任务信息
         TaskInfo taskInfo = taskEntry.getTaskInfo();

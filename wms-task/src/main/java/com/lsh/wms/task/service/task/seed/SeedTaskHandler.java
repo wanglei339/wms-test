@@ -227,6 +227,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
                     if (storeMap.containsKey(storeNo)) {
                         info.setTaskOrder(storeMap.get(storeNo));
                     }
+                    head.setTaskOrder(info.getTaskOrder());
                     info.setItemId(obdDetail.getItemId());
                     info.setSkuId(quant.getSkuId());
                     info.setOrderId(orderId);
