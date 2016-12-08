@@ -81,8 +81,14 @@ public class ProcurementRestService implements IProcurementRestService {
         query.put("cmd", "getZoneList");
         String ip = PropertyUtils.getString("replenish_svr_ip");
         int port = PropertyUtils.getInt("replenish_svr_port");
-        String rst = NsHeadClient.jsonCall(ip, port, JsonUtils.obj2Json(query));
-        return rst;
+        String rstString = NsHeadClient.jsonCall(ip, port, JsonUtils.obj2Json(query));
+        Map rst = JsonUtils.json2Obj(rstString, Map.class);
+        if ( rst == null || Long.valueOf(rst.get("ret").toString())!=0){
+            return JsonUtils.TOKEN_ERROR("服务器错误");
+        }else{
+            return JsonUtils.SUCCESS(rst);
+        }
+
     }
 
     @POST
@@ -96,8 +102,13 @@ public class ProcurementRestService implements IProcurementRestService {
         query.put("uid", Long.valueOf(RequestUtils.getHeader("uid")));
         String ip = PropertyUtils.getString("replenish_svr_ip");
         int port = PropertyUtils.getInt("replenish_svr_port");
-        String rst = NsHeadClient.jsonCall(ip, port, JsonUtils.obj2Json(query));
-        return rst;
+        String rstString = NsHeadClient.jsonCall(ip, port, JsonUtils.obj2Json(query));
+        Map rst = JsonUtils.json2Obj(rstString, Map.class);
+        if ( rst == null || Long.valueOf(rst.get("ret").toString())!=0){
+            return JsonUtils.TOKEN_ERROR("服务器错误");
+        }else{
+            return JsonUtils.SUCCESS(rst);
+        }
     }
 
     @POST
@@ -111,8 +122,13 @@ public class ProcurementRestService implements IProcurementRestService {
         query.put("uid", Long.valueOf(RequestUtils.getHeader("uid")));
         String ip = PropertyUtils.getString("replenish_svr_ip");
         int port = PropertyUtils.getInt("replenish_svr_port");
-        String rst = NsHeadClient.jsonCall(ip, port, JsonUtils.obj2Json(query));
-        return rst;
+        String rstString = NsHeadClient.jsonCall(ip, port, JsonUtils.obj2Json(query));
+        Map rst = JsonUtils.json2Obj(rstString, Map.class);
+        if ( rst == null || Long.valueOf(rst.get("ret").toString())!=0){
+            return JsonUtils.TOKEN_ERROR("服务器错误");
+        }else{
+            return JsonUtils.SUCCESS(rst);
+        }
     }
 
     @POST
