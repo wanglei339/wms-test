@@ -213,115 +213,115 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         logger.info(JsonUtils.SUCCESS(detailList));
         return detailList;
     }
-//    public void getTakingLocation(StockTakingRequest request){
-//        List<Long> locationList = new ArrayList<Long>();
-//        Long locationId = 0L;
-//        //根据，区，通道，货架，层 筛选出location
-//        if (!request.getShelfLayerId().equals(0L)) {
-//            locationId = request.getShelfLayerId();
-//        } else if (!request.getStorageId().equals(0L)) {
-//            locationId = request.getStorageId();
-//        } else if (!request.getPassageId().equals(0L)) {
-//            locationId = request.getPassageId();
-//        } else if (!request.getAreaId().equals(0L)) {
-//            locationId = request.getAreaId();
-//        }
-//        List<BaseinfoLocation> baseinfoLocations = locationService.getChildrenLocationsByType(locationId, LocationConstant.BIN);
-//        for(BaseinfoLocation baseinfoLocation:baseinfoLocations) {
-//            locationList.add(baseinfoLocation.getLocationId());
-//        }
-//
-//        //商品,供应商得到库位
-//        Map<String,Object> queryMap =new HashMap<String, Object>();
-//        if(request.getSupplierId().compareTo(0L)!=0) {
-//            queryMap.put("supplierId", request.getSupplierId());
-//        }
-//        if(request.getItemId().compareTo(0L)!=0) {
-//            queryMap.put("itemId", request.getItemId());
-//        }
-//        List<StockQuant>quantList = quantService.getQuants(queryMap);
-//        Set<Long> longs = new HashSet<Long>();
-//        List<Long> taskLocation =new ArrayList<Long>();
-//
-//        //取到盘点库位
-//        Map<String,Object> query = new HashMap<String, Object>();
-//        List<StockTakingDetail> details = stockTakingService.getValidDetailList();
-//        if(details!=null && details.size()!=0){
-//            for(StockTakingDetail detail:details){
-//                taskLocation.add(detail.getLocationId());
-//            }
-//        }
-//
-//        for(StockQuant quant:quantList){
-//            BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
-//            if(location.getType().compareTo(LocationConstant.SHELFS)==0 ||location.getType().compareTo(LocationConstant.LOFTS)==0  ||location.getType().compareTo(LocationConstant.SPLIT_AREA)==0 ||location.getType().compareTo(LocationConstant.FLOOR)==0 || (location.getType().equals(LocationConstant.BIN) && location.getBinUsage().equals(BinUsageConstant.BIN_FLOOR_STORE))) {
-//                longs.add(quant.getLocationId());
-//            }
-//        }
-//
-//        locationList.retainAll(longs);
-//
-//    }
+    public void getTakingLocation(StockTakingRequest request){
+        List<Long> locationList = new ArrayList<Long>();
+        Long locationId = 0L;
+        //根据，区，通道，货架，层 筛选出location
+        if (!request.getShelfLayerId().equals(0L)) {
+            locationId = request.getShelfLayerId();
+        } else if (!request.getStorageId().equals(0L)) {
+            locationId = request.getStorageId();
+        } else if (!request.getPassageId().equals(0L)) {
+            locationId = request.getPassageId();
+        } else if (!request.getAreaId().equals(0L)) {
+            locationId = request.getAreaId();
+        }
+        List<BaseinfoLocation> baseinfoLocations = locationService.getChildrenLocationsByType(locationId, LocationConstant.BIN);
+        for(BaseinfoLocation baseinfoLocation:baseinfoLocations) {
+            locationList.add(baseinfoLocation.getLocationId());
+        }
 
-//    public void createTemporary(StockTakingRequest request){
-//        //get zone list;
-//        List<WorkZone> zoneList = workZoneService.getWorkZoneByType(WorkZoneConstant.ZONE_STOCK_TAKING);
-//        if(zoneList.size()==0){
-//            //抛异常也行
-//            return;
-//        }
-//        List<Long> locationList = new ArrayList<Long>();
-//        if( request.getLocationList().equals("")) {
-//            Long locationId = 0L;
-//            //根据，区，通道，货架，层 筛选出location
-//            if (!request.getShelfLayerId().equals(0L)) {
-//                locationId = request.getShelfLayerId();
-//            } else if (!request.getStorageId().equals(0L)) {
-//                locationId = request.getStorageId();
-//            } else if (!request.getPassageId().equals(0L)) {
-//                locationId = request.getPassageId();
-//            } else if (!request.getAreaId().equals(0L)) {
-//                locationId = request.getAreaId();
-//            }
-//            List<BaseinfoLocation> baseinfoLocations = locationService.getChildrenLocationsByType(locationId, LocationConstant.BIN);
-//            for(BaseinfoLocation baseinfoLocation:baseinfoLocations) {
-//                locationList.add(baseinfoLocation.getLocationId());
-//            }
-//        }
-//            //商品,供应商得到库位
-//            Map<String,Object> queryMap =new HashMap<String, Object>();
-//            if(request.getSupplierId().compareTo(0L)!=0) {
-//                queryMap.put("supplierId", request.getSupplierId());
-//            }
-//            if(request.getItemId().compareTo(0L)!=0) {
-//                queryMap.put("itemId", request.getItemId());
-//            }
-//            List<StockQuant>quantList = quantService.getQuants(queryMap);
-//            Set<Long> longs = new HashSet<Long>();
-//            List<Long> taskLocation =new ArrayList<Long>();
-//
-//            //取到盘点库位
-//            Map<String,Object> query = new HashMap<String, Object>();
-//            List<StockTakingDetail> details = stockTakingService.getValidDetailList();
-//            if(details!=null && details.size()!=0){
-//                for(StockTakingDetail detail:details){
-//                    taskLocation.add(detail.getLocationId());
-//                }
-//            }
-//
-//
-//            for(StockQuant quant:quantList){
-//                BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
-//                if(location.getType().compareTo(LocationConstant.SHELFS)==0 ||location.getType().compareTo(LocationConstant.LOFTS)==0  ||location.getType().compareTo(LocationConstant.SPLIT_AREA)==0 ||location.getType().compareTo(LocationConstant.FLOOR)==0 || (location.getType().equals(LocationConstant.BIN) && location.getBinUsage().equals(BinUsageConstant.BIN_FLOOR_STORE))) {
-//                    longs.add(quant.getLocationId());
-//                }
-//            }
-//            if(locationList!=null ){
-//                locationList.retainAll(longs);
-//            }else {
-//                locationList =new ArrayList<Long>(longs);
-//            }
-//    }
+        //商品,供应商得到库位
+        Map<String,Object> queryMap =new HashMap<String, Object>();
+        if(request.getSupplierId().compareTo(0L)!=0) {
+            queryMap.put("supplierId", request.getSupplierId());
+        }
+        if(request.getItemId().compareTo(0L)!=0) {
+            queryMap.put("itemId", request.getItemId());
+        }
+        List<StockQuant>quantList = quantService.getQuants(queryMap);
+        Set<Long> longs = new HashSet<Long>();
+        List<Long> taskLocation =new ArrayList<Long>();
+
+        //取到盘点库位
+        Map<String,Object> query = new HashMap<String, Object>();
+        List<StockTakingDetail> details = stockTakingService.getValidDetailList();
+        if(details!=null && details.size()!=0){
+            for(StockTakingDetail detail:details){
+                taskLocation.add(detail.getLocationId());
+            }
+        }
+
+        for(StockQuant quant:quantList){
+            BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
+            if(location.getType().compareTo(LocationConstant.SHELFS)==0 ||location.getType().compareTo(LocationConstant.LOFTS)==0  ||location.getType().compareTo(LocationConstant.SPLIT_AREA)==0 ||location.getType().compareTo(LocationConstant.FLOOR)==0 || (location.getType().equals(LocationConstant.BIN) && location.getBinUsage().equals(BinUsageConstant.BIN_FLOOR_STORE))) {
+                longs.add(quant.getLocationId());
+            }
+        }
+
+        locationList.retainAll(longs);
+
+    }
+
+    public void createTemporary(StockTakingRequest request){
+        //get zone list;
+        List<WorkZone> zoneList = workZoneService.getWorkZoneByType(WorkZoneConstant.ZONE_STOCK_TAKING);
+        if(zoneList.size()==0){
+            //抛异常也行
+            return;
+        }
+        List<Long> locationList = new ArrayList<Long>();
+        if( request.getLocationList().equals("")) {
+            Long locationId = 0L;
+            //根据，区，通道，货架，层 筛选出location
+            if (!request.getShelfLayerId().equals(0L)) {
+                locationId = request.getShelfLayerId();
+            } else if (!request.getStorageId().equals(0L)) {
+                locationId = request.getStorageId();
+            } else if (!request.getPassageId().equals(0L)) {
+                locationId = request.getPassageId();
+            } else if (!request.getAreaId().equals(0L)) {
+                locationId = request.getAreaId();
+            }
+            List<BaseinfoLocation> baseinfoLocations = locationService.getChildrenLocationsByType(locationId, LocationConstant.BIN);
+            for(BaseinfoLocation baseinfoLocation:baseinfoLocations) {
+                locationList.add(baseinfoLocation.getLocationId());
+            }
+        }
+            //商品,供应商得到库位
+            Map<String,Object> queryMap =new HashMap<String, Object>();
+            if(request.getSupplierId().compareTo(0L)!=0) {
+                queryMap.put("supplierId", request.getSupplierId());
+            }
+            if(request.getItemId().compareTo(0L)!=0) {
+                queryMap.put("itemId", request.getItemId());
+            }
+            List<StockQuant>quantList = quantService.getQuants(queryMap);
+            Set<Long> longs = new HashSet<Long>();
+            List<Long> taskLocation =new ArrayList<Long>();
+
+            //取到盘点库位
+            Map<String,Object> query = new HashMap<String, Object>();
+            List<StockTakingDetail> details = stockTakingService.getValidDetailList();
+            if(details!=null && details.size()!=0){
+                for(StockTakingDetail detail:details){
+                    taskLocation.add(detail.getLocationId());
+                }
+            }
+
+
+            for(StockQuant quant:quantList){
+                BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
+                if(location.getType().compareTo(LocationConstant.SHELFS)==0 ||location.getType().compareTo(LocationConstant.LOFTS)==0  ||location.getType().compareTo(LocationConstant.SPLIT_AREA)==0 ||location.getType().compareTo(LocationConstant.FLOOR)==0 || (location.getType().equals(LocationConstant.BIN) && location.getBinUsage().equals(BinUsageConstant.BIN_FLOOR_STORE))) {
+                    longs.add(quant.getLocationId());
+                }
+            }
+            if(locationList!=null ){
+                locationList.retainAll(longs);
+            }else {
+                locationList =new ArrayList<Long>(longs);
+            }
+    }
 
     public void createPlanWarehouse(){
         //get zone list;

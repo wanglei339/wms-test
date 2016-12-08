@@ -9,24 +9,24 @@ import java.io.Serializable;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class StockTakingRequest implements Serializable {
-    /** 库区Id*/
+    /** 计划id*/
+    private Long takingId;
+    /** 货架Id*/
     private Long storageId = 0L;
+    /** 货架层Id*/
+    private Long shelfLayerId = 0L;
+    /** 通道Id*/
+    private Long passageId = 0L;
     /** 库区Id*/
     private Long areaId = 0L;
     /** 商品Id */
     private Long itemId = 0L;
-    /** 库位信息 */
+    /** 库位id*/
     private String locationList = "";
     /** 供应商id */
     private Long supplierId = 0L;
-    /** 盘点类型 */
-    private Long viewType = 1L;
     /** 盘点性质 */
     private Long planType = 1L;
-    /** 要求结束时间 */
-    private Long dueTime = DateUtils.getCurrentSeconds();
-    /** 盘点计划Id*/
-    private Long takingId = 0L;
     /** 盘点任务发起人*/
     private Long planner  = 0L;
 
@@ -62,36 +62,12 @@ public class StockTakingRequest implements Serializable {
         this.supplierId = supplierId;
     }
 
-    public Long getViewType() {
-        return viewType;
-    }
-
-    public void setViewType(Long viewType) {
-        this.viewType = viewType;
-    }
-
-    public Long getDueTime() {
-        return dueTime;
-    }
-
-    public void setDueTime(Long dueTime) {
-        this.dueTime = dueTime;
-    }
-
     public Long getPlanType() {
         return planType;
     }
 
     public void setPlanType(Long planType) {
         this.planType = planType;
-    }
-
-    public Long getTakingId() {
-        return takingId;
-    }
-
-    public void setTakingId(Long takingId) {
-        this.takingId = takingId;
     }
 
     public StockTakingRequest() {
@@ -113,19 +89,27 @@ public class StockTakingRequest implements Serializable {
         this.storageId = storageId;
     }
 
-    @Override
-    public String toString() {
-        return "StockTakingRequest{" +
-                "storageId=" + storageId +
-                ", areaId=" + areaId +
-                ", itemId=" + itemId +
-                ", locationList='" + locationList + '\'' +
-                ", supplierId=" + supplierId +
-                ", viewType=" + viewType +
-                ", planType=" + planType +
-                ", dueTime=" + dueTime +
-                ", takingId=" + takingId +
-                ", planner=" + planner +
-                '}';
+    public Long getShelfLayerId() {
+        return shelfLayerId;
+    }
+
+    public void setShelfLayerId(Long shelfLayerId) {
+        this.shelfLayerId = shelfLayerId;
+    }
+
+    public Long getPassageId() {
+        return passageId;
+    }
+
+    public void setPassageId(Long passageId) {
+        this.passageId = passageId;
+    }
+
+    public Long getTakingId() {
+        return takingId;
+    }
+
+    public void setTakingId(Long takingId) {
+        this.takingId = takingId;
     }
 }
