@@ -48,6 +48,8 @@ public class StockTakingDetail implements Serializable {
 	private int isValid = 1;
 	/** 详情执行状态*/
 	private Long status = 1L;
+	/** 分区id*/
+	private Long zoneId = 0L;
 	/**  */
     private Long createdAt = DateUtils.getCurrentSeconds();
 	/**  */
@@ -235,5 +237,13 @@ public class StockTakingDetail implements Serializable {
 
 	public void setStatus(Long status) {
 		this.status = status;
+	}
+
+	public Long getZoneId() {
+		return zoneId;
+	}
+
+	public void setZoneId(Long zoneId) {
+		this.zoneId = zoneId;
 	}
 }

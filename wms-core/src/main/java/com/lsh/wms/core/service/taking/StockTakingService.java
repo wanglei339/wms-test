@@ -1,9 +1,11 @@
 package com.lsh.wms.core.service.taking;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.dao.stock.OverLossReportDao;
 import com.lsh.wms.core.dao.taking.StockTakingDetailDao;
@@ -23,6 +25,7 @@ import com.lsh.wms.model.datareport.DifferenceZoneReport;
 import com.lsh.wms.model.stock.*;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
+import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +44,8 @@ import java.util.*;
 public class StockTakingService {
     private static final Logger logger = LoggerFactory.getLogger(StockTakingDetail.class);
 
+    @Reference
+    private ITaskRpcService iTaskRpcService;
     @Autowired
     private StockTakingHeadDao headDao;
 
@@ -67,6 +72,7 @@ public class StockTakingService {
     private BaseTaskService baseTaskService;
     @Autowired
     private DifferenceZoneReportService differenceZoneReportService;
+
 
     @Transactional(readOnly = false)
     public void insertHead(StockTakingHead head) {
@@ -259,6 +265,11 @@ public class StockTakingService {
         queryMap.put("status", status);
         return detailDao.getStockTakingDetailList(queryMap);
     }
+
+    public List<StockTakingDetail> getDetails(Map<String, Object> queryMap) {
+        return detailDao.getStockTakingDetailList(queryMap);
+    }
+
 
 
     public Integer countHead(Map queryMap) {

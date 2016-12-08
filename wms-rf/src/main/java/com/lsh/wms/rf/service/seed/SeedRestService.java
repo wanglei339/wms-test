@@ -643,6 +643,7 @@ public class SeedRestService implements ISeedRestService {
         Long uId = 0L;
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Map<String, Object> result = new HashMap<String, Object>();
+        logger.info("params:"+mapQuery);
         try {
             containerId = Long.valueOf(mapQuery.get("containerId").toString());
             taskId = Long.valueOf(mapQuery.get("taskId").toString());
