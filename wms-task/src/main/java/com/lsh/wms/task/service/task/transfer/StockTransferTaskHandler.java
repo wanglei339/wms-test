@@ -16,14 +16,12 @@ import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.task.service.TaskRpcService;
 import com.lsh.wms.task.service.handler.AbsTaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
-import com.lsh.wms.task.service.task.back.BackInStorageTaskHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.StringTokenizer;
 
 /**
  * Created by mali on 16/7/25.
@@ -74,30 +72,6 @@ public class StockTransferTaskHandler extends AbsTaskHandler {
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         locationService.unlockLocation(taskInfo.getToLocationId());
 //        quantService.unReserve(taskInfo.getTaskId());
-
-        int type = 0;
-        BaseinfoLocation toLocation = locationService.getLocation(taskInfo.getToLocationId());
-        if (toLocation.getType().equals(LocationConstant.DEFECTIVE_AREA)
-                || toLocation.getType().equals(LocationConstant.DEFECTIVE_BIN)) {
-            type = StockConstant.TYPE_TO_DEFECT;
-        } else if  ( toLocation.getType().equals(LocationConstant.BACK_AREA)
-                || toLocation.getType().equals(LocationConstant.BACK_BIN)) {
-            type = StockConstant.TYPE_TO_REFUND;
-        } else if (locationService.getLocation(taskInfo.getFromLocationId()).equals(LocationConstant.MARKET_RETURN_AREA)) {
-            type = StockConstant.TYPE_MARKET_RETURN;
-        }
-
-        if (0 != type) {
-            StockDelta stockDelta = new StockDelta();
-            stockDelta.setItemId(taskInfo.getItemId());
-            stockDelta.setInhouseQty(BigDecimal.ZERO.subtract(taskInfo.getTaskEaQty()));
-            if (type == StockConstant.TYPE_MARKET_RETURN) {
-                stockDelta.setInhouseQty(taskInfo.getTaskEaQty());
-            }
-            stockDelta.setType(type);
-            stockDelta.setBusinessId(taskId);
-            stockSummaryService.changeStock(stockDelta);
-        }
     }
 
     public void doneConcrete(Long taskId, List<StockMove> moveList){
@@ -109,7 +83,8 @@ public class StockTransferTaskHandler extends AbsTaskHandler {
                         move.getFromLocationId(),
                         move.getToLocationId());
             }else{
-                stockMoveService.move(move);
+                stockMoveService.move(moveList);
+                break;
             }
         }
         this.doneConcrete(taskId);

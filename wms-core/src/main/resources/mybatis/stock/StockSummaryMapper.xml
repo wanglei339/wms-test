@@ -2,56 +2,155 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.lsh.wms.core.dao.stock.StockSummaryDao" >
 
-    <resultMap id="stockSummaryResultMap" type="StockSummary">
-        <id property="id" column="id"/>
-        <result property="itemId" column="item_id"/>
-        <result property="skuCode" column="sku_code"/>
-        <result property="ownerId" column="owner_id"/>
-        <result property="inhouseQty" column="inhouse_qty"/>
-        <result property="allocQty" column="alloc_qty"/>
-        <result property="availQty" column="avail_qty"/>
-        <result property="createdAt" column="created_at"/>
-        <result property="updatedAt" column="updated_at"/>
-    </resultMap>
-
-    <update id="changeStock" parameterType="StockSummary">
-        insert into stock_summary
-        (item_id,sku_code,owner_id,inhouse_qty,alloc_qty,created_at,updated_at,avail_qty)
-        values
-        (#{itemId},#{skuCode},#{ownerId},#{inhouseQty},#{allocQty},#{createdAt},#{updatedAt}, inhouse_qty - alloc_qty)
-        on duplicate key UPDATE
-        inhouse_qty = inhouse_qty + values(inhouse_qty),
-        alloc_qty = alloc_qty + values(alloc_qty),
-        avail_qty = inhouse_qty - alloc_qty,
-        updated_at = values(updated_at)
-    </update>
-
-    <select id="getStockSummaryByItemId" parameterType="Long" resultMap="stockSummaryResultMap">
-        select * from stock_summary
-        where item_id=#{itemId}
-        limit 1
-    </select>
-
-    <select id="countStockSummary" parameterType="map" resultType="int">
-        select count(*) from stock_summary
-        <include refid="queryCondition"/>
-    </select>
-
-    <select id="getStockSummaryList" parameterType="map" resultMap="stockSummaryResultMap">
-        select * from stock_summary
-        <include refid="queryCondition"/>
-        <if test="start != null and limit != null">
-            limit #{start},#{limit}
-        </if>
-    </select>
-
-    <sql id="queryCondition">
-        <where>
-            <if test="id != null">id=#{id}</if>
-            <if test="itemId != null">and item_id=#{itemId}</if>
-            <if test="skuCode != null">and sku_code=#{skuCode}</if>
-            <if test="ownerId != null">and onwer_id=#{ownerId}</if>
-        </where>
-    </sql>
-
+	<resultMap id="stockSummaryResultMap" type="StockSummary">
+		<id property="id" column="id"/>
+		<result property="itemId" column="item_id"/>
+		<result property="skuCode" column="sku_code"/>
+		<result property="ownerId" column="owner_id"/>
+		<result property="inhouseQty" column="inhouse_qty"/>
+		<result property="allocQty" column="alloc_qty"/>
+		<result property="availQty" column="avail_qty"/>
+		<result property="presaleQty" column="presale_qty"/>
+		<result property="inventoryLossQty" column="inventory_loss_qty"/>
+		<result property="shelfQty" column="shelf_qty"/>
+		<result property="splitQty" column="split_qty"/>
+		<result property="atticQty" column="attic_qty"/>
+		<result property="floorQty" column="floor_qty"/>
+		<result property="temporaryQty" column="temporary_qty"/>
+		<result property="collectionQty" column="collection_qty"/>
+		<result property="backQty" column="back_qty"/>
+		<result property="defectQty" column="defect_qty"/>
+		<result property="dockQty" column="dock_qty"/>
+		<result property="marketReturnQty" column="market_return_qty"/>
+		<result property="sowQty" column="sow_qty"/>
+		<result property="supplierReturnQty" column="supplier_return_qty"/>
+		<result property="diffQty" column="diff_qty"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<update id="changeStock" useGeneratedKeys="true" keyProperty="id" parameterType="StockSummary">
+		insert into stock_summary
+		<trim prefix="(" suffixOverrides="," suffix=")">
+        <if test="id != null">id,</if>
+        <if test="itemId != null">item_id,</if>
+        <if test="skuCode != null">sku_code,</if>
+        <if test="ownerId != null">owner_id,</if>
+        inhouse_qty,
+        <if test="allocQty != null">alloc_qty,</if>
+        <if test="presaleQty != null">presale_qty,</if>
+		avail_qty,
+		<if test="inventoryLossQty != null">inventory_loss_qty,</if>
+        <if test="shelfQty != null">shelf_qty,</if>
+        <if test="splitQty != null">split_qty,</if>
+        <if test="atticQty != null">attic_qty,</if>
+        <if test="floorQty != null">floor_qty,</if>
+        <if test="temporaryQty != null">temporary_qty,</if>
+        <if test="collectionQty != null">collection_qty,</if>
+        <if test="backQty != null">back_qty,</if>
+        <if test="defectQty != null">defect_qty,</if>
+        <if test="dockQty != null">dock_qty,</if>
+        <if test="marketReturnQty != null">market_return_qty,</if>
+        <if test="sowQty != null">sow_qty,</if>
+        <if test="supplierReturnQty != null">supplier_return_qty,</if>
+        <if test="diffQty != null">diff_qty,</if>
+        <if test="createdAt != null">created_at,</if>
+        <if test="updatedAt != null">updated_at,</if>
+        </trim>
+    	values
+    	<trim prefix="(" suffixOverrides="," suffix=")">
+        <if test="id != null">#{id},</if>
+        <if test="itemId != null">#{itemId},</if>
+        <if test="skuCode != null">#{skuCode},</if>
+        <if test="ownerId != null">#{ownerId},</if>
+		shelf_qty + split_qty + attic_qty + floor_qty +  collection_qty + dock_qty + sow_qty,
+        <if test="allocQty != null">#{allocQty},</if>
+        <if test="presaleQty != null">#{presaleQty},</if>
+		shelf_qty + split_qty + attic_qty + floor_qty + collection_qty + dock_qty + sow_qty - alloc_qty - presale_qty,
+        <if test="inventoryLossQty != null">#{inventoryLossQty},</if>
+        <if test="shelfQty != null">#{shelfQty},</if>
+        <if test="splitQty != null">#{splitQty},</if>
+        <if test="atticQty != null">#{atticQty},</if>
+        <if test="floorQty != null">#{floorQty},</if>
+        <if test="temporaryQty != null">#{temporaryQty},</if>
+        <if test="collectionQty != null">#{collectionQty},</if>
+        <if test="backQty != null">#{backQty},</if>
+        <if test="defectQty != null">#{defectQty},</if>
+        <if test="dockQty != null">#{dockQty},</if>
+        <if test="marketReturnQty != null">#{marketReturnQty},</if>
+        <if test="sowQty != null">#{sowQty},</if>
+        <if test="supplierReturnQty != null">#{supplierReturnQty},</if>
+        <if test="diffQty != null">#{diffQty},</if>
+        <if test="createdAt != null">#{createdAt},</if>
+        <if test="updatedAt != null">#{updatedAt},</if>
+		</trim>
+		ON DUPLICATE KEY UPDATE
+		alloc_qty = alloc_qty + values(alloc_qty),
+		presale_qty = presale_qty + values(presale_qty),
+		inventory_loss_qty = inventory_loss_qty + values(inventory_loss_qty),
+		shelf_qty = shelf_qty + values(shelf_qty),
+		attic_qty = attic_qty + values(attic_qty),
+		split_qty = split_qty + values(split_qty),
+		floor_qty = floor_qty + values(floor_qty),
+		temporary_qty = temporary_qty + values(temporary_qty),
+		collection_qty = collection_qty + values(collection_qty),
+		back_qty = back_qty + values(back_qty),
+		defect_qty = defect_qty + values(defect_qty),
+		market_return_qty = market_return_qty + values(market_return_qty),
+		sow_qty = sow_qty + values(sow_qty),
+		supplier_return_qty = supplier_return_qty + values(supplier_return_qty),
+		diff_qty = diff_qty + values(diff_qty),
+		inhouse_qty = shelf_qty + split_qty + attic_qty + floor_qty + collection_qty + dock_qty + sow_qty,
+		avail_qty = inhouse_qty - alloc_qty - presale_qty,
+		updated_at = values(updated_at)
+	</update>
+  
+	<select id="getStockSummaryByItemId" parameterType="long" resultMap="stockSummaryResultMap">
+		select * from stock_summary
+		where item_id=#{itemId}
+		limit 1
+	</select>
+  
+	<select id="countStockSummary" parameterType="map" resultType="int">
+		select count(*) from stock_summary
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getStockSummaryList" parameterType="map" resultMap="stockSummaryResultMap">
+		select * from stock_summary
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="itemId != null">and item_id=#{itemId}</if>
+			<if test="skuCode != null">and sku_code=#{skuCode}</if>
+			<if test="ownerId != null">and owner_id=#{ownerId}</if>
+			<if test="inhouseQty != null">and inhouse_qty=#{inhouseQty}</if>
+			<if test="allocQty != null">and alloc_qty=#{allocQty}</if>
+			<if test="availQty != null">and avail_qty=#{availQty}</if>
+			<if test="presaleQty != null">and presale_qty=#{presaleQty}</if>
+			<if test="inventoryLossQty != null">and inventory_loss_qty=#{inventoryLossQty}</if>
+			<if test="shelfQty != null">and shelf_qty=#{shelfQty}</if>
+			<if test="splitQty != null">and split_qty=#{splitQty}</if>
+			<if test="atticQty != null">and attic_qty=#{atticQty}</if>
+			<if test="floorQty != null">and floor_qty=#{floorQty}</if>
+			<if test="temporaryQty != null">and temporary_qty=#{temporaryQty}</if>
+			<if test="collectionQty != null">and collection_qty=#{collectionQty}</if>
+			<if test="backQty != null">and back_qty=#{backQty}</if>
+			<if test="defectQty != null">and defect_qty=#{defectQty}</if>
+			<if test="dockQty != null">and dock_qty=#{dockQty}</if>
+			<if test="marketReturnQty != null">and market_return_qty=#{marketReturnQty}</if>
+			<if test="sowQty != null">and sow_qty=#{sowQty}</if>
+			<if test="supplierReturnQty != null">and supplier_return_qty=#{supplierReturnQty}</if>
+			<if test="diffQty != null">and diff_qty=#{diffQty}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
 </mapper>

@@ -63,10 +63,6 @@ public class ShelveTaskHandler extends AbsTaskHandler {
     private ItemLocationService itemLocationService;
     @Reference
     private IShelveRpcService iShelveRpcService;
-    @Reference
-    private IStockMoveRpcService iStockMoveRpcService;
-    @Autowired
-    private StockSummaryService stockSummaryService;
 
     @PostConstruct
     public void postConstruct() {
@@ -238,14 +234,6 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         taskService.done(taskId, locationId);
         // 释放分配的location
         locationService.unlockLocation(taskHead.getAllocLocationId());
-
-        // 更新可用库存
-        StockDelta delta = new StockDelta();
-        delta.setItemId(taskInfo.getItemId());
-        delta.setInhouseQty(taskInfo.getQty());
-        delta.setBusinessId(taskId);
-        delta.setType(StockConstant.TYPE_SHELVE);
-        stockSummaryService.changeStock(delta);
 
     }
 
