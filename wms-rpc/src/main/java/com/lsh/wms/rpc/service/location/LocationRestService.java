@@ -266,9 +266,8 @@ public class LocationRestService implements ILocationRestService {
         List<BaseinfoLocation> splitList = new ArrayList<BaseinfoLocation>();
 
         for (BaseinfoLocation b : collectionBins) {
-            if (LocationConstant.SPLIT_AREA.compareTo(b.getRegionType()) != 0 &&
-                    locationList.contains(b.getLocationId())) {
-                //拣货位已被使用,存拣合一类型不去重
+            if (locationList.contains(b.getLocationId())) {
+                //拣货位已被使用
                 continue;
             }
             if (LocationConstant.SHELFS.compareTo(b.getRegionType()) == 0) {
@@ -298,7 +297,7 @@ public class LocationRestService implements ILocationRestService {
     @GET
     @Path("getAllShelfs")
     public String getAllShelfs() {
-//        return JsonUtils.SUCCESS(locationRpcService.getAllShelfs());
+        return JsonUtils.SUCCESS(locationRpcService.getAllShelfs());
 //        return JsonUtils.SUCCESS(locationRpcService.getColletionBins());
 //          return JsonUtils.SUCCESS(locationRpcService.sortSowLocationByStoreNo());
 //        return JsonUtils.SUCCESS(locationService.getLocation(-1L));
@@ -322,12 +321,6 @@ public class LocationRestService implements ILocationRestService {
 //        pickDetails.add(waveService.getWaveDetailById(151));
 //        pickDetails.add(waveService.getWaveDetailById(152));
 //        pickRpcService.calcPickOrder(pickDetails);
-        List<BaseinfoLocation> temp = locationService.getChildrenLocationsByType(4432676798596L,LocationConstant.BIN);
-        List<BaseinfoLocation> locations = locationService.getChildrenLocationsByType(4467307086085L,LocationConstant.BIN);
-        List<BaseinfoLocation> locations2 = locationService.getChildrenLocationsByType(4501937373574L,LocationConstant.BIN);
-        temp.addAll(locations);
-        temp.addAll(locations2);
-        return JsonUtils.SUCCESS(locationService.calcZwayOrder(temp,true));
 //
 //        return "yes";
     }
