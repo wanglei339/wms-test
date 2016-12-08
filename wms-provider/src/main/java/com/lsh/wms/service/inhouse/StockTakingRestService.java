@@ -3,6 +3,7 @@ package com.lsh.wms.service.inhouse;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
@@ -199,6 +200,37 @@ public class StockTakingRestService implements IStockTakingRestService {
         }
         resultMap.put("result", result);
         return JsonUtils.SUCCESS(resultMap);
+    }
+    @POST
+    @Path("getTakingLocation")
+    public String getTakingLocation(StockTakingRequest request) {
+        List<Long> locations = iStockTakingProviderRpcService.getTakingLocation(request);
+        return JsonUtils.SUCCESS(locations);
+    }
+    @POST
+    @Path("createTaking")
+    public String createTaking(StockTakingRequest request) {
+        if(request.getPlanType().equals(StockTakingConstant.TYPE_TEMPOARY)){
+            iStockTakingProviderRpcService.createTemporary(request);
+        }else if(request.getPlanType().equals(StockTakingConstant.TYPE_MOVE_OFF)){
+            iStockTakingProviderRpcService.createPlanSales(request.getZoneList());
+        }else {
+            iStockTakingProviderRpcService.createPlanWarehouse(request.getZoneList());
+        }
+        return JsonUtils.SUCCESS();
+    }
+    @GET
+    @Path("test")
+    public String test() {
+        StockTakingRequest request = new StockTakingRequest();
+        request.setPlanType(StockTakingConstant.TYPE_TEMPOARY);
+        List<Long> tmp = new ArrayList<Long>();
+        tmp.add(1l);
+        request.setLocationList(JSON.toJSONString(tmp));
+        request.setPlanner(123l);
+        iStockTakingProviderRpcService.createStockTaking(tmp, 5l, StockTakingConstant.TYPE_TEMPOARY,12l);
+
+        return JsonUtils.SUCCESS();
     }
     @POST
     @Path("getLocationList")

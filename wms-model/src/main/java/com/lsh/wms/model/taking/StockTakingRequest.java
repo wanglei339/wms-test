@@ -3,6 +3,8 @@ package com.lsh.wms.model.taking;
 import com.lsh.base.common.utils.DateUtils;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by wuhao on 16/7/26.
@@ -29,6 +31,8 @@ public class StockTakingRequest implements Serializable {
     private Long planType = 1L;
     /** 盘点任务发起人*/
     private Long planner  = 0L;
+    /** 盘点分区list*/
+    private List<Long> zoneList = new ArrayList<Long>();
 
     public Long getAreaId() {
         return areaId;
@@ -111,5 +115,13 @@ public class StockTakingRequest implements Serializable {
 
     public void setTakingId(Long takingId) {
         this.takingId = takingId;
+    }
+
+    public List<Long> getZoneList() {
+        return zoneList;
+    }
+
+    public void setZoneList(List<Long> zoneList) {
+        this.zoneList = zoneList;
     }
 }
