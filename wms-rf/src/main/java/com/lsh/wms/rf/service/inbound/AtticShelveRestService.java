@@ -527,7 +527,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         BaseinfoLocation targetLocation = locationService.getNearestStorageByPicking(pickLocation);
 
         if(targetLocation==null){
-            return null;
+            throw new BizCheckedException("2880020");
         }
 
         BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(targetLocation.getLocationId());
