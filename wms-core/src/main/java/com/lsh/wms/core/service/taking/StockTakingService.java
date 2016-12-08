@@ -260,6 +260,11 @@ public class StockTakingService {
         return detailDao.getStockTakingDetailList(queryMap);
     }
 
+    public List<StockTakingDetail> getDetails(Map<String, Object> queryMap) {
+        return detailDao.getStockTakingDetailList(queryMap);
+    }
+
+
 
     public Integer countHead(Map queryMap) {
         return headDao.countStockTakingHead(queryMap);

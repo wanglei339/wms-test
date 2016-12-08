@@ -172,12 +172,21 @@ public class StockTakingRestService implements IStockTakingRestService {
         List<StockTakingHead> heads = stockTakingService.queryTakingHead(mapQuery);
         return JsonUtils.SUCCESS(heads);
     }
+
     @POST
     @Path("getCount")
     public String getCount(Map<String,Object> mapQuery) {
         Integer count = stockTakingService.countHead(mapQuery);
         return JsonUtils.SUCCESS(count);
     }
+
+    @POST
+    @Path("getDetails")
+    public String getDetails(Map<String,Object> mapQuery) throws BizCheckedException{
+        return JsonUtils.SUCCESS(stockTakingService.getDetails(mapQuery));
+    }
+
+
     @GET
     @Path("getDetail")
     public String getDetail(@QueryParam("takingId") long takingId) throws BizCheckedException{
