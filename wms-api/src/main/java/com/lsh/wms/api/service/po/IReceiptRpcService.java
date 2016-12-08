@@ -3,9 +3,12 @@ package com.lsh.wms.api.service.po;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.model.po.ReceiptRequest;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.InbReceiptHeader;
+import com.lsh.wms.model.so.ObdDetail;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
@@ -49,5 +52,9 @@ public interface IReceiptRpcService {
     List<InbReceiptDetail> getInbReceiptDetailList(Map<String,Object> param) throws BizCheckedException;
 
     Integer countInbPoReceiptDetail(Map<String, Object> params);
+
+    Map<String,Object> mergeObdDetailList(List<ObdDetail> obdDetailList,BigDecimal receiptEaQty);
+
+    Map<String,Object> mergeIbdDetailList(List<IbdDetail> IbdDetailList,BigDecimal receiptEaQty);
 
 }

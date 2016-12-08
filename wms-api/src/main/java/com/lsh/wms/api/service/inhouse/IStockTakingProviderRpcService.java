@@ -17,4 +17,10 @@ public interface IStockTakingProviderRpcService {
     void create(Long locationId,Long uid) throws BizCheckedException;
     void createTask(StockTakingHead head, List<StockTakingDetail> detailList,Long round,Long dueTime) throws BizCheckedException;
     List<StockTakingDetail> prepareDetailList(StockTakingHead head);
+    List<Long> getTakingLocation(StockTakingRequest request);
+    void createTemporary(StockTakingRequest request);
+    void batchCreateStockTaking(Map<Long,List<Long>> takingMap,Long takingType,Long planner) throws BizCheckedException;
+    void createStockTaking(List<Long> locations,Long zoneId,Long takingType,Long planner) throws BizCheckedException;
+    void createPlanWarehouse(List<Long> zoneIds, Long planer) throws BizCheckedException;
+    void createPlanSales(List<Long> zoneIds, Long planer) throws BizCheckedException;
 }

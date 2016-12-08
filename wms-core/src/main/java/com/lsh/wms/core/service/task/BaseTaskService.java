@@ -34,6 +34,7 @@ public class BaseTaskService {
     @Autowired
     private MessageService messageService;
 
+
     @Transactional(readOnly = false)
     public TaskInfo lockById(Long taskId){
         return taskInfoDao.lockById(taskId);
@@ -41,6 +42,21 @@ public class BaseTaskService {
 
     @Transactional(readOnly = false)
     public void create(TaskEntry taskEntry, TaskHandler taskHandler) throws BizCheckedException {
+        TaskInfo taskInfo = taskEntry.getTaskInfo();
+        taskInfo.setDraftTime(DateUtils.getCurrentSeconds());
+        taskInfo.setStatus(TaskConstant.Draft);
+        taskInfo.setCreatedAt(DateUtils.getCurrentSeconds());
+        taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
+        taskInfoDao.insert(taskInfo);
+        taskHandler.createConcrete(taskEntry);
+    }
+    @Transactional(readOnly = false)
+    public void create(TaskEntry taskEntry,StockTakingHead head, TaskHandler taskHandler) throws BizCheckedException {
+        if(stockTakingService.getHeadById(head.getTakingId())!=null){
+            stockTakingService.updateHead(head);
+        }else {
+            stockTakingService.insertHead(head);
+        }
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         taskInfo.setDraftTime(DateUtils.getCurrentSeconds());
         taskInfo.setStatus(TaskConstant.Draft);

@@ -14,6 +14,7 @@ import java.util.Map;
  */
 public interface TaskHandler {
     void create(Long taskId) throws BizCheckedException;
+    void createTask(StockTakingHead head,TaskEntry entry);
     void create(TaskEntry taskEntry) throws BizCheckedException;
     void createConcrete(TaskEntry taskEntry) throws BizCheckedException;
     void batchCreate(List<TaskEntry> taskEntries) throws BizCheckedException;
