@@ -192,7 +192,7 @@ public class ShelveTaskHandler extends AbsTaskHandler {
                 // 地堆
                 // 判断是否为同一批次的
                 List<StockQuant> stockQuants = stockQuantService.getQuantsByLocationId(locationId);
-                if (!lotId.equals(stockQuants.get(0).getLotId())) {
+                if (stockQuants.size() > 0 && !lotId.equals(stockQuants.get(0).getLotId())) {
                     throw new BizCheckedException("2030019");
                 }
             } else {

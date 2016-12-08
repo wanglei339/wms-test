@@ -40,8 +40,20 @@ public class StockTakingDetail implements Serializable {
 	private Long realItemId = 0L;
 	/**货主id */
 	private Long ownerId = 0L;
+	/**单价金额 */
+	private BigDecimal price = BigDecimal.ZERO;
+	/**差异金额 */
+	private BigDecimal differencePrice = BigDecimal.ZERO;
 	/**包装名称 */
 	private String packName = "EA";
+	/**国条 */
+	private String barcode = "";
+	/**商品名称 */
+	private String skuName = "";
+	/**物美码 */
+	private String skuCode = "";
+	/** 库位编码*/
+	private String locationCode = "";
 	/** 包装单位*/
 	private BigDecimal packUnit = new BigDecimal(1);
 	/** */
@@ -245,5 +257,53 @@ public class StockTakingDetail implements Serializable {
 
 	public void setZoneId(Long zoneId) {
 		this.zoneId = zoneId;
+	}
+
+	public BigDecimal getPrice() {
+		return price;
+	}
+
+	public void setPrice(BigDecimal price) {
+		this.price = price;
+	}
+
+	public BigDecimal getDifferencePrice() {
+		return differencePrice;
+	}
+
+	public void setDifferencePrice(BigDecimal differencePrice) {
+		this.differencePrice = differencePrice;
+	}
+
+	public String getBarcode() {
+		return barcode;
+	}
+
+	public void setBarcode(String barcode) {
+		this.barcode = barcode;
+	}
+
+	public String getSkuName() {
+		return skuName;
+	}
+
+	public void setSkuName(String skuName) {
+		this.skuName = skuName;
+	}
+
+	public String getSkuCode() {
+		return skuCode;
+	}
+
+	public void setSkuCode(String skuCode) {
+		this.skuCode = skuCode;
+	}
+
+	public String getLocationCode() {
+		return locationCode;
+	}
+
+	public void setLocationCode(String locationCode) {
+		this.locationCode = locationCode;
 	}
 }
