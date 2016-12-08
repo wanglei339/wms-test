@@ -4,10 +4,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.wms.api.model.wumart.CreateIbdDetail;
-import com.lsh.wms.api.model.wumart.CreateIbdHeader;
-import com.lsh.wms.api.model.wumart.CreateObdDetail;
-import com.lsh.wms.api.model.wumart.CreateObdHeader;
+import com.lsh.wms.api.model.wumart.*;
 import com.lsh.wms.api.service.wumart.IWuMartSap;
 import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.constant.SoConstant;
@@ -128,6 +125,14 @@ public class WuMartSap implements IWuMartSap{
                 return null;
             }
             if("03".equals(bapireturn1.getCode())){
+                if(orderType != PoConstant.ORDER_TYPE_CPO && PropertyUtils.getString("wumart.werks").equals(warehouseCode)){
+                    ReceiveDetail receiveDetail = receiveService.getReceiveDetailByReceiveIdAnddetailOtherId(receiveId,bapireturn1.getMessageV4().replaceAll("^(0+)", ""));
+//                    receiveDetail.setReceiveId(receiveId);
+//                    receiveDetail.setDetailOtherId(bapireturn1.getMessageV4());
+                    receiveDetail.setIbdId(bapireturn1.getMessageV1());
+                    receiveDetail.setIbdDetailId(bapireturn1.getMessageV2());
+                    receiveService.updateByReceiveIdAndDetailOtherId(receiveDetail);
+                }
                 CreateIbdDetail backDetail = new CreateIbdDetail();
                 backDetail.setOrderType(orderType);
                 backDetail.setDeliveQty(new BigDecimal(bapireturn1.getMessage().trim()).setScale(2,BigDecimal.ROUND_HALF_UP));
@@ -331,10 +336,11 @@ public class WuMartSap implements IWuMartSap{
                 logger.info(" ~~~~~~2222类型 orderType : " + orderType );
                 if(orderType != PoConstant.ORDER_TYPE_CPO){
                     logger.info("~~~~~333 ordertype : " + orderType);
-                    ReceiveDetail receiveDetail = new ReceiveDetail();
-                    receiveDetail.setReceiveId(receiveId);
+                    //根据sap回传的ibd单号来找对应的行项目
                     String detailOtherId = bapiret2.getMESSAGEV2().replaceAll("^(0+)", "");
-                    receiveDetail.setDetailOtherId(detailOtherId);
+                    ReceiveDetail receiveDetail = receiveService.getReceiveDetailByOtherId(bapiret2.getMESSAGEV1(),detailOtherId);
+//                    receiveDetail.setReceiveId(receiveId);
+//                    receiveDetail.setDetailOtherId(detailOtherId);
                     receiveDetail.setBackStatus(PoConstant.RECEIVE_DETAIL_STATUS_SUCCESS);
                     receiveDetail.setAccountId(bapiret2.getMESSAGEV3());
                     receiveDetail.setAccountDetailId(bapiret2.getMESSAGEV4());
@@ -488,11 +494,9 @@ public class WuMartSap implements IWuMartSap{
         }
     }
 
-    public String stockMoving2Sap() {
+    public String stockMoving2Sap(CreateMovingHeader header) {
         //引用工厂
         com.lsh.wms.integration.wumart.stockmoving.ObjectFactory factory = new com.lsh.wms.integration.wumart.stockmoving.ObjectFactory();
-
-
         //写死 为 BAPI 货物移动分配事务代码 4
         Bapi2017GmCode goodsmvtCode = factory.createBapi2017GmCode();
         goodsmvtCode.setGmCode("04");
@@ -511,63 +515,51 @@ public class WuMartSap implements IWuMartSap{
 
         //BAPI2017_GM_ITEM_CREATE
         TableOfBapi2017GmItemCreate gmItemCreates = factory.createTableOfBapi2017GmItemCreate();
-        Bapi2017GmItemCreate gmItemCreate = factory.createBapi2017GmItemCreate();
-        gmItemCreate.setMaterial("000000000000582553");
-        gmItemCreate.setPlant(PropertyUtils.getString("wumart.werks"));
-        //被移转的库存地
-        gmItemCreate.setStgeLoc("0001");
-        //移动类型 转残：311
-        gmItemCreate.setMoveType("311");
-        gmItemCreate.setEntryQnt(BigDecimal.ONE);
-        gmItemCreate.setEntryUom("EA");
-        //需要移转的物料号
-        gmItemCreate.setMoveMat("000000000000582553");
-        gmItemCreate.setMovePlant(PropertyUtils.getString("wumart.werks"));
-        //暂时写0003
-        gmItemCreate.setMoveStloc("0003");
 
-        gmItemCreates.getItem().add(gmItemCreate);
-
+        List<CreateMovingDetail> details = header.getDetails();
+        for(CreateMovingDetail detail : details){
+            Bapi2017GmItemCreate gmItemCreate = factory.createBapi2017GmItemCreate();
+            gmItemCreate.setMaterial(detail.getSkuCode());
+            gmItemCreate.setPlant(PropertyUtils.getString("wumart.werks"));
+            //被移转的库存地
+            gmItemCreate.setStgeLoc(detail.getFromLocation());
+            //移动类型 转残：311
+            gmItemCreate.setMoveType("311");
+            gmItemCreate.setEntryQnt(detail.getQty());
+            gmItemCreate.setEntryUom(detail.getPackName());
+            //需要移转的物料号
+            gmItemCreate.setMoveMat(detail.getSkuCode());
+            gmItemCreate.setMovePlant(PropertyUtils.getString("wumart.werks"));
+            //暂时写0003
+            gmItemCreate.setMoveStloc(detail.getToLocation());
+            gmItemCreates.getItem().add(gmItemCreate);
+        }
         Holder<TableOfBapi2017GmItemCreate> goodsmvtItem = new Holder<TableOfBapi2017GmItemCreate>(gmItemCreates);
-
         Holder<com.lsh.wms.integration.wumart.stockmoving.TableOfBapiparex> extensionin = new Holder<com.lsh.wms.integration.wumart.stockmoving.TableOfBapiparex>();
-
         Holder<TableOfCwmBapi2017GmItemCreate> goodsmvtItemCwm = new Holder<TableOfCwmBapi2017GmItemCreate>();
-
         SpeBapi2017GmRefEwm goodsmvtRefEwm = factory.createSpeBapi2017GmRefEwm();
-
         Holder<TableOfBapi2017GmSerialnumber> goodsmvtSerialnumber = new Holder<TableOfBapi2017GmSerialnumber>();
-
         Holder<TableOfSpeBapi2017ServicepartData> goodsmvtServPartData = new Holder<TableOfSpeBapi2017ServicepartData>();
-
-
         Holder<com.lsh.wms.integration.wumart.stockmoving.TableOfBapiret2> _return = new Holder<com.lsh.wms.integration.wumart.stockmoving.TableOfBapiret2>();
-
         String testrun = "";
-
         Holder<Bapi2017GmHeadRet> goodsmvtHeadret = new Holder<Bapi2017GmHeadRet>();
-
         Holder<String> matdocumentyear = new Holder<String>();
         Holder<String> materialdocument = new Holder<String>();
-
         ZBAPIGOODSMVTCREATE01 zbinding = new ZBAPIGOODSMVTCREATE01_Service().getBindingSOAP12();
         this.auth((BindingProvider) zbinding);
-
         logger.info("库存移动传入参数: goodsmvtCode" + JSON.toJSONString(goodsmvtCode)
         +" goodsmvtHeader :" + JSON.toJSONString(goodsmvtHeader) + " gmItemCreates : " + JSON.toJSONString(gmItemCreates));
         zbinding.zbapiGoodsmvtCreate01(extensionin,goodsmvtCode,goodsmvtHeader,goodsmvtItem,goodsmvtItemCwm,goodsmvtRefEwm,goodsmvtSerialnumber,goodsmvtServPartData,_return,testrun,goodsmvtHeadret,matdocumentyear,materialdocument);
-
         logger.info("库存移动传出参数: goodsmvtCode" + JSON.toJSONString(goodsmvtCode)
                 +" goodsmvtHeader :" + JSON.toJSONString(goodsmvtHeader) + " gmItemCreates : " + JSON.toJSONString(gmItemCreates));
-
         logger.info("返回值 : testrun" + testrun + " _return" + JSON.toJSONString(_return));
         logger.info("  返回信息 materialdocument : " + JSON.toJSONString(materialdocument));
-
         logger.info("");
-
-
-
-        return "";
+        if(materialdocument.value != null && materialdocument.value.length() > 0){
+            return "S";
+        }else {
+            return "E";
+        }
     }
 
     public String map2Sap() {

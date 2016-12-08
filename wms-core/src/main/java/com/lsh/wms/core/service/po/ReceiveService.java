@@ -214,6 +214,16 @@ public class ReceiveService {
         //重新生成receiptDetail
         inbReceiptDetailDao.batchInsert(addReceiptDetails);
     }
+    /**
+     * 根据ibdId
+     * ibdDetailId 查找receiveDetail
+     * */
+    public ReceiveDetail getReceiveDetailByOtherId(String ibdId,String ibdDetailId){
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("ibdId",ibdId);
+        mapQuery.put("ibdDetailId",ibdDetailId);
+        return this.getReceiveDetail(mapQuery);
+    }
 
 
     /**

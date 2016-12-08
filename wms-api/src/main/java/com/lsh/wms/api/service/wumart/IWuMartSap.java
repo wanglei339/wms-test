@@ -1,6 +1,7 @@
 package com.lsh.wms.api.service.wumart;
 
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
+import com.lsh.wms.api.model.wumart.CreateMovingHeader;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
 
 import java.util.Map;
@@ -22,7 +23,7 @@ public interface IWuMartSap {
 
     String soObd2Sap(CreateObdHeader createObdHeader);
 
-    String stockMoving2Sap();
+    String stockMoving2Sap(CreateMovingHeader header);
 
     String map2Sap();
 
