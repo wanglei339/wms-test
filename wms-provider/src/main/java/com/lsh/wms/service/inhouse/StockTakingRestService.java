@@ -92,16 +92,9 @@ public class StockTakingRestService implements IStockTakingRestService {
     @POST
     @Path("create")
     public String create(StockTakingRequest request) throws BizCheckedException{
-        String key = StrUtils.formatString(RedisKeyConstant.TAKING_KEY,request.getTakingId());
-        String takingId = redisStringDao.get(key);
-        if(takingId != null) {
-            return JsonUtils.TOKEN_ERROR("请勿重复提交");
+        if(request.getPlanType().equals(StockTakingConstant.TYPE_TEMPOARY)){
+            iStockTakingProviderRpcService.createTemporary(request);
         }
-        redisStringDao.set(key,request.getTakingId(),24,TimeUnit.HOURS);
-        StockTakingHead head = new StockTakingHead();
-        ObjUtils.bean2bean(request, head);
-        List<StockTakingDetail> detailList = iStockTakingProviderRpcService.prepareDetailList(head);
-        iStockTakingProviderRpcService.createTask(head, detailList, 1L, head.getDueTime());
         return JsonUtils.SUCCESS();
     }
     @POST
