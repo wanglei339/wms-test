@@ -5,6 +5,6 @@ package com.lsh.wms.core.constant;
  */
 public class WorkZoneConstant {
     public static final Long ZONE_PICK = 1L;
-    public static final Long ZONE_STOCK_TAKING = 2L;
-    public static final Long ZONE_REPLENISHMENT = 3L;
+    public static final Long ZONE_REPLENISHMENT = 2L;
+    public static final Long ZONE_STOCK_TAKING = 3L;
 }
