@@ -321,6 +321,8 @@ public class LocationRestService implements ILocationRestService {
 //        pickDetails.add(waveService.getWaveDetailById(151));
 //        pickDetails.add(waveService.getWaveDetailById(152));
 //        pickRpcService.calcPickOrder(pickDetails);
+//        BaseinfoLocation location = locationService.getLocation(4432685253259L);
+//          return JsonUtils.SUCCESS(locationService.getNearestStorageByPicking(location));
 //
 //        return "yes";
     }

@@ -15,6 +15,7 @@ import com.lsh.wms.core.service.persistence.PersistenceProxy;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.*;
+import com.lsh.wms.model.system.SysLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,9 @@ public class StockMoveService {
 
     @Autowired
     private StockSummaryService stockSummaryService;
+
+    @Autowired
+    private PersistenceProxy persistenceProxy;
 
     @Transactional(readOnly = false)
     public void create(StockMove move) {
@@ -153,6 +157,17 @@ public class StockMoveService {
         }
 
         stockSummaryService.changeStock(move);
+
+        //库存转移 转残 转退 都需要回传sap
+        BaseinfoLocation fromLocation = locationService.getLocation(move.getFromLocationId());
+        BaseinfoLocation toLocation = locationService.getLocation(move.getToLocationId());
+        Long fromType = fromLocation.getType();
+        Long toType = toLocation.getType();
+        boolean fromflag = LocationConstant.BACK_AREA == fromType || LocationConstant.DEFECTIVE_AREA == fromType;
+        boolean toflag = LocationConstant.BACK_AREA == toType || LocationConstant.DEFECTIVE_AREA == toType;
+        if((fromflag || toflag) && !(fromflag && toflag)){
+            persistenceProxy.doOne(SysLogConstant.LOG_TYPE_MOVING,move.getTaskId(),null);
+        }
     }
 
     @Transactional(readOnly = false)
