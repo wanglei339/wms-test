@@ -762,6 +762,32 @@ public class LocationService {
     }
 
     /**
+     * 获取指定通道号上所有通道上的未锁、可用货位
+     *
+     * @param passageId  通道id
+     * @param passageNos 传指定通道号
+     * @return
+     */
+    public List<BaseinfoLocation> getNearPassageStoreBins(Long passageId, Set<Long> passageNos) {
+        BaseinfoLocation area = this.getFatherByClassification(passageId);
+        Map<String, Object> query = new HashMap<String, Object>();
+        query.put("leftRange", area.getLeftRange());
+        query.put("rightRange", area.getRightRange());
+        query.put("type", LocationConstant.BIN);
+        query.put("binUsage", BinUsageConstant.BIN_UASGE_STORE);
+        query.put("isLocked", LocationConstant.UNLOCK);
+        query.put("canUse", LocationConstant.CAN_USE);
+        query.put("isLeaf", LocationConstant.IS_LEAF);
+        //适配拆零
+        if (area.getType().equals(LocationConstant.SPLIT_AREA)) {
+            query.put("binUsage", BinUsageConstant.BIN_PICK_STORE);
+        }
+        query.put("isValid", LocationConstant.IS_VALID);
+        query.put("excludePassageNoList", passageNos);
+        return locationDao.getChildrenLocationList(query);
+    }
+
+    /**
      * 根据货架的拣货位获取货架的最近存货位
      *
      * @param pickingLocation
@@ -791,7 +817,38 @@ public class LocationService {
         List<BaseinfoLocation> allNearShelfSubs = null;
         //无论是否存在相邻货架,将一个通道下的所有位置拿出来(必须保证货架个体的father必须是通道)
         passage = passageList.get(0);   //获取通道
-        allNearShelfSubs = this.getStoreLocations(passage.getLocationId());
+        Set<Long> passageNos = new HashSet<Long>();
+
+        //获取该区域最大的通道
+        List<BaseinfoLocation> regionPassages = this.getChildrenLocationsByType(passage.getFatherId(), LocationConstant.PASSAGE);
+        //通道号降序排列
+        Collections.sort(regionPassages, new Comparator<BaseinfoLocation>() {
+            public int compare(BaseinfoLocation o1, BaseinfoLocation o2) {
+                return o2.getPassageNo().compareTo(o1.getPassageNo()) > 0 ? 1 : (o2.getPassageNo().compareTo(o1.getPassageNo()) == 0 ? 0 : -1);
+            }
+        });
+
+        long maxPassageNo = regionPassages.get(0).getPassageNo();
+
+        long count = 0L;
+        while (null == allNearShelfSubs || allNearShelfSubs.isEmpty()) {
+
+            passageNos.clear();
+            if (passage.getPassageNo() - count > 0) {
+                passageNos.add(passage.getPassageNo() - count);
+            }
+
+            if (passage.getPassageNo() + count <= maxPassageNo) {
+                passageNos.add(passage.getPassageNo() + count);
+            }
+            allNearShelfSubs = this.getNearPassageStoreBins(passage.getLocationId(), passageNos);
+
+            if (passageNos.isEmpty()) {
+                break;
+            }
+            count++;
+        }
+
         // 排除已计算过的位置
         if (calcLocationIds != null) {
             for (BaseinfoLocation location : allNearShelfSubs) {
@@ -802,8 +859,15 @@ public class LocationService {
         } else {
             tempLocations.addAll(allNearShelfSubs);
         }
+
+
+        if (null == allNearShelfSubs || allNearShelfSubs.isEmpty()) {
+            return null;
+        }
+
         //筛选相邻两货架间距离当前拣货位最近的存货位
         BaseinfoLocation nearestLocation = this.filterNearestBinAlgorithm(tempLocations, pickingLocation, shelfLocationSelf, BinUsageConstant.BIN_UASGE_STORE);
+
         return nearestLocation;
     }
 
@@ -821,21 +885,13 @@ public class LocationService {
         List<Map<String, Object>> storeBinDistanceList = new ArrayList<Map<String, Object>>();
         //放入location和当前location到目标位置的距离
         for (BaseinfoLocation temp : locations) {
-            //存货位,为空没上锁
-            if (temp.getBinUsage().equals(binUsage) && this.shelfBinLocationIsEmptyAndUnlock(temp)) {
-                // 考虑库存,无库存的货架位才能放入商品
-                // todo 可以用location的curContainer字段
-//                List<StockQuant> quants = stockQuantService.getQuantsByLocationId(temp.getLocationId());
-                Long curContainerVol = temp.getCurContainerVol();
-                if (curContainerVol < 1) {
-                    //放入location和距离
-                    Long distance = (temp.getBinPositionNo() - pickingLocation.getBinPositionNo()) * (temp.getBinPositionNo() - pickingLocation.getBinPositionNo()) + (temp.getShelfLevelNo() - pickingLocation.getShelfLevelNo()) * (temp.getShelfLevelNo() - pickingLocation.getShelfLevelNo());
-                    Map<String, Object> distanceMap = new HashMap<String, Object>();
-                    distanceMap.put("location", temp);
-                    distanceMap.put("distance", distance);
-                    storeBinDistanceList.add(distanceMap);
-                }
-            }
+
+            Long distance = (temp.getBinPositionNo() - pickingLocation.getBinPositionNo()) * (temp.getBinPositionNo() - pickingLocation.getBinPositionNo()) + (temp.getShelfLevelNo() - pickingLocation.getShelfLevelNo()) * (temp.getShelfLevelNo() - pickingLocation.getShelfLevelNo());
+            Map<String, Object> distanceMap = new HashMap<String, Object>();
+            distanceMap.put("location", temp);
+            distanceMap.put("distance", distance);
+            storeBinDistanceList.add(distanceMap);
+
         }
         //遍历距离的list,根据map的ditance的取出最小的
         if (storeBinDistanceList.size() > 0) {
@@ -1212,6 +1268,7 @@ public class LocationService {
     }
 
     /**
+     * —
      * 初始化构建整棵location树结构
      */
     @Transactional(readOnly = false)

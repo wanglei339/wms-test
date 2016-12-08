@@ -53,8 +53,8 @@ public class LocationDetailRequest implements Serializable {
     /** 是否现在可用0-不可用1-可用 */
     private Integer canUse=1;
     /** 0-未上锁1-上锁 */
-    private Integer isLocked ;
-    private Long curContainerVol;
+    private Integer isLocked=0 ;
+    private Long curContainerVol=0L;
 
     private String supplierNo ="0";
 

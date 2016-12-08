@@ -157,6 +157,12 @@
             <if test="supplierNo != null">and supplier_no=#{supplierNo}</if>
             <if test="binUsage != null">and bin_usage=#{binUsage}</if>
             <if test="regionType != null">and region_type=#{regionType}</if>
+            <if test="excludePassageNoList != null">
+                and passage_no in
+                <foreach collection="excludePassageNoList"  item="item" index="index" open="(" separator="and"  close=")">
+                    #{item}
+                </foreach>
+            </if>
         </where>
         <if test="start != null and limit != null">
             limit #{start},#{limit}
