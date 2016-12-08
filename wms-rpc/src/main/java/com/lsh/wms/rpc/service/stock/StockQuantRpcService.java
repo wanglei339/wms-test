@@ -1,5 +1,6 @@
 package com.lsh.wms.rpc.service.stock;
 
+import com.alibaba.dubbo.common.utils.CollectionUtils;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
@@ -8,7 +9,6 @@ import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.WriteOffConstant;
 import com.lsh.wms.core.service.container.ContainerService;
-import com.lsh.wms.core.service.inventory.InventoryRedisService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockLotService;
@@ -54,8 +54,6 @@ public class StockQuantRpcService implements IStockQuantRpcService {
     @Autowired
     private ContainerService containerService;
 
-    @Autowired
-    private InventoryRedisService inventoryRedisService;
     @Autowired
     private StockLotService lotService;
     @Autowired
@@ -197,40 +195,15 @@ public class StockQuantRpcService implements IStockQuantRpcService {
 
     public Map<Long, Map<String, BigDecimal>> getItemStockList(Map<String, Object> mapQuery) {
         Map<Long, Map<String, BigDecimal>> itemQuant = new HashMap<Long, Map<String, BigDecimal>>();
-        Map<Long, BigDecimal> mapDefect = new HashMap<Long, BigDecimal>();
-        Map<Long, BigDecimal> mapRefund = new HashMap<Long, BigDecimal>();
 
         List<BaseinfoItem> itemList = itemService.searchItem(mapQuery);
-        List<Long> itemIdList = new ArrayList<Long>();
-        for (BaseinfoItem item : itemList) {
-            itemIdList.add(item.getItemId());
-            mapDefect.put(item.getItemId(), BigDecimal.ZERO);
-            mapRefund.put(item.getItemId(), BigDecimal.ZERO);
-        }
-        if (itemIdList.isEmpty()) {
+        if (CollectionUtils.isEmpty(itemList)) {
             return itemQuant;
         }
 
-        // get all defect quant
-        HashMap<String, Object> mapCondition = new HashMap<String, Object>();
-        mapCondition.put("itemList", itemIdList);
-        mapCondition.put("locationId", locationService.getDefectiveLocation().getLocationId());
-        List<StockQuant> quantList = quantService.getQuants(mapCondition);
-        for (StockQuant quant : quantList) {
-            Long itemId = quant.getItemId();
-            BigDecimal qty = quant.getQty();
-            mapDefect.put(itemId, mapDefect.get(itemId).add(qty));
-        }
-
-        // get all inventory loss quant
-        mapCondition = new HashMap<String, Object>();
-        mapCondition.put("itemList", itemIdList);
-        mapCondition.put("locationId", locationService.getBackLocation().getLocationId());
-        quantList = quantService.getQuants(mapCondition);
-        for (StockQuant quant : quantList) {
-            Long itemId = quant.getItemId();
-            BigDecimal qty = quant.getQty();
-            mapRefund.put(itemId, mapRefund.get(itemId).add(qty));
+        List<Long> itemIdList = new ArrayList<Long>();
+        for (BaseinfoItem item : itemList) {
+            itemIdList.add(item.getItemId());
         }
 
         for (int i = 0; i < itemList.size(); i++) {
@@ -240,8 +213,8 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             result.put("total", summary == null ? BigDecimal.ZERO : summary.getInhouseQty());
             result.put("reserved", summary == null ? BigDecimal.ZERO : summary.getAllocQty());
             result.put("available", summary == null ? BigDecimal.ZERO : summary.getAvailQty());
-            result.put("defect", mapDefect.get(itemId));
-            result.put("refund", mapRefund.get(itemId));
+            result.put("defect", summary.getDefectQty());
+            result.put("refund", summary.getBackQty());
             itemQuant.put(itemId, result);
         }
         return itemQuant;

@@ -1,6 +1,8 @@
 package com.lsh.wms.core.service.so;
 
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.CollectionUtils;
+import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.core.dao.so.OutbDeliveryDetailDao;
 import com.lsh.wms.core.dao.so.OutbDeliveryHeaderDao;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -263,6 +266,22 @@ public class SoDeliveryService {
         params.put("orderId", orderId);
 
         return getOutbDeliveryDetailList(params);
+    }
+
+    public BigDecimal getDeliveryQtyBySoOrderIdAndItemId(Long orderId, Long itemId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("orderId", orderId);
+        params.put("itemId", itemId);
+        List<OutbDeliveryDetail> list = outbDeliveryDetailDao.getOutbDeliveryDetailList(params);
+
+        BigDecimal deliveryQty = BigDecimal.ZERO;
+        if (CollectionUtils.isEmpty(list)) {
+            return deliveryQty;
+        }
+        for(OutbDeliveryDetail detail: list) {
+            deliveryQty = deliveryQty.add(detail.getDeliveryNum());
+        }
+        return deliveryQty;
     }
 
 }

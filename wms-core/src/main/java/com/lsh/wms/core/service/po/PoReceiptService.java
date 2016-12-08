@@ -9,6 +9,7 @@ import com.lsh.wms.core.dao.po.InbReceiptHeaderDao;
 import com.lsh.wms.core.dao.po.ReceiveDetailDao;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockLotService;
+import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.po.IbdDetail;
@@ -25,10 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Project Name: lsh-wms
@@ -55,7 +53,7 @@ public class PoReceiptService {
     private IbdDetailDao ibdDetailDao;
 
     @Autowired
-    private StockQuantService stockQuantService;
+    private StockMoveService stockMoveService;
 
     @Autowired
     private StockLotService stockLotService;
@@ -122,13 +120,18 @@ public class PoReceiptService {
             soOrderService.updateObdDetail(obdDetails.get(0));
         }
 
+        List<StockMove> stockMovesList = new ArrayList<StockMove>();
         for (Map<String, Object> moveInfo : moveList) {
             StockLot lot = (StockLot) moveInfo.get("lot");
             if (! lot.isOld()) {
                 stockLotService.insertLot(lot);
             }
-            stockQuantService.move((StockMove) moveInfo.get("move"), lot);
+            StockMove move = (StockMove) moveInfo.get("move");
+            move.setLot(lot);
+            stockMovesList.add(move);
+            //stockQuantService.move((StockMove) moveInfo.get("move"), lot);
         }
+        stockMoveService.move(stockMovesList);
     }
 
     /**

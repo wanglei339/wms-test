@@ -3,8 +3,10 @@ package com.lsh.wms.rf.service.inhouse;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.wms.api.service.inhouse.IProcurementProveiderRpcService;
 import com.lsh.wms.api.service.inhouse.IProcurementRestService;
 import com.lsh.wms.api.service.item.IItemRpcService;
@@ -14,13 +16,18 @@ import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.constant.WorkZoneConstant;
+import com.lsh.wms.core.dao.utils.NsHeadClient;
+import com.lsh.wms.core.service.zone.WorkZoneService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.model.zone.WorkZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -62,6 +69,51 @@ public class ProcurementRestService implements IProcurementRestService {
     @Reference
     private IStockQuantRpcService quantRpcService;
 
+    @Autowired
+    private WorkZoneService workZoneService;
+
+    @POST
+    @Path("getZoneList")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String getZoneList() throws BizCheckedException {
+        Map<String, Object> query = new HashMap<String, Object>();
+        query.put("cmd", "getZoneList");
+        String ip = PropertyUtils.getString("replenish_svr_ip");
+        int port = PropertyUtils.getInt("replenish_svr_port");
+        String rst = NsHeadClient.jsonCall(ip, port, JsonUtils.obj2Json(query));
+        return rst;
+    }
+
+    @POST
+    @Path("loginToZone")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String loginToZone() throws BizCheckedException {
+        Map<String, Object> query = new HashMap<String, Object>();
+        query.put("cmd", "loginToZone");
+        query.put("zone_id",  RequestUtils.getRequest().get("zoneId"));
+        query.put("uid", Long.valueOf(RequestUtils.getHeader("uid")));
+        String ip = PropertyUtils.getString("replenish_svr_ip");
+        int port = PropertyUtils.getInt("replenish_svr_port");
+        String rst = NsHeadClient.jsonCall(ip, port, JsonUtils.obj2Json(query));
+        return rst;
+    }
+
+    @POST
+    @Path("logoutFromZone")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String logoutFromZone() throws BizCheckedException {
+        Map<String, Object> query = new HashMap<String, Object>();
+        query.put("cmd", "logoutFromZone");
+        query.put("zone_id",  RequestUtils.getRequest().get("zoneId"));
+        query.put("uid", Long.valueOf(RequestUtils.getHeader("uid")));
+        String ip = PropertyUtils.getString("replenish_svr_ip");
+        int port = PropertyUtils.getInt("replenish_svr_port");
+        String rst = NsHeadClient.jsonCall(ip, port, JsonUtils.obj2Json(query));
+        return rst;
+    }
 
     @POST
     @Path("scanFromLocation")
@@ -275,7 +327,31 @@ public class ProcurementRestService implements IProcurementRestService {
                 });
             }
         }
-        final Long taskId = iProcurementProveiderRpcService.assign(uid);
+        //final Long taskId = iProcurementProveiderRpcService.assign(uid);
+        Long taskId = null;
+        {
+            //改成从补货策略服务上获取任务
+            //获取到的任务需要立即给指定的人
+            //如果因为系统异常导致的错误未能assign成功,补货策略服务讲在一个指定的时间(如10秒)后扫描恢复到任务队列中
+            //另外,如果一个任务长时间未执行(一个指定的时间),补货策略服务也会从新调度到队列中可赋给其他人
+            Map<String, Object> query = new HashMap<String, Object>();
+            query.put("uid", uid);
+            query.put("cmd", "fetchTask");
+            query.put("zone_id", RequestUtils.getRequest().get("zoneId"));
+            String ip = PropertyUtils.getString("replenish_svr_ip");
+            int port = PropertyUtils.getInt("replenish_svr_port");
+            String rstString = NsHeadClient.jsonCall(ip, port, JsonUtils.obj2Json(query));
+            Map rst = JsonUtils.json2Obj(rstString, Map.class);
+            if ( rst == null || Long.valueOf(rst.get("ret").toString())!=0){
+                return JsonUtils.TOKEN_ERROR("服务器错误");
+            }else{
+                taskId = Long.valueOf(rst.get("task_id").toString());
+                if(taskId == -1){
+                    return JsonUtils.TOKEN_ERROR("无补货任务可领");
+                }
+            }
+            iTaskRpcService.assign(taskId, uid);
+        }
         if(taskId.compareTo(0L)==0) {
             return JsonUtils.TOKEN_ERROR("无补货任务可领");
         }

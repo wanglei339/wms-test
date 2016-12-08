@@ -1,20 +1,10 @@
 package com.lsh.wms.core.service.tu;
 
-import com.alibaba.dubbo.config.annotation.Reference;
-import com.alibaba.fastjson.JSON;
-import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.constant.*;
-import com.lsh.wms.core.service.inventory.InventoryRedisService;
-import com.lsh.wms.api.model.so.ObdOfcBackRequest;
-import com.lsh.wms.api.model.so.ObdOfcItem;
-import com.lsh.wms.api.model.wumart.CreateObdDetail;
-import com.lsh.wms.api.model.wumart.CreateObdHeader;
-import com.lsh.wms.api.service.back.IDataBackService;
-import com.lsh.wms.api.service.wumart.IWuMart;
 import com.lsh.wms.core.dao.tu.TuDetailDao;
 import com.lsh.wms.core.dao.tu.TuHeadDao;
 import com.lsh.wms.core.service.item.ItemService;
@@ -25,7 +15,6 @@ import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
-import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
@@ -34,7 +23,6 @@ import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
 import com.lsh.wms.model.stock.StockQuant;
-import com.lsh.wms.model.system.SysLog;
 import com.lsh.wms.model.tu.TuDetail;
 import com.lsh.wms.model.tu.TuEntry;
 import com.lsh.wms.model.tu.TuHead;
@@ -45,9 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -75,8 +61,6 @@ public class TuService {
     private SoDeliveryService soDeliveryService;
     @Autowired
     private SoOrderService soOrderService;
-    @Autowired
-    private InventoryRedisService inventoryRedisService;
     @Autowired
     private LocationService locationService;
 
@@ -580,8 +564,6 @@ public class TuService {
             waveIds.add(detail.getWaveId());
         }
 
-        // 调用库存同步服务
-        inventoryRedisService.onDelivery(totalWaveDetails);
         //todo 更新wave有波次,更新波次的状态
         for (Object waveId : waveIds.toArray()) {
             Long iWaveId = (Long) waveId;
