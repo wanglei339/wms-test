@@ -264,6 +264,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
             return;
         }
         SeedingTaskHead head = (SeedingTaskHead)entry.getTaskHead();
+
         head.setStatus(TaskConstant.Done);
         seedTaskHeadService.update(head);
 
@@ -346,6 +347,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
         move.setToContainerId(head.getRealContainerId());
         move.setQty(info.getQty());
         move.setTaskId(taskId);
+        move.setItemId(info.getItemId());
         if(info.getSubType().compareTo(2L)==0) {
             StockLot lot =new StockLot();
             CsiSupplier supplier = csiSupplierService.getSupplier(ibdHeader.getSupplierCode(),ibdHeader.getOwnerUid());
@@ -362,6 +364,18 @@ public class SeedTaskHandler extends AbsTaskHandler {
             seedRpcService.insertReceipt(receiptRequest);
         }else {
             moveService.move(move);
+        }
+        if(head.getRequireQty().compareTo(info.getQty())>0) {
+            info.setTaskId(0L);
+            info.setId(0L);
+            info.setStatus(TaskConstant.Draft);
+            info.setPlanId(info.getOperator());
+            info.setContainerId(info.getContainerId());
+            head.setRequireQty(head.getRequireQty().subtract(info.getQty()));
+            head.setStatus(TaskConstant.Draft);
+            entry.setTaskInfo(info);
+            entry.setTaskHead(head);
+            iTaskRpcService.create(TaskConstant.TYPE_SEED, entry);
         }
     }
     public void updteConcrete(TaskEntry entry) {
