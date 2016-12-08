@@ -24,6 +24,7 @@ import com.lsh.wms.api.model.so.ObdOfcItem;
 import com.lsh.wms.api.model.stock.StockItem;
 import com.lsh.wms.api.model.stock.StockRequest;
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
+import com.lsh.wms.api.model.wumart.CreateMovingHeader;
 import com.lsh.wms.api.model.wumart.CreateObdDetail;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.po.IIbdService;
@@ -335,7 +336,8 @@ public class IbdService implements IIbdService {
 //        SysLog sysLog = new SysLog();
 //        return dataBackService.wmDataBackByPost(JSON.toJSONString(request), IntegrationConstan.URL_STOCKCHANGE,5,sysLog);
 
-        wuMartSap.stockMoving2Sap();
+        CreateMovingHeader header = new CreateMovingHeader();
+        wuMartSap.stockMoving2Sap(header);
         return null;
 
     }

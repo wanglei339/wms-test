@@ -3,6 +3,7 @@ package com.lsh.wms.integration.service.back;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.service.back.ITransportService;
+import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.service.system.SysLogService;
 import com.lsh.wms.model.system.SysLog;
 import org.slf4j.Logger;
@@ -41,7 +42,12 @@ public class TransportService implements ITransportService{
             //异常在transporterManager中处理了
             logger.error("Exception", e);
 //            sysLog.setRetryTimes(sysLog.getRetryTimes() + 1);
-//            sysLogService.updateSysLog(sysLog);
+            sysLog.setSysMessage("系统抛出异常:" + e.getMessage());
+            sysLog.setSysCode("系统异常");
+            sysLog.setLogCode("系统异常");
+            sysLog.setLogMessage("查询对应单据是否存在");
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
+            sysLogService.updateSysLog(sysLog);
             logger.error(StrUtils.formatString("Exception ocurred during deail with SysLog[{}]", sysLogId));
         }
 
