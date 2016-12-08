@@ -53,11 +53,18 @@ public class StockSummaryService {
 
     @Transactional(readOnly = false)
     public void changeStock(StockMove move) throws BizCheckedException {
-        logger.error("fuck entry heer" + move.toString());
         BaseinfoLocation fromRegion = locationService.getLocation(move.getFromLocationId());
         Long fromRegionType = fromRegion.getRegionType();
         BaseinfoLocation toRegion   = locationService.getLocation(move.getToLocationId());
         Long toRegionType = toRegion.getRegionType();
+
+        if (fromRegionType.equals(toRegionType)) { // 同一区块内的移动不必更新可用库存
+            return;
+        }
+
+        if ( ! (StockConstant.REGION_TO_FIELDS.containsKey(fromRegionType) && StockConstant.REGION_TO_FIELDS.containsKey(toRegionType)) ) {
+            throw new BizCheckedException("2000004");
+        }
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("itemId", move.getItemId());
@@ -73,27 +80,19 @@ public class StockSummaryService {
         summary.setOwnerId(item.getOwnerId());
         summary.setCreatedAt(DateUtils.getCurrentSeconds());
         summary.setUpdatedAt(DateUtils.getCurrentSeconds());
-        logger.error("change stock: " + summary);
+        logger.info("change stock: " + summary);
         stockSummaryDao.changeStock(summary);
 
-        logger.error(StrUtils.formatString("FromRegionType:{0}, toRegionType{1}", fromRegionType, toRegionType));
-        if ( toRegionType.equals(LocationConstant.SOW_AREA) &&
-                (fromRegionType.equals(LocationConstant.SUPPLIER_AREA) || fromRegionType.equals(LocationConstant.TEMPORARY)))
-        {
-            // 供商区||暂存区 => 播种区，以为着直流收货。需要插入预售订单来对冲。
-            logger.error("I am in here");
-            allocPresale(move);
-        }
     }
 
     @Transactional(readOnly = false)
-    private void allocPresale(StockMove move) {
+    public void allocPresale(Long itemId, BigDecimal orderQty, Long orderId) {
         StockMove presale = new StockMove();
-        presale.setItemId(move.getItemId());
-        presale.setFromLocationId(locationService.getLocationsByType(LocationConstant.CONSUME_AREA).get(0).getLocationId());
-        presale.setToLocationId(locationService.getSoAreaInbound().getLocationId());
-        presale.setQty(move.getQty());
-        presale.setTaskId(move.getTaskId());
+        presale.setItemId(itemId);
+        presale.setFromLocationId(locationService.getConsumerArea().getLocationId());
+        presale.setToLocationId(locationService.getSoAreaDirect().getLocationId());
+        presale.setQty(orderQty);
+        presale.setTaskId(orderId);
         stockMoveDao.insert(presale);
         changeStock(presale);
     }
@@ -123,11 +122,16 @@ public class StockSummaryService {
     }
 
     @Transactional(readOnly = false)
-    public void release(StockMove move) {
+    public void release(StockMove move, int orderType) {
         StockMove newMove = new StockMove();
         newMove.setItemId(move.getItemId());
         newMove.setQty(move.getQty());
-        newMove.setFromLocationId(locationService.getSoAreaInbound().getLocationId());
+        newMove.setTaskId(move.getTaskId());
+        if (orderType == SoConstant.ORDER_TYPE_DIRECT) {
+            newMove.setFromLocationId(locationService.getSoAreaDirect().getLocationId());
+        } else {
+            newMove.setFromLocationId(locationService.getSoAreaInbound().getLocationId());
+        }
         newMove.setToLocationId(locationService.getLocationsByType(LocationConstant.CONSUME_AREA).get(0).getLocationId());
         stockMoveDao.insert(newMove);
         changeStock(newMove);

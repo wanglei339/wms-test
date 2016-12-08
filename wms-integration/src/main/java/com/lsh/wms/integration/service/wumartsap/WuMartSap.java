@@ -562,10 +562,10 @@ public class WuMartSap implements IWuMartSap{
         }
     }
 
-    public String map2Sap() {
+    public BigDecimal map2Sap(String skuCode) {
         com.lsh.wms.integration.wumart.account.ObjectFactory factory = new com.lsh.wms.integration.wumart.account.ObjectFactory();
 
-        String material = "000000000000581951";
+        String material = skuCode;
         Bapimgvmatnr materialEvg = factory.createBapimgvmatnr();
 
         String plant = PropertyUtils.getString("wumart.werks");
@@ -584,7 +584,7 @@ public class WuMartSap implements IWuMartSap{
         logger.info("返回值: newReturn " + newReturn + " materialGeneralData" + JSON.toJSONString(materialGeneralData));
 
         logger.info(" 商品信息 materialvaluationdata : " + JSON.toJSONString(materialvaluationdata));
-        return JSON.toJSONString(newReturn);
+        return materialvaluationdata.value.getMovingPr();
     }
 
 

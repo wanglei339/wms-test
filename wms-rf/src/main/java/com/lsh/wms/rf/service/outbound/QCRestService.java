@@ -487,11 +487,11 @@ public class QCRestService implements IRFQCRestService {
         Map<String, Object> request = RequestUtils.getRequest();
         Integer type = Integer.valueOf(request.get("type").toString());
         Long containerId = Long.valueOf(request.get("containerId").toString());
-        BigDecimal qtyUom = new BigDecimal(request.get("uomQty").toString());   //复QC的数量
-        String code = request.get("code").toString();
-        if (null == qtyUom) {
+        if (null == request.get("uomQty")) {
             throw new BizCheckedException("2120024");
         }
+        BigDecimal qtyUom = new BigDecimal(request.get("uomQty").toString());   //复QC的数量
+        String code = request.get("code").toString();
         boolean result = false;
         if (WaveConstant.QC_RF_SKIP == type) {
             result = iqcRpcService.skipExceptionRf(request);
