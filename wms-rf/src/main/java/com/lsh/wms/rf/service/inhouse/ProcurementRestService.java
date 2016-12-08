@@ -107,7 +107,11 @@ public class ProcurementRestService implements IProcurementRestService {
         if ( rst == null || Long.valueOf(rst.get("ret").toString())!=0){
             return JsonUtils.TOKEN_ERROR("服务器错误");
         }else{
-            return JsonUtils.SUCCESS(rst);
+            return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+                {
+                    put("response", true);
+                }
+            });
         }
     }
 
@@ -127,7 +131,11 @@ public class ProcurementRestService implements IProcurementRestService {
         if ( rst == null || Long.valueOf(rst.get("ret").toString())!=0){
             return JsonUtils.TOKEN_ERROR("服务器错误");
         }else{
-            return JsonUtils.SUCCESS(rst);
+            return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+                {
+                    put("response", true);
+                }
+            });
         }
     }
 
