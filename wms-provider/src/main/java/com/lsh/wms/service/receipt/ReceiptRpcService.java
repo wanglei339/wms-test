@@ -489,33 +489,33 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 Long lotId = RandomUtils.genId();
                 Date receiptTime = inbReceiptHeader.getReceiptTime();
 
-
+                //生产日期
+                Date productDate = inbReceiptDetail.getProTime();
+                if(PoConstant.ORDER_TYPE_CPO == orderType && productDate == null){
+                    //直流生产日期为空
+                    productDate = new Date();
+                }
+               //修改失效日期
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(productDate);
+                calendar.add(calendar.DAY_OF_YEAR,baseinfoItem.getShelfLife().intValue());
+                Long expireDate = calendar.getTime().getTime()/1000;
 
                 StockLot stockLot = new StockLot();
                 stockLot.setLotId(lotId);
-                if(PoConstant.ORDER_TYPE_CPO == orderType){
-                    stockLot.setIsOld(true);
-                }else{
-                    //修改失效日期
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTime(inbReceiptDetail.getProTime());
-                    calendar.add(calendar.DAY_OF_YEAR,baseinfoItem.getShelfLife().intValue());
-                    Long expireDate = calendar.getTime().getTime()/1000;
 
-                    stockLot.setPackUnit(ibdPackUnit);
-                    stockLot.setPackName(ibdPackName);
-                    stockLot.setSkuId(inbReceiptDetail.getSkuId());
-                    stockLot.setSerialNo(inbReceiptDetail.getLotNum());
-                    stockLot.setItemId(inbReceiptDetail.getItemId());
-                    stockLot.setInDate(receiptTime.getTime() / 1000);
-                    stockLot.setProductDate(inbReceiptDetail.getProTime().getTime() / 1000);
-                    stockLot.setExpireDate(expireDate);
-                    stockLot.setReceiptId(inbReceiptHeader.getReceiptOrderId());
-                    stockLot.setPoId(inbReceiptDetail.getOrderId());
-                    stockLot.setSupplierId(supplier.getSupplierId());
-                    //stockLotList.add(stockLot);
-                }
-
+                stockLot.setPackUnit(ibdPackUnit);
+                stockLot.setPackName(ibdPackName);
+                stockLot.setSkuId(inbReceiptDetail.getSkuId());
+                stockLot.setSerialNo(inbReceiptDetail.getLotNum());
+                stockLot.setItemId(inbReceiptDetail.getItemId());
+                stockLot.setInDate(receiptTime.getTime() / 1000);
+                stockLot.setProductDate(productDate.getTime() / 1000);
+                stockLot.setExpireDate(expireDate);
+                stockLot.setReceiptId(inbReceiptHeader.getReceiptOrderId());
+                stockLot.setPoId(inbReceiptDetail.getOrderId());
+                stockLot.setSupplierId(supplier.getSupplierId());
+                //stockLotList.add(stockLot);
 
                 StockMove move = new StockMove();
                 List<BaseinfoLocation> locationList = locationService.getLocationsByType(LocationConstant.SUPPLIER_AREA);
@@ -1115,7 +1115,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             if(supplier == null){
                 throw new BizCheckedException("2020109");//供应商不存在
             }
-            /*直流不需要生成stockLot
+
             StockLot stockLot = new StockLot();
             stockLot.setIsOld(true);
             //stockLot.setPackUnit(ibdDetail.getPackUnit());
@@ -1125,7 +1125,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             stockLot.setItemId(inbReceiptDetail.getItemId());
             stockLot.setReceiptId(inbReceiptHeader.getReceiptOrderId());
             stockLot.setPoId(inbReceiptDetail.getOrderId());
-            stockLot.setSupplierId(supplier.getSupplierId());*/
+            stockLot.setSupplierId(supplier.getSupplierId());
             //stockLotList.add(stockLot);
 
             StockMove move = new StockMove();
@@ -1141,8 +1141,6 @@ public class ReceiptRpcService implements IReceiptRpcService {
             move.setTaskId(taskId);
 
             Map<String, Object> moveInfo = new HashMap<String, Object>();
-            StockLot stockLot = new StockLot();
-            stockLot.setIsOld(true);
             moveInfo.put("lot", stockLot);
             moveInfo.put("move", move);
             moveList.add(moveInfo);
