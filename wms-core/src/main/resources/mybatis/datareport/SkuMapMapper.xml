@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.datareport.SkuMapDao" >
+
+	<resultMap id="skuMapResultMap" type="SkuMap">
+		<id property="id" column="id"/>
+		<result property="skuCode" column="sku_code"/>
+		<result property="movingAveragePrice" column="moving_average_price"/>
+		<result property="sourceSystem" column="source_system"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="SkuMap">
+		insert into sku_map (
+			sku_code,moving_average_price,source_system,created_at,updated_at
+    	) values (
+			#{skuCode},#{movingAveragePrice},#{sourceSystem},#{createdAt},#{updatedAt}
+    	)
+	</insert>
+
+	<insert id="batchInsert" parameterType="java.util.List">
+		insert into sku_map (
+		sku_code,moving_average_price,source_system,created_at,updated_at
+		) values
+		<foreach collection="list" item="item" index="index" separator=",">
+		(#{item.skuCode},#{item.movingAveragePrice},#{item.sourceSystem},#{item.createdAt},#{item.updatedAt})
+		</foreach>
+	</insert>
+
+	<update id="update" parameterType="SkuMap">
+		update sku_map
+    	<set>
+  			<if test="skuCode != null">sku_code=#{skuCode},</if>
+  			<if test="movingAveragePrice != null">moving_average_price=#{movingAveragePrice},</if>
+  			<if test="sourceSystem != null">source_system=#{sourceSystem},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where id=#{id}
+	</update>
+
+	<update id="batchUpdate" parameterType="java.util.List">
+		<foreach collection="list" item="item" index="index" separator=",">
+		update sku_map
+		<set>
+			<if test="skuCode != null">sku_code=#{item.skuCode},</if>
+			<if test="movingAveragePrice != null">moving_average_price=#{item.movingAveragePrice},</if>
+			<if test="sourceSystem != null">source_system=#{item.sourceSystem},</if>
+			<if test="createdAt != null">created_at=#{item.createdAt},</if>
+			<if test="updatedAt != null">updated_at=#{item.updatedAt}</if>
+		</set>
+		where id=#{id}
+		</foreach>
+	</update>
+  
+	<select id="getSkuMapById" parameterType="int" resultMap="skuMapResultMap">
+		select * from sku_map
+		where ID=#{id} 
+	</select>
+  
+	<select id="countSkuMap" parameterType="map" resultType="int">
+		select count(*) from sku_map
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getSkuMapList" parameterType="map" resultMap="skuMapResultMap">
+		select * from sku_map
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="skuCode != null">and sku_code=#{skuCode}</if>
+			<if test="movingAveragePrice != null">and moving_average_price=#{movingAveragePrice}</if>
+			<if test="sourceSystem != null">and source_system=#{sourceSystem}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>
