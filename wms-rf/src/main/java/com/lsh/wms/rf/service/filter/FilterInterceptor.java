@@ -55,8 +55,6 @@ public class FilterInterceptor{
                 throw ex;
             }
         }else{
-//        String mname = pjp.getSignature().getName();
-//        String cname = pjp.getTarget().getClass().getName();
             logger.info("method name ~~~~~~~~~~"+pjp.getSignature().getName() +"~~~~~~~~~~~~~~~~");
             if("userLogin".equals(pjp.getSignature().getName())){
                 try {

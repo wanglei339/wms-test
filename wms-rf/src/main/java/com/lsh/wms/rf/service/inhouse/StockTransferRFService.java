@@ -188,16 +188,17 @@ public class StockTransferRFService implements IStockTransferRFService{
                     taskInfo.getExt9());
             if (taskInfo.getStep()==1) {
                 type = 1L;
+                uomQty = PackUtil.EAQty2UomQty(taskInfo.getQty(), taskInfo.getPackName());
 
             } else {
                 type = 2L;
+                uomQty = PackUtil.EAQty2UomQty(taskInfo.getQtyDone(), taskInfo.getPackName());
             }
             //是否需要扫描托盘码才能做移出操作.
             final long needScanContainer = (taskInfo.getSubType() == 1 &&
                     (fromLocation.getRegionType() == LocationConstant.FLOOR
                             || fromLocation.getRegionType() == LocationConstant.BACK_AREA
                             || fromLocation.getRegionType() == LocationConstant.DEFECTIVE_AREA)) ? 1 : 0;
-            uomQty = PackUtil.EAQty2UomQty(taskInfo.getQty(), taskInfo.getPackName());
             final BaseinfoItem item = itemRpcService.getItem(taskInfo.getItemId());
             return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                 {

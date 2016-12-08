@@ -235,20 +235,6 @@ public class PoOrderService {
 //        return getInbPoDetailByParams(params);
 //    }
 
-    /**
-     * 根据OrderId及skuCode获取InbPoDetail
-     * @param orderId
-     * @param skuCode
-     * @return
-     */
-    public List<IbdDetail> getInbPoDetailListByOrderIdAndSkuCode(Long orderId, String skuCode) {
-        Map<String, Object> params = new HashMap<String, Object>();
-
-        params.put("orderId", orderId);
-        params.put("skuCode", skuCode);
-
-        return getInbPoDetailList(params);
-    }
     public IbdDetail getInbPoDetailByOrderIdAndSkuCode(Long orderId, String skuCode) {
         Map<String, Object> params = new HashMap<String, Object>();
 

@@ -203,25 +203,30 @@ public class ReceiptRestService implements IReceiptRfService {
             }else{
                 if (PoConstant.ORDER_TYPE_TRANSFERS != orderType){
                     //在库,且不是调拨,根据商品主数据,有保质期时,生产日期/到期日,必须输入一个
-                    if(baseinfoItem.getIsShelfLifeValid() == 1 && receiptItem.getProTime() == null && receiptItem.getDueTime() == null){
-                        throw new BizCheckedException("2020008");//生产日期不能为空
+                    if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null){
+                        if(baseinfoItem.getIsShelfLifeValid() == 1){
+                            throw new BizCheckedException("2020008");//生产日期不能为空
+                        }else{
+                            receiptItem.setProTime(new Date());//没有保质期,以当前时间作为生产日期
+                        }
                     }
                 }
 
             }
 
 
-            //TODO 这里也是有风险的,没有地方限制了订单里一个商品只能有一行,尤其是直流里面一个CPO对应一个门店2个STO就会出错。
-            IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(), baseinfoItem.getSkuCode());
-            if(ibdDetail == null){
+            //这里也是有风险的,没有地方限制了订单里一个商品只能有一行,尤其是直流里面一个CPO对应一个门店2个STO就会出错。
+            List<IbdDetail> ibdDetailList = poOrderService.getInbPoDetailByOrderAndSkuCode(ibdHeader.getOrderId(), baseinfoItem.getSkuCode());
+            if(ibdDetailList == null || ibdDetailList.size() <= 0){
                 throw new BizCheckedException("2020001");
             }
-
+            Map<String,Object> ibdDetailInfo = iReceiptRpcService.mergeIbdDetailList(ibdDetailList,receiptItem.getInboundQty());
+            BigDecimal packUnit = BigDecimal.valueOf(Double.parseDouble(ibdDetailInfo.get("packUnit").toString()));
 
             //这里有问题没调通,然后其实真实逻辑因该是非EA的情况下做这个限制,是可以EA收货的
             //验证箱规是否一致
-            if(ibdDetail.getPackUnit().compareTo(BigDecimal.ONE) != 0 &&
-                    baseinfoItem.getPackUnit().compareTo(ibdDetail.getPackUnit()) != 0){
+            if(packUnit.compareTo(BigDecimal.ONE) != 0 &&
+                    baseinfoItem.getPackUnit().compareTo(packUnit) != 0){
                 throw new BizCheckedException("2020105");//箱规不一致,不能收货
             }
 
@@ -229,7 +234,7 @@ public class ReceiptRestService implements IReceiptRfService {
             验证保质期是否有效
              */
             //取出是否检验保质期字段 exceptionReceipt = 0 校验 = 1不校验
-            Integer exceptionReceipt = ibdDetail.getExceptionReceipt();
+            Integer exceptionReceipt = ibdDetailList.get(0).getExceptionReceipt();
             String exceptionCode = receiptItem.getExceptionCode() == null ? "" :receiptItem.getExceptionCode();// 16/11/10 从请求参数中获取例外代码
             if(StringUtils.isNotEmpty(exceptionCode)){
                 receiptItem.setIsException(1);//1表示例外收货
@@ -245,10 +250,10 @@ public class ReceiptRestService implements IReceiptRfService {
                 }
             }
             //如果没有输入生产日期和到期日
-            //TODO 没有输入生产日期的不能填现在的日期,逻辑不合理,而且容易对后面的先进先出逻辑造成困扰
-            if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null) {
+            //没有输入生产日期的不能填现在的日期,逻辑不合理,而且容易对后面的先进先出逻辑造成困扰
+           /*if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null) {
                 receiptItem.setProTime(new Date());
-            }else if(receiptItem.getProTime() == null && receiptItem.getDueTime() != null){
+            }else */if(receiptItem.getProTime() == null && receiptItem.getDueTime() != null){
                 //根据到期日计算生产日期  //  16/11/12  根据生产日期-保质期计算
                 BigDecimal shelfLife = baseinfoItem.getShelfLife();//保质期天数
                 if(shelfLife == null || shelfLife.compareTo(BigDecimal.ZERO)<=0){
@@ -260,12 +265,12 @@ public class ReceiptRestService implements IReceiptRfService {
                     receiptItem.setProTime(new Date(betweenTime));
                 }
             }
-
+            receiptItem.setOrderId(ibdHeader.getOrderId());
             receiptItem.setSkuCode(baseinfoItem.getSkuCode());
             receiptItem.setItemId(baseinfoItem.getItemId());
             receiptItem.setSkuId(baseinfoItem.getSkuId());
-            receiptItem.setSkuName(ibdDetail.getSkuName());
-            receiptItem.setPackUnit(ibdDetail.getPackUnit());
+            receiptItem.setSkuName(ibdDetailList.get(0).getSkuName());
+            receiptItem.setPackUnit(packUnit);
             //receiptItem.setPackName(ibdDetail.getPackName());
             receiptItem.setMadein(baseinfoItem.getProducePlace());
         }
@@ -421,12 +426,13 @@ public class ReceiptRestService implements IReceiptRfService {
 
         //BaseinfoItem baseinfoItem = itemService.getItem(ibdHeader.getOwnerUid(), csiSku.getSkuId());
 
-        IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(),baseinfoItem.getSkuCode());
+        List<IbdDetail> ibdDetailList = poOrderService.getInbPoDetailByOrderAndSkuCode(ibdHeader.getOrderId(),baseinfoItem.getSkuCode());
 
-        if (ibdDetail == null) {
+        if (ibdDetailList == null || ibdDetailList.size() <= 0) {
             throw new BizCheckedException("2020004");
         }
-
+        Map<String,Object> ibdDetailInfo = iReceiptRpcService.mergeIbdDetailList(ibdDetailList,BigDecimal.ZERO);
+        BigDecimal packUnit = BigDecimal.valueOf(Double.parseDouble(ibdDetailInfo.get("packUnit").toString()));
 
         //校验之后修改订单状态为收货中 第一次收货将订单改为收货中
         if(ibdHeader.getOrderStatus() == PoConstant.ORDER_THROW){
@@ -436,26 +442,28 @@ public class ReceiptRestService implements IReceiptRfService {
 
 
         Map<String, Object> orderInfoMap = new HashMap<String, Object>();
-        orderInfoMap.put("skuName", ibdDetail.getSkuName());
-        orderInfoMap.put("sukCode",Long.parseLong(baseinfoItem.getSkuCode()));
+        orderInfoMap.put("skuName", ibdDetailList.get(0).getSkuName());
+        orderInfoMap.put("skuCode",Long.parseLong(baseinfoItem.getSkuCode()));
         orderInfoMap.put("orderId",ibdHeader.getOrderId());
-        orderInfoMap.put("barCode",baseinfoItem.getCode());
+        orderInfoMap.put("barcode",baseinfoItem.getCode());
         //orderInfoMap.put("packName", "H01");
         //orderInfoMap.put("packName", ibdDetail.getPackName());
 
         //剩余数量。
         //判断是否为整箱
-        BigDecimal inboundQty = ibdDetail.getInboundQty();
+   /*     BigDecimal inboundQty = ibdDetail.getInboundQty();
         if(inboundQty.divideAndRemainder(ibdDetail.getPackUnit())[1].compareTo(BigDecimal.ZERO) == 0) {
             orderInfoMap.put("orderQty",ibdDetail.getOrderQty().subtract(ibdDetail.getInboundQty().divide(ibdDetail.getPackUnit())));
             orderInfoMap.put("packName",ibdDetail.getPackName());
         }else{
             orderInfoMap.put("orderQty",PackUtil.UomQty2EAQty(ibdDetail.getOrderQty(),ibdDetail.getPackUnit()).subtract(inboundQty));
             orderInfoMap.put("packName","EA");
-        }
+        }*/
 
 //        BigDecimal orderQty = ibdDetail.getOrderQty().subtract(ibdDetail.getInboundQty().divide(ibdDetail.getPackUnit()));
 //        orderInfoMap.put("orderQty", orderQty);
+        orderInfoMap.put("packName",ibdDetailInfo.get("packName"));
+        orderInfoMap.put("orderQty",ibdDetailInfo.get("remainUomQtyTotal"));
         orderInfoMap.put("batchNeeded", baseinfoItem.getBatchNeeded());
         //码盘规则
         orderInfoMap.put("pile",baseinfoItem.getPileX()+ "*" + baseinfoItem.getPileY() + "*" + baseinfoItem.getPileZ());
@@ -700,8 +708,8 @@ public class ReceiptRestService implements IReceiptRfService {
             if(!containerService.isContainerCanUse(containerId)){
                 throw new BizCheckedException("2000002");
             }else{
-            //可用,存入缓存
-                redisStringDao.set(containerStoreKey,storeId,2,TimeUnit.DAYS);
+            //可用,存入缓存,收货成功后,再写入缓存
+                //redisStringDao.set(containerStoreKey,storeId,2,TimeUnit.DAYS);
             }
         }
 
@@ -733,26 +741,34 @@ public class ReceiptRestService implements IReceiptRfService {
         //skucode
         String skuCode=baseinfoItem.getSkuCode();
 
-        IbdDetail ibdDetail=poOrderService.getInbPoDetailByOrderIdAndSkuCode(ibdHeader.getOrderId(),skuCode);
-        if(ibdDetail==null){
+        List<IbdDetail> ibdDetailList = poOrderService.getInbPoDetailByOrderAndSkuCode(ibdHeader.getOrderId(),skuCode);
+        if(ibdDetailList == null || ibdDetailList.size() <= 0){
             throw new BizCheckedException("2020004");
         }
         //查询对应的ibdobdrelation
+        List<IbdObdRelation> ibdObdRelations = new ArrayList<IbdObdRelation>();
         Map<String,Object>params=new HashMap<String,Object>();
         params.put("ibdOtherId",orderOtherId);
-        params.put("ibdDetailId",ibdDetail.getDetailOtherId());
+        for(IbdDetail ibdDetail :ibdDetailList){
+            params.put("ibdDetailId",ibdDetail.getDetailOtherId());
+            List<IbdObdRelation> ibdObdRelationList = poOrderService.getIbdObdRelationList(params);
+            if(ibdObdRelationList == null || ibdObdRelationList.size()<= 0){
+                continue;
+            }
+            ibdObdRelations.addAll(ibdObdRelationList);
+        }
 
-        List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(params);
-        if(ibdObdRelations!=null&&ibdObdRelations.size()<=0){
+        if(ibdObdRelations == null || ibdObdRelations.size() <= 0){
             throw new BizCheckedException("2021000");
         }
 
-        final Map<String,Object>map2=new HashMap<String,Object>();
         //用来标记该门店是否有订货
         boolean isOrder=false;
         //用来标记商品是否在订货范围内
         boolean isGoods=false;
-
+        List<ObdDetail> obdDetailList = new ArrayList<ObdDetail>();
+        //存储orderId和对应的detailId
+        StringBuilder orderIdDetailIdStr = new StringBuilder();
         //根据ibdobdrelation来找对应的obd
         for(IbdObdRelation ibdObdRelation:ibdObdRelations){
             String obdOtherId=ibdObdRelation.getObdOtherId();
@@ -786,16 +802,12 @@ public class ReceiptRestService implements IReceiptRfService {
 //                        }
 //                    }
                     //实际播种的数量。
-                    BigDecimal sowQty = obdDetail.getSowQty();
+                   /*  BigDecimal sowQty = obdDetail.getSowQty();
                     BigDecimal orderQty = obdDetail.getOrderQty();
-                    map2.put("location","J"+storeId);
-                    map2.put("orderId",ibdHeader.getOrderId());
-                    map2.put("barCode",baseinfoItem.getCode());
-                    map2.put("skuCode",Long.parseLong(baseinfoItem.getSkuCode()));
-                    map2.put("skuName",baseinfoItem.getSkuName());
+
                     //剩余数量。
                     //判断是否为整箱
-                    BigDecimal subQty = orderQty.multiply(obdDetail.getPackUnit()).subtract(sowQty);
+                   BigDecimal subQty = orderQty.multiply(obdDetail.getPackUnit()).subtract(sowQty);
                     if(subQty.divideAndRemainder(obdDetail.getPackUnit())[1].compareTo(BigDecimal.ZERO) == 0) {
                         map2.put("orderQty",orderQty.subtract(PackUtil.EAQty2UomQty(sowQty,obdDetail.getPackUnit())));
                         map2.put("packName",obdDetail.getPackName());
@@ -804,24 +816,18 @@ public class ReceiptRestService implements IReceiptRfService {
                         map2.put("orderQty",PackUtil.UomQty2EAQty(orderQty,obdDetail.getPackUnit()).subtract(sowQty));
                         map2.put("packName","EA");
                         map2.put("packUnit",1);
-                    }
+                    }*/
 
-
-                    map2.put("pile",baseinfoItem.getPileX()+ "*" + baseinfoItem.getPileY() + "*" + baseinfoItem.getPileZ());
-                    BaseinfoItemType baseinfoItemType = iItemTypeRpcService.getBaseinfoItemTypeByItemId(baseinfoItem.getItemType());
-                    if(baseinfoItemType != null && baseinfoItemType.getIsNeedProtime() == 1){
-                        map2.put("isNeedProTime",1);// TODO: 16/11/15 是否需要输入生产日期
-                    }else{
-                        map2.put("isNeedProTime",0);
-                    }
 //                    //剩余数量存入redis po订单号 托盘码 barcode作为key
 //                    String qtyKey = StrUtils.formatString(RedisKeyConstant.STORE_QTY,ibdHeader.getOrderId(),containerId,barCode);
 //                    redisStringDao.set(qtyKey,orderQty);
 
                     //将obdorderId存入redis
-                    String key=StrUtils.formatString(RedisKeyConstant.PO_STORE,ibdHeader.getOrderId(),storeId);
-                    redisStringDao.set(key,obdHeader.getOrderId()+","+obdDetail.getDetailOtherId());
-                    break;
+                   /* String key=StrUtils.formatString(RedisKeyConstant.PO_STORE,ibdHeader.getOrderId(),storeId);
+                    redisStringDao.set(key,obdHeader.getOrderId()+","+obdDetail.getDetailOtherId());*/
+                    orderIdDetailIdStr.append(obdHeader.getOrderId()).append(",").append(obdDetail.getDetailOtherId()).append(";");
+                    //break;
+                    obdDetailList.add(obdDetail);
                 }
 
             }
@@ -833,14 +839,39 @@ public class ReceiptRestService implements IReceiptRfService {
         if(!isGoods){
             throw new BizCheckedException("2020004");
         }
+
+        //将obdorderId存入redis
+        String key=StrUtils.formatString(RedisKeyConstant.PO_STORE,ibdHeader.getOrderId(),storeId);
+        redisStringDao.set(key,orderIdDetailIdStr.toString());
+
+        Map<String,Object> obdDetailInfo = iReceiptRpcService.mergeObdDetailList(obdDetailList,BigDecimal.ZERO);
+
         //推算最晚生产日期
         Calendar calendar=Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.add(calendar.DAY_OF_YEAR,-shelfLife.intValue());
         Date pro=calendar.getTime();
         SimpleDateFormat sd=new SimpleDateFormat("yyyy-MM-dd");
-        map2.put("proTime",sd.format(pro));
 
+        //是否需要生产日期
+        int isNeedProTime = 0;
+        BaseinfoItemType baseinfoItemType = iItemTypeRpcService.getBaseinfoItemTypeByItemId(baseinfoItem.getItemType());
+        if(baseinfoItemType != null && baseinfoItemType.getIsNeedProtime() == 1){
+            isNeedProTime = 1;// TODO: 16/11/15 是否需要输入生产日期
+        }
+
+        final Map<String,Object>map2=new HashMap<String,Object>();
+        map2.put("proTime",sd.format(pro));
+        map2.put("location","J"+storeId);
+        map2.put("orderId",ibdHeader.getOrderId());
+        map2.put("barcode",baseinfoItem.getCode());
+        map2.put("skuCode",Long.parseLong(baseinfoItem.getSkuCode()));
+        map2.put("skuName",baseinfoItem.getSkuName());
+        map2.put("isNeedProTime",isNeedProTime);
+        map2.put("pile",baseinfoItem.getPileX()+ "*" + baseinfoItem.getPileY() + "*" + baseinfoItem.getPileZ());
+        map2.put("orderQty",obdDetailInfo.get("remainUomQtyTotal"));
+        map2.put("packName",obdDetailInfo.get("packName"));
+        map2.put("packUnit",obdDetailInfo.get("packUnit"));
         //校验之后修改订单状态为收货中第一次收货将订单改为收货中
         if(ibdHeader.getOrderStatus()==PoConstant.ORDER_THROW){
             ibdHeader.setOrderStatus(PoConstant.ORDER_RECTIPTING);

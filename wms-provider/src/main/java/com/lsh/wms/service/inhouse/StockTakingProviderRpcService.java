@@ -215,18 +215,23 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
     }
     public List<Long> getTakingLocation(StockTakingRequest request){
         List<Long> locationList = new ArrayList<Long>();
-        Long locationId = 0L;
+        List<Long> locations = new ArrayList<Long>();
+        int locationNum= Integer.MAX_VALUE;
+        Long fatherLocationId = 0L;
+        if(!request.getLocationNum().equals(0)){
+            locationNum = request.getLocationNum();
+        }
         //根据，区，通道，货架，层 筛选出location
         if (!request.getShelfLayerId().equals(0L)) {
-            locationId = request.getShelfLayerId();
+            fatherLocationId = request.getShelfLayerId();
         } else if (!request.getStorageId().equals(0L)) {
-            locationId = request.getStorageId();
+            fatherLocationId = request.getStorageId();
         } else if (!request.getPassageId().equals(0L)) {
-            locationId = request.getPassageId();
+            fatherLocationId = request.getPassageId();
         } else if (!request.getAreaId().equals(0L)) {
-            locationId = request.getAreaId();
+            fatherLocationId = request.getAreaId();
         }
-        List<BaseinfoLocation> baseinfoLocations = locationService.getChildrenLocationsByType(locationId, LocationConstant.BIN);
+        List<BaseinfoLocation> baseinfoLocations = locationService.getChildrenLocationsByType(fatherLocationId, LocationConstant.BIN);
         for(BaseinfoLocation baseinfoLocation:baseinfoLocations) {
             locationList.add(baseinfoLocation.getLocationId());
         }
@@ -244,7 +249,6 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         List<Long> taskLocation =new ArrayList<Long>();
 
         //取到盘点库位
-        Map<String,Object> query = new HashMap<String, Object>();
         List<StockTakingDetail> details = stockTakingService.getValidDetailList();
         if(details!=null && details.size()!=0){
             for(StockTakingDetail detail:details){
@@ -260,7 +264,35 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         }
 
         locationList.retainAll(longs);
-        return locationList;
+        locationList.removeAll(taskLocation);
+        int i=0 ;
+        while(i<locationNum){
+            if(locationList.size()==0){
+                break;
+            }
+
+            // 取出一个随机数
+            int r = (int) (Math.random() * locationList.size());
+            Long locationId = locationList.get(r);
+
+            // 排除已经取过的值
+            locationList.remove(r);
+
+            //过滤掉区的上一层
+            if(locationId.compareTo(0L)==0 ||locationId.compareTo(1L)==0 || locationId.compareTo(2L)==0){
+                continue;
+            }
+            BaseinfoLocation location = locationService.getFatherByClassification(locationId);
+            if(location==null){
+                continue;
+            }
+            //是阁楼区，货架区，存捡一体区，地堆区
+            if(location.getType().compareTo(LocationConstant.SHELFS)==0 ||location.getType().compareTo(LocationConstant.LOFTS)==0  ||location.getType().compareTo(LocationConstant.SPLIT_AREA)==0 ||location.getType().compareTo(LocationConstant.FLOOR)==0 || (location.getType().equals(LocationConstant.BIN) && location.getBinUsage().equals(BinUsageConstant.BIN_FLOOR_STORE))) {
+                locations.add(locationId);
+                i++;
+            }
+        }
+        return locations;
     }
 
     public void createTemporary(StockTakingRequest request){
@@ -318,9 +350,6 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         }else {
             locationList = JSON.parseArray(request.getLocationList(), Long.class);
         }
-
-        long begin_at = 0;
-        long end_at = 0;
 
         Set<Long> setBinDup = new HashSet<Long>();
         Map<Long, List<Long>> mapZoneBinArrs = new HashMap<Long, List<Long>>();
@@ -460,15 +489,13 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         WorkZone zone = workZoneService.getWorkZone(zoneId);
         TaskEntry entry = new TaskEntry();
         TaskInfo info = new TaskInfo();
-        Long idx = 0l ;
         for(Long locationId:locations){
             StockTakingDetail detail = new StockTakingDetail();
             detail.setLocationId(locationId);
-            detail.setDetailId(idx);
+            detail.setDetailId(RandomUtils.genId());
             detail.setTakingId(head.getTakingId());
             details.add(detail);
             detail.setZoneId(zoneId);
-            idx ++;
         }
         if(zone==null){
             info.setTaskName("");
@@ -500,15 +527,13 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             List<Object> details = new ArrayList<Object>();
             TaskEntry taskEntry = new TaskEntry();
             TaskInfo info = new TaskInfo();
-            Long idx = 0l;
             for (Long locationId : locations) {
                 StockTakingDetail detail = new StockTakingDetail();
                 detail.setLocationId(locationId);
-                detail.setDetailId(idx);
+                detail.setDetailId(RandomUtils.genId());
                 detail.setTakingId(head.getTakingId());
                 details.add(detail);
                 detail.setZoneId(zoneId);
-                idx++;
             }
             if(zone==null){
                 info.setTaskName("");
