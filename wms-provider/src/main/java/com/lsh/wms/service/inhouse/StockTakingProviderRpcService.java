@@ -236,17 +236,28 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             locationList.add(baseinfoLocation.getLocationId());
         }
 
-        //商品,供应商得到库位
-        Map<String,Object> queryMap =new HashMap<String, Object>();
-        if(request.getSupplierId().compareTo(0L)!=0) {
-            queryMap.put("supplierId", request.getSupplierId());
-        }
-        if(request.getItemId().compareTo(0L)!=0) {
-            queryMap.put("itemId", request.getItemId());
-        }
-        List<StockQuant>quantList = quantService.getQuants(queryMap);
+        List<Long> taskLocation = new ArrayList<Long>();
         Set<Long> longs = new HashSet<Long>();
-        List<Long> taskLocation =new ArrayList<Long>();
+
+        if(request.getSupplierId().compareTo(0L)!=0 || request.getItemId().compareTo(0L)!=0 ) {
+            //商品,供应商得到库位
+            Map<String, Object> queryMap = new HashMap<String, Object>();
+            if (request.getSupplierId().compareTo(0L) != 0) {
+                queryMap.put("supplierId", request.getSupplierId());
+            }
+            if (request.getItemId().compareTo(0L) != 0) {
+                queryMap.put("itemId", request.getItemId());
+            }
+            List<StockQuant> quantList = quantService.getQuants(queryMap);
+
+            for (StockQuant quant : quantList) {
+                BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
+                if (location.getType().compareTo(LocationConstant.SHELFS) == 0 || location.getType().compareTo(LocationConstant.LOFTS) == 0 || location.getType().compareTo(LocationConstant.SPLIT_AREA) == 0 || location.getType().compareTo(LocationConstant.FLOOR) == 0 || (location.getType().equals(LocationConstant.BIN) && location.getBinUsage().equals(BinUsageConstant.BIN_FLOOR_STORE))) {
+                    longs.add(quant.getLocationId());
+                }
+            }
+            locationList.retainAll(longs);
+        }
 
         //取到盘点库位
         List<StockTakingDetail> details = stockTakingService.getValidDetailList();
@@ -256,14 +267,6 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             }
         }
 
-        for(StockQuant quant:quantList){
-            BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
-            if(location.getType().compareTo(LocationConstant.SHELFS)==0 ||location.getType().compareTo(LocationConstant.LOFTS)==0  ||location.getType().compareTo(LocationConstant.SPLIT_AREA)==0 ||location.getType().compareTo(LocationConstant.FLOOR)==0 || (location.getType().equals(LocationConstant.BIN) && location.getBinUsage().equals(BinUsageConstant.BIN_FLOOR_STORE))) {
-                longs.add(quant.getLocationId());
-            }
-        }
-
-        locationList.retainAll(longs);
         locationList.removeAll(taskLocation);
         int i=0 ;
         while(i<locationNum){
