@@ -217,22 +217,16 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
     }
 
 
-    public void createPlanWarehouse(){
-        //get zone list;
-        List<WorkZone> zoneList = workZoneService.getWorkZoneByType(WorkZoneConstant.ZONE_STOCK_TAKING);
-        if(zoneList.size()==0){
-            //抛异常也行
-            return;
-        }
+    public void createPlanWarehouse(List<Long> zoneIds){
+        List<WorkZone> zoneList = this.getSelectedZones(zoneIds);
         //get all location list;
         List<Long> binLocations = locationService.getALLBins();
         //cluster by zone;计算量稍微有点大,会不会超时啊?
         Set<Long> setBinDup = new HashSet<Long>();
-        List<List<Long>> zoneBinArrs = new LinkedList<List<Long>>();
+        Map<Long, List<Long>> mapZoneBinArrs = new HashMap<Long, List<Long>>();
         for (WorkZone zone : zoneList) {
             List<Long> zoneBinLocations = new ArrayList<Long>();
             if (zone.getLocations().trim().compareTo("") != 0) {
-
                 String[] locationIdStrs = zone.getLocations().split(",");
                 for (String locationIdStr : locationIdStrs) {
                     Long locationId = Long.valueOf(locationIdStr);
@@ -254,19 +248,30 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             } else {
                 //抛异常也行
             }
-            zoneBinArrs.add(zoneBinLocations);
+            mapZoneBinArrs.put(zone.getZoneId(), zoneBinLocations);
         }
         //call create
         //这里数据库插入量非常高,非常容易超时,看怎么处理.
     }
 
-    public void createPlanSales(){
-        //get zone list;
+    public List<WorkZone> getSelectedZones(List<Long> zoneIds){
+        List<WorkZone> selectedZoneList = new LinkedList<WorkZone>();
         List<WorkZone> zoneList = workZoneService.getWorkZoneByType(WorkZoneConstant.ZONE_STOCK_TAKING);
-        if(zoneList.size()==0){
-            //抛异常也行
-            return;
+        Set<Long> setIds = new HashSet<Long>();
+        for(Long id : zoneIds){
+            setIds.add(id);
         }
+        for(WorkZone zone : zoneList){
+            if(setIds.contains(zone.getZoneId())){
+                selectedZoneList.add(zone);
+            }
+        }
+        return selectedZoneList;
+    }
+
+    public void createPlanSales(List<Long> zoneIds){
+        //get zone list;
+        List<WorkZone> zoneList = this.getSelectedZones(zoneIds);
         //get all location list;
         List<Long> binLocations = locationService.getALLBins();
         //拉取动销库位,从wavedetail里面去拿,通过picklocation
@@ -274,7 +279,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         long end_at = 0;
         List<Long> pickLocations = waveService.getPickLocationsByPickTimeRegion(begin_at, end_at);
         Set<Long> setBinDup = new HashSet<Long>();
-        List<List<Long>> zoneBinArrs = new LinkedList<List<Long>>();
+        Map<Long, List<Long>> mapZoneBinArrs = new HashMap<Long, List<Long>>();
         for (WorkZone zone : zoneList) {
             List<Long> zoneBinLocations = new ArrayList<Long>();
             if (zone.getLocations().trim().compareTo("") != 0) {
@@ -299,8 +304,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             } else {
                 //抛异常也行
             }
-            zoneBinArrs.add(zoneBinLocations);
+            mapZoneBinArrs.put(zone.getZoneId(), zoneBinLocations);
         }
-        //create;
     }
 }
