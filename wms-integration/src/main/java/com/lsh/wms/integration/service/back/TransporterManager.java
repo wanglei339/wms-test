@@ -54,6 +54,9 @@ public class TransporterManager {
     @Autowired
     private InventoryTransporter inventoryTransporter;
 
+    @Autowired
+    private MovingTransporter movingTransporter;
+
 
     //@Autowired
     public void dealOne(SysLog sysLog) {
@@ -69,7 +72,6 @@ public class TransporterManager {
                 Long obdId = sysLog.getBusinessId();
                 OutbDeliveryHeader deliveryHeader = soDeliveryService.getOutbDeliveryHeaderByDeliveryId(obdId);
                 ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(deliveryHeader.getOrderId());
-
                 if(CsiConstan.OWNER_WUMART == obdHeader.getOwnerUid()){
                     if(obdHeader.getOrderType() == SoConstant.ORDER_TYPE_DIRECT){
                         transporter = directTransporter;
@@ -81,7 +83,6 @@ public class TransporterManager {
                         }else {
                             transporter = obdSapTransporter;
                         }
-
                     }
                 }else{
                     transporter = obdOfcTransporter;
@@ -101,17 +102,11 @@ public class TransporterManager {
                 break;
             case SysLogConstant.LOG_TYPE_DIRECT:
                 transporter = directTransporter;
-//            case SysLogConstant.LOG_TYPE_WIN:
-//                transporter = new InventoryWinTransporter();
+                break;
+            case SysLogConstant.LOG_TYPE_MOVING:
+                transporter = movingTransporter;
+                break;
         }
-//        logger.info("~~~~begin back ofc ~~~~~~");
-//        if(transporter2 != null){
-//            logger.info("~~~~~~~~~111111syslog " + JSON.toJSONString(sysLog) + "~~~~~~");
-//            transporter2.process(sysLog);
-//            logger.info("~~~~~~~~~~222222222syslog :" + JSON.toJSONString(sysLog) + "~~~~~~`");
-//        }
-
-
         transporter.process(sysLog);
 
     }

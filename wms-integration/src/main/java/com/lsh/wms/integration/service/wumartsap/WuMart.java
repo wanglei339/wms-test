@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
+import com.lsh.wms.api.model.wumart.CreateMovingHeader;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.wumart.IWuMart;
 import com.lsh.wms.core.constant.SysLogConstant;
@@ -240,6 +241,33 @@ public class WuMart implements IWuMart {
             sysLog.setStatus(SysLogConstant.LOG_STATUS_THROW);
         }
         return JsonUtils.SUCCESS();
+    }
+
+    public void stockMoving2Sap(CreateMovingHeader header,SysLog sysLog) {
+        sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_WUMART);
+        try{
+
+            String type = wuMartSap.stockMoving2Sap(header);
+            if("S".equals(type)){
+                sysLog.setLogMessage("库存转移回传成功");
+                sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);//3表示失败
+                sysLog.setLogCode("库存转移回传成功");
+            }else {
+                sysLog.setLogMessage("库存转移回传失败");
+                sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);//3表示失败
+                sysLog.setLogCode("库存转移回传失败");
+            }
+            sysLog.setSysCode("");
+            sysLog.setSysMessage("");
+        }catch (Exception ex){
+            sysLog.setSysCode("接口抛出异常");//异常
+            logger.info("抛出异常信息: ex : " + ex.fillInStackTrace());
+            sysLog.setSysMessage(ex.getMessage());
+            sysLog.setLogMessage("库存转移回传失败,sap抛异常");
+            sysLog.setLogCode("库存转移回传失败");
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_THROW);
+        }
+
     }
 
 

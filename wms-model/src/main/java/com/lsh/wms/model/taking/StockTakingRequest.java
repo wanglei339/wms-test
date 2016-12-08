@@ -31,6 +31,8 @@ public class StockTakingRequest implements Serializable {
     private Long planType = 1L;
     /** 盘点任务发起人*/
     private Long planner  = 0L;
+    /** 随机数*/
+    private Integer locationNum  = 0;
     /** 盘点分区list*/
     private List<Long> zoneList = new ArrayList<Long>();
 
@@ -123,5 +125,13 @@ public class StockTakingRequest implements Serializable {
 
     public void setZoneList(List<Long> zoneList) {
         this.zoneList = zoneList;
+    }
+
+    public Integer getLocationNum() {
+        return locationNum;
+    }
+
+    public void setLocationNum(Integer locationNum) {
+        this.locationNum = locationNum;
     }
 }
