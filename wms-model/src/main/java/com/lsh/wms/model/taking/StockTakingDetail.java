@@ -41,11 +41,13 @@ public class StockTakingDetail implements Serializable {
 	/**货主id */
 	private Long ownerId = 0L;
 	/**包装名称 */
-	private String packName = "H0";
+	private String packName = "EA";
 	/** 包装单位*/
 	private BigDecimal packUnit = new BigDecimal(1);
 	/** */
 	private int isValid = 1;
+	/** 详情执行状态*/
+	private Long status = 1L;
 	/**  */
     private Long createdAt = DateUtils.getCurrentSeconds();
 	/**  */
@@ -225,5 +227,13 @@ public class StockTakingDetail implements Serializable {
 
 	public void setIsFinal(Integer isFinal) {
 		this.isFinal = isFinal;
+	}
+
+	public Long getStatus() {
+		return status;
+	}
+
+	public void setStatus(Long status) {
+		this.status = status;
 	}
 }

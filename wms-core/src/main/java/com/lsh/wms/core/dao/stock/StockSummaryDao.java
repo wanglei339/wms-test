@@ -7,14 +7,14 @@ import java.util.List;
 import java.util.Map;
 
 @MyBatisRepository
-
 public interface StockSummaryDao {
-
-    void changeStock(StockSummary stockSummary);
-
-    StockSummary getStockSummaryByItemId(Long itemId);
+	
+	void changeStock(StockSummary stockSummary);
+	
+	StockSummary getStockSummaryByItemId(Long id);
 
     Integer countStockSummary(Map<String, Object> params);
 
     List<StockSummary> getStockSummaryList(Map<String, Object> params);
+	
 }
