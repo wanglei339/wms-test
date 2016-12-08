@@ -372,6 +372,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
             info.setPlanId(info.getOperator());
             info.setContainerId(info.getContainerId());
             head.setRequireQty(head.getRequireQty().subtract(info.getQty()));
+            head.setStatus(TaskConstant.Draft);
             entry.setTaskInfo(info);
             entry.setTaskHead(head);
             iTaskRpcService.create(TaskConstant.TYPE_SEED, entry);
