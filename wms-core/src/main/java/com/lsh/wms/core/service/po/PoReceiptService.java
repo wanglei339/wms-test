@@ -89,7 +89,7 @@ public class PoReceiptService {
     public void insertOrder(IbdHeader ibdHeader,InbReceiptHeader inbReceiptHeader, List<InbReceiptDetail> inbReceiptDetailList,
                             List<IbdDetail> updateIbdDetailList, List<Map<String, Object>> moveList,
                             List<ReceiveDetail> updateReceiveDetailList, List<ObdStreamDetail> obdStreamDetailList, List<ObdDetail> obdDetails) {
-        if(PoConstant.ORDER_TYPE_SO_BACK == ibdHeader.getOrderType()){
+        if(ibdHeader != null && PoConstant.ORDER_TYPE_SO_BACK == ibdHeader.getOrderType()){
             //返仓单生成移库单之后 将状态改为收货完成
             ibdHeader.setOrderStatus(PoConstant.ORDER_RECTIPT_ALL);
             ibdHeader.setUpdatedAt(DateUtils.getCurrentSeconds());

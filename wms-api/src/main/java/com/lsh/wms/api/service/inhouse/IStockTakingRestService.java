@@ -16,6 +16,7 @@ public interface IStockTakingRestService {
     String update(StockTakingRequest request) throws BizCheckedException;
     String genId(Long taskType);
     String getLocationList(LocationListRequest request);
+    String getItemDetails(Map<String,Object> mapQuery) throws BizCheckedException;
     String getDetails(Map<String,Object> mapQuery) throws BizCheckedException;
     String getDetail(long takingId) throws BizCheckedException;
     String getCount(Map<String,Object> mapQuery);

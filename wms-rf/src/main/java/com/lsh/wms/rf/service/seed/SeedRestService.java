@@ -392,18 +392,6 @@ public class SeedRestService implements ISeedRestService {
                 entry.setTaskHead(head);
                 iTaskRpcService.update(TaskConstant.TYPE_SEED, entry);
 
-                if(head.getRequireQty().compareTo(inboundUnitQty)>0){
-                    //创建剩余数量门店任务
-                    info.setTaskId(0L);
-                    info.setId(0L);
-                    info.setStatus(TaskConstant.Draft);
-                    info.setPlanId(uid);
-                    info.setContainerId(info.getContainerId());
-                    head.setRequireQty(head.getRequireQty().subtract(info.getQty()));
-                    entry.setTaskInfo(info);
-                    entry.setTaskHead(head);
-                    iTaskRpcService.create(TaskConstant.TYPE_SEED, entry);
-                }
                 iTaskRpcService.done(head.getTaskId());
 
 //                if(head.getTaskId().compareTo(taskId)==0) {
