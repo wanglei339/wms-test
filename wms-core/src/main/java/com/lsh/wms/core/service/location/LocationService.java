@@ -639,6 +639,7 @@ public class LocationService {
             return null;
         }
     }
+
     /**
      * 获取消费虚拟区
      *
@@ -652,6 +653,7 @@ public class LocationService {
             return null;
         }
     }
+
     /**
      * 获取供货虚拟区
      *
@@ -665,7 +667,6 @@ public class LocationService {
             return null;
         }
     }
-
 
 
     /**
@@ -900,23 +901,6 @@ public class LocationService {
 
 
     /**
-     * 设置位置没有被占用
-     *
-     * @param locationId
-     * @return
-     */
-    @Transactional(readOnly = false)
-    public BaseinfoLocation setLocationUnOccupied(Long locationId) {
-        BaseinfoLocation location = this.getLocation(locationId);
-        if (location == null) {
-            throw new BizCheckedException("2180001");
-        }
-        location.setCanUse(LocationConstant.CAN_USE);    //被未被使用
-        this.updateLocation(location);
-        return location;
-    }
-
-    /**
      * 查看位置现在是否能继续使用,(没上满|没库存的)都是能继续使用的,对于库位
      *
      * @param locationId
@@ -1015,6 +999,27 @@ public class LocationService {
         this.updateLocation(location);
         return location;
     }
+
+    /**
+     * 释放锁,并设置可用
+     *
+     * @param location
+     * @return
+     */
+    @Transactional(readOnly = false)
+    public BaseinfoLocation unlockLocationAndSetCanUse(BaseinfoLocation location) {
+        BaseinfoLocation templocation = this.getLocation(location.getLocationId());
+        //表加行锁
+        if (templocation == null) {
+            throw new BizCheckedException("2180001");
+        }
+        locationDao.lock(templocation.getId());
+        location.setIsLocked(LocationConstant.UNLOCK);    //解锁
+        location.setCanUse(LocationConstant.CAN_USE);    //设置可用
+        this.updateLocation(location);
+        return location;
+    }
+
 
     /**
      * 检查位置的锁状态
@@ -1122,6 +1127,7 @@ public class LocationService {
     @Transactional(readOnly = false)
     public BaseinfoLocation refreshContainerVol(Long locationId, Long containerVol) {
         BaseinfoLocation location = this.getLocation(locationId);
+        locationDao.lock(location.getId());
         if (location == null) {
             throw new BizCheckedException("2180001");
         }
@@ -1387,7 +1393,7 @@ public class LocationService {
     /**
      * 获取指定区域下的bin
      *
-     * @param regionType    区域的type
+     * @param regionType 区域的type
      * @return
      */
     public List<Long> getLocationBinsByRegionType(Long regionType) {
@@ -1414,8 +1420,9 @@ public class LocationService {
 
     /**
      * 同一区域下,根据通道、列、层(可选),进行蛇形排序
-     * @param locations  同区域的list
-     * @param needLevelSort  是否需要按照层升序排序
+     *
+     * @param locations     同区域的list
+     * @param needLevelSort 是否需要按照层升序排序
      * @return
      */
     public List<BaseinfoLocation> calcZwayOrder(List<BaseinfoLocation> locations, boolean needLevelSort) {
@@ -1470,31 +1477,41 @@ public class LocationService {
 
             //同列的层排序
             if (needLevelSort) {
-                samePassage = new LinkedHashMap<Long, List<BaseinfoLocation>>();
-                //按列分组
-                for (BaseinfoLocation one : tempList) {
-                    if (!samePassage.containsKey(one.getBinPositionNo())) {
-                        samePassage.put(one.getBinPositionNo(), new ArrayList<BaseinfoLocation>());
-                    }
-                    List<BaseinfoLocation> columnList = samePassage.get(one.getBinPositionNo());
-                    columnList.add(one);
-                    samePassage.put(one.getBinPositionNo(), columnList);
-                }
-
-                //同通道|不同列的list 层排序
-                for (Long binNo : samePassage.keySet()) {
-                    List<BaseinfoLocation> binColumn = samePassage.get(binNo);
-                    Collections.sort(binColumn, new Comparator<BaseinfoLocation>() {
-                        public int compare(BaseinfoLocation o1, BaseinfoLocation o2) {
+//                samePassage = new LinkedHashMap<Long, List<BaseinfoLocation>>();
+//                //按列分组
+//                for (BaseinfoLocation one : tempList) {
+//                    if (!samePassage.containsKey(one.getBinPositionNo())) {
+//                        samePassage.put(one.getBinPositionNo(), new ArrayList<BaseinfoLocation>());
+//                    }
+//                    List<BaseinfoLocation> columnList = samePassage.get(one.getBinPositionNo());
+//                    columnList.add(one);
+//                    samePassage.put(one.getBinPositionNo(), columnList);
+//                }
+//
+//                //同通道|不同列的list 层排序
+//                for (Long binNo : samePassage.keySet()) {
+//                    List<BaseinfoLocation> binColumn = samePassage.get(binNo);
+//                    Collections.sort(binColumn, new Comparator<BaseinfoLocation>() {
+//                        public int compare(BaseinfoLocation o1, BaseinfoLocation o2) {
+//                            return o1.getShelfLevelNo().compareTo(o2.getShelfLevelNo()) > 0 ? 1 : (o1.getShelfLevelNo().compareTo(o2.getShelfLevelNo()) == 0 ? 0 : -1);
+//                        }
+//                    });
+//                    if (!binColumn.isEmpty()){
+//                        resultList.addAll(binColumn);
+//                    }
+//                }
+                Collections.sort(tempList, new Comparator<BaseinfoLocation>() {
+                    public int compare(BaseinfoLocation o1, BaseinfoLocation o2) {
+                        if (o1.getRegionType().equals(o2.getRegionType()) && o1.getPassageNo().equals(o2.getPassageNo()) && o1.getBinPositionNo().equals(o2.getBinPositionNo())) {
                             return o1.getShelfLevelNo().compareTo(o2.getShelfLevelNo()) > 0 ? 1 : (o1.getShelfLevelNo().compareTo(o2.getShelfLevelNo()) == 0 ? 0 : -1);
+                        } else {
+                            return 0;
                         }
-                    });
-                    if (!binColumn.isEmpty()){
-                        resultList.addAll(binColumn);
                     }
-                }
+                });
+            }
 
-            } else if (!tempList.isEmpty()) {
+            if (!tempList.isEmpty()) {
                 resultList.addAll(tempList);
             }
 

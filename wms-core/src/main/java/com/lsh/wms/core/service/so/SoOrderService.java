@@ -1,21 +1,17 @@
 package com.lsh.wms.core.service.so;
 
 import com.lsh.base.common.utils.DateUtils;
-import com.lsh.base.common.utils.RandomUtils;
-import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.dao.so.ObdDetailDao;
 import com.lsh.wms.core.dao.so.ObdHeaderDao;
-import com.lsh.wms.core.service.stock.StockAllocService;
+import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
-import java.rmi.MarshalledObject;
 import java.util.*;
 
 /**
@@ -38,7 +34,7 @@ public class SoOrderService {
     private ObdDetailDao obdDetailDao;
 
     @Autowired
-    private StockAllocService stockAllocService;
+    private StockSummaryService stockSummaryService;
 
     /**
      * 插入OutbSoHeader及OutbSoDetail
@@ -53,7 +49,7 @@ public class SoOrderService {
 
         obdDetailDao.batchInsert(obdDetailList);
         if(!obdHeader.getOrderType().equals(SoConstant.ORDER_TYPE_DIRECT)) {
-            stockAllocService.alloc(obdHeader, obdDetailList);
+            stockSummaryService.alloc(obdHeader, obdDetailList);
         }
     }
 

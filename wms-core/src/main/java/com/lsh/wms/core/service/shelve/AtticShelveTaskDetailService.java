@@ -106,13 +106,6 @@ public class AtticShelveTaskDetailService {
     public void doneDetail(AtticShelveTaskDetail detail,StockMove move) {
 
         TaskInfo info = baseTaskService.getTaskByTaskId(detail.getTaskId());
-        // 更新可用库存
-        StockDelta delta = new StockDelta();
-        delta.setItemId(info.getItemId());
-        delta.setInhouseQty(detail.getRealQty());
-        delta.setBusinessId(detail.getTaskId());
-        delta.setType(StockConstant.TYPE_SHELVE);
-        stockSummaryService.changeStock(delta);
 
         moveService.move(move);
         locationService.unlockLocation(detail.getAllocLocationId());
