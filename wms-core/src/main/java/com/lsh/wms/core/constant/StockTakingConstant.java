@@ -8,9 +8,9 @@ public class StockTakingConstant {
     /**
      * 盘点任务类型
      */
-    public static final Integer TYPE_TEMPOARY= 1;//临时
-    public static final Integer TYPE_MOVE_OFF = 2;//动销
-    public static final Integer TYPE_PLAN = 3;//计划
+    public static final Long TYPE_TEMPOARY= 1l;//临时
+    public static final Long TYPE_MOVE_OFF = 2l;//动销
+    public static final Long TYPE_PLAN = 3l;//计划
 
 
     /**
