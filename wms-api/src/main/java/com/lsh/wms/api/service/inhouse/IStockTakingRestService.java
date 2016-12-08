@@ -24,5 +24,5 @@ public interface IStockTakingRestService {
     String cancel(Long takingId) throws BizCheckedException;
     String getHead(Long takingId) throws BizCheckedException;
     String createPlanWarehouse(Map<String,Object> mapQuery) throws BizCheckedException;
-    String createPlanSales(List<Long> zoneIds, Long planer) throws BizCheckedException;
+    String createPlanSales(Map<String,Object> mapQuery) throws BizCheckedException;
 }

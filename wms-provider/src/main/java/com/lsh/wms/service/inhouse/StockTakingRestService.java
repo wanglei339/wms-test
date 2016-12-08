@@ -147,8 +147,13 @@ public class StockTakingRestService implements IStockTakingRestService {
 
     @POST
     @Path("createPlanSales")
-    public String createPlanSales(List<Long> zoneIds, Long planer) throws BizCheckedException {
-        iStockTakingProviderRpcService.createPlanSales(zoneIds, planer);
+    public String createPlanSales(Map<String,Object> mapQuery) throws BizCheckedException {
+        List zoneIds = (List)(mapQuery.get("zoneIds"));
+        for(int i = 0; i < zoneIds.size(); ++i){
+            zoneIds.set(i, Long.valueOf(zoneIds.get(i).toString()));
+        }
+        Long planner = Long.valueOf(mapQuery.get("uid").toString());
+        iStockTakingProviderRpcService.createPlanSales(zoneIds, planner);
         return JsonUtils.SUCCESS();
     }
 
