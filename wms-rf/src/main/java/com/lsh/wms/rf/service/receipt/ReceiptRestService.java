@@ -443,9 +443,9 @@ public class ReceiptRestService implements IReceiptRfService {
 
         Map<String, Object> orderInfoMap = new HashMap<String, Object>();
         orderInfoMap.put("skuName", ibdDetailList.get(0).getSkuName());
-        orderInfoMap.put("sukCode",Long.parseLong(baseinfoItem.getSkuCode()));
+        orderInfoMap.put("skuCode",Long.parseLong(baseinfoItem.getSkuCode()));
         orderInfoMap.put("orderId",ibdHeader.getOrderId());
-        orderInfoMap.put("barCode",baseinfoItem.getCode());
+        orderInfoMap.put("barcode",baseinfoItem.getCode());
         //orderInfoMap.put("packName", "H01");
         //orderInfoMap.put("packName", ibdDetail.getPackName());
 
@@ -708,8 +708,8 @@ public class ReceiptRestService implements IReceiptRfService {
             if(!containerService.isContainerCanUse(containerId)){
                 throw new BizCheckedException("2000002");
             }else{
-            //可用,存入缓存
-                redisStringDao.set(containerStoreKey,storeId,2,TimeUnit.DAYS);
+            //可用,存入缓存,收货成功后,再写入缓存
+                //redisStringDao.set(containerStoreKey,storeId,2,TimeUnit.DAYS);
             }
         }
 
@@ -864,7 +864,7 @@ public class ReceiptRestService implements IReceiptRfService {
         map2.put("proTime",sd.format(pro));
         map2.put("location","J"+storeId);
         map2.put("orderId",ibdHeader.getOrderId());
-        map2.put("barCode",baseinfoItem.getCode());
+        map2.put("barcode",baseinfoItem.getCode());
         map2.put("skuCode",Long.parseLong(baseinfoItem.getSkuCode()));
         map2.put("skuName",baseinfoItem.getSkuName());
         map2.put("isNeedProTime",isNeedProTime);

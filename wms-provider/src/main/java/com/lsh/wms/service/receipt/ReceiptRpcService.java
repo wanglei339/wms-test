@@ -58,6 +58,7 @@ import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static java.math.BigDecimal.ROUND_HALF_EVEN;
 
@@ -852,7 +853,24 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //大店放在集货道 小店放到集货位
         //BaseinfoStore baseinfoStore = iStoreRpcService.getStoreByStoreNo(inbReceiptHeader.getStoreCode());
         CsiCustomer csiCustomer = customerService.getCustomerByCustomerCode(inbReceiptHeader.getStoreCode());
+        /*
+        *判断托盘是否可用
+        */
 
+        String containerStoreKey=StrUtils.formatString(RedisKeyConstant.CONTAINER_STORE,containerId);
+        //从缓存中获取该托盘对应的店铺信息
+        String oldStoreId=redisStringDao.get(containerStoreKey);
+        String storeId = request.getStoreId();
+        boolean isWriteTORedis = false;
+        if(!storeId.equals(oldStoreId)){
+            //验证托盘是否可用
+            if(!containerService.isContainerCanUse(containerId)){
+                throw new BizCheckedException("2000002");
+            }else{
+                //可用,存入缓存
+                isWriteTORedis = true;
+            }
+        }
         //获取location的id
         if (null == csiCustomer) {
             throw new BizCheckedException("2180023");
@@ -936,7 +954,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             }
 
             //根据InbPoHeader中的OwnerUid及InbReceiptDetail中的SkuId获取Item
-            CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, inbReceiptDetail.getBarCode());
+            CsiSku csiSku = csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, receiptItem.getBarCode());
             if (null == csiSku || csiSku.getSkuId() == null) {
                 throw new BizCheckedException("2020022");
             }
@@ -992,7 +1010,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             /*if(sowQty.add(inbReceiptDetail.getInboundQty()).compareTo(obdDetail.getOrderQty().multiply(obdDetail.getPackUnit())) > 0){
                 throw new BizCheckedException("2022222");
             }*/
-            if(obdInboundEaQtyTotal.add(inbReceiptDetail.getInboundQty()).compareTo(obdOrderEaQtyTotal) > 0){
+            if(obdInboundEaQtyTotal.add(receiptItem.getInboundQty()).compareTo(obdOrderEaQtyTotal) > 0){
                 throw new BizCheckedException("2022222");//本次收货数量大于门店订单剩余数量
             }
             //本次剩余收货数
@@ -1033,7 +1051,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             BigDecimal ibdInboundEaQtyTotal = BigDecimal.valueOf(Double.parseDouble(ibdDetailInfo.get("inboundEaQtyTotal").toString()));
             //订货总数ea
             BigDecimal ibdOrderEaQtyTotal = BigDecimal.valueOf(Double.parseDouble(ibdDetailInfo.get("orderEaQtyTotal").toString()));
-            if (ibdInboundEaQtyTotal.add(inbReceiptDetail.getInboundQty()).compareTo(ibdOrderEaQtyTotal) > 0) {
+            if (ibdInboundEaQtyTotal.add(receiptItem.getInboundQty()).compareTo(ibdOrderEaQtyTotal) > 0) {
                 throw new BizCheckedException("2020005");//超过订单数量
             }
             // 批量修改ibd 实收数量
@@ -1063,7 +1081,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             //生成出库detail信息
 
             ObdStreamDetail obdStreamDetail = new ObdStreamDetail();
-            obdStreamDetail.setItemId(inbReceiptDetail.getItemId());
+            obdStreamDetail.setItemId(receiptItem.getItemId());
             obdStreamDetail.setContainerId(inbReceiptHeader.getContainerId());
             obdStreamDetail.setOwnerId(ibdHeader.getOwnerUid());
             obdStreamDetail.setPickQty(inboundUnitQty);
@@ -1076,7 +1094,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             }*/
             obdStreamDetail.setAllocUnitQty(PackUtil.EAQty2UomQty(inboundUnitQty,obdPackUnit));
             obdStreamDetail.setAllocUnitName(obdPackName);
-            obdStreamDetail.setSkuId(inbReceiptDetail.getSkuId());
+            obdStreamDetail.setSkuId(receiptItem.getSkuId());
             //obdStreamDetail.setOrderId(obdOrderId);
             obdStreamDetail.setAllocCollectLocation(collectRoadId);
             obdStreamDetail.setRealCollectLocation(collectRoadId);
@@ -1119,7 +1137,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 //            BigDecimal qty = inbReceiptDetail.getInboundQty().multiply(inbReceiptDetail.getPackUnit());
 
             move.setQty(inboundUnitQty);
-            move.setItemId(inbReceiptDetail.getItemId());
+            move.setItemId(receiptItem.getItemId());
             move.setTaskId(taskId);
 
             Map<String, Object> moveInfo = new HashMap<String, Object>();
@@ -1136,7 +1154,10 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList,stockQuantList,stockLotList);
         poReceiptService.insertOrder(null,inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList,updateReceiveDetailList,obdStreamDetailList,obdDetails);
 
-
+        if(isWriteTORedis){
+            //将门店收货托盘码写入缓存
+            redisStringDao.set(containerStoreKey,storeId,2, TimeUnit.DAYS);
+        }
 
 
         //如果是大店生成收货任务,使调度起能够生成QC
