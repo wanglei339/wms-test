@@ -10,6 +10,7 @@ import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.po.*;
 import com.lsh.wms.model.so.ObdDetail;
@@ -64,6 +65,9 @@ public class PoReceiptService {
 
     @Autowired
     private SoOrderService soOrderService;
+
+    @Autowired
+    private StockSummaryService stockSummaryService;
 
     /**
      * 插入InbReceiptHeader及List<InbReceiptDetail>
@@ -135,6 +139,16 @@ public class PoReceiptService {
             //stockQuantService.move((StockMove) moveInfo.get("move"), lot);
         }
         stockMoveService.move(stockMovesList);
+        if (ibdHeader.getOrderType() == PoConstant.ORDER_TYPE_CPO) {
+            Collections.sort(stockMovesList, new Comparator<StockMove>() {
+                public int compare(StockMove o1, StockMove o2) {
+                    return o1.getItemId().compareTo(o2.getItemId());
+                }
+            });
+            for (StockMove move: stockMovesList) {
+                stockSummaryService.allocPresale(move.getItemId(), move.getQty(), ibdHeader.getOrderId());
+            }
+        }
     }
 
     /**

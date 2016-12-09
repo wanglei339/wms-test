@@ -27,6 +27,7 @@ import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
@@ -110,6 +111,8 @@ public class SeedTaskHandler extends AbsTaskHandler {
     private ITaskRpcService iTaskRpcService;
     @Autowired
     CsiCustomerService csiCustomerService;
+    @Autowired
+    private StockSummaryService stockSummaryService;
 
     private static Logger logger = LoggerFactory.getLogger(SeedTaskHandler.class);
 
@@ -264,6 +267,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
             return;
         }
         SeedingTaskHead head = (SeedingTaskHead)entry.getTaskHead();
+
         head.setStatus(TaskConstant.Done);
         seedTaskHeadService.update(head);
 
@@ -346,7 +350,9 @@ public class SeedTaskHandler extends AbsTaskHandler {
         move.setToContainerId(head.getRealContainerId());
         move.setQty(info.getQty());
         move.setTaskId(taskId);
+        move.setItemId(info.getItemId());
         if(info.getSubType().compareTo(2L)==0) {
+            // 订单播种，这里的货是不收货直接播种
             StockLot lot =new StockLot();
             CsiSupplier supplier = csiSupplierService.getSupplier(ibdHeader.getSupplierCode(),ibdHeader.getOwnerUid());
             lot.setItemId(info.getItemId());
@@ -360,8 +366,23 @@ public class SeedTaskHandler extends AbsTaskHandler {
             moveService.move(move, lot);
             ReceiptRequest receiptRequest = this.fillReceipt(entry);
             seedRpcService.insertReceipt(receiptRequest);
+            // 直流订单在此预占库存
+            stockSummaryService.allocPresale(move.getItemId(), move.getQty(), info.getOrderId());
         }else {
+            // 托盘播种，这里的货是已经收过的
             moveService.move(move);
+        }
+        if(head.getRequireQty().compareTo(info.getQty())>0) {
+            info.setTaskId(0L);
+            info.setId(0L);
+            info.setStatus(TaskConstant.Draft);
+            info.setPlanId(info.getOperator());
+            info.setContainerId(info.getContainerId());
+            head.setRequireQty(head.getRequireQty().subtract(info.getQty()));
+            head.setStatus(TaskConstant.Draft);
+            entry.setTaskInfo(info);
+            entry.setTaskHead(head);
+            iTaskRpcService.create(TaskConstant.TYPE_SEED, entry);
         }
     }
     public void updteConcrete(TaskEntry entry) {

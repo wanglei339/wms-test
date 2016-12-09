@@ -175,6 +175,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     //创建货架补货任务
     private void createShelfProcurement() throws BizCheckedException {
         Map<String,Object> queryMap = new HashMap<String, Object>();
+        Map<String,Object> mapQuery =new HashMap<String, Object>();
         //获取所有货架拣货位的位置信息
         List<BaseinfoLocation> shelfLocationList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.SHELF, BinUsageConstant.BIN_UASGE_PICK);
         //获取所有货架的存储位
@@ -185,6 +186,9 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationByLocationID(shelfCollectionBin.getLocationId());
 
             for (BaseinfoItemLocation itemLocation : itemLocationList) {
+                if(!itemLocation.getItemId().equals(242931940209440l)){
+                    continue;
+                }
                 //判断商品是否需要补货
                 if (rpcService.needProcurement(itemLocation.getPickLocationid(), itemLocation.getItemId())) {
                     //该位置当前是否有补货任务
@@ -206,8 +210,8 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     }
 
                     BigDecimal maxQty = itemLocation.getMaxQty();
-                    queryMap.put("locationId", itemLocation.getPickLocationid());
-                    BigDecimal nowQuant = quantService.getQty(queryMap);
+                    mapQuery.put("locationId", itemLocation.getPickLocationid());
+                    BigDecimal nowQuant = quantService.getQty(mapQuery);
 
 //                    //取库位中库存最小的
 //                    BigDecimal total = BigDecimal.ZERO;
@@ -241,11 +245,23 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     List<StockQuant> sortQuants = this.sortQuant(quantList);
 
                     for(StockQuant quant:sortQuants) {
-                        queryMap.put("locationId", quant.getLocationId());
-                        BigDecimal qty = quantService.getQty(queryMap);
+
+                        //判断存货位是否有捡货任务
+                        Map<String,Object> checkMap = new HashMap<String, Object>();
+                        checkMap.put("fromLocationId",quant.getLocationId());
+                        checkMap.put("type", TaskConstant.TYPE_PROCUREMENT);
+                        checkMap.put("valid", 1);
+                        List<TaskInfo> checkTaskInfos = baseTaskService.getTaskInfoList(checkMap);
+                        if(checkTaskInfos!=null && checkTaskInfos.size()>0){
+                            continue;
+                        }
+
+
+                        mapQuery.put("locationId", quant.getLocationId());
+                        BigDecimal qty = quantService.getQty(mapQuery);
+                        nowQuant = nowQuant.add(qty);
                         if (nowQuant.compareTo(maxQty) < 0) {
                             // 创建任务
-                            nowQuant = nowQuant.add(qty);
 
                             StockTransferPlan plan = new StockTransferPlan();
                             plan.setContainerId(quant.getContainerId());
@@ -261,8 +277,8 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                             plan.setPackName(quant.getPackName());
                             plan.setPackUnit(quant.getPackUnit());
                             plan.setSubType(1L);//整托
-                            plan.setUomQty(qty);
-                            this.checkAndFillPlan(plan);
+                            plan.setQty(qty);
+
                             this.addProcurementPlan(plan);
                         }
                     }
@@ -357,6 +373,8 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     //创建阁楼补货任务
     private void createLoftProcurement() throws BizCheckedException {
         Map<String,Object> queryMap = new HashMap<String, Object>();
+        Map<String,Object> mapQuery =new HashMap<String, Object>();
+
         //获取所有阁楼拣货位的位置信息
         List<BaseinfoLocation> loftPickLocationList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.LOFT, BinUsageConstant.BIN_UASGE_PICK);
         //获取所有阁楼存货位的信息
@@ -383,13 +401,23 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     }
                     BigDecimal maxQty = itemLocation.getMaxQty();
                     BaseinfoItem item = itemService.getItem(itemLocation.getItemId());
-                    queryMap.put("locationId", itemLocation.getPickLocationid());
-                    BigDecimal nowQuant = quantService.getQty(queryMap);
+                    mapQuery.put("locationId", itemLocation.getPickLocationid());
+                    BigDecimal nowQuant = quantService.getQty(mapQuery);
                     //根据库存数量和过期时间排序
                     List<StockQuant> sortQuants = this.sortQuant(quantList);
                     for(StockQuant quant:sortQuants) {
-                        queryMap.put("locationId",quant.getLocationId());
-                        BigDecimal qty = quantService.getQty(queryMap);
+                        //判断存货位是否有捡货任务
+                        Map<String,Object> checkMap = new HashMap<String, Object>();
+                        checkMap.put("fromLocationId",quant.getLocationId());
+                        checkMap.put("type", TaskConstant.TYPE_PROCUREMENT);
+                        checkMap.put("valid", 1);
+                        List<TaskInfo> checkTaskInfos = baseTaskService.getTaskInfoList(checkMap);
+                        if(checkTaskInfos!=null && checkTaskInfos.size()>0){
+                            continue;
+                        }
+
+                        mapQuery.put("locationId",quant.getLocationId());
+                        BigDecimal qty = quantService.getQty(mapQuery);
                         if (nowQuant.compareTo(maxQty)<0) {
                             nowQuant = nowQuant.add(qty);
                             // 创建任务
@@ -660,13 +688,18 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                    qtyMap.put(quant.getLocationId(),one);
                    if (qtyMap.get(sortQuant.getLocationId()).compareTo(one) > 0) {
                        quantList.add(i,quant);
+                       break;
                    }
                }else {
                    queryMap.put("locationId", quant.getLocationId());
                    BigDecimal one = quantService.getQty(queryMap);
                    qtyMap.put(quant.getLocationId(),one);
                    quantList.add(quant);
+                   break;
                }
+           }
+           if(quantList.size()==0){
+               quantList.add(quant);
            }
        }
         return quantList;
