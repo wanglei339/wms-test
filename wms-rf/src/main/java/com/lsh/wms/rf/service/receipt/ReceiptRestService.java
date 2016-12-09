@@ -123,12 +123,10 @@ public class ReceiptRestService implements IReceiptRfService {
          *根据用户ID获取员工ID
          */
 
-
-        /*if(RequestUtils.getHeader("uid") == null){
-            throw new BizCheckedException("1020001", "参数不能为空");
-        }*/
-
         String uid = RequestUtils.getHeader("uid");
+        if(RequestUtils.getHeader("uid") == null){
+            throw new BizCheckedException("1020001", "参数不能为空");
+        }
         SysUser sysUser =  sysUserService.getSysUserByUid(uid);
         //员工ID
         Long staffId = null;
@@ -157,7 +155,12 @@ public class ReceiptRestService implements IReceiptRfService {
             String packName = receiptItem.getPackName();
             BigDecimal inboundQty = receiptItem.getInboundQty();
             BigDecimal scatterQty = receiptItem.getScatterQty();
-
+            if(inboundQty == null){
+                inboundQty = BigDecimal.ZERO;
+            }
+            if(scatterQty == null){
+                scatterQty = BigDecimal.ZERO;
+            }
             if("EA".equals(packName) && inboundQty.compareTo(BigDecimal.ZERO) > 0){
                 throw new BizCheckedException("2021111");
             }
@@ -201,8 +204,8 @@ public class ReceiptRestService implements IReceiptRfService {
                     }
                 }
             }else{
-                if (PoConstant.ORDER_TYPE_TRANSFERS != orderType){
-                    //在库,且不是调拨,根据商品主数据,有保质期时,生产日期/到期日,必须输入一个
+                //if (PoConstant.ORDER_TYPE_TRANSFERS != orderType){
+                    //在库,根据商品主数据,有保质期时,生产日期/到期日,必须输入一个
                     if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null){
                         if(baseinfoItem.getIsShelfLifeValid() == 1){
                             throw new BizCheckedException("2020008");//生产日期不能为空
@@ -210,7 +213,7 @@ public class ReceiptRestService implements IReceiptRfService {
                             receiptItem.setProTime(new Date());//没有保质期,以当前时间作为生产日期
                         }
                     }
-                }
+               // }
 
             }
 
@@ -467,7 +470,7 @@ public class ReceiptRestService implements IReceiptRfService {
         orderInfoMap.put("batchNeeded", baseinfoItem.getBatchNeeded());
         //码盘规则
         orderInfoMap.put("pile",baseinfoItem.getPileX()+ "*" + baseinfoItem.getPileY() + "*" + baseinfoItem.getPileZ());
-        Integer orderType = ibdHeader.getOrderStatus();
+        Integer orderType = ibdHeader.getOrderType();
         if(orderType == PoConstant.ORDER_TYPE_CPO){
             //直流,根据商品类型判断是否需要输入
             BaseinfoItemType baseinfoItemType = iItemTypeRpcService.getBaseinfoItemTypeByItemId(baseinfoItem.getItemType());
@@ -476,8 +479,8 @@ public class ReceiptRestService implements IReceiptRfService {
             }else{
                 orderInfoMap.put("isNeedProTime",0);//否
             }
-        }else if (PoConstant.ORDER_TYPE_TRANSFERS != orderType){
-            //非直流,非调拨单 根据商品是否有保质期判断是否需要输入
+        }else{
+            //在库 根据商品是否有保质期判断是否需要输入
             if(baseinfoItem.getIsShelfLifeValid() == 1){
                 orderInfoMap.put("isNeedProTime",1);//16/12/6  需要输入生产日期
             }else{

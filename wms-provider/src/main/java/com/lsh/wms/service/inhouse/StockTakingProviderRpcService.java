@@ -252,8 +252,10 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
 
             for (StockQuant quant : quantList) {
                 BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
-                if (location.getType().compareTo(LocationConstant.SHELFS) == 0 || location.getType().compareTo(LocationConstant.LOFTS) == 0 || location.getType().compareTo(LocationConstant.SPLIT_AREA) == 0 || location.getType().compareTo(LocationConstant.FLOOR) == 0 || (location.getType().equals(LocationConstant.BIN) && location.getBinUsage().equals(BinUsageConstant.BIN_FLOOR_STORE))) {
-                    longs.add(quant.getLocationId());
+                if(location.getRegionType().equals(LocationConstant.SHELFS) || location.getRegionType().equals(LocationConstant.LOFTS) || location.getRegionType().equals(LocationConstant.SPLIT_AREA)){
+                    if(!location.getBinUsage().equals(0)) {
+                        longs.add(quant.getLocationId());
+                    }
                 }
             }
             locationList.retainAll(longs);
