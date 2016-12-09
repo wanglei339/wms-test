@@ -21,6 +21,7 @@ import com.lsh.wms.api.model.so.SoRequest;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.so.IObdService;
 import com.lsh.wms.api.service.so.ISoRpcService;
+import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
@@ -103,7 +104,12 @@ public class ObdService implements IObdService{
         }
 
         for(com.lsh.wms.api.model.so.ObdDetail obdDetail : details){
-            List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(request.getOwnerUid(),obdDetail.getSkuCode());
+            String skuCode = obdDetail.getSkuCode();
+//            if(CsiConstan.OWNER_WUMART == request.getOwnerUid()){
+//                //如果货主是物美 将skucode前面的0去掉
+//                skuCode = obdDetail.getSkuCode().replaceAll("^(0+)", "");
+//            }
+            List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(request.getOwnerUid(),skuCode);
             if(baseinfoItemList == null || baseinfoItemList.size() <= 0) {
                 throw new BizCheckedException("2770001");
             }
