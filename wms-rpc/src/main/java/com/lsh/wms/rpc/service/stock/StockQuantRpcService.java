@@ -213,8 +213,8 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             result.put("total", summary == null ? BigDecimal.ZERO : summary.getInhouseQty());
             result.put("reserved", summary == null ? BigDecimal.ZERO : summary.getAllocQty());
             result.put("available", summary == null ? BigDecimal.ZERO : summary.getAvailQty());
-            result.put("defect", summary.getDefectQty());
-            result.put("refund", summary.getBackQty());
+            result.put("defect", summary == null ? BigDecimal.ZERO : summary.getDefectQty());
+            result.put("refund", summary == null ? BigDecimal.ZERO : summary.getBackQty());
             itemQuant.put(itemId, result);
         }
         return itemQuant;
