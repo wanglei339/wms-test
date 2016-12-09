@@ -53,6 +53,9 @@ public class AtticShelveTaskDetailService {
 
     @Transactional(readOnly = false)
     public void create(AtticShelveTaskDetail detail) {
+        //锁库位
+        locationService.lockLocation(detail.getAllocLocationId());
+
         detail.setCreatedAt(DateUtils.getCurrentSeconds());
         detailDao.insert(detail);
     }
