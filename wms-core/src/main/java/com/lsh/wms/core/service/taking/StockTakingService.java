@@ -253,6 +253,18 @@ public class StockTakingService {
         return detailDao.getStockTakingDetailList(queryMap);
 
     }
+    public StockTakingDetail getDetailByTaskIdAndLocation(Long taskId,Long locationId) {
+        Map<String, Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("taskId", taskId);
+        queryMap.put("locationId", locationId);
+        List<StockTakingDetail> list = detailDao.getStockTakingDetailList(queryMap);
+        if(list == null || list.size() <= 0){
+            return null;
+        }else{
+            return list.get(0);
+        }
+
+    }
 
     public List<StockTakingDetail> getDetailByTakingId(Long takingId) {
         Map<String, Object> queryMap = new HashMap<String, Object>();
