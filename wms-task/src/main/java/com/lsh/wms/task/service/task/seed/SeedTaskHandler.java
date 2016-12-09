@@ -9,10 +9,7 @@ import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.seed.ISeedRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
-import com.lsh.wms.core.constant.LocationConstant;
-import com.lsh.wms.core.constant.RedisKeyConstant;
-import com.lsh.wms.core.constant.SoConstant;
-import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
@@ -277,7 +274,10 @@ public class SeedTaskHandler extends AbsTaskHandler {
         if(ibdHeader == null) {
             throw new BizCheckedException("2020001");
         }
-
+        if(!ibdHeader.getOrderStatus().equals(PoConstant.ORDER_RECTIPTING)){
+            ibdHeader.setOrderStatus(PoConstant.ORDER_RECTIPTING);
+            poOrderService.updateInbPoHeader(ibdHeader);
+        }
         //收货播种
         if(info.getSubType().compareTo(1L)==0){
             StockQuantCondition condition = new StockQuantCondition();

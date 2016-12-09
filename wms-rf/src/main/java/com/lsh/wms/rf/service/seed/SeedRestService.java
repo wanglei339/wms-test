@@ -390,6 +390,7 @@ public class SeedRestService implements ISeedRestService {
                 }
 
                 info.setQty(inboundUnitQty);
+                info.setOperator(uid);
                 head.setRealContainerId(containerId);
                 head.setIsUseExceptionCode(is_use_code==true?1:0);
                 entry.setTaskInfo(info);
