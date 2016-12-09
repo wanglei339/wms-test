@@ -4,6 +4,7 @@ import com.lsh.wms.api.model.wumart.CreateIbdHeader;
 import com.lsh.wms.api.model.wumart.CreateMovingHeader;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 /**
@@ -25,7 +26,7 @@ public interface IWuMartSap {
 
     String stockMoving2Sap(CreateMovingHeader header);
 
-    String map2Sap();
+    BigDecimal map2Sap(String skuCode);
 
 
 

@@ -27,6 +27,7 @@ import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.core.service.wave.WaveService;
@@ -110,6 +111,8 @@ public class SeedTaskHandler extends AbsTaskHandler {
     private ITaskRpcService iTaskRpcService;
     @Autowired
     CsiCustomerService csiCustomerService;
+    @Autowired
+    private StockSummaryService stockSummaryService;
 
     private static Logger logger = LoggerFactory.getLogger(SeedTaskHandler.class);
 
@@ -349,6 +352,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
         move.setTaskId(taskId);
         move.setItemId(info.getItemId());
         if(info.getSubType().compareTo(2L)==0) {
+            // 订单播种，这里的货是不收货直接播种
             StockLot lot =new StockLot();
             CsiSupplier supplier = csiSupplierService.getSupplier(ibdHeader.getSupplierCode(),ibdHeader.getOwnerUid());
             lot.setItemId(info.getItemId());
@@ -362,7 +366,10 @@ public class SeedTaskHandler extends AbsTaskHandler {
             moveService.move(move, lot);
             ReceiptRequest receiptRequest = this.fillReceipt(entry);
             seedRpcService.insertReceipt(receiptRequest);
+            // 直流订单在此预占库存
+            stockSummaryService.allocPresale(move.getItemId(), move.getQty(), info.getOrderId());
         }else {
+            // 托盘播种，这里的货是已经收过的
             moveService.move(move);
         }
         if(head.getRequireQty().compareTo(info.getQty())>0) {
