@@ -281,7 +281,7 @@ public class StockTransferCore {
             }
         }
         Long containerId = taskInfo.getContainerId();
-        Long toLocationId = locationService.getWarehouseLocation().getLocationId();
+        Long toLocationId = locationService.getFatherRegionBySonId(taskInfo.getFromLocationId()).getLocationId();
         if (taskInfo.getSubType().compareTo(1L) == 0) {
             stockMoveService.moveWholeContainer(containerId, taskId, uid, fromLocationId, toLocationId);
         } else {
