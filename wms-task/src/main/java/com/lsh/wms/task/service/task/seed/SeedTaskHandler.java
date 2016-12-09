@@ -367,7 +367,18 @@ public class SeedTaskHandler extends AbsTaskHandler {
             ReceiptRequest receiptRequest = this.fillReceipt(entry);
             seedRpcService.insertReceipt(receiptRequest);
             // 直流订单在此预占库存
-            stockSummaryService.allocPresale(move.getItemId(), move.getQty(), info.getOrderId());
+            StockMove presale = new StockMove();
+            presale.setItemId(move.getItemId());
+            presale.setFromLocationId(locationService.getConsumerArea().getLocationId());
+            presale.setToLocationId(locationService.getSoAreaDirect().getLocationId());
+            presale.setQty(move.getQty());
+            presale.setTaskId(info.getOrderId());
+            List<StockMove> moveList = Arrays.asList(presale);
+            stockSummaryService.alloc(moveList);
+
+
+
+
         }else {
             // 托盘播种，这里的货是已经收过的
             moveService.move(move);

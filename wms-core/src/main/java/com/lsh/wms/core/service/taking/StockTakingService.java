@@ -362,7 +362,8 @@ public class StockTakingService {
             //同步库存判断是直流还是在库的
             Long businessMode = qcInfo.getBusinessMode();
             if (TaskConstant.MODE_DIRECT.equals(businessMode)){
-                stockSummaryService.eliminateDiff(move);
+                List<StockMove> diffList = Arrays.asList(move);
+                stockSummaryService.eliminateDiff(diffList);
             }
         } catch (Exception e) {
             logger.error("MOVE STOCK FAIL , containerId is " + move.getToContainerId() + "taskId is " + move.getTaskId() + e.getMessage());

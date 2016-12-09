@@ -4,9 +4,12 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.dao.so.ObdDetailDao;
 import com.lsh.wms.core.dao.so.ObdHeaderDao;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
+import com.lsh.wms.model.stock.StockMove;
+import com.lsh.wms.model.stock.StockSummary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,20 +39,36 @@ public class SoOrderService {
     @Autowired
     private StockSummaryService stockSummaryService;
 
+    @Autowired
+    private LocationService locationService;
+
     /**
      * 插入OutbSoHeader及OutbSoDetail
      *
      * @param obdHeader
      * @param obdDetailList
      */
-    @Transactional
+    @Transactional(readOnly = false)
     public void insertOrder(ObdHeader obdHeader, List<ObdDetail> obdDetailList) {
         obdHeader.setCreatedAt(DateUtils.getCurrentSeconds());
         obdHeaderDao.insert(obdHeader);
 
         obdDetailDao.batchInsert(obdDetailList);
+
         if(!obdHeader.getOrderType().equals(SoConstant.ORDER_TYPE_DIRECT)) {
-            stockSummaryService.alloc(obdHeader, obdDetailList);
+            // 在库SO预占库存。
+            List<StockMove> moveList = new ArrayList<StockMove>();
+            // 根据排序后的detailIst进行库存占用
+            for (ObdDetail detail : obdDetailList) {
+                StockMove move = new StockMove();
+                move.setItemId(detail.getItemId());
+                move.setQty(detail.getOrderQty());
+                move.setFromLocationId(locationService.getConsumerArea().getLocationId());
+                move.setToLocationId(locationService.getSoAreaInbound().getLocationId());
+                move.setTaskId(detail.getOrderId());
+                moveList.add(move);
+            }
+            stockSummaryService.alloc(moveList);
         }
     }
 

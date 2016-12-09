@@ -4,8 +4,10 @@ import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.model.so.ObdStreamDetail;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.dao.po.*;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockMoveService;
@@ -68,6 +70,9 @@ public class PoReceiptService {
 
     @Autowired
     private StockSummaryService stockSummaryService;
+
+    @Autowired
+    private LocationService locationService;
 
     /**
      * 插入InbReceiptHeader及List<InbReceiptDetail>
@@ -145,9 +150,18 @@ public class PoReceiptService {
                     return o1.getItemId().compareTo(o2.getItemId());
                 }
             });
-            for (StockMove move: stockMovesList) {
-                stockSummaryService.allocPresale(move.getItemId(), move.getQty(), ibdHeader.getOrderId());
+            List<StockMove> presaleList = new ArrayList<StockMove>();
+            for(StockMove move : stockMovesList) {
+                // 直流订单在此预占库存
+                StockMove presale = new StockMove();
+                presale.setItemId(move.getItemId());
+                presale.setFromLocationId(locationService.getConsumerArea().getLocationId());
+                presale.setToLocationId(locationService.getSoAreaDirect().getLocationId());
+                presale.setQty(move.getQty());
+                presale.setTaskId(ibdHeader.getOrderId());
+                presaleList.add(presale);
             }
+            stockSummaryService.alloc(presaleList);
         }
     }
 
