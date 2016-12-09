@@ -157,7 +157,12 @@ public class ReceiptRestService implements IReceiptRfService {
             String packName = receiptItem.getPackName();
             BigDecimal inboundQty = receiptItem.getInboundQty();
             BigDecimal scatterQty = receiptItem.getScatterQty();
-
+            if(inboundQty == null){
+                inboundQty = BigDecimal.ZERO;
+            }
+            if(scatterQty == null){
+                scatterQty = BigDecimal.ZERO;
+            }
             if("EA".equals(packName) && inboundQty.compareTo(BigDecimal.ZERO) > 0){
                 throw new BizCheckedException("2021111");
             }
