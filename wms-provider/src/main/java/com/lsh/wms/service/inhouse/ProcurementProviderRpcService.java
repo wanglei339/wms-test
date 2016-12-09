@@ -250,6 +250,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                         Map<String,Object> checkMap = new HashMap<String, Object>();
                         checkMap.put("fromLocationId",quant.getLocationId());
                         checkMap.put("type", TaskConstant.TYPE_PROCUREMENT);
+                        checkMap.put("valid", 1);
                         List<TaskInfo> checkTaskInfos = baseTaskService.getTaskInfoList(checkMap);
                         if(checkTaskInfos!=null && checkTaskInfos.size()>0){
                             continue;
@@ -409,6 +410,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                         Map<String,Object> checkMap = new HashMap<String, Object>();
                         checkMap.put("fromLocationId",quant.getLocationId());
                         checkMap.put("type", TaskConstant.TYPE_PROCUREMENT);
+                        checkMap.put("valid", 1);
                         List<TaskInfo> checkTaskInfos = baseTaskService.getTaskInfoList(checkMap);
                         if(checkTaskInfos!=null && checkTaskInfos.size()>0){
                             continue;
