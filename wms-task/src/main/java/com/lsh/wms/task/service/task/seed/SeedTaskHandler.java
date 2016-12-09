@@ -439,7 +439,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
             ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherIdAndType(obdOtherId, SoConstant.ORDER_TYPE_DIRECT);
 
 //            if(obdHeader.getDeliveryCode().equals(head.getStoreNo().toString())) {
-            String key = StrUtils.formatString(RedisKeyConstant.PO_STORE, info.getOrderId(), head.getStoreNo());
+            String key = StrUtils.formatString(RedisKeyConstant.PO_STORE, info.getOrderId(), obdHeader.getDeliveryCode());
             orderMap.put(key,obdHeader.getOrderId());
 //            }
         }
