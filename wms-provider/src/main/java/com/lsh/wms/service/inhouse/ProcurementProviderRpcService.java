@@ -245,6 +245,17 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     List<StockQuant> sortQuants = this.sortQuant(quantList);
 
                     for(StockQuant quant:sortQuants) {
+
+                        //判断存货位是否有捡货任务
+                        Map<String,Object> checkMap = new HashMap<String, Object>();
+                        checkMap.put("fromLocationId",quant.getLocationId());
+                        checkMap.put("type", TaskConstant.TYPE_PROCUREMENT);
+                        List<TaskInfo> checkTaskInfos = baseTaskService.getTaskInfoList(checkMap);
+                        if(checkTaskInfos!=null && checkTaskInfos.size()>0){
+                            continue;
+                        }
+
+
                         mapQuery.put("locationId", quant.getLocationId());
                         BigDecimal qty = quantService.getQty(mapQuery);
                         nowQuant = nowQuant.add(qty);
@@ -394,6 +405,15 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                     //根据库存数量和过期时间排序
                     List<StockQuant> sortQuants = this.sortQuant(quantList);
                     for(StockQuant quant:sortQuants) {
+                        //判断存货位是否有捡货任务
+                        Map<String,Object> checkMap = new HashMap<String, Object>();
+                        checkMap.put("fromLocationId",quant.getLocationId());
+                        checkMap.put("type", TaskConstant.TYPE_PROCUREMENT);
+                        List<TaskInfo> checkTaskInfos = baseTaskService.getTaskInfoList(checkMap);
+                        if(checkTaskInfos!=null && checkTaskInfos.size()>0){
+                            continue;
+                        }
+
                         mapQuery.put("locationId",quant.getLocationId());
                         BigDecimal qty = quantService.getQty(mapQuery);
                         if (nowQuant.compareTo(maxQty)<0) {
