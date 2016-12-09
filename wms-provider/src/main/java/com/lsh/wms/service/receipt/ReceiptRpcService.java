@@ -495,12 +495,14 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     //直流生产日期为空
                     productDate = new Date();
                 }
+
                //修改失效日期
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(productDate);
                 calendar.add(calendar.DAY_OF_YEAR,baseinfoItem.getShelfLife().intValue());
                 Long expireDate = calendar.getTime().getTime()/1000;
 
+                logger.info("insert order expireDate : " + expireDate);
                 StockLot stockLot = new StockLot();
                 stockLot.setLotId(lotId);
 
