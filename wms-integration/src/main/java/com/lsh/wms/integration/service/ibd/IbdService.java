@@ -30,10 +30,7 @@ import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.po.IIbdService;
 import com.lsh.wms.api.service.po.IPoRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
-import com.lsh.wms.core.constant.IntegrationConstan;
-import com.lsh.wms.core.constant.PoConstant;
-import com.lsh.wms.core.constant.SoConstant;
-import com.lsh.wms.core.constant.SysLogConstant;
+import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.service.csi.CsiSupplierService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
@@ -131,7 +128,13 @@ public class IbdService implements IIbdService {
         }
 
         for(IbdDetail ibdDetail : details){
-            List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(request.getOwnerUid(),ibdDetail.getSkuCode());
+
+            String skuCode = ibdDetail.getSkuCode();
+//            if(CsiConstan.OWNER_WUMART == request.getOwnerUid()){
+//                //如果货主是物美 将skucode前面的0去掉
+//                skuCode = ibdDetail.getSkuCode().replaceAll("^(0+)", "");
+//            }
+            List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(request.getOwnerUid(),skuCode);
             if(baseinfoItemList == null || baseinfoItemList.size() <= 0) {
                 throw new BizCheckedException("2770001");
             }

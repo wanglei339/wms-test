@@ -9,6 +9,7 @@ import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.utils.PackUtil;
+import com.lsh.wms.core.service.utils.SkuUtil;
 import com.lsh.wms.integration.service.wumartsap.WuMart;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
@@ -64,7 +65,7 @@ public class ObdSapTransporter implements ITransporter{
             ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(detail.getOrderId());
             createObdDetail.setDlvQty(PackUtil.EAQty2UomQty(outQty, detail.getPackUnit()).setScale(2,BigDecimal.ROUND_HALF_UP));
             createObdDetail.setRefItem(obdDetail.getDetailOtherId());
-            createObdDetail.setMaterial(obdDetail.getSkuCode());
+            createObdDetail.setMaterial(SkuUtil.getSkuCode(obdDetail.getSkuCode()));
             createObdDetails.add(createObdDetail);
             createObdHeader.setOrderOtherId(obdHeader.getOrderOtherId());
         }

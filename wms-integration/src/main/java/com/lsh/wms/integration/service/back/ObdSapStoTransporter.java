@@ -13,6 +13,7 @@ import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.utils.PackUtil;
+import com.lsh.wms.core.service.utils.SkuUtil;
 import com.lsh.wms.integration.service.wumartsap.WuMart;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
@@ -74,7 +75,7 @@ public class ObdSapStoTransporter implements ITransporter{
             createObdDetail.setDlvQty(PackUtil.EAQty2UomQty(outQty, detail.getPackUnit()).setScale(2,BigDecimal.ROUND_HALF_UP));
             createObdDetail.setRefDoc(obdHeader.getOrderOtherId());
             createObdDetail.setRefItem(obdDetail.getDetailOtherId());
-            createObdDetail.setMaterial(obdDetail.getSkuCode());
+            createObdDetail.setMaterial(SkuUtil.getSkuCode(obdDetail.getSkuCode()));
             createObdDetail.setOrderType(obdHeader.getOrderType());
             createObdDetail.setSalesUnit(obdDetail.getPackName());
             createObdDetails.add(createObdDetail);
