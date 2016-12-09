@@ -276,8 +276,12 @@ public class SeedRestService implements ISeedRestService {
             Long type = 0L;
             Boolean is_use_code = false;
             try{
-                inboundQty = new BigDecimal(mapQuery.get("qty").toString().trim());
-                scatterQty = new BigDecimal(mapQuery.get("scatterQty").toString().trim());
+                if(mapQuery.get("qty")!=null){
+                    inboundQty = new BigDecimal(mapQuery.get("qty").toString().trim());
+                }
+                if(mapQuery.get("scatterQty")!=null) {
+                    scatterQty = new BigDecimal(mapQuery.get("scatterQty").toString().trim());
+                }
                 taskId = Long.valueOf(mapQuery.get("taskId").toString().trim());
                 containerId = Long.valueOf(mapQuery.get("containerId").toString().trim());
                 type = Long.valueOf(mapQuery.get("type").toString().trim());
@@ -386,6 +390,7 @@ public class SeedRestService implements ISeedRestService {
                 }
 
                 info.setQty(inboundUnitQty);
+                info.setOperator(uid);
                 head.setRealContainerId(containerId);
                 head.setIsUseExceptionCode(is_use_code==true?1:0);
                 entry.setTaskInfo(info);

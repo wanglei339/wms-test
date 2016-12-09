@@ -75,18 +75,12 @@ public class SmsRestService implements ISmsRestService {
     @GET
     @Path("so")
     public String alloc(@QueryParam("order_id") String orderId) throws BizCheckedException {
-        ObdHeader header = soOrderService.getOutbSoHeaderByOrderOtherId(orderId);
-        List<com.lsh.wms.model.so.ObdDetail> obdDetailList = soOrderService.getOutbSoDetailListByOrderId(header.getOrderId());
-        stockSummaryService.alloc(header, obdDetailList);
         return JsonUtils.SUCCESS();
     }
 
     @GET
     @Path("diff")
     public String diff(@QueryParam("order_id") String orderId) throws BizCheckedException {
-        ObdHeader header = soOrderService.getOutbSoHeaderByOrderOtherId(orderId);
-        List<com.lsh.wms.model.so.ObdDetail> obdDetailList = soOrderService.getOutbSoDetailListByOrderId(header.getOrderId());
-        stockSummaryService.eliminateDiff(header, obdDetailList);
         return JsonUtils.SUCCESS();
     }
 }
