@@ -8,6 +8,7 @@ import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
+import com.lsh.wms.core.service.utils.SkuUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
@@ -70,7 +71,7 @@ public class ObdOfcTransporter implements ITransporter{
             BigDecimal outQty = detail.getDeliveryNum();
             item.setSkuQty(outQty);
             BaseinfoItem baseinfoItem = itemService.getItem(detail.getItemId());
-            item.setSupplySkuCode(baseinfoItem.getSkuCode());
+            item.setSupplySkuCode(SkuUtil.getSkuCode(baseinfoItem.getSkuCode()));
             items.add(item);
         }
         request.setDetails(items);

@@ -6,6 +6,7 @@ import com.lsh.wms.api.model.wumart.CreateIbdDetail;
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
 import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.service.po.ReceiveService;
+import com.lsh.wms.core.service.utils.SkuUtil;
 import com.lsh.wms.integration.service.wumartsap.WuMart;
 import com.lsh.wms.model.po.ReceiveDetail;
 import com.lsh.wms.model.po.ReceiveHeader;
@@ -53,7 +54,7 @@ public class IbdSapTransporter implements ITransporter {
             }
             detail.setDeliveQty(deliveQty);
             detail.setUnit(receiveDetail.getPackName());
-            detail.setMaterial(receiveDetail.getSkuCode());
+            detail.setMaterial(SkuUtil.getSkuCode(receiveDetail.getSkuCode()));
             detail.setOrderType(receiveHeader.getOrderType());
             detail.setVendMat(receiveHeader.getReceiveId().toString());
 

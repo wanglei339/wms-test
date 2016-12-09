@@ -10,6 +10,7 @@ import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemQuantRange;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiSku;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -181,6 +183,20 @@ public class ItemService {
         this.updateItem(item);
     }
 
+
+    /**
+     * 查找货主为物美的所有商品 返回商品编码集合
+     */
+    public List<String> getSkuCodeList(){
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("ownerId",1);
+        List<BaseinfoItem> itemList = itemDao.getBaseinfoItemList(map);
+        List<String> skuCodes = new ArrayList<String>();
+        for (BaseinfoItem item : itemList) {
+            skuCodes.add(item.getSkuCode());
+        }
+        return skuCodes;
+    }
 
 
 }

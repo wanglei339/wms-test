@@ -7,6 +7,7 @@ import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.core.service.utils.SkuUtil;
 import com.lsh.wms.integration.service.wumartsap.WuMart;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
@@ -61,7 +62,7 @@ public class MovingTransporter implements ITransporter{
         //detail.setToLocation("");
         detail.setQty(move.getQty());
         BaseinfoItem item = itemService.getItem(move.getItemId());
-        detail.setSkuCode(item.getSkuCode());
+        detail.setSkuCode(SkuUtil.getSkuCode(item.getSkuCode()));
         list.add(detail);
         header.setDetails(list);
         wuMart.stockMoving2Sap(header,sysLog);
