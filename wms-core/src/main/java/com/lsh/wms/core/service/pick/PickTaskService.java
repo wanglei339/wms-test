@@ -169,7 +169,7 @@ public class PickTaskService {
                     differenceZoneReport.setSkuCode(item.getSkuCode());
                     differenceZoneReport.setFromLocationId(locationId);
                     differenceZoneReport.setSourceType(ReportConstant.SOURCE_TYPE_PICK);
-                    differenceZoneReport.setUnitName("EA");
+                    differenceZoneReport.setUnitName(pickDetail.getAllocUnitName());
                     differenceZoneReport.setQty(moveQty);
                     differenceZoneReport.setDirect(ReportConstant.DIRECT_IN);
                     differenceZoneReport.setOperator(staffId);
