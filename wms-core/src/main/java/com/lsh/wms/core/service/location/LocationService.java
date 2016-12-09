@@ -821,6 +821,10 @@ public class LocationService {
 
         //获取该区域最大的通道
         List<BaseinfoLocation> regionPassages = this.getChildrenLocationsByType(passage.getFatherId(), LocationConstant.PASSAGE);
+        if (null == regionPassages || regionPassages.isEmpty()) {
+            return null;
+        }
+
         //通道号降序排列
         Collections.sort(regionPassages, new Comparator<BaseinfoLocation>() {
             public int compare(BaseinfoLocation o1, BaseinfoLocation o2) {
@@ -830,43 +834,57 @@ public class LocationService {
 
         long maxPassageNo = regionPassages.get(0).getPassageNo();
 
-        long count = 0L;
-        while (null == allNearShelfSubs || allNearShelfSubs.isEmpty()) {
+        int count = -1;
 
+        while (tempLocations.isEmpty()) {
+            count++;
             passageNos.clear();
-            if (passage.getPassageNo() - count > 0) {
-                passageNos.add(passage.getPassageNo() - count);
+            //先向左找
+            int step = count / 2;
+            if (count % 2 == 0) {
+                if (passage.getPassageNo() - step > 0) {
+                    passageNos.add(passage.getPassageNo() - step);
+                } else if (passage.getPassageNo() + step < maxPassageNo) {
+                    continue;
+                }
+            } else {    //向右
+                if (passage.getPassageNo() + step <= maxPassageNo) {
+                    passageNos.add(passage.getPassageNo() + step);
+                } else if (passage.getPassageNo() - (step + 1) > 0) {
+                    continue;
+                }
             }
 
-            if (passage.getPassageNo() + count <= maxPassageNo) {
-                passageNos.add(passage.getPassageNo() + count);
-            }
-            allNearShelfSubs = this.getNearPassageStoreBins(passage.getLocationId(), passageNos);
-
+            //到达边界,没有值的时候
             if (passageNos.isEmpty()) {
                 break;
             }
-            count++;
-        }
 
-        // 排除已计算过的位置
-        if (calcLocationIds != null) {
-            for (BaseinfoLocation location : allNearShelfSubs) {
-                if (!calcLocationIds.contains(location.getLocationId())) {
-                    tempLocations.add(location);
+            allNearShelfSubs = this.getNearPassageStoreBins(passage.getLocationId(), passageNos);
+
+
+            if (null != allNearShelfSubs && !allNearShelfSubs.isEmpty()) {
+
+                // 排除已计算过的位置
+                if (calcLocationIds != null) {
+                    for (BaseinfoLocation location : allNearShelfSubs) {
+                        if (!calcLocationIds.contains(location.getLocationId())) {
+                            tempLocations.add(location);
+                        }
+                    }
+                } else {
+                    tempLocations.addAll(allNearShelfSubs);
                 }
             }
-        } else {
-            tempLocations.addAll(allNearShelfSubs);
         }
 
-
-        if (null == allNearShelfSubs || allNearShelfSubs.isEmpty()) {
+        if (null == tempLocations || tempLocations.isEmpty()) {
             return null;
         }
 
+
         //筛选相邻两货架间距离当前拣货位最近的存货位
-        BaseinfoLocation nearestLocation = this.filterNearestBinAlgorithm(tempLocations, pickingLocation, shelfLocationSelf, BinUsageConstant.BIN_UASGE_STORE);
+        BaseinfoLocation nearestLocation = this.filterNearestBinAlgorithm(tempLocations, pickingLocation, shelfLocationSelf);
 
         return nearestLocation;
     }
@@ -878,10 +896,9 @@ public class LocationService {
      * @param locations         筛选的存储位置集合
      * @param pickingLocation   拣货位的位置
      * @param shelfLocationSelf 拣货位所在货架(用于判断是否是同一货架)
-     * @param binUsage          存还是拣货
      * @return
      */
-    public BaseinfoLocation filterNearestBinAlgorithm(List<BaseinfoLocation> locations, BaseinfoLocation pickingLocation, BaseinfoLocation shelfLocationSelf, Integer binUsage) {
+    public BaseinfoLocation filterNearestBinAlgorithm(List<BaseinfoLocation> locations, BaseinfoLocation pickingLocation, BaseinfoLocation shelfLocationSelf) {
         List<Map<String, Object>> storeBinDistanceList = new ArrayList<Map<String, Object>>();
         //放入location和当前location到目标位置的距离
         for (BaseinfoLocation temp : locations) {
