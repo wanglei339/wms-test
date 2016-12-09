@@ -206,8 +206,8 @@ public class ReceiptRestService implements IReceiptRfService {
                     }
                 }
             }else{
-                if (PoConstant.ORDER_TYPE_TRANSFERS != orderType){
-                    //在库,且不是调拨,根据商品主数据,有保质期时,生产日期/到期日,必须输入一个
+                //if (PoConstant.ORDER_TYPE_TRANSFERS != orderType){
+                    //在库,根据商品主数据,有保质期时,生产日期/到期日,必须输入一个
                     if(receiptItem.getProTime() == null && receiptItem.getDueTime() == null){
                         if(baseinfoItem.getIsShelfLifeValid() == 1){
                             throw new BizCheckedException("2020008");//生产日期不能为空
@@ -215,7 +215,7 @@ public class ReceiptRestService implements IReceiptRfService {
                             receiptItem.setProTime(new Date());//没有保质期,以当前时间作为生产日期
                         }
                     }
-                }
+               // }
 
             }
 
@@ -481,8 +481,8 @@ public class ReceiptRestService implements IReceiptRfService {
             }else{
                 orderInfoMap.put("isNeedProTime",0);//否
             }
-        }else if (PoConstant.ORDER_TYPE_TRANSFERS != orderType){
-            //非直流,非调拨单 根据商品是否有保质期判断是否需要输入
+        }else{
+            //在库 根据商品是否有保质期判断是否需要输入
             if(baseinfoItem.getIsShelfLifeValid() == 1){
                 orderInfoMap.put("isNeedProTime",1);//16/12/6  需要输入生产日期
             }else{
