@@ -297,7 +297,7 @@ public class LocationRestService implements ILocationRestService {
     @GET
     @Path("getAllShelfs")
     public String getAllShelfs() {
-        return JsonUtils.SUCCESS(locationRpcService.getAllShelfs());
+//        return JsonUtils.SUCCESS(locationRpcService.getAllShelfs());
 //        return JsonUtils.SUCCESS(locationRpcService.getColletionBins());
 //          return JsonUtils.SUCCESS(locationRpcService.sortSowLocationByStoreNo());
 //        return JsonUtils.SUCCESS(locationService.getLocation(-1L));
@@ -321,8 +321,8 @@ public class LocationRestService implements ILocationRestService {
 //        pickDetails.add(waveService.getWaveDetailById(151));
 //        pickDetails.add(waveService.getWaveDetailById(152));
 //        pickRpcService.calcPickOrder(pickDetails);
-//        BaseinfoLocation location = locationService.getLocation(4432685253259L);
-//          return JsonUtils.SUCCESS(locationService.getNearestStorageByPicking(location));
+        BaseinfoLocation location = locationService.getLocation(4432685253259L);
+          return JsonUtils.SUCCESS(locationService.getNearestStorageByPicking(location));
 //
 //        return "yes";
     }

@@ -44,7 +44,7 @@ public class ProcurementTaskHandler extends AbsTaskHandler {
     }
     public void doneConcrete(Long taskId){
         TaskInfo info = baseTaskService.getTaskByTaskId(taskId);
-        Long fromLocationId = locationService.getWarehouseLocation().getLocationId();
+        Long fromLocationId = locationService.getFatherRegionBySonId(info.getFromLocationId()).getLocationId();
         if (info.getSubType().compareTo(1L) == 0) {
             moveService.moveWholeContainer(info.getContainerId(), taskId, info.getOperator(), fromLocationId, info.getToLocationId());
         }else {
