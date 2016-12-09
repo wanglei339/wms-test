@@ -918,6 +918,11 @@ public class ReceiptRpcService implements IReceiptRpcService {
         Long taskId = idGenerator.genId(idKey, true, true);
         //Long taskId = RandomUtils.genId();
 
+        //根据request中的orderOtherId查询InbPoHeader
+        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(request.getOrderOtherId());
+        if (ibdHeader == null) {
+            throw new BizCheckedException("2020001");
+        }
         for(ReceiptItem receiptItem : request.getItems()){
             if(receiptItem.getInboundQty().compareTo(BigDecimal.ZERO) <= 0) {
                 throw new BizCheckedException("2020007");
@@ -927,11 +932,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
             ObjUtils.bean2bean(receiptItem, inbReceiptDetail);
 
-            //根据request中的orderOtherId查询InbPoHeader
-            IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderOtherId(request.getOrderOtherId());
-            if (ibdHeader == null) {
-                throw new BizCheckedException("2020001");
-            }
+
             // TODO: 2016/10/8 查询验收单是否存在,如果不存在,则根据ibd重新生成
             ReceiveHeader receiveHeader = receiveService.getReceiveHeader(ibdHeader.getOrderId());
             Long receiveId = 0l;
@@ -1150,7 +1151,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
         //插入订单
         //poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList,stockQuantList,stockLotList);
-        poReceiptService.insertOrder(null,inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList,updateReceiveDetailList,obdStreamDetailList,obdDetails);
+        poReceiptService.insertOrder(ibdHeader,inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList,updateReceiveDetailList,obdStreamDetailList,obdDetails);
 
         if(isWriteTORedis){
             //将门店收货托盘码写入缓存
