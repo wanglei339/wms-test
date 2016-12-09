@@ -472,7 +472,7 @@ public class ReceiptRestService implements IReceiptRfService {
         orderInfoMap.put("batchNeeded", baseinfoItem.getBatchNeeded());
         //码盘规则
         orderInfoMap.put("pile",baseinfoItem.getPileX()+ "*" + baseinfoItem.getPileY() + "*" + baseinfoItem.getPileZ());
-        Integer orderType = ibdHeader.getOrderStatus();
+        Integer orderType = ibdHeader.getOrderType();
         if(orderType == PoConstant.ORDER_TYPE_CPO){
             //直流,根据商品类型判断是否需要输入
             BaseinfoItemType baseinfoItemType = iItemTypeRpcService.getBaseinfoItemTypeByItemId(baseinfoItem.getItemType());
