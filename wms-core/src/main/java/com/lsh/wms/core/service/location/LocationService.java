@@ -329,7 +329,7 @@ public class LocationService {
         params.put("type", sonType);
         params.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocation> locations = locationDao.getChildrenLocationList(params);
-        return null != locations && locations.size() > 1 ? locations : new ArrayList<BaseinfoLocation>();
+        return null != locations && !locations.isEmpty() ? locations : new ArrayList<BaseinfoLocation>();
     }
 
 
