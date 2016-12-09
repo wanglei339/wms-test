@@ -165,7 +165,7 @@ public class StockTransferCore {
         BigDecimal qty = PackUtil.UomQty2EAQty(uomQty, uom);
         List<StockQuant> quants = this.checkFromLocation(taskEntry.getTaskInfo().getItemId(), fromLocation, qty);
         Long containerId = taskInfo.getContainerId();
-        Long toLocationId = locationService.getWarehouseLocation().getLocationId();
+        Long toLocationId = locationService.getFatherRegionBySonId(taskInfo.getFromLocationId()).getLocationId();
         if (taskInfo.getSubType().compareTo(1L) == 0) {
             StockQuantCondition condition = new StockQuantCondition();
             condition.setLocationId(fromLocation.getLocationId());
@@ -198,7 +198,7 @@ public class StockTransferCore {
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         List<StockQuant> toQuants = this.checkToLocation(taskInfo.getItemId(), toLocation);
         Long containerId = taskInfo.getContainerId();
-        Long fromLocationId = locationService.getWarehouseLocation().getLocationId();
+        Long fromLocationId = locationService.getFatherRegionBySonId(taskInfo.getFromLocationId()).getLocationId();
         //坑啊,卧槽我发现数据库里根本没这个字段,上面存了没有屌用
         taskInfo.setQtyDoneUom(PackUtil.EAQty2UomQty(taskInfo.getQtyDone(), taskInfo.getPackName()));
         List<StockMove> moveList = new ArrayList<StockMove>();
