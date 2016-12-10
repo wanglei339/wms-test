@@ -187,6 +187,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
         if (uomQty.compareTo(BigDecimal.ZERO) == 0) {
             taskRpcService.cancel(taskEntry.getTaskInfo().getTaskId());
             taskEntry.getTaskInfo().setStatus(TaskConstant.Cancel);
+            return;
         }
         core.outbound(taskEntry, location, uomQty, uom);
     }

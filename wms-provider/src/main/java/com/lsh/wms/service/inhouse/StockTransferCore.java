@@ -189,6 +189,7 @@ public class StockTransferCore {
             stockMoveService.move(move);
         }
         taskInfo.setQtyDone(qty);
+        logger.info(String.format("QTY DONE %s", taskInfo.getQtyDone().toString()));
         taskInfo.setQtyDoneUom(uomQty);
         taskInfo.setStep(2);
         taskInfoDao.update(taskInfo);
