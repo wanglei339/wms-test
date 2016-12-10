@@ -304,6 +304,7 @@ public class StockTransferRFService implements IStockTransferRFService{
         Map<String, Object> next = new HashMap<String, Object>();
         if (type.equals(1L)) {
             TaskInfo taskInfo = taskEntry.getTaskInfo();
+            logger.info(String.format("QTY DONE 2 %s", taskInfo.getQtyDone().toString()));
             uomQty = new BigDecimal(params.get("uomQty").toString());
             if(params.get("subType")!=null && StringUtils.isNumeric(params.get("subType").toString())){
                 taskInfo.setSubType(Long.valueOf(params.get("subType").toString()));
@@ -319,6 +320,7 @@ public class StockTransferRFService implements IStockTransferRFService{
             }
             iStockTransferRpcService.scanFromLocation(taskEntry, location, uomQty);
             BaseinfoItem item = itemRpcService.getItem(taskInfo.getItemId());
+            logger.info(String.format("QTY DONE 3 %s", taskInfo.getQtyDone().toString()));
             if(taskInfo.getStatus() == TaskConstant.Cancel){
                 next.put("response", true);
             }else{
