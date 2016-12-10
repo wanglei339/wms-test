@@ -67,8 +67,6 @@ public class StockTakingService {
     @Autowired
     private OverLossReportDao overLossReportDao;
     @Autowired
-    private StockSummaryService stockSummaryService;
-    @Autowired
     private BaseTaskService baseTaskService;
     @Autowired
     private DifferenceZoneReportService differenceZoneReportService;
@@ -331,19 +329,27 @@ public class StockTakingService {
 
     @Transactional(readOnly = false)
     public void doQcPickDifference(StockMove move) throws BizCheckedException {
-//        OverLossReport overLossReport = new OverLossReport();
+
+        try {
+            TaskInfo qcInfo = baseTaskService.getTaskInfoById(move.getTaskId());
+            //同步库存判断是直流还是在库的
+            Long businessMode = qcInfo.getBusinessMode();
+            if (TaskConstant.MODE_DIRECT.equals(businessMode)){
+                doDirectQcDifference(move);
+            } else {
+                doInboundQcDifference(move);
+            }
+        } catch (Exception e) {
+            logger.error("MOVE STOCK FAIL , containerId is " + move.getToContainerId() + "taskId is " + move.getTaskId() + e.getMessage());
+            throw new BizCheckedException("2550051");
+        }
+    }
+
+    @Transactional(readOnly = false)
+    private void doInboundQcDifference(StockMove move) throws BizCheckedException {
         DifferenceZoneReport differenceZoneReport = new DifferenceZoneReport();
         //插入差异报表
         BaseinfoItem item = itemService.getItem(move.getItemId());
-//        overLossReport.setItemId(item.getItemId());
-//        overLossReport.setOwnerId(item.getOwnerId());
-//        overLossReport.setLotId(0L);
-//        overLossReport.setPackName(item.getPackName());
-//        overLossReport.setSkuCode(item.getSkuCode());
-//        overLossReport.setRefTaskId(move.getTaskId());
-//        overLossReport.setMoveType(OverLossConstant.LOSS_REPORT);
-//        overLossReport.setQty(move.getQty());
-//        overLossReport.setStorageLocation(move.getFromLocationId().toString());
         differenceZoneReport.setItemId(item.getItemId());
         differenceZoneReport.setSkuCode(item.getSkuCode());
         differenceZoneReport.setFromLocationId(move.getFromLocationId());
@@ -354,27 +360,25 @@ public class StockTakingService {
         TaskInfo qcInfo = baseTaskService.getTaskInfoById(move.getTaskId());
         differenceZoneReport.setOperator(qcInfo.getOperator());
 
-        try {
-            //插入差异表
-            differenceZoneReportService.insertReport(differenceZoneReport);
-            //移到差异区
-            moveService.move(move);
-            //同步库存判断是直流还是在库的
-            Long businessMode = qcInfo.getBusinessMode();
-            if (TaskConstant.MODE_DIRECT.equals(businessMode)){
-                StockMove diff = new StockMove();
-                diff.setToLocationId(locationService.getDiffAreaLocation().getLocationId());
-                diff.setFromContainerId(locationService.getSoAreaDirect().getLocationId());
-                diff.setQty(move.getQty());
-                diff.setItemId(move.getItemId());
-                diff.setTaskId(move.getTaskId());
-                List<StockMove> diffList = Arrays.asList(diff);
-                stockSummaryService.eliminateDiff(diffList);
-            }
-        } catch (Exception e) {
-            logger.error("MOVE STOCK FAIL , containerId is " + move.getToContainerId() + "taskId is " + move.getTaskId() + e.getMessage());
-            throw new BizCheckedException("2550051");
-        }
+        //插入差异表
+        differenceZoneReportService.insertReport(differenceZoneReport);
+        //移到差异区
+        moveService.move(move);
+    }
+
+    @Transactional(readOnly = false)
+    private void doDirectQcDifference(StockMove move) throws BizCheckedException {
+        // 移动直流差异库存到供商区
+        move.setToLocationId(locationService.getSupplyArea().getLocationId());
+
+        StockMove diff = new StockMove();
+        diff.setFromContainerId(locationService.getSoAreaDirect().getLocationId());
+        diff.setToLocationId(locationService.getConsumerArea().getLocationId());
+        diff.setQty(move.getQty());
+        diff.setItemId(move.getItemId());
+        diff.setTaskId(move.getTaskId());
+        List<StockMove> diffList = Arrays.asList(diff);
+        moveService.move(diffList);
     }
 
     @Transactional(readOnly = false)

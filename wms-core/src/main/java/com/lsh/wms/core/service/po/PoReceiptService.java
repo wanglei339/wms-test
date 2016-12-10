@@ -161,7 +161,7 @@ public class PoReceiptService {
                 presale.setTaskId(ibdHeader.getOrderId());
                 presaleList.add(presale);
             }
-            stockSummaryService.alloc(presaleList);
+            stockMoveService.move(presaleList);
         }
     }
 

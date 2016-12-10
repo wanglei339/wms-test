@@ -5,11 +5,11 @@ import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.dao.so.ObdDetailDao;
 import com.lsh.wms.core.dao.so.ObdHeaderDao;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockMove;
-import com.lsh.wms.model.stock.StockSummary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +37,7 @@ public class SoOrderService {
     private ObdDetailDao obdDetailDao;
 
     @Autowired
-    private StockSummaryService stockSummaryService;
+    private StockMoveService stockMoveService;
 
     @Autowired
     private LocationService locationService;
@@ -68,7 +68,7 @@ public class SoOrderService {
                 move.setTaskId(detail.getOrderId());
                 moveList.add(move);
             }
-            stockSummaryService.alloc(moveList);
+            stockMoveService.move(moveList);
         }
     }
 
