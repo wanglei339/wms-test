@@ -133,6 +133,9 @@ public class StockTakingService {
     public void doneDetail(StockTakingDetail detail) {
         detail.setStatus(StockTakingConstant.PendingAudit);
         SkuMap skuMap = skuMapService.getSkuMapBySkuCode(detail.getSkuCode());
+        if(skuMap==null){
+            throw new BizCheckedException("2880022",detail.getSkuCode(),"");
+        }
         detail.setPrice(skuMap.getMovingAveragePrice());
         detail.setDifferencePrice(detail.getRealQty().subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
 
