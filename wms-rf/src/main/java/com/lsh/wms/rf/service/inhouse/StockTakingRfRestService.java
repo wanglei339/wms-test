@@ -98,6 +98,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         String barcode = "";
         BigDecimal realQty = BigDecimal.ZERO;
         List<Map> resultList = null;
+        logger.info("params:"+request);
         try {
             object = JSONObject.fromObject(request.get("result"));
             //库位编码
@@ -260,8 +261,9 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         if(user==null){
             return JsonUtils.TOKEN_ERROR("用户不存在");
         }
-        String code = params.get("code").toString();
-        if(StringUtils.isBlank(code)){
+
+        Object code = params.get("code");
+        if(code==null || StringUtils.isNoneBlank(code.toString())){
             return JsonUtils.TOKEN_ERROR("任务码不能为空");
         }
 
@@ -272,7 +274,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             return JsonUtils.SUCCESS(processingTask);
         }
         //盘点签,即任务ID
-        Long  taskId = Long.valueOf(code.trim());
+        Long  taskId = Long.valueOf(code.toString().trim());
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
 
         if(entry==null){
@@ -282,6 +284,10 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         if(!info.getStatus().equals(TaskConstant.Draft)){
             return JsonUtils.TOKEN_ERROR("该任务已被人领取或失效");
         }
+
+        iTaskRpcService.assign(taskId,uId);
+
+
         List<Map> taskList = new ArrayList<Map>();
         Map<String,Object> taskMap =new HashMap<String, Object>();
         taskMap.put("taskId",info.getTaskId().toString());
