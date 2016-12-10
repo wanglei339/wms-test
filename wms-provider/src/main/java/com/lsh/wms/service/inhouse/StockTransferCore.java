@@ -8,6 +8,7 @@ import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.BinUsageConstant;
 import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
@@ -252,6 +253,10 @@ public class StockTransferCore {
         Long taskId = Long.valueOf(params.get("taskId").toString().trim());
         String locationCode = params.get("locationCode").toString().trim();
         Long fromLocationId = locationRpcService.getLocationIdByCode(locationCode);
+        BaseinfoLocation location = locationService.getLocation(fromLocationId);
+        if(!location.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)){
+            throw new BizCheckedException("2040005");
+        }
         try {
             uid = iSysUserRpcService.getSysUserById(Long.valueOf(params.get("uid").toString())).getUid();
         } catch (Exception e) {
@@ -266,6 +271,7 @@ public class StockTransferCore {
         condition.setLocationId(fromLocationId);
         condition.setItemId(taskEntry.getTaskInfo().getItemId());
         List<StockQuant> quants = stockQuantRpcService.getQuantList(condition);
+
 
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         if (taskInfo.getType().compareTo(TaskConstant.TYPE_PROCUREMENT) == 0) {
@@ -286,20 +292,20 @@ public class StockTransferCore {
         if (taskInfo.getSubType().compareTo(1L) == 0) {
             stockMoveService.moveWholeContainer(containerId, taskId, uid, fromLocationId, toLocationId);
         } else {
-            BigDecimal qtyDone = BigDecimal.ZERO;
+            BigDecimal uomQty = BigDecimal.ZERO;
             BigDecimal scatterQty = BigDecimal.ZERO;
             if(params.get("uomQty")!=null){
-                qtyDone = new BigDecimal(params.get("uomQty").toString().trim());
+                uomQty = new BigDecimal(params.get("uomQty").toString().trim());
             }
             if(params.get("scatterQty")!=null) {
                 scatterQty = new BigDecimal(params.get("scatterQty").toString().trim());
             }
-            BigDecimal inboundUnitQty = PackUtil.UomQty2EAQty(qtyDone, taskInfo.getPackName()).add(scatterQty);
+            BigDecimal inboundUnitQty = PackUtil.UomQty2EAQty(uomQty, taskInfo.getPackName()).add(scatterQty);
             if (inboundUnitQty.compareTo(BigDecimal.ZERO) <= 0) {
                 throw new BizCheckedException("2550034");
             }
             BigDecimal total = stockQuantRpcService.getQty(condition);
-            if (total.compareTo(qtyDone) < 0) {
+            if (total.compareTo(inboundUnitQty) < 0) {
                 throw new BizCheckedException("2550008");
             }
             StockMove move = new StockMove();
@@ -312,7 +318,7 @@ public class StockTransferCore {
             move.setSkuId(taskInfo.getSkuId());
             move.setOwnerId(taskInfo.getOwnerId());
             stockMoveService.move(move);
-            taskInfo.setQtyDone(qtyDone);
+            taskInfo.setQtyDone(inboundUnitQty.divide(taskInfo.getPackUnit(),0,BigDecimal.ROUND_HALF_EVEN));
         }
         taskInfo.setStep(2);
         taskInfoDao.update(taskInfo);
