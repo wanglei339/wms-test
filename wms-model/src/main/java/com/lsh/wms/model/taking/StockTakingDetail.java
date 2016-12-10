@@ -306,4 +306,40 @@ public class StockTakingDetail implements Serializable {
 	public void setLocationCode(String locationCode) {
 		this.locationCode = locationCode;
 	}
+
+	@Override
+	public String toString() {
+		return "StockTakingDetail{" +
+				"id=" + id +
+				", takingId=" + takingId +
+				", taskId=" + taskId +
+				", detailId=" + detailId +
+				", round=" + round +
+				", isFinal=" + isFinal +
+				", realQty=" + realQty +
+				", theoreticalQty=" + theoreticalQty +
+				", containerId=" + containerId +
+				", lotId=" + lotId +
+				", skuId=" + skuId +
+				", realSkuId=" + realSkuId +
+				", locationId=" + locationId +
+				", operator=" + operator +
+				", itemId=" + itemId +
+				", realItemId=" + realItemId +
+				", ownerId=" + ownerId +
+				", price=" + price +
+				", differencePrice=" + differencePrice +
+				", packName='" + packName + '\'' +
+				", barcode='" + barcode + '\'' +
+				", skuName='" + skuName + '\'' +
+				", skuCode='" + skuCode + '\'' +
+				", locationCode='" + locationCode + '\'' +
+				", packUnit=" + packUnit +
+				", isValid=" + isValid +
+				", status=" + status +
+				", zoneId=" + zoneId +
+				", createdAt=" + createdAt +
+				", updatedAt=" + updatedAt +
+				'}';
+	}
 }

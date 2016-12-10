@@ -76,6 +76,7 @@ public class StockTakingService {
     private DifferenceZoneReportService differenceZoneReportService;
 
 
+
     @Transactional(readOnly = false)
     public void insertHead(StockTakingHead head) {
         head.setCreatedAt(DateUtils.getCurrentSeconds());
@@ -131,14 +132,17 @@ public class StockTakingService {
     }
     @Transactional(readOnly = false)
     public void doneDetail(StockTakingDetail detail) {
+        logger.info("hehehehe:"+detail);
         detail.setStatus(StockTakingConstant.PendingAudit);
-        SkuMap skuMap = skuMapService.getSkuMapBySkuCode(detail.getSkuCode());
-        if(skuMap==null){
-            throw new BizCheckedException("2880022",detail.getSkuCode(),"");
-        }
-        detail.setPrice(skuMap.getMovingAveragePrice());
-        detail.setDifferencePrice(detail.getRealQty().subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
 
+        if(!detail.getSkuCode().equals("")) {
+            SkuMap skuMap = skuMapService.getSkuMapBySkuCode(detail.getSkuCode());
+            if (skuMap == null) {
+                throw new BizCheckedException("2880022", detail.getSkuCode(), "");
+            }
+            detail.setPrice(skuMap.getMovingAveragePrice());
+            detail.setDifferencePrice(detail.getRealQty().subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
+        }
         this.updateDetail(detail);
 
         //获取该任务的所有的detail,判断是否都done,是的话,done整个task
