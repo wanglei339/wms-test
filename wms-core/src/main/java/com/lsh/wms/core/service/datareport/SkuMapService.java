@@ -63,8 +63,12 @@ public class SkuMapService {
 
     @Transactional(readOnly = false)
     public void batchModifySkuMap(List<SkuMap> addSkuMap,List<SkuMap> updateSkuMap){
-        this.batchAdd(addSkuMap);
-        this.batchUpdate(updateSkuMap);
+        if(addSkuMap != null && addSkuMap.size() > 0){
+            this.batchAdd(addSkuMap);
+        }
+        if(updateSkuMap != null && updateSkuMap.size() > 0){
+            this.batchUpdate(updateSkuMap);
+        }
     }
 
 }
