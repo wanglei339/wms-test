@@ -1,5 +1,7 @@
 package com.lsh.wms.model.stock;
 
+import com.lsh.base.common.utils.DateUtils;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.security.acl.LastOwnerException;
@@ -16,15 +18,15 @@ public class StockLot implements Serializable {
 	/** 生产批次号 */
     private String serialNo = "";
 	/** 入库时间 */
-    private Long inDate = 0L;
+    private Long inDate = DateUtils.getCurrentSeconds();
 	/** 生产时间 */
-    private Long productDate = 0L;
+    private Long productDate = DateUtils.getCurrentSeconds();
 	/** 保质期失效时间 */
-    private Long expireDate = 0L;
+    private Long expireDate = 2145801600L; // 2037-13-31
 	/**  */
-    private Long createdAt = 0L;
+    private Long createdAt = DateUtils.getCurrentSeconds();
 	/**  */
-    private Long updatedAt = 0L;
+    private Long updatedAt = DateUtils.getCurrentSeconds();
 
 	private Long itemId = 0L;
 

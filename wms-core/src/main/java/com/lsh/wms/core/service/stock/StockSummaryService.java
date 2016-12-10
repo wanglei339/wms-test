@@ -6,11 +6,9 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.StockConstant;
-import com.lsh.wms.core.dao.stock.StockMoveDao;
 import com.lsh.wms.core.dao.stock.StockSummaryDao;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
-import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockMove;
@@ -40,11 +38,6 @@ public class StockSummaryService {
     @Autowired
     private ItemService itemService;
 
-    @Autowired
-    private StockMoveDao stockMoveDao;
-
-    @Autowired
-    private SoDeliveryService soDeliveryService;
 
     @Transactional(readOnly = false)
     public void changeStock(StockMove move) throws BizCheckedException {
@@ -78,34 +71,6 @@ public class StockSummaryService {
         logger.info("change stock: " + summary);
         stockSummaryDao.changeStock(summary);
 
-    }
-
-    @Transactional(readOnly = false)
-    private void dealWithAlloc(List<StockMove> moveList) {
-        Collections.sort(moveList, new Comparator<StockMove>() {
-            public int compare(StockMove o1, StockMove o2) {
-                return o1.getItemId().compareTo(o2.getItemId());
-            }
-        });
-        for (StockMove move : moveList) {
-            stockMoveDao.insert(move);
-            changeStock(move);
-        }
-    }
-
-    @Transactional(readOnly = false)
-    public void alloc(List<StockMove> moveList) {
-        dealWithAlloc(moveList);
-    }
-
-    @Transactional(readOnly = false)
-    public void release(List<StockMove> moveList) {
-        dealWithAlloc(moveList);
-    }
-
-    @Transactional(readOnly = false)
-    public void eliminateDiff(List<StockMove> moveList) {
-        dealWithAlloc(moveList);
     }
 
     public StockSummary getStockSummaryByItemId(Long itemId) {
