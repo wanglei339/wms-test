@@ -12,6 +12,7 @@ import com.lsh.wms.core.dao.taking.StockTakingDetailDao;
 import com.lsh.wms.core.dao.taking.StockTakingHeadDao;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.datareport.DifferenceZoneReportService;
+import com.lsh.wms.core.service.datareport.SkuMapService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.BaseinfoLocationService;
 import com.lsh.wms.core.service.location.LocationService;
@@ -22,6 +23,7 @@ import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.datareport.DifferenceZoneReport;
+import com.lsh.wms.model.datareport.SkuMap;
 import com.lsh.wms.model.stock.*;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
@@ -67,9 +69,9 @@ public class StockTakingService {
     @Autowired
     private OverLossReportDao overLossReportDao;
     @Autowired
-    private StockSummaryService stockSummaryService;
-    @Autowired
     private BaseTaskService baseTaskService;
+    @Autowired
+    private SkuMapService skuMapService;
     @Autowired
     private DifferenceZoneReportService differenceZoneReportService;
 
@@ -92,6 +94,15 @@ public class StockTakingService {
     @Transactional(readOnly = false)
     public void insertDetailList(List<StockTakingDetail> detailList) {
         for (StockTakingDetail detail : detailList) {
+
+            if(detail.getRound()>1){
+                StockTakingDetail takingDetail = this.getDetailByRoundAndDetailId(detail.getDetailId(), detail.getRound()-1);
+                takingDetail.setStatus(StockTakingConstant.Done);
+                takingDetail.setStatus(0l);
+                takingDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
+                detailDao.update(takingDetail);
+            }
+
             detail.setCreatedAt(DateUtils.getCurrentSeconds());
             detail.setUpdatedAt(DateUtils.getCurrentSeconds());
         }
@@ -100,6 +111,14 @@ public class StockTakingService {
 
     @Transactional(readOnly = false)
     public void insertDetail(StockTakingDetail detail) {
+
+        if(detail.getRound()>1){
+            StockTakingDetail takingDetail = this.getDetailByRoundAndDetailId(detail.getDetailId(), detail.getRound()-1);
+            takingDetail.setStatus(StockTakingConstant.Done);
+            takingDetail.setStatus(0l);
+            takingDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
+            detailDao.update(takingDetail);
+        }
         detail.setCreatedAt(DateUtils.getCurrentSeconds());
         detail.setUpdatedAt(DateUtils.getCurrentSeconds());
         detailDao.insert(detail);
@@ -109,6 +128,14 @@ public class StockTakingService {
     public void updateDetail(StockTakingDetail detail) {
         detail.setUpdatedAt(DateUtils.getCurrentSeconds());
         detailDao.update(detail);
+    }
+    @Transactional(readOnly = false)
+    public void doneDetail(StockTakingDetail detail) {
+        detail.setStatus(StockTakingConstant.PendingAudit);
+        SkuMap skuMap = skuMapService.getSkuMapBySkuCode(detail.getSkuCode());
+        detail.setPrice(skuMap.getMovingAveragePrice());
+        detail.setDifferencePrice(detail.getRealQty().subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
+        this.updateDetail(detail);
     }
 
     public List<StockTakingDetail> getDetailListByRound(Long stockTakingId, Long round) {
@@ -242,6 +269,18 @@ public class StockTakingService {
             return 1L;
         }
     }
+    public StockTakingDetail getDetailByRoundAndDetailId(Long detailId ,Long round) {
+        Map <String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("detailId", detailId);
+        queryMap.put("round", round);
+        queryMap.put("valid", 1);
+        List<StockTakingDetail> details = detailDao.getStockTakingDetailList(queryMap);
+
+        if(details==null || details.size()==0){
+            return null;
+        }
+        return details.get(0);
+    }
 
     public List<StockTakingHead> queryTakingHead(Map queryMap) {
         return headDao.getStockTakingHeadList(queryMap);
@@ -250,6 +289,13 @@ public class StockTakingService {
     public List<StockTakingDetail> getDetailByTaskId(Long taskId) {
         Map<String, Object> queryMap = new HashMap<String, Object>();
         queryMap.put("taskId", taskId);
+        return detailDao.getStockTakingDetailList(queryMap);
+
+    }
+    public List<StockTakingDetail> getDraftDetailByTaskId(Long taskId) {
+        Map<String, Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("taskId", taskId);
+        queryMap.put("status",StockTakingConstant.Draft);
         return detailDao.getStockTakingDetailList(queryMap);
 
     }
@@ -281,14 +327,31 @@ public class StockTakingService {
     public List<StockTakingDetail> getDetails(Map<String, Object> queryMap) {
         return detailDao.getStockTakingDetailList(queryMap);
     }
+    public Integer countDetails(Map<String, Object> queryMap) {
+        return detailDao.countStockTakingDetail(queryMap);
+    }
+
 
     public List<StockTakingDetail> getItemDetails(Map<String, Object> queryMap) {
         return detailDao.getStockTakingItemList(queryMap);
+    }
+    public Integer countItemDetails(Map<String, Object> queryMap) {
+        return detailDao.conutStockTakingItemList(queryMap);
     }
 
     public Integer countHead(Map queryMap) {
         return headDao.countStockTakingHead(queryMap);
 
+    }
+    public StockTakingDetail getDetaiByTaskIdAndDetailId(Long taskId,Long detailId) {
+        Map<String, Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("taskId", taskId);
+        queryMap.put("detailId", detailId);
+        List<StockTakingDetail> details = detailDao.getStockTakingDetailList(queryMap);
+        if(details==null || details.size()==0){
+            return null;
+        }
+        return details.get(0);
     }
 
     public List queryTakingDetail(Map queryMap) {
@@ -343,19 +406,27 @@ public class StockTakingService {
 
     @Transactional(readOnly = false)
     public void doQcPickDifference(StockMove move) throws BizCheckedException {
-//        OverLossReport overLossReport = new OverLossReport();
+
+        try {
+            TaskInfo qcInfo = baseTaskService.getTaskInfoById(move.getTaskId());
+            //同步库存判断是直流还是在库的
+            Long businessMode = qcInfo.getBusinessMode();
+            if (TaskConstant.MODE_DIRECT.equals(businessMode)){
+                doDirectQcDifference(move);
+            } else {
+                doInboundQcDifference(move);
+            }
+        } catch (Exception e) {
+            logger.error("MOVE STOCK FAIL , containerId is " + move.getToContainerId() + "taskId is " + move.getTaskId() + e.getMessage());
+            throw new BizCheckedException("2550051");
+        }
+    }
+
+    @Transactional(readOnly = false)
+    private void doInboundQcDifference(StockMove move) throws BizCheckedException {
         DifferenceZoneReport differenceZoneReport = new DifferenceZoneReport();
         //插入差异报表
         BaseinfoItem item = itemService.getItem(move.getItemId());
-//        overLossReport.setItemId(item.getItemId());
-//        overLossReport.setOwnerId(item.getOwnerId());
-//        overLossReport.setLotId(0L);
-//        overLossReport.setPackName(item.getPackName());
-//        overLossReport.setSkuCode(item.getSkuCode());
-//        overLossReport.setRefTaskId(move.getTaskId());
-//        overLossReport.setMoveType(OverLossConstant.LOSS_REPORT);
-//        overLossReport.setQty(move.getQty());
-//        overLossReport.setStorageLocation(move.getFromLocationId().toString());
         differenceZoneReport.setItemId(item.getItemId());
         differenceZoneReport.setSkuCode(item.getSkuCode());
         differenceZoneReport.setFromLocationId(move.getFromLocationId());
@@ -366,27 +437,25 @@ public class StockTakingService {
         TaskInfo qcInfo = baseTaskService.getTaskInfoById(move.getTaskId());
         differenceZoneReport.setOperator(qcInfo.getOperator());
 
-        try {
-            //插入差异表
-            differenceZoneReportService.insertReport(differenceZoneReport);
-            //移到差异区
-            moveService.move(move);
-            //同步库存判断是直流还是在库的
-            Long businessMode = qcInfo.getBusinessMode();
-            if (TaskConstant.MODE_DIRECT.equals(businessMode)){
-                StockMove diff = new StockMove();
-                diff.setToLocationId(locationService.getDiffAreaLocation().getLocationId());
-                diff.setFromContainerId(locationService.getSoAreaDirect().getLocationId());
-                diff.setQty(move.getQty());
-                diff.setItemId(move.getItemId());
-                diff.setTaskId(move.getTaskId());
-                List<StockMove> diffList = Arrays.asList(diff);
-                stockSummaryService.eliminateDiff(diffList);
-            }
-        } catch (Exception e) {
-            logger.error("MOVE STOCK FAIL , containerId is " + move.getToContainerId() + "taskId is " + move.getTaskId() + e.getMessage());
-            throw new BizCheckedException("2550051");
-        }
+        //插入差异表
+        differenceZoneReportService.insertReport(differenceZoneReport);
+        //移到差异区
+        moveService.move(move);
+    }
+
+    @Transactional(readOnly = false)
+    private void doDirectQcDifference(StockMove move) throws BizCheckedException {
+        // 移动直流差异库存到供商区
+        move.setToLocationId(locationService.getSupplyArea().getLocationId());
+
+        StockMove diff = new StockMove();
+        diff.setFromContainerId(locationService.getSoAreaDirect().getLocationId());
+        diff.setToLocationId(locationService.getConsumerArea().getLocationId());
+        diff.setQty(move.getQty());
+        diff.setItemId(move.getItemId());
+        diff.setTaskId(move.getTaskId());
+        List<StockMove> diffList = Arrays.asList(diff);
+        moveService.move(diffList);
     }
 
     @Transactional(readOnly = false)

@@ -4,10 +4,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.CollectionUtils;
 import com.lsh.base.common.utils.DateUtils;
-import com.lsh.wms.core.constant.LocationConstant;
-import com.lsh.wms.core.constant.StockConstant;
-import com.lsh.wms.core.constant.SysLogConstant;
-import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
 import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
 import com.lsh.wms.core.service.location.LocationService;
@@ -52,6 +49,9 @@ public class StockMoveService {
 
     @Autowired
     private PersistenceProxy persistenceProxy;
+
+    @Autowired
+    private StockLotService stockLotService;
 
     @Transactional(readOnly = false)
     public void create(StockMove move) {
@@ -141,12 +141,29 @@ public class StockMoveService {
         }
     }
 
+    public void decorateMove(StockMove move) throws BizCheckedException {
+        Long fromRegionType = locationService.getLocation(move.getFromLocationId()).getRegionType();
+        Long toRegionType = locationService.getLocation(move.getToLocationId()).getRegionType();
+
+        if (! fromRegionType.equals(toRegionType)) {
+            move.setMoveType(1L);
+        }
+
+        if ( fromRegionType.equals(LocationConstant.CONSUME_AREA)
+                || fromRegionType.equals(LocationConstant.SUPPLIER_AREA) ) {
+            StockLot lot = new StockLot();
+            move.setLot(lot);
+        }
+    }
+
     @Transactional(readOnly = false)
     public void move(StockMove move) throws BizCheckedException {
 
         checkMove(move);
 
         locationService.lockLocationById(move.getFromLocationId());
+
+        decorateMove(move);
 
         this.create(move);
 
@@ -158,15 +175,17 @@ public class StockMoveService {
 
         stockSummaryService.changeStock(move);
 
-        //库存转移 转残 转退 都需要回传sap
-        BaseinfoLocation fromLocation = locationService.getLocation(move.getFromLocationId());
-        BaseinfoLocation toLocation = locationService.getLocation(move.getToLocationId());
-        Long fromType = fromLocation.getType();
-        Long toType = toLocation.getType();
-        boolean fromflag = LocationConstant.BACK_AREA == fromType || LocationConstant.DEFECTIVE_AREA == fromType;
-        boolean toflag = LocationConstant.BACK_AREA == toType || LocationConstant.DEFECTIVE_AREA == toType;
-        if((fromflag || toflag) && !(fromflag && toflag)){
-            persistenceProxy.doOne(SysLogConstant.LOG_TYPE_MOVING,move.getTaskId(),null);
+        //库存转移 转残 转退 货主为物美的 都需要回传sap
+        if(CsiConstan.OWNER_WUMART == move.getOwnerId()){
+            BaseinfoLocation fromLocation = locationService.getLocation(move.getFromLocationId());
+            BaseinfoLocation toLocation = locationService.getLocation(move.getToLocationId());
+            Long fromType = fromLocation.getType();
+            Long toType = toLocation.getType();
+            boolean fromflag = LocationConstant.BACK_AREA == fromType || LocationConstant.DEFECTIVE_AREA == fromType;
+            boolean toflag = LocationConstant.BACK_AREA == toType || LocationConstant.DEFECTIVE_AREA == toType;
+            if((fromflag || toflag) && !(fromflag && toflag)){
+                persistenceProxy.doOne(SysLogConstant.LOG_TYPE_MOVING,move.getTaskId(),null);
+            }
         }
     }
 
@@ -189,29 +208,6 @@ public class StockMoveService {
             }
         }
     }
-
-//    @Transactional(readOnly = false)
-//    public void moveToConsume(Set<Long> containerIds) throws BizCheckedException {
-//        List<StockQuant> stockQuants = new ArrayList<StockQuant>();
-//        for (Long containerId : containerIds) {
-//            List<StockQuant> quants = quantService.getQuantsByContainerId(containerId);
-//            if (quants == null || quants.isEmpty()) {
-//                continue;
-//            }
-//            stockQuants.addAll(quants);
-//        }
-//        BaseinfoLocation location = locationService.getLocationsByType(LocationConstant.CONSUME_AREA).get(0);
-//
-//        //存储已经生成move的ContainerId
-//        Map<Long, Integer> isMovedMap = new HashMap<Long, Integer>();
-//
-//        for (StockQuant quant : stockQuants) {
-//            if (!isMovedMap.containsKey(quant.getContainerId())) {
-//                this.moveWholeContainer(quant.getContainerId(), 0L, 0L, quant.getLocationId(), location.getLocationId());
-//                isMovedMap.put(quant.getContainerId(), 1);
-//            }
-//        }
-//    }
 
     @Transactional(readOnly = false)
     public void moveToConsume(Set<Long> containerIds) throws BizCheckedException {
