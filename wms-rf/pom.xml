@@ -86,9 +86,9 @@
                 <profile.name>dev</profile.name>
                 <log.file>/Users/fuhao/workspace/logs/provider.log</log.file>
                 <datareport.file>/Users/mali/IdeaProjects/wms/wms.log</datareport.file>
-                <db.url>jdbc:mysql://192.168.60.48:5201/lsh_wms?useUnicode=true&amp;autoReconnect=true&amp;characterEncoding=UTF8&amp;allowMultiQueries=true</db.url>
+                <db.url>jdbc:mysql://127.0.0.1:3306/lsh_wms_test?useUnicode=true&amp;autoReconnect=true&amp;characterEncoding=UTF8&amp;allowMultiQueries=true</db.url>
                 <db.username>root</db.username>
-                <db.password>root123</db.password>
+                <db.password>wuhao4830</db.password>
                 <redis.host.w>127.0.0.1</redis.host.w>
                 <redis.port.w>6379</redis.port.w>
                 <redis.passwd.w></redis.passwd.w>
