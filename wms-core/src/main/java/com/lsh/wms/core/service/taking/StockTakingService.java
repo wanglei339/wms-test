@@ -92,6 +92,15 @@ public class StockTakingService {
     @Transactional(readOnly = false)
     public void insertDetailList(List<StockTakingDetail> detailList) {
         for (StockTakingDetail detail : detailList) {
+
+            if(detail.getRound()>1){
+                StockTakingDetail takingDetail = this.getDetailByRoundAndDetailId(detail.getDetailId(), detail.getRound()-1);
+                takingDetail.setStatus(StockTakingConstant.Done);
+                takingDetail.setStatus(0l);
+                takingDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
+                detailDao.update(takingDetail);
+            }
+
             detail.setCreatedAt(DateUtils.getCurrentSeconds());
             detail.setUpdatedAt(DateUtils.getCurrentSeconds());
         }
@@ -100,6 +109,14 @@ public class StockTakingService {
 
     @Transactional(readOnly = false)
     public void insertDetail(StockTakingDetail detail) {
+
+        if(detail.getRound()>1){
+            StockTakingDetail takingDetail = this.getDetailByRoundAndDetailId(detail.getDetailId(), detail.getRound()-1);
+            takingDetail.setStatus(StockTakingConstant.Done);
+            takingDetail.setStatus(0l);
+            takingDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
+            detailDao.update(takingDetail);
+        }
         detail.setCreatedAt(DateUtils.getCurrentSeconds());
         detail.setUpdatedAt(DateUtils.getCurrentSeconds());
         detailDao.insert(detail);
@@ -242,6 +259,18 @@ public class StockTakingService {
             return 1L;
         }
     }
+    public StockTakingDetail getDetailByRoundAndDetailId(Long detailId ,Long round) {
+        Map <String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("detailId", detailId);
+        queryMap.put("round", round);
+        queryMap.put("valid", 1);
+        List<StockTakingDetail> details = detailDao.getStockTakingDetailList(queryMap);
+
+        if(details==null || details.size()==0){
+            return null;
+        }
+        return details.get(0);
+    }
 
     public List<StockTakingHead> queryTakingHead(Map queryMap) {
         return headDao.getStockTakingHeadList(queryMap);
@@ -281,14 +310,31 @@ public class StockTakingService {
     public List<StockTakingDetail> getDetails(Map<String, Object> queryMap) {
         return detailDao.getStockTakingDetailList(queryMap);
     }
+    public Integer countDetails(Map<String, Object> queryMap) {
+        return detailDao.countStockTakingDetail(queryMap);
+    }
+
 
     public List<StockTakingDetail> getItemDetails(Map<String, Object> queryMap) {
         return detailDao.getStockTakingItemList(queryMap);
+    }
+    public Integer countItemDetails(Map<String, Object> queryMap) {
+        return detailDao.conutStockTakingItemList(queryMap);
     }
 
     public Integer countHead(Map queryMap) {
         return headDao.countStockTakingHead(queryMap);
 
+    }
+    public StockTakingDetail getDetaiByTaskIdAndDetailId(Long taskId,Long detailId) {
+        Map<String, Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("taskId", taskId);
+        queryMap.put("detailId", detailId);
+        List<StockTakingDetail> details = detailDao.getStockTakingDetailList(queryMap);
+        if(details==null || details.size()==0){
+            return null;
+        }
+        return details.get(0);
     }
 
     public List queryTakingDetail(Map queryMap) {

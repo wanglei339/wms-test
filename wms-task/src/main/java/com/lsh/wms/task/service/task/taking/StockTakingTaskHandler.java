@@ -53,12 +53,11 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
 
     public void createConcrete(TaskEntry taskEntry) {
         Long taskId=taskEntry.getTaskInfo().getTaskId();
-        List<Object> stockTakingDetails = taskEntry.getTaskDetailList();
-        for(Object detail:stockTakingDetails){
-            StockTakingDetail stockTakingDetail =(StockTakingDetail)detail;
-            stockTakingDetail.setTaskId(taskId);
-            stockTakingService.insertDetail(stockTakingDetail);
+        List<StockTakingDetail> stockTakingDetails =(List<StockTakingDetail>) (List<?>)taskEntry.getTaskDetailList();
+        for(StockTakingDetail detail:stockTakingDetails){
+            detail.setTaskId(taskId);
         }
+        stockTakingService.insertDetailList(stockTakingDetails);
     }
     public void getConcrete(TaskEntry taskEntry) {
         taskEntry.setTaskDetailList((List<Object>) (List<?>) stockTakingService.getDetailByTaskId(taskEntry.getTaskInfo().getTaskId()));
@@ -71,14 +70,6 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
                 detail.setStatus(TaskConstant.Assigned);
                 stockTakingService.updateDetail(detail);
             }
-        }
-    }
-    public void doneConcrete(Long taskId) {
-        TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
-        TaskInfo info = entry.getTaskInfo();
-        List<StockTakingDetail> details = stockTakingService.getDetailByTakingIdAndStatus(info.getTaskId(), TaskConstant.Draft);
-        if (details == null || details.size() == 0) {
-            this.confirm(info.getTaskId());
         }
     }
     public void cancelConcrete(Long taskId) {
