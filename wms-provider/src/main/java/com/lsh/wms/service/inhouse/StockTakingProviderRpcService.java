@@ -13,12 +13,14 @@ import com.lsh.wms.api.service.inhouse.IStockTakingProviderRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.core.service.zone.WorkZoneService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.taking.StockTakingDetail;
@@ -31,7 +33,9 @@ import com.lsh.wms.model.zone.WorkZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -59,6 +63,8 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
     private WorkZoneService workZoneService;
     @Autowired
     private WaveService waveService;
+    @Autowired
+    private ItemService itemService;
 
 
     public void create(Long locationId,Long uid) throws BizCheckedException {
@@ -84,6 +90,53 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             List<StockTakingDetail> detailList = prepareDetailList(head);
             stockTakingService.insertHead(head);
             this.createTask(head, detailList, 1L, head.getDueTime());
+        }
+    }
+    public void calcelTask(Long taskId) throws BizCheckedException {
+        TaskInfo info = baseTaskService.getTaskInfoById(taskId);
+        if(info!=null && info.getStatus().equals(TaskConstant.Draft)) {
+            iTaskRpcService.cancel(taskId);
+        }
+    }
+    public void replay(List<Long> detailList,Long planner) throws BizCheckedException {
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("status", StockTakingConstant.PendingAudit);
+        queryMap.put("isValid", 1);
+        queryMap.put("detailList",detailList);
+        List<StockTakingDetail> details = stockTakingService.getDetails(queryMap);
+        if(details!=null && details.size()!=0){
+            StockTakingHead head = new StockTakingHead();
+            head.setPlanType(StockTakingConstant.TYPE_REPLAY);
+            head.setTakingId(RandomUtils.genId());
+            head.setPlanner(planner);
+            head.setStatus(StockTakingConstant.Draft);
+            List<TaskEntry> taskEntries = new ArrayList<TaskEntry>();
+            for(StockTakingDetail detail:details){
+                Long zoneId = detail.getZoneId();
+                WorkZone zone = workZoneService.getWorkZone(zoneId);
+                TaskEntry taskEntry = new TaskEntry();
+                TaskInfo info = new TaskInfo();
+                List<Object> newDetails = new ArrayList<Object>();
+                detail.setTakingId(head.getTakingId());
+                detail.setId(0l);
+                detail.setRound(detail.getRound()+1);
+                newDetails.add(detail);
+                detail.setZoneId(zoneId);
+                if(zone==null){
+                    info.setTaskName("");
+                }else {
+                    info.setTaskName(zone.getZoneName());
+                }
+                info.setType(TaskConstant.TYPE_STOCK_TAKING);
+                info.setSubType(StockTakingConstant.TYPE_REPLAY);
+                info.setPlanner(planner);
+                info.setStatus(TaskConstant.Draft);
+                info.setPlanId(head.getTakingId());
+                taskEntry.setTaskInfo(info);
+                taskEntry.setTaskDetailList(newDetails);
+                taskEntries.add(taskEntry);
+            }
+            iTaskRpcService.batchCreate(head, taskEntries);
         }
     }
     public void createTask(StockTakingHead head, List<StockTakingDetail> detailList,Long round,Long dueTime) throws BizCheckedException{
@@ -448,7 +501,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         head.setPlanType(takingType);
         head.setTakingId(RandomUtils.genId());
         head.setPlanner(planner);
-        head.setStatus(StockTakingConstant.Assigned);
+        head.setStatus(StockTakingConstant.Draft);
         WorkZone zone = workZoneService.getWorkZone(zoneId);
         TaskEntry entry = new TaskEntry();
         TaskInfo info = new TaskInfo();
@@ -473,13 +526,12 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         entry.setTaskDetailList(details);
         iTaskRpcService.createTask(head, entry);
     }
-
     public void batchCreateStockTaking(Map<Long,List<Long>> takingMap,Long takingType,Long planner) throws BizCheckedException {
         StockTakingHead head = new StockTakingHead();
         head.setPlanType(takingType);
         head.setTakingId(RandomUtils.genId());
         head.setPlanner(planner);
-        head.setStatus(StockTakingConstant.Assigned);
+        head.setStatus(StockTakingConstant.Draft);
         Iterator<Map.Entry<Long, List<Long>>> entries = takingMap.entrySet().iterator();
         List<TaskEntry> taskEntries = new ArrayList<TaskEntry>();
         while (entries.hasNext()) {
@@ -512,5 +564,64 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             taskEntries.add(taskEntry);
         }
         iTaskRpcService.batchCreate(head, taskEntries);
+    }
+    public void createAndDoTmpTask(Long locationId,BigDecimal qty,String barcode,Long planner) throws BizCheckedException{
+
+        List<Object> details = new ArrayList<Object>();
+        BaseinfoLocation location = locationService.getLocation(locationId);
+        StockTakingHead head = new StockTakingHead();
+        head.setPlanType(StockTakingConstant.TYPE_TEMPOARY);
+        head.setTakingId(RandomUtils.genId());
+        head.setPlanner(planner);
+        head.setStatus(StockTakingConstant.Draft);
+        TaskEntry entry = new TaskEntry();
+        TaskInfo info = new TaskInfo();
+        StockTakingDetail detail = new StockTakingDetail();
+        BaseinfoItem item = null;
+
+        //临时盘点，直接填充库位信息
+        List<StockQuant> quants = quantService.getQuantsByLocationId(locationId);
+        if(quants!=null && quants.size()!=0){
+            StockQuant quant = quants.get(0);
+            item = itemService.getItem(quant.getItemId());
+            detail.setSkuId(quant.getSkuId());
+            detail.setContainerId(quant.getContainerId());
+            detail.setItemId(quant.getItemId());
+            detail.setRealItemId(quant.getItemId());
+            detail.setRealSkuId(detail.getSkuId());
+            detail.setPackName(quant.getPackName());
+            detail.setPackUnit(quant.getPackUnit());
+            detail.setOwnerId(quant.getOwnerId());
+            detail.setLotId(quant.getLotId());
+            detail.setSkuCode(item.getSkuCode());
+            detail.setSkuName(item.getSkuName());
+            detail.setBarcode(item.getCode());
+        }
+
+        if(item!=null){
+            //判断国条是不是系统的国条,如国条为空，则是该库位无商品
+            if(item.getCode().equals(barcode) || barcode.equals("")){
+                detail.setRealQty(qty);
+            }
+        }else {
+            //TODO 如果不是，则怎么办
+        }
+        detail.setStatus(StockTakingConstant.PendingAudit);
+        detail.setLocationId(locationId);
+        detail.setDetailId(RandomUtils.genId());
+        detail.setTakingId(head.getTakingId());
+        details.add(detail);
+
+        info.setStatus(TaskConstant.Done);
+        info.setTaskName("临时盘点库位[" + location.getLocationCode() + "]");
+        info.setType(TaskConstant.TYPE_STOCK_TAKING);
+        info.setSubType(StockTakingConstant.TYPE_TEMPOARY);
+        info.setFinishTime(DateUtils.getCurrentSeconds());
+        info.setPlanner(planner);
+        info.setOperator(planner);
+        info.setPlanId(head.getTakingId());
+        entry.setTaskInfo(info);
+        entry.setTaskDetailList(details);
+        iTaskRpcService.createTask(head, entry);
     }
 }

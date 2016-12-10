@@ -132,6 +132,12 @@
 			<if test="takingId != null">and taking_id=#{takingId}</if>
 			<if test="detailId != null">and detail_id=#{detailId}</if>
 			<if test="round != null">and round=#{round}</if>
+			<if test="detailList != null">
+				and detail_id in
+				<foreach collection="detailList"  item="item" index="index" open="(" separator=","  close=")">
+					#{item}
+				</foreach>
+			</if>
 			<if test="realQty != null">and real_qty=#{realQty}</if>
 			<if test="theoreticalQty != null">and theoretical_qty=#{theoreticalQty}</if>
 			<if test="containerId != null">and container_id=#{containerId}</if>
