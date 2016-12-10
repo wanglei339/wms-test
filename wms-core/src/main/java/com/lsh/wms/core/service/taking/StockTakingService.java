@@ -12,6 +12,7 @@ import com.lsh.wms.core.dao.taking.StockTakingDetailDao;
 import com.lsh.wms.core.dao.taking.StockTakingHeadDao;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.datareport.DifferenceZoneReportService;
+import com.lsh.wms.core.service.datareport.SkuMapService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.BaseinfoLocationService;
 import com.lsh.wms.core.service.location.LocationService;
@@ -22,6 +23,7 @@ import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.datareport.DifferenceZoneReport;
+import com.lsh.wms.model.datareport.SkuMap;
 import com.lsh.wms.model.stock.*;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
@@ -70,6 +72,8 @@ public class StockTakingService {
     private StockSummaryService stockSummaryService;
     @Autowired
     private BaseTaskService baseTaskService;
+    @Autowired
+    private SkuMapService skuMapService;
     @Autowired
     private DifferenceZoneReportService differenceZoneReportService;
 
@@ -126,6 +130,14 @@ public class StockTakingService {
     public void updateDetail(StockTakingDetail detail) {
         detail.setUpdatedAt(DateUtils.getCurrentSeconds());
         detailDao.update(detail);
+    }
+    @Transactional(readOnly = false)
+    public void doneDetail(StockTakingDetail detail) {
+        detail.setStatus(StockTakingConstant.PendingAudit);
+        SkuMap skuMap = skuMapService.getSkuMapBySkuCode(detail.getSkuCode());
+        detail.setPrice(skuMap.getMovingAveragePrice());
+        detail.setDifferencePrice(detail.getRealQty().subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
+        this.updateDetail(detail);
     }
 
     public List<StockTakingDetail> getDetailListByRound(Long stockTakingId, Long round) {
