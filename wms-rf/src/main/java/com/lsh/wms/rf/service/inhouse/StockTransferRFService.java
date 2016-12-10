@@ -294,7 +294,7 @@ public class StockTransferRFService implements IStockTransferRFService{
             taskId = iStockTransferRpcService.addPlan(plan);
             iTaskRpcService.assign(taskId, uid);
         }
-        final TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
+        TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
         if (taskEntry == null) {
             throw new BizCheckedException("3040001");
         }
