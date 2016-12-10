@@ -15,6 +15,7 @@ import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
+import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
@@ -22,6 +23,7 @@ import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
+import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.tu.TuDetail;
 import com.lsh.wms.model.tu.TuEntry;
@@ -68,6 +70,8 @@ public class TuService {
     private PersistenceManager persistenceManager;
     @Autowired
     private PersistenceProxy persistenceProxy;
+    @Autowired
+    private StockSummaryService stockSummaryService;
 
     @Transactional(readOnly = false)
     public void create(TuHead head) {
@@ -393,6 +397,8 @@ public class TuService {
         Map<Long, OutbDeliveryHeader> mapHeader = new HashMap<Long, OutbDeliveryHeader>();
         //Map<Long, List<OutbDeliveryDetail>> mapDetails = new HashMap<Long, List<OutbDeliveryDetail>>();
         Map<Long, Map<String, OutbDeliveryDetail>> mapMergedDeliveryDetails = new HashMap<Long, Map<String, OutbDeliveryDetail>>();
+        Map<Long, ObdHeader> mapObdHeader = new HashMap<Long, ObdHeader>();
+        List<StockMove> orderTaskStockMoveList = new LinkedList<StockMove>();
         for (WaveDetail waveDetail : totalWaveDetails) {    //没生成
             if (null == mapHeader.get(waveDetail.getOrderId())) {
                 OutbDeliveryHeader header = new OutbDeliveryHeader();
@@ -401,9 +407,13 @@ public class TuService {
                 header.setWaveId(waveDetail.getWaveId());
                 header.setTransPlan(tuHead.getTuId());
                 header.setTransTime(new Date());
-                ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(waveDetail.getOrderId());
-                if (null == obdHeader) {
-                    throw new BizCheckedException("2900007");
+                ObdHeader obdHeader = mapObdHeader.get(waveDetail.getOrderId());
+                if(obdHeader == null) {
+                    obdHeader = soOrderService.getOutbSoHeaderByOrderId(waveDetail.getOrderId());
+                    if (null == obdHeader) {
+                        throw new BizCheckedException("2900007");
+                    }
+                    mapObdHeader.put(waveDetail.getOrderId(), obdHeader);
                 }
                 header.setDeliveryCode(obdHeader.getDeliveryCode());
                 header.setDeliveryUser(tuHead.getLoadUid().toString());
@@ -540,6 +550,23 @@ public class TuService {
                 throw new BizCheckedException("2990038");
             }
             soDeliveryService.insertOrder(header, realDetails);
+            /*
+            这里做obd占用数量扣减
+             */
+            for(OutbDeliveryDetail deliveryDetail : realDetails){
+                ObdHeader obdHeader = mapObdHeader.get(deliveryDetail.getOrderId());
+                StockMove move = new StockMove();
+                move.setToLocationId(locationService.getConsumerArea().getLocationId());
+                if (obdHeader.getOrderType() == SoConstant.ORDER_TYPE_DIRECT) {
+                    move.setFromLocationId(locationService.getSoAreaDirect().getLocationId());
+                } else {
+                    move.setFromLocationId(locationService.getSoAreaInbound().getLocationId());
+                }
+                move.setItemId(deliveryDetail.getItemId());
+                move.setTaskId(header.getDeliveryId());
+                move.setQty(deliveryDetail.getDeliveryNum());
+                orderTaskStockMoveList.add(move);
+            }
             waveService.updateOrderStatus(header.getOrderId());
             persistenceProxy.doOne(SysLogConstant.LOG_TYPE_OBD, header.getDeliveryId(), 0);
             //如果是物美的so单 则新增一条日志
@@ -574,6 +601,7 @@ public class TuService {
                 waveService.setStatus(iWaveId, WaveConstant.STATUS_SUCC);
             }
         }
+        //这里做obd占用数量扣减
         return true;
     }
 
