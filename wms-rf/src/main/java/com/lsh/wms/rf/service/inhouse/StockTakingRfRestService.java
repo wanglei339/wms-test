@@ -256,6 +256,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             logger.info(e.getMessage());
             return JsonUtils.TOKEN_ERROR("违法的账户");
         }
+        logger.info("params:"+params);
         SysUser user =  iSysUserRpcService.getSysUserById(uId);
         if(user==null){
             return JsonUtils.TOKEN_ERROR("用户不存在");
