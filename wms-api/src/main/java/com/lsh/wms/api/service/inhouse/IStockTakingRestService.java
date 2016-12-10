@@ -18,7 +18,9 @@ public interface IStockTakingRestService {
     String replay() throws BizCheckedException;
     String getLocationList(LocationListRequest request);
     String getItemDetails(Map<String,Object> mapQuery) throws BizCheckedException;
+    String countItemDetails(Map<String,Object> mapQuery) throws BizCheckedException;
     String getDetails(Map<String,Object> mapQuery) throws BizCheckedException;
+    String countDetails(Map<String,Object> mapQuery) throws BizCheckedException;
     String getDetail(long takingId) throws BizCheckedException;
     String getCount(Map<String,Object> mapQuery);
     String getList(Map<String,Object> mapQuery) throws BizCheckedException;

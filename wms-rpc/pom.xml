@@ -87,7 +87,7 @@
                 <log.file>/Users/fuhao/workspace/logs/provider.log</log.file>
                 <db.url>jdbc:mysql://192.168.60.48/lsh_wms?useUnicode=true&amp;autoReconnect=true&amp;characterEncoding=UTF8&amp;allowMultiQueries=true</db.url>
                 <db.username>root</db.username>
-                <db.password>wuhao4830</db.password>
+                <db.password>root123</db.password>
                 <redis.host.w>127.0.0.1</redis.host.w>
                 <redis.port.w>6379</redis.port.w>
                 <redis.passwd.w></redis.passwd.w>
