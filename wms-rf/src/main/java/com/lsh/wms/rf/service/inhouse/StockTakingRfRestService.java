@@ -83,7 +83,6 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
     private ILocationRpcService locationRpcService;
     @Autowired
     private BaseinfoLocationWarehouseService baseinfoLocationWarehouseService;
-
     @Reference
     private IDataBackService dataBackService;
 
@@ -101,6 +100,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         List<Map> resultList = null;
         try {
             object = JSONObject.fromObject(request.get("result"));
+            //locationCode =
             taskId = Long.parseLong(object.get("taskId").toString().trim());
             resultList = object.getJSONArray("list");
         }catch (Exception e){
@@ -111,6 +111,10 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
             StockTakingTask task = (StockTakingTask) (entry.getTaskHead());
             StockTakingDetail detail = (StockTakingDetail) (entry.getTaskDetailList().get(0));
+            quantService.getQuantsByLocationId(detail.getLocationId());
+            if(detail.getTheoreticalQty().equals(BigDecimal.ZERO)) {
+
+            }
             BaseinfoItem item = itemService.getItem(detail.getItemId());
             for (Map<String, Object> beanMap : resultList) {
                 Object barcode = beanMap.get("barcode");
@@ -303,8 +307,47 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         BaseinfoItem item = itemService.getItem(detail.getItemId());
         result.put("locationCode",location==null ? "":location.getLocationCode());
         result.put("itemName", item == null ? "" : item.getSkuName());
-        result.put("qty",qty);
+        result.put("qty", qty);
         result.put("packName",packName);
+        return JsonUtils.SUCCESS(result);
+
+    }
+    @POST
+    @Path("view")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String view() throws BizCheckedException {
+        Map<String, Object> params = RequestUtils.getRequest();
+        Long taskId = 0L;
+        Long locationId = 0L;
+        String locationCode = "";
+        try {
+            if (params.get("taskId") != null) {
+                taskId = Long.valueOf(params.get("taskId").toString().trim());
+            }
+            locationCode = params.get("locationCode").toString().trim();
+            locationId = locationRpcService.getLocationIdByCode(locationCode);
+        } catch (Exception e) {
+            return JsonUtils.TOKEN_ERROR("数据格式类型有误");
+        }
+        Map<String, Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("locationId", locationId);
+        List<StockQuant> quantList = quantService.getQuants(queryMap);
+        StockQuant quant = null;
+        if(quantList!=null && quantList.size()!=0){
+            quant = quantList.get(0);
+        }
+        Map<String, Object> result = new HashMap<String, Object>();
+        if (!taskId.equals(0L)){
+            result.put("taskId", taskId.toString());
+        }
+        BaseinfoItem item = null;
+        if(quant!=null) {
+            item = itemService.getItem(quant.getItemId());
+        }
+        result.put("locationCode",locationCode);
+        result.put("itemName", item == null ? "" : item.getSkuName());
+        result.put("packName",quant!=null ? "" : quantList.get(0).getPackName());
         return JsonUtils.SUCCESS(result);
 
     }
