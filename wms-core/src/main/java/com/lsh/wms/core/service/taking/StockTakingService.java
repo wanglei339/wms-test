@@ -105,8 +105,8 @@ public class StockTakingService {
 
             detail.setCreatedAt(DateUtils.getCurrentSeconds());
             detail.setUpdatedAt(DateUtils.getCurrentSeconds());
+            detailDao.insert(detail);
         }
-        detailDao.batchInsert(detailList);
     }
 
     @Transactional(readOnly = false)
