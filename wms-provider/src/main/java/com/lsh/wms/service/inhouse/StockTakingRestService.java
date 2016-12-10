@@ -12,6 +12,7 @@ import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.service.inhouse.IStockTakingRestService;
 import com.lsh.wms.api.service.inhouse.IStockTakingProviderRpcService;
 import com.lsh.wms.api.service.location.ILocationRpcService;
+import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
@@ -105,16 +106,23 @@ public class StockTakingRestService implements IStockTakingRestService {
         this.update(head);
         return JsonUtils.SUCCESS();
     }
+    @POST
+    @Path("replay")
+    public String replay() throws BizCheckedException{
+       Map<String,Object> request = RequestUtils.getRequest();
+        List<Long> detailList = (List)request.get("detailList");
+        Long planner  = Long.valueOf(request.get("planner").toString());
+        iStockTakingProviderRpcService.replay(detailList, planner);
+        return JsonUtils.SUCCESS();
+    }
     @GET
     @Path("cancel")
-    public String cancel(@QueryParam("takingId") Long takingId) throws BizCheckedException{
-        StockTakingHead head = stockTakingService.getHeadById(takingId);
-        if(head==null){
+    public String cancel(@QueryParam("taskId") Long taskId) throws BizCheckedException{
+        TaskInfo info = baseTaskService.getTaskInfoById(taskId);
+        if(info==null){
             return JsonUtils.TOKEN_ERROR("盘点任务不存在");
         }
-        head.setStatus(5L);
-        stockTakingService.updateHead(head);
-        this.cancelTask(takingId);
+        iStockTakingProviderRpcService.calcelTask(taskId);
         return JsonUtils.SUCCESS();
     }
     @GET
@@ -179,12 +187,23 @@ public class StockTakingRestService implements IStockTakingRestService {
     public String getDetails(Map<String,Object> mapQuery) throws BizCheckedException{
         return JsonUtils.SUCCESS(stockTakingService.getDetails(mapQuery));
     }
+    @POST
+    @Path("countDetails")
+    public String countDetails(Map<String,Object> mapQuery) throws BizCheckedException{
+        return JsonUtils.SUCCESS(stockTakingService.countDetails(mapQuery));
+    }
 
     @POST
     @Path("getItemDetails")
     public String getItemDetails(Map<String,Object> mapQuery) throws BizCheckedException{
         return JsonUtils.SUCCESS(stockTakingService.getItemDetails(mapQuery));
     }
+    @POST
+    @Path("countItemDetails")
+    public String countItemDetails(Map<String,Object> mapQuery) throws BizCheckedException{
+        return JsonUtils.SUCCESS(stockTakingService.countItemDetails(mapQuery));
+    }
+
 
 
     @GET

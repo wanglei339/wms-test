@@ -418,6 +418,13 @@ public class WaveCore {
                     }
                     for(int k = 0; k < node.details.size(); ++k){
                         WaveDetail detail = node.details.get(k);
+                        logger.info(String.format("model[%d] orderid[%d] item %d allocQty[%s] node.pickType[%d] model.pickType[%d]",
+                                model.getPickModelId(),
+                                mapOrder2Head.get(detail.getOrderId()).getOrderId(),
+                                detail.getItemId(),
+                                detail.getAllocQty().toString(),
+                                node.iPickType,
+                                model.getPickType()));
                         detail.setPickZoneId(model.getPickZoneId());
                         pickTaskDetails.add(detail);
                         head.setDeliveryId(detail.getOrderId());
@@ -441,10 +448,12 @@ public class WaveCore {
                                             && loation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)) {
                                         bFindShelfStore = true;
                                         detail.setAllocPickLocation(loation.getLocationId());
+                                        logger.info(String.format("ITEM[%d] find  shelfstore, location[%s]", detail.getItemId(), loation.getLocationCode()));
                                         break;
                                     }
                                 }
                                 if (!bFindShelfStore) {
+                                    logger.info(String.format("ITEM[%d] find no shelf store, qutants[%d]", detail.getItemId(), quants.size()));
                                     info.setSubType(model.getPickType());
                                 }
                             }

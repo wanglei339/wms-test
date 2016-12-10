@@ -4,10 +4,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.CollectionUtils;
 import com.lsh.base.common.utils.DateUtils;
-import com.lsh.wms.core.constant.LocationConstant;
-import com.lsh.wms.core.constant.StockConstant;
-import com.lsh.wms.core.constant.SysLogConstant;
-import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
 import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
 import com.lsh.wms.core.service.location.LocationService;
@@ -178,15 +175,17 @@ public class StockMoveService {
 
         stockSummaryService.changeStock(move);
 
-        //库存转移 转残 转退 都需要回传sap
-        BaseinfoLocation fromLocation = locationService.getLocation(move.getFromLocationId());
-        BaseinfoLocation toLocation = locationService.getLocation(move.getToLocationId());
-        Long fromType = fromLocation.getType();
-        Long toType = toLocation.getType();
-        boolean fromflag = LocationConstant.BACK_AREA == fromType || LocationConstant.DEFECTIVE_AREA == fromType;
-        boolean toflag = LocationConstant.BACK_AREA == toType || LocationConstant.DEFECTIVE_AREA == toType;
-        if((fromflag || toflag) && !(fromflag && toflag)){
-            persistenceProxy.doOne(SysLogConstant.LOG_TYPE_MOVING,move.getTaskId(),null);
+        //库存转移 转残 转退 货主为物美的 都需要回传sap
+        if(CsiConstan.OWNER_WUMART == move.getOwnerId()){
+            BaseinfoLocation fromLocation = locationService.getLocation(move.getFromLocationId());
+            BaseinfoLocation toLocation = locationService.getLocation(move.getToLocationId());
+            Long fromType = fromLocation.getType();
+            Long toType = toLocation.getType();
+            boolean fromflag = LocationConstant.BACK_AREA == fromType || LocationConstant.DEFECTIVE_AREA == fromType;
+            boolean toflag = LocationConstant.BACK_AREA == toType || LocationConstant.DEFECTIVE_AREA == toType;
+            if((fromflag || toflag) && !(fromflag && toflag)){
+                persistenceProxy.doOne(SysLogConstant.LOG_TYPE_MOVING,move.getTaskId(),null);
+            }
         }
     }
 

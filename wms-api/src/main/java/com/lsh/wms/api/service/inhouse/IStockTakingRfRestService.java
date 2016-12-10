@@ -9,4 +9,6 @@ public interface IStockTakingRfRestService {
     String doOne() throws BizCheckedException;
     String getTaskInfo() throws BizCheckedException;
     String assign() throws BizCheckedException;
+    String view() throws BizCheckedException;
+    String restore() throws BizCheckedException;
 }

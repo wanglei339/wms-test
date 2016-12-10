@@ -504,9 +504,16 @@ public class LocationRestService implements ILocationRestService {
      */
     @POST
     @Path("buildLocations")
-    public String buildLocations() {
+    public String buildLocations() throws BizCheckedException {
         Map<String, Object> mapQuery = RequestUtils.getRequest();
         Integer type = Integer.valueOf(mapQuery.get("type").toString());
+        Map<String, Object> config = JsonUtils.json2Obj(mapQuery.get("config").toString(), Map.class);
+        String fatherLocationCode = mapQuery.get("fatherLocationCode").toString();
+        BaseinfoLocation fatherLocation = locationService.getLocationByCode(fatherLocationCode);
+        if (fatherLocation == null) {
+            throw new BizCheckedException("2180001");
+        }
+        locationService.initLocationTree(config, fatherLocation.getLocationId());
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("response", true);
         return JsonUtils.SUCCESS(result);

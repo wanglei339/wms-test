@@ -12,6 +12,7 @@ public class StockTakingConstant {
     public static final Long TYPE_TEMPOARY= 1L;//临时
     public static final Long TYPE_MOVE_OFF = 2L;//动销
     public static final Long TYPE_PLAN = 3L;//计划
+    public static final Long TYPE_REPLAY = 4L;//复盘
 
     /**
      * 盘点状态
