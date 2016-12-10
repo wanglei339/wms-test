@@ -296,49 +296,25 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         Long  taskId = Long.valueOf(code.trim());
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
 
-
-        //同一盘点任务，同一个人不能领多次
-        TaskInfo info = null;
-        StockTakingTask  takingTask = (StockTakingTask)(entry.getTaskHead());
-        if(takingTask.getRound()==1){
-                //第一轮盘点
-                info = entry.getTaskInfo();
-        }else {
-                Map<String,Object> queryMap = new HashMap<String, Object>();
-                queryMap.put("planId", takingTask.getTakingId());
-                queryMap.put("status",TaskConstant.Done);
-                List<TaskEntry> entryList = iTaskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TAKING,queryMap);
-                Map<Long,Integer> chageMap = new HashMap<Long, Integer>();
-                for(TaskEntry tmp:entryList){
-                    chageMap.put(tmp.getTaskInfo().getOperator(),1);
-                }
-                if(!chageMap.containsKey(uId)){
-                    info = entry.getTaskInfo();
-                }
-            }
-
-
-        if(info==null){
-            return JsonUtils.TOKEN_ERROR("该任务不可领");
+        if(entry==null){
+            return JsonUtils.TOKEN_ERROR("任务不存在");
         }
-
+        TaskInfo info = entry.getTaskInfo();
+        if(!info.getStatus().equals(TaskConstant.Draft)){
+            return JsonUtils.TOKEN_ERROR("该任务已被人领取或失效");
+        }
         List<Map> taskList = new ArrayList<Map>();
         Map<String,Object> taskMap =new HashMap<String, Object>();
         taskMap.put("taskId",info.getTaskId());
-        String locationCode = "";
-        Long locationId = 0L;
-        List<StockTakingDetail> details =stockTakingService.getDetailByTaskId(info.getTaskId());
-        if(details != null && details.size() > 0){
-            locationId = details.get(0).getLocationId();
-            BaseinfoLocation location = locationService.getLocation(details.get(0).getLocationId());
-            if(location != null){
-                locationCode = location.getLocationCode();
-            }
+        List<StockTakingDetail> details =stockTakingService.getDraftDetailByTaskId(info.getTaskId());
+        if(details==null || details.size()==0){
+            return JsonUtils.TOKEN_ERROR("该任务无可盘点的库位");
         }
-        taskMap.put("locationId",locationId);
-        taskMap.put("locationCode",locationCode);
-        taskList.add(taskMap);
-
+        for(StockTakingDetail detail:details) {
+            taskMap.put("locationId", detail.getLocationId());
+            taskMap.put("locationCode", detail.getLocationCode());
+            taskList.add(taskMap);
+        }
         Map<String,Object> result = new HashMap<String, Object>();
         result.put("taskList",taskList);
         return JsonUtils.SUCCESS(result);
@@ -577,17 +553,19 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             String locationCode= " ";
             Long locationId = 0L;
             List<Object> objectList = taskEntry.getTaskDetailList();
-            if(objectList != null && objectList.size() > 0){
-                StockTakingDetail detail =(StockTakingDetail)(objectList.get(0));
-                locationId = detail.getLocationId();
-                BaseinfoLocation location = locationService.getLocation(detail.getLocationId());
-                if(location != null){
-                    locationCode = location.getLocationCode();
+            if(objectList != null && objectList.size() > 0) {
+                for (Object detail : objectList) {
+                    StockTakingDetail stockTakingDetail = (StockTakingDetail) (objectList.get(0));
+                    locationId = stockTakingDetail.getLocationId();
+                    BaseinfoLocation location = locationService.getLocation(stockTakingDetail.getLocationId());
+                    if (location != null) {
+                        locationCode = location.getLocationCode();
+                    }
                 }
+                task.put("locationId", locationId);
+                task.put("locationCode", locationCode);
+                taskList.add(task);
             }
-            task.put("locationId",locationId);
-            task.put("locationCode",locationCode);
-            taskList.add(task);
 
         }
         result.put("taskList", taskList);
