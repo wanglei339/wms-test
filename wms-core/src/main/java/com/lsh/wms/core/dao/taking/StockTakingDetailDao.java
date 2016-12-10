@@ -22,5 +22,7 @@ public interface StockTakingDetailDao {
     List<StockTakingDetail> getStockTakingDetailList(Map<String, Object> params);
 
 	List<StockTakingDetail> getStockTakingItemList(Map<String, Object> params);
+
+	Integer conutStockTakingItemList(Map<String, Object> params);
 	
 }

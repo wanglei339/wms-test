@@ -125,6 +125,11 @@
 		<include refid="queryCondition"/>
 		group by item_id
 	</select>
+	<select id="conutStockTakingItemList" parameterType="map" resultMap="int">
+		select count( distinct item_id)
+		from stock_taking_detail
+		<include refid="queryCondition"/>
+	</select>
   
 	<sql id="queryCondition">
 		<where>

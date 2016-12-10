@@ -310,10 +310,16 @@ public class StockTakingService {
     public List<StockTakingDetail> getDetails(Map<String, Object> queryMap) {
         return detailDao.getStockTakingDetailList(queryMap);
     }
+    public Integer countDetails(Map<String, Object> queryMap) {
+        return detailDao.countStockTakingDetail(queryMap);
+    }
 
 
     public List<StockTakingDetail> getItemDetails(Map<String, Object> queryMap) {
         return detailDao.getStockTakingItemList(queryMap);
+    }
+    public Integer countItemDetails(Map<String, Object> queryMap) {
+        return detailDao.conutStockTakingItemList(queryMap);
     }
 
     public Integer countHead(Map queryMap) {
