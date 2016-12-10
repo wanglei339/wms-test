@@ -5,6 +5,7 @@ import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.service.inhouse.IStockTakingRpcService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
@@ -29,6 +30,8 @@ public class StockTakingRpcService implements IStockTakingRpcService {
     private StockQuantService quantService;
     @Autowired
     private ItemService itemService;
+    @Autowired
+    private LocationService locationService;
 
     public void fillDetail(StockTakingDetail detail) throws BizCheckedException{
         if(detail!=null){
@@ -36,6 +39,7 @@ public class StockTakingRpcService implements IStockTakingRpcService {
             if(quants!=null && quants.size()!=0){
                 StockQuant quant = quants.get(0);
                 BaseinfoItem item = itemService.getItem(quant.getItemId());
+                BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
                 detail.setSkuId(quant.getSkuId());
                 detail.setContainerId(quant.getContainerId());
                 detail.setItemId(quant.getItemId());
@@ -48,6 +52,7 @@ public class StockTakingRpcService implements IStockTakingRpcService {
                 detail.setSkuCode(item.getSkuCode());
                 detail.setSkuName(item.getSkuName());
                 detail.setBarcode(item.getCode());
+                detail.setLocationCode(location.getLocationCode());
             }
             stockTakingService.updateDetail(detail);
         }
