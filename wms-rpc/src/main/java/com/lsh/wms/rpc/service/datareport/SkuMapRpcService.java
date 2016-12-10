@@ -7,6 +7,7 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.datareport.ISkuMapRpcService;
 import com.lsh.wms.api.service.wumart.IWuMartSap;
 import com.lsh.wms.core.service.datareport.SkuMapService;
+import com.lsh.wms.core.service.utils.SkuUtil;
 import com.lsh.wms.model.datareport.SkuMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ public class SkuMapRpcService implements ISkuMapRpcService{
         List<SkuMap> addSkuMapList = new ArrayList<SkuMap>();
         List<SkuMap> updateSkuMapList = new ArrayList<SkuMap>();
         for(String skuCode : skuCodes){
-            BigDecimal price = wuMartSap.map2Sap(skuCode);
+            BigDecimal price = wuMartSap.map2Sap(SkuUtil.getSkuCode(skuCode));
             SkuMap skuMap = skuMapService.getSkuMapBySkuCode(skuCode);
             if(skuMap == null){
                 skuMap = new SkuMap();
