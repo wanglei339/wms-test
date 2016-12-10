@@ -500,6 +500,8 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         }
         result.put("locationCode",locationCode);
         result.put("itemName", item == null ? "" : item.getSkuName());
+        result.put("barcode", item == null ? "" : item.getCode());
+        result.put("skuCode", item == null ? "" : item.getSkuCode());
         result.put("packName",quant!=null ? "" : quantList.get(0).getPackName());
         return JsonUtils.SUCCESS(result);
 
