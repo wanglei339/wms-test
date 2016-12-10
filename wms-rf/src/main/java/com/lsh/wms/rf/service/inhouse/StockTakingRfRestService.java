@@ -89,7 +89,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
     public String doOne() throws BizCheckedException {
-        //Long taskId,int qty,String barcode
+        //Long taskId,int qty,String barcode,String locationCode
         Map request = RequestUtils.getRequest();
         JSONObject object = null;
         Long taskId = 0L;
@@ -164,20 +164,6 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         }
 
         stockTakingService.doneDetail(detail);
-
-         //获取该任务的所有的detail,判断是否都done,是的话,done整个task
-         List<StockTakingDetail> stockTakingDetailList = stockTakingService.getDetailByTaskId(taskId);
-        //所有detail是否完成
-         boolean isAllTaskDone = true;
-         for(StockTakingDetail stockTakingDetail: stockTakingDetailList){
-             if(stockTakingDetail.getStatus().compareTo(StockTakingConstant.Assigned) == 0 ){
-                 isAllTaskDone = false;
-             }
-         }
-         if(isAllTaskDone){
-             iTaskRpcService.done(taskId);
-         }
-
 
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
             {
