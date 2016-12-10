@@ -602,6 +602,7 @@ public class TuService {
             }
         }
         //这里做obd占用数量扣减
+        stockMoveService.move(orderTaskStockMoveList);
         return true;
     }
 
