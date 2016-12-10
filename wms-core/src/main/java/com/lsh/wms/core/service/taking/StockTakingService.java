@@ -105,8 +105,8 @@ public class StockTakingService {
 
             detail.setCreatedAt(DateUtils.getCurrentSeconds());
             detail.setUpdatedAt(DateUtils.getCurrentSeconds());
+            detailDao.insert(detail);
         }
-        detailDao.batchInsert(detailList);
     }
 
     @Transactional(readOnly = false)
@@ -135,7 +135,26 @@ public class StockTakingService {
         SkuMap skuMap = skuMapService.getSkuMapBySkuCode(detail.getSkuCode());
         detail.setPrice(skuMap.getMovingAveragePrice());
         detail.setDifferencePrice(detail.getRealQty().subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
+
         this.updateDetail(detail);
+
+        //获取该任务的所有的detail,判断是否都done,是的话,done整个task
+        List<StockTakingDetail> stockTakingDetailList = this.getDetailByTaskId(detail.getTaskId());
+        //所有detail是否完成
+        boolean isAllTaskDone = true;
+        for(StockTakingDetail stockTakingDetail: stockTakingDetailList){
+            if(stockTakingDetail.getStatus().compareTo(StockTakingConstant.Assigned) == 0 ){
+                isAllTaskDone = false;
+            }
+        }
+
+        if(isAllTaskDone){
+            TaskInfo info = baseTaskService.getTaskInfoById(detail.getTaskId());
+            info.setStatus(TaskConstant.Done);
+            info.setFinishTime(DateUtils.getCurrentSeconds());
+            info.setUpdatedAt(DateUtils.getCurrentSeconds());
+            baseTaskService.update(info);
+        }
     }
 
     public List<StockTakingDetail> getDetailListByRound(Long stockTakingId, Long round) {
