@@ -136,7 +136,8 @@ public class StockTakingService {
         detail.setStatus(StockTakingConstant.PendingAudit);
 
         if(!detail.getSkuCode().equals("")) {
-            SkuMap skuMap = skuMapService.getSkuMapBySkuCode(detail.getSkuCode());
+            String skuCode = detail.getSkuCode().replaceAll("^(0+)", "");
+            SkuMap skuMap = skuMapService.getSkuMapBySkuCode(skuCode);
             if (skuMap == null) {
                 throw new BizCheckedException("2880022", detail.getSkuCode(), "");
             }
