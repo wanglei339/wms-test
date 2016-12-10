@@ -40,6 +40,7 @@ import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.StockTakingTask;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,6 +93,93 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
     @Path("doOne")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String doOne() throws BizCheckedException {
+        //Long taskId,int qty,String barcode
+        Map request = RequestUtils.getRequest();
+        JSONObject object = null;
+        Long taskId = 0L;
+        List<Map> resultList = null;
+        try {
+            object = JSONObject.fromObject(request.get("result"));
+            taskId = Long.parseLong(object.get("taskId").toString().trim());
+            resultList = object.getJSONArray("list");
+        }catch (Exception e){
+            return JsonUtils.TOKEN_ERROR("JSON解析失败");
+        }
+
+        if (resultList == null || resultList.size() == 0) {
+            return JsonUtils.TOKEN_ERROR("参数错误");
+
+        }
+
+        Map<String, Object> beanMap = resultList.get(0);
+        //商品码
+        Object barcode = beanMap.get("barcode");
+        //盘点数量
+        BigDecimal realQty = new BigDecimal(beanMap.get("qty").toString().trim());
+        //库位编码
+        String locationCode = beanMap.get("locationCode").toString();
+
+        BaseinfoLocation location = locationService.getLocationByCode(locationCode);
+        if(location == null){
+            return JsonUtils.TOKEN_ERROR("位置不存在");
+        }
+
+        Long locationId = location.getLocationId();
+
+        //获取当前位置的任务信息
+        StockTakingDetail detail = stockTakingService.getDetailByTaskIdAndLocation(taskId,locationId);
+
+        BaseinfoItem item = null;//该库位存储的商品
+        if(detail.getTheoreticalQty().equals(BigDecimal.ZERO)){
+            //该盘点位置没有商品
+        }else{
+            item = itemService.getItem(detail.getItemId());
+
+        }
+
+
+        if(item == null && barcode == null) {
+            //无异常
+        }else if(barcode != null && item.getCode().equals(barcode.toString().trim())) {
+            //库位有商品
+            BigDecimal qty = quantService.getQuantQtyByLocationIdAndItemId(detail.getLocationId(), detail.getItemId());
+            detail.setTheoreticalQty(qty);
+            detail.setBarcode(barcode.toString());
+            detail.setRealQty(realQty);
+            detail.setUpdatedAt(DateUtils.getCurrentSeconds());
+            stockTakingService.updateDetail(detail);
+        }else if(item != null && barcode == null){
+            //理论有商品,库位无商品
+            detail.setRealQty(BigDecimal.ZERO);
+            detail.setUpdatedAt(DateUtils.getCurrentSeconds());
+            stockTakingService.updateDetail(detail);
+        }
+
+
+        //done detail
+
+         //获取该任务的所有的detail,判断是否都done,是的话,done整个task
+         List<StockTakingDetail> stockTakingDetailList = stockTakingService.getDetailByTaskId(taskId);
+        //所有detail是否完成
+         boolean isAllTaskDone = true;
+         for(StockTakingDetail stockTakingDetail: stockTakingDetailList){
+             if(stockTakingDetail.getStatus().compareTo(StockTakingConstant.Assigned) == 0 ){
+                 isAllTaskDone = false;
+             }
+         }
+         if(isAllTaskDone){
+             iTaskRpcService.done(taskId);
+         }
+
+
+        return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+            {
+                put("response", true);
+            }
+        });
+    }
+    /*
     public String doOne() throws BizCheckedException {
         //Long taskId,int qty,String barcode
         Map request = RequestUtils.getRequest();
@@ -152,11 +240,93 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             }
         });
     }
-
+     */
+    /**
+     * 扫码领取盘点任务
+     * @return
+     * @throws BizCheckedException
+     */
     @POST
     @Path("assign")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String assign() throws BizCheckedException {
+        Map<String, Object> params =RequestUtils.getRequest();
+        Long uId=0L;
+        try {
+            uId =  Long.valueOf(RequestUtils.getHeader("uid"));
+        }catch (Exception e){
+            logger.info(e.getMessage());
+            return JsonUtils.TOKEN_ERROR("违法的账户");
+        }
+        SysUser user =  iSysUserRpcService.getSysUserById(uId);
+        if(user==null){
+            return JsonUtils.TOKEN_ERROR("用户不存在");
+        }
+        String code = params.get("code").toString();
+        if(StringUtils.isBlank(code)){
+            return JsonUtils.TOKEN_ERROR("任务码不能为空");
+        }
+
+        //获取用户正在进行的拣货任务
+        Map<String,Object> processingTask = getProcessingTask(uId);
+        List<Map> processingTaskList = (List<Map>) processingTask.get("taskList");
+        if(processingTaskList != null && processingTaskList.size() > 0){
+            return JsonUtils.SUCCESS(processingTask);
+        }
+
+        //盘点签,即任务ID
+        Long  taskId = Long.valueOf(code.trim());
+        TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
+
+
+        //同一盘点任务，同一个人不能领多次
+        TaskInfo info = null;
+        StockTakingTask  takingTask = (StockTakingTask)(entry.getTaskHead());
+        if(takingTask.getRound()==1){
+                //第一轮盘点
+                info = entry.getTaskInfo();
+        }else {
+                Map<String,Object> queryMap = new HashMap<String, Object>();
+                queryMap.put("planId", takingTask.getTakingId());
+                queryMap.put("status",TaskConstant.Done);
+                List<TaskEntry> entryList = iTaskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TAKING,queryMap);
+                Map<Long,Integer> chageMap = new HashMap<Long, Integer>();
+                for(TaskEntry tmp:entryList){
+                    chageMap.put(tmp.getTaskInfo().getOperator(),1);
+                }
+                if(!chageMap.containsKey(uId)){
+                    info = entry.getTaskInfo();
+                }
+            }
+
+
+        if(info==null){
+            return JsonUtils.TOKEN_ERROR("该任务不可领");
+        }
+
+        List<Map> taskList = new ArrayList<Map>();
+        Map<String,Object> taskMap =new HashMap<String, Object>();
+        taskMap.put("taskId",info.getTaskId());
+        String locationCode = "";
+        Long locationId = 0L;
+        List<StockTakingDetail> details =stockTakingService.getDetailByTaskId(info.getTaskId());
+        if(details != null && details.size() > 0){
+            locationId = details.get(0).getLocationId();
+            BaseinfoLocation location = locationService.getLocation(details.get(0).getLocationId());
+            if(location != null){
+                locationCode = location.getLocationCode();
+            }
+        }
+        taskMap.put("locationId",locationId);
+        taskMap.put("locationCode",locationCode);
+        taskList.add(taskMap);
+
+        Map<String,Object> result = new HashMap<String, Object>();
+        result.put("taskList",taskList);
+        return JsonUtils.SUCCESS(result);
+    }
+    /*
     public String assign() throws BizCheckedException {
         Map<String,Object> result = new HashMap<String, Object>();
         Long uId=0L;
@@ -260,6 +430,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         result.put("taskList",taskList);
         return JsonUtils.SUCCESS(result);
     }
+     */
 
     @POST
     @Path("getTask")
@@ -308,5 +479,64 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         return JsonUtils.SUCCESS(result);
 
     }
+
+    /**
+     * 回溯操作人正在进行的盘点任务
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("restore")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String restore() throws BizCheckedException{
+
+        Long  uId =  Long.valueOf(RequestUtils.getHeader("uid"));
+
+        return JsonUtils.SUCCESS(getProcessingTask(uId));
+
+    }
+
+    /**
+     * 获取当前用户正在进行的任务
+     * @param uid
+     * @return
+     */
+    public Map<String,Object> getProcessingTask(Long uid){
+        Map<String,Object> result = new HashMap<String, Object>();
+
+        Map<String,Object> statusQueryMap = new HashMap();
+        statusQueryMap.put("status",TaskConstant.Assigned);
+        statusQueryMap.put("operator", uid);
+        List<TaskEntry> list = iTaskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TAKING, statusQueryMap);
+
+        Map<String,Object>task = new HashMap<String,Object>();
+
+        List<Map> taskList = new ArrayList<Map>();
+
+        if(list != null && list.size() > 0){
+            TaskEntry taskEntry = list.get(0);
+
+            task.put("taskId",taskEntry.getTaskInfo().getTaskId().toString());
+            String locationCode= " ";
+            Long locationId = 0L;
+            List<Object> objectList = taskEntry.getTaskDetailList();
+            if(objectList != null && objectList.size() > 0){
+                StockTakingDetail detail =(StockTakingDetail)(objectList.get(0));
+                locationId = detail.getLocationId();
+                BaseinfoLocation location = locationService.getLocation(detail.getLocationId());
+                if(location != null){
+                    locationCode = location.getLocationCode();
+                }
+            }
+            task.put("locationId",locationId);
+            task.put("locationCode",locationCode);
+            taskList.add(task);
+
+        }
+        result.put("taskList", taskList);
+        return result;
+    }
+
 
 }

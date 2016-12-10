@@ -8,6 +8,7 @@ import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.taking.StockTakingService;
+import com.lsh.wms.core.service.utils.SkuUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.stock.OverLossReport;
 import com.lsh.wms.model.system.SysLog;
@@ -49,7 +50,7 @@ public class InventoryTransporter implements ITransporter{
             //修改为EA
             item.setEntryUom("EA");
             item.setEntryQnt(overLossReport.getQty().toString());
-            item.setMaterialNo(overLossReport.getSkuCode());
+            item.setMaterialNo(SkuUtil.getSkuCode(overLossReport.getSkuCode()));
             list.add(item);
             request.setMoveType(String.valueOf(IntegrationConstan.WIN));
             request.setItems(list);

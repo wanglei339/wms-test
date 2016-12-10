@@ -122,7 +122,9 @@ public class ShelveRpcService implements IShelveRpcService {
             }
             // 判断该拣货位是否符合拣货标准
             // TODO 不找拣货位了,调度器创建任务时传过来
-            if (procurementRpcService.needProcurement(pickingLocationId, itemId)) {
+            // Boolean needProcurement = procurementRpcService.needProcurement(pickingLocationId, itemId); // 暂时修改为只上货架位
+            Boolean needProcurement = false;
+            if (needProcurement) {
                 // 对比保质期差额阈值
                 if (this.checkShelfLifeThreshold(quant, pickingLocation, BinUsageConstant.BIN_UASGE_STORE)) {
                     return pickingLocation;

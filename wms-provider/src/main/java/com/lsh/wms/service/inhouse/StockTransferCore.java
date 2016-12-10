@@ -285,8 +285,14 @@ public class StockTransferCore {
         if (taskInfo.getSubType().compareTo(1L) == 0) {
             stockMoveService.moveWholeContainer(containerId, taskId, uid, fromLocationId, toLocationId);
         } else {
-            BigDecimal qtyDone = new BigDecimal(params.get("uomQty").toString().trim());
-            BigDecimal scatterQty = new BigDecimal(params.get("scatterQty").toString().trim());
+            BigDecimal qtyDone = BigDecimal.ZERO;
+            BigDecimal scatterQty = BigDecimal.ZERO;
+            if(params.get("uomQty")!=null){
+                qtyDone = new BigDecimal(params.get("uomQty").toString().trim());
+            }
+            if(params.get("scatterQty")!=null) {
+                scatterQty = new BigDecimal(params.get("scatterQty").toString().trim());
+            }
             BigDecimal inboundUnitQty = PackUtil.UomQty2EAQty(qtyDone, taskInfo.getPackName()).add(scatterQty);
             if (inboundUnitQty.compareTo(BigDecimal.ZERO) <= 0) {
                 throw new BizCheckedException("2550034");

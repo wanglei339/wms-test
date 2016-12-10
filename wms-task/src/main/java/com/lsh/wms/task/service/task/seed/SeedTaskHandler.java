@@ -9,10 +9,7 @@ import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.seed.ISeedRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
-import com.lsh.wms.core.constant.LocationConstant;
-import com.lsh.wms.core.constant.RedisKeyConstant;
-import com.lsh.wms.core.constant.SoConstant;
-import com.lsh.wms.core.constant.TaskConstant;
+import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
@@ -277,7 +274,10 @@ public class SeedTaskHandler extends AbsTaskHandler {
         if(ibdHeader == null) {
             throw new BizCheckedException("2020001");
         }
-
+        if(!ibdHeader.getOrderStatus().equals(PoConstant.ORDER_RECTIPTING)){
+            ibdHeader.setOrderStatus(PoConstant.ORDER_RECTIPTING);
+            poOrderService.updateInbPoHeader(ibdHeader);
+        }
         //收货播种
         if(info.getSubType().compareTo(1L)==0){
             StockQuantCondition condition = new StockQuantCondition();
@@ -367,7 +367,18 @@ public class SeedTaskHandler extends AbsTaskHandler {
             ReceiptRequest receiptRequest = this.fillReceipt(entry);
             seedRpcService.insertReceipt(receiptRequest);
             // 直流订单在此预占库存
-            stockSummaryService.allocPresale(move.getItemId(), move.getQty(), info.getOrderId());
+            StockMove presale = new StockMove();
+            presale.setItemId(move.getItemId());
+            presale.setFromLocationId(locationService.getConsumerArea().getLocationId());
+            presale.setToLocationId(locationService.getSoAreaDirect().getLocationId());
+            presale.setQty(move.getQty());
+            presale.setTaskId(info.getOrderId());
+            List<StockMove> moveList = Arrays.asList(presale);
+            stockSummaryService.alloc(moveList);
+
+
+
+
         }else {
             // 托盘播种，这里的货是已经收过的
             moveService.move(move);
@@ -428,7 +439,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
             ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderOtherIdAndType(obdOtherId, SoConstant.ORDER_TYPE_DIRECT);
 
 //            if(obdHeader.getDeliveryCode().equals(head.getStoreNo().toString())) {
-            String key = StrUtils.formatString(RedisKeyConstant.PO_STORE, info.getOrderId(), head.getStoreNo());
+            String key = StrUtils.formatString(RedisKeyConstant.PO_STORE, info.getOrderId(), obdHeader.getDeliveryCode());
             orderMap.put(key,obdHeader.getOrderId());
 //            }
         }

@@ -253,6 +253,18 @@ public class StockTakingService {
         return detailDao.getStockTakingDetailList(queryMap);
 
     }
+    public StockTakingDetail getDetailByTaskIdAndLocation(Long taskId,Long locationId) {
+        Map<String, Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("taskId", taskId);
+        queryMap.put("locationId", locationId);
+        List<StockTakingDetail> list = detailDao.getStockTakingDetailList(queryMap);
+        if(list == null || list.size() <= 0){
+            return null;
+        }else{
+            return list.get(0);
+        }
+
+    }
 
     public List<StockTakingDetail> getDetailByTakingId(Long takingId) {
         Map<String, Object> queryMap = new HashMap<String, Object>();
@@ -362,7 +374,14 @@ public class StockTakingService {
             //同步库存判断是直流还是在库的
             Long businessMode = qcInfo.getBusinessMode();
             if (TaskConstant.MODE_DIRECT.equals(businessMode)){
-                stockSummaryService.eliminateDiff(move);
+                StockMove diff = new StockMove();
+                diff.setToLocationId(locationService.getDiffAreaLocation().getLocationId());
+                diff.setFromContainerId(locationService.getSoAreaDirect().getLocationId());
+                diff.setQty(move.getQty());
+                diff.setItemId(move.getItemId());
+                diff.setTaskId(move.getTaskId());
+                List<StockMove> diffList = Arrays.asList(diff);
+                stockSummaryService.eliminateDiff(diffList);
             }
         } catch (Exception e) {
             logger.error("MOVE STOCK FAIL , containerId is " + move.getToContainerId() + "taskId is " + move.getTaskId() + e.getMessage());

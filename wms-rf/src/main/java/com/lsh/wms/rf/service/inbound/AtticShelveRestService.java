@@ -531,9 +531,8 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         }
 
         BaseinfoLocationBin bin = (BaseinfoLocationBin) locationBinService.getBaseinfoItemLocationModelById(targetLocation.getLocationId());
+        BigDecimal num = bin.getVolume().divide(bulk,0,BigDecimal.ROUND_DOWN);
 
-        //锁Location
-        locationService.lockLocation(targetLocation.getLocationId());
         //插detail
         AtticShelveTaskDetail detail = new AtticShelveTaskDetail();
         StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
@@ -544,7 +543,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         detail.setAllocLocationId(targetLocation.getLocationId());
         detail.setRealLocationId(targetLocation.getLocationId());
 
-        BigDecimal num = bin.getVolume().divide(bulk,0,BigDecimal.ROUND_DOWN);
+
         if (total.subtract(num).compareTo(BigDecimal.ZERO) >= 0) {
             detail.setQty(num);
         } else {
@@ -598,6 +597,8 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
                 for(StockQuant stockQuant:stockQuants){
 
                     if(!locationSet.contains(quant.getLocationId())) {
+                        locationSet.add(quant.getLocationId());
+
                         qty = this.getQty(stockQuant.getLocationId(), info.getItemId(), quant);
                         if (qty.compareTo(BigDecimal.ONE) <= 0) {
                             continue;
@@ -606,7 +607,6 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
                             break;
                         }
                     }
-                    locationSet.add(quant.getLocationId());
                 }
             }
         }
@@ -637,8 +637,6 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
                     continue;
                 }
 
-                //锁Location
-                locationService.lockLocation(location.getLocationId());
                 //插detail
                 detail = new AtticShelveTaskDetail();
                 StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
