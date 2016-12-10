@@ -289,9 +289,14 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         if(details==null || details.size()==0){
             return JsonUtils.TOKEN_ERROR("该任务无可盘点的库位");
         }
+        List<BaseinfoLocation> locationList = new ArrayList<BaseinfoLocation>();
         for(StockTakingDetail detail:details) {
-            taskMap.put("locationId", detail.getLocationId());
-            taskMap.put("locationCode", detail.getLocationCode());
+            locationList.add(locationService.getLocation(detail.getLocationId()));
+        }
+        locationList  = locationService.calcZwayOrder(locationList,true);
+        for(BaseinfoLocation location:locationList) {
+            taskMap.put("locationId", location.getLocationId());
+            taskMap.put("locationCode", location.getLocationCode());
             taskList.add(taskMap);
         }
         Map<String,Object> result = new HashMap<String, Object>();
@@ -460,6 +465,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         Long taskId = 0L;
         Long locationId = 0L;
         String locationCode = "";
+        logger.info("params:"+params);
         try {
             if (params.get("taskId") != null) {
                 taskId = Long.valueOf(params.get("taskId").toString().trim());
