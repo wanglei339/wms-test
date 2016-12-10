@@ -1,6 +1,7 @@
 package com.lsh.wms.model.wave;
 
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -54,6 +55,8 @@ public class WaveDetail implements Serializable {
     private Long pickZoneId = 0L;
 	/** 分配分拣区域locationid */
 	private Long pickAreaLocation = 0L;
+	/** 分配分拣区域location,数据库里没有,用来传数据的 */
+	private BaseinfoLocation pickArea;
 	/** 拣货顺序 */
 	private Long pickOrder = 0L;
 	/** 分配分拣位 */
@@ -538,6 +541,14 @@ public class WaveDetail implements Serializable {
 
 	public void setQcFaultQty(BigDecimal qcFaultQty){
 		this.qcFaultQty = qcFaultQty;
+	}
+
+	public void setPickArea(BaseinfoLocation pickArea){
+		this.pickArea = pickArea;
+	}
+
+	public BaseinfoLocation getPickArea(){
+		return this.pickArea;
 	}
 
 }

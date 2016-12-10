@@ -8,6 +8,7 @@ import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.BinUsageConstant;
 import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
@@ -103,7 +104,7 @@ public class StockTransferCore {
         //check to location
         List<StockQuant> toQuants = quantService.getQuantsByLocationId(toLocation.getLocationId());
         // 拣货位
-        if (toLocation.getBinUsage() > 0) {
+        if (toLocation.getBinUsage() == BinUsageConstant.BIN_UASGE_PICK) {
             List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toLocation.getLocationId());
             if (itemLocations.size() > 0 && itemLocations.get(0).getItemId().compareTo(itemId) != 0) {
                 throw new BizCheckedException("2550004");
