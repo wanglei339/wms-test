@@ -284,7 +284,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         }
         List<Map> taskList = new ArrayList<Map>();
         Map<String,Object> taskMap =new HashMap<String, Object>();
-        taskMap.put("taskId",info.getTaskId());
+        taskMap.put("taskId",info.getTaskId().toString());
         List<StockTakingDetail> details =stockTakingService.getDraftDetailByTaskId(info.getTaskId());
         if(details==null || details.size()==0){
             return JsonUtils.TOKEN_ERROR("该任务无可盘点的库位");
@@ -293,6 +293,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         for(StockTakingDetail detail:details) {
             locationList.add(locationService.getLocation(detail.getLocationId()));
         }
+        //将任务通道排序
         locationList  = locationService.calcZwayOrder(locationList,true);
         for(BaseinfoLocation location:locationList) {
             taskMap.put("locationId", location.getLocationId());
@@ -440,7 +441,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         detail.setTheoreticalQty(qty);
         stockTakingService.updateDetail(detail);
         Map<String,Object> queryMap =new HashMap<String, Object>();
-        queryMap.put("itemId",detail.getItemId());
+        queryMap.put("itemId",detail.getItemId().toString());
         queryMap.put("locationId",detail.getLocationId());
         List<StockQuant> quantList = quantService.getQuants(queryMap);
         String packName = (quantList==null ||quantList.size()==0) ? "" : quantList.get(0).getPackName();
@@ -494,7 +495,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         result.put("itemName", item == null ? "" : item.getSkuName());
         result.put("barcode", item == null ? "" : item.getCode());
         result.put("skuCode", item == null ? "" : item.getSkuCode());
-        result.put("packName",quant!=null ? "" : quantList.get(0).getPackName());
+        result.put("packName",quant==null ? "" : quantList.get(0).getPackName());
         return JsonUtils.SUCCESS(result);
 
     }
