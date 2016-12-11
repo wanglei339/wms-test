@@ -285,7 +285,7 @@ public class StockTakingService {
         return;
     }
     @Transactional(readOnly = false)
-    public void comfirm(List<StockTakingDetail> stockTakingDetails) {
+    public void confirm(List<StockTakingDetail> stockTakingDetails) {
         for (StockTakingDetail stockTakingDetail : stockTakingDetails) {
             stockTakingDetail.setIsFinal(1);
             this.updateDetail(stockTakingDetail);
@@ -300,6 +300,8 @@ public class StockTakingService {
             if (detail.getItemId() == 0L) {
                 continue;
             }
+            detail.setStatus(StockTakingConstant.Done);
+            this.updateDetail(detail);
             OverLossReport overLossReport = new OverLossReport();
             //StockItem stockItem = new StockItem();
             if (detail.getSkuId().equals(detail.getRealSkuId())) {

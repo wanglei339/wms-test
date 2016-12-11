@@ -20,7 +20,7 @@ public interface IStockTakingProviderRpcService {
     List<StockTakingDetail> prepareDetailList(StockTakingHead head);
     List<Long> getTakingLocation(StockTakingRequest request);
     void createTemporary(StockTakingRequest request);
-    void comfirmDetail(List<Long> detailList) throws BizCheckedException;
+    void confirmDetail(List<Long> detailList) throws BizCheckedException;
     void batchCreateStockTaking(Map<Long,List<Long>> takingMap,Long takingType,Long planner) throws BizCheckedException;
     void createStockTaking(List<Long> locations,Long zoneId,Long takingType,Long planner) throws BizCheckedException;
     void createPlanWarehouse(List<Long> zoneIds, Long planer) throws BizCheckedException;

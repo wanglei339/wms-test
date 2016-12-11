@@ -141,14 +141,14 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             iTaskRpcService.batchCreate(head, taskEntries);
         }
     }
-    public void comfirmDetail(List<Long> detailList) throws BizCheckedException {
+    public void confirmDetail(List<Long> detailList) throws BizCheckedException {
         Map<String,Object> queryMap = new HashMap<String, Object>();
         queryMap.put("status", StockTakingConstant.PendingAudit);
         queryMap.put("isValid", 1);
         queryMap.put("detailList",detailList);
         List<StockTakingDetail> details = stockTakingService.getDetails(queryMap);
         if(details!=null && details.size()!=0){
-            stockTakingService.comfirm(details);
+            stockTakingService.confirm(details);
         }
     }
     public void createTask(StockTakingHead head, List<StockTakingDetail> detailList,Long round,Long dueTime) throws BizCheckedException{

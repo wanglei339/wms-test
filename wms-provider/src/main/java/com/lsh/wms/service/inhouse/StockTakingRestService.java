@@ -116,11 +116,11 @@ public class StockTakingRestService implements IStockTakingRestService {
         return JsonUtils.SUCCESS();
     }
     @POST
-    @Path("comfirm")
-    public String comfirm() throws BizCheckedException{
+    @Path("confirm")
+    public String confirm() throws BizCheckedException{
         Map<String,Object> request = RequestUtils.getRequest();
         List<Long> detailList = (List)request.get("detailList");
-        iStockTakingProviderRpcService.comfirmDetail(detailList);
+        iStockTakingProviderRpcService.confirmDetail(detailList);
         return JsonUtils.SUCCESS();
     }
     @GET
