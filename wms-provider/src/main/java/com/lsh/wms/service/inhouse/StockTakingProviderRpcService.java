@@ -98,6 +98,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             iTaskRpcService.cancel(taskId);
         }
     }
+    @Transactional(readOnly = false)
     public void replay(List<Long> detailList,Long planner) throws BizCheckedException {
         Map<String,Object> queryMap = new HashMap<String, Object>();
         queryMap.put("status", StockTakingConstant.PendingAudit);
@@ -105,6 +106,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         queryMap.put("detailList",detailList);
         List<StockTakingDetail> details = stockTakingService.getDetails(queryMap);
         if(details!=null && details.size()!=0){
+            stockTakingService.doneReplay(details);
             StockTakingHead head = new StockTakingHead();
             head.setPlanType(StockTakingConstant.TYPE_REPLAY);
             head.setTakingId(RandomUtils.genId());
@@ -137,6 +139,16 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
                 taskEntries.add(taskEntry);
             }
             iTaskRpcService.batchCreate(head, taskEntries);
+        }
+    }
+    public void comfirmDetail(List<Long> detailList) throws BizCheckedException {
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("status", StockTakingConstant.PendingAudit);
+        queryMap.put("isValid", 1);
+        queryMap.put("detailList",detailList);
+        List<StockTakingDetail> details = stockTakingService.getDetails(queryMap);
+        if(details!=null && details.size()!=0){
+            stockTakingService.comfirm(details);
         }
     }
     public void createTask(StockTakingHead head, List<StockTakingDetail> detailList,Long round,Long dueTime) throws BizCheckedException{

@@ -90,6 +90,15 @@ public class StockTakingService {
 
         headDao.update(head);
     }
+    @Transactional(readOnly = false)
+    public void doneReplay(List<StockTakingDetail> details) {
+        for(StockTakingDetail detail:details){
+            detail.setStatus(StockTakingConstant.Done);
+            detail.setIsValid(0);
+            detail.setUpdatedAt(DateUtils.getCurrentSeconds());
+            this.updateDetail(detail);
+        }
+    }
 
 
     @Transactional(readOnly = false)
@@ -132,7 +141,7 @@ public class StockTakingService {
     }
     @Transactional(readOnly = false)
     public void doneDetail(StockTakingDetail detail) {
-        logger.info("hehehehe:"+detail);
+        logger.info("hehehehe:" + detail);
         detail.setStatus(StockTakingConstant.PendingAudit);
 
         if(!detail.getSkuCode().equals("")) {
@@ -274,6 +283,97 @@ public class StockTakingService {
         }
         this.updateHead(head);
         return;
+    }
+    @Transactional(readOnly = false)
+    public void comfirm(List<StockTakingDetail> stockTakingDetails) {
+        for (StockTakingDetail stockTakingDetail : stockTakingDetails) {
+            stockTakingDetail.setIsFinal(1);
+            this.updateDetail(stockTakingDetail);
+        }
+        List<StockMove> moveList = new ArrayList<StockMove>();
+//        //盘亏 盘盈的分成两个list items为盘亏 items1盘盈
+//        List<StockItem> itemsLoss = new ArrayList<StockItem>();
+//        List<StockItem> itemsWin = new ArrayList<StockItem>();
+//        StockRequest request = new StockRequest();
+        List<OverLossReport> overLossReports = new ArrayList<OverLossReport>();
+        for (StockTakingDetail detail : stockTakingDetails) {
+            if (detail.getItemId() == 0L) {
+                continue;
+            }
+            OverLossReport overLossReport = new OverLossReport();
+            //StockItem stockItem = new StockItem();
+            if (detail.getSkuId().equals(detail.getRealSkuId())) {
+
+                if(detail.getTheoreticalQty().compareTo(detail.getRealQty())==0){
+                    continue;
+                }
+
+                Long containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
+                StockMove move = new StockMove();
+                move.setTaskId(detail.getTaskId());
+                move.setSkuId(detail.getSkuId());
+                move.setItemId(detail.getItemId());
+                move.setStatus(TaskConstant.Done);
+
+                BaseinfoItem item = itemService.getItem(move.getItemId());
+                overLossReport.setItemId(detail.getItemId());
+                overLossReport.setOwnerId(detail.getOwnerId());
+                overLossReport.setLotId(detail.getLotId());
+                overLossReport.setPackName(detail.getPackName());
+                overLossReport.setSkuCode(item.getSkuCode());
+                overLossReport.setRefTaskId(detail.getTaskId());
+
+                if (detail.getTheoreticalQty().compareTo(detail.getRealQty()) > 0) {
+                    BigDecimal qty = detail.getTheoreticalQty().subtract(detail.getRealQty());
+                    overLossReport.setMoveType(OverLossConstant.LOSS_REPORT);
+                    overLossReport.setQty(qty);
+
+
+                    move.setQty(qty);
+                    move.setFromLocationId(detail.getLocationId());
+                    move.setToLocationId(locationService.getInventoryLostLocation().getLocationId());
+                    move.setToContainerId(containerId);
+                    //组装回传物美的数据
+
+                } else {
+                    BigDecimal qty = detail.getRealQty().subtract(detail.getTheoreticalQty());
+                    overLossReport.setMoveType(OverLossConstant.OVER_REPORT);
+                    overLossReport.setQty(qty);
+
+                    StockLot lot = lotService.getStockLotByLotId(detail.getLotId());
+                    move.setLot(lot);
+                    move.setQty(qty);
+                    move.setFromLocationId(locationService.getInventoryLostLocation().getLocationId());
+                    move.setToLocationId(detail.getLocationId());
+                    move.setToContainerId(detail.getContainerId());
+                }
+                overLossReports.add(overLossReport);
+                moveList.add(move);
+            } else {
+                StockMove moveWin = new StockMove();
+                moveWin.setTaskId(detail.getTakingId());
+                moveWin.setSkuId(detail.getSkuId());
+                moveWin.setToLocationId(locationService.getInventoryLostLocation().getLocationId());
+                moveWin.setFromLocationId(detail.getLocationId());
+                moveWin.setQty(detail.getRealQty());
+                moveList.add(moveWin);
+
+                StockMove moveLoss = new StockMove();
+                moveLoss.setTaskId(detail.getTakingId());
+                moveLoss.setSkuId(detail.getSkuId());
+                moveLoss.setFromLocationId(locationService.getInventoryLostLocation().getLocationId());
+                moveLoss.setToLocationId(detail.getLocationId());
+                moveLoss.setQty(detail.getRealQty());
+                moveList.add(moveLoss);
+            }
+        }
+        try {
+            this.insertLossOrOver(overLossReports);
+            moveService.move(moveList);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            throw new BizCheckedException("2550099");
+        }
     }
 
     public StockTakingHead getHeadById(Long takingId) {
