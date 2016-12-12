@@ -194,7 +194,7 @@ public class StockTransferRpcService implements IStockTransferRpcService {
 
     public void scanToLocation(TaskEntry taskEntry, BaseinfoLocation location) throws BizCheckedException {
         if(taskEntry.getTaskInfo().getSubType() == 1){
-            if(location.getRegionType() != LocationConstant.SHELFS || location.getBinUsage() != BinUsageConstant.BIN_UASGE_STORE){
+            if(location.getRegionType() != LocationConstant.SHELFS){
                 throw new BizCheckedException("2550047");
             }
         }

@@ -104,7 +104,7 @@ public class StockTransferCore {
         //check to location
         List<StockQuant> toQuants = quantService.getQuantsByLocationId(toLocation.getLocationId());
         // 拣货位
-        if (toLocation.getBinUsage() > 0) {
+        if (toLocation.getBinUsage() == BinUsageConstant.BIN_UASGE_PICK) {
             List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toLocation.getLocationId());
             if (itemLocations.size() > 0 && itemLocations.get(0).getItemId().compareTo(itemId) != 0) {
                 throw new BizCheckedException("2550004");
@@ -190,6 +190,7 @@ public class StockTransferCore {
             stockMoveService.move(move);
         }
         taskInfo.setQtyDone(qty);
+        taskEntry.getTaskInfo().setQtyDone(qty);
         logger.info(String.format("QTY DONE %s", taskInfo.getQtyDone().toString()));
         taskInfo.setQtyDoneUom(uomQty);
         taskInfo.setStep(2);
@@ -207,7 +208,19 @@ public class StockTransferCore {
         StockMove move = new StockMove();
         if (taskInfo.getSubType().compareTo(1L) == 0) {
             //我其实需要判断一下目标到底有没有商品
-            if(toQuants.size() > 0 ){
+            move.setToContainerId(containerId);
+            List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationByLocationID(toLocation.getLocationId());
+            if (itemLocations.size() > 0 && itemLocations.get(0).getItemId().compareTo(taskInfo.getItemId()) == 0) {
+                //捡货位允许整托移动
+                if(toQuants.size()>0){
+                    logger.info(String.format("stock transfer move hole to pick location merge container %d to %d", containerId, toQuants.get(0).getContainerId()));
+                    move.setToContainerId(toQuants.get(0).getContainerId());
+                    //托盘合并
+                    //这样操作有风险,本质上不应该这么做,不锁住是不行的
+                    //todo god
+                }
+            }
+            else if(toQuants.size() > 0 ){
                 throw new BizCheckedException("2550046");
             }
             move.setFromContainerId(containerId);
