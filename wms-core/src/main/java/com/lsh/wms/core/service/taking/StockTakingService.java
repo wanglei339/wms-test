@@ -104,7 +104,6 @@ public class StockTakingService {
     @Transactional(readOnly = false)
     public void insertDetailList(List<StockTakingDetail> detailList) {
         for (StockTakingDetail detail : detailList) {
-
             if(detail.getRound()>1){
                 StockTakingDetail takingDetail = this.getDetailByRoundAndDetailId(detail.getDetailId(), detail.getRound()-1);
                 takingDetail.setStatus(StockTakingConstant.Done);

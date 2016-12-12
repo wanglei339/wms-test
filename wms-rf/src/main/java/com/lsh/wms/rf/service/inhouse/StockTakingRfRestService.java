@@ -35,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import sun.java2d.pipe.AAShapePipe;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -300,16 +301,25 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             statusMap.put(detail.getLocationId(),detail.getStatus());
         }
         //将任务通道排序
+        Boolean isDone = true;
         locationList  = locationService.calcZwayOrder(locationList,true);
         for(BaseinfoLocation location:locationList) {
+            Long status =  statusMap.get(location.getLocationId());
+            if(!status.equals(3L)){
+                isDone = false;
+            }
             taskMap.put("taskId",taskId);
             taskMap.put("locationId", location.getLocationId());
             taskMap.put("locationCode", location.getLocationCode());
-            taskMap.put("status",statusMap.get(location.getLocationId()));
+            taskMap.put("status",status);
             taskList.add(taskMap);
         }
         Map<String,Object> result = new HashMap<String, Object>();
-        result.put("taskList",taskList);
+        if(isDone){
+            result.put("taskList",new ArrayList<Map>());
+        }else {
+            result.put("taskList", taskList);
+        }
         return JsonUtils.SUCCESS(result);
     }
     /*
