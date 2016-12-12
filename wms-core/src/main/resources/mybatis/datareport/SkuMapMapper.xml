@@ -41,7 +41,7 @@
 	</update>
 
 	<update id="batchUpdate" parameterType="java.util.List">
-		<foreach collection="list" item="item" index="index" separator=";">
+		<foreach collection="list" item="item" index="index" open="" close="" separator=";">
 		update sku_map
 		<set>
 			<if test="skuCode != null">sku_code=#{item.skuCode},</if>
@@ -50,7 +50,7 @@
 			<if test="createdAt != null">created_at=#{item.createdAt},</if>
 			<if test="updatedAt != null">updated_at=#{item.updatedAt}</if>
 		</set>
-		where id=#{id}
+		where sku_code=#{item.skuCode}
 		</foreach>
 	</update>
   
