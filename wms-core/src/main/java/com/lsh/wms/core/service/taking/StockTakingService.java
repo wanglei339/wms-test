@@ -94,7 +94,6 @@ public class StockTakingService {
     public void doneReplay(List<StockTakingDetail> details) {
         for(StockTakingDetail detail:details){
             detail.setStatus(StockTakingConstant.Done);
-            detail.setIsValid(0);
             detail.setUpdatedAt(DateUtils.getCurrentSeconds());
             this.updateDetail(detail);
         }
@@ -352,21 +351,21 @@ public class StockTakingService {
                 overLossReports.add(overLossReport);
                 moveList.add(move);
             } else {
-                StockMove moveWin = new StockMove();
-                moveWin.setTaskId(detail.getTakingId());
-                moveWin.setSkuId(detail.getSkuId());
-                moveWin.setToLocationId(locationService.getInventoryLostLocation().getLocationId());
-                moveWin.setFromLocationId(detail.getLocationId());
-                moveWin.setQty(detail.getRealQty());
-                moveList.add(moveWin);
-
-                StockMove moveLoss = new StockMove();
-                moveLoss.setTaskId(detail.getTakingId());
-                moveLoss.setSkuId(detail.getSkuId());
-                moveLoss.setFromLocationId(locationService.getInventoryLostLocation().getLocationId());
-                moveLoss.setToLocationId(detail.getLocationId());
-                moveLoss.setQty(detail.getRealQty());
-                moveList.add(moveLoss);
+//                StockMove moveWin = new StockMove();
+//                moveWin.setTaskId(detail.getTaskId());
+//                moveWin.setSkuId(detail.getSkuId());
+//                moveWin.setToLocationId(locationService.getInventoryLostLocation().getLocationId());
+//                moveWin.setFromLocationId(detail.getLocationId());
+//                moveWin.setQty(detail.getRealQty());
+//                moveList.add(moveWin);
+//
+//                StockMove moveLoss = new StockMove();
+//                moveLoss.setTaskId(detail.getTaskId());
+//                moveLoss.setSkuId(detail.getSkuId());
+//                moveLoss.setFromLocationId(locationService.getInventoryLostLocation().getLocationId());
+//                moveLoss.setToLocationId(detail.getLocationId());
+//                moveLoss.setQty(detail.getRealQty());
+//                moveList.add(moveLoss);
             }
         }
         try {
