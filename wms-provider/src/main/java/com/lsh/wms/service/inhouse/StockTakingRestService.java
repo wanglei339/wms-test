@@ -110,6 +110,7 @@ public class StockTakingRestService implements IStockTakingRestService {
     @Path("replay")
     public String replay() throws BizCheckedException{
        Map<String,Object> request = RequestUtils.getRequest();
+        logger.info("---"+request);
         List<Long> detailList = (List)request.get("detailList");
         Long planner  = Long.valueOf(request.get("planner").toString());
         iStockTakingProviderRpcService.replay(detailList, planner);

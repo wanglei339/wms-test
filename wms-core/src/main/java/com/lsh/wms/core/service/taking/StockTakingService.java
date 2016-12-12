@@ -97,17 +97,16 @@ public class StockTakingService {
             detail.setUpdatedAt(DateUtils.getCurrentSeconds());
             this.updateDetail(detail);
         }
+        logger.info("======"+details);
     }
 
 
     @Transactional(readOnly = false)
     public void insertDetailList(List<StockTakingDetail> detailList) {
         for (StockTakingDetail detail : detailList) {
-
             if(detail.getRound()>1){
                 StockTakingDetail takingDetail = this.getDetailByRoundAndDetailId(detail.getDetailId(), detail.getRound()-1);
                 takingDetail.setStatus(StockTakingConstant.Done);
-                takingDetail.setStatus(0l);
                 takingDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
                 detailDao.update(takingDetail);
             }

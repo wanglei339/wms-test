@@ -121,6 +121,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
                 List<Object> newDetails = new ArrayList<Object>();
                 detail.setTakingId(head.getTakingId());
                 detail.setId(0l);
+                detail.setStatus(TaskConstant.Draft);
                 detail.setRound(detail.getRound()+1);
                 newDetails.add(detail);
                 detail.setZoneId(zoneId);

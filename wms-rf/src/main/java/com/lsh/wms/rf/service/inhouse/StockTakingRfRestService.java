@@ -35,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import sun.java2d.pipe.AAShapePipe;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -105,7 +106,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             
             uid =  Long.valueOf(RequestUtils.getHeader("uid"));
 
-            if(object.get("taskId")!=null) {
+            if(object.get("taskId")!=null && !"".equals(object.get("taskId").toString())) {
                 taskId = Long.parseLong(object.get("taskId").toString().trim());
             }
             resultList = object.getJSONArray("list");
@@ -287,27 +288,38 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
 
         iTaskRpcService.assign(taskId,uId);
 
-
         List<Map> taskList = new ArrayList<Map>();
         Map<String,Object> taskMap =new HashMap<String, Object>();
-        taskMap.put("taskId",info.getTaskId().toString());
-        List<StockTakingDetail> details =stockTakingService.getDraftDetailByTaskId(info.getTaskId());
+        List<StockTakingDetail> details =(List<StockTakingDetail>) (List<?>) entry.getTaskDetailList();
         if(details==null || details.size()==0){
             return JsonUtils.TOKEN_ERROR("该任务无可盘点的库位");
         }
         List<BaseinfoLocation> locationList = new ArrayList<BaseinfoLocation>();
+        Map<Long,Long> statusMap = new HashMap<Long, Long>();
         for(StockTakingDetail detail:details) {
             locationList.add(locationService.getLocation(detail.getLocationId()));
+            statusMap.put(detail.getLocationId(),detail.getStatus());
         }
         //将任务通道排序
+        Boolean isDone = true;
         locationList  = locationService.calcZwayOrder(locationList,true);
         for(BaseinfoLocation location:locationList) {
+            Long status =  statusMap.get(location.getLocationId());
+            if(!status.equals(3L)){
+                isDone = false;
+            }
+            taskMap.put("taskId",taskId);
             taskMap.put("locationId", location.getLocationId());
             taskMap.put("locationCode", location.getLocationCode());
+            taskMap.put("status",status);
             taskList.add(taskMap);
         }
         Map<String,Object> result = new HashMap<String, Object>();
-        result.put("taskList",taskList);
+        if(isDone){
+            result.put("taskList",new ArrayList<Map>());
+        }else {
+            result.put("taskList", taskList);
+        }
         return JsonUtils.SUCCESS(result);
     }
     /*
@@ -565,10 +577,11 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
                 if (location != null) {
                     locationCode = location.getLocationCode();
                 }
+                task.put("locationId", locationId);
+                task.put("locationCode", locationCode);
+                task.put("status",stockTakingDetail.getStatus());
+                taskList.add(task);
             }
-            task.put("locationId", locationId);
-            task.put("locationCode", locationCode);
-            taskList.add(task);
 
 
         result.put("taskList", taskList);
