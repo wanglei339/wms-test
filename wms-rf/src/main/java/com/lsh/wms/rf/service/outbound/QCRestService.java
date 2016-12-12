@@ -485,7 +485,7 @@ public class QCRestService implements IRFQCRestService {
     @Path("dealCase")
     public String dealCase() throws BizCheckedException {
         Map<String, Object> request = RequestUtils.getRequest();
-        Integer type = Integer.valueOf(request.get("type").toString());
+            Integer type = Integer.valueOf(request.get("type").toString());
         Long containerId = Long.valueOf(request.get("containerId").toString());
         if (null == request.get("uomQty")) {
             throw new BizCheckedException("2120024");
