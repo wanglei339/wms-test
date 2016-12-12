@@ -152,6 +152,7 @@ public class StockMoveService {
         if ( fromRegionType.equals(LocationConstant.CONSUME_AREA)
                 || fromRegionType.equals(LocationConstant.SUPPLIER_AREA) ) {
             StockLot lot = new StockLot();
+            lot.setItemId(move.getItemId());
             move.setLot(lot);
         }
     }
