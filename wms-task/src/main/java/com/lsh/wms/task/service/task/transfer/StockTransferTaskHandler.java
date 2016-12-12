@@ -77,7 +77,9 @@ public class StockTransferTaskHandler extends AbsTaskHandler {
     public void doneConcrete(Long taskId, List<StockMove> moveList){
         for(StockMove move : moveList){
             if(move.getMoveHole() == 1L){
-                stockMoveService.moveWholeContainer(move.getFromContainerId(),
+                stockMoveService.moveWholeContainer(
+                        move.getFromContainerId(),
+                        move.getToContainerId(),
                         move.getTaskId(),
                         move.getOperator(),
                         move.getFromLocationId(),
