@@ -641,6 +641,19 @@ public class LocationService {
     }
 
     /**
+     * 获取null_area虚拟区
+     * @return
+     */
+    public BaseinfoLocation getNullArea(){
+        List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.NULL_AREA);
+        if (locations != null && locations.size() > 0) {
+            return locations.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * 获取消费虚拟区
      *
      * @return

@@ -85,6 +85,8 @@ public class LocationConstant {
     public static final Long SO_INBOUND_AREA = 52L;
     //so订单占用区(直流) 53
     public static final Long SO_DIRECT_AREA = 53L;
+    //null_area
+    public static final Long NULL_AREA = 54L;
 
 
     //是否能存储
