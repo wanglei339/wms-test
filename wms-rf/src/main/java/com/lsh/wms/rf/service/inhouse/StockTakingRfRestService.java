@@ -263,7 +263,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         }
 
         Object code = params.get("code");
-        if(code==null || StringUtils.isNoneBlank(code.toString())){
+        if(code==null || !StringUtils.isNotBlank(code.toString())){
             return JsonUtils.TOKEN_ERROR("任务码不能为空");
         }
 
@@ -542,12 +542,13 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         statusQueryMap.put("status",TaskConstant.Assigned);
         statusQueryMap.put("operator", uid);
         List<TaskEntry> list = iTaskRpcService.getTaskList(TaskConstant.TYPE_STOCK_TAKING, statusQueryMap);
-
+        if(list==null || list.size()==0){
+            return null;
+        }
         Map<String,Object>task = new HashMap<String,Object>();
 
         List<Map> taskList = new ArrayList<Map>();
 
-        if(list != null && list.size() > 0){
             TaskEntry taskEntry = list.get(0);
 
             task.put("taskId",taskEntry.getTaskInfo().getTaskId().toString());
@@ -569,7 +570,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             task.put("locationCode", locationCode);
             taskList.add(task);
 
-        }
+
         result.put("taskList", taskList);
         return result;
     }

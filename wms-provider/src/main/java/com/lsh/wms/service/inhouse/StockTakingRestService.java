@@ -115,6 +115,14 @@ public class StockTakingRestService implements IStockTakingRestService {
         iStockTakingProviderRpcService.replay(detailList, planner);
         return JsonUtils.SUCCESS();
     }
+    @POST
+    @Path("confirm")
+    public String confirm() throws BizCheckedException{
+        Map<String,Object> request = RequestUtils.getRequest();
+        List<Long> detailList = (List)request.get("detailList");
+        iStockTakingProviderRpcService.confirmDetail(detailList);
+        return JsonUtils.SUCCESS();
+    }
     @GET
     @Path("cancel")
     public String cancel(@QueryParam("taskId") Long taskId) throws BizCheckedException{
