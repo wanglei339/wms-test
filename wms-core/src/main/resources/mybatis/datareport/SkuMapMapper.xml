@@ -41,7 +41,7 @@
 	</update>
 
 	<update id="batchUpdate" parameterType="java.util.List">
-		<foreach collection="list" item="item" index="index" separator=",">
+		<foreach collection="list" item="item" index="index" separator=";">
 		update sku_map
 		<set>
 			<if test="skuCode != null">sku_code=#{item.skuCode},</if>
