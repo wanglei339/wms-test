@@ -14,8 +14,11 @@ import com.lsh.wms.model.taking.StockTakingHead;
 import com.lsh.wms.model.task.StockTakingTask;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
+import com.lsh.wms.task.service.TaskRpcService;
 import com.lsh.wms.task.service.handler.AbsTaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +34,8 @@ import java.util.Map;
  */
 @Component
 public class StockTakingTaskHandler extends AbsTaskHandler {
+    private static Logger logger = LoggerFactory.getLogger(StockTakingTaskHandler.class);
+
     @Autowired
     private StockTakingTaskService stockTakingTaskService;
     @Autowired
@@ -54,6 +59,7 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
     public void createConcrete(TaskEntry taskEntry) {
         Long taskId=taskEntry.getTaskInfo().getTaskId();
         List<StockTakingDetail> stockTakingDetails =(List<StockTakingDetail>) (List<?>)taskEntry.getTaskDetailList();
+        logger.info("----------"+stockTakingDetails);
         for(StockTakingDetail detail:stockTakingDetails){
             detail.setTaskId(taskId);
         }
