@@ -109,6 +109,14 @@
 		select count(*) from stock_taking_detail
 		<include refid="queryCondition"/>
 	</select>
+	<select id="getDiffPrice" parameterType="map" resultType="long">
+		select sum(difference_price) from stock_taking_detail
+		<include refid="queryCondition"/>
+	</select>
+	<select id="getAllPrice" parameterType="map" resultType="long">
+		select sum(difference_price * theoretical_qty) from stock_taking_detail
+		<include refid="queryCondition"/>
+	</select>
   
 	<select id="getStockTakingDetailList" parameterType="map" resultMap="stockTakingDetailResultMap">
 		select * from stock_taking_detail

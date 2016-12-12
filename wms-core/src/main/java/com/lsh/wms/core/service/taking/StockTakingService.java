@@ -97,7 +97,7 @@ public class StockTakingService {
             detail.setUpdatedAt(DateUtils.getCurrentSeconds());
             this.updateDetail(detail);
         }
-        logger.info("======"+details);
+        logger.info("======" + details);
     }
 
 
@@ -484,6 +484,12 @@ public class StockTakingService {
     public List queryTakingDetail(Map queryMap) {
         return detailDao.getStockTakingDetailList(queryMap);
 
+    }
+    public Long getDiffPrice(Map queryMap) {
+        return detailDao.getDiffPrice(queryMap);
+    }
+    public Long getAllPrice(Map queryMap) {
+        return detailDao.getDiffPrice(queryMap);
     }
 
     @Transactional(readOnly = false)
