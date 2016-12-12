@@ -486,9 +486,11 @@ public class StockTakingService {
 
     }
     public Long getDiffPrice(Map queryMap) {
+        queryMap.put("status",StockTakingConstant.PendingAudit);
         return detailDao.getDiffPrice(queryMap);
     }
     public Long getAllPrice(Map queryMap) {
+        queryMap.put("status",StockTakingConstant.PendingAudit);
         return detailDao.getDiffPrice(queryMap);
     }
 
