@@ -106,7 +106,6 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         queryMap.put("detailList",detailList);
         List<StockTakingDetail> details = stockTakingService.getDetails(queryMap);
         if(details!=null && details.size()!=0){
-            stockTakingService.doneReplay(details);
             StockTakingHead head = new StockTakingHead();
             head.setPlanType(StockTakingConstant.TYPE_REPLAY);
             head.setTakingId(RandomUtils.genId());
@@ -139,6 +138,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
                 taskEntry.setTaskDetailList(newDetails);
                 taskEntries.add(taskEntry);
             }
+            logger.info("-----"+details);
             iTaskRpcService.batchCreate(head, taskEntries);
         }
     }

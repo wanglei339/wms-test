@@ -91,20 +91,9 @@ public class StockTakingService {
         headDao.update(head);
     }
     @Transactional(readOnly = false)
-    public void doneReplay(List<StockTakingDetail> details) {
-        for(StockTakingDetail detail:details){
-            detail.setStatus(StockTakingConstant.Done);
-            detail.setUpdatedAt(DateUtils.getCurrentSeconds());
-            this.updateDetail(detail);
-        }
-        logger.info("======" + details);
-    }
-
-
-    @Transactional(readOnly = false)
     public void insertDetailList(List<StockTakingDetail> detailList) {
         for (StockTakingDetail detail : detailList) {
-            if(detail.getRound()>1){
+            if(detail.getRound().compareTo(1L)>0){
                 StockTakingDetail takingDetail = this.getDetailByRoundAndDetailId(detail.getDetailId(), detail.getRound()-1);
                 takingDetail.setStatus(StockTakingConstant.Done);
                 takingDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
@@ -120,10 +109,9 @@ public class StockTakingService {
     @Transactional(readOnly = false)
     public void insertDetail(StockTakingDetail detail) {
 
-        if(detail.getRound()>1){
+        if(detail.getRound().compareTo(1L)>0){
             StockTakingDetail takingDetail = this.getDetailByRoundAndDetailId(detail.getDetailId(), detail.getRound()-1);
             takingDetail.setStatus(StockTakingConstant.Done);
-            takingDetail.setStatus(0l);
             takingDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
             detailDao.update(takingDetail);
         }
@@ -398,6 +386,7 @@ public class StockTakingService {
         queryMap.put("detailId", detailId);
         queryMap.put("round", round);
         queryMap.put("valid", 1);
+
         List<StockTakingDetail> details = detailDao.getStockTakingDetailList(queryMap);
 
         if(details==null || details.size()==0){
@@ -484,11 +473,19 @@ public class StockTakingService {
     }
     public Long getDiffPrice(Map queryMap) {
         queryMap.put("status",StockTakingConstant.PendingAudit);
-        return detailDao.getDiffPrice(queryMap);
+        Long diffPrice =  detailDao.getDiffPrice(queryMap);
+        if(diffPrice==null){
+            return 0L;
+        }
+        return diffPrice;
     }
     public Long getAllPrice(Map queryMap) {
-        queryMap.put("status",StockTakingConstant.PendingAudit);
-        return detailDao.getDiffPrice(queryMap);
+        queryMap.put("status", StockTakingConstant.PendingAudit);
+        Long allprice = detailDao.getDiffPrice(queryMap);
+        if(allprice==null){
+            return 0L;
+        }
+        return allprice;
     }
 
     @Transactional(readOnly = false)

@@ -18,6 +18,7 @@ import com.lsh.wms.core.service.task.MessageService;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.service.so.SoRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
@@ -45,6 +46,9 @@ public class SmsRestService implements ISmsRestService {
     @Autowired
     private SoOrderService soOrderService;
 
+    @Autowired
+    private SoRpcService soRpcService;
+
     public void setSmsService(SmsService smsService) {
         this.smsService = smsService;
     }
@@ -54,6 +58,7 @@ public class SmsRestService implements ISmsRestService {
     @Path("sendMsg")
     public String sendMsg (@QueryParam("item_id") String itemId,
                           @QueryParam("location_code") String locationCode) throws BizCheckedException  {
+        soRpcService.eliminateDiff(Long.valueOf(itemId));
         return JsonUtils.SUCCESS();
     }
 
