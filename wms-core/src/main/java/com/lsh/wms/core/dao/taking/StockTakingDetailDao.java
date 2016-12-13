@@ -24,5 +24,9 @@ public interface StockTakingDetailDao {
 	List<StockTakingDetail> getStockTakingItemList(Map<String, Object> params);
 
 	Integer conutStockTakingItemList(Map<String, Object> params);
+
+	Long getDiffPrice (Map<String, Object> params);
+
+	Long getAllPrice(Map<String, Object> params);
 	
 }

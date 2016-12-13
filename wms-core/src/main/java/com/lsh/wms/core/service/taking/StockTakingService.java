@@ -91,20 +91,9 @@ public class StockTakingService {
         headDao.update(head);
     }
     @Transactional(readOnly = false)
-    public void doneReplay(List<StockTakingDetail> details) {
-        for(StockTakingDetail detail:details){
-            detail.setStatus(StockTakingConstant.Done);
-            detail.setUpdatedAt(DateUtils.getCurrentSeconds());
-            this.updateDetail(detail);
-        }
-        logger.info("======"+details);
-    }
-
-
-    @Transactional(readOnly = false)
     public void insertDetailList(List<StockTakingDetail> detailList) {
         for (StockTakingDetail detail : detailList) {
-            if(detail.getRound()>1){
+            if(detail.getRound().compareTo(1L)>0){
                 StockTakingDetail takingDetail = this.getDetailByRoundAndDetailId(detail.getDetailId(), detail.getRound()-1);
                 takingDetail.setStatus(StockTakingConstant.Done);
                 takingDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
@@ -120,10 +109,9 @@ public class StockTakingService {
     @Transactional(readOnly = false)
     public void insertDetail(StockTakingDetail detail) {
 
-        if(detail.getRound()>1){
+        if(detail.getRound().compareTo(1L)>0){
             StockTakingDetail takingDetail = this.getDetailByRoundAndDetailId(detail.getDetailId(), detail.getRound()-1);
             takingDetail.setStatus(StockTakingConstant.Done);
-            takingDetail.setStatus(0l);
             takingDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
             detailDao.update(takingDetail);
         }
@@ -284,10 +272,6 @@ public class StockTakingService {
     }
     @Transactional(readOnly = false)
     public void confirm(List<StockTakingDetail> stockTakingDetails) {
-        for (StockTakingDetail stockTakingDetail : stockTakingDetails) {
-            stockTakingDetail.setIsFinal(1);
-            this.updateDetail(stockTakingDetail);
-        }
         List<StockMove> moveList = new ArrayList<StockMove>();
 //        //盘亏 盘盈的分成两个list items为盘亏 items1盘盈
 //        List<StockItem> itemsLoss = new ArrayList<StockItem>();
@@ -299,6 +283,7 @@ public class StockTakingService {
                 continue;
             }
             detail.setStatus(StockTakingConstant.Done);
+            detail.setIsFinal(1);
             this.updateDetail(detail);
             OverLossReport overLossReport = new OverLossReport();
             //StockItem stockItem = new StockItem();
@@ -401,6 +386,7 @@ public class StockTakingService {
         queryMap.put("detailId", detailId);
         queryMap.put("round", round);
         queryMap.put("valid", 1);
+
         List<StockTakingDetail> details = detailDao.getStockTakingDetailList(queryMap);
 
         if(details==null || details.size()==0){
@@ -484,6 +470,22 @@ public class StockTakingService {
     public List queryTakingDetail(Map queryMap) {
         return detailDao.getStockTakingDetailList(queryMap);
 
+    }
+    public Long getDiffPrice(Map queryMap) {
+        queryMap.put("status",StockTakingConstant.PendingAudit);
+        Long diffPrice =  detailDao.getDiffPrice(queryMap);
+        if(diffPrice==null){
+            return 0L;
+        }
+        return diffPrice;
+    }
+    public Long getAllPrice(Map queryMap) {
+        queryMap.put("status", StockTakingConstant.PendingAudit);
+        Long allprice = detailDao.getDiffPrice(queryMap);
+        if(allprice==null){
+            return 0L;
+        }
+        return allprice;
     }
 
     @Transactional(readOnly = false)
@@ -577,7 +579,7 @@ public class StockTakingService {
 
         StockMove diff = new StockMove();
         diff.setFromContainerId(locationService.getSoAreaDirect().getLocationId());
-        diff.setToLocationId(locationService.getConsumerArea().getLocationId());
+        diff.setToLocationId(locationService.getNullArea().getLocationId());
         diff.setQty(move.getQty());
         diff.setItemId(move.getItemId());
         diff.setTaskId(move.getTaskId());
