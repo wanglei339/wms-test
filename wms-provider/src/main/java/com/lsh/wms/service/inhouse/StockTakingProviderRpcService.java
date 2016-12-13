@@ -521,6 +521,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         for(Long locationId:locations){
             StockTakingDetail detail = new StockTakingDetail();
             detail.setLocationId(locationId);
+            detail.setLocationCode(locationService.getLocation(locationId).getLocationCode());
             detail.setDetailId(RandomUtils.genId());
             detail.setTakingId(head.getTakingId());
             details.add(detail);
@@ -560,6 +561,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
                 detail.setLocationId(locationId);
                 detail.setDetailId(RandomUtils.genId());
                 detail.setTakingId(head.getTakingId());
+                detail.setLocationCode(locationService.getLocation(locationId).getLocationCode());
                 details.add(detail);
                 detail.setZoneId(zoneId);
             }
