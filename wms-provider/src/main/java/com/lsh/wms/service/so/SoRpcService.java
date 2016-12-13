@@ -14,21 +14,24 @@ import com.lsh.wms.core.constant.BusiConstant;
 import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.service.csi.CsiOwnerService;
 import com.lsh.wms.core.service.item.ItemService;
+import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
+import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.csi.CsiOwner;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
+import com.lsh.wms.model.stock.StockMove;
+import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Project Name: lsh-wms
@@ -59,6 +62,12 @@ public class SoRpcService implements ISoRpcService {
     protected IdGenerator idGenerator;
     @Autowired
     private StockSummaryService stockSummaryService;
+    @Autowired
+    private StockMoveService stockMoveService;
+    @Autowired
+    private LocationService locationService;
+    @Autowired
+    private SoDeliveryService soDeliveryService;
 
     public Long insertOrder(SoRequest request) throws BizCheckedException {
         //OutbSoHeader
@@ -201,5 +210,54 @@ public class SoRpcService implements ISoRpcService {
 
     public List<ObdHeader> getOutbSoHeaderList(Map<String, Object> params) {
         return soOrderService.getOutbSoHeaderList(params);
+    }
+
+    public void eliminateDiff(Long orderId) {
+        //取出order的head
+        ObdHeader header = soOrderService.getOutbSoHeaderByOrderId(orderId);
+        if(header == null){
+            logger.warn("so get fail "+orderId);
+            return;
+        }
+        if( header.getOrderType() == SoConstant.ORDER_TYPE_DIRECT || header.getIsClosed() == 1L || header.getWaveId() <= 1 ) {
+            return;
+        }
+
+        //取出order的所有detail
+        List<ObdDetail> obdDetailList = soOrderService.getOutbSoDetailListByOrderId(orderId);
+
+        // 订单明细按照itemId做排序，避免死锁
+        Collections.sort(obdDetailList, new Comparator<ObdDetail>() {
+            public int compare(ObdDetail o1, ObdDetail o2) {
+                return o1.getItemId().compareTo(o2.getItemId());
+            }
+        });
+
+        // 根据排序后的detaiList进行库存占用
+        List<StockMove> moveList = new ArrayList<StockMove>();
+        for (ObdDetail detail : obdDetailList) {
+            StockMove move = new StockMove();
+            move.setItemId(detail.getItemId());
+            BigDecimal deliveryQty = soDeliveryService.getDeliveryQtyBySoOrderIdAndItemId(detail.getOrderId(), detail.getItemId());
+            BigDecimal orderQty = detail.getOrderQty();
+            if (orderQty.compareTo(deliveryQty) < 0) {
+                // 订单数量小于发货数量
+                throw new BizCheckedException("2990045");
+            }
+            if (orderQty.equals(deliveryQty)) {
+                // 订单数量等于发货数量
+                continue;
+            }
+
+            move.setQty(orderQty.subtract(deliveryQty));
+            move.setFromLocationId(locationService.getSoAreaInbound().getLocationId());
+            move.setToLocationId(locationService.getNullArea().getLocationId());
+            move.setTaskId(detail.getOrderId());
+            moveList.add(move);
+        }
+        stockMoveService.move(moveList);
+        // 关闭订单
+        header.setIsClosed(1L);
+        soOrderService.update(header);
     }
 }
