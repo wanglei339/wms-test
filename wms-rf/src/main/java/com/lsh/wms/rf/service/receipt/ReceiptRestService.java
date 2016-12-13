@@ -907,14 +907,14 @@ public class ReceiptRestService implements IReceiptRfService {
         BaseinfoItem baseinfoItem = new BaseinfoItem();
         if (barCode.length() == 6 || barCode.length() == 9){
             //barCode的值为物美码
-            //if(ownerId == 2){
+            if(ownerId == 2){
                 //链商
              while (barCode.length() < 18){
                StringBuffer sb = new StringBuffer();
                 sb.append("0").append(barCode);
                barCode = sb.toString();
               }
-            //}
+            }
 
             List<BaseinfoItem> items = itemService.getItemsBySkuCode(ownerId,barCode);
             if(items.size() <= 0){
