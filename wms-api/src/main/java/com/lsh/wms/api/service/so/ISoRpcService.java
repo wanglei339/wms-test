@@ -28,4 +28,6 @@ public interface ISoRpcService {
 
     public List<ObdHeader> getOutbSoHeaderList(Map<String, Object> params);
 
+    void eliminateDiff(Long orderId) throws BizCheckedException;
+
 }
