@@ -478,7 +478,7 @@ public class StockTakingService {
     }
     public Long getAllPrice(Map queryMap) {
         queryMap.put("status", StockTakingConstant.PendingAudit);
-        Long allprice = detailDao.getDiffPrice(queryMap);
+        Long allprice = detailDao.getAllPrice(queryMap);
         if(allprice==null){
             return 0L;
         }
