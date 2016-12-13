@@ -98,7 +98,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             iTaskRpcService.cancel(taskId);
         }
     }
-    @Transactional(readOnly = false)
+//    @Transactional(readOnly = false)
     public void replay(List<Long> detailList,Long planner) throws BizCheckedException {
         Map<String,Object> queryMap = new HashMap<String, Object>();
         queryMap.put("status", StockTakingConstant.PendingAudit);
