@@ -37,7 +37,7 @@ public class StockTakingRpcService implements IStockTakingRpcService {
     @Autowired
     private LocationService locationService;
 
-    public void fillDetail(StockTakingDetail detail) throws BizCheckedException{
+    public StockTakingDetail fillDetail(StockTakingDetail detail) throws BizCheckedException{
         if(detail!=null){
             List<StockQuant> quants = quantService.getQuantsByLocationId(detail.getLocationId());
             if(quants!=null && quants.size()!=0){
@@ -45,6 +45,7 @@ public class StockTakingRpcService implements IStockTakingRpcService {
                 StockQuant quant = quants.get(0);
                 BaseinfoItem item = itemService.getItem(quant.getItemId());
                 BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
+                detail.setTheoreticalQty(quantService.getQuantQtyByContainerId(quant.getContainerId()));
                 detail.setSkuId(quant.getSkuId());
                 detail.setContainerId(quant.getContainerId());
                 detail.setItemId(quant.getItemId());
@@ -62,6 +63,7 @@ public class StockTakingRpcService implements IStockTakingRpcService {
             }
             stockTakingService.updateDetail(detail);
         }
+        return detail;
     }
 
 }

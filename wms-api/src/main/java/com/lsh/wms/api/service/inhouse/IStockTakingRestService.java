@@ -20,6 +20,7 @@ public interface IStockTakingRestService {
     String getDiffPrice() throws BizCheckedException;
     String getDiffRet() throws BizCheckedException;
     String getLocationList(LocationListRequest request);
+    String updateItem() throws BizCheckedException;
     String getItemDetails(Map<String,Object> mapQuery) throws BizCheckedException;
     String countItemDetails(Map<String,Object> mapQuery) throws BizCheckedException;
     String getDetails(Map<String,Object> mapQuery) throws BizCheckedException;

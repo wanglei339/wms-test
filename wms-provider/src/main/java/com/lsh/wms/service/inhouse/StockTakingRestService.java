@@ -107,6 +107,17 @@ public class StockTakingRestService implements IStockTakingRestService {
         return JsonUtils.SUCCESS();
     }
     @POST
+    @Path("updateItem")
+    public String updateItem() throws BizCheckedException{
+        Map<String,Object> request = RequestUtils.getRequest();
+        Long detailId = Long.valueOf(request.get("detailId").toString());
+        Long itemId = Long.valueOf((request.get("itemId").toString()));
+        Date proDate = (Date)request.get("proTime");
+        Long round = Long.valueOf((request.get("round").toString()));
+        iStockTakingProviderRpcService.updateItem(itemId,detailId,proDate,round);
+        return JsonUtils.SUCCESS();
+    }
+    @POST
     @Path("fillDetail")
     public String fillDetail(StockTakingRequest request) throws BizCheckedException{
         StockTakingHead head = new StockTakingHead();

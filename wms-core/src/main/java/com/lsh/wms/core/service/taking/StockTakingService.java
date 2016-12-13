@@ -50,14 +50,10 @@ public class StockTakingService {
     private ITaskRpcService iTaskRpcService;
     @Autowired
     private StockTakingHeadDao headDao;
-
     @Autowired
     private StockTakingDetailDao detailDao;
-
     @Autowired
     private PersistenceProxy persistenceProxy;
-    @Autowired
-    private StockLotService lotService;
     @Autowired
     private ItemService itemService;
     @Autowired
@@ -72,6 +68,8 @@ public class StockTakingService {
     private BaseTaskService baseTaskService;
     @Autowired
     private SkuMapService skuMapService;
+    @Autowired
+    private StockLotService lotService;
     @Autowired
     private DifferenceZoneReportService differenceZoneReportService;
 
@@ -127,7 +125,6 @@ public class StockTakingService {
     }
     @Transactional(readOnly = false)
     public void doneDetail(StockTakingDetail detail) {
-        logger.info("hehehehe:" + detail);
         detail.setStatus(StockTakingConstant.PendingAudit);
 
         if(!detail.getSkuCode().equals("")) {
@@ -611,6 +608,11 @@ public class StockTakingService {
             logger.error(e.getMessage());
             throw new BizCheckedException("2550051");
         }
+    }
+    @Transactional(readOnly = false)
+    public void fillEmptyDetail(StockTakingDetail detail,StockLot lot) {
+        lotService.insertLot(lot);
+        this.updateDetail(detail);
     }
 }
 

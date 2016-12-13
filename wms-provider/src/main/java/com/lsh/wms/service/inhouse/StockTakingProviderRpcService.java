@@ -13,6 +13,9 @@ import com.lsh.wms.api.service.inhouse.IStockTakingProviderRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
+import com.lsh.wms.core.service.container.ContainerService;
+import com.lsh.wms.core.service.csi.CsiSkuService;
+import com.lsh.wms.core.service.datareport.SkuMapService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
@@ -20,8 +23,12 @@ import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.core.service.zone.WorkZoneService;
+import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.csi.CsiSku;
+import com.lsh.wms.model.datareport.SkuMap;
+import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.taking.StockTakingDetail;
 import com.lsh.wms.model.taking.StockTakingHead;
@@ -65,6 +72,13 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
     private WaveService waveService;
     @Autowired
     private ItemService itemService;
+    @Autowired
+    private ContainerService containerService;
+    @Autowired
+    private CsiSkuService skuService;
+    @Autowired
+    private SkuMapService skuMapService;
+
 
 
     public void create(Long locationId,Long uid) throws BizCheckedException {
@@ -365,7 +379,64 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         }
         return locations;
     }
+    public void  updateItem(Long itemId,Long detailId,Date proDate,Long round){
+        BaseinfoItem item = itemService.getItem(itemId);
+        if(item ==null){
+            throw new BizCheckedException("2120001");
+        }
+        StockTakingDetail detail = stockTakingService.getDetailByRoundAndDetailId(detailId,round);
+        if(detail ==null){
+            throw new BizCheckedException("2550066");
+        }
+        if(!detail.getStatus().equals(StockTakingConstant.PendingAudit)){
+            throw new BizCheckedException("2550067");
+        }
+        StockLot lot = new StockLot();
+        Long containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
+        if(item.getIsShelfLifeValid() == 1) {
+            if (proDate == null) {
+                throw new BizCheckedException("2550065");
+            }
+        }else {
+            if (proDate == null){
+                proDate = new Date();
+            }
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(proDate);
+        calendar.add(calendar.DAY_OF_YEAR, item.getShelfLife().intValue());
+        Long expireDate = calendar.getTime().getTime() / 1000;
 
+        lot.setProductDate(proDate.getTime() / 1000);
+        lot.setExpireDate(expireDate);
+        lot.setLotId(RandomUtils.genId());
+        lot.setInDate(DateUtils.getCurrentSeconds());
+        lot.setItemId(itemId);
+        lot.setSkuId(item.getSkuId());
+        lot.setPackName(item.getPackName());
+        lot.setPackUnit(item.getPackUnit());
+        lot.setCode(item.getCode());
+        lot.setUnitName(item.getUnitName());
+
+        detail.setLotId(lot.getLotId());
+        detail.setPackName(lot.getPackName());
+        detail.setItemId(itemId);
+        detail.setContainerId(containerId);
+        detail.setPackName(item.getPackName());
+        detail.setPackUnit(item.getPackUnit());
+        detail.setSkuCode(item.getSkuCode());
+
+        String skuCode = detail.getSkuCode().replaceAll("^(0+)", "");
+        SkuMap skuMap = skuMapService.getSkuMapBySkuCode(skuCode);
+        if (skuMap == null) {
+            throw new BizCheckedException("2880022", detail.getSkuCode(), "");
+        }
+        detail.setPrice(skuMap.getMovingAveragePrice());
+        detail.setDifferencePrice(detail.getRealQty().subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
+
+        stockTakingService.fillEmptyDetail(detail,lot);
+
+    }
     public void createTemporary(StockTakingRequest request){
         //get zone list;
         List<WorkZone> zoneList = workZoneService.getWorkZoneByType(WorkZoneConstant.ZONE_STOCK_TAKING);
@@ -587,6 +658,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         StockTakingHead head = new StockTakingHead();
         head.setPlanType(StockTakingConstant.TYPE_TEMPOARY);
         head.setTakingId(RandomUtils.genId());
+
         head.setPlanner(planner);
         head.setStatus(StockTakingConstant.Draft);
         TaskEntry entry = new TaskEntry();
@@ -600,26 +672,36 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             StockQuant quant = quants.get(0);
             item = itemService.getItem(quant.getItemId());
             detail.setSkuId(quant.getSkuId());
+            detail.setTheoreticalQty(quantService.getQuantQtyByContainerId(quant.getContainerId()));
             detail.setContainerId(quant.getContainerId());
             detail.setItemId(quant.getItemId());
             detail.setRealItemId(quant.getItemId());
-            detail.setRealSkuId(detail.getSkuId());
             detail.setPackName(quant.getPackName());
             detail.setPackUnit(quant.getPackUnit());
             detail.setOwnerId(quant.getOwnerId());
             detail.setLotId(quant.getLotId());
             detail.setSkuCode(item.getSkuCode());
             detail.setSkuName(item.getSkuName());
-            detail.setBarcode(item.getCode());
         }
 
         if(item!=null){
             //判断国条是不是系统的国条,如国条为空，则是该库位无商品
-            if(item.getCode().equals(barcode) || barcode.equals("")){
+            if(item.getCode().equals(barcode)){
                 detail.setRealQty(qty);
             }
         }else {
-            //TODO 如果不是，则怎么办
+          //系统库位无库存
+            if(barcode!=null){
+                CsiSku sku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode);
+                if(sku==null){
+                    throw new BizCheckedException("2550068",barcode,"");
+                }
+                detail.setRealQty(qty);
+                detail.setSkuId(sku.getSkuId());
+                detail.setRealSkuId(sku.getSkuId());
+                detail.setBarcode(barcode);
+                detail.setSkuName(sku.getSkuName());
+            }
         }
         detail.setStatus(StockTakingConstant.PendingAudit);
         detail.setLocationId(locationId);

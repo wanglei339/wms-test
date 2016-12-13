@@ -8,6 +8,7 @@ import com.lsh.wms.model.taking.StockTakingRequest;
 
 import javax.ws.rs.QueryParam;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ public interface IStockTakingProviderRpcService {
     List<StockTakingDetail> prepareDetailList(StockTakingHead head);
     List<Long> getTakingLocation(StockTakingRequest request);
     void createTemporary(StockTakingRequest request);
+    void  updateItem(Long itemId,Long detailId,Date proDate,Long round);
     void confirmDetail(List<Long> detailList) throws BizCheckedException;
     void batchCreateStockTaking(Map<Long,List<Long>> takingMap,Long takingType,Long planner) throws BizCheckedException;
     void createStockTaking(List<Long> locations,Long zoneId,Long takingType,Long planner) throws BizCheckedException;

@@ -13,6 +13,7 @@ import com.lsh.wms.api.service.location.ILocationRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
@@ -23,6 +24,7 @@ import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.core.service.task.StockTakingTaskService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.taking.StockTakingDetail;
@@ -115,6 +117,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         }
 
         BaseinfoLocation location = locationService.getLocationByCode(locationCode);
+        CsiSku sku = null;
         if(location == null){
             return JsonUtils.TOKEN_ERROR("位置不存在");
         }
@@ -123,10 +126,15 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
 
             Map<String, Object> beanMap = resultList.get(0);
             //商品码
-            barcode = beanMap.get("barcode").toString();
+            barcode = beanMap.get("barcode").toString().trim();
             //盘点数量
-             realQty = new BigDecimal(beanMap.get("qty").toString().trim());
+            realQty = new BigDecimal(beanMap.get("qty").toString().trim());
+            sku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode);
+            if(sku==null){
+                throw new BizCheckedException("2550068",barcode,"");
+            }
         }
+
 
         if(taskId.equals(0L)){
             //临时盘点
@@ -143,24 +151,23 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         //获取当前位置的任务信息
         StockTakingDetail detail = stockTakingService.getDetailByTaskIdAndLocation(taskId,locationId);
 
-        BaseinfoItem item = null;//该库位存储的商品
+        detail = stockTakingRpcService.fillDetail(detail);
+        CsiSku csiSku = null;
+        if(!detail.getSkuId().equals(0L)) {
+            csiSku = skuService.getSku(detail.getSkuId());
+        }
         if(detail.getTheoreticalQty().equals(BigDecimal.ZERO)){
             //该盘点位置没有商品
-        }else{
-            item = itemService.getItem(detail.getItemId());
-
+            if(sku != null){
+                //将输入填充
+                detail.setSkuId(sku.getSkuId());
+                detail.setRealSkuId(sku.getSkuId());
+                detail.setRealQty(realQty);
+            }
         }
-        stockTakingRpcService.fillDetail(detail);
-
-        if(item == null && barcode == "") {
-            //无异常
-        }else if(!barcode.equals("") && item.getCode().equals(barcode.toString().trim())) {
+        if(!("").equals(barcode) && csiSku!=null && csiSku.getCode().equals(barcode)) {
             //库位有商品
-            BigDecimal qty = quantService.getQuantQtyByLocationIdAndItemId(detail.getLocationId(), detail.getItemId());
-            detail.setTheoreticalQty(qty);
-            detail.setBarcode(barcode.toString());
             detail.setRealQty(realQty);
-            detail.setUpdatedAt(DateUtils.getCurrentSeconds());
             stockTakingService.updateDetail(detail);
         }
 

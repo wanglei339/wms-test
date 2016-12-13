@@ -7,5 +7,5 @@ import com.lsh.wms.model.taking.StockTakingDetail;
  * Created by wuhao on 2016/11/24.
  */
 public interface IStockTakingRpcService {
-    void fillDetail(StockTakingDetail detail) throws BizCheckedException;
+    StockTakingDetail fillDetail(StockTakingDetail detail) throws BizCheckedException;
 }
