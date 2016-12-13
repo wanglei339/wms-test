@@ -104,7 +104,7 @@ public class StockTakingService {
     @Transactional(readOnly = false)
     public void insertDetailList(List<StockTakingDetail> detailList) {
         for (StockTakingDetail detail : detailList) {
-            if(detail.getRound()>1){
+            if(detail.getRound().compareTo(1L)>0){
                 StockTakingDetail takingDetail = this.getDetailByRoundAndDetailId(detail.getDetailId(), detail.getRound()-1);
                 takingDetail.setStatus(StockTakingConstant.Done);
                 takingDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
@@ -398,6 +398,7 @@ public class StockTakingService {
         queryMap.put("detailId", detailId);
         queryMap.put("round", round);
         queryMap.put("valid", 1);
+
         List<StockTakingDetail> details = detailDao.getStockTakingDetailList(queryMap);
 
         if(details==null || details.size()==0){
