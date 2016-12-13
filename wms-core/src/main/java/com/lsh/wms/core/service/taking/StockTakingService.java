@@ -91,17 +91,6 @@ public class StockTakingService {
         headDao.update(head);
     }
     @Transactional(readOnly = false)
-    public void doneReplay(List<StockTakingDetail> details) {
-        for(StockTakingDetail detail:details){
-            detail.setStatus(StockTakingConstant.Done);
-            detail.setUpdatedAt(DateUtils.getCurrentSeconds());
-            this.updateDetail(detail);
-        }
-        logger.info("======" + details);
-    }
-
-
-    @Transactional(readOnly = false)
     public void insertDetailList(List<StockTakingDetail> detailList) {
         for (StockTakingDetail detail : detailList) {
             if(detail.getRound().compareTo(1L)>0){
