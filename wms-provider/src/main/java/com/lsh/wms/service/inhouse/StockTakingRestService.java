@@ -107,6 +107,14 @@ public class StockTakingRestService implements IStockTakingRestService {
         return JsonUtils.SUCCESS();
     }
     @POST
+    @Path("fillDetail")
+    public String fillDetail(StockTakingRequest request) throws BizCheckedException{
+        StockTakingHead head = new StockTakingHead();
+        ObjUtils.bean2bean(request, head);
+        this.update(head);
+        return JsonUtils.SUCCESS();
+    }
+    @POST
     @Path("replay")
     public String replay() throws BizCheckedException{
        Map<String,Object> request = RequestUtils.getRequest();

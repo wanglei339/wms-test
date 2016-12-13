@@ -284,10 +284,6 @@ public class StockTakingService {
     }
     @Transactional(readOnly = false)
     public void confirm(List<StockTakingDetail> stockTakingDetails) {
-        for (StockTakingDetail stockTakingDetail : stockTakingDetails) {
-            stockTakingDetail.setIsFinal(1);
-            this.updateDetail(stockTakingDetail);
-        }
         List<StockMove> moveList = new ArrayList<StockMove>();
 //        //盘亏 盘盈的分成两个list items为盘亏 items1盘盈
 //        List<StockItem> itemsLoss = new ArrayList<StockItem>();
@@ -299,6 +295,7 @@ public class StockTakingService {
                 continue;
             }
             detail.setStatus(StockTakingConstant.Done);
+            detail.setIsFinal(1);
             this.updateDetail(detail);
             OverLossReport overLossReport = new OverLossReport();
             //StockItem stockItem = new StockItem();
@@ -585,7 +582,7 @@ public class StockTakingService {
 
         StockMove diff = new StockMove();
         diff.setFromContainerId(locationService.getSoAreaDirect().getLocationId());
-        diff.setToLocationId(locationService.getConsumerArea().getLocationId());
+        diff.setToLocationId(locationService.getNullArea().getLocationId());
         diff.setQty(move.getQty());
         diff.setItemId(move.getItemId());
         diff.setTaskId(move.getTaskId());

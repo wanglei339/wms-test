@@ -63,7 +63,7 @@ public class SoOrderService {
                 StockMove move = new StockMove();
                 move.setItemId(detail.getItemId());
                 move.setQty(detail.getOrderQty());
-                move.setFromLocationId(locationService.getConsumerArea().getLocationId());
+                move.setFromLocationId(locationService.getNullArea().getLocationId());
                 move.setToLocationId(locationService.getSoAreaInbound().getLocationId());
                 move.setTaskId(detail.getOrderId());
                 moveList.add(move);
