@@ -98,7 +98,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             iTaskRpcService.cancel(taskId);
         }
     }
-    @Transactional(readOnly = false)
+//    @Transactional(readOnly = false)
     public void replay(List<Long> detailList,Long planner) throws BizCheckedException {
         Map<String,Object> queryMap = new HashMap<String, Object>();
         queryMap.put("status", StockTakingConstant.PendingAudit);
@@ -106,7 +106,6 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         queryMap.put("detailList",detailList);
         List<StockTakingDetail> details = stockTakingService.getDetails(queryMap);
         if(details!=null && details.size()!=0){
-            stockTakingService.doneReplay(details);
             StockTakingHead head = new StockTakingHead();
             head.setPlanType(StockTakingConstant.TYPE_REPLAY);
             head.setTakingId(RandomUtils.genId());
@@ -139,6 +138,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
                 taskEntry.setTaskDetailList(newDetails);
                 taskEntries.add(taskEntry);
             }
+            logger.info("-----"+details);
             iTaskRpcService.batchCreate(head, taskEntries);
         }
     }
@@ -521,6 +521,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         for(Long locationId:locations){
             StockTakingDetail detail = new StockTakingDetail();
             detail.setLocationId(locationId);
+            detail.setLocationCode(locationService.getLocation(locationId).getLocationCode());
             detail.setDetailId(RandomUtils.genId());
             detail.setTakingId(head.getTakingId());
             details.add(detail);
@@ -560,6 +561,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
                 detail.setLocationId(locationId);
                 detail.setDetailId(RandomUtils.genId());
                 detail.setTakingId(head.getTakingId());
+                detail.setLocationCode(locationService.getLocation(locationId).getLocationCode());
                 details.add(detail);
                 detail.setZoneId(zoneId);
             }

@@ -63,7 +63,7 @@ public class SoOrderService {
                 StockMove move = new StockMove();
                 move.setItemId(detail.getItemId());
                 move.setQty(detail.getOrderQty());
-                move.setFromLocationId(locationService.getConsumerArea().getLocationId());
+                move.setFromLocationId(locationService.getNullArea().getLocationId());
                 move.setToLocationId(locationService.getSoAreaInbound().getLocationId());
                 move.setTaskId(detail.getOrderId());
                 moveList.add(move);
@@ -79,6 +79,7 @@ public class SoOrderService {
      */
     @Transactional(readOnly = false)
     public void update(ObdHeader obdHeader) {
+        obdHeader.setCreatedAt(null);
         obdHeaderDao.update(obdHeader);
     }
 
@@ -90,7 +91,7 @@ public class SoOrderService {
     @Transactional(readOnly = false)
     public void updateOutbSoHeaderByOrderOtherIdOrOrderId(ObdHeader obdHeader) {
         obdHeader.setUpdatedAt(DateUtils.getCurrentSeconds());
-
+        obdHeader.setCreatedAt(null);
         obdHeaderDao.updateByOrderOtherIdOrOrderId(obdHeader);
     }
 

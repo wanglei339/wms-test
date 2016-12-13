@@ -294,6 +294,12 @@ public class SeedRestService implements ISeedRestService {
             }
 
 
+            //校验托盘是否存在
+            BaseinfoContainer container = containerService.getContainer(containerId);
+            if(container==null){
+               throw new BizCheckedException("2880013");
+            }
+
             TaskInfo info = entry.getTaskInfo();
             //判断商品类型，如例外代码校验通过，则不校验
               //校验例外代码
@@ -468,12 +474,6 @@ public class SeedRestService implements ISeedRestService {
                 return JsonUtils.TOKEN_ERROR("播种数量超出门店订单数量");
             }
             // type 2:继续播，1:剩余门店不播了 ,3:跳过当前任务，播下一个任务
-            if(containerId != null){
-                BaseinfoContainer container = containerService.getContainer(containerId);
-                if(container==null){
-                    throw new BizCheckedException("2880013");
-                }
-            }
             if(TaskConstant.Done.compareTo(info.getStatus())==0){
                 return JsonUtils.TOKEN_ERROR("该门店已播种完成");
             }

@@ -307,6 +307,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         Long realLocationId = 0L;
         String realLocationCode = "";
         BigDecimal realQty = BigDecimal.ZERO;
+        logger.info("params:"+mapQuery);
         try {
             taskId= Long.valueOf(mapQuery.get("taskId").toString());
             realLocationCode = mapQuery.get("realLocationCode").toString();
