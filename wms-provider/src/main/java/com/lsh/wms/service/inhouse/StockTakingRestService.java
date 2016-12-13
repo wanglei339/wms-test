@@ -112,7 +112,10 @@ public class StockTakingRestService implements IStockTakingRestService {
         Map<String,Object> request = RequestUtils.getRequest();
         Long detailId = Long.valueOf(request.get("detailId").toString());
         Long itemId = Long.valueOf((request.get("itemId").toString()));
-        Date proDate = (Date)request.get("proTime");
+        Long proDate = null;
+        if(request.get("proTime")!=null) {
+             proDate = Long.valueOf(request.get("proTime").toString());
+        }
         Long round = Long.valueOf((request.get("round").toString()));
         iStockTakingProviderRpcService.updateItem(itemId,detailId,proDate,round);
         return JsonUtils.SUCCESS();

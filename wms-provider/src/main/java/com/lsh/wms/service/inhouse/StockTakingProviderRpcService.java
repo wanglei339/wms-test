@@ -152,7 +152,6 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
                 taskEntry.setTaskDetailList(newDetails);
                 taskEntries.add(taskEntry);
             }
-            logger.info("-----"+details);
             iTaskRpcService.batchCreate(head, taskEntries);
         }
     }
@@ -379,7 +378,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         }
         return locations;
     }
-    public void  updateItem(Long itemId,Long detailId,Date proDate,Long round){
+    public void  updateItem(Long itemId,Long detailId,Long proDate,Long round){
         BaseinfoItem item = itemService.getItem(itemId);
         if(item ==null){
             throw new BizCheckedException("2120001");
@@ -399,15 +398,15 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             }
         }else {
             if (proDate == null){
-                proDate = new Date();
+                proDate = DateUtils.getCurrentSeconds();
             }
         }
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(proDate);
+        calendar.setTime(new Date(proDate * 1000));
         calendar.add(calendar.DAY_OF_YEAR, item.getShelfLife().intValue());
         Long expireDate = calendar.getTime().getTime() / 1000;
 
-        lot.setProductDate(proDate.getTime() / 1000);
+        lot.setProductDate(proDate);
         lot.setExpireDate(expireDate);
         lot.setLotId(RandomUtils.genId());
         lot.setInDate(DateUtils.getCurrentSeconds());
