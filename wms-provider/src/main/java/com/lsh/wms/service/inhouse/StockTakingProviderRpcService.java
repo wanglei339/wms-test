@@ -420,6 +420,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         detail.setLotId(lot.getLotId());
         detail.setPackName(lot.getPackName());
         detail.setItemId(itemId);
+        detail.setSkuName(item.getSkuName());
         detail.setContainerId(containerId);
         detail.setPackName(item.getPackName());
         detail.setPackUnit(item.getPackUnit());
@@ -679,6 +680,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             detail.setPackUnit(quant.getPackUnit());
             detail.setOwnerId(quant.getOwnerId());
             detail.setLotId(quant.getLotId());
+            detail.setBarcode(item.getCode());
             detail.setSkuCode(item.getSkuCode());
             detail.setSkuName(item.getSkuName());
         }

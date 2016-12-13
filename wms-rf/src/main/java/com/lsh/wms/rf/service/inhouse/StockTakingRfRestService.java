@@ -161,6 +161,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             if(sku != null){
                 //将输入填充
                 detail.setSkuId(sku.getSkuId());
+                detail.setBarcode(sku.getCode());
                 detail.setRealSkuId(sku.getSkuId());
                 detail.setRealQty(realQty);
             }
