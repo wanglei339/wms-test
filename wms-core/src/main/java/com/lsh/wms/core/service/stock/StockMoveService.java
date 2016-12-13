@@ -149,8 +149,11 @@ public class StockMoveService {
             move.setMoveType(1L);
         }
 
-        if ( fromRegionType.equals(LocationConstant.CONSUME_AREA)
-                || fromRegionType.equals(LocationConstant.SUPPLIER_AREA) ) {
+
+        if (move.getLot() == null &&
+                ( fromRegionType.equals(LocationConstant.CONSUME_AREA) ||
+                        fromRegionType.equals(LocationConstant.SUPPLIER_AREA) )
+            ) {
             StockLot lot = new StockLot();
             lot.setItemId(move.getItemId());
             move.setLot(lot);
