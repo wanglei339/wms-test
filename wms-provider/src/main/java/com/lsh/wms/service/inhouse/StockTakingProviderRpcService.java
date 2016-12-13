@@ -420,6 +420,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         detail.setLotId(lot.getLotId());
         detail.setPackName(lot.getPackName());
         detail.setItemId(itemId);
+        detail.setOwnerId(item.getOwnerId());
         detail.setSkuName(item.getSkuName());
         detail.setContainerId(containerId);
         detail.setPackName(item.getPackName());
