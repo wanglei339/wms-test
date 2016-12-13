@@ -28,6 +28,7 @@ public class StockConstant {
             put(LocationConstant.DIFF_AREA, "diffQty");
             put(LocationConstant.CONSUME_AREA, "consumeQty");
             put(LocationConstant.SUPPLIER_AREA, "supplierQty");
+            put(LocationConstant.NULL_AREA, "nullQty");
         }
     };
 }

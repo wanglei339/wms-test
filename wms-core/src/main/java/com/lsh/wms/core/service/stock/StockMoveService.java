@@ -50,6 +50,9 @@ public class StockMoveService {
     @Autowired
     private PersistenceProxy persistenceProxy;
 
+    @Autowired
+    private StockLotService stockLotService;
+
     @Transactional(readOnly = false)
     public void create(StockMove move) {
         move.setCreatedAt(DateUtils.getCurrentSeconds());
@@ -138,12 +141,32 @@ public class StockMoveService {
         }
     }
 
+    public void decorateMove(StockMove move) throws BizCheckedException {
+        Long fromRegionType = locationService.getLocation(move.getFromLocationId()).getRegionType();
+        Long toRegionType = locationService.getLocation(move.getToLocationId()).getRegionType();
+
+        if (! fromRegionType.equals(toRegionType)) {
+            move.setMoveType(1L);
+        }
+        if (move.getLot() == null &&
+                ( fromRegionType.equals(LocationConstant.CONSUME_AREA)
+                || fromRegionType.equals(LocationConstant.NULL_AREA)
+                || fromRegionType.equals(LocationConstant.SUPPLIER_AREA) )
+            ){
+            StockLot lot = new StockLot();
+            lot.setItemId(move.getItemId());
+            move.setLot(lot);
+        }
+    }
+
     @Transactional(readOnly = false)
     public void move(StockMove move) throws BizCheckedException {
 
         checkMove(move);
 
         locationService.lockLocationById(move.getFromLocationId());
+
+        decorateMove(move);
 
         this.create(move);
 
@@ -188,29 +211,6 @@ public class StockMoveService {
             }
         }
     }
-
-//    @Transactional(readOnly = false)
-//    public void moveToConsume(Set<Long> containerIds) throws BizCheckedException {
-//        List<StockQuant> stockQuants = new ArrayList<StockQuant>();
-//        for (Long containerId : containerIds) {
-//            List<StockQuant> quants = quantService.getQuantsByContainerId(containerId);
-//            if (quants == null || quants.isEmpty()) {
-//                continue;
-//            }
-//            stockQuants.addAll(quants);
-//        }
-//        BaseinfoLocation location = locationService.getLocationsByType(LocationConstant.CONSUME_AREA).get(0);
-//
-//        //存储已经生成move的ContainerId
-//        Map<Long, Integer> isMovedMap = new HashMap<Long, Integer>();
-//
-//        for (StockQuant quant : stockQuants) {
-//            if (!isMovedMap.containsKey(quant.getContainerId())) {
-//                this.moveWholeContainer(quant.getContainerId(), 0L, 0L, quant.getLocationId(), location.getLocationId());
-//                isMovedMap.put(quant.getContainerId(), 1);
-//            }
-//        }
-//    }
 
     @Transactional(readOnly = false)
     public void moveToConsume(Set<Long> containerIds) throws BizCheckedException {

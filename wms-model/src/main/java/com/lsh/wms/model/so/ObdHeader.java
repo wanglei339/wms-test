@@ -41,6 +41,8 @@ public class ObdHeader implements Serializable {
 	private String deliveryAddrs;
 	/** 退货 收货供商号*/
 	private String supplierNo = "";
+	/** 订单关闭标识 */
+	private Long isClosed= 0l;
 	/**  */
 	private Long createdAt = 0l;
 	/**  */
@@ -214,5 +216,13 @@ public class ObdHeader implements Serializable {
 
 	public void setSupplierNo(String supplierNo) {
 		this.supplierNo = supplierNo;
+	}
+
+	public Long getIsClosed() {
+		return isClosed;
+	}
+
+	public void setIsClosed(Long isClosed) {
+		this.isClosed = isClosed;
 	}
 }

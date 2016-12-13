@@ -766,31 +766,39 @@ public class ReceiptRestService implements IReceiptRfService {
         }
 
         //用来标记该门店是否有订货
-        boolean isOrder=false;
+        boolean isHaveOrder=false;
         //用来标记商品是否在订货范围内
-        boolean isGoods=false;
+        boolean isHaveGoods=false;
         List<ObdDetail> obdDetailList = new ArrayList<ObdDetail>();
         //存储orderId和对应的detailId
         StringBuilder orderIdDetailIdStr = new StringBuilder();
+        Map<String,String> obdMap = new HashMap<String, String>();
         //根据ibdobdrelation来找对应的obd
         for(IbdObdRelation ibdObdRelation:ibdObdRelations){
             String obdOtherId=ibdObdRelation.getObdOtherId();
             String obdDetailId=ibdObdRelation.getObdDetailId();
 
+            if(obdMap.get(obdOtherId) != null && obdMap.get(obdOtherId).equals(obdDetailId)){
+                continue;//防止重复加入obdDetailList
+            }
+            obdMap.put(obdOtherId,obdDetailId);
+
             ObdHeader obdHeader=soOrderService.getOutbSoHeaderByOrderOtherIdAndType(obdOtherId,SoConstant.ORDER_TYPE_DIRECT);
             //该门店有新建的直流出库订单
-            isOrder=obdHeader!=null&&storeId.equals(obdHeader.getDeliveryCode())
+            boolean isOrder=obdHeader!=null&&storeId.equals(obdHeader.getDeliveryCode())
                     &&SoConstant.ORDER_TYPE_DIRECT==obdHeader.getOrderType()
                     &&1==obdHeader.getOrderStatus();
 
             if(isOrder){
+                isHaveOrder = true;
                 ObdDetail obdDetail=soOrderService.getObdDetailByOrderIdAndDetailOtherId(obdHeader.getOrderId(),obdDetailId);
                 if(obdDetail==null){
                     throw new BizCheckedException("2020010");
                 }
                 //该商品是否在门店订货范围内
-                isGoods=baseinfoItem.getItemId().equals(obdDetail.getItemId());
+                boolean isGoods=baseinfoItem.getItemId().equals(obdDetail.getItemId());
                 if(isGoods){
+                    isHaveGoods = true;
 //                    //查询inbReceiptHeader是否存在 根据托盘查询
 //                    Map<String,Object> mapQuery = new HashMap<String, Object>();
 //                    mapQuery.put("containerId",containerId);
@@ -836,10 +844,10 @@ public class ReceiptRestService implements IReceiptRfService {
             }
 
         }
-        if(!isOrder){
+        if(!isHaveOrder){
             throw new BizCheckedException("2020100");
         }
-        if(!isGoods){
+        if(!isHaveGoods){
             throw new BizCheckedException("2020004");
         }
 
@@ -858,7 +866,7 @@ public class ReceiptRestService implements IReceiptRfService {
 
         //是否需要生产日期
         int isNeedProTime = 0;
-        BaseinfoItemType baseinfoItemType = iItemTypeRpcService.getBaseinfoItemTypeByItemId(baseinfoItem.getItemType());
+         BaseinfoItemType baseinfoItemType = iItemTypeRpcService.getBaseinfoItemTypeByItemId(baseinfoItem.getItemType());
         if(baseinfoItemType != null && baseinfoItemType.getIsNeedProtime() == 1){
             isNeedProTime = 1;// TODO: 16/11/15 是否需要输入生产日期
         }
@@ -898,12 +906,16 @@ public class ReceiptRestService implements IReceiptRfService {
     private BaseinfoItem getItem(String barCode , Long ownerId){
         BaseinfoItem baseinfoItem = new BaseinfoItem();
         if (barCode.length() == 6 || barCode.length() == 9){
-//            //barCode的值为物美码
-//            while (barCode.length() < 18){
-//                StringBuffer sb = new StringBuffer();
-//                sb.append("0").append(barCode);
-//                barCode = sb.toString();
-//            }
+            //barCode的值为物美码
+            if(ownerId == 2){
+                //链商
+             while (barCode.length() < 18){
+               StringBuffer sb = new StringBuffer();
+                sb.append("0").append(barCode);
+               barCode = sb.toString();
+              }
+            }
+
             List<BaseinfoItem> items = itemService.getItemsBySkuCode(ownerId,barCode);
             if(items.size() <= 0){
                 throw new BizCheckedException("2900001");
@@ -954,6 +966,10 @@ public class ReceiptRestService implements IReceiptRfService {
             Map<String,Object>params=new HashMap<String,Object>();
             params.put("obdOtherId",obdHeader.getOrderOtherId());
             for(ObdDetail obdDetail : obdDetailList){
+                if(obdDetail.getSowQty().compareTo(obdDetail.getUnitQty())==0){
+                    //实际收货数等于订货数
+                    continue;
+                }
                 params.put("obdDetailId",obdDetail.getDetailOtherId());
                 List<IbdObdRelation> ibdObdRelations = poOrderService.getIbdObdRelationList(params);
                 if(ibdObdRelations == null || ibdObdRelations.size()<=0){

@@ -107,12 +107,49 @@ public class StockTakingRestService implements IStockTakingRestService {
         return JsonUtils.SUCCESS();
     }
     @POST
+    @Path("fillDetail")
+    public String fillDetail(StockTakingRequest request) throws BizCheckedException{
+        StockTakingHead head = new StockTakingHead();
+        ObjUtils.bean2bean(request, head);
+        this.update(head);
+        return JsonUtils.SUCCESS();
+    }
+    @POST
     @Path("replay")
     public String replay() throws BizCheckedException{
        Map<String,Object> request = RequestUtils.getRequest();
         List<Long> detailList = (List)request.get("detailList");
         Long planner  = Long.valueOf(request.get("planner").toString());
         iStockTakingProviderRpcService.replay(detailList, planner);
+        return JsonUtils.SUCCESS();
+    }
+    @POST
+    @Path("getDiffPrice")
+    public String getDiffPrice() throws BizCheckedException{
+        Map<String,Object> request = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(stockTakingService.getDiffPrice(request));
+    }
+    @POST
+    @Path("getDiffRet")
+    public String getDiffRet() throws BizCheckedException{
+        Long ret = 0l;
+        Map<String,Object> request = RequestUtils.getRequest();
+        Long allPrice = stockTakingService.getAllPrice(request);
+        Long diffPrice = stockTakingService.getDiffPrice(request);
+
+        if(allPrice.equals(0l)){
+            ret =  diffPrice;
+        }else {
+            ret = Math.abs(diffPrice - allPrice) / allPrice;
+        }
+        return JsonUtils.SUCCESS(ret);
+    }
+    @POST
+    @Path("confirm")
+    public String confirm() throws BizCheckedException{
+        Map<String,Object> request = RequestUtils.getRequest();
+        List<Long> detailList = (List)request.get("detailList");
+        iStockTakingProviderRpcService.confirmDetail(detailList);
         return JsonUtils.SUCCESS();
     }
     @GET

@@ -1,6 +1,7 @@
 package com.lsh.wms.service.wave.split;
 
 import com.lsh.base.common.utils.ObjUtils;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.PickConstant;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
@@ -30,12 +31,19 @@ public class SplitModelWholePallet extends SplitModel {
                 //如果单品的数量大于整托的数量,则直接拆出来搞起
                 BaseinfoItem item = mapItems.get(detail.getItemId());
                 final BigDecimal palletQty = item.getPackUnit().multiply(BigDecimal.valueOf(item.getPileX() * item.getPileY() * item.getPileZ()));
-
+                logger.info(String.format("item %d[%s] palletQty[%s] allocQty[%s] unitname[%s]",
+                        item.getItemId(),
+                        item.getSkuName(),
+                        palletQty.toString(),
+                        detail.getAllocQty().toString(),
+                        detail.getAllocUnitName()));
                 if (palletQty.compareTo(BigDecimal.ZERO) > 0
-                        && detail.getAllocUnitName() != "EA"
+                        //&& detail.getAllocUnitName() != "EA"
+                        && (detail.getPickArea().getRegionType() == LocationConstant.SHELFS
+                            || detail.getPickArea().getRegionType() == LocationConstant.FLOOR)
                         && detail.getAllocQty().compareTo(palletQty) >= 0) {
                     int num = detail.getAllocQty().divide(palletQty, 0, BigDecimal.ROUND_FLOOR).intValue();
-                    logger.info(String.format("item %d[%s] palletQty[%s] qty[%s] splitPalletNum[%d]",
+                    logger.info(String.format("GODDAMMIT PALLET item %d[%s] palletQty[%s] qty[%s] splitPalletNum[%d]",
                             item.getItemId(),
                             item.getSkuName(),
                             palletQty.toString(),

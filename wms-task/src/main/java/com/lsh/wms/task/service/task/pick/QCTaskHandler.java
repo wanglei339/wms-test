@@ -57,7 +57,7 @@ public class QCTaskHandler extends AbsTaskHandler {
         //区wave_detail中找该托盘是否已存在QC(wave_detail中的托盘有生命周期,task中没有,可能托盘复用)
         List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(containerId);
         if (null == waveDetails || waveDetails.size() < 1) {
-            logger.info(" WARNING THIS container "+containerId +" has no wave_deatil ");
+            logger.error(" WARNING THIS container "+containerId +" has no wave_deatil ");
             throw new BizCheckedException("2880012");
         }
         //同一托盘多商品,多收货任务,一个qc任务,之前生成的qc任务更新

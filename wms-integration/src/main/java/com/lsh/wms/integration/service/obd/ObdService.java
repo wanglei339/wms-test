@@ -95,11 +95,8 @@ public class ObdService implements IObdService{
             logger.info("~~~~~~~~~~下发黑狗数据 request : " + JSON.toJSONString(request) + "~~~~~~~~~");
             JSONObject jsonObject = JSON.parseObject(res);
 
-            if ("1".equals(((Map)jsonObject.get("head")).get("status"))){
-                return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, jsonObject.get("body"));
-            }else{
-                return ResUtils.getResponse(ResponseConstant.RES_CODE_0, ResponseConstant.RES_MSG_ERROR, jsonObject.get("body"));
-            }
+            return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, jsonObject.get("body"));
+
 
         }
 

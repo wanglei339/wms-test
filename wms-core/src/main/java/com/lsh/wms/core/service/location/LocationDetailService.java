@@ -132,6 +132,8 @@ public class LocationDetailService {
         locationDetailServiceFactory.register(LocationConstant.SO_INBOUND_AREA, baseinfoLocationRegionService);
         //so订单占用区(直流)
         locationDetailServiceFactory.register(LocationConstant.SO_DIRECT_AREA, baseinfoLocationRegionService);
+        //null_area区
+        locationDetailServiceFactory.register(LocationConstant.NULL_AREA, baseinfoLocationRegionService);
     }
 
     /**
@@ -212,6 +214,7 @@ public class LocationDetailService {
         locationDetailModelFactory.register(LocationConstant.DIFF_AREA, new BaseinfoLocationRegion());
         locationDetailModelFactory.register(LocationConstant.SO_INBOUND_AREA, new BaseinfoLocationRegion());
         locationDetailModelFactory.register(LocationConstant.SO_DIRECT_AREA, new BaseinfoLocationRegion());
+        locationDetailModelFactory.register(LocationConstant.NULL_AREA, new BaseinfoLocationRegion());
 
     }
 

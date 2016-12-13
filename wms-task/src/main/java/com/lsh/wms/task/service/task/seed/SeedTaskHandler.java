@@ -109,7 +109,7 @@ public class SeedTaskHandler extends AbsTaskHandler {
     @Autowired
     CsiCustomerService csiCustomerService;
     @Autowired
-    private StockSummaryService stockSummaryService;
+    private StockMoveService stockMoveService;
 
     private static Logger logger = LoggerFactory.getLogger(SeedTaskHandler.class);
 
@@ -369,12 +369,12 @@ public class SeedTaskHandler extends AbsTaskHandler {
             // 直流订单在此预占库存
             StockMove presale = new StockMove();
             presale.setItemId(move.getItemId());
-            presale.setFromLocationId(locationService.getConsumerArea().getLocationId());
+            presale.setFromLocationId(locationService.getNullArea().getLocationId());
             presale.setToLocationId(locationService.getSoAreaDirect().getLocationId());
             presale.setQty(move.getQty());
             presale.setTaskId(info.getOrderId());
             List<StockMove> moveList = Arrays.asList(presale);
-            stockSummaryService.alloc(moveList);
+            stockMoveService.move(moveList);
 
 
 

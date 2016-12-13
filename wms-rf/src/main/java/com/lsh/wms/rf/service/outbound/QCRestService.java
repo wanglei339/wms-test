@@ -269,8 +269,16 @@ public class QCRestService implements IRFQCRestService {
         Map<String, Object> request = RequestUtils.getRequest();
         //在库拣货qc输入ea数量,直流按照EA或者箱子播种和收货
         long qcTaskId = Long.valueOf(request.get("qcTaskId").toString());
+        if (null == request.get("uomQty")) {
+            throw new BizCheckedException("2120024");
+        }
         BigDecimal qtyUom = new BigDecimal(request.get("uomQty").toString());   //可以是箱数或EA数量
-        BigDecimal defectQty = new BigDecimal(request.get("defectQty").toString()); //可以是箱数或EA数量(两者是箱子的话都是箱子)
+        BigDecimal defectQty = null;
+        if (null == request.get("defectQty")) {
+            defectQty = new BigDecimal("0.0000");
+        } else {
+            defectQty = new BigDecimal(request.get("defectQty").toString()); //可以是箱数或EA数量(两者是箱子的话都是箱子)
+        }
         long exceptionType = 0L;
         BigDecimal exceptionQty = new BigDecimal("0.0000");
         if (defectQty.compareTo(BigDecimal.ZERO) > 0) {
@@ -411,6 +419,9 @@ public class QCRestService implements IRFQCRestService {
         //前端跳过q明细字段,跳过,系统默认拣货量和qc量的一致
         Boolean skip = Boolean.valueOf(request.get("skip").toString());
         long qcTaskId = Long.valueOf(request.get("qcTaskId").toString());
+        if (null == request.get("boxNum") || null == request.get("turnoverBoxNum")) {
+            throw new BizCheckedException("2120024");
+        }
         long boxNum = Long.valueOf(request.get("boxNum").toString());
         long turnoverBoxNum = Long.valueOf(request.get("turnoverBoxNum").toString());
         //初始化QC任务

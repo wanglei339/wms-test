@@ -556,7 +556,7 @@ public class TuService {
             for(OutbDeliveryDetail deliveryDetail : realDetails){
                 ObdHeader obdHeader = mapObdHeader.get(deliveryDetail.getOrderId());
                 StockMove move = new StockMove();
-                move.setToLocationId(locationService.getConsumerArea().getLocationId());
+                move.setToLocationId(locationService.getNullArea().getLocationId());
                 if (obdHeader.getOrderType() == SoConstant.ORDER_TYPE_DIRECT) {
                     move.setFromLocationId(locationService.getSoAreaDirect().getLocationId());
                 } else {
@@ -602,6 +602,7 @@ public class TuService {
             }
         }
         //这里做obd占用数量扣减
+        stockMoveService.move(orderTaskStockMoveList);
         return true;
     }
 

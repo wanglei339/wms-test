@@ -98,6 +98,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             iTaskRpcService.cancel(taskId);
         }
     }
+//    @Transactional(readOnly = false)
     public void replay(List<Long> detailList,Long planner) throws BizCheckedException {
         Map<String,Object> queryMap = new HashMap<String, Object>();
         queryMap.put("status", StockTakingConstant.PendingAudit);
@@ -119,6 +120,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
                 List<Object> newDetails = new ArrayList<Object>();
                 detail.setTakingId(head.getTakingId());
                 detail.setId(0l);
+                detail.setStatus(TaskConstant.Draft);
                 detail.setRound(detail.getRound()+1);
                 newDetails.add(detail);
                 detail.setZoneId(zoneId);
@@ -136,7 +138,18 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
                 taskEntry.setTaskDetailList(newDetails);
                 taskEntries.add(taskEntry);
             }
+            logger.info("-----"+details);
             iTaskRpcService.batchCreate(head, taskEntries);
+        }
+    }
+    public void confirmDetail(List<Long> detailList) throws BizCheckedException {
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("status", StockTakingConstant.PendingAudit);
+        queryMap.put("isValid", 1);
+        queryMap.put("detailList",detailList);
+        List<StockTakingDetail> details = stockTakingService.getDetails(queryMap);
+        if(details!=null && details.size()!=0){
+            stockTakingService.confirm(details);
         }
     }
     public void createTask(StockTakingHead head, List<StockTakingDetail> detailList,Long round,Long dueTime) throws BizCheckedException{
@@ -508,6 +521,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         for(Long locationId:locations){
             StockTakingDetail detail = new StockTakingDetail();
             detail.setLocationId(locationId);
+            detail.setLocationCode(locationService.getLocation(locationId).getLocationCode());
             detail.setDetailId(RandomUtils.genId());
             detail.setTakingId(head.getTakingId());
             details.add(detail);
@@ -547,6 +561,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
                 detail.setLocationId(locationId);
                 detail.setDetailId(RandomUtils.genId());
                 detail.setTakingId(head.getTakingId());
+                detail.setLocationCode(locationService.getLocation(locationId).getLocationCode());
                 details.add(detail);
                 detail.setZoneId(zoneId);
             }

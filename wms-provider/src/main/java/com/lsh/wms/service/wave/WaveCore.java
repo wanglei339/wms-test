@@ -538,6 +538,7 @@ public class WaveCore {
         allocDetail.setAllocUnitName(unitName);
         allocDetail.setPickAreaLocation(location.getLocationId());
         allocDetail.setRefObdDetailOtherId(detail.getDetailOtherId());
+        allocDetail.setPickArea(location);
         pickAllocDetailList.add(allocDetail);
         leftAllocQty = leftAllocQty.subtract(alloc_qty);
         logger.info(String.format("get real qty %s", alloc_qty.toString()));
@@ -574,6 +575,7 @@ public class WaveCore {
             allocDetail.setAllocUnitName(location.getRegionType()==LocationConstant.FLOOR ? item.getPackName() : "EA");
             allocDetail.setAllocUnitQty(PackUtil.EAQty2UomQty(allocDetail.getAllocQty(), allocDetail.getAllocUnitName()));
             allocDetail.setPickAreaLocation(location.getLocationId());
+            allocDetail.setPickArea(location);
             allocDetail.setRefObdDetailOtherId(detail.getDetailOtherId());
             pickAllocDetailList.add(allocDetail);
             logger.info(String.format("wave %d item %d[%s] packunit -1-EA leftQty %s zone %s pickArea %s getCanAllocQty %s sotrePickSame %s",

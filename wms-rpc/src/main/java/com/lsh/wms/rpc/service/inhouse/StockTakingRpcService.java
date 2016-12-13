@@ -1,10 +1,13 @@
 package com.lsh.wms.rpc.service.inhouse;
 
+import com.alibaba.dubbo.common.logger.Logger;
+import com.alibaba.dubbo.common.logger.LoggerFactory;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.service.inhouse.IStockTakingRpcService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
@@ -22,6 +25,8 @@ import java.util.List;
  */
 @Service(protocol = "dubbo")
 public class StockTakingRpcService implements IStockTakingRpcService {
+    private static Logger logger = LoggerFactory.getLogger(StockTakingRpcService.class);
+
 
     @Autowired
     private StockTakingService stockTakingService;
@@ -29,13 +34,17 @@ public class StockTakingRpcService implements IStockTakingRpcService {
     private StockQuantService quantService;
     @Autowired
     private ItemService itemService;
+    @Autowired
+    private LocationService locationService;
 
     public void fillDetail(StockTakingDetail detail) throws BizCheckedException{
         if(detail!=null){
             List<StockQuant> quants = quantService.getQuantsByLocationId(detail.getLocationId());
             if(quants!=null && quants.size()!=0){
+
                 StockQuant quant = quants.get(0);
                 BaseinfoItem item = itemService.getItem(quant.getItemId());
+                BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
                 detail.setSkuId(quant.getSkuId());
                 detail.setContainerId(quant.getContainerId());
                 detail.setItemId(quant.getItemId());
@@ -48,6 +57,8 @@ public class StockTakingRpcService implements IStockTakingRpcService {
                 detail.setSkuCode(item.getSkuCode());
                 detail.setSkuName(item.getSkuName());
                 detail.setBarcode(item.getCode());
+                detail.setLocationCode(location.getLocationCode());
+                logger.info("detail:"+detail);
             }
             stockTakingService.updateDetail(detail);
         }

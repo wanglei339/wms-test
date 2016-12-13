@@ -294,7 +294,7 @@ public class StockTransferRFService implements IStockTransferRFService{
             taskId = iStockTransferRpcService.addPlan(plan);
             iTaskRpcService.assign(taskId, uid);
         }
-        final TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
+        TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
         if (taskEntry == null) {
             throw new BizCheckedException("3040001");
         }
@@ -304,6 +304,7 @@ public class StockTransferRFService implements IStockTransferRFService{
         Map<String, Object> next = new HashMap<String, Object>();
         if (type.equals(1L)) {
             TaskInfo taskInfo = taskEntry.getTaskInfo();
+            logger.info(String.format("QTY DONE 2 %s", taskInfo.getQtyDone().toString()));
             uomQty = new BigDecimal(params.get("uomQty").toString());
             if(params.get("subType")!=null && StringUtils.isNumeric(params.get("subType").toString())){
                 taskInfo.setSubType(Long.valueOf(params.get("subType").toString()));
@@ -318,7 +319,11 @@ public class StockTransferRFService implements IStockTransferRFService{
                 return JsonUtils.TOKEN_ERROR("当前不支持此区域的整托移动");
             }
             iStockTransferRpcService.scanFromLocation(taskEntry, location, uomQty);
+            taskEntry = taskRpcService.getTaskEntryById(taskId);
+            taskInfo = taskEntry.getTaskInfo();
             BaseinfoItem item = itemRpcService.getItem(taskInfo.getItemId());
+            logger.info(String.format("QTY DONE 3 %s", taskInfo.getQtyDone().toString()));
+            logger.info(String.format("QTY DONE 4 %s", taskEntry.getTaskInfo().getQtyDone().toString()));
             if(taskInfo.getStatus() == TaskConstant.Cancel){
                 next.put("response", true);
             }else{

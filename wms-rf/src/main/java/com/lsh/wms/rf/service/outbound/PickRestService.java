@@ -72,8 +72,8 @@ public class PickRestService implements IPickRestService {
     private StockQuantService stockQuantService;
     @Autowired
     private MessageService messageService;
-    @Reference
-    private IStockTakingProviderRpcService iStockTakingProviderRpcService;
+//    @Reference
+//    private IStockTakingProviderRpcService iStockTakingProviderRpcService;
 
     /**
      * 扫描拣货签(拣货任务id)
@@ -315,13 +315,13 @@ public class PickRestService implements IPickRestService {
                 msg.setMsgBody(body);
                 messageService.sendMessage(msg);
                 //捡货缺交，如果捡获数量比系统记载数量，则生成盘点任务
-                logger.info("-------- in create taking_task");
-                Map<String,Object> queryMap = new HashMap<String, Object>();
-                queryMap.put("locationId",needPickDetail.getRealPickLocation());
-                BigDecimal stockQty = stockQuantService.getQty(queryMap);
-                if(stockQty.compareTo(needPickDetail.getPickQty())>0) {
-                    iStockTakingProviderRpcService.create(needPickDetail.getRealPickLocation(), staffId);
-                }
+//                logger.info("-------- in create taking_task");
+//                Map<String,Object> queryMap = new HashMap<String, Object>();
+//                queryMap.put("locationId",needPickDetail.getRealPickLocation());
+//                BigDecimal stockQty = stockQuantService.getQty(queryMap);
+//                if(stockQty.compareTo(needPickDetail.getPickQty())>0) {
+//                    iStockTakingProviderRpcService.create(needPickDetail.getRealPickLocation(), staffId);
+//                }
             }
         }
         // 获取下一个wave_detail,如已做完则获取集货位id
