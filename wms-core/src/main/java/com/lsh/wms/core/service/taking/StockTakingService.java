@@ -109,10 +109,9 @@ public class StockTakingService {
     @Transactional(readOnly = false)
     public void insertDetail(StockTakingDetail detail) {
 
-        if(detail.getRound()>1){
+        if(detail.getRound().compareTo(1L)>0){
             StockTakingDetail takingDetail = this.getDetailByRoundAndDetailId(detail.getDetailId(), detail.getRound()-1);
             takingDetail.setStatus(StockTakingConstant.Done);
-            takingDetail.setStatus(0l);
             takingDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
             detailDao.update(takingDetail);
         }
@@ -474,11 +473,19 @@ public class StockTakingService {
     }
     public Long getDiffPrice(Map queryMap) {
         queryMap.put("status",StockTakingConstant.PendingAudit);
-        return detailDao.getDiffPrice(queryMap);
+        Long diffPrice =  detailDao.getDiffPrice(queryMap);
+        if(diffPrice==null){
+            return 0L;
+        }
+        return diffPrice;
     }
     public Long getAllPrice(Map queryMap) {
-        queryMap.put("status",StockTakingConstant.PendingAudit);
-        return detailDao.getDiffPrice(queryMap);
+        queryMap.put("status", StockTakingConstant.PendingAudit);
+        Long allprice = detailDao.getDiffPrice(queryMap);
+        if(allprice==null){
+            return 0L;
+        }
+        return allprice;
     }
 
     @Transactional(readOnly = false)
