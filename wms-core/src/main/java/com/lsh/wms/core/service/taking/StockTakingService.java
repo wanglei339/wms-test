@@ -582,7 +582,7 @@ public class StockTakingService {
 
         StockMove diff = new StockMove();
         diff.setFromContainerId(locationService.getSoAreaDirect().getLocationId());
-        diff.setToLocationId(locationService.getConsumerArea().getLocationId());
+        diff.setToLocationId(locationService.getNullArea().getLocationId());
         diff.setQty(move.getQty());
         diff.setItemId(move.getItemId());
         diff.setTaskId(move.getTaskId());
