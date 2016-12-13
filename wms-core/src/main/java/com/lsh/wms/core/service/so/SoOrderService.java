@@ -79,6 +79,7 @@ public class SoOrderService {
      */
     @Transactional(readOnly = false)
     public void update(ObdHeader obdHeader) {
+        obdHeader.setCreatedAt(null);
         obdHeaderDao.update(obdHeader);
     }
 
@@ -90,7 +91,7 @@ public class SoOrderService {
     @Transactional(readOnly = false)
     public void updateOutbSoHeaderByOrderOtherIdOrOrderId(ObdHeader obdHeader) {
         obdHeader.setUpdatedAt(DateUtils.getCurrentSeconds());
-
+        obdHeader.setCreatedAt(null);
         obdHeaderDao.updateByOrderOtherIdOrOrderId(obdHeader);
     }
 

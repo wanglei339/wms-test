@@ -105,6 +105,7 @@ public class WaveService {
             }
             obdHeader.setWaveId(iWaveId);
             obdHeader.setOrderStatus(2);
+            obdHeader.setCreatedAt(null);
             soHeaderDao.updateByOrderOtherIdOrOrderId(obdHeader);
         }
     }
