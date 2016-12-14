@@ -59,7 +59,9 @@ public class BaseTaskService {
         }
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         taskInfo.setDraftTime(DateUtils.getCurrentSeconds());
-        taskInfo.setStatus(TaskConstant.Draft);
+        if(!taskInfo.getStatus().equals(TaskConstant.Done)) {
+            taskInfo.setStatus(TaskConstant.Draft);
+        }
         taskInfo.setCreatedAt(DateUtils.getCurrentSeconds());
         taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
         taskInfoDao.insert(taskInfo);

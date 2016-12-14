@@ -24,6 +24,8 @@ public class DifferenceZoneReport implements Serializable {
     private BigDecimal qty;
 	/** 操作人 */
     private Long operator;
+	/**差异区状态1正常2移出*/
+	private Integer status = 1;
 	/**  */
     private Long createdAt = 0L;
 	/**  */
@@ -125,5 +127,13 @@ public class DifferenceZoneReport implements Serializable {
 
 	public void setDirect(Integer direct) {
 		this.direct = direct;
+	}
+
+	public Integer getStatus() {
+		return status;
+	}
+
+	public void setStatus(Integer status) {
+		this.status = status;
 	}
 }
