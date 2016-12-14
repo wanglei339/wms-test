@@ -426,15 +426,15 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         detail.setPackName(item.getPackName());
         detail.setPackUnit(item.getPackUnit());
         detail.setSkuCode(item.getSkuCode());
-
-        String skuCode = detail.getSkuCode().replaceAll("^(0+)", "");
-        SkuMap skuMap = skuMapService.getSkuMapBySkuCode(skuCode);
-        if (skuMap == null) {
-            throw new BizCheckedException("2880022", detail.getSkuCode(), "");
+        if(item.getOwnerId().equals(1L)) {
+            String skuCode = detail.getSkuCode().replaceAll("^(0+)", "");
+            SkuMap skuMap = skuMapService.getSkuMapBySkuCode(skuCode);
+            if (skuMap == null) {
+                throw new BizCheckedException("2880022", detail.getSkuCode(), "");
+            }
+            detail.setPrice(skuMap.getMovingAveragePrice());
+            detail.setDifferencePrice(detail.getRealQty().subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
         }
-        detail.setPrice(skuMap.getMovingAveragePrice());
-        detail.setDifferencePrice(detail.getRealQty().subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
-
         stockTakingService.fillEmptyDetail(detail,lot);
 
     }
@@ -691,6 +691,15 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             //判断国条是不是系统的国条,如国条为空，则是该库位无商品
             if(item.getCode().equals(barcode)){
                 detail.setRealQty(qty);
+                if(item.getOwnerId().equals(1L)) {
+                    String skuCode = detail.getSkuCode().replaceAll("^(0+)", "");
+                    SkuMap skuMap = skuMapService.getSkuMapBySkuCode(skuCode);
+                    if (skuMap == null) {
+                        throw new BizCheckedException("2880022", detail.getSkuCode(), "");
+                    }
+                    detail.setPrice(skuMap.getMovingAveragePrice());
+                    detail.setDifferencePrice(detail.getRealQty().subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
+                }
             }
         }else {
           //系统库位无库存
