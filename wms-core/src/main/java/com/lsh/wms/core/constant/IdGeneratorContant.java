@@ -36,9 +36,6 @@ public class IdGeneratorContant {
             //托盘码
             put("containerCode",1);//前缀1
 
-            //csi_sku
-            put("csi_sku",2);//skuid 前缀2
-
         }
     };
 
