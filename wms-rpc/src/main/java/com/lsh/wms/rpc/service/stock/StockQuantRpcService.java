@@ -187,7 +187,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             move.setToContainerId(quant.getContainerId());
             move.setLot(lot);
         }
-        stockTakingService.writeOffQuant(move,quant);
+        stockTakingService.writeOffQuant(move, quant);
     }
     public int getItemStockCount(Map<String, Object> mapQuery) {
         return itemService.countItem(mapQuery);
@@ -220,23 +220,30 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         return itemQuant;
     }
 
-    public int getLocationStockCount(Map<String, Object> mapQuery) {
-        BaseinfoLocation location = locationService.getInventoryLostLocation();
+    private void setExcludeLocationList(Map<String, Object> mapQuery) {
         List<BaseinfoLocation> excludeLocationList = new ArrayList<BaseinfoLocation>();
-        excludeLocationList.add(location);
+        excludeLocationList.add(locationService.getNullArea());
+        excludeLocationList.add(locationService.getSupplyArea());
+        excludeLocationList.add(locationService.getConsumerArea());
+        excludeLocationList.add(locationService.getSoAreaDirect());
+        excludeLocationList.add(locationService.getSoAreaInbound());
+        excludeLocationList.add(locationService.getDiffAreaLocation());
+        excludeLocationList.add(locationService.getInventoryLostLocation());
         mapQuery.put("excludeLocationList", excludeLocationList);
+    }
+
+    public int getLocationStockCount(Map<String, Object> mapQuery) {
+        setExcludeLocationList(mapQuery);
         return quantService.countStockQuant(mapQuery);
     }
 
     public List<StockQuant> getLocationStockList(Map<String, Object> mapQuery) {
-        BaseinfoLocation location = locationService.getInventoryLostLocation();
-        List<BaseinfoLocation> excludeLocationList = new ArrayList<BaseinfoLocation>();
-        excludeLocationList.add(location);
-        mapQuery.put("excludeLocationList", excludeLocationList);
+        setExcludeLocationList(mapQuery);
         return quantService.getQuants(mapQuery);
     }
 
     public List<StockMove> traceQuant(Long quantId) {
         return moveService.traceQuant(quantId);
     }
+
 }
