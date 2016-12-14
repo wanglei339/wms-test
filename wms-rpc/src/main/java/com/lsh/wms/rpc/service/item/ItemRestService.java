@@ -130,6 +130,7 @@ public class ItemRestService implements IItemRestService {
 
             List<BaseinfoItem> items = itemService.searchItem(mapQuery);
             if (items.size() > 0) {
+                itemService.updateBarcode(items.get(0).getItemId(),item.getCode());
                 return JsonUtils.SUCCESS();
             }
             itemRpcService.insertItem(item);
