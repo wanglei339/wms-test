@@ -98,12 +98,14 @@ public class StockTransferRFService implements IStockTransferRFService{
             }
             StockQuantCondition condition = new StockQuantCondition();
             condition.setLocationId(location.getLocationId());
+            String barcode = null;
             if(params.get("barcode")!=null && params.get("barcode").toString().trim().length()>0){
                 CsiSku csiSku = itemRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, params.get("barcode").toString().trim());
                 if (csiSku == null) {
                     throw new BizCheckedException("2550032");
                 }
                 condition.setSkuId(csiSku.getSkuId());
+                barcode = csiSku.getCode();
             }
             if(params.get("ownerId")!=null && StringUtils.isNumeric(params.get("ownerId").toString().trim())){
                 condition.setOwnerId(Long.valueOf(params.get("ownerId").toString().trim()));
@@ -128,7 +130,7 @@ public class StockTransferRFService implements IStockTransferRFService{
                 result.put("itemId", quant.getItemId());
                 BaseinfoItem item = itemRpcService.getItem(quant.getItemId());
                 result.put("itemName", item.getSkuName());
-                result.put("barcode", item.getCode());
+                result.put("barcode", barcode == null ? item.getCode() : barcode);
                 result.put("skuCode", item.getSkuCode());
                 result.put("lotId", quant.getLotId());
                 condition.setItemId(quant.getItemId());

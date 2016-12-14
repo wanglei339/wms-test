@@ -7,8 +7,10 @@ import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.CollectionUtils;
 import com.lsh.wms.api.service.inventory.IInventoryService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.model.stock.StockSummary;
+import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,9 @@ public class InventoryService implements IInventoryService {
     @Autowired
     private StockSummaryService stockSummaryService;
 
+    @Autowired
+    private LocationService locationService;
+
     @POST
     @Path("getAvailQty")
     public String getAvailQty() throws BizCheckedException {
@@ -53,7 +58,7 @@ public class InventoryService implements IInventoryService {
             return JsonUtils.TOKEN_ERROR("skuCodeList不得超过100");
         }
 
-        Map<String, Map<String, BigDecimal>> resultMap = new HashMap<String, Map<String, BigDecimal>>();
+        Map<String, Object> resultMap = new HashMap<String, Object>();
         for (String skuCode : skuCodeList) {
             resultMap.put(skuCode, new HashMap<String, BigDecimal>(){{put("avail_qty", BigDecimal.ZERO);}});
         }
@@ -64,6 +69,7 @@ public class InventoryService implements IInventoryService {
             resultMap.put(stockSummary.getSkuCode(), new HashMap<String, BigDecimal>(){{put("avail_qty", stockSummary.getAvailQty());}});
         }
 
+        resultMap.put("warehouseCode", locationService.getWarehouseLocation().getLocationCode());
         return JsonUtils.SUCCESS(resultMap);
     }
 }
