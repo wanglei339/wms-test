@@ -150,6 +150,12 @@
 			<if test="diffQty != null">and diff_qty=#{diffQty}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+			<if test="skuCodeList != null">
+				and sku_code in
+				<foreach collection="skuCodeList"  item="item" index="index" open="(" separator=","  close=")">
+					#{item}
+				</foreach>
+			</if>
 		</where>
 	</sql>
    

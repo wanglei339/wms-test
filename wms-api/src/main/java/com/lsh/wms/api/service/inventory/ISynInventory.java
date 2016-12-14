@@ -1,5 +1,7 @@
 package com.lsh.wms.api.service.inventory;
 
+import com.lsh.base.common.exception.BizCheckedException;
+
 /**
  * Project Name: lsh-wms
  * Created by fuhao
@@ -10,5 +12,5 @@ package com.lsh.wms.api.service.inventory;
  * desc:类功能描述
  */
 public interface ISynInventory {
-    public void synInventory(Long item_id,Double qty);
+    public void synInventory(Long item_id,Double qty) throws BizCheckedException;
 }

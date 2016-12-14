@@ -15,6 +15,10 @@ public class ItemSkuRelation implements Serializable {
     private Long ownerId;
 	/** 是否有效 1 有效 2无效 */
     private Long isValid;
+	/**  */
+	private Long createdAt;
+	/**  */
+	private Long updatedAt;
 	
 	public Long getId(){
 		return this.id;
@@ -55,6 +59,20 @@ public class ItemSkuRelation implements Serializable {
 	public void setIsValid(Long isValid){
 		this.isValid = isValid;
 	}
-	
-	
+
+	public Long getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(Long createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public Long getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public void setUpdatedAt(Long updatedAt) {
+		this.updatedAt = updatedAt;
+	}
 }

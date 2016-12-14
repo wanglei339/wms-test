@@ -53,36 +53,6 @@ public class ItemService {
 
 
     public BaseinfoItem getItem(long iOwnerId, long iSkuId){
-        Long key = (((long)iOwnerId)<<32) + (iSkuId);
-        BaseinfoItem item = m_ItemCache.get(key);
-        if(item == null){
-            //cache中不存在,穿透查询mysql
-            Map<String, Object> mapQuery = new HashMap<String, Object>();
-            mapQuery.put("ownerId", iOwnerId);
-            mapQuery.put("skuId", iSkuId);
-            // TODO: 2016/12/13 先查询关系表 从关系表中取出itemid 通过itemId来定位一条item
-
-            List<BaseinfoItem> items = itemDao.getBaseinfoItemList(mapQuery);
-            if(items.size() == 1){
-                item = items.get(0);
-                m_ItemCache.put(key, item);
-            } else {
-                return null;
-            }
-        }
-        BaseinfoItem new_item = new BaseinfoItem();
-        try {
-            org.apache.commons.beanutils.BeanUtils.copyProperties(new_item, item);
-        } catch (IllegalAccessException e) {
-            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
-        } catch (InvocationTargetException e) {
-            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
-        }
-        return new_item;
-    }
-
-    public BaseinfoItem getItemBySkuId(long iOwnerId, long iSkuId){
-
         //cache中不存在,穿透查询mysql
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("ownerId", iOwnerId);
@@ -95,19 +65,8 @@ public class ItemService {
             BaseinfoItem item = this.getItem(itemId);
             return item;
         }else{
-            return new BaseinfoItem();
+            return null;
         }
-
-//        List<BaseinfoItem> items = itemDao.getBaseinfoItemList(mapQuery);
-//        if(items.size() == 1){
-//            item = items.get(0);
-//            m_ItemCache.put(key, item);
-//        } else {
-//            return null;
-//        }
-//
-//
-//        return null;
     }
 
 
@@ -133,31 +92,44 @@ public class ItemService {
 
     }
 
-    public List<BaseinfoItem> getItemsBySkuCode(long iOwnerId, String sSkuCode){
+    public BaseinfoItem getItemsBySkuCode(long iOwnerId, String sSkuCode){
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("ownerId", iOwnerId);
         mapQuery.put("skuCode", sSkuCode);
         List<BaseinfoItem> items = itemDao.getBaseinfoItemList(mapQuery);
-        return items;
-    }
-
-    /**
-     * 查找有效的item
-     * @param skuCode
-     * @param ownerId
-     * @return
-     */
-    public BaseinfoItem getItemBySkuCodeAndOwnerId(String skuCode,Long ownerId){
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("ownerId", ownerId);
-        mapQuery.put("skuCode", skuCode);
-        mapQuery.put("isValid",1);
-        List<BaseinfoItem> items = itemDao.getBaseinfoItemList(mapQuery);
-        if(items ==  null || items.size() <= 0){
+        if(items == null || items.size() <= 0){
             return null;
         }
         return items.get(0);
     }
+
+    public BaseinfoItem getItemByPackCode(String packCode){
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("packCode", packCode);
+        List<BaseinfoItem> items = itemDao.getBaseinfoItemList(mapQuery);
+        if(items == null || items.size() <= 0){
+            return null;
+        }
+        return items.get(0);
+    }
+
+//    /**
+//     * 查找有效的item
+//     * @param skuCode
+//     * @param ownerId
+//     * @return
+//     */
+//    public BaseinfoItem getItemBySkuCodeAndOwnerId(String skuCode,Long ownerId){
+//        Map<String, Object> mapQuery = new HashMap<String, Object>();
+//        mapQuery.put("ownerId", ownerId);
+//        mapQuery.put("skuCode", skuCode);
+//        mapQuery.put("isValid",1);
+//        List<BaseinfoItem> items = itemDao.getBaseinfoItemList(mapQuery);
+//        if(items ==  null || items.size() <= 0){
+//            return null;
+//        }
+//        return items.get(0);
+//    }
 
     @Transactional(readOnly = false)
     public BaseinfoItem insertItem(BaseinfoItem item){
@@ -195,6 +167,8 @@ public class ItemService {
         itemSkuRelation.setSkuId(item.getSkuId());
         itemSkuRelation.setOwnerId(item.getOwnerId());
         itemSkuRelation.setIsValid(1l);
+        itemSkuRelation.setUpdatedAt(DateUtils.getCurrentSeconds());
+        itemSkuRelation.setCreatedAt(DateUtils.getCurrentSeconds());
         itemSkuRelationDao.insert(itemSkuRelation);
         return item;
     }
@@ -212,8 +186,8 @@ public class ItemService {
             item.setCode(barcode);
         }else{
             CsiSku sku = new CsiSku();
-            String code = item.getCode();
-            sku.setCode(code);
+            //String code = item.getCode();
+            sku.setCode(barcode);
             sku.setCodeType(item.getCodeType().toString());
             sku.setShelfLife(item.getShelfLife());
             sku.setSkuName(item.getSkuName());
@@ -225,6 +199,7 @@ public class ItemService {
             //生成csi_sku表
             csiSkuService.insertSku(sku);
             item.setSkuId(sku.getSkuId());
+            item.setCode(barcode);
         }
         //新增关系表数据
         ItemSkuRelation itemSkuRelation = new ItemSkuRelation();
@@ -232,6 +207,8 @@ public class ItemService {
         itemSkuRelation.setIsValid(1L);
         itemSkuRelation.setItemId(item.getItemId());
         itemSkuRelation.setSkuId(item.getSkuId());
+        itemSkuRelation.setCreatedAt(DateUtils.getCurrentSeconds());
+        itemSkuRelation.setUpdatedAt(DateUtils.getCurrentSeconds());
         itemSkuRelationDao.insert(itemSkuRelation);
         //更新item数据
         this.updateItem(item);

@@ -9,6 +9,7 @@ import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.service.po.IReceiptRpcService;
 import com.lsh.wms.api.service.po.IReceiveRpcService;
 import com.lsh.wms.api.service.wumart.IWuMart;
+import com.lsh.wms.api.service.wumart.IWuMartSap;
 import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.constant.ReceiptContant;
 import com.lsh.wms.core.service.po.PoOrderService;
@@ -45,6 +46,9 @@ public class ReceiveRpcService implements IReceiveRpcService{
 
     @Autowired
     private SysUserService sysUserService;
+
+    @Reference
+    private IWuMartSap wuMartSap;
 
     public List<ReceiveHeader> getReceiveHeaderList(Map<String, Object> params) {
         return receiveService.getReceiveHeaderList(params);
@@ -144,7 +148,8 @@ public class ReceiveRpcService implements IReceiveRpcService{
         ReceiveDetail detail = receiveService.getReceiveDetailByReceiveIdAnddetailOtherId(receiveId,detailOtherId);
 
         if (receiveHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_ALL){
-            wuMart.ibdAccountBack(detail.getAccountId(),detail.getAccountDetailId());
+            String result = wuMartSap.ibd2SapBack(detail.getAccountId(),detail.getAccountDetailId());
         }
+        receiveService.accountBack(receiveHeader,detail);
     }
 }

@@ -916,11 +916,10 @@ public class ReceiptRestService implements IReceiptRfService {
               }
             }
 
-            List<BaseinfoItem> items = itemService.getItemsBySkuCode(ownerId,barCode);
-            if(items.size() <= 0){
+            baseinfoItem = itemService.getItemsBySkuCode(ownerId,barCode);
+            if(baseinfoItem == null){
                 throw new BizCheckedException("2900001");
             }
-            baseinfoItem = items.get(items.size()-1);
 
         }else{
             //barCode值为国条
