@@ -242,6 +242,13 @@ public class ReceiveService {
     @Transactional(readOnly = false)
     public void accountBack(ReceiveHeader receiveHeader,ReceiveDetail detail){
 
+        detail.setBackStatus(PoConstant.RECEIVE_DETAIL_STATUS_FAILED);
+        detail.setAccountId("");
+        detail.setAccountDetailId("");
+        this.updateByReceiveIdAndDetailOtherId(detail);
+        //冲销之后重新生成一条回传日志。
+        persistenceProxy.doOne(SysLogConstant.LOG_TYPE_IBD,receiveHeader.getReceiveId(),null);
+
 
     }
 

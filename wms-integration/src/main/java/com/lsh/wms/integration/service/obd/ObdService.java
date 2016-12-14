@@ -106,8 +106,8 @@ public class ObdService implements IObdService{
 //                //如果货主是物美 将skucode前面的0去掉
 //                skuCode = obdDetail.getSkuCode().replaceAll("^(0+)", "");
 //            }
-            List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(request.getOwnerUid(),skuCode);
-            if(baseinfoItemList == null || baseinfoItemList.size() <= 0) {
+            BaseinfoItem  baseinfoItem= itemService.getItemsBySkuCode(request.getOwnerUid(),skuCode);
+            if(baseinfoItem == null) {
                 throw new BizCheckedException("2770001");
             }
 //            if(null != baseinfoItemList && baseinfoItemList.size()>=1){

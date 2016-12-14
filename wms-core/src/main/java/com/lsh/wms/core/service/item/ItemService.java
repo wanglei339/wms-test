@@ -92,31 +92,34 @@ public class ItemService {
 
     }
 
-    public List<BaseinfoItem> getItemsBySkuCode(long iOwnerId, String sSkuCode){
+    public BaseinfoItem getItemsBySkuCode(long iOwnerId, String sSkuCode){
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("ownerId", iOwnerId);
         mapQuery.put("skuCode", sSkuCode);
         List<BaseinfoItem> items = itemDao.getBaseinfoItemList(mapQuery);
-        return items;
-    }
-
-    /**
-     * 查找有效的item
-     * @param skuCode
-     * @param ownerId
-     * @return
-     */
-    public BaseinfoItem getItemBySkuCodeAndOwnerId(String skuCode,Long ownerId){
-        Map<String, Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("ownerId", ownerId);
-        mapQuery.put("skuCode", skuCode);
-        mapQuery.put("isValid",1);
-        List<BaseinfoItem> items = itemDao.getBaseinfoItemList(mapQuery);
-        if(items ==  null || items.size() <= 0){
+        if(items == null || items.size() <= 0){
             return null;
         }
         return items.get(0);
     }
+
+//    /**
+//     * 查找有效的item
+//     * @param skuCode
+//     * @param ownerId
+//     * @return
+//     */
+//    public BaseinfoItem getItemBySkuCodeAndOwnerId(String skuCode,Long ownerId){
+//        Map<String, Object> mapQuery = new HashMap<String, Object>();
+//        mapQuery.put("ownerId", ownerId);
+//        mapQuery.put("skuCode", skuCode);
+//        mapQuery.put("isValid",1);
+//        List<BaseinfoItem> items = itemDao.getBaseinfoItemList(mapQuery);
+//        if(items ==  null || items.size() <= 0){
+//            return null;
+//        }
+//        return items.get(0);
+//    }
 
     @Transactional(readOnly = false)
     public BaseinfoItem insertItem(BaseinfoItem item){
