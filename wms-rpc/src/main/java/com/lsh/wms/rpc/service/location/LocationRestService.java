@@ -5,6 +5,7 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.model.location.LocationDetailRequest;
 import com.lsh.wms.api.service.item.IItemRpcService;
@@ -512,7 +513,9 @@ public class LocationRestService implements ILocationRestService {
         if (fatherLocation == null) {
             throw new BizCheckedException("2180001");
         }
+        logger.info("START initLocationTree "+ DateUtils.getCurrentSeconds());
         locationService.initLocationTree(config, fatherLocation.getLocationId());
+        logger.info("FINISH initLocationTree "+ DateUtils.getCurrentSeconds());
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("response", true);
         return JsonUtils.SUCCESS(result);
