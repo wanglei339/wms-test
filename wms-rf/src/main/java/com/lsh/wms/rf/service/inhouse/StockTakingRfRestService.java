@@ -5,7 +5,6 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
-import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.inhouse.IStockTakingProviderRpcService;
 import com.lsh.wms.api.service.inhouse.IStockTakingRfRestService;
 import com.lsh.wms.api.service.inhouse.IStockTakingRpcService;
@@ -37,7 +36,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import sun.java2d.pipe.AAShapePipe;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -161,6 +159,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             if(sku != null){
                 //将输入填充
                 detail.setSkuId(sku.getSkuId());
+                detail.setBarcode(sku.getCode());
                 detail.setRealSkuId(sku.getSkuId());
                 detail.setRealQty(realQty);
             }
@@ -278,7 +277,6 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         //获取用户正在进行的拣货任务
         Map<String,Object> processingTask = getProcessingTask(uId);
         if(processingTask!=null){
-
             return JsonUtils.SUCCESS(processingTask);
         }
         //盘点签,即任务ID
@@ -296,7 +294,6 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         iTaskRpcService.assign(taskId,uId);
 
         List<Map> taskList = new ArrayList<Map>();
-        Map<String,Object> taskMap =new HashMap<String, Object>();
         List<StockTakingDetail> details =(List<StockTakingDetail>) (List<?>) entry.getTaskDetailList();
         if(details==null || details.size()==0){
             return JsonUtils.TOKEN_ERROR("该任务无可盘点的库位");
@@ -311,6 +308,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         Boolean isDone = true;
         locationList  = locationService.calcZwayOrder(locationList,true);
         for(BaseinfoLocation location:locationList) {
+            Map<String,Object> taskMap =new HashMap<String, Object>();
             Long status =  statusMap.get(location.getLocationId());
             if(!status.equals(3L)){
                 isDone = false;
@@ -564,13 +562,12 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         if(list==null || list.size()==0){
             return null;
         }
-        Map<String,Object>task = new HashMap<String,Object>();
+
 
         List<Map> taskList = new ArrayList<Map>();
 
             TaskEntry taskEntry = list.get(0);
 
-            task.put("taskId",taskEntry.getTaskInfo().getTaskId().toString());
             String locationCode= " ";
             Long locationId = 0L;
             List<Object> objectList = taskEntry.getTaskDetailList();
@@ -578,6 +575,8 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
                 return null;
             }
             for (Object detail : objectList) {
+                Map<String,Object>task = new HashMap<String,Object>();
+                task.put("taskId",taskEntry.getTaskInfo().getTaskId().toString());
                 StockTakingDetail stockTakingDetail = (StockTakingDetail) detail;
                 locationId = stockTakingDetail.getLocationId();
                 BaseinfoLocation location = locationService.getLocation(stockTakingDetail.getLocationId());
