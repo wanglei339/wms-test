@@ -562,13 +562,12 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         if(list==null || list.size()==0){
             return null;
         }
-        Map<String,Object>task = new HashMap<String,Object>();
+
 
         List<Map> taskList = new ArrayList<Map>();
 
             TaskEntry taskEntry = list.get(0);
 
-            task.put("taskId",taskEntry.getTaskInfo().getTaskId().toString());
             String locationCode= " ";
             Long locationId = 0L;
             List<Object> objectList = taskEntry.getTaskDetailList();
@@ -576,6 +575,8 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
                 return null;
             }
             for (Object detail : objectList) {
+                Map<String,Object>task = new HashMap<String,Object>();
+                task.put("taskId",taskEntry.getTaskInfo().getTaskId().toString());
                 StockTakingDetail stockTakingDetail = (StockTakingDetail) detail;
                 locationId = stockTakingDetail.getLocationId();
                 BaseinfoLocation location = locationService.getLocation(stockTakingDetail.getLocationId());
