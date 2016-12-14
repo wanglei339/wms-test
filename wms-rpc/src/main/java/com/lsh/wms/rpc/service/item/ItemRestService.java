@@ -77,8 +77,8 @@ public class ItemRestService implements IItemRestService {
     @GET
     @Path("getItemsBySkuCode")
     public String getItemsBySkuCode(@QueryParam("ownerId") long iOwnerId,@QueryParam("skuCode")  String sSkuCode) {
-        List<BaseinfoItem>   baseinfoItemList = itemRpcService.getItemsBySkuCode(iOwnerId, sSkuCode);
-        return  JsonUtils.SUCCESS(baseinfoItemList);
+        BaseinfoItem baseinfoItem = itemRpcService.getItemsBySkuCode(iOwnerId, sSkuCode);
+        return  JsonUtils.SUCCESS(baseinfoItem);
     }
 
     @POST
