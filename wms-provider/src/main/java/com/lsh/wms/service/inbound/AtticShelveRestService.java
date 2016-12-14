@@ -419,13 +419,13 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         }
 
 
-        Map<String,Object> queryMap = new HashMap<String, Object>();
-        queryMap.put("status",2L);
-        List<TaskEntry> entries = iTaskRpcService.getTaskList(TaskConstant.TYPE_ATTIC_SHELVE, queryMap);
-
-        if(entries!=null && entries.size()!=0) {
-            return JsonUtils.TOKEN_ERROR("改人已存在上架任务");
-        }
+//        Map<String,Object> queryMap = new HashMap<String, Object>();
+//        queryMap.put("status",2L);
+//        List<TaskEntry> entries = iTaskRpcService.getTaskList(TaskConstant.TYPE_ATTIC_SHELVE, queryMap);
+//
+//        if(entries!=null && entries.size()!=0) {
+//            return JsonUtils.TOKEN_ERROR("该人已存在上架任务");
+//        }
 
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
         if(entry ==null){
