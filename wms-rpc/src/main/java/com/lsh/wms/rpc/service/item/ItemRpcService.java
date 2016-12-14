@@ -57,7 +57,7 @@ public class ItemRpcService implements IItemRpcService {
         return remoteCsiRpcService.getSkuByCode(iCodeType, sCode);
     }
 
-    public List<BaseinfoItem> getItemsBySkuCode(long iOwnerId, String sSkuCode) {
+    public BaseinfoItem getItemsBySkuCode(long iOwnerId, String sSkuCode) {
         return itemService.getItemsBySkuCode(iOwnerId, sSkuCode);
     }
 
@@ -117,7 +117,14 @@ public class ItemRpcService implements IItemRpcService {
         }
         return packUnit;
     }
+
+    public void updateBarcode(Long itemId, String barcode) throws BizCheckedException {
+        itemService.updateBarcode(itemId,barcode);
+    }
+
     public List<BaseinfoItemLocation> getItemLocation(Map<String,Object> queryMap) {
         return  itemLocationService.getItemLocation(queryMap);
     }
+
+
 }

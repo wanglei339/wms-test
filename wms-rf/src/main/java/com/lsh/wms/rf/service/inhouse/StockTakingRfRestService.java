@@ -291,8 +291,6 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             return JsonUtils.TOKEN_ERROR("该任务已被人领取或失效");
         }
 
-        iTaskRpcService.assign(taskId,uId);
-
         List<Map> taskList = new ArrayList<Map>();
         List<StockTakingDetail> details =(List<StockTakingDetail>) (List<?>) entry.getTaskDetailList();
         if(details==null || details.size()==0){
@@ -323,6 +321,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         if(isDone){
             result.put("taskList",new ArrayList<Map>());
         }else {
+            iTaskRpcService.assign(taskId,uId);
             result.put("taskList", taskList);
         }
         return JsonUtils.SUCCESS(result);
@@ -536,7 +535,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
 
         Long  uId =  Long.valueOf(RequestUtils.getHeader("uid"));
         Map<String,Object> result = getProcessingTask(uId);
-        if(result==null){
+        if(result==null || ((List)result.get("taskList")).size()==0){
             return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
                 {
                     put("response", false);
@@ -566,31 +565,38 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
 
         List<Map> taskList = new ArrayList<Map>();
 
-            TaskEntry taskEntry = list.get(0);
+        TaskEntry taskEntry = list.get(0);
+        Boolean isDone = true;
 
-            String locationCode= " ";
-            Long locationId = 0L;
-            List<Object> objectList = taskEntry.getTaskDetailList();
-            if(objectList == null || objectList.size() == 0){
-                return null;
+        List<StockTakingDetail> details =(List<StockTakingDetail>) (List<?>) taskEntry.getTaskDetailList();
+        if(details!=null && details.size()!=0) {
+
+            List<BaseinfoLocation> locationList = new ArrayList<BaseinfoLocation>();
+            Map<Long, Long> statusMap = new HashMap<Long, Long>();
+            for (StockTakingDetail detail : details) {
+                locationList.add(locationService.getLocation(detail.getLocationId()));
+                statusMap.put(detail.getLocationId(), detail.getStatus());
             }
-            for (Object detail : objectList) {
-                Map<String,Object>task = new HashMap<String,Object>();
-                task.put("taskId",taskEntry.getTaskInfo().getTaskId().toString());
-                StockTakingDetail stockTakingDetail = (StockTakingDetail) detail;
-                locationId = stockTakingDetail.getLocationId();
-                BaseinfoLocation location = locationService.getLocation(stockTakingDetail.getLocationId());
-                if (location != null) {
-                    locationCode = location.getLocationCode();
+            //将任务通道排序
+            locationList = locationService.calcZwayOrder(locationList, true);
+            for (BaseinfoLocation location : locationList) {
+                Map<String, Object> taskMap = new HashMap<String, Object>();
+                Long status = statusMap.get(location.getLocationId());
+                if (!status.equals(3L)) {
+                    isDone = false;
                 }
-                task.put("locationId", locationId);
-                task.put("locationCode", locationCode);
-                task.put("status",stockTakingDetail.getStatus());
-                taskList.add(task);
+                taskMap.put("taskId", taskEntry.getTaskInfo().getTaskId());
+                taskMap.put("locationId", location.getLocationId());
+                taskMap.put("locationCode", location.getLocationCode());
+                taskMap.put("status", status);
+                taskList.add(taskMap);
             }
-
-
-        result.put("taskList", taskList);
+        }
+        if(isDone) {
+            result.put("taskList", taskList);
+        }else {
+            result.put("taskList", new ArrayList<Map>());
+        }
         return result;
     }
 

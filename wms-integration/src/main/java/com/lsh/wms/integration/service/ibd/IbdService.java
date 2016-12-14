@@ -134,8 +134,8 @@ public class IbdService implements IIbdService {
 //                //如果货主是物美 将skucode前面的0去掉
 //                skuCode = ibdDetail.getSkuCode().replaceAll("^(0+)", "");
 //            }
-            List<BaseinfoItem>  baseinfoItemList= itemService.getItemsBySkuCode(request.getOwnerUid(),skuCode);
-            if(baseinfoItemList == null || baseinfoItemList.size() <= 0) {
+            BaseinfoItem  baseinfoItem = itemService.getItemsBySkuCode(request.getOwnerUid(),skuCode);
+            if(baseinfoItem == null) {
                 throw new BizCheckedException("2770001");
             }
 
@@ -144,7 +144,7 @@ public class IbdService implements IIbdService {
             PoItem poItem = new PoItem();
             ObjUtils.bean2bean(ibdDetail,poItem);
 //            newDetails.add(ibdDetail);
-            poItem.setSkuName(baseinfoItemList.get(baseinfoItemList.size()-1).getSkuName());
+            poItem.setSkuName(baseinfoItem.getSkuName());
             items.add(poItem);
         }
         //request.setDetailList(newDetails);

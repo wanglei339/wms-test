@@ -119,7 +119,7 @@
 	<update id="updateStatusTOthrow" parameterType="map">
 	 update ibd_header set order_status=#{newOrderStatus}
 	  where unix_timestamp() <![CDATA[ >= throw_at+#{throwAt} ]]>
-	  AND order_status = #{oldOrderStatus}
+	  AND (order_status = #{oldOrderStatus1} or order_status = #{oldOrderStatus2})
     </update>
 	<sql id="queryCondition">
 		<where>
