@@ -65,7 +65,7 @@ public class ItemService {
             BaseinfoItem item = this.getItem(itemId);
             return item;
         }else{
-            return new BaseinfoItem();
+            return null;
         }
     }
 
@@ -171,8 +171,8 @@ public class ItemService {
             item.setCode(barcode);
         }else{
             CsiSku sku = new CsiSku();
-            String code = item.getCode();
-            sku.setCode(code);
+            //String code = item.getCode();
+            sku.setCode(barcode);
             sku.setCodeType(item.getCodeType().toString());
             sku.setShelfLife(item.getShelfLife());
             sku.setSkuName(item.getSkuName());
@@ -184,6 +184,7 @@ public class ItemService {
             //生成csi_sku表
             csiSkuService.insertSku(sku);
             item.setSkuId(sku.getSkuId());
+            item.setCode(barcode);
         }
         //新增关系表数据
         ItemSkuRelation itemSkuRelation = new ItemSkuRelation();
