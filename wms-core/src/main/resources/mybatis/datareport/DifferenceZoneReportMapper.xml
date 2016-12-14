@@ -15,15 +15,16 @@
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
 		<result property="direct" column="direct"/>
+		<result property="status" column="status"/>
 	</resultMap>
 
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="DifferenceZoneReport">
 		insert into difference_zone_report (
 		difference_id,item_id,sku_code,from_location_id,source_type,unit_name,
-		qty,operator,created_at,updated_at,direct
+		qty,operator,created_at,updated_at,direct,status
 		) values (
 		#{differenceId},#{itemId},#{skuCode},#{fromLocationId},#{sourceType},#{unitName},
-		#{qty},#{operator},#{createdAt},#{updatedAt},#{direct}
+		#{qty},#{operator},#{createdAt},#{updatedAt},#{direct},#{status}
 		)
 	</insert>
 
@@ -40,7 +41,8 @@
 			<if test="operator != null">operator=#{operator},</if>
 			<if test="createdAt != null">created_at=#{createdAt},</if>
 			<if test="updatedAt != null">updated_at=#{updatedAt},</if>
-			<if test="direct != null">direct=#{direct}</if>
+			<if test="direct != null">direct=#{direct},</if>
+			<if test="status != null">status=#{status}</if>
 		</set>
 		where id=#{id}
 	</update>
@@ -77,6 +79,7 @@
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 			<if test="direct != null">and direct=#{direct}</if>
+			<if test="status != null">and status=#{status}</if>
 		</where>
 	</sql>
 
