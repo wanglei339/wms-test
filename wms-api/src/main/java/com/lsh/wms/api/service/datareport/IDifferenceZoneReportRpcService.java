@@ -11,4 +11,6 @@ import java.util.Map;
 public interface IDifferenceZoneReportRpcService {
     List<DifferenceZoneReport> getDifferenceReportList(Map<String, Object> mapQuery);
     Integer countDifferenceReport(Map<String, Object> mapQuery);
+
+    String movingReport(List<Long> reportIds);
 }

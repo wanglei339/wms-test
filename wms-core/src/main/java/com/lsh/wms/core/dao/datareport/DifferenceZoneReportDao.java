@@ -12,6 +12,8 @@ public interface DifferenceZoneReportDao {
 	void insert(DifferenceZoneReport differenceZoneReport);
 	
 	void update(DifferenceZoneReport differenceZoneReport);
+
+	void batchUpdate(List<DifferenceZoneReport> differenceZoneReports);
 	
 	DifferenceZoneReport getDifferenceZoneReportById(Long id);
 
