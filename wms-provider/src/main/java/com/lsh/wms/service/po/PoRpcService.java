@@ -293,7 +293,12 @@ public class PoRpcService implements IPoRpcService {
      */
     public void updateStatusTOthrow(Long intervalTime){
         Long time = intervalTime * 60 * 60;
-        poOrderService.updateStatusTOthrow(PoConstant.ORDER_THROW,PoConstant.ORDER_DELIVERY,time);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("oldOrderStatus1", PoConstant.ORDER_THROW);
+        params.put("oldOrderStatus2", PoConstant.ORDER_RECTIPTING);
+        params.put("newOrderStatus",PoConstant.ORDER_DELIVERY);
+        params.put("throwAt",time);
+        poOrderService.updateStatusTOthrow(params);
     }
 
 }

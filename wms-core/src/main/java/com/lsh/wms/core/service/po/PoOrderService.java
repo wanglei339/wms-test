@@ -397,11 +397,7 @@ public class PoOrderService {
     }
 
     @Transactional(readOnly = false)
-    public void updateStatusTOthrow(Integer oldStatus,Integer newStatue,Long intervalTime){
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("oldOrderStatus", oldStatus);
-        params.put("newOrderStatus",newStatue);
-        params.put("throwAt",intervalTime);
+    public void updateStatusTOthrow(Map<String, Object> params){
         ibdHeaderDao.updateStatusTOthrow(params);
     }
 

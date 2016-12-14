@@ -517,6 +517,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 stockLot.setReceiptId(inbReceiptHeader.getReceiptOrderId());
                 stockLot.setPoId(inbReceiptDetail.getOrderId());
                 stockLot.setSupplierId(supplier.getSupplierId());
+                stockLot.setCode(baseinfoItem.getCode());
                 //stockLotList.add(stockLot);
 
                 StockMove move = new StockMove();

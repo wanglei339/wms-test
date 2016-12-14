@@ -32,4 +32,6 @@ public interface IItemRpcService {
 
     BaseinfoItem getItem(long itemId);
     BigDecimal getPackUnit(String str) throws BizCheckedException;
+
+    void updateBarcode(Long itemId,String barcode) throws BizCheckedException;
 }
