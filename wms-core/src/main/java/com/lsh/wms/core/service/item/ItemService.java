@@ -157,6 +157,8 @@ public class ItemService {
         itemSkuRelation.setSkuId(item.getSkuId());
         itemSkuRelation.setOwnerId(item.getOwnerId());
         itemSkuRelation.setIsValid(1l);
+        itemSkuRelation.setUpdatedAt(DateUtils.getCurrentSeconds());
+        itemSkuRelation.setCreatedAt(DateUtils.getCurrentSeconds());
         itemSkuRelationDao.insert(itemSkuRelation);
         return item;
     }
@@ -195,6 +197,8 @@ public class ItemService {
         itemSkuRelation.setIsValid(1L);
         itemSkuRelation.setItemId(item.getItemId());
         itemSkuRelation.setSkuId(item.getSkuId());
+        itemSkuRelation.setCreatedAt(DateUtils.getCurrentSeconds());
+        itemSkuRelation.setUpdatedAt(DateUtils.getCurrentSeconds());
         itemSkuRelationDao.insert(itemSkuRelation);
         //更新item数据
         this.updateItem(item);
