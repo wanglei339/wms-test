@@ -535,7 +535,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
 
         Long  uId =  Long.valueOf(RequestUtils.getHeader("uid"));
         Map<String,Object> result = getProcessingTask(uId);
-        if(result==null){
+        if(result==null || ((List)result.get("taskList")).size()==0){
             return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
                 {
                     put("response", false);
