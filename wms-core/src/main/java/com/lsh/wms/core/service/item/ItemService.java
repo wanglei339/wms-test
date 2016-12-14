@@ -1,9 +1,11 @@
 package com.lsh.wms.core.service.item;
 
+import com.lsh.atp.api.model.baseVo.Item;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoItemDao;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoItemQuantRangeDao;
+import com.lsh.wms.core.dao.baseinfo.ItemSkuRelationDao;
 import com.lsh.wms.core.dao.csi.CsiSkuDao;
 import com.lsh.wms.core.dao.stock.StockQuantDao;
 import com.lsh.wms.core.service.csi.CsiSkuService;
@@ -11,6 +13,7 @@ import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemQuantRange;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.baseinfo.ItemSkuRelation;
 import com.lsh.wms.model.csi.CsiSku;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +48,8 @@ public class ItemService {
     private CsiSkuDao csiSkuDao;
     @Autowired
     private IdGenerator idGenerator;
+    @Autowired
+    private ItemSkuRelationDao itemSkuRelationDao;
 
 
     public BaseinfoItem getItem(long iOwnerId, long iSkuId){
@@ -55,6 +60,8 @@ public class ItemService {
             Map<String, Object> mapQuery = new HashMap<String, Object>();
             mapQuery.put("ownerId", iOwnerId);
             mapQuery.put("skuId", iSkuId);
+            // TODO: 2016/12/13 先查询关系表 从关系表中取出itemid 通过itemId来定位一条item
+
             List<BaseinfoItem> items = itemDao.getBaseinfoItemList(mapQuery);
             if(items.size() == 1){
                 item = items.get(0);
@@ -73,6 +80,38 @@ public class ItemService {
         }
         return new_item;
     }
+
+    public BaseinfoItem getItemBySkuId(long iOwnerId, long iSkuId){
+
+        //cache中不存在,穿透查询mysql
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("ownerId", iOwnerId);
+        mapQuery.put("skuId", iSkuId);
+        // TODO: 2016/12/13 先查询关系表 从关系表中取出itemid 通过itemId来定位一条item
+        List<ItemSkuRelation> itemSkuRelations = itemSkuRelationDao.getItemSkuRelationList(mapQuery);
+        if(itemSkuRelations != null && itemSkuRelations.size() > 0){
+            ItemSkuRelation itemSkuRelation = itemSkuRelations.get(0);
+            Long itemId = itemSkuRelation.getItemId();
+            BaseinfoItem item = this.getItem(itemId);
+            return item;
+        }else{
+            return new BaseinfoItem();
+        }
+
+//        List<BaseinfoItem> items = itemDao.getBaseinfoItemList(mapQuery);
+//        if(items.size() == 1){
+//            item = items.get(0);
+//            m_ItemCache.put(key, item);
+//        } else {
+//            return null;
+//        }
+//
+//
+//        return null;
+    }
+
+
+
     public BaseinfoItemQuantRange getItemRange(Long itemId){
         Map<String,Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("itemId",itemId);
@@ -102,6 +141,24 @@ public class ItemService {
         return items;
     }
 
+    /**
+     * 查找有效的item
+     * @param skuCode
+     * @param ownerId
+     * @return
+     */
+    public BaseinfoItem getItemBySkuCodeAndOwnerId(String skuCode,Long ownerId){
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("ownerId", ownerId);
+        mapQuery.put("skuCode", skuCode);
+        mapQuery.put("isValid",1);
+        List<BaseinfoItem> items = itemDao.getBaseinfoItemList(mapQuery);
+        if(items ==  null || items.size() <= 0){
+            return null;
+        }
+        return items.get(0);
+    }
+
     @Transactional(readOnly = false)
     public BaseinfoItem insertItem(BaseinfoItem item){
         //如果sku表中不存在,更新sku表
@@ -128,12 +185,56 @@ public class ItemService {
             item.setSkuId(sku.getSkuId());
         }
         //gen itemId
-
         item.setItemId(idGenerator.genId("item_main", false, false));
         item.setCreatedAt(DateUtils.getCurrentSeconds());
         //创建商品
         itemDao.insert(item);
+        //更新关系表数据
+        ItemSkuRelation itemSkuRelation = new ItemSkuRelation();
+        itemSkuRelation.setItemId(item.getItemId());
+        itemSkuRelation.setSkuId(item.getSkuId());
+        itemSkuRelation.setOwnerId(item.getOwnerId());
+        itemSkuRelation.setIsValid(1l);
+        itemSkuRelationDao.insert(itemSkuRelation);
         return item;
+    }
+
+    @Transactional(readOnly = false)
+    public void updateBarcode(Long itemId,String barcode){
+        BaseinfoItem item = this.getItem(itemId);
+        //如果sku表中不存在,更新sku表
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("code",item.getCode());
+        mapQuery.put("codeType",item.getCodeType());
+        List<CsiSku> skus = csiSkuDao.getCsiSkuList(mapQuery);
+        if(skus != null && skus.size() > 0){
+            item.setSkuId(skus.get(0).getSkuId());
+            item.setCode(barcode);
+        }else{
+            CsiSku sku = new CsiSku();
+            String code = item.getCode();
+            sku.setCode(code);
+            sku.setCodeType(item.getCodeType().toString());
+            sku.setShelfLife(item.getShelfLife());
+            sku.setSkuName(item.getSkuName());
+            sku.setHeight(item.getHeight());
+            sku.setLength(item.getLength());
+            sku.setWidth(item.getWidth());
+            sku.setWeight(item.getWeight());
+            sku.setCreatedAt(DateUtils.getCurrentSeconds());
+            //生成csi_sku表
+            csiSkuService.insertSku(sku);
+            item.setSkuId(sku.getSkuId());
+        }
+        //新增关系表数据
+        ItemSkuRelation itemSkuRelation = new ItemSkuRelation();
+        itemSkuRelation.setOwnerId(item.getOwnerId());
+        itemSkuRelation.setIsValid(1L);
+        itemSkuRelation.setItemId(item.getItemId());
+        itemSkuRelation.setSkuId(item.getSkuId());
+        itemSkuRelationDao.insert(itemSkuRelation);
+        //更新item数据
+        this.updateItem(item);
     }
 
     @Transactional(readOnly = false)
