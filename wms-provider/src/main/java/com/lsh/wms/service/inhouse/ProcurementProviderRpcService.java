@@ -174,7 +174,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
     }
     //创建货架补货任务
     private void createShelfProcurement() throws BizCheckedException {
-        Map<String,Object> queryMap = new HashMap<String, Object>();
         Map<String,Object> mapQuery =new HashMap<String, Object>();
         //获取所有货架拣货位的位置信息
         List<BaseinfoLocation> shelfLocationList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.SHELF, BinUsageConstant.BIN_UASGE_PICK);
@@ -186,9 +185,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationByLocationID(shelfCollectionBin.getLocationId());
 
             for (BaseinfoItemLocation itemLocation : itemLocationList) {
-                if(!itemLocation.getItemId().equals(242931940209440l)){
-                    continue;
-                }
                 //判断商品是否需要补货
                 if (rpcService.needProcurement(itemLocation.getPickLocationid(), itemLocation.getItemId())) {
                     //该位置当前是否有补货任务
@@ -259,10 +255,9 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
                         mapQuery.put("locationId", quant.getLocationId());
                         BigDecimal qty = quantService.getQty(mapQuery);
-                        nowQuant = nowQuant.add(qty);
                         if (nowQuant.compareTo(maxQty) < 0) {
                             // 创建任务
-
+                            nowQuant = nowQuant.add(qty);
                             StockTransferPlan plan = new StockTransferPlan();
                             plan.setContainerId(quant.getContainerId());
                             plan.setPackUnit(quant.getPackUnit());
@@ -276,8 +271,13 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                             plan.setToLocationId(itemLocation.getPickLocationid());
                             plan.setPackName(quant.getPackName());
                             plan.setPackUnit(quant.getPackUnit());
-                            plan.setSubType(1L);//整托
-                            plan.setQty(qty);
+                            if(nowQuant.compareTo(maxQty)>0){
+                                plan.setSubType(2L);//不够一拖，按箱补
+                                plan.setQty(maxQty.subtract(nowQuant.subtract(qty)));
+                            }else {
+                                plan.setSubType(1L);//整托
+                                plan.setQty(qty);
+                            }
 
                             this.addProcurementPlan(plan);
                         }
@@ -400,7 +400,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                         continue;
                     }
                     BigDecimal maxQty = itemLocation.getMaxQty();
-                    BaseinfoItem item = itemService.getItem(itemLocation.getItemId());
                     mapQuery.put("locationId", itemLocation.getPickLocationid());
                     BigDecimal nowQuant = quantService.getQty(mapQuery);
                     //根据库存数量和过期时间排序
