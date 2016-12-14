@@ -103,6 +103,9 @@ public class BaseinfoItem implements Serializable {
 	/**商品数据是否有效1 有效2无效*/
 	private Integer isValid = 1;
 
+	/**箱码*/
+	private String packCode;
+
 
 
 	public Long getId(){
@@ -481,5 +484,13 @@ public class BaseinfoItem implements Serializable {
 
 	public void setIsValid(Integer isValid) {
 		this.isValid = isValid;
+	}
+
+	public String getPackCode() {
+		return packCode;
+	}
+
+	public void setPackCode(String packCode) {
+		this.packCode = packCode;
 	}
 }
