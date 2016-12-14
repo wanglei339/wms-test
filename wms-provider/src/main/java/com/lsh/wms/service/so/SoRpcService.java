@@ -97,25 +97,24 @@ public class SoRpcService implements ISoRpcService {
             obdDetail.setOrderId(obdHeader.getOrderId());
 
             //根据ItemId及OwnerUid获取List<BaseinfoItem>
-            // TODO: 根据ItemId,OwnerUid获取BaseinfoItem,现在是取List第一个元素,待改进
-            List<BaseinfoItem> baseinfoItemList = itemService.getItemsBySkuCode(obdHeader.getOwnerUid(),
+            BaseinfoItem baseinfoItem = itemService.getItemsBySkuCode(obdHeader.getOwnerUid(),
                     obdDetail.getSkuCode());
 
-            if(baseinfoItemList.size() <=0) {
+            if(baseinfoItem == null) {
                 throw new BizCheckedException("2900001");
             }
 
             //设置skuId
-            obdDetail.setSkuId(baseinfoItemList.get(0).getSkuId());
+            obdDetail.setSkuId(baseinfoItem.getSkuId());
             //设置itemId
-            obdDetail.setItemId(baseinfoItemList.get(0).getItemId());
+            obdDetail.setItemId(baseinfoItem.getItemId());
             //设置skuName
-            obdDetail.setSkuName(baseinfoItemList.get(0).getSkuName());
+            obdDetail.setSkuName(baseinfoItem.getSkuName());
             //设置新增时间
             obdDetail.setCreatedAt(DateUtils.getCurrentSeconds());
             //设置订单数量
             obdDetail.setOriOrderQty(soItem.getOrderQty());
-            CsiOwner owner = csiOwnerService.getOwner(baseinfoItemList.get(0).getOwnerId());
+            CsiOwner owner = csiOwnerService.getOwner(baseinfoItem.getOwnerId());
             if (owner == null) {
                 throw new BizCheckedException("2900008");
             }

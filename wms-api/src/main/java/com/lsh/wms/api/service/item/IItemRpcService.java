@@ -17,7 +17,7 @@ public interface IItemRpcService {
     public BaseinfoItem getItem(long iOwnerId, long iSkuId);
     public CsiSku getSku(long iSkuId);
     public CsiSku getSkuByCode(int iCodeType, String sCode);
-    public List<BaseinfoItem> getItemsBySkuCode(long iOwnerId, String sSkuCode);
+    public BaseinfoItem getItemsBySkuCode(long iOwnerId, String sSkuCode);
     public List<BaseinfoItem> searchItem(Map<String, Object> mapQuery);
     BaseinfoItem insertItem(BaseinfoItem item);
 
@@ -32,4 +32,6 @@ public interface IItemRpcService {
 
     BaseinfoItem getItem(long itemId);
     BigDecimal getPackUnit(String str) throws BizCheckedException;
+
+    void updateBarcode(Long itemId,String barcode) throws BizCheckedException;
 }

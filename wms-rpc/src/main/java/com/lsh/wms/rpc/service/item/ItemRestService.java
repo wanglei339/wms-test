@@ -3,9 +3,11 @@ package com.lsh.wms.rpc.service.item;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.item.IItemRestService;
+import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.BaseinfoLocationDockService;
@@ -18,6 +20,7 @@ import net.sf.json.util.JSONUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.ObjectError;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -74,8 +77,8 @@ public class ItemRestService implements IItemRestService {
     @GET
     @Path("getItemsBySkuCode")
     public String getItemsBySkuCode(@QueryParam("ownerId") long iOwnerId,@QueryParam("skuCode")  String sSkuCode) {
-        List<BaseinfoItem>   baseinfoItemList = itemRpcService.getItemsBySkuCode(iOwnerId, sSkuCode);
-        return  JsonUtils.SUCCESS(baseinfoItemList);
+        BaseinfoItem baseinfoItem = itemRpcService.getItemsBySkuCode(iOwnerId, sSkuCode);
+        return  JsonUtils.SUCCESS(baseinfoItem);
     }
 
     @POST
@@ -127,6 +130,7 @@ public class ItemRestService implements IItemRestService {
 
             List<BaseinfoItem> items = itemService.searchItem(mapQuery);
             if (items.size() > 0) {
+                itemService.updateBarcode(items.get(0).getItemId(),item.getCode());
                 return JsonUtils.SUCCESS();
             }
             itemRpcService.insertItem(item);
@@ -225,6 +229,19 @@ public class ItemRestService implements IItemRestService {
             logger.error(e.getMessage());
             return JsonUtils.EXCEPTION_ERROR("failed");
         }
+        return JsonUtils.SUCCESS();
+    }
+
+
+    @POST
+    @Path("updateBarcode")
+    public String updateBarcode() throws BizCheckedException {
+
+        Map<String,Object> request = RequestUtils.getRequest();
+        String barcode = request.get("barcode").toString();
+        Long itemId = Long.valueOf(request.get("itemId").toString());
+        itemRpcService.updateBarcode(itemId,barcode);
+
         return JsonUtils.SUCCESS();
     }
 

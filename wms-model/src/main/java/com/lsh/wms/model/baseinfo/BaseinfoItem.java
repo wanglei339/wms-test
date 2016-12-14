@@ -100,6 +100,10 @@ public class BaseinfoItem implements Serializable {
 	/**是否有保质期  0没有 1有*/
 	private Integer isShelfLifeValid = 1;
 
+	/**商品数据是否有效1 有效2无效*/
+	private Integer isValid = 1;
+
+
 
 	public Long getId(){
 		return this.id;
@@ -469,5 +473,13 @@ public class BaseinfoItem implements Serializable {
 
 	public void setIsShelfLifeValid(Integer isShelfLifeValid) {
 		this.isShelfLifeValid = isShelfLifeValid;
+	}
+
+	public Integer getIsValid() {
+		return isValid;
+	}
+
+	public void setIsValid(Integer isValid) {
+		this.isValid = isValid;
 	}
 }
