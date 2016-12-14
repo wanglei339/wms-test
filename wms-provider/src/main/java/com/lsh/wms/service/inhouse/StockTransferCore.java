@@ -331,6 +331,7 @@ public class StockTransferCore {
             move.setSkuId(taskInfo.getSkuId());
             move.setOwnerId(taskInfo.getOwnerId());
             stockMoveService.move(move);
+            taskInfo.setQty(inboundUnitQty);
             taskInfo.setQtyDone(inboundUnitQty.divide(taskInfo.getPackUnit(),0,BigDecimal.ROUND_HALF_EVEN));
         }
         taskInfo.setStep(2);
