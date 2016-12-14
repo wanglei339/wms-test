@@ -566,7 +566,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         List<Map> taskList = new ArrayList<Map>();
 
         TaskEntry taskEntry = list.get(0);
-        Boolean isDone = true;
+        Boolean isDone = false;
 
         List<StockTakingDetail> details =(List<StockTakingDetail>) (List<?>) taskEntry.getTaskDetailList();
         if(details!=null && details.size()!=0) {
@@ -583,7 +583,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
                 Map<String, Object> taskMap = new HashMap<String, Object>();
                 Long status = statusMap.get(location.getLocationId());
                 if (!status.equals(3L)) {
-                    isDone = false;
+                    isDone = true;
                 }
                 taskMap.put("taskId", taskEntry.getTaskInfo().getTaskId());
                 taskMap.put("locationId", location.getLocationId());
