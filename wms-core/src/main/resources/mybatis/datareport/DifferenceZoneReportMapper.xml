@@ -47,6 +47,27 @@
 		where id=#{id}
 	</update>
 
+	<update id="batchUpdate" parameterType="java.util.List">
+		<foreach collection="list" item="item" index="index" open="" close="" separator=";">
+		update difference_zone_report
+		<set>
+			<if test="item.differenceId != null">difference_id=#{item.differenceId},</if>
+			<if test="item.itemId != null">item_id=#{item.itemId},</if>
+			<if test="item.skuCode != null">sku_code=#{item.skuCode},</if>
+			<if test="item.fromLocationId != null">from_location_id=#{item.fromLocationId},</if>
+			<if test="item.sourceType != null">source_type=#{item.sourceType},</if>
+			<if test="item.unitName != null">unit_name=#{item.unitName},</if>
+			<if test="item.qty != null">qty=#{item.qty},</if>
+			<if test="item.operator != null">operator=#{item.operator},</if>
+			<if test="item.createdAt != null">created_at=#{item.createdAt},</if>
+			<if test="item.updatedAt != null">updated_at=#{item.updatedAt},</if>
+			<if test="item.direct != null">direct=#{item.direct},</if>
+			<if test="item.status != null">status=#{item.status}</if>
+		</set>
+		where id=#{item.id}
+		</foreach>
+	</update>
+
 	<select id="getDifferenceZoneReportById" parameterType="int" resultMap="differenceZoneReportResultMap">
 		select * from difference_zone_report
 		where ID=#{id}
