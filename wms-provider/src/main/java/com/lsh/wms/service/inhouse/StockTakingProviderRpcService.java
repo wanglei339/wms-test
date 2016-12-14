@@ -665,6 +665,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         TaskEntry entry = new TaskEntry();
         TaskInfo info = new TaskInfo();
         StockTakingDetail detail = new StockTakingDetail();
+        detail.setLocationCode(location.getLocationCode());
         BaseinfoItem item = null;
 
         //临时盘点，直接填充库位信息

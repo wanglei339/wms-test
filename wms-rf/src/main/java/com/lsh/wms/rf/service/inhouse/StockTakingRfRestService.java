@@ -279,7 +279,6 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         //获取用户正在进行的拣货任务
         Map<String,Object> processingTask = getProcessingTask(uId);
         if(processingTask!=null){
-
             return JsonUtils.SUCCESS(processingTask);
         }
         //盘点签,即任务ID
@@ -297,7 +296,6 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         iTaskRpcService.assign(taskId,uId);
 
         List<Map> taskList = new ArrayList<Map>();
-        Map<String,Object> taskMap =new HashMap<String, Object>();
         List<StockTakingDetail> details =(List<StockTakingDetail>) (List<?>) entry.getTaskDetailList();
         if(details==null || details.size()==0){
             return JsonUtils.TOKEN_ERROR("该任务无可盘点的库位");
@@ -312,6 +310,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         Boolean isDone = true;
         locationList  = locationService.calcZwayOrder(locationList,true);
         for(BaseinfoLocation location:locationList) {
+            Map<String,Object> taskMap =new HashMap<String, Object>();
             Long status =  statusMap.get(location.getLocationId());
             if(!status.equals(3L)){
                 isDone = false;
