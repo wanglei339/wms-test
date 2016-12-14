@@ -47,7 +47,7 @@ import java.util.Map;
  * Created by wuhao on 16/8/16.
  */
 @Service(protocol = "rest")
-@Path("inbound/pick_up_shelve")
+@Path("inbound/pick_shelve")
 public class pickUpShelveRestService implements IPickUpShelveRestService {
     private static Logger logger = LoggerFactory.getLogger(pickUpShelveRestService.class);
     @Reference

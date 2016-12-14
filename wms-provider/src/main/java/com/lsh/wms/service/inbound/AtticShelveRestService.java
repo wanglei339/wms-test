@@ -47,7 +47,7 @@ import java.util.Map;
  * Created by wuhao on 16/8/16.
  */
 @Service(protocol = "rest")
-@Path("inbound/attic_shelve")
+@Path("inbound/pick_up_shelve")
 public class AtticShelveRestService implements IAtticShelveRestService{
     private static Logger logger = LoggerFactory.getLogger(AtticShelveRestService.class);
     @Reference
