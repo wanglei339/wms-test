@@ -154,7 +154,7 @@ public class StockTakingRestService implements IStockTakingRestService {
         if(allPrice.equals(0l)){
             ret =  diffPrice;
         }else {
-            ret = Math.abs(diffPrice - allPrice) / allPrice;
+            ret = diffPrice / allPrice;
         }
         return JsonUtils.SUCCESS(ret);
     }
