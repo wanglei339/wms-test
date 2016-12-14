@@ -53,36 +53,6 @@ public class ItemService {
 
 
     public BaseinfoItem getItem(long iOwnerId, long iSkuId){
-        Long key = (((long)iOwnerId)<<32) + (iSkuId);
-        BaseinfoItem item = m_ItemCache.get(key);
-        if(item == null){
-            //cache中不存在,穿透查询mysql
-            Map<String, Object> mapQuery = new HashMap<String, Object>();
-            mapQuery.put("ownerId", iOwnerId);
-            mapQuery.put("skuId", iSkuId);
-            // TODO: 2016/12/13 先查询关系表 从关系表中取出itemid 通过itemId来定位一条item
-
-            List<BaseinfoItem> items = itemDao.getBaseinfoItemList(mapQuery);
-            if(items.size() == 1){
-                item = items.get(0);
-                m_ItemCache.put(key, item);
-            } else {
-                return null;
-            }
-        }
-        BaseinfoItem new_item = new BaseinfoItem();
-        try {
-            org.apache.commons.beanutils.BeanUtils.copyProperties(new_item, item);
-        } catch (IllegalAccessException e) {
-            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
-        } catch (InvocationTargetException e) {
-            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
-        }
-        return new_item;
-    }
-
-    public BaseinfoItem getItemBySkuId(long iOwnerId, long iSkuId){
-
         //cache中不存在,穿透查询mysql
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("ownerId", iOwnerId);
@@ -97,17 +67,6 @@ public class ItemService {
         }else{
             return new BaseinfoItem();
         }
-
-//        List<BaseinfoItem> items = itemDao.getBaseinfoItemList(mapQuery);
-//        if(items.size() == 1){
-//            item = items.get(0);
-//            m_ItemCache.put(key, item);
-//        } else {
-//            return null;
-//        }
-//
-//
-//        return null;
     }
 
 
