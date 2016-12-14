@@ -346,7 +346,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
                     return JsonUtils.TOKEN_ERROR("扫描货位与系统所提供货位不符");
                 }
             } else if (realLocation.getRegionType().compareTo(LocationConstant.LOFTS) == 0 && realLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)) {
-                if (locationService.checkLocationUseStatus(realLocationId) && realLocationId.compareTo(detail.getAllocLocationId()) != 0) {
+                if (!locationService.checkLocationUseStatus(realLocationId) && realLocationId.compareTo(detail.getAllocLocationId()) != 0) {
                     return JsonUtils.TOKEN_ERROR("扫描库位已被占用");
                 }
             } else {
