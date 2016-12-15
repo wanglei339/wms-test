@@ -440,6 +440,9 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         bulk = bulk.multiply(item.getPackLength());
         bulk = bulk.multiply(item.getPackHeight());
         bulk = bulk.multiply(item.getPackWidth());
+        if(bulk.equals(BigDecimal.ZERO)){
+            bulk = BigDecimal.ONE;
+        }
 
 
         Map<String,Object> queryMap = new HashMap<String, Object>();
@@ -620,6 +623,10 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             bulk = bulk.multiply(item.getPackLength());
             bulk = bulk.multiply(item.getPackHeight());
             bulk = bulk.multiply(item.getPackWidth());
+            if(bulk.equals(BigDecimal.ZERO)){
+                bulk = BigDecimal.ONE;
+            }
+
 
 
             List<BaseinfoLocation> locationList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.SPLIT_AREA, BinUsageConstant.BIN_PICK_STORE);
