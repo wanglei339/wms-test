@@ -88,7 +88,7 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
         List<Object> details = entry.getTaskDetailList();
         for(Object obj:details){
             StockTakingDetail detail = (StockTakingDetail)obj;
-            detail.setStatus(TaskConstant.Cancel);
+            detail.setStatus(StockTakingConstant.Cancel);
             stockTakingService.updateDetail(detail);
         }
     }

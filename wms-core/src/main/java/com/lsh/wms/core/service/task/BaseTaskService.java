@@ -2,6 +2,7 @@ package com.lsh.wms.core.service.task;
 
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.wms.core.constant.StockTakingConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.dao.task.TaskInfoDao;
 import com.lsh.wms.core.service.taking.StockTakingService;
@@ -66,6 +67,14 @@ public class BaseTaskService {
         taskInfo.setUpdatedAt(DateUtils.getCurrentSeconds());
         taskInfoDao.insert(taskInfo);
         taskHandler.createConcrete(taskEntry);
+    }
+    @Transactional(readOnly = false)
+    public void cancelTask(List<TaskEntry> entries,StockTakingHead head, TaskHandler taskHandler) throws BizCheckedException {
+        head.setStatus(StockTakingConstant.Cancel);
+        stockTakingService.updateHead(head);
+        for(TaskEntry entry:entries) {
+           this.cancel(entry.getTaskInfo().getTaskId(),taskHandler);
+        }
     }
     @Transactional(readOnly = false)
     public TaskInfo create(TaskInfo taskInfo) throws BizCheckedException {
