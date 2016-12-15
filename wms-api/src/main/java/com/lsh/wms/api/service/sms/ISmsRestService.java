@@ -14,4 +14,6 @@ public interface ISmsRestService {
     String alloc(String orderId) throws BizCheckedException;
 
     String diff(String orderId) throws BizCheckedException;
+
+    String correctAvailQty() throws BizCheckedException;
 }
