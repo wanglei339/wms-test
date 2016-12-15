@@ -169,6 +169,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //判断PO订单类型  虚拟容器,放入退货区
         Integer orderType = ibdHeader.getOrderType();
         if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
+            if(ibdHeader.getOrderStatus().equals(PoConstant.ORDER_RECTIPT_ALL)){
+                throw new BizCheckedException("2020002");
+            }
             //新增container
             //TODO 这种虚拟的根据货主的container和locaiton的处理方法很蛋疼,已经让人蒙蔽了。。。。。
             //  16/8/19 退货类型的单据 虚拟容器,放入退货区
@@ -875,6 +878,10 @@ public class ReceiptRpcService implements IReceiptRpcService {
             inbReceiptHeader.setReceiptStatus(BusiConstant.EFFECTIVE_YES);
             //设置InbReceiptHeader插入时间
             inbReceiptHeader.setInserttime(new Date());
+        }else{
+            if(!inbReceiptHeader.getStoreCode().equals(request.getStoreId())){
+                throw new BizCheckedException("2000002");
+            }
         }
         //大店放在集货道 小店放到集货位
         //BaseinfoStore baseinfoStore = iStoreRpcService.getStoreByStoreNo(inbReceiptHeader.getStoreCode());
