@@ -284,5 +284,20 @@ public class ItemService {
         return skuCodes;
     }
 
+    /**
+     * 根据itemId查询历史国条
+     */
+    public List<CsiSku> getCsiSkuListByItemId(Long itemId){
+        List<CsiSku> list = new ArrayList<CsiSku>();
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("itemId",itemId);
+        List<ItemSkuRelation> itemSkuRelations = itemSkuRelationDao.getItemSkuRelationList(mapQuery);
+        for(ItemSkuRelation relation : itemSkuRelations){
+            CsiSku sku = csiSkuService.getSku(relation.getSkuId());
+            list.add(sku);
+        }
+        return list;
+    }
+
 
 }
