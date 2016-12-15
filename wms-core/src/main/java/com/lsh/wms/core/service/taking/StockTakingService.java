@@ -154,7 +154,20 @@ public class StockTakingService {
             info.setFinishTime(DateUtils.getCurrentSeconds());
             info.setUpdatedAt(DateUtils.getCurrentSeconds());
             baseTaskService.update(info);
+
+            //判断计划下任务是否完成
+            Map<String,Object> queryMap = new HashMap<String, Object>();
+            queryMap.put("planId",detail.getTakingId());
+            queryMap.put("valid",1);
+            List<TaskInfo> infos = baseTaskService.getTaskInfoList(queryMap);
+            if(infos==null || infos.size()==0 || (infos.size()==0 && infos.get(0).getTaskId().equals(detail.getTaskId()))){
+                //计划已完成
+                StockTakingHead head = this.getHeadById(detail.getTakingId());
+                head.setStatus(StockTakingConstant.Done);
+                this.updateHead(head);
+            }
         }
+
     }
 
     public List<StockTakingDetail> getDetailListByRound(Long stockTakingId, Long round) {

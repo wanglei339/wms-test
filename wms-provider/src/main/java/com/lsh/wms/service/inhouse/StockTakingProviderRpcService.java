@@ -581,6 +581,9 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         this.batchCreateStockTaking(mapZoneBinArrs, StockTakingConstant.TYPE_MOVE_OFF, planer);
     }
     public void createStockTaking(List<Long> locations,Long zoneId,Long takingType,Long planner) throws BizCheckedException {
+        if(locations==null || locations.size()==0){
+            return;
+        }
         List<Object> details = new ArrayList<Object>();
         StockTakingHead head = new StockTakingHead();
         head.setPlanType(takingType);
@@ -625,6 +628,9 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             Long zoneId = entry.getKey();
             WorkZone zone = workZoneService.getWorkZone(zoneId);
             List<Long> locations = entry.getValue();
+            if(locations == null || locations.size()==0){
+                continue;
+            }
             List<Object> details = new ArrayList<Object>();
             TaskEntry taskEntry = new TaskEntry();
             TaskInfo info = new TaskInfo();
@@ -650,7 +656,9 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             taskEntry.setTaskDetailList(details);
             taskEntries.add(taskEntry);
         }
-        iTaskRpcService.batchCreate(head, taskEntries);
+        if(taskEntries!=null && taskEntries.size()!=0) {
+            iTaskRpcService.batchCreate(head, taskEntries);
+        }
     }
     public void createAndDoTmpTask(Long locationId,BigDecimal qty,String barcode,Long planner) throws BizCheckedException{
 

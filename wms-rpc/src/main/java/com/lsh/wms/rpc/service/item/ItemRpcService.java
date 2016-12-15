@@ -122,6 +122,10 @@ public class ItemRpcService implements IItemRpcService {
         itemService.updateBarcode(itemId,barcode);
     }
 
+    public List<CsiSku> showCodes(Long itemId) {
+        return itemService.getCsiSkuListByItemId(itemId);
+    }
+
     public List<BaseinfoItemLocation> getItemLocation(Map<String,Object> queryMap) {
         return  itemLocationService.getItemLocation(queryMap);
     }

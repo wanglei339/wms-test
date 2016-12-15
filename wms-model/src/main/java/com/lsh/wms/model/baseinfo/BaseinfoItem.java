@@ -1,9 +1,11 @@
 package com.lsh.wms.model.baseinfo;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BaseinfoItem implements Serializable {
 
 
