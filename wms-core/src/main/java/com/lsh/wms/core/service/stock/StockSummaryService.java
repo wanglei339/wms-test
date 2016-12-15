@@ -77,4 +77,12 @@ public class StockSummaryService {
         return stockSummaryDao.getStockSummaryByItemId(itemId);
     }
 
+    public List<StockSummary> getAvailQty(Long ownerId, List<String> skuCodeList) throws BizCheckedException {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("ownerId", ownerId);
+        mapQuery.put("skuCodeList", skuCodeList);
+        logger.error(mapQuery.toString());
+        return stockSummaryDao.getStockSummaryList(mapQuery);
+    }
+
 }

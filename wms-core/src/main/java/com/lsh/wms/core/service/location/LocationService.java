@@ -144,7 +144,7 @@ public class LocationService {
         location.setUpdatedAt(createdAt);
         locationDao.insert(location);
         //写入缓存
-        locationRedisService.insertLocationRedis(location);
+//        locationRedisService.insertLocationRedis(location);
         return location;
     }
 
@@ -164,7 +164,7 @@ public class LocationService {
         baseinfoLocation.setUpdatedAt(updatedAt);
         locationDao.update(baseinfoLocation);
         //写入缓存
-        locationRedisService.insertLocationRedis(baseinfoLocation);
+//        locationRedisService.insertLocationRedis(baseinfoLocation);
         return baseinfoLocation;
     }
 
@@ -1262,7 +1262,7 @@ public class LocationService {
         mapQuery.put("isValid", LocationConstant.IS_VALID);
         List<BaseinfoLocation> locations = this.getBaseinfoLocationList(mapQuery);
         for (BaseinfoLocation location : locations) {
-            locationRedisService.insertLocationRedis(location);
+//            locationRedisService.insertLocationRedis(location);
         }
     }
 

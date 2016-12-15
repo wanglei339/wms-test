@@ -178,7 +178,7 @@ public class ItemService {
         BaseinfoItem item = this.getItem(itemId);
         //如果sku表中不存在,更新sku表
         Map<String,Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("code",item.getCode());
+        mapQuery.put("code",barcode);
         mapQuery.put("codeType",item.getCodeType());
         List<CsiSku> skus = csiSkuDao.getCsiSkuList(mapQuery);
         if(skus != null && skus.size() > 0){

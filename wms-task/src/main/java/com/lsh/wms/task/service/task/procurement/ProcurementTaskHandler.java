@@ -6,6 +6,7 @@ import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockMoveService;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.task.TaskInfo;
@@ -27,6 +28,8 @@ public class ProcurementTaskHandler extends AbsTaskHandler {
     @Autowired
     private StockMoveService moveService;
     @Autowired
+    private StockQuantService quantService;
+    @Autowired
     private BaseTaskService baseTaskService;
     @Autowired
     private LocationService locationService;
@@ -46,13 +49,12 @@ public class ProcurementTaskHandler extends AbsTaskHandler {
         TaskInfo info = baseTaskService.getTaskByTaskId(taskId);
         Long fromLocationId = locationService.getFatherRegionBySonId(info.getFromLocationId()).getLocationId();
         if (info.getSubType().compareTo(1L) == 0) {
-            moveService.moveWholeContainer(info.getContainerId(), taskId, info.getOperator(), fromLocationId, info.getToLocationId());
+            info.setQty(quantService.getQuantQtyByContainerId(info.getContainerId()));
         }else {
             StockMove move = new StockMove();
             ObjUtils.bean2bean(info, move);
-            if (info.getSubType().compareTo(2L) == 0) {
-                move.setQty(info.getQty());
-            }
+
+            move.setQty(info.getQty());
             move.setFromLocationId(fromLocationId);
             move.setToLocationId(info.getToLocationId());
             Long newContainerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();

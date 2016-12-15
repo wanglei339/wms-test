@@ -37,4 +37,12 @@ public class DifferenceZoneReportRestService implements IDifferenceZoneReportRes
     public String countDifferenceReport(Map<String, Object> mapQuery) {
         return JsonUtils.SUCCESS(differenceZoneReportRpcService.countDifferenceReport(mapQuery));
     }
+
+    @Path("movingReport")
+    @POST
+    public String movingReport() {
+        return null;
+    }
+
+
 }

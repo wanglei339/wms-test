@@ -11,7 +11,9 @@ public interface IAtticShelveRestService {
     String conFirmDetail() throws BizCheckedException;
     String updateDetail() throws BizCheckedException;
     String getTaskList() throws BizCheckedException;
+    String cancelDetail() throws BizCheckedException;
     String getDetail() throws BizCheckedException;
+    String getLocationList() throws BizCheckedException;
     String doDetail() throws BizCheckedException;
     String updateOperator() throws BizCheckedException;
 }
