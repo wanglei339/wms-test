@@ -32,4 +32,6 @@ public interface IItemRestService {
 
     String updateBarcode() throws BizCheckedException;
 
+    String showCodes(Long itemId);
+
 }
