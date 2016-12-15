@@ -162,10 +162,10 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //根据request中的orderOtherId查询InbPoHeader
         // 按理说上游因该吧订单转换好,这里就不要用外部id运算了 FIXED: 16/11/20
         IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(request.getOrderId());
-        /*  外层已验证
-         if (ibdHeader == null) {
+        if (ibdHeader == null) {
             throw new BizCheckedException("2020001");
-        }*/
+        }
+
         //判断PO订单类型  虚拟容器,放入退货区
         Integer orderType = ibdHeader.getOrderType();
         if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
@@ -314,8 +314,13 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
                 //qty转化为ea
                 //BigDecimal qty = inboundQty.multiply(inbReceiptDetail.getPackUnit());
+                BaseinfoLocation baseinfoLocation = locationService.getConsumerArea();
+                if(baseinfoLocation == null){
+                    throw  new BizCheckedException("2020006");
+                }
 
                 StockMove move = new StockMove();
+                move.setFromLocationId(baseinfoLocation.getLocationId());
                 move.setToLocationId(inbReceiptHeader.getLocation());
                 move.setToContainerId(inbReceiptHeader.getContainerId());
                 //move.setQty(inbReceiptDetail.getInboundQty());
@@ -784,6 +789,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
     public void insertReceipt(Long orderId , Long staffId) throws BizCheckedException, ParseException {
         IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(orderId);
+        if (ibdHeader == null) {
+            throw new BizCheckedException("2020001");
+        }
         List<IbdDetail> ibdDetails = poOrderService.getInbPoDetailListByOrderId(orderId);
         ReceiptRequest request = new ReceiptRequest();
 
