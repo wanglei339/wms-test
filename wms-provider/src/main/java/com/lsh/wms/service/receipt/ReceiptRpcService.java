@@ -815,6 +815,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             }
             ObdDetail obdDetail = obdDetails.get(0);
             item.setArriveNum(ibdDetail.getOrderQty());
+            item.setOrderId(ibdHeader.getOrderId());
             //item.setBarCode(obdDetail);
             item.setInboundQty(ibdDetail.getOrderQty());
             item.setPackName(ibdDetail.getPackName());
