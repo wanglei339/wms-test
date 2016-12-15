@@ -4,6 +4,7 @@ import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
+import com.lsh.base.common.utils.CollectionUtils;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.model.so.SoItem;
@@ -254,7 +255,9 @@ public class SoRpcService implements ISoRpcService {
             move.setTaskId(detail.getOrderId());
             moveList.add(move);
         }
-        stockMoveService.move(moveList);
+        if (!CollectionUtils.isEmpty(moveList)) {
+            stockMoveService.move(moveList);
+        }
         // 关闭订单
         header.setIsClosed(1L);
         soOrderService.update(header);
