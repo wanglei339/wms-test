@@ -91,6 +91,7 @@ public class PickRestService implements IPickRestService {
         List<Map> taskList = JSON.parseArray(mapQuery.get("taskList").toString(), Map.class);
         List<WaveDetail> pickDetails = new ArrayList<WaveDetail>();
         List<Map<String, Long>> assignParams = new ArrayList<Map<String, Long>>();
+        List<Long> containerIds = new ArrayList<Long>();
 
         // 判断用户是否存在
         SysUser sysUser = iSysUserRpcService.getSysUserById(staffId);
@@ -144,6 +145,10 @@ public class PickRestService implements IPickRestService {
             if (containerService.isContainerInUse(containerId)) {
                 throw new BizCheckedException("2000002");
             }
+            if (containerIds.contains(containerId)) {
+                throw new BizCheckedException("2060017");
+            }
+            containerIds.add(containerId);
             assignParam.put("taskId", taskId);
             assignParam.put("staffId", staffId);
             assignParam.put("containerId", containerId);
