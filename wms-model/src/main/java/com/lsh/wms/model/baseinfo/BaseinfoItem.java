@@ -108,6 +108,12 @@ public class BaseinfoItem implements Serializable {
 	/**箱码*/
 	private String packCode;
 
+	private String wmTopCat = "";
+
+	private String wmSecondCat = "";
+
+	private String wmThirdCat = "";
+
 
 
 	public Long getId(){
@@ -494,5 +500,29 @@ public class BaseinfoItem implements Serializable {
 
 	public void setPackCode(String packCode) {
 		this.packCode = packCode;
+	}
+
+	public String getWmTopCat() {
+		return wmTopCat;
+	}
+
+	public void setWmTopCat(String wmTopCat) {
+		this.wmTopCat = wmTopCat;
+	}
+
+	public String getWmSecondCat() {
+		return wmSecondCat;
+	}
+
+	public void setWmSecondCat(String wmSecondCat) {
+		this.wmSecondCat = wmSecondCat;
+	}
+
+	public String getWmThirdCat() {
+		return wmThirdCat;
+	}
+
+	public void setWmThirdCat(String wmThirdCat) {
+		this.wmThirdCat = wmThirdCat;
 	}
 }
