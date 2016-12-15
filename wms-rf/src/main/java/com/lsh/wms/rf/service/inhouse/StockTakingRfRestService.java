@@ -499,7 +499,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         String locationCode = "";
         logger.info("params:"+params);
         try {
-            if (params.get("taskId") != null) {
+            if (params.get("taskId") != null && "".equals(params.get("taskId").toString().trim())) {
                 taskId = Long.valueOf(params.get("taskId").toString().trim());
             }
             locationCode = params.get("locationCode").toString().trim();
