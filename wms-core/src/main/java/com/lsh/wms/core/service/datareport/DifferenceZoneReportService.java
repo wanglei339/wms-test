@@ -2,6 +2,7 @@ package com.lsh.wms.core.service.datareport;
 
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.dao.datareport.DifferenceZoneReportDao;
 import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.location.LocationService;
@@ -89,7 +90,7 @@ public class DifferenceZoneReportService {
             for(BaseinfoItemLocation itemLocation : itemLocations){
                 // TODO: 16/8/19  判断拣货位是否可用
                 BaseinfoLocation location = locationService.getLocation(itemLocation.getPickLocationid());
-                if((location.getCanUse().equals(1)) && location.getIsLocked().equals(0)){
+                if((location.getCanUse().equals(LocationConstant.CAN_USE)) && location.getIsLocked().equals(LocationConstant.UNLOCK)){
                     move.setToLocationId(location.getLocationId());
                     break;
                 }
