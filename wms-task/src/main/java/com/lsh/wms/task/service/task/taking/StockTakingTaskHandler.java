@@ -4,6 +4,7 @@ import com.alibaba.dubbo.config.annotation.Reference;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.task.ITaskRpcService;
+import com.lsh.wms.core.constant.StockTakingConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.taking.StockTakingService;
@@ -59,7 +60,6 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
     public void createConcrete(TaskEntry taskEntry) {
         Long taskId=taskEntry.getTaskInfo().getTaskId();
         List<StockTakingDetail> stockTakingDetails =(List<StockTakingDetail>) (List<?>)taskEntry.getTaskDetailList();
-        logger.info("----------"+stockTakingDetails);
         for(StockTakingDetail detail:stockTakingDetails){
             detail.setTaskId(taskId);
         }
@@ -70,7 +70,12 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
     }
     public void assignConcrete(Long taskId, Long staffId) throws BizCheckedException {
         List<StockTakingDetail> details = stockTakingService.getDetailByTaskId(taskId);
-        if(details!=null){
+        if(details!=null && details.size()!=0){
+            StockTakingHead head = stockTakingService.getHeadById(details.get(0).getTakingId());
+            if(!head.getStatus().equals(StockTakingConstant.Assigned)){
+                head.setStatus(StockTakingConstant.Assigned);
+                stockTakingService.updateHead(head);
+            }
             for(StockTakingDetail detail:details) {
                 detail.setOperator(staffId);
                 detail.setStatus(TaskConstant.Assigned);
