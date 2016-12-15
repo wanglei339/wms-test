@@ -34,6 +34,7 @@ import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
+import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.*;
@@ -46,6 +47,7 @@ import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
@@ -117,7 +119,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
     private LocationDetailService locationDetailService;
 
     @Autowired
-    private StaffService staffService;
+    private SysUserService sysUserService;
 
     @Autowired
     private IdGenerator idGenerator;
@@ -329,9 +331,13 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
                 // TODO: 16/8/19 找货品对应的拣货位
                 List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationList(baseinfoItem.getItemId());
+                if(itemLocations == null || itemLocations.size() <= 0){
+                    throw new BizCheckedException("2030010");
+                }
                 for(BaseinfoItemLocation itemLocation : itemLocations){
                     // TODO: 16/8/19  判断拣货位是否可用
                     BaseinfoLocation location = locationService.getLocation(itemLocation.getPickLocationid());
+
 
                     if((location.getCanUse().equals(1)) && location.getIsLocked().equals(0)){
                         locationMap.put(baseinfoItem.getItemId(),itemLocation.getPickLocationid());
@@ -786,7 +792,15 @@ public class ReceiptRpcService implements IReceiptRpcService {
         request.setOrderId(orderId);
         Map<String , Object> map = new HashMap<String, Object>();
         map.put("staffId",staffId);
-        request.setReceiptUser(staffService.getStaffList(map).get(0).getName());
+        String uidStr = "";
+        List<SysUser> userList = sysUserService.getSysUserList(map);
+        if(userList != null && userList.size() > 0){
+            Long uid = userList.get(0).getUid();
+            if(uid != null){
+                uidStr = uid.toString();
+            }
+        }
+        request.setReceiptUser(uidStr);
         request.setWarehouseId(0l);
         request.setStaffId(staffId);
         request.setOrderOtherId(ibdHeader.getOrderOtherId());
