@@ -129,8 +129,14 @@ public class ItemRestService implements IItemRestService {
         if(!(item.getCode()!=null && (item.equals("")))) {
 
             List<BaseinfoItem> items = itemService.searchItem(mapQuery);
-            if (items.size() > 0) {
+            if (item!=null && items.size() > 0) {
+                BaseinfoItem baseinfoItem = items.get(0);
+                if(!baseinfoItem.getCode().equals(item.getCode()) || baseinfoItem.getPackUnit().compareTo(item.getPackUnit())!=0){
+                    return JsonUtils.TOKEN_ERROR("箱规或国条不一致，不允许修改");
+                }
                 itemService.updateBarcode(items.get(0).getItemId(),item.getCode());
+
+                itemService.updateItem(item);
                 return JsonUtils.SUCCESS();
             }
             itemRpcService.insertItem(item);

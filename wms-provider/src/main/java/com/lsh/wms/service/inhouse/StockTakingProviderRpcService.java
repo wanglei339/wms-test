@@ -607,6 +607,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         }else {
             info.setTaskName(zone.getZoneName());
         }
+        info.setTaskOrder(Long.valueOf(details.size()+""));
         info.setType(TaskConstant.TYPE_STOCK_TAKING);
         info.setSubType(takingType);
         info.setPlanner(planner);
@@ -648,6 +649,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             }else {
                 info.setTaskName(zone.getZoneName());
             }
+            info.setTaskOrder(Long.valueOf(details.size()+""));
             info.setType(TaskConstant.TYPE_STOCK_TAKING);
             info.setSubType(takingType);
             info.setPlanner(planner);
@@ -730,6 +732,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         details.add(detail);
 
         info.setStatus(TaskConstant.Done);
+        info.setTaskOrder(1L);
         info.setTaskName("临时盘点库位[" + location.getLocationCode() + "]");
         info.setType(TaskConstant.TYPE_STOCK_TAKING);
         info.setSubType(StockTakingConstant.TYPE_TEMPOARY);
