@@ -51,6 +51,7 @@ public class PoReceiptService {
     @Autowired
     private IbdDetailDao ibdDetailDao;
 
+    @Autowired
     private IbdHeaderDao ibdHeaderDao;
 
     @Autowired
