@@ -1,23 +1,30 @@
 package com.lsh.wms.service.sms;
 
+import com.alibaba.dubbo.common.utils.CollectionUtils;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
+import com.baidubce.util.DateUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.wms.api.model.so.ObdDetail;
 import com.lsh.wms.api.service.sms.ISmsRestService;
 import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.core.constant.StockConstant;
 import com.lsh.wms.core.dao.redis.RedisSortedSetDao;
+import com.lsh.wms.core.dao.stock.StockSummaryDao;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.*;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.task.MessageService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.stock.StockSummary;
 import com.lsh.wms.service.so.SoRpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -35,10 +42,19 @@ import java.util.Map;
 public class SmsRestService implements ISmsRestService {
 
     @Autowired
+    private LocationService locationService;
+
+    @Autowired
     private SmsService smsService;
 
     @Autowired
     private StockMoveService moveService;
+
+    @Autowired
+    private StockQuantService quantService;
+
+    @Autowired
+    private StockSummaryDao stockSummaryDao;
 
     @Autowired
     private StockSummaryService stockSummaryService;
@@ -48,6 +64,9 @@ public class SmsRestService implements ISmsRestService {
 
     @Autowired
     private SoRpcService soRpcService;
+
+    @Autowired
+    private ItemService itemService;
 
     public void setSmsService(SmsService smsService) {
         this.smsService = smsService;
@@ -78,6 +97,30 @@ public class SmsRestService implements ISmsRestService {
     }
 
     @GET
+    @Path("correctAvailQty")
+    public String correctAvailQty() throws BizCheckedException {
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        List<BaseinfoItem> itemList = itemService.searchItem(mapQuery);
+        for (BaseinfoItem item : itemList) {
+            Map<String, Object> quantMapQuery = new HashMap<String, Object>();
+            quantMapQuery.put("itemId", item.getItemId());
+            List<StockQuant> stockQuants = quantService.getQuants(quantMapQuery);
+            for (StockQuant quant : stockQuants) {
+                Map<String, Object> params = new HashMap<String, Object>();
+                params.put("itemId", item.getItemId());
+                params.put("skuCode", item.getSkuCode());
+                params.put("ownerId", item.getOwnerId());
+                params.put(StockConstant.REGION_TO_FIELDS.get(locationService.getLocation(quant.getLocationId()).getRegionType()), quant.getQty());
+                StockSummary summary = BeanMapTransUtils.map2Bean(params, StockSummary.class);
+                summary.setCreatedAt(com.lsh.base.common.utils.DateUtils.getCurrentSeconds());
+                summary.setUpdatedAt(com.lsh.base.common.utils.DateUtils.getCurrentSeconds());
+                stockSummaryDao.changeStock(summary);
+            }
+        }
+        return JsonUtils.SUCCESS();
+    }
+
+    @GET
     @Path("so")
     public String alloc(@QueryParam("order_id") String orderId) throws BizCheckedException {
         return JsonUtils.SUCCESS();
@@ -88,4 +131,5 @@ public class SmsRestService implements ISmsRestService {
     public String diff(@QueryParam("order_id") String orderId) throws BizCheckedException {
         return JsonUtils.SUCCESS();
     }
+
 }

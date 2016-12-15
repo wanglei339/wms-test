@@ -34,6 +34,7 @@ import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
+import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.baseinfo.*;
@@ -46,6 +47,7 @@ import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.transfer.StockTransferPlan;
@@ -117,7 +119,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
     private LocationDetailService locationDetailService;
 
     @Autowired
-    private StaffService staffService;
+    private SysUserService sysUserService;
 
     @Autowired
     private IdGenerator idGenerator;
@@ -160,10 +162,10 @@ public class ReceiptRpcService implements IReceiptRpcService {
         //根据request中的orderOtherId查询InbPoHeader
         // 按理说上游因该吧订单转换好,这里就不要用外部id运算了 FIXED: 16/11/20
         IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(request.getOrderId());
-        /*  外层已验证
-         if (ibdHeader == null) {
+        if (ibdHeader == null) {
             throw new BizCheckedException("2020001");
-        }*/
+        }
+
         //判断PO订单类型  虚拟容器,放入退货区
         Integer orderType = ibdHeader.getOrderType();
         if(PoConstant.ORDER_TYPE_SO_BACK == orderType){
@@ -312,8 +314,13 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
                 //qty转化为ea
                 //BigDecimal qty = inboundQty.multiply(inbReceiptDetail.getPackUnit());
+                BaseinfoLocation baseinfoLocation = locationService.getConsumerArea();
+                if(baseinfoLocation == null){
+                    throw  new BizCheckedException("2020006");
+                }
 
                 StockMove move = new StockMove();
+                move.setFromLocationId(baseinfoLocation.getLocationId());
                 move.setToLocationId(inbReceiptHeader.getLocation());
                 move.setToContainerId(inbReceiptHeader.getContainerId());
                 //move.setQty(inbReceiptDetail.getInboundQty());
@@ -329,9 +336,13 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
                 // TODO: 16/8/19 找货品对应的拣货位
                 List<BaseinfoItemLocation> itemLocations = itemLocationService.getItemLocationList(baseinfoItem.getItemId());
+                if(itemLocations == null || itemLocations.size() <= 0){
+                    throw new BizCheckedException("2030010");
+                }
                 for(BaseinfoItemLocation itemLocation : itemLocations){
                     // TODO: 16/8/19  判断拣货位是否可用
                     BaseinfoLocation location = locationService.getLocation(itemLocation.getPickLocationid());
+
 
                     if((location.getCanUse().equals(1)) && location.getIsLocked().equals(0)){
                         locationMap.put(baseinfoItem.getItemId(),itemLocation.getPickLocationid());
@@ -778,6 +789,9 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
     public void insertReceipt(Long orderId , Long staffId) throws BizCheckedException, ParseException {
         IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(orderId);
+        if (ibdHeader == null) {
+            throw new BizCheckedException("2020001");
+        }
         List<IbdDetail> ibdDetails = poOrderService.getInbPoDetailListByOrderId(orderId);
         ReceiptRequest request = new ReceiptRequest();
 
@@ -786,7 +800,15 @@ public class ReceiptRpcService implements IReceiptRpcService {
         request.setOrderId(orderId);
         Map<String , Object> map = new HashMap<String, Object>();
         map.put("staffId",staffId);
-        request.setReceiptUser(staffService.getStaffList(map).get(0).getName());
+        String uidStr = "";
+        List<SysUser> userList = sysUserService.getSysUserList(map);
+        if(userList != null && userList.size() > 0){
+            Long uid = userList.get(0).getUid();
+            if(uid != null){
+                uidStr = uid.toString();
+            }
+        }
+        request.setReceiptUser(uidStr);
         request.setWarehouseId(0l);
         request.setStaffId(staffId);
         request.setOrderOtherId(ibdHeader.getOrderOtherId());
@@ -815,6 +837,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             }
             ObdDetail obdDetail = obdDetails.get(0);
             item.setArriveNum(ibdDetail.getOrderQty());
+            item.setOrderId(ibdHeader.getOrderId());
             //item.setBarCode(obdDetail);
             item.setInboundQty(ibdDetail.getOrderQty());
             item.setPackName(ibdDetail.getPackName());

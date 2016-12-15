@@ -10,4 +10,6 @@ public interface IDifferenceZoneReportRestService {
     String getDifferenceReportList(Map<String, Object> mapQuery);
     String countDifferenceReport(Map<String, Object> mapQuery);
 
+    String movingReport();
+
 }

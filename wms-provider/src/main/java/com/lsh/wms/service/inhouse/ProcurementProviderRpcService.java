@@ -678,7 +678,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
            locationMap.put(quant.getLocationId(),quant.getLocationId());
 
            for(int i=0;i<quantList.size();i++){
-               StockQuant sortQuant = quantList.get(0);
+               StockQuant sortQuant = quantList.get(i);
                if(sortQuant.getExpireDate().compareTo(quant.getExpireDate())==0) {
                    //获取存储位该商品库存量
                    queryMap.put("locationId", quant.getLocationId());
@@ -698,7 +698,13 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                }
            }
            if(quantList.size()==0){
+               //初始化quantList和qtyMap
+               //获取存储位该商品库存量
+               queryMap.put("locationId", quant.getLocationId());
+               BigDecimal one = quantService.getQty(queryMap);
+               qtyMap.put(quant.getLocationId(),one);
                quantList.add(quant);
+
            }
        }
         return quantList;

@@ -245,5 +245,11 @@ public class ItemRestService implements IItemRestService {
         return JsonUtils.SUCCESS();
     }
 
+    @GET
+    @Path("showCodes")
+    public String showCodes(@QueryParam("itemId") Long itemId) {
+        return JsonUtils.SUCCESS(itemRpcService.showCodes(itemId));
+    }
+
 
 }

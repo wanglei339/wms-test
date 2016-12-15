@@ -178,7 +178,7 @@ public class ItemService {
         BaseinfoItem item = this.getItem(itemId);
         //如果sku表中不存在,更新sku表
         Map<String,Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("code",item.getCode());
+        mapQuery.put("code",barcode);
         mapQuery.put("codeType",item.getCodeType());
         List<CsiSku> skus = csiSkuDao.getCsiSkuList(mapQuery);
         if(skus != null && skus.size() > 0){
@@ -201,15 +201,23 @@ public class ItemService {
             item.setSkuId(sku.getSkuId());
             item.setCode(barcode);
         }
-        //新增关系表数据
-        ItemSkuRelation itemSkuRelation = new ItemSkuRelation();
-        itemSkuRelation.setOwnerId(item.getOwnerId());
-        itemSkuRelation.setIsValid(1L);
-        itemSkuRelation.setItemId(item.getItemId());
-        itemSkuRelation.setSkuId(item.getSkuId());
-        itemSkuRelation.setCreatedAt(DateUtils.getCurrentSeconds());
-        itemSkuRelation.setUpdatedAt(DateUtils.getCurrentSeconds());
-        itemSkuRelationDao.insert(itemSkuRelation);
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("itemId",item.getItemId());
+        map.put("skuId",item.getSkuId());
+        map.put("ownerId",item.getOwnerId());
+
+        List<ItemSkuRelation> list = itemSkuRelationDao.getItemSkuRelationList(map);
+        if(list == null || list.size() <= 0){
+            //新增关系表数据
+            ItemSkuRelation itemSkuRelation = new ItemSkuRelation();
+            itemSkuRelation.setOwnerId(item.getOwnerId());
+            itemSkuRelation.setIsValid(1L);
+            itemSkuRelation.setItemId(item.getItemId());
+            itemSkuRelation.setSkuId(item.getSkuId());
+            itemSkuRelation.setCreatedAt(DateUtils.getCurrentSeconds());
+            itemSkuRelation.setUpdatedAt(DateUtils.getCurrentSeconds());
+            itemSkuRelationDao.insert(itemSkuRelation);
+        }
         //更新item数据
         this.updateItem(item);
     }
@@ -274,6 +282,21 @@ public class ItemService {
             skuCodes.add(item.getSkuCode());
         }
         return skuCodes;
+    }
+
+    /**
+     * 根据itemId查询历史国条
+     */
+    public List<CsiSku> getCsiSkuListByItemId(Long itemId){
+        List<CsiSku> list = new ArrayList<CsiSku>();
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("itemId",itemId);
+        List<ItemSkuRelation> itemSkuRelations = itemSkuRelationDao.getItemSkuRelationList(mapQuery);
+        for(ItemSkuRelation relation : itemSkuRelations){
+            CsiSku sku = csiSkuService.getSku(relation.getSkuId());
+            list.add(sku);
+        }
+        return list;
     }
 
 

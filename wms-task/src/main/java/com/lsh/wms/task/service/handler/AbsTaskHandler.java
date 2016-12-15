@@ -2,6 +2,7 @@ package com.lsh.wms.task.service.handler;
 
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.wms.core.constant.StockTakingConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.task.TaskHandler;
@@ -46,6 +47,9 @@ public class AbsTaskHandler implements TaskHandler {
         entry.setTaskInfo(taskInfo);
         baseTaskService.create(entry,head, this);
     }
+    public void calcelTask(StockTakingHead head, List<TaskEntry> entries) {
+        baseTaskService.cancelTask(entries,head,this);
+    }
 
     public void create(TaskEntry taskEntry) throws BizCheckedException{
         // 插入标准任务信息
@@ -85,7 +89,7 @@ public class AbsTaskHandler implements TaskHandler {
             taskInfo.setTaskId(taskId);
             taskEntry.setTaskInfo(taskInfo);
         }
-        baseTaskService.batchCreate(head,taskEntries, this);
+        baseTaskService.batchCreate(head, taskEntries, this);
     }
     public void batchCancel(List<Long> tasks) throws BizCheckedException {
         baseTaskService.batchCancel(tasks, this);

@@ -905,6 +905,48 @@ public class ReceiptRestService implements IReceiptRfService {
      */
     private BaseinfoItem getItem(String barCode , Long ownerId){
         BaseinfoItem baseinfoItem = new BaseinfoItem();
+        String code = barCode;
+        //先作为物美码查,再作为国条,最后是箱码
+        //barCode的值为物美码
+        if(ownerId == 2){
+            //链商
+            while (code.length() < 18){
+                StringBuffer sb = new StringBuffer();
+                sb.append("0").append(code);
+                code = sb.toString();
+            }
+        }
+
+        baseinfoItem = itemService.getItemsBySkuCode(ownerId,code);
+        if(baseinfoItem != null){
+            return  baseinfoItem;
+        }
+        //barCode值为国条
+        //商品是否存在
+        CsiSku csiSku=csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE,barCode);
+        if(null!=csiSku && csiSku.getSkuId() != null){
+            //获取货主商品信息
+            baseinfoItem=itemService.getItem(ownerId,csiSku.getSkuId());
+        }
+
+        if(baseinfoItem != null){
+            return  baseinfoItem;
+        }
+
+        //barCode值为箱码
+        baseinfoItem = itemService.getItemByPackCode(barCode);
+        if(baseinfoItem != null){
+            return  baseinfoItem;
+        }
+        if(baseinfoItem==null){
+            throw new BizCheckedException("2900001");
+        }
+
+        return baseinfoItem;
+
+    }
+  /*  private BaseinfoItem getItem(String barCode , Long ownerId){
+        BaseinfoItem baseinfoItem = new BaseinfoItem();
         if (barCode.length() == 6 || barCode.length() == 9){
             //barCode的值为物美码
             if(ownerId == 2){
@@ -937,7 +979,8 @@ public class ReceiptRestService implements IReceiptRfService {
         }
         return baseinfoItem;
 
-    }
+    }*/
+
     //获取门店收获orderOtherId
     @POST
     @Path("getOrderOtherIdList")

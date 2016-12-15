@@ -426,15 +426,15 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         detail.setPackName(item.getPackName());
         detail.setPackUnit(item.getPackUnit());
         detail.setSkuCode(item.getSkuCode());
-
-        String skuCode = detail.getSkuCode().replaceAll("^(0+)", "");
-        SkuMap skuMap = skuMapService.getSkuMapBySkuCode(skuCode);
-        if (skuMap == null) {
-            throw new BizCheckedException("2880022", detail.getSkuCode(), "");
+        if(item.getOwnerId().equals(1L)) {
+            String skuCode = detail.getSkuCode().replaceAll("^(0+)", "");
+            SkuMap skuMap = skuMapService.getSkuMapBySkuCode(skuCode);
+            if (skuMap == null) {
+                throw new BizCheckedException("2880022", detail.getSkuCode(), "");
+            }
+            detail.setPrice(skuMap.getMovingAveragePrice());
+            detail.setDifferencePrice(detail.getRealQty().subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
         }
-        detail.setPrice(skuMap.getMovingAveragePrice());
-        detail.setDifferencePrice(detail.getRealQty().subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
-
         stockTakingService.fillEmptyDetail(detail,lot);
 
     }
@@ -581,6 +581,9 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         this.batchCreateStockTaking(mapZoneBinArrs, StockTakingConstant.TYPE_MOVE_OFF, planer);
     }
     public void createStockTaking(List<Long> locations,Long zoneId,Long takingType,Long planner) throws BizCheckedException {
+        if(locations==null || locations.size()==0){
+            return;
+        }
         List<Object> details = new ArrayList<Object>();
         StockTakingHead head = new StockTakingHead();
         head.setPlanType(takingType);
@@ -625,6 +628,9 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             Long zoneId = entry.getKey();
             WorkZone zone = workZoneService.getWorkZone(zoneId);
             List<Long> locations = entry.getValue();
+            if(locations == null || locations.size()==0){
+                continue;
+            }
             List<Object> details = new ArrayList<Object>();
             TaskEntry taskEntry = new TaskEntry();
             TaskInfo info = new TaskInfo();
@@ -650,7 +656,9 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             taskEntry.setTaskDetailList(details);
             taskEntries.add(taskEntry);
         }
-        iTaskRpcService.batchCreate(head, taskEntries);
+        if(taskEntries!=null && taskEntries.size()!=0) {
+            iTaskRpcService.batchCreate(head, taskEntries);
+        }
     }
     public void createAndDoTmpTask(Long locationId,BigDecimal qty,String barcode,Long planner) throws BizCheckedException{
 
@@ -691,6 +699,15 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             //判断国条是不是系统的国条,如国条为空，则是该库位无商品
             if(item.getCode().equals(barcode)){
                 detail.setRealQty(qty);
+                if(item.getOwnerId().equals(1L)) {
+                    String skuCode = detail.getSkuCode().replaceAll("^(0+)", "");
+                    SkuMap skuMap = skuMapService.getSkuMapBySkuCode(skuCode);
+                    if (skuMap == null) {
+                        throw new BizCheckedException("2880022", detail.getSkuCode(), "");
+                    }
+                    detail.setPrice(skuMap.getMovingAveragePrice());
+                    detail.setDifferencePrice(detail.getRealQty().subtract(detail.getTheoreticalQty()).multiply(detail.getPrice()));
+                }
             }
         }else {
           //系统库位无库存

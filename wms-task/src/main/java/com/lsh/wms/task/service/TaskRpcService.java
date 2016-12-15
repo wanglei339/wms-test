@@ -258,7 +258,10 @@ public class TaskRpcService implements ITaskRpcService {
     }
     public void createTask(StockTakingHead head,TaskEntry entry) throws BizCheckedException {
         TaskHandler handler = handlerFactory.getTaskHandler(entry.getTaskInfo().getType());
-        handler.createTask(head,entry);
+        handler.createTask(head, entry);
     }
-
+    public void calcelTask(StockTakingHead head,List<TaskEntry> entries) throws BizCheckedException {
+        TaskHandler handler = handlerFactory.getTaskHandler(TaskConstant.TYPE_STOCK_TAKING);
+        handler.calcelTask(head, entries);
+    }
 }
