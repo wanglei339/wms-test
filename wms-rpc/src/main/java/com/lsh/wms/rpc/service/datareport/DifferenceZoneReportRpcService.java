@@ -25,7 +25,7 @@ public class DifferenceZoneReportRpcService implements IDifferenceZoneReportRpcS
         return reportService.countDifferenceZoneReport(mapQuery);
     }
 
-    public String movingReport(List<Long> reportIds) {
-        return null;
+    public void movingReport(List<Long> reportIds) {
+        reportService.movingReport(reportIds);
     }
 }
