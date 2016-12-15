@@ -924,11 +924,11 @@ public class ReceiptRestService implements IReceiptRfService {
         //barCode值为国条
         //商品是否存在
         CsiSku csiSku=csiSkuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE,barCode);
-        if(null==csiSku||csiSku.getSkuId()==null){
-            throw new BizCheckedException("2020022");
+        if(null!=csiSku && csiSku.getSkuId() != null){
+            //获取货主商品信息
+            baseinfoItem=itemService.getItem(ownerId,csiSku.getSkuId());
         }
-        //获取货主商品信息
-        baseinfoItem=itemService.getItem(ownerId,csiSku.getSkuId());
+
         if(baseinfoItem != null){
             return  baseinfoItem;
         }
