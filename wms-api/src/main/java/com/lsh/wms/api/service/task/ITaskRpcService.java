@@ -42,5 +42,6 @@ public interface ITaskRpcService {
     int countTaskMsg(Map<String, Object> mapQuery) throws BizCheckedException;
     List<TaskMsg> getTaskMsgList(Map<String, Object> mapQuery) throws BizCheckedException;
     void createTask(StockTakingHead head,TaskEntry entry) throws BizCheckedException;
+    void calcelTask(StockTakingHead head,List<TaskEntry> entries) throws BizCheckedException;
 
 }

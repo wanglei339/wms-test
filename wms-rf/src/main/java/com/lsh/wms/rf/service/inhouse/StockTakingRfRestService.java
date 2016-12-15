@@ -13,6 +13,7 @@ import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.system.ISysUserRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.CsiConstan;
+import com.lsh.wms.core.constant.StockTakingConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.csi.CsiSkuService;
 import com.lsh.wms.core.service.item.ItemService;
@@ -148,7 +149,12 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
 
         //获取当前位置的任务信息
         StockTakingDetail detail = stockTakingService.getDetailByTaskIdAndLocation(taskId,locationId);
-
+        if(detail ==null){
+            return JsonUtils.TOKEN_ERROR("盘点详情异常");
+        }
+        if(!detail.getStatus().equals(StockTakingConstant.Draft) && !detail.getStatus().equals(StockTakingConstant.Assigned)){
+            return JsonUtils.TOKEN_ERROR("该库位盘点已完成或取消");
+        }
         detail = stockTakingRpcService.fillDetail(detail);
         CsiSku csiSku = null;
         if(!detail.getSkuId().equals(0L)) {
@@ -287,6 +293,9 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             return JsonUtils.TOKEN_ERROR("任务不存在");
         }
         TaskInfo info = entry.getTaskInfo();
+        if(!info.getType().equals(TaskConstant.TYPE_STOCK_TAKING)){
+            return JsonUtils.TOKEN_ERROR("任务类型不匹配");
+        }
         if(!info.getStatus().equals(TaskConstant.Draft)){
             return JsonUtils.TOKEN_ERROR("该任务已被人领取或失效");
         }
@@ -490,7 +499,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         String locationCode = "";
         logger.info("params:"+params);
         try {
-            if (params.get("taskId") != null) {
+            if (params.get("taskId") != null && "".equals(params.get("taskId").toString().trim())) {
                 taskId = Long.valueOf(params.get("taskId").toString().trim());
             }
             locationCode = params.get("locationCode").toString().trim();

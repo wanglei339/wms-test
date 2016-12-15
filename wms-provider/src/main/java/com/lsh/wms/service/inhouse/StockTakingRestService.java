@@ -117,7 +117,7 @@ public class StockTakingRestService implements IStockTakingRestService {
              proDate = Long.valueOf(request.get("proTime").toString());
         }
         Long round = Long.valueOf((request.get("round").toString()));
-        iStockTakingProviderRpcService.updateItem(itemId,detailId,proDate,round);
+        iStockTakingProviderRpcService.updateItem(itemId, detailId, proDate, round);
         return JsonUtils.SUCCESS();
     }
     @POST
@@ -174,6 +174,22 @@ public class StockTakingRestService implements IStockTakingRestService {
             return JsonUtils.TOKEN_ERROR("盘点任务不存在");
         }
         iStockTakingProviderRpcService.calcelTask(taskId);
+        return JsonUtils.SUCCESS();
+    }
+    @GET
+    @Path("cancelTaking")
+    public String cancelTaking(@QueryParam("takingId") Long takingId) throws BizCheckedException{
+        StockTakingHead head = stockTakingService.getHeadById(takingId);
+        if(head==null){
+            return JsonUtils.TOKEN_ERROR("盘点计划不存在");
+        }
+        if(!head.getStatus().equals(StockTakingConstant.Draft)){
+            return JsonUtils.TOKEN_ERROR("盘点任务不是创建状态，不能取消");
+        }
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("planId",takingId);
+        List<TaskEntry> entries = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_STOCK_TAKING,queryMap);
+        iTaskRpcService.calcelTask(head,entries);
         return JsonUtils.SUCCESS();
     }
     @GET
