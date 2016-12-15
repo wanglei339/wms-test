@@ -201,15 +201,23 @@ public class ItemService {
             item.setSkuId(sku.getSkuId());
             item.setCode(barcode);
         }
-        //新增关系表数据
-        ItemSkuRelation itemSkuRelation = new ItemSkuRelation();
-        itemSkuRelation.setOwnerId(item.getOwnerId());
-        itemSkuRelation.setIsValid(1L);
-        itemSkuRelation.setItemId(item.getItemId());
-        itemSkuRelation.setSkuId(item.getSkuId());
-        itemSkuRelation.setCreatedAt(DateUtils.getCurrentSeconds());
-        itemSkuRelation.setUpdatedAt(DateUtils.getCurrentSeconds());
-        itemSkuRelationDao.insert(itemSkuRelation);
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("itemId",item.getItemId());
+        map.put("skuId",item.getSkuId());
+        map.put("ownerId",item.getOwnerId());
+
+        List<ItemSkuRelation> list = itemSkuRelationDao.getItemSkuRelationList(map);
+        if(list == null || list.size() <= 0){
+            //新增关系表数据
+            ItemSkuRelation itemSkuRelation = new ItemSkuRelation();
+            itemSkuRelation.setOwnerId(item.getOwnerId());
+            itemSkuRelation.setIsValid(1L);
+            itemSkuRelation.setItemId(item.getItemId());
+            itemSkuRelation.setSkuId(item.getSkuId());
+            itemSkuRelation.setCreatedAt(DateUtils.getCurrentSeconds());
+            itemSkuRelation.setUpdatedAt(DateUtils.getCurrentSeconds());
+            itemSkuRelationDao.insert(itemSkuRelation);
+        }
         //更新item数据
         this.updateItem(item);
     }
