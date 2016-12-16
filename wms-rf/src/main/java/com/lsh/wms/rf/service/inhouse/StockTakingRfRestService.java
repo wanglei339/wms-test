@@ -594,10 +594,10 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             for (BaseinfoLocation location : locationList) {
                 Map<String, Object> taskMap = new HashMap<String, Object>();
                 Long status = statusMap.get(location.getLocationId());
-                if(status.compareTo(3L)>0){
+                if(status.compareTo(TaskConstant.Done)>0){
                     continue;
                 }
-                if (!status.equals(3L)) {
+                if (!status.equals(TaskConstant.Done)) {
                     isDoing = true;
                 }
                 taskMap.put("taskId", taskEntry.getTaskInfo().getTaskId());
