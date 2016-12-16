@@ -314,10 +314,10 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         for(BaseinfoLocation location:locationList) {
             Map<String,Object> taskMap =new HashMap<String, Object>();
             Long status =  statusMap.get(location.getLocationId());
-            if(status.compareTo(3L)>0){
+            if(status.compareTo(TaskConstant.Done)>0){
                 continue;
             }
-            if(!status.equals(3L)){
+            if(!status.equals(TaskConstant.Done)){
                 isDone = false;
             }
             taskMap.put("taskId",taskId);
@@ -327,18 +327,14 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             taskList.add(taskMap);
         }
         Map<String,Object> result = new HashMap<String, Object>();
-        if(info.getStatus().compareTo(TaskConstant.Draft)>0){
-            if(info.getOperator().compareTo(uId)!=0) {
+        if(info.getStatus().compareTo(TaskConstant.Draft)>0 && info.getOperator().compareTo(uId)!=0){
                 return JsonUtils.TOKEN_ERROR("该任务已被人领取或失效");
-            }
-            if(isDone){
-                result.put("taskList",new ArrayList<Map>());
-            }else {
-                result.put("taskList", taskList);
-            }
-            return JsonUtils.SUCCESS(result);
         }
-
+        if(isDone){
+            result.put("taskList",new ArrayList<Map>());
+        }else {
+            result.put("taskList", taskList);
+        }
         iTaskRpcService.assign(taskId,uId);
         return JsonUtils.SUCCESS(result);
     }
@@ -598,10 +594,10 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             for (BaseinfoLocation location : locationList) {
                 Map<String, Object> taskMap = new HashMap<String, Object>();
                 Long status = statusMap.get(location.getLocationId());
-                if(status.compareTo(3L)>0){
+                if(status.compareTo(TaskConstant.Done)>0){
                     continue;
                 }
-                if (!status.equals(3L)) {
+                if (!status.equals(TaskConstant.Done)) {
                     isDoing = true;
                 }
                 taskMap.put("taskId", taskEntry.getTaskInfo().getTaskId());
