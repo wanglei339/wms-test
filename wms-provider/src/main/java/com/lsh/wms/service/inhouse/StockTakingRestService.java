@@ -44,6 +44,7 @@ import org.springframework.orm.jpa.vendor.OpenJpaDialect;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -146,17 +147,18 @@ public class StockTakingRestService implements IStockTakingRestService {
     @POST
     @Path("getDiffRet")
     public String getDiffRet() throws BizCheckedException{
-        Long ret = 0l;
+        DecimalFormat df   = new DecimalFormat("######0.0000");
+        Double ret = 0.0;
         Map<String,Object> request = RequestUtils.getRequest();
-        Long allPrice = stockTakingService.getAllPrice(request);
-        Long diffPrice = stockTakingService.getDiffPrice(request);
+        Double allPrice = stockTakingService.getAllPrice(request);
+        Double diffPrice = stockTakingService.getDiffPrice(request);
 
-        if(allPrice.equals(0l)){
+        if(allPrice.equals(0.0)){
             ret =  diffPrice;
         }else {
             ret = diffPrice / allPrice;
         }
-        return JsonUtils.SUCCESS(ret);
+        return JsonUtils.SUCCESS(df.format(ret));
     }
     @POST
     @Path("confirm")

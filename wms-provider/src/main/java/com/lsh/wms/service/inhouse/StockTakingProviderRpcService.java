@@ -127,16 +127,19 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             head.setStatus(StockTakingConstant.Draft);
             List<TaskEntry> taskEntries = new ArrayList<TaskEntry>();
             for(StockTakingDetail detail:details){
+                StockTakingDetail newDetail = new StockTakingDetail();
                 Long zoneId = detail.getZoneId();
                 WorkZone zone = workZoneService.getWorkZone(zoneId);
                 TaskEntry taskEntry = new TaskEntry();
                 TaskInfo info = new TaskInfo();
                 List<Object> newDetails = new ArrayList<Object>();
-                detail.setTakingId(head.getTakingId());
-                detail.setId(0l);
+                newDetail.setTakingId(head.getTakingId());
                 detail.setStatus(TaskConstant.Draft);
-                detail.setRound(detail.getRound()+1);
-                newDetails.add(detail);
+                newDetail.setRound(detail.getRound()+1);
+                newDetail.setDetailId(detail.getDetailId());
+                newDetail.setLocationCode(detail.getLocationCode());
+                newDetail.setLocationId(detail.getLocationId());
+                newDetails.add(newDetail);
                 detail.setZoneId(zoneId);
                 if(zone==null){
                     info.setTaskName("");
@@ -378,7 +381,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         }
         return locations;
     }
-    public void  updateItem(Long itemId,Long detailId,Long proDate,Long round){
+    public void  updateItem(Long itemId,Long detailId,Long proDate,Long round) throws BizCheckedException{
         BaseinfoItem item = itemService.getItem(itemId);
         if(item ==null){
             throw new BizCheckedException("2120001");
@@ -584,6 +587,17 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         if(locations==null || locations.size()==0){
             return;
         }
+
+        List<Long> taskLocation = new ArrayList<Long>();
+        //取到盘点库位
+        List<StockTakingDetail> taskDetails = stockTakingService.getValidDetailList();
+        if(taskDetails!=null && taskDetails.size()!=0){
+            for(StockTakingDetail detail:taskDetails){
+                taskLocation.add(detail.getLocationId());
+            }
+        }
+        locations.removeAll(taskLocation);
+
         List<Object> details = new ArrayList<Object>();
         StockTakingHead head = new StockTakingHead();
         head.setPlanType(takingType);
@@ -617,6 +631,16 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         iTaskRpcService.createTask(head, entry);
     }
     public void batchCreateStockTaking(Map<Long,List<Long>> takingMap,Long takingType,Long planner) throws BizCheckedException {
+        List<Long> taskLocation = new ArrayList<Long>();
+        //取到盘点库位
+        List<StockTakingDetail> taskDetails = stockTakingService.getValidDetailList();
+        if(taskDetails!=null && taskDetails.size()!=0){
+            for(StockTakingDetail detail:taskDetails){
+                taskLocation.add(detail.getLocationId());
+            }
+        }
+
+
         StockTakingHead head = new StockTakingHead();
         head.setPlanType(takingType);
         head.setTakingId(RandomUtils.genId());
@@ -632,10 +656,13 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             if(locations == null || locations.size()==0){
                 continue;
             }
+            locations.removeAll(taskLocation);
             List<Object> details = new ArrayList<Object>();
             TaskEntry taskEntry = new TaskEntry();
             TaskInfo info = new TaskInfo();
             for (Long locationId : locations) {
+                //判断当前库位是否有有效的盘点任务
+
                 StockTakingDetail detail = new StockTakingDetail();
                 detail.setLocationId(locationId);
                 detail.setDetailId(RandomUtils.genId());
@@ -671,7 +698,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         head.setTakingId(RandomUtils.genId());
 
         head.setPlanner(planner);
-        head.setStatus(StockTakingConstant.Draft);
+        head.setStatus(StockTakingConstant.Done);
         TaskEntry entry = new TaskEntry();
         TaskInfo info = new TaskInfo();
         StockTakingDetail detail = new StockTakingDetail();

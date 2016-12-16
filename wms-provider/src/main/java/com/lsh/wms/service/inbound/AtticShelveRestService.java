@@ -154,15 +154,24 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         if(qty.compareTo(BigDecimal.ZERO)<=0 || realQty.compareTo(BigDecimal.ZERO)<=0){
             return JsonUtils.TOKEN_ERROR("上架详情数量异常");
         }
-        if(!this.chargeLocation(allocLocationId,LocationConstant.LOFTS,BinUsageConstant.BIN_UASGE_STORE) || !this.chargeLocation(realLocationId,LocationConstant.LOFTS,BinUsageConstant.BIN_UASGE_STORE)){
-            return JsonUtils.TOKEN_ERROR("库位状态异常");
-        }
-
         TaskEntry entry = iTaskRpcService.getTaskEntryById(taskId);
         if(entry ==null){
             return JsonUtils.TOKEN_ERROR("任务不存在");
         }
         TaskInfo info = entry.getTaskInfo();
+        if(info.getSubType().compareTo(2L)==0){
+            //阁楼上架
+            if(!this.chargeLocation(allocLocationId,LocationConstant.LOFTS,BinUsageConstant.BIN_UASGE_STORE) || !this.chargeLocation(realLocationId,LocationConstant.LOFTS,BinUsageConstant.BIN_UASGE_STORE)){
+                return JsonUtils.TOKEN_ERROR("库位状态异常");
+            }
+        }else {
+            //存捡和一上架
+            if(!this.chargeLocation(allocLocationId, LocationConstant.SPLIT_AREA,BinUsageConstant.BIN_PICK_STORE) || !this.chargeLocation(realLocationId,LocationConstant.SPLIT_AREA,BinUsageConstant.BIN_PICK_STORE)){
+                return JsonUtils.TOKEN_ERROR("库位状态异常");
+            }
+        }
+
+
         info.setStatus(TaskConstant.Assigned);
         info.setExt1(1L); //pc创建任务详情标示  0: 未创建详情 1:已创建详情 2:已执行中
         // 获取quant
@@ -220,12 +229,21 @@ public class AtticShelveRestService implements IAtticShelveRestService{
         if(qty.compareTo(BigDecimal.ZERO)<=0 || realQty.compareTo(BigDecimal.ZERO)<=0){
             return JsonUtils.TOKEN_ERROR("上架详情数量异常");
         }
-        if(!this.chargeLocation(allocLocationId,LocationConstant.LOFTS, BinUsageConstant.BIN_UASGE_STORE) || !this.chargeLocation(realLocationId,LocationConstant.LOFTS,BinUsageConstant.BIN_UASGE_STORE)){
-            return JsonUtils.TOKEN_ERROR("库位状态异常");
-        }
         AtticShelveTaskDetail detail = shelveTaskService.getDetailById(detailId);
         if(detail ==null){
             return JsonUtils.TOKEN_ERROR("任务详情不存在");
+        }
+        TaskInfo info = baseTaskService.getTaskInfoById(detail.getTaskId());
+        if(info.getSubType().compareTo(2L)==0){
+            //阁楼上架
+            if(!this.chargeLocation(allocLocationId,LocationConstant.LOFTS,BinUsageConstant.BIN_UASGE_STORE) || !this.chargeLocation(realLocationId,LocationConstant.LOFTS,BinUsageConstant.BIN_UASGE_STORE)){
+                return JsonUtils.TOKEN_ERROR("库位状态异常");
+            }
+        }else {
+            //存捡和一上架
+            if(!this.chargeLocation(allocLocationId, LocationConstant.SPLIT_AREA,BinUsageConstant.BIN_PICK_STORE) || !this.chargeLocation(realLocationId,LocationConstant.SPLIT_AREA,BinUsageConstant.BIN_PICK_STORE)){
+                return JsonUtils.TOKEN_ERROR("库位状态异常");
+            }
         }
         locationService.unlockLocation(detail.getAllocLocationId());
         locationService.lockLocation(allocLocationId);

@@ -296,9 +296,6 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         if(!info.getType().equals(TaskConstant.TYPE_STOCK_TAKING)){
             return JsonUtils.TOKEN_ERROR("任务类型不匹配");
         }
-        if(!info.getStatus().equals(TaskConstant.Draft)){
-            return JsonUtils.TOKEN_ERROR("该任务已被人领取或失效");
-        }
 
         List<Map> taskList = new ArrayList<Map>();
         List<StockTakingDetail> details =(List<StockTakingDetail>) (List<?>) entry.getTaskDetailList();
@@ -330,12 +327,19 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             taskList.add(taskMap);
         }
         Map<String,Object> result = new HashMap<String, Object>();
-        if(isDone){
-            result.put("taskList",new ArrayList<Map>());
-        }else {
-            iTaskRpcService.assign(taskId,uId);
-            result.put("taskList", taskList);
+        if(info.getStatus().compareTo(TaskConstant.Draft)>0){
+            if(info.getOperator().compareTo(uId)!=0) {
+                return JsonUtils.TOKEN_ERROR("该任务已被人领取或失效");
+            }
+            if(isDone){
+                result.put("taskList",new ArrayList<Map>());
+            }else {
+                result.put("taskList", taskList);
+            }
+            return JsonUtils.SUCCESS(result);
         }
+
+        iTaskRpcService.assign(taskId,uId);
         return JsonUtils.SUCCESS(result);
     }
     /*
