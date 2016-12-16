@@ -317,6 +317,9 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         for(BaseinfoLocation location:locationList) {
             Map<String,Object> taskMap =new HashMap<String, Object>();
             Long status =  statusMap.get(location.getLocationId());
+            if(status.compareTo(3L)>0){
+                continue;
+            }
             if(!status.equals(3L)){
                 isDone = false;
             }
@@ -591,6 +594,9 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             for (BaseinfoLocation location : locationList) {
                 Map<String, Object> taskMap = new HashMap<String, Object>();
                 Long status = statusMap.get(location.getLocationId());
+                if(status.compareTo(3L)>0){
+                    continue;
+                }
                 if (!status.equals(3L)) {
                     isDoing = true;
                 }
