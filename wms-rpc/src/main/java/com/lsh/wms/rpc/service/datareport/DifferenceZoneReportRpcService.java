@@ -1,6 +1,7 @@
 package com.lsh.wms.rpc.service.datareport;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.wms.api.service.datareport.IDifferenceZoneReportRpcService;
 import com.lsh.wms.core.service.datareport.DifferenceZoneReportService;
 import com.lsh.wms.model.datareport.DifferenceZoneReport;
@@ -25,7 +26,7 @@ public class DifferenceZoneReportRpcService implements IDifferenceZoneReportRpcS
         return reportService.countDifferenceZoneReport(mapQuery);
     }
 
-    public void movingReport(List<Long> reportIds) {
+    public void movingReport(List<Long> reportIds) throws BizCheckedException{
         reportService.movingReport(reportIds);
     }
 }
