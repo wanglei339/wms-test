@@ -18,6 +18,7 @@ import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.WorkZoneConstant;
 import com.lsh.wms.core.dao.utils.NsHeadClient;
+import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.zone.WorkZoneService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.stock.StockQuantCondition;
@@ -71,6 +72,8 @@ public class ProcurementRestService implements IProcurementRestService {
 
     @Autowired
     private WorkZoneService workZoneService;
+    @Autowired
+    private BaseTaskService baseTaskService;
 
     @POST
     @Path("getZoneList")
@@ -234,7 +237,7 @@ public class ProcurementRestService implements IProcurementRestService {
                 if(entry==null ){
                     return JsonUtils.TOKEN_ERROR("任务不存在");
                 }
-                final TaskInfo info = entry.getTaskInfo();
+                TaskInfo info = entry.getTaskInfo();
                 StockQuantCondition condition = new StockQuantCondition();
                 condition.setItemId(info.getItemId());
                 condition.setLocationId(info.getFromLocationId());
@@ -248,25 +251,26 @@ public class ProcurementRestService implements IProcurementRestService {
                     });
                 }
                 //判断能否整除
-                final BigDecimal [] decimals = info.getQty().divideAndRemainder(info.getPackUnit());
                 final BaseinfoItem item = itemRpcService.getItem(info.getItemId());
                 iProcurementProveiderRpcService.scanFromLocation(params);
+                final TaskInfo taskInfo = baseTaskService.getTaskInfoById(taskId);
+                final BigDecimal [] decimals = taskInfo.getQty().divideAndRemainder(info.getPackUnit());
                 return JsonUtils.SUCCESS(new HashMap<String, Object>() {
                     {
-                        put("taskId", info.getTaskId().toString());
+                        put("taskId", taskInfo.getTaskId().toString());
                         put("type",2);
                         put("barcode",item.getCode());
                         put("skuCode",item.getSkuCode());
-                        put("locationId", info.getToLocationId());
-                        put("subType",info.getSubType());
-                        put("locationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
-                        put("itemId", info.getItemId());
-                        put("itemName", itemRpcService.getItem(info.getItemId()).getSkuName());
+                        put("locationId", taskInfo.getToLocationId());
+                        put("subType",taskInfo.getSubType());
+                        put("locationCode", locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode());
+                        put("itemId", taskInfo.getItemId());
+                        put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
                         if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
                             put("qty", decimals[0]);
-                            put("packName", info.getPackName());
+                            put("packName", taskInfo.getPackName());
                         }else {
-                            put("qty", info.getQty());
+                            put("qty", taskInfo.getQty());
                             put("packName", "EA");
                         }
                     }
