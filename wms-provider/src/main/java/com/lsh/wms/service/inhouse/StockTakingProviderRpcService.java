@@ -127,16 +127,19 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             head.setStatus(StockTakingConstant.Draft);
             List<TaskEntry> taskEntries = new ArrayList<TaskEntry>();
             for(StockTakingDetail detail:details){
+                StockTakingDetail newDetail = new StockTakingDetail();
                 Long zoneId = detail.getZoneId();
                 WorkZone zone = workZoneService.getWorkZone(zoneId);
                 TaskEntry taskEntry = new TaskEntry();
                 TaskInfo info = new TaskInfo();
                 List<Object> newDetails = new ArrayList<Object>();
-                detail.setTakingId(head.getTakingId());
-                detail.setId(0l);
+                newDetail.setTakingId(head.getTakingId());
                 detail.setStatus(TaskConstant.Draft);
-                detail.setRound(detail.getRound()+1);
-                newDetails.add(detail);
+                newDetail.setRound(detail.getRound()+1);
+                newDetail.setDetailId(detail.getDetailId());
+                newDetail.setLocationCode(detail.getLocationCode());
+                newDetail.setLocationId(detail.getLocationId());
+                newDetails.add(newDetail);
                 detail.setZoneId(zoneId);
                 if(zone==null){
                     info.setTaskName("");
