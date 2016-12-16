@@ -178,8 +178,8 @@ public class ItemService {
         BaseinfoItem item = this.getItem(itemId);
         //如果sku表中不存在,更新sku表
         Map<String,Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("code",barcode);
-        mapQuery.put("codeType",item.getCodeType());
+        mapQuery.put("code", barcode);
+        mapQuery.put("codeType", item.getCodeType());
         List<CsiSku> skus = csiSkuDao.getCsiSkuList(mapQuery);
         if(skus != null && skus.size() > 0){
             item.setSkuId(skus.get(0).getSkuId());
@@ -202,9 +202,9 @@ public class ItemService {
             item.setCode(barcode);
         }
         Map<String,Object> map = new HashMap<String, Object>();
-        map.put("itemId",item.getItemId());
-        map.put("skuId",item.getSkuId());
-        map.put("ownerId",item.getOwnerId());
+        map.put("itemId", item.getItemId());
+        map.put("skuId", item.getSkuId());
+        map.put("ownerId", item.getOwnerId());
 
         List<ItemSkuRelation> list = itemSkuRelationDao.getItemSkuRelationList(map);
         if(list == null || list.size() <= 0){
@@ -271,7 +271,7 @@ public class ItemService {
      */
     public List<String> getSkuCodeList(){
         Map<String,Object> map = new HashMap<String, Object>();
-        map.put("ownerId",1);
+        map.put("ownerId", 1);
         List<BaseinfoItem> itemList = itemDao.getBaseinfoItemList(map);
         List<String> skuCodes = new ArrayList<String>();
         for (BaseinfoItem item : itemList) {
@@ -293,6 +293,20 @@ public class ItemService {
             list.add(sku);
         }
         return list;
+    }
+    /**
+     * 判断该商品是否存在该国条
+     */
+    public boolean checkSkuItem(Long itemId,Long skuId){
+        Map<String,Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("itemId",itemId);
+        List<ItemSkuRelation> itemSkuRelations = itemSkuRelationDao.getItemSkuRelationList(mapQuery);
+        for(ItemSkuRelation relation : itemSkuRelations){
+           if(relation.getSkuId().compareTo(skuId)==0){
+               return true;
+           }
+        }
+       return false;
     }
 
 

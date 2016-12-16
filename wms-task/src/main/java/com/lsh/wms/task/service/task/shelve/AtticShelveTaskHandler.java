@@ -23,6 +23,8 @@ import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.task.service.handler.AbsTaskHandler;
 import com.lsh.wms.task.service.handler.TaskHandlerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -35,6 +37,8 @@ import java.util.List;
  */
 @Component
 public class AtticShelveTaskHandler extends AbsTaskHandler {
+    private static final Logger logger = LoggerFactory.getLogger(AtticShelveTaskHandler.class);
+
     @Autowired
     private TaskHandlerFactory handlerFactory;
     @Autowired
@@ -74,6 +78,7 @@ public class AtticShelveTaskHandler extends AbsTaskHandler {
         }
         // 获取quant
         List<StockQuant> quants = stockQuantService.getQuantsByContainerId(containerId);
+        logger.info("quant info:"+quants +"container_id:"+containerId);
         if (quants.size() < 1) {
             throw new BizCheckedException("2030001");
         }
