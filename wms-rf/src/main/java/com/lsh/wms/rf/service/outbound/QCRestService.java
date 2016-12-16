@@ -290,20 +290,32 @@ public class QCRestService implements IRFQCRestService {
         if (qcTaskInfo == null) {
             throw new BizCheckedException("2120007");
         }
-        //转换商品条形码为sku码 国条码和货主id
+        //转换商品条形码为sku码   // FIXME 16/12/16 itemid可能对应多条 国条(和skuId一对一) ,多国条找到的skuId可能和wave_detail中记载的对不对(物美)
+        //未来可能会使用item  前提出库的时候一个托盘的货是一个货主的
+//        ObdHeader obdHeader = iSoRpcService.getOutbSoHeaderDetailByOrderId(qcTaskInfo.getOrderId());
+//        if (null == obdHeader) {
+//            throw new BizCheckedException("2870006");
+//        }
+
+
+
         String code = (String) request.get("code");
         CsiSku skuInfo = csiRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, code);
         if (skuInfo == null) {
             throw new BizCheckedException("2120001");
         }
         long skuId = skuInfo.getSkuId();
+
+//        Long ownerId = obdHeader.getOwnerUid();
+//        BaseinfoItem item = itemRpcService.getItem(ownerId,skuId);
+
         List<WaveDetail> details = waveService.getDetailsByContainerId(qcTaskInfo.getContainerId());    //qc的数量不在是拣货的数量了,而是集货的数量和收货的数量
         // 标识是拣货生成的QC还是集货生成的QC
         //计算是拣货生成的|集货生成的|收货生成的
         int seekNum = 0;
         List<WaveDetail> matchDetails = new LinkedList<WaveDetail>();
         BigDecimal pickQty = new BigDecimal("0.0000");
-        for (WaveDetail d : details) {
+        for (WaveDetail d : details) {          //一个itemId多个国条的时候的解法,只能用itemId来解决了,  前提一个托盘只能是一个火族的货
             if (d.getSkuId() != skuId) {
                 continue;
             }
@@ -311,21 +323,21 @@ public class QCRestService implements IRFQCRestService {
             matchDetails.add(d);
             pickQty = pickQty.add(d.getPickQty());
         }
-//        if (seekNum == 0) {       //错货系统找不见,无法记录
-//            if (true) {
-//                throw new BizCheckedException("2120002");
-//            }
-//            if (exceptionType != WaveConstant.QC_EXCEPTION_NOT_MATCH) {  //一件没找到,还不是错货
-//                throw new BizCheckedException("2120009");
-//            }
-//            WaveQcException qcException = new WaveQcException();
-//            qcException.setSkuId(skuInfo.getSkuId());
-//            qcException.setExceptionQty(exceptionQty);
-//            qcException.setExceptionType(exceptionType);
-//            qcException.setQcTaskId(qcTaskId);
-//            qcException.setWaveId(qcTaskInfo.getWaveId());
-//            waveService.insertQCException(qcException);
-//        } else {
+        if (seekNum == 0) {
+            if (true) {
+                throw new BizCheckedException("2120002");
+            }
+            if (exceptionType != WaveConstant.QC_EXCEPTION_NOT_MATCH) {  //一件没找到,还不是错货
+                throw new BizCheckedException("2120009");
+            }
+            WaveQcException qcException = new WaveQcException();
+            qcException.setSkuId(skuInfo.getSkuId());
+            qcException.setExceptionQty(exceptionQty);
+            qcException.setExceptionType(exceptionType);
+            qcException.setQcTaskId(qcTaskId);
+            qcException.setWaveId(qcTaskInfo.getWaveId());
+            waveService.insertQCException(qcException);
+        } else {
             BigDecimal qty = PackUtil.UomQty2EAQty(qtyUom, matchDetails.get(0).getAllocUnitName());
             exceptionQty = PackUtil.UomQty2EAQty(exceptionQty, matchDetails.get(0).getAllocUnitName());
             if (exceptionQty.compareTo(qty) > 0) {
@@ -388,7 +400,7 @@ public class QCRestService implements IRFQCRestService {
             TaskEntry entry = new TaskEntry();
             entry.setTaskInfo(qcTaskInfo);
             iTaskRpcService.update(TaskConstant.TYPE_QC, entry);
-//        }
+        }
         //校验qc任务是否完全完成;
         boolean bSucc = true;
         for (WaveDetail d : details) {
