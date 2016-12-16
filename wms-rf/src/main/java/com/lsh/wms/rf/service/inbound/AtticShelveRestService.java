@@ -351,12 +351,19 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
                 }
             }else if(realLocation.getRegionType().compareTo(LocationConstant.LOFTS)==0 && realLocation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK)){
                 //判断捡货位货位商品和上架商品是否一样
-               List<StockQuant> pickQuants = stockQuantService.getQuantsByLocationId(realLocationId);
-                if(pickQuants!=null && pickQuants.size()!=0){
-                    StockQuant pickQuant = pickQuants.get(0);
-                    if(pickQuant.getItemId().compareTo(info.getItemId())!=0){
-                        return JsonUtils.TOKEN_ERROR("该捡货位商品和上架商品不一样，不能上到该捡货位");
+                boolean isSame = false;
+                List<BaseinfoItemLocation> locations = itemLocationService.getItemLocationByLocationID(realLocation.getLocationId());
+                if (locations != null && locations.size() > 0) {
+                    for (BaseinfoItemLocation itemLocation : locations) {
+                        if (info.getItemId().compareTo(itemLocation.getItemId()) == 0) {
+                           isSame = true;
+                        }
                     }
+                }else {
+                    return JsonUtils.TOKEN_ERROR("该捡货位无配置商品，不能上到该库位上");
+                }
+                if(!isSame){
+                    return JsonUtils.TOKEN_ERROR("该捡货位商品和上架商品不一样，不能上到该捡货位");
                 }
             }
             else {

@@ -327,14 +327,18 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             taskList.add(taskMap);
         }
         Map<String,Object> result = new HashMap<String, Object>();
-        if(info.getStatus().compareTo(TaskConstant.Draft)>0 && info.getOperator().compareTo(uId)!=0){
+        if(info.getStatus().compareTo(TaskConstant.Draft)>0){
+            if(info.getOperator().compareTo(uId)!=0) {
                 return JsonUtils.TOKEN_ERROR("该任务已被人领取或失效");
+            }
+            if(isDone){
+                result.put("taskList",new ArrayList<Map>());
+            }else {
+                result.put("taskList", taskList);
+            }
+            return JsonUtils.SUCCESS(result);
         }
-        if(isDone){
-            result.put("taskList",new ArrayList<Map>());
-        }else {
-            result.put("taskList", taskList);
-        }
+
         iTaskRpcService.assign(taskId,uId);
         return JsonUtils.SUCCESS(result);
     }
