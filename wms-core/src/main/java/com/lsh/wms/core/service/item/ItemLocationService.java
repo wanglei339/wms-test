@@ -94,7 +94,7 @@ public class ItemLocationService {
         long locationId = itemLocation.getPickLocationid();
         BaseinfoLocation newLocation = locationService.getLocation(locationId);
         if(LocationConstant.SPLIT_AREA.compareTo(newLocation.getRegionType()) != 0){
-            //拆零区,验证拣货位是否被占用
+            //非拆零区,验证拣货位是否被占用
             List<BaseinfoItemLocation> newList = this.getItemLocationByLocationID(locationId);
             if(newList.size()>0){
                 throw new BizCheckedException("2990001");//该拣货位已被占用
@@ -105,7 +105,7 @@ public class ItemLocationService {
         if(oldList.size()>0){
             BaseinfoItemLocation oldItemList = oldList.get(0);
             BaseinfoLocation oldLocation = locationService.getLocation(oldItemList.getPickLocationid());
-            if(!oldLocation.getType().equals(newLocation.getType())){
+            if(!oldLocation.getRegionType().equals(newLocation.getRegionType())){
                 throw new BizCheckedException("2990002");
             }
         }

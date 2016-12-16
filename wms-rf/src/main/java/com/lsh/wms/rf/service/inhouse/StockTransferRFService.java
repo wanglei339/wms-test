@@ -173,11 +173,11 @@ public class StockTransferRFService implements IStockTransferRFService{
             params.put("uid", uid);
             final Long taskId = iStockTransferRpcService.assign(uid);
             if (taskId == 0) {
-                throw new BizCheckedException("2040001");
+                throw new BizCheckedException("2550088");
             }
             TaskEntry taskEntry = taskRpcService.getTaskEntryById(taskId);
             if (taskEntry == null) {
-                throw new BizCheckedException("2040001");
+                throw new BizCheckedException("2550088");
             }
             final TaskInfo taskInfo = taskEntry.getTaskInfo();
             final Long locationId, type;

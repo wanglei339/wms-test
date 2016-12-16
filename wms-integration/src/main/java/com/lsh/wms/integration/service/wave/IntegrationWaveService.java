@@ -46,7 +46,8 @@ public class IntegrationWaveService implements IWaveService {
                 iWaveRpcService.releaseWave(waveId, 0L);
             } catch (BizCheckedException e) {
                 msg = "创建成功,释放失败 " + e.getMessage();
-                ret = -1;
+                //创建成功返回成功。
+                ret = 0;
             }
         }
         Map<String, Object> rst = new HashMap<String, Object>();

@@ -266,6 +266,12 @@ public class LocationRestService implements ILocationRestService {
         //拆零区拣货位
         List<BaseinfoLocation> splitList = new ArrayList<BaseinfoLocation>();
 
+        //获取拆零区
+        List<BaseinfoLocation> splitArea = locationService.getLocationsByType(LocationConstant.SPLIT_AREA);//拆零区
+        if(splitArea != null){
+            splitList = splitArea;
+        }
+
         for (BaseinfoLocation b : collectionBins) {
             if (locationList.contains(b.getLocationId())) {
                 //拣货位已被使用
@@ -278,10 +284,10 @@ public class LocationRestService implements ILocationRestService {
                 //阁楼
                 loftsList.add(b);
 
-            } else if (LocationConstant.SPLIT_AREA.compareTo(b.getRegionType()) == 0) {
+            } /*else if (LocationConstant.SPLIT_AREA.compareTo(b.getRegionType()) == 0) {
                 //拆零区
                 splitList.add(b);
-            }
+            }*/
         }
         Map<String, Object> returnMap = new HashMap<String, Object>();
         returnMap.put("shelfsList", shelfsList);

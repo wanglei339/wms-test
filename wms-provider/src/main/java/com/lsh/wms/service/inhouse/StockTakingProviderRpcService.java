@@ -12,6 +12,7 @@ import com.lsh.base.common.utils.StrUtils;
 import com.lsh.wms.api.service.inhouse.IStockTakingProviderRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.*;
+import com.lsh.wms.core.dao.baseinfo.ItemSkuRelationDao;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.csi.CsiSkuService;
@@ -26,6 +27,7 @@ import com.lsh.wms.core.service.zone.WorkZoneService;
 import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.baseinfo.ItemSkuRelation;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.datareport.SkuMap;
 import com.lsh.wms.model.stock.StockLot;
@@ -78,6 +80,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
     private CsiSkuService skuService;
     @Autowired
     private SkuMapService skuMapService;
+
 
 
 
@@ -387,11 +390,22 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             throw new BizCheckedException("2120001");
         }
         StockTakingDetail detail = stockTakingService.getDetailByRoundAndDetailId(detailId,round);
+
         if(detail ==null){
             throw new BizCheckedException("2550066");
         }
+        if("".equals(detail.getBarcode())){
+            throw new BizCheckedException("2550091");
+        }
+        CsiSku  sku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, detail.getBarcode());
+         if(!itemService.checkSkuItem(item.getItemId(),sku.getSkuId())){
+             throw new BizCheckedException("2550092");
+         }
         if(!detail.getStatus().equals(StockTakingConstant.PendingAudit)){
             throw new BizCheckedException("2550067");
+        }
+        if(!item.getCode().equals(detail.getBarcode())){
+            throw new BizCheckedException("2550090");
         }
         StockLot lot = new StockLot();
         Long containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
@@ -710,6 +724,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         if(quants!=null && quants.size()!=0){
             StockQuant quant = quants.get(0);
             item = itemService.getItem(quant.getItemId());
+            CsiSku sku = skuService.getSku(quant.getSkuId());
             detail.setSkuId(quant.getSkuId());
             detail.setTheoreticalQty(quantService.getQuantQtyByContainerId(quant.getContainerId()));
             detail.setContainerId(quant.getContainerId());
@@ -719,7 +734,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             detail.setPackUnit(quant.getPackUnit());
             detail.setOwnerId(quant.getOwnerId());
             detail.setLotId(quant.getLotId());
-            detail.setBarcode(item.getCode());
+            detail.setBarcode(sku.getCode());
             detail.setSkuCode(item.getSkuCode());
             detail.setSkuName(item.getSkuName());
         }

@@ -35,6 +35,8 @@ public class StockTakingRpcService implements IStockTakingRpcService {
     @Autowired
     private ItemService itemService;
     @Autowired
+    private CsiSkuService skuService;
+    @Autowired
     private LocationService locationService;
 
     public StockTakingDetail fillDetail(StockTakingDetail detail) throws BizCheckedException{
@@ -44,6 +46,7 @@ public class StockTakingRpcService implements IStockTakingRpcService {
 
                 StockQuant quant = quants.get(0);
                 BaseinfoItem item = itemService.getItem(quant.getItemId());
+                CsiSku sku = skuService.getSku(quant.getSkuId());
                 BaseinfoLocation location = locationService.getLocation(quant.getLocationId());
                 detail.setTheoreticalQty(quantService.getQuantQtyByContainerId(quant.getContainerId()));
                 detail.setSkuId(quant.getSkuId());
@@ -57,7 +60,7 @@ public class StockTakingRpcService implements IStockTakingRpcService {
                 detail.setLotId(quant.getLotId());
                 detail.setSkuCode(item.getSkuCode());
                 detail.setSkuName(item.getSkuName());
-                detail.setBarcode(item.getCode());
+                detail.setBarcode(sku.getCode());
                 detail.setLocationCode(location.getLocationCode());
                 logger.info("detail:"+detail);
             }
