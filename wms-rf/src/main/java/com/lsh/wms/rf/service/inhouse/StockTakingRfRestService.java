@@ -340,7 +340,11 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             }
             return JsonUtils.SUCCESS(result);
         }
-
+        if(isDone){
+            result.put("taskList",new ArrayList<Map>());
+        }else {
+            result.put("taskList", taskList);
+        }
         iTaskRpcService.assign(taskId,uId);
         return JsonUtils.SUCCESS(result);
     }
