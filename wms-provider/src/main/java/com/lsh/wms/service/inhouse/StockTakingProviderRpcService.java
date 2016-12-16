@@ -378,7 +378,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         }
         return locations;
     }
-    public void  updateItem(Long itemId,Long detailId,Long proDate,Long round){
+    public void  updateItem(Long itemId,Long detailId,Long proDate,Long round) throws BizCheckedException{
         BaseinfoItem item = itemService.getItem(itemId);
         if(item ==null){
             throw new BizCheckedException("2120001");
@@ -671,7 +671,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         head.setTakingId(RandomUtils.genId());
 
         head.setPlanner(planner);
-        head.setStatus(StockTakingConstant.Draft);
+        head.setStatus(StockTakingConstant.Done);
         TaskEntry entry = new TaskEntry();
         TaskInfo info = new TaskInfo();
         StockTakingDetail detail = new StockTakingDetail();
