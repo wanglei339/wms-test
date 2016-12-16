@@ -290,7 +290,7 @@ public class QCRestService implements IRFQCRestService {
         if (qcTaskInfo == null) {
             throw new BizCheckedException("2120007");
         }
-        //转换商品条形码为sku码
+        //转换商品条形码为sku码 国条码和货主id
         String code = (String) request.get("code");
         CsiSku skuInfo = csiRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, code);
         if (skuInfo == null) {
@@ -311,21 +311,21 @@ public class QCRestService implements IRFQCRestService {
             matchDetails.add(d);
             pickQty = pickQty.add(d.getPickQty());
         }
-        if (seekNum == 0) {
-            if (true) {
-                throw new BizCheckedException("2120002");
-            }
-            if (exceptionType != WaveConstant.QC_EXCEPTION_NOT_MATCH) {  //一件没找到,还不是错货
-                throw new BizCheckedException("2120009");
-            }
-            WaveQcException qcException = new WaveQcException();
-            qcException.setSkuId(skuInfo.getSkuId());
-            qcException.setExceptionQty(exceptionQty);
-            qcException.setExceptionType(exceptionType);
-            qcException.setQcTaskId(qcTaskId);
-            qcException.setWaveId(qcTaskInfo.getWaveId());
-            waveService.insertQCException(qcException);
-        } else {
+//        if (seekNum == 0) {       //错货系统找不见,无法记录
+//            if (true) {
+//                throw new BizCheckedException("2120002");
+//            }
+//            if (exceptionType != WaveConstant.QC_EXCEPTION_NOT_MATCH) {  //一件没找到,还不是错货
+//                throw new BizCheckedException("2120009");
+//            }
+//            WaveQcException qcException = new WaveQcException();
+//            qcException.setSkuId(skuInfo.getSkuId());
+//            qcException.setExceptionQty(exceptionQty);
+//            qcException.setExceptionType(exceptionType);
+//            qcException.setQcTaskId(qcTaskId);
+//            qcException.setWaveId(qcTaskInfo.getWaveId());
+//            waveService.insertQCException(qcException);
+//        } else {
             BigDecimal qty = PackUtil.UomQty2EAQty(qtyUom, matchDetails.get(0).getAllocUnitName());
             exceptionQty = PackUtil.UomQty2EAQty(exceptionQty, matchDetails.get(0).getAllocUnitName());
             if (exceptionQty.compareTo(qty) > 0) {
@@ -388,7 +388,7 @@ public class QCRestService implements IRFQCRestService {
             TaskEntry entry = new TaskEntry();
             entry.setTaskInfo(qcTaskInfo);
             iTaskRpcService.update(TaskConstant.TYPE_QC, entry);
-        }
+//        }
         //校验qc任务是否完全完成;
         boolean bSucc = true;
         for (WaveDetail d : details) {
