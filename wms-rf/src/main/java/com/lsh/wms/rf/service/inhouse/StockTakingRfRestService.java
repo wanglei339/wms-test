@@ -296,7 +296,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         if(!info.getType().equals(TaskConstant.TYPE_STOCK_TAKING)){
             return JsonUtils.TOKEN_ERROR("任务类型不匹配");
         }
-        if(!info.getStatus().equals(TaskConstant.Draft) && !info.getOperator().equals(uId)){
+        if(!info.getStatus().equals(TaskConstant.Draft) ||(!info.getOperator().equals(uId) && info.getStatus().equals(TaskConstant.Assigned))){
             return JsonUtils.TOKEN_ERROR("该任务已被人领取或失效");
         }
 
