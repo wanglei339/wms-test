@@ -19,12 +19,16 @@ import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.BaseinfoLocationBinService;
+import com.lsh.wms.core.service.location.BaseinfoLocationRegionService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.shelve.AtticShelveTaskDetailService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoLocationRegion;
 import com.lsh.wms.model.shelve.AtticShelveTaskDetail;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
@@ -38,10 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by wuhao on 16/8/16.
@@ -74,6 +75,8 @@ public class AtticShelveRestService implements IAtticShelveRestService{
     private ContainerService containerService;
     @Reference
     private ISysUserRpcService iSysUserRpcService;
+    @Autowired
+    private BaseinfoLocationRegionService regionService;
 
     private Long taskType = TaskConstant.TYPE_ATTIC_SHELVE;
 
@@ -159,18 +162,14 @@ public class AtticShelveRestService implements IAtticShelveRestService{
             return JsonUtils.TOKEN_ERROR("任务不存在");
         }
         TaskInfo info = entry.getTaskInfo();
-        if(info.getSubType().compareTo(2L)==0){
-            //阁楼上架
-            if(!this.chargeLocation(allocLocationId,LocationConstant.LOFTS,BinUsageConstant.BIN_UASGE_STORE) || !this.chargeLocation(realLocationId,LocationConstant.LOFTS,BinUsageConstant.BIN_UASGE_STORE)){
-                return JsonUtils.TOKEN_ERROR("库位状态异常");
-            }
-        }else {
-            //存捡和一上架
-            if(!this.chargeLocation(allocLocationId, LocationConstant.SPLIT_AREA,BinUsageConstant.BIN_PICK_STORE) || !this.chargeLocation(realLocationId,LocationConstant.SPLIT_AREA,BinUsageConstant.BIN_PICK_STORE)){
-                return JsonUtils.TOKEN_ERROR("库位状态异常");
-            }
+        BaseinfoLocation shelveLocation = locationService.getLocation(realLocationId);
+        if(shelveLocation==null){
+            return JsonUtils.TOKEN_ERROR("上架库位不存在");
         }
-
+        boolean canShelve = this.checkCanShevleLocation(info,shelveLocation);
+        if(!canShelve){
+            return JsonUtils.TOKEN_ERROR("该库位上架无效");
+        }
 
         info.setStatus(TaskConstant.Assigned);
         info.setExt1(1L); //pc创建任务详情标示  0: 未创建详情 1:已创建详情 2:已执行中
@@ -234,16 +233,14 @@ public class AtticShelveRestService implements IAtticShelveRestService{
             return JsonUtils.TOKEN_ERROR("任务详情不存在");
         }
         TaskInfo info = baseTaskService.getTaskInfoById(detail.getTaskId());
-        if(info.getSubType().compareTo(2L)==0){
-            //阁楼上架
-            if(!this.chargeLocation(allocLocationId,LocationConstant.LOFTS,BinUsageConstant.BIN_UASGE_STORE) || !this.chargeLocation(realLocationId,LocationConstant.LOFTS,BinUsageConstant.BIN_UASGE_STORE)){
-                return JsonUtils.TOKEN_ERROR("库位状态异常");
-            }
-        }else {
-            //存捡和一上架
-            if(!this.chargeLocation(allocLocationId, LocationConstant.SPLIT_AREA,BinUsageConstant.BIN_PICK_STORE) || !this.chargeLocation(realLocationId,LocationConstant.SPLIT_AREA,BinUsageConstant.BIN_PICK_STORE)){
-                return JsonUtils.TOKEN_ERROR("库位状态异常");
-            }
+
+        BaseinfoLocation shelveLocation = locationService.getLocation(realLocationId);
+        if(shelveLocation==null){
+            return JsonUtils.TOKEN_ERROR("上架库位不存在");
+        }
+        boolean canShelve = this.checkCanShevleLocation(info, shelveLocation);
+        if(!canShelve){
+            return JsonUtils.TOKEN_ERROR("该库位上架无效");
         }
         locationService.unlockLocation(detail.getAllocLocationId());
         locationService.lockLocation(allocLocationId);
@@ -569,5 +566,45 @@ public class AtticShelveRestService implements IAtticShelveRestService{
             return false;
         }
         return true;
+    }
+    public boolean checkCanShevleLocation(TaskInfo info,BaseinfoLocation shelveLocation) {
+        if(shelveLocation.getIsLocked().compareTo(LocationConstant.IS_LOCKED)==0){
+            return false;
+        }
+        BaseinfoItem item = itemService.getItem(info.getItemId());
+        if(info.getSubType().compareTo(2L)==0){
+            //阁楼上架
+            if(shelveLocation.getRegionType().compareTo(LocationConstant.LOFTS)==0) {
+                if (shelveLocation.getBinUsage().compareTo(BinUsageConstant.BIN_UASGE_PICK) == 0) {
+                    List<BaseinfoItemLocation> locations = itemLocationService.getItemLocationByLocationID(shelveLocation.getLocationId());
+                    if (locations != null && locations.size() > 0) {
+                        for (BaseinfoItemLocation itemLocation : locations) {
+                            if (item.getItemId().compareTo(itemLocation.getItemId()) == 0) {
+                                return true;
+                            }
+                        }
+                    }
+                } else {
+                    List<StockQuant> quants = stockQuantService.getQuantsByLocationId(shelveLocation.getLocationId());
+                    if (quants == null || quants.size() == 0) {
+                        return true;
+                    }
+                }
+            }
+        }else {
+            //存捡和一上架
+            BaseinfoLocationRegion region = (BaseinfoLocationRegion) regionService.getBaseinfoItemLocationModelById(shelveLocation.getLocationId());
+            List<StockQuant> quants = stockQuantService.getQuantsByLocationId(shelveLocation.getLocationId());
+            if(quants==null || quants.size()==0){
+                return true;
+            }
+            if(LocationConstant.LOCATION_CAN_ADD.compareTo(region.getRegionStrategy())==0){
+                StockQuant quant = quants.get(0);
+                if(quant.getItemId().compareTo(info.getItemId())==0){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
