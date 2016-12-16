@@ -128,7 +128,9 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             barcode = beanMap.get("barcode").toString().trim();
             //盘点数量
             realQty = new BigDecimal(beanMap.get("qty").toString().trim());
-            sku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode);
+            if(barcode != null && !"".equals(barcode)) {
+                sku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode);
+            }
             if(sku==null){
                 throw new BizCheckedException("2550068",barcode,"");
             }
@@ -160,7 +162,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         if(!detail.getSkuId().equals(0L)) {
             csiSku = skuService.getSku(detail.getSkuId());
         }
-        if(detail.getTheoreticalQty().equals(BigDecimal.ZERO)){
+        if(detail.getTheoreticalQty().compareTo(BigDecimal.ZERO)==0){
             //该盘点位置没有商品
             if(sku != null){
                 //将输入填充
