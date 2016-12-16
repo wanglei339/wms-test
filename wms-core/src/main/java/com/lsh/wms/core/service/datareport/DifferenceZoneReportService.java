@@ -1,5 +1,6 @@
 package com.lsh.wms.core.service.datareport;
 
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.constant.LocationConstant;
@@ -74,7 +75,7 @@ public class DifferenceZoneReportService {
     }
 
     @Transactional(readOnly = false)
-    public void movingReport(List<Long> reportIds){
+    public void movingReport(List<Long> reportIds) throws BizCheckedException{
 
         // 在库SO预占库存。
         List<StockMove> moveList = new ArrayList<StockMove>();
@@ -95,6 +96,9 @@ public class DifferenceZoneReportService {
                     break;
                 }
             }
+            if(move.getToLocationId().equals(0)){
+                throw new BizCheckedException("2910001");
+            }
             move.setFromLocationId(locationService.getDiffAreaLocation().getLocationId());
             move.setTaskId(reportId);
             moveList.add(move);
@@ -102,7 +106,9 @@ public class DifferenceZoneReportService {
             report.setUpdatedAt(DateUtils.getCurrentSeconds());
             report.setStatus(2);
             updateReport.add(report);
+            logger.info("~~~~~1111stockMove : " + move);
         }
+
         moveService.move(moveList);
         this.batchUpdate(updateReport);
 
