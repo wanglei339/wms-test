@@ -410,6 +410,9 @@ public class LocationDetailService {
                 }
                 //就是子
                 BaseinfoLocation son = istrategy.getBaseinfoItemLocationModelById(location.getLocationId());
+                if (null == son) {
+                    continue;
+                }
                 //拷贝主表的信息
                 ObjUtils.bean2bean(location, son);
                 subList.add(son);
@@ -514,7 +517,6 @@ public class LocationDetailService {
         istrategy.removeLocation(iBaseinfoLocaltionModel.getLocationId());
         return iBaseinfoLocaltionModel;
     }
-
 
 
 }
