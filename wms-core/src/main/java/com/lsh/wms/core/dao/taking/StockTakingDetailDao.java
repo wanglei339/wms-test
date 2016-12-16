@@ -3,6 +3,7 @@ package com.lsh.wms.core.dao.taking;
 import com.lsh.wms.core.dao.MyBatisRepository;
 import com.lsh.wms.model.taking.StockTakingDetail;
 
+import java.util.DoubleSummaryStatistics;
 import java.util.List;
 import java.util.Map;
 
@@ -25,8 +26,8 @@ public interface StockTakingDetailDao {
 
 	Integer conutStockTakingItemList(Map<String, Object> params);
 
-	Long getDiffPrice (Map<String, Object> params);
+	Double getDiffPrice (Map<String, Object> params);
 
-	Long getAllPrice(Map<String, Object> params);
+	Double getAllPrice(Map<String, Object> params);
 	
 }
