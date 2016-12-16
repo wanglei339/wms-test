@@ -6,6 +6,7 @@ import com.lsh.wms.api.model.so.ObdOfcBackRequest;
 import com.lsh.wms.api.model.so.ObdOfcItem;
 import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.service.item.ItemService;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.utils.SkuUtil;
@@ -39,6 +40,8 @@ public class ObdOfcTransporter implements ITransporter{
     private ItemService itemService;
     @Autowired
     private DataBackService dataBackService;
+    @Autowired
+    private LocationService locationService;
 
     public void process(SysLog sysLog) {
         //buildDataRpcService.BuildLshOfcObdData(sysLog.getBusinessId());
@@ -63,7 +66,10 @@ public class ObdOfcTransporter implements ITransporter{
         request.setWaybillCode(header.getTuId());//运单号
         request.setBoxNum(header.getBoxNum().intValue());
         request.setTurnoverBoxNum(header.getTurnoverBoxNum().intValue());
-        request.setWarehouseCode(PropertyUtils.getString("wumart.werks"));
+        //获取仓库名称
+        String warehouseCode = locationService.getWarehouseLocation().getLocationCode();
+        //request.setWarehouseCode(PropertyUtils.getString("wumart.werks"));
+        request.setWarehouseCode(warehouseCode);
         List<ObdOfcItem> items = new ArrayList<ObdOfcItem>();
         for (OutbDeliveryDetail detail : details) {
             ObdOfcItem item = new ObdOfcItem();

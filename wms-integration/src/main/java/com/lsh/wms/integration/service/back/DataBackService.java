@@ -40,11 +40,11 @@ import java.util.*;
 public class DataBackService implements IDataBackService {
     private static Logger logger = LoggerFactory.getLogger(DataBackService.class);
 
-    final static String url = "http://115.182.215.119",
-            db = "lsh-odoo-test",
-            username = "yg-rd@lsh123.com",
-            password = "YgRd@Lsh123",
-            uid = "7";
+//    final static String url = "http://115.182.215.119",
+//            db = "lsh-odoo-test",
+//            username = "yg-rd@lsh123.com",
+//            password = "YgRd@Lsh123",
+//            uid = "7";
 
     @Autowired
     private RedisStringDao redisStringDao;
@@ -164,7 +164,7 @@ public class DataBackService implements IDataBackService {
         try {
             final XmlRpcClient models = new XmlRpcClient() {{
                 setConfig(new XmlRpcClientConfigImpl() {{
-                    setServerURL(new URL(String.format("%s/xmlrpc/2/object", url)));
+                    setServerURL(new URL(String.format("%s/xmlrpc/2/object", PropertyUtils.getString("odoo_url"))));
                 }});
             }};
             //原订单ID
@@ -183,7 +183,7 @@ public class DataBackService implements IDataBackService {
             params.put("details",list);
             logger.info("~~~~~~~params : " + params + " ~~~~~~~~~~~");
             final Boolean ret1  = (Boolean)models.execute("execute_kw", Arrays.asList(
-                    db, Integer.valueOf(uid), password,
+                    PropertyUtils.getString("odoo_db"), PropertyUtils.getInt("odoo_uid"), PropertyUtils.getString("odoo_password"),
                     "purchase.order", "lsh_action_wms_receive",
                     Arrays.asList(params)
             ));

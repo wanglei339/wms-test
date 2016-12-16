@@ -289,7 +289,7 @@ public class StockTakingService {
 //        StockRequest request = new StockRequest();
         List<OverLossReport> overLossReports = new ArrayList<OverLossReport>();
         for (StockTakingDetail detail : stockTakingDetails) {
-            if (detail.getSkuId() == 0L) {
+            if (detail.getRealQty().compareTo(BigDecimal.ZERO)!=0 && detail.getItemId().equals(0L)) {
                 continue;
             }
             detail.setStatus(StockTakingConstant.Done);

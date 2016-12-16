@@ -227,10 +227,6 @@ public class ItemService {
         item.setUpdatedAt(DateUtils.getCurrentSeconds());
         //更新商品
         itemDao.update(item);
-        //更新缓存
-        BaseinfoItem newItem = this.getItem(item.getItemId());
-        Long key = ((newItem.getOwnerId())<<32) + (newItem.getSkuId());
-        m_ItemCache.put(key,newItem);
     }
 
     public int deleteItem(BaseinfoItem item){

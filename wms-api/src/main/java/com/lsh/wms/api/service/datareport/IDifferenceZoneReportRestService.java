@@ -1,5 +1,7 @@
 package com.lsh.wms.api.service.datareport;
 
+import com.lsh.base.common.exception.BizCheckedException;
+
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +12,6 @@ public interface IDifferenceZoneReportRestService {
     String getDifferenceReportList(Map<String, Object> mapQuery);
     String countDifferenceReport(Map<String, Object> mapQuery);
 
-    String movingReport();
+    String movingReport() throws BizCheckedException;
 
 }

@@ -91,6 +91,8 @@ public class PickRestService implements IPickRestService {
         List<Map> taskList = JSON.parseArray(mapQuery.get("taskList").toString(), Map.class);
         List<WaveDetail> pickDetails = new ArrayList<WaveDetail>();
         List<Map<String, Long>> assignParams = new ArrayList<Map<String, Long>>();
+        List<Long> containerIds = new ArrayList<Long>();
+        List<Long> taskIds = new ArrayList<Long>();
 
         // 判断用户是否存在
         SysUser sysUser = iSysUserRpcService.getSysUserById(staffId);
@@ -144,6 +146,14 @@ public class PickRestService implements IPickRestService {
             if (containerService.isContainerInUse(containerId)) {
                 throw new BizCheckedException("2000002");
             }
+            if (taskIds.contains(taskId)) {
+                throw new BizCheckedException("2060020", taskId.toString());
+            }
+            taskIds.add(taskId);
+            if (containerIds.contains(containerId)) {
+                throw new BizCheckedException("2060021", containerId.toString());
+            }
+            containerIds.add(containerId);
             assignParam.put("taskId", taskId);
             assignParam.put("staffId", staffId);
             assignParam.put("containerId", containerId);
@@ -294,7 +304,7 @@ public class PickRestService implements IPickRestService {
                 if (taskInfo.getSubType().equals(PickConstant.SHELF_PALLET_TASK_TYPE)) {
                     qty = quantQty;
                 } else {
-                    throw new BizCheckedException("2060007", quantQty.toString());
+                    throw new BizCheckedException("2060007", PackUtil.EAQty2UomQty(quantQty, needPickDetail.getAllocUnitName()).toString());
                 }
             }
             // 存捡合一

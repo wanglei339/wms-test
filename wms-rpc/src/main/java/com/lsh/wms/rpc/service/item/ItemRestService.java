@@ -6,6 +6,7 @@ import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.item.IItemRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.core.service.item.ItemLocationService;
@@ -14,6 +15,7 @@ import com.lsh.wms.core.service.location.BaseinfoLocationDockService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoItemRequest;
 import com.lsh.wms.model.baseinfo.BaseinfoLocationDock;
 import com.lsh.wms.model.csi.CsiSku;
 import net.sf.json.util.JSONUtils;
@@ -121,21 +123,29 @@ public class ItemRestService implements IItemRestService {
     }
     @POST
     @Path("insertItems")
-    public String insertItems(BaseinfoItem item) throws BizCheckedException {
+    public String insertItems(BaseinfoItemRequest request) throws BizCheckedException {
         Map<String,Object> mapQuery = new HashMap<String, Object>();
-        mapQuery.put("skuCode",item.getSkuCode());
-        mapQuery.put("ownerId",item.getOwnerId());
+        mapQuery.put("skuCode",request.getSkuCode());
+        mapQuery.put("ownerId",request.getOwnerId());
         mapQuery.put("status",1);
-        if(!(item.getCode()!=null && (item.equals("")))) {
+        BaseinfoItem newItem = new BaseinfoItem();
+        ObjUtils.bean2bean(request,newItem);
+        if(!(request.getCode()!=null && (request.equals("")))) {
 
             List<BaseinfoItem> items = itemService.searchItem(mapQuery);
-            if (items.size() > 0) {
-                itemService.updateBarcode(items.get(0).getItemId(),item.getCode());
+            if (items!=null && items.size() > 0) {
+                BaseinfoItem baseinfoItem = items.get(0);
+                if(!baseinfoItem.getCode().equals(request.getCode()) || baseinfoItem.getPackUnit().compareTo(request.getPackUnit())!=0){
+                    return JsonUtils.TOKEN_ERROR("箱规或国条不一致，不允许修改");
+                }
+                //itemService.updateBarcode(items.get(0).getItemId(),item.getCode());
+                ObjUtils.bean2bean(request, baseinfoItem);
+                itemService.updateItem(baseinfoItem);
                 return JsonUtils.SUCCESS();
             }
-            itemRpcService.insertItem(item);
+            itemRpcService.insertItem(newItem);
         }else {
-            itemRpcService.insertItem(item);
+            itemRpcService.insertItem(newItem);
         }
 
         return JsonUtils.SUCCESS();

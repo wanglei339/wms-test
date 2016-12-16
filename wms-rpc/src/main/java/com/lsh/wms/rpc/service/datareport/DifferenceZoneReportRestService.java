@@ -3,6 +3,7 @@ package com.lsh.wms.rpc.service.datareport;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.alibaba.fastjson.JSON;
+import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
 import com.lsh.wms.api.service.datareport.IDifferenceZoneReportRestService;
 import com.lsh.wms.api.service.request.RequestUtils;
@@ -44,7 +45,7 @@ public class DifferenceZoneReportRestService implements IDifferenceZoneReportRes
 
     @Path("movingReport")
     @POST
-    public String movingReport() {
+    public String movingReport() throws BizCheckedException{
 
         Map<String, Object> request = RequestUtils.getRequest();
 
