@@ -138,7 +138,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
                 List<Object> newDetails = new ArrayList<Object>();
                 newDetail.setTakingId(head.getTakingId());
                 detail.setStatus(TaskConstant.Draft);
-                newDetail.setRound(detail.getRound()+1);
+                newDetail.setRound(detail.getRound() + 1);
                 newDetail.setDetailId(detail.getDetailId());
                 newDetail.setLocationCode(detail.getLocationCode());
                 newDetail.setLocationId(detail.getLocationId());
@@ -152,6 +152,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
                 info.setType(TaskConstant.TYPE_STOCK_TAKING);
                 info.setSubType(StockTakingConstant.TYPE_REPLAY);
                 info.setPlanner(planner);
+                info.setTaskOrder(1L);
                 info.setStatus(TaskConstant.Draft);
                 info.setPlanId(head.getTakingId());
                 taskEntry.setTaskInfo(info);
