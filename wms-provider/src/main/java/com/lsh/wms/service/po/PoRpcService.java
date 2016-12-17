@@ -3,6 +3,7 @@ package com.lsh.wms.service.po;
 import com.alibaba.dubbo.common.utils.StringUtils;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
+import com.lsh.base.common.config.PropertyUtils;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.DateUtils;
@@ -15,10 +16,13 @@ import com.lsh.wms.api.service.po.IPoRpcService;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.constant.SoConstant;
+import com.lsh.wms.core.service.item.ItemLocationService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.utils.IdGenerator;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
 import com.lsh.wms.model.po.IbdObdRelation;
@@ -57,6 +61,8 @@ public class PoRpcService implements IPoRpcService {
     private ITaskRpcService iTaskRpcService;
     @Autowired
     protected IdGenerator idGenerator;
+    @Autowired
+    private ItemLocationService itemLocationService;
 
     @Reference
     private IBackInStorageProviderRpcService backInStorageProviderRpcService;
@@ -185,11 +191,42 @@ public class PoRpcService implements IPoRpcService {
         if(ibdHeader.getOrderStatus() == PoConstant.ORDER_THROW){
             //投单时,记录投单时间
             ibdHeader.setThrowAt(DateUtils.getCurrentSeconds());
+            //投单校验
+            checkThrowOrder(ibdHeader.getOrderId());
         }
         poOrderService.updateInbPoHeaderByOrderOtherIdOrOrderId(ibdHeader);
 
         return true;
     }
+
+    //投单校验
+    private void checkThrowOrder(Long orderId)throws BizCheckedException{
+        IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(orderId);
+        if(ibdHeader == null){
+            throw new BizCheckedException("2020001");
+        }
+        List<IbdDetail> ibdDetailList = poOrderService.getInbPoDetailListByOrderId(orderId);
+        if(ibdDetailList == null || ibdDetailList.size() <= 0){
+            return;
+        }
+        for(IbdDetail ibdDetail : ibdDetailList){
+            String skuCode = ibdDetail.getSkuCode();
+            BaseinfoItem baseinfoItem = itemService.getItemsBySkuCode(ibdHeader.getOwnerUid(),skuCode);
+            if(baseinfoItem == null){
+
+                throw new BizCheckedException("2020112",baseinfoItem.getSkuName(),"");//商品不存在
+            }
+            if(baseinfoItem.getIsInfoIntact()==0){
+                throw new BizCheckedException("2020110",baseinfoItem.getSkuName(),"");//商品信息不完整
+            }
+            List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationList(baseinfoItem.getItemId());
+            if(itemLocationList == null || itemLocationList.size() == 0){
+                throw new BizCheckedException("2020111",baseinfoItem.getSkuName(),"");//该商品没有拣货位
+            }
+        }
+        return ;
+    }
+
 
     public List<IbdHeader> getPoHeaderList(Map<String, Object> params) {
         return poOrderService.getInbPoHeaderList(params);
