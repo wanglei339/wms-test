@@ -261,7 +261,7 @@ public class PickTaskService {
         result.put(resultKey, location.getLocationCode());
         result.put("taskSubType", taskInfo.getSubType());
         // 按照箱规转换数量
-        if (result.get("allocQty") != null && !result.get("allocQty").equals(BigDecimal.ZERO)) {
+        if (result.get("allocQty") != null && new BigDecimal(result.get("allocQty").toString()).compareTo(BigDecimal.ZERO)!=0) {
             BigDecimal allocQty = new BigDecimal(result.get("allocQty").toString());
             result.put("allocQty", PackUtil.EAQty2UomQty(allocQty, result.get("allocUnitName").toString()));
         }
