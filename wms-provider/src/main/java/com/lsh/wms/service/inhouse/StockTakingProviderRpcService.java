@@ -138,7 +138,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
                 List<Object> newDetails = new ArrayList<Object>();
                 newDetail.setTakingId(head.getTakingId());
                 detail.setStatus(TaskConstant.Draft);
-                newDetail.setRound(detail.getRound()+1);
+                newDetail.setRound(detail.getRound() + 1);
                 newDetail.setDetailId(detail.getDetailId());
                 newDetail.setLocationCode(detail.getLocationCode());
                 newDetail.setLocationId(detail.getLocationId());
@@ -152,6 +152,7 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
                 info.setType(TaskConstant.TYPE_STOCK_TAKING);
                 info.setSubType(StockTakingConstant.TYPE_REPLAY);
                 info.setPlanner(planner);
+                info.setTaskOrder(1L);
                 info.setStatus(TaskConstant.Draft);
                 info.setPlanId(head.getTakingId());
                 taskEntry.setTaskInfo(info);
@@ -635,6 +636,9 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         }else {
             info.setTaskName(zone.getZoneName());
         }
+        if(details==null || details.size()==0){
+            return;
+        }
         info.setTaskOrder(Long.valueOf(details.size()+""));
         info.setType(TaskConstant.TYPE_STOCK_TAKING);
         info.setSubType(takingType);
@@ -670,13 +674,12 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             if(locations == null || locations.size()==0){
                 continue;
             }
+            //移除已盘点的库位
             locations.removeAll(taskLocation);
             List<Object> details = new ArrayList<Object>();
             TaskEntry taskEntry = new TaskEntry();
             TaskInfo info = new TaskInfo();
             for (Long locationId : locations) {
-                //判断当前库位是否有有效的盘点任务
-
                 StockTakingDetail detail = new StockTakingDetail();
                 detail.setLocationId(locationId);
                 detail.setDetailId(RandomUtils.genId());
@@ -689,6 +692,9 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
                 info.setTaskName("");
             }else {
                 info.setTaskName(zone.getZoneName());
+            }
+            if(details==null || details.size()==0){
+                continue;
             }
             info.setTaskOrder(Long.valueOf(details.size()+""));
             info.setType(TaskConstant.TYPE_STOCK_TAKING);
