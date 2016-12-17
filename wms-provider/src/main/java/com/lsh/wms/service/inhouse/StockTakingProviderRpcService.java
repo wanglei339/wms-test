@@ -636,6 +636,9 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
         }else {
             info.setTaskName(zone.getZoneName());
         }
+        if(details==null || details.size()==0){
+            return;
+        }
         info.setTaskOrder(Long.valueOf(details.size()+""));
         info.setType(TaskConstant.TYPE_STOCK_TAKING);
         info.setSubType(takingType);
@@ -671,13 +674,12 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
             if(locations == null || locations.size()==0){
                 continue;
             }
+            //移除已盘点的库位
             locations.removeAll(taskLocation);
             List<Object> details = new ArrayList<Object>();
             TaskEntry taskEntry = new TaskEntry();
             TaskInfo info = new TaskInfo();
             for (Long locationId : locations) {
-                //判断当前库位是否有有效的盘点任务
-
                 StockTakingDetail detail = new StockTakingDetail();
                 detail.setLocationId(locationId);
                 detail.setDetailId(RandomUtils.genId());
@@ -690,6 +692,9 @@ public class StockTakingProviderRpcService implements IStockTakingProviderRpcSer
                 info.setTaskName("");
             }else {
                 info.setTaskName(zone.getZoneName());
+            }
+            if(details==null || details.size()==0){
+                continue;
             }
             info.setTaskOrder(Long.valueOf(details.size()+""));
             info.setType(TaskConstant.TYPE_STOCK_TAKING);
