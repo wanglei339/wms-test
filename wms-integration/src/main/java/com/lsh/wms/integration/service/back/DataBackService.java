@@ -203,7 +203,7 @@ public class DataBackService implements IDataBackService {
 
         }
         catch (Exception e) {
-            logger.info(e.getCause().getMessage());
+            //logger.info(e.getCause().getMessage());
             sysLog.setSysMessage(e.getMessage());
             sysLog.setSysCode("回传ERP异常");
             sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);

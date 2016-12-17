@@ -186,7 +186,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
             for (BaseinfoItemLocation itemLocation : itemLocationList) {
                 //判断商品是否需要补货
-                if (rpcService.needProcurement(itemLocation.getPickLocationid(), itemLocation.getItemId())) {
+                if (rpcService.needProcurement(itemLocation.getPickLocationid(), itemLocation.getItemId(),false)) {
                     //该位置当前是否有补货任务
                     if (baseTaskService.checkTaskByToLocation(itemLocation.getPickLocationid(), TaskConstant.TYPE_PROCUREMENT)) {
                         continue;
@@ -384,7 +384,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationByLocationID(loftPick.getLocationId());
             for (BaseinfoItemLocation itemLocation : itemLocationList) {
                 //判断是否需要补货
-                if (rpcService.needProcurement(itemLocation.getPickLocationid(),itemLocation.getItemId())) {
+                if (rpcService.needProcurement(itemLocation.getPickLocationid(),itemLocation.getItemId(),false)) {
                     //是否有未完成的补货任务
                     if (baseTaskService.checkTaskByToLocation(itemLocation.getPickLocationid(), TaskConstant.TYPE_PROCUREMENT)) {
                         continue;

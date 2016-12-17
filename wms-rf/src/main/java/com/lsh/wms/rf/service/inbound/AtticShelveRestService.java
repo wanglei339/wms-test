@@ -457,7 +457,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
         bulk = bulk.multiply(item.getPackLength());
         bulk = bulk.multiply(item.getPackHeight());
         bulk = bulk.multiply(item.getPackWidth());
-        if(bulk.equals(BigDecimal.ZERO)){
+        if(bulk.compareTo(BigDecimal.ZERO)==0){
             bulk = BigDecimal.ONE;
         }
 
@@ -641,7 +641,7 @@ public class AtticShelveRestService implements IAtticShelveRfRestService {
             bulk = bulk.multiply(item.getPackLength());
             bulk = bulk.multiply(item.getPackHeight());
             bulk = bulk.multiply(item.getPackWidth());
-            if(bulk.equals(BigDecimal.ZERO)){
+            if(bulk.compareTo(BigDecimal.ZERO)==0){
                 bulk = BigDecimal.ONE;
             }
 
