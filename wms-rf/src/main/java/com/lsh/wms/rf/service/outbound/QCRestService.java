@@ -290,20 +290,32 @@ public class QCRestService implements IRFQCRestService {
         if (qcTaskInfo == null) {
             throw new BizCheckedException("2120007");
         }
-        //转换商品条形码为sku码
+        //转换商品条形码为sku码   // FIXME 16/12/16 itemid可能对应多条 国条(和skuId一对一) ,多国条找到的skuId可能和wave_detail中记载的对不对(物美)
+        //未来可能会使用item  前提出库的时候一个托盘的货是一个货主的
+//        ObdHeader obdHeader = iSoRpcService.getOutbSoHeaderDetailByOrderId(qcTaskInfo.getOrderId());
+//        if (null == obdHeader) {
+//            throw new BizCheckedException("2870006");
+//        }
+
+
+
         String code = (String) request.get("code");
         CsiSku skuInfo = csiRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, code);
         if (skuInfo == null) {
             throw new BizCheckedException("2120001");
         }
         long skuId = skuInfo.getSkuId();
+
+//        Long ownerId = obdHeader.getOwnerUid();
+//        BaseinfoItem item = itemRpcService.getItem(ownerId,skuId);
+
         List<WaveDetail> details = waveService.getDetailsByContainerId(qcTaskInfo.getContainerId());    //qc的数量不在是拣货的数量了,而是集货的数量和收货的数量
         // 标识是拣货生成的QC还是集货生成的QC
         //计算是拣货生成的|集货生成的|收货生成的
         int seekNum = 0;
         List<WaveDetail> matchDetails = new LinkedList<WaveDetail>();
         BigDecimal pickQty = new BigDecimal("0.0000");
-        for (WaveDetail d : details) {
+        for (WaveDetail d : details) {          //一个itemId多个国条的时候的解法,只能用itemId来解决了,  前提一个托盘只能是一个火族的货
             if (d.getSkuId() != skuId) {
                 continue;
             }
@@ -420,7 +432,7 @@ public class QCRestService implements IRFQCRestService {
         Boolean skip = Boolean.valueOf(request.get("skip").toString());
         long qcTaskId = Long.valueOf(request.get("qcTaskId").toString());
         if (null == request.get("boxNum") || null == request.get("turnoverBoxNum")) {
-            throw new BizCheckedException("2120024");
+            throw new BizCheckedException("2120025");
         }
         long boxNum = Long.valueOf(request.get("boxNum").toString());
         long turnoverBoxNum = Long.valueOf(request.get("turnoverBoxNum").toString());

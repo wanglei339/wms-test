@@ -128,7 +128,9 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             barcode = beanMap.get("barcode").toString().trim();
             //盘点数量
             realQty = new BigDecimal(beanMap.get("qty").toString().trim());
-            sku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode);
+            if(barcode != null && !"".equals(barcode)) {
+                sku = skuService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, barcode);
+            }
             if(sku==null){
                 throw new BizCheckedException("2550068",barcode,"");
             }
@@ -160,7 +162,7 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         if(!detail.getSkuId().equals(0L)) {
             csiSku = skuService.getSku(detail.getSkuId());
         }
-        if(detail.getTheoreticalQty().equals(BigDecimal.ZERO)){
+        if(detail.getTheoreticalQty().compareTo(BigDecimal.ZERO)==0){
             //该盘点位置没有商品
             if(sku != null){
                 //将输入填充
@@ -314,10 +316,10 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
         for(BaseinfoLocation location:locationList) {
             Map<String,Object> taskMap =new HashMap<String, Object>();
             Long status =  statusMap.get(location.getLocationId());
-            if(status.compareTo(TaskConstant.Done)>0){
+            if(status.compareTo(StockTakingConstant.Done)>0){
                 continue;
             }
-            if(!status.equals(TaskConstant.Done)){
+            if(!status.equals(StockTakingConstant.PendingAudit)){
                 isDone = false;
             }
             taskMap.put("taskId",taskId);
@@ -327,8 +329,16 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             taskList.add(taskMap);
         }
         Map<String,Object> result = new HashMap<String, Object>();
-        if(info.getStatus().compareTo(TaskConstant.Draft)>0 && info.getOperator().compareTo(uId)!=0){
+        if(info.getStatus().compareTo(TaskConstant.Draft)>0){
+            if(info.getOperator().compareTo(uId)!=0) {
                 return JsonUtils.TOKEN_ERROR("该任务已被人领取或失效");
+            }
+            if(isDone){
+                result.put("taskList",new ArrayList<Map>());
+            }else {
+                result.put("taskList", taskList);
+            }
+            return JsonUtils.SUCCESS(result);
         }
         if(isDone){
             result.put("taskList",new ArrayList<Map>());
@@ -594,10 +604,10 @@ public class StockTakingRfRestService implements IStockTakingRfRestService {
             for (BaseinfoLocation location : locationList) {
                 Map<String, Object> taskMap = new HashMap<String, Object>();
                 Long status = statusMap.get(location.getLocationId());
-                if(status.compareTo(TaskConstant.Done)>0){
+                if(status.compareTo(StockTakingConstant.Done)>0){
                     continue;
                 }
-                if (!status.equals(TaskConstant.Done)) {
+                if (!status.equals(StockTakingConstant.PendingAudit)) {
                     isDoing = true;
                 }
                 taskMap.put("taskId", taskEntry.getTaskInfo().getTaskId());

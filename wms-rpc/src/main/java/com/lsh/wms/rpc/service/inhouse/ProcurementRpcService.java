@@ -59,7 +59,7 @@ public class ProcurementRpcService implements IProcurementRpcService{
 
     private static Logger logger = LoggerFactory.getLogger(ProcurementRpcService.class);
     //判断商品是否需要补货
-    public boolean needProcurement(Long locationId, Long itemId) throws BizCheckedException {
+    public boolean needProcurement(Long locationId, Long itemId,Boolean checkMax) throws BizCheckedException {
        BaseinfoItemLocation baseinfoItemLocation = itemLocationService.getItemLocationByLocationID(locationId).get(0);
         StockQuantCondition condition = new StockQuantCondition();
         condition.setItemId(itemId);
@@ -67,16 +67,21 @@ public class ProcurementRpcService implements IProcurementRpcService{
         //获取该拣货位上的商品总数
         BigDecimal qty = quantService.getQty(condition);
         //数量为0必须补货
-        if (qty.equals(BigDecimal.ZERO)) {
+        if (qty.compareTo(BigDecimal.ZERO)==0) {
             return true;
         }
-        StockQuant quant = quantService.getQuantList(condition).get(0);
-        qty = qty.divide(quant.getPackUnit(),0,BigDecimal.ROUND_DOWN);
-
-        if(baseinfoItemLocation.getMinQty().compareTo(qty)>0){
-            return true;
+        if(checkMax){
+            if (baseinfoItemLocation.getMaxQty().compareTo(qty) > 0){
+                return false;
+            }else {
+                return true;
+            }
         }else {
-            return false;
+            if (baseinfoItemLocation.getMinQty().compareTo(qty) > 0) {
+                return true;
+            } else {
+                return false;
+            }
         }
         //       BaseinfoItem itemInfo = itemService.getItem(itemId);
 //        if (itemInfo.getItemLevel() == 1) {
