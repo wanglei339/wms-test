@@ -432,7 +432,7 @@ public class QCRestService implements IRFQCRestService {
         Boolean skip = Boolean.valueOf(request.get("skip").toString());
         long qcTaskId = Long.valueOf(request.get("qcTaskId").toString());
         if (null == request.get("boxNum") || null == request.get("turnoverBoxNum")) {
-            throw new BizCheckedException("2120024");
+            throw new BizCheckedException("2120025");
         }
         long boxNum = Long.valueOf(request.get("boxNum").toString());
         long turnoverBoxNum = Long.valueOf(request.get("turnoverBoxNum").toString());
