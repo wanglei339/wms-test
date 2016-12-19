@@ -214,7 +214,7 @@ public class PoRpcService implements IPoRpcService {
             BaseinfoItem baseinfoItem = itemService.getItemsBySkuCode(ibdHeader.getOwnerUid(),skuCode);
             if(baseinfoItem == null){
 
-                throw new BizCheckedException("2020112",baseinfoItem.getSkuName(),"");//商品不存在
+                throw new BizCheckedException("2020112",ibdDetail.getSkuName(),"");//商品不存在
             }
             if(baseinfoItem.getIsInfoIntact()==0){
                 throw new BizCheckedException("2020110",baseinfoItem.getSkuName(),"");//商品信息不完整
