@@ -192,7 +192,7 @@ public class ItemRestService implements IItemRestService {
         }catch (BizCheckedException e) {
             throw e;
         }catch (Exception e){
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             return JsonUtils.EXCEPTION_ERROR("failed");
         }
         return JsonUtils.SUCCESS();

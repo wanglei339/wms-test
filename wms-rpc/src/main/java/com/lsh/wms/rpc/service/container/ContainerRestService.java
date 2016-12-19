@@ -55,7 +55,7 @@ public class ContainerRestService implements IContainerRestService {
             BaseinfoContainer containerInfo = containerRpcService.insertContainer(container);
             return JsonUtils.SUCCESS(containerInfo);
         } catch (Exception e){
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             throw new BizCheckedException("2190002");
         }
     }
@@ -67,7 +67,7 @@ public class ContainerRestService implements IContainerRestService {
             BaseinfoContainer container = containerService.createContainerByType(type);
             return JsonUtils.SUCCESS(container);
         }catch (Exception e){
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             throw new BizCheckedException("2190003");
         }
     }

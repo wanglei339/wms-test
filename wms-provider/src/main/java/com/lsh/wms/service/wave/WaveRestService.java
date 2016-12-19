@@ -222,7 +222,7 @@ public class WaveRestService implements IWaveRestService {
             waveService.setStatus(iWaveId,iStatus);
 
         }catch (Exception e){
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             return JsonUtils.EXCEPTION_ERROR("failed");
         }
 
@@ -253,7 +253,7 @@ public class WaveRestService implements IWaveRestService {
         try{
             modelService.createPickModelTemplate(tpl);
         }catch (Exception e){
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             return JsonUtils.EXCEPTION_ERROR("create failed");
         }
         return JsonUtils.SUCCESS();
@@ -265,7 +265,7 @@ public class WaveRestService implements IWaveRestService {
         try{
             modelService.updatePickModelTpl(tpl);
         }catch (Exception e){
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             return JsonUtils.EXCEPTION_ERROR("update failed");
         }
         return JsonUtils.SUCCESS();
@@ -294,7 +294,7 @@ public class WaveRestService implements IWaveRestService {
         try{
             modelService.createPickModel(model);
         }catch (Exception e ){
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             return JsonUtils.EXCEPTION_ERROR("create failed");
         }
         return JsonUtils.SUCCESS();
@@ -306,7 +306,7 @@ public class WaveRestService implements IWaveRestService {
         try{
             modelService.updatePickModel(model);
         }catch (Exception e){
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             JsonUtils.EXCEPTION_ERROR("update failed");
         }
         return JsonUtils.SUCCESS();
@@ -371,7 +371,7 @@ public class WaveRestService implements IWaveRestService {
         try {
             waveTemplateService.createWaveTemplate(tpl);
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             throw new BizCheckedException("2040017");
         }
         return JsonUtils.SUCCESS();
@@ -390,7 +390,7 @@ public class WaveRestService implements IWaveRestService {
         try {
             waveTemplateService.updateWaveTemplate(tpl);
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             throw new BizCheckedException("2040017");
         }
         return JsonUtils.SUCCESS();

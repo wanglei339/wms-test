@@ -64,7 +64,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         try {
             mapQuery = PropertyUtils.describe(condition);
         } catch (Exception e) {
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             throw new BizCheckedException("3040001");
         }
         return mapQuery;
