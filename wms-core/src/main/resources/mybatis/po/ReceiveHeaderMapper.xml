@@ -89,6 +89,8 @@
 			<if test="supplierCode != null">and supplier_code=#{supplierCode}</if>
 			<if test="supplierName != null">and supplier_name=#{supplierName}</if>
 			<if test="orderTime != null">and order_time=#{orderTime}</if>
+			<if test="orderTimeAfter != null">and order_time&gt;=#{orderTimeAfter}</if>
+			<if test="orderTimeBefore != null">and order_time&lt;=#{orderTimeBefore}</if>
 			<if test="orderStatus != null">and order_status=#{orderStatus}</if>
 			<if test="stockCode != null">and stock_code=#{stockCode}</if>
 			<if test="deliveryDate != null">and delivery_date=#{deliveryDate}</if>

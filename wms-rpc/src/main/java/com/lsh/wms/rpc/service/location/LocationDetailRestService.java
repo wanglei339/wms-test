@@ -170,18 +170,5 @@ public class LocationDetailRestService implements ILocationDetailRestService {
         return JsonUtils.SUCCESS(locationDetailRpcService.getNextLevelLocations(locationId));
     }
 
-    @POST
-    @Path("insertRegion")
-    public String insertRegion(LocationDetailRequest request) throws BizCheckedException {
-        locationDetailRpcService.insertRegion(request);
-        return JsonUtils.SUCCESS();
-    }
-
-    @POST
-    @Path("insertPassage")
-    public String insertPassage(LocationDetailRequest request) throws BizCheckedException{
-        locationDetailRpcService.insertPassage(request);
-        return JsonUtils.SUCCESS();
-    }
 
 }
