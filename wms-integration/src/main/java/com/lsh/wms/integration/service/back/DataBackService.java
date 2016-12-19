@@ -178,6 +178,7 @@ public class DataBackService implements IDataBackService {
                     setServerURL(new URL(String.format("%s/xmlrpc/2/object", PropertyUtils.getString("odoo_url"))));
                 }});
             }};
+            logger.info("~~~~~~~~111111 url:" + PropertyUtils.getString("odoo_url"));
             //原订单ID
             Integer orderOtherId = Integer.valueOf(createIbdHeader.getItems().get(0).getPoNumber());
             Long receiveId = Long.valueOf(createIbdHeader.getItems().get(0).getVendMat());
@@ -193,8 +194,9 @@ public class DataBackService implements IDataBackService {
             }
             params.put("details",list);
             logger.info("~~~~~~~params : " + params + " ~~~~~~~~~~~");
+            logger.info("~~~~~~~~~~~~~222222 db: "+ PropertyUtils.getString("odoo_db") + " odoo_uid :" + PropertyUtils.getString("odoo_uid") + " password :" + PropertyUtils.getString("odoo_password"));
             final Boolean ret1  = (Boolean)models.execute("execute_kw", Arrays.asList(
-                    PropertyUtils.getString("odoo_db"), PropertyUtils.getInt("odoo_uid"), PropertyUtils.getString("odoo_password"),
+                    PropertyUtils.getString("odoo_db"), Integer.valueOf(PropertyUtils.getString("odoo_uid")), PropertyUtils.getString("odoo_password"),
                     "purchase.order", "lsh_action_wms_receive",
                     Arrays.asList(params)
             ));
@@ -214,7 +216,7 @@ public class DataBackService implements IDataBackService {
 
         }
         catch (Exception e) {
-            logger.info(e.getCause().getMessage());
+            //logger.info(e.getCause().getMessage());
             sysLog.setSysMessage(e.getMessage());
             sysLog.setSysCode("回传ERP异常");
             sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);

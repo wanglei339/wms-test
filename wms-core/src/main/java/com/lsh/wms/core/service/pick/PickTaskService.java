@@ -265,6 +265,7 @@ public class PickTaskService {
             BigDecimal allocQty = new BigDecimal(result.get("allocQty").toString());
             result.put("allocQty", PackUtil.EAQty2UomQty(allocQty, result.get("allocUnitName").toString()));
         }
+        //todo 这里的捡货单位有问题,allocUnitName就已经是捡货单位了
         if (taskInfo.getSubType().equals(PickConstant.SHELF_TASK_TYPE)) {
             result.put("unitName", "箱");
         } else if (taskInfo.getSubType().equals(PickConstant.SHELF_PALLET_TASK_TYPE)) {
@@ -274,6 +275,7 @@ public class PickTaskService {
         } else {
             result.put("unitName", "EA");
         }
+        //todo 这里的国条也可能有问题,在多国条情况下,一个仓位上的国条是跟着库存走的,不是跟着库位走的
         if (result.get("itemId") != null) {
             BaseinfoItem item = itemService.getItem(Long.valueOf(result.get("itemId").toString()));
             result.put("skuName", item.getSkuName());
