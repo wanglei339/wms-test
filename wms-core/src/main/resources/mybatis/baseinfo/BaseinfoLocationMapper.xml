@@ -320,14 +320,10 @@
     <select id="getSortLocationsByFatherId" parameterType="map" resultMap="baseinfoLocationResultMap">
         select * from baseinfo_location
         <include refid="sortQueryCondition"/>
-        <if test="regionNoDESC != null">ORDER BY region_no DESC</if>
-        <if test="passageNoDESC != null">ORDER BY passage_no DESC</if>
-        <if test="shelfLevelNoDESC != null">ORDER BY shelf_level_no DESC</if>
-        <if test="binPositionNoDESC != null">ORDER BY bin_position_no DESC</if>
-        <if test="regionNoASC != null">ORDER BY region_no ASC</if>
-        <if test="passageNoASC != null">ORDER BY passage_no ASC</if>
-        <if test="shelfLevelNoASC != null">ORDER BY shelf_level_no ASC</if>
-        <if test="binPositionNoASC != null">ORDER BY bin_position_no ASC</if>
+        ORDER BY region_no DESC,
+        passage_no DESC,
+        shelf_level_no DESC,
+        bin_position_no DESC
         <if test="start != null and limit != null">
             limit #{start},#{limit}
         </if>
@@ -339,8 +335,6 @@
             <if test="locationId != null">and location_id=#{locationId}</if>
             <if test="locationCode != null">and location_code=#{locationCode}</if>
             <if test="fatherId != null">and father_id=#{fatherId}</if>
-            <if test="leftRange != null">and left_range&gt;=#{leftRange}</if>
-            <if test="rightRange != null">and right_range&lt;=#{rightRange}</if>
             <if test="level != null">and level=#{level}</if>
             <if test="type != null">and type=#{type}</if>
             <if test="typeName != null">and type_name=#{typeName}</if>

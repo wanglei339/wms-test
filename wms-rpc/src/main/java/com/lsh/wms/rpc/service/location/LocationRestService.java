@@ -268,7 +268,7 @@ public class LocationRestService implements ILocationRestService {
 
         //获取拆零区
         List<BaseinfoLocation> splitArea = locationService.getLocationsByType(LocationConstant.SPLIT_AREA);//拆零区
-        if(splitArea != null){
+        if (splitArea != null) {
             splitList = splitArea;
         }
 
@@ -479,7 +479,7 @@ public class LocationRestService implements ILocationRestService {
      */
     @GET
     @Path("getChildrenLocationsByFatherIdAndType")
-    public String getChildrenLocationsByFatherIdAndType(@QueryParam("fatherLocationId")Long fatherLocationId, @QueryParam("sonType")Long sonType) throws BizCheckedException {
+    public String getChildrenLocationsByFatherIdAndType(@QueryParam("fatherLocationId") Long fatherLocationId, @QueryParam("sonType") Long sonType) throws BizCheckedException {
         return JsonUtils.SUCCESS(locationService.getChildrenLocationsByType(fatherLocationId, sonType));
     }
 
@@ -519,11 +519,33 @@ public class LocationRestService implements ILocationRestService {
         if (fatherLocation == null) {
             throw new BizCheckedException("2180001");
         }
-        logger.info("START initLocationTree "+ DateUtils.getCurrentSeconds());
+        logger.info("START initLocationTree " + DateUtils.getCurrentSeconds());
         locationService.initLocationTree(config, fatherLocation.getLocationId());
-        logger.info("FINISH initLocationTree "+ DateUtils.getCurrentSeconds());
+        logger.info("FINISH initLocationTree " + DateUtils.getCurrentSeconds());
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("response", true);
         return JsonUtils.SUCCESS(result);
     }
+
+    @GET
+    @Path("getMaxCoordsInNextLevels")
+    public String getMaxCoordsInNextLevelsByLocationCode(@QueryParam("fatherLocationCode") String fatherLocationCode) throws BizCheckedException {
+        BaseinfoLocation fatherLocation = locationService.getLocationByCode(fatherLocationCode);
+        if (fatherLocation == null) {
+            throw new BizCheckedException("2180001");
+        }
+        //获取当前区域的list
+        List<BaseinfoLocation> nextLevels = locationService.getSortLocations(fatherLocation.getLocationId());
+        Map<String,Object> locationsMap = new HashMap<String, Object>();
+        locationsMap.put("father",fatherLocation);
+        if (null == nextLevels || nextLevels.isEmpty()) {
+            locationsMap.put("son",new BaseinfoLocation());
+        }else {
+            locationsMap.put("son",nextLevels.get(0));
+        }
+        //取坐标最大的一个
+        return JsonUtils.SUCCESS(locationsMap);
+    }
+
+
 }
