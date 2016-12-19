@@ -138,6 +138,8 @@
 			<if test="orderStatus != null">and order_status=#{orderStatus}</if>
 			<if test="deliveryAddrs != null">and delivery_addrs=#{deliveryAddrs}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="createdAtAfter != null">and created_at&gt;=#{createdAtAfter}</if>
+			<if test="createdAtBefore != null">and created_at&lt;=#{createdAtBefore}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 			<if test="supplierNo != null">and supplier_no=#{supplierNo}</if>
 			<if test="supplierNo != null">and is_closed=#{isClossed}</if>
