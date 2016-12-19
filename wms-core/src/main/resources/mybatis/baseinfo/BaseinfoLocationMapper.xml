@@ -323,7 +323,8 @@
         ORDER BY region_no DESC,
         passage_no DESC,
         shelf_level_no DESC,
-        bin_position_no DESC
+        bin_position_no DESC,
+        location_code DESC
         <if test="start != null and limit != null">
             limit #{start},#{limit}
         </if>
