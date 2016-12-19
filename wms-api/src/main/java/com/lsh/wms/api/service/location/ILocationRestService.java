@@ -121,4 +121,6 @@ public interface ILocationRestService {
     String getChildrenLocationsByFatherIdAndType(Long fatherLocationId, Long sonType)throws BizCheckedException;
 
     String buildLocations() throws BizCheckedException;
+
+    String getMaxCoordsInNextLevelsByLocationCode(String fatherLocationCode) throws BizCheckedException;
 }

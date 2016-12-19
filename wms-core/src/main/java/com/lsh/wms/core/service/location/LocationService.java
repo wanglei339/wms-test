@@ -1471,8 +1471,10 @@ public class LocationService {
      * @param params
      * @return
      */
-    public List<BaseinfoLocation> getSortLocations(Map<String, Object> params) {
+    public List<BaseinfoLocation> getSortLocations(Long fatherId) {
+        Map<String,Object> params = new HashMap<String, Object>();
         params.put("isValid", LocationConstant.IS_VALID);
+        params.put("fatherId", fatherId);
         List<BaseinfoLocation> locations = locationDao.getSortLocationsByFatherId(params);
         return locations != null && locations.size() > 1 ? locations : new ArrayList<BaseinfoLocation>();
     }
