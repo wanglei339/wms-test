@@ -49,9 +49,7 @@ public class ItemTypeRpcService implements IItemTypeRpcService {
 
         Map<Long,String> itemNameMap = new HashMap<Long, String>();
         Map<Long,String> itemStatusMap = new HashMap<Long, String>();
-        if(relationMap == null || relationMap.size() <= 0){
-            return returnList;
-        }
+
         if(itemTypeList == null || itemTypeList.size() <= 0){
             return returnList;
         }
@@ -66,16 +64,21 @@ public class ItemTypeRpcService implements IItemTypeRpcService {
             itemMap.put("itemTypeId",itemTypeId);
             itemMap.put("itemTypeName",itemNameMap.get(itemTypeId));
             itemMap.put("isNeedProtime",itemStatusMap.get(itemTypeId));
-            //将互斥类型ID转为类型名称
-            if(relationMap.get(itemTypeId) == null){
-                itemMap.put("itemMutexType","");
-            }else{
-                ArrayList<Long> itemMutexTypeArray = relationMap.get(itemTypeId);
-                ArrayList<String> itemMutexNameArray = new ArrayList<String>();
-                for(Long mutexType : itemMutexTypeArray){
-                    itemMutexNameArray.add(itemNameMap.get(mutexType));
+            if(relationMap == null || relationMap.size() <= 0){
+                itemMap.put("itemMutexType", "");
+                itemMap.put("itemMutexType", "");
+            }else {
+                //将互斥类型ID转为类型名称
+                if (relationMap.get(itemTypeId) == null) {
+                    itemMap.put("itemMutexType", "");
+                } else {
+                    ArrayList<Long> itemMutexTypeArray = relationMap.get(itemTypeId);
+                    ArrayList<String> itemMutexNameArray = new ArrayList<String>();
+                    for (Long mutexType : itemMutexTypeArray) {
+                        itemMutexNameArray.add(itemNameMap.get(mutexType));
+                    }
+                    itemMap.put("itemMutexType", itemMutexNameArray);
                 }
-                itemMap.put("itemMutexType",itemMutexNameArray);
             }
             returnList.add(itemMap);
         }
