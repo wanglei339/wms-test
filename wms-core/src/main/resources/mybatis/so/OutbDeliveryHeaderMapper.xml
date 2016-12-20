@@ -117,6 +117,8 @@
 			<if test="deliveryUser != null">and DELIVERY_USER=#{deliveryUser}</if>
 			<if test="deliveryType != null">and DELIVERY_TYPE=#{deliveryType}</if>
 			<if test="deliveryTime != null">and DELIVERY_TIME=#{deliveryTime}</if>
+			<if test="deliveryTimeAfter != null">and DELIVERY_TIME&gt;=#{deliveryTimeAfter}</if>
+			<if test="deliveryTimeBefore != null">and DELIVERY_TIME&lt;=#{deliveryTimeBefore}</if>
 			<if test="insertby != null">and INSERTBY=#{insertby}</if>
 			<if test="updateby != null">and UPDATEBY=#{updateby}</if>
 			<if test="inserttime != null">and INSERTTIME=#{inserttime}</if>

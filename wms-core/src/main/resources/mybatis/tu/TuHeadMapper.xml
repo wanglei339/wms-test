@@ -156,6 +156,8 @@
             <if test="loadedAt != null">and loaded_at=#{loadedAt}</if>
             <if test="deliveryUid != null">and delivery_uid=#{deliveryUid}</if>
             <if test="deliveryAt != null">and delivery_at=#{deliveryAt}</if>
+            <if test="deliveryAtAfter != null">and delivery_at&gt;=#{deliveryAtAfter}</if>
+            <if test="deliveryAtBefore != null">and delivery_at&lt;=#{deliveryAtBefore}</if>
             <if test="isValid != null">and is_valid=#{isValid}</if>
             <if test="loadUid != null">and load_uid=#{loadUid}</if>
             <if test="scale != null">and scale=#{scale}</if>

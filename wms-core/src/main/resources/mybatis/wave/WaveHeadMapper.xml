@@ -108,6 +108,8 @@
 			<if test="releaseUid != null">and release_uid=#{releaseUid}</if>
 			<if test="releaseAt != null">and release_at=#{releaseAt}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="createdAtAfter != null">and created_at&gt;=#{createdAtAfter}</if>
+			<if test="createdAtBefore != null">and created_at&lt;=#{createdAtBefore}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 		</where>
 	</sql>
