@@ -123,6 +123,10 @@ public class PickTaskHandler extends AbsTaskHandler {
 
     public void doneConcrete(Long taskId, Long locationId, Long staffId) throws BizCheckedException{
         PickTaskHead taskHead = pickTaskService.getPickTaskHead(taskId);
+        if(locationId == 0){
+            //自动集货
+            locationId = taskHead.getAllocCollectLocation();
+        }
         taskHead.setPickAt(DateUtils.getCurrentSeconds());
         taskHead.setRealCollectLocation(locationId);
         pickTaskService.update(taskHead);
@@ -131,6 +135,11 @@ public class PickTaskHandler extends AbsTaskHandler {
         BigDecimal realTotalQty = new BigDecimal(0);
         for (WaveDetail pickDetail : pickDetails) {
             realTotalQty = realTotalQty.add(pickDetail.getPickQty());
+            pickDetail.setRealCollectLocation(locationId);
+            if (pickDetail.getPickQty().compareTo(BigDecimal.ZERO) == 0) {
+                pickDetail.setIsAlive(0L); // 对于只捡了0个的,不需要qc,直接将wave_detail置为完成
+            }
+            waveService.updateDetail(pickDetail);
         }
         // 移动库存,实际移动库存为0时则不移动
         if (realTotalQty.compareTo(new BigDecimal(0)) == 1) {
@@ -148,6 +157,7 @@ public class PickTaskHandler extends AbsTaskHandler {
         //更新波次状态
         waveService.updateWaveStatus(taskHead.getWaveId());
     }
+
 
     public void assignConcrete(Long taskId, Long staffId, Long containerId) throws BizCheckedException {
         PickTaskHead head = pickTaskService.getPickTaskHead(taskId);

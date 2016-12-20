@@ -131,6 +131,9 @@ public class PickRestService implements IPickRestService {
                 throw new BizCheckedException("2060017");
             }
             TaskInfo taskInfo = baseTaskService.getTaskInfoById(taskId);
+            if ( taskInfo == null){
+                return JsonUtils.TOKEN_ERROR("错误的捡货任务");
+            }
             PickTaskHead taskHead = pickTaskService.getPickTaskHead(taskId);
             if (!TaskConstant.Draft.equals(taskInfo.getStatus())) {
                 throw new BizCheckedException("2060001");
@@ -244,6 +247,8 @@ public class PickRestService implements IPickRestService {
                 throw new BizCheckedException("2060009");
             }
             // 完成拣货任务
+            /*
+            挪到done里面去
             List<WaveDetail> collectWaveDetails = waveService.getDetailsByPickTaskId(taskId);
             for (WaveDetail collectWaveDetail: collectWaveDetails) {
                 collectWaveDetail.setRealCollectLocation(locationId);
@@ -252,6 +257,7 @@ public class PickRestService implements IPickRestService {
                 }
                 waveService.updateDetail(collectWaveDetail);
             }
+            */
             iTaskRpcService.done(taskId, locationId, staffId);
             // 获取下一个集货位id
             if (taskInfos.size() > 1) {
@@ -364,17 +370,29 @@ public class PickRestService implements IPickRestService {
                     result.put("next_detail", pickTaskService.renderResult(BeanMapTransUtils.Bean2map(splitWaveDetails.get(0)), "allocPickLocation", "allocPickLocationCode"));
                 } else {
                     pickDone = true;
-                    result.put("next_detail", pickTaskService.renderResult(BeanMapTransUtils.Bean2map(pickTaskService.getPickTaskHead(taskIds.get(0))), "allocCollectLocation", "allocCollectLocationCode")); // 返回第一个任务的头信息用于集货位分配
+                    //自动集货
+                    for(Long doneTaskId : taskIds){
+                        iTaskRpcService.done(doneTaskId, 0L, staffId);
+                    }
+                    result.put("done", true);
+                    //result.put("next_detail", pickTaskService.renderResult(BeanMapTransUtils.Bean2map(pickTaskService.getPickTaskHead(taskIds.get(0))), "allocCollectLocation", "allocCollectLocationCode")); // 返回第一个任务的头信息用于集货位分配
                 }
             } else {
                 pickDone = true;
-                result.put("next_detail", pickTaskService.renderResult(BeanMapTransUtils.Bean2map(pickTaskService.getPickTaskHead(taskIds.get(0))), "allocCollectLocation", "allocCollectLocationCode")); // 返回第一个任务的头信息用于集货位分配
+                //自动集货
+                for(Long doneTaskId : taskIds){
+                    iTaskRpcService.done(doneTaskId, 0L, staffId);
+                }
+                result.put("done", true);
+                //result.put("next_detail", pickTaskService.renderResult(BeanMapTransUtils.Bean2map(pickTaskService.getPickTaskHead(taskIds.get(0))), "allocCollectLocation", "allocCollectLocationCode")); // 返回第一个任务的头信息用于集货位分配
             }
         } else {
             result.put("next_detail", pickTaskService.renderResult(BeanMapTransUtils.Bean2map(nextPickDetail), "allocPickLocation", "allocPickLocationCode"));
         }
         result.put("pick_done", pickDone);
-        result.put("done", false);
+        if(result.get("done") == null) {
+            result.put("done", false);
+        }
         return JsonUtils.SUCCESS(result);
     }
 
