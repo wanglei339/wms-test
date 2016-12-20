@@ -28,4 +28,6 @@ public interface WaveDetailDao {
 
 	List<Long> getPickLocationsByPickTimeRegion(Map<String, Object> params);
 
+	List<Long> getAllocatedLocationList(Map<String, Object> params);
+
 }

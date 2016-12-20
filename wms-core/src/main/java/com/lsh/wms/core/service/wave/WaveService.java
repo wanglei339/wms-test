@@ -764,4 +764,13 @@ public class WaveService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public List<Long> getAllocatedLocationList(){
+        Map<String, Object> mapQuery = new HashMap<String, Object>();
+        mapQuery.put("isValid", 1);
+        mapQuery.put("isAlive", 1);
+        List<Long> locationIds = detailDao.getAllocatedLocationList(mapQuery);
+        return locationIds == null ? new LinkedList<Long>() : locationIds;
+    }
+
 }
