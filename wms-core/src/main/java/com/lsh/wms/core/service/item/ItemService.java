@@ -3,12 +3,14 @@ package com.lsh.wms.core.service.item;
 import com.lsh.atp.api.model.baseVo.Item;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
+import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoItemDao;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoItemQuantRangeDao;
 import com.lsh.wms.core.dao.baseinfo.ItemSkuRelationDao;
 import com.lsh.wms.core.dao.csi.CsiSkuDao;
 import com.lsh.wms.core.dao.stock.StockQuantDao;
 import com.lsh.wms.core.service.csi.CsiSkuService;
+import com.lsh.wms.core.service.persistence.PersistenceProxy;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoItemQuantRange;
@@ -50,6 +52,8 @@ public class ItemService {
     private IdGenerator idGenerator;
     @Autowired
     private ItemSkuRelationDao itemSkuRelationDao;
+    @Autowired
+    private PersistenceProxy persistenceProxy;
 
 
     public BaseinfoItem getItem(long iOwnerId, long iSkuId){
@@ -227,6 +231,18 @@ public class ItemService {
         item.setUpdatedAt(DateUtils.getCurrentSeconds());
         //更新商品
         itemDao.update(item);
+
+        //回传商品信息
+        if(item.getOwnerId()==null) {
+            BaseinfoItem oldItem = this.getItem(item.getItemId());
+            if (oldItem.getOwnerId().compareTo(2L) == 0) {
+                persistenceProxy.doOne(SysLogConstant.LOG_TYPE_BACK_COMMODITY, item.getItemId(), 0);
+            }
+        }else {
+            if (item.getOwnerId().compareTo(2L) == 0) {
+                persistenceProxy.doOne(SysLogConstant.LOG_TYPE_BACK_COMMODITY, item.getItemId(), 0);
+            }
+        }
     }
 
     public int deleteItem(BaseinfoItem item){

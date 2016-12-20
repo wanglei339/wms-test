@@ -16,7 +16,7 @@ import java.util.Set;
 public interface IProcurementProveiderRpcService {
     boolean addProcurementPlan (StockTransferPlan plan) throws  BizCheckedException;
     boolean updateProcurementPlan(StockTransferPlan plan)  throws BizCheckedException;
-    void createProcurement() throws BizCheckedException;
+    void createProcurement(boolean canMax) throws BizCheckedException;
     void scanFromLocation(Map<String, Object> params) throws BizCheckedException;
     void scanToLocation(Map<String, Object> params) throws  BizCheckedException;
     Long assign(Long staffId) throws BizCheckedException;

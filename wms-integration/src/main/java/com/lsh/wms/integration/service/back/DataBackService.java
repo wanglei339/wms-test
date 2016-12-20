@@ -5,7 +5,11 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.lsh.base.common.config.PropertyUtils;
+import com.lsh.base.common.exception.BusinessException;
+import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.model.CommonResult;
 import com.lsh.base.common.net.HttpClientUtils;
+import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.model.po.IbdBackRequest;
@@ -17,10 +21,14 @@ import com.lsh.wms.core.constant.IntegrationConstan;
 import com.lsh.wms.core.constant.RedisKeyConstant;
 import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.dao.redis.RedisStringDao;
+import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.system.SysLogService;
 import com.lsh.wms.core.service.system.SysMsgService;
+import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.integration.model.OrderResponse;
 import com.lsh.wms.integration.service.common.utils.HttpUtil;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.stock.OverLossReport;
 import com.lsh.wms.model.system.SysLog;
 import com.lsh.wms.model.system.SysMsg;
 import org.apache.xmlrpc.client.XmlRpcClient;
@@ -54,6 +62,10 @@ public class DataBackService implements IDataBackService {
 
     @Autowired
     private SysLogService sysLogService;
+    @Autowired
+    private LocationService locationService;
+    @Autowired
+    private StockTakingService stockTakingService;
 
     public String wmDataBackByPost(String request, String url , Integer type,SysLog sysLog){
         OrderResponse orderResponse = new OrderResponse();
@@ -101,7 +113,7 @@ public class DataBackService implements IDataBackService {
             }
         }catch (Exception ex){
             logger.info("回传物美OFC异常 ex : " + ex.fillInStackTrace());
-            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_THROW);
             sysLog.setSysCode("回传物美OFC异常");
             sysLog.setSysMessage(ex.getMessage());
 
@@ -145,7 +157,7 @@ public class DataBackService implements IDataBackService {
                 sysLog.setLogCode(orderResponse.getCode());
             }
         }catch (Exception ex){
-            sysLog.setStatus(SysLogConstant.LOG_STATUS_CREATE);
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_THROW);
             logger.info("抛出异常 ex:" + ex);
             sysLog.setLogCode("回传异常");
             sysLog.setLogMessage(ex.getMessage());
@@ -208,7 +220,87 @@ public class DataBackService implements IDataBackService {
             //logger.info(e.getCause().getMessage());
             sysLog.setSysMessage(e.getMessage());
             sysLog.setSysCode("回传ERP异常");
-            sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_THROW);
+        }
+        return false;
+    }
+    public Boolean erpOvLosserBack(OverLossReport overLossReport,SysLog sysLog){
+        sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_ERP);
+        try {
+            if(overLossReport!=null){
+                String warehouseCode = locationService.getWarehouseLocation().getLocationCode();
+                Map<String,Object> params =  BeanMapTransUtils.Bean2map(overLossReport);
+                params.put("warehouseCode",warehouseCode);
+                String requestBody = JsonUtils.obj2Json(params);
+                int dc41_timeout = PropertyUtils.getInt("dc41_timeout");
+                String dc41_charset = PropertyUtils.getString("dc41_charset");
+                Map<String, String> headerMap = new HashMap<String, String>();
+                headerMap.put("Content-type", "application/json; charset=utf-8");
+                headerMap.put("Accept", "application/json");
+                headerMap.put("api-version", "1.1");
+                headerMap.put("random", RandomUtils.randomStr2(32));
+                headerMap.put("platform", "1");
+                String result  = HttpClientUtils.postBody(PropertyUtils.getString("url_over_loss_erp"),  requestBody,dc41_timeout , dc41_charset, headerMap);
+                logger.info("~~~~~~~~~~下发erp数据 request : " + JSON.toJSONString(params) + "~~~~~~~~~");
+                Map<String,Object> head = (Map)JSON.parseObject(result).get("head");
+                if(!head.get("status").toString().equals("1")){
+                    sysLog.setLogMessage(head.get("message").toString());
+                    sysLog.setLogCode("回传ERP异常");
+                    sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
+                }
+
+
+            }
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
+            sysLog.setLogMessage("回传erp成功");
+            sysLog.setSysCode("");
+            sysLog.setSysMessage("");
+        }
+        catch (Exception e) {
+            logger.info(e.getMessage());
+            sysLog.setSysMessage(e.getMessage());
+            sysLog.setSysCode("回传ERP异常");
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_THROW);
+        }
+        return false;
+    }
+    public Boolean erpBackCommodityData(BaseinfoItem item,SysLog sysLog){
+        sysLog.setTargetSystem(SysLogConstant.LOG_TARGET_ERP);
+        try {
+            if(item!=null){
+                String warehouseCode = locationService.getWarehouseLocation().getLocationCode();
+                Map<String,Object> params =  BeanMapTransUtils.Bean2map(item);
+                params.put("warehouseCode",warehouseCode);
+                String requestBody = JsonUtils.obj2Json(params);
+                int dc41_timeout = PropertyUtils.getInt("dc41_timeout");
+                String dc41_charset = PropertyUtils.getString("dc41_charset");
+                Map<String, String> headerMap = new HashMap<String, String>();
+                headerMap.put("Content-type", "application/json; charset=utf-8");
+                headerMap.put("Accept", "application/json");
+                headerMap.put("api-version", "1.1");
+                headerMap.put("random", RandomUtils.randomStr2(32));
+                headerMap.put("platform", "1");
+                String result  = HttpClientUtils.postBody(PropertyUtils.getString("url_back_commodity_erp"),  requestBody,dc41_timeout , dc41_charset, headerMap);
+                logger.info("~~~~~~~~~~下发erp数据 request : " + JSON.toJSONString(params) + "~~~~~~~~~");
+                Map<String,Object> head = (Map)JSON.parseObject(result).get("head");
+                if(!head.get("status").toString().equals("1")){
+                    sysLog.setLogMessage(head.get("message").toString());
+                    sysLog.setLogCode("回传ERP异常");
+                    sysLog.setStatus(SysLogConstant.LOG_STATUS_FAILED);
+                }
+
+
+            }
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_FINISH);
+            sysLog.setLogMessage("回传erp成功");
+            sysLog.setSysCode("");
+            sysLog.setSysMessage("");
+        }
+        catch (Exception e) {
+            logger.info(e.getMessage());
+            sysLog.setSysMessage(e.getMessage());
+            sysLog.setSysCode("回传ERP异常");
+            sysLog.setStatus(SysLogConstant.LOG_STATUS_THROW);
         }
         return false;
     }

@@ -525,4 +525,61 @@ public class BaseinfoItem implements Serializable {
 	public void setWmThirdCat(String wmThirdCat) {
 		this.wmThirdCat = wmThirdCat;
 	}
+
+	@Override
+	public String toString() {
+		return "BaseinfoItem{" +
+				"id=" + id +
+				", itemId=" + itemId +
+				", skuId=" + skuId +
+				", ownerId=" + ownerId +
+				", skuCode='" + skuCode + '\'' +
+				", skuName='" + skuName + '\'' +
+				", codeType=" + codeType +
+				", code='" + code + '\'' +
+				", status=" + status +
+				", topCat=" + topCat +
+				", secondCat=" + secondCat +
+				", thirdCat=" + thirdCat +
+				", shelfLife=" + shelfLife +
+				", length=" + length +
+				", width=" + width +
+				", height=" + height +
+				", weight=" + weight +
+				", l2Length=" + l2Length +
+				", l2Width=" + l2Width +
+				", l2Height=" + l2Height +
+				", l2Weight=" + l2Weight +
+				", l2Unit=" + l2Unit +
+				", packLength=" + packLength +
+				", packWidth=" + packWidth +
+				", packHeight=" + packHeight +
+				", packWeight=" + packWeight +
+				", packUnit=" + packUnit +
+				", saleUnit=" + saleUnit +
+				", itemLevel=" + itemLevel +
+				", createdAt=" + createdAt +
+				", updatedAt=" + updatedAt +
+				", producePlace='" + producePlace + '\'' +
+				", batchNeeded=" + batchNeeded +
+				", floorAvailable=" + floorAvailable +
+				", storageTemperature=" + storageTemperature +
+				", safetyQty=" + safetyQty +
+				", pileX=" + pileX +
+				", pileY=" + pileY +
+				", pileZ=" + pileZ +
+				", unitName='" + unitName + '\'' +
+				", l2Name='" + l2Name + '\'' +
+				", packName='" + packName + '\'' +
+				", isValuable=" + isValuable +
+				", itemType=" + itemType +
+				", isInfoIntact=" + isInfoIntact +
+				", isShelfLifeValid=" + isShelfLifeValid +
+				", isValid=" + isValid +
+				", packCode='" + packCode + '\'' +
+				", wmTopCat='" + wmTopCat + '\'' +
+				", wmSecondCat='" + wmSecondCat + '\'' +
+				", wmThirdCat='" + wmThirdCat + '\'' +
+				'}';
+	}
 }

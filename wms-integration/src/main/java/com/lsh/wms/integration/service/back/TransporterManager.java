@@ -10,9 +10,11 @@ import com.lsh.wms.core.constant.SysLogConstant;
 import com.lsh.wms.core.service.po.ReceiveService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
+import com.lsh.wms.core.service.taking.StockTakingService;
 import com.lsh.wms.model.po.ReceiveHeader;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
+import com.lsh.wms.model.stock.OverLossReport;
 import com.lsh.wms.model.system.SysLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -53,9 +55,16 @@ public class TransporterManager {
 
     @Autowired
     private InventoryTransporter inventoryTransporter;
+    @Autowired
+    private ErpBackCommondityTransporter erpBackCommondityTransporter;
+
+    @Autowired
+    private ErpInventoryTransporter erpInventoryTransporter;
 
     @Autowired
     private MovingTransporter movingTransporter;
+    @Autowired
+    private StockTakingService stockTakingService;
 
 
     //@Autowired
@@ -98,13 +107,21 @@ public class TransporterManager {
                 }
                 break;
             case SysLogConstant.LOG_TYPE_LOSS_WIN:
-                transporter = inventoryTransporter;
+                OverLossReport overLossReport = stockTakingService.getOverLossReportById(sysLog.getBusinessId());
+                if(overLossReport.getOwnerId().compareTo(1L)==0) {
+                    transporter = inventoryTransporter;
+                }else if(overLossReport.getOwnerId().compareTo(2L)==0){
+                    transporter = erpInventoryTransporter;
+                }
                 break;
             case SysLogConstant.LOG_TYPE_DIRECT:
                 transporter = directTransporter;
                 break;
             case SysLogConstant.LOG_TYPE_MOVING:
                 transporter = movingTransporter;
+                break;
+            case SysLogConstant.LOG_TYPE_BACK_COMMODITY:
+                transporter = erpBackCommondityTransporter;
                 break;
         }
         transporter.process(sysLog);

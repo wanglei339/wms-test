@@ -173,7 +173,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         return true;
     }
     //创建货架补货任务
-    private void createShelfProcurement() throws BizCheckedException {
+    private void createShelfProcurement(boolean canMax) throws BizCheckedException {
         Map<String,Object> mapQuery =new HashMap<String, Object>();
         //获取所有货架拣货位的位置信息
         List<BaseinfoLocation> shelfLocationList = locationService.getBinsByFatherTypeAndUsage(LocationConstant.SHELF, BinUsageConstant.BIN_UASGE_PICK);
@@ -186,7 +186,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
             for (BaseinfoItemLocation itemLocation : itemLocationList) {
                 //判断商品是否需要补货
-                if (rpcService.needProcurement(itemLocation.getPickLocationid(), itemLocation.getItemId(),false)) {
+                if (rpcService.needProcurement(itemLocation.getPickLocationid(), itemLocation.getItemId(),canMax)) {
                     //该位置当前是否有补货任务
                     if (baseTaskService.checkTaskByToLocation(itemLocation.getPickLocationid(), TaskConstant.TYPE_PROCUREMENT)) {
                         continue;
@@ -371,7 +371,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
 
     //创建阁楼补货任务
-    private void createLoftProcurement() throws BizCheckedException {
+    private void createLoftProcurement(boolean canMax) throws BizCheckedException {
         Map<String,Object> queryMap = new HashMap<String, Object>();
         Map<String,Object> mapQuery =new HashMap<String, Object>();
 
@@ -384,7 +384,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationByLocationID(loftPick.getLocationId());
             for (BaseinfoItemLocation itemLocation : itemLocationList) {
                 //判断是否需要补货
-                if (rpcService.needProcurement(itemLocation.getPickLocationid(),itemLocation.getItemId(),false)) {
+                if (rpcService.needProcurement(itemLocation.getPickLocationid(),itemLocation.getItemId(),canMax)) {
                     //是否有未完成的补货任务
                     if (baseTaskService.checkTaskByToLocation(itemLocation.getPickLocationid(), TaskConstant.TYPE_PROCUREMENT)) {
                         continue;
@@ -470,9 +470,9 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         }
     }
 
-    public void createProcurement() throws BizCheckedException {
-        this.createShelfProcurement();
-        this.createLoftProcurement();
+    public void createProcurement(boolean canMax) throws BizCheckedException {
+        this.createShelfProcurement(canMax);
+        this.createLoftProcurement(canMax);
     }
 
     public void scanFromLocation(Map<String, Object> params) throws BizCheckedException {

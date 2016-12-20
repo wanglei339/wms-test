@@ -154,14 +154,14 @@ public class ItemRestService implements IItemRestService {
     @POST
     @Path("updateItem")
     public String updateItem(BaseinfoItem item) throws BizCheckedException {
-        try{
+//        try{
             itemRpcService.updateItem(item);
-        }catch (BizCheckedException e) {
-            throw e;
-        }catch (Exception e){
-            logger.error(e.getMessage());
-            return JsonUtils.EXCEPTION_ERROR("Update failed");
-        }
+//        }catch (BizCheckedException e) {
+//            throw e;
+//        }catch (Exception e){
+//            logger.error(e.getMessage());
+//            return JsonUtils.EXCEPTION_ERROR("Update failed");
+//        }
         return JsonUtils.SUCCESS();
     }
 
