@@ -17,21 +17,17 @@
 		<result property="storeId" column="store_id"/>
 		<result property="isValid" column="is_valid"/>
 		<result property="boardNum" column="board_num"/>
-		<result property="customerName" column="customer_name"/>
-		<result property="customerAddress" column="customer_address"/>
-		<result property="customerCode" column="customer_code"/>
-		<result property="collectionId" column="collection_id"/>
 	</resultMap>
 
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TuDetail">
 		insert into tu_detail (
 			tu_id,merged_container_id,box_num,container_num,turnover_box_num,is_rest,
 			is_expensive,created_at,updated_at,load_at,store_id,is_valid,
-			board_num,customer_name,customer_address,customer_code,collection_id
+			board_num
     	) values (
 			#{tuId},#{mergedContainerId},#{boxNum},#{containerNum},#{turnoverBoxNum},#{isRest},
 			#{isExpensive},#{createdAt},#{updatedAt},#{loadAt},#{storeId},#{isValid},
-			#{boardNum},#{customerName},#{customerAddress},#{customerCode},#{collectionId}
+			#{boardNum}
     	)
 	</insert>
 
@@ -50,11 +46,7 @@
   			<if test="loadAt != null">load_at=#{loadAt},</if>
   			<if test="storeId != null">store_id=#{storeId},</if>
 			<if test="isValid != null">is_valid=#{isValid},</if>
-			<if test="boardNum != null">board_num=#{boardNum},</if>
-			<if test="customerName != null">customer_name=#{customerName},</if>
-			<if test="customerAddress != null">customer_address=#{customerAddress},</if>
-			<if test="customerCode != null">customer_code=#{customerCode},</if>
-			<if test="collectionId != null">collection_id=#{collectionId}</if>
+			<if test="boardNum != null">board_num=#{boardNum}</if>
 		</set>
 		where merged_container_id=#{mergedContainerId}
 	</update>
@@ -93,10 +85,6 @@
 			<if test="storeId != null">and store_id=#{storeId}</if>
 			<if test="isValid != null">and is_valid=#{isValid}</if>
 			<if test="boardNum != null">and board_num=#{boardNum}</if>
-			<if test="customerName != null">and customer_name=#{customerName}</if>
-			<if test="customerAddress != null">and customer_address=#{customerAddress}</if>
-			<if test="customerCode != null">and customer_code=#{customerCode}</if>
-			<if test="collectionId != null">and collection_id=#{collectionId}</if>
 		</where>
 	</sql>
    
