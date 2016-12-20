@@ -513,7 +513,7 @@ public class StockTakingService {
             overLossReport.setCreatedAt(DateUtils.getCurrentSeconds());
             overLossReportDao.insert(overLossReport);
             //物美的商品 增加日志
-            if(1 == overLossReport.getOwnerId()){
+            if(overLossReport.getOwnerId().compareTo(1L)==0 || overLossReport.getOwnerId().compareTo(2L)==0){
                 persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN, reportId,0);
             }
 
@@ -528,7 +528,7 @@ public class StockTakingService {
         overLossReport.setCreatedAt(DateUtils.getCurrentSeconds());
         overLossReportDao.insert(overLossReport);
         //物美的商品 增加日志
-        if(1 == overLossReport.getOwnerId()){
+        if(overLossReport.getOwnerId().compareTo(1L)==0 || overLossReport.getOwnerId().compareTo(2L)==0){
             persistenceProxy.doOne(SysLogConstant.LOG_TYPE_LOSS_WIN, reportId,0);
         }
     }
