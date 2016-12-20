@@ -121,6 +121,8 @@
 			<if test="realLocation != null">and REAL_LOCATION=#{realLocation}</if>
 			<if test="receiptUser != null">and RECEIPT_USER=#{receiptUser}</if>
 			<if test="receiptTime != null">and RECEIPT_TIME=#{receiptTime}</if>
+			<if test="receiptTimeAfter != null">and RECEIPT_TIME&gt;=#{receiptTimeAfter}</if>
+			<if test="receiptTimeBefore != null">and RECEIPT_TIME&lt;=#{receiptTimeBefore}</if>
 			<if test="storeCode != null">and STORE_CODE=#{storeCode}</if>
 			<if test="receiptType != null">and RECEIPT_TYPE=#{receiptType}</if>
 			<if test="receiptStatus != null">and RECEIPT_STATUS=#{receiptStatus}</if>

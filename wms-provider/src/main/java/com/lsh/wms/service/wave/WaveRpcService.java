@@ -104,7 +104,7 @@ public class WaveRpcService implements IWaveRpcService {
             waveService.createWave(pickWaveHead,orders);
             return pickWaveHead.getWaveId();
         }catch (Exception e){
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             throw new BizCheckedException("2041004");
         }
     }

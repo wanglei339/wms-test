@@ -126,7 +126,7 @@ public class PickRpcService implements IPickRpcService {
                 waveService.updateDetail(waveDetail);
                 waveDetailList.add(waveDetail);
             } catch (Exception e) {
-                logger.error(e.getCause().getMessage());
+                logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
                 throw new BizCheckedException("2040011");
             }
         }

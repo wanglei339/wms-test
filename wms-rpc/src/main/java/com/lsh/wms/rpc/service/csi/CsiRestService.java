@@ -68,7 +68,7 @@ public class CsiRestService implements ICsiRestService {
         try{
             csiRpcService.insertCategory(category);
         }catch(Exception e){
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             return JsonUtils.TOKEN_ERROR("failed");
         }
 
@@ -80,7 +80,7 @@ public class CsiRestService implements ICsiRestService {
         try{
             csiRpcService.updateCategory(category);
         }catch(Exception e){
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             return JsonUtils.TOKEN_ERROR("failed");
         }
         return JsonUtils.SUCCESS();
@@ -108,7 +108,7 @@ public class CsiRestService implements ICsiRestService {
         try{
              csiRpcService.insertSku(sku);
         }catch (Exception e){
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             return JsonUtils.TOKEN_ERROR("failed");
         }
         return JsonUtils.SUCCESS();
@@ -122,7 +122,7 @@ public class CsiRestService implements ICsiRestService {
         try{
             csiRpcService.updateSku(sku);
         }catch (Exception e){
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             return JsonUtils.TOKEN_ERROR("failed");
         }
         return JsonUtils.SUCCESS();
@@ -152,7 +152,7 @@ public class CsiRestService implements ICsiRestService {
         try{
             csiRpcService.insertOwner(owner);
         }catch (Exception e){
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             return JsonUtils.TOKEN_ERROR("failed");
         }
         return JsonUtils.SUCCESS();
@@ -163,7 +163,7 @@ public class CsiRestService implements ICsiRestService {
         try{
             csiRpcService.updateOwner(owner);
         }catch (Exception e){
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             return JsonUtils.TOKEN_ERROR("failed");
         }
         return JsonUtils.SUCCESS();
@@ -182,7 +182,7 @@ public class CsiRestService implements ICsiRestService {
         try{
             csiRpcService.insertSupplier(supplier);
         }catch (Exception e){
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             return JsonUtils.TOKEN_ERROR("failed");
         }
         return JsonUtils.SUCCESS();
@@ -204,7 +204,7 @@ public class CsiRestService implements ICsiRestService {
         try{
             csiRpcService.updateSupplier(supplier);
         }catch (Exception e){
-            logger.error(e.getCause().getMessage());
+            logger.error(e.getCause()!=null ? e.getCause().getMessage():e.getMessage());
             return JsonUtils.TOKEN_ERROR("failed");
         }
         return JsonUtils.SUCCESS();

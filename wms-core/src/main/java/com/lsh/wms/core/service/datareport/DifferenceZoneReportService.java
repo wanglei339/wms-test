@@ -96,7 +96,7 @@ public class DifferenceZoneReportService {
                     break;
                 }
             }
-            if(move.getToLocationId().equals(0)){
+            if(move.getToLocationId().equals(0L)){
                 throw new BizCheckedException("2910001");
             }
             move.setFromLocationId(locationService.getDiffAreaLocation().getLocationId());
