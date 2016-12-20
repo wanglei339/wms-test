@@ -452,6 +452,13 @@ public class TuRpcService implements ITuRpcService {
         result.put("taskBoardQty", (int) boardNum.floatValue());    //一个板子的板子数
         result.put("isRest", isRest);
         result.put("isExpensive", isExpensive);    //非贵品
+
+        //客户信息
+        result.put("customerName",csiCustomer.getCustomerName());
+        result.put("customerCode",csiCustomer.getCustomerCode());
+        result.put("customerAddress",csiCustomer.getAddress());
+        //集货位置
+        result.put("collectionId",taskInfos.get(0).getLocationId());
         return result;
     }
 

@@ -339,6 +339,16 @@ public class LoadRfRestService implements ILoadRfRestService {
         tuDetail.setIsValid(1);
         tuDetail.setIsRest(isRest ? TuConstant.IS_REST : TuConstant.NOT_REST);
         tuDetail.setIsExpensive(isExpensive ? TuConstant.IS_EXPENSIVE : TuConstant.NOT_EXPENSIVE);
+        //客户的信息录入
+        String customerName = containerDetailMap.get("customerName").toString();
+        String customerCode = containerDetailMap.get("customerCode").toString();
+        String customerAddress = containerDetailMap.get("customerAddress").toString();
+        Long collectionId = Long.valueOf(containerDetailMap.get("collectionId").toString());
+        tuDetail.setCustomerCode(customerCode);
+        tuDetail.setCustomerName(customerName);
+        tuDetail.setCustomerAddress(customerAddress);
+        tuDetail.setCollectionId(collectionId);
+
         iTuRpcService.create(tuDetail);
 
         return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {

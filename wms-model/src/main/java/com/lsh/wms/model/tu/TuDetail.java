@@ -61,6 +61,15 @@ public class TuDetail implements Serializable {
      */
     private Long boardNum = 1L;
 
+    /** 客户名称 */
+    private String customerName;
+    /** 客户地址 */
+    private String customerAddress;
+    /** 客户的编码 */
+    private String customerCode;
+    /** 集货位置id */
+    private Long collectionId;
+
     public Long getId() {
         return this.id;
     }
@@ -171,5 +180,37 @@ public class TuDetail implements Serializable {
 
     public void setBoardNum(Long boardNum) {
         this.boardNum = boardNum;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public String getCustomerAddress() {
+        return customerAddress;
+    }
+
+    public String getCustomerCode() {
+        return customerCode;
+    }
+
+    public Long getCollectionId() {
+        return collectionId;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public void setCustomerAddress(String customerAddress) {
+        this.customerAddress = customerAddress;
+    }
+
+    public void setCustomerCode(String customerCode) {
+        this.customerCode = customerCode;
+    }
+
+    public void setCollectionId(Long collectionId) {
+        this.collectionId = collectionId;
     }
 }

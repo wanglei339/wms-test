@@ -17,12 +17,14 @@ import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
@@ -70,6 +72,8 @@ public class ShipRestService implements IShipRestService {
     protected IdGenerator idGenerator;
     @Autowired
     private TuService tuService;
+    @Autowired
+    private SoOrderService soOrderService;
 
     @Path("releaseCollectionRoad")
     @POST
@@ -118,7 +122,7 @@ public class ShipRestService implements IShipRestService {
             throw new BizCheckedException("2180008");
         }
         BaseinfoLocation collection = iLocationRpcService.getLocationByCode(locationCode);
-        if(collection == null || collection.getType() != LocationConstant.COLLECTION_ROAD){
+        if (collection == null || collection.getType() != LocationConstant.COLLECTION_ROAD) {
             throw new BizCheckedException("");
         }
         Long collectionId = collection.getLocationId();
@@ -135,10 +139,13 @@ public class ShipRestService implements IShipRestService {
 
         List<TaskInfo> qcInfos = new ArrayList<TaskInfo>();
         Set<Long> qcTaskIdDup = new HashSet<Long>();
+        //客户信息
+        Map<Long, Map<String, Object>> qcId2cutomerInfoMap = new HashMap<Long, Map<String, Object>>();
+
         for (Long containerId : containterIds) {
             //首先判断这个container是否已经被被的运单装走了
             List<TuDetail> tuDetails = tuService.getTuDeailListByMergedContainerId(containerId);
-            if(tuDetails != null && tuDetails.size() > 0){
+            if (tuDetails != null && tuDetails.size() > 0) {
                 throw new BizCheckedException("2130014");
             }
             //判断是否组盘完成,先去listdetail总找组盘
@@ -146,13 +153,13 @@ public class ShipRestService implements IShipRestService {
             if (null == waveDetails || waveDetails.size() < 1) {
                 throw new BizCheckedException("2880012");
             }
-            for(WaveDetail detail : waveDetails) {
+            for (WaveDetail detail : waveDetails) {
                 if (detail.getQcTaskId() == 0) {
                     throw new BizCheckedException("2870034");
                 }
                 if (qcTaskIdDup.contains(detail.getQcTaskId())) {
                     continue;
-                }else{
+                } else {
                     TaskInfo qcInfo = iTaskRpcService.getTaskInfo(detail.getQcTaskId());
                     //没qc完成
                     if (null == qcInfo || !TaskConstant.Done.equals(qcInfo.getStatus())) {
@@ -160,6 +167,21 @@ public class ShipRestService implements IShipRestService {
                     }
                     qcInfos.add(qcInfo);
                     qcTaskIdDup.add(detail.getQcTaskId());
+
+
+                    Map<String, Object> cutomerInfoMap = new HashMap<String, Object>();
+                    ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(detail.getOrderId());
+                    if (null == obdHeader) {
+                        logger.info("container "+ detail.getContainerId() +"has no obdOrder ");
+                        throw new BizCheckedException("2120016");
+                    }
+
+                    //客户信息
+                    cutomerInfoMap.put("customerName",obdHeader.getDeliveryName());
+                    cutomerInfoMap.put("customerCode",obdHeader.getDeliveryCode());
+                    cutomerInfoMap.put("customerAddress",obdHeader.getDeliveryAddrs());
+                    cutomerInfoMap.put("collectionId",qcInfo.getLocationId());
+                    qcId2cutomerInfoMap.put(detail.getQcTaskId(),cutomerInfoMap);
                 }
             }
         }
@@ -195,6 +217,13 @@ public class ShipRestService implements IShipRestService {
             tuDetail.setStoreId(0L);
             tuDetail.setLoadAt(DateUtils.getCurrentSeconds());
             tuDetail.setIsValid(1);
+            //客户信息
+            Map<String,Object> cutomerInfoMap = qcId2cutomerInfoMap.get(qcInfo.getTaskId());
+            tuDetail.setCollectionId(qcInfo.getLocationId());
+            tuDetail.setCustomerCode(cutomerInfoMap.get("customerCode").toString());
+            tuDetail.setCustomerName(cutomerInfoMap.get("customerName").toString());
+            tuDetail.setCustomerAddress(cutomerInfoMap.get("customerAddress").toString());
+
             tuDetails.add(tuDetail);
         }
 
