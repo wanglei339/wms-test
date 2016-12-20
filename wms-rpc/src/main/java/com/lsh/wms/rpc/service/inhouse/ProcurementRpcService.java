@@ -72,9 +72,9 @@ public class ProcurementRpcService implements IProcurementRpcService{
         }
         if(checkMax){
             if (baseinfoItemLocation.getMaxQty().compareTo(qty) > 0){
-                return false;
-            }else {
                 return true;
+            }else {
+                return false;
             }
         }else {
             if (baseinfoItemLocation.getMinQty().compareTo(qty) > 0) {

@@ -134,7 +134,7 @@ public class ProcurementProviderRestService implements IProcurementProviderRestS
     @Path("autoCreate")
     public String createProcurement()  throws BizCheckedException {
         try{
-            rpcService.createProcurement();
+            rpcService.createProcurement(true);
         } catch (BizCheckedException e) {
             throw e;
         } catch (Exception e) {
