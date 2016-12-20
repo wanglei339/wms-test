@@ -1468,7 +1468,7 @@ public class LocationService {
     /**
      * 根据指定的坐标排序方式,获取指定的位置集合
      *
-     * @param params
+     * @param fatherId
      * @return
      */
     public List<BaseinfoLocation> getSortLocations(Long fatherId) {
