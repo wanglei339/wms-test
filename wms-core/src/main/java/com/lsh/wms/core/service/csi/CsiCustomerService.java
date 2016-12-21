@@ -115,6 +115,19 @@ public class CsiCustomerService {
             return customers.get(0);
         }
     }
+    public CsiCustomer getCustomerByCustomerCode(String customerCode,Long owmerId) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        //map.put("ownerId", ownerId);
+        map.put("customerCode", customerCode);
+        map.put("owmerId", owmerId);
+        map.put("isValid", 1);   //有效的
+        List<CsiCustomer> customers = this.getCustomerList(map);
+        if(customers.size()!=1){
+            return null;
+        }else{
+            return customers.get(0);
+        }
+    }
     public CsiCustomer getCustomerByseedRoadId(Long seedRoadId) {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("seedRoadId", seedRoadId);
