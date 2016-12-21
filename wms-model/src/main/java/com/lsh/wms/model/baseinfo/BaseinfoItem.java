@@ -66,7 +66,7 @@ public class BaseinfoItem implements Serializable {
 	/** 售卖单位 */
 	private BigDecimal saleUnit= new BigDecimal(0);
 	/** 商品等级，对应A,B,C */
-	private Integer itemLevel =0;
+	private Integer itemLevel =3;
 	/**  */
 	private Long createdAt = 0L;
 	/**  */
@@ -84,7 +84,7 @@ public class BaseinfoItem implements Serializable {
 	/** 码盘规则 */
 	private Long pileX = 0l;
 	/** 码盘规则 */
-	private Long pileY =0l;
+	private Long pileY =1l;
 	/** 码盘规则 */
 	private Long pileZ =0l;
 	/** 基本单位名称 */
