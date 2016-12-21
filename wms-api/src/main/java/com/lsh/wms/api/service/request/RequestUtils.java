@@ -83,6 +83,7 @@ public class RequestUtils {
                 requestMap.put(entry.getKey(), entry.getValue()[0]);
             }
         }
+        logger.info("The contents of request body is: \n"+JsonUtils.obj2Json(requestMap));
         return requestMap;
     }
 
