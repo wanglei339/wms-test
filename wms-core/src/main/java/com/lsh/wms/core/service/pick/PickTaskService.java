@@ -265,16 +265,19 @@ public class PickTaskService {
             BigDecimal allocQty = new BigDecimal(result.get("allocQty").toString());
             result.put("allocQty", PackUtil.EAQty2UomQty(allocQty, result.get("allocUnitName").toString()));
         }
-        //todo 这里的捡货单位有问题,allocUnitName就已经是捡货单位了
+        //todo 这里的捡货单位有问题,allocUnitName就已经是捡货单位了,而且前端就是用的这个东西
+        /*
         if (taskInfo.getSubType().equals(PickConstant.SHELF_TASK_TYPE)) {
             result.put("unitName", "箱");
         } else if (taskInfo.getSubType().equals(PickConstant.SHELF_PALLET_TASK_TYPE)) {
             // 整托拣货,固定为只捡一托
             result.put("allocQty", 1);
             result.put("unitName", "托");
+            //todo 这里不能这么搞,捡货人员没有办法判断一拖货是多了还是少了,该是多少量!
         } else {
             result.put("unitName", "EA");
         }
+        */
         //todo 这里的国条也可能有问题,在多国条情况下,一个仓位上的国条是跟着库存走的,不是跟着库位走的
         if (result.get("itemId") != null) {
             BaseinfoItem item = itemService.getItem(Long.valueOf(result.get("itemId").toString()));
