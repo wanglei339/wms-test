@@ -118,7 +118,8 @@ public class StockTransferRFService implements IStockTransferRFService{
             Set<Long> items = new HashSet<Long>();
             Set<Long> owners = new HashSet<Long>();
             for(StockQuant stockQuant : quantList){
-                items.add(stockQuant.getItemId());
+                //items.add(stockQuant.getItemId());
+                items.add(stockQuant.getSkuId());
                 owners.add(stockQuant.getOwnerId());
             }
             result.put("needBarcode", items.size() > 1 ? 1 : 0);
@@ -129,8 +130,9 @@ public class StockTransferRFService implements IStockTransferRFService{
                 result.put("locationCode", location.getLocationCode());
                 result.put("itemId", quant.getItemId());
                 BaseinfoItem item = itemRpcService.getItem(quant.getItemId());
+                CsiSku sku = itemRpcService.getSku(quant.getSkuId());
                 result.put("itemName", item.getSkuName());
-                result.put("barcode", barcode == null ? item.getCode() : barcode);
+                result.put("barcode", barcode == null ? sku.getCode() : barcode);
                 result.put("skuCode", item.getSkuCode());
                 result.put("lotId", quant.getLotId());
                 condition.setItemId(quant.getItemId());
