@@ -178,7 +178,8 @@ public class LocationConstant {
             put(10L, "退货区");
             put(11L, "残次区");
             put(12L, "码头区");
-            put(14L, "货架区货架");
+            put(13L, "货架区货架");
+            put(14L, "阁楼区货架");
             put(15L, "货位");
             put(16L, "货架拣货位");
             put(17L, "货架存货位");

@@ -239,8 +239,12 @@ public class LocationDetailService {
         ObjUtils.bean2bean(request, iBaseinfoLocaltionModel);
         //插入的locationCode
         Long type = iBaseinfoLocaltionModel.getType();
-        //todo 货位的插入需要
-        if (LocationConstant.BIN.equals(type) && null != request.getLocationCode()) {
+        //除了货架的名字能重复,其他都不能重复
+        if (!(
+                LocationConstant.SHELF.equals(type)
+                        || LocationConstant.LOFT.equals(type)
+                        || LocationConstant.SPLIT_SHELF.equals(type)
+                        || LocationConstant.SUPPLIER_RETURN_SHELF.equals(type))) {
             //查找货位code是否相同
             BaseinfoLocation baseinfoLocation = locationService.getLocationByCode(request.getLocationCode());
             if (null != baseinfoLocation) {

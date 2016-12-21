@@ -119,6 +119,8 @@
 			<if test="lotId != null">and lot_id=#{lotId}</if>
 			<if test="skuId != null">and sku_id=#{skuId}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="createdAtAfter != null">and created_at&gt;=#{createdAtAfter}</if>
+			<if test="createdAtBefore != null">and created_at&lt;=#{createdAtBefore}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 			<if test="planType != null"> and plan_type=#{planType}</if>
 			<if test="dueTime != null"> and due_time=#{dueTime}</if>

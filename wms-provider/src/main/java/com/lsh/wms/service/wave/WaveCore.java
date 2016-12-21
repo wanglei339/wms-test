@@ -103,6 +103,7 @@ public class WaveCore {
     List<TaskEntry> entryList;
     Map<String, Map<Long, BigDecimal>> mapItemArea2LocationInventory;
     Map<Long, BaseinfoItem> mapItems;
+    Set<Long> setLocationAllocated;
     boolean bAllocAll;
 
 
@@ -445,7 +446,8 @@ public class WaveCore {
                                 for (StockQuant quant : quants) {
                                     BaseinfoLocation loation = locationService.getLocation(quant.getLocationId());
                                     if (loation.getRegionType().equals(LocationConstant.SHELFS)
-                                            && loation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)) {
+                                            && loation.getBinUsage().equals(BinUsageConstant.BIN_UASGE_STORE)
+                                            && !setLocationAllocated.contains(quant.getLocationId())) {
                                         bFindShelfStore = true;
                                         detail.setAllocPickLocation(loation.getLocationId());
                                         logger.info(String.format("ITEM[%d] find  shelfstore, location[%s]", detail.getItemId(), loation.getLocationCode()));
@@ -458,6 +460,7 @@ public class WaveCore {
                                 }
                             }
                         }
+                        setLocationAllocated.add(detail.getAllocPickLocation());
                     }
                 }
                 iChooseIdx += bestCutPlan[i];
@@ -668,6 +671,7 @@ public class WaveCore {
         mapOrder2CollectBin = new HashMap<Long, Long>();
         mapOldOrder2CollectBin = new HashMap<Long, Long>();
         mapItemArea2LocationInventory = new HashMap<String, Map<Long, BigDecimal>>();
+        setLocationAllocated = new HashSet<Long>();
         mapItems = new HashMap<Long, BaseinfoItem>();
         this._prepareWave();
         this._prepareOrder();
@@ -710,6 +714,11 @@ public class WaveCore {
         List<WaveDetail> releasedWaveList = waveService.getDetailsByWaveId(waveId);
         for(WaveDetail detail : releasedWaveList){
             mapOldOrder2CollectBin.put(detail.getOrderId(), detail.getAllocCollectLocation());
+        }
+
+        List<Long> allocatedLocationList = waveService.getAllocatedLocationList();
+        for(Long locationId : allocatedLocationList){
+            setLocationAllocated.add(locationId);
         }
     }
     
