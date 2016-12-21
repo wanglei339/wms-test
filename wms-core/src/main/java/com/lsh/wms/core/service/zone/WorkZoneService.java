@@ -56,6 +56,7 @@ public class WorkZoneService {
         workZoneDao.update(zone);
     }
 
+    @Transactional(readOnly = false)
     public void deleteWorkZone(Long zoneId){
         WorkZone zone = new WorkZone();
         zone.setZoneId(zoneId);
