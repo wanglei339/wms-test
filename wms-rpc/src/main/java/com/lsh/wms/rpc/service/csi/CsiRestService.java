@@ -242,7 +242,7 @@ public class CsiRestService implements ICsiRestService {
         return JsonUtils.SUCCESS(customerService.getCustomerByCustomerCode(customerCode));
     }
     @GET
-    @Path("getCustomer")
+    @Path("getCustomerByCodeAndOwnerId")
     public String getCustomerByCustomerCode(@QueryParam("customerCode") String customerCode,@QueryParam("ownerId") Long ownerId)throws BizCheckedException{
         return JsonUtils.SUCCESS(customerService.getCustomerByCustomerCode(customerCode,ownerId));
     }

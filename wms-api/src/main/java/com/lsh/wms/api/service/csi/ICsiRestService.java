@@ -58,6 +58,7 @@ public interface ICsiRestService {
     public String getCustomerCount(Map<String, Object> mapQuery)throws BizCheckedException;
 
     String getCustomerByCustomerCode(Map<String, Object> mapQuery)throws BizCheckedException;
+    String getCustomerByCustomerCode(String customerCode,Long ownerId)throws BizCheckedException;
 
     String updateCustomer(CsiCustomer csiCustomer)throws BizCheckedException;
 
