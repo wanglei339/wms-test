@@ -70,4 +70,14 @@ public class PackUtil {
         return PackUtil.UomQty2EAQty(uomQty, packUint);
     }
 
+    public static boolean isFullPack(BigDecimal qty, String uom){
+        BigDecimal uomQty = PackUtil.EAQty2UomQty(qty, uom);
+        BigDecimal eaQty = PackUtil.UomQty2EAQty(uomQty, uom);
+        if(eaQty.compareTo(qty)==0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
 }
