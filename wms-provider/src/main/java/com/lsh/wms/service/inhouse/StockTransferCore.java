@@ -180,7 +180,7 @@ public class StockTransferCore {
         } else {
             StockMove move = new StockMove();
             ObjUtils.bean2bean(taskInfo, move);
-            //move.setQty(PackUtil.UomQty2EAQty(uomQty, uom));
+            move.setQty(PackUtil.UomQty2EAQty(uomQty, uom));
             move.setFromLocationId(fromLocation.getLocationId());
             move.setToLocationId(toLocationId);
             move.setFromContainerId(quants.get(0).getContainerId());
