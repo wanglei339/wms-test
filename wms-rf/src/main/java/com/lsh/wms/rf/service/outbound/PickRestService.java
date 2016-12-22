@@ -316,7 +316,7 @@ public class PickRestService implements IPickRestService {
                 if (taskInfo.getSubType().equals(PickConstant.SHELF_PALLET_TASK_TYPE)) {
                     qty = quantQty;
                 } else {
-                    throw new BizCheckedException("2060007", PackUtil.EAQty2UomQty(quantQty, needPickDetail.getAllocUnitName()).toString());
+                    throw new BizCheckedException("2060007", PackUtil.EAQty2UomQty(quantQty, needPickDetail.getAllocUnitName()).toString(),"");
                 }
             }
             // 存捡合一
