@@ -119,6 +119,18 @@ public class ReceiveService {
 
         return getReceiveDetail(params);
     }
+    public List<ReceiveDetail> getReceiveDetailListByReceiveIdAndSkuCode(Long receiveId, String skuCode) {
+        Map<String, Object> params = new HashMap<String, Object>();
+
+        params.put("receiveId", receiveId);
+        params.put("skuCode", skuCode);
+
+        List<ReceiveDetail> receiveDetails =  receiveDetailDao.getReceiveDetailList(params);
+        if(receiveDetails.size() <= 0){
+            return null;
+        }
+        return receiveDetails;
+    }
 
     /**
      * 根据条件查询receiveDetail
