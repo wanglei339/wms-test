@@ -44,6 +44,7 @@ public class ProcurementTaskHandler extends AbsTaskHandler {
     public void calcPerformance(TaskInfo taskInfo) {
         taskInfo.setTaskPackQty(taskInfo.getQty().divide(taskInfo.getPackUnit(),2,BigDecimal.ROUND_HALF_DOWN));
         taskInfo.setTaskEaQty(taskInfo.getQty());
+        taskInfo.setQtyDone(taskInfo.getQty());
     }
     public void doneConcrete(Long taskId){
         TaskInfo info = baseTaskService.getTaskByTaskId(taskId);
