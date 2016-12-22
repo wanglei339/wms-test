@@ -53,7 +53,7 @@ public class PackUtil {
     }
 
     public static BigDecimal EAQty2UomQty(BigDecimal qty, BigDecimal packUnit){
-        return qty.divide(packUnit, 4, BigDecimal.ROUND_HALF_DOWN);
+        return qty.divide(packUnit, 4, BigDecimal.ROUND_DOWN);
     }
 
     public static BigDecimal EAQty2UomQty(BigDecimal qty, String uom){
@@ -72,6 +72,7 @@ public class PackUtil {
 
     public static boolean isFullPack(BigDecimal qty, String uom){
         BigDecimal uomQty = PackUtil.EAQty2UomQty(qty, uom);
+        uomQty.setScale(0, BigDecimal.ROUND_DOWN);
         BigDecimal eaQty = PackUtil.UomQty2EAQty(uomQty, uom);
         if(eaQty.compareTo(qty)==0){
             return true;
