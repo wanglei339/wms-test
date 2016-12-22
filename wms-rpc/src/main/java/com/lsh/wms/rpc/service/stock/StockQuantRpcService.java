@@ -162,6 +162,9 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         StockQuant quant = quantService.getQuantById(quantId);
         StockMove move = new StockMove();
         StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
+        if(quant.getQty().compareTo(realQty)==0){
+            return;
+        }
         if(quant.getQty().compareTo(realQty) > 0) {
             move.setTaskId(WriteOffConstant.WRITE_OFF_TASK_ID);
             move.setSkuId(quant.getSkuId());

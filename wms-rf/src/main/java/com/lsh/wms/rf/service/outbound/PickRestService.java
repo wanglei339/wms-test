@@ -282,6 +282,7 @@ public class PickRestService implements IPickRestService {
                 throw new BizCheckedException("2060013");
             }
             BigDecimal qty = new BigDecimal(mapQuery.get("qty").toString());
+            /*
             // 货架拣货箱数转成EA
             if (taskInfo.getSubType().equals(PickConstant.SHELF_TASK_TYPE)) {
                 qty = PackUtil.UomQty2EAQty(qty, needPickDetail.getAllocUnitName());
@@ -290,6 +291,11 @@ public class PickRestService implements IPickRestService {
             if (taskInfo.getSubType().equals(PickConstant.SHELF_PALLET_TASK_TYPE)) {
                 qty = needPickDetail.getAllocQty();
             }
+            */
+            //上面这么做有问题,rederResult里并没有根据什么类型去做单位转换,而直接使用了AllocUnitName去做转换.
+            //而且前端也直接使用的是AllocUnitName,那么这里的qty直接通过AllocUnitName去转换就行了.
+            qty = PackUtil.UomQty2EAQty(qty, needPickDetail.getAllocUnitName());
+
             Long allocLocationId = needPickDetail.getAllocPickLocation();
             // 判断是否与分配拣货位一致
             if (!allocLocationId.equals(locationId)) {

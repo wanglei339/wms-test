@@ -42,31 +42,32 @@ public class ProcurementTaskHandler extends AbsTaskHandler {
     }
 
     public void calcPerformance(TaskInfo taskInfo) {
-        taskInfo.setTaskPackQty(taskInfo.getQty().divide(taskInfo.getPackUnit(),0,BigDecimal.ROUND_HALF_DOWN));
+        taskInfo.setTaskPackQty(taskInfo.getQty().divide(taskInfo.getPackUnit(),2,BigDecimal.ROUND_HALF_DOWN));
         taskInfo.setTaskEaQty(taskInfo.getQty());
+        taskInfo.setQtyDone(taskInfo.getQty());
     }
     public void doneConcrete(Long taskId){
         TaskInfo info = baseTaskService.getTaskByTaskId(taskId);
         Long fromLocationId = locationService.getFatherRegionBySonId(info.getFromLocationId()).getLocationId();
         if (info.getSubType().compareTo(1L) == 0) {
             info.setQty(quantService.getQuantQtyByContainerId(info.getContainerId()));
-        }else {
-            StockMove move = new StockMove();
-            ObjUtils.bean2bean(info, move);
-
-            move.setQty(info.getQty());
-            move.setFromLocationId(fromLocationId);
-            move.setToLocationId(info.getToLocationId());
-            Long newContainerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
-            Long toContainerId= containerService.getContaierIdByLocationId(info.getToLocationId());
-            if (toContainerId == null || toContainerId.equals(0L)) {
-                toContainerId = newContainerId;
-            }
-            move.setFromContainerId(info.getContainerId());
-            move.setToContainerId(toContainerId);
-            move.setSkuId(info.getSkuId());
-            move.setOwnerId(info.getOwnerId());
-            moveService.move(move);
         }
+
+        StockMove move = new StockMove();
+        ObjUtils.bean2bean(info, move);
+
+        move.setQty(info.getQty());
+        move.setFromLocationId(fromLocationId);
+        move.setToLocationId(info.getToLocationId());
+        Long newContainerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
+        Long toContainerId= containerService.getContaierIdByLocationId(info.getToLocationId());
+        if (toContainerId == null || toContainerId.equals(0L)) {
+            toContainerId = newContainerId;
+        }
+        move.setFromContainerId(info.getContainerId());
+        move.setToContainerId(toContainerId);
+        move.setSkuId(info.getSkuId());
+        move.setOwnerId(info.getOwnerId());
+        moveService.move(move);
     }
 }
