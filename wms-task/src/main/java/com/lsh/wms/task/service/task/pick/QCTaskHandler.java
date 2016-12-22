@@ -6,9 +6,11 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.api.service.task.ITaskRpcService;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.service.pick.PickTaskService;
+import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.pick.PickTaskHead;
+import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -39,6 +41,8 @@ public class QCTaskHandler extends AbsTaskHandler {
     private ITaskRpcService iTaskRpcService;
     @Autowired
     private StockQuantService stockQuantService;
+    @Autowired
+    private SoOrderService soOrderService;
 
     private static Logger logger = LoggerFactory.getLogger(QCTaskHandler.class);
 
@@ -95,6 +99,13 @@ public class QCTaskHandler extends AbsTaskHandler {
         // todo setEXt1字段设置的是QC的上一个任务,这里可以是 pickTaskId 和 直流集货任务id 等等
         info.setQcPreviousTaskId(pickEntry.getTaskInfo().getTaskId());
         info.setOrderId(waveDetails.get(0).getOrderId());
+//        //获取货主  FIXME 去掉注释
+//        ObdHeader header = soOrderService.getOutbSoHeaderByOrderId(waveDetails.get(0).getOrderId());
+//        if (null==header){
+//            logger.error(" WARNING THIS  orderId "+waveDetails.get(0).getOrderId() +" can find obdheader ");
+//            throw new BizCheckedException("2870006");
+//        }
+//        info.setOwnerId(header.getOwnerUid());
         info.setBusinessMode(pickEntry.getTaskInfo().getBusinessMode());
         Set<Long> setItem = new HashSet<Long>();
         for (WaveDetail detail : waveDetails) {

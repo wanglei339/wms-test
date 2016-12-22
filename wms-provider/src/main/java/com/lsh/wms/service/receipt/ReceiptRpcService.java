@@ -433,21 +433,40 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 //updateIbdDetail.setSkuId(inbReceiptDetail.getSkuId());
                 updateIbdDetail.setDetailOtherId(ibdDetail.getDetailOtherId());
                 updateIbdDetailList.add(updateIbdDetail);*/
-                //更新订单中的收货数量
-                updateIbdDetailList = getUpdateibdDetailListData(ibdDetailList,inboundUnitQty);
+
+
 
                 //根据receiveId及SkuCode获取receiveDetail
-                ReceiveDetail receiveDetail = receiveService.getReceiveDetailByReceiveIdAndSkuCode(receiveId, baseinfoItem.getSkuCode());
+                List<ReceiveDetail> receiveDetailList = receiveService.getReceiveDetailListByReceiveIdAndSkuCode(receiveId, baseinfoItem.getSkuCode());
+                List<ReceiveDetail> updateReceiveDetails = new ArrayList<ReceiveDetail>();
+                for(ReceiveDetail receiveDetail :receiveDetailList){
+                    ReceiveDetail updateReceiveDetail = new ReceiveDetail();
+                    updateReceiveDetail.setDetailOtherId(receiveDetail.getDetailOtherId());
+                    updateReceiveDetail.setReceiveId(receiveDetail.getReceiveId());
+                    //改为ea的数量
+                    //updateReceiveDetail.setInboundQty(inboundUnitQty);
+                    updateReceiveDetail.setUpdatedAt(DateUtils.getCurrentSeconds());//更新时间
+                    updateReceiveDetail.setCode(baseinfoItem.getCode());//更新国条
+                    updateReceiveDetails.add(updateReceiveDetail);
 
+                }
+                //更新订单中的收货数量
+                Map<String,Object> updateMap = getUpdateDetailListData(ibdDetailList,updateReceiveDetails,inboundUnitQty);
+                //获取批量修改ibddetail
+                List<IbdDetail> updateIbdDetails = (List<IbdDetail>)updateMap.get("updateIbdDetailList");
+                updateIbdDetailList.addAll(updateIbdDetails);
+                //获取批量修改的验收单
+                updateReceiveDetails = (List<ReceiveDetail>)updateMap.get("updateReceiveDetailList");
+                updateReceiveDetailList.addAll(updateReceiveDetails);
                 //批量修改receive 实收数量
-                ReceiveDetail updateReceiveDetail = new ReceiveDetail();
+                /*ReceiveDetail updateReceiveDetail = new ReceiveDetail();
                 updateReceiveDetail.setDetailOtherId(receiveDetail.getDetailOtherId());
                 updateReceiveDetail.setReceiveId(receiveDetail.getReceiveId());
                 //改为ea的数量
                 updateReceiveDetail.setInboundQty(inboundUnitQty);
                 updateReceiveDetail.setUpdatedAt(DateUtils.getCurrentSeconds());//更新时间
                 updateReceiveDetail.setCode(baseinfoItem.getCode());//更新国条
-                updateReceiveDetailList.add(updateReceiveDetail);
+                updateReceiveDetailList.add(updateReceiveDetail);*/
 
                 if(ibdHeader.getOrderType() == PoConstant.ORDER_TYPE_CPO){
                     ObdStreamDetail obdStreamDetail = new ObdStreamDetail();
@@ -558,6 +577,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             }
         }
 
+
         //TODO 这后面的东西风险是极高的,一旦出错,便不能修复,不能重入。
         if(PoConstant.ORDER_TYPE_PO == orderType || PoConstant.ORDER_TYPE_TRANSFERS == orderType || PoConstant.ORDER_TYPE_CPO == orderType){
             TaskEntry taskEntry = new TaskEntry();
@@ -572,6 +592,18 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 taskInfo.setBusinessMode(TaskConstant.MODE_INBOUND);
                 taskInfo.setSubType(TaskConstant.TASK_INBOUND);
             }
+            BigDecimal eaQty = BigDecimal.ZERO;
+            BigDecimal packQty = BigDecimal.ZERO;
+            try{
+                eaQty = request.getItems().get(0).getInboundQty();
+                packQty = PackUtil.EAQty2UomQty(eaQty,request.getItems().get(0).getPackUnit());
+            }catch (Exception e){
+                logger.error("set taskinfo qty error!");
+            }
+            taskInfo.setPackName(request.getItems().get(0).getPackName());
+            taskInfo.setPackUnit(request.getItems().get(0).getPackUnit());
+            taskInfo.setTaskEaQty(eaQty);
+            taskInfo.setTaskPackQty(packQty);
             taskInfo.setOrderId(inbReceiptHeader.getReceiptOrderId());
             taskInfo.setContainerId(inbReceiptHeader.getContainerId());
             taskInfo.setItemId(inbReceiptDetailList.get(0).getItemId());
@@ -587,6 +619,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             poOrderService.updateInbPoHeader(ibdHeader);
 
         }*/
+
         //插入订单
         //poReceiptService.insertOrder(inbReceiptHeader, inbReceiptDetailList, updateInbPoDetailList,stockQuantList,stockLotList);
         poReceiptService.insertOrder(ibdHeader,inbReceiptHeader, inbReceiptDetailList, updateIbdDetailList, moveList,updateReceiveDetailList,obdStreamDetailList,null);
@@ -1097,20 +1130,39 @@ public class ReceiptRpcService implements IReceiptRpcService {
             updateIbdDetail.setDetailOtherId(ibdDetail.getDetailOtherId());
             updateIbdDetailList.add(updateIbdDetail);*/
             //更新订单中的收货数量
-            updateIbdDetailList = getUpdateibdDetailListData(ibdDetailList,inboundUnitQty);
+            //updateIbdDetailList = getUpdateibdDetailListData(ibdDetailList,inboundUnitQty);
             //根据receiveId及SkuCode获取receiveDetail
-            ReceiveDetail receiveDetail = receiveService.getReceiveDetailByReceiveIdAndSkuCode(receiveId, baseinfoItem.getSkuCode());
+            //ReceiveDetail receiveDetail = receiveService.getReceiveDetailByReceiveIdAndSkuCode(receiveId, baseinfoItem.getSkuCode());
+            List<ReceiveDetail> receiveDetailList = receiveService.getReceiveDetailListByReceiveIdAndSkuCode(receiveId, baseinfoItem.getSkuCode());
+            List<ReceiveDetail> updateReceiveDetails = new ArrayList<ReceiveDetail>();
+            for(ReceiveDetail receiveDetail :receiveDetailList){
+                ReceiveDetail updateReceiveDetail = new ReceiveDetail();
+                updateReceiveDetail.setDetailOtherId(receiveDetail.getDetailOtherId());
+                updateReceiveDetail.setReceiveId(receiveDetail.getReceiveId());
+                //改为ea的数量
+                //updateReceiveDetail.setInboundQty(inboundUnitQty);
+                updateReceiveDetail.setUpdatedAt(DateUtils.getCurrentSeconds());//更新时间
+                updateReceiveDetail.setCode(baseinfoItem.getCode());//更新国条
+                updateReceiveDetails.add(updateReceiveDetail);
 
-
+            }
+            //更新订单中的收货数量
+            Map<String,Object> updateMap = getUpdateDetailListData(ibdDetailList,updateReceiveDetails,inboundUnitQty);
+            //获取批量修改ibddetail
+            List<IbdDetail> updateIbdDetails = (List<IbdDetail>)updateMap.get("updateIbdDetailList");
+            updateIbdDetailList.addAll(updateIbdDetails);
+            //获取批量修改的验收单
+            updateReceiveDetails = (List<ReceiveDetail>)updateMap.get("updateReceiveDetailList");
+            updateReceiveDetailList.addAll(updateReceiveDetails);
             //批量修改receive 实收数量
-            ReceiveDetail updateReceiveDetail = new ReceiveDetail();
+           /* ReceiveDetail updateReceiveDetail = new ReceiveDetail();
             updateReceiveDetail.setDetailOtherId(receiveDetail.getDetailOtherId());
             updateReceiveDetail.setReceiveId(receiveDetail.getReceiveId());
             //改为ea
             updateReceiveDetail.setInboundQty(inboundUnitQty);
             updateReceiveDetail.setUpdatedAt(DateUtils.getCurrentSeconds());//更新时间
             updateReceiveDetail.setCode(baseinfoItem.getCode());//更新国条
-            updateReceiveDetailList.add(updateReceiveDetail);
+            updateReceiveDetailList.add(updateReceiveDetail);*/
 
             //生成出库detail信息
 
@@ -1360,33 +1412,54 @@ public class ReceiptRpcService implements IReceiptRpcService {
         obdInfoMap.put("remainUomQtyTotal",PackUtil.EAQty2UomQty(remainEaQtyTotal,packUnit));//待收货数量(箱规)
         return obdInfoMap;
     }
-    //更新ibd订单中的收货数量
-    public List<IbdDetail> getUpdateibdDetailListData (List<IbdDetail> ibdDetailList,BigDecimal inboundUnitQty){
+    //更新ibd订单,验收单中的收货数量
+    public Map<String,Object> getUpdateDetailListData (List<IbdDetail> ibdDetailList,List<ReceiveDetail> receiveDetails,BigDecimal inboundUnitQty){
+        Map<String,Object> updateMap = new HashMap<String, Object>();
         List<IbdDetail> updateIbdDetailList = new ArrayList<IbdDetail>();
+        List<ReceiveDetail> updateReceiveDetailList = new ArrayList<ReceiveDetail>();
         //本次剩余收货数量
         BigDecimal ibdReceiptQty = inboundUnitQty;
         for(IbdDetail ibdDetail : ibdDetailList){
+            //ibdDetail更新
             IbdDetail updateIbdDetail = new IbdDetail();
             //本单剩余收货数
             BigDecimal remainQty = ibdDetail.getUnitQty().subtract(ibdDetail.getInboundQty());
             if(remainQty.compareTo(BigDecimal.ZERO) <= 0){
-                break;
+                continue;
             }
+            //detail本次收货数量
+            BigDecimal inbodunQtyOnce = BigDecimal.ZERO;
             if(ibdReceiptQty.compareTo(remainQty) >= 0){
-                updateIbdDetail.setInboundQty(remainQty);
+                inbodunQtyOnce = remainQty;
                 ibdReceiptQty = ibdReceiptQty.subtract(remainQty);
+
             }else{
-                updateIbdDetail.setInboundQty(ibdReceiptQty);
+                inbodunQtyOnce = ibdReceiptQty;
                 ibdReceiptQty = ibdReceiptQty.subtract(ibdReceiptQty);
             }
+            updateIbdDetail.setInboundQty(inbodunQtyOnce);
             updateIbdDetail.setOrderId(ibdDetail.getOrderId());
             //updateIbdDetail.setSkuId(ibdDetail.getSkuId());
             updateIbdDetail.setDetailOtherId(ibdDetail.getDetailOtherId());
             updateIbdDetailList.add(updateIbdDetail);
+            //更新对应验收单数量
+            for(ReceiveDetail receiveDetail :receiveDetails){
+                if(ibdDetail.getDetailOtherId().equals(receiveDetail.getDetailOtherId())){
+                    receiveDetail.setInboundQty(inbodunQtyOnce);
+                    updateReceiveDetailList.add(receiveDetail);
+                    break;
+                }
+            }
+
             if(ibdReceiptQty.compareTo(BigDecimal.ZERO) <= 0){
                 break;
             }
         }
-        return updateIbdDetailList;
+        updateMap.put("updateIbdDetailList",updateIbdDetailList);
+        updateMap.put("updateReceiveDetailList",updateReceiveDetailList);
+
+        return updateMap;
     }
+
+
 }
