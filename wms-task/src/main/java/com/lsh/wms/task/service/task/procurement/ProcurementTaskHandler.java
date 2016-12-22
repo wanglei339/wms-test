@@ -42,7 +42,7 @@ public class ProcurementTaskHandler extends AbsTaskHandler {
     }
 
     public void calcPerformance(TaskInfo taskInfo) {
-        taskInfo.setTaskPackQty(taskInfo.getQty().divide(taskInfo.getPackUnit(),0,BigDecimal.ROUND_HALF_DOWN));
+        taskInfo.setTaskPackQty(taskInfo.getQty().divide(taskInfo.getPackUnit(),2,BigDecimal.ROUND_HALF_DOWN));
         taskInfo.setTaskEaQty(taskInfo.getQty());
     }
     public void doneConcrete(Long taskId){
