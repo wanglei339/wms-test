@@ -332,7 +332,9 @@ public class StockTransferCore {
             move.setOwnerId(taskInfo.getOwnerId());
             stockMoveService.move(move);
             taskInfo.setQty(inboundUnitQty);
-            taskInfo.setQtyDone(inboundUnitQty.divide(taskInfo.getPackUnit(),0,BigDecimal.ROUND_HALF_EVEN));
+            taskInfo.setQtyDone(inboundUnitQty.divide(taskInfo.getPackUnit(), 2, BigDecimal.ROUND_HALF_EVEN));
+            taskInfo.setTaskPackQty(taskInfo.getQty().divide(taskInfo.getPackUnit(), 2, BigDecimal.ROUND_HALF_DOWN));
+
         }
         taskInfo.setStep(2);
         taskInfoDao.update(taskInfo);

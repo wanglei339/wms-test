@@ -127,6 +127,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         ObjUtils.bean2bean(plan, taskInfo);
         taskInfo.setTaskName("补货任务[ " + taskInfo.getFromLocationId() + " => " + taskInfo.getToLocationId() + "]");
         taskInfo.setType(TaskConstant.TYPE_PROCUREMENT);
+        taskInfo.setTaskPackQty(taskInfo.getQty().divide(taskInfo.getPackUnit(), 2, BigDecimal.ROUND_HALF_DOWN));
         taskInfo.setContainerId(plan.getContainerId());
         taskInfo.setStep(1);
 
@@ -166,6 +167,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         taskInfo.setTaskName("补货任务[ " + taskInfo.getFromLocationId() + " => " + taskInfo.getToLocationId() + "]");
         taskInfo.setType(TaskConstant.TYPE_PROCUREMENT);
         taskInfo.setContainerId(plan.getContainerId());
+        taskInfo.setTaskPackQty(taskInfo.getQty().divide(taskInfo.getPackUnit(),2,BigDecimal.ROUND_HALF_DOWN));
         taskInfo.setStep(1);
         TaskEntry taskEntry = new TaskEntry();
         taskEntry.setTaskInfo(taskInfo);
