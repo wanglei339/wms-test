@@ -123,7 +123,7 @@ public class ShipRestService implements IShipRestService {
         }
         BaseinfoLocation collection = iLocationRpcService.getLocationByCode(locationCode);
         if (collection == null || collection.getType() != LocationConstant.COLLECTION_ROAD) {
-            throw new BizCheckedException("");
+            throw new BizCheckedException("2180026");
         }
         Long collectionId = collection.getLocationId();
         //获取库存
@@ -229,7 +229,7 @@ public class ShipRestService implements IShipRestService {
         }
         BaseinfoLocation collection = iLocationRpcService.getLocationByCode(locationCode);
         if (collection == null || collection.getType() != LocationConstant.COLLECTION_ROAD) {
-            throw new BizCheckedException("");
+            throw new BizCheckedException("2180026");
         }
         Long collectionId = collection.getLocationId();
         //获取库存
