@@ -581,6 +581,7 @@ public class ProcurementRestService implements IProcurementRestService {
                 throw new BizCheckedException("2040001");
             }
             TaskInfo taskInfo = taskEntry.getTaskInfo();
+            final BigDecimal [] decimals = taskInfo.getQty().divideAndRemainder(taskInfo.getPackUnit());
             final BaseinfoItem item = itemRpcService.getItem(taskInfo.getItemId());
             Map<String, Object> resultMap = new HashMap<String, Object>();
             resultMap.put("type",taskInfo.getStep());
@@ -597,8 +598,13 @@ public class ProcurementRestService implements IProcurementRestService {
             resultMap.put("fromLocationCode", locationRpcService.getLocation(taskInfo.getFromLocationId()).getLocationCode());
             resultMap.put("toLocationId", taskInfo.getToLocationId());
             resultMap.put("toLocationCode", locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode());
-            resultMap.put("packName", taskInfo.getPackName());
-            resultMap.put("uomQty", taskInfo.getQty().divide(taskInfo.getPackUnit(), 0, BigDecimal.ROUND_HALF_DOWN));
+            if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
+                resultMap.put("qty", decimals[0]);
+                resultMap.put("packName", taskInfo.getPackName());
+            }else {
+                resultMap.put("qty", taskInfo.getQty());
+                resultMap.put("packName", "EA");
+            }
             resultMap.put("barcode", item.getCode());
             resultMap.put("skuCode", item.getSkuCode());
             resultMap.put("subType", taskInfo.getSubType());
