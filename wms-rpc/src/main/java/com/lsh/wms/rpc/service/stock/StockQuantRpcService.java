@@ -162,7 +162,8 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         StockQuant quant = quantService.getQuantById(quantId);
         StockMove move = new StockMove();
         StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
-        if(quant.getQty().compareTo(realQty)==0){
+        BigDecimal qty = quantService.getQuantQtyByContainerId(quant.getContainerId());
+        if(qty.compareTo(realQty)==0){
             return;
         }
         if(quant.getQty().compareTo(realQty) > 0) {
@@ -173,7 +174,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             move.setStatus(TaskConstant.Done);
             move.setLot(lot);
 
-            move.setQty(quant.getQty().subtract(realQty));
+            move.setQty(qty.subtract(realQty));
             move.setFromLocationId(quant.getLocationId());
             move.setToLocationId(locationService.getInventoryLostLocation().getLocationId());
             move.setToContainerId(containerService.createContainerByType(ContainerConstant.CAGE).getContainerId());
@@ -184,7 +185,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             move.setOwnerId(quant.getOwnerId());
             move.setStatus(TaskConstant.Done);
 
-            move.setQty(realQty.subtract(quant.getQty()));
+            move.setQty(realQty.subtract(qty));
             move.setFromLocationId(locationService.getInventoryLostLocation().getLocationId());
             move.setToLocationId(quant.getLocationId());
             move.setToContainerId(quant.getContainerId());

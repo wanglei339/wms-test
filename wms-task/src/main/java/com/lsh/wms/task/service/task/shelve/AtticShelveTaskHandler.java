@@ -67,7 +67,8 @@ public class AtticShelveTaskHandler extends AbsTaskHandler {
         taskEntry.setTaskDetailList((List<Object>) (List<?>) detailService.getShelveTaskDetail(taskEntry.getTaskInfo().getTaskId()));
     }
     public void create(TaskEntry taskEntry) {
-        Long containerId = taskEntry.getTaskInfo().getContainerId();
+        TaskInfo info = taskEntry.getTaskInfo();
+        Long containerId = info.getContainerId();
         // 检查容器信息
         if (containerId == null || containerId.equals("")) {
             throw new BizCheckedException("2030003");
@@ -94,6 +95,8 @@ public class AtticShelveTaskHandler extends AbsTaskHandler {
         taskInfo.setType(TaskConstant.TYPE_ATTIC_SHELVE);
         taskInfo.setFromLocationId(quant.getLocationId());
         taskInfo.setExt9(quant.getSupplierId().toString());
+        taskInfo.setPackUnit(info.getPackUnit());
+        taskInfo.setPackName(info.getPackName());
         taskInfo.setPriority(1L);
         taskInfo.setSubType(2L);
         taskInfo.setOrderId(lot.getPoId());
