@@ -387,7 +387,7 @@ public class TuService {
     }
 
     @Transactional(readOnly = false)
-    public List<WaveDetail> creatDeliveryOrderAndDetailV2(TuHead tuHead,
+    public List<WaveDetail> createObdAndMoveStockQuant(TuHead tuHead,
                                                  List<TuDetail> tuDetails) {
         Set<Long> totalContainers = new HashSet<Long>();
         //获取全量的wave_detail
@@ -651,7 +651,7 @@ public class TuService {
     public List<WaveDetail> createObdAndMoveStockQuantV2(TuHead tuHead,
                                                          List<TuDetail> tuDetails) {
 
-        List<WaveDetail> totalWaveDetails = this.creatDeliveryOrderAndDetailV2(tuHead, tuDetails);
+        List<WaveDetail> totalWaveDetails = this.createObdAndMoveStockQuant(tuHead, tuDetails);
         //释放已经没有库存的集货道
         Set<Long> locationIds = new HashSet<Long>();
         for (WaveDetail detail : totalWaveDetails) {
