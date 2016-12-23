@@ -172,10 +172,10 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             move.setItemId(quant.getItemId());
             move.setOwnerId(quant.getOwnerId());
             move.setStatus(TaskConstant.Done);
-            move.setLot(lot);
 
             move.setQty(realQty.abs());
             move.setFromLocationId(quant.getLocationId());
+            move.setFromContainerId(quant.getContainerId());
             move.setToLocationId(locationService.getNullArea().getLocationId());
             move.setToContainerId(containerService.createContainerByType(ContainerConstant.CAGE).getContainerId());
         }else {
