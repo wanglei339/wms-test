@@ -24,4 +24,11 @@ public interface IShipRestService {
      * @throws BizCheckedException
      */
     public String quickLoad() throws BizCheckedException;
+
+    /**
+     * 通过集货道 获取客户 托盘信息
+     * @return
+     * @throws BizCheckedException
+     */
+    public String showCollectionInfo() throws BizCheckedException;
 }

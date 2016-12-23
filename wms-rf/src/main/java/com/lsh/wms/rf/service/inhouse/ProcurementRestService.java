@@ -143,6 +143,26 @@ public class ProcurementRestService implements IProcurementRestService {
     }
 
     @POST
+    @Path("getZoneTaskList")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String getZoneTaskList() throws BizCheckedException {
+        Map<String, Object> query = new HashMap<String, Object>();
+        query.put("cmd", "getZoneTaskList");
+        query.put("zone_id",  RequestUtils.getRequest().get("zoneId"));
+        query.put("uid", Long.valueOf(RequestUtils.getHeader("uid")));
+        String ip = PropertyUtils.getString("replenish_svr_ip");
+        int port = PropertyUtils.getInt("replenish_svr_port");
+        String rstString = NsHeadClient.jsonCall(ip, port, JsonUtils.obj2Json(query));
+        Map rst = JsonUtils.json2Obj(rstString, Map.class);
+        if ( rst == null || Long.valueOf(rst.get("ret").toString())!=0){
+            return JsonUtils.TOKEN_ERROR("服务器错误");
+        }else{
+            return JsonUtils.SUCCESS(rst);
+        }
+    }
+
+    @POST
     @Path("scanFromLocation")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
