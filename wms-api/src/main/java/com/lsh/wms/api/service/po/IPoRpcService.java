@@ -25,6 +25,8 @@ public interface IPoRpcService {
 
     public Boolean updateOrderStatus(Map<String, Object> map) throws BizCheckedException;
 
+    public Map<String,Object> throwOrder(List<Map<String,Object>> map) throws BizCheckedException;
+
     public List<IbdHeader> getPoHeaderList(Map<String, Object> params);
 
     public IbdHeader getPoDetailByOrderId(Long orderId) throws BizCheckedException;

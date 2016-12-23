@@ -162,13 +162,14 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
         }
 */
-        TaskInfo taskInfo = new TaskInfo();
+        TaskInfo taskInfo = baseTaskService.getTaskInfoById(plan.getTaskId());
         ObjUtils.bean2bean(plan, taskInfo);
         taskInfo.setTaskName("补货任务[ " + taskInfo.getFromLocationId() + " => " + taskInfo.getToLocationId() + "]");
         taskInfo.setType(TaskConstant.TYPE_PROCUREMENT);
         taskInfo.setContainerId(plan.getContainerId());
-        taskInfo.setTaskPackQty(taskInfo.getQty().divide(taskInfo.getPackUnit(),2,BigDecimal.ROUND_HALF_DOWN));
+        taskInfo.setTaskPackQty(taskInfo.getQty().divide(taskInfo.getPackUnit(), 2, BigDecimal.ROUND_HALF_DOWN));
         taskInfo.setStep(1);
+        taskInfo.setStatus(TaskConstant.Draft);
         TaskEntry taskEntry = new TaskEntry();
         taskEntry.setTaskInfo(taskInfo);
         taskRpcService.update(TaskConstant.TYPE_PROCUREMENT, taskEntry);
@@ -636,10 +637,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         plan.setContainerId(containerId);
         plan.setPackUnit(quant.getPackUnit());
         plan.setPackName(quant.getPackName());
-        plan.setQty(plan.getUomQty());
-        if (plan.getSubType().compareTo(1L) == 0) {
-            plan.setQty(total);
-        }
+        plan.setQty(plan.getUomQty().multiply(plan.getPackUnit()));
 
         return true;
     }

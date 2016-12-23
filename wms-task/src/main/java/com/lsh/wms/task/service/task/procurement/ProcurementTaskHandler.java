@@ -51,8 +51,8 @@ public class ProcurementTaskHandler extends AbsTaskHandler {
         Long fromLocationId = locationService.getFatherRegionBySonId(info.getFromLocationId()).getLocationId();
         if (info.getSubType().compareTo(1L) == 0) {
             info.setQty(quantService.getQuantQtyByContainerId(info.getContainerId()));
+            baseTaskService.update(info);
         }
-
         StockMove move = new StockMove();
         ObjUtils.bean2bean(info, move);
 
