@@ -281,6 +281,8 @@ public class ProcurementRestService implements IProcurementRestService {
                         put("type",2);
                         put("barcode",item.getCode());
                         put("skuCode",item.getSkuCode());
+                        put("locationId", taskInfo.getToLocationId());
+                        put("locationCode", locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode());
                         put("toLocationId", taskInfo.getToLocationId());
                         put("toLocationCode", locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode());
                         put("fromLocationId", taskInfo.getFromLocationId());
@@ -340,6 +342,8 @@ public class ProcurementRestService implements IProcurementRestService {
                         put("type",2L);
                         put("barcode",item.getCode());
                         put("skuCode",item.getSkuCode());
+                        put("locationId", info.getToLocationId());
+                        put("locationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
                         put("toLocationId", info.getToLocationId());
                         put("toLocationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
                         put("fromLocationId", info.getFromLocationId());
@@ -362,6 +366,8 @@ public class ProcurementRestService implements IProcurementRestService {
                         put("type",1L);
                         put("barcode",item.getCode());
                         put("skuCode",item.getSkuCode());
+                        put("locationId", info.getFromLocationId());
+                        put("locationCode", locationRpcService.getLocation(info.getFromLocationId()).getLocationCode());
                         put("toLocationId", info.getToLocationId());
                         put("toLocationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
                         put("fromLocationId", info.getFromLocationId());
@@ -426,6 +432,8 @@ public class ProcurementRestService implements IProcurementRestService {
                 put("skuCode",item.getSkuCode());
                 put("fromLocationId", fromLocationId);
                 put("fromLocationCode", fromLocationCode);
+                put("locationId", fromLocationId);
+                put("locationCode", fromLocationCode);
                 put("toLocationId", taskInfo.getToLocationId());
                 put("toLocationCode", toLocationCode);
                 put("itemId", taskInfo.getItemId());
@@ -458,6 +466,14 @@ public class ProcurementRestService implements IProcurementRestService {
             TaskInfo taskInfo = taskEntry.getTaskInfo();
             final BaseinfoItem item = itemRpcService.getItem(taskInfo.getItemId());
             Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("type",taskInfo.getStep());
+            if(taskInfo.getStep()==1){
+                resultMap.put("locationId", taskInfo.getFromLocationId());
+                resultMap.put("locationCode", locationRpcService.getLocation(taskInfo.getFromLocationId()).getLocationCode());
+            }else {
+                resultMap.put("locationId", taskInfo.getToLocationId());
+                resultMap.put("locationCode", locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode());
+            }
             resultMap.put("itemId", taskInfo.getItemId());
             resultMap.put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
             resultMap.put("fromLocationId", taskInfo.getFromLocationId());
@@ -502,6 +518,14 @@ public class ProcurementRestService implements IProcurementRestService {
             TaskInfo taskInfo = taskEntry.getTaskInfo();
             final BaseinfoItem item = itemRpcService.getItem(taskInfo.getItemId());
             Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("type",taskInfo.getStep());
+            if(taskInfo.getStep()==1){
+                resultMap.put("locationId", taskInfo.getFromLocationId());
+                resultMap.put("locationCode", locationRpcService.getLocation(taskInfo.getFromLocationId()).getLocationCode());
+            }else {
+                resultMap.put("locationId", taskInfo.getToLocationId());
+                resultMap.put("locationCode", locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode());
+            }
             resultMap.put("itemId", taskInfo.getItemId());
             resultMap.put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
             resultMap.put("fromLocationId", taskInfo.getFromLocationId());
