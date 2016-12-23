@@ -38,14 +38,14 @@ public class ObdRequest implements Serializable {
     private String orderUser = "";
 
     /** 送达方名称 */
-    @NotBlank
+    //@NotBlank
     @Size(max=64)
-    private String deliveryName;
+    private String deliveryName = "";
 
     /** 送达方编码 */
-    @NotBlank
+    //@NotBlank
     @Size(max=64)
-    private String deliveryCode;
+    private String deliveryCode = "";
 
     /** 货主 */
     @NotNull
@@ -62,6 +62,9 @@ public class ObdRequest implements Serializable {
     @Size(max=1000)
     private String deliveryAddrs = "";
 
+    /** 退货 收货供商号*/
+    private String supplierNo = "";
+
     @Valid
     @Size(min=1)
     List<ObdDetail> detailList;
@@ -69,7 +72,7 @@ public class ObdRequest implements Serializable {
     public ObdRequest() {
     }
 
-    public ObdRequest(String deliveryAddrs, String deliveryCode, String deliveryName, List<ObdDetail> detailList, String orderOtherId, String orderOtherRefId, Integer orderType, String orderUser, String orderUserCode, Long ownerUid, Date transTime, String warehouseCode) {
+    public ObdRequest(String deliveryAddrs, String deliveryCode, String deliveryName, List<ObdDetail> detailList, String orderOtherId, String orderOtherRefId, Integer orderType, String orderUser, String orderUserCode, Long ownerUid, String supplierNo, Date transTime, String warehouseCode) {
         this.deliveryAddrs = deliveryAddrs;
         this.deliveryCode = deliveryCode;
         this.deliveryName = deliveryName;
@@ -80,57 +83,11 @@ public class ObdRequest implements Serializable {
         this.orderUser = orderUser;
         this.orderUserCode = orderUserCode;
         this.ownerUid = ownerUid;
+        this.supplierNo = supplierNo;
         this.transTime = transTime;
         this.warehouseCode = warehouseCode;
     }
 
-    public String getWarehouseCode() {
-        return warehouseCode;
-    }
-
-    public void setWarehouseCode(String warehouseCode) {
-        this.warehouseCode = warehouseCode;
-    }
-
-    public String getOrderOtherId() {
-        return orderOtherId;
-    }
-
-    public void setOrderOtherId(String orderOtherId) {
-        this.orderOtherId = orderOtherId;
-    }
-
-    public String getOrderOtherRefId() {
-        return orderOtherRefId;
-    }
-
-    public void setOrderOtherRefId(String orderOtherRefId) {
-        this.orderOtherRefId = orderOtherRefId;
-    }
-
-    public Long getOwnerUid() {
-        return ownerUid;
-    }
-
-    public void setOwnerUid(Long ownerUid) {
-        this.ownerUid = ownerUid;
-    }
-
-    public Integer getOrderType() {
-        return orderType;
-    }
-
-    public void setOrderType(Integer orderType) {
-        this.orderType = orderType;
-    }
-
-    public Date getTransTime() {
-        return transTime;
-    }
-
-    public void setTransTime(Date transTime) {
-        this.transTime = transTime;
-    }
 
     public String getDeliveryAddrs() {
         return deliveryAddrs;
@@ -138,22 +95,6 @@ public class ObdRequest implements Serializable {
 
     public void setDeliveryAddrs(String deliveryAddrs) {
         this.deliveryAddrs = deliveryAddrs;
-    }
-
-    public List<ObdDetail> getDetailList() {
-        return detailList;
-    }
-
-    public void setDetailList(List<ObdDetail> detailList) {
-        this.detailList = detailList;
-    }
-
-    public String getOrderUser() {
-        return orderUser;
-    }
-
-    public void setOrderUser(String orderUser) {
-        this.orderUser = orderUser;
     }
 
     public String getDeliveryCode() {
@@ -172,11 +113,83 @@ public class ObdRequest implements Serializable {
         this.deliveryName = deliveryName;
     }
 
+    public List<ObdDetail> getDetailList() {
+        return detailList;
+    }
+
+    public void setDetailList(List<ObdDetail> detailList) {
+        this.detailList = detailList;
+    }
+
+    public String getOrderOtherId() {
+        return orderOtherId;
+    }
+
+    public void setOrderOtherId(String orderOtherId) {
+        this.orderOtherId = orderOtherId;
+    }
+
+    public String getOrderOtherRefId() {
+        return orderOtherRefId;
+    }
+
+    public void setOrderOtherRefId(String orderOtherRefId) {
+        this.orderOtherRefId = orderOtherRefId;
+    }
+
+    public Integer getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(Integer orderType) {
+        this.orderType = orderType;
+    }
+
+    public String getOrderUser() {
+        return orderUser;
+    }
+
+    public void setOrderUser(String orderUser) {
+        this.orderUser = orderUser;
+    }
+
     public String getOrderUserCode() {
         return orderUserCode;
     }
 
     public void setOrderUserCode(String orderUserCode) {
         this.orderUserCode = orderUserCode;
+    }
+
+    public Long getOwnerUid() {
+        return ownerUid;
+    }
+
+    public void setOwnerUid(Long ownerUid) {
+        this.ownerUid = ownerUid;
+    }
+
+    public String getSupplierNo() {
+        return supplierNo;
+    }
+
+    public void setSupplierNo(String supplierNo) {
+        this.supplierNo = supplierNo;
+    }
+
+    public Date getTransTime() {
+        return transTime;
+    }
+
+    public void setTransTime(Date transTime) {
+        this.transTime = transTime;
+    }
+
+    public String getWarehouseCode() {
+        return warehouseCode;
+    }
+
+    public void setWarehouseCode(String warehouseCode) {
+        this.warehouseCode = warehouseCode;
     }
 }
