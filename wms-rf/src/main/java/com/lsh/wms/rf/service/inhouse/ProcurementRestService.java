@@ -261,9 +261,11 @@ public class ProcurementRestService implements IProcurementRestService {
                         put("type",2);
                         put("barcode",item.getCode());
                         put("skuCode",item.getSkuCode());
-                        put("locationId", taskInfo.getToLocationId());
+                        put("toLocationId", taskInfo.getToLocationId());
+                        put("toLocationCode", locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode());
+                        put("fromLocationId", taskInfo.getFromLocationId());
+                        put("fromLocationCode", locationRpcService.getLocation(taskInfo.getFromLocationId()).getLocationCode());
                         put("subType",taskInfo.getSubType());
-                        put("locationCode", locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode());
                         put("itemId", taskInfo.getItemId());
                         put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
                         if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
@@ -318,9 +320,10 @@ public class ProcurementRestService implements IProcurementRestService {
                         put("type",2L);
                         put("barcode",item.getCode());
                         put("skuCode",item.getSkuCode());
-                        put("locationId", info.getToLocationId());
-                        put("locationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
-                        put("itemId", info.getItemId());
+                        put("toLocationId", info.getToLocationId());
+                        put("toLocationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
+                        put("fromLocationId", info.getFromLocationId());
+                        put("fromLocationCode", locationRpcService.getLocation(info.getFromLocationId()).getLocationCode());   put("itemId", info.getItemId());
                         put("itemName", itemRpcService.getItem(info.getItemId()).getSkuName());
                         put("subType",info.getSubType());
                         if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
@@ -339,8 +342,10 @@ public class ProcurementRestService implements IProcurementRestService {
                         put("type",1L);
                         put("barcode",item.getCode());
                         put("skuCode",item.getSkuCode());
-                        put("locationId", info.getFromLocationId());
-                        put("locationCode", locationRpcService.getLocation(info.getFromLocationId()).getLocationCode());
+                        put("toLocationId", info.getToLocationId());
+                        put("toLocationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
+                        put("fromLocationId", info.getFromLocationId());
+                        put("fromLocationCode", locationRpcService.getLocation(info.getFromLocationId()).getLocationCode());
                         put("itemId", info.getItemId());
                         put("itemName", itemRpcService.getItem(info.getItemId()).getSkuName());
                         put("subType",info.getSubType());
@@ -392,14 +397,17 @@ public class ProcurementRestService implements IProcurementRestService {
         final BigDecimal [] decimals = taskInfo.getQty().divideAndRemainder(taskInfo.getPackUnit());
         final Long fromLocationId = taskInfo.getFromLocationId();
         final String fromLocationCode = locationRpcService.getLocation(fromLocationId).getLocationCode();
+        final String toLocationCode = locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode();
         return JsonUtils.SUCCESS(new HashMap<String, Object>() {
             {
                 put("taskId", taskInfo.getTaskId().toString());
                 put("type", 1L);
                 put("barcode",item.getCode());
                 put("skuCode",item.getSkuCode());
-                put("locationId", fromLocationId);
-                put("locationCode", fromLocationCode);
+                put("fromLocationId", fromLocationId);
+                put("fromLocationCode", fromLocationCode);
+                put("toLocationId", taskInfo.getToLocationId());
+                put("toLocationCode", toLocationCode);
                 put("itemId", taskInfo.getItemId());
                 put("subType",taskInfo.getSubType());
                 put("subType",taskInfo.getSubType());
@@ -424,6 +432,50 @@ public class ProcurementRestService implements IProcurementRestService {
         Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
         try {
             TaskEntry taskEntry = iTaskRpcService.getTaskEntryById(taskId);
+            if (taskEntry == null) {
+                throw new BizCheckedException("2040001");
+            }
+            TaskInfo taskInfo = taskEntry.getTaskInfo();
+            final BaseinfoItem item = itemRpcService.getItem(taskInfo.getItemId());
+            Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("itemId", taskInfo.getItemId());
+            resultMap.put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
+            resultMap.put("fromLocationId", taskInfo.getFromLocationId());
+            resultMap.put("fromLocationCode", locationRpcService.getLocation(taskInfo.getFromLocationId()).getLocationCode());
+            resultMap.put("toLocationId", taskInfo.getToLocationId());
+            resultMap.put("toLocationCode", locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode());
+            resultMap.put("packName", taskInfo.getPackName());
+            resultMap.put("uomQty", taskInfo.getQty().divide(taskInfo.getPackUnit(), 0, BigDecimal.ROUND_HALF_DOWN));
+            resultMap.put("barcode", item.getCode());
+            resultMap.put("skuCode", item.getSkuCode());
+            return JsonUtils.SUCCESS(resultMap);
+        }catch (BizCheckedException ex){
+            throw ex;
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return JsonUtils.TOKEN_ERROR("系统繁忙");
+        }
+    }
+    @POST
+    @Path("assign")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String assign() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long uid = 0L;
+        try {
+            uid =  Long.valueOf(RequestUtils.getHeader("uid"));
+        }catch (Exception e){
+            return JsonUtils.TOKEN_ERROR("违法的账户");
+        }
+            SysUser user = iSysUserRpcService.getSysUserById(uid);
+        if(user==null){
+            return JsonUtils.TOKEN_ERROR("用户不存在");
+        }
+        Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
+        try {
+            TaskEntry taskEntry = iTaskRpcService.getTaskEntryById(taskId);
+            iTaskRpcService.assign(taskId,uid);
             if (taskEntry == null) {
                 throw new BizCheckedException("2040001");
             }
