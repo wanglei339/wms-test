@@ -87,7 +87,7 @@ public class MergeService {
                 taskMapQuery.put("taskId", qcTaskId);
                 taskMapQuery.put("type", TaskConstant.TYPE_QC);
                 taskMapQuery.put("status", TaskConstant.Done);
-                taskMapQuery.put("businessMode", TaskConstant.MODE_DIRECT);
+                taskMapQuery.put("businessMode", TaskConstant.MODE_DIRECT); //todo 在库打板子
                 List<TaskInfo> qcTaskInfos = taskInfoDao.getTaskInfoList(taskMapQuery);
                 if (qcTaskInfos.size() == 0) {
                     throw new BizCheckedException("2870003");

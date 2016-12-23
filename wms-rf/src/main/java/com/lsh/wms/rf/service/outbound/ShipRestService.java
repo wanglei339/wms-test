@@ -17,12 +17,14 @@ import com.lsh.wms.core.constant.LocationConstant;
 import com.lsh.wms.core.constant.TaskConstant;
 import com.lsh.wms.core.constant.TuConstant;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.tu.TuService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
+import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.stock.StockQuantCondition;
 import com.lsh.wms.model.task.TaskEntry;
@@ -70,6 +72,8 @@ public class ShipRestService implements IShipRestService {
     protected IdGenerator idGenerator;
     @Autowired
     private TuService tuService;
+    @Autowired
+    private SoOrderService soOrderService;
 
     @Path("releaseCollectionRoad")
     @POST
@@ -118,7 +122,7 @@ public class ShipRestService implements IShipRestService {
             throw new BizCheckedException("2180008");
         }
         BaseinfoLocation collection = iLocationRpcService.getLocationByCode(locationCode);
-        if(collection == null || collection.getType() != LocationConstant.COLLECTION_ROAD){
+        if (collection == null || collection.getType() != LocationConstant.COLLECTION_ROAD) {
             throw new BizCheckedException("");
         }
         Long collectionId = collection.getLocationId();
@@ -138,7 +142,7 @@ public class ShipRestService implements IShipRestService {
         for (Long containerId : containterIds) {
             //首先判断这个container是否已经被被的运单装走了
             List<TuDetail> tuDetails = tuService.getTuDeailListByMergedContainerId(containerId);
-            if(tuDetails != null && tuDetails.size() > 0){
+            if (tuDetails != null && tuDetails.size() > 0) {
                 throw new BizCheckedException("2130014");
             }
             //判断是否组盘完成,先去listdetail总找组盘
@@ -146,13 +150,13 @@ public class ShipRestService implements IShipRestService {
             if (null == waveDetails || waveDetails.size() < 1) {
                 throw new BizCheckedException("2880012");
             }
-            for(WaveDetail detail : waveDetails) {
+            for (WaveDetail detail : waveDetails) {
                 if (detail.getQcTaskId() == 0) {
                     throw new BizCheckedException("2870034");
                 }
                 if (qcTaskIdDup.contains(detail.getQcTaskId())) {
                     continue;
-                }else{
+                } else {
                     TaskInfo qcInfo = iTaskRpcService.getTaskInfo(detail.getQcTaskId());
                     //没qc完成
                     if (null == qcInfo || !TaskConstant.Done.equals(qcInfo.getStatus())) {
@@ -205,6 +209,107 @@ public class ShipRestService implements IShipRestService {
 
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("response", true);
+        return JsonUtils.SUCCESS(result);
+    }
+
+    /**
+     * 获取集货道的所有东西
+     *
+     * @return
+     * @throws BizCheckedException
+     */
+    @POST
+    @Path("showCollectionInfo")
+    public String showCollectionInfo() throws BizCheckedException {
+        Map<String, Object> mapRequest = RequestUtils.getRequest();
+        String locationCode = mapRequest.get("locationCode").toString();
+        Long loadUid = Long.valueOf(RequestUtils.getHeader("uid").toString());
+        if (null == locationCode || locationCode.equals("")) {
+            throw new BizCheckedException("2180008");
+        }
+        BaseinfoLocation collection = iLocationRpcService.getLocationByCode(locationCode);
+        if (collection == null || collection.getType() != LocationConstant.COLLECTION_ROAD) {
+            throw new BizCheckedException("");
+        }
+        Long collectionId = collection.getLocationId();
+        //获取库存
+        List<StockQuant> stockQuants = stockQuantService.getQuantsByLocationId(collectionId);
+        if (null == stockQuants || stockQuants.size() < 1) {
+            throw new BizCheckedException("2130013");
+        }
+        //找到所有的托盘
+        Set<Long> containterIds = new HashSet<Long>();
+        for (StockQuant quant : stockQuants) {
+            containterIds.add(quant.getContainerId());
+        }
+
+        List<TaskInfo> qcInfos = new ArrayList<TaskInfo>();
+        Set<Long> qcTaskIdDup = new HashSet<Long>();
+        //qc 维度去找客户
+        //一个托盘一个客户? 如果多客户一托盘,qc也不知道每个具体的箱数,用detail里的orderId是合理的
+        Set<Long> orderIds = new HashSet<Long>();
+        for (Long containerId : containterIds) {
+            //首先判断这个container是否已经被被的运单装走了
+            List<TuDetail> tuDetails = tuService.getTuDeailListByMergedContainerId(containerId);
+            if (tuDetails != null && tuDetails.size() > 0) {
+                throw new BizCheckedException("2130014");
+            }
+            //判断是否组盘完成,先去listdetail总找组盘
+            List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(containerId);
+            if (null == waveDetails || waveDetails.size() < 1) {
+                throw new BizCheckedException("2880012");
+            }
+            for (WaveDetail detail : waveDetails) {
+                if (detail.getQcTaskId() == 0) {
+                    throw new BizCheckedException("2870034");
+                }
+                orderIds.add(detail.getOrderId());
+                if (qcTaskIdDup.contains(detail.getQcTaskId())) {
+                    continue;
+                } else {
+                    TaskInfo qcInfo = iTaskRpcService.getTaskInfo(detail.getQcTaskId());
+                    //没qc完成
+                    if (null == qcInfo || !TaskConstant.Done.equals(qcInfo.getStatus())) {
+                        throw new BizCheckedException("2870034");
+                    }
+                    qcInfos.add(qcInfo);
+                    qcTaskIdDup.add(detail.getQcTaskId());
+                }
+            }
+        }
+
+        //客户id
+        Set<Long> customerIds = new HashSet<Long>();
+        List<Map<String, Object>> customerInfos = new ArrayList<Map<String, Object>>();
+        for (Long orderId : orderIds) {
+            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
+            if (null != obdHeader) {
+                if (!customerIds.contains(obdHeader.getOwnerUid())) {
+                    customerIds.add(obdHeader.getOwnerUid());
+                    Map<String, Object> customerInfo = new HashMap<String, Object>();
+                    customerInfo.put("customerName", obdHeader.getDeliveryName());
+                    customerInfo.put("customerCode", obdHeader.getDeliveryCode());
+                    customerInfo.put("customerAddress", obdHeader.getDeliveryAddrs());
+                    customerInfos.add(customerInfo);
+                }
+            }
+        }
+
+        //箱数和周转箱的统计
+        Long packCount = 0L;
+        Long turnoverBoxNum = 0L;
+        for (TaskInfo info : qcInfos) {
+            packCount += info.getExt4(); //箱数
+            turnoverBoxNum += info.getExt3(); //周转箱数
+        }
+        //客户数
+        int customerCount = customerInfos.size();
+
+        Map<String,Object> result = new HashMap<String, Object>();
+        result.put("packCount",packCount);
+        result.put("turnoverBoxNum",turnoverBoxNum);
+        result.put("customerCount",customerCount);
+        result.put("customerList",customerInfos);
         return JsonUtils.SUCCESS(result);
     }
 
