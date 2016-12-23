@@ -508,6 +508,71 @@ public class ProcurementRestService implements IProcurementRestService {
         if(user==null){
             return JsonUtils.TOKEN_ERROR("用户不存在");
         }
+
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("operator",uid);
+        queryMap.put("status",TaskConstant.Assigned);
+        List<TaskEntry> entries = iTaskRpcService.getTaskList(TaskConstant.TYPE_PROCUREMENT, queryMap);
+        if(entries!=null && entries.size()!=0){
+            TaskEntry entry = entries.get(0);
+            final TaskInfo info = entry.getTaskInfo();
+            final BaseinfoItem item = itemRpcService.getItem(info.getItemId());
+            final BigDecimal [] decimals = info.getQty().divideAndRemainder(info.getPackUnit());
+            if(info.getStep()==2){
+                return JsonUtils.SUCCESS(new HashMap<String, Object>() {
+                    {
+                        put("taskId", info.getTaskId().toString());
+                        put("type",2L);
+                        put("barcode",item.getCode());
+                        put("skuCode",item.getSkuCode());
+                        put("locationId", info.getToLocationId());
+                        put("locationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
+                        put("toLocationId", info.getToLocationId());
+                        put("toLocationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
+                        put("fromLocationId", info.getFromLocationId());
+                        put("fromLocationCode", locationRpcService.getLocation(info.getFromLocationId()).getLocationCode());   put("itemId", info.getItemId());
+                        put("itemName", itemRpcService.getItem(info.getItemId()).getSkuName());
+                        put("subType",info.getSubType());
+                        if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
+                            put("qty", decimals[0]);
+                            put("packName", info.getPackName());
+                        }else {
+                            put("qty", info.getQty());
+                            put("packName", "EA");
+                        }
+                    }
+                });
+            }else {
+                return JsonUtils.SUCCESS(new HashMap<String, Object>() {
+                    {
+                        put("taskId", info.getTaskId().toString());
+                        put("type",1L);
+                        put("barcode",item.getCode());
+                        put("skuCode",item.getSkuCode());
+                        put("locationId", info.getFromLocationId());
+                        put("locationCode", locationRpcService.getLocation(info.getFromLocationId()).getLocationCode());
+                        put("toLocationId", info.getToLocationId());
+                        put("toLocationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
+                        put("fromLocationId", info.getFromLocationId());
+                        put("fromLocationCode", locationRpcService.getLocation(info.getFromLocationId()).getLocationCode());
+                        put("itemId", info.getItemId());
+                        put("itemName", itemRpcService.getItem(info.getItemId()).getSkuName());
+                        put("subType",info.getSubType());
+                        if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
+                            put("qty", decimals[0]);
+                            put("packName", info.getPackName());
+                        }else {
+                            put("qty", info.getQty());
+                            put("packName", "EA");
+                        }
+                    }
+                });
+            }
+        }
+
+
+
+
         Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
         try {
             TaskEntry taskEntry = iTaskRpcService.getTaskEntryById(taskId);
