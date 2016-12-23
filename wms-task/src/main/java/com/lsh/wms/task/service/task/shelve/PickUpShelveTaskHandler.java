@@ -104,9 +104,9 @@ public class PickUpShelveTaskHandler extends AbsTaskHandler {
         super.create(taskEntry);
     }
     public void calcPerformance(TaskInfo taskInfo) {
+        taskInfo.setTaskQty(taskInfo.getQty().divide(taskInfo.getPackUnit(), 2, BigDecimal.ROUND_DOWN));
         taskInfo.setTaskEaQty(taskInfo.getQty());
-        taskInfo.setTaskPackQty(taskInfo.getTaskQty().divide(taskInfo.getPackUnit(),2,BigDecimal.ROUND_DOWN));
-        taskInfo.setQtyDone(taskInfo.getQty().divide(taskInfo.getPackUnit(), 2, BigDecimal.ROUND_DOWN));
+        taskInfo.setQtyDone(taskInfo.getQty());
     }
 
 //    public void  doneConcrete(Long taskId) {
