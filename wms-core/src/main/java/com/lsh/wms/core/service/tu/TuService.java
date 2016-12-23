@@ -387,9 +387,23 @@ public class TuService {
     }
 
     @Transactional(readOnly = false)
-    public boolean creatDeliveryOrderAndDetailV2(TuHead tuHead,
-                                                 List<TuDetail> tuDetails,
-                                                 List<WaveDetail> totalWaveDetails) {
+    public List<WaveDetail> creatDeliveryOrderAndDetailV2(TuHead tuHead,
+                                                 List<TuDetail> tuDetails) {
+        Set<Long> totalContainers = new HashSet<Long>();
+        //获取全量的wave_detail
+        List<WaveDetail> totalWaveDetails = new ArrayList<WaveDetail>();
+        for (TuDetail detail : tuDetails) {
+            List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(detail.getMergedContainerId());
+            if (null == waveDetails || waveDetails.size() < 1) {
+                waveDetails = waveService.getWaveDetailsByMergedContainerId(detail.getMergedContainerId());
+            }
+            if (waveDetails != null) {
+                totalWaveDetails.addAll(waveDetails);
+                for (WaveDetail waveDetail : waveDetails) {
+                    totalContainers.add(waveDetail.getContainerId());
+                }
+            }
+        }
         //计算订单级别的箱数信息
         //这个的前提基本上是要一个出库托盘上只能有一个container,呵呵,这里是有可能会出错的,但是其实不要紧,我门还可以接受.
         Map<Long, Map<String, Object>> orderBoxInfo = this._getOrderBoxInfo(tuDetails, totalWaveDetails);
@@ -603,7 +617,9 @@ public class TuService {
         }
         //这里做obd占用数量扣减
         stockMoveService.move(orderTaskStockMoveList);
-        return true;
+        //做真实库存移动出库
+        this.moveItemToConsumeArea(totalContainers);
+        return totalWaveDetails;
     }
 
 
@@ -634,23 +650,8 @@ public class TuService {
     @Transactional(readOnly = false)
     public List<WaveDetail> createObdAndMoveStockQuantV2(TuHead tuHead,
                                                          List<TuDetail> tuDetails) {
-        Set<Long> totalContainers = new HashSet<Long>();
-        //获取全量的wave_detail
-        List<WaveDetail> totalWaveDetails = new ArrayList<WaveDetail>();
-        for (TuDetail detail : tuDetails) {
-            List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(detail.getMergedContainerId());
-            if (null == waveDetails || waveDetails.size() < 1) {
-                waveDetails = waveService.getWaveDetailsByMergedContainerId(detail.getMergedContainerId());
-            }
-            if (waveDetails != null) {
-                totalWaveDetails.addAll(waveDetails);
-                for (WaveDetail waveDetail : waveDetails) {
-                    totalContainers.add(waveDetail.getContainerId());
-                }
-            }
-        }
-        this.creatDeliveryOrderAndDetailV2(tuHead, tuDetails, totalWaveDetails);
-        this.moveItemToConsumeArea(totalContainers);
+
+        List<WaveDetail> totalWaveDetails = this.creatDeliveryOrderAndDetailV2(tuHead, tuDetails);
         //释放已经没有库存的集货道
         Set<Long> locationIds = new HashSet<Long>();
         for (WaveDetail detail : totalWaveDetails) {
@@ -674,92 +675,6 @@ public class TuService {
         this.update(tuHead);
         //返回
         return totalWaveDetails;
-
-
-        /*
-        //回传拼装,迁走了哟,呵呵,因为这里不合理嘛
-        //获取发货单的header
-        List<OutbDeliveryHeader> outbDeliveryHeaders = soDeliveryService.getOutbDeliveryHeaderByTmsId(tuHead.getTuId());
-        //发货单的detail
-        // TODO: 2016/11/14 回传obd
-        List<Long> deliveryIds = new ArrayList<Long>();
-        for (OutbDeliveryHeader header : outbDeliveryHeaders) {
-            deliveryIds.add(header.getDeliveryId());
-        }
-
-        List<OutbDeliveryDetail> deliveryDetails = soDeliveryService.getOutbDeliveryDetailList(deliveryIds);
-        Set<Long> orderIds = new HashSet<Long>();
-        for (OutbDeliveryDetail deliveryDetail : deliveryDetails) {
-            orderIds.add(deliveryDetail.getOrderId());
-        }
-
-        for (Long orderId : orderIds) {
-            ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
-            //查询明细。
-            List<ObdDetail> obdDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
-            // TODO: 2016/9/23  组装OBD反馈信息 根据货主区分回传lsh或物美
-
-            //组装ofc OBD反馈信息
-            ObdOfcBackRequest request = new ObdOfcBackRequest();
-            Date date = new Date();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            String now = sdf.format(date);
-            request.setWms(2);//该字段写死 2
-            request.setDeliveryTime(now);
-            request.setObdCode(obdHeader.getOrderId().toString());
-            request.setSoCode(obdHeader.getOrderOtherId());
-            request.setWaybillCode(tuHead.getTuId());//运单号
-            Map<String, Object> map = orderBoxInfo.get(orderId);
-            request.setBoxNum((Integer) map.get("boxNum"));
-            request.setTurnoverBoxNum((Integer) map.get("turnoverBoxNum"));
-            request.setWarehouseCode("DC40");
-            //组装物美反馈信息
-            CreateObdHeader createObdHeader = new CreateObdHeader();
-            createObdHeader.setOrderOtherId(obdHeader.getOrderOtherId());
-            //查询明细。
-            List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(orderId);
-            List<ObdOfcItem> items = new ArrayList<ObdOfcItem>();
-
-            List<CreateObdDetail> createObdDetails = new ArrayList<CreateObdDetail>();
-
-            for (ObdDetail detail : soDetails) {
-
-                ObdOfcItem item = new ObdOfcItem();
-
-                CreateObdDetail createObdDetail = new CreateObdDetail();
-
-                item.setPackNum(detail.getPackUnit());
-                //
-                OutbDeliveryDetail deliveryDetail = soDeliveryService.getOutbDeliveryDetail(orderId, detail.getItemId());
-                if (deliveryDetail == null) {
-                    continue;
-                }
-                BigDecimal outQty = deliveryDetail.getDeliveryNum();
-                item.setSkuQty(outQty);
-
-                //ea转换为包装数量。
-                createObdDetail.setDlvQty(PackUtil.EAQty2UomQty(outQty, detail.getPackUnit()));
-                createObdDetail.setRefItem(detail.getDetailOtherId());
-                createObdDetail.setMaterial(detail.getSkuCode());
-                createObdDetails.add(createObdDetail);
-
-                item.setSupplySkuCode(detail.getSkuCode());
-                items.add(item);
-            }
-            request.setDetails(items);
-            //TODO 瞎逼判断
-            if (obdHeader.getOwnerUid() == 1) {
-                wuMart.sendSo2Sap(createObdHeader);
-            }
-            dataBackService.ofcDataBackByPost(JSON.toJSONString(request), IntegrationConstan.URL_LSHOFC_OBD);
-        }
-
-        //同步库存 todo 力哥
-        Set<Long> waveIds = new HashSet<Long>();
-        for (WaveDetail detail : totalWaveDetails) {
-            waveIds.add(detail.getWaveId());
-        }
-        */
     }
 
     /**
