@@ -585,6 +585,7 @@ public class ProcurementRestService implements IProcurementRestService {
             final BaseinfoItem item = itemRpcService.getItem(taskInfo.getItemId());
             Map<String, Object> resultMap = new HashMap<String, Object>();
             resultMap.put("type",taskInfo.getStep());
+            resultMap.put("taskId",taskInfo.getTaskId());
             if(taskInfo.getStep()==1){
                 resultMap.put("locationId", taskInfo.getFromLocationId());
                 resultMap.put("locationCode", locationRpcService.getLocation(taskInfo.getFromLocationId()).getLocationCode());
