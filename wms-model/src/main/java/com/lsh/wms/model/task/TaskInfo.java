@@ -204,6 +204,9 @@ public class TaskInfo implements Serializable {
     /** 工作任务量（按照板数） */
     private BigDecimal taskBoardQty;
 
+    /** 工作任务量 */
+    private BigDecimal taskAmount;
+
     private BigDecimal taskQty = BigDecimal.ZERO;
 
     /**
@@ -679,5 +682,13 @@ public class TaskInfo implements Serializable {
 
     public void setQcSkip(Integer qcSkip) {
         this.qcSkip = qcSkip;
+    }
+
+    public BigDecimal getTaskAmount() {
+        return taskAmount;
+    }
+
+    public void setTaskAmount(BigDecimal taskAmount) {
+        this.taskAmount = taskAmount;
     }
 }
