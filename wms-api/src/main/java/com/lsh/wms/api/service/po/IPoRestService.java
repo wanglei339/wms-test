@@ -30,4 +30,5 @@ public interface IPoRestService {
     public String getPoDetailList();
     String canReceipt();
     String getStoreInfo(Long orderId, String detailOtherId);
+    public String throwOrders() throws BizCheckedException;
 }
