@@ -536,6 +536,7 @@ public class ProcurementRestService implements IProcurementRestService {
             resultMap.put("uomQty", taskInfo.getQty().divide(taskInfo.getPackUnit(), 0, BigDecimal.ROUND_HALF_DOWN));
             resultMap.put("barcode", item.getCode());
             resultMap.put("skuCode", item.getSkuCode());
+            resultMap.put("subType", taskInfo.getSubType());
             return JsonUtils.SUCCESS(resultMap);
         }catch (BizCheckedException ex){
             throw ex;
