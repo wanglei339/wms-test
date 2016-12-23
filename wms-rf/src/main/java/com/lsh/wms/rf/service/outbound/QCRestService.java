@@ -292,10 +292,10 @@ public class QCRestService implements IRFQCRestService {
         }
         //转换商品条形码为sku码   // FIXME 16/12/16 itemid可能对应多条 国条(和skuId一对一) ,多国条找到的skuId可能和wave_detail中记载的对不对(物美)
         //未来可能会使用item  前提出库的时候一个托盘的货是一个货主的
-//        ObdHeader obdHeader = iSoRpcService.getOutbSoHeaderDetailByOrderId(qcTaskInfo.getOrderId());
-//        if (null == obdHeader) {
-//            throw new BizCheckedException("2870006");
-//        }
+        ObdHeader obdHeader = iSoRpcService.getOutbSoHeaderDetailByOrderId(qcTaskInfo.getOrderId());
+        if (null == obdHeader) {
+            throw new BizCheckedException("2870006");
+        }
 
 
 
@@ -306,8 +306,9 @@ public class QCRestService implements IRFQCRestService {
         }
         long skuId = skuInfo.getSkuId();
 
-//        Long ownerId = obdHeader.getOwnerUid();
-//        BaseinfoItem item = itemRpcService.getItem(ownerId,skuId);
+        Long ownerId = obdHeader.getOwnerUid();
+//        Long ownerId = qcTaskInfo.getOwnerId(); FIXME
+        BaseinfoItem item = itemRpcService.getItem(ownerId,skuId);
 
         List<WaveDetail> details = waveService.getDetailsByContainerId(qcTaskInfo.getContainerId());    //qc的数量不在是拣货的数量了,而是集货的数量和收货的数量
         // 标识是拣货生成的QC还是集货生成的QC
@@ -316,7 +317,7 @@ public class QCRestService implements IRFQCRestService {
         List<WaveDetail> matchDetails = new LinkedList<WaveDetail>();
         BigDecimal pickQty = new BigDecimal("0.0000");
         for (WaveDetail d : details) {          //一个itemId多个国条的时候的解法,只能用itemId来解决了,  前提一个托盘只能是一个火族的货
-            if (d.getSkuId() != skuId) {
+            if (!d.getItemId().equals(item.getItemId())) {
                 continue;
             }
             seekNum++;

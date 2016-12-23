@@ -180,7 +180,7 @@ public class StockTransferCore {
         } else {
             StockMove move = new StockMove();
             ObjUtils.bean2bean(taskInfo, move);
-            //move.setQty(PackUtil.UomQty2EAQty(uomQty, uom));
+            move.setQty(qty);
             move.setFromLocationId(fromLocation.getLocationId());
             move.setToLocationId(toLocationId);
             move.setFromContainerId(quants.get(0).getContainerId());
@@ -236,7 +236,7 @@ public class StockTransferCore {
                 throw new BizCheckedException("2550034");
             }
             ObjUtils.bean2bean(taskInfo, move);
-            //move.setQty(taskInfo.getQtyDone());
+            move.setQty(taskInfo.getQtyDone());
             move.setFromLocationId(fromLocationId);
             move.setToLocationId(toLocation.getLocationId());
             Long newContainerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();

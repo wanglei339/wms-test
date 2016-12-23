@@ -327,6 +327,7 @@ public class StockTransferRFService implements IStockTransferRFService{
                 //我TM的不支持该行了吧
                 return JsonUtils.TOKEN_ERROR("当前不支持此区域的整托移动");
             }
+            logger.info(String.format("QTY DONE 5 %s", taskInfo.getQtyDone().toString()));
             iStockTransferRpcService.scanFromLocation(taskEntry, location, uomQty);
             taskEntry = taskRpcService.getTaskEntryById(taskId);
             taskInfo = taskEntry.getTaskInfo();

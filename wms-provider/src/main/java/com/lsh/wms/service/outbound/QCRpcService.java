@@ -12,6 +12,7 @@ import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
+import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.taking.StockTakingService;
@@ -24,6 +25,7 @@ import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.csi.CsiSku;
+import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskInfo;
@@ -63,6 +65,8 @@ public class QCRpcService implements IQCRpcService {
     private ItemService itemService;
     @Autowired
     private StockTakingService stockTakingService;
+    @Autowired
+    private SoOrderService soOrderService;
 
     public void skipException(long id) throws BizCheckedException {
         WaveDetail detail = waveService.getWaveDetailById(id);
@@ -383,8 +387,39 @@ public class QCRpcService implements IQCRpcService {
             throw new BizCheckedException("2120001");
         }
         long skuId = skuInfo.getSkuId();
+
+        //查找qcInfo
+        Map<String, Object> qcQuery = new HashMap<String, Object>();
+        qcQuery.put("containerId", containerId);
+        qcQuery.put("type", TaskConstant.TYPE_QC);
+        List<TaskInfo> qcInfos = baseTaskService.getTaskInfoList(qcQuery);
+        if (null == qcInfos || qcInfos.isEmpty()) {
+            throw new BizCheckedException("2070003");
+        }
+
+        //现在qc没有写入ownerId
+        TaskInfo qcInfo = qcInfos.get(0);
+//        Long ownerId = qcInfo.getOwnerId();
+        Long orderId = qcInfo.getOrderId();
+        //找item
+        ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
+        if (null == obdHeader) {
+            throw new BizCheckedException("2870006");
+        }
+        BaseinfoItem item = itemService.getItem(obdHeader.getOwnerUid(), skuId);
+        if (null == item) {
+            throw new BizCheckedException("2120001");
+        }
+
+        Map<String,Object> detailQuery = new HashMap<String, Object>();
+        detailQuery.put("containerId",containerId);
+        detailQuery.put("itemId",item.getItemId());
+        detailQuery.put("isValid", 1);
+        detailQuery.put("isAlive", 1);
+        List<WaveDetail> waveDetails = waveService.getWaveDetails(detailQuery);
+
         //以商品为维度,根据skuId和containerId找wave_detail的
-        List<WaveDetail> waveDetails = waveService.getDetailByContainerIdAndSkuId(containerId, skuId);
+//        List<WaveDetail> waveDetails = waveService.getDetailByContainerIdAndSkuId(containerId, skuId);
         if (null == waveDetails || waveDetails.size() < 1) {
             throw new BizCheckedException("2120018");
         }
@@ -398,8 +433,8 @@ public class QCRpcService implements IQCRpcService {
         }
 
         BigDecimal qty = PackUtil.UomQty2EAQty(qtyUom, waveDetails.get(0).getAllocUnitName());
-        BigDecimal inputQty = qty.setScale(0,BigDecimal.ROUND_DOWN);
-        BigDecimal realPickQty = pickQty.setScale(0,BigDecimal.ROUND_DOWN);
+        BigDecimal inputQty = qty.setScale(0, BigDecimal.ROUND_DOWN);
+        BigDecimal realPickQty = pickQty.setScale(0, BigDecimal.ROUND_DOWN);
 
         if (inputQty.compareTo(realPickQty) != 0) {   //多货或者数量相同
             throw new BizCheckedException("2120022");
@@ -455,8 +490,39 @@ public class QCRpcService implements IQCRpcService {
             throw new BizCheckedException("2120001");
         }
         long skuId = skuInfo.getSkuId();
+
+        //查找qcInfo
+        Map<String, Object> qcQuery = new HashMap<String, Object>();
+        qcQuery.put("containerId", containerId);
+        qcQuery.put("type", TaskConstant.TYPE_QC);
+        List<TaskInfo> qcInfos = baseTaskService.getTaskInfoList(qcQuery);
+        if (null == qcInfos || qcInfos.isEmpty()) {
+            throw new BizCheckedException("2070003");
+        }
+
+        //现在qc没有写入ownerId
+        TaskInfo qcInfo = qcInfos.get(0);
+//        Long ownerId = qcInfo.getOwnerId();
+        Long orderId = qcInfo.getOrderId();
+        //找item
+        ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
+        if (null == obdHeader) {
+            throw new BizCheckedException("2870006");
+        }
+        BaseinfoItem item = itemService.getItem(obdHeader.getOwnerUid(), skuId);
+        if (null == item) {
+            throw new BizCheckedException("2120001");
+        }
+
+        Map<String,Object> detailQuery = new HashMap<String, Object>();
+        detailQuery.put("containerId",containerId);
+        detailQuery.put("itemId",item.getItemId());
+        detailQuery.put("isValid", 1);
+        detailQuery.put("isAlive", 1);
+        List<WaveDetail> waveDetails = waveService.getWaveDetails(detailQuery);
+
         //以商品为维度,根据skuId和containerId找wave_detail的
-        List<WaveDetail> waveDetails = waveService.getDetailByContainerIdAndSkuId(containerId, skuId);
+//        List<WaveDetail> waveDetails = waveService.getDetailByContainerIdAndSkuId(containerId, skuId);
         if (null == waveDetails || waveDetails.size() < 1) {
             throw new BizCheckedException("2120018");
         }
@@ -467,8 +533,8 @@ public class QCRpcService implements IQCRpcService {
         }
 
         BigDecimal qty = PackUtil.UomQty2EAQty(qtyUom, waveDetails.get(0).getAllocUnitName());
-        BigDecimal inputQty = qty.setScale(0,BigDecimal.ROUND_DOWN);
-        BigDecimal realPickQty = pickQty.setScale(0,BigDecimal.ROUND_DOWN);
+        BigDecimal inputQty = qty.setScale(0, BigDecimal.ROUND_DOWN);
+        BigDecimal realPickQty = pickQty.setScale(0, BigDecimal.ROUND_DOWN);
 
         if (inputQty.compareTo(realPickQty) != 0) {   //多货或者数量相同
             throw new BizCheckedException("2120023");
@@ -521,13 +587,45 @@ public class QCRpcService implements IQCRpcService {
         if (null == containerId || null == code) {
             throw new BizCheckedException("2120019");
         }
+
         CsiSku skuInfo = csiRpcService.getSkuByCode(CsiConstan.CSI_CODE_TYPE_BARCODE, code);
         if (skuInfo == null) {
             throw new BizCheckedException("2120001");
         }
         long skuId = skuInfo.getSkuId();
+
+        //查找qcInfo
+        Map<String, Object> qcQuery = new HashMap<String, Object>();
+        qcQuery.put("containerId", containerId);
+        qcQuery.put("type", TaskConstant.TYPE_QC);
+        List<TaskInfo> qcInfos = baseTaskService.getTaskInfoList(qcQuery);
+        if (null == qcInfos || qcInfos.isEmpty()) {
+            throw new BizCheckedException("2070003");
+        }
+
+        //现在qc没有写入ownerId
+        TaskInfo qcInfo = qcInfos.get(0);
+//        Long ownerId = qcInfo.getOwnerId();
+        Long orderId = qcInfo.getOrderId();
+        //找item
+        ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
+        if (null == obdHeader) {
+            throw new BizCheckedException("2870006");
+        }
+        BaseinfoItem item = itemService.getItem(obdHeader.getOwnerUid(), skuId);
+        if (null == item) {
+            throw new BizCheckedException("2120001");
+        }
+
+        Map<String,Object> detailQuery = new HashMap<String, Object>();
+        detailQuery.put("containerId",containerId);
+        detailQuery.put("itemId",item.getItemId());
+        detailQuery.put("isValid", 1);
+        detailQuery.put("isAlive", 1);
+        List<WaveDetail> waveDetails = waveService.getWaveDetails(detailQuery);
+
         //以商品为维度,根据skuId和containerId找wave_detail的
-        List<WaveDetail> waveDetails = waveService.getDetailByContainerIdAndSkuId(containerId, skuId);
+//        List<WaveDetail> waveDetails = waveService.getDetailByContainerIdAndSkuId(containerId, skuId);
         if (null == waveDetails || waveDetails.size() < 1) {
             throw new BizCheckedException("2120018");
         }
