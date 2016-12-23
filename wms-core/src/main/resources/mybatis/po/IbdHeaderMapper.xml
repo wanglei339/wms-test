@@ -120,7 +120,12 @@
 	 update ibd_header set order_status=#{newOrderStatus}
 	  where unix_timestamp() <![CDATA[ >= throw_at+#{throwAt} ]]>
 	  AND (order_status = #{oldOrderStatus1} or order_status = #{oldOrderStatus2})
-    </update>
+		<if test="orderType != null">
+			AND order_type=#{orderType}
+		</if>
+
+
+	</update>
 	<sql id="queryCondition">
 		<where>
 			<if test="id != null">id=#{id}</if>

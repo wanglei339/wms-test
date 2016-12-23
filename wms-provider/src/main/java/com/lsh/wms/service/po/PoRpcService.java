@@ -192,18 +192,83 @@ public class PoRpcService implements IPoRpcService {
             //投单时,记录投单时间
             ibdHeader.setThrowAt(DateUtils.getCurrentSeconds());
             //投单校验
-            checkThrowOrder(ibdHeader.getOrderId());
+            //checkThrowOrder(ibdHeader.getOrderId());
         }
         poOrderService.updateInbPoHeaderByOrderOtherIdOrOrderId(ibdHeader);
 
         return true;
     }
 
+    public Map<String,Object> throwOrder(List<Map<String,Object>> idList){
+        Map<String,Object> returnMap = new HashMap<String, Object>();
+        Set<String> itemNameSet = new HashSet<String>();
+        Set<Long> successSet = new HashSet<Long>();
+        Set<Long> failedSet = new HashSet<Long>();
+
+        for(Map<String,Object> map : idList){
+            Long orderId = Long.valueOf(String.valueOf(map.get("orderId")));
+            /*
+            投单验证
+             */
+            IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(orderId);
+            if(ibdHeader == null){
+                //throw new BizCheckedException("2020001");
+                failedSet.add(orderId);
+                continue;
+            }
+            List<IbdDetail> ibdDetailList = poOrderService.getInbPoDetailListByOrderId(orderId);
+            if(ibdDetailList == null || ibdDetailList.size() <= 0){
+                failedSet.add(orderId);
+                continue;
+            }
+            boolean isThrow = true;
+            for(IbdDetail ibdDetail : ibdDetailList){
+                String skuCode = ibdDetail.getSkuCode();
+                BaseinfoItem baseinfoItem = itemService.getItemsBySkuCode(ibdHeader.getOwnerUid(),skuCode);
+                if(baseinfoItem == null){
+                    itemNameSet.add(ibdDetail.getSkuName());
+                    failedSet.add(orderId);
+                    isThrow = false;
+                    continue;
+                    //throw new BizCheckedException("2020112",ibdDetail.getSkuName(),"");//商品不存在
+                }
+                if(baseinfoItem.getIsInfoIntact()==0){
+                    itemNameSet.add(ibdDetail.getSkuName());
+                    failedSet.add(orderId);
+                    isThrow = false;
+                    continue;
+                    //throw new BizCheckedException("2020110",baseinfoItem.getSkuName(),"");//商品信息不完整
+                }
+                List<BaseinfoItemLocation> itemLocationList = itemLocationService.getItemLocationList(baseinfoItem.getItemId());
+                if(itemLocationList == null || itemLocationList.size() == 0){
+                    itemNameSet.add(ibdDetail.getSkuName());
+                    failedSet.add(orderId);
+                    isThrow = false;
+                    continue;
+                    //throw new BizCheckedException("2020111",baseinfoItem.getSkuName(),"");//该商品没有拣货位
+                }
+            }
+            if(isThrow){
+                successSet.add(orderId);
+                updateOrderStatus(map);
+            }
+        }
+        if(failedSet.size() == 0){
+            //都投单成功
+            return null;
+        }else{
+            returnMap.put("itemNameList",itemNameSet);
+            returnMap.put("successList",successSet);
+            returnMap.put("failedList",failedSet);
+        }
+
+        return returnMap;
+    }
     //投单校验
     private void checkThrowOrder(Long orderId)throws BizCheckedException{
         IbdHeader ibdHeader = poOrderService.getInbPoHeaderByOrderId(orderId);
         if(ibdHeader == null){
-            throw new BizCheckedException("2020001");
+            //throw new BizCheckedException("2020001");
         }
         List<IbdDetail> ibdDetailList = poOrderService.getInbPoDetailListByOrderId(orderId);
         if(ibdDetailList == null || ibdDetailList.size() <= 0){
@@ -214,7 +279,7 @@ public class PoRpcService implements IPoRpcService {
             BaseinfoItem baseinfoItem = itemService.getItemsBySkuCode(ibdHeader.getOwnerUid(),skuCode);
             if(baseinfoItem == null){
 
-                throw new BizCheckedException("2020112",ibdDetail.getSkuName(),"");//商品不存在
+                throw new BizCheckedException("2020112",baseinfoItem.getSkuName(),"");//商品不存在
             }
             if(baseinfoItem.getIsInfoIntact()==0){
                 throw new BizCheckedException("2020110",baseinfoItem.getSkuName(),"");//商品信息不完整
@@ -226,7 +291,6 @@ public class PoRpcService implements IPoRpcService {
         }
         return ;
     }
-
 
     public List<IbdHeader> getPoHeaderList(Map<String, Object> params) {
         return poOrderService.getInbPoHeaderList(params);
@@ -335,6 +399,7 @@ public class PoRpcService implements IPoRpcService {
         params.put("oldOrderStatus2", PoConstant.ORDER_RECTIPTING);
         params.put("newOrderStatus",PoConstant.ORDER_DELIVERY);
         params.put("throwAt",time);
+        params.put("orderType",PoConstant.ORDER_TYPE_CPO);//直流
         poOrderService.updateStatusTOthrow(params);
     }
 

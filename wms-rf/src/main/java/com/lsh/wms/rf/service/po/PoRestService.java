@@ -13,6 +13,7 @@ import com.lsh.wms.api.model.po.PoRequest;
 import com.lsh.wms.api.service.po.IPoRestService;
 import com.lsh.wms.api.service.po.IPoRpcService;
 import com.lsh.wms.api.service.request.RequestUtils;
+import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.IbdHeader;
@@ -22,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -73,7 +76,36 @@ public class PoRestService implements IPoRestService {
 
         return JsonUtils.SUCCESS();
     }
+    @POST
+    @Path("throwOrders")
+    public String throwOrders() throws BizCheckedException {
+        Map<String, Object> map = RequestUtils.getRequest();
+        if(map.get("orderOtherId") == null || map.get("orderId") == null){
+            throw new BizCheckedException("1010001", "参数不能为空");
+        }
+        String orderStatus = String.valueOf(PoConstant.ORDER_THROW);
+        if(map.get("orderStatus") != null ){
+            orderStatus = map.get("orderStatus").toString();
+        }
+        String orderOtherIds = String.valueOf(map.get("orderOtherId"));
+        String orderIds = String.valueOf(map.get("orderId"));
+        String orderOtherIdArr [] = orderOtherIds.split(",");
+        String orderIdArr [] = orderIds.split(",");
+        if(orderOtherIdArr.length != orderIdArr.length){
+            throw new BizCheckedException("1010001", "参数不能为空");
+        }
+        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+        for(int i=0 ;i < orderOtherIdArr.length ;i++){
+            Map<String, Object> queryMap = new HashMap<String, Object>();
+            queryMap.put("orderOtherId",orderOtherIdArr[i]);
+            queryMap.put("orderId",orderIdArr[i]);
+            queryMap.put("orderStatus",orderStatus);
+            list.add(queryMap);
+        }
+        Map<String,Object> result = iPoRpcService.throwOrder(list);
 
+        return JsonUtils.SUCCESS(result);
+    }
     @POST
     @Path("getPoHeaderList")
     public String getPoHeaderList() {
