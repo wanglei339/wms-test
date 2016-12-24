@@ -157,6 +157,7 @@ public class ReceiveRpcService implements IReceiveRpcService{
 
     }
 
+
     public void accountBack(Long receiveId, String detailOtherId) throws BizCheckedException {
         //获取receiveHeader
         ReceiveHeader receiveHeader = receiveService.getReceiveHeaderByReceiveId(receiveId);
@@ -166,6 +167,21 @@ public class ReceiveRpcService implements IReceiveRpcService{
             String result = wuMartSap.ibd2SapBack(detail.getAccountId(),detail.getAccountDetailId());
         }
         receiveService.accountBack(receiveHeader,detail);
+    }
+
+    public Long getLotByReceiptContainerId(Long containerId) throws BizCheckedException {
+        if(containerId.equals(0L)){
+            return 0L;
+        }
+        //根据托盘码查找 InbReceiptHeader
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("containerId",containerId);
+        InbReceiptHeader receiptHeader = receiptService.getInbReceiptHeaderByParams(queryMap);
+        if(receiptHeader==null){
+            return 0L;
+        }
+        List<InbReceiptDetail> details = receiptService.getInbReceiptDetailListByReceiptId(receiptHeader.getReceiptOrderId());
+        return details.get(0).getLotId();
     }
 
 }
