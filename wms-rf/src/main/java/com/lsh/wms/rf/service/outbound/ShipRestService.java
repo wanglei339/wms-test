@@ -139,12 +139,11 @@ public class ShipRestService implements IShipRestService {
 
         List<TaskInfo> qcInfos = new ArrayList<TaskInfo>();
         Set<Long> qcTaskIdDup = new HashSet<Long>();
+        //通过合盘的托盘码聚合
+        Map<Long, List<TaskInfo>> mergedQcListMap = new HashMap<Long, List<TaskInfo>>();
+        //同一个mergeContainerId的qc的list
+        List<TaskInfo> qcInfoList = new ArrayList<TaskInfo>();
         for (Long containerId : containterIds) {
-            //首先判断这个container是否已经被被的运单装走了
-            List<TuDetail> tuDetails = tuService.getTuDeailListByMergedContainerId(containerId);
-            if (tuDetails != null && tuDetails.size() > 0) {
-                throw new BizCheckedException("2130014");
-            }
             //判断是否组盘完成,先去listdetail总找组盘
             List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(containerId);
             if (null == waveDetails || waveDetails.size() < 1) {
@@ -162,11 +161,27 @@ public class ShipRestService implements IShipRestService {
                     if (null == qcInfo || !TaskConstant.Done.equals(qcInfo.getStatus())) {
                         throw new BizCheckedException("2870034");
                     }
+                    //判断合盘的是否被运单运走了
+                    List<TuDetail> tuDetails = tuService.getTuDeailListByMergedContainerId(qcInfo.getMergedContainerId());
+                    if (tuDetails != null && tuDetails.size() > 0) {
+                        throw new BizCheckedException("2130014");
+                    }
+
                     qcInfos.add(qcInfo);
                     qcTaskIdDup.add(detail.getQcTaskId());
+
+                    //聚类qc
+                    if (!mergedQcListMap.containsKey(qcInfo.getMergedContainerId())) {
+                        qcInfoList = new ArrayList<TaskInfo>();
+                    } else {
+                        qcInfoList = mergedQcListMap.get(qcInfo.getMergedContainerId());
+                    }
+                    qcInfoList.add(qcInfo);
+                    mergedQcListMap.put(qcInfo.getMergedContainerId(), qcInfoList);
                 }
             }
         }
+
 
         //创建TU运单的head
         TuHead tuHead = new TuHead();
@@ -187,20 +202,46 @@ public class ShipRestService implements IShipRestService {
         tuHead.setLoadedAt(DateUtils.getCurrentSeconds());
 
         //装车数据插入
+        //一键装车物资的trick操作,如果连个托盘合起来,托盘上的周转箱物资按照最大的操作    //FIXME 以后会有合盘的操作
         List<TuDetail> tuDetails = new ArrayList<TuDetail>();
-        for (TaskInfo qcInfo : qcInfos) {
+        for (Long mergedContainerId : mergedQcListMap.keySet()) {
+            List<TaskInfo> Infos = mergedQcListMap.get(mergedContainerId);
+            BigDecimal boxNum = BigDecimal.ZERO;
+            Long turnoverBoxNum = 0l;
             TuDetail tuDetail = new TuDetail();
+
+            //统计箱数,周转箱按照两个托盘中最大的周转箱中的来 FIXME
+            for (TaskInfo qcInfo : qcInfos) {
+                boxNum = boxNum.add(new BigDecimal(qcInfo.getExt4().toString()));    //箱数
+                if (turnoverBoxNum.compareTo(qcInfo.getExt3()) < 0) {
+                    turnoverBoxNum = qcInfo.getExt3();
+                }
+            }
+
             tuDetail.setTuId(tuHead.getTuId());
-            tuDetail.setMergedContainerId(qcInfo.getContainerId());
-            tuDetail.setBoxNum(qcInfo.getTaskPackQty()); //总箱数
+            tuDetail.setMergedContainerId(mergedContainerId);
+            tuDetail.setBoxNum(boxNum); //箱数
             tuDetail.setContainerNum(1);     //托盘数
-            tuDetail.setTurnoverBoxNum(qcInfo.getExt3()); //周转箱数
+            tuDetail.setTurnoverBoxNum(turnoverBoxNum); //周转箱数
             tuDetail.setBoardNum(1L); //一板多托数量
             tuDetail.setStoreId(0L);
             tuDetail.setLoadAt(DateUtils.getCurrentSeconds());
             tuDetail.setIsValid(1);
             tuDetails.add(tuDetail);
         }
+//        for (TaskInfo qcInfo : qcInfos) {
+//            TuDetail tuDetail = new TuDetail();
+//            tuDetail.setTuId(tuHead.getTuId());
+//            tuDetail.setMergedContainerId(qcInfo.getContainerId());
+//            tuDetail.setBoxNum(qcInfo.getTaskPackQty()); //总箱数
+//            tuDetail.setContainerNum(1);     //托盘数
+//            tuDetail.setTurnoverBoxNum(qcInfo.getExt3()); //周转箱数
+//            tuDetail.setBoardNum(1L); //一板多托数量
+//            tuDetail.setStoreId(0L);
+//            tuDetail.setLoadAt(DateUtils.getCurrentSeconds());
+//            tuDetail.setIsValid(1);
+//            tuDetails.add(tuDetail);
+//        }
 
         TuEntry tuEntry = new TuEntry();
         tuEntry.setTuHead(tuHead);
@@ -249,11 +290,7 @@ public class ShipRestService implements IShipRestService {
         //一个托盘一个客户? 如果多客户一托盘,qc也不知道每个具体的箱数,用detail里的orderId是合理的
         Set<Long> orderIds = new HashSet<Long>();
         for (Long containerId : containterIds) {
-            //首先判断这个container是否已经被被的运单装走了
-            List<TuDetail> tuDetails = tuService.getTuDeailListByMergedContainerId(containerId);
-            if (tuDetails != null && tuDetails.size() > 0) {
-                throw new BizCheckedException("2130014");
-            }
+
             //判断是否组盘完成,先去listdetail总找组盘
             List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(containerId);
             if (null == waveDetails || waveDetails.size() < 1) {
@@ -271,6 +308,11 @@ public class ShipRestService implements IShipRestService {
                     //没qc完成
                     if (null == qcInfo || !TaskConstant.Done.equals(qcInfo.getStatus())) {
                         throw new BizCheckedException("2870034");
+                    }
+                    //查看装车否
+                    List<TuDetail> tuDetails = tuService.getTuDeailListByMergedContainerId(qcInfo.getMergedContainerId());
+                    if (tuDetails != null && tuDetails.size() > 0) {
+                        throw new BizCheckedException("2130014");
                     }
                     qcInfos.add(qcInfo);
                     qcTaskIdDup.add(detail.getQcTaskId());
@@ -305,11 +347,11 @@ public class ShipRestService implements IShipRestService {
         //客户数
         int customerCount = customerInfos.size();
 
-        Map<String,Object> result = new HashMap<String, Object>();
-        result.put("packCount",packCount);
-        result.put("turnoverBoxNum",turnoverBoxNum);
-        result.put("customerCount",customerCount);
-        result.put("customerList",customerInfos);
+        Map<String, Object> result = new HashMap<String, Object>();
+        result.put("packCount", packCount);
+        result.put("turnoverBoxNum", turnoverBoxNum);
+        result.put("customerCount", customerCount);
+        result.put("customerList", customerInfos);
         return JsonUtils.SUCCESS(result);
     }
 
