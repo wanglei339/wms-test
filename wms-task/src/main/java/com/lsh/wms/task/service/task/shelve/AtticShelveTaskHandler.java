@@ -107,6 +107,8 @@ public class AtticShelveTaskHandler extends AbsTaskHandler {
     }
     public void calcPerformance(TaskInfo taskInfo) {
         taskInfo.setTaskQty(taskInfo.getQty().divide(taskInfo.getPackUnit(),2,BigDecimal.ROUND_DOWN));
+        taskInfo.setTaskEaQty(taskInfo.getQty());
+        taskInfo.setQtyDone(taskInfo.getQty());
     }
 
 //    public void  doneConcrete(Long taskId) {

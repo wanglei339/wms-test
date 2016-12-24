@@ -163,20 +163,20 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         StockMove move = new StockMove();
         StockLot lot = lotService.getStockLotByLotId(quant.getLotId());
         BigDecimal qty = quantService.getQuantQtyByContainerId(quant.getContainerId());
-        if(qty.compareTo(realQty)==0){
-            return;
+        if(qty.add(realQty).compareTo(BigDecimal.ZERO)<0){
+            throw new BizCheckedException("2550001");
         }
-        if(quant.getQty().compareTo(realQty) > 0) {
+        if(realQty.compareTo(BigDecimal.ZERO) < 0) {
             move.setTaskId(WriteOffConstant.WRITE_OFF_TASK_ID);
             move.setSkuId(quant.getSkuId());
             move.setItemId(quant.getItemId());
             move.setOwnerId(quant.getOwnerId());
             move.setStatus(TaskConstant.Done);
-            move.setLot(lot);
 
-            move.setQty(qty.subtract(realQty));
+            move.setQty(realQty.abs());
             move.setFromLocationId(quant.getLocationId());
-            move.setToLocationId(locationService.getInventoryLostLocation().getLocationId());
+            move.setFromContainerId(quant.getContainerId());
+            move.setToLocationId(locationService.getNullArea().getLocationId());
             move.setToContainerId(containerService.createContainerByType(ContainerConstant.CAGE).getContainerId());
         }else {
             move.setTaskId(WriteOffConstant.WRITE_OFF_TASK_ID);
@@ -184,14 +184,13 @@ public class StockQuantRpcService implements IStockQuantRpcService {
             move.setItemId(quant.getItemId());
             move.setOwnerId(quant.getOwnerId());
             move.setStatus(TaskConstant.Done);
-
-            move.setQty(realQty.subtract(qty));
-            move.setFromLocationId(locationService.getInventoryLostLocation().getLocationId());
+            move.setQty(realQty);
+            move.setFromLocationId(locationService.getNullArea().getLocationId());
             move.setToLocationId(quant.getLocationId());
             move.setToContainerId(quant.getContainerId());
             move.setLot(lot);
         }
-        stockTakingService.writeOffQuant(move, quant);
+        moveService.move(move);
     }
     public int getItemStockCount(Map<String, Object> mapQuery) {
         return itemService.countItem(mapQuery);

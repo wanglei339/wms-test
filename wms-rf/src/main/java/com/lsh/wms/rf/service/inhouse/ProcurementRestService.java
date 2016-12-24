@@ -143,6 +143,26 @@ public class ProcurementRestService implements IProcurementRestService {
     }
 
     @POST
+    @Path("getZoneTaskList")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String getZoneTaskList() throws BizCheckedException {
+        Map<String, Object> query = new HashMap<String, Object>();
+        query.put("cmd", "getZoneTaskList");
+        query.put("zone_id",  RequestUtils.getRequest().get("zoneId"));
+        query.put("uid", Long.valueOf(RequestUtils.getHeader("uid")));
+        String ip = PropertyUtils.getString("replenish_svr_ip");
+        int port = PropertyUtils.getInt("replenish_svr_port");
+        String rstString = NsHeadClient.jsonCall(ip, port, JsonUtils.obj2Json(query));
+        Map rst = JsonUtils.json2Obj(rstString, Map.class);
+        if ( rst == null || Long.valueOf(rst.get("ret").toString())!=0){
+            return JsonUtils.TOKEN_ERROR("服务器错误");
+        }else{
+            return JsonUtils.SUCCESS(rst);
+        }
+    }
+
+    @POST
     @Path("scanFromLocation")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
@@ -262,8 +282,12 @@ public class ProcurementRestService implements IProcurementRestService {
                         put("barcode",item.getCode());
                         put("skuCode",item.getSkuCode());
                         put("locationId", taskInfo.getToLocationId());
-                        put("subType",taskInfo.getSubType());
                         put("locationCode", locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode());
+                        put("toLocationId", taskInfo.getToLocationId());
+                        put("toLocationCode", locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode());
+                        put("fromLocationId", taskInfo.getFromLocationId());
+                        put("fromLocationCode", locationRpcService.getLocation(taskInfo.getFromLocationId()).getLocationCode());
+                        put("subType",taskInfo.getSubType());
                         put("itemId", taskInfo.getItemId());
                         put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
                         if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
@@ -320,7 +344,10 @@ public class ProcurementRestService implements IProcurementRestService {
                         put("skuCode",item.getSkuCode());
                         put("locationId", info.getToLocationId());
                         put("locationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
-                        put("itemId", info.getItemId());
+                        put("toLocationId", info.getToLocationId());
+                        put("toLocationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
+                        put("fromLocationId", info.getFromLocationId());
+                        put("fromLocationCode", locationRpcService.getLocation(info.getFromLocationId()).getLocationCode());   put("itemId", info.getItemId());
                         put("itemName", itemRpcService.getItem(info.getItemId()).getSkuName());
                         put("subType",info.getSubType());
                         if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
@@ -341,6 +368,10 @@ public class ProcurementRestService implements IProcurementRestService {
                         put("skuCode",item.getSkuCode());
                         put("locationId", info.getFromLocationId());
                         put("locationCode", locationRpcService.getLocation(info.getFromLocationId()).getLocationCode());
+                        put("toLocationId", info.getToLocationId());
+                        put("toLocationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
+                        put("fromLocationId", info.getFromLocationId());
+                        put("fromLocationCode", locationRpcService.getLocation(info.getFromLocationId()).getLocationCode());
                         put("itemId", info.getItemId());
                         put("itemName", itemRpcService.getItem(info.getItemId()).getSkuName());
                         put("subType",info.getSubType());
@@ -392,14 +423,19 @@ public class ProcurementRestService implements IProcurementRestService {
         final BigDecimal [] decimals = taskInfo.getQty().divideAndRemainder(taskInfo.getPackUnit());
         final Long fromLocationId = taskInfo.getFromLocationId();
         final String fromLocationCode = locationRpcService.getLocation(fromLocationId).getLocationCode();
+        final String toLocationCode = locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode();
         return JsonUtils.SUCCESS(new HashMap<String, Object>() {
             {
                 put("taskId", taskInfo.getTaskId().toString());
                 put("type", 1L);
                 put("barcode",item.getCode());
                 put("skuCode",item.getSkuCode());
+                put("fromLocationId", fromLocationId);
+                put("fromLocationCode", fromLocationCode);
                 put("locationId", fromLocationId);
                 put("locationCode", fromLocationCode);
+                put("toLocationId", taskInfo.getToLocationId());
+                put("toLocationCode", toLocationCode);
                 put("itemId", taskInfo.getItemId());
                 put("subType",taskInfo.getSubType());
                 put("subType",taskInfo.getSubType());
@@ -430,6 +466,14 @@ public class ProcurementRestService implements IProcurementRestService {
             TaskInfo taskInfo = taskEntry.getTaskInfo();
             final BaseinfoItem item = itemRpcService.getItem(taskInfo.getItemId());
             Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("type",taskInfo.getStep());
+            if(taskInfo.getStep()==1){
+                resultMap.put("locationId", taskInfo.getFromLocationId());
+                resultMap.put("locationCode", locationRpcService.getLocation(taskInfo.getFromLocationId()).getLocationCode());
+            }else {
+                resultMap.put("locationId", taskInfo.getToLocationId());
+                resultMap.put("locationCode", locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode());
+            }
             resultMap.put("itemId", taskInfo.getItemId());
             resultMap.put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
             resultMap.put("fromLocationId", taskInfo.getFromLocationId());
@@ -440,6 +484,131 @@ public class ProcurementRestService implements IProcurementRestService {
             resultMap.put("uomQty", taskInfo.getQty().divide(taskInfo.getPackUnit(), 0, BigDecimal.ROUND_HALF_DOWN));
             resultMap.put("barcode", item.getCode());
             resultMap.put("skuCode", item.getSkuCode());
+            return JsonUtils.SUCCESS(resultMap);
+        }catch (BizCheckedException ex){
+            throw ex;
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return JsonUtils.TOKEN_ERROR("系统繁忙");
+        }
+    }
+    @POST
+    @Path("assign")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String assign() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long uid = 0L;
+        try {
+            uid =  Long.valueOf(RequestUtils.getHeader("uid"));
+        }catch (Exception e){
+            return JsonUtils.TOKEN_ERROR("违法的账户");
+        }
+            SysUser user = iSysUserRpcService.getSysUserById(uid);
+        if(user==null){
+            return JsonUtils.TOKEN_ERROR("用户不存在");
+        }
+
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("operator",uid);
+        queryMap.put("status",TaskConstant.Assigned);
+        List<TaskEntry> entries = iTaskRpcService.getTaskList(TaskConstant.TYPE_PROCUREMENT, queryMap);
+        if(entries!=null && entries.size()!=0){
+            TaskEntry entry = entries.get(0);
+            final TaskInfo info = entry.getTaskInfo();
+            final BaseinfoItem item = itemRpcService.getItem(info.getItemId());
+            final BigDecimal [] decimals = info.getQty().divideAndRemainder(info.getPackUnit());
+            if(info.getStep()==2){
+                return JsonUtils.SUCCESS(new HashMap<String, Object>() {
+                    {
+                        put("taskId", info.getTaskId().toString());
+                        put("type",2L);
+                        put("barcode",item.getCode());
+                        put("skuCode",item.getSkuCode());
+                        put("locationId", info.getToLocationId());
+                        put("locationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
+                        put("toLocationId", info.getToLocationId());
+                        put("toLocationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
+                        put("fromLocationId", info.getFromLocationId());
+                        put("fromLocationCode", locationRpcService.getLocation(info.getFromLocationId()).getLocationCode());   put("itemId", info.getItemId());
+                        put("itemName", itemRpcService.getItem(info.getItemId()).getSkuName());
+                        put("subType",info.getSubType());
+                        if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
+                            put("qty", decimals[0]);
+                            put("packName", info.getPackName());
+                        }else {
+                            put("qty", info.getQty());
+                            put("packName", "EA");
+                        }
+                    }
+                });
+            }else {
+                return JsonUtils.SUCCESS(new HashMap<String, Object>() {
+                    {
+                        put("taskId", info.getTaskId().toString());
+                        put("type",1L);
+                        put("barcode",item.getCode());
+                        put("skuCode",item.getSkuCode());
+                        put("locationId", info.getFromLocationId());
+                        put("locationCode", locationRpcService.getLocation(info.getFromLocationId()).getLocationCode());
+                        put("toLocationId", info.getToLocationId());
+                        put("toLocationCode", locationRpcService.getLocation(info.getToLocationId()).getLocationCode());
+                        put("fromLocationId", info.getFromLocationId());
+                        put("fromLocationCode", locationRpcService.getLocation(info.getFromLocationId()).getLocationCode());
+                        put("itemId", info.getItemId());
+                        put("itemName", itemRpcService.getItem(info.getItemId()).getSkuName());
+                        put("subType",info.getSubType());
+                        if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
+                            put("qty", decimals[0]);
+                            put("packName", info.getPackName());
+                        }else {
+                            put("qty", info.getQty());
+                            put("packName", "EA");
+                        }
+                    }
+                });
+            }
+        }
+
+
+
+
+        Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
+        try {
+            TaskEntry taskEntry = iTaskRpcService.getTaskEntryById(taskId);
+            iTaskRpcService.assign(taskId,uid);
+            if (taskEntry == null) {
+                throw new BizCheckedException("2040001");
+            }
+            TaskInfo taskInfo = taskEntry.getTaskInfo();
+            final BigDecimal [] decimals = taskInfo.getQty().divideAndRemainder(taskInfo.getPackUnit());
+            final BaseinfoItem item = itemRpcService.getItem(taskInfo.getItemId());
+            Map<String, Object> resultMap = new HashMap<String, Object>();
+            resultMap.put("type",taskInfo.getStep());
+            resultMap.put("taskId",taskInfo.getTaskId());
+            if(taskInfo.getStep()==1){
+                resultMap.put("locationId", taskInfo.getFromLocationId());
+                resultMap.put("locationCode", locationRpcService.getLocation(taskInfo.getFromLocationId()).getLocationCode());
+            }else {
+                resultMap.put("locationId", taskInfo.getToLocationId());
+                resultMap.put("locationCode", locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode());
+            }
+            resultMap.put("itemId", taskInfo.getItemId());
+            resultMap.put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
+            resultMap.put("fromLocationId", taskInfo.getFromLocationId());
+            resultMap.put("fromLocationCode", locationRpcService.getLocation(taskInfo.getFromLocationId()).getLocationCode());
+            resultMap.put("toLocationId", taskInfo.getToLocationId());
+            resultMap.put("toLocationCode", locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode());
+            if(decimals[1].compareTo(BigDecimal.ZERO)==0) {
+                resultMap.put("qty", decimals[0]);
+                resultMap.put("packName", taskInfo.getPackName());
+            }else {
+                resultMap.put("qty", taskInfo.getQty());
+                resultMap.put("packName", "EA");
+            }
+            resultMap.put("barcode", item.getCode());
+            resultMap.put("skuCode", item.getSkuCode());
+            resultMap.put("subType", taskInfo.getSubType());
             return JsonUtils.SUCCESS(resultMap);
         }catch (BizCheckedException ex){
             throw ex;
