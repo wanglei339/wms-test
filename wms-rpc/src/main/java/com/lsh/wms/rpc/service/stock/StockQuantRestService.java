@@ -60,6 +60,12 @@ public class StockQuantRestService implements IStockQuantRestService {
         List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
         return JsonUtils.SUCCESS(quantList);
     }
+    @POST
+    @Path("countList")
+    public String countList(StockQuantCondition condition) throws BizCheckedException {
+        Integer count = stockQuantRpcService.countQuantList(condition);
+        return JsonUtils.SUCCESS(count);
+    }
 
     /***
      * skuId 商品码

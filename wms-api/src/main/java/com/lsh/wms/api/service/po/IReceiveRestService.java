@@ -22,4 +22,6 @@ public interface IReceiveRestService {
     String accountBack(Long receiveId,String detailOtherId) throws BizCheckedException;
 
     String updateQty() throws BizCheckedException;
+
+    String getLotByReceiptContainerId(Long containerId) throws BizCheckedException;
 }

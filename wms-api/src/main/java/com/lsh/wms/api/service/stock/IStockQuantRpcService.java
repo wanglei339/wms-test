@@ -16,6 +16,7 @@ import java.util.Map;
 public interface IStockQuantRpcService {
     BigDecimal getQty(StockQuantCondition condition) throws BizCheckedException;
     List<StockQuant> getQuantList(StockQuantCondition condition) throws BizCheckedException;
+    Integer countQuantList(StockQuantCondition condition) throws BizCheckedException;
 
     String freeze(Map<String, Object> mapCondition) throws BizCheckedException;
     String unfreeze(Map<String, Object> mapCondition) throws BizCheckedException;
