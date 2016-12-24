@@ -118,8 +118,8 @@
 			<if test="receiptOrderId != null">and RECEIPT_ORDER_ID=#{receiptOrderId}</if>
 			<if test="orderId != null">and ORDER_ID=#{orderId}</if>
 			<if test="orderOtherId != null">and ORDER_OTHER_ID=#{orderOtherId}</if>
-			<if test="receiveId != null">RECEIVE_ID=#{receiveId},</if>
-			<if test="lotId != null">LOT_ID=#{lotId},</if>
+			<if test="receiveId != null">and RECEIVE_ID=#{receiveId}</if>
+			<if test="lotId != null">and LOT_ID=#{lotId}</if>
 			<if test="lotNum != null">and LOT_NUM=#{lotNum}</if>
 			<if test="skuId != null">and SKU_ID=#{skuId}</if>
 			<if test="itemId != null">and ITEM_ID=#{itemId}</if>
