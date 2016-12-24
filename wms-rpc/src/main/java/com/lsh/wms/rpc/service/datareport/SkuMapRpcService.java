@@ -35,7 +35,7 @@ public class SkuMapRpcService implements ISkuMapRpcService{
         List<SkuMap> updateSkuMapList = new ArrayList<SkuMap>();
         for(String skuCode : skuCodes){
             BigDecimal price = wuMartSap.map2Sap(SkuUtil.getSkuCode(skuCode));
-            SkuMap skuMap = skuMapService.getSkuMapBySkuCode(skuCode);
+            SkuMap skuMap = skuMapService.getSkuMapBySkuCodeAndOwner(skuCode, CsiConstan.OWNER_WUMART);
             if(skuMap == null){
                 skuMap = new SkuMap();
                 skuMap.setSkuCode(skuCode);

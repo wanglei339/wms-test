@@ -51,9 +51,10 @@ public class SkuMapService {
         return skuMapDao.getSkuMapList(map);
     }
 
-    public SkuMap getSkuMapBySkuCode(String skuCode){
+    public SkuMap getSkuMapBySkuCodeAndOwner(String skuCode,Long ownerId){
         Map<String,Object> map = new HashMap<String, Object>();
         map.put("skuCode",skuCode);
+        map.put("ownerId",ownerId);
         List<SkuMap> skuMaps = skuMapDao.getSkuMapList(map);
         if(skuMaps == null || skuMaps.size() == 0){
             return null;

@@ -281,7 +281,7 @@ public class PoReceiptService {
     public InbReceiptHeader getInbReceiptHeaderByParams(Map<String, Object> params) {
         List<InbReceiptHeader> inbReceiptHeaderList = getInbReceiptHeaderList(params);
 
-        if(inbReceiptHeaderList.size() <= 0 || inbReceiptHeaderList.size() > 1) {
+        if(inbReceiptHeaderList==null || inbReceiptHeaderList.size() <= 0 || inbReceiptHeaderList.size() > 1) {
             return  null;
         }
 

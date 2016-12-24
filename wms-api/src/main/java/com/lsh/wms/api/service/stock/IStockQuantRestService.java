@@ -14,6 +14,7 @@ public interface IStockQuantRestService {
 
     String getOnhandQty(StockQuantCondition condition) throws BizCheckedException;
     String getList(StockQuantCondition condition) throws BizCheckedException;
+    String countList(StockQuantCondition condition) throws BizCheckedException;
     String create(Map<String, Object> mapInput) throws BizCheckedException;
     String freeze(Map<String, Object> mapCondition) throws BizCheckedException;
     String unFreeze(Map<String, Object> mapCondition) throws BizCheckedException;
@@ -28,5 +29,5 @@ public interface IStockQuantRestService {
     String getLocationStockCount(Map<String, Object> mapQuery);
     String getLocationStockList(Map<String, Object> mapQuery);
     String traceQuant(Long quantId);
-    String getStockQuantList(Map<String, Object> mapQuery);
+    String getItemLocationList(Map<String, Object> mapQuery);
 }

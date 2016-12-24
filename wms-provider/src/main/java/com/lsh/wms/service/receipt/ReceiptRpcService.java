@@ -32,12 +32,13 @@ import com.lsh.wms.core.service.po.PoReceiptService;
 import com.lsh.wms.core.service.po.ReceiveService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
-import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.core.service.utils.PackUtil;
-import com.lsh.wms.model.baseinfo.*;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.csi.CsiSupplier;
@@ -311,6 +312,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 inbReceiptDetail.setProTime(date);
                 //将inbReceiptDetail填入inbReceiptDetailList中
                 //inbReceiptDetail.setInboundQty(inboundUnitQty);
+                inbReceiptDetail.setLotId(newStockLot.getLotId());
+                inbReceiptDetail.setReceiveId(receiveId);
                 inbReceiptDetailList.add(inbReceiptDetail);
 
 
@@ -489,6 +492,17 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     obdStreamDetailList.add(obdStreamDetail);
 
                 }
+                /***
+                 * skuId         商品id
+                 * serialNo      生产批次号
+                 * inDate        入库时间
+                 * productDate   生产时间
+                 * expireDate    保质期失效时间
+                 * itemId
+                 * poId          采购订单
+                 * receiptId     收货单
+                 */
+                Long lotId = RandomUtils.genId();
 
                 InbReceiptDetail inbReceiptDetail = new InbReceiptDetail();
                 ObjUtils.bean2bean(receiptItem, inbReceiptDetail);
@@ -505,22 +519,14 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 inbReceiptDetail.setPackUnit(ibdPackUnit);
                 inbReceiptDetail.setPackName(ibdPackName);
                 inbReceiptDetail.setInboundQty(inboundUnitQty);
+                inbReceiptDetail.setLotId(lotId);
+                inbReceiptDetail.setReceiveId(receiveId);
                 inbReceiptDetailList.add(inbReceiptDetail);
 
                 CsiSupplier supplier = supplierService.getSupplier(ibdHeader.getSupplierCode(),ibdHeader.getOwnerUid());
 
 
-                /***
-                 * skuId         商品id
-                 * serialNo      生产批次号
-                 * inDate        入库时间
-                 * productDate   生产时间
-                 * expireDate    保质期失效时间
-                 * itemId
-                 * poId          采购订单
-                 * receiptId     收货单
-                 */
-                Long lotId = RandomUtils.genId();
+
                 Date receiptTime = inbReceiptHeader.getReceiptTime();
 
                 //生产日期
@@ -1015,7 +1021,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             inbReceiptDetail.setReceiptOrderId(inbReceiptHeader.getReceiptOrderId());
             inbReceiptDetail.setOrderOtherId(ibdHeader.getOrderOtherId());
             inbReceiptDetail.setOrderId(ibdHeader.getOrderId());
-
+            inbReceiptDetail.setReceiveId(receiveId);
             boolean isCanReceipt = ibdHeader.getOrderStatus() == PoConstant.ORDER_THROW || ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART || ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPTING;
             if (!isCanReceipt) {
                 throw new BizCheckedException("2020002");
