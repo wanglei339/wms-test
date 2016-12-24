@@ -7,24 +7,25 @@
 		<result property="skuCode" column="sku_code"/>
 		<result property="movingAveragePrice" column="moving_average_price"/>
 		<result property="sourceSystem" column="source_system"/>
+		<result property="ownerId" column="ownerId"/>
 		<result property="createdAt" column="created_at"/>
 		<result property="updatedAt" column="updated_at"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="SkuMap">
 		insert into sku_map (
-			sku_code,moving_average_price,source_system,created_at,updated_at
+			sku_code,moving_average_price,source_system,created_at,updated_at,owner_id
     	) values (
-			#{skuCode},#{movingAveragePrice},#{sourceSystem},#{createdAt},#{updatedAt}
+			#{skuCode},#{movingAveragePrice},#{sourceSystem},#{createdAt},#{updatedAt},#{ownerId}
     	)
 	</insert>
 
 	<insert id="batchInsert" parameterType="java.util.List">
 		insert into sku_map (
-		sku_code,moving_average_price,source_system,created_at,updated_at
+		sku_code,moving_average_price,source_system,created_at,updated_at,#{ownerId}
 		) values
 		<foreach collection="list" item="item" index="index" separator=",">
-		(#{item.skuCode},#{item.movingAveragePrice},#{item.sourceSystem},#{item.createdAt},#{item.updatedAt})
+		(#{item.skuCode},#{item.movingAveragePrice},#{item.sourceSystem},#{item.createdAt},#{item.updatedAt},#{item.ownerId})
 		</foreach>
 	</insert>
 
@@ -34,6 +35,7 @@
   			<if test="skuCode != null">sku_code=#{skuCode},</if>
   			<if test="movingAveragePrice != null">moving_average_price=#{movingAveragePrice},</if>
   			<if test="sourceSystem != null">source_system=#{sourceSystem},</if>
+			<if test="ownerId != null">owner_id=#{ownerId},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
@@ -47,6 +49,7 @@
 			<if test="item.skuCode != null">sku_code=#{item.skuCode},</if>
 			<if test="item.movingAveragePrice != null">moving_average_price=#{item.movingAveragePrice},</if>
 			<if test="item.sourceSystem != null">source_system=#{item.sourceSystem},</if>
+			<if test="item.ownerId != null">owner_id=#{item.ownerId},</if>
 			<if test="item.createdAt != null">created_at=#{item.createdAt},</if>
 			<if test="item.updatedAt != null">updated_at=#{item.updatedAt}</if>
 		</set>
@@ -78,6 +81,7 @@
 			<if test="skuCode != null">and sku_code=#{skuCode}</if>
 			<if test="movingAveragePrice != null">and moving_average_price=#{movingAveragePrice}</if>
 			<if test="sourceSystem != null">and source_system=#{sourceSystem}</if>
+			<if test="ownerId != null">and owner_id=#{ownerId}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 		</where>
