@@ -22,5 +22,7 @@ public interface OutbDeliveryDetailDao {
     List<OutbDeliveryDetail> getOutbDeliveryDetailList(Map<String, Object> params);
 
 	List<OutbDeliveryDetail> getOutbDeliveryDetailListById(List<Long> deliveryIdList);
+
+	Long getOutbDeliveryQtyByItemIdAndTime(Map<String, Object> params);
 	
 }

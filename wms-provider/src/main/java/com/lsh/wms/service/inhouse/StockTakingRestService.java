@@ -190,8 +190,21 @@ public class StockTakingRestService implements IStockTakingRestService {
         }
         Map<String,Object> queryMap = new HashMap<String, Object>();
         queryMap.put("planId",takingId);
-        List<TaskEntry> entries = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_STOCK_TAKING,queryMap);
+        List<TaskEntry> entries = iTaskRpcService.getTaskHeadList(TaskConstant.TYPE_STOCK_TAKING, queryMap);
         iTaskRpcService.calcelTask(head,entries);
+        return JsonUtils.SUCCESS();
+    }
+    @GET
+    @Path("getDetailByItemId")
+    public String getDetailByItemId(@QueryParam("itemId") Long itemId) throws BizCheckedException{
+        Map<String,Object> queryMap = new HashMap<String, Object>();
+        queryMap.put("itemId",itemId);
+        queryMap.put("status",StockTakingConstant.Done);
+        queryMap.put("isFinal",1L);
+        List<StockTakingDetail> details = stockTakingService.getDetails(queryMap);
+        if(details!=null && details.size()!=0){
+            return JsonUtils.SUCCESS(details.get(0));
+        }
         return JsonUtils.SUCCESS();
     }
     @GET
