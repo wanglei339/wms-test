@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.*;
 
@@ -152,6 +153,18 @@ public class ReceiptRestService implements IReceiptRestService {
     public String countInbPoReceiptDetail(){
         Map<String, Object> params = RequestUtils.getRequest();
         return JsonUtils.SUCCESS(receiptRpcService.countInbPoReceiptDetail(params));
+    }
+
+    @POST
+    @Path("modifyQty")
+    public String modifyQty() throws BizCheckedException {
+        Map<String, Object> request = RequestUtils.getRequest();
+        Long uid = Long.valueOf(request.get("uid").toString());
+        Long receiptId = (Long) request.get("receiptId");
+        String qty = request.get("qty").toString();
+        BigDecimal realQty = new BigDecimal(qty);
+        receiptRpcService.modifyQty(receiptId,realQty,uid);
+        return JsonUtils.SUCCESS();
     }
 
 
