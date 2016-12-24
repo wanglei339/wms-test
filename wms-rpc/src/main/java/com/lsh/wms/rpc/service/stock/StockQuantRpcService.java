@@ -260,8 +260,9 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         return moveService.traceQuant(quantId);
     }
 
-    public List<StockQuant> getStockQuantList(Map<String, Object> mapQuery) {
-        return quantService.getStockQuantList(mapQuery);
+    public List<StockQuant> getItemLocationList(Map<String, Object> mapQuery) {
+        setExcludeLocationList(mapQuery);
+        return quantService.getItemLocationList(mapQuery);
     }
     public Long getLotByReceiptContainerId(Long containerId) throws BizCheckedException {
         //根据托盘码查找 InbReceiptHeader
