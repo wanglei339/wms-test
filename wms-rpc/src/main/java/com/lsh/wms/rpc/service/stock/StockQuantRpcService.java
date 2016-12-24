@@ -249,8 +249,9 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         return moveService.traceQuant(quantId);
     }
 
-    public List<StockQuant> getStockQuantList(Map<String, Object> mapQuery) {
-        return quantService.getStockQuantList(mapQuery);
+    public List<StockQuant> getItemLocationList(Map<String, Object> mapQuery) {
+        setExcludeLocationList(mapQuery);
+        return quantService.getItemLocationList(mapQuery);
     }
 
 }
