@@ -200,5 +200,8 @@ public class StockTakingTaskHandler extends AbsTaskHandler {
             iTaskRpcService.create(TaskConstant.TYPE_STOCK_TAKING, taskEntry);
         }
     }
+    public void calcPerformance(TaskInfo taskInfo) {
+        taskInfo.setTaskAmount(BigDecimal.valueOf(taskInfo.getTaskOrder()));
+    }
 
 }

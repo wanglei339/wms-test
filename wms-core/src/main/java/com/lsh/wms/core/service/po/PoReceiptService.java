@@ -13,11 +13,13 @@ import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
+import com.lsh.wms.core.service.system.ModifyLogService;
 import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.po.*;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
+import com.lsh.wms.model.system.ModifyLog;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +77,14 @@ public class PoReceiptService {
     @Autowired
     private LocationService locationService;
 
+    @Autowired
+    private ReceiveService receiveService;
+
+    @Autowired
+    private ModifyLogService modifyLogService;
+
+    @Autowired
+    private PoOrderService poOrderService;
     /**
      * 插入InbReceiptHeader及List<InbReceiptDetail>
      * @param inbReceiptHeader
@@ -271,7 +281,7 @@ public class PoReceiptService {
     public InbReceiptHeader getInbReceiptHeaderByParams(Map<String, Object> params) {
         List<InbReceiptHeader> inbReceiptHeaderList = getInbReceiptHeaderList(params);
 
-        if(inbReceiptHeaderList.size() <= 0 || inbReceiptHeaderList.size() > 1) {
+        if(inbReceiptHeaderList==null || inbReceiptHeaderList.size() <= 0 || inbReceiptHeaderList.size() > 1) {
             return  null;
         }
 
@@ -367,5 +377,29 @@ public class PoReceiptService {
         }
 
         return list.get(0);
+    }
+    /**
+     * 修改明细
+     */
+    @Transactional(readOnly = false)
+    public void updateInbReceiptDetail(InbReceiptDetail inbReceiptDetail){
+        inbReceiptDetail.setUpdatetime(new Date());
+        inbReceiptDetailDao.update(inbReceiptDetail);
+    }
+
+    /**
+     * 修改数量
+     */
+    @Transactional(readOnly = false)
+    public void updateReceiptQty(InbReceiptDetail inbReceiptDetail,List<ReceiveDetail> updateReceiveDetails,ModifyLog modifyLog,List<IbdDetail> updateIbdDetailList){
+        this.updateInbReceiptDetail(inbReceiptDetail);
+
+        for(ReceiveDetail receiveDetail : updateReceiveDetails){
+            receiveService.updateByReceiveIdAndDetailOtherId(receiveDetail);
+        }
+        for (IbdDetail ibdDetail : updateIbdDetailList){
+            poOrderService.updateInbPoDetail(ibdDetail);
+        }
+        modifyLogService.addModifyLog(modifyLog);
     }
 }

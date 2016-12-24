@@ -12,10 +12,14 @@ public class InbReceiptDetail implements Serializable {
     private Long receiptOrderId;
 	/**采购订单号  */
 	private String orderOtherId;
-	/** 订单ID */
+	/**订单ID */
     private Long orderId;
+	/**验收单ID*/
+	private Long receiveId;
+	/**批次ID*/
+	private Long lotId;
 	/** 批次号 */
-    private String lotNum;
+	private String lotNum;
 	/** 仓库商品ID */
     private Long skuId;
 	/** 商品ID */
@@ -257,5 +261,21 @@ public class InbReceiptDetail implements Serializable {
 
 	public void setRemark(String remark) {
 		this.remark = remark;
+	}
+
+	public Long getReceiveId() {
+		return receiveId;
+	}
+
+	public void setReceiveId(Long receiveId) {
+		this.receiveId = receiveId;
+	}
+
+	public Long getLotId() {
+		return lotId;
+	}
+
+	public void setLotId(Long lotId) {
+		this.lotId = lotId;
 	}
 }

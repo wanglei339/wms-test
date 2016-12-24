@@ -132,6 +132,12 @@ public class ReceiveRestService implements IReceiveRestService{
         receiveRpcService.accountBack(receiveId,detailOtherId);
         return JsonUtils.SUCCESS();
     }
+    @GET
+    @Path("getLotByReceiptContainerId")
+    public String getLotByReceiptContainerId(@QueryParam("containerId") Long containerId) throws BizCheckedException{
+        Long lotId = receiveRpcService.getLotByReceiptContainerId(containerId);
+        return JsonUtils.SUCCESS(lotId);
+    }
 
     @POST
     @Path("updateQty")

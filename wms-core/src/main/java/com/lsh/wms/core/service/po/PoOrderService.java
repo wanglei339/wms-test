@@ -117,6 +117,7 @@ public class PoOrderService {
      */
     @Transactional(readOnly = false)
     public void updateInbPoDetail(IbdDetail ibdDetail) {
+        ibdDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
         ibdDetailDao.update(ibdDetail);
     }
 

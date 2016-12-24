@@ -32,12 +32,13 @@ import com.lsh.wms.core.service.po.PoReceiptService;
 import com.lsh.wms.core.service.po.ReceiveService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
-import com.lsh.wms.core.service.staff.StaffService;
 import com.lsh.wms.core.service.stock.StockLotService;
 import com.lsh.wms.core.service.system.SysUserService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.core.service.utils.PackUtil;
-import com.lsh.wms.model.baseinfo.*;
+import com.lsh.wms.model.baseinfo.BaseinfoItem;
+import com.lsh.wms.model.baseinfo.BaseinfoItemLocation;
+import com.lsh.wms.model.baseinfo.BaseinfoLocation;
 import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.csi.CsiSku;
 import com.lsh.wms.model.csi.CsiSupplier;
@@ -47,6 +48,7 @@ import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockLot;
 import com.lsh.wms.model.stock.StockMove;
 import com.lsh.wms.model.stock.StockQuant;
+import com.lsh.wms.model.system.ModifyLog;
 import com.lsh.wms.model.system.SysUser;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
@@ -310,6 +312,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 inbReceiptDetail.setProTime(date);
                 //将inbReceiptDetail填入inbReceiptDetailList中
                 //inbReceiptDetail.setInboundQty(inboundUnitQty);
+                inbReceiptDetail.setLotId(newStockLot.getLotId());
+                inbReceiptDetail.setReceiveId(receiveId);
                 inbReceiptDetailList.add(inbReceiptDetail);
 
 
@@ -488,6 +492,17 @@ public class ReceiptRpcService implements IReceiptRpcService {
                     obdStreamDetailList.add(obdStreamDetail);
 
                 }
+                /***
+                 * skuId         商品id
+                 * serialNo      生产批次号
+                 * inDate        入库时间
+                 * productDate   生产时间
+                 * expireDate    保质期失效时间
+                 * itemId
+                 * poId          采购订单
+                 * receiptId     收货单
+                 */
+                Long lotId = RandomUtils.genId();
 
                 InbReceiptDetail inbReceiptDetail = new InbReceiptDetail();
                 ObjUtils.bean2bean(receiptItem, inbReceiptDetail);
@@ -504,22 +519,14 @@ public class ReceiptRpcService implements IReceiptRpcService {
                 inbReceiptDetail.setPackUnit(ibdPackUnit);
                 inbReceiptDetail.setPackName(ibdPackName);
                 inbReceiptDetail.setInboundQty(inboundUnitQty);
+                inbReceiptDetail.setLotId(lotId);
+                inbReceiptDetail.setReceiveId(receiveId);
                 inbReceiptDetailList.add(inbReceiptDetail);
 
                 CsiSupplier supplier = supplierService.getSupplier(ibdHeader.getSupplierCode(),ibdHeader.getOwnerUid());
 
 
-                /***
-                 * skuId         商品id
-                 * serialNo      生产批次号
-                 * inDate        入库时间
-                 * productDate   生产时间
-                 * expireDate    保质期失效时间
-                 * itemId
-                 * poId          采购订单
-                 * receiptId     收货单
-                 */
-                Long lotId = RandomUtils.genId();
+
                 Date receiptTime = inbReceiptHeader.getReceiptTime();
 
                 //生产日期
@@ -1014,7 +1021,7 @@ public class ReceiptRpcService implements IReceiptRpcService {
             inbReceiptDetail.setReceiptOrderId(inbReceiptHeader.getReceiptOrderId());
             inbReceiptDetail.setOrderOtherId(ibdHeader.getOrderOtherId());
             inbReceiptDetail.setOrderId(ibdHeader.getOrderId());
-
+            inbReceiptDetail.setReceiveId(receiveId);
             boolean isCanReceipt = ibdHeader.getOrderStatus() == PoConstant.ORDER_THROW || ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_PART || ibdHeader.getOrderStatus() == PoConstant.ORDER_RECTIPTING;
             if (!isCanReceipt) {
                 throw new BizCheckedException("2020002");
@@ -1354,6 +1361,8 @@ public class ReceiptRpcService implements IReceiptRpcService {
         return obdInfoMap;
     }
 
+
+
     /**
      * 合并多个行项目
      * 收货时,一个订单中有多个相同商品(多行项目)
@@ -1459,6 +1468,81 @@ public class ReceiptRpcService implements IReceiptRpcService {
         updateMap.put("updateReceiveDetailList",updateReceiveDetailList);
 
         return updateMap;
+    }
+
+
+    public void modifyQty(Long receiptId, BigDecimal qty, Long uid) throws BizCheckedException {
+        SysUser user = sysUserService.getSysUserByUid(uid.toString());
+        List<InbReceiptDetail> details = poReceiptService.getInbReceiptDetailListByReceiptId(receiptId);
+        InbReceiptDetail inbReceiptDetail = details.get(0);
+
+        //List<ReceiveHeader> receiveHeaderList = receiveService.getReceiveHeaderList(inbReceiptDetail.getOrderId());
+
+        //先修改收货详情数量
+        BigDecimal inboundQty = inbReceiptDetail.getInboundQty();
+        inbReceiptDetail.setInboundQty(qty);
+
+        BigDecimal subQty = inboundQty.subtract(qty);
+
+        BaseinfoItem item = itemService.getItem(inbReceiptDetail.getItemId());
+
+        //修改验收单数量
+        ReceiveHeader receiveHeader = receiveService.getReceiveHeaderByReceiveId(inbReceiptDetail.getReceiveId());
+        if(receiveHeader.getOrderStatus() == PoConstant.ORDER_RECTIPT_ALL){
+            throw new BizCheckedException("2028889");
+        }
+        List<ReceiveDetail> receiveDetails = receiveService.getReceiveDetailListByReceiveIdAndSkuCode(inbReceiptDetail.getReceiveId(),item.getSkuCode());
+        List<ReceiveDetail> updateReceiveDetails = new ArrayList<ReceiveDetail>();
+        List<IbdDetail> updateIbdDetails = new ArrayList<IbdDetail>();
+        List<Map<String,Object>> mapList = new ArrayList<Map<String, Object>>();
+        for(ReceiveDetail receiveDetail : receiveDetails){
+            BigDecimal receiveQty = receiveDetail.getInboundQty();
+            Map<String,Object> map = new HashMap<String, Object>();
+            map.put("detailOtherId",receiveDetail.getDetailOtherId());
+            if(receiveQty.subtract(subQty).compareTo(BigDecimal.ZERO) < 0){
+                //记录细单Id,记录修改的数量
+                map.put("modifyQty", receiveQty);
+                //如果该条记录实收的数量 减 差异的数量小于0 则将该条记录的实收数量置为0 并将 subQty 修改
+                receiveDetail.setInboundQty(BigDecimal.ZERO);
+                updateReceiveDetails.add(receiveDetail);
+                subQty = subQty.subtract(receiveQty);
+                mapList.add(map);
+            }else{
+                map.put("modifyQty",subQty);
+                receiveDetail.setInboundQty(receiveQty.subtract(subQty));
+                updateReceiveDetails.add(receiveDetail);
+                mapList.add(map);
+                break;
+            }
+
+        }
+
+        List<IbdDetail> updateIbdDetailList = new ArrayList<IbdDetail>();
+        for(Map<String,Object> ibdmap : mapList){
+            String detailOtherId = (String) ibdmap.get("detailOtherId");
+            BigDecimal modifyQty = (BigDecimal) ibdmap.get("modifyQty");
+            IbdDetail ibdDetail = poOrderService.getInbPoDetailByOrderIdAndDetailOtherId(receiveHeader.getOrderId(),detailOtherId);
+
+            if(ibdDetail.getInboundQty().subtract(modifyQty).compareTo(PackUtil.UomQty2EAQty(ibdDetail.getOrderQty(),ibdDetail.getPackName())) > 0 ) {
+                throw new BizCheckedException("2020005");
+            }
+            ibdDetail.setInboundQty(ibdDetail.getInboundQty().subtract(modifyQty));
+            updateIbdDetailList.add(ibdDetail);
+        }
+
+        ModifyLog modifyLog = new ModifyLog();
+        modifyLog.setBusinessId(receiptId);
+        modifyLog.setDetailId("");
+        modifyLog.setModifyType(2);
+        modifyLog.setOperator(uid);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        String date = sdf.format(new Date());
+        String remark = StrUtils.formatString("用户{0}将数量由{1}改为{2},修改时间为:{3}",user.getUsername(),inboundQty,qty,date);
+        modifyLog.setModifyMessage(remark);
+
+        poReceiptService.updateReceiptQty(inbReceiptDetail,updateReceiveDetails,modifyLog,updateIbdDetailList);
+
+
     }
 
 

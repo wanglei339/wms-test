@@ -186,6 +186,11 @@ public class DataBackService implements IDataBackService {
             Map<String,Object> params = new HashMap<String, Object>();
             params.put("order_id",orderOtherId);
             params.put("receive_code",receiveId.toString());
+            params.put("operation_code",sysLog.getLogId().toString());
+            //// TODO: 2016/12/23  当前时间 "2016-12-22"
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            String date = sdf.format(new Date());
+            params.put("receive_date",date);
             List<HashMap<String,Object>> list = new ArrayList<HashMap<String, Object>>();
             for(CreateIbdDetail item : createIbdHeader.getItems()){
                 HashMap<String,Object> map = new HashMap<String, Object>();
@@ -322,6 +327,13 @@ public class DataBackService implements IDataBackService {
 
 
         return JSON.toJSONString(request);
+    }
+
+    public static void main(String[] args) {
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String s = sdf.format(date);
+        System.out.println(s);
     }
 
 }
