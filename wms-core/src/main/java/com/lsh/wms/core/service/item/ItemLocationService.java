@@ -137,6 +137,7 @@ public class ItemLocationService {
         itemLocationDao.deleteItemLocation(itemLocation);
     }
 
+    @Transactional(readOnly = false)
     public void updateByItemIdAndPicId(BaseinfoItemLocation baseinfoItemLocation){
         itemLocationDao.updateByItemIdAndPicId(baseinfoItemLocation);
     }
