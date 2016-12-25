@@ -488,7 +488,7 @@ public class StockQuantService {
         quant.setInDate(lot.getInDate());
         quant.setExpireDate(lot.getExpireDate());
         quant.setQty(move.getQty());
-        quant.setLotCode(lot.getCode());
+        quant.setLotCode(lot.getSerialNo());
         quant.setLotId(lot.getLotId());
         this.create(quant);
 

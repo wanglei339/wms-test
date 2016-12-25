@@ -11,6 +11,10 @@ public interface ISmsRestService {
 
     String inventory(Long ItemId, Long fromLocationId, Long toLocationId, BigDecimal qty) throws BizCheckedException;
 
+    String initStock() throws BizCheckedException;
+
+    String initTask() throws BizCheckedException;
+
     String alloc(String orderId) throws BizCheckedException;
 
     String diff(String orderId) throws BizCheckedException;
