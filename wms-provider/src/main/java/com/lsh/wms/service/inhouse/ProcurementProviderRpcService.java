@@ -162,13 +162,14 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
             containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
         }
 */
-        TaskInfo taskInfo = new TaskInfo();
+        TaskInfo taskInfo = baseTaskService.getTaskInfoById(plan.getTaskId());
         ObjUtils.bean2bean(plan, taskInfo);
         taskInfo.setTaskName("补货任务[ " + taskInfo.getFromLocationId() + " => " + taskInfo.getToLocationId() + "]");
         taskInfo.setType(TaskConstant.TYPE_PROCUREMENT);
         taskInfo.setContainerId(plan.getContainerId());
-        taskInfo.setTaskPackQty(taskInfo.getQty().divide(taskInfo.getPackUnit(),2,BigDecimal.ROUND_HALF_DOWN));
+        taskInfo.setTaskPackQty(taskInfo.getQty().divide(taskInfo.getPackUnit(), 2, BigDecimal.ROUND_HALF_DOWN));
         taskInfo.setStep(1);
+        taskInfo.setStatus(TaskConstant.Draft);
         TaskEntry taskEntry = new TaskEntry();
         taskEntry.setTaskInfo(taskInfo);
         taskRpcService.update(TaskConstant.TYPE_PROCUREMENT, taskEntry);
@@ -207,7 +208,12 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                         continue;
                     }
 
+                    //去除小数
                     BigDecimal maxQty = itemLocation.getMaxQty();
+                    BaseinfoItem item = itemService.getItem(itemLocation.getItemId());
+                    BigDecimal [] maxDecimals = maxQty.divideAndRemainder(item.getPackUnit());
+                    maxQty = maxQty.subtract(maxDecimals[1]);
+
                     mapQuery.put("locationId", itemLocation.getPickLocationid());
                     BigDecimal nowQuant = quantService.getQty(mapQuery);
 
@@ -248,7 +254,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                         Map<String,Object> checkMap = new HashMap<String, Object>();
                         checkMap.put("fromLocationId",quant.getLocationId());
                         checkMap.put("type", TaskConstant.TYPE_PROCUREMENT);
-                        checkMap.put("valid", 1);
+                        checkMap.put("valid",1);
                         List<TaskInfo> checkTaskInfos = baseTaskService.getTaskInfoList(checkMap);
                         if(checkTaskInfos!=null && checkTaskInfos.size()>0){
                             continue;
@@ -257,6 +263,13 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
                         mapQuery.put("locationId", quant.getLocationId());
                         BigDecimal qty = quantService.getQty(mapQuery);
+                        //去除小数
+                        BigDecimal [] decimals = qty.divideAndRemainder(quant.getPackUnit());
+                        //不够一箱，不能补货
+                        if(decimals[0].compareTo(BigDecimal.ZERO)==0){
+                            continue;
+                        }
+                        qty = qty.subtract(decimals[1]);
                         if (nowQuant.compareTo(maxQty) < 0) {
                             // 创建任务
                             nowQuant = nowQuant.add(qty);
@@ -280,7 +293,10 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                                 plan.setSubType(1L);//整托
                                 plan.setQty(qty);
                             }
-
+                            //所需库存数不够一箱了，直接退出
+                            if(plan.getQty().divide(quant.getPackUnit(),0,BigDecimal.ROUND_HALF_DOWN).compareTo(BigDecimal.ZERO)==0){
+                                break;
+                            }
                             this.addProcurementPlan(plan);
                         }
                     }
@@ -401,13 +417,20 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                         logger.warn("ItemId:" + itemLocation.getItemId() + "缺货异常");
                         continue;
                     }
+
+                    //去除小数
                     BigDecimal maxQty = itemLocation.getMaxQty();
+                    BaseinfoItem item = itemService.getItem(itemLocation.getItemId());
+                    BigDecimal [] maxDecimals = maxQty.divideAndRemainder(item.getPackUnit());
+                    maxQty = maxQty.subtract(maxDecimals[1]);
+
+
                     mapQuery.put("locationId", itemLocation.getPickLocationid());
                     BigDecimal nowQuant = quantService.getQty(mapQuery);
                     //根据库存数量和过期时间排序
                     List<StockQuant> sortQuants = this.sortQuant(quantList);
                     for(StockQuant quant:sortQuants) {
-                        //判断存货位是否有捡货任务
+                        //判断存货位是否有补货任务
                         Map<String,Object> checkMap = new HashMap<String, Object>();
                         checkMap.put("fromLocationId",quant.getLocationId());
                         checkMap.put("type", TaskConstant.TYPE_PROCUREMENT);
@@ -419,6 +442,13 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
 
                         mapQuery.put("locationId",quant.getLocationId());
                         BigDecimal qty = quantService.getQty(mapQuery);
+                        //去除小数
+                        BigDecimal [] decimals = qty.divideAndRemainder(quant.getPackUnit());
+                        //不够一箱，不能补货
+                        if(decimals[0].compareTo(BigDecimal.ZERO)==0){
+                            continue;
+                        }
+
                         if (nowQuant.compareTo(maxQty)<0) {
                             nowQuant = nowQuant.add(qty);
                             // 创建任务
@@ -464,6 +494,14 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                             }
                             plan.setPriority(this.getPackPriority(itemLocation.getItemId()));
                             plan.setSubType(2L);
+
+                            //所需库存数不够一箱了，直接退出
+                            BigDecimal [] planDecimals = plan.getQty().divideAndRemainder(quant.getPackUnit());
+
+                            if(planDecimals[0].compareTo(BigDecimal.ZERO)==0){
+                                break;
+                            }
+
                             this.addProcurementPlan(plan);
                         }
                     }
@@ -599,10 +637,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
         plan.setContainerId(containerId);
         plan.setPackUnit(quant.getPackUnit());
         plan.setPackName(quant.getPackName());
-        plan.setQty(plan.getUomQty());
-        if (plan.getSubType().compareTo(1L) == 0) {
-            plan.setQty(total.divide(quant.getPackUnit(), 0, BigDecimal.ROUND_DOWN));
-        }
+        plan.setQty(plan.getUomQty().multiply(plan.getPackUnit()));
 
         return true;
     }

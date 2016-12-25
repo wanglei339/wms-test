@@ -14,6 +14,9 @@ public class SkuMap implements Serializable {
     private BigDecimal movingAveragePrice;
 	/** 来源系统 1 wumart */
     private Integer sourceSystem = 1;
+	/**货主*/
+	private Long ownerId;
+
 	/**  */
     private Long createdAt;
 	/**  */
@@ -62,10 +65,16 @@ public class SkuMap implements Serializable {
 	public Long getUpdatedAt(){
 		return this.updatedAt;
 	}
-	
+
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
-	
-	
+
+	public Long getOwnerId() {
+		return ownerId;
+	}
+
+	public void setOwnerId(Long ownerId) {
+		this.ownerId = ownerId;
+	}
 }

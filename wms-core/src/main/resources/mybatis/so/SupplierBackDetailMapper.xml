@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.lsh.wms.core.dao.so.SupplierBackDetailDao" >
+
+	<resultMap id="supplierBackDetailResultMap" type="SupplierBackDetail">
+		<id property="id" column="id"/>
+		<result property="backId" column="back_id"/>
+		<result property="orderId" column="order_id"/>
+		<result property="detailOtherId" column="detail_other_id"/>
+		<result property="itemId" column="item_id"/>
+		<result property="skuId" column="sku_id"/>
+		<result property="skuCode" column="sku_code"/>
+		<result property="ownerId" column="owner_id"/>
+		<result property="lotId" column="lot_id"/>
+		<result property="status" column="status"/>
+		<result property="isValid" column="is_valid"/>
+		<result property="reqQty" column="req_qty"/>
+		<result property="allocQty" column="alloc_qty"/>
+		<result property="allocUnitName" column="alloc_unit_name"/>
+		<result property="allocUnitQty" column="alloc_unit_qty"/>
+		<result property="locationId" column="location_id"/>
+		<result property="containerId" column="container_id"/>
+		<result property="operator" column="operator"/>
+		<result property="doneAt" column="done_at"/>
+		<result property="createdAt" column="created_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+  
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="SupplierBackDetail">
+		insert into supplier_back_detail
+		<trim prefix="(" suffixOverrides="," suffix=")">
+        <if test="id != null">id,</if>
+        <if test="backId != null">back_id,</if>
+        <if test="orderId != null">order_id,</if>
+        <if test="detailOtherId != null">detail_other_id,</if>
+        <if test="itemId != null">item_id,</if>
+        <if test="skuId != null">sku_id,</if>
+        <if test="skuCode != null">sku_code,</if>
+        <if test="ownerId != null">owner_id,</if>
+        <if test="lotId != null">lot_id,</if>
+        <if test="status != null">status,</if>
+        <if test="isValid != null">is_valid,</if>
+        <if test="reqQty != null">req_qty,</if>
+        <if test="allocQty != null">alloc_qty,</if>
+        <if test="allocUnitName != null">alloc_unit_name,</if>
+        <if test="allocUnitQty != null">alloc_unit_qty,</if>
+        <if test="locationId != null">location_id,</if>
+        <if test="containerId != null">container_id,</if>
+        <if test="operator != null">operator,</if>
+        <if test="doneAt != null">done_at,</if>
+        <if test="createdAt != null">created_at,</if>
+        <if test="updatedAt != null">updated_at,</if>
+        </trim>
+    	values
+    	<trim prefix="(" suffixOverrides="," suffix=")">
+        <if test="id != null">#{id},</if>
+        <if test="backId != null">#{backId},</if>
+        <if test="orderId != null">#{orderId},</if>
+        <if test="detailOtherId != null">#{detailOtherId},</if>
+        <if test="itemId != null">#{itemId},</if>
+        <if test="skuId != null">#{skuId},</if>
+        <if test="skuCode != null">#{skuCode},</if>
+        <if test="ownerId != null">#{ownerId},</if>
+        <if test="lotId != null">#{lotId},</if>
+        <if test="status != null">#{status},</if>
+        <if test="isValid != null">#{isValid},</if>
+        <if test="reqQty != null">#{reqQty},</if>
+        <if test="allocQty != null">#{allocQty},</if>
+        <if test="allocUnitName != null">#{allocUnitName},</if>
+        <if test="allocUnitQty != null">#{allocUnitQty},</if>
+        <if test="locationId != null">#{locationId},</if>
+        <if test="containerId != null">#{containerId},</if>
+        <if test="operator != null">#{operator},</if>
+        <if test="doneAt != null">#{doneAt},</if>
+        <if test="createdAt != null">#{createdAt},</if>
+        <if test="updatedAt != null">#{updatedAt},</if>
+		</trim>
+	</insert>
+
+	<insert id="batchInsert" parameterType="java.util.List">
+		insert into supplier_back_detail
+		<trim prefix="(" suffixOverrides="," suffix=")">
+			<if test="id != null">id,</if>
+			<if test="backId != null">back_id,</if>
+			<if test="orderId != null">order_id,</if>
+			<if test="detailOtherId != null">detail_other_id,</if>
+			<if test="itemId != null">item_id,</if>
+			<if test="skuId != null">sku_id,</if>
+			<if test="skuCode != null">sku_code,</if>
+			<if test="ownerId != null">owner_id,</if>
+			<if test="lotId != null">lot_id,</if>
+			<if test="status != null">status,</if>
+			<if test="isValid != null">is_valid,</if>
+			<if test="reqQty != null">req_qty,</if>
+			<if test="allocQty != null">alloc_qty,</if>
+			<if test="allocUnitName != null">alloc_unit_name,</if>
+			<if test="allocUnitQty != null">alloc_unit_qty,</if>
+			<if test="locationId != null">location_id,</if>
+			<if test="containerId != null">container_id,</if>
+			<if test="operator != null">operator,</if>
+			<if test="doneAt != null">done_at,</if>
+			<if test="createdAt != null">created_at,</if>
+			<if test="updatedAt != null">updated_at,</if>
+		</trim>
+		values
+		<foreach collection="list" item="item" index="index" separator="," >
+			<trim prefix="(" suffixOverrides="," suffix=")">
+				<if test="id != null">#{id},</if>
+				<if test="backId != null">#{backId},</if>
+				<if test="orderId != null">#{orderId},</if>
+				<if test="detailOtherId != null">#{detailOtherId},</if>
+				<if test="itemId != null">#{itemId},</if>
+				<if test="skuId != null">#{skuId},</if>
+				<if test="skuCode != null">#{skuCode},</if>
+				<if test="ownerId != null">#{ownerId},</if>
+				<if test="lotId != null">#{lotId},</if>
+				<if test="status != null">#{status},</if>
+				<if test="isValid != null">#{isValid},</if>
+				<if test="reqQty != null">#{reqQty},</if>
+				<if test="allocQty != null">#{allocQty},</if>
+				<if test="allocUnitName != null">#{allocUnitName},</if>
+				<if test="allocUnitQty != null">#{allocUnitQty},</if>
+				<if test="locationId != null">#{locationId},</if>
+				<if test="containerId != null">#{containerId},</if>
+				<if test="operator != null">#{operator},</if>
+				<if test="doneAt != null">#{doneAt},</if>
+				<if test="createdAt != null">#{createdAt},</if>
+				<if test="updatedAt != null">#{updatedAt},</if>
+			</trim>
+		</foreach>
+	</insert>
+
+	<update id="update" parameterType="SupplierBackDetail">
+		update supplier_back_detail
+    	<set>
+  			<if test="backId != null">back_id=#{backId},</if>
+  			<if test="orderId != null">order_id=#{orderId},</if>
+  			<if test="detailOtherId != null">detail_other_id=#{detailOtherId},</if>
+  			<if test="itemId != null">item_id=#{itemId},</if>
+  			<if test="skuId != null">sku_id=#{skuId},</if>
+  			<if test="skuCode != null">sku_code=#{skuCode},</if>
+  			<if test="ownerId != null">owner_id=#{ownerId},</if>
+  			<if test="lotId != null">lot_id=#{lotId},</if>
+  			<if test="status != null">status=#{status},</if>
+  			<if test="isValid != null">is_valid=#{isValid},</if>
+  			<if test="reqQty != null">req_qty=#{reqQty},</if>
+  			<if test="allocQty != null">alloc_qty=#{allocQty},</if>
+  			<if test="allocUnitName != null">alloc_unit_name=#{allocUnitName},</if>
+  			<if test="allocUnitQty != null">alloc_unit_qty=#{allocUnitQty},</if>
+  			<if test="locationId != null">location_id=#{locationId},</if>
+  			<if test="containerId != null">container_id=#{containerId},</if>
+  			<if test="operator != null">operator=#{operator},</if>
+  			<if test="doneAt != null">done_at=#{doneAt},</if>
+  			<if test="createdAt != null">created_at=#{createdAt},</if>
+  			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
+		</set>
+		where id=#{id}
+	</update>
+  
+	<select id="getSupplierBackDetailById" parameterType="int" resultMap="supplierBackDetailResultMap">
+		select * from supplier_back_detail
+		where ID=#{id} 
+	</select>
+  
+	<select id="countSupplierBackDetail" parameterType="map" resultType="int">
+		select count(*) from supplier_back_detail
+		<include refid="queryCondition"/>
+	</select>
+  
+	<select id="getSupplierBackDetailList" parameterType="map" resultMap="supplierBackDetailResultMap">
+		select * from supplier_back_detail
+		<include refid="queryCondition"/>
+		<if test="start != null and limit != null">
+		limit #{start},#{limit}
+		</if>
+	</select>
+  
+	<sql id="queryCondition">
+		<where>
+			<if test="id != null">id=#{id}</if>
+			<if test="backId != null">and back_id=#{backId}</if>
+			<if test="orderId != null">and order_id=#{orderId}</if>
+			<if test="detailOtherId != null">and detail_other_id=#{detailOtherId}</if>
+			<if test="itemId != null">and item_id=#{itemId}</if>
+			<if test="skuId != null">and sku_id=#{skuId}</if>
+			<if test="skuCode != null">and sku_code=#{skuCode}</if>
+			<if test="ownerId != null">and owner_id=#{ownerId}</if>
+			<if test="lotId != null">and lot_id=#{lotId}</if>
+			<if test="status != null">and status=#{status}</if>
+			<if test="isValid != null">and is_valid=#{isValid}</if>
+			<if test="reqQty != null">and req_qty=#{reqQty}</if>
+			<if test="allocQty != null">and alloc_qty=#{allocQty}</if>
+			<if test="allocUnitName != null">and alloc_unit_name=#{allocUnitName}</if>
+			<if test="allocUnitQty != null">and alloc_unit_qty=#{allocUnitQty}</if>
+			<if test="locationId != null">and location_id=#{locationId}</if>
+			<if test="containerId != null">and container_id=#{containerId}</if>
+			<if test="operator != null">and operator=#{operator}</if>
+			<if test="doneAt != null">and done_at=#{doneAt}</if>
+			<if test="createdAt != null">and created_at=#{createdAt}</if>
+			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
+		</where>
+	</sql>
+   
+</mapper>

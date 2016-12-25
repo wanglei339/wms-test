@@ -86,7 +86,7 @@ public class BaseinfoItem implements Serializable {
 	/** 码盘规则 */
 	private Long pileY =1l;
 	/** 码盘规则 */
-	private Long pileZ =0l;
+	private Long pileZ =1l;
 	/** 基本单位名称 */
 	private String unitName = "";
 	/** 二级单位名称 */

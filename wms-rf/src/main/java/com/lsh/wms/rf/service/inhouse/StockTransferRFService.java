@@ -139,7 +139,12 @@ public class StockTransferRFService implements IStockTransferRFService{
                 //condition.setLotId(quant.getLotId());
                 condition.setReserveTaskId(0L);
                 BigDecimal qty = stockQuantRpcService.getQty(condition);
-                if (location.getRegionType().equals(LocationConstant.SPLIT_AREA) && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE)) {
+                //非整箱或者拆零捡货位
+                if ((!PackUtil.isFullPack(qty, quant.getPackName()))
+                        || (location.getRegionType().equals(LocationConstant.SPLIT_AREA)
+                            && location.getBinUsage().equals(BinUsageConstant.BIN_PICK_STORE))
+                        || (location.getRegionType().equals(LocationConstant.LOFTS)
+                            && location.getBinUsage().equals(BinUsageConstant.BIN_UASGE_PICK))) {
                     result.put("packName", "EA");
                     result.put("uom", "EA");
                     result.put("uomQty", qty);
@@ -322,6 +327,7 @@ public class StockTransferRFService implements IStockTransferRFService{
                 //我TM的不支持该行了吧
                 return JsonUtils.TOKEN_ERROR("当前不支持此区域的整托移动");
             }
+            logger.info(String.format("QTY DONE 5 %s", taskInfo.getQtyDone().toString()));
             iStockTransferRpcService.scanFromLocation(taskEntry, location, uomQty);
             taskEntry = taskRpcService.getTaskEntryById(taskId);
             taskInfo = taskEntry.getTaskInfo();

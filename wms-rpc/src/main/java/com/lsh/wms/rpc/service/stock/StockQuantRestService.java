@@ -60,6 +60,12 @@ public class StockQuantRestService implements IStockQuantRestService {
         List<StockQuant> quantList = stockQuantRpcService.getQuantList(condition);
         return JsonUtils.SUCCESS(quantList);
     }
+    @POST
+    @Path("countList")
+    public String countList(StockQuantCondition condition) throws BizCheckedException {
+        Integer count = stockQuantRpcService.countQuantList(condition);
+        return JsonUtils.SUCCESS(count);
+    }
 
     /***
      * skuId 商品码
@@ -119,7 +125,7 @@ public class StockQuantRestService implements IStockQuantRestService {
     }
     @GET
     @Path("writeOffQuant")
-    public String writeOffQuant(@QueryParam("quantId") Long quantId,@QueryParam("realQty") BigDecimal realQty) {
+    public String writeOffQuant(@QueryParam("quantId") Long quantId,@QueryParam("realQty") BigDecimal realQty) throws BizCheckedException{
         stockQuantRpcService.writeOffQuant(quantId,realQty);
         return JsonUtils.SUCCESS();
     }
@@ -153,5 +159,9 @@ public class StockQuantRestService implements IStockQuantRestService {
     public String traceQuant(@QueryParam("quantId") Long quantId) {
         return JsonUtils.SUCCESS(stockQuantRpcService.traceQuant(quantId));
     }
-
+    @POST
+    @Path("getItemLocationList")
+    public String getItemLocationList(Map<String, Object> mapQuery) {
+        return JsonUtils.SUCCESS(stockQuantRpcService.getItemLocationList(mapQuery));
+    }
 }

@@ -126,6 +126,28 @@ public class MergeRfRestService implements IMergeRfRestService {
         Long mergeTaskId = idGenerator.genId(idKey, true, true);
         // 合板
         Long mergedContainerId = mergeService.mergeContainers(containerIds, staffId, mergeTaskId);
+        //所有完成的taskInfos
+        List<TaskInfo> taskInfos = new ArrayList<TaskInfo>();
+        for (Long containerId : containerIds) {
+            Map<String, Object> taskMapQuery = new HashMap<String, Object>();
+            taskMapQuery.put("containerId", containerId);
+            taskMapQuery.put("type", TaskConstant.TYPE_QC);
+            taskMapQuery.put("status", TaskConstant.Done);
+            List<TaskInfo> qcTaskInfos = baseTaskService.getTaskInfoList(taskMapQuery);
+            if (qcTaskInfos == null || qcTaskInfos.isEmpty()) {
+                throw new BizCheckedException("2870003");
+            }
+            taskInfos.addAll(qcTaskInfos);
+        }
+        //是否是混合模式
+        boolean isMix = false;
+        for (TaskInfo info : taskInfos) {
+            Long mode =  taskInfos.get(0).getBusinessMode();
+            if (!info.getBusinessMode().equals(mode)){
+                isMix = true;
+            }
+        }
+
         // 写合板taskInfo,用于做记录绩效
         Map<String, Object> taskQuery = new HashMap<String, Object>();
         taskQuery.put("containerId", mergedContainerId);
@@ -134,6 +156,9 @@ public class MergeRfRestService implements IMergeRfRestService {
         TaskEntry taskEntry = new TaskEntry();
         if (mergeTaskList.size() > 0) {
             TaskInfo mergeTaskInfo = mergeTaskList.get(0);
+            if (isMix){
+                mergeTaskInfo.setBusinessMode(TaskConstant.MODE_MIX);
+            }
             mergeTaskInfo.setTaskBoardQty(taskBoardQty); // 一板多托
             taskEntry.setTaskInfo(mergeTaskInfo);
             iTaskRpcService.update(TaskConstant.TYPE_MERGE, taskEntry);
@@ -144,7 +169,12 @@ public class MergeRfRestService implements IMergeRfRestService {
             mergeTaskInfo.setTaskName("合板任务[" + mergedContainerId + "]");
             mergeTaskInfo.setContainerId(mergedContainerId);
             mergeTaskInfo.setOperator(staffId);
-            mergeTaskInfo.setBusinessMode(TaskConstant.MODE_DIRECT);
+            //设置合板模式
+            if (isMix){
+                mergeTaskInfo.setBusinessMode(TaskConstant.MODE_MIX);
+            }else {
+                mergeTaskInfo.setBusinessMode(taskInfos.get(0).getBusinessMode());
+            }
             mergeTaskInfo.setTaskBoardQty(taskBoardQty); // 一板多托
             taskEntry.setTaskInfo(mergeTaskInfo);
             iTaskRpcService.create(TaskConstant.TYPE_MERGE, taskEntry);
@@ -275,12 +305,12 @@ public class MergeRfRestService implements IMergeRfRestService {
         }
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("customerCode", customerCode);
-        //门店合板的名称 从csi_customer中取,因为物美 customerCode 和 customerName传的相同
-        CsiCustomer csiCustomer = csiCustomerService.getCustomerByCustomerCode(customerCode);   //FIXME 因为物美数据传输,先这么写,一旦优供也合板,之后修正
-        if (null == csiCustomer) {
-            throw new BizCheckedException("2870043");
-        }
-        result.put("customerName", csiCustomer.getCustomerName());
+//        //门店合板的名称 从csi_customer中取,因为物美 customerCode 和 customerName传的相同
+//        CsiCustomer csiCustomer = csiCustomerService.getCustomerByCustomerCode(customerCode);   //FIXME 因为物美数据传输,先这么写,一旦优供也合板,之后修正
+//        if (null == csiCustomer) {
+//            throw new BizCheckedException("2870043");
+//        }
+        result.put("customerName", customerName);
         result.put("containerCount", containerCount);
         result.put("packCount", packCount);
         result.put("turnoverBoxCount", turnoverBoxCount);
@@ -291,6 +321,7 @@ public class MergeRfRestService implements IMergeRfRestService {
 
     /**
      * 检查托盘合板状态
+     *
      * @return
      * @throws BizCheckedException
      */

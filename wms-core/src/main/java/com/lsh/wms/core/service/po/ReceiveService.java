@@ -10,10 +10,12 @@ import com.lsh.wms.core.dao.po.ReceiveDetailDao;
 import com.lsh.wms.core.dao.po.ReceiveHeaderDao;
 import com.lsh.wms.core.service.persistence.PersistenceManager;
 import com.lsh.wms.core.service.persistence.PersistenceProxy;
+import com.lsh.wms.core.service.system.ModifyLogService;
 import com.lsh.wms.model.po.IbdDetail;
 import com.lsh.wms.model.po.InbReceiptDetail;
 import com.lsh.wms.model.po.ReceiveDetail;
 import com.lsh.wms.model.po.ReceiveHeader;
+import com.lsh.wms.model.system.ModifyLog;
 import com.lsh.wms.model.system.SysLog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +50,9 @@ public class ReceiveService {
 
     @Autowired
     private PersistenceManager persistenceManager;
+
+    @Autowired
+    private ModifyLogService modifyLogService;
 
 
 
@@ -118,6 +123,18 @@ public class ReceiveService {
         params.put("skuCode", skuCode);
 
         return getReceiveDetail(params);
+    }
+    public List<ReceiveDetail> getReceiveDetailListByReceiveIdAndSkuCode(Long receiveId, String skuCode) {
+        Map<String, Object> params = new HashMap<String, Object>();
+
+        params.put("receiveId", receiveId);
+        params.put("skuCode", skuCode);
+
+        List<ReceiveDetail> receiveDetails =  receiveDetailDao.getReceiveDetailList(params);
+        if(receiveDetails.size() <= 0){
+            return null;
+        }
+        return receiveDetails;
     }
 
     /**
@@ -200,19 +217,28 @@ public class ReceiveService {
     }
 
     @Transactional(readOnly = false)
-    public void updateQty(ReceiveDetail receiveDetail, IbdDetail ibdDetail, List<InbReceiptDetail> updateReceiptDetails,List<InbReceiptDetail> addReceiptDetails){
+    public void updateQty(ReceiveDetail receiveDetail, IbdDetail ibdDetail, ModifyLog modifyLog){
         receiveDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
         logger.info("~~~~~~~~~~~~~~~~~~~1111111 receiveDetail : " + JSON.toJSONString(receiveDetail));
         receiveDetailDao.update(receiveDetail);
         ibdDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
         logger.info("~~~~~~~~~~~~~~~~~~~~2222222 ibdDetail :" + JSON.toJSONString(ibdDetail));
         ibdDetailDao.update(ibdDetail);
-        for (InbReceiptDetail inbReceiptDetail : updateReceiptDetails){
-            inbReceiptDetail.setUpdatetime(new Date());
-            inbReceiptDetailDao.update(inbReceiptDetail);
-        }
-        //重新生成receiptDetail
-        inbReceiptDetailDao.batchInsert(addReceiptDetails);
+
+        //修改之后将验收单状态修改为正常 可以再次回传。
+        ReceiveHeader receiveHeader = this.getReceiveHeaderByReceiveId(receiveDetail.getReceiveId());
+        receiveHeader.setOrderStatus(PoConstant.ORDER_YES);
+        receiveHeader.setUpdatedAt(DateUtils.getCurrentSeconds());
+        receiveHeaderDao.update(receiveHeader);
+
+
+        modifyLogService.addModifyLog(modifyLog);
+//        for (InbReceiptDetail inbReceiptDetail : updateReceiptDetails){
+//            inbReceiptDetail.setUpdatetime(new Date());
+//            inbReceiptDetailDao.update(inbReceiptDetail);
+//        }
+//        //重新生成receiptDetail
+//        inbReceiptDetailDao.batchInsert(addReceiptDetails);
     }
     /**
      * 根据ibdId

@@ -177,7 +177,7 @@
 			<if test="skuCode !=null"> and sku_code=#{skuCode}</if>
 			<if test="skuName !=null"> and sku_name=#{skuName}</if>
 			<if test="locationCode !=null"> and location_code=#{locationCode}</if>
-			<if test="valid !=null"> and status in (1,2,3,4)</if>
+			<if test="valid !=null"> and status in (1,2,3)</if>
 			<if test="validItem !=null"> and item_id !=0 </if>
 		</where>
 	</sql>

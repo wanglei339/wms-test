@@ -128,8 +128,7 @@ public class StockTakingService {
         detail.setStatus(StockTakingConstant.PendingAudit);
 
         if(!detail.getSkuCode().equals("")) {
-            String skuCode = detail.getSkuCode().replaceAll("^(0+)", "");
-            SkuMap skuMap = skuMapService.getSkuMapBySkuCode(skuCode);
+            SkuMap skuMap = skuMapService.getSkuMapBySkuCodeAndOwner(detail.getSkuCode(),detail.getOwnerId());
             if (skuMap == null) {
                 throw new BizCheckedException("2880022", detail.getSkuCode(), "");
             }
@@ -294,16 +293,18 @@ public class StockTakingService {
             }
             detail.setStatus(StockTakingConstant.Done);
             detail.setIsFinal(1);
+            Long containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
+            if(detail.getContainerId().equals(0L)){
+                detail.setContainerId(containerId);
+            }
             this.updateDetail(detail);
             OverLossReport overLossReport = new OverLossReport();
             //StockItem stockItem = new StockItem();
-            if (detail.getSkuId().equals(detail.getRealSkuId())) {
+            if (detail.getSkuId().equals(detail.getRealSkuId()) || detail.getRealSkuId().compareTo(0l)==0) {
 
                 if(detail.getTheoreticalQty().compareTo(detail.getRealQty())==0){
                     continue;
                 }
-
-                Long containerId = containerService.createContainerByType(ContainerConstant.CAGE).getContainerId();
                 StockMove move = new StockMove();
                 move.setTaskId(detail.getTaskId());
                 move.setSkuId(detail.getSkuId());

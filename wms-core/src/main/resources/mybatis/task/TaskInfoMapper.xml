@@ -57,6 +57,7 @@
 		<result property="taskOrder" column="task_order"/>
 		<result property="qcPreviousTaskId" column="qc_previous_task_id"/>
 		<result property="qcSkip" column="qc_skip"/>
+		<result property="taskAmount" column="task_amount"/>
 	</resultMap>
   
 	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="TaskInfo">
@@ -69,7 +70,7 @@
 			updated_at,owner_id,item_id,from_location_id,to_location_id,qty,
 			pack_unit,pack_name,is_allocated,real_from_location_id,real_to_location_id,qty_done,
 			task_ea_qty,date,trans_plan,task_pack_qty,task_board_qty,step,
-			is_show,business_mode,task_order,qc_previous_task_id,qc_skip
+			is_show,business_mode,task_order,qc_previous_task_id,qc_skip,task_amount
     	) values (
 			#{taskId},#{taskName},#{planId},#{waveId},#{orderId},#{locationId},
 			#{skuId},#{containerId},#{mergedContainerId},#{operator},#{planner},#{type},
@@ -79,7 +80,7 @@
 			#{updatedAt},#{ownerId},#{itemId},#{fromLocationId},#{toLocationId},#{qty},
 			#{packUnit},#{packName},#{isAllocated},#{realFromLocationId},#{realToLocationId},#{qtyDone},
 			#{taskEaQty},#{date},#{transPlan},#{taskPackQty},#{taskBoardQty},#{step},
-			#{isShow},#{businessMode},#{taskOrder},#{qcPreviousTaskId},#{qcSkip}
+			#{isShow},#{businessMode},#{taskOrder},#{qcPreviousTaskId},#{qcSkip},#{taskAmount}
     	)
 	</insert>
 
@@ -133,6 +134,7 @@
 			<if test="transPlan != null">trans_plan=#{transPlan},</if>
 			<if test="taskPackQty != null">task_pack_qty=#{taskPackQty},</if>
 			<if test="taskBoardQty != null">task_board_qty=#{taskBoardQty},</if>
+			<if test="taskAmount != null">task_amount=#{taskAmount},</if>
 			<if test="step != null">step=#{step},</if>
 			<if test="isShow != null">is_show=#{isShow},</if>
 			<if test="businessMode != null">business_mode=#{businessMode},</if>
@@ -201,7 +203,7 @@
 	<select id="getPerformance" parameterType="map" resultType="java.util.HashMap">
 		select operator as uid, type, sub_type,count(id) as taskQty,
 		count(distinct container_id) as containerQty, sum(task_ea_qty) as taskEaQty,
-		sum(task_pack_qty) as taskPackQty,ifnull(sum(task_board_qty),0) as taskBoardQty,date from task_info
+		sum(task_pack_qty) as taskPackQty, sum(task_amount) taskAmount,ifnull(sum(task_board_qty),0) as taskBoardQty,date from task_info
 		<where>
 			status = 4
 			<if test="type != null"> and type = #{type}</if>
@@ -340,6 +342,7 @@
 			<if test="transPlan != null">and trans_plan=#{transPlan}</if>
 			<if test="taskPackQty != null">and task_pack_qty=#{taskPackQty}</if>
 			<if test="taskBoardQty != null">and task_board_qty=#{taskBoardQty}</if>
+			<if test="taskAmount != null">and task_amount=#{taskAmount}</if>
 			<if test="step != null">and step=#{step}</if>
 			<if test="isShow != null">and is_show=#{isShow}</if>
 			<if test="businessMode != null">and business_mode=#{businessMode}</if>

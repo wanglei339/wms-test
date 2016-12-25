@@ -14,13 +14,14 @@ public interface IStockQuantRestService {
 
     String getOnhandQty(StockQuantCondition condition) throws BizCheckedException;
     String getList(StockQuantCondition condition) throws BizCheckedException;
+    String countList(StockQuantCondition condition) throws BizCheckedException;
     String create(Map<String, Object> mapInput) throws BizCheckedException;
     String freeze(Map<String, Object> mapCondition) throws BizCheckedException;
     String unFreeze(Map<String, Object> mapCondition) throws BizCheckedException;
     String toDefect(Map<String, Object> mapCondition) throws BizCheckedException;
     String toRefund(Map<String, Object> mapCondition) throws BizCheckedException;
     String getHistory(Long quant_id);
-    String writeOffQuant(Long quantId, BigDecimal realQty);
+    String writeOffQuant(Long quantId, BigDecimal realQty)throws BizCheckedException;
 
     String getItemStockCount(Map<String, Object> mapQuery);
     String getItemStockList(Map<String, Object> mapQuery);
@@ -28,4 +29,5 @@ public interface IStockQuantRestService {
     String getLocationStockCount(Map<String, Object> mapQuery);
     String getLocationStockList(Map<String, Object> mapQuery);
     String traceQuant(Long quantId);
+    String getItemLocationList(Map<String, Object> mapQuery);
 }

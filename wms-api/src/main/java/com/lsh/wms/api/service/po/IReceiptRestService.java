@@ -46,5 +46,7 @@ public interface IReceiptRestService {
 
     String countInbPoReceiptDetail();
 
+    String modifyQty() throws BizCheckedException;
+
 
 }

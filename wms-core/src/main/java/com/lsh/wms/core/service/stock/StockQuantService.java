@@ -509,4 +509,8 @@ public class StockQuantService {
         return stockQuantDao.countItemLocation(mapQuery);
     }
 
+    public List<StockQuant> getStockQuantList(Map<String, Object> mapQuery) {
+        return stockQuantDao.getStockQuantList(mapQuery);
+    }
+
 }

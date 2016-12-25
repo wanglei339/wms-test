@@ -70,7 +70,9 @@ public class ShelveTaskHandler extends AbsTaskHandler {
     }
 
     public void create(TaskEntry taskEntry) {
-        Long containerId = taskEntry.getTaskInfo().getContainerId();
+        TaskInfo info = taskEntry.getTaskInfo();
+        Long containerId = info.getContainerId();
+
         // 检查容器信息
         if (containerId == null || containerId.equals("")) {
             throw new BizCheckedException("2030003");
@@ -99,6 +101,8 @@ public class ShelveTaskHandler extends AbsTaskHandler {
         taskInfo.setFromLocationId(quant.getLocationId());
         taskInfo.setQtyDone(quant.getQty());
         taskInfo.setOrderId(stockLot.getPoId());
+        taskInfo.setPackUnit(info.getPackUnit());
+        taskInfo.setPackName(info.getPackName());
 
         taskEntry.setTaskInfo(taskInfo);
         taskEntry.setTaskHead(taskHead);
@@ -243,5 +247,10 @@ public class ShelveTaskHandler extends AbsTaskHandler {
 
     public void getHeadConcrete(TaskEntry taskEntry) {
         taskEntry.setTaskHead(taskService.getShelveTaskHead(taskEntry.getTaskInfo().getTaskId()));
+    }
+    public void calcPerformance(TaskInfo taskInfo) {
+        taskInfo.setTaskQty(taskInfo.getQty().divide(taskInfo.getPackUnit(), 2, BigDecimal.ROUND_DOWN));
+        taskInfo.setTaskEaQty(taskInfo.getQty());
+        taskInfo.setQtyDone(taskInfo.getQty());
     }
 }
