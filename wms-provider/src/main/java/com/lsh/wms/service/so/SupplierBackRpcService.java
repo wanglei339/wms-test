@@ -108,7 +108,7 @@ public class SupplierBackRpcService implements ISupplierBackRpcService{
 
         obdDetail.setSowQty(inboundQty);
         if(obdDetail.getOrderQty().compareTo(inboundQty) == -1){
-            throw new BizCheckedException("");//退货数超过订货数
+            throw new BizCheckedException("2901000");//退货数超过订货数
         }
         supplierBackDetailService.batchInsertOrder(addList,updateList,obdDetail);
     }
