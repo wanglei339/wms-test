@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,5 +34,21 @@ public class SupplierBackDetailService {
 
     public List<SupplierBackDetail> getSupplierBackDetailList(Map<String, Object> params) {
         return supplierBackDetailDao.getSupplierBackDetailList(params);
+    }
+
+    /**
+     * 根据orderId查询有效的单据
+     * @param orderId
+     * @return
+     */
+    public List<SupplierBackDetail> getSupplierBackDetailByOrderId (Long orderId) {
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("orderId",orderId);
+        map.put("isValid",1);
+        List<SupplierBackDetail> supplierBackDetails = this.getSupplierBackDetailList(map);
+        if(supplierBackDetails == null || supplierBackDetails.size() <= 0 ){
+            return new ArrayList<SupplierBackDetail>();
+        }
+        return supplierBackDetails;
     }
 }
