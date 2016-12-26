@@ -38,8 +38,10 @@ public class SupplierBackDetail implements Serializable {
     private BigDecimal allocUnitQty;
 	/** 存储位 */
     private Long locationId;
-	/** 容器id */
+	/** 虚拟容器id */
     private Long containerId;
+	/** 实际容器id */
+	private Long realContainerId;
 	/** 操作员id */
     private Long operator;
 	/** 完成时间 */
@@ -216,6 +218,13 @@ public class SupplierBackDetail implements Serializable {
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
-	
-	
+
+
+	public Long getRealContainerId() {
+		return realContainerId;
+	}
+
+	public void setRealContainerId(Long realContainerId) {
+		this.realContainerId = realContainerId;
+	}
 }
