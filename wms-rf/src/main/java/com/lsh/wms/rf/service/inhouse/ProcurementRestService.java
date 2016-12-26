@@ -411,7 +411,7 @@ public class ProcurementRestService implements IProcurementRestService {
                     return JsonUtils.TOKEN_ERROR("无补货任务可领");
                 }
             }
-            iTaskRpcService.assign(taskId, uid);
+            //iTaskRpcService.assign(taskId, uid);
         }
         if(taskId.compareTo(0L)==0) {
             return JsonUtils.TOKEN_ERROR("无补货任务可领");
