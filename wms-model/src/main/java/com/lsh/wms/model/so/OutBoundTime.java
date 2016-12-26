@@ -8,9 +8,9 @@ import java.util.Date;
 public class OutBoundTime implements Serializable {
 
 	/**  */
-	private String beginTime = "1920-01-01";
+	private String beginTime = "1970-01-01";
 	/**  */
-	private String endTime = "1920-01-01";
+	private String endTime = "1970-01-01";
 
 	public String getBeginTime() {
 		return beginTime;
