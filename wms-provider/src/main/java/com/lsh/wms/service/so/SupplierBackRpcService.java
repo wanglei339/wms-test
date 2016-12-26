@@ -54,9 +54,12 @@ public class SupplierBackRpcService implements ISupplierBackRpcService{
         List<SupplierBackDetail> detailList = supplierBackDetailService.getSupplierBackDetailList(params);
         //key: locationId value: backId
         Map<Long,Long> locationBackIdMap = new HashMap<Long, Long>();
+        Map<Long,BigDecimal> locationReqqtyMap = new HashMap<Long, BigDecimal>();
+
         if(detailList != null && detailList.size() >0){
             for(SupplierBackDetail s : detailList){
                 locationBackIdMap.put(s.getLocationId(),s.getBackId());
+                locationReqqtyMap.put(s.getLocationId(),s.getReqQty());
             }
         }
 
@@ -65,13 +68,19 @@ public class SupplierBackRpcService implements ISupplierBackRpcService{
         //更新列表
         List<SupplierBackDetail> updateList = new ArrayList<SupplierBackDetail>();
         Long containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
-        BigDecimal inboundQty = BigDecimal.ZERO;//实际退货数
+
+        ObdDetail obdDetail = soOrderService.getObdDetailByOrderIdAndDetailOtherId(orderId,detailOtherId);
+        BigDecimal inboundQty = obdDetail.getSowQty();//实际退货数
+
         for(SupplierBackDetail supplierBackDetail :requestList){
             if(locationBackIdMap.get(supplierBackDetail.getLocationId()) != null){
                 supplierBackDetail.setBackId(locationBackIdMap.get(supplierBackDetail.getLocationId()));
                 supplierBackDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
                 //已有数据更新
                 updateList.add(supplierBackDetail);
+                BigDecimal oldReqQty = locationReqqtyMap.get(supplierBackDetail.getLocationId());
+                //实际退货数加上本次更新的退货数
+                inboundQty = inboundQty.add(supplierBackDetail.getReqQty()).subtract(oldReqQty);
             }else {
                 Long backId = RandomUtils.genId();
                 supplierBackDetail.setContainerId(containerId);
@@ -79,11 +88,11 @@ public class SupplierBackRpcService implements ISupplierBackRpcService{
                 supplierBackDetail.setCreatedAt(DateUtils.getCurrentSeconds());
                 supplierBackDetail.setUpdatedAt(0L);
                 addList.add(supplierBackDetail);
+                //实际退货数加上本次的退货数
+                inboundQty = inboundQty.add(supplierBackDetail.getReqQty());
             }
-            inboundQty = inboundQty.add(supplierBackDetail.getReqQty());
         }
 
-        ObdDetail obdDetail = soOrderService.getObdDetailByOrderIdAndDetailOtherId(orderId,detailOtherId);
         obdDetail.setSowQty(inboundQty);
         if(obdDetail.getOrderQty().compareTo(inboundQty) == -1){
             throw new BizCheckedException("");//退货数超过订货数
