@@ -12,6 +12,7 @@ import com.lsh.wms.api.model.so.DeliveryRequest;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.so.IDeliveryRestService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
+import com.lsh.wms.model.so.OutBoundTime;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
 import org.slf4j.Logger;
@@ -41,6 +42,8 @@ public class DeliveryRestService implements IDeliveryRestService {
 
     @Autowired
     private DeliveryRpcService deliveryRpcService;
+    @Autowired
+    private SoDeliveryService soDeliveryService;
 
     @POST
     @Path("insert")
@@ -68,6 +71,16 @@ public class DeliveryRestService implements IDeliveryRestService {
     public String getOutbDeliveryHeaderList() {
         Map<String, Object> params = RequestUtils.getRequest();
         return JsonUtils.SUCCESS(deliveryRpcService.getOutbDeliveryHeaderList(params));
+    }
+    @POST
+    @Path("getOutbDeliveryQtyByItemIdAndTime")
+    public String getOutbDeliveryQtyByItemIdAndTime() {
+        Map<String, Object> params = RequestUtils.getRequest();
+        Long itemId = Long.valueOf(params.get("itemId").toString());
+        Long beginTime = Long.valueOf(params.get("beginTime").toString());
+        Long endTime = Long.valueOf(params.get("endTime").toString());
+        OutBoundTime time = new OutBoundTime(beginTime,endTime);
+        return JsonUtils.SUCCESS(soDeliveryService.getOutbDeliveryQtyByItemIdAndTime(time,itemId));
     }
 
 }

@@ -79,54 +79,15 @@
 
 	<insert id="batchInsert" parameterType="java.util.List">
 		insert into supplier_back_detail
-		<trim prefix="(" suffixOverrides="," suffix=")">
-			<if test="id != null">id,</if>
-			<if test="backId != null">back_id,</if>
-			<if test="orderId != null">order_id,</if>
-			<if test="detailOtherId != null">detail_other_id,</if>
-			<if test="itemId != null">item_id,</if>
-			<if test="skuId != null">sku_id,</if>
-			<if test="skuCode != null">sku_code,</if>
-			<if test="ownerId != null">owner_id,</if>
-			<if test="lotId != null">lot_id,</if>
-			<if test="status != null">status,</if>
-			<if test="isValid != null">is_valid,</if>
-			<if test="reqQty != null">req_qty,</if>
-			<if test="allocQty != null">alloc_qty,</if>
-			<if test="allocUnitName != null">alloc_unit_name,</if>
-			<if test="allocUnitQty != null">alloc_unit_qty,</if>
-			<if test="locationId != null">location_id,</if>
-			<if test="containerId != null">container_id,</if>
-			<if test="operator != null">operator,</if>
-			<if test="doneAt != null">done_at,</if>
-			<if test="createdAt != null">created_at,</if>
-			<if test="updatedAt != null">updated_at,</if>
-		</trim>
+		(id,back_id,order_id,detail_other_id,item_id,sku_id,sku_code,owner_id,
+		lot_id,status,is_valid,req_qty,alloc_qty,alloc_unit_name,alloc_unit_qty,
+		location_id,container_id,operator,done_at,created_at,updated_at)
 		values
 		<foreach collection="list" item="item" index="index" separator="," >
-			<trim prefix="(" suffixOverrides="," suffix=")">
-				<if test="id != null">#{id},</if>
-				<if test="backId != null">#{backId},</if>
-				<if test="orderId != null">#{orderId},</if>
-				<if test="detailOtherId != null">#{detailOtherId},</if>
-				<if test="itemId != null">#{itemId},</if>
-				<if test="skuId != null">#{skuId},</if>
-				<if test="skuCode != null">#{skuCode},</if>
-				<if test="ownerId != null">#{ownerId},</if>
-				<if test="lotId != null">#{lotId},</if>
-				<if test="status != null">#{status},</if>
-				<if test="isValid != null">#{isValid},</if>
-				<if test="reqQty != null">#{reqQty},</if>
-				<if test="allocQty != null">#{allocQty},</if>
-				<if test="allocUnitName != null">#{allocUnitName},</if>
-				<if test="allocUnitQty != null">#{allocUnitQty},</if>
-				<if test="locationId != null">#{locationId},</if>
-				<if test="containerId != null">#{containerId},</if>
-				<if test="operator != null">#{operator},</if>
-				<if test="doneAt != null">#{doneAt},</if>
-				<if test="createdAt != null">#{createdAt},</if>
-				<if test="updatedAt != null">#{updatedAt},</if>
-			</trim>
+			(#{item.id},#{item.backId},#{item.orderId},#{item.detailOtherId},#{item.itemId},#{item.skuId},#{item.skuCode},#{item.ownerId},
+				#{item.lotId},#{item.status},#{item.isValid},#{item.reqQty},#{item.allocQty},#{item.allocUnitName},
+				#{item.allocUnitQty},#{item.locationId},#{item.containerId},#{item.operator},
+				#{item.doneAt},#{item.createdAt},#{item.updatedAt})
 		</foreach>
 	</insert>
 
@@ -154,7 +115,7 @@
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
 		</set>
-		where id=#{id}
+		where back_id=#{backId}
 	</update>
   
 	<select id="getSupplierBackDetailById" parameterType="int" resultMap="supplierBackDetailResultMap">

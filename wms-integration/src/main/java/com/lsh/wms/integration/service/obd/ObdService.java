@@ -23,14 +23,17 @@ import com.lsh.wms.api.service.so.IObdService;
 import com.lsh.wms.api.service.so.ISoRpcService;
 import com.lsh.wms.core.constant.CsiConstan;
 import com.lsh.wms.core.constant.IntegrationConstan;
+import com.lsh.wms.core.constant.PoConstant;
 import com.lsh.wms.core.constant.SoConstant;
 import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.item.ItemService;
+import com.lsh.wms.core.service.po.PoOrderService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.utils.HttpUtils;
 import com.lsh.wms.integration.service.wumartsap.WuMartSap;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.csi.CsiCustomer;
+import com.lsh.wms.model.po.IbdHeader;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import org.slf4j.Logger;
@@ -69,6 +72,9 @@ public class ObdService implements IObdService{
     private CsiCustomerService customerService;
     @Autowired
     private WuMartSap wuMartSap;
+
+    @Autowired
+    private PoOrderService poOrderService;
 
     @POST
     @Path("add")
@@ -135,15 +141,30 @@ public class ObdService implements IObdService{
         //默认下单用户
         //soRequest.setOrderUser("超市");
 
-        // TODO: 16/9/5  重复的order_other_id 校验
         String orderOtherId = request.getOrderOtherId();
         Integer orderType = request.getOrderType();
+
+        //供商退货单检查是否原单是否存在
+        if(SoConstant.ORDER_TYPE_PO_BACK == orderType){
+            Map<String ,Object> map = new HashMap<String, Object>();
+            map.put("orderOtherId",request.getOrderOtherRefId());
+            map.put("orderType", PoConstant.ORDER_TYPE_PO);
+            List<IbdHeader> ibdHeaderList = poOrderService.getInbPoHeaderList(map);
+            if(ibdHeaderList == null || ibdHeaderList.size() <= 0 ){
+                throw new BizCheckedException("2021112",orderOtherId,request.getOrderOtherRefId());
+            }
+        }
+
+
+
         Map<String,Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("orderOtherId" , orderOtherId);
         mapQuery.put("orderType",orderType);
         List<ObdHeader> lists = soOrderService.getOutbSoHeaderList(mapQuery);
         if(lists.size() > 0){
             //throw new BizCheckedException("2020099",orderOtherId,"");
+            List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(lists.get(0).getOrderId());
+            lists.get(0).setOrderDetails(soDetails);
             return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, lists.get(0));
         }
         //添加waveOrderType

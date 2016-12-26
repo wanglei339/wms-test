@@ -93,4 +93,8 @@ public class SoRestService implements ISoRestService {
         Map<String, Object> params = RequestUtils.getRequest();
         return JsonUtils.SUCCESS(iSoRpcService.getOutbSoHeaderList(params));
     }
+
+    public String confirmBack(Long orderId, Long uid) throws BizCheckedException {
+        return null;
+    }
 }

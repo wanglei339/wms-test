@@ -131,7 +131,7 @@ public class OutbDeliveryHeader implements Serializable {
 		return this.deliveryUser;
 	}
 	
-	public void setDeliveryUser(String deliveryUser){
+	public void 	setDeliveryUser(String deliveryUser){
 		this.deliveryUser = deliveryUser;
 	}
 	

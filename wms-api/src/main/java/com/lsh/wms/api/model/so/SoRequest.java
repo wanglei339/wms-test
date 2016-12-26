@@ -23,22 +23,22 @@ public class SoRequest implements Serializable {
     private String orderOtherRefId = "";
 
     /** 售达方编码 */
-    @NotBlank
+    //@NotBlank
     @Size(max=64)
     private String orderUserCode;
 
     /** 下单客户（售达方名称） */
-    @NotBlank
+    //@NotBlank
     @Size(max=64)
     private String orderUser;
 
     /** 送达方名称 */
-    @NotBlank
+    //@NotBlank
     @Size(max=64)
     private String deliveryName;
 
     /** 送达方编码 */
-    @NotBlank
+    //@NotBlank
     @Size(max=64)
     private String deliveryCode;
 
@@ -71,6 +71,8 @@ public class SoRequest implements Serializable {
 
     /** 波次订单类型 */
     private String waveOrderType = "";
+    /** 退货 收货供商号*/
+    private String supplierNo = "";
 
     /** 商品 */
     @Valid
@@ -80,7 +82,7 @@ public class SoRequest implements Serializable {
     public SoRequest() {
     }
 
-    public SoRequest(String deliveryAddrs, String deliveryCode, String deliveryName, List<SoItem> items, String orderOtherId, String orderOtherRefId, Integer orderType, String orderUser, String orderUserCode, Long ownerUid, String transPlan, Date transTime, Long waveId, Integer waveIndex, String waveOrderType) {
+    public SoRequest(String deliveryAddrs, String deliveryCode, String deliveryName, List<SoItem> items, String orderOtherId, String orderOtherRefId, Integer orderType, String orderUser, String orderUserCode, Long ownerUid, String supplierNo, String transPlan, Date transTime, Long waveId, Integer waveIndex, String waveOrderType) {
         this.deliveryAddrs = deliveryAddrs;
         this.deliveryCode = deliveryCode;
         this.deliveryName = deliveryName;
@@ -91,6 +93,7 @@ public class SoRequest implements Serializable {
         this.orderUser = orderUser;
         this.orderUserCode = orderUserCode;
         this.ownerUid = ownerUid;
+        this.supplierNo = supplierNo;
         this.transPlan = transPlan;
         this.transTime = transTime;
         this.waveId = waveId;
@@ -176,6 +179,14 @@ public class SoRequest implements Serializable {
 
     public void setOwnerUid(Long ownerUid) {
         this.ownerUid = ownerUid;
+    }
+
+    public String getSupplierNo() {
+        return supplierNo;
+    }
+
+    public void setSupplierNo(String supplierNo) {
+        this.supplierNo = supplierNo;
     }
 
     public String getTransPlan() {

@@ -4,15 +4,14 @@ import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.dubbo.rpc.protocol.rest.support.ContentType;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.json.JsonUtils;
+import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.api.service.request.RequestUtils;
 import com.lsh.wms.api.service.so.ISupplierBackRestService;
 import com.lsh.wms.model.so.SupplierBackDetail;
-import com.lsh.wms.model.so.SupplierBackDetailRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +29,7 @@ public class SupplierBackRestService implements ISupplierBackRestService{
 
     @POST
     @Path("insert")
-    public String insertDetails(List<SupplierBackDetailRequest> requestList)throws BizCheckedException {
+    public String insertDetails(List<SupplierBackDetail> requestList)throws BizCheckedException {
         supplierBackRpcService.batchInsertDetail(requestList);
         return JsonUtils.SUCCESS();
     }
@@ -42,15 +41,9 @@ public class SupplierBackRestService implements ISupplierBackRestService{
         return JsonUtils.SUCCESS(supplierBackRpcService.getSupplierBackDetailList(params));
     }
 
-    @GET
+    @POST
     @Path("updateSupplierBackDetail")
-    public String updateSupplierBackDetail(@QueryParam("backId") Long backId,@QueryParam("reqQty") Long reqQty)throws BizCheckedException{
-        if(backId == null || reqQty == null){
-            throw new BizCheckedException("1010001", "参数不能为空");
-        }
-        SupplierBackDetail supplierBackDetail = new SupplierBackDetail();
-        supplierBackDetail.setBackId(backId);
-        supplierBackDetail.setReqQty(BigDecimal.valueOf(reqQty));
+    public String updateSupplierBackDetail(SupplierBackDetail supplierBackDetail)throws BizCheckedException{
         supplierBackRpcService.updateSupplierBackDetail(supplierBackDetail);
         return JsonUtils.SUCCESS();
     }

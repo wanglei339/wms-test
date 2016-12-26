@@ -26,7 +26,7 @@ public class SupplierBackDetail implements Serializable {
     private Long lotId;
 	/** 0-新建，1-完成 */
     private Long status;
-	/** 是否有效，比如被合盘的情况下，原记录被标记为无效 */
+	/** 是否有效，1有效  0无效 */
     private Long isValid;
 	/** 需求量 */
     private BigDecimal reqQty;

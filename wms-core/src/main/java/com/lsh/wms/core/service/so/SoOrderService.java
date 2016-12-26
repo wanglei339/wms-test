@@ -7,9 +7,14 @@ import com.lsh.wms.core.dao.so.ObdHeaderDao;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
+import com.lsh.wms.core.service.tu.TuService;
+import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockMove;
+import com.lsh.wms.model.tu.TuDetail;
+import com.lsh.wms.model.tu.TuHead;
+import com.lsh.wms.model.wave.WaveDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +46,12 @@ public class SoOrderService {
 
     @Autowired
     private LocationService locationService;
+
+    @Autowired
+    private WaveService waveService;
+
+    @Autowired
+    private TuService tuService;
 
     /**
      * 插入OutbSoHeader及OutbSoDetail
@@ -358,6 +369,18 @@ public class SoOrderService {
         detail.setOrderId(orderId);
         detail.setDetailOtherId(detailOtherId);
         obdDetailDao.increaseReleaseQty(detail);
+    }
+
+
+    @Transactional(readOnly = false)
+    public void confirmBack(List<WaveDetail> waveDetails ,List<TuDetail> tuDetails,TuHead tuHead){
+        //gen waveDetail
+        for (WaveDetail waveDetail : waveDetails) {
+            waveService.insertDetail(waveDetail);
+        }
+        //生成obd moveStockQuant
+        tuService.createObdAndMoveStockQuant(tuHead,tuDetails);
+
     }
 
 
