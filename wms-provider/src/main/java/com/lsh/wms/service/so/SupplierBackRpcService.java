@@ -64,7 +64,7 @@ public class SupplierBackRpcService implements ISupplierBackRpcService{
         List<SupplierBackDetail> addList = new ArrayList<SupplierBackDetail>();
         //更新列表
         List<SupplierBackDetail> updateList = new ArrayList<SupplierBackDetail>();
-
+        Long containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
         BigDecimal inboundQty = BigDecimal.ZERO;//实际退货数
         for(SupplierBackDetail supplierBackDetail :requestList){
             if(locationBackIdMap.get(supplierBackDetail.getLocationId()) != null){
@@ -74,7 +74,6 @@ public class SupplierBackRpcService implements ISupplierBackRpcService{
                 updateList.add(supplierBackDetail);
             }else {
                 Long backId = RandomUtils.genId();
-                Long containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
                 supplierBackDetail.setContainerId(containerId);
                 supplierBackDetail.setBackId(backId);
                 supplierBackDetail.setCreatedAt(DateUtils.getCurrentSeconds());
