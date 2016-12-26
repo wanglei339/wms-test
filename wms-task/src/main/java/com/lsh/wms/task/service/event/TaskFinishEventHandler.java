@@ -97,14 +97,7 @@ public class TaskFinishEventHandler extends AbsEventHandler implements IEventHan
         } else {
             handlerType = TaskConstant.TYPE_PICK_UP_SHELVE;
         }
-        try {
-            taskHandler = taskHandlerFactory.getTaskHandler(handlerType);
-            taskHandler.create(taskRpcService.getTaskEntryById(taskId));
-        } catch (BizCheckedException e) {
-            logger.warn(e.getMessage());
-        } catch (Exception e) {
-            logger.error("Exception",e);
-            logger.warn(e.getMessage());
-        }
+        taskHandler = taskHandlerFactory.getTaskHandler(handlerType);
+        taskHandler.create(taskRpcService.getTaskEntryById(taskId));
     }
 }
