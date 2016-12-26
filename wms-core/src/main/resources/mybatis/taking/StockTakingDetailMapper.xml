@@ -127,7 +127,7 @@
 	</select>
 
 	<select id="getStockTakingItemList" parameterType="map" resultMap="stockTakingDetailResultMap">
-		select item_id,barcode,sku_code,sku_name,
+		select item_id,barcode,sku_code,sku_name,pack_name,
 		sum(real_qty) as real_qty,price,sum(difference_price) as difference_price,sum(theoretical_qty) as theoretical_qty
 		from stock_taking_detail
 		<include refid="queryCondition"/>
@@ -179,6 +179,11 @@
 			<if test="locationCode !=null"> and location_code=#{locationCode}</if>
 			<if test="valid !=null"> and status in (1,2,3)</if>
 			<if test="validItem !=null"> and item_id !=0 </if>
+			<if test="endTime != null">and updated_at&gt;=#{endTime}</if>
+			<if test="beginTime != null">and updated_at&lt;=#{beginTime}</if>
+			<if test="validData != null">
+				and (status=3 or (status=4 and is_final=1))
+			</if>
 		</where>
 	</sql>
    

@@ -340,6 +340,7 @@ public class ProcurementRestService implements IProcurementRestService {
                     {
                         put("taskId", info.getTaskId().toString());
                         put("type",2L);
+                        put("isFlashBack", 1);
                         put("barcode",item.getCode());
                         put("skuCode",item.getSkuCode());
                         put("locationId", info.getToLocationId());
@@ -366,6 +367,7 @@ public class ProcurementRestService implements IProcurementRestService {
                         put("type",1L);
                         put("barcode",item.getCode());
                         put("skuCode",item.getSkuCode());
+                        put("isFlashBack", 1);
                         put("locationId", info.getFromLocationId());
                         put("locationCode", locationRpcService.getLocation(info.getFromLocationId()).getLocationCode());
                         put("toLocationId", info.getToLocationId());
@@ -409,7 +411,7 @@ public class ProcurementRestService implements IProcurementRestService {
                     return JsonUtils.TOKEN_ERROR("无补货任务可领");
                 }
             }
-            iTaskRpcService.assign(taskId, uid);
+            //iTaskRpcService.assign(taskId, uid);
         }
         if(taskId.compareTo(0L)==0) {
             return JsonUtils.TOKEN_ERROR("无补货任务可领");
@@ -430,6 +432,7 @@ public class ProcurementRestService implements IProcurementRestService {
                 put("type", 1L);
                 put("barcode",item.getCode());
                 put("skuCode",item.getSkuCode());
+                put("isFlashBack", 0);
                 put("fromLocationId", fromLocationId);
                 put("fromLocationCode", fromLocationCode);
                 put("locationId", fromLocationId);
@@ -493,6 +496,51 @@ public class ProcurementRestService implements IProcurementRestService {
         }
     }
     @POST
+    @Path("bindTask")
+    @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
+    @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
+    public String bindTask() throws BizCheckedException {
+        Map<String, Object> mapQuery = RequestUtils.getRequest();
+        Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
+        try {
+            TaskEntry taskEntry = iTaskRpcService.getTaskEntryById(taskId);
+            if (taskEntry == null) {
+                throw new BizCheckedException("2040001");
+            }
+            Long uid = 0L;
+            try {
+                uid =  Long.valueOf(RequestUtils.getHeader("uid"));
+            }catch (Exception e){
+                return JsonUtils.TOKEN_ERROR("违法的账户");
+            }
+            SysUser user = iSysUserRpcService.getSysUserById(uid);
+            if(user==null){
+                return JsonUtils.TOKEN_ERROR("用户不存在");
+            }
+            TaskInfo info = taskEntry.getTaskInfo();
+
+            if(info.getStatus().equals(2L)){
+                if(!info.getOperator().equals(uid)){
+                    return JsonUtils.TOKEN_ERROR("该任务已被人领取");
+                }
+            }
+            if(info.getStatus().equals(1L)){
+                iTaskRpcService.assign(taskId,uid);
+                return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+                    {
+                        put("response", true);
+                    }
+                });
+            }
+            return JsonUtils.TOKEN_ERROR("任务状态异常");
+        }catch (BizCheckedException ex){
+            throw ex;
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return JsonUtils.TOKEN_ERROR("系统繁忙");
+        }
+    }
+    @POST
     @Path("assign")
     @Consumes({MediaType.APPLICATION_FORM_URLENCODED, MediaType.MULTIPART_FORM_DATA,MediaType.APPLICATION_JSON})
     @Produces({ContentType.APPLICATION_JSON_UTF_8, ContentType.TEXT_XML_UTF_8})
@@ -523,6 +571,7 @@ public class ProcurementRestService implements IProcurementRestService {
                     {
                         put("taskId", info.getTaskId().toString());
                         put("type",2L);
+                        put("isFlashBack", 1);
                         put("barcode",item.getCode());
                         put("skuCode",item.getSkuCode());
                         put("locationId", info.getToLocationId());
@@ -547,6 +596,7 @@ public class ProcurementRestService implements IProcurementRestService {
                     {
                         put("taskId", info.getTaskId().toString());
                         put("type",1L);
+                        put("isFlashBack", 1);
                         put("barcode",item.getCode());
                         put("skuCode",item.getSkuCode());
                         put("locationId", info.getFromLocationId());
@@ -576,7 +626,7 @@ public class ProcurementRestService implements IProcurementRestService {
         Long taskId = Long.valueOf(mapQuery.get("taskId").toString());
         try {
             TaskEntry taskEntry = iTaskRpcService.getTaskEntryById(taskId);
-            iTaskRpcService.assign(taskId,uid);
+            //iTaskRpcService.assign(taskId,uid);
             if (taskEntry == null) {
                 throw new BizCheckedException("2040001");
             }
@@ -585,7 +635,7 @@ public class ProcurementRestService implements IProcurementRestService {
             final BaseinfoItem item = itemRpcService.getItem(taskInfo.getItemId());
             Map<String, Object> resultMap = new HashMap<String, Object>();
             resultMap.put("type",taskInfo.getStep());
-            resultMap.put("taskId",taskInfo.getTaskId());
+            resultMap.put("taskId",taskInfo.getTaskId().toString());
             if(taskInfo.getStep()==1){
                 resultMap.put("locationId", taskInfo.getFromLocationId());
                 resultMap.put("locationCode", locationRpcService.getLocation(taskInfo.getFromLocationId()).getLocationCode());
@@ -594,6 +644,7 @@ public class ProcurementRestService implements IProcurementRestService {
                 resultMap.put("locationCode", locationRpcService.getLocation(taskInfo.getToLocationId()).getLocationCode());
             }
             resultMap.put("itemId", taskInfo.getItemId());
+            resultMap.put("isFlashBack", 0);
             resultMap.put("itemName", itemRpcService.getItem(taskInfo.getItemId()).getSkuName());
             resultMap.put("fromLocationId", taskInfo.getFromLocationId());
             resultMap.put("fromLocationCode", locationRpcService.getLocation(taskInfo.getFromLocationId()).getLocationCode());

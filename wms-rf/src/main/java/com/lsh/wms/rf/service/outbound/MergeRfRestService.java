@@ -20,6 +20,7 @@ import com.lsh.wms.core.service.csi.CsiCustomerService;
 import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.merge.MergeService;
 import com.lsh.wms.core.service.so.SoOrderService;
+import com.lsh.wms.core.service.stock.StockQuantService;
 import com.lsh.wms.core.service.task.BaseTaskService;
 import com.lsh.wms.core.service.utils.IdGenerator;
 import com.lsh.wms.core.service.utils.PackUtil;
@@ -28,6 +29,7 @@ import com.lsh.wms.model.baseinfo.BaseinfoContainer;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.csi.CsiCustomer;
 import com.lsh.wms.model.so.ObdHeader;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.task.TaskEntry;
 import com.lsh.wms.model.task.TaskInfo;
 import com.lsh.wms.model.wave.WaveDetail;
@@ -73,6 +75,8 @@ public class MergeRfRestService implements IMergeRfRestService {
     private ItemService itemService;
     @Autowired
     private CsiCustomerService csiCustomerService;
+    @Autowired
+    private StockQuantService stockQuantService;
 
     /**
      * 扫描托盘码进行合板
@@ -294,6 +298,28 @@ public class MergeRfRestService implements IMergeRfRestService {
             }
             resultDetails.add(resultDetail);
         }
+
+        //不是同一集货位置的板子不能合板,防止扫货员扫错集货道
+        List<StockQuant> stockQuants = new ArrayList<StockQuant>();
+        for (Long containerId : containerIds){
+            List<StockQuant> quants = stockQuantService.getQuantsByContainerId(containerId);
+            if (null == quants ||quants.isEmpty()){
+                logger.info("This container  "+containerId +"  can not find stockQuant on collecitons");
+                throw new BizCheckedException("2550052");
+            }
+            stockQuants.addAll(quants);
+        }
+        boolean isSameLocation = true;
+        for (StockQuant quant : stockQuants){
+            Long locationId = stockQuants.get(0).getLocationId();
+            if (!quant.getLocationId().equals(locationId)){
+                isSameLocation = false;
+            }
+        }
+        if (!isSameLocation){
+            throw new BizCheckedException("2870045");
+        }
+
         Map<String, Object> taskQuery = new HashMap<String, Object>();
         taskQuery.put("containerId", mergedContainerId);
         taskQuery.put("type", TaskConstant.TYPE_MERGE);

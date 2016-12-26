@@ -26,7 +26,7 @@ public class SupplierBackDetail implements Serializable {
     private Long lotId;
 	/** 0-新建，1-完成 */
     private Long status;
-	/** 是否有效，比如被合盘的情况下，原记录被标记为无效 */
+	/** 是否有效，1有效  0无效 */
     private Long isValid;
 	/** 需求量 */
     private BigDecimal reqQty;
@@ -38,8 +38,10 @@ public class SupplierBackDetail implements Serializable {
     private BigDecimal allocUnitQty;
 	/** 存储位 */
     private Long locationId;
-	/** 容器id */
+	/** 虚拟容器id */
     private Long containerId;
+	/** 实际容器id */
+	private Long realContainerId;
 	/** 操作员id */
     private Long operator;
 	/** 完成时间 */
@@ -216,6 +218,13 @@ public class SupplierBackDetail implements Serializable {
 	public void setUpdatedAt(Long updatedAt){
 		this.updatedAt = updatedAt;
 	}
-	
-	
+
+
+	public Long getRealContainerId() {
+		return realContainerId;
+	}
+
+	public void setRealContainerId(Long realContainerId) {
+		this.realContainerId = realContainerId;
+	}
 }

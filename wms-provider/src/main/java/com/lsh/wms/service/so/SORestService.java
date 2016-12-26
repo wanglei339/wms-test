@@ -92,4 +92,12 @@ public class SORestService implements ISoRestService {
         return JsonUtils.SUCCESS(soRpcService.getOutbSoHeaderList(params));
     }
 
+    @GET
+    @Path("confirmBack")
+    public String confirmBack(@QueryParam("orderId") Long orderId,@QueryParam("uid") Long uid) throws BizCheckedException{
+        soRpcService.confirmBack(orderId,uid);
+        return JsonUtils.SUCCESS();
+    }
+
+
 }
