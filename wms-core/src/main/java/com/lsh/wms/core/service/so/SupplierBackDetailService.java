@@ -2,6 +2,7 @@ package com.lsh.wms.core.service.so;
 
 
 import com.lsh.wms.core.dao.so.SupplierBackDetailDao;
+import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.SupplierBackDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,16 +21,29 @@ import java.util.Map;
 public class SupplierBackDetailService {
     @Autowired
     private SupplierBackDetailDao supplierBackDetailDao;
+    @Autowired
+    private SoOrderService soOrderService;
 
     @Transactional(readOnly = false)
-    public void batchInsertOrder(List<SupplierBackDetail> supplierBackDetailList) {
+    public void batchInsertOrder(List<SupplierBackDetail> addList,List<SupplierBackDetail> updateList,ObdDetail obdDetail) {
+        if(addList != null && addList.size() > 0){
+            supplierBackDetailDao.batchInsert(addList);
+        }
+        if(updateList != null && updateList.size() > 0){
+            for(SupplierBackDetail supplierBackDetail : updateList){
+                supplierBackDetailDao.update(supplierBackDetail);
+            }
+        }
+        //更新obdDetail实收数量
+        soOrderService.updateObdDetail(obdDetail);
 
-        supplierBackDetailDao.batchInsert(supplierBackDetailList);
     }
 
     @Transactional(readOnly = false)
-    public void update(SupplierBackDetail supplierBackDetail) {
+    public void update(SupplierBackDetail supplierBackDetail,ObdDetail obdDetail) {
         supplierBackDetailDao.update(supplierBackDetail);
+        //更新obdDetail实收数量
+        soOrderService.updateObdDetail(obdDetail);
     }
 
     public List<SupplierBackDetail> getSupplierBackDetailList(Map<String, Object> params) {

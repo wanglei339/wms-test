@@ -12,12 +12,6 @@ public class SupplierBackDetailRequest implements Serializable {
     private String detailOtherId;
 	/** 商品码 */
     private Long itemId;
-	/** 商品id */
-    private Long skuId;
-	/** 商品编码 一个商品编码可以对应多个国条码 */
-    private String skuCode;
-	/** 货主id */
-    private Long ownerId;
 	/** 批次id */
     private Long lotId;
 	/** 需求量 */
@@ -30,8 +24,7 @@ public class SupplierBackDetailRequest implements Serializable {
     private BigDecimal allocUnitQty;
 	/** 存储位 */
     private Long locationId;
-	/** 操作员id */
-    private Long operator;
+
 
 	
 	public Long getOrderId(){
@@ -56,30 +49,6 @@ public class SupplierBackDetailRequest implements Serializable {
 	
 	public void setItemId(Long itemId){
 		this.itemId = itemId;
-	}
-	
-	public Long getSkuId(){
-		return this.skuId;
-	}
-	
-	public void setSkuId(Long skuId){
-		this.skuId = skuId;
-	}
-	
-	public String getSkuCode(){
-		return this.skuCode;
-	}
-	
-	public void setSkuCode(String skuCode){
-		this.skuCode = skuCode;
-	}
-	
-	public Long getOwnerId(){
-		return this.ownerId;
-	}
-	
-	public void setOwnerId(Long ownerId){
-		this.ownerId = ownerId;
 	}
 	
 	public Long getLotId(){
@@ -130,12 +99,4 @@ public class SupplierBackDetailRequest implements Serializable {
 		this.locationId = locationId;
 	}
 
-
-	public Long getOperator() {
-		return operator;
-	}
-
-	public void setOperator(Long operator) {
-		this.operator = operator;
-	}
 }
