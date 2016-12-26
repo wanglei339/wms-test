@@ -106,25 +106,23 @@ public class SupplierBackRpcService implements ISupplierBackRpcService{
         Map<String,Object> params = new HashMap<String, Object>();
         params.put("orderId",orderId);
         params.put("detailOtherId",detailOtherId);
+        params.put("isValid",1);
         List<SupplierBackDetail> list = supplierBackDetailService.getSupplierBackDetailList(params);
-        BigDecimal inboundQty = BigDecimal.ZERO;//实际退货数
+        BigDecimal inboundQty = obdDetail.getSowQty();//实际退货数
         //计算实际退货数
         for(SupplierBackDetail s : list){
-            if(s.getOrderId().equals(orderId) && s.getDetailOtherId().equals(detailOtherId)){
+            if(s.getBackId().equals(backId)){
                 if(requestDetail.getIsValid() != null && requestDetail.getIsValid() == 0){
                     //删除记录
+                    inboundQty = inboundQty.subtract(s.getReqQty());
                     continue;
                 }
                 if(requestDetail.getReqQty() != null){
-                    //更新
-                    inboundQty = inboundQty.add(requestDetail.getReqQty());
+                    //更新  总数 = 实收总数 + 更新量即(该记录本次退货数 - 该记录之前退货数)
+                    inboundQty = inboundQty.add(requestDetail.getReqQty()).subtract(s.getReqQty());
                     continue;
                 }
-            }else if(s.getIsValid() == 1){
-                    //有效记录
-                    inboundQty = inboundQty.add(s.getReqQty());
-                }
-
+            }
         }
         if(obdDetail.getOrderQty().compareTo(inboundQty) == -1){
             throw new BizCheckedException("");//退货数超过订货数
