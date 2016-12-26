@@ -12,6 +12,7 @@ import com.lsh.wms.core.service.wave.WaveService;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
 import com.lsh.wms.model.stock.StockMove;
+import com.lsh.wms.model.stock.StockQuant;
 import com.lsh.wms.model.tu.TuDetail;
 import com.lsh.wms.model.tu.TuHead;
 import com.lsh.wms.model.wave.WaveDetail;
@@ -52,6 +53,9 @@ public class SoOrderService {
 
     @Autowired
     private TuService tuService;
+
+    @Autowired
+    private StockMoveService moveService;
 
     /**
      * 插入OutbSoHeader及OutbSoDetail
@@ -373,11 +377,17 @@ public class SoOrderService {
 
 
     @Transactional(readOnly = false)
-    public void confirmBack(List<WaveDetail> waveDetails ,List<TuDetail> tuDetails,TuHead tuHead){
+    public void confirmBack(List<WaveDetail> waveDetails ,List<TuDetail> tuDetails,TuHead tuHead,List<StockMove> moveList){
+        //先将托盘都move到同一个托盘上
+        moveService.move(moveList);
+
+
         //gen waveDetail
         for (WaveDetail waveDetail : waveDetails) {
             waveService.insertDetail(waveDetail);
         }
+        //
+
         //生成obd moveStockQuant
         tuService.createObdAndMoveStockQuant(tuHead,tuDetails);
 
