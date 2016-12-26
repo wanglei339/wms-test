@@ -490,6 +490,15 @@ public class StockTakingService {
         }
         return diffPrice;
     }
+    public Double getLossPrice(Map queryMap) {
+        queryMap.put("status",StockTakingConstant.Done);
+        queryMap.put("isFinal",1L);
+        Double lossPrice =  detailDao.getDiffPrice(queryMap);
+        if(lossPrice==null){
+            return 0.0;
+        }
+        return lossPrice;
+    }
     public Double getAllPrice(Map queryMap) {
         queryMap.put("status", StockTakingConstant.PendingAudit);
         Double allprice = detailDao.getAllPrice(queryMap);

@@ -22,4 +22,6 @@ public interface IDeliveryRestService {
     public String countOutbDeliveryHeader();
 
     public String getOutbDeliveryHeaderList();
+
+    String getOutbDeliveryQtyByItemIdAndTime();
 }

@@ -1,10 +1,9 @@
 package com.lsh.wms.core.service.so;
 
-import com.lsh.base.common.json.JsonUtils;
 import com.lsh.base.common.utils.CollectionUtils;
-import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.wms.core.dao.so.OutbDeliveryDetailDao;
 import com.lsh.wms.core.dao.so.OutbDeliveryHeaderDao;
+import com.lsh.wms.model.so.OutBoundTime;
 import com.lsh.wms.model.so.OutbDeliveryDetail;
 import com.lsh.wms.model.so.OutbDeliveryHeader;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -282,6 +281,16 @@ public class SoDeliveryService {
             deliveryQty = deliveryQty.add(detail.getDeliveryNum());
         }
         return deliveryQty;
+    }
+    public Long getOutbDeliveryQtyByItemIdAndTime(OutBoundTime outBoundTime, Long itemId) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("timeObj", outBoundTime);
+        params.put("itemId", itemId);
+        Long outBoundQty = outbDeliveryDetailDao.getOutbDeliveryQtyByItemIdAndTime(params);
+        if(outBoundQty==null){
+            return 0L;
+        }
+        return outBoundQty;
     }
 
 }

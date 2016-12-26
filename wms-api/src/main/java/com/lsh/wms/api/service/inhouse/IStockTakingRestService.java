@@ -38,4 +38,5 @@ public interface IStockTakingRestService {
     String test();
     String createPlanWarehouse(Map<String,Object> mapQuery) throws BizCheckedException;
     String createPlanSales(Map<String,Object> mapQuery) throws BizCheckedException;
+    String getDetailByItemId(@QueryParam("itemId") Long itemId) throws BizCheckedException;
 }

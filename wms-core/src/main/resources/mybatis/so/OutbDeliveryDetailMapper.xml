@@ -76,6 +76,11 @@
 		select * from OUTB_DELIVERY_DETAIL
 		where ID=#{id} 
 	</select>
+
+	<select id="getOutbDeliveryQtyByItemIdAndTime" parameterType="map" resultType="long">
+		select sum(DELIVERY_NUM) from OUTB_DELIVERY_DETAIL
+		<include refid="queryCondition"/>
+	</select>
   
 	<select id="countOutbDeliveryDetail" parameterType="map" resultType="int">
 		select count(*) from OUTB_DELIVERY_DETAIL
@@ -117,6 +122,11 @@
 			<if test="updateby != null">and UPDATEBY=#{updateby}</if>
 			<if test="inserttime != null">and INSERTTIME=#{inserttime}</if>
 			<if test="updatetime != null">and UPDATETIME=#{updatetime}</if>
+			<if test="timeObj != null">
+				<![CDATA[
+      					and date(UPDATETIME) between ${timeObj.getBeginTime()} and  ${timeObj.getEndTime()}
+				]]>
+			</if>
 		</where>
 	</sql>
    

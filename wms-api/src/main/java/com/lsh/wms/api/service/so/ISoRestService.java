@@ -27,4 +27,6 @@ public interface ISoRestService {
 
     public String getOutbSoHeaderList();
 
+    String confirmBack(Long orderId,Long uid) throws BizCheckedException;
+
 }
