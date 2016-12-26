@@ -147,6 +147,7 @@ public class SmsRestService implements ISmsRestService {
         // 初始化lot
         StockLot lot = new StockLot();
         lot.setItemId(item.getItemId());
+        lot.setSkuId(item.getSkuId());
         lot.setPackName(item.getPackName());
         lot.setPackUnit(item.getPackUnit());
         lot.setCode(item.getCode());
@@ -219,6 +220,25 @@ public class SmsRestService implements ISmsRestService {
     @GET
     @Path("so")
     public String alloc(@QueryParam("order_id") String orderId) throws BizCheckedException {
+        List<StockMove> moveList = new ArrayList<StockMove>();
+        StockMove move1 = new StockMove();
+        move1.setItemId(127869766337950L);
+        move1.setFromLocationId(locationService.getSupplyArea().getLocationId());
+        move1.setToLocationId(locationService.getConsumerArea().getLocationId());
+        move1.setToContainerId(0L);
+        move1.setQty(BigDecimal.TEN);
+        moveList.add(move1);
+
+        StockMove move2 = new StockMove();
+        move2.setItemId(1194000925153L);
+        move2.setFromLocationId(locationService.getSupplyArea().getLocationId());
+        move2.setToLocationId(locationService.getConsumerArea().getLocationId());
+        move2.setToContainerId(0L);
+        move2.setQty(BigDecimal.TEN);
+        moveList.add(move2);
+
+        stockMoveService.move(moveList);
+
         return JsonUtils.SUCCESS();
     }
 
