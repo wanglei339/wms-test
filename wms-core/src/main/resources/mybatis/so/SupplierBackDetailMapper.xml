@@ -20,6 +20,7 @@
 		<result property="allocUnitQty" column="alloc_unit_qty"/>
 		<result property="locationId" column="location_id"/>
 		<result property="containerId" column="container_id"/>
+		<result property="realContainerId" column="real_container_id"/>
 		<result property="operator" column="operator"/>
 		<result property="doneAt" column="done_at"/>
 		<result property="createdAt" column="created_at"/>
@@ -46,6 +47,7 @@
         <if test="allocUnitQty != null">alloc_unit_qty,</if>
         <if test="locationId != null">location_id,</if>
         <if test="containerId != null">container_id,</if>
+        <if test="realContainerId != null">real_container_id,</if>
         <if test="operator != null">operator,</if>
         <if test="doneAt != null">done_at,</if>
         <if test="createdAt != null">created_at,</if>
@@ -70,6 +72,7 @@
         <if test="allocUnitQty != null">#{allocUnitQty},</if>
         <if test="locationId != null">#{locationId},</if>
         <if test="containerId != null">#{containerId},</if>
+        <if test="realContainerId != null">#{realContainerId},</if>
         <if test="operator != null">#{operator},</if>
         <if test="doneAt != null">#{doneAt},</if>
         <if test="createdAt != null">#{createdAt},</if>
@@ -81,12 +84,12 @@
 		insert into supplier_back_detail
 		(id,back_id,order_id,detail_other_id,item_id,sku_id,sku_code,owner_id,
 		lot_id,status,is_valid,req_qty,alloc_qty,alloc_unit_name,alloc_unit_qty,
-		location_id,container_id,operator,done_at,created_at,updated_at)
+		location_id,container_id,real_container_id,operator,done_at,created_at,updated_at)
 		values
 		<foreach collection="list" item="item" index="index" separator="," >
 			(#{item.id},#{item.backId},#{item.orderId},#{item.detailOtherId},#{item.itemId},#{item.skuId},#{item.skuCode},#{item.ownerId},
 				#{item.lotId},#{item.status},#{item.isValid},#{item.reqQty},#{item.allocQty},#{item.allocUnitName},
-				#{item.allocUnitQty},#{item.locationId},#{item.containerId},#{item.operator},
+				#{item.allocUnitQty},#{item.locationId},#{item.containerId},#{item.realContainerId},#{item.operator},
 				#{item.doneAt},#{item.createdAt},#{item.updatedAt})
 		</foreach>
 	</insert>
@@ -110,7 +113,8 @@
   			<if test="allocUnitQty != null">alloc_unit_qty=#{allocUnitQty},</if>
   			<if test="locationId != null">location_id=#{locationId},</if>
   			<if test="containerId != null">container_id=#{containerId},</if>
-  			<if test="operator != null">operator=#{operator},</if>
+			<if test="realContainerId != null">real_container_id=#{containerId},</if>
+			<if test="operator != null">operator=#{operator},</if>
   			<if test="doneAt != null">done_at=#{doneAt},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
   			<if test="updatedAt != null">updated_at=#{updatedAt}</if>
@@ -155,6 +159,7 @@
 			<if test="allocUnitQty != null">and alloc_unit_qty=#{allocUnitQty}</if>
 			<if test="locationId != null">and location_id=#{locationId}</if>
 			<if test="containerId != null">and container_id=#{containerId}</if>
+			<if test="realContainerId != null">and real_container_id=#{realContainerId}</if>
 			<if test="operator != null">and operator=#{operator}</if>
 			<if test="doneAt != null">and done_at=#{doneAt}</if>
 			<if test="createdAt != null">and created_at=#{createdAt}</if>

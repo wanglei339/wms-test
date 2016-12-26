@@ -45,23 +45,28 @@ public class SupplierBackRpcService implements ISupplierBackRpcService{
         Long orderId = backDetail.getOrderId();
         String detailOtherId = backDetail.getDetailOtherId();
         Long itemId = backDetail.getItemId();
-        //获取已有的退货详情
+
+        //获取该订单已有的退货详情
         Map<String,Object> params = new HashMap<String, Object>();
         params.put("orderId",orderId);
-        params.put("detailOtherId",detailOtherId);
-        params.put("itemId",itemId);
+        //params.put("detailOtherId",detailOtherId);
+        //params.put("itemId",itemId);
         params.put("isValid",1);
         List<SupplierBackDetail> detailList = supplierBackDetailService.getSupplierBackDetailList(params);
         //key: locationId value: backId
         Map<Long,Long> locationBackIdMap = new HashMap<Long, Long>();
         //key: locationId value: reqqty
         Map<Long,BigDecimal> locationReqqtyMap = new HashMap<Long, BigDecimal>();
+        //同一个订单退货使用相同的托盘码
         Long containerId = null;
         if(detailList != null && detailList.size() >0){
             for(SupplierBackDetail s : detailList){
-                locationBackIdMap.put(s.getLocationId(),s.getBackId());
-                locationReqqtyMap.put(s.getLocationId(),s.getReqQty());
+                if(s.getItemId().equals(itemId) && s.getDetailOtherId().equals(detailOtherId)) {
+                    locationBackIdMap.put(s.getLocationId(), s.getBackId());
+                    locationReqqtyMap.put(s.getLocationId(), s.getReqQty());
+                }
             }
+            //获取该订单对应的虚拟托盘ID
             containerId = detailList.get(0).getContainerId();
         }
 
@@ -69,8 +74,8 @@ public class SupplierBackRpcService implements ISupplierBackRpcService{
         List<SupplierBackDetail> addList = new ArrayList<SupplierBackDetail>();
         //更新列表
         List<SupplierBackDetail> updateList = new ArrayList<SupplierBackDetail>();
-        //同一个订单退货使用相同的托盘码
         if(containerId == null){
+            //生成新的托盘码
              containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
         }
 
