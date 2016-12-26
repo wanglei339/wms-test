@@ -26,6 +26,13 @@ public class SoConstant {
     public static final int DELIVERY_DETAIL_STATUS_FAILED = 1;
     public static final int DELIVERY_DETAIL_STATUS_SUCCESS = 2;
 
+    /**
+     * 订单状态 1正常 5 发货完成
+     */
+    public static final int ORDER_STATUS_NORMAL = 1;
+
+    public static final int ORDER_STATUS_FINISH = 5;
+
     //单子名称
     public static final Map<Integer, String> ORDER_TYPE_NAME_MAP = new HashMap<Integer, String>() {
         {

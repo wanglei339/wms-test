@@ -94,7 +94,7 @@ public class SoOrderService {
      */
     @Transactional(readOnly = false)
     public void update(ObdHeader obdHeader) {
-        obdHeader.setCreatedAt(null);
+        obdHeader.setUpdatedAt(DateUtils.getCurrentSeconds());
         obdHeaderDao.update(obdHeader);
     }
 
@@ -377,20 +377,18 @@ public class SoOrderService {
 
 
     @Transactional(readOnly = false)
-    public void confirmBack(List<WaveDetail> waveDetails ,List<TuDetail> tuDetails,TuHead tuHead,List<StockMove> moveList){
+    public void confirmBack(List<WaveDetail> waveDetails ,List<TuDetail> tuDetails,TuHead tuHead,List<StockMove> moveList,ObdHeader obdHeader){
         //先将托盘都move到同一个托盘上
         moveService.move(moveList);
-
-
         //gen waveDetail
         for (WaveDetail waveDetail : waveDetails) {
             waveService.insertDetail(waveDetail);
         }
-        //
-
         //生成obd moveStockQuant
         tuService.createObdAndMoveStockQuant(tuHead,tuDetails);
 
+        //退货成功修改订单状态
+        this.update(obdHeader);
     }
 
 
