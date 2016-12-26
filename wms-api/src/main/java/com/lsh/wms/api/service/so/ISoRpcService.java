@@ -30,4 +30,5 @@ public interface ISoRpcService {
 
     void eliminateDiff(Long orderId) throws BizCheckedException;
 
+    void confirmBack(Long orderId,Long uid) throws BizCheckedException;
 }

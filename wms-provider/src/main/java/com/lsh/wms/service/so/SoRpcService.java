@@ -18,6 +18,7 @@ import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.so.SoDeliveryService;
 import com.lsh.wms.core.service.so.SoOrderService;
+import com.lsh.wms.core.service.so.SupplierBackDetailService;
 import com.lsh.wms.core.service.stock.StockMoveService;
 import com.lsh.wms.core.service.stock.StockSummaryService;
 import com.lsh.wms.core.service.utils.IdGenerator;
@@ -25,7 +26,10 @@ import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.csi.CsiOwner;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.ObdHeader;
+import com.lsh.wms.model.so.SupplierBackDetail;
 import com.lsh.wms.model.stock.StockMove;
+import com.lsh.wms.model.tu.TuDetail;
+import com.lsh.wms.model.tu.TuHead;
 import com.lsh.wms.model.wave.WaveDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +73,9 @@ public class SoRpcService implements ISoRpcService {
     private LocationService locationService;
     @Autowired
     private SoDeliveryService soDeliveryService;
+
+    @Autowired
+    private SupplierBackDetailService supplierBackDetailService;
 
     public Long insertOrder(SoRequest request) throws BizCheckedException {
         //OutbSoHeader
@@ -261,5 +268,37 @@ public class SoRpcService implements ISoRpcService {
         // 关闭订单
         header.setIsClosed(1L);
         soOrderService.update(header);
+    }
+
+    public void confirmBack(Long orderId ,Long uid) throws BizCheckedException {
+
+        //查询有效的单据。
+        List<SupplierBackDetail> supplierBackDetails = supplierBackDetailService.getSupplierBackDetailByOrderId(orderId);
+        if(supplierBackDetails == null || supplierBackDetails.size() <= 0 ){
+            throw new BizCheckedException("2991111");
+        }
+        //生成wave_detail数据
+        List<WaveDetail> waveDetails = new ArrayList<WaveDetail>();
+        //虚拟tuDetailList.
+        List<TuDetail> tuDetails = new ArrayList<TuDetail>();
+        //同一个containerId 生成一个tudetail。
+        TuDetail tuDetail = new TuDetail();
+        tuDetail.setMergedContainerId(supplierBackDetails.get(0).getContainerId());
+        for(SupplierBackDetail supplierBackDetail : supplierBackDetails){
+            WaveDetail waveDetail = new WaveDetail();
+            ObjUtils.bean2bean(supplierBackDetail,waveDetail);
+            waveDetail.setQcQty(supplierBackDetail.getReqQty());
+            waveDetails.add(waveDetail);
+        }
+        //虚拟tu
+        TuHead tuHead = new TuHead();
+        tuHead.setTuId("");
+        tuHead.setLoadUid(uid);
+
+        soOrderService.confirmBack(waveDetails,tuDetails,tuHead);
+
+
+
+
     }
 }
