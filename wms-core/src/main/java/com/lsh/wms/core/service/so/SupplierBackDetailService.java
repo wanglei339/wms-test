@@ -8,12 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-<<<<<<< HEAD
-import java.math.BigDecimal;
-=======
 import java.util.ArrayList;
 import java.util.HashMap;
->>>>>>> 1ae4c2fe859fe4260248d33f07521003677dfa42
 import java.util.List;
 import java.util.Map;
 
