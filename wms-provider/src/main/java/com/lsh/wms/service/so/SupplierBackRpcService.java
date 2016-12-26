@@ -54,20 +54,25 @@ public class SupplierBackRpcService implements ISupplierBackRpcService{
         List<SupplierBackDetail> detailList = supplierBackDetailService.getSupplierBackDetailList(params);
         //key: locationId value: backId
         Map<Long,Long> locationBackIdMap = new HashMap<Long, Long>();
+        //key: locationId value: reqqty
         Map<Long,BigDecimal> locationReqqtyMap = new HashMap<Long, BigDecimal>();
-
+        Long containerId = null;
         if(detailList != null && detailList.size() >0){
             for(SupplierBackDetail s : detailList){
                 locationBackIdMap.put(s.getLocationId(),s.getBackId());
                 locationReqqtyMap.put(s.getLocationId(),s.getReqQty());
             }
+            containerId = detailList.get(0).getContainerId();
         }
 
         //新增列表
         List<SupplierBackDetail> addList = new ArrayList<SupplierBackDetail>();
         //更新列表
         List<SupplierBackDetail> updateList = new ArrayList<SupplierBackDetail>();
-        Long containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
+        //同一个订单退货使用相同的托盘码
+        if(containerId == null){
+             containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
+        }
 
         ObdDetail obdDetail = soOrderService.getObdDetailByOrderIdAndDetailOtherId(orderId,detailOtherId);
         BigDecimal inboundQty = obdDetail.getSowQty();//实际退货数
