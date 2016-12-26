@@ -502,7 +502,7 @@ public class LoadRfRestService implements ILoadRfRestService {
 
             expensiveInfo.put("containerCount", 1);
             expensiveInfo.put("isRest", qcInfo.getFinishTime() < DateUtils.getTodayBeginSeconds()); //小于今天最早的时间
-            expensiveInfo.put("boxNum", qcInfo.getTaskPackQty());
+            expensiveInfo.put("boxNum", qcInfo.getExt4());      //箱数
             expensiveInfo.put("turnoverBoxNum", qcInfo.getExt3());      //周转箱
             expensiveInfo.put("taskBoardQty", 0);                   //板数算为0
             expensiveInfo.put("storeNo", tempMap.get("customerCode").toString());
