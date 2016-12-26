@@ -2,14 +2,15 @@ package com.lsh.wms.service.so;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
-import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.DateUtils;
-import com.lsh.base.common.utils.ObjUtils;
-import com.lsh.wms.api.model.po.ReceiptRequest;
+import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.so.ISupplierBackRpcService;
+import com.lsh.wms.core.constant.ContainerConstant;
+import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.so.SupplierBackDetailService;
 import com.lsh.wms.model.so.SupplierBackDetail;
-import com.lsh.wms.model.so.SupplierBackDetailRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -23,18 +24,26 @@ import java.util.Map;
 public class SupplierBackRpcService implements ISupplierBackRpcService{
     @Autowired
     private SupplierBackDetailService supplierBackDetailService;
+    @Autowired
+    private ContainerService containerService;
+
+
+    private static Logger logger = LoggerFactory.getLogger(SupplierBackRpcService.class);
 
     public List<SupplierBackDetail> getSupplierBackDetailList(Map<String,Object> params)throws BizCheckedException {
         return supplierBackDetailService.getSupplierBackDetailList(params);
     }
 
-    public void batchInsertDetail(List<SupplierBackDetailRequest> requestList)throws BizCheckedException {
+    public void batchInsertDetail(List<SupplierBackDetail> requestList)throws BizCheckedException {
         List<SupplierBackDetail> list = new ArrayList<SupplierBackDetail>();
-        for(SupplierBackDetailRequest request :requestList){
-            SupplierBackDetail supplierBackDetail = new SupplierBackDetail();
-            ObjUtils.bean2bean(request, supplierBackDetail);
+        Long containerId = containerService.createContainerByType(ContainerConstant.PALLET).getContainerId();
+        for(SupplierBackDetail supplierBackDetail :requestList){
+            Long backId = RandomUtils.genId();
+            supplierBackDetail.setContainerId(containerId);
+            supplierBackDetail.setBackId(backId);
             supplierBackDetail.setCreatedAt(DateUtils.getCurrentSeconds());
-
+            supplierBackDetail.setUpdatedAt(0L);
+            list.add(supplierBackDetail);
         }
         supplierBackDetailService.batchInsertOrder(list);
     }
