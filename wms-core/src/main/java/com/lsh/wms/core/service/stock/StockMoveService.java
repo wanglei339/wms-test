@@ -7,6 +7,7 @@ import com.lsh.base.common.utils.DateUtils;
 import com.lsh.wms.core.constant.*;
 import com.lsh.wms.core.dao.stock.StockMoveDao;
 import com.lsh.wms.core.dao.stock.StockQuantMoveRelDao;
+import com.lsh.wms.core.service.item.ItemService;
 import com.lsh.wms.core.service.location.LocationService;
 import com.lsh.wms.core.service.persistence.PersistenceProxy;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
@@ -31,6 +32,9 @@ import java.util.*;
 public class StockMoveService {
 
     private static final Logger logger = LoggerFactory.getLogger(StockMoveService.class);
+
+    @Autowired
+    private ItemService itemService;
 
     @Autowired
     private StockMoveDao moveDao;
@@ -121,6 +125,8 @@ public class StockMoveService {
 
     @Transactional(readOnly = false)
     public void move(List<StockMove> moveList) throws BizCheckedException {
+        HashMap<Long, Long> mapContainer2Owner = new HashMap<Long, Long>();
+
         // 按照itemId排序，避免死锁
         Collections.sort(moveList, new Comparator<StockMove>() {
             public int compare(StockMove o1, StockMove o2) {
@@ -128,6 +134,20 @@ public class StockMoveService {
             }
         });
         for (StockMove move : moveList) {
+            if (move.getOwnerId().equals(0L)) {
+                BaseinfoItem item = itemService.getItem(move.getItemId());
+                if (item == null) {
+                    throw new BizCheckedException("2900001");
+                }
+                move.setOwnerId(item.getOwnerId());
+            }
+            if (mapContainer2Owner.get(move.getToContainerId()) == null) {
+                mapContainer2Owner.put(move.getToContainerId(), move.getOwnerId());
+            }
+            if ( ! (move.getToContainerId().equals(0L)) && ! mapContainer2Owner.get(move.getToContainerId()).equals(move.getOwnerId())) {
+                // 不能将不同货主的货放到同一个托盘上
+                throw new BizCheckedException("2900000");
+            }
             if (move.getQty().compareTo(BigDecimal.ZERO) <= 0) {
                 throw new BizCheckedException("1550001");
             }

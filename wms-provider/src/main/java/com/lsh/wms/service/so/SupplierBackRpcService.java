@@ -83,6 +83,9 @@ public class SupplierBackRpcService implements ISupplierBackRpcService{
         BigDecimal inboundQty = obdDetail.getSowQty();//实际退货数
 
         for(SupplierBackDetail supplierBackDetail :requestList){
+            if(supplierBackDetail.getAllocQty().compareTo(supplierBackDetail.getReqQty()) == -1){
+                throw new BizCheckedException("2901001");//退货数超过库存数
+            }
             if(locationBackIdMap.get(supplierBackDetail.getLocationId()) != null){
                 supplierBackDetail.setBackId(locationBackIdMap.get(supplierBackDetail.getLocationId()));
                 supplierBackDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
@@ -137,6 +140,9 @@ public class SupplierBackRpcService implements ISupplierBackRpcService{
                     continue;
                 }
                 if(requestDetail.getReqQty() != null){
+                    if(s.getAllocQty().compareTo(requestDetail.getReqQty()) == -1){
+                        throw new BizCheckedException("2901001");//退货数超过库存数
+                    }
                     //更新  总数 = 实收总数 + 更新量即(该记录本次退货数 - 该记录之前退货数)
                     inboundQty = inboundQty.add(requestDetail.getReqQty()).subtract(s.getReqQty());
                     continue;
@@ -144,7 +150,7 @@ public class SupplierBackRpcService implements ISupplierBackRpcService{
             }
         }
         if(obdDetail.getOrderQty().compareTo(inboundQty) == -1){
-            throw new BizCheckedException("");//退货数超过订货数
+            throw new BizCheckedException("2901000");//退货数超过订货数
         }
         obdDetail.setSowQty(inboundQty);
         supplierBackDetailService.update(requestDetail,obdDetail);

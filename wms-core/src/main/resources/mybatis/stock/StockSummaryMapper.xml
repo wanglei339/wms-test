@@ -36,10 +36,8 @@
         <if test="itemId != null">item_id,</if>
         <if test="skuCode != null">sku_code,</if>
         <if test="ownerId != null">owner_id,</if>
-        inhouse_qty,
         <if test="allocQty != null">alloc_qty,</if>
         <if test="presaleQty != null">presale_qty,</if>
-		avail_qty,
 		<if test="inventoryLossQty != null">inventory_loss_qty,</if>
         <if test="shelfQty != null">shelf_qty,</if>
         <if test="splitQty != null">split_qty,</if>
@@ -56,6 +54,8 @@
         <if test="diffQty != null">diff_qty,</if>
         <if test="createdAt != null">created_at,</if>
         <if test="updatedAt != null">updated_at,</if>
+		inhouse_qty,
+		avail_qty
         </trim>
     	values
     	<trim prefix="(" suffixOverrides="," suffix=")">
@@ -63,10 +63,8 @@
         <if test="itemId != null">#{itemId},</if>
         <if test="skuCode != null">#{skuCode},</if>
         <if test="ownerId != null">#{ownerId},</if>
-		shelf_qty + split_qty + attic_qty + floor_qty +  collection_qty + dock_qty + sow_qty,
         <if test="allocQty != null">#{allocQty},</if>
         <if test="presaleQty != null">#{presaleQty},</if>
-		shelf_qty + split_qty + attic_qty + floor_qty + collection_qty + dock_qty + sow_qty - alloc_qty - presale_qty,
         <if test="inventoryLossQty != null">#{inventoryLossQty},</if>
         <if test="shelfQty != null">#{shelfQty},</if>
         <if test="splitQty != null">#{splitQty},</if>
@@ -83,6 +81,8 @@
         <if test="diffQty != null">#{diffQty},</if>
         <if test="createdAt != null">#{createdAt},</if>
         <if test="updatedAt != null">#{updatedAt},</if>
+		shelf_qty + split_qty + attic_qty + floor_qty +  collection_qty + dock_qty + sow_qty,
+		shelf_qty + split_qty + attic_qty + floor_qty + collection_qty + dock_qty + sow_qty - alloc_qty - presale_qty
 		</trim>
 		ON DUPLICATE KEY UPDATE
 		alloc_qty = alloc_qty + values(alloc_qty),
