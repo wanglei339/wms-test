@@ -406,7 +406,7 @@ public class TuRpcService implements ITuRpcService {
         Long turnoverBoxNum = 0L;
         Set<Long> containerSet = new HashSet<Long>();   //可以是板子也可以是托盘
         for (TaskInfo taskinfo : taskInfos) {
-            BigDecimal one = taskinfo.getTaskPackQty(); //总箱数
+            BigDecimal one = new BigDecimal(taskinfo.getExt4()); //总箱数(不包含周转箱)
             turnoverBoxNum += taskinfo.getExt3();    //总周转周转箱
             allboxNum = allboxNum.add(one);   //总箱子
             containerSet.add(taskinfo.getMergedContainerId());
