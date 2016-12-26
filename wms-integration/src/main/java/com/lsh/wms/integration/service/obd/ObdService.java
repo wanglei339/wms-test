@@ -163,6 +163,8 @@ public class ObdService implements IObdService{
         List<ObdHeader> lists = soOrderService.getOutbSoHeaderList(mapQuery);
         if(lists.size() > 0){
             //throw new BizCheckedException("2020099",orderOtherId,"");
+            List<ObdDetail> soDetails = soOrderService.getOutbSoDetailListByOrderId(lists.get(0).getOrderId());
+            lists.get(0).setOrderDetails(soDetails);
             return ResUtils.getResponse(ResponseConstant.RES_CODE_1, ResponseConstant.RES_MSG_OK, lists.get(0));
         }
         //添加waveOrderType
