@@ -272,6 +272,12 @@ public class SoRpcService implements ISoRpcService {
 
     public void confirmBack(Long orderId ,Long uid) throws BizCheckedException {
 
+        ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
+        if (obdHeader.getOrderStatus() == SoConstant.ORDER_STATUS_FINISH){
+            throw new BizCheckedException("2991112");
+        }
+        obdHeader.setOrderStatus(SoConstant.ORDER_STATUS_FINISH);
+
         //查询有效的单据。
         List<SupplierBackDetail> supplierBackDetails = supplierBackDetailService.getSupplierBackDetailByOrderId(orderId);
         if(supplierBackDetails == null || supplierBackDetails.size() <= 0 ){
@@ -313,7 +319,7 @@ public class SoRpcService implements ISoRpcService {
         tuHead.setTuId("");
         tuHead.setLoadUid(uid);
 
-        soOrderService.confirmBack(waveDetails,tuDetails,tuHead,moveList);
+        soOrderService.confirmBack(waveDetails,tuDetails,tuHead,moveList,obdHeader);
 
 
 
