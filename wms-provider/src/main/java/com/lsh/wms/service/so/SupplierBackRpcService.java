@@ -120,11 +120,11 @@ public class SupplierBackRpcService implements ISupplierBackRpcService{
                     inboundQty = inboundQty.add(requestDetail.getReqQty());
                     continue;
                 }
-            }
-            if(s.getIsValid() == 1){
-                //有效记录
-                inboundQty = inboundQty.add(s.getReqQty());
-            }
+            }else if(s.getIsValid() == 1){
+                    //有效记录
+                    inboundQty = inboundQty.add(s.getReqQty());
+                }
+
         }
         if(obdDetail.getOrderQty().compareTo(inboundQty) == -1){
             throw new BizCheckedException("");//退货数超过订货数
