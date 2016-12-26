@@ -3,6 +3,7 @@ package com.lsh.wms.api.service.back;
 
 import com.lsh.wms.api.model.po.IbdBackRequest;
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
+import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.model.baseinfo.BaseinfoItem;
 import com.lsh.wms.model.stock.OverLossReport;
 import com.lsh.wms.model.system.SysLog;
@@ -17,4 +18,6 @@ public interface IDataBackService {
     Boolean erpDataBack(CreateIbdHeader createIbdHeader,SysLog sysLog);
     Boolean erpOvLosserBack(OverLossReport overLossReport,SysLog sysLog);
     Boolean erpBackCommodityData(BaseinfoItem baseinfoItem,SysLog sysLog);
+
+    Boolean obd2Erp(CreateObdHeader createObdHeader,SysLog sysLog);
 }
