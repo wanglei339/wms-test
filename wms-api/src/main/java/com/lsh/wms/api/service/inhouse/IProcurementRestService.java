@@ -17,5 +17,6 @@ public interface IProcurementRestService {
     public String loginToZone() throws BizCheckedException;
     public String logoutFromZone() throws BizCheckedException;
     String assign() throws BizCheckedException;
+    String bindTask() throws BizCheckedException;
     String getZoneTaskList() throws BizCheckedException;
 }
