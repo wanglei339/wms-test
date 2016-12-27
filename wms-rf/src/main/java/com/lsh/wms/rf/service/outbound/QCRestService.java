@@ -145,6 +145,8 @@ public class QCRestService implements IRFQCRestService {
         //merge item_id 2 pick  qty
         Map<Long, BigDecimal> mapItem2PickQty = new HashMap<Long, BigDecimal>();
         Map<Long, WaveDetail> mapItem2WaveDetail = new HashMap<Long, WaveDetail>();
+        //qc完成后的回显示qc的数量的接口
+        Map<Long, BigDecimal> mapItem2QCQty = new HashMap<Long, BigDecimal>();
         //计算是拣货量,还是其他货量
         TaskInfo beforeTask = iTaskRpcService.getTaskInfo(qcTaskInfo.getQcPreviousTaskId());    //qc前一个任务量
         boolean isFirstQC = false;  //是否是第一次QC
@@ -155,8 +157,10 @@ public class QCRestService implements IRFQCRestService {
             }
             if (mapItem2PickQty.get(d.getItemId()) == null) {
                 mapItem2PickQty.put(d.getItemId(), new BigDecimal(d.getPickQty().toString()));
+                mapItem2QCQty.put(d.getItemId(), new BigDecimal(d.getQcQty().toString()));
             } else {
                 mapItem2PickQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getPickQty()));
+                mapItem2QCQty.put(d.getItemId(), mapItem2PickQty.get(d.getItemId()).add(d.getQcQty()));
             }
             //如果同种商品,同种货物的出货的包装单位不同,按照EA算
             if (mapItem2WaveDetail.get(d.getItemId()) != null) {
@@ -195,8 +199,15 @@ public class QCRestService implements IRFQCRestService {
             //显示六位吗
             detail.put("skuCode", item.getSkuCode());
 
-
+            //加入qc的状态
+            detail.put("qcDone", waveDetail.getQcExceptionDone() != WaveConstant.QC_EXCEPTION_STATUS_UNDO);  //qc任务未处理的的判断  那种商品做,哪种商品没做
+            //总数量
             BigDecimal uomQty = PackUtil.EAQty2UomQty(mapItem2PickQty.get(itemId), waveDetail.getAllocUnitName());
+            //qc组盘完成
+            if (TaskConstant.Done.equals(qcTaskInfo.getStatus())){
+                uomQty = PackUtil.EAQty2UomQty(mapItem2QCQty.get(itemId), waveDetail.getAllocUnitName());
+            }
+
             if (waveDetail.getAllocUnitName().compareTo("EA") == 0) {
                 hasEA = true;
             } else {
@@ -208,8 +219,7 @@ public class QCRestService implements IRFQCRestService {
             //TODO packName
             detail.put("itemName", item.getSkuName());
             detail.put("isFristTime", waveDetail.getQcTimes() == WaveConstant.QC_TIMES_FIRST);
-            //加入qc的状态
-            detail.put("qcDone", waveDetail.getQcExceptionDone() != WaveConstant.QC_EXCEPTION_STATUS_UNDO);  //qc任务未处理的的判断  那种商品做,哪种商品没做
+
 
             //判断是第几次的QC,只有QC过一遍,再次QC都是复核QC
             detail.put("qcTimes", waveDetail.getQcTimes());
