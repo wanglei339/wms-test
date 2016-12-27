@@ -65,6 +65,8 @@ public class TransporterManager {
     private MovingTransporter movingTransporter;
     @Autowired
     private StockTakingService stockTakingService;
+    @Autowired
+    private Obd2ErpTransporter obd2ErpTransporter;
 
 
     //@Autowired
@@ -95,11 +97,10 @@ public class TransporterManager {
                     }
                 }else{
                     if(obdHeader.getOrderType() == SoConstant.ORDER_TYPE_PO_BACK){
-
+                        transporter = obd2ErpTransporter;
                     }else {
                         transporter = obdOfcTransporter;
                     }
-
                 }
                 break;
             case SysLogConstant.LOG_TYPE_IBD:
