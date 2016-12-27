@@ -156,7 +156,7 @@ public class ProcurementRpcService implements IProcurementRpcService{
         this.fillTransferPlan(plan);
 
         if ( plan.getQty().compareTo(total) > 0) { // 移库要求的数量超出实际库存数量
-            throw new BizCheckedException("2550008");
+            throw new BizCheckedException("2550008",condition.getItemId(),condition.getLocationId());
         }
         List<StockQuant> quantList = stockQuantService.getQuantList(condition);
         Long containerId = quantList.get(0).getContainerId();
