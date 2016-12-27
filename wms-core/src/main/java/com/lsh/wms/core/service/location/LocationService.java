@@ -695,6 +695,19 @@ public class LocationService {
             return null;
         }
     }
+    /**
+     * 获取暂存区
+     *
+     * @return
+     */
+    public BaseinfoLocation getTemporaryArea() {
+        List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.TEMPORARY);
+        if (locations != null && locations.size() > 0) {
+            return locations.get(0);
+        } else {
+            return null;
+        }
+    }
 
     /**
      * 分配可用可用location

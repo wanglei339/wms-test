@@ -20,5 +20,7 @@ public interface InbReceiptDetailDao {
     Integer countInbReceiptDetail(Map<String, Object> params);
 
     List<InbReceiptDetail> getInbReceiptDetailList(Map<String, Object> params);
+
+	List<Long> getInbReceiptIds(Map<String, Object> params);
 	
 }

@@ -111,7 +111,16 @@
 		limit #{start},#{limit}
 		</if>
 	</select>
-  
+
+	<select id="getInbReceiptIds" parameterType="map" resultType="long">
+		select distinct(RECEIPT_ORDER_ID) from INB_RECEIPT_DETAIL
+		<include refid="queryCondition"/>
+		ORDER BY  inserttime DESC
+		<if test="start != null and limit != null">
+			limit #{start},#{limit}
+		</if>
+	</select>
+
 	<sql id="queryCondition">
 		<where>
 			<if test="id != null">ID=#{id}</if>
