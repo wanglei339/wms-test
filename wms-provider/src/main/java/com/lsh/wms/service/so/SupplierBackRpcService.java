@@ -11,6 +11,7 @@ import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.so.SupplierBackDetailService;
+import com.lsh.wms.core.service.utils.PackUtil;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.SupplierBackDetail;
 import com.lsh.wms.model.stock.StockQuant;
@@ -125,7 +126,9 @@ public class SupplierBackRpcService implements ISupplierBackRpcService{
         }
 
         obdDetail.setSowQty(inboundQty);
-        if(obdDetail.getOrderQty().compareTo(inboundQty) == -1){
+        //订货ea数
+        BigDecimal orderUnitQty = PackUtil.UomQty2EAQty(obdDetail.getOrderQty(),obdDetail.getPackUnit());
+        if(orderUnitQty.compareTo(inboundQty) == -1){
             throw new BizCheckedException("2901000");//退货数超过订货数
         }
         supplierBackDetailService.batchInsertOrder(addList,updateList,obdDetail);
@@ -167,7 +170,9 @@ public class SupplierBackRpcService implements ISupplierBackRpcService{
         }
 
         requestDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
-        if(obdDetail.getOrderQty().compareTo(inboundQty) == -1){
+        //订货ea数
+        BigDecimal orderUnitQty = PackUtil.UomQty2EAQty(obdDetail.getOrderQty(),obdDetail.getPackUnit());
+        if(orderUnitQty.compareTo(inboundQty) == -1){
             throw new BizCheckedException("2901000");//退货总数已超出
         }
         obdDetail.setSowQty(inboundQty);
