@@ -233,7 +233,7 @@ public class StockQuantService {
             }
         }
         if (qtyDone.compareTo(BigDecimal.ZERO) > 0) {
-            throw new BizCheckedException("2550008");
+            throw new BizCheckedException("2550008",move.getItemId(),move.getFromLocationId());
         }
         this.updateLocationStatus(move.getFromLocationId());
         this.updateLocationStatus(move.getToLocationId());
