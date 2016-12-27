@@ -272,6 +272,12 @@ public class SoRpcService implements ISoRpcService {
 
     public void confirmBack(Long orderId ,Long uid) throws BizCheckedException {
 
+        ObdHeader obdHeader = soOrderService.getOutbSoHeaderByOrderId(orderId);
+        if (obdHeader.getOrderStatus() == SoConstant.ORDER_STATUS_FINISH){
+            throw new BizCheckedException("2991112");
+        }
+        obdHeader.setOrderStatus(SoConstant.ORDER_STATUS_FINISH);
+
         //查询有效的单据。
         List<SupplierBackDetail> supplierBackDetails = supplierBackDetailService.getSupplierBackDetailByOrderId(orderId);
         if(supplierBackDetails == null || supplierBackDetails.size() <= 0 ){
@@ -284,18 +290,36 @@ public class SoRpcService implements ISoRpcService {
         //同一个containerId 生成一个tudetail。
         TuDetail tuDetail = new TuDetail();
         tuDetail.setMergedContainerId(supplierBackDetails.get(0).getContainerId());
+        tuDetail.setBoxNum(BigDecimal.ZERO);
+        tuDetail.setTurnoverBoxNum(0l);
+        tuDetails.add(tuDetail);
+        //move到同一个托盘上
+        List<StockMove> moveList = new ArrayList<StockMove>();
         for(SupplierBackDetail supplierBackDetail : supplierBackDetails){
             WaveDetail waveDetail = new WaveDetail();
             ObjUtils.bean2bean(supplierBackDetail,waveDetail);
             waveDetail.setQcQty(supplierBackDetail.getReqQty());
             waveDetails.add(waveDetail);
+
+            StockMove move = new StockMove();
+            move.setToContainerId(supplierBackDetail.getContainerId());
+            move.setFromContainerId(supplierBackDetail.getRealContainerId());
+            move.setFromLocationId(supplierBackDetail.getLocationId());
+            move.setToLocationId(locationService.getBackLocation().getLocationId());
+            move.setTaskId(orderId);
+            move.setOperator(uid);
+            move.setItemId(supplierBackDetail.getItemId());
+            move.setOwnerId(supplierBackDetail.getOwnerId());
+            move.setQty(supplierBackDetail.getReqQty());
+            move.setSkuId(supplierBackDetail.getSkuId());
+            moveList.add(move);
         }
         //虚拟tu
         TuHead tuHead = new TuHead();
         tuHead.setTuId("");
         tuHead.setLoadUid(uid);
 
-        soOrderService.confirmBack(waveDetails,tuDetails,tuHead);
+        soOrderService.confirmBack(waveDetails,tuDetails,tuHead,moveList,obdHeader);
 
 
 

@@ -94,7 +94,12 @@ public class TransporterManager {
                         }
                     }
                 }else{
-                    transporter = obdOfcTransporter;
+                    if(obdHeader.getOrderType() == SoConstant.ORDER_TYPE_PO_BACK){
+
+                    }else {
+                        transporter = obdOfcTransporter;
+                    }
+
                 }
                 break;
             case SysLogConstant.LOG_TYPE_IBD:

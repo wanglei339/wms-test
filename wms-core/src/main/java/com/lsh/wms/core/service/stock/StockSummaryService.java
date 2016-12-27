@@ -81,7 +81,7 @@ public class StockSummaryService {
         Map<String, Object> mapQuery = new HashMap<String, Object>();
         mapQuery.put("ownerId", ownerId);
         mapQuery.put("skuCodeList", skuCodeList);
-        logger.error(mapQuery.toString());
+        logger.debug(mapQuery.toString());
         return stockSummaryDao.getStockSummaryList(mapQuery);
     }
 

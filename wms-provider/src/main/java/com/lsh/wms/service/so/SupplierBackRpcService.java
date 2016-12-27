@@ -1,16 +1,19 @@
 package com.lsh.wms.service.so;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.lsh.base.common.exception.BizCheckedException;
 import com.lsh.base.common.utils.DateUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.api.service.so.ISupplierBackRpcService;
+import com.lsh.wms.api.service.stock.IStockQuantRpcService;
 import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.service.container.ContainerService;
 import com.lsh.wms.core.service.so.SoOrderService;
 import com.lsh.wms.core.service.so.SupplierBackDetailService;
 import com.lsh.wms.model.so.ObdDetail;
 import com.lsh.wms.model.so.SupplierBackDetail;
+import com.lsh.wms.model.stock.StockQuant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +35,8 @@ public class SupplierBackRpcService implements ISupplierBackRpcService{
     private ContainerService containerService;
     @Autowired
     private SoOrderService soOrderService;
+    @Reference
+    private IStockQuantRpcService iStockQuantRpcService;
 
 
     private static Logger logger = LoggerFactory.getLogger(SupplierBackRpcService.class);
@@ -83,6 +88,9 @@ public class SupplierBackRpcService implements ISupplierBackRpcService{
         BigDecimal inboundQty = obdDetail.getSowQty();//实际退货数
 
         for(SupplierBackDetail supplierBackDetail :requestList){
+            if(supplierBackDetail.getAllocQty().compareTo(supplierBackDetail.getReqQty()) == -1){
+                throw new BizCheckedException("2901001");//退货数超过库存数
+            }
             if(locationBackIdMap.get(supplierBackDetail.getLocationId()) != null){
                 supplierBackDetail.setBackId(locationBackIdMap.get(supplierBackDetail.getLocationId()));
                 supplierBackDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
@@ -105,7 +113,7 @@ public class SupplierBackRpcService implements ISupplierBackRpcService{
 
         obdDetail.setSowQty(inboundQty);
         if(obdDetail.getOrderQty().compareTo(inboundQty) == -1){
-            throw new BizCheckedException("");//退货数超过订货数
+            throw new BizCheckedException("2901000");//退货数超过订货数
         }
         supplierBackDetailService.batchInsertOrder(addList,updateList,obdDetail);
     }
@@ -116,35 +124,39 @@ public class SupplierBackRpcService implements ISupplierBackRpcService{
         Map<String,Object> paramsMap = new HashMap<String, Object>();
         paramsMap.put("backId",backId);
         List<SupplierBackDetail> backlist = supplierBackDetailService.getSupplierBackDetailList(paramsMap);
-        SupplierBackDetail detail = backlist.get(0);
+        SupplierBackDetail backdetail = backlist.get(0);
 
-        Long orderId = detail.getOrderId();
-        String detailOtherId = detail.getDetailOtherId();
+        Long orderId = backdetail.getOrderId();
+        String detailOtherId = backdetail.getDetailOtherId();
+        Long itemId = backdetail.getItemId();
+        Long locationId = backdetail.getLocationId();
         ObdDetail obdDetail = soOrderService.getObdDetailByOrderIdAndDetailOtherId(orderId,detailOtherId);
 
-        Map<String,Object> params = new HashMap<String, Object>();
-        params.put("orderId",orderId);
-        params.put("detailOtherId",detailOtherId);
-        params.put("isValid",1);
-        List<SupplierBackDetail> list = supplierBackDetailService.getSupplierBackDetailList(params);
+        Map<String,Object> locationMap = new HashMap<String, Object>();
+        locationMap.put("itemId",itemId);
+        locationMap.put("locationId",locationId);
+        //获取商品该库位的库存
+        List<StockQuant> quantList = iStockQuantRpcService.getItemLocationList(locationMap);
+        if(quantList == null || quantList.size() > 1){
+            logger.error("getItemLocationList获取指定商品指定位置的库存信息异常:"+"[itemId]"+itemId + "[locationId]"+locationId);
+            throw new BizCheckedException("2901002");//退货商品库存信息异常
+        }
         BigDecimal inboundQty = obdDetail.getSowQty();//实际退货数
         //计算实际退货数
-        for(SupplierBackDetail s : list){
-            if(s.getBackId().equals(backId)){
-                if(requestDetail.getIsValid() != null && requestDetail.getIsValid() == 0){
-                    //删除记录
-                    inboundQty = inboundQty.subtract(s.getReqQty());
-                    continue;
-                }
-                if(requestDetail.getReqQty() != null){
-                    //更新  总数 = 实收总数 + 更新量即(该记录本次退货数 - 该记录之前退货数)
-                    inboundQty = inboundQty.add(requestDetail.getReqQty()).subtract(s.getReqQty());
-                    continue;
-                }
+        if(requestDetail.getIsValid() != null && requestDetail.getIsValid() == 0){
+            //删除记录
+            inboundQty = inboundQty.subtract(backdetail.getReqQty());
+        }else if(requestDetail.getReqQty() != null){
+            //更新记录
+            if(quantList.get(0).getQty().compareTo(requestDetail.getReqQty()) == -1){
+                throw new BizCheckedException("2901001");//退货数超过库存数
             }
+            // 总数 = 实收总数 + 更新量即(该记录本次退货数 - 该记录之前退货数)
+            inboundQty = inboundQty.add(requestDetail.getReqQty()).subtract(backdetail.getReqQty());
         }
+        requestDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
         if(obdDetail.getOrderQty().compareTo(inboundQty) == -1){
-            throw new BizCheckedException("");//退货数超过订货数
+            throw new BizCheckedException("2901000");//退货数超过订货数
         }
         obdDetail.setSowQty(inboundQty);
         supplierBackDetailService.update(requestDetail,obdDetail);
