@@ -166,6 +166,12 @@ public class ReceiptRestService implements IReceiptRestService {
         receiptRpcService.modifyQty(receiptId,realQty,uid);
         return JsonUtils.SUCCESS();
     }
+    @POST
+    @Path("getInbReceiptIds")
+    public String getInbReceiptIds() throws BizCheckedException{
+        Map<String, Object> params = RequestUtils.getRequest();
+        return JsonUtils.SUCCESS(receiptRpcService.getInbReceiptIds(params));
+    }
 
 
 }
