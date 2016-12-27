@@ -114,7 +114,7 @@
 		<include refid="queryCondition"/>
 	</select>
 	<select id="getAllPrice" parameterType="map" resultType="double">
-		select sum(difference_price * theoretical_qty) from stock_taking_detail
+		select sum(price * theoretical_qty) from stock_taking_detail
 		<include refid="queryCondition"/>
 	</select>
   
