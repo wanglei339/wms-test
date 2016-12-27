@@ -523,6 +523,11 @@ public class ProcurementRestService implements IProcurementRestService {
                 if(!info.getOperator().equals(uid)){
                     return JsonUtils.TOKEN_ERROR("该任务已被人领取");
                 }
+                return JsonUtils.SUCCESS(new HashMap<String, Boolean>() {
+                    {
+                        put("response", true);
+                    }
+                });
             }
             if(info.getStatus().equals(1L)){
                 iTaskRpcService.assign(taskId,uid);
@@ -532,7 +537,7 @@ public class ProcurementRestService implements IProcurementRestService {
                     }
                 });
             }
-            return JsonUtils.TOKEN_ERROR("任务状态异常");
+            return JsonUtils.TOKEN_ERROR("任务已完成或已取消");
         }catch (BizCheckedException ex){
             throw ex;
         } catch (Exception e) {
