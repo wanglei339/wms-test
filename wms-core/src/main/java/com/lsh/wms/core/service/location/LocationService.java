@@ -683,6 +683,20 @@ public class LocationService {
 
 
     /**
+     * 获取集货区
+     *
+     * @return
+     */
+    public BaseinfoLocation getCollectionArea() {
+        List<BaseinfoLocation> locations = this.getLocationsByType(LocationConstant.COLLECTION_AREA);
+        if (locations != null && locations.size() > 0) {
+            return locations.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * 分配可用可用location
      *
      * @param type
