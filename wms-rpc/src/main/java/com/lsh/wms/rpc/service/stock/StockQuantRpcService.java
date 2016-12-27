@@ -262,6 +262,9 @@ public class StockQuantRpcService implements IStockQuantRpcService {
 
     public List<StockQuant> getItemLocationList(Map<String, Object> mapQuery) {
         setExcludeLocationList(mapQuery);
+        List<BaseinfoLocation> excludeLocationList = (List<BaseinfoLocation>)mapQuery.get("excludeLocationList");
+        excludeLocationList.add(locationService.getCollectionArea());//集货区
+        mapQuery.put("excludeLocationList", excludeLocationList);
         return quantService.getItemLocationList(mapQuery);
     }
     public Long getLotByReceiptContainerId(Long containerId) throws BizCheckedException {
