@@ -104,7 +104,7 @@ public class SupplierBackRpcService implements ISupplierBackRpcService{
             if(locationBackMap.get(supplierBackDetail.getLocationId()) != null){
                 //已有数据更新
                 SupplierBackDetail oldDetail = locationBackMap.get(supplierBackDetail.getLocationId());
-                supplierBackDetail.setBackId(oldDetail.getLocationId());
+                supplierBackDetail.setBackId(oldDetail.getBackId());
                 supplierBackDetail.setUpdatedAt(DateUtils.getCurrentSeconds());
 
                 updateList.add(supplierBackDetail);
