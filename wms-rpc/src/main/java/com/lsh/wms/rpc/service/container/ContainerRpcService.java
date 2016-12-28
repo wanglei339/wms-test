@@ -35,6 +35,9 @@ public class ContainerRpcService implements IContainerRpcService {
     public BaseinfoContainer createTray() {
         return containerService.createContainerByType(ContainerConstant.PALLET);
     }
+    public List<String> batchcreateContainer(Integer batchNumber){
+        return containerService.batchcreateContainerByType(ContainerConstant.PALLET,batchNumber);
+    }
 
     public BaseinfoContainer createTrolley() {
         return containerService.createContainerByType(ContainerConstant.CAGE);

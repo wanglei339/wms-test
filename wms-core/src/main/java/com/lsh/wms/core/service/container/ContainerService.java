@@ -2,6 +2,7 @@ package com.lsh.wms.core.service.container;
 
 import com.lsh.base.common.utils.BeanMapTransUtils;
 import com.lsh.base.common.utils.DateUtils;
+import com.lsh.base.common.utils.ObjUtils;
 import com.lsh.base.common.utils.RandomUtils;
 import com.lsh.wms.core.constant.ContainerConstant;
 import com.lsh.wms.core.dao.baseinfo.BaseinfoContainerDao;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +74,11 @@ public class ContainerService {
     }
 
     @Transactional(readOnly = false)
+    public void batchinsertContainer(List<BaseinfoContainer> containerList) {
+        containerDao.bachinsert(containerList);
+    }
+
+    @Transactional(readOnly = false)
     public void updateContainer(BaseinfoContainer container) {
         containerDao.update(container);
     }
@@ -91,6 +98,29 @@ public class ContainerService {
         container.setType(type);
         this.insertContainer(container);
         return container;
+    }
+    @Transactional(readOnly = false)
+    public List<String> batchcreateContainerByType(Long type,Integer batchNumber) {
+        Map<String, Object> config = ContainerConstant.containerConfigs.get(type);
+        if (config == null || config.isEmpty()) {
+            return null;
+        }
+        List<BaseinfoContainer> containerList = new ArrayList<BaseinfoContainer>();
+        List<String> containerIdList = new ArrayList<String>();
+
+        for(int i = 0;i < batchNumber;i++) {
+            BaseinfoContainer container = BeanMapTransUtils.map2Bean(config, BaseinfoContainer.class);
+            Long containerId = idGenerator.genId("containerCode", false, true);
+            containerIdList.add(containerId.toString());
+            container.setContainerId(containerId);
+            container.setContainerCode(container.getContainerId().toString());
+            container.setCreatedAt(DateUtils.getCurrentSeconds());
+            container.setUpdatedAt(DateUtils.getCurrentSeconds());
+            container.setType(type);
+            containerList.add(container);
+        }
+        this.batchinsertContainer(containerList);
+        return containerIdList;
     }
 
     /**

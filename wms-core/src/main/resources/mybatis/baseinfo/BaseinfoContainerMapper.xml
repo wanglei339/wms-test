@@ -29,6 +29,21 @@
     	)
 	</insert>
 
+	<insert id="bachinsert"  parameterType="java.util.List">
+		insert into baseinfo_container (
+		container_id,container_code,type,type_name,model,
+		capacity,load_capacity,status,description,created_at,
+		updated_at
+		)
+		values
+		<foreach collection="list" item="item" index="index" separator="," >
+			(#{item.containerId},#{item.containerCode},#{item.type},#{item.typeName},#{item.model},
+			#{item.capacity},#{item.loadCapacity},#{item.status},#{item.description},#{item.createdAt},
+			#{item.updatedAt})
+		</foreach>
+
+	</insert>
+
 	<update id="update" parameterType="BaseinfoContainer">
 		update baseinfo_container
     	<set>

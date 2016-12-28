@@ -10,6 +10,8 @@ import java.util.Map;
 public interface BaseinfoContainerDao {
 
 	void insert(BaseinfoContainer baseinfoContainer);
+
+	void bachinsert(List<BaseinfoContainer> baseinfoContainerList);
 	
 	void update(BaseinfoContainer baseinfoContainer);
 	
