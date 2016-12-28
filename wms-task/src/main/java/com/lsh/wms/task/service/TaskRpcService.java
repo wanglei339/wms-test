@@ -116,6 +116,10 @@ public class TaskRpcService implements ITaskRpcService {
     public TaskEntry getTaskEntryById(Long taskId) throws BizCheckedException{
         Long taskType = this.getTaskTypeById(taskId);
         TaskHandler taskHandler = handlerFactory.getTaskHandler(taskType);
+        if (taskHandler == null) {
+            logger.warn("no handler for task type " + taskType.toString());
+            throw new BizCheckedException("");
+        }
         return taskHandler.getTask(taskId);
     }
 
