@@ -142,7 +142,7 @@ public class ShipRestService implements IShipRestService {
         //通过合盘的托盘码聚合
         Map<Long, List<TaskInfo>> mergedQcListMap = new HashMap<Long, List<TaskInfo>>();
         //同一个mergeContainerId的qc的list
-        List<TaskInfo> qcInfoList = new ArrayList<TaskInfo>();
+        List<TaskInfo> qcInfoList = null;
         for (Long containerId : containterIds) {
             //判断是否组盘完成,先去listdetail总找组盘
             List<WaveDetail> waveDetails = waveService.getAliveDetailsByContainerId(containerId);
@@ -173,9 +173,9 @@ public class ShipRestService implements IShipRestService {
                     //聚类qc
                     if (!mergedQcListMap.containsKey(qcInfo.getMergedContainerId())) {
                         qcInfoList = new ArrayList<TaskInfo>();
-                    } else {
-                        qcInfoList = mergedQcListMap.get(qcInfo.getMergedContainerId());
+                        mergedQcListMap.put(qcInfo.getMergedContainerId(),qcInfoList);
                     }
+                    qcInfoList = mergedQcListMap.get(qcInfo.getMergedContainerId());
                     qcInfoList.add(qcInfo);
                     mergedQcListMap.put(qcInfo.getMergedContainerId(), qcInfoList);
                 }
@@ -206,21 +206,21 @@ public class ShipRestService implements IShipRestService {
         List<TuDetail> tuDetails = new ArrayList<TuDetail>();
         for (Long mergedContainerId : mergedQcListMap.keySet()) {
             List<TaskInfo> Infos = mergedQcListMap.get(mergedContainerId);
-            BigDecimal boxNum = BigDecimal.ZERO;
-            Long turnoverBoxNum = 0l;
+            long boxNum = 0L;
+            long turnoverBoxNum = 0l;
             TuDetail tuDetail = new TuDetail();
 
             //统计箱数,周转箱按照两个托盘中最大的周转箱中的来 FIXME
-            for (TaskInfo qcInfo : qcInfos) {
-                boxNum = boxNum.add(new BigDecimal(qcInfo.getExt4().toString()));    //箱数
-                if (turnoverBoxNum.compareTo(qcInfo.getExt3()) < 0) {
+            for (TaskInfo qcInfo : Infos) {
+                boxNum += qcInfo.getExt4();    //箱数
+                if (turnoverBoxNum < qcInfo.getExt3()) {
                     turnoverBoxNum = qcInfo.getExt3();
                 }
             }
 
             tuDetail.setTuId(tuHead.getTuId());
             tuDetail.setMergedContainerId(mergedContainerId);
-            tuDetail.setBoxNum(boxNum); //箱数
+            tuDetail.setBoxNum(new BigDecimal(boxNum)); //箱数
             tuDetail.setContainerNum(1);     //托盘数
             tuDetail.setTurnoverBoxNum(turnoverBoxNum); //周转箱数
             tuDetail.setBoardNum(1L); //一板多托数量

@@ -264,6 +264,7 @@ public class StockQuantRpcService implements IStockQuantRpcService {
         setExcludeLocationList(mapQuery);
         List<BaseinfoLocation> excludeLocationList = (List<BaseinfoLocation>)mapQuery.get("excludeLocationList");
         excludeLocationList.add(locationService.getCollectionArea());//集货区
+        excludeLocationList.add(locationService.getTemporaryArea());//暂存区
         mapQuery.put("excludeLocationList", excludeLocationList);
         return quantService.getItemLocationList(mapQuery);
     }

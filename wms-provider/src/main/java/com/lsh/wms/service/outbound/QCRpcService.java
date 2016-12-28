@@ -266,7 +266,7 @@ public class QCRpcService implements IQCRpcService {
             result.put("containerId", containerId);
             result.put("markContainerId", info.getContainerId());  //当前作为查找板子码标识的物理托盘码,随机选的
             result.put("containerCount", 1);
-            result.put("packCount", info.getTaskPackQty()); //总箱数
+            result.put("packCount", info.getExt4()); //总箱数
             result.put("turnoverBoxCount", info.getExt3()); //周转箱
             result.put("storeNo", storeNo);
 

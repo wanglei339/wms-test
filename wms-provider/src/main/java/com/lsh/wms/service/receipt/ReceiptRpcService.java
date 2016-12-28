@@ -1544,6 +1544,12 @@ public class ReceiptRpcService implements IReceiptRpcService {
 
 
     }
+    /**
+     * 根据条件获取receiptOrderId列表
+    */
+    public List<Long> getInbReceiptIds(Map<String, Object> params){
+        return poReceiptService.getInbReceiptIds(params);
+    }
 
 
 }

@@ -402,4 +402,12 @@ public class PoReceiptService {
         }
         modifyLogService.addModifyLog(modifyLog);
     }
+
+    /**
+     * 根据条件获取receiptOrderId列表
+     */
+    public List<Long> getInbReceiptIds(Map<String, Object> params){
+        return inbReceiptDetailDao.getInbReceiptIds(params);
+    }
+
 }

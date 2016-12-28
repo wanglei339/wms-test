@@ -58,4 +58,6 @@ public interface IReceiptRpcService {
     Map<String,Object> mergeIbdDetailList(List<IbdDetail> IbdDetailList,BigDecimal receiptEaQty);
 
     void modifyQty(Long receiptId,BigDecimal qty,Long uid) throws BizCheckedException;
+
+    List<Long> getInbReceiptIds(Map<String, Object> params);
 }

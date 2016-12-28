@@ -16,6 +16,7 @@ import com.lsh.wms.api.model.po.IbdBackRequest;
 import com.lsh.wms.api.model.po.IbdItem;
 import com.lsh.wms.api.model.wumart.CreateIbdDetail;
 import com.lsh.wms.api.model.wumart.CreateIbdHeader;
+import com.lsh.wms.api.model.wumart.CreateObdDetail;
 import com.lsh.wms.api.model.wumart.CreateObdHeader;
 import com.lsh.wms.api.service.back.IDataBackService;
 import com.lsh.wms.core.constant.IntegrationConstan;
@@ -321,29 +322,29 @@ public class DataBackService implements IDataBackService {
             }};
             logger.info("~~~~~~~~111111 url:" + PropertyUtils.getString("odoo_url"));
             //原订单ID
-//            Integer orderOtherId = Integer.valueOf(createIbdHeader.getItems().get(0).getPoNumber());
-//            Long receiveId = Long.valueOf(createIbdHeader.getItems().get(0).getVendMat());
+            Integer orderOtherId = Integer.valueOf(createObdHeader.getOrderOtherId());
+            Long delivery = Long.valueOf(createObdHeader.getDeliveryId());
             Map<String,Object> params = new HashMap<String, Object>();
-//            params.put("order_id",orderOtherId);
-//            params.put("receive_code",receiveId.toString());
-            params.put("operation_code",sysLog.getLogId().toString());
+            params.put("picking_id",orderOtherId);
+            params.put("delivery_code",delivery.toString());
+            //params.put("operation_code",sysLog.getLogId().toString());
             //// TODO: 2016/12/23  当前时间 "2016-12-22"
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             String date = sdf.format(new Date());
-            params.put("receive_date",date);
+            params.put("delivery_date",date);
             List<HashMap<String,Object>> list = new ArrayList<HashMap<String, Object>>();
-//            for(CreateIbdDetail item : createIbdHeader.getItems()){
-//                HashMap<String,Object> map = new HashMap<String, Object>();
-//                map.put("product_code",item.getMaterial());
-//                map.put("qty_done",item.getDeliveQty().intValue());
-//                list.add(map);
-//            }
+            for(CreateObdDetail item : createObdHeader.getItems()){
+                HashMap<String,Object> map = new HashMap<String, Object>();
+                map.put("product_code",item.getMaterial());
+                map.put("qty_done",item.getDlvQty().intValue());
+                list.add(map);
+            }
             params.put("details",list);
             logger.info("~~~~~~~params : " + params + " ~~~~~~~~~~~");
             logger.info("~~~~~~~~~~~~~222222 db: "+ PropertyUtils.getString("odoo_db") + " odoo_uid :" + PropertyUtils.getString("odoo_uid") + " password :" + PropertyUtils.getString("odoo_password"));
             final Boolean ret1  = (Boolean)models.execute("execute_kw", Arrays.asList(
                     PropertyUtils.getString("odoo_db"), Integer.valueOf(PropertyUtils.getString("odoo_uid")), PropertyUtils.getString("odoo_password"),
-                    "purchase.order", "lsh_action_wms_receive",
+                    "stock.picking", "lsh_action_wms_delivery",
                     Arrays.asList(params)
             ));
             //// TODO: 16/9/19 传入的参数
