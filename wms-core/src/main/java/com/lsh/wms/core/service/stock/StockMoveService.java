@@ -262,7 +262,7 @@ public class StockMoveService {
             total = total.add(quant.getQty());
         }
         if (total.subtract(qty).floatValue() < 0) {
-            throw new BizCheckedException("2550008",stockQuants.get(0).getItemId(),stockQuants.get(0).getLocationId());
+            throw new BizCheckedException("2550008");
         }
         StockQuant quant = stockQuants.get(0);
         StockMove move = new StockMove();

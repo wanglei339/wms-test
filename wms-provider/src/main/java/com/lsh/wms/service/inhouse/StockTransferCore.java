@@ -289,7 +289,7 @@ public class StockTransferCore {
         TaskInfo taskInfo = taskEntry.getTaskInfo();
         if (taskInfo.getType().compareTo(TaskConstant.TYPE_PROCUREMENT) == 0) {
             if (quants == null || quants.size() == 0) {
-                throw new BizCheckedException("2550008",condition.getItemId(),condition.getLocationId());
+                throw new BizCheckedException("2550008");
             }
             StockQuant quant = quants.get(0);
             if (quant.getItemId().compareTo(taskInfo.getItemId()) != 0) {
@@ -322,7 +322,7 @@ public class StockTransferCore {
             }
             BigDecimal total = stockQuantRpcService.getQty(condition);
             if (total.compareTo(inboundUnitQty) < 0) {
-                throw new BizCheckedException("2550008",condition.getItemId(),condition.getLocationId());
+                throw new BizCheckedException("2550008");
             }
             StockMove move = new StockMove();
             ObjUtils.bean2bean(taskInfo, move);
