@@ -631,14 +631,14 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
          */
         List<StockQuant> quants = stockQuantService.getQuantList(condition);
         if(quants==null || quants.size()==0){
-            throw new BizCheckedException("2550008",itemId,fromLocation);
+            throw new BizCheckedException("2550008");
         }
         //获取存储位该商品库存量
         BigDecimal total = stockQuantService.getQty(condition);
         StockQuant quant = quants.get(0);
         if ( plan.getUomQty().multiply(quant.getPackUnit()).compareTo(total) > 0) {
             // 移库要求的数量超出实际库存数量
-            throw new BizCheckedException("2550008",quant.getItemId(),quant.getLocationId());
+            throw new BizCheckedException("2550008");
         }
 
         //验证完成后补充封装任务数据
