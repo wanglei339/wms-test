@@ -265,11 +265,11 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                         BigDecimal qty = quantService.getQty(mapQuery);
                         //去除小数
                         BigDecimal [] decimals = qty.divideAndRemainder(quant.getPackUnit());
+                        qty = qty.subtract(decimals[1]);
                         //不够一箱，不能补货
                         if(decimals[0].compareTo(BigDecimal.ZERO)==0){
                             continue;
                         }
-                        qty = qty.subtract(decimals[1]);
                         if (nowQuant.compareTo(maxQty) < 0) {
                             // 创建任务
                             nowQuant = nowQuant.add(qty);
@@ -444,6 +444,7 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                         BigDecimal qty = quantService.getQty(mapQuery);
                         //去除小数
                         BigDecimal [] decimals = qty.divideAndRemainder(quant.getPackUnit());
+                        qty = qty.subtract(decimals[1]);
                         //不够一箱，不能补货
                         if(decimals[0].compareTo(BigDecimal.ZERO)==0){
                             continue;

@@ -128,6 +128,9 @@ public class UserRestService implements IUserRestService {
                 return JsonUtils.TOKEN_ERROR("用户不存在");
             }
             RolePermission role =  rolePermissionRpcService.getRolePermissionById(Long.valueOf(user.getRole()));
+            if(role==null){
+                return JsonUtils.TOKEN_ERROR("该账号没有分配角色,请联系管理员分配");
+            }
             List<String> permissionList = JSON.parseArray(role.getPermission(), String.class);
             for(Map one:menuTmpList) {
                 for (String key : permissionMap.keySet()) {
