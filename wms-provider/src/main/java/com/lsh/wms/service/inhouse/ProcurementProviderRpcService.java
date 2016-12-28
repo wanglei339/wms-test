@@ -270,7 +270,6 @@ public class ProcurementProviderRpcService implements IProcurementProveiderRpcSe
                         if(decimals[0].compareTo(BigDecimal.ZERO)==0){
                             continue;
                         }
-                        qty = qty.subtract(decimals[1]);
                         if (nowQuant.compareTo(maxQty) < 0) {
                             // 创建任务
                             nowQuant = nowQuant.add(qty);
