@@ -113,7 +113,7 @@
   			<if test="allocUnitQty != null">alloc_unit_qty=#{allocUnitQty},</if>
   			<if test="locationId != null">location_id=#{locationId},</if>
   			<if test="containerId != null">container_id=#{containerId},</if>
-			<if test="realContainerId != null">real_container_id=#{containerId},</if>
+			<if test="realContainerId != null">real_container_id=#{realContainerId},</if>
 			<if test="operator != null">operator=#{operator},</if>
   			<if test="doneAt != null">done_at=#{doneAt},</if>
   			<if test="createdAt != null">created_at=#{createdAt},</if>
