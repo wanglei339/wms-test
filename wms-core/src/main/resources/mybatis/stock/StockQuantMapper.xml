@@ -218,6 +218,12 @@
 					( ${item.getLocationId()} &gt; location_id or location_id &gt; ${item.getRightRange()} )
 				</foreach>
 			</if>
+			<if test="includeLocationList != null">
+				and
+				<foreach collection="includeLocationList"  item="item" index="index" open="(" separator="or"  close=")">
+					( ${item.getLocationId()} <![CDATA[<= ]]>  location_id and location_id <![CDATA[<= ]]>  ${item.getRightRange()} )
+				</foreach>
+			</if>
 		</where>
 	</sql>
 

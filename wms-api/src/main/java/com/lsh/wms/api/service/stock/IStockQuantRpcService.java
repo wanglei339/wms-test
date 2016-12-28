@@ -30,4 +30,5 @@ public interface IStockQuantRpcService {
     List<StockQuant> getLocationStockList(Map<String, Object> mapQuery);
     List<StockMove> traceQuant(Long quantId);
     List<StockQuant> getItemLocationList(Map<String, Object> mapQuery);
+    List<StockQuant> getBackItemLocationList(Map<String, Object> mapQuery);
 }
