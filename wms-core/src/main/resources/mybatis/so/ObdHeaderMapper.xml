@@ -142,7 +142,7 @@
 			<if test="createdAtBefore != null">and created_at&lt;=#{createdAtBefore}</if>
 			<if test="updatedAt != null">and updated_at=#{updatedAt}</if>
 			<if test="supplierNo != null">and supplier_no=#{supplierNo}</if>
-			<if test="supplierNo != null">and is_closed=#{isClossed}</if>
+			<if test="isClosed != null">and is_closed=#{isClosed}</if>
 		</where>
 	</sql>
 
